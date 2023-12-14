@@ -195,6 +195,7 @@ export const LoginView = () => {
           {screen === 'changePassword' && (
             <ChangePasswordForm
               onSubmit={data => dispatch(changePassword(data))}
+              onRestartFlow={() => dispatch(restartPasswordResetFlow())}
               errorMessage={changePasswordError}
               success={changePasswordSuccess}
               email={resetPasswordEmail}

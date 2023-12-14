@@ -3,7 +3,16 @@ import * as yup from 'yup';
 import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
 import { FormGrid } from '../components/FormGrid';
-import { BodyText, Button, Field, Form, FormSubmitButton, TextField } from '../components';
+import {
+  BodyText,
+  Button,
+  Field,
+  Form,
+  FormSubmitButton,
+  TextButton,
+  TextField,
+  StyledPrimarySubmitButton,
+} from '../components';
 import { Colors } from '../constants';
 import ApprovedIcon from '../assets/images/approved.svg';
 
@@ -56,8 +65,28 @@ const HorizontalDivider = styled.div`
   border-bottom: 1px solid #dedede;
 `;
 
+const ResendCodeButton = styled(TextButton)`
+  font-size: 11px;
+  color: black;
+  font-weight: 400;
+
+  :hover {
+    color: ${Colors.primary};
+    font-weight: 500;
+    text-decoration: underline;
+  }
+`;
+
 export const ChangePasswordForm = React.memo(
-  ({ onSubmit, errorMessage, success, email, onNavToLogin, onNavToResetPassword }) => {
+  ({
+    onSubmit,
+    onRestartFlow,
+    errorMessage,
+    success,
+    email,
+    onNavToLogin,
+    onNavToResetPassword,
+  }) => {
     const renderForm = ({ setFieldValue }) => (
       <FormGrid columns={1}>
         <div>
@@ -101,6 +130,14 @@ export const ChangePasswordForm = React.memo(
             Back to login
           </BackToLoginButton>
         </ActionButtonContainer>
+        <ResendCodeButton
+          onClick={() => {
+            onRestartFlow();
+            onNavToResetPassword();
+          }}
+        >
+          Resend reset code
+        </ResendCodeButton>
       </FormGrid>
     );
 
