@@ -49,13 +49,13 @@ jobs:
           set -exu
           ver=$(jq -r .version package.json)
           mv dist tamanu-web-$ver
-          tar caf tamanu-web-$ver.tar.zst tamanu-web-$ver
+          zip tamanu-web-$ver.zip tamanu-web-$ver
 
       - name: Upload to artifact
         uses: actions/upload-artifact@v4
         with:
           name: web-package
-          path: packages/desktop/tamanu-web*.tar.zst*
+          path: packages/desktop/tamanu-web*.zip*
           retention-days: 14
           if-no-files-found: error
 
@@ -91,6 +91,6 @@ jobs:
           target: ${{ steps.destination.outputs.result }}
         run: |
           set -exu
-          for file in *.tar.zst*; do
+          for file in *.zip*; do
             aws s3 cp $file $target/$file --no-progress
           done
