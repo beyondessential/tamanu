@@ -127,7 +127,7 @@ patientProgramRegistration.get(
         programRegistryId,
       },
       include: PatientProgramRegistration.getListReferenceAssociations(),
-      order: [['clinicalStatusUpdatedAt', 'DESC']],
+      order: [['clinicalStatusUpdatedAt', 'DESC NULLS LAST']],
     });
 
     res.send({
