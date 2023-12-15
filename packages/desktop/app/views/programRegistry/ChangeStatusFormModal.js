@@ -34,7 +34,7 @@ export const ChangeStatusFormModal = ({ patientProgramRegistration, onClose, ope
   if (!patientProgramRegistration) return <></>;
 
   const changeStatus = async changedStatus => {
-    const { id, ...rest } = patientProgramRegistration;
+    const { id, date, ...rest } = patientProgramRegistration;
     await api.post(
       `patient/${encodeURIComponent(patientProgramRegistration.patientId)}/programRegistration`,
       { ...rest, ...changedStatus },
