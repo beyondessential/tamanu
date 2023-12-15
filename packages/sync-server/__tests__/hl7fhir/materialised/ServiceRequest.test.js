@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-expressions */
 
-import { addDays, formatRFC7231, isAfter } from 'date-fns';
+import { addDays, formatRFC7231 } from 'date-fns';
 
 import { fake } from '@tamanu/shared/test-helpers';
 import {
@@ -111,7 +111,6 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       // eslint-disable-next-line no-unused-expressions
       response.body?.orderDetail?.sort((a, b) => a.text.localeCompare(b.text));
       response.body?.identifier?.sort((a, b) => a.system.localeCompare(b.system));
-      response.body?.note?.sort((a, b) => (isAfter(new Date(a.time), new Date(b.time)) ? 1 : -1));
 
       // assert
       expect(response.body).toMatchObject({
