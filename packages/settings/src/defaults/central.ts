@@ -1,7 +1,4 @@
 export const centralDefaults = {
-  cors: {
-    allowedOrigin: '',
-  },
   countryTimeZone: 'Australia/Melbourne',
   disk: {
     diskPath: 'C:/',

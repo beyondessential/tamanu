@@ -7,8 +7,8 @@ import { entireResource } from './refresh/entireResource';
 import { fromUpstream } from './refresh/fromUpstream';
 import { resolver } from './resolver';
 
-export async function startFhirWorkerTasks({ store }) {
-  const worker = new FhirWorker(store, log);
+export async function startFhirWorkerTasks({ store, settings }) {
+  const worker = new FhirWorker(store, log, settings);
   await worker.start();
 
   worker.setHandler(JOB_TOPICS.FHIR.REFRESH.ALL_FROM_UPSTREAM, allFromUpstream);

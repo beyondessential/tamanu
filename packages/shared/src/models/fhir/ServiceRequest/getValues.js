@@ -19,16 +19,19 @@ import {
 } from '../../../services/fhirTypes';
 import { Exception, formatFhirDate } from '../../../utils/fhir';
 
-export async function getValues(upstream, models) {
+export async function getValues(upstream, models, settings) {
   const { ImagingRequest, LabRequest } = models;
 
-  if (upstream instanceof ImagingRequest) return getValuesFromImagingRequest(upstream, models);
-  if (upstream instanceof LabRequest) return getValuesFromLabRequest(upstream);
+  if (upstream instanceof ImagingRequest)
+    return getValuesFromImagingRequest(upstream, models, settings);
+  if (upstream instanceof LabRequest) return getValuesFromLabRequest(upstream, settings);
   throw new Error(`Invalid upstream type for service request ${upstream.constructor.name}`);
 }
 
-async function getValuesFromImagingRequest(upstream, models) {
+async function getValuesFromImagingRequest(upstream, models, settings) {
   const { ImagingAreaExternalCode } = models;
+
+  const dataDictionaries = await settings.get('hl7.dataDictionaries');
 
   const areaExtCodes = new Map(
     (
@@ -47,11 +50,11 @@ async function getValuesFromImagingRequest(upstream, models) {
     lastUpdated: new Date(),
     identifier: [
       new FhirIdentifier({
-        system: config.hl7.dataDictionaries.serviceRequestImagingId,
+        system: dataDictionaries.serviceRequestImagingId,
         value: upstream.id,
       }),
       new FhirIdentifier({
-        system: config.hl7.dataDictionaries.serviceRequestImagingDisplayId,
+        system: dataDictionaries.serviceRequestImagingDisplayId,
         value: upstream.displayId,
       }),
     ],
@@ -77,7 +80,7 @@ async function getValuesFromImagingRequest(upstream, models) {
               coding: [
                 new FhirCoding({
                   code: areaExtCodes.get(id)?.code,
-                  system: config.hl7.dataDictionaries.areaExternalCode,
+                  system: dataDictionaries.areaExternalCode,
                 }),
               ],
             }),
@@ -103,17 +106,18 @@ async function getValuesFromImagingRequest(upstream, models) {
   };
 }
 
-async function getValuesFromLabRequest(upstream) {
+async function getValuesFromLabRequest(upstream, settings) {
+  const dataDictionaries = await settings.get('hl7.dataDictionaries');
   return {
     lastUpdated: new Date(),
     contained: labContained(upstream),
     identifier: [
       new FhirIdentifier({
-        system: config.hl7.dataDictionaries.serviceRequestLabId,
+        system: dataDictionaries.serviceRequestLabId,
         value: upstream.id,
       }),
       new FhirIdentifier({
-        system: config.hl7.dataDictionaries.serviceRequestLabDisplayId,
+        system: dataDictionaries.serviceRequestLabDisplayId,
         value: upstream.displayId,
       }),
     ],

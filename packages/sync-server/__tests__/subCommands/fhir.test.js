@@ -22,9 +22,9 @@ describe('fhir sub commands', () => {
   beforeAll(async () => {
     ctx = await createTestContext();
     const { FhirEncounter, FhirServiceRequest } = ctx.store.models;
-    resources = await fakeResourcesOfFhirServiceRequest(ctx.store.models);
+    resources = await fakeResourcesOfFhirServiceRequest(ctx.store.models, ctx.settings);
 
-    await FhirEncounter.materialiseFromUpstream(resources.encounter.id);
+    await FhirEncounter.materialiseFromUpstream(resources.encounter.id, ctx.settings);
 
     imagingRequest = await fakeResourcesOfFhirServiceRequestWithImagingRequest(
       ctx.store.models,
@@ -35,8 +35,8 @@ describe('fhir sub commands', () => {
       await fakeResourcesOfFhirServiceRequestWithLabRequest(ctx.store.models, resources)
     ).labRequest;
 
-    await FhirServiceRequest.materialiseFromUpstream(imagingRequest.id);
-    await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+    await FhirServiceRequest.materialiseFromUpstream(imagingRequest.id, ctx.settings);
+    await FhirServiceRequest.materialiseFromUpstream(labRequest.id, ctx.settings);
     await FhirServiceRequest.resolveUpstreams();
 
     jest
