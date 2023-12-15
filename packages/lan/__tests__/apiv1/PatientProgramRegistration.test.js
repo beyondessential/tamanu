@@ -80,7 +80,7 @@ describe('PatientProgramRegistration', () => {
           programRegistryId: programRegistry3.id,
           registrationStatus: REGISTRATION_STATUSES.ACTIVE,
           patientId: patient.id,
-          date: undefined,
+          date: TEST_DATE_EARLY,
         }),
       );
       await models.PatientProgramRegistration.create(
@@ -88,7 +88,7 @@ describe('PatientProgramRegistration', () => {
           programRegistryId: programRegistry3.id,
           registrationStatus: REGISTRATION_STATUSES.RECORDED_IN_ERROR,
           patientId: patient.id,
-          date: undefined,
+          date: TEST_DATE_LATE,
         }),
       );
 
