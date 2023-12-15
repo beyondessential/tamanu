@@ -50,6 +50,7 @@ export const ExportReportView = () => {
       const result = await showSaveDialog({
         defaultPath: filename,
       });
+      throw new Error('TODO: not implemented');
       if (!result.canceled) {
         await fs.writeFile(result.filePath, Buffer.from(data));
         toast.success(
