@@ -70,9 +70,9 @@ jobs:
           cargo binstall -y --only-signed rsign2
           rsign sign -W \
             -s minisign.key \
-            -x 'tamanu-web-$ver.zip.sig' \
+            -x "tamanu-web-$ver.zip.sig" \
             -t "ts=$(date +%s) repo=${{ github.repository }} commit=${{ github.sha }} gharun=${{ github.run_id }}" \
-            'tamanu-web-$ver.zip'
+            "tamanu-web-$ver.zip"
           rm minisign.*
 
       - name: Upload to artifact
