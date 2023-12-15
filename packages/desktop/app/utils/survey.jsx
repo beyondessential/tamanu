@@ -19,7 +19,7 @@ import {
   ReadOnlyTextField,
   UnsupportedPhotoField,
   DateTimeField,
-} from 'desktop/app/components/Field';
+} from '../components/Field';
 import { joinNames } from './user';
 import { notifyError } from './utils';
 

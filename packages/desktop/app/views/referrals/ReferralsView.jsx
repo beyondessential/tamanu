@@ -3,24 +3,24 @@ import { useSelector, useDispatch } from 'react-redux';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { SURVEY_TYPES } from '@tamanu/constants';
 
-import { useApi } from 'desktop/app/api';
-import { reloadPatient } from 'desktop/app/store/patient';
-import { SurveyView } from 'desktop/app/views/programs/SurveyView';
-import { PatientListingView } from 'desktop/app/views';
-import { FormGrid } from 'desktop/app/components/FormGrid';
-import { usePatientAdditionalDataQuery } from 'desktop/app/api/queries';
-import { ErrorMessage } from 'desktop/app/components/ErrorMessage';
-import { LoadingIndicator } from 'desktop/app/components/LoadingIndicator';
-import { SurveySelector } from 'desktop/app/views/programs/SurveySelector';
+import { useApi } from '../../api';
+import { reloadPatient } from '../../store/patient';
+import { SurveyView } from '../../views/programs/SurveyView';
+import { PatientListingView } from '../../views';
+import { FormGrid } from '../../components/FormGrid';
+import { usePatientAdditionalDataQuery } from '../../api/queries';
+import { ErrorMessage } from '../../components/ErrorMessage';
+import { LoadingIndicator } from '../../components/LoadingIndicator';
+import { SurveySelector } from '../../views/programs/SurveySelector';
 import {
   ProgramsPane,
   ProgramsPaneHeader,
   ProgramsPaneHeading,
-} from 'desktop/app/views/programs/ProgramsPane';
-import { getCurrentUser } from 'desktop/app/store';
-import { getAnswersFromData, getActionsFromData } from 'desktop/app/utils';
-import { PATIENT_TABS } from 'desktop/app/constants/patientPaths';
-import { usePatientNavigation } from 'desktop/app/utils/usePatientNavigation';
+} from '../../views/programs/ProgramsPane';
+import { getCurrentUser } from '../../store';
+import { getAnswersFromData, getActionsFromData } from '../../utils';
+import { PATIENT_TABS } from '../../constants/patientPaths';
+import { usePatientNavigation } from '../../utils/usePatientNavigation';
 
 const ReferralFlow = ({ patient, currentUser }) => {
   const api = useApi();

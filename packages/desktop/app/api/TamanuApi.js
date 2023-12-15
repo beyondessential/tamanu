@@ -1,5 +1,4 @@
 import qs from 'qs';
-import { ipcRenderer } from 'electron';
 
 import { buildAbilityForUser } from '@tamanu/shared/permissions/buildAbility';
 import { VERSION_COMPATIBILITY_ERRORS, SERVER_TYPES } from '@tamanu/constants';
@@ -23,13 +22,12 @@ const getResponseJsonSafely = async response => {
 
 const getVersionIncompatibleMessage = (error, response) => {
   if (error.message === VERSION_COMPATIBILITY_ERRORS.LOW) {
-    const minAppVersion = response.headers.get('X-Min-Client-Version');
-    return `Please upgrade to Tamanu Desktop v${minAppVersion} or higher. Try closing and reopening, or contact your system administrator.`;
+    return 'Tamanu is out of date, reload to get the new version! If that does not work, contact your system administrator.';
   }
 
   if (error.message === VERSION_COMPATIBILITY_ERRORS.HIGH) {
-    const maxAppVersion = response.headers.get('X-Max-Client-Version');
-    return `The Tamanu LAN Server only supports up to v${maxAppVersion}, and needs to be upgraded. Please contact your system administrator.`;
+    const maxAppVersion = response.headers.get('X-Max-Client-Version').split('.', 3).slice(0, 2).join('.');
+    return `The Tamanu Facility Server only supports up to v${maxAppVersion}, and needs to be upgraded. Please contact your system administrator.`;
   }
 
   return null;
@@ -45,7 +43,7 @@ const fetchOrThrowIfUnavailable = async (url, config) => {
     // apply more helpful message if the server is not available
     if (e.message === 'Failed to fetch') {
       throw new Error(
-        'The LAN Server is unavailable. Please check with your system administrator that the address is set correctly, and that it is running',
+        'The Facility Server is unavailable. Please contact your system administrator.',
       );
     }
     throw e; // some other unhandled error
@@ -228,6 +226,8 @@ export class TamanuApi {
 
     const { error } = await getResponseJsonSafely(response);
 
+    // TODO: handle server gone errors (502 through 504)
+
     // handle forbidden error and trigger catch all modal
     if (response.status === 403 && error) {
       throw new ForbiddenError(error?.message);
@@ -245,12 +245,6 @@ export class TamanuApi {
     if (response.status === 400 && error) {
       const versionIncompatibleMessage = getVersionIncompatibleMessage(error, response);
       if (versionIncompatibleMessage) {
-        if (error.message === VERSION_COMPATIBILITY_ERRORS.LOW) {
-          // If detect that desktop version is lower than facility server version,
-          // communicate with main process to initiate the auto upgrade
-          ipcRenderer.invoke('update-available', this.host);
-        }
-
         if (this.onVersionIncompatible) {
           this.onVersionIncompatible(versionIncompatibleMessage);
         }
