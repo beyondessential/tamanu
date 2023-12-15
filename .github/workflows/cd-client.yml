@@ -21,7 +21,7 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    name: Build desktop client
+    name: Build web package
     steps:
       - uses: actions/checkout@v4
         with:
