@@ -254,6 +254,7 @@ export class Form extends React.PureComponent {
       validateOnChange,
       validateOnBlur,
       initialValues,
+      showErrorDialog = true,
       ...props
     } = this.props;
     const { validationErrors } = this.state;
@@ -279,13 +280,15 @@ export class Form extends React.PureComponent {
           {...props}
           render={this.renderFormContents}
         />
-        <Dialog
-          isVisible={displayErrorDialog}
-          onClose={this.hideErrorDialog}
-          headerTitle="Please fix below errors to continue"
-          disableDevWarning
-          contentText={<FormErrors errors={validationErrors} />}
-        />
+        {showErrorDialog && (
+          <Dialog
+            isVisible={displayErrorDialog}
+            onClose={this.hideErrorDialog}
+            headerTitle="Please fix below errors to continue"
+            disableDevWarning
+            contentText={<FormErrors errors={validationErrors} />}
+          />
+        )}
       </>
     );
   }

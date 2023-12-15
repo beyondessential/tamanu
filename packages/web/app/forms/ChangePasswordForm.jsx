@@ -184,6 +184,7 @@ export const ChangePasswordForm = React.memo(
             .oneOf([yup.ref('newPassword'), null], `Passwords don't match`)
             .required('*Required'),
         })}
+        showErrorDialog={false}
       />
     );
   },
