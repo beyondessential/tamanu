@@ -77,6 +77,13 @@ const ResendCodeButton = styled(TextButton)`
   }
 `;
 
+const StyledField = styled(Field)`
+  .MuiFormHelperText-root {
+    position: absolute;
+    bottom: -20px;
+  }
+`;
+
 export const ChangePasswordForm = React.memo(
   ({
     onSubmit,
@@ -98,7 +105,7 @@ export const ChangePasswordForm = React.memo(
           <ErrorText $isError={!!errorMessage}>{errorMessage}</ErrorText>
         </div>
         <FieldContainer>
-          <Field
+          <StyledField
             name="token"
             type="text"
             label="Reset Code"
@@ -107,7 +114,7 @@ export const ChangePasswordForm = React.memo(
             placeholder="Reset code"
           />
           <HorizontalDivider />
-          <Field
+          <StyledField
             name="newPassword"
             type="password"
             label="New password"
@@ -115,7 +122,7 @@ export const ChangePasswordForm = React.memo(
             component={TextField}
             placeholder="New password"
           />
-          <Field
+          <StyledField
             name="confirmNewPassword"
             type="password"
             label="Confirm new password"
@@ -125,7 +132,7 @@ export const ChangePasswordForm = React.memo(
           />
         </FieldContainer>
         <ActionButtonContainer>
-          <ChangePasswordButton type="submit">Change Password</ChangePasswordButton>
+          <ChangePasswordButton type="submit">Reset Password</ChangePasswordButton>
           <BackToLoginButton onClick={onNavToLogin} variant="outlined">
             Back to login
           </BackToLoginButton>
@@ -166,11 +173,16 @@ export const ChangePasswordForm = React.memo(
           email,
         }}
         validationSchema={yup.object().shape({
-          token: yup.string().required(),
+          token: yup.string().required('*Required'),
           newPassword: yup
             .string()
             .min(5, 'Must be at least 5 characters')
-            .required(),
+            .oneOf([yup.ref('confirmNewPassword'), null], `Passwords don't match`)
+            .required('*Required'),
+          confirmNewPassword: yup
+            .string()
+            .oneOf([yup.ref('newPassword'), null], `Passwords don't match`)
+            .required('*Required'),
         })}
       />
     );
