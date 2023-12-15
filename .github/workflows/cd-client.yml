@@ -24,10 +24,6 @@ jobs:
     name: Build web package
     steps:
       - uses: actions/checkout@v4
-        with:
-          # in PRs, use the actual PR branch, not the merge branch
-          ref: ${{ github.event.pull_request.head.ref || github.ref }}
-
       - uses: actions/setup-node@v3
         with:
           node-version: 20.x
