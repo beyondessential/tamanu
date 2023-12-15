@@ -1,0 +1,120 @@
+name: CD Web Package
+
+on:
+  workflow_dispatch:
+  workflow_call:
+  pull_request:
+  push:
+    branches:
+      - main
+      - release/*
+    tags:
+      - v*.*.*
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  id-token: write # OIDC token for AWS
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Build web package
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20.x
+          cache: yarn
+      - run: yarn
+      - run: yarn build-shared
+      - run: yarn workspace desktop build
+
+      - name: Pre-compress assets
+        working-directory: packages/desktop/dist/assets
+        shell: bash
+        run: |
+          set -exu
+          for file in *.{css,js,svg}; do
+            zstd -f -T0 -19 -o $file.zst $file
+            gzip -f -9 -k $file
+            brotli -f -Z -k $file
+          done
+
+      - name: Pack web package
+        working-directory: packages/desktop
+        run: |
+          set -exu
+          ver=$(jq -r .version package.json)
+          mv resources dist/resources
+          mv dist tamanu-web-$ver
+          zip -r -0 tamanu-web-$ver.zip tamanu-web-$ver
+
+      - uses: cargo-bins/cargo-binstall@main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Sign build
+        shell: bash
+        working-directory: packages/desktop
+        env:
+          MINISIGN_KEY: ${{ secrets.SIGNING_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+          echo "$MINISIGN_KEY" > minisign.key
+          set -x
+          ver=$(jq -r .version package.json)
+          cargo binstall -y --only-signed rsign2
+          rsign sign -W \
+            -s minisign.key \
+            -x "tamanu-web-$ver.zip.sig" \
+            -t "ts=$(date +%s) repo=${{ github.repository }} commit=${{ github.sha }} gharun=${{ github.run_id }}" \
+            "tamanu-web-$ver.zip"
+          rm minisign.*
+
+      - name: Upload to artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-package
+          path: packages/desktop/tamanu-web*.zip*
+          retention-days: 14
+          if-no-files-found: error
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-region: ap-southeast-2
+          role-to-assume: arn:aws:iam::143295493206:role/gha-desktop-s3
+          role-session-name: GHA@Tamanu=WebPackage
+          mask-aws-account-id: false
+
+      - name: Set S3 destination
+        id: destination
+        uses: actions/github-script@v7
+        with:
+          result-encoding: string
+          script: |
+            const base = 's3://bes-tamanu-desktop-servers';
+            if (context.ref == 'refs/heads/main') {
+              return `${base}/main/`;
+            } else if (context.ref.startsWith('refs/tags/v')) {
+              return `${base}/${context.ref.replace('refs/tags/', '')}/`;
+            } else if (context.ref.startsWith('refs/heads/release/')) {
+              return `${base}/${context.ref.replace('refs/tags/', '')}-rc/`;
+            } else {
+              return 'nowhere';
+            }
+
+      - name: Push to S3
+        if: steps.destination.outputs.result != 'nowhere'
+        working-directory: packages/desktop
+        env:
+          target: ${{ steps.destination.outputs.result }}
+        run: |
+          set -exu
+          for file in *.zip*; do
+            aws s3 cp $file $target/$file --no-progress
+          done
