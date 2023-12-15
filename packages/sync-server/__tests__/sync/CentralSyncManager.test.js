@@ -1036,17 +1036,13 @@ describe('CentralSyncManager', () => {
         });
 
         it('syncs the configured vaccine encounters when it is enabled and client is mobile', async () => {
-          // Create the vaccines to be tested
-          const {
-            CentralSyncManager: TestCentralSyncManager,
-          } = require('../../app/sync/CentralSyncManager');
-
-          // Turn on syncAllEncountersForTheseVaccines config
-          TestCentralSyncManager.overrideConfig({
-            sync: { syncAllEncountersForTheseVaccines: ['drug-COVAX', 'drug-COVID-19-Pfizer'] },
+          await models.Setting.create({
+            key: 'sync.syncAllEncountersForTheseVaccines',
+            scope: SETTINGS_SCOPES.CENTRAL,
+            value: ['drug-COVAX', 'drug-COVID-19-Pfizer'],
           });
 
-          const centralSyncManager = new TestCentralSyncManager(ctx);
+          const centralSyncManager = initializeCentralSyncManager();
 
           const { sessionId } = await centralSyncManager.startSession();
           await waitForSession(centralSyncManager, sessionId);
@@ -1070,16 +1066,18 @@ describe('CentralSyncManager', () => {
         });
 
         it('does not sync any vaccine encounters when it is disabled and client is mobile', async () => {
-          const {
-            CentralSyncManager: TestCentralSyncManager,
-          } = require('../../app/sync/CentralSyncManager');
+          await models.Setting.update(
+            {
+              value: [],
+            },
+            {
+              where: {
+                key: 'sync.syncAllEncountersForTheseVaccines',
+              },
+            },
+          );
 
-          // Turn off syncAllEncountersForTheseVaccines config
-          TestCentralSyncManager.overrideConfig({
-            sync: { syncAllEncountersForTheseVaccines: [] },
-          });
-
-          const centralSyncManager = new TestCentralSyncManager(ctx);
+          const centralSyncManager = initializeCentralSyncManager();
 
           await models.PatientFacility.create({
             id: models.PatientFacility.generateId(),
