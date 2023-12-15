@@ -26,9 +26,9 @@ const AppContentsContainer = styled.div`
 export function App({ sidebar, children }) {
   const isUserLoggedIn = useSelector(checkIsLoggedIn);
   const currentRoute = useSelector(getCurrentRoute);
-  const doRender = window.localStorage.getItem('renderTab') === '1';
+  const isPrimaryTab = window.localStorage.getItem('renderTab') === '1';
 
-  if (!doRender) {
+  if (!isPrimaryTab) {
     return <MultiTabView />;
   }
 
