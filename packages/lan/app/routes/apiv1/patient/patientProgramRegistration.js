@@ -129,7 +129,7 @@ patientProgramRegistration.get(
         clinicalStatusUpdatedAt: { [Op.ne]: null },
       },
       include: PatientProgramRegistration.getListReferenceAssociations(),
-      order: [['clinicalStatusUpdatedAt', 'DESC']],
+      order: [['clinicalStatusUpdatedAt', 'DESC NULLS LAST']],
     });
 
     res.send({
