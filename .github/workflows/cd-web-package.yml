@@ -35,9 +35,10 @@ jobs:
 
       - name: Pre-compress assets
         working-directory: packages/desktop
+        shell: bash
         run: |
           set -exu
-          for file in $(find . -iregex '.+[.](css|html|js|svg)$'); do
+          for file in **/*.{css,html,js,svg}; do
             zstd -f -T0 -19 -o $file.zst $file
             gzip -f -9 -k $file
             brotli -f -Z -k $file
