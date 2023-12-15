@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import tamanuLogo from '../assets/images/tamanu_logo.svg';
 import tamanuLogoWhite from '../assets/images/tamanu_logo_white.svg';
 import tamanuLogoWhiteNoText from '../assets/images/tamanu_logo_white_no_text.svg';
+import tamanuLogoHorizontal from '../assets/images/tamanu_logo_horizontal.svg';
 
 const LogoImage = styled.img`
   display: inline-block;
@@ -19,4 +20,8 @@ export const TamanuLogoWhite = ({ size, height, className }) => (
 
 export const TamanuLogoWhiteNoText = ({ size, height, className }) => (
   <LogoImage src={tamanuLogoWhiteNoText} size={size} height={height} className={className} />
+);
+
+export const TamanuLogoHorizontal = ({ size, height, className }) => (
+  <LogoImage src={tamanuLogoHorizontal} size={size} height={height} className={className} />
 );
