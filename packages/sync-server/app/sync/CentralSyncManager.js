@@ -298,6 +298,7 @@ export class CentralSyncManager {
             sessionId,
             facilityId,
             {}, // sending empty session config because this snapshot attempt is only for syncing new marked for sync patients
+            this.settings,
           );
 
           // get changes since the last successful sync for all other synced patients and independent
