@@ -9,6 +9,7 @@ import { LoginView } from './views';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { PromiseErrorBoundary } from './components/PromiseErrorBoundary';
 import { ForbiddenErrorModal } from './components/ForbiddenErrorModal';
+import { MultiTabView } from './views/MultiTabView';
 
 const AppContainer = styled.div`
   display: flex;
@@ -28,12 +29,7 @@ export function App({ sidebar, children }) {
   const doRender = window.localStorage.getItem('renderTab') === '1';
 
   if (!doRender) {
-    return (
-      <p>
-        Tamanu is currently designed to only work with one tab open. Please close any other tabs and
-        refresh the page.
-      </p>
-    );
+    return <MultiTabView />;
   }
 
   window.localStorage.removeItem('renderTab');
