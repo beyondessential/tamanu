@@ -674,6 +674,7 @@ describe('snapshotOutgoingChanges', () => {
           ...simplestSessionConfig,
           syncAllEncountersForTheseVaccines: [],
         },
+        ctx.settings,
       );
 
       const outgoingSnapshotRecords = await findSyncSnapshotRecords(
