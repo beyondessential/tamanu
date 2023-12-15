@@ -7,8 +7,8 @@
   "repository": "git@github.com:beyondessential/tamanu.git",
   "author": "Beyond Essential Systems Pty. Ltd.",
   "license": "SEE LICENSE IN license",
-  "main": "NODE_ENV='development' index.js",
-  "bin": "dist/app.bundle.js",
+  "main": "dist/index.js",
+  "bin": "dist/index.js",
   "pkg": {
     "assets": [
       "config",

@@ -13,7 +13,6 @@ import { IMAGING_REQUEST_STATUS_OPTIONS } from '../../../constants';
 import { ENCOUNTER_TAB_NAMES } from '../../../constants/encounterTabNames';
 
 import { useLocalisation } from '../../../contexts/Localisation';
-import { useElectron } from '../../../contexts/Electron';
 import { useApi, useSuggester } from '../../../api';
 
 import { Button, FormSubmitButton } from '../../../components/Button';
@@ -154,7 +153,8 @@ const NewResultSection = ({ disabled = false }) => {
 const ImagingResultRow = ({ result }) => {
   const { externalUrl, completedAt, completedBy, description } = result;
 
-  const { openUrl } = useElectron();
+  // const { openUrl } = useElectron(); // TODO(web)
+  function openUrl(url) { window.open(url, '_blank'); }
   const onOpenUrl = useCallback(() => openUrl(externalUrl), [openUrl, externalUrl]);
 
   return (

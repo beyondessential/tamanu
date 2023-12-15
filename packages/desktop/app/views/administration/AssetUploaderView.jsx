@@ -3,7 +3,6 @@ import * as yup from 'yup';
 
 import { ASSET_NAMES } from '@tamanu/constants/importable';
 import { useApi } from '../../api';
-import { useElectron } from '../../contexts/Electron';
 import { Form, Field, SelectField } from '../../components/Field';
 import { FileChooserField, FILTER_IMAGES } from '../../components/Field/FileChooserField';
 import { ContentPane } from '../../components/ContentPane';
@@ -33,14 +32,14 @@ export const AssetUploaderView = memo(() => {
   const nameOptions = Object.values(ASSET_NAMES).map(v => ({ label: v, value: v }));
 
   const api = useApi();
-  const { readFile } = useElectron();
+  // const { readFile } = useElectron(); // TODO(web)
 
   const onSubmitUpload = useCallback(
     async ({ filename, name }) => {
       setResult(null);
 
       try {
-        const contents = await readFile(filename);
+        const contents = new Blob; // await readFile(filename); // TODO(web)
         const data = contents.toString('base64');
 
         const response = await api.put(`admin/asset/${name}`, {

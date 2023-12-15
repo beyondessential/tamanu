@@ -1,5 +1,4 @@
 import React from 'react';
-import { promises as fs } from 'fs';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import { toast } from 'react-toastify';
@@ -7,7 +6,6 @@ import { REPORT_VERSION_EXPORT_FORMATS } from '@tamanu/constants/reports';
 import { Field, Form, FormGrid, OutlinedButton, RadioField } from '../../../components';
 import { useApi } from '../../../api';
 import { ReportSelectField, VersionSelectField } from './ReportsSelectFields';
-import { useElectron } from '../../../contexts/Electron';
 import { Colors } from '../../../constants';
 
 const StyledButton = styled(OutlinedButton)`
@@ -40,7 +38,7 @@ const SuccessMessage = ({ onClick, filePath }) => (
 
 export const ExportReportView = () => {
   const api = useApi();
-  const { showItemInFolder, showSaveDialog } = useElectron();
+  // const { showItemInFolder, showSaveDialog } = useElectron(); // TODO(web)
 
   const handleSubmit = async ({ reportId, versionId, format }) => {
     try {
@@ -50,6 +48,7 @@ export const ExportReportView = () => {
       const result = await showSaveDialog({
         defaultPath: filename,
       });
+      throw new Error('TODO: not implemented');
       if (!result.canceled) {
         await fs.writeFile(result.filePath, Buffer.from(data));
         toast.success(
