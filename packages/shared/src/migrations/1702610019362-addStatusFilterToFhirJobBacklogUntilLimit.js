@@ -1,5 +1,3 @@
-import { DataTypes } from 'sequelize';
-
 export async function up(query) {
   await query.sequelize.query(`
     CREATE OR REPLACE FUNCTION fhir.job_backlog_until_limit(
