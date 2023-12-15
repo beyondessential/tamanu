@@ -42,7 +42,7 @@ async function report(options) {
   }
 
   const store = await initDatabase({ testMode: false });
-  const settings = new ReadSettings(store.models)
+  const settings = new ReadSettings(store.models);
   const reportSchemaStores = config.db.reportSchemas?.enabled ? await initReporting() : null;
   setupEnv();
   try {
