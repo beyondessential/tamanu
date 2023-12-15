@@ -51,11 +51,11 @@ jobs:
           tar caf tamanu-web-$ver.tar.zst tamanu-web-$ver
 
       - name: Upload to artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: web-package
           path: packages/desktop/tamanu-web*.tar.zst*
-          retention-days: 1
+          retention-days: 14
           if-no-files-found: error
 
       - name: Configure AWS Credentials
