@@ -1,4 +1,4 @@
-import { snakeCase } from 'lodash';
+import { isFunction, snakeCase } from 'lodash';
 import Chance from 'chance';
 import { DataTypes } from 'sequelize';
 import { inspect } from 'util';
@@ -497,7 +497,7 @@ export const fake = (model, passedOverrides = {}) => {
   const overrideFields = Object.keys(overrides);
 
   function fakeField(name, attribute) {
-    const { type, fieldName } = attribute;
+    const { type, fieldName, defaultValue } = attribute;
 
     if (overrideFields.includes(fieldName)) {
       return overrides[fieldName];
@@ -526,6 +526,8 @@ export const fake = (model, passedOverrides = {}) => {
         .fill(0)
         .map(() => fakeField(name, { ...attribute, type: type.type }));
     }
+
+    if (defaultValue) return isFunction(defaultValue) ? defaultValue() : defaultValue;
 
     if (FIELD_HANDLERS[type]) {
       return FIELD_HANDLERS[type](model, attribute, id);
