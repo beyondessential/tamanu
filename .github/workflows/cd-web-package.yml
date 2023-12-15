@@ -49,6 +49,7 @@ jobs:
         run: |
           set -exu
           ver=$(jq -r .version package.json)
+          mv resources dist/resources
           mv dist tamanu-web-$ver
           zip -r -0 tamanu-web-$ver.zip tamanu-web-$ver
 
