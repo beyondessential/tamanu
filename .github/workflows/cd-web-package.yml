@@ -69,17 +69,17 @@ jobs:
 
       - name: Set S3 destination
         id: destination
-        uses: actions/github-script@v4
+        uses: actions/github-script@v7
         with:
           result-encoding: string
           script: |
             const base = 's3://bes-tamanu-desktop-servers';
-            if (github.ref == 'refs/heads/main') {
+            if (context.ref == 'refs/heads/main') {
               return `${base}/main/`;
-            } else if (github.ref.startsWith('refs/tags/v')) {
-              return `${base}/${github.ref.replace('refs/tags/', '')}/`;
-            } else if (github.ref.startsWith('refs/heads/release/')) {
-              return `${base}/${github.ref.replace('refs/tags/', '')}-rc/`;
+            } else if (context.ref.startsWith('refs/tags/v')) {
+              return `${base}/${context.ref.replace('refs/tags/', '')}/`;
+            } else if (context.ref.startsWith('refs/heads/release/')) {
+              return `${base}/${context.ref.replace('refs/tags/', '')}-rc/`;
             } else {
               return 'nowhere';
             }
