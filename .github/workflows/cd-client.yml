@@ -17,6 +17,7 @@ concurrency:
 
 permissions:
   id-token: write # OIDC token for AWS
+  contents: read
 
 jobs:
   build:
