@@ -227,7 +227,7 @@ export const getPatientDetailsValidation = (patientRegistryType, sexValues, getL
   const validatedProperties = Object.keys(patientDetailsValidationSchema.describe().fields);
   const localisedFields = getLocalisation('fields');
   const localisedPatientFields = Object.keys(localisedFields).filter(fieldName =>
-    localisedFields[fieldName].hasOwnProperty('requiredPatientData'),
+    Object.prototype.hasOwnProperty.call(localisedFields[fieldName], 'requiredPatientData'),
   );
 
   // Validate if any localised patient fields are missing schema validation,

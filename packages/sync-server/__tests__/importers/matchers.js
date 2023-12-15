@@ -3,7 +3,7 @@ import { ValidationError, ForeignkeyResolutionError } from '../../app/admin/erro
 function toContainError(errors, { ofType, inSheet, atRow, withMessage }) {
   const suffix = `on ${inSheet} at row ${atRow}`;
   const matchingErrors = errors.filter(err => {
-      if (!err instanceof ofType) return false;
+      if (!(err instanceof ofType)) return false;
       if (!err.message.endsWith(suffix)) return false;
       if (!err.message.includes(withMessage)) return false;
       return true;

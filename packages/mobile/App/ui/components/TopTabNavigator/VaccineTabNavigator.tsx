@@ -104,7 +104,7 @@ const renderTabBar = (props: TabBarProps): JSX.Element => (
   <CustomTabBar {...props} />
 );
 
-interface VaccineTabNavigator {
+interface VaccineTabNavigatorProps {
   state: any;
   scenes: {
     [key: string]: ComponentType<SceneRendererProps & { route: CustomRoute }>;
@@ -119,7 +119,7 @@ const TabViewStyle = StyleSheet.create({
 });
 
 export const VaccineTabNavigator = React.memo(
-  ({ state, scenes, onChangeTab }: VaccineTabNavigator): JSX.Element => (
+  ({ state, scenes, onChangeTab }: VaccineTabNavigatorProps): JSX.Element => (
     <TabView
       navigationState={state}
       renderScene={SceneMap(scenes)}

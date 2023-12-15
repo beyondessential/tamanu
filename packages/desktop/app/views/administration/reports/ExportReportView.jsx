@@ -42,6 +42,8 @@ export const ExportReportView = () => {
 
   const handleSubmit = async ({ reportId, versionId, format }) => {
     try {
+      throw new Error('TODO: not implemented');
+      /*
       const { filename, data } = await api.get(
         `admin/reports/${reportId}/versions/${versionId}/export/${format}`,
       );
@@ -61,6 +63,7 @@ export const ExportReportView = () => {
           },
         );
       }
+      */
     } catch (err) {
       toast.error(`Failed to export: ${err.message}`);
     }

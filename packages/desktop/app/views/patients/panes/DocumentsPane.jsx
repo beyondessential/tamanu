@@ -54,9 +54,10 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
         const fullFilePath = fileExtension ? `${path.filePath}.${fileExtension}` : path.filePath;
 
         // Create file and open it
-        await writeFile(fullFilePath, data, { encoding: 'base64' });
-        notifySuccess(`Successfully downloaded file at: ${fullFilePath}`);
-        openPath(fullFilePath);
+        throw new Error('TODO(web): not implemented');
+        // await writeFile(fullFilePath, data, { encoding: 'base64' });
+        // notifySuccess(`Successfully downloaded file at: ${fullFilePath}`);
+        // openPath(fullFilePath);
       } catch (error) {
         notifyError(error.message);
       }

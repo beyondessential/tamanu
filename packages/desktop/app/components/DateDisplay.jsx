@@ -1,4 +1,3 @@
-/* global globalThis */
 import React, { useState } from 'react';
 import { format } from 'date-fns';
 import { parseDate } from '@tamanu/shared/utils/dateTime';

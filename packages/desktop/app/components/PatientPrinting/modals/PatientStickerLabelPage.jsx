@@ -61,7 +61,7 @@ const LabelPage = styled.div`
 export const PatientStickerLabelPage = ({ patient }) => {
   const { getLocalisation } = useLocalisation();
   const measures = getLocalisation('printMeasures.stickerLabelPage');
-  // useEffect(() => {
+  // useEffect(() => { // TODO(web)
   //   printPage();
   // }, [printPage]);
 

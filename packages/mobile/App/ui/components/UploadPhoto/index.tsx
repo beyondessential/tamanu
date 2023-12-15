@@ -24,7 +24,7 @@ interface UploadedImageProps {
   imageData: string;
 }
 
-interface UploadPhotoComponent {
+interface UploadPhotoComponentProps {
   onPressChoosePhoto: Function;
   onPressRemovePhoto: Function;
   imageData: string;
@@ -61,7 +61,7 @@ const UploadPhotoComponent = ({
   imageData,
   errorMessage,
   loading,
-}: UploadPhotoComponent) => (
+}: UploadPhotoComponentProps) => (
   <StyledView marginTop={5}>
     {loading && <LoadingPlaceholder />}
     {imageData && <UploadedImage imageData={imageData} />}

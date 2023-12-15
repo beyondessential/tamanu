@@ -131,22 +131,23 @@ const PatientPhoto = ({ imageData }) => (
 );
 
 export const PatientIDCardPage = ({ patient, imageData }) => {
-  // const { printPage } = useElectron();
+  // const { printPage } = useElectron(); TODO(web)
   const { getLocalisation } = useLocalisation();
   const measures = getLocalisation('printMeasures.idCardPage');
-  // useEffect(() => {
-  //   printPage({
-  //     landscape: true,
-  //     margins: {
-  //       marginType: 'none',
-  //     },
-  //     pageSize: {
-  //       // it expects dimensions in microns
-  //       height: cardDimensions.width * 1000,
-  //       width: cardDimensions.height * 1000,
-  //     },
-  //   });
-  // }, [printPage]);
+  useEffect(() => {
+    window.print({
+      // TODO(web)
+      landscape: true,
+      margins: {
+        marginType: 'none',
+      },
+      pageSize: {
+        // it expects dimensions in microns
+        height: cardDimensions.width * 1000,
+        width: cardDimensions.height * 1000,
+      },
+    });
+  });
 
   return (
     <PrintPortal>

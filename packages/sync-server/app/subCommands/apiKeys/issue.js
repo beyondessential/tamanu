@@ -12,7 +12,7 @@ const keyTypeToSecret = {
 
 export const genToken = async (keyType, email, { expiresIn }) => {
   // find secret
-  if (keyType && !keyTypeToSecret.hasOwnProperty(keyType)) {
+  if (keyType && !Object.prototype.hasOwnProperty.call(keyTypeToSecret, keyType)) {
     throw new Error('Unknown keyType');
   }
   const secret = keyTypeToSecret[keyType];

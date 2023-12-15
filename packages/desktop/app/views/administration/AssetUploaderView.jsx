@@ -56,7 +56,7 @@ export const AssetUploaderView = memo(() => {
         });
       }
     },
-    [api, readFile, setResult, setResetKey],
+    [api, setResult, setResetKey],
   );
 
   return (

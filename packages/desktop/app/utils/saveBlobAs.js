@@ -1,5 +1,6 @@
 export async function saveBlobAs(blob, { extensions, defaultFileName } = {}) {
-  return; // TODO(web)
+  // TODO(web)
+  /*
   const path = await showFileDialog([{ extensions }], defaultFileName);
   if (!path) {
     // user cancelled
@@ -9,4 +10,5 @@ export async function saveBlobAs(blob, { extensions, defaultFileName } = {}) {
   const buffer = Buffer.from(await blob.arrayBuffer());
   fs.writeFileSync(path, buffer);
   return path;
+  */
 }
