@@ -51,7 +51,8 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
     const existingConditionIds = registrationConditions.data.map(
       condition => condition.programRegistryConditionId,
     );
-    const incomingConditionIds = data.conditionIds ? JSON.parse(data.conditionIds) : [];
+    const incomingConditionIds =
+      typeof data.conditionIds === 'string' ? JSON.parse(data.conditionIds) : data.conditionIds;
 
     // Identify conditions to remove and their corresponding objects
     const conditionsToRemove = difference(existingConditionIds, incomingConditionIds);
