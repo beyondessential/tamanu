@@ -9,7 +9,8 @@ import { LoginView } from './views';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { PromiseErrorBoundary } from './components/PromiseErrorBoundary';
 import { ForbiddenErrorModal } from './components/ForbiddenErrorModal';
-import { MultiTabView } from './views/MultiTabView';
+import { MultiTabErrorScreen } from './singleTab/MultiTabErrorScreen';
+import { isPrimaryTab } from './singleTab/singleTab';
 
 const AppContainer = styled.div`
   display: flex;
@@ -26,13 +27,10 @@ const AppContentsContainer = styled.div`
 export function App({ sidebar, children }) {
   const isUserLoggedIn = useSelector(checkIsLoggedIn);
   const currentRoute = useSelector(getCurrentRoute);
-  const isPrimaryTab = window.localStorage.getItem('renderTab') === '1';
 
-  if (!isPrimaryTab) {
-    return <MultiTabView />;
+  if (!isPrimaryTab()) {
+    return <MultiTabErrorScreen />;
   }
-
-  window.localStorage.removeItem('renderTab');
 
   if (!isUserLoggedIn) {
     return <LoginView />;

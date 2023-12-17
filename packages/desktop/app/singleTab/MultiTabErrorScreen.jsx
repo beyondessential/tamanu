@@ -26,7 +26,7 @@ const TextContainer = styled.div`
   text-align: center;
 `;
 
-export const MultiTabView = () => {
+export const MultiTabErrorScreen = () => {
   return (
     <>
       <Body>
