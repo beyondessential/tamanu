@@ -108,7 +108,7 @@ export const ChangePasswordForm = React.memo(
           <StyledField
             name="token"
             type="text"
-            label="Reset Code"
+            label="Reset code"
             required
             component={TextField}
             placeholder="Reset code"
