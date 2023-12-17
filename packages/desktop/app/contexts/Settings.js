@@ -1,8 +1,6 @@
-import React, { useState, useContext, useEffect } from 'react';
-import { useSelector } from 'react-redux';
+import React, { useState, useContext } from 'react';
 import { get } from 'lodash';
-
-const overrides = {}; // add keys to this object to help with development
+import { useApi } from '../api';
 
 const SettingsContext = React.createContext({
   getSetting: () => {},
@@ -12,16 +10,20 @@ const SettingsContext = React.createContext({
 export const useSettings = () => useContext(SettingsContext);
 
 export const SettingsProvider = ({ children }) => {
+  const api = useApi();
   const [settings, setSettings] = useState({});
 
-//   useEffect(() => {
-//     setSettings({ ...reduxLocalisation, ...overrides });
-//   }, [reduxLocalisation]);
+  const fetchSettings = async () => {
+    const settingsObject = await api.get('settings');
+    console.log('settingsObject', settingsObject);
+    setSettings(settingsObject);
+  };
 
   return (
     <SettingsContext.Provider
       value={{
         getSetting: path => get(settings, path),
+        fetchSettings,
       }}
     >
       {children}
