@@ -8,6 +8,8 @@ import { SigningSection } from './SigningSection';
 import { P } from './Typography';
 import { LetterheadSection } from './LetterheadSection';
 import { getDisplayDate } from './getDisplayDate';
+import { DataSection } from '../../../../desktop/app/components/PrintComponents/DataSection';
+import { DataItem } from '../../../../desktop/app/components/PrintComponents/DataItem';
 
 const columns = [
   {
