@@ -8,6 +8,7 @@ import { initStore, restoreSession, authFailure, versionIncompatible } from './s
 
 import './fonts.scss';
 import './react-toastify.scss';
+import { initialiseSingleTabDetection } from './singleTab/singleTab';
 
 function initPersistor(api, store) {
   const persistor = persistStore(store, null, () => {
@@ -52,14 +53,7 @@ function start() {
   const container = document.getElementById('root');
 
   window.onload = () => {
-    const isOpened = window.localStorage.getItem('isOpened');
-    if (!isOpened) {
-      window.localStorage.setItem('isOpened', 1);
-      window.localStorage.setItem('renderTab', 1);
-      window.onunload = () => {
-        window.localStorage.removeItem('isOpened');
-      };
-    }
+    initialiseSingleTabDetection();
   };
 
   const root = createRoot(container); // createRoot(container!) if you use TypeScript
