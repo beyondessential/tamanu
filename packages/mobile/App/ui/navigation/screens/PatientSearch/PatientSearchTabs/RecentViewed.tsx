@@ -25,10 +25,7 @@ interface PatientListProps {
   navigation: NavigationProp<any>;
 }
 
-const Screen = ({
-  navigation,
-  setSelectedPatient,
-}: RecentViewedScreenProps): ReactElement => {
+const Screen = ({ navigation, setSelectedPatient }: RecentViewedScreenProps): ReactElement => {
   const [recentlyViewedPatients, error] = useRecentlyViewedPatients();
 
   useEffect(() => {
@@ -58,8 +55,8 @@ const Screen = ({
         renderItem={({ item }: { item: any }): ReactElement => {
           const onNavigateToPatientHome = (): void => {
             setSelectedPatient(item);
-            navigation.navigate(Routes.HomeStack.HomeTabs.Index, {
-              screen: Routes.HomeStack.HomeTabs.Home,
+            navigation.navigate(Routes.HomeStack.SearchPatientStack.Index, {
+              screen: Routes.HomeStack.SearchPatientStack.Index,
             });
           };
           return (
@@ -73,13 +70,7 @@ const Screen = ({
           );
         }}
       />
-      <StyledView
-        position="absolute"
-        zIndex={2}
-        width="100%"
-        alignItems="center"
-        bottom={30}
-      />
+      <StyledView position="absolute" zIndex={2} width="100%" alignItems="center" bottom={30} />
     </FullView>
   );
 };

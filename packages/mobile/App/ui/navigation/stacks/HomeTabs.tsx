@@ -19,33 +19,31 @@ import { withPatient } from '/containers/Patient';
 import { SvgProps } from 'react-native-svg';
 import { BaseAppProps } from '/interfaces/BaseAppProps';
 import { Routes } from '/helpers/routes';
-import {
-  HomeBottomLogoIcon,
-  BarChartIcon,
-  SyncDataIcon,
-  MoreMenuIcon,
-} from '/components/Icons';
-import {
-  ReportScreen,
-  SyncDataScreen,
-  MoreScreen,
-} from '/navigation/screens/home/Tabs';
+import { ReportScreen, SyncDataScreen, MoreScreen } from '/navigation/screens/home/Tabs';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { IconWithSizeProps } from '../../interfaces/WithSizeProps';
 import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
+import { SearchPatientStack } from './SearchPatient';
+import { HomeLogoIcon } from '~/ui/components/Icons/HomeLogo';
+import { ReportsIcon } from '~/ui/components/Icons/Reports';
+import { PatientIcon } from '~/ui/components/Icons/Patient';
+import { SyncCloudIcon } from '~/ui/components/Icons/SyncCloud';
+import { MoreLogoIcon } from '~/ui/components/Icons/MoreLogo';
 
 const Tabs = createBottomTabNavigator();
 
 interface TabIconProps {
   Icon: FC<IconWithSizeProps>;
+  focusedColor: string;
   color: string;
 }
 
-export function TabIcon({ Icon, color }: TabIconProps): JSX.Element {
+export function TabIcon({ Icon, color, focusedColor }: TabIconProps): JSX.Element {
   return (
     <StyledView>
       <Icon
         fill={color}
+        focusedColor={focusedColor}
         size={screenPercentageToDP(3.03, Orientation.Height)}
       />
     </StyledView>
@@ -54,37 +52,39 @@ export function TabIcon({ Icon, color }: TabIconProps): JSX.Element {
 
 const TabScreenIcon = (Icon: FC<SvgProps>) => (props: {
   focused: boolean;
+  focusedColor: string;
   color: string;
 }): ReactElement => <TabIcon Icon={Icon} {...props} />;
 
 const HomeScreenOptions: BottomTabNavigationOptions = {
-  tabBarIcon: TabScreenIcon(HomeBottomLogoIcon),
+  tabBarIcon: TabScreenIcon(HomeLogoIcon),
   tabBarLabel: 'Home',
   tabBarTestID: 'HOME',
 };
 const ReportScreenOptions: BottomTabNavigationOptions = {
-  tabBarIcon: TabScreenIcon(BarChartIcon),
+  tabBarIcon: TabScreenIcon(ReportsIcon),
   tabBarLabel: 'Reports',
   tabBarTestID: 'REPORTS',
 };
+const PatientScreenOptions: BottomTabNavigationOptions = {
+  tabBarIcon: TabScreenIcon(PatientIcon),
+  tabBarLabel: 'Patient',
+  tabBarTestID: 'PATIENT',
+};
 const SyncDataScreenOptions: BottomTabNavigationOptions = {
-  tabBarIcon: TabScreenIcon(SyncDataIcon),
-  tabBarLabel: 'Sync Data',
+  tabBarIcon: TabScreenIcon(SyncCloudIcon),
+  tabBarLabel: 'Sync',
   tabBarTestID: 'Sync Data',
 };
 const MoreScreenOptions: BottomTabNavigationOptions = {
-  tabBarIcon: TabScreenIcon(MoreMenuIcon),
+  tabBarIcon: TabScreenIcon(MoreLogoIcon),
   tabBarLabel: 'More',
   tabBarTestID: 'MORE',
 };
 
 const tabLabelFontSize = screenPercentageToDP(1.21, Orientation.Height);
 
-function MyTabBar({
-  state,
-  descriptors,
-  navigation,
-}: BottomTabBarProps): ReactElement {
+function MyTabBar({ state, descriptors, navigation }: BottomTabBarProps): ReactElement {
   return (
     <StyledSafeAreaView background={theme.colors.PRIMARY_MAIN}>
       <RowView
@@ -129,28 +129,21 @@ function MyTabBar({
                 onPress={onPress}
                 onLongPress={onLongPress}
                 accessibilityRole="button"
-                accessibilityState={isFocused ? {selected: true} : {}}
+                accessibilityState={isFocused ? { selected: true } : {}}
                 accessibilityLabel={options.tabBarAccessibilityLabel}
                 testID={options.tabBarTestID}
                 alignItems="center"
                 justifyContent="center"
                 flex={1}
               >
-                {Icon
-                  && Icon({
+                {Icon &&
+                  Icon({
                     focused: isFocused,
-                    color: isFocused
-                      ? theme.colors.SECONDARY_MAIN
-                      : theme.colors.WHITE,
+                    focusedColor: isFocused ? theme.colors.SECONDARY_MAIN : theme.colors.WHITE,
+                    color: isFocused ? theme.colors.SECONDARY_MAIN : 'none',
                     size: screenPercentageToDP(3.03, Orientation.Height),
                   })}
-                <StyledText
-                  color={
-                    isFocused ? theme.colors.SECONDARY_MAIN : theme.colors.WHITE
-                  }
-                  marginTop={3}
-                  fontSize={tabLabelFontSize}
-                >
+                <StyledText color={theme.colors.WHITE} marginTop={3} fontSize={tabLabelFontSize}>
                   {label}
                 </StyledText>
               </StyledTouchableOpacity>
@@ -168,17 +161,22 @@ const TabNavigator = ({ selectedPatient }: BaseAppProps): ReactElement => (
       <Tabs.Screen
         options={HomeScreenOptions}
         name={Routes.HomeStack.HomeTabs.Home}
-        component={selectedPatient ? PatientHome : HomeScreen}
-      />
-      <Tabs.Screen
-        options={ReportScreenOptions}
-        name={Routes.HomeStack.HomeTabs.Reports}
-        component={ReportScreen}
+        component={HomeScreen}
       />
       <Tabs.Screen
         options={SyncDataScreenOptions}
         name={Routes.HomeStack.HomeTabs.SyncData}
         component={SyncDataScreen}
+      />
+      <Tabs.Screen
+        options={PatientScreenOptions}
+        name={Routes.HomeStack.SearchPatientStack.Index}
+        component={selectedPatient ? PatientHome : SearchPatientStack}
+      />
+      <Tabs.Screen
+        options={ReportScreenOptions}
+        name={Routes.HomeStack.HomeTabs.Reports}
+        component={ReportScreen}
       />
       <Tabs.Screen
         options={MoreScreenOptions}
