@@ -165,20 +165,74 @@ export const nonEmergencyDiagnosisCertaintyOptions = diagnosisCertaintyOptions.f
 // The order here is how they'll show up in the dropdown
 // Treatment plan first and alphabetical after that
 export const noteTypes = [
-  { value: NOTE_TYPES.TREATMENT_PLAN, label: 'Treatment plan' },
-  { value: NOTE_TYPES.ADMISSION, label: 'Admission' },
-  { value: NOTE_TYPES.CLINICAL_MOBILE, label: 'Clinical note (mobile)', hideFromDropdown: true },
-  { value: NOTE_TYPES.DIETARY, label: 'Dietary' },
-  { value: NOTE_TYPES.DISCHARGE, label: 'Discharge planning' },
-  { value: NOTE_TYPES.HANDOVER, label: 'Handover note' },
-  { value: NOTE_TYPES.MEDICAL, label: 'Medical' },
-  { value: NOTE_TYPES.NURSING, label: 'Nursing' },
-  { value: NOTE_TYPES.OTHER, label: 'Other' },
-  { value: NOTE_TYPES.PHARMACY, label: 'Pharmacy' },
-  { value: NOTE_TYPES.PHYSIOTHERAPY, label: 'Physiotherapy' },
-  { value: NOTE_TYPES.SOCIAL, label: 'Social welfare' },
-  { value: NOTE_TYPES.SURGICAL, label: 'Surgical' },
-  { value: NOTE_TYPES.SYSTEM, label: 'System', hideFromDropdown: true },
+  {
+    value: NOTE_TYPES.TREATMENT_PLAN,
+    label: <TranslatedText stringId="note.property.type.treatmentPlan" fallback="Treatment plan" />,
+  },
+  {
+    value: NOTE_TYPES.ADMISSION,
+    label: <TranslatedText stringId="note.property.type.admission" fallback="Admission" />,
+  },
+  {
+    value: NOTE_TYPES.CLINICAL_MOBILE,
+    label: (
+      <TranslatedText
+        stringId="note.property.type.clinicalNoteMobile"
+        fallback="Clinical note (mobile)"
+      />
+    ),
+    hideFromDropdown: true,
+  },
+  {
+    value: NOTE_TYPES.DIETARY,
+    label: <TranslatedText stringId="note.property.type.dietary" fallback="Dietary" />,
+  },
+  {
+    value: NOTE_TYPES.DISCHARGE,
+    label: (
+      <TranslatedText
+        stringId="note.property.type.dischargePlanning"
+        fallback="Discharge planning"
+      />
+    ),
+  },
+  {
+    value: NOTE_TYPES.HANDOVER,
+    label: <TranslatedText stringId="note.property.type.handoverNote" fallback="Handover note" />,
+  },
+  {
+    value: NOTE_TYPES.MEDICAL,
+    label: <TranslatedText stringId="note.property.type.medical" fallback="Medical" />,
+  },
+  {
+    value: NOTE_TYPES.NURSING,
+    label: <TranslatedText stringId="note.property.type.nursing" fallback="Nursing" />,
+  },
+  {
+    value: NOTE_TYPES.OTHER,
+    label: <TranslatedText stringId="note.property.type.other" fallback="Other" />,
+  },
+  {
+    value: NOTE_TYPES.PHARMACY,
+    label: <TranslatedText stringId="note.property.type.pharmacy" fallback="Pharmacy" />,
+  },
+  {
+    value: NOTE_TYPES.PHYSIOTHERAPY,
+    label: <TranslatedText stringId="note.property.type.physiotherapy" fallback="Physiotherapy" />,
+  },
+  {
+    value: NOTE_TYPES.SOCIAL,
+    label: <TranslatedText stringId="note.property.type.socialWelfare" fallback="Social welfare" />,
+  },
+  {
+    value: NOTE_TYPES.SURGICAL,
+    label: <TranslatedText stringId="note.property.type.surgical" fallback="Surgical" />,
+  },
+  {
+    value: NOTE_TYPES.SYSTEM,
+    label: <TranslatedText stringId="note.property.type.system" fallback="System" />,
+    hideFromDropdown: true,
+  },
 ];
 
 export const NOTE_TYPE_LABELS = Object.fromEntries(

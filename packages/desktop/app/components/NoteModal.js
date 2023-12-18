@@ -10,6 +10,7 @@ import { NoteForm } from '../forms/NoteForm';
 import { ConfirmModal } from './ConfirmModal';
 import { useAuth } from '../contexts/Auth';
 import { NOTE_FORM_MODES } from '../constants';
+import { TranslatedText } from './Translation/TranslatedText';
 
 const getOnBehalfOfId = (noteFormMode, currentUserId, newData, note) => {
   // When editing non treatment plan notes, we just want to retain the previous onBehalfOfId;
@@ -24,7 +25,7 @@ const getOnBehalfOfId = (noteFormMode, currentUserId, newData, note) => {
 };
 
 export const NoteModal = ({
-  title = 'Note',
+  title = <TranslatedText stringId="note.modal.default.title" fallback="Note" />,
   open,
   onClose,
   onSaved,
@@ -85,7 +86,7 @@ export const NoteModal = ({
   return (
     <>
       <ConfirmModal
-        title="Discard note"
+        title=<TranslatedText stringId="note.modal.delete.title" fallback="Discard note" />
         open={openNoteCancelConfirmModal}
         width="sm"
         onCancel={() => setOpenNoteCancelConfirmModal(false)}
@@ -93,7 +94,14 @@ export const NoteModal = ({
           setOpenNoteCancelConfirmModal(false);
           onClose();
         }}
-        customContent={<p>Are you sure you want to remove any changes you have made?</p>}
+        customContent={
+          <p>
+            <TranslatedText
+              stringId="note.modal.delete.confirmText"
+              fallback="Are you sure you want to remove any changes you have made?"
+            />
+          </p>
+        }
       />
       <FormModal
         title={title}

@@ -9,6 +9,7 @@ import {
   StyledFormGrid,
   WrittenByField,
 } from '../components/NoteCommonFields';
+import { TranslatedText } from '../components/Translation/TranslatedText';
 
 export const CreateNoteForm = ({
   onNoteContentChange,
@@ -22,12 +23,15 @@ export const CreateNoteForm = ({
       <WrittenByField required />
       <NoteDateTimeField required />
     </StyledFormGrid>
-    <NoteContentField label="Add note" onChange={onNoteContentChange} />
+    <NoteContentField
+      label=<TranslatedText stringId="note.modal.addNote.label" fallback="Add note" />
+      onChange={onNoteContentChange}
+    />
     <StyledDivider />
     <FormSubmitCancelRow
       onConfirm={onSubmit}
-      confirmText="Add note"
-      cancelText="Cancel"
+      confirmText=<TranslatedText stringId="note.action.addNote" fallback="Add note" />
+      cancelText=<TranslatedText stringId="general.action.cancel" fallback="Cancel" />
       onCancel={onCancel}
     />
   </>
