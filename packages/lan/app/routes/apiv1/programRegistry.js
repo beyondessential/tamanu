@@ -1,7 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Sequelize, Op, QueryTypes } from 'sequelize';
-import { VISIBILITY_STATUSES, REGISTRATION_STATUSES } from '@tamanu/constants';
+import { VISIBILITY_STATUSES, REGISTRATION_STATUSES, DELETION_STATUSES } from '@tamanu/constants';
 import { deepRenameObjectKeys } from '@tamanu/shared/utils';
 import { simpleGet, simpleGetList } from '@tamanu/shared/utils/crudHelpers';
 
@@ -113,6 +113,7 @@ programRegistry.get(
       makeFilter(true, 'mrr.program_registry_id = :program_registry_id', () => ({
         program_registry_id: programRegistryId,
       })),
+      makeFilter(true, `mrr.registration_status != '${DELETION_STATUSES.DELETED}'`),
     ].filter(f => f);
 
     const whereClauses = filters.map(f => f.sql).join(' AND ');
@@ -165,6 +166,8 @@ programRegistry.get(
       on mrr.clinical_status_id = status.id
       left join program_registries program_registry
       on mrr.program_registry_id = program_registry.id
+      left join users clinician
+      on mrr.clinician_id = clinician.id
       ${whereClauses && `WHERE ${whereClauses}`}
     `;
 
@@ -219,6 +222,8 @@ programRegistry.get(
         program_registry.currently_at_type as "program_registry.currently_at_type",
         program_registry.name as "program_registry.name",
         program_registry.id as "program_registry_id",
+        clinician.display_name as "clinician.display_name",
+        mrr.date as "date",
         --
         -- Details for filtering/ordering
         patient.date_of_death as "patient.date_of_death",

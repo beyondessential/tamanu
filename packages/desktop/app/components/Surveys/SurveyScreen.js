@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { runCalculations } from '@tamanu/shared/utils/calculations';
 import styled from 'styled-components';
-import { checkVisibility } from '../../utils';
+import { checkVisibility, getConfigObject } from '../../utils';
 import { FormGrid } from '../FormGrid';
 import { Button, OutlinedButton } from '../Button';
 import { SurveyQuestion } from './SurveyQuestion';
@@ -106,15 +106,20 @@ export const SurveyScreen = ({
     <FormGrid columns={cols}>
       {screenComponents
         .filter(c => checkVisibility(c, values, allComponents))
-        .map(c => (
-          <SurveyQuestion
-            component={c}
-            patient={patient}
-            key={c.id}
-            inputRef={setQuestionToRef(c.dataElementId)}
-            encounterType={encounterType}
-          />
-        ))}
+        .map(c => {
+          const { writeToPatient } = getConfigObject(c.id, c.config);
+          const isReadonly = writeToPatient?.isProgramRegistrationField;
+          return (
+            <SurveyQuestion
+              component={c}
+              patient={patient}
+              key={c.id}
+              inputRef={setQuestionToRef(c.dataElementId)}
+              encounterType={encounterType}
+              disabled={isReadonly}
+            />
+          );
+        })}
       <StyledButtonRow>
         {submitButton || (
           <>

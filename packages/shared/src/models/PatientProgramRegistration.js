@@ -1,5 +1,5 @@
 import { Op, Sequelize } from 'sequelize';
-import { SYNC_DIRECTIONS, REGISTRATION_STATUSES } from '@tamanu/constants';
+import { SYNC_DIRECTIONS, REGISTRATION_STATUSES, DELETION_STATUSES } from '@tamanu/constants';
 import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
 import { Model } from './Model';
@@ -31,6 +31,14 @@ export class PatientProgramRegistration extends Model {
           type: Sequelize.TEXT,
           defaultValue: REGISTRATION_STATUSES.ACTIVE,
         },
+        removedDate: dateTimeType('removedDate', {
+          allowNull: true,
+          defaultValue: null,
+        }),
+        clinicalStatusUpdatedAt: dateTimeType('clinicalStatusUpdatedAt', {
+          allowNull: true,
+          defaultValue: null,
+        }),
       },
       {
         ...options,
@@ -47,6 +55,7 @@ export class PatientProgramRegistration extends Model {
       'registeringFacility',
       'facility',
       'village',
+      'removedByClinician',
     ];
   }
 
@@ -73,6 +82,11 @@ export class PatientProgramRegistration extends Model {
     this.belongsTo(models.User, {
       foreignKey: 'clinicianId',
       as: 'clinician',
+    });
+
+    this.belongsTo(models.User, {
+      foreignKey: 'removedByClinicianId',
+      as: 'removedByClinician',
     });
 
     this.belongsTo(models.Facility, {
@@ -117,6 +131,20 @@ export class PatientProgramRegistration extends Model {
       // but if a date was provided in the function params, we should go with that.
       date: getCurrentDateTimeString(),
       ...restOfUpdates,
+      ...(!existingRegistration ||
+      (existingRegistration &&
+        existingRegistration.clinicalStatusId !== restOfUpdates.clinicalStatusId)
+        ? {
+            clinicalStatusUpdatedAt: getCurrentDateTimeString(),
+          }
+        : { clinicalStatusUpdatedAt: null }),
+      ...(restOfUpdates.registrationStatus !== 'removed'
+        ? {
+            removedByClinicianId: null,
+            removedDate: null,
+            clinicalStatusUpdatedAt: getCurrentDateTimeString(),
+          }
+        : { removedDate: getCurrentDateTimeString() }),
     });
   }
 
@@ -124,7 +152,14 @@ export class PatientProgramRegistration extends Model {
     return this.sequelize.models.PatientProgramRegistration.findAll({
       where: {
         id: { [Op.in]: Sequelize.literal(GET_MOST_RECENT_REGISTRATIONS_QUERY) },
-        registrationStatus: { [Op.ne]: REGISTRATION_STATUSES.RECORDED_IN_ERROR },
+        [Op.and]: [
+          { registrationStatus: { [Op.ne]: REGISTRATION_STATUSES.RECORDED_IN_ERROR } },
+          {
+            registrationStatus: {
+              [Op.ne]: DELETION_STATUSES.DELETED,
+            },
+          },
+        ],
         patientId,
       },
       include: ['clinicalStatus', 'programRegistry'],

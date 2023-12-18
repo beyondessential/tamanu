@@ -6,6 +6,7 @@ import { Colors, PROGRAM_REGISTRATION_STATUSES } from '../../constants';
 import { Heading5 } from '../../components/Typography';
 import { useProgramRegistryClinicalStatus } from '../../api/queries/useProgramRegistryClinicalStatus';
 import { ClinicalStatusDisplay } from './ClinicalStatusDisplay';
+import { useTableSorting } from '../../components/Table/useTableSorting';
 
 const Container = styled.div`
   width: 70%;
@@ -25,10 +26,15 @@ export const ProgramRegistryStatusHistory = ({ patientProgramRegistration }) => 
     patientProgramRegistration.patientId,
     patientProgramRegistration.programRegistryId,
     {
-      orderBy: 'date',
-      order: 'asc',
+      orderBy: 'clinicalStatusUpdatedAt',
+      order: 'desc',
     },
   );
+
+  const { orderBy, order, onChangeOrderBy, customSort } = useTableSorting({
+    initialSortKey: 'clinicalStatusUpdatedAt',
+    initialSortDirection: 'desc',
+  });
 
   const columns = useMemo(() => {
     const removedOnce = (data ? data.data : []).some(
@@ -38,10 +44,10 @@ export const ProgramRegistryStatusHistory = ({ patientProgramRegistration }) => 
       {
         key: 'clinicalStatusId',
         title: 'Status',
+        sortable: false,
         accessor: row => {
           return <ClinicalStatusDisplay clinicalStatus={row.clinicalStatus} />;
         },
-        sortable: false,
       },
       {
         key: 'clinicianId',
@@ -50,18 +56,18 @@ export const ProgramRegistryStatusHistory = ({ patientProgramRegistration }) => 
         accessor: row => row.clinician.displayName,
       },
       {
-        key: 'date',
+        key: 'clinicalStatusUpdatedAt',
         title: 'Date recorded',
-        accessor: row => <DateDisplay date={row.date} />,
         sortable: true,
+        accessor: row => <DateDisplay date={row.clinicalStatusUpdatedAt} />,
       },
       ...(removedOnce
         ? [
             {
-              key: 'registrationDate',
+              key: 'date',
               title: 'Date of registration',
-              accessor: row => <DateDisplay date={row.date} />,
               sortable: false,
+              accessor: row => <DateDisplay date={row.date} />,
             },
           ]
         : []),
@@ -73,6 +79,10 @@ export const ProgramRegistryStatusHistory = ({ patientProgramRegistration }) => 
       <Heading5 style={{ marginBottom: '13px' }}>Program status history</Heading5>
       <Table
         isBodyScrollable
+        initialSort={{
+          orderBy: 'date',
+          order: 'asc',
+        }}
         data={data ? data.data : []}
         columns={columns}
         rowsPerPage={4}
@@ -82,6 +92,10 @@ export const ProgramRegistryStatusHistory = ({ patientProgramRegistration }) => 
         noDataMessage="No Program registry clinical status found"
         elevated={false}
         isLoading={isLoading}
+        onChangeOrderBy={onChangeOrderBy}
+        customSort={customSort}
+        orderBy={orderBy}
+        order={order}
       />
     </Container>
   );
