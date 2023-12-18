@@ -1,5 +1,5 @@
 import { StyleSheet, View, Text } from '@react-pdf/renderer';
-import { getDisplayDate } from '../../../../shared/src/utils/patientCertificates/getDisplayDate';
+import { getDisplayDate } from '@tamanu/shared/utils/patientCertificates/getDisplayDate';
 import React from 'react';
 
 const styles = StyleSheet.create({
@@ -55,14 +55,14 @@ export const Footer = ({ printDate, printFacility, printedBy }) => {
         <ValueText>{getDisplayDate(printDate)}</ValueText>
         {printFacility && (
           <>
-            <ValueText>{' '}| </ValueText>
+            <ValueText> | </ValueText>
             <LabelText>Print facility: </LabelText>
             <ValueText>{printFacility}</ValueText>
           </>
         )}
         {printedBy && (
           <>
-            <ValueText>{' '}| </ValueText>
+            <ValueText> | </ValueText>
             <LabelText>Printed by: </LabelText>
             <ValueText>{printedBy}</ValueText>
           </>
