@@ -613,17 +613,22 @@ describe('Patient search', () => {
   });
 
   describe('Filtering sort', () => {
+    // pardon the mad names in this test suite - originally the names were built
+    // around searching for "Mi" (Mike, Michael etc) and "Jo" (Jordan, Jo), but 
+    // were running into edge cases where randomly-generated names from other tests
+    // were tripping them up.  So, the key parts were changed to QQQQ and UUUU to
+    // avoid these collisions.
     const filterSortPatients = [
-      { displayId: 'sort-test-1', firstName: 'Mike', lastName: 'Jordan' },
-      { displayId: 'sort-test-1A', firstName: 'Mike', lastName: 'Jo' },
-      { displayId: 'sort-test-1CD', firstName: 'Mik', lastName: 'JJ' },
-      { displayId: 'sort-test-1CA', firstName: 'Mick', lastName: 'Jake' },
-      { displayId: 'sort-test-1C', firstName: 'Mi', lastName: 'Jord' },
-      { displayId: 'sort-test-1CB', firstName: 'Amike', lastName: 'other-last-name' },
-      { displayId: 'sort-test-1G', firstName: 'Michael', lastName: 'Jordan' },
-      { displayId: 'sort-test-1H', firstName: 'ignored-name', lastName: 'Jorda' },
-      { displayId: 'sort-test-2A', firstName: 'Micael', lastName: 'Jak' },
-      { displayId: 'sort-test-1B', firstName: 'BMike', lastName: 'Jajob' },
+      { displayId: 'sort-test-1', firstName: 'QQQQke', lastName: 'UUUUrdan' },
+      { displayId: 'sort-test-1A', firstName: 'QQQQke', lastName: 'UUUU' },
+      { displayId: 'sort-test-1CD', firstName: 'QQQQk', lastName: 'JJ' },
+      { displayId: 'sort-test-1CA', firstName: 'QQQQck', lastName: 'Jake' },
+      { displayId: 'sort-test-1C', firstName: 'QQQQ', lastName: 'UUUUrd' },
+      { displayId: 'sort-test-1CB', firstName: 'AQQQQke', lastName: 'other-last-name' },
+      { displayId: 'sort-test-1G', firstName: 'QQQQchael', lastName: 'UUUUrdan' },
+      { displayId: 'sort-test-1H', firstName: 'ignored-name', lastName: 'UUUUrda' },
+      { displayId: 'sort-test-2A', firstName: 'QQQQcael', lastName: 'Jak' },
+      { displayId: 'sort-test-1B', firstName: 'BQQQQke', lastName: 'JaUUUUb' },
     ];
 
     beforeAll(async () => {
@@ -653,45 +658,45 @@ describe('Patient search', () => {
 
     it('First Name - Exact match on top and rest are sorted according to best match', async () => {
       const response = await app.get('/v1/patient').query({
-        firstName: 'Mi',
+        firstName: 'QQQQ',
       });
 
       expect(response).toHaveSucceeded();
 
       const { data, count } = response.body;
-      expect(data.length).toEqual(9);
+      expect(data).toHaveLength(9);
       expect(count).toEqual(9);
 
       expect(data.map(d => d.firstName)).toEqual([
-        'Mi',
-        'Micael',
-        'Michael',
-        'Mick',
-        'Mik',
-        'Mike',
-        'Mike',
-        'Amike',
-        'BMike',
+        'QQQQ',
+        'QQQQcael',
+        'QQQQchael',
+        'QQQQck',
+        'QQQQk',
+        'QQQQke',
+        'QQQQke',
+        'AQQQQke',
+        'BQQQQke',
       ]);
     });
 
     it('Last Name - Exact match on top and rest are sorted according to best match', async () => {
       const response = await app.get('/v1/patient').query({
-        lastName: 'Jo',
+        lastName: 'UUUU',
       });
 
       expect(response).toHaveSucceeded();
 
       const { data } = response.body;
-      expect(data.length).toEqual(6);
+      expect(data).toHaveLength(6);
 
       expect(data.map(d => d.lastName)).toEqual([
-        'Jo',
-        'Jord',
-        'Jorda',
-        'Jordan',
-        'Jordan',
-        'Jajob',
+        'UUUU',
+        'UUUUrd',
+        'UUUUrda',
+        'UUUUrdan',
+        'UUUUrdan',
+        'JaUUUUb',
       ]);
     });
 
@@ -701,8 +706,8 @@ describe('Patient search', () => {
     it('Should prioritize 1-displayId, 2-lastName, 3-firstName', async () => {
       const response = await app.get('/v1/patient').query({
         displayId: 'sort-test-1',
-        firstName: 'Mi',
-        lastName: 'Jo',
+        firstName: 'QQQQ',
+        lastName: 'UUUU',
       });
 
       expect(response).toHaveSucceeded();
@@ -711,33 +716,33 @@ describe('Patient search', () => {
       expect(data.length).toEqual(5);
 
       expect(data.map(d => `${d.displayId} - ${d.firstName} - ${d.lastName}`)).toEqual([
-        'sort-test-1 - Mike - Jordan',
-        'sort-test-1A - Mike - Jo',
-        'sort-test-1C - Mi - Jord',
-        'sort-test-1G - Michael - Jordan',
-        'sort-test-1B - BMike - Jajob',
+        'sort-test-1 - QQQQke - UUUUrdan',
+        'sort-test-1A - QQQQke - UUUU',
+        'sort-test-1C - QQQQ - UUUUrd',
+        'sort-test-1G - QQQQchael - UUUUrdan',
+        'sort-test-1B - BQQQQke - JaUUUUb',
       ]);
     });
 
     it('Should prioritize Last name in relation to first name', async () => {
       const response = await app.get('/v1/patient').query({
-        firstName: 'Mi',
-        lastName: 'Jo',
+        firstName: 'QQQQ',
+        lastName: 'UUUU',
       });
 
       expect(response).toHaveSucceeded();
 
       const { data } = response.body;
-      expect(data.every(d => d.firstName.startsWith('Mi')));
-      expect(data.every(d => d.lastName.startsWith('Jo')));
+      expect(data.every(d => d.firstName.startsWith('QQQQ')));
+      expect(data.every(d => d.lastName.startsWith('UUUU')));
 
       const concatenated = data.map(d => `${d.displayId} - ${d.firstName} - ${d.lastName}`);
       expect(concatenated).toEqual([
-        'sort-test-1A - Mike - Jo',
-        'sort-test-1C - Mi - Jord',
-        'sort-test-1G - Michael - Jordan',
-        'sort-test-1 - Mike - Jordan',
-        'sort-test-1B - BMike - Jajob',
+        'sort-test-1A - QQQQke - UUUU',
+        'sort-test-1C - QQQQ - UUUUrd',
+        'sort-test-1G - QQQQchael - UUUUrdan',
+        'sort-test-1 - QQQQke - UUUUrdan',
+        'sort-test-1B - BQQQQke - JaUUUUb',
       ]);
     });
   });
