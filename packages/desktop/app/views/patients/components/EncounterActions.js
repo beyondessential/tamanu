@@ -16,6 +16,7 @@ import { DropdownButton } from '../../../components/DropdownButton';
 import { MoveModal } from './MoveModal';
 import { EncounterRecordModal } from '../../../components/PatientPrinting/modals/EncounterRecordModal';
 import { Colors } from '../../../constants';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const TypographyLink = styled(Typography)`
   color: ${Colors.primary};
@@ -73,10 +74,18 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
     return (
       <div>
         <Button variant="outlined" color="primary" onClick={onViewSummary}>
-          View discharge summary
+          <TranslatedText
+            stringId="encounter.action.viewDischargeSummary"
+            fallback="View discharge summary"
+          />
         </Button>
         <br />
-        <TypographyLink onClick={onViewEncounterRecord}>Encounter record</TypographyLink>
+        <TypographyLink onClick={onViewEncounterRecord}>
+          <TranslatedText
+            stringId="encounter.action.viewEncounterRecord"
+            fallback="Encounter record"
+          />
+        </TypographyLink>
       </div>
     );
   }
@@ -124,7 +133,7 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
       onClick: onCancelLocationChange,
     },
     {
-      label: 'Discharge',
+      label: <TranslatedText stringId="encounter.action.discharge" fallback="Discharge" />,
       onClick: onDischargeOpen,
       condition: () => encounter.encounterType !== ENCOUNTER_TYPES.TRIAGE,
     },
