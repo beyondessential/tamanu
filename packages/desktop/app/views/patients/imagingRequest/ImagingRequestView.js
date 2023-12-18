@@ -35,6 +35,7 @@ import { SimpleTopBar } from '../../../components';
 
 import { CancelModalButton } from './CancelModalButton';
 import { PrintModalButton } from './PrintModalButton';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
   const { getLocalisation } = useLocalisation();
@@ -58,30 +59,45 @@ const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
 
   return (
     <FormGrid columns={3}>
-      <TextInput value={imagingRequest.displayId} label="Request ID" disabled />
+      <TextInput
+        value={imagingRequest.displayId}
+        label={<TranslatedText stringId="imaging.form.requestId.label" fallback="Request ID" />}
+        disabled
+      />
       <TextInput
         value={imagingTypes[imagingRequest.imagingType]?.label || 'Unknown'}
-        label="Request type"
+        label={<TranslatedText stringId="imaging.form.imagingType.label" fallback="Request type" />}
         disabled
       />
       <TextInput
         value={imagingPriorities.find(p => p.value === imagingRequest.priority)?.label || ''}
-        label="Priority"
+        label={<TranslatedText stringId="imaging.form.priority.label" fallback="Priority" />}
         disabled
       />
       <Field
         name="status"
-        label="Status"
+        label={<TranslatedText stringId="imaging.form.status.label" fallback="Status" />}
         component={SelectField}
         options={isCancelled ? cancelledOption : IMAGING_REQUEST_STATUS_OPTIONS}
         disabled={isCancelled}
         isClearable={false}
         required
       />
-      <DateTimeInput value={imagingRequest.requestedDate} label="Request date and time" disabled />
+      <DateTimeInput
+        value={imagingRequest.requestedDate}
+        label={
+          <TranslatedText
+            stringId="imaging.form.requestedDate.label"
+            fallback="Request date and time"
+          />
+        }
+        disabled
+      />
       {allowLocationChange && (
         <Field
-          label="Facility area"
+          label={
+            <TranslatedText stringId="imaging.form.facilityArea.label" fallback="Facility area" />
+          }
           name="locationGroupId"
           component={AutocompleteField}
           suggester={locationGroupSuggester}
@@ -95,14 +111,14 @@ const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
             ? imagingRequest.areas.map(area => area.name).join(', ')
             : imagingRequest.areaNote
         }
-        label="Areas to be imaged"
+        label={<TranslatedText stringId="imaging.form.areas.label" fallback="Areas to be imaged" />}
         style={{ gridColumn: '1 / -1', minHeight: '60px' }}
         disabled
       />
       <TextInput
         multiline
         value={imagingRequest.note}
-        label="Notes"
+        label={<TranslatedText stringId="general.form.notes.label" fallback="Notes" />}
         style={{ gridColumn: '1 / -1', minHeight: '60px' }}
         disabled
       />
@@ -124,7 +140,7 @@ const NewResultSection = ({ disabled = false }) => {
   return (
     <FormGrid columns={2}>
       <Field
-        label="Completed by"
+        label={<TranslatedText stringId="imaging.form.completedBy.label" fallback="Completed by" />}
         name="newResult.completedById"
         placeholder="Search"
         component={AutocompleteField}
@@ -132,14 +148,16 @@ const NewResultSection = ({ disabled = false }) => {
         disabled={disabled}
       />
       <Field
-        label="Completed"
+        label={<TranslatedText stringId="imaging.form.completedDate.label" fallback="Completed" />}
         name="newResult.completedAt"
         saveDateAsString
         component={DateTimeField}
         disabled={disabled}
       />
       <Field
-        label="Result description"
+        label={
+          <TranslatedText stringId="imaging.form.description.label" fallback="Result description" />
+        }
         name="newResult.description"
         placeholder="Result description..."
         multiline
@@ -232,10 +250,23 @@ const ImagingRequestInfoPane = React.memo(({ imagingRequest, onSubmit }) => {
           <>
             <ImagingRequestSection currentStatus={values.status} imagingRequest={imagingRequest} />
             <ImagingResultsSection results={imagingRequest.results} />
-            <h4>{imagingRequest.results.length > 0 ? 'Add additional result' : 'Add result'}</h4>
+            <h4>
+              {imagingRequest.results.length > 0 ? (
+                <TranslatedText
+                  stringId="imaging.action.addAdditionalResult"
+                  fallback="Add additional result"
+                />
+              ) : (
+                <TranslatedText stringId="imaging.action.addResult" fallback="Add result" />
+              )}
+            </h4>
             <NewResultSection disabled={!canAddResult} />
             <ButtonRow style={{ marginTop: 20 }}>
-              {!isCancelled && <FormSubmitButton text="Save" />}
+              {!isCancelled && (
+                <FormSubmitButton
+                  text={<TranslatedText stringId="general.action.save" fallback="Save" />}
+                />
+              )}
             </ButtonRow>
           </>
         );
@@ -268,7 +299,9 @@ export const ImagingRequestView = () => {
 
   return (
     <>
-      <SimpleTopBar title="Imaging request">
+      <SimpleTopBar
+        title={<TranslatedText stringId="imaging.topbar.title" fallback="Imaging request" />}
+      >
         {isCancellable && (
           <CancelModalButton imagingRequest={imagingRequest} onCancel={onNavigateBackToImaging} />
         )}

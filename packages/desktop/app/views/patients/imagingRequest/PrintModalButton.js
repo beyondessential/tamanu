@@ -6,6 +6,7 @@ import { LoadingIndicator } from '../../../components/LoadingIndicator';
 import { Modal } from '../../../components/Modal';
 import { useEncounterData } from '../../../api/queries';
 import { MultipleImagingRequestsPrintout } from '../../../components/PatientPrinting';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const PrintModalInternals = ({ imagingRequest }) => {
   const encounterQuery = useEncounterData(imagingRequest.encounterId);
@@ -38,7 +39,7 @@ export const PrintModalButton = props => {
   return (
     <>
       <Modal
-        title="Imaging Request"
+        title={<TranslatedText stringId="imaging.modal.print.title" fallback="Imaging Request" />}
         open={isModalOpen}
         onClose={closeModal}
         width="md"
@@ -48,7 +49,7 @@ export const PrintModalButton = props => {
         <PrintModalInternals {...props} />
       </Modal>
       <Button variant="outlined" onClick={openModal} style={{ marginLeft: '0.5rem' }}>
-        Print request
+        <TranslatedText stringId="imaging.action.print" fallback="Print request" />
       </Button>
     </>
   );
