@@ -94,7 +94,7 @@ export const ConditionSection = ({ patientProgramRegistration }) => {
       <HeadingContainer>
         <Heading5>Related conditions</Heading5>
         <ConditionalTooltip title="Patient must be active" visible={isRemoved}>
-          <AddConditionButton onClick={() => setOpenAddCondition(true)} disabled={isRemoved}>
+          <AddConditionButton onClick={() => setOpenAddCondition(true)}>
             + Add condition
           </AddConditionButton>
         </ConditionalTooltip>
@@ -109,11 +109,7 @@ export const ConditionSection = ({ patientProgramRegistration }) => {
               <ClippedConditionName>{x.programRegistryCondition?.name}</ClippedConditionName>
             </ConditionalTooltip>
             <ConditionalTooltip title="Patient must be active" visible={isRemoved}>
-              <IconButton
-                style={{ padding: 0 }}
-                onClick={() => setConditionToRemove(x)}
-                disabled={isRemoved}
-              >
+              <IconButton style={{ padding: 0 }} onClick={() => setConditionToRemove(x)}>
                 <CloseIcon style={{ fontSize: '14px' }} />
               </IconButton>
             </ConditionalTooltip>

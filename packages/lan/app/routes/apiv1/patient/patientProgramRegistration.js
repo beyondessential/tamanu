@@ -1,13 +1,12 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { Op } from 'sequelize';
 import { NotFoundError, ValidationError } from '@tamanu/shared/errors';
 import { DELETION_STATUSES } from '@tamanu/constants';
 
 export const patientProgramRegistration = express.Router();
 
 patientProgramRegistration.get(
-  '/:patientId/programRegistration',
+  '/:id/programRegistration',
   asyncHandler(async (req, res) => {
     const { params, models } = req;
 
@@ -16,7 +15,7 @@ patientProgramRegistration.get(
     req.checkPermission('list', 'PatientProgramRegistration');
 
     const registrationData = await models.PatientProgramRegistration.getMostRecentRegistrationsForPatient(
-      params.patientId,
+      params.id,
     );
 
     res.send({ data: registrationData });
@@ -102,7 +101,7 @@ patientProgramRegistration.get(
         programRegistryId,
       },
       include: PatientProgramRegistration.getFullReferenceAssociations(),
-      order: [['updatedAt', 'DESC']],
+      order: [['date', 'DESC']],
     });
 
     if (!registration) {
@@ -126,10 +125,9 @@ patientProgramRegistration.get(
       where: {
         patientId,
         programRegistryId,
-        clinicalStatusUpdatedAt: { [Op.ne]: null },
       },
       include: PatientProgramRegistration.getListReferenceAssociations(),
-      order: [['clinicalStatusUpdatedAt', 'DESC NULLS LAST']],
+      order: [['date', 'DESC']],
     });
 
     res.send({

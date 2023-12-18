@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
+import { isNil } from 'lodash';
 import { REPORT_STATUSES } from '@tamanu/constants';
 import { DateDisplay, formatTime } from '../../../components';
 import { Table } from '../../../components/Table';
 import { Colors } from '../../../constants';
 import { StatusTag } from '../../../components/Tag';
-import { useTableSorting } from '../../../components/Table/useTableSorting';
 
 const STATUS_CONFIG = {
   [REPORT_STATUSES.DRAFT]: {
@@ -43,6 +43,35 @@ const ReportStatusTag = ({ status }) => {
       {status}
     </StatusTag>
   );
+};
+
+const useTableSorting = ({ initialSortKey, initialSortDirection }) => {
+  const [orderBy, setOrderBy] = useState(initialSortKey);
+  const [order, setOrder] = useState(initialSortDirection);
+
+  const customSort = (data = []) => {
+    const ascComparator = (aReport, bReport) => {
+      const a = aReport[orderBy];
+      const b = bReport[orderBy];
+      if (isNil(a) || isNil(b)) {
+        return (isNil(a) ? -1 : 1) - (isNil(b) ? -1 : 1);
+      }
+      if (typeof a === 'number' && typeof b === 'number') {
+        return a - b;
+      }
+      return `${a}`.localeCompare(`${b}`);
+    };
+    const descComparator = (a, b) => ascComparator(b, a);
+    return data.sort(order === 'asc' ? ascComparator : descComparator);
+  };
+
+  const onChangeOrderBy = sortKey => {
+    setOrderBy(sortKey);
+    const isDesc = orderBy === sortKey && order === 'desc';
+    setOrder(isDesc ? 'asc' : 'desc');
+  };
+
+  return { orderBy, order, onChangeOrderBy, customSort };
 };
 
 const getDateTime = value => {

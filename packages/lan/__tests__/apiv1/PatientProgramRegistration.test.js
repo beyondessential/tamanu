@@ -1,7 +1,6 @@
 import { fake } from 'shared/test-helpers/fake';
 import { REGISTRATION_STATUSES, DELETION_STATUSES } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
-import { sleepAsync } from '../../../shared/src/utils/sleepAsync';
 
 describe('PatientProgramRegistration', () => {
   let ctx = null;
@@ -80,7 +79,6 @@ describe('PatientProgramRegistration', () => {
           programRegistryId: programRegistry3.id,
           registrationStatus: REGISTRATION_STATUSES.ACTIVE,
           patientId: patient.id,
-          date: TEST_DATE_EARLY,
         }),
       );
       await models.PatientProgramRegistration.create(
@@ -88,7 +86,6 @@ describe('PatientProgramRegistration', () => {
           programRegistryId: programRegistry3.id,
           registrationStatus: REGISTRATION_STATUSES.RECORDED_IN_ERROR,
           patientId: patient.id,
-          date: TEST_DATE_LATE,
         }),
       );
 
@@ -268,7 +265,6 @@ describe('PatientProgramRegistration', () => {
 
       for (const r of records) {
         await app.post(`/v1/patient/${patient.id}/programRegistration`).send(r);
-        await sleepAsync(1000);
       }
 
       return { patient, registry, records };

@@ -1,17 +1,8 @@
 import React from 'react';
 import * as yup from 'yup';
-import { difference } from 'lodash';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { useQueryClient } from '@tanstack/react-query';
-import { Divider } from '@material-ui/core';
-import {
-  Form,
-  Field,
-  DateField,
-  AutocompleteField,
-  FieldWithTooltip,
-  MultiselectField,
-} from '../../components/Field';
+import { Form, Field, DateField, AutocompleteField } from '../../components/Field';
 import { FormGrid } from '../../components/FormGrid';
 import { ConfirmCancelRow } from '../../components/ButtonRow';
 import { foreignKey, optionalForeignKey } from '../../utils/validation';
@@ -20,11 +11,8 @@ import { useAuth } from '../../contexts/Auth';
 import { Modal } from '../../components/Modal';
 import { useApi } from '../../api/useApi';
 import { PROGRAM_REGISTRATION_STATUSES } from '../../constants';
+import { FormSeparatorLine } from '../../components';
 import { PROGRAM_REGISTRY } from '../../components/PatientInfoPane/paneTitles';
-import {
-  usePatientProgramRegistryConditions,
-  useProgramRegistryCondtions,
-} from '../../api/queries/usePatientProgramRegistryConditions';
 
 export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistration, open }) => {
   const api = useApi();
@@ -33,69 +21,25 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
   const programRegistryStatusSuggester = useSuggester('programRegistryClinicalStatus', {
     baseQueryParameters: { programRegistryId: patientProgramRegistration.programRegistryId },
   });
-  const { data: registrationConditions } = usePatientProgramRegistryConditions(
-    patientProgramRegistration.patientId,
-    patientProgramRegistration.programRegistryId,
-  );
-  const { data: conditions } = useProgramRegistryCondtions(
-    patientProgramRegistration.programRegistryId,
-  );
-
   const registeredBySuggester = useSuggester('practitioner');
   const registeringFacilitySuggester = useSuggester('facility');
 
   const activate = async data => {
-    const { id, date, ...rest } = data;
-
-    // Extract condition IDs from registrationConditions.data and data
-    const existingConditionIds = registrationConditions.data.map(
-      condition => condition.programRegistryConditionId,
-    );
-    const incomingConditionIds =
-      typeof data.conditionIds === 'string' ? JSON.parse(data.conditionIds) : data.conditionIds;
-
-    // Identify conditions to remove and their corresponding objects
-    const conditionsToRemove = difference(existingConditionIds, incomingConditionIds);
-    const conditionsToRemoveObjects = registrationConditions.data.filter(condition =>
-      conditionsToRemove.includes(condition.programRegistryConditionId),
-    );
-
-    // Remove conditions
-    for (const conditionToRemove of conditionsToRemoveObjects) {
-      await api.delete(
-        `patient/${encodeURIComponent(
-          patientProgramRegistration.patientId,
-        )}/programRegistration/${encodeURIComponent(
-          patientProgramRegistration.programRegistryId,
-        )}/condition/${encodeURIComponent(conditionToRemove.id)}`,
-      );
-    }
-
-    // Identify new condition IDs
-    const newConditionIds = difference(incomingConditionIds, existingConditionIds);
-
-    // Activate program registration with updated conditions
+    const { id, ...rest } = data;
     await api.post(
       `patient/${encodeURIComponent(patientProgramRegistration.patientId)}/programRegistration`,
-      {
-        ...rest,
-        conditionIds: newConditionIds,
-        registrationStatus: PROGRAM_REGISTRATION_STATUSES.ACTIVE,
-      },
+      { ...rest, registrationStatus: PROGRAM_REGISTRATION_STATUSES.ACTIVE },
     );
 
-    // Invalidate queries and close modal
     queryClient.invalidateQueries([`infoPaneListItem-${PROGRAM_REGISTRY}`]);
     onClose();
   };
-
   return (
     <Modal
       title={`Activate ${patientProgramRegistration.programRegistry.name} program registry`}
       open={open}
       width="md"
       onClose={onClose}
-      overrideContentPadding
     >
       <Form
         showInlineErrorsOnly
@@ -103,7 +47,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
         render={({ submitForm }) => {
           return (
             <div>
-              <FormGrid style={{ paddingLeft: '32px', paddingRight: '32px' }}>
+              <FormGrid>
                 <FormGrid style={{ gridColumn: 'span 2' }}>
                   <Field
                     name="date"
@@ -135,35 +79,9 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
                     suggester={programRegistryStatusSuggester}
                   />
                 </FormGrid>
-                <FormGrid style={{ gridColumn: 'span 2' }}>
-                  <FieldWithTooltip
-                    disabledTooltipText={
-                      !conditions
-                        ? 'Select a program registry to add related conditions'
-                        : 'No conditions have been configured for this program registry'
-                    }
-                    name="conditionIds"
-                    label="Related conditions"
-                    placeholder="Select"
-                    component={MultiselectField}
-                    options={conditions}
-                    disabled={!conditions || conditions.length === 0}
-                  />
-                </FormGrid>
+                <FormSeparatorLine />
+                <ConfirmCancelRow onCancel={onClose} onConfirm={submitForm} confirmText="Confirm" />
               </FormGrid>
-              <Divider
-                style={{
-                  gridColumn: '1 / -1',
-                  marginTop: '30px',
-                  marginBottom: '30px',
-                }}
-              />
-              <ConfirmCancelRow
-                style={{ paddingLeft: '32px', paddingRight: '32px' }}
-                onCancel={onClose}
-                onConfirm={submitForm}
-                confirmText="Confirm"
-              />
             </div>
           );
         }}
@@ -171,7 +89,6 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
           date: getCurrentDateTimeString(),
           facilityId: facility.id,
           clinicianId: currentUser.id,
-          conditionIds: registrationConditions?.data.map(x => x.programRegistryConditionId),
           ...patientProgramRegistration,
         }}
         validationSchema={yup.object().shape({
