@@ -1,5 +1,4 @@
 import React from 'react';
-import { View } from '@react-pdf/renderer';
 import { P, Row } from '../../../../shared/src/utils/patientCertificates';
 
 export const DataItem = ({ label, value }) => {

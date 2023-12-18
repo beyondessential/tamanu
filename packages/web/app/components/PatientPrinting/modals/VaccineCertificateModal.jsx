@@ -16,7 +16,6 @@ import { Document, Page } from '@react-pdf/renderer';
 import { DataSection } from '../../PrintComponents/DataSection';
 import { DataItem } from '../../PrintComponents/DataItem';
 import { Col } from '../../../../../shared/src/utils/patientCertificates';
-import { P } from '../../../../../shared/src/utils/patientCertificates';
 
 export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) => {
   const api = useApi();
@@ -63,28 +62,7 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
       additionalActions={<EmailButton onEmail={createVaccineCertificateNotification} />}
     >
       <PDFViewer id="vaccine-certificate">
-        <Document>
-          <Page>
-            <DataSection>
-              <Col style={{width: "33%"}}>
-                <DataItem label="fdokpsfadsaopfkdsoap" value="fdsafadsfdsa" />
-                <DataItem label="fdokpsfadsaopfkdsoap" value="fdsafadsfdsa" />
-                <DataItem label="fdokpsfadsaopfkdsoap" value="fdsafadsfdsa" />
-              </Col>
-              <Col style={{width: "33%"}}>
-                <DataItem label="fdokpsfadsaopfkdsoap" value="fdsafadsfdsa" />
-                <DataItem label="fdokpsfadsaopfkdsoap" value="fdsafadsfdsa" />
-                <DataItem label="fdokpsfadsaopfkdsoap" value="fdsafadsfdsa" />
-              </Col>
-              <Col style={{width: "33%"}}>
-                <DataItem label="fdokpsfadsaopfkdsoap" value="fdsafadsfdsa" />
-                <DataItem label="fdokpsfadsaopfkdsoap" value="fdsafadsfdsa" />
-                <DataItem label="fdokpsfadsaopfkdsoap" value="fdsafadsfdsa" />
-              </Col>
-            </DataSection>
-          </Page>
-        </Document>
-        {/* <VaccineCertificate
+        <VaccineCertificate
           patient={patientData}
           vaccinations={vaccinations}
           watermarkSrc={watermark}
@@ -93,7 +71,7 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
           printedBy={printedBy}
           printedDate={getCurrentDateString()}
           getLocalisation={getLocalisation}
-        /> */}
+        />
       </PDFViewer>
     </Modal>
   );
