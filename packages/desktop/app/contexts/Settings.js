@@ -13,7 +13,6 @@ export const SettingsProvider = ({ children }) => {
   const reduxSettings = useSelector(state => state.auth.settings);
 
   useEffect(() => {
-    console.log(reduxSettings);
     setSettings(reduxSettings);
   }, [reduxSettings]);
 
