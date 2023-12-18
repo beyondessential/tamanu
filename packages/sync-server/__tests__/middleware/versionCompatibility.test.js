@@ -122,7 +122,6 @@ describe('Version compatibility', () => {
       const packageFiles = [
         'package.json',
         'packages/desktop/package.json',
-        'packages/desktop/app/package.json',
         'packages/sync-server/package.json',
         'packages/lan/package.json',
         'packages/shared/package.json',

@@ -1,25 +1,26 @@
 import path from 'path';
 import fs from 'fs';
-import { gte as semverGte, lte as semverLte } from 'semver';
+import { lte as semverLte } from 'semver';
 import { MIN_CLIENT_VERSION, MAX_CLIENT_VERSION } from '../app/middleware/versionCompatibility';
 
+async function readVersion(pkg) {
+  const normalisedPath = path.resolve(__dirname, '..', '..', '..', 'packages', pkg, 'package.json');
+  const content = await fs.promises.readFile(normalisedPath);
+  return JSON.parse(content).version;
+}
+
 describe('Other packages', () => {
-  let versions;
-  beforeAll(async () => {
-    const packageFiles = ['packages/desktop/package.json', 'packages/desktop/app/package.json'];
-    versions = await Promise.all(
-      packageFiles.map(async filePath => {
-        const relativePath = `../../../${filePath}`.split('/');
-        const normalisedPath = path.resolve(__dirname, ...relativePath);
-        const content = await fs.promises.readFile(normalisedPath);
-        return [filePath, JSON.parse(content).version];
-      }),
-    );
+  it('Should support the current version of desktop', async () => {
+    const desktopVersion = await readVersion('desktop');
+    
+    expect(semverLte(MIN_CLIENT_VERSION, desktopVersion)).toBe(true);
+    expect(semverLte(desktopVersion, MAX_CLIENT_VERSION)).toBe(true);
   });
 
-  it('Should support the current version of desktop', async () => {
-    const desktopVersions = versions.map(([, v]) => v);
-    desktopVersions.forEach(v => expect(semverLte(MIN_CLIENT_VERSION, v)).toBe(true));
-    desktopVersions.forEach(v => expect(semverLte(v, MAX_CLIENT_VERSION)).toBe(true));
+  it('Should support the current version of central-server', async () => {
+    const centralVersion = await readVersion('sync-server');
+    
+    expect(semverLte(MIN_CLIENT_VERSION, centralVersion)).toBe(true);
+    expect(semverLte(centralVersion, MAX_CLIENT_VERSION)).toBe(true);
   });
 });
