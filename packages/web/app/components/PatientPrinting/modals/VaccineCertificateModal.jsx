@@ -12,10 +12,6 @@ import { useLocalisation } from '../../../contexts/Localisation';
 import { usePatientAdditionalDataQuery, useAdministeredVaccines } from '../../../api/queries';
 
 import { PDFViewer, printPDF } from '../PDFViewer';
-import { Document, Page } from '@react-pdf/renderer';
-import { DataSection } from '../../PrintComponents/DataSection';
-import { DataItem } from '../../PrintComponents/DataItem';
-import { Col } from '../../../../../shared/src/utils/patientCertificates';
 
 export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) => {
   const api = useApi();
