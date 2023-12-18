@@ -1,8 +1,7 @@
 import React from 'react';
-import { Row } from '../../../../shared/src/utils/patientCertificates';
+import { StyleSheet, View, Text } from '@react-pdf/renderer';
 import { HorizontalRule } from './HorizontalRule';
-import { StyleSheet, View } from '@react-pdf/renderer';
-import { Text } from '@react-pdf/renderer';
+import { Row } from '../patientCertificates/Layout';
 
 const styles = StyleSheet.create({
   title: {
@@ -13,7 +12,7 @@ const styles = StyleSheet.create({
   },
 });
 
-export const DataSection = ({ title, children, props }) => {
+export const DataSection = ({title, children, props}) => {
   return (
     <View {...props}>
       <Text style={styles.title}>{title}</Text>
