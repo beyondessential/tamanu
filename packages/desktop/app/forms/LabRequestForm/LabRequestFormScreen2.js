@@ -6,6 +6,7 @@ import styled from 'styled-components';
 import { Field, TextField } from '../../components';
 import { TestSelectorField } from '../../views/labRequest/TestSelector';
 import { BodyText, Heading3 } from '../../components/Typography';
+import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 const StyledBodyText = styled(BodyText)`
   margin-bottom: 28px;
@@ -21,7 +22,13 @@ export const screen2ValidationSchema = yup.object().shape({
       then: yup
         .array()
         .of(yup.string())
-        .min(1, 'Please select at least one test type'),
+        .min(
+          1,
+          <TranslatedText
+            stringId="lab.form.testSelect.individual.testTypes.validation"
+            fallback="Please select at least one test type"
+          />,
+        ),
     }),
   panelIds: yup
     .array()
@@ -31,32 +38,81 @@ export const screen2ValidationSchema = yup.object().shape({
       then: yup
         .array()
         .of(yup.string())
-        .min(1, 'Please select at least one panel'),
+        .min(
+          1,
+          <TranslatedText
+            stringId="lab.form.testSelect.panel.testTypes.validation"
+            fallback="Please select at least one panel"
+          />,
+        ),
     }),
   notes: yup.string(),
 });
 
 export const FORM_TYPE_TO_FIELD_CONFIG = {
   [LAB_REQUEST_FORM_TYPES.INDIVIDUAL]: {
-    subheading: 'Select tests',
-    instructions:
-      'Please select the test or tests you would like to request below and add any relevant notes. \nYou can filter test by category using the field below.',
-    selectableName: 'test',
+    subheading: (
+      <TranslatedText
+        stringId="lab.form.testSelect.individual.subheading"
+        fallback="Select tests"
+      />
+    ),
+    instructions: (
+      <>
+        <TranslatedText
+          stringId="lab.form.testSelect.individual.instructionLine1"
+          fallback="Please select the test or tests you would like to request below and add any relevant notes."
+        />
+        {'\n'}
+        <TranslatedText
+          stringId="lab.form.testSelect.individual.instructionLine2"
+          fallback="You can filter test by category using the field below."
+        />
+      </>
+    ),
+    selectableName: 'test', // TODO: Translate selectableName (requires refactoring in TestSelector.js)
     fieldName: 'labTestTypeIds',
   },
   [LAB_REQUEST_FORM_TYPES.PANEL]: {
-    subheading: 'Select panel',
-    instructions:
-      'Please select the panel or panels you would like to request below and add any relevant notes.',
-    label: 'Select the test panel or panels',
+    subheading: (
+      <TranslatedText stringId="lab.form.testSelect.panel.subheading" fallback="Select panel" />
+    ),
+    instructions: (
+      <TranslatedText
+        stringId="lab.form.testSelect.panel.instruction"
+        fallback="Please select the panel or panels you would like to request below and add any relevant notes."
+      />
+    ),
+    label: (
+      <TranslatedText
+        stringId="lab.form.testSelect.panel.label"
+        fallback="Select the test panel or panels"
+      />
+    ),
     selectableName: 'panel',
     searchFieldPlaceholder: 'Search panel or category',
     fieldName: 'panelIds',
   },
   [LAB_REQUEST_FORM_TYPES.SUPERSET]: {
-    subheading: 'Select superset',
-    instructions:
-      'Please select the superset you would like to request below and add any relevant notes. \nYou can also remove or add additional panels to your request.',
+    subheading: (
+      <TranslatedText
+        stringId="lab.form.testSelect.superSet.subheading"
+        fallback="Select superset"
+      />
+    ),
+    instructions: (
+      <>
+        <TranslatedText
+          stringId="lab.form.testSelect.superset.instructionLine1"
+          fallback="Please select the superset you would like to request below and add any relevant notes."
+        />
+        ,{'\n'}
+        <TranslatedText
+          stringId="lab.form.testSelect.superset.instructionLine2"
+          fallback="You can also remove or add additional panels to your request."
+        />
+      </>
+    ),
     selectableName: 'panel',
   },
 };
@@ -97,7 +153,13 @@ export const LabRequestFormScreen2 = props => {
         />
       </div>
       <div style={{ gridColumn: '1 / -1' }}>
-        <Field name="notes" label="Notes" component={TextField} multiline rows={3} />
+        <Field
+          name="notes"
+          label=<TranslatedText stringId="general.form.notes.label" fallback="Notes" />
+          component={TextField}
+          multiline
+          rows={3}
+        />
       </div>
     </>
   );
