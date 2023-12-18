@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import CloseIcon from '@material-ui/icons/Close';
 import { IconButton } from '@material-ui/core';
-import { Colors, PROGRAM_REGISTRATION_STATUSES } from '../../constants';
+import { REGISTRATION_STATUSES } from '@tamanu/constants';
+import { Colors } from '../../constants';
 import { Heading5 } from '../../components/Typography';
-import { usePatientProgramRegistryConditions } from '../../api/queries/usePatientProgramRegistryConditions';
+import { usePatientProgramRegistryConditionsQuery } from '../../api/queries/usePatientProgramRegistryConditions';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { RemoveConditionFormModal } from './RemoveConditionFormModal';
 import { AddConditionFormModal } from './AddConditionFormModal';
@@ -78,7 +79,7 @@ const AddConditionButton = styled.button`
 `;
 
 export const ConditionSection = ({ patientProgramRegistration }) => {
-  const { data: conditionsResponse, isLoading } = usePatientProgramRegistryConditions(
+  const { data: conditionsResponse, isLoading } = usePatientProgramRegistryConditionsQuery(
     patientProgramRegistration.patientId,
     patientProgramRegistration.programRegistryId,
   );
@@ -88,7 +89,7 @@ export const ConditionSection = ({ patientProgramRegistration }) => {
   if (isLoading) return <LoadingIndicator />;
 
   const isRemoved =
-    patientProgramRegistration.registrationStatus === PROGRAM_REGISTRATION_STATUSES.REMOVED;
+    patientProgramRegistration.registrationStatus === REGISTRATION_STATUSES.INACTIVE;
   return (
     <Container>
       <HeadingContainer>

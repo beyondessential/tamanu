@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
 import { useParams } from 'react-router-dom';
+import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { reloadPatient } from '../../store';
 import { SearchTable, DateDisplay, MenuButton } from '../../components';
 import { DeleteProgramRegistryFormModal } from './DeleteProgramRegistryFormModal';
@@ -97,7 +98,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
             <MenuButton
               onClick={() => {}}
               actions={
-                row.registrationStatus === 'removed'
+                row.registrationStatus === REGISTRATION_STATUSES.INACTIVE
                   ? { Delete: () => setOpenModal({ action: 'Delete', data: row }) }
                   : {
                       'Change status': () => setOpenModal({ action: 'ChangeStatus', data: row }),

@@ -1,9 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
 import { useQueryClient } from '@tanstack/react-query';
-import { useAuth } from '../../contexts/Auth';
+import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { Modal, ConfirmCancelRow, DateDisplay, FormSeparatorLine } from '../../components';
-import { Colors, PROGRAM_REGISTRATION_STATUSES } from '../../constants';
+import { Colors } from '../../constants';
 import { useApi } from '../../api';
 import { PROGRAM_REGISTRY } from '../../components/PatientInfoPane/paneTitles';
 
@@ -59,18 +59,16 @@ const Value = styled.div`
 export const RemoveProgramRegistryFormModal = ({ patientProgramRegistration, onClose, open }) => {
   const api = useApi();
   const queryClient = useQueryClient();
-  const { currentUser } = useAuth();
 
   if (!patientProgramRegistration) return <></>;
 
   const remove = async () => {
-    const { id, ...rest } = patientProgramRegistration;
+    const { id, date, ...rest } = patientProgramRegistration;
     await api.post(
       `patient/${encodeURIComponent(patientProgramRegistration.patientId)}/programRegistration`,
       {
         ...rest,
-        registrationStatus: PROGRAM_REGISTRATION_STATUSES.REMOVED,
-        removedByClinicianId: currentUser.id,
+        registrationStatus: REGISTRATION_STATUSES.INACTIVE,
       },
     );
 

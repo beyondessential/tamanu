@@ -1,8 +1,9 @@
 import React, { useMemo } from 'react';
 import styled from 'styled-components';
+import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { Table } from '../../components/Table/Table';
 import { DateDisplay } from '../../components/DateDisplay';
-import { Colors, PROGRAM_REGISTRATION_STATUSES } from '../../constants';
+import { Colors } from '../../constants';
 import { Heading5 } from '../../components/Typography';
 import { useProgramRegistryClinicalStatus } from '../../api/queries/useProgramRegistryClinicalStatus';
 import { ClinicalStatusDisplay } from './ClinicalStatusDisplay';
@@ -26,19 +27,19 @@ export const ProgramRegistryStatusHistory = ({ patientProgramRegistration }) => 
     patientProgramRegistration.patientId,
     patientProgramRegistration.programRegistryId,
     {
-      orderBy: 'clinicalStatusUpdatedAt',
+      orderBy: 'date',
       order: 'desc',
     },
   );
 
   const { orderBy, order, onChangeOrderBy, customSort } = useTableSorting({
-    initialSortKey: 'clinicalStatusUpdatedAt',
+    initialSortKey: 'date',
     initialSortDirection: 'desc',
   });
 
   const columns = useMemo(() => {
     const removedOnce = (data ? data.data : []).some(
-      row => row.registrationStatus === PROGRAM_REGISTRATION_STATUSES.REMOVED,
+      row => row.registrationStatus === REGISTRATION_STATUSES.INACTIVE,
     );
     return [
       {
@@ -56,10 +57,10 @@ export const ProgramRegistryStatusHistory = ({ patientProgramRegistration }) => 
         accessor: row => row.clinician.displayName,
       },
       {
-        key: 'clinicalStatusUpdatedAt',
+        key: 'date',
         title: 'Date recorded',
         sortable: true,
-        accessor: row => <DateDisplay date={row.clinicalStatusUpdatedAt} />,
+        accessor: row => <DateDisplay date={row.date} />,
       },
       ...(removedOnce
         ? [

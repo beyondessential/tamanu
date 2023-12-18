@@ -84,7 +84,7 @@ storiesOf('Program Registry', module).add('DisplayPatientRegDetails Critical', (
     <DisplayPatientRegDetails
       patientProgramRegistration={{
         ...patientProgramRegistration,
-        registrationStatus: 'removed',
+        registrationStatus: 'inactive',
         clinicalStatus: {
           id: '1',
           code: 'critical',

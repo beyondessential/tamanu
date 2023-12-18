@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Field } from 'formik';
 import styled from 'styled-components';
+import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { useSuggester } from '../../api';
 import {
   CustomisableSearchBar,
@@ -77,7 +78,11 @@ export const ProgramRegistrySearchBar = ({ searchParameters, setSearchParameters
             }}
           >
             <FacilityCheckbox>
-              <Field name="removed" label="Include removed patients" component={CheckField} />
+              <Field
+                name={REGISTRATION_STATUSES.INACTIVE}
+                label="Include removed patients"
+                component={CheckField}
+              />
             </FacilityCheckbox>
             <FacilityCheckbox>
               <Field name="deceased" label="Include deceased patients" component={CheckField} />

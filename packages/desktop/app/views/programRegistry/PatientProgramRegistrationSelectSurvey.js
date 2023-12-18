@@ -2,9 +2,9 @@ import React from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
 import { useQuery } from '@tanstack/react-query';
-import { SURVEY_TYPES } from '@tamanu/constants';
+import { REGISTRATION_STATUSES, SURVEY_TYPES } from '@tamanu/constants';
 import { useApi } from 'desktop/app/api';
-import { Colors, PROGRAM_REGISTRATION_STATUSES } from '../../constants';
+import { Colors } from '../../constants';
 import { Heading5 } from '../../components/Typography';
 import { Button } from '../../components/Button';
 import { Form, Field, SelectField } from '../../components/Field';
@@ -82,7 +82,7 @@ export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistrat
         }}
         render={({ values, submitForm }) => {
           const isRemoved =
-            patientProgramRegistration.registrationStatus === PROGRAM_REGISTRATION_STATUSES.REMOVED;
+            patientProgramRegistration.registrationStatus === REGISTRATION_STATUSES.INACTIVE;
           return (
             <StyledFormGrid>
               <ConditionalTooltip visible={isRemoved} title="Patient must be active">

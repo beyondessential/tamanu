@@ -78,26 +78,22 @@ export const FieldWithTooltip = ({
   muiTooltipProps,
   ...props
 }) => {
-  if (disabledTooltipText)
+  if (disabledTooltipText && props.disabled)
     return (
       <MuiBox position="relative">
-        {props.disabled ? (
-          <StyledToolTip title={disabledTooltipText} arrow placement="top" {...props}>
-            {/* Below div is needed to make StyledToolTip work  */}
-            <div>
-              <Field {...props} />
-            </div>
-          </StyledToolTip>
-        ) : (
-          <Field {...props} />
-        )}
+        <StyledToolTip title={disabledTooltipText} arrow placement="top" {...props}>
+          {/* Below div is needed to make StyledToolTip work  */}
+          <div>
+            <Field {...props} />
+          </div>
+        </StyledToolTip>
       </MuiBox>
     );
 
   return (
     <MuiBox position="relative">
       <Field {...props} />
-      <FormTooltip title={tooltipText} {...muiTooltipProps} />
+      {tooltipText && <FormTooltip title={tooltipText} {...muiTooltipProps} />}
     </MuiBox>
   );
 };

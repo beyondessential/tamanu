@@ -200,6 +200,7 @@ function transformPatientProgramRegistrationData(patientProgramRegistration, con
     clinicalStatus,
     registrationStatus,
     clinician,
+    facility,
     registeringFacility,
     village,
   } = patientProgramRegistration;
@@ -210,11 +211,12 @@ function transformPatientProgramRegistrationData(patientProgramRegistration, con
       return registrationStatus;
     case 'registrationClinician':
       return clinician.id;
-    case 'registrationCurrentlyAtVillage':
-      return village?.id;
-    case 'registeringFacility':
+    case 'currentlyAtFacility':
+      return facility?.id;
     case 'registrationCurrentlyAtFacility':
       return registeringFacility.id;
+    case 'currentlyAtVillage':
+      return village?.id;
 
     default:
       return undefined;

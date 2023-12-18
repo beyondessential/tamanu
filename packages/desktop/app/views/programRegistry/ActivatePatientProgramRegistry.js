@@ -4,6 +4,7 @@ import { difference } from 'lodash';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { useQueryClient } from '@tanstack/react-query';
 import { Divider } from '@material-ui/core';
+import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import {
   Form,
   Field,
@@ -19,11 +20,10 @@ import { useSuggester } from '../../api';
 import { useAuth } from '../../contexts/Auth';
 import { Modal } from '../../components/Modal';
 import { useApi } from '../../api/useApi';
-import { PROGRAM_REGISTRATION_STATUSES } from '../../constants';
 import { PROGRAM_REGISTRY } from '../../components/PatientInfoPane/paneTitles';
 import {
-  usePatientProgramRegistryConditions,
-  useProgramRegistryCondtions,
+  usePatientProgramRegistryConditionsQuery,
+  useProgramRegistryConditionsQuery,
 } from '../../api/queries/usePatientProgramRegistryConditions';
 
 export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistration, open }) => {
@@ -33,11 +33,11 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
   const programRegistryStatusSuggester = useSuggester('programRegistryClinicalStatus', {
     baseQueryParameters: { programRegistryId: patientProgramRegistration.programRegistryId },
   });
-  const { data: registrationConditions } = usePatientProgramRegistryConditions(
+  const { data: registrationConditions } = usePatientProgramRegistryConditionsQuery(
     patientProgramRegistration.patientId,
     patientProgramRegistration.programRegistryId,
   );
-  const { data: conditions } = useProgramRegistryCondtions(
+  const { data: conditions } = useProgramRegistryConditionsQuery(
     patientProgramRegistration.programRegistryId,
   );
 
@@ -80,7 +80,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
       {
         ...rest,
         conditionIds: newConditionIds,
-        registrationStatus: PROGRAM_REGISTRATION_STATUSES.ACTIVE,
+        registrationStatus: REGISTRATION_STATUSES.ACTIVE,
       },
     );
 

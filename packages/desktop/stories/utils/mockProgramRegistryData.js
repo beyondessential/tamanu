@@ -339,7 +339,7 @@ export const programRegistryConditions = [
 export const programRegistryStatusHistories = [
   {
     id: '1',
-    // registrationStatus: 'removed',
+    // registrationStatus: 'inactive',
     registrationStatus: 'active',
     clinicalStatusId: '1',
     clinicalStatus: {
@@ -748,7 +748,7 @@ export const patientProgramRegistration = {
   registrationStatus: 'active',
   date: '2023-08-28T02:40:16.237Z',
   // name: 'Hepatitis B',
-  // registrationStatus: 'removed',
+  // registrationStatus: 'inactive',
   removedById: '213123',
   dateRemoved: '2023-08-28T02:40:16.237Z',
   removedBy: {
