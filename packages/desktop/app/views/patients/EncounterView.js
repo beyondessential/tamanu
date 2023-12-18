@@ -89,17 +89,29 @@ const TABS = [
 function getHeaderText({ encounterType }) {
   switch (encounterType) {
     case ENCOUNTER_TYPES.TRIAGE:
-      return 'Triage';
+      return <TranslatedText stringId="encounter.header.triage" fallback="Triage" />;
     case ENCOUNTER_TYPES.OBSERVATION:
-      return 'Active ED patient';
+      return <TranslatedText stringId="encounter.header.edPatient" fallback="Active ED patient" />;
     case ENCOUNTER_TYPES.EMERGENCY:
-      return 'Emergency Short Stay';
+      return (
+        <TranslatedText
+          stringId="encounter.header.emergencyShortStay"
+          fallback="Emergency Short Stay"
+        />
+      );
     case ENCOUNTER_TYPES.ADMISSION:
-      return 'Hospital Admission';
+      return (
+        <TranslatedText
+          stringId="encounter.header.hospitalAdmission"
+          fallback="Hospital Admission"
+        />
+      );
     case ENCOUNTER_TYPES.CLINIC:
     case ENCOUNTER_TYPES.IMAGING:
     default:
-      return 'Patient Encounter';
+      return (
+        <TranslatedText stringId="encounter.header.patientEncounter" fallback="Patient Encounter" />
+      );
   }
 }
 
