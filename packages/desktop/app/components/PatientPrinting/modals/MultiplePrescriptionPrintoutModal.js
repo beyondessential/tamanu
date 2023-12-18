@@ -9,6 +9,7 @@ import { useApi } from '../../../api';
 import { Colors } from '../../../constants';
 
 import { MultiplePrescriptionPrintout } from '../printouts/MultiplePrescriptionPrintout';
+import { TranslatedText } from '../../Translation/TranslatedText';
 
 export const MultiplePrescriptionPrintoutModal = ({
   encounter,
@@ -50,7 +51,12 @@ export const MultiplePrescriptionPrintoutModal = ({
 
   return (
     <Modal
-      title="Print prescriptions"
+      title={
+        <TranslatedText
+          stringId="medication.modal.printMultiple.title"
+          fallback="Print prescriptions"
+        />
+      }
       width="md"
       open={open}
       onClose={onClose}

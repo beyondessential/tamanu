@@ -6,6 +6,7 @@ import { LoadingIndicator } from '../../LoadingIndicator';
 import { useApi } from '../../../api';
 
 import { PrescriptionPrintout } from '../printouts/PrescriptionPrintout';
+import { TranslatedText } from '../../Translation/TranslatedText';
 
 export const PrintPrescriptionModal = ({ medication, open, onClose }) => {
   const certificateData = useCertificate();
@@ -65,7 +66,13 @@ export const PrintPrescriptionModal = ({ medication, open, onClose }) => {
 
   return (
     <>
-      <Modal title="Prescription" open={open} onClose={onClose} width="md" printable>
+      <Modal
+        title={<TranslatedText stringId="medication.modal.print.title" fallback="Prescription" />}
+        open={open}
+        onClose={onClose}
+        width="md"
+        printable
+      >
         {encounterLoading || patientLoading || additionalDataLoading || villageLoading ? (
           <LoadingIndicator />
         ) : (
