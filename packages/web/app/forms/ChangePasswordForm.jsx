@@ -94,59 +94,73 @@ export const ChangePasswordForm = React.memo(
     onNavToLogin,
     onNavToResetPassword,
   }) => {
-    const renderForm = ({ setFieldValue }) => (
-      <FormGrid columns={1}>
-        <div>
-          <FormHeading>Reset password</FormHeading>
-          <FormSubtext>
-            We have emailed you a reset code. Please enter the code and your new password below to
-            reset your password.
-          </FormSubtext>
-          <ErrorText $isError={!!errorMessage}>{errorMessage}</ErrorText>
-        </div>
-        <FieldContainer>
-          <StyledField
-            name="token"
-            type="text"
-            label="Reset code"
-            required
-            component={TextField}
-            placeholder="Reset code"
-          />
-          <HorizontalDivider />
-          <StyledField
-            name="newPassword"
-            type="password"
-            label="New password"
-            required
-            component={TextField}
-            placeholder="New password"
-          />
-          <StyledField
-            name="confirmNewPassword"
-            type="password"
-            label="Confirm new password"
-            required
-            component={TextField}
-            placeholder="Confirm new password"
-          />
-        </FieldContainer>
-        <ActionButtonContainer>
-          <ChangePasswordButton type="submit">Reset Password</ChangePasswordButton>
-          <BackToLoginButton onClick={onNavToLogin} variant="outlined">
-            Back to login
-          </BackToLoginButton>
-        </ActionButtonContainer>
-        <ResendCodeButton
-          onClick={() => {
-            onRestartFlow();
-            onNavToResetPassword();
-          }}
-        >
-          Resend reset code
-        </ResendCodeButton>
-      </FormGrid>
-    );
+    const [isTokenValid, setIsTokenValid] = useState(false);
+
+    const renderForm = ({ setFieldValue }) => {
+      return (
+        <FormGrid columns={1}>
+          <div>
+            <FormHeading>Reset password</FormHeading>
+            <FormSubtext>
+              We have emailed you a reset code. Please enter the code and your new password below to
+              reset your password.
+            </FormSubtext>
+            <ErrorText $isError={!!errorMessage}>{errorMessage}</ErrorText>
+          </div>
+          <FieldContainer>
+            <StyledField
+              name="token"
+              type="text"
+              label="Reset code"
+              required
+              component={TextField}
+              placeholder="Reset code"
+              // onBlur={data => {
+              //   console.log('tsatrt');
+              //   onValidateResetCode(data);
+              //   console.log('ebd');
+              // }}
+              onBlur={() => {
+                setIsTokenValid(true);
+              }}
+            />
+            <HorizontalDivider />
+            <StyledField
+              name="newPassword"
+              type="password"
+              label="New password"
+              required
+              component={TextField}
+              placeholder="New password"
+              disabled={!isTokenValid}
+            />
+            <StyledField
+              name="confirmNewPassword"
+              type="password"
+              label="Confirm new password"
+              required
+              component={TextField}
+              placeholder="Confirm new password"
+              disabled={!isTokenValid}
+            />
+          </FieldContainer>
+          <ActionButtonContainer>
+            <ChangePasswordButton type="submit">Reset Password</ChangePasswordButton>
+            <BackToLoginButton onClick={onNavToLogin} variant="outlined">
+              Back to login
+            </BackToLoginButton>
+          </ActionButtonContainer>
+          <ResendCodeButton
+            onClick={() => {
+              onRestartFlow();
+              onNavToResetPassword();
+            }}
+          >
+            Resend reset code
+          </ResendCodeButton>
+        </FormGrid>
+      );
+    };
 
     if (success) {
       return (
