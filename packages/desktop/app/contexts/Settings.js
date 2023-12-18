@@ -1,29 +1,26 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
+import { useSelector } from 'react-redux';
 import { get } from 'lodash';
-import { useApi } from '../api';
 
 const SettingsContext = React.createContext({
   getSetting: () => {},
-  fetchSettings: () => {},
 });
 
 export const useSettings = () => useContext(SettingsContext);
 
 export const SettingsProvider = ({ children }) => {
-  const api = useApi();
   const [settings, setSettings] = useState({});
+  const reduxSettings = useSelector(state => state.auth.settings);
 
-  const fetchSettings = async () => {
-    const settingsObject = await api.get('settings');
-    console.log('settingsObject', settingsObject);
-    setSettings(settingsObject);
-  };
+  useEffect(() => {
+    console.log(reduxSettings);
+    setSettings(reduxSettings);
+  }, [reduxSettings]);
 
   return (
     <SettingsContext.Provider
       value={{
         getSetting: path => get(settings, path),
-        fetchSettings,
       }}
     >
       {children}
