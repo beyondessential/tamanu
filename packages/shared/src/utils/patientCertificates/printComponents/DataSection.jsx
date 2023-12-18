@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, View, Text } from '@react-pdf/renderer';
 import { HorizontalRule } from './HorizontalRule';
-import { Row } from '../patientCertificates/Layout';
+import { Row } from '../Layout';
 
 const styles = StyleSheet.create({
   title: {

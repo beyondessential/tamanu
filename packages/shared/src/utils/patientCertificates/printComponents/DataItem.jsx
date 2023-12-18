@@ -1,6 +1,6 @@
 import React from 'react';
-import { P } from '../patientCertificates/Typography';
-import { Row } from '../patientCertificates/Layout';
+import { P } from '../Typography';
+import { Row } from '../Layout';
 
 export const DataItem = ({ label, value }) => {
   return (
