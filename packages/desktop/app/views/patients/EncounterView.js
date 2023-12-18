@@ -44,7 +44,7 @@ const TABS = [
     ),
   },
   {
-    label: 'Notes',
+    label: <TranslatedText stringId="encounter.tab.note" fallback="Notes" />,
     key: ENCOUNTER_TAB_NAMES.NOTES,
     render: props => <NotesPane {...props} />,
   },
@@ -54,7 +54,7 @@ const TABS = [
     render: props => <ProcedurePane {...props} />,
   },
   {
-    label: 'Labs',
+    label: <TranslatedText stringId="encounter.tab.labs" fallback="Labs" />,
     key: ENCOUNTER_TAB_NAMES.LABS,
     render: props => <LabsPane {...props} />,
   },

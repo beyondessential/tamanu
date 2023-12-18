@@ -36,6 +36,7 @@ import {
   MODAL_PADDING_TOP_AND_BOTTOM,
   useLocalisedText,
 } from '../components';
+import { TranslatedText } from '../components/Translation/TranslatedText';
 
 const Divider = styled(BaseDivider)`
   margin: 30px -${MODAL_PADDING_LEFT_AND_RIGHT}px;
@@ -107,9 +108,11 @@ const StyledUnorderedList = styled.ul`
 
 const ProcedureList = React.memo(({ procedures }) => (
   <StyledUnorderedList>
-    {procedures.length > 0
-      ? procedures.map(({ procedureType }) => <li key={procedureType.id}>{procedureType.name}</li>)
-      : 'N/a'}
+    {procedures.length > 0 ? (
+      procedures.map(({ procedureType }) => <li key={procedureType.id}>{procedureType.name}</li>)
+    ) : (
+      <TranslatedText stringId="general.fallback.notApplicable" fallback="N/A" />
+    )}
   </StyledUnorderedList>
 ));
 
@@ -178,11 +181,31 @@ const RepeatsAccessor = ({ id }) => (
 const medicationColumns = [
   {
     key: 'drug/prescription',
-    title: 'Drug / Prescription',
+    title: (
+      <TranslatedText
+        stringId="discharge.table.column.drugOrPrescription"
+        fallback="Drug / Prescription"
+      />
+    ),
     accessor: MedicationAccessor,
   },
-  { key: 'quantity', title: 'Discharge Quantity', accessor: QuantityAccessor, width: '20%' },
-  { key: 'repeats', title: 'Repeats', accessor: RepeatsAccessor, width: '20%' },
+  {
+    key: 'quantity',
+    title: (
+      <TranslatedText
+        stringId="discharge.table.column.dischargeQuantity"
+        fallback="Discharge Quantity"
+      />
+    ),
+    accessor: QuantityAccessor,
+    width: '20%',
+  },
+  {
+    key: 'repeats',
+    title: <TranslatedText stringId="discharge.table.column.repeats" fallback="Repeats" />,
+    accessor: RepeatsAccessor,
+    width: '20%',
+  },
 ];
 
 const EncounterOverview = ({
@@ -195,22 +218,42 @@ const EncounterOverview = ({
 
   return (
     <>
-      <DateTimeInput label="Admission date" value={startDate} disabled />
+      <DateTimeInput
+        label=<TranslatedText
+          stringId="discharge.form.admissionDate.label"
+          fallback="Admission date"
+        />
+        value={startDate}
+        disabled
+      />
       <TextInput
-        label={`Supervising ${clinicianText.toLowerCase()}`}
+        label=<TranslatedText
+          stringId="discharge.form.supervisingClinician.label"
+          fallback="Supervising :clinicianText"
+          replacements={{ clinicianText: clinicianText.toLowerCase() }}
+        />
         value={examiner ? examiner.displayName : '-'}
         disabled
       />
       <TextInput
-        label="Reason for encounter"
+        label=<TranslatedText
+          stringId="discharge.form.encounterReason.label"
+          fallback="Reason for encounter"
+        />
         value={reasonForEncounter}
         disabled
         style={{ gridColumn: '1 / -1' }}
       />
-      <OuterLabelFieldWrapper label="Diagnoses" style={{ gridColumn: '1 / -1' }}>
+      <OuterLabelFieldWrapper
+        label={<TranslatedText stringId="discharge.form.diagnoses.label" fallback="Diagnoses" />}
+        style={{ gridColumn: '1 / -1' }}
+      >
         <DiagnosisList diagnoses={currentDiagnoses} />
       </OuterLabelFieldWrapper>
-      <OuterLabelFieldWrapper label="Procedures" style={{ gridColumn: '1 / -1' }}>
+      <OuterLabelFieldWrapper
+        label={<TranslatedText stringId="discharge.form.procedures.label" fallback="Procedures" />}
+        style={{ gridColumn: '1 / -1' }}
+      >
         <ProcedureList procedures={procedures} />
       </OuterLabelFieldWrapper>
     </>
@@ -236,8 +279,8 @@ const DischargeFormScreen = props => {
               onStepForward();
             }
           }}
-          confirmText="Finalise"
-          cancelText="Cancel"
+          confirmText={<TranslatedText stringId="general.action.finalise" fallback="Finalise" />}
+          cancelText={<TranslatedText stringId="general.action.cancel" fallback="Cancel" />}
         />
       }
       {...props}
@@ -248,8 +291,18 @@ const DischargeFormScreen = props => {
 const DischargeSummaryScreen = ({ onStepBack, submitForm, onCancel }) => (
   <div className="ConfirmContent">
     <ConfirmContent>
-      <h3>Confirm patient discharge</h3>
-      <p>Are you sure you want to discharge the patient? This action is irreversible.</p>
+      <h3>
+        <TranslatedText
+          stringId="discharge.modal.confirm.heading"
+          fallback="Confirm patient discharge"
+        />
+      </h3>
+      <p>
+        <TranslatedText
+          stringId="discharge.modal.confirm.warningText"
+          fallback="Are you sure you want to discharge the patient? This action is irreversible."
+        />
+      </p>
     </ConfirmContent>
     <Divider />
     <FormConfirmCancelBackRow onBack={onStepBack} onConfirm={submitForm} onCancel={onCancel} />
@@ -306,7 +359,11 @@ export const DischargeForm = ({
           .object()
           .shape({
             dischargerId: foreignKey(
-              `Discharging ${clinicianText.toLowerCase()} is a required field'`,
+              <TranslatedText
+                stringId="discharge.form.dischargingClinician.validation"
+                fallback="Discharging :clinicianText is a required field"
+                replacements={{ clinicianText: clinicianText.toLowerCase() }}
+              />,
             ),
           })
           .shape({
@@ -322,7 +379,12 @@ export const DischargeForm = ({
         <EncounterOverview encounter={encounter} />
         <Field
           name="endDate"
-          label="Discharge date"
+          label={
+            <TranslatedText
+              stringId="discharge.form.dischargeDate.label"
+              fallback="Discharge date"
+            />
+          }
           component={DateTimeField}
           min={format(encounter.startDate, "yyyy-MM-dd'T'HH:mm")}
           required
@@ -330,7 +392,13 @@ export const DischargeForm = ({
         />
         <Field
           name="discharge.dischargerId"
-          label={`Discharging ${clinicianText.toLowerCase()}`}
+          label={
+            <TranslatedText
+              stringId="discharge.form.dischargingClinician.label"
+              fallback="Discharging :clinicianText"
+              replacements={{ clinicianText: clinicianText.toLowerCase() }}
+            />
+          }
           component={AutocompleteField}
           suggester={practitionerSuggester}
           required
@@ -341,20 +409,43 @@ export const DischargeForm = ({
           component={AutocompleteField}
           suggester={dispositionSuggester}
         />
-        <OuterLabelFieldWrapper label="Discharge medications" style={{ gridColumn: '1 / -1' }}>
+        <OuterLabelFieldWrapper
+          label={
+            <TranslatedText
+              stringId="discharge.form.dischargeMedications.label"
+              fallback="Discharge medications"
+            />
+          }
+          style={{ gridColumn: '1 / -1' }}
+        >
           <TableFormFields columns={medicationColumns} data={activeMedications} />
         </OuterLabelFieldWrapper>
         <Field
           name="sendToPharmacy"
-          label="Send prescription to pharmacy"
+          label={
+            <TranslatedText
+              stringId="discharge.form.sendToPharmacy.label"
+              fallback="Send prescription to pharmacy"
+            />
+          }
           component={CheckField}
-          helperText="Requires mSupply"
+          helperText={
+            <TranslatedText
+              stringId="discharge.form.sendToPharmacy.helperText"
+              fallback="Requires mSupply"
+            />
+          }
           style={{ gridColumn: '1 / -1' }}
           disabled
         />
         <Field
           name="discharge.note"
-          label="Discharge treatment plan and follow-up notes"
+          label={
+            <TranslatedText
+              stringId="discharge.form.notes.label"
+              fallback="Discharge treatment plan and follow-up notes"
+            />
+          }
           component={TextField}
           multiline
           rows={4}

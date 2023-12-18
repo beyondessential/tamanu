@@ -8,6 +8,7 @@ import {
   FormSeparatorLine,
   OutlinedButton,
 } from '../components';
+import { TranslatedText } from '../components/Translation/TranslatedText';
 
 const StyledBackButton = styled(OutlinedButton)`
   margin-right: auto;
@@ -71,10 +72,16 @@ export const MultiStepForm = ({ children, initialValues, onSubmit, onCancel, onC
             <FormSeparatorLine />
             <ButtonRow>
               {stepNumber > 0 && (
-                <StyledBackButton onClick={() => previous(props.values)}>Back</StyledBackButton>
+                <StyledBackButton onClick={() => previous(props.values)}>
+                  <TranslatedText stringId="general.action.back" fallback="Back" />
+                </StyledBackButton>
               )}
               <FormSubmitCancelRow
-                confirmText={step.props.submitButtonText || 'Next'}
+                confirmText={
+                  step.props.submitButtonText || (
+                    <TranslatedText stringId="general.action.next" fallback="Next" />
+                  )
+                }
                 onCancel={onCancel}
               />
             </ButtonRow>

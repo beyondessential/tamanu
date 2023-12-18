@@ -11,6 +11,7 @@ import { SearchField, SuggesterSelectField } from '../../components/Field';
 import { TextButton } from '../../components/Button';
 import { BodyText } from '../../components/Typography';
 import { SelectableTestItem, TestItem } from './TestItem';
+import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 const SELECTABLE_DATA_ENDPOINTS = {
   [LAB_REQUEST_FORM_TYPES.PANEL]: 'labTestPanel',
@@ -211,8 +212,18 @@ export const TestSelectorInput = ({
                   value: searchQuery.labTestCategoryId,
                   onChange: handleChangeSearchQuery,
                 }}
-                initialOptions={[{ label: 'All', value: '' }]}
-                label="Test category"
+                initialOptions={[
+                  {
+                    label: <TranslatedText stringId="general.select.all" fallback="All" />,
+                    value: '',
+                  },
+                ]}
+                label={
+                  <TranslatedText
+                    stringId="lab.form.testSelect.testCategory.label"
+                    fallback="Test category"
+                  />
+                }
                 endpoint="labTestCategory"
                 name="labTestCategoryId"
               />
@@ -260,7 +271,11 @@ export const TestSelectorInput = ({
         <SelectorContainer>
           <Box display="flex" justifyContent="space-between">
             <SectionHeader>Selected {selectableName}s</SectionHeader>
-            {value.length > 0 && <ClearAllButton onClick={handleClear}>Clear all</ClearAllButton>}
+            {value.length > 0 && (
+              <ClearAllButton onClick={handleClear}>
+                <TranslatedText stringId="general.action.clearAll" fallback="Clear all" />
+              </ClearAllButton>
+            )}
           </Box>
           <FormSeparatorLine />
           <SelectorTable>

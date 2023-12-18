@@ -5,6 +5,7 @@ import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { Heading4 } from '../../components';
 import { DateTimeField, Field, AutocompleteField } from '../../components/Field';
 import { Colors } from '../../constants';
+import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 const Container = styled.div`
   border: 1px solid ${Colors.outline};
@@ -51,8 +52,20 @@ const StyledField = styled(Field)`
   }
 `;
 
-const HEADERS = ['Category', 'Date & time collected', 'Collected by', 'Specimen type', 'Site'];
-const WITH_PANELS_HEADERS = ['Panel', ...HEADERS];
+const HEADERS = [
+  <TranslatedText stringId="lab.sampleDetail.table.column.category" fallback="Category" />,
+  <TranslatedText
+    stringId="lab.sampleDetail.table.column.collectionDateTime"
+    fallback="Date & time collected"
+  />,
+  <TranslatedText stringId="lab.sampleDetail.table.column.collectedBy" fallback="Collected by" />,
+  <TranslatedText stringId="lab.sampleDetail.table.column.specimenType" fallback="Specimen type" />,
+  <TranslatedText stringId="lab.sampleDetail.table.column.site" fallback="Site" />,
+];
+const WITH_PANELS_HEADERS = [
+  <TranslatedText stringId="lab.sampleDetail.table.column.panel" fallback="Panel" />,
+  ...HEADERS,
+];
 export const SAMPLE_DETAILS_FIELD_PREFIX = 'sample-details-field-';
 
 export const SampleDetailsField = ({

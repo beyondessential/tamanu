@@ -9,6 +9,7 @@ import { useApi } from '../../../api';
 import { Colors } from '../../../constants';
 
 import { MultipleLabRequestsPrintout } from '../printouts/MultipleLabRequestsPrintout';
+import { TranslatedText } from '../../Translation/TranslatedText';
 
 export const MultipleLabRequestsPrintoutModal = ({ encounter, labRequests, open, onClose }) => {
   const certificateData = useCertificate();
@@ -36,7 +37,9 @@ export const MultipleLabRequestsPrintoutModal = ({ encounter, labRequests, open,
 
   return (
     <Modal
-      title="Print lab requests"
+      title={
+        <TranslatedText stringId="lab.modal.printMultiple.title" fallback="Print lab requests" />
+      }
       width="md"
       open={open}
       onClose={onClose}

@@ -19,6 +19,7 @@ import {
 import { getEncounterType } from '../views/patients/panes/EncounterInfoPane';
 import { ProgramsView } from '../views/programs/ProgramsView';
 import { ReferralsView } from '../views/referrals/ReferralsView';
+import { TranslatedText } from '../components/Translation/TranslatedText';
 
 export const usePatientRoutes = () => {
   const { navigateToEncounter, navigateToPatient } = usePatientNavigation();
@@ -50,7 +51,12 @@ export const usePatientRoutes = () => {
             {
               path: `${PATIENT_PATHS.SUMMARY}/view`,
               component: DischargeSummaryView,
-              title: 'Discharge Summary',
+              title: (
+                <TranslatedText
+                  stringId="encounter.dischargeSummary.title"
+                  fallback="Discharge Summary"
+                />
+              ),
             },
             {
               path: `${PATIENT_PATHS.ENCOUNTER}/programs/new`,

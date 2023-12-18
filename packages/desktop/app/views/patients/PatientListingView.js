@@ -48,13 +48,13 @@ const LISTING_COLUMNS = [
 
 const location = {
   key: 'locationName',
-  title: 'Location',
+  title: <TranslatedText stringId="general.table.column.location" fallback="Location" />,
   accessor: LocationCell,
 };
 
 const locationGroup = {
   key: 'locationGroupName',
-  title: 'Area',
+  title: <TranslatedText stringId="general.table.column.area" fallback="Area" />,
   accessor: LocationGroupCell,
 };
 
@@ -78,7 +78,9 @@ const PatientTable = ({ columns, fetchOptions, searchParameters }) => {
   return (
     <SearchTable
       columns={columns}
-      noDataMessage="No patients found"
+      noDataMessage={
+        <TranslatedText stringId="patientList.table.noData" fallback="No patients found" />
+      }
       onRowClick={handleViewPatient}
       rowStyle={({ dateOfDeath }) => {
         // Style rows for deceased patients red
