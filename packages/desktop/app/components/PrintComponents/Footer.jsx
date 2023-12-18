@@ -27,6 +27,7 @@ const styles = StyleSheet.create({
     fontWeight: 400,
     fontFamily: 'Helvetica-Bold',
   },
+
   valueText: {
     fontSize: 8,
     fontWeight: 400,
@@ -39,6 +40,7 @@ const LabelText = ({ children, props }) => (
     {children}
   </Text>
 );
+
 const ValueText = ({ children, props }) => (
   <Text style={styles.valueText} {...props}>
     {children}
@@ -53,13 +55,15 @@ export const Footer = ({ printDate, printFacility, printedBy }) => {
         <ValueText>{getDisplayDate(printDate)}</ValueText>
         {printFacility && (
           <>
-            <LabelText style={stlyes.labelText}> | Print facility: </LabelText>
+            <ValueText>{' '}| </ValueText>
+            <LabelText>Print facility: </LabelText>
             <ValueText>{printFacility}</ValueText>
           </>
         )}
         {printedBy && (
           <>
-            <LabelText> | Printed by: </LabelText>
+            <ValueText>{' '}| </ValueText>
+            <LabelText>Printed by: </LabelText>
             <ValueText>{printedBy}</ValueText>
           </>
         )}
