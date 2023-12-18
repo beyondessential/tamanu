@@ -54,7 +54,7 @@ export const ProgramRegistrySurveyView = () => {
   if (isError) return <p>{title || 'Unknown'}&apos; not found.</p>;
 
   return (
-    <ProgramRegistryProvider value={{ programRegistryId }}>
+    <ProgramRegistryProvider value={{ programRegistryId: 'programRegistryId' }}>
       <SurveyView
         onSubmit={submitSurveyResponse}
         survey={survey}

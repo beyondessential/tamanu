@@ -7,8 +7,3 @@ export const useProgramRegistryQuery = (programRegistryId, fetchOptions) => {
     api.get(`programRegistry/${encodeURIComponent(programRegistryId)}`, fetchOptions),
   );
 };
-
-export const useListOfProgramRegistryQuery = () => {
-  const api = useApi();
-  return useQuery(['ListOfProgramRegistry'], () => api.get('programRegistry', {}));
-};

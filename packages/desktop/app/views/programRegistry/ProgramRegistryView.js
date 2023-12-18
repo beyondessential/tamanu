@@ -1,9 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Redirect } from 'react-router-dom';
 import { Colors } from '../../constants';
-import { useListOfProgramRegistryQuery } from '../../api/queries/useProgramRegistryQuery';
-import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
 import { ProgramRegistrySearchBar } from './ProgramRegistrySearchBar';
 import { ProgramRegistryTable } from './ProgramRegistryTable';
@@ -30,29 +27,19 @@ const Container = styled.div`
 export const ProgramRegistryView = () => {
   const searchParams = useUrlSearchParams();
   const [searchParameters, setSearchParameters] = useState({});
-  const { data: programRegistries, isLoading, isSuccess } = useListOfProgramRegistryQuery();
-
-  if (isLoading) return <LoadingIndicator />;
-  if (
-    isSuccess &&
-    programRegistries?.data &&
-    programRegistries.data.length > 0 &&
-    programRegistries.data.find(x => x.name === searchParams.get('name'))
-  )
-    return (
-      <>
-        <ViewHeader>
-          <h1>{searchParams.get('name')}</h1>
-        </ViewHeader>
-        <Container>
-          <span>Program patient search</span>
-          <ProgramRegistrySearchBar
-            searchParameters={searchParameters}
-            setSearchParameters={setSearchParameters}
-          />
-          <ProgramRegistryTable searchParameters={searchParameters} />
-        </Container>
-      </>
-    );
-  return <Redirect to="/patients/all" />;
+  return (
+    <>
+      <ViewHeader>
+        <h1>{searchParams.get('name')}</h1>
+      </ViewHeader>
+      <Container>
+        <span>Program patient search</span>
+        <ProgramRegistrySearchBar
+          searchParameters={searchParameters}
+          setSearchParameters={setSearchParameters}
+        />
+        <ProgramRegistryTable searchParameters={searchParameters} />
+      </Container>
+    </>
+  );
 };
