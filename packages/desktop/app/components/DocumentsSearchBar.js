@@ -39,7 +39,7 @@ const ClearButton = styled(TextButton)`
 `;
 
 const SubmitButton = styled(FormSubmitButton)`
-  width: auto; /* Set width to auto */
+  width: auto;
 `;
 
 export const DocumentsSearchBar = ({ setSearchParameters }) => {
