@@ -1,5 +1,5 @@
 import { StyleSheet, View, Text } from '@react-pdf/renderer';
-import { getDisplayDate } from '@tamanu/shared/utils/patientCertificates/getDisplayDate';
+import { getDisplayDate } from '../patientCertificates/getDisplayDate';
 import React from 'react';
 
 const styles = StyleSheet.create({
