@@ -14,6 +14,9 @@ const StyledPatientDetailsLink = styled.span`
   cursor: pointer;
   font-weight: bold;
   text-decoration: underline;
+  &:hover {
+    color: ${Colors.primary};
+  }
 `;
 
 const StyledDateOfBirthWrapper = styled.div`
@@ -31,7 +34,7 @@ const StyledDateOfBirthText = styled.span`
   color: ${Colors.darkText};
 `;
 
-const IPSQRCodeFormComponent = ({ patient, onSubmit, onCancel }) => {
+const IPSQRCodeFormComponent = ({ patient, onSubmit, confirmDisabled, onCancel }) => {
   const { navigateToPatient } = usePatientNavigation();
 
   return (
@@ -62,13 +65,18 @@ const IPSQRCodeFormComponent = ({ patient, onSubmit, onCancel }) => {
       <FormGrid columns={1}>
         <Field name="email" label="Patient email" component={TextField} required />
         <Field name="confirmEmail" label="Confirm patient email" component={TextField} required />
-        <FormSubmitCancelRow confirmText="Send" onConfirm={onSubmit} onCancel={onCancel} />
+        <FormSubmitCancelRow
+          confirmText="Send"
+          onConfirm={onSubmit}
+          confirmDisabled={confirmDisabled}
+          onCancel={onCancel}
+        />
       </FormGrid>
     </>
   );
 };
 
-export const IPSQRCodeForm = ({ patient, onSubmit, onCancel }) => (
+export const IPSQRCodeForm = ({ patient, onSubmit, confirmDisabled, onCancel }) => (
   <Form
     onSubmit={onSubmit}
     initialValues={{ email: patient.email }}
@@ -81,7 +89,12 @@ export const IPSQRCodeForm = ({ patient, onSubmit, onCancel }) => (
         .required(),
     })}
     render={({ submitForm }) => (
-      <IPSQRCodeFormComponent patient={patient} onSubmit={submitForm} onCancel={onCancel} />
+      <IPSQRCodeFormComponent
+        patient={patient}
+        onSubmit={submitForm}
+        confirmDisabled={confirmDisabled}
+        onCancel={onCancel}
+      />
     )}
   />
 );
