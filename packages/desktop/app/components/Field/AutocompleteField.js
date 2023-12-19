@@ -324,15 +324,17 @@ export class AutocompleteInput extends Component {
                     <StyledClearIcon />
                   </StyledIconButton>
                 )}
-                <Icon
-                  position="end"
-                  onClick={event => {
-                    event.preventDefault();
-                    this.anchorEl.click();
-                  }}
-                >
-                  {suggestions.length > 0 ? <StyledExpandLess /> : <StyledExpandMore />}
-                </Icon>
+                {!disabled && (
+                  <Icon
+                    position="end"
+                    onClick={event => {
+                      event.preventDefault();
+                      this.anchorEl.click();
+                    }}
+                  >
+                    {suggestions.length > 0 ? <StyledExpandLess /> : <StyledExpandMore />}
+                  </Icon>
+                )}
               </>
             ),
           }}

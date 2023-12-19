@@ -32,3 +32,7 @@ export const SurveyQuestionAutocompleteField = ({ config, ...props }) => {
 
   return <AutocompleteField suggester={suggester} {...props} />;
 };
+
+export const PatientDataDisplayField = props => (
+  <SurveyQuestionAutocompleteField {...props} disabled />
+);
