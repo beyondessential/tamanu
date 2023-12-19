@@ -82,7 +82,20 @@ build_server() {
   rm $0
 }
 
+build_web() {
+  yarn build-shared
+  yarn workspace desktop build
+}
+
 package="${1:?Expected target or package path}"
 
 common
-build_server
+
+case "$package" in
+  web)
+    build_web
+    ;;
+  *)
+    build_server
+    ;;
+esac
