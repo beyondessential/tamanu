@@ -206,9 +206,6 @@ programRegistry.get(
       replacements: filterReplacements,
       type: QueryTypes.SELECT,
     });
-    console.log(`${withClause} SELECT COUNT(1) AS count ${from}`);
-    console.log('===========');
-    console.log(filterReplacements);
 
     const count = parseInt(countResult[0].count, 10);
 
