@@ -105,7 +105,7 @@ export const AppointmentsCalendar = () => {
   const filters = {
     locationGroup: {
       label: (
-        <TranslatedText stringId="scheduling.appointmentCalendar.filter.area" fallback="Area" />
+        <TranslatedText stringId="general.area.label" fallback="Area" />
       ),
       component: (
         <AutocompleteInput

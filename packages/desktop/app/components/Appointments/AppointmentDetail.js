@@ -367,7 +367,7 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
           <Button variant="text" color="primary" onClick={onOpenEncounterModal}>
             <u>
               <TranslatedText
-                stringId="general.action.admitOrCheckIn"
+                stringId="scheduling.action.admitOrCheckIn"
                 fallback="Admit or check-in"
               />
             </u>

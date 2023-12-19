@@ -70,7 +70,7 @@ export const AppointmentForm = props => {
             <Field
               label={
                 <TranslatedText
-                  stringId="scheduling.newAppointment.form.patientId.label"
+                  stringId="general.patient.label"
                   fallback="Patient"
                 />
               }
@@ -97,7 +97,7 @@ export const AppointmentForm = props => {
             <FormGrid>
               <Field
                 label={
-                  <TranslatedText stringId="general.form.startTime.label" fallback="Start time" />
+                  <TranslatedText stringId="general.startTime.label" fallback="Start time" />
                 }
                 name="startTime"
                 component={DateTimeField}
@@ -105,7 +105,7 @@ export const AppointmentForm = props => {
                 required
               />
               <Field
-                label={<TranslatedText stringId="general.form.endTime.label" fallback="End time" />}
+                label={<TranslatedText stringId="general.endTime.label" fallback="End time" />}
                 name="endTime"
                 saveDateAsString
                 component={DateTimeField}
@@ -118,7 +118,7 @@ export const AppointmentForm = props => {
                 required
               />
               <Field
-                label={<TranslatedText stringId="general.form.area.label" fallback="Area" />}
+                label={<TranslatedText stringId="general.area.label" fallback="Area" />}
                 name="locationGroupId"
                 component={AutocompleteField}
                 suggester={locationGroupSuggester}
