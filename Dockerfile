@@ -82,7 +82,7 @@ RUN scripts/docker-build.sh web
 
 
 ## Minimal image to serve the frontend
-FROM run-base as frontend
+FROM caddy:2-alpine as frontend
 COPY --from=build-caddy /usr/bin/caddy /usr/bin/caddy
 COPY packages/desktop/Caddyfile.docker /etc/caddy/Caddyfile
 COPY --from=build-frontend /app/packages/desktop/dist/ .
