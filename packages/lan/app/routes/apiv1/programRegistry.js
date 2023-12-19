@@ -101,18 +101,47 @@ programRegistry.get(
       orderBy = 'displayId',
       rowsPerPage = 10,
       page = 0,
+      deceased,
+      removed,
       ...filterParams
     } = query;
 
     const makeSimpleTextFilter = makeSimpleTextFilterFactory(filterParams);
     const makePartialTextFilter = makeSubstringTextFilterFactory(filterParams);
     const filters = [
+      // Patient filters
       makePartialTextFilter('displayId', 'patient.display_id'),
+      makeSimpleTextFilter('sex', 'patient.sex'),
       makeSimpleTextFilter('firstName', 'patient.first_name'),
       makeSimpleTextFilter('lastName', 'patient.last_name'),
-      makeFilter(true, 'mrr.program_registry_id = :program_registry_id', () => ({
-        program_registry_id: programRegistryId,
-      })),
+      makeFilter(filterParams.dateOfBirth, `patients.date_of_birth = :dateOfBirth`),
+      makeFilter(filterParams.homeVillage, `patients.village_id = :homeVillage`),
+      makeFilter(!deceased || deceased === 'false', 'patient.date_of_death IS NULL'),
+
+      // Registration filters
+      makeFilter(
+        filterParams.registeringFacilityId,
+        'mrr.registering_facility_id = :registeringFacilityId',
+      ),
+      makeFilter(filterParams.programRegistryId, 'mrr.program_registry_id = :programRegistryId'),
+      makeFilter(filterParams.clinicalStatus, 'mrr.clinical_status = :clinicalStatus'),
+      makeFilter(
+        filterParams.currentlyIn,
+        'mrr.village_id = :currentlyIn OR mrr.facility_id = :currentlyIn',
+      ),
+      makeFilter(
+        filterParams.programRegistryCondition,
+        // Essentially the `<@` operator checks that the json on the left is contained in the json on the right
+        // so we build up a string like '["A_condition_name"]' and cast it to json before checking membership.
+        `(select '["' || prc2.name || '"]' from program_registry_conditions prc2 where prc2.id == :programRegistryCondition):jsonb <@ conditions.condition_list`,
+      ),
+      makeFilter(
+        !removed || removed === 'false',
+        'mrr.registration_status = :active_status',
+        () => ({
+          active_status: REGISTRATION_STATUSES.ACTIVE,
+        }),
+      ),
     ].filter(f => f);
 
     const whereClauses = filters.map(f => f.sql).join(' AND ');
@@ -141,9 +170,9 @@ programRegistry.get(
         ),
         conditions as (
           SELECT pprc.program_registry_id, patient_id, jsonb_agg(prc."name") condition_list  FROM patient_program_registration_conditions pprc
-        join program_registry_conditions prc
-        on pprc.program_registry_condition_id = prc.id
-        group by pprc.program_registry_id, patient_id
+          join program_registry_conditions prc
+          on pprc.program_registry_condition_id = prc.id
+          group by pprc.program_registry_id, patient_id
         )
     `;
     const from = `
