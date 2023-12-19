@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import CloseIcon from '@material-ui/icons/Close';
 import { IconButton } from '@material-ui/core';
+import { sortBy } from 'lodash';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { Colors } from '../../constants';
 import { Heading5 } from '../../components/Typography';
@@ -16,7 +17,7 @@ const Container = styled.div`
   top: 0;
   right: 0;
   bottom: 0;
-  overflow-y: ${p => (p.showScrollbar ? 'scroll' : 'none')};
+  overflow-y: auto;
   width: 28%;
   background-color: ${Colors.white};
   padding-top: 13px;
@@ -97,7 +98,7 @@ export const ConditionSection = ({ patientProgramRegistration, programRegistryCo
 
   if (programRegistryConditions && programRegistryConditions.length > 0)
     return (
-      <Container showScrollbar={patientProgramRegistrationConditions?.data.length > 2}>
+      <Container>
         <HeadingContainer>
           <Heading5>Related conditions</Heading5>
           <ConditionalTooltip title="Patient must be active" visible={isRemoved}>
@@ -107,7 +108,10 @@ export const ConditionSection = ({ patientProgramRegistration, programRegistryCo
           </ConditionalTooltip>
         </HeadingContainer>
         {Array.isArray(patientProgramRegistrationConditions?.data) &&
-          patientProgramRegistrationConditions?.data.map(x => (
+          sortBy(
+            patientProgramRegistrationConditions.data,
+            c => c?.programRegistryCondition?.name,
+          ).map(x => (
             <ConditionContainer key={x.id}>
               <ConditionalTooltip
                 title={x.programRegistryCondition?.name}
