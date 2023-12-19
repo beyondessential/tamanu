@@ -68,12 +68,6 @@ RUN echo '{"port":3000}' > config/local.json
 EXPOSE 3000
 
 
-## Build custom version of Caddy with Brotli support
-FROM caddy:2-builder AS build-caddy
-RUN xcaddy build \
-    --with github.com/ueffel/caddy-brotli
-
-
 ## Build the frontend
 FROM build-base as build-frontend
 RUN apk add zstd brotli
@@ -82,10 +76,11 @@ RUN scripts/docker-build.sh web
 
 
 ## Minimal image to serve the frontend
-FROM caddy:2-alpine as frontend
-COPY --from=build-caddy /usr/bin/caddy /usr/bin/caddy
+FROM alpine as frontend
+WORKDIR /app
+ENTRYPOINT ["/usr/bin/caddy"]
+CMD ["run", "--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile"]
+COPY --from=caddy:2-alpine /usr/bin/caddy /usr/bin/caddy
 COPY packages/desktop/Caddyfile.docker /etc/caddy/Caddyfile
 COPY --from=build-frontend /app/packages/desktop/dist/ .
 COPY --from=metadata /meta/ /meta/
-ENTRYPOINT ["/usr/bin/caddy"]
-CMD ["run", "--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile"]

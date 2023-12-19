@@ -1,6 +1,6 @@
 http://localhost:3000 {
 	root * /app
-	encode zstd br gzip
+	encode zstd gzip
 	log
 
 	file_server {
