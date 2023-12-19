@@ -62,6 +62,8 @@ export function getComponentForQuestionType(type, { source, writeToPatient: { fi
       // PatientData specifically can overwrite field type if we are writing back to patient record
       component = QUESTION_COMPONENTS[fieldType];
     } else if (source) {
+      // we're displaying a relation, so use PatientDataDisplayField
+      // (using a LimitedTextField will just display the bare id)
       component = PatientDataDisplayField;
     }
   }
