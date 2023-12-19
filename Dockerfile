@@ -76,6 +76,7 @@ RUN xcaddy build \
 
 ## Build the frontend
 FROM build-base as build-frontend
+RUN apk add zstd brotli
 COPY packages/ packages/
 RUN scripts/docker-build.sh web
 
