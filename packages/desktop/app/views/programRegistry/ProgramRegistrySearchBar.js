@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Field } from 'formik';
 import styled from 'styled-components';
-import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { useSuggester } from '../../api';
 import {
   CustomisableSearchBar,
