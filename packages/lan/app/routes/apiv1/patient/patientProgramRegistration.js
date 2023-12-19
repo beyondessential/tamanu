@@ -1,7 +1,8 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import { isAfter } from 'date-fns';
 import { NotFoundError, ValidationError } from '@tamanu/shared/errors';
-import { DELETION_STATUSES } from '@tamanu/constants';
+import { DELETION_STATUSES, REGISTRATION_STATUSES } from '@tamanu/constants';
 
 export const patientProgramRegistration = express.Router();
 
@@ -86,6 +87,21 @@ patientProgramRegistration.post(
   }),
 );
 
+const getChangingStatusRecords = (allRecords, status) =>
+  allRecords.filter(({ registrationStatus: currentStatus }, i) => {
+    // We always want the first record if the status matches
+    if (i === 0) {
+      return currentStatus === status;
+    }
+    const prevStatus = allRecords[i - 1].registrationStatus;
+    return currentStatus === status && prevStatus !== status;
+  });
+
+const getRegistrationRecords = allRecords =>
+  getChangingStatusRecords(allRecords, REGISTRATION_STATUSES.ACTIVE);
+const getDeactivationRecords = allRecords =>
+  getChangingStatusRecords(allRecords, REGISTRATION_STATUSES.INACTIVE);
+
 patientProgramRegistration.get(
   '/:patientId/programRegistration/:programRegistryId',
   asyncHandler(async (req, res) => {
@@ -102,13 +118,54 @@ patientProgramRegistration.get(
       },
       include: PatientProgramRegistration.getFullReferenceAssociations(),
       order: [['date', 'DESC']],
+      raw: true,
+      nest: true,
     });
 
     if (!registration) {
       throw new NotFoundError();
     }
 
-    res.send(registration);
+    const history = await PatientProgramRegistration.findAll({
+      where: {
+        patientId,
+        programRegistryId,
+      },
+      include: PatientProgramRegistration.getListReferenceAssociations(),
+      order: [['date', 'ASC']],
+      raw: true,
+      nest: true,
+    });
+
+    const registrationRecords = getRegistrationRecords(history)
+      .map(({ date, clinician }) => ({ date, clinician }))
+      .reverse();
+
+    const recentRegistrationRecord = registrationRecords.find(
+      ({ date }) => !isAfter(new Date(date), new Date(registration.date)),
+    );
+
+    const deactivationRecords = getDeactivationRecords(history)
+      .map(({ date, clinician }) => ({ date, clinician }))
+      .reverse();
+
+    const recentDeativationRecord = deactivationRecords.find(
+      ({ date }) => !isAfter(new Date(date), new Date(registration.date)),
+    );
+    const deactivationData =
+      registration.registrationStatus === REGISTRATION_STATUSES.INACTIVE
+        ? {
+            dateRemoved: recentDeativationRecord.date,
+            removedBy: recentDeativationRecord.clinician,
+          }
+        : {};
+
+    res.send({
+      ...registration,
+      registrationDate: recentRegistrationRecord.date,
+      registrationClinician: recentRegistrationRecord.clinician,
+      ...deactivationData,
+    });
   }),
 );
 
@@ -127,12 +184,28 @@ patientProgramRegistration.get(
         programRegistryId,
       },
       include: PatientProgramRegistration.getListReferenceAssociations(),
-      order: [['date', 'DESC NULLS LAST']],
+      order: [['date', 'ASC']],
+      // Get the raw records so we can easily reverse later.
+      raw: true,
+      nest: true,
     });
 
+    const registrationDates = getRegistrationRecords(history)
+      .map(({ date }) => date)
+      .reverse();
+
+    const historyWithRegistrationDate = history.map(data => ({
+      ...data,
+      // Find the latest registrationDate that is not after the date of interest
+      registrationDate: registrationDates.find(
+        registrationDate => !isAfter(new Date(registrationDate), new Date(data.date)),
+      ),
+    }));
+
     res.send({
-      count: history.length,
-      data: history,
+      count: historyWithRegistrationDate.length,
+      // Give the history latest-first
+      data: historyWithRegistrationDate.reverse(),
     });
   }),
 );

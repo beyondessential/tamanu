@@ -80,13 +80,25 @@ describe('ProgramRegistry', () => {
         }),
       );
       // Should not show (patient already has registration):
-      const { id: existingRegistrationId } = await models.ProgramRegistry.create(
+      const { id: registryId1 } = await models.ProgramRegistry.create(
         fake(models.ProgramRegistry, { programId: testProgram.id }),
       );
       await models.PatientProgramRegistration.create(
         fake(models.PatientProgramRegistration, {
           patientId: testPatient.id,
-          programRegistryId: existingRegistrationId,
+          programRegistryId: registryId1,
+        }),
+      );
+
+      // Should show (patient already has registration but it's deleted):
+      const { id: registryId2 } = await models.ProgramRegistry.create(
+        fake(models.ProgramRegistry, { programId: testProgram.id }),
+      );
+      await models.PatientProgramRegistration.create(
+        fake(models.PatientProgramRegistration, {
+          patientId: testPatient.id,
+          registrationStatus: REGISTRATION_STATUSES.RECORDED_IN_ERROR,
+          programRegistryId: registryId2,
         }),
       );
 
@@ -94,7 +106,7 @@ describe('ProgramRegistry', () => {
         .get('/v1/programRegistry')
         .query({ excludePatientId: testPatient.id });
       expect(result).toHaveSucceeded();
-      expect(result.body.data.length).toBe(2);
+      expect(result.body.data.length).toBe(3);
     });
 
     it('should escape the excludePatientId parameter', async () => {
