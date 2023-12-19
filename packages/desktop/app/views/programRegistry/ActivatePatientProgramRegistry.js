@@ -91,7 +91,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
 
   return (
     <Modal
-      title={`Activate ${patientProgramRegistration.programRegistry.name} program registry`}
+      title={`Activate ${patientProgramRegistration.programRegistry.name}`}
       open={open}
       width="md"
       onClose={onClose}

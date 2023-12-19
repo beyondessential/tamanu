@@ -49,7 +49,7 @@ export const DeleteProgramRegistryFormModal = ({ patientProgramRegistration, onC
       <Text>
         <p className="header">Confirm patient registry deletion</p>
         <p className="desc">
-          {`Are you sure you would like to delete the patient from the ${patientProgramRegistration?.programRegistry?.name} program registry? This will delete associated patient registry records. This action is irreversible.`}
+          {`Are you sure you would like to delete the patient from the ${patientProgramRegistration?.programRegistry?.name}? This will delete associated patient registry records. This action is irreversible.`}
         </p>
       </Text>
       <FormSeparatorLine style={{ marginTop: '30px', marginBottom: '30px' }} />
