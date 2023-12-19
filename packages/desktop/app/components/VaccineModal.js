@@ -39,7 +39,6 @@ export const VaccineModal = ({ open, onClose, patientId }) => {
         status: currentTabKey,
         recorderId: currentUser.id,
       };
-
       if (dataToSubmit.circumstanceIds) {
         body.circumstanceIds = JSON.parse(dataToSubmit.circumstanceIds);
       }

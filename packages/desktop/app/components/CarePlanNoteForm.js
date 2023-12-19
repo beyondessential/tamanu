@@ -93,7 +93,7 @@ export function CarePlanNoteForm({
               note ? (
                 <TranslatedText stringId="general.action.save" fallback="Save" />
               ) : (
-                <TranslatedText stringId="carePlan.action.addNote" fallback="Add Note" />
+                <TranslatedText stringId="general.action.addNote" fallback="Add Note" />
               )
             }
           />

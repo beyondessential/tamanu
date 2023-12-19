@@ -29,6 +29,7 @@ import { EncounterActions } from './components';
 import { useReferenceData } from '../../api/queries';
 import { useAuth } from '../../contexts/Auth';
 import { VitalChartDataProvider } from '../../contexts/VitalChartData';
+import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 const getIsTriage = encounter => ENCOUNTER_OPTIONS_BY_VALUE[encounter.encounterType].triageFlowOnly;
 
@@ -43,7 +44,7 @@ const TABS = [
     ),
   },
   {
-    label: 'Notes',
+    label: <TranslatedText stringId="encounter.tab.note" fallback="Notes" />,
     key: ENCOUNTER_TAB_NAMES.NOTES,
     render: props => <NotesPane {...props} />,
   },
@@ -53,7 +54,7 @@ const TABS = [
     render: props => <ProcedurePane {...props} />,
   },
   {
-    label: 'Labs',
+    label: <TranslatedText stringId="encounter.tab.labs" fallback="Labs" />,
     key: ENCOUNTER_TAB_NAMES.LABS,
     render: props => <LabsPane {...props} />,
   },
@@ -88,17 +89,29 @@ const TABS = [
 function getHeaderText({ encounterType }) {
   switch (encounterType) {
     case ENCOUNTER_TYPES.TRIAGE:
-      return 'Triage';
+      return <TranslatedText stringId="encounter.header.triage" fallback="Triage" />;
     case ENCOUNTER_TYPES.OBSERVATION:
-      return 'Active ED patient';
+      return <TranslatedText stringId="encounter.header.edPatient" fallback="Active ED patient" />;
     case ENCOUNTER_TYPES.EMERGENCY:
-      return 'Emergency Short Stay';
+      return (
+        <TranslatedText
+          stringId="encounter.header.emergencyShortStay"
+          fallback="Emergency Short Stay"
+        />
+      );
     case ENCOUNTER_TYPES.ADMISSION:
-      return 'Hospital Admission';
+      return (
+        <TranslatedText
+          stringId="encounter.header.hospitalAdmission"
+          fallback="Hospital Admission"
+        />
+      );
     case ENCOUNTER_TYPES.CLINIC:
     case ENCOUNTER_TYPES.IMAGING:
     default:
-      return 'Patient Encounter';
+      return (
+        <TranslatedText stringId="encounter.header.patientEncounter" fallback="Patient Encounter" />
+      );
   }
 }
 

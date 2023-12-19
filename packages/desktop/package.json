@@ -12,7 +12,7 @@
     "build": "concurrently \"npm run build-main\" \"npm run build-renderer\"",
     "build-main": "cross-env NODE_ENV=production CONFIG=webpack.config.main.prod node babel-register-pack",
     "build-renderer": "cross-env NODE_ENV=production CONFIG=webpack.config.renderer.prod node babel-register-pack",
-    "dev": "cross-env START_HOT=1 node -r ./babel-register ./internals/scripts/CheckPortInUse.js && cross-env START_HOT=1 npm run start-renderer-dev",
+    "dev": "cross-env START_HOT=1 npm run start-renderer-dev",
     "electron-rebuild": "electron-rebuild --parallel --force --types prod,dev,optional --module-dir app",
     "lint": "eslint app",
     "package": "npm run build && electron-builder --publish never",
@@ -103,12 +103,12 @@
     }
   },
   "jest": {
+    "testRegex": "(\\.|/)(test|spec)\\.[jt]sx?$",
     "testURL": "http://localhost/",
     "moduleNameMapper": {
-      "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/internals/mocks/fileMock.js",
+      "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/__tests__/fileMock.js",
       "\\.(css|less|sass|scss)$": "identity-obj-proxy",
-      "\\.\\./sync-server/config/default\\.json$": "<rootDir>/internals/mocks/test.json",
-      "^redux-persist/lib/storage": "<rootDir>/internals/mocks/fileMock.js"
+      "^redux-persist/lib/storage": "<rootDir>/__tests__/fileMock.js"
     },
     "moduleFileExtensions": [
       "js"
@@ -119,11 +119,26 @@
     ],
     "transform": {
       "^.+\\.js$": "babel-jest"
-    }
+    },
+    "testPathIgnorePatterns": [
+      "<rootDir>/stories",
+      "<rootDir>/.storybook"
+    ],
+    "modulePathIgnorePatterns": [
+      "<rootDir>/stories",
+      "<rootDir>/.storybook"
+    ],
+    "transformIgnorePatterns": [
+      "<rootDir>/stories",
+      "<rootDir>/.storybook"
+    ]
   },
   "devDependencies": {
     "@babel/plugin-proposal-optional-chaining": "^7.18.9",
+    "@babel/plugin-transform-private-methods": "^7.23.3",
     "@beyondessential/eslint-config-js": "^1.1.0",
+    "@electron/rebuild": "^3.3.0",
+    "@electron/remote": "^2.1.0",
     "@emotion/core": "^10.0.9",
     "@storybook/addon-controls": "^6.5.16",
     "@storybook/addon-actions": "^6.5.16",
@@ -134,17 +149,15 @@
     "@storybook/react": "^6.5.16",
     "@react-pdf/renderer": "^3.1.3",
     "@tanstack/react-query-devtools": "^4.0.10",
-    "chalk": "^2.4.1",
     "concurrently": "^3.6.1",
     "cross-env": "^5.2.0",
     "cross-spawn": "^6.0.5",
     "css-loader": "^1.0.0",
     "detect-port": "^1.2.3",
-    "electron": "^13.6.1",
-    "electron-builder": "^22.10.5",
-    "electron-devtools-installer": "^3.1.1",
-    "electron-rebuild": "^1.8.2",
-    "electron-updater": "^4.3.5",
+    "electron": "^27.1.0",
+    "electron-builder": "^24.6.4",
+    "electron-devtools-installer": "^3.2.0",
+    "electron-updater": "^6.1.4",
     "enzyme": "^3.3.0",
     "enzyme-adapter-react-16": "^1.1.1",
     "enzyme-to-json": "^3.3.4",
@@ -218,7 +231,7 @@
     "date-fns": "^2.25.0",
     "deep-equal": "^1.0.1",
     "devtron": "^1.4.0",
-    "electron-debug": "^2.0.0",
+    "electron-debug": "^3.2.0",
     "formik": "^2.2.9",
     "fs-jetpack": "^2.2.2",
     "history": "^4.7.2",
@@ -230,7 +243,8 @@
     "ms": "^2.1.3",
     "nano": "^6.4.4",
     "nanoid": "^3.1.29",
-    "pdfjs-dist": "3.3.122",
+    "node-polyglot": "^2.3.0",
+    "pdfjs-dist": "^3.10.111",
     "prop-types": "^15.6.2",
     "qs": "^6.10.2",
     "react": "^16.8.5",
@@ -242,7 +256,7 @@
     "react-dom": "^16.8.5",
     "react-dropzone": "^4.2.10",
     "react-events": "^1.0.1",
-    "react-idle-timer": "^5.4.2",
+    "react-idle-timer": "=5.4.2",
     "react-mixin-manager": "^1.0.2",
     "react-redux": "^7.1.0",
     "react-responsive-modal": "^2.1.0",
@@ -262,11 +276,6 @@
     "typeface-roboto": "^0.0.54",
     "xlsx": "^0.14.0",
     "yup": "^0.32.9"
-  },
-  "devEngines": {
-    "node": ">=7.x <11.0",
-    "npm": ">=4.x",
-    "yarn": ">=0.21.3"
   },
   "workspaces": {
     "nohoist": [

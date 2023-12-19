@@ -43,7 +43,7 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
   );
 
   const [components, componentsError, areComponentsLoading] = useBackendEffect(
-    () => survey && survey.getComponents(),
+    () => survey && survey.getComponents({ includeAllVitals: false }),
     [survey],
   );
 

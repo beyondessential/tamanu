@@ -126,7 +126,7 @@ export const Paginator = React.memo(
           <PageRecordCount>
             <TranslatedText
               stringId="general.table.pageRecordCount"
-              fallback=":lowerRange-:upperRange of :count"
+              fallback=":lowerRange–:upperRange of :count"
               replacements={{
                 lowerRange,
                 upperRange,

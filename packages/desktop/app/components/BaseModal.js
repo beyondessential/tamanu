@@ -10,6 +10,7 @@ import { Box, CircularProgress, IconButton, Typography } from '@material-ui/core
 import { Colors } from '../constants';
 import { useElectron } from '../contexts/Electron';
 import { Button } from './Button';
+import { TranslatedText } from './Translation/TranslatedText';
 
 export const MODAL_PADDING_TOP_AND_BOTTOM = 18;
 export const MODAL_PADDING_LEFT_AND_RIGHT = 32;
@@ -148,7 +149,7 @@ export const BaseModal = memo(
                 startIcon={<PrintIcon />}
                 size="small"
               >
-                Print
+                <TranslatedText stringId="general.action.print" fallback="Print" />
               </StyledButton>
             )}
             {cornerExitButton && (

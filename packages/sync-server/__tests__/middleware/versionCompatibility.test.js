@@ -1,5 +1,5 @@
 import path from 'path';
-import fs from 'fs';
+import { promises as fs } from 'fs';
 import { VERSION_COMPATIBILITY_ERRORS } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
 import { SUPPORTED_CLIENT_VERSIONS } from '../../app/middleware/versionCompatibility';
@@ -10,15 +10,14 @@ const MIN_LAN_VERSION = SUPPORTED_CLIENT_VERSIONS['Tamanu LAN Server'].min;
 describe('Version compatibility', () => {
   let baseApp;
   let app;
-  let close;
+  let ctx;
   beforeAll(async () => {
-    const ctx = await createTestContext();
+    ctx = await createTestContext();
     baseApp = ctx.baseApp;
-    close = ctx.close;
     app = await baseApp.asRole('practitioner');
   });
 
-  afterAll(async () => close());
+  afterAll(() => ctx.close());
 
   describe('LAN server client version checking', () => {
     it('Should allow a supported client', async () => {
@@ -91,29 +90,30 @@ describe('Version compatibility', () => {
   });
 
   describe('Other client version checking', () => {
-    it('Should allow any version of an unspecified client (so that tests work)', async () => {
-      await Promise.all(
-        ['0.0.1', '1.0.0', '1.0.9', '999.999.999'].map(async version => {
-          const response = await app.get('/').unset('X-Tamanu-Client').set({
+    it.each(['0.0.1', '1.0.0', '1.0.9', '999.999.999'])(
+      'Should allow version %s of an unspecified client (so that tests work)',
+      async version => {
+        const response = await app
+          .get('/')
+          .unset('X-Tamanu-Client')
+          .set({
             'X-Version': version,
           });
-          expect(response).toHaveSucceeded();
-          expect(response.body).toHaveProperty('index', true);
-        }),
-      );
-    });
+        expect(response).toHaveSucceeded();
+        expect(response.body).toHaveProperty('index', true);
+      },
+    );
 
-    it('Should deny an unknown client type of any version', async () => {
-      await Promise.all(
-        ['0.0.1', '1.0.0', '1.0.9', '999.999.999'].map(async version => {
-          const response = await app.get('/').set({
-            'X-Tamanu-Client': 'Unknown Client',
-            'X-Version': version,
-          });
-          expect(response).not.toHaveSucceeded();
-        }),
-      );
-    });
+    it.each(['0.0.1', '1.0.0', '1.0.9', '999.999.999'])(
+      'Should deny version %s of an an unknown client type of any version',
+      async version => {
+        const response = await app.get('/').set({
+          'X-Tamanu-Client': 'Unknown Client',
+          'X-Version': version,
+        });
+        expect(response).not.toHaveSucceeded();
+      },
+    );
   });
 
   describe('Other packages', () => {
@@ -133,7 +133,7 @@ describe('Version compatibility', () => {
         packageFiles.map(async filePath => {
           const relativePath = `../../../../${filePath}`.split('/');
           const normalisedPath = path.resolve(__dirname, ...relativePath);
-          const content = await fs.promises.readFile(normalisedPath);
+          const content = await fs.readFile(normalisedPath);
           return [filePath, JSON.parse(content).version];
         }),
       );

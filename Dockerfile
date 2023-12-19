@@ -4,10 +4,10 @@
 
 ## Base images
 # The general concept is to build in build-base, then copy into a slimmer run-base
-FROM node:16-alpine AS base
+FROM node:20-alpine AS base
 WORKDIR /app
 ENV NODE_ENV=production
-COPY package.json license ./
+COPY package.json yarn.lock license ./
 
 FROM base AS build-base
 RUN apk add --no-cache \
@@ -19,7 +19,7 @@ RUN apk add --no-cache \
     jq \
     make \
     python3
-COPY yarn.lock .yarnrc common.* babel.config.js ./
+COPY .yarnrc common.* babel.config.js ./
 COPY scripts/ scripts/
 
 FROM base AS run-base
@@ -55,7 +55,10 @@ RUN scripts/docker-build.sh ${PACKAGE_PATH}
 
 ## Special target for packaging the desktop app
 # layer efficiency or size doesn't matter as this is not distributed
-FROM electronuserland/builder:16-wine AS build-desktop
+#
+# Runs on Node 18 not Node 20 as there's no image for 20 yet
+# (and we're hoping that desktop will go away soon!)
+FROM electronuserland/builder:18-wine AS build-desktop
 RUN apt update && apt install -y jq
 COPY --from=build-base /app/ /app/
 WORKDIR /app

@@ -24,12 +24,12 @@ import { withPermissionTooltip } from './withPermissionTooltip';
 import { TranslatedText } from './Translation/TranslatedText';
 import { useFormButtonSubmitting } from '../hooks/useFormButtonSubmitting';
 
-export const ButtonBase = props => {
+export const ButtonBase = ({ functionallyDisabled, ...props }) => {
   const locationsProps = getLocationProps(props);
   return <MuiButtonBase {...props} {...locationsProps} />;
 };
 
-const StyledButton = styled(MuiButton)`
+const StyledButton = styled(({ functionallyDisabled, ...props }) => <MuiButton {...props} />)`
   font-weight: 500;
   font-size: 14px;
   line-height: 16px;

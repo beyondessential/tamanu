@@ -6,6 +6,7 @@ import { RangeValidatedCell, DateHeadCell } from '../../components/FormattedTabl
 import { Colors } from '../../constants';
 import { LabTestResultModal } from './LabTestResultModal';
 import { BodyText, DateDisplay, formatTimeWithSeconds } from '../../components';
+import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 const COLUMN_WIDTHS = [150, 120, 120];
 
@@ -130,7 +131,12 @@ export const PatientLabTestsTable = React.memo(
         ? [
             {
               key: 'testCategory.id',
-              title: 'Test category',
+              title: (
+                <TranslatedText
+                  stringId="patient.lab.results.table.column.testCategory"
+                  fallback="Test category"
+                />
+              ),
               accessor: row => <CategoryCell>{row.testCategory}</CategoryCell>,
               sortable: false,
             },
@@ -138,7 +144,12 @@ export const PatientLabTestsTable = React.memo(
         : []),
       {
         key: 'testType',
-        title: 'Test type',
+        title: (
+          <TranslatedText
+            stringId="patient.lab.results.table.column.testType"
+            fallback="Test type"
+          />
+        ),
         accessor: row => (
           <CategoryCell>
             {row.testType}
@@ -150,7 +161,12 @@ export const PatientLabTestsTable = React.memo(
       },
       {
         key: 'normalRange',
-        title: 'Normal range',
+        title: (
+          <TranslatedText
+            stringId="patient.lab.results.table.column.normalRange"
+            fallback="Normal range"
+          />
+        ),
         accessor: row => {
           const range = row.normalRanges[patient?.sex];
           const value = !range.min ? '-' : `${range.min}-${range.max}`;
@@ -199,7 +215,12 @@ export const PatientLabTestsTable = React.memo(
           columns={columns}
           data={labTests}
           isLoading={isLoading}
-          noDataMessage="This patient has no lab results to display. Once lab results are available they will be displayed here."
+          noDataMessage={
+            <TranslatedText
+              stringId="patient.lab.results.table.noData"
+              fallback="This patient has no lab results to display. Once lab results are available they will be displayed here."
+            />
+          }
           count={count}
           allowExport
           exportName="PatientResults"
