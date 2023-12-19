@@ -42,10 +42,16 @@ jobs:
         package:
           - name: central
             path: sync-server
+            target: server
           - name: facility
             path: lan
+            target: server
+          - name: frontend
+            path: desktop
+            target: frontend
           # - name: meta
           #   path: meta-server
+          #   target: server
           # not yet used
 
     name: Build ${{ matrix.package.name }} container for ${{ matrix.platform.arch }}
@@ -82,7 +88,7 @@ jobs:
           cache-from: type=gha,scope=${{ needs.info.outputs.branch }}-${{ matrix.package.name }}
           cache-to: type=gha,mode=max,scope=${{ needs.info.outputs.branch }}-${{ matrix.package.name }}
           build-args: PACKAGE_PATH=${{ matrix.package.path }}
-          target: server
+          target: ${{ matrix.package.target }}
           push: true
           labels: |
             org.opencontainers.image.vendor=BES
@@ -121,6 +127,7 @@ jobs:
           repository: beyondessential/ops
           ssh-key: ${{ secrets.TAMANU_OPS_SSH }}
           path: ops
+          ref: tav-913-tamanu-web
       - name: Remove ops/.git so pulumi doesn't get confused
         run: rm -rf ops/.git
 
