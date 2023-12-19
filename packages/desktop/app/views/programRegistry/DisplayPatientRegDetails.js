@@ -81,6 +81,23 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
   const isDeleted =
     patientProgramRegistration.registrationStatus === REGISTRATION_STATUSES.RECORDED_IN_ERROR;
 
+  let actions = {
+    Remove: () => setOpenRemoveProgramRegistryFormModal(true),
+    Delete: () => setOpenDeleteProgramRegistryFormModal(true),
+  };
+
+  if (isRemoved)
+    actions = {
+      Activate: () => setOpenActivateProgramRegistryFormModal(true),
+      Delete: () => setOpenDeleteProgramRegistryFormModal(true),
+    };
+
+  if (isDeleted)
+    actions = {
+      Activate: () => setOpenActivateProgramRegistryFormModal(true),
+      Remove: () => setOpenRemoveProgramRegistryFormModal(true),
+    };
+
   return (
     <DisplayContainer>
       <div
@@ -113,8 +130,8 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
                 <div>Removed by:</div>
               </TextColumns>
               <TextColumns style={{ fontWeight: 500 }}>
-                <DateDisplay date={patientProgramRegistration.removedDate} />
-                <div>{patientProgramRegistration.removedByClinician?.displayName}</div>
+                <DateDisplay date={patientProgramRegistration.dateRemoved} />
+                <div>{patientProgramRegistration.removedBy?.displayName}</div>
               </TextColumns>
             </TextColumnsContainer>
           </>
@@ -142,25 +159,7 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
 
         <MenuContainer>
           <div className="menu">
-            <MenuButton
-              actions={
-                isRemoved
-                  ? {
-                      Activate: () => setOpenActivateProgramRegistryFormModal(true),
-                      Delete: () => setOpenDeleteProgramRegistryFormModal(true),
-                    }
-                  : isDeleted
-                  ? {
-                      Activate: () => setOpenActivateProgramRegistryFormModal(true),
-                      Remove: () => setOpenRemoveProgramRegistryFormModal(true),
-                    }
-                  : {
-                      Activate: () => setOpenActivateProgramRegistryFormModal(true),
-                      Remove: () => setOpenRemoveProgramRegistryFormModal(true),
-                      Delete: () => setOpenDeleteProgramRegistryFormModal(true),
-                    }
-              }
-            />
+            <MenuButton actions={actions} />
           </div>
         </MenuContainer>
       </div>

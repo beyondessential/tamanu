@@ -122,7 +122,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
                 </FormGrid>
                 <FormGrid style={{ gridColumn: 'span 2' }}>
                   <Field
-                    name="facilityId"
+                    name="registeringFacilityId"
                     label="Registering facility"
                     component={AutocompleteField}
                     suggester={registeringFacilitySuggester}
@@ -169,8 +169,8 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
         }}
         initialValues={{
           date: getCurrentDateTimeString(),
-          facilityId: facility.id,
-          clinicianId: currentUser.id,
+          registeringFacilityId: facility?.id || patientProgramRegistration.registeringFacilityId,
+          clinicianId: currentUser?.id,
           conditionIds: registrationConditions?.data.map(x => x.programRegistryConditionId),
           ...patientProgramRegistration,
         }}
@@ -178,7 +178,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
           clinicalStatusId: optionalForeignKey(),
           date: yup.date().required('Date of registration must be selected'),
           clinicianId: foreignKey().required('Registered by must be selected'),
-          facilityId: foreignKey().required('Registering facility must be selected'),
+          registeringFacilityId: foreignKey().required('Registering facility must be selected'),
         })}
       />
     </Modal>

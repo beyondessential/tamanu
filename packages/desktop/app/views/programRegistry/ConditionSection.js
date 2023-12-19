@@ -78,11 +78,15 @@ const AddConditionButton = styled.button`
   }
 `;
 
-export const ConditionSection = ({ patientProgramRegistration }) => {
-  const { data: conditionsResponse, isLoading } = usePatientProgramRegistryConditionsQuery(
+export const ConditionSection = ({ patientProgramRegistration, programRegistryConditions }) => {
+  const {
+    data: patientProgramRegistrationConditions,
+    isLoading,
+  } = usePatientProgramRegistryConditionsQuery(
     patientProgramRegistration.patientId,
     patientProgramRegistration.programRegistryId,
   );
+
   const [conditionToRemove, setConditionToRemove] = useState();
   const [openAddCondition, setOpenAddCondition] = useState(false);
 
@@ -90,52 +94,56 @@ export const ConditionSection = ({ patientProgramRegistration }) => {
 
   const isRemoved =
     patientProgramRegistration.registrationStatus === REGISTRATION_STATUSES.INACTIVE;
-  return (
-    <Container>
-      <HeadingContainer>
-        <Heading5>Related conditions</Heading5>
-        <ConditionalTooltip title="Patient must be active" visible={isRemoved}>
-          <AddConditionButton onClick={() => setOpenAddCondition(true)} disabled={isRemoved}>
-            + Add condition
-          </AddConditionButton>
-        </ConditionalTooltip>
-      </HeadingContainer>
-      {Array.isArray(conditionsResponse?.data) &&
-        conditionsResponse?.data.map(x => (
-          <ConditionContainer key={x.id}>
-            <ConditionalTooltip
-              title={x.programRegistryCondition?.name}
-              visible={x.programRegistryCondition?.name?.length > 30}
-            >
-              <ClippedConditionName>{x.programRegistryCondition?.name}</ClippedConditionName>
-            </ConditionalTooltip>
-            <ConditionalTooltip title="Patient must be active" visible={isRemoved}>
-              <IconButton
-                style={{ padding: 0 }}
-                onClick={() => setConditionToRemove(x)}
-                disabled={isRemoved}
+
+  if (programRegistryConditions && programRegistryConditions.length > 0)
+    return (
+      <Container>
+        <HeadingContainer>
+          <Heading5>Related conditions</Heading5>
+          <ConditionalTooltip title="Patient must be active" visible={isRemoved}>
+            <AddConditionButton onClick={() => setOpenAddCondition(true)} disabled={isRemoved}>
+              + Add condition
+            </AddConditionButton>
+          </ConditionalTooltip>
+        </HeadingContainer>
+        {Array.isArray(patientProgramRegistrationConditions?.data) &&
+          patientProgramRegistrationConditions?.data.map(x => (
+            <ConditionContainer key={x.id}>
+              <ConditionalTooltip
+                title={x.programRegistryCondition?.name}
+                visible={x.programRegistryCondition?.name?.length > 30}
               >
-                <CloseIcon style={{ fontSize: '14px' }} />
-              </IconButton>
-            </ConditionalTooltip>
-          </ConditionContainer>
-        ))}
-      {openAddCondition && (
-        <AddConditionFormModal
-          onClose={() => setOpenAddCondition(false)}
-          patientProgramRegistration={patientProgramRegistration}
-          open
-        />
-      )}
-      {conditionToRemove && (
-        <RemoveConditionFormModal
-          patientProgramRegistration={patientProgramRegistration}
-          conditionToRemove={conditionToRemove}
-          onSubmit={() => setConditionToRemove(undefined)}
-          onCancel={() => setConditionToRemove(undefined)}
-          open
-        />
-      )}
-    </Container>
-  );
+                <ClippedConditionName>{x.programRegistryCondition?.name}</ClippedConditionName>
+              </ConditionalTooltip>
+              <ConditionalTooltip title="Patient must be active" visible={isRemoved}>
+                <IconButton
+                  style={{ padding: 0 }}
+                  onClick={() => setConditionToRemove(x)}
+                  disabled={isRemoved}
+                >
+                  <CloseIcon style={{ fontSize: '14px' }} />
+                </IconButton>
+              </ConditionalTooltip>
+            </ConditionContainer>
+          ))}
+        {openAddCondition && (
+          <AddConditionFormModal
+            onClose={() => setOpenAddCondition(false)}
+            patientProgramRegistration={patientProgramRegistration}
+            programRegistryConditions={programRegistryConditions}
+            open
+          />
+        )}
+        {conditionToRemove && (
+          <RemoveConditionFormModal
+            patientProgramRegistration={patientProgramRegistration}
+            conditionToRemove={conditionToRemove}
+            onSubmit={() => setConditionToRemove(undefined)}
+            onCancel={() => setConditionToRemove(undefined)}
+            open
+          />
+        )}
+      </Container>
+    );
+  return <></>;
 };
