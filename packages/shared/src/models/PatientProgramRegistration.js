@@ -124,7 +124,7 @@ export class PatientProgramRegistration extends Model {
     return this.sequelize.models.PatientProgramRegistration.findAll({
       where: {
         id: { [Op.in]: Sequelize.literal(GET_MOST_RECENT_REGISTRATIONS_QUERY) },
-        [Op.and]: [{ registrationStatus: { [Op.ne]: REGISTRATION_STATUSES.RECORDED_IN_ERROR } }],
+        registrationStatus: { [Op.ne]: REGISTRATION_STATUSES.RECORDED_IN_ERROR },
         patientId,
       },
       include: ['clinicalStatus', 'programRegistry'],

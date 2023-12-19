@@ -1,8 +1,8 @@
-function sleep(milliseconds) {
-  return new Promise(resolve => {
-    setTimeout(resolve, milliseconds);
-  });
-}
+// function sleep(milliseconds) {
+//   return new Promise(resolve => {
+//     setTimeout(resolve, milliseconds);
+//   });
+// }
 const getSortedData = (
   list = [],
   options = { page: 0, orderBy: '', order: 'asc', rowsPerPage: 10 },
@@ -339,7 +339,6 @@ export const programRegistryConditions = [
 export const programRegistryStatusHistories = [
   {
     id: '1',
-    // registrationStatus: 'inactive',
     registrationStatus: 'active',
     clinicalStatusId: '1',
     clinicalStatus: {
@@ -744,11 +743,8 @@ export const patientProgramRegistration = {
     name: 'Low risk',
     color: 'green',
   },
-
   registrationStatus: 'active',
   date: '2023-08-28T02:40:16.237Z',
-  // name: 'Hepatitis B',
-  // registrationStatus: 'inactive',
   removedById: '213123',
   dateRemoved: '2023-08-28T02:40:16.237Z',
   removedBy: {
@@ -760,7 +756,7 @@ export const patientProgramRegistration = {
 
 export const dummyApi = {
   get: async (endpoint, options) => {
-    console.log(endpoint, options);
+    // console.log(endpoint, options);
     // await sleep(500);
     switch (endpoint) {
       case 'programRegistry/1':

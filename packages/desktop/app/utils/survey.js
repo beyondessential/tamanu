@@ -213,7 +213,7 @@ function transformPatientProgramRegistrationData(patientProgramRegistration, con
       return clinician.id;
     case 'currentlyAtFacility':
       return facility?.id;
-    case 'registrationCurrentlyAtFacility':
+    case 'registeringFacility':
       return registeringFacility.id;
     case 'currentlyAtVillage':
       return village?.id;

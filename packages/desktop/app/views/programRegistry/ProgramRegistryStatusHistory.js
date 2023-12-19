@@ -65,10 +65,10 @@ export const ProgramRegistryStatusHistory = ({ patientProgramRegistration }) => 
       ...(removedOnce
         ? [
             {
-              key: 'date',
+              key: 'registrationDate',
               title: 'Date of registration',
               sortable: false,
-              accessor: row => <DateDisplay date={row.date} />,
+              accessor: row => <DateDisplay date={row?.registrationDate} />,
             },
           ]
         : []),

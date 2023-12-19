@@ -78,11 +78,7 @@ export const ProgramRegistrySearchBar = ({ searchParameters, setSearchParameters
             }}
           >
             <FacilityCheckbox>
-              <Field
-                name={REGISTRATION_STATUSES.INACTIVE}
-                label="Include removed patients"
-                component={CheckField}
-              />
+              <Field name="removed" label="Include removed patients" component={CheckField} />
             </FacilityCheckbox>
             <FacilityCheckbox>
               <Field name="deceased" label="Include deceased patients" component={CheckField} />
