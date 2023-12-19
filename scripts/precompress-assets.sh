@@ -2,9 +2,11 @@ set -euo pipefail
 for file in $(
   find "${1:-.}" \
     -name '*.css' -or \
+    -name '*.eot' -or \
     -name '*.ico' -or \
     -name '*.js' -or \
     -name '*.svg' -or \
+    -name '*.ttf' -or \
     -name '*.html'
 ); do
   echo "precompressing $file"
