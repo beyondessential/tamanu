@@ -78,6 +78,8 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
 
   const isRemoved =
     patientProgramRegistration.registrationStatus === REGISTRATION_STATUSES.INACTIVE;
+  const isDeleted =
+    patientProgramRegistration.registrationStatus === REGISTRATION_STATUSES.RECORDED_IN_ERROR;
 
   return (
     <DisplayContainer>
@@ -147,7 +149,13 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
                       Activate: () => setOpenActivateProgramRegistryFormModal(true),
                       Delete: () => setOpenDeleteProgramRegistryFormModal(true),
                     }
+                  : isDeleted
+                  ? {
+                      Activate: () => setOpenActivateProgramRegistryFormModal(true),
+                      Remove: () => setOpenRemoveProgramRegistryFormModal(true),
+                    }
                   : {
+                      Activate: () => setOpenActivateProgramRegistryFormModal(true),
                       Remove: () => setOpenRemoveProgramRegistryFormModal(true),
                       Delete: () => setOpenDeleteProgramRegistryFormModal(true),
                     }

@@ -46,7 +46,7 @@ export const ChangeStatusFormModal = ({ patientProgramRegistration, onClose, ope
 
   return (
     <>
-      <Modal title="Change Status" open={open} onClose={onClose}>
+      <Modal title="Change Status" open={open} onClose={onClose} overrideContentPadding>
         <Form
           showInlineErrorsOnly
           onSubmit={changeStatus}
@@ -62,12 +62,18 @@ export const ChangeStatusFormModal = ({ patientProgramRegistration, onClose, ope
                   />
                 </StyledFormGrid>
                 <FormSeparatorLine style={{ marginTop: '60px', marginBottom: '30px' }} />
-                <ConfirmCancelRow onConfirm={submitForm} onCancel={onClose} />
+                <ConfirmCancelRow
+                  style={{ padding: '0px 30px' }}
+                  onConfirm={submitForm}
+                  onCancel={onClose}
+                />
               </div>
             );
           }}
           initialValues={{
-            clinicalStatusId: patientProgramRegistration.clinicalStatusId,
+            clinicalStatusId:
+              patientProgramRegistration.clinicalStatusId ||
+              patientProgramRegistration.clinicalStatus?.id,
           }}
           validationSchema={yup.object().shape({
             clinicalStatusId: foreignKey().required('Status must be selected'),
