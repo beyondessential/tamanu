@@ -85,6 +85,7 @@ const StyledField = styled(Field)`
 `;
 
 const INCORRECT_TOKEN_ERROR_MESSAGE = 'Facility server error response: User or token not found';
+const REQUIRED_VALIDATION_MESSAGE = '*Required';
 
 const ChangePasswordFormComponent = ({
   onRestartFlow,
@@ -94,7 +95,10 @@ const ChangePasswordFormComponent = ({
   onNavToResetPassword,
   onValidateResetCode,
   setFieldError,
+  errors,
 }) => {
+  // const [newPasswordErrorText, setNewPasswordErrorText] = useState(null);
+  // const [confirmPasswordErrorText, setConfirmPasswordErrorText] = useState(null);
   useEffect(() => {
     if (errorMessage === INCORRECT_TOKEN_ERROR_MESSAGE) {
       setFieldError('token', 'Code incorrect');
@@ -130,6 +134,11 @@ const ChangePasswordFormComponent = ({
           required
           component={TextField}
           placeholder="New password"
+          onChange={() => {
+            if (errors.newPassword === REQUIRED_VALIDATION_MESSAGE) {
+              setFieldError('newPassword', '');
+            }
+          }}
         />
         <StyledField
           name="confirmNewPassword"
@@ -138,6 +147,11 @@ const ChangePasswordFormComponent = ({
           required
           component={TextField}
           placeholder="Confirm new password"
+          onChange={() => {
+            if (errors.confirmNewPassword === REQUIRED_VALIDATION_MESSAGE) {
+              setFieldError('confirmNewPassword', '');
+            }
+          }}
         />
       </FieldContainer>
       <ActionButtonContainer>
@@ -169,7 +183,7 @@ export const ChangePasswordForm = React.memo(
     onNavToResetPassword,
     onValidateResetCode,
   }) => {
-    const renderForm = ({ setFieldError }) => (
+    const renderForm = ({ setFieldError, errors }) => (
       <ChangePasswordFormComponent
         onRestartFlow={onRestartFlow}
         errorMessage={errorMessage}
@@ -178,6 +192,7 @@ export const ChangePasswordForm = React.memo(
         onNavToResetPassword={onNavToResetPassword}
         onValidateResetCode={onValidateResetCode}
         setFieldError={setFieldError}
+        errors={errors}
       />
     );
 
@@ -206,16 +221,16 @@ export const ChangePasswordForm = React.memo(
           email,
         }}
         validationSchema={yup.object().shape({
-          token: yup.string().required('*Required'),
+          token: yup.string().required(REQUIRED_VALIDATION_MESSAGE),
           newPassword: yup
             .string()
             .min(5, 'Must be at least 5 characters')
             .oneOf([yup.ref('confirmNewPassword'), null], `Passwords don't match`)
-            .required('*Required'),
+            .required(REQUIRED_VALIDATION_MESSAGE),
           confirmNewPassword: yup
             .string()
             .oneOf([yup.ref('newPassword'), null], `Passwords don't match`)
-            .required('*Required'),
+            .required(REQUIRED_VALIDATION_MESSAGE),
         })}
         showErrorDialog={false}
       />

@@ -38,29 +38,14 @@ const FormSubtext = styled(BodyText)`
   padding: 10px 0;
 `;
 
-const ResendCodeButton = styled(TextButton)`
-  font-size: 11px;
-  color: ${Colors.darkestText};
-  font-weight: 400;
-  text-transform: none;
-
-  :hover {
-    color: ${Colors.primary};
-    font-weight: 500;
-    text-decoration: underline;
-  }
+const ErrorText = styled(BodyText)`
+  color: ${Colors.midText};
+  padding: 10px 0;
+  ${props => (props.$isError ? '' : `display: none;`)}
 `;
 
 export const ResetPasswordForm = React.memo(
-  ({
-    onSubmit,
-    errorMessage,
-    success,
-    initialEmail,
-    onRestartFlow,
-    onNavToChangePassword,
-    onNavToLogin,
-  }) => {
+  ({ onSubmit, errorMessage, success, initialEmail, onNavToChangePassword, onNavToLogin }) => {
     const renderForm = () => (
       <FormGrid columns={1}>
         <div>
