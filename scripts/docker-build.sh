@@ -85,6 +85,7 @@ build_server() {
 build_web() {
   yarn build-shared
   yarn workspace desktop build
+  scripts/precompress-assets.sh packages/desktop/dist
 }
 
 package="${1:?Expected target or package path}"
