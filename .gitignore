@@ -24,6 +24,10 @@ deploy
 build
 /sync-server-*.zip
 /lan-*.zip
+packages/*/dist
+packages/*/ndist
+*.tsbuildinfo
+packages/*/{src,app}/**/*.d.ts
 
 # Test artefacts
 test.*.hl7.json

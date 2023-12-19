@@ -9,7 +9,7 @@ import {
   StyledTouchableOpacity,
   StyledText,
 } from '/styled/common';
-import { CrossIcon, HomeBottomLogoIcon } from '/components/Icons';
+import { CrossIcon, HomeBottomLogoIcon, LaunchIcon } from '/components/Icons';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { theme } from '/styled/theme';
 import { SignInForm } from '/components/Forms/SignInForm';
@@ -19,6 +19,10 @@ import { ModalInfo } from '/components/ModalInfo';
 import { authSelector } from '/helpers/selectors';
 import { OutdatedVersionError } from '~/services/error';
 import { useFacility } from '~/ui/contexts/FacilityContext';
+import { useLocalisation } from '~/ui/contexts/LocalisationContext';
+import { marginTop } from 'styled-system';
+import { SupportCentreButton } from './SupportCentreButton';
+import { Orient } from 'react-native-svg';
 
 interface ModalContent {
   message: string;
@@ -51,6 +55,10 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
   }, [modalContent.buttonUrl]);
 
   const { facilityId } = useFacility();
+  const { getLocalisation } = useLocalisation();
+
+  const supportCentreUrl = getLocalisation('supportDeskUrl');
+  const isSupportUrlLoaded = !!supportCentreUrl;
 
   return (
     <FullView background={theme.colors.PRIMARY_MAIN}>
@@ -141,6 +149,17 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
           </StyledTouchableOpacity>
         </KeyboardAvoidingView>
       </StyledSafeAreaView>
+      <StyledView
+          flexDirection="row"
+          justifyContent="flex-end"
+          position='absolute'
+          bottom={screenPercentageToDP(2.43, Orientation.Height)}
+          right={screenPercentageToDP(2.43, Orientation.Width)}
+          paddingLeft={screenPercentageToDP(2.43, Orientation.Width)}
+          paddingRight={screenPercentageToDP(2.43, Orientation.Width)}
+        >
+          {isSupportUrlLoaded && <SupportCentreButton supportCentreUrl={supportCentreUrl} />}
+        </StyledView>
     </FullView>
   );
 };
