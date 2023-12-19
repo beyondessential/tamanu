@@ -6,8 +6,9 @@ import { API } from './api/singletons';
 import { registerYup } from './utils/errorMessages';
 import { initStore, restoreSession, authFailure, versionIncompatible } from './store';
 
-import './fonts.scss';
-import './react-toastify.scss';
+import '@fortawesome/fontawesome-free/css/all.css';
+import 'react-toastify/dist/ReactToastify.css';
+import './fonts.css';
 
 function initPersistor(api, store) {
   const persistor = persistStore(store, null, () => {
