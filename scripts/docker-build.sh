@@ -82,33 +82,7 @@ build_server() {
   rm $0
 }
 
-build_desktop() {
-  remove_irrelevant_packages desktop
-
-  # build the world
-  yarn build
-
-  # create desktop packaging configs
-  cd packages/desktop
-  jq '.build.win.target = ["nsis"] | .build.nsis.perMachine = false | .build.directories.output = "release/appdata"' \
-    package.json > /package-appdata.json
-  jq '.build.win.target = ["msi"] | .build.msi.shortcutName = "Tamanu \(.version)"' \
-    package.json > /package-msi.json
-  jq '.build.productName = "Tamanu \(.version | split(".") | "\(.[0]).\(.[1])")" | .build.appId = "org.beyondessential.TamanuFiji\(.version | split(".") | "\(.[0])\(.[1])")" | .build.directories.output = "release/aspen"' \
-    /package-msi.json > /package-aspen.json
-  jq '.build.mac.target = "tar.xz"' \
-    package.json > /package-mac.json
-}
-
 package="${1:?Expected target or package path}"
 
 common
-
-case "$package" in
-  desktop)
-    build_desktop
-    ;;
-  *)
-    build_server
-    ;;
-esac
+build_server
