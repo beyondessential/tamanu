@@ -101,8 +101,6 @@ programRegistry.get(
       orderBy = 'displayId',
       rowsPerPage = 10,
       page = 0,
-      deceased,
-      removed,
       ...filterParams
     } = query;
 
@@ -116,7 +114,10 @@ programRegistry.get(
       makeSimpleTextFilter('lastName', 'patient.last_name'),
       makeFilter(filterParams.dateOfBirth, `patients.date_of_birth = :dateOfBirth`),
       makeFilter(filterParams.homeVillage, `patients.village_id = :homeVillage`),
-      makeFilter(!deceased || deceased === 'false', 'patient.date_of_death IS NULL'),
+      makeFilter(
+        !filterParams.deceased || filterParams.deceased === 'false',
+        'patient.date_of_death IS NULL',
+      ),
 
       // Registration filters
       makeFilter(
@@ -136,7 +137,7 @@ programRegistry.get(
         `(select '["' || prc2.name || '"]' from program_registry_conditions prc2 where prc2.id == :programRegistryCondition):jsonb <@ conditions.condition_list`,
       ),
       makeFilter(
-        !removed || removed === 'false',
+        !filterParams.removed || filterParams.removed === 'false',
         'mrr.registration_status = :active_status',
         () => ({
           active_status: REGISTRATION_STATUSES.ACTIVE,
