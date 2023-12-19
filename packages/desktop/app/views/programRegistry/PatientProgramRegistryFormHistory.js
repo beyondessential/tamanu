@@ -68,8 +68,8 @@ export const PatientProgramRegistryFormHistory = ({ patientProgramRegistration }
         endpoint={`patient/${patientProgramRegistration.patientId}/programResponses`}
         columns={columns}
         initialSort={{
-          orderBy: 'date',
-          order: 'asc',
+          orderBy: 'startTime',
+          order: 'desc',
           surveyType: SURVEY_TYPES.PROGRAMS,
         }}
         fetchOptions={{ programId: patientProgramRegistration.programRegistry.programId }}
