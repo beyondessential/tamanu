@@ -2,8 +2,6 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { v4 as uuid } from 'uuid';
 import config from 'config';
-import { getLanguageOptions } from '@tamanu/shared/utils/translation/getLanguageOptions';
-import { NOT_MODIFIED_STATUS_CODE } from '@tamanu/constants';
 
 import { getPermissions } from '@tamanu/shared/permissions/middleware';
 

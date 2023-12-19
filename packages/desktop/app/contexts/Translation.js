@@ -1,7 +1,7 @@
 import React, { useState, useContext, useEffect, useCallback } from 'react';
 import { isEmpty } from 'lodash';
 import { useApi } from '../api/useApi';
-import { LOCAL_STORAGE_KEYS } from '../constants/localStorageKeys';
+import { LOCAL_STORAGE_KEYS } from '../constants';
 
 const TranslationContext = React.createContext();
 

@@ -6,8 +6,7 @@ import { Launch } from '@material-ui/icons';
 import { push } from 'connected-react-router';
 
 import { TamanuLogo } from '../components';
-import { LOCAL_STORAGE_KEYS } from '../constants/localStorageKeys';
-import { Colors } from '../constants';
+import { LOCAL_STORAGE_KEYS, Colors } from '../constants';
 import { splashImages } from '../constants/images';
 
 import { LoginForm } from '../forms/LoginForm';
