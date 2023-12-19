@@ -1,8 +1,14 @@
 import { useQuery } from '@tanstack/react-query';
-import { VITALS_DATA_ELEMENT_IDS } from '@tamanu/constants/surveys';
+import { VITALS_DATA_ELEMENT_IDS, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { useApi, isErrorUnknownAllow404s } from '../index';
 import { useVitalsSurveyQuery } from './useVitalsSurveyQuery';
 import { getConfigObject } from '../../utils';
+
+function hasHistoricalData(answer) {
+  if (!answer) return false;
+  const { records } = answer;
+  return Object.values(records).some(record => record.body);
+}
 
 export const useVitals = encounterId => {
   const api = useApi();
@@ -35,6 +41,12 @@ export const useVitals = encounterId => {
 
     vitalsRecords = surveyData.components
       .filter(component => component.dataElementId !== VITALS_DATA_ELEMENT_IDS.dateRecorded)
+      // Show current components or ones that have historical data in them
+      .filter(
+        component =>
+          component.visibilityStatus === VISIBILITY_STATUSES.CURRENT ||
+          hasHistoricalData(elementIdToAnswer[component.dataElementId]),
+      )
       .map(component => {
         const { id, config, validationCriteria, dataElement } = component;
         const { records = {} } = elementIdToAnswer[dataElement.id] || {};

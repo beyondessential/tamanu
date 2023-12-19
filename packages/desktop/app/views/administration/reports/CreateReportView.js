@@ -24,7 +24,7 @@ export const CreateReportView = () => {
   const queryClient = useQueryClient();
   const { ability } = useAuth();
 
-  const onSubmit = async ({ name, query, status, dbSchema, options, ...queryOptions }) => {
+  const onSubmit = async ({ name, query, status, dbSchema, notes, options, ...queryOptions }) => {
     const { dataSources } = queryOptions;
     const isRawReport = dbSchema === REPORT_DB_SCHEMAS.RAW;
     try {
@@ -33,6 +33,7 @@ export const CreateReportView = () => {
         query,
         status,
         dbSchema,
+        notes,
         queryOptions: {
           ...queryOptions,
           dataSources: isRawReport ? dataSources : [REPORT_DATA_SOURCES.ALL_FACILITIES],
@@ -54,7 +55,7 @@ export const CreateReportView = () => {
         initialValues={{
           status: REPORT_STATUSES.PUBLISHED,
           dataSources: [REPORT_DATA_SOURCES.ALL_FACILITIES],
-          defaultDateRange: REPORT_DEFAULT_DATE_RANGES.THIRTY_DAYS,
+          defaultDateRange: REPORT_DEFAULT_DATE_RANGES.TWENTY_FOUR_HOURS,
           dbSchema: canEditSchema ? REPORT_DB_SCHEMAS.RAW : null,
           parameters: [],
         }}
