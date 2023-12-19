@@ -14,6 +14,7 @@ export default defineConfig({
         .then(JSON.parse)
         .then(({ version }) => version),
     ),
+    NODE_ENV: JSON.stringify(process.env.NODE_ENV),
   },
   worker: {
     format: 'es',
