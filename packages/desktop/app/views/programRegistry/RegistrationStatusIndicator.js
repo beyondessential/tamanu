@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Colors, PROGRAM_REGISTRATION_STATUSES } from '../../constants';
+import { REGISTRATION_STATUSES } from '@tamanu/constants';
+import { Colors } from '../../constants';
 import { capitaliseFirstLetter } from '../../utils/capitalise';
 import { ThemedTooltip } from '../../components/Tooltip';
 
@@ -29,7 +30,7 @@ export const RegistrationStatusIndicator = ({ patientProgramRegistration, hideTe
   return (
     <ThemedTooltip title={capitaliseFirstLetter(patientProgramRegistration.registrationStatus)}>
       <StatusDiv>
-        {patientProgramRegistration.registrationStatus === PROGRAM_REGISTRATION_STATUSES.ACTIVE ? (
+        {patientProgramRegistration.registrationStatus === REGISTRATION_STATUSES.ACTIVE ? (
           <StatusActiveDot style={style} />
         ) : (
           <StatusInactiveDot style={style} />

@@ -1,6 +1,7 @@
 import { fake } from 'shared/test-helpers/fake';
 import { REGISTRATION_STATUSES, DELETION_STATUSES } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
+// import { sleepAsync } from '../../../shared/src/utils/sleepAsync';
 
 describe('PatientProgramRegistration', () => {
   let ctx = null;
@@ -32,7 +33,6 @@ describe('PatientProgramRegistration', () => {
   };
 
   describe('Creating and retrieving registrations', () => {
-
     it('fetches most recent registration for each program', async () => {
       const clinician = await models.User.create(fake(models.User));
       const patient = await models.Patient.create(fake(models.Patient));
@@ -79,6 +79,7 @@ describe('PatientProgramRegistration', () => {
           programRegistryId: programRegistry3.id,
           registrationStatus: REGISTRATION_STATUSES.ACTIVE,
           patientId: patient.id,
+          date: TEST_DATE_EARLY,
         }),
       );
       await models.PatientProgramRegistration.create(
@@ -86,6 +87,7 @@ describe('PatientProgramRegistration', () => {
           programRegistryId: programRegistry3.id,
           registrationStatus: REGISTRATION_STATUSES.RECORDED_IN_ERROR,
           patientId: patient.id,
+          date: TEST_DATE_LATE,
         }),
       );
 
@@ -218,17 +220,17 @@ describe('PatientProgramRegistration', () => {
       });
       expect(createdRegistration.updatedAt).not.toEqual(existingRegistration.updatedAt);
     });
-
   });
 
   describe('reading registration information', () => {
-
     const populate = async () => {
       const clinician = await models.User.create(fake(models.User));
       const patient = await models.Patient.create(fake(models.Patient));
       const registry = await createProgramRegistry();
       const facility = await models.Facility.create(fake(models.Facility));
-      const village = await models.ReferenceData.create(fake(models.ReferenceData, { type: 'village' }));
+      const village = await models.ReferenceData.create(
+        fake(models.ReferenceData, { type: 'village' }),
+      );
 
       const status1 = await models.ProgramRegistryClinicalStatus.create(
         fake(models.ProgramRegistryClinicalStatus, { programRegistryId: registry.id }),
@@ -253,7 +255,7 @@ describe('PatientProgramRegistration', () => {
           villageId: village.id,
           registrationStatus: REGISTRATION_STATUSES.INACTIVE,
           date: '2023-09-02 10:00:00',
-        },  
+        },
         {
           patientId: patient.id,
           clinicalStatusId: status2.id,
@@ -265,6 +267,7 @@ describe('PatientProgramRegistration', () => {
 
       for (const r of records) {
         await app.post(`/v1/patient/${patient.id}/programRegistration`).send(r);
+        // await sleepAsync(1000);
       }
 
       return { patient, registry, records };
@@ -273,7 +276,9 @@ describe('PatientProgramRegistration', () => {
     it('fetches the registration history for a patient', async () => {
       const { patient, registry, records } = await populate();
 
-      const result = await app.get(`/v1/patient/${patient.id}/programRegistration/${registry.id}/history`);
+      const result = await app.get(
+        `/v1/patient/${patient.id}/programRegistration/${registry.id}/history`,
+      );
       expect(result).toHaveSucceeded();
       // it'll give us latest-first, so reverse it
       const history = [...records].reverse();
@@ -286,7 +291,7 @@ describe('PatientProgramRegistration', () => {
 
     it('fetches the full detail of the latest registration', async () => {
       const { patient, registry, records } = await populate();
-      
+
       const result = await app.get(`/v1/patient/${patient.id}/programRegistration/${registry.id}`);
       expect(result).toHaveSucceeded();
 
@@ -302,25 +307,27 @@ describe('PatientProgramRegistration', () => {
       it('should get a 404 for a non-existent registration', async () => {
         const patient = await models.Patient.create(fake(models.Patient));
         const registry = await createProgramRegistry();
-      
+
         // real patient, real registry, but not registered
-        const result = await app.get(`/v1/patient/${patient.id}/programRegistration/${registry.id}`);
-        expect(result).toHaveStatus(404);  
+        const result = await app.get(
+          `/v1/patient/${patient.id}/programRegistration/${registry.id}`,
+        );
+        expect(result).toHaveStatus(404);
       });
 
       it('should require a user that can read patient info', async () => {
         const { patient, registry } = await populate();
 
         const newApp = await baseApp.asRole('base');
-        const result = await newApp.get(`/v1/patient/${patient.id}/programRegistration/${registry.id}`);
+        const result = await newApp.get(
+          `/v1/patient/${patient.id}/programRegistration/${registry.id}`,
+        );
         expect(result).toBeForbidden();
       });
-      
     });
   });
 
   describe('Conditions', () => {
-
     describe('POST patient/:patientId/programRegistration/:programRegistryId/condition', () => {
       let patient;
       let programRegistry;
@@ -434,6 +441,5 @@ describe('PatientProgramRegistration', () => {
         });
       });
     });
-
   });
 });

@@ -3,6 +3,7 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
+import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { ChangeStatusFormModal } from '../app/views/programRegistry/ChangeStatusFormModal';
 import { ApiContext } from '../app/api';
 import { Modal } from '../app/components/Modal';
@@ -84,7 +85,7 @@ storiesOf('Program Registry', module).add('DisplayPatientRegDetails Critical', (
     <DisplayPatientRegDetails
       patientProgramRegistration={{
         ...patientProgramRegistration,
-        registrationStatus: 'removed',
+        registrationStatus: REGISTRATION_STATUSES.INACTIVE,
         clinicalStatus: {
           id: '1',
           code: 'critical',

@@ -1,16 +1,26 @@
 import React from 'react';
 import styled from 'styled-components';
 import { useQueryClient } from '@tanstack/react-query';
+import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { Modal, ConfirmCancelRow, FormSeparatorLine } from '../../components';
 import { useApi } from '../../api';
+import { Colors } from '../../constants';
+import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { PROGRAM_REGISTRY } from '../../components/PatientInfoPane/paneTitles';
 
 const Text = styled.div`
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   justify-content: center;
   align-content: center;
-  p {
+  padding: 20px 50px;
+  .header {
+    color: ${Colors.alert};
+    font-size: large;
+    margin-bottom: 0px;
+    font-weight: 500;
+  }
+  .desc {
     text-align: start;
   }
 `;
@@ -18,6 +28,7 @@ const Text = styled.div`
 export const DeleteProgramRegistryFormModal = ({ patientProgramRegistration, onClose, open }) => {
   const api = useApi();
   const queryClient = useQueryClient();
+  const { navigateToPatient } = usePatientNavigation();
 
   if (!patientProgramRegistration) return <></>;
 
@@ -25,24 +36,28 @@ export const DeleteProgramRegistryFormModal = ({ patientProgramRegistration, onC
     const { id, date, ...rest } = patientProgramRegistration;
     await api.post(
       `patient/${encodeURIComponent(patientProgramRegistration.patientId)}/programRegistration`,
-      { ...rest, registrationStatus: 'deleted' },
+      { ...rest, registrationStatus: REGISTRATION_STATUSES.RECORDED_IN_ERROR },
     );
 
     queryClient.invalidateQueries([`infoPaneListItem-${PROGRAM_REGISTRY}`]);
+    navigateToPatient(patientProgramRegistration.patientId);
     onClose();
   };
 
   return (
-    <Modal title="Delete record" open={open} onClose={onClose}>
-      {/* <div> */}
+    <Modal title="Delete record" width="sm" open={open} onClose={onClose} overrideContentPadding>
       <Text>
-        <p>
+        <p className="header">Confirm patient registry deletion</p>
+        <p className="desc">
           {`Are you sure you would like to delete the patient from the ${patientProgramRegistration?.programRegistry?.name} program registry? This will delete associated patient registry records. This action is irreversible.`}
         </p>
       </Text>
       <FormSeparatorLine style={{ marginTop: '30px', marginBottom: '30px' }} />
-      <ConfirmCancelRow onConfirm={deleteProgramRegistry} onCancel={onClose} />
-      {/* </div> */}
+      <ConfirmCancelRow
+        style={{ padding: '0px 50px' }}
+        onConfirm={deleteProgramRegistry}
+        onCancel={onClose}
+      />
     </Modal>
   );
 };
