@@ -2,6 +2,7 @@ import React from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import { useQueryClient } from '@tanstack/react-query';
+import { differenceBy } from 'lodash';
 import {
   Modal,
   ConfirmCancelRow,
@@ -25,6 +26,7 @@ const StyledFormGrid = styled(FormGrid)`
 export const AddConditionFormModal = ({
   onClose,
   patientProgramRegistration,
+  patientProgramRegistrationConditions,
   programRegistryConditions,
   open,
 }) => {
@@ -57,7 +59,11 @@ export const AddConditionFormModal = ({
                   name="programRegistryConditionId"
                   label="Related condition"
                   component={AutocompleteField}
-                  options={programRegistryConditions}
+                  options={differenceBy(
+                    programRegistryConditions,
+                    patientProgramRegistrationConditions,
+                    'value',
+                  )}
                 />
               </StyledFormGrid>
               <FormSeparatorLine style={{ marginTop: '60px', marginBottom: '30px' }} />

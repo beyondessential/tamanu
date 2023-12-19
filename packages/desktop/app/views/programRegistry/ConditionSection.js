@@ -16,7 +16,7 @@ const Container = styled.div`
   top: 0;
   right: 0;
   bottom: 0;
-  overflow-y: scroll;
+  overflow-y: ${p => (p.showScrollbar ? 'scroll' : 'none')};
   width: 28%;
   background-color: ${Colors.white};
   padding-top: 13px;
@@ -97,7 +97,7 @@ export const ConditionSection = ({ patientProgramRegistration, programRegistryCo
 
   if (programRegistryConditions && programRegistryConditions.length > 0)
     return (
-      <Container>
+      <Container showScrollbar={patientProgramRegistrationConditions?.data.length > 2}>
         <HeadingContainer>
           <Heading5>Related conditions</Heading5>
           <ConditionalTooltip title="Patient must be active" visible={isRemoved}>
@@ -130,6 +130,9 @@ export const ConditionSection = ({ patientProgramRegistration, programRegistryCo
           <AddConditionFormModal
             onClose={() => setOpenAddCondition(false)}
             patientProgramRegistration={patientProgramRegistration}
+            patientProgramRegistrationConditions={patientProgramRegistrationConditions.data.map(
+              x => ({ value: x.programRegistryConditionId }),
+            )}
             programRegistryConditions={programRegistryConditions}
             open
           />
