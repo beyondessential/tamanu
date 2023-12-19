@@ -178,24 +178,6 @@ describe('ProgramRegistry', () => {
         }),
       );
 
-      // // Patient 3: Should be filtered out (registrationStatus = removed)
-      // await models.PatientProgramRegistration.create(
-      //   fake(models.PatientProgramRegistration, {
-      //     ...baseRegistrationData,
-      //     patientId: (await models.Patient.create(fake(models.Patient, { displayId: '3' }))).id,
-      //     registrationStatus: REGISTRATION_STATUSES.REMOVED,
-      //   }),
-      // );
-
-      // // Patient 3: Should be filtered out (registrationStatus = removed)
-      // await models.PatientProgramRegistration.create(
-      //   fake(models.PatientProgramRegistration, {
-      //     ...baseRegistrationData,
-      //     patientId: (await models.Patient.create(fake(models.Patient, { displayId: '3' }))).id,
-      //     registrationStatus: REGISTRATION_STATUSES.REMOVED,
-      //   }),
-      // );
-
       const result = await app.get(`/v1/programRegistry/${programRegistryId}/registrations`).query({
         sortBy: 'clinicalStatus',
       });
@@ -233,5 +215,4 @@ describe('ProgramRegistry', () => {
       ]);
     });
   });
-
 });

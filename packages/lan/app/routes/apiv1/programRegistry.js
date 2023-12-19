@@ -124,7 +124,9 @@ programRegistry.get(
         filterParams.registeringFacilityId,
         'mrr.registering_facility_id = :registeringFacilityId',
       ),
-      makeFilter(filterParams.programRegistryId, 'mrr.program_registry_id = :programRegistryId'),
+      makeFilter(programRegistryId, 'mrr.program_registry_id = :programRegistryId', () => ({
+        programRegistryId,
+      })),
       makeFilter(filterParams.clinicalStatus, 'mrr.clinical_status = :clinicalStatus'),
       makeFilter(
         filterParams.currentlyIn,
@@ -204,6 +206,9 @@ programRegistry.get(
       replacements: filterReplacements,
       type: QueryTypes.SELECT,
     });
+    console.log(`${withClause} SELECT COUNT(1) AS count ${from}`);
+    console.log('===========');
+    console.log(filterReplacements);
 
     const count = parseInt(countResult[0].count, 10);
 
