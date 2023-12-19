@@ -1,7 +1,8 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import { isBefore, isAfter } from 'date-fns';
 import { NotFoundError, ValidationError } from '@tamanu/shared/errors';
-import { DELETION_STATUSES } from '@tamanu/constants';
+import { DELETION_STATUSES, REGISTRATION_STATUSES } from '@tamanu/constants';
 
 export const patientProgramRegistration = express.Router();
 
@@ -127,12 +128,39 @@ patientProgramRegistration.get(
         programRegistryId,
       },
       include: PatientProgramRegistration.getListReferenceAssociations(),
-      order: [['date', 'DESC']],
+      order: [['date', 'ASC']],
+      // Get the raw records so we can easily reverse later.
+      raw: true,
+      nest: true,
     });
 
+    const registrationDates = history
+      .filter(({ registrationStatus: currentStatus }, i) => {
+        // We always want the first
+        if (i === 0) {
+          return true;
+        }
+        const prevStatus = history[i - 1].registrationStatus;
+        return (
+          currentStatus === REGISTRATION_STATUSES.ACTIVE &&
+          prevStatus !== REGISTRATION_STATUSES.ACTIVE
+        );
+      })
+      .map(({ date }) => date)
+      .reverse();
+
+    const historyWithRegistrationDate = history.map(data => ({
+      ...data,
+      // Find the latest registrationDate that is not after the date of interest
+      registrationDate: registrationDates.find(
+        registrationDate => !isAfter(new Date(registrationDate), new Date(data.date)),
+      ),
+    }));
+
     res.send({
-      count: history.length,
-      data: history,
+      count: historyWithRegistrationDate.length,
+      // Give the history latest-first
+      data: historyWithRegistrationDate.reverse(),
     });
   }),
 );
