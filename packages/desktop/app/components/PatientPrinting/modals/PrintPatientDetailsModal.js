@@ -6,6 +6,7 @@ import { Button } from '../../Button';
 import { Colors } from '../../../constants';
 import { useApi, isErrorUnknownAllow404s } from '../../../api';
 import { useLocalisation } from '../../../contexts/Localisation';
+import { useAuth } from '../../../contexts/Auth';
 
 import { PatientIDCardPage } from './PatientIDCardPage';
 import { PatientStickerLabelPage } from './PatientStickerLabelPage';
@@ -39,16 +40,18 @@ const PRINT_OPTIONS = {
   ipsQrCode: {
     label: 'International Patient Summary',
     component: IPSQRCodeModal,
+    condition: (_, ability) => ability?.can('create', 'IPSRequest'),
   },
 };
 
 const PrintOptionList = ({ className, setCurrentlyPrinting }) => {
   const { getLocalisation } = useLocalisation();
+  const { ability } = useAuth();
 
   return (
     <div className={className}>
       {Object.entries(PRINT_OPTIONS)
-        .filter(([, { condition }]) => !condition || condition(getLocalisation))
+        .filter(([, { condition }]) => !condition || condition(getLocalisation, ability))
         .map(([type, { label, icon }]) => (
           <PrintOption
             key={type}
