@@ -132,8 +132,10 @@ export class IPSRequestProcessor extends ScheduledTask {
 
         // SEND EMAIL
 
+        const { subject, bodyText } = config.integrations.ips.email;
+
         const content = `
-          Please scan the QR code attached to view the International Patient Summary for ${patient.displayName}. \n  Alternatively, use the following link ${fullUrl} \n
+          ${bodyText} \n  Alternatively, use the following link ${fullUrl} \n
           Do not respond to this email.
         `;
 
@@ -142,7 +144,7 @@ export class IPSRequestProcessor extends ScheduledTask {
         const comm = await PatientCommunication.create({
           type: PATIENT_COMMUNICATION_TYPES.CERTIFICATE,
           channel: PATIENT_COMMUNICATION_CHANNELS.EMAIL,
-          subject: `International Patient Summary for ${patient.displayName}`,
+          subject,
           content,
           status: COMMUNICATION_STATUSES.QUEUED,
           patientId,
