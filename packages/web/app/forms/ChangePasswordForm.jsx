@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
@@ -84,6 +84,80 @@ const StyledField = styled(Field)`
   }
 `;
 
+const INCORRECT_TOKEN_ERROR_MESSAGE = 'Facility server error response: User or token not found';
+
+const ChangePasswordFormComponent = ({
+  onRestartFlow,
+  errorMessage,
+  email,
+  onNavToLogin,
+  onNavToResetPassword,
+  onValidateResetCode,
+  setFieldError,
+}) => {
+  useEffect(() => {
+    if (errorMessage === INCORRECT_TOKEN_ERROR_MESSAGE) {
+      setFieldError('token', 'Code incorrect');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [errorMessage]);
+
+  return (
+    <FormGrid columns={1}>
+      <div>
+        <FormHeading>Reset password</FormHeading>
+        <FormSubtext>
+          We have emailed you a reset code. Please enter the code and your new password below to
+          reset your password.
+        </FormSubtext>
+        <ErrorText $isError={!!errorMessage}>{errorMessage}</ErrorText>
+      </div>
+      <FieldContainer>
+        <StyledField
+          name="token"
+          type="text"
+          label="Reset code"
+          required
+          component={TextField}
+          placeholder="Reset code"
+          onChange={() => !errorMessage && setFieldError('token', '')}
+        />
+        <HorizontalDivider />
+        <StyledField
+          name="newPassword"
+          type="password"
+          label="New password"
+          required
+          component={TextField}
+          placeholder="New password"
+        />
+        <StyledField
+          name="confirmNewPassword"
+          type="password"
+          label="Confirm new password"
+          required
+          component={TextField}
+          placeholder="Confirm new password"
+        />
+      </FieldContainer>
+      <ActionButtonContainer>
+        <ChangePasswordButton type="submit">Reset Password</ChangePasswordButton>
+        <BackToLoginButton onClick={onNavToLogin} variant="outlined">
+          Back to login
+        </BackToLoginButton>
+      </ActionButtonContainer>
+      <ResendCodeButton
+        onClick={() => {
+          onRestartFlow();
+          onNavToResetPassword();
+        }}
+      >
+        Resend reset code
+      </ResendCodeButton>
+    </FormGrid>
+  );
+};
+
 export const ChangePasswordForm = React.memo(
   ({
     onSubmit,
@@ -93,74 +167,19 @@ export const ChangePasswordForm = React.memo(
     email,
     onNavToLogin,
     onNavToResetPassword,
+    onValidateResetCode,
   }) => {
-    const [isTokenValid, setIsTokenValid] = useState(false);
-
-    const renderForm = ({ setFieldValue }) => {
-      return (
-        <FormGrid columns={1}>
-          <div>
-            <FormHeading>Reset password</FormHeading>
-            <FormSubtext>
-              We have emailed you a reset code. Please enter the code and your new password below to
-              reset your password.
-            </FormSubtext>
-            <ErrorText $isError={!!errorMessage}>{errorMessage}</ErrorText>
-          </div>
-          <FieldContainer>
-            <StyledField
-              name="token"
-              type="text"
-              label="Reset code"
-              required
-              component={TextField}
-              placeholder="Reset code"
-              // onBlur={data => {
-              //   console.log('tsatrt');
-              //   onValidateResetCode(data);
-              //   console.log('ebd');
-              // }}
-              onBlur={() => {
-                setIsTokenValid(true);
-              }}
-            />
-            <HorizontalDivider />
-            <StyledField
-              name="newPassword"
-              type="password"
-              label="New password"
-              required
-              component={TextField}
-              placeholder="New password"
-              disabled={!isTokenValid}
-            />
-            <StyledField
-              name="confirmNewPassword"
-              type="password"
-              label="Confirm new password"
-              required
-              component={TextField}
-              placeholder="Confirm new password"
-              disabled={!isTokenValid}
-            />
-          </FieldContainer>
-          <ActionButtonContainer>
-            <ChangePasswordButton type="submit">Reset Password</ChangePasswordButton>
-            <BackToLoginButton onClick={onNavToLogin} variant="outlined">
-              Back to login
-            </BackToLoginButton>
-          </ActionButtonContainer>
-          <ResendCodeButton
-            onClick={() => {
-              onRestartFlow();
-              onNavToResetPassword();
-            }}
-          >
-            Resend reset code
-          </ResendCodeButton>
-        </FormGrid>
-      );
-    };
+    const renderForm = ({ setFieldError }) => (
+      <ChangePasswordFormComponent
+        onRestartFlow={onRestartFlow}
+        errorMessage={errorMessage}
+        email={email}
+        onNavToLogin={onNavToLogin}
+        onNavToResetPassword={onNavToResetPassword}
+        onValidateResetCode={onValidateResetCode}
+        setFieldError={setFieldError}
+      />
+    );
 
     if (success) {
       return (
