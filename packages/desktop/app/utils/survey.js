@@ -17,6 +17,7 @@ import {
   ReadOnlyTextField,
   UnsupportedPhotoField,
   DateTimeField,
+  PatientDataDisplayField,
 } from 'desktop/app/components/Field';
 import { ageInYears, ageInMonths, ageInWeeks } from '@tamanu/shared/utils/dateTime';
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
@@ -54,11 +55,17 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE]: InstructionField,
 };
 
-export function getComponentForQuestionType(type, { writeToPatient: { fieldType } = {} }) {
+export function getComponentForQuestionType(type, { source, writeToPatient: { fieldType } = {} }) {
   let component = QUESTION_COMPONENTS[type];
-  if (type === PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA && fieldType) {
-    // PatientData specifically can overwrite field type if we are writing back to patient record
-    component = QUESTION_COMPONENTS[fieldType];
+  if (type === PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA) {
+    if (fieldType) {
+      // PatientData specifically can overwrite field type if we are writing back to patient record
+      component = QUESTION_COMPONENTS[fieldType];
+    } else if (source) {
+      // we're displaying a relation, so use PatientDataDisplayField
+      // (using a LimitedTextField will just display the bare id)
+      component = PatientDataDisplayField;
+    }
   }
   if (component === undefined) {
     return LimitedTextField;
