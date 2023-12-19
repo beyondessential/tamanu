@@ -21,34 +21,38 @@ export const ProgramRegistrySidebarItem = ({
   const onPathChanged = newPath => dispatch(push(newPath));
   const currentPath = useSelector(getCurrentRoute);
 
-  const { data: programRegistries } = useListOfProgramRegistryQuery();
+  const { data: programRegistries, isLoading, isError } = useListOfProgramRegistryQuery();
+
+  if (isError)
+    return (
+      <PrimarySidebarItem
+        {...{ icon, label, children, selected, highlighted, onClick, divider, retracted }}
+      >
+        Error loading registries
+      </PrimarySidebarItem>
+    );
+  if (isLoading || programRegistries.data.length === 0) return null;
 
   return (
-    <>
-      {programRegistries?.data && programRegistries?.data.length > 0 ? (
-        <PrimarySidebarItem
-          {...{ icon, label, children, selected, highlighted, onClick, divider, retracted }}
-        >
-          {programRegistries.data.map(x => {
-            const secondaryPath = `${path}/${x.id}?name=${x.name}`;
-            return !retracted ? (
-              <SecondarySidebarItem
-                key={x.id}
-                path={secondaryPath}
-                isCurrent={currentPath.includes(secondaryPath)}
-                color=""
-                label={x.name}
-                disabled={false}
-                onClick={() => onPathChanged(secondaryPath)}
-              />
-            ) : (
-              <></>
-            );
-          })}
-        </PrimarySidebarItem>
-      ) : (
-        <></>
-      )}
-    </>
+    <PrimarySidebarItem
+      {...{ icon, label, children, selected, highlighted, onClick, divider, retracted }}
+    >
+      {programRegistries.data.map(x => {
+        const secondaryPath = `${path}/${x.id}?name=${x.name}`;
+        return !retracted ? (
+          <SecondarySidebarItem
+            key={x.id}
+            path={secondaryPath}
+            isCurrent={currentPath.includes(secondaryPath)}
+            color=""
+            label={x.name}
+            disabled={false}
+            onClick={() => onPathChanged(secondaryPath)}
+          />
+        ) : (
+          <></>
+        );
+      })}
+    </PrimarySidebarItem>
   );
 };
