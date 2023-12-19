@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Avatar } from '@material-ui/core';
-import { Colors, PROGRAM_REGISTRATION_STATUSES } from '../../constants/index';
+import { REGISTRATION_STATUSES } from '@tamanu/constants';
+import { Colors } from '../../constants/index';
 import { DateDisplay } from '../../components/DateDisplay';
 import { programsIcon } from '../../constants/images';
 import { MenuButton } from '../../components/MenuButton';
@@ -76,9 +77,7 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
   );
 
   const isRemoved =
-    patientProgramRegistration.registrationStatus === PROGRAM_REGISTRATION_STATUSES.REMOVED;
-  const isDeleted =
-    patientProgramRegistration.registrationStatus === PROGRAM_REGISTRATION_STATUSES.DELETED;
+    patientProgramRegistration.registrationStatus === REGISTRATION_STATUSES.INACTIVE;
 
   return (
     <DisplayContainer>
@@ -112,8 +111,8 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
                 <div>Removed by:</div>
               </TextColumns>
               <TextColumns style={{ fontWeight: 500 }}>
-                <DateDisplay date={patientProgramRegistration.date} />
-                <div>{patientProgramRegistration.clinician.displayName}</div>
+                <DateDisplay date={patientProgramRegistration.removedDate} />
+                <div>{patientProgramRegistration.removedByClinician?.displayName}</div>
               </TextColumns>
             </TextColumnsContainer>
           </>
@@ -130,12 +129,7 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
           justifyContent: 'flex-end',
         }}
       >
-        <OutlinedButton
-          onClick={() => setOpenChangeStatusFormModal(true)}
-          disabled={
-            patientProgramRegistration.registrationStatus === PROGRAM_REGISTRATION_STATUSES.REMOVED
-          }
-        >
+        <OutlinedButton onClick={() => setOpenChangeStatusFormModal(true)} disabled={isRemoved}>
           Change Status
         </OutlinedButton>
         <ChangeStatusFormModal
@@ -148,7 +142,7 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
           <div className="menu">
             <MenuButton
               actions={
-                isRemoved || isDeleted
+                isRemoved
                   ? {
                       Activate: () => setOpenActivateProgramRegistryFormModal(true),
                       Delete: () => setOpenDeleteProgramRegistryFormModal(true),

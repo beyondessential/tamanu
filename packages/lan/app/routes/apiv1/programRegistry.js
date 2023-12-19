@@ -165,6 +165,8 @@ programRegistry.get(
       on mrr.clinical_status_id = status.id
       left join program_registries program_registry
       on mrr.program_registry_id = program_registry.id
+      left join users clinician
+      on mrr.clinician_id = clinician.id
       ${whereClauses && `WHERE ${whereClauses}`}
     `;
 
@@ -219,6 +221,8 @@ programRegistry.get(
         program_registry.currently_at_type as "program_registry.currently_at_type",
         program_registry.name as "program_registry.name",
         program_registry.id as "program_registry_id",
+        clinician.display_name as "clinician.display_name",
+        mrr.date as "date",
         --
         -- Details for filtering/ordering
         patient.date_of_death as "patient.date_of_death",

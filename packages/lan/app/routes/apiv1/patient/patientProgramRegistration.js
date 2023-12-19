@@ -6,7 +6,7 @@ import { DELETION_STATUSES } from '@tamanu/constants';
 export const patientProgramRegistration = express.Router();
 
 patientProgramRegistration.get(
-  '/:id/programRegistration',
+  '/:patientId/programRegistration',
   asyncHandler(async (req, res) => {
     const { params, models } = req;
 
@@ -15,7 +15,7 @@ patientProgramRegistration.get(
     req.checkPermission('list', 'PatientProgramRegistration');
 
     const registrationData = await models.PatientProgramRegistration.getMostRecentRegistrationsForPatient(
-      params.id,
+      params.patientId,
     );
 
     res.send({ data: registrationData });
@@ -127,7 +127,7 @@ patientProgramRegistration.get(
         programRegistryId,
       },
       include: PatientProgramRegistration.getListReferenceAssociations(),
-      order: [['date', 'DESC']],
+      order: [['date', 'DESC NULLS LAST']],
     });
 
     res.send({
