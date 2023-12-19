@@ -2,4 +2,3 @@
 /data/*.db
 /data/.*
 /realm-object-server
-dist
