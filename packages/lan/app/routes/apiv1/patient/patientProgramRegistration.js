@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { isBefore, isAfter } from 'date-fns';
+import { isAfter } from 'date-fns';
 import { NotFoundError, ValidationError } from '@tamanu/shared/errors';
 import { DELETION_STATUSES, REGISTRATION_STATUSES } from '@tamanu/constants';
 
