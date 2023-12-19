@@ -87,6 +87,21 @@ patientProgramRegistration.post(
   }),
 );
 
+const getChangingStatusRecords = (allRecords, status) =>
+  allRecords.filter(({ registrationStatus: currentStatus }, i) => {
+    // We always want the first record if the status matches
+    if (i === 0) {
+      return currentStatus === status;
+    }
+    const prevStatus = allRecords[i - 1].registrationStatus;
+    return currentStatus === status && prevStatus !== status;
+  });
+
+const getRegistrationRecords = allRecords =>
+  getChangingStatusRecords(allRecords, REGISTRATION_STATUSES.ACTIVE);
+const getDeactivationRecords = allRecords =>
+  getChangingStatusRecords(allRecords, REGISTRATION_STATUSES.INACTIVE);
+
 patientProgramRegistration.get(
   '/:patientId/programRegistration/:programRegistryId',
   asyncHandler(async (req, res) => {
@@ -103,13 +118,54 @@ patientProgramRegistration.get(
       },
       include: PatientProgramRegistration.getFullReferenceAssociations(),
       order: [['date', 'DESC']],
+      raw: true,
+      nest: true,
     });
 
     if (!registration) {
       throw new NotFoundError();
     }
 
-    res.send(registration);
+    const history = await PatientProgramRegistration.findAll({
+      where: {
+        patientId,
+        programRegistryId,
+      },
+      include: PatientProgramRegistration.getListReferenceAssociations(),
+      order: [['date', 'ASC']],
+      raw: true,
+      nest: true,
+    });
+
+    const registrationRecords = getRegistrationRecords(history)
+      .map(({ date, clinician }) => ({ date, clinician }))
+      .reverse();
+
+    const recentRegistrationRecord = registrationRecords.find(
+      ({ date }) => !isAfter(new Date(date), new Date(registration.date)),
+    );
+
+    const deactivationRecords = getDeactivationRecords(history)
+      .map(({ date, clinician }) => ({ date, clinician }))
+      .reverse();
+
+    const recentDeativationRecord = deactivationRecords.find(
+      ({ date }) => !isAfter(new Date(date), new Date(registration.date)),
+    );
+    const deactivationData =
+      registration.registrationStatus === REGISTRATION_STATUSES.INACTIVE
+        ? {
+            dateRemoved: recentDeativationRecord.date,
+            removedBy: recentDeativationRecord.clinician,
+          }
+        : {};
+
+    res.send({
+      ...registration,
+      registrationDate: recentRegistrationRecord.date,
+      registrationClinician: recentRegistrationRecord.clinician,
+      ...deactivationData,
+    });
   }),
 );
 
@@ -134,18 +190,7 @@ patientProgramRegistration.get(
       nest: true,
     });
 
-    const registrationDates = history
-      .filter(({ registrationStatus: currentStatus }, i) => {
-        // We always want the first
-        if (i === 0) {
-          return true;
-        }
-        const prevStatus = history[i - 1].registrationStatus;
-        return (
-          currentStatus === REGISTRATION_STATUSES.ACTIVE &&
-          prevStatus !== REGISTRATION_STATUSES.ACTIVE
-        );
-      })
+    const registrationDates = getRegistrationRecords(history)
       .map(({ date }) => date)
       .reverse();
 

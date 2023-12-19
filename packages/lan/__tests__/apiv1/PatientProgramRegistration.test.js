@@ -269,6 +269,13 @@ describe('PatientProgramRegistration', () => {
           registrationStatus: REGISTRATION_STATUSES.ACTIVE,
           date: '2023-09-02 11:00:00',
         },
+        {
+          patientId: patient.id,
+          clinicalStatusId: status2.id,
+          programRegistryId: registry.id,
+          registrationStatus: REGISTRATION_STATUSES.INACTIVE,
+          date: '2023-09-02 11:30:00',
+        },
       ];
 
       for (const r of records) {
@@ -295,11 +302,12 @@ describe('PatientProgramRegistration', () => {
 
       // Check for correct registrationDates
       expect(result.body.data[0]).toHaveProperty('registrationDate');
-      // In chronological order:
-      expect(result.body.data[3].registrationDate).toEqual(history[3].date);
-      expect(result.body.data[2].registrationDate).toEqual(history[3].date);
-      expect(result.body.data[1].registrationDate).toEqual(history[1].date);
-      expect(result.body.data[0].registrationDate).toEqual(history[1].date);
+      // In chronological order (numbers are negative because the result is reversed):
+      expect(result.body.data.at(-1).registrationDate).toEqual(history.at(-1).date);
+      expect(result.body.data.at(-2).registrationDate).toEqual(history.at(-1).date);
+      expect(result.body.data.at(-3).registrationDate).toEqual(history.at(-3).date);
+      expect(result.body.data.at(-4).registrationDate).toEqual(history.at(-3).date);
+      expect(result.body.data.at(-5).registrationDate).toEqual(history.at(-3).date);
     });
 
     it('fetches the full detail of the latest registration', async () => {
@@ -314,6 +322,12 @@ describe('PatientProgramRegistration', () => {
       expect(record).toHaveProperty('clinicalStatus.name');
       expect(record).toHaveProperty('registeringFacility.name');
       expect(record).toHaveProperty('village.name');
+
+      // Check for derived info:
+      expect(record).toHaveProperty('registrationDate', records[2].date);
+      expect(record).toHaveProperty('registrationClinician.displayName');
+      expect(record).toHaveProperty('dateRemoved', records.at(-1).date);
+      expect(record).toHaveProperty('removedBy.displayName');
     });
 
     describe('errors', () => {
