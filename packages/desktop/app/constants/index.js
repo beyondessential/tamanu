@@ -1,5 +1,4 @@
 import { capitalize } from 'lodash';
-
 import { createValueIndex } from '@tamanu/shared/utils/valueIndex';
 import {
   ENCOUNTER_TYPES,
@@ -485,11 +484,4 @@ export const NOTE_FORM_MODES = {
   CREATE_NOTE: 'createNote',
   EDIT_NOTE: 'editNote',
   VIEW_NOTE: 'viewNote',
-};
-
-export const PROGRAM_REGISTRATION_STATUSES = {
-  REMOVED: 'removed',
-  ACTIVE: 'active',
-  DELETED: 'deleted',
-  ENTERED_IN_ERROR: 'entered-in-error',
 };
