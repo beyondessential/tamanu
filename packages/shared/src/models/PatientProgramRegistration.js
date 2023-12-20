@@ -137,9 +137,10 @@ export class PatientProgramRegistration extends Model {
   }
 
   static buildPatientSyncFilter(patientIds, { syncTheseProgramRegistries }) {
-    const escapedProgramRegistryIds = syncTheseProgramRegistries
-      .map(id => this.sequelize.escape(id))
-      .join(',');
+    const escapedProgramRegistryIds =
+      syncTheseProgramRegistries?.length > 1
+        ? syncTheseProgramRegistries.map(id => this.sequelize.escape(id)).join(',')
+        : '';
 
     if (patientIds.length === 0) {
       return `WHERE program_registry_id IN (${escapedProgramRegistryIds}) AND updated_at_sync_tick > :since`;
