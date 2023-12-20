@@ -267,6 +267,10 @@ export class CentralSyncManager {
       const patientIdsForFullSync = newPatientFacilities.map(n => n.patientId);
 
       const syncAllLabRequests = await models.Setting.get('syncAllLabRequests', facilityId);
+      const syncTheseProgramRegistries = await models.Setting.get(
+        'syncTheseProgramRegistries',
+        facilityId,
+      );
       const sessionConfig = {
         // for facilities with a lab, need ongoing lab requests
         // no need for historical ones on initial sync, and no need on mobile
@@ -275,6 +279,7 @@ export class CentralSyncManager {
           ? this.constructor.config.sync.syncAllEncountersForTheseVaccines
           : [],
         isMobile,
+        syncTheseProgramRegistries: isMobile ? [] : syncTheseProgramRegistries,
       };
 
       // snapshot inside a "repeatable read" transaction, so that other changes made while this
