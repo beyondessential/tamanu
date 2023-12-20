@@ -148,7 +148,7 @@ export async function loginHandler(req, res, next) {
       central,
       user,
       localisation,
-      settings: recievedSettings,
+      settings: receivedSettings,
     } = await centralServerLoginWithLocalFallback(models, email, password, deviceId, settings);
     const [facility, permissions, token, role] = await Promise.all([
       models.Facility.findByPk(config.serverFacilityId),
@@ -165,7 +165,7 @@ export async function loginHandler(req, res, next) {
       server: {
         facility: facility?.forResponse() ?? null,
       },
-      settings: recievedSettings,
+      settings: receivedSettings,
     });
   } catch (e) {
     next(e);
