@@ -1,5 +1,5 @@
 import { StyleSheet, View, Text } from '@react-pdf/renderer';
-import { getDisplayDate } from '../patientCertificates/getDisplayDate';
+import { getDisplayDate } from '../getDisplayDate';
 import React from 'react';
 
 const styles = StyleSheet.create({
