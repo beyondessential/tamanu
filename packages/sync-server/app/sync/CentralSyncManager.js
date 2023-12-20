@@ -279,7 +279,7 @@ export class CentralSyncManager {
           ? this.constructor.config.sync.syncAllEncountersForTheseVaccines
           : [],
         isMobile,
-        syncTheseProgramRegistries: isMobile ? [] : syncTheseProgramRegistries,
+        syncTheseProgramRegistries: isMobile ? [] : syncTheseProgramRegistries || [],
       };
 
       // snapshot inside a "repeatable read" transaction, so that other changes made while this
