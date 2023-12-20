@@ -8,7 +8,7 @@ import {
   Watermark,
   CertificateHeader,
   CertificateFooter,
-  WrappingPadding,
+  PageBreakPadding,
   FixedFooter,
   FixedHeader,
 } from './Layout';
@@ -132,7 +132,7 @@ export const VaccineCertificate = ({
         <FixedHeader>
           <View fixed render={({ pageNumber }) => pageNumber > 1 && <VaccineCertificateHeader />} />
         </FixedHeader>
-        <View fixed render={({ pageNumber }) => pageNumber > 1 && <WrappingPadding />} />
+        <View fixed render={({ pageNumber }) => pageNumber > 1 && <PageBreakPadding />} />
         {watermarkSrc && <Watermark src={watermarkSrc} />}
         <CertificateHeader>
           <LetterheadSection

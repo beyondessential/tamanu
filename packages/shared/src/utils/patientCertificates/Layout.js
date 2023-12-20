@@ -93,7 +93,7 @@ export const styles = StyleSheet.create({
     right: 50,
     textAlign: 'left',
   },
-  wrappingPadding: {
+  pageBreakPadding: {
     height: 26,
     width: '100%',
   },
@@ -151,9 +151,9 @@ export const FixedFooter = ({ children, props }) => (
   </View>
 );
 
-export const WrappingPadding = ({ size }) => (
+export const PageBreakPadding = ({ size }) => (
   <View
     fixed
-    style={{ ...styles.wrappingPadding, height: size || styles.wrappingPadding.height }}
+    style={{ ...styles.pageBreakPadding, height: size || styles.pageBreakPadding.height }}
   />
 );
