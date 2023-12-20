@@ -250,6 +250,7 @@ programRegistry.get(
         conditions.condition_list as "conditions",
         status.name as "clinical_status.name",
         status.color as "clinical_status.color",
+        status.id as "clinical_status.id",
         program_registry.currently_at_type as "program_registry.currently_at_type",
         program_registry.name as "program_registry.name",
         program_registry.id as "program_registry_id",

@@ -5,6 +5,7 @@ import { Colors } from '../../constants';
 import { DisplayPatientRegDetails } from './DisplayPatientRegDetails';
 import { ProgramRegistryStatusHistory } from './ProgramRegistryStatusHistory';
 import { usePatientProgramRegistration } from '../../api/queries/usePatientProgramRegistration';
+import { useProgramRegistryConditionsQuery } from '../../api/queries/usePatientProgramRegistryConditions';
 import { PatientProgramRegistryFormHistory } from './PatientProgramRegistryFormHistory';
 import { PatientProgramRegistrationSelectSurvey } from './PatientProgramRegistrationSelectSurvey';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
@@ -47,6 +48,9 @@ export const PatientProgramRegistryView = () => {
   const title = queryParams.get('title');
   const { patientId, programRegistryId } = useParams();
   const { data, isLoading, isError } = usePatientProgramRegistration(patientId, programRegistryId);
+  const { data: programRegistryConditions } = useProgramRegistryConditionsQuery(
+    data?.programRegistryId,
+  );
 
   if (isLoading) return <LoadingIndicator />;
   if (isError) return <p>Program registry &apos;{title || 'Unknown'}&apos; not found.</p>;
@@ -65,8 +69,14 @@ export const PatientProgramRegistryView = () => {
           <DisplayPatientRegDetails patientProgramRegistration={data} />
         </Row>
         <ProgramStatusAndConditionContainer>
-          <ProgramRegistryStatusHistory patientProgramRegistration={data} />
-          <ConditionSection patientProgramRegistration={data} />
+          <ProgramRegistryStatusHistory
+            patientProgramRegistration={data}
+            programRegistryConditions={programRegistryConditions}
+          />
+          <ConditionSection
+            patientProgramRegistration={data}
+            programRegistryConditions={programRegistryConditions}
+          />
         </ProgramStatusAndConditionContainer>
 
         <Row>

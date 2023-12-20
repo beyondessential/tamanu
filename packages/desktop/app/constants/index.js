@@ -21,6 +21,7 @@ import {
   LOCATION_AVAILABILITY_TAG_CONFIG,
   DOCUMENT_SOURCES,
   TEMPLATE_TYPES,
+  REGISTRATION_STATUSES,
 } from '@tamanu/constants';
 
 import {
@@ -43,6 +44,11 @@ export const DB_OBJECTS_MAX_DEPTH = {
   ENCOUNTER_MAIN: 7,
 };
 
+export const PROGRAM_REGISTRATION_STATUS_LABEL = {
+  [REGISTRATION_STATUSES.ACTIVE]: 'Active',
+  [REGISTRATION_STATUSES.INACTIVE]: 'Removed',
+  [REGISTRATION_STATUSES.RECORDED_IN_ERROR]: 'Delete',
+};
 // Should only be colours that are defined as constants in Figma
 // (with the exception of searchTintColor)
 export const Colors = {

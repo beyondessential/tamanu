@@ -10,7 +10,7 @@ import { ClinicalStatusDisplay } from './ClinicalStatusDisplay';
 import { useTableSorting } from '../../components/Table/useTableSorting';
 
 const Container = styled.div`
-  width: 70%;
+  width: ${p => (p.fullWidth ? '100%' : '70%')};
   background-color: ${Colors.white};
   padding: 13px 15px 30px 20px;
   display: flex;
@@ -22,7 +22,10 @@ const Container = styled.div`
   border: 1px solid ${Colors.softOutline};
 `;
 
-export const ProgramRegistryStatusHistory = ({ patientProgramRegistration }) => {
+export const ProgramRegistryStatusHistory = ({
+  patientProgramRegistration,
+  programRegistryConditions,
+}) => {
   const { data, isLoading } = useProgramRegistryClinicalStatus(
     patientProgramRegistration.patientId,
     patientProgramRegistration.programRegistryId,
@@ -76,7 +79,7 @@ export const ProgramRegistryStatusHistory = ({ patientProgramRegistration }) => 
   }, [data]);
 
   return (
-    <Container>
+    <Container fullWidth={programRegistryConditions?.length === 0}>
       <Heading5 style={{ marginBottom: '13px' }}>Program status history</Heading5>
       <Table
         isBodyScrollable

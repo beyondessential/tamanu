@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import CloseIcon from '@material-ui/icons/Close';
 import { IconButton } from '@material-ui/core';
+import { sortBy } from 'lodash';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { Colors } from '../../constants';
 import { Heading5 } from '../../components/Typography';
@@ -16,7 +17,7 @@ const Container = styled.div`
   top: 0;
   right: 0;
   bottom: 0;
-  overflow-y: scroll;
+  overflow-y: auto;
   width: 28%;
   background-color: ${Colors.white};
   padding-top: 13px;
@@ -78,11 +79,15 @@ const AddConditionButton = styled.button`
   }
 `;
 
-export const ConditionSection = ({ patientProgramRegistration }) => {
-  const { data: conditionsResponse, isLoading } = usePatientProgramRegistryConditionsQuery(
+export const ConditionSection = ({ patientProgramRegistration, programRegistryConditions }) => {
+  const {
+    data: patientProgramRegistrationConditions,
+    isLoading,
+  } = usePatientProgramRegistryConditionsQuery(
     patientProgramRegistration.patientId,
     patientProgramRegistration.programRegistryId,
   );
+
   const [conditionToRemove, setConditionToRemove] = useState();
   const [openAddCondition, setOpenAddCondition] = useState(false);
 
@@ -90,6 +95,9 @@ export const ConditionSection = ({ patientProgramRegistration }) => {
 
   const isRemoved =
     patientProgramRegistration.registrationStatus === REGISTRATION_STATUSES.INACTIVE;
+
+  if (!programRegistryConditions || !programRegistryConditions.length) return <></>;
+
   return (
     <Container>
       <HeadingContainer>
@@ -100,8 +108,11 @@ export const ConditionSection = ({ patientProgramRegistration }) => {
           </AddConditionButton>
         </ConditionalTooltip>
       </HeadingContainer>
-      {Array.isArray(conditionsResponse?.data) &&
-        conditionsResponse?.data.map(x => (
+      {Array.isArray(patientProgramRegistrationConditions?.data) &&
+        sortBy(
+          patientProgramRegistrationConditions.data,
+          c => c?.programRegistryCondition?.name,
+        ).map(x => (
           <ConditionContainer key={x.id}>
             <ConditionalTooltip
               title={x.programRegistryCondition?.name}
@@ -124,6 +135,10 @@ export const ConditionSection = ({ patientProgramRegistration }) => {
         <AddConditionFormModal
           onClose={() => setOpenAddCondition(false)}
           patientProgramRegistration={patientProgramRegistration}
+          patientProgramRegistrationConditions={patientProgramRegistrationConditions.data.map(
+            x => ({ value: x.programRegistryConditionId }),
+          )}
+          programRegistryConditions={programRegistryConditions}
           open
         />
       )}

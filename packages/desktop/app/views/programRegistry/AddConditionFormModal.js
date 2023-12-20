@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import { useQueryClient } from '@tanstack/react-query';
+import { differenceBy } from 'lodash';
 import {
   Modal,
   ConfirmCancelRow,
@@ -22,18 +23,15 @@ const StyledFormGrid = styled(FormGrid)`
   margin-top: 30px;
 `;
 
-export const AddConditionFormModal = ({ onClose, patientProgramRegistration, open }) => {
+export const AddConditionFormModal = ({
+  onClose,
+  patientProgramRegistration,
+  patientProgramRegistrationConditions,
+  programRegistryConditions,
+  open,
+}) => {
   const api = useApi();
   const queryClient = useQueryClient();
-  const [options, setOptions] = useState([]);
-  useEffect(() => {
-    (async () => {
-      const response = await api.get(
-        `programRegistry/${patientProgramRegistration.programRegistryId}/conditions`,
-      );
-      setOptions(response.data.map(x => ({ label: x.name, value: x.id })));
-    })();
-  }, [patientProgramRegistration.programRegistryId, api]);
 
   const submit = async data => {
     await api.post(
@@ -61,7 +59,11 @@ export const AddConditionFormModal = ({ onClose, patientProgramRegistration, ope
                   name="programRegistryConditionId"
                   label="Related condition"
                   component={AutocompleteField}
-                  options={options}
+                  options={differenceBy(
+                    programRegistryConditions,
+                    patientProgramRegistrationConditions,
+                    'value',
+                  )}
                 />
               </StyledFormGrid>
               <FormSeparatorLine style={{ marginTop: '60px', marginBottom: '30px' }} />
