@@ -130,8 +130,8 @@ const DiagnosesList = ({ diagnoses }) => {
 };
 
 const ProceduresList = ({ procedures }) => {
-  const { getLocalisation } = useLocalisation();
-  const displayProcedureCodes = getLocalisation('features.displayProcedureCodesInDischargeSummary');
+  const { getSetting } = useSettings();
+  const displayProcedureCodes = getSetting('features.displayProcedureCodesInDischargeSummary');
 
   return procedures.map(procedure => (
     <li>
