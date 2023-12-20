@@ -71,9 +71,7 @@ export const ChangeStatusFormModal = ({ patientProgramRegistration, onClose, ope
             );
           }}
           initialValues={{
-            clinicalStatusId:
-              patientProgramRegistration.clinicalStatusId ||
-              patientProgramRegistration.clinicalStatus?.id,
+            clinicalStatusId: patientProgramRegistration.clinicalStatus?.id,
           }}
           validationSchema={yup.object().shape({
             clinicalStatusId: foreignKey().required('Status must be selected'),
