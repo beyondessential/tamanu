@@ -138,7 +138,7 @@ export class PatientProgramRegistration extends Model {
 
   static buildPatientSyncFilter(patientIds, { syncTheseProgramRegistries }) {
     const escapedProgramRegistryIds =
-      syncTheseProgramRegistries?.length > 1
+      syncTheseProgramRegistries?.length > 0
         ? syncTheseProgramRegistries.map(id => this.sequelize.escape(id)).join(',')
         : "''";
 
