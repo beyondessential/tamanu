@@ -19,6 +19,7 @@ import { getDepartmentName } from '../../utils/department';
 import { getDisplayAge } from '../../utils/dateTime';
 import { capitaliseFirstLetter } from '../../utils/capitalise';
 import { useLocalisation } from '../../contexts/Localisation';
+import { useSettings } from '../../contexts/Settings';
 import {
   usePatientAdditionalDataQuery,
   usePatientConditions,
@@ -116,8 +117,9 @@ const NavContainer = styled.div`
 `;
 
 const DiagnosesList = ({ diagnoses }) => {
-  const { getLocalisation } = useLocalisation();
-  const displayIcd10Codes = getLocalisation('features.displayIcd10CodesInDischargeSummary');
+  const { getSetting } = useSettings();
+  const displayIcd10Codes = getSetting('features.displayIcd10CodesInDischargeSummary');
+  console.log(displayIcd10Codes);
 
   return diagnoses.map(item => (
     <li>
