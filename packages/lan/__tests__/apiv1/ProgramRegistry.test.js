@@ -226,5 +226,50 @@ describe('ProgramRegistry', () => {
         },
       ]);
     });
+
+    describe('Filtering', () => {
+      const patientFilters = [
+        { filter: 'dateOfBirth', value: '2000-01-01 01:23:45' },
+        { filter: 'displayId', value: 'TEST_DISPLAY_ID' },
+        { filter: 'sex', value: 'male' },
+        { filter: 'sex', value: 'female' },
+        { filter: 'sex', value: 'other' },
+        { filter: 'firstName', value: 'TEST_FIRST_NAME' },
+      ];
+      let registryId = null;
+      
+      beforeAll(async () => {
+        const { id: programRegistryId } = await models.ProgramRegistry.create(
+          fake(models.ProgramRegistry, { programId: testProgram.id }),
+        );
+        registryId = programRegistryId;
+        await Promise.all(patientFilters.map(async ({ filter, value }) => {  
+          const patient = await models.Patient.create(fake(models.Patient, {
+            [filter]: value, 
+          }));
+          await models.PatientProgramRegistration.create(
+            fake(models.PatientProgramRegistration, {
+              programRegistryId,
+              patientId: patient.id,
+            }),
+          );
+        }));
+      });
+
+      it.each(patientFilters)(
+        'Should only include records matching patient filter ($filter: $value)',
+        async ({ filter, value }) => {
+          const result = await app.get(`/v1/programRegistry/${registryId}/registrations`).query({
+            rowsPerPage: 100,
+            [filter]: value,
+          });
+          expect(result).toHaveSucceeded();
+
+          expect(result.body.data).not.toHaveLength(0);
+          result.body.data.map(x => {
+            expect(x.patient).toHaveProperty(filter, value);
+          });
+        });
+    });
   });
 });
