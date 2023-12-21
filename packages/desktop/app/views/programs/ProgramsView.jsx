@@ -23,6 +23,7 @@ import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { useEncounter } from '../../contexts/Encounter';
 import { PATIENT_TABS } from '../../constants/patientPaths';
 import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
+import { useApi } from '../../api';
 
 const SurveyFlow = ({ patient, currentUser }) => {
   const api = useApi();
