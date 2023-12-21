@@ -12,17 +12,17 @@ const Container = styled.div`
   padding: 1rem;
 `;
 
-const getLocalisation = key => {
-  const config = {
-    'templates.vaccineCertificate.emailAddress': 'tamanu@health.govt',
-    'templates.vaccineCertificate.contactNumber': '123456',
-    'fields.firstName.longLabel': 'First Name',
-    'fields.lastName.longLabel': 'Last Name',
-    'fields.dateOfBirth.longLabel': 'Date of Birth',
-    'fields.sex.longLabel': 'Sex',
-    previewUvciFormat: 'tamanu',
+const getSetting = key => {
+  const settings = {
+    'localisation.templates.vaccineCertificate.emailAddress': 'tamanu@health.govt',
+    'localisation.templates.vaccineCertificate.contactNumber': '123456',
+    'localisation.fields.firstName.longLabel': 'First Name',
+    'localisation.fields.lastName.longLabel': 'Last Name',
+    'localisation.fields.dateOfBirth.longLabel': 'Date of Birth',
+    'localisation.fields.sex.longLabel': 'Sex',
+    'localisation.previewUvciFormat': 'tamanu',
   };
-  return config[key];
+  return settings[key];
 };
 
 const letterheadConfig = {
@@ -106,7 +106,7 @@ const PDFTemplate = args => (
     <HandoverNotesPDF
       handoverNotes={handoverNotes}
       logoSrc={Logo}
-      getLocalisation={getLocalisation}
+      getSetting={getSetting}
       locationGroupName="A-Emergency Department"
       letterheadConfig={letterheadConfig}
     />
