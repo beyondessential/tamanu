@@ -57,7 +57,7 @@ export const EditReportView = () => {
     dispatch(push('admin/reports'));
   };
 
-  const handleSave = async ({ query, status, name, dbSchema, notes, ...queryOptions }) => {
+  const handleSave = async ({ query, status, name, options, dbSchema, notes, ...queryOptions }) => {
     const { dataSources } = queryOptions;
     const { reportDefinition } = version;
     const payload = {
