@@ -1,11 +1,12 @@
-import { useLocalisation } from '../contexts/Localisation';
+import { useSettings } from '../contexts/Settings';
 import { sexOptions } from '../constants';
 
 export const useSexValues = () => {
-  const { getLocalisation } = useLocalisation();
+  const { getSetting } = useSettings();
   const sexValues = sexOptions.map(o => o.value);
 
-  if (getLocalisation('features.hideOtherSex') === true) {
+  const hideOtherSex = getSetting('features.hideOtherSex');
+  if (hideOtherSex) {
     return sexValues.filter(s => s !== 'other');
   }
 

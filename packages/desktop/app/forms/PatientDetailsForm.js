@@ -10,6 +10,7 @@ import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants/patientFields'
 import { useSexValues } from '../hooks';
 import { Colors, sexOptions } from '../constants';
 import { useLocalisation } from '../contexts/Localisation';
+import { useSettings } from '../contexts/Settings';
 import { useApi, useSuggester } from '../api';
 import { getPatientDetailsValidation } from '../validations';
 import {
@@ -56,14 +57,15 @@ const StyledPatientDetailSecondaryDetailsGroupWrapper = styled.div`
 
 export const PrimaryDetailsGroup = ({ values = {}, patientRegistryType }) => {
   const villageSuggester = useSuggester('village');
-  const { getLocalisation } = useLocalisation();
+  const { getSetting } = useSettings();
   let filteredSexOptions = sexOptions;
-  if (getLocalisation('features.hideOtherSex') === true) {
+  const hideOtherSex = getSetting('features.hideOtherSex');
+  if (hideOtherSex) {
     filteredSexOptions = filteredSexOptions.filter(s => s.value !== 'other');
   }
 
   const isRequiredPatientData = fieldName =>
-    getLocalisation(`fields.${fieldName}.requiredPatientData`);
+    getSetting(`localisation.fields.${fieldName}.requiredPatientData`);
 
   return (
     <>
