@@ -116,6 +116,15 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
     const paramIndex = params.findIndex(p => p.id === paramId);
     const newParams = [...params];
     newParams[paramIndex] = { ...newParams[paramIndex], [field]: newValue };
+    // When changing the field type, remove options and suggester endpoint if they are not valid for the new field type.
+    if (field === 'parameterField') {
+      if (!FIELD_TYPES_WITH_PREDEFINED_OPTIONS.includes(newValue)) {
+        delete newParams[paramIndex].options;
+      }
+      if (FIELD_TYPES_WITH_SUGGESTERS.includes(newValue)) {
+        delete newParams[paramIndex].suggesterEndpoint;
+      }
+    }
     setParams(newParams);
   };
   const onParamsDelete = paramId => setParams(params.filter(p => p.id !== paramId));
@@ -199,14 +208,15 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
             </Grid>
             <Grid item xs={4}>
               <ParameterList onAdd={onParamsAdd}>
-                {params.map(({ id, ...rest }) => {
+                {params.map(({ id, ...rest }, parameterIndex) => {
                   return (
                     <ParameterItem
                       key={id}
                       id={id}
-                      {...rest}
+                      parameterIndex={parameterIndex}
                       onDelete={onParamsDelete}
                       onChange={onParamsChange}
+                      {...rest}
                     />
                   );
                 })}

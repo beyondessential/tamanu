@@ -48,6 +48,7 @@ const DeleteContainer = styled.div`
 export const ParameterItem = props => {
   const {
     id,
+    parameterIndex,
     name,
     label,
     parameterField,
@@ -56,18 +57,9 @@ export const ParameterItem = props => {
     onChange,
     options = [],
   } = props;
-
-  const onChangeOptions = (index, type, event) => {
-    if (options[index] === undefined) {
-      options[index] = {};
-    }
-    options[index][type] = event.target.value;
-    onChange(id, `options`, [...options]);
-  };
-
   const onOptionDelete = index => {
     const optionsWithRemovedKey = options.filter((_, i) => i !== index);
-    onChange(id, `options`, [...optionsWithRemovedKey]);
+    onChange(id, 'options', [...optionsWithRemovedKey]);
   };
 
   return (
@@ -154,24 +146,18 @@ export const ParameterItem = props => {
               <>
                 <Grid item xs={6}>
                   <Field
-                    name={`options[${index}].label`}
+                    name={`parameters.${parameterIndex}.options.${index}.label`}
                     label="Label"
                     component={TextField}
                     value={options[index]?.label}
-                    onChange={event => {
-                      onChangeOptions(index, 'label', event);
-                    }}
                   />
                 </Grid>
                 <Grid item xs={5}>
                   <Field
-                    name={`options[${index}].value`}
+                    name={`parameters.${parameterIndex}.options.${index}.value`}
                     label="Value"
                     component={TextField}
                     value={options[index]?.value}
-                    onChange={event => {
-                      onChangeOptions(index, 'value', event);
-                    }}
                   />
                 </Grid>
                 <Grid item xs={1}>
