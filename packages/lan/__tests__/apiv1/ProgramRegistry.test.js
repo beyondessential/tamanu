@@ -248,7 +248,6 @@ describe('ProgramRegistry', () => {
           const patient = await models.Patient.create(fake(models.Patient, {
             [filter]: value, 
           }));
-          console.log(filter, value, patient);
           await models.PatientProgramRegistration.create(
             fake(models.PatientProgramRegistration, {
               programRegistryId,
