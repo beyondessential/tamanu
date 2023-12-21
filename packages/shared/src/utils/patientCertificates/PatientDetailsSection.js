@@ -1,18 +1,18 @@
 import React from 'react';
 import { Col, LightDivider, Row } from './Layout';
-import { P } from './Typography';
+import { H1, H3, P } from './Typography';
 import { getDOB, getSex } from '../patientAccessors';
 
 const PATIENT_FIELDS = [
   { key: 'firstName', label: 'First Name' },
+  { key: 'displayId', label: 'Patient ID' },
   { key: 'lastName', label: 'Last Name' },
+  { key: 'sex', label: 'Sex', accessor: getSex },
   {
     key: 'dateOfBirth',
-    label: 'Date Of Birth',
+    label: 'DOB',
     accessor: getDOB,
   },
-  { key: 'sex', label: 'Sex', accessor: getSex },
-  { key: 'displayId', label: 'NHN' },
   { key: 'villageName', label: 'Village' },
 ];
 
@@ -22,6 +22,7 @@ export const PatientDetailsSection = ({ patient, getLocalisation, extraFields = 
   );
   return (
     <>
+      <H3 style={{ marginBottom: 0 }}>Patient Details</H3>
       <LightDivider />
       <Row>
         <Col style={{ marginBottom: 5 }}>
@@ -31,7 +32,7 @@ export const PatientDetailsSection = ({ patient, getLocalisation, extraFields = 
               const label = getLocalisation(`fields.${key}.shortLabel`) || defaultLabel;
 
               return (
-                <Col style={{ width: '33%' }} key={key}>
+                <Col style={{ width: '50%' }} key={key}>
                   <P mb={6}>
                     <P bold>{label}:</P> {value}
                   </P>
