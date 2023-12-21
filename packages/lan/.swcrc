@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/swcrc",
   "exclude": "node_modules/",
   "module": {
-    "type": "es6"
+    "type": "commonjs"
   },
   "jsc": {
     "parser": {

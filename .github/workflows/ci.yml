@@ -189,7 +189,6 @@ jobs:
       - test-facility-offline
     runs-on: ubuntu-latest
     steps:
-      # fail if ANY dependency has failed or been skipped or cancelled
-      - if: "contains(needs.*.result, 'failure') || contains(needs.*.result, 'skipped')
-          || contains(needs.*.result, 'cancelled')"
-        run: exit 1
+      - uses: re-actors/alls-green@release/v1
+        with:
+          jobs: ${{ toJSON(needs) }}
