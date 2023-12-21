@@ -17354,7 +17354,7 @@ mongodb@^3.6.2:
   optionalDependencies:
     saslprep "^1.0.0"
 
-moo@^0.5.0:
+moo@^0.5.0, moo@^0.5.1:
   version "0.5.2"
   resolved "https://registry.yarnpkg.com/moo/-/moo-0.5.2.tgz#f9fe82473bc7c184b0d32e2215d3f6e67278733c"
   integrity sha512-iSAJLHYKnX41mKcJKjqvnAN9sf0LMDTXDEvFv+ffuRR9a1MIuXLjMNL6EsnDHSkKLTWNqQQ5uo61P4EbU4NU+Q==
@@ -17508,7 +17508,7 @@ natural-compare@^1.4.0:
   resolved "https://registry.yarnpkg.com/natural-compare/-/natural-compare-1.4.0.tgz#4abebfeed7541f2c27acfb29bdbbd15c8d5ba4f7"
   integrity sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw==
 
-nearley@^2.7.10:
+nearley@^2.19.5, nearley@^2.7.10:
   version "2.20.1"
   resolved "https://registry.yarnpkg.com/nearley/-/nearley-2.20.1.tgz#246cd33eff0d012faf197ff6774d7ac78acdd474"
   integrity sha512-+Mc8UaAebFzgV+KpI5n7DasuuQCHA89dmwm7JXw3TV43ukfNQ9DnBH3Mdb2g/I4Fdxc26pwimBWvjIw0UAILSQ==
@@ -17987,6 +17987,11 @@ object-copy@^0.1.0:
     copy-descriptor "^0.1.0"
     define-property "^0.2.5"
     kind-of "^3.0.3"
+
+object-hash@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/object-hash/-/object-hash-3.0.0.tgz#73f97f753e7baffc0e2cc9d6e079079744ac82e9"
+  integrity sha512-RSn9F68PjH9HqtltsSnqYC1XXoWe9Bju5+213R98cNGttag9q9yAOTzdbsqvIa7aNm5WffBZFpWYr2aWrklWAw==
 
 object-inspect@^1.13.1, object-inspect@^1.7.0, object-inspect@^1.9.0:
   version "1.13.1"
@@ -18827,6 +18832,14 @@ pgpass@1.x:
   integrity sha512-FdW9r/jQZhSeohs1Z3sI1yxFQNFvMcnmfuj4WBMUTxOrAyLMaTcE1aAMBiTlbMNaXvBCQuVi0R7hd8udDSP7ug==
   dependencies:
     split2 "^4.1.0"
+
+pgsql-ast-parser@^11.1.0:
+  version "11.1.0"
+  resolved "https://registry.yarnpkg.com/pgsql-ast-parser/-/pgsql-ast-parser-11.1.0.tgz#b3015171fd844e93f37368a50fdb3c06ab9e5b01"
+  integrity sha512-c0XnjHzUyg2Z/3iB2Akk6+jDtsza4Jqw4bC5SSt9pQ3b+K4aQC75gJQDvsNYvFqQNaPHLCUunDLPc5SZsQQLIA==
+  dependencies:
+    moo "^0.5.1"
+    nearley "^2.19.5"
 
 picocolors@^0.2.1:
   version "0.2.1"

@@ -53,7 +53,8 @@ async function migrateUp(log, sequelize) {
   }
 }
 
-async function migrateDown(log, sequelize, options) {
+// exported for use in tests for migration determinism
+export async function migrateDown(log, sequelize, options) {
   const migrations = createMigrationInterface(log, sequelize);
   log.info(`Reverting 1 migration...`);
   const reverted = await migrations.down(options);
