@@ -46,7 +46,7 @@ means pulling in features from our existing roadmap, and speeding up the deliver
 core product. We will gladly co-design features if you identify something missing from the roadmap 
 that will benefit the users of Tamanu.
 
-The Tamanu product roadmap can be found [here](https://beyond-essential.slab.com/posts/product-roadmap-a2pz7b82).
+The Tamanu product roadmap can be found [here](https://www.bes.au/tamanu-roadmap/).
 
 #### Meaningful Contributions
 
