@@ -14,6 +14,8 @@ import {
   startOfDay,
 } from 'date-fns';
 
+// Note: A lot of these functions are copied in from shared, i.e. are duplicates of functions in shared/utils/date.js
+
 const ISO9075_DATE_FORMAT = 'yyyy-MM-dd';
 const ISO9075_DATETIME_FORMAT = 'yyyy-MM-dd HH:mm:ss';
 
