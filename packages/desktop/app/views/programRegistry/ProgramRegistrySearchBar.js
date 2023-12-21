@@ -43,7 +43,9 @@ export const ProgramRegistrySearchBar = ({ searchParameters, setSearchParameters
     baseQueryParameters: { programRegistryId: params.programRegistryId },
   });
 
-  const programRegistryConditionSuggester = useProgramRegistryConditions(params.programRegistryId);
+  const { data: programRegistryConditions } = useProgramRegistryConditions(
+    params.programRegistryId,
+  );
 
   return (
     <CustomisableSearchBar
@@ -65,7 +67,6 @@ export const ProgramRegistrySearchBar = ({ searchParameters, setSearchParameters
             defaultLabel="Registering Facility"
             component={AutocompleteField}
             suggester={facilitySuggester}
-            size="small"
           />
           <div
             style={{
@@ -112,7 +113,7 @@ export const ProgramRegistrySearchBar = ({ searchParameters, setSearchParameters
         defaultLabel="Related condition"
         name="programRegistryCondition"
         component={AutocompleteField}
-        suggester={programRegistryConditionSuggester}
+        options={programRegistryConditions?.data.map(x => ({ label: x.name, value: x.id }))}
       />
       <LocalisedField
         defaultLabel="Status"

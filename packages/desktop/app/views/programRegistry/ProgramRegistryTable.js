@@ -13,6 +13,7 @@ import { LimitedLinesCell } from '../../components/FormattedTableCell';
 import { RegistrationStatusIndicator } from './RegistrationStatusIndicator';
 import { ClinicalStatusDisplay } from './ClinicalStatusDisplay';
 import { useRefreshCount } from '../../hooks/useRefreshCount';
+import { ActivatePatientProgramRegistry } from './ActivatePatientProgramRegistry';
 
 export const ProgramRegistryTable = ({ searchParameters }) => {
   const params = useParams();
@@ -94,20 +95,27 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
       },
       {
         accessor: row => {
-          return (
-            <MenuButton
-              onClick={() => {}}
-              actions={
-                row.registrationStatus === REGISTRATION_STATUSES.INACTIVE
-                  ? { Delete: () => setOpenModal({ action: 'Delete', data: row }) }
-                  : {
-                      'Change status': () => setOpenModal({ action: 'ChangeStatus', data: row }),
-                      Remove: () => setOpenModal({ action: 'Remove', data: row }),
-                      Delete: () => setOpenModal({ action: 'Delete', data: row }),
-                    }
-              }
-            />
-          );
+          const isRemoved = row.registrationStatus === REGISTRATION_STATUSES.INACTIVE;
+          const isDeleted = row.registrationStatus === REGISTRATION_STATUSES.RECORDED_IN_ERROR;
+
+          let actions = {
+            'Change status': () => setOpenModal({ action: 'ChangeStatus', data: row }),
+            Remove: () => setOpenModal({ action: 'Remove', data: row }),
+            Delete: () => setOpenModal({ action: 'Delete', data: row }),
+          };
+
+          if (isRemoved)
+            actions = {
+              Activate: () => setOpenModal({ action: 'Activate', data: row }),
+              Delete: () => setOpenModal({ action: 'Delete', data: row }),
+            };
+
+          if (isDeleted)
+            actions = {
+              Activate: () => setOpenModal({ action: 'Activate', data: row }),
+              Remove: () => setOpenModal({ action: 'Remove', data: row }),
+            };
+          return <MenuButton onClick={() => {}} actions={actions} />;
         },
         sortable: false,
         dontCallRowInput: true,
@@ -148,6 +156,17 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
 
       {openModal && openModal?.data && openModal?.action === 'ChangeStatus' && (
         <ChangeStatusFormModal
+          patientProgramRegistration={openModal?.data}
+          onClose={() => {
+            updateRefreshCount();
+            setOpenModal(undefined);
+          }}
+          open
+        />
+      )}
+
+      {openModal && openModal?.data && openModal?.action === 'Activate' && (
+        <ActivatePatientProgramRegistry
           patientProgramRegistration={openModal?.data}
           onClose={() => {
             updateRefreshCount();
