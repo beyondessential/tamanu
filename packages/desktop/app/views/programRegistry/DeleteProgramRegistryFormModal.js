@@ -5,7 +5,6 @@ import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { Modal, ConfirmCancelRow, FormSeparatorLine } from '../../components';
 import { useApi } from '../../api';
 import { Colors } from '../../constants';
-import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { PROGRAM_REGISTRY } from '../../components/PatientInfoPane/paneTitles';
 
 const Text = styled.div`
