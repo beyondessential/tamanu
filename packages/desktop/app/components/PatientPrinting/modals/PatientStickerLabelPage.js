@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { SEX_VALUE_INDEX } from '../../../constants';
 import { useElectron } from '../../../contexts/Electron';
 import { DateDisplay } from '../../DateDisplay';
-import { useLocalisation } from '../../../contexts/Localisation';
+import { useSettings } from '../../../contexts/Settings';
 
 import { PrintPortal } from '../PrintPortal';
 import { PatientBarcode } from '../printouts/reusable/PatientBarcode';
@@ -61,8 +61,8 @@ const LabelPage = styled.div`
 
 export const PatientStickerLabelPage = ({ patient }) => {
   const { printPage } = useElectron();
-  const { getLocalisation } = useLocalisation();
-  const measures = getLocalisation('printMeasures.stickerLabelPage');
+  const { getSetting } = useSettings();
+  const measures = getSetting('printMeasures.stickerLabelPage');
   useEffect(() => {
     printPage();
   }, [printPage]);

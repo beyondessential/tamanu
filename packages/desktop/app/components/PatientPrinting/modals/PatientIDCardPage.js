@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import styled from 'styled-components';
 
-import { useLocalisation } from '../../../contexts/Localisation';
+import { useSettings } from '../../../contexts/Settings';
 import { useElectron } from '../../../contexts/Electron';
 import { SEX_VALUE_INDEX } from '../../../constants';
 import { DateDisplay } from '../../DateDisplay';
@@ -92,8 +92,8 @@ const InfoRow = styled.div`
 `;
 
 const DetailsRow = ({ name, value }) => {
-  const { getLocalisation } = useLocalisation();
-  const label = getLocalisation(`fields.${name}.shortLabel`);
+  const { getSetting } = useSettings();
+  const label = getSetting(`localisation.fields.${name}.shortLabel`);
   return (
     <InfoRow>
       <DetailsKey>{`${label}: `}</DetailsKey>
@@ -133,8 +133,8 @@ const PatientPhoto = ({ imageData }) => (
 
 export const PatientIDCardPage = ({ patient, imageData }) => {
   const { printPage } = useElectron();
-  const { getLocalisation } = useLocalisation();
-  const measures = getLocalisation('printMeasures.idCardPage');
+  const { getSetting } = useSettings();
+  const measures = getSetting('printMeasures.idCardPage');
   useEffect(() => {
     printPage({
       landscape: true,
