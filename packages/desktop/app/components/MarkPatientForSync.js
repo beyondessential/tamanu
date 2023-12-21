@@ -9,10 +9,12 @@ import { syncPatient } from '../store/patient';
 
 const MarkPatientForSyncButton = styled(Button)`
   background: ${Colors.white};
-  display: grid;
-  justify-content: center;
-  text-align: -webkit-center;
   height: 9rem;
+  .MuiButton-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
 `;
 
 const MarkPatientForSyncIcon = styled(Loop)`

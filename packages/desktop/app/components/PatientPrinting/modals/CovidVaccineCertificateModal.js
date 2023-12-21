@@ -21,7 +21,7 @@ export const CovidVaccineCertificateModal = React.memo(({ open, onClose, patient
   });
   const { data: additionalData } = usePatientAdditionalDataQuery(patient.id);
 
-  const { data: vaccineData } = useAdministeredVaccines(patient.id, {
+  const { data: vaccineData, isFetching } = useAdministeredVaccines(patient.id, {
     orderBy: 'date',
     order: 'ASC',
     invertNullDateOrdering: true,
@@ -43,6 +43,8 @@ export const CovidVaccineCertificateModal = React.memo(({ open, onClose, patient
   );
 
   const patientData = { ...patient, additionalData };
+
+  if (isFetching) return null;
 
   return (
     <Modal
