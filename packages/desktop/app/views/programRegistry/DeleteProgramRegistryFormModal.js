@@ -28,7 +28,6 @@ const Text = styled.div`
 export const DeleteProgramRegistryFormModal = ({ patientProgramRegistration, onClose, open }) => {
   const api = useApi();
   const queryClient = useQueryClient();
-  const { navigateToPatient } = usePatientNavigation();
 
   if (!patientProgramRegistration) return <></>;
 
@@ -40,7 +39,6 @@ export const DeleteProgramRegistryFormModal = ({ patientProgramRegistration, onC
     );
 
     queryClient.invalidateQueries([`infoPaneListItem-${PROGRAM_REGISTRY}`]);
-    navigateToPatient(patientProgramRegistration.patientId);
     onClose();
   };
 

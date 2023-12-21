@@ -46,7 +46,7 @@ export const ChangeStatusFormModal = ({ patientProgramRegistration, onClose, ope
 
   return (
     <>
-      <Modal title="Change Status" open={open} onClose={onClose} overrideContentPadding>
+      <Modal title="Change status" open={open} onClose={onClose} overrideContentPadding>
         <Form
           showInlineErrorsOnly
           onSubmit={changeStatus}
