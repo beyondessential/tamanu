@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Avatar } from '@material-ui/core';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
+import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { Colors } from '../../constants/index';
 import { DateDisplay } from '../../components/DateDisplay';
 import { programsIcon } from '../../constants/images';
@@ -12,6 +13,7 @@ import { DeleteProgramRegistryFormModal } from './DeleteProgramRegistryFormModal
 import { RemoveProgramRegistryFormModal } from './RemoveProgramRegistryFormModal';
 import { OutlinedButton } from '../../components';
 import { ClinicalStatusDisplay } from './ClinicalStatusDisplay';
+import { ConditionalTooltip } from '../../components/Tooltip';
 
 const DisplayContainer = styled.div`
   display: flex;
@@ -65,6 +67,7 @@ const TextColumns = styled.div`
 `;
 
 export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
+  const { navigateToPatient } = usePatientNavigation();
   const [openChangeStatusFormModal, setOpenChangeStatusFormModal] = useState(false);
   const [openDeleteProgramRegistryFormModal, setOpenDeleteProgramRegistryFormModal] = useState(
     false,
@@ -117,7 +120,7 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
             <div>Registered by:</div>
           </TextColumns>
           <TextColumns style={{ fontWeight: 500 }}>
-            <DateDisplay date={patientProgramRegistration.createdAt} />
+            <DateDisplay date={patientProgramRegistration.registrationDate} />
             <div>{patientProgramRegistration.clinician.displayName}</div>
           </TextColumns>
         </TextColumnsContainer>
@@ -148,9 +151,11 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
           justifyContent: 'flex-end',
         }}
       >
-        <OutlinedButton onClick={() => setOpenChangeStatusFormModal(true)} disabled={isRemoved}>
-          Change Status
-        </OutlinedButton>
+        <ConditionalTooltip title="Patient must be active" visible={isRemoved}>
+          <OutlinedButton onClick={() => setOpenChangeStatusFormModal(true)} disabled={isRemoved}>
+            Change status
+          </OutlinedButton>
+        </ConditionalTooltip>
         <ChangeStatusFormModal
           patientProgramRegistration={patientProgramRegistration}
           open={openChangeStatusFormModal}
@@ -176,7 +181,10 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
       <DeleteProgramRegistryFormModal
         open={openDeleteProgramRegistryFormModal}
         patientProgramRegistration={patientProgramRegistration}
-        onClose={() => setOpenDeleteProgramRegistryFormModal(false)}
+        onClose={({ success }) => {
+          setOpenDeleteProgramRegistryFormModal(false);
+          if (success) navigateToPatient(patientProgramRegistration.patientId);
+        }}
       />
     </DisplayContainer>
   );
