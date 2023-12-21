@@ -23,7 +23,7 @@ export const COLUMNS_TO_DATA_ELEMENT_ID = {
 const conversionFunctions = {
   temperature: value => {
     if (value && config.localisation.data.units.temperature === 'fahrenheit') {
-      // Do this the hard way so we don't need to add a conversion lib to sync
+      // Do this the hard way so we don't need to add a conversion lib to central
       return (value * (9 / 5) + 32).toFixed(1);
     }
     return value;

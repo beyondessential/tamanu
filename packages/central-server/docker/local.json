@@ -1,9 +1,9 @@
 {
   "db": {
     "host": "db",
-    "name": "tamanu-sync",
-    "username": "tamanu-sync",
-    "password": "tamanu-sync",
+    "name": "tamanu-central",
+    "username": "tamanu-central",
+    "password": "tamanu-central",
     "migrateOnStartup": true
   }
 }

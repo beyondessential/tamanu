@@ -1,8 +1,8 @@
 {
-  "name": "sync-server",
+  "name": "@tamanu/central-server",
   "version": "1.39.0",
   "private": true,
-  "description": "Sync server for Tamanu desktop app",
+  "description": "Central server for Tamanu",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
   "repository": "git@github.com:beyondessential/tamanu.git",
   "author": "Beyond Essential Systems Pty. Ltd.",

@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-expressions */
 
-import { createTestContext } from 'sync-server/__tests__/utilities';
-import { fakeABtoRealAB, newKeypairAndCsr } from 'sync-server/app/integrations/Signer';
+import { createTestContext } from '@tamanu/central-server/__tests__/utilities';
+import { fakeABtoRealAB, newKeypairAndCsr } from '@tamanu/central-server/app/integrations/Signer';
 import { Crypto } from '@peculiar/webcrypto';
 import {
   BitString,

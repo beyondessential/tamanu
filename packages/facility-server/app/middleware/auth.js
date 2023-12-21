@@ -45,7 +45,7 @@ async function comparePassword(user, password) {
 }
 
 export async function centralServerLogin(models, email, password, deviceId) {
-  // try logging in to sync server
+  // try logging in to central server
   const centralServer = new CentralServerConnection({ deviceId });
   const response = await centralServer.fetch('login', {
     awaitConnection: false,
@@ -83,7 +83,7 @@ export async function centralServerLogin(models, email, password, deviceId) {
 }
 
 async function localLogin(models, email, password) {
-  // some other error in communicating with sync server, revert to local login
+  // some other error in communicating with central server, revert to local login
   const user = await models.User.scope('withPassword').findOne({
     where: { email },
   });

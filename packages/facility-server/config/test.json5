@@ -1,6 +1,6 @@
 {
   "db": {
-    "name": "tamanu-lan-test",
+    "name": "tamanu-facility-test",
     "migrateOnStartup": true,
     "reportSchemas": {
       "enabled": false,

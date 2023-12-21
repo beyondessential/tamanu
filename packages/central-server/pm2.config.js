@@ -3,7 +3,7 @@ const memory = process.env.TAMANU_MEMORY_ALLOCATION || 8192;
 module.exports = {
   apps: [
     {
-      name: 'tamanu-sync-server',
+      name: 'tamanu-http-server',
       cwd: '.', // IMPORTANT: Leave this as-is, for production build
       script: './dist/index.js',
       args: 'serve',

@@ -11,7 +11,7 @@ A vaccination a patient has recieved. The specific vaccine is represented in the
 
 ### Attachment
 
-Metadata for an attached document (for eg an image or a pdf). Actual attachment data is not synced; data should be fetched over an internet connection from the sync server (though the data column in this table can be used as a local cache).
+Metadata for an attached document (for eg an image or a pdf). Actual attachment data is not synced; data should be fetched over an internet connection from the central server (though the data column in this table can be used as a local cache).
 
 ### Discharge
 
@@ -74,7 +74,7 @@ A care plan for a patient.
 
 ### PatientCommunication
 
-A communication (e.g. email, text) to be sent to a patient. The sync server is responsible for actually processing these communications.
+A communication (e.g. email, text) to be sent to a patient. The central server is responsible for actually processing these communications.
 
 ### PatientCondition
 
@@ -102,7 +102,7 @@ A program data element represents a single survey question, reusable across diff
 
 ### ReferenceData
 
-Reference data is a core table in Tamanu that allows for huge amounts of customisation across deployments. There are many types of reference data, all used to populate the app with data such as locations, drugs, allergies, diagnoses, and many more. Each deployment has a reference data excel sheet that is imported to the sync server and syncs down to lan and mobile devices to populate data in the apps.
+Reference data is a core table in Tamanu that allows for huge amounts of customisation across deployments. There are many types of reference data, all used to populate the app with data such as locations, drugs, allergies, diagnoses, and many more. Each deployment has a reference data excel sheet that is imported to the central server and syncs down to facility and mobile devices to populate data in the apps.
 
 A reference data item has a name, a code, and an ID (where "code" is just a unique string for that reference data item within its type, for eg an ICD10 code). If a type of reference data requires additional metadata beyond these fields, then it should be split out into a separate table.
 
@@ -114,7 +114,7 @@ A referral to another facility. This model is lightweight by design, only tracki
 
 ### ReportRequest
 
-Lists all requested reports from the current device, which are then sent to the sync server to be created and delivered.
+Lists all requested reports from the current device, which are then sent to the central server to be created and delivered.
 
 ### ScheduledVaccine
 
@@ -150,7 +150,7 @@ Emergency department triage information. Tracks very limited information - furth
 
 ### User
 
-Users of the application, required to be able to login to either the tamanu mobile or desktop applications.
+Users of the application, required to be able to login to either the tamanu mobile or web applications.
 
 ### UserFacility
 

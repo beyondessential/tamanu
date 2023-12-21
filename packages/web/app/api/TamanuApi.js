@@ -25,12 +25,12 @@ const getResponseJsonSafely = async response => {
 const getVersionIncompatibleMessage = (error, response) => {
   if (error.message === VERSION_COMPATIBILITY_ERRORS.LOW) {
     const minAppVersion = response.headers.get('X-Min-Client-Version');
-    return `Please upgrade to Tamanu Desktop v${minAppVersion} or higher. Try closing and reopening, or contact your system administrator.`;
+    return `Please upgrade to Tamanu Web v${minAppVersion} or higher. Try closing and reopening, or contact your system administrator.`;
   }
 
   if (error.message === VERSION_COMPATIBILITY_ERRORS.HIGH) {
     const maxAppVersion = response.headers.get('X-Max-Client-Version');
-    return `The Tamanu LAN Server only supports up to v${maxAppVersion}, and needs to be upgraded. Please contact your system administrator.`;
+    return `The Tamanu Facility Server only supports up to v${maxAppVersion}, and needs to be upgraded. Please contact your system administrator.`;
   }
 
   return null;
@@ -46,7 +46,7 @@ const fetchOrThrowIfUnavailable = async (url, config) => {
     // apply more helpful message if the server is not available
     if (e.message === 'Failed to fetch') {
       throw new Error(
-        'The LAN Server is unavailable. Please check with your system administrator that the address is set correctly, and that it is running',
+        'The Facility Server is unavailable. Please check with your system administrator that the address is set correctly, and that it is running',
       );
     }
     throw e; // some other unhandled error
@@ -158,7 +158,7 @@ export class TamanuApi {
       { returnResponse: true },
     );
     const serverType = response.headers.get('X-Tamanu-Server');
-    if (![SERVER_TYPES.LAN, SERVER_TYPES.SYNC].includes(serverType)) {
+    if (![SERVER_TYPES.FACILITY, SERVER_TYPES.CENTRAL].includes(serverType)) {
       throw new Error(`Tamanu server type '${serverType}' is not supported.`);
     }
 
@@ -227,7 +227,7 @@ export class TamanuApi {
         ...this.authHeader,
         ...headers,
         'X-Version': this.appVersion,
-        'X-Tamanu-Client': 'Tamanu Desktop',
+        'X-Tamanu-Client': SERVER_TYPES.WEBAPP,
       },
       ...otherConfig,
     });
@@ -258,7 +258,7 @@ export class TamanuApi {
       const versionIncompatibleMessage = getVersionIncompatibleMessage(error, response);
       if (versionIncompatibleMessage) {
         if (error.message === VERSION_COMPATIBILITY_ERRORS.LOW) {
-          // If detect that desktop version is lower than facility server version,
+          // If detect that web version is lower than facility server version,
           // communicate with main process to initiate the auto upgrade
           ipcRenderer.invoke('update-available', this.host);
         }

@@ -7,7 +7,7 @@ import { loadCertificateIntoSigner } from './Crypto';
 
 export const routes = express.Router();
 
-// req.checkPermission isn't implemented on sync-server yet
+// req.checkPermission isn't implemented on central-server yet
 // TODO: Swap this out when it is
 function checkAdmin(user) {
   if (user?.role !== 'admin') {

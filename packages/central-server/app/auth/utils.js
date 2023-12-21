@@ -3,7 +3,7 @@ import { sign as signCallback, verify as verifyCallback } from 'jsonwebtoken';
 import { randomBytes, randomInt } from 'crypto';
 import { promisify } from 'util';
 
-import { VISIBILITY_STATUSES, USER_DEACTIVATED_ERROR_MESSAGE } from '@tamanu/constants';
+import { VISIBILITY_STATUSES, USER_DEACTIVATED_ERROR_MESSAGE, SERVER_TYPES } from '@tamanu/constants';
 import { ForbiddenError } from '@tamanu/shared/errors';
 
 const sign = promisify(signCallback);
@@ -61,5 +61,4 @@ export const findUserById = async (models, id) => {
   return user.get({ plain: true });
 };
 
-export const isInternalClient = client =>
-  ['Tamanu Mobile', 'Tamanu Desktop', 'Tamanu LAN Server'].includes(client);
+export const isInternalClient = client => Object.values(SERVER_TYPES).includes(client);

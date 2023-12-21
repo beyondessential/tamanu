@@ -21,7 +21,7 @@ import { Sidebar, FACILITY_MENU_ITEMS, SYNC_MENU_ITEMS } from './components/Side
 import { UserActivityMonitor } from './components/UserActivityMonitor';
 
 export const RoutingApp = () => {
-  const isSyncServer = useSelector(state => state.auth?.server?.type === SERVER_TYPES.SYNC);
+  const isSyncServer = useSelector(state => state.auth?.server?.type === SERVER_TYPES.CENTRAL);
   return isSyncServer ? <RoutingAdminApp /> : <RoutingFacilityApp />;
 };
 

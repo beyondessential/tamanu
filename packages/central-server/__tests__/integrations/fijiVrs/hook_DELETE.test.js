@@ -1,7 +1,7 @@
 import config from 'config';
 
 import { fake } from '@tamanu/shared/test-helpers/fake';
-import { createTestContext } from 'sync-server/__tests__/utilities';
+import { createTestContext } from '@tamanu/central-server/__tests__/utilities';
 import { prepareVRSMocks } from './sharedHookHelpers';
 
 const { host } = config.integrations.fijiVrs;

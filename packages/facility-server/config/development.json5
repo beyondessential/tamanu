@@ -6,7 +6,7 @@
   },
   "db": {
     "migrateOnStartup": true,
-    "name": "tamanu-lan"
+    "name": "tamanu-facility"
   },
   "sync": {
     "host": "http://localhost:3000",

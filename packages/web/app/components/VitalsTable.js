@@ -83,7 +83,7 @@ const MeasureCell = React.memo(({ value, data }) => {
   // we need the visualisation configs to enable the two viz buttons that can click into the chart view, and at the same time they will pop up the same chart. Replacing DBP key with SBP is a hacky way to do it.
   //
   // The ideal way is to:
-  // 1. just make one button for both SBP and DBP on desktop
+  // 1. just make one button for both SBP and DBP on web
   // 2. build a chart key on backend for the blood chart, build a customised viz config for it.
   //
   // Currently DBP and SBP data are both shown on the same chart (VitalBloodPressureChart), it should use SBP's visualisation_config and validation_criteria to render the chart

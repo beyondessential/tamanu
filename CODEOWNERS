@@ -10,23 +10,23 @@
 # https://beyondessential.slack.com/archives/GE9NHB95F/p1649711118757929
 #
 /packages/shared/src/sync/                              @edmofro @chris-bes
-/packages/lan/app/sync/                                 @edmofro @chris-bes
-/packages/sync-server/app/sync/                         @edmofro @chris-bes
+/packages/facility-server/app/sync/                     @edmofro @chris-bes
+/packages/central-server/app/sync/                      @edmofro @chris-bes
 /packages/mobile/App/services/sync/                     @edmofro @chris-bes
 
 #
 # Félix currently owns VDS-NC/EU-DCC/Signer and CSCA.
 # Same reasoning, but it's not core to Tamanu.
 #
-/packages/csca/src/                                       @passcod
-/packages/sync-server/integrations/EuDcc                  @passcod
-/packages/sync-server/integrations/Signer                 @passcod
-/packages/sync-server/integrations/VdsNc                  @passcod
+/packages/csca/src/                                          @passcod
+/packages/central-server/integrations/EuDcc                  @passcod
+/packages/central-server/integrations/Signer                 @passcod
+/packages/central-server/integrations/VdsNc                  @passcod
 
-# 
+#
 # The deployment team are code owner of the default config files to make sure
 # that they're across any changes that might need to be made to any particular
 # server.
-# 
-/packages/sync-server/config/default.json5  @beyondessential/tamanu-deployment-team
-/packages/lan/config/default.json5          @beyondessential/tamanu-deployment-team
+#
+/packages/central-server/config/default.json5  @beyondessential/tamanu-deployment-team
+/packages/central-server/config/default.json5  @beyondessential/tamanu-deployment-team

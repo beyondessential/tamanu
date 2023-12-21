@@ -33,7 +33,7 @@ export function createApp(ctx) {
   app.use(getLoggingMiddleware());
 
   app.use((req, res, next) => {
-    res.setHeader('X-Tamanu-Server', SERVER_TYPES.SYNC);
+    res.setHeader('X-Tamanu-Server', SERVER_TYPES.CENTRAL);
     res.setHeader('X-Version', version);
     next();
   });
@@ -41,7 +41,7 @@ export function createApp(ctx) {
   app.use(versionCompatibility);
 
   app.use((req, res, next) => {
-    req.models = store.models; // cross-compatibility with lan for shared middleware
+    req.models = store.models; // cross-compatibility with facility for shared middleware
     req.store = store;
     req.models = store.models;
     req.emailService = emailService;

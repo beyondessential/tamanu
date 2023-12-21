@@ -69,7 +69,7 @@ export const ResetPasswordForm = React.memo(
         <Collapse in={isAdvancedExpanded}>
           <Field
             name="host"
-            label="LAN server address"
+            label="Facility server address"
             required
             component={ServerDetectingField}
             setFieldValue={setFieldValue}

@@ -153,7 +153,7 @@ export class FacilitySyncManager {
     // syncing outgoing changes happens in two phases: taking a point-in-time copy of all records
     // to be pushed, and then pushing those up in batches
     // this avoids any of the records to be pushed being changed during the push period and
-    // causing data that isn't internally coherent from ending up on the sync server
+    // causing data that isn't internally coherent from ending up on the central server
     const pushSince = (await this.models.LocalSystemFact.get(LAST_SUCCESSFUL_SYNC_PUSH_KEY)) || -1;
     log.info('FacilitySyncManager.snapshottingOutgoingChanges', { pushSince });
     const outgoingChanges = await snapshotOutgoingChanges(

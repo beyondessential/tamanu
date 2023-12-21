@@ -36,12 +36,12 @@ export const EncounterProvider = ({ children }) => {
 
   const api = useApi();
 
-  // write encounter data to the sync server.
+  // write encounter data to the central server.
   const saveEncounter = async (encounterId, data) => {
     await api.put(`encounter/${encounterId}`, data);
   };
 
-  // get encounter data from the sync server and save it to state.
+  // get encounter data from the central server and save it to state.
   const loadEncounter = useCallback(
     async encounterId => {
       setIsLoadingEncounter(true);

@@ -14,7 +14,7 @@ export const serveAll = async ({ skipMigrationCheck, provisioning }) => {
     await provision({ file: provisioning, skipIfNotNeeded: true });
   }
 
-  log.info(`Starting sync server and tasks runner version ${pkg.version}`);
+  log.info(`Starting Central server and tasks runner version ${pkg.version}`);
 
   if (config.db.migrateOnStartup) {
     const { store } = await new ApplicationContext().init();
@@ -25,7 +25,7 @@ export const serveAll = async ({ skipMigrationCheck, provisioning }) => {
 };
 
 export const serveAllCommand = new Command('serveAll')
-  .description('Start the Tamanu sync server and tasks runner')
+  .description('Start the Tamanu Central server and tasks runner')
   .option('--skipMigrationCheck', 'skip the migration check on startup')
   .option(
     '--provisioning <file>',

@@ -103,7 +103,7 @@ patientDocumentMetadataRoutes.post(
       throw new NotFoundError();
     }
 
-    // Create file on the sync server
+    // Create file on the central server
     const { attachmentId, type, metadata } = await uploadAttachment(req, DOCUMENT_SIZE_LIMIT);
 
     const documentMetadataObject = await models.DocumentMetadata.create({

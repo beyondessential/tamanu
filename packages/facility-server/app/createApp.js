@@ -22,7 +22,7 @@ export function createApp({ sequelize, reportSchemaStores, models, syncManager, 
   app.use(bodyParser.urlencoded({ extended: true }));
 
   app.use((req, res, next) => {
-    res.setHeader('X-Tamanu-Server', SERVER_TYPES.LAN);
+    res.setHeader('X-Tamanu-Server', SERVER_TYPES.FACILITY);
     res.setHeader('X-Version', version);
     next();
   });

@@ -51,7 +51,7 @@ Running `docker compose up` starts all the containers, and they're built locally
 This will then build the docker containers.
 
 # Connecting to the docker image
-You can now using desktop client to LAN Server localhost:4000. See the [README.md](./README.md) for a link to the latest build.
+You can now using web client to Facility Server localhost:4000. See the [README.md](./README.md) for a link to the latest build.
 
 # Troubleshooting
 ## Problem: Docker command does not work

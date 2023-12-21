@@ -6,7 +6,7 @@ import { MIN_CLIENT_VERSION, MAX_CLIENT_VERSION } from '../app/middleware/versio
 describe('Other packages', () => {
   let versions;
   beforeAll(async () => {
-    const packageFiles = ['packages/desktop/package.json', 'packages/desktop/app/package.json'];
+    const packageFiles = ['packages/web/package.json', 'packages/web/app/package.json'];
     versions = await Promise.all(
       packageFiles.map(async filePath => {
         const relativePath = `../../../${filePath}`.split('/');
@@ -17,9 +17,9 @@ describe('Other packages', () => {
     );
   });
 
-  it('Should support the current version of desktop', async () => {
-    const desktopVersions = versions.map(([, v]) => v);
-    desktopVersions.forEach(v => expect(semverLte(MIN_CLIENT_VERSION, v)).toBe(true));
-    desktopVersions.forEach(v => expect(semverLte(v, MAX_CLIENT_VERSION)).toBe(true));
+  it('Should support the current version of web', async () => {
+    const webVersions = versions.map(([, v]) => v);
+    webVersions.forEach(v => expect(semverLte(MIN_CLIENT_VERSION, v)).toBe(true));
+    webVersions.forEach(v => expect(semverLte(v, MAX_CLIENT_VERSION)).toBe(true));
   });
 });

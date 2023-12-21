@@ -4,7 +4,7 @@ WORKDIR /app
 ARG NODE_NATIVE_BUILD_DEPS="make gcc g++ python"
 
 # install deps
-COPY packages/sync-server/package.json yarn.lock .
+COPY packages/central-server/package.json yarn.lock .
 RUN apk add --no-cache --virtual .build-deps $NODE_NATIVE_BUILD_DEPS && \
     yarn install --non-interactive --frozen-lockfile --production && \
     yarn cache clean && \
@@ -14,11 +14,11 @@ RUN apk add --no-cache --virtual .build-deps $NODE_NATIVE_BUILD_DEPS && \
 COPY packages/shared/ node_modules/shared
 
 # copy config
-COPY packages/sync-server/config/default.json5 config/
-COPY packages/sync-server/docker/local.json5 config/
+COPY packages/central-server/config/default.json5 config/
+COPY packages/central-server/docker/local.json5 config/
 
 # copy bundle
-COPY packages/sync-server/dist/app.bundle.js dist/
+COPY packages/central-server/dist/app.bundle.js dist/
 
 # run config
 EXPOSE 3000

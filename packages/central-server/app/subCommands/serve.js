@@ -16,7 +16,7 @@ export const serve = async ({ skipMigrationCheck, provisioning }) => {
     await provision({ file: provisioning, skipIfNotNeeded: true });
   }
 
-  log.info(`Starting sync server version ${version}`);
+  log.info(`Starting central server version ${version}`);
 
   log.info(`Process info`, {
     execArgs: process.execArgs || '<empty>',
@@ -65,7 +65,7 @@ export const serve = async ({ skipMigrationCheck, provisioning }) => {
 };
 
 export const serveCommand = new Command('serve')
-  .description('Start the Tamanu sync server')
+  .description('Start the Tamanu Central server')
   .option('--skipMigrationCheck', 'skip the migration check on startup')
   .option(
     '--provisioning <file>',
