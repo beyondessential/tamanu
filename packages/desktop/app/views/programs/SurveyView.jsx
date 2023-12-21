@@ -1,8 +1,8 @@
 import React, { useMemo } from 'react';
 import styled from 'styled-components';
+import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { Form } from '../../components/Field';
 import { checkVisibility, getFormInitialValues, getValidationSchema } from '../../utils';
-import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from './ProgramsPane';
 import { Colors } from '../../constants';
 import { SurveyScreenPaginator } from '../../components/Surveys';

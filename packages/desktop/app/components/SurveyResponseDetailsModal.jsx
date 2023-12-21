@@ -28,7 +28,6 @@ const COLUMNS = [
     key: 'value',
     title: 'Value',
     accessor: ({ answer, type }) => {
-      // eslint-disable-next-line react-hooks/rules-of-hooks
       const [surveyLink, setSurveyLink] = useState(null);
       switch (type) {
         case 'Result':

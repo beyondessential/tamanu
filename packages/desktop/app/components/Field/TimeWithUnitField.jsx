@@ -59,7 +59,6 @@ export const TimeWithUnitInput = ({
     setUnit(multiple.unit);
     const newValue = valueInMinutes / multiple.minutes;
     setValue(newValue);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const updateExternalValue = newValueInMinutes => {

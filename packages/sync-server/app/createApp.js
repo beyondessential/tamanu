@@ -2,6 +2,7 @@ import bodyParser from 'body-parser';
 import compression from 'compression';
 import config from 'config';
 import express from 'express';
+import cors from 'cors';
 import path from 'path';
 
 import { getLoggingMiddleware } from '@tamanu/shared/services/logging';
@@ -37,6 +38,10 @@ export function createApp(ctx) {
     res.setHeader('X-Version', version);
     next();
   });
+
+  app.use(cors({
+    origin: 'http://localhost:3001',
+  }));
 
   app.use(versionCompatibility);
 

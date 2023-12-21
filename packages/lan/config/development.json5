@@ -1,4 +1,7 @@
 {
+  "admin": {
+    "allowAdminRoutes": true
+  },
   "serverFacilityId": "tamanuFijiGenerate-facility-0",
   "auth": {
     "useHardcodedPermissions": false,

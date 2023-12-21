@@ -13,6 +13,7 @@
     "build": "swc --delete-dir-on-start --out-dir dist --copy-files --source-maps true app",
     "start": "node dist",
     "test": "NODE_ENV=test jest",
+    "lint": "eslint app",
     "setup-dev": "node dist setup",
     "shell": "yarn build && node dist shell",
     "start-watch": "chokidar --initial \"dist/**/*.js\" \"config/**/*\" -c \"yarn run start\"",
@@ -21,9 +22,12 @@
     "start-dev": "concurrently npm:build-watch npm:start-watch"
   },
   "devDependencies": {
+    "@beyondessential/eslint-config-js": "^1.1.0",
     "@tamanu/build-tooling": "*",
     "@swc/jest": "0.2.26",
     "chai": "^4.1.2",
+    "eslint": "^5.15.2",
+    "eslint-plugin-import": "^2.22.1",
     "jest": "^29.3.1",
     "mocha": "^5.2.0",
     "pkg": "^4.4.8",

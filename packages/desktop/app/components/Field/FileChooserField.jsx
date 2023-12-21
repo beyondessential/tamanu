@@ -41,7 +41,7 @@ export const FileChooserInput = ({ value = '', label, name, filters, onChange, .
 
     onChange({ target: { name, value: result } });
     */ // TODO(web)
-  }, [filters, name, onChange]);
+  }, [showOpenDialog, filters, name, onChange]);
 
   return (
     <OuterLabelFieldWrapper label={label} {...props}>

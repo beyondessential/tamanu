@@ -1,0 +1,4 @@
+**/main.prod.js
+**/main.dev.js
+**/app/dist/**
+**/build/**

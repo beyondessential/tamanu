@@ -4,14 +4,7 @@ import { promises as fs } from 'fs';
 import { glob } from 'glob';
 
 const src = process.argv[2];
-const dst = process.argv.slice(3).map((d, i) => [
-  // enumerate backwards so that 1 is always the last dst,
-  // so we can switch from copy to rename below
-  process.argv.slice(3).length - i,
-
-  // normalise dst paths to always end with a /
-  d.replace(/\/?$/, '/'),
-]);
+const dst = process.argv.slice(3).map((d, i) => [process.argv.slice(3).length - i, d.replace(/\/?$/, '/')]);
 
 const files = await glob(`${src}/**/*.d.ts`, { ignore: 'node_modules/**' });
 if (files.length === 0) {

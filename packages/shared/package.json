@@ -87,12 +87,15 @@
     "build:src": "swc --delete-dir-on-start --out-dir dist/mjs --copy-files --source-maps true src",
     "build:cjs": "yarn run build:src --out-dir dist/cjs --config module.type=commonjs",
     "build-watch": "yarn run build && concurrently \"yarn run build:src --delete-dir-on-start=false --watch\" \"yarn run build:cjs --delete-dir-on-start=false --watch\"",
-    "test": "NODE_ENV=test jest"
+    "test": "NODE_ENV=test jest",
+    "lint": "eslint src"
   },
   "private": true,
   "devDependencies": {
+    "@beyondessential/eslint-config-js": "^1.1.0",
     "@swc/jest": "^0.2.24",
     "@tamanu/build-tooling": "*",
+    "eslint": "^5.15.2",
     "jest": "^29.3.1",
     "sinon": "^11.1.2"
   },

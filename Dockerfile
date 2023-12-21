@@ -49,21 +49,6 @@ COPY packages/ packages/
 RUN scripts/docker-build.sh ${PACKAGE_PATH}
 
 
-## Special target for packaging the desktop app
-# layer efficiency or size doesn't matter as this is not distributed
-#
-# Runs on Node 18 not Node 20 as there's no image for 20 yet
-# (and we're hoping that desktop will go away soon!)
-FROM electronuserland/builder:18-wine AS build-desktop
-RUN apt update && apt install -y jq
-COPY --from=build-base /app/ /app/
-WORKDIR /app
-COPY packages/ packages/
-RUN scripts/docker-build.sh desktop
-ENV NODE_ENV=production
-WORKDIR /app/packages/desktop
-
-
 ## Normal final target for servers
 FROM run-base as server
 # restart from a fresh base without the build tools
