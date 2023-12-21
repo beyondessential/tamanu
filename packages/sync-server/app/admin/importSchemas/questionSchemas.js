@@ -29,7 +29,6 @@ const patientDataColumnString = () =>
     .oneOf(Object.keys(PATIENT_DATA_FIELD_LOCATIONS))
     .test('test-program-registry-conditions', async (value, { options, createError, path }) => {
       // No need to validate non-program registry fields
-      console.log(PROGRAM_REGISTRY_FIELD_LOCATIONS);
       if (!PROGRAM_REGISTRY_FIELD_LOCATIONS.includes(value)) return true;
 
       const { models, programId } = options.context;
