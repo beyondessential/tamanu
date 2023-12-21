@@ -22,7 +22,7 @@ import { FormGrid } from '../components/FormGrid';
 import { ModalFormActionRow } from '../components/ModalActionRow';
 import { NestedVitalsModal } from '../components/NestedVitalsModal';
 import { useApi, useSuggester } from '../api';
-import { useLocalisation } from '../contexts/Localisation';
+import { useSettings } from '../contexts/Settings';
 import { getActionsFromData, getAnswersFromData } from '../utils';
 import { useLocalisedText } from '../components';
 
@@ -44,8 +44,8 @@ export const TriageForm = ({
   const api = useApi();
   const dispatch = useDispatch();
   const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
-  const { getLocalisation } = useLocalisation();
-  const triageCategories = getLocalisation('triageCategories');
+  const { getSetting } = useSettings();
+  const triageCategories = getSetting('localisation.triageCategories');
   const practitionerSuggester = useSuggester('practitioner');
   const triageReasonSuggester = useSuggester('triageReason');
 

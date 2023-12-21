@@ -7,14 +7,14 @@ import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { LocationCell, LocationGroupCell } from './LocationCell';
 import { TriageWaitTimeCell } from './TriageWaitTimeCell';
-import { useLocalisation } from '../contexts/Localisation';
+import { useSettings } from '../contexts/Settings';
 import { reloadPatient } from '../store';
 
 const ADMITTED_PRIORITY_COLOR = '#bdbdbd';
 
 const useColumns = () => {
-  const { getLocalisation } = useLocalisation();
-  const triageCategories = getLocalisation('triageCategories');
+  const { getSetting } = useSettings();
+  const triageCategories = getSetting('localisation.triageCategories');
 
   return [
     {
