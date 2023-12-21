@@ -127,7 +127,7 @@ By default, the Central server will not run migrations automatically. To enable 
 ```bash
 yarn install
 yarn workspace central-server setup-dev # If it doesn't work, go for 'Pull data from remote'
-yarn facility-start-dev
+yarn central-start-dev
 ```
 
 #### Pull data from remote
