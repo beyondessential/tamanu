@@ -41,6 +41,7 @@ jobs:
           cache: yarn
       - run: yarn
       - run: yarn build-shared
+      - run: yarn workspace ${{ matrix.package }} run build
 
       - name: Install and start postgres if needed
         if: matrix.postgres
