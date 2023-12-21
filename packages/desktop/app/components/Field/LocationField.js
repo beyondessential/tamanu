@@ -6,7 +6,7 @@ import { LOCATION_AVAILABILITY_TAG_CONFIG, LOCATION_AVAILABILITY_STATUS } from '
 import { AutocompleteInput } from './AutocompleteField';
 import { useApi, useSuggester } from '../../api';
 import { Suggester } from '../../utils/suggester';
-import { useLocalisation } from '../../contexts/Localisation';
+import { useSettings } from '../../contexts/Settings';
 import { BodyText } from '../Typography';
 import { useAuth } from '../../contexts/Auth';
 
@@ -153,14 +153,13 @@ export const LocationField = React.memo(({ field, error, ...props }) => (
 
 export const LocalisedLocationField = React.memo(
   ({ defaultGroupLabel = 'Area', defaultLabel = 'Location', ...props }) => {
-    const { getLocalisation } = useLocalisation();
+    const { getSetting } = useSettings();
 
-    const locationGroupIdPath = 'fields.locationGroupId';
-    const locationGroupLabel =
-      getLocalisation(`${locationGroupIdPath}.longLabel`) || defaultGroupLabel;
+    const locationGroupIdPath = 'localisation.fields.locationGroupId';
+    const locationGroupLabel = getSetting(`${locationGroupIdPath}.longLabel`) || defaultGroupLabel;
 
-    const locationIdPath = 'fields.locationId';
-    const locationLabel = getLocalisation(`${locationIdPath}.longLabel`) || defaultLabel;
+    const locationIdPath = 'localisation.fields.locationId';
+    const locationLabel = getSetting(`${locationIdPath}.longLabel`) || defaultLabel;
 
     return (
       <LocationField label={locationLabel} locationGroupLabel={locationGroupLabel} {...props} />

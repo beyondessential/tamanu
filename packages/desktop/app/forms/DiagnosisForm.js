@@ -15,11 +15,11 @@ import {
   DateField,
 } from '../components/Field';
 import { useSuggester } from '../api';
-import { useLocalisation } from '../contexts/Localisation';
+import { useSettings } from '../contexts/Settings';
 
 export const DiagnosisForm = React.memo(
   ({ isTriage = false, onCancel, onSave, diagnosis, excludeDiagnoses }) => {
-    const { getLocalisation } = useLocalisation();
+    const { getSetting } = useSettings();
 
     // don't show the "ED Diagnosis" option if we're just on a regular encounter
     // (unless we're editing a diagnosis with ED certainty already set)
@@ -56,7 +56,7 @@ export const DiagnosisForm = React.memo(
             <div style={{ gridColumn: '1 / -1' }}>
               <Field
                 name="diagnosisId"
-                label={getLocalisation(`fields.diagnosis.longLabel`)}
+                label={getSetting(`localisation.fields.diagnosis.longLabel`)}
                 component={AutocompleteField}
                 suggester={icd10Suggester}
                 required
