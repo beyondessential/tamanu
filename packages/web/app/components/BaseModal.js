@@ -9,6 +9,7 @@ import CloseIcon from '@material-ui/icons/Close';
 import { Box, CircularProgress, IconButton, Typography } from '@material-ui/core';
 import { Colors } from '../constants';
 import { useElectron } from '../contexts/Electron';
+// eslint-disable-next-line import/no-cycle
 import { Button } from './Button';
 
 export const MODAL_PADDING_TOP_AND_BOTTOM = 18;

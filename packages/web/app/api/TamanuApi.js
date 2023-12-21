@@ -7,6 +7,7 @@ import { VERSION_COMPATIBILITY_ERRORS, SERVER_TYPES } from '@tamanu/constants';
 import { ForbiddenError, NotFoundError } from '@tamanu/shared/errors';
 
 import { LOCAL_STORAGE_KEYS } from '../constants';
+// eslint-disable-next-line import/no-cycle
 import { getDeviceId, notifyError } from '../utils';
 
 const { HOST, TOKEN, LOCALISATION, SERVER, PERMISSIONS, ROLE } = LOCAL_STORAGE_KEYS;

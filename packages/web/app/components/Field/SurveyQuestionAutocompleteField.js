@@ -1,4 +1,5 @@
 import React from 'react';
+// eslint-disable-next-line import/no-cycle
 import { useSuggester } from '../../api';
 import { AutocompleteField } from './AutocompleteField';
 

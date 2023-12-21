@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+// eslint-disable-next-line import/no-cycle
 import { useAuth } from '../contexts/Auth';
 
 export const withPermissionCheck = Component => {

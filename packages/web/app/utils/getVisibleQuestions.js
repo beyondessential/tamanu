@@ -1,3 +1,4 @@
+// eslint-disable-next-line import/no-cycle
 import { checkVisibility } from './survey';
 
 const isVisible = (values, allQuestionReactElements, reactElement) => {

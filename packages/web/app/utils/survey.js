@@ -1,9 +1,12 @@
 // Much of this file is duplicated in `packages/mobile/App/ui/components/Forms/SurveyForm/helpers.ts`
 import React from 'react';
 import * as yup from 'yup';
-import { checkJSONCriteria } from '@tamanu/shared/utils/criteria';
 import { intervalToDuration, parseISO } from 'date-fns';
+import { checkJSONCriteria } from '@tamanu/shared/utils/criteria';
+import { ageInYears, ageInMonths, ageInWeeks } from '@tamanu/shared/utils/dateTime';
+import { PROGRAM_DATA_ELEMENT_TYPES, ACTION_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 
+// eslint-disable-next-line import/no-cycle
 import {
   LimitedTextField,
   MultilineTextField,
@@ -18,8 +21,6 @@ import {
   UnsupportedPhotoField,
   DateTimeField,
 } from '../components/Field';
-import { ageInYears, ageInMonths, ageInWeeks } from '@tamanu/shared/utils/dateTime';
-import { PROGRAM_DATA_ELEMENT_TYPES, ACTION_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { joinNames } from './user';
 import { notifyError } from './utils';
 
