@@ -23,8 +23,6 @@ import { useApi } from '../api';
 
 import { SyncHealthNotificationComponent } from '../components/SyncHealthNotification';
 
-import { useLocalisation } from '../contexts/Localisation';
-
 const { REMEMBER_EMAIL } = LOCAL_STORAGE_KEYS;
 
 const Grid = styled.div`
@@ -75,14 +73,15 @@ export const LoginView = () => {
   const resetPasswordEmail = useSelector(state => state.auth.resetPassword.lastEmailUsed);
   const changePasswordError = useSelector(state => state.auth.changePassword.error);
   const changePasswordSuccess = useSelector(state => state.auth.changePassword.success);
-  const { getLocalisation } = useLocalisation();
+  // const { getLocalisation } = useLocalisation();
 
   const rememberEmail = localStorage.getItem(REMEMBER_EMAIL);
 
   const [screen, setScreen] = useState('login');
 
-  const supportUrl = getLocalisation('supportDeskUrl');
-  const isSupportUrlLoaded = !!supportUrl;
+  // TODO: No auth endpoint for this
+  // const supportUrl = getLocalisation('supportDeskUrl');
+  // const isSupportUrlLoaded = !!supportUrl;
 
   const submitLogin = async data => {
     const { host, email, password, rememberMe } = data;
@@ -141,12 +140,12 @@ export const LoginView = () => {
             onNavToResetPassword={() => setScreen('resetPassword')}
           />
         )}
-        {isSupportUrlLoaded && (
+        {/* {isSupportUrlLoaded && (
           <SupportDesktopLink href={supportUrl} target="_blank" rel="noreferrer">
             Support centre
             <Launch style={{ marginLeft: '3px', fontSize: '12px' }} />
           </SupportDesktopLink>
-        )}
+        )} */}
       </LoginContainer>
     </Grid>
   );
