@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { useSetting } from '../contexts/Settings';
+import { useSettings } from '../contexts/Settings';
 import { FormModal } from './FormModal';
 import { Colors } from '../constants';
 import { TriageForm } from '../forms/TriageForm';
@@ -56,7 +56,7 @@ const DETAILS_FIELD_DEFINITIONS = [
 export const TriageModal = React.memo(
   ({ open, patient, onClose, onSubmitEncounter, noRedirectOnSubmit }) => {
     const { displayId } = patient;
-    const { getSetting } = useSetting();
+    const { getSetting } = useSettings();
 
     const detailsFields = DETAILS_FIELD_DEFINITIONS.filter(
       ([name]) => getSetting(`localisation.fields.${name}.hidden`) !== true,
