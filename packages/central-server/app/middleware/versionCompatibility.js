@@ -1,6 +1,7 @@
 import { parse } from 'semver';
 import { buildVersionCompatibilityCheck } from '@tamanu/shared/utils';
 import { InvalidClientHeadersError } from '@tamanu/shared/errors';
+import { SERVER_TYPES } from '@tamanu/constants';
 
 // only works via webpack, not direct nodejs
 import pkgjson from '../../package.json';
