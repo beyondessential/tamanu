@@ -111,9 +111,11 @@ programRegistry.get(
       makePartialTextFilter('displayId', 'patient.display_id'),
       makeSimpleTextFilter('firstName', 'patient.first_name'),
       makeSimpleTextFilter('lastName', 'patient.last_name'),
-      makeFilter(filterParams.sex, 'patient.sex = :sex'),
-      makeFilter(filterParams.dateOfBirth, `patients.date_of_birth = :dateOfBirth`),
-      makeFilter(filterParams.homeVillage, `patients.village_id = :homeVillage`),
+      makeFilter(filterParams.sex, 'patient.sex = :sex', ({ sex }) => ({
+        sex: sex.toLowerCase(),
+      })),
+      makeFilter(filterParams.dateOfBirth, `patient.date_of_birth = :dateOfBirth`),
+      makeFilter(filterParams.homeVillage, `patient.village_id = :homeVillage`),
       makeFilter(
         !filterParams.deceased || filterParams.deceased === 'false',
         'patient.date_of_death IS NULL',

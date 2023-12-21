@@ -229,12 +229,13 @@ describe('ProgramRegistry', () => {
 
     describe('Filtering', () => {
       const patientFilters = [
-        { filter: 'dateOfBirth', value: '2000-01-01 01:23:45' },
+        { filter: 'dateOfBirth', value: '3000-01-01' },
         { filter: 'displayId', value: 'TEST_DISPLAY_ID' },
         { filter: 'sex', value: 'male' },
         { filter: 'sex', value: 'female' },
         { filter: 'sex', value: 'other' },
         { filter: 'firstName', value: 'TEST_FIRST_NAME' },
+        { filter: 'lastName', value: 'TEST_LAST_NAME' },
       ];
       let registryId = null;
       
@@ -247,6 +248,7 @@ describe('ProgramRegistry', () => {
           const patient = await models.Patient.create(fake(models.Patient, {
             [filter]: value, 
           }));
+          console.log(filter, value, patient);
           await models.PatientProgramRegistration.create(
             fake(models.PatientProgramRegistration, {
               programRegistryId,
@@ -270,6 +272,7 @@ describe('ProgramRegistry', () => {
             expect(x.patient).toHaveProperty(filter, value);
           });
         });
+        
     });
   });
 });
