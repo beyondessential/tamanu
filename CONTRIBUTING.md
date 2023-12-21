@@ -26,12 +26,14 @@ This project and everyone participating in it is governed by the
 By participating, you are expected to uphold this code. Please report unacceptable behavior
 to [support@tamanu.io](support@tamanu.io).
 
-## Copyright Attribution
+## Copyright Attribution and License
 
 All open-source contributors to Tamanu will be required to sign a Contributor License Agreement (CLA)
 before BES can accept your contribution into the project code. This is done so that we can continue 
 to maintain the codebase covered by a single license. Signing a CLA can be done through GitHub 
 before merging in your first pull request.
+
+All contributions you make will be license under [our open-source license](https://github.com/beyondessential/tamanu/blob/main/license).
 
 ## Our Philosophy
 
@@ -59,6 +61,8 @@ This ensures that your contribution builds towards a cohesive vision for Tamanu.
 means pulling in features from our existing roadmap, and speeding up the delivery process into the 
 core product. We will gladly co-design features if you identify something missing from the roadmap 
 that will benefit the users of Tamanu.
+
+The Tamanu product roadmap can be found [here](https://beyond-essential.slab.com/posts/product-roadmap-a2pz7b82).
 
 #### Meaningful Contributions (under construction)
 
