@@ -13,7 +13,7 @@ import { DeathCertificateModal } from '../../../components/PatientPrinting';
 import { useApi } from '../../../api';
 import { getFullLocationName } from '../../../utils/location';
 import { getPatientStatus } from '../../../utils/getPatientStatus';
-import { useLocalisation } from '../../../contexts/Localisation';
+import { useSettings } from '../../../contexts/Settings';
 import { usePatientCurrentEncounter } from '../../../api/queries';
 
 const PATIENT_STATUS_COLORS = {
@@ -165,10 +165,10 @@ const PatientDeathSummary = React.memo(({ patient }) => {
 });
 
 export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin }) => {
-  const { getLocalisation } = useLocalisation();
+  const { getSetting } = useSettings();
   const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
   const { data: encounter, error, isLoading } = usePatientCurrentEncounter(patient.id);
-  const referralSourcePath = 'fields.referralSourceId';
+  const referralSourcePath = 'localisation.fields.referralSourceId';
 
   if (patient.dateOfDeath) {
     return <PatientDeathSummary patient={patient} />;
@@ -233,9 +233,9 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
           <ContentLabel>Location:</ContentLabel>
           <ContentText>{getFullLocationName(location)}</ContentText>
         </ContentItem>
-        {!getLocalisation(`${referralSourcePath}.hidden`) && (
+        {!getSetting(`${referralSourcePath}.hidden`) && (
           <ContentItem>
-            <ContentLabel>{getLocalisation(`${referralSourcePath}.shortLabel`)}:</ContentLabel>
+            <ContentLabel>{getSetting(`${referralSourcePath}.shortLabel`)}:</ContentLabel>
             <ContentText>{referralSource?.name || '-'}</ContentText>
           </ContentItem>
         )}

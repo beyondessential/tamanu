@@ -160,7 +160,7 @@ export const EncounterView = () => {
       <ContentPane>
         <EncounterInfoPane
           encounter={encounter}
-          getLocalisation={getSetting}
+          getSetting={getSetting}
           patientBillingType={patientBillingTypeData?.name}
         />
         <Box mt={4} mb={4}>
