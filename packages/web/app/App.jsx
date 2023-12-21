@@ -30,7 +30,7 @@ export function App({ sidebar, children }) {
   const isPrimaryTab = useSingleTab();
 
   if (!isPrimaryTab) {
-    return <MultiTabErrorScreen />
+    return <MultiTabErrorScreen />;
   }
 
   if (!isUserLoggedIn) {

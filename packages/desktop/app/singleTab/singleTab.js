@@ -21,7 +21,7 @@ export const useSingleTab = () => {
   useEffect(() => {
     const wasPrimaryTab = sessionStorage.getItem('wasPrimaryTab');
     const isDuplicateTab = sessionStorage.getItem('currentlyOpen');
-    sessionStorage.setItem('currentlyOpen', 'true')
+    sessionStorage.setItem('currentlyOpen', 'true');
 
     newTabChannel.addEventListener('message', newTabListener);
 
