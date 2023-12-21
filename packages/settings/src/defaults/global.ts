@@ -25,7 +25,6 @@ export const globalDefaults = {
       warningPromptDuration: 30,
     },
     mandatoryVitalEditReason: false,
-    mergePopulatedPADRecords: true,
     onlyAllowLabPanels: false,
     patientPlannedMove: false,
     quickPatientGenerator: false,

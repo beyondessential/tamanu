@@ -9,7 +9,7 @@ import { encounterOptions } from '../constants';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
 import { useEncounter } from '../contexts/Encounter';
 import { reloadImagingRequest } from '../store';
-import { useLocalisation } from '../contexts/Localisation';
+import { useSettings } from '../contexts/Settings';
 import { useImagingRequestAreas } from '../utils/useImagingRequestAreas';
 
 import {
@@ -86,8 +86,8 @@ export const ImagingRequestForm = React.memo(
     generateId = shortid.generate,
   }) => {
     const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
-    const { getLocalisation } = useLocalisation();
-    const imagingTypes = getLocalisation('imagingTypes') || {};
+    const { getSetting } = useSettings();
+    const imagingTypes = getSetting('imagingTypes') || {};
     const imagingTypeOptions = Object.entries(imagingTypes).map(([key, val]) => ({
       label: val.label,
       value: key,
