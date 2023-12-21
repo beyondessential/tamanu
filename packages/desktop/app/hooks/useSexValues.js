@@ -14,11 +14,9 @@ export const useSexValues = () => {
 };
 
 export const useSexOptions = (includeAll = false) => {
-  const { getLocalisation } = useLocalisation();
-  const options =
-    getLocalisation('features.hideOtherSex') === true
-      ? sexOptions.filter(s => s.value !== 'other')
-      : sexOptions;
+  const { getSetting } = useSettings();
+  const hideOtherSex = getSetting('features.hideOtherSex');
+  const options = hideOtherSex ? sexOptions.filter(s => s.value !== 'other') : sexOptions;
 
   return [...(includeAll ? [{ value: '', label: 'All' }] : []), ...options];
 };
