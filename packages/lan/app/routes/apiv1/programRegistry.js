@@ -109,11 +109,13 @@ programRegistry.get(
     const filters = [
       // Patient filters
       makePartialTextFilter('displayId', 'patient.display_id'),
-      makeSimpleTextFilter('sex', 'patient.sex'),
       makeSimpleTextFilter('firstName', 'patient.first_name'),
       makeSimpleTextFilter('lastName', 'patient.last_name'),
-      makeFilter(filterParams.dateOfBirth, `patients.date_of_birth = :dateOfBirth`),
-      makeFilter(filterParams.homeVillage, `patients.village_id = :homeVillage`),
+      makeFilter(filterParams.sex, 'patient.sex = :sex', ({ sex }) => ({
+        sex: sex.toLowerCase(),
+      })),
+      makeFilter(filterParams.dateOfBirth, `patient.date_of_birth = :dateOfBirth`),
+      makeFilter(filterParams.homeVillage, `patient.village_id = :homeVillage`),
       makeFilter(
         !filterParams.deceased || filterParams.deceased === 'false',
         'patient.date_of_death IS NULL',
@@ -124,9 +126,6 @@ programRegistry.get(
         filterParams.registeringFacilityId,
         'mrr.registering_facility_id = :registeringFacilityId',
       ),
-      makeFilter(programRegistryId, 'mrr.program_registry_id = :programRegistryId', () => ({
-        programRegistryId,
-      })),
       makeFilter(filterParams.clinicalStatus, 'mrr.clinical_status = :clinicalStatus'),
       makeFilter(
         filterParams.currentlyIn,
@@ -168,42 +167,47 @@ programRegistry.get(
               *,
               ROW_NUMBER() OVER (PARTITION BY patient_id, program_registry_id ORDER BY date DESC, id DESC) AS row_num
             FROM patient_program_registrations
+            WHERE program_registry_id = :programRegistryId
           ) n
           WHERE n.row_num = 1
         ),
         conditions as (
-          SELECT pprc.program_registry_id, patient_id, jsonb_agg(prc."name") condition_list  FROM patient_program_registration_conditions pprc
-          join program_registry_conditions prc
-          on pprc.program_registry_condition_id = prc.id
-          group by pprc.program_registry_id, patient_id
+          SELECT patient_id, jsonb_agg(prc."name") condition_list  
+          FROM patient_program_registration_conditions pprc
+            JOIN program_registry_conditions prc
+              ON pprc.program_registry_condition_id = prc.id
+          WHERE pprc.program_registry_id = :programRegistryId
+          GROUP BY patient_id
         )
     `;
     const from = `
       FROM most_recent_registrations mrr
-      left join patients patient
-      on patient.id = mrr.patient_id
-      left join reference_data patient_village
-      on patient.village_id = patient_village.id
-      left join reference_data currently_at_village
-      on mrr.village_id = currently_at_village.id
-      left join facilities currently_at_facility
-      on mrr.facility_id = currently_at_facility.id
-      left join facilities registering_facility
-      on mrr.registering_facility_id = registering_facility.id
-      left join conditions
-      on conditions.patient_id = mrr.patient_id
-      and conditions.program_registry_id = mrr.program_registry_id
-      left join program_registry_clinical_statuses status
-      on mrr.clinical_status_id = status.id
-      left join program_registries program_registry
-      on mrr.program_registry_id = program_registry.id
-      left join users clinician
-      on mrr.clinician_id = clinician.id
+        LEFT JOIN patients patient
+          ON patient.id = mrr.patient_id
+        LEFT JOIN reference_data patient_village
+          ON patient.village_id = patient_village.id
+        LEFT JOIN reference_data currently_at_village
+          ON mrr.village_id = currently_at_village.id
+        LEFT JOIN facilities currently_at_facility
+          ON mrr.facility_id = currently_at_facility.id
+        LEFT JOIN facilities registering_facility
+          ON mrr.registering_facility_id = registering_facility.id
+        LEFT JOIN conditions
+          ON conditions.patient_id = mrr.patient_id
+        LEFT JOIN program_registry_clinical_statuses status
+          ON mrr.clinical_status_id = status.id
+        LEFT JOIN program_registries program_registry
+          ON mrr.program_registry_id = program_registry.id
+        LEFT JOIN users clinician
+          ON mrr.clinician_id = clinician.id
       ${whereClauses && `WHERE ${whereClauses}`}
     `;
 
     const countResult = await req.db.query(`${withClause} SELECT COUNT(1) AS count ${from}`, {
-      replacements: filterReplacements,
+      replacements: {
+        ...filterReplacements,
+        programRegistryId,
+      },
       type: QueryTypes.SELECT,
     });
 
@@ -269,6 +273,7 @@ programRegistry.get(
       {
         replacements: {
           ...filterReplacements,
+          programRegistryId,
           limit: rowsPerPage,
           offset: page * rowsPerPage,
           sortKey,
