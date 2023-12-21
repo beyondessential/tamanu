@@ -3,6 +3,7 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
+import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { ChangeStatusFormModal } from '../app/views/programRegistry/ChangeStatusFormModal';
 import { ApiContext } from '../app/api';
 import { Modal } from '../app/components/Modal';
@@ -40,7 +41,7 @@ storiesOf('Program Registry', module).add('ProgramRegistry Info Panlist', () => 
           readonly={false}
           title={PROGRAM_REGISTRY}
           endpoint="programRegistry"
-          getEndpoint={`patient/${patient.id}/patientRegistration`}
+          getEndpoint={`patient/${patient.id}/programRegistration`}
           Form={PatientProgramRegistryForm}
           ListItemComponent={ProgramRegistryListItem}
           behavior="modal"
@@ -84,7 +85,7 @@ storiesOf('Program Registry', module).add('DisplayPatientRegDetails Critical', (
     <DisplayPatientRegDetails
       patientProgramRegistration={{
         ...patientProgramRegistration,
-        registrationStatus: 'removed',
+        registrationStatus: REGISTRATION_STATUSES.INACTIVE,
         clinicalStatus: {
           id: '1',
           code: 'critical',
@@ -130,8 +131,7 @@ storiesOf('Program Registry', module).add('Add Condition', () => (
   <ApiContext.Provider value={dummyApi}>
     <AddConditionFormModal
       patientProgramRegistration={patientProgramRegistration}
-      onSubmit={action('submit')}
-      onCancel={action('cancel')}
+      onClose={action('cancel')}
       open
     />
   </ApiContext.Provider>

@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
+import { Divider } from '@material-ui/core';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { useQuery } from '@tanstack/react-query';
+import { useSelector } from 'react-redux';
 import {
   Form,
   FieldWithTooltip,
@@ -17,19 +20,27 @@ import { foreignKey, optionalForeignKey } from '../../utils/validation';
 import { useSuggester } from '../../api';
 import { useAuth } from '../../contexts/Auth';
 import { useApi } from '../../api/useApi';
-import { useQuery } from '@tanstack/react-query';
 
-export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject, patient }) => {
+export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject }) => {
   const api = useApi();
   const { currentUser, facility } = useAuth();
+  const patient = useSelector(state => state.patient);
   const [selectedProgramRegistryId, setSelectedProgramRegistryId] = useState();
 
   const { data: program } = useQuery(['programRegistry', selectedProgramRegistryId], () =>
-    api.get(`programRegistry/${selectedProgramRegistryId}`),
+    selectedProgramRegistryId ? api.get(`programRegistry/${selectedProgramRegistryId}`) : null,
   );
   const { data: conditions } = useQuery(
     ['programRegistryConditions', selectedProgramRegistryId],
-    () => api.get(`programRegistry/${selectedProgramRegistryId}/conditions`),
+    () =>
+      selectedProgramRegistryId
+        ? api
+            .get(`programRegistry/${selectedProgramRegistryId}/conditions`, {
+              orderBy: 'name',
+              order: 'ASC',
+            })
+            .then(response => response.data.map(x => ({ label: x.name, value: x.id })))
+        : undefined,
   );
   const programRegistrySuggester = useSuggester('programRegistry', {
     baseQueryParameters: { patientId: patient.id },
@@ -42,10 +53,11 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject, p
 
   return (
     <Form
+      showInlineErrorsOnly
       onSubmit={data => {
         onSubmit({
           ...data,
-          conditionIds: data.conditionIds ? data.conditionIds.split(',') : [],
+          conditionIds: data.conditionIds ? JSON.parse(data.conditionIds) : [],
           registrationStatus: REGISTRATION_STATUSES.ACTIVE,
           patientId: patient.id,
         });
@@ -63,11 +75,12 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject, p
 
         return (
           <div>
-            <FormGrid>
+            <FormGrid style={{ paddingLeft: '32px', paddingRight: '32px' }}>
               <FormGrid style={{ gridColumn: 'span 2' }}>
                 <Field
                   name="programRegistryId"
                   label="Program registry"
+                  placeholder="Select"
                   required
                   component={AutocompleteField}
                   suggester={programRegistrySuggester}
@@ -91,58 +104,73 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject, p
                 <Field
                   name="clinicianId"
                   label="Registered by"
+                  placeholder="Select"
                   required
                   component={AutocompleteField}
                   suggester={registeredBySuggester}
                 />
                 <Field
-                  name="facilityId"
+                  name="registeringFacilityId"
                   label="Registering facility"
+                  placeholder="Select"
+                  required
                   component={AutocompleteField}
                   suggester={registeringFacilitySuggester}
                 />
               </FormGrid>
               <FormGrid style={{ gridColumn: 'span 2' }}>
                 <FieldWithTooltip
-                  tooltipText="Select a program registry to set the status"
+                  disabledTooltipText="Select a program registry to set the status"
                   name="clinicalStatusId"
                   label="Status"
+                  placeholder="Select"
                   component={AutocompleteField}
                   suggester={programRegistryStatusSuggester}
                   disabled={!program}
                 />
                 <FieldWithTooltip
-                  tooltipText="Select a program registry to add conditions"
+                  disabledTooltipText={
+                    !conditions
+                      ? 'Select a program registry to add related conditions'
+                      : 'No conditions have been configured for this program registry'
+                  }
                   name="conditionIds"
-                  label="Conditions"
+                  label="Related conditions"
+                  placeholder="Select"
                   component={MultiselectField}
                   options={conditions}
-                  disabled={!conditions}
+                  disabled={!conditions || conditions.length === 0}
                 />
               </FormGrid>
-
-              <ConfirmCancelRow
-                onCancel={handleCancel}
-                onConfirm={submitForm}
-                confirmText={buttonText}
-              />
             </FormGrid>
+            <Divider
+              style={{
+                gridColumn: '1 / -1',
+                marginTop: '30px',
+                marginBottom: '30px',
+              }}
+            />
+            <ConfirmCancelRow
+              style={{ paddingLeft: '32px', paddingRight: '32px' }}
+              onCancel={handleCancel}
+              onConfirm={submitForm}
+              confirmText={buttonText}
+            />
           </div>
         );
       }}
       initialValues={{
         date: getCurrentDateTimeString(),
-        facilityId: facility.id,
+        registeringFacilityId: facility.id,
         clinicianId: currentUser.id,
         ...editedObject,
       }}
       validationSchema={yup.object().shape({
-        programRegistryId: foreignKey('Program Registry must be selected'),
-        clinicalStatusId: optionalForeignKey(),
+        programRegistryId: foreignKey('Program registry must be selected'),
+        clinicalStatusId: optionalForeignKey().nullable(),
         date: yup.date(),
-        facilityId: optionalForeignKey(),
         clinicianId: foreignKey('Registered by must be selected'),
-        conditions: yup.array().of(yup.string()),
+        registeringFacilityId: foreignKey('Registering facility must be selected'),
       })}
     />
   );

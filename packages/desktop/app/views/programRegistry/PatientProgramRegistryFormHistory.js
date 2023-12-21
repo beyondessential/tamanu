@@ -1,10 +1,12 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React, { useCallback, useState } from 'react';
+import { SURVEY_TYPES } from '@tamanu/constants';
 import { DataFetchingTable } from '../../components/Table/DataFetchingTable';
 import { DateDisplay } from '../../components/DateDisplay';
-import { MenuButton } from '../../components/MenuButton';
+import { SurveyResponseDetailsModal } from '../../components/SurveyResponseDetailsModal';
+// import { MenuButton } from '../../components/MenuButton';
 
 export const PatientProgramRegistryFormHistory = ({ patientProgramRegistration }) => {
+  const [selectedResponseId, setSelectedResponseId] = useState(null);
   const columns = [
     {
       key: 'date',
@@ -15,51 +17,65 @@ export const PatientProgramRegistryFormHistory = ({ patientProgramRegistration }
     {
       key: 'userId',
       title: 'Submitted By',
-      accessor: row => row.user.displayName,
+      accessor: row => row.submittedBy,
       sortable: false,
     },
     {
-      key: 'surveyId',
+      key: 'surveyName',
       title: 'Form',
-      accessor: row => row.survey.name,
+      accessor: row => row.surveyName,
       sortable: false,
     },
     {
       key: 'result',
       title: 'Result',
-      accessor: row => row.result || row.resultText,
+      accessor: row => row.resultText,
       sortable: false,
     },
-    {
-      sortable: false,
-      accessor: () => (
-        <MenuButton
-          actions={{
-            Print: () => {},
-            Edit: () => {},
-            Delete: () => {},
-          }}
-        />
-      ),
-      required: false,
-    },
+    // {
+    //   sortable: false,
+    //   dontCallRowInput: true,
+    //   accessor: () => (
+    //     <div
+    //       style={{
+    //         display: 'flex',
+    //         justifyContent: 'flex-end',
+    //       }}
+    //     >
+    //       <MenuButton
+    //         actions={{
+    //           Print: () => {},
+    //           Edit: () => {},
+    //           Delete: () => {},
+    //         }}
+    //       />
+    //     </div>
+    //   ),
+    //   required: false,
+    // },
   ];
-  return (
-    <DataFetchingTable
-      endpoint={`patient/${patientProgramRegistration.patientId}/programResponses?programId=${patientProgramRegistration.programRegistry.program.id}`}
-      columns={columns}
-      initialSort={{
-        orderBy: 'date',
-        order: 'asc',
-      }}
-      noDataMessage="No Program registry responses found"
-      elevated={false}
-    />
-  );
-};
 
-PatientProgramRegistryFormHistory.propTypes = {
-  patientProgramRegistration: PropTypes.shape({
-    id: PropTypes.string,
-  }).isRequired,
+  const onSelectResponse = useCallback(surveyResponse => {
+    setSelectedResponseId(surveyResponse.id);
+  }, []);
+
+  const cancelResponse = useCallback(() => setSelectedResponseId(null), []);
+
+  return (
+    <>
+      <SurveyResponseDetailsModal surveyResponseId={selectedResponseId} onClose={cancelResponse} />
+      <DataFetchingTable
+        endpoint={`patient/${patientProgramRegistration.patientId}/programResponses`}
+        columns={columns}
+        initialSort={{
+          orderBy: 'startTime',
+          order: 'desc',
+          surveyType: SURVEY_TYPES.PROGRAMS,
+        }}
+        fetchOptions={{ programId: patientProgramRegistration.programRegistry.programId }}
+        onRowClick={onSelectResponse}
+        noDataMessage="No Program registry responses found"
+      />
+    </>
+  );
 };

@@ -133,7 +133,7 @@ export const VaccineForm = ({
 
   return (
     <Form
-      onSubmit={data => onSubmit({ ...data, category })}
+      onSubmit={async data => onSubmit({ ...data, category })}
       showInlineErrorsOnly
       initialValues={
         !editMode
@@ -156,6 +156,9 @@ export const VaccineForm = ({
             }
           : {
               ...currentVaccineRecordValues,
+              ...(currentVaccineRecordValues.circumstanceIds
+                ? { circumstanceIds: JSON.stringify(currentVaccineRecordValues.circumstanceIds) }
+                : {}),
             }
       }
       validationSchema={baseSchemeValidation.shape({

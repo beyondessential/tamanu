@@ -1,5 +1,4 @@
 import { capitalize } from 'lodash';
-
 import { createValueIndex } from '@tamanu/shared/utils/valueIndex';
 import {
   ENCOUNTER_TYPES,
@@ -22,6 +21,7 @@ import {
   LOCATION_AVAILABILITY_TAG_CONFIG,
   DOCUMENT_SOURCES,
   TEMPLATE_TYPES,
+  REGISTRATION_STATUSES,
 } from '@tamanu/constants';
 
 import {
@@ -44,6 +44,11 @@ export const DB_OBJECTS_MAX_DEPTH = {
   ENCOUNTER_MAIN: 7,
 };
 
+export const PROGRAM_REGISTRATION_STATUS_LABEL = {
+  [REGISTRATION_STATUSES.ACTIVE]: 'Active',
+  [REGISTRATION_STATUSES.INACTIVE]: 'Removed',
+  [REGISTRATION_STATUSES.RECORDED_IN_ERROR]: 'Delete',
+};
 // Should only be colours that are defined as constants in Figma
 // (with the exception of searchTintColor)
 export const Colors = {
@@ -209,7 +214,7 @@ export const encounterOptions = [
   },
   {
     value: ENCOUNTER_TYPES.SURVEY_RESPONSE,
-    label: 'Survey response',
+    label: 'Form response',
     image: patientIcon,
     hideFromMenu: true,
   },
@@ -485,10 +490,4 @@ export const NOTE_FORM_MODES = {
   CREATE_NOTE: 'createNote',
   EDIT_NOTE: 'editNote',
   VIEW_NOTE: 'viewNote',
-};
-
-export const PROGRAM_REGISTRATION_STATUSES = {
-  REMOVED: 'removed',
-  ACTIVE: 'active',
-  ENTERED_IN_ERROR: 'entered-in-error',
 };

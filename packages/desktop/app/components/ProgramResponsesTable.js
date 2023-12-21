@@ -15,7 +15,7 @@ const columns = [
   { key: 'endTime', title: 'Date submitted', accessor: getDate },
   { key: 'submittedBy', title: 'Submitted by', accessor: getSubmittedBy },
   { key: 'programName', title: 'Program', accessor: getProgramName },
-  { key: 'surveyName', title: 'Survey', accessor: getSurveyName },
+  { key: 'surveyName', title: 'Form', accessor: getSurveyName },
   { key: 'resultText', title: 'Results', accessor: getResults },
 ];
 
@@ -34,7 +34,7 @@ export const DataFetchingProgramsTable = ({ endpoint }) => {
         columns={columns}
         initialSort={{
           orderBy: 'endTime',
-          order: 'asc',
+          order: 'desc',
         }}
         noDataMessage="No program responses found"
         onRowClick={onSelectResponse}

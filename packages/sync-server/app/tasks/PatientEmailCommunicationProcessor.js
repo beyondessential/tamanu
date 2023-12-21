@@ -2,6 +2,7 @@ import config from 'config';
 import { PATIENT_COMMUNICATION_CHANNELS, COMMUNICATION_STATUSES } from '@tamanu/constants';
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
+import { removeFile } from '../utils/files';
 
 // turns 'hello there' into 'h*********e'
 const maskMiddle = s => s.slice(0, 1) + s.slice(1, -1).replace(/./g, '*') + s.slice(-1);
@@ -89,6 +90,8 @@ export class PatientEmailCommunicationProcessor extends ScheduledTask {
           status: COMMUNICATION_STATUSES.ERROR,
           error: e.message,
         });
+      } finally {
+        if (emailPlain.attachment) await removeFile(emailPlain.attachment);
       }
     });
     return Promise.all(sendEmails);

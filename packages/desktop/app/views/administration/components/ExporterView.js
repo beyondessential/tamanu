@@ -8,10 +8,10 @@ import { Form, Field } from '../../../components/Field';
 import { ExpandedMultiSelectField } from '../../../components/Field/ExpandedMultiSelectField';
 import { FormGrid } from '../../../components/FormGrid';
 import { ButtonRow } from '../../../components/ButtonRow';
-import { Button } from '../../../components/Button';
+import { FormSubmitButton } from '../../../components/Button';
 import { saveBlobAs } from '../../../utils/saveBlobAs';
 
-const ExportForm = ({ isSubmitting, dataTypes, dataTypesSelectable }) => (
+const ExportForm = ({ dataTypes, dataTypesSelectable }) => (
   <FormGrid columns={1}>
     {dataTypesSelectable && (
       <Field
@@ -22,9 +22,7 @@ const ExportForm = ({ isSubmitting, dataTypes, dataTypesSelectable }) => (
       />
     )}
     <ButtonRow>
-      <Button type="submit" disabled={isSubmitting}>
-        Export
-      </Button>
+      <FormSubmitButton text="Export" />
     </ButtonRow>
   </FormGrid>
 );

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { ConfirmCancelRow } from '../components/ButtonRow';
+import { FormSubmitCancelRow } from '../components/ButtonRow';
 import {
   NoteContentField,
   NoteDateTimeField,
@@ -24,7 +24,7 @@ export const CreateNoteForm = ({
     </StyledFormGrid>
     <NoteContentField label="Add note" onChange={onNoteContentChange} />
     <StyledDivider />
-    <ConfirmCancelRow
+    <FormSubmitCancelRow
       onConfirm={onSubmit}
       confirmText="Add note"
       cancelText="Cancel"

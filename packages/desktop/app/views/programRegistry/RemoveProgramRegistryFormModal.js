@@ -1,7 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
+import { useQueryClient } from '@tanstack/react-query';
+import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { Modal, ConfirmCancelRow, DateDisplay, FormSeparatorLine } from '../../components';
 import { Colors } from '../../constants';
+import { useApi } from '../../api';
+import { PROGRAM_REGISTRY } from '../../components/PatientInfoPane/paneTitles';
 
 const WarningDiv = styled.div`
   display: flex;
@@ -21,6 +25,7 @@ const InfoDiv = styled.div`
   width: 100%;
   border: 1px solid ${Colors.softOutline};
   border-radius: 5px;
+  padding: 22px 30px;
 `;
 
 const InfoColumn = styled.div`
@@ -30,68 +35,93 @@ const InfoColumn = styled.div`
   justify-content: flex-start;
 `;
 
+export const FormSeparatorVerticalLine = styled.hr`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-left: 1px solid ${Colors.outline};
+  margin: 22px;
+`;
+
 const Info = styled.div`
   margin: 10px 20px;
 `;
 
-const Label = styled.p`
-  color: ${Colors.softText};
-  line-height: 10px;
+const Label = styled.div`
+  color: ${Colors.midText};
 `;
 
-const Value = styled.p`
+const Value = styled.div`
   color: ${Colors.darkestText};
-  line-height: 10px;
+  font-weight: 500;
 `;
 
-export const RemoveProgramRegistryFormModal = ({
-  patientProgramRegistration,
-  onSubmit,
-  onCancel,
-  open,
-}) => {
-  return (
-    <Modal title="Remove patient" open={open} onClose={onCancel}>
-      <div>
-        <WarningDiv>
-          <p>
-            Please confirm you would like to remove the patient from the below program registry.
-            Once a patient is removed, you will not be able to update the status or complete program
-            forms.
-          </p>
-        </WarningDiv>
+export const RemoveProgramRegistryFormModal = ({ patientProgramRegistration, onClose, open }) => {
+  const api = useApi();
+  const queryClient = useQueryClient();
 
-        <InfoDiv>
-          <InfoColumn>
-            <Info>
-              <Label>Program registry</Label>
-              <Value>{patientProgramRegistration.programRegistry.name}</Value>
-            </Info>
-            <Info>
-              <Label>Registered by</Label>
-              <Value>{patientProgramRegistration.clinician.displayName}</Value>
-            </Info>
-            <Info>
-              <Label>Status</Label>
-              <Value>{patientProgramRegistration.clinicalStatus.name}</Value>
-            </Info>
-          </InfoColumn>
-          <InfoColumn>
-            <Info>
-              <Label>Date of registration</Label>
-              <Value>
-                <DateDisplay date={patientProgramRegistration.date} />
-              </Value>
-            </Info>
-            <Info>
-              <Label>Registering facility</Label>
-              <Value>{patientProgramRegistration.registeringFacility.name}</Value>
-            </Info>
-          </InfoColumn>
-        </InfoDiv>
-        <FormSeparatorLine style={{ marginTop: '30px', marginBottom: '30px' }} />
-        <ConfirmCancelRow onConfirm={onSubmit} onCancel={onCancel} />
-      </div>
+  if (!patientProgramRegistration) return <></>;
+
+  const remove = async () => {
+    const { id, date, ...rest } = patientProgramRegistration;
+    await api.post(
+      `patient/${encodeURIComponent(patientProgramRegistration.patientId)}/programRegistration`,
+      {
+        ...rest,
+        registrationStatus: REGISTRATION_STATUSES.INACTIVE,
+      },
+    );
+
+    queryClient.invalidateQueries([`infoPaneListItem-${PROGRAM_REGISTRY}`]);
+    onClose();
+  };
+
+  return (
+    <Modal width="md" title="Remove patient" open={open} onClose={onClose}>
+      {/* <div> */}
+      <WarningDiv>
+        <p>
+          Please confirm you would like to remove the patient from the below program registry. Once
+          a patient is removed, you will not be able to update the status or complete program forms.
+        </p>
+      </WarningDiv>
+
+      <InfoDiv>
+        <InfoColumn>
+          <Info>
+            <Label>Program registry</Label>
+            <Value>{patientProgramRegistration.programRegistry?.name || '-'}</Value>
+          </Info>
+          <Info>
+            <Label>Registered by</Label>
+            <Value>{patientProgramRegistration?.clinician?.displayName || '-'}</Value>
+          </Info>
+          <Info>
+            <Label>Status</Label>
+            <Value>{patientProgramRegistration.clinicalStatus?.name || '-'}</Value>
+          </Info>
+        </InfoColumn>
+        <FormSeparatorVerticalLine />
+        <InfoColumn>
+          <Info>
+            <Label>Date of registration</Label>
+            <Value>
+              <DateDisplay date={patientProgramRegistration.date} />
+            </Value>
+          </Info>
+          <Info>
+            <Label>Registering facility</Label>
+            <Value>
+              {(patientProgramRegistration.registeringFacility
+                ? patientProgramRegistration.registeringFacility?.name
+                : patientProgramRegistration.facility?.name) || '-'}
+            </Value>
+          </Info>
+        </InfoColumn>
+      </InfoDiv>
+      <FormSeparatorLine style={{ marginTop: '30px', marginBottom: '30px' }} />
+      <ConfirmCancelRow onConfirm={remove} onCancel={onClose} />
+      {/* </div> */}
     </Modal>
   );
 };

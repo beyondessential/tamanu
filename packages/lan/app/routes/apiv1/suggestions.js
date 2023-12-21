@@ -324,7 +324,6 @@ createNameSuggester(
 
 createNameSuggester('programRegistry', 'ProgramRegistry', (search, query) => {
   const baseWhere = DEFAULT_WHERE_BUILDER(search);
-
   if (!query.patientId) {
     return baseWhere;
   }

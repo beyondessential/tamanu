@@ -192,7 +192,7 @@ describe('Suggestions', () => {
     });
 
     it('should return facilityId with suggestion list', async () => {
-      await models.Location.truncate({ cascade: true });
+      await models.Location.truncate({ cascade: true, force: true });
       const facility = await models.Facility.create({
         id: 'test-facility',
         code: 'test-facility',
@@ -328,7 +328,7 @@ describe('Suggestions', () => {
   describe('Order of results (via diagnoses)', () => {
     // Applies only to tests in this describe block
     beforeEach(() => {
-      return models.ReferenceData.truncate({ cascade: true });
+      return models.ReferenceData.truncate({ cascade: true, force: true });
     });
 
     it('should return results that start with the query first', async () => {
@@ -403,7 +403,7 @@ describe('Suggestions', () => {
   });
 
   it('Should get all suggestions on the /all endpoint', async () => {
-    await models.ReferenceData.truncate({ cascade: true });
+    await models.ReferenceData.truncate({ cascade: true, force: true });
     const dummyRecords = new Array(30).fill(0).map((_, i) => ({
       id: `diag-${i}`,
       type: 'icd10',

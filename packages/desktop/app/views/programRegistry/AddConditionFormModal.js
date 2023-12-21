@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
+import { useQueryClient } from '@tanstack/react-query';
+import { differenceBy } from 'lodash';
 import {
   Modal,
   ConfirmCancelRow,
@@ -15,40 +17,53 @@ import { foreignKey } from '../../utils/validation';
 
 const StyledFormGrid = styled(FormGrid)`
   grid-column: 1 / -1;
-  width: 70%;
+  width: 100%;
   display: block;
   margin: auto;
   margin-top: 30px;
 `;
 
-export const AddConditionFormModal = ({ onSubmit, onCancel, patientProgramRegistration, open }) => {
+export const AddConditionFormModal = ({
+  onClose,
+  patientProgramRegistration,
+  patientProgramRegistrationConditions,
+  programRegistryConditions,
+  open,
+}) => {
   const api = useApi();
-  const [options, setOptions] = useState([]);
-  useEffect(() => {
-    (async () => {
-      const response = await api.get(
-        `programRegistry/${patientProgramRegistration.programRegistryId}/conditions`,
-      );
-      setOptions(response.map(x => ({ label: x.name, value: x.id })));
-    })();
-  }, [patientProgramRegistration.programRegistryId, api]);
+  const queryClient = useQueryClient();
 
+  const submit = async data => {
+    await api.post(
+      `patient/${encodeURIComponent(
+        patientProgramRegistration.patientId,
+      )}/programRegistration/${encodeURIComponent(
+        patientProgramRegistration.programRegistryId,
+      )}/condition`,
+      data,
+    );
+    queryClient.invalidateQueries(['PatientProgramRegistryConditions']);
+    onClose();
+  };
   return (
-    <Modal title="Add condition" open={open} onClose={onCancel}>
+    <Modal title="Add related condition" open={open} onClose={onClose}>
       <Form
-        onSubmit={data => {
-          onSubmit(data);
-        }}
+        showInlineErrorsOnly
+        onSubmit={submit}
         render={({ submitForm }) => {
-          const handleCancel = () => onCancel();
+          const handleCancel = () => onClose();
           return (
             <div>
               <StyledFormGrid columns={1}>
                 <Field
                   name="programRegistryConditionId"
-                  label="Condition"
+                  label="Related condition"
                   component={AutocompleteField}
-                  options={options}
+                  options={differenceBy(
+                    programRegistryConditions,
+                    patientProgramRegistrationConditions,
+                    'value',
+                  )}
                 />
               </StyledFormGrid>
               <FormSeparatorLine style={{ marginTop: '60px', marginBottom: '30px' }} />

@@ -137,7 +137,9 @@ patientRelations.get(
         JOIN patient_field_values v
         ON v.definition_id = d.id
         WHERE v.patient_id = :patientId
-        AND d.visibility_status NOT IN (:hiddenStatuses);
+        AND d.visibility_status NOT IN (:hiddenStatuses)
+        AND d.deleted_at IS NULL
+        AND v.deleted_at IS NULL;
       `,
       {
         replacements: {

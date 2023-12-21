@@ -42,7 +42,7 @@ export const usePatientRoutes = () => {
         {
           path: `${PATIENT_PATHS.PATIENT}/programs/new`,
           component: ProgramsView,
-          title: 'New Survey',
+          title: 'New Form',
         },
         {
           path: `${PATIENT_PATHS.PATIENT}/referrals/new`,
@@ -63,7 +63,7 @@ export const usePatientRoutes = () => {
             {
               path: `${PATIENT_PATHS.ENCOUNTER}/programs/new`,
               component: ProgramsView,
-              title: 'New Survey',
+              title: 'New Form',
             },
             {
               path: `${PATIENT_PATHS.LAB_REQUEST}/:modal?`,
@@ -80,13 +80,13 @@ export const usePatientRoutes = () => {
         {
           path: PATIENT_PATHS.PROGRAM_REGISTRY,
           component: PatientProgramRegistryView,
-          navigateTo: programRegistry => navigateToProgramRegistry(programRegistry.id),
+          navigateTo: () => navigateToProgramRegistry(),
           title: queryParams.get('title'),
           routes: [
             {
               path: PATIENT_PATHS.PROGRAM_REGISTRY_SURVEY,
               component: ProgramRegistrySurveyView,
-              // title: 'Discharge Summary',
+              title: 'Survey',
             },
           ],
         },

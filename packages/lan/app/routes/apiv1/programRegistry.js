@@ -1,9 +1,10 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Sequelize, Op, QueryTypes } from 'sequelize';
-
+import { VISIBILITY_STATUSES, REGISTRATION_STATUSES } from '@tamanu/constants';
 import { deepRenameObjectKeys } from '@tamanu/shared/utils';
 import { simpleGet, simpleGetList } from '@tamanu/shared/utils/crudHelpers';
+
 import {
   makeFilter,
   makeSimpleTextFilterFactory,
@@ -14,31 +15,65 @@ export const programRegistry = express.Router();
 
 programRegistry.get('/:id', simpleGet('ProgramRegistry'));
 
-// TODO: TAN-2357: reimplement as standalone handler rather than simpleGetList 
 programRegistry.get(
   '/$',
-  simpleGetList('ProgramRegistry', '', {
-    additionalFilters: ({ db, query }) => ({
-      visibilityStatus: VISIBILITY_STATUSES.CURRENT,
-      ...(query.excludePatientId
-        ? {
-            id: {
-              [Op.notIn]: Sequelize.literal(
-                `(
-                    SELECT DISTINCT(pr.id)
-                    FROM program_registries pr
-                    INNER JOIN patient_program_registrations ppr
-                    ON ppr.program_registry_id = pr.id
-                    WHERE
-                      ppr.patient_id = ${db.escape(query.excludePatientId)}
-                    AND
-                      ppr.registration_status != '${REGISTRATION_STATUSES.RECORDED_IN_ERROR}'
-                  )`,
-              ),
-            },
-          }
-        : {}),
-    }),
+  asyncHandler(async (req, res) => {
+    const { models, query } = req;
+
+    req.checkPermission('list', 'ProgramRegistry');
+
+    if (query.excludePatientId) {
+      req.checkPermission('read', 'PatientProgramRegistration', {
+        patientId: query.excludePatientId,
+      });
+    }
+
+    const { ProgramRegistry } = models;
+
+    const patientIdExclusion = query.excludePatientId
+      ? {
+          id: {
+            [Op.notIn]: Sequelize.literal(
+              `(
+                SELECT DISTINCT(pr.id)
+                FROM program_registries pr
+                INNER JOIN patient_program_registrations ppr
+                ON ppr.program_registry_id = pr.id
+                WHERE
+                  ppr.patient_id = :excludePatientId
+                AND
+                  ppr.registration_status != :error
+              )`,
+            ),
+          },
+        }
+      : {};
+
+    const baseQueryOptions = {
+      where: {
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+        ...patientIdExclusion,
+      },
+      replacements: {
+        error: REGISTRATION_STATUSES.RECORDED_IN_ERROR,
+        excludePatientId: query.excludePatientId,
+      },
+    };
+
+    const count = await ProgramRegistry.count(baseQueryOptions);
+
+    const { order = 'ASC', orderBy = 'createdAt', rowsPerPage, page } = query;
+    const objects = await ProgramRegistry.findAll({
+      ...baseQueryOptions,
+      include: ProgramRegistry.getListReferenceAssociations(models),
+      order: orderBy ? [[...orderBy.split('.'), order.toUpperCase()]] : undefined,
+      limit: rowsPerPage,
+      offset: page && rowsPerPage ? page * rowsPerPage : undefined,
+    });
+
+    const data = objects.map(x => x.forResponse());
+
+    res.send({ count, data });
   }),
 );
 
@@ -72,12 +107,44 @@ programRegistry.get(
     const makeSimpleTextFilter = makeSimpleTextFilterFactory(filterParams);
     const makePartialTextFilter = makeSubstringTextFilterFactory(filterParams);
     const filters = [
+      // Patient filters
       makePartialTextFilter('displayId', 'patient.display_id'),
+      makeSimpleTextFilter('sex', 'patient.sex'),
       makeSimpleTextFilter('firstName', 'patient.first_name'),
       makeSimpleTextFilter('lastName', 'patient.last_name'),
-      makeFilter(true, 'mrr.program_registry_id = :program_registry_id', () => ({
-        program_registry_id: programRegistryId,
+      makeFilter(filterParams.dateOfBirth, `patients.date_of_birth = :dateOfBirth`),
+      makeFilter(filterParams.homeVillage, `patients.village_id = :homeVillage`),
+      makeFilter(
+        !filterParams.deceased || filterParams.deceased === 'false',
+        'patient.date_of_death IS NULL',
+      ),
+
+      // Registration filters
+      makeFilter(
+        filterParams.registeringFacilityId,
+        'mrr.registering_facility_id = :registeringFacilityId',
+      ),
+      makeFilter(programRegistryId, 'mrr.program_registry_id = :programRegistryId', () => ({
+        programRegistryId,
       })),
+      makeFilter(filterParams.clinicalStatus, 'mrr.clinical_status = :clinicalStatus'),
+      makeFilter(
+        filterParams.currentlyIn,
+        'mrr.village_id = :currentlyIn OR mrr.facility_id = :currentlyIn',
+      ),
+      makeFilter(
+        filterParams.programRegistryCondition,
+        // Essentially the `<@` operator checks that the json on the left is contained in the json on the right
+        // so we build up a string like '["A_condition_name"]' and cast it to json before checking membership.
+        `(select '["' || prc2.name || '"]' from program_registry_conditions prc2 where prc2.id == :programRegistryCondition):jsonb <@ conditions.condition_list`,
+      ),
+      makeFilter(
+        !filterParams.removed || filterParams.removed === 'false',
+        'mrr.registration_status = :active_status',
+        () => ({
+          active_status: REGISTRATION_STATUSES.ACTIVE,
+        }),
+      ),
     ].filter(f => f);
 
     const whereClauses = filters.map(f => f.sql).join(' AND ');
@@ -106,9 +173,9 @@ programRegistry.get(
         ),
         conditions as (
           SELECT pprc.program_registry_id, patient_id, jsonb_agg(prc."name") condition_list  FROM patient_program_registration_conditions pprc
-        join program_registry_conditions prc
-        on pprc.program_registry_condition_id = prc.id
-        group by pprc.program_registry_id, patient_id
+          join program_registry_conditions prc
+          on pprc.program_registry_condition_id = prc.id
+          group by pprc.program_registry_id, patient_id
         )
     `;
     const from = `
@@ -130,6 +197,8 @@ programRegistry.get(
       on mrr.clinical_status_id = status.id
       left join program_registries program_registry
       on mrr.program_registry_id = program_registry.id
+      left join users clinician
+      on mrr.clinician_id = clinician.id
       ${whereClauses && `WHERE ${whereClauses}`}
     `;
 
@@ -167,6 +236,7 @@ programRegistry.get(
         patient.id AS "patient.id",
         --
         -- Details for the table
+        patient.id AS "patient_id",
         patient.display_id AS "patient.display_id",
         patient.first_name AS "patient.first_name",
         patient.last_name AS "patient.last_name",
@@ -180,7 +250,12 @@ programRegistry.get(
         conditions.condition_list as "conditions",
         status.name as "clinical_status.name",
         status.color as "clinical_status.color",
+        status.id as "clinical_status.id",
         program_registry.currently_at_type as "program_registry.currently_at_type",
+        program_registry.name as "program_registry.name",
+        program_registry.id as "program_registry_id",
+        clinician.display_name as "clinician.display_name",
+        mrr.date as "date",
         --
         -- Details for filtering/ordering
         patient.date_of_death as "patient.date_of_death",
