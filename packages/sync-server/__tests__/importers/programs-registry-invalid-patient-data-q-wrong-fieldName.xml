@@ -118,7 +118,7 @@
     <Cell><Data ss:Type="String">Fail-Wrong-FieldName</Data></Cell>
     <Cell><Data ss:Type="String">PatientData</Data></Cell>
     <Cell><Data ss:Type="String">PatientData: Incorrect field name in config</Data></Cell>
-    <Cell ss:Index="16"><Data ss:Type="String">{ &quot;column&quot;: &quot;abc&quot;, &quot;writeToPatient&quot;: { &quot;fieldName&quot;: &quot;registrationCurrentlyAtFacility&quot;, &quot;fieldType&quot;: &quot;FreeText&quot; }}</Data></Cell>
+    <Cell ss:Index="16"><Data ss:Type="String">{ &quot;column&quot;: &quot;registrationCurrentlyAtFacility&quot;, &quot;writeToPatient&quot;: { &quot;fieldName&quot;: &quot;registrationCurrentlyAtFacility&quot;, &quot;fieldType&quot;: &quot;FreeText&quot; }}</Data></Cell>
    </Row>
   </Table>
  </Worksheet>

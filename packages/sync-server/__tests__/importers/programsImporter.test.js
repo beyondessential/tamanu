@@ -186,14 +186,19 @@ describe('Programs import', () => {
     expect(errors.length).toEqual(2);
   });
 
-  it('run validation against question configs', async () => {
-    const { didntSendReason, errors, stats } = await doImport({
-      file: 'question-validation',
-      xml: true,
-      dryRun: true,
+  describe('run validation against question configs', () => {
+    let didntSendReason;
+    let errors;
+    let stats;
+
+    beforeAll(async () => {
+      ({ didntSendReason, errors, stats } = await doImport({
+        file: 'question-validation',
+        xml: true,
+        dryRun: true,
+      }));
     });
 
-    expect(didntSendReason).toEqual('validationFailed');
     const expectedErrorMessages = [
       'validationCriteria: this field has unspecified keys: foo on Question Validation Fail at row 2',
       'validationCriteria: mandatory must be a `object` type, but the final value was: `"true"`. on Question Validation Fail at row 3',
@@ -208,7 +213,7 @@ describe('Programs import', () => {
       'config: this field has unspecified keys: foo on Question Validation Fail at row 12',
       'config: unit must be a `string` type, but the final value was: `true`. on Question Validation Fail at row 13',
       'config: this field has unspecified keys: foo on Question Validation Fail at row 14',
-      'config: column must be a `string` type, but the final value was: `24`. on Question Validation Fail at row 15',
+      'config: column must be one of the following values: registrationClinicalStatus, programRegistrationStatus, registrationClinician, registeringFacility, registrationCurrentlyAtVillage, registrationCurrentlyAtFacility, firstName, middleName, lastName, culturalName, dateOfBirth, dateOfDeath, sex, email, villageId, placeOfBirth, bloodType, primaryContactNumber, secondaryContactNumber, maritalStatus, cityTown, streetVillage, educationalLevel, socialMedia, title, birthCertificate, drivingLicense, passport, emergencyContactName, emergencyContactNumber, registeredById, motherId, fatherId, nationalityId, countryId, divisionId, subdivisionId, medicalAreaId, nursingZoneId, settlementId, ethnicityId, occupationId, religionId, patientBillingTypeId, countryOfBirthId on Question Validation Fail at row 15',
       'config: writeToPatient.fieldName must be one of the following values: registrationClinicalStatus, programRegistrationStatus, registrationClinician, registeringFacility, registrationCurrentlyAtVillage, registrationCurrentlyAtFacility, firstName, middleName, lastName, culturalName, dateOfBirth, dateOfDeath, sex, email, villageId, placeOfBirth, bloodType, primaryContactNumber, secondaryContactNumber, maritalStatus, cityTown, streetVillage, educationalLevel, socialMedia, title, birthCertificate, drivingLicense, passport, emergencyContactName, emergencyContactNumber, registeredById, motherId, fatherId, nationalityId, countryId, divisionId, subdivisionId, medicalAreaId, nursingZoneId, settlementId, ethnicityId, occupationId, religionId, patientBillingTypeId, countryOfBirthId on Question Validation Fail at row 16',
       'config: writeToPatient.fieldType is a required field on Question Validation Fail at row 17',
       'config: this field has unspecified keys: foo on Question Validation Fail at row 18',
@@ -229,15 +234,23 @@ describe('Programs import', () => {
       'config: source is a required field on Question Validation Fail at row 33',
     ];
 
-    errors.forEach((error, i) => {
-      expect(error.message).toEqual(expectedErrorMessages[i]);
+    expectedErrorMessages.forEach((message, i) => {
+      test(`Error at row: ${i + 1}`, () => {
+        expect(errors[i].message).toEqual(message);
+      });
     });
-    expect(stats).toMatchObject({
-      Program: { created: 1, updated: 0, errored: 0 },
-      Survey: { created: 2, updated: 0, errored: 0 },
-      // TODO: Fix after merge
-      ProgramDataElement: { created: 43, updated: 0, errored: 0 },
-      SurveyScreenComponent: { created: 11, updated: 0, errored: 32 }, // 31 fields in failure test, 11 in success test
+
+    test('didntSendReason matches', () => {
+      expect(didntSendReason).toEqual('validationFailed');
+    });
+
+    test('Stats matches correctly', () => {
+      expect(stats).toMatchObject({
+        Program: { created: 1, updated: 0, errored: 0 },
+        Survey: { created: 2, updated: 0, errored: 0 },
+        ProgramDataElement: { created: 44, updated: 0, errored: 0 },
+        SurveyScreenComponent: { created: 12, updated: 0, errored: 32 }, // 31 fields in failure test, 11 in success test
+      });
     });
   });
 
@@ -511,13 +524,30 @@ describe('Programs import', () => {
       expect(errors).toBeEmpty();
     });
 
-    it('should validate survey patient data fieldType based on registry currentlyAtType', async () => {
+    it('should validate survey patient data fieldName based on registry currentlyAtType', async () => {
       const { errors } = await doImport({
-        file: 'registry-invalid-patient-data-q',
+        file: 'registry-invalid-patient-data-q-wrong-fieldName',
         xml: true,
         dryRun: false,
       });
       expect(errors).not.toBeEmpty();
+      expect(errors.length).toEqual(1);
+      expect(errors[0].message).toEqual(
+        'config: column=registrationCurrentlyAtFacility but program registry configured for village on Import Registry With Survey at row 3',
+      );
+    });
+
+    it('should validate survey patient data fieldName based on if a registry exists', async () => {
+      const { errors } = await doImport({
+        file: 'registry-invalid-patient-data-q-no-registry',
+        xml: true,
+        dryRun: false,
+      });
+      expect(errors).not.toBeEmpty();
+      expect(errors.length).toEqual(1);
+      expect(errors[0].message).toEqual(
+        'config: column=registrationClinicalStatus but no program registry configured on Import Registry With Survey at row 3',
+      );
     });
 
     describe('conditions', () => {
