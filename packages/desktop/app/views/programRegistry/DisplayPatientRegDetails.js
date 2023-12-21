@@ -120,7 +120,7 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
             <div>Registered by:</div>
           </TextColumns>
           <TextColumns style={{ fontWeight: 500 }}>
-            <DateDisplay date={patientProgramRegistration.createdAt} />
+            <DateDisplay date={patientProgramRegistration.registrationDate} />
             <div>{patientProgramRegistration.clinician.displayName}</div>
           </TextColumns>
         </TextColumnsContainer>
