@@ -4,7 +4,6 @@ import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 
 import {
-  createDummyVisit,
   createDummyPatient,
   DIAGNOSES,
   DISPOSITIONS,
@@ -121,7 +120,6 @@ storiesOf('Forms/VisitForm', module)
       onSubmit={action('submit')}
       locationSuggester={locationSuggester}
       practitionerSuggester={practitionerSuggester}
-      editedObject={createDummyVisit()}
     />
   ));
 
@@ -162,7 +160,6 @@ storiesOf('Forms', module).add('OngoingConditionForm', () => (
 
 storiesOf('Forms', module).add('DischargeForm', () => (
   <DischargeForm
-    visit={createDummyVisit()}
     onSubmit={action('submit')}
     onCancel={action('cancel')}
     practitionerSuggester={practitionerSuggester}
