@@ -118,7 +118,6 @@ const NavContainer = styled.div`
 const DiagnosesList = ({ diagnoses }) => {
   const { getSetting } = useSettings();
   const displayIcd10Codes = getSetting('features.displayIcd10CodesInDischargeSummary');
-  console.log(displayIcd10Codes);
 
   return diagnoses.map(item => (
     <li>
