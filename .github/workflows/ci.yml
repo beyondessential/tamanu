@@ -156,7 +156,7 @@ jobs:
             !packages/mobile/node_modules
 
       - run: yarn build-shared
-      - run: yarn workspace desktop run verify-storybook
+      - run: yarn workspace desktop run test-storybook
 
   migrations:
     strategy:
