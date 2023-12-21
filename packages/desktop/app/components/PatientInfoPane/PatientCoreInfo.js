@@ -7,7 +7,7 @@ import { PatientInitialsIcon } from '../PatientInitialsIcon';
 import { Colors } from '../../constants';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { getDisplayAge } from '../../utils/dateTime';
-import { useLocalisation } from '../../contexts/Localisation';
+import { useSettings } from '../../contexts/Settings';
 
 const PatientButton = styled(Button)`
   display: block;
@@ -132,8 +132,8 @@ const HealthIdDisplay = ({ displayId }) => (
 
 export const CoreInfoDisplay = memo(({ patient }) => {
   const { navigateToPatient } = usePatientNavigation();
-  const { getLocalisation } = useLocalisation();
-  const ageDisplayFormat = getLocalisation('ageDisplayFormat');
+  const { getSetting } = useSettings();
+  const ageDisplayFormat = getSetting('localisation.ageDisplayFormat');
 
   return (
     <>

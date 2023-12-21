@@ -18,7 +18,6 @@ import { useCertificate } from '../../utils/useCertificate';
 import { getDepartmentName } from '../../utils/department';
 import { getDisplayAge } from '../../utils/dateTime';
 import { capitaliseFirstLetter } from '../../utils/capitalise';
-import { useLocalisation } from '../../contexts/Localisation';
 import { useSettings } from '../../contexts/Settings';
 import {
   usePatientAdditionalDataQuery,
@@ -160,10 +159,10 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
   const { title, subTitle, logo } = useCertificate();
   const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' }).toLowerCase();
 
-  const { getLocalisation } = useLocalisation();
+  const { getSetting } = useSettings();
   const dischargeDispositionVisible =
-    getLocalisation('fields.dischargeDisposition.hidden') === false;
-  const ageDisplayFormat = getLocalisation('ageDisplayFormat');
+    getSetting('localisation.fields.dischargeDisposition.hidden') === false;
+  const ageDisplayFormat = getSetting('localisation.ageDisplayFormat');
 
   const patient = useSelector(state => state.patient);
   const { data: village } = useReferenceData(patient.villageId);
