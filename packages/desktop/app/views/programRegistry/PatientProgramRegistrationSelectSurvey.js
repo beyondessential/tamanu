@@ -73,7 +73,7 @@ export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistrat
       <Form
         showInlineErrorsOnly
         style={{ width: '100%', marginTop: '5px' }}
-        onSubmit={values => {
+        onSubmit={async values => {
           navigateToProgramRegistrySurvey(
             patientProgramRegistration.programRegistryId,
             values.surveyId,

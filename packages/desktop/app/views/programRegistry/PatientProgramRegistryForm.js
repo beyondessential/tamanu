@@ -54,8 +54,8 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
   return (
     <Form
       showInlineErrorsOnly
-      onSubmit={data => {
-        onSubmit({
+      onSubmit={async data => {
+        return onSubmit({
           ...data,
           conditionIds: data.conditionIds ? JSON.parse(data.conditionIds) : [],
           registrationStatus: REGISTRATION_STATUSES.ACTIVE,
