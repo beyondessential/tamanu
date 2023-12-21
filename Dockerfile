@@ -49,21 +49,6 @@ COPY packages/ packages/
 RUN scripts/docker-build.sh ${PACKAGE_PATH}
 
 
-## Special target for packaging the desktop app
-# layer efficiency or size doesn't matter as this is not distributed
-#
-# Runs on Node 18 not Node 20 as there's no image for 20 yet
-# (and we're hoping that desktop will go away soon!)
-FROM electronuserland/builder:18-wine AS build-desktop
-RUN apt update && apt install -y jq
-COPY --from=build-base /app/ /app/
-WORKDIR /app
-COPY packages/ packages/
-RUN scripts/docker-build.sh desktop
-ENV NODE_ENV=production
-WORKDIR /app/packages/desktop
-
-
 ## Normal final target for servers
 FROM run-base as server
 # restart from a fresh base without the build tools
@@ -81,3 +66,21 @@ WORKDIR /app/packages/${PACKAGE_PATH}
 # explicitly reconfigure the port
 RUN echo '{"port":3000}' > config/local.json
 EXPOSE 3000
+
+
+## Build the frontend
+FROM build-base as build-frontend
+RUN apk add zstd brotli
+COPY packages/ packages/
+RUN scripts/docker-build.sh web
+
+
+## Minimal image to serve the frontend
+FROM alpine as frontend
+WORKDIR /app
+ENTRYPOINT ["/usr/bin/caddy"]
+CMD ["run", "--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile"]
+COPY --from=caddy:2-alpine /usr/bin/caddy /usr/bin/caddy
+COPY packages/desktop/Caddyfile.docker /etc/caddy/Caddyfile
+COPY --from=build-frontend /app/packages/desktop/dist/ .
+COPY --from=metadata /meta/ /meta/
