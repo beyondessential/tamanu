@@ -29,4 +29,4 @@
 # server.
 #
 /packages/central-server/config/default.json5  @beyondessential/tamanu-deployment-team
-/packages/central-server/config/default.json5  @beyondessential/tamanu-deployment-team
+/packages/facility-server/config/default.json5  @beyondessential/tamanu-deployment-team
