@@ -5,7 +5,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { TabDisplay } from '../../components/TabDisplay';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { PatientAlert } from '../../components/PatientAlert';
-import { useLocalisation } from '../../contexts/Localisation';
+import { useSettings } from '../../contexts/Settings';
 import { useApi } from '../../api';
 import {
   HistoryPane,
@@ -96,7 +96,7 @@ const TABS = [
 
 export const PatientView = () => {
   const queryClient = useQueryClient();
-  const { getLocalisation } = useLocalisation();
+  const { getSetting } = useSettings();
   const query = useUrlSearchParams();
   const patient = useSelector(state => state.patient);
   const [currentTab, setCurrentTab] = useState(query.get('tab') || PATIENT_TABS.HISTORY);
@@ -129,7 +129,7 @@ export const PatientView = () => {
     return <LoadingIndicator />;
   }
 
-  const visibleTabs = TABS.filter(tab => !tab.condition || tab.condition(getLocalisation));
+  const visibleTabs = TABS.filter(tab => !tab.condition || tab.condition(getSetting));
 
   return (
     <PatientSearchParametersProvider>
