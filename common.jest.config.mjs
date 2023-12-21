@@ -1,12 +1,24 @@
-import { readFileSync } from 'fs';
+import { readFileSync, accessSync, constants } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
 export const isCI = !!process.env.CI;
 
+function canRead(path) {
+  try {
+    accessSync(path, constants.R_OK);
+    return true;
+  } catch(_) {
+    return false;
+  }
+}
+
 export function config(importMeta, overrides = {}) {
+  let swcjson = {};
   const swcpath = join(dirname(fileURLToPath(importMeta.url)), '.swcrc');
-  const swcjson = JSON.parse(readFileSync(swcpath, 'utf8'));
+  if (canRead(swcpath)) {
+    swcjson = JSON.parse(readFileSync(swcpath, 'utf8'));
+  }
 
   return {
     setupFiles: ['<rootDir>/__tests__/setup.js'],
