@@ -17,6 +17,7 @@ import {
   requestPasswordReset,
   restartPasswordResetFlow,
   clearPatient,
+  validateResetCode,
 } from '../store';
 import { useApi } from '../api';
 
@@ -120,6 +121,8 @@ export const LoginView = () => {
   const resetPasswordEmail = useSelector(state => state.auth.resetPassword.lastEmailUsed);
   const changePasswordError = useSelector(state => state.auth.changePassword.error);
   const changePasswordSuccess = useSelector(state => state.auth.changePassword.success);
+  const validateResetCodeError = useSelector(state => state.auth.validateResetCode.error);
+
   const { getLocalisation } = useLocalisation();
 
   const rememberEmail = localStorage.getItem(REMEMBER_EMAIL);
@@ -203,6 +206,8 @@ export const LoginView = () => {
                 setScreen('login');
               }}
               onNavToResetPassword={() => setScreen('resetPassword')}
+              onValidateResetCode={data => dispatch(validateResetCode(data))}
+              resetCodeErrorMessage={validateResetCodeError}
             />
           )}
         </LoginFormContainer>

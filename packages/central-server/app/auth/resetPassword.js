@@ -33,13 +33,10 @@ resetPassword.post(
 
     if (!user) {
       log.info(`Password reset request: No user found with email ${email}`);
-      // An attacker could use this to get a list of user accounts
-      // so we return the same ok result
       throw new ValidationError('User not found');
     } else {
       const token = await createOneTimeLogin(models, user);
-      log.info(`Token for ${email} is ${token}`);
-      // await sendResetEmail(req.emailService, user, token);
+      await sendResetEmail(req.emailService, user, token);
     }
 
     return res.send({ ok: 'ok' });

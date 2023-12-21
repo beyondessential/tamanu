@@ -1,3 +1,4 @@
+import { ValidationError } from 'yup';
 import { createStatePreservingReducer } from '../utils/createStatePreservingReducer';
 
 // actions
@@ -13,6 +14,9 @@ const PASSWORD_RESET_RESTART = 'PASSWORD_RESET_RESTART';
 const CHANGE_PASSWORD_START = 'CHANGE_PASSWORD_START';
 const CHANGE_PASSWORD_SUCCESS = 'CHANGE_PASSWORD_SUCCESS';
 const CHANGE_PASSWORD_FAILURE = 'CHANGE_PASSWORD_FAILURE';
+const VALIDATE_RESET_CODE_START = 'VALIDATE_RESET_CODE_START';
+const VALIDATE_RESET_CODE_SUCCESS = 'VALIDATE_RESET_CODE_SUCCESS';
+const VALIDATE_RESET_CODE_FAILURE = 'VALIDATE_RESET_CODE_FAILURE';
 
 export const restoreSession = () => async (dispatch, getState, { api }) => {
   try {
@@ -27,10 +31,7 @@ export const login = (email, password) => async (dispatch, getState, { api }) =>
   dispatch({ type: LOGIN_START });
 
   try {
-    const { user, token, localisation, server, ability, role } = await api.login(
-      email,
-      password,
-    );
+    const { user, token, localisation, server, ability, role } = await api.login(email, password);
     dispatch({ type: LOGIN_SUCCESS, user, token, localisation, server, ability, role });
   } catch (error) {
     dispatch({ type: LOGIN_FAILURE, error: error.message });
@@ -60,7 +61,7 @@ export const idleTimeout = () => ({
   error: 'You have been logged out due to inactivity',
 });
 
-export const requestPasswordReset = (email) => async (dispatch, getState, { api }) => {
+export const requestPasswordReset = email => async (dispatch, getState, { api }) => {
   dispatch({ type: REQUEST_PASSWORD_RESET_START });
 
   try {
@@ -75,7 +76,18 @@ export const restartPasswordResetFlow = () => async dispatch => {
   dispatch({ type: PASSWORD_RESET_RESTART });
 };
 
-export const changePassword = (data) => async (dispatch, getState, { api }) => {
+export const validateResetCode = data => async (dispatch, getState, { api }) => {
+  dispatch({ type: VALIDATE_RESET_CODE_START });
+
+  try {
+    await api.validateResetCode(data);
+    dispatch({ type: VALIDATE_RESET_CODE_SUCCESS });
+  } catch (error) {
+    dispatch({ type: VALIDATE_RESET_CODE_FAILURE, error: error.message });
+  }
+};
+
+export const changePassword = data => async (dispatch, getState, { api }) => {
   dispatch({ type: CHANGE_PASSWORD_START });
 
   try {
@@ -190,6 +202,24 @@ const actionHandlers = {
   [CHANGE_PASSWORD_FAILURE]: action => ({
     changePassword: {
       ...defaultState.changePassword,
+      error: action.error,
+    },
+  }),
+  [VALIDATE_RESET_CODE_START]: () => ({
+    validateResetCode: {
+      ...defaultState.validateResetCode,
+      loading: true,
+    },
+  }),
+  [VALIDATE_RESET_CODE_SUCCESS]: () => ({
+    validateResetCode: {
+      ...defaultState.validateResetCode,
+      valid: true,
+    },
+  }),
+  [VALIDATE_RESET_CODE_FAILURE]: action => ({
+    validateResetCode: {
+      ...defaultState.validateResetCode,
       error: action.error,
     },
   }),

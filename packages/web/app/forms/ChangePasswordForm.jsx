@@ -84,27 +84,25 @@ const StyledField = styled(Field)`
   }
 `;
 
-const INCORRECT_TOKEN_ERROR_MESSAGE = 'Facility server error response: User or token not found';
 const REQUIRED_VALIDATION_MESSAGE = '*Required';
 
 const ChangePasswordFormComponent = ({
   onRestartFlow,
   errorMessage,
-  email,
   onNavToLogin,
   onNavToResetPassword,
   onValidateResetCode,
   setFieldError,
   errors,
+  values,
+  resetCodeErrorMessage,
 }) => {
-  // const [newPasswordErrorText, setNewPasswordErrorText] = useState(null);
-  // const [confirmPasswordErrorText, setConfirmPasswordErrorText] = useState(null);
   useEffect(() => {
-    if (errorMessage === INCORRECT_TOKEN_ERROR_MESSAGE) {
+    if (!!resetCodeErrorMessage && !errors.token) {
       setFieldError('token', 'Code incorrect');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [errorMessage]);
+  }, [resetCodeErrorMessage]);
 
   return (
     <FormGrid columns={1}>
@@ -124,7 +122,11 @@ const ChangePasswordFormComponent = ({
           required
           component={TextField}
           placeholder="Reset code"
-          onChange={() => !errorMessage && setFieldError('token', '')}
+          onChange={() => {
+            if (errors.token === REQUIRED_VALIDATION_MESSAGE) {
+              setFieldError('token', '');
+            }
+          }}
         />
         <HorizontalDivider />
         <StyledField
@@ -155,7 +157,14 @@ const ChangePasswordFormComponent = ({
         />
       </FieldContainer>
       <ActionButtonContainer>
-        <ChangePasswordButton type="submit">Reset Password</ChangePasswordButton>
+        <ChangePasswordButton
+          type="submit"
+          onClick={async () => {
+            await onValidateResetCode({ email: values.email, token: values.token });
+          }}
+        >
+          Reset Password
+        </ChangePasswordButton>
         <BackToLoginButton onClick={onNavToLogin} variant="outlined">
           Back to login
         </BackToLoginButton>
@@ -182,8 +191,9 @@ export const ChangePasswordForm = React.memo(
     onNavToLogin,
     onNavToResetPassword,
     onValidateResetCode,
+    resetCodeErrorMessage,
   }) => {
-    const renderForm = ({ setFieldError, errors }) => (
+    const renderForm = ({ setFieldError, errors, values }) => (
       <ChangePasswordFormComponent
         onRestartFlow={onRestartFlow}
         errorMessage={errorMessage}
@@ -193,6 +203,8 @@ export const ChangePasswordForm = React.memo(
         onValidateResetCode={onValidateResetCode}
         setFieldError={setFieldError}
         errors={errors}
+        values={values}
+        resetCodeErrorMessage={resetCodeErrorMessage}
       />
     );
 
@@ -229,6 +241,7 @@ export const ChangePasswordForm = React.memo(
             .required(REQUIRED_VALIDATION_MESSAGE),
           confirmNewPassword: yup
             .string()
+            .min(5, 'Must be at least 5 characters')
             .oneOf([yup.ref('newPassword'), null], `Passwords don't match`)
             .required(REQUIRED_VALIDATION_MESSAGE),
         })}
