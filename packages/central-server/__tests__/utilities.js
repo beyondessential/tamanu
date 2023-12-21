@@ -2,7 +2,7 @@ import config from 'config';
 import http from 'http';
 import supertest from 'supertest';
 
-import { COMMUNICATION_STATUSES, JWT_TOKEN_TYPES } from '@tamanu/constants';
+import { COMMUNICATION_STATUSES, JWT_TOKEN_TYPES, SERVER_TYPES } from '@tamanu/constants';
 import { fake } from '@tamanu/shared/test-helpers';
 import { createMockReportingSchemaAndRoles } from '@tamanu/shared/demoData';
 import { DEFAULT_JWT_SECRET } from '@tamanu/central-server/app/auth';
