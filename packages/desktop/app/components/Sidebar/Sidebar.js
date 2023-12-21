@@ -16,7 +16,7 @@ import { getCurrentRoute } from '../../store/router';
 import { checkAbility } from '../../utils/ability';
 import { useAuth } from '../../contexts/Auth';
 import { useApi } from '../../api';
-import { useSettings } from '../../contexts/Localisation';
+import { useSettings } from '../../contexts/Settings';
 
 const Container = styled.div`
   display: flex;
