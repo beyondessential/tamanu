@@ -5,6 +5,7 @@ import {
   PROGRAM_DATA_ELEMENT_TYPES,
   VITALS_DATA_ELEMENT_IDS,
 } from '@tamanu/constants/surveys';
+import { SETTINGS_SCOPES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { createTestContext } from '../utilities';
 
@@ -40,6 +41,7 @@ describe('SurveyResponseAnswer', () => {
         Location,
         Department,
         User,
+        Setting,
       } = models;
 
       // Setup a somewhat credible vitals survey
@@ -103,6 +105,7 @@ describe('SurveyResponseAnswer', () => {
           calculation: '',
           config: '',
         }),
+        Setting.set('features.enableVitalEdit', true, SETTINGS_SCOPES.GLOBAL),
       ]);
 
       createNewVitalsSurveyResponse = async () => {
@@ -145,14 +148,6 @@ describe('SurveyResponseAnswer', () => {
 
         return response;
       };
-
-      // Currently we don't have a way of accessing the central server config
-      // from facility server tests. This feature needs to read that config.
-      const mockLocalisation = { features: { enableVitalEdit: true } };
-      await models.UserLocalisationCache.create({
-        userId: app.user.id,
-        localisation: JSON.stringify(mockLocalisation),
-      });
     });
 
     describe('write', () => {
@@ -303,15 +298,7 @@ describe('SurveyResponseAnswer', () => {
       });
 
       it('should return error if feature flag is off', async () => {
-        const localisationCache = await models.UserLocalisationCache.findOne({
-          where: {
-            userId: app.user.id,
-          },
-        });
-        await localisationCache.update({
-          localisation: JSON.stringify({ features: { enableVitalEdit: false } }),
-        });
-
+        await models.Setting.set('features.enableVitalEdit', false, SETTINGS_SCOPES.GLOBAL);
         const result = await app.put(`/v1/surveyResponseAnswer/vital/nonImportantID`).send({
           reasonForChange: 'test7',
           newValue: chance.integer({ min: 0, max: 100 }),
@@ -321,7 +308,7 @@ describe('SurveyResponseAnswer', () => {
       });
 
       it('should return error if feature flag does not exist', async () => {
-        await models.UserLocalisationCache.truncate({ cascade: true });
+        await models.Setting.truncate({ cascade: true });
 
         const result = await app.put(`/v1/surveyResponseAnswer/vital/nonImportantID`).send({
           reasonForChange: 'test8',
@@ -335,7 +322,7 @@ describe('SurveyResponseAnswer', () => {
     describe('create', () => {
       let extraDataElement;
       beforeAll(async () => {
-        const { ProgramDataElement, SurveyScreenComponent } = models;
+        const { ProgramDataElement, SurveyScreenComponent, Setting } = models;
         // Create an extra question to be left unanswered
         extraDataElement = await ProgramDataElement.create({
           ...fake(ProgramDataElement),
@@ -350,14 +337,7 @@ describe('SurveyResponseAnswer', () => {
           config: '',
         });
 
-        // Currently we don't have a way of accessing the central server config
-        // from facility server tests. This feature needs to read that config.
-        const mockLocalisation = { features: { enableVitalEdit: true } };
-        await models.UserLocalisationCache.upsert({
-          userId: app.user.id,
-          localisation: JSON.stringify(mockLocalisation),
-          deletedAt: null,
-        });
+        await Setting.set('features.enableVitalEdit', true, SETTINGS_SCOPES.GLOBAL);
       });
 
       it('should create a survey response answer', async () => {
@@ -405,15 +385,7 @@ describe('SurveyResponseAnswer', () => {
       });
 
       it('should return error if feature flag is off', async () => {
-        const localisationCache = await models.UserLocalisationCache.findOne({
-          where: {
-            userId: app.user.id,
-          },
-        });
-        await localisationCache.update({
-          localisation: JSON.stringify({ features: { enableVitalEdit: false } }),
-        });
-
+        await models.Setting.set('features.enableVitalEdit', false, SETTINGS_SCOPES.GLOBAL);
         const result = await app.post('/v1/surveyResponseAnswer/vital').send({
           reasonForChange: 'another-test3',
           newValue: chance.integer({ min: 0, max: 100 }),
@@ -423,8 +395,7 @@ describe('SurveyResponseAnswer', () => {
       });
 
       it('should return error if feature flag does not exist', async () => {
-        await models.UserLocalisationCache.truncate({ cascade: true, force: true });
-
+        await models.Setting.truncate({ cascade: true });
         const result = await app.post('/v1/surveyResponseAnswer/vital').send({
           reasonForChange: 'another-test4',
           newValue: chance.integer({ min: 0, max: 100 }),
