@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <title>Tamanu</title>
     <style>
-      @import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap");
+      @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap');
 
       body {
         margin: 0;
@@ -14,24 +14,7 @@
         width: 100vw;
       }
 
-      #main-text {
-        font-family: "Roboto", sans-serif;
-        font-size: 2.375rem;
-        font-weight: 500;
-        color: #444;
-        line-height: 32px;
-      }
-
-      #sub-text {
-        font-family: "Roboto", sans-serif;
-        font-size: 0.875rem;
-        font-weight: 400;
-        color: #888;
-        line-height: 18px;
-        max-width: 21rem;
-      }
-
-      .empty-div {
+      .emptyDiv {
         flex: 1;
       }
 
@@ -43,26 +26,30 @@
         align-items: center;
       }
 
-      .message-container {
+      .messageContainer {
         text-align: left;
       }
 
-      .image-container {
+      .imageContainer {
         width: 50%;
         display: flex;
         background: rgba(50, 102, 153, 0.2);
-        background-image: url("bg-image.png");
+        background-image: url('bg-image.png');
         background-size: cover;
         background-position: center;
       }
 
-      .logo-container {
+      .logoContainer {
         position: fixed;
         top: 0;
         left: 0;
         padding-left: 22px;
         padding-top: 16px;
         width: 10vw;
+      }
+
+      .logo {
+        width: 100%;
       }
 
       .overlay {
@@ -73,24 +60,41 @@
         height: 100%;
         background: rgba(50, 102, 153, 0.2);
       }
+
+      .mainText {
+        font-family: 'Roboto', sans-serif;
+        font-size: 2.375rem;
+        font-weight: 500;
+        color: #444;
+        line-height: 32px;
+      }
+
+      .subText {
+        font-family: 'Roboto', sans-serif;
+        font-size: 0.875rem;
+        font-weight: 400;
+        color: #888;
+        line-height: 18px;
+        max-width: 21rem;
+      }
     </style>
   </head>
   <body>
-    <div class="logo-container" onclick="reloadPage()">
-      <img src="logo.svg" alt="Tamanu logo" width="100%" />
+    <div class="logoContainer" onclick="reloadPage()">
+      <img class="logo" src="logo.svg" alt="Tamanu logo"/>
     </div>
     <div class="left">
-      <div class="empty-div"></div>
-      <div class="message-container">
-        <h1 id="main-text">Maintenance in progress</h1>
-        <p id="sub-text">
-          Tamanu is currently being upgraded. Please contact your system
-          administrator for further information.
+      <div class="emptyDiv"></div>
+      <div class="messageContainer">
+        <h1 class="mainText">Maintenance in progress</h1>
+        <p class="subText">
+          Tamanu is currently being upgraded. Please contact your system administrator for further
+          information.
         </p>
       </div>
-      <div class="empty-div"></div>
+      <div class="emptyDiv"></div>
     </div>
-    <div class="image-container">
+    <div class="imageContainer">
       <div class="overlay"></div>
     </div>
   </body>
