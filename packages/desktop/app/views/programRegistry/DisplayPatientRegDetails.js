@@ -181,10 +181,9 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
       <DeleteProgramRegistryFormModal
         open={openDeleteProgramRegistryFormModal}
         patientProgramRegistration={patientProgramRegistration}
-        navigateToPatientOnSuccess
-        onClose={({ navigateToPatientOnSuccess }) => {
+        onClose={({ success }) => {
           setOpenDeleteProgramRegistryFormModal(false);
-          if (navigateToPatientOnSuccess) navigateToPatient(patientProgramRegistration.patientId);
+          if (success) navigateToPatient(patientProgramRegistration.patientId);
         }}
       />
     </DisplayContainer>

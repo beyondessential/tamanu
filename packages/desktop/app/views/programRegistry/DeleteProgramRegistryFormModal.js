@@ -24,12 +24,7 @@ const Text = styled.div`
   }
 `;
 
-export const DeleteProgramRegistryFormModal = ({
-  patientProgramRegistration,
-  navigateToPatientOnSuccess,
-  onClose,
-  open,
-}) => {
+export const DeleteProgramRegistryFormModal = ({ patientProgramRegistration, onClose, open }) => {
   const api = useApi();
   const queryClient = useQueryClient();
 
@@ -43,7 +38,7 @@ export const DeleteProgramRegistryFormModal = ({
     );
 
     queryClient.invalidateQueries([`infoPaneListItem-${PROGRAM_REGISTRY}`]);
-    onClose({ navigateToPatientOnSuccess });
+    onClose({ success: true });
   };
 
   return (
