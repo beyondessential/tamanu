@@ -20,10 +20,12 @@ export const useSingleTab = () => {
 
   useEffect(() => {
     const wasPrimaryTab = sessionStorage.getItem('wasPrimaryTab');
+    const isDuplicateTab = sessionStorage.getItem('currentlyOpen');
+    sessionStorage.setItem('currentlyOpen', 'true')
 
     newTabChannel.addEventListener('message', newTabListener);
 
-    if (!wasPrimaryTab) {
+    if (!wasPrimaryTab || isDuplicateTab) {
       // Assume that this is a primary tab until told otherwise
       sessionStorage.setItem('wasPrimaryTab', 'true');
       primaryTabChannel.addEventListener('message', primaryTabListener);
@@ -34,6 +36,7 @@ export const useSingleTab = () => {
       // Clean up listeners on demount
       newTabChannel.removeEventListener('message', newTabListener);
       primaryTabChannel.removeEventListener('message', primaryTabListener);
+      sessionStorage.removeItem('currentlyOpen');
     };
   }, []);
 

@@ -10,7 +10,7 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import { PromiseErrorBoundary } from './components/PromiseErrorBoundary';
 import { ForbiddenErrorModal } from './components/ForbiddenErrorModal';
 import { MultiTabErrorScreen } from './singleTab/MultiTabErrorScreen';
-import { isPrimaryTab } from './singleTab/singleTab';
+import { useSingleTab } from './singleTab/singleTab';
 
 const AppContainer = styled.div`
   display: flex;
@@ -27,8 +27,9 @@ const AppContentsContainer = styled.div`
 export function App({ sidebar, children }) {
   const isUserLoggedIn = useSelector(checkIsLoggedIn);
   const currentRoute = useSelector(getCurrentRoute);
+  const isPrimaryTab = useSingleTab();
 
-  if (!isPrimaryTab()) {
+  if (!isPrimaryTab) {
     return <MultiTabErrorScreen />;
   }
 
