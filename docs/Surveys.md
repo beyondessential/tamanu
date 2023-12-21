@@ -12,17 +12,17 @@ The surveys are defined in spreadsheets (just xlsx files). We're tracking the
 details of the different columns in those spreadsheets and their valid values
 in [this google spreadsheet](https://docs.google.com/spreadsheets/d/1qwfw1AOED7WiElOCJwt_VHo_JaDhr6ZIiJMqjRCXajQ/edit#gid=1797422705).
 
-Currently it's the Facility server's responsibility to import survey definition 
-spreadsheets, pending a proper admin interface on the central server. The Facility server
-importer doesn't actually touch the Facility database at all - it's purely a tool for
+Currently it's the facility server's responsibility to import survey definition 
+spreadsheets, pending a proper admin interface on the central server. The facility server
+importer doesn't actually touch the facility database at all - it's purely a tool for
 parsing an xslx into a series of SurveyScreenComponent and ProgramDataElement records,
 and immediately syncing those records up to the central server without any additional
 logic.
 
 A sample web request to import a survey definition is as follows. Note that the
 `file` parameter isn't uploading a file at all, it's just a path to the file 
-_on the Facility server's local filesystem_. As this is intended as a dev-only tool,
-it's assumed that the Facility server will just be running on your local development
+_on the facility server's local filesystem_. As this is intended as a dev-only tool,
+it's assumed that the facility server will just be running on your local development
 machine.
 
 ```

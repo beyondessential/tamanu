@@ -49,7 +49,7 @@ A type of lab test, with name and code but also includes configurations like hea
 
 ### Location
 
-A Location essentially a wrapper around a Facility, adding a parent name and code, used for reporting.
+A Location essentially a wrapper around a facility, adding a parent name and code, used for reporting.
 
 ### Note
 
@@ -152,7 +152,7 @@ Emergency department triage information. Tracks very limited information - furth
 
 Users of the application, required to be able to login to either the tamanu mobile or web applications.
 
-### UserFacility
+### Userfacility
 
 Represents the relationship between a user and which facility they work from.
 
