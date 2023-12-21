@@ -121,7 +121,7 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
       if (!FIELD_TYPES_WITH_PREDEFINED_OPTIONS.includes(newValue)) {
         delete newParams[paramIndex].options;
       }
-      if (FIELD_TYPES_WITH_SUGGESTERS.includes(newValue)) {
+      if (!FIELD_TYPES_WITH_SUGGESTERS.includes(newValue)) {
         delete newParams[paramIndex].suggesterEndpoint;
       }
     }
