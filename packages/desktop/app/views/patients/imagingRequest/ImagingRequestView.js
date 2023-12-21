@@ -12,7 +12,7 @@ import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { IMAGING_REQUEST_STATUS_OPTIONS } from '../../../constants';
 import { ENCOUNTER_TAB_NAMES } from '../../../constants/encounterTabNames';
 
-import { useLocalisation } from '../../../contexts/Localisation';
+import { useSettings } from '../../../contexts/Settings';
 import { useElectron } from '../../../contexts/Electron';
 import { useApi, useSuggester } from '../../../api';
 
@@ -37,9 +37,9 @@ import { CancelModalButton } from './CancelModalButton';
 import { PrintModalButton } from './PrintModalButton';
 
 const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
-  const { getLocalisation } = useLocalisation();
-  const imagingPriorities = getLocalisation('imagingPriorities') || [];
-  const imagingTypes = getLocalisation('imagingTypes') || {};
+  const { getSetting } = useSettings();
+  const imagingPriorities = getSetting('localisation.imagingPriorities') || [];
+  const imagingTypes = getSetting('imagingTypes') || {};
 
   const locationGroupSuggester = useSuggester('facilityLocationGroup');
   const isCancelled = imagingRequest.status === IMAGING_REQUEST_STATUS_TYPES.CANCELLED;
