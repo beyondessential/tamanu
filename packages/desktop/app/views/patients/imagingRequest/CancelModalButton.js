@@ -8,7 +8,7 @@ import { useApi } from '../../../api';
 import { useSettings } from '../../../contexts/Settings';
 
 function getReasonForCancellationStatus(reasonForCancellation) {
-  // these values are set in localisation
+  // these values are set in settings
   switch (reasonForCancellation) {
     case 'duplicate':
       return IMAGING_REQUEST_STATUS_TYPES.DELETED;

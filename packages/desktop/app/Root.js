@@ -13,7 +13,6 @@ import { RoutingApp } from './RoutingApp';
 import { theme } from './theme';
 import { EncounterProvider } from './contexts/Encounter';
 import { LabRequestProvider } from './contexts/LabRequest';
-import { LocalisationProvider } from './contexts/Localisation';
 import { ReferralProvider } from './contexts/Referral';
 import { ElectronProvider } from './contexts/ElectronProvider';
 import { ImagingRequestsProvider } from './contexts/ImagingRequests';
@@ -28,9 +27,7 @@ const StateContextProviders = ({ children, store }) => (
         <EncounterNotesProvider>
           <LabRequestProvider store={store}>
             <PatientSearchProvider>
-              <SettingsProvider>
-                <LocalisationProvider store={store}>{children}</LocalisationProvider>
-              </SettingsProvider>
+              <SettingsProvider>{children}</SettingsProvider>
             </PatientSearchProvider>
           </LabRequestProvider>
         </EncounterNotesProvider>

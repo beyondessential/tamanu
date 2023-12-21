@@ -535,12 +535,3 @@ const localisationPromise = rootLocalisationSchema
       process.exit(1);
     }
   });
-
-// this is asynchronous to help with a later move to more complicated localisation logic
-export const getLocalisation = async () => {
-  if (config.localisation.allowInvalid) {
-    return unvalidatedLocalisation;
-  }
-  const localisation = await localisationPromise;
-  return localisation;
-};

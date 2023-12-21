@@ -16,16 +16,8 @@ const CHANGE_PASSWORD_FAILURE = 'CHANGE_PASSWORD_FAILURE';
 
 export const restoreSession = () => async (dispatch, getState, { api }) => {
   try {
-    const {
-      user,
-      token,
-      localisation,
-      server,
-      ability,
-      role,
-      settings,
-    } = await api.restoreSession();
-    dispatch({ type: LOGIN_SUCCESS, user, token, localisation, server, ability, role, settings });
+    const { user, token, server, ability, role, settings } = await api.restoreSession();
+    dispatch({ type: LOGIN_SUCCESS, user, token, server, ability, role, settings });
   } catch (e) {
     // no action required -- this just means we haven't logged in
   }
@@ -35,12 +27,8 @@ export const login = (host, email, password) => async (dispatch, getState, { api
   dispatch({ type: LOGIN_START });
 
   try {
-    const { user, token, localisation, server, ability, role, settings } = await api.login(
-      host,
-      email,
-      password,
-    );
-    dispatch({ type: LOGIN_SUCCESS, user, token, localisation, server, ability, role, settings });
+    const { user, token, server, ability, role, settings } = await api.login(host, email, password);
+    dispatch({ type: LOGIN_SUCCESS, user, token, server, ability, role, settings });
   } catch (error) {
     dispatch({ type: LOGIN_FAILURE, error: error.message });
   }
@@ -106,7 +94,6 @@ const defaultState = {
   ability: null,
   error: null,
   token: null,
-  localisation: null,
   role: null,
   server: null,
   resetPassword: {
@@ -135,7 +122,6 @@ const actionHandlers = {
     ability: action.ability,
     error: defaultState.error,
     token: action.token,
-    localisation: action.localisation,
     server: action.server,
     role: action.role,
     resetPassword: defaultState.resetPassword,

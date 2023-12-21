@@ -76,10 +76,6 @@ describe('User', () => {
           password: rawPassword,
         }),
       );
-      await models.UserLocalisationCache.create({
-        userId: authUser.id,
-        localisation: JSON.stringify(localisation),
-      });
     });
 
     it('should obtain a valid login token', async () => {
@@ -145,24 +141,6 @@ describe('User', () => {
       expect(result).toHaveSucceeded();
       expect(result.body).toHaveProperty('localisation');
       expect(result.body.localisation).toEqual(localisation);
-    });
-
-    it('should pass feature flags through from a central server login request', async () => {
-      centralServer.fetch.mockResolvedValueOnce({
-        user: pick(authUser, ['id', 'role', 'email', 'displayName']),
-        localisation,
-      });
-      const result = await centralServerLogin(ctx, authUser.email, rawPassword);
-      expect(result).toHaveProperty('localisation', localisation);
-      const cache = await models.UserLocalisationCache.findOne({
-        where: {
-          userId: authUser.id,
-        },
-        raw: true,
-      });
-      expect(cache).toMatchObject({
-        localisation: JSON.stringify(localisation),
-      });
     });
 
     it('should include permissions in the data returned by a successful login', async () => {
