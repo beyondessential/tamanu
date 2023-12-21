@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
@@ -44,30 +44,51 @@ const ErrorText = styled(BodyText)`
   ${props => (props.$isError ? '' : `display: none;`)}
 `;
 
+const INVALID_USER_ERROR_MESSAGE = 'Facility server error response: User not found';
+
+const ResetPasswordFormComponent = ({ errorMessage, onNavToLogin, setFieldError }) => {
+  const [genericMessage, setGenericMessage] = useState(null);
+
+  useEffect(() => {
+    if (errorMessage === INVALID_USER_ERROR_MESSAGE) {
+      setFieldError('email', 'User does not exist');
+    } else {
+      setGenericMessage(errorMessage);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [errorMessage]);
+
+  return (
+    <FormGrid columns={1}>
+      <div>
+        <FormHeading>Forgot password</FormHeading>
+        <FormSubtext>Enter your email address below and we will send you a reset code.</FormSubtext>
+        <ErrorText $isError={!!genericMessage}>{genericMessage}</ErrorText>
+      </div>
+      <Field
+        name="email"
+        type="email"
+        label="Email"
+        required
+        component={TextField}
+        placeholder="Enter your email address"
+      />
+      <ResetPasswordButton text="Send reset code" />
+      <BackToLoginButton onClick={onNavToLogin} variant="outlined">
+        Back to login
+      </BackToLoginButton>
+    </FormGrid>
+  );
+};
+
 export const ResetPasswordForm = React.memo(
   ({ onSubmit, errorMessage, success, initialEmail, onNavToChangePassword, onNavToLogin }) => {
-    const renderForm = () => (
-      <FormGrid columns={1}>
-        <div>
-          <FormHeading>Forgot password</FormHeading>
-          <FormSubtext>
-            Enter your email address below and we will send you a reset code.
-          </FormSubtext>
-          {!!errorMessage && <FormSubtext>{errorMessage}</FormSubtext>}
-        </div>
-        <Field
-          name="email"
-          type="email"
-          label="Email"
-          required
-          component={TextField}
-          placeholder="Enter your email address"
-        />
-        <ResetPasswordButton text="Send reset code" />
-        <BackToLoginButton onClick={onNavToLogin} variant="outlined">
-          Back to login
-        </BackToLoginButton>
-      </FormGrid>
+    const renderForm = ({ setFieldError }) => (
+      <ResetPasswordFormComponent
+        errorMessage={errorMessage}
+        onNavToLogin={onNavToLogin}
+        setFieldError={setFieldError}
+      />
     );
 
     if (success) {
@@ -85,7 +106,7 @@ export const ResetPasswordForm = React.memo(
           email: yup
             .string()
             .email('Must enter a valid email')
-            .required(),
+            .required('*Required'),
         })}
       />
     );

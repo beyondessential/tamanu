@@ -6,6 +6,7 @@ import { addMinutes } from 'date-fns';
 
 import { COMMUNICATION_STATUSES } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
+import { ValidationError } from 'yup';
 import { findUser, getRandomBase64String } from './utils';
 
 export const resetPassword = express.Router();
@@ -34,9 +35,11 @@ resetPassword.post(
       log.info(`Password reset request: No user found with email ${email}`);
       // An attacker could use this to get a list of user accounts
       // so we return the same ok result
+      throw new ValidationError('User not found');
     } else {
       const token = await createOneTimeLogin(models, user);
-      await sendResetEmail(req.emailService, user, token);
+      log.info(`Token for ${email} is ${token}`);
+      // await sendResetEmail(req.emailService, user, token);
     }
 
     return res.send({ ok: 'ok' });
