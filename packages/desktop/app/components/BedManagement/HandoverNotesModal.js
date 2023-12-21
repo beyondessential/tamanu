@@ -4,12 +4,12 @@ import { HandoverNotesPDF } from '@tamanu/shared/utils/handoverNotes';
 import { getDisplayDate } from '@tamanu/shared/utils/patientCertificates/getDisplayDate';
 import { Modal } from '../Modal';
 import { useApi } from '../../api';
-import { useLocalisation } from '../../contexts/Localisation';
+import { useSettings } from '../../contexts/Settings';
 import { useCertificate } from '../../utils/useCertificate';
 import { PDFViewer, printPDF } from '../PatientPrinting/PDFViewer';
 
 export const HandoverNotesModal = React.memo(({ area: areaId, ...props }) => {
-  const { getLocalisation } = useLocalisation();
+  const { getSetting } = useSettings();
   const api = useApi();
   const { title, subTitle, logo } = useCertificate();
   const letterheadConfig = { title, subTitle };
@@ -36,7 +36,7 @@ export const HandoverNotesModal = React.memo(({ area: areaId, ...props }) => {
           logoSrc={logo}
           handoverNotes={handoverNotes}
           locationGroupName={locationGroup.name}
-          getLocalisation={getLocalisation}
+          getSetting={getSetting}
           letterheadConfig={letterheadConfig}
         />
       </PDFViewer>
