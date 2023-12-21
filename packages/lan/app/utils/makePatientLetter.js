@@ -6,10 +6,10 @@ import { v4 as uuid } from 'uuid';
 import { tmpdir, PatientLetter } from '@tamanu/shared/utils';
 
 export const makePatientLetter = async (req, { id, facilityId, ...data }) => {
-  const { getLocalisation, models } = req;
-  const localisation = await getLocalisation();
-  const getLocalisationData = key => get(localisation, key);
-  const letterheadConfig = await models.Setting.get('templates.letterhead', facilityId);
+  const { settings, models } = req;
+  const settingsObject = await settings.get();
+  const getSetting = key => get(settingsObject, key);
+  const letterheadConfig = await settings.get('localisation.templates.letterhead');
 
   const logo = await models.Asset.findOne({
     raw: true,
@@ -24,7 +24,7 @@ export const makePatientLetter = async (req, { id, facilityId, ...data }) => {
 
   await ReactPDF.render(
     <PatientLetter
-      getLocalisation={getLocalisationData}
+      getSetting={getSetting}
       data={data}
       logoSrc={logo?.data}
       letterheadConfig={letterheadConfig}
