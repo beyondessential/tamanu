@@ -4,6 +4,12 @@ import { useApi, isErrorUnknownAllow404s } from '../index';
 import { useVitalsSurveyQuery } from './useVitalsSurveyQuery';
 import { getConfigObject } from '../../utils';
 
+function hasHistoricalData(answer) {
+  if (!answer) return false;
+  const { records } = answer;
+  return Object.values(records).some(record => record.body);
+}
+
 export const useVitals = encounterId => {
   const api = useApi();
   const vitalsQuery = useQuery(['encounterVitals', encounterId], () =>
@@ -39,7 +45,7 @@ export const useVitals = encounterId => {
       .filter(
         component =>
           component.visibilityStatus === VISIBILITY_STATUSES.CURRENT ||
-          elementIdToAnswer[component.dataElementId],
+          hasHistoricalData(elementIdToAnswer[component.dataElementId]),
       )
       .map(component => {
         const { id, config, validationCriteria, dataElement } = component;

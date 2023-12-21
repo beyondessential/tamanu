@@ -39,7 +39,22 @@ jobs:
         with:
           node-version: 20.x
           cache: yarn
+      - uses: actions/cache/restore@v3
+        with:
+          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+          path: |
+            node_modules
+            packages/*/node_modules
+            !packages/mobile/node_modules
       - run: yarn
+      - uses: actions/cache/save@v3
+        with:
+          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+          path: |
+            node_modules
+            packages/*/node_modules
+            !packages/mobile/node_modules
+
       - run: yarn build-shared
 
       - name: Install and start postgres if needed
@@ -65,7 +80,22 @@ jobs:
         with:
           node-version: 20.x
           cache: yarn
+      - uses: actions/cache/restore@v3
+        with:
+          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+          path: |
+            node_modules
+            packages/*/node_modules
+            !packages/mobile/node_modules
       - run: yarn
+      - uses: actions/cache/save@v3
+        with:
+          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+          path: |
+            node_modules
+            packages/*/node_modules
+            !packages/mobile/node_modules
+
       - run: yarn build
 
   lint:
@@ -73,12 +103,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Use Node.js
-        uses: actions/setup-node@v3
+      - uses: actions/setup-node@v3
         with:
           node-version: 20.x
           cache: yarn
+      - uses: actions/cache/restore@v3
+        with:
+          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+          path: |
+            node_modules
+            packages/*/node_modules
+            !packages/mobile/node_modules
       - run: yarn
+      - uses: actions/cache/save@v3
+        with:
+          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+          path: |
+            node_modules
+            packages/*/node_modules
+            !packages/mobile/node_modules
+
       - run: yarn lint-all
 
   storybook:
@@ -90,12 +134,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Use Node.js
-        uses: actions/setup-node@v3
+      - uses: actions/setup-node@v3
         with:
           node-version: 20.x
           cache: yarn
+      - uses: actions/cache/restore@v3
+        with:
+          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+          path: |
+            node_modules
+            packages/*/node_modules
+            !packages/mobile/node_modules
       - run: yarn
+      - uses: actions/cache/save@v3
+        with:
+          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+          path: |
+            node_modules
+            packages/*/node_modules
+            !packages/mobile/node_modules
+
       - run: yarn build-shared
       - run: yarn workspace desktop run verify-storybook
 
@@ -120,7 +178,22 @@ jobs:
         with:
           node-version: 20.x
           cache: yarn
+      - uses: actions/cache/restore@v3
+        with:
+          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+          path: |
+            node_modules
+            packages/*/node_modules
+            !packages/mobile/node_modules
       - run: yarn
+      - uses: actions/cache/save@v3
+        with:
+          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+          path: |
+            node_modules
+            packages/*/node_modules
+            !packages/mobile/node_modules
+
       - run: yarn build-shared
 
       - name: Install and start postgres ${{ matrix.postgres }}
@@ -135,14 +208,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Use Node.js
-        uses: actions/setup-node@v3
+      - uses: actions/setup-node@v3
         with:
           node-version: 12.x
           cache: yarn
-
-      - run: yarn install --frozen-lockfile
+      - uses: actions/cache/restore@v3
+        with:
+          key: ${{ runner.os }}-yarnmobile-${{ hashFiles('mobile/yarn.lock') }}
+          path: mobile/node_modules
+      - run: yarn
         working-directory: packages/mobile
+      - uses: actions/cache/save@v3
+        with:
+          key: ${{ runner.os }}-yarnmobile-${{ hashFiles('mobile/yarn.lock') }}
+          path: mobile/node_modules
 
       - run: yarn test
         working-directory: packages/mobile
@@ -156,6 +235,21 @@ jobs:
         with:
           node-version: 20.x
           cache: yarn
+      - uses: actions/cache/restore@v3
+        with:
+          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+          path: |
+            node_modules
+            packages/*/node_modules
+            !packages/mobile/node_modules
+      - run: yarn
+      - uses: actions/cache/save@v3
+        with:
+          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+          path: |
+            node_modules
+            packages/*/node_modules
+            !packages/mobile/node_modules
 
       - name: Install and start postgres
         run: |
@@ -172,6 +266,25 @@ jobs:
       - name: Start a facility server again without a central one
         run: .github/scripts/test-facility-offline.sh facility-start-again
 
+  test-yarn-lock:
+    strategy:
+      fail-fast: false
+      matrix:
+        workdir:
+          - .
+          - packages/mobile
+    name: Check ${{ matrix.workdir }}/yarn.lock is up to date
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.workdir == '.' && '20.x' || '12.x' }}
+          cache: yarn
+      - run: yarn
+        working-directory: ${{ matrix.workdir }}
+      - run: git diff --exit-code
+
   # Dummy job to have a stable name for PR requirements
   tests-pass:
     if: always() # always run even if dependencies fail
@@ -183,6 +296,7 @@ jobs:
       - migrations
       - test-mobile
       - test-facility-offline
+      - test-yarn-lock
     runs-on: ubuntu-latest
     steps:
       - uses: re-actors/alls-green@release/v1
