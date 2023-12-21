@@ -18,6 +18,7 @@ export const HandoverNotesModal = React.memo(({ area: areaId, ...props }) => {
   const {
     data: { data: handoverNotes = [], locationGroup = {} } = {},
     refetch: refetchHandoverNotes,
+    isFetching,
   } = useQuery(
     ['locationGroupHandoverNotes'],
     () => areaId && api.get(`locationGroup/${areaId}/handoverNotes`),
@@ -28,6 +29,8 @@ export const HandoverNotesModal = React.memo(({ area: areaId, ...props }) => {
       refetchHandoverNotes();
     }
   }, [refetchHandoverNotes, areaId]);
+
+  if (isFetching) return null;
 
   return (
     <Modal {...props} title={modalTitle} onPrint={() => printPDF('handover-notes')}>
