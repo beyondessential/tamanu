@@ -3,7 +3,11 @@ import { sign as signCallback, verify as verifyCallback } from 'jsonwebtoken';
 import { randomBytes, randomInt } from 'crypto';
 import { promisify } from 'util';
 
-import { VISIBILITY_STATUSES, USER_DEACTIVATED_ERROR_MESSAGE, SERVER_TYPES } from '@tamanu/constants';
+import {
+  VISIBILITY_STATUSES,
+  USER_DEACTIVATED_ERROR_MESSAGE,
+  SERVER_TYPES,
+} from '@tamanu/constants';
 import { ForbiddenError } from '@tamanu/shared/errors';
 
 const sign = promisify(signCallback);
