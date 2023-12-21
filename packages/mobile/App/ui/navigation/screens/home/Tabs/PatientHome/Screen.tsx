@@ -113,7 +113,7 @@ export const Screen = ({
           <StyledTouchableOpacity
             onPress={markPatientForSync}
             marginLeft={'auto'}
-            marginRight={screenPercentageToDP(4.62, Orientation.Width)}
+            marginRight={screenPercentageToDP(3.65, Orientation.Width)}
           >
             <ColumnView alignItems="center">
               <PatientSyncIcon size={screenPercentageToDP(4.86, Orientation.Height)} fill="white" />
