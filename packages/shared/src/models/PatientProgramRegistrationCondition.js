@@ -29,9 +29,8 @@ export class PatientProgramRegistrationCondition extends Model {
   }
 
   static initRelations(models) {
-
     // Note that we use a kind of composite foreign key here (patientId + programRegistryId)
-    // rather than just a single patientProgramRegistrationId. This is because 
+    // rather than just a single patientProgramRegistrationId. This is because
     // PatientProgramRegistrion is an append-only array rather than a single record,
     // so the relevant id changes every time a change is made to the relevant registration.
     this.belongsTo(models.Patient, {
@@ -43,7 +42,6 @@ export class PatientProgramRegistrationCondition extends Model {
       as: 'programRegistry',
     });
 
-    
     this.belongsTo(models.ProgramRegistryCondition, {
       foreignKey: 'programRegistryConditionId',
       as: 'programRegistryCondition',
