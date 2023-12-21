@@ -74,6 +74,7 @@ export const Screen = ({
             <StyledText
               color={theme.colors.WHITE}
               fontSize={screenPercentageToDP(1.76, Orientation.Height)}
+              fontWeight="bold"
             >
               {getGender(selectedPatient.sex)}, {getAgeFromDate(selectedPatient.dateOfBirth)} years
               old{' '}
@@ -100,9 +101,10 @@ export const Screen = ({
                 color={theme.colors.WHITE}
                 textAlign="center"
                 fontSize={screenPercentageToDP(1.76, Orientation.Height)}
-                fontWeight={'bold'}
+                fontWeight="bold"
               >
-                {' '}{selectedPatient.displayId}
+                {' '}
+                {selectedPatient.displayId}
               </StyledText>
             </RowView>
           </StyledView>
