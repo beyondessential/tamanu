@@ -113,7 +113,7 @@ as updating changelog and info about the pr template and also the auto deploy te
 ## Note on Forking
 
 While Tamanu is open-source, there is always the possibility for forking the repository, which 
-we strongly recommend against it. We will not provide any support for forked versions of Tamanu. 
+we strongly recommend against. We will not provide any support for forked versions of Tamanu. 
 We have seen projects struggle and even fail because of this type of splintering. Instead, we 
 encourage you to collaborate with us on the mainline product roadmap.
 
