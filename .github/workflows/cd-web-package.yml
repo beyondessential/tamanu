@@ -32,17 +32,7 @@ jobs:
       - run: yarn
       - run: yarn build-shared
       - run: yarn workspace desktop build
-
-      - name: Pre-compress assets
-        working-directory: packages/desktop/dist/assets
-        shell: bash
-        run: |
-          set -exu
-          for file in *.{css,js,svg}; do
-            zstd -f -T0 -19 -o $file.zst $file
-            gzip -f -9 -k $file
-            brotli -f -Z -k $file
-          done
+      - run: scripts/precompress-assets.sh packages/desktop/dist
 
       - name: Pack web package
         working-directory: packages/desktop
