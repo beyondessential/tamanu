@@ -46,15 +46,7 @@ const DeleteContainer = styled.div`
 `;
 
 export const ParameterItem = props => {
-  const {
-    id,
-    parameterIndex,
-    parameterField,
-    setFieldValue,
-    onDelete,
-    onChange,
-    options = [],
-  } = props;
+  const { id, parameterIndex, parameterField, setFieldValue, onDelete, options = [] } = props;
   const baseName = `parameters.${parameterIndex}`;
 
   const onOptionDelete = index => {
@@ -81,10 +73,10 @@ export const ParameterItem = props => {
           component={SelectField}
           onChange={value => {
             if (!FIELD_TYPES_WITH_SUGGESTERS.includes(value)) {
-              onChange(id, 'suggesterEndpoint', '');
+              setFieldValue(`${baseName}.suggesterEndpoint}`);
             }
             if (!FIELD_TYPES_WITH_PREDEFINED_OPTIONS.includes(value)) {
-              onChange(id, 'options', []);
+              setFieldValue(`${baseName}.options`, []);
             }
           }}
           placeholder="Text"
@@ -157,7 +149,6 @@ ParameterItem.propTypes = {
   id: PropTypes.string.isRequired,
   parameterField: PropTypes.string,
   onDelete: PropTypes.func.isRequired,
-  onChange: PropTypes.func.isRequired,
 };
 
 ParameterItem.defaultProps = {
