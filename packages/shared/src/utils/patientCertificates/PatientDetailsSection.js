@@ -1,6 +1,6 @@
 import React from 'react';
 import { Col, LightDivider, Row } from './Layout';
-import { H1, H3, P } from './Typography';
+import { H3, P } from './Typography';
 import { getDOB, getSex } from '../patientAccessors';
 
 const PATIENT_FIELDS = [
