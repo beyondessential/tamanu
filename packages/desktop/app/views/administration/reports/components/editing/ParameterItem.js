@@ -155,13 +155,11 @@ export const ParameterItem = props => {
 
 ParameterItem.propTypes = {
   id: PropTypes.string.isRequired,
-  name: PropTypes.string,
   parameterField: PropTypes.string,
   onDelete: PropTypes.func.isRequired,
   onChange: PropTypes.func.isRequired,
 };
 
 ParameterItem.defaultProps = {
-  name: '',
   parameterField: '',
 };
