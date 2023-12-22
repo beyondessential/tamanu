@@ -27,7 +27,7 @@
     "start-dev": "concurrently npm:build-watch npm:start-watch"
   },
   "devDependencies": {
-    "@swc/jest": "0.2.26",
+    "@swc/jest": "^0.2.26",
     "@tamanu/build-tooling": "*",
     "ajv": "^8.6.3",
     "chai": "^4.1.2",
