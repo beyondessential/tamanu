@@ -28,6 +28,15 @@ export const FieldTypes = {
   PATIENT_ISSUE_GENERATOR: 'PatientIssueGenerator',
 };
 
+export const PatientFieldDefinitionTypes = {
+  STRING: 'string',
+  NUMBER: 'number',
+  SELECT: 'select',
+};
+export const PatientFieldDefinitionTypeValues = Object.values(
+  PatientFieldDefinitionTypes,
+);
+
 export const getStringValue = (type: string, value: any): string => {
   switch (type) {
     case FieldTypes.TEXT:

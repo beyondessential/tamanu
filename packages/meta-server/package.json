@@ -1,15 +1,12 @@
 {
   "name": "meta-server",
-  "version": "1.37.0",
+  "version": "1.39.0",
   "private": true,
   "description": "Meta server for Tamanu",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
   "repository": "git@github.com:beyondessential/tamanu.git",
   "author": "Beyond Essential Systems Pty. Ltd.",
   "license": "SEE LICENSE IN license",
-  "engines": {
-    "node": "^16.16.0"
-  },
   "scripts": {
     "start": "node ./dist/app.bundle.js",
     "start-dev": "rm -rf ./dist/ && webpack --config webpack.config.dev.mjs",

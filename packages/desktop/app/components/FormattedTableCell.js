@@ -124,7 +124,7 @@ export const LimitedLinesCell = ({ value, maxWidth, maxLines = 2 }) => {
     handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  });
 
   return (
     <TableTooltip
@@ -144,7 +144,7 @@ export const RangeTooltipCell = React.memo(({ value, config, validationCriteria 
   const { unit = '' } = config || {};
   const { normalRange } = validationCriteria || {};
   const tooltip =
-    normalRange && `Normal range ${normalRange.min}${unit} - ${normalRange.max}${unit}`;
+    normalRange && `Normal range ${normalRange.min}${unit} – ${normalRange.max}${unit}`;
   return tooltip ? (
     <TableTooltip title={tooltip}>
       <CellWrapper>{value}</CellWrapper>

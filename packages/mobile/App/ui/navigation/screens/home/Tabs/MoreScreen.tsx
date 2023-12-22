@@ -1,20 +1,34 @@
 import React, { ReactElement, useMemo, useCallback } from 'react';
 import { useSelector } from 'react-redux';
+import { getUniqueId } from 'react-native-device-info';
+import styled from 'styled-components';
+
 import { RowView, StyledView, StyledText, FullView, CenterView } from '/styled/common';
 import { screenPercentageToDP, Orientation, setStatusBar } from '/helpers/screen';
 import { theme } from '/styled/theme';
 import { UserAvatar } from '/components/UserAvatar';
 import { Button } from '/components/Button';
-import { MenuOptionButton } from '/components/MenuOptionButton';
 import { Separator } from '/components/Separator';
 import { FlatList } from 'react-native-gesture-handler';
-import { CameraOutlineIcon, FeedbackIcon, QuestionIcon, RingIcon } from '/components/Icons';
+import { CameraOutlineIcon, LaunchIcon } from '/components/Icons';
 import { version as AppVersion } from '/root/package.json';
 import { Linking } from 'react-native';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { useFacility } from '~/ui/contexts/FacilityContext';
 import { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
 import { authUserSelector } from '/helpers/selectors';
+import { useLocalisation } from '~/ui/contexts/LocalisationContext';
+import { TouchableHighlight } from 'react-native';
+
+const StyledSeparator = styled(Separator)`
+  padding-left: ${screenPercentageToDP(4.86, Orientation.Width)}px;
+  padding-right: ${screenPercentageToDP(4.86, Orientation.Width)}px;
+`;
+
+const StyledFlatList = styled(FlatList)`
+  padding-left: ${screenPercentageToDP(4.86, Orientation.Width)}px;
+  padding-right: ${screenPercentageToDP(4.86, Orientation.Width)}px;
+`;
 
 const CameraInCircle = (
   <StyledView position="absolute" right="-20%" bottom={0} zIndex={2}>
@@ -35,11 +49,38 @@ const CameraInCircle = (
   </StyledView>
 );
 
-type TamanuAppVersionProps = {
+const MoreMenuButton = ({ Icon, title, onPress, textProps }): React.ReactElement => (
+  <TouchableHighlight underlayColor={theme.colors.DEFAULT_OFF} onPress={onPress}>
+    <RowView
+      width="100%"
+      height={screenPercentageToDP('9', Orientation.Height)}
+      paddingLeft={screenPercentageToDP('4.86', Orientation.Width)}
+      alignItems="center"
+    >
+      <StyledText
+        fontWeight={500}
+        color={theme.colors.TEXT_SUPER_DARK}
+        fontSize={screenPercentageToDP('2', Orientation.Height)}
+        {...textProps}
+      >
+        {title}
+        {Icon && ' '}
+      </StyledText>
+      {Icon && (
+        <StyledView>
+          <Icon size={screenPercentageToDP(2, Orientation.Height)} fill={theme.colors.TEXT_SOFT} />
+        </StyledView>
+      )}
+    </RowView>
+  </TouchableHighlight>
+);
+
+type FooterProps = {
   version: string;
+  deviceId: string;
 };
 
-const TamanuAppVersion = ({ version }: TamanuAppVersionProps): ReactElement => (
+const Footer = ({ version, deviceId }: FooterProps): ReactElement => (
   <StyledText
     marginTop={screenPercentageToDP(2.43, Orientation.Height)}
     marginLeft={screenPercentageToDP(4.86, Orientation.Width)}
@@ -47,29 +88,22 @@ const TamanuAppVersion = ({ version }: TamanuAppVersionProps): ReactElement => (
     fontSize={screenPercentageToDP(1.45, Orientation.Height)}
   >
     Tamanu Version {version}
+    {'\n'}Device ID mobile-{deviceId}
   </StyledText>
 );
 
 export const MoreScreen = ({ navigation }: BaseAppProps): ReactElement => {
+  const { getLocalisation } = useLocalisation();
+  const supportDeskUrl = getLocalisation('supportDeskUrl');
   const authCtx = useAuth();
   const user = useSelector(authUserSelector);
   const { facilityName } = useFacility();
   const settings = useMemo(
     () => [
       {
-        title: 'Feedback',
-        Icon: FeedbackIcon,
-        onPress: (): Promise<void> => Linking.openURL('mailto: support@tamanu.io'),
-      },
-      {
-        title: 'FAQs',
-        Icon: QuestionIcon,
-        onPress: (): Promise<void> => Linking.openURL('https://www.tamanu.io'),
-      },
-      {
-        title: 'Notifications',
-        Icon: RingIcon,
-        onPress: (): void => console.log('Notification'),
+        title: 'Support centre',
+        Icon: LaunchIcon,
+        onPress: (): Promise<void> => Linking.openURL(supportDeskUrl),
       },
     ],
     [],
@@ -105,21 +139,7 @@ export const MoreScreen = ({ navigation }: BaseAppProps): ReactElement => {
             fontSize={screenPercentageToDP(1.7, Orientation.Height)}
             color={theme.colors.TEXT_SUPER_DARK}
           >
-            {user.role}
-          </StyledText>
-          <StyledView
-            height={screenPercentageToDP(0.486, Orientation.Height)}
-            width={screenPercentageToDP(0.486, Orientation.Height)}
-            borderRadius={50}
-            background={theme.colors.TEXT_SUPER_DARK}
-            marginLeft={screenPercentageToDP(0.72, Orientation.Width)}
-            marginRight={screenPercentageToDP(0.72, Orientation.Width)}
-          />
-          <StyledText
-            fontSize={screenPercentageToDP(1.7, Orientation.Height)}
-            color={theme.colors.TEXT_SUPER_DARK}
-          >
-            {facilityName}
+            {user.role} | {facilityName}
           </StyledText>
         </RowView>
         <Button
@@ -134,16 +154,16 @@ export const MoreScreen = ({ navigation }: BaseAppProps): ReactElement => {
       </CenterView>
       <StyledView background={theme.colors.WHITE} flex={1}>
         <StyledView>
-          <FlatList
+          <StyledFlatList
             showsVerticalScrollIndicator={false}
             data={settings}
             keyExtractor={(item): string => item.title}
-            renderItem={({ item }): ReactElement => <MenuOptionButton {...item} />}
-            ItemSeparatorComponent={Separator}
-            ListFooterComponent={Separator}
+            renderItem={({ item }): ReactElement => <MoreMenuButton {...item} />}
+            ItemSeparatorComponent={StyledSeparator}
+            ListFooterComponent={StyledSeparator}
           />
         </StyledView>
-        <TamanuAppVersion version={AppVersion} />
+        <Footer version={AppVersion} deviceId={getUniqueId()} />
       </StyledView>
     </FullView>
   );

@@ -1,6 +1,6 @@
 {
   "name": "lan",
-  "version": "1.37.0",
+  "version": "1.39.0",
   "private": true,
   "description": "Facility server for Tamanu desktop app",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
@@ -9,9 +9,6 @@
   "license": "SEE LICENSE IN ../../license",
   "main": "NODE_ENV='development' index.js",
   "bin": "dist/app.bundle.js",
-  "engines": {
-    "node": "^16.16.0"
-  },
   "scripts": {
     "build": "swc --delete-dir-on-start --out-dir dist --copy-files --source-maps true app",
     "start": "node dist",
@@ -19,7 +16,7 @@
     "lint": "eslint app",
     "setup-dev": "node dist setup",
     "shell": "yarn build && node dist shell",
-    "start-watch": "chokidar --initial \"dist/**/*.js\" -c \"yarn run start\"",
+    "start-watch": "chokidar --initial \"dist/**/*.js\" \"config/**/*\" -c \"yarn run start\"",
     "test-watch": "yarn test --watch",
     "build-watch": "yarn run build --watch",
     "start-dev": "concurrently npm:build-watch npm:start-watch"
@@ -44,14 +41,14 @@
     "@tamanu/shared": "*",
     "abort-controller": "^3.0.0",
     "basic-auth": "^2.0.1",
-    "bcrypt": "^5.0.1",
+    "bcrypt": "^5.1.1",
     "body-parser": "^1.18.3",
     "case": "^1.6.3",
     "chalk": "^5.0.1",
     "chance": "^1.1.8",
     "commander": "^9.0.0",
     "compression": "^1.7.2",
-    "config": "^3.0.1",
+    "config": "^3.3.9",
     "connect-flash": "^0.1.1",
     "core-js": "^3.23.1",
     "date-fns": "^2.19.0",

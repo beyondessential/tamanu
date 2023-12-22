@@ -16,6 +16,7 @@ const snapshotChangesForModel = async (model, since, transaction) => {
   const recordsChanged = await model.findAll({
     where: { updatedAtSyncTick: { [Op.gt]: since } },
     raw: true,
+    paranoid: false,
     transaction,
   });
 

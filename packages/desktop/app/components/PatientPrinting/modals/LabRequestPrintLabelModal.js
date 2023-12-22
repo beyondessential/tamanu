@@ -45,6 +45,7 @@ export const LabRequestPrintLabelModal = ({ open, onClose, labRequests }) => {
                 patientDateOfBirth: patient.dateOfBirth,
                 date: lab.sampleTime,
                 labCategory: lab.category?.name,
+                specimenType: lab.specimenType?.name,
               }}
             />
           </Box>

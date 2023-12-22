@@ -21,13 +21,15 @@ import {
   Form,
   RadioField,
   DateDisplay,
+  TextButton,
 } from '../../components';
-import { DropdownButton } from '../../components/DropdownButton';
+import { FormSubmitDropdownButton } from '../../components/DropdownButton';
 import { Colors } from '../../constants';
 import { saveExcelFile } from '../../utils/saveExcelFile';
 import { EmailField, parseEmails } from './EmailField';
 import { ParameterField } from './ParameterField';
 import { useLocalisation } from '../../contexts/Localisation';
+import { ReportAboutModal } from './ReportAboutModal';
 
 const Spacer = styled.div`
   padding-top: 30px;
@@ -43,6 +45,22 @@ const DateRangeLabel = styled(Typography)`
 const EmailInputContainer = styled.div`
   margin-bottom: 30px;
   width: 60%;
+`;
+
+const AboutReportButton = styled(TextButton)`
+  text-decoration: underline;
+  font-size: 15px;
+  justify-content: start;
+  font-weight: normal;
+  color: ${Colors.darkText};
+  width: fit-content;
+  text-transform: none;
+  :hover {
+    font-weight: 500;
+    color: ${Colors.primary};
+    cursor: pointer;
+    text-decoration: underline;
+  }
 `;
 
 // adding an onValueChange hook to the report id field
@@ -80,6 +98,17 @@ const useFileName = () => {
   };
 };
 
+const getAboutReportString = reportName => `About ${reportName}`;
+
+const isJsonString = str => {
+  try {
+    JSON.parse(str);
+  } catch (e) {
+    return false;
+  }
+  return true;
+};
+
 export const ReportGeneratorForm = () => {
   const api = useApi();
   const getFileName = useFileName();
@@ -90,6 +119,7 @@ export const ReportGeneratorForm = () => {
   const [availableReports, setAvailableReports] = useState([]);
   const [dataSource, setDataSource] = useState(REPORT_DATA_SOURCES.THIS_FACILITY);
   const [selectedReportId, setSelectedReportId] = useState(null);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
 
   const reportsById = useMemo(() => keyBy(availableReports, 'id'), [availableReports]);
   const reportOptions = useMemo(
@@ -130,10 +160,19 @@ export const ReportGeneratorForm = () => {
   const submitRequestReport = async formValues => {
     const { reportId, emails, ...filterValues } = formValues;
 
+    const updatedFilters = Object.fromEntries(
+      Object.entries(filterValues).map(([key, value]) => {
+        if (isJsonString(value)) {
+          return [key, JSON.parse(value)];
+        }
+        return [key, value];
+      }),
+    );
+
     try {
       if (dataSource === REPORT_DATA_SOURCES.THIS_FACILITY) {
         const excelData = await api.post(`reports/${reportId}`, {
-          parameters: filterValues,
+          parameters: updatedFilters,
         });
 
         const filterString = Object.entries(filterValues)
@@ -165,7 +204,7 @@ export const ReportGeneratorForm = () => {
       } else {
         await api.post(`reportRequest`, {
           reportId,
-          parameters: filterValues,
+          parameters: updatedFilters,
           emailList: parseEmails(formValues.emails),
           bookType,
         });
@@ -224,13 +263,28 @@ export const ReportGeneratorForm = () => {
                 setDataSource(e.target.value);
               }}
               options={[
-                { label: 'This facility', value: REPORT_DATA_SOURCES.THIS_FACILITY },
-                { label: 'All facilities', value: REPORT_DATA_SOURCES.ALL_FACILITIES },
+                { label: 'This server', value: REPORT_DATA_SOURCES.THIS_FACILITY },
+                { label: 'Central server', value: REPORT_DATA_SOURCES.ALL_FACILITIES },
               ]}
               component={RadioField}
               disabled={isDataSourceFieldDisabled}
             />
           </FormGrid>
+          {reportsById[selectedReportId]?.notes && (
+            <>
+              <FormGrid columns={1}>
+                <AboutReportButton onClick={() => setIsReportModalOpen(true)}>
+                  {getAboutReportString(reportsById[selectedReportId].name)}
+                </AboutReportButton>
+              </FormGrid>
+              <ReportAboutModal
+                title={getAboutReportString(reportsById[selectedReportId].name)}
+                open={isReportModalOpen}
+                onClose={() => setIsReportModalOpen(false)}
+                content={reportsById[selectedReportId].notes}
+              />
+            </>
+          )}
           {parameters.length > 0 ? (
             <>
               <Spacer />
@@ -295,7 +349,7 @@ export const ReportGeneratorForm = () => {
             </Alert>
           )}
           <Box display="flex" justifyContent="flex-end">
-            <DropdownButton
+            <FormSubmitDropdownButton
               size="large"
               actions={[
                 {

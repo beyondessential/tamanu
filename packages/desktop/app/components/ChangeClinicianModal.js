@@ -6,7 +6,7 @@ import { useEncounter } from '../contexts/Encounter';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
 
 import { ChangeClinicianForm } from '../forms/ChangeClinicianForm';
-import { Modal } from './Modal';
+import { FormModal } from './FormModal';
 import { useLocalisedText } from './LocalisedText';
 
 export const ChangeClinicianModal = React.memo(({ open, onClose }) => {
@@ -23,13 +23,13 @@ export const ChangeClinicianModal = React.memo(({ open, onClose }) => {
   );
 
   return (
-    <Modal title={`Change ${clinicianText.toLowerCase()}`} open={open} onClose={onClose}>
+    <FormModal title={`Change ${clinicianText.toLowerCase()}`} open={open} onClose={onClose}>
       <ChangeClinicianForm
         clinicianSuggester={clinicianSuggester}
         onSubmit={onSubmit}
         onCancel={onClose}
       />
-    </Modal>
+    </FormModal>
   );
 });
 

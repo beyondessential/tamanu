@@ -108,8 +108,8 @@ export class CentralServerConnection {
       }
   }
 
-  async get(path: string, query: Record<string, string | number | boolean>) {
-    return this.fetch(path, query, { method: 'GET' });
+  async get(path: string, query: Record<string, string | number | boolean>, options?: FetchOptions) {
+    return this.fetch(path, query, { ...options, method: 'GET' });
   }
 
   async post(path: string, query: Record<string, string | number>, body, options?: FetchOptions) {
@@ -141,9 +141,21 @@ export class CentralServerConnection {
     throw new Error(`Did not get a truthy response after ${maxAttempts} attempts for ${endpoint}`);
   }
 
-  async startSyncSession() {
+  async startSyncSession({ urgent, lastSyncedTick }) {
     const facilityId = await readConfig('facilityId', '');
-    const { sessionId } = await this.post('sync', {}, { facilityId });
+
+    // start a sync session (or refresh our position in the queue)
+    const { sessionId, status } = await this.post('sync', {}, { 
+      urgent,
+      lastSyncedTick,
+      facilityId,
+      deviceId: this.deviceId,
+    });
+
+    if (!sessionId) {
+      // we're waiting in a queue
+      return { status };
+    }
 
     // then, poll the sync/:sessionId/ready endpoint until we get a valid response
     // this is because POST /sync (especially the tickTockGlobalClock action) might get blocked
@@ -189,7 +201,11 @@ export class CentralServerConnection {
     if (fromId) {
       query.fromId = fromId;
     }
-    return this.get(`sync/${sessionId}/pull`, query);
+    return this.get(`sync/${sessionId}/pull`, query, {
+      // allow 5 minutes for the sync pull as it can take a while
+      // (the full 5 minutes would be pretty unusual! but just to be safe)
+      timeout: 5 * 60 * 1000, 
+    });
   }
 
   async push(sessionId: string, changes): Promise<void> {
