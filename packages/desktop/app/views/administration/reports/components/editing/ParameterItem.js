@@ -49,8 +49,6 @@ export const ParameterItem = props => {
   const {
     id,
     parameterIndex,
-    name,
-    label,
     parameterField,
     setFieldValue,
     onDelete,
@@ -67,22 +65,10 @@ export const ParameterItem = props => {
   return (
     <Grid container spacing={2} key={id}>
       <Grid item xs={6}>
-        <Field
-          name={`${baseName}.name`}
-          component={TextField}
-          placeholder="Text"
-          label="Name"
-          value={name}
-        />
+        <Field name={`${baseName}.name`} component={TextField} placeholder="Text" label="Name" />
       </Grid>
       <Grid item xs={5}>
-        <Field
-          name={`${baseName}.label`}
-          component={TextField}
-          placeholder="Text"
-          label="Label"
-          value={label}
-        />
+        <Field name={`${baseName}.label`} component={TextField} placeholder="Text" label="Label" />
       </Grid>
       <Grid item xs={1}>
         <IconButton variant="text" onClick={() => onDelete(id)}>
@@ -141,7 +127,6 @@ export const ParameterItem = props => {
                     name={`${baseName}.options.${index}.label`}
                     label="Label"
                     component={TextField}
-                    value={options[index]?.label}
                   />
                 </Grid>
                 <Grid item xs={5}>
@@ -149,7 +134,6 @@ export const ParameterItem = props => {
                     name={`${baseName}.options.${index}.value`}
                     label="Value"
                     component={TextField}
-                    value={options[index]?.value}
                   />
                 </Grid>
                 <Grid item xs={1}>
