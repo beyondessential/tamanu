@@ -52,6 +52,7 @@ export const ParameterItem = props => {
     name,
     label,
     parameterField,
+    setFieldValue,
     onDelete,
     onChange,
     options = [],
@@ -60,7 +61,7 @@ export const ParameterItem = props => {
 
   const onOptionDelete = index => {
     const optionsWithRemovedKey = options.filter((_, i) => i !== index);
-    onChange(id, 'options', [...optionsWithRemovedKey]);
+    setFieldValue(`${baseName}.options`, optionsWithRemovedKey);
   };
 
   return (

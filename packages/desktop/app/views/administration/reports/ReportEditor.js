@@ -105,28 +105,14 @@ const schema = yup.object().shape({
     .required('Status is a required field'),
 });
 
-const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) => {
+const ReportEditorForm = ({ isSubmitting, values, setValues, setFieldValue, dirty, isEdit }) => {
   const { ability } = useAuth();
   const api = useApi();
   const setQuery = query => setValues({ ...values, query });
   const params = values.parameters || [];
   const setParams = newParams => setValues({ ...values, parameters: newParams });
   const onParamsAdd = () => setParams([...params, generateDefaultParameter()]);
-  const onParamsChange = (paramId, field, newValue) => {
-    const paramIndex = params.findIndex(p => p.id === paramId);
-    const newParams = [...params];
-    newParams[paramIndex] = { ...newParams[paramIndex], [field]: newValue };
-    // When changing the field type, remove options and suggester endpoint if they are not valid for the new field type.
-    if (field === 'parameterField') {
-      if (!FIELD_TYPES_WITH_PREDEFINED_OPTIONS.includes(newValue)) {
-        delete newParams[paramIndex].options;
-      }
-      if (!FIELD_TYPES_WITH_SUGGESTERS.includes(newValue)) {
-        delete newParams[paramIndex].suggesterEndpoint;
-      }
-    }
-    setParams(newParams);
-  };
+
   const onParamsDelete = paramId => setParams(params.filter(p => p.id !== paramId));
 
   const canWriteRawReportUser = Boolean(ability?.can('write', 'ReportDbSchema'));
@@ -215,7 +201,7 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
                       id={id}
                       parameterIndex={parameterIndex}
                       onDelete={onParamsDelete}
-                      onChange={onParamsChange}
+                      setFieldValue={setFieldValue}
                       {...rest}
                     />
                   );
