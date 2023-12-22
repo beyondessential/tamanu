@@ -8,10 +8,10 @@ export default {
     storyStoreV7: false,
   },
   addons: [
-		{
-	   	name: '@storybook/addon-essentials',
-		  options: { docs: false }, // no mdx
-		},
+    {
+      name: '@storybook/addon-essentials',
+      options: { docs: false }, // no mdx
+    },
     '@storybook/addon-links',
-	],
+  ],
 };
