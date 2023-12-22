@@ -52,11 +52,12 @@ export const ParameterItem = props => {
     name,
     label,
     parameterField,
-    suggesterEndpoint,
     onDelete,
     onChange,
     options = [],
   } = props;
+  const baseName = `parameters.${parameterIndex}`;
+
   const onOptionDelete = index => {
     const optionsWithRemovedKey = options.filter((_, i) => i !== index);
     onChange(id, 'options', [...optionsWithRemovedKey]);
@@ -65,29 +66,21 @@ export const ParameterItem = props => {
   return (
     <Grid container spacing={2} key={id}>
       <Grid item xs={6}>
-        <TextField
-          field={{
-            name: 'name',
-            value: name,
-            onChange: event => {
-              onChange(id, 'name', event.target.value);
-            },
-          }}
+        <Field
+          name={`${baseName}.name`}
+          component={TextField}
           placeholder="Text"
           label="Name"
+          value={name}
         />
       </Grid>
       <Grid item xs={5}>
-        <TextField
-          field={{
-            name: 'label',
-            value: label,
-            onChange: event => {
-              onChange(id, 'label', event.target.value);
-            },
-          }}
+        <Field
+          name={`${baseName}.label`}
+          component={TextField}
           placeholder="Text"
           label="Label"
+          value={label}
         />
       </Grid>
       <Grid item xs={1}>
@@ -96,13 +89,16 @@ export const ParameterItem = props => {
         </IconButton>
       </Grid>
       <Grid item xs={11}>
-        <SelectField
-          field={{
-            name: 'parameterField',
-            value: parameterField,
-            onChange: event => {
-              onChange(id, 'parameterField', event.target.value);
-            },
+        <Field
+          name={`${baseName}.parameterField`}
+          component={SelectField}
+          onChange={value => {
+            if (!FIELD_TYPES_WITH_SUGGESTERS.includes(value)) {
+              onChange(id, 'suggesterEndpoint', '');
+            }
+            if (!FIELD_TYPES_WITH_PREDEFINED_OPTIONS.includes(value)) {
+              onChange(id, 'options', []);
+            }
           }}
           placeholder="Text"
           label="Field type"
@@ -114,14 +110,9 @@ export const ParameterItem = props => {
       </Grid>
       {FIELD_TYPES_WITH_SUGGESTERS.includes(parameterField) && (
         <Grid item xs={11}>
-          <SelectField
-            field={{
-              name: 'suggesterEndpoint',
-              value: suggesterEndpoint,
-              onChange: event => {
-                onChange(id, 'suggesterEndpoint', event.target.value);
-              },
-            }}
+          <Field
+            name={`${baseName}.suggesterEndpoint`}
+            component={SelectField}
             placeholder="Text"
             label="Suggester endpoint"
             options={FIELD_TYPES_TO_SUGGESTER_OPTIONS[parameterField]
@@ -139,14 +130,14 @@ export const ParameterItem = props => {
             <OuterLabelFieldWrapper label="Options" />
           </Grid>
           <Field
-            name="options"
+            name={`${baseName}.options`}
             component={ArrayField}
             initialFieldNumber={options.length}
             renderField={(index, DeleteButton) => (
               <>
                 <Grid item xs={6}>
                   <Field
-                    name={`parameters.${parameterIndex}.options.${index}.label`}
+                    name={`${baseName}.options.${index}.label`}
                     label="Label"
                     component={TextField}
                     value={options[index]?.label}
@@ -154,7 +145,7 @@ export const ParameterItem = props => {
                 </Grid>
                 <Grid item xs={5}>
                   <Field
-                    name={`parameters.${parameterIndex}.options.${index}.value`}
+                    name={`${baseName}.options.${index}.value`}
                     label="Value"
                     component={TextField}
                     value={options[index]?.value}
@@ -181,7 +172,6 @@ ParameterItem.propTypes = {
   id: PropTypes.string.isRequired,
   name: PropTypes.string,
   parameterField: PropTypes.string,
-  suggesterEndpoint: PropTypes.string,
   onDelete: PropTypes.func.isRequired,
   onChange: PropTypes.func.isRequired,
 };
@@ -189,5 +179,4 @@ ParameterItem.propTypes = {
 ParameterItem.defaultProps = {
   name: '',
   parameterField: '',
-  suggesterEndpoint: '',
 };
