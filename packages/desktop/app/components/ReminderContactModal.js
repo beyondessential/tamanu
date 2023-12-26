@@ -7,7 +7,7 @@ import { Button } from './Button';
 import { DataFetchingTable } from './Table';
 import { BaseModal } from './BaseModal';
 import { ModalCancelRow } from './ModalActionRow';
-import { Box } from '@material-ui/core';
+import { Colors } from '../constants';
 
 const StyledText = styled.p`
   margin-bottom: 33px;
@@ -18,8 +18,37 @@ const StyledText = styled.p`
 `;
 
 const StyledButton = styled(Button)`
-  padding: 11px 10px !important;
-  margin-bottom: 27px;
+  padding: 11px 15px !important;
+  /* height: 33px; */
+
+  svg {
+    margin-right: 5px !important;
+  }
+`;
+
+const ContactInformationContainer = styled(DataFetchingTable)`
+  margin-bottom: 28px;
+  border-radius: 5px;
+  border: 1px solid ${Colors.outline};
+  background: ${Colors.white};
+
+  table {
+    padding-left: 21px;
+    padding-right: 25px;
+  }
+
+  table thead th {
+    background-color: ${Colors.white} !important;
+    border-bottom: 1px solid ${Colors.outline};
+    padding: 13px 0 12px 2px;
+    padding-left: 2px !important;
+  }
+
+  table thead th tr {
+    font-size: 14px;
+    font-style: normal;
+    line-height: 18px;
+  }
 `;
 
 const columns = [
@@ -56,19 +85,17 @@ export const ContactDetails = ({ name }) => {
       <StyledText>
         The below contact list is registered to receive reminders for <span>{name}</span>.
       </StyledText>
-      <Box marginBottom="28px">
-        <DataFetchingTable
-          columns={columns}
-          noDataMessage="No contacts registered for this patient."
-          // endpoint={`patient/19324abf-b485-4184-8537-0a7fe4be1d0b/encounters`}
-          disablePagination
-          // onRowClick={row => onItemClick(row.id)}
-          // initialSort={{ orderBy: 'startDate', order: 'desc' }}
-          // refreshCount={refreshCount}
-          allowExport={false}
-          onDataFetched={onDataFetched}
-        />
-      </Box>
+      <ContactInformationContainer
+        columns={columns}
+        noDataMessage="No contacts registered for this patient."
+        // endpoint={`patient/19324abf-b485-4184-8537-0a7fe4be1d0b/encounters`}
+        disablePagination
+        // onRowClick={row => onItemClick(row.id)}
+        // initialSort={{ orderBy: 'startDate', order: 'desc' }}
+        // refreshCount={refreshCount}
+        allowExport={false}
+        onDataFetched={onDataFetched}
+      />
     </>
   );
 };
@@ -90,7 +117,7 @@ export const ReminderContactModal = ({ openReminderModal, handleClose, patient =
         // onClick={onClickModal}
       >
         <AddIcon />
-        Add Contacts
+        Add contact
       </StyledButton>
       <ModalCancelRow confirmText="Close" confirmColor="primary" onConfirm={handleClose} />
     </BaseModal>

@@ -102,7 +102,7 @@ export const PrimaryDetailsGroup = ({ values = {}, patientRegistryType }) => {
             onClick={handleOpenRemindersModal}
           >
             <NotificationsNoneIcon />
-            Reminder Contacts
+            Reminder contacts
           </StyledButton>
         )}
       </StyledHeading>
