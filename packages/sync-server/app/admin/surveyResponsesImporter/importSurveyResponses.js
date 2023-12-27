@@ -1,11 +1,7 @@
 import { utils } from 'xlsx';
 import { getJsDateFromExcel } from 'excel-date-to-js';
 
-import {
-  PROGRAM_DATA_ELEMENT_TYPES,
-  NON_ANSWERABLE_DATA_ELEMENT_TYPES,
-  ACTION_DATA_ELEMENT_TYPES,
-} from '@tamanu/constants';
+import { PROGRAM_DATA_ELEMENT_TYPES, NON_ANSWERABLE_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 
 import { checkJSONCriteria } from '@tamanu/shared/utils/criteria';
 import { checkVisibilityCriteria } from '@tamanu/shared/utils/fields';
@@ -58,6 +54,77 @@ const getModelFromConfigType = config => {
   return config?.source;
 };
 
+const getAnswerValue = async ({
+  answerText,
+  facilityId,
+  screenComponent,
+  validationCriteria,
+  options,
+  models,
+}) => {
+  let answer = answerText;
+
+  if (screenComponent.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.NUMBER) {
+    const validationMin = parseFloat(validationCriteria.min);
+    const validationMax = parseFloat(validationCriteria.max);
+    answer = parseFloat(answer);
+    if (
+      (!isNaN(validationMin) && answer < validationMin) ||
+      (!isNaN(validationMax) && answer > validationMax)
+    ) {
+      throw new Error(`Value must be between ${validationMin} and ${validationMax}`);
+    }
+    return answer;
+  }
+
+  if (!answer) return answer;
+
+  switch (screenComponent.dataElement.type) {
+    case PROGRAM_DATA_ELEMENT_TYPES.SELECT:
+    case PROGRAM_DATA_ELEMENT_TYPES.RADIO:
+      if (
+        Object.keys(options).length > 0 &&
+        !Object.keys(options).includes(answer) &&
+        !Object.keys(options).includes(answer.toString())
+      )
+        throw new Error(`Value must be one of ${Object.keys(options)}`);
+      break;
+    case PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT:
+      if (
+        Object.keys(options).length > 0 &&
+        answer.split(',').filter(a => !Object.keys(options).includes(a.trim())).length > 0
+      )
+        throw new Error(`Values must be one of ${Object.keys(options)}`);
+      break;
+    case PROGRAM_DATA_ELEMENT_TYPES.DATE_TIME:
+    case PROGRAM_DATA_ELEMENT_TYPES.SUBMISSION_DATE:
+      answer = toDateTimeString(getJsDateFromExcel(answer)); // this throws an error if invalid
+      break;
+    case PROGRAM_DATA_ELEMENT_TYPES.DATE:
+      answer = toDateString(getJsDateFromExcel(answer)); // this throws an error if invalid
+      break;
+    case PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE: {
+      const config = getConfigObject(screenComponent.config, screenComponent.id);
+      const modelName = getModelFromConfigType(config);
+      if (!models[modelName])
+        throw new Error(`Survey Screen Component error in config: no such model "${modelName}"`);
+      const referencedData = await models[modelName].findByPk(answer, { paranoid: false });
+      if (!referencedData) throw new Error(`No such data "${answer}" in reference table`);
+      if (
+        modelName === 'LocationGroup' &&
+        config?.scope !== 'allFacilities' &&
+        referencedData.facilityId !== facilityId
+      )
+        throw new Error(`Location Group "${answer}" is not in current facility`);
+      break;
+    }
+    default:
+      break;
+  }
+
+  return answer;
+};
+
 export async function validateResponseAnswer({
   surveyResponseAnswers,
   screenComponent,
@@ -65,9 +132,10 @@ export async function validateResponseAnswer({
   models,
   facilityId,
 }) {
-  if (NON_ANSWERABLE_DATA_ELEMENT_TYPES.includes(screenComponent.dataElement.type)) return {};
+  if (NON_ANSWERABLE_DATA_ELEMENT_TYPES.includes(screenComponent.dataElement.type))
+    return undefined;
 
-  let answer = surveyResponseAnswers[screenComponent.dataElement.code];
+  const answer = surveyResponseAnswers[screenComponent.dataElement.code];
 
   const isComponentVisible = checkVisibilityCriteria(
     screenComponent,
@@ -79,8 +147,6 @@ export async function validateResponseAnswer({
     screenComponent.validationCriteria,
     screenComponent.id,
   );
-  const validationMin = parseFloat(validationCriteria.min);
-  const validationMax = parseFloat(validationCriteria.max);
 
   const options = getConfigObject(
     screenComponent.options || screenComponent.dataElement.defaultOptions,
@@ -103,66 +169,67 @@ export async function validateResponseAnswer({
   ) {
     throw new Error(`Value is mandatory`);
   }
-  switch (screenComponent.dataElement.type) {
-    case PROGRAM_DATA_ELEMENT_TYPES.NUMBER:
-      answer = parseFloat(answer);
-      if (
-        (!isNaN(validationMin) && answer < validationMin) ||
-        (!isNaN(validationMax) && answer > validationMax)
-      ) {
-        throw new Error(`Value must be between ${validationMin} and ${validationMax}`);
-      }
-      break;
-    case PROGRAM_DATA_ELEMENT_TYPES.SELECT:
-    case PROGRAM_DATA_ELEMENT_TYPES.RADIO:
-      if (
-        answer &&
-        Object.keys(options).length > 0 &&
-        !Object.keys(options).includes(answer) &&
-        !Object.keys(options).includes(answer.toString())
-      )
-        throw new Error(`Value must be one of ${Object.keys(options)}`);
-      break;
-    case PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT:
-      if (
-        answer &&
-        Object.keys(options).length > 0 &&
-        answer.split(',').filter(a => !Object.keys(options).includes(a.trim())).length > 0
-      )
-        throw new Error(`Values must be one of ${Object.keys(options)}`);
-      break;
-    case PROGRAM_DATA_ELEMENT_TYPES.DATE_TIME:
-    case PROGRAM_DATA_ELEMENT_TYPES.SUBMISSION_DATE:
-      if (answer) answer = toDateTimeString(getJsDateFromExcel(answer)); // this throws an error if invalid
-      break;
-    case PROGRAM_DATA_ELEMENT_TYPES.DATE:
-      if (answer) answer = toDateString(getJsDateFromExcel(answer)); // this throws an error if invalid
-      break;
-    case PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE:
-      if (answer) {
-        const config = getConfigObject(screenComponent.config, screenComponent.id);
-        const modelName = getModelFromConfigType(config);
-        if (!models[modelName])
-          throw new Error(`Survey Screen Component error in config: no such model "${modelName}"`);
-        const referencedData = await models[modelName].findByPk(answer, { paranoid: false });
-        if (!referencedData) throw new Error(`No such data "${answer}" in reference table`);
-        if (
-          modelName === 'LocationGroup' &&
-          config?.scope !== 'allFacilities' &&
-          referencedData.facilityId !== facilityId
-        )
-          throw new Error(`Location Group "${answer}" is not in current facility`);
-      }
-      break;
-    default:
-      break;
-  }
-  return {
-    answer,
-    action:
-      isComponentVisible && ACTION_DATA_ELEMENT_TYPES.includes(screenComponent.dataElement.type),
-  };
+
+  return getAnswerValue({
+    answerText: answer,
+    facilityId,
+    screenComponent,
+    validationCriteria,
+    options,
+    models,
+  });
 }
+
+const obtainSurveyQuestions = async ({ models, surveyCode }) => {
+  if (!surveyCode) throw new Error(`Must specify "surveyCode"`);
+  const survey = await models.Survey.findOne({ where: { code: surveyCode } }, { paranoid: false });
+  if (!survey) throw new Error(`Survey with code "${surveyCode}" does not exist`);
+
+  return survey;
+};
+
+const prevalidateRow = async ({
+  models,
+  patientId,
+  examinerId,
+  submittedById,
+  departmentId,
+  locationId,
+  dateSubmitted,
+}) => {
+  const errors = [];
+
+  let dateSubmittedString;
+  if (dateSubmitted) {
+    dateSubmittedString = toDateTimeString(getJsDateFromExcel(dateSubmitted)); // throws error if invalid
+  }
+
+  const [patient, examiner, user, department, location] = await Promise.all([
+    models.Patient.findByPk(patientId),
+    examinerId && models.User.findByPk(examinerId),
+    models.User.findByPk(submittedById),
+    models.Department.findByPk(departmentId),
+    models.Location.findByPk(locationId),
+  ]);
+
+  if (!patient) errors.push(new Error(`Patient with ID "${patientId}" does not exist`));
+  if (examinerId && !examiner)
+    errors.push(new Error(`Examiner (User) with ID "${examinerId}" does not exist`));
+  if (!user) errors.push(new Error(`Submitting User with ID "${submittedById}" does not exist`));
+  if (!department) errors.push(new Error(`Department with ID "${departmentId}" does not exist`));
+  if (!location) errors.push(new Error(`Location with ID "${locationId}" does not exist`));
+
+  if (errors.length) throw errors;
+
+  return {
+    patient,
+    examiner,
+    user,
+    department,
+    location,
+    dateSubmittedString,
+  };
+};
 
 export async function importSurveyResponses(workbook, { errors, log, models }) {
   const stats = {};
@@ -201,30 +268,14 @@ export async function importSurveyResponses(workbook, { errors, log, models }) {
       ...surveyResponseAnswers // these are structured by code as key
     } = trimmed;
 
+    const initialValidationErrors = [];
+
+    let survey;
+
     try {
+      survey = await obtainSurveyQuestions({ models, surveyCode });
 
-      let initialValidationErrors = [];
-      
-      if (!surveyCode)
-        throw new ValidationError(
-          sheetName,
-          sheetRow,
-          `Must specify "surveyCode"`,
-        );
-      const survey = await models.Survey.findOne(
-        { where: { code: surveyCode } },
-        { paranoid: false },
-      );
-      if (!survey)
-        initialValidationErrors.push(
-          new ValidationError(
-            sheetName,
-            sheetRow,
-            `Survey with code "${surveyCode}" does not exist`,
-          )
-        );
-
-      if (survey && !surveyScreenComponents[surveyCode]) {
+      if (!surveyScreenComponents[surveyCode]) {
         log.debug(`Loading survey screen components from DB for survey with code "${surveyCode}"`);
         surveyScreenComponents[
           surveyCode
@@ -232,69 +283,51 @@ export async function importSurveyResponses(workbook, { errors, log, models }) {
           includeAllVitals: true,
         });
       }
+    } catch (e) {
+      // no survey or error getting components
+      const errs = Array.isArray(e) ? e : [e];
+      initialValidationErrors.push(
+        ...errs.map(error => new ValidationError(sheetName, sheetRow, error.message)),
+      );
+    }
 
-      let dateSubmittedString;
-      if (dateSubmitted) {
-        dateSubmittedString = toDateTimeString(getJsDateFromExcel(dateSubmitted)); // throws error if invalid
-      }
+    let examiner;
+    let dateSubmittedString;
+    let location;
 
-      const [patient, examiner, user, department, location] = await Promise.all([
-        models.Patient.findByPk(patientId),
-        examinerId && models.User.findByPk(examinerId),
-        models.User.findByPk(submittedById),
-        models.Department.findByPk(departmentId),
-        models.Location.findByPk(locationId),
-      ]);
+    try {
+      ({ examiner, location, dateSubmittedString } = await prevalidateRow({
+        models,
+        patientId,
+        examinerId,
+        submittedById,
+        departmentId,
+        locationId,
+        surveyCode,
+        dateSubmitted,
+        surveyScreenComponents,
+      }));
+    } catch (e) {
+      // prevalidation errors
+      const errs = Array.isArray(e) ? e : [e];
+      initialValidationErrors.push(
+        ...errs.map(error => new ValidationError(sheetName, sheetRow, error.message)),
+      );
+    }
 
-      if (!patient)
-        initialValidationErrors.push(
-          new ValidationError(
-            sheetName,
-            sheetRow,
-            `Patient with ID "${patientId}" does not exist`,
-          )
-        );
-      if (examinerId && !examiner)
-        initialValidationErrors.push(
-          new ValidationError(
-            sheetName,
-            sheetRow,
-            `Examiner (User) with ID "${examinerId}" does not exist`,
-          )
-        );
-      if (!user)
-        initialValidationErrors.push(
-          new ValidationError(
-            sheetName,
-            sheetRow,
-            `Submitting User with ID "${submittedById}" does not exist`,
-          )
-        );
-      if (!department)
-        initialValidationErrors.push(
-          new ValidationError(
-            sheetName,
-            sheetRow,
-            `Department with ID "${departmentId}" does not exist`,
-          )
-        );
-      if (!location)
-        initialValidationErrors.push(
-          new ValidationError(
-            sheetName,
-            sheetRow,
-            `Location with ID "${locationId}" does not exist`,
-          )
-        );
+    if (initialValidationErrors.length) {
+      errors.push(...initialValidationErrors);
+      continue;
+    }
 
-      if (initialValidationErrors.length) throw initialValidationErrors;
-
+    try {
       const answers = {};
-      const actions = {};
+
+      const validationErrors = [];
 
       for (const screenComponent of surveyScreenComponents[surveyCode]) {
         try {
-          const { answer, action } = await validateResponseAnswer({
+          const answer = await validateResponseAnswer({
             surveyResponseAnswers,
             screenComponent,
             screenComponents: surveyScreenComponents[surveyCode],
@@ -302,18 +335,20 @@ export async function importSurveyResponses(workbook, { errors, log, models }) {
             facilityId: location.facilityId,
           });
           if (answer) answers[screenComponent.dataElement.id] = answer;
-          if (action) actions[screenComponent.dataElement.id] = true;
         } catch (err) {
-          throw new ValidationError(
-            sheetName,
-            sheetRow,
-            `${screenComponent.dataElement.code}: ${err.message}`,
+          validationErrors.push(
+            new ValidationError(
+              sheetName,
+              sheetRow,
+              `${screenComponent.dataElement.code}: ${err.message}`,
+            ),
           );
         }
       }
 
+      if (validationErrors.length) throw validationErrors;
+
       await models.SurveyResponse.createWithAnswers({
-        actions,
         answers,
         surveyId: survey.id,
         userId: submittedById,
@@ -334,11 +369,11 @@ export async function importSurveyResponses(workbook, { errors, log, models }) {
         'created',
         Object.keys(answers).length,
       );
-    } catch (err) {
-      if (err instanceof ValidationError) {
-        errors.push(err);
+    } catch (e) {
+      if (Array.isArray(e)) {
+        errors.push(...e);
       } else {
-        errors.push(new DataLoaderError(sheetName, sheetRow, err));
+        errors.push(new DataLoaderError(sheetName, sheetRow, e));
       }
     }
   }
