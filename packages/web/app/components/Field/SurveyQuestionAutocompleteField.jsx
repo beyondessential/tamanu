@@ -1,8 +1,9 @@
 import React from 'react';
+// eslint-disable-next-line import/no-cycle
 import { useSuggester } from '../../api';
 import { AutocompleteField } from './AutocompleteField';
 
-// Required due to desktop/mobile using different implementations for
+// Required due to web/mobile using different implementations for
 // suggesters (due to using different db's). Mobile has the more generic
 // approach already, so do the extra step here.
 const getSuggesterEndpointForConfig = config => {

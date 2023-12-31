@@ -9,7 +9,7 @@ const pkgjson = JSON.parse(readFileSync(pkgpath, 'utf8'));
 const { major, minor } = parse(pkgjson.version);
 
 // In general, all versions in the current minor version should be compatible with each other.
-// However, if there is an incompatibility between the desktop client version and a facility server
+// However, if there is an incompatibility between the web client version and a facility server
 // version, this can be used to override the forbid clients below a certain version from connecting.
 //
 // To do so, set this to a string like '1.30.2'.

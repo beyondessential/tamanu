@@ -1,11 +1,11 @@
 import path from 'path';
 import { promises as fs } from 'fs';
-import { VERSION_COMPATIBILITY_ERRORS } from '@tamanu/constants';
+import { VERSION_COMPATIBILITY_ERRORS, SERVER_TYPES } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
 import { SUPPORTED_CLIENT_VERSIONS } from '../../app/middleware/versionCompatibility';
 
-const MIN_MOBILE_VERSION = SUPPORTED_CLIENT_VERSIONS['Tamanu Mobile'].min;
-const MIN_LAN_VERSION = SUPPORTED_CLIENT_VERSIONS['Tamanu LAN Server'].min;
+const MIN_MOBILE_VERSION = SUPPORTED_CLIENT_VERSIONS[SERVER_TYPES.MOBILE].min;
+const MIN_FACILITY_VERSION = SUPPORTED_CLIENT_VERSIONS[SERVER_TYPES.FACILITY].min;
 
 describe('Version compatibility', () => {
   let baseApp;
@@ -19,11 +19,11 @@ describe('Version compatibility', () => {
 
   afterAll(() => ctx.close());
 
-  describe('LAN server client version checking', () => {
+  describe('Facility server client version checking', () => {
     it('Should allow a supported client', async () => {
       const response = await app.get('/').set({
-        'X-Tamanu-Client': 'Tamanu LAN Server',
-        'X-Version': MIN_LAN_VERSION,
+        'X-Tamanu-Client': SERVER_TYPES.FACILITY,
+        'X-Version': MIN_FACILITY_VERSION,
       });
       expect(response).toHaveSucceeded();
       expect(response.body).toHaveProperty('index', true);
@@ -31,7 +31,7 @@ describe('Version compatibility', () => {
 
     it('Should deny a client under the minimum', async () => {
       const response = await app.get('/').set({
-        'X-Tamanu-Client': 'Tamanu LAN Server',
+        'X-Tamanu-Client': SERVER_TYPES.FACILITY,
         'X-Version': '0.0.1',
       });
 
@@ -43,7 +43,7 @@ describe('Version compatibility', () => {
 
     it('Should deny a client over the maximum', async () => {
       const response = await app.get('/').set({
-        'X-Tamanu-Client': 'Tamanu LAN Server',
+        'X-Tamanu-Client': SERVER_TYPES.FACILITY,
         'X-Version': '10.2.1',
       });
 
@@ -57,7 +57,7 @@ describe('Version compatibility', () => {
   describe('Mobile client version checking', () => {
     it('Should allow a supported client', async () => {
       const response = await app.get('/').set({
-        'X-Tamanu-Client': 'Tamanu Mobile',
+        'X-Tamanu-Client': SERVER_TYPES.MOBILE,
         'X-Version': MIN_MOBILE_VERSION,
       });
       expect(response).toHaveSucceeded();
@@ -66,7 +66,7 @@ describe('Version compatibility', () => {
 
     it('Should deny a client under the minimum', async () => {
       const response = await app.get('/').set({
-        'X-Tamanu-Client': 'Tamanu Mobile',
+        'X-Tamanu-Client': SERVER_TYPES.MOBILE,
         'X-Version': '0.0.1',
       });
 
@@ -78,7 +78,7 @@ describe('Version compatibility', () => {
 
     it('Should deny a client over the maximum', async () => {
       const response = await app.get('/').set({
-        'X-Tamanu-Client': 'Tamanu Mobile',
+        'X-Tamanu-Client': SERVER_TYPES.MOBILE,
         'X-Version': '10.2.1',
       });
 
@@ -121,10 +121,9 @@ describe('Version compatibility', () => {
     beforeAll(async () => {
       const packageFiles = [
         'package.json',
-        'packages/desktop/package.json',
-        'packages/desktop/app/package.json',
-        'packages/sync-server/package.json',
-        'packages/lan/package.json',
+        'packages/web/package.json',
+        'packages/central-server/package.json',
+        'packages/facility-server/package.json',
         'packages/shared/package.json',
         'packages/meta-server/package.json',
         'packages/scripts/package.json',
@@ -146,11 +145,11 @@ describe('Version compatibility', () => {
       });
     });
 
-    it('Should support the current version of the lan server', async () => {
-      const lanVersion = versions.find(([filePath]) => filePath === 'packages/lan/package.json')[1];
+    it('Should support the current version of the Facility server', async () => {
+      const facilityVersion = versions.find(([filePath]) => filePath === 'packages/facility-server/package.json')[1];
       const response = await app.get('/').set({
-        'X-Tamanu-Client': 'Tamanu LAN Server',
-        'X-Version': lanVersion,
+        'X-Tamanu-Client': SERVER_TYPES.FACILITY,
+        'X-Version': facilityVersion,
       });
       expect(response).toHaveSucceeded();
       expect(response.body).toHaveProperty('index', true);

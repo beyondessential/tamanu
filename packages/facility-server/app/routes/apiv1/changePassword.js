@@ -15,14 +15,14 @@ changePassword.post(
     const centralServer = new CentralServerConnection({ deviceId });
     const response = await centralServer.forwardRequest(req, 'changePassword');
 
-    // If sync server successful, update password on lan server too
-    await updatePasswordOnLanServer(models, req.body);
+    // If central server successful, update password on facility server too
+    await updatePasswordOnFacilityServer(models, req.body);
 
     res.send(response);
   }),
 );
 
-const updatePasswordOnLanServer = async (models, { email, newPassword }) => {
+const updatePasswordOnFacilityServer = async (models, { email, newPassword }) => {
   await models.User.update(
     {
       password: newPassword,

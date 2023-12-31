@@ -1,6 +1,7 @@
 import React, { memo, useState, useEffect } from 'react';
 import { Alert, AlertTitle } from '@material-ui/lab';
 
+// eslint-disable-next-line import/no-cycle
 import { BaseModal } from './BaseModal';
 import { useFormSubmission } from '../contexts/FormSubmission';
 

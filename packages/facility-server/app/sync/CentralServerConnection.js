@@ -7,7 +7,7 @@ import {
   RemoteTimeoutError,
   RemoteCallFailedError,
 } from '@tamanu/shared/errors';
-import { VERSION_COMPATIBILITY_ERRORS } from '@tamanu/constants';
+import { VERSION_COMPATIBILITY_ERRORS, SERVER_TYPES } from '@tamanu/constants';
 import { getResponseJsonSafely } from '@tamanu/shared/utils';
 import { log } from '@tamanu/shared/services/logging';
 import { fetchWithTimeout } from '@tamanu/shared/utils/fetchWithTimeout';
@@ -26,7 +26,7 @@ const getVersionIncompatibleMessage = (error, response) => {
 
   if (error.message === VERSION_COMPATIBILITY_ERRORS.HIGH) {
     const maxVersion = response.headers.get('X-Max-Client-Version');
-    return `The Tamanu Sync Server only supports up to v${maxVersion} of the Facility Server, and needs to be upgraded. Please contact your system administrator.`;
+    return `The Tamanu Central Server only supports up to v${maxVersion} of the Facility Server, and needs to be upgraded. Please contact your system administrator.`;
   }
 
   return null;
@@ -95,7 +95,7 @@ export class CentralServerConnection {
             method,
             headers: {
               Accept: 'application/json',
-              'X-Tamanu-Client': 'Tamanu LAN Server',
+              'X-Tamanu-Client': SERVER_TYPES.FACILITY,
               'X-Version': version,
               Authorization: this.token ? `Bearer ${this.token}` : undefined,
               'Content-Type': body ? 'application/json' : undefined,
@@ -110,7 +110,7 @@ export class CentralServerConnection {
         const isInvalidToken = response?.status === 401;
         if (isInvalidToken) {
           if (retryAuth) {
-            log.warn('Token was invalid - reconnecting to sync server');
+            log.warn('Token was invalid - reconnecting to central server');
             await this.connect();
             return this.fetch(endpoint, { ...params, retryAuth: false });
           }
@@ -295,14 +295,14 @@ export class CentralServerConnection {
       return response;
     } catch (err) {
       if (err.centralServerResponse) {
-        // pass sync server response back
+        // pass central server response back
         const centralServerErrorMsg = err.centralServerResponse.body.error?.message;
         const passThroughError = new Error(centralServerErrorMsg ?? err);
         passThroughError.status = err.centralServerResponse.status;
         throw passThroughError;
       } else {
         // fallback
-        throw new Error(`Sync server error: ${err}`);
+        throw new Error(`Central server error: ${err}`);
       }
     }
   }

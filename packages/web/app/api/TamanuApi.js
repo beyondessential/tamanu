@@ -5,6 +5,7 @@ import { VERSION_COMPATIBILITY_ERRORS, SERVER_TYPES } from '@tamanu/constants';
 import { ForbiddenError, NotFoundError } from '@tamanu/shared/errors';
 
 import { LOCAL_STORAGE_KEYS } from '../constants';
+// eslint-disable-next-line import/no-cycle
 import { getDeviceId, notifyError } from '../utils';
 
 const { TOKEN, LOCALISATION, SERVER, PERMISSIONS, ROLE } = LOCAL_STORAGE_KEYS;
@@ -148,8 +149,7 @@ export class TamanuApi {
       { returnResponse: true },
     );
     const serverType = response.headers.get('X-Tamanu-Server');
-
-    if (![SERVER_TYPES.LAN, SERVER_TYPES.SYNC].includes(serverType)) {
+    if (![SERVER_TYPES.FACILITY, SERVER_TYPES.CENTRAL].includes(serverType)) {
       throw new Error(`Tamanu server type '${serverType}' is not supported.`);
     }
 
@@ -213,7 +213,7 @@ export class TamanuApi {
         ...this.authHeader,
         ...headers,
         'X-Version': this.appVersion,
-        'X-Tamanu-Client': 'Tamanu Desktop',
+        'X-Tamanu-Client': SERVER_TYPES.WEBAPP,
       },
       ...otherConfig,
     });

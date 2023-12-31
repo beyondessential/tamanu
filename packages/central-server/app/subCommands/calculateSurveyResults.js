@@ -11,9 +11,9 @@ const SURVEY_RESPONSE_BATCH_SIZE = 1000;
  * IMPORTANT: We have 4 other versions of this method:
  *
  * - mobile/App/ui/helpers/fields.ts
- * - desktop/app/utils/survey.js
+ * - web/app/utils/survey.js
  * - shared/src/utils/fields.js
- * - sync-server/app/subCommands/calculateSurveyResults.js
+ * - central-server/app/subCommands/calculateSurveyResults.js
  *
  * So if there is an update to this method, please make the same update
  * in the other versions
@@ -141,7 +141,7 @@ const calculateSurveyResultsInBatch = async (
     );
 
     // Also update encounters.updated_at to trigger syncing down
-    // inner survey responses to mobile / lan
+    // inner survey responses to mobile / facility
     await store.sequelize.query(
       `
       UPDATE encounters
@@ -159,8 +159,8 @@ const calculateSurveyResultsInBatch = async (
 };
 
 /**
- * Due to an issue that none of the surveyResponse resultText was synced from mobile to sync-server,
- * this sub command can be used to rerun all the survey result calculations in sync-server.
+ * Due to an issue that none of the surveyResponse resultText was synced from mobile to central-server,
+ * this sub command can be used to rerun all the survey result calculations in central-server.
  * Most of the code is copied pasted from tamanu-mobile
  * https://github.com/beyondessential/tamanu-mobile/blob/e81c87df3acb4518c808fbad399eec031a05e4c3/App/ui/helpers/fields.ts#L90
  * TODO: When we're sure that resultText are all syncing correctly, we can remove this sub command

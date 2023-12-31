@@ -13,9 +13,9 @@ import {
 } from '@tamanu/shared/demoData';
 import { chance, fake, showError } from '@tamanu/shared/test-helpers';
 
-import { createApp } from 'lan/app/createApp';
-import { initReporting } from 'lan/app/database';
-import { getToken } from 'lan/app/middleware/auth';
+import { createApp } from '@tamanu/facility-server/app/createApp';
+import { initReporting } from '@tamanu/facility-server/app/database';
+import { getToken } from '@tamanu/facility-server/app/middleware/auth';
 
 import { toMatchTabularReport } from './toMatchTabularReport';
 import { allSeeds } from './seed';

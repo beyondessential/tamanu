@@ -16,12 +16,12 @@ export const ReferralProvider = ({ children }) => {
 
   const api = useApi();
 
-  // write Referral data to the sync server.
+  // write Referral data to the central server.
   const saveReferral = async (referralId, data) => {
     await api.put(`referral/${referralId}`, data);
   };
 
-  // get Referral data from the sync server and save it to state.
+  // get Referral data from the central server and save it to state.
   const loadReferral = async referralId => {
     setIsLoadingReferral(true);
     const data = await api.get(`referral/${referralId}`);

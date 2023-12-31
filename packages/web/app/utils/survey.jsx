@@ -6,6 +6,7 @@ import { checkJSONCriteria } from '@tamanu/shared/utils/criteria';
 import { ageInYears, ageInMonths, ageInWeeks } from '@tamanu/shared/utils/dateTime';
 import { PROGRAM_DATA_ELEMENT_TYPES, ACTION_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 
+// eslint-disable-next-line import/no-cycle
 import {
   LimitedTextField,
   MultilineTextField,
@@ -80,9 +81,9 @@ export function mapOptionsToValues(options) {
  * IMPORTANT: We have 4 other versions of this method:
  *
  * - mobile/App/ui/helpers/fields.ts
- * - desktop/app/utils/survey.js
+ * - web/app/utils/survey.js
  * - shared/src/utils/fields.js
- * - sync-server/app/subCommands/calculateSurveyResults.js
+ * - central-server/app/subCommands/calculateSurveyResults.js
  *
  * So if there is an update to this method, please make the same update
  * in the other versions

@@ -12,7 +12,7 @@ export const tasks = async ({ skipMigrationCheck, provisioning }) => {
     await provision({ file: provisioning, skipIfNotNeeded: true });
   }
 
-  log.info(`Starting sync tasks runner version ${pkg.version}`);
+  log.info(`Starting Central tasks runner version ${pkg.version}`);
 
   const context = await new ApplicationContext().init();
   await context.store.sequelize.assertUpToDate({ skipMigrationCheck });
@@ -33,7 +33,7 @@ export const tasks = async ({ skipMigrationCheck, provisioning }) => {
 };
 
 export const tasksCommand = new Command('tasks')
-  .description('Start the Tamanu sync tasks runner')
+  .description('Start the Tamanu Central tasks runner')
   .option('--skipMigrationCheck', 'skip the migration check on startup')
   .option(
     '--provisioning <file>',

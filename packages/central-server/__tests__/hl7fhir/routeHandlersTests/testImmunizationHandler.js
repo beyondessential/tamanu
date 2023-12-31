@@ -1,5 +1,5 @@
 import { fake, fakeReferenceData, fakeUser } from '@tamanu/shared/test-helpers/fake';
-import { createTestContext } from 'sync-server/__tests__/utilities';
+import { createTestContext } from '@tamanu/central-server/__tests__/utilities';
 
 export function testImmunizationHandler(integrationName, requestHeaders = {}) {
   describe(`${integrationName} integration - Immunization`, () => {

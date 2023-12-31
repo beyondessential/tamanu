@@ -3,7 +3,7 @@
     "reportNoUserError": true
   },
   "db": {
-    "name": "tamanu-sync-generate",
+    "name": "tamanu-central-generate",
     "migrateOnStartup": true,
     "verbose": false
   },

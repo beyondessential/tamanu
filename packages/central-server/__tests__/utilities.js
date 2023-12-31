@@ -2,14 +2,14 @@ import config from 'config';
 import http from 'http';
 import supertest from 'supertest';
 
-import { COMMUNICATION_STATUSES, JWT_TOKEN_TYPES } from '@tamanu/constants';
+import { COMMUNICATION_STATUSES, JWT_TOKEN_TYPES, SERVER_TYPES } from '@tamanu/constants';
 import { fake } from '@tamanu/shared/test-helpers';
 import { createMockReportingSchemaAndRoles } from '@tamanu/shared/demoData';
-import { DEFAULT_JWT_SECRET } from 'sync-server/app/auth';
-import { getToken } from 'sync-server/app/auth/utils';
-import { createApp } from 'sync-server/app/createApp';
-import { closeDatabase, initDatabase, initReporting } from 'sync-server/app/database';
-import { initIntegrations } from 'sync-server/app/integrations';
+import { DEFAULT_JWT_SECRET } from '@tamanu/central-server/app/auth';
+import { getToken } from '@tamanu/central-server/app/auth/utils';
+import { createApp } from '@tamanu/central-server/app/createApp';
+import { closeDatabase, initDatabase, initReporting } from '@tamanu/central-server/app/database';
+import { initIntegrations } from '@tamanu/central-server/app/integrations';
 
 class MockApplicationContext {
   closeHooks = [];
@@ -50,11 +50,11 @@ export async function createTestContext() {
   const expressApp = createApp(ctx);
   const appServer = http.createServer(expressApp);
   const baseApp = supertest.agent(appServer);
-  baseApp.set('X-Tamanu-Client', 'Tamanu Desktop');
+  baseApp.set('X-Tamanu-Client', SERVER_TYPES.WEBAPP);
 
   baseApp.asUser = async user => {
     const agent = supertest.agent(expressApp);
-    agent.set('X-Tamanu-Client', 'Tamanu Desktop');
+    agent.set('X-Tamanu-Client', SERVER_TYPES.WEBAPP);
     const token = await getToken({ userId: user.id }, DEFAULT_JWT_SECRET, {
       expiresIn: '1d',
       audience: JWT_TOKEN_TYPES.ACCESS,

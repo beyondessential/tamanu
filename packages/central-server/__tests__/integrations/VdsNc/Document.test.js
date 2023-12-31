@@ -1,20 +1,20 @@
 /* eslint-disable no-unused-expressions */
 
-import { createTestContext } from 'sync-server/__tests__/utilities';
+import { createTestContext } from '@tamanu/central-server/__tests__/utilities';
 import { fake, fakeUser } from '@tamanu/shared/test-helpers/fake';
-import { VdsNcDocument } from 'sync-server/app/integrations/VdsNc';
+import { VdsNcDocument } from '@tamanu/central-server/app/integrations/VdsNc';
 import {
   loadCertificateIntoSigner,
   newKeypairAndCsr,
   TestCSCA,
-} from 'sync-server/app/integrations/Signer';
+} from '@tamanu/central-server/app/integrations/Signer';
 import { ICAO_DOCUMENT_TYPES } from '@tamanu/constants';
 import { generateICAOFormatUVCI } from '@tamanu/shared/utils/uvci/icao';
 import crypto from 'crypto';
 import { expect } from 'chai';
 import { canonicalize } from 'json-canonicalize';
 import { base64UrlDecode } from '@tamanu/shared/utils/encodings';
-import { getLocalisation } from 'sync-server/app/localisation';
+import { getLocalisation } from '@tamanu/central-server/app/localisation';
 
 describe('VDS-NC: Document cryptography', () => {
   let ctx;

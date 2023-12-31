@@ -1,14 +1,14 @@
 /* eslint-disable no-unused-expressions */
 
-import { HCERTPack, HCERTVerify } from 'sync-server/app/integrations/EuDcc';
-import { createTestContext } from 'sync-server/__tests__/utilities';
+import { HCERTPack, HCERTVerify } from '@tamanu/central-server/app/integrations/EuDcc';
+import { createTestContext } from '@tamanu/central-server/__tests__/utilities';
 import {
   loadCertificateIntoSigner,
   newKeypairAndCsr,
   TestCSCA,
-} from 'sync-server/app/integrations/Signer';
+} from '@tamanu/central-server/app/integrations/Signer';
 import { expect } from 'chai';
-import { getLocalisation } from 'sync-server/app/localisation';
+import { getLocalisation } from '@tamanu/central-server/app/localisation';
 
 describe('EU DCC: HCERT Formatting', () => {
   let ctx;

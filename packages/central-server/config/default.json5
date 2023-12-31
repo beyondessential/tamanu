@@ -3,7 +3,7 @@
   // this should be set to the external address of the server, e.g. "https://central.main.internal.tamanu.io"
   "canonicalHostName": "http://localhost:3000",
   "db": {
-    "name": "tamanu-sync",
+    "name": "tamanu-central",
     // when verbose to true, log.consoleLevel must be set to "debug" to see any output
     "verbose": false,
     "username": "",
@@ -94,7 +94,7 @@
     ]
   },
   "auth": {
-    // these secrets should be set if more than one process of the sync-server is running
+    // these secrets should be set if more than one process of the central-server is running
     // otherwise, each process will use a different key and tokens won't match
     "secret": null,
     "saltRounds": 12,
@@ -281,8 +281,8 @@
       "secret": null
     }
   },
-  // on the sync-server, don't read these values from config!
-  // use the getLocalisation() helper in packages/sync-server/app/localisation.js
+  // on the central-server, don't read these values from config!
+  // use the getLocalisation() helper in packages/central-server/app/localisation.js
   // this will ensure we can read these values from the database in the future
   "localisation": {
     "allowInvalid": false,
@@ -884,10 +884,10 @@
           "color": "#67A6E3"
         }
       ],
-      // UVCI format for vaccine certificate *previews* on Desktop.
+      // UVCI format for vaccine certificate *previews* on Web.
       // This should match whichever of integrations.euDcc or .vdsNc is enabled, and
       // does *not* affect which format is used for the actual PDF certificate when
-      // generated in the sync server. Can be `tamanu` or `icao` or `eudcc`.
+      // generated in the central server. Can be `tamanu` or `icao` or `eudcc`.
       // `tamanu` implies that the signing integrations are not enabled.
       "previewUvciFormat": "tamanu",
       "disabledReports": [],
@@ -980,7 +980,7 @@
       "gigabytesForUploadingDocuments": 16
     }
   },
-  // Note: this config should be duplicated on the lan server if the same behavior is
+  // Note: this config should be duplicated on the facility server if the same behavior is
   // desired for "this facility" and "all facilities"
   "reportConfig": {
     "encounter-summary-line-list": {

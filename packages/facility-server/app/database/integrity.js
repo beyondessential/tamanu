@@ -59,12 +59,12 @@ async function performInitialIntegritySetup(context) {
   const { token, facility } = await centralServer.connect();
 
   if (!token) {
-    throw new Error('Could not obtain valid token from sync server.');
+    throw new Error('Could not obtain valid token from central server.');
   }
 
   if (!facility) {
     throw new Error(
-      `Configured serverFacilityId ${config.serverFacilityId} not recognised by sync server`,
+      `Configured serverFacilityId ${config.serverFacilityId} not recognised by central server`,
     );
   }
 
@@ -72,5 +72,5 @@ async function performInitialIntegritySetup(context) {
   const { LocalSystemFact } = context.models;
   await LocalSystemFact.set('facilityId', facility.id);
 
-  log.info(`Verified with sync server as ${facility.name}`);
+  log.info(`Verified with central server as ${facility.name}`);
 }

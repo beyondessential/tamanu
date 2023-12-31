@@ -65,7 +65,7 @@ healthRoutes.get(
   asyncHandler(async (req, res) => {
     try {
       // TODO: replace with a proper permission check
-      // once that's been implemented for sync-server, for eg:
+      // once that's been implemented for central-server, for eg:
       // req.checkPermission('read', 'SystemStatus');
       lofiCheckPermission(req.user);
     } catch (e) {

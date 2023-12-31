@@ -34,11 +34,11 @@ describe('UploadAttachment', () => {
     expect(CentralServerConnection.mock.calls.length).toBe(0);
   });
 
-  it('abort creating document metadata if the sync server fails to create attachment', async () => {
+  it('abort creating document metadata if the central server fails to create attachment', async () => {
     CentralServerConnection.mockImplementationOnce(() => ({
       __esModule: true,
       fetch: jest.fn(async (path, body) => {
-        // Make sure the parameters match what the sync server expects
+        // Make sure the parameters match what the central server expects
         expect(path).toBe('attachment');
         expect(body).toMatchObject({
           method: 'POST',
@@ -62,7 +62,7 @@ describe('UploadAttachment', () => {
     CentralServerConnection.mockImplementationOnce(() => ({
       __esModule: true,
       fetch: jest.fn(async (path, body) => {
-        // Make sure the parameters match what the sync server expects
+        // Make sure the parameters match what the central server expects
         expect(path).toBe('attachment');
         expect(body).toMatchObject({
           method: 'POST',

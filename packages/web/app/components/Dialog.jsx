@@ -1,4 +1,5 @@
 import React, { memo } from 'react';
+// eslint-disable-next-line import/no-cycle
 import { Modal } from './Modal';
 import { Button } from './Button';
 import { ButtonRow } from './ButtonRow';

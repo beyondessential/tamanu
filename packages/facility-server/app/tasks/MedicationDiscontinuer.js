@@ -26,8 +26,8 @@ export class MedicationDiscontinuer extends ScheduledTask {
     // Get start of day
     const startOfToday = toDateTimeString(startOfDay(new Date()));
 
-    // Get all encounters with the same facility as the lan server
-    // (found in the config). Note that the facility will be read from
+    // Get all encounters with the same facility ID as this facility server
+    // (found in the config). Note that the facility ID will be read from
     // the department associated to each encounter.
     const encounters = await this.models.Encounter.findAll({
       include: [

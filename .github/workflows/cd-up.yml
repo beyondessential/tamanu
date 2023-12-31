@@ -47,7 +47,7 @@ jobs:
             path: lan
             target: server
           - name: frontend
-            path: desktop
+            path: web
             target: frontend
           # - name: meta
           #   path: meta-server

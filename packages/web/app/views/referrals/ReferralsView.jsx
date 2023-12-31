@@ -5,18 +5,14 @@ import { SURVEY_TYPES } from '@tamanu/constants';
 
 import { useApi } from '../../api';
 import { reloadPatient } from '../../store/patient';
-import { SurveyView } from '../../views/programs/SurveyView';
-import { PatientListingView } from '../../views';
+import { SurveyView } from '../programs/SurveyView';
+import { PatientListingView } from '..';
 import { FormGrid } from '../../components/FormGrid';
 import { usePatientAdditionalDataQuery } from '../../api/queries';
 import { ErrorMessage } from '../../components/ErrorMessage';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
-import { SurveySelector } from '../../views/programs/SurveySelector';
-import {
-  ProgramsPane,
-  ProgramsPaneHeader,
-  ProgramsPaneHeading,
-} from '../../views/programs/ProgramsPane';
+import { SurveySelector } from '../programs/SurveySelector';
+import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from '../programs/ProgramsPane';
 import { getCurrentUser } from '../../store';
 import { getAnswersFromData, getActionsFromData } from '../../utils';
 import { PATIENT_TABS } from '../../constants/patientPaths';

@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { fake, fakeUser } from '@tamanu/shared/test-helpers/fake';
-import { createTestContext } from 'sync-server/__tests__/utilities';
+import { createTestContext } from '@tamanu/central-server/__tests__/utilities';
 import { createEuDccVaccinationData } from '../../../app/integrations/EuDcc';
 
 describe('EU DCC: Vaccination', () => {

@@ -11,18 +11,17 @@ syncHealth.get(
     req.flagPermissionChecked();
     const centralServer = new CentralServerConnection({ deviceId });
 
-    // The desktop client and lan server should still work without
-    // a connected sync server, we just want to notify the user they aren't
-    // connected to sync.
+    // The web app and facility server should still work without a connected
+    // central, we just want to notify the user they aren't connected to central.
     try {
-      // This request will fail if the sync servers `versionCompatibility`
+      // This request will fail if the central servers `versionCompatibility`
       // middleware check fails. We don't need the response, only the error message.
       await centralServer.whoami();
 
       res.send({ healthy: true });
     } catch (error) {
-      // The desktop client needs to receive this response to alert the user
-      // of an out of date sync server, but we don't want TamanuApi to catch and throw the error.
+      // The web client needs to receive this response to alert the user
+      // of an out of date central server, but we don't want TamanuApi to catch and throw the error.
       res.send({ healthy: false, error: error.message });
     }
   }),

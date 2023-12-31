@@ -41,7 +41,7 @@
   },
   "port": 4000,
   "db": {
-    "name": "tamanu-lan",
+    "name": "tamanu-facility",
     "username": "",
     "password": "",
     "verbose": false,
@@ -93,7 +93,7 @@
       "schedule": "1 0 * * *"
     }
   },
-  // Note: this config should be duplicated on the sync server if the same behavior is
+  // Note: this config should be duplicated on the central server if the same behavior is
   // desired for "this facility" and "all facilities"
   "reportConfig": {
     "encounter-summary-line-list": {

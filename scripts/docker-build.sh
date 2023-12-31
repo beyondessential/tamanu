@@ -5,12 +5,6 @@
 set -euxo pipefail
 shopt -s extglob
 
-is_building_shared() {
-  # we use a function instead of a variable as we're relying on the exit value
-  # -z = true if the string is empty
-  test -z "$package"
-}
-
 common() {
   # let build-tooling be installed in production mode
   cp package.json{,.working}

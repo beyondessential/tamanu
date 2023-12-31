@@ -59,6 +59,6 @@ async function serve({ skipMigrationCheck }) {
 }
 
 export const serveCommand = new Command('serve')
-  .description('Start the Tamanu lan server')
+  .description('Start the Tamanu Facility server')
   .option('--skipMigrationCheck', 'skip the migration check on startup')
   .action(serve);

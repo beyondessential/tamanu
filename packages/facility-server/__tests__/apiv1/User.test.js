@@ -1,5 +1,5 @@
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
-import { getToken, centralServerLogin } from 'lan/app/middleware/auth';
+import { getToken, centralServerLogin } from '@tamanu/facility-server/app/middleware/auth';
 import { pick } from 'lodash';
 import { fake, chance, disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 import { addHours } from 'date-fns';

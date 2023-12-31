@@ -6,6 +6,7 @@ import { Typography } from '@material-ui/core';
 import { Alert, AlertTitle } from '@material-ui/lab';
 import styled from 'styled-components';
 
+// eslint-disable-next-line import/no-cycle
 import { flattenObject } from '../../utils';
 import { Dialog } from '../Dialog';
 import { FORM_STATUSES, FORM_TYPES } from '../../constants';

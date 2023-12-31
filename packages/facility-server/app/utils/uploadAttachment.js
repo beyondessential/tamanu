@@ -3,7 +3,7 @@ import { InvalidParameterError, RemoteCallFailedError } from '@tamanu/shared/err
 import { getUploadedData } from '@tamanu/shared/utils/getUploadedData';
 import { CentralServerConnection } from '../sync';
 
-// Helper function for uploading one file to the sync server
+// Helper function for uploading one file to the central server
 // req: express request, maxFileSize: integer (size in bytes)
 export const uploadAttachment = async (req, maxFileSize) => {
   // TODO: Figure out permission management for writing
@@ -24,7 +24,7 @@ export const uploadAttachment = async (req, maxFileSize) => {
     throw new InvalidParameterError(`Uploaded file exceeds limit of ${maxFileSize} bytes.`);
   }
 
-  // Upload file to sync server
+  // Upload file to central server
   // CentralServerConnection takes care of adding headers and convert body to JSON
   const centralServer = new CentralServerConnection({ deviceId });
   const syncResponse = await centralServer.fetch('attachment', {

@@ -9,7 +9,7 @@ let token = null; // Auth token, saved after login
 
 // Required args for all commands
 program
-  .requiredOption('-a, --address <url>', 'Address of the sync server instance to connect to')
+  .requiredOption('-a, --address <url>', 'Address of the central server instance to connect to')
   .requiredOption('-u, --user <email>', 'Email address of the user account to authenticate as');
 
 // Setup import action

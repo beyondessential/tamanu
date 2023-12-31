@@ -1,7 +1,7 @@
 module.exports = {
   apps: [
     {
-      name: 'tamanu-lan-server',
+      name: 'tamanu-http-server',
       exec_mode: 'fork',
       instances: 1,
       cwd: '.', // IMPORTANT: Leave this as-is, for production build

@@ -5,17 +5,13 @@ import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { SURVEY_TYPES } from '@tamanu/constants';
 import { reloadPatient } from '../../store/patient';
 import { getCurrentUser } from '../../store/auth';
-import { SurveyView } from '../../views/programs/SurveyView';
-import { SurveySelector } from '../../views/programs/SurveySelector';
+import { SurveyView } from './SurveyView';
+import { SurveySelector } from './SurveySelector';
 import { FormGrid } from '../../components/FormGrid';
 import { SelectInput } from '../../components/Field/SelectField';
-import {
-  ProgramsPane,
-  ProgramsPaneHeader,
-  ProgramsPaneHeading,
-} from '../../views/programs/ProgramsPane';
+import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from './ProgramsPane';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
-import { PatientListingView } from '../../views';
+import { PatientListingView } from '..';
 import { usePatientAdditionalDataQuery } from '../../api/queries';
 import { ErrorMessage } from '../../components/ErrorMessage';
 import { getAnswersFromData, getActionsFromData } from '../../utils';

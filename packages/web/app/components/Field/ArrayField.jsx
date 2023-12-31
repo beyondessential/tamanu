@@ -4,6 +4,7 @@ import { FieldArray } from 'formik';
 import { IconButton } from '@material-ui/core';
 import { AddCircleOutline, RemoveCircleOutline } from '@material-ui/icons';
 import { generate } from 'shortid';
+// eslint-disable-next-line import/no-cycle
 import { Button } from '../Button';
 
 const AddButton = styled(Button)`
