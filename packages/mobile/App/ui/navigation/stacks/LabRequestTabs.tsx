@@ -43,7 +43,7 @@ const DumbLabRequestTabs = ({
         />
         <Tabs.Screen
           options={{
-            title: 'Results',
+            title: 'Request history',
           }}
           name={Routes.HomeStack.LabRequestStack.LabRequestTabs.ViewHistory}
           component={ViewHistoryScreen}
