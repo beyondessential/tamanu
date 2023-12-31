@@ -44,8 +44,8 @@ export class Medication extends BaseModel implements IMedication {
   @RelationId(({ encounter }) => encounter)
   encounterId?: string;
 
-  // These qty fields are not required on desktop but not on mobile,
-  // leaving them in for parity with desktop for now.
+  // These qty fields are not required on web but not on mobile,
+  // leaving them in for parity with web for now.
   @Column({ nullable: true })
   qtyMorning?: number;
 

@@ -30,13 +30,11 @@ jobs:
     strategy:
       matrix:
         package:
-          - name: central
-            path: sync-server
-          - name: facility
-            path: lan
+          - central
+          - facility
     with:
-      package-name: ${{ matrix.package.name }}
-      package-path: ${{ matrix.package.path }}
+      package-name: ${{ matrix.package }}
+      package-path: ${{ matrix.package }}-server
       image-shatag: false
       image-tags: ${{ needs.info.outputs.version }}-serverzips
 
@@ -48,16 +46,14 @@ jobs:
       fail-fast: false
       matrix:
         package:
-          - name: central
-            path: sync-server
-          - name: facility
-            path: lan
+          - central
+          - facility
 
-    name: Build ${{ matrix.package.name }}
+    name: Build ${{ matrix.package }}
     runs-on: ubuntu-latest
     env:
       BUILD_NAME: "release-v${{ needs.info.outputs.version }}"
-      ARTIFACT_NAME: "${{ matrix.package.name }}-${{ needs.info.outputs.version }}"
+      ARTIFACT_NAME: "${{ matrix.package }}-${{ needs.info.outputs.version }}"
 
     steps:
       - name: Configure AWS Credentials
@@ -80,7 +76,7 @@ jobs:
           cache: yarn
 
       - name: Create container
-        run: docker create --name working --platform linux/amd64 ${{ needs.image.outputs.registry }}/tamanu/${{ matrix.package.name }}:${{ needs.info.outputs.version }}-serverzips
+        run: docker create --name working --platform linux/amd64 ${{ needs.image.outputs.registry }}/tamanu/${{ matrix.package }}:${{ needs.info.outputs.version }}-serverzips
 
       - name: Copy files
         run: docker cp working:/app $BUILD_NAME
@@ -95,13 +91,13 @@ jobs:
         run: docker rm working
 
       # This will replace the line "cwd: '.'" for the appropriate package, i.e.
-      # "cwd: 'packages/lan'" in the new build folder for each pm2.config file.
+      # "cwd: 'packages/facility-server'" in the new build folder for each pm2.config file.
       - name: Prepare production configuration
         run: |
           set -ex
           sed -E \
-            "s|cwd: '.',( //.*)?|cwd: 'packages/${{ matrix.package.path }}',|" \
-            packages/${{ matrix.package.path }}/pm2.config.js > ${{ env.BUILD_NAME }}/pm2.config.js
+            "s|cwd: '.',( //.*)?|cwd: 'packages/${{ matrix.package }}-server',|" \
+            packages/${{ matrix.package }}-server/pm2.config.js > ${{ env.BUILD_NAME }}/pm2.config.js
 
       - name: Prepare artifact output
         run: zip -r '${{ env.BUILD_NAME }}.zip' '${{ env.BUILD_NAME }}'
@@ -123,17 +119,15 @@ jobs:
       fail-fast: false
       matrix:
         package:
-          - name: central
-            path: sync-server
-          - name: facility
-            path: lan
+          - central
+          - facility
 
-    name: Build ${{ matrix.package.name }} windows zip
+    name: Build ${{ matrix.package }} windows zip
     runs-on: windows-latest
     env:
       BUILD_NAME: "release-v${{ needs.info.outputs.version }}"
-      ARTIFACT_NAME: "${{ matrix.package.name }}-${{ needs.info.outputs.version }}"
-      OUTPUT_NAME: "${{ matrix.package.name }}-${{ needs.info.outputs.version }}-windows"
+      ARTIFACT_NAME: "${{ matrix.package }}-${{ needs.info.outputs.version }}"
+      OUTPUT_NAME: "${{ matrix.package }}-${{ needs.info.outputs.version }}-windows"
       S3_PATH: s3://bes-tamanu-release-servers/${{ needs.info.outputs.version }}
 
     steps:
@@ -166,7 +160,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: desktop-client
-          path: ${{ env.BUILD_NAME }}/packages/${{ matrix.package.path }}/upgrade
+          path: ${{ env.BUILD_NAME }}/packages/${{ matrix.package }}-server/upgrade
 
       - name: Prepare final output
         shell: bash

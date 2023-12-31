@@ -120,7 +120,7 @@ jobs:
         run: |
           tryonce() {
             docker run -dit --rm --name working \
-              -v $PWD/release:/app/packages/desktop/release \
+              -v $PWD/release:/app/packages/web/release \
               working
             sleep 10
             docker exec working echo "Container started"

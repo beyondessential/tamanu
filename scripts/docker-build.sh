@@ -5,12 +5,6 @@
 set -euxo pipefail
 shopt -s extglob
 
-is_building_shared() {
-  # we use a function instead of a variable as we're relying on the exit value
-  # -z = true if the string is empty
-  test -z "$package"
-}
-
 common() {
   # let build-tooling be installed in production mode
   cp package.json{,.working}
@@ -83,13 +77,13 @@ build_server() {
 }
 
 build_desktop() {
-  remove_irrelevant_packages desktop
+  remove_irrelevant_packages web
 
   # build the world
   yarn build
 
   # create desktop packaging configs
-  cd packages/desktop
+  cd packages/web
   jq '.build.win.target = ["nsis"] | .build.nsis.perMachine = false | .build.directories.output = "release/appdata"' \
     package.json > /package-appdata.json
   jq '.build.win.target = ["msi"] | .build.msi.shortcutName = "Tamanu \(.version)"' \

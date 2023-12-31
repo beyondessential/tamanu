@@ -1,16 +1,16 @@
 version: "3.8"
 services:
-  lan:
+  facility-server:
     build:
       context: .
-      dockerfile: packages/lan/docker/Dockerfile
+      dockerfile: packages/facility-server/docker/Dockerfile
     ports:
       - "4000:4000"
     restart: on-failure
-  sync-server:
+  central-server:
     build:
       context: .
-      dockerfile: packages/sync-server/docker/Dockerfile
+      dockerfile: packages/central-server/docker/Dockerfile
     ports:
       - "3000:3000"
     restart: on-failure

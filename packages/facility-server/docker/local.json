@@ -1,0 +1,14 @@
+{
+  "db": {
+    "host": "db",
+    "name": "tamanu-facility",
+    "username": "tamanu-facility",
+    "password": "tamanu-facility",
+    "migrateOnStartup": true
+  },
+  "sync": {
+    "host": "http://central-server:3000",
+    "email": "admin@tamanu.io",
+    "password": "admin"
+  }
+}
