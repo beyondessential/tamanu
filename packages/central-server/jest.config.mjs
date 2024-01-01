@@ -6,4 +6,4 @@ export default config(import.meta, {
   globalTeardown: '<rootDir>/__disttests__/teardown.js',
   setupFiles: ['<rootDir>/__disttests__/setup.js'],
   setupFilesAfterEnv: ['<rootDir>/__disttests__/configureEnvironment.js', 'jest-expect-message'],
-}, { transformNodeModules: ['uuid', 'sequelize'] });
+}, { transformNodeModules: ['uuid', 'sequelize', '@smithy/middleware-retry', '@aws-sdk/client-s3'] });
