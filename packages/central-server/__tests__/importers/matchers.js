@@ -1,9 +1,9 @@
 import { ValidationError, ForeignkeyResolutionError } from '../../dist/admin/errors';
 
-function toContainError(errors, { ofType, inSheet, atRow, withMessage }) {
+function toContainError(errors, { ofType = null, inSheet, atRow, withMessage }) {
   const suffix = `on ${inSheet} at row ${atRow}`;
   const matchingErrors = errors.filter(err => {
-      if (!(err instanceof ofType)) return false;
+      if (ofType && !(err instanceof ofType)) return false;
       if (!err.message.endsWith(suffix)) return false;
       if (!err.message.includes(withMessage)) return false;
       return true;
