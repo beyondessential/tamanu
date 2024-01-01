@@ -1,6 +1,6 @@
 import { beforeAll, describe, it } from '@jest/globals';
 import { fake } from '@tamanu/shared/test-helpers/fake';
-import { toDateTimeString } from 'shared/utils/dateTime';
+import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { subMinutes } from 'date-fns';
 
 import { createTestContext } from '../utilities';
