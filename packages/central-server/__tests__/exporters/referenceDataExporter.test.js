@@ -2,8 +2,8 @@ import { REFERENCE_TYPES } from '@tamanu/constants';
 import { createDummyPatient } from '@tamanu/shared/demoData/patients';
 import { parseDate } from '@tamanu/shared/utils/dateTime';
 import { createTestContext } from '../utilities';
-import { exporter } from '../../app/admin/exporter';
-import { writeExcelFile } from '../../app/admin/exporter/excelUtils';
+import { exporter } from '../../dist/admin/exporter';
+import { writeExcelFile } from '../../dist/admin/exporter/excelUtils';
 import {
   createAdministeredVaccineData,
   createAllergy,
@@ -19,8 +19,8 @@ import {
   createPatientFieldDefinitions,
 } from './referenceDataUtils';
 
-jest.mock('../../app/admin/exporter/excelUtils', () => {
-  const originalModule = jest.requireActual('../../app/admin/exporter/excelUtils');
+jest.mock('../../dist/admin/exporter/excelUtils', () => {
+  const originalModule = jest.requireActual('../../dist/admin/exporter/excelUtils');
 
   return {
     __esModule: true,

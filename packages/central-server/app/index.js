@@ -1,6 +1,6 @@
 // serverInfo must be imported before any shared modules
 // so that it can set globals
-// eslint-disable-next-line import/order
+// eslint-disable-next-line sort-imports
 import { version } from './serverInfo';
 
 import { program } from 'commander';

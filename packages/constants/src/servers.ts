@@ -1,7 +1,3 @@
-// these are arbitrary, the only thing that matters is they are shared between web and facility
-export const DISCOVERY_PORT = 53391;
-export const DISCOVERY_MAGIC_STRING = 'ee671721-9d4d-4e0e-b231-81872206a735';
-
 export const VERSION_COMPATIBILITY_ERRORS = {
   LOW: 'Client version too low',
   HIGH: 'Client version too high',

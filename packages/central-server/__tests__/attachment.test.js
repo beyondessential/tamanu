@@ -1,4 +1,4 @@
-import { canUploadAttachment } from '../app/utils/getFreeDiskSpace';
+import { canUploadAttachment } from '../dist/utils/getFreeDiskSpace';
 import { createTestContext } from './utilities';
 
 // Mock image to be created with fs module. Expected size of 1002 bytes.

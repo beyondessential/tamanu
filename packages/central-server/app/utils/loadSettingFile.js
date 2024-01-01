@@ -1,7 +1,4 @@
 import { promises as fs } from 'fs';
-
-// it does work, but eslint doesn't like it
-// eslint-disable-next-line import/no-unresolved
 import { parse as parseJiK } from '@bgotink/kdl/json';
 
 export async function loadSettingFile(filepath) {

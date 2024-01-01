@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useFormikContext } from 'formik';
-// eslint-disable-next-line import/no-cycle
+
 import { notifyError } from '../utils';
 
 export const useFormButtonLoadingIndicator = isLoading => {

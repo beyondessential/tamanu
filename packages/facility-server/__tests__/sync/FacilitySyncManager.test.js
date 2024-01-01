@@ -2,7 +2,7 @@
 import { inspect } from 'util';
 
 import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
-import { FacilitySyncManager } from '../../app/sync/FacilitySyncManager';
+import { FacilitySyncManager } from '../../dist/sync/FacilitySyncManager';
 import { createTestContext } from '../utilities';
 
 describe('FacilitySyncManager', () => {
@@ -97,15 +97,15 @@ describe('FacilitySyncManager', () => {
     it("snapshots outgoing changes with the current 'lastSuccessfulSyncPush'", async () => {
       await ctx.models.LocalSystemFact.set('lastSuccessfulSyncPush', '10');
 
-      jest.doMock('../../app/sync/snapshotOutgoingChanges', () => ({
+      jest.doMock('../../dist/sync/snapshotOutgoingChanges', () => ({
         snapshotOutgoingChanges: jest.fn().mockImplementation(() => []),
       }));
 
       // Have to load test function within test scope so that we can mock dependencies per test case
       const {
         FacilitySyncManager: TestFacilitySyncManager,
-      } = require('../../app/sync/FacilitySyncManager');
-      const { snapshotOutgoingChanges } = require('../../app/sync/snapshotOutgoingChanges');
+      } = require('../../dist/sync/FacilitySyncManager');
+      const { snapshotOutgoingChanges } = require('../../dist/sync/snapshotOutgoingChanges');
 
       const syncManager = new TestFacilitySyncManager({
         models,
@@ -127,20 +127,20 @@ describe('FacilitySyncManager', () => {
       const outgoingChanges = [{ test: 'test' }];
       await ctx.models.LocalSystemFact.set('currentSyncTick', '10');
 
-      jest.doMock('../../app/sync/snapshotOutgoingChanges', () => ({
-        ...jest.requireActual('../../app/sync/snapshotOutgoingChanges'),
+      jest.doMock('../../dist/sync/snapshotOutgoingChanges', () => ({
+        ...jest.requireActual('../../dist/sync/snapshotOutgoingChanges'),
         snapshotOutgoingChanges: jest.fn().mockImplementation(() => outgoingChanges),
       }));
-      jest.doMock('../../app/sync/pushOutgoingChanges', () => ({
-        ...jest.requireActual('../../app/sync/pushOutgoingChanges'),
+      jest.doMock('../../dist/sync/pushOutgoingChanges', () => ({
+        ...jest.requireActual('../../dist/sync/pushOutgoingChanges'),
         pushOutgoingChanges: jest.fn().mockImplementation(() => true),
       }));
 
       // Have to load test function within test scope so that we can mock dependencies per test case
       const {
         FacilitySyncManager: TestFacilitySyncManager,
-      } = require('../../app/sync/FacilitySyncManager');
-      const { pushOutgoingChanges } = require('../../app/sync/pushOutgoingChanges');
+      } = require('../../dist/sync/FacilitySyncManager');
+      const { pushOutgoingChanges } = require('../../dist/sync/pushOutgoingChanges');
 
       const syncManager = new TestFacilitySyncManager({
         models,
@@ -175,19 +175,19 @@ describe('FacilitySyncManager', () => {
         ...jest.requireActual('@tamanu/shared/sync'),
         createSnapshotTable: jest.fn(),
       }));
-      jest.doMock('../../app/sync/pullIncomingChanges', () => ({
-        ...jest.requireActual('../../app/sync/pullIncomingChanges'),
+      jest.doMock('../../dist/sync/pullIncomingChanges', () => ({
+        ...jest.requireActual('../../dist/sync/pullIncomingChanges'),
         pullIncomingChanges: jest.fn().mockImplementation(() => []),
       }));
-      jest.doMock('../../app/sync/assertIfPulledRecordsUpdatedAfterPushSnapshot', () => ({
-        ...jest.requireActual('../../app/sync/assertIfPulledRecordsUpdatedAfterPushSnapshot'),
+      jest.doMock('../../dist/sync/assertIfPulledRecordsUpdatedAfterPushSnapshot', () => ({
+        ...jest.requireActual('../../dist/sync/assertIfPulledRecordsUpdatedAfterPushSnapshot'),
         assertIfPulledRecordsUpdatedAfterPushSnapshot: jest.fn(),
       }));
 
       // Have to load test function within test scope so that we can mock dependencies per test case
       const {
         FacilitySyncManager: TestFacilitySyncManager,
-      } = require('../../app/sync/FacilitySyncManager');
+      } = require('../../dist/sync/FacilitySyncManager');
       const { createSnapshotTable } = require('@tamanu/shared/sync');
 
       const syncManager = new TestFacilitySyncManager({
@@ -214,19 +214,19 @@ describe('FacilitySyncManager', () => {
         createSnapshotTable: jest.fn(),
         saveIncomingChanges: jest.fn(),
       }));
-      jest.doMock('../../app/sync/pullIncomingChanges', () => ({
-        ...jest.requireActual('../../app/sync/pullIncomingChanges'),
+      jest.doMock('../../dist/sync/pullIncomingChanges', () => ({
+        ...jest.requireActual('../../dist/sync/pullIncomingChanges'),
         pullIncomingChanges: jest.fn().mockImplementation(() => ({ totalPulled: 3, tick: 1 })),
       }));
-      jest.doMock('../../app/sync/assertIfPulledRecordsUpdatedAfterPushSnapshot', () => ({
-        ...jest.requireActual('../../app/sync/assertIfPulledRecordsUpdatedAfterPushSnapshot'),
+      jest.doMock('../../dist/sync/assertIfPulledRecordsUpdatedAfterPushSnapshot', () => ({
+        ...jest.requireActual('../../dist/sync/assertIfPulledRecordsUpdatedAfterPushSnapshot'),
         assertIfPulledRecordsUpdatedAfterPushSnapshot: jest.fn(),
       }));
 
       // Have to load test function within test scope so that we can mock dependencies per test case
       const {
         FacilitySyncManager: TestFacilitySyncManager,
-      } = require('../../app/sync/FacilitySyncManager');
+      } = require('../../dist/sync/FacilitySyncManager');
       const { saveIncomingChanges } = require('@tamanu/shared/sync');
 
       const syncManager = new TestFacilitySyncManager({

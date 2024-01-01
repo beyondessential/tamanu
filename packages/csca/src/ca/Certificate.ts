@@ -1,4 +1,4 @@
-/* eslint-disable camelcase, @typescript-eslint/camelcase */
+/* eslint-disable camelcase */
 
 import { promises as fs } from 'fs';
 

@@ -2,12 +2,6 @@
   "admin": {
     "allowAdminRoutes": false
   },
-  "discovery": {
-    "enabled": true,
-    "overrideAddress": "",
-    "overridePort": null,
-    "protocol": "https"
-  },
   "log": {
     "path": "",
     "consoleLevel": "http",

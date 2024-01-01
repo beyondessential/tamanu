@@ -1,7 +1,7 @@
 import { useSelector, useDispatch } from 'react-redux';
 import { useQueryClient } from '@tanstack/react-query';
+
 import { logout, idleTimeout } from '../store';
-// eslint-disable-next-line import/no-cycle
 import { useApi } from '../api';
 import { useEncounterNotes } from './EncounterNotes';
 import { LOCAL_STORAGE_KEYS } from '../constants';

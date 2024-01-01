@@ -1,3 +1,5 @@
+import { expect, describe, it } from 'vitest'
+
 import { checkMandatory, checkVisibility } from '../../app/utils';
 
 describe('checkVisibility()', () => {

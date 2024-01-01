@@ -6,7 +6,7 @@ import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
 
 import { createTestContext } from '../utilities';
-import { snapshotOutgoingChanges } from '../../app/sync/snapshotOutgoingChanges';
+import { snapshotOutgoingChanges } from '../../dist/sync/snapshotOutgoingChanges';
 
 describe('snapshotOutgoingChanges', () => {
   let ctx;
@@ -154,6 +154,7 @@ describe('snapshotOutgoingChanges', () => {
       const fakeModelThatWaitsUntilWeSaySo = {
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
         async findAll() {
+          // eslint-disable-next-line no-constant-condition
           while (true) {
             if (resolveWhenNonEmpty.length > 0) {
               return [];
@@ -232,6 +233,7 @@ describe('snapshotOutgoingChanges', () => {
       const fakeModelThatWaitsUntilWeSaySo = {
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
         async findAll() {
+          // eslint-disable-next-line no-constant-condition
           while (true) {
             if (resolveWhenNonEmpty.length > 0) {
               return [];

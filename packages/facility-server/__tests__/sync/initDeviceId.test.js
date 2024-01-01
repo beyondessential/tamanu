@@ -1,5 +1,5 @@
 import { LocalSystemFact } from '@tamanu/shared/models/LocalSystemFact';
-import { initDeviceId } from '../../app/sync/initDeviceId';
+import { initDeviceId } from '../../dist/sync/initDeviceId';
 import { createTestContext } from '../utilities';
 
 jest.mock('shortid', () => () => 'test-device-id');

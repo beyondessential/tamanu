@@ -3,9 +3,9 @@ import { promises as fs } from 'fs';
 import { InvalidParameterError, RemoteCallFailedError } from '@tamanu/shared/errors';
 import { getUploadedData } from '@tamanu/shared/utils/getUploadedData';
 
-import { CentralServerConnection } from '../app/sync/CentralServerConnection';
+import { CentralServerConnection } from '../dist/sync/CentralServerConnection';
 // Get the unmocked function to be able to test it
-const { uploadAttachment } = jest.requireActual('../app/utils/uploadAttachment');
+const { uploadAttachment } = jest.requireActual('../dist/utils/uploadAttachment');
 
 // Mock image to be created with fs module. Expected size of 1002 bytes.
 const FILEDATA =

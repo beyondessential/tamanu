@@ -1,14 +1,14 @@
-import React from 'react';
-import { render } from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { persistStore } from 'redux-persist';
 
-import Root from './Root';
+import { renderRootInto } from './Root';
 import { API } from './api/singletons';
 import { registerYup } from './utils/errorMessages';
 import { initStore, restoreSession, authFailure, versionIncompatible } from './store';
 
-import './fonts.scss';
-import './react-toastify.scss';
+import '@fortawesome/fontawesome-free/css/all.css';
+import 'react-toastify/dist/ReactToastify.css';
+import './fonts.css';
 
 function initPersistor(api, store) {
   const persistor = persistStore(store, null, () => {
@@ -50,18 +50,15 @@ function start() {
 
   const persistor = initPersistor(API, store);
 
-  render(
-    <Root api={API} persistor={persistor} store={store} history={history} />,
-    document.getElementById('root'),
-  );
+  const container = document.getElementById('root');
+
+  const root = createRoot(container); // createRoot(container!) if you use TypeScript
+  renderRootInto(root, {
+    api: API,
+    persistor,
+    store,
+    history,
+  });
 }
 
 start();
-
-// Add this work around for webpack hot module reloading. We should be able to remove it if we update
-// our webpack version to a version higher than 5.40 @see https://github.com/webpack-contrib/webpack-hot-middleware/issues/390
-if (process.env.NODE_ENV === 'development') {
-  if (module.hot) {
-    module.hot.accept();
-  }
-}

@@ -2,8 +2,6 @@
 
 > This is a [monorepo](https://github.com/babel/babel/blob/master/doc/design/monorepo.md)
 
-[ ![Codeship Status for beyondessential/tamanu](https://app.codeship.com/projects/9355b080-d34d-0136-45ef-2e8db6e7ba42/status?branch=codeship)](https://app.codeship.com/projects/316346)
-
 | Package | Runbook | Description |
 | ------- | ------- | ----------- |
 | [@tamanu/central-server](packages/central-server) | [central-server runbook](https://beyond-essential.slab.com/posts/tamanu-central-server-runbook-et0trny5) | The central server, which facility server and mobile client instances communicate with to synchronise data |
@@ -18,7 +16,7 @@
 The latest version for each Tamanu service (Servers, Web Client & Mobile Client) can be retrieved with a HTTP GET request via their respective public API routes:
 
 - Facility server: https://meta.tamanu.io/version/lan
-- Web client: https://meta.tamanu.io/version/desktop
+- Webapp client: https://meta.tamanu.io/version/desktop
 - Mobile client: https://meta.tamanu.io/version/mobile
 
 ## Install

@@ -25,7 +25,7 @@ describe('pushOutgoingChanges', () => {
               jest.doMock('config', () => makeLimitConfig(config));
               // Have to load test function within test scope so that we can mock config per test case
               // https://jestjs.io/docs/jest-object#jestdomockmodulename-factory-options
-              const { pushOutgoingChanges } = require('../../app/sync/pushOutgoingChanges');
+              const { pushOutgoingChanges } = require('../../dist/sync/pushOutgoingChanges');
               const centralServer = {
                 push: jest.fn().mockImplementation(async () => {}),
                 completePush: jest.fn().mockImplementation(async () => true),
@@ -54,7 +54,7 @@ describe('pushOutgoingChanges', () => {
               jest.doMock('config', () => makeLimitConfig(config));
               // Have to load test function within test scope so that we can mock config per test case
               // https://jestjs.io/docs/jest-object#jestdomockmodulename-factory-options
-              const { pushOutgoingChanges } = require('../../app/sync/pushOutgoingChanges');
+              const { pushOutgoingChanges } = require('../../dist/sync/pushOutgoingChanges');
               const centralServer = {
                 push: jest.fn().mockImplementation(async () => {}),
                 completePush: jest.fn().mockImplementation(async () => true),
@@ -82,7 +82,7 @@ describe('pushOutgoingChanges', () => {
               jest.doMock('config', () => makeLimitConfig(config));
               // Have to load test function within test scope so that we can mock config per test case
               // https://jestjs.io/docs/jest-object#jestdomockmodulename-factory-options
-              const { pushOutgoingChanges } = require('../../app/sync/pushOutgoingChanges');
+              const { pushOutgoingChanges } = require('../../dist/sync/pushOutgoingChanges');
               const centralServer = {
                 push: jest.fn().mockImplementation(async () => {}),
                 completePush: jest.fn().mockImplementation(async () => true),

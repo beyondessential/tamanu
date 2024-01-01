@@ -11,18 +11,12 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  contents: write # for cd-client workflow, unused
-  pull-requests: write # for cd-client workflow, unused
   id-token: write # OIDC token for AWS
 
 jobs:
   info:
     name: Branch info
     uses: ./.github/workflows/branch-info.yml
-
-  desktop:
-    name: Desktop client
-    uses: ./.github/workflows/cd-client.yml
 
   image:
     needs: info
@@ -57,12 +51,11 @@ jobs:
 
     steps:
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v2
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: ap-southeast-2
           role-to-assume: arn:aws:iam::143295493206:role/gha-image-pull
           role-session-name: GHA@Tamanu=ServerZips
-          mask-aws-account-id: false
 
       - name: Login to ECR
         uses: aws-actions/amazon-ecr-login@v1
@@ -114,7 +107,6 @@ jobs:
       - info
       - image
       - build
-      - desktop
     strategy:
       fail-fast: false
       matrix:
@@ -156,12 +148,6 @@ jobs:
           yarn config set network-timeout 600000 -g
           yarn install --frozen-lockfile --production
 
-      - name: Download desktop client artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: desktop-client
-          path: ${{ env.BUILD_NAME }}/packages/${{ matrix.package }}-server/upgrade
-
       - name: Prepare final output
         shell: bash
         run: |
@@ -190,12 +176,11 @@ jobs:
           rm minisign.*
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v2
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: ap-southeast-2
           role-to-assume: arn:aws:iam::143295493206:role/gha-server-s3
-          role-session-name: GHA@Tamanu=ServerZips
-          mask-aws-account-id: false
+          role-session-name: GHA@Tamanu=ServerPackage
 
       - name: Push to S3
         run: |

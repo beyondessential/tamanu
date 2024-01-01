@@ -2,8 +2,8 @@ import { trace, propagation, context } from '@opentelemetry/api';
 import { sign as signCallback, verify as verifyCallback } from 'jsonwebtoken';
 import { compare } from 'bcrypt';
 import config from 'config';
-import { v4 as uuid } from 'uuid';
 import { promisify } from 'util';
+import crypto from 'crypto';
 
 import { VISIBILITY_STATUSES, USER_DEACTIVATED_ERROR_MESSAGE } from '@tamanu/constants';
 import { BadAuthenticationError } from '@tamanu/shared/errors';
@@ -16,7 +16,7 @@ const { tokenDuration, secret } = config.auth;
 
 // regenerate the secret key whenever the server restarts.
 // this will invalidate all current tokens, but they're meant to expire fairly quickly anyway.
-const jwtSecretKey = secret || uuid();
+const jwtSecretKey = secret || crypto.randomUUID();
 const sign = promisify(signCallback);
 const verify = promisify(verifyCallback);
 

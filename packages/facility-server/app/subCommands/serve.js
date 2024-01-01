@@ -10,7 +10,6 @@ import { performDatabaseIntegrityChecks } from '../database';
 import { FacilitySyncManager, CentralServerConnection } from '../sync';
 import { createApp } from '../createApp';
 import { startScheduledTasks } from '../tasks';
-import { listenForServerQueries } from '../discovery';
 
 import { version } from '../serverInfo';
 import { ApplicationContext } from '../ApplicationContext';
@@ -55,8 +54,6 @@ async function serve({ skipMigrationCheck }) {
     log.info('Received SIGTERM, closing HTTP server');
     server.close();
   });
-
-  listenForServerQueries();
 
   startScheduledTasks(context);
 }

@@ -2,8 +2,9 @@ import { Command } from 'commander';
 import { Sequelize } from 'sequelize';
 import { SURVEY_TYPES } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
-import { v4 as generateId } from 'uuid';
 import config from 'config';
+import crypto from 'crypto';
+
 import { initDatabase } from '../../database';
 
 const BATCH_COUNT = 100;
@@ -73,7 +74,7 @@ export async function migrateVitals() {
         log.info(`Processing batch of ${vitalsChunk.length} vitals records`);
 
         // Map the new ids so we can look them up when generating the answer records
-        const idMap = new Map(vitalsChunk.map(vital => [vital.dataValues.id, generateId()]));
+        const idMap = new Map(vitalsChunk.map(vital => [vital.dataValues.id, crypto.randomUUID()]));
         const newResponses = vitalsChunk.map(vital => ({
           id: idMap.get(vital.dataValues.id),
           encounterId: vital.dataValues.encounterId,

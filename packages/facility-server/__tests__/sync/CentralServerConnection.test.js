@@ -5,7 +5,7 @@ import {
   BadAuthenticationError,
 } from '@tamanu/shared/errors';
 
-const { CentralServerConnection } = jest.requireActual('../../app/sync/CentralServerConnection');
+const { CentralServerConnection } = jest.requireActual('../../dist/sync/CentralServerConnection');
 
 const fakeResponse = (response, body, headers) => {
   const validBody = JSON.parse(JSON.stringify(body));

@@ -1,16 +1,13 @@
-import { promises } from 'fs';
 import qs from 'qs';
-import { ipcRenderer } from 'electron';
 
 import { buildAbilityForUser } from '@tamanu/shared/permissions/buildAbility';
 import { VERSION_COMPATIBILITY_ERRORS, SERVER_TYPES } from '@tamanu/constants';
 import { ForbiddenError, NotFoundError } from '@tamanu/shared/errors';
 
 import { LOCAL_STORAGE_KEYS } from '../constants';
-// eslint-disable-next-line import/no-cycle
 import { getDeviceId, notifyError } from '../utils';
 
-const { HOST, TOKEN, LOCALISATION, SERVER, PERMISSIONS, ROLE } = LOCAL_STORAGE_KEYS;
+const { TOKEN, LOCALISATION, SERVER, PERMISSIONS, ROLE } = LOCAL_STORAGE_KEYS;
 
 const getResponseJsonSafely = async response => {
   try {
@@ -25,12 +22,11 @@ const getResponseJsonSafely = async response => {
 
 const getVersionIncompatibleMessage = (error, response) => {
   if (error.message === VERSION_COMPATIBILITY_ERRORS.LOW) {
-    const minAppVersion = response.headers.get('X-Min-Client-Version');
-    return `Please upgrade to Tamanu Web v${minAppVersion} or higher. Try closing and reopening, or contact your system administrator.`;
+    return 'Tamanu is out of date, reload to get the new version! If that does not work, contact your system administrator.';
   }
 
   if (error.message === VERSION_COMPATIBILITY_ERRORS.HIGH) {
-    const maxAppVersion = response.headers.get('X-Max-Client-Version');
+    const maxAppVersion = response.headers.get('X-Max-Client-Version').split('.', 3).slice(0, 2).join('.');
     return `The Tamanu Facility Server only supports up to v${maxAppVersion}, and needs to be upgraded. Please contact your system administrator.`;
   }
 
@@ -47,7 +43,7 @@ const fetchOrThrowIfUnavailable = async (url, config) => {
     // apply more helpful message if the server is not available
     if (e.message === 'Failed to fetch') {
       throw new Error(
-        'The Facility Server is unavailable. Please check with your system administrator that the address is set correctly, and that it is running',
+        'The Facility Server is unavailable. Please contact your system administrator.',
       );
     }
     throw e; // some other unhandled error
@@ -111,19 +107,13 @@ export class TamanuApi {
     this.user = null;
     this.deviceId = getDeviceId();
 
-    const host = window.localStorage.getItem(HOST);
-    if (host) {
-      this.setHost(host);
-    }
-  }
-
-  setHost(host) {
-    const canonicalHost = host.endsWith('/') ? host.slice(0, -1) : host;
-    this.host = canonicalHost;
-    this.prefix = `${canonicalHost}/v1`;
-
-    // save host in local storage
-    window.localStorage.setItem(HOST, canonicalHost);
+    const host = new URL(location);
+    host.pathname = '';
+    host.search = '';
+    host.hash = '';
+    this.host = host.toString();
+    host.pathname = '/api';
+    this.prefix = host.toString();
   }
 
   setAuthFailureHandler(handler) {
@@ -147,8 +137,7 @@ export class TamanuApi {
     return { user, token, localisation, server, ability, role };
   }
 
-  async login(host, email, password) {
-    this.setHost(host);
+  async login(email, password) {
     const response = await this.post(
       'login',
       {
@@ -184,13 +173,11 @@ export class TamanuApi {
     return { user, token, localisation, server, ability, role };
   }
 
-  async requestPasswordReset(host, email) {
-    this.setHost(host);
+  async requestPasswordReset(email) {
     return this.post('resetPassword', { email });
   }
 
-  async changePassword(host, data) {
-    this.setHost(host);
+  async changePassword(data) {
     return this.post('changePassword', data);
   }
 
@@ -210,9 +197,6 @@ export class TamanuApi {
   }
 
   async fetch(endpoint, query, config) {
-    if (!this.host) {
-      throw new Error("TamanuApi can't be used until the host is set");
-    }
     const {
       headers,
       returnResponse = false,
@@ -241,6 +225,8 @@ export class TamanuApi {
 
     const { error } = await getResponseJsonSafely(response);
 
+    // TODO: handle server gone errors (502 through 504)
+
     // handle forbidden error and trigger catch all modal
     if (response.status === 403 && error) {
       throw new ForbiddenError(error?.message);
@@ -258,12 +244,6 @@ export class TamanuApi {
     if (response.status === 400 && error) {
       const versionIncompatibleMessage = getVersionIncompatibleMessage(error, response);
       if (versionIncompatibleMessage) {
-        if (error.message === VERSION_COMPATIBILITY_ERRORS.LOW) {
-          // If detect that web version is lower than facility server version,
-          // communicate with main process to initiate the auto upgrade
-          ipcRenderer.invoke('update-available', this.host);
-        }
-
         if (this.onVersionIncompatible) {
           this.onVersionIncompatible(versionIncompatibleMessage);
         }
@@ -293,7 +273,9 @@ export class TamanuApi {
   }
 
   async postWithFileUpload(endpoint, filePath, body, options = {}) {
-    const fileData = await promises.readFile(filePath);
+    // const fileData = await promises.readFile(filePath);
+    // TODO(web)
+    const fileData = {};
     const blob = new Blob([fileData]);
 
     // We have to use multipart/formdata to support sending the file data,

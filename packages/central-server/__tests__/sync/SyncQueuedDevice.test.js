@@ -1,10 +1,9 @@
 import { beforeAll, describe, it } from '@jest/globals';
-
-import { fake } from 'shared/test-helpers/fake';
+import { fake } from '@tamanu/shared/test-helpers/fake';
+import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { subMinutes } from 'date-fns';
 
 import { createTestContext } from '../utilities';
-import { toDateTimeString } from 'shared/utils/dateTime';
-import { subMinutes } from 'date-fns';
 
 describe('SyncQueuedDevice', () => {
   let ctx;
@@ -46,7 +45,7 @@ describe('SyncQueuedDevice', () => {
       ].map(id => models.Facility.create(fake(models.Facility, { id, name: id })))
     );
 
-    const { CentralSyncManager } = require('../../app/sync/CentralSyncManager');
+    const { CentralSyncManager } = require('../../dist/sync/CentralSyncManager');
     CentralSyncManager.overrideConfig({
       sync: {
         awaitPreparation: true,
@@ -97,7 +96,7 @@ describe('SyncQueuedDevice', () => {
 
       const waiting = await requestSync('D', 300);
       expect(waiting.body).toHaveProperty('status', 'waitingInQueue');
-      
+
       const started = await requestSync('E', 10);
       expect(started.body).toHaveProperty('sessionId');
     });
@@ -116,7 +115,7 @@ describe('SyncQueuedDevice', () => {
 
       const waiting = await requestSync('E', 10);
       expect(waiting.body).toHaveProperty('status', 'waitingInQueue');
-      
+
       const started = await requestSync('C', 200);  // previous urgent flag should stick
       expect(started.body).toHaveProperty('sessionId');
     });
@@ -147,10 +146,10 @@ describe('SyncQueuedDevice', () => {
 
       // wrap up the A session so that B and C can compete for next spot
       await closeActiveSyncSessions();
-      
+
       // B should be waiting behind C
       const resultCheck = await requestSync('B', 100);
-      expect(resultCheck.body).toHaveProperty('status', 'waitingInQueue');  
+      expect(resultCheck.body).toHaveProperty('status', 'waitingInQueue');
 
       // now grab the queue record for C and backdate it to ages ago
       const queuedDeviceC = await models.SyncQueuedDevice.findByPk('queue-C');
@@ -159,7 +158,7 @@ describe('SyncQueuedDevice', () => {
       });
 
       // now our B device should be at the front of the queue
-      const started = await requestSync('B', 200); 
+      const started = await requestSync('B', 200);
       expect(started.body).toHaveProperty('sessionId');
     });
   });

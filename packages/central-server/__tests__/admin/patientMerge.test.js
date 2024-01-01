@@ -8,8 +8,8 @@ import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants/patientFields'
 import {
   mergePatient,
   getTablesWithNoMergeCoverage,
-} from '../../app/admin/patientMerge/mergePatient';
-import { PatientMergeMaintainer } from '../../app/tasks/PatientMergeMaintainer';
+} from '../../dist/admin/patientMerge/mergePatient';
+import { PatientMergeMaintainer } from '../../dist/tasks/PatientMergeMaintainer';
 import { createTestContext } from '../utilities';
 
 describe('Patient merge', () => {

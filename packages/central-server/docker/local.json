@@ -1,9 +1,0 @@
-{
-  "db": {
-    "host": "db",
-    "name": "tamanu-central",
-    "username": "tamanu-central",
-    "password": "tamanu-central",
-    "migrateOnStartup": true
-  }
-}

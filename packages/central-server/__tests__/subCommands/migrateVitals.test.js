@@ -1,7 +1,7 @@
-import { migrateVitals, COLUMNS_TO_DATA_ELEMENT_ID } from '../../app/subCommands/migrateVitals';
-import { initDatabase } from '../../app/database';
+import { migrateVitals, COLUMNS_TO_DATA_ELEMENT_ID } from '../../dist/subCommands/migrateVitals';
+import { initDatabase } from '../../dist/database';
 
-jest.mock('../../app/database', () => ({
+jest.mock('../../dist/database', () => ({
   initDatabase: jest.fn().mockResolvedValue({
     models: {
       Vitals: {

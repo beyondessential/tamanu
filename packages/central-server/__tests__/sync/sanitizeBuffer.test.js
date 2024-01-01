@@ -6,7 +6,7 @@ import { fake } from '@tamanu/shared/test-helpers/fake';
 import { createSnapshotTable, findSyncSnapshotRecords, SYNC_SESSION_DIRECTION } from '@tamanu/shared/sync';
 
 import { createTestContext } from '../utilities';
-import { snapshotOutgoingChanges } from '../../app/sync/snapshotOutgoingChanges';
+import { snapshotOutgoingChanges } from '../../dist/sync/snapshotOutgoingChanges';
 
 describe('sanitize binary data', () => {
   let ctx;

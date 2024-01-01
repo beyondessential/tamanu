@@ -1,5 +1,5 @@
-import { importerTransaction } from '../../../app/admin/importerEndpoint';
-import { referenceDataImporter } from '../../../app/admin/referenceDataImporter';
+import { importerTransaction } from '../../../dist/admin/importerEndpoint';
+import { referenceDataImporter } from '../../../dist/admin/referenceDataImporter';
 import { createTestContext } from '../../utilities';
 import '../matchers';
 
@@ -162,12 +162,11 @@ describe('Patients import', () => {
 
     expect(didntSendReason).toEqual('validationFailed');
 
-    expect(errors).toContainValidationError(
+    expect(errors).toContainAnError(
       'patient',
       2,
       'No such patient field definition: patientFieldDef2',
     );
-
   });
 
   it('should create PatientFieldValue when a valid custom field is set (corresponds to valid PatientFieldDefinition) and patientAdditionalData field is TRUE', async () => {
@@ -182,5 +181,4 @@ describe('Patients import', () => {
     expect(stats.PatientAdditionalData).toEqual({ created: 1, updated: 0, errored: 0, deleted: 0, restored: 0, skipped: 0 });
     expect(stats.PatientFieldValue).toEqual({ created: 1, updated: 0, errored: 0, deleted: 0, restored: 0, skipped: 0 });
   });
-
 });

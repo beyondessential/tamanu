@@ -6,7 +6,7 @@ import { toDateTimeString, getCurrentDateTimeString } from '@tamanu/shared/utils
 import { sleepAsync } from '@tamanu/shared/utils';
 
 import { createTestContext } from '../utilities';
-import { removeDuplicatedDischarges } from '../../app/subCommands';
+import { removeDuplicatedDischarges } from '../../dist/subCommands';
 
 describe('removeDuplicatedDischarges', () => {
   let ctx;

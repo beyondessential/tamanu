@@ -1,4 +1,4 @@
-import { generateFiji } from '../../app/subCommands/generate/fiji';
+import { generateFiji } from '../../dist/subCommands/generate/fiji';
 import { createTestContext } from '../utilities';
 
 describe('`generate fiji` subcommand', () => {
