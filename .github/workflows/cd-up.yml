@@ -41,10 +41,10 @@ jobs:
           #   runs-on: ubuntu-arm64 # when available
         package:
           - name: central
-            path: sync-server
+            path: central-server
             target: server
           - name: facility
-            path: lan
+            path: facility-server
             target: server
           - name: frontend
             path: web
