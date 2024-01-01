@@ -162,7 +162,7 @@ describe('Patients import', () => {
 
     expect(didntSendReason).toEqual('validationFailed');
 
-    expect(errors).toContainError(
+    expect(errors).toContainAnError(
       'patient',
       2,
       'No such patient field definition: patientFieldDef2',

@@ -196,7 +196,7 @@ describe('Programs import', () => {
         file: 'vitals-valid',
         dryRun: true,
       });
-      expect(errors).toContainError('metadata', 0, 'Only one vitals survey');
+      expect(errors).toContainAnError('metadata', 0, 'Only one vitals survey');
     });
 
     it('Should reject a vitals survey with isSensitive set to true', async () => {
@@ -204,7 +204,7 @@ describe('Programs import', () => {
         file: 'vitals-sensitive-true',
         dryRun: true,
       });
-      expect(errors).toContainError('metadata', 0, 'Vitals survey can not be sensitive');
+      expect(errors).toContainAnError('metadata', 0, 'Vitals survey can not be sensitive');
     });
 
     it('Should validate normalRange in validation_criteria', async () => {

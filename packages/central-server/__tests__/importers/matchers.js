@@ -28,4 +28,8 @@ function toContainFkError(errors, inSheet, atRow, withMessage) {
   return toContainError(errors, { ofType: ForeignkeyResolutionError, inSheet, atRow, withMessage });
 }
 
-expect.extend({ toContainError, toContainValidationError, toContainFkError });
+function toContainAnError(errors, inSheet, atRow, withMessage) {
+  return toContainError(errors, { inSheet, atRow, withMessage });
+}
+
+expect.extend({ toContainAnError, toContainValidationError, toContainFkError });
