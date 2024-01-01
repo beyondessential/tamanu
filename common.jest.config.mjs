@@ -13,7 +13,7 @@ function canRead(path) {
   }
 }
 
-export function config(importMeta, overrides = {}) {
+export function config(importMeta, overrides = {}, { transformNodeModules = false } = {}) {
   let swcjson = {};
   const swcpath = join(dirname(fileURLToPath(importMeta.url)), '.swcrc');
   if (canRead(swcpath)) {
@@ -33,14 +33,22 @@ export function config(importMeta, overrides = {}) {
     showSeed: true, // helps to reproduce order-dependence bugs
 
     transform: {
-      '^.+\\.js$': ['@swc/jest', {
+      '^.+\\.jsx?$': ['@swc/jest', {
         ...swcjson,
         module: {
           ...swcjson.module,
           type: 'commonjs',
         },
+        ...(transformNodeModules ? {
+          exclude: [],
+        } : {})
       }],
     },
+    ...(transformNodeModules ? {
+      transformIgnorePatterns: [
+        `node_modules/(?!(${transformNodeModules.join('|')})/)`,
+      ],
+    } : {}),
 
     ...overrides,
   };

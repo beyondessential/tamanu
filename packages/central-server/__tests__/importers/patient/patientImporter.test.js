@@ -1,5 +1,5 @@
-import { importerTransaction } from '../../../app/admin/importerEndpoint';
-import { referenceDataImporter } from '../../../app/admin/referenceDataImporter';
+import { importerTransaction } from '../../../dist/admin/importerEndpoint';
+import { referenceDataImporter } from '../../../dist/admin/referenceDataImporter';
 import { createTestContext } from '../../utilities';
 import '../matchers';
 

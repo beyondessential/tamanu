@@ -1,5 +1,4 @@
 import { last } from 'lodash';
-import { v4 as uuidv4 } from 'uuid';
 
 import { FHIR_ISSUE_SEVERITY } from '@tamanu/constants';
 import { FhirError, Invalid } from './errors';
@@ -33,7 +32,7 @@ export class OperationOutcome extends Error {
   asFhir() {
     return {
       resourceType: 'OperationOutcome',
-      id: uuidv4(),
+      id: crypto.randomUUID(),
       issue: this.errors.map(err => err.asFhir()),
     };
   }

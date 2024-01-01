@@ -10,7 +10,7 @@ const { TextDecoder } = require('util');
 global.TextDecoder = TextDecoder;
 
 jest.setTimeout(30 * 1000); // more generous than the default 5s but not crazy
-jest.mock('../app/utils/getFreeDiskSpace');
+jest.mock('../dist/utils/getFreeDiskSpace');
 
 const formatError = response => {
   if (!response.body) {

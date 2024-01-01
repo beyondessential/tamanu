@@ -1,11 +1,11 @@
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
-import { getToken, centralServerLogin } from '@tamanu/facility-server/app/middleware/auth';
 import { pick } from 'lodash';
 import { fake, chance, disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 import { addHours } from 'date-fns';
 import { createDummyEncounter } from '@tamanu/shared/demoData/patients';
 
-import { CentralServerConnection } from '../../app/sync/CentralServerConnection';
+import { getToken, centralServerLogin } from '../../dist/app/middleware/auth';
+import { CentralServerConnection } from '../../dist/sync/CentralServerConnection';
 import { createTestContext } from '../utilities';
 
 const createUser = overrides => ({

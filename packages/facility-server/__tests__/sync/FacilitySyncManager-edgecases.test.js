@@ -44,7 +44,7 @@ describe('FacilitySyncManager edge cases', () => {
 
     const {
       FacilitySyncManager: TestFacilitySyncManager,
-    } = require('../../app/sync/FacilitySyncManager');
+    } = require('../../dist/sync/FacilitySyncManager');
     const syncManager = new TestFacilitySyncManager({
       models,
       sequelize,
@@ -127,7 +127,7 @@ describe('FacilitySyncManager edge cases', () => {
     const initializeSyncManager = (pulledEncounter, configToOverride) => {
       const {
         FacilitySyncManager: TestFacilitySyncManager,
-      } = require('../../app/sync/FacilitySyncManager');
+      } = require('../../dist/sync/FacilitySyncManager');
       if (configToOverride) {
         TestFacilitySyncManager.overrideConfig(configToOverride);
       }
@@ -200,8 +200,8 @@ describe('FacilitySyncManager edge cases', () => {
       const pushOutgoingChangesPromise = new Promise(resolve => {
         resolvePushOutgoingChangesPromise = async () => resolve(true);
       });
-      jest.doMock('../../app/sync/pushOutgoingChanges', () => ({
-        ...jest.requireActual('../../app/sync/pushOutgoingChanges'),
+      jest.doMock('../../dist/sync/pushOutgoingChanges', () => ({
+        ...jest.requireActual('../../dist/sync/pushOutgoingChanges'),
         pushOutgoingChanges: jest.fn().mockImplementation(() => {
           return pushOutgoingChangesPromise;
         }),
@@ -229,8 +229,8 @@ describe('FacilitySyncManager edge cases', () => {
       const pushOutgoingChangesPromise = new Promise(resolve => {
         resolvePushOutgoingChangesPromise = async () => resolve(true);
       });
-      jest.doMock('../../app/sync/pushOutgoingChanges', () => ({
-        ...jest.requireActual('../../app/sync/pushOutgoingChanges'),
+      jest.doMock('../../dist/sync/pushOutgoingChanges', () => ({
+        ...jest.requireActual('../../dist/sync/pushOutgoingChanges'),
         pushOutgoingChanges: jest.fn().mockImplementation(() => {
           return pushOutgoingChangesPromise;
         }),
@@ -261,8 +261,8 @@ describe('FacilitySyncManager edge cases', () => {
       const pushOutgoingChangesPromise = new Promise(resolve => {
         resolvePushOutgoingChangesPromise = async () => resolve(true);
       });
-      jest.doMock('../../app/sync/pushOutgoingChanges', () => ({
-        ...jest.requireActual('../../app/sync/pushOutgoingChanges'),
+      jest.doMock('../../dist/sync/pushOutgoingChanges', () => ({
+        ...jest.requireActual('../../dist/sync/pushOutgoingChanges'),
         pushOutgoingChanges: jest.fn().mockImplementation(() => {
           return pushOutgoingChangesPromise;
         }),

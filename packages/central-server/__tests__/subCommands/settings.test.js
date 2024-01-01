@@ -3,7 +3,7 @@ import { mkdtemp, writeFile, rmdir } from 'fs/promises';
 import { tmpdir } from 'os';
 import { fake } from '@tamanu/shared/test-helpers/fake';
 import { Op } from 'sequelize';
-import { listSettings, getSetting, setSetting, loadSettings } from '../../app/subCommands/settings';
+import { listSettings, getSetting, setSetting, loadSettings } from '../../dist/subCommands/settings';
 import { createTestContext } from '../utilities';
 
 describe('settings', () => {

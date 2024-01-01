@@ -1,4 +1,4 @@
-import { coalesceStats } from "../../app/admin/stats";
+import { coalesceStats } from "../../dist/admin/stats";
 
 describe('Importer statistics utility functions', () => {
 

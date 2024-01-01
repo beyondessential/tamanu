@@ -1,7 +1,7 @@
 import { fake } from '@tamanu/shared/test-helpers/fake';
 import { SURVEY_TYPES } from '@tamanu/constants';
-import { importerTransaction } from '../../app/admin/importerEndpoint';
-import { programImporter } from '../../app/admin/programImporter';
+import { importerTransaction } from '../../dist/admin/importerEndpoint';
+import { programImporter } from '../../dist/admin/programImporter';
 import { createTestContext } from '../utilities';
 import './matchers';
 

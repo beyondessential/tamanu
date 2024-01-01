@@ -1,5 +1,3 @@
-import { v4 as uuidv4 } from 'uuid';
-
 import { FHIR_BUNDLE_TYPES } from '@tamanu/constants';
 import { formatFhirDate, OperationOutcome } from '@tamanu/shared/utils/fhir';
 
@@ -43,7 +41,7 @@ export class Bundle {
   asFhir() {
     const fields = {
       resourceType: 'Bundle',
-      id: uuidv4(),
+      id: crypto.randomUUID(),
       type: this.type,
       timestamp: formatFhirDate(new Date()),
     };

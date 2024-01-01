@@ -1,7 +1,9 @@
 import { config } from '../../common.jest.config.mjs';
 
 export default config(import.meta, {
-  testEnvironment: 'node',
-  globalTeardown: '<rootDir>/__tests__/teardown.js',
-  setupFilesAfterEnv: ['<rootDir>/__tests__/configureEnvironment.js', 'jest-expect-message'],
-});
+  testEnvironment: 'jest-environment-node',
+  testPathIgnorePatterns: ['<rootDir>/app/', '<rootDir>/__tests__/', '/node_modules/'],
+  globalTeardown: '<rootDir>/__disttests__/teardown.js',
+  setupFiles: ['<rootDir>/__disttests__/setup.js'],
+  setupFilesAfterEnv: ['<rootDir>/__disttests__/configureEnvironment.js', 'jest-expect-message'],
+}, { transformNodeModules: ['uuid', 'sequelize'] });

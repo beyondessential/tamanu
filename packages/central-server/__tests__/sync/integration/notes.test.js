@@ -10,7 +10,7 @@ import {
 } from '@tamanu/constants';
 
 import { createTestContext } from '../../utilities';
-import { CentralSyncManager } from '../../../app/sync/CentralSyncManager';
+import { CentralSyncManager } from '../../../dist/sync/CentralSyncManager';
 
 const waitForSession = async (centralSyncManager, sessionId) => {
   let ready = false;

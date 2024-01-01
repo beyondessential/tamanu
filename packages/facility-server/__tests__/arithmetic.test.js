@@ -1,4 +1,4 @@
-import { runArithmetic } from '@tamanu/facility-server/app/utils/arithmetic';
+import { runArithmetic } from '../dist/app/utils/arithmetic';
 
 describe('Arithmetic', () => {
   describe('basics', () => {

@@ -1,4 +1,4 @@
-import { callWithBackoff } from '../../app/sync/callWithBackoff';
+import { callWithBackoff } from '../../dist/sync/callWithBackoff';
 
 describe('callWithBackoff', () => {
   jest.setTimeout(5000); // 5 seconds should be well and truly enough

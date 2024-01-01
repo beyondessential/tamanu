@@ -1,5 +1,5 @@
 import { chance } from '@tamanu/shared/test-helpers';
-import { labTestTypeToLOINCCode } from '../../app/hl7fhir/loinc';
+import { labTestTypeToLOINCCode } from '../../dist/hl7fhir/loinc';
 
 describe('HL7 LOINC', () => {
   it('returns "Immunoassay" for a swab', () => {

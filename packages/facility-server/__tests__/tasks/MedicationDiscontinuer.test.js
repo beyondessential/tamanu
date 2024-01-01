@@ -6,7 +6,7 @@ import {
 import { addDays, subDays } from 'date-fns';
 import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { createTestContext } from '../utilities';
-import { MedicationDiscontinuer } from '../../app/tasks/MedicationDiscontinuer';
+import { MedicationDiscontinuer } from '../../dist/tasks/MedicationDiscontinuer';
 
 // Mock config to add custom serverFacilityId.
 // It can't be done through test.json file in config because
