@@ -14,9 +14,33 @@ concurrency:
 env:
   NODE_OPTIONS: "--max-old-space-size=6144"
   NODE_ENV: test
+  NODE_MODULES_PATHS: |
+    node_modules
+    packages/*/node_modules
+    !packages/mobile/node_modules
 
 jobs:
+  node_modules_cache:
+    name: Cache node modules
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20.x
+          cache: yarn
+      - uses: actions/cache/restore@v3
+        with:
+          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+          path: ${{ env.NODE_MODULES_PATHS }}
+      - run: yarn
+      - uses: actions/cache/save@v3
+        with:
+          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+          path: ${{ env.NODE_MODULES_PATHS }}
+
   test:
+    needs: node_modules_cache
     strategy:
       fail-fast: false
       matrix:
@@ -42,19 +66,9 @@ jobs:
       - uses: actions/cache/restore@v3
         with:
           key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
-          path: |
-            node_modules
-            packages/*/node_modules
-            !packages/mobile/node_modules
-      - run: yarn
-      - uses: actions/cache/save@v3
-        with:
-          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
-          path: |
-            node_modules
-            packages/*/node_modules
-            !packages/mobile/node_modules
+          path: ${{ env.NODE_MODULES_PATHS }}
 
+      - run: yarn
       - run: yarn build-shared
       - run: yarn workspace ${{ matrix.package }} run build
 
@@ -73,6 +87,7 @@ jobs:
           yarn workspace "$package" run test $shard
 
   build-all:
+    needs: node_modules_cache
     name: Build all packages
     runs-on: ubuntu-latest
     steps:
@@ -84,22 +99,13 @@ jobs:
       - uses: actions/cache/restore@v3
         with:
           key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
-          path: |
-            node_modules
-            packages/*/node_modules
-            !packages/mobile/node_modules
-      - run: yarn
-      - uses: actions/cache/save@v3
-        with:
-          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
-          path: |
-            node_modules
-            packages/*/node_modules
-            !packages/mobile/node_modules
+          path: ${{ env.NODE_MODULES_PATHS }}
 
+      - run: yarn
       - run: yarn build
 
   lint:
+    needs: node_modules_cache
     name: Lint packages
     runs-on: ubuntu-latest
     steps:
@@ -111,18 +117,8 @@ jobs:
       - uses: actions/cache/restore@v3
         with:
           key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
-          path: |
-            node_modules
-            packages/*/node_modules
-            !packages/mobile/node_modules
+          path: ${{ env.NODE_MODULES_PATHS }}
       - run: yarn
-      - uses: actions/cache/save@v3
-        with:
-          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
-          path: |
-            node_modules
-            packages/*/node_modules
-            !packages/mobile/node_modules
 
       - name: Lint errors
         run: yarn lint-all --quiet
@@ -131,6 +127,7 @@ jobs:
         run: yarn lint-all
 
   storybook:
+    needs: node_modules_cache
     # Workaround for define plugin conflict warning
     env:
       NODE_ENV: development
@@ -146,23 +143,14 @@ jobs:
       - uses: actions/cache/restore@v3
         with:
           key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
-          path: |
-            node_modules
-            packages/*/node_modules
-            !packages/mobile/node_modules
-      - run: yarn
-      - uses: actions/cache/save@v3
-        with:
-          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
-          path: |
-            node_modules
-            packages/*/node_modules
-            !packages/mobile/node_modules
+          path: ${{ env.NODE_MODULES_PATHS }}
 
+      - run: yarn
       - run: yarn build-shared
       - run: yarn workspace @tamanu/web-frontend run test-storybook
 
   migrations:
+    needs: node_modules_cache
     strategy:
       fail-fast: false
       matrix:
@@ -186,19 +174,9 @@ jobs:
       - uses: actions/cache/restore@v3
         with:
           key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
-          path: |
-            node_modules
-            packages/*/node_modules
-            !packages/mobile/node_modules
-      - run: yarn
-      - uses: actions/cache/save@v3
-        with:
-          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
-          path: |
-            node_modules
-            packages/*/node_modules
-            !packages/mobile/node_modules
+          path: ${{ env.NODE_MODULES_PATHS }}
 
+      - run: yarn
       - run: yarn build-shared
 
       - name: Install and start postgres ${{ matrix.postgres }}
@@ -232,6 +210,7 @@ jobs:
         working-directory: packages/mobile
 
   test-facility-offline:
+    needs: node_modules_cache
     name: Test the facility server with the central server being down
     runs-on: ubuntu-latest
     steps:
@@ -243,18 +222,8 @@ jobs:
       - uses: actions/cache/restore@v3
         with:
           key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
-          path: |
-            node_modules
-            packages/*/node_modules
-            !packages/mobile/node_modules
+          path: ${{ env.NODE_MODULES_PATHS }}
       - run: yarn
-      - uses: actions/cache/save@v3
-        with:
-          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
-          path: |
-            node_modules
-            packages/*/node_modules
-            !packages/mobile/node_modules
 
       - name: Install and start postgres
         run: |
