@@ -17,7 +17,7 @@ export class LegacyNoteItem extends BaseModel implements ILegacyNoteItem {
   @DateTimeStringColumn({ nullable: false, default: ISO9075_SQLITE_DEFAULT })
   date: DateTimeString;
 
-  // Content has a default of '' on desktop but also doesn't allow null content
+  // Content has a default of '' on web but also doesn't allow null content
   // I'm going to assume it was a workaround that isn't needed here
   @Column({ type: 'varchar', nullable: false })
   content: string;

@@ -21,15 +21,15 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { package: lan,         shard: 1/3, postgres: 14 }
-          - { package: lan,         shard: 2/3, postgres: 14 }
-          - { package: lan,         shard: 3/3, postgres: 14 }
-          - { package: sync-server, shard: 1/3, postgres: 14 }
-          - { package: sync-server, shard: 2/3, postgres: 14 }
-          - { package: sync-server, shard: 3/3, postgres: 14 }
-          - { package: meta-server }
-          - { package: "@tamanu/shared", postgres: 14 }
-          - { package: "desktop" }
+          - { package: "@tamanu/facility-server", shard: 1/3, postgres: 14 }
+          - { package: "@tamanu/facility-server", shard: 2/3, postgres: 14 }
+          - { package: "@tamanu/facility-server", shard: 3/3, postgres: 14 }
+          - { package: "@tamanu/central-server",  shard: 1/3, postgres: 14 }
+          - { package: "@tamanu/central-server",  shard: 2/3, postgres: 14 }
+          - { package: "@tamanu/central-server",  shard: 3/3, postgres: 14 }
+          - { package: "@tamanu/meta-server" }
+          - { package: "@tamanu/shared",                      postgres: 14 }
+          - { package: "@tamanu/web-frontend" }
 
     name: Test ${{ matrix.package }} ${{ matrix.shard }}
     runs-on: ubuntu-latest
@@ -124,7 +124,11 @@ jobs:
             packages/*/node_modules
             !packages/mobile/node_modules
 
-      - run: yarn lint-all
+      - name: Lint errors
+        run: yarn lint-all --quiet
+
+      - name: Lint warnings
+        run: yarn lint-all
 
   storybook:
     # Workaround for define plugin conflict warning
@@ -156,15 +160,15 @@ jobs:
             !packages/mobile/node_modules
 
       - run: yarn build-shared
-      - run: yarn workspace desktop run test-storybook
+      - run: yarn workspace @tamanu/web-frontend run test-storybook
 
   migrations:
     strategy:
       fail-fast: false
       matrix:
         server:
-          - sync-server
-          - lan
+          - central-server
+          - facility-server
         postgres:
           - '12'
           - '14'
