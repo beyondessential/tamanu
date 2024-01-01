@@ -121,7 +121,7 @@ export default [
     },
   },
   {
-    files: [`packages/desktop/**/*.${EXTS}`],
+    files: [`packages/web/**/*.${EXTS}`],
     languageOptions: {
       globals: {
         __VERSION__: 'readonly',
@@ -129,7 +129,7 @@ export default [
     },
   },
   {
-    files: [`packages/desktop/**/*.${JS_EXTS}`, 'packages/qr-tester/www/**/*.js'],
+    files: [`packages/web/**/*.${JS_EXTS}`, 'packages/qr-tester/www/**/*.js'],
     languageOptions: {
       globals: {
         ...globals.browser,
@@ -139,7 +139,7 @@ export default [
   },
   {
     files: [
-      `packages/!({desktop,qr-tester})/**/*.${JS_EXTS}`,
+      `packages/!({web,qr-tester})/**/*.${JS_EXTS}`,
       `scripts/**/*.${JS_EXTS}`,
       '**/*.config.js',
     ],

@@ -19,7 +19,6 @@ import {
 } from '@material-ui/icons';
 
 import { Colors } from '../constants';
-// eslint-disable-next-line import/no-cycle
 import { withPermissionCheck } from './withPermissionCheck';
 import { withPermissionTooltip } from './withPermissionTooltip';
 import { useFormButtonSubmitting } from '../hooks/useFormButtonSubmitting';

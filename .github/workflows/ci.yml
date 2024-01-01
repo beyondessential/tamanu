@@ -123,7 +123,11 @@ jobs:
             packages/*/node_modules
             !packages/mobile/node_modules
 
-      - run: yarn lint-all
+      - name: Lint errors
+        run: yarn lint-all --quiet
+
+      - name: Lint warnings
+        run: yarn lint-all
 
   storybook:
     # Workaround for define plugin conflict warning

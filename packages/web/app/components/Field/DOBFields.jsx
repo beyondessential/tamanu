@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
-// eslint-disable-next-line import/no-cycle
+
 import { DateField } from './DateField';
 import { Field } from './Field';
 

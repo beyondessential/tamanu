@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { compareDesc } from 'date-fns';
+
 import { DateDisplay, formatTime } from '../DateDisplay';
 import { SelectInput } from './SelectField';
-// eslint-disable-next-line import/no-cycle
 import { useApi } from '../../api';
 
 const getDataLabel = (endTime, surveyName) => {

@@ -10,9 +10,9 @@ import {
   format as formatDate,
 } from '@tamanu/shared/utils/dateTime';
 import PropTypes from 'prop-types';
+
 import { TextInput } from './TextField';
 import { Colors } from '../../constants';
-// eslint-disable-next-line import/no-cycle
 import { DefaultIconButton } from '../Button';
 
 // This component is pretty tricky! It has to keep track of two layers of state:

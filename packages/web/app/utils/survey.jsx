@@ -6,7 +6,6 @@ import { checkJSONCriteria } from '@tamanu/shared/utils/criteria';
 import { ageInYears, ageInMonths, ageInWeeks } from '@tamanu/shared/utils/dateTime';
 import { PROGRAM_DATA_ELEMENT_TYPES, ACTION_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 
-// eslint-disable-next-line import/no-cycle
 import {
   LimitedTextField,
   MultilineTextField,
