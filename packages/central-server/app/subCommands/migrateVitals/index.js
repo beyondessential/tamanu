@@ -3,6 +3,8 @@ import { Sequelize } from 'sequelize';
 import { SURVEY_TYPES } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
 import config from 'config';
+import crypto from 'crypto';
+
 import { initDatabase } from '../../database';
 
 const BATCH_COUNT = 100;

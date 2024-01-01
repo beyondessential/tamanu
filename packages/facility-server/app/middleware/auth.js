@@ -3,6 +3,7 @@ import { sign as signCallback, verify as verifyCallback } from 'jsonwebtoken';
 import { compare } from 'bcrypt';
 import config from 'config';
 import { promisify } from 'util';
+import crypto from 'crypto';
 
 import { VISIBILITY_STATUSES, USER_DEACTIVATED_ERROR_MESSAGE } from '@tamanu/constants';
 import { BadAuthenticationError } from '@tamanu/shared/errors';

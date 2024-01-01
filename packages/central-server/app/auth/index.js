@@ -1,6 +1,7 @@
+import config from 'config';
+import crypto from 'crypto';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import config from 'config';
 
 import { getPermissions } from '@tamanu/shared/permissions/middleware';
 

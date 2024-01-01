@@ -1,4 +1,5 @@
 import * as yup from 'yup';
+import crypto from 'crypto';
 
 import { FhirCodeableConcept } from './codeableConcept';
 import { FhirBaseType } from './baseType';

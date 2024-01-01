@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import { sub, endOfDay, parseISO } from 'date-fns';
 
 import { CURRENT_SYNC_TIME_KEY } from '@tamanu/shared/sync/constants';
