@@ -4,8 +4,8 @@ import { InvalidParameterError, Exception } from '@tamanu/shared/errors';
 import { formatFhirDate } from '@tamanu/shared/utils/fhir/datetime';
 import { createTestContext } from '../utilities';
 
-import { hl7SortToTamanu } from '../../app/hl7fhir/utils';
-import { sortableHL7PatientFields } from '../../app/hl7fhir/hl7PatientFields';
+import { hl7SortToTamanu } from '../../dist/hl7fhir/utils';
+import { sortableHL7PatientFields } from '../../dist/hl7fhir/hl7PatientFields';
 
 describe('HL7FHIR module utils', () => {
   let models;

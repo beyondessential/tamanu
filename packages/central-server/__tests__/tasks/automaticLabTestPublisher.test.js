@@ -2,7 +2,7 @@ import { createDummyPatient } from '@tamanu/shared/demoData/patients';
 import { LAB_REQUEST_STATUSES, ENCOUNTER_TYPES } from '@tamanu/constants';
 import { fake, chance, fakeUser } from '@tamanu/shared/test-helpers';
 import { createTestContext } from '../utilities';
-import { AutomaticLabTestResultPublisher } from '../../app/tasks/AutomaticLabTestResultPublisher';
+import { AutomaticLabTestResultPublisher } from '../../dist/tasks/AutomaticLabTestResultPublisher';
 
 const testConfig = {
   enabled: true,

@@ -18,10 +18,10 @@ export default [
     },
     languageOptions: {
       parser: typescriptParser,
-    }
+    },
   },
   {
-    files: [`packages/**/*.${JS_EXTS}`, `scripts/**/*.${JS_EXTS}`, '**/*.config.js'],
+    files: [`packages/**/*.${JS_EXTS}`, `scripts/**/*.${JS_EXTS}`, `**/*.config.${JS_EXTS}`],
     languageOptions: {
       parserOptions: {
         ecmaFeatures: {
@@ -82,7 +82,7 @@ export default [
 
       // for ts multiple dispatch
       'no-dupe-class-members': 'off',
-    }
+    },
   },
   {
     files: [
@@ -141,7 +141,7 @@ export default [
     files: [
       `packages/!({web,qr-tester})/**/*.${JS_EXTS}`,
       `scripts/**/*.${JS_EXTS}`,
-      '**/*.config.js',
+      `**/*.config.${JS_EXTS}`,
     ],
     languageOptions: {
       globals: {

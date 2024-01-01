@@ -2,14 +2,14 @@ import { REPORT_STATUSES } from '@tamanu/constants';
 import {
   findOrCreateDefinition,
   getLatestVersion,
-} from '../../../app/subCommands/importReport/utils';
+} from '../../../dist/subCommands/importReport/utils';
 
 const mockDefinition = {
   name: 'test-definition-name',
 };
 
 describe('importReport utils', () => {
-  
+
   describe('getOrCreateDefinition', () => {
     it('calls the findOrCreate function for ReportDefinition', async () => {
       const mockStore = {

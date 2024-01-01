@@ -4,7 +4,7 @@ import { fake } from '@tamanu/shared/test-helpers/fake';
 import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
 
 import { createTestContext } from '../../utilities';
-import { IDENTIFIER_NAMESPACE } from '../../../app/hl7fhir/utils';
+import { IDENTIFIER_NAMESPACE } from '../../../dist/hl7fhir/utils';
 
 export function testPatientHandler(integrationName, requestHeaders = {}) {
   describe(`${integrationName} integration - Patient`, () => {

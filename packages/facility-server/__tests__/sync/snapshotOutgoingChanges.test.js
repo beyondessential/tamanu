@@ -6,7 +6,7 @@ import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
 
 import { createTestContext } from '../utilities';
-import { snapshotOutgoingChanges } from '../../app/sync/snapshotOutgoingChanges';
+import { snapshotOutgoingChanges } from '../../dist/sync/snapshotOutgoingChanges';
 
 describe('snapshotOutgoingChanges', () => {
   let ctx;

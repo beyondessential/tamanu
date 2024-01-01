@@ -1,4 +1,4 @@
-import { closeDatabase } from '@tamanu/central-server/app/database';
+import { closeDatabase } from '../dist/database';
 
 export default async function() {
   await closeDatabase();

@@ -6,11 +6,11 @@ import {
 } from '@tamanu/constants/importable';
 import { createDummyPatient } from '@tamanu/shared/demoData/patients';
 import { REFERENCE_TYPES } from '@tamanu/constants';
-import { importerTransaction } from '../../app/admin/importerEndpoint';
-import { referenceDataImporter } from '../../app/admin/referenceDataImporter';
+import { importerTransaction } from '../../dist/admin/importerEndpoint';
+import { referenceDataImporter } from '../../dist/admin/referenceDataImporter';
 import { createTestContext } from '../utilities';
 import './matchers';
-import { exporter } from '../../app/admin/exporter/exporter';
+import { exporter } from '../../dist/admin/exporter/exporter';
 import { createAllergy, createDiagnosis } from '../exporters/referenceDataUtils';
 
 // the importer can take a little while

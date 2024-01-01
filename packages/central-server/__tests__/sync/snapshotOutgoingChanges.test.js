@@ -14,7 +14,7 @@ import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
 import { fakeUUID } from '@tamanu/shared/utils/generateId';
 
 import { createTestContext } from '../utilities';
-import { snapshotOutgoingChanges } from '../../app/sync/snapshotOutgoingChanges';
+import { snapshotOutgoingChanges } from '../../dist/sync/snapshotOutgoingChanges';
 
 describe('snapshotOutgoingChanges', () => {
   let ctx;

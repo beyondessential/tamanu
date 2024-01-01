@@ -1,7 +1,7 @@
 import Table from 'cli-table3';
 import { log } from '@tamanu/shared/services/logging';
 import { spyOnModule } from '@tamanu/shared/test-helpers/spyOn';
-import { initDatabase } from '../../../app/database';
+import { initDatabase } from '../../../dist/database';
 import {
   createVersion,
   getVersionError,
@@ -10,17 +10,17 @@ import {
   ACTIVE_TEXT,
   OVERWRITING_TEXT,
   formatUpdatedAt,
-} from '../../../app/subCommands/importReport/actions';
+} from '../../../dist/subCommands/importReport/actions';
 
-spyOnModule(jest, '../../../app/subCommands/importReport/actions');
+spyOnModule(jest, '../../../dist/subCommands/importReport/actions');
 
 const baseVersionData = {
-  query: "test-query", 
+  query: "test-query",
   queryOptions: {
-    parameters: [ 
+    parameters: [
       {
-        parameterField: "TestField", 
-        name: "test" 
+        parameterField: "TestField",
+        name: "test"
       }
     ],
     defaultDateRange: "allTime"
@@ -55,7 +55,7 @@ const mockVersions = [
   { versionNumber: 1, status: 'draft', updatedAt: mockUpdatedAt },
 ];
 
-jest.mock('../../../app/database', () => ({
+jest.mock('../../../dist/database', () => ({
   initDatabase: jest.fn().mockResolvedValue({
     models: {
       User: {

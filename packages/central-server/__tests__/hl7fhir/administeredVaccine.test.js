@@ -2,7 +2,7 @@ import { fake, fakeReferenceData, fakeUser } from '@tamanu/shared/test-helpers/f
 import {
   administeredVaccineToHL7Immunization,
   getAdministeredVaccineInclude,
-} from '../../app/hl7fhir/administeredVaccine';
+} from '../../dist/hl7fhir/administeredVaccine';
 import { createTestContext } from '../utilities';
 
 import { validate } from './hl7utilities';

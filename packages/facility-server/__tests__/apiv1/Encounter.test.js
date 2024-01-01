@@ -20,7 +20,7 @@ import { setupSurveyFromObject } from '@tamanu/shared/demoData/surveys';
 import { fake, fakeUser } from '@tamanu/shared/test-helpers/fake';
 import { toDateTimeString, getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 
-import { uploadAttachment } from '../../app/utils/uploadAttachment';
+import { uploadAttachment } from '../../dist/utils/uploadAttachment';
 import { createTestContext } from '../utilities';
 
 describe('Encounter', () => {

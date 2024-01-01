@@ -1,7 +1,7 @@
-import { v4 as uuid } from 'uuid';
 import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
 import config from 'config';
+import crypto from 'crypto';
+import jwt from 'jsonwebtoken';
 
 import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
 import { VISIBILITY_STATUSES } from '@tamanu/constants/importable';
@@ -457,8 +457,8 @@ describe('Auth', () => {
       });
 
       it('Should consume a one-time login and reset a password', async () => {
-        const token = uuid();
-        const newPassword = uuid();
+        const token = crypto.randomUUID();
+        const newPassword = crypto.randomUUID();
 
         await store.models.OneTimeLogin.create({ userId, token, expiresAt: new Date(2077, 1, 1) });
 
@@ -486,15 +486,15 @@ describe('Auth', () => {
       it('Should reject a password reset if no one-time login exists', async () => {
         const response = await baseApp.post('/v1/changePassword').send({
           email: TEST_EMAIL,
-          newPassword: uuid(),
-          token: uuid(),
+          newPassword: crypto.randomUUID(),
+          token: crypto.randomUUID(),
         });
         expect(response).not.toHaveSucceeded();
       });
 
       it('Should reject a password reset if the OTL is consumed', async () => {
-        const token = uuid();
-        const newPassword = uuid();
+        const token = crypto.randomUUID();
+        const newPassword = crypto.randomUUID();
 
         await store.models.OneTimeLogin.create({
           userId,
@@ -513,8 +513,8 @@ describe('Auth', () => {
       });
 
       it('Should reject a password reset if the OTL is expired', async () => {
-        const token = uuid();
-        const newPassword = uuid();
+        const token = crypto.randomUUID();
+        const newPassword = crypto.randomUUID();
 
         await store.models.OneTimeLogin.create({
           userId,

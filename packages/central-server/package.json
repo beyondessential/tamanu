@@ -17,17 +17,18 @@
   },
   "scripts": {
     "build": "swc --delete-dir-on-start --out-dir dist --copy-files --source-maps true app",
-    "start": "node dist",
-    "test": "NODE_ENV=test jest",
+    "build-watch": "yarn run build --watch",
     "setup-dev": "node dist setup",
     "shell": "yarn build && node dist shell",
+    "start-dev": "concurrently npm:build-watch npm:start-watch",
     "start-watch": "chokidar --initial \"dist/**/*.js\" \"config/**/*\" -c \"yarn run start\"",
-    "test-watch": "yarn test --watch",
-    "build-watch": "yarn run build --watch",
-    "start-dev": "concurrently npm:build-watch npm:start-watch"
+    "start": "node dist",
+    "test": "yarn test-build && NODE_ENV=test jest",
+    "test-build": "swc --delete-dir-on-start --out-dir __disttests__ --copy-files --source-maps true __tests__",
+    "test-watch": "yarn test --watch"
   },
   "devDependencies": {
-    "@swc/jest": "0.2.26",
+    "@swc/jest": "^0.2.26",
     "@tamanu/build-tooling": "*",
     "ajv": "^8.6.3",
     "chai": "^4.1.2",
@@ -97,7 +98,6 @@
     "tiny-async-pool": "^1.2.0",
     "transliteration": "^2.2.0",
     "umzug": "^2.3.0",
-    "uuid": "^8.1.0",
     "winston": "^3.2.1",
     "winston-transport": "^4.5.0",
     "xlsx": "^0.16.9",

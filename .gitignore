@@ -25,6 +25,7 @@ build
 packages/*/dist
 *.tsbuildinfo
 packages/*/{src,app}/**/*.d.ts
+storybook-static
 
 # Test artefacts
 test.*.hl7.json

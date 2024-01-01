@@ -1,7 +1,7 @@
 import { fake } from '@tamanu/shared/test-helpers/fake';
 import { SURVEY_TYPES } from '@tamanu/constants';
-import { importerTransaction } from '../../app/admin/importerEndpoint';
-import { programImporter } from '../../app/admin/programImporter';
+import { importerTransaction } from '../../dist/admin/importerEndpoint';
+import { programImporter } from '../../dist/admin/programImporter';
 import { createTestContext } from '../utilities';
 import './matchers';
 
@@ -196,7 +196,7 @@ describe('Programs import', () => {
         file: 'vitals-valid',
         dryRun: true,
       });
-      expect(errors).toContainValidationError('metadata', 0, 'Only one vitals survey');
+      expect(errors).toContainAnError('metadata', 0, 'Only one vitals survey');
     });
 
     it('Should reject a vitals survey with isSensitive set to true', async () => {
@@ -204,7 +204,7 @@ describe('Programs import', () => {
         file: 'vitals-sensitive-true',
         dryRun: true,
       });
-      expect(errors).toContainValidationError('metadata', 0, 'Vitals survey can not be sensitive');
+      expect(errors).toContainAnError('metadata', 0, 'Vitals survey can not be sensitive');
     });
 
     it('Should validate normalRange in validation_criteria', async () => {

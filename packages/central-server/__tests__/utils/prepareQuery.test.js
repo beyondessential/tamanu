@@ -1,4 +1,4 @@
-import { prepareQuery } from '../../app/utils/prepareQuery';
+import { prepareQuery } from '../../dist/utils/prepareQuery';
 import { createTestContext } from '../utilities';
 
 describe('prepareQuery()', () => {

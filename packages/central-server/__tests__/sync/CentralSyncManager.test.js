@@ -1,5 +1,5 @@
+import crypto from 'crypto';
 import { sub, endOfDay, parseISO } from 'date-fns';
-import { v4 as uuid } from 'uuid';
 
 import { CURRENT_SYNC_TIME_KEY } from '@tamanu/shared/sync/constants';
 import { SYNC_SESSION_DIRECTION } from '@tamanu/shared/sync';
@@ -11,8 +11,8 @@ import { SYNC_DIRECTIONS, LAB_REQUEST_STATUSES } from '@tamanu/constants';
 import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 import { createTestContext } from '../utilities';
-import { importerTransaction } from '../../app/admin/importerEndpoint';
-import { referenceDataImporter } from '../../app/admin/referenceDataImporter';
+import { importerTransaction } from '../../dist/admin/importerEndpoint';
+import { referenceDataImporter } from '../../dist/admin/referenceDataImporter';
 
 const doImport = (options, models) => {
   const { file, ...opts } = options;
@@ -35,7 +35,7 @@ describe('CentralSyncManager', () => {
     // Have to load test function within test scope so that we can mock dependencies per test case
     const {
       CentralSyncManager: TestCentralSyncManager,
-    } = require('../../app/sync/CentralSyncManager');
+    } = require('../../dist/sync/CentralSyncManager');
     return new TestCentralSyncManager(ctx);
   };
 
@@ -945,7 +945,7 @@ describe('CentralSyncManager', () => {
           // Create the vaccines to be tested
           const {
             CentralSyncManager: TestCentralSyncManager,
-          } = require('../../app/sync/CentralSyncManager');
+          } = require('../../dist/sync/CentralSyncManager');
 
           // Turn on syncAllEncountersForTheseVaccines config
           TestCentralSyncManager.overrideConfig({
@@ -978,7 +978,7 @@ describe('CentralSyncManager', () => {
         it('does not sync any vaccine encounters when it is disabled and client is mobile', async () => {
           const {
             CentralSyncManager: TestCentralSyncManager,
-          } = require('../../app/sync/CentralSyncManager');
+          } = require('../../dist/sync/CentralSyncManager');
 
           // Turn off syncAllEncountersForTheseVaccines config
           TestCentralSyncManager.overrideConfig({
@@ -1120,7 +1120,7 @@ describe('CentralSyncManager', () => {
         // Encounter data for pushing (not inserted yet)
         const encounterData = {
           ...(await createDummyEncounter(models)),
-          id: uuid(),
+          id: crypto.randomUUID(),
           patientId: patient.id,
           encounterType: 'clinic',
           startDate: toDateTimeString(sub(new Date(), { days: 1 })),

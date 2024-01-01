@@ -103,7 +103,7 @@ export function checkVisibility(component, values, allComponents) {
     return checkJSONCriteria(visibilityCriteria, allComponents, valuesByCode);
   } catch (error) {
     // eslint-disable-next-line no-console
-    console.warn(`Error parsing visilbity criteria as JSON, using fallback.
+    console.warn(`Error parsing visibility criteria as JSON, using fallback.
                   \nError message: ${error}
                   \nJSON: ${visibilityCriteria}`);
 

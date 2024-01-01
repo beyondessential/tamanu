@@ -5,7 +5,7 @@ import {
   fakeResourcesOfFhirServiceRequest,
   fakeResourcesOfFhirServiceRequestWithImagingRequest,
 } from '../fake/fhir';
-import { FhirMissingResources } from '../../app/tasks/FhirMissingResources';
+import { FhirMissingResources } from '../../dist/tasks/FhirMissingResources';
 
 describe('FhirMissingResources task', () => {
   let ctx;

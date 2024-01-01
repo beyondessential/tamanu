@@ -6,7 +6,7 @@ import { fakeUUID } from '@tamanu/shared/utils/generateId';
 import { formatFhirDate } from '@tamanu/shared/utils/fhir/datetime';
 
 import { createTestContext } from '../../utilities';
-import { IDENTIFIER_NAMESPACE } from '../../../app/hl7fhir/utils';
+import { IDENTIFIER_NAMESPACE } from '../../../dist/hl7fhir/utils';
 
 const INTEGRATION_ROUTE = 'fhir/mat';
 

@@ -2,8 +2,8 @@ import React from 'react';
 import ReactPDF from '@react-pdf/renderer';
 import path from 'path';
 import { get } from 'lodash';
-import { v4 as uuid } from 'uuid';
 import { tmpdir, PatientLetter } from '@tamanu/shared/utils';
+import crypto from 'crypto';
 
 export const makePatientLetter = async (req, { id, facilityId, ...data }) => {
   const { getLocalisation, models } = req;
@@ -19,7 +19,7 @@ export const makePatientLetter = async (req, { id, facilityId, ...data }) => {
   });
 
   const folder = await tmpdir();
-  const fileName = `patient-letter-${id}-${uuid()}.pdf`;
+  const fileName = `patient-letter-${id}-${crypto.randomUUID()}.pdf`;
   const filePath = path.join(folder, fileName);
 
   await ReactPDF.render(

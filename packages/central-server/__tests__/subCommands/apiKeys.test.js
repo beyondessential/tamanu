@@ -1,7 +1,7 @@
 import { fake } from '@tamanu/shared/test-helpers/fake';
-import { DEFAULT_JWT_SECRET } from '../../app/auth';
-import { verifyToken } from '../../app/auth/utils';
-import { genToken } from '../../app/subCommands/apiKeys/issue';
+import { DEFAULT_JWT_SECRET } from '../../dist/auth';
+import { verifyToken } from '../../dist/auth/utils';
+import { genToken } from '../../dist/subCommands/apiKeys/issue';
 import { createTestContext } from '../utilities';
 
 describe('apiKeys issue', () => {
