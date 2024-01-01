@@ -1,10 +1,9 @@
 import { beforeAll, describe, it } from '@jest/globals';
-
-import { fake } from 'shared/test-helpers/fake';
-
-import { createTestContext } from '../utilities';
+import { fake } from '@tamanu/shared/test-helpers/fake';
 import { toDateTimeString } from 'shared/utils/dateTime';
 import { subMinutes } from 'date-fns';
+
+import { createTestContext } from '../utilities';
 
 describe('SyncQueuedDevice', () => {
   let ctx;
