@@ -81,6 +81,6 @@ WORKDIR /app
 ENTRYPOINT ["/usr/bin/caddy"]
 CMD ["run", "--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile"]
 COPY --from=caddy:2-alpine /usr/bin/caddy /usr/bin/caddy
-COPY packages/desktop/Caddyfile.docker /etc/caddy/Caddyfile
-COPY --from=build-frontend /app/packages/desktop/dist/ .
+COPY packages/web/Caddyfile.docker /etc/caddy/Caddyfile
+COPY --from=build-frontend /app/packages/web/dist/ .
 COPY --from=metadata /meta/ /meta/
