@@ -92,12 +92,11 @@ jobs:
 
       - name: Configure AWS Credentials
         if: steps.destination.outputs.result != 'nowhere'
-        uses: aws-actions/configure-aws-credentials@v2
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: ap-southeast-2
           role-to-assume: arn:aws:iam::143295493206:role/gha-server-s3
           role-session-name: GHA@Tamanu=WebPackage
-          mask-aws-account-id: false
 
       - name: Push to S3
         if: steps.destination.outputs.result != 'nowhere'

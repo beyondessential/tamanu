@@ -59,7 +59,7 @@ jobs:
 
     steps:
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v2
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: ap-southeast-2
           role-to-assume: arn:aws:iam::143295493206:role/gha-image-push
@@ -111,12 +111,11 @@ jobs:
     name: Deploy
     steps:
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v2
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: ap-southeast-2
           role-to-assume: arn:aws:iam::143295493206:role/gha-deploy
           role-session-name: GHA@Tamanu=DeployUp
-          mask-aws-account-id: false
 
       - name: Checkout this PR
         uses: actions/checkout@v4
