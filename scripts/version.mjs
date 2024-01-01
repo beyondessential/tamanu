@@ -45,5 +45,4 @@ for (const pkg of topLevelPkg.workspaces.packages) {
   await bumpPackageJson(pkg, version);
 }
 await bumpPackageJson('.', version);
-await bumpPackageJson('packages/web/app', version);
 await bumpPackageJson('packages/mobile', version);
