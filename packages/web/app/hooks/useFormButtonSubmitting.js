@@ -45,7 +45,7 @@ export const useFormButtonLoadingIndicator = isLoading => {
 export const useFormButtonSubmitting = () => {
   const formikContext = useFormikContext();
 
-  if (process.env.NODE_ENV === 'development' && !formikContext) {
+  if (NODE_ENV === 'development' && !formikContext) {
     notifyError('DEV WARNING: FormSubmitButton is being used in a non-form component');
   }
 

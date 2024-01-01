@@ -74,7 +74,7 @@ export class Form extends React.PureComponent {
 
     const { onSubmit, formType = FORM_TYPES.DATA_FORM } = props;
     const hasNonAsyncSubmitHandler =
-      process.env.NODE_ENV === 'development' &&
+      NODE_ENV === 'development' &&
       formType === FORM_TYPES.DATA_FORM &&
       onSubmit.constructor.name !== 'AsyncFunction';
 

@@ -9,7 +9,7 @@ const FormModalComponent = memo(({ children, ...props }) => {
   const [showNotUsingFormWarning, setShowNotUsingFormWarning] = useState(false);
 
   useEffect(() => {
-    const notUsingForm = process.env.NODE_ENV === 'development' && !hasFormSubmission;
+    const notUsingForm = NODE_ENV === 'development' && !hasFormSubmission;
     setShowNotUsingFormWarning(notUsingForm);
   }, [hasFormSubmission]);
 
