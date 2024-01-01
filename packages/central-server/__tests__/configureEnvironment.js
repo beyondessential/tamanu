@@ -3,6 +3,8 @@
 require('jest-expect-message');
 const jestExtendedMatchers = require('jest-extended');
 
+globalThis.crypto = require('crypto');
+
 // TextDecoder is undefined in jest environment
 // Required for cbor
 const { TextDecoder } = require('util');
