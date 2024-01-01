@@ -81,7 +81,7 @@ jobs:
           script: |
             const base = 's3://bes-tamanu-release-servers';
             if (context.ref == 'refs/heads/main') {
-              return `${base}/main`;
+              return `${base}/main/${(new Date).toISOString().replaceAll(':','-').split('.')[0]}.${context.sha.slice(0, 10)}`;
             } else if (context.ref.startsWith('refs/tags/v')) {
               return `${base}/${context.ref.replace('refs/tags/', '')}`;
             } else if (context.ref.startsWith('refs/heads/release/')) {
