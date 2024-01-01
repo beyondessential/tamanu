@@ -23,7 +23,7 @@ export function initStore(api, initialState = {}) {
   const router = routerMiddleware(history);
   const enhancers = compose(applyMiddleware(router, thunk.withExtraArgument({ api })));
   const persistConfig = { key: 'tamanu', storage };
-  if (process.env.NODE_ENV !== 'development') {
+  if (NODE_ENV !== 'development') {
     persistConfig.whitelist = []; // persist used for a dev experience, but not required in production
   }
   const persistedReducers = persistCombineReducers(persistConfig, createReducers(history));

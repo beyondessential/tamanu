@@ -10,7 +10,7 @@ export const Modal = memo(({ children, disableDevWarning, ...props }) => {
 
   useEffect(() => {
     const usingForm =
-      process.env.NODE_ENV === 'development' && hasFormSubmission && !disableDevWarning;
+      NODE_ENV === 'development' && hasFormSubmission && !disableDevWarning;
     setShowUsingFormWarning(usingForm);
   }, [hasFormSubmission, disableDevWarning]);
 

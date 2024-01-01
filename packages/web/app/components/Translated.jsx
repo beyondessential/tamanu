@@ -13,8 +13,7 @@ const polyglot = new Polyglot();
 polyglot.extend(en);
 
 // Debug feature - hover over a Translated string to see its id
-const SHOW_TRANSLATE_ID =
-  process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true';
+const SHOW_TRANSLATE_ID = NODE_ENV === 'development' || localStorage.getItem('DEBUG_PROD');
 
 export class Translated extends React.PureComponent {
   // Function to fetch a translated string. Implemented as a static method to
