@@ -4,7 +4,7 @@ import { fake, chance, disableHardcodedPermissionsForSuite } from '@tamanu/share
 import { addHours } from 'date-fns';
 import { createDummyEncounter } from '@tamanu/shared/demoData/patients';
 
-import { getToken, centralServerLogin } from '../../dist/app/middleware/auth';
+import { getToken, centralServerLogin } from '../../dist/middleware/auth';
 import { CentralServerConnection } from '../../dist/sync/CentralServerConnection';
 import { createTestContext } from '../utilities';
 

@@ -1,4 +1,4 @@
-import { runArithmetic } from '../dist/app/utils/arithmetic';
+import { runArithmetic } from '../dist/utils/arithmetic';
 
 describe('Arithmetic', () => {
   describe('basics', () => {
