@@ -219,7 +219,7 @@ export const DataFetchingTable = memo(
           if (!endpoint) {
             throw new Error('Missing endpoint to fetch data.');
           }
-
+          setErrorMessage('');
           const { data, count } = await fetchData();
           if (loadingDelay) clearTimeout(loadingDelay); // Clear the loading indicator timeout if data fetched before 1 second passes (stops flash from short loading time)
 

@@ -89,11 +89,18 @@ export const DateInput = ({
       }
 
       let outputValue;
-      if (saveDateAsString) {
-        if (type === 'date') outputValue = toDateString(date);
-        else if (['time', 'datetime-local'].includes(type)) outputValue = toDateTimeString(date);
-      } else {
-        outputValue = date.toISOString();
+      try {
+        if (saveDateAsString) {
+          if (type === 'date') {
+            outputValue = toDateString(date);
+          } else if (['time', 'datetime-local'].includes(type)) {
+            outputValue = toDateTimeString(date);
+          }
+        } else {
+          outputValue = date.toISOString();
+        }
+      } catch (error) {
+        outputValue = 'Invalid date';
       }
       setIsPlaceholder(false);
       setCurrentText(formattedValue);

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Field } from 'formik';
 import styled from 'styled-components';
+import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
 import { useSuggester } from '../../api';
 import {
   CustomisableSearchBar,
@@ -10,11 +11,11 @@ import {
   DateField,
   CheckField,
   SearchField,
+  SelectField,
 } from '../../components';
 import { useProgramRegistryQuery } from '../../api/queries/useProgramRegistryQuery';
 import { useProgramRegistryConditions } from '../../api/queries/useProgramRegistryConditions';
-import { sexOptions } from '../../constants';
-import { useLocalisation } from '../../contexts/Localisation';
+import { useSexOptions } from '../../hooks';
 
 const FacilityCheckbox = styled.div`
   display: flex;
@@ -31,12 +32,7 @@ export const ProgramRegistrySearchBar = ({ searchParameters, setSearchParameters
   const [isExpanded, setIsExpanded] = useState(false);
   const facilitySuggester = useSuggester('facility');
   const villageSuggester = useSuggester('village');
-  const { getLocalisation } = useLocalisation();
-  let filteredSexOptions = sexOptions;
-  if (getLocalisation('features.hideOtherSex') === true) {
-    filteredSexOptions = filteredSexOptions.filter(s => s.value !== 'other');
-  }
-
+  const sexOptions = useSexOptions(false);
   const { data: programRegistry } = useProgramRegistryQuery(params.programRegistryId);
 
   const programRegistryStatusSuggester = useSuggester('programRegistryClinicalStatus', {
@@ -59,8 +55,9 @@ export const ProgramRegistrySearchBar = ({ searchParameters, setSearchParameters
           <LocalisedField
             name="sex"
             defaultLabel="Sex"
-            component={AutocompleteField}
-            options={filteredSexOptions}
+            component={SelectField}
+            options={sexOptions}
+            size="small"
           />
           <LocalisedField
             name="registeringFacilityId"
@@ -90,7 +87,12 @@ export const ProgramRegistrySearchBar = ({ searchParameters, setSearchParameters
       <LocalisedField useShortLabel keepLetterCase name="displayId" component={SearchField} />
       <LocalisedField useShortLabel name="firstName" component={SearchField} />
       <LocalisedField useShortLabel name="lastName" component={SearchField} />
-      <LocalisedField useShortLabel name="dateOfBirth" component={DateField} />
+      <LocalisedField
+        useShortLabel
+        name="dateOfBirth"
+        component={DateField}
+        max={getCurrentDateString()}
+      />
       <Spacer />
 
       <LocalisedField
@@ -112,12 +114,13 @@ export const ProgramRegistrySearchBar = ({ searchParameters, setSearchParameters
       <LocalisedField
         defaultLabel="Related condition"
         name="programRegistryCondition"
-        component={AutocompleteField}
+        component={SelectField}
         options={programRegistryConditions?.data.map(x => ({ label: x.name, value: x.id }))}
+        size="small"
       />
       <LocalisedField
         defaultLabel="Status"
-        name="clinicalStatus"
+        name="status"
         component={AutocompleteField}
         suggester={programRegistryStatusSuggester}
       />
