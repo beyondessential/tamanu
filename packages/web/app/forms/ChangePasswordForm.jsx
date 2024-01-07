@@ -102,7 +102,7 @@ const ChangePasswordFormComponent = ({
       setFieldError('token', 'Code incorrect');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [resetCodeErrorMessage]);
+  }, [resetCodeErrorMessage, errors.token]);
 
   return (
     <FormGrid columns={1}>

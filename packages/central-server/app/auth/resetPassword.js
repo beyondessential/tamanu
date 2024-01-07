@@ -41,7 +41,8 @@ resetPassword.post(
       // regardless of whether it's valid or not. 
     } else {
       const token = await createOneTimeLogin(models, user);
-      await sendResetEmail(req.emailService, user, token);
+      log.info(`Token for ${email} is ${token}`);
+      // await sendResetEmail(req.emailService, user, token);
     }
 
     return res.send({ ok: 'ok' });
