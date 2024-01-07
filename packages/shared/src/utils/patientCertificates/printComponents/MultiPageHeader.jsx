@@ -38,10 +38,10 @@ export const MultiPageHeader = ({ documentName, patientName, patiendId }) => {
   const HeaderContent = () => (
     <>
       <LabelText>{documentName}</LabelText>
-      <ValueText>{' '}| </ValueText>
+      <ValueText> | </ValueText>
       <LabelText>Patient name</LabelText>
       <ValueText>: {patientName}</ValueText>
-      <ValueText>{' '}| </ValueText>
+      <ValueText> | </ValueText>
       <LabelText>Patient ID</LabelText>
       <ValueText>: {patiendId}</ValueText>
     </>
