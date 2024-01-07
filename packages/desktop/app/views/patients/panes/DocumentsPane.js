@@ -12,6 +12,7 @@ import { PatientLetterModal } from '../../../components/PatientLetterModal';
 import { DocumentsSearchBar } from '../../../components/DocumentsSearchBar';
 import { TabPane } from '../components';
 import { OutlinedButton, Button, ContentPane, TableButtonRow } from '../../../components';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const MODAL_STATES = {
   DOCUMENT_OPEN: 'document',
@@ -110,9 +111,14 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
       <PaneWrapper>
         <TableButtonRow variant="small">
           <OutlinedButton onClick={() => setModalStatus(MODAL_STATES.PATIENT_LETTER_OPEN)}>
-            Patient letter
+            <TranslatedText
+              stringId="document.action.openPatientLetter"
+              fallback="Patient letter"
+            />
           </OutlinedButton>
-          <Button onClick={() => setModalStatus(MODAL_STATES.DOCUMENT_OPEN)}>Add document</Button>
+          <Button onClick={() => setModalStatus(MODAL_STATES.DOCUMENT_OPEN)}>
+            <TranslatedText stringId="document.action.addDocument" fallback="Add document" />
+          </Button>
         </TableButtonRow>
         <DocumentsTable
           endpoint={documentMetadataEndpoint}

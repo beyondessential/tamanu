@@ -100,7 +100,7 @@ function getHeaderText({ encounterType }) {
     case ENCOUNTER_TYPES.IMAGING:
     default:
       return (
-        <TranslatedText stringId="encounter.type.patientEncounter" fallback="Patient Encounter" />
+        <TranslatedText stringId="encounter.header.patientEncounter" fallback="Patient Encounter" />
       );
   }
 }

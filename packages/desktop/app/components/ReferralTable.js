@@ -13,6 +13,7 @@ import { useApi, isErrorUnknownAllow404s } from '../api';
 import { SurveyResponseDetailsModal } from './SurveyResponseDetailsModal';
 import { DeleteButton } from './Button';
 import { ConfirmModal } from './ConfirmModal';
+import { TranslatedText } from './Translation/TranslatedText';
 
 const ACTION_MODAL_STATES = {
   CLOSED: 'closed',
@@ -46,23 +47,23 @@ const ActionDropdown = React.memo(({ row, refreshTable }) => {
 
   const actions = [
     {
-      label: 'Admit',
+      label: <TranslatedText stringId="patient.referral.action.admit" fallback="Admit" />,
       condition: () => row.status === REFERRAL_STATUSES.PENDING,
       onClick: () => setModalStatus(ACTION_MODAL_STATES.ENCOUNTER_OPEN),
     },
     // Worth keeping around to address in proper linear card
     {
-      label: 'View',
+      label: <TranslatedText stringId="general.action.view" fallback="View" />,
       condition: () => !!row.encounterId, // always false, field no longer exists.
       onClick: onViewEncounter,
     },
     {
-      label: 'Complete',
+      label: <TranslatedText stringId="patient.referral.action.complete" fallback="Complete" />,
       condition: () => row.status === REFERRAL_STATUSES.PENDING,
       onClick: onCompleteReferral,
     },
     {
-      label: 'Cancel',
+      label: <TranslatedText stringId="general.action.cancel" fallback="Cancel" />,
       condition: () => row.status === REFERRAL_STATUSES.PENDING,
       onClick: () => setModalStatus(ACTION_MODAL_STATES.WARNING_OPEN),
     },
@@ -79,11 +80,21 @@ const ActionDropdown = React.memo(({ row, refreshTable }) => {
       />
       <ConfirmModal
         open={modalStatus === ACTION_MODAL_STATES.WARNING_OPEN}
-        title="Cancel referral"
-        text="WARNING: This action is irreversible!"
-        subText="Are you sure you want to cancel this referral?"
-        cancelButtonText="No"
-        confirmButtonText="Yes"
+        title={<TranslatedText stringId="referral.modal.cancel.title" fallback="Cancel referral" />}
+        text={
+          <TranslatedText
+            stringId="referral.modal.cancel.warningText1"
+            fallback="WARNING: This action is irreversible!"
+          />
+        }
+        subText={
+          <TranslatedText
+            stringId="referral.modal.cancel.warningText2"
+            fallback="Are you sure you want to cancel this referral?"
+          />
+        }
+        cancelButtonText={<TranslatedText stringId="general.action.no" fallback="No" />}
+        confirmButtonText={<TranslatedText stringId="general.action.yes" fallback="Yes" />}
         ConfirmButton={DeleteButton}
         onConfirm={onCancelReferral}
         onCancel={onCloseModal}
@@ -95,7 +106,9 @@ const ActionDropdown = React.memo(({ row, refreshTable }) => {
 const fieldNames = ['Referring doctor', 'Referral completed by'];
 const ReferralBy = ({ surveyResponse: { survey, answers } }) => {
   const api = useApi();
-  const [name, setName] = useState('N/A');
+  const [name, setName] = useState(
+    <TranslatedText stringId="general.fallback.notApplicable" fallback="N/A" />,
+  );
 
   useEffect(() => {
     (async () => {
@@ -144,13 +157,38 @@ const getActions = ({ refreshTable, ...row }) => (
 );
 
 const columns = [
-  { key: 'date', title: 'Referral date', accessor: getDate },
-  { key: 'referralType', title: 'Referral type', accessor: getReferralType },
-  { key: 'referredBy', title: 'Referral completed by', accessor: getReferralBy },
-  { key: 'status', title: 'Status', accessor: getStatus },
+  {
+    key: 'date',
+    title: (
+      <TranslatedText stringId="referral.table.column.referralDate" fallback="Referral date" />
+    ),
+    accessor: getDate,
+  },
+  {
+    key: 'referralType',
+    title: (
+      <TranslatedText stringId="referral.table.column.referralType" fallback="Referral type" />
+    ),
+    accessor: getReferralType,
+  },
+  {
+    key: 'referredBy',
+    title: (
+      <TranslatedText
+        stringId="referral.table.column.referralCompletedBy"
+        fallback="Referral completed by"
+      />
+    ),
+    accessor: getReferralBy,
+  },
+  {
+    key: 'status',
+    title: <TranslatedText stringId="referral.table.column.status" fallback="Status" />,
+    accessor: getStatus,
+  },
   {
     key: 'actions',
-    title: 'Actions',
+    title: <TranslatedText stringId="referral.table.column.actions" fallback="Actions" />,
     accessor: getActions,
     dontCallRowInput: true,
   },
@@ -173,7 +211,9 @@ export const ReferralTable = React.memo(({ patientId }) => {
           orderBy: 'date',
           order: 'asc',
         }}
-        noDataMessage="No referrals found"
+        noDataMessage={
+          <TranslatedText stringId="referral.table.noData" fallback="No referrals found" />
+        }
         onRowClick={onSelectReferral}
         allowExport={false}
       />

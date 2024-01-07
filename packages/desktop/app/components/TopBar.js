@@ -144,7 +144,7 @@ export const EncounterTopBar = ({ title, subTitle, encounter, children }) => {
           <Cell>
             <Label>
               <TranslatedText
-                stringId="encounter.topBar.arrivalDate.label"
+                stringId="patient.encounter.details.topbar.arrivalDate.label"
                 fallback="Arrival Date"
               />
               :

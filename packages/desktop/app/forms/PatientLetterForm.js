@@ -19,6 +19,7 @@ import { ModalLoader } from '../components/BaseModal';
 import { OutlinedButton, Button } from '../components';
 import { PatientDetailsCard } from '../components/PatientDetailsCard';
 import { ModalGenericButtonRow } from '../components/ModalActionRow';
+import { TranslatedText } from '../components/Translation/TranslatedText';
 
 const TallMultilineTextField = props => (
   <MultilineTextField style={{ minHeight: '156px' }} {...props} />
@@ -66,31 +67,41 @@ const PatientLetterFormContents = ({ submitForm, onCancel, setValues }) => {
       <FormGrid columns={2} nested>
         <Field
           name="clinicianId"
-          label="Clinician"
+          label={<TranslatedText stringId="general.form.clinican.label" fallback="Clinician" />}
           required
           component={AutocompleteField}
           suggester={practitionerSuggester}
         />
-        <Field name="date" label="Date" required component={DateField} saveDateAsString />
+        <Field
+          name="date"
+          label={<TranslatedText stringId="general.form.date.label" fallback="Date" />}
+          required
+          component={DateField}
+          saveDateAsString
+        />
       </FormGrid>
       <StyledFormGrid columns={1}>
         <Field
           name="templateId"
-          label="Template"
+          label={
+            <TranslatedText stringId="patientLetter.form.template.label" fallback="Template" />
+          }
           suggester={patientLetterTemplateSuggester}
           component={AutocompleteField}
           onChange={e => onChangeTemplate(e.target.value)}
         />
         <Field
           name="title"
-          label="Letter title"
+          label={
+            <TranslatedText stringId="patientLetter.form.title.label" fallback="Letter title" />
+          }
           required
           component={TextField}
           disabled={templateLoading}
         />
         <Field
           name="body"
-          label="Note"
+          label={<TranslatedText stringId="general.form.note.label" fallback="Note" />}
           required
           component={TallMultilineTextField}
           disabled={templateLoading}
@@ -98,11 +109,18 @@ const PatientLetterFormContents = ({ submitForm, onCancel, setValues }) => {
       </StyledFormGrid>
       <ModalGenericButtonRow>
         <FinaliseAndPrintButton onClick={e => submitForm(e, { printRequested: true })}>
-          Finalise & Print
+          <TranslatedText
+            stringId="patientLetter.action.finaliseAndPrint"
+            fallback="Finalise & Print"
+          />
         </FinaliseAndPrintButton>
         <Gap />
-        <OutlinedButton onClick={onCancel}>Cancel</OutlinedButton>
-        <Button onClick={submitForm}>Finalise</Button>
+        <OutlinedButton onClick={onCancel}>
+          <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
+        </OutlinedButton>
+        <Button onClick={submitForm}>
+          <TranslatedText stringId="general.action.finalise" fallback="Finalise" />
+        </Button>
       </ModalGenericButtonRow>
     </>
   );
@@ -130,7 +148,14 @@ export const PatientLetterForm = ({ onSubmit, onCancel, editedObject, endpoint, 
 
   const renderForm = props =>
     props.isSubmitting ? (
-      <ModalLoader loadingText="Please wait while we create your patient letter" />
+      <ModalLoader
+        loadingText={
+          <TranslatedText
+            stringId="patientLetter.modal.create.loadingText"
+            fallback="Please wait while we create your patient letter"
+          />
+        }
+      />
     ) : (
       <>
         <PatientDetailsCard patient={patient} />

@@ -8,6 +8,8 @@ import { IconButton } from '@material-ui/core';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { Button } from './Button';
+import { LimitedLinesCell } from './FormattedTableCell';
+import { TranslatedText } from './Translation/TranslatedText';
 
 const ActionsContainer = styled.div`
   display: flex;
@@ -30,7 +32,7 @@ const StyledIconButton = styled(IconButton)`
 const ActionButtons = React.memo(({ row, onDownload, onClickView }) => (
   <ActionsContainer>
     <Action variant="outlined" size="small" onClick={() => onClickView(row)} key="view">
-      View
+      <TranslatedText stringId="general.action.view" fallback="View" />
     </Action>
     <StyledIconButton color="primary" onClick={() => onDownload(row)} key="download">
       <GetAppIcon fontSize="small" />
@@ -56,20 +58,44 @@ export const DocumentsTable = React.memo(
     // Define columns inside component to pass callbacks to getActions
     const COLUMNS = useMemo(
       () => [
-        { key: 'name', title: 'Name' },
-        { key: 'type', title: 'Type', accessor: getAttachmentType },
-        { key: 'documentUploadedAt', title: 'Upload', accessor: getUploadedDate },
-        { key: 'documentOwner', title: 'Owner' },
+        {
+          key: 'name',
+          title: <TranslatedText stringId="general.table.column.name" fallback="Name" />,
+          CellComponent: LimitedLinesCell,
+        },
+        {
+          key: 'type',
+          title: <TranslatedText stringId="document.table.column.type" fallback="Type" />,
+          accessor: getAttachmentType,
+        },
+        {
+          key: 'documentUploadedAt',
+          title: <TranslatedText stringId="document.table.column.uploadedDate" fallback="Upload" />,
+          accessor: getUploadedDate,
+        },
+        {
+          key: 'documentOwner',
+          title: <TranslatedText stringId="document.table.column.owner" fallback="Owner" />,
+          CellComponent: LimitedLinesCell,
+        },
         {
           key: 'department.name',
-          title: 'Department',
+          title: (
+            <TranslatedText stringId="document.table.column.department" fallback="Department" />
+          ),
           accessor: getDepartmentName,
+          CellComponent: LimitedLinesCell,
           sortable: false,
         },
-        { key: 'note', title: 'Comments', sortable: false },
+        {
+          key: 'note',
+          title: <TranslatedText stringId="document.table.column.comments" fallback="Comments" />,
+          sortable: false,
+          CellComponent: LimitedLinesCell,
+        },
         {
           key: 'actions',
-          title: 'Actions',
+          title: <TranslatedText stringId="document.table.column.actions" fallback="Actions" />,
           accessor: row => (
             <ActionButtons row={row} onDownload={onDownload} onClickView={openDocumentPreview} />
           ),
@@ -84,7 +110,9 @@ export const DocumentsTable = React.memo(
       <DataFetchingTable
         endpoint={endpoint}
         columns={COLUMNS}
-        noDataMessage="No documents found"
+        noDataMessage={
+          <TranslatedText stringId="documents.table.noData" fallback="No documents found" />
+        }
         fetchOptions={searchParameters}
         refreshCount={refreshCount}
         allowExport={false}

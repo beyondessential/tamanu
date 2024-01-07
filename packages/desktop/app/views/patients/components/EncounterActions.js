@@ -74,10 +74,18 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
     return (
       <div>
         <Button variant="outlined" color="primary" onClick={onViewSummary}>
-          View discharge summary
+          <TranslatedText
+            stringId="patient.encounter.action.viewDischargeSummary"
+            fallback="View discharge summary"
+          />
         </Button>
         <br />
-        <TypographyLink onClick={onViewEncounterRecord}>Encounter record</TypographyLink>
+        <TypographyLink onClick={onViewEncounterRecord}>
+          <TranslatedText
+            stringId="patient.encounter.action.viewEncounterRecord"
+            fallback="Encounter record"
+          />
+        </TypographyLink>
       </div>
     );
   }
@@ -97,7 +105,7 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
     {
       label: (
         <TranslatedText
-          stringId="encounter.action.admitToObservation"
+          stringId="patient.encounter.action.moveToEdCare"
           fallback="Move to active ED care"
         />
       ),
@@ -107,8 +115,8 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
     {
       label: (
         <TranslatedText
-          stringId="encounter.action.admitToEmergency"
-          fallback="Admit to short stay"
+          stringId="patient.encounter.action.moveToShortStay"
+          fallback="Move to emergency short stay"
         />
       ),
       onClick: () => onChangeEncounterType(ENCOUNTER_TYPES.EMERGENCY),
@@ -116,7 +124,10 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
     },
     {
       label: (
-        <TranslatedText stringId="encounter.action.admitToHospital" fallback="Admit to hospital" />
+        <TranslatedText
+          stringId="patient.encounter.action.admitToHospital"
+          fallback="Admit to hospital"
+        />
       ),
       onClick: () => onChangeEncounterType(ENCOUNTER_TYPES.ADMISSION),
       condition: () => isProgressionForward(encounter.encounterType, ENCOUNTER_TYPES.ADMISSION),
@@ -124,7 +135,7 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
     {
       label: (
         <TranslatedText
-          stringId="encounter.action.dischargeWithoutBeingSeen"
+          stringId="patient.encounter.action.dischargeWithoutBeingSeen"
           fallback="Discharge without being seen"
         />
       ),
@@ -133,39 +144,53 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
     },
     {
       label: (
-        <TranslatedText stringId="encounter.action.finaliseMove" fallback="Finalise patient move" />
+        <TranslatedText
+          stringId="patient.encounter.action.finalisePatientMove"
+          fallback="Finalise patient move"
+        />
       ),
       condition: () => enablePatientMoveActions && encounter.plannedLocation,
       onClick: onFinaliseLocationChange,
     },
     {
       label: (
-        <TranslatedText stringId="encounter.action.cancelMove" fallback="Cancel patient move" />
+        <TranslatedText
+          stringId="patient.encounter.action.cancelPatientMove"
+          fallback="Cancel patient move"
+        />
       ),
       condition: () => enablePatientMoveActions && encounter.plannedLocation,
       onClick: onCancelLocationChange,
     },
     {
-      label: <TranslatedText stringId="encounter.action.discharge" fallback="Discharge" />,
+      label: <TranslatedText stringId="patient.encounter.action.discharge" fallback="Discharge" />,
       onClick: onDischargeOpen,
       condition: () => encounter.encounterType !== ENCOUNTER_TYPES.TRIAGE,
     },
     {
       // Duplicate "Admit to hospital" as it should display below "Discharge".
       label: (
-        <TranslatedText stringId="encounter.action.admitToHospital" fallback="Admit to hospital" />
+        <TranslatedText
+          stringId="patient.encounter.action.admitToHospital"
+          fallback="Admit to hospital"
+        />
       ),
       onClick: () => onChangeEncounterType(ENCOUNTER_TYPES.ADMISSION),
       condition: () => encounter.encounterType === ENCOUNTER_TYPES.CLINIC,
     },
     {
-      label: <TranslatedText stringId="encounter.action.movePatient" fallback="Move patient" />,
+      label: (
+        <TranslatedText stringId="patient.encounter.action.movePatient" fallback="Move patient" />
+      ),
       condition: () => enablePatientMoveActions && !encounter.plannedLocation,
       onClick: onPlanLocationChange,
     },
     {
       label: (
-        <TranslatedText stringId="encounter.action.changeDepartment" fallback="Change department" />
+        <TranslatedText
+          stringId="patient.encounter.action.changeDepartment"
+          fallback="Change department"
+        />
       ),
       onClick: onChangeDepartment,
     },
@@ -183,7 +208,10 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
     },
     {
       label: (
-        <TranslatedText stringId="encounter.action.changeLocation" fallback="Change location" />
+        <TranslatedText
+          stringId="patient.encounter.action.changeLocation"
+          fallback="Change location"
+        />
       ),
       condition: () => !enablePatientMoveActions && !encounter.plannedLocation,
       onClick: onChangeLocation,

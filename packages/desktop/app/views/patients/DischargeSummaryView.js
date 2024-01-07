@@ -29,6 +29,7 @@ import {
   LocalisedDisplayValue,
 } from '../../components/PatientPrinting/printouts/reusable/CertificateLabels';
 import { useLocalisedText } from '../../components';
+import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 const Container = styled.div`
   background: ${Colors.white};
@@ -390,7 +391,7 @@ export const DischargeSummaryView = React.memo(() => {
           onClick={() => printPage()}
           startIcon={<PrintIcon />}
         >
-          Print Summary
+          <TranslatedText stringId="discharge.action.printSummary" fallback="Print summary" />
         </Button>
       </NavContainer>
       <SummaryPage encounter={encounter} discharge={discharge} />

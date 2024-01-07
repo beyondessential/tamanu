@@ -12,6 +12,7 @@ import { useSuggester } from '../api';
 import { DateDisplay } from './DateDisplay';
 import { noteTypes, Colors } from '../constants';
 import { FormGrid } from './FormGrid';
+import { TranslatedText } from './Translation/TranslatedText';
 
 export const StyledDivider = styled(Divider)`
   margin-top: 30px;
@@ -77,7 +78,13 @@ const renderOptionLabel = ({ value, label }, noteTypeCountByType) => {
     <div>{label}</div>
   );
 };
-export const WrittenByField = ({ label = 'Written by (or on behalf of)', required, disabled }) => {
+export const WrittenByField = ({
+  label = (
+    <TranslatedText stringId="note.form.writtenBy.label" fallback="Written by (or on behalf of)" />
+  ),
+  required,
+  disabled,
+}) => {
   const practitionerSuggester = useSuggester('practitioner');
 
   return (
@@ -98,7 +105,7 @@ export const NoteDateTimeField = ({ required, disabled }) => {
   return (
     <Field
       name="date"
-      label="Date & time"
+      label={<TranslatedText stringId="note.form.dateTime.label" fallback="Date & time" />}
       component={DateTimeField}
       required={required}
       disabled={!getLocalisation('features.enableNoteBackdating') || disabled}
@@ -107,7 +114,10 @@ export const NoteDateTimeField = ({ required, disabled }) => {
   );
 };
 
-export const NoteContentField = ({ label = 'Edit note', onChange }) => (
+export const NoteContentField = ({
+  label = <TranslatedText stringId="note.form.edit.label" fallback="Edit note" />,
+  onChange,
+}) => (
   <Field
     name="content"
     label={label}
@@ -136,7 +146,7 @@ export const NoteInfoSection = ({
     <InfoCardItem
       numberOfColumns={numberOfColumns}
       fontSize={14}
-      label="Note type"
+      label=<TranslatedText stringId="note.form.noteType.label" fallback="Note type" />
       value={noteType}
       borderHeight={50}
     />
@@ -162,7 +172,7 @@ export const NoteInfoSection = ({
 export const NoteTypeField = ({ required, noteTypeCountByType }) => (
   <Field
     name="noteType"
-    label="Type"
+    label={<TranslatedText stringId="note.form.type.label" fallback="Type" />}
     required={required}
     component={SelectField}
     options={getSelectableNoteTypes(noteTypeCountByType)}

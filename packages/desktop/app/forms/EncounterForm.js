@@ -20,6 +20,7 @@ import {
 } from '../components';
 import { encounterOptions } from '../constants';
 import { useSuggester } from '../api';
+import { TranslatedText } from '../components/Translation/TranslatedText';
 
 export const EncounterForm = React.memo(
   ({ editedObject, onSubmit, patientBillingTypeId, encounterType }) => {
@@ -31,20 +32,37 @@ export const EncounterForm = React.memo(
     const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
 
     const renderForm = ({ submitForm, values }) => {
-      const buttonText = editedObject ? 'Update encounter' : 'Confirm';
+      const buttonText = editedObject ? (
+        <TranslatedText
+          stringId="patient.modal.checkIn.action.update"
+          fallback="Update encounter"
+        />
+      ) : (
+        <TranslatedText stringId="general.action.confirm" fallback="Confirm" />
+      );
 
       return (
         <FormGrid>
           <Field
             name="encounterType"
-            label="Encounter type"
+            label={
+              <TranslatedText
+                stringId="patient.modal.checkIn.form.encounterType.label"
+                fallback="Encounter type"
+              />
+            }
             disabled
             component={SelectField}
             options={encounterOptions}
           />
           <Field
             name="startDate"
-            label="Check-in date"
+            label={
+              <TranslatedText
+                stringId="patient.modal.checkIn.form.checkInDate.label"
+                fallback="Check-in date"
+              />
+            }
             required
             min="1970-01-01T00:00"
             component={DateTimeField}
@@ -52,7 +70,9 @@ export const EncounterForm = React.memo(
           />
           <Field
             name="departmentId"
-            label="Department"
+            label={
+              <TranslatedText stringId="general.form.department.label" fallback="Department" />
+            }
             required
             component={AutocompleteField}
             suggester={departmentSuggester}
@@ -85,7 +105,12 @@ export const EncounterForm = React.memo(
           />
           <Field
             name="reasonForEncounter"
-            label="Reason for encounter"
+            label={
+              <TranslatedText
+                stringId="modal.checkIn.form.reasonForEncounter.label"
+                fallback="Reason for encounter"
+              />
+            }
             component={TextField}
             multiline
             rows={2}

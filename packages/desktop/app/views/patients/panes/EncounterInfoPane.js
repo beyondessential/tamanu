@@ -23,7 +23,7 @@ export const EncounterInfoPane = React.memo(
           <InfoCardHeader
             label={
               <TranslatedText
-                stringId="encounter.summary.plannedMove.label"
+                stringId="patient.encounter.details.card.plannedMove.label"
                 fallback="Planned move"
               />
             }
