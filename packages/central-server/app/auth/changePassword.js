@@ -100,7 +100,7 @@ const validateResetCode = async (store, { email, token }) => {
   });
 
   if (!oneTimeLogin) {
-    log.info(`One time login for this user and token ${token} not found`);
+    log.info('oneTimeLogin.tokenNotFound', { token });
     throw new ValidationError('Token not found for this user');
   }
 };
