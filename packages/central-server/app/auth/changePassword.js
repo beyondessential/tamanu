@@ -30,8 +30,6 @@ changePassword.post(
   asyncHandler(async (req, res) => {
     const { store, body } = req;
 
-    log.info(body.newPassword);
-
     await schema.validate(body);
 
     await doChangePassword(store, body);
