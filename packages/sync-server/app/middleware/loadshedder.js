@@ -1,5 +1,5 @@
-import config from 'config';
 import asyncHandler from 'express-async-handler';
+import config from 'config';
 
 import { log } from '@tamanu/shared/services/logging';
 import { RequestQueueTimeoutError, RequestQueueExceededError } from '@tamanu/shared/errors';

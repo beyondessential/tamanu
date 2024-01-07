@@ -45,8 +45,8 @@ async function comparePassword(user, password) {
 }
 
 export async function centralServerLogin(ctx, email, password) {
-  const { models, deviceId, settings } = ctx;
-  const syncConfig = await settings.get('sync');
+  const { models, deviceId, settings: settingsReader } = ctx;
+  const syncConfig = await settingsReader.get('sync');
 
   // try logging in to sync server
   const centralServer = new CentralServerConnection(ctx, syncConfig);
@@ -65,7 +65,7 @@ export async function centralServerLogin(ctx, email, password) {
   });
 
   // we've logged in as a valid central user - update local database to match
-  const { user, localisation } = response;
+  const { user, localisation, settings } = response;
   const { id, ...userDetails } = user;
 
   await models.User.sequelize.transaction(async () => {
@@ -82,14 +82,16 @@ export async function centralServerLogin(ctx, email, password) {
     });
   });
 
-  return { central: true, user, localisation };
+  return { central: true, user, localisation, settings };
 }
 
-async function localLogin(models, email, password) {
+async function localLogin({ models, settings }, email, password) {
   // some other error in communicating with sync server, revert to local login
   const user = await models.User.scope('withPassword').findOne({
     where: { email },
   });
+
+  const settingsObject = await settings.getAll();
 
   if (user && user.visibilityStatus !== VISIBILITY_STATUSES.CURRENT) {
     throw new BadAuthenticationError(USER_DEACTIVATED_ERROR_MESSAGE);
@@ -106,17 +108,17 @@ async function localLogin(models, email, password) {
     order: [['createdAt', 'DESC']],
   });
 
-  return { central: false, user, localisation };
+  return { central: false, user, localisation, settings: settingsObject };
 }
 
-async function centralServerLoginWithLocalFallback(models, email, password, deviceId) {
+async function centralServerLoginWithLocalFallback(models, email, password, deviceId, settings) {
   // always log in locally when testing
   if (process.env.NODE_ENV === 'test') {
-    return localLogin(models, email, password);
+    return localLogin({ models, settings }, email, password);
   }
 
   try {
-    return await centralServerLogin(models, email, password, deviceId);
+    return await centralServerLogin({ models, settings, deviceId }, email, password);
   } catch (e) {
     if (e.name === 'BadAuthenticationError') {
       // actual bad credentials server-side
@@ -130,24 +132,24 @@ async function centralServerLoginWithLocalFallback(models, email, password, devi
     }
 
     log.warn(`centralServerLoginWithLocalFallback: central server login failed: ${e}`);
-    return localLogin(models, email, password);
+    return localLogin({ models, settings }, email, password);
   }
 }
 
 export async function loginHandler(req, res, next) {
-  const { body, models, deviceId } = req;
+  const { body, models, deviceId, settings } = req;
   const { email, password } = body;
 
   // no permission needed for login
   req.flagPermissionChecked();
 
   try {
-    const { central, user, localisation } = await centralServerLoginWithLocalFallback(
-      models,
-      email,
-      password,
-      deviceId,
-    );
+    const {
+      central,
+      user,
+      localisation,
+      settings: receivedSettings,
+    } = await centralServerLoginWithLocalFallback(models, email, password, deviceId, settings);
     const [facility, permissions, token, role] = await Promise.all([
       models.Facility.findByPk(config.serverFacilityId),
       getPermissionsForRoles(models, user.role),
@@ -163,6 +165,7 @@ export async function loginHandler(req, res, next) {
       server: {
         facility: facility?.forResponse() ?? null,
       },
+      settings: receivedSettings,
     });
   } catch (e) {
     next(e);

@@ -1,3 +1,4 @@
+import '../utils/customYupMethods';
 import { resolve } from 'path';
 import { Command } from 'commander';
 
