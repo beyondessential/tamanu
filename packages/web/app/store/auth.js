@@ -80,7 +80,7 @@ export const validateResetCode = data => async (dispatch, getState, { api }) => 
   dispatch({ type: VALIDATE_RESET_CODE_START });
 
   try {
-    await api.validateResetCode(data);
+    await api.post('changePassword/validate-reset-code', data);
     dispatch({ type: VALIDATE_RESET_CODE_SUCCESS });
   } catch (error) {
     dispatch({ type: VALIDATE_RESET_CODE_FAILURE, error: error.message });
@@ -119,6 +119,11 @@ const defaultState = {
     lastEmailUsed: null,
   },
   changePassword: {
+    loading: false,
+    success: false,
+    error: null,
+  },
+  validateResetCode: {
     loading: false,
     success: false,
     error: null,

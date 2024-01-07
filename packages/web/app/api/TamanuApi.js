@@ -185,10 +185,6 @@ export class TamanuApi {
     return this.post('changePassword', data);
   }
 
-  async validateResetCode(data) {
-    return this.post('changePassword/validate-reset-code', data);
-  }
-
   async refreshToken() {
     try {
       const response = await this.post('refresh');
