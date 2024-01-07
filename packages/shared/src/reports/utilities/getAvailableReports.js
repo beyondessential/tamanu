@@ -40,6 +40,7 @@ const getDbReports = async (ability, models) => {
         REPORT_DATE_RANGE_LABELS[version.queryOptions.defaultDateRange],
       parameters: version.getParameters(),
       version: version.versionNumber,
+      notes: version.notes,
     };
   });
 };

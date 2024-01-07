@@ -7,18 +7,12 @@ const respondWithError = (res, error) => {
   res.status(400).json({ error });
 };
 
-async function getUpdateInformation(req) {
-  const updateUrls = await req.settings.get('updateUrls');
-  if (!updateUrls) return {};
-
-  const clientType = req.header('X-Tamanu-Client') || '';
-  if (clientType.includes('Tamanu Mobile')) {
-    return {
-      updateUrl: updateUrls.mobile,
-    };
-  }
-
-  return {};
+async function getUpdateInformation({ settings, header }) {
+  const mobileUpdateUrls = await settings.get('updateUrls.mobile');
+  if (!mobileUpdateUrls || !header('X-Tamanu-Client')?.includes('Tamanu Mobile')) return {};
+  return {
+    updateUrl: mobileUpdateUrls,
+  };
 }
 
 export const buildVersionCompatibilityCheck = (min, max) => (req, res, next) => {

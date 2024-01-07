@@ -69,12 +69,6 @@
       }
     }
   },
-  "senaite": {
-    "enabled": false,
-    "server": "https://192.168.33.100",
-    "username": "admin",
-    "password": "admin"
-  },
   "auth": {
     "saltRounds": 12,
     "tokenDuration": "1h",

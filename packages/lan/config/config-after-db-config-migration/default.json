@@ -26,10 +26,6 @@
     // this shouldn't need to be changed.
     "trusted": ["loopback"]
   },
-  "senaite": {
-    "password": "",
-    "username": ""
-  },
   "serverFacilityId": "",
   "sync": {
     "email": "",
