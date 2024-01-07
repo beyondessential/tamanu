@@ -26,10 +26,6 @@ export const facilityDefaults = {
       schedule: '1 0 * * *',
     },
   },
-  senaite: {
-    enabled: false,
-    server: 'https://192.168.33.100',
-  },
   sync: {
     backoff: {
       maxAttempts: 15,

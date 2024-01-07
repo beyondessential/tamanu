@@ -25,7 +25,7 @@ const StyledButton = styled(OutlinedButton)`
 `;
 
 const getInitialValues = (version, report) => {
-  const { query, status, queryOptions } = version;
+  const { query, status, queryOptions, notes } = version;
   const { dataSources, ...options } = queryOptions;
   const { name, dbSchema } = report;
   return {
@@ -35,6 +35,7 @@ const getInitialValues = (version, report) => {
     dbSchema,
     ...options,
     dataSources,
+    notes,
   };
 };
 
@@ -56,7 +57,7 @@ export const EditReportView = () => {
     dispatch(push('admin/reports'));
   };
 
-  const handleSave = async ({ query, status, name, dbSchema, ...queryOptions }) => {
+  const handleSave = async ({ query, status, name, dbSchema, notes, ...queryOptions }) => {
     const { dataSources } = queryOptions;
     const { reportDefinition } = version;
     const payload = {
@@ -67,6 +68,7 @@ export const EditReportView = () => {
       query,
       status,
       dbSchema,
+      notes,
     };
     try {
       const result = await api.post(`admin/reports/${reportDefinition.id}/versions`, payload);

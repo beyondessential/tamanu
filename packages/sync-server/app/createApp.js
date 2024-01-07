@@ -51,7 +51,6 @@ export function createApp(ctx) {
   });
 
   app.use(buildSettingsReader);
-  app.use(loadshedder());
   app.use(versionCompatibility);
 
   // TODO: serve index page

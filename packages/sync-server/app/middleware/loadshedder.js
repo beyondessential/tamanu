@@ -1,4 +1,5 @@
 import asyncHandler from 'express-async-handler';
+import config from 'config';
 
 import { log } from '@tamanu/shared/services/logging';
 import { RequestQueueTimeoutError, RequestQueueExceededError } from '@tamanu/shared/errors';
@@ -127,10 +128,9 @@ export class QueueManager {
   }
 }
 
-export const loadshedder = () => {
+export const loadshedder = (options = config.loadshedder) => {
+  const manager = new QueueManager(options.queues);
   return asyncHandler(async (req, res, next) => {
-    const options = await req.settings.get('loadshedder');
-    const manager = new QueueManager(options.queues);
     const queue = manager.getQueue(req.path);
     if (queue) {
       // acquire a lock from the queue and release it when the request is disposed of
