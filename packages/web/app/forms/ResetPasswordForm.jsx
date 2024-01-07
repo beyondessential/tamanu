@@ -100,7 +100,7 @@ export const ResetPasswordForm = React.memo(
             .email('Must enter a valid email')
             .required('*Required'),
         })}
-        showErrorDialog={false}
+        suppressErrorDialog
       />
     );
   },

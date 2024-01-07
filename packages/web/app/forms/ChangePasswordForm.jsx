@@ -245,7 +245,7 @@ export const ChangePasswordForm = React.memo(
             .oneOf([yup.ref('newPassword'), null], `Passwords don't match`)
             .required(REQUIRED_VALIDATION_MESSAGE),
         })}
-        showErrorDialog={false}
+        suppressErrorDialog
       />
     );
   },

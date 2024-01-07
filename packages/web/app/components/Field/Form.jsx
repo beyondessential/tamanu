@@ -254,7 +254,7 @@ export class Form extends React.PureComponent {
       validateOnChange,
       validateOnBlur,
       initialValues,
-      showErrorDialog = true,
+      suppressErrorDialog = false,
       ...props
     } = this.props;
     const { validationErrors } = this.state;
@@ -265,7 +265,7 @@ export class Form extends React.PureComponent {
       throw new Error('Form must not have any children -- use the `render` prop instead please!');
     }
 
-    const displayErrorDialog = Object.keys(validationErrors).length > 0;
+    const hasErrors = Object.keys(validationErrors).length > 0;
 
     return (
       <>
@@ -280,9 +280,9 @@ export class Form extends React.PureComponent {
           {...props}
           render={this.renderFormContents}
         />
-        {showErrorDialog && (
+        {!suppressErrorDialog && (
           <Dialog
-            isVisible={displayErrorDialog}
+            isVisible={hasErrors}
             onClose={this.hideErrorDialog}
             headerTitle="Please fix below errors to continue"
             disableDevWarning
