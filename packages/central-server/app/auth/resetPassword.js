@@ -33,7 +33,12 @@ resetPassword.post(
 
     if (!user) {
       log.info(`Password reset request: No user found with email ${email}`);
-      throw new ValidationError('User not found');
+      // ⚠️ SECURITY INFO:
+      // This logic is available to anonymous users, so it's important it doesn't give out
+      // any information about the system. In this case, a hacker can use a "not found"
+      // error message to figure out which emails are really in use.
+      // So, we just return an "OK" response no matter what information is provided,
+      // regardless of whether it's valid or not. 
     } else {
       const token = await createOneTimeLogin(models, user);
       await sendResetEmail(req.emailService, user, token);
