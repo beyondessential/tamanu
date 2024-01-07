@@ -2,6 +2,7 @@
 // so that it can set globals
 // eslint-disable-next-line import/order
 import { version } from './serverInfo';
+import './utils/customYupMethods';
 
 import { program } from 'commander';
 import { log } from '@tamanu/shared/services/logging';

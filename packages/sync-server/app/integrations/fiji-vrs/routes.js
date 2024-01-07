@@ -1,4 +1,3 @@
-import config from 'config';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { set } from 'lodash';
@@ -35,7 +34,8 @@ export const routes = (_context, requireClientHeaders) => {
 };
 
 export const initAppContext = async ctx => {
-  const vrsConfig = config.integrations.fijiVrs;
+  const { settings } = ctx;
+  const vrsConfig = await settings.get('integrations.fijiVrs');
   const remote = new VRSRemote(ctx.store, vrsConfig);
   const actionHandler = new VRSActionHandler(ctx.store, remote, vrsConfig);
   set(ctx, 'integrations.fijiVrs.remote', remote); // added to context to help make testing easier

@@ -1,6 +1,7 @@
 import { Command } from 'commander';
 import path from 'path';
 
+import { ReadSettings } from '@tamanu/settings';
 import { log } from '@tamanu/shared/services/logging';
 import { REPORT_DEFINITIONS } from '@tamanu/shared/reports';
 import { REPORT_EXPORT_FORMATS } from '@tamanu/constants';
@@ -41,6 +42,7 @@ async function report(options) {
   }
 
   const store = await initDatabase({ testMode: false });
+  const settings = new ReadSettings(store.models);
   const reportSchemaStores = config.db.reportSchemas?.enabled ? await initReporting() : null;
   setupEnv();
   try {
@@ -66,7 +68,7 @@ async function report(options) {
       };
     }
 
-    const emailService = new EmailService();
+    const emailService = new EmailService(settings);
     const reportRunner = new ReportRunner(
       {
         store,

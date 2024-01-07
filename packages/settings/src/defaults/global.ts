@@ -639,11 +639,6 @@ export const globalDefaults = {
     nationalityId: null,
     passport: null,
   },
-  reportConfig: {
-    'encounter-summary-line-list': {
-      includedPatientFieldIds: [],
-    },
-  },
   survey: {
     defaultCodes: {
       department: 'GeneralClinic',

@@ -33,11 +33,6 @@ const mockGlobalSettings = {
       'global-file': 'file-global-value',
     },
   },
-  reportConfig: {
-    'encounter-summary-line-list': {
-      includedPatientFieldIds: [],
-    },
-  },
 };
 
 const seedMockSettings = async models => {

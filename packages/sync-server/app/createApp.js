@@ -1,4 +1,3 @@
-import './utils/customYupMethods';
 import bodyParser from 'body-parser';
 import compression from 'compression';
 import config from 'config';
@@ -42,8 +41,6 @@ export function createApp(ctx) {
     next();
   });
 
-  app.use(versionCompatibility);
-
   app.use((req, res, next) => {
     req.models = store.models; // cross-compatibility with lan for shared middleware
     req.store = store;
@@ -54,6 +51,9 @@ export function createApp(ctx) {
     next();
   });
 
+  app.use(buildSettingsReader);
+  app.use(versionCompatibility);
+
   // TODO: serve index page
   app.get('/$', (req, res) => {
     res.send({
@@ -63,7 +63,6 @@ export function createApp(ctx) {
 
   // API v1
   app.use('/v1/public', publicRoutes);
-  app.use('/v1', buildSettingsReader);
   app.use('/v1', authModule);
   app.use('/v1', constructPermission);
   app.use('/v1', buildRoutes(ctx));

@@ -1,16 +1,14 @@
-import config from 'config';
-
 import { fake } from '@tamanu/shared/test-helpers/fake';
 import { createTestContext } from 'sync-server/__tests__/utilities';
 import { prepareVRSMocks } from './sharedHookHelpers';
 
-const { host } = config.integrations.fijiVrs;
-
 describe('VRS integration - hook - DELETE', () => {
   let ctx;
   let app;
+  let host;
   beforeAll(async () => {
     ctx = await createTestContext();
+    host = await ctx.settings.get('integrations.fijiVrs.host');
     app = await ctx.baseApp.asRole('practitioner');
   });
   afterAll(() => ctx.close());

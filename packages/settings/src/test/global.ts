@@ -26,11 +26,6 @@ export const globalTestSettings = {
     vascularStudy: { label: 'Vascular Study' },
     stressTest: { label: 'Treadmill' },
   },
-  reportConfig: {
-    'encounter-summary-line-list': {
-      includedPatientFieldIds: ['test-field-id-1', 'test-field-id-2'],
-    },
-  },
   survey: {
     defaultCodes: {
       department: 'Emergency',

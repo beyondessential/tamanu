@@ -18,9 +18,10 @@ export class ApplicationContext {
   closeHooks = [];
 
   async init({ testMode } = {}) {
-    this.emailService = new EmailService();
     this.store = await initDatabase({ testMode });
     this.settings = new ReadSettings(this.store.models);
+    this.emailService = new EmailService(this.settings);
+    await this.emailService.init();
     if (config.db.reportSchemas?.enabled) {
       this.reportSchemaStores = await initReporting();
     }

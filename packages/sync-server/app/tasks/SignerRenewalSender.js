@@ -41,7 +41,7 @@ export class SignerRenewalSender extends ScheduledTask {
     }
 
     const sender = await this.settings.get('mailgun.from');
-    const recipient = await this.settings.get('integrations.signer.sendSignerRequestTo');
+    const recipient = await this.settings.get('integrations.signer.sendRequestTo');
     const { subject, body } = await this.settings.get('localisation.templates.signerRenewalEmail');
 
     log.info(`Emailing ${pending.length} CSR(s) to ${recipient}`);

@@ -1,4 +1,3 @@
-import config from 'config';
 import sequelize from 'sequelize';
 import { spawn } from 'child_process';
 
@@ -24,9 +23,10 @@ export class ReportRequestProcessor extends ScheduledTask {
 
   spawnReportProcess = async request => {
     const [node, scriptPath] = process.argv;
-    const { processOptions } = config.reportProcess;
+    const { timeoutDurationSeconds, childProcessEnv, processOptions } = await this.settings.get(
+      'reportProcess',
+    );
     const parameters = processOptions || process.execArgv;
-    const { timeoutDurationSeconds, childProcessEnv } = await this.settings.get('reportProcess');
 
     log.info(
       `Spawning child process for report request "${
@@ -141,7 +141,7 @@ export class ReportRequestProcessor extends ScheduledTask {
   }
 
   async runReports() {
-    const limit = await this.settings.get('reportRequestProcessorLimit');
+    const limit = await this.settings.get('schedules.reportRequestProcessor.limit');
     const requests = await this.store.models.ReportRequest.findAll({
       where: {
         status: REPORT_REQUEST_STATUSES.RECEIVED,
@@ -150,10 +150,12 @@ export class ReportRequestProcessor extends ScheduledTask {
       limit,
     });
 
+    const sender = await this.settings.get('mailgun.from');
+
     for (const request of requests) {
       const reportId = request.getReportId();
 
-      if (!config.mailgun.from) {
+      if (!sender) {
         log.error(`ReportRequestProcessorError - Email config missing`);
         await request.update({
           status: REPORT_REQUEST_STATUSES.ERROR,
@@ -191,7 +193,9 @@ export class ReportRequestProcessor extends ScheduledTask {
           processStartedTime: new Date(),
         });
 
-        if (config.reportProcess.runInChildProcess) {
+        const runInChildProcess = await this.settings.get('reportProcess.runInChildProcess');
+
+        if (runInChildProcess) {
           await this.spawnReportProcess(request);
         } else {
           await this.runReportInTheSameProcess(request);

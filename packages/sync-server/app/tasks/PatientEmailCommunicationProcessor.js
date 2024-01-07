@@ -1,4 +1,3 @@
-import config from 'config';
 import { PATIENT_COMMUNICATION_CHANNELS, COMMUNICATION_STATUSES } from '@tamanu/constants';
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
@@ -55,6 +54,8 @@ export class PatientEmailCommunicationProcessor extends ScheduledTask {
       limit,
     });
 
+    const sender = await this.context.settings.get('mailgun.from');
+
     const sendEmails = emailsToBeSent.map(async email => {
       const emailPlain = email.get({
         plain: true,
@@ -71,7 +72,7 @@ export class PatientEmailCommunicationProcessor extends ScheduledTask {
       try {
         const result = await this.emailService.sendEmail({
           to: toAddress,
-          from: config.mailgun.from,
+          from: sender,
           subject: emailPlain.subject,
           text: emailPlain.content,
           attachment: emailPlain.attachment,

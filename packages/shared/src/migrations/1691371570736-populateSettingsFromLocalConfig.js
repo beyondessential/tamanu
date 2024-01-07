@@ -36,7 +36,7 @@ const SCOPED_KEY_TRANSFORM_MAPS = {
     'honeycomb.apiKey': null,
     'mailgun.apiKey': null,
     'integrations.signer.keySecret': null,
-    'integrations.omnilab.secret': null,
+    'integrations.omniLab.secret': null,
     'integrations.fijiVrs.username': null,
     'integrations.fijiVrs.password': null,
   },
