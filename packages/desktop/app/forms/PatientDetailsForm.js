@@ -9,7 +9,6 @@ import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants/patientFields'
 
 import { useSexValues } from '../hooks';
 import { Colors, sexOptions } from '../constants';
-import { useLocalisation } from '../contexts/Localisation';
 import { useSettings } from '../contexts/Settings';
 import { useApi, useSuggester } from '../api';
 import { getPatientDetailsValidation } from '../validations';
@@ -267,7 +266,7 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
 
   const sexValues = useSexValues();
 
-  const { getLocalisation } = useLocalisation();
+  const { getSetting } = useSettings();
 
   const api = useApi();
   const {
@@ -320,11 +319,7 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
         ),
       }}
       onSubmit={handleSubmit}
-      validationSchema={getPatientDetailsValidation(
-        patientRegistryType,
-        sexValues,
-        getLocalisation,
-      )}
+      validationSchema={getPatientDetailsValidation(patientRegistryType, sexValues, getSetting)}
     />
   );
 };
