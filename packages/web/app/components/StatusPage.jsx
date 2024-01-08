@@ -49,13 +49,16 @@ export const StatusPage = ({ message, description }) => {
 };
 
 const ellipsis = keyframes`
+from {
+  width: 0;
+}
 to {
-  width: 1.25em;
+  width: 1.22em;
 }
 `;
 
 const EllipsisContainer = styled.span`
-  width: 353px;
+  width: 352px;
   display: block;
   &:after {
     overflow: hidden;
@@ -63,7 +66,6 @@ const EllipsisContainer = styled.span`
     vertical-align: bottom;
     animation: ${ellipsis} steps(4, end) 900ms infinite;
     content: '...'; /* ascii code for the ellipsis character */
-    width: 0px;
   }
 `;
 
