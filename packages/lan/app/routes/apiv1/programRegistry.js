@@ -137,6 +137,9 @@ programRegistry.get(
         // so we build up a string like '["A_condition_name"]' and cast it to json before checking membership.
         `(select '["' || prc2.name || '"]' from program_registry_conditions prc2 where prc2.id == :programRegistryCondition):jsonb <@ conditions.condition_list`,
       ),
+      makeFilter(true, 'mrr.registration_status != :error_status', () => ({
+        error_status: REGISTRATION_STATUSES.RECORDED_IN_ERROR,
+      })),
       makeFilter(
         !filterParams.removed || filterParams.removed === 'false',
         'mrr.registration_status = :active_status',
