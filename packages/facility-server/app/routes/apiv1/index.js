@@ -51,6 +51,7 @@ const referenceDataRoutes = express.Router();
 const syncRoutes = express.Router();
 
 apiv1.get('/health', (req, res) => {
+  req.flagPermissionChecked();
   res.send({
     index: true,
   });
