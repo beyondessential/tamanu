@@ -47,3 +47,17 @@ export const StatusPage = ({ message, description }) => {
     </Container>
   );
 };
+
+export const LoadingStatusPage = () => (
+  <StatusPage
+    message="Tamanu is loading..."
+    description="Tamanu is currently loading. Please do not nagivate away from this page ;_("
+  />
+);
+
+export const UnavailableStatusPage = () => (
+  <StatusPage
+    message="Tamanu is currently unavailable"
+    description="Tamanu is currently unavailable. Please try again later or contact your system administrator for further information."
+  />
+);
