@@ -1,4 +1,4 @@
-import { DataTypes, Sequelize } from 'sequelize';
+import { Sequelize, DataTypes } from 'sequelize';
 
 import { FHIR_INTERACTIONS } from '@tamanu/constants';
 import { FhirResource } from '../Resource';

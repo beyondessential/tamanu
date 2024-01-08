@@ -1,11 +1,11 @@
-import { context, propagation, trace } from '@opentelemetry/api';
+import { trace, propagation, context } from '@opentelemetry/api';
 import { sign as signCallback, verify as verifyCallback } from 'jsonwebtoken';
 import { compare } from 'bcrypt';
 import config from 'config';
 import { promisify } from 'util';
 import crypto from 'crypto';
 
-import { USER_DEACTIVATED_ERROR_MESSAGE, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { VISIBILITY_STATUSES, USER_DEACTIVATED_ERROR_MESSAGE } from '@tamanu/constants';
 import { BadAuthenticationError } from '@tamanu/shared/errors';
 import { log } from '@tamanu/shared/services/logging';
 import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermissions';

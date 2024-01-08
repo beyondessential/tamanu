@@ -5,6 +5,7 @@ import { formatISO9075 } from 'date-fns';
 import {
   DataElementType,
   EncounterType,
+  SurveyTypes,
   IAdministeredVaccine,
   IEncounter,
   IPatient,
@@ -18,7 +19,6 @@ import {
   ISurveyScreenComponent,
   IUser,
   ReferenceDataType,
-  SurveyTypes,
 } from '~/types';
 
 import { BaseModel } from '~/models/BaseModel';

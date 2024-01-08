@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { expect, describe, it } from 'vitest'
 
 import { checkMandatory, checkVisibility } from '../../app/utils';
 

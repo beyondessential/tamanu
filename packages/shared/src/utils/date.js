@@ -1,11 +1,11 @@
 import {
   add as addDuration,
-  differenceInDays,
-  differenceInMonths,
+  formatDuration,
   differenceInWeeks,
   differenceInYears,
-  formatDuration,
   intervalToDuration,
+  differenceInMonths,
+  differenceInDays,
   startOfDay,
 } from 'date-fns';
 import { isISOString, parseDate } from './dateTime';

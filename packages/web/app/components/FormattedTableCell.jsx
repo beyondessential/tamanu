@@ -1,5 +1,5 @@
 import { isNumber } from 'lodash';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useRef, useState, useEffect, useMemo } from 'react';
 
 import styled from 'styled-components';
 import { Colors } from '../constants';

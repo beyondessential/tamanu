@@ -5,20 +5,20 @@ import { CheckCircleRounded } from '@material-ui/icons';
 
 import {
   INJECTION_SITE_OPTIONS,
-  VACCINE_CATEGORIES,
   VACCINE_CATEGORY_OPTIONS,
+  VACCINE_CATEGORIES,
 } from '@tamanu/constants';
 
 import { OuterLabelFieldWrapper } from './Field/OuterLabelFieldWrapper';
 import {
-  AutocompleteField,
-  CheckField,
-  DateField,
   Field,
-  LocalisedLocationField,
+  TextField,
+  AutocompleteField,
+  DateField,
   RadioField,
   SelectField,
-  TextField,
+  CheckField,
+  LocalisedLocationField,
 } from './Field';
 import { FormSubmitCancelRow } from './ButtonRow';
 import { useSuggester } from '../api';

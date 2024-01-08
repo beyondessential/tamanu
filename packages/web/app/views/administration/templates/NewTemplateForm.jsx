@@ -6,11 +6,11 @@ import { Link } from '@material-ui/core';
 import { TEMPLATE_TYPES } from '@tamanu/constants';
 
 import {
-  Field,
   Form,
-  SelectField,
-  TallMultilineTextField,
+  Field,
   TextField,
+  TallMultilineTextField,
+  SelectField,
 } from '../../../components/Field';
 import { FormGrid, SmallGridSpacer } from '../../../components/FormGrid';
 import { TEMPLATE_TYPE_OPTIONS } from '../../../constants';

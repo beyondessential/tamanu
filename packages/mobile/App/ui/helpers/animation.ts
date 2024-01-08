@@ -1,4 +1,4 @@
-import { Clock, Easing, Node, Value, and, block, clockRunning, cond, eq, set, startClock, timing } from 'react-native-reanimated';
+import { timing, Easing, Clock, set, cond, and, eq, block, clockRunning, startClock, Node, Value } from 'react-native-reanimated';
 
 /**
  * Uses an Animated State to change during the specified period of time.

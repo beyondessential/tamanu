@@ -8,10 +8,10 @@ import { Table } from './Table';
 import { useEncounter } from '../contexts/Encounter';
 import { Colors } from '../constants';
 import {
-  DateHeadCell,
-  LimitedLinesCell,
-  RangeTooltipCell,
   RangeValidatedCell,
+  DateHeadCell,
+  RangeTooltipCell,
+  LimitedLinesCell,
 } from './FormattedTableCell';
 import { useVitals } from '../api/queries/useVitals';
 import { DateDisplay, formatShortest, formatTimeWithSeconds } from './DateDisplay';

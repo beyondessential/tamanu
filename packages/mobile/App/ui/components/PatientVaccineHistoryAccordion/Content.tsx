@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import { formatStringDate } from '/helpers/date';
 import { StyleSheet, Text, View } from 'react-native';
-import { ColumnView, RowView, StyledView } from '/styled/common';
+import { StyledView, RowView, ColumnView } from '/styled/common';
 import { theme } from '/styled/theme';
 
 const styles = StyleSheet.create({

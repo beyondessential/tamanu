@@ -1,12 +1,12 @@
-import React, { ReactElement, useCallback, useState } from 'react';
-import { StyleSheet, TouchableWithoutFeedback } from 'react-native';
+import React, { useState, useCallback, ReactElement } from 'react';
+import { TouchableWithoutFeedback, StyleSheet } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { parseISO } from 'date-fns';
-import { StyledText, StyledView } from '/styled/common';
+import { StyledView, StyledText } from '/styled/common';
 import { formatDate } from '/helpers/date';
 import { theme } from '/styled/theme';
 import { DateFormats } from '/helpers/constants';
-import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import * as Icons from '../Icons';
 import { InputContainer } from '../TextField/styles';
 import { BaseInputProps } from '../../interfaces/BaseInputProps';

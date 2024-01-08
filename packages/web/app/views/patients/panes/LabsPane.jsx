@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { LabRequestModal } from '../../../components/LabRequestModal';
 import { EncounterLabRequestsTable } from '../EncounterLabRequestsTable';
-import { ButtonWithPermissionCheck, TableButtonRow } from '../../../components';
+import { TableButtonRow, ButtonWithPermissionCheck } from '../../../components';
 import { PrintMultipleLabRequestsSelectionModal } from '../../../components/PatientPrinting';
 import { TabPane } from '../components';
 

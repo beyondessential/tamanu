@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { addDays, format } from 'date-fns';
 
 import { DATE_TIME_FORMAT } from '../components/Charts/components/DateTimeSelector';

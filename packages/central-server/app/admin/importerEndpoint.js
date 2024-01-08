@@ -9,7 +9,7 @@ import { getUploadedData } from '@tamanu/shared/utils/getUploadedData';
 import { log } from '@tamanu/shared/services/logging/log';
 import { CURRENT_SYNC_TIME_KEY } from '@tamanu/shared/sync/constants';
 
-import { DataImportError, DryRun } from './errors';
+import { DryRun, DataImportError } from './errors';
 import { coalesceStats } from './stats';
 
 export function normaliseSheetName(name) {

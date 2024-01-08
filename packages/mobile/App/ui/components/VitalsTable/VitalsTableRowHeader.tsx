@@ -1,7 +1,7 @@
 import React from 'react';
-import { StyledText, StyledView } from '/styled/common';
+import { StyledView, StyledText } from '/styled/common';
 import { theme } from '/styled/theme';
-import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { screenPercentageToDP, Orientation } from '/helpers/screen';
 
 interface VitalsTableRowHeaderProps {
   title: string;

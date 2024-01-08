@@ -3,13 +3,13 @@ import { log } from '@tamanu/shared/services/logging';
 import { spyOnModule } from '@tamanu/shared/test-helpers/spyOn';
 import { initDatabase } from '../../../dist/database';
 import {
-  ACTIVE_TEXT,
-  DEFAULT_USER_EMAIL,
-  OVERWRITING_TEXT,
   createVersion,
-  formatUpdatedAt,
   getVersionError,
   listVersions,
+  DEFAULT_USER_EMAIL,
+  ACTIVE_TEXT,
+  OVERWRITING_TEXT,
+  formatUpdatedAt,
 } from '../../../dist/subCommands/importReport/actions';
 
 spyOnModule(jest, '../../../dist/subCommands/importReport/actions');

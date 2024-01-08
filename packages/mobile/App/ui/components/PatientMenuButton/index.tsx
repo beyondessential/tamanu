@@ -1,8 +1,8 @@
 import React from 'react';
-import { StyleSheet, TouchableHighlight } from 'react-native';
+import { TouchableHighlight, StyleSheet } from 'react-native';
 import { theme } from '/styled/theme';
-import { StyledText, StyledView } from '/styled/common';
-import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { StyledView, StyledText } from '/styled/common';
+import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { MenuOptionButtonProps } from '~types/MenuOptionButtonProps';
 
 const styles = StyleSheet.create({

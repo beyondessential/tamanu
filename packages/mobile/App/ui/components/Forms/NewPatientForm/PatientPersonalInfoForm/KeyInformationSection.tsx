@@ -2,7 +2,7 @@ import React, { ReactElement } from 'react';
 
 import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 import { LocalisedField } from '~/ui/components/Forms/LocalisedField';
-import { Gender, GenderOptions } from '~/ui/helpers/constants';
+import { GenderOptions, Gender } from '~/ui/helpers/constants';
 import { RadioButtonGroup } from '~/ui/components/RadioButtonGroup';
 import { DateField } from '~/ui/components/DateField/DateField';
 import { TextField } from '../../../TextField/TextField';

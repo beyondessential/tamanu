@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { ContentPane, PageContainer, TopBar } from '../../components';
+import { PageContainer, ContentPane, TopBar } from '../../components';
 import { Notification } from '../../components/Notification';
 import { Button } from '../../components/Button';
 import { AppointmentForm } from '../../components/Appointments/AppointmentForm';

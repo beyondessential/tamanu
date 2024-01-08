@@ -1,7 +1,7 @@
 import { ID } from './ID';
 import { ILegacyNoteItem } from './ILegacyNoteItem';
 import { DateString } from './DateString';
-import { NoteRecordType, NoteType } from './INote';
+import { NoteType, NoteRecordType } from './INote';
 
 export interface ILegacyNotePage {
   id: ID;

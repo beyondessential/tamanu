@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 
 export const useAdvancedFields = (advancedFields, searchParameters) => {
   const [showAdvancedFields, setShowAdvancedFields] = useState(false);

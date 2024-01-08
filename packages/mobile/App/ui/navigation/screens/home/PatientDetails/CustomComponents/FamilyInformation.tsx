@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import { PatientParentsDataProps } from '/interfaces/PatientDetails';
-import { RowView, StyledView } from '/styled/common';
+import { StyledView, RowView } from '/styled/common';
 import { Separator } from '/components/Separator';
 import { InformationBox } from './InformationBox';
 import { ArrowForwardIcon } from '/components/Icons';

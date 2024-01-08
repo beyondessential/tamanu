@@ -4,18 +4,18 @@ import * as yup from 'yup';
 import Collapse from '@material-ui/core/Collapse';
 import PrintIcon from '@material-ui/icons/Print';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
-import { Colors, ENCOUNTER_OPTIONS_BY_VALUE, INVOICE_PAYMENT_STATUS_OPTIONS } from '../constants';
+import { Colors, INVOICE_PAYMENT_STATUS_OPTIONS, ENCOUNTER_OPTIONS_BY_VALUE } from '../constants';
 import { foreignKey } from '../utils/validation';
 import { isInvoiceEditable } from '../utils';
 
-import { DateField, Field, Form, NumberField, RadioField, TextField } from '../components/Field';
+import { Form, Field, RadioField, DateField, TextField, NumberField } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { Button, FormCancelButton, FormSubmitButton, TextButton } from '../components/Button';
 import { ButtonRow } from '../components/ButtonRow';
 import { ConfirmModal } from '../components/ConfirmModal';
 import { Modal } from '../components/Modal';
 import { InvoiceDetailTable } from '../components/InvoiceDetailTable';
-import { MinusIconButton, PlusIconButton } from '../components';
+import { PlusIconButton, MinusIconButton } from '../components';
 
 const InvoiceDetailExpandRow = styled.div`
   margin-top: 20px;

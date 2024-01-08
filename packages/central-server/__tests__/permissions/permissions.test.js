@@ -1,8 +1,8 @@
 import { buildAbilityForTests } from '@tamanu/shared/permissions/buildAbility';
 import {
-  getAbilityForUser,
   getPermissionsForRoles,
   queryPermissionsForRoles,
+  getAbilityForUser,
 } from '@tamanu/shared/permissions/rolesToPermissions';
 import { permissionCache } from '@tamanu/shared/permissions/cache';
 import { fake } from '@tamanu/shared/test-helpers/fake';

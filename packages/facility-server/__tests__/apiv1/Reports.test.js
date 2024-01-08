@@ -1,7 +1,7 @@
-import { disableHardcodedPermissionsForSuite, fake } from '@tamanu/shared/test-helpers';
+import { fake, disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 import { REPORT_DB_SCHEMAS } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
-import { setupReportPermissionsTest, testReportPermissions } from './reportsApiCommon';
+import { testReportPermissions, setupReportPermissionsTest } from './reportsApiCommon';
 
 const reportsUtils = {
   __esModule: true,

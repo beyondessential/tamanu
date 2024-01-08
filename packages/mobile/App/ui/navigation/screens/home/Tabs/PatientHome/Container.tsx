@@ -1,4 +1,4 @@
-import React, { ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { ReactElement, useMemo, useCallback, useState, useEffect } from 'react';
 import { compose } from 'redux';
 import { useFocusEffect } from '@react-navigation/core';
 import { setStatusBar } from '/helpers/screen';

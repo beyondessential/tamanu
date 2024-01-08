@@ -1,10 +1,10 @@
-import React, { FC, ReactElement, useCallback, useEffect, useState } from 'react';
-import { FullView, RowView, StyledSafeAreaView, StyledText, StyledView } from '/styled/common';
+import React, { ReactElement, useState, useCallback, FC, useEffect } from 'react';
+import { StyledText, FullView, RowView, StyledSafeAreaView, StyledView } from '/styled/common';
 import { Button } from '/components/Button';
 import { LogoV2Icon } from '/components/Icons';
 import { VisitChart } from '/components/Chart/VisitChart';
 import { theme } from '/styled/theme';
-import { Orientation, screenPercentageToDP, setStatusBar } from '/helpers/screen';
+import { screenPercentageToDP, Orientation, setStatusBar } from '/helpers/screen';
 import { Routes } from '/helpers/routes';
 import { ReportScreenProps } from '/interfaces/Screens/HomeStack/ReportScreenProps';
 import { addHours, format, startOfToday, subDays } from 'date-fns';

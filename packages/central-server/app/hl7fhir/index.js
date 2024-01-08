@@ -1,12 +1,12 @@
 import { Router } from 'express';
 
 import {
+  patientHandler,
   diagnosticReportHandler,
   immunizationHandler,
-  patientHandler,
+  singlePatientHandler,
   singleDiagnosticReportHandler,
   singleImmunizationHandler,
-  singlePatientHandler,
 } from './routeHandlers';
 import { fhirRoutes as matRoutes } from './materialised';
 

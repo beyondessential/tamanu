@@ -1,6 +1,6 @@
 import React from 'react';
-import { fireEvent, render, waitFor } from '@testing-library/react-native';
-import { BaseMaskedTextFieldStory, BaseTextFieldStory } from './fixtures';
+import { render, fireEvent, waitFor } from '@testing-library/react-native';
+import { BaseTextFieldStory, BaseMaskedTextFieldStory } from './fixtures';
 
 describe('<TextField />', (): void => {
   describe('Non Masked', (): void => {

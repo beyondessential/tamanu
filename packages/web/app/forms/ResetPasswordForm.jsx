@@ -6,8 +6,8 @@ import {
   Button,
   Field,
   Form,
-  StyledPrimarySubmitButton,
   TextField,
+  StyledPrimarySubmitButton,
 } from '../components';
 
 const SuccessMessage = styled.p`

@@ -2,7 +2,7 @@ import React from 'react';
 import { storiesOf } from '@storybook/react-native';
 import { CenterView } from '/styled/common';
 import { PatientTile } from './index';
-import { FemaleExampleProps, MaleExampleProps } from './fixtures';
+import { MaleExampleProps, FemaleExampleProps } from './fixtures';
 
 storiesOf('PatientTile', module)
   .addDecorator((story: Function) => (

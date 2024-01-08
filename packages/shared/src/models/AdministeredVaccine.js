@@ -1,4 +1,4 @@
-import { Op, Sequelize } from 'sequelize';
+import { Sequelize, Op } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { InvalidOperationError } from '../errors';
 import { Model } from './Model';

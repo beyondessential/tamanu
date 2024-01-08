@@ -1,19 +1,19 @@
 import {
+  isValid,
+  parse,
+  getDate,
+  getHours,
+  getMonth,
+  getYear,
+  getMinutes,
+  getSeconds,
   format,
   formatISO9075,
   formatRFC3339,
-  getDate,
-  getHours,
-  getMinutes,
-  getMonth,
-  getSeconds,
-  getYear,
-  isValid,
-  parse,
 } from 'date-fns';
 import { getTimezoneOffset, zonedTimeToUtc } from 'date-fns-tz';
 import { pick } from 'lodash';
-import { number, object, string, date as yupDate } from 'yup';
+import { date as yupDate, number, object, string } from 'yup';
 
 import { FHIR_DATETIME_PRECISION } from '@tamanu/constants';
 import { parseDate } from '../dateTime';

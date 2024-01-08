@@ -6,8 +6,8 @@ import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { InvalidParameterError } from '@tamanu/shared/errors';
 import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants/patientFields';
 import {
-  getTablesWithNoMergeCoverage,
   mergePatient,
+  getTablesWithNoMergeCoverage,
 } from '../../dist/admin/patientMerge/mergePatient';
 import { PatientMergeMaintainer } from '../../dist/tasks/PatientMergeMaintainer';
 import { createTestContext } from '../utilities';

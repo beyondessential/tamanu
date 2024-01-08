@@ -1,10 +1,10 @@
-import { QueryTypes, Sequelize } from 'sequelize';
+import { Sequelize, QueryTypes } from 'sequelize';
 import * as yup from 'yup';
 import {
-  REPORT_DEFAULT_DATE_RANGES_VALUES,
+  SYNC_DIRECTIONS,
   REPORT_STATUSES,
   REPORT_STATUSES_VALUES,
-  SYNC_DIRECTIONS,
+  REPORT_DEFAULT_DATE_RANGES_VALUES,
 } from '@tamanu/constants';
 import { Model } from './Model';
 import { getReportQueryReplacements } from '../utils/reports/getReportQueryReplacements';

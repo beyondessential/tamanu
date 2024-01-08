@@ -7,7 +7,7 @@ import { useAuth } from '../../../contexts/Auth';
 import { ContentPane } from '../../../components';
 import { PatientDetailsForm } from '../../../forms/PatientDetailsForm';
 import { reloadPatient } from '../../../store/patient';
-import { invalidatePatientDataQueries, notifyError } from '../../../utils';
+import { notifyError, invalidatePatientDataQueries } from '../../../utils';
 
 // Momentary component to just display a message, will need design and
 // refactor later.

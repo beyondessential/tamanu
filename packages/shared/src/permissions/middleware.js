@@ -1,4 +1,4 @@
-import { BadAuthenticationError, ForbiddenError } from '../errors';
+import { ForbiddenError, BadAuthenticationError } from '../errors';
 import { getAbilityForUser, getPermissionsForRoles } from './rolesToPermissions';
 
 // copied from casl source as it's not exported directly

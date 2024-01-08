@@ -9,11 +9,11 @@ import {
   RelationId,
 } from 'typeorm/browser';
 import { AfterInsert } from 'typeorm';
-import { addHours, startOfDay, subDays } from 'date-fns';
+import { startOfDay, addHours, subDays } from 'date-fns';
 import { getUniqueId } from 'react-native-device-info';
 
 import { BaseModel, IdRelation } from './BaseModel';
-import { EncounterType, IEncounter } from '~/types';
+import { IEncounter, EncounterType } from '~/types';
 import { Patient } from './Patient';
 import { Diagnosis } from './Diagnosis';
 import { Medication } from './Medication';

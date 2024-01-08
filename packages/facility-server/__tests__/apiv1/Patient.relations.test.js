@@ -1,10 +1,10 @@
 import {
   createDummyEncounter,
   createDummyPatient,
-  randomReferenceData,
   randomReferenceId,
+  randomReferenceData,
 } from '@tamanu/shared/demoData/patients';
-import { randomDate, randomLabRequest } from '@tamanu/shared/demoData';
+import { randomLabRequest, randomDate } from '@tamanu/shared/demoData';
 import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants/patientFields';
 import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
 import { Chance } from 'chance';

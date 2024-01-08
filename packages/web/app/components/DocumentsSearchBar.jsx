@@ -3,9 +3,9 @@ import styled from 'styled-components';
 import Typography from '@material-ui/core/Typography';
 import Box from '@material-ui/core/Box';
 
-import { DynamicSelectField, Field, Form, SearchField } from './Field';
+import { Form, Field, SearchField, DynamicSelectField } from './Field';
 import { FormGrid } from './FormGrid';
-import { LargeOutlinedSubmitButton, LargeSubmitButton } from './Button';
+import { LargeSubmitButton, LargeOutlinedSubmitButton } from './Button';
 import { Colors } from '../constants';
 
 const DOCUMENT_TYPE_OPTIONS = [

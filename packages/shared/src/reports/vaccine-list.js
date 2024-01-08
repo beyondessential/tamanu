@@ -1,5 +1,5 @@
 import { Op } from 'sequelize';
-import { endOfDay, parseISO, startOfDay, subDays } from 'date-fns';
+import { subDays, endOfDay, startOfDay, parseISO } from 'date-fns';
 import { generateReportFromQueryData } from './utilities';
 import { format, toDateTimeString } from '../utils/dateTime';
 

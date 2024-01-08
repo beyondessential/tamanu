@@ -1,7 +1,7 @@
 import express from 'express';
 
 import { constructPermission } from '@tamanu/shared/permissions/middleware';
-import { authMiddleware, loginHandler, refreshHandler } from '../../middleware/auth';
+import { loginHandler, refreshHandler, authMiddleware } from '../../middleware/auth';
 
 import { allergy } from './allergy';
 import { appointments } from './appointments';
@@ -14,15 +14,15 @@ import { diagnosis } from './diagnosis';
 import { encounter } from './encounter';
 import { familyHistory } from './familyHistory';
 import { imagingRequest } from './imaging';
-import { invoiceLineTypes, invoices } from './invoice';
-import { labRequest, labTest, labTestPanel, labTestType } from './labs';
+import { invoices, invoiceLineTypes } from './invoice';
+import { labRequest, labTest, labTestType, labTestPanel } from './labs';
 import { labRequestLog } from './labRequestLog';
 import { location } from './location';
 import { locationGroup } from './locationGroup';
 import { medication } from './medication';
 import { notes } from './note';
 import { ongoingCondition } from './ongoingCondition';
-import { patient, patientCarePlan, patientFieldDefinition, patientIssue } from './patient';
+import { patient, patientCarePlan, patientIssue, patientFieldDefinition } from './patient';
 import { patientFacility } from './patientFacility';
 import { patientLetterTemplate } from './patientLetterTemplate';
 import { procedure } from './procedure';

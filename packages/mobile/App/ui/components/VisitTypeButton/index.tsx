@@ -1,7 +1,7 @@
 import React, { FunctionComponent, useCallback } from 'react';
 import { SvgProps } from 'react-native-svg';
 import { StyleSheet, TouchableWithoutFeedback } from 'react-native';
-import { StyledText, StyledView } from '/styled/common';
+import { StyledView, StyledText } from '/styled/common';
 import { theme } from '/styled/theme';
 import { GivenOnTimeIcon } from '../Icons';
 

@@ -13,15 +13,15 @@ import { useLocalisation } from '../contexts/Localisation';
 import { useImagingRequestAreas } from '../utils/useImagingRequestAreas';
 
 import {
-  AutocompleteField,
-  DateTimeField,
-  Field,
   Form,
+  Field,
+  AutocompleteField,
+  TextField,
   ImagingPriorityField,
+  TextInput,
+  DateTimeField,
   MultiselectField,
   SelectField,
-  TextField,
-  TextInput,
 } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { FormCancelButton } from '../components/Button';

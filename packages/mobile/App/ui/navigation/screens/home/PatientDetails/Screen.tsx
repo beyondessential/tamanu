@@ -1,29 +1,29 @@
-import React, { ReactElement, useCallback } from 'react';
+import React, { useCallback, ReactElement } from 'react';
 
 import { compose } from 'redux';
 import { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
 import { Routes } from '~/ui/helpers/routes';
 import { withPatient } from '~/ui/containers/Patient';
-import { getGender, joinNames } from '~/ui/helpers/user';
+import { joinNames, getGender } from '~/ui/helpers/user';
 import { getAgeFromDate } from '~/ui/helpers/date';
 import {
+  StyledView,
+  StyledSafeAreaView,
   FullView,
   RowView,
-  StyledSafeAreaView,
-  StyledScrollView,
-  StyledText,
   StyledTouchableOpacity,
-  StyledView,
+  StyledText,
+  StyledScrollView,
 } from '~/ui/styled/common';
 import { theme } from '~/ui/styled/theme';
-import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
+import { screenPercentageToDP, Orientation } from '~/ui/helpers/screen';
 import { ArrowLeftIcon } from '~/ui/components/Icons';
 import { UserAvatar } from '~/ui/components/UserAvatar';
 import {
-  AdditionalInfo,
   GeneralInfo,
   HealthIdentificationRow,
   PatientIssues,
+  AdditionalInfo,
 } from './CustomComponents';
 
 const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => {

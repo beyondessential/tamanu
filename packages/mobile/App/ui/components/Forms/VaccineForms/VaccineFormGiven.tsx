@@ -4,15 +4,15 @@ import { useFormikContext } from 'formik';
 
 import { StyledView } from '/styled/common';
 import {
-  BatchField,
-  ConsentField,
-  ConsentGivenByField,
   DateGivenField,
   DepartmentField,
   GivenByField,
-  InjectionSiteField,
-  RecordedByField,
   VaccineLocationField,
+  RecordedByField,
+  ConsentField,
+  ConsentGivenByField,
+  BatchField,
+  InjectionSiteField,
 } from './VaccineCommonFields';
 import { VaccineFormProps } from './types';
 

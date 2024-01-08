@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
 
 import {
@@ -11,7 +11,7 @@ import {
 import { useApi } from '../api';
 import { useEncounter } from '../contexts/Encounter';
 import { Colors } from '../constants';
-import { calculateInvoiceLinesTotal, calculateInvoiceTotal, isInvoiceEditable } from '../utils';
+import { isInvoiceEditable, calculateInvoiceTotal, calculateInvoiceLinesTotal } from '../utils';
 
 import { DataFetchingTable } from './Table';
 import { DeleteButton } from './Button';

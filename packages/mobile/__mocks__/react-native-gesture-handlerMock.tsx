@@ -1,4 +1,4 @@
-import { TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
+import { View, TouchableWithoutFeedback, TouchableOpacity } from 'react-native';
 
 jest.mock('react-native-gesture-handler', () => ({
   ScrollView: View,

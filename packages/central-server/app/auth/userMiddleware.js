@@ -1,10 +1,10 @@
-import { context, propagation, trace } from '@opentelemetry/api';
+import { trace, propagation, context } from '@opentelemetry/api';
 import asyncHandler from 'express-async-handler';
 import config from 'config';
 
 import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
-import { BadAuthenticationError, ForbiddenError } from '@tamanu/shared/errors';
-import { findUserById, stripUser, verifyToken } from './utils';
+import { ForbiddenError, BadAuthenticationError } from '@tamanu/shared/errors';
+import { verifyToken, stripUser, findUserById } from './utils';
 
 export const userMiddleware = ({ secret }) =>
   asyncHandler(async (req, res, next) => {

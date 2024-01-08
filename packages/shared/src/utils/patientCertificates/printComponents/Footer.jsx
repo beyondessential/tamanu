@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from '@react-pdf/renderer';
+import { StyleSheet, View, Text } from '@react-pdf/renderer';
 import { getDisplayDate } from '../getDisplayDate';
 import React from 'react';
 

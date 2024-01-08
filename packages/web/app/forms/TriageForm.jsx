@@ -1,6 +1,6 @@
 import React from 'react';
 import * as yup from 'yup';
-import { endOfDay, format } from 'date-fns';
+import { format, endOfDay } from 'date-fns';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import { push } from 'connected-react-router';
 import { useDispatch } from 'react-redux';
@@ -8,15 +8,15 @@ import { Box } from '@material-ui/core';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { foreignKey } from '../utils/validation';
 import {
-  AutocompleteField,
-  DateTimeField,
-  Field,
   Form,
+  Field,
   LocalisedField,
+  SuggesterSelectField,
+  DateTimeField,
+  AutocompleteField,
+  RadioField,
   LocalisedLocationField,
   LocationAvailabilityWarningMessage,
-  RadioField,
-  SuggesterSelectField,
 } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { ModalFormActionRow } from '../components/ModalActionRow';

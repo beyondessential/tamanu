@@ -4,8 +4,8 @@ import { isEqual } from 'lodash';
 import {
   BIRTH_DELIVERY_TYPES,
   BIRTH_TYPES,
-  PATIENT_REGISTRY_TYPES,
   PLACE_OF_BIRTH_TYPES,
+  PATIENT_REGISTRY_TYPES,
 } from '@tamanu/constants';
 
 const requiredWhenConfiguredMandatory = (getLocalisation, name, baseType) => {

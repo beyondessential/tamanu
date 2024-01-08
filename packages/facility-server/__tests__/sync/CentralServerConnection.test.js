@@ -1,8 +1,8 @@
 import { VERSION_COMPATIBILITY_ERRORS } from '@tamanu/constants';
 import {
-  BadAuthenticationError,
   FacilityAndSyncVersionIncompatibleError,
   RemoteCallFailedError,
+  BadAuthenticationError,
 } from '@tamanu/shared/errors';
 
 const { CentralServerConnection } = jest.requireActual('../../dist/sync/CentralServerConnection');

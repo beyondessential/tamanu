@@ -1,10 +1,10 @@
-import React, { useCallback, useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import styled from 'styled-components';
 
 import { Modal } from '../../Modal';
 import { Button } from '../../Button';
 import { Colors } from '../../../constants';
-import { isErrorUnknownAllow404s, useApi } from '../../../api';
+import { useApi, isErrorUnknownAllow404s } from '../../../api';
 import { useLocalisation } from '../../../contexts/Localisation';
 
 import { PatientIDCardPage } from './PatientIDCardPage';

@@ -2,7 +2,7 @@ import React, { FC, useRef, useState } from 'react';
 import { Modal, ScrollView, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { calculateDropdownPosition } from '~/ui/helpers/screen';
-import { DropdownContainer, OptionItem, OptionItemText, OptionsContainer, PlaceholderContainer, ReportSelectorContainer } from './DropdownStyledComponents';
+import { OptionItem, OptionItemText, ReportSelectorContainer, DropdownContainer, OptionsContainer, PlaceholderContainer } from './DropdownStyledComponents';
 
 interface IOptionItem {
   value: string;

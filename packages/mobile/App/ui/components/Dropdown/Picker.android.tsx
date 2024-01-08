@@ -1,18 +1,18 @@
 import React, { ReactElement } from 'react';
 import {
-  Modal,
-  StyleSheet,
-  TouchableOpacity,
   TouchableWithoutFeedback,
+  TouchableOpacity,
+  StyleSheet,
+  Modal,
 } from 'react-native';
 import {
   FullView,
+  StyledView,
   StyledScrollView,
   StyledText,
-  StyledView,
 } from '../../styled/common';
 import { theme } from '../../styled/theme';
-import { Orientation, screenPercentageToDP } from '../../helpers/screen';
+import { screenPercentageToDP, Orientation } from '../../helpers/screen';
 import { SelectOption } from './';
 
 interface AndroidPickerProps {

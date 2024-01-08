@@ -2,16 +2,16 @@ import React from 'react';
 import { storiesOf } from '@storybook/react-native';
 import { ThemeProvider } from 'styled-components/native';
 import {
-  CenterView,
   FullView,
-  StyledSafeAreaView,
+  CenterView,
   themeSystem,
+  StyledSafeAreaView,
 } from '/styled/common';
 import { theme } from '/styled/theme';
 import { VaccineCard } from '.';
 import {
-  givenNotOnScheduleProps,
   givenOnTimeProps,
+  givenNotOnScheduleProps,
   notGivenProps,
 } from './fixture';
 

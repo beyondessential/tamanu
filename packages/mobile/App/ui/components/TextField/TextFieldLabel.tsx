@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components/native';
 import { theme } from '/styled/theme';
 import { StyledText } from '/styled/common';
-import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { screenPercentageToDP, Orientation } from '/helpers/screen';
 
 const StyledLabel = styled(StyledText)`
   font-size: ${(props): string => props.$fontSize || screenPercentageToDP(2.1, Orientation.Height)};

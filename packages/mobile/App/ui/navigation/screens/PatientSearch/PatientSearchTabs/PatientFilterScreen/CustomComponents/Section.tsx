@@ -1,9 +1,9 @@
-import React, { PropsWithChildren, ReactElement } from 'react';
+import React, { ReactElement, PropsWithChildren } from 'react';
 
 import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 import { StyledView } from '~/ui/styled/common';
 import { SectionHeader } from '~/ui/components/SectionHeader';
-import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
+import { screenPercentageToDP, Orientation } from '~/ui/helpers/screen';
 import { Separator } from '~/ui/components/Separator';
 
 interface ISection {

@@ -1,4 +1,4 @@
-import { createDummyEncounter, createDummyPatient } from '@tamanu/shared/demoData/patients';
+import { createDummyPatient, createDummyEncounter } from '@tamanu/shared/demoData/patients';
 import { createTestContext } from '../utilities';
 
 async function uploadDummyProfilePicture(models, patientId) {

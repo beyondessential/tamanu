@@ -3,15 +3,15 @@ import asyncHandler from 'express-async-handler';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
-import { JWT_TOKEN_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { VISIBILITY_STATUSES, JWT_TOKEN_TYPES } from '@tamanu/constants';
 import { BadAuthenticationError } from '@tamanu/shared/errors';
 
 import {
-  getRandomBase64String,
-  getRandomU32,
   getToken,
-  isInternalClient,
   verifyToken,
+  getRandomU32,
+  getRandomBase64String,
+  isInternalClient,
 } from './utils';
 
 export const refresh = ({ secret, refreshSecret }) =>

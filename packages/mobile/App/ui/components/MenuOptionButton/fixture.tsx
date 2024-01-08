@@ -4,12 +4,12 @@ import { ThemeProvider } from 'styled-components';
 import { StyledView, themeSystem } from '/styled/common';
 import { theme } from '/styled/theme';
 import {
-  FeedbackIcon,
   HistoryIcon,
   PatientDetailsIcon,
+  SettingsIcon,
+  FeedbackIcon,
   QuestionIcon,
   RingIcon,
-  SettingsIcon,
 } from '../Icons';
 import { MenuOptionButton } from './index';
 import { MenuOptionButtonProps } from '~/types/MenuOptionButtonProps';

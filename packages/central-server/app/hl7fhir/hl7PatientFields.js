@@ -6,7 +6,7 @@ import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { hl7ParameterTypes, stringTypeModifiers } from './hl7Parameters';
 
 // Import directly from file instead of index to avoid dependency cycle
-import { decodeIdentifier, isValidIdentifier } from './utils/identifier';
+import { isValidIdentifier, decodeIdentifier } from './utils/identifier';
 import { parseHL7Date } from './utils/search';
 
 // HL7 Patient resource mapping to Tamanu.

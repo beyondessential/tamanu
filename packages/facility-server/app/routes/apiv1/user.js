@@ -6,9 +6,9 @@ import { QueryTypes } from 'sequelize';
 import { BadAuthenticationError } from '@tamanu/shared/errors';
 import { getPermissions } from '@tamanu/shared/permissions/middleware';
 import {
+  simpleGet,
   paginatedGetList,
   permissionCheckingRouter,
-  simpleGet,
 } from '@tamanu/shared/utils/crudHelpers';
 
 export const user = express.Router();

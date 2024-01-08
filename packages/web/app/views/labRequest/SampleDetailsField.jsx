@@ -1,9 +1,9 @@
 import { Typography } from '@material-ui/core';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import styled from 'styled-components';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { Heading4 } from '../../components';
-import { AutocompleteField, DateTimeField, Field } from '../../components/Field';
+import { DateTimeField, Field, AutocompleteField } from '../../components/Field';
 import { Colors } from '../../constants';
 
 const Container = styled.div`

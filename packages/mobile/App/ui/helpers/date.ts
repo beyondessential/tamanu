@@ -1,4 +1,4 @@
-import { differenceInYears, format, formatISO9075, intervalToDuration, parseISO } from 'date-fns';
+import { format, parseISO, differenceInYears, intervalToDuration, formatISO9075 } from 'date-fns';
 
 export function formatDate(date: Date, dateFormat: string): string {
   return format(date, dateFormat);

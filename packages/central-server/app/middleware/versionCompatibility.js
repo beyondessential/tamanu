@@ -1,5 +1,5 @@
 import { readFileSync } from 'fs';
-import { dirname, join } from 'path';
+import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { parse } from 'semver';
 import { buildVersionCompatibilityCheck } from '@tamanu/shared/utils';

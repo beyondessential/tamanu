@@ -6,7 +6,7 @@ import { REFERENCE_TYPE_VALUES } from '@tamanu/constants';
 
 import { normaliseSheetName } from '../importerEndpoint';
 
-import { loaderFactory, referenceDataLoaderFactory } from './loaders';
+import { referenceDataLoaderFactory, loaderFactory } from './loaders';
 import { importSheet } from './sheet';
 import DEPENDENCIES from './dependencies';
 

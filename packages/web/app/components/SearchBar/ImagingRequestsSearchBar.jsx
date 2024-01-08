@@ -1,15 +1,15 @@
 import React from 'react';
 import styled from 'styled-components';
-import { IMAGING_REQUEST_STATUS_TYPES, IMAGING_TABLE_VERSIONS } from '@tamanu/constants';
+import { IMAGING_TABLE_VERSIONS, IMAGING_REQUEST_STATUS_TYPES } from '@tamanu/constants';
 import { IMAGING_REQUEST_STATUS_OPTIONS } from '../../constants';
 import {
-  AutocompleteField,
-  CheckField,
   DateField,
-  Field,
   LocalisedField,
-  SearchField,
   SelectField,
+  AutocompleteField,
+  Field,
+  CheckField,
+  SearchField,
 } from '../Field';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
 import { useLocalisation } from '../../contexts/Localisation';

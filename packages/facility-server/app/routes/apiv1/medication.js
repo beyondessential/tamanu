@@ -2,11 +2,11 @@ import config from 'config';
 import express from 'express';
 
 import {
+  simpleGet,
+  simplePut,
+  simplePost,
   paginatedGetList,
   permissionCheckingRouter,
-  simpleGet,
-  simplePost,
-  simplePut,
 } from '@tamanu/shared/utils/crudHelpers';
 
 export const medication = express.Router();

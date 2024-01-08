@@ -1,15 +1,15 @@
 import React, { ReactElement } from 'react';
 import { Button } from '/components/Button';
 import {
+  StyledText,
   FullView,
   RowView,
   StyledSafeAreaView,
-  StyledScrollView,
-  StyledText,
   StyledView,
+  StyledScrollView,
 } from '/styled/common';
 import { theme } from '/styled/theme';
-import { DateSection, NameSection, SexSection, VillageSection } from './CustomComponents';
+import { SexSection, DateSection, NameSection, VillageSection } from './CustomComponents';
 import SubmitSection from './CustomComponents/SubmitSection';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 

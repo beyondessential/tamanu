@@ -1,4 +1,4 @@
-import { Column, Entity, Index, OneToMany } from 'typeorm/browser';
+import { Entity, Column, OneToMany, Index } from 'typeorm/browser';
 import { getUniqueId } from 'react-native-device-info';
 import { addHours, parseISO, startOfDay, subYears } from 'date-fns';
 import { groupBy } from 'lodash';
@@ -12,7 +12,7 @@ import { formatDateForQuery } from '~/infra/db/helpers';
 import { VitalsDataElements } from '~/ui/helpers/constants';
 import { PatientAdditionalData } from './PatientAdditionalData';
 import { PatientFacility } from './PatientFacility';
-import { NullableReferenceDataRelation, ReferenceData } from './ReferenceData';
+import { ReferenceData, NullableReferenceDataRelation } from './ReferenceData';
 import { SYNC_DIRECTIONS } from './types';
 
 import { DateStringColumn } from './DateColumns';

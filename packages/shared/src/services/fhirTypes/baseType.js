@@ -1,4 +1,4 @@
-import { mixed, object } from 'yup';
+import { object, mixed } from 'yup';
 
 export class FhirBaseType {
   static SCHEMA() {

@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Toolbar, Typography } from '@material-ui/core';
+import { Typography, Toolbar } from '@material-ui/core';
 import { DateDisplay } from './DateDisplay';
 import { Colors } from '../constants';
 import { useLocalisedText } from './LocalisedText';

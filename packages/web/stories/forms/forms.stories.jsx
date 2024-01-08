@@ -4,14 +4,14 @@ import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 
 import {
-  DEPARTMENTS,
+  createDummyPatient,
   DIAGNOSES,
   DISPOSITIONS,
   DRUGS,
   FACILITIES,
   LOCATIONS,
   USERS,
-  createDummyPatient,
+  DEPARTMENTS,
 } from '@tamanu/shared/demoData';
 import { VACCINE_RECORDING_TYPES } from '@tamanu/constants';
 import { MockedApi } from '../utils/mockedApi';

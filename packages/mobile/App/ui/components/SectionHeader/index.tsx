@@ -1,6 +1,6 @@
 import styled from 'styled-components/native';
 import { StyledText, StyledTextProps } from '/styled/common';
-import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { theme } from '/styled/theme';
 
 interface ISectionHeader extends StyledTextProps {

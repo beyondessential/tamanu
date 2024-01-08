@@ -1,10 +1,10 @@
 import React from 'react';
 import { Document, Page, View } from '@react-pdf/renderer';
 
-import { CertificateHeader, Col, Row, Signature, styles } from '../patientCertificates/Layout';
+import { styles, Col, Row, Signature, CertificateHeader } from '../patientCertificates/Layout';
 import { H3, P } from '../patientCertificates/Typography';
 import { LetterheadSection } from '../patientCertificates/LetterheadSection';
-import { getDOB, getName, getSex } from '../patientAccessors';
+import { getSex, getName, getDOB } from '../patientAccessors';
 import { format as formatDate } from '../dateTime';
 
 export const getCreatedAtDate = ({ documentCreatedAt }) =>

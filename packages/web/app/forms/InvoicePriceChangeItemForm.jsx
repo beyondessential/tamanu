@@ -5,12 +5,12 @@ import { useSuggester } from '../api';
 import { foreignKey } from '../utils/validation';
 
 import {
-  AutocompleteField,
-  DateField,
-  Field,
   Form,
-  NumberField,
+  Field,
+  DateField,
   TextField,
+  AutocompleteField,
+  NumberField,
 } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { FormSubmitCancelRow } from '../components/ButtonRow';

@@ -1,6 +1,6 @@
-import { RequestQueueExceededError, RequestQueueTimeoutError } from '@tamanu/shared/errors';
+import { RequestQueueTimeoutError, RequestQueueExceededError } from '@tamanu/shared/errors';
 
-import { QueueManager, RequestQueue } from '@tamanu/central-server/app/middleware/loadshedder';
+import { RequestQueue, QueueManager } from '@tamanu/central-server/app/middleware/loadshedder';
 
 describe('RequestQueue', () => {
   it('allows multiple parallel requests through under the threshold', async () => {

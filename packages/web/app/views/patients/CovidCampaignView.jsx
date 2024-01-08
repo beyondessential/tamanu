@@ -2,11 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { API } from '../../api/singletons';
 import { useApi } from '../../api';
 import {
-  ContentPane,
+  TopBar,
+  PageContainer,
   DataFetchingTable,
   ImmunisationSearchBar,
-  PageContainer,
-  TopBar,
+  ContentPane,
 } from '../../components';
 import { displayId, firstName, lastName, village } from './columns';
 import { PatientImmunisationsModal } from './components';

@@ -1,7 +1,7 @@
 import React, { memo, useCallback } from 'react';
 import * as yup from 'yup';
 
-import { Field, Form, TextField } from '../components/Field';
+import { Form, Field, TextField } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { ModalFormActionRow } from '../components/ModalActionRow';
 

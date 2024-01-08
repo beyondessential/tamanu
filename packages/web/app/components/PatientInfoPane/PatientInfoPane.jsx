@@ -8,8 +8,8 @@ import { CoreInfoDisplay } from './PatientCoreInfo';
 import { PrintPatientDetailsModal } from '../PatientPrinting';
 import {
   AllergyForm,
-  FamilyHistoryForm,
   OngoingConditionForm,
+  FamilyHistoryForm,
   PatientCarePlanForm,
   PatientIssueForm,
 } from '../../forms';
@@ -18,13 +18,13 @@ import { Colors } from '../../constants';
 import { PatientCarePlanDetails } from './PatientCarePlanNotes';
 import { useLocalisation } from '../../contexts/Localisation';
 import {
-  ALLERGIES_TITLE,
-  CARE_PLANS_TITLE,
   CONDITIONS_TITLE,
+  ALLERGIES_TITLE,
   FAMILY_HISTORY_TITLE,
   ISSUES_TITLE,
+  CARE_PLANS_TITLE,
 } from './paneTitles';
-import { isErrorUnknownAllow404s, useApi } from '../../api';
+import { useApi, isErrorUnknownAllow404s } from '../../api';
 import { RecordDeathSection } from '../RecordDeathSection';
 
 const OngoingConditionDisplay = memo(({ patient, readonly }) => (

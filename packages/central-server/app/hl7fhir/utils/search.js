@@ -1,4 +1,4 @@
-import { Op, Sequelize } from 'sequelize';
+import { Sequelize, Op } from 'sequelize';
 import moment from 'moment';
 import { FHIR_SEARCH_PARAMETERS } from '@tamanu/constants';
 import { jsonFromBase64, jsonToBase64 } from '@tamanu/shared/utils/encodings';

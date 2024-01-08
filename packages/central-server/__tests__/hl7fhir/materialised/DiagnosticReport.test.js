@@ -1,6 +1,6 @@
 import { formatRFC7231 } from 'date-fns';
 
-import { chance, fake } from '@tamanu/shared/test-helpers';
+import { fake, chance } from '@tamanu/shared/test-helpers';
 import { convertISO9075toRFC3339 } from '@tamanu/shared/utils/dateTime';
 import { fakeUUID } from '@tamanu/shared/utils/generateId';
 import { formatFhirDate } from '@tamanu/shared/utils/fhir/datetime';

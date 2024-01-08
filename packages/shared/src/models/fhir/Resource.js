@@ -1,12 +1,12 @@
 import { snakeCase } from 'lodash';
-import { DataTypes, Sequelize, Utils } from 'sequelize';
+import { Sequelize, Utils, DataTypes } from 'sequelize';
 import { subMinutes } from 'date-fns';
 
 import {
-  FHIR_DATETIME_PRECISION,
+  SYNC_DIRECTIONS,
   FHIR_SEARCH_PARAMETERS,
   FHIR_SEARCH_TOKEN_TYPES,
-  SYNC_DIRECTIONS,
+  FHIR_DATETIME_PRECISION,
 } from '@tamanu/constants';
 import { objectAsFhir } from './utils';
 import { formatFhirDate } from '../../utils/fhir';

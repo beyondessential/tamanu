@@ -1,6 +1,6 @@
 import React from 'react';
 import { parseISO } from 'date-fns';
-import { StyledText, StyledView } from '/styled/common';
+import { StyledView, StyledText } from '/styled/common';
 import { theme } from '/styled/theme';
 import { formatDate } from '/helpers/date';
 import { DateFormats } from '/helpers/constants';

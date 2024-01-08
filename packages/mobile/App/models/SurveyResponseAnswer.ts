@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, OneToMany, RelationId } from 'typeorm/browser';
+import { Entity, Column, ManyToOne, RelationId, OneToMany } from 'typeorm/browser';
 
 import { BaseModel } from './BaseModel';
 import { ProgramDataElement } from './ProgramDataElement';

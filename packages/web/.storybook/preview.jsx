@@ -8,7 +8,7 @@ import { MuiThemeProvider, StylesProvider } from '@material-ui/core/styles';
 
 import { theme } from '../app/theme';
 import { LocalisationProvider } from '../app/contexts/Localisation';
-import { history, store } from './__mocks__/store';
+import { store, history } from './__mocks__/store';
 import { MockedApi } from '../stories/utils/mockedApi';
 import { defaultEndpoints } from './__mocks__/defaultEndpoints';
 

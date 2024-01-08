@@ -1,11 +1,11 @@
 import React, {
+  createContext,
   PropsWithChildren,
   ReactElement,
-  RefObject,
-  createContext,
   useContext,
   useEffect,
   useState,
+  RefObject,
 } from 'react';
 import { NavigationContainerRef } from '@react-navigation/native';
 import NetInfo from '@react-native-community/netinfo';

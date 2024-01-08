@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
 import { Box } from '@material-ui/core';
@@ -7,19 +7,19 @@ import { foreignKey } from '../utils/validation';
 import { PrintPrescriptionModal } from '../components/PatientPrinting';
 import { FormSubmitDropdownButton } from '../components/DropdownButton';
 import {
-  AutocompleteField,
+  FormGrid,
   Button,
   ButtonRow,
-  DateDisplay,
-  DateField,
-  Field,
   Form,
-  FormCancelButton,
-  FormGrid,
-  FormSubmitButton,
-  NumberField,
+  Field,
   SelectField,
   TextField,
+  AutocompleteField,
+  NumberField,
+  DateField,
+  DateDisplay,
+  FormSubmitButton,
+  FormCancelButton,
 } from '../components';
 
 const drugRouteOptions = [

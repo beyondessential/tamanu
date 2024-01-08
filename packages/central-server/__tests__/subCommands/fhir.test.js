@@ -1,8 +1,8 @@
 import { fake } from '@tamanu/shared/test-helpers';
 import {
-  FHIR_REQUEST_STATUS,
   IMAGING_REQUEST_STATUS_TYPES,
   LAB_REQUEST_STATUSES,
+  FHIR_REQUEST_STATUS,
 } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
 import { fhir } from '../../dist/subCommands/fhir';

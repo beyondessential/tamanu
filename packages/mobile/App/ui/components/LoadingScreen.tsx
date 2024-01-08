@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import { ActivityIndicator } from "react-native";
-import { CenterView, FullView } from '~/ui/styled/common';
+import { FullView, CenterView } from '~/ui/styled/common';
 
 export const LoadingScreen: React.FC = memo(() => (
   <FullView padding={12} justifyContent="center" alignItems="center">

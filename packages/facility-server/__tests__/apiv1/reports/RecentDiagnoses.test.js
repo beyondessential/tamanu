@@ -1,10 +1,10 @@
 import {
-  createDummyEncounter,
-  createDummyEncounterDiagnosis,
   createDummyPatient,
-  randomRecordId,
-  randomReferenceData,
+  createDummyEncounter,
   randomReferenceId,
+  createDummyEncounterDiagnosis,
+  randomReferenceData,
+  randomRecordId,
   randomReferenceIds,
 } from '@tamanu/shared/demoData';
 import { subDays } from 'date-fns';

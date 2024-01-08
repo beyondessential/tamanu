@@ -1,5 +1,5 @@
-import { accessSync, constants, readFileSync } from 'fs';
-import { dirname, join } from 'path';
+import { readFileSync, accessSync, constants } from 'fs';
+import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
 export const isCI = !!process.env.CI;

@@ -1,11 +1,11 @@
 import React from 'react';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import {
-  Field,
-  Form,
-  FormGrid,
   FormModal,
+  FormGrid,
   FormSubmitCancelRow,
+  Form,
+  Field,
   LocalisedLocationField,
 } from '../../../components';
 import { usePatientMove } from '../../../api/mutations';

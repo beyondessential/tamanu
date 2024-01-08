@@ -1,5 +1,5 @@
 import * as fc from 'fast-check';
-import { describe, expect, it } from '@jest/globals';
+import { expect, describe, it } from '@jest/globals';
 
 import { withErrorShown } from '@tamanu/shared/test-helpers';
 

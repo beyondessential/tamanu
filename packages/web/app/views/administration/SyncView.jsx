@@ -1,7 +1,7 @@
 import ms from 'ms';
 import React from 'react';
 
-import { DataFetchingTable, DateDisplay, PageContainer, TopBar } from '../../components';
+import { TopBar, PageContainer, DataFetchingTable, DateDisplay } from '../../components';
 import { SYNC_LAST_COMPLETED_ENDPOINT } from './constants';
 
 const LastSyncs = React.memo(props => (

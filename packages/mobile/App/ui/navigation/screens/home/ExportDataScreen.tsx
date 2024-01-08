@@ -1,12 +1,12 @@
-import React, { ReactElement, useCallback } from 'react';
+import React, { useCallback, ReactElement } from 'react';
 import {
-  CenterView,
   FullView,
-  RowView,
-  StyledSafeAreaView,
-  StyledText,
-  StyledTouchableOpacity,
   StyledView,
+  StyledTouchableOpacity,
+  RowView,
+  StyledText,
+  StyledSafeAreaView,
+  CenterView,
 } from '/styled/common';
 import { ArrowLeftIcon } from '/components/Icons';
 import { theme } from '/styled/theme';
@@ -16,7 +16,7 @@ import { TextField } from '/components/TextField/TextField';
 import { Checkbox } from '/components/Checkbox';
 import { Field } from '/components/Forms/FormField';
 import { Button } from '/components/Button';
-import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { ExportDataScreenProps } from '/interfaces/Screens/HomeStack/ExportDataScreenProps';
 import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
 

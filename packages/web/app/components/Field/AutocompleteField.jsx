@@ -3,7 +3,7 @@ import styled, { css } from 'styled-components';
 import PropTypes from 'prop-types';
 import Autosuggest from 'react-autosuggest';
 import { debounce } from 'lodash';
-import { IconButton, InputAdornment, MenuItem, Paper, Popper, Typography } from '@material-ui/core';
+import { MenuItem, Popper, Paper, Typography, InputAdornment, IconButton } from '@material-ui/core';
 
 import { ChevronIcon } from '../Icons/ChevronIcon';
 import { ClearIcon } from '../Icons/ClearIcon';

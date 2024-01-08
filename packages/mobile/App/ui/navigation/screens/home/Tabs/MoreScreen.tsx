@@ -1,12 +1,12 @@
-import React, { ReactElement, useCallback, useMemo } from 'react';
+import React, { ReactElement, useMemo, useCallback } from 'react';
 import { useSelector } from 'react-redux';
 import { Linking, TouchableHighlight } from 'react-native';
 import { getUniqueId } from 'react-native-device-info';
 import { FlatList } from 'react-native-gesture-handler';
 import styled from 'styled-components';
 
-import { CenterView, FullView, RowView, StyledText, StyledView } from '/styled/common';
-import { Orientation, screenPercentageToDP, setStatusBar } from '/helpers/screen';
+import { RowView, StyledView, StyledText, FullView, CenterView } from '/styled/common';
+import { screenPercentageToDP, Orientation, setStatusBar } from '/helpers/screen';
 import { theme } from '/styled/theme';
 import { UserAvatar } from '/components/UserAvatar';
 import { Button } from '/components/Button';

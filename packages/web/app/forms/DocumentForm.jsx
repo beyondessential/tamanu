@@ -10,7 +10,7 @@ import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { useApi } from '../api';
 import { Suggester } from '../utils/suggester';
 import { foreignKey } from '../utils/validation';
-import { AutocompleteField, Field, Form, TextField } from '../components/Field';
+import { Form, Field, TextField, AutocompleteField } from '../components/Field';
 import { FileChooserField } from '../components/Field/FileChooserField';
 import { FormGrid } from '../components/FormGrid';
 import { ConfirmCancelRow, FormSubmitCancelRow } from '../components/ButtonRow';

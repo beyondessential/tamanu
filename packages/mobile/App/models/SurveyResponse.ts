@@ -1,8 +1,8 @@
-import { Column, Entity, ManyToOne, OneToMany, RelationId } from 'typeorm/browser';
+import { Entity, Column, ManyToOne, OneToMany, RelationId } from 'typeorm/browser';
 
-import { EncounterType, ICreateSurveyResponse, ISurveyResponse } from '~/types';
+import { ISurveyResponse, EncounterType, ICreateSurveyResponse } from '~/types';
 
-import { FieldTypes, getResultValue, getStringValue, isCalculated } from '~/ui/helpers/fields';
+import { getStringValue, getResultValue, isCalculated, FieldTypes } from '~/ui/helpers/fields';
 
 import { runCalculations } from '~/ui/helpers/calculations';
 import { getCurrentDateTimeString } from '~/ui/helpers/date';

@@ -1,10 +1,10 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { useQuery } from '@tanstack/react-query';
 import styled from 'styled-components';
 
 import { Table, useSelectableColumn } from '../../Table';
-import { AutocompleteInput, OuterLabelFieldWrapper, SelectInput, TextInput } from '../../Field';
+import { TextInput, SelectInput, AutocompleteInput, OuterLabelFieldWrapper } from '../../Field';
 import { ConfirmCancelRow } from '../../ButtonRow';
 import { DateDisplay } from '../../DateDisplay';
 import { useApi, useSuggester } from '../../../api';

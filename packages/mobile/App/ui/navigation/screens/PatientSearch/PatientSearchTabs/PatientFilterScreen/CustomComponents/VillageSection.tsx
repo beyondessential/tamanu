@@ -8,7 +8,7 @@ import { LocalisedField } from '~/ui/components/Forms/LocalisedField';
 import { AutocompleteModalField } from '~/ui/components/AutocompleteModal/AutocompleteModalField';
 // Helpers
 import { useLocalisation } from '~/ui/contexts/LocalisationContext';
-import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
+import { screenPercentageToDP, Orientation } from '~/ui/helpers/screen';
 import { Routes } from '~/ui/helpers/routes';
 import { ReferenceDataType } from '~/types';
 import { Suggester } from '~/ui/helpers/suggester';

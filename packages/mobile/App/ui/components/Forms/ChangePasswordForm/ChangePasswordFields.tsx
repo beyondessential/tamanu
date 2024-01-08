@@ -1,9 +1,9 @@
 import React, { ReactElement } from 'react';
-import { StyledText, StyledView } from '/styled/common';
+import { StyledView, StyledText } from '/styled/common';
 import { theme } from '/styled/theme';
 import { Field } from '../FormField';
 import { Button } from '../../Button';
-import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { TextField } from '../../TextField/TextField';
 import { ServerSelector } from '../../ServerSelectorField/ServerSelector';
 

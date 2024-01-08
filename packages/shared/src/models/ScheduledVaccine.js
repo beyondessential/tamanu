@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { SYNC_DIRECTIONS, VACCINE_CATEGORIES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { SYNC_DIRECTIONS, VISIBILITY_STATUSES, VACCINE_CATEGORIES } from '@tamanu/constants';
 import { Model } from './Model';
 
 export class ScheduledVaccine extends Model {

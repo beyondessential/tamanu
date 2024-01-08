@@ -1,5 +1,5 @@
 import React from 'react';
-import { GestureResponderEvent, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Image, GestureResponderEvent } from 'react-native';
 import { theme } from '/styled/theme';
 
 const styles = StyleSheet.create({

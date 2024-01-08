@@ -1,10 +1,10 @@
 import { MobileSyncManager } from './MobileSyncManager';
 import { CentralServerConnection } from './CentralServerConnection';
 import {
-  getModelsForDirection,
   getSyncTick,
-  pushOutgoingChanges,
+  getModelsForDirection,
   snapshotOutgoingChanges,
+  pushOutgoingChanges,
 } from './utils';
 
 jest.mock('./utils', () => ({

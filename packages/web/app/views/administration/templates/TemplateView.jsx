@@ -1,9 +1,9 @@
-import React, { useCallback, useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import styled from 'styled-components';
 
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
 
-import { ContentPane, PageContainer, TopBar } from '../../../components';
+import { TopBar, PageContainer, ContentPane } from '../../../components';
 import { Colors } from '../../../constants';
 import { NewTemplateForm } from './NewTemplateForm';
 import { useApi } from '../../../api';

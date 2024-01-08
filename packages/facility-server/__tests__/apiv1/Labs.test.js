@@ -1,11 +1,11 @@
 import { LAB_REQUEST_STATUSES, LAB_TEST_TYPE_VISIBILITY_STATUSES } from '@tamanu/constants';
 import config from 'config';
 import {
-  createDummyEncounter,
   createDummyPatient,
+  createDummyEncounter,
   randomLabRequest,
 } from '@tamanu/shared/demoData';
-import { chance, fake } from '@tamanu/shared/test-helpers';
+import { fake, chance } from '@tamanu/shared/test-helpers';
 import { createLabTestTypes } from '@tamanu/shared/demoData/labRequests';
 import { createTestContext } from '../utilities';
 

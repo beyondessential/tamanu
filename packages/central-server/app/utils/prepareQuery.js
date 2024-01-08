@@ -1,4 +1,4 @@
-import { QueryTypes, Utils } from 'sequelize';
+import { Utils, QueryTypes } from 'sequelize';
 
 /* eslint-disable no-param-reassign */
 // This is mostly copied from Model.findAll internals in sequelize

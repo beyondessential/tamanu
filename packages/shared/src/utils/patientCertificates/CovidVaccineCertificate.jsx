@@ -3,7 +3,7 @@ import { Document, Page } from '@react-pdf/renderer';
 
 import { generateUVCI } from '../uvci';
 import { Table } from './Table';
-import { Box, Col, Row, Watermark, styles } from './Layout';
+import { styles, Col, Box, Row, Watermark } from './Layout';
 import { CovidPatientDetailsSection } from './CovidPatientDetailsSection';
 import { SigningSection } from './SigningSection';
 import { H3, P } from './Typography';

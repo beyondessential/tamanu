@@ -2,19 +2,19 @@ import React from 'react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
 import Divider from '@material-ui/core/Divider';
-import { Box, Typography } from '@material-ui/core';
+import { Typography, Box } from '@material-ui/core';
 
 import { ageInYears, getCurrentDateString } from '@tamanu/shared/utils/dateTime';
 
 import { DateDisplay } from '../../DateDisplay';
 import {
-  ATTENDANT_OF_BIRTH_OPTIONS,
+  Colors,
   BIRTH_DELIVERY_TYPE_OPTIONS,
   BIRTH_TYPE_OPTIONS,
-  Colors,
   PLACE_OF_BIRTH_OPTIONS,
-  maritalStatusOptions,
+  ATTENDANT_OF_BIRTH_OPTIONS,
   sexOptions,
+  maritalStatusOptions,
 } from '../../../constants';
 
 import { PrintLetterhead } from './reusable/PrintLetterhead';

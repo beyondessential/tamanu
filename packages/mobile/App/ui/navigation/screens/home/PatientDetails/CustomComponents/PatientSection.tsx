@@ -1,5 +1,5 @@
 import React, { PropsWithChildren, ReactElement, useState } from 'react';
-import { RowView, StyledView } from '/styled/common';
+import { StyledView, RowView } from '/styled/common';
 import { SectionHeader } from '/components/SectionHeader';
 import { EditButton } from './EditButton';
 import { theme } from '/styled/theme';

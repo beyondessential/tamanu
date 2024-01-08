@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import Alert from '@material-ui/lab/Alert';
 import { omit } from 'lodash';
-import { Box, Typography } from '@material-ui/core';
+import { Typography, Box } from '@material-ui/core';
 
 import { Button, OutlinedButton } from '../Button';
 import { Form } from './Form';
 import { ButtonRow } from '../ButtonRow';
-import { getInvisibleQuestions, getVisibleQuestions } from '../../utils';
+import { getVisibleQuestions, getInvisibleQuestions } from '../../utils';
 import { FormStepper } from './FormStepper';
 
 const COMPLETE_MESSAGE = `

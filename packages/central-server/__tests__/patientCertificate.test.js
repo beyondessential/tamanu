@@ -1,12 +1,12 @@
 import {
-  createDummyEncounter,
   createDummyPatient,
+  createDummyEncounter,
   createDummyPatientAdditionalData,
 } from '@tamanu/shared/demoData/patients';
 import { randomLabRequest } from '@tamanu/shared/demoData/labRequests';
 import { fake } from '@tamanu/shared/test-helpers/fake';
 import { LAB_REQUEST_STATUSES, REFERENCE_TYPES } from '@tamanu/constants';
-import { makeCovidCertificate, makeVaccineCertificate } from '../dist/utils/makePatientCertificate';
+import { makeVaccineCertificate, makeCovidCertificate } from '../dist/utils/makePatientCertificate';
 
 import { createTestContext } from './utilities';
 import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
