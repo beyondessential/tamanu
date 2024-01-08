@@ -26,9 +26,10 @@ export function App({ sidebar, children }) {
   const isUserLoggedIn = useSelector(checkIsLoggedIn);
   const currentRoute = useSelector(getCurrentRoute);
 
-  if (!isUserLoggedIn) {
-    return <LoginView />;
-  }
+
+
+  if (!isUserLoggedIn) return <LoginView />;
+  
 
   return (
     <AppContainer>
