@@ -13,17 +13,41 @@
       left: 0;
       padding: 25px 35px;
       height: 100vh;
-      /* background: #FFF; */
+    }
+
+    .title {
+      font-family: Roboto;
+      font-weight: 500;
+      font-size: 38px;
+      line-height: 32px;
+    }
+
+    .title::after {
+      overflow: hidden;
+      display: inline-block;
+      vertical-align: bottom;
+      animation: ellipsis steps(4, end) 900ms infinite;
+      content: '...'
+    }
+
+    @keyframes ellipsis {
+      from {
+        width: 0;
+      }
+
+      to {
+        width: 1.22em;
+      }
     }
   </style>
 </head>
 
 <body>
-  <div id="root"></div>
+  <!-- <div id="root"></div> -->
   <div id="temp-overlay">
 
     <img src="/app/assets/images/tamanu_logo_left_icon_blue.svg" />
-
+    <p class='title'>Tamanu is loading</p>
 
   </div>
   <script type="module" src="/app/index.js"></script>
