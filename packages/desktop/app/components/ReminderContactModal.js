@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 
 import styled from 'styled-components';
-import AddIcon from '@material-ui/icons/Add';
 
 import { Button } from './Button';
 import { DataFetchingTable } from './Table';
 import { BaseModal } from './BaseModal';
 import { ModalCancelRow } from './ModalActionRow';
 import { Colors } from '../constants';
+import { PlusIcon } from '../assets/icons/PlusIcon';
 
 const StyledText = styled.p`
   margin-bottom: 33px;
@@ -19,7 +19,14 @@ const StyledText = styled.p`
 
 const StyledButton = styled(Button)`
   padding: 11px 15px !important;
-  /* height: 33px; */
+  height: 33px;
+  border-radius: 3px;
+  border: 1px solid ${Colors.primary};
+  text-align: center;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 18px;
+  margin-bottom: 17px;
 
   svg {
     margin-right: 5px !important;
@@ -31,6 +38,7 @@ const ContactInformationContainer = styled(DataFetchingTable)`
   border-radius: 5px;
   border: 1px solid ${Colors.outline};
   background: ${Colors.white};
+  box-shadow: none;
 
   table {
     padding-left: 21px;
@@ -116,7 +124,7 @@ export const ReminderContactModal = ({ openReminderModal, handleClose, patient =
         size="small"
         // onClick={onClickModal}
       >
-        <AddIcon />
+        <PlusIcon fill={Colors.primary} />
         Add contact
       </StyledButton>
       <ModalCancelRow confirmText="Close" confirmColor="primary" onConfirm={handleClose} />
