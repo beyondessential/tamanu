@@ -7,19 +7,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Tamanu</title>
   <style>
-    #loading {
+    #temp-overlay {
       position: absolute;
-      top: 25px;
-      left: 35px;
+      top: 0;
+      left: 0;
+      padding: 25px 35px;
+      height: 100vh;
+      /* background: #FFF; */
     }
   </style>
 </head>
 
 <body>
-  <span id="loading">
-    <img src="/app/assets/images/tamanu_logo_left_icon_blue.svg" />
-  </span>
   <div id="root"></div>
+  <div id="temp-overlay">
+
+    <img src="/app/assets/images/tamanu_logo_left_icon_blue.svg" />
+
+
+  </div>
   <script type="module" src="/app/index.js"></script>
 </body>
 

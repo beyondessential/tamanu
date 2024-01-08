@@ -29,7 +29,7 @@ export function App({ sidebar, children }) {
   const isUserLoggedIn = useSelector(checkIsLoggedIn);
   const currentRoute = useSelector(getCurrentRoute);
 
-  if (isLoading) return <LoadingStatusPage />;
+  if (true) return <LoadingStatusPage />;
   if (!serverHealthy) return <UnavailableStatusPage />;
   if (!isUserLoggedIn) return <LoginView />;
 
