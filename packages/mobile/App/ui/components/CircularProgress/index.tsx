@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
-import { StyledView, CenterView } from '/styled/common';
+import { CenterView, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { SyncDataIcon } from '../Icons';

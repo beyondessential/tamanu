@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
 import { useEncounter } from '../../../contexts/Encounter';
-import { useApi, isErrorUnknownAllow404s } from '../../../api';
+import { isErrorUnknownAllow404s, useApi } from '../../../api';
 import { isInvoiceEditable } from '../../../utils';
 import { InvoiceLineItemModal } from '../../../components/InvoiceLineItemModal';
 import { InvoicePriceChangeItemModal } from '../../../components/InvoicePriceChangeItemModal';

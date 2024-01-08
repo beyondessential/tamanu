@@ -20,10 +20,10 @@ import {
   AuthorityKeyIdentifierExtension,
   BasicConstraintsExtension,
   ExtendedKeyUsageExtension,
-  Extension as X509Extension,
   KeyUsageFlags,
   KeyUsagesExtension,
   SubjectKeyIdentifierExtension,
+  Extension as X509Extension,
 } from '@peculiar/x509';
 
 import crypto from '../crypto';

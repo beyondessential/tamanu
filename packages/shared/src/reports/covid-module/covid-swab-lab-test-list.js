@@ -1,11 +1,11 @@
 import {
-  isWithinInterval,
-  isBefore,
-  isAfter,
-  startOfDay,
   endOfDay,
+  isAfter,
+  isBefore,
   isSameDay,
+  isWithinInterval,
   parseISO,
+  startOfDay,
   subDays,
 } from 'date-fns';
 import { groupBy } from 'lodash';

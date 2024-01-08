@@ -1,9 +1,9 @@
 import React, { ReactElement, useEffect } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { compose } from 'redux';
 import { Routes } from '/helpers/routes';
-import { Svg, Circle } from 'react-native-svg';
+import { Circle, Svg } from 'react-native-svg';
 import { parseISO } from 'date-fns';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
@@ -11,12 +11,12 @@ import { withPatient } from '~/ui/containers/Patient';
 import { useBackendEffect } from '~/ui/hooks';
 import { ILabRequest } from '~/types';
 import { navigateAfterTimeout } from '~/ui/helpers/navigators';
-import { StyledView, StyledText } from '/styled/common';
+import { StyledText, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { formatDate } from '/helpers/date';
 import { DateFormats } from '~/ui/helpers/constants';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
-import { getSyncTick, LAST_SUCCESSFUL_PUSH } from '~/services/sync';
+import { LAST_SUCCESSFUL_PUSH, getSyncTick } from '~/services/sync';
 
 const SyncStatusIndicator = ({ synced }): JSX.Element => (
   <StyledView flexDirection="row">

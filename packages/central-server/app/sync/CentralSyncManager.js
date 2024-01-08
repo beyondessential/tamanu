@@ -6,19 +6,19 @@ import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { CURRENT_SYNC_TIME_KEY } from '@tamanu/shared/sync/constants';
 import { log } from '@tamanu/shared/services/logging';
 import {
-  createSnapshotTable,
-  insertSnapshotRecords,
-  updateSnapshotRecords,
+  SYNC_SESSION_DIRECTION,
+  adjustDataPostSyncPush,
   completeSyncSession,
   countSyncSnapshotRecords,
+  createSnapshotTable,
   findSyncSnapshotRecords,
   getModelsForDirection,
+  getSyncTicksOfPendingEdits,
+  insertSnapshotRecords,
   removeEchoedChanges,
   saveIncomingChanges,
-  adjustDataPostSyncPush,
+  updateSnapshotRecords,
   waitForPendingEditsUsingSyncTick,
-  getSyncTicksOfPendingEdits,
-  SYNC_SESSION_DIRECTION,
 } from '@tamanu/shared/sync';
 import { uuidToFairlyUniqueInteger } from '@tamanu/shared/utils';
 

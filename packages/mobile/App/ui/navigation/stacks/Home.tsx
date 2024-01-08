@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 // Navigators
-import { createStackNavigator, TransitionPresets } from '@react-navigation/stack';
+import { TransitionPresets, createStackNavigator } from '@react-navigation/stack';
 // Components
 import { WelcomeIntroTabs } from './WelcomeIntro';
 import { HomeTabsStack } from './HomeTabs';

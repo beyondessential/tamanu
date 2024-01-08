@@ -1,6 +1,6 @@
 import ImagePicker, { ImagePickerResponse } from 'react-native-image-picker';
 import ImageResizer from 'react-native-image-resizer';
-import { check, PERMISSIONS, request } from 'react-native-permissions';
+import { PERMISSIONS, check, request } from 'react-native-permissions';
 
 /**
  * @see https://github.com/bamlab/react-native-image-resizer#api

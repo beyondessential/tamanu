@@ -1,9 +1,9 @@
 import { CentralConnectionStatus } from '~/types';
 import {
   AuthenticationError,
+  OutdatedVersionError,
   generalErrorMessage,
   invalidTokenMessage,
-  OutdatedVersionError,
 } from '../error';
 import { CentralServerConnection } from './CentralServerConnection';
 import { fetchWithTimeout, sleepAsync } from './utils';

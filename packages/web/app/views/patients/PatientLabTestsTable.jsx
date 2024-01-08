@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Button } from '@material-ui/core';
 import { Table } from '../../components/Table';
-import { RangeValidatedCell, DateHeadCell } from '../../components/FormattedTableCell';
+import { DateHeadCell, RangeValidatedCell } from '../../components/FormattedTableCell';
 import { Colors } from '../../constants';
 import { LabTestResultModal } from './LabTestResultModal';
 import { BodyText, DateDisplay, formatTimeWithSeconds } from '../../components';
