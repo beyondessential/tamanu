@@ -38,11 +38,10 @@ resetPassword.post(
       // any information about the system. In this case, a hacker can use a "not found"
       // error message to figure out which emails are really in use.
       // So, we just return an "OK" response no matter what information is provided,
-      // regardless of whether it's valid or not. 
+      // regardless of whether it's valid or not.
     } else {
       const token = await createOneTimeLogin(models, user);
-      log.info(`Token for ${email} is ${token}`);
-      // await sendResetEmail(req.emailService, user, token);
+      await sendResetEmail(req.emailService, user, token);
     }
 
     return res.send({ ok: 'ok' });
