@@ -186,7 +186,7 @@ export class TamanuApi {
   }
 
   async healthCheck() {
-    return this.get('health');
+    return this.get('health', null, { showUnknownErrorToast: false });
   }
 
   async refreshToken() {
