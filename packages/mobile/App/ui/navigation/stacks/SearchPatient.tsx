@@ -28,23 +28,15 @@ export const SearchPatientStack = ({ navigation }): ReactElement => {
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
 
   const submitPatientFilters = (values): void => {
-    navigation.navigate(
-      Routes.HomeStack.SearchPatientStack.SearchPatientTabs.Index,
-    );
+    navigation.navigate(Routes.HomeStack.SearchPatientStack.SearchPatientTabs.Index);
     setFilters(values);
   };
 
   return (
     <ErrorBoundary>
-      <Formik
-        initialValues={filters}
-        onSubmit={submitPatientFilters}
-      >
+      <Formik initialValues={filters} onSubmit={submitPatientFilters}>
         {({ handleSubmit }): ReactElement => (
-          <Stack.Navigator
-            headerMode="none"
-            screenOptions={noSwipeGestureOnNavigator}
-          >
+          <Stack.Navigator headerMode="none" screenOptions={noSwipeGestureOnNavigator}>
             <Stack.Screen
               name={Routes.HomeStack.SearchPatientStack.SearchPatientTabs.Index}
               component={SearchPatientTabs}

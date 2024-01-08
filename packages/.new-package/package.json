@@ -3,33 +3,31 @@
   "version": "0.0.0",
   "private": true,
   "description": "TODO",
+  "main": "dist/cjs/index.js",
+  "module": "dist/mjs/index.js",
   "exports": {
-    ".": "./dist/index.js"
+    ".": {
+      "import": "./dist/mjs/index.js",
+      "require": "./dist/cjs/index.js"
+    }
   },
-  "types": "./dist/index.d.ts",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
   "repository": "git@github.com:beyondessential/tamanu.git",
   "author": "Beyond Essential Systems Pty. Ltd.",
   "license": "SEE LICENSE IN ../../license",
   "scripts": {
-    "build": "yarn run build:src && yarn run build:types",
-    "build:src": "swc --delete-dir-on-start --out-dir dist --copy-files --source-maps true src",
-    "build:types": "tsc --outDir dist --declaration --emitDeclarationOnly --noEmit false && move-dts src dist",
-    "build-watch": "yarn run build:src --watch",
-    "test": "NODE_ENV=test jest",
-    "lint": "yarn run lint:check && yarn run lint:types",
-    "lint:check": "eslint src",
-    "lint:types": "tsc"
+    "build": "yarn run build:src && yarn run build:cjs && yarn run build:types && dual-pkg dist/mjs dist/cjs",
+    "build:src": "swc --delete-dir-on-start --out-dir dist/mjs --copy-files --source-maps true src",
+    "build:cjs": "yarn run build:src --out-dir dist/cjs --config module.type=commonjs",
+    "build:types": "tsc --declaration --emitDeclarationOnly --noEmit false && move-dts src dist/cjs dist/mjs",
+    "build-watch": "yarn run build && concurrently \"yarn run build:src --delete-dir-on-start=false --watch\" \"yarn run build:cjs --delete-dir-on-start=false --watch\"",
+    "test": "NODE_ENV=test jest"
   },
   "devDependencies": {
-    "@beyondessential/eslint-config-beyondessential": "^2.6.0",
     "@tamanu/build-tooling": "*",
     "@jest/globals": "^29.4.3",
     "@swc/jest": "^0.2.24",
     "@types/node": "^18.14.6",
-    "@typescript-eslint/eslint-plugin": "^5.54.0",
-    "@typescript-eslint/parser": "^5.54.0",
-    "eslint": "^8.35.0",
     "jest": "^29.4.3"
   },
   "dependencies": {
