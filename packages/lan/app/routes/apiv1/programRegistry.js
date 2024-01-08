@@ -126,7 +126,7 @@ programRegistry.get(
         filterParams.registeringFacilityId,
         'mrr.registering_facility_id = :registeringFacilityId',
       ),
-      makeFilter(filterParams.clinicalStatus, 'mrr.clinical_status = :clinicalStatus'),
+      makeFilter(filterParams.clinicalStatus, 'mrr.clinical_status_id = :clinicalStatus'),
       makeFilter(
         filterParams.currentlyIn,
         'mrr.village_id = :currentlyIn OR mrr.facility_id = :currentlyIn',
@@ -135,7 +135,7 @@ programRegistry.get(
         filterParams.programRegistryCondition,
         // Essentially the `<@` operator checks that the json on the left is contained in the json on the right
         // so we build up a string like '["A_condition_name"]' and cast it to json before checking membership.
-        `(select '["' || prc2.name || '"]' from program_registry_conditions prc2 where prc2.id == :programRegistryCondition):jsonb <@ conditions.condition_list`,
+        `(select '["' || prc2.name || '"]' from program_registry_conditions prc2 where prc2.id = :programRegistryCondition)::jsonb <@ conditions.condition_list`,
       ),
       makeFilter(
         !filterParams.removed || filterParams.removed === 'false',
