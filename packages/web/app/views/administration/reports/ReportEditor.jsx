@@ -5,8 +5,8 @@ import { capitalize } from 'lodash';
 import * as yup from 'yup';
 import { Accordion, AccordionDetails, AccordionSummary, Grid } from '@material-ui/core';
 import {
-  REPORT_DATA_SOURCES,
   REPORT_DATA_SOURCE_VALUES,
+  REPORT_DATA_SOURCES,
   REPORT_DB_SCHEMAS,
   REPORT_DEFAULT_DATE_RANGES_VALUES,
   REPORT_STATUSES_VALUES,

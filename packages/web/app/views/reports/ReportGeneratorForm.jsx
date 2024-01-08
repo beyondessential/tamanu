@@ -6,8 +6,8 @@ import { Alert, AlertTitle } from '@material-ui/lab';
 import styled from 'styled-components';
 import * as Yup from 'yup';
 import {
-  REPORT_DATA_SOURCES,
   REPORT_DATA_SOURCE_VALUES,
+  REPORT_DATA_SOURCES,
   REPORT_EXPORT_FORMATS,
 } from '@tamanu/constants';
 import { LoadingIndicator } from '../../components/LoadingIndicator';

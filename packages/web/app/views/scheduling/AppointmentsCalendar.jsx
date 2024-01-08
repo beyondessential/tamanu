@@ -18,7 +18,7 @@ import { NewAppointmentButton } from '../../components/Appointments/NewAppointme
 import { Button } from '../../components/Button';
 import { AutocompleteInput, MultiselectInput } from '../../components/Field';
 import { Suggester } from '../../utils/suggester';
-import { Colors, appointmentTypeOptions } from '../../constants';
+import { appointmentTypeOptions, Colors } from '../../constants';
 import { useApi, useSuggester } from '../../api';
 
 const LeftContainer = styled.div`

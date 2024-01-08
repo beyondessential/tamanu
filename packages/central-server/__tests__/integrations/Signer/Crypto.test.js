@@ -6,12 +6,12 @@ import { Crypto } from '@peculiar/webcrypto';
 import {
   Set as Asn1Set,
   BitString,
+  fromBER,
   Integer,
   Null,
   ObjectIdentifier,
   OctetString,
   Sequence,
-  fromBER,
 } from 'asn1js';
 import { CryptoEngine, setEngine } from 'pkijs';
 import { X502_OIDS } from '@tamanu/constants';

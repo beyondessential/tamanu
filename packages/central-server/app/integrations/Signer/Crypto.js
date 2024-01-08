@@ -5,12 +5,12 @@ import { Crypto } from '@peculiar/webcrypto';
 import {
   Set as Asn1Set,
   BitString,
+  fromBER,
   Integer,
   OctetString,
   PrintableString,
   Sequence,
   Utf8String,
-  fromBER,
 } from 'asn1js';
 import {
   AttributeTypeAndValue,
@@ -19,11 +19,11 @@ import {
   Certificate,
   CertificationRequest,
   CryptoEngine,
-  ExtKeyUsage,
   Extension,
   Extensions,
-  Time,
+  ExtKeyUsage,
   setEngine,
+  Time,
 } from 'pkijs';
 import { ICAO_DOCUMENT_TYPES, X502_OIDS } from '@tamanu/constants';
 import { depem, pem } from '@tamanu/shared/utils';

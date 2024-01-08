@@ -20,8 +20,8 @@ import {
   makeVaccineCertificate,
 } from '../../utils/makePatientCertificate';
 import { getLocalisation } from '../../localisation';
-import { VdsNcDocument, createVdsNcVaccinationData } from '../../integrations/VdsNc';
-import { HCERTPack, createEuDccVaccinationData } from '../../integrations/EuDcc';
+import { createVdsNcVaccinationData, VdsNcDocument } from '../../integrations/VdsNc';
+import { createEuDccVaccinationData, HCERTPack } from '../../integrations/EuDcc';
 
 import { LabRequestNotificationGenerator } from './LabRequestNotificationGenerator';
 

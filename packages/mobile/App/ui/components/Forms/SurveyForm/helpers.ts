@@ -2,7 +2,7 @@
 import * as Yup from 'yup';
 
 import { getAgeFromDate, getAgeWithMonthsFromDate } from '~/ui/helpers/date';
-import { FieldTypes, checkMandatory } from '~/ui/helpers/fields';
+import { checkMandatory, FieldTypes } from '~/ui/helpers/fields';
 import { joinNames } from '~/ui/helpers/user';
 import {
   IPatient,

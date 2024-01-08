@@ -7,14 +7,14 @@ import {
   DistributionPoint,
   DistributionPointName,
   GeneralName,
-  IssueAlternativeName,
-  Name,
-  PrivateKeyUsagePeriod,
-  RelativeDistinguishedName,
   id_ce_cRLDistributionPoints,
   id_ce_issuerAltName,
   id_ce_privateKeyUsagePeriod,
   id_ce_subjectAltName,
+  IssueAlternativeName,
+  Name,
+  PrivateKeyUsagePeriod,
+  RelativeDistinguishedName,
 } from '@peculiar/asn1-x509';
 import {
   AuthorityKeyIdentifierExtension,

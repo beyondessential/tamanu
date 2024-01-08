@@ -1,13 +1,13 @@
 import { pascal } from 'case';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { Op, Sequelize, literal } from 'sequelize';
+import { literal, Op, Sequelize } from 'sequelize';
 import config from 'config';
 import { NotFoundError } from '@tamanu/shared/errors';
 import {
   INVOICE_LINE_TYPES,
-  REFERENCE_TYPES,
   REFERENCE_TYPE_VALUES,
+  REFERENCE_TYPES,
   SUGGESTER_ENDPOINTS,
   SURVEY_TYPES,
   VISIBILITY_STATUSES,

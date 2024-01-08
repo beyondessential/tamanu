@@ -4,12 +4,12 @@ import { spyOnModule } from '@tamanu/shared/test-helpers/spyOn';
 import { initDatabase } from '../../../dist/database';
 import {
   ACTIVE_TEXT,
-  DEFAULT_USER_EMAIL,
-  OVERWRITING_TEXT,
   createVersion,
+  DEFAULT_USER_EMAIL,
   formatUpdatedAt,
   getVersionError,
   listVersions,
+  OVERWRITING_TEXT,
 } from '../../../dist/subCommands/importReport/actions';
 
 spyOnModule(jest, '../../../dist/subCommands/importReport/actions');

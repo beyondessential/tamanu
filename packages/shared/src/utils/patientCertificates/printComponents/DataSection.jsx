@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Text } from '@react-pdf/renderer';
+import { StyleSheet, Text, View } from '@react-pdf/renderer';
 import { HorizontalRule } from './HorizontalRule';
 import { Row } from '../Layout';
 

@@ -12,8 +12,8 @@ import {
   BIRTH_DELIVERY_TYPE_OPTIONS,
   BIRTH_TYPE_OPTIONS,
   Colors,
-  PLACE_OF_BIRTH_OPTIONS,
   maritalStatusOptions,
+  PLACE_OF_BIRTH_OPTIONS,
   sexOptions,
 } from '../../../constants';
 
