@@ -1,4 +1,4 @@
-import { getSnapshotTableName, SYNC_SESSION_DIRECTION } from '@tamanu/shared/sync';
+import { SYNC_SESSION_DIRECTION, getSnapshotTableName } from '@tamanu/shared/sync';
 import { LAST_SUCCESSFUL_SYNC_PUSH_KEY } from '@tamanu/shared/sync/constants';
 
 /**

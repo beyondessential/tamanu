@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 
 import { REFERRAL_STATUSES } from '@tamanu/constants';
@@ -9,7 +9,7 @@ import { DropdownButton } from './DropdownButton';
 
 import { EncounterModal } from './EncounterModal';
 import { useEncounter } from '../contexts/Encounter';
-import { useApi, isErrorUnknownAllow404s } from '../api';
+import { isErrorUnknownAllow404s, useApi } from '../api';
 import { SurveyResponseDetailsModal } from './SurveyResponseDetailsModal';
 import { DeleteButton } from './Button';
 import { ConfirmModal } from './ConfirmModal';

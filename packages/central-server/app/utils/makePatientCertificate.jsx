@@ -4,15 +4,15 @@ import path from 'path';
 import QRCode from 'qrcode';
 import { get } from 'lodash';
 import config from 'config';
-import { ASSET_NAMES, ASSET_FALLBACK_NAMES } from '@tamanu/constants';
+import { ASSET_FALLBACK_NAMES, ASSET_NAMES } from '@tamanu/constants';
 
 import {
-  tmpdir,
+  CovidVaccineCertificate,
   VaccineCertificate,
   getPatientSurveyResponseAnswer,
-  CovidVaccineCertificate,
+  tmpdir,
 } from '@tamanu/shared/utils';
-import { CovidLabCertificate, CertificateTypes } from '@tamanu/shared/utils/patientCertificates';
+import { CertificateTypes, CovidLabCertificate } from '@tamanu/shared/utils/patientCertificates';
 
 import { getLocalisation } from '../localisation';
 

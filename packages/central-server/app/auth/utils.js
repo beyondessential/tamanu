@@ -4,9 +4,9 @@ import { randomBytes, randomInt } from 'crypto';
 import { promisify } from 'util';
 
 import {
-  VISIBILITY_STATUSES,
-  USER_DEACTIVATED_ERROR_MESSAGE,
   SERVER_TYPES,
+  USER_DEACTIVATED_ERROR_MESSAGE,
+  VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import { ForbiddenError } from '@tamanu/shared/errors';
 

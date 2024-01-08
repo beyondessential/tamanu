@@ -1,4 +1,4 @@
-import { expect, beforeAll, describe, it } from '@jest/globals';
+import { beforeAll, describe, expect, it } from '@jest/globals';
 
 import { fakeReferenceData, withErrorShown } from '@tamanu/shared/test-helpers';
 import { SYNC_SESSION_DIRECTION, getModelsForDirection } from '@tamanu/shared/sync';

@@ -1,9 +1,9 @@
-import { Entity, Column, ManyToOne, RelationId } from 'typeorm/browser';
+import { Column, Entity, ManyToOne, RelationId } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
 import {
   AVPUType,
-  IVitals,
   DetectedPresenceType,
+  IVitals,
   UrineNitritesType,
   UrineProteinType,
 } from '../types/IVitals';
