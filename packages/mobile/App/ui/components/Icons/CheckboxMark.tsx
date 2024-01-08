@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { SvgXml, SvgProps } from 'react-native-svg';
+import { SvgProps, SvgXml } from 'react-native-svg';
 
 export const CheckboxMarkIcon = memo((props: SvgProps) => {
   const xml = `

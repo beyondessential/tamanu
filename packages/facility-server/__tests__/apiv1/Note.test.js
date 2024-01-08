@@ -1,6 +1,6 @@
 import {
-  createDummyPatient,
   createDummyEncounter,
+  createDummyPatient,
   randomReferenceId,
 } from '@tamanu/shared/demoData/patients';
 import { NOTE_RECORD_TYPES, NOTE_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';

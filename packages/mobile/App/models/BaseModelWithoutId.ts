@@ -1,12 +1,12 @@
 import {
   BaseEntity,
-  UpdateDateColumn,
-  CreateDateColumn,
-  DeleteDateColumn,
-  Column,
   BeforeInsert,
   BeforeUpdate,
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
   Repository,
+  UpdateDateColumn,
 } from 'typeorm/browser';
 import { getSyncTick } from '../services/sync/utils';
 import { ObjectType } from 'typeorm/browser/common/ObjectType';

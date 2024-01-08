@@ -1,12 +1,12 @@
 import React, { FunctionComponent, ReactElement, useCallback, useState } from 'react';
 import { KeyboardAvoidingView, StatusBar } from 'react-native';
 import {
-  StyledView,
-  StyledSafeAreaView,
-  FullView,
   ColumnView,
-  StyledTouchableOpacity,
+  FullView,
+  StyledSafeAreaView,
   StyledText,
+  StyledTouchableOpacity,
+  StyledView,
 } from '/styled/common';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { theme } from '/styled/theme';

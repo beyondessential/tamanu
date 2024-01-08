@@ -2,7 +2,7 @@ import { log } from '@tamanu/shared/services/logging';
 import Table from 'cli-table3';
 import { REPORT_STATUSES } from '@tamanu/constants';
 import { format } from 'date-fns';
-import { verifyQuery, getLatestVersion } from './utils';
+import { getLatestVersion, verifyQuery } from './utils';
 
 export const DEFAULT_USER_EMAIL = 'admin@tamanu.io';
 

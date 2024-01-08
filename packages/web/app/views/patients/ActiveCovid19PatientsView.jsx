@@ -7,13 +7,13 @@ import { useApi } from '../../api';
 import { reloadPatient } from '../../store/patient';
 import { capitaliseFirstLetter } from '../../utils/capitalise';
 import {
-  TopBar,
-  CovidPatientsSearchBar,
-  PageContainer,
-  DateDisplay,
   ContentPane,
+  CovidPatientsSearchBar,
+  DateDisplay,
+  PageContainer,
   SearchTable,
   SearchTableTitle,
+  TopBar,
 } from '../../components';
 import { Colors } from '../../constants';
 import { StatisticsCard, StatisticsCardContainer } from '../../components/StatisticsCard';

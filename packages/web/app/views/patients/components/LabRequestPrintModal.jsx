@@ -3,8 +3,8 @@ import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../../../api';
 import {
   useEncounterData,
-  usePatientAdditionalDataQuery,
   useLabRequestNotes,
+  usePatientAdditionalDataQuery,
 } from '../../../api/queries';
 import { useCertificate } from '../../../utils/useCertificate';
 

@@ -1,6 +1,6 @@
 import { formatRFC7231 } from 'date-fns';
 
-import { fake, chance, fakeReferenceData, fakeUser } from '@tamanu/shared/test-helpers';
+import { chance, fake, fakeReferenceData, fakeUser } from '@tamanu/shared/test-helpers';
 import { formatFhirDate } from '@tamanu/shared/utils/fhir/datetime';
 import { fakeUUID } from '@tamanu/shared/utils/generateId';
 
