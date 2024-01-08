@@ -5,7 +5,7 @@ import * as yup from 'yup';
 
 import { useApi } from '../../../api';
 import { Field, Form } from '../../../components/Field';
-import { FILTER_EXCEL, FileChooserField } from '../../../components/Field/FileChooserField';
+import { FileChooserField, FILTER_EXCEL } from '../../../components/Field/FileChooserField';
 import { ExpandedMultiSelectField } from '../../../components/Field/ExpandedMultiSelectField';
 import { FormGrid } from '../../../components/FormGrid';
 import { ButtonRow } from '../../../components/ButtonRow';

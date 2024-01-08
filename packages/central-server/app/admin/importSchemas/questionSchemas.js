@@ -1,6 +1,6 @@
 import * as yup from 'yup';
 import { PROGRAM_DATA_ELEMENT_TYPE_VALUES } from '@tamanu/constants';
-import { SurveyScreenComponent, baseConfigShape, baseValidationShape } from './baseSchemas';
+import { baseConfigShape, baseValidationShape, SurveyScreenComponent } from './baseSchemas';
 import { configString, validationString } from './jsonString';
 import { mathjsString } from './mathjsString';
 import { rangeArraySchema, rangeObjectSchema } from './rangeObject';

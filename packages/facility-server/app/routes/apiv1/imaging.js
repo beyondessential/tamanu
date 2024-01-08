@@ -2,7 +2,7 @@ import express from 'express';
 import config from 'config';
 import asyncHandler from 'express-async-handler';
 import { endOfDay, parseISO, startOfDay } from 'date-fns';
-import { Op, literal } from 'sequelize';
+import { literal, Op } from 'sequelize';
 import {
   AREA_TYPE_TO_IMAGING_TYPE,
   IMAGING_AREA_TYPES,

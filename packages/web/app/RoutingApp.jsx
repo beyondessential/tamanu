@@ -17,7 +17,7 @@ import {
   PatientsRoutes,
   ProgramsRoutes,
 } from './routes';
-import { FACILITY_MENU_ITEMS, SYNC_MENU_ITEMS, Sidebar } from './components/Sidebar';
+import { FACILITY_MENU_ITEMS, Sidebar, SYNC_MENU_ITEMS } from './components/Sidebar';
 import { UserActivityMonitor } from './components/UserActivityMonitor';
 
 export const RoutingApp = () => {

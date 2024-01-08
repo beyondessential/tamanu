@@ -8,9 +8,9 @@ import { useLabRequest } from '../../contexts/LabRequest';
 import {
   getDateWithTimeTooltip,
   getPriority,
+  getRequestedBy,
   getRequestId,
   getRequestType,
-  getRequestedBy,
   getStatus,
 } from '../../utils/lab';
 

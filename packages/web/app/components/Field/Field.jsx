@@ -1,7 +1,7 @@
 import React from 'react';
 import {
-  Field as FormikField,
   connect as formikConnect,
+  Field as FormikField,
   getIn,
   useField,
   useFormikContext,

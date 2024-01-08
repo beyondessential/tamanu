@@ -16,7 +16,7 @@ import { theme } from '/styled/theme';
 import { formatDate } from '/helpers/date';
 import { DateFormats } from '~/ui/helpers/constants';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
-import { LAST_SUCCESSFUL_PUSH, getSyncTick } from '~/services/sync';
+import { getSyncTick, LAST_SUCCESSFUL_PUSH } from '~/services/sync';
 
 const SyncStatusIndicator = ({ synced }): JSX.Element => (
   <StyledView flexDirection="row">

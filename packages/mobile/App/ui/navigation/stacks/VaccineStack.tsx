@@ -1,9 +1,9 @@
 import React, { ReactElement, useCallback } from 'react';
 import { compose } from 'redux';
 import {
+  createStackNavigator,
   StackHeaderProps,
   TransitionPresets,
-  createStackNavigator,
 } from '@react-navigation/stack';
 import { VaccineTableTabs } from './VaccineTableTabs';
 import { NewVaccineTabs } from './NewVaccineTabs';

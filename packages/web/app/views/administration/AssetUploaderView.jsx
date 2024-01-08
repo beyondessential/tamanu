@@ -4,7 +4,7 @@ import * as yup from 'yup';
 import { ASSET_NAMES } from '@tamanu/constants/importable';
 import { useApi } from '../../api';
 import { Field, Form, SelectField } from '../../components/Field';
-import { FILTER_IMAGES, FileChooserField } from '../../components/Field/FileChooserField';
+import { FileChooserField, FILTER_IMAGES } from '../../components/Field/FileChooserField';
 import { ContentPane } from '../../components/ContentPane';
 import { FormGrid } from '../../components/FormGrid';
 import { ButtonRow } from '../../components/ButtonRow';

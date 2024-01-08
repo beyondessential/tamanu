@@ -6,7 +6,6 @@ import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { CURRENT_SYNC_TIME_KEY } from '@tamanu/shared/sync/constants';
 import { log } from '@tamanu/shared/services/logging';
 import {
-  SYNC_SESSION_DIRECTION,
   adjustDataPostSyncPush,
   completeSyncSession,
   countSyncSnapshotRecords,
@@ -17,6 +16,7 @@ import {
   insertSnapshotRecords,
   removeEchoedChanges,
   saveIncomingChanges,
+  SYNC_SESSION_DIRECTION,
   updateSnapshotRecords,
   waitForPendingEditsUsingSyncTick,
 } from '@tamanu/shared/sync';
