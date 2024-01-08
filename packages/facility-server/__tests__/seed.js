@@ -1,5 +1,5 @@
 import { IMAGING_AREA_TYPES } from '@tamanu/constants';
-import { CARE_PLANS, DRUGS, ICD10_DIAGNOSES, TRIAGE_DIAGNOSES, splitIds } from '@tamanu/shared/demoData';
+import { CARE_PLANS, DRUGS, ICD10_DIAGNOSES, splitIds, TRIAGE_DIAGNOSES } from '@tamanu/shared/demoData';
 import {
   CT_SCAN_IMAGING_AREAS,
   ULTRASOUND_IMAGING_AREAS,

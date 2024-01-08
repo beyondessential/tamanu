@@ -10,7 +10,7 @@ import { theme } from '/styled/theme';
 import { VaccineStatusCells } from '/helpers/constants';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { IAdministeredVaccine, IPatient, IScheduledVaccine } from '~/types';
-import { VaccineStatus, getVaccineStatus } from '~/ui/helpers/patient';
+import { getVaccineStatus, VaccineStatus } from '~/ui/helpers/patient';
 import { BypassWarningIcon } from './BypassWarningIcon';
 
 export interface VaccineTableCellData {

@@ -2,10 +2,10 @@ import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import {
-  INVOICE_LINE_TYPES,
   INVOICE_LINE_TYPE_LABELS,
-  INVOICE_PRICE_CHANGE_TYPES,
+  INVOICE_LINE_TYPES,
   INVOICE_PRICE_CHANGE_TYPE_LABELS,
+  INVOICE_PRICE_CHANGE_TYPES,
 } from '@tamanu/constants';
 
 import { useApi } from '../api';

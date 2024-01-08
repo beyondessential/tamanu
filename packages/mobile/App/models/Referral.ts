@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, RelationId, getConnection } from 'typeorm/browser';
+import { Column, Entity, getConnection, ManyToOne, RelationId } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
 import { GenericFormValues, ICreateSurveyResponse, IReferral } from '~/types';
 import { Encounter } from './Encounter';

@@ -2,7 +2,7 @@ import React from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import MuiBox from '@material-ui/core/Box';
-import { MANNER_OF_DEATHS, MANNER_OF_DEATH_OPTIONS } from '@tamanu/constants';
+import { MANNER_OF_DEATH_OPTIONS, MANNER_OF_DEATHS } from '@tamanu/constants';
 import { ageInMonths, ageInYears, getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import {
   ArrayField,

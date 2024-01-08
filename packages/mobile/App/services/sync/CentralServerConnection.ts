@@ -5,11 +5,11 @@ import { readConfig } from '../config';
 import { FetchOptions, LoginResponse, SyncRecord } from './types';
 import {
   AuthenticationError,
-  OutdatedVersionError,
-  RemoteError,
   generalErrorMessage,
   invalidTokenMessage,
   invalidUserCredentialsMessage,
+  OutdatedVersionError,
+  RemoteError,
 } from '../error';
 import { version } from '/root/package.json';
 

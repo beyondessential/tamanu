@@ -1,4 +1,4 @@
-import React, { ReactElement, memo, useMemo } from 'react';
+import React, { memo, ReactElement, useMemo } from 'react';
 import { StyleSheet } from 'react-native';
 import { BarChart, YAxis } from 'react-native-svg-charts';
 import { G, Line } from 'react-native-svg';

@@ -2,7 +2,7 @@ import React from 'react';
 import { Document, Page } from '@react-pdf/renderer';
 import { replaceInTemplate } from '../replaceInTemplate';
 import { Table } from './Table';
-import { Box, Col, Row, Watermark, styles } from './Layout';
+import { Box, Col, Row, styles, Watermark } from './Layout';
 import { CovidLetterheadSection } from './CovidLetterheadSection';
 import { CovidPatientDetailsSection } from './CovidPatientDetailsSection';
 import { SigningSection } from './SigningSection';
