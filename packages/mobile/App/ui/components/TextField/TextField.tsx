@@ -1,5 +1,5 @@
-import React, { useCallback, useState, useRef, useMemo } from 'react';
-import { KeyboardType, StyleSheet, ReturnKeyTypeOptions, TextInput } from 'react-native';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
+import { KeyboardType, ReturnKeyTypeOptions, StyleSheet, TextInput } from 'react-native';
 import { InputContainer, StyledTextInput } from './styles';
 import { TextFieldLabel } from './TextFieldLabel';
 import { StyledView } from '/styled/common';

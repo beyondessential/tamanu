@@ -1,5 +1,5 @@
 import { convertISO9075toRFC3339 } from '@tamanu/shared/utils/dateTime';
-import { fake, chance } from '@tamanu/shared/test-helpers';
+import { chance, fake } from '@tamanu/shared/test-helpers';
 import { createTestContext } from '@tamanu/central-server/__tests__/utilities';
 import { IDENTIFIER_NAMESPACE } from '../../../dist/hl7fhir/utils';
 

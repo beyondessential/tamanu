@@ -1,9 +1,9 @@
 import * as yup from 'yup';
 import { PROGRAM_DATA_ELEMENT_TYPE_VALUES } from '@tamanu/constants';
-import { SurveyScreenComponent, baseValidationShape, baseConfigShape } from './baseSchemas';
+import { SurveyScreenComponent, baseConfigShape, baseValidationShape } from './baseSchemas';
 import { configString, validationString } from './jsonString';
 import { mathjsString } from './mathjsString';
-import { rangeObjectSchema, rangeArraySchema } from './rangeObject';
+import { rangeArraySchema, rangeObjectSchema } from './rangeObject';
 
 const columnReferenceConfig = baseConfigShape.shape({
   column: yup.string().required(),

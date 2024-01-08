@@ -2,11 +2,11 @@ import { createDummyPatient, randomReferenceDataObjects } from '@tamanu/shared/d
 import { REFERENCE_TYPES } from '@tamanu/constants';
 import { createTestContext } from '../../../utilities';
 import {
-  setupProgramAndSurvey,
-  createCVDFormSurveyResponse,
-  createCVDReferral,
   createBreastCancerFormSurveyResponse,
   createBreastCancerReferral,
+  createCVDFormSurveyResponse,
+  createCVDReferral,
+  setupProgramAndSurvey,
 } from './utils';
 
 const PROPERTY_LIST = [

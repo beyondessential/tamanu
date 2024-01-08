@@ -3,7 +3,7 @@ import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 import * as yup from 'yup';
 
-import { Form, Field, AutocompleteField } from '../components/Field';
+import { AutocompleteField, Field, Form } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { FormSubmitCancelRow } from '../components/ButtonRow';
 import { useEncounter } from '../contexts/Encounter';

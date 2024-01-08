@@ -1,7 +1,7 @@
 import {
-  createDummyPatient,
   createDummyEncounter,
   createDummyEncounterDiagnosis,
+  createDummyPatient,
   randomRecord,
   randomReferenceData,
 } from '@tamanu/shared/demoData';

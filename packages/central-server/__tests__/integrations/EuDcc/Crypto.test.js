@@ -3,9 +3,9 @@
 import { HCERTPack, HCERTVerify } from '@tamanu/central-server/app/integrations/EuDcc';
 import { createTestContext } from '@tamanu/central-server/__tests__/utilities';
 import {
+  TestCSCA,
   loadCertificateIntoSigner,
   newKeypairAndCsr,
-  TestCSCA,
 } from '@tamanu/central-server/app/integrations/Signer';
 import { expect } from 'chai';
 import { getLocalisation } from '@tamanu/central-server/app/localisation';

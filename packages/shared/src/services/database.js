@@ -7,7 +7,7 @@ import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { log } from './logging';
 import { serviceContext, serviceName } from './logging/context';
 
-import { migrate, assertUpToDate, NON_SYNCING_TABLES } from './migrations';
+import { NON_SYNCING_TABLES, assertUpToDate, migrate } from './migrations';
 import * as models from '../models';
 import { createDateTypes } from './createDateTypes';
 import { setupQuote } from '../utils/pgComposite';

@@ -6,9 +6,9 @@ import { HIDDEN_VISIBILITY_STATUSES } from '@tamanu/constants/importable';
 
 import { renameObjectKeys } from '@tamanu/shared/utils/renameObjectKeys';
 import {
-  simpleGetList,
   permissionCheckingRouter,
   runPaginatedQuery,
+  simpleGetList,
 } from '@tamanu/shared/utils/crudHelpers';
 import { patientSecondaryIdRoutes } from './patientSecondaryId';
 import { patientDeath } from './patientDeath';

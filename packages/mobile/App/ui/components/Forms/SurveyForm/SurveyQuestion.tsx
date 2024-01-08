@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import { StyledView, StyledText } from '/styled/common';
+import { StyledText, StyledView } from '/styled/common';
 import { IPatient, ISurveyScreenComponent } from '~/types';
 import { Field } from '../FormField';
 import { FieldTypes } from '~/ui/helpers/fields';

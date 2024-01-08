@@ -4,12 +4,12 @@ import config from 'config';
 import http from 'http';
 
 import {
+  createMockReportingSchemaAndRoles,
   seedDepartments,
   seedFacilities,
-  seedLocations,
-  seedLocationGroups,
   seedLabTests,
-  createMockReportingSchemaAndRoles,
+  seedLocationGroups,
+  seedLocations,
 } from '@tamanu/shared/demoData';
 import { chance, fake, showError } from '@tamanu/shared/test-helpers';
 
