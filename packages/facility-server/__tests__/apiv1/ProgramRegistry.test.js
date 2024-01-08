@@ -140,7 +140,7 @@ describe('ProgramRegistry', () => {
   });
 
   describe('Listing registrations (GET /v1/programRegistry/:id/registrations)', () => {
-    it('should list available program registries', async () => {
+    it('should list registrations', async () => {
       const { id: programRegistryId } = await models.ProgramRegistry.create(
         fake(models.ProgramRegistry, { programId: testProgram.id }),
       );
@@ -227,7 +227,88 @@ describe('ProgramRegistry', () => {
       ]);
     });
 
-    describe('Filtering', () => {
+    it('should filter by associated condition', async () => {
+      // Config models
+      const { id: programRegistryId } = await models.ProgramRegistry.create(
+        fake(models.ProgramRegistry, { programId: testProgram.id }),
+      );
+      const programRegistryClinicalStatus = await models.ProgramRegistryClinicalStatus.create(
+        fake(models.ProgramRegistryClinicalStatus, {
+          programRegistryId,
+        }),
+      );
+      const relevantCondition = await models.ProgramRegistryCondition.create(
+        fake(models.ProgramRegistryCondition, { programRegistryId }),
+      );
+      const decoyCondition = await models.ProgramRegistryCondition.create(
+        fake(models.ProgramRegistryCondition, { programRegistryId }),
+      );
+
+      const clinician = await models.User.create(fake(models.User, { displayName: 'Lucy' }));
+
+      const baseRegistrationData = {
+        programRegistryId,
+        registrationStatus: REGISTRATION_STATUSES.ACTIVE,
+        date: '2023-09-04 08:00:00',
+      };
+
+      // Patient 1: Should show
+      const patient1 = await models.Patient.create(fake(models.Patient, { displayId: '2-1' }));
+      await models.PatientProgramRegistration.create(
+        fake(models.PatientProgramRegistration, {
+          ...baseRegistrationData,
+          patientId: patient1.id,
+          clinicianId: clinician.id,
+          clinicalStatusId: programRegistryClinicalStatus.id,
+        }),
+      );
+
+      await models.PatientProgramRegistrationCondition.create(
+        fake(models.PatientProgramRegistrationCondition, {
+          patientId: patient1.id,
+          programRegistryId,
+          programRegistryConditionId: decoyCondition.id,
+        }),
+      );
+      await models.PatientProgramRegistrationCondition.create(
+        fake(models.PatientProgramRegistrationCondition, {
+          patientId: patient1.id,
+          programRegistryId,
+          programRegistryConditionId: relevantCondition.id,
+        }),
+      );
+
+      // Patient 2: Should not show
+      const patient2 = await models.Patient.create(fake(models.Patient, { displayId: '2-2' }));
+      await models.PatientProgramRegistration.create(
+        fake(models.PatientProgramRegistration, {
+          ...baseRegistrationData,
+          patientId: patient2.id,
+          date: '2023-09-04 08:00:00',
+        }),
+      );
+      await models.PatientProgramRegistrationCondition.create(
+        fake(models.PatientProgramRegistrationCondition, {
+          patientId: patient2.id,
+          programRegistryId,
+          programRegistryConditionId: decoyCondition.id,
+        }),
+      );
+
+      const result = await app.get(`/v1/programRegistry/${programRegistryId}/registrations`).query({
+        programRegistryCondition: relevantCondition.id,
+      });
+      expect(result).toHaveSucceeded();
+
+      const { body } = result;
+      expect(body.count).toEqual(1);
+      expect(body.data.length).toEqual(1);
+      expect(body.data).toMatchObject([
+        { conditions: expect.arrayContaining([decoyCondition.name, relevantCondition.name]) },
+      ]);
+    });
+
+    describe('Patient Filtering', () => {
       const patientFilters = [
         { filter: 'dateOfBirth', value: '3000-01-01' },
         { filter: 'displayId', value: 'TEST_DISPLAY_ID' },
@@ -238,23 +319,27 @@ describe('ProgramRegistry', () => {
         { filter: 'lastName', value: 'TEST_LAST_NAME' },
       ];
       let registryId = null;
-      
+
       beforeAll(async () => {
         const { id: programRegistryId } = await models.ProgramRegistry.create(
           fake(models.ProgramRegistry, { programId: testProgram.id }),
         );
         registryId = programRegistryId;
-        await Promise.all(patientFilters.map(async ({ filter, value }) => {  
-          const patient = await models.Patient.create(fake(models.Patient, {
-            [filter]: value, 
-          }));
-          await models.PatientProgramRegistration.create(
-            fake(models.PatientProgramRegistration, {
-              programRegistryId,
-              patientId: patient.id,
-            }),
-          );
-        }));
+        await Promise.all(
+          patientFilters.map(async ({ filter, value }) => {
+            const patient = await models.Patient.create(
+              fake(models.Patient, {
+                [filter]: value,
+              }),
+            );
+            await models.PatientProgramRegistration.create(
+              fake(models.PatientProgramRegistration, {
+                programRegistryId,
+                patientId: patient.id,
+              }),
+            );
+          }),
+        );
       });
 
       it.each(patientFilters)(
@@ -267,11 +352,11 @@ describe('ProgramRegistry', () => {
           expect(result).toHaveSucceeded();
 
           expect(result.body.data).not.toHaveLength(0);
-          result.body.data.map(x => {
+          result.body.data.forEach(x => {
             expect(x.patient).toHaveProperty(filter, value);
           });
-        });
-        
+        },
+      );
     });
   });
 });
