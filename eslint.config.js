@@ -48,7 +48,7 @@ export default [
       // import rules
       'no-useless-rename': 'error',
       'no-duplicate-imports': 'error',
-      'sort-imports': 'warn',
+      'sort-imports': ['warn', { ignoreCase: true }],
 
       // static analysis rules
       'no-new-native-nonconstructor': 'error',
