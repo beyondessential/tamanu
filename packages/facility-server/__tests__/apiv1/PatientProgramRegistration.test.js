@@ -1,7 +1,6 @@
-import { fake } from 'shared/test-helpers/fake';
+import { fake } from '@tamanu/shared/test-helpers';
 import { REGISTRATION_STATUSES, DELETION_STATUSES } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
-// import { sleepAsync } from '../../../shared/src/utils/sleepAsync';
 
 describe('PatientProgramRegistration', () => {
   let ctx = null;
