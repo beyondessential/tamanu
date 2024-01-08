@@ -70,6 +70,10 @@ export const DateInput = ({
   const onValueChange = useCallback(
     event => {
       const formattedValue = event.target.value;
+      if (!formattedValue) {
+        onChange({ target: { value: '', name } });
+        return;
+      }
       const date = parse(formattedValue, format, new Date());
 
       if (max) {
@@ -89,18 +93,14 @@ export const DateInput = ({
       }
 
       let outputValue;
-      try {
-        if (saveDateAsString) {
-          if (type === 'date') {
-            outputValue = toDateString(date);
-          } else if (['time', 'datetime-local'].includes(type)) {
-            outputValue = toDateTimeString(date);
-          }
-        } else {
-          outputValue = date.toISOString();
+      if (saveDateAsString) {
+        if (type === 'date') {
+          outputValue = toDateString(date);
+        } else if (['time', 'datetime-local'].includes(type)) {
+          outputValue = toDateTimeString(date);
         }
-      } catch (error) {
-        outputValue = 'Invalid date';
+      } else {
+        outputValue = date.toISOString();
       }
       setIsPlaceholder(false);
       setCurrentText(formattedValue);

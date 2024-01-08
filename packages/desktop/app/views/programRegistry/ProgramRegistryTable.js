@@ -86,7 +86,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
         maxWidth: 200,
       },
       {
-        key: 'status',
+        key: 'clinicalStatus',
         title: 'Status',
         accessor: row => {
           return <ClinicalStatusDisplay clinicalStatus={row.clinicalStatus} />;
