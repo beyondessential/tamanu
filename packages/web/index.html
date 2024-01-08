@@ -9,6 +9,15 @@
   <style>
     @import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap");
 
+    body {
+      color: #444444;
+      margin: 0;
+      font-size: 0.9375rem;
+      line-height: 1.43;
+      letter-spacing: 0.01071em;
+      /* match post load body font-size */
+    }
+
     #temp-overlay {
       position: absolute;
       top: 0;
@@ -34,7 +43,8 @@
       letter-spacing: 0.35644px;
       margin-top: 50px;
       margin-bottom: 0;
-      color: #444444
+      color: #444444;
+
     }
 
     .title::after {
@@ -68,16 +78,14 @@
 </head>
 
 <body>
-  <div id="root"></div>
-  <div id="temp-overlay">
-
-    <img class="" src="/app/assets/images/tamanu_logo_left_icon_blue.svg" />
-    <div class="content-container">
-
-      <p class="title">Tamanu is loading</p>
-      <p class="description">Tamanu is currently loading. Please do not navigate away from this page.</p>
+  <div id="root">
+    <div id="temp-overlay">
+      <img class="piccy" src="/app/assets/images/tamanu_logo_left_icon_blue.svg" />
+      <div class="content-container">
+        <p class="title">Tamanu is loading</p>
+        <p class="description">Tamanu is currently loading. Please do not navigate away from this page.</p>
+      </div>
     </div>
-
   </div>
   <script type="module" src="/app/index.js"></script>
 </body>
