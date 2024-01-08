@@ -1,13 +1,26 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" href="/resources/icon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Tamanu</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/app/index.js"></script>
-  </body>
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" href="/resources/icon.ico" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tamanu</title>
+  <style>
+    #loading {
+      position: absolute;
+      top: 25px;
+      left: 35px;
+    }
+  </style>
+</head>
+
+<body>
+  <span id="loading">
+    <img src="/app/assets/images/tamanu_logo_left_icon_blue.svg" />
+  </span>
+  <div id="root"></div>
+  <script type="module" src="/app/index.js"></script>
+</body>
+
 </html>
