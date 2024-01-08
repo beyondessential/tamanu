@@ -185,7 +185,7 @@ export class TamanuApi {
     return this.post('changePassword', data);
   }
 
-  async heathCheck() {
+  async healthCheck() {
     return this.get('health');
   }
 

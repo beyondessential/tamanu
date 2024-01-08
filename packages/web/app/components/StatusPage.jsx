@@ -51,7 +51,7 @@ export const StatusPage = ({ message, description }) => {
 export const LoadingStatusPage = () => (
   <StatusPage
     message="Tamanu is loading..."
-    description="Tamanu is currently loading. Please do not nagivate away from this page ;_("
+    description="Tamanu is currently loading. Please do not navigate away from this page."
   />
 );
 
