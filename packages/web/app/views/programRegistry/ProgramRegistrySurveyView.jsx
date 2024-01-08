@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { SurveyView } from 'desktop/app/views/programs/SurveyView';
+import { SurveyView } from '../programs/SurveyView';
 import { useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';

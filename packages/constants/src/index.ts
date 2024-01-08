@@ -15,6 +15,7 @@ export * from './labs.js';
 export * from './locations.js';
 export * from './notes.js';
 export * from './patientFields.js';
+export * from './programRegistry.js';
 export * from './reports.js';
 export * from './servers.js';
 export * from './statuses.js';

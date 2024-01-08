@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import * as yup from 'yup';
 import { useQuery } from '@tanstack/react-query';
 import { REGISTRATION_STATUSES, SURVEY_TYPES } from '@tamanu/constants';
-import { useApi } from 'desktop/app/api';
+import { useApi } from '../../api';
 import { Colors } from '../../constants';
 import { Heading5 } from '../../components/Typography';
 import { Button } from '../../components/Button';
