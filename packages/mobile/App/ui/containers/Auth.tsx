@@ -1,7 +1,7 @@
 import React, { FC } from 'react';
 import { connect } from 'react-redux';
-import { bindActionCreators, Dispatch } from 'redux';
-import { actions, AuthStateProps } from '/store/ducks/auth';
+import { Dispatch, bindActionCreators } from 'redux';
+import { AuthStateProps, actions } from '/store/ducks/auth';
 import { ReduxStoreProps } from '../interfaces/ReduxStoreProps';
 
 export const withAuth = (WrappedComponent: FC<any>): FC<any> => {

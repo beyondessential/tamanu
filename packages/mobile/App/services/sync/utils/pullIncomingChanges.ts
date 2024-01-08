@@ -1,4 +1,4 @@
-import { saveFileInDocuments, makeDirectoryInDocuments } from '/helpers/file';
+import { makeDirectoryInDocuments, saveFileInDocuments } from '/helpers/file';
 import { CentralServerConnection } from '../CentralServerConnection';
 import { calculatePageLimit } from './calculatePageLimit';
 import { SYNC_SESSION_DIRECTION } from '../constants';

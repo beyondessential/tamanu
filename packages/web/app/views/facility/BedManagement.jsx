@@ -10,14 +10,14 @@ import { useAuth } from '../../contexts/Auth';
 import { useApi } from '../../api';
 import { reloadPatient } from '../../store/patient';
 import {
-  TopBar,
-  PageContainer,
   BedManagementSearchBar,
   ContentPane,
+  PageContainer,
   SearchTable,
+  TopBar,
 } from '../../components';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
-import { usePatientSearch, PatientSearchKeys } from '../../contexts/PatientSearch';
+import { PatientSearchKeys, usePatientSearch } from '../../contexts/PatientSearch';
 import { columns } from './bedManagementColumns';
 
 const DashboardContainer = styled.div`

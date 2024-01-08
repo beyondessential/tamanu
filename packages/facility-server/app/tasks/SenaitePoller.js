@@ -1,4 +1,4 @@
-import { get, post, jar } from 'request';
+import { get, jar, post } from 'request';
 import config from 'config';
 import { format } from 'date-fns';
 import { ScheduledTask } from '@tamanu/shared/tasks';

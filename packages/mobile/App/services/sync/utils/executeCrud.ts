@@ -1,7 +1,7 @@
 import { chunk } from 'lodash';
 
 import { DataToPersist } from '../types';
-import { chunkRows, SQLITE_MAX_PARAMETERS } from '../../../infra/db/helpers';
+import { SQLITE_MAX_PARAMETERS, chunkRows } from '../../../infra/db/helpers';
 import { BaseModel } from '../../../models/BaseModel';
 
 export const executeInserts = async (

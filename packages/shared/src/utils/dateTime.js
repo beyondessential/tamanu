@@ -1,15 +1,15 @@
 import {
-  isValid,
-  formatISO9075,
+  differenceInMilliseconds as dateFnsDifferenceInMilliseconds,
+  format as dateFnsFormat,
   differenceInMonths,
   differenceInWeeks,
   differenceInYears,
-  format as dateFnsFormat,
-  differenceInMilliseconds as dateFnsDifferenceInMilliseconds,
-  parseISO,
+  formatISO9075,
   isMatch,
-  sub,
+  isValid,
+  parseISO,
   startOfDay,
+  sub,
 } from 'date-fns';
 import { TIME_UNIT_OPTIONS } from '@tamanu/constants';
 

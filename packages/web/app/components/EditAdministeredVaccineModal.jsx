@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { VACCINE_STATUS, VACCINE_RECORDING_TYPES } from '@tamanu/constants';
+import { VACCINE_RECORDING_TYPES, VACCINE_STATUS } from '@tamanu/constants';
 import { useDispatch } from 'react-redux';
 import { FormModal } from './FormModal';
 import { useApi, useSuggester } from '../api';

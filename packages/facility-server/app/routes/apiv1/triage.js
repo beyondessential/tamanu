@@ -4,7 +4,7 @@ import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
 
 import { InvalidParameterError } from '@tamanu/shared/errors';
-import { NOTE_TYPES, ENCOUNTER_TYPES } from '@tamanu/constants';
+import { ENCOUNTER_TYPES, NOTE_TYPES } from '@tamanu/constants';
 
 import { renameObjectKeys } from '@tamanu/shared/utils';
 

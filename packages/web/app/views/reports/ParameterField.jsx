@@ -7,8 +7,8 @@ import {
 import {
   AutocompleteField,
   Field,
-  SelectField,
   MultiselectField,
+  SelectField,
   SuggesterSelectField,
 } from '../../components';
 import { VillageField } from './VillageField';
