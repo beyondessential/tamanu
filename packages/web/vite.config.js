@@ -16,6 +16,13 @@ export default defineConfig({
         .then(({ version }) => version),
     ),
     NODE_ENV: JSON.stringify(process.env.NODE_ENV),
+    process: JSON.stringify({
+      env: {
+        NODE_ENV: process.env.NODE_ENV,
+      },
+      arch: 'wasm',
+      platform: 'web',
+    })
   },
   worker: {
     format: 'es',
