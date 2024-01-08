@@ -37,11 +37,6 @@ export default defineConfig(async ({ command, mode }) => {
     server: {
       host: 'localhost',
       proxy: {
-        '/health': {
-          target: 'http://localhost:4000',
-          changeOrigin: true,
-          rewrite: path => path.replace(/^\/health/, ''),
-        },
         '/api': {
           target: 'http://localhost:4000',
           // you can also specify other servers to use as backend, e.g.

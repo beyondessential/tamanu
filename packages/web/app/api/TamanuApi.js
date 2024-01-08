@@ -185,9 +185,8 @@ export class TamanuApi {
     return this.post('changePassword', data);
   }
 
-  async checkConnectionAlive() {
-    const res = await fetchOrThrowIfUnavailable(this.host, { method: 'GET' });
-    return res.ok;
+  async heathCheck() {
+    return this.get('health');
   }
 
   async refreshToken() {

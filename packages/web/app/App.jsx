@@ -10,7 +10,7 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import { PromiseErrorBoundary } from './components/PromiseErrorBoundary';
 import { ForbiddenErrorModal } from './components/ForbiddenErrorModal';
 import { LoadingStatusPage, StatusPage, UnavailableStatusPage } from './components/StatusPage';
-import { useConnectionAliveQuery } from './api/queries/useConnectionAliveQuery';
+import { useServerHealthCheckQuery } from './api/queries/useServerHealthCheckQuery';
 
 const AppContainer = styled.div`
   display: flex;
@@ -25,12 +25,12 @@ const AppContentsContainer = styled.div`
 `;
 
 export function App({ sidebar, children }) {
-  const { data: connectionAlive, isLoading } = useConnectionAliveQuery();
+  const { data: serverHealthy, isLoading } = useServerHealthCheckQuery();
   const isUserLoggedIn = useSelector(checkIsLoggedIn);
   const currentRoute = useSelector(getCurrentRoute);
 
   if (isLoading) return <LoadingStatusPage />;
-  if (!connectionAlive) return <UnavailableStatusPage />;
+  if (!serverHealthy) return <UnavailableStatusPage />;
   if (!isUserLoggedIn) return <LoginView />;
 
   return (

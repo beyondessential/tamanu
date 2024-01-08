@@ -50,6 +50,11 @@ const patientDataRoutes = express.Router();
 const referenceDataRoutes = express.Router();
 const syncRoutes = express.Router();
 
+apiv1.get('/health', (req, res) => {
+  res.send({
+    index: true,
+  });
+});
 // auth endpoints (added pre auth check)
 apiv1.post('/login', loginHandler);
 apiv1.use('/resetPassword', resetPassword);
