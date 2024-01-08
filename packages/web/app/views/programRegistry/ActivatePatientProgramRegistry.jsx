@@ -6,11 +6,11 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Divider } from '@material-ui/core';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import {
-  Form,
-  Field,
-  DateField,
   AutocompleteField,
+  DateField,
+  Field,
   FieldWithTooltip,
+  Form,
   MultiselectField,
 } from '../../components/Field';
 import { FormGrid } from '../../components/FormGrid';

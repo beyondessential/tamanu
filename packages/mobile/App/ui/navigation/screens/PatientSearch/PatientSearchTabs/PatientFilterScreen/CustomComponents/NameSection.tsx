@@ -6,7 +6,7 @@ import { StyledView } from '~/ui/styled/common';
 import { LocalisedField } from '~/ui/components/Forms/LocalisedField';
 import { TextField } from '~/ui/components/TextField/TextField';
 // Helpers
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
 
 export const NameSection = (): ReactElement => (
   <Section title="Name">

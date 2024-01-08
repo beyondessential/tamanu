@@ -4,11 +4,11 @@ import { Field } from 'formik';
 import styled from 'styled-components';
 import { useSuggester } from '../../api';
 import {
-  CustomisableSearchBar,
-  LocalisedField,
   AutocompleteField,
-  DateField,
   CheckField,
+  CustomisableSearchBar,
+  DateField,
+  LocalisedField,
   SearchField,
 } from '../../components';
 import { useProgramRegistryQuery } from '../../api/queries/useProgramRegistryQuery';

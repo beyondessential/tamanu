@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { useApi, isErrorUnknownAllow404s } from '../index';
+import { isErrorUnknownAllow404s, useApi } from '../index';
 
 const transformVitalDataToChartData = vitalQuery => {
   const { data: vitalDataAndCount = {} } = vitalQuery;

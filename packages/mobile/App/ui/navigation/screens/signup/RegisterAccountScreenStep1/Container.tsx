@@ -1,4 +1,4 @@
-import React, { FC, useState, useMemo, useCallback, useContext } from 'react';
+import React, { FC, useCallback, useContext, useMemo, useState } from 'react';
 import { Keyboard } from 'react-native';
 import { Value } from 'react-native-reanimated';
 //Protocols
@@ -11,11 +11,11 @@ import {
 } from '../../../../contexts/RegisterAccountContext';
 //helpers
 import {
-  onKeyboardOpenListener,
   onKeyboardCloseListener,
+  onKeyboardOpenListener,
 } from '/helpers/keyboard';
 import { animateState } from '/helpers/animation';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { Routes } from '/helpers/routes';
 //Screen
 import { Screen } from './Screen';

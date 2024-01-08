@@ -1,7 +1,7 @@
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useQueryClient } from '@tanstack/react-query';
 
-import { logout, idleTimeout } from '../store';
+import { idleTimeout, logout } from '../store';
 import { useApi } from '../api';
 import { useEncounterNotes } from './EncounterNotes';
 import { LOCAL_STORAGE_KEYS } from '../constants';

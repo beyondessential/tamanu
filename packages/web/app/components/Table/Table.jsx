@@ -10,10 +10,10 @@ import {
   Table as MaterialTable,
   TableBody,
   TableCell,
-  TableHead,
-  TableSortLabel,
-  TableRow,
   TableFooter,
+  TableHead,
+  TableRow,
+  TableSortLabel,
 } from '@material-ui/core';
 import { ExpandMore } from '@material-ui/icons';
 import { PaperStyles } from '../Paper';

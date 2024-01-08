@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { VitalsTable } from '../../../components/VitalsTable';
-import { TableButtonRow, Button, FormModal } from '../../../components';
+import { Button, FormModal, TableButtonRow } from '../../../components';
 import { TabPane } from '../components';
 import { useApi } from '../../../api';
 import { VitalsForm } from '../../../forms';

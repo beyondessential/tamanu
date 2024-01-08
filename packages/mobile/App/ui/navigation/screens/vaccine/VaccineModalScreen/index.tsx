@@ -1,5 +1,5 @@
 import React, { ReactElement, useCallback } from 'react';
-import { RouteProp, NavigationProp } from '@react-navigation/native';
+import { NavigationProp, RouteProp } from '@react-navigation/native';
 
 import { IPatient } from '~/types';
 import { FullView } from '/styled/common';

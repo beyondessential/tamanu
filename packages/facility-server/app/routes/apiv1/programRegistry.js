@@ -1,7 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { Sequelize, Op, QueryTypes } from 'sequelize';
-import { VISIBILITY_STATUSES, REGISTRATION_STATUSES } from '@tamanu/constants';
+import { Op, QueryTypes, Sequelize } from 'sequelize';
+import { REGISTRATION_STATUSES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { deepRenameObjectKeys } from '@tamanu/shared/utils';
 import { simpleGet, simpleGetList } from '@tamanu/shared/utils/crudHelpers';
 

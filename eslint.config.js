@@ -48,7 +48,7 @@ export default [
       // import rules
       'no-useless-rename': 'error',
       'no-duplicate-imports': 'error',
-      'sort-imports': ['warn', { ignoreCase: true }],
+      'sort-imports': ['off', { ignoreCase: true }],
 
       // static analysis rules
       'no-new-native-nonconstructor': 'error',
@@ -62,7 +62,7 @@ export default [
       'no-constant-binary-expression': 'error',
 
       // rules we should enforce but have too many of right now
-      'no-unused-vars': 'warn',
+      'no-unused-vars': 'off',
       'no-constructor-return': 'warn',
       'no-promise-executor-return': 'warn',
       'require-atomic-updates': 'warn',

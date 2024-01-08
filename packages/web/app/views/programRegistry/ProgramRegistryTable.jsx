@@ -4,7 +4,7 @@ import { push } from 'connected-react-router';
 import { useParams } from 'react-router-dom';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { reloadPatient } from '../../store';
-import { SearchTable, DateDisplay, MenuButton } from '../../components';
+import { DateDisplay, MenuButton, SearchTable } from '../../components';
 import { DeleteProgramRegistryFormModal } from './DeleteProgramRegistryFormModal';
 import { RemoveProgramRegistryFormModal } from './RemoveProgramRegistryFormModal';
 import { ChangeStatusFormModal } from './ChangeStatusFormModal';

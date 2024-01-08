@@ -1,7 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import config from 'config';
-import { QueryTypes, Op } from 'sequelize';
+import { Op, QueryTypes } from 'sequelize';
 import { snakeCase } from 'lodash';
 
 import { NotFoundError } from '@tamanu/shared/errors';
@@ -18,7 +18,7 @@ import { patientBirthData } from './patientBirthData';
 import { patientLocations } from './patientLocations';
 import { patientProgramRegistration } from './patientProgramRegistration';
 import { getOrderClause } from '../../../database/utils';
-import { requestBodyToRecord, dbRecordToResponse, pickPatientBirthData } from './utils';
+import { dbRecordToResponse, pickPatientBirthData, requestBodyToRecord } from './utils';
 import { PATIENT_SORT_KEYS } from './constants';
 
 const patientRoute = express.Router();
