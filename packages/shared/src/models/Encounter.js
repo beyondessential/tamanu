@@ -4,9 +4,9 @@ import { endOfDay, isBefore, parseISO, startOfToday } from 'date-fns';
 import {
   ENCOUNTER_TYPES,
   ENCOUNTER_TYPE_VALUES,
+  EncounterChangeType,
   NOTE_TYPES,
   SYNC_DIRECTIONS,
-  EncounterChangeType,
 } from '@tamanu/constants';
 import { InvalidOperationError } from '../errors';
 import { dateTimeType } from './dateTimeTypes';

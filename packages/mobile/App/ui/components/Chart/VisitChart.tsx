@@ -1,11 +1,11 @@
-import React, { memo, useMemo, ReactElement } from 'react';
+import React, { ReactElement, memo, useMemo } from 'react';
 import { StyleSheet } from 'react-native';
 import { BarChart, YAxis } from 'react-native-svg-charts';
 import { G, Line } from 'react-native-svg';
 import { format, parseISO } from 'date-fns';
 import { DateFormats } from '../../helpers/constants';
 import { Orientation, screenPercentageToDP } from '../../helpers/screen';
-import { StyledView, StyledText, RowView } from '../../styled/common';
+import { RowView, StyledText, StyledView } from '../../styled/common';
 import { theme } from '../../styled/theme';
 import { BarChartData } from '../../interfaces/BarChartProps';
 

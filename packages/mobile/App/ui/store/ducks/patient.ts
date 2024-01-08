@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { readConfig, writeConfig } from '~/services/config';
 import { IPatient } from '~/types';
 

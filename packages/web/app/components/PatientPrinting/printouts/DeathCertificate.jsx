@@ -1,10 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Typography, Box } from '@material-ui/core';
+import { Box, Typography } from '@material-ui/core';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { PrintLetterhead } from './reusable/PrintLetterhead';
 import { DateDisplay } from '../../DateDisplay';
-import { LocalisedCertificateLabel, CertificateLabel } from './reusable/CertificateLabels';
+import { CertificateLabel, LocalisedCertificateLabel } from './reusable/CertificateLabels';
 import { CertificateWrapper } from './reusable/CertificateWrapper';
 
 const Grid = styled(Box)`

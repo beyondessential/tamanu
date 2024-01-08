@@ -1,4 +1,4 @@
-import { AbilityBuilder, Ability, PureAbility } from '@casl/ability';
+import { Ability, AbilityBuilder, PureAbility } from '@casl/ability';
 
 // Basically a cheap copy of the same function that lives in shared
 export function buildAbility(userData, permissions, options = {}): PureAbility {

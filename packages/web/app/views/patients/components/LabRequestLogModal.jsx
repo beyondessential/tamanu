@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { useQuery } from '@tanstack/react-query';
 import { getStatus } from '../../../utils/lab';
-import { DateDisplay, Table, Modal, ModalLoader } from '../../../components';
+import { DateDisplay, Modal, ModalLoader, Table } from '../../../components';
 import { useApi } from '../../../api';
 
 const COLUMNS = [

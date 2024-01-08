@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import {
-  createStackNavigator,
   TransitionPresets,
+  createStackNavigator,
 } from '@react-navigation/stack';
 // Screens
 import { Intro } from '../screens/home/Intro';

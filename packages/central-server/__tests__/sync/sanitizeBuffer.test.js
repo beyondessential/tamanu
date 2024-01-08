@@ -3,7 +3,7 @@ import * as fc from 'fast-check';
 import { Transaction } from 'sequelize';
 
 import { fake } from '@tamanu/shared/test-helpers/fake';
-import { createSnapshotTable, findSyncSnapshotRecords, SYNC_SESSION_DIRECTION } from '@tamanu/shared/sync';
+import { SYNC_SESSION_DIRECTION, createSnapshotTable, findSyncSnapshotRecords } from '@tamanu/shared/sync';
 
 import { createTestContext } from '../utilities';
 import { snapshotOutgoingChanges } from '../../dist/sync/snapshotOutgoingChanges';

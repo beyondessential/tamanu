@@ -1,5 +1,5 @@
 import React from 'react';
-import { isArray, toString, each } from 'lodash';
+import { each, isArray, toString } from 'lodash';
 import { toast } from 'react-toastify';
 import deepEqual from 'deep-equal';
 import shortid from 'shortid';

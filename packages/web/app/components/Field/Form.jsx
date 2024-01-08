@@ -10,6 +10,7 @@ import { flattenObject } from '../../utils';
 import { Dialog } from '../Dialog';
 import { FORM_STATUSES, FORM_TYPES } from '../../constants';
 import { useFormSubmission } from '../../contexts/FormSubmission';
+import { IS_DEVELOPMENT } from '../../utils/env';
 
 const ErrorMessage = ({ error }) => `${JSON.stringify(error)}`;
 
@@ -74,7 +75,7 @@ export class Form extends React.PureComponent {
 
     const { onSubmit, formType = FORM_TYPES.DATA_FORM } = props;
     const hasNonAsyncSubmitHandler =
-      process.env.NODE_ENV === 'development' &&
+      IS_DEVELOPMENT &&
       formType === FORM_TYPES.DATA_FORM &&
       onSubmit.constructor.name !== 'AsyncFunction';
 

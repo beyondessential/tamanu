@@ -4,9 +4,9 @@ import { createTestContext } from '@tamanu/central-server/__tests__/utilities';
 import { fake, fakeUser } from '@tamanu/shared/test-helpers/fake';
 import { VdsNcDocument } from '@tamanu/central-server/app/integrations/VdsNc';
 import {
+  TestCSCA,
   loadCertificateIntoSigner,
   newKeypairAndCsr,
-  TestCSCA,
 } from '@tamanu/central-server/app/integrations/Signer';
 import { ICAO_DOCUMENT_TYPES } from '@tamanu/constants';
 import { generateICAOFormatUVCI } from '@tamanu/shared/utils/uvci/icao';

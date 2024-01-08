@@ -8,10 +8,10 @@ import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_CONFIG } from '@tamanu/constan
 import { format, toDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { createTestContext } from '../../../utilities';
 import {
+  LAB_CATEGORY_NAME,
+  LAB_METHOD_NAME,
   createCovidTestForPatient,
   createLabTests,
-  LAB_METHOD_NAME,
-  LAB_CATEGORY_NAME,
 } from './covid-swab-lab-test-report-utils';
 
 const REPORT_URL = '/v1/reports/nauru-covid-swab-lab-test-list';

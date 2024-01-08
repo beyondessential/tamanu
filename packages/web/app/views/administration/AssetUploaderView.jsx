@@ -1,10 +1,10 @@
-import React, { memo, useState, useCallback } from 'react';
+import React, { memo, useCallback, useState } from 'react';
 import * as yup from 'yup';
 
 import { ASSET_NAMES } from '@tamanu/constants/importable';
 import { useApi } from '../../api';
-import { Form, Field, SelectField } from '../../components/Field';
-import { FileChooserField, FILTER_IMAGES } from '../../components/Field/FileChooserField';
+import { Field, Form, SelectField } from '../../components/Field';
+import { FILTER_IMAGES, FileChooserField } from '../../components/Field/FileChooserField';
 import { ContentPane } from '../../components/ContentPane';
 import { FormGrid } from '../../components/FormGrid';
 import { ButtonRow } from '../../components/ButtonRow';

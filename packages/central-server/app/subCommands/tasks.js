@@ -3,7 +3,7 @@ import { Command } from 'commander';
 import { log } from '@tamanu/shared/services/logging';
 
 import { ApplicationContext } from '../ApplicationContext';
-import { startScheduledTasks, startFhirWorkerTasks } from '../tasks';
+import { startFhirWorkerTasks, startScheduledTasks } from '../tasks';
 import { provision } from './provision';
 import pkg from '../../package.json';
 
