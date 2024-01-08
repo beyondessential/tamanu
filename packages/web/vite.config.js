@@ -2,13 +2,22 @@ import { readFile } from 'node:fs/promises';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react-swc';
 import { json5Plugin } from 'vite-plugin-json5';
+import { nodePolyfills } from 'vite-plugin-node-polyfills';
 
 // https://vitejs.dev/config/
 export default defineConfig({
   esbuild: {
     loader: 'jsx',
   },
-  plugins: [react(), json5Plugin()],
+  plugins: [
+    react(),
+    json5Plugin(),
+    nodePolyfills({
+      globals: {
+        Buffer: true,
+      },
+    }),
+  ],
   define: {
     __VERSION__: JSON.stringify(
       await readFile('package.json')
@@ -22,7 +31,7 @@ export default defineConfig({
       },
       arch: 'wasm',
       platform: 'web',
-    })
+    }),
   },
   worker: {
     format: 'es',
