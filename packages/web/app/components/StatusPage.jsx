@@ -1,5 +1,5 @@
 import { LargeBodyText } from './Typography';
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import { Colors } from '../constants';
 import { TamanuLogoLeftIconBlue } from './TamanuLogo';
 import { Typography } from '@material-ui/core';
@@ -48,9 +48,28 @@ export const StatusPage = ({ message, description }) => {
   );
 };
 
+const ellipsis = keyframes`
+to {
+  width: 1.25em;
+}
+`;
+
+const EllipsisContainer = styled.span`
+  width: 353px;
+  display: block;
+  &:after {
+    overflow: hidden;
+    display: inline-block;
+    vertical-align: bottom;
+    animation: ${ellipsis} steps(4, end) 900ms infinite;
+    content: '...'; /* ascii code for the ellipsis character */
+    width: 0px;
+  }
+`;
+
 export const LoadingStatusPage = () => (
   <StatusPage
-    message="Tamanu is loading..."
+    message={<EllipsisContainer>Tamanu is loading</EllipsisContainer>}
     description="Tamanu is currently loading. Please do not navigate away from this page."
   />
 );

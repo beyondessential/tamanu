@@ -52,9 +52,7 @@ const syncRoutes = express.Router();
 
 apiv1.get('/health', (req, res) => {
   req.flagPermissionChecked();
-  res.send({
-    index: true,
-  });
+  res.send({ ok: 'ok' });
 });
 // auth endpoints (added pre auth check)
 apiv1.post('/login', loginHandler);
