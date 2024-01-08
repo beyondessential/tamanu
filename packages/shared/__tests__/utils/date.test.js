@@ -1,5 +1,5 @@
 import { format } from 'date-fns';
-import { getDisplayAge } from '../../src/utils/date';
+import { getDisplayAge } from '../../dist/cjs/utils/date';
 
 describe('date', () => {
   describe('getDisplayAge', () => {
