@@ -193,9 +193,9 @@ export function checkJSONCriteria(
  * IMPORTANT: We have 4 other versions of this method:
  *
  * - mobile/App/ui/helpers/fields.ts
- * - desktop/app/utils/survey.js
+ * - web/app/utils/survey.js
  * - shared/src/utils/fields.js
- * - sync-server/app/subCommands/calculateSurveyResults.js
+ * - central-server/app/subCommands/calculateSurveyResults.js
  *
  * So if there is an update to this method, please make the same update
  * in the other versions
@@ -223,12 +223,12 @@ interface ResultValue {
 }
 
 /**
- * IMPORTANT: We also have another version of this method in sync-server
+ * IMPORTANT: We also have another version of this method in central-server
  * sub commands 'calculateSurveyResults'.
  * The sub command is for recalculate survey results due to an issue that
- * resultText was not synced properly to sync-server before.
+ * resultText was not synced properly to central-server before.
  * So if there is an update to this method, please make the same update
- * in the other version in sync-server
+ * in the other version in central-server
  */
 export function getResultValue(allComponents: ISurveyScreenComponent[], values: {}): ResultValue {
   // find a component with a Result data type and use its value as the overall result
