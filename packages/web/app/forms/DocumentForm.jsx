@@ -106,8 +106,7 @@ export const DocumentForm = ({ onStart, onSubmit, onError, onCancel, editedObjec
       onStart();
 
       // Read and inject document creation date and type to metadata sent
-      // file creation time is not available data for a browser - must remove
-      const birthtime = new Date();
+      const birthtime = new Date(file.lastModified);
       const attachmentType = file.type;
 
       try {
