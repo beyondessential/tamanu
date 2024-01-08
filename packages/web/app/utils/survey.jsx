@@ -3,7 +3,7 @@ import React from 'react';
 import * as yup from 'yup';
 import { intervalToDuration, parseISO } from 'date-fns';
 import { checkJSONCriteria } from '@tamanu/shared/utils/criteria';
-import { ACTION_DATA_ELEMENT_TYPES, PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
+import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 
 import {
   DateField,
