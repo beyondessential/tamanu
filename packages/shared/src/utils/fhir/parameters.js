@@ -19,7 +19,7 @@ export async function getCountParameters(settings) {
 }
 
 export async function validateCountConfig(settings) {
-  const enabled = await settings.get('config.integrations.fhir.enabled');
+  const enabled = await settings.get('integrations.fhir.enabled');
   if (!enabled) return;
   const { default: countDefault, max: countMax } = await getCountParameters(settings);
   if (countDefault > countMax) {
