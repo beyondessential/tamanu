@@ -33,7 +33,7 @@ export class DocumentMetadata extends Model {
         note: Sequelize.STRING,
 
         // Relation can't be managed by sequelize because the
-        // attachment won't get downloaded to lan server
+        // attachment won't get downloaded to facility server
         attachmentId: {
           type: Sequelize.STRING,
           allowNull: false,

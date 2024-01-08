@@ -45,5 +45,5 @@ export const EKU_DCC_RECOVERY = '1.3.6.1.4.1.1847.2021.1.3';
  *     IDENTIFIER ::= {id-icao-mrtd-security-extensions 2}
  * ```
  */
-// eslint-disable-next-line camelcase, @typescript-eslint/camelcase
+// eslint-disable-next-line camelcase
 export const id_icao_mrtd_security_extensions_documentTypeList = '2.23.136.1.1.6.2';

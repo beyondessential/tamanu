@@ -1,4 +1,4 @@
-import { mergeRecord } from '../../src/sync/mergeRecord';
+import { mergeRecord } from '../../dist/cjs/sync/mergeRecord';
 
 const EXISTING = {
   id: 'xxx',
