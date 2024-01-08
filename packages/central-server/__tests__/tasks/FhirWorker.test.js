@@ -1,4 +1,4 @@
-import { jest, describe, expect, it } from '@jest/globals';
+import { describe, expect, it, jest } from '@jest/globals';
 import { withErrorShown } from '@tamanu/shared/test-helpers';
 import { FhirWorker } from '@tamanu/shared/tasks';
 import { fakeUUID } from '@tamanu/shared/utils/generateId';

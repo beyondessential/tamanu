@@ -1,4 +1,4 @@
-import React, { memo, ReactElement } from 'react';
+import React, { ReactElement, memo } from 'react';
 import { SvgXml } from 'react-native-svg';
 import { StyledView } from '/styled/common';
 import { IconWithSizeProps } from '/interfaces/WithSizeProps';

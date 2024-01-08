@@ -2,12 +2,12 @@ import React, { ReactElement, useCallback } from 'react';
 import {
   FullView,
   RowView,
-  StyledText,
   StyledSafeAreaView,
+  StyledText,
   StyledView,
 } from '/styled/common';
 import { theme } from '/styled/theme';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { Button } from '/components/Button';
 import { CrossIcon } from '/components/Icons';
 import { Routes } from '/helpers/routes';

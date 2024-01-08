@@ -1,7 +1,7 @@
 import React, { FC } from 'react';
 import { connect } from 'react-redux';
-import { bindActionCreators, Dispatch } from 'redux';
-import { actions, PatientStateProps } from '/store/ducks/patient';
+import { Dispatch, bindActionCreators } from 'redux';
+import { PatientStateProps, actions } from '/store/ducks/patient';
 import { ReduxStoreProps } from '../interfaces/ReduxStoreProps';
 import { IPatient } from '~/types/IPatient';
 

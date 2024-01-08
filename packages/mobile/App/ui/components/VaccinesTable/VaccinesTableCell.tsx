@@ -1,16 +1,16 @@
 import React, { useCallback } from 'react';
 import { Popup } from 'popup-ui';
 import {
-  StyledView,
-  StyledTouchableOpacity,
-  StyledImage,
   CenterView,
+  StyledImage,
+  StyledTouchableOpacity,
+  StyledView,
 } from '/styled/common';
 import { theme } from '/styled/theme';
 import { VaccineStatusCells } from '/helpers/constants';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { IAdministeredVaccine, IPatient, IScheduledVaccine } from '~/types';
-import { getVaccineStatus, VaccineStatus } from '~/ui/helpers/patient';
+import { VaccineStatus, getVaccineStatus } from '~/ui/helpers/patient';
 import { BypassWarningIcon } from './BypassWarningIcon';
 
 export interface VaccineTableCellData {

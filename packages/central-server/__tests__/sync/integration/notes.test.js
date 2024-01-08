@@ -5,8 +5,8 @@ import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
 import {
   IMAGING_TYPES,
   LAB_REQUEST_STATUSES,
-  NOTE_TYPES,
   NOTE_RECORD_TYPES,
+  NOTE_TYPES,
 } from '@tamanu/constants';
 
 import { createTestContext } from '../../utilities';

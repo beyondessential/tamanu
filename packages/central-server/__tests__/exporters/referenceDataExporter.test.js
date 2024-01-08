@@ -7,16 +7,16 @@ import { writeExcelFile } from '../../dist/admin/exporter/excelUtils';
 import {
   createAdministeredVaccineData,
   createAllergy,
+  createDataForEncounter,
   createDiagnosis,
+  createLabTestCategory,
+  createLabTestPanel,
   createPatientFieldDefCategory,
+  createPatientFieldDefinitions,
   createPermission,
   createRole,
-  createVaccine,
-  createDataForEncounter,
   createTestType,
-  createLabTestPanel,
-  createLabTestCategory,
-  createPatientFieldDefinitions,
+  createVaccine,
 } from './referenceDataUtils';
 
 jest.mock('../../dist/admin/exporter/excelUtils', () => {

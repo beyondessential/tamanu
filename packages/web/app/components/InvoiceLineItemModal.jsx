@@ -5,7 +5,7 @@ import { useApi } from '../api';
 import { Suggester } from '../utils/suggester';
 import { foreignKey } from '../utils/validation';
 import { FormModal } from './FormModal';
-import { Form, Field, DateField, AutocompleteField, NumberField } from './Field';
+import { AutocompleteField, DateField, Field, Form, NumberField } from './Field';
 import { FormGrid } from './FormGrid';
 import { FormSubmitCancelRow } from './ButtonRow';
 

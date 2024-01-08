@@ -2,7 +2,7 @@ import React from 'react';
 import * as yup from 'yup';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { PATIENT_ISSUE_TYPES } from '@tamanu/constants';
-import { Form, Field, DateField, SelectField, TextField } from '../components/Field';
+import { DateField, Field, Form, SelectField, TextField } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { FormSubmitCancelRow } from '../components/ButtonRow';
 

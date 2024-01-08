@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 
-import { Form, Field, DateField, AutocompleteField, TextField } from '../components/Field';
+import { AutocompleteField, DateField, Field, Form, TextField } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { FormSubmitCancelRow } from '../components/ButtonRow';
 import { useLocalisedText } from '../components/LocalisedText';

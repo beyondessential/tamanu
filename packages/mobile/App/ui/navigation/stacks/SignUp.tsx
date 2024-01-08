@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import { createStackNavigator, TransitionPresets } from '@react-navigation/stack';
+import { TransitionPresets, createStackNavigator } from '@react-navigation/stack';
 // helpers
 import { Routes } from '/helpers/routes';
 // Screens

@@ -1,4 +1,4 @@
-import { calculatePageLimit, OPTIMAL_TIME_PER_PAGE } from './calculatePageLimit';
+import { OPTIMAL_TIME_PER_PAGE, calculatePageLimit } from './calculatePageLimit';
 
 describe('calculatePageLimit', () => {
   it("doesn't get stuck at 1 record", () => {
