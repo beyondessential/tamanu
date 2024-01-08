@@ -140,7 +140,7 @@ describe('ProgramRegistry', () => {
   });
 
   describe('Listing registrations (GET /v1/programRegistry/:id/registrations)', () => {
-    it('should list available program registries', async () => {
+    it('should list registrations', async () => {
       const { id: programRegistryId } = await models.ProgramRegistry.create(
         fake(models.ProgramRegistry, { programId: testProgram.id }),
       );
@@ -227,7 +227,88 @@ describe('ProgramRegistry', () => {
       ]);
     });
 
-    describe('Filtering', () => {
+    it('should filter by associated condition', async () => {
+      // Config models
+      const { id: programRegistryId } = await models.ProgramRegistry.create(
+        fake(models.ProgramRegistry, { programId: testProgram.id }),
+      );
+      const programRegistryClinicalStatus = await models.ProgramRegistryClinicalStatus.create(
+        fake(models.ProgramRegistryClinicalStatus, {
+          programRegistryId,
+        }),
+      );
+      const relevantCondition = await models.ProgramRegistryCondition.create(
+        fake(models.ProgramRegistryCondition, { programRegistryId }),
+      );
+      const decoyCondition = await models.ProgramRegistryCondition.create(
+        fake(models.ProgramRegistryCondition, { programRegistryId }),
+      );
+
+      const clinician = await models.User.create(fake(models.User, { displayName: 'Lucy' }));
+
+      const baseRegistrationData = {
+        programRegistryId,
+        registrationStatus: REGISTRATION_STATUSES.ACTIVE,
+        date: '2023-09-04 08:00:00',
+      };
+
+      // Patient 1: Should show
+      const patient1 = await models.Patient.create(fake(models.Patient, { displayId: '2-1' }));
+      await models.PatientProgramRegistration.create(
+        fake(models.PatientProgramRegistration, {
+          ...baseRegistrationData,
+          patientId: patient1.id,
+          clinicianId: clinician.id,
+          clinicalStatusId: programRegistryClinicalStatus.id,
+        }),
+      );
+
+      await models.PatientProgramRegistrationCondition.create(
+        fake(models.PatientProgramRegistrationCondition, {
+          patientId: patient1.id,
+          programRegistryId,
+          programRegistryConditionId: decoyCondition.id,
+        }),
+      );
+      await models.PatientProgramRegistrationCondition.create(
+        fake(models.PatientProgramRegistrationCondition, {
+          patientId: patient1.id,
+          programRegistryId,
+          programRegistryConditionId: relevantCondition.id,
+        }),
+      );
+
+      // Patient 2: Should not show
+      const patient2 = await models.Patient.create(fake(models.Patient, { displayId: '2-2' }));
+      await models.PatientProgramRegistration.create(
+        fake(models.PatientProgramRegistration, {
+          ...baseRegistrationData,
+          patientId: patient2.id,
+          date: '2023-09-04 08:00:00',
+        }),
+      );
+      await models.PatientProgramRegistrationCondition.create(
+        fake(models.PatientProgramRegistrationCondition, {
+          patientId: patient2.id,
+          programRegistryId,
+          programRegistryConditionId: decoyCondition.id,
+        }),
+      );
+
+      const result = await app.get(`/v1/programRegistry/${programRegistryId}/registrations`).query({
+        programRegistryCondition: relevantCondition.id,
+      });
+      expect(result).toHaveSucceeded();
+
+      const { body } = result;
+      expect(body.count).toEqual(1);
+      expect(body.data.length).toEqual(1);
+      expect(body.data).toMatchObject([
+        { conditions: expect.arrayContaining([decoyCondition.name, relevantCondition.name]) },
+      ]);
+    });
+
+    describe('Patient Filtering', () => {
       const patientFilters = [
         { filter: 'dateOfBirth', value: '3000-01-01' },
         { filter: 'displayId', value: 'TEST_DISPLAY_ID' },
@@ -238,23 +319,27 @@ describe('ProgramRegistry', () => {
         { filter: 'lastName', value: 'TEST_LAST_NAME' },
       ];
       let registryId = null;
-      
+
       beforeAll(async () => {
         const { id: programRegistryId } = await models.ProgramRegistry.create(
           fake(models.ProgramRegistry, { programId: testProgram.id }),
         );
         registryId = programRegistryId;
-        await Promise.all(patientFilters.map(async ({ filter, value }) => {  
-          const patient = await models.Patient.create(fake(models.Patient, {
-            [filter]: value, 
-          }));
-          await models.PatientProgramRegistration.create(
-            fake(models.PatientProgramRegistration, {
-              programRegistryId,
-              patientId: patient.id,
-            }),
-          );
-        }));
+        await Promise.all(
+          patientFilters.map(async ({ filter, value }) => {
+            const patient = await models.Patient.create(
+              fake(models.Patient, {
+                [filter]: value,
+              }),
+            );
+            await models.PatientProgramRegistration.create(
+              fake(models.PatientProgramRegistration, {
+                programRegistryId,
+                patientId: patient.id,
+              }),
+            );
+          }),
+        );
       });
 
       it.each(patientFilters)(
@@ -267,11 +352,104 @@ describe('ProgramRegistry', () => {
           expect(result).toHaveSucceeded();
 
           expect(result.body.data).not.toHaveLength(0);
-          result.body.data.map(x => {
+          result.body.data.forEach(x => {
             expect(x.patient).toHaveProperty(filter, value);
           });
-        });
-        
+        },
+      );
     });
   });
 });
+
+// ```
+// with
+// most_recent_registrations as (
+//     SELECT *
+//     FROM (
+//       SELECT
+//         *,
+//         ROW_NUMBER() OVER (PARTITION BY patient_id, program_registry_id ORDER BY date DESC, id DESC) AS row_num
+//     FROM patient_program_registrations
+//     WHERE program_registry_id = 'e7658b50-ecc2-0000-a391-3405b2bee242'
+//   ) n
+//   WHERE n.row_num = 1
+// ),
+// conditions as (
+//     SELECT patient_id, jsonb_agg(prc.\"name\") condition_list
+//   FROM patient_program_registration_conditions pprc
+//     JOIN program_registry_conditions prc
+//       ON pprc.program_registry_condition_id = prc.id
+//   WHERE pprc.program_registry_id = 'e7658b50-ecc2-0000-a391-3405b2bee242'
+//   GROUP BY patient_id
+// )\n     SELECT COUNT(1) AS count
+// ROM most_recent_registrations mrr
+// LEFT JOIN patients patient
+//   ON patient.id = mrr.patient_id
+// LEFT JOIN reference_data patient_village
+//   ON patient.village_id = patient_village.id
+// LEFT JOIN reference_data currently_at_village
+//   ON mrr.village_id = currently_at_village.id
+// LEFT JOIN facilities currently_at_facility
+//   ON mrr.facility_id = currently_at_facility.id
+// LEFT JOIN facilities registering_facility
+//   ON mrr.registering_facility_id = registering_facility.id
+// LEFT JOIN conditions
+//   ON conditions.patient_id = mrr.patient_id
+// LEFT JOIN program_registry_clinical_statuses status
+//   ON mrr.clinical_status_id = status.id
+// LEFT JOIN program_registries program_registry
+//   ON mrr.program_registry_id = program_registry.id
+// LEFT JOIN users clinician
+//   ON mrr.clinician_id = clinician.id
+
+//  WHERE patient.date_of_death IS NULL
+//  AND (select '[\"' || prc2.name || '\"]' from program_registry_conditions prc2 where prc2.id == '225d4356-3877-0000-9f8f-63eb1f01214b'):jsonb <@ conditions.condition_list
+//  AND mrr.registration_status != 'recordedInError'
+//  AND mrr.registration_status = 'active'"
+//       },
+//       "sql": "with
+//       most_recent_registrations as (
+//           SELECT *
+//           FROM (
+//             SELECT
+//               *,
+//               ROW_NUMBER() OVER (PARTITION BY patient_id, program_registry_id ORDER BY date DESC, id DESC) AS row_num
+//           FROM patient_program_registrations
+//           WHERE program_registry_id = 'e7658b50-ecc2-0000-a391-3405b2bee242'
+//         ) n
+//         WHERE n.row_num = 1
+//       ),
+//       conditions as (
+//           SELECT patient_id, jsonb_agg(prc.\"name\") condition_list
+//         FROM patient_program_registration_conditions pprc
+//           JOIN program_registry_conditions prc
+//             ON pprc.program_registry_condition_id = prc.id
+//         WHERE pprc.program_registry_id = 'e7658b50-ecc2-0000-a391-3405b2bee242'
+//         GROUP BY patient_id
+//       )\n     SELECT COUNT(1) AS count
+
+//      FROM most_recent_registrations mrr
+//       LEFT JOIN patients patient
+//         ON patient.id = mrr.patient_id
+//       LEFT JOIN reference_data patient_village
+//         ON patient.village_id = patient_village.id
+//       LEFT JOIN reference_data currently_at_village
+//         ON mrr.village_id = currently_at_village.id
+//       LEFT JOIN facilities currently_at_facility
+//         ON mrr.facility_id = currently_at_facility.id
+//       LEFT JOIN facilities registering_facility
+//         ON mrr.registering_facility_id = registering_facility.id
+//       LEFT JOIN conditions
+//         ON conditions.patient_id = mrr.patient_id
+//       LEFT JOIN program_registry_clinical_statuses status
+//         ON mrr.clinical_status_id = status.id
+//       LEFT JOIN program_registries program_registry
+//         ON mrr.program_registry_id = program_registry.id
+//       LEFT JOIN users clinician
+//         ON mrr.clinician_id = clinician.id
+
+//        WHERE patient.date_of_death IS NULL
+//        AND (select '[\"' || prc2.name || '\"]' from program_registry_conditions prc2 where prc2.id == '225d4356-3877-0000-9f8f-63eb1f01214b')::jsonb <@ conditions.condition_list
+//        AND mrr.registration_status != 'recordedInError'
+//        AND mrr.registration_status = 'active'
+// ```
