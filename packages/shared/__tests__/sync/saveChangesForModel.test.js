@@ -1,10 +1,10 @@
-import { saveChangesForModel } from '../../src/sync';
-import * as saveChangeModules from '../../src/sync/saveChanges';
+import { saveChangesForModel } from '../../dist/cjs/sync';
+import * as saveChangeModules from '../../dist/cjs/sync/saveChanges';
 import { closeDatabase, createTestDatabase } from './utilities';
 
-jest.mock('../../src/sync/saveChanges', () => ({
+jest.mock('../../dist/cjs/sync/saveChanges', () => ({
   __esModule: true,
-  ...jest.requireActual('../../src/sync/saveChanges'),
+  ...jest.requireActual('../../dist/cjs/sync/saveChanges'),
 }));
 
 jest.spyOn(saveChangeModules, 'saveCreates');

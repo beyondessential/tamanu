@@ -37,14 +37,14 @@ export const FacilityProvider = ({ children }) => {
           // Should only occur in the following scenarios:
           // 1. app was killed immediately after logging in, before it could sync facilities
           //   - should be fine, just a cosmetic issue that will clear up on its own after next sync
-          // 2. facility was deleted on sync server
+          // 2. facility was deleted on central server
           //   - a problem, but nothing to do with this device
           //   - changing facilities is not supported anyway; the fix here is to reset the device db
           console.error(`Device was assigned to invalid facility, with id ${id}`);
           setFacilityName(id);
           return;
         }
-        setFacilityName(facility.name); 
+        setFacilityName(facility.name);
       }
     })();
   }, [setFacilityId]);

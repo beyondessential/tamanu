@@ -9,12 +9,10 @@ import {
 } from '@react-navigation/native';
 import { MaterialTopTabView } from '@react-navigation/material-top-tabs';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-/*eslint-disable import/no-unresolved */
 import {
   MaterialTopTabNavigationConfig,
   MaterialTopTabBarOptions,
 } from '@react-navigation/material-top-tabs/lib/typescript/src/types';
-/*eslint-enable import/no-unresolved */
 import { compose } from 'redux';
 import {
   StyledSafeAreaView,
