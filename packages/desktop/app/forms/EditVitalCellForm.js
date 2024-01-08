@@ -30,7 +30,7 @@ const DeleteEntryButton = ({ disabled, onClick }) => (
     <IconButton color="primary" edge="start" disabled={disabled} onClick={onClick} disableRipple>
       <DeleteOutlineIcon fontSize="small" />
       <Text>
-        <TranslatedText stringId="general.action.deleteEntry" fallback="Delete entry" />
+        <TranslatedText stringId="encounter.vitals.action.deleteEntry" fallback="Delete entry" />
       </Text>
     </IconButton>
   </Box>
