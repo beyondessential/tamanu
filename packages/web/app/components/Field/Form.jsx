@@ -1,5 +1,3 @@
-/* global NODE_ENV */
-
 import React, { useEffect } from 'react';
 import { Formik, useFormikContext } from 'formik';
 import PropTypes from 'prop-types';
@@ -12,6 +10,7 @@ import { flattenObject } from '../../utils';
 import { Dialog } from '../Dialog';
 import { FORM_STATUSES, FORM_TYPES } from '../../constants';
 import { useFormSubmission } from '../../contexts/FormSubmission';
+import { IS_DEVELOPMENT } from '../../utils/env';
 
 const ErrorMessage = ({ error }) => `${JSON.stringify(error)}`;
 
@@ -76,7 +75,7 @@ export class Form extends React.PureComponent {
 
     const { onSubmit, formType = FORM_TYPES.DATA_FORM } = props;
     const hasNonAsyncSubmitHandler =
-      NODE_ENV === 'development' &&
+      IS_DEVELOPMENT &&
       formType === FORM_TYPES.DATA_FORM &&
       onSubmit.constructor.name !== 'AsyncFunction';
 

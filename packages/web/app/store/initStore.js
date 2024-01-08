@@ -1,5 +1,3 @@
-/* global NODE_ENV */
-
 import { createHashHistory } from 'history';
 import { connectRouter, routerMiddleware } from 'connected-react-router';
 import { applyMiddleware, compose, createStore } from 'redux';
@@ -11,6 +9,7 @@ import { authReducer } from './auth';
 import { imagingRequestReducer } from './imagingRequest';
 import { patientReducer } from './patient';
 import { specialModalsReducer } from './specialModals';
+import { IS_DEVELOPMENT } from '../utils/env';
 
 export const createReducers = history => ({
   router: connectRouter(history),
@@ -25,7 +24,7 @@ export function initStore(api, initialState = {}) {
   const router = routerMiddleware(history);
   const enhancers = compose(applyMiddleware(router, thunk.withExtraArgument({ api })));
   const persistConfig = { key: 'tamanu', storage };
-  if (NODE_ENV !== 'development') {
+  if (!IS_DEVELOPMENT) {
     persistConfig.whitelist = []; // persist used for a dev experience, but not required in production
   }
   const persistedReducers = persistCombineReducers(persistConfig, createReducers(history));
