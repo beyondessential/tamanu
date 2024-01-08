@@ -1,3 +1,5 @@
+/* global NODE_ENV */
+
 import React from 'react';
 import Polyglot from 'node-polyglot';
 import PropTypes from 'prop-types';

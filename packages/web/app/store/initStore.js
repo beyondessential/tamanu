@@ -1,3 +1,5 @@
+/* global NODE_ENV */
+
 import { createHashHistory } from 'history';
 import { connectRouter, routerMiddleware } from 'connected-react-router';
 import { applyMiddleware, compose, createStore } from 'redux';

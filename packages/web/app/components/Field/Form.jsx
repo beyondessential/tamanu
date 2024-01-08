@@ -1,3 +1,5 @@
+/* global NODE_ENV */
+
 import React, { useEffect } from 'react';
 import { Formik, useFormikContext } from 'formik';
 import PropTypes from 'prop-types';

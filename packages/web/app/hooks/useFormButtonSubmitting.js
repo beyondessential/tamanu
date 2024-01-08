@@ -1,3 +1,5 @@
+/* global NODE_ENV */
+
 import { useState, useEffect } from 'react';
 import { useFormikContext } from 'formik';
 

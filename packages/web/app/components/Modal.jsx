@@ -1,3 +1,5 @@
+/* global NODE_ENV */
+
 import React, { memo, useState, useEffect } from 'react';
 import { Alert, AlertTitle } from '@material-ui/lab';
 
