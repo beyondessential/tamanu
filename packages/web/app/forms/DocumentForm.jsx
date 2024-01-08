@@ -105,7 +105,7 @@ export const DocumentForm = ({ onStart, onSubmit, onError, onCancel, editedObjec
     async ({ file, ...data }) => {
       onStart();
 
-      // Read and inject document creation date and type to metadata sent
+      // Read file metadata
       const birthtime = new Date(file.lastModified);
       const attachmentType = file.type;
 
