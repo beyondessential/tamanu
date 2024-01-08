@@ -1,4 +1,3 @@
-import { ValidationError } from 'yup';
 import { createStatePreservingReducer } from '../utils/createStatePreservingReducer';
 
 // actions
@@ -15,8 +14,7 @@ const CHANGE_PASSWORD_START = 'CHANGE_PASSWORD_START';
 const CHANGE_PASSWORD_SUCCESS = 'CHANGE_PASSWORD_SUCCESS';
 const CHANGE_PASSWORD_FAILURE = 'CHANGE_PASSWORD_FAILURE';
 const VALIDATE_RESET_CODE_START = 'VALIDATE_RESET_CODE_START';
-const VALIDATE_RESET_CODE_SUCCESS = 'VALIDATE_RESET_CODE_SUCCESS';
-const VALIDATE_RESET_CODE_FAILURE = 'VALIDATE_RESET_CODE_FAILURE';
+const VALIDATE_RESET_CODE_COMPLETE = 'VALIDATE_RESET_CODE_COMPLETE';
 
 export const restoreSession = () => async (dispatch, getState, { api }) => {
   try {
@@ -79,12 +77,8 @@ export const restartPasswordResetFlow = () => async dispatch => {
 export const validateResetCode = data => async (dispatch, getState, { api }) => {
   dispatch({ type: VALIDATE_RESET_CODE_START });
 
-  try {
-    await api.post('changePassword/validate-reset-code', data);
-    dispatch({ type: VALIDATE_RESET_CODE_SUCCESS });
-  } catch (error) {
-    dispatch({ type: VALIDATE_RESET_CODE_FAILURE, error: error.message });
-  }
+  await api.post('changePassword/validate-reset-code', data);
+  dispatch({ type: VALIDATE_RESET_CODE_COMPLETE });
 };
 
 export const changePassword = data => async (dispatch, getState, { api }) => {
@@ -216,16 +210,10 @@ const actionHandlers = {
       loading: true,
     },
   }),
-  [VALIDATE_RESET_CODE_SUCCESS]: () => ({
+  [VALIDATE_RESET_CODE_COMPLETE]: () => ({
     validateResetCode: {
       ...defaultState.validateResetCode,
-      valid: true,
-    },
-  }),
-  [VALIDATE_RESET_CODE_FAILURE]: action => ({
-    validateResetCode: {
-      ...defaultState.validateResetCode,
-      error: action.error,
+      completed: true,
     },
   }),
 };

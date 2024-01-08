@@ -121,7 +121,6 @@ export const LoginView = () => {
   const resetPasswordEmail = useSelector(state => state.auth.resetPassword.lastEmailUsed);
   const changePasswordError = useSelector(state => state.auth.changePassword.error);
   const changePasswordSuccess = useSelector(state => state.auth.changePassword.success);
-  const validateResetCodeError = useSelector(state => state.auth.validateResetCode.error);
 
   const { getLocalisation } = useLocalisation();
 
@@ -207,7 +206,6 @@ export const LoginView = () => {
               }}
               onNavToResetPassword={() => setScreen('resetPassword')}
               onValidateResetCode={data => dispatch(validateResetCode(data))}
-              resetCodeErrorMessage={validateResetCodeError}
             />
           )}
         </LoginFormContainer>

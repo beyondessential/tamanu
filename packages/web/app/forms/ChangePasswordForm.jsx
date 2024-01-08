@@ -91,19 +91,9 @@ const ChangePasswordFormComponent = ({
   errorMessage,
   onNavToLogin,
   onNavToResetPassword,
-  onValidateResetCode,
   setFieldError,
   errors,
-  values,
-  resetCodeErrorMessage,
 }) => {
-  useEffect(() => {
-    if (!!resetCodeErrorMessage && !errors.token) {
-      setFieldError('token', 'Code incorrect');
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [resetCodeErrorMessage, errors.token]);
-
   return (
     <FormGrid columns={1}>
       <div>
@@ -157,14 +147,7 @@ const ChangePasswordFormComponent = ({
         />
       </FieldContainer>
       <ActionButtonContainer>
-        <ChangePasswordButton
-          type="submit"
-          onClick={async () => {
-            await onValidateResetCode({ email: values.email, token: values.token });
-          }}
-        >
-          Reset Password
-        </ChangePasswordButton>
+        <ChangePasswordButton type="submit">Reset Password</ChangePasswordButton>
         <BackToLoginButton onClick={onNavToLogin} variant="outlined">
           Back to login
         </BackToLoginButton>
@@ -191,7 +174,6 @@ export const ChangePasswordForm = React.memo(
     onNavToLogin,
     onNavToResetPassword,
     onValidateResetCode,
-    resetCodeErrorMessage,
   }) => {
     const renderForm = ({ setFieldError, errors, values }) => (
       <ChangePasswordFormComponent
@@ -204,7 +186,6 @@ export const ChangePasswordForm = React.memo(
         setFieldError={setFieldError}
         errors={errors}
         values={values}
-        resetCodeErrorMessage={resetCodeErrorMessage}
       />
     );
 
@@ -233,7 +214,24 @@ export const ChangePasswordForm = React.memo(
           email,
         }}
         validationSchema={yup.object().shape({
-          token: yup.string().required(REQUIRED_VALIDATION_MESSAGE),
+          token: yup
+            .string()
+            .required(REQUIRED_VALIDATION_MESSAGE)
+            .test('checkValidToken', 'Code incorrect', async (value, context) => {
+              if (value) {
+                try {
+                  await onValidateResetCode({
+                    email: context.parent.email,
+                    token: value,
+                  });
+                  return true;
+                } catch (e) {
+                  return false;
+                }
+              } else {
+                return false;
+              }
+            }),
           newPassword: yup
             .string()
             .min(5, 'Must be at least 5 characters')
