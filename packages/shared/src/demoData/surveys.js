@@ -11,7 +11,7 @@
  * }
  */
 export async function setupSurveyFromObject(models, input) {
-  const { id: programId, ...programOverrides } = input?.program;
+  const { id: programId, ...programOverrides } = input?.program ?? {};
   let program;
   program = await models.Program.findOne({
     where: {
@@ -25,7 +25,7 @@ export async function setupSurveyFromObject(models, input) {
     });
   }
 
-  const { id: surveyId, ...surveyOverrides } = input?.survey;
+  const { id: surveyId, ...surveyOverrides } = input?.survey ?? {};
   const survey = await models.Survey.create({
     id: surveyId,
     name: surveyId,

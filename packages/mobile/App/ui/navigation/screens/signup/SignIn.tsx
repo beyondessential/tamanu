@@ -1,13 +1,13 @@
 import React, { FunctionComponent, useCallback, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { KeyboardAvoidingView, StatusBar, Linking } from 'react-native';
+import { KeyboardAvoidingView, Linking, StatusBar } from 'react-native';
 import {
-  StyledView,
-  StyledSafeAreaView,
   FullView,
   RowView,
-  StyledTouchableOpacity,
+  StyledSafeAreaView,
   StyledText,
+  StyledTouchableOpacity,
+  StyledView,
 } from '/styled/common';
 import { CrossIcon, HomeBottomLogoIcon, LaunchIcon } from '/components/Icons';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';

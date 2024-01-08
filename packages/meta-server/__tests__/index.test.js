@@ -5,7 +5,7 @@ const app = createApp();
 const testApp = supertest(app);
 
 describe('Meta server', () => {
-  it('should list active sync servers', async () => {
+  it('should list active central servers', async () => {
     const response = await testApp.get('/servers');
     expect(response.statusCode).toEqual(200);
     expect(Array.isArray(response.body)).toEqual(true);
