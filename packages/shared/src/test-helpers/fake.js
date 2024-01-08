@@ -8,26 +8,26 @@ import {
   DIAGNOSIS_CERTAINTY_VALUES,
   ENCOUNTER_TYPE_VALUES,
   IMAGING_REQUEST_STATUS_TYPES,
+  LAB_REQUEST_STATUSES,
   NOTE_TYPE_VALUES,
   PROGRAM_DATA_ELEMENT_TYPE_VALUES,
   REFERENCE_TYPE_VALUES,
   VISIBILITY_STATUSES,
-  LAB_REQUEST_STATUSES,
 } from '@tamanu/constants';
-import { toDateTimeString, toDateString } from '../utils/dateTime';
+import { toDateString, toDateTimeString } from '../utils/dateTime';
 import { fakeUUID } from '../utils/generateId';
 import {
   FhirAddress,
   FhirAnnotation,
   FhirCodeableConcept,
   FhirContactPoint,
+  FhirExtension,
   FhirHumanName,
   FhirIdentifier,
-  FhirPatientLink,
-  FhirReference,
-  FhirExtension,
   FhirImmunizationPerformer,
   FhirImmunizationProtocolApplied,
+  FhirPatientLink,
+  FhirReference,
 } from '../services/fhirTypes';
 
 // this file is most commonly used within tests, but also outside them

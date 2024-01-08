@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Search from '@material-ui/icons/Search';
-import { InputAdornment, IconButton } from '@material-ui/core';
+import { IconButton, InputAdornment } from '@material-ui/core';
 import styled from 'styled-components';
 import { ClearIcon } from '../Icons/ClearIcon';
 import { TextField } from './TextField';

@@ -1,5 +1,5 @@
 import React, { RefObject, useMemo, useRef } from 'react';
-import { ScrollView, StyleSheet, TouchableWithoutFeedback, TouchableOpacity } from 'react-native';
+import { ScrollView, StyleSheet, TouchableOpacity, TouchableWithoutFeedback } from 'react-native';
 import { IPatient } from '~/types';
 import { PatientTile } from '../PatientTile';
 import { groupEntriesByLetter } from '/helpers/list';
