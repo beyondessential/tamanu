@@ -9,6 +9,7 @@ export const PrintableBarcode = ({
   barHeight = 45,
   fontSize = 13,
 }) => {
+  // eslint-disable-next-line no-undef
   const canvas = document.createElement('canvas');
   JsBarcode(canvas, patient.displayId, { width: barWidth, height: barHeight, fontSize: fontSize });
   const barcode = canvas.toDataURL();
