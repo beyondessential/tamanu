@@ -96,9 +96,39 @@ describe('ProgramRegistry', () => {
       );
       await models.PatientProgramRegistration.create(
         fake(models.PatientProgramRegistration, {
+          date: '2023-09-04 08:00:00',
+          patientId: testPatient.id,
+          registrationStatus: REGISTRATION_STATUSES.ACTIVE,
+          programRegistryId: registryId2,
+        }),
+      );
+      await models.PatientProgramRegistration.create(
+        fake(models.PatientProgramRegistration, {
+          date: '2023-09-04 09:00:00',
           patientId: testPatient.id,
           registrationStatus: REGISTRATION_STATUSES.RECORDED_IN_ERROR,
           programRegistryId: registryId2,
+        }),
+      );
+
+      // Shouldn't show (patient has a registration but it's been deleted before):
+      const { id: registryId3 } = await models.ProgramRegistry.create(
+        fake(models.ProgramRegistry, { programId: testProgram.id }),
+      );
+      await models.PatientProgramRegistration.create(
+        fake(models.PatientProgramRegistration, {
+          date: '2023-09-04 08:00:00',
+          patientId: testPatient.id,
+          registrationStatus: REGISTRATION_STATUSES.RECORDED_IN_ERROR,
+          programRegistryId: registryId3,
+        }),
+      );
+      await models.PatientProgramRegistration.create(
+        fake(models.PatientProgramRegistration, {
+          date: '2023-09-04 09:00:00',
+          patientId: testPatient.id,
+          registrationStatus: REGISTRATION_STATUSES.ACTIVE,
+          programRegistryId: registryId3,
         }),
       );
 
@@ -107,6 +137,11 @@ describe('ProgramRegistry', () => {
         .query({ excludePatientId: testPatient.id });
       expect(result).toHaveSucceeded();
       expect(result.body.data.length).toBe(3);
+      expect(result.body.data).arrayContaining([
+        expect.toMatchObject({
+          registryId: registryId2
+        })
+      ]);
     });
 
     it('should escape the excludePatientId parameter', async () => {
