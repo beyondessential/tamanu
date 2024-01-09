@@ -185,8 +185,8 @@ export class TamanuApi {
     return this.post('changePassword', data);
   }
 
-  async healthCheck() {
-    return this.get('health', null, { showUnknownErrorToast: false });
+  async checkServerAlive() {
+    return this.get('ping', null, { showUnknownErrorToast: false });
   }
 
   async refreshToken() {

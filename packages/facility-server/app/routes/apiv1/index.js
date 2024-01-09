@@ -50,7 +50,7 @@ const patientDataRoutes = express.Router();
 const referenceDataRoutes = express.Router();
 const syncRoutes = express.Router();
 
-apiv1.get('/health', (req, res) => {
+apiv1.get('/ping', (req, res) => {
   req.flagPermissionChecked();
   res.send({ ok: 'ok' });
 });
