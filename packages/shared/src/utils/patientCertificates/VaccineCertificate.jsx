@@ -7,7 +7,6 @@ import {
   Box,
   Watermark,
   CertificateHeader,
-  CertificateFooter,
   PageBreakPadding,
   FixedFooter,
   FixedHeader,
@@ -156,7 +155,6 @@ export const VaccineCertificate = ({
             columnStyle={{ padding: '10px 5px' }}
           />
         </Box>
-        <CertificateFooter />
         <FixedFooter>
           <VaccineCertificateFooter />
         </FixedFooter>
