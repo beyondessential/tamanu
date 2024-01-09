@@ -25,9 +25,9 @@ export async function saveExcelFile(
 
   const writable = await fileHandle.createWritable();
 
-  const xlsxBinary = XLSX.write(book, { bookType, type: 'array' });
+  const xlsxDataArray = XLSX.write(book, { bookType, type: 'array' });
 
-  await writable.write(xlsxBinary);
+  await writable.write(xlsxDataArray);
   await writable.close();
   return true;
 }
