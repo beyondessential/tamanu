@@ -229,7 +229,7 @@ describe('Programs import', () => {
       'config: this field has unspecified keys: foo on Question Validation Fail at row 28',
       'config: source must be a `string` type, but the final value was: `true`. on Question Validation Fail at row 29',
       'config: source is a required field on Question Validation Fail at row 30',
-      'config: this field has unspecified keys: foo on Ques tion Validation Fail at row 31',
+      'config: this field has unspecified keys: foo on Question Validation Fail at row 31',
       'config: source must be a `string` type, but the final value was: `true`. on Question Validation Fail at row 32',
       'config: source is a required field on Question Validation Fail at row 33',
     ];
