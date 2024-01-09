@@ -1,93 +1,92 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="/resources/icon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tamanu</title>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap');
 
-<head>
-  <meta charset="UTF-8" />
-  <link rel="icon" href="/resources/icon.ico" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tamanu</title>
-  <style>
-    @import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap");
-
-    body {
-      /* match body styles after preload to avoid content jumping around as app is loaded on top */
-      color: #444444;
-      margin: 0;
-      font-size: 0.9375rem;
-      line-height: 1.43;
-      letter-spacing: 0.01071em;
-    }
-
-    #temp-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: -webkit-fill-available;
-      padding: 25px 35px;
-    }
-
-    .content-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      height: 100%;
-      font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
-      -webkit-font-smoothing: antialiased;
-    }
-
-    .title {
-      font-weight: 500;
-      font-size: 38px;
-      line-height: 32px;
-      width: 352px;
-      letter-spacing: 0.35644px;
-      margin-top: 50px;
-      margin-bottom: 0;
-      color: #444444;
-
-    }
-
-    .title::after {
-      overflow: hidden;
-      display: inline-block;
-      vertical-align: bottom;
-      animation: ellipsis steps(4, end) 900ms infinite;
-      content: '...'
-    }
-
-    .description {
-      color: #888888;
-      margin-top: 20px;
-      max-width: 450px;
-      text-align: center;
-      font-size: 16px;
-      line-height: 21px;
-      letter-spacing: 0.16065px;
-    }
-
-    @keyframes ellipsis {
-      from {
-        width: 0;
+      body {
+        /* match body styles after preload to avoid content jumping around as app is loaded on top */
+        color: #444444;
+        margin: 0;
+        font-size: 0.9375rem;
+        line-height: 1.43;
+        letter-spacing: 0.01071em;
       }
 
-      to {
-        width: 1.22em;
+      #temp-loading-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: -webkit-fill-available;
+        padding: 25px 35px;
       }
-    }
-  </style>
-</head>
 
-<body>
-  <div id="root">
-    <div id="temp-overlay">
-      <img class="piccy" src="/app/assets/images/tamanu_logo_left_icon_blue.svg" />
-      <div class="content-container">
-        <p class="title">Tamanu is loading</p>
-        <p class="description">Tamanu is currently loading. Please do not navigate away from this page.</p>
+      #temp-loading-container .content-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        height: 100%;
+        font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      #temp-loading-container .title {
+        font-weight: 500;
+        font-size: 38px;
+        line-height: 32px;
+        width: 352px;
+        letter-spacing: 0.35644px;
+        margin-top: 50px;
+        margin-bottom: 0;
+        color: #444444;
+      }
+
+      #temp-loading-container .title::after {
+        overflow: hidden;
+        display: inline-block;
+        vertical-align: bottom;
+        animation: ellipsis steps(4, end) 900ms infinite;
+        content: '...';
+      }
+
+      #temp-loading-container .description {
+        color: #888888;
+        margin-top: 20px;
+        max-width: 450px;
+        text-align: center;
+        font-size: 16px;
+        line-height: 21px;
+        letter-spacing: 0.16065px;
+      }
+
+      @keyframes ellipsis {
+        from {
+          width: 0;
+        }
+
+        to {
+          width: 1.22em;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="root">
+      <div id="temp-loading-container">
+        <img src="/app/assets/images/tamanu_logo_left_icon_blue.svg" />
+        <div class="content-container">
+          <p class="title">Tamanu is loading</p>
+          <p class="description">
+            Tamanu is currently loading. Please do not navigate away from this page.
+          </p>
+        </div>
       </div>
     </div>
-  </div>
-  <script type="module" src="/app/index.js"></script>
-</body>
-
+    <script type="module" src="/app/index.js"></script>
+  </body>
 </html>

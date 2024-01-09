@@ -33,6 +33,27 @@ const Logo = styled(TamanuLogoLeftIconBlue)`
   cursor: pointer;
 `;
 
+const ellipsis = keyframes`
+  from {
+    width: 0;
+  }
+  to {
+    width: 1.22em;
+  }
+  `;
+
+const AnimateEllipsis = styled.span`
+  width: 352px;
+  display: block;
+  &:after {
+    overflow: hidden;
+    display: inline-block;
+    vertical-align: bottom;
+    animation: ${ellipsis} steps(4, end) 900ms infinite;
+    content: '...'; /* ascii code for the ellipsis character */
+  }
+`;
+
 export const StatusPage = ({ message, description }) => {
   const handleRefreshPage = () => {
     window.location.reload();
@@ -48,30 +69,9 @@ export const StatusPage = ({ message, description }) => {
   );
 };
 
-const ellipsis = keyframes`
-from {
-  width: 0;
-}
-to {
-  width: 1.22em;
-}
-`;
-
-const EllipsisContainer = styled.span`
-  width: 352px;
-  display: block;
-  &:after {
-    overflow: hidden;
-    display: inline-block;
-    vertical-align: bottom;
-    animation: ${ellipsis} steps(4, end) 900ms infinite;
-    content: '...'; /* ascii code for the ellipsis character */
-  }
-`;
-
 export const LoadingStatusPage = () => (
   <StatusPage
-    message={<EllipsisContainer>Tamanu is loading</EllipsisContainer>}
+    message={<AnimateEllipsis>Tamanu is loading</AnimateEllipsis>}
     description="Tamanu is currently loading. Please do not navigate away from this page."
   />
 );
