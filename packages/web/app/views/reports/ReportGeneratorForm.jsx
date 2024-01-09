@@ -194,6 +194,7 @@ export const ReportGeneratorForm = () => {
           { data: excelData, metadata },
           {
             defaultFileName: getFileName(reportName),
+            bookType
           },
         );
         if (response) {

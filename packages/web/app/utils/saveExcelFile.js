@@ -5,7 +5,7 @@ const stringifyIfNonDateObject = val =>
 
 export async function saveExcelFile(
   { data, metadata },
-  { defaultFileName = '' },
+  { defaultFileName = '', bookType },
 ) {
   const stringifiedData = data.map(row => row.map(stringifyIfNonDateObject));
 
@@ -20,12 +20,12 @@ export async function saveExcelFile(
   XLSX.utils.book_append_sheet(book, metadataSheet, 'metadata');
 
   const fileHandle = await window.showSaveFilePicker({
-    suggestedName: `${defaultFileName}.xlsx`,
+    suggestedName: `${defaultFileName}.${bookType}`,
   });
 
   const writable = await fileHandle.createWritable();
 
-  const xlsxBinary = XLSX.write(book, { bookType: 'xlsx', type: 'array' });
+  const xlsxBinary = XLSX.write(book, { bookType, type: 'array' });
 
   await writable.write(xlsxBinary);
   await writable.close();
