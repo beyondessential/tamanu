@@ -1,15 +1,15 @@
 import React, {
   FunctionComponent,
   ReactElement,
-  useRef,
   useCallback,
   useEffect,
+  useRef,
   useState,
 } from 'react';
 import * as Yup from 'yup';
-import { StyledView, StyledText } from '/styled/common';
+import { StyledText, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { readConfig } from '~/services/config';
 import { useFacility } from '~/ui/contexts/FacilityContext';

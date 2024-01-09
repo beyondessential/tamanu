@@ -1,7 +1,7 @@
 import React from 'react';
-import { StyledView, StyledText } from '/styled/common';
+import { StyledText, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { ISurveyResponseAnswer, SurveyScreenConfig } from '~/types';
 import { RequiredIndicator } from '../RequiredIndicator';
 

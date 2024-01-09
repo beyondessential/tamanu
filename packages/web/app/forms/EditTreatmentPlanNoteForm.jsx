@@ -7,8 +7,8 @@ import {
   NoteContentField,
   NoteDateTimeField,
   NoteInfoSection,
-  WrittenByField,
   StyledDivider,
+  WrittenByField,
   WrittenByText,
 } from '../components/NoteCommonFields';
 import { NOTE_TYPE_LABELS } from '../constants';

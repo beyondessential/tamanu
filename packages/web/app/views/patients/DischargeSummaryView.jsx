@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Redirect } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
@@ -7,8 +7,8 @@ import Box from '@material-ui/core/Box';
 
 import { DIAGNOSIS_CERTAINTIES_TO_HIDE } from '@tamanu/constants';
 
-import { PrintPortal, PrintLetterhead } from '../../components/PatientPrinting';
-import { useApi, isErrorUnknownAllow404s } from '../../api';
+import { PrintLetterhead, PrintPortal } from '../../components/PatientPrinting';
+import { isErrorUnknownAllow404s, useApi } from '../../api';
 import { Button } from '../../components/Button';
 import { DateDisplay, getDateDisplay } from '../../components/DateDisplay';
 import { useEncounter } from '../../contexts/Encounter';

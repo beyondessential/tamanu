@@ -1,8 +1,8 @@
-import React, { useCallback, ReactElement } from 'react';
+import React, { ReactElement, useCallback } from 'react';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native';
 
-import { StyledView, StyledText, FullView } from '../../../../styled/common';
+import { FullView, StyledText, StyledView } from '../../../../styled/common';
 import { theme } from '../../../../styled/theme';
 
 import { StackHeader } from '../../../../components/StackHeader';

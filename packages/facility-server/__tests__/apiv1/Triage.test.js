@@ -1,7 +1,7 @@
 import config from 'config';
 import {
-  createDummyPatient,
   createDummyEncounter,
+  createDummyPatient,
   createDummyTriage,
   randomRecordId,
   randomReferenceId,

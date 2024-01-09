@@ -2,11 +2,11 @@ import React from 'react';
 import styled from 'styled-components';
 import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
 import {
-  TopBar,
-  PageContainer,
-  LabRequestsSearchBar,
   ContentPane,
+  LabRequestsSearchBar,
+  PageContainer,
   SearchTableTitle,
+  TopBar,
 } from '../components';
 import { LabRequestsTable } from './LabRequestsTable';
 import { LabRequestSearchParamKeys, useLabRequest } from '../contexts/LabRequest';

@@ -4,18 +4,18 @@ import * as yup from 'yup';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { foreignKey } from '../utils/validation';
 import {
-  Form,
-  Field,
-  SelectField,
   AutocompleteField,
-  TextField,
-  FormSubmitButton,
-  FormGrid,
-  LocalisedField,
   DateTimeField,
-  SuggesterSelectField,
+  Field,
+  Form,
+  FormGrid,
+  FormSubmitButton,
+  LocalisedField,
   LocalisedLocationField,
   LocationAvailabilityWarningMessage,
+  SelectField,
+  SuggesterSelectField,
+  TextField,
   useLocalisedText,
 } from '../components';
 import { encounterOptions } from '../constants';

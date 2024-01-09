@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { MenuItem } from '@material-ui/core';
 import { TIME_UNIT_OPTIONS } from '@tamanu/constants';
