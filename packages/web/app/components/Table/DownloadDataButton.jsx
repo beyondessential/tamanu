@@ -78,7 +78,7 @@ export function DownloadDataButton({ exportName, columns, data }) {
     XLSX.utils.book_append_sheet(wb, ws, exportName);
 
     const fileHandle = await window.showSaveFilePicker({
-      suggestedName: `table-export-${getCurrentDateString()}.xlsx`,
+      suggestedName: `${exportName}-${getCurrentDateString()}.xlsx`,
     });
 
     const writable = await fileHandle.createWritable();
