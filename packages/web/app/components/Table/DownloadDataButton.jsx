@@ -1,6 +1,7 @@
 import React, { isValidElement } from 'react';
 import ReactDOMServer from 'react-dom/server';
 import GetAppIcon from '@material-ui/icons/GetApp';
+import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
 import cheerio from 'cheerio';
 import XLSX from 'xlsx';
 
@@ -76,12 +77,16 @@ export function DownloadDataButton({ exportName, columns, data }) {
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, exportName);
 
-    // show a file-save dialog and write the workbook
-    // const path = await showSaveDialog(); // TODO(web)
-    const path = {};
-    if (path.canceled) return; // Dialog was cancelled - don't write file.
-    XLSX.writeFile(wb, `${path.filePath}.xlsx`);
-    // openPath(`${path.filePath}.xlsx`);
+    const fileHandle = await window.showSaveFilePicker({
+      suggestedName: `table-export-${getCurrentDateString()}.xlsx`,
+    });
+
+    const writable = await fileHandle.createWritable();
+
+    const xlsxBinary = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+
+    await writable.write(xlsxBinary);
+    await writable.close();
   };
 
   return (
