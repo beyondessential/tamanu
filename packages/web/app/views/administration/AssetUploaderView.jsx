@@ -10,6 +10,7 @@ import { FormGrid } from '../../components/FormGrid';
 import { ButtonRow } from '../../components/ButtonRow';
 import { LargeSubmitButton } from '../../components/Button';
 import { AdminViewContainer } from './components/AdminViewContainer';
+import { error } from 'jquery';
 
 const ResultDisplay = ({ result }) => {
   if (!result) return null;
@@ -32,16 +33,22 @@ export const AssetUploaderView = memo(() => {
   const nameOptions = Object.values(ASSET_NAMES).map(v => ({ label: v, value: v }));
 
   const api = useApi();
-  // const { readFile } = useElectron(); // TODO(web)
+
+  const convertToBase64 = file =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = conversionError => reject(conversionError);
+    });
 
   const onSubmitUpload = useCallback(
-    async ({ filename, name }) => {
+    async ({ file, name }) => {
       setResult(null);
 
       try {
-        const contents = new Blob; // await readFile(filename); // TODO(web)
-        const data = contents.toString('base64');
-
+        const filename = file.name;
+        const data = await convertToBase64(file);
         const response = await api.put(`admin/asset/${name}`, {
           filename,
           data,
@@ -65,7 +72,7 @@ export const AssetUploaderView = memo(() => {
       onSubmit={onSubmitUpload}
       validationSchema={yup.object().shape({
         name: yup.string().required(),
-        filename: yup.string().required(),
+        file: yup.string().required(),
       })}
       render={({ isSubmitting }) => (
         <AdminViewContainer title="Asset upload" showLoadingIndicator={isSubmitting}>
@@ -82,7 +89,7 @@ export const AssetUploaderView = memo(() => {
                 component={FileChooserField}
                 filters={[FILTER_IMAGES]}
                 label="Select file"
-                name="filename"
+                name="file"
                 required
               />
               <ButtonRow>
