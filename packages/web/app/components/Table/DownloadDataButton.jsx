@@ -83,9 +83,9 @@ export function DownloadDataButton({ exportName, columns, data }) {
 
     const writable = await fileHandle.createWritable();
 
-    const xlsxBinary = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+    const xlsxDataArray = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
 
-    await writable.write(xlsxBinary);
+    await writable.write(xlsxDataArray);
     await writable.close();
   };
 
