@@ -272,11 +272,8 @@ export class TamanuApi {
     return blob;
   }
 
-  async postWithFileUpload(endpoint, filePath, body, options = {}) {
-    // const fileData = await promises.readFile(filePath);
-    // TODO(web)
-    const fileData = {};
-    const blob = new Blob([fileData]);
+  async postWithFileUpload(endpoint, file, body, options = {}) {
+    const blob = new Blob([file]);
 
     // We have to use multipart/formdata to support sending the file data,
     // but sending the other fields in that format loses type information
