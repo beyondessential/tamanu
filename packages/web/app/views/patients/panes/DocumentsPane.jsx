@@ -19,6 +19,18 @@ const MODAL_STATES = {
   CLOSED: 'closed',
 };
 
+function base64ToUint8Array(base64) {
+  const binaryString = atob(base64);
+  const length = binaryString.length;
+  const uint8Array = new Uint8Array(length);
+
+  for (let i = 0; i < length; i++) {
+    uint8Array[i] = binaryString.charCodeAt(i);
+  }
+
+  return uint8Array;
+}
+
 export const DocumentsPane = React.memo(({ encounter, patient }) => {
   const api = useApi();
   // const { showSaveDialog, openPath, writeFile } = useElectron();
@@ -36,10 +48,6 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
 
   const onDownload = useCallback(
     async document => {
-      // Suggest a filename that matches the document name
-      const path = {canceled:true}; // await showSaveDialog({ defaultPath: document.name });
-      if (path.canceled) return;
-
       try {
         // Give feedback to user that download is starting
         notify('Your download has started, please wait.', { type: 'info' });
@@ -49,15 +57,19 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
           base64: true,
         });
 
-        // If the extension is unknown, save it without extension
         const fileExtension = extension(document.type);
-        const fullFilePath = fileExtension ? `${path.filePath}.${fileExtension}` : path.filePath;
 
-        // Create file and open it
-        throw new Error('TODO(web): not implemented');
-        // await writeFile(fullFilePath, data, { encoding: 'base64' });
-        // notifySuccess(`Successfully downloaded file at: ${fullFilePath}`);
-        // openPath(fullFilePath);
+        const fileHandle = await window.showSaveFilePicker({
+          suggestedName: `table-export.${fileExtension}`,
+        });
+
+        const writable = await fileHandle.createWritable();
+
+        const pdfUint8Array = base64ToUint8Array(data);
+
+        await writable.write(pdfUint8Array);
+        await writable.close();
+        notifySuccess(`Successfully downloaded file`);
       } catch (error) {
         notifyError(error.message);
       }
