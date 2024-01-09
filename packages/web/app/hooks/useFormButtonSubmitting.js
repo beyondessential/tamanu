@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useFormikContext } from 'formik';
 
 import { notifyError } from '../utils';
+import { IS_DEVELOPMENT } from '../utils/env';
 
 export const useFormButtonLoadingIndicator = isLoading => {
   const [showLoadingIndicator, setShowLoadingIndicator] = useState(false);
@@ -45,7 +46,7 @@ export const useFormButtonLoadingIndicator = isLoading => {
 export const useFormButtonSubmitting = () => {
   const formikContext = useFormikContext();
 
-  if (NODE_ENV === 'development' && !formikContext) {
+  if (IS_DEVELOPMENT && !formikContext) {
     notifyError('DEV WARNING: FormSubmitButton is being used in a non-form component');
   }
 
