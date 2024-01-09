@@ -13,7 +13,6 @@ import {
 
 export const programRegistry = express.Router();
 
-
 programRegistry.get('/:id', simpleGet('ProgramRegistry'));
 
 programRegistry.get(
