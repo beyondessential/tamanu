@@ -2,12 +2,12 @@ import { groupBy } from 'lodash';
 import {
   generateReportFromQueryData,
   getAnswers,
-  takeMostRecentAnswers,
   transformAnswers,
+  takeMostRecentAnswers,
 } from './utilities';
 import {
-  reportColumnTemplate as baseReportColumnTemplate,
   queryCovidVaccineListData,
+  reportColumnTemplate as baseReportColumnTemplate,
 } from './vaccine-list';
 
 const SURVEY_QUESTION_CODES = {

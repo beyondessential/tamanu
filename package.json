@@ -1,6 +1,6 @@
 {
   "name": "tamanu",
-  "version": "2.1.0",
+  "version": "2.0.0",
   "description": "This repo contains all the packages for Tamanu",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
   "repository": "git@github.com:beyondessential/tamanu.git",
@@ -85,7 +85,6 @@
   "dependencies": {
     "concurrently": "^5.2.0",
     "config": "^3.3.9",
-    "jsbarcode": "^3.11.6",
     "pm2": "^4.5.0"
   }
 }

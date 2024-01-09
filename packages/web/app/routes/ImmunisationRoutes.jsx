@@ -1,6 +1,6 @@
 import React from 'react';
 import { Redirect, Route, Switch } from 'react-router-dom';
-import { CovidCampaignView, ImmunisationsView } from '../views/patients';
+import { ImmunisationsView, CovidCampaignView } from '../views/patients';
 
 export const ImmunisationRoutes = React.memo(({ match }) => (
   <Switch>

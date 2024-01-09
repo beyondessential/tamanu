@@ -1,17 +1,17 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
 
 import {
-  INVOICE_LINE_TYPE_LABELS,
   INVOICE_LINE_TYPES,
-  INVOICE_PRICE_CHANGE_TYPE_LABELS,
+  INVOICE_LINE_TYPE_LABELS,
   INVOICE_PRICE_CHANGE_TYPES,
+  INVOICE_PRICE_CHANGE_TYPE_LABELS,
 } from '@tamanu/constants';
 
 import { useApi } from '../api';
 import { useEncounter } from '../contexts/Encounter';
 import { Colors } from '../constants';
-import { calculateInvoiceLinesTotal, calculateInvoiceTotal, isInvoiceEditable } from '../utils';
+import { isInvoiceEditable, calculateInvoiceTotal, calculateInvoiceLinesTotal } from '../utils';
 
 import { DataFetchingTable } from './Table';
 import { DeleteButton } from './Button';

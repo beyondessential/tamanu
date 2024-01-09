@@ -5,7 +5,7 @@ import { base64UrlDecode, ec256PublicKey, fromHex, toHex } from './encodings.js'
 import devCsca from './csca/dev.js';
 import nauruCsca from './csca/nauru.js';
 import urlCsca from './csca/url.js';
-import mlCsca, { HEALTH_ML, MAIN_ML } from './csca/masterlist.js';
+import mlCsca, { MAIN_ML, HEALTH_ML } from './csca/masterlist.js';
 
 export default async function analyse(qrData, csca) {
   const results = [];

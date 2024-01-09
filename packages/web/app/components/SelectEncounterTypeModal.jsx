@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import Avatar from '@material-ui/core/Avatar';
-import { Colors, encounterOptions } from '../constants';
+import { encounterOptions, Colors } from '../constants';
 import { Button } from './Button';
 import { Modal } from './Modal';
 

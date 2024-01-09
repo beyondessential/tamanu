@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
-import { RowView, StyledView } from '/styled/common';
-import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { StyledView, RowView } from '/styled/common';
+import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { PatientMenuButton } from '/components/PatientMenuButton';
 import { MenuOptionButtonProps } from '~/types/MenuOptionButtonProps';
 

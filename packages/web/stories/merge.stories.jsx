@@ -5,13 +5,13 @@ import { action } from '@storybook/addon-actions';
 import { MockedApi } from './utils/mockedApi';
 
 import { 
-  ConfirmationModal,
-  KeepPatientDecisionForm,
-  MergeErrorModal,
-  MergeResultModal,
-  PatientMergeSearch,
   PatientMergeView,
+  PatientMergeSearch,
+  KeepPatientDecisionForm,
   PatientSummary,
+  ConfirmationModal,
+  MergeResultModal,
+  MergeErrorModal,
 } from '../app/views/administration/patientMerge';
 
 const baseDetails = {

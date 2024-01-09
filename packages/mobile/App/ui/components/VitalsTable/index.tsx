@@ -1,5 +1,5 @@
 import React, { memo, useState } from 'react';
-import { differenceInMonths, differenceInWeeks, differenceInYears, parseISO } from 'date-fns';
+import { differenceInYears, differenceInMonths, differenceInWeeks, parseISO } from 'date-fns';
 import { PatientVitalsProps } from '../../interfaces/PatientVitalsProps';
 import { ReduxStoreProps } from '../../interfaces/ReduxStoreProps';
 import { PatientStateProps } from '../../store/ducks/patient';
@@ -10,7 +10,7 @@ import { LoadingScreen } from '/components/LoadingScreen';
 import { useBackendEffect } from '~/ui/hooks';
 import { ErrorScreen } from '/components/ErrorScreen';
 import { VitalsDataElements } from '/helpers/constants';
-import { StyledScrollView, StyledText, StyledView } from '~/ui/styled/common';
+import { StyledText, StyledView, StyledScrollView } from '~/ui/styled/common';
 import { theme } from '~/ui/styled/theme';
 import { VitalsTableRowHeader } from './VitalsTableRowHeader';
 import { VitalsTableCell } from './VitalsTableCell';

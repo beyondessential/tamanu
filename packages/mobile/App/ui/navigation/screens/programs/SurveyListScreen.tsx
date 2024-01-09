@@ -1,4 +1,4 @@
-import React, { ReactElement, useCallback } from 'react';
+import React, { useCallback, ReactElement } from 'react';
 import { FlatList } from 'react-native';
 import { RouteProp, useNavigation } from '@react-navigation/native';
 import { FullView, StyledText, StyledView } from '/styled/common';

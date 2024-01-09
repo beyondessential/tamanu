@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, ButtonRow, Modal } from '../../../components';
+import { ButtonRow, Button, Modal } from '../../../components';
 
 export const MergeErrorModal = ({ error, onClose }) => {
   const actions = (

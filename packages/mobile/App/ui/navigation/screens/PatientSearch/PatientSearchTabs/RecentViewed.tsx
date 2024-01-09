@@ -2,7 +2,7 @@ import React, { ReactElement, useEffect } from 'react';
 import { Platform } from 'react-native';
 import { compose } from 'redux';
 import { NavigationProp } from '@react-navigation/native';
-import { FlatList, TouchableOpacity } from 'react-native-gesture-handler';
+import { TouchableOpacity, FlatList } from 'react-native-gesture-handler';
 // Containers
 import { withPatient } from '/containers/Patient';
 // Components
@@ -13,7 +13,7 @@ import { ErrorScreen } from '/components/ErrorScreen';
 import { RecentViewedScreenProps } from '/interfaces/screens/PatientSearchStack';
 // Helpers
 import { Routes } from '/helpers/routes';
-import { FullView, StyledText, StyledView } from '/styled/common';
+import { StyledView, FullView, StyledText } from '/styled/common';
 import { joinNames } from '/helpers/user';
 import { getAgeFromDate } from '~/ui/helpers/date';
 import { useRecentlyViewedPatients } from '~/ui/hooks/localConfig';

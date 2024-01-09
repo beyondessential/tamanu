@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { SvgProps, SvgXml } from 'react-native-svg';
+import { SvgXml, SvgProps } from 'react-native-svg';
 
 export const ClipboardIcon = memo((props: SvgProps) => {
   const xml = `

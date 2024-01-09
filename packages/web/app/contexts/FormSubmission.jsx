@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { useContext, createContext, useState } from 'react';
 
 const FormSubmissionContext = createContext({
   hasFormSubmission: false,

@@ -3,12 +3,12 @@ import { KeyboardAvoidingView } from 'react-native';
 import Animated, { Value } from 'react-native-reanimated';
 //Components
 import {
-  CenterView,
   FullView,
-  RowView,
   StyledSafeAreaView,
-  StyledText,
   StyledTouchableOpacity,
+  CenterView,
+  StyledText,
+  RowView,
 } from '/styled/common';
 import { CrossIcon } from '/components/Icons';
 import { RegisterAccountFormStep02 } from '/components/Forms/RegisterAccountForms/RegisterAccountFormStep02';

@@ -1,7 +1,7 @@
 import {
-  FHIR_DATETIME_PRECISION,
   FHIR_SEARCH_PARAMETERS,
   FHIR_SEARCH_TOKEN_TYPES,
+  FHIR_DATETIME_PRECISION,
 } from '@tamanu/constants';
 
 export const searchParameters = {

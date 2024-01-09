@@ -8,12 +8,12 @@ import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermis
 import { getLocalisation } from '../localisation';
 import { convertFromDbRecord } from '../convertDbRecord';
 import {
+  getToken,
+  stripUser,
   findUser,
   getRandomBase64String,
   getRandomU32,
-  getToken,
   isInternalClient,
-  stripUser,
 } from './utils';
 
 const getRefreshToken = async (models, { refreshSecret, userId, deviceId }) => {

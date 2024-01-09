@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 import { NOTE_RECORD_TYPES, NOTE_TYPES } from '@tamanu/constants';
 

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { format } from 'date-fns';
 import { parseDate } from '@tamanu/shared/utils/dateTime';
-import { Box, Typography } from '@material-ui/core';
+import { Typography, Box } from '@material-ui/core';
 import styled from 'styled-components';
 import { ThemedTooltip } from './Tooltip';
 

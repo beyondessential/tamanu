@@ -1,4 +1,4 @@
-import { hideElement, showElement } from '/js/dom.js';
+import { showElement, hideElement } from '/js/dom.js';
 import analyse from './js/analysis.js';
 
 const qrdataEl = document.getElementById('qrdata');

@@ -1,6 +1,6 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
-import { addDays, addHours, format } from 'date-fns';
+import { addHours, addDays, format } from 'date-fns';
 import { Modal } from '../app/components/Modal';
 import { LineChart } from '../app/components/Charts/LineChart';
 import { EncounterContext } from '../app/contexts/Encounter';

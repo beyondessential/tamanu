@@ -1,4 +1,4 @@
-import { Column, Entity, Like } from 'typeorm/browser';
+import { Entity, Column, Like } from 'typeorm/browser';
 import { ManyToOne } from 'typeorm';
 import { BaseModel } from './BaseModel';
 import { IReferenceData, ReferenceDataType } from '~/types';

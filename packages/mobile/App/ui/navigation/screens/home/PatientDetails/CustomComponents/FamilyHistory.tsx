@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import { FamilyHistoryDataProps } from '/interfaces/PatientDetails';
 import { Separator } from '/components/Separator';
-import { RowView, StyledText, StyledView } from '/styled/common';
+import { StyledView, RowView, StyledText } from '/styled/common';
 import { SectionHeader } from '/components/SectionHeader';
 import { EditButton } from './EditButton';
 import { Dot } from './Dot';

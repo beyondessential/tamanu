@@ -2,7 +2,7 @@ import React from 'react';
 import { Document, Page } from '@react-pdf/renderer';
 
 import { Table } from './Table';
-import { Box, CertificateFooter, CertificateHeader, Col, Row, styles, Watermark } from './Layout';
+import { styles, Col, Box, Row, Watermark, CertificateHeader, CertificateFooter } from './Layout';
 import { PatientDetailsSection } from './PatientDetailsSection';
 import { SigningSection } from './SigningSection';
 import { P } from './Typography';

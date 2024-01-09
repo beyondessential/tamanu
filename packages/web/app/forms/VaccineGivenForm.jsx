@@ -8,27 +8,27 @@ import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { REQUIRED_INLINE_ERROR_MESSAGE } from '../constants';
 import { TwoTwoGrid } from '../components/TwoTwoGrid';
 import {
-  AdministeredVaccineScheduleField,
-  BatchField,
   CategoryField,
-  ConfirmCancelRowField,
-  ConsentField,
-  ConsentGivenByField,
-  DepartmentField,
-  DiseaseField,
-  FullWidthCol,
-  GivenByCountryField,
-  GivenByField,
+  VaccineLabelField,
+  BatchField,
+  AdministeredVaccineScheduleField,
+  VaccineDateField,
   InjectionSiteField,
   LocationField,
+  DepartmentField,
+  GivenByField,
+  GivenByCountryField,
   RecordedByField,
+  ConsentField,
+  ConsentGivenByField,
   StyledDivider,
-  VaccineBrandField,
-  VaccineDateField,
-  VaccineLabelField,
+  FullWidthCol,
+  ConfirmCancelRowField,
   VaccineNameField,
+  VaccineBrandField,
+  DiseaseField,
 } from '../components/VaccineCommonFields';
-import { CheckField, Field, SuggesterSelectField } from '../components/Field';
+import { Field, CheckField, SuggesterSelectField } from '../components/Field';
 
 export const VACCINE_GIVEN_INITIAL_VALUES = {
   givenElsewhere: false,

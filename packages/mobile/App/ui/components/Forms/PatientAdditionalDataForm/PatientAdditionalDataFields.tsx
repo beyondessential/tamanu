@@ -11,12 +11,12 @@ import { PatientFieldDefinitionComponents } from '~/ui/helpers/fieldComponents';
 import { useBackend } from '~/ui/hooks';
 
 import {
-  getSuggester,
   plainFields,
-  relationIdFields,
-  relationIdFieldsProperties,
   selectFields,
   selectFieldsOptions,
+  relationIdFields,
+  relationIdFieldsProperties,
+  getSuggester,
 } from './helpers';
 import { getConfiguredPatientAdditionalDataFields } from '~/ui/helpers/patient';
 

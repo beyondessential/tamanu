@@ -1,4 +1,4 @@
-import { Op, Sequelize } from 'sequelize';
+import { Sequelize, Op } from 'sequelize';
 import { groupBy } from 'lodash';
 import { generateReportFromQueryData } from './utilities';
 

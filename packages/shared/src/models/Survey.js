@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { SURVEY_TYPES, SYNC_DIRECTIONS } from '@tamanu/constants';
+import { SYNC_DIRECTIONS, SURVEY_TYPES } from '@tamanu/constants';
 import { Model } from './Model';
 
 export class Survey extends Model {

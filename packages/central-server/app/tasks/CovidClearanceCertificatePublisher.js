@@ -2,12 +2,12 @@ import config from 'config';
 
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import {
-  getCovidClearanceCertificateFilter,
   getPatientSurveyResponseAnswer,
+  getCovidClearanceCertificateFilter,
 } from '@tamanu/shared/utils';
 import {
-  CERTIFICATE_NOTIFICATION_STATUSES,
   COVID_19_CLEARANCE_CERTIFICATE,
+  CERTIFICATE_NOTIFICATION_STATUSES,
 } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
 

@@ -2,7 +2,7 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import styled from 'styled-components';
-import { Button, Field, Form, FormGrid, TextField } from '../../app/components';
+import { FormGrid, Button, TextField, Field, Form } from '../../app/components';
 
 async function asyncSubmit(data) {
   action('submitStart')(data);

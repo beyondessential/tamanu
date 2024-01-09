@@ -2,13 +2,13 @@ import React from 'react';
 import { startOfDay } from 'date-fns';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
 import {
-  AutocompleteField,
   DateTimeField,
+  AutocompleteField,
   LocalisedField,
-  SearchField,
   SelectField,
+  SearchField,
 } from '../Field';
-import { appointmentStatusOptions, appointmentTypeOptions } from '../../constants';
+import { appointmentTypeOptions, appointmentStatusOptions } from '../../constants';
 import { useSuggester } from '../../api';
 import { useLocalisedText } from '../LocalisedText';
 

@@ -1,4 +1,4 @@
-import { DataTypes, QueryTypes } from 'sequelize';
+import { QueryTypes, DataTypes } from 'sequelize';
 import config from 'config';
 
 const ISO9075_DATE_FMT = 'YYYY-MM-DD';

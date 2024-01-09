@@ -1,23 +1,23 @@
 import React, {
+  Ref,
   PropsWithChildren,
   ReactElement,
-  Ref,
   useCallback,
-  useEffect,
   useState,
+  useEffect,
 } from 'react';
 import {
   KeyboardAvoidingView,
-  LayoutChangeEvent,
-  NativeScrollEvent,
-  NativeSyntheticEvent,
   StyleSheet,
+  NativeSyntheticEvent,
+  NativeScrollEvent,
+  LayoutChangeEvent,
 } from 'react-native';
-import { CenterView, FullView, StyledSafeAreaView } from '/styled/common';
+import { FullView, StyledSafeAreaView, CenterView } from '/styled/common';
 import Animated, { Clock, interpolate } from 'react-native-reanimated';
 import { ScrollView } from 'react-native-gesture-handler';
 import { theme } from '/styled/theme';
-import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { runTiming } from '/helpers/animation';
 import { ArrowDownIcon } from '../Icons';
 

@@ -1,16 +1,15 @@
-import React, { memo, useCallback, useState } from 'react';
+import React, { memo, useState, useCallback } from 'react';
 import * as yup from 'yup';
 
 import { ASSET_NAMES } from '@tamanu/constants/importable';
 import { useApi } from '../../api';
-import { Field, Form, SelectField } from '../../components/Field';
+import { Form, Field, SelectField } from '../../components/Field';
 import { FileChooserField, FILTER_IMAGES } from '../../components/Field/FileChooserField';
 import { ContentPane } from '../../components/ContentPane';
 import { FormGrid } from '../../components/FormGrid';
 import { ButtonRow } from '../../components/ButtonRow';
 import { LargeSubmitButton } from '../../components/Button';
 import { AdminViewContainer } from './components/AdminViewContainer';
-import { error } from 'jquery';
 
 const ResultDisplay = ({ result }) => {
   if (!result) return null;
@@ -33,22 +32,16 @@ export const AssetUploaderView = memo(() => {
   const nameOptions = Object.values(ASSET_NAMES).map(v => ({ label: v, value: v }));
 
   const api = useApi();
-
-  const convertToBase64 = file =>
-    new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = conversionError => reject(conversionError);
-    });
+  // const { readFile } = useElectron(); // TODO(web)
 
   const onSubmitUpload = useCallback(
-    async ({ file, name }) => {
+    async ({ filename, name }) => {
       setResult(null);
 
       try {
-        const filename = file.name;
-        const data = await convertToBase64(file);
+        const contents = new Blob; // await readFile(filename); // TODO(web)
+        const data = contents.toString('base64');
+
         const response = await api.put(`admin/asset/${name}`, {
           filename,
           data,
@@ -72,7 +65,7 @@ export const AssetUploaderView = memo(() => {
       onSubmit={onSubmitUpload}
       validationSchema={yup.object().shape({
         name: yup.string().required(),
-        file: yup.string().required(),
+        filename: yup.string().required(),
       })}
       render={({ isSubmitting }) => (
         <AdminViewContainer title="Asset upload" showLoadingIndicator={isSubmitting}>
@@ -89,7 +82,7 @@ export const AssetUploaderView = memo(() => {
                 component={FileChooserField}
                 filters={[FILTER_IMAGES]}
                 label="Select file"
-                name="file"
+                name="filename"
                 required
               />
               <ButtonRow>

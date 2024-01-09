@@ -3,8 +3,8 @@ import {
   QueryRunner,
   Table,
   TableColumn,
-  TableForeignKey,
   TableIndex,
+  TableForeignKey,
 } from 'typeorm';
 import { readConfig } from '~/services/config';
 import { TABLE_DEFINITIONS } from './firstTimeSetup/databaseDefinition';

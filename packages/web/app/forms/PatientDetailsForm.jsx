@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react';
 import styled from 'styled-components';
-import { groupBy, isEmpty } from 'lodash';
+import { isEmpty, groupBy } from 'lodash';
 import { useQuery } from '@tanstack/react-query';
 
 import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
@@ -14,12 +14,12 @@ import { useApi, useSuggester } from '../api';
 import { getPatientDetailsValidation } from '../validations';
 import {
   AutocompleteField,
+  FormSubmitButton,
   ButtonRow,
   DateField,
   Field,
   Form,
   FormGrid,
-  FormSubmitButton,
   LocalisedField,
   NumberField,
   RadioField,
@@ -29,10 +29,10 @@ import {
 import { LoadingIndicator } from '../components/LoadingIndicator';
 import {
   BirthDetailsFields,
-  ContactInformationFields,
   IdentificationInformationFields,
-  LocationInformationFields,
+  ContactInformationFields,
   PersonalInformationFields,
+  LocationInformationFields,
 } from '../components/ConfiguredMandatoryPatientFields';
 
 const StyledHeading = styled.div`

@@ -4,7 +4,7 @@ import { persistStore } from 'redux-persist';
 import { renderRootInto } from './Root';
 import { API } from './api/singletons';
 import { registerYup } from './utils/errorMessages';
-import { authFailure, initStore, restoreSession, versionIncompatible } from './store';
+import { initStore, restoreSession, authFailure, versionIncompatible } from './store';
 
 import '@fortawesome/fontawesome-free/css/all.css';
 import 'react-toastify/dist/ReactToastify.css';

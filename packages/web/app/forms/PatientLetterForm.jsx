@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 
@@ -7,16 +7,16 @@ import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
 import { useApi, useSuggester } from '../api';
 import { useAuth } from '../contexts/Auth';
 import {
-  AutocompleteField,
-  DateField,
-  Field,
   Form,
-  MultilineTextField,
+  Field,
   TextField,
+  MultilineTextField,
+  DateField,
+  AutocompleteField,
 } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { ModalLoader } from '../components/BaseModal';
-import { Button, OutlinedButton } from '../components';
+import { OutlinedButton, Button } from '../components';
 import { PatientDetailsCard } from '../components/PatientDetailsCard';
 import { ModalGenericButtonRow } from '../components/ModalActionRow';
 

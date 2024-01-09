@@ -1,4 +1,4 @@
-import { startOfDay, subDays } from 'date-fns';
+import { subDays, startOfDay } from 'date-fns';
 import config from 'config';
 
 import {

@@ -1,10 +1,10 @@
 import React, { ReactElement } from 'react';
 import { theme } from '/styled/theme';
 import {
-  RowView,
-  StyledSafeAreaView,
-  StyledText,
   StyledTouchableOpacity,
+  StyledSafeAreaView,
+  RowView,
+  StyledText,
 } from '/styled/common';
 import { ArrowLeftIcon } from '/components/Icons';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';

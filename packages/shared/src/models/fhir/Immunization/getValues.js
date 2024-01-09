@@ -1,10 +1,10 @@
-import { INJECTION_SITE_OPTIONS, VACCINE_STATUS } from '@tamanu/constants';
+import { VACCINE_STATUS, INJECTION_SITE_OPTIONS } from '@tamanu/constants';
 import {
   FhirCodeableConcept,
   FhirCoding,
+  FhirReference,
   FhirImmunizationPerformer,
   FhirImmunizationProtocolApplied,
-  FhirReference,
 } from '../../../services/fhirTypes';
 import { formatFhirDate } from '../../../utils/fhir';
 

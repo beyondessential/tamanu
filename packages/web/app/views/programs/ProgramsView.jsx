@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { SURVEY_TYPES } from '@tamanu/constants';
@@ -14,7 +14,7 @@ import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { PatientListingView } from '..';
 import { usePatientAdditionalDataQuery } from '../../api/queries';
 import { ErrorMessage } from '../../components/ErrorMessage';
-import { getActionsFromData, getAnswersFromData } from '../../utils';
+import { getAnswersFromData, getActionsFromData } from '../../utils';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { useEncounter } from '../../contexts/Encounter';
 import { PATIENT_TABS } from '../../constants/patientPaths';

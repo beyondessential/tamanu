@@ -1,23 +1,23 @@
 import React from 'react';
-import { Redirect, Route, Switch } from 'react-router';
+import { Switch, Route, Redirect } from 'react-router';
 import { useSelector } from 'react-redux';
 
 import { SERVER_TYPES } from '@tamanu/constants';
 
 import { App } from './App';
 import {
-  AdministrationRoutes,
-  AppointmentRoutes,
-  BillingRoutes,
-  FacilityAdminRoutes,
   ImagingRoutes,
-  ImmunisationRoutes,
-  LabsRoutes,
   MedicationRoutes,
-  PatientsRoutes,
+  LabsRoutes,
+  BillingRoutes,
+  AdministrationRoutes,
   ProgramsRoutes,
+  ImmunisationRoutes,
+  AppointmentRoutes,
+  PatientsRoutes,
+  FacilityAdminRoutes,
 } from './routes';
-import { FACILITY_MENU_ITEMS, Sidebar, SYNC_MENU_ITEMS } from './components/Sidebar';
+import { Sidebar, FACILITY_MENU_ITEMS, SYNC_MENU_ITEMS } from './components/Sidebar';
 import { UserActivityMonitor } from './components/UserActivityMonitor';
 
 export const RoutingApp = () => {

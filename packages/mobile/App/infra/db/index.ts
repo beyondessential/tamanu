@@ -1,4 +1,4 @@
-import { Connection, ConnectionOptions, createConnection, getConnectionManager } from 'typeorm';
+import { Connection, createConnection, getConnectionManager, ConnectionOptions } from 'typeorm';
 import { DevSettings } from 'react-native';
 import { MODELS_ARRAY, MODELS_MAP } from '~/models/modelsMap';
 import { clear } from '~/services/config';

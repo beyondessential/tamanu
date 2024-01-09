@@ -5,9 +5,9 @@ import {
   DateGivenField,
   DepartmentField,
   GivenByField,
-  NotGivenReasonField,
-  RecordedByField,
   VaccineLocationField,
+  RecordedByField,
+  NotGivenReasonField,
 } from './VaccineCommonFields';
 import { VaccineFormProps } from './types';
 

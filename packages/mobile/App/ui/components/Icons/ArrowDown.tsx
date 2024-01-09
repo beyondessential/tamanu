@@ -1,4 +1,4 @@
-import React, { memo, ReactElement } from 'react';
+import React, { ReactElement, memo } from 'react';
 import { SvgXml } from 'react-native-svg';
 
 export const ArrowDownIcon = memo((props): ReactElement => {

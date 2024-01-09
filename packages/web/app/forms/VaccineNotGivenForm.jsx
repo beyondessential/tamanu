@@ -5,18 +5,18 @@ import { VACCINE_CATEGORIES } from '@tamanu/constants';
 
 import { TwoTwoGrid } from '../components/TwoTwoGrid';
 import {
-  AdministeredVaccineScheduleField,
   CategoryField,
-  ConfirmCancelRowField,
-  DepartmentField,
-  DiseaseField,
-  GivenByField,
+  VaccineLabelField,
+  AdministeredVaccineScheduleField,
+  VaccineDateField,
   LocationField,
+  DepartmentField,
+  GivenByField,
   RecordedByField,
   StyledDivider,
-  VaccineDateField,
-  VaccineLabelField,
+  ConfirmCancelRowField,
   VaccineNameField,
+  DiseaseField,
 } from '../components/VaccineCommonFields';
 import { Field, SuggesterSelectField } from '../components/Field';
 

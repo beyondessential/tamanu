@@ -1,15 +1,15 @@
 import { Op } from 'sequelize';
-import { endOfDay, parseISO, startOfDay, subDays } from 'date-fns';
+import { subDays, startOfDay, endOfDay, parseISO } from 'date-fns';
 import upperFirst from 'lodash/upperFirst';
 
 import {
-  DIAGNOSIS_CERTAINTY,
   ENCOUNTER_TYPES,
+  DIAGNOSIS_CERTAINTY,
   NOTE_TYPES,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import { Location } from '../models/Location';
-import { ageInYears, format, toDateTimeString } from '../utils/dateTime';
+import { ageInYears, toDateTimeString, format } from '../utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
 
 const reportColumnTemplate = [

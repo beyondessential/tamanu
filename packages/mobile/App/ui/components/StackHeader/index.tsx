@@ -2,13 +2,13 @@ import React, { ReactElement } from 'react';
 import { theme } from '/styled/theme';
 import {
   CenterView,
-  RowView,
-  StyledSafeAreaView,
   StyledText,
+  StyledSafeAreaView,
   StyledTouchableOpacity,
+  RowView,
 } from '/styled/common';
 import { ArrowLeftIcon, KebabIcon } from '../Icons';
-import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { screenPercentageToDP, Orientation } from '/helpers/screen';
 
 type HeaderTitleProps = {
   title: string;

@@ -2,11 +2,11 @@ import React from 'react';
 import styled from 'styled-components';
 import { IMAGING_TABLE_VERSIONS } from '@tamanu/constants/imaging';
 import {
-  ContentPane,
-  ImagingRequestsSearchBar,
-  PageContainer,
-  SearchTableTitle,
   TopBar,
+  PageContainer,
+  ImagingRequestsSearchBar,
+  ContentPane,
+  SearchTableTitle,
 } from '../components';
 import { ImagingRequestsTable } from '../components/ImagingRequestsTable';
 

@@ -1,5 +1,5 @@
 import { VITALS_DATA_ELEMENT_IDS } from '@tamanu/constants/surveys';
-import { BLOOD_PRESSURE, bloodPressureChartKeys, LINE } from '../../components/Charts/constants';
+import { BLOOD_PRESSURE, LINE, bloodPressureChartKeys } from '../../components/Charts/constants';
 import { useEncounter } from '../../contexts/Encounter';
 import { getConfigObject, getGraphRangeByAge, getNormalRangeByAge } from '../../utils';
 import { combineQueries } from '../combineQueries';

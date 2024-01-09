@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { CheckInput } from '../Field';
 
 export const useSelectableColumn = (rows, { columnKey = 'selected', selectionKey = 'id' } = {}) => {

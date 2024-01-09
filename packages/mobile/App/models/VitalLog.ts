@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, RelationId } from 'typeorm/browser';
+import { Entity, Column, ManyToOne, RelationId } from 'typeorm/browser';
 
 import { User } from './User';
 import { SurveyResponseAnswer } from './SurveyResponseAnswer';

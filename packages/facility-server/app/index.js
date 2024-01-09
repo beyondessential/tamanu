@@ -6,11 +6,11 @@ import { program } from 'commander';
 import { log } from '@tamanu/shared/services/logging';
 
 import {
-  migrateAppointmentsToLocationGroupsCommand,
-  migrateCommand,
-  reportCommand,
   serveCommand,
   syncCommand,
+  migrateCommand,
+  reportCommand,
+  migrateAppointmentsToLocationGroupsCommand,
 } from './subCommands';
 
 async function run() {

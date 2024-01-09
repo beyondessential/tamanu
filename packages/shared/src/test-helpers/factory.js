@@ -1,7 +1,6 @@
-import { IMAGING_REQUEST_STATUS_TYPES, REFERENCE_TYPES } from '@tamanu/constants';
+import { REFERENCE_TYPES, IMAGING_REQUEST_STATUS_TYPES } from '@tamanu/constants';
 import { fakeUUID } from '../utils/generateId';
 import {
-  fake,
   fakeAdministeredVaccine,
   fakeEncounter,
   fakeEncounterDiagnosis,
@@ -14,6 +13,7 @@ import {
   fakeSurveyResponse,
   fakeSurveyResponseAnswer,
   fakeUser,
+  fake,
 } from './fake';
 
 // TODO: generic

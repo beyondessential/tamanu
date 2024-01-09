@@ -1,12 +1,12 @@
-import React, { FunctionComponent, ReactElement, useCallback, useEffect, useState } from 'react';
+import React, { FunctionComponent, useCallback, useState, ReactElement, useEffect } from 'react';
 import * as Yup from 'yup';
 import { KeyboardAvoidingView, StatusBar } from 'react-native';
 import {
-  FullView,
-  StyledSafeAreaView,
-  StyledText,
-  StyledTouchableOpacity,
   StyledView,
+  StyledSafeAreaView,
+  FullView,
+  StyledTouchableOpacity,
+  StyledText,
 } from '/styled/common';
 import { HomeBottomLogoIcon } from '/components/Icons';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';

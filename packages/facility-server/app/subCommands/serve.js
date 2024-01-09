@@ -7,7 +7,7 @@ import { performTimeZoneChecks } from '@tamanu/shared/utils/timeZoneCheck';
 import { checkConfig } from '../checkConfig';
 import { initDeviceId } from '../sync/initDeviceId';
 import { performDatabaseIntegrityChecks } from '../database';
-import { CentralServerConnection, FacilitySyncManager } from '../sync';
+import { FacilitySyncManager, CentralServerConnection } from '../sync';
 import { createApp } from '../createApp';
 import { startScheduledTasks } from '../tasks';
 

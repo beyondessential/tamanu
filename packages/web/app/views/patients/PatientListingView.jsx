@@ -1,35 +1,35 @@
-import React, { useCallback, useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 import { LocationCell, LocationGroupCell } from '../../components/LocationCell';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { reloadPatient } from '../../store/patient';
 import {
-  AllPatientsSearchBar,
-  ContentPane,
+  TopBar,
   PageContainer,
+  AllPatientsSearchBar,
   PatientSearchBar,
+  ContentPane,
   SearchTable,
   SearchTableTitle,
-  TopBar,
 } from '../../components';
 import { RecentlyViewedPatientsList } from '../../components/RecentlyViewedPatientsList';
 import { ButtonWithPermissionCheck } from '../../components/Button';
 import { NewPatientModal } from './components';
 import {
-  clinician,
-  culturalName,
-  dateOfBirth,
-  department,
+  markedForSync,
   displayId,
   firstName,
   lastName,
-  markedForSync,
-  sex,
-  status,
+  culturalName,
   village,
+  sex,
+  dateOfBirth,
+  status,
+  department,
+  clinician,
 } from './columns';
 import { useAuth } from '../../contexts/Auth';
-import { PatientSearchKeys, usePatientSearch } from '../../contexts/PatientSearch';
+import { usePatientSearch, PatientSearchKeys } from '../../contexts/PatientSearch';
 
 const PATIENT_SEARCH_ENDPOINT = 'patient';
 

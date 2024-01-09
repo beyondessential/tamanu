@@ -4,8 +4,8 @@ import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { InvalidOperationError, NotFoundError } from '@tamanu/shared/errors';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import {
-  PATIENT_DEATH_FULL_SCHEMA,
   PATIENT_DEATH_PARTIAL_SCHEMA,
+  PATIENT_DEATH_FULL_SCHEMA,
 } from './patientDeathValidationSchema';
 
 export const patientDeath = express.Router();

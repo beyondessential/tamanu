@@ -1,7 +1,7 @@
 import React, { FC } from 'react';
-import { RowView, StyledView } from '/styled/common';
+import { StyledView, RowView } from '/styled/common';
 import { theme } from '/styled/theme';
-import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { screenPercentageToDP, Orientation } from '/helpers/screen';
 
 interface CircleProps {
   currentStep?: boolean;

@@ -1,20 +1,20 @@
 import React, { ComponentType, FunctionComponent } from 'react';
 import { Dimensions, StyleSheet } from 'react-native';
 import {
+  TabView,
+  SceneMap,
+  TabBar,
+  SceneRendererProps,
   NavigationState,
   Route,
-  SceneMap,
-  SceneRendererProps,
-  TabBar,
-  TabView,
 } from 'react-native-tab-view';
 import { SvgProps } from 'react-native-svg';
 import { theme } from '/styled/theme';
-import { StyledText, StyledView } from '/styled/common';
+import { StyledView, StyledText } from '/styled/common';
 import * as Icons from '../Icons';
 import { IconWithSizeProps } from '/interfaces/WithSizeProps';
 import { VaccineDataProps } from '../VaccineCard';
-import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { screenPercentageToDP, Orientation } from '/helpers/screen';
 
 type CustomRoute = Route & {
   icon: FunctionComponent<SvgProps>;

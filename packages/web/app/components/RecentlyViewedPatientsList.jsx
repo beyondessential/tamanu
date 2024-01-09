@@ -1,9 +1,9 @@
-import React, { useCallback, useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import styled from 'styled-components';
 import { Collapse, Divider, IconButton, ListItem, Typography } from '@material-ui/core';
 import { useDispatch } from 'react-redux';
 import { useQuery } from '@tanstack/react-query';
-import { ExpandLess, ExpandMore, NavigateBefore, NavigateNext } from '@material-ui/icons';
+import { ExpandMore, ExpandLess, NavigateBefore, NavigateNext } from '@material-ui/icons';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
 import { reloadPatient } from '../store/patient';
 import { useApi } from '../api';

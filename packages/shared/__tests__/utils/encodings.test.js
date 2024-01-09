@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { depem, pem } from '../../dist/cjs/utils/encodings';
+import { pem, depem } from '../../dist/cjs/utils/encodings';
 
 describe('PEM', () => {
   it('should round-trip data through pem and depem', () => {

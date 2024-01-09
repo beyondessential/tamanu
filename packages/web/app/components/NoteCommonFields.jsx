@@ -5,12 +5,12 @@ import Tooltip from '@material-ui/core/Tooltip';
 import { NOTE_TYPES } from '@tamanu/constants';
 
 import { InfoCard, InfoCardItem } from './InfoCard';
-import { AutocompleteField, DateTimeField, Field, SelectField, TextField } from './Field';
+import { Field, AutocompleteField, TextField, DateTimeField, SelectField } from './Field';
 import { useLocalisation } from '../contexts/Localisation';
 
 import { useSuggester } from '../api';
 import { DateDisplay } from './DateDisplay';
-import { Colors, noteTypes } from '../constants';
+import { noteTypes, Colors } from '../constants';
 import { FormGrid } from './FormGrid';
 
 export const StyledDivider = styled(Divider)`

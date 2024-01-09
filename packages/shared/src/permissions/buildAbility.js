@@ -1,4 +1,4 @@
-import { Ability, AbilityBuilder } from '@casl/ability';
+import { AbilityBuilder, Ability } from '@casl/ability';
 
 export function buildAbility(permissions, options = {}) {
   const { can, build } = new AbilityBuilder(Ability);

@@ -1,4 +1,4 @@
-import { Op, Sequelize } from 'sequelize';
+import { Sequelize, Op } from 'sequelize';
 import { generateReportFromQueryData } from './utilities';
 
 const parametersToSqlWhere = parameters => {

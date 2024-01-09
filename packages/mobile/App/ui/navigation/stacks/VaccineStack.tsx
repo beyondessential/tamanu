@@ -1,24 +1,24 @@
 import React, { ReactElement, useCallback } from 'react';
 import { compose } from 'redux';
 import {
+  TransitionPresets,
   createStackNavigator,
   StackHeaderProps,
-  TransitionPresets,
 } from '@react-navigation/stack';
 import { VaccineTableTabs } from './VaccineTableTabs';
 import { NewVaccineTabs } from './NewVaccineTabs';
 import {
+  StyledText,
   CenterView,
+  StyledTouchableOpacity,
   RowView,
   StyledSafeAreaView,
-  StyledText,
-  StyledTouchableOpacity,
 } from '/styled/common';
 import { theme } from '/styled/theme';
 import { ArrowLeftIcon } from '/components/Icons';
 import { Routes } from '/helpers/routes';
 import { VaccineModalScreen } from '../screens/vaccine/VaccineModalScreen';
-import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { withPatient } from '~/ui/containers/Patient';
 import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
 

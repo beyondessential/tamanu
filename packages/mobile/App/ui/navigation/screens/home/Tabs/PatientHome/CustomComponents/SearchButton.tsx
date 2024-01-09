@@ -1,6 +1,6 @@
 import React, { FC, ReactElement } from 'react';
 import { Button } from '/components/Button';
-import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { SearchIcon } from '/components/Icons';
 import { StyledText } from '/styled/common';
 import { ButtonProps } from './fixture';

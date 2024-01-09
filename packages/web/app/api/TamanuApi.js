@@ -1,7 +1,7 @@
 import qs from 'qs';
 
 import { buildAbilityForUser } from '@tamanu/shared/permissions/buildAbility';
-import { SERVER_TYPES, VERSION_COMPATIBILITY_ERRORS } from '@tamanu/constants';
+import { VERSION_COMPATIBILITY_ERRORS, SERVER_TYPES } from '@tamanu/constants';
 import { ForbiddenError, NotFoundError } from '@tamanu/shared/errors';
 
 import { LOCAL_STORAGE_KEYS } from '../constants';
@@ -272,8 +272,11 @@ export class TamanuApi {
     return blob;
   }
 
-  async postWithFileUpload(endpoint, file, body, options = {}) {
-    const blob = new Blob([file]);
+  async postWithFileUpload(endpoint, filePath, body, options = {}) {
+    // const fileData = await promises.readFile(filePath);
+    // TODO(web)
+    const fileData = {};
+    const blob = new Blob([fileData]);
 
     // We have to use multipart/formdata to support sending the file data,
     // but sending the other fields in that format loses type information

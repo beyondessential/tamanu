@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import {
-  ContentPane,
+  TopBar,
   PageContainer,
   PatientSearchBar,
-  SearchTable,
+  ContentPane,
   SearchTableTitle,
-  TopBar,
+  SearchTable,
 } from '../../components';
-import { culturalName, dateOfBirth, displayId, firstName, lastName, sex, village } from './columns';
+import { displayId, firstName, lastName, culturalName, village, sex, dateOfBirth } from './columns';
 import { PatientImmunisationsModal } from './components';
 
 const COLUMNS = [displayId, firstName, lastName, culturalName, village, sex, dateOfBirth];

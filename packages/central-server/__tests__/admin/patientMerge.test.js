@@ -1,15 +1,16 @@
-import { fake, fakeUser } from '@tamanu/shared/test-helpers/fake';
-import {
-  getTablesWithNoMergeCoverage,
-  mergePatient,
-} from '../../dist/admin/patientMerge/mergePatient';
-import { createTestContext } from '../utilities';
-import { InvalidParameterError } from '@tamanu/shared/errors';
-import { NOTE_TYPES } from '@tamanu/constants/notes';
 import { Op } from 'sequelize';
-import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants/patientFields';
-import { PatientMergeMaintainer } from '../../dist/tasks/PatientMergeMaintainer';
+
+import { fake, fakeUser } from '@tamanu/shared/test-helpers/fake';
+import { NOTE_TYPES } from '@tamanu/constants/notes';
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
+import { InvalidParameterError } from '@tamanu/shared/errors';
+import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants/patientFields';
+import {
+  mergePatient,
+  getTablesWithNoMergeCoverage,
+} from '../../dist/admin/patientMerge/mergePatient';
+import { PatientMergeMaintainer } from '../../dist/tasks/PatientMergeMaintainer';
+import { createTestContext } from '../utilities';
 
 describe('Patient merge', () => {
   let ctx;

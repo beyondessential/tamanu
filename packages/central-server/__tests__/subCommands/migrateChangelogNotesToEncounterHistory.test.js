@@ -1,14 +1,14 @@
-import { startOfDay, sub } from 'date-fns';
+import { sub, startOfDay } from 'date-fns';
 import { Op } from 'sequelize';
 
-import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { toDateTimeString, getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/shared/demoData/patients';
 import { fake } from '@tamanu/shared/test-helpers/fake';
 import {
-  EncounterChangeType,
   NOTE_RECORD_TYPES,
   NOTE_TYPES,
   VISIBILITY_STATUSES,
+  EncounterChangeType,
 } from '@tamanu/constants';
 import { sleepAsync } from '@tamanu/shared/utils';
 

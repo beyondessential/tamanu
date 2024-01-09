@@ -1,5 +1,5 @@
-import React, { useCallback, useState } from 'react';
-import { Button, DataFetchingTable, PageContainer, TopBar } from '../../components';
+import React, { useState, useCallback } from 'react';
+import { TopBar, PageContainer, Button, DataFetchingTable } from '../../components';
 import { NewUserForm } from '../../forms';
 import { NewRecordModal } from './components';
 import { USER_SEARCH_ENDPOINT } from './constants';

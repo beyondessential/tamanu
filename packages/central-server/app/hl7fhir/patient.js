@@ -2,14 +2,14 @@ import config from 'config';
 import { format } from 'date-fns';
 import { Op } from 'sequelize';
 import { groupBy, keyBy } from 'lodash';
-import { FHIR_PATIENT_LINK_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { VISIBILITY_STATUSES, FHIR_PATIENT_LINK_TYPES } from '@tamanu/constants';
 
 import {
-  getBaseUrl,
-  getDefaultOperator,
-  getHL7Link,
   getParamAndModifier,
   getQueryObject,
+  getDefaultOperator,
+  getBaseUrl,
+  getHL7Link,
 } from './utils';
 
 import { modifiers } from './hl7Parameters';

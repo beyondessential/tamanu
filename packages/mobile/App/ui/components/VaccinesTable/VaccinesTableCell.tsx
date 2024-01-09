@@ -1,14 +1,14 @@
 import React, { useCallback } from 'react';
 import { Popup } from 'popup-ui';
 import {
-  CenterView,
-  StyledImage,
-  StyledTouchableOpacity,
   StyledView,
+  StyledTouchableOpacity,
+  StyledImage,
+  CenterView,
 } from '/styled/common';
 import { theme } from '/styled/theme';
 import { VaccineStatusCells } from '/helpers/constants';
-import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { IAdministeredVaccine, IPatient, IScheduledVaccine } from '~/types';
 import { getVaccineStatus, VaccineStatus } from '~/ui/helpers/patient';
 import { BypassWarningIcon } from './BypassWarningIcon';

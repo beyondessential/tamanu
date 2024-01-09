@@ -3,13 +3,13 @@ import { action } from '@storybook/addon-actions';
 import Box from '@material-ui/core/Box';
 import {
   AllPatientsSearchBar,
-  AppointmentsSearchBar,
-  CovidPatientsSearchBar,
-  ImagingRequestsSearchBar,
-  ImmunisationSearchBar,
-  InvoicesSearchBar,
-  LabRequestsSearchBar,
   PatientSearchBar,
+  ImmunisationSearchBar,
+  ImagingRequestsSearchBar,
+  InvoicesSearchBar,
+  AppointmentsSearchBar,
+  LabRequestsSearchBar,
+  CovidPatientsSearchBar,
 } from '../app/components';
 
 export default {

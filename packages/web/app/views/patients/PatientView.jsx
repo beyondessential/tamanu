@@ -8,15 +8,15 @@ import { PatientAlert } from '../../components/PatientAlert';
 import { useLocalisation } from '../../contexts/Localisation';
 import { useApi } from '../../api';
 import {
-  DocumentsPane,
   HistoryPane,
+  VaccinesPane,
+  PatientMedicationPane,
+  DocumentsPane,
+  PatientProgramsPane,
+  ReferralPane,
   InvoicesPane,
   PatientDetailsPane,
-  PatientMedicationPane,
-  PatientProgramsPane,
   PatientResultsPane,
-  ReferralPane,
-  VaccinesPane,
 } from './panes';
 import { Colors } from '../../constants';
 import { PATIENT_TABS } from '../../constants/patientPaths';

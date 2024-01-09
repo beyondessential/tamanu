@@ -3,7 +3,7 @@ import * as yup from 'yup';
 import styled from 'styled-components';
 import { FormModal } from './FormModal';
 import { FormSubmitCancelRow } from './ButtonRow';
-import { Field, Form, SelectField } from './Field';
+import { SelectField, Form, Field } from './Field';
 import { BodyText } from './Typography';
 
 const ModalBody = styled.div`

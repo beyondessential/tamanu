@@ -11,7 +11,7 @@ import { DateTimeField, Form, SuggesterSelectField, TextField } from '../../../c
 import { TableFormFields } from '../../../components/Table';
 import { Colors } from '../../../constants';
 import { useLabTestResultsQuery } from '../../../api/queries/useLabTestResultsQuery';
-import { AccessorField, LabResultAccessorField } from './AccessorField';
+import { LabResultAccessorField, AccessorField } from './AccessorField';
 import { ConfirmCancelRow } from '../../../components/ButtonRow';
 import { useApi } from '../../../api';
 import { useAuth } from '../../../contexts/Auth';

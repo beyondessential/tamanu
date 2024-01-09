@@ -3,12 +3,12 @@ import { Op, Sequelize } from 'sequelize';
 import * as yup from 'yup';
 
 import {
-  FHIR_DATETIME_PRECISION,
   FHIR_SEARCH_PARAMETERS,
   FHIR_SEARCH_PREFIXES,
   FHIR_SEARCH_TOKEN_TYPES,
+  FHIR_DATETIME_PRECISION,
 } from '@tamanu/constants';
-import { Invalid, RESULT_PARAMETER_NAMES, Unsupported } from '@tamanu/shared/utils/fhir';
+import { Invalid, Unsupported, RESULT_PARAMETER_NAMES } from '@tamanu/shared/utils/fhir';
 
 import { findField } from './common';
 import { getJsonbPath, getJsonbQueryFn } from './jsonb';

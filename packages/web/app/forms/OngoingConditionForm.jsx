@@ -4,12 +4,12 @@ import * as yup from 'yup';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import Collapse from '@material-ui/core/Collapse';
 import {
-  AutocompleteField,
-  CheckField,
-  DateField,
-  Field,
   Form,
+  Field,
+  DateField,
+  AutocompleteField,
   TextField,
+  CheckField,
 } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { FormSubmitCancelRow } from '../components/ButtonRow';

@@ -7,12 +7,12 @@ import { diagnosisCertaintyOptions } from '../constants';
 import { FormSubmitCancelRow } from '../components/ButtonRow';
 import { FormGrid } from '../components/FormGrid';
 import {
-  AutocompleteField,
-  CheckField,
-  DateField,
-  Field,
   Form,
+  Field,
   SelectField,
+  CheckField,
+  AutocompleteField,
+  DateField,
 } from '../components/Field';
 import { useSuggester } from '../api';
 import { useLocalisation } from '../contexts/Localisation';

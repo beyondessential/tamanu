@@ -2,11 +2,11 @@ import { Sequelize } from 'sequelize';
 import { endOfDay, isBefore, parseISO, startOfToday } from 'date-fns';
 
 import {
-  ENCOUNTER_TYPE_VALUES,
   ENCOUNTER_TYPES,
-  EncounterChangeType,
+  ENCOUNTER_TYPE_VALUES,
   NOTE_TYPES,
   SYNC_DIRECTIONS,
+  EncounterChangeType,
 } from '@tamanu/constants';
 import { InvalidOperationError } from '../errors';
 import { dateTimeType } from './dateTimeTypes';

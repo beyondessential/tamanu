@@ -3,9 +3,9 @@ import * as yup from 'yup';
 
 import { useSuggester } from '../../../api';
 import {
-  AutocompleteField,
-  Field,
   Form,
+  Field,
+  AutocompleteField,
   FormGrid,
   FormModal,
   ModalFormActionRow,

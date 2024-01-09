@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
-import { Button, ContentPane, TableButtonRow } from '../../../components';
+import { ContentPane, TableButtonRow, Button } from '../../../components';
 import { ViewAdministeredVaccineModal } from '../../../components/ViewAdministeredVaccineModal';
 import { EditAdministeredVaccineModal } from '../../../components/EditAdministeredVaccineModal';
 import { DeleteAdministeredVaccineModal } from '../../../components/DeleteAdministeredVaccineModal';

@@ -1,5 +1,5 @@
 import { RelationId } from 'typeorm';
-import { BeforeInsert, Entity, ManyToOne, PrimaryColumn } from 'typeorm/browser';
+import { Entity, ManyToOne, PrimaryColumn, BeforeInsert } from 'typeorm/browser';
 
 import { BaseModel } from './BaseModel';
 import { Facility } from './Facility';

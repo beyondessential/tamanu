@@ -2,7 +2,7 @@ import React, { FC, ReactElement } from 'react';
 import { ButtonProps } from './fixture';
 import { KebabIcon } from '/components/Icons';
 import { StyledTouchableOpacity, StyledView } from '/styled/common';
-import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { screenPercentageToDP, Orientation } from '/helpers/screen';
 
 export const DotsMenuButton: FC<ButtonProps> = ({
   onPress,

@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View, Text } from 'react-native';
 import { theme } from '~/ui/styled/theme';
 import { Popup } from 'popup-ui';
 import { useNavigation } from '@react-navigation/native';

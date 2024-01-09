@@ -1,4 +1,4 @@
-import { Column, Entity } from 'typeorm/browser';
+import { Entity, Column } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
 import { SYNC_DIRECTIONS } from './types';
 

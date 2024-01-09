@@ -1,4 +1,4 @@
-import React, { ReactElement, useState } from 'react';
+import React, { useState, ReactElement } from 'react';
 import { StyledText, StyledView } from '/styled/common';
 import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 

@@ -1,8 +1,8 @@
 import Chance from 'chance';
 import { fake } from '@tamanu/shared/test-helpers/fake';
 import {
-  PROGRAM_DATA_ELEMENT_TYPES,
   SURVEY_TYPES,
+  PROGRAM_DATA_ELEMENT_TYPES,
   VITALS_DATA_ELEMENT_IDS,
 } from '@tamanu/constants/surveys';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';

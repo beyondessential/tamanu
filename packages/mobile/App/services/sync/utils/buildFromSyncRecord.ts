@@ -1,6 +1,6 @@
 import { pick } from 'lodash';
 
-import { DataToPersist, SyncRecordData } from '../types';
+import { SyncRecordData, DataToPersist } from '../types';
 import { BaseModel } from '../../../models/BaseModel';
 import { extractIncludedColumns } from './extractIncludedColumns';
 

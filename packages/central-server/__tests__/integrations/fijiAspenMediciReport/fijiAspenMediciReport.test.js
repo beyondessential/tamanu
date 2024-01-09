@@ -2,12 +2,12 @@ import config from 'config';
 import { upperFirst } from 'lodash';
 import { utcToZonedTime } from 'date-fns-tz';
 import {
-  DIAGNOSIS_CERTAINTY,
-  ENCOUNTER_TYPES,
-  IMAGING_TYPES,
+  REFERENCE_TYPES,
   NOTE_RECORD_TYPES,
   NOTE_TYPES,
-  REFERENCE_TYPES,
+  ENCOUNTER_TYPES,
+  IMAGING_TYPES,
+  DIAGNOSIS_CERTAINTY,
 } from '@tamanu/constants';
 import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { fake } from '@tamanu/shared/test-helpers/fake';

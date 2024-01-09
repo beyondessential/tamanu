@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { InvoicesTable } from '../../../components/InvoicesTable';
-import { ContentPane, InvoicesSearchBar } from '../../../components';
+import { InvoicesSearchBar, ContentPane } from '../../../components';
 
 export const InvoicesPane = React.memo(({ patient }) => {
   const [searchParameters, setSearchParameters] = useState({});

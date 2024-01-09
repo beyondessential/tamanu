@@ -1,9 +1,9 @@
-import { Op, Sequelize } from 'sequelize';
+import { Sequelize, Op } from 'sequelize';
 import { groupBy } from 'lodash';
 import { endOfDay, parseISO, startOfDay, subDays } from 'date-fns';
 import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
 import { generateReportFromQueryData } from '../utilities';
-import { format, toDateTimeString } from '../../utils/dateTime';
+import { toDateTimeString, format } from '../../utils/dateTime';
 
 const parametersToSqlWhere = parameters => {
   const defaultWhereClause = {

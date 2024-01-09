@@ -5,7 +5,7 @@ import { RowField } from './RowField';
 import { StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { VaccineDataProps } from '.';
-import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { formatStringDate } from '../../helpers/date';
 import { DateFormats } from '../../helpers/constants';
 

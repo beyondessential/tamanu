@@ -1,9 +1,9 @@
-import { BeforeInsert, BeforeUpdate, Column, Entity, ManyToOne, RelationId } from 'typeorm/browser';
+import { Entity, Column, ManyToOne, RelationId, BeforeInsert, BeforeUpdate } from 'typeorm/browser';
 
 import { DateTimeStringColumn } from './DateColumns';
 import { ISO9075_SQLITE_DEFAULT } from './columnDefaults';
 
-import { DateTimeString, ID, ILegacyNoteItem, ILegacyNotePage, IUser } from '~/types';
+import { ID, ILegacyNoteItem, ILegacyNotePage, DateTimeString, IUser } from '~/types';
 import { SYNC_DIRECTIONS } from './types';
 
 import { BaseModel } from './BaseModel';

@@ -3,7 +3,7 @@ import config from 'config';
 import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
 import { DEFAULT_JWT_SECRET } from '../../auth';
 import { getToken } from '../../auth/utils';
-import { closeDatabase, initDatabase } from '../../database';
+import { initDatabase, closeDatabase } from '../../database';
 
 const keyTypeToSecret = {
   default: DEFAULT_JWT_SECRET,

@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { FullWidthRow, MODAL_PADDING_LEFT_AND_RIGHT } from './BaseModal';
+import { MODAL_PADDING_LEFT_AND_RIGHT, FullWidthRow } from './BaseModal';
 import { Colors } from '../constants';
 import { ButtonRow, ConfirmCancelRow, FormSubmitCancelRow } from './ButtonRow';
 

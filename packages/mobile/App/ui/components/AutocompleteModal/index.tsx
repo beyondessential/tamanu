@@ -1,5 +1,5 @@
-import React, { ReactElement, useCallback, useEffect, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { ReactElement, useCallback, useState, useEffect } from 'react';
+import { StyleSheet, View, Text } from 'react-native';
 import { Button } from 'react-native-paper';
 import { NavigationProp } from '@react-navigation/native';
 import Autocomplete from 'react-native-autocomplete-input';

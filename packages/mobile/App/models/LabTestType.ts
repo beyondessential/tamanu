@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToMany, RelationId } from 'typeorm/browser';
+import { Entity, Column, RelationId, ManyToMany } from 'typeorm/browser';
 
 import { ILabTestType, LabTestResultType } from '~/types';
 import { BaseModel } from './BaseModel';

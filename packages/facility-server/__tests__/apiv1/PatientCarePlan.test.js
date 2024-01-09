@@ -1,4 +1,4 @@
-import { createDummyPatient, randomReferenceId, randomUser } from '@tamanu/shared/demoData/patients';
+import { createDummyPatient, randomUser, randomReferenceId } from '@tamanu/shared/demoData/patients';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { createTestContext } from '../utilities';
 

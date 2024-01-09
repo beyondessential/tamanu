@@ -3,7 +3,7 @@ import { chunk } from 'lodash';
 import { isTablet } from 'react-native-device-info';
 
 import { useLocalisation } from '../contexts/LocalisationContext';
-import { RowView, StyledView } from '../styled/common';
+import { StyledView, RowView } from '../styled/common';
 import { InformationBox } from '../navigation/screens/home/PatientDetails/CustomComponents';
 
 interface FieldRowDisplayProps {

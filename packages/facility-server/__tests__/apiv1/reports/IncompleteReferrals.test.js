@@ -1,10 +1,10 @@
 import {
+  createDummyPatient,
   createDummyEncounter,
   createDummyEncounterDiagnosis,
-  createDummyPatient,
-  randomRecordId,
   randomReferenceId,
   randomReferenceIds,
+  randomRecordId,
   randomUser,
 } from '@tamanu/shared/demoData';
 import { createTestContext } from '../../utilities';

@@ -8,7 +8,7 @@ import { PATIENT_REGISTRY_TYPES, PLACE_OF_BIRTH_TYPES } from '@tamanu/constants'
 
 import { useLocalisation } from '../contexts/Localisation';
 
-import { Field, Form } from '../components/Field';
+import { Form, Field } from '../components/Field';
 import { IdField } from '../components/Field/IdField';
 import { ModalFormActionRow } from '../components/ModalActionRow';
 import { RadioField } from '../components';
@@ -16,9 +16,9 @@ import { IdBanner } from '../components/IdBanner';
 import { Colors, PATIENT_REGISTRY_OPTIONS } from '../constants';
 import { getPatientDetailsValidation } from '../validations';
 import {
-  PatientFieldsGroup,
   PrimaryDetailsGroup,
   SecondaryDetailsGroup,
+  PatientFieldsGroup,
 } from './PatientDetailsForm';
 import { useSexValues } from '../hooks';
 import { useApi } from '../api';

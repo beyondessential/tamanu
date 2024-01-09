@@ -1,10 +1,10 @@
-import React, { useCallback, useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
+  TopBar,
+  PageContainer,
   Button,
   DataFetchingTable,
   LocationSearchBar,
-  PageContainer,
-  TopBar,
 } from '../../components';
 import { NewLocationForm } from '../../forms';
 import { NewRecordModal } from './components';

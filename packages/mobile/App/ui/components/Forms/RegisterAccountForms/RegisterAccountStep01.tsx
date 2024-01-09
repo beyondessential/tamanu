@@ -5,7 +5,7 @@ import { NavigationProp } from '@react-navigation/native';
 // Components
 import { TextField } from '../../TextField/TextField';
 import { Field } from '../FormField';
-import { FullView, RowView, StyledText, StyledView } from '/styled/common';
+import { StyledView, StyledText, FullView, RowView } from '/styled/common';
 import { MaskedTextField } from '../../TextField/MaskedTextField';
 import { Button } from '../../Button';
 import { RadioButtonGroup } from '../../RadioButtonGroup';

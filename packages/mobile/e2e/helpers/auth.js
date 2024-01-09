@@ -1,4 +1,4 @@
-import { by, element } from 'detox';
+import { element, by } from 'detox';
 
 export const signIn = async (email, password) => {
   await element(by.id('intro-sign-in-button')).tap();

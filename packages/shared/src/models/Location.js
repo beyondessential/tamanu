@@ -1,8 +1,8 @@
 import { Sequelize } from 'sequelize';
 import {
-  LOCATION_AVAILABILITY_STATUS,
   SYNC_DIRECTIONS,
   VISIBILITY_STATUSES,
+  LOCATION_AVAILABILITY_STATUS,
 } from '@tamanu/constants';
 import { InvalidOperationError } from '../errors';
 import { Model } from './Model';

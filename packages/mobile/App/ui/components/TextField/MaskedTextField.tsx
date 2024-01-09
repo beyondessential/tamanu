@@ -1,12 +1,12 @@
-import React, { useRef, useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { KeyboardType, ReturnKeyTypeOptions } from 'react-native';
 import {
-  TextInputMask,
-  TextInputMaskOptionProp,
   TextInputMaskTypeProp,
+  TextInputMaskOptionProp,
+  TextInputMask,
 } from 'react-native-masked-text';
 import { StyledView } from '/styled/common';
-import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { BaseInputProps } from '../../interfaces/BaseInputProps';
 import { InputContainer, StyledMaskedInput } from './styles';
 import { TextFieldLabel } from './TextFieldLabel';

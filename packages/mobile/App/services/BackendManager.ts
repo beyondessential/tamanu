@@ -1,5 +1,5 @@
 import { Database } from '../infra/db';
-import { CentralServerConnection, MobileSyncManager } from './sync';
+import { MobileSyncManager, CentralServerConnection } from './sync';
 import { readConfig } from './config';
 import { AuthService } from './auth';
 import { AuthenticationError } from './error';

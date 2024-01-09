@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
 import styled from 'styled-components/native';
-import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
+import { screenPercentageToDP, Orientation } from '~/ui/helpers/screen';
 import { StyledText } from '~/ui/styled/common';
 import { theme } from '~/ui/styled/theme';
 

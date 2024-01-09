@@ -1,5 +1,5 @@
 import React from 'react';
-import { ContentPane, DataFetchingTable, PageContainer, TopBar } from '../../components';
+import { TopBar, PageContainer, ContentPane, DataFetchingTable } from '../../components';
 import { FHIR_JOB_STATS_ENDPOINT } from './constants';
 
 export const FhirJobStatsView = () => {

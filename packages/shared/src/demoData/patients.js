@@ -3,7 +3,7 @@ import { addHours, subMinutes } from 'date-fns';
 
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import { generateId } from '../utils/generateId';
-import { randomDate, randomRecordId, TIME_INTERVALS } from './utilities';
+import { TIME_INTERVALS, randomDate, randomRecordId } from './utilities';
 import { getCurrentDateTimeString, toDateString, toDateTimeString } from '../utils/dateTime';
 
 const { HOUR } = TIME_INTERVALS;

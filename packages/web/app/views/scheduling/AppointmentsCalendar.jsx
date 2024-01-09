@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { add, endOfDay, format, startOfDay } from 'date-fns';
+import { format, add, startOfDay, endOfDay } from 'date-fns';
 import { ButtonGroup, IconButton, Typography } from '@material-ui/core';
 import ArrowBackIcon from '@material-ui/icons/KeyboardArrowLeft';
 import ArrowForwardIcon from '@material-ui/icons/KeyboardArrowRight';
@@ -8,9 +8,9 @@ import ArrowForwardIcon from '@material-ui/icons/KeyboardArrowRight';
 import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
 import {
   PageContainer,
+  useLocalisedText,
   TOP_BAR_HEIGHT,
   TopBar as TopBarBase,
-  useLocalisedText,
 } from '../../components';
 import { TwoColumnDisplay } from '../../components/TwoColumnDisplay';
 import { DailySchedule } from '../../components/Appointments/DailySchedule';
@@ -18,7 +18,7 @@ import { NewAppointmentButton } from '../../components/Appointments/NewAppointme
 import { Button } from '../../components/Button';
 import { AutocompleteInput, MultiselectInput } from '../../components/Field';
 import { Suggester } from '../../utils/suggester';
-import { appointmentTypeOptions, Colors } from '../../constants';
+import { Colors, appointmentTypeOptions } from '../../constants';
 import { useApi, useSuggester } from '../../api';
 
 const LeftContainer = styled.div`

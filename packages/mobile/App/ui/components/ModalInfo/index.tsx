@@ -1,9 +1,9 @@
-import React, { ReactElement, useCallback } from 'react';
-import { StyledSafeAreaView, StyledText, StyledView } from '/styled/common';
+import React, { useCallback, ReactElement } from 'react';
+import { StyledView, StyledText, StyledSafeAreaView } from '/styled/common';
 import { theme } from '/styled/theme';
 
 import { Button } from '../Button';
-import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { screenPercentageToDP, Orientation } from '/helpers/screen';
 
 type ModalInfoProps = {
   isVisible: boolean;

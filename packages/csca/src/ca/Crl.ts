@@ -5,17 +5,17 @@ import { promises as fs } from 'fs';
 import { AsnConvert, OctetString } from '@peculiar/asn1-schema';
 import {
   AuthorityKeyIdentifier,
-  CertificateList,
   CRLNumber,
+  CertificateList,
   Extension,
   GeneralName,
-  id_ce_authorityKeyIdentifier,
-  id_ce_cRLNumber,
   Name,
   RevokedCertificate,
   TBSCertList,
   Time,
   Version,
+  id_ce_authorityKeyIdentifier,
+  id_ce_cRLNumber,
 } from '@peculiar/asn1-x509';
 import {
   AuthorityKeyIdentifierExtension,

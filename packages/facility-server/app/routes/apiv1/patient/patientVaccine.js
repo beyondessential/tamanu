@@ -1,13 +1,13 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import Sequelize, { Op, QueryTypes } from 'sequelize';
+import Sequelize, { QueryTypes, Op } from 'sequelize';
 import config from 'config';
 
 import {
   ENCOUNTER_TYPES,
-  SETTING_KEYS,
   VACCINE_CATEGORIES,
   VACCINE_STATUS,
+  SETTING_KEYS,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import { NotFoundError } from '@tamanu/shared/errors';

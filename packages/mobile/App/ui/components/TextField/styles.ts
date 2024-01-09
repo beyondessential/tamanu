@@ -1,7 +1,7 @@
 import styled from 'styled-components/native';
 import {
-  TextInputMaskOptionProp,
   TextInputMaskProps,
+  TextInputMaskOptionProp,
   TextInputMaskTypeProp,
 } from 'react-native-masked-text';
 import { theme } from '/styled/theme';

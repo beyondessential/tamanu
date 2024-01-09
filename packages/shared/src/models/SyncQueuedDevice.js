@@ -1,7 +1,7 @@
 import { DataTypes, Op } from 'sequelize';
 import { subMinutes } from 'date-fns';
 
-import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { toDateTimeString, getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';

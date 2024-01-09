@@ -1,7 +1,7 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react-native';
 import { ThemeProvider } from 'styled-components/native';
-import { CenterView, themeSystem } from '/styled/common';
+import { themeSystem, CenterView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { VisitChart } from './VisitChart';
 import { YearlyChart } from './YearlyChart';

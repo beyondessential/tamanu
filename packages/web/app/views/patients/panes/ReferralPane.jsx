@@ -4,7 +4,7 @@ import { push } from 'connected-react-router';
 import { useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
 
-import { Button, ContentPane, TableButtonRow } from '../../../components';
+import { TableButtonRow, Button, ContentPane } from '../../../components';
 import { ReferralTable } from '../../../components/ReferralTable';
 
 export const ReferralPane = React.memo(({ patient }) => {

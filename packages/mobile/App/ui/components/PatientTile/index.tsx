@@ -1,10 +1,10 @@
 import React from 'react';
-import { RowView, StyledText, StyledView } from '/styled/common';
+import { RowView, StyledView, StyledText } from '/styled/common';
 import { UserAvatar } from '../UserAvatar';
 import { getAgeFromDate } from '/helpers/date';
 import { theme } from '/styled/theme';
 import { getGender, joinNames } from '/helpers/user';
-import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { IPatient } from '~/types';
 
 export const PatientTile = (patient: IPatient): JSX.Element => {

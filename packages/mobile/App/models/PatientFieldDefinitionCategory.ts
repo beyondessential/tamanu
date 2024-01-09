@@ -1,4 +1,4 @@
-import { Column, Entity, OneToMany } from 'typeorm/browser';
+import { Entity, Column, OneToMany } from 'typeorm/browser';
 
 import { IPatientFieldDefinitionCategory } from '~/types';
 import { BaseModel } from './BaseModel';

@@ -1,4 +1,4 @@
-import { cp, readFile, writeFile } from 'fs/promises';
+import { writeFile, readFile, cp } from 'fs/promises';
 import { createInterface } from 'readline';
 
 const PKG_PATH = './package.json';

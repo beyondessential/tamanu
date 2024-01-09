@@ -1,8 +1,8 @@
 import React from 'react';
-import { StyledImage, StyledText, StyledView } from '/styled/common';
+import { StyledView, StyledText, StyledImage } from '/styled/common';
 import { theme } from '/styled/theme';
-import { Genders, getUserInitials } from '/helpers/user';
-import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { getUserInitials, Genders } from '/helpers/user';
+import { screenPercentageToDP, Orientation } from '/helpers/screen';
 
 export interface UserAvatarProps {
   image?: string;

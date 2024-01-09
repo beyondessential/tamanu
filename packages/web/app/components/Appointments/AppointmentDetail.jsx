@@ -12,7 +12,7 @@ import { useQuery } from '@tanstack/react-query';
 import { PatientNameDisplay } from '../PatientNameDisplay';
 import { TextDisplayIdLabel } from '../DisplayIdLabel';
 import { DateDisplay } from '../DateDisplay';
-import { appointmentStatusOptions, Colors } from '../../constants';
+import { Colors, appointmentStatusOptions } from '../../constants';
 import { useApi } from '../../api';
 import { reloadPatient } from '../../store/patient';
 import { AppointmentModal } from './AppointmentModal';

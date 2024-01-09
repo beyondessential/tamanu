@@ -5,7 +5,7 @@ import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { useApi, useSuggester } from '../api';
 import { Colors } from '../constants';
 import { FormSubmitCancelRow } from './ButtonRow';
-import { AutocompleteField, DateTimeField, Field, Form, TextField } from './Field';
+import { Form, Field, TextField, DateTimeField, AutocompleteField } from './Field';
 import { FormGrid } from './FormGrid';
 
 const SubmitError = styled.div`

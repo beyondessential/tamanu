@@ -3,7 +3,7 @@ import { Command } from 'commander';
 import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
 import { log } from '@tamanu/shared/services/logging';
 import { initDeviceId } from '../sync/initDeviceId';
-import { CentralServerConnection, FacilitySyncManager } from '../sync';
+import { FacilitySyncManager, CentralServerConnection } from '../sync';
 import { ApplicationContext } from '../ApplicationContext';
 
 async function sync({ delay: delaySecondsStr }) {

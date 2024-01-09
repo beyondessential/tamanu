@@ -2,20 +2,20 @@ import * as yup from 'yup';
 import {
   ENCOUNTER_TYPES,
   INJECTION_SITE_OPTIONS,
-  LAB_TEST_RESULT_TYPES,
-  LAB_TEST_TYPE_VISIBILITY_STATUSES,
   PROGRAM_DATA_ELEMENT_TYPE_VALUES,
   VACCINE_STATUS,
+  LAB_TEST_RESULT_TYPES,
   VISIBILITY_STATUSES,
+  LAB_TEST_TYPE_VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import config from 'config';
 import {
-  configString,
   jsonString,
   validationString,
+  configString,
   visualisationConfigString,
 } from './jsonString';
-import { rangeArraySchema, rangeObjectSchema } from './rangeObject';
+import { rangeObjectSchema, rangeArraySchema } from './rangeObject';
 
 const visibilityStatus = yup
   .string()

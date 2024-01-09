@@ -5,17 +5,17 @@ import { useFormikContext } from 'formik';
 import { Link } from 'react-router-dom';
 import { red } from '@material-ui/core/colors';
 import {
-  CircularProgress,
   IconButton,
   Button as MuiButton,
   ButtonBase as MuiButtonBase,
+  CircularProgress,
 } from '@material-ui/core';
 import {
   AddBoxOutlined,
-  ChevronLeft,
   IndeterminateCheckBox,
-  Lock,
+  ChevronLeft,
   Refresh,
+  Lock,
 } from '@material-ui/icons';
 
 import { Colors } from '../constants';

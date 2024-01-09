@@ -5,7 +5,7 @@ import { DOCUMENT_SIZE_LIMIT, DOCUMENT_SOURCES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { NotFoundError } from '@tamanu/shared/errors';
 import { uploadAttachment } from '../../../utils/uploadAttachment';
-import { getCaseInsensitiveFilter, getOrderClause, mapQueryFilters } from '../../../database/utils';
+import { mapQueryFilters, getCaseInsensitiveFilter, getOrderClause } from '../../../database/utils';
 import { createPatientLetter } from '../../../routeHandlers/createPatientLetter';
 
 // Object used to map field names to database column names

@@ -1,7 +1,7 @@
-import React, { ReactElement, useEffect, useState } from 'react';
+import React, { ReactElement, useState, useEffect } from 'react';
 import { useNetInfo } from '@react-native-community/netinfo';
 
-import { Dropdown, SelectOption } from '../Dropdown';
+import { SelectOption, Dropdown } from '../Dropdown';
 import { StyledText, StyledView } from '../../styled/common';
 import { theme } from '../../styled/theme';
 import { Orientation, screenPercentageToDP } from '../../helpers/screen';

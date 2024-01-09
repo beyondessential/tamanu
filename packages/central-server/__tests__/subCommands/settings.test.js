@@ -1,9 +1,9 @@
 import { join } from 'path';
-import { mkdtemp, rmdir, writeFile } from 'fs/promises';
+import { mkdtemp, writeFile, rmdir } from 'fs/promises';
 import { tmpdir } from 'os';
 import { fake } from '@tamanu/shared/test-helpers/fake';
 import { Op } from 'sequelize';
-import { getSetting, listSettings, loadSettings, setSetting } from '../../dist/subCommands/settings';
+import { listSettings, getSetting, setSetting, loadSettings } from '../../dist/subCommands/settings';
 import { createTestContext } from '../utilities';
 
 describe('settings', () => {

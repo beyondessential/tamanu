@@ -4,7 +4,7 @@ import { UserAvatar, UserAvatarProps } from './index';
 import { CameraOutlineIcon, GivenOnTimeIcon } from '../Icons';
 import { CenterView, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
-import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { screenPercentageToDP, Orientation } from '/helpers/screen';
 
 const makeUser = (image?: string, Icon?: any): UserAvatarProps => ({
   size: 25,

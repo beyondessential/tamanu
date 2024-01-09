@@ -13,10 +13,10 @@ import { ResetPasswordForm } from '../forms/ResetPasswordForm';
 import { ChangePasswordForm } from '../forms/ChangePasswordForm';
 import {
   changePassword,
-  clearPatient,
   login,
   requestPasswordReset,
   restartPasswordResetFlow,
+  clearPatient,
 } from '../store';
 import { useApi } from '../api';
 

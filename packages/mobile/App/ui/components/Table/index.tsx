@@ -1,5 +1,5 @@
 import React from 'react';
-import { RowView, StyledView } from '/styled/common';
+import { StyledView, RowView } from '/styled/common';
 import { ScrollView } from 'react-native-gesture-handler';
 import { NativeScrollEvent, NativeSyntheticEvent } from 'react-native';
 

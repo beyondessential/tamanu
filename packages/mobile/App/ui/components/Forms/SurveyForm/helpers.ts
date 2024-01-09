@@ -2,14 +2,14 @@
 import * as Yup from 'yup';
 
 import { getAgeFromDate, getAgeWithMonthsFromDate } from '~/ui/helpers/date';
-import { checkMandatory, FieldTypes } from '~/ui/helpers/fields';
+import { FieldTypes, checkMandatory } from '~/ui/helpers/fields';
 import { joinNames } from '~/ui/helpers/user';
 import {
   IPatient,
-  IPatientAdditionalData,
   ISurveyScreenComponent,
   IUser,
   SurveyScreenValidationCriteria,
+  IPatientAdditionalData,
 } from '~/types';
 
 function getInitialValue(dataElement): string {

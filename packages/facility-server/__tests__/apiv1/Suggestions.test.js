@@ -1,10 +1,10 @@
-import { LOCATION_AVAILABILITY_STATUS, SURVEY_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { SURVEY_TYPES, VISIBILITY_STATUSES, LOCATION_AVAILABILITY_STATUS } from '@tamanu/constants';
 import {
-  buildDiagnosis,
-  createDummyEncounter,
-  createDummyPatient,
-  randomRecords,
   splitIds,
+  buildDiagnosis,
+  createDummyPatient,
+  createDummyEncounter,
+  randomRecords,
 } from '@tamanu/shared/demoData';
 import { findOneOrCreate } from '@tamanu/shared/test-helpers';
 import { createTestContext } from '../utilities';
