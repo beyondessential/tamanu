@@ -195,15 +195,6 @@ jobs:
             '${{ env.OUTPUT_NAME }}.tar.zst'
           rm minisign.*
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: ${{ env.OUTPUT_NAME }}
-          path: |
-            ${{ env.OUTPUT_NAME }}.tar.zst
-            ${{ env.OUTPUT_NAME }}.tar.zst.sig
-          retention-days: 1
-
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
