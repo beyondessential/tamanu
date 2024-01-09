@@ -53,11 +53,7 @@ interface TextProps {
   lineHeight?: number | string;
   fontSize?: number | string | Value<number>;
   fontWeight?: number | string;
-  textDecorationLine?:
-  | 'none'
-  | 'underline'
-  | 'line-through'
-  | 'underline line-through';
+  textDecorationLine?: 'none' | 'underline' | 'line-through' | 'underline line-through';
   color?: string;
 }
 export interface SpacingProps {
@@ -112,17 +108,13 @@ interface VisibilityProps {
   opacity?: string | number | Value<number>;
 }
 
-export interface StyledTextProps
-  extends SpacingProps,
-  FlexProps,
-  BorderProps,
-  TextProps {}
+export interface StyledTextProps extends SpacingProps, FlexProps, BorderProps, TextProps {}
 export interface StyledViewProps
   extends PositionProps,
-  SpacingProps,
-  VisibilityProps,
-  FlexProps,
-  BorderProps {
+    SpacingProps,
+    VisibilityProps,
+    FlexProps,
+    BorderProps {
   children?: ReactNode | Element[];
   background?: string;
   overflow?: string;
@@ -138,10 +130,8 @@ export const StyledView = styled.View<StyledViewProps>`
   ${flexbox}
   ${flexGrow}
   ${background}
-  ${({
-    borderLeftWidth,
-  }): string | number => `border-left-width: ${borderLeftWidth}` || 0};
-  ${({ borderBottomWidth }): string | number => `border-bottom-width: ${borderBottomWidth}` || 0};
+  ${({ borderLeftWidth }): string | number => `border-left-width: ${borderLeftWidth || 0}`};
+  ${({ borderBottomWidth }): string | number => `border-bottom-width: ${borderBottomWidth || 0}`};
   ${boxShadow}
   ${zIndex}
   ${justifyContent}
@@ -161,9 +151,7 @@ export const StyledSafeAreaView = styled(SafeAreaView)<StyledViewProps>`
   ${background}
   ${overflow}
   ${position}
-  ${({
-    borderLeftWidth = 0,
-  }): string => `border-left-width: ${borderLeftWidth}`};
+  ${({ borderLeftWidth = 0 }): string => `border-left-width: ${borderLeftWidth}`};
   ${({ borderRightWidth = 0 }): string => `border-right-width: ${borderRightWidth}`};
   ${({ borderTopWidth = 0 }): string => `border-top-width: ${borderTopWidth}`};
   ${({ borderBottomWidth = 0 }): string => `border-bottom-width: ${borderBottomWidth}`};
@@ -177,9 +165,7 @@ export const StyledNavigationView = styled(SafeAreaView)<StyledViewProps>`
   ${background}
   ${overflow}
   ${position}
-  ${({
-    borderLeftWidth = 0,
-  }): string => `border-left-width: ${borderLeftWidth}`};
+  ${({ borderLeftWidth = 0 }): string => `border-left-width: ${borderLeftWidth}`};
   ${({ borderRightWidth = 0 }): string => `border-right-width: ${borderRightWidth}`};
   ${({ borderTopWidth = 0 }): string => `border-top-width: ${borderTopWidth}`};
   ${({ borderBottomWidth = 0 }): string => `border-bottom-width: ${borderBottomWidth}`};
@@ -196,16 +182,14 @@ export const StyledText = styled.Text<StyledTextProps>`
   ${padding}
   ${flexbox}
   ${background}
-  ${({
-    borderBottomWidth,
-  }): string | number => `border-left-width: ${borderBottomWidth}` || 0};
+  ${({ borderBottomWidth }): string | number => `border-left-width: ${borderBottomWidth || 0}`};
   text-decoration-line: ${({ textDecorationLine }): string => textDecorationLine || 'none'};
 `;
 
 interface StyledImageProps {
   height?: string | number;
   width?: string | number;
-  textAlign?: string
+  textAlign?: string;
 }
 
 export const StyledImage = styled.Image<StyledImageProps>`
@@ -218,9 +202,7 @@ interface StyledTouchableOpacityProps extends StyledViewProps {
   onPress: (e?: GestureResponderEvent) => void;
 }
 
-export const StyledTouchableOpacity = styled.TouchableOpacity<
-StyledTouchableOpacityProps
->`
+export const StyledTouchableOpacity = styled.TouchableOpacity<StyledTouchableOpacityProps>`
   ${color}
   ${fontWeight}
   ${fontSize}

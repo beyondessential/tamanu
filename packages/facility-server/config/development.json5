@@ -1,0 +1,23 @@
+{
+  "admin": {
+    "allowAdminRoutes": true
+  },
+  "serverFacilityId": "tamanuFijiGenerate-facility-0",
+  "auth": {
+    "useHardcodedPermissions": false,
+    "secret": "insecure"
+  },
+  "db": {
+    "migrateOnStartup": true,
+    "name": "tamanu-facility"
+  },
+  "sync": {
+    "host": "http://localhost:3000",
+    "email": "admin@tamanu.io",
+    "password": "admin",
+    "enabled": true
+  },
+  "log": {
+    "consoleLevel": "http"
+  }
+}

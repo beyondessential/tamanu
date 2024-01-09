@@ -91,7 +91,7 @@ export const PatientSectionList = ({ patients, onPressItem }: PatientSectionList
             onPress={() => {
               if (scrollViewRef.current) {
                 let offset = 0;
-                for (var i = 0; i < sectionIndex; i++) {
+                for (let i = 0; i < sectionIndex; i += 1) {
                   offset = offset + SECTION_HEADER_HEIGHT;
                   offset = offset + groupedPatients[i].items.length * ITEM_HEIGHT;
                 }

@@ -66,3 +66,21 @@ WORKDIR /app/packages/${PACKAGE_PATH}
 # explicitly reconfigure the port
 RUN echo '{"port":3000}' > config/local.json
 EXPOSE 3000
+
+
+## Build the frontend
+FROM build-base as build-frontend
+RUN apk add zstd brotli
+COPY packages/ packages/
+RUN scripts/docker-build.sh web
+
+
+## Minimal image to serve the frontend
+FROM alpine as frontend
+WORKDIR /app
+ENTRYPOINT ["/usr/bin/caddy"]
+CMD ["run", "--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile"]
+COPY --from=caddy:2-alpine /usr/bin/caddy /usr/bin/caddy
+COPY packages/web/Caddyfile.docker /etc/caddy/Caddyfile
+COPY --from=build-frontend /app/packages/web/dist/ .
+COPY --from=metadata /meta/ /meta/

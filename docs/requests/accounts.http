@@ -1,5 +1,5 @@
 @token=fake-token
-@server=https://sync-demo.tamanu.io
+@server=https://central-demo.tamanu.io
 @since=0
 
 ### Log in
