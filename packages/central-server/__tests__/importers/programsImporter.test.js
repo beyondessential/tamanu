@@ -533,7 +533,7 @@ describe('Programs import', () => {
       expect(errors).not.toBeEmpty();
       expect(errors.length).toEqual(1);
       expect(errors[0].message).toEqual(
-        'config: column=registrationCurrentlyAtFacility but program registry configured for village on Import Registry With Survey at row 3',
+        'config: writeToPatient.fieldName=registrationCurrentlyAtFacility but program registry configured for village on Import Registry With Survey at row 3',
       );
     });
 
