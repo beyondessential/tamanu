@@ -23,6 +23,7 @@ const DisplayContainer = styled.div`
   justify-content: space-between;
   align-items: center;
   border: 1px solid ${Colors.softOutline};
+  border-radius: 5px;
   font-size: 11px;
   padding: 10px;
   background-color: ${Colors.white};
@@ -33,6 +34,7 @@ const LogoContainer = styled.div`
   justify-content: center;
   align-items: center;
   margin-right: 10px;
+  margin-left: 17px;
 `;
 
 const DividerVertical = styled.div`
@@ -64,6 +66,8 @@ const TextColumns = styled.div`
   flex-direction: column;
   justify-content: flex-start;
   margin-right: 5px;
+  font-weight: 400;
+  font-size: 11px;
 `;
 
 export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {

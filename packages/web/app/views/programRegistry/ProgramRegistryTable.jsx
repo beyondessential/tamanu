@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
 import { useParams } from 'react-router-dom';
@@ -122,6 +122,8 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
       },
     ];
   }, []);
+
+  useEffect(() => updateRefreshCount(), [updateRefreshCount, searchParameters]);
 
   const dispatch = useDispatch();
   const selectRegistration = async registration => {
