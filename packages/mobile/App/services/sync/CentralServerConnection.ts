@@ -2,18 +2,18 @@ import mitt from 'mitt';
 
 import { getUniqueId } from 'react-native-device-info';
 import { readConfig } from '../config';
-import { LoginResponse, SyncRecord, FetchOptions } from './types';
+import { FetchOptions, LoginResponse, SyncRecord } from './types';
 import {
   AuthenticationError,
+  generalErrorMessage,
+  invalidTokenMessage,
+  invalidUserCredentialsMessage,
   OutdatedVersionError,
   RemoteError,
-  invalidUserCredentialsMessage,
-  invalidTokenMessage,
-  generalErrorMessage,
 } from '../error';
 import { version } from '/root/package.json';
 
-import { callWithBackoff, getResponseJsonSafely, fetchWithTimeout, sleepAsync } from './utils';
+import { callWithBackoff, fetchWithTimeout, getResponseJsonSafely, sleepAsync } from './utils';
 import { CentralConnectionStatus } from '~/types';
 
 const API_VERSION = 1;

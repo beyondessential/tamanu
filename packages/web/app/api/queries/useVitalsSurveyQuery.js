@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { useApi, isErrorUnknownAllow404s } from '../index';
+import { isErrorUnknownAllow404s, useApi } from '../index';
 
 export const useVitalsSurveyQuery = () => {
   const api = useApi();

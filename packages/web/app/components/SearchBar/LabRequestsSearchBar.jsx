@@ -3,17 +3,17 @@ import styled from 'styled-components';
 import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
 import { LAB_REQUEST_STATUS_OPTIONS } from '../../constants';
 import {
-  DateField,
-  SelectField,
-  LocalisedField,
-  Field,
-  SuggesterSelectField,
-  SearchField,
   AutocompleteField,
   CheckField,
+  DateField,
+  Field,
+  LocalisedField,
+  SearchField,
+  SelectField,
+  SuggesterSelectField,
 } from '../Field';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
-import { useLabRequest, LabRequestSearchParamKeys } from '../../contexts/LabRequest';
+import { LabRequestSearchParamKeys, useLabRequest } from '../../contexts/LabRequest';
 import { useSuggester } from '../../api';
 import { useAdvancedFields } from './useAdvancedFields';
 
