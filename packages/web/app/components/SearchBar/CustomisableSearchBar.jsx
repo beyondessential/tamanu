@@ -75,9 +75,7 @@ export const CustomisableSearchBar = ({
   hiddenFields,
 }) => {
   const switchExpandValue = useCallback(() => {
-    setIsExpanded(previous => {
-      setIsExpanded(!previous);
-    });
+    setIsExpanded(previous => !previous);
   }, [setIsExpanded]);
 
   const handleSubmit = values => {
