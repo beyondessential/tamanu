@@ -137,11 +137,13 @@ describe('ProgramRegistry', () => {
         .query({ excludePatientId: testPatient.id });
       expect(result).toHaveSucceeded();
       expect(result.body.data.length).toBe(3);
-      expect(result.body.data).arrayContaining([
-        expect.toMatchObject({
-          registryId: registryId2
-        })
-      ]);
+      expect(result.body.data).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            id: registryId2,
+          }),
+        ]),
+      );
     });
 
     it('should escape the excludePatientId parameter', async () => {

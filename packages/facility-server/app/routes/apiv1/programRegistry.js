@@ -13,19 +13,6 @@ import {
 
 export const programRegistry = express.Router();
 
-const MOST_RECENT_REGISTRATIONS_QUERY = `
-  SELECT *
-  FROM (
-    SELECT 
-      *,
-      ROW_NUMBER() OVER (PARTITION BY patient_id, program_registry_id ORDER BY date DESC, id DESC) AS row_num
-    FROM patient_program_registrations
-    WHERE program_registry_id = :programRegistryId
-  ) n
-  WHERE n.row_num = 1
-`
-
-
 
 programRegistry.get('/:id', simpleGet('ProgramRegistry'));
 
@@ -52,7 +39,14 @@ programRegistry.get(
                 SELECT DISTINCT(pr.id)
                 FROM program_registries pr
                 INNER JOIN (
-                  ${MOST_RECENT_REGISTRATIONS_QUERY}
+                  SELECT *
+                  FROM (
+                    SELECT 
+                      *,
+                      ROW_NUMBER() OVER (PARTITION BY patient_id, program_registry_id ORDER BY date DESC, id DESC) AS row_num
+                    FROM patient_program_registrations
+                  ) n
+                  WHERE n.row_num = 1
                 ) mrr
                 ON mrr.program_registry_id = pr.id
                 WHERE
@@ -177,7 +171,15 @@ programRegistry.get(
     const withClause = `
       with
         most_recent_registrations as (
-          ${MOST_RECENT_REGISTRATIONS_QUERY}
+          SELECT *
+          FROM (
+            SELECT 
+              *,
+              ROW_NUMBER() OVER (PARTITION BY patient_id, program_registry_id ORDER BY date DESC, id DESC) AS row_num
+            FROM patient_program_registrations
+            WHERE program_registry_id = :programRegistryId
+          ) n
+          WHERE n.row_num = 1
         ),
         conditions as (
           SELECT patient_id, jsonb_agg(prc."name") condition_list  
