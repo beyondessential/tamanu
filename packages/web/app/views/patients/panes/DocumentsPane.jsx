@@ -12,6 +12,7 @@ import { DocumentsSearchBar } from '../../../components/DocumentsSearchBar';
 import { TabPane } from '../components';
 import { OutlinedButton, Button, ContentPane, TableButtonRow } from '../../../components';
 
+
 const MODAL_STATES = {
   DOCUMENT_OPEN: 'document',
   PATIENT_LETTER_OPEN: 'patient_letter',
@@ -60,7 +61,7 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
         const fileExtension = extension(document.type);
 
         const fileHandle = await window.showSaveFilePicker({
-          suggestedName: `table-export.${fileExtension}`,
+          suggestedName: `${document.name.replaceAll(' ', '-').toLowerCase()}.${fileExtension}`,
         });
 
         const writable = await fileHandle.createWritable();
