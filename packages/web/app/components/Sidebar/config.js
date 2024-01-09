@@ -109,7 +109,7 @@ export const FACILITY_MENU_ITEMS = [
     children: [
       {
         label: 'Active requests',
-        path: '/lab-requests/active',
+        path: '/lab-requests/all',
         ability: { action: 'read' },
       },
       {
