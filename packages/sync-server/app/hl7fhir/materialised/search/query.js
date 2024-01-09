@@ -1,7 +1,6 @@
 import { last } from 'lodash';
 
-import { FHIR_COUNT_CONFIG_DEFAULT } from '@tamanu/shared/utils/fhir/parameters';
-
+import { getCountParameters } from '@tamanu/shared/utils/fhir';
 import { pushToQuery } from './common';
 import { generateWhereClause } from './where';
 import { generateOrderClause } from './order';
@@ -11,9 +10,11 @@ import { generateOrderClause } from './order';
  * @param {*} parameters The search parameters for the resource
  * @param {*} FhirResource The resource model
  */
-export function buildSearchQuery(query, parameters, FhirResource) {
+export async function buildSearchQuery(query, parameters, FhirResource, settings) {
+  const { default: countDefault } = await getCountParameters(settings);
+
   const sql = {
-    limit: FHIR_COUNT_CONFIG_DEFAULT,
+    limit: countDefault,
   };
 
   if (query.has('_sort')) {

@@ -15,7 +15,7 @@ import { buildSearchQuery } from './query';
 
 export function searchHandler(FhirResource) {
   return asyncHandler(async (req, res) => {
-    const parameters = normaliseParameters(FhirResource);
+    const parameters = await normaliseParameters(FhirResource, req.settings);
     const query = await parseRequest(req, parameters);
 
     let includes = null;
@@ -23,7 +23,7 @@ export function searchHandler(FhirResource) {
       includes = resolveIncludes(req.store.models, query, parameters, FhirResource);
     }
 
-    const sqlQuery = buildSearchQuery(query, parameters, FhirResource);
+    const sqlQuery = await buildSearchQuery(query, parameters, FhirResource, req.settings);
     const total = await FhirResource.count(sqlQuery);
     const records = await FhirResource.findAll(sqlQuery);
     const { included, errors } = await retrieveIncludes(

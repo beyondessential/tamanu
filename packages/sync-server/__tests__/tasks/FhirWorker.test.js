@@ -4,6 +4,7 @@ import { FhirWorker } from '@tamanu/shared/tasks';
 import { fakeUUID } from '@tamanu/shared/utils/generateId';
 import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
 
+import { SETTINGS_SCOPES } from '@tamanu/constants/settings';
 import { createTestContext } from '../utilities';
 
 function makeLogger(mock, topData = {}) {
@@ -103,7 +104,7 @@ describe('Worker Jobs', () => {
 
     beforeEach(async () => {
       logger = jest.fn();
-      worker = new FhirWorker(ctx.store, makeLogger(logger));
+      worker = new FhirWorker(ctx.store, makeLogger(logger), ctx.settings);
       worker.testMode = true;
       await worker.start();
       await worker.setHandler('test', workerTest);
@@ -154,9 +155,8 @@ describe('Worker Jobs', () => {
         await models.FhirJob.truncate();
 
         logger = jest.fn();
-        worker = new FhirWorker(ctx.store, makeLogger(logger));
+        worker = new FhirWorker(ctx.store, makeLogger(logger), ctx.settings);
         worker.testMode = true;
-        worker.config.concurrency = 1;
         await worker.start();
         await worker.setHandler('test1', workerTest);
         await worker.setHandler('test2', workerTest);
@@ -272,28 +272,32 @@ describe('Worker Jobs', () => {
 
     it(
       'keeps track of capacity',
-      withErrorShown(() => {
-        worker.config.concurrency = 5;
-
+      withErrorShown(async () => {
+        const concurrency = 5;
+        await models.Setting.set(
+          'integrations.fhir.worker.concurrency',
+          concurrency,
+          SETTINGS_SCOPES.CENTRAL,
+        );
         expect(worker.processing.size).toBe(0);
-        expect(worker.totalCapacity()).toBe(5);
-        expect(worker.topicCapacity()).toBe(2);
+        expect(worker.totalCapacity(concurrency)).toBe(5);
+        expect(worker.topicCapacity(concurrency)).toBe(2);
 
         worker.processing.add('job1');
         worker.processing.add('job2');
         expect(worker.processing.size).toBe(2);
-        expect(worker.totalCapacity()).toBe(3);
-        expect(worker.topicCapacity()).toBe(1);
+        expect(worker.totalCapacity(concurrency)).toBe(3);
+        expect(worker.topicCapacity(concurrency)).toBe(1);
 
         worker.processing.add('job3');
         worker.processing.add('job4');
         expect(worker.processing.size).toBe(4);
-        expect(worker.totalCapacity()).toBe(1);
-        expect(worker.topicCapacity()).toBe(1);
+        expect(worker.totalCapacity(concurrency)).toBe(1);
+        expect(worker.topicCapacity(concurrency)).toBe(1);
 
         worker.processing.add('job5');
-        expect(worker.totalCapacity()).toBe(0);
-        expect(worker.topicCapacity()).toBe(0);
+        expect(worker.totalCapacity(concurrency)).toBe(0);
+        expect(worker.topicCapacity(concurrency)).toBe(0);
       }),
     );
 
@@ -301,7 +305,12 @@ describe('Worker Jobs', () => {
       'several jobs can be grabbed simultaneously',
       withErrorShown(async () => {
         const { FhirJob: Job } = models;
-        worker.config.concurrency = 10;
+        const concurrency = 10;
+        await models.Setting.set(
+          'integrations.fhir.worker.concurrency',
+          concurrency,
+          SETTINGS_SCOPES.CENTRAL,
+        );
         await worker.setHandler('test3', workerTest);
         const id1 = await Job.submit('test3');
         const id2 = await Job.submit('test3');
