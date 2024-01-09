@@ -2,6 +2,7 @@ import React from 'react';
 import { Typography } from '@material-ui/core';
 import styled from 'styled-components';
 import { Colors } from '../constants/index.js';
+import { TamanuLogo, TamanuLogoWhite } from '../components/index.js';
 
 const UnavailableHeading = styled(Typography)`
   color: ${Colors.darkestText};
@@ -28,9 +29,22 @@ const ScreenContainer = styled.div`
   flex-direction: column;
 `;
 
+const LogoContainer = styled.div`
+  position: absolute;
+  top: 25px;
+  left: 25px;
+  background-color: #5ac8fa;
+  :hover {
+    cursor: pointer;
+  }
+`;
+
 export const UnavailableView = () => {
   return (
     <ScreenContainer>
+      <LogoContainer onClick={() => window.location.reload()}>
+        <TamanuLogoWhite size="140px" />
+      </LogoContainer>
       <UnavailableHeading>Tamanu is currently unavailable</UnavailableHeading>
       <UnavailableBodyText>
         Tamanu is currently unavailable. Please try again later or contact your system administrator
