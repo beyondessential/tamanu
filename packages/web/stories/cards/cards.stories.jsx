@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box } from '@material-ui/core';
-import { OutlinedButton, MenuButton } from '../../app/components';
+import { MenuButton, OutlinedButton } from '../../app/components';
 import { LabRequestCard } from '../../app/views/patients/components/LabRequestCard';
 
 export default {

@@ -1,4 +1,4 @@
-import React, { memo, useState, useEffect } from 'react';
+import React, { memo, useEffect, useState } from 'react';
 import { Alert, AlertTitle } from '@material-ui/lab';
 
 import { BaseModal } from './BaseModal';

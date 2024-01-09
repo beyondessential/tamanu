@@ -10,7 +10,7 @@ import { changePassword } from './changePassword';
 import { resetPassword } from './resetPassword';
 import { login } from './login';
 import { refresh } from './refresh';
-import { userMiddleware, userInfo } from './userMiddleware';
+import { userInfo, userMiddleware } from './userMiddleware';
 
 export const DEFAULT_JWT_SECRET = config.auth.secret || crypto.randomUUID();
 export const DEFAULT_JWT_REFRESH_SECRET = config.auth.refreshToken.secret || crypto.randomUUID();

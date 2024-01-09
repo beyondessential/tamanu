@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { SuggesterSelectField, Field } from '../../components';
+import { Field, SuggesterSelectField } from '../../components';
 
 export const LabTestCategoryField = ({
   name = 'labTestCategoryId',

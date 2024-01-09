@@ -1,8 +1,8 @@
 import { Command } from 'commander';
-import { uniq, pick } from 'lodash';
+import { pick, uniq } from 'lodash';
 import { UniqueConstraintError } from 'sequelize';
 
-import { initDatabase, closeDatabase } from '../../../database';
+import { closeDatabase, initDatabase } from '../../../database';
 import { seed } from '../chance';
 import { loopAndGenerate } from '../loopAndGenerate';
 import { STEPS } from './steps';

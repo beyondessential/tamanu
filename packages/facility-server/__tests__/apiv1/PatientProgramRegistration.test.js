@@ -1,5 +1,5 @@
 import { fake } from '@tamanu/shared/test-helpers';
-import { REGISTRATION_STATUSES, DELETION_STATUSES } from '@tamanu/constants';
+import { DELETION_STATUSES, REGISTRATION_STATUSES } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
 
 describe('PatientProgramRegistration', () => {

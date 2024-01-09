@@ -1,10 +1,10 @@
-import React, { useState, useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Dimensions, Text } from 'react-native';
 import RNFS from 'react-native-fs';
 import { Popup } from 'popup-ui';
 import { useBackend } from '~/ui/hooks';
-import { StyledView, StyledImage } from '/styled/common';
-import { getImageFromPhotoLibrary, resizeImage, imageToBase64URI } from '/helpers/image';
+import { StyledImage, StyledView } from '/styled/common';
+import { getImageFromPhotoLibrary, imageToBase64URI, resizeImage } from '/helpers/image';
 import { deleteFileInDocuments } from '/helpers/file';
 import { BaseInputProps } from '../../interfaces/BaseInputProps';
 import { Button } from '~/ui/components/Button';

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
-import { Switch, Route } from 'react-router-dom';
+import { Route, Switch } from 'react-router-dom';
 import styled from 'styled-components';
 import { PatientInfoPane } from '../components/PatientInfoPane';
 import { getPatientNameAsString } from '../components/PatientNameDisplay';

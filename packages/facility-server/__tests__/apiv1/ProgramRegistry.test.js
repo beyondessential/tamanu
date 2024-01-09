@@ -1,4 +1,4 @@
-import { VISIBILITY_STATUSES, REGISTRATION_STATUSES } from '@tamanu/constants';
+import { REGISTRATION_STATUSES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { fake } from '@tamanu/shared/test-helpers';
 import { createTestContext } from '../utilities';
 

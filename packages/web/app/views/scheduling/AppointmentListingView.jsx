@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import {
-  TopBar,
-  DateDisplay,
-  PageContainer,
   AppointmentsSearchBar,
   ContentPane,
-  SearchTableTitle,
+  DateDisplay,
+  PageContainer,
   SearchTable,
+  SearchTableTitle,
+  TopBar,
   useLocalisedText,
 } from '../../components';
 import { NewAppointmentButton } from '../../components/Appointments/NewAppointmentButton';

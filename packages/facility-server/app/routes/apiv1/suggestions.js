@@ -1,17 +1,17 @@
 import { pascal } from 'case';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { Sequelize, Op, literal } from 'sequelize';
+import { literal, Op, Sequelize } from 'sequelize';
 import config from 'config';
 import { NotFoundError } from '@tamanu/shared/errors';
 import {
-  SURVEY_TYPES,
+  INVOICE_LINE_TYPES,
   REFERENCE_TYPE_VALUES,
   REFERENCE_TYPES,
-  INVOICE_LINE_TYPES,
-  VISIBILITY_STATUSES,
-  SUGGESTER_ENDPOINTS,
   REGISTRATION_STATUSES,
+  SUGGESTER_ENDPOINTS,
+  SURVEY_TYPES,
+  VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 
 export const suggestions = express.Router();

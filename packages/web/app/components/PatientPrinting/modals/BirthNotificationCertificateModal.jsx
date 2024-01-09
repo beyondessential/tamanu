@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import { Modal } from '../../Modal';
 import { useAuth } from '../../../contexts/Auth';
-import { useApi, isErrorUnknownAllow404s } from '../../../api';
+import { isErrorUnknownAllow404s, useApi } from '../../../api';
 import { LoadingIndicator } from '../../LoadingIndicator';
 import { useCertificate } from '../../../utils/useCertificate';
 import { usePatientAdditionalDataQuery } from '../../../api/queries';
