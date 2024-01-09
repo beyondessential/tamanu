@@ -1,7 +1,7 @@
-import React, { ReactElement, useState, useEffect } from 'react';
+import React, { ReactElement, useEffect, useState } from 'react';
 import { useNetInfo } from '@react-native-community/netinfo';
 
-import { SelectOption, Dropdown } from '../Dropdown';
+import { Dropdown, SelectOption } from '../Dropdown';
 import { StyledText, StyledView } from '../../styled/common';
 import { theme } from '../../styled/theme';
 import { Orientation, screenPercentageToDP } from '../../helpers/screen';
@@ -15,7 +15,7 @@ type Server = {
 
 const fetchServers = async (): Promise<SelectOption[]> => {
   // To use a local server, just edit this and select it.
-  // The sync server config is sticky, so you can safely revert it after
+  // The central server config is sticky, so you can safely revert it after
   // the first sync begins and it'll stay connecting to your local server.
   // return [{ label: 'Local', value: 'http://192.168.0.1:3000' }];
 

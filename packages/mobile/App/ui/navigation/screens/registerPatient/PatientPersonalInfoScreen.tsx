@@ -1,4 +1,4 @@
-import React, { useCallback, ReactElement } from 'react';
+import React, { ReactElement, useCallback } from 'react';
 import { StatusBar } from 'react-native';
 import { FullView } from '/styled/common';
 import { Header } from './CommonComponents/Header';

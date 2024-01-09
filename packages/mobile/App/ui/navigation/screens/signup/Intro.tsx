@@ -1,10 +1,10 @@
 import React, { FunctionComponent, useCallback } from 'react';
 import {
+  CenterView,
   FullView,
   RowView,
-  CenterView,
-  StyledText,
   StyledSafeAreaView,
+  StyledText,
   StyledView,
 } from '../../../styled/common';
 import { theme } from '../../../styled/theme';

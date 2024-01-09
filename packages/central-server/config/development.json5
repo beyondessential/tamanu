@@ -1,0 +1,42 @@
+{
+  "auth": {
+    "reportNoUserError": true
+  },
+  "db": {
+    "name": "tamanu-central-generate",
+    "migrateOnStartup": true,
+    "verbose": false
+  },
+  "log": {
+    "consoleLevel": "info"
+  },
+  "localisation": {
+    "data": {
+      "timeZone": "UTC",
+      "country": {
+        "name": "Utopia",
+        "alpha-2": "UT",
+        "alpha-3": "UTO"
+      },
+      "features": {
+        "enablePatientDeaths": true
+      }
+    }
+  },
+  "integrations": {
+    "vdsNc": {
+      "enabled": true
+    },
+    "signer": {
+      "enabled": true,
+      "keySecret": "dTk8mJ0t+xszGxohhMq1Y7UEE9h1Pzvb+1r+YHVf+Y4="
+    },
+    "fhir": {
+      "enabled": true, // the HTTP routes
+      "worker": {
+        "enabled": true
+      }
+    }
+  },
+  "countryTimeZone": "Pacific/Auckland"
+}
