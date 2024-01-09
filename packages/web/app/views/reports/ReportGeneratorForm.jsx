@@ -190,16 +190,14 @@ export const ReportGeneratorForm = () => {
           ['Filters:', filterString],
         ];
 
-        const filePath = await saveExcelFile(
+        const response = await saveExcelFile(
           { data: excelData, metadata },
           {
-            promptForFilePath: true,
             defaultFileName: getFileName(reportName),
-            bookType,
           },
         );
-        if (filePath) {
-          setSuccessMessage(`Report successfully exported. File saved at: ${filePath}.`);
+        if (response) {
+          setSuccessMessage(`Report successfully exported`);
         }
       } else {
         await api.post(`reportRequest`, {
