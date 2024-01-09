@@ -87,20 +87,26 @@ patientProgramRegistration.post(
   }),
 );
 
-const getChangingStatusRecords = (allRecords, status) =>
-  allRecords.filter(({ registrationStatus: currentStatus }, i) => {
-    // We always want the first record if the status matches
+const getChangingFieldRecords = (allRecords, field) =>
+  allRecords.filter(({ [field]: currentValue }, i) => {
+    // We always want the first record
     if (i === 0) {
-      return currentStatus === status;
+      return true;
     }
-    const prevStatus = allRecords[i - 1].registrationStatus;
-    return currentStatus === status && prevStatus !== status;
+    const prevValue = allRecords[i - 1][field];
+    return currentValue !== prevValue;
   });
 
 const getRegistrationRecords = allRecords =>
-  getChangingStatusRecords(allRecords, REGISTRATION_STATUSES.ACTIVE);
+  getChangingFieldRecords(allRecords, 'registrationStatus').filter(
+    ({ registrationStatus }) => registrationStatus === REGISTRATION_STATUSES.ACTIVE,
+  );
 const getDeactivationRecords = allRecords =>
-  getChangingStatusRecords(allRecords, REGISTRATION_STATUSES.INACTIVE);
+  getChangingFieldRecords(allRecords, 'registrationStatus').filter(
+    ({ registrationStatus }) => registrationStatus === REGISTRATION_STATUSES.INACTIVE,
+  );
+const getStatusChangeRecords = allRecords =>
+  getChangingFieldRecords(allRecords, 'clinicalStatusId');
 
 patientProgramRegistration.get(
   '/:patientId/programRegistration/:programRegistryId',
@@ -168,7 +174,6 @@ patientProgramRegistration.get(
     });
   }),
 );
-
 patientProgramRegistration.get(
   '/:patientId/programRegistration/:programRegistryId/history$',
   asyncHandler(async (req, res) => {
@@ -178,7 +183,7 @@ patientProgramRegistration.get(
 
     req.checkPermission('list', 'PatientProgramRegistration', { patientId, programRegistryId });
 
-    const history = await PatientProgramRegistration.findAll({
+    const fullHistory = await PatientProgramRegistration.findAll({
       where: {
         patientId,
         programRegistryId,
@@ -190,11 +195,14 @@ patientProgramRegistration.get(
       nest: true,
     });
 
-    const registrationDates = getRegistrationRecords(history)
+    // Be sure to use the whole history to find the registration dates, not just the status
+    // change records.
+    const registrationDates = getRegistrationRecords(fullHistory)
       .map(({ date }) => date)
       .reverse();
 
-    const historyWithRegistrationDate = history.map(data => ({
+    const statusChangeRecords = getStatusChangeRecords(fullHistory);
+    const historyWithRegistrationDate = statusChangeRecords.map(data => ({
       ...data,
       // Find the latest registrationDate that is not after the date of interest
       registrationDate: registrationDates.find(
