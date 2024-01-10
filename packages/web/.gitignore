@@ -1,4 +1,6 @@
+# Ignore pwa generated assets
 index.generated.html
 /public/manifest.json
 /public/icons/*.png
+/public/icons/*.ico
 index.html
