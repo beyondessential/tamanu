@@ -3,55 +3,51 @@ import { instructions } from '@vite-pwa/assets-generator/api/instructions';
 import { generateAssets } from '@vite-pwa/assets-generator/api/generate-assets';
 import { generateHtmlMarkup } from '@vite-pwa/assets-generator/api/generate-html-markup';
 import { generateManifestIconsEntry } from '@vite-pwa/assets-generator/api/generate-manifest-icons-entry';
-import FS from 'fs';
+import { promises as fs } from 'fs';
 
-const doThing = async () => {
-  const idn = await instructions({
-    imageName: 'public/pwa-icon-base.png',
-    imageResolver: () => FS.readFileSync('public/pwa-icon-base.png'),
-    preset,
-    basePath: '/icons/',
-    htmlLinks: {
-      xhtml: false,
-      includeId: false,
+const iai = await instructions({
+  imageName: 'public/pwa-icon-base.png',
+  imageResolver: () => fs.readFile('public/pwa-icon-base.png'),
+  preset,
+  basePath: '/icons/',
+  htmlLinks: {
+    xhtml: false,
+    includeId: false,
+  },
+});
+
+await generateAssets(iai, true, 'public/icons');
+
+const html = await generateHtmlMarkup(iai);
+
+// // Create new index.html with the generated html, along with the existing index.html
+const existingIndex = await fs.readFile('index.template.html', 'utf8');
+const newIndex = existingIndex.replace('<!-- pwa-template-entry -->', html.join('\n'));
+await fs.writeFile('index.html', newIndex);
+
+const manifestIconEntries = await generateManifestIconsEntry('png', iai);
+
+const icons = manifestIconEntries.icons.map(icon => ({
+  ...icon,
+  src: `/icons/${icon.src}`,
+}));
+
+// Create new manifest with icons
+await fs.writeFile(
+  'public/manifest.json',
+  JSON.stringify(
+    {
+      background_color: '#FFFFFF',
+      description: 'Tamanu is a free and open-source EHR for low resource and remote settings.',
+      display: 'standalone',
+      name: 'Tamanu',
+      scope: '/',
+      short_name: 'Tamanu',
+      start_url: '/',
+      theme_color: '#326699',
+      icons,
     },
-  });
-
-  await generateAssets(idn, true, 'public/icons');
-
-  const html = await generateHtmlMarkup(idn);
-
-  // // Create new index.html with the generated html, along with the existing index.html
-  const existingIndex = FS.readFileSync('index.template.html', 'utf8');
-  const newIndex = existingIndex.replace('<!-- pwa-template-entry -->', html.join('\n'));
-  FS.writeFileSync('index.html', newIndex);
-
-  const manifestIconEntries = await generateManifestIconsEntry('png', idn);
-
-  const icons = manifestIconEntries.icons.map(icon => ({
-    ...icon,
-    src: `/icons/${icon.src}`,
-  }));
-
-  // write icons to manifest
-  FS.writeFileSync(
-    'public/manifest.json',
-    JSON.stringify(
-      {
-        background_color: '#FFFFFF',
-        description: 'Tamanu is a free and open-source EHR for low resource and remote settings.',
-        display: 'standalone',
-        name: 'Tamanu',
-        scope: '/',
-        short_name: 'Tamanu',
-        start_url: '/',
-        theme_color: '#326699',
-        icons,
-      },
-      null,
-      2,
-    ),
-  );
-};
-
-doThing();
+    null,
+    2,
+  ),
+);
