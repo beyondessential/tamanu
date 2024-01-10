@@ -3,9 +3,10 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react-swc';
 import { json5Plugin } from 'vite-plugin-json5';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
+import { generatePWAAssetsPlugin } from './plugins/generate-pwa-assets';
 
 // https://vitejs.dev/config/
-export default defineConfig({
+export default defineConfig(async ({ command }) => ({
   // point to index in public
   esbuild: {
     loader: 'jsx',
@@ -18,6 +19,7 @@ export default defineConfig({
         Buffer: true,
       },
     }),
+    generatePWAAssetsPlugin(command),
   ],
   define: {
     __VERSION__: JSON.stringify(
@@ -60,4 +62,4 @@ export default defineConfig({
       },
     },
   },
-});
+}));
