@@ -15,8 +15,7 @@
     "test": "NODE_ENV=test vitest run",
     "test-watch": "NODE_ENV=test vitest watch",
     "test-storybook": "yarn build-storybook --test",
-    "build-storybook": "NODE_ENV=development storybook build",
-    "generate-pwa-assets": "pwa-assets-generator"
+    "build-storybook": "NODE_ENV=development storybook build"
   },
   "devDependencies": {
     "@emotion/core": "^10.0.9",
@@ -27,7 +26,6 @@
     "@storybook/react-vite": "^7.6.6",
     "@tanstack/react-query-devtools": "^4.0.10",
     "@vite-pwa/assets-generator": "^0.2.2",
-    "@vitejs/plugin-react-swc": "^3.5.0",
     "concurrently": "^3.6.1",
     "enzyme": "^3.3.0",
     "enzyme-adapter-react-16": "^1.1.1",
@@ -103,7 +101,6 @@
     "redux-persist": "^6.0.0",
     "redux-thunk": "^2.2.0",
     "request": "^2.87.0",
-    "sharp": "^0.33.1",
     "shortid": "^2.2.8",
     "styled-components": "^5.3.3",
     "typeface-roboto": "^0.0.54",
