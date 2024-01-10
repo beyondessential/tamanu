@@ -4,3 +4,4 @@ index.generated.html
 /public/icons/*.png
 /public/icons/*.ico
 index.html
+vite.config.overrides.js
