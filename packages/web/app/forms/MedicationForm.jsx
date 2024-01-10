@@ -197,17 +197,19 @@ export const MedicationForm = React.memo(
                 <Field
                   name="qtyMorning"
                   label="Morning"
+                  min="0"
                   component={NumberField}
                   disabled={readOnly}
                 />
-                <Field name="qtyLunch" label="Lunch" component={NumberField} disabled={readOnly} />
+                <Field name="qtyLunch" min="0" label="Lunch" component={NumberField} disabled={readOnly} />
                 <Field
                   name="qtyEvening"
                   label="Evening"
+                  min="0"
                   component={NumberField}
                   disabled={readOnly}
                 />
-                <Field name="qtyNight" label="Night" component={NumberField} disabled={readOnly} />
+                <Field name="qtyNight" label="Night" min="0" component={NumberField} disabled={readOnly} />
               </FormGrid>
               <Field
                 name="indication"
@@ -218,6 +220,7 @@ export const MedicationForm = React.memo(
               <Field
                 name="quantity"
                 label="Discharge quantity"
+                min="0"
                 component={NumberField}
                 disabled={readOnly}
               />
