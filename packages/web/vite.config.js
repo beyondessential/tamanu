@@ -1,5 +1,5 @@
 import { readFile } from 'node:fs/promises';
-import { defineConfig, loadEnv } from 'vite';
+import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react-swc';
 import { json5Plugin } from 'vite-plugin-json5';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
