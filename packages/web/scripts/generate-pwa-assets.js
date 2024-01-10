@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import { minimal2023Preset as preset } from '@vite-pwa/assets-generator/config';
 import { instructions } from '@vite-pwa/assets-generator/api/instructions';
 import { generateAssets } from '@vite-pwa/assets-generator/api/generate-assets';
