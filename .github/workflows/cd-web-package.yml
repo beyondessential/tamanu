@@ -31,6 +31,10 @@ jobs:
           cache: yarn
       - run: yarn
       - run: yarn build-shared
+      - name: Install sharp again
+        working-directory: packages/web
+        run: yarn add sharp --ignore-engines
+
       - run: yarn workspace @tamanu/web-frontend build
       - run: scripts/precompress-assets.sh packages/web/dist
 

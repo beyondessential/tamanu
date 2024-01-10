@@ -4,11 +4,9 @@ import react from '@vitejs/plugin-react-swc';
 import { json5Plugin } from 'vite-plugin-json5';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import { generatePWAAssetsPlugin } from './plugins/generate-pwa-assets';
-import defaultsDeep from 'lodash/defaultsDeep';
-import { overrides } from './vite.config.overrides';
 
 // https://vitejs.dev/config/
-const defaultConfig = async ({ command }) => ({
+export default defineConfig(async ({ command }) => ({
   esbuild: {
     exclude: ['node_modules/vite'],
     loader: 'jsx',
@@ -64,7 +62,4 @@ const defaultConfig = async ({ command }) => ({
       },
     },
   },
-});
-export default defineConfig(async userConfig =>
-  defaultsDeep(await defaultConfig(userConfig), userConfig.command === 'serve' && overrides),
-);
+}));
