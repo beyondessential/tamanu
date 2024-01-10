@@ -12,7 +12,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  NODE_OPTIONS: "--max-old-space-size=6144"
+  NODE_OPTIONS: '--max-old-space-size=6144'
   NODE_ENV: test
   NODE_MODULES_PATHS: |
     node_modules
@@ -45,19 +45,19 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { package: "@tamanu/facility-server", shard: 1/4, postgres: 14 }
-          - { package: "@tamanu/facility-server", shard: 2/4, postgres: 14 }
-          - { package: "@tamanu/facility-server", shard: 3/4, postgres: 14 }
-          - { package: "@tamanu/facility-server", shard: 4/4, postgres: 14 }
-          - { package: "@tamanu/central-server",  shard: 1/4, postgres: 14 }
-          - { package: "@tamanu/central-server",  shard: 2/4, postgres: 14 }
-          - { package: "@tamanu/central-server",  shard: 3/4, postgres: 14 }
-          - { package: "@tamanu/central-server",  shard: 4/4, postgres: 14 }
-          - { package: "@tamanu/meta-server" }
-          - { package: "@tamanu/shared",                      postgres: 12 }
-          - { package: "@tamanu/shared",                      postgres: 14 }
-          - { package: "@tamanu/shared",                      postgres: 16 }
-          - { package: "@tamanu/web-frontend" }
+          - { package: '@tamanu/facility-server', shard: 1/4, postgres: 14 }
+          - { package: '@tamanu/facility-server', shard: 2/4, postgres: 14 }
+          - { package: '@tamanu/facility-server', shard: 3/4, postgres: 14 }
+          - { package: '@tamanu/facility-server', shard: 4/4, postgres: 14 }
+          - { package: '@tamanu/central-server', shard: 1/4, postgres: 14 }
+          - { package: '@tamanu/central-server', shard: 2/4, postgres: 14 }
+          - { package: '@tamanu/central-server', shard: 3/4, postgres: 14 }
+          - { package: '@tamanu/central-server', shard: 4/4, postgres: 14 }
+          - { package: '@tamanu/meta-server' }
+          - { package: '@tamanu/shared', postgres: 12 }
+          - { package: '@tamanu/shared', postgres: 14 }
+          - { package: '@tamanu/shared', postgres: 16 }
+          - { package: '@tamanu/web-frontend' }
 
     name: Test ${{ matrix.package }} ${{ matrix.shard }} (pg=${{ matrix.postgres || 'no' }})
     runs-on: ubuntu-latest
@@ -135,6 +135,9 @@ jobs:
     # Workaround for define plugin conflict warning
     env:
       NODE_ENV: development
+      SHARP_IGNORE_GLOBAL_LIBVIPS: 1
+      npm_config_arch: x64
+      npm_config_platform: linux
     continue-on-error: true
     name: Test storybook
     runs-on: ubuntu-latest
@@ -149,7 +152,7 @@ jobs:
           key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
           path: ${{ env.NODE_MODULES_PATHS }}
 
-      - run: yarn
+      - run: SHARP_IGNORE_GLOBAL_LIBVIPS=1 npm_config_arch=x64 npm_config_platform=linux yarn
       - run: yarn build-shared
       - run: yarn workspace @tamanu/web-frontend run test-storybook
 

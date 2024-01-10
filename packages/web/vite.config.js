@@ -1,14 +1,13 @@
 import { readFile } from 'node:fs/promises';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react-swc';
-import { json5Plugin } from 'vite-plugin-json5';
+import json5Plugin from 'vite-plugin-json5';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import { generatePWAAssetsPlugin } from './plugins/generate-pwa-assets';
 
 // https://vitejs.dev/config/
 export default defineConfig(async ({ command }) => ({
   esbuild: {
-    exclude: ['node_modules/vite'],
     loader: 'jsx',
   },
   plugins: [
@@ -39,12 +38,19 @@ export default defineConfig(async ({ command }) => ({
   worker: {
     format: 'es',
   },
+  optimizeDeps: {
+    exclude: ['@vite-pwa/assets-generator'],
+  },
   preview: {
     https: true,
   },
   build: {
     rollupOptions: {
+      external: ['sharp'],
       output: {
+        globals: {
+          sharp: 'sharp', // Add this line to map the external 'sharp' to the global 'sharp'
+        },
         generatedCode: 'es2015',
       },
     },
