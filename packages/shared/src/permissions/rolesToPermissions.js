@@ -5,7 +5,8 @@ import { permissionCache } from './cache';
 //---------------------------------------------------------
 // "Hardcoded" permissions version -- safe to delete once all deployments
 // have been migrated to database version.
-import * as roles from '../roles'; // eslint-disable-line import/order
+// eslint-disable-next-line sort-imports
+import * as roles from '../roles';
 
 function getHardcodedPermissions(roleIds) {
   const permissions = roles[roleIds];
@@ -26,9 +27,10 @@ export async function queryPermissionsForRoles({ Permission }, roleString) {
   const roleIds = commaSplit(roleString);
   const result = await Permission.sequelize.query(
     `
-    SELECT * 
+    SELECT *
       FROM permissions
       WHERE permissions.role_id IN (:roleIds)
+      AND permissions.deleted_at IS NULL
   `,
     {
       model: Permission,

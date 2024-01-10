@@ -1,4 +1,4 @@
-import React, { ReactElement, useMemo, useRef, useCallback, useEffect, useState } from 'react';
+import React, { ReactElement, useCallback } from 'react';
 import { compose } from 'redux';
 import { useSelector } from 'react-redux';
 import { Formik } from 'formik';
@@ -6,7 +6,6 @@ import { ScrollView } from 'react-native-gesture-handler';
 
 import { Field } from '/components/Forms/FormField';
 import { Spacer } from '/components/Spacer';
-import { SectionHeader } from '/components/SectionHeader';
 import { FullView, StyledView } from '/styled/common';
 import { SubmitButton } from '/components/Forms/SubmitButton';
 import { TextField } from '/components/TextField/TextField';
@@ -140,7 +139,7 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
                   <SubmitButton
                     marginTop={screenPercentageToDP(1.22, Orientation.Height)}
                     marginBottom={screenPercentageToDP(1.22, Orientation.Height)}
-                    onPress={handleSubmit}
+                    onSubmit={handleSubmit}
                   />
                 </StyledView>
               </ScrollView>

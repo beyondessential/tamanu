@@ -24,7 +24,7 @@ interface UploadedImageProps {
   imageData: string;
 }
 
-interface UploadPhotoComponent {
+interface UploadPhotoComponentProps {
   onPressChoosePhoto: Function;
   onPressRemovePhoto: Function;
   imageData: string;
@@ -61,7 +61,7 @@ const UploadPhotoComponent = ({
   imageData,
   errorMessage,
   loading,
-}: UploadPhotoComponent) => (
+}: UploadPhotoComponentProps) => (
   <StyledView marginTop={5}>
     {loading && <LoadingPlaceholder />}
     {imageData && <UploadedImage imageData={imageData} />}
@@ -88,7 +88,7 @@ export const UploadPhoto = React.memo(({ onChange, value }: PhotoProps) => {
 
   const removeAttachment = useCallback(async (value, imagePath) => {
     if (value) {
-      await models.Attachment.delete(value);
+      await models.Attachment.softRemove(value);
     }
     if (imagePath) {
       await deleteFileInDocuments(imagePath);
@@ -132,7 +132,7 @@ export const UploadPhoto = React.memo(({ onChange, value }: PhotoProps) => {
       ...IMAGE_RESIZE_OPTIONS,
     });
 
-    // Make sure the sync server has enough space to store a new attachment
+    // Make sure the central server has enough space to store a new attachment
     const { canUploadAttachment } = await centralServer.get('health/canUploadAttachment', {});
 
     if (!canUploadAttachment) {

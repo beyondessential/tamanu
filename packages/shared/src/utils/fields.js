@@ -1,6 +1,6 @@
-import { inRange, isNil } from 'lodash';
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { log } from '../services/logging';
+import { checkJSONCriteria } from './criteria';
 
 export function getStringValue(type, value) {
   if (value === null) {
@@ -31,7 +31,7 @@ function compareData(dataType, expected, given) {
       break;
     }
     case PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT:
-      return given.split(', ').includes(expected);
+      return JSON.parse(given).includes(expected);
     default:
       if (expected === given) return true;
       break;
@@ -44,62 +44,18 @@ function compareData(dataType, expected, given) {
  * IMPORTANT: We have 4 other versions of this method:
  *
  * - mobile/App/ui/helpers/fields.ts
- * - desktop/app/utils/survey.js
+ * - web/app/utils/survey.js
  * - shared/src/utils/fields.js
- * - sync-server/app/subCommands/calculateSurveyResults.js
+ * - central-server/app/subCommands/calculateSurveyResults.js
  *
  * So if there is an update to this method, please make the same update
  * in the other versions
  */
 function checkVisibilityCriteria(component, allComponents, values) {
   const { visibilityCriteria } = component;
-  // nothing set - show by default
-  if (!visibilityCriteria) return true;
 
   try {
-    const criteriaObject = JSON.parse(visibilityCriteria);
-
-    if (!criteriaObject) {
-      return true;
-    }
-
-    const { _conjunction: conjunction, hidden: _, ...restOfCriteria } = criteriaObject;
-    if (Object.keys(restOfCriteria).length === 0) {
-      return true;
-    }
-
-    const checkIfQuestionMeetsCriteria = ([questionCode, answersEnablingFollowUp]) => {
-      const value = values[questionCode];
-      if (answersEnablingFollowUp.type === 'range') {
-        if (isNil(value)) return false;
-        const { start, end } = answersEnablingFollowUp;
-
-        if (!start) return value < end;
-        if (!end) return value >= start;
-        if (inRange(value, parseFloat(start), parseFloat(end))) {
-          return true;
-        }
-        return false;
-      }
-
-      const matchingComponent = allComponents.find(x => x.dataElement?.code === questionCode);
-      const isMultiSelect =
-        matchingComponent?.dataElement?.type === PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT;
-
-      if (Array.isArray(answersEnablingFollowUp)) {
-        return isMultiSelect
-          ? (value?.split(', ') || []).some(selected => answersEnablingFollowUp.includes(selected))
-          : answersEnablingFollowUp.includes(value);
-      }
-
-      return isMultiSelect
-        ? value?.includes(answersEnablingFollowUp)
-        : answersEnablingFollowUp === value;
-    };
-
-    return conjunction === 'and'
-      ? Object.entries(restOfCriteria).every(checkIfQuestionMeetsCriteria)
-      : Object.entries(restOfCriteria).some(checkIfQuestionMeetsCriteria);
+    return checkJSONCriteria(visibilityCriteria, allComponents, values);
   } catch (error) {
     log.warn(
       `Error parsing JSON visibility criteria for ${component.dataElement?.code}, using fallback.\nError message: ${error.message}`,
@@ -137,12 +93,12 @@ function fallbackParseVisibilityCriteria(visibilityCriteria, values, allComponen
 }
 
 /*
-  Ad hoc function. Currently desktop client sends all
+  Ad hoc function. Currently web client sends all
   survey answers in an object shaped with ProgramDataElement.id as keys.
   However, mobile uses ProgramDataElement.code as keys instead. The logic
   used is the same in both places but is just copy/pasted - for that reason,
   this will convert the values object to match the one from mobile (in the meantime).
-  TODO: properly refactor the code. Probably by simply changing the desktop SurveyQuestion
+  TODO: properly refactor the code. Probably by simply changing the web SurveyQuestion
   and pass name={code} instead of name={id}.
 */
 function getValuesByCode(components, valuesById) {
@@ -156,11 +112,11 @@ function getValuesByCode(components, valuesById) {
   return valuesByCode;
 }
 
-export function getResultValue(components, originalValues) {
+export function getResultValue(components, originalValues, specialValues) {
   const values = getValuesByCode(components, originalValues);
   const resultComponents = components
     .filter(c => c.dataElement.type === 'Result')
-    .filter(c => checkVisibilityCriteria(c, components, values));
+    .filter(c => checkVisibilityCriteria(c, components, { ...values, ...specialValues }));
 
   const component = resultComponents.pop();
 

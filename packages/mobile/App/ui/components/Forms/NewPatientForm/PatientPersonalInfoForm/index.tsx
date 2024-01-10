@@ -4,17 +4,24 @@ import { compose } from 'redux';
 import { Formik } from 'formik';
 import { KeyboardAvoidingView, StyleSheet } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
-import * as Yup from 'yup';
 import { FullView } from '/styled/common';
 import { formatISO9075, parseISO } from 'date-fns';
 import { NameSection } from './NameSection';
 import { KeyInformationSection } from './KeyInformationSection';
 import { LocationDetailsSection } from './LocationDetailsSection';
 import { SubmitSection } from './SubmitSection';
-import { generateId } from '~/ui/helpers/patient';
+import { generateId, getConfiguredPatientAdditionalDataFields } from '~/ui/helpers/patient';
 import { Patient } from '~/models/Patient';
 import { withPatient } from '~/ui/containers/Patient';
+import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 import { Routes } from '~/ui/helpers/routes';
+import { PatientAdditionalDataFields } from '../../PatientAdditionalDataForm/PatientAdditionalDataFields';
+import { allAdditionalDataFields } from '~/ui/helpers/additionalData';
+import { getPatientDetailsValidation } from './patientDetailsValidationSchema';
+import { PatientAdditionalData } from '~/models/PatientAdditionalData';
+import { usePatientAdditionalData } from '~/ui/hooks/usePatientAdditionalData';
+import { LoadingScreen } from '~/ui/components/LoadingScreen';
+import { getInitialAdditionalValues } from '../../PatientAdditionalDataForm/helpers';
 
 export type FormSection = {
   scrollToField: (fieldName: string) => () => void;
@@ -26,7 +33,7 @@ const styles = StyleSheet.create({
   ScrollViewContentContainer: { padding: 20 },
 });
 
-const getInitialValues = (isEdit: boolean, patient): {} => {
+const getPatientInitialValues = (isEdit: boolean, patient, patientAdditionalData, getBool): {} => {
   if (!isEdit || !patient) {
     return {};
   }
@@ -43,7 +50,18 @@ const getInitialValues = (isEdit: boolean, patient): {} => {
     villageId,
   } = patient;
 
-  return {
+  const requiredPADFields = getConfiguredPatientAdditionalDataFields(
+    allAdditionalDataFields,
+    true,
+    getBool,
+  );
+
+  const initialPatientAdditionalDataValues = getInitialAdditionalValues(
+    patientAdditionalData,
+    requiredPADFields,
+  );
+
+  const initialPatientValues = {
     firstName,
     middleName,
     lastName,
@@ -52,12 +70,21 @@ const getInitialValues = (isEdit: boolean, patient): {} => {
     email,
     sex,
     villageId,
+    ...initialPatientAdditionalDataValues,
   };
+
+  return Object.fromEntries(
+    Object.entries(initialPatientValues).filter(([_, value]) => value != null),
+  );
 };
+
+const containsAdditionalData = values =>
+  allAdditionalDataFields.some(fieldName => Object.keys(values).includes(fieldName));
 
 export const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit }): ReactElement => {
   const navigation = useNavigation();
-  const onCreateNewPatient = useCallback(async values => {
+  const { patientAdditionalData, loading } = usePatientAdditionalData(selectedPatient?.id);
+  const onCreateNewPatient = useCallback(async (values, { resetForm }) => {
     // submit form to server for new patient
     const { dateOfBirth, ...otherValues } = values;
     const newPatient = await Patient.createAndSaveOne({
@@ -65,12 +92,18 @@ export const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit }): 
       dateOfBirth: formatISO9075(dateOfBirth),
       displayId: generateId(),
     });
+
+    if (containsAdditionalData(values)) {
+      await PatientAdditionalData.updateForPatient(newPatient.id, values);
+    }
+
     await Patient.markForSync(newPatient.id);
 
     // Reload instance to get the complete village fields
     // (related fields won't display all info otherwise)
     const reloadedPatient = await Patient.findOne(newPatient.id);
     setSelectedPatient(reloadedPatient);
+    resetForm();
     navigation.navigate(Routes.HomeStack.RegisterPatientStack.NewPatient);
   }, []);
 
@@ -83,6 +116,10 @@ export const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit }): 
         dateOfBirth: formatISO9075(dateOfBirth),
         ...otherValues,
       });
+
+      if (containsAdditionalData(values)) {
+        await PatientAdditionalData.updateForPatient(selectedPatient.id, values);
+      }
 
       // Loading the instance is necessary to get all of the fields
       // from the relations that were updated, not just their IDs.
@@ -99,21 +136,21 @@ export const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit }): 
     [navigation],
   );
 
-  return (
+  const { getBool, getString } = useLocalisation();
+
+  return loading ? (
+    <LoadingScreen />
+  ) : (
     <FullView padding={10}>
       <Formik
         onSubmit={isEdit ? onEditPatient : onCreateNewPatient}
-        validationSchema={Yup.object().shape({
-          firstName: Yup.string().required('First name is a required field'),
-          middleName: Yup.string().nullable(),
-          lastName: Yup.string().required('Last name is a required field'),
-          culturalName: Yup.string().nullable(),
-          dateOfBirth: Yup.date().required('Date of birth is a required field'),
-          email: Yup.string().nullable(),
-          sex: Yup.string().required('Sex is a required field'),
-          village: Yup.string().nullable(),
-        })}
-        initialValues={getInitialValues(isEdit, selectedPatient)}
+        validationSchema={getPatientDetailsValidation(getBool, getString)}
+        initialValues={getPatientInitialValues(
+          isEdit,
+          selectedPatient,
+          patientAdditionalData,
+          getBool,
+        )}
       >
         {({ handleSubmit }): JSX.Element => (
           <KeyboardAvoidingView style={styles.KeyboardAvoidingView} behavior="padding">
@@ -124,6 +161,7 @@ export const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit }): 
               <NameSection />
               <KeyInformationSection />
               <LocationDetailsSection />
+              <PatientAdditionalDataFields fields={allAdditionalDataFields} showMandatory />
               <SubmitSection onPress={handleSubmit} isEdit={isEdit} />
             </ScrollView>
           </KeyboardAvoidingView>

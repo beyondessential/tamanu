@@ -64,7 +64,7 @@ export class FhirWorker {
     this.pg = await this.sequelize.connectionManager.getConnection();
     this.pg.on('notification', msg => {
       if (msg.channel === 'jobs') {
-        this.log.debug('FhirWorker: got postgres notification', { msg });
+        this.log.debug('FhirWorker: got postgres notification', msg);
         this.processQueueNow();
       }
     });
@@ -157,21 +157,21 @@ export class FhirWorker {
         const runs = [];
         for (const topic of this.handlers.keys()) {
           this.log.debug('FhirWorker: checking queue', { topic });
-          const backlog = await FhirJob.backlog(topic);
-          if (backlog === 0) {
+          const capacity = this.topicCapacity();
+          const count = await FhirJob.backlogUntilLimit(topic, capacity);
+          if (count === 0) {
             this.log.debug('FhirWorker: nothing in queue', { topic });
             continue;
           }
 
-          const capacity = this.topicCapacity();
-          const count = Math.min(backlog, capacity);
-          this.log.debug('FhirWorker: grabbing some jobs', { topic, backlog, count });
+          this.log.debug('FhirWorker: grabbing some jobs', { topic, count });
           for (let i = 0; i < count; i += 1) {
             runs.push(this.grabAndRunOne(topic));
           }
         }
 
         await Promise.allSettled(runs);
+        this.log.debug('FhirWorker: finished batch of jobs', { count: runs.length });
       } catch (err) {
         this.log.debug('Trouble retrieving the backlog');
         span.recordException(err);

@@ -3,6 +3,7 @@ import { compose } from 'redux';
 import { useSelector } from 'react-redux';
 import { Formik } from 'formik';
 import { ScrollView } from 'react-native-gesture-handler';
+import * as Yup from 'yup';
 
 import { Field } from '/components/Forms/FormField';
 import { SectionHeader } from '/components/SectionHeader';
@@ -64,7 +65,13 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
 
   return (
     <FullView background={theme.colors.BACKGROUND_GREY}>
-      <Formik onSubmit={onPrescribeMedication} initialValues={{}}>
+      <Formik
+        onSubmit={onPrescribeMedication}
+        validationSchema={Yup.object().shape({
+          quantity: Yup.number().required('Quantity is required'),
+        })}
+        initialValues={{}}
+      >
         {({ handleSubmit }): ReactElement => (
           <FullView
             background={theme.colors.BACKGROUND_GREY}
@@ -105,11 +112,10 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
                     component={NumberField}
                     name="quantity"
                     label="Quantity (in single units)"
+                    required
                   />
                 </StyledView>
-                <StyledView
-                  marginBottom={screenPercentageToDP(0.605, Orientation.Height)}
-                >
+                <StyledView marginBottom={screenPercentageToDP(0.605, Orientation.Height)}>
                   <SectionHeader h3>Prescription notes</SectionHeader>
                 </StyledView>
                 <Field component={TextField} name="note" multiline />

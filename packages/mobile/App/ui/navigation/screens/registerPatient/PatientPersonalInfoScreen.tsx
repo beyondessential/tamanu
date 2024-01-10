@@ -6,6 +6,7 @@ import { PatientPersonalInfoForm } from '/components/Forms/NewPatientForm/Patien
 import { theme } from '/styled/theme';
 import { Routes } from '/helpers/routes';
 import { PatientPersonalInfoScreenProps } from '../../../interfaces/screens/RegisterPatientStack/PatientPersonalInfoScreen';
+import { PatientSectionHeader } from '~/ui/components/Forms/NewPatientForm/PatientSectionHeader';
 
 export const PatientPersonalInfoScreen = ({
   navigation,
@@ -18,6 +19,7 @@ export const PatientPersonalInfoScreen = ({
     <FullView background={theme.colors.BACKGROUND_GREY}>
       <StatusBar barStyle="light-content" />
       <Header onGoBack={onGoBack} />
+      <PatientSectionHeader name="General Information" />
       <PatientPersonalInfoForm />
     </FullView>
   );

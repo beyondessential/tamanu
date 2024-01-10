@@ -1,8 +1,8 @@
 {
   "name": "csca",
-  "version": "1.35.0",
+  "version": "2.1.0",
   "private": true,
-  "description": "CSCA tooling for Tamanu desktop app",
+  "description": "CSCA tooling for Tamanu",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
   "repository": "git@github.com:beyondessential/tamanu.git",
   "author": "Beyond Essential Systems Pty. Ltd.",
@@ -10,8 +10,7 @@
   "main": "src/index.js",
   "scripts": {
     "build": "swc --delete-dir-on-start --out-dir build --copy-files --source-maps true src",
-    "cli": "yarn build && node build",
-    "lint:types": "tsc"
+    "cli": "yarn build && node build"
   },
   "devDependencies": {
     "@tamanu/build-tooling": "*",

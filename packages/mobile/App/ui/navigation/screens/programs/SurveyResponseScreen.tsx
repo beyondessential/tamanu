@@ -38,19 +38,20 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
   const [note, setNote] = useState('');
   const [showModal, setShowModal] = useState(false);
 
-  const [survey, surveyError, isSurveyLoading] = useBackendEffect(
-    ({ models }) => models.Survey.getRepository().findOne(surveyId),
+  const [survey, surveyError, isSurveyLoading] = useBackendEffect(({ models }) =>
+    models.Survey.getRepository().findOne(surveyId),
   );
 
   const [components, componentsError, areComponentsLoading] = useBackendEffect(
-    () => survey && survey.getComponents(),
+    () => survey && survey.getComponents({ includeAllVitals: false }),
     [survey],
   );
 
   const [patientAdditionalData, padError, isPadLoading] = useBackendEffect(
-    ({ models }) => models.PatientAdditionalData.getRepository().findOne({
-      patient: selectedPatient.id,
-    }),
+    ({ models }) =>
+      models.PatientAdditionalData.getRepository().findOne({
+        patient: selectedPatient.id,
+      }),
     [selectedPatient.id],
   );
 
@@ -67,7 +68,7 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
           surveyId,
           components,
           surveyType,
-          encounterReason: `Survey response for ${survey.name}`,
+          encounterReason: `Form response for ${survey.name}`,
         },
         values,
         setNote,
@@ -81,13 +82,10 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
         });
         return;
       } else {
-        navigation.navigate(
-          Routes.HomeStack.ProgramStack.ProgramTabs.SurveyTabs.ViewHistory,
-          {
-            selectedPatient,
-            latestResponseId: response.id,
-          },
-        );
+        navigation.navigate(Routes.HomeStack.ProgramStack.ProgramTabs.SurveyTabs.ViewHistory, {
+          selectedPatient,
+          latestResponseId: response.id,
+        });
         return;
       }
     },
@@ -182,7 +180,7 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
                 color: theme.colors.BLACK,
               }}
             >
-              Are you sure you want to exit the form? You will loose any information currently
+              Are you sure you want to exit the form? You will lose any information currently
               entered.
             </Text>
             <RowView flexDirection="row" justifyContent="space-between" width="95%" marginTop={10}>

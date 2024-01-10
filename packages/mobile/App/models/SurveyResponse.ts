@@ -69,7 +69,7 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
     const response = await repo.findOne(surveyId, {
       relations: ['survey', 'encounter', 'encounter.patient'],
     });
-    const questions = await response.survey.getComponents();
+    const questions = await response.survey.getComponents({ includeAllVitals: true });
     const answers = await SurveyResponseAnswer.getRepository().find({
       where: {
         response: response.id,
@@ -131,7 +131,7 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
       // figure out if its a vital survey response
       let vitalsSurvey;
       try {
-        vitalsSurvey = await Survey.getVitalsSurvey();
+        vitalsSurvey = await Survey.getVitalsSurvey({ includeAllVitals: false });
       } catch (e) {
         console.error(`Errored while trying to get vitals survey: ${e}`);
       }

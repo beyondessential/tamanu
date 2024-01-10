@@ -1,13 +1,9 @@
-### This is the production-grade Linux container. You may be looking for:
-### - the CodeShip containers, at Dockerfile.codeship and Dockerfile.deploy
-### - the development containers, at packages/*/docker/Dockerfile
-
 ## Base images
 # The general concept is to build in build-base, then copy into a slimmer run-base
-FROM node:16-alpine AS base
+FROM node:20-alpine AS base
 WORKDIR /app
 ENV NODE_ENV=production
-COPY package.json license ./
+COPY package.json yarn.lock license ./
 
 FROM base AS build-base
 RUN apk add --no-cache \
@@ -19,7 +15,7 @@ RUN apk add --no-cache \
     jq \
     make \
     python3
-COPY yarn.lock .yarnrc common.* babel.config.js ./
+COPY .yarnrc common.* ./
 COPY scripts/ scripts/
 
 FROM base AS run-base
@@ -42,39 +38,15 @@ RUN git log -1 --pretty=%ct         | tee /meta/SOURCE_DATE_EPOCH
 RUN git log -1 --pretty=%cI         | tee /meta/SOURCE_DATE_ISO
 
 
-## Build the shared packages and get their dependencies
-FROM build-base as shared
-COPY packages/build-tooling/ packages/build-tooling/
-COPY packages/constants/ packages/constants/
-COPY packages/shared/ packages/shared/
-RUN scripts/docker-build.sh shared
-
-
 ## Build the target server
 FROM build-base as build-server
 ARG PACKAGE_PATH
 
-# copy the shared packages and their deps (+ build tooling)
-COPY --from=shared /app/packages/ packages/
+# copy all packages
+COPY packages/ packages/
 
-# copy sources only for the target server
-COPY packages/${PACKAGE_PATH}/ packages/${PACKAGE_PATH}/
-
-# do the build
+# do the build, which will also reduce to just the target package
 RUN scripts/docker-build.sh ${PACKAGE_PATH}
-
-
-## Special target for packaging the desktop app
-# layer efficiency or size doesn't matter as this is not distributed
-FROM electronuserland/builder:16-wine AS build-desktop
-RUN apt update && apt install -y jq
-COPY --from=build-base /app/ /app/
-COPY --from=shared /app/packages/ /app/packages/
-COPY packages/desktop/ /app/packages/desktop/
-WORKDIR /app
-RUN scripts/docker-build.sh desktop
-ENV NODE_ENV=production
-WORKDIR /app/packages/desktop
 
 
 ## Normal final target for servers
@@ -94,3 +66,21 @@ WORKDIR /app/packages/${PACKAGE_PATH}
 # explicitly reconfigure the port
 RUN echo '{"port":3000}' > config/local.json
 EXPOSE 3000
+
+
+## Build the frontend
+FROM build-base as build-frontend
+RUN apk add zstd brotli
+COPY packages/ packages/
+RUN scripts/docker-build.sh web
+
+
+## Minimal image to serve the frontend
+FROM alpine as frontend
+WORKDIR /app
+ENTRYPOINT ["/usr/bin/caddy"]
+CMD ["run", "--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile"]
+COPY --from=caddy:2-alpine /usr/bin/caddy /usr/bin/caddy
+COPY packages/web/Caddyfile.docker /etc/caddy/Caddyfile
+COPY --from=build-frontend /app/packages/web/dist/ .
+COPY --from=metadata /meta/ /meta/

@@ -10,18 +10,20 @@ function getStartDate(dateRange, endDate) {
     case REPORT_DEFAULT_DATE_RANGES.THIRTY_DAYS:
       // If we have a toDate, but no fromDate, run 30 days prior to the toDate
       return startOfDay(subDays(endDate, 30));
+    case REPORT_DEFAULT_DATE_RANGES.TWENTY_FOUR_HOURS:
+      return subDays(endDate, 1);
     default:
       throw new Error('Unknown date range for report generation');
   }
 }
 
 export const getReportQueryReplacements = async (
-  context,
+  { models },
   paramDefinitions,
   params = {},
-  dateRange = REPORT_DEFAULT_DATE_RANGES.ALL_TIME,
+  dateRange = REPORT_DEFAULT_DATE_RANGES.TWENTY_FOUR_HOURS,
 ) => {
-  const { LocalSystemFact } = context.models;
+  const { LocalSystemFact } = models;
   const currentFacilityId = (await LocalSystemFact.get('facilityId')) || null;
 
   const toDate = params.toDate ? new Date(params.toDate) : new Date();

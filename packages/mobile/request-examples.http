@@ -58,7 +58,7 @@ Content-Type: application/json
 ###
 
 # See: https://github.com/beyondessential/tamanu/blob/dev/docs/Surveys.md for more info.
-# requires tamanu lan server to be running locally.
+# requires tamanu facility server to be running locally.
 POST http://localhost:4000/v1/admin/importSurvey
 X-Client-Version: 1.0.0
 Content-Type: application/json
@@ -76,7 +76,7 @@ Content-Type: application/json
 ###
 
 # See: https://github.com/beyondessential/tamanu/blob/dev/docs/Surveys.md for more info.
-# requires tamanu lan server to be running locally.
+# requires tamanu facility server to be running locally.
 POST http://localhost:4000/v1/admin/importSurvey
 X-Client-Version: 1.0.0
 Content-Type: application/json
@@ -94,7 +94,7 @@ Content-Type: application/json
 ###
 
 # See: https://github.com/beyondessential/tamanu/blob/dev/docs/Surveys.md for more info.
-# requires tamanu lan server to be running locally.
+# requires tamanu facility server to be running locally.
 POST http://localhost:4000/v1/admin/importSurvey
 X-Client-Version: 1.0.0
 Content-Type: application/json

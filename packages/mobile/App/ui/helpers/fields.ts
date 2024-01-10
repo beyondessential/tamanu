@@ -28,6 +28,15 @@ export const FieldTypes = {
   PATIENT_ISSUE_GENERATOR: 'PatientIssueGenerator',
 };
 
+export const PatientFieldDefinitionTypes = {
+  STRING: 'string',
+  NUMBER: 'number',
+  SELECT: 'select',
+};
+export const PatientFieldDefinitionTypeValues = Object.values(
+  PatientFieldDefinitionTypes,
+);
+
 export const getStringValue = (type: string, value: any): string => {
   switch (type) {
     case FieldTypes.TEXT:
@@ -103,7 +112,11 @@ function compareData(dataType: string, expected: string, given: any): boolean {
  * test surveys out there using our old system, we fall back to it if we can't parse the JSON.
  * TODO: Remove the fallback once we can guarantee that there's no surveys using it.
  */
-function fallbackParseVisibilityCriteria(visibilityCriteria, values, allComponents): boolean {
+function fallbackParseVisibilityCriteria(
+  visibilityCriteria: string,
+  values: any,
+  allComponents: ISurveyScreenComponent[],
+): boolean {
   const [elementCode = '', expectedAnswer = ''] = visibilityCriteria.split(/\s*:\s*/);
 
   let givenAnswer = values[elementCode] || '';
@@ -124,13 +137,65 @@ function fallbackParseVisibilityCriteria(visibilityCriteria, values, allComponen
   return compareData(comparisonDataType, expectedTrimmed, givenAnswer);
 }
 
+export function checkJSONCriteria(
+  criteria: string,
+  allComponents: ISurveyScreenComponent[],
+  values: any,
+) {
+  // nothing set - show by default
+  if (!criteria) return true;
+
+  const criteriaObject = JSON.parse(criteria);
+
+  if (!criteriaObject) {
+    return true;
+  }
+
+  const { _conjunction: conjunction, ...restOfCriteria } = criteriaObject;
+  if (Object.keys(restOfCriteria).length === 0) {
+    return true;
+  }
+
+  const checkIfQuestionMeetsCriteria = ([questionCode, answersEnablingFollowUp]): boolean => {
+    const value = values[questionCode];
+    if (answersEnablingFollowUp.type === 'range') {
+      if (isNil(value)) return false;
+      const { start, end } = answersEnablingFollowUp;
+
+      if (!start) return value < end;
+      if (!end) return value >= start;
+      if (inRange(value, parseFloat(start), parseFloat(end))) {
+        return true;
+      }
+      return false;
+    }
+
+    const matchingComponent = allComponents.find(x => x.dataElement?.code === questionCode);
+    const isMultiSelect = matchingComponent?.dataElement?.type === DataElementType.MultiSelect;
+
+    if (Array.isArray(answersEnablingFollowUp)) {
+      return isMultiSelect
+        ? (value?.split(', ') || []).some(selected => answersEnablingFollowUp.includes(selected))
+        : answersEnablingFollowUp.includes(value);
+    }
+
+    return isMultiSelect
+      ? value?.includes(answersEnablingFollowUp)
+      : answersEnablingFollowUp === value;
+  };
+
+  return conjunction === 'and'
+    ? Object.entries(restOfCriteria).every(checkIfQuestionMeetsCriteria)
+    : Object.entries(restOfCriteria).some(checkIfQuestionMeetsCriteria);
+}
+
 /**
  * IMPORTANT: We have 4 other versions of this method:
  *
  * - mobile/App/ui/helpers/fields.ts
- * - desktop/app/utils/survey.js
+ * - web/app/utils/survey.js
  * - shared/src/utils/fields.js
- * - sync-server/app/subCommands/calculateSurveyResults.js
+ * - central-server/app/subCommands/calculateSurveyResults.js
  *
  * So if there is an update to this method, please make the same update
  * in the other versions
@@ -141,54 +206,11 @@ export function checkVisibilityCriteria(
   values: any,
 ): boolean {
   const { visibilityCriteria } = component;
-  // nothing set - show by default
-  if (!visibilityCriteria) return true;
 
   try {
-    const criteriaObject = JSON.parse(visibilityCriteria);
-
-    if (!criteriaObject) {
-      return true;
-    }
-
-    const { _conjunction: conjunction, ...restOfCriteria } = criteriaObject;
-    if (Object.keys(restOfCriteria).length === 0) {
-      return true;
-    }
-
-    const checkIfQuestionMeetsCriteria = ([questionCode, answersEnablingFollowUp]): boolean => {
-      const value = values[questionCode];
-      if (answersEnablingFollowUp.type === 'range') {
-        if (isNil(value)) return false;
-        const { start, end } = answersEnablingFollowUp;
-
-        if (!start) return value < end;
-        if (!end) return value >= start;
-        if (inRange(value, parseFloat(start), parseFloat(end))) {
-          return true;
-        }
-        return false;
-      }
-
-      const matchingComponent = allComponents.find(x => x.dataElement?.code === questionCode);
-      const isMultiSelect = matchingComponent?.dataElement?.type === DataElementType.MultiSelect;
-
-      if (Array.isArray(answersEnablingFollowUp)) {
-        return isMultiSelect
-          ? (value?.split(', ') || []).some(selected => answersEnablingFollowUp.includes(selected))
-          : answersEnablingFollowUp.includes(value);
-      }
-
-      return isMultiSelect
-        ? value?.includes(answersEnablingFollowUp)
-        : answersEnablingFollowUp === value;
-    };
-
-    return conjunction === 'and'
-      ? Object.entries(restOfCriteria).every(checkIfQuestionMeetsCriteria)
-      : Object.entries(restOfCriteria).some(checkIfQuestionMeetsCriteria);
+    return checkJSONCriteria(visibilityCriteria, allComponents, values);
   } catch (error) {
-    console.warn(`Error parsing JSON visilbity criteria, using fallback.
+    console.warn(`Error parsing JSON visibility criteria, using fallback.
                   \nError message: ${error}`);
 
     return fallbackParseVisibilityCriteria(visibilityCriteria, values, allComponents);
@@ -201,12 +223,12 @@ interface ResultValue {
 }
 
 /**
- * IMPORTANT: We also have another version of this method in sync-server
+ * IMPORTANT: We also have another version of this method in central-server
  * sub commands 'calculateSurveyResults'.
  * The sub command is for recalculate survey results due to an issue that
- * resultText was not synced properly to sync-server before.
+ * resultText was not synced properly to central-server before.
  * So if there is an update to this method, please make the same update
- * in the other version in sync-server
+ * in the other version in central-server
  */
 export function getResultValue(allComponents: ISurveyScreenComponent[], values: {}): ResultValue {
   // find a component with a Result data type and use its value as the overall result
@@ -239,4 +261,15 @@ export function getResultValue(allComponents: ISurveyScreenComponent[], values: 
     result: rawValue,
     resultText: `${rawValue.toFixed(0)}%`,
   };
+}
+
+export function checkMandatory(mandatory: boolean | Record<string, any>, values: any) {
+  if (!mandatory) {
+    return false;
+  }
+  if (typeof mandatory === 'boolean') {
+    return mandatory;
+  }
+
+  return checkJSONCriteria(JSON.stringify(mandatory), [], values);
 }

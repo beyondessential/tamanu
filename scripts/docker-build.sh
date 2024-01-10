@@ -5,12 +5,6 @@
 set -euxo pipefail
 shopt -s extglob
 
-is_building_shared() {
-  # we use a function instead of a variable as we're relying on the exit value
-  # -z = true if the string is empty
-  test -z "$package"
-}
-
 common() {
   # let build-tooling be installed in production mode
   cp package.json{,.working}
@@ -24,20 +18,23 @@ common() {
   yarn install --non-interactive --frozen-lockfile
 }
 
-build_shared() {
-  yarn clean
-  yarn build-shared
-}
-
 remove_irrelevant_packages() {
   # remove from yarn workspace list all packages that aren't the ones we're building
   cp package.json{,.working}
   scripts/list-packages.mjs --no-shared --paths \
     | jq \
-      --slurpfile top package.json.working \
       --arg wanted "$1" \
-      '(. - ["packages/\($wanted)"]) as $x | $top[0] | .workspaces.packages -= $x' \
-    > package.json.new
+      '(. - ["packages/\($wanted)"])' \
+    > /tmp/unwanted.json
+
+  # erase from the package.json
+  jq \
+    --slurpfile unwanted /tmp/unwanted.json \
+    '.workspaces.packages -= $unwanted' \
+    package.json.working > package.json.new
+  # erase from the filesystem
+  rm -rf $(jq -r '.[]' /tmp/unwanted.json)
+
   mv package.json.new package.json
   rm package.json.working
 }
@@ -79,22 +76,10 @@ build_server() {
   rm $0
 }
 
-build_desktop() {
-  remove_irrelevant_packages desktop
-
-  # build the world
-  yarn build
-
-  # create desktop packaging configs
-  cd packages/desktop
-  jq '.build.win.target = ["nsis"] | .build.nsis.perMachine = false | .build.directories.output = "release/appdata"' \
-    package.json > /package-appdata.json
-  jq '.build.win.target = ["msi"] | .build.msi.shortcutName = "Tamanu \(.version)"' \
-    package.json > /package-msi.json
-  jq '.build.productName = "Tamanu Fiji" | .build.appId = "org.beyondessential.TamanuFiji" | .build.directories.output = "release/aspen"' \
-    /package-msi.json > /package-aspen.json
-  jq '.build.mac.target = "tar.xz"' \
-    package.json > /package-mac.json
+build_web() {
+  yarn build-shared
+  yarn workspace @tamanu/web-frontend build
+  scripts/precompress-assets.sh packages/web/dist
 }
 
 package="${1:?Expected target or package path}"
@@ -102,11 +87,8 @@ package="${1:?Expected target or package path}"
 common
 
 case "$package" in
-  shared)
-    build_shared
-    ;;
-  desktop)
-    build_desktop
+  web)
+    build_web
     ;;
   *)
     build_server

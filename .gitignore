@@ -22,8 +22,10 @@ release
 dev
 deploy
 build
-/sync-server-*.zip
-/lan-*.zip
+packages/*/dist
+*.tsbuildinfo
+packages/*/{src,app}/**/*.d.ts
+storybook-static
 
 # Test artefacts
 test.*.hl7.json
@@ -55,7 +57,10 @@ lints.md
 .idea
 
 # Output
-/packages/sync-server/tamanu-reports/
+/packages/central-server/tamanu-reports/
+
+# Env
+/packages/mobile/.envrc
 
 # cd-up and cd-down workflows
 /ops

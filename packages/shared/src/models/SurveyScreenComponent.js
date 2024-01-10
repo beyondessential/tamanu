@@ -18,6 +18,7 @@ export class SurveyScreenComponent extends Model {
         config: Sequelize.STRING,
         options: Sequelize.TEXT,
         calculation: Sequelize.STRING,
+        visibilityStatus: Sequelize.STRING,
       },
       {
         ...options,
@@ -26,8 +27,12 @@ export class SurveyScreenComponent extends Model {
     );
   }
 
-  static getListReferenceAssociations() {
-    return ['dataElement'];
+  static getListReferenceAssociations(includeAllVitals) {
+    return {
+      model: this.sequelize.models.ProgramDataElement,
+      as: 'dataElement',
+      paranoid: !includeAllVitals,
+    };
   }
 
   static initRelations(models) {
@@ -40,25 +45,29 @@ export class SurveyScreenComponent extends Model {
     });
   }
 
-  static async getComponentsForSurveys(surveyIds) {
-    const components = await this.findAll({
-      where: {
-        surveyId: {
-          [Op.in]: surveyIds,
-        },
+  static async getComponentsForSurveys(surveyIds, options = {}) {
+    const { includeAllVitals } = options;
+    const where = {
+      surveyId: {
+        [Op.in]: surveyIds,
       },
-      include: this.getListReferenceAssociations(),
+    };
+
+    const components = await this.findAll({
+      where,
+      include: this.getListReferenceAssociations(includeAllVitals),
       order: [
         ['screen_index', 'ASC'],
         ['component_index', 'ASC'],
       ],
+      paranoid: !includeAllVitals,
     });
 
     return components.map(c => c.forResponse());
   }
 
-  static getComponentsForSurvey(surveyId) {
-    return this.getComponentsForSurveys([surveyId]);
+  static getComponentsForSurvey(surveyId, options = {}) {
+    return this.getComponentsForSurveys([surveyId], options);
   }
 
   getOptions() {
