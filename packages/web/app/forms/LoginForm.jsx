@@ -6,37 +6,71 @@ import { USER_DEACTIVATED_ERROR_MESSAGE } from '@tamanu/constants';
 
 import { FormGrid } from '../components/FormGrid';
 import {
-  Button,
+  BodyText,
   CheckField,
   Field,
   Form,
   FormSubmitButton,
+  TextButton,
   TextField,
 } from '../components';
+import { Colors } from '../constants';
+
+const FormSubtext = styled(BodyText)`
+  color: ${Colors.midText};
+  padding: 10px 0;
+`;
 
 const LoginButton = styled(FormSubmitButton)`
-  font-size: 16px;
+  font-size: 14px;
   line-height: 18px;
-  padding-top: 16px;
-  padding-bottom: 16px;
+  padding: 14px 0;
+  margin-top: 15px;
+`;
+
+const ForgotPasswordButton = styled(TextButton)`
+  font-size: 11px;
+  color: black;
+  font-weight: 400;
+
+  :hover {
+    color: ${Colors.primary};
+    font-weight: 500;
+    text-decoration: underline;
+  }
 `;
 
 const RememberMeRow = styled.div`
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-self: flex-end;
+  justify-content: flex-end;
   font-size: 16px;
+  padding-top: 5px;
 `;
 
-const ErrorMessage = styled.div`
-  text-align: center;
+const StyledField = styled(Field)`
+  .label-field {
+    padding-top: 15px;
+  }
 `;
 
-const LoginFormComponent = ({
-  errorMessage,
-  onNavToResetPassword,
-  setFieldError,
-}) => {
+const StyledCheckboxField = styled(Field)`
+  .MuiFormControlLabel-root {
+    margin-right: 0;
+
+    .MuiTypography-root {
+      font-size: 11px;
+      color: black;
+    }
+
+    .MuiButtonBase-root {
+      padding: 0 5px;
+    }
+  }
+`;
+
+const LoginFormComponent = ({ errorMessage, onNavToResetPassword, setFieldError }) => {
   const [genericMessage, setGenericMessage] = useState(null);
 
   useEffect(() => {
@@ -52,16 +86,32 @@ const LoginFormComponent = ({
 
   return (
     <FormGrid columns={1}>
-      {!!genericMessage && <ErrorMessage>{genericMessage}</ErrorMessage>}
-      <Field name="email" type="email" label="Email" required component={TextField} />
-      <Field name="password" label="Password" type="password" required component={TextField} />
-      <RememberMeRow>
-        <Field name="rememberMe" label="Remember me" component={CheckField} />
-      </RememberMeRow>
-      <LoginButton text="Login to your account" />
-      <Button onClick={onNavToResetPassword} color="default" variant="text">
-        Forgot your password?
-      </Button>
+      {!!genericMessage && <FormSubtext>{genericMessage}</FormSubtext>}
+      <StyledField
+        name="email"
+        type="email"
+        label="Email"
+        required
+        component={TextField}
+        placeholder="Enter your email address"
+      />
+      <div>
+        <StyledField
+          name="password"
+          label="Password"
+          type="password"
+          required
+          component={TextField}
+          placeholder="Enter your password"
+        />
+        <RememberMeRow>
+          <StyledCheckboxField name="rememberMe" label="Remember me" component={CheckField} />
+        </RememberMeRow>
+      </div>
+      <LoginButton text="Log in" />
+      <ForgotPasswordButton onClick={onNavToResetPassword} color="default" variant="text">
+        Forgot password?
+      </ForgotPasswordButton>
     </FormGrid>
   );
 };
