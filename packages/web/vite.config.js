@@ -10,6 +10,7 @@ export default defineConfig(async ({ command }) => ({
   // point to index in public
   esbuild: {
     loader: 'jsx',
+    external: ['sharp'],
   },
   plugins: [
     react(),
