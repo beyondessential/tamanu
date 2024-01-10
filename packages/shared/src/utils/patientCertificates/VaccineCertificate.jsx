@@ -65,13 +65,15 @@ const vaccineCertificateStyles = StyleSheet.create({
   },
   labelText: {
     fontSize: 8,
-    fontWeight: 400,
     fontFamily: 'Helvetica-Bold',
+    fontWeight: 400,
+    color: '#888888',
   },
   valueText: {
     fontSize: 8,
     fontWeight: 400,
     fontFamily: 'Helvetica',
+    color: '#888888',
   },
   documentHeaderContent: {
     flexDirection: 'row',

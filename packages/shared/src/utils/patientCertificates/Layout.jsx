@@ -146,7 +146,7 @@ export const FixedHeader = ({ children, props }) => (
 
 export const FixedFooter = ({ children, props }) => (
   <View fixed style={styles.fixedFooter} {...props}>
-    <LightDivider />
+    <View style={{...styles.lightDivider, borderTopColor: '#888888'}} />
     {children}
   </View>
 );
