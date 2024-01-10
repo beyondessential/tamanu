@@ -6,7 +6,7 @@ import { generateManifestIconsEntry } from '@vite-pwa/assets-generator/api/gener
 import { promises as fs } from 'fs';
 
 const generatePWAAssets = async () => {
-  console.log('Generating PWA assets...');
+  console.log('Generating PWA requirements... 🧪');
   const iai = await instructions({
     imageName: 'public/pwa-icon-base.png',
     imageResolver: () => fs.readFile('public/pwa-icon-base.png'),
@@ -19,15 +19,18 @@ const generatePWAAssets = async () => {
   });
 
   await generateAssets(iai, true, 'public/icons');
-  console.log('PWA assets generated!');
+  console.log('Assets generated!');
 
   const html = await generateHtmlMarkup(iai);
 
   // // Create new index.html with the generated html, along with the existing index.html
   const existingIndex = await fs.readFile('index.template.html', 'utf8');
-  const newIndex = existingIndex.replace('<!-- pwa-template-entry -->', html.join('\n'));
+  const newIndex = existingIndex.replace(
+    '<!-- pwa-template-entry -->',
+    `<link rel="manifest" href="/manifest.json">\n${html.join('\n')}`,
+  );
   await fs.writeFile('index.html', newIndex);
-  console.log('PWA html markup generated!');
+  console.log('HTML markup generated!');
 
   const manifestIconEntries = await generateManifestIconsEntry('png', iai);
 
@@ -55,7 +58,8 @@ const generatePWAAssets = async () => {
       2,
     ),
   );
-  console.log('PWA manifest generated! Done ✅');
+  console.log('Manifest generated!');
+  console.log('Done ✅');
 };
 
 export const generatePWAAssetsPlugin = command => ({
