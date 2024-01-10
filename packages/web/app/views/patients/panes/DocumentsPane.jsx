@@ -66,9 +66,9 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
 
         const writable = await fileHandle.createWritable();
 
-        const pdfUint8Array = base64ToUint8Array(data);
+        const fileUint8Array = base64ToUint8Array(data);
 
-        await writable.write(pdfUint8Array);
+        await writable.write(fileUint8Array);
         await writable.close();
         notifySuccess(`Successfully downloaded file`);
       } catch (error) {
