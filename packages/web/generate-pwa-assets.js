@@ -26,9 +26,9 @@ const doThing = async () => {
   const html = await generateHtmlMarkup(idn);
 
   // // Create new index.html with the generated html, along with the existing index.html
-  const existingIndex = FS.readFileSync('index.html', 'utf8');
+  const existingIndex = FS.readFileSync('index.template.html', 'utf8');
   const newIndex = existingIndex.replace('<!-- pwa-template-entry -->', html.join('\n'));
-  FS.writeFileSync('public/index.html', newIndex);
+  FS.writeFileSync('index.html', newIndex);
 
   const manifestIconEntries = await generateManifestIconsEntry('png', idn);
 
