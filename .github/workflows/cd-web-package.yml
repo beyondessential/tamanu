@@ -23,13 +23,17 @@ jobs:
   build:
     runs-on: ubuntu-latest
     name: Build web package
+    env:
+      SHARP_IGNORE_GLOBAL_LIBVIPS: 1
+      npm_config_arch: x64
+      npm_config_platform: linux
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v3
         with:
           node-version: 20.x
           cache: yarn
-      - run: yarn
+      - run: yarn --os
       - run: yarn build-shared
       - run: yarn workspace @tamanu/web-frontend build
       - run: scripts/precompress-assets.sh packages/web/dist
