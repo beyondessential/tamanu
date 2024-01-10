@@ -34,7 +34,6 @@
     "prettier": "^1.14.0",
     "react-test-renderer": "^16.4.1",
     "rimraf": "^2.6.2",
-    "sharp": "^0.33.1",
     "sinon": "^6.1.4",
     "storybook": "^7.6.6",
     "vitest": "^1.1.0"
