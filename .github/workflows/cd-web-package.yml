@@ -33,7 +33,7 @@ jobs:
         with:
           node-version: 20.x
           cache: yarn
-      - run: yarn --os
+      - run: SHARP_IGNORE_GLOBAL_LIBVIPS=1 npm_config_arch=x64 npm_config_platform=linux yarn
       - run: yarn build-shared
       - run: yarn workspace @tamanu/web-frontend build
       - run: scripts/precompress-assets.sh packages/web/dist
