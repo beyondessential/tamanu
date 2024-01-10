@@ -1,4 +1,4 @@
-import { defineConfig, minimal2023Preset as preset } from '@vite-pwa/assets-generator/config';
+import { minimal2023Preset as preset } from '@vite-pwa/assets-generator/config';
 import { instructions } from '@vite-pwa/assets-generator/api/instructions';
 import { generateAssets } from '@vite-pwa/assets-generator/api/generate-assets';
 import { generateHtmlMarkup } from '@vite-pwa/assets-generator/api/generate-html-markup';
@@ -7,18 +7,14 @@ import FS from 'fs';
 
 const doThing = async () => {
   const idn = await instructions({
-    image: 'public/pwa-icon-base.png',
-    imageName: '/public/pwa-icon-base.png',
+    imageName: 'public/pwa-icon-base.png',
     imageResolver: () => FS.readFileSync('public/pwa-icon-base.png'),
-    resolveSvgName: name => `icons/${name}`,
     preset,
     basePath: '/icons/',
-    resolveSvgName: name => `$dog/${name}`,
     htmlLinks: {
       xhtml: false,
       includeId: false,
     },
-    maskable: {},
   });
 
   await generateAssets(idn, true, 'public/icons');
