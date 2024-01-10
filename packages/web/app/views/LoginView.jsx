@@ -91,18 +91,6 @@ const LoginFormContainer = styled.div`
   padding-top: 40px;
 `;
 
-const LoginHeading = styled(Typography)`
-  color: ${Colors.darkestText};
-  font-weight: 500;
-  font-size: 38px;
-  line-height: 32px;
-`;
-
-const LoginSubtext = styled(BodyText)`
-  color: ${Colors.midText};
-  padding-top: 10px;
-`;
-
 const DesktopVersionText = styled(Typography)`
   font-size: 9px;
   color: ${Colors.midText};
@@ -165,19 +153,15 @@ export const LoginView = () => {
         </LogoContainer>
         <LoginFormContainer>
           {screen === 'login' && (
-            <>
-              <LoginHeading>Log in</LoginHeading>
-              <LoginSubtext>Enter your details below to log in</LoginSubtext>
-              <LoginForm
-                onSubmit={submitLogin}
-                errorMessage={loginError}
-                rememberEmail={rememberEmail}
-                onNavToResetPassword={() => {
-                  setScreen('resetPassword');
-                  dispatch(restartPasswordResetFlow());
-                }}
-              />
-            </>
+            <LoginForm
+              onSubmit={submitLogin}
+              errorMessage={loginError}
+              rememberEmail={rememberEmail}
+              onNavToResetPassword={() => {
+                setScreen('resetPassword');
+                dispatch(restartPasswordResetFlow());
+              }}
+            />
           )}
           {screen === 'resetPassword' && (
             <>
