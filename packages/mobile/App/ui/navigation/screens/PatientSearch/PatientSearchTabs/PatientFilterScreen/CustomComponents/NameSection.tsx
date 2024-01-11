@@ -2,7 +2,6 @@ import React, { ReactElement } from 'react';
 import { StyledView } from '~/ui/styled/common';
 import { LocalisedField } from '~/ui/components/Forms/LocalisedField';
 import { TextField } from '~/ui/components/TextField/TextField';
-// Helpers
 
 export const NameSection = (): ReactElement => (
   <StyledView marginTop={30}>
