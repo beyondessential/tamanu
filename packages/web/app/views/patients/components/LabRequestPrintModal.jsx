@@ -12,6 +12,7 @@ import { Modal } from '../../../components';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
 import { MultipleLabRequestsPrintout } from '../../../components/PatientPrinting';
 import { Colors } from '../../../constants';
+import { PDFViewer } from '../../../components/PatientPrinting/PDFViewer';
 
 export const LabRequestPrintModal = React.memo(({ labRequest, patient, open, onClose }) => {
   const api = useApi();
@@ -59,14 +60,16 @@ export const LabRequestPrintModal = React.memo(({ labRequest, patient, open, onC
       {isLoading ? (
         <LoadingIndicator />
       ) : (
-        <MultipleLabRequestsPrintout
-          labRequests={[{ ...labRequest, tests: testsData.data, notes: notes?.data || [] }]}
-          patient={patient}
-          village={village}
-          additionalData={additionalData}
-          encounter={encounter}
-          certificateData={certificate}
-        />
+        <PDFViewer id="lab-request">
+          <MultipleLabRequestsPrintout
+            labRequests={[{ ...labRequest, tests: testsData.data, notes: notes?.data || [] }]}
+            patient={patient}
+            village={village}
+            additionalData={additionalData}
+            encounter={encounter}
+            certificateData={certificate}
+          />
+        </PDFViewer>
       )}
     </Modal>
   );

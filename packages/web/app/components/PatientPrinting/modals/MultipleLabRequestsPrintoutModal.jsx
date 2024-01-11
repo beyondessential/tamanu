@@ -9,6 +9,7 @@ import { useApi } from '../../../api';
 import { Colors } from '../../../constants';
 
 import { MultipleLabRequestsPrintout } from '../printouts/MultipleLabRequestsPrintout';
+import { PDFViewer } from '../PDFViewer';
 
 export const MultipleLabRequestsPrintoutModal = ({ encounter, labRequests, open, onClose }) => {
   const certificateData = useCertificate();
@@ -46,14 +47,16 @@ export const MultipleLabRequestsPrintoutModal = ({ encounter, labRequests, open,
       {patientLoading || additionalDataLoading || villageLoading ? (
         <LoadingIndicator />
       ) : (
-        <MultipleLabRequestsPrintout
-          certificateData={certificateData}
-          patient={patient}
-          additionalData={additionalData}
-          village={village}
-          encounter={encounter}
-          labRequests={labRequests}
-        />
+        <PDFViewer>
+          <MultipleLabRequestsPrintout
+            certificateData={certificateData}
+            patient={patient}
+            additionalData={additionalData}
+            village={village}
+            encounter={encounter}
+            labRequests={labRequests}
+          />
+        </PDFViewer>
       )}
     </Modal>
   );
