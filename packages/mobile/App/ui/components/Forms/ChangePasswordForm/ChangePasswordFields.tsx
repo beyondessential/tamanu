@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import { StyledView, StyledText } from '/styled/common';
+import { StyledText, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { Field } from '../FormField';
 import { SubmitButton } from '../SubmitButton';

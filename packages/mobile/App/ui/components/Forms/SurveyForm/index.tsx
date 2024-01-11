@@ -1,8 +1,8 @@
-import React, { ReactElement, useMemo, useEffect, useCallback, useState, Dispatch, SetStateAction } from 'react';
+import React, { Dispatch, ReactElement, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { FormikHandlers } from 'formik';
 import { getFormInitialValues, getFormSchema } from './helpers';
-import { ISurveyScreenComponent, IPatientAdditionalData } from '~/types';
+import { IPatientAdditionalData, ISurveyScreenComponent } from '~/types';
 import { Form } from '../Form';
 import { FormFields } from './FormFields';
 import { checkVisibilityCriteria } from '/helpers/fields';

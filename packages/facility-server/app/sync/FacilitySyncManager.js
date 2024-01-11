@@ -8,8 +8,8 @@ import {
 } from '@tamanu/shared/sync/constants';
 import {
   createSnapshotTable,
-  dropSnapshotTable,
   dropAllSnapshotTables,
+  dropSnapshotTable,
   getModelsForDirection,
   saveIncomingChanges,
   waitForPendingEditsUsingSyncTick,

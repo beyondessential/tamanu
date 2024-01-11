@@ -5,14 +5,14 @@ import Collapse from '@material-ui/core/Collapse';
 
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import {
-  Form,
-  Field,
-  DateField,
-  TimeField,
-  CheckField,
   AutocompleteField,
-  TextField,
+  CheckField,
+  DateField,
+  Field,
+  Form,
   LocationField,
+  TextField,
+  TimeField,
 } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { FormSubmitCancelRow } from '../components/ButtonRow';

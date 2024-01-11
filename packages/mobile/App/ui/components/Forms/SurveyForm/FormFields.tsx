@@ -1,10 +1,10 @@
 import React, {
+  MutableRefObject,
   ReactElement,
   useCallback,
-  useState,
-  useRef,
-  MutableRefObject,
   useEffect,
+  useRef,
+  useState,
 } from 'react';
 import { useFormikContext } from 'formik';
 import { ScrollView, TouchableWithoutFeedback } from 'react-native-gesture-handler';

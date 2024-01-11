@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { TopBar, PageContainer, ContentPane } from '../components';
+import { ContentPane, PageContainer, TopBar } from '../components';
 import { TriageTable } from '../components/TriageTable';
 import { TriageDashboard } from '../components/TriageDashboard';
 import { Colors } from '../constants';

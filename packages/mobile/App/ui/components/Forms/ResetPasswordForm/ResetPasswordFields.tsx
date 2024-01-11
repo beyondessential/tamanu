@@ -1,5 +1,5 @@
-import React, { ReactElement, useState, useEffect } from 'react';
-import { StyledView, StyledText } from '/styled/common';
+import React, { ReactElement, useEffect, useState } from 'react';
+import { StyledText, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { Field } from '../FormField';
 import { SubmitButton } from '../SubmitButton';

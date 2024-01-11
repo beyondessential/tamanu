@@ -1,15 +1,15 @@
-import React, { useState, useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
 import {
-  MenuList,
-  MenuItem,
-  Popper,
-  Paper,
   ClickAwayListener,
   IconButton,
+  MenuItem,
+  MenuList,
+  Paper,
+  Popper,
 } from '@material-ui/core';
 import { Colors } from '../constants';
 

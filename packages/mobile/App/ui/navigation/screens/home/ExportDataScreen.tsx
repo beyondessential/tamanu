@@ -1,12 +1,12 @@
-import React, { useCallback, ReactElement } from 'react';
+import React, { ReactElement, useCallback } from 'react';
 import {
-  FullView,
-  StyledView,
-  StyledTouchableOpacity,
-  RowView,
-  StyledText,
-  StyledSafeAreaView,
   CenterView,
+  FullView,
+  RowView,
+  StyledSafeAreaView,
+  StyledText,
+  StyledTouchableOpacity,
+  StyledView,
 } from '/styled/common';
 import { ArrowLeftIcon } from '/components/Icons';
 import { theme } from '/styled/theme';

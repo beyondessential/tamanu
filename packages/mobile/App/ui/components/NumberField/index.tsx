@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ReturnKeyTypeOptions } from 'react-native';
 import { BaseInputProps } from '../../interfaces/BaseInputProps';
 import { TextField } from '../TextField/TextField';

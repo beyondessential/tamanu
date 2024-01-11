@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled, { css } from 'styled-components';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import NotesIcon from '@material-ui/icons/Notes';
 import { Box } from '@material-ui/core';
 import { NOTE_TYPES } from '@tamanu/constants';
@@ -8,13 +8,13 @@ import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 import { useApi } from '../api';
 import {
-  Form,
-  Field,
-  TextField,
-  DateDisplay,
   Button,
-  FormSubmitButton,
+  DateDisplay,
+  Field,
+  Form,
   FormCancelButton,
+  FormSubmitButton,
+  TextField,
 } from '../components';
 
 const Container = styled.div`
