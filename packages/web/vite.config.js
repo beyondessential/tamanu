@@ -39,7 +39,7 @@ export default defineConfig(async ({ command }) => ({
     format: 'es',
   },
   optimizeDeps: {
-    exclude: ['@vite-pwa/assets-generator'],
+    exclude: ['sharp'],
   },
   preview: {
     https: true,
@@ -49,7 +49,7 @@ export default defineConfig(async ({ command }) => ({
       external: ['sharp'],
       output: {
         globals: {
-          sharp: 'sharp', // Add this line to map the external 'sharp' to the global 'sharp'
+          sharp: 'sharp',
         },
         generatedCode: 'es2015',
       },
