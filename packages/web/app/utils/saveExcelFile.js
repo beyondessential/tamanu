@@ -17,8 +17,22 @@ export async function saveExcelFile({ data, metadata, defaultFileName = '', book
   XLSX.utils.book_append_sheet(book, dataSheet, 'report');
   XLSX.utils.book_append_sheet(book, metadataSheet, 'metadata');
 
+  const types = [];
+  if (bookType === 'xlsx') {
+    types.push({
+      accept: { 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'] },
+    });
+  }
+
+  if (bookType === 'csv') {
+    types.push({
+      accept: { 'text/csv': ['.csv'] },
+    });
+  }
+
   const fileHandle = await window.showSaveFilePicker({
-    suggestedName: sanitizeFileName(`${defaultFileName}.${bookType}`),
+    suggestedName: sanitizeFileName(`${defaultFileName}`),
+    types,
   });
 
   const writable = await fileHandle.createWritable();
