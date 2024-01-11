@@ -1,3 +1,4 @@
+import React from 'react';
 import { LargeBodyText } from './Typography';
 import styled, { keyframes } from 'styled-components';
 import { Colors } from '../constants';
