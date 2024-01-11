@@ -265,11 +265,6 @@ export const BirthNotificationCertificate = React.memo(
   ({ motherData, fatherData, childData, facility, certificateData }) => {
     const { title, subTitle, logo } = certificateData;
 
-    // console.log('motherData', JSON.stringify(motherData));
-    // console.log('fatherData', JSON.stringify(fatherData));
-    // console.log('childData', JSON.stringify(childData));
-    // console.log('certificateData', JSON.stringify(certificateData));
-
     return (
       <CertificateWrapper>
         <PrintLetterhead
