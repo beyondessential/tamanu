@@ -1,6 +1,6 @@
 // Copied from https://github.com/beyondessential/tamanu-mobile/blob/dev/App/ui/components/Forms/SurveyForm/surveyCalculations.spec.ts
-import { getResultValue } from '../../src/utils/fields';
-import { runCalculations } from '../../src/utils/calculations';
+import { getResultValue } from '../../dist/cjs/utils/fields';
+import { runCalculations } from '../../dist/cjs/utils/calculations';
 
 function makeDummySurvey(components) {
   return components.map((component, index) => ({

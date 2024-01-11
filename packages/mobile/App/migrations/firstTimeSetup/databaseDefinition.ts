@@ -1,4 +1,4 @@
-import { Table, TableColumn, TableIndex, TableForeignKey } from 'typeorm';
+import { Table, TableColumn, TableForeignKey, TableIndex } from 'typeorm';
 
 const baseIndex = new TableIndex({
   columnNames: ['markedForUpload'],

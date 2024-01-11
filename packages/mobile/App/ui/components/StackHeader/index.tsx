@@ -1,17 +1,16 @@
 import React, { ReactElement } from 'react';
 import { theme } from '/styled/theme';
+import styled from 'styled-components/native';
 import {
   CenterView,
-  StyledText,
-  StyledSafeAreaView,
-  StyledTouchableOpacity,
   RowView,
   StyledView,
+  StyledSafeAreaView,
+  StyledText,
+  StyledTouchableOpacity,
 } from '/styled/common';
 import { ArrowLeftIcon, KebabIcon } from '../Icons';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
-import { Row } from '~/ui/navigation/screens/home/Tabs/PatientHome/ReportScreen/RecentPatientSurveyReportStyled';
-import styled from 'styled-components/native';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
 
 type HeaderTitleProps = {
   title: string;

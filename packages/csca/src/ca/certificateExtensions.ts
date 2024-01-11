@@ -1,4 +1,4 @@
-/* eslint-disable camelcase, @typescript-eslint/camelcase, no-bitwise */
+/* eslint-disable camelcase, no-bitwise */
 
 import { AsnConvert } from '@peculiar/asn1-schema';
 import {
@@ -7,23 +7,23 @@ import {
   DistributionPoint,
   DistributionPointName,
   GeneralName,
-  IssueAlternativeName,
-  Name,
-  PrivateKeyUsagePeriod,
-  RelativeDistinguishedName,
   id_ce_cRLDistributionPoints,
   id_ce_issuerAltName,
   id_ce_privateKeyUsagePeriod,
   id_ce_subjectAltName,
+  IssueAlternativeName,
+  Name,
+  PrivateKeyUsagePeriod,
+  RelativeDistinguishedName,
 } from '@peculiar/asn1-x509';
 import {
   AuthorityKeyIdentifierExtension,
   BasicConstraintsExtension,
   ExtendedKeyUsageExtension,
-  Extension as X509Extension,
   KeyUsageFlags,
   KeyUsagesExtension,
   SubjectKeyIdentifierExtension,
+  Extension as X509Extension,
 } from '@peculiar/x509';
 
 import crypto from '../crypto';

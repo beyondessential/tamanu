@@ -1,12 +1,12 @@
-import React, { ReactElement, PropsWithChildren } from 'react';
+import React, { PropsWithChildren, ReactElement } from 'react';
 
 import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 import { StyledView } from '~/ui/styled/common';
 import { SectionHeader } from '~/ui/components/SectionHeader';
-import { screenPercentageToDP, Orientation } from '~/ui/helpers/screen';
+import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { Separator } from '~/ui/components/Separator';
 
-interface Section {
+interface ISection {
   // either specify a title...
   title?: string;
 
@@ -18,7 +18,7 @@ export const Section = ({
   title: propTitle,
   localisationPath,
   children,
-}: PropsWithChildren<Section>): ReactElement => {
+}: PropsWithChildren<ISection>): ReactElement => {
   const { getString, getBool } = useLocalisation();
 
   let title: string;
