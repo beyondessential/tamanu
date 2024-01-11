@@ -15,6 +15,12 @@ const schema = yup.object({
   newPassword: yup
     .string()
     .min(5, 'Must be at least 5 characters')
+    .oneOf([yup.ref('confirmNewPassword'), null], `Passwords don't match`)
+    .required(),
+  confirmNewPassword: yup
+    .string()
+    .min(5, 'Must be at least 5 characters')
+    .oneOf([yup.ref('newPassword'), null], `Passwords don't match`)
     .required(),
   token: yup.string().required(),
 });
@@ -28,6 +34,16 @@ changePassword.post(
 
     await doChangePassword(store, body);
 
+    res.send({ ok: 'ok' });
+  }),
+);
+
+changePassword.post(
+  '/validate-reset-code',
+  asyncHandler(async (req, res) => {
+    const { store, body } = req;
+
+    await validateResetCode(store, body);
     res.send({ ok: 'ok' });
   }),
 );
@@ -70,4 +86,19 @@ const doChangePassword = async (store, { email, newPassword, token }) => {
       { where: { id: oneTimeLogin.id } },
     );
   });
+};
+
+const validateResetCode = async (store, { email, token }) => {
+  const { models } = store;
+
+  const user = await findUser(models, email);
+  const userId = user ? user.id : 'thwart-timing-attack';
+  const oneTimeLogin = await models.OneTimeLogin.findOne({
+    where: { userId, token },
+  });
+
+  if (!oneTimeLogin) {
+    log.info('oneTimeLogin.tokenNotFound', { token });
+    throw new ValidationError('Token not found for this user');
+  }
 };

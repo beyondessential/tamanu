@@ -17,6 +17,7 @@ import {
   login,
   requestPasswordReset,
   restartPasswordResetFlow,
+  validateResetCode,
 } from '../store';
 import { useApi } from '../api';
 
@@ -180,6 +181,7 @@ export const LoginView = () => {
           {screen === 'changePassword' && (
             <ChangePasswordForm
               onSubmit={data => dispatch(changePassword(data))}
+              onRestartFlow={() => dispatch(restartPasswordResetFlow())}
               errorMessage={changePasswordError}
               success={changePasswordSuccess}
               email={resetPasswordEmail}
@@ -187,6 +189,7 @@ export const LoginView = () => {
                 setScreen('login');
               }}
               onNavToResetPassword={() => setScreen('resetPassword')}
+              onValidateResetCode={data => dispatch(validateResetCode(data))}
             />
           )}
         </LoginFormContainer>
