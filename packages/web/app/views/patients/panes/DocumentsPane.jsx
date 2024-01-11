@@ -20,16 +20,9 @@ const MODAL_STATES = {
   CLOSED: 'closed',
 };
 
-function base64ToUint8Array(base64) {
-  const binaryString = atob(base64);
-  const length = binaryString.length;
-  const uint8Array = new Uint8Array(length);
-
-  for (let i = 0; i < length; i++) {
-    uint8Array[i] = binaryString.charCodeAt(i);
-  }
-
-  return uint8Array;
+const base64ToUint8Array = (base64) => {
+  const binString = atob(base64);
+  return Uint8Array.from(binString, (m) => m.codePointAt(0));
 }
 
 export const DocumentsPane = React.memo(({ encounter, patient }) => {
