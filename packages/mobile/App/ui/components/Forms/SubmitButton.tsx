@@ -21,8 +21,6 @@ export const SubmitButton = ({ onSubmit, ...props }: SubmitButtonProps): ReactEl
       } else if (typeof submitForm === 'function') {
         await submitForm();
       }
-    } catch (e) {
-      throw e;
     } finally {
       setIsLoading(false);
     }
