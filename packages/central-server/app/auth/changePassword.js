@@ -15,12 +15,6 @@ const schema = yup.object({
   newPassword: yup
     .string()
     .min(5, 'Must be at least 5 characters')
-    .oneOf([yup.ref('confirmNewPassword'), null], `Passwords don't match`)
-    .required(),
-  confirmNewPassword: yup
-    .string()
-    .min(5, 'Must be at least 5 characters')
-    .oneOf([yup.ref('newPassword'), null], `Passwords don't match`)
     .required(),
   token: yup.string().required(),
 });
