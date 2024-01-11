@@ -17,6 +17,7 @@ import { CovidClearanceCertificatePublisher } from './CovidClearanceCertificateP
 import { PlannedMoveTimeout } from './PlannedMoveTimeout';
 import { StaleSyncSessionCleaner } from './StaleSyncSessionCleaner';
 import { FhirMissingResources } from './FhirMissingResources';
+import { VaccinationReminder } from './VaccinationReminder';
 
 export { startFhirWorkerTasks } from './fhir';
 
@@ -29,6 +30,7 @@ export async function startScheduledTasks(context) {
     CertificateNotificationProcessor,
     PatientMergeMaintainer,
     FhirMissingResources,
+    VaccinationReminder,
   ];
 
   if (config.schedules.automaticLabTestResultPublisher.enabled) {
