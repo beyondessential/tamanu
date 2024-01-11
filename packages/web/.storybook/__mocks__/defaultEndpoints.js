@@ -1,6 +1,35 @@
 import { Chance } from 'chance';
+import { formatISO9075 } from 'date-fns';
+import { ENCOUNTER_TYPE_VALUES } from '@tamanu/constants';
 
 const chance = new Chance();
+
+function fakeStringFields(prefix, fields) {
+  return fields.reduce(
+    (obj, field) => ({
+      ...obj,
+      [field]: prefix + field,
+    }),
+    {},
+  );
+}
+
+function fakeUUID() {
+  return crypto.randomUUID().replace(/(.{8}-.{4})-.{4}-(.+)/, '$1-0000-$2');
+}
+
+export function fakeEncounter(prefix = 'test-') {
+  const id = fakeUUID();
+  return {
+    deviceId: null,
+    surveyResponses: [],
+    administeredVaccines: [],
+    encounterType: chance.pickone(ENCOUNTER_TYPE_VALUES),
+    startDate: formatISO9075(chance.date()),
+    endDate: formatISO9075(chance.date()),
+    ...fakeStringFields(`${prefix}encounter_${id}_`, ['id', 'reasonForEncounter']),
+  };
+}
 
 function fakeCountry() {
   const id = chance.guid();
@@ -23,7 +52,7 @@ function fakeLabTestLaboratory() {
 
 function fakeLabTestMethod() {
   const id = chance.guid();
-  const name =`${chance.name_prefix()} ${chance.animal()} method`;
+  const name = `${chance.name_prefix()} ${chance.animal()} method`;
   return { id, name };
 }
 

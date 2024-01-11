@@ -21,7 +21,6 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      crypto: path.resolve(__dirname, '.storybook/__mocks__/crypto.js'),
       buffer: path.resolve(__dirname, '.storybook/__mocks__/buffer.js'),
       sequelize: path.resolve(__dirname, '.storybook/__mocks__/sequelize.js'),
       config: path.resolve(__dirname, '.storybook/__mocks__/config.js'),
