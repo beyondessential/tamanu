@@ -273,3 +273,13 @@ export function checkMandatory(mandatory: boolean | Record<string, any>, values:
 
   return checkJSONCriteria(JSON.stringify(mandatory), [], values);
 }
+
+// also update getDisplayNameForModel in /packages/facility-server/app/routes/apiv1/surveyResponse.js when this changes
+export function getDisplayNameForModel(modelName: string, record: any): string {
+  switch(modelName) {
+    case 'User':
+      return record.displayName;
+    default:
+      return record.name || record.id;
+  }
+}
