@@ -21,8 +21,13 @@ export const CovidTestCertificateModal = React.memo(({ patient }) => {
     footerAssetName: ASSET_NAMES.COVID_TEST_CERTIFICATE_FOOTER,
   });
 
-  const { data: labTestResponse, isLoading } = useCovidLabTestQuery(patient.id);
-  const { data: additionalData } = usePatientAdditionalDataQuery(patient.id);
+  const { data: labTestsResponse, isLoading: isLabTestsLoading } = useCovidLabTestQuery(patient.id);
+  const {
+    data: additionalData,
+    isLoading: isAdditionalDataLoading,
+  } = usePatientAdditionalDataQuery(patient.id);
+
+  const isLoading = isLabTestsLoading || isAdditionalDataLoading;
 
   const createCovidTestCertNotification = useCallback(
     data =>
@@ -54,7 +59,7 @@ export const CovidTestCertificateModal = React.memo(({ patient }) => {
         <PDFViewer id="test-certificate">
           <CovidLabCertificate
             patient={patientData}
-            labs={labTestResponse.data}
+            labs={labTestsResponse.data}
             watermarkSrc={watermark}
             signingSrc={footerImg}
             logoSrc={logo}
