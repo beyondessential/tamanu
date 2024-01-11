@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { DateDisplay } from '../../DateDisplay';
+import { DateDisplay, getDateDisplay } from '../../DateDisplay';
 
 import { PrintLetterhead } from './reusable/PrintLetterhead';
 import { CertificateWrapper } from './reusable/CertificateWrapper';
@@ -93,11 +93,14 @@ export const MultipleLabRequestsPrintout = React.memo(
       return tests?.map(test => test.labTestType?.name).join(', ') || '';
     };
 
+    const notesAccessor = ({ notes }) => {
+      return notes.map(note => note.content).join(', ');
+    };
+
     console.log(labRequests);
-    console.log(labRequests[0].notes.content);
 
     return (
-      <Document>  
+      <Document>
         <Page size="A4" style={styles.page}>
           <CertificateHeader>
             <LetterheadSection
@@ -116,7 +119,7 @@ export const MultipleLabRequestsPrintout = React.memo(
                   <DataItem label="Priority" value={request.priority?.name} />
                   <DataItem
                     label="Requested date & time"
-                    value={getDisplayDate(request.date, undefined, getLocalisation)}
+                    value={getDateDisplay(request.requestedDate, { showTime: true })}
                   />
                   <DataItem label="Requested by" value={request.requestedBy?.displayName} />
                   <DataItem label="Test category" value={request.category?.name} />
@@ -132,17 +135,20 @@ export const MultipleLabRequestsPrintout = React.memo(
                 </Col>
               </Row>
               <Row>
-                <DataItem label="Notes" value={request.notes.content} />
+                <DataItem label="Notes" value={notesAccessor(request)} />
               </Row>
               <HorizontalRule />
               <Row>
                 <Col>
-                  <DataItem label="Sample date & time" value={getDisplayDate(request.sampleTime)} />
+                  <DataItem
+                    label="Sample date & time"
+                    value={getDateDisplay(request.sampleTime, { showTime: true })}
+                  />
                   <DataItem label="Collected by" value={request.collectedBy?.displayName} />
                 </Col>
                 <Col>
                   <DataItem label="Site" value={request.site?.name} />
-                  <DataItem label="Specimen type" value={request.specimenTypeId} />
+                  <DataItem label="Specimen type" value={request.specimenType?.name} />
                 </Col>
               </Row>
               <HorizontalRule />
