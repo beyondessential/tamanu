@@ -11,6 +11,7 @@ import { PatientLetterModal } from '../../../components/PatientLetterModal';
 import { DocumentsSearchBar } from '../../../components/DocumentsSearchBar';
 import { TabPane } from '../components';
 import { OutlinedButton, Button, ContentPane, TableButtonRow } from '../../../components';
+import { sanitizeFileName } from '../../../utils/sanitizeFileName';
 
 const MODAL_STATES = {
   DOCUMENT_OPEN: 'document',
@@ -18,6 +19,11 @@ const MODAL_STATES = {
   DOCUMENT_PREVIEW_OPEN: 'document_preview',
   CLOSED: 'closed',
 };
+
+const base64ToUint8Array = (base64) => {
+  const binString = atob(base64);
+  return Uint8Array.from(binString, (m) => m.codePointAt(0));
+}
 
 export const DocumentsPane = React.memo(({ encounter, patient }) => {
   const api = useApi();
@@ -36,10 +42,6 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
 
   const onDownload = useCallback(
     async document => {
-      // Suggest a filename that matches the document name
-      const path = {canceled:true}; // await showSaveDialog({ defaultPath: document.name });
-      if (path.canceled) return;
-
       try {
         // Give feedback to user that download is starting
         notify('Your download has started, please wait.', { type: 'info' });
@@ -49,15 +51,19 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
           base64: true,
         });
 
-        // If the extension is unknown, save it without extension
         const fileExtension = extension(document.type);
-        const fullFilePath = fileExtension ? `${path.filePath}.${fileExtension}` : path.filePath;
 
-        // Create file and open it
-        throw new Error('TODO(web): not implemented');
-        // await writeFile(fullFilePath, data, { encoding: 'base64' });
-        // notifySuccess(`Successfully downloaded file at: ${fullFilePath}`);
-        // openPath(fullFilePath);
+        const fileHandle = await window.showSaveFilePicker({
+          suggestedName: sanitizeFileName(`${document.name}.${fileExtension}`),
+        });
+
+        const writable = await fileHandle.createWritable();
+
+        const fileUint8Array = base64ToUint8Array(data);
+
+        await writable.write(fileUint8Array);
+        await writable.close();
+        notifySuccess(`Successfully downloaded file`);
       } catch (error) {
         notifyError(error.message);
       }
