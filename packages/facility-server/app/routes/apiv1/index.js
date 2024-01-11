@@ -2,6 +2,7 @@ import express from 'express';
 
 import { constructPermission } from '@tamanu/shared/permissions/middleware';
 import { authMiddleware, loginHandler, refreshHandler } from '../../middleware/auth';
+import asyncHandler from 'express-async-handler';
 
 import { allergy } from './allergy';
 import { appointments } from './appointments';
@@ -50,14 +51,18 @@ const patientDataRoutes = express.Router();
 const referenceDataRoutes = express.Router();
 const syncRoutes = express.Router();
 
-apiv1.get('/ping', (req, res) => {
-  req.flagPermissionChecked();
-  res.send({ ok: 'ok' });
-});
 // auth endpoints (added pre auth check)
 apiv1.post('/login', loginHandler);
 apiv1.use('/resetPassword', resetPassword);
 apiv1.use('/changePassword', changePassword);
+
+apiv1.get(
+  '/public/ping',
+  asyncHandler((req, res) => {
+    req.flagPermissionChecked();
+    return res.send({ ok: 'ok' });
+  }),
+);
 
 apiv1.use(authMiddleware);
 apiv1.use(constructPermission);

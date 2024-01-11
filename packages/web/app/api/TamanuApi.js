@@ -186,7 +186,7 @@ export class TamanuApi {
   }
 
   async checkServerAlive() {
-    return this.get('ping', null, { showUnknownErrorToast: false });
+    return this.get('public/ping', null, { showUnknownErrorToast: false });
   }
 
   async refreshToken() {
