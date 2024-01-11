@@ -1,7 +1,7 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
-import { TopBar, EncounterTopBar, Button } from '../app/components';
+import { Button, EncounterTopBar, TopBar } from '../app/components';
 
 storiesOf('TopBar', module)
   .add('With title', () => <TopBar title="Patient listing" />)

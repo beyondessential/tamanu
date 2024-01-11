@@ -1,12 +1,12 @@
-import { expect, beforeAll, describe, it } from '@jest/globals';
+import { beforeAll, describe, expect, it } from '@jest/globals';
 import { Transaction } from 'sequelize';
 
 import { fake, fakeReferenceData, withErrorShown } from '@tamanu/shared/test-helpers';
 import {
-  getModelsForDirection,
+  COLUMNS_EXCLUDED_FROM_SYNC,
   createSnapshotTable,
   findSyncSnapshotRecords,
-  COLUMNS_EXCLUDED_FROM_SYNC,
+  getModelsForDirection,
   SYNC_SESSION_DIRECTION,
 } from '@tamanu/shared/sync';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';

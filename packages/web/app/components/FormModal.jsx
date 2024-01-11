@@ -1,15 +1,16 @@
-import React, { memo, useState, useEffect } from 'react';
+import React, { memo, useEffect, useState } from 'react';
 import { Alert, AlertTitle } from '@material-ui/lab';
 
 import { FormSubmissionProvider, useFormSubmission } from '../contexts/FormSubmission';
 import { BaseModal } from './BaseModal';
+import { IS_DEVELOPMENT } from '../utils/env';
 
 const FormModalComponent = memo(({ children, ...props }) => {
   const { isClosable, hasFormSubmission } = useFormSubmission();
   const [showNotUsingFormWarning, setShowNotUsingFormWarning] = useState(false);
 
   useEffect(() => {
-    const notUsingForm = process.env.NODE_ENV === 'development' && !hasFormSubmission;
+    const notUsingForm = IS_DEVELOPMENT && !hasFormSubmission;
     setShowNotUsingFormWarning(notUsingForm);
   }, [hasFormSubmission]);
 
