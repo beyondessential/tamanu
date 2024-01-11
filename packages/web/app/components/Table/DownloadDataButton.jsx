@@ -79,7 +79,15 @@ export function DownloadDataButton({ exportName, columns, data }) {
     XLSX.utils.book_append_sheet(wb, ws, exportName);
 
     const fileHandle = await window.showSaveFilePicker({
-      suggestedName: sanitizeFileName(`${exportName}-${getCurrentDateString()}.xlsx`),
+      suggestedName: sanitizeFileName(`${exportName}-${getCurrentDateString()}`),
+      types: [
+        {
+          description: 'Excel Spreadsheet',
+          accept: {
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
+          },
+        },
+      ],
     });
 
     const writable = await fileHandle.createWritable();

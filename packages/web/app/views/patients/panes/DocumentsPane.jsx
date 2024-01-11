@@ -20,10 +20,10 @@ const MODAL_STATES = {
   CLOSED: 'closed',
 };
 
-const base64ToUint8Array = (base64) => {
+const base64ToUint8Array = base64 => {
   const binString = atob(base64);
-  return Uint8Array.from(binString, (m) => m.codePointAt(0));
-}
+  return Uint8Array.from(binString, m => m.codePointAt(0));
+};
 
 export const DocumentsPane = React.memo(({ encounter, patient }) => {
   const api = useApi();
@@ -53,8 +53,24 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
 
         const fileExtension = extension(document.type);
 
+        const types = [];
+        if (fileExtension === 'pdf') {
+          types.push({
+            description: 'PDF Files',
+            accept: { 'application/pdf': ['.pdf'] },
+          });
+        }
+
+        if (fileExtension === 'jpeg') {
+          types.push({
+            description: 'JPEG Files',
+            accept: { 'image/jpeg': ['.jpeg'] },
+          });
+        }
+
         const fileHandle = await window.showSaveFilePicker({
-          suggestedName: sanitizeFileName(`${document.name}.${fileExtension}`),
+          suggestedName: sanitizeFileName(`${document.name}`),
+          types,
         });
 
         const writable = await fileHandle.createWritable();
