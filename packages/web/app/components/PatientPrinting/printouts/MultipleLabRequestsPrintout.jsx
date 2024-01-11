@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { DateDisplay, getDateDisplay } from '../../DateDisplay';
+import { getDateDisplay } from '../../DateDisplay';
 
 import { PrintLetterhead } from './reusable/PrintLetterhead';
 import { CertificateWrapper } from './reusable/CertificateWrapper';
@@ -19,12 +19,11 @@ import {
   CertificateHeader,
   Col,
   Row,
+  Signature,
 } from '../../../../../shared/src/utils/patientCertificates/Layout';
 import { LetterheadSection } from '../../../../../shared/src/utils/patientCertificates/LetterheadSection';
-import { DataSection } from '../../../../../shared/src/utils/patientCertificates/printComponents/DataSection';
-import { P } from '../../../../../shared/src/utils/patientCertificates/Typography';
+import { H3, P } from '../../../../../shared/src/utils/patientCertificates/Typography';
 import { DataItem } from '../../../../../shared/src/utils/patientCertificates/printComponents/DataItem';
-import { getDisplayDate } from '../../../../../shared/src/utils/patientCertificates/getDisplayDate';
 import { PrintableBarcode } from '../../../../../shared/src/utils/patientCertificates/printComponents/PrintableBarcode';
 import { HorizontalRule } from '../../../../../shared/src/utils/patientCertificates/printComponents/HorizontalRule';
 
@@ -34,58 +33,6 @@ export const MultipleLabRequestsPrintout = React.memo(
     const { title, subTitle, logo } = certificateData;
     const { getLocalisation } = useLocalisation();
 
-    const idsAndNotes = labRequests.map(lr => [lr.displayId, lr.notes]);
-    console.log(labRequests);
-    console.log(idsAndNotes);
-    const columns = [
-      {
-        key: 'displayId',
-        title: 'Test ID',
-        widthProportion: 2,
-      },
-      {
-        key: 'date',
-        title: 'Request date',
-        accessor: ({ requestedDate }) => <DateDisplay date={requestedDate} />,
-        widthProportion: 2,
-      },
-      {
-        key: 'requestedBy',
-        title: `Requesting ${clinicianText}`,
-        accessor: ({ requestedBy }) => requestedBy?.displayName,
-        widthProportion: 2,
-      },
-      {
-        key: 'sampleTime',
-        title: 'Sample time',
-        accessor: ({ sampleTime }) => <DateDisplay date={sampleTime} showTime />,
-        widthProportion: 2,
-      },
-      {
-        key: 'priority',
-        title: 'Priority',
-        accessor: ({ priority }) => priority?.name || '',
-        widthProportion: 2,
-      },
-      {
-        key: 'category',
-        title: 'Test category',
-        accessor: ({ category }) => category?.name || '',
-        widthProportion: 2,
-      },
-      {
-        key: 'testType',
-        title: 'Test type',
-        accessor: ({ labTestPanelRequest, tests }) => {
-          if (labTestPanelRequest) {
-            return labTestPanelRequest.labTestPanel.name;
-          }
-          return tests?.map(test => test.labTestType?.name).join(', ') || '';
-        },
-        widthProportion: 3,
-      },
-    ];
-
     const labTestTypeAccessor = ({ labTestPanelRequest, tests }) => {
       if (labTestPanelRequest) {
         return labTestPanelRequest.labTestPanel.name;
@@ -94,22 +41,13 @@ export const MultipleLabRequestsPrintout = React.memo(
     };
 
     const notesAccessor = ({ notes }) => {
-      return notes.map(note => note.content).join(', ');
+      return notes?.map(note => note.content).join(', ');
     };
 
-    console.log(labRequests);
-
-    return (
-      <Document>
-        <Page size="A4" style={styles.page}>
-          <CertificateHeader>
-            <LetterheadSection
-              getLocalisation={getLocalisation}
-              logoSrc={logo}
-              certificateTitle="Lab Request"
-            />
-            <PatientDetailsWithBarcode patient={patient} getLocalisation={getLocalisation} />
-          </CertificateHeader>
+    const LabRequestDetailsView = ({ labRequests }) => {
+      return (
+        <View>
+          <H3>Lab request details</H3>
           {labRequests.map(request => (
             <View key={request.id}>
               <HorizontalRule />
@@ -154,20 +92,52 @@ export const MultipleLabRequestsPrintout = React.memo(
               <HorizontalRule />
             </View>
           ))}
+        </View>
+      );
+    };
+
+    const LabRequestSigningSection = () => (
+      <View>
+        <Row>
+          <Col>
+            <P bold style={{ textDecoration: 'underline' }}>
+              Clinician
+            </P>
+            <View style={{ paddingRight: 32 }}>
+              <Signature text={'Signed'} />
+              <Signature text={'Date'} />
+            </View>
+          </Col>
+          <Col>
+            <P bold style={{ textDecoration: 'underline' }}>
+              Patient
+            </P>
+            <View style={{ paddingRight: 32 }}>
+              <Signature text={'Signed'} />
+              <Signature text={'Date'} />
+            </View>
+          </Col>
+        </Row>
+      </View>
+    );
+
+    console.log(labRequests);
+
+    return (
+      <Document>
+        <Page size="A4" style={styles.page}>
+          <CertificateHeader>
+            <LetterheadSection
+              getLocalisation={getLocalisation}
+              logoSrc={logo}
+              certificateTitle="Lab Request"
+            />
+            <PatientDetailsWithBarcode patient={patient} getLocalisation={getLocalisation} />
+          </CertificateHeader>
+          <LabRequestDetailsView labRequests={labRequests} />
+          <LabRequestSigningSection />
         </Page>
       </Document>
-      // <CertificateWrapper>
-      //   <PrintLetterhead title={title} subTitle={subTitle} logoSrc={logo} pageTitle="Lab Request" />
-      //   <PatientDetailPrintout
-      //     patient={patient}
-      //     village={village}
-      //     additionalData={additionalData}
-      //   />
-      //   <Divider />
-      //   <DateFacilitySection encounter={encounter} />
-      //   <ListTable data={labRequests} columns={columns} />
-      //   <NotesSection idsAndNotes={idsAndNotes} />
-      // </CertificateWrapper>
     );
   },
 );
