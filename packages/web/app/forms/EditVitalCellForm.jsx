@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { Box, IconButton, Typography } from '@material-ui/core';
 import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
@@ -6,7 +6,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { FormSubmitCancelRow } from '../components/ButtonRow';
-import { SelectField, Form, Field, OuterLabelFieldWrapper } from '../components/Field';
+import { Field, Form, OuterLabelFieldWrapper, SelectField } from '../components/Field';
 import { useLocalisation } from '../contexts/Localisation';
 import { FormGrid } from '../components/FormGrid';
 import { FormSeparatorLine } from '../components/FormSeparatorLine';

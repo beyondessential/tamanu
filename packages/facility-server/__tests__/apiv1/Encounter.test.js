@@ -1,24 +1,24 @@
-import { subWeeks, sub, addHours, formatISO9075 } from 'date-fns';
+import { addHours, formatISO9075, sub, subWeeks } from 'date-fns';
 import { isEqual } from 'lodash';
 
 import {
-  createDummyPatient,
   createDummyEncounter,
   createDummyEncounterMedication,
+  createDummyPatient,
 } from '@tamanu/shared/demoData/patients';
 import { randomLabRequest } from '@tamanu/shared/demoData';
 import {
-  LAB_REQUEST_STATUSES,
+  DOCUMENT_SOURCES,
+  EncounterChangeType,
   IMAGING_REQUEST_STATUS_TYPES,
+  LAB_REQUEST_STATUSES,
+  NOTE_RECORD_TYPES,
   NOTE_TYPES,
   VITALS_DATA_ELEMENT_IDS,
-  DOCUMENT_SOURCES,
-  NOTE_RECORD_TYPES,
-  EncounterChangeType,
 } from '@tamanu/constants';
 import { setupSurveyFromObject } from '@tamanu/shared/demoData/surveys';
 import { fake, fakeUser } from '@tamanu/shared/test-helpers/fake';
-import { toDateTimeString, getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 import { uploadAttachment } from '../../dist/utils/uploadAttachment';
 import { createTestContext } from '../utilities';

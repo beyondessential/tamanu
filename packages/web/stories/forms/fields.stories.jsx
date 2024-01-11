@@ -8,15 +8,15 @@ import Box from '@material-ui/core/Box';
 import styled from 'styled-components';
 import { Button } from '@material-ui/core';
 import {
-  TextInput,
+  AutocompleteInput,
   DateInput,
-  TimeInput,
   DateTimeInput,
+  MultiselectInput,
+  NullableBooleanInput,
   NumberInput,
   SelectInput,
-  MultiselectInput,
-  AutocompleteInput,
-  NullableBooleanInput,
+  TextInput,
+  TimeInput,
   TimeWithUnitInput,
 } from '../../app/components';
 import { IdInput } from '../../app/components/Field/IdField';

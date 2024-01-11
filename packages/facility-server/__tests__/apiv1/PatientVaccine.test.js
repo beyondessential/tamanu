@@ -2,12 +2,12 @@ import config from 'config';
 
 import { createDummyEncounter, createDummyPatient, randomVitals } from '@tamanu/shared/demoData/patients';
 import {
+  ENCOUNTER_TYPES,
+  REFERENCE_TYPES,
+  SETTING_KEYS,
   VACCINE_CATEGORIES,
   VACCINE_RECORDING_TYPES,
   VACCINE_STATUS,
-  SETTING_KEYS,
-  ENCOUNTER_TYPES,
-  REFERENCE_TYPES,
 } from '@tamanu/constants';
 import { fake } from '@tamanu/shared/test-helpers/fake';
 import { createAdministeredVaccine, createScheduledVaccine } from '@tamanu/shared/demoData/vaccines';

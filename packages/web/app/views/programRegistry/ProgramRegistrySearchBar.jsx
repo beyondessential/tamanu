@@ -5,11 +5,11 @@ import styled from 'styled-components';
 import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
 import { useSuggester } from '../../api';
 import {
-  CustomisableSearchBar,
-  LocalisedField,
   AutocompleteField,
-  DateField,
   CheckField,
+  CustomisableSearchBar,
+  DateField,
+  LocalisedField,
   SearchField,
   SelectField,
 } from '../../components';

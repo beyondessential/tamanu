@@ -9,7 +9,7 @@ import { COMMUNICATION_STATUSES } from '@tamanu/constants';
 import { getReportModule } from '@tamanu/shared/reports';
 import { createNamedLogger } from '@tamanu/shared/services/logging/createNamedLogger';
 
-import { removeFile, createZippedSpreadsheet, writeToSpreadsheet } from '../utils/files';
+import { createZippedSpreadsheet, removeFile, writeToSpreadsheet } from '../utils/files';
 import { getLocalisation } from '../localisation';
 
 const REPORT_RUNNER_LOG_NAME = 'ReportRunner';

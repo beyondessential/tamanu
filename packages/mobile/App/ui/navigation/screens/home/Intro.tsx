@@ -1,12 +1,12 @@
-import React, { useCallback, useMemo, ReactElement } from 'react';
+import React, { ReactElement, useCallback, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 
 //Components
 import {
+  CenterView,
   StyledSafeAreaView,
   StyledText,
   StyledView,
-  CenterView,
 } from '../../../styled/common';
 import { theme } from '../../../styled/theme';
 import { AppIntro1Icon, AppIntro2Icon, AppIntro3Icon } from '../../../components/Icons';
@@ -14,7 +14,7 @@ import { StepMarker } from '../../../components/StepMarker';
 import { Button } from '../../../components/Button';
 //helpers
 import { authUserSelector } from '../../../helpers/selectors';
-import { screenPercentageToDP, Orientation } from '../../../helpers/screen';
+import { Orientation, screenPercentageToDP } from '../../../helpers/screen';
 import { disableAndroidBackButton } from '../../../helpers/android';
 // Props
 import { IntroScreenProps } from '../../../interfaces/Screens/HomeStack/IntroProps';

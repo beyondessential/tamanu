@@ -1,6 +1,6 @@
 import { Database } from '~/infra/db';
 import { SurveyTypes } from '~/types';
-import { fakePatient, fakeEncounter, fakeUser, fake } from '/root/tests/helpers/fake';
+import { fake, fakeEncounter, fakePatient, fakeUser } from '/root/tests/helpers/fake';
 import { FieldTypes } from '~/ui/helpers/fields';
 
 describe('SurveyResponse', () => {

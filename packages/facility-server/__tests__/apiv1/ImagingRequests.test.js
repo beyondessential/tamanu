@@ -1,13 +1,13 @@
 import config from 'config';
 import {
+  IMAGING_REQUEST_STATUS_TYPES,
   IMAGING_TYPES,
   NOTE_RECORD_TYPES,
   NOTE_TYPES,
-  VISIBILITY_STATUSES,
   REFERENCE_TYPES,
-  IMAGING_REQUEST_STATUS_TYPES,
+  VISIBILITY_STATUSES,
 } from '@tamanu/constants';
-import { createDummyPatient, createDummyEncounter } from '@tamanu/shared/demoData/patients';
+import { createDummyEncounter, createDummyPatient } from '@tamanu/shared/demoData/patients';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { fake } from '@tamanu/shared/test-helpers/fake';
 

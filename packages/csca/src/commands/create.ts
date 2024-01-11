@@ -2,8 +2,8 @@ import CA from '../ca';
 import { ConfigFile, period } from '../ca/Config';
 import { CRL_URL_BASE, CSCA_PKUP, CSCA_VALIDITY } from '../ca/constants';
 import {
-  Profile,
   addLeaps,
+  Profile,
   signerDefaultValidityDays,
   signerExtensions,
   signerWorkingDays,

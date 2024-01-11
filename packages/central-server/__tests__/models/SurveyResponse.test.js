@@ -1,6 +1,6 @@
 import { fake } from '@tamanu/shared/test-helpers/fake';
 import { findOneOrCreate } from '@tamanu/shared/test-helpers/factory';
-import { SURVEY_TYPES, PROGRAM_DATA_ELEMENT_TYPES, VISIBILITY_STATUSES, REGISTRATION_STATUSES } from '@tamanu/constants';
+import { PROGRAM_DATA_ELEMENT_TYPES, REGISTRATION_STATUSES, SURVEY_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
 
 async function createDummySurvey(models) {

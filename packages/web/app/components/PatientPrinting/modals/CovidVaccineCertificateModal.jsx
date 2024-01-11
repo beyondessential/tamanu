@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 
-import { ICAO_DOCUMENT_TYPES, ASSET_NAMES } from '@tamanu/constants';
+import { ASSET_NAMES, ICAO_DOCUMENT_TYPES } from '@tamanu/constants';
 import { CovidVaccineCertificate } from '@tamanu/shared/utils/patientCertificates';
 import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
 
@@ -9,7 +9,7 @@ import { useApi } from '../../../api';
 import { EmailButton } from '../../Email/EmailButton';
 import { useCertificate } from '../../../utils/useCertificate';
 import { useLocalisation } from '../../../contexts/Localisation';
-import { usePatientAdditionalDataQuery, useAdministeredVaccines } from '../../../api/queries';
+import { useAdministeredVaccines, usePatientAdditionalDataQuery } from '../../../api/queries';
 
 import { PDFViewer, printPDF } from '../PDFViewer';
 

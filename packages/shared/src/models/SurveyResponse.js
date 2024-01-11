@@ -1,15 +1,15 @@
 import { Sequelize } from 'sequelize';
 import {
+  PATIENT_DATA_FIELD_LOCATIONS,
   PROGRAM_DATA_ELEMENT_TYPES,
   SYNC_DIRECTIONS,
   VISIBILITY_STATUSES,
-  PATIENT_DATA_FIELD_LOCATIONS,
 } from '@tamanu/constants';
 import { InvalidOperationError } from '../errors';
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 import { runCalculations } from '../utils/calculations';
-import { getStringValue, getResultValue, getActiveActionComponents } from '../utils/fields';
+import { getActiveActionComponents, getResultValue, getStringValue } from '../utils/fields';
 import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
 

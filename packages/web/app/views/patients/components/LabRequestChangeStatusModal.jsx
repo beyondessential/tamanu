@@ -3,14 +3,14 @@ import { LAB_REQUEST_STATUSES } from '@tamanu/constants/labs';
 import * as yup from 'yup';
 
 import {
-  FormSubmitCancelRow,
   DateTimeField,
   Field,
+  Form,
   FormGrid,
   FormModal,
-  SuggesterSelectField,
-  Form,
+  FormSubmitCancelRow,
   SelectField,
+  SuggesterSelectField,
 } from '../../../components';
 
 import { LAB_REQUEST_STATUS_OPTIONS } from '../../../constants';
