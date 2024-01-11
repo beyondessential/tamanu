@@ -1,4 +1,5 @@
 import XLSX from 'xlsx';
+import { sanitizeFileName } from './sanitizeFileName';
 
 const stringifyIfNonDateObject = val =>
   typeof val === 'object' && !(val instanceof Date) && val !== null ? JSON.stringify(val) : val;
@@ -17,7 +18,7 @@ export async function saveExcelFile({ data, metadata, defaultFileName = '', book
   XLSX.utils.book_append_sheet(book, metadataSheet, 'metadata');
 
   const fileHandle = await window.showSaveFilePicker({
-    suggestedName: `${defaultFileName}.${bookType}`,
+    suggestedName: sanitizeFileName(`${defaultFileName}.${bookType}`),
   });
 
   const writable = await fileHandle.createWritable();

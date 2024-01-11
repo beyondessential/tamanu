@@ -11,7 +11,7 @@ import { PatientLetterModal } from '../../../components/PatientLetterModal';
 import { DocumentsSearchBar } from '../../../components/DocumentsSearchBar';
 import { TabPane } from '../components';
 import { OutlinedButton, Button, ContentPane, TableButtonRow } from '../../../components';
-
+import { sanitizeFileName } from '../../../utils/sanitizeFileName';
 
 const MODAL_STATES = {
   DOCUMENT_OPEN: 'document',
@@ -61,7 +61,7 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
         const fileExtension = extension(document.type);
 
         const fileHandle = await window.showSaveFilePicker({
-          suggestedName: `${document.name.replaceAll(' ', '-').toLowerCase()}.${fileExtension}`,
+          suggestedName: sanitizeFileName(`${document.name}.${fileExtension}`),
         });
 
         const writable = await fileHandle.createWritable();
