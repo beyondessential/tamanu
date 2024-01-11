@@ -133,11 +133,6 @@ jobs:
   storybook:
     needs: node_modules_cache
     # Workaround for define plugin conflict warning
-    env:
-      NODE_ENV: development
-      SHARP_IGNORE_GLOBAL_LIBVIPS: 1
-      npm_config_arch: x64
-      npm_config_platform: linux
     continue-on-error: true
     name: Test storybook
     runs-on: ubuntu-latest
