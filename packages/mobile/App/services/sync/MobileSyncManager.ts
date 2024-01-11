@@ -4,14 +4,14 @@ import { Database } from '../../infra/db';
 import { MODELS_MAP } from '../../models/modelsMap';
 import { CentralServerConnection } from './CentralServerConnection';
 import {
-  snapshotOutgoingChanges,
-  pushOutgoingChanges,
-  pullIncomingChanges,
-  saveIncomingChanges,
+  clearPersistedSyncSessionRecords,
   getModelsForDirection,
   getSyncTick,
+  pullIncomingChanges,
+  pushOutgoingChanges,
+  saveIncomingChanges,
   setSyncTick,
-  clearPersistedSyncSessionRecords,
+  snapshotOutgoingChanges,
 } from './utils';
 import { SYNC_DIRECTIONS } from '../../models/types';
 import { SYNC_EVENT_ACTIONS } from './types';
