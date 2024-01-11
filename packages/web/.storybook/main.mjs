@@ -1,6 +1,6 @@
 export default {
   framework: '@storybook/react-vite',
-  stories: ['../stories/*.stories.@(js|jsx|mjs|ts|tsx)'],
+  stories: ['../**/*.stories.@(js|jsx|mjs|ts|tsx)'],
   typescript: {
     reactDocgen: false,
   },
