@@ -5,7 +5,7 @@ import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
 import cheerio from 'cheerio';
 import XLSX from 'xlsx';
 
-import { sanitizeFileName } from '../../utils/sanitizeFileName';
+import { createFileSystemHandle } from '../../utils/fileSystemAccess';
 import { GreyOutlinedButton } from '../Button';
 
 function getHeaderValue(column) {
@@ -78,17 +78,10 @@ export function DownloadDataButton({ exportName, columns, data }) {
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, exportName);
 
-    const fileHandle = await window.showSaveFilePicker({
-      suggestedName: sanitizeFileName(`${exportName}-${getCurrentDateString()}`),
-      types: [
-        {
-          description: 'Excel Spreadsheet',
-          accept: {
-            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
-          },
-        },
-      ],
-    });
+    const fileHandle = await createFileSystemHandle({
+      defaultFileName: `${exportName}-${getCurrentDateString()}`,
+      extensions: ['xlsx'],
+    })
 
     const writable = await fileHandle.createWritable();
 

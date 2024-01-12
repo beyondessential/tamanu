@@ -11,7 +11,7 @@ import { PatientLetterModal } from '../../../components/PatientLetterModal';
 import { DocumentsSearchBar } from '../../../components/DocumentsSearchBar';
 import { TabPane } from '../components';
 import { OutlinedButton, Button, ContentPane, TableButtonRow } from '../../../components';
-import { sanitizeFileName } from '../../../utils/sanitizeFileName';
+import { createFileSystemHandle } from '../../../utils/fileSystemAccess';
 
 const MODAL_STATES = {
   DOCUMENT_OPEN: 'document',
@@ -53,24 +53,9 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
 
         const fileExtension = extension(document.type);
 
-        const types = [];
-        if (fileExtension === 'pdf') {
-          types.push({
-            description: 'PDF Files',
-            accept: { 'application/pdf': ['.pdf'] },
-          });
-        }
-
-        if (fileExtension === 'jpeg') {
-          types.push({
-            description: 'JPEG Files',
-            accept: { 'image/jpeg': ['.jpeg'] },
-          });
-        }
-
-        const fileHandle = await window.showSaveFilePicker({
-          suggestedName: sanitizeFileName(`${document.name}`),
-          types,
+        const fileHandle = await createFileSystemHandle({
+          defaultFileName: document.name,
+          extensions: [fileExtension],
         });
 
         const writable = await fileHandle.createWritable();
