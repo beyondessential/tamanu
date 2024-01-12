@@ -1,6 +1,5 @@
 import { readFile } from 'node:fs/promises';
 import { defineConfig } from 'vite';
-import path from 'path';
 import react from '@vitejs/plugin-react-swc';
 import { json5Plugin } from 'vite-plugin-json5';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
@@ -19,15 +18,7 @@ export default defineConfig({
       },
     }),
   ],
-  resolve: {
-    alias: {
-      buffer: path.resolve(__dirname, '.storybook/__mocks__/buffer.js'),
-      sequelize: path.resolve(__dirname, '.storybook/__mocks__/sequelize.js'),
-      config: path.resolve(__dirname, '.storybook/__mocks__/config.js'),
-      yargs: path.resolve(__dirname, '.storybook/__mocks__/module.js'),
-      child_process: path.resolve(__dirname, './__mocks__/module.js'),
-    },
-  },
+
   define: {
     __VERSION__: JSON.stringify(
       await readFile('package.json')

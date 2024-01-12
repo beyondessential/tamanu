@@ -8,7 +8,7 @@ function fakeStringFields(prefix, fields) {
   return fields.reduce(
     (obj, field) => ({
       ...obj,
-      [field]: prefix + field,
+      [field]: `${prefix}${field}`,
     }),
     {},
   );
