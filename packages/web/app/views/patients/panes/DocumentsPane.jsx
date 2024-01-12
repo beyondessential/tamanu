@@ -11,7 +11,7 @@ import { PatientLetterModal } from '../../../components/PatientLetterModal';
 import { DocumentsSearchBar } from '../../../components/DocumentsSearchBar';
 import { TabPane } from '../components';
 import { OutlinedButton, Button, ContentPane, TableButtonRow } from '../../../components';
-import { createFileSystemHandle, saveFile } from '../../../utils/fileSystemAccess';
+import { saveFile } from '../../../utils/fileSystemAccess';
 
 const MODAL_STATES = {
   DOCUMENT_OPEN: 'document',

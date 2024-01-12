@@ -1,5 +1,5 @@
 import XLSX from 'xlsx';
-import { createFileSystemHandle, saveFile } from './fileSystemAccess';
+import { saveFile } from './fileSystemAccess';
 
 const stringifyIfNonDateObject = val =>
   typeof val === 'object' && !(val instanceof Date) && val !== null ? JSON.stringify(val) : val;
