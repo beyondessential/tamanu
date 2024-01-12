@@ -24,15 +24,6 @@ const getLocalisation = key => {
   return config[key];
 };
 
-const examiner = {
-  id: '6b1269ff-2443-4381-a532-ddd48fbd5020',
-  email: 'admin@tamanu.io',
-  displayName: 'Initial Admin',
-  role: 'admin',
-  createdAt: '2022-01-20T22:48:47.375Z',
-  updatedAt: '2022-02-21T01:02:40.347Z',
-};
-
 const motherData = {
   id: '51e7e152-7ad9-4c2e-a7f5-6472f1af7fd4',
   displayId: 'VPZQ171731',
@@ -212,6 +203,7 @@ const certificateData = {
   subTitle: 'PO Box 12345, Melbourne, Australia',
   logo: Logo,
   watermark: Watermark,
+  printDate: new Date(),
 };
 
 export const BirthNotificationCertificate = {

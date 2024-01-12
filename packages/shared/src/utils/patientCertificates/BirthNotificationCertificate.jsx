@@ -1,7 +1,7 @@
 import React from 'react';
 import { Document, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
 import { CertificateHeader, styles, Watermark } from './Layout';
-import { ageInYears } from '../dateTime';
+import { getCurrentDateString, ageInYears } from '../dateTime';
 import { LetterheadSection } from './LetterheadSection';
 import {
   ATTENDANT_OF_BIRTH_OPTIONS,
@@ -12,10 +12,12 @@ import {
   sexOptions,
 } from '@tamanu/web-frontend/app/constants';
 import { getDisplayDate } from './getDisplayDate';
+import { Footer } from './printComponents/Footer';
+import { HorizontalRule } from './printComponents/HorizontalRule';
 
 const borderStyle = '1 solid black';
 
-const customStyles = StyleSheet.create({
+const tableStyles = StyleSheet.create({
   table: {
     flexDirection: 'column',
     marginBottom: 10,
@@ -48,24 +50,24 @@ const customStyles = StyleSheet.create({
   },
 });
 
-const Table = props => <View style={customStyles.table} {...props} />;
-const Row = props => <View style={customStyles.row} {...props} />;
-const P = props => <Text style={[customStyles.p]} {...props} />;
+const Table = props => <View style={tableStyles.table} {...props} />;
+const Row = props => <View style={tableStyles.row} {...props} />;
+const P = props => <Text style={[tableStyles.p]} {...props} />;
 
 const FlexCell = ({ children, ...props }) => (
-  <View style={[customStyles.baseCell, customStyles.flexCell]} {...props}>
+  <View style={[tableStyles.baseCell, tableStyles.flexCell]} {...props}>
     <P>{children}</P>
   </View>
 );
 
 const Cell = ({ children, width = 100, ...props }) => (
-  <View style={[customStyles.baseCell, { width }]} {...props}>
+  <View style={[tableStyles.baseCell, { width }]} {...props}>
     <P>{children}</P>
   </View>
 );
 
 const LeftCell = ({ children, ...props }) => (
-  <View style={[customStyles.baseCell, customStyles.leftCell]} {...props}>
+  <View style={[tableStyles.baseCell, tableStyles.leftCell]} {...props}>
     <P>{children}</P>
   </View>
 );
@@ -179,6 +181,87 @@ const ParentSection = ({ parentType, data = {} }) => {
   );
 };
 
+const signatureStyles = StyleSheet.create({
+  leftCell: {
+    flexDirection: 'row',
+    marginBottom: 15,
+    paddingRight: 10,
+  },
+  rightCell: {
+    flexDirection: 'row',
+    marginBottom: 15,
+    paddingLeft: 10,
+  },
+  line: {
+    flex: 1,
+    marginLeft: 10,
+  },
+});
+
+const SignatureSection = () => {
+  return (
+    <View style={{ flexDirection: 'row', marginTop: 20 }}>
+      <View style={{ flex: 1 }}>
+        <View style={signatureStyles.leftCell}>
+          <P>Certified correct by:</P>
+          <HorizontalRule style={signatureStyles.line} />
+        </View>
+        <View style={signatureStyles.leftCell}>
+          <P>Circle applicable:</P>
+          <P>Doctor/midwife/nurse</P>
+        </View>
+      </View>
+      <View style={{ flex: 1 }}>
+        <View style={signatureStyles.rightCell}>
+          <P>Signed:</P>
+          <HorizontalRule style={signatureStyles.line} />
+        </View>
+        <View style={signatureStyles.rightCell}>
+          <P>Date:</P>
+          <HorizontalRule style={signatureStyles.line} />
+        </View>
+      </View>
+    </View>
+  );
+};
+
+const topStyles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 15,
+  },
+  cell: {
+    flexDirection: 'row',
+    marginBottom: 15,
+  },
+  key: {
+    fontSize: 9,
+  },
+  value: {
+    fontSize: 9,
+  },
+});
+
+const TopSection = ({ facilityName, childDisplayId }) => {
+  const date = getCurrentDateString();
+  return (
+    <View style={topStyles.container}>
+      <View style={topStyles.cell}>
+        <P style={topStyles.key}>Facility:</P>
+        <P style={topStyles.value}>Etta Clinic</P>
+      </View>
+      <View style={topStyles.cell}>
+        <P style={topStyles.key}>Notification date:</P>
+        <P style={topStyles.value}>{getDisplayDate(date)}</P>
+      </View>
+      <View style={topStyles.cell}>
+        <P style={topStyles.key}>Child ID:</P>
+        <P style={topStyles.value}>{childDisplayId}</P>
+      </View>
+    </View>
+  );
+};
 export const BirthNotificationCertificate = ({
   motherData,
   fatherData,
@@ -200,9 +283,12 @@ export const BirthNotificationCertificate = ({
             certificateTitle="Birth Notification"
           />
         </CertificateHeader>
+        <TopSection facility={facility?.name} childDisplayId={childData?.displayId} />
         <ParentSection parentType="Mother" data={motherData} />
         <ParentSection parentType="Father" data={fatherData} />
         <ChildSection data={childData} />
+        <SignatureSection />
+        <Footer />
       </Page>
     </Document>
   );
