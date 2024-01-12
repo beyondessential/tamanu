@@ -39,7 +39,6 @@ const styles = StyleSheet.create({
     fontFamily: 'Helvetica-Bold',
     fontSize: 18,
     textAlign: 'right',
-    color: '#444444',
     marginBottom: 14,
   },
 });
