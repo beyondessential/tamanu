@@ -218,12 +218,12 @@ function transformPatientProgramRegistrationData(patientProgramRegistration, con
       return registrationStatus;
     case 'registrationClinician':
       return clinician.id;
-    case 'currentlyAtFacility':
-      return facility?.id;
     case 'registeringFacility':
       return registeringFacility.id;
-    case 'currentlyAtVillage':
+    case 'registrationCurrentlyAtVillage':
       return village?.id;
+    case 'registrationCurrentlyAtFacility':
+      return facility?.id;
 
     default:
       return undefined;

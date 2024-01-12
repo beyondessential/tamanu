@@ -176,7 +176,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
           clinicalStatusId: patientProgramRegistration.clinicalStatus?.id,
         }}
         validationSchema={yup.object().shape({
-          clinicalStatusId: optionalForeignKey(),
+          clinicalStatusId: optionalForeignKey().nullable(),
           date: yup.date().required('Date of registration must be selected'),
           clinicianId: foreignKey().required('Registered by must be selected'),
           registeringFacilityId: foreignKey().required('Registering facility must be selected'),
