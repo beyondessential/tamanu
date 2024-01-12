@@ -1,7 +1,6 @@
 name: CD Down
 
 on:
-  workflow_dispatch:
   pull_request:
     types:
       - closed
@@ -20,8 +19,8 @@ jobs:
 
   down:
     needs: info
-    # check once again after normalisation just in case
-    if: github.event_name == 'workflow_dispatch' || (!startsWith(needs.info.outputs.branch, 'release-') && needs.info.outputs.branch != 'main')
+    # check permanent branches once again after normalisation just in case
+    if: (!startsWith(needs.info.outputs.branch, 'release-') && needs.info.outputs.branch != 'main')
     name: Bring down environment
     runs-on: ubuntu-latest
 
