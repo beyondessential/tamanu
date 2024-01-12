@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { useQueryClient } from '@tanstack/react-query';
-import { Modal, ConfirmCancelRow, FormSeparatorLine } from '../../components';
+import { ConfirmCancelRow, FormSeparatorLine, Modal } from '../../components';
 import { useApi } from '../../api';
 
 const Text = styled.div`

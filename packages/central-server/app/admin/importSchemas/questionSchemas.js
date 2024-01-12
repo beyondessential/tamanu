@@ -1,15 +1,15 @@
 import * as yup from 'yup';
 import {
-  PROGRAM_DATA_ELEMENT_TYPE_VALUES,
+  CURRENTLY_AT_TYPES,
   PATIENT_DATA_FIELD_LOCATIONS,
+  PROGRAM_DATA_ELEMENT_TYPE_VALUES,
   PROGRAM_REGISTRY_FIELD_LOCATIONS,
   VISIBILITY_STATUSES,
-  CURRENTLY_AT_TYPES,
 } from '@tamanu/constants';
-import { SurveyScreenComponent, baseValidationShape, baseConfigShape } from './baseSchemas';
+import { baseConfigShape, baseValidationShape, SurveyScreenComponent } from './baseSchemas';
 import { configString, validationString } from './jsonString';
 import { mathjsString } from './mathjsString';
-import { rangeObjectSchema, rangeArraySchema } from './rangeObject';
+import { rangeArraySchema, rangeObjectSchema } from './rangeObject';
 
 const isIncompatibleCurrentlyAtType = async (currentlyAtType, value) =>
   (currentlyAtType === CURRENTLY_AT_TYPES.VILLAGE && value === 'registrationCurrentlyAtFacility') ||

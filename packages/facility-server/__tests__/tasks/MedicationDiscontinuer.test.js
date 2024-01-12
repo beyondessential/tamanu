@@ -1,7 +1,7 @@
 import {
-  createDummyPatient,
   createDummyEncounter,
   createDummyEncounterMedication,
+  createDummyPatient,
 } from '@tamanu/shared/demoData/patients';
 import { addDays, subDays } from 'date-fns';
 import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/shared/utils/dateTime';

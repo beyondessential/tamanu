@@ -5,7 +5,7 @@ import jwt from 'jsonwebtoken';
 
 import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
 import { VISIBILITY_STATUSES } from '@tamanu/constants/importable';
-import { fake, disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
+import { disableHardcodedPermissionsForSuite, fake } from '@tamanu/shared/test-helpers';
 import { createTestContext, withDate } from '../utilities';
 
 const TEST_EMAIL = 'test@beyondessential.com.au';

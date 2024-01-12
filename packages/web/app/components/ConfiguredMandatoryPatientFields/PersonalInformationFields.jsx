@@ -10,7 +10,7 @@ import {
   socialMediaOptions,
   titleOptions,
 } from '../../constants';
-import { useSuggester, usePatientSuggester } from '../../api';
+import { usePatientSuggester, useSuggester } from '../../api';
 import { ConfiguredMandatoryPatientFields } from './ConfiguredMandatoryPatientFields';
 
 export const PersonalInformationFields = ({ patientRegistryType, showMandatory }) => {

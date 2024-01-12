@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { useQueryClient } from '@tanstack/react-query';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
-import { Modal, ConfirmCancelRow, DateDisplay, FormSeparatorLine } from '../../components';
+import { ConfirmCancelRow, DateDisplay, FormSeparatorLine, Modal } from '../../components';
 import { Colors } from '../../constants';
 import { useApi } from '../../api';
 import { PROGRAM_REGISTRY } from '../../components/PatientInfoPane/paneTitles';

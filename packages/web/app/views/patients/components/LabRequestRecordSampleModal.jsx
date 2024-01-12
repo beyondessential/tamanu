@@ -3,13 +3,13 @@ import * as yup from 'yup';
 import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
 import styled from 'styled-components';
 import {
+  AutocompleteField,
+  DateTimeField,
+  Field,
+  Form,
   FormGrid,
   FormModal,
   SuggesterSelectField,
-  Form,
-  Field,
-  DateTimeField,
-  AutocompleteField,
 } from '../../../components';
 import { Colors } from '../../../constants';
 import { useSuggester } from '../../../api';

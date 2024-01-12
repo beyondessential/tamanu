@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { ExpandMore } from '@material-ui/icons';
-import { Collapse, List, ListItem, ListItemText, Divider } from '@material-ui/core';
+import { Collapse, Divider, List, ListItem, ListItemText } from '@material-ui/core';
 import { administrationIcon } from '../../constants/images';
 import { ThemedTooltip } from '../Tooltip';
 

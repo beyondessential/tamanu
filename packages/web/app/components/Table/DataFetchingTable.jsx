@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useRef, memo } from 'react';
+import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { isEqual } from 'lodash';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 
@@ -219,7 +219,7 @@ export const DataFetchingTable = memo(
           if (!endpoint) {
             throw new Error('Missing endpoint to fetch data.');
           }
-
+          setErrorMessage('');
           const { data, count } = await fetchData();
           if (loadingDelay) clearTimeout(loadingDelay); // Clear the loading indicator timeout if data fetched before 1 second passes (stops flash from short loading time)
 

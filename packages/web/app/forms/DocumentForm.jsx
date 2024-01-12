@@ -10,7 +10,7 @@ import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { useApi } from '../api';
 import { Suggester } from '../utils/suggester';
 import { foreignKey } from '../utils/validation';
-import { Form, Field, TextField, AutocompleteField } from '../components/Field';
+import { AutocompleteField, Field, Form, TextField } from '../components/Field';
 import { FileChooserField } from '../components/Field/FileChooserField';
 import { FormGrid } from '../components/FormGrid';
 import { ConfirmCancelRow, FormSubmitCancelRow } from '../components/ButtonRow';
@@ -105,10 +105,9 @@ export const DocumentForm = ({ onStart, onSubmit, onError, onCancel, editedObjec
     async ({ file, ...data }) => {
       onStart();
 
-      // Read and inject document creation date and type to metadata sent
-      // const { birthtime } = await getFileStatus(file); // TODO(web)
-      const birthtime = new Date();
-      const attachmentType = lookupMimeType(file);
+      // Read file metadata
+      const birthtime = new Date(file.lastModified);
+      const attachmentType = file.type;
 
       try {
         await api.postWithFileUpload(endpoint, file, {

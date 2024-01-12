@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import { SvgXml } from 'react-native-svg';
 import { IconWithSizeProps } from '/interfaces/WithSizeProps';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
 
 export const ArrowLeftIcon = memo(
   ({

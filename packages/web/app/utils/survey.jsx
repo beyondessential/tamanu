@@ -3,24 +3,24 @@ import React from 'react';
 import * as yup from 'yup';
 import { intervalToDuration, parseISO } from 'date-fns';
 import { checkJSONCriteria } from '@tamanu/shared/utils/criteria';
-import { PROGRAM_DATA_ELEMENT_TYPES, ACTION_DATA_ELEMENT_TYPES } from '@tamanu/constants';
+import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 
 import {
+  DateField,
+  DateTimeField,
   LimitedTextField,
   MultilineTextField,
-  SelectField,
   MultiselectField,
-  DateField,
   NullableBooleanField,
+  NumberField,
+  PatientDataDisplayField,
+  ReadOnlyTextField,
+  SelectField,
   SurveyQuestionAutocompleteField,
   SurveyResponseSelectField,
-  NumberField,
-  ReadOnlyTextField,
   UnsupportedPhotoField,
-  DateTimeField,
-  PatientDataDisplayField,
 } from '../components/Field';
-import { ageInYears, ageInMonths, ageInWeeks } from '@tamanu/shared/utils/dateTime';
+import { ageInMonths, ageInWeeks, ageInYears } from '@tamanu/shared/utils/dateTime';
 import { joinNames } from './user';
 import { notifyError } from './utils';
 
@@ -218,12 +218,12 @@ function transformPatientProgramRegistrationData(patientProgramRegistration, con
       return registrationStatus;
     case 'registrationClinician':
       return clinician.id;
-    case 'currentlyAtFacility':
-      return facility?.id;
     case 'registeringFacility':
       return registeringFacility.id;
-    case 'currentlyAtVillage':
+    case 'registrationCurrentlyAtVillage':
       return village?.id;
+    case 'registrationCurrentlyAtFacility':
+      return facility?.id;
 
     default:
       return undefined;

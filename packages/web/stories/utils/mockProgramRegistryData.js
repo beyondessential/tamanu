@@ -808,9 +808,6 @@ export const dummyApi = {
       case 'suggestions/practitioner':
         return practitioners;
 
-      case 'suggestions/programRegistryClinicalStatus':
-        return clinicalStatusList;
-
       case 'suggestions/programRegistry':
         return programRegistries.data;
 

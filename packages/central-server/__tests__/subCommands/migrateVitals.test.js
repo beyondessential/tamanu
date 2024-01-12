@@ -1,4 +1,4 @@
-import { migrateVitals, COLUMNS_TO_DATA_ELEMENT_ID } from '../../dist/subCommands/migrateVitals';
+import { COLUMNS_TO_DATA_ELEMENT_ID, migrateVitals } from '../../dist/subCommands/migrateVitals';
 import { initDatabase } from '../../dist/database';
 
 jest.mock('../../dist/database', () => ({

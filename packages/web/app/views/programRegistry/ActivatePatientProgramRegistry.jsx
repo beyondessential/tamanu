@@ -6,11 +6,11 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Divider } from '@material-ui/core';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import {
-  Form,
-  Field,
-  DateField,
   AutocompleteField,
+  DateField,
+  Field,
   FieldWithTooltip,
+  Form,
   MultiselectField,
 } from '../../components/Field';
 import { FormGrid } from '../../components/FormGrid';
@@ -176,7 +176,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
           clinicalStatusId: patientProgramRegistration.clinicalStatus?.id,
         }}
         validationSchema={yup.object().shape({
-          clinicalStatusId: optionalForeignKey(),
+          clinicalStatusId: optionalForeignKey().nullable(),
           date: yup.date().required('Date of registration must be selected'),
           clinicianId: foreignKey().required('Registered by must be selected'),
           registeringFacilityId: foreignKey().required('Registering facility must be selected'),

@@ -1,8 +1,8 @@
-import React, { useState, useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { extension } from 'mime-types';
 
 import { useApi } from '../../../api';
-import { notify, notifySuccess, notifyError } from '../../../utils';
+import { notify, notifyError, notifySuccess } from '../../../utils';
 
 import { DocumentPreviewModal } from '../../../components/DocumentPreview';
 import { DocumentsTable } from '../../../components/DocumentsTable';
@@ -10,7 +10,7 @@ import { DocumentModal } from '../../../components/DocumentModal';
 import { PatientLetterModal } from '../../../components/PatientLetterModal';
 import { DocumentsSearchBar } from '../../../components/DocumentsSearchBar';
 import { TabPane } from '../components';
-import { OutlinedButton, Button, ContentPane, TableButtonRow } from '../../../components';
+import { Button, ContentPane, OutlinedButton, TableButtonRow } from '../../../components';
 import { useRefreshCount } from '../../../hooks/useRefreshCount';
 
 const MODAL_STATES = {
