@@ -10,6 +10,7 @@ import { FormGrid } from '../../../components/FormGrid';
 import { ButtonRow } from '../../../components/ButtonRow';
 import { FormSubmitButton } from '../../../components/Button';
 import { saveBlobAs } from '../../../utils/saveBlobAs';
+import { saveFile } from '../../../utils/fileSystemAccess';
 
 const ExportForm = ({ dataTypes, dataTypesSelectable }) => (
   <FormGrid columns={1}>
@@ -35,9 +36,10 @@ export const ExporterView = memo(({ title, endpoint, dataTypes, dataTypesSelecta
       const blob = await api.download(`admin/export/${endpoint}`, {
         includedDataTypes,
       });
-      await saveBlobAs(blob, {
-        extension: 'xlsx',
+      await saveFile({
         defaultFileName: `${title} export ${getCurrentDateTimeString()}`,
+        data: blob,
+        extensions: ['xlsx'],
       });
     },
     [api, title, endpoint],

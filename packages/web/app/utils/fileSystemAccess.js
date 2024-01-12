@@ -31,6 +31,19 @@ const buildTypesArray = extensions => {
       accept: { 'text/csv': ['.csv'] },
     });
   }
+  if (extensions.includes('json')) {
+    types.push({
+      description: 'JSON Files',
+      accept: { 'application/json': ['.json'] },
+    });
+  }
+  if (extensions.includes('sql')) {
+    types.push({
+      description: 'SQL Files',
+      accept: { 'text/sql': ['.sql'] },
+    });
+  }
+
   return types;
 };
 
@@ -42,3 +55,10 @@ export const createFileSystemHandle = async ({ defaultFileName, extensions }) =>
   });
   return fileHandle;
 };
+
+export const saveFile = async ({ defaultFileName, data, extensions }) => {
+  const fileHandle = await createFileSystemHandle({ defaultFileName, extensions });
+  const writable = await fileHandle.createWritable();
+  await writable.write(data);
+  await writable.close();
+}
