@@ -2,14 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import { getDateDisplay } from '../../DateDisplay';
-
-import { PrintLetterhead } from './reusable/PrintLetterhead';
-import { CertificateWrapper } from './reusable/CertificateWrapper';
-import { ListTable } from './reusable/ListTable';
-import { PatientDetailPrintout } from './reusable/PatientDetailPrintout';
-import { NotesSection } from './reusable/NotesSection';
-import { Divider } from './reusable/Divider';
-import { DateFacilitySection } from './reusable/DateFacilitySection';
 import { useLocalisedText } from '../../LocalisedText';
 import { Document, Page, View } from '@react-pdf/renderer';
 import { styles } from '@tamanu/shared/utils/patientCertificates';
@@ -27,6 +19,10 @@ import { DataItem } from '../../../../../shared/src/utils/patientCertificates/pr
 import { PrintableBarcode } from '../../../../../shared/src/utils/patientCertificates/printComponents/PrintableBarcode';
 import { HorizontalRule } from '../../../../../shared/src/utils/patientCertificates/printComponents/HorizontalRule';
 import { EncounterDetails } from '../../../../../shared/src/utils/patientCertificates/printComponents/EncounterDetails';
+import { MultiPageHeader } from '../../../../../shared/src/utils/patientCertificates/printComponents/MultiPageHeader';
+import { Footer } from '../../../../../shared/src/utils/patientCertificates/printComponents/Footer';
+import { getName } from '../../../../../shared/src/utils/patientAccessors';
+import { getDisplayDate } from '../../../../../shared/src/utils/patientCertificates/getDisplayDate';
 
 export const MultipleLabRequestsPrintout = React.memo(
   ({ patient, labRequests, encounter, village, additionalData, certificateData }) => {
@@ -44,10 +40,6 @@ export const MultipleLabRequestsPrintout = React.memo(
     const notesAccessor = ({ notes }) => {
       return notes?.map(note => note.content).join(', ');
     };
-
-    console.log(encounter);
-    console.log(labRequests);
-    console.log(patient);
 
     const LabRequestDetailsView = ({ labRequests }) => {
       return (
@@ -125,6 +117,7 @@ export const MultipleLabRequestsPrintout = React.memo(
     return (
       <Document>
         <Page size="A4" style={styles.page}>
+          <MultiPageHeader documentName="Lab request" patientName={getName(patient)} patiendId={patient.displayId}/>
           <CertificateHeader>
             <LetterheadSection
               getLocalisation={getLocalisation}
@@ -136,6 +129,7 @@ export const MultipleLabRequestsPrintout = React.memo(
           <EncounterDetails encounter={encounter} />
           <LabRequestDetailsView labRequests={labRequests} />
           <LabRequestSigningSection />
+          <Footer printDate={getDisplayDate(new Date())}/>
         </Page>
       </Document>
     );
