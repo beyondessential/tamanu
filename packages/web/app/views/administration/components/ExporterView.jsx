@@ -9,7 +9,6 @@ import { ExpandedMultiSelectField } from '../../../components/Field/ExpandedMult
 import { FormGrid } from '../../../components/FormGrid';
 import { ButtonRow } from '../../../components/ButtonRow';
 import { FormSubmitButton } from '../../../components/Button';
-import { saveBlobAs } from '../../../utils/saveBlobAs';
 import { saveFile } from '../../../utils/fileSystemAccess';
 
 const ExportForm = ({ dataTypes, dataTypesSelectable }) => (
