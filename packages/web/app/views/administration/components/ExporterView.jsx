@@ -35,10 +35,9 @@ export const ExporterView = memo(({ title, endpoint, dataTypes, dataTypesSelecta
       const blob = await api.download(`admin/export/${endpoint}`, {
         includedDataTypes,
       });
-      saveBlobAs(blob, {
-        defaultFileName: `${title} export ${getCurrentDateTimeString()
-          .replaceAll(':', '-')
-          .replaceAll('/', '-')}.xlsx`,
+      await saveBlobAs(blob, {
+        extension: 'xlsx',
+        defaultFileName: `${title} export ${getCurrentDateTimeString()}`,
       });
     },
     [api, title, endpoint],
