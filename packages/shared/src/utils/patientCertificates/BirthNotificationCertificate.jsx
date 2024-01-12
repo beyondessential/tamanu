@@ -1,11 +1,13 @@
 import React from 'react';
 import { Document, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
 import { CertificateHeader, styles, Watermark } from './Layout';
+import { ageInYears } from '../dateTime';
 import { LetterheadSection } from './LetterheadSection';
 import {
   ATTENDANT_OF_BIRTH_OPTIONS,
   BIRTH_DELIVERY_TYPE_OPTIONS,
   BIRTH_TYPE_OPTIONS,
+  maritalStatusOptions,
   PLACE_OF_BIRTH_OPTIONS,
   sexOptions,
 } from '@tamanu/web-frontend/app/constants';
@@ -15,8 +17,8 @@ const borderStyle = '1 solid black';
 
 const customStyles = StyleSheet.create({
   table: {
-    flex: 1,
     flexDirection: 'column',
+    marginBottom: 10,
   },
   row: {
     flexDirection: 'row',
@@ -50,13 +52,13 @@ const Table = props => <View style={customStyles.table} {...props} />;
 const Row = props => <View style={customStyles.row} {...props} />;
 const P = props => <Text style={[customStyles.p]} {...props} />;
 
-const Cell = ({ children, ...props }) => (
+const FlexCell = ({ children, ...props }) => (
   <View style={[customStyles.baseCell, customStyles.flexCell]} {...props}>
     <P>{children}</P>
   </View>
 );
 
-const WidthCell = ({ children, width = 100, ...props }) => (
+const Cell = ({ children, width = 100, ...props }) => (
   <View style={[customStyles.baseCell, { width }]} {...props}>
     <P>{children}</P>
   </View>
@@ -77,57 +79,101 @@ const ChildSection = ({ data }) => {
   return (
     <Table>
       <Row>
-        <Cell>Child</Cell>
+        <FlexCell>Child</FlexCell>
       </Row>
       <Row>
         <LeftCell>Name (if known)</LeftCell>
-        <Cell>{getFullName(data)}</Cell>
+        <FlexCell>{getFullName(data)}</FlexCell>
       </Row>
       <Row>
         <LeftCell>Gestation (weeks)</LeftCell>
-        <WidthCell width={50}>{data?.birthData?.gestationalAgeEstimate}</WidthCell>
-        <WidthCell width={80}>Delivery type</WidthCell>
-        <WidthCell width={70}>
+        <Cell width={50}>{data?.birthData?.gestationalAgeEstimate}</Cell>
+        <Cell width={80}>Delivery type</Cell>
+        <Cell width={70}>
           {getLabelFromValue(BIRTH_DELIVERY_TYPE_OPTIONS, data?.birthData?.birthDeliveryType)}
-        </WidthCell>
-        <WidthCell width={100}>Single/plural births</WidthCell>
-        <Cell>{getLabelFromValue(BIRTH_TYPE_OPTIONS, data?.birthData?.birthType)}</Cell>
+        </Cell>
+        <Cell width={100}>Single/plural births</Cell>
+        <FlexCell>{getLabelFromValue(BIRTH_TYPE_OPTIONS, data?.birthData?.birthType)}</FlexCell>
       </Row>
       <Row>
         <LeftCell>Birth Weight (kg)</LeftCell>
-        <WidthCell width={50}>{data?.birthData?.birthWeight}</WidthCell>
-        <WidthCell width={80}>Birth date</WidthCell>
-        <WidthCell width={70}>
-          {data?.dateOfBirth ? getDisplayDate(data?.dateOfBirth) : ''}
-        </WidthCell>
-        <WidthCell width={100}>Birth time</WidthCell>
-        <Cell>
+        <Cell width={50}>{data?.birthData?.birthWeight}</Cell>
+        <Cell width={80}>Birth date</Cell>
+        <Cell width={70}>{data?.dateOfBirth ? getDisplayDate(data?.dateOfBirth) : ''}</Cell>
+        <Cell width={100}>Birth time</Cell>
+        <FlexCell>
           {data?.birthData?.timeOfBirth ? getDisplayDate(data?.birthData?.timeOfBirth) : ''}
-        </Cell>
+        </FlexCell>
       </Row>
       <Row>
         <LeftCell>Place of birth</LeftCell>
-        <Cell>
+        <FlexCell>
           {getLabelFromValue(PLACE_OF_BIRTH_OPTIONS, data?.birthData?.registeredBirthPlace)}
-        </Cell>
+        </FlexCell>
       </Row>
       <Row>
         <LeftCell>Sex</LeftCell>
-        <WidthCell width={130}>{getLabelFromValue(sexOptions, data?.sex)}</WidthCell>
-        <Cell>Ethnicity</Cell>
-        <Cell>{data?.ethnicity?.name}</Cell>
+        <Cell width={130}>{getLabelFromValue(sexOptions, data?.sex)}</Cell>
+        <FlexCell>Ethnicity</FlexCell>
+        <FlexCell>{data?.ethnicity?.name}</FlexCell>
       </Row>
       <Row>
         <LeftCell>Attendant at birth</LeftCell>
-        <WidthCell width={130}>
+        <Cell width={130}>
           {getLabelFromValue(ATTENDANT_OF_BIRTH_OPTIONS, data?.birthData?.attendantAtBirth)}
-        </WidthCell>
-        <Cell>Name of attendant</Cell>
-        <Cell>{data?.birthData?.nameOfAttendantAtBirth}</Cell>
+        </Cell>
+        <FlexCell>Name of attendant</FlexCell>
+        <FlexCell>{data?.birthData?.nameOfAttendantAtBirth}</FlexCell>
       </Row>
       <Row>
         <LeftCell>Cause of foetal death</LeftCell>
-        <Cell>{causeOfDeath}</Cell>
+        <FlexCell>{causeOfDeath}</FlexCell>
+      </Row>
+    </Table>
+  );
+};
+
+const ParentSection = ({ parentType, data = {} }) => {
+  return (
+    <Table>
+      <Row>
+        <FlexCell>{parentType}</FlexCell>
+      </Row>
+      <Row>
+        <LeftCell>Name</LeftCell>
+        <FlexCell>{getFullName(data)}</FlexCell>
+      </Row>
+      <Row>
+        <LeftCell>Ethnicity</LeftCell>
+        <Cell>{data?.ethnicity?.name}</Cell>
+        <Cell>Marital status</Cell>
+        <FlexCell>
+          {getLabelFromValue(maritalStatusOptions, data?.additionalData?.maritalStatus)}
+        </FlexCell>
+      </Row>
+      <Row>
+        <LeftCell>Date of birth</LeftCell>
+        <Cell>{data?.dateOfBirth ? getDisplayDate(data?.dateOfBirth) : ''}</Cell>
+        <Cell>Age</Cell>
+        <FlexCell>{data?.dateOfBirth ? ageInYears(data.dateOfBirth) : ''}</FlexCell>
+      </Row>
+      <Row>
+        <LeftCell>Occupation</LeftCell>
+        <Cell>{data?.occupation?.name}</Cell>
+        <Cell>Patient ID</Cell>
+        <FlexCell>{data?.displayId}</FlexCell>
+      </Row>
+      <Row>
+        <LeftCell>Address</LeftCell>
+        <FlexCell>{data?.additionalData?.streetVillage}</FlexCell>
+      </Row>
+      <Row>
+        <LeftCell>Mother&apos;s name</LeftCell>
+        <FlexCell>{getFullName(data?.mother)}</FlexCell>
+      </Row>
+      <Row>
+        <LeftCell>Father&apos;s name</LeftCell>
+        <FlexCell>{getFullName(data?.father)}</FlexCell>
       </Row>
     </Table>
   );
@@ -154,6 +200,8 @@ export const BirthNotificationCertificate = ({
             certificateTitle="Birth Notification"
           />
         </CertificateHeader>
+        <ParentSection parentType="Mother" data={motherData} />
+        <ParentSection parentType="Father" data={fatherData} />
         <ChildSection data={childData} />
       </Page>
     </Document>
