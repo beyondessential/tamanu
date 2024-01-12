@@ -1,5 +1,5 @@
 import XLSX from 'xlsx';
-import { createFileSystemHandle } from './fileSystemAccess';
+import { createFileSystemHandle, saveFile } from './fileSystemAccess';
 
 const stringifyIfNonDateObject = val =>
   typeof val === 'object' && !(val instanceof Date) && val !== null ? JSON.stringify(val) : val;
@@ -17,15 +17,10 @@ export async function saveExcelFile({ data, metadata, defaultFileName = '', book
   XLSX.utils.book_append_sheet(book, dataSheet, 'report');
   XLSX.utils.book_append_sheet(book, metadataSheet, 'metadata');
 
-  const fileHandle = await createFileSystemHandle({
+  const xlsxDataArray = XLSX.write(book, { bookType, type: 'array' });
+  await saveFile({
     defaultFileName,
+    data: xlsxDataArray,
     extensions: [bookType],
   });
-
-  const writable = await fileHandle.createWritable();
-
-  const xlsxDataArray = XLSX.write(book, { bookType, type: 'array' });
-
-  await writable.write(xlsxDataArray);
-  await writable.close();
 }

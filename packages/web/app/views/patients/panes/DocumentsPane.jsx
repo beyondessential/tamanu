@@ -11,7 +11,7 @@ import { PatientLetterModal } from '../../../components/PatientLetterModal';
 import { DocumentsSearchBar } from '../../../components/DocumentsSearchBar';
 import { TabPane } from '../components';
 import { OutlinedButton, Button, ContentPane, TableButtonRow } from '../../../components';
-import { createFileSystemHandle } from '../../../utils/fileSystemAccess';
+import { createFileSystemHandle, saveFile } from '../../../utils/fileSystemAccess';
 
 const MODAL_STATES = {
   DOCUMENT_OPEN: 'document',
@@ -53,17 +53,12 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
 
         const fileExtension = extension(document.type);
 
-        const fileHandle = await createFileSystemHandle({
+        await saveFile({
           defaultFileName: document.name,
+          data: base64ToUint8Array(data),
           extensions: [fileExtension],
-        });
+        })
 
-        const writable = await fileHandle.createWritable();
-
-        const fileUint8Array = base64ToUint8Array(data);
-
-        await writable.write(fileUint8Array);
-        await writable.close();
         notifySuccess(`Successfully downloaded file`);
       } catch (error) {
         notifyError(error.message);
