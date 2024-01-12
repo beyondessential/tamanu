@@ -21,7 +21,10 @@ export const CovidTestCertificateModal = React.memo(({ patient }) => {
     footerAssetName: ASSET_NAMES.COVID_TEST_CERTIFICATE_FOOTER,
   });
 
-  const { data: labTestsResponse, isLoading: isLabTestsLoading } = useCovidLabTestQuery(patient.id);
+  const { data: labTestsResponse, isLoading: isLabTestsLoading } = useCovidLabTestQuery(
+    patient.id,
+    CertificateTypes.test,
+  );
   const {
     data: additionalData,
     isLoading: isAdditionalDataLoading,
