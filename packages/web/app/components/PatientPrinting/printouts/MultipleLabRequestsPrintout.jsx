@@ -26,6 +26,7 @@ import { H3, P } from '../../../../../shared/src/utils/patientCertificates/Typog
 import { DataItem } from '../../../../../shared/src/utils/patientCertificates/printComponents/DataItem';
 import { PrintableBarcode } from '../../../../../shared/src/utils/patientCertificates/printComponents/PrintableBarcode';
 import { HorizontalRule } from '../../../../../shared/src/utils/patientCertificates/printComponents/HorizontalRule';
+import { EncounterDetails } from '../../../../../shared/src/utils/patientCertificates/printComponents/EncounterDetails';
 
 export const MultipleLabRequestsPrintout = React.memo(
   ({ patient, labRequests, encounter, village, additionalData, certificateData }) => {
@@ -43,6 +44,8 @@ export const MultipleLabRequestsPrintout = React.memo(
     const notesAccessor = ({ notes }) => {
       return notes?.map(note => note.content).join(', ');
     };
+
+    console.log(encounter);
 
     const LabRequestDetailsView = ({ labRequests }) => {
       return (
@@ -96,32 +99,26 @@ export const MultipleLabRequestsPrintout = React.memo(
       );
     };
 
+    const BaseSigningSection = ({ title }) => (
+      <Col>
+        <P bold style={{ textDecoration: 'underline' }}>
+          {title}
+        </P>
+        <View style={{ paddingRight: 32 }}>
+          <Signature text={'Signed'} />
+          <Signature text={'Date'} />
+        </View>
+      </Col>
+    );
+
     const LabRequestSigningSection = () => (
       <View>
         <Row>
-          <Col>
-            <P bold style={{ textDecoration: 'underline' }}>
-              Clinician
-            </P>
-            <View style={{ paddingRight: 32 }}>
-              <Signature text={'Signed'} />
-              <Signature text={'Date'} />
-            </View>
-          </Col>
-          <Col>
-            <P bold style={{ textDecoration: 'underline' }}>
-              Patient
-            </P>
-            <View style={{ paddingRight: 32 }}>
-              <Signature text={'Signed'} />
-              <Signature text={'Date'} />
-            </View>
-          </Col>
+          <BaseSigningSection title="Clinician" />
+          <BaseSigningSection title="Patient" />
         </Row>
       </View>
     );
-
-    console.log(labRequests);
 
     return (
       <Document>
@@ -134,6 +131,7 @@ export const MultipleLabRequestsPrintout = React.memo(
             />
             <PatientDetailsWithBarcode patient={patient} getLocalisation={getLocalisation} />
           </CertificateHeader>
+          <EncounterDetails encounter={encounter} />
           <LabRequestDetailsView labRequests={labRequests} />
           <LabRequestSigningSection />
         </Page>
@@ -144,7 +142,6 @@ export const MultipleLabRequestsPrintout = React.memo(
 
 MultipleLabRequestsPrintout.propTypes = {
   patient: PropTypes.object.isRequired,
-  additionalData: PropTypes.object.isRequired,
   village: PropTypes.object.isRequired,
   encounter: PropTypes.object.isRequired,
   labRequests: PropTypes.array.isRequired,
