@@ -56,9 +56,13 @@ export const createFileSystemHandle = async ({ defaultFileName, extensions }) =>
   return fileHandle;
 };
 
-export const saveFile = async ({ defaultFileName, data, extensions }) => {
+export const saveFile = async ({
+  defaultFileName,
+  data, // The file data to write, in the form of an ArrayBuffer, TypedArray, DataView, Blob, or string.
+  extensions, // An array of possible extensions. If only one is in the array it will default to this extension.
+}) => {
   const fileHandle = await createFileSystemHandle({ defaultFileName, extensions });
   const writable = await fileHandle.createWritable();
   await writable.write(data);
   await writable.close();
-}
+};
