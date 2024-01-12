@@ -4,12 +4,12 @@ import { TableCellTag } from '../../components';
 import { ThemedTooltip } from '../../components/Tooltip';
 
 export const ClinicalStatusDisplay = ({ clinicalStatus }) => {
-  if (!clinicalStatus || !clinicalStatus?.color) return <></>;
-  const { background, color } = STATUS_COLOR[clinicalStatus.color];
+  if (!clinicalStatus) return <></>;
+  const { background, color } = STATUS_COLOR[clinicalStatus.color || 'grey'];
   return (
     <ThemedTooltip visible title="Current status">
       <TableCellTag $background={background} $color={color} $position="initial">
-        {clinicalStatus.name}
+        {clinicalStatus.name || 'n/a'}
       </TableCellTag>
     </ThemedTooltip>
   );
