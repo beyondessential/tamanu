@@ -46,6 +46,8 @@ export const MultipleLabRequestsPrintout = React.memo(
     };
 
     console.log(encounter);
+    console.log(labRequests);
+    console.log(patient);
 
     const LabRequestDetailsView = ({ labRequests }) => {
       return (
