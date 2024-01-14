@@ -11,6 +11,7 @@ import { Colors } from '../../../constants';
 import { MultiplePrescriptionPrintout } from '../printouts/MultiplePrescriptionPrintout';
 import { PrescriptionPrintout } from '@tamanu/shared/utils/patientCertificates';
 import { useLocalisation } from '../../../contexts/Localisation';
+import { PDFViewer } from '../PDFViewer';
 
 export const MultiplePrescriptionPrintoutModal = ({
   encounter,
@@ -63,13 +64,15 @@ export const MultiplePrescriptionPrintoutModal = ({
       {patientLoading || additionalDataLoading || villageLoading || prescriberLoading ? (
         <LoadingIndicator />
       ) : (
-        <MultiplePrescriptionPrintout
-          certificateData={certificateData}
-          patientData={{ ...patient, additionalData, village }}
-          prescriber={prescriber}
-          prescriptions={prescriptions}
-          getLocalisation={getLocalisation}
-        />
+        <PDFViewer id="prescription-printout">
+          <PrescriptionPrintout
+            certificateData={certificateData}
+            patientData={{ ...patient, additionalData, village }}
+            prescriber={prescriber}
+            prescriptions={prescriptions}
+            getLocalisation={getLocalisation}
+          />
+        </PDFViewer>
       )}
     </Modal>
   );

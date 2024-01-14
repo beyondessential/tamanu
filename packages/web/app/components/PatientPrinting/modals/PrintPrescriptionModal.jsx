@@ -75,7 +75,7 @@ export const PrintPrescriptionModal = ({ medication, open, onClose }) => {
           <PDFViewer id="prescription-certificate">
             <PrescriptionPrintout
               patientData={{ ...patient, additionalData, village }}
-              prescriptionData={medication}
+              prescriptions={[medication]}
               encounterData={encounter}
               certificateData={certificateData}
               getLocalisation={getLocalisation}
