@@ -3,17 +3,15 @@ import asyncHandler from 'express-async-handler';
 
 export const surveyResponse = express.Router();
 
-// also update /packages/mobile/App/ui/helpers/constants.js when this changes
-const MODEL_COLUMN_TO_ANSWER_DISPLAY_VALUE = {
-  User: 'displayName',
-  Department: 'name',
-  Facility: 'name',
-  Location: 'name',
-  LocationGroup: 'name',
-  ReferenceData: 'name',
-};
-
-const DEFAULT_DISPLAY_COLUMN = 'id';
+// also update getDisplayNameForModel in /packages/mobile/App/ui/helpers/fields.ts when this changes
+function getDisplayNameForModel(model, record) {
+  switch(model) {
+    case 'User':
+      return record.displayName;
+    default:
+      return record.name || record.id;
+  }
+}
 
 surveyResponse.get(
   '/:id',
@@ -65,14 +63,10 @@ surveyResponse.get(
           );
         }
 
-        const columnToDisplay =
-          MODEL_COLUMN_TO_ANSWER_DISPLAY_VALUE[componentConfig.source] || DEFAULT_DISPLAY_COLUMN;
-        const answerDisplayValue = result[columnToDisplay];
-
         const transformedAnswer = {
           ...answer.dataValues,
           originalBody: answer.dataValues.body,
-          body: answerDisplayValue,
+          body: getDisplayNameForModel(componentConfig.source, result),
         };
         return transformedAnswer;
       }),
