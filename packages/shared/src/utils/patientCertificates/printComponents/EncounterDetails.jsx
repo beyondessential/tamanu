@@ -5,7 +5,7 @@ import { getLocation } from '../../patientAccessors';
 import { Col } from '../Layout';
 
 export const EncounterDetails = ({ encounter }) => {
-  const { location, department } = encounter;
+  const { location, department } = encounter || {};
 
   return (
     <DataSection title="Encounter details">
