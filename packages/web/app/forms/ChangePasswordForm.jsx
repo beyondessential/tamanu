@@ -2,13 +2,7 @@ import React from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import { FormGrid } from '../components/FormGrid';
-import {
-  Button,
-  Field,
-  Form,
-  TextField,
-  StyledPrimarySubmitButton,
-} from '../components';
+import { Button, Field, Form, TextField, StyledPrimarySubmitButton } from '../components';
 
 const SuccessMessage = styled.p`
   margin-top: 0;
@@ -16,7 +10,6 @@ const SuccessMessage = styled.p`
 
 export const ChangePasswordForm = React.memo(
   ({ onSubmit, errorMessage, success, email, onNavToLogin, onNavToResetPassword }) => {
-
     const renderForm = ({ setFieldValue }) => (
       <FormGrid columns={1}>
         <h3>Reset Password</h3>
@@ -29,6 +22,7 @@ export const ChangePasswordForm = React.memo(
           label="Enter a new password"
           required
           component={TextField}
+          autoComplete="new-password"
         />
         <StyledPrimarySubmitButton type="submit">Change Password</StyledPrimarySubmitButton>
         <Button onClick={onNavToResetPassword} color="default" variant="text">
