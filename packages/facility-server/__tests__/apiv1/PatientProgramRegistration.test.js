@@ -251,22 +251,25 @@ describe('PatientProgramRegistration', () => {
         {
           clinicianId: clinician.id,
           patientId: patient.id,
-          clinicalStatusId: status1.id,
+          clinicalStatusId: status2.id,
           programRegistryId: registry.id,
           registeringFacilityId: facility.id,
           registrationStatus: REGISTRATION_STATUSES.INACTIVE,
           date: '2023-09-02 09:00:00',
         },
         {
+          // Note this record won't show up as the status hasn't changed
+          // but it should have it's date as a registrationDate
           patientId: patient.id,
           programRegistryId: registry.id,
+          clinicalStatusId: status2.id,
           villageId: village.id,
           registrationStatus: REGISTRATION_STATUSES.ACTIVE,
           date: '2023-09-02 10:00:00',
         },
         {
           patientId: patient.id,
-          clinicalStatusId: status2.id,
+          clinicalStatusId: status1.id,
           programRegistryId: registry.id,
           registrationStatus: REGISTRATION_STATUSES.ACTIVE,
           date: '2023-09-02 11:00:00',
@@ -295,8 +298,11 @@ describe('PatientProgramRegistration', () => {
         `/v1/patient/${patient.id}/programRegistration/${registry.id}/history`,
       );
       expect(result).toHaveSucceeded();
+
+      // Only expect the records where the status has changed
+      const expectedRecords = [...records.slice(0, 2), ...records.slice(3)];
       // it'll give us latest-first, so reverse it
-      const history = [...records].reverse();
+      const history = [...expectedRecords].reverse();
       expect(result.body.data).toMatchObject(history);
 
       // also check for the correctly-joined info
@@ -305,12 +311,12 @@ describe('PatientProgramRegistration', () => {
 
       // Check for correct registrationDates
       expect(result.body.data[0]).toHaveProperty('registrationDate');
-      // In chronological order (numbers are negative because the result is reversed):
-      expect(result.body.data.at(-1).registrationDate).toEqual(history.at(-1).date);
-      expect(result.body.data.at(-2).registrationDate).toEqual(history.at(-1).date);
-      expect(result.body.data.at(-3).registrationDate).toEqual(history.at(-3).date);
-      expect(result.body.data.at(-4).registrationDate).toEqual(history.at(-3).date);
-      expect(result.body.data.at(-5).registrationDate).toEqual(history.at(-3).date);
+      // In chronological order (numbers are negative because the result is reversed, and -1 so the indexes match):
+      expect(result.body.data.at(-1).registrationDate).toEqual(records.at(0).date);
+      expect(result.body.data.at(-2).registrationDate).toEqual(records.at(0).date);
+      // (third record is filtered out)
+      expect(result.body.data.at(-3).registrationDate).toEqual(records.at(2).date);
+      expect(result.body.data.at(-4).registrationDate).toEqual(records.at(2).date);
     });
 
     it('fetches the full detail of the latest registration', async () => {
