@@ -9,6 +9,8 @@ import { useApi } from '../../../api';
 import { Colors } from '../../../constants';
 
 import { MultiplePrescriptionPrintout } from '../printouts/MultiplePrescriptionPrintout';
+import { PrescriptionPrintout } from '@tamanu/shared/utils/patientCertificates';
+import { useLocalisation } from '../../../contexts/Localisation';
 
 export const MultiplePrescriptionPrintoutModal = ({
   encounter,
@@ -17,6 +19,7 @@ export const MultiplePrescriptionPrintoutModal = ({
   open,
   onClose,
 }) => {
+  const { getLocalisation } = useLocalisation();
   const certificateData = useCertificate();
   const api = useApi();
 
@@ -65,6 +68,7 @@ export const MultiplePrescriptionPrintoutModal = ({
           patientData={{ ...patient, additionalData, village }}
           prescriber={prescriber}
           prescriptions={prescriptions}
+          getLocalisation={getLocalisation}
         />
       )}
     </Modal>

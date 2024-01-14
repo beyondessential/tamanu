@@ -5,9 +5,12 @@ import { useCertificate } from '../../../utils/useCertificate';
 import { LoadingIndicator } from '../../LoadingIndicator';
 import { useApi } from '../../../api';
 
-import { PrescriptionPrintout } from '../printouts/PrescriptionPrintout';
+import { PrescriptionPrintout } from '@tamanu/shared/utils/patientCertificates';
+import { useLocalisation } from '../../../contexts/Localisation';
+import { PDFViewer } from '../PDFViewer';
 
 export const PrintPrescriptionModal = ({ medication, open, onClose }) => {
+  const { getLocalisation } = useLocalisation();
   const certificateData = useCertificate();
   const api = useApi();
   const [encounter, setEncounter] = useState({});
@@ -69,12 +72,15 @@ export const PrintPrescriptionModal = ({ medication, open, onClose }) => {
         {encounterLoading || patientLoading || additionalDataLoading || villageLoading ? (
           <LoadingIndicator />
         ) : (
-          <PrescriptionPrintout
-            patientData={{ ...patient, additionalData, village }}
-            prescriptionData={medication}
-            encounterData={encounter}
-            certificateData={certificateData}
-          />
+          <PDFViewer id="prescription-certificate">
+            <PrescriptionPrintout
+              patientData={{ ...patient, additionalData, village }}
+              prescriptionData={medication}
+              encounterData={encounter}
+              certificateData={certificateData}
+              getLocalisation={getLocalisation}
+            />
+          </PDFViewer>
         )}
       </Modal>
     </>
