@@ -10,11 +10,13 @@ import { useCertificate } from '../../../utils/useCertificate';
 
 import { Modal } from '../../../components';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
-import { MultipleLabRequestsPrintout } from '../../../components/PatientPrinting';
 import { Colors } from '../../../constants';
 import { PDFViewer } from '../../../components/PatientPrinting/PDFViewer';
+import { useLocalisation } from '../../../contexts/Localisation';
+import { MultipleLabRequestsPrintout } from '@tamanu/shared/utils/patientCertificates';
 
 export const LabRequestPrintModal = React.memo(({ labRequest, patient, open, onClose }) => {
+  const { getLocalisation } = useLocalisation();
   const api = useApi();
   const certificate = useCertificate();
 
@@ -68,6 +70,7 @@ export const LabRequestPrintModal = React.memo(({ labRequest, patient, open, onC
             additionalData={additionalData}
             encounter={encounter}
             certificateData={certificate}
+            getLocalisation={getLocalisation}
           />
         </PDFViewer>
       )}

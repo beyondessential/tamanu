@@ -8,10 +8,12 @@ import { useCertificate } from '../../../utils/useCertificate';
 import { useApi } from '../../../api';
 import { Colors } from '../../../constants';
 
-import { MultipleLabRequestsPrintout } from '../printouts/MultipleLabRequestsPrintout';
 import { PDFViewer } from '../PDFViewer';
+import { useLocalisation } from '../../../contexts/Localisation';
+import { MultipleLabRequestsPrintout } from '@tamanu/shared/utils/patientCertificates';
 
 export const MultipleLabRequestsPrintoutModal = ({ encounter, labRequests, open, onClose }) => {
+  const { getLocalisation } = useLocalisation();
   const certificateData = useCertificate();
   const api = useApi();
 
@@ -55,6 +57,7 @@ export const MultipleLabRequestsPrintoutModal = ({ encounter, labRequests, open,
             village={village}
             encounter={encounter}
             labRequests={labRequests}
+            getLocalisation={getLocalisation}
           />
         </PDFViewer>
       )}

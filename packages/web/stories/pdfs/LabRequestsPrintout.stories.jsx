@@ -1,4 +1,4 @@
-import { MultipleLabRequestsPrintout as Component } from '../../app/components/PatientPrinting';
+import { MultipleLabRequestsPrintout as Component } from '@tamanu/shared/utils/patientCertificates';
 import Logo from '../assets/tamanu-logo.png';
 import { PDFViewer } from '@react-pdf/renderer';
 import React from 'react';

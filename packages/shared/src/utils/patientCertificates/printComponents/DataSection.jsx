@@ -16,7 +16,7 @@ export const DataSection = ({ title, children, props }) => {
   return (
     <View {...props}>
       <Text style={styles.title}>{title}</Text>
-      <HorizontalRule />
+      <HorizontalRule width='0.5px' />
       <Row>{children}</Row>
       <HorizontalRule />
     </View>

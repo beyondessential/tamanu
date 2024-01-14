@@ -76,6 +76,9 @@ export const styles = StyleSheet.create({
   certificateFooter: {
     margin: '0 18px',
   },
+  certificateContent: {
+    margin: '0 18px',
+  },
 });
 
 export const Row = props => <View style={styles.row} {...props} />;
@@ -114,3 +117,4 @@ export const CertificateLogo = ({ logoSrc }) => (
 
 export const CertificateHeader = props => <View style={styles.certificateHeader} {...props} />;
 export const CertificateFooter = props => <View style={styles.certificateFooter} {...props} />;
+export const CertificateContent = props => <View style={styles.certificateContent} {...props} />;
