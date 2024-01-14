@@ -167,7 +167,7 @@ jobs:
       - name: Up!
         uses: pulumi/actions@v5
         with:
-          work-dir: ops/pulumi/stacks/tamanu/web-on-ecs
+          work-dir: ops/pulumi/stacks/tamanu/on-ecs
           command: up
           stack-name: bes/${{ needs.info.outputs.branch }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
