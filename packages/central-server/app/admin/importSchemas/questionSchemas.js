@@ -11,7 +11,7 @@ import { configString, validationString } from './jsonString';
 import { mathjsString } from './mathjsString';
 import { rangeArraySchema, rangeObjectSchema } from './rangeObject';
 
-const isIncompatibleCurrentlyAtType = async (currentlyAtType, value) =>
+const isIncompatibleCurrentlyAtType = (currentlyAtType, value) =>
   (currentlyAtType === CURRENTLY_AT_TYPES.VILLAGE && value === 'registrationCurrentlyAtFacility') ||
   (currentlyAtType === CURRENTLY_AT_TYPES.FACILITY && value === 'registrationCurrentlyAtVillage');
 
