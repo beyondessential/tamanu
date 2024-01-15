@@ -7,8 +7,6 @@ import { LoadingIndicator } from '../../LoadingIndicator';
 import { useCertificate } from '../../../utils/useCertificate';
 import { useApi } from '../../../api';
 import { Colors } from '../../../constants';
-
-import { MultiplePrescriptionPrintout } from '../printouts/MultiplePrescriptionPrintout';
 import { PrescriptionPrintout } from '@tamanu/shared/utils/patientCertificates';
 import { useLocalisation } from '../../../contexts/Localisation';
 import { PDFViewer } from '../PDFViewer';

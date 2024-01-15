@@ -131,8 +131,6 @@ export const PrescriptionPrintout = ({
   certificateData,
   getLocalisation,
 }) => {
-  console.log(patientData);
-
   return (
     <Document>
       <Page size="A4" style={styles.page}>
