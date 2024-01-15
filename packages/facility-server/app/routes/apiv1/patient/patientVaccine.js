@@ -265,7 +265,7 @@ patientVaccineRoutes.get(
     req.checkPermission('list', 'PatientVaccine');
 
     const { models, query, params } = req;
-    const { Patient, ScheduledVaccine } = models;
+    const { Patient } = models;
 
     const where = JSON.parse(query.includeNotGiven || false)
       ? {
@@ -324,15 +324,6 @@ patientVaccineRoutes.get(
           // from newest to oldest we want the null values to show at the end of the list
           orderWithNulls,
         ],
-      ],
-      include: [
-        {
-          model: ScheduledVaccine,
-          as: 'scheduledVaccine',
-          where: {
-            hideFromCertificate: false,
-          },
-        },
       ],
       where,
       limit: rowsPerPage,
