@@ -1,6 +1,7 @@
 import React from 'react';
-import { Document, Page, Text, View } from '@react-pdf/renderer';
-import { CertificateHeader, Col, Row, Watermark } from './Layout';
+import styled from 'styled-components';
+import { Document, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
+import { CertificateHeader, Col, Watermark } from './Layout';
 import { PrintLetterhead } from '@tamanu/web-frontend/app/components/PatientPrinting';
 import { LetterheadSection } from './LetterheadSection';
 import { useLocalisation } from '@tamanu/web-frontend/app/contexts/Localisation';
@@ -15,7 +16,68 @@ import {
   formatShortest,
   useLocalisedText,
 } from '@tamanu/web-frontend/app/components';
-import { P } from './Typography';
+
+const borderStyle = '1 solid black';
+
+const textStyles = StyleSheet.create({
+  sectionTitle: {
+    fontFamily: 'Helvetica-Bold',
+    marginBottom: 3,
+    fontSize: 14,
+    fontWeight: 500,
+  },
+});
+
+const tableStyles = StyleSheet.create({
+  table: {
+    flexDirection: 'column',
+    marginBottom: 15,
+  },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    borderTop: borderStyle,
+    borderLeft: borderStyle,
+    borderBottom: borderStyle,
+    marginBottom: -1,
+  },
+  baseCell: {
+    flexDirection: 'row',
+    borderLeft: borderStyle,
+    alignItems: 'center',
+    padding: 5,
+  },
+  flexCell: {
+    flex: 1,
+  },
+  p: {
+    fontFamily: 'Helvetica',
+    fontSize: 9,
+  },
+});
+
+const Table = props => <View style={tableStyles.table} {...props} />;
+const Row = props => <View style={tableStyles.row} {...props} />;
+const P = ({ style = {}, children }) => <Text style={[tableStyles.p, style]}>{children}</Text>;
+const FlexCell = ({ children, style = {}, fontStyle = {} }) => (
+  <View style={[tableStyles.baseCell, tableStyles.flexCell, style]}>
+    <P style={fontStyle}>{children}</P>
+  </View>
+);
+
+const Cell = ({ children, style = {} }) => (
+  <View style={[tableStyles.baseCell, style]}>
+    <P>{children}</P>
+  </View>
+);
+
+const HeaderCell = ({ children }) => (
+  <View style={[tableStyles.baseCell]}>
+    <P style={{ fontFamily: 'Helvetica-Bold' }}>{children}</P>
+  </View>
+);
+
+const PageGap = () => <View style={{ marginVertical: '10px' }} />;
 
 const EncounterDetails = ({ encounter }) => {
   const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
@@ -56,6 +118,20 @@ const EncounterDetails = ({ encounter }) => {
   );
 };
 
+const EncounterTypesSection = ({ encounterTypeHistory }) => {
+  return (
+    <View>
+      <Text style={textStyles.sectionTitle}>Encounter Types</Text>
+      <Table>
+        <Row>
+          <HeaderCell>Type</HeaderCell>
+          <HeaderCell>Date & time moved</HeaderCell>
+        </Row>
+      </Table>
+    </View>
+  );
+};
+
 export const EncounterRecordPrintout = ({
   patient,
   encounter,
@@ -73,24 +149,26 @@ export const EncounterRecordPrintout = ({
   medications,
   getLocalisation,
 }) => {
-  console.log('certData', JSON.stringify(certificateData));
-  // const { watermark, logo } = certficateData;
-  // const { getLocalisation } = useLocalisation();
+  const { watermark, logo } = certificateData;
 
   return (
     <Document>
       <Page size="A4">
-        {/*{watermark && <Watermark src={watermark} />}*/}
+        {watermark && <Watermark src={watermark} />}
         <CertificateHeader>
           <LetterheadSection
             getLocalisation={getLocalisation}
-            // logoSrc={logo}
+            logoSrc={logo}
             certificateTitle="Patient Encounter Record"
           />
         </CertificateHeader>
+        <PageGap />
         <CertificateWrapper>
           <PatientDetailsWithAddress getLocalisation={getLocalisation} patient={patient} />
+          <PageGap />
           <EncounterDetails encounter={encounter} />
+          <PageGap />
+          <EncounterTypesSection />
         </CertificateWrapper>
       </Page>
     </Document>

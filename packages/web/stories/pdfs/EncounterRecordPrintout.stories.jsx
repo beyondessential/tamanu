@@ -75,8 +75,8 @@ const encounterData = {
   department: {
     name: 'Cardiology',
   },
-  startDate: '2023-12-05 16:18:14',
-  endDate: '2024-01-15 10:56:20',
+  startDate: '2023-01-01 09:18:14',
+  endDate: '2023-01-01 10:56:20',
 };
 
 export const EncounterRecordPrintout = {
