@@ -28,7 +28,7 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
     includeNotGiven: false,
   });
   const vaccinations =
-    vaccineData?.data?.filter(vaccine => !vaccine.scheduledVaccine.hideFromCertificate) || [];
+    vaccineData?.data.filter(vaccine => !vaccine.scheduledVaccine.hideFromCertificate) || [];
 
   const createVaccineCertificateNotification = useCallback(
     data =>

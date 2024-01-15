@@ -264,16 +264,13 @@ patientVaccineRoutes.get(
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'PatientVaccine');
 
-    const { models, query, params } = req;
-    const { Patient } = models;
-
-    const where = JSON.parse(query.includeNotGiven || false)
+    const where = JSON.parse(req.query.includeNotGiven || false)
       ? {
           status: [VACCINE_STATUS.GIVEN, VACCINE_STATUS.NOT_GIVEN],
         }
       : {};
 
-    const patient = await Patient.findByPk(params.id);
+    const patient = await req.models.Patient.findByPk(req.params.id);
     const {
       orderBy = 'date',
       order = 'ASC',
@@ -281,7 +278,7 @@ patientVaccineRoutes.get(
       page = 0,
       invertNullDateOrdering = false,
       ...rest
-    } = query;
+    } = req.query;
     // Here we create two custom columns with names that can be referenced by the key
     // in the column object for the DataFetchingTable. These are used for sorting the table.
     const customSortingColumns = {
