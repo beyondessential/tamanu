@@ -2,9 +2,9 @@ name: CD Down
 
 on:
   pull_request_target:
-    types:
-      - closed
-      - unlabeled
+    types: [closed]
+  pull_request:
+    types: [unlabeled]
 
 permissions:
   contents: read
