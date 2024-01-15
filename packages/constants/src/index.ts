@@ -25,4 +25,3 @@ export * from './templates.js';
 export * from './vaccines.js';
 export * from './settings.js';
 export * from './encounterHistory.js';
-export * from './user.js';
