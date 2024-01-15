@@ -125,6 +125,7 @@ export async function getHashesForTables(sequelize, tables) {
     if (data.length === 0) throw new Error(`table not populated with data: ${table}`);
     hashes[table] = hashObject(data);
   }
+  return hashes;
 }
 
 export async function getColumnsForTable(sequelize, tableName) {

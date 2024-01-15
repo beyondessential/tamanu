@@ -1,7 +1,9 @@
 import { fake } from '@tamanu/shared/test-helpers/fake';
+import { NOTE_RECORD_TYPES } from '@tamanu/constants';
 
 export async function generateData(models) {
-  const { Department, Encounter, EncounterHistory, Facility, Location, Patient, User } = models;
+  const { Department, Encounter, EncounterHistory, Facility, Location,
+    Patient, User, Note, PatientBirthData, SurveyScreenComponent, ReportDefinitionVersion } = models;
   const examiner = await User.create(fake(User));
   const patient = await Patient.create(fake(Patient));
   const facility = await Facility.create(fake(Facility));
@@ -32,5 +34,27 @@ export async function generateData(models) {
       locationId: location.id,
     }),
   );
-  // TODO: add more tables until the tests pass
+  await Note.create(
+    fake(Note, {
+      recordType: NOTE_RECORD_TYPES.ENCOUNTER,
+      recordId: encounter.id,
+      authorId: examiner.id
+    })
+  );
+  await PatientBirthData.create(
+    fake(PatientBirthData, {
+      patientId: patient.id,
+      facilityId: facility.id
+    })
+  );
+  await SurveyScreenComponent.create(
+    fake(SurveyScreenComponent)
+  );
+  await ReportDefinitionVersion.create(
+    fake(ReportDefinitionVersion, {
+      status: 'draft',
+      queryOptions: `{"parameters": [], "defaultDateRange": "allTime"}`,
+      userId: examiner.id
+    })
+  );
 }
