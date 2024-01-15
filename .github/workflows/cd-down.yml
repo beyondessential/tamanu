@@ -21,11 +21,14 @@ jobs:
         && github.ref != 'refs/heads/main' 
         && github.ref_name != 'main'
       ) && (
-        github.event_name == 'pull_request' 
-        && ((
-          github.event.action == 'unlabeled' 
+        (
+          github.event_name == 'pull_request'
+          && github.event.action == 'unlabeled' 
           && !contains(github.event.pull_request.labels.*.name, 'auto-deploy')
-        ) || (github.event.action == 'closed'))
+        ) || (
+          github.event_name == 'pull_request_target'
+          && github.event.action == 'closed'
+        )
       )
     name: Branch info
     uses: ./.github/workflows/branch-info.yml
