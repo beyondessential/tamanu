@@ -3,6 +3,7 @@ import { DataSection } from './DataSection';
 import { Col } from '../Layout';
 import { DataItem } from './DataItem';
 import React from 'react';
+import styled from 'styled-components';
 
 export const EncounterDetails = ({ encounter }) => {
   // const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
@@ -17,7 +18,7 @@ export const EncounterDetails = ({ encounter }) => {
   } = encounter;
 
   return (
-    <DataSection title="Encounter details">
+    <DataSection title="Encounter details" hideBottomRule={true}>
       <Col>
         <DataItem label="Facility" value={location.facility.name} key="facility" />
         <DataItem

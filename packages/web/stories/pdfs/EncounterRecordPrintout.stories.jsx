@@ -90,6 +90,24 @@ const encounterTypesData = [
   },
 ];
 
+const locationsData = [
+  {
+    newLocationGroup: 'Ward 1',
+    newLocation: 'Bed 1',
+    date: '2023-01-01 09:10:00',
+  },
+  {
+    newLocationGroup: 'Ward 2',
+    newLocation: 'Bed 1',
+    date: '2023-01-01 10:20:00',
+  },
+  {
+    newLocationGroup: 'Ward 3',
+    newLocation: 'Bed 1',
+    date: '2023-01-01 10:20:00',
+  },
+];
+
 export const EncounterRecordPrintout = {
   render: () => (
     <PDFViewer width={800} height={1000} showToolbar={false}>
@@ -99,6 +117,7 @@ export const EncounterRecordPrintout = {
         patient={patientData}
         encounter={encounterData}
         encounterTypeHistory={encounterTypesData}
+        locationHistory={locationsData}
       />
     </PDFViewer>
   ),

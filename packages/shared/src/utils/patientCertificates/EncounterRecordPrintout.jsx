@@ -22,6 +22,7 @@ import { MultiPageHeader } from './printComponents/MultiPageHeader';
 import { getName } from '../patientAccessors';
 import { EncounterDetails } from './printComponents/EncounterDetails';
 import { ListTable } from '@tamanu/web-frontend/app/components/PatientPrinting/printouts/reusable/ListTable';
+import { startCase } from 'lodash';
 
 const borderStyle = '1 solid black';
 
@@ -86,7 +87,28 @@ const HeaderCell = ({ children, style }) => (
   </View>
 );
 
-const PageGap = () => <View style={{ marginVertical: '10px' }} />;
+const SectionSpacing = () => <View style={{ paddingBottom: '10px' }} />;
+
+const DataTable = ({ data, columns }) => (
+  <Table>
+    <Row>
+      {columns.map(({ key, title, style }) => (
+        <HeaderCell key={key} style={style}>
+          {title}
+        </HeaderCell>
+      ))}
+    </Row>
+    {data.map(row => (
+      <Row key={row.id}>
+        {columns.map(({ key, accessor, style }) => (
+          <Cell key={key} style={style}>
+            {accessor ? accessor(row) : row[key] || ''}
+          </Cell>
+        ))}
+      </Row>
+    ))}
+  </Table>
+);
 
 const COLUMNS = {
   encounterTypes: [
@@ -105,74 +127,54 @@ const COLUMNS = {
       style: { width: '35%' },
     },
   ],
+  locations: [
+    {
+      key: 'to',
+      title: 'Area',
+      accessor: ({ newLocationGroup }) => startCase(newLocationGroup) || '----',
+      style: { width: '30%' },
+    },
+    {
+      key: 'location',
+      title: 'Location',
+      accessor: ({ newLocation }) => startCase(newLocation),
+      style: { width: '35%' },
+    },
+    {
+      key: 'dateMoved',
+      title: 'Date & time moved',
+      accessor: ({ date }) => (date ? `${formatShort(date)} ${formatTime(date)}` : {}),
+      style: { width: '35%' },
+    },
+  ],
+  diagnoses: [
+    {
+      key: 'diagnoses',
+      title: 'Diagnoses',
+      accessor: ({ diagnosis }) => `${diagnosis?.name} (${diagnosis?.code})`,
+      style: { width: '55%' },
+    },
+    {
+      key: 'type',
+      title: 'Type',
+      accessor: ({ isPrimary }) => (isPrimary ? 'Primary' : 'Secondary'),
+      style: { width: '20%' },
+    },
+    {
+      key: 'date',
+      title: 'Date',
+      accessor: ({ date }) => (date ? formatShort(date) : {}),
+      style: { width: '25%' },
+    },
+  ],
 };
 
-// const EncounterDetails = ({ encounter }) => {
-//   const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
-//   const {
-//     location,
-//     examiner,
-//     discharge,
-//     department,
-//     startDate,
-//     endDate,
-//     reasonForEncounter,
-//   } = encounter;
-//
-//   return (
-//     <DataSection title="Encounter details">
-//       <Col>
-//         <DataItem label="Facility" value={location.facility.name} key="facility" />
-//         <DataItem
-//           // label={`Supervising ${clinicianText}`}
-//           label="Supervising clinician"
-//           value={examiner.displayName}
-//           key="supervisingClinician"
-//         />
-//         <DataItem
-//           // label={`Discharging ${clinicianText}`}
-//           label="Discharging clinician"
-//           value={discharge.discharger.displayName}
-//           key="dischargingClinician"
-//         />
-//       </Col>
-//       <Col>
-//         <DataItem label="Department" value={department.name} key="department" />
-//         <DataItem label="Date of admission" value={formatShort(startDate)} key="dateOfAdmission" />
-//         <DataItem label="Date of discharge" value={formatShort(endDate)} key="dateOfDischarge" />
-//       </Col>
-//       <DataItem label="Reason for encounter" value={reasonForEncounter} key="reasonForEncounter" />
-//     </DataSection>
-//   );
-// };
-
-const EncounterTypesSection = ({ encounterTypeHistory, columns }) => {
+const TableSection = ({ title, data, columns }) => {
   return (
     <View>
-      <Text style={textStyles.sectionTitle}>Encounter Types</Text>
-      <Table>
-        <Row>
-          {columns.map(({ key, title, style }) => (
-            <HeaderCell key={key} style={style}>
-              {title}
-            </HeaderCell>
-          ))}
-          {/*<Cell style={{ width: '330px', fontFamily: 'Helvetica-Bold' }}>Type</Cell>*/}
-          {/*<Cell style={{ fontFamily: 'Helvetica-Bold' }}>Date & time moved</Cell>*/}
-        </Row>
-        {encounterTypeHistory.map(row => (
-          <Row key={row.id}>
-            {columns.map(({ key, accessor, style }) => (
-              <Cell key={key} style={style}>
-                {accessor ? accessor(row) : row[key] || ''}
-                {/*{row[key] || ''}*/}
-              </Cell>
-            ))}
-            {/*<Cell>cell</Cell>*/}
-          </Row>
-        ))}
-      </Table>
-      {/*<ListTable data={encounterTypeHistory} columns={columns} />*/}
+      <Text style={textStyles.sectionTitle}>{title}</Text>
+      <DataTable data={data} columns={columns} />
+      <SectionSpacing />
     </View>
   );
 };
@@ -212,16 +214,22 @@ export const EncounterRecordPrintout = ({
             certificateTitle="Patient Encounter Record"
           />
         </CertificateHeader>
-        <PageGap />
+        <SectionSpacing />
         <CertificateWrapper>
           <PatientDetailsWithAddress getLocalisation={getLocalisation} patient={patient} />
-          <PageGap />
+          <SectionSpacing />
           <EncounterDetails encounter={encounter} />
-          <PageGap />
-          <EncounterTypesSection
-            encounterTypeHistory={encounterTypeHistory}
-            columns={COLUMNS.encounterTypes}
-          />
+          <SectionSpacing />
+          {encounterTypeHistory.length > 0 && (
+            <TableSection
+              title="Encounter Types"
+              data={encounterTypeHistory}
+              columns={COLUMNS.encounterTypes}
+            />
+          )}
+          {locationHistory.length > 0 && (
+            <TableSection title="Location" data={locationHistory} columns={COLUMNS.locations} />
+          )}
         </CertificateWrapper>
       </Page>
     </Document>
