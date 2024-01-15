@@ -90,6 +90,7 @@ export const ProgramRegistrySearchBar = ({ searchParameters, setSearchParameters
       <LocalisedField
         useShortLabel
         name="dateOfBirth"
+        saveDateAsString
         component={DateField}
         max={getCurrentDateString()}
       />
@@ -120,7 +121,7 @@ export const ProgramRegistrySearchBar = ({ searchParameters, setSearchParameters
       />
       <LocalisedField
         defaultLabel="Status"
-        name="status"
+        name="clinicalStatus"
         component={AutocompleteField}
         suggester={programRegistryStatusSuggester}
       />
