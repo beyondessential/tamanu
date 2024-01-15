@@ -5,47 +5,19 @@ const sanitizeFileName = fileName => {
     .trim('-'); // prevent leading or trailing hyphen
 };
 
-const buildTypesArray = extensions => {
-  const types = [];
-  if (extensions.includes('pdf')) {
-    types.push({
-      description: 'PDF Files',
-      accept: { 'application/pdf': ['.pdf'] },
-    });
-  }
-  if (extensions.includes('jpeg')) {
-    types.push({
-      description: 'JPEG Files',
-      accept: { 'image/jpeg': ['.jpeg'] },
-    });
-  }
-  if (extensions.includes('xlsx')) {
-    types.push({
-      description: 'Excel Workbook',
-      accept: { 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'] },
-    });
-  }
-  if (extensions.includes('csv')) {
-    types.push({
-      description: 'CSV Files',
-      accept: { 'text/csv': ['.csv'] },
-    });
-  }
-  if (extensions.includes('json')) {
-    types.push({
-      description: 'JSON Files',
-      accept: { 'application/json': ['.json'] },
-    });
-  }
-  if (extensions.includes('sql')) {
-    types.push({
-      description: 'SQL Files',
-      accept: { 'text/sql': ['.sql'] },
-    });
-  }
-
-  return types;
+const FILE_TYPES = {
+  pdf: { description: 'PDF Files', accept: { 'application/pdf': ['.pdf'] } },
+  jpeg: { description: 'JPEG Files', accept: { 'image/jpeg': ['.jpeg'] } },
+  xlsx: {
+    description: 'Excel Workbook',
+    accept: { 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'] },
+  },
+  csv: { description: 'CSV Files', accept: { 'text/csv': ['.csv'] } },
+  json: { description: 'JSON Files', accept: { 'application/json': ['.json'] } },
+  sql: { description: 'SQL Files', accept: { 'text/sql': ['.sql'] } },
 };
+
+const buildTypesArray = extensions => extensions.map(ext => FILE_TYPES[ext]).filter(Boolean);
 
 export const createFileSystemHandle = async ({ defaultFileName, extensions }) => {
   const types = buildTypesArray(extensions);
