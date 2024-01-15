@@ -10,7 +10,7 @@ import { LoginView } from './views';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { PromiseErrorBoundary } from './components/PromiseErrorBoundary';
 import { ForbiddenErrorModal } from './components/ForbiddenErrorModal';
-import { LoadingStatusPage, UnavailableStatusPage, UnsupportedBrowserStatusPage } from './components/StatusPage';
+import { LoadingStatusPage, UnavailableStatusPage, UnsupportedBrowserStatusPage, UnsupportedDeviceStatusPage } from './components/StatusPage';
 import { useCheckServerAliveQuery } from './api/queries/useCheckServerAliveQuery';
 
 const AppContainer = styled.div`
@@ -36,6 +36,10 @@ export function App({ sidebar, children }) {
     chrome: ">=88.0.4324.109" // Early 2021 release of chrome. Arbitrarily chosen as recentish.
   })
 
+  const platformType = browser.getPlatformType();
+  const isDesktop = platformType === 'desktop';
+
+  if (!isDesktop) return <UnsupportedDeviceStatusPage platformType={platformType}/>;
   if (!isChrome) return <UnsupportedBrowserStatusPage />;
   if (isLoading) return <LoadingStatusPage />;
   if (!isServerAlive) return <UnavailableStatusPage />;

@@ -69,25 +69,61 @@ const HeroImage = styled.img`
   width: 50vw;
 `;
 
-export const StatusPage = ({ message, description, heroImage }) => {
-  const handleRefreshPage = () => {
-    window.location.reload();
-  };
+// Mobile
+const MobileContainer = styled(Container)`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  img {
+    display: block;
+    margin: 0 auto;
+    width: ${props => (props.$platformType === 'tablet' ? '371px' : '194px')}};
+  }
+  div {
+    font-size: ${props => (props.$platformType === 'tablet' ? '18px' : '14px')}};
+  }
+`;
+
+const handleRefreshPage = () => {
+  window.location.reload();
+};
+
+export const StatusPage = ({ message, description }) => {
+  return (
+    <Container>
+      <Logo onClick={handleRefreshPage} />
+      <Content>
+        <ErrorMessage>{message}</ErrorMessage>
+        <ErrorDescription color="textTertiary">{description}</ErrorDescription>
+      </Content>
+    </Container>
+  );
+};
+
+export const StatusPageWithHeroImage = ({ message, description }) => {
   return (
     <FlexContainer>
       <Container>
         <Logo onClick={handleRefreshPage} />
-        <Content $heroImage={heroImage}>
+        <Content $heroImage>
           <ErrorMessage>{message}</ErrorMessage>
-          <ErrorDescription $heroImage={heroImage} color="textTertiary">
+          <ErrorDescription $heroImage color="textTertiary">
             {description}
           </ErrorDescription>
         </Content>
       </Container>
-      {heroImage && <HeroImage src={heroImage} />}
+      <HeroImage src={screen_4} />
     </FlexContainer>
   );
 };
+
+export const MobileStatusPage = ({ description, platformType }) => (
+  <MobileContainer $platformType={platformType}>
+    <Logo onClick={handleRefreshPage} />
+    <ErrorDescription color="textTertiary">{description}</ErrorDescription>
+  </MobileContainer>
+);
 
 export const LoadingStatusPage = () => (
   <StatusPage
@@ -104,9 +140,15 @@ export const UnavailableStatusPage = () => (
 );
 
 export const UnsupportedBrowserStatusPage = () => (
-  <StatusPage
+  <StatusPageWithHeroImage
     message="Tamanu is only available on Chrome"
     description="Please contact your system administrator for further information on how to access Tamanu using a Chrome browser."
-    heroImage={screen_4}
+  />
+);
+
+export const UnsupportedDeviceStatusPage = ({ platformType }) => (
+  <MobileStatusPage
+    platformType={platformType}
+    description="Tamanu Desktop is not currently supported by mobile or tablet devices. Please access Tamanu via a desktop computer or laptop."
   />
 );
