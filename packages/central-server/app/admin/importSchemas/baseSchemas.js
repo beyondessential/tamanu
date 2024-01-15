@@ -214,6 +214,7 @@ export const ScheduledVaccine = Base.shape({
   weeksFromLastVaccinationDue: yup.number(),
   index: yup.number().required(),
   vaccineId: yup.string().required(),
+  hideFromCertificate: yup.boolean(),
   visibilityStatus,
 });
 
