@@ -2,7 +2,13 @@ import React from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import { FormGrid } from '../components/FormGrid';
-import { Button, Field, Form, TextField, StyledPrimarySubmitButton } from '../components';
+import {
+  Button,
+  Field,
+  Form,
+  StyledPrimarySubmitButton,
+  TextField,
+} from '../components';
 
 const SuccessMessage = styled.p`
   margin-top: 0;

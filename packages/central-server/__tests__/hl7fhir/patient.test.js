@@ -1,12 +1,12 @@
 import { Op } from 'sequelize';
-import { VISIBILITY_STATUSES, FHIR_PATIENT_LINK_TYPES } from '@tamanu/constants';
+import { FHIR_PATIENT_LINK_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { createDummyPatient, createDummyPatientAdditionalData } from '@tamanu/shared/demoData/patients';
 import { createTestContext } from '../utilities';
 
 import {
+  getPatientWhereClause,
   patientToHL7Patient,
   patientToHL7PatientList,
-  getPatientWhereClause,
 } from '../../dist/hl7fhir/patient';
 
 import { validate } from './hl7utilities';

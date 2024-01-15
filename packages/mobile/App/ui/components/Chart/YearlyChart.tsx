@@ -1,8 +1,8 @@
 import React, { memo, useMemo } from 'react';
 import { StyleSheet } from 'react-native';
-import { BarChart, YAxis, XAxis } from 'react-native-svg-charts';
+import { BarChart, XAxis, YAxis } from 'react-native-svg-charts';
 import { DateFormats } from '/helpers/constants';
-import { StyledView, RowView, StyledText } from '/styled/common';
+import { RowView, StyledText, StyledView } from '/styled/common';
 import { formatDate } from '/helpers/date';
 import { theme } from '/styled/theme';
 import { getYear } from 'date-fns';

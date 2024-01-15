@@ -1,9 +1,9 @@
 import React from 'react';
 import {
-  Field as FormikField,
-  useField,
   connect as formikConnect,
+  Field as FormikField,
   getIn,
+  useField,
   useFormikContext,
 } from 'formik';
 import MuiBox from '@material-ui/core/Box';

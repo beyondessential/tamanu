@@ -5,14 +5,14 @@ import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
 import { SearchTable } from '../components';
 import { reloadPatient } from '../store/patient';
 import {
-  getStatus,
-  getPatientName,
-  getPatientDisplayId,
-  getRequestType,
-  getPriority,
   getDateWithTimeTooltip,
-  getRequestId,
+  getPatientDisplayId,
+  getPatientName,
+  getPriority,
   getPublishedDate,
+  getRequestId,
+  getRequestType,
+  getStatus,
 } from '../utils/lab';
 
 export const LabRequestsTable = React.memo(

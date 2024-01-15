@@ -1,4 +1,4 @@
-import React, { memo, useState, useEffect } from 'react';
+import React, { memo, useEffect, useState } from 'react';
 import { Alert, AlertTitle } from '@material-ui/lab';
 
 import { BaseModal } from './BaseModal';
@@ -10,7 +10,8 @@ export const Modal = memo(({ children, disableDevWarning, ...props }) => {
   const [showUsingFormWarning, setShowUsingFormWarning] = useState(false);
 
   useEffect(() => {
-    const usingForm = IS_DEVELOPMENT && hasFormSubmission && !disableDevWarning;
+    const usingForm =
+      IS_DEVELOPMENT && hasFormSubmission && !disableDevWarning;
     setShowUsingFormWarning(usingForm);
   }, [hasFormSubmission, disableDevWarning]);
 

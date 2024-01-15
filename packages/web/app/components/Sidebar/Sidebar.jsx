@@ -2,8 +2,8 @@ import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
-import { List, Divider, Box, Typography, Button, IconButton } from '@material-ui/core';
-import { NavigateBefore, NavigateNext, Launch } from '@material-ui/icons';
+import { Box, Button, Divider, IconButton, List, Typography } from '@material-ui/core';
+import { Launch, NavigateBefore, NavigateNext } from '@material-ui/icons';
 
 import { TamanuLogoWhite, TamanuLogoWhiteNoText } from '../TamanuLogo';
 import { Colors } from '../../constants';

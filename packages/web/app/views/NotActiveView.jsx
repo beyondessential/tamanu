@@ -1,5 +1,5 @@
 import React from 'react';
-import { TopBar, Notification } from '../components';
+import { Notification, TopBar } from '../components';
 
 export const NotActiveView = React.memo(() => (
   <>

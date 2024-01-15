@@ -3,9 +3,9 @@ import { ValidationError } from 'yup';
 import { FHIR_BUNDLE_TYPES } from '@tamanu/constants';
 import {
   Invalid,
+  normaliseParameters,
   OperationOutcome,
   Unsupported,
-  normaliseParameters,
 } from '@tamanu/shared/utils/fhir';
 
 import { Bundle } from '../bundle';

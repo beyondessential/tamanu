@@ -5,7 +5,7 @@ import { Section } from './Section';
 import { SelectButton } from './SelectButton';
 import { Field } from '/components/Forms/FormField';
 // Helpers
-import { MaleGender, FemaleGender } from '/helpers/constants';
+import { FemaleGender, MaleGender } from '/helpers/constants';
 
 const options = [
   {
