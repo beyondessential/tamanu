@@ -5,7 +5,6 @@ import { importSurveyResponses } from './importSurveyResponses';
 
 export async function surveyResponsesImporter({ errors, models, stats, file }) {
   const createContext = sheetName => ({
-    // stats,
     errors,
     log: log.child({
       file,
