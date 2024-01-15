@@ -170,7 +170,7 @@ reportsRouter.get(
 
     res.send({
       filename,
-      data: Buffer.from(data),
+      data,
     });
   }),
 );
