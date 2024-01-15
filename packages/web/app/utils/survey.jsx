@@ -25,6 +25,8 @@ import { ageInMonths, ageInWeeks, ageInYears } from '@tamanu/shared/utils/dateTi
 import { joinNames } from './user';
 import { notifyError } from './utils';
 
+const isNullOrUndefined = value => isNull(value) || isUndefined(value);
+
 const InstructionField = ({ label, helperText }) => (
   <p>
     {label} {helperText}
@@ -241,7 +243,7 @@ export function getFormInitialValues(
   const initialValues = components.reduce((acc, { dataElement }) => {
     const initialValue = getInitialValue(dataElement);
     const propName = dataElement.id;
-    if (isUndefined(initialValue)) {
+    if (isNullOrUndefined(initialValue)) {
       return acc;
     }
     acc[propName] = initialValue;
@@ -265,11 +267,12 @@ export function getFormInitialValues(
     if (component.dataElement.type === 'PatientData') {
       let patientValue = transformPatientData(patient, additionalData, config);
 
-      if (patientProgramRegistration) {
+      if (patientProgramRegistration && isNullOrUndefined(patientValue)) {
         patientValue = transformPatientProgramRegistrationData(patientProgramRegistration, config);
       }
 
-      if (isUndefined(patientValue) || isNull(patientValue)) {
+      // explicitly check against undefined and null rather than just !patientValue
+      if (isNullOrUndefined(patientValue)) {
         initialValues[component.dataElement.id] = '';
       } else {
         initialValues[component.dataElement.id] = patientValue;
