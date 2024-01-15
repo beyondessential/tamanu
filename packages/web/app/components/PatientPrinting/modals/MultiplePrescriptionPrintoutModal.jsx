@@ -70,6 +70,7 @@ export const MultiplePrescriptionPrintoutModal = ({
             patientData={{ ...patient, additionalData, village }}
             prescriber={prescriber}
             prescriptions={prescriptions}
+            encounterData={encounter}
             getLocalisation={getLocalisation}
           />
         </PDFViewer>
