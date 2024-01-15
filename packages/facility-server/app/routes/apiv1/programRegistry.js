@@ -35,23 +35,16 @@ programRegistry.get(
           id: {
             [Op.notIn]: Sequelize.literal(
               `(
-                SELECT DISTINCT(pr.id)
-                FROM program_registries pr
-                INNER JOIN (
-                  SELECT *
-                  FROM (
-                    SELECT 
-                      *,
-                      ROW_NUMBER() OVER (PARTITION BY patient_id, program_registry_id ORDER BY date DESC, id DESC) AS row_num
-                    FROM patient_program_registrations
-                  ) n
-                  WHERE n.row_num = 1
-                ) mrr
-                ON mrr.program_registry_id = pr.id
-                WHERE
-                  mrr.patient_id = :excludePatientId
-                AND
-                  mrr.registration_status != :error
+                SELECT most_recent_registrations.id
+                FROM (
+                    SELECT DISTINCT ON (pr.id) pr.id, ppr.registration_status
+                    from program_registries pr
+                    INNER JOIN patient_program_registrations ppr
+                    ON ppr.program_registry_id = pr.id
+                    WHERE ppr.patient_id = :excludePatientId
+                    ORDER BY prr.date DESC, prr.id DESC
+                ) most_recent_registrations
+                WHERE most_recent_registrations.registration_status != :error
               )`,
             ),
           },
