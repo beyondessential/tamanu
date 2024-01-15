@@ -5,17 +5,25 @@ import { Colors } from '../constants';
 import { TamanuLogoLeftIconBlue } from './TamanuLogo';
 import { Typography } from '@material-ui/core';
 
+import screen_4 from '../assets/images/splashscreens/screen_4.png';
+
+const FlexContainer = styled.div`
+  display: flex;
+`;
+
 const Container = styled.div`
   padding: 25px 35px;
   height: 100vh;
   background: ${Colors.white};
+  flex: 1;
 `;
 
 const Content = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: center;
-  margin-top: 50px;
+  align-items: ${props => (props.$heroImage ? 'flex-start' : 'center')};
+  margin: ${props => (props.$heroImage ? '200px' : '50px')} auto;
+  ${props => props.$heroImage && 'max-width: 467px;'}
 `;
 
 const ErrorMessage = styled(Typography)`
@@ -27,7 +35,7 @@ const ErrorMessage = styled(Typography)`
 const ErrorDescription = styled(LargeBodyText)`
   margin-top: 20px;
   max-width: 450px;
-  text-align: center;
+  text-align: ${props => (props.$heroImage ? 'left' : 'center')};
 `;
 
 const Logo = styled(TamanuLogoLeftIconBlue)`
@@ -55,18 +63,29 @@ const AnimateEllipsis = styled.span`
   }
 `;
 
-export const StatusPage = ({ message, description }) => {
+const HeroImage = styled.img`
+  background-size: cover;
+  height: 100vh;
+  width: 50vw;
+`;
+
+export const StatusPage = ({ message, description, heroImage }) => {
   const handleRefreshPage = () => {
     window.location.reload();
   };
   return (
-    <Container>
-      <Logo onClick={handleRefreshPage} />
-      <Content>
-        <ErrorMessage>{message}</ErrorMessage>
-        <ErrorDescription color="textTertiary">{description}</ErrorDescription>
-      </Content>
-    </Container>
+    <FlexContainer>
+      <Container>
+        <Logo onClick={handleRefreshPage} />
+        <Content $heroImage={heroImage}>
+          <ErrorMessage>{message}</ErrorMessage>
+          <ErrorDescription $heroImage={heroImage} color="textTertiary">
+            {description}
+          </ErrorDescription>
+        </Content>
+      </Container>
+      {heroImage && <HeroImage src={heroImage} />}
+    </FlexContainer>
   );
 };
 
@@ -81,5 +100,13 @@ export const UnavailableStatusPage = () => (
   <StatusPage
     message="Tamanu is currently unavailable"
     description="Tamanu is currently unavailable. Please try again later or contact your system administrator for further information."
+  />
+);
+
+export const UnsupportedBrowserStatusPage = () => (
+  <StatusPage
+    message="Tamanu is only available on Chrome"
+    description="Please contact your system administrator for further information on how to access Tamanu using a Chrome browser."
+    heroImage={screen_4}
   />
 );
