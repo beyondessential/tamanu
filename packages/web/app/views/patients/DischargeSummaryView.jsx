@@ -28,6 +28,8 @@ import {
   LocalisedDisplayValue,
 } from '../../components/PatientPrinting/printouts/reusable/CertificateLabels';
 import { useLocalisedText } from '../../components';
+import { PDFViewer } from '@react-pdf/renderer';
+import { DischargeSummaryPrintout } from '@tamanu/shared/utils/patientCertificates';
 
 const Container = styled.div`
   background: ${Colors.white};
@@ -357,8 +359,23 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
 
 export const DischargeSummaryView = React.memo(() => {
   const api = useApi();
+  const { getLocalisation } = useLocalisation();
   const [discharge, setDischarge] = useState(null);
   const { encounter } = useEncounter();
+  const { title, subTitle, logo } = useCertificate();
+  const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' }).toLowerCase();
+  const dischargeDispositionVisible =
+    getLocalisation('fields.dischargeDisposition.hidden') === false;
+
+  const patient = useSelector(state => state.patient);
+  const { data: additionalData, isLoading: isPADLoading } = usePatientAdditionalDataQuery(
+    patient.id,
+  );
+  const { data: patientConditionsData } = usePatientConditions(patient.id);
+  const patientConditions = (patientConditionsData?.data || [])
+    .filter(p => !p.resolved)
+    .map(p => p.condition.name)
+    .sort((a, b) => a.localeCompare(b));
 
   useEffect(() => {
     (async () => {
@@ -379,24 +396,32 @@ export const DischargeSummaryView = React.memo(() => {
   }
 
   return (
-    <Container>
-      <NavContainer>
-        <Button
-          variant="outlined"
-          color="primary"
-          size="small"
-          // onClick={() => printPage()} // TODO(web)
-          startIcon={<PrintIcon />}
-        >
-          Print Summary
-        </Button>
-      </NavContainer>
-      <SummaryPage encounter={encounter} discharge={discharge} />
-      <PrintPortal>
-        <Box p={5}>
-          <SummaryPage encounter={encounter} discharge={discharge} />
-        </Box>
-      </PrintPortal>
-    </Container>
+    <PDFViewer id="discharge-summary" width={800} height={1000} showToolbar={false}>
+      <DischargeSummaryPrintout
+        patientData={{ ...patient, additionalData }}
+        encounter={encounter}
+        discharge={discharge}
+        getLocalisation={getLocalisation}
+      />
+    </PDFViewer>
+    // <Container>
+    //   <NavContainer>
+    //     <Button
+    //       variant="outlined"
+    //       color="primary"
+    //       size="small"
+    //       // onClick={() => printPage()} // TODO(web)
+    //       startIcon={<PrintIcon />}
+    //     >
+    //       Print Summary
+    //     </Button>
+    //   </NavContainer>
+
+    //   <PrintPortal>
+    //     <Box p={5}>
+    //       <SummaryPage encounter={encounter} discharge={discharge} />
+    //     </Box>
+    //   </PrintPortal>
+    // </Container>
   );
 });
