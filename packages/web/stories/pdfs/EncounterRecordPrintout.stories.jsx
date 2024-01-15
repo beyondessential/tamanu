@@ -79,6 +79,17 @@ const encounterData = {
   endDate: '2023-01-01 10:56:20',
 };
 
+const encounterTypesData = [
+  {
+    newEncounterType: 'triage',
+    date: '2023-01-01 09:10:00',
+  },
+  {
+    newEncounterType: 'admission',
+    date: '2023-01-01 10:10:00',
+  },
+];
+
 export const EncounterRecordPrintout = {
   render: () => (
     <PDFViewer width={800} height={1000} showToolbar={false}>
@@ -87,6 +98,7 @@ export const EncounterRecordPrintout = {
         getLocalisation={getLocalisation}
         patient={patientData}
         encounter={encounterData}
+        encounterTypeHistory={encounterTypesData}
       />
     </PDFViewer>
   ),

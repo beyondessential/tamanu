@@ -14,8 +14,14 @@ import {
   DateDisplay,
   formatShort,
   formatShortest,
+  formatTime,
   useLocalisedText,
 } from '@tamanu/web-frontend/app/components';
+import { ENCOUNTER_OPTIONS_BY_VALUE } from '@tamanu/web-frontend/app/constants';
+import { MultiPageHeader } from './printComponents/MultiPageHeader';
+import { getName } from '../patientAccessors';
+import { EncounterDetails } from './printComponents/EncounterDetails';
+import { ListTable } from '@tamanu/web-frontend/app/components/PatientPrinting/printouts/reusable/ListTable';
 
 const borderStyle = '1 solid black';
 
@@ -54,6 +60,9 @@ const tableStyles = StyleSheet.create({
     fontFamily: 'Helvetica',
     fontSize: 9,
   },
+  header: {
+    fontFamily: 'Helvetica-Bold',
+  },
 });
 
 const Table = props => <View style={tableStyles.table} {...props} />;
@@ -71,63 +80,99 @@ const Cell = ({ children, style = {} }) => (
   </View>
 );
 
-const HeaderCell = ({ children }) => (
-  <View style={[tableStyles.baseCell]}>
+const HeaderCell = ({ children, style }) => (
+  <View style={[tableStyles.baseCell, style]}>
     <P style={{ fontFamily: 'Helvetica-Bold' }}>{children}</P>
   </View>
 );
 
 const PageGap = () => <View style={{ marginVertical: '10px' }} />;
 
-const EncounterDetails = ({ encounter }) => {
-  const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
-  const {
-    location,
-    examiner,
-    discharge,
-    department,
-    startDate,
-    endDate,
-    reasonForEncounter,
-  } = encounter;
+const COLUMNS = {
+  encounterTypes: [
+    {
+      key: 'encounterType',
+      title: 'Type',
+      accessor: ({ newEncounterType }) => ENCOUNTER_OPTIONS_BY_VALUE[newEncounterType].label,
+      style: { width: '65%' },
+    },
+    {
+      key: 'dateMoved',
+      title: 'Date & time moved',
+      accessor: ({ date }) => (date ? `${formatShort(date)} ${formatTime(date)}` : {}),
+      // accessor: ({ date }) => <DateDisplay date={date} showDate showTime /> || {},
 
-  return (
-    <DataSection title="Encounter details">
-      <Col>
-        <DataItem label="Facility" value={location.facility.name} key="facility" />
-        <DataItem
-          // label={`Supervising ${clinicianText}`}
-          label="Supervising clinician"
-          value={examiner.displayName}
-          key="supervisingClinician"
-        />
-        <DataItem
-          // label={`Discharging ${clinicianText}`}
-          label="Discharging clinician"
-          value={discharge.discharger.displayName}
-          key="dischargingClinician"
-        />
-      </Col>
-      <Col>
-        <DataItem label="Department" value={department.name} key="department" />
-        <DataItem label="Date of admission" value={formatShort(startDate)} key="dateOfAdmission" />
-        <DataItem label="Date of discharge" value={formatShort(endDate)} key="dateOfDischarge" />
-      </Col>
-      <DataItem label="Reason for encounter" value={reasonForEncounter} key="reasonForEncounter" />
-    </DataSection>
-  );
+      style: { width: '35%' },
+    },
+  ],
 };
 
-const EncounterTypesSection = ({ encounterTypeHistory }) => {
+// const EncounterDetails = ({ encounter }) => {
+//   const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
+//   const {
+//     location,
+//     examiner,
+//     discharge,
+//     department,
+//     startDate,
+//     endDate,
+//     reasonForEncounter,
+//   } = encounter;
+//
+//   return (
+//     <DataSection title="Encounter details">
+//       <Col>
+//         <DataItem label="Facility" value={location.facility.name} key="facility" />
+//         <DataItem
+//           // label={`Supervising ${clinicianText}`}
+//           label="Supervising clinician"
+//           value={examiner.displayName}
+//           key="supervisingClinician"
+//         />
+//         <DataItem
+//           // label={`Discharging ${clinicianText}`}
+//           label="Discharging clinician"
+//           value={discharge.discharger.displayName}
+//           key="dischargingClinician"
+//         />
+//       </Col>
+//       <Col>
+//         <DataItem label="Department" value={department.name} key="department" />
+//         <DataItem label="Date of admission" value={formatShort(startDate)} key="dateOfAdmission" />
+//         <DataItem label="Date of discharge" value={formatShort(endDate)} key="dateOfDischarge" />
+//       </Col>
+//       <DataItem label="Reason for encounter" value={reasonForEncounter} key="reasonForEncounter" />
+//     </DataSection>
+//   );
+// };
+
+const EncounterTypesSection = ({ encounterTypeHistory, columns }) => {
   return (
     <View>
       <Text style={textStyles.sectionTitle}>Encounter Types</Text>
       <Table>
         <Row>
-          <HeaderCell>Type</HeaderCell>
-          <HeaderCell>Date & time moved</HeaderCell>
+          {columns.map(({ key, title, style }) => (
+            <HeaderCell key={key} style={style}>
+              {title}
+            </HeaderCell>
+          ))}
+          {/*<Cell style={{ width: '330px', fontFamily: 'Helvetica-Bold' }}>Type</Cell>*/}
+          {/*<Cell style={{ fontFamily: 'Helvetica-Bold' }}>Date & time moved</Cell>*/}
         </Row>
+        {encounterTypeHistory.map(row => (
+          <Row key={row.id}>
+            {columns.map(({ key, accessor, style }) => (
+              <Cell key={key} style={style}>
+                {accessor ? accessor(row) : row[key] || ''}
+                {/*{row[key] || ''}*/}
+              </Cell>
+            ))}
+            {/*<Cell>cell</Cell>*/}
+          </Row>
+        ))}
       </Table>
+      {/*<ListTable data={encounterTypeHistory} columns={columns} />*/}
     </View>
   );
 };
@@ -155,6 +200,11 @@ export const EncounterRecordPrintout = ({
     <Document>
       <Page size="A4">
         {watermark && <Watermark src={watermark} />}
+        <MultiPageHeader
+          documentName="Patient Encounter Record"
+          patientName={getName(patient)}
+          patiendId={patient.displayId}
+        />
         <CertificateHeader>
           <LetterheadSection
             getLocalisation={getLocalisation}
@@ -168,7 +218,10 @@ export const EncounterRecordPrintout = ({
           <PageGap />
           <EncounterDetails encounter={encounter} />
           <PageGap />
-          <EncounterTypesSection />
+          <EncounterTypesSection
+            encounterTypeHistory={encounterTypeHistory}
+            columns={COLUMNS.encounterTypes}
+          />
         </CertificateWrapper>
       </Page>
     </Document>
