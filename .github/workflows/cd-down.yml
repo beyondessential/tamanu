@@ -14,7 +14,19 @@ permissions:
 jobs:
   info:
     # only run for non-permanent branches when a PR closes or loses the auto-deploy label
-    if: (!startsWith(github.ref, 'refs/heads/release') && !startsWith(github.head_ref, 'release/') && github.ref != 'refs/heads/main' && github.ref_name != 'main') && (github.event_name == 'pull_request' && (github.event.action == 'unlabeled' && !contains(github.event.pull_request.labels.*.name, 'auto-deploy')) || (github.event.action == 'closed'))
+    if: >
+      (
+        !startsWith(github.ref, 'refs/heads/release') 
+        && !startsWith(github.head_ref, 'release/') 
+        && github.ref != 'refs/heads/main' 
+        && github.ref_name != 'main'
+      ) && (
+        github.event_name == 'pull_request' 
+        && (
+          github.event.action == 'unlabeled' 
+          && !contains(github.event.pull_request.labels.*.name, 'auto-deploy')
+        ) || (github.event.action == 'closed')
+      )
     name: Branch info
     uses: ./.github/workflows/branch-info.yml
 
