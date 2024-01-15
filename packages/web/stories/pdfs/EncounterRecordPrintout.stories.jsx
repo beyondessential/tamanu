@@ -19,14 +19,19 @@ const getLocalisation = key => {
     'fields.lastName.longLabel': 'Last Name',
     'fields.dateOfBirth.longLabel': 'Date of Birth',
     'fields.sex.longLabel': 'Sex',
+    'fields.clinician.shortLabel': 'Clinician',
     previewUvciFormat: 'tamanu',
   };
   return config[key];
 };
 
+// const LocalisedText
+//
+// const useLocalisedText = props => LocalisedText(props);
+
 const certificateData = {
   logo: Logo,
-  // watermark: Watermark,
+  watermark: Watermark,
 };
 
 const patientData = {
@@ -36,7 +41,7 @@ const patientData = {
   middleName: 'Ernest',
   lastName: 'Antonini',
   culturalName: 'Joe',
-  dateOfbirth: '1981-10-27',
+  dateOfBirth: '1981-10-27',
   sex: 'male',
   email: null,
   villageId: 'village-Nasaga',
@@ -50,7 +55,29 @@ const patientData = {
   },
 };
 
-const encounterData = {};
+const encounterData = {
+  id: '2302e35e-6ec9-4e65-9f09-ab24bd835888',
+  location: {
+    facility: {
+      id: '2302e35e-6ec9-4e65-9f09-ab24bd835888',
+      name: 'Etta Clinic',
+    },
+  },
+  examiner: {
+    displayName: 'Jane Smith',
+  },
+  discharge: {
+    discharger: {
+      displayName: 'Jane Smith',
+    },
+  },
+  reasonForEncounter: 'Presented at emergency department with chest pain',
+  department: {
+    name: 'Cardiology',
+  },
+  startDate: '2023-12-05 16:18:14',
+  endDate: '2024-01-15 10:56:20',
+};
 
 export const EncounterRecordPrintout = {
   render: () => (
@@ -59,6 +86,7 @@ export const EncounterRecordPrintout = {
         certificateData={certificateData}
         getLocalisation={getLocalisation}
         patient={patientData}
+        encounter={encounterData}
       />
     </PDFViewer>
   ),
