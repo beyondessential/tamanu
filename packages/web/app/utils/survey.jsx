@@ -2,6 +2,7 @@
 import React from 'react';
 import * as yup from 'yup';
 import { intervalToDuration, parseISO } from 'date-fns';
+import { isNull, isUndefined } from 'lodash';
 import { checkJSONCriteria } from '@tamanu/shared/utils/criteria';
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 
@@ -256,25 +257,28 @@ export function getFormInitialValues(
     if (component.dataElement.type === 'UserData') {
       const { column = 'displayName' } = config;
       const userValue = currentUser[column];
-      if (userValue !== undefined) initialValues[component.dataElement.id] = userValue;
+      if (userValue !== undefined) {
+        initialValues[component.dataElement.id] = userValue;
+      }
     }
-
     // patient data
     if (component.dataElement.type === 'PatientData') {
       const patientValue = transformPatientData(patient, additionalData, config);
-      if (patientValue !== undefined) {
-        initialValues[component.dataElement.id] = patientValue;
-      }
-    }
 
-    // patient program registration data
-    if (patientProgramRegistration) {
-      const patientValue = transformPatientProgramRegistrationData(
-        patientProgramRegistration,
-        config,
-      );
-      if (patientValue !== undefined) {
+      if (!(isUndefined(patientValue) || isNull(patientValue))) {
         initialValues[component.dataElement.id] = patientValue;
+        // patient program registration data
+      } else if (patientProgramRegistration) {
+        const patientPRRValue = transformPatientProgramRegistrationData(
+          patientProgramRegistration,
+          config,
+        );
+
+        if (!(isUndefined(patientPRRValue) && isNull(patientValue))) {
+          initialValues[component.dataElement.id] = patientPRRValue;
+        } else {
+          initialValues[component.dataElement.id] = '';
+        }
       }
     }
   }
