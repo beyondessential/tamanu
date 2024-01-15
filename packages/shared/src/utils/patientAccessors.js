@@ -26,7 +26,7 @@ export const getPassportNumber = ({ additionalData }) => (additionalData || {}).
 export const getAddress = ({ additionalData }) => {
   let address = 'N/A';
 
-  const { streetVillage, cityTown, country } = additionalData;
+  const { streetVillage, cityTown, country } = additionalData || {};
 
   if (streetVillage && cityTown && country) {
     address = `${streetVillage}, ${cityTown}, ${country.name}`;
