@@ -241,7 +241,7 @@ export function getFormInitialValues(
   const initialValues = components.reduce((acc, { dataElement }) => {
     const initialValue = getInitialValue(dataElement);
     const propName = dataElement.id;
-    if (initialValue === undefined) {
+    if (isUndefined(initialValue)) {
       return acc;
     }
     acc[propName] = initialValue;
@@ -263,22 +263,16 @@ export function getFormInitialValues(
     }
     // patient data
     if (component.dataElement.type === 'PatientData') {
-      const patientValue = transformPatientData(patient, additionalData, config);
+      let patientValue = transformPatientData(patient, additionalData, config);
 
-      if (!(isUndefined(patientValue) || isNull(patientValue))) {
+      if (patientProgramRegistration) {
+        patientValue = transformPatientProgramRegistrationData(patientProgramRegistration, config);
+      }
+
+      if (isUndefined(patientValue) || isNull(patientValue)) {
+        initialValues[component.dataElement.id] = '';
+      } else {
         initialValues[component.dataElement.id] = patientValue;
-        // patient program registration data
-      } else if (patientProgramRegistration) {
-        const patientPRRValue = transformPatientProgramRegistrationData(
-          patientProgramRegistration,
-          config,
-        );
-
-        if (!(isUndefined(patientPRRValue) && isNull(patientValue))) {
-          initialValues[component.dataElement.id] = patientPRRValue;
-        } else {
-          initialValues[component.dataElement.id] = '';
-        }
       }
     }
   }
