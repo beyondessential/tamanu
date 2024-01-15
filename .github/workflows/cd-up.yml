@@ -1,7 +1,6 @@
 name: CD Up
 
 on:
-  workflow_dispatch:
   pull_request:
     types:
       - opened
@@ -25,7 +24,7 @@ permissions:
 
 jobs:
   info:
-    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.event.pull_request.draft == false && contains(github.event.pull_request.labels.*.name, 'auto-deploy'))
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'auto-deploy'))
     name: Branch info
     uses: ./.github/workflows/branch-info.yml
 
