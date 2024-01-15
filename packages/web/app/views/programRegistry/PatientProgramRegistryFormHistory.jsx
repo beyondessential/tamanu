@@ -3,6 +3,7 @@ import { SURVEY_TYPES } from '@tamanu/constants';
 import { DataFetchingTable } from '../../components/Table/DataFetchingTable';
 import { DateDisplay } from '../../components/DateDisplay';
 import { SurveyResponseDetailsModal } from '../../components/SurveyResponseDetailsModal';
+import { SurveyResultBadge } from '../../components/SurveyResultBadge';
 // import { MenuButton } from '../../components/MenuButton';
 
 export const PatientProgramRegistryFormHistory = ({ patientProgramRegistration }) => {
@@ -29,7 +30,7 @@ export const PatientProgramRegistryFormHistory = ({ patientProgramRegistration }
     {
       key: 'result',
       title: 'Result',
-      accessor: row => row.resultText,
+      accessor: ({ resultText }) => <SurveyResultBadge resultText={resultText} />,
       sortable: false,
     },
     // {
