@@ -1,6 +1,6 @@
 import { ID } from './ID';
 import { IEncounter } from './IEncounter';
-import { ISurvey, IProgramDataElement, SurveyTypes, ISurveyScreenComponent } from './ISurvey';
+import { IProgramDataElement, ISurvey, ISurveyScreenComponent, SurveyTypes } from './ISurvey';
 
 export interface ISurveyResponse {
   id: ID;

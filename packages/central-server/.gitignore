@@ -1,0 +1,4 @@
+/data/*
+!/data/.keep
+/realm-object-server
+__disttests__

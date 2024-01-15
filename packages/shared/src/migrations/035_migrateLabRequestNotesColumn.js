@@ -1,6 +1,5 @@
 /* eslint-disable camelcase */
-
-import { v4 as uuidv4 } from 'uuid';
+import crypto from 'crypto';
 
 const Sequelize = require('sequelize');
 
@@ -19,7 +18,7 @@ module.exports = {
           ($1, $2, $3, $4, $5, $6, $7, $8);
           `,
         {
-          bind: [uuidv4(), id, created_at, updated_at, 'LabRequest', created_at, 'other', note],
+          bind: [crypto.randomUUID(), id, created_at, updated_at, 'LabRequest', created_at, 'other', note],
           type: Sequelize.QueryTypes.INSERT,
         },
       );
