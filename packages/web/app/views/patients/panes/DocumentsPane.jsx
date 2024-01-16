@@ -37,7 +37,7 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
   const onDownload = useCallback(
     async document => {
       // Suggest a filename that matches the document name
-      const path = {canceled:true}; // await showSaveDialog({ defaultPath: document.name });
+      const path = { canceled: true }; // await showSaveDialog({ defaultPath: document.name });
       if (path.canceled) return;
 
       try {
@@ -71,17 +71,10 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
         const { data } = await api.get(`attachment/${attachmentId}`, {
           base64: true,
         });
-        const dataUri = `data:application/pdf;base64,${data}`;
-        const iframe = document.createElement('iframe');
-        iframe.style.display = 'none';
-        iframe.src = dataUri;
-
-        document.body.appendChild(iframe);
-
-        iframe.onload = () => {
-          // Print the PDF after it's loaded in the iframe
-          iframe.contentWindow.print();
-        };
+        const arrayBuffer = Uint8Array.from(atob(data), char => char.charCodeAt(0)).buffer;
+        var blob = new Blob([arrayBuffer], { type: 'application/pdf' });
+        const dataUrl = URL.createObjectURL(blob);
+        window.open(dataUrl, '_blank');
       } catch (error) {
         notifyError(error.message);
       }

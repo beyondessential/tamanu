@@ -58,6 +58,19 @@ export const LabRequestPrintModal = React.memo(({ labRequest, patient, open, onC
       width="md"
       color={Colors.white}
       printable
+      printDocument={
+        !isLoading && (
+          <MultipleLabRequestsPrintout
+            labRequests={[{ ...labRequest, tests: testsData.data, notes: notes?.data || [] }]}
+            patient={patient}
+            village={village}
+            additionalData={additionalData}
+            encounter={encounter}
+            certificateData={certificate}
+            getLocalisation={getLocalisation}
+          />
+        )
+      }
     >
       {isLoading ? (
         <LoadingIndicator />
