@@ -32,9 +32,9 @@ programRegistry.get(
 
     const patientIdExclusion = query.excludePatientId
       ? {
-        id: {
-          [Op.notIn]: Sequelize.literal(
-            `(
+          id: {
+            [Op.notIn]: Sequelize.literal(
+              `(
                 SELECT most_recent_registrations.id
                 FROM (
                     SELECT DISTINCT ON (pr.id) pr.id, ppr.registration_status
@@ -46,9 +46,9 @@ programRegistry.get(
                 ) most_recent_registrations
                 WHERE most_recent_registrations.registration_status != :error
               )`,
-          ),
-        },
-      }
+            ),
+          },
+        }
       : {};
 
     const baseQueryOptions = {
