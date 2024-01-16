@@ -39,10 +39,6 @@ export const RoutingFacilityApp = React.memo(() => (
       <Route path="/program-registry" component={ProgramRegistryRoutes} />
       <Route path="/immunisations" component={ImmunisationRoutes} />
       <Route path="/facility-admin" component={FacilityAdminRoutes} />
-      {/*
-       * TODO fix this hack. For some reason, having an empty object within this switch fixes a bug
-       * where none of the app contents would render in a production build.
-       */}
     </Switch>
   </App>
 ));
@@ -52,10 +48,6 @@ export const RoutingAdminApp = React.memo(() => (
     <Switch>
       <Redirect exact path="/" to="/admin" />
       <Route path="/admin" component={AdministrationRoutes} />
-      {/*
-       * TODO fix this hack. For some reason, having an empty object within this switch fixes a bug
-       * where none of the app contents would render in a production build.
-       */}
     </Switch>
   </App>
 ));

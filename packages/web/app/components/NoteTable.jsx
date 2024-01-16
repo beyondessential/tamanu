@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState, useRef } from 'react';
 import styled from 'styled-components';
 import EditIcon from '@material-ui/icons/Edit';
 
@@ -162,6 +162,11 @@ const NoteContent = ({
       ? note.onBehalfOf?.displayName
       : note.revisedBy?.onBehalfOf?.displayName;
 
+  useEffect(() => {
+    const el = noteContentContainerRef.current;
+    if (el) setContentIsClipped(el.offsetHeight < el.scrollHeight);
+  }, [contentIsExpanded]);
+
   return (
     <NoteRowContainer>
       {isNotFilteredByNoteType && (
@@ -170,13 +175,7 @@ const NoteContent = ({
         </NoteHeaderContainer>
       )}
       <NoteBodyContainer>
-        <NoteContentContainer
-          $expanded={contentIsExpanded}
-          ref={el => {
-            noteContentContainerRef.current = el;
-            setContentIsClipped(el?.offsetHeight < el?.scrollHeight);
-          }}
-        >
+        <NoteContentContainer $expanded={contentIsExpanded} ref={noteContentContainerRef}>
           {note?.content?.split('\n').map((line, i, { length }) => {
             const elementRef = contentLineClipping?.current?.[i];
             const contentOffsetHeight = noteContentContainerRef.current?.offsetHeight;
