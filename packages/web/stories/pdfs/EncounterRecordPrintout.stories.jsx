@@ -127,6 +127,16 @@ const diagnosesData = [
   },
 ];
 
+const procedureData = [
+  {
+    date: '2023-01-01 10:20:00',
+    procedureType: {
+      code: 'U07.1',
+      name: 'Lorem ipsum',
+    },
+  },
+];
+
 export const EncounterRecordPrintout = {
   render: () => (
     <PDFViewer width={800} height={1000} showToolbar={false}>
@@ -138,6 +148,7 @@ export const EncounterRecordPrintout = {
         encounterTypeHistory={encounterTypesData}
         locationHistory={locationsData}
         diagnoses={diagnosesData}
+        procedures={procedureData}
       />
     </PDFViewer>
   ),

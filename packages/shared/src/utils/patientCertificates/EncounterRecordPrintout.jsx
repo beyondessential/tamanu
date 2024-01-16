@@ -168,6 +168,20 @@ const COLUMNS = {
       style: { width: '25%' },
     },
   ],
+  procedures: [
+    {
+      key: 'procedure',
+      title: 'Procedure',
+      accessor: ({ procedureType }) => `${procedureType?.name} (${procedureType?.code})`,
+      style: { width: '75%' },
+    },
+    {
+      key: 'procedureDate',
+      title: 'Procedure date',
+      accessor: ({ date }) => (date ? formatShort(date) : {}),
+      style: { width: '25%' },
+    },
+  ],
 };
 
 const TableSection = ({ title, data, columns }) => {
@@ -233,6 +247,9 @@ export const EncounterRecordPrintout = ({
           )}
           {diagnoses.length > 0 && (
             <TableSection title="Diagnoses" data={diagnoses} columns={COLUMNS.diagnoses} />
+          )}
+          {procedures.length > 0 && (
+            <TableSection title="Procedures" data={procedures} columns={COLUMNS.procedures} />
           )}
         </CertificateWrapper>
         <Footer />
