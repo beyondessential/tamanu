@@ -223,12 +223,12 @@ programRegistry.get(
     }
     const sortKeys = {
       displayId: 'patient.display_id',
-      patientName: 'UPPER(patient.last_name)',
-      dob: 'patient.date_of_birth',
+      firstName: 'UPPER(patient.first_name)',
+      lastName: 'UPPER(patient.last_name)',
+      dateOfBirth: 'patient.date_of_birth',
       homeVillage: 'UPPER(patient_village.name)',
       registeringFacility: 'registering_facility.name',
-      currentlyAtVillage: 'UPPER(village.name)',
-      currentlyAtFacility: 'UPPER(facility.name)',
+      currentlyIn: 'COALESCE(UPPER(currently_at_village.name), UPPER(currently_at_facility.name))',
       clinicalStatus: 'mrr.clinical_status_id',
     };
 

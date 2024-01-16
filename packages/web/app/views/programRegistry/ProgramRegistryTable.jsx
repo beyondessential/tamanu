@@ -67,7 +67,6 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
       {
         key: 'currentlyIn',
         title: 'Currently in',
-        sortable: false,
         accessor: row => {
           if (row.programRegistry.currentlyAtType === 'village') return row.village.name;
           if (row.programRegistry.currentlyAtType === 'facility') return row.facility.name;
@@ -77,6 +76,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
       {
         key: 'conditions',
         title: 'Related conditions',
+        sortable: false,
         accessor: ({ conditions }) => {
           const conditionsText = Array.isArray(conditions)
             ? conditions.map(x => ` ${x}`).toString()
