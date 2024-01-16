@@ -58,6 +58,9 @@ const patientDataColumnString = () =>
 export const SSCPatientData = SurveyScreenComponent.shape({
   config: configString(
     columnReferenceConfig.shape({
+      source: yup.string(),
+      // Note that it would be nice to validate the where parameter here
+      where: yup.string(),
       column: patientDataColumnString(),
       writeToPatient: yup
         .object()
