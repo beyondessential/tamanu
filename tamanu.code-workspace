@@ -32,18 +32,5 @@
       "name": "central-server",
       "path": "packages/central-server"
     }
-  ],
-  "settings": {
-    "cSpell.language": "en-GB",
-    "files.exclude": {
-      "packages/": true
-    },
-    "cSpell.words": ["singularize", "upsert", "upserted"],
-    "json.schemas": [
-      {
-        "fileMatch": ["*.hl7.json"],
-        "url": "./packages/central-server/__tests__/hl7fhir/fhir.schema.json"
-      }
-    ]
-  }
+  ]
 }
