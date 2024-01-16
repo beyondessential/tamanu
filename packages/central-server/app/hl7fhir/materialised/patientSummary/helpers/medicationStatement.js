@@ -14,11 +14,11 @@ export const getMedicationStatements = async ({ patient, models, dataDictionarie
 
   const encounterMedications = openEncounter
     ? await models.EncounterMedication.findAll({
-        where: {
-          encounterId: openEncounter.id,
-        },
-        include: ['Medication'],
-      })
+      where: {
+        encounterId: openEncounter.id,
+      },
+      include: ['Medication'],
+    })
     : [];
 
   const medicationStatementsHeader = {
