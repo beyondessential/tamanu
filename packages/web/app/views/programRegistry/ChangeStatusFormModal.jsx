@@ -12,7 +12,7 @@ import {
   Modal,
 } from '../../components';
 import { useApi, useSuggester } from '../../api';
-import { foreignKey } from '../../utils/validation';
+import { optionalForeignKey } from '../../utils/validation';
 import { PROGRAM_REGISTRY } from '../../components/PatientInfoPane/paneTitles';
 
 const StyledFormGrid = styled(FormGrid)`
@@ -74,7 +74,7 @@ export const ChangeStatusFormModal = ({ patientProgramRegistration, onClose, ope
             clinicalStatusId: patientProgramRegistration.clinicalStatus?.id,
           }}
           validationSchema={yup.object().shape({
-            clinicalStatusId: foreignKey().required('Status must be selected'),
+            clinicalStatusId: optionalForeignKey(),
           })}
         />
       </Modal>
