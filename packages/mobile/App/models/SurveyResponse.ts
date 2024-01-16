@@ -1,8 +1,8 @@
-import { Entity, Column, ManyToOne, OneToMany, RelationId } from 'typeorm/browser';
+import { Column, Entity, ManyToOne, OneToMany, RelationId } from 'typeorm/browser';
 
-import { ISurveyResponse, EncounterType, ICreateSurveyResponse } from '~/types';
+import { EncounterType, ICreateSurveyResponse, ISurveyResponse } from '~/types';
 
-import { getStringValue, getResultValue, isCalculated, FieldTypes } from '~/ui/helpers/fields';
+import { FieldTypes, getResultValue, getStringValue, isCalculated } from '~/ui/helpers/fields';
 
 import { runCalculations } from '~/ui/helpers/calculations';
 import { getCurrentDateTimeString } from '~/ui/helpers/date';
@@ -131,7 +131,7 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
       // figure out if its a vital survey response
       let vitalsSurvey;
       try {
-        vitalsSurvey = await Survey.getVitalsSurvey();
+        vitalsSurvey = await Survey.getVitalsSurvey({ includeAllVitals: false });
       } catch (e) {
         console.error(`Errored while trying to get vitals survey: ${e}`);
       }

@@ -1,5 +1,5 @@
 import React from 'react';
-import { screenPercentageToDP, Orientation } from '~/ui/helpers/screen';
+import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { StyledText } from '~/ui/styled/common';
 
 const getValueToDisplay = value => {

@@ -1,8 +1,4 @@
-import {
-  PrimaryColumn,
-  Generated,
-  Column,
-} from 'typeorm/browser';
+import { Column, Generated, PrimaryColumn } from 'typeorm/browser';
 import { BaseModelWithoutId } from './BaseModelWithoutId';
 
 export type ModelPojo = {
@@ -49,40 +45,39 @@ const getMappedFormValues = (values: object): object => {
 };
 
 export abstract class BaseModel extends BaseModelWithoutId {
+  @PrimaryColumn()
+  @Generated('uuid')
+  id: string;
 
-    @PrimaryColumn()
-    @Generated('uuid')
-    id: string;
-
-    /*
+  /*
       Helper function to properly update TypeORM relations. The .update()
       method doesn't provide a reliable way of confirming it succeeded and
       columns specified with 'IdRelation' and 'RelationId' need special handling.
     */
-    static async updateValues<T extends BaseModel>(id: string, values: object): Promise<T | null> {
-      const repo = this.getRepository<T>();
+  static async updateValues<T extends BaseModel>(id: string, values: object): Promise<T | null> {
+    const repo = this.getRepository<T>();
 
-      // Find the actual instance we want to update
-      const instance = await repo.findOne(id);
+    // Find the actual instance we want to update
+    const instance = await repo.findOne(id);
 
-      // Bail early if no record was found
-      if (!instance) {
-        console.error(
-          `${this.name} record with ID ${id} doesn't exist, therefore it can't be updated`,
-        );
-        return null;
-      }
-
-      // Get appropiate key/value pairs to manage relations
-      const mappedValues = getMappedFormValues(values);
-
-      // Update each specified value
-      Object.entries(mappedValues).forEach(([key, value]) => {
-        instance[key] = value;
-      });
-
-      // Return the updated instance. NOTE: updated relations won't have
-      // all fields until you reload the instance again, only their ID.
-      return instance.save();
+    // Bail early if no record was found
+    if (!instance) {
+      console.error(
+        `${this.name} record with ID ${id} doesn't exist, therefore it can't be updated`,
+      );
+      return null;
     }
+
+    // Get appropiate key/value pairs to manage relations
+    const mappedValues = getMappedFormValues(values);
+
+    // Update each specified value
+    Object.entries(mappedValues).forEach(([key, value]) => {
+      instance[key] = value;
+    });
+
+    // Return the updated instance. NOTE: updated relations won't have
+    // all fields until you reload the instance again, only their ID.
+    return instance.save();
+  }
 }

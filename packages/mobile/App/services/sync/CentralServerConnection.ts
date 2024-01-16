@@ -2,18 +2,18 @@ import mitt from 'mitt';
 
 import { getUniqueId } from 'react-native-device-info';
 import { readConfig } from '../config';
-import { LoginResponse, SyncRecord, FetchOptions } from './types';
+import { FetchOptions, LoginResponse, SyncRecord } from './types';
 import {
   AuthenticationError,
+  generalErrorMessage,
+  invalidTokenMessage,
+  invalidUserCredentialsMessage,
   OutdatedVersionError,
   RemoteError,
-  invalidUserCredentialsMessage,
-  invalidTokenMessage,
-  generalErrorMessage,
 } from '../error';
 import { version } from '/root/package.json';
 
-import { callWithBackoff, getResponseJsonSafely, fetchWithTimeout, sleepAsync } from './utils';
+import { callWithBackoff, fetchWithTimeout, getResponseJsonSafely, sleepAsync } from './utils';
 import { CentralConnectionStatus } from '~/types';
 
 const API_VERSION = 1;
@@ -141,9 +141,21 @@ export class CentralServerConnection {
     throw new Error(`Did not get a truthy response after ${maxAttempts} attempts for ${endpoint}`);
   }
 
-  async startSyncSession() {
+  async startSyncSession({ urgent, lastSyncedTick }) {
     const facilityId = await readConfig('facilityId', '');
-    const { sessionId } = await this.post('sync', {}, { facilityId });
+
+    // start a sync session (or refresh our position in the queue)
+    const { sessionId, status } = await this.post('sync', {}, { 
+      urgent,
+      lastSyncedTick,
+      facilityId,
+      deviceId: this.deviceId,
+    });
+
+    if (!sessionId) {
+      // we're waiting in a queue
+      return { status };
+    }
 
     // then, poll the sync/:sessionId/ready endpoint until we get a valid response
     // this is because POST /sync (especially the tickTockGlobalClock action) might get blocked
