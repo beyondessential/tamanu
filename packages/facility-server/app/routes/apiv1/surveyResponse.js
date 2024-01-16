@@ -1,6 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 
+import { getAutocompleteComponentMap } from '@tamanu/shared/reports/utilities'
 export const surveyResponse = express.Router();
 
 // also update getDisplayNameForModel in /packages/mobile/App/ui/helpers/fields.ts when this changes
@@ -28,13 +29,7 @@ surveyResponse.get(
       where: { responseId: params.id },
     });
 
-    const autocompleteComponents = components
-      .filter(c => c.dataElement.dataValues.type === 'Autocomplete')
-      .map(({ dataElementId, config: componentConfig }) => [
-        dataElementId,
-        JSON.parse(componentConfig),
-      ]);
-    const autocompleteComponentMap = new Map(autocompleteComponents);
+    const autocompleteComponentMap = getAutocompleteComponentMap(components);
 
     // Transform Autocomplete answers from: { body: ReferenceData.id } to: { body: ReferenceData.name, originalBody: ReferenceData.id }
     const transformedAnswers = await Promise.all(
@@ -62,7 +57,6 @@ surveyResponse.get(
             `Selected answer ${componentConfig.source}[${answer.dataValues.body}] not found`,
           );
         }
-
         const transformedAnswer = {
           ...answer.dataValues,
           originalBody: answer.dataValues.body,
