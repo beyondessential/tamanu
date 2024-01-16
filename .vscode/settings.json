@@ -2,9 +2,7 @@
   "cSpell.language": "en-GB",
   "cSpell.words": ["singularize", "upsert", "upserted"],
   "eslint.experimental.useFlatConfig": true,
-  "files.exclude": {
-    "packages/": true
-  },
+  "eslint.lintTask.enable": true,
   "json.schemas": [
     {
       "fileMatch": ["*.hl7.json"],
