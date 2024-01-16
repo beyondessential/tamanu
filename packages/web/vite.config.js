@@ -50,7 +50,7 @@ export default defineConfig({
     host: 'localhost',
     proxy: {
       '/api': {
-        target: 'http://localhost:3000',
+        target: 'http://localhost:4000',
         // you can also specify other servers to use as backend, e.g.
         // target: 'https://central.main.internal.tamanu.io',
         // target: 'https://facility-1.main.internal.tamanu.io',
