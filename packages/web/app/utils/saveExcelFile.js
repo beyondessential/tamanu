@@ -1,29 +1,10 @@
 import XLSX from 'xlsx';
+import { sanitizeFileName } from './sanitizeFileName';
 
 const stringifyIfNonDateObject = val =>
   typeof val === 'object' && !(val instanceof Date) && val !== null ? JSON.stringify(val) : val;
 
-export async function saveExcelFile(
-  { data, metadata },
-  { promptForFilePath, filePath, defaultFileName = '', bookType },
-) {
-  let path;
-  if (promptForFilePath) {
-    // TODO(web)
-    // path = await showFileDialog(
-    //   [{ name: `Excel spreadsheet (${bookType})`, extensions: [bookType] }],
-    //   defaultFileName,
-    // );
-    if (!path) {
-      // user cancelled
-      return '';
-    }
-  } else {
-    path = filePath;
-  }
-  if (!path) {
-    throw Error('No path found');
-  }
+export async function saveExcelFile({ data, metadata, defaultFileName = '', bookType }) {
   const stringifiedData = data.map(row => row.map(stringifyIfNonDateObject));
 
   const book = XLSX.utils.book_new();
@@ -36,13 +17,14 @@ export async function saveExcelFile(
   XLSX.utils.book_append_sheet(book, dataSheet, 'report');
   XLSX.utils.book_append_sheet(book, metadataSheet, 'metadata');
 
-  return new Promise((resolve, reject) => {
-    XLSX.writeFileAsync(path, book, { type: bookType }, err => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(path);
-      }
-    });
+  const fileHandle = await window.showSaveFilePicker({
+    suggestedName: sanitizeFileName(`${defaultFileName}.${bookType}`),
   });
+
+  const writable = await fileHandle.createWritable();
+
+  const xlsxDataArray = XLSX.write(book, { bookType, type: 'array' });
+
+  await writable.write(xlsxDataArray);
+  await writable.close();
 }
