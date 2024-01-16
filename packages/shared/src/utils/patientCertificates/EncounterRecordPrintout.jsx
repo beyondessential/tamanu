@@ -23,6 +23,7 @@ import { getName } from '../patientAccessors';
 import { EncounterDetails } from './printComponents/EncounterDetails';
 import { ListTable } from '@tamanu/web-frontend/app/components/PatientPrinting/printouts/reusable/ListTable';
 import { startCase } from 'lodash';
+import { Footer } from './printComponents/Footer';
 
 const borderStyle = '1 solid black';
 
@@ -149,8 +150,8 @@ const COLUMNS = {
   ],
   diagnoses: [
     {
-      key: 'diagnoses',
-      title: 'Diagnoses',
+      key: 'diagnosis',
+      title: 'Diagnosis',
       accessor: ({ diagnosis }) => `${diagnosis?.name} (${diagnosis?.code})`,
       style: { width: '55%' },
     },
@@ -230,7 +231,11 @@ export const EncounterRecordPrintout = ({
           {locationHistory.length > 0 && (
             <TableSection title="Location" data={locationHistory} columns={COLUMNS.locations} />
           )}
+          {diagnoses.length > 0 && (
+            <TableSection title="Diagnoses" data={diagnoses} columns={COLUMNS.diagnoses} />
+          )}
         </CertificateWrapper>
+        <Footer />
       </Page>
     </Document>
   );

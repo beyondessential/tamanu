@@ -108,6 +108,25 @@ const locationsData = [
   },
 ];
 
+const diagnosesData = [
+  {
+    isPrimary: true,
+    date: '2023-01-01 10:20:00',
+    diagnosis: {
+      code: 'U07.1',
+      name: 'Chlamydial lymphogranuloma vereneum',
+    },
+  },
+  {
+    isPrimary: false,
+    date: '2023-01-01 10:20:00',
+    diagnosis: {
+      code: 'U07.1',
+      name: 'Hypertension',
+    },
+  },
+];
+
 export const EncounterRecordPrintout = {
   render: () => (
     <PDFViewer width={800} height={1000} showToolbar={false}>
@@ -118,6 +137,7 @@ export const EncounterRecordPrintout = {
         encounter={encounterData}
         encounterTypeHistory={encounterTypesData}
         locationHistory={locationsData}
+        diagnoses={diagnosesData}
       />
     </PDFViewer>
   ),
