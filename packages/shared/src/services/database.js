@@ -140,6 +140,7 @@ export async function initDatabase(dbOptions) {
   // attach migration function to the sequelize object - leaving the responsibility
   // of calling it to the implementing server (this allows for skipping migrations
   // in favour of calling sequelize.sync() during test mode)
+  // eslint-disable-next-line require-atomic-updates
   sequelize.migrate = async direction => {
     await migrate(log, sequelize, direction);
   };
@@ -190,4 +191,29 @@ export async function initDatabase(dbOptions) {
   sequelize.isInsideTransaction = () => !!asyncLocalStorage.getStore();
 
   return { sequelize, models };
+}
+
+export async function initDatabaseInCollection(databaseCollection, key, dbOptions) {
+  if (databaseCollection[key]) {
+    return databaseCollection[key];
+  }
+
+  const store = await initDatabase(dbOptions);
+  if (databaseCollection[key]) {
+    throw new Error(`race condition! initDatabaseInCollection() called for the same key=${key} in parallel`);
+  }
+
+  databaseCollection[key] = store;
+  return store;
+}
+
+export async function closeAllDatabasesInCollection(databaseCollection) {
+  // this looks less idiomatic than a for..of, but it avoids race conditions
+  // where new connections are added while we're closing existing ones
+  while (Object.keys(databaseCollection).length) {
+    const key = Object.keys(databaseCollection)[0];
+    const connection = databaseCollection[key];
+    delete databaseCollection[key];
+    await connection.sequelize.close();
+  }
 }

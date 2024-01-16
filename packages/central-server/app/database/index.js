@@ -1,6 +1,6 @@
 import config from 'config';
 
-import { initDatabase as sharedInitDatabase } from '@tamanu/shared/services/database';
+import { closeAllDatabasesInCollection, initDatabaseInCollection } from '@tamanu/shared/services/database';
 import { REPORT_DB_SCHEMAS } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
 import { addHooks } from './hooks';
@@ -8,19 +8,11 @@ import { addHooks } from './hooks';
 let existingConnections = {};
 
 const getOrCreateConnection = async ({ testMode, ...configOverrides }, key = 'main') => {
-  if (existingConnections[key]) {
-    return existingConnections[key];
-  }
-  const store = await sharedInitDatabase({
+  const store = await initDatabaseInCollection(existingConnections, key, {
     ...config.db,
     ...configOverrides,
     testMode,
   });
-  if (existingConnections[key]) {
-    throw new Error('race condition! getOrCreateConnection called for the same key in parallel');
-  }
-
-  existingConnections[key] = store;
 
   // drop and recreate db
   if (testMode) {
@@ -31,7 +23,7 @@ const getOrCreateConnection = async ({ testMode, ...configOverrides }, key = 'ma
     await addHooks(store);
   }
 
-  return existingConnections[key];
+  return store;
 };
 
 export async function initDatabase({ testMode = false }) {
@@ -78,12 +70,5 @@ export async function initReporting() {
 }
 
 export async function closeDatabase() {
-  // this looks less idiomatic than a for..of, but it avoids race conditions
-  // where new connections are added while we're closing existing ones
-  while (Object.keys(existingConnections).length) {
-    const key = Object.keys(existingConnections)[0];
-    const connection = existingConnections[key];
-    delete existingConnections[key];
-    await connection.sequelize.close();
-  }
+  return closeAllDatabasesInCollection(existingConnections);
 }

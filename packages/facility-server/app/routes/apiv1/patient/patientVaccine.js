@@ -78,10 +78,9 @@ patientVaccineRoutes.get(
       .map(s => s.get({ plain: true }))
       .reduce((allVaccines, vaccineSchedule) => {
         if (!allVaccines[vaccineSchedule.label]) {
-          const { administered, ...rest } = vaccineSchedule;
-          rest.schedules = [];
-          // eslint-disable-next-line no-param-reassign
-          allVaccines[vaccineSchedule.label] = rest;
+          delete vaccineSchedule.administered;
+          vaccineSchedule.schedules = [];
+          allVaccines[vaccineSchedule.label] = vaccineSchedule;
         }
         const administered = asRealNumber(vaccineSchedule.administered) > 0;
         // Exclude historical schedules unless administered
@@ -168,6 +167,7 @@ patientVaccineRoutes.post(
     const vaccineData = { ...req.body };
 
     if (vaccineData.category === VACCINE_CATEGORIES.OTHER) {
+      // eslint-disable-next-line require-atomic-updates
       vaccineData.scheduledVaccineId = (
         await models.ScheduledVaccine.getOtherCategoryScheduledVaccine()
       )?.id;

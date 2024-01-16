@@ -168,17 +168,17 @@ createSuggester(
   // Allow filtering by parent location group
   (search, query) => {
     const baseWhere = filterByFacilityWhereBuilder(search, query);
-
-    const { q, filterByFacility, ...filters } = query;
-
-    if (!query.parentId) {
-      return { ...baseWhere, ...filters };
+    if (query.parentId) {
+      return {
+        ...baseWhere,
+        parentId: query.parentId,
+      };
     }
 
-    return {
-      ...baseWhere,
-      parentId: query.parentId,
-    };
+    const filters = Object.assign({}, filters);
+    delete filters.q;
+    delete filters.filterByFacility;
+    return { ...baseWhere, ...filters };
   },
   async location => {
     const availability = await location.getAvailability();
