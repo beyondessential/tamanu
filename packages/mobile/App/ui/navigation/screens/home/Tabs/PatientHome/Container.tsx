@@ -124,7 +124,7 @@ const PatientHomeContainer = ({
   const onSyncPatient = useCallback(async (): Promise<void> => {
     try {
       await Patient.markForSync(selectedPatient.id);
-      syncManager.triggerSync({ urgent: true });
+      syncManager.triggerUrgentSync();
       navigation.navigate(Routes.HomeStack.HomeTabs.SyncData);
     } catch (error) {
       setErrorMessage(error.message);

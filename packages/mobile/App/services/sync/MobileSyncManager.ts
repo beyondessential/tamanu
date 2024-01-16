@@ -18,6 +18,7 @@ import { SYNC_EVENT_ACTIONS } from './types';
 import { formatDate } from '../../ui/helpers/date';
 import { DateFormats } from '../../ui/helpers/constants';
 import { CURRENT_SYNC_TIME, LAST_SUCCESSFUL_PULL, LAST_SUCCESSFUL_PUSH } from './constants';
+import { SETTING_KEYS } from '~/constants/settings';
 
 /**
  * Maximum progress that each stage contributes to the overall progress
@@ -27,6 +28,8 @@ const STAGE_MAX_PROGRESS = {
   2: 66,
   3: 100,
 };
+
+const URGENT_SYNC_PERIOD_SECONDS = 10;
 
 type SyncOptions = {
   urgent: boolean;
@@ -52,6 +55,8 @@ export class MobileSyncManager {
   lastSyncPulledRecordsCount: number = null;
 
   emitter = mitt();
+
+  urgentSyncInterval = null;
 
   models: typeof MODELS_MAP;
   centralServer: CentralServerConnection;
@@ -117,6 +122,27 @@ export class MobileSyncManager {
     return Promise.resolve();
   }
 
+  async triggerUrgentSync(): Promise<void> {
+    if (this.urgentSyncInterval) {
+      return; // already started
+    }
+
+    const urgentSyncIntervalInSecondsStr = await this.models.Setting.get(
+      SETTING_KEYS.SYNC_URGENT_INTERVAL_IN_SECONDS,
+    );
+
+    const urgentSyncIntervalInSeconds = parseInt(urgentSyncIntervalInSecondsStr, 10);
+
+    if (urgentSyncIntervalInSeconds) {
+      this.urgentSyncInterval = setInterval(
+        () => this.triggerSync({ urgent: true }),
+        URGENT_SYNC_PERIOD_SECONDS * 1000,
+      );
+    } else {
+      await this.triggerSync({ urgent: true });
+    }
+  }
+
   /**
    * Trigger syncing and send through the sync errors if there is any
    * @returns
@@ -142,6 +168,9 @@ export class MobileSyncManager {
         this.isSyncing = false;
         this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_STATE_CHANGED);
         this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_ENDED, `time=${Date.now() - startTime}ms`);
+        if (this.urgentSyncInterval) {
+          clearInterval(this.urgentSyncInterval);
+        }
         console.log(`Sync took ${Date.now() - startTime} ms`);
       }
     }
