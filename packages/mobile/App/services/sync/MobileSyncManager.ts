@@ -29,8 +29,6 @@ const STAGE_MAX_PROGRESS = {
   3: 100,
 };
 
-const URGENT_SYNC_PERIOD_SECONDS = 10;
-
 type SyncOptions = {
   urgent: boolean;
 };
@@ -136,7 +134,7 @@ export class MobileSyncManager {
     if (urgentSyncIntervalInSeconds) {
       this.urgentSyncInterval = setInterval(
         () => this.triggerSync({ urgent: true }),
-        URGENT_SYNC_PERIOD_SECONDS * 1000,
+        urgentSyncIntervalInSeconds * 1000,
       );
     } else {
       await this.triggerSync({ urgent: true });
