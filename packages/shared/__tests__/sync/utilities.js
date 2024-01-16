@@ -1,20 +1,19 @@
 import config from 'config';
 import { fakeUUID } from '../../dist/cjs/utils/generateId';
-import { initDatabase as sharedInitDatabase } from '../../dist/cjs/services/database';
+import {
+  closeAllDatabasesInCollection,
+  initDatabaseInCollection,
+} from '../../dist/cjs/services/database';
 
 let existingConnections = {};
 
 const getOrCreateConnection = async (configOverrides, key = 'main') => {
   const testMode = process.env.NODE_ENV === 'test';
-  if (existingConnections[key]) {
-    return existingConnections[key];
-  }
-  existingConnections[key] = await sharedInitDatabase({
+  return initDatabaseInCollection(existingConnections, key, {
     ...config.db,
     ...configOverrides,
     testMode,
   });
-  return existingConnections[key];
 };
 
 async function initDatabase() {
@@ -34,8 +33,5 @@ export async function createTestDatabase() {
 }
 
 export async function closeDatabase() {
-  await Promise.all(
-    Object.keys(existingConnections).map(k => existingConnections[k].sequelize.close()),
-  );
-  existingConnections = {};
+  return closeAllDatabasesInCollection(existingConnections);
 }
