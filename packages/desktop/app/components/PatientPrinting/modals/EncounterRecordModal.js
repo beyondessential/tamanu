@@ -22,6 +22,7 @@ import { LoadingIndicator } from '../../LoadingIndicator';
 import { Colors } from '../../../constants';
 import { ForbiddenErrorModalContents } from '../../ForbiddenErrorModal';
 import { ModalActionRow } from '../../ModalActionRow';
+import { useVitals } from '../../../api/queries/useVitals';
 
 // These below functions are used to extract the history of changes made to the encounter that are stored in notes.
 // obviously a better solution needs to be to properly implemented for storing and accessing this data, but this is an ok workaround for now.
@@ -101,6 +102,8 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
 
   const patientQuery = usePatientData(encounter.patientId);
   const patient = patientQuery.data;
+
+  const { data: vitalsData, recordedDates } = useVitals(encounter.id);
 
   const padDataQuery = usePatientAdditionalDataQuery(patient?.id);
   const padData = padDataQuery.data;
@@ -268,6 +271,8 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
     <Modal {...modalProps}>
       <EncounterRecord
         patient={patient}
+        vitalsData={vitalsData}
+        recordedDates={recordedDates}
         encounter={encounter}
         certificateData={certificateData}
         encounterTypeHistory={encounterTypeHistory}
