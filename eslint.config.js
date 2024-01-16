@@ -1,8 +1,8 @@
+import globals from 'globals';
 import js from '@eslint/js';
 import markdown from 'eslint-plugin-markdown';
 import react from 'eslint-plugin-react';
 import reactHooks from 'eslint-plugin-react-hooks';
-import globals from 'globals';
 import typescriptParser from '@typescript-eslint/parser';
 import typescriptPlugin from '@typescript-eslint/eslint-plugin';
 
@@ -48,7 +48,7 @@ export default [
       // import rules
       'no-useless-rename': 'error',
       'no-duplicate-imports': 'error',
-      'sort-imports': 'warn',
+      'sort-imports': 'off',
 
       // static analysis rules
       'no-new-native-nonconstructor': 'error',

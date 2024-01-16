@@ -4,10 +4,10 @@ import config from 'config';
 import {
   BadAuthenticationError,
   FacilityAndSyncVersionIncompatibleError,
-  RemoteTimeoutError,
   RemoteCallFailedError,
+  RemoteTimeoutError,
 } from '@tamanu/shared/errors';
-import { VERSION_COMPATIBILITY_ERRORS, SERVER_TYPES } from '@tamanu/constants';
+import { SERVER_TYPES, VERSION_COMPATIBILITY_ERRORS } from '@tamanu/constants';
 import { getResponseJsonSafely } from '@tamanu/shared/utils';
 import { log } from '@tamanu/shared/services/logging';
 import { fetchWithTimeout } from '@tamanu/shared/utils/fetchWithTimeout';

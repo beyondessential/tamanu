@@ -1,7 +1,7 @@
 import path from 'path';
 import fs from 'fs';
 import { lte as semverLte } from 'semver';
-import { MIN_CLIENT_VERSION, MAX_CLIENT_VERSION } from '../dist/middleware/versionCompatibility';
+import { MAX_CLIENT_VERSION, MIN_CLIENT_VERSION } from '../dist/middleware/versionCompatibility';
 
 async function readVersion(pkg) {
   const normalisedPath = path.resolve(__dirname, '..', '..', '..', 'packages', pkg, 'package.json');

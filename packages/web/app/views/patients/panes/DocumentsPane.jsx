@@ -1,8 +1,8 @@
-import React, { useState, useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { extension } from 'mime-types';
 
 import { useApi } from '../../../api';
-import { notify, notifySuccess, notifyError } from '../../../utils';
+import { notify, notifyError, notifySuccess } from '../../../utils';
 
 import { DocumentPreviewModal } from '../../../components/DocumentPreview';
 import { DocumentsTable } from '../../../components/DocumentsTable';

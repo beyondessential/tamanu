@@ -7,18 +7,18 @@ import { Divider as BaseDivider } from '@material-ui/core';
 import Grid from '@material-ui/core/Grid';
 import BaseDeleteOutlinedIcon from '@material-ui/icons/DeleteOutlined';
 import {
-  TextField,
-  DefaultIconButton,
-  SelectField,
   ArrayField,
+  DefaultIconButton,
   Field,
   OuterLabelFieldWrapper,
+  SelectField,
+  TextField,
 } from '../../../../../components';
 import {
-  PARAMETER_FIELD_COMPONENTS,
-  FIELD_TYPES_WITH_SUGGESTERS,
-  FIELD_TYPES_WITH_PREDEFINED_OPTIONS,
   FIELD_TYPES_TO_SUGGESTER_OPTIONS,
+  FIELD_TYPES_WITH_PREDEFINED_OPTIONS,
+  FIELD_TYPES_WITH_SUGGESTERS,
+  PARAMETER_FIELD_COMPONENTS,
 } from '../../../../reports/ParameterField';
 
 const Divider = styled(BaseDivider)`

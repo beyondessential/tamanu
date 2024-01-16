@@ -2,23 +2,23 @@ import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
-import { Timelapse, Business, AssignmentLate } from '@material-ui/icons';
-import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_CONFIG } from '@tamanu/constants';
+import { AssignmentLate, Business, Timelapse } from '@material-ui/icons';
+import { LAB_REQUEST_STATUS_CONFIG, LAB_REQUEST_STATUSES } from '@tamanu/constants';
 import { useAuth } from '../../contexts/Auth';
 import BeakerIcon from '../../assets/images/beaker.svg';
 import TestCategoryIcon from '../../assets/images/testCategory.svg';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { useLabRequest } from '../../contexts/LabRequest';
 import {
+  Button,
+  DateDisplay,
   Heading2,
+  MenuButton,
+  MODAL_TRANSITION_DURATION,
+  OutlinedButton,
   Tile,
   TileContainer,
-  MenuButton,
-  DateDisplay,
-  OutlinedButton,
   TileTag,
-  MODAL_TRANSITION_DURATION,
-  Button,
 } from '../../components';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { LabRequestChangeLabModal } from './components/LabRequestChangeLabModal';

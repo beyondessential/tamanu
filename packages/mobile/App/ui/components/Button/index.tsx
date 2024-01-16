@@ -4,11 +4,11 @@ import styled from 'styled-components/native';
 import * as styledSystem from 'styled-system';
 import { theme } from '/styled/theme';
 import {
-  StyledTouchableOpacity,
   RowView,
+  StyledTouchableOpacity,
   StyledViewProps,
 } from '/styled/common';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
 
 type StrNumType = number | string;
 
