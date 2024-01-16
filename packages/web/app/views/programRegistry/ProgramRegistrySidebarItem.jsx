@@ -23,15 +23,7 @@ export const ProgramRegistrySidebarItem = ({
 
   const { data: programRegistries, isLoading, isError } = useListOfProgramRegistryQuery();
 
-  if (isError)
-    return (
-      <PrimarySidebarItem
-        {...{ icon, label, children, selected, highlighted, onClick, divider, retracted }}
-      >
-        Error loading registries
-      </PrimarySidebarItem>
-    );
-  if (isLoading || programRegistries.data.length === 0) return null;
+  if (isError || isLoading || programRegistries.data.length === 0) return null;
 
   return (
     <PrimarySidebarItem

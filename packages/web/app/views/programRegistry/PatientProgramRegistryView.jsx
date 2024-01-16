@@ -48,11 +48,11 @@ export const PatientProgramRegistryView = () => {
   const title = queryParams.get('title');
   const { patientId, programRegistryId } = useParams();
   const { data, isLoading, isError } = usePatientProgramRegistration(patientId, programRegistryId);
-  const { data: programRegistryConditions } = useProgramRegistryConditionsQuery(
+  const { data: programRegistryConditions, isLoading: conditionsLoading } = useProgramRegistryConditionsQuery(
     data?.programRegistryId,
   );
 
-  if (isLoading) return <LoadingIndicator />;
+  if (isLoading || conditionsLoading) return <LoadingIndicator />;
   if (isError) return <p>Program registry &apos;{title || 'Unknown'}&apos; not found.</p>;
 
   return (
