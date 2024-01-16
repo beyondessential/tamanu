@@ -34,7 +34,9 @@ export const syncPatient = patientId => async (dispatch, getState, { api }) => {
 
   // typically it takes a while for sync to complete
   // so wait for about 30 seconds till removing syncing state
-  await new Promise(resolve => setTimeout(resolve, 30000));
+  await new Promise(resolve => {
+    setTimeout(resolve, 30000);
+  });
   dispatch({
     type: PATIENT_SYNCING,
     data: false,

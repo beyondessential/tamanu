@@ -10,7 +10,6 @@ import { FormGrid } from '../../components/FormGrid';
 import { ButtonRow } from '../../components/ButtonRow';
 import { LargeSubmitButton } from '../../components/Button';
 import { AdminViewContainer } from './components/AdminViewContainer';
-import { error } from 'jquery';
 
 const ResultDisplay = ({ result }) => {
   if (!result) return null;

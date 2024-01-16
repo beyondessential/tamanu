@@ -185,7 +185,7 @@ export const DeathCertificate = React.memo(({ patientData, certificateData }) =>
           </Box>
           <Box>
             {causes?.contributing?.map(cause => (
-              <UnderlinedFormField>{getCauseName(cause)}</UnderlinedFormField>
+              <UnderlinedFormField key={cause}>{getCauseName(cause)}</UnderlinedFormField>
             ))}
           </Box>
         </Grid>

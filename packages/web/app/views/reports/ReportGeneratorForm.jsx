@@ -158,7 +158,8 @@ export const ReportGeneratorForm = () => {
   }, [api]);
 
   const submitRequestReport = async formValues => {
-    const { reportId, emails, ...filterValues } = formValues;
+    const { reportId, ...filterValues } = formValues;
+    delete filterValues.emails;
 
     const updatedFilters = Object.fromEntries(
       Object.entries(filterValues).map(([key, value]) => {

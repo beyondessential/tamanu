@@ -75,12 +75,15 @@ const COLUMNS = [
 
 const ENDPOINT = 'patient/program/activeCovid19Patients';
 
-const Covid19PatientsTable = React.memo(({ data, ...props }) => {
+const Covid19PatientsTable = React.memo(props => {
   const dispatch = useDispatch();
   const handleViewPatient = async id => {
-    await dispatch(reloadPatient(id));
+    dispatch(reloadPatient(id));
     dispatch(push(`/patients/all/${id}`));
   };
+
+  const searchProps = Object.assign({}, props);
+  delete searchProps.data;
 
   return (
     <SearchTable
@@ -88,7 +91,7 @@ const Covid19PatientsTable = React.memo(({ data, ...props }) => {
       onRowClick={row => handleViewPatient(row.id)}
       columns={COLUMNS}
       noDataMessage="No patients found"
-      {...props}
+      {...searchProps}
     />
   );
 });

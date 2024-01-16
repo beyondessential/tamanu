@@ -119,7 +119,7 @@ const DiagnosesList = ({ diagnoses }) => {
   const displayIcd10Codes = getLocalisation('features.displayIcd10CodesInDischargeSummary');
 
   return diagnoses.map(item => (
-    <li>
+    <li key={item.diagnoses.code}>
       {item.diagnosis.name}
       {displayIcd10Codes && <span>{` (${item.diagnosis.code})`}</span>}
     </li>
@@ -131,7 +131,7 @@ const ProceduresList = ({ procedures }) => {
   const displayProcedureCodes = getLocalisation('features.displayProcedureCodesInDischargeSummary');
 
   return procedures.map(procedure => (
-    <li>
+    <li key={procedure.procedureType.code}>
       {procedure.procedureType.name}
       {displayProcedureCodes && <span>{` (${procedure.procedureType.code})`}</span>}
     </li>
@@ -146,7 +146,7 @@ const MedicationsList = ({ medications, discontinued }) => {
   return medications.map(({ medication, discontinuingReason }) => {
     const prescriptionText = discontinuingReason && discontinued ? `(${discontinuingReason})` : '';
     return (
-      <li>
+      <li key={medication.code}>
         <span>{`${medication.name} ${prescriptionText}`}</span>
       </li>
     );
@@ -261,7 +261,7 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
             <GridItem>
               <ListColumn>
                 {patientConditions.map(condition => (
-                  <li>{condition}</li>
+                  <li key={condition}>{condition}</li>
                 ))}
               </ListColumn>
             </GridItem>

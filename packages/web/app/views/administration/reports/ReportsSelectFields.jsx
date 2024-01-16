@@ -3,7 +3,10 @@ import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../../../api';
 import { SelectField } from '../../../components';
 
-export const ReportSelectField = ({ error, helperText, includeNameChangeEvent, ...props }) => {
+export const ReportSelectField = ({ includeNameChangeEvent, ...props }) => {
+  delete props.error;
+  delete props.helperText;
+
   const api = useApi();
   const { data: reportData = [], error: fetchError } = useQuery(['reportList'], () =>
     api.get('admin/reports'),
@@ -31,7 +34,7 @@ export const ReportSelectField = ({ error, helperText, includeNameChangeEvent, .
   );
 };
 
-export const VersionSelectField = ({ error, helperText, ...props }) => {
+export const VersionSelectField = props => {
   const api = useApi();
   const {
     form: {
@@ -52,6 +55,10 @@ export const VersionSelectField = ({ error, helperText, ...props }) => {
     label: versionNumber,
     value: id,
   }));
+
+  const searchProps = Object.assign({}, props);
+  delete searchProps.error;
+  delete searchProps.helperText;
 
   return (
     <SelectField

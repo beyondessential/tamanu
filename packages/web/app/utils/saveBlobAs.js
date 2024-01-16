@@ -1,4 +1,4 @@
-export async function saveBlobAs(blob, { extensions, defaultFileName } = {}) {
+export async function saveBlobAs(/* blob, { extensions, defaultFileName } = {} */) {
   // TODO(web)
   /*
   const path = await showFileDialog([{ extensions }], defaultFileName);
