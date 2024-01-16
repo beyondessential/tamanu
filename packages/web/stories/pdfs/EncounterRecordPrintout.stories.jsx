@@ -127,13 +127,36 @@ const diagnosesData = [
   },
 ];
 
-const procedureData = [
+const proceduresData = [
   {
     date: '2023-01-01 10:20:00',
     procedureType: {
       code: 'U07.1',
       name: 'Lorem ipsum',
     },
+  },
+];
+
+const labRequestsData = [
+  {
+    testType: 'COVID-19 Nasal Swab',
+    testCategory: 'Lorum',
+    requestedByName: 'Jane Doe',
+    requestDate: '2023-01-01 10:20:00',
+    completedDate: '2023-01-01 10:20:00',
+  },
+  {
+    testType: 'HCB',
+    testCategory: 'FBC',
+    requestedByName: 'Jane Doe',
+    requestDate: '2023-01-01 10:20:00',
+  },
+  {
+    testType: 'PLT',
+    testCategory: 'Serology',
+    requestedByName: 'Jane Doe',
+    requestDate: '2023-01-01 10:20:00',
+    completedDate: '2023-01-01 10:20:00',
   },
 ];
 
@@ -148,7 +171,8 @@ export const EncounterRecordPrintout = {
         encounterTypeHistory={encounterTypesData}
         locationHistory={locationsData}
         diagnoses={diagnosesData}
-        procedures={procedureData}
+        procedures={proceduresData}
+        labRequests={labRequestsData}
       />
     </PDFViewer>
   ),

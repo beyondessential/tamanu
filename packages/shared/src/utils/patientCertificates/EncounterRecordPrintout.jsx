@@ -122,7 +122,7 @@ const COLUMNS = {
     {
       key: 'dateMoved',
       title: 'Date & time moved',
-      accessor: ({ date }) => (date ? `${formatShort(date)} ${formatTime(date)}` : {}),
+      accessor: ({ date }) => `${formatShort(date)} ${formatTime(date)}`,
       // accessor: ({ date }) => <DateDisplay date={date} showDate showTime /> || {},
 
       style: { width: '35%' },
@@ -144,7 +144,7 @@ const COLUMNS = {
     {
       key: 'dateMoved',
       title: 'Date & time moved',
-      accessor: ({ date }) => (date ? `${formatShort(date)} ${formatTime(date)}` : {}),
+      accessor: ({ date }) => `${formatShort(date)} ${formatTime(date)}`,
       style: { width: '35%' },
     },
   ],
@@ -164,7 +164,7 @@ const COLUMNS = {
     {
       key: 'date',
       title: 'Date',
-      accessor: ({ date }) => (date ? formatShort(date) : {}),
+      accessor: ({ date }) => formatShort(date),
       style: { width: '25%' },
     },
   ],
@@ -178,8 +178,37 @@ const COLUMNS = {
     {
       key: 'procedureDate',
       title: 'Procedure date',
-      accessor: ({ date }) => (date ? formatShort(date) : {}),
+      accessor: ({ date }) => formatShort(date),
       style: { width: '25%' },
+    },
+  ],
+  labRequests: [
+    {
+      key: 'testType',
+      title: 'Test type',
+      style: { width: '20%' },
+    },
+    {
+      key: 'testCategory',
+      title: 'Test category',
+      style: { width: '20%' },
+    },
+    {
+      key: 'requestedByName',
+      title: 'Requested By',
+      style: { width: '20%' },
+    },
+    {
+      key: 'requestDate',
+      title: 'Request date',
+      accessor: ({ requestDate }) => formatShort(requestDate),
+      style: { width: '20%' },
+    },
+    {
+      key: 'completedDate',
+      title: 'Published date',
+      accessor: ({ completedDate }) => formatShort(completedDate),
+      style: { width: '20%' },
     },
   ],
 };
@@ -250,6 +279,9 @@ export const EncounterRecordPrintout = ({
           )}
           {procedures.length > 0 && (
             <TableSection title="Procedures" data={procedures} columns={COLUMNS.procedures} />
+          )}
+          {labRequests.length > 0 && (
+            <TableSection title="Lab requests" data={labRequests} columns={COLUMNS.labRequests} />
           )}
         </CertificateWrapper>
         <Footer />
