@@ -2,7 +2,6 @@ import bodyParser from 'body-parser';
 import compression from 'compression';
 import config from 'config';
 import express from 'express';
-import path from 'path';
 
 import { getLoggingMiddleware } from '@tamanu/shared/services/logging';
 import { constructPermission } from '@tamanu/shared/permissions/middleware';

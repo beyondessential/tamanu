@@ -124,6 +124,7 @@ describe('reportRoutes', () => {
     it('should create a report', async () => {
       const name = 'Test Report 2';
       const { ReportDefinition, ReportDefinitionVersion } = models;
+      // eslint-disable-next-line no-unused-vars
       const { versionNumber, ...definition } = getMockReportVersion(
         1,
         'select * from patients limit 1',
@@ -147,6 +148,7 @@ describe('reportRoutes', () => {
     });
 
     it('should not return unnecessary metadata', async () => {
+      // eslint-disable-next-line no-unused-vars
       const { versionNumber, ...definition } = getMockReportVersion(
         1,
         'select * from patients limit 1',
@@ -193,10 +195,12 @@ describe('reportRoutes', () => {
     });
 
     it('should not return unnecessary metadata', async () => {
-      const { versionNumber, ...newVersion } = getMockReportVersion(
+      const newVersion = getMockReportVersion(
         1,
         'select * from patients limit 1',
       );
+      delete newVersion.versionNumber;
+
       const res = await adminApp
         .post(`/v1/admin/reports/${testReport.id}/versions`)
         .send(newVersion);

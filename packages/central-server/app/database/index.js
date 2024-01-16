@@ -11,13 +11,17 @@ const getOrCreateConnection = async ({ testMode, ...configOverrides }, key = 'ma
   if (existingConnections[key]) {
     return existingConnections[key];
   }
-  existingConnections[key] = await sharedInitDatabase({
+  const store = await sharedInitDatabase({
     ...config.db,
     ...configOverrides,
     testMode,
   });
+  if (existingConnections[key]) {
+    throw new Error('race condition! getOrCreateConnection called for the same key in parallel');
+  }
 
-  const store = existingConnections[key];
+  existingConnections[key] = store;
+
   // drop and recreate db
   if (testMode) {
     await store.sequelize.drop({ cascade: true });
@@ -74,9 +78,12 @@ export async function initReporting() {
 }
 
 export async function closeDatabase() {
-  for (const key of Object.keys(existingConnections)) {
+  // this looks less idiomatic than a for..of, but it avoids race conditions
+  // where new connections are added while we're closing existing ones
+  while (Object.keys(existingConnections).length) {
+    const key = Object.keys(existingConnections)[0];
     const connection = existingConnections[key];
+    delete existingConnections[key];
     await connection.sequelize.close();
   }
-  existingConnections = {};
 }

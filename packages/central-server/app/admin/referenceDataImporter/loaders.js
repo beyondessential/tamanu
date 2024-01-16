@@ -2,7 +2,13 @@ import { endOfDay, startOfDay } from 'date-fns';
 import { getJsDateFromExcel } from 'excel-date-to-js';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
 
-export const loaderFactory = model => ({ note, ...values }) => [{ model, values }];
+function stripNotes(fields) {
+  const values = Object.assign({}, fields);
+  delete values.note;
+  return values;
+}
+
+export const loaderFactory = model => fields => [{ model, values: stripNotes(fields) }];
 
 export function referenceDataLoaderFactory(refType) {
   return ({ id, code, name, visibilityStatus }) => [
@@ -19,12 +25,12 @@ export function referenceDataLoaderFactory(refType) {
   ];
 }
 
-export function patientFieldDefinitionLoader({ note, ...values }) {
+export function patientFieldDefinitionLoader(values) {
   return [
     {
       model: 'PatientFieldDefinition',
       values: {
-        ...values,
+        ...stripNotes(values),
         options: (values.options || '')
           .split(',')
           .map(v => v.trim())
@@ -138,7 +144,7 @@ export function patientDataLoader(item, models, foreignKeySchemata) {
 }
 
 export function permissionLoader(item) {
-  const { verb, noun, objectId = null, note, ...roles } = item;
+  const { verb, noun, objectId = null, ...roles } = stripNotes(item);
   // Any non-empty value in the role cell would mean the role
   // is enabled for the permission
   return Object.entries(roles)

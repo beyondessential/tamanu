@@ -71,12 +71,17 @@ export async function createTestContext() {
     return baseApp.asUser(newUser);
   };
 
-  ctx.onClose(() => new Promise(resolve => appServer.close(resolve)));
+  ctx.onClose(() => new Promise(resolve => { appServer.close(resolve); }));
   ctx.baseApp = baseApp;
 
   return ctx;
 }
 
+/* eslint-disable no-constructor-return,require-atomic-updates */
+// This helper is a race condition waiting to happen, but it's hard to avoid in
+// cases where we need control over the date without changing all instances of
+// Date.now() and new Date in the codebase and dependencies, or wrapping the
+// test runner to override the system clock. Use sparingly.
 export async function withDate(fakeDate, fn) {
   const OldDate = global.Date;
   try {
@@ -97,3 +102,4 @@ export async function withDate(fakeDate, fn) {
     global.Date = OldDate;
   }
 }
+/* eslint-enable no-constructor-return,require-atomic-updates */
