@@ -1,6 +1,6 @@
 import { log } from '@tamanu/shared/services/logging';
 import Table from 'cli-table3';
-import { REPORT_STATUSES, VISIBILITY_STATUS } from '@tamanu/constants';
+import { REPORT_STATUSES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { format } from 'date-fns';
 import { getLatestVersion, verifyQuery } from './utils';
 
@@ -41,7 +41,7 @@ export async function createVersion(versionData, definition, versions, store, ve
   if (!versionData.userId) {
     log.warn(`User id not specified`);
     const user = await store.models.User.findOne({
-      where: { email: DEFAULT_USER_EMAIL, visibilityStatus: VISIBILITY_STATUS.CURRENT },
+      where: { email: DEFAULT_USER_EMAIL, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
     });
     log.info(`Using default user ${DEFAULT_USER_EMAIL}`);
     userId = user.id;
