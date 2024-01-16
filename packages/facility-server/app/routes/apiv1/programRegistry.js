@@ -225,11 +225,11 @@ programRegistry.get(
       displayId: 'patient.display_id',
       patientName: 'UPPER(patient.last_name)',
       dob: 'patient.date_of_birth',
-      homeVillage: 'UPPER(patient.village.name)',
+      homeVillage: 'UPPER(patient_village.name)',
       registeringFacility: 'registering_facility.name',
       currentlyAtVillage: 'UPPER(village.name)',
       currentlyAtFacility: 'UPPER(facility.name)',
-      clinicalStatus: 'clinical_status',
+      clinicalStatus: 'mrr.clinical_status_id',
     };
 
     const sortKey = sortKeys[orderBy] ?? sortKeys.displayId;
