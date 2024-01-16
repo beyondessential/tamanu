@@ -3,6 +3,7 @@ import React from 'react';
 import { CertificateHeader, Row, styles } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
 import { PatientDetailsWithAddress } from './printComponents/PatientDetailsWithAddress';
+import { DIAGNOSIS_CERTAINTIES_TO_HIDE } from '@tamanu/constants';
 
 const infoBoxStyles = StyleSheet.create({
   infoCol: {
@@ -27,6 +28,16 @@ const infoBoxStyles = StyleSheet.create({
   },
 });
 
+const extractDiagnosesInfo = ({ diagnoses, getLocalisation }) => {
+  const displayIcd10Codes = getLocalisation('features.displayIcd10CodesInDischargeSummary');
+  console.log(diagnoses);
+  if (!displayIcd10Codes) {
+    return diagnoses.map(item => item?.diagnosis?.name);
+  } else {
+    return diagnoses.map(item => `${item?.diagnosis?.name} (${item?.diagnosis?.code})`);
+  }
+};
+
 const InfoBox = ({ label, info }) => (
   <Row>
     <View style={infoBoxStyles.labelCol}>
@@ -44,7 +55,9 @@ const InfoBox = ({ label, info }) => (
   </Row>
 );
 
-const PrimaryDiagnosesTable = ({ diagnoses }) => {};
+const DiagnosesTable = ({ title, diagnoses, getLocalisation }) => (
+  <InfoBox label={title} info={extractDiagnosesInfo({ diagnoses, getLocalisation })} />
+);
 
 export const DischargeSummaryPrintout = ({
   patientData,
@@ -52,8 +65,26 @@ export const DischargeSummaryPrintout = ({
   discharge,
   getLocalisation,
 }) => {
-  console.log(discharge);
-  console.log(patientData);
+  const {
+    diagnoses,
+    procedures,
+    medications,
+    startDate,
+    endDate,
+    location,
+    examiner,
+    reasonForEncounter = 'N/A',
+  } = encounter;
+  console.log(getLocalisation);
+  const visibleDiagnoses = diagnoses.filter(
+    ({ certainty }) => !DIAGNOSIS_CERTAINTIES_TO_HIDE.includes(certainty),
+  );
+  console.log('encounter', encounter);
+  console.log('diagnoses', diagnoses);
+  const primaryDiagnoses = visibleDiagnoses.filter(d => d.isPrimary);
+  console.log('primary', primaryDiagnoses);
+  const secondaryDiagnoses = visibleDiagnoses.filter(d => !d.isPrimary);
+  console.log('secondary', secondaryDiagnoses);
 
   return (
     <Document>
@@ -62,7 +93,8 @@ export const DischargeSummaryPrintout = ({
           <LetterheadSection getLocalisation={getLocalisation} />
         </CertificateHeader>
         <PatientDetailsWithAddress patient={patientData} getLocalisation={getLocalisation} />
-        <InfoBox label="Admission date" info={['1321321', '3432143215', '432143214']} />
+        <DiagnosesTable title="Primary diagnoses" diagnoses={primaryDiagnoses} getLocalisation={getLocalisation} />
+        <DiagnosesTable title="Secondary diagnoses" diagnoses={secondaryDiagnoses} getLocalisation={getLocalisation} />
       </Page>
     </Document>
   );
