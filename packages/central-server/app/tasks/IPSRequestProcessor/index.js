@@ -1,5 +1,6 @@
 import config from 'config';
 import path from 'path';
+import * as jose from 'jose';
 import * as AWS from '@aws-sdk/client-s3';
 import { base64UrlEncode } from '@tamanu/shared/utils/encodings';
 
@@ -16,6 +17,10 @@ import { tmpdir } from '@tamanu/shared/utils';
 import { getRandomBase64String } from '../../auth/utils';
 import { generateIPSBundle } from '../../hl7fhir/materialised/patientSummary/bundleGenerator';
 import { QRCodeToFileAsync } from './helpers';
+
+// SHL flag reference: https://docs.smarthealthit.org/smart-health-links/spec/#construct-a-shlink-payload
+const SHL_FLAG_LONGTERM = 'L';
+const SHL_FLAG_SINGLEFILE = 'U';
 
 export class IPSRequestProcessor extends ScheduledTask {
   constructor(context) {
@@ -75,8 +80,6 @@ export class IPSRequestProcessor extends ScheduledTask {
 
         sublog.info('Processing IPS request');
 
-        // SAVE BUNDLE TO S3 HERE
-
         const now = new Date();
 
         const {
@@ -91,7 +94,35 @@ export class IPSRequestProcessor extends ScheduledTask {
           throw new Error(`jsonBucketPath must be set, e.g. 'au'`);
         }
 
-        const filePath = `${jsonBucketPath}/${await getRandomBase64String(32, true)}_manifest.json`;
+        const filePath = `${jsonBucketPath}/${await getRandomBase64String(
+          32,
+          'base64url',
+        )}_manifest`;
+
+        // CREATE PAYLOAD
+
+        const payload = {
+          url: `${s3PublicUrl}/${filePath}`,
+          key: await getRandomBase64String(32, 'base64url'),
+          flag: `${SHL_FLAG_LONGTERM}${SHL_FLAG_SINGLEFILE}`,
+          label: `${
+            patient.displayName
+          } International Patient Summary generated @ ${now.toLocaleString()}`,
+        };
+
+        // ENCRYPT IPS BUNDLE
+
+        const encrypted = await new jose.CompactEncrypt(
+          new TextEncoder().encode(JSON.stringify(ipsJSON)),
+        )
+          .setProtectedHeader({
+            alg: 'dir',
+            enc: 'A256GCM',
+            cty: 'application/fhir+json',
+          })
+          .encrypt(jose.base64url.decode(payload.key));
+
+        // SAVE BUNDLE TO S3
 
         try {
           const client = new AWS.S3({ region });
@@ -99,24 +130,13 @@ export class IPSRequestProcessor extends ScheduledTask {
             new AWS.PutObjectCommand({
               Bucket: bucketName,
               Key: filePath,
-              Body: JSON.stringify(ipsJSON),
-              ContentType: 'application/json',
+              Body: encrypted,
+              ContentType: 'application/jose',
             }),
           );
         } catch (err) {
           throw new Error(`There was an error uploading to S3, ${err}`);
         }
-
-        // CREATE PAYLOAD
-
-        const payload = {
-          url: `${s3PublicUrl}/${filePath}`,
-          key: null,
-          flag: 'LU',
-          label: `${
-            patient.displayName
-          } International Patient Summary generated @ ${now.toLocaleString()}`,
-        };
 
         const baseUrl = `${s3PublicUrl}/${viewerBucketPath}`;
 

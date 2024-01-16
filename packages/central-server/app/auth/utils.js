@@ -22,11 +22,11 @@ export const stripUser = user => {
 
 export const getToken = async (data, secret, options) => sign(data, secret, options);
 
-export const getRandomBase64String = async (length, isBase64Url) => {
+export const getRandomBase64String = async (length, encoding = 'base64') => {
   return new Promise((resolve, reject) => {
     randomBytes(length, (err, buf) => {
       if (err) reject(err);
-      resolve(buf.toString(isBase64Url ? 'base64url' : 'base64'));
+      resolve(buf.toString(encoding));
     });
   });
 };
