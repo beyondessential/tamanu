@@ -160,6 +160,50 @@ const labRequestsData = [
   },
 ];
 
+// const imagingRequestsData = [
+// //   {
+// //     imagingName: {
+// //       label: 'Lorem',
+// //     },
+// //   },
+// // ];
+
+const medicationsData = [
+  {
+    medication: {
+      name: 'Acetazolamide',
+    },
+    prescription: '1 tab po qid pc & hs',
+    route: 'oral',
+    prescriber: {
+      displayName: 'Jane Doe',
+    },
+    date: '2023-01-01 10:20:00',
+  },
+  {
+    medication: {
+      name: 'Acetazolamide',
+    },
+    prescription: '1 tab po qid pc & hs',
+    route: 'oral',
+    prescriber: {
+      displayName: 'Jane Doe',
+    },
+    date: '2023-01-01 10:20:00',
+  },
+  {
+    medication: {
+      name: 'Acetazolamide 250 mg Tablets',
+    },
+    prescription: '1 tab po qid pc & hs plus this other instruction',
+    route: 'oral',
+    prescriber: {
+      displayName: 'Jane Doe',
+    },
+    date: '2023-01-01 10:20:00',
+  },
+];
+
 export const EncounterRecordPrintout = {
   render: () => (
     <PDFViewer width={800} height={1000} showToolbar={false}>
@@ -173,6 +217,7 @@ export const EncounterRecordPrintout = {
         diagnoses={diagnosesData}
         procedures={proceduresData}
         labRequests={labRequestsData}
+        medications={medicationsData}
       />
     </PDFViewer>
   ),

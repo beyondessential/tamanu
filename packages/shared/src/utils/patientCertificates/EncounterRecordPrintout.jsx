@@ -17,13 +17,17 @@ import {
   formatTime,
   useLocalisedText,
 } from '@tamanu/web-frontend/app/components';
-import { ENCOUNTER_OPTIONS_BY_VALUE } from '@tamanu/web-frontend/app/constants';
+import {
+  DRUG_ROUTE_VALUE_TO_LABEL,
+  ENCOUNTER_OPTIONS_BY_VALUE,
+} from '@tamanu/web-frontend/app/constants';
 import { MultiPageHeader } from './printComponents/MultiPageHeader';
 import { getName } from '../patientAccessors';
 import { EncounterDetails } from './printComponents/EncounterDetails';
 import { ListTable } from '@tamanu/web-frontend/app/components/PatientPrinting/printouts/reusable/ListTable';
 import { startCase } from 'lodash';
 import { Footer } from './printComponents/Footer';
+import { ImagingRequestData } from '@tamanu/web-frontend/app/components/PatientPrinting/printouts/reusable/ImagingRequestData';
 
 const borderStyle = '1 solid black';
 
@@ -186,28 +190,92 @@ const COLUMNS = {
     {
       key: 'testType',
       title: 'Test type',
-      style: { width: '20%' },
+      style: { width: '22.5%' },
     },
     {
       key: 'testCategory',
       title: 'Test category',
-      style: { width: '20%' },
+      style: { width: '25%' },
     },
     {
       key: 'requestedByName',
       title: 'Requested By',
-      style: { width: '20%' },
+      style: { width: '22.5%' },
     },
     {
       key: 'requestDate',
       title: 'Request date',
       accessor: ({ requestDate }) => formatShort(requestDate),
-      style: { width: '20%' },
+      style: { width: '15%' },
     },
     {
       key: 'completedDate',
       title: 'Published date',
       accessor: ({ completedDate }) => formatShort(completedDate),
+      style: { width: '15%' },
+    },
+  ],
+  // imagingRequests: [
+  //   {
+  //     key: 'imagingType',
+  //     title: 'Request type',
+  //     accessor: ({ imagingName }) => imagingName?.label,
+  //     style: { width: '20%' },
+  //   },
+  //   {
+  //     key: 'areaToBeImaged',
+  //     title: 'Area to be imaged',
+  //     accessor: ({ id }) => <ImagingRequestData imagingRequestId={id} dataType="areas" />,
+  //     style: { width: '20%' },
+  //   },
+  //   {
+  //     key: 'requestedBy',
+  //     title: 'Requested by',
+  //     accessor: ({ requestedBy }) => requestedBy?.displayName,
+  //     style: { width: '20%' },
+  //   },
+  //   {
+  //     key: 'requestDate',
+  //     title: 'Request date',
+  //     accessor: ({ requestedDate }) => <DateDisplay date={requestedDate} showDate />,
+  //     style: { width: '20%' },
+  //   },
+  //   {
+  //     key: 'completedDate',
+  //     title: 'Completed date',
+  //     accessor: ({ id }) => <ImagingRequestData imagingRequestId={id} dataType="completedDate" />,
+  //     style: { width: '20%' },
+  //   },
+  // ],
+  medications: [
+    {
+      key: 'medication',
+      title: 'Medication',
+      accessor: ({ medication }) => medication?.name,
+      style: { width: '20%' },
+    },
+    {
+      key: 'instructions',
+      title: 'Instructions',
+      accessor: ({ prescription }) => prescription || '',
+      style: { width: '30%' },
+    },
+    {
+      key: 'route',
+      title: 'Route',
+      accessor: ({ route }) => DRUG_ROUTE_VALUE_TO_LABEL[route] || '',
+      style: { width: '10%' },
+    },
+    {
+      key: 'prescriber',
+      title: 'Prescriber',
+      accessor: ({ prescriber }) => prescriber?.displayName,
+      style: { width: '30%' },
+    },
+    {
+      key: 'prescriptionDate',
+      title: 'Prescription date',
+      accessor: ({ date }) => formatShort(date),
       style: { width: '20%' },
     },
   ],
@@ -282,6 +350,12 @@ export const EncounterRecordPrintout = ({
           )}
           {labRequests.length > 0 && (
             <TableSection title="Lab requests" data={labRequests} columns={COLUMNS.labRequests} />
+          )}
+          {/*{imagingRequests.length > 0 && (*/}
+          {/*  <TableSection title="Imaging requests" data={imagingRequests} columns={COLUMNS.imagingRequests} />*/}
+          {/*)}*/}
+          {medications.length > 0 && (
+            <TableSection title="Medications" data={medications} columns={COLUMNS.medications} />
           )}
         </CertificateWrapper>
         <Footer />
