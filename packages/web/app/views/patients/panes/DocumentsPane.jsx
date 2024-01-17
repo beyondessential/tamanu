@@ -11,6 +11,7 @@ import { PatientLetterModal } from '../../../components/PatientLetterModal';
 import { DocumentsSearchBar } from '../../../components/DocumentsSearchBar';
 import { TabPane } from '../components';
 import { Button, ContentPane, OutlinedButton, TableButtonRow } from '../../../components';
+import { printFromDataUrl } from '../../../utils/printing';
 
 const MODAL_STATES = {
   DOCUMENT_OPEN: 'document',
@@ -72,19 +73,10 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
           base64: true,
         });
         const arrayBuffer = Uint8Array.from(atob(data), char => char.charCodeAt(0)).buffer;
-        var blob = new Blob([arrayBuffer], { type: 'application/pdf' });
+        const blob = new Blob([arrayBuffer], { type: 'application/pdf' });
         const dataUrl = URL.createObjectURL(blob);
 
-        const iframe = document.createElement('iframe');
-        iframe.style.display = 'none';
-        document.body.appendChild(iframe);
-        iframe.src = dataUrl;
-
-        iframe.onload = () => {
-          iframe.contentWindow.print(); // Seems a bit hacky as we dont remove the iframe
-        }
-
-        // window.open(dataUrl, '_blank');
+        printFromDataUrl(dataUrl)
       } catch (error) {
         notifyError(error.message);
       }
