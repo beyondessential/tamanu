@@ -1,22 +1,8 @@
 import React from 'react';
-import styled from 'styled-components';
 import { Document, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
-import { CertificateHeader, Col, Watermark } from './Layout';
-import { PrintLetterhead } from '@tamanu/web-frontend/app/components/PatientPrinting';
+import { CertificateHeader, Watermark } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
-import { useLocalisation } from '@tamanu/web-frontend/app/contexts/Localisation';
 import { PatientDetailsWithAddress } from './printComponents/PatientDetailsWithAddress';
-import { renderDataItems } from './printComponents/renderDataItems';
-import { DataSection } from './printComponents/DataSection';
-import { DataItem } from './printComponents/DataItem';
-import { CertificateWrapper } from '@tamanu/web-frontend/app/components/PatientPrinting/printouts/reusable/CertificateWrapper';
-import {
-  DateDisplay,
-  formatShort,
-  formatShortest,
-  formatTime,
-  useLocalisedText,
-} from '@tamanu/web-frontend/app/components';
 import {
   DRUG_ROUTE_VALUE_TO_LABEL,
   ENCOUNTER_OPTIONS_BY_VALUE,
@@ -24,12 +10,16 @@ import {
 import { MultiPageHeader } from './printComponents/MultiPageHeader';
 import { getName } from '../patientAccessors';
 import { EncounterDetails } from './printComponents/EncounterDetails';
-import { ListTable } from '@tamanu/web-frontend/app/components/PatientPrinting/printouts/reusable/ListTable';
 import { startCase } from 'lodash';
 import { Footer } from './printComponents/Footer';
-import { ImagingRequestData } from '@tamanu/web-frontend/app/components/PatientPrinting/printouts/reusable/ImagingRequestData';
+import { NOTE_TYPES } from '@tamanu/constants';
+import { getDisplayDate } from './getDisplayDate';
 
 const borderStyle = '1 solid black';
+
+const DATE_FORMAT = 'dd/MM/yyyy';
+
+const DATE_TIME_FORMAT = 'dd/MM/yyyy h:mma';
 
 const textStyles = StyleSheet.create({
   sectionTitle: {
@@ -37,6 +27,18 @@ const textStyles = StyleSheet.create({
     marginBottom: 3,
     fontSize: 14,
     fontWeight: 500,
+  },
+  tableColumnHeader: {
+    fontFamily: 'Helvetica-Bold',
+    fontSize: 10,
+  },
+  tableCellContent: {
+    fontFamily: 'Helvetica',
+    fontSize: 10,
+  },
+  tableCellFooter: {
+    fontFamily: 'Helvetica',
+    fontSize: 8,
   },
 });
 
@@ -57,17 +59,14 @@ const tableStyles = StyleSheet.create({
     flexDirection: 'row',
     borderLeft: borderStyle,
     alignItems: 'center',
-    padding: 5,
+    padding: 7,
   },
   flexCell: {
     flex: 1,
   },
   p: {
     fontFamily: 'Helvetica',
-    fontSize: 9,
-  },
-  header: {
-    fontFamily: 'Helvetica-Bold',
+    fontSize: 10,
   },
 });
 
@@ -94,27 +93,6 @@ const HeaderCell = ({ children, style }) => (
 
 const SectionSpacing = () => <View style={{ paddingBottom: '10px' }} />;
 
-const DataTable = ({ data, columns }) => (
-  <Table>
-    <Row>
-      {columns.map(({ key, title, style }) => (
-        <HeaderCell key={key} style={style}>
-          {title}
-        </HeaderCell>
-      ))}
-    </Row>
-    {data.map(row => (
-      <Row key={row.id}>
-        {columns.map(({ key, accessor, style }) => (
-          <Cell key={key} style={style}>
-            {accessor ? accessor(row) : row[key] || ''}
-          </Cell>
-        ))}
-      </Row>
-    ))}
-  </Table>
-);
-
 const COLUMNS = {
   encounterTypes: [
     {
@@ -126,9 +104,7 @@ const COLUMNS = {
     {
       key: 'dateMoved',
       title: 'Date & time moved',
-      accessor: ({ date }) => `${formatShort(date)} ${formatTime(date)}`,
-      // accessor: ({ date }) => <DateDisplay date={date} showDate showTime /> || {},
-
+      accessor: ({ date }) => getDisplayDate(date, DATE_TIME_FORMAT),
       style: { width: '35%' },
     },
   ],
@@ -148,7 +124,7 @@ const COLUMNS = {
     {
       key: 'dateMoved',
       title: 'Date & time moved',
-      accessor: ({ date }) => `${formatShort(date)} ${formatTime(date)}`,
+      accessor: ({ date }) => getDisplayDate(date, DATE_TIME_FORMAT),
       style: { width: '35%' },
     },
   ],
@@ -168,7 +144,7 @@ const COLUMNS = {
     {
       key: 'date',
       title: 'Date',
-      accessor: ({ date }) => formatShort(date),
+      accessor: ({ date }) => getDisplayDate(date, DATE_FORMAT),
       style: { width: '25%' },
     },
   ],
@@ -182,7 +158,7 @@ const COLUMNS = {
     {
       key: 'procedureDate',
       title: 'Procedure date',
-      accessor: ({ date }) => formatShort(date),
+      accessor: ({ date }) => getDisplayDate(date, DATE_FORMAT),
       style: { width: '25%' },
     },
   ],
@@ -205,13 +181,13 @@ const COLUMNS = {
     {
       key: 'requestDate',
       title: 'Request date',
-      accessor: ({ requestDate }) => formatShort(requestDate),
+      accessor: ({ requestDate }) => getDisplayDate(requestDate, DATE_FORMAT),
       style: { width: '15%' },
     },
     {
       key: 'completedDate',
       title: 'Published date',
-      accessor: ({ completedDate }) => formatShort(completedDate),
+      accessor: ({ completedDate }) => getDisplayDate(completedDate, DATE_FORMAT),
       style: { width: '15%' },
     },
   ],
@@ -275,11 +251,32 @@ const COLUMNS = {
     {
       key: 'prescriptionDate',
       title: 'Prescription date',
-      accessor: ({ date }) => formatShort(date),
+      accessor: ({ date }) => getDisplayDate(date, DATE_FORMAT),
       style: { width: '20%' },
     },
   ],
 };
+
+const DataTable = ({ data, columns }) => (
+  <Table>
+    <Row>
+      {columns.map(({ key, title, style }) => (
+        <HeaderCell key={key} style={style}>
+          {title}
+        </HeaderCell>
+      ))}
+    </Row>
+    {data.map(row => (
+      <Row key={row.id}>
+        {columns.map(({ key, accessor, style }) => (
+          <Cell key={key} style={style}>
+            {accessor ? accessor(row) : row[key] || ''}
+          </Cell>
+        ))}
+      </Row>
+    ))}
+  </Table>
+);
 
 const TableSection = ({ title, data, columns }) => {
   return (
@@ -287,6 +284,35 @@ const TableSection = ({ title, data, columns }) => {
       <Text style={textStyles.sectionTitle}>{title}</Text>
       <DataTable data={data} columns={columns} />
       <SectionSpacing />
+    </View>
+  );
+};
+
+const NotesSection = ({ notes }) => {
+  return (
+    <View>
+      <Text style={textStyles.sectionTitle}>Notes</Text>
+      {/*<Table>*/}
+      {/*  {notes.map(note => (*/}
+      {/*    <Row>*/}
+      {/*      <FlexCell>*/}
+      {/*        <Text style={textStyles.tableColumnHeader}>{NOTE_TYPE_LABELS[note.noteType]}</Text>*/}
+      {/*        {'\n'}*/}
+      {/*        <Text style={textStyles.tableCellContent}>{note.content}</Text>*/}
+      {/*        <Text style={textStyles.tableCellFooter}>*/}
+      {/*          {note.noteType === NOTE_TYPES.TREATMENT_PLAN ? 'Last updated: ' : ''}*/}
+      {/*        </Text>*/}
+      {/*        <Text style={textStyles.tableCellFooter}>{note.author?.displayName || ''}</Text>*/}
+      {/*        <Text style={textStyles.tableCellFooter}>*/}
+      {/*          {note.onBehalfOf ? `on behalf of ${note.onBehalfOf.displayName}` : null}*/}
+      {/*        </Text>*/}
+      {/*        <Text style={textStyles.tableCellFooter}>*/}
+      {/*          {`${formatShort(note.date)} ${formatTime(note.date)}`}*/}
+      {/*        </Text>*/}
+      {/*      </FlexCell>*/}
+      {/*    </Row>*/}
+      {/*  ))}*/}
+      {/*</Table>*/}
     </View>
   );
 };
@@ -327,37 +353,36 @@ export const EncounterRecordPrintout = ({
           />
         </CertificateHeader>
         <SectionSpacing />
-        <CertificateWrapper>
-          <PatientDetailsWithAddress getLocalisation={getLocalisation} patient={patient} />
-          <SectionSpacing />
-          <EncounterDetails encounter={encounter} />
-          <SectionSpacing />
-          {encounterTypeHistory.length > 0 && (
-            <TableSection
-              title="Encounter Types"
-              data={encounterTypeHistory}
-              columns={COLUMNS.encounterTypes}
-            />
-          )}
-          {locationHistory.length > 0 && (
-            <TableSection title="Location" data={locationHistory} columns={COLUMNS.locations} />
-          )}
-          {diagnoses.length > 0 && (
-            <TableSection title="Diagnoses" data={diagnoses} columns={COLUMNS.diagnoses} />
-          )}
-          {procedures.length > 0 && (
-            <TableSection title="Procedures" data={procedures} columns={COLUMNS.procedures} />
-          )}
-          {labRequests.length > 0 && (
-            <TableSection title="Lab requests" data={labRequests} columns={COLUMNS.labRequests} />
-          )}
-          {/*{imagingRequests.length > 0 && (*/}
-          {/*  <TableSection title="Imaging requests" data={imagingRequests} columns={COLUMNS.imagingRequests} />*/}
-          {/*)}*/}
-          {medications.length > 0 && (
-            <TableSection title="Medications" data={medications} columns={COLUMNS.medications} />
-          )}
-        </CertificateWrapper>
+        <PatientDetailsWithAddress getLocalisation={getLocalisation} patient={patient} />
+        <SectionSpacing />
+        <EncounterDetails encounter={encounter} />
+        <SectionSpacing />
+        {encounterTypeHistory.length > 0 && (
+          <TableSection
+            title="Encounter Types"
+            data={encounterTypeHistory}
+            columns={COLUMNS.encounterTypes}
+          />
+        )}
+        {locationHistory.length > 0 && (
+          <TableSection title="Location" data={locationHistory} columns={COLUMNS.locations} />
+        )}
+        {diagnoses.length > 0 && (
+          <TableSection title="Diagnoses" data={diagnoses} columns={COLUMNS.diagnoses} />
+        )}
+        {procedures.length > 0 && (
+          <TableSection title="Procedures" data={procedures} columns={COLUMNS.procedures} />
+        )}
+        {labRequests.length > 0 && (
+          <TableSection title="Lab requests" data={labRequests} columns={COLUMNS.labRequests} />
+        )}
+        {/*{imagingRequests.length > 0 && (*/}
+        {/*  <TableSection title="Imaging requests" data={imagingRequests} columns={COLUMNS.imagingRequests} />*/}
+        {/*)}*/}
+        {medications.length > 0 && (
+          <TableSection title="Medications" data={medications} columns={COLUMNS.medications} />
+        )}
+        {notes.length > 0 && <NotesSection notes={notes} />}
         <Footer />
       </Page>
     </Document>

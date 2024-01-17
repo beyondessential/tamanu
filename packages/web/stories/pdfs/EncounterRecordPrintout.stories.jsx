@@ -204,9 +204,21 @@ const medicationsData = [
   },
 ];
 
+const notesData = [
+  {
+    noteType: 'nursing',
+    content:
+      'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea',
+    author: {
+      displayName: 'Dr Jim Wales',
+    },
+    date: '2023-01-01 10:20:00',
+  },
+];
+
 export const EncounterRecordPrintout = {
   render: () => (
-    <PDFViewer width={800} height={1000} showToolbar={false}>
+    <PDFViewer width={800} height={1000} showToolbar>
       <Component
         certificateData={certificateData}
         getLocalisation={getLocalisation}
@@ -218,6 +230,7 @@ export const EncounterRecordPrintout = {
         procedures={proceduresData}
         labRequests={labRequestsData}
         medications={medicationsData}
+        notes={notesData}
       />
     </PDFViewer>
   ),
