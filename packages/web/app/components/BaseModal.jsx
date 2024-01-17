@@ -141,20 +141,17 @@ export const BaseModal = memo(
           <VerticalCenteredText>{title}</VerticalCenteredText>
           <div>
             {additionalActions}
-            {printable &&
-              (onPrint ? (
-                <StyledButton
-                  color="primary"
-                  variant="outlined"
-                  onClick={handlePrint}
-                  startIcon={<PrintIcon />}
-                  size="small"
-                >
-                  Print
-                </StyledButton>
-              ) : (
-                <PrintPdfButton pdf={printDocument} />
-              ))}
+            {printable && (
+              <StyledButton
+                color="primary"
+                variant="outlined"
+                onClick={handlePrint}
+                startIcon={<PrintIcon />}
+                size="small"
+              >
+                Print
+              </StyledButton>
+            )}
             {cornerExitButton && (
               <IconButton onClick={onClose} disabled={!isClosable}>
                 <CloseIcon />
