@@ -105,10 +105,9 @@ export const DocumentForm = ({ onStart, onSubmit, onError, onCancel, editedObjec
     async ({ file, ...data }) => {
       onStart();
 
-      // Read and inject document creation date and type to metadata sent
-      // const { birthtime } = await getFileStatus(file); // TODO(web)
-      const birthtime = new Date();
-      const attachmentType = lookupMimeType(file);
+      // Read file metadata
+      const birthtime = new Date(file.lastModified);
+      const attachmentType = file.type;
 
       try {
         await api.postWithFileUpload(endpoint, file, {

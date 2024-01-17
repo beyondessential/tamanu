@@ -1,6 +1,7 @@
 import express from 'express';
 import config from 'config';
 import { log } from '@tamanu/shared/services/logging';
+import asyncHandler from 'express-async-handler';
 
 import { labResultWidgetRoutes } from './labResultWidget';
 import { publicIntegrationRoutes } from '../integrations';
@@ -19,6 +20,10 @@ if (cors.allowedOrigin) {
     'publicRoutes: CORS has not been set up for this server; external widgets like the COVID test results will be unavailable until cors.allowedOrigin is set to the appropriate domain',
   );
 }
+
+publicRoutes.get('/ping', (_req, res) => {
+  res.send({ ok: true });
+});
 
 publicRoutes.use('/labResultWidget', labResultWidgetRoutes);
 publicRoutes.use('/integration', publicIntegrationRoutes);

@@ -22,3 +22,15 @@ export const getNationality = ({ additionalData }) =>
   ((additionalData || {}).nationality || {}).name;
 
 export const getPassportNumber = ({ additionalData }) => (additionalData || {}).passport;
+
+export const getAddress = ({ additionalData }) => {
+  let address = 'N/A';
+
+  const { streetVillage, cityTown, country } = additionalData;
+
+  if (streetVillage && cityTown && country) {
+    address = `${streetVillage}, ${cityTown}, ${country.name}`;
+  }
+
+  return address;
+};

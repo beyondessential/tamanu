@@ -26,7 +26,11 @@ const getVersionIncompatibleMessage = (error, response) => {
   }
 
   if (error.message === VERSION_COMPATIBILITY_ERRORS.HIGH) {
-    const maxAppVersion = response.headers.get('X-Max-Client-Version').split('.', 3).slice(0, 2).join('.');
+    const maxAppVersion = response.headers
+      .get('X-Max-Client-Version')
+      .split('.', 3)
+      .slice(0, 2)
+      .join('.');
     return `The Tamanu Facility Server only supports up to v${maxAppVersion}, and needs to be upgraded. Please contact your system administrator.`;
   }
 
@@ -181,6 +185,10 @@ export class TamanuApi {
     return this.post('changePassword', data);
   }
 
+  async checkServerAlive() {
+    return this.get('public/ping', null, { showUnknownErrorToast: false });
+  }
+
   async refreshToken() {
     try {
       const response = await this.post('refresh');
@@ -272,11 +280,8 @@ export class TamanuApi {
     return blob;
   }
 
-  async postWithFileUpload(endpoint, filePath, body, options = {}) {
-    // const fileData = await promises.readFile(filePath);
-    // TODO(web)
-    const fileData = {};
-    const blob = new Blob([fileData]);
+  async postWithFileUpload(endpoint, file, body, options = {}) {
+    const blob = new Blob([file]);
 
     // We have to use multipart/formdata to support sending the file data,
     // but sending the other fields in that format loses type information
