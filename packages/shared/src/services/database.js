@@ -210,10 +210,7 @@ export async function openDatabase(key, dbOptions) {
 }
 
 export async function closeAllDatabases() {
-  // this looks less idiomatic than a for..of, but it avoids race conditions
-  // where new connections are added while we're closing existing ones
-  while (databaseCollection.size > 0) {
-    const [key, connection] = databaseCollection.entries().next();
+  for (const [key, connection] of databaseCollection.entries()) {
     databaseCollection.delete(key);
     await connection.sequelize.close();
   }
