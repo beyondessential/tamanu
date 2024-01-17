@@ -110,25 +110,29 @@ export async function getHashesForTables(sequelize, tables) {
     // exclude postgres tables, sync info, etc.
     if (UNHASHED_TABLES.includes(table)) continue;
 
+    const model = sequelize.modelManager.findModel(m => m.tableName === table);
+
     // get columns
-    const allColumns = await getColumnsForTable(sequelize, table);
-    const columns = difference(allColumns, UNHASHED_COLUMNS).map(c => {
+    const allColumns = await getColumnsForModel(model);
+    const columns = difference(allColumns, UNHASHED_COLUMNS);
+    columns.forEach(c => {
       if (typeof c !== 'string') throw new Error('column name must be a string');
       if (c.includes('"')) throw new Error("shouldn't have a double quote in column name");
-      return `"${c}"`;
     });
 
     // find all data
     const orderBy = ORDER_BY_OVERRIDE[table] || 'id';
-    const query = `SELECT ${columns.join(', ')} FROM "${table}" ORDER BY "${orderBy}"`; // yes, this query is unsafe, don't copy it in production code
-    const data = await sequelize.query(query, { raw: true, type: QueryTypes.SELECT });
+    const data = (await model.findAll({
+      attributes: columns,
+      order: [[orderBy, 'DESC']]
+    })).map(d => d.dataValues);
     if (data.length === 0) throw new Error(`table not populated with data: ${table}`);
     hashes[table] = hashObject(data);
   }
   return hashes;
 }
 
-export async function getColumnsForTable(sequelize, tableName) {
-  const description = await sequelize.getQueryInterface().describeTable(tableName);
+export async function getColumnsForModel(model) {
+  const description = await model.describe();
   return Object.keys(description);
 }
