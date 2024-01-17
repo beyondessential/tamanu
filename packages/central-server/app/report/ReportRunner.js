@@ -94,7 +94,7 @@ export class ReportRunner {
 
     let reportData = null;
     let metadata = [];
-    let sleepAfterRun = false;
+    let reportDuration = 0;
 
     const {
       reportRunningThresholdTimeToAddWaitTimeInMilliseconds,
@@ -112,13 +112,7 @@ export class ReportRunner {
 
       metadata = await this.getMetadata();
 
-      const reportDuration = Date.now() - startTime;
-
-      if (
-        reportDuration > reportRunningThresholdTimeToAddWaitTimeInMilliseconds
-      ) {
-        sleepAfterRun = true;
-      }
+      reportDuration = Date.now() - startTime;
 
       this.log.info('Running report finished', {
         parameters: this.parameters,
@@ -140,7 +134,12 @@ export class ReportRunner {
       throw new Error(`${e.stack}\nReportRunner - Failed to send`);
     } finally {
       // if report took longer than X ms, sleep for Y ms
-      if (sleepAfterRun) {
+      if (reportDuration > reportRunningThresholdTimeToAddWaitTimeInMilliseconds) {
+        this.log.info('Sleep after report run', {
+          reportDuration,
+          reportRunningThresholdTimeToAddWaitTimeInMilliseconds,
+          waitTimeBetweenReportsInMilliseconds,
+        });
         await sleepAsync(waitTimeBetweenReportsInMilliseconds);
       }
     }
