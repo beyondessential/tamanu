@@ -193,27 +193,28 @@ export async function initDatabase(dbOptions) {
   return { sequelize, models };
 }
 
-export async function initDatabaseInCollection(databaseCollection, key, dbOptions) {
-  if (databaseCollection[key]) {
-    return databaseCollection[key];
+export const databaseCollection = new Map();
+
+export async function openDatabase(key, dbOptions) {
+  if (databaseCollection.has(key)) {
+    return databaseCollection.get(key);
   }
 
   const store = await initDatabase(dbOptions);
-  if (databaseCollection[key]) {
-    throw new Error(`race condition! initDatabaseInCollection() called for the same key=${key} in parallel`);
+  if (databaseCollection.has(key)) {
+    throw new Error(`race condition! openDatabase() called for the same key=${key} in parallel`);
   }
 
-  databaseCollection[key] = store;
+  databaseCollection.set(key, store);
   return store;
 }
 
-export async function closeAllDatabasesInCollection(databaseCollection) {
+export async function closeAllDatabases() {
   // this looks less idiomatic than a for..of, but it avoids race conditions
   // where new connections are added while we're closing existing ones
-  while (Object.keys(databaseCollection).length) {
-    const key = Object.keys(databaseCollection)[0];
-    const connection = databaseCollection[key];
-    delete databaseCollection[key];
+  while (databaseCollection.size > 0) {
+    const [key, connection] = databaseCollection.entries().next();
+    databaseCollection.delete(key);
     await connection.sequelize.close();
   }
 }

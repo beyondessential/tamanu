@@ -1,15 +1,10 @@
 import config from 'config';
+import { closeAllDatabases, openDatabase } from '../../dist/cjs/services/database';
 import { fakeUUID } from '../../dist/cjs/utils/generateId';
-import {
-  closeAllDatabasesInCollection,
-  initDatabaseInCollection,
-} from '../../dist/cjs/services/database';
-
-let existingConnections = {};
 
 const getOrCreateConnection = async (configOverrides, key = 'main') => {
   const testMode = process.env.NODE_ENV === 'test';
-  return initDatabaseInCollection(existingConnections, key, {
+  return openDatabase(key, {
     ...config.db,
     ...configOverrides,
     testMode,
@@ -33,5 +28,5 @@ export async function createTestDatabase() {
 }
 
 export async function closeDatabase() {
-  return closeAllDatabasesInCollection(existingConnections);
+  return closeAllDatabases();
 }

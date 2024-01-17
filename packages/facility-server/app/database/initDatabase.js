@@ -1,16 +1,13 @@
 import config from 'config';
 
+import { closeAllDatabases, openDatabase } from '@tamanu/shared/services/database';
 import { fakeUUID } from '@tamanu/shared/utils/generateId';
-import { REPORT_DB_SCHEMAS } from '@tamanu/constants';
-import { closeAllDatabasesInCollection, initDatabaseInCollection } from '@tamanu/shared/services/database';
-
 import { log } from '@tamanu/shared/services/logging';
-
-let existingConnections = {};
+import { REPORT_DB_SCHEMAS } from '@tamanu/constants';
 
 const getOrCreateConnection = async (configOverrides, key = 'main') => {
   const testMode = process.env.NODE_ENV === 'test';
-  return await initDatabaseInCollection(existingConnections, key, {
+  return await openDatabase(key, {
     ...config.db,
     ...configOverrides,
     testMode,
@@ -66,5 +63,5 @@ export async function initReporting() {
 }
 
 export async function closeDatabase() {
-  return closeAllDatabasesInCollection(existingConnections);
+  return closeAllDatabases();
 }
