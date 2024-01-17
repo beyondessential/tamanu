@@ -948,11 +948,11 @@
     // provide an array [] if you want to override the options, eg: ['--max-old-space-size=4096']
     "processOptions": null,
     // Provide an object {} for the env of child process
-    "childProcessEnv": null
+    "childProcessEnv": null,
     // 5 minutes
     "waitTimeBetweenReportsInMilliseconds": 300000,
     // 5 minutes
-    "reportRunningThresholdTimeToAddWaitTimeInMilliseconds": 300000,
+    "reportRunningThresholdTimeToAddWaitTimeInMilliseconds": 300000
   },
   "hl7": {
     "nullLastNameValue": "NoLastName",
