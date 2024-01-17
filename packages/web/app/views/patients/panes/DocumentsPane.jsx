@@ -11,7 +11,6 @@ import { PatientLetterModal } from '../../../components/PatientLetterModal';
 import { DocumentsSearchBar } from '../../../components/DocumentsSearchBar';
 import { TabPane } from '../components';
 import { Button, ContentPane, OutlinedButton, TableButtonRow } from '../../../components';
-import { printFromDataUrl } from '../../../utils/printing';
 
 const MODAL_STATES = {
   DOCUMENT_OPEN: 'document',
