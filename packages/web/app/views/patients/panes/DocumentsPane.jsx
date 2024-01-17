@@ -74,7 +74,17 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
         const arrayBuffer = Uint8Array.from(atob(data), char => char.charCodeAt(0)).buffer;
         var blob = new Blob([arrayBuffer], { type: 'application/pdf' });
         const dataUrl = URL.createObjectURL(blob);
-        window.open(dataUrl, '_blank');
+
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        document.body.appendChild(iframe);
+        iframe.src = dataUrl;
+
+        iframe.onload = () => {
+          iframe.contentWindow.print(); // Seems a bit hacky as we dont remove the iframe
+        }
+
+        // window.open(dataUrl, '_blank');
       } catch (error) {
         notifyError(error.message);
       }
