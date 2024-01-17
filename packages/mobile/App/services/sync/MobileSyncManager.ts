@@ -120,25 +120,29 @@ export class MobileSyncManager {
     return Promise.resolve();
   }
 
+  /**
+   * Trigger urgent sync, and along with urgent sync, schedule regular sync requests
+   * to continuously connect to central server and request for status change of the sync session
+   */
   async triggerUrgentSync(): Promise<void> {
     if (this.urgentSyncInterval) {
-      return; // already started
+      console.warn('MobileSyncManager.triggerSync(): Urgent sync already started');
+      return;
     }
 
-    const urgentSyncIntervalInSecondsStr = await this.models.Setting.get(
-      SETTING_KEYS.SYNC_URGENT_INTERVAL_IN_SECONDS,
-    );
+    const urgentSyncIntervalInSecondsStr =
+      (await this.models.Setting.get(SETTING_KEYS.SYNC_URGENT_INTERVAL_IN_SECONDS)) || 10; // default 10 seconds interval
 
     const urgentSyncIntervalInSeconds = parseInt(urgentSyncIntervalInSecondsStr, 10);
 
-    if (urgentSyncIntervalInSeconds) {
-      this.urgentSyncInterval = setInterval(
-        () => this.triggerSync({ urgent: true }),
-        urgentSyncIntervalInSeconds * 1000,
-      );
-    } else {
-      await this.triggerSync({ urgent: true });
-    }
+    // start the sync now, and schedule one later
+    await this.triggerSync({ urgent: true });
+
+    // Schedule regular urgent sync
+    this.urgentSyncInterval = setInterval(
+      () => this.triggerSync({ urgent: true }),
+      urgentSyncIntervalInSeconds * 1000,
+    );
   }
 
   /**
@@ -168,6 +172,7 @@ export class MobileSyncManager {
         this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_ENDED, `time=${Date.now() - startTime}ms`);
         if (this.urgentSyncInterval) {
           clearInterval(this.urgentSyncInterval);
+          this.urgentSyncInterval = null;
         }
         console.log(`Sync took ${Date.now() - startTime} ms`);
       }
