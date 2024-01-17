@@ -8,6 +8,7 @@ import mkdirp from 'mkdirp';
 import { COMMUNICATION_STATUSES } from '@tamanu/constants';
 import { getReportModule } from '@tamanu/shared/reports';
 import { createNamedLogger } from '@tamanu/shared/services/logging/createNamedLogger';
+import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
 
 import { createZippedSpreadsheet, removeFile, writeToSpreadsheet } from '../utils/files';
 import { getLocalisation } from '../localisation';
@@ -95,12 +96,20 @@ export class ReportRunner {
     let metadata = [];
     try {
       this.log.info('Running report', { parameters: this.parameters });
+
+      const startTime = Date.now();
       reportData = await reportModule.dataGenerator(
         { ...this.store, reportSchemaStores: this.reportSchemaStores },
         this.parameters,
       );
 
       metadata = await this.getMetadata();
+
+      const reportDuration = Date.now() - startTime;
+
+      if (reportDuration > config.reportProcess.reportRunningThresholdTimeToAddWaitTimeInMilliseconds) {
+        await sleepAsync(config.reportProcess.waitTimeBetweenReportsInMilliseconds);
+      }
 
       this.log.info('Running report finished', {
         parameters: this.parameters,
