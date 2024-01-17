@@ -193,6 +193,10 @@ export async function initDatabase(dbOptions) {
   return { sequelize, models };
 }
 
+// this being a Map and not an object is load-bearing!
+// Map.entries() will iterate the whole map even if more entries are inserted
+// Object.entries(...) will iterate only the state of the object at the time of the call
+// we take advantage of that in closeAllDatabases to ensure we _do_ close everything
 export const databaseCollection = new Map();
 
 export async function openDatabase(key, dbOptions) {
