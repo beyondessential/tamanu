@@ -9,7 +9,6 @@ import CloseIcon from '@material-ui/icons/Close';
 import { Box, CircularProgress, IconButton, Typography } from '@material-ui/core';
 import { Colors } from '../constants';
 import { Button } from './Button';
-import { PrintPdfButton } from './PrintPdfButton';
 
 export const MODAL_PADDING_TOP_AND_BOTTOM = 18;
 export const MODAL_PADDING_LEFT_AND_RIGHT = 32;
@@ -93,7 +92,6 @@ export const BaseModal = memo(
     open = false,
     onClose,
     printable = false,
-    printDocument,
     onPrint = null,
     additionalActions,
     color = Colors.background,
