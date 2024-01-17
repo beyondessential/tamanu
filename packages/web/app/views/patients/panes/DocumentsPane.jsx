@@ -75,6 +75,7 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
         const blob = new Blob([arrayBuffer], { type: 'application/pdf' });
         const dataUrl = URL.createObjectURL(blob);
 
+        // Cleanup any existing iframe
         const oldIframe = document.getElementById('printIframe');
         if (oldIframe) document.body.removeChild(oldIframe);
 
