@@ -206,7 +206,7 @@ const COLUMNS = {
     {
       key: 'testType',
       title: 'Test type',
-      style: { width: '22.5%' },
+      style: { width: '20%' },
     },
     {
       key: 'testCategory',
@@ -216,19 +216,19 @@ const COLUMNS = {
     {
       key: 'requestedByName',
       title: 'Requested By',
-      style: { width: '22.5%' },
+      style: { width: '20%' },
     },
     {
       key: 'requestDate',
       title: 'Request date',
       accessor: ({ requestDate }) => getDisplayDate(requestDate, DATE_FORMAT),
-      style: { width: '15%' },
+      style: { width: '17.5%' },
     },
     {
       key: 'completedDate',
       title: 'Published date',
       accessor: ({ completedDate }) => getDisplayDate(completedDate, DATE_FORMAT),
-      style: { width: '15%' },
+      style: { width: '17.5%' },
     },
   ],
   imagingRequests: [
