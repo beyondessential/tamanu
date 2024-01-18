@@ -81,7 +81,7 @@ export const ResetPasswordForm = React.memo(
         onSubmit={onSubmit}
         render={renderForm}
         initialValues={{
-          email: initialEmail,
+          email: initialEmail || '',
         }}
         validationSchema={yup.object().shape({
           email: yup
