@@ -1,4 +1,4 @@
-import { EncounterRecordPrintout as Component } from '@tamanu/shared/utils/patientCertificates';
+import { EncounterRecordPrintout } from '@tamanu/shared/utils/patientCertificates';
 import Logo from '../assets/tamanu-logo.png';
 import { PDFViewer } from '@react-pdf/renderer';
 import React from 'react';
@@ -6,7 +6,7 @@ import Watermark from '../assets/watermark.png';
 
 export default {
   title: 'pdfs/EncounterRecordPrintout',
-  component: Component,
+  component: EncounterRecordPrintout,
 };
 
 const getLocalisation = key => {
@@ -81,10 +81,12 @@ const encounterData = {
 
 const encounterTypesData = [
   {
+    id: 'test',
     newEncounterType: 'triage',
     date: '2023-01-01 09:10:00',
   },
   {
+    id: 'test-2',
     newEncounterType: 'admission',
     date: '2023-01-01 10:10:00',
   },
@@ -92,16 +94,19 @@ const encounterTypesData = [
 
 const locationsData = [
   {
+    id: 'test',
     newLocationGroup: 'Ward 1',
     newLocation: 'Bed 1',
     date: '2023-01-01 09:10:00',
   },
   {
+    id: 'test-2',
     newLocationGroup: 'Ward 2',
     newLocation: 'Bed 1',
     date: '2023-01-01 10:20:00',
   },
   {
+    id: 'test-3',
     newLocationGroup: 'Ward 3',
     newLocation: 'Bed 1',
     date: '2023-01-01 10:20:00',
@@ -110,6 +115,7 @@ const locationsData = [
 
 const diagnosesData = [
   {
+    id: 'test',
     isPrimary: true,
     date: '2023-01-01 10:20:00',
     diagnosis: {
@@ -118,6 +124,7 @@ const diagnosesData = [
     },
   },
   {
+    id: 'test-2',
     isPrimary: false,
     date: '2023-01-01 10:20:00',
     diagnosis: {
@@ -129,6 +136,7 @@ const diagnosesData = [
 
 const proceduresData = [
   {
+    id: 'test',
     date: '2023-01-01 10:20:00',
     procedureType: {
       code: 'U07.1',
@@ -139,6 +147,7 @@ const proceduresData = [
 
 const labRequestsData = [
   {
+    id: 'test',
     testType: 'COVID-19 Nasal Swab',
     testCategory: 'Lorum',
     requestedByName: 'Jane Doe',
@@ -146,12 +155,14 @@ const labRequestsData = [
     completedDate: '2023-01-01 10:20:00',
   },
   {
+    id: 'test-2',
     testType: 'HCB',
     testCategory: 'FBC',
     requestedByName: 'Jane Doe',
     requestDate: '2023-01-01 10:20:00',
   },
   {
+    id: 'test-3',
     testType: 'PLT',
     testCategory: 'Serology',
     requestedByName: 'Jane Doe',
@@ -170,6 +181,7 @@ const labRequestsData = [
 
 const medicationsData = [
   {
+    id: 'test',
     medication: {
       name: 'Acetazolamide',
     },
@@ -181,6 +193,7 @@ const medicationsData = [
     date: '2023-01-01 10:20:00',
   },
   {
+    id: 'test-2',
     medication: {
       name: 'Acetazolamide',
     },
@@ -192,6 +205,7 @@ const medicationsData = [
     date: '2023-01-01 10:20:00',
   },
   {
+    id: 'test-3',
     medication: {
       name: 'Acetazolamide 250 mg Tablets',
     },
@@ -206,6 +220,7 @@ const medicationsData = [
 
 const notesData = [
   {
+    id: 'test',
     noteType: 'nursing',
     content:
       'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea',
@@ -216,22 +231,23 @@ const notesData = [
   },
 ];
 
-export const EncounterRecordPrintout = {
-  render: () => (
-    <PDFViewer width={800} height={1000} showToolbar>
-      <Component
-        certificateData={certificateData}
-        getLocalisation={getLocalisation}
-        patient={patientData}
-        encounter={encounterData}
-        encounterTypeHistory={encounterTypesData}
-        locationHistory={locationsData}
-        diagnoses={diagnosesData}
-        procedures={proceduresData}
-        labRequests={labRequestsData}
-        medications={medicationsData}
-        notes={notesData}
-      />
-    </PDFViewer>
-  ),
-};
+const Template = () => (
+  <PDFViewer width={800} height={1000} showToolbar={false} >
+    <EncounterRecordPrintout
+      certificateData={certificateData}
+      getLocalisation={getLocalisation}
+      patient={patientData}
+      encounter={encounterData}
+      encounterTypeHistory={encounterTypesData}
+      locationHistory={locationsData}
+      diagnoses={diagnosesData}
+      procedures={proceduresData}
+      labRequests={labRequestsData}
+      medications={medicationsData}
+      notes={notesData}
+    />
+  </PDFViewer>
+);
+
+export const Default = Template.bind({});
+Default.args = {};
