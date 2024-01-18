@@ -18,12 +18,12 @@ const ResetPasswordButton = styled(FormSubmitButton)`
   font-size: 14px;
   line-height: 18px;
   padding: 14px 0;
-  margin-top: 30px;
+  margin-top: 31px;
 `;
 
 const BackToLoginButton = styled(Button)`
   padding: 14px 0;
-  margin-top: 5px;
+  margin-top: 4px;
 `;
 
 const FormHeading = styled(Typography)`
@@ -42,7 +42,7 @@ const ResetPasswordFormComponent = ({ errorMessage, onNavToLogin, setFieldError 
   return (
     <FormGrid columns={1}>
       <div>
-        <FormHeading>Forgot Password</FormHeading>
+        <FormHeading>Forgot password</FormHeading>
         <FormSubtext>Enter your email address below and we will send you a reset code.</FormSubtext>
         {!!errorMessage && <FormSubtext>{errorMessage}</FormSubtext>}
       </div>

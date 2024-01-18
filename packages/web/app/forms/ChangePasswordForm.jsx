@@ -16,6 +16,10 @@ import {
 import { Colors } from '../constants';
 import ApprovedIcon from '../assets/images/approved_circle.svg';
 
+const FormTitleSection = styled.div`
+  margin-bottom: 10px;
+`;
+
 const FormHeading = styled(Typography)`
   color: ${Colors.darkestText};
   font-weight: 500;
@@ -43,6 +47,7 @@ const BackToLoginButton = styled(Button)`
 const IconContainer = styled.div`
   display: flex;
   justify-content: center;
+  margin-bottom: 10px;
 `;
 
 const ActionButtonContainer = styled.div`
@@ -88,14 +93,14 @@ const ChangePasswordFormComponent = ({
 }) => {
   return (
     <FormGrid columns={1}>
-      <div>
+      <FormTitleSection>
         <FormHeading>Reset password</FormHeading>
         <FormSubtext>
           An email has been sent to the specified email address if it is registered with Tamanu.
           Please follow the instructions outlined in the email.
         </FormSubtext>
         {!!errorMessage && <FormSubtext>{errorMessage}</FormSubtext>}
-      </div>
+      </FormTitleSection>
       <FieldContainer>
         <Field
           name="token"
@@ -103,7 +108,7 @@ const ChangePasswordFormComponent = ({
           label="Reset code"
           required
           component={TextField}
-          placeholder="Reset code"
+          placeholder="Enter reset code"
           onChange={() => {
             if (errors.token === REQUIRED_VALIDATION_MESSAGE) {
               setFieldError('token', '');

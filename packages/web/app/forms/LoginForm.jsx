@@ -64,7 +64,7 @@ const RememberMeRow = styled.div`
 
 const StyledField = styled(Field)`
   .label-field {
-    padding-top: 15px;
+    padding-top: 5px;
   }
 `;
 
@@ -116,9 +116,11 @@ const LoginFormComponent = ({
 
   return (
     <FormGrid columns={1}>
-      <LoginHeading>{rememberEmail ? 'Welcome back' : 'Log in'}</LoginHeading>
-      <LoginSubtext>Enter your details below to log in</LoginSubtext>
-      {!!genericMessage && <FormSubtext>{genericMessage}</FormSubtext>}
+      <div>
+        <LoginHeading>{rememberEmail ? 'Welcome back' : 'Log in'}</LoginHeading>
+        <LoginSubtext>Enter your details below to log in</LoginSubtext>
+        {!!genericMessage && <FormSubtext>{genericMessage}</FormSubtext>}
+      </div>
       <StyledField
         name="email"
         type="email"
