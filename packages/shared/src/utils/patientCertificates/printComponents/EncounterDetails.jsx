@@ -1,37 +1,21 @@
-import { DataSection } from './DataSection';
-import { Col } from '../Layout';
-import { DataItem } from './DataItem';
 import React from 'react';
-import { getDisplayDate } from '../getDisplayDate';
+import { DataSection } from './DataSection';
+import { DataItem } from './DataItem';
+import { getLocationName } from '../../patientAccessors';
+import { Col } from '../Layout';
 
-export const EncounterDetails = ({ encounter, discharge, clinicianText = 'Clinician' }) => {
-  const { location, examiner, department, startDate, endDate, reasonForEncounter } = encounter;
+export const EncounterDetails = ({ encounter }) => {
+  const { location, department } = encounter || {};
 
   return (
-    <DataSection title="Encounter details" hideBottomRule={true}>
+    <DataSection title="Encounter details">
       <Col>
-        <DataItem label="Facility" value={location.facility.name} key="facility" />
-        <DataItem
-          label={`Supervising ${clinicianText.toLowerCase()}`}
-          value={examiner.displayName}
-          key="supervisingClinician"
-        />
-        <DataItem
-          label={`Discharging ${clinicianText.toLowerCase()}`}
-          value={discharge?.discharger?.displayName}
-          key="dischargingClinician"
-        />
+        <DataItem label="Facility" value={location?.facility?.name} />
+        <DataItem label="Location" value={getLocationName(encounter)} />
       </Col>
       <Col>
-        <DataItem label="Department" value={department.name} key="department" />
-        <DataItem
-          label="Date of admission"
-          value={getDisplayDate(startDate)}
-          key="dateOfAdmission"
-        />
-        <DataItem label="Date of discharge" value={getDisplayDate(endDate)} key="dateOfDischarge" />
+        <DataItem label="Department" value={department?.name} />
       </Col>
-      <DataItem label="Reason for encounter" value={reasonForEncounter} key="reasonForEncounter" />
     </DataSection>
   );
 };
