@@ -75,6 +75,7 @@ const StyledCheckboxField = styled(Field)`
     .MuiTypography-root {
       font-size: 11px;
       color: black;
+      font-weight: 500;
     }
 
     .MuiButtonBase-root {
