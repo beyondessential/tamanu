@@ -10,8 +10,6 @@ import { startCase } from 'lodash';
 import { Footer } from './printComponents/Footer';
 import { ENCOUNTER_TYPES, NOTE_TYPES } from '@tamanu/constants';
 import { getDisplayDate } from './getDisplayDate';
-// import { useApi } from '@tamanu/web-frontend/app/api';
-// import { useQuery } from '@tanstack/react-query';
 
 const borderStyle = '1 solid black';
 
@@ -110,14 +108,6 @@ const NOTE_TYPE_LABELS = {
   [NOTE_TYPES.SOCIAL]: 'Social welfare',
   [NOTE_TYPES.SURGICAL]: 'Surgical',
   [NOTE_TYPES.SYSTEM]: 'System',
-};
-
-const useImagingRequest = imagingRequestId => {
-  const api = useApi();
-
-  return useQuery(['imagingRequest', imagingRequestId], () =>
-    api.get(`imagingRequest/${encodeURIComponent(imagingRequestId)}`),
-  );
 };
 
 const Table = props => <View style={tableStyles.table} {...props} />;
@@ -314,22 +304,6 @@ const COLUMNS = {
   ],
 };
 
-const imagingRequestDataAccessor = (imagingRequestId, dataType) => {
-  const imagingRequestQuery = useImagingRequest(imagingRequestId);
-  const imagingRequest = imagingRequestQuery.data;
-  if (dataType === 'areas') {
-    return imagingRequest?.areas?.length
-      ? imagingRequest?.areas.map(area => area.name).join(', ')
-      : imagingRequest?.areaNote;
-  }
-  if (dataType === 'completedDate') {
-    return imagingRequest?.results[0]?.completedAt
-      ? getDisplayDate(imagingRequest?.results[0]?.completedAt, DATE_FORMAT)
-      : '--/--/----';
-  }
-  return null;
-};
-
 const DataTable = ({ data, columns }) => (
   <Table>
     <Row>
@@ -429,7 +403,7 @@ export const EncounterRecordPrintout = ({
         <SectionSpacing />
         {encounterTypeHistory.length > 0 && (
           <TableSection
-            title="Encounter Types"
+            title="Encounter types"
             data={encounterTypeHistory}
             columns={COLUMNS.encounterTypes}
           />
