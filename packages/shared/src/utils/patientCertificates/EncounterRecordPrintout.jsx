@@ -262,11 +262,10 @@ const COLUMNS = {
     {
       key: 'completedDate',
       title: 'Completed date',
-      // accessor: imagingRequest =>
-      //   imagingRequest?.results[0]?.completedAt
-      //     ? getDisplayDate(imagingRequest?.results[0]?.completedAt, DATE_FORMAT)
-      //     : '--/--/----',
-      accessor: imagingRequest => '--/--/----',
+      accessor: imagingRequest =>
+        imagingRequest?.results[0]?.completedAt
+          ? getDisplayDate(imagingRequest?.results[0]?.completedAt, DATE_FORMAT)
+          : '--/--/----',
       style: { width: '20%' },
     },
   ],
@@ -343,13 +342,15 @@ const NotesSection = ({ notes }) => (
         <Row key={note.id}>
           <FlexCell>
             <Text style={textStyles.tableColumnHeader}>{NOTE_TYPE_LABELS[note.noteType]}</Text>
+            {`\n`}
             <Text style={textStyles.tableCellContent}>{note.content}</Text>
+            {`\n`}
             <Text style={textStyles.tableCellFooter}>
               {note.noteType === NOTE_TYPES.TREATMENT_PLAN ? 'Last updated: ' : ''}
             </Text>
             <Text style={textStyles.tableCellFooter}>{note.author?.displayName || ''}</Text>
             <Text style={textStyles.tableCellFooter}>
-              {note.onBehalfOf ? `on behalf of ${note.onBehalfOf.displayName}` : null}
+              {note.onBehalfOf ? ` on behalf of ${note.onBehalfOf.displayName}` : null}
             </Text>
             <Text style={textStyles.tableCellFooter}>
               {`${getDisplayDate(note.date)} ${getDisplayDate(note.date, 'h:mma')}`}
