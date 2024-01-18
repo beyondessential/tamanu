@@ -1,6 +1,8 @@
 import React from 'react';
 import { Image, StyleSheet, Text, View } from '@react-pdf/renderer';
 
+const certificateMargins = '0 18px';
+
 export const styles = StyleSheet.create({
   page: {
     fontFamily: 'Helvetica',
@@ -71,10 +73,13 @@ export const styles = StyleSheet.create({
     width: 66,
   },
   certificateHeader: {
-    margin: '0 18px',
+    margin: certificateMargins,
   },
   certificateFooter: {
-    margin: '0 18px',
+    margin: certificateMargins,
+  },
+  certificateContent: {
+    margin: certificateMargins,
   },
 });
 
@@ -114,3 +119,4 @@ export const CertificateLogo = ({ logoSrc }) => (
 
 export const CertificateHeader = props => <View style={styles.certificateHeader} {...props} />;
 export const CertificateFooter = props => <View style={styles.certificateFooter} {...props} />;
+export const CertificateContent = props => <View style={styles.certificateContent} {...props} />;
