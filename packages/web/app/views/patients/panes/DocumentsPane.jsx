@@ -10,8 +10,8 @@ import { DocumentModal } from '../../../components/DocumentModal';
 import { PatientLetterModal } from '../../../components/PatientLetterModal';
 import { DocumentsSearchBar } from '../../../components/DocumentsSearchBar';
 import { TabPane } from '../components';
-import { Button, ContentPane, OutlinedButton, TableButtonRow } from '../../../components';
-import { sanitizeFileName } from '../../../utils/sanitizeFileName';
+import { OutlinedButton, Button, ContentPane, TableButtonRow } from '../../../components';
+import { saveFile } from '../../../utils/fileSystemAccess';
 
 const MODAL_STATES = {
   DOCUMENT_OPEN: 'document',
@@ -20,10 +20,10 @@ const MODAL_STATES = {
   CLOSED: 'closed',
 };
 
-const base64ToUint8Array = (base64) => {
+const base64ToUint8Array = base64 => {
   const binString = atob(base64);
-  return Uint8Array.from(binString, (m) => m.codePointAt(0));
-}
+  return Uint8Array.from(binString, m => m.codePointAt(0));
+};
 
 export const DocumentsPane = React.memo(({ encounter, patient }) => {
   const api = useApi();
@@ -53,16 +53,12 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
 
         const fileExtension = extension(document.type);
 
-        const fileHandle = await window.showSaveFilePicker({
-          suggestedName: sanitizeFileName(`${document.name}.${fileExtension}`),
-        });
+        await saveFile({
+          defaultFileName: document.name,
+          data: base64ToUint8Array(data),
+          extensions: [fileExtension],
+        })
 
-        const writable = await fileHandle.createWritable();
-
-        const fileUint8Array = base64ToUint8Array(data);
-
-        await writable.write(fileUint8Array);
-        await writable.close();
         notifySuccess(`Successfully downloaded file`);
       } catch (error) {
         notifyError(error.message);
