@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import { extension } from 'mime-types';
 
 import { useApi } from '../../../api';
@@ -22,6 +22,7 @@ const MODAL_STATES = {
 export const DocumentsPane = React.memo(({ encounter, patient }) => {
   const api = useApi();
   // const { showSaveDialog, openPath, writeFile } = useElectron();
+  const [dataUrl, setDataUrl] = useState('');
 
   const [modalStatus, setModalStatus] = useState(MODAL_STATES.CLOSED);
   const [searchParameters, setSearchParameters] = useState({});
@@ -33,6 +34,28 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
   const baseRoute = isFromEncounter ? `encounter/${encounter.id}` : `patient/${patient.id}`;
   const documentMetadataEndpoint = `${baseRoute}/documentMetadata`;
   const createPatientLetterEndpoint = `${baseRoute}/createPatientLetter`;
+
+  // In order to make sure we cleanup any iframes we create from printing, we need to 
+  // trigger it in a useEffect with a cleanup function that wil remove the iframe
+  // when unmounted.
+  useEffect(() => {
+    if (!dataUrl) return () => {};
+
+    // create iframe & print when dataurl is loaded
+    const iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    iframe.src = dataUrl;
+    document.body.appendChild(iframe);
+
+    iframe.onload = () => {
+      iframe.contentWindow.print();
+    };
+
+    return () => {
+      // cleanup iframe when leaving documents tab
+      document.body.removeChild(iframe);
+    };
+  }, [dataUrl]);
 
   const onDownload = useCallback(
     async document => {
@@ -71,23 +94,12 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
         const { data } = await api.get(`attachment/${attachmentId}`, {
           base64: true,
         });
-        const dataUrl = URL.createObjectURL(
+        const url = URL.createObjectURL(
           new Blob([Buffer.from(data, 'base64').buffer], { type: 'application/pdf' }),
         );
 
-        // Cleanup any existing iframe
-        const oldIframe = document.getElementById('temp-print-iframe');
-        if (oldIframe) document.body.removeChild(oldIframe);
-
-        const iframe = document.createElement('iframe');
-        iframe.id = 'temp-print-iframe';
-        iframe.style.display = 'none';
-        iframe.src = dataUrl;
-        document.body.appendChild(iframe);
-
-        iframe.onload = () => {
-          iframe.contentWindow.print();
-        };
+        // Setting/changing the dataUrl triggers the useEffect that handles printing logic
+        setDataUrl(url);
       } catch (error) {
         notifyError(error.message);
       }
