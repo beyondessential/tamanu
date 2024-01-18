@@ -7,7 +7,8 @@ import { useApi } from '../../../api';
 
 import { PrescriptionPrintout } from '@tamanu/shared/utils/patientCertificates';
 import { useLocalisation } from '../../../contexts/Localisation';
-import { PDFViewer } from '../PDFViewer';
+import { PDFViewer, printPDF } from '../PDFViewer';
+import { useAuth } from '../../../contexts/Auth';
 
 export const PrintPrescriptionModal = ({ medication, open, onClose }) => {
   const { getLocalisation } = useLocalisation();
@@ -21,6 +22,7 @@ export const PrintPrescriptionModal = ({ medication, open, onClose }) => {
   const [patientLoading, setPatientLoading] = useState(false);
   const [additionalDataLoading, setAdditionalDataLoading] = useState(false);
   const [villageLoading, setVillageLoading] = useState(false);
+  const { facility } = useAuth();
 
   useEffect(() => {
     setEncounterLoading(true);
@@ -68,16 +70,24 @@ export const PrintPrescriptionModal = ({ medication, open, onClose }) => {
 
   return (
     <>
-      <Modal title="Prescription" open={open} onClose={onClose} width="md" printable>
+      <Modal
+        title="Prescription"
+        open={open}
+        onClose={onClose}
+        width="md"
+        printable
+        onPrint={() => printPDF('prescription-printout')}
+      >
         {encounterLoading || patientLoading || additionalDataLoading || villageLoading ? (
           <LoadingIndicator />
         ) : (
-          <PDFViewer id="prescription-certificate">
+          <PDFViewer id="prescription-printout">
             <PrescriptionPrintout
               patientData={{ ...patient, additionalData, village }}
               prescriptions={[medication]}
               encounterData={encounter}
               certificateData={certificateData}
+              facility={facility}
               getLocalisation={getLocalisation}
             />
           </PDFViewer>

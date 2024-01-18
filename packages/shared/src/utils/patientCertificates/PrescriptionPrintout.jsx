@@ -89,7 +89,13 @@ const generalStyles = StyleSheet.create({
 
 const SectionContainer = props => <View style={generalStyles.container} {...props} />;
 
-const PrescriptionsSection = ({ prescriptions, prescriber, encounter, getLocalisation }) => {
+const PrescriptionsSection = ({
+  prescriptions,
+  prescriber,
+  encounter,
+  facility,
+  getLocalisation,
+}) => {
   return (
     <View>
       <DataSection hideBottomRule title="Prescription details">
@@ -99,7 +105,7 @@ const PrescriptionsSection = ({ prescriptions, prescriber, encounter, getLocalis
         </Col>
         <Col>
           <DataItem label="Prescriber ID" value={prescriber?.displayId ?? 'n/a'} />
-          <DataItem label="Facility" value={encounter?.location?.facility?.name} />
+          <DataItem label="Facility" value={facility?.name} />
         </Col>
       </DataSection>
       <View style={prescriptonSectionStyles.tableContainer}>
@@ -129,6 +135,7 @@ export const PrescriptionPrintout = ({
   prescriber,
   encounterData,
   certificateData,
+  facility,
   getLocalisation,
 }) => {
   return (
@@ -155,6 +162,7 @@ export const PrescriptionPrintout = ({
               prescriptions={prescriptions}
               prescriber={prescriber}
               encounter={encounterData}
+              facility={facility}
               getLocalisation={getLocalisation}
             />
           </SectionContainer>
