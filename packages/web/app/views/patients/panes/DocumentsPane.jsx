@@ -71,9 +71,9 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
         const { data } = await api.get(`attachment/${attachmentId}`, {
           base64: true,
         });
-        const arrayBuffer = Uint8Array.from(atob(data), char => char.charCodeAt(0)).buffer;
-        const blob = new Blob([arrayBuffer], { type: 'application/pdf' });
-        const dataUrl = URL.createObjectURL(blob);
+        const dataUrl = URL.createObjectURL(
+          new Blob([Buffer.from(data, 'base64').buffer], { type: 'application/pdf' }),
+        );
 
         // Cleanup any existing iframe
         const oldIframe = document.getElementById('printIframe');
@@ -82,8 +82,8 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
         const iframe = document.createElement('iframe');
         iframe.id = 'printIframe';
         iframe.style.display = 'none';
-        document.body.appendChild(iframe);
         iframe.src = dataUrl;
+        document.body.appendChild(iframe);
 
         iframe.onload = () => {
           iframe.contentWindow.print();
