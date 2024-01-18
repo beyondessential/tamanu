@@ -11,6 +11,7 @@ import {
   FormSubmitButton,
   TextButton,
   TextField,
+  StyledPrimarySubmitButton,
 } from '../components';
 import { Colors } from '../constants';
 import ApprovedIcon from '../assets/images/approved_circle.svg';
@@ -122,6 +123,7 @@ const ChangePasswordFormComponent = ({
               setFieldError('newPassword', '');
             }
           }}
+          autoComplete="new-password"
         />
         <Field
           name="confirmNewPassword"

@@ -36,7 +36,7 @@ export const PatientDetailsPane = React.memo(
       }
 
       // invalidate the cache of patient data queries to reload the patient data
-      invalidatePatientDataQueries(queryClient, patient.id);
+      await invalidatePatientDataQueries(queryClient, patient.id);
       dispatch(reloadPatient(patient.id));
     };
 
