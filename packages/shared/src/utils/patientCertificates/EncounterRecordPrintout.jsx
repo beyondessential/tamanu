@@ -1,6 +1,6 @@
 import React from 'react';
 import { Document, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
-import { CertificateHeader, Watermark } from './Layout';
+import { CertificateHeader, FixedHeader, PageBreakPadding, Watermark } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
 import { PatientDetailsWithAddress } from './printComponents/PatientDetailsWithAddress';
 import { MultiPageHeader } from './printComponents/MultiPageHeader';
@@ -35,6 +35,18 @@ const textStyles = StyleSheet.create({
   tableCellFooter: {
     fontFamily: 'Helvetica',
     fontSize: 8,
+  },
+  headerLabel: {
+    fontSize: 8,
+    fontFamily: 'Helvetica-Bold',
+    fontWeight: 400,
+    color: '#888888',
+  },
+  headerValue: {
+    fontSize: 8,
+    fontWeight: 400,
+    fontFamily: 'Helvetica',
+    color: '#888888',
   },
 });
 
@@ -362,6 +374,18 @@ const NotesSection = ({ notes }) => (
   </View>
 );
 
+const EncounterRecordHeader = ({ patient }) => (
+  <View style={{ flexDirection: 'row' }}>
+    <Text style={textStyles.headerLabel}>Patient encounter record | </Text>
+    <Text style={textStyles.headerLabel}>Patient name: </Text>
+    <Text style={textStyles.headerValue}>
+      {patient.firstName} {patient.lastName} |{' '}
+    </Text>
+    <Text style={textStyles.headerLabel}>Patient ID: </Text>
+    <Text style={textStyles.headerValue}>{patient.displayId}</Text>
+  </View>
+);
+
 export const EncounterRecordPrintout = ({
   patient,
   encounter,
@@ -386,11 +410,20 @@ export const EncounterRecordPrintout = ({
     <Document>
       <Page size="A4" style={{ padding: 30 }}>
         {watermark && <Watermark src={watermark} />}
-        <MultiPageHeader
-          documentName="Patient Encounter Record"
-          patientName={getName(patient)}
-          patiendId={patient.displayId}
-        />
+        {/*<MultiPageHeader*/}
+        {/*  documentName="Patient Encounter Record"*/}
+        {/*  patientName={getName(patient)}*/}
+        {/*  patiendId={patient.displayId}*/}
+        {/*/>*/}
+        <FixedHeader>
+          <View
+            fixed
+            render={({ pageNumber }) =>
+              pageNumber > 1 && <EncounterRecordHeader patient={patient} />
+            }
+          />
+        </FixedHeader>
+        <View fixed render={({ pageNumber }) => pageNumber > 1 && <PageBreakPadding />} />
         <CertificateHeader>
           <LetterheadSection
             getLocalisation={getLocalisation}
