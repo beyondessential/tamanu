@@ -86,6 +86,13 @@ export const styles = StyleSheet.create({
     top: 25,
     right: 50,
   },
+  fixedFooter: {
+    position: 'absolute',
+    bottom: 16,
+    left: 50,
+    right: 50,
+    textAlign: 'left',
+  },
   pageBreakPadding: {
     height: 26,
     width: '100%',
@@ -132,6 +139,13 @@ export const CertificateContent = props => <View style={styles.certificateConten
 
 export const FixedHeader = ({ children, props }) => (
   <View fixed style={styles.fixedHeader} {...props}>
+    {children}
+  </View>
+);
+
+export const FixedFooter = ({ children, props }) => (
+  <View fixed style={styles.fixedFooter} {...props}>
+    <View style={{ ...styles.lightDivider, borderTopColor: '#888888' }} />
     {children}
   </View>
 );

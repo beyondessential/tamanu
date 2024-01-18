@@ -11,6 +11,9 @@ const styles = StyleSheet.create({
     bottom: 16,
     left: 50,
     right: 50,
+    color: '#888888',
+    borderTop: '1px solid #888888',
+    paddingTop: 5,
   },
 
   footerLeftContent: {
@@ -48,9 +51,9 @@ const ValueText = ({ children, props }) => (
   </Text>
 );
 
-export const Footer = ({ printDate, printFacility, printedBy }) => {
+export const Footer = ({ printDate, printFacility, printedBy, style }) => {
   return (
-    <View style={styles.footer}>
+    <View style={[styles.footer, style]}>
       <View style={styles.footerLeftContent}>
         <LabelText>Print date: </LabelText>
         <ValueText>{getDisplayDate(printDate || getCurrentDateString())}</ValueText>

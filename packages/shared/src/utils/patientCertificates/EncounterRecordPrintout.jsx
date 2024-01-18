@@ -1,6 +1,6 @@
 import React from 'react';
 import { Document, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
-import { CertificateHeader, FixedHeader, PageBreakPadding, Watermark } from './Layout';
+import { CertificateHeader, FixedFooter, FixedHeader, PageBreakPadding, Watermark } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
 import { PatientDetailsWithAddress } from './printComponents/PatientDetailsWithAddress';
 import { startCase } from 'lodash';
@@ -406,13 +406,8 @@ export const EncounterRecordPrintout = ({
 
   return (
     <Document>
-      <Page size="A4" style={{ padding: 30 }}>
+      <Page size="A4" style={{ paddingHorizontal: 50, paddingVertical: 30 }}>
         {watermark && <Watermark src={watermark} />}
-        {/*<MultiPageHeader*/}
-        {/*  documentName="Patient Encounter Record"*/}
-        {/*  patientName={getName(patient)}*/}
-        {/*  patiendId={patient.displayId}*/}
-        {/*/>*/}
         <FixedHeader>
           <View
             fixed
@@ -468,7 +463,10 @@ export const EncounterRecordPrintout = ({
           <TableSection title="Medications" data={medications} columns={COLUMNS.medications} />
         )}
         {notes.length > 0 && <NotesSection notes={notes} />}
-        <Footer />
+        <PageBreakPadding />
+        <FixedFooter>
+          <Footer style={{ width: '100%', left: 0, right: 0 }} />
+        </FixedFooter>
       </Page>
     </Document>
   );
