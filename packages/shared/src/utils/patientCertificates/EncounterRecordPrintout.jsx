@@ -54,7 +54,7 @@ const tableStyles = StyleSheet.create({
   baseCell: {
     flexDirection: 'row',
     borderLeft: borderStyle,
-    alignItems: 'center',
+    alignItems: 'flex-start',
     padding: 7,
   },
   flexCell: {
