@@ -10,8 +10,7 @@ import { usePatientAdditionalDataQuery } from '../../../api/queries';
 import { useLocalisation } from '../../../contexts/Localisation';
 
 import { BirthNotificationCertificate } from '@tamanu/shared/utils/patientCertificates/BirthNotificationCertificate';
-import { PDFViewer } from '@react-pdf/renderer';
-import { printPDF } from '../PDFViewer';
+import { PDFViewer, printPDF } from '../PDFViewer';
 
 const useParent = (api, enabled, parentId) => {
   const { data: parentData, isLoading: parentDataIsLoading } = useQuery(

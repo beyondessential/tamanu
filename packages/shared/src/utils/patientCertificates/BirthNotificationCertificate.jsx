@@ -109,8 +109,10 @@ const LeftCell = ({ children }) => (
   </View>
 );
 
-// Todo: update mapping
-const getLabelFromValue = (mapping, v) => v;
+const getLabelFromValue = (mapping, v) => {
+  const entry = mapping.find(e => e.value === v);
+  return entry ? entry.label : '';
+};
 
 const getFullName = patient => `${patient?.firstName ?? ''} ${patient?.lastName ?? ''}`;
 
