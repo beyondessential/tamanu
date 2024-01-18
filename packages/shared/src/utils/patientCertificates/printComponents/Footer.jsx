@@ -53,7 +53,7 @@ export const Footer = ({ printDate, printFacility, printedBy }) => {
     <View style={styles.footer}>
       <View style={styles.footerLeftContent}>
         <LabelText>Print date: </LabelText>
-        <ValueText>{printDate ? getDisplayDate(printDate) : getDisplayDate(getCurrentDateString())}</ValueText>
+        <ValueText>{getDisplayDate(printDate || getCurrentDateString())}</ValueText>
         {printFacility && (
           <>
             <ValueText> | </ValueText>
