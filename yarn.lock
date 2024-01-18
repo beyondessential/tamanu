@@ -9709,21 +9709,6 @@ concat-stream@^1.6.2:
     readable-stream "^2.2.2"
     typedarray "^0.0.6"
 
-concurrently@8.2.2, concurrently@^8.2.1:
-  version "8.2.2"
-  resolved "https://registry.yarnpkg.com/concurrently/-/concurrently-8.2.2.tgz#353141985c198cfa5e4a3ef90082c336b5851784"
-  integrity sha512-1dP4gpXFhei8IOtlXRE/T/4H88ElHgTiUzh71YUmtjTEHMSRS2Z/fgOxHSxxusGHogsRfxNq1vyAwxSC+EVyDg==
-  dependencies:
-    chalk "^4.1.2"
-    date-fns "^2.30.0"
-    lodash "^4.17.21"
-    rxjs "^7.8.1"
-    shell-quote "^1.8.1"
-    spawn-command "0.0.2"
-    supports-color "^8.1.1"
-    tree-kill "^1.2.2"
-    yargs "^17.7.2"
-
 concurrently@^3.6.1:
   version "3.6.1"
   resolved "https://registry.yarnpkg.com/concurrently/-/concurrently-3.6.1.tgz#2f95baec5c4051294dfbb55b57a3b98a3e2b45ec"
@@ -9738,6 +9723,21 @@ concurrently@^3.6.1:
     spawn-command "^0.0.2-1"
     supports-color "^3.2.3"
     tree-kill "^1.1.0"
+
+concurrently@^8.2.1, concurrently@^8.2.2:
+  version "8.2.2"
+  resolved "https://registry.yarnpkg.com/concurrently/-/concurrently-8.2.2.tgz#353141985c198cfa5e4a3ef90082c336b5851784"
+  integrity sha512-1dP4gpXFhei8IOtlXRE/T/4H88ElHgTiUzh71YUmtjTEHMSRS2Z/fgOxHSxxusGHogsRfxNq1vyAwxSC+EVyDg==
+  dependencies:
+    chalk "^4.1.2"
+    date-fns "^2.30.0"
+    lodash "^4.17.21"
+    rxjs "^7.8.1"
+    shell-quote "^1.8.1"
+    spawn-command "0.0.2"
+    supports-color "^8.1.1"
+    tree-kill "^1.2.2"
+    yargs "^17.7.2"
 
 config@^3.3.6, config@^3.3.9:
   version "3.3.9"
