@@ -4,7 +4,7 @@ import { DataItem } from './DataItem';
 import React from 'react';
 import { getDisplayDate } from '../getDisplayDate';
 
-export const EncounterDetails = ({ encounter }) => {
+export const EncounterDetailsExtended = ({ encounter }) => {
   // const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
   const {
     location,

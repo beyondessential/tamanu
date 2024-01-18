@@ -4,7 +4,7 @@ import { CertificateHeader, styles } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
 import { PatientDetailsWithAddress } from './printComponents/PatientDetailsWithAddress';
 import { DIAGNOSIS_CERTAINTIES_TO_HIDE } from '@tamanu/constants';
-import { EncounterDetails } from './printComponents/EncounterDetails';
+import { EncounterDetailsExtended } from './printComponents/EncounterDetailsExtended';
 
 const borderStyle = '1 solid black';
 const tableLabelWidth = 150;
@@ -223,7 +223,7 @@ export const DischargeSummaryPrintout = ({
           <PatientDetailsWithAddress patient={patientData} getLocalisation={getLocalisation} />
         </SectionContainer>
         <SectionContainer>
-          <EncounterDetails encounter={encounter} />
+          <EncounterDetailsExtended encounter={encounter} />
         </SectionContainer>
         <SectionContainer>
           {primaryDiagnoses.length > 0 && (
