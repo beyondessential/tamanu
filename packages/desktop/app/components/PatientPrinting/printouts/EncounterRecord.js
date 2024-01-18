@@ -304,27 +304,32 @@ export const EncounterRecord = React.memo(
     const { department, location, examiner, reasonForEncounter, startDate, endDate } = encounter;
     const { title, subTitle, logo } = certificateData;
 
-    const vitalsColumn = [
-      {
-        key: 'measure',
-        title: 'Measure',
-        accessor: ({ value }) => value,
-        style: { width: '15%' },
-      },
-      ...recordedDates
-        .sort((a, b) => b.localeCompare(a))
-        .map(date => ({
-          title: <DateHeadCell value={date} />,
-          key: date,
-          accessor: cells => {
-            const { value } = cells[date];
-            return value || '-';
-          },
-          exportOverrides: {
-            title: getExportOverrideTitle(date),
-          },
-        })),
-    ];
+    const getVitalsColumn = (startIndex, endIndex) => {
+      const dateArray = recordedDates.slice(startIndex, endIndex);
+      const width = 100 / (dateArray.length + 1);
+      return [
+        {
+          key: 'measure',
+          title: 'Measure',
+          accessor: ({ value }) => value,
+          style: { width: `${width}%` },
+        },
+        ...dateArray
+          .sort((a, b) => b.localeCompare(a))
+          .map(date => ({
+            title: <DateHeadCell value={date} />,
+            key: date,
+            accessor: cells => {
+              const { value } = cells[date];
+              return value || '-';
+            },
+            style: { width: `${width}%` },
+            exportOverrides: {
+              title: getExportOverrideTitle(date),
+            },
+          })),
+      ];
+    };
 
     return (
       <ShiftedCertificateWrapper>
@@ -403,10 +408,19 @@ export const EncounterRecord = React.memo(
           </>
         ) : null}
 
-        {vitalsData.length > 0 ? (
+        {vitalsData.length > 0 && recordedDates.length > 0 ? (
           <>
-            <TableHeading>Vitals</TableHeading>
-            <CompactListTable data={vitalsData} columns={vitalsColumn} />
+            {[0, 12, 24, 36, 48].map(start =>
+              recordedDates.length > start ? (
+                <>
+                  <TableHeading>Vitals</TableHeading>
+                  <CompactListTable
+                    data={vitalsData}
+                    columns={getVitalsColumn(start, start + 12)}
+                  />
+                </>
+              ) : null,
+            )}
           </>
         ) : null}
 
