@@ -1,9 +1,8 @@
-import { formatShort, useLocalisedText } from '@tamanu/web-frontend/app/components';
 import { DataSection } from './DataSection';
 import { Col } from '../Layout';
 import { DataItem } from './DataItem';
 import React from 'react';
-import styled from 'styled-components';
+import { getDisplayDate } from '../getDisplayDate';
 
 export const EncounterDetails = ({ encounter }) => {
   // const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
@@ -36,8 +35,8 @@ export const EncounterDetails = ({ encounter }) => {
       </Col>
       <Col>
         <DataItem label="Department" value={department.name} key="department" />
-        <DataItem label="Date of admission" value={formatShort(startDate)} key="dateOfAdmission" />
-        <DataItem label="Date of discharge" value={formatShort(endDate)} key="dateOfDischarge" />
+        <DataItem label="Date of admission" value={getDisplayDate(startDate)} key="dateOfAdmission" />
+        <DataItem label="Date of discharge" value={getDisplayDate(endDate)} key="dateOfDischarge" />
       </Col>
       <DataItem label="Reason for encounter" value={reasonForEncounter} key="reasonForEncounter" />
     </DataSection>
