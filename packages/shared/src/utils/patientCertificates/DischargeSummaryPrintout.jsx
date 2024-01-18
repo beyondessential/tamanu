@@ -5,6 +5,7 @@ import { LetterheadSection } from './LetterheadSection';
 import { PatientDetailsWithAddress } from './printComponents/PatientDetailsWithAddress';
 import { DIAGNOSIS_CERTAINTIES_TO_HIDE } from '@tamanu/constants';
 import { EncounterDetailsExtended } from './printComponents/EncounterDetailsExtended';
+import { Footer } from './printComponents/Footer';
 
 const borderStyle = '1 solid black';
 const tableLabelWidth = 150;
@@ -100,7 +101,6 @@ const notesSectionStyles = StyleSheet.create({
 
 const extractDiagnosesInfo = ({ diagnoses, getLocalisation }) => {
   const displayIcd10Codes = getLocalisation('features.displayIcd10CodesInDischargeSummary');
-  console.log(diagnoses);
   if (!displayIcd10Codes) {
     return diagnoses.map(item => item?.diagnosis?.name);
   } else {
@@ -200,7 +200,6 @@ export const DischargeSummaryPrintout = ({
   getLocalisation,
 }) => {
   const { diagnoses, procedures, medications } = encounter;
-  console.log(getLocalisation);
   const visibleDiagnoses = diagnoses.filter(
     ({ certainty }) => !DIAGNOSIS_CERTAINTIES_TO_HIDE.includes(certainty),
   );
@@ -258,6 +257,7 @@ export const DischargeSummaryPrintout = ({
         <SectionContainer>
           <NotesSection />
         </SectionContainer>
+        <Footer />
       </Page>
     </Document>
   );
