@@ -10,7 +10,8 @@ import { startCase } from 'lodash';
 import { Footer } from './printComponents/Footer';
 import { ENCOUNTER_TYPES, NOTE_TYPES } from '@tamanu/constants';
 import { getDisplayDate } from './getDisplayDate';
-import { useImagingRequest } from '@tamanu/web-frontend/app/api/queries/useImagingRequest';
+// import { useApi } from '@tamanu/web-frontend/app/api';
+// import { useQuery } from '@tanstack/react-query';
 
 const borderStyle = '1 solid black';
 
@@ -109,6 +110,14 @@ const NOTE_TYPE_LABELS = {
   [NOTE_TYPES.SOCIAL]: 'Social welfare',
   [NOTE_TYPES.SURGICAL]: 'Surgical',
   [NOTE_TYPES.SYSTEM]: 'System',
+};
+
+const useImagingRequest = imagingRequestId => {
+  const api = useApi();
+
+  return useQuery(['imagingRequest', imagingRequestId], () =>
+    api.get(`imagingRequest/${encodeURIComponent(imagingRequestId)}`),
+  );
 };
 
 const Table = props => <View style={tableStyles.table} {...props} />;
@@ -242,7 +251,10 @@ const COLUMNS = {
     {
       key: 'areaToBeImaged',
       title: 'Area to be imaged',
-      accessor: ({ id }) => imagingRequestDataAccessor(id, 'areas'),
+      accessor: imagingRequest =>
+        imagingRequest?.areas?.length
+          ? imagingRequest?.areas.map(area => area.name).join(', ')
+          : imagingRequest?.areaNote,
       style: { width: '20%' },
     },
     {
@@ -260,7 +272,11 @@ const COLUMNS = {
     {
       key: 'completedDate',
       title: 'Completed date',
-      accessor: ({ id }) => imagingRequestDataAccessor(id, 'completedDate'),
+      // accessor: imagingRequest =>
+      //   imagingRequest?.results[0]?.completedAt
+      //     ? getDisplayDate(imagingRequest?.results[0]?.completedAt, DATE_FORMAT)
+      //     : '--/--/----',
+      accessor: imagingRequest => '--/--/----',
       style: { width: '20%' },
     },
   ],
@@ -393,7 +409,6 @@ export const EncounterRecordPrintout = ({
   return (
     <Document>
       <Page size="A4" style={{ padding: 30 }}>
-        {/*<Page size="A4">*/}
         {watermark && <Watermark src={watermark} />}
         <MultiPageHeader
           documentName="Patient Encounter Record"
@@ -431,13 +446,13 @@ export const EncounterRecordPrintout = ({
         {labRequests.length > 0 && (
           <TableSection title="Lab requests" data={labRequests} columns={COLUMNS.labRequests} />
         )}
-        {/*{imagingRequests.length > 0 && (*/}
-        {/*  <TableSection*/}
-        {/*    title="Imaging requests"*/}
-        {/*    data={imagingRequests}*/}
-        {/*    columns={COLUMNS.imagingRequests}*/}
-        {/*  />*/}
-        {/*)}*/}
+        {imagingRequests.length > 0 && (
+          <TableSection
+            title="Imaging requests"
+            data={imagingRequests}
+            columns={COLUMNS.imagingRequests}
+          />
+        )}
         {medications.length > 0 && (
           <TableSection title="Medications" data={medications} columns={COLUMNS.medications} />
         )}
