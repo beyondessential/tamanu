@@ -12,8 +12,8 @@ import { getName } from '../patientAccessors';
 import { EncounterDetails } from './printComponents/EncounterDetails';
 import { startCase } from 'lodash';
 import { Footer } from './printComponents/Footer';
-import { NOTE_TYPES } from '@tamanu/constants';
 import { getDisplayDate } from './getDisplayDate';
+import { useImagingRequest } from '@tamanu/web-frontend/app/api/queries/useImagingRequest';
 
 const borderStyle = '1 solid black';
 
@@ -51,7 +51,7 @@ const tableStyles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-evenly',
     borderTop: borderStyle,
-    borderLeft: borderStyle,
+    borderRight: borderStyle,
     borderBottom: borderStyle,
     marginBottom: -1,
   },
@@ -191,38 +191,38 @@ const COLUMNS = {
       style: { width: '15%' },
     },
   ],
-  // imagingRequests: [
-  //   {
-  //     key: 'imagingType',
-  //     title: 'Request type',
-  //     accessor: ({ imagingName }) => imagingName?.label,
-  //     style: { width: '20%' },
-  //   },
-  //   {
-  //     key: 'areaToBeImaged',
-  //     title: 'Area to be imaged',
-  //     accessor: ({ id }) => <ImagingRequestData imagingRequestId={id} dataType="areas" />,
-  //     style: { width: '20%' },
-  //   },
-  //   {
-  //     key: 'requestedBy',
-  //     title: 'Requested by',
-  //     accessor: ({ requestedBy }) => requestedBy?.displayName,
-  //     style: { width: '20%' },
-  //   },
-  //   {
-  //     key: 'requestDate',
-  //     title: 'Request date',
-  //     accessor: ({ requestedDate }) => <DateDisplay date={requestedDate} showDate />,
-  //     style: { width: '20%' },
-  //   },
-  //   {
-  //     key: 'completedDate',
-  //     title: 'Completed date',
-  //     accessor: ({ id }) => <ImagingRequestData imagingRequestId={id} dataType="completedDate" />,
-  //     style: { width: '20%' },
-  //   },
-  // ],
+  imagingRequests: [
+    {
+      key: 'imagingType',
+      title: 'Request type',
+      accessor: ({ imagingName }) => imagingName?.label,
+      style: { width: '20%' },
+    },
+    {
+      key: 'areaToBeImaged',
+      title: 'Area to be imaged',
+      accessor: ({ id }) => imagingRequestDataAccessor(id, 'areas'),
+      style: { width: '20%' },
+    },
+    {
+      key: 'requestedBy',
+      title: 'Requested by',
+      accessor: ({ requestedBy }) => requestedBy?.displayName,
+      style: { width: '20%' },
+    },
+    {
+      key: 'requestDate',
+      title: 'Request date',
+      accessor: ({ requestedDate }) => getDisplayDate(requestedDate, DATE_FORMAT),
+      style: { width: '20%' },
+    },
+    {
+      key: 'completedDate',
+      title: 'Completed date',
+      accessor: ({ id }) => imagingRequestDataAccessor(id, 'completedDate'),
+      style: { width: '20%' },
+    },
+  ],
   medications: [
     {
       key: 'medication',
@@ -255,6 +255,22 @@ const COLUMNS = {
       style: { width: '20%' },
     },
   ],
+};
+
+const imagingRequestDataAccessor = (imagingRequestId, dataType) => {
+  const imagingRequestQuery = useImagingRequest(imagingRequestId);
+  const imagingRequest = imagingRequestQuery.data;
+  if (dataType === 'areas') {
+    return imagingRequest?.areas?.length
+      ? imagingRequest?.areas.map(area => area.name).join(', ')
+      : imagingRequest?.areaNote;
+  }
+  if (dataType === 'completedDate') {
+    return imagingRequest?.results[0]?.completedAt
+      ? getDisplayDate(imagingRequest?.results[0]?.completedAt, DATE_FORMAT)
+      : '--/--/----';
+  }
+  return null;
 };
 
 const DataTable = ({ data, columns }) => (
@@ -338,7 +354,8 @@ export const EncounterRecordPrintout = ({
 
   return (
     <Document>
-      <Page size="A4">
+      <Page size="A4" style={{ padding: 30 }}>
+        {/*<Page size="A4">*/}
         {watermark && <Watermark src={watermark} />}
         <MultiPageHeader
           documentName="Patient Encounter Record"
@@ -376,14 +393,19 @@ export const EncounterRecordPrintout = ({
         {labRequests.length > 0 && (
           <TableSection title="Lab requests" data={labRequests} columns={COLUMNS.labRequests} />
         )}
-        {/*{imagingRequests.length > 0 && (*/}
-        {/*  <TableSection title="Imaging requests" data={imagingRequests} columns={COLUMNS.imagingRequests} />*/}
+        {/*{medications.length > 0 && (*/}
+        {/*  <TableSection title="Medications" data={medications} columns={COLUMNS.medications} />*/}
         {/*)}*/}
-        {medications.length > 0 && (
-          <TableSection title="Medications" data={medications} columns={COLUMNS.medications} />
-        )}
-        {notes.length > 0 && <NotesSection notes={notes} />}
-        <Footer />
+        {/*{imagingRequests.length > 0 && (*/}
+        {/*  <TableSection*/}
+        {/*    title="Imaging requests"*/}
+        {/*    data={imagingRequests}*/}
+        {/*    columns={COLUMNS.imagingRequests}*/}
+        {/*  />*/}
+        {/*)}*/}
+
+        {/*{notes.length > 0 && <NotesSection notes={notes} />}*/}
+        {/*<Footer />*/}
       </Page>
     </Document>
   );

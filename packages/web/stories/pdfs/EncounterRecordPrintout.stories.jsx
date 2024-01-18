@@ -204,6 +204,8 @@ const medicationsData = [
   },
 ];
 
+const imagingRequestsData = [];
+
 const notesData = [
   {
     noteType: 'nursing',
@@ -231,6 +233,7 @@ export const EncounterRecordPrintout = {
         labRequests={labRequestsData}
         medications={medicationsData}
         notes={notesData}
+        imagingRequests={imagingRequestsData}
       />
     </PDFViewer>
   ),
