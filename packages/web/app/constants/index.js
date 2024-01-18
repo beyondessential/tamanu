@@ -264,16 +264,6 @@ export const socialMediaOptions = [
   { value: 'WhatsApp', label: 'WhatsApp' },
 ];
 
-export const maritalStatusOptions = [
-  { value: 'Defacto', label: 'De facto' },
-  { value: 'Married', label: 'Married' },
-  { value: 'Single', label: 'Single' },
-  { value: 'Widow', label: 'Widow' },
-  { value: 'Divorced', label: 'Divorced' },
-  { value: 'Separated', label: 'Separated' },
-  { value: 'Unknown', label: 'Unknown' },
-];
-
 export const educationalAttainmentOptions = [
   { value: 'No formal schooling', label: 'No formal schooling' },
   { value: 'Less than primary school', label: 'Less than primary school' },
