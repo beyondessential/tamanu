@@ -110,6 +110,12 @@ export const MedicationForm = React.memo(
       })();
     }, [awaitingPrint, submittedMedication]);
 
+    const preventNegative = (value) => {
+      if (!value.target.validity.valid) {
+        value.target.value = '';
+      }
+    }
+
     return (
       <>
         <Form
@@ -197,19 +203,21 @@ export const MedicationForm = React.memo(
                 <Field
                   name="qtyMorning"
                   label="Morning"
-                  min="0"
+                  min={0}
                   component={NumberField}
+                  onInput={preventNegative}
                   disabled={readOnly}
                 />
-                <Field name="qtyLunch" min="0" label="Lunch" component={NumberField} disabled={readOnly} />
+                <Field name="qtyLunch" min={0} label="Lunch" component={NumberField} disabled={readOnly} onInput={preventNegative} />
                 <Field
                   name="qtyEvening"
                   label="Evening"
-                  min="0"
+                  min={0}
                   component={NumberField}
                   disabled={readOnly}
+                  onInput={preventNegative}
                 />
-                <Field name="qtyNight" label="Night" min="0" component={NumberField} disabled={readOnly} />
+                <Field name="qtyNight" label="Night" min={0} component={NumberField} disabled={readOnly} onInput={preventNegative} />
               </FormGrid>
               <Field
                 name="indication"
@@ -220,9 +228,10 @@ export const MedicationForm = React.memo(
               <Field
                 name="quantity"
                 label="Discharge quantity"
-                min="0"
+                min={0}
                 component={NumberField}
                 disabled={readOnly}
+                onInput={preventNegative}
               />
               {shouldShowDiscontinuationButton && (
                 <>
