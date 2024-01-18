@@ -81,9 +81,6 @@ export const styles = StyleSheet.create({
   certificateContent: {
     margin: certificateMargins,
   },
-  certificateContent: {
-    margin: '0 18px',
-  },
 });
 
 export const Row = props => <View style={styles.row} {...props} />;
