@@ -254,6 +254,7 @@ export class Form extends React.PureComponent {
       validateOnChange,
       validateOnBlur,
       initialValues,
+      render, // unused, but extracted from props so we don't pass it to formik
       ...props
     } = this.props;
     const { validationErrors } = this.state;
@@ -277,8 +278,9 @@ export class Form extends React.PureComponent {
             page: 1,
           }}
           {...props}
-          render={this.renderFormContents}
-        />
+        >
+          {this.renderFormContents}
+        </Formik>
         <Dialog
           isVisible={displayErrorDialog}
           onClose={this.hideErrorDialog}
