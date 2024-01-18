@@ -70,7 +70,12 @@ const generalStyles = StyleSheet.create({
 
 const SectionContainer = props => <View style={generalStyles.container} {...props} />;
 
-const PrescriptionsSection = ({ prescriptions, prescriber, facility, getLocalisation }) => {
+const PrescriptionsSection = ({
+  prescriptions,
+  prescriber,
+  facility,
+  getLocalisation,
+}) => {
   return (
     <View>
       <DataSection hideBottomRule title="Prescription details">
@@ -114,6 +119,7 @@ export const PrescriptionPrintout = ({
   facility,
   getLocalisation,
 }) => {
+  console.log(prescriber)
   return (
     <Document>
       <Page size="A4" style={styles.page}>

@@ -18,10 +18,12 @@ export const PrintPrescriptionModal = ({ medication, open, onClose }) => {
   const [patient, setPatient] = useState({});
   const [additionalData, setAdditionalData] = useState({});
   const [village, setVillage] = useState({});
+  const [prescriber, setPrescriber] = useState({});
   const [encounterLoading, setEncounterLoading] = useState(false);
   const [patientLoading, setPatientLoading] = useState(false);
   const [additionalDataLoading, setAdditionalDataLoading] = useState(false);
   const [villageLoading, setVillageLoading] = useState(false);
+  const [prescriberLoading, setPrescriberLoading] = useState(false);
   const { facility } = useAuth();
 
   useEffect(() => {
@@ -68,6 +70,18 @@ export const PrintPrescriptionModal = ({ medication, open, onClose }) => {
     setVillageLoading(false);
   }, [api, patient.villageId]);
 
+  useEffect(() => {
+    setPrescriberLoading(true);
+    (async () => {
+      if (medication.prescriberId) {
+        const res = await api.get(`user/${encodeURIComponent(medication.prescriberId)}`);
+        setPrescriber(res);
+        console.log(res);
+      }
+    })();
+    setPrescriberLoading(false);
+  }, [api, medication.prescriberId]);
+
   return (
     <>
       <Modal
@@ -78,7 +92,7 @@ export const PrintPrescriptionModal = ({ medication, open, onClose }) => {
         printable
         onPrint={() => printPDF('prescription-printout')}
       >
-        {encounterLoading || patientLoading || additionalDataLoading || villageLoading ? (
+        {encounterLoading || patientLoading || additionalDataLoading || villageLoading || prescriberLoading ? (
           <LoadingIndicator />
         ) : (
           <PDFViewer id="prescription-printout">
@@ -87,6 +101,7 @@ export const PrintPrescriptionModal = ({ medication, open, onClose }) => {
               prescriptions={[medication]}
               certificateData={certificateData}
               facility={facility}
+              prescriber={prescriber}
               getLocalisation={getLocalisation}
             />
           </PDFViewer>
