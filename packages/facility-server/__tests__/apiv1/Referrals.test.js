@@ -1,6 +1,6 @@
 import config from 'config';
-import { createDummyPatient, createDummyEncounter } from '@tamanu/shared/demoData';
-import { findOneOrCreate, chance } from '@tamanu/shared/test-helpers';
+import { createDummyEncounter, createDummyPatient } from '@tamanu/shared/demoData';
+import { chance, findOneOrCreate } from '@tamanu/shared/test-helpers';
 import { createTestContext } from '../utilities';
 
 let baseApp = null;

@@ -1,27 +1,27 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
-import { Divider, Box } from '@material-ui/core';
+import { Box, Divider } from '@material-ui/core';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import { useEncounter } from '../../contexts/Encounter';
 import { useLocalisation } from '../../contexts/Localisation';
 import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
-import { EncounterTopBar, ContentPane } from '../../components';
+import { ContentPane, EncounterTopBar } from '../../components';
 import { DiagnosisView } from '../../components/DiagnosisView';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { TabDisplay } from '../../components/TabDisplay';
 import { useApi } from '../../api';
 import {
-  VitalsPane,
+  DocumentsPane,
+  EncounterInfoPane,
+  EncounterMedicationPane,
+  EncounterProgramsPane,
+  ImagingPane,
+  InvoicingPane,
+  LabsPane,
   NotesPane,
   ProcedurePane,
-  LabsPane,
-  ImagingPane,
-  EncounterMedicationPane,
-  DocumentsPane,
-  EncounterProgramsPane,
-  InvoicingPane,
-  EncounterInfoPane,
+  VitalsPane,
 } from './panes';
 import { Colors, ENCOUNTER_OPTIONS_BY_VALUE } from '../../constants';
 import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';

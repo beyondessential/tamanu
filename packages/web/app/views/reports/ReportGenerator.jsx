@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { PageContainer, TopBar, ContentPane } from '../../components';
+import { ContentPane, PageContainer, TopBar } from '../../components';
 import { Colors } from '../../constants';
 import { ReportGeneratorForm } from './ReportGeneratorForm';
 

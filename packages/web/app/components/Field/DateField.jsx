@@ -1,13 +1,13 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
 import { Box } from '@material-ui/core';
 import { addDays, isAfter, isBefore, parse } from 'date-fns';
 import {
+  format as formatDate,
   toDateString,
   toDateTimeString,
-  format as formatDate,
 } from '@tamanu/shared/utils/dateTime';
 import PropTypes from 'prop-types';
 

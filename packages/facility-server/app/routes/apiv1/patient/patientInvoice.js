@@ -2,7 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op } from 'sequelize';
 
-import { mapQueryFilters, getCaseInsensitiveFilter } from '../../../database/utils';
+import { getCaseInsensitiveFilter, mapQueryFilters } from '../../../database/utils';
 
 export const patientInvoiceRoutes = express.Router();
 

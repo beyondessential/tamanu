@@ -1,4 +1,4 @@
-const concurrently = require('concurrently');
+import concurrently from 'concurrently';
 
 const [workspace, command] = process.argv.slice(2);
 

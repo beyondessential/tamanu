@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Field, CheckField } from '../Field';
+import { CheckField, Field } from '../Field';
 
 const StyledCheckField = styled(CheckField)`
   top: 50%;

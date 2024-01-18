@@ -1,15 +1,15 @@
 import React from 'react';
 import {
   CartesianGrid,
-  ReferenceArea,
-  ReferenceLine,
-  XAxis,
-  YAxis,
-  Tooltip,
+  Customized,
   Line,
   LineChart as LineChartComponent,
-  Customized,
+  ReferenceArea,
+  ReferenceLine,
   ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
 } from 'recharts';
 import { DISPLAY_VALUE_KEY, getMeasureData } from './helpers/getMeasureData';
 import { CustomisedXAxisTick, CustomisedYAxisTick } from './components/CustomisedTick';

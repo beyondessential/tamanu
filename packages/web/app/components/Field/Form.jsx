@@ -10,6 +10,7 @@ import { flattenObject } from '../../utils';
 import { Dialog } from '../Dialog';
 import { FORM_STATUSES, FORM_TYPES } from '../../constants';
 import { useFormSubmission } from '../../contexts/FormSubmission';
+import { IS_DEVELOPMENT } from '../../utils/env';
 
 const ErrorMessage = ({ error }) => `${JSON.stringify(error)}`;
 
@@ -74,7 +75,7 @@ export class Form extends React.PureComponent {
 
     const { onSubmit, formType = FORM_TYPES.DATA_FORM } = props;
     const hasNonAsyncSubmitHandler =
-      process.env.NODE_ENV === 'development' &&
+      IS_DEVELOPMENT &&
       formType === FORM_TYPES.DATA_FORM &&
       onSubmit.constructor.name !== 'AsyncFunction';
 
@@ -253,6 +254,7 @@ export class Form extends React.PureComponent {
       validateOnChange,
       validateOnBlur,
       initialValues,
+      render, // unused, but extracted from props so we don't pass it to formik
       ...props
     } = this.props;
     const { validationErrors } = this.state;
@@ -276,8 +278,9 @@ export class Form extends React.PureComponent {
             page: 1,
           }}
           {...props}
-          render={this.renderFormContents}
-        />
+        >
+          {this.renderFormContents}
+        </Formik>
         <Dialog
           isVisible={displayErrorDialog}
           onClose={this.hideErrorDialog}
