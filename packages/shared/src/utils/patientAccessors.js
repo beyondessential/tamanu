@@ -35,4 +35,5 @@ export const getAddress = ({ additionalData }) => {
   return address;
 };
 
-export const getLocation = ({ location }) => (`${location.locationGroup?.name}, ${location.name}`);
+export const getLocationName = ({ location }) =>
+  location.locationGroup ? `${location.locationGroup.name}, ${location.name}` : location.name;

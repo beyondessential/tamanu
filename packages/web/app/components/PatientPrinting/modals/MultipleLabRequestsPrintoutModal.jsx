@@ -8,7 +8,7 @@ import { useCertificate } from '../../../utils/useCertificate';
 import { useApi } from '../../../api';
 import { Colors } from '../../../constants';
 
-import { PDFViewer } from '../PDFViewer';
+import { PDFViewer, printPDF } from '../PDFViewer';
 import { useLocalisation } from '../../../contexts/Localisation';
 import { MultipleLabRequestsPrintout } from '@tamanu/shared/utils/patientCertificates';
 
@@ -45,11 +45,12 @@ export const MultipleLabRequestsPrintoutModal = ({ encounter, labRequests, open,
       onClose={onClose}
       color={Colors.white}
       printable
+      onPrint={() => printPDF('lab-request-printout')}
     >
       {patientLoading || additionalDataLoading || villageLoading ? (
         <LoadingIndicator />
       ) : (
-        <PDFViewer>
+        <PDFViewer id="lab-request-printout">
           <MultipleLabRequestsPrintout
             certificateData={certificateData}
             patient={patient}

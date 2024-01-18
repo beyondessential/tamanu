@@ -11,7 +11,7 @@ import { useCertificate } from '../../../utils/useCertificate';
 import { Modal } from '../../../components';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
 import { Colors } from '../../../constants';
-import { PDFViewer } from '../../../components/PatientPrinting/PDFViewer';
+import { PDFViewer, printPDF } from '../../../components/PatientPrinting/PDFViewer';
 import { useLocalisation } from '../../../contexts/Localisation';
 import { MultipleLabRequestsPrintout } from '@tamanu/shared/utils/patientCertificates';
 
@@ -58,11 +58,12 @@ export const LabRequestPrintModal = React.memo(({ labRequest, patient, open, onC
       width="md"
       color={Colors.white}
       printable
+      onPrint={() => printPDF('lab-request-printout')}
     >
       {isLoading ? (
         <LoadingIndicator />
       ) : (
-        <PDFViewer id="lab-request">
+        <PDFViewer id="lab-request-printout">
           <MultipleLabRequestsPrintout
             labRequests={[{ ...labRequest, tests: testsData.data, notes: notes?.data || [] }]}
             patient={patient}
