@@ -396,32 +396,35 @@ export const DischargeSummaryView = React.memo(() => {
   }
 
   return (
-    <PDFViewer id="discharge-summary" width={800} height={1000} showToolbar={false}>
-      <DischargeSummaryPrintout
-        patientData={{ ...patient, additionalData }}
-        encounter={encounter}
-        discharge={discharge}
-        getLocalisation={getLocalisation}
-      />
-    </PDFViewer>
-    // <Container>
-    //   <NavContainer>
-    //     <Button
-    //       variant="outlined"
-    //       color="primary"
-    //       size="small"
-    //       // onClick={() => printPage()} // TODO(web)
-    //       startIcon={<PrintIcon />}
-    //     >
-    //       Print Summary
-    //     </Button>
-    //   </NavContainer>
+    // <PDFViewer id="discharge-summary" width={800} height={1000} showToolbar={false}>
+    //   <DischargeSummaryPrintout
+    //     patientData={{ ...patient, additionalData }}
+    //     encounter={encounter}
+    //     discharge={discharge}
+    //     logo={logo}
+    //     title={title}
+    //     subTitle={subTitle}
+    //     getLocalisation={getLocalisation}
+    //   />
+    // </PDFViewer>
+    <Container>
+      <NavContainer>
+        <Button
+          variant="outlined"
+          color="primary"
+          size="small"
+          // onClick={() => printPage()} // TODO(web)
+          startIcon={<PrintIcon />}
+        >
+          Print Summary
+        </Button>
+      </NavContainer>
 
-    //   <PrintPortal>
-    //     <Box p={5}>
-    //       <SummaryPage encounter={encounter} discharge={discharge} />
-    //     </Box>
-    //   </PrintPortal>
-    // </Container>
+      {/* <PrintPortal>
+        <Box p={5}>
+          <SummaryPage encounter={encounter} discharge={discharge} />
+        </Box>
+      </PrintPortal> */}
+    </Container>
   );
 });

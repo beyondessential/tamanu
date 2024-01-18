@@ -1,26 +1,40 @@
 import { Document, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
 import React from 'react';
-import { CertificateHeader, Row, styles } from './Layout';
+import { CertificateHeader, styles } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
 import { PatientDetailsWithAddress } from './printComponents/PatientDetailsWithAddress';
 import { DIAGNOSIS_CERTAINTIES_TO_HIDE } from '@tamanu/constants';
+import { EncounterDetails } from './printComponents/EncounterDetails';
+
+const borderStyle = '1 solid black';
+const tableLabelWidth = 150;
+const tablePadding = 10;
 
 const generalStyles = StyleSheet.create({
   tableContainer: {
     marginVertical: 5,
   },
+  sectionContainer: {
+    marginVertical: 7,
+  },
 });
 
+const TableContainer = props => <View style={generalStyles.tableContainer} {...props} />;
+const SectionContainer = props => <View style={generalStyles.sectionContainer} {...props} />;
+
 const infoBoxStyles = StyleSheet.create({
-  infoCol: {
-    border: '1 solid black',
-    flex: 1,
-    padding: 10,
+  row: {
+    flexDirection: 'row',
+    border: borderStyle,
   },
   labelCol: {
-    border: '1 solid black',
-    width: 114,
-    padding: 10,
+    borderRight: borderStyle,
+    width: tableLabelWidth,
+    padding: tablePadding,
+  },
+  dataCol: {
+    flex: 1,
+    padding: tablePadding,
   },
   labelText: {
     fontFamily: 'Helvetica-Bold',
@@ -34,25 +48,55 @@ const infoBoxStyles = StyleSheet.create({
   },
 });
 
+const InfoBoxRow = props => <View style={infoBoxStyles.row} {...props} />;
+const InfoBoxLabelCol = props => <View style={infoBoxStyles.labelCol} {...props} />;
+const InfoBoxDataCol = props => <View style={infoBoxStyles.dataCol} {...props} />;
+
 const medicationsTableStyles = StyleSheet.create({
-  flexCol: {
-    flex: 1,
+  row: {
+    flexDirection: 'row',
   },
-  innerLabelCol: {
-    border: '1 solid black',
+  col: {
+    flexDirection: 'column',
+  },
+  tableBorder: {
+    border: borderStyle,
+  },
+  titleCol: {
+    width: tableLabelWidth,
+    borderRight: borderStyle,
+    padding: tablePadding,
+  },
+  labelCol: {
+    borderRight: borderStyle,
     width: 71,
-    padding: 10,
+    padding: tablePadding,
+  },
+  dataCol: {
+    flex: 1,
+    padding: tablePadding,
   },
 });
+
+const MedicationsTableBorder = props => (
+  <View style={[medicationsTableStyles.tableBorder, medicationsTableStyles.row]} {...props} />
+);
+const MedicationsTableTitleCol = props => (
+  <View style={medicationsTableStyles.titleCol} {...props} />
+);
 
 const notesSectionStyles = StyleSheet.create({
   notesBox: {
-    border: '1 solid black',
+    border: borderStyle,
     height: 76,
   },
+  title: {
+    fontFamily: 'Helvetica-Bold',
+    marginBottom: 3,
+    fontSize: 11,
+    fontWeight: 500,
+  },
 });
-
-const TableContainer = props => <View style={generalStyles.tableContainer} {...props} />;
 
 const extractDiagnosesInfo = ({ diagnoses, getLocalisation }) => {
   const displayIcd10Codes = getLocalisation('features.displayIcd10CodesInDischargeSummary');
@@ -69,16 +113,16 @@ const extractProceduresInfo = ({ procedures, getLocalisation }) => {
   if (!displayProcedureCodes) {
     return procedures.map(item => item?.procedureType?.name);
   } else {
-    return procedures.map(item => `${item?.diagnosis?.name} (${item?.procedureType?.code})`);
+    return procedures.map(item => `${item?.procedureType?.name} (${item?.procedureType?.code})`);
   }
 };
 
 const InfoBox = ({ label, info }) => (
-  <Row>
-    <View style={infoBoxStyles.labelCol}>
+  <InfoBoxRow>
+    <InfoBoxLabelCol>
       <Text style={infoBoxStyles.labelText}>{label}</Text>
-    </View>
-    <View style={infoBoxStyles.infoCol}>
+    </InfoBoxLabelCol>
+    <InfoBoxDataCol>
       {info.map((item, index) => {
         return (
           <Text style={infoBoxStyles.infoText} key={index}>
@@ -86,8 +130,8 @@ const InfoBox = ({ label, info }) => (
           </Text>
         );
       })}
-    </View>
-  </Row>
+    </InfoBoxDataCol>
+  </InfoBoxRow>
 );
 
 const DiagnosesTable = ({ title, diagnoses, getLocalisation }) => (
@@ -98,101 +142,122 @@ const ProceduresTable = ({ procedures, getLocalisation }) => (
   <InfoBox label="Procedures" info={extractProceduresInfo({ procedures, getLocalisation })} />
 );
 
-const NotesSection = () => <View style={notesSectionStyles.notesBox} />;
+const NotesSection = () => (
+  <View>
+    <Text style={notesSectionStyles.title}>Discharge planning notes</Text>
+    <View style={notesSectionStyles.notesBox} />
+  </View>
+);
+
+const MedicationsTableInfoBox = ({ label, info, hasBottomBorder = false }) => (
+  <View style={{ ...medicationsTableStyles.row, borderBottom: hasBottomBorder ?? borderStyle }}>
+    <View style={medicationsTableStyles.labelCol}>
+      <Text style={infoBoxStyles.infoText}>{label}</Text>
+    </View>
+    <View style={medicationsTableStyles.dataCol}>
+      {info.map((item, index) => {
+        return (
+          <Text style={infoBoxStyles.infoText} key={index}>
+            {item}
+          </Text>
+        );
+      })}
+    </View>
+  </View>
+);
 
 const MedicationsTable = ({ medications }) => {
   const currentMedications = medications.filter(m => !m.discontinued);
   const discontinuedMedications = medications.filter(m => m.discontinued);
 
-  console.log('current', currentMedications);
-
   return (
-    <Row>
-      <View style={infoBoxStyles.labelCol}>
+    <MedicationsTableBorder>
+      <MedicationsTableTitleCol>
         <Text style={infoBoxStyles.labelText}>Medications</Text>
+      </MedicationsTableTitleCol>
+      <View style={{ flexDirection: 'column', flex: 1 }}>
+        <MedicationsTableInfoBox
+          label="Current medications"
+          info={currentMedications.map(item => item?.medication?.name)}
+          hasBottomBorder={true}
+        />
+        <MedicationsTableInfoBox
+          label="Discontinued medications"
+          info={discontinuedMedications.map(item => item?.medication?.name)}
+          hasBottomBorder={false}
+        />
       </View>
-      <View style={medicationsTableStyles.flexCol}>
-        <Row>
-          <View style={medicationsTableStyles.innerLabelCol}>
-            <Text style={infoBoxStyles.infoText}>Current</Text>
-          </View>
-          <View style={infoBoxStyles.infoCol}>
-            {currentMedications.map((item, index) => (
-              <Text style={infoBoxStyles.infoText} key={index}>
-                {item?.medication?.name}
-              </Text>
-            ))}
-          </View>
-        </Row>
-        <Row>
-          <View style={medicationsTableStyles.innerLabelCol}>
-            <Text style={infoBoxStyles.infoText}>Discontinued</Text>
-          </View>
-          <View style={infoBoxStyles.infoCol}>
-            {discontinuedMedications.map((item, index) => (
-              <Text style={infoBoxStyles.infoText} key={index}>
-                {item?.medication?.name}
-              </Text>
-            ))}
-          </View>
-        </Row>
-      </View>
-    </Row>
+    </MedicationsTableBorder>
   );
 };
 
 export const DischargeSummaryPrintout = ({
   patientData,
   encounter,
-  discharge,
+  logo,
+  title,
+  subTitle,
   getLocalisation,
 }) => {
-  const {
-    diagnoses,
-    procedures,
-    medications,
-    startDate,
-    endDate,
-    location,
-    examiner,
-    reasonForEncounter = 'N/A',
-  } = encounter;
+  const { diagnoses, procedures, medications } = encounter;
   console.log(getLocalisation);
   const visibleDiagnoses = diagnoses.filter(
     ({ certainty }) => !DIAGNOSIS_CERTAINTIES_TO_HIDE.includes(certainty),
   );
-  console.log('medications', medications);
   const primaryDiagnoses = visibleDiagnoses.filter(d => d.isPrimary);
   const secondaryDiagnoses = visibleDiagnoses.filter(d => !d.isPrimary);
+  const letterheadConfig = { title: title, subTitle: subTitle };
 
   return (
     <Document>
       <Page size="A4" style={styles.page}>
         <CertificateHeader>
-          <LetterheadSection getLocalisation={getLocalisation} />
+          <LetterheadSection
+            getLocalisation={getLocalisation}
+            certificateTitle="Patient discharge summary"
+            letterheadConfig={letterheadConfig}
+            logoSrc={logo}
+          />
         </CertificateHeader>
-        <PatientDetailsWithAddress patient={patientData} getLocalisation={getLocalisation} />
-        <TableContainer>
-          <DiagnosesTable
-            title="Primary diagnoses"
-            diagnoses={primaryDiagnoses}
-            getLocalisation={getLocalisation}
-          />
-        </TableContainer>
-        <TableContainer>
-          <DiagnosesTable
-            title="Secondary diagnoses"
-            diagnoses={secondaryDiagnoses}
-            getLocalisation={getLocalisation}
-          />
-        </TableContainer>
-        <TableContainer>
-          <ProceduresTable procedures={procedures} getLocalisation={getLocalisation} />
-        </TableContainer>
-        <TableContainer>
-          <MedicationsTable medications={medications} />
-        </TableContainer>
-        <NotesSection />
+        <SectionContainer>
+          <PatientDetailsWithAddress patient={patientData} getLocalisation={getLocalisation} />
+        </SectionContainer>
+        <SectionContainer>
+          <EncounterDetails encounter={encounter} />
+        </SectionContainer>
+        <SectionContainer>
+          {primaryDiagnoses.length > 0 && (
+            <TableContainer>
+              <DiagnosesTable
+                title="Primary diagnoses"
+                diagnoses={primaryDiagnoses}
+                getLocalisation={getLocalisation}
+              />
+            </TableContainer>
+          )}
+          {secondaryDiagnoses.length > 0 && (
+            <TableContainer>
+              <DiagnosesTable
+                title="Secondary diagnoses"
+                diagnoses={secondaryDiagnoses}
+                getLocalisation={getLocalisation}
+              />
+            </TableContainer>
+          )}
+          {procedures.length > 0 && (
+            <TableContainer>
+              <ProceduresTable procedures={procedures} getLocalisation={getLocalisation} />
+            </TableContainer>
+          )}
+          {medications.length > 0 && (
+            <TableContainer>
+              <MedicationsTable medications={medications} />
+            </TableContainer>
+          )}
+        </SectionContainer>
+        <SectionContainer>
+          <NotesSection />
+        </SectionContainer>
       </Page>
     </Document>
   );
