@@ -76,11 +76,11 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
         );
 
         // Cleanup any existing iframe
-        const oldIframe = document.getElementById('printIframe');
+        const oldIframe = document.getElementById('temp-print-iframe');
         if (oldIframe) document.body.removeChild(oldIframe);
 
         const iframe = document.createElement('iframe');
-        iframe.id = 'printIframe';
+        iframe.id = 'temp-print-iframe';
         iframe.style.display = 'none';
         iframe.src = dataUrl;
         document.body.appendChild(iframe);
