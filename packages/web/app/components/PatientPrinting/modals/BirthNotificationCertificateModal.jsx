@@ -7,8 +7,11 @@ import { isErrorUnknownAllow404s, useApi } from '../../../api';
 import { LoadingIndicator } from '../../LoadingIndicator';
 import { useCertificate } from '../../../utils/useCertificate';
 import { usePatientAdditionalDataQuery } from '../../../api/queries';
+import { useLocalisation } from '../../../contexts/Localisation';
 
-import { BirthNotificationCertificate } from '../printouts/BirthNotificationCertificate';
+import { BirthNotificationCertificate } from '@tamanu/shared/utils/patientCertificates/BirthNotificationCertificate';
+import { PDFViewer } from '@react-pdf/renderer';
+import { printPDF } from '../PDFViewer';
 
 const useParent = (api, enabled, parentId) => {
   const { data: parentData, isLoading: parentDataIsLoading } = useQuery(
@@ -93,6 +96,7 @@ export const BirthNotificationCertificateModal = React.memo(({ patient }) => {
   const [open, setOpen] = useState(true);
   const api = useApi();
   const { facility } = useAuth();
+  const { getLocalisation } = useLocalisation();
   const certificateData = useCertificate();
   const { data: additionalData, isLoading: additionalDataLoading } = usePatientAdditionalDataQuery(
     patient.id,
@@ -137,17 +141,27 @@ export const BirthNotificationCertificateModal = React.memo(({ patient }) => {
     deathDataLoading;
 
   return (
-    <Modal open={open} onClose={() => setOpen(false)} width="md" printable keepMounted>
+    <Modal
+      open={open}
+      onClose={() => setOpen(false)}
+      width="md"
+      printable
+      keepMounted
+      onPrint={() => printPDF('birth-notification')}
+    >
       {loading ? (
         <LoadingIndicator />
       ) : (
-        <BirthNotificationCertificate
-          motherData={motherData}
-          fatherData={fatherData}
-          childData={{ ...patient, birthData, additionalData, ethnicity, deathData }}
-          facility={facility}
-          certificateData={certificateData}
-        />
+        <PDFViewer id="birth-notification">
+          <BirthNotificationCertificate
+            motherData={motherData}
+            fatherData={fatherData}
+            childData={{ ...patient, birthData, additionalData, ethnicity, deathData }}
+            facility={facility}
+            certificateData={certificateData}
+            getLocalisation={getLocalisation}
+          />
+        </PDFViewer>
       )}
     </Modal>
   );

@@ -3,15 +3,14 @@ import { Document, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
 import { CertificateHeader, styles, Watermark } from './Layout';
 import { ageInYears, getCurrentDateString } from '../dateTime';
 import { LetterheadSection } from './LetterheadSection';
-//  Todo: move constants
 import {
   ATTENDANT_OF_BIRTH_OPTIONS,
   BIRTH_DELIVERY_TYPE_OPTIONS,
   BIRTH_TYPE_OPTIONS,
-  maritalStatusOptions,
+  MARITAL_STATUS_OPTIONS,
   PLACE_OF_BIRTH_OPTIONS,
-  sexOptions,
-} from '@tamanu/web-frontend/app/constants';
+  SEX_OPTIONS,
+} from '@tamanu/constants';
 import { Footer } from './printComponents/Footer';
 import { getDisplayDate } from './getDisplayDate';
 
@@ -156,7 +155,7 @@ const ChildSection = ({ data }) => {
       </Row>
       <Row>
         <LeftCell>Sex</LeftCell>
-        <Cell style={{ width: 130 }}>{getLabelFromValue(sexOptions, data?.sex)}</Cell>
+        <Cell style={{ width: 130 }}>{getLabelFromValue(SEX_OPTIONS, data?.sex)}</Cell>
         <FlexCell>Ethnicity</FlexCell>
         <FlexCell>{data?.ethnicity?.name}</FlexCell>
       </Row>
@@ -191,7 +190,7 @@ const ParentSection = ({ parentType, data = {} }) => {
         <Cell style={{ width: 150 }}>{data?.ethnicity?.name}</Cell>
         <Cell style={{ width: 90 }}>Marital status</Cell>
         <FlexCell>
-          {getLabelFromValue(maritalStatusOptions, data?.additionalData?.maritalStatus)}
+          {getLabelFromValue(MARITAL_STATUS_OPTIONS, data?.additionalData?.maritalStatus)}
         </FlexCell>
       </Row>
       <Row>
