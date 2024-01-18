@@ -3,16 +3,12 @@ import { Document, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
 import { CertificateHeader, Watermark } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
 import { PatientDetailsWithAddress } from './printComponents/PatientDetailsWithAddress';
-import {
-  DRUG_ROUTE_VALUE_TO_LABEL,
-  ENCOUNTER_OPTIONS_BY_VALUE,
-} from '@tamanu/web-frontend/app/constants';
 import { MultiPageHeader } from './printComponents/MultiPageHeader';
 import { getName } from '../patientAccessors';
 import { EncounterDetails } from './printComponents/EncounterDetails';
 import { startCase } from 'lodash';
 import { Footer } from './printComponents/Footer';
-import { NOTE_TYPES } from '@tamanu/constants';
+import { NOTE_TYPES, ENCOUNTER_TYPES } from '@tamanu/constants';
 import { getDisplayDate } from './getDisplayDate';
 
 const borderStyle = '1 solid black';
@@ -70,6 +66,50 @@ const tableStyles = StyleSheet.create({
   },
 });
 
+export const DRUG_ROUTE_VALUE_TO_LABEL = {
+  dermal: 'Dermal',
+  ear: 'Ear',
+  eye: 'Eye',
+  intramuscular: 'IM',
+  intravenous: 'IV',
+  inhaled: 'Inhaled',
+  nasal: 'Nasal',
+  oral: 'Oral',
+  rectal: 'Rectal',
+  subcutaneous: 'S/C',
+  sublingual: 'Sublingual',
+  topical: 'Topical',
+  vaginal: 'Vaginal',
+};
+
+const ENCOUNTER_LABELS = {
+  [ENCOUNTER_TYPES.ADMISSION]: 'Hospital admission',
+  [ENCOUNTER_TYPES.TRIAGE]: 'Triage',
+  [ENCOUNTER_TYPES.CLINIC]: 'Clinic',
+  [ENCOUNTER_TYPES.IMAGING]: 'Imaging',
+  [ENCOUNTER_TYPES.EMERGENCY]: 'Emergency short stay',
+  [ENCOUNTER_TYPES.OBSERVATION]: 'Active ED patient',
+  [ENCOUNTER_TYPES.SURVEY_RESPONSE]: 'Form response',
+  [ENCOUNTER_TYPES.VACCINATION]: 'Vaccination record',
+};
+
+const NOTE_TYPE_LABELS = {
+  [NOTE_TYPES.TREATMENT_PLAN]: 'Treatment plan',
+  [NOTE_TYPES.ADMISSION]: 'Admission',
+  [NOTE_TYPES.CLINICAL_MOBILE]: 'Clinical note (mobile)',
+  [NOTE_TYPES.DIETARY]: 'Dietary',
+  [NOTE_TYPES.DISCHARGE]: 'Discharge planning',
+  [NOTE_TYPES.HANDOVER]: 'Handover note',
+  [NOTE_TYPES.MEDICAL]: 'Medical',
+  [NOTE_TYPES.NURSING]: 'Nursing',
+  [NOTE_TYPES.OTHER]: 'Other',
+  [NOTE_TYPES.PHARMACY]: 'Pharmacy',
+  [NOTE_TYPES.PHYSIOTHERAPY]: 'Physiotherapy',
+  [NOTE_TYPES.SOCIAL]: 'Social welfare',
+  [NOTE_TYPES.SURGICAL]: 'Surgical',
+  [NOTE_TYPES.SYSTEM]: 'System',
+};
+
 const Table = props => <View style={tableStyles.table} {...props} />;
 const Row = props => <View style={tableStyles.row} {...props} />;
 const P = ({ style = {}, children }) => <Text style={[tableStyles.p, style]}>{children}</Text>;
@@ -98,7 +138,7 @@ const COLUMNS = {
     {
       key: 'encounterType',
       title: 'Type',
-      accessor: ({ newEncounterType }) => ENCOUNTER_OPTIONS_BY_VALUE[newEncounterType].label,
+      accessor: ({ newEncounterType }) => ENCOUNTER_LABELS[newEncounterType],
       style: { width: '65%' },
     },
     {
@@ -288,34 +328,31 @@ const TableSection = ({ title, data, columns }) => {
   );
 };
 
-const NotesSection = ({ notes }) => {
-  return (
-    <View>
-      <Text style={textStyles.sectionTitle}>Notes</Text>
-      {/*<Table>*/}
-      {/*  {notes.map(note => (*/}
-      {/*    <Row>*/}
-      {/*      <FlexCell>*/}
-      {/*        <Text style={textStyles.tableColumnHeader}>{NOTE_TYPE_LABELS[note.noteType]}</Text>*/}
-      {/*        {'\n'}*/}
-      {/*        <Text style={textStyles.tableCellContent}>{note.content}</Text>*/}
-      {/*        <Text style={textStyles.tableCellFooter}>*/}
-      {/*          {note.noteType === NOTE_TYPES.TREATMENT_PLAN ? 'Last updated: ' : ''}*/}
-      {/*        </Text>*/}
-      {/*        <Text style={textStyles.tableCellFooter}>{note.author?.displayName || ''}</Text>*/}
-      {/*        <Text style={textStyles.tableCellFooter}>*/}
-      {/*          {note.onBehalfOf ? `on behalf of ${note.onBehalfOf.displayName}` : null}*/}
-      {/*        </Text>*/}
-      {/*        <Text style={textStyles.tableCellFooter}>*/}
-      {/*          {`${formatShort(note.date)} ${formatTime(note.date)}`}*/}
-      {/*        </Text>*/}
-      {/*      </FlexCell>*/}
-      {/*    </Row>*/}
-      {/*  ))}*/}
-      {/*</Table>*/}
-    </View>
-  );
-};
+const NotesSection = ({ notes }) => (
+  <View>
+    <Text style={textStyles.sectionTitle}>Notes</Text>
+    <Table>
+      {notes.map(note => (
+        <Row key={note.id}>
+          <FlexCell>
+            <Text style={textStyles.tableColumnHeader}>{NOTE_TYPE_LABELS[note.noteType]}</Text>
+            <Text style={textStyles.tableCellContent}>{note.content}</Text>
+            <Text style={textStyles.tableCellFooter}>
+              {note.noteType === NOTE_TYPES.TREATMENT_PLAN ? 'Last updated: ' : ''}
+            </Text>
+            <Text style={textStyles.tableCellFooter}>{note.author?.displayName || ''}</Text>
+            <Text style={textStyles.tableCellFooter}>
+              {note.onBehalfOf ? `on behalf of ${note.onBehalfOf.displayName}` : null}
+            </Text>
+            <Text style={textStyles.tableCellFooter}>
+              {`${getDisplayDate(note.date)} ${getDisplayDate(note.date, 'h:mma')}`}
+            </Text>
+          </FlexCell>
+        </Row>
+      ))}
+    </Table>
+  </View>
+);
 
 export const EncounterRecordPrintout = ({
   patient,

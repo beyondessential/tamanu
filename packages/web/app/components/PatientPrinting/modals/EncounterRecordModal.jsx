@@ -6,6 +6,7 @@ import { IMAGING_REQUEST_STATUS_TYPES } from '@tamanu/constants/statuses';
 import { DIAGNOSIS_CERTAINTIES_TO_HIDE } from '@tamanu/constants/diagnoses';
 import { ForbiddenError, NotFoundError } from '@tamanu/shared/errors';
 
+import { EncounterRecordPrintout } from '@tamanu/shared/utils/patientCertificates/EncounterRecordPrintout';
 import { EncounterRecord } from '../printouts/EncounterRecord';
 import { Modal } from '../../Modal';
 import { useCertificate } from '../../../utils/useCertificate';
@@ -22,6 +23,7 @@ import { LoadingIndicator } from '../../LoadingIndicator';
 import { Colors } from '../../../constants';
 import { ForbiddenErrorModalContents } from '../../ForbiddenErrorModal';
 import { ModalActionRow } from '../../ModalActionRow';
+import { PDFViewer } from '@react-pdf/renderer';
 
 // These below functions are used to extract the history of changes made to the encounter that are stored in notes.
 // obviously a better solution needs to be to properly implemented for storing and accessing this data, but this is an ok workaround for now.
@@ -41,12 +43,12 @@ const extractUpdateHistoryFromNoteData = (notes, encounterData, matcher) => {
         to: from,
         date: encounterData.startDate,
       },
-      ...notes?.map(({ content, date }) => {
+      ...(notes?.map(({ content, date }) => {
         const {
           groups: { to },
         } = content.match(matcher);
         return { to, date };
-      }) ?? {},
+      }) ?? {}),
     ];
     return history;
   }
@@ -266,22 +268,25 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
 
   return (
     <Modal {...modalProps}>
-      <EncounterRecord
-        patient={patient}
-        encounter={encounter}
-        certificateData={certificateData}
-        encounterTypeHistory={encounterTypeHistory}
-        locationHistory={locationHistory}
-        diagnoses={diagnoses}
-        procedures={procedures}
-        labRequests={updatedLabRequests}
-        imagingRequests={imagingRequests}
-        notes={displayNotes}
-        discharge={discharge}
-        village={village}
-        pad={padData}
-        medications={medications}
-      />
+      <PDFViewer style={{ width: '100%', height: '600px' }}>
+        <EncounterRecordPrintout
+          patient={patient}
+          encounter={encounter}
+          certificateData={certificateData}
+          encounterTypeHistory={encounterTypeHistory}
+          locationHistory={locationHistory}
+          diagnoses={diagnoses}
+          procedures={procedures}
+          labRequests={updatedLabRequests}
+          imagingRequests={imagingRequests}
+          notes={displayNotes}
+          discharge={discharge}
+          village={village}
+          pad={padData}
+          medications={medications}
+          getLocalisation={getLocalisation}
+        />
+      </PDFViewer>
     </Modal>
   );
 };
