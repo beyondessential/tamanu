@@ -4,6 +4,7 @@ import path from 'path';
 import { format as formatDate } from 'date-fns';
 import * as AWS from '@aws-sdk/client-s3';
 import mkdirp from 'mkdirp';
+import ms from 'ms';
 
 import { COMMUNICATION_STATUSES } from '@tamanu/constants';
 import { getReportModule } from '@tamanu/shared/reports';
@@ -97,22 +98,21 @@ export class ReportRunner {
     let reportDuration = 0;
 
     const {
-      reportRunningThresholdTimeToAddWaitTimeInMilliseconds,
-      waitTimeBetweenReportsInMilliseconds,
-    } = config.reportProcess;
+      duration,
+      ifRunAtLeast,
+    } = config.reportProcess.sleepAfterReport;
+
+    const startTime = Date.now();
 
     try {
       this.log.info('Running report', { parameters: this.parameters });
 
-      const startTime = Date.now();
       reportData = await reportModule.dataGenerator(
         { ...this.store, reportSchemaStores: this.reportSchemaStores },
         this.parameters,
       );
 
       metadata = await this.getMetadata();
-
-      reportDuration = Date.now() - startTime;
 
       this.log.info('Running report finished', {
         parameters: this.parameters,
@@ -126,6 +126,8 @@ export class ReportRunner {
         await this.sendErrorToEmail(e);
       }
       throw new Error(`${e.stack}\nReportRunner - Failed to generate report`);
+    } finally {
+      reportDuration = Date.now() - startTime;
     }
 
     try {
@@ -134,13 +136,13 @@ export class ReportRunner {
       throw new Error(`${e.stack}\nReportRunner - Failed to send`);
     } finally {
       // if report took longer than X ms, sleep for Y ms
-      if (reportDuration > reportRunningThresholdTimeToAddWaitTimeInMilliseconds) {
+      if (reportDuration > ms(ifRunAtLeast)) {
         this.log.info('Sleep after report run', {
           reportDuration,
-          reportRunningThresholdTimeToAddWaitTimeInMilliseconds,
-          waitTimeBetweenReportsInMilliseconds,
+          duration,
+          ifRunAtLeast,
         });
-        await sleepAsync(waitTimeBetweenReportsInMilliseconds);
+        await sleepAsync(ms(duration));
       }
     }
   }

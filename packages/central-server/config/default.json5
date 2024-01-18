@@ -949,10 +949,10 @@
     "processOptions": null,
     // Provide an object {} for the env of child process
     "childProcessEnv": null,
-    // 5 minutes
-    "waitTimeBetweenReportsInMilliseconds": 300000,
-    // 5 minutes
-    "reportRunningThresholdTimeToAddWaitTimeInMilliseconds": 300000
+    "sleepAfterReport": {
+      "duration": "5m",
+      "ifRunAtLeast": "5m",
+    },
   },
   "hl7": {
     "nullLastNameValue": "NoLastName",
