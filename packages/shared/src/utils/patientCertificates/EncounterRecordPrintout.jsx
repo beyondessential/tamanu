@@ -3,13 +3,11 @@ import { Document, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
 import { CertificateHeader, FixedHeader, PageBreakPadding, Watermark } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
 import { PatientDetailsWithAddress } from './printComponents/PatientDetailsWithAddress';
-import { MultiPageHeader } from './printComponents/MultiPageHeader';
-import { getName } from '../patientAccessors';
-import { EncounterDetails } from './printComponents/EncounterDetails';
 import { startCase } from 'lodash';
 import { Footer } from './printComponents/Footer';
 import { ENCOUNTER_TYPES, NOTE_TYPES } from '@tamanu/constants';
 import { getDisplayDate } from './getDisplayDate';
+import { EncounterDetailsExtended } from './printComponents/EncounterDetailsExtended';
 
 const borderStyle = '1 solid black';
 
@@ -434,7 +432,7 @@ export const EncounterRecordPrintout = ({
         <SectionSpacing />
         <PatientDetailsWithAddress getLocalisation={getLocalisation} patient={patient} />
         <SectionSpacing />
-        <EncounterDetails
+        <EncounterDetailsExtended
           encounter={encounter}
           discharge={discharge}
           clinicianText={clinicianText}
