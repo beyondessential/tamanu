@@ -4,8 +4,7 @@ import { DataItem } from './DataItem';
 import React from 'react';
 import { getDisplayDate } from '../getDisplayDate';
 
-export const EncounterDetails = ({ encounter, discharge }) => {
-  // const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
+export const EncounterDetails = ({ encounter, discharge, clinicianText = 'Clinician' }) => {
   const { location, examiner, department, startDate, endDate, reasonForEncounter } = encounter;
 
   return (
@@ -13,14 +12,12 @@ export const EncounterDetails = ({ encounter, discharge }) => {
       <Col>
         <DataItem label="Facility" value={location.facility.name} key="facility" />
         <DataItem
-          // label={`Supervising ${clinicianText}`}
-          label="Supervising clinician"
+          label={`Supervising ${clinicianText.toLowerCase()}`}
           value={examiner.displayName}
           key="supervisingClinician"
         />
         <DataItem
-          // label={`Discharging ${clinicianText}`}
-          label="Discharging clinician"
+          label={`Discharging ${clinicianText.toLowerCase()}`}
           value={discharge?.discharger?.displayName}
           key="dischargingClinician"
         />

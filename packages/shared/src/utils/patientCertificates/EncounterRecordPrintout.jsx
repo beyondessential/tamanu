@@ -378,6 +378,7 @@ export const EncounterRecordPrintout = ({
   pad,
   medications,
   getLocalisation,
+  clinicianText,
 }) => {
   const { watermark, logo } = certificateData;
 
@@ -400,7 +401,11 @@ export const EncounterRecordPrintout = ({
         <SectionSpacing />
         <PatientDetailsWithAddress getLocalisation={getLocalisation} patient={patient} />
         <SectionSpacing />
-        <EncounterDetails encounter={encounter} discharge={discharge} />
+        <EncounterDetails
+          encounter={encounter}
+          discharge={discharge}
+          clinicianText={clinicianText}
+        />
         <SectionSpacing />
         {encounterTypeHistory.length > 0 && (
           <TableSection

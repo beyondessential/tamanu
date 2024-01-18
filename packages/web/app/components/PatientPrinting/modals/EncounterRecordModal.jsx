@@ -25,6 +25,7 @@ import { ForbiddenErrorModalContents } from '../../ForbiddenErrorModal';
 import { ModalActionRow } from '../../ModalActionRow';
 import { PDFViewer } from '@react-pdf/renderer';
 import { printPDF } from '../PDFViewer.jsx';
+import { useLocalisedText } from '../../LocalisedText.jsx';
 
 // These below functions are used to extract the history of changes made to the encounter that are stored in notes.
 // obviously a better solution needs to be to properly implemented for storing and accessing this data, but this is an ok workaround for now.
@@ -99,6 +100,8 @@ const extractLocationHistory = (notes, encounterData) => {
 };
 
 export const EncounterRecordModal = ({ encounter, open, onClose }) => {
+  const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
+
   const { getLocalisation } = useLocalisation();
   const certificateData = useCertificate();
 
@@ -290,6 +293,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
           pad={padData}
           medications={medications}
           getLocalisation={getLocalisation}
+          clinicianText={clinicianText}
         />
       </PDFViewer>
     </Modal>
