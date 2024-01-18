@@ -8,7 +8,7 @@ import { getName } from '../patientAccessors';
 import { EncounterDetails } from './printComponents/EncounterDetails';
 import { startCase } from 'lodash';
 import { Footer } from './printComponents/Footer';
-import { NOTE_TYPES, ENCOUNTER_TYPES } from '@tamanu/constants';
+import { ENCOUNTER_TYPES, NOTE_TYPES } from '@tamanu/constants';
 import { getDisplayDate } from './getDisplayDate';
 import { useImagingRequest } from '@tamanu/web-frontend/app/api/queries/useImagingRequest';
 
@@ -410,7 +410,7 @@ export const EncounterRecordPrintout = ({
         <SectionSpacing />
         <PatientDetailsWithAddress getLocalisation={getLocalisation} patient={patient} />
         <SectionSpacing />
-        <EncounterDetails encounter={encounter} />
+        <EncounterDetails encounter={encounter} discharge={discharge} />
         <SectionSpacing />
         {encounterTypeHistory.length > 0 && (
           <TableSection
@@ -431,9 +431,6 @@ export const EncounterRecordPrintout = ({
         {labRequests.length > 0 && (
           <TableSection title="Lab requests" data={labRequests} columns={COLUMNS.labRequests} />
         )}
-        {/*{medications.length > 0 && (*/}
-        {/*  <TableSection title="Medications" data={medications} columns={COLUMNS.medications} />*/}
-        {/*)}*/}
         {/*{imagingRequests.length > 0 && (*/}
         {/*  <TableSection*/}
         {/*    title="Imaging requests"*/}
@@ -441,9 +438,11 @@ export const EncounterRecordPrintout = ({
         {/*    columns={COLUMNS.imagingRequests}*/}
         {/*  />*/}
         {/*)}*/}
-
-        {/*{notes.length > 0 && <NotesSection notes={notes} />}*/}
-        {/*<Footer />*/}
+        {medications.length > 0 && (
+          <TableSection title="Medications" data={medications} columns={COLUMNS.medications} />
+        )}
+        {notes.length > 0 && <NotesSection notes={notes} />}
+        <Footer />
       </Page>
     </Document>
   );

@@ -24,6 +24,7 @@ import { Colors } from '../../../constants';
 import { ForbiddenErrorModalContents } from '../../ForbiddenErrorModal';
 import { ModalActionRow } from '../../ModalActionRow';
 import { PDFViewer } from '@react-pdf/renderer';
+import { printPDF } from '../PDFViewer.jsx';
 
 // These below functions are used to extract the history of changes made to the encounter that are stored in notes.
 // obviously a better solution needs to be to properly implemented for storing and accessing this data, but this is an ok workaround for now.
@@ -267,8 +268,12 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
     : [];
 
   return (
-    <Modal {...modalProps}>
-      <PDFViewer style={{ width: '100%', height: '600px' }}>
+    <Modal {...modalProps} onPrint={() => printPDF('encounter-record')}>
+      <PDFViewer
+        style={{ width: '100%', height: '600px' }}
+        id="encounter-record"
+        showToolbar={false}
+      >
         <EncounterRecordPrintout
           patient={patient}
           encounter={encounter}

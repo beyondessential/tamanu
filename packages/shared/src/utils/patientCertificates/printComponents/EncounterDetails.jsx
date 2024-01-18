@@ -4,17 +4,9 @@ import { DataItem } from './DataItem';
 import React from 'react';
 import { getDisplayDate } from '../getDisplayDate';
 
-export const EncounterDetails = ({ encounter }) => {
+export const EncounterDetails = ({ encounter, discharge }) => {
   // const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
-  const {
-    location,
-    examiner,
-    discharge,
-    department,
-    startDate,
-    endDate,
-    reasonForEncounter,
-  } = encounter;
+  const { location, examiner, department, startDate, endDate, reasonForEncounter } = encounter;
 
   return (
     <DataSection title="Encounter details" hideBottomRule={true}>
