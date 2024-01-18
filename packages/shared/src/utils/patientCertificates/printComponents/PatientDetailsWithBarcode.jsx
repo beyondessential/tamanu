@@ -28,7 +28,7 @@ export const PatientDetailsWithBarcode = ({ patient, getLocalisation }) => {
           <P style={{ marginTop: 9 }} bold>
             Patient ID barcode:
           </P>
-          <PrintableBarcode patient={patient} />
+          <PrintableBarcode id={patient.displayId} />
         </View>
       </Col>
     </DataSection>

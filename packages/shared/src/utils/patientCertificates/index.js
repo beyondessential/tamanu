@@ -8,4 +8,5 @@ export * from './Typography';
 export * from './Table';
 export * from './labRequestAccessors';
 export * from './DischargeSummaryPrintout';
-export * from './PrescriptionPrintout';
+export * from './MultipleLabRequestsPrintout'
+export * from './PrescriptionPrintout'
