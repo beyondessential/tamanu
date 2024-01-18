@@ -1,14 +1,13 @@
 import crypto from 'crypto';
-import { sub, endOfDay, parseISO } from 'date-fns';
-
+import { endOfDay, parseISO, sub } from 'date-fns';
 
 import { CURRENT_SYNC_TIME_KEY } from '@tamanu/shared/sync/constants';
 import { SYNC_SESSION_DIRECTION } from '@tamanu/shared/sync';
-import { fake, fakeUser, fakeSurvey, fakeReferenceData } from '@tamanu/shared/test-helpers/fake';
+import { fake, fakeReferenceData, fakeSurvey, fakeUser } from '@tamanu/shared/test-helpers/fake';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/shared/demoData/patients';
 import { randomLabRequest } from '@tamanu/shared/demoData';
 import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
-import { SYNC_DIRECTIONS, LAB_REQUEST_STATUSES,SETTINGS_SCOPES } from '@tamanu/constants';
+import { SYNC_DIRECTIONS, LAB_REQUEST_STATUSES, SETTINGS_SCOPES } from '@tamanu/constants';
 import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 import { createTestContext } from '../utilities';

@@ -6,12 +6,12 @@ import { DataFetchingTable } from '../../components';
 import { reloadPatient } from '../../store/patient';
 import { useLabRequest } from '../../contexts/LabRequest';
 import {
-  getRequestedBy,
-  getStatus,
-  getRequestType,
-  getPriority,
   getDateWithTimeTooltip,
+  getPriority,
+  getRequestedBy,
   getRequestId,
+  getRequestType,
+  getStatus,
 } from '../../utils/lab';
 
 const columns = [

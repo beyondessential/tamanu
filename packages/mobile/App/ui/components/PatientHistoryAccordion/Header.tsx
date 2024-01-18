@@ -1,9 +1,9 @@
 import React, { FunctionComponent } from 'react';
 import { SvgProps } from 'react-native-svg';
-import { StyledView, RowView, StyledText, ColumnView } from '/styled/common';
+import { ColumnView, RowView, StyledText, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { formatStringDate } from '/helpers/date';
-import { DateFormats, HeaderIcons, EncounterTypeNames } from '/helpers/constants';
+import { DateFormats, EncounterTypeNames, HeaderIcons } from '/helpers/constants';
 import * as Icons from '../Icons';
 import { Separator } from '../Separator';
 import { EncounterType, IEncounter, ILocation, IUser } from '~/types';

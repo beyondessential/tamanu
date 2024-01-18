@@ -1,4 +1,4 @@
-import { createDummyPatient, createDummyEncounter } from '@tamanu/shared/demoData/patients';
+import { createDummyEncounter, createDummyPatient } from '@tamanu/shared/demoData/patients';
 import { randomLabRequest } from '@tamanu/shared/demoData/labRequests';
 import { LAB_REQUEST_STATUSES, REFERENCE_TYPES } from '@tamanu/constants';
 import { fake } from '@tamanu/shared/test-helpers/fake';
@@ -7,10 +7,10 @@ import { createTestContext } from '../utilities';
 import { validate } from './hl7utilities';
 
 import {
-  labTestToHL7Observation,
-  labTestToHL7DiagnosticReport,
-  labTestToHL7Device,
   hl7StatusToLabRequestStatus,
+  labTestToHL7Device,
+  labTestToHL7DiagnosticReport,
+  labTestToHL7Observation,
 } from '../../dist/hl7fhir/labTest';
 
 async function prepopulate(models) {

@@ -2,12 +2,12 @@ import React, { FunctionComponent as FC } from 'react';
 import { KeyboardAvoidingView } from 'react-native';
 import Animated from 'react-native-reanimated';
 import {
-  FullView,
-  StyledSafeAreaView,
-  StyledTouchableOpacity,
   CenterView,
-  StyledText,
+  FullView,
   RowView,
+  StyledSafeAreaView,
+  StyledText,
+  StyledTouchableOpacity,
 } from '/styled/common';
 import { theme } from '/styled/theme';
 import { CrossIcon } from '/components/Icons';

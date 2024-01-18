@@ -1,11 +1,11 @@
 import { createDummyPatient } from '@tamanu/shared/demoData/patients';
 import { createTestContext } from '../../../utilities';
 import {
-  setupProgramAndSurvey,
-  createCVDFormSurveyResponse,
-  createCVDReferral,
   createBreastCancerFormSurveyResponse,
   createBreastCancerReferral,
+  createCVDFormSurveyResponse,
+  createCVDReferral,
+  setupProgramAndSurvey,
 } from './utils';
 
 const ETHNICITY_IDS = {

@@ -4,12 +4,12 @@ import * as yup from 'yup';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 import { useApi } from '../../../api';
-import { Form, Field } from '../../../components/Field';
+import { Field, Form } from '../../../components/Field';
 import { ExpandedMultiSelectField } from '../../../components/Field/ExpandedMultiSelectField';
 import { FormGrid } from '../../../components/FormGrid';
 import { ButtonRow } from '../../../components/ButtonRow';
 import { FormSubmitButton } from '../../../components/Button';
-import { saveBlobAs } from '../../../utils/saveBlobAs';
+import { saveFile } from '../../../utils/fileSystemAccess';
 
 const ExportForm = ({ dataTypes, dataTypesSelectable }) => (
   <FormGrid columns={1}>
@@ -35,10 +35,10 @@ export const ExporterView = memo(({ title, endpoint, dataTypes, dataTypesSelecta
       const blob = await api.download(`admin/export/${endpoint}`, {
         includedDataTypes,
       });
-      saveBlobAs(blob, {
-        defaultFileName: `${title} export ${getCurrentDateTimeString()
-          .replaceAll(':', '-')
-          .replaceAll('/', '-')}.xlsx`,
+      await saveFile({
+        defaultFileName: `${title} export ${getCurrentDateTimeString()}`,
+        data: blob,
+        extensions: ['xlsx'],
       });
     },
     [api, title, endpoint],

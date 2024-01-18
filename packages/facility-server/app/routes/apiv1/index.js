@@ -1,7 +1,8 @@
 import express from 'express';
 
 import { constructPermission } from '@tamanu/shared/permissions/middleware';
-import { loginHandler, refreshHandler, authMiddleware } from '../../middleware/auth';
+import { authMiddleware, loginHandler, refreshHandler } from '../../middleware/auth';
+import asyncHandler from 'express-async-handler';
 
 import { allergy } from './allergy';
 import { appointments } from './appointments';
@@ -14,15 +15,15 @@ import { diagnosis } from './diagnosis';
 import { encounter } from './encounter';
 import { familyHistory } from './familyHistory';
 import { imagingRequest } from './imaging';
-import { invoices, invoiceLineTypes } from './invoice';
-import { labRequest, labTest, labTestType, labTestPanel } from './labs';
+import { invoiceLineTypes, invoices } from './invoice';
+import { labRequest, labTest, labTestPanel, labTestType } from './labs';
 import { labRequestLog } from './labRequestLog';
 import { location } from './location';
 import { locationGroup } from './locationGroup';
 import { medication } from './medication';
 import { notes } from './note';
 import { ongoingCondition } from './ongoingCondition';
-import { patient, patientCarePlan, patientIssue, patientFieldDefinition } from './patient';
+import { patient, patientCarePlan, patientFieldDefinition, patientIssue } from './patient';
 import { patientFacility } from './patientFacility';
 import { patientLetterTemplate } from './patientLetterTemplate';
 import { procedure } from './procedure';
@@ -54,6 +55,14 @@ const syncRoutes = express.Router();
 apiv1.post('/login', loginHandler);
 apiv1.use('/resetPassword', resetPassword);
 apiv1.use('/changePassword', changePassword);
+
+apiv1.get(
+  '/public/ping',
+  asyncHandler((req, res) => {
+    req.flagPermissionChecked();
+    return res.send({ ok: 'ok' });
+  }),
+);
 
 apiv1.use(authMiddleware);
 apiv1.use(constructPermission);

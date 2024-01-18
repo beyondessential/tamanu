@@ -1,4 +1,4 @@
-import { STRING, INTEGER, QueryTypes } from 'sequelize';
+import { INTEGER, QueryTypes, STRING } from 'sequelize';
 
 const MAIN_CAUSES = ['primary_cause', 'antecedent_cause1', 'antecedent_cause2'];
 

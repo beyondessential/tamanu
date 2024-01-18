@@ -2,10 +2,10 @@ import { resolve } from 'path';
 import { Command } from 'commander';
 
 import {
-  SYSTEM_USER_UUID,
   GENERAL_IMPORTABLE_DATA_TYPES,
   PERMISSION_IMPORTABLE_DATA_TYPES,
   SETTINGS_SCOPES,
+  SYSTEM_USER_UUID,
 } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
 

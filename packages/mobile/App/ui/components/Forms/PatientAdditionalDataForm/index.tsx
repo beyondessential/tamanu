@@ -5,9 +5,9 @@ import { Form } from '../Form';
 import { FormScreenView } from '/components/Forms/FormScreenView';
 import { PatientAdditionalDataFields } from './PatientAdditionalDataFields';
 import {
-  patientAdditionalDataValidationSchema,
   getInitialAdditionalValues,
   getInitialCustomValues,
+  patientAdditionalDataValidationSchema,
 } from './helpers';
 import { PatientAdditionalData } from '~/models/PatientAdditionalData';
 import { PatientFieldValue } from '~/models/PatientFieldValue';
