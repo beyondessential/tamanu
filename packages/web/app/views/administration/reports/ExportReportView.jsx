@@ -7,6 +7,7 @@ import { Field, Form, FormGrid, OutlinedButton, RadioField } from '../../../comp
 import { useApi } from '../../../api';
 import { ReportSelectField, VersionSelectField } from './ReportsSelectFields';
 import { Colors } from '../../../constants';
+import { saveFile } from '../../../utils/fileSystemAccess';
 
 const StyledButton = styled(OutlinedButton)`
   margin-top: 30px;
@@ -38,32 +39,17 @@ const SuccessMessage = ({ onClick, filePath }) => (
 
 export const ExportReportView = () => {
   const api = useApi();
-  // const { showItemInFolder, showSaveDialog } = useElectron(); // TODO(web)
 
   const handleSubmit = async ({ reportId, versionId, format }) => {
     try {
-      throw new Error('TODO: not implemented');
-      /*
       const { filename, data } = await api.get(
         `admin/reports/${reportId}/versions/${versionId}/export/${format}`,
       );
-      const result = await showSaveDialog({
-        defaultPath: filename,
+      await saveFile({
+        defaultFileName: filename,
+        data,
+        extensions: [format],
       });
-      throw new Error('TODO: not implemented');
-      if (!result.canceled) {
-        await fs.writeFile(result.filePath, Buffer.from(data));
-        toast.success(
-          <SuccessMessage
-            filePath={result.filePath}
-            onClick={() => showItemInFolder(result.filePath)}
-          />,
-          {
-            autoClose: false,
-          },
-        );
-      }
-      */
     } catch (err) {
       toast.error(`Failed to export: ${err.message}`);
     }

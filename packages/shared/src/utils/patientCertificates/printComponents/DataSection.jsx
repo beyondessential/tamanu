@@ -12,13 +12,19 @@ const styles = StyleSheet.create({
   },
 });
 
-export const DataSection = ({ title, children, props }) => {
+export const DataSection = ({
+  title,
+  children,
+  hideTopRule = false,
+  hideBottomRule = false,
+  props,
+}) => {
   return (
     <View {...props}>
       <Text style={styles.title}>{title}</Text>
-      <HorizontalRule width='0.5px' />
+      {!hideTopRule && <HorizontalRule />}
       <Row>{children}</Row>
-      <HorizontalRule />
+      {!hideBottomRule && <HorizontalRule />}
     </View>
   );
 };
