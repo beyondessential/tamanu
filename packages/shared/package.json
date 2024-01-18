@@ -86,7 +86,7 @@
     "build": "yarn run build:src && yarn run build:cjs && dual-pkg dist/mjs dist/cjs",
     "build:src": "swc --delete-dir-on-start --out-dir dist/mjs --copy-files --source-maps true src",
     "build:cjs": "yarn run build:src --out-dir dist/cjs --config module.type=commonjs",
-    "build-watch": "yarn run build && concurrently \"yarn run build:src --delete-dir-on-start=false --watch\" \"yarn run build:cjs --delete-dir-on-start=false --watch\"",
+    "build-watch": "yarn run build && concurrently \"yarn run build:src --watch\" \"yarn run build:cjs --watch\"",
     "test": "NODE_ENV=test jest"
   },
   "private": true,
