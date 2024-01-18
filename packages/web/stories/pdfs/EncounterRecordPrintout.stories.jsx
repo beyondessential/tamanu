@@ -218,6 +218,8 @@ const medicationsData = [
   },
 ];
 
+const imagingRequestsData = [];
+
 const notesData = [
   {
     id: 'test',
