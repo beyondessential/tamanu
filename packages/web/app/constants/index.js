@@ -393,22 +393,6 @@ export const PATIENT_STATUS = {
   DECEASED: 'Deceased',
 };
 
-export const DRUG_ROUTE_VALUE_TO_LABEL = {
-  dermal: 'Dermal',
-  ear: 'Ear',
-  eye: 'Eye',
-  intramuscular: 'IM',
-  intravenous: 'IV',
-  inhaled: 'Inhaled',
-  nasal: 'Nasal',
-  oral: 'Oral',
-  rectal: 'Rectal',
-  subcutaneous: 'S/C',
-  sublingual: 'Sublingual',
-  topical: 'Topical',
-  vaginal: 'Vaginal',
-};
-
 export const FORM_STATUSES = {
   SUBMIT_ATTEMPTED: 'SUBMIT_ATTEMPTED',
 };

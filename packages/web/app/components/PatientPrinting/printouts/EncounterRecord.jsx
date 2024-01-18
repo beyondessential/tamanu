@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
 import { startCase } from 'lodash';
 
-import { NOTE_TYPES } from '@tamanu/constants';
+import { NOTE_TYPES, DRUG_ROUTE_VALUE_TO_LABEL } from '@tamanu/constants';
 
 import { PrintLetterhead } from './reusable/PrintLetterhead';
 import { DateDisplay } from '../../DateDisplay';
@@ -11,11 +11,7 @@ import { capitaliseFirstLetter } from '../../../utils/capitalise';
 import { CertificateWrapper } from './reusable/CertificateWrapper';
 import { ListTable } from './reusable/ListTable';
 import { DisplayValue, LocalisedDisplayValue } from './reusable/CertificateLabels';
-import {
-  DRUG_ROUTE_VALUE_TO_LABEL,
-  ENCOUNTER_OPTIONS_BY_VALUE,
-  NOTE_TYPE_LABELS,
-} from '../../../constants';
+import { ENCOUNTER_OPTIONS_BY_VALUE, NOTE_TYPE_LABELS } from '../../../constants';
 
 import { ImagingRequestData } from './reusable/ImagingRequestData';
 import { useLocalisedText } from '../../LocalisedText';
