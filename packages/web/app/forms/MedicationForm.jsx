@@ -112,7 +112,7 @@ export const MedicationForm = React.memo(
 
     const preventNegative = (value) => {
       if (!value.target.validity.valid) {
-        value.target.value = '';
+        value.target.value = 0;
       }
     }
 
