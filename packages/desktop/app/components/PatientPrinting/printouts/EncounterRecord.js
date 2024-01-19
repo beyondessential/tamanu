@@ -408,22 +408,6 @@ export const EncounterRecord = React.memo(
           </>
         ) : null}
 
-        {vitalsData.length > 0 && recordedDates.length > 0 ? (
-          <>
-            {[0, 12, 24, 36, 48].map(start =>
-              recordedDates.length > start ? (
-                <>
-                  <TableHeading>Vitals</TableHeading>
-                  <CompactListTable
-                    data={vitalsData}
-                    columns={getVitalsColumn(start, start + 12)}
-                  />
-                </>
-              ) : null,
-            )}
-          </>
-        ) : null}
-
         {procedures.length > 0 ? (
           <>
             <TableHeading>Procedures</TableHeading>
@@ -475,6 +459,22 @@ export const EncounterRecord = React.memo(
                 </Row>
               ))}
             </Table>
+          </>
+        ) : null}
+
+        {vitalsData.length > 0 && recordedDates.length > 0 ? (
+          <>
+            {[0, 12, 24, 36, 48].map(start =>
+              recordedDates.length > start ? (
+                <>
+                  <TableHeading>Vitals</TableHeading>
+                  <CompactListTable
+                    data={vitalsData}
+                    columns={getVitalsColumn(start, start + 12)}
+                  />
+                </>
+              ) : null,
+            )}
           </>
         ) : null}
       </ShiftedCertificateWrapper>
