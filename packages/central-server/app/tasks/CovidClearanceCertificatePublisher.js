@@ -17,8 +17,8 @@ export class CovidClearanceCertificatePublisher extends ScheduledTask {
   }
 
   constructor(context) {
-    const { schedule, jitterMs } = config.schedules.covidClearanceCertificatePublisher;
-    super(schedule, log, jitterMs);
+    const { schedule, jitterTime } = config.schedules.covidClearanceCertificatePublisher;
+    super(schedule, log, jitterTime);
     this.models = context.store.models;
   }
 

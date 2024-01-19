@@ -14,7 +14,7 @@ export class ScheduledTask {
     throw new Error(`ScheduledTask::getName not overridden for ${this.constructor.name}`);
   }
 
-  constructor(schedule, log, jitterMs) {
+  constructor(schedule, log, jitterTime) {
     log.info('Initialising scheduled task', {
       name: this.getName(),
     });
@@ -25,7 +25,7 @@ export class ScheduledTask {
     this.isRunning = false;
     this.start = null;
     this.subtasks = [];
-    this.jitterMs = jitterMs;
+    this.jitterTime = jitterTime;
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -146,8 +146,8 @@ export class ScheduledTask {
       const name = this.getName();
       this.log.info(`ScheduledTask: ${name}: Scheduled for ${this.schedule}`);
       this.job = scheduleJob(this.schedule, async () => {
-        if (this.jitterMs) {
-          const randomOffset = Math.floor(Math.random() * ms(this.jitterMs));
+        if (this.jitterTime) {
+          const randomOffset = Math.floor(Math.random() * ms(this.jitterTime));
           await sleepAsync(randomOffset);
         }
 

@@ -19,8 +19,8 @@ export class OutpatientDischarger extends ScheduledTask {
       ...config.schedules.outpatientDischarger,
       ...overrideConfig,
     };
-    const { schedule, jitterMs } = conf;
-    super(schedule, log, jitterMs);
+    const { schedule, jitterTime } = conf;
+    super(schedule, log, jitterTime);
     this.config = conf;
     this.models = context.store.models;
 

@@ -9,8 +9,8 @@ export class VRSActionRetrier extends ScheduledTask {
   }
 
   constructor(context) {
-    const { retrySchedule, jitterMs } = config.integrations.fijiVrs;
-    super(retrySchedule, log, jitterMs);
+    const { retrySchedule, jitterTime } = config.integrations.fijiVrs;
+    super(retrySchedule, log, jitterTime);
     this.context = context;
   }
 
