@@ -53,6 +53,7 @@ const ResetPasswordFormComponent = ({ errorMessage, onNavToLogin, setFieldError 
         required
         component={TextField}
         placeholder="Enter your email address"
+        autoComplete="off"
       />
       <ResetPasswordButton text="Send reset code" />
       <BackToLoginButton onClick={onNavToLogin} variant="outlined">

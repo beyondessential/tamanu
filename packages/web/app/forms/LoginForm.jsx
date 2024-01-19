@@ -129,6 +129,7 @@ const LoginFormComponent = ({
         component={TextField}
         placeholder="Enter your email address"
         onChange={() => removeValidation()}
+        autoComplete="off"
       />
       <div>
         <StyledField
@@ -139,6 +140,7 @@ const LoginFormComponent = ({
           component={TextField}
           placeholder="Enter your password"
           onChange={() => removeValidation()}
+          autoComplete="off"
         />
         <RememberMeRow>
           <StyledCheckboxField name="rememberMe" label="Remember me" component={CheckField} />
