@@ -11,10 +11,12 @@ import { useLocalisation } from '../../contexts/Localisation';
 import { usePatientAdditionalDataQuery } from '../../api/queries';
 import { DischargeSummaryPrintout } from '@tamanu/shared/utils/patientCertificates';
 import { printPDF, PDFViewer } from '../../components/PatientPrinting/PDFViewer';
+import { LoadingIndicator } from '../../components/LoadingIndicator';
+import { useEncounterDischarge } from '../../api/queries/useEncounterDischarge';
 
 const Container = styled.div`
   background: ${Colors.white};
-  height: 100%;
+  height: calc(100vh - 142px);
 `;
 
 const NavContainer = styled.div`
@@ -29,15 +31,20 @@ export const DischargeSummaryView = React.memo(() => {
   const { getLocalisation } = useLocalisation();
   const { encounter } = useEncounter();
   const { title, subTitle, logo } = useCertificate();
-  const patient = useSelector(state => state.patient);
-  const { data: additionalData, isLoading: isPADLoading } = usePatientAdditionalDataQuery(
-    patient.id,
-  );
 
   // If there is no encounter loaded then this screen can't be displayed
   if (!encounter?.id) {
     return <Redirect to="/patients/all" />;
   }
+
+  const patient = useSelector(state => state.patient);
+  const { data: additionalData, isLoading: isPADLoading } = usePatientAdditionalDataQuery(
+    patient.id,
+  );
+
+  const { data: discharge, isLoading: isDischargeLoading } = useEncounterDischarge(encounter);
+
+  if (isPADLoading || isDischargeLoading) return <LoadingIndicator />;
 
   return (
     <Container>
@@ -56,6 +63,7 @@ export const DischargeSummaryView = React.memo(() => {
         <DischargeSummaryPrintout
           patientData={{ ...patient, additionalData }}
           encounter={encounter}
+          discharge={discharge}
           logo={logo}
           title={title}
           subTitle={subTitle}
