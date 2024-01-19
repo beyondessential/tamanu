@@ -9,4 +9,5 @@ export * from './Table';
 export * from './labRequestAccessors';
 export * from './DischargeSummaryPrintout';
 export * from './MultipleLabRequestsPrintout'
+export * from './MultipleImagingRequestsPrintout'
 export * from './PrescriptionPrintout'
