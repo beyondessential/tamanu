@@ -177,7 +177,7 @@ encounterRelations.get(
 
     req.checkPermission('list', 'ImagingRequest');
 
-    const associations = ImagingRequest.getListReferenceAssociations(models) || [];
+    const associations = ImagingRequest.getListReferenceAssociations() || [];
 
     const baseQueryOptions = {
       where: {
@@ -209,6 +209,7 @@ encounterRelations.get(
           ...ir.forResponse(),
           ...(includeNote ? await ir.extractNotes() : undefined),
           areas: ir.areas.map(a => a.forResponse()),
+          results: ir.results.map(result => result.forResponse()),
         };
       }),
     );

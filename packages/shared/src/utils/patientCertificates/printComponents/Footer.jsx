@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View } from '@react-pdf/renderer';
 import { getDisplayDate } from '../getDisplayDate';
 import React from 'react';
+import { getCurrentDateString } from '../../dateTime';
 
 const styles = StyleSheet.create({
   footer: {
@@ -8,8 +9,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     bottom: 16,
-    left: 50,
-    right: 50,
+    left: 30,
+    right: 30,
+    color: '#888888',
+    borderTop: '1px solid #888888',
+    paddingTop: 5,
   },
 
   footerLeftContent: {
@@ -47,12 +51,12 @@ const ValueText = ({ children, props }) => (
   </Text>
 );
 
-export const Footer = ({ printDate, printFacility, printedBy }) => {
+export const Footer = ({ printDate, printFacility, printedBy, style }) => {
   return (
-    <View style={styles.footer}>
+    <View style={[styles.footer, style]}>
       <View style={styles.footerLeftContent}>
         <LabelText>Print date: </LabelText>
-        <ValueText>{getDisplayDate(printDate)}</ValueText>
+        <ValueText>{getDisplayDate(printDate || getCurrentDateString())}</ValueText>
         {printFacility && (
           <>
             <ValueText> | </ValueText>
