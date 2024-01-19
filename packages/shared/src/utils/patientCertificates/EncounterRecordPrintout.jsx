@@ -396,13 +396,13 @@ export const EncounterRecordPrintout = ({
   imagingRequests,
   notes,
   discharge,
-  village,
   pad,
   medications,
   getLocalisation,
   clinicianText,
 }) => {
   const { watermark, logo } = certificateData;
+  const extendedPatientData = { ...patient, additionalData: pad };
 
   return (
     <Document>
@@ -425,7 +425,10 @@ export const EncounterRecordPrintout = ({
           />
         </CertificateHeader>
         <SectionSpacing />
-        <PatientDetailsWithAddress getLocalisation={getLocalisation} patient={patient} />
+        <PatientDetailsWithAddress
+          getLocalisation={getLocalisation}
+          patient={extendedPatientData}
+        />
         <SectionSpacing />
         <EncounterDetailsExtended
           encounter={encounter}
