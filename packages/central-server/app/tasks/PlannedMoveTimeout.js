@@ -21,7 +21,8 @@ export class PlannedMoveTimeout extends ScheduledTask {
       ...config.schedules.plannedMoveTimeout,
       ...overrideConfig,
     };
-    super(conf.schedule, log);
+    const { schedule, jitterMs } = conf;
+    super(schedule, log, jitterMs);
     this.config = conf;
     this.models = context.store.models;
 

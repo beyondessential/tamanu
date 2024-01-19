@@ -11,7 +11,8 @@ export class SyncTask extends ScheduledTask {
   }
 
   constructor(context) {
-    super(config.sync.schedule, log);
+    const { schedule, jitterMs } = config.sync;
+    super(schedule, log, jitterMs);
     this.context = context;
     this.runImmediately();
   }

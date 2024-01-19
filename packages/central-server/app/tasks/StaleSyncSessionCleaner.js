@@ -10,8 +10,8 @@ export class StaleSyncSessionCleaner extends ScheduledTask {
   }
 
   constructor(context) {
-    const conf = config.schedules.staleSyncSessionCleaner;
-    super(conf.schedule, log);
+    const { schedule, jitterMs } = config.schedules.staleSyncSessionCleaner;
+    super(schedule, log, jitterMs);
     this.config = conf;
     this.store = context.store;
   }
