@@ -21,9 +21,11 @@ const DATE_TIME_FORMAT = 'dd/MM/yyyy h:mma';
 const signingSectionStyles = StyleSheet.create({
   underlinedText: {
     textDecoration: 'underline',
+    fontSize: 9,
   },
   signatureView: {
     paddingRight: 32,
+    fontSize: 9,
   },
 });
 
@@ -40,7 +42,7 @@ const labDetailsSectionStyles = StyleSheet.create({
   },
   heading: {
     fontFamily: 'Helvetica-Bold',
-    fontSize: 14,
+    fontSize: 9,
     fontWeight: 500,
     marginVertical: 3,
   },
@@ -61,8 +63,8 @@ const LabRequestSigningSection = () => {
         {title}
       </P>
       <View style={signingSectionStyles.signatureView}>
-        <Signature text={'Signed'} />
-        <Signature text={'Date'} />
+        <Signature text="Signed" />
+        <Signature text="Date" />
       </View>
     </Col>
   );
@@ -110,7 +112,7 @@ const LabRequestDetailsView = ({ labRequests }) => {
               </Col>
               <Col>
                 <Row>
-                  <P style={labDetailsSectionStyles.barcodeLabelText} bold>
+                  <P style={labDetailsSectionStyles.barcodeLabelText} fontSize={9} bold>
                     Request ID barcode:
                   </P>
                   <PrintableBarcode id={request.displayId} />
@@ -143,15 +145,7 @@ const LabRequestDetailsView = ({ labRequests }) => {
 };
 
 export const MultipleLabRequestsPrintout = React.memo(
-  ({
-    patient,
-    labRequests,
-    encounter,
-    village,
-    additionalData,
-    certificateData,
-    getLocalisation,
-  }) => {
+  ({ patient, labRequests, encounter, additionalData, certificateData, getLocalisation }) => {
     const { logo } = certificateData;
 
     return (
