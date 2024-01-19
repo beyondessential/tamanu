@@ -1,5 +1,4 @@
 import { capitalize } from 'lodash';
-
 import { createValueIndex } from '@tamanu/shared/utils/valueIndex';
 import {
   APPOINTMENT_STATUSES,
@@ -21,6 +20,7 @@ import {
   PATIENT_REGISTRY_TYPES,
   PLACE_OF_BIRTH_TYPES,
   REFERRAL_STATUSES,
+  REGISTRATION_STATUSES,
   TEMPLATE_TYPES,
 } from '@tamanu/constants';
 
@@ -44,6 +44,11 @@ export const DB_OBJECTS_MAX_DEPTH = {
   ENCOUNTER_MAIN: 7,
 };
 
+export const PROGRAM_REGISTRATION_STATUS_LABEL = {
+  [REGISTRATION_STATUSES.ACTIVE]: 'Active',
+  [REGISTRATION_STATUSES.INACTIVE]: 'Removed',
+  [REGISTRATION_STATUSES.RECORDED_IN_ERROR]: 'Delete',
+};
 // Should only be colours that are defined as constants in Figma
 // (with the exception of searchTintColor)
 export const Colors = {
