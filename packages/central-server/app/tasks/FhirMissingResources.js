@@ -7,7 +7,7 @@ import { prepareQuery } from '../utils/prepareQuery';
 
 export class FhirMissingResources extends ScheduledTask {
   constructor(context) {
-    const conf = config.schedules.fhirMissingResources
+    const conf = config.schedules.fhirMissingResources;
     const { schedule, jitterTime } = conf;
     super(schedule, log.child({ task: 'FhirMissingResources' }), jitterTime);
     this.config = conf;
