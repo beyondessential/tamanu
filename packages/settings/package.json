@@ -3,9 +3,17 @@
   "version": "1.31.0",
   "private": true,
   "description": "BES - Settings",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/mjs/index.js",
   "exports": {
-    ".": "./dist/index.js",
-    "./*": "./dist/*/index.js"
+    ".": {
+      "import": "./dist/mjs/index.js",
+      "require": "./dist/cjs/index.js"
+    },
+    "./*": {
+      "import": "./dist/mjs/*",
+      "require": "./dist/cjs/*"
+    }
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -14,11 +22,11 @@
   "author": "Beyond Essential Systems Pty. Ltd.",
   "license": "SEE LICENSE IN ../../license",
   "scripts": {
-    "build": "yarn run build:src && yarn run build:types",
-    "build:src": "swc --delete-dir-on-start --out-dir dist --copy-files --source-maps true src",
-    "build:types": "tsc --declaration --emitDeclarationOnly --noEmit false && move-dts src dist",
-    "build-watch": "yarn run build:src --watch",
-    "lint": "yarn run lint:check && yarn run lint:types",
+    "build": "yarn run build:src && yarn run build:cjs && yarn run build:types && dual-pkg dist/mjs dist/cjs",
+    "build:src": "swc --delete-dir-on-start --out-dir dist/mjs --copy-files --source-maps true src",
+    "build:cjs": "yarn run build:src --out-dir dist/cjs --config module.type=commonjs",
+    "build:types": "tsc --declaration --emitDeclarationOnly --noEmit false && move-dts src dist/cjs dist/mjs",
+    "build-watch": "yarn run build && concurrently \"yarn run build:src --delete-dir-on-start=false --watch\" \"yarn run build:cjs --delete-dir-on-start=false --watch\"",
     "test": "NODE_ENV=test jest --passWithNoTests",
     "lint:check": "eslint src",
     "lint:types": "tsc"

@@ -1,4 +1,4 @@
-import { Sequelize, DataTypes } from 'sequelize';
+import { DataTypes, Sequelize } from 'sequelize';
 
 const TABLE = { tableName: 'fhir_writes', schema: 'logs' };
 

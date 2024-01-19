@@ -1,10 +1,10 @@
 import * as yup from 'yup';
 
 import {
-  FHIR_SEARCH_PARAMETERS,
-  FHIR_SEARCH_TOKEN_TYPES,
   FHIR_DATETIME_PRECISION,
   FHIR_MAX_RESOURCES_PER_PAGE,
+  FHIR_SEARCH_PARAMETERS,
+  FHIR_SEARCH_TOKEN_TYPES,
 } from '@tamanu/constants';
 
 import { DEFAULT_SCHEMA_FOR_TYPE, INCLUDE_SCHEMA } from './schemata';

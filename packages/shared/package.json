@@ -1,44 +1,98 @@
 {
   "name": "@tamanu/shared",
-  "version": "1.39.0",
+  "version": "2.1.0",
   "description": "Common code across Tamanu packages",
+  "main": "dist/cjs/index.js",
+  "module": "dist/mjs/index.js",
   "exports": {
-    ".": "./dist/index.js",
-    "./demoData/*": "./dist/demoData/*.js",
-    "./errors": "./dist/errors.js",
-    "./models/*": "./dist/models/*.js",
-    "./permissions/*": "./dist/permissions/*.js",
-    "./reports/utilities/*": "./dist/reports/utilities/*.js",
-    "./services/database": "./dist/services/database.js",
-    "./services/fhirTypes/*": "./dist/services/fhirTypes/*.js",
-    "./services/logging/*": "./dist/services/logging/*.js",
-    "./settings/*": "./dist/settings/*.js",
-    "./sync/*": "./dist/sync/*.js",
-    "./tasks/*": "./dist/tasks/*.js",
-    "./test-helpers/*": "./dist/test-helpers/*.js",
-    "./utils/fhir": "./dist/utils/fhir/index.js",
-    "./utils/handoverNotes": "./dist/utils/handoverNotes/index.js",
-    "./utils/patientCertificates": "./dist/utils/patientCertificates/index.js",
-    "./utils/uvci": "./dist/utils/uvci/index.js",
-    "./utils/*": "./dist/utils/*.js",
-    "./*": "./dist/*/index.js"
+    ".": {
+      "require": "./dist/cjs/index.js",
+      "import": "./dist/mjs/index.js"
+    },
+    "./demoData/*": {
+      "require": "./dist/cjs/demoData/*.js",
+      "import": "./dist/mjs/demoData/*.js"
+    },
+    "./errors": {
+      "require": "./dist/cjs/errors.js",
+      "import": "./dist/mjs/errors.js"
+    },
+    "./models/*": {
+      "require": "./dist/cjs/models/*.js",
+      "import": "./dist/mjs/models/*.js"
+    },
+    "./permissions/*": {
+      "require": "./dist/cjs/permissions/*.js",
+      "import": "./dist/mjs/permissions/*.js"
+    },
+    "./reports/utilities/*": {
+      "require": "./dist/cjs/reports/utilities/*.js",
+      "import": "./dist/mjs/reports/utilities/*.js"
+    },
+    "./services/database": {
+      "require": "./dist/cjs/services/database.js",
+      "import": "./dist/mjs/services/database.js"
+    },
+    "./services/fhirTypes/*": {
+      "require": "./dist/cjs/services/fhirTypes/*.js",
+      "import": "./dist/mjs/services/fhirTypes/*.js"
+    },
+    "./services/logging/*": {
+      "require": "./dist/cjs/services/logging/*.js",
+      "import": "./dist/mjs/services/logging/*.js"
+    },
+    "./sync/*": {
+      "require": "./dist/cjs/sync/*.js",
+      "import": "./dist/mjs/sync/*.js"
+    },
+    "./tasks/*": {
+      "require": "./dist/cjs/tasks/*.js",
+      "import": "./dist/mjs/tasks/*.js"
+    },
+    "./test-helpers/*": {
+      "require": "./dist/cjs/test-helpers/*.js",
+      "import": "./dist/mjs/test-helpers/*.js"
+    },
+    "./utils/fhir": {
+      "require": "./dist/cjs/utils/fhir/index.js",
+      "import": "./dist/mjs/utils/fhir/index.js"
+    },
+    "./utils/handoverNotes": {
+      "require": "./dist/cjs/utils/handoverNotes/index.js",
+      "import": "./dist/mjs/utils/handoverNotes/index.js"
+    },
+    "./utils/patientCertificates": {
+      "require": "./dist/cjs/utils/patientCertificates/index.js",
+      "import": "./dist/mjs/utils/patientCertificates/index.js"
+    },
+    "./utils/uvci": {
+      "require": "./dist/cjs/utils/uvci/index.js",
+      "import": "./dist/mjs/utils/uvci/index.js"
+    },
+    "./utils/*": {
+      "require": "./dist/cjs/utils/*.js",
+      "import": "./dist/mjs/utils/*.js"
+    },
+    "./*": {
+      "require": "./dist/cjs/*/index.js",
+      "import": "./dist/mjs/*/index.js"
+    }
   },
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
   "repository": "git@github.com:beyondessential/tamanu.git",
   "author": "Beyond Essential Systems Pty. Ltd.",
   "license": "SEE LICENSE IN ../../license",
   "scripts": {
-    "build": "swc --delete-dir-on-start --out-dir dist --copy-files --source-maps true src",
-    "build-watch": "yarn run build --watch",
-    "test": "NODE_ENV=test jest",
-    "lint": "eslint src"
+    "build": "yarn run build:src && yarn run build:cjs && dual-pkg dist/mjs dist/cjs",
+    "build:src": "swc --delete-dir-on-start --out-dir dist/mjs --copy-files --source-maps true src",
+    "build:cjs": "yarn run build:src --out-dir dist/cjs --config module.type=commonjs",
+    "build-watch": "yarn run build && concurrently \"yarn run build:src --delete-dir-on-start=false --watch\" \"yarn run build:cjs --delete-dir-on-start=false --watch\"",
+    "test": "NODE_ENV=test jest"
   },
   "private": true,
   "devDependencies": {
-    "@beyondessential/eslint-config-js": "^1.1.0",
     "@swc/jest": "^0.2.24",
     "@tamanu/build-tooling": "*",
-    "eslint": "^5.15.2",
     "jest": "^29.3.1",
     "sinon": "^11.1.2"
   },

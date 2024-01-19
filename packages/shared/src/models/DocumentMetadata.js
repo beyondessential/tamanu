@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { SYNC_DIRECTIONS, DOCUMENT_SOURCES } from '@tamanu/constants';
+import { DOCUMENT_SOURCES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
@@ -33,7 +33,7 @@ export class DocumentMetadata extends Model {
         note: Sequelize.STRING,
 
         // Relation can't be managed by sequelize because the
-        // attachment won't get downloaded to lan server
+        // attachment won't get downloaded to facility server
         attachmentId: {
           type: Sequelize.STRING,
           allowNull: false,

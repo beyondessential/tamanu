@@ -1,7 +1,6 @@
 **/dist/**
 **/node_modules/**
 ./node_modules/**
-./packages/lan/node_modules/**
 **/release/**
 **/realm-object-server/**
 **/data/**

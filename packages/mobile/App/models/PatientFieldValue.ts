@@ -1,7 +1,7 @@
 import {
   BeforeInsert,
-  Entity,
   Column,
+  Entity,
   ManyToOne,
   RelationId,
 } from 'typeorm/browser';

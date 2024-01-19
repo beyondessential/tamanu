@@ -4,15 +4,15 @@ import styled from 'styled-components/native';
 import * as styledSystem from 'styled-system';
 import { theme } from '/styled/theme';
 import {
-  StyledTouchableOpacity,
   RowView,
+  StyledTouchableOpacity,
   StyledViewProps,
 } from '/styled/common';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
 
 type StrNumType = number | string;
 
-interface ButtonContainer extends StyledViewProps {
+interface ButtonContainerProps extends StyledViewProps {
   loadingAction?: boolean;
   outline?: boolean;
   rounded?: boolean;
@@ -24,7 +24,7 @@ interface ButtonContainer extends StyledViewProps {
   flex?: number;
   disabled?: boolean;
 }
-export interface StyledButtonProps extends ButtonContainer {
+export interface StyledButtonProps extends ButtonContainerProps {
   id?: string;
   color?: string;
   buttonText?: string;
@@ -35,7 +35,7 @@ export interface StyledButtonProps extends ButtonContainer {
   children?: ReactNode;
 }
 
-const ButtonContainer = styled(RowView)<ButtonContainer>`
+const ButtonContainer = styled(RowView)<ButtonContainerProps>`
   ${styledSystem.flexbox};
   height: ${(props): any => (props.height
     ? props.height
