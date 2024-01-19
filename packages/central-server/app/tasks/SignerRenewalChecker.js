@@ -7,7 +7,8 @@ import { getLocalisation } from '../localisation';
 
 export class SignerRenewalChecker extends ScheduledTask {
   constructor(context) {
-    const { schedule } = config.schedules.signerRenewalChecker;
+    const conf = config.schedules.signerRenewalChecker;
+    const { schedule, jitterTime } = conf;
     super(schedule, log, jitterTime);
     this.config = conf;
     this.context = context;
