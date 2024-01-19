@@ -5,9 +5,14 @@ import { DateDisplay } from './DateDisplay';
 
 const getProcedureLabel = ({ procedureType }) => procedureType.name;
 const getCodeLabel = ({ procedureType }) => procedureType.code;
+const getActualDateTime = ({ date, startTime }) => {
+  const actualDateTime = date.slice(0, -8).concat(startTime.slice(-8));
+  console.log(actualDateTime); // Remove before merge
+  return <DateDisplay date={actualDateTime} />
+};
 
 const COLUMNS = [
-  { key: 'date', title: 'Date', accessor: ({ startTime }) => <DateDisplay date={startTime} /> },
+  { key: 'date', title: 'Date', accessor: getActualDateTime },
   { key: 'ProcedureType.code', title: 'Code', accessor: getCodeLabel },
   { key: 'ProcedureType.name', title: 'Procedure', accessor: getProcedureLabel },
 ];
