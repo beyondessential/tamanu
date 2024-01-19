@@ -2,7 +2,6 @@
   "name": "@tamanu/constants",
   "version": "2.1.0",
   "private": true,
-  "main": "./dist/index.js",
   "description": "Shared constants",
   "main": "dist/cjs/index.js",
   "module": "dist/mjs/index.js",
