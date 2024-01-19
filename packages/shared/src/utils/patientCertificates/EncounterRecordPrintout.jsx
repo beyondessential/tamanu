@@ -396,7 +396,6 @@ export const EncounterRecordPrintout = ({
   imagingRequests,
   notes,
   discharge,
-  village,
   pad,
   medications,
   getLocalisation,
@@ -425,7 +424,10 @@ export const EncounterRecordPrintout = ({
           />
         </CertificateHeader>
         <SectionSpacing />
-        <PatientDetailsWithAddress getLocalisation={getLocalisation} patient={patient} />
+        <PatientDetailsWithAddress
+          getLocalisation={getLocalisation}
+          patient={{ ...patient, ...pad }}
+        />
         <SectionSpacing />
         <EncounterDetailsExtended
           encounter={encounter}
