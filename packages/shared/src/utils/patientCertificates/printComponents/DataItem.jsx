@@ -6,7 +6,7 @@ export const DataItem = ({ label, value }) => {
   return (
     <Row>
       <P style={{ marginVertical: 3 }} fontSize={9} bold>
-        {label}:
+        {label}:{' '}
       </P>
       <P style={{ marginVertical: 3 }} fontSize={9}>
         {value}
