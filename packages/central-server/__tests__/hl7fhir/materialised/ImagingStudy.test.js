@@ -141,7 +141,7 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
         expect(ires.description).toEqual('This is an okay note\n\nThis is another note');
       }));
 
-    it.only('creates a result from an ImagingStudy with upstream Display ID', () =>
+    it('creates a result from an ImagingStudy with upstream Display ID', () =>
       showError(async () => {
         // arrange
         const { FhirServiceRequest, ImagingRequest, ImagingResult } = ctx.store.models;

@@ -17,9 +17,7 @@ describe('Data definition import', () => {
   beforeAll(async () => {
     ctx = await createTestContext();
   });
-  afterAll(async () => {
-    await ctx.close();
-  });
+  afterAll(() => ctx.close());
 
   function doImport(options) {
     const { file, ...opts } = options;
