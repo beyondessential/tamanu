@@ -1,7 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react-swc';
-import { json5Plugin } from 'vite-plugin-json5';
+import json5Plugin from 'vite-plugin-json5';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
 
 // https://vitejs.dev/config/
@@ -27,7 +27,7 @@ export default defineConfig({
     NODE_ENV: JSON.stringify(process.env.NODE_ENV),
     process: JSON.stringify({
       env: {
-        NODE_ENV: process.env.NODE_ENV,
+        NODE_ENV: process.env.NODE_ENV,yarn
       },
       arch: 'wasm',
       platform: 'web',
