@@ -92,7 +92,11 @@ export const PrintPrescriptionModal = ({ medication, open, onClose }) => {
         printable
         onPrint={() => printPDF('prescription-printout')}
       >
-        {encounterLoading || patientLoading || additionalDataLoading || villageLoading || prescriberLoading ? (
+        {encounterLoading ||
+        patientLoading ||
+        additionalDataLoading ||
+        villageLoading ||
+        prescriberLoading ? (
           <LoadingIndicator />
         ) : (
           <PDFViewer id="prescription-printout">
