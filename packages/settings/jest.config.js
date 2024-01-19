@@ -1,3 +1,2 @@
-const { SWC } = require('../../common.jest.config');
-
-module.exports = SWC;
+import { config } from '../../common.jest.config.mjs';
+export default config(import.meta);
