@@ -7,7 +7,7 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: 'Helvetica-Bold',
     marginBottom: 3,
-    fontSize: 14,
+    fontSize: 11,
     fontWeight: 500,
   },
 });

@@ -46,12 +46,12 @@ const styles = StyleSheet.create({
 export const H1 = ({ style, ...props }) => <Text style={{ ...styles.h1, ...style }} {...props} />;
 export const H2 = ({ style, ...props }) => <Text style={{ ...styles.h2, ...style }} {...props} />;
 export const H3 = ({ style, ...props }) => <Text style={{ ...styles.h3, ...style }} {...props} />;
-export const P = ({ mt = 0, mb, bold = false, style = {}, ...props }) => (
+export const P = ({ mt = 0, mb, bold = false, fontSize = 14, style = {}, ...props }) => (
   <Text
     {...props}
     style={[
       styles.p,
-      { marginTop: mt, marginBottom: mb },
+      { marginTop: mt, marginBottom: mb, fontSize },
       ...(bold ? [{ fontFamily: 'Helvetica-Bold' }] : []),
       style,
     ]}

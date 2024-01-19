@@ -234,7 +234,7 @@ const notesData = [
 ];
 
 const Template = () => (
-  <PDFViewer width={800} height={1000} showToolbar={false} >
+  <PDFViewer width={800} height={1000} showToolbar={false}>
     <EncounterRecordPrintout
       certificateData={certificateData}
       getLocalisation={getLocalisation}
