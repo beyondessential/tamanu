@@ -59,6 +59,7 @@ export const DischargeSummaryView = React.memo(() => {
           logo={logo}
           title={title}
           subTitle={subTitle}
+          certificateData={certificateData}
           getLocalisation={getLocalisation}
         />
       </PDFViewer>
