@@ -9,7 +9,7 @@ export const getDOB = ({ dateOfBirth }, getLocalisation) =>
   dateOfBirth ? getDisplayDate(dateOfBirth, 'dd/MM/yyyy', getLocalisation) : 'Unknown';
 
 export const getDOBWithAge = ({ dateOfBirth }, getLocalisation) => {
-  if (!dateOfBirth) return 'Unkown';
+  if (!dateOfBirth) return 'Unknown';
 
   const dob = getDisplayDate(dateOfBirth, 'dd/MM/yyyy', getLocalisation);
   const age = ageInYears(dateOfBirth);

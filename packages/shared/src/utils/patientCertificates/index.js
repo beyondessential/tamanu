@@ -7,6 +7,7 @@ export * from './Layout';
 export * from './Typography';
 export * from './Table';
 export * from './labRequestAccessors';
+export * from './EncounterRecordPrintout';
 export * from './DischargeSummaryPrintout';
-export * from './MultipleLabRequestsPrintout'
-export * from './PrescriptionPrintout'
+export * from './MultipleLabRequestsPrintout';
+export * from './PrescriptionPrintout';

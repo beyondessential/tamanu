@@ -81,6 +81,22 @@ export const styles = StyleSheet.create({
   certificateContent: {
     margin: certificateMargins,
   },
+  fixedHeader: {
+    position: 'absolute',
+    top: 25,
+    right: 50,
+  },
+  fixedFooter: {
+    position: 'absolute',
+    bottom: 16,
+    left: 50,
+    right: 50,
+    textAlign: 'left',
+  },
+  pageBreakPadding: {
+    height: 26,
+    width: '100%',
+  },
 });
 
 export const Row = props => <View style={styles.row} {...props} />;
@@ -120,3 +136,23 @@ export const CertificateLogo = ({ logoSrc }) => (
 export const CertificateHeader = props => <View style={styles.certificateHeader} {...props} />;
 export const CertificateFooter = props => <View style={styles.certificateFooter} {...props} />;
 export const CertificateContent = props => <View style={styles.certificateContent} {...props} />;
+
+export const FixedHeader = ({ children, props }) => (
+  <View fixed style={styles.fixedHeader} {...props}>
+    {children}
+  </View>
+);
+
+export const FixedFooter = ({ children, props }) => (
+  <View fixed style={styles.fixedFooter} {...props}>
+    <View style={{ ...styles.lightDivider, borderTopColor: '#888888' }} />
+    {children}
+  </View>
+);
+
+export const PageBreakPadding = ({ size }) => (
+  <View
+    fixed
+    style={{ ...styles.pageBreakPadding, height: size || styles.pageBreakPadding.height }}
+  />
+);
