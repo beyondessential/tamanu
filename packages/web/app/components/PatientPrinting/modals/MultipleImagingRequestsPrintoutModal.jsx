@@ -1,6 +1,5 @@
 import React from 'react';
-
-import { PDFViewer } from '@react-pdf/renderer';
+import { PDFViewer, printPDF } from '../PDFViewer';
 import { MultipleImagingRequestsPrintout } from '@tamanu/shared/utils/patientCertificates';
 import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../../../api';
@@ -38,16 +37,16 @@ export const MultipleImagingRequestsWrapper = ({ encounter, imagingRequests }) =
 
   return (
     <PDFViewer id="imaging-request-printout">
-      <MultipleImagingRequestsPrintout 
-      getLocalisation={ getLocalisation } 
-      patient={patient} 
-      encounter={encounter} 
-      imagingRequests={imagingRequests} 
-      certificateData={certificateData} />
+      <MultipleImagingRequestsPrintout
+        getLocalisation={getLocalisation}
+        patient={patient}
+        encounter={encounter}
+        imagingRequests={imagingRequests}
+        certificateData={certificateData}
+      />
     </PDFViewer>
   );
 };
-
 
 export const MultipleImagingRequestsPrintoutModal = ({
   open,
@@ -55,7 +54,6 @@ export const MultipleImagingRequestsPrintoutModal = ({
   encounter,
   imagingRequests,
 }) => {
-  
   return (
     <Modal
       title="Print imaging requests"
