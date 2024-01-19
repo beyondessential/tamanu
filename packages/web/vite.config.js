@@ -18,6 +18,7 @@ export default defineConfig({
       },
     }),
   ],
+
   define: {
     __VERSION__: JSON.stringify(
       await readFile('package.json')

@@ -250,12 +250,6 @@ export const bloodOptions = [
   { value: 'O-', label: 'O-' },
 ];
 
-export const sexOptions = [
-  { value: 'male', label: 'Male' },
-  { value: 'female', label: 'Female' },
-  { value: 'other', label: 'Other' },
-];
-
 export const titleOptions = [
   { value: 'Mr', label: 'Mr' },
   { value: 'Mrs', label: 'Mrs' },
@@ -275,16 +269,6 @@ export const socialMediaOptions = [
   { value: 'WhatsApp', label: 'WhatsApp' },
 ];
 
-export const maritalStatusOptions = [
-  { value: 'Defacto', label: 'De facto' },
-  { value: 'Married', label: 'Married' },
-  { value: 'Single', label: 'Single' },
-  { value: 'Widow', label: 'Widow' },
-  { value: 'Divorced', label: 'Divorced' },
-  { value: 'Separated', label: 'Separated' },
-  { value: 'Unknown', label: 'Unknown' },
-];
-
 export const educationalAttainmentOptions = [
   { value: 'No formal schooling', label: 'No formal schooling' },
   { value: 'Less than primary school', label: 'Less than primary school' },
@@ -294,8 +278,6 @@ export const educationalAttainmentOptions = [
   { value: 'University completed', label: 'University completed' },
   { value: 'Post grad completed', label: 'Post grad completed' },
 ];
-
-export const SEX_VALUE_INDEX = createValueIndex(sexOptions);
 
 export const pregnancyOutcomes = [
   { value: '', label: 'N/A' },
@@ -398,38 +380,6 @@ export const INVOICE_PAYMENT_STATUS_LABELS = {
 export const INVOICE_PAYMENT_STATUS_OPTIONS = [
   { label: 'Unpaid', value: INVOICE_PAYMENT_STATUSES.UNPAID },
   { label: 'Paid', value: INVOICE_PAYMENT_STATUSES.PAID },
-];
-
-export const BIRTH_DELIVERY_TYPE_OPTIONS = [
-  { value: BIRTH_DELIVERY_TYPES.NORMAL_VAGINAL_DELIVERY, label: 'Normal vaginal delivery' },
-  { value: BIRTH_DELIVERY_TYPES.BREECH, label: 'Breech' },
-  { value: BIRTH_DELIVERY_TYPES.EMERGENCY_C_SECTION, label: 'Emergency C-section' },
-  { value: BIRTH_DELIVERY_TYPES.ELECTIVE_C_SECTION, label: 'Elective C-section' },
-  { value: BIRTH_DELIVERY_TYPES.VACUUM_EXTRACTION, label: 'Vacuum extraction' },
-  { value: BIRTH_DELIVERY_TYPES.FORCEPS, label: 'Forceps' },
-  { value: BIRTH_DELIVERY_TYPES.OTHER, label: 'Other' },
-];
-
-export const BIRTH_TYPE_OPTIONS = [
-  { value: BIRTH_TYPES.SINGLE, label: 'Single' },
-  { value: BIRTH_TYPES.PLURAL, label: 'Plural' },
-];
-
-export const PLACE_OF_BIRTH_OPTIONS = [
-  { value: PLACE_OF_BIRTH_TYPES.HEALTH_FACILITY, label: 'Health facility' },
-  { value: PLACE_OF_BIRTH_TYPES.HOME, label: 'Home' },
-  { value: PLACE_OF_BIRTH_TYPES.OTHER, label: 'Other' },
-];
-
-export const ATTENDANT_OF_BIRTH_OPTIONS = [
-  { value: ATTENDANT_OF_BIRTH_TYPES.DOCTOR, label: 'Doctor' },
-  { value: ATTENDANT_OF_BIRTH_TYPES.MIDWIFE, label: 'Midwife' },
-  { value: ATTENDANT_OF_BIRTH_TYPES.NURSE, label: 'Nurse' },
-  {
-    value: ATTENDANT_OF_BIRTH_TYPES.TRADITIONAL_BIRTH_ATTENDANT,
-    label: 'Traditional birth attendant',
-  },
-  { value: ATTENDANT_OF_BIRTH_TYPES.OTHER, label: 'Other' },
 ];
 
 export const PATIENT_REGISTRY_OPTIONS = [
