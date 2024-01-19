@@ -14,18 +14,18 @@ import { MultiPageHeader } from './printComponents/MultiPageHeader';
 import { Footer } from './printComponents/Footer';
 import { getName } from '../patientAccessors';
 import { getDisplayDate } from './getDisplayDate';
-import { getCurrentDateString } from '../dateTime';
+import { DoubleHorizontalRule } from './printComponents/DoubleHorizontalRule';
 
 const DATE_TIME_FORMAT = 'dd/MM/yyyy h:mma';
+const headingFontSize = 11;
+const textFontSize = 9;
 
 const signingSectionStyles = StyleSheet.create({
   underlinedText: {
     textDecoration: 'underline',
-    fontSize: 9,
   },
   signatureView: {
     paddingRight: 32,
-    fontSize: 9,
   },
 });
 
@@ -42,7 +42,7 @@ const labDetailsSectionStyles = StyleSheet.create({
   },
   heading: {
     fontFamily: 'Helvetica-Bold',
-    fontSize: 9,
+    fontSize: 11,
     fontWeight: 500,
     marginVertical: 3,
   },
@@ -59,12 +59,12 @@ const SectionContainer = props => <View style={generalStyles.container} {...prop
 const LabRequestSigningSection = () => {
   const BaseSigningSection = ({ title }) => (
     <Col>
-      <P bold style={signingSectionStyles.underlinedText}>
+      <P bold style={signingSectionStyles.underlinedText} fontSize={9}>
         {title}
       </P>
       <View style={signingSectionStyles.signatureView}>
-        <Signature text="Signed" />
-        <Signature text="Date" />
+        <Signature text="Signed" fontSize={textFontSize} lineThickness={0.5} />
+        <Signature text="Date" fontSize={textFontSize} lineThickness={0.5} />
       </View>
     </Col>
   );
@@ -93,9 +93,11 @@ const LabRequestDetailsView = ({ labRequests }) => {
 
   return (
     <View>
-      <Text style={labDetailsSectionStyles.heading}>Lab request details</Text>
-      <HorizontalRule width="0.5px" />
-      {labRequests.map(request => {
+      <P bold fontSize={headingFontSize} mb={3}>
+        Lab request details
+      </P>
+      <HorizontalRule />
+      {labRequests.map((request, index) => {
         return (
           <View key={request.id} style={labDetailsSectionStyles.detailsContainer}>
             <Row>
@@ -112,7 +114,7 @@ const LabRequestDetailsView = ({ labRequests }) => {
               </Col>
               <Col>
                 <Row>
-                  <P style={labDetailsSectionStyles.barcodeLabelText} fontSize={9} bold>
+                  <P style={labDetailsSectionStyles.barcodeLabelText} fontSize={textFontSize} bold>
                     Request ID barcode:
                   </P>
                   <PrintableBarcode id={request.displayId} />
@@ -122,7 +124,7 @@ const LabRequestDetailsView = ({ labRequests }) => {
             <Row>
               <DataItem label="Notes" value={notesAccessor(request)} />
             </Row>
-            <HorizontalRule width="0.5px" />
+            <HorizontalRule />
             <Row>
               <Col>
                 <DataItem
@@ -136,10 +138,11 @@ const LabRequestDetailsView = ({ labRequests }) => {
                 <DataItem label="Specimen type" value={request.specimenType?.name} />
               </Col>
             </Row>
-            <View style={labDetailsSectionStyles.divider} />
+            {index < labRequests.length - 1 && <View style={labDetailsSectionStyles.divider} />}
           </View>
         );
       })}
+      <DoubleHorizontalRule />
     </View>
   );
 };
