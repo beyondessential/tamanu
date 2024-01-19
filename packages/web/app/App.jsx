@@ -9,6 +9,8 @@ import { LoginView } from './views';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { PromiseErrorBoundary } from './components/PromiseErrorBoundary';
 import { ForbiddenErrorModal } from './components/ForbiddenErrorModal';
+import { LoadingStatusPage, UnavailableStatusPage } from './components/StatusPage';
+import { useCheckServerAliveQuery } from './api/queries/useCheckServerAliveQuery';
 
 const AppContainer = styled.div`
   display: flex;
@@ -23,12 +25,13 @@ const AppContentsContainer = styled.div`
 `;
 
 export function App({ sidebar, children }) {
+  const { data: isServerAlive, isLoading } = useCheckServerAliveQuery();
   const isUserLoggedIn = useSelector(checkIsLoggedIn);
   const currentRoute = useSelector(getCurrentRoute);
 
-  if (!isUserLoggedIn) {
-    return <LoginView />;
-  }
+  if (isLoading) return <LoadingStatusPage />;
+  if (!isServerAlive) return <UnavailableStatusPage />;
+  if (!isUserLoggedIn) return <LoginView />;
 
   return (
     <AppContainer>

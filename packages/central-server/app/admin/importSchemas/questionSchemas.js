@@ -11,7 +11,7 @@ import { configString, validationString } from './jsonString';
 import { mathjsString } from './mathjsString';
 import { rangeArraySchema, rangeObjectSchema } from './rangeObject';
 
-const isIncompatibleCurrentlyAtType = async (currentlyAtType, value) =>
+const isIncompatibleCurrentlyAtType = (currentlyAtType, value) =>
   (currentlyAtType === CURRENTLY_AT_TYPES.VILLAGE && value === 'registrationCurrentlyAtFacility') ||
   (currentlyAtType === CURRENTLY_AT_TYPES.FACILITY && value === 'registrationCurrentlyAtVillage');
 
@@ -58,6 +58,9 @@ const patientDataColumnString = () =>
 export const SSCPatientData = SurveyScreenComponent.shape({
   config: configString(
     columnReferenceConfig.shape({
+      source: yup.string(),
+      // Note that it would be nice to validate the where parameter here
+      where: yup.string(),
       column: patientDataColumnString(),
       writeToPatient: yup
         .object()

@@ -2,6 +2,7 @@
 import React from 'react';
 import * as yup from 'yup';
 import { intervalToDuration, parseISO } from 'date-fns';
+import { isNull, isUndefined } from 'lodash';
 import { checkJSONCriteria } from '@tamanu/shared/utils/criteria';
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 
@@ -23,6 +24,8 @@ import {
 import { ageInMonths, ageInWeeks, ageInYears } from '@tamanu/shared/utils/dateTime';
 import { joinNames } from './user';
 import { notifyError } from './utils';
+
+const isNullOrUndefined = value => isNull(value) || isUndefined(value);
 
 const InstructionField = ({ label, helperText }) => (
   <p>
@@ -240,7 +243,7 @@ export function getFormInitialValues(
   const initialValues = components.reduce((acc, { dataElement }) => {
     const initialValue = getInitialValue(dataElement);
     const propName = dataElement.id;
-    if (initialValue === undefined) {
+    if (isNullOrUndefined(initialValue)) {
       return acc;
     }
     acc[propName] = initialValue;
@@ -256,24 +259,22 @@ export function getFormInitialValues(
     if (component.dataElement.type === 'UserData') {
       const { column = 'displayName' } = config;
       const userValue = currentUser[column];
-      if (userValue !== undefined) initialValues[component.dataElement.id] = userValue;
-    }
-
-    // patient data
-    if (component.dataElement.type === 'PatientData') {
-      const patientValue = transformPatientData(patient, additionalData, config);
-      if (patientValue !== undefined) {
-        initialValues[component.dataElement.id] = patientValue;
+      if (userValue !== undefined) {
+        initialValues[component.dataElement.id] = userValue;
       }
     }
+    // patient data
+    if (component.dataElement.type === 'PatientData') {
+      let patientValue = transformPatientData(patient, additionalData, config);
 
-    // patient program registration data
-    if (patientProgramRegistration) {
-      const patientValue = transformPatientProgramRegistrationData(
-        patientProgramRegistration,
-        config,
-      );
-      if (patientValue !== undefined) {
+      if (patientProgramRegistration && isNullOrUndefined(patientValue)) {
+        patientValue = transformPatientProgramRegistrationData(patientProgramRegistration, config);
+      }
+
+      // explicitly check against undefined and null rather than just !patientValue
+      if (isNullOrUndefined(patientValue)) {
+        initialValues[component.dataElement.id] = '';
+      } else {
         initialValues[component.dataElement.id] = patientValue;
       }
     }

@@ -35,14 +35,16 @@ programRegistry.get(
           id: {
             [Op.notIn]: Sequelize.literal(
               `(
-                SELECT DISTINCT(pr.id)
-                FROM program_registries pr
-                INNER JOIN patient_program_registrations ppr
-                ON ppr.program_registry_id = pr.id
-                WHERE
-                  ppr.patient_id = :excludePatientId
-                AND
-                  ppr.registration_status != :error
+                SELECT most_recent_registrations.id
+                FROM (
+                    SELECT DISTINCT ON (pr.id) pr.id, ppr.registration_status
+                    from program_registries pr
+                    INNER JOIN patient_program_registrations ppr
+                    ON ppr.program_registry_id = pr.id
+                    WHERE ppr.patient_id = :excludePatientId
+                    ORDER BY pr.id DESC, ppr.date DESC, ppr.id DESC
+                ) most_recent_registrations
+                WHERE most_recent_registrations.registration_status != :error
               )`,
             ),
           },
@@ -137,6 +139,9 @@ programRegistry.get(
         // so we build up a string like '["A_condition_name"]' and cast it to json before checking membership.
         `(select '["' || prc2.name || '"]' from program_registry_conditions prc2 where prc2.id = :programRegistryCondition)::jsonb <@ conditions.condition_list`,
       ),
+      makeFilter(true, 'mrr.registration_status != :error_status', () => ({
+        error_status: REGISTRATION_STATUSES.RECORDED_IN_ERROR,
+      })),
       makeFilter(
         !filterParams.removed || filterParams.removed === 'false',
         'mrr.registration_status = :active_status',
@@ -220,13 +225,13 @@ programRegistry.get(
     }
     const sortKeys = {
       displayId: 'patient.display_id',
-      patientName: 'UPPER(patient.last_name)',
-      dob: 'patient.date_of_birth',
-      homeVillage: 'UPPER(patient.village.name)',
+      firstName: 'UPPER(patient.first_name)',
+      lastName: 'UPPER(patient.last_name)',
+      dateOfBirth: 'patient.date_of_birth',
+      homeVillage: 'UPPER(patient_village.name)',
       registeringFacility: 'registering_facility.name',
-      currentlyAtVillage: 'UPPER(village.name)',
-      currentlyAtFacility: 'UPPER(facility.name)',
-      clinicalStatus: 'clinical_status',
+      currentlyIn: 'COALESCE(UPPER(currently_at_village.name), UPPER(currently_at_facility.name))',
+      clinicalStatus: 'mrr.clinical_status_id',
     };
 
     const sortKey = sortKeys[orderBy] ?? sortKeys.displayId;

@@ -76,6 +76,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
       {
         key: 'conditions',
         title: 'Related conditions',
+        sortable: false,
         accessor: ({ conditions }) => {
           const conditionsText = Array.isArray(conditions)
             ? conditions.map(x => ` ${x}`).toString()
