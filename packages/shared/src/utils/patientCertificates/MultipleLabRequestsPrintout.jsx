@@ -24,6 +24,11 @@ const signingSectionStyles = StyleSheet.create({
   signatureView: {
     paddingRight: 32,
   },
+  disclaimerText: {
+    fontFamily: 'Helvetica',
+    fontSize: 8,
+    fontStyle: 'italic',
+  },
 });
 
 const labDetailsSectionStyles = StyleSheet.create({
@@ -55,7 +60,7 @@ const SectionContainer = props => <View style={generalStyles.container} {...prop
 
 const LabRequestSigningSection = () => {
   const BaseSigningSection = ({ title }) => (
-    <Col>
+    <View style={{ flexDirection: 'column' }}>
       <P bold style={signingSectionStyles.underlinedText}>
         {title}
       </P>
@@ -63,14 +68,21 @@ const LabRequestSigningSection = () => {
         <Signature text={'Signed'} />
         <Signature text={'Date'} />
       </View>
-    </Col>
+    </View>
   );
 
   return (
     <View>
       <Row>
-        <BaseSigningSection title="Clinician" />
-        <BaseSigningSection title="Patient" />
+        <Col>
+          <BaseSigningSection title="Clinician" />
+        </Col>
+        <Col>
+          <BaseSigningSection title="Patient" />
+          <Text style={signingSectionStyles.disclaimerText}>
+            Patient to sign if required, according to local regulations
+          </Text>
+        </Col>
       </Row>
     </View>
   );
@@ -85,7 +97,7 @@ const LabRequestDetailsView = ({ labRequests }) => {
   };
 
   const notesAccessor = ({ notes }) => {
-    return notes?.map(note => note.content).join(', ');
+    return notes?.map(note => note.content).join(',\n');
   };
 
   return (
