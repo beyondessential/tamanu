@@ -13,7 +13,7 @@ const PATIENT_FIELDS = {
     { key: 'lastName', label: 'Last name' },
     { key: 'dateOfBirth', label: 'DOB', accessor: getDOBWithAge },
     { key: 'sex', label: 'Sex', accessor: getSex },
-    { key: 'villageId', label: 'Village' },
+    { key: 'village', label: 'Village' },
   ],
   rightCol: [{ key: 'displayId', label: 'Patient ID' }],
 };

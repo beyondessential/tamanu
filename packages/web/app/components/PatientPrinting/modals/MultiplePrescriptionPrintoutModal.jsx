@@ -11,6 +11,7 @@ import { PrescriptionPrintout } from '@tamanu/shared/utils/patientCertificates';
 import { useLocalisation } from '../../../contexts/Localisation';
 import { PDFViewer, printPDF } from '../PDFViewer';
 import { useAuth } from '../../../contexts/Auth';
+import { useReferenceData } from '../../../api/queries';
 
 export const MultiplePrescriptionPrintoutModal = ({
   encounter,
@@ -42,15 +43,9 @@ export const MultiplePrescriptionPrintoutModal = ({
     () => api.get(`patient/${encounter.patientId}/additionalData`),
   );
 
-  const { data: village = {}, isLoading: villageQueryLoading } = useQuery(
-    ['village', encounter.patientId],
-    () => api.get(`referenceData/${encodeURIComponent(patient.villageId)}`),
-    {
-      enabled: !!patient?.villageId,
-    },
-  );
-
-  const villageLoading = villageQueryLoading && !!patient?.villageId;
+  const villageQuery = useReferenceData(patient?.villageId);
+  const villageLoading = villageQuery.isLoading;
+  const village = villageQuery.data?.name;
 
   return (
     <Modal

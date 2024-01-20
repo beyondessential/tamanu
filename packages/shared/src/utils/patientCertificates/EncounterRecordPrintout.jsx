@@ -400,9 +400,10 @@ export const EncounterRecordPrintout = ({
   medications,
   getLocalisation,
   clinicianText,
+  village,
 }) => {
   const { watermark, logo } = certificateData;
-  const extendedPatientData = { ...patient, additionalData: pad };
+  const extendedPatientData = { ...patient, additionalData: pad, village };
 
   return (
     <Document>

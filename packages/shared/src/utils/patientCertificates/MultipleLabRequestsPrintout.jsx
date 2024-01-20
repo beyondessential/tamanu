@@ -153,6 +153,7 @@ export const MultipleLabRequestsPrintout = React.memo(
     getLocalisation,
   }) => {
     const { logo } = certificateData;
+    const extendedPatientData = { ...patient, village: village?.name, additionalData };
 
     return (
       <Document>
@@ -170,7 +171,10 @@ export const MultipleLabRequestsPrintout = React.memo(
               certificateTitle="Lab Request"
             />
             <SectionContainer>
-              <PatientDetailsWithBarcode patient={patient} getLocalisation={getLocalisation} />
+              <PatientDetailsWithBarcode
+                patient={extendedPatientData}
+                getLocalisation={getLocalisation}
+              />
             </SectionContainer>
             <SectionContainer>
               <EncounterDetails encounter={encounter} />

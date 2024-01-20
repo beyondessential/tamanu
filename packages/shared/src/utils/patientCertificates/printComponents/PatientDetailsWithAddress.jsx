@@ -15,7 +15,7 @@ const PATIENT_FIELDS = {
   rightCol: [
     { key: 'displayId', label: 'Patient ID' },
     { key: 'sex', label: 'Sex', accessor: getSex },
-    { key: 'villageId', label: 'Village' },
+    { key: 'village', label: 'Village' },
   ],
 };
 

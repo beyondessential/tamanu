@@ -8,7 +8,7 @@ import { useEncounter } from '../../contexts/Encounter';
 import { Colors } from '../../constants';
 import { useCertificate } from '../../utils/useCertificate';
 import { useLocalisation } from '../../contexts/Localisation';
-import { usePatientAdditionalDataQuery } from '../../api/queries';
+import { usePatientAdditionalDataQuery, useReferenceData } from '../../api/queries';
 import { DischargeSummaryPrintout } from '@tamanu/shared/utils/patientCertificates';
 import { printPDF, PDFViewer } from '../../components/PatientPrinting/PDFViewer';
 
@@ -34,6 +34,9 @@ export const DischargeSummaryView = React.memo(() => {
     patient.id,
   );
 
+  const villageQuery = useReferenceData(patient?.villageId);
+  const village = villageQuery.data?.name;
+
   // If there is no encounter loaded then this screen can't be displayed
   if (!encounter?.id) {
     return <Redirect to="/patients/all" />;
@@ -54,7 +57,7 @@ export const DischargeSummaryView = React.memo(() => {
       </NavContainer>
       <PDFViewer id="discharge-summary" showToolbar={false}>
         <DischargeSummaryPrintout
-          patientData={{ ...patient, additionalData }}
+          patientData={{ ...patient, additionalData, village }}
           encounter={encounter}
           logo={logo}
           title={title}

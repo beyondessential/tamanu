@@ -4,7 +4,7 @@ import { Modal } from '../../Modal';
 import { useCertificate } from '../../../utils/useCertificate';
 import { LoadingIndicator } from '../../LoadingIndicator';
 import { useApi } from '../../../api';
-
+import { useReferenceData } from '../../../api/queries';
 import { PrescriptionPrintout } from '@tamanu/shared/utils/patientCertificates';
 import { useLocalisation } from '../../../contexts/Localisation';
 import { PDFViewer, printPDF } from '../PDFViewer';
@@ -17,11 +17,9 @@ export const PrintPrescriptionModal = ({ medication, open, onClose }) => {
   const [encounter, setEncounter] = useState({});
   const [patient, setPatient] = useState({});
   const [additionalData, setAdditionalData] = useState({});
-  const [village, setVillage] = useState({});
   const [encounterLoading, setEncounterLoading] = useState(false);
   const [patientLoading, setPatientLoading] = useState(false);
   const [additionalDataLoading, setAdditionalDataLoading] = useState(false);
-  const [villageLoading, setVillageLoading] = useState(false);
   const { facility } = useAuth();
 
   useEffect(() => {
@@ -57,16 +55,11 @@ export const PrintPrescriptionModal = ({ medication, open, onClose }) => {
     setAdditionalDataLoading(false);
   }, [api, encounter.patientId]);
 
-  useEffect(() => {
-    setVillageLoading(true);
-    (async () => {
-      if (patient.villageId) {
-        const res = await api.get(`referenceData/${encodeURIComponent(patient.villageId)}`);
-        setVillage(res);
-      }
-    })();
-    setVillageLoading(false);
-  }, [api, patient.villageId]);
+  console.log('patient', patient);
+
+  const villageQuery = useReferenceData(patient?.villageId);
+  const villageLoading = villageQuery.isLoading;
+  const village = villageQuery.data?.name;
 
   return (
     <>
