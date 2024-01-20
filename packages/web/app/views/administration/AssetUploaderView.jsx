@@ -38,7 +38,10 @@ export const AssetUploaderView = memo(() => {
     new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result);
+      reader.onload = () => {
+        const cleanedData = reader.result.split('base64,').pop();
+        return resolve(cleanedData);
+      };
       reader.onerror = conversionError => reject(conversionError);
     });
 
