@@ -385,7 +385,7 @@ const EncounterRecordHeader = ({ patient }) => (
 );
 
 export const EncounterRecordPrintout = ({
-  patient,
+  patientData,
   encounter,
   certificateData,
   encounterTypeHistory,
@@ -396,14 +396,12 @@ export const EncounterRecordPrintout = ({
   imagingRequests,
   notes,
   discharge,
-  pad,
   medications,
   getLocalisation,
   clinicianText,
 }) => {
   const { watermark, logo } = certificateData;
-  const extendedPatientData = { ...patient, additionalData: pad };
-
+  
   return (
     <Document>
       <Page size="A4" style={{ paddingHorizontal: 50, paddingVertical: 30 }}>
@@ -412,7 +410,7 @@ export const EncounterRecordPrintout = ({
           <View
             fixed
             render={({ pageNumber }) =>
-              pageNumber > 1 && <EncounterRecordHeader patient={patient} />
+              pageNumber > 1 && <EncounterRecordHeader patient={patientData} />
             }
           />
         </FixedHeader>
@@ -425,10 +423,7 @@ export const EncounterRecordPrintout = ({
           />
         </CertificateHeader>
         <SectionSpacing />
-        <PatientDetailsWithAddress
-          getLocalisation={getLocalisation}
-          patient={extendedPatientData}
-        />
+        <PatientDetailsWithAddress getLocalisation={getLocalisation} patient={patientData} />
         <SectionSpacing />
         <EncounterDetailsExtended
           encounter={encounter}
