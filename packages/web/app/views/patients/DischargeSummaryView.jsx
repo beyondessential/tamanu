@@ -11,6 +11,7 @@ import { useLocalisation } from '../../contexts/Localisation';
 import { usePatientAdditionalDataQuery } from '../../api/queries';
 import { DischargeSummaryPrintout } from '@tamanu/shared/utils/patientCertificates';
 import { printPDF, PDFViewer } from '../../components/PatientPrinting/PDFViewer';
+import { usePatientVillageQuery } from '../../api/queries/usePatientVillageQuery';
 
 const Container = styled.div`
   background: ${Colors.white};
@@ -33,6 +34,7 @@ export const DischargeSummaryView = React.memo(() => {
   const { data: additionalData, isLoading: isPADLoading } = usePatientAdditionalDataQuery(
     patient.id,
   );
+  const { data: village, isLoading: isVillageLoading } = usePatientVillageQuery(patient?.villageId);
 
   // If there is no encounter loaded then this screen can't be displayed
   if (!encounter?.id) {
@@ -54,7 +56,7 @@ export const DischargeSummaryView = React.memo(() => {
       </NavContainer>
       <PDFViewer id="discharge-summary" showToolbar={false}>
         <DischargeSummaryPrintout
-          patientData={{ ...patient, additionalData }}
+          patientData={{ ...patient, additionalData, village }}
           encounter={encounter}
           logo={logo}
           title={title}
