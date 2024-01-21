@@ -66,9 +66,7 @@ export const LabRequestPrintModal = React.memo(({ labRequest, patient, open, onC
         <PDFViewer id="lab-request-printout">
           <MultipleLabRequestsPrintout
             labRequests={[{ ...labRequest, tests: testsData.data, notes: notes?.data || [] }]}
-            patient={patient}
-            village={village}
-            additionalData={additionalData}
+            patientData={{ ...patient, additionalData, village }}
             encounter={encounter}
             certificateData={certificate}
             getLocalisation={getLocalisation}
