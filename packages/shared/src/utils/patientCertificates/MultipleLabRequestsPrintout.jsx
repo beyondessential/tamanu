@@ -14,7 +14,6 @@ import { MultiPageHeader } from './printComponents/MultiPageHeader';
 import { Footer } from './printComponents/Footer';
 import { getName } from '../patientAccessors';
 import { getDisplayDate } from './getDisplayDate';
-import { getCurrentDateString } from '../dateTime';
 
 const DATE_TIME_FORMAT = 'dd/MM/yyyy h:mma';
 
@@ -144,11 +143,9 @@ const LabRequestDetailsView = ({ labRequests }) => {
 
 export const MultipleLabRequestsPrintout = React.memo(
   ({
-    patient,
+    patientData,
     labRequests,
     encounter,
-    village,
-    additionalData,
     certificateData,
     getLocalisation,
   }) => {
@@ -159,8 +156,8 @@ export const MultipleLabRequestsPrintout = React.memo(
         <Page size="A4" style={styles.page}>
           <MultiPageHeader
             documentName="Lab request"
-            patientName={getName(patient)}
-            patiendId={patient.displayId}
+            patientName={getName(patientData)}
+            patiendId={patientData.displayId}
           />
           <CertificateHeader>
             <LetterheadSection
@@ -170,7 +167,7 @@ export const MultipleLabRequestsPrintout = React.memo(
               certificateTitle="Lab Request"
             />
             <SectionContainer>
-              <PatientDetailsWithBarcode patient={patient} getLocalisation={getLocalisation} />
+              <PatientDetailsWithBarcode patient={patientData} getLocalisation={getLocalisation} />
             </SectionContainer>
             <SectionContainer>
               <EncounterDetails encounter={encounter} />
@@ -192,7 +189,7 @@ export const MultipleLabRequestsPrintout = React.memo(
 );
 
 MultipleLabRequestsPrintout.propTypes = {
-  patient: PropTypes.object.isRequired,
+  patientData: PropTypes.object.isRequired,
   village: PropTypes.object.isRequired,
   encounter: PropTypes.object.isRequired,
   labRequests: PropTypes.array.isRequired,
