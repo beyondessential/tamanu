@@ -119,7 +119,6 @@ export const PrescriptionPrintout = ({
   facility,
   getLocalisation,
 }) => {
-  console.log(prescriber)
   return (
     <Document>
       <Page size="A4" style={styles.page}>
