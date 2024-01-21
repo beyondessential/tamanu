@@ -5,7 +5,12 @@ import { LetterheadSection } from './LetterheadSection';
 import { PatientDetailsWithAddress } from './printComponents/PatientDetailsWithAddress';
 import { startCase } from 'lodash';
 import { Footer } from './printComponents/Footer';
-import { ENCOUNTER_TYPES, NOTE_TYPES } from '@tamanu/constants';
+import {
+  ENCOUNTER_LABELS,
+  NOTE_TYPE_LABELS,
+  DRUG_ROUTE_VALUE_TO_LABEL,
+  NOTE_TYPES,
+} from '@tamanu/constants';
 import { getDisplayDate } from './getDisplayDate';
 import { EncounterDetailsExtended } from './printComponents/EncounterDetailsExtended';
 
@@ -75,50 +80,6 @@ const tableStyles = StyleSheet.create({
     fontSize: 10,
   },
 });
-
-export const DRUG_ROUTE_VALUE_TO_LABEL = {
-  dermal: 'Dermal',
-  ear: 'Ear',
-  eye: 'Eye',
-  intramuscular: 'IM',
-  intravenous: 'IV',
-  inhaled: 'Inhaled',
-  nasal: 'Nasal',
-  oral: 'Oral',
-  rectal: 'Rectal',
-  subcutaneous: 'S/C',
-  sublingual: 'Sublingual',
-  topical: 'Topical',
-  vaginal: 'Vaginal',
-};
-
-const ENCOUNTER_LABELS = {
-  [ENCOUNTER_TYPES.ADMISSION]: 'Hospital admission',
-  [ENCOUNTER_TYPES.TRIAGE]: 'Triage',
-  [ENCOUNTER_TYPES.CLINIC]: 'Clinic',
-  [ENCOUNTER_TYPES.IMAGING]: 'Imaging',
-  [ENCOUNTER_TYPES.EMERGENCY]: 'Emergency short stay',
-  [ENCOUNTER_TYPES.OBSERVATION]: 'Active ED patient',
-  [ENCOUNTER_TYPES.SURVEY_RESPONSE]: 'Form response',
-  [ENCOUNTER_TYPES.VACCINATION]: 'Vaccination record',
-};
-
-const NOTE_TYPE_LABELS = {
-  [NOTE_TYPES.TREATMENT_PLAN]: 'Treatment plan',
-  [NOTE_TYPES.ADMISSION]: 'Admission',
-  [NOTE_TYPES.CLINICAL_MOBILE]: 'Clinical note (mobile)',
-  [NOTE_TYPES.DIETARY]: 'Dietary',
-  [NOTE_TYPES.DISCHARGE]: 'Discharge planning',
-  [NOTE_TYPES.HANDOVER]: 'Handover note',
-  [NOTE_TYPES.MEDICAL]: 'Medical',
-  [NOTE_TYPES.NURSING]: 'Nursing',
-  [NOTE_TYPES.OTHER]: 'Other',
-  [NOTE_TYPES.PHARMACY]: 'Pharmacy',
-  [NOTE_TYPES.PHYSIOTHERAPY]: 'Physiotherapy',
-  [NOTE_TYPES.SOCIAL]: 'Social welfare',
-  [NOTE_TYPES.SURGICAL]: 'Surgical',
-  [NOTE_TYPES.SYSTEM]: 'System',
-};
 
 const Table = props => <View style={tableStyles.table} {...props} />;
 const Row = props => <View style={tableStyles.row} {...props} />;
