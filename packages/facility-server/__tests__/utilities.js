@@ -9,7 +9,6 @@ import {
   seedFacilities,
   seedLabTests,
   seedSettings,
-  createMockReportingSchemaAndRoles,
   seedLocationGroups,
   seedLocations,
 } from '@tamanu/shared/demoData';

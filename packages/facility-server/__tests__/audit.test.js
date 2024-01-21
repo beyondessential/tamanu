@@ -4,7 +4,6 @@ import { fake } from '@tamanu/shared/test-helpers';
 import { AuditLogItem } from '../dist/middleware/auditLog';
 import { createDummyPatient } from '@tamanu/shared/demoData/patients';
 import { createTestContext } from './utilities';
-import { AuditLogItem } from '../app/middleware/auditLog';
 
 describe('Audit log', () => {
   let ctx = null;
