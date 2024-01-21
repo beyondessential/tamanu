@@ -119,7 +119,6 @@ const getFullName = patient => `${patient?.firstName ?? ''} ${patient?.lastName 
 const ChildSection = ({ data }) => {
   const causeOfDeath = data?.deathData?.causes?.primary?.condition?.name ?? 'N/A';
 
-  console.log('data', data);
   return (
     <Table>
       <Row>

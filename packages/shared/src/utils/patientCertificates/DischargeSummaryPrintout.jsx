@@ -174,12 +174,12 @@ const MedicationsTable = ({ medications }) => {
       </MedicationsTableTitleCol>
       <View style={{ flexDirection: 'column', flex: 1 }}>
         <MedicationsTableInfoBox
-          label="Current medications"
+          label="Current"
           info={currentMedications.map(item => item?.medication?.name)}
           hasBottomBorder={true}
         />
         <MedicationsTableInfoBox
-          label="Discontinued medications"
+          label="Discontinued"
           info={discontinuedMedications.map(item => item?.medication?.name)}
           hasBottomBorder={false}
         />
