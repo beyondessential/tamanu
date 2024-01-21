@@ -2,7 +2,7 @@ import React from 'react';
 import { DataSection } from './DataSection';
 import { Col } from '../Layout';
 import { getAddress, getDOBWithAge, getSex } from '../../patientAccessors';
-import { renderDataItems} from './renderDataItems';
+import { renderDataItems } from './renderDataItems';
 
 const PATIENT_FIELDS = {
   leftCol: [
@@ -21,12 +21,8 @@ const PATIENT_FIELDS = {
 export const PatientDetailsWithAddress = ({ patient, getLocalisation }) => {
   return (
     <DataSection title="Patient details">
-      <Col>
-        {renderDataItems(PATIENT_FIELDS.leftCol, patient, getLocalisation)}
-      </Col>
-      <Col>
-        {renderDataItems(PATIENT_FIELDS.rightCol, patient, getLocalisation)}
-      </Col>
+      <Col>{renderDataItems(PATIENT_FIELDS.leftCol, patient, getLocalisation)}</Col>
+      <Col>{renderDataItems(PATIENT_FIELDS.rightCol, patient, getLocalisation)}</Col>
     </DataSection>
   );
 };

@@ -19,7 +19,7 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterTyp
     isLoading,
     isError,
     error,
-  } = combineQueries([useVitalsSurveyQuery(), usePatientAdditionalDataQuery()]);
+  } = combineQueries([useVitalsSurveyQuery(), usePatientAdditionalDataQuery(patient.id)]);
   const { encounter } = useEncounter();
   const { components = [] } = vitalsSurvey || {};
   const currentComponents = components.filter(

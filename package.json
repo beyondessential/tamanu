@@ -83,7 +83,7 @@
     "yarn": "^1.22.18"
   },
   "dependencies": {
-    "concurrently": "^5.2.0",
+    "concurrently": "^8.2.2",
     "config": "^3.3.9",
     "jsbarcode": "^3.11.6",
     "pm2": "^4.5.0"

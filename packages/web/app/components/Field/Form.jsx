@@ -255,6 +255,7 @@ export class Form extends React.PureComponent {
       validateOnChange,
       validateOnBlur,
       initialValues,
+      suppressErrorDialog = false,
       ...props
     } = this.props;
     delete props.showInlineErrorsOnly;
@@ -268,7 +269,7 @@ export class Form extends React.PureComponent {
       throw new Error('Form must not have any children -- use the `render` prop instead please!');
     }
 
-    const displayErrorDialog = Object.keys(validationErrors).length > 0;
+    const hasErrors = Object.keys(validationErrors).length > 0;
 
     return (
       <>
@@ -284,13 +285,15 @@ export class Form extends React.PureComponent {
         >
           {this.renderFormContents}
         </Formik>
-        <Dialog
-          isVisible={displayErrorDialog}
-          onClose={this.hideErrorDialog}
-          headerTitle="Please fix below errors to continue"
-          disableDevWarning
-          contentText={<FormErrors errors={validationErrors} />}
-        />
+        {!suppressErrorDialog && (
+          <Dialog
+            isVisible={hasErrors}
+            onClose={this.hideErrorDialog}
+            headerTitle="Please fix below errors to continue"
+            disableDevWarning
+            contentText={<FormErrors errors={validationErrors} />}
+          />
+        )}
       </>
     );
   }
