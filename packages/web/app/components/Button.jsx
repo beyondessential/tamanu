@@ -29,7 +29,10 @@ export const ButtonBase = props => {
   return <MuiButtonBase {...props} {...locationsProps} />;
 };
 
-const StyledButton = styled(({ functionallyDisabled, ...props }) => <MuiButton {...props} />)`
+const StyledButton = styled(({ ...props }) => {
+  delete props.functionallyDisabled;
+  return <MuiButton {...props} />;
+})`
   font-weight: 500;
   font-size: 14px;
   line-height: 16px;
