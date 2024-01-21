@@ -37,3 +37,5 @@ export const getAddress = ({ additionalData }) => {
 
 export const getLocationName = ({ location }) =>
   location.locationGroup ? `${location.locationGroup.name}, ${location.name}` : location.name;
+
+export const getVillageName = ({ village }) => village?.name;
