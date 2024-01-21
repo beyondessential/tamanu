@@ -1,6 +1,6 @@
 import { convertISO9075toRFC3339 } from '@tamanu/shared/utils/dateTime';
 import { fake, chance } from '@tamanu/shared/test-helpers';
-import { createTestContext } from 'sync-server/__tests__/utilities';
+import { createTestContext } from '@tamanu/central-server/__tests__/utilities';
 
 export function testDiagnosticReportHandler(integrationName, requestHeaders = {}) {
   describe(`${integrationName} integration - DiagnosticReport`, () => {

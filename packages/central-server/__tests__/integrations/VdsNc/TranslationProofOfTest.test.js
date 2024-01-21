@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { fake, fakeUser } from 'shared/test-helpers/fake';
-import { createTestContext } from 'sync-server/__tests__/utilities';
+import { createTestContext } from '@tamanu/central-server/__tests__/utilities';
 import { createVdsNcTestData } from '../../../app/integrations/VdsNc';
 
 describe('VDS: Proof of Test', () => {

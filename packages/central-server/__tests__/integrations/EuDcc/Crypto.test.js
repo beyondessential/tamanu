@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-expressions */
 
-import { HCERTPack, HCERTVerify } from 'sync-server/app/integrations/EuDcc';
+import { HCERTPack, HCERTVerify } from '@tamanu/central-server/app/integrations/EuDcc';
 import {
   loadCertificateIntoSigner,
   newKeypairAndCsr,
