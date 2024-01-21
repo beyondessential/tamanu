@@ -1,12 +1,7 @@
 import { expect } from 'chai';
 import { fake, fakeUser } from '@tamanu/shared/test-helpers/fake';
-<<<<<<<< HEAD:packages/central-server/__tests__/integrations/VdsNc/TranslationVaccination.test.js
-import { createTestContext } from 'sync-server/__tests__/utilities';
-import { createVdsNcVaccinationData } from '../../../app/integrations/VdsNc';
-========
 import { createTestContext } from '@tamanu/central-server/__tests__/utilities';
-import { createVdsNcTestData, createVdsNcVaccinationData } from '../../../dist/integrations/VdsNc';
->>>>>>>> epic/db-defined-config:packages/central-server/__tests__/integrations/VdsNc/Translation.test.js
+import { createVdsNcVaccinationData } from '../../../dist/integrations/VdsNc';
 
 describe('VDS: Proof of Vaccination', () => {
   let ctx;
