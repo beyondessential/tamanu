@@ -1,14 +1,11 @@
 import { capitalize } from 'lodash';
-
 import { createValueIndex } from '@tamanu/shared/utils/valueIndex';
 import {
   APPOINTMENT_STATUSES,
   APPOINTMENT_TYPES,
-  ATTENDANT_OF_BIRTH_TYPES,
-  BIRTH_DELIVERY_TYPES,
-  BIRTH_TYPES,
   DOCUMENT_SOURCES,
   ENCOUNTER_TYPES,
+  ENCOUNTER_LABELS,
   IMAGING_REQUEST_STATUS_CONFIG,
   IMAGING_REQUEST_STATUS_TYPES,
   INVOICE_PAYMENT_STATUSES,
@@ -18,9 +15,10 @@ import {
   LOCATION_AVAILABILITY_STATUS,
   LOCATION_AVAILABILITY_TAG_CONFIG,
   NOTE_TYPES,
+  NOTE_TYPE_LABELS,
   PATIENT_REGISTRY_TYPES,
-  PLACE_OF_BIRTH_TYPES,
   REFERRAL_STATUSES,
+  REGISTRATION_STATUSES,
   TEMPLATE_TYPES,
 } from '@tamanu/constants';
 
@@ -44,6 +42,11 @@ export const DB_OBJECTS_MAX_DEPTH = {
   ENCOUNTER_MAIN: 7,
 };
 
+export const PROGRAM_REGISTRATION_STATUS_LABEL = {
+  [REGISTRATION_STATUSES.ACTIVE]: 'Active',
+  [REGISTRATION_STATUSES.INACTIVE]: 'Removed',
+  [REGISTRATION_STATUSES.RECORDED_IN_ERROR]: 'Delete',
+};
 // Should only be colours that are defined as constants in Figma
 // (with the exception of searchTintColor)
 export const Colors = {
@@ -164,58 +167,72 @@ export const nonEmergencyDiagnosisCertaintyOptions = diagnosisCertaintyOptions.f
 // The order here is how they'll show up in the dropdown
 // Treatment plan first and alphabetical after that
 export const noteTypes = [
-  { value: NOTE_TYPES.TREATMENT_PLAN, label: 'Treatment plan' },
-  { value: NOTE_TYPES.ADMISSION, label: 'Admission' },
-  { value: NOTE_TYPES.CLINICAL_MOBILE, label: 'Clinical note (mobile)', hideFromDropdown: true },
-  { value: NOTE_TYPES.DIETARY, label: 'Dietary' },
-  { value: NOTE_TYPES.DISCHARGE, label: 'Discharge planning' },
-  { value: NOTE_TYPES.HANDOVER, label: 'Handover note' },
-  { value: NOTE_TYPES.MEDICAL, label: 'Medical' },
-  { value: NOTE_TYPES.NURSING, label: 'Nursing' },
-  { value: NOTE_TYPES.OTHER, label: 'Other' },
-  { value: NOTE_TYPES.PHARMACY, label: 'Pharmacy' },
-  { value: NOTE_TYPES.PHYSIOTHERAPY, label: 'Physiotherapy' },
-  { value: NOTE_TYPES.SOCIAL, label: 'Social welfare' },
-  { value: NOTE_TYPES.SURGICAL, label: 'Surgical' },
-  { value: NOTE_TYPES.SYSTEM, label: 'System', hideFromDropdown: true },
+  { value: NOTE_TYPES.TREATMENT_PLAN, label: NOTE_TYPE_LABELS[NOTE_TYPES.TREATMENT_PLAN] },
+  { value: NOTE_TYPES.ADMISSION, label: NOTE_TYPE_LABELS[NOTE_TYPES.ADMISSION] },
+  {
+    value: NOTE_TYPES.CLINICAL_MOBILE,
+    label: NOTE_TYPE_LABELS[NOTE_TYPES.CLINICAL_MOBILE],
+    hideFromDropdown: true,
+  },
+  { value: NOTE_TYPES.DIETARY, label: NOTE_TYPE_LABELS[NOTE_TYPES.DIETARY] },
+
+  { value: NOTE_TYPES.DISCHARGE, label: NOTE_TYPE_LABELS[NOTE_TYPES.DISCHARGE] },
+  { value: NOTE_TYPES.HANDOVER, label: NOTE_TYPE_LABELS[NOTE_TYPES.HANDOVER] },
+  { value: NOTE_TYPES.MEDICAL, label: NOTE_TYPE_LABELS[NOTE_TYPES.MEDICAL] },
+  { value: NOTE_TYPES.NURSING, label: NOTE_TYPE_LABELS[NOTE_TYPES.NURSING] },
+  { value: NOTE_TYPES.OTHER, label: NOTE_TYPE_LABELS[NOTE_TYPES.OTHER] },
+  { value: NOTE_TYPES.PHARMACY, label: NOTE_TYPE_LABELS[NOTE_TYPES.PHARMACY] },
+  { value: NOTE_TYPES.PHYSIOTHERAPY, label: NOTE_TYPE_LABELS[NOTE_TYPES.PHYSIOTHERAPY] },
+  { value: NOTE_TYPES.SOCIAL, label: NOTE_TYPE_LABELS[NOTE_TYPES.SOCIAL] },
+  { value: NOTE_TYPES.SURGICAL, label: NOTE_TYPE_LABELS[NOTE_TYPES.SURGICAL] },
+  { value: NOTE_TYPES.SYSTEM, label: NOTE_TYPE_LABELS[NOTE_TYPES.SYSTEM], hideFromDropdown: true },
 ];
 
-export const NOTE_TYPE_LABELS = Object.fromEntries(
-  noteTypes.map(noteType => [noteType.value, noteType.label]),
-);
-
 export const encounterOptions = [
-  { value: ENCOUNTER_TYPES.ADMISSION, label: 'Hospital admission', image: medicationIcon },
+  {
+    value: ENCOUNTER_TYPES.ADMISSION,
+    label: ENCOUNTER_LABELS[ENCOUNTER_TYPES.ADMISSION],
+    image: medicationIcon,
+  },
   {
     value: ENCOUNTER_TYPES.TRIAGE,
-    label: 'Triage',
+    label: ENCOUNTER_LABELS[ENCOUNTER_TYPES.TRIAGE],
     image: patientIcon,
     triageFlowOnly: true,
   },
-  { value: ENCOUNTER_TYPES.CLINIC, label: 'Clinic', image: administrationIcon },
-  { value: ENCOUNTER_TYPES.IMAGING, label: 'Imaging', image: radiologyIcon, hideFromMenu: true },
+  {
+    value: ENCOUNTER_TYPES.CLINIC,
+    label: ENCOUNTER_LABELS[ENCOUNTER_TYPES.CLINIC],
+    image: administrationIcon,
+  },
+  {
+    value: ENCOUNTER_TYPES.IMAGING,
+    label: ENCOUNTER_LABELS[ENCOUNTER_TYPES.IMAGING],
+    image: radiologyIcon,
+    hideFromMenu: true,
+  },
   {
     value: ENCOUNTER_TYPES.EMERGENCY,
-    label: 'Emergency short stay',
+    label: ENCOUNTER_LABELS[ENCOUNTER_TYPES.EMERGENCY],
     image: scheduleIcon,
     hideFromMenu: true,
   },
   {
     value: ENCOUNTER_TYPES.OBSERVATION,
-    label: 'Active ED patient',
+    label: ENCOUNTER_LABELS[ENCOUNTER_TYPES.OBSERVATION],
     image: patientIcon,
     triageFlowOnly: true,
     hideFromMenu: true,
   },
   {
     value: ENCOUNTER_TYPES.SURVEY_RESPONSE,
-    label: 'Form response',
+    label: ENCOUNTER_LABELS[ENCOUNTER_TYPES.SURVEY_RESPONSE],
     image: patientIcon,
     hideFromMenu: true,
   },
   {
     value: ENCOUNTER_TYPES.VACCINATION,
-    label: 'Vaccination record',
+    label: ENCOUNTER_LABELS[ENCOUNTER_TYPES.VACCINATION],
     image: vaccineIcon,
     hideFromMenu: true,
   },
@@ -391,22 +408,6 @@ export const PATIENT_STATUS = {
   OUTPATIENT: 'Outpatient',
   EMERGENCY: 'Emergency',
   DECEASED: 'Deceased',
-};
-
-export const DRUG_ROUTE_VALUE_TO_LABEL = {
-  dermal: 'Dermal',
-  ear: 'Ear',
-  eye: 'Eye',
-  intramuscular: 'IM',
-  intravenous: 'IV',
-  inhaled: 'Inhaled',
-  nasal: 'Nasal',
-  oral: 'Oral',
-  rectal: 'Rectal',
-  subcutaneous: 'S/C',
-  sublingual: 'Sublingual',
-  topical: 'Topical',
-  vaginal: 'Vaginal',
 };
 
 export const FORM_STATUSES = {

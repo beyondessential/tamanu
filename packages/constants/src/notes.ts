@@ -27,6 +27,23 @@ export const NOTE_TYPES = {
   HANDOVER: 'handover',
 };
 
+export const NOTE_TYPE_LABELS = {
+  [NOTE_TYPES.TREATMENT_PLAN]: 'Treatment plan',
+  [NOTE_TYPES.ADMISSION]: 'Admission',
+  [NOTE_TYPES.CLINICAL_MOBILE]: 'Clinical note (mobile)',
+  [NOTE_TYPES.DIETARY]: 'Dietary',
+  [NOTE_TYPES.DISCHARGE]: 'Discharge planning',
+  [NOTE_TYPES.HANDOVER]: 'Handover note',
+  [NOTE_TYPES.MEDICAL]: 'Medical',
+  [NOTE_TYPES.NURSING]: 'Nursing',
+  [NOTE_TYPES.OTHER]: 'Other',
+  [NOTE_TYPES.PHARMACY]: 'Pharmacy',
+  [NOTE_TYPES.PHYSIOTHERAPY]: 'Physiotherapy',
+  [NOTE_TYPES.SOCIAL]: 'Social welfare',
+  [NOTE_TYPES.SURGICAL]: 'Surgical',
+  [NOTE_TYPES.SYSTEM]: 'System',
+};
+
 export const NOTE_PERMISSION_TYPES = {
   OTHER_PRACTITIONER_ENCOUNTER_NOTE: 'OtherPractitionerEncounterNote',
   TREATMENT_PLAN_NOTE: 'TreatmentPlanNote',

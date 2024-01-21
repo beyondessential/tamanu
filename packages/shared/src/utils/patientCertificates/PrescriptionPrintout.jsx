@@ -1,5 +1,8 @@
 import { Document, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
 import React from 'react';
+
+import { DRUG_ROUTE_VALUE_TO_LABEL } from '@tamanu/constants';
+
 import { CertificateContent, CertificateHeader, Col, Signature, styles } from './Layout';
 import { PatientDetailsWithBarcode } from './printComponents/PatientDetailsWithBarcode';
 import { Table } from './Table';
@@ -12,23 +15,6 @@ import { Footer } from './printComponents/Footer';
 import { MultiPageHeader } from './printComponents/MultiPageHeader';
 import { getName } from '../patientAccessors';
 import { P } from './Typography';
-
-// Copied from web constants
-const DRUG_ROUTE_VALUE_TO_LABEL = {
-  dermal: 'Dermal',
-  ear: 'Ear',
-  eye: 'Eye',
-  intramuscular: 'IM',
-  intravenous: 'IV',
-  inhaled: 'Inhaled',
-  nasal: 'Nasal',
-  oral: 'Oral',
-  rectal: 'Rectal',
-  subcutaneous: 'S/C',
-  sublingual: 'Sublingual',
-  topical: 'Topical',
-  vaginal: 'Vaginal',
-};
 
 const columns = [
   {

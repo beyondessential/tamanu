@@ -7,7 +7,6 @@ import { DIAGNOSIS_CERTAINTIES_TO_HIDE } from '@tamanu/constants/diagnoses';
 import { ForbiddenError, NotFoundError } from '@tamanu/shared/errors';
 
 import { EncounterRecordPrintout } from '@tamanu/shared/utils/patientCertificates/EncounterRecordPrintout';
-import { EncounterRecord } from '../printouts/EncounterRecord';
 import { Modal } from '../../Modal';
 import { useCertificate } from '../../../utils/useCertificate';
 import { usePatientData } from '../../../api/queries/usePatientData';
@@ -127,7 +126,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
   const discharge = dischargeQuery.data;
 
   const villageQuery = useReferenceData(patient?.villageId);
-  const village = villageQuery.data?.name;
+  const village = villageQuery.data;
 
   const notesQuery = useEncounterNotes(encounter.id, {
     orderBy: 'date',
@@ -278,7 +277,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
         showToolbar={false}
       >
         <EncounterRecordPrintout
-          patient={patient}
+          patientData={{ ...patient, padData, village }}
           encounter={encounter}
           certificateData={certificateData}
           encounterTypeHistory={encounterTypeHistory}
@@ -290,7 +289,6 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
           notes={displayNotes}
           discharge={discharge}
           village={village}
-          pad={padData}
           medications={medications}
           getLocalisation={getLocalisation}
           clinicianText={clinicianText}

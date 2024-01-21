@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { Document, Page, StyleSheet, View, Text } from '@react-pdf/renderer';
+import { Document, Page, StyleSheet, View } from '@react-pdf/renderer';
 import { PatientDetailsWithBarcode } from './printComponents/PatientDetailsWithBarcode';
 import { styles, CertificateContent, CertificateHeader, Col, Row, Signature } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
@@ -148,7 +148,13 @@ const LabRequestDetailsView = ({ labRequests }) => {
 };
 
 export const MultipleLabRequestsPrintout = React.memo(
-  ({ patient, labRequests, encounter, additionalData, certificateData, getLocalisation }) => {
+  ({
+    patientData,
+    labRequests,
+    encounter,
+    certificateData,
+    getLocalisation,
+  }) => {
     const { logo } = certificateData;
 
     return (
@@ -156,8 +162,8 @@ export const MultipleLabRequestsPrintout = React.memo(
         <Page size="A4" style={styles.page}>
           <MultiPageHeader
             documentName="Lab request"
-            patientName={getName(patient)}
-            patiendId={patient.displayId}
+            patientName={getName(patientData)}
+            patiendId={patientData.displayId}
           />
           <CertificateHeader>
             <LetterheadSection
@@ -167,7 +173,7 @@ export const MultipleLabRequestsPrintout = React.memo(
               certificateTitle="Lab Request"
             />
             <SectionContainer>
-              <PatientDetailsWithBarcode patient={patient} getLocalisation={getLocalisation} />
+              <PatientDetailsWithBarcode patient={patientData} getLocalisation={getLocalisation} />
             </SectionContainer>
             <SectionContainer>
               <EncounterDetails encounter={encounter} />
@@ -189,7 +195,7 @@ export const MultipleLabRequestsPrintout = React.memo(
 );
 
 MultipleLabRequestsPrintout.propTypes = {
-  patient: PropTypes.object.isRequired,
+  patientData: PropTypes.object.isRequired,
   village: PropTypes.object.isRequired,
   encounter: PropTypes.object.isRequired,
   labRequests: PropTypes.array.isRequired,
