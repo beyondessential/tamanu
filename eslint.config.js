@@ -188,6 +188,7 @@ export default [
 
       // generated files
       '**/dist/**/*',
+      '**/__disttests__/**/*',
       '**/build/**/*',
       '**/vendor/**/*',
       '**/*.d.ts',
