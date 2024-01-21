@@ -3,7 +3,7 @@ import { getJsDateFromExcel } from 'excel-date-to-js';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
 
 function stripNotes(fields) {
-  const values = Object.assign({}, fields);
+  const values = { ...fields };
   delete values.note;
   return values;
 }

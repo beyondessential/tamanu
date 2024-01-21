@@ -82,7 +82,7 @@ const Covid19PatientsTable = React.memo(props => {
     dispatch(push(`/patients/all/${id}`));
   };
 
-  const searchProps = Object.assign({}, props);
+  const searchProps = { ...props };
   delete searchProps.data;
 
   return (

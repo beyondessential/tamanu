@@ -1,7 +1,7 @@
 import { QueryTypes } from 'sequelize';
 
 export const expectDeepSyncRecordMatch = (dbRecord, syncRecord, options = {}) => {
-  const syncableData = Object.assign({}, dbRecord);
+  const syncableData = { ...dbRecord };
   delete syncableData.updatedAt;
   delete syncableData.createdAt;
   delete syncableData.deletedAt;

@@ -175,7 +175,7 @@ createSuggester(
       };
     }
 
-    const filters = Object.assign({}, filters);
+    const filters = { ...filters };
     delete filters.q;
     delete filters.filterByFacility;
     return { ...baseWhere, ...filters };

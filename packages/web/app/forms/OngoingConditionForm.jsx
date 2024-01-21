@@ -77,7 +77,7 @@ export const OngoingConditionForm = ({
   };
 
   const onDataSubmit = async data => {
-    const fields = Object.assign({}, data);
+    const fields = { ...data };
 
     if (!fields.resolved) {
       delete fields.resolutionDate;

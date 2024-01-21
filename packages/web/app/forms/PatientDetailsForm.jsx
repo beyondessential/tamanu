@@ -199,7 +199,7 @@ export const PatientFieldsGroup = ({ fieldDefinitions, fieldValues }) => {
 };
 
 function sanitiseRecordForValues(data) {
-  const values = Object.assign({}, data);
+  const values = { ...data };
 
   // unwanted ids
   delete values.id;

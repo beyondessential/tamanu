@@ -56,7 +56,7 @@ export const VersionSelectField = props => {
     value: id,
   }));
 
-  const searchProps = Object.assign({}, props);
+  const searchProps = { ...props };
   delete searchProps.error;
   delete searchProps.helperText;
 

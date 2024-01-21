@@ -73,7 +73,7 @@ export async function provision({ file: provisioningFile, skipIfNotNeeded }) {
   /// FACILITIES
 
   for (const [id, value] of Object.entries(facilities)) {
-    const fields = Object.assign({}, value);
+    const fields = { ...value };
     delete fields.user;
     delete fields.password;
     delete fields.settings;

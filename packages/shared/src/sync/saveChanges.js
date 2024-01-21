@@ -16,7 +16,7 @@ export const saveCreates = async (model, records) => {
     .map(row => row.id);
 
   for (const record of records) {
-    const data = Object.assign({}, record);
+    const data = { ...record };
     delete data.isDeleted;
 
     if (!idsAdded.has(data.id)) {
