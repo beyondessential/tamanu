@@ -77,12 +77,12 @@ patientVaccineRoutes.get(
     const vaccines = results
       .map(s => s.get({ plain: true }))
       .reduce((allVaccines, vaccineSchedule) => {
+        const administered = asRealNumber(vaccineSchedule.administered) > 0;
         if (!allVaccines[vaccineSchedule.label]) {
           delete vaccineSchedule.administered;
           vaccineSchedule.schedules = [];
           allVaccines[vaccineSchedule.label] = vaccineSchedule;
         }
-        const administered = asRealNumber(vaccineSchedule.administered) > 0;
         // Exclude historical schedules unless administered
         if (vaccineSchedule.visibilityStatus !== VISIBILITY_STATUSES.HISTORICAL || administered) {
           allVaccines[vaccineSchedule.label].schedules.push({
