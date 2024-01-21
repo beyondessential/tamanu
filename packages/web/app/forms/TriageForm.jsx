@@ -1,6 +1,6 @@
 import React from 'react';
 import * as yup from 'yup';
-import { format, endOfDay } from 'date-fns';
+import { endOfDay, format } from 'date-fns';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import { push } from 'connected-react-router';
 import { useDispatch } from 'react-redux';
@@ -8,22 +8,22 @@ import { Box } from '@material-ui/core';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { foreignKey } from '../utils/validation';
 import {
-  Form,
-  Field,
-  LocalisedField,
-  SuggesterSelectField,
-  DateTimeField,
   AutocompleteField,
-  RadioField,
+  DateTimeField,
+  Field,
+  Form,
+  LocalisedField,
   LocalisedLocationField,
   LocationAvailabilityWarningMessage,
+  RadioField,
+  SuggesterSelectField,
 } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { ModalFormActionRow } from '../components/ModalActionRow';
 import { NestedVitalsModal } from '../components/NestedVitalsModal';
 import { useApi, useSuggester } from '../api';
 import { useLocalisation } from '../contexts/Localisation';
-import { getActionsFromData, getAnswersFromData } from '../utils';
+import { getAnswersFromData } from '../utils';
 import { useLocalisedText } from '../components';
 
 const InfoPopupLabel = React.memo(() => (
@@ -137,7 +137,6 @@ export const TriageForm = ({
         endTime: getCurrentDateTimeString(),
         patientId: patient.id,
         answers: getAnswersFromData(data, survey),
-        actions: getActionsFromData(data, survey),
       };
     }
 

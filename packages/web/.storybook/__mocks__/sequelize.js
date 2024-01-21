@@ -1,5 +1,7 @@
 export const DataTypes = {
   ABSTRACT: {
-    prototype: {}
-  }
-}
+    prototype: {},
+  },
+};
+
+export const QueryTypes = {};

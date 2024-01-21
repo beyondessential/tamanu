@@ -2,7 +2,7 @@ import React from 'react';
 import { DateDisplay } from '../../../components';
 import { ENCOUNTER_OPTIONS_BY_VALUE } from '../../../constants';
 import { getFullLocationName } from '../../../utils/location';
-import { InfoCard, InfoCardItem, InfoCardHeader } from '../../../components/InfoCard';
+import { InfoCard, InfoCardHeader, InfoCardItem } from '../../../components/InfoCard';
 import { getDepartmentName } from '../../../utils/department';
 
 const getReferralSource = ({ referralSource }) =>

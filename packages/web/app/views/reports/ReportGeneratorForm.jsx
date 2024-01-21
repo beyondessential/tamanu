@@ -1,13 +1,13 @@
-import React, { useCallback, useState, useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { keyBy, orderBy } from 'lodash';
 import { format } from 'date-fns';
-import { Typography, Box } from '@material-ui/core';
+import { Box, Typography } from '@material-ui/core';
 import { Alert, AlertTitle } from '@material-ui/lab';
 import styled from 'styled-components';
 import * as Yup from 'yup';
 import {
-  REPORT_DATA_SOURCES,
   REPORT_DATA_SOURCE_VALUES,
+  REPORT_DATA_SOURCES,
   REPORT_EXPORT_FORMATS,
 } from '@tamanu/constants';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
@@ -15,12 +15,12 @@ import { useApi } from '../../api';
 import { useAuth } from '../../contexts/Auth';
 import {
   AutocompleteField,
-  FormGrid,
+  DateDisplay,
   DateField,
   Field,
   Form,
+  FormGrid,
   RadioField,
-  DateDisplay,
   TextButton,
 } from '../../components';
 import { FormSubmitDropdownButton } from '../../components/DropdownButton';
@@ -289,19 +289,21 @@ export const ReportGeneratorForm = () => {
             <>
               <Spacer />
               <FormGrid columns={3}>
-                {parameters.map(({ parameterField, required, name, label, ...restOfProps }) => {
-                  return (
-                    <ParameterField
-                      key={name || parameterField}
-                      required={required}
-                      name={name}
-                      label={label}
-                      parameterValues={values}
-                      parameterField={parameterField}
-                      {...restOfProps}
-                    />
-                  );
-                })}
+                {parameters.map(
+                  ({ parameterField, required, name, label, options, ...restOfProps }) => {
+                    return (
+                      <ParameterField
+                        key={name || parameterField}
+                        required={required}
+                        name={name}
+                        label={label}
+                        parameterValues={values}
+                        parameterField={parameterField}
+                        {...restOfProps}
+                      />
+                    );
+                  },
+                )}
               </FormGrid>
             </>
           ) : null}

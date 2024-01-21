@@ -5,13 +5,13 @@ import { action } from '@storybook/addon-actions';
 
 import {
   createDummyPatient,
+  DEPARTMENTS,
   DIAGNOSES,
   DISPOSITIONS,
   DRUGS,
   FACILITIES,
   LOCATIONS,
   USERS,
-  DEPARTMENTS,
 } from '@tamanu/shared/demoData';
 import { VACCINE_RECORDING_TYPES } from '@tamanu/constants';
 import { MockedApi } from '../utils/mockedApi';
@@ -223,10 +223,7 @@ storiesOf('Forms', module)
   .add('LabRequestSummaryPane', () => (
     <MockedApi endpoints={mockLabRequestFormEndpoints}>
       <Modal width="md" title="New lab request" open>
-        <LabRequestSummaryPane
-          encounter={{}}
-          labRequests={[fakeLabRequest(), fakeLabRequest()]}
-        />
+        <LabRequestSummaryPane encounter={{}} labRequests={[fakeLabRequest(), fakeLabRequest()]} />
       </Modal>
     </MockedApi>
   ));

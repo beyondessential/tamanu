@@ -1,5 +1,5 @@
-import React, { useState, useCallback, useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { SURVEY_TYPES } from '@tamanu/constants';
 
@@ -14,7 +14,7 @@ import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { SurveySelector } from '../programs/SurveySelector';
 import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from '../programs/ProgramsPane';
 import { getCurrentUser } from '../../store';
-import { getAnswersFromData, getActionsFromData } from '../../utils';
+import { getAnswersFromData } from '../../utils';
 import { PATIENT_TABS } from '../../constants/patientPaths';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 
@@ -53,7 +53,6 @@ const ReferralFlow = ({ patient, currentUser }) => {
       patientId: patient.id,
       endTime: getCurrentDateTimeString(),
       answers: getAnswersFromData(data, referralSurvey),
-      actions: getActionsFromData(data, referralSurvey),
     });
 
     navigateToPatient(patient.id, { tab: PATIENT_TABS.REFERRALS });

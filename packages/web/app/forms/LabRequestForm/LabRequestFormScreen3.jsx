@@ -1,10 +1,10 @@
 import React, { useCallback, useEffect } from 'react';
 import styled from 'styled-components';
 import { Field } from '../../components';
-import { Heading3, BodyText } from '../../components/Typography';
+import { BodyText, Heading3 } from '../../components/Typography';
 import {
-  SampleDetailsField,
   SAMPLE_DETAILS_FIELD_PREFIX,
+  SampleDetailsField,
 } from '../../views/labRequest/SampleDetailsField';
 
 const StyledBodyText = styled(BodyText)`

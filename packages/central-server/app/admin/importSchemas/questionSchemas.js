@@ -1,9 +1,19 @@
 import * as yup from 'yup';
-import { PROGRAM_DATA_ELEMENT_TYPE_VALUES } from '@tamanu/constants';
-import { SurveyScreenComponent, baseValidationShape, baseConfigShape } from './baseSchemas';
+import {
+  CURRENTLY_AT_TYPES,
+  PATIENT_DATA_FIELD_LOCATIONS,
+  PROGRAM_DATA_ELEMENT_TYPE_VALUES,
+  PROGRAM_REGISTRY_FIELD_LOCATIONS,
+  VISIBILITY_STATUSES,
+} from '@tamanu/constants';
+import { baseConfigShape, baseValidationShape, SurveyScreenComponent } from './baseSchemas';
 import { configString, validationString } from './jsonString';
 import { mathjsString } from './mathjsString';
-import { rangeObjectSchema, rangeArraySchema } from './rangeObject';
+import { rangeArraySchema, rangeObjectSchema } from './rangeObject';
+
+const isIncompatibleCurrentlyAtType = (currentlyAtType, value) =>
+  (currentlyAtType === CURRENTLY_AT_TYPES.VILLAGE && value === 'registrationCurrentlyAtFacility') ||
+  (currentlyAtType === CURRENTLY_AT_TYPES.FACILITY && value === 'registrationCurrentlyAtVillage');
 
 const columnReferenceConfig = baseConfigShape.shape({
   column: yup.string().required(),
@@ -12,13 +22,50 @@ const columnReferenceConfig = baseConfigShape.shape({
 export const SSCUserData = SurveyScreenComponent.shape({
   config: configString(columnReferenceConfig),
 });
+
+const patientDataColumnString = () =>
+  yup
+    .string()
+    .oneOf(Object.keys(PATIENT_DATA_FIELD_LOCATIONS))
+    .test('test-program-registry-conditions', async (value, { options, createError, path }) => {
+      // No need to validate non-program registry fields
+      if (!PROGRAM_REGISTRY_FIELD_LOCATIONS.includes(value)) return true;
+
+      const { models, programId } = options.context;
+      const programRegistry = await models.ProgramRegistry.findOne({
+        where: {
+          programId,
+          visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+        },
+      });
+      if (!programRegistry)
+        return createError({
+          path,
+          message: `${path}=${value} but no program registry configured`,
+        });
+
+      // Test for incompatible currentlyAtType
+      if (isIncompatibleCurrentlyAtType(programRegistry.currentlyAtType, value)) {
+        return createError({
+          path,
+          message: `${path}=${value} but program registry configured for ${programRegistry.currentlyAtType}`,
+        });
+      }
+
+      return true;
+    });
+
 export const SSCPatientData = SurveyScreenComponent.shape({
   config: configString(
     columnReferenceConfig.shape({
+      source: yup.string(),
+      // Note that it would be nice to validate the where parameter here
+      where: yup.string(),
+      column: patientDataColumnString(),
       writeToPatient: yup
         .object()
         .shape({
-          fieldName: yup.string().required(),
+          fieldName: patientDataColumnString().required(),
           isAdditionalData: yup.boolean(),
           fieldType: yup
             .string()

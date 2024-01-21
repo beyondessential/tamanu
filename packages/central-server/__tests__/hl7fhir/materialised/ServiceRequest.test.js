@@ -111,6 +111,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       // eslint-disable-next-line no-unused-expressions
       response.body?.orderDetail?.sort((a, b) => a.text.localeCompare(b.text));
       response.body?.identifier?.sort((a, b) => a.system.localeCompare(b.system));
+      response.body?.note?.sort((a, b) => a.time.localeCompare(b.time)); // sort notes by time
 
       // assert
       expect(response.body).toMatchObject({

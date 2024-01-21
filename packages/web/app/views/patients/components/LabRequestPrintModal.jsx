@@ -3,17 +3,20 @@ import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../../../api';
 import {
   useEncounterData,
-  usePatientAdditionalDataQuery,
   useLabRequestNotes,
+  usePatientAdditionalDataQuery,
 } from '../../../api/queries';
 import { useCertificate } from '../../../utils/useCertificate';
 
 import { Modal } from '../../../components';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
-import { MultipleLabRequestsPrintout } from '../../../components/PatientPrinting';
 import { Colors } from '../../../constants';
+import { PDFViewer, printPDF } from '../../../components/PatientPrinting/PDFViewer';
+import { useLocalisation } from '../../../contexts/Localisation';
+import { MultipleLabRequestsPrintout } from '@tamanu/shared/utils/patientCertificates';
 
 export const LabRequestPrintModal = React.memo(({ labRequest, patient, open, onClose }) => {
+  const { getLocalisation } = useLocalisation();
   const api = useApi();
   const certificate = useCertificate();
 
@@ -55,18 +58,20 @@ export const LabRequestPrintModal = React.memo(({ labRequest, patient, open, onC
       width="md"
       color={Colors.white}
       printable
+      onPrint={() => printPDF('lab-request-printout')}
     >
       {isLoading ? (
         <LoadingIndicator />
       ) : (
-        <MultipleLabRequestsPrintout
-          labRequests={[{ ...labRequest, tests: testsData.data, notes: notes?.data || [] }]}
-          patient={patient}
-          village={village}
-          additionalData={additionalData}
-          encounter={encounter}
-          certificateData={certificate}
-        />
+        <PDFViewer id="lab-request-printout">
+          <MultipleLabRequestsPrintout
+            labRequests={[{ ...labRequest, tests: testsData.data, notes: notes?.data || [] }]}
+            patientData={{ ...patient, additionalData, village }}
+            encounter={encounter}
+            certificateData={certificate}
+            getLocalisation={getLocalisation}
+          />
+        </PDFViewer>
       )}
     </Modal>
   );

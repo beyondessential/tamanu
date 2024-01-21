@@ -3,7 +3,7 @@ import styled, { css } from 'styled-components';
 import PropTypes from 'prop-types';
 import Autosuggest from 'react-autosuggest';
 import { debounce } from 'lodash';
-import { MenuItem, Popper, Paper, Typography, InputAdornment, IconButton } from '@material-ui/core';
+import { IconButton, InputAdornment, MenuItem, Paper, Popper, Typography } from '@material-ui/core';
 
 import { ChevronIcon } from '../Icons/ChevronIcon';
 import { ClearIcon } from '../Icons/ClearIcon';
@@ -324,15 +324,17 @@ export class AutocompleteInput extends Component {
                     <StyledClearIcon />
                   </StyledIconButton>
                 )}
-                <Icon
-                  position="end"
-                  onClick={event => {
-                    event.preventDefault();
-                    this.anchorEl.click();
-                  }}
-                >
-                  {suggestions.length > 0 ? <StyledExpandLess /> : <StyledExpandMore />}
-                </Icon>
+                {!disabled && (
+                  <Icon
+                    position="end"
+                    onClick={event => {
+                      event.preventDefault();
+                      this.anchorEl.click();
+                    }}
+                  >
+                    {suggestions.length > 0 ? <StyledExpandLess /> : <StyledExpandMore />}
+                  </Icon>
+                )}
               </>
             ),
           }}

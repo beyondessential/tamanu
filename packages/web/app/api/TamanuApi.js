@@ -1,7 +1,7 @@
 import qs from 'qs';
 
 import { buildAbilityForUser } from '@tamanu/shared/permissions/buildAbility';
-import { VERSION_COMPATIBILITY_ERRORS, SERVER_TYPES } from '@tamanu/constants';
+import { SERVER_TYPES, VERSION_COMPATIBILITY_ERRORS } from '@tamanu/constants';
 import { ForbiddenError, NotFoundError } from '@tamanu/shared/errors';
 
 import { LOCAL_STORAGE_KEYS } from '../constants';
@@ -26,7 +26,11 @@ const getVersionIncompatibleMessage = (error, response) => {
   }
 
   if (error.message === VERSION_COMPATIBILITY_ERRORS.HIGH) {
-    const maxAppVersion = response.headers.get('X-Max-Client-Version').split('.', 3).slice(0, 2).join('.');
+    const maxAppVersion = response.headers
+      .get('X-Max-Client-Version')
+      .split('.', 3)
+      .slice(0, 2)
+      .join('.');
     return `The Tamanu Facility Server only supports up to v${maxAppVersion}, and needs to be upgraded. Please contact your system administrator.`;
   }
 
@@ -179,6 +183,10 @@ export class TamanuApi {
 
   async changePassword(data) {
     return this.post('changePassword', data);
+  }
+
+  async checkServerAlive() {
+    return this.get('public/ping', null, { showUnknownErrorToast: false });
   }
 
   async refreshToken() {

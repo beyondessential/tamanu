@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import {
-  TopBar,
-  DateDisplay,
-  PageContainer,
   AppointmentsSearchBar,
   ContentPane,
-  SearchTableTitle,
+  DateDisplay,
+  PageContainer,
   SearchTable,
+  SearchTableTitle,
+  TopBar,
   useLocalisedText,
 } from '../../components';
 import { NewAppointmentButton } from '../../components/Appointments/NewAppointmentButton';
+import { useRefreshCount } from '../../hooks/useRefreshCount';
 
 const CapitalisedValue = styled.span`
   text-transform: capitalize;
@@ -55,12 +56,13 @@ export const AppointmentListingView = () => {
     { key: 'status', title: 'Status' },
   ];
 
-  const [refreshCount, setRefreshCount] = useState(0);
   const [searchParams, setSearchParams] = useState({});
+  const [refreshCount, updateRefreshCount] = useRefreshCount();
+
   return (
     <PageContainer>
       <TopBar title="Appointments">
-        <NewAppointmentButton onSuccess={() => setRefreshCount(refreshCount + 1)} />
+        <NewAppointmentButton onSuccess={updateRefreshCount} />
       </TopBar>
       <ContentPane>
         <SearchTableTitle>Appointment search</SearchTableTitle>

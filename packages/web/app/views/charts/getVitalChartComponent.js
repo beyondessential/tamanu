@@ -1,4 +1,4 @@
-import { VITAL_CHARTS, BLOOD_PRESSURE, LINE } from '@tamanu/constants/surveys';
+import { BLOOD_PRESSURE, LINE, VITAL_CHARTS } from '@tamanu/constants/surveys';
 import { VitalBloodPressureChart } from './VitalBloodPressureChart';
 import { VitalLineChart } from './VitalLineChart';
 

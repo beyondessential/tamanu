@@ -1,7 +1,7 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react-native';
 import { ScrollView } from 'react-native';
-import { StyledSafeAreaView, CenterView } from '/styled/common';
+import { CenterView, StyledSafeAreaView } from '/styled/common';
 import { SafeAreaProvider } from 'react-native-safe-area-view';
 import { VitalsTable } from './index';
 import { patientHistoryList } from './fixtures';
