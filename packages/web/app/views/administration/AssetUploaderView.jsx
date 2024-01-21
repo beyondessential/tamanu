@@ -1,6 +1,5 @@
 import React, { memo, useCallback, useState } from 'react';
 import * as yup from 'yup';
-
 import { ASSET_NAMES } from '@tamanu/constants/importable';
 import { useApi } from '../../api';
 import { Field, Form, SelectField } from '../../components/Field';
@@ -37,7 +36,12 @@ export const AssetUploaderView = memo(() => {
     new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result);
+      reader.onload = () => {
+        // Extract the base64 data from the data url for saving
+        // See note for more details https://developer.mozilla.org/en-US/docs/Web/API/FileReader/readAsDataURL
+        const base64Data = reader.result.split('base64,').pop();
+        return resolve(base64Data);
+      };
       reader.onerror = conversionError => reject(conversionError);
     });
 
