@@ -23,6 +23,11 @@ export class Program extends Model {
       as: 'surveys',
       foreignKey: 'programId',
     });
+
+    this.hasMany(models.ProgramRegistry, {
+      as: 'programRegistries',
+      foreignKey: 'programId',
+    });
   }
 
   static buildSyncFilter() {
