@@ -66,8 +66,6 @@ async function serve({ skipMigrationCheck }) {
     server.close();
   });
 
-  listenForServerQueries(discoverySettings);
-
   const syncSchedule = await settings.get('sync.schedule');
   const schedules = await settings.get('schedules');
 
