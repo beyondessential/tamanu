@@ -33,8 +33,8 @@ export const PrintPrescriptionModal = ({ medication, open, onClose }) => {
         const res = await api.get(`encounter/${medication.encounterId}`);
         setEncounter(res);
       }
+      setEncounterLoading(false);
     })();
-    setEncounterLoading(false);
   }, [api, medication.encounterId]);
 
   useEffect(() => {
@@ -44,8 +44,8 @@ export const PrintPrescriptionModal = ({ medication, open, onClose }) => {
         const res = await api.get(`patient/${encounter.patientId}`);
         setPatient(res);
       }
+      setPatientLoading(false);
     })();
-    setPatientLoading(false);
   }, [api, encounter.patientId]);
 
   useEffect(() => {
@@ -55,8 +55,8 @@ export const PrintPrescriptionModal = ({ medication, open, onClose }) => {
         const res = await api.get(`patient/${encounter.patientId}/additionalData`);
         setAdditionalData(res);
       }
+      setAdditionalDataLoading(false);
     })();
-    setAdditionalDataLoading(false);
   }, [api, encounter.patientId]);
 
   useEffect(() => {
@@ -66,8 +66,8 @@ export const PrintPrescriptionModal = ({ medication, open, onClose }) => {
         const res = await api.get(`referenceData/${encodeURIComponent(patient.villageId)}`);
         setVillage(res);
       }
+      setVillageLoading(false);
     })();
-    setVillageLoading(false);
   }, [api, patient.villageId]);
 
   useEffect(() => {
@@ -78,8 +78,8 @@ export const PrintPrescriptionModal = ({ medication, open, onClose }) => {
         setPrescriber(res);
         console.log(res);
       }
+      setPrescriberLoading(false);
     })();
-    setPrescriberLoading(false);
   }, [api, medication.prescriberId]);
 
   return (
