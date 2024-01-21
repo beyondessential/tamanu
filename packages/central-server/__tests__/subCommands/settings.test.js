@@ -1,5 +1,5 @@
 import { join } from 'path';
-import { mkdtemp, rmdir, writeFile } from 'fs/promises';
+import { promises as fs } from 'fs';
 import { tmpdir } from 'os';
 import { fake } from '@tamanu/shared/test-helpers/fake';
 import { Op } from 'sequelize';
@@ -7,6 +7,8 @@ import { SETTINGS_SCOPES } from '@tamanu/constants';
 import { getSetting, setSetting, loadSettings } from '../../app/subCommands/settings';
 
 import { createTestContext } from '../utilities';
+
+const { mkdtemp, rmdir, writeFile } = fs;
 
 describe('settings', () => {
   let ctx;
