@@ -154,7 +154,7 @@ const COLUMNS = {
     {
       key: 'dateMoved',
       title: 'Date & time moved',
-      accessor: ({ date }) => getDisplayDate(date, DATE_TIME_FORMAT),
+      accessor: ({ date }) => (date ? getDisplayDate(date, DATE_TIME_FORMAT) : '--/--/----'),
       style: { width: '35%' },
     },
   ],
@@ -174,7 +174,7 @@ const COLUMNS = {
     {
       key: 'dateMoved',
       title: 'Date & time moved',
-      accessor: ({ date }) => getDisplayDate(date, DATE_TIME_FORMAT),
+      accessor: ({ date }) => (date ? getDisplayDate(date, DATE_TIME_FORMAT) : '--/--/----'),
       style: { width: '35%' },
     },
   ],
@@ -194,7 +194,7 @@ const COLUMNS = {
     {
       key: 'date',
       title: 'Date',
-      accessor: ({ date }) => getDisplayDate(date, DATE_FORMAT),
+      accessor: ({ date }) => (date ? getDisplayDate(date, DATE_FORMAT) : '--/--/----'),
       style: { width: '25%' },
     },
   ],
@@ -208,7 +208,7 @@ const COLUMNS = {
     {
       key: 'procedureDate',
       title: 'Procedure date',
-      accessor: ({ date }) => getDisplayDate(date, DATE_FORMAT),
+      accessor: ({ date }) => (date ? getDisplayDate(date, DATE_FORMAT) : '--/--/----'),
       style: { width: '25%' },
     },
   ],
@@ -231,13 +231,15 @@ const COLUMNS = {
     {
       key: 'requestDate',
       title: 'Request date',
-      accessor: ({ requestDate }) => getDisplayDate(requestDate, DATE_FORMAT),
+      accessor: ({ requestDate }) =>
+        requestDate ? getDisplayDate(requestDate, DATE_FORMAT) : '--/--/----',
       style: { width: '17.5%' },
     },
     {
       key: 'completedDate',
       title: 'Published date',
-      accessor: ({ completedDate }) => getDisplayDate(completedDate, DATE_FORMAT),
+      accessor: ({ completedDate }) =>
+        completedDate ? getDisplayDate(completedDate, DATE_FORMAT) : '--/--/----',
       style: { width: '17.5%' },
     },
   ],
@@ -266,7 +268,8 @@ const COLUMNS = {
     {
       key: 'requestDate',
       title: 'Request date',
-      accessor: ({ requestedDate }) => getDisplayDate(requestedDate, DATE_FORMAT),
+      accessor: ({ requestedDate }) =>
+        requestedDate ? getDisplayDate(requestedDate, DATE_FORMAT) : '--/--/----',
       style: { width: '20%' },
     },
     {
@@ -296,7 +299,7 @@ const COLUMNS = {
       key: 'route',
       title: 'Route',
       accessor: ({ route }) => DRUG_ROUTE_VALUE_TO_LABEL[route] || '',
-      style: { width: '10%' },
+      style: { width: '12.5%' },
     },
     {
       key: 'prescriber',
@@ -307,8 +310,8 @@ const COLUMNS = {
     {
       key: 'prescriptionDate',
       title: 'Prescription date',
-      accessor: ({ date }) => getDisplayDate(date, DATE_FORMAT),
-      style: { width: '20%' },
+      accessor: ({ date }) => (date ? getDisplayDate(date, DATE_FORMAT) : '--/--/----'),
+      style: { width: '17.5%' },
     },
   ],
 };
@@ -396,6 +399,7 @@ export const EncounterRecordPrintout = ({
   imagingRequests,
   notes,
   discharge,
+  village,
   pad,
   medications,
   getLocalisation,
@@ -428,6 +432,7 @@ export const EncounterRecordPrintout = ({
         <PatientDetailsWithAddress
           getLocalisation={getLocalisation}
           patient={extendedPatientData}
+          village={village}
         />
         <SectionSpacing />
         <EncounterDetailsExtended
