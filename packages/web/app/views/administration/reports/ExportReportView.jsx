@@ -7,6 +7,7 @@ import { Field, Form, FormGrid, OutlinedButton, RadioField } from '../../../comp
 import { ReportSelectField, VersionSelectField } from './ReportsSelectFields';
 import { Colors } from '../../../constants';
 import { saveFile } from '../../../utils/fileSystemAccess';
+import { useApi } from '../../../api/useApi';
 
 const StyledButton = styled(OutlinedButton)`
   margin-top: 30px;
