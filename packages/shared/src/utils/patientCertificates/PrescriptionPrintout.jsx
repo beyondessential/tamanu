@@ -75,13 +75,7 @@ const generalStyles = StyleSheet.create({
 
 const SectionContainer = props => <View style={generalStyles.container} {...props} />;
 
-const PrescriptionsSection = ({
-  prescriptions,
-  prescriber,
-  encounter,
-  facility,
-  getLocalisation,
-}) => {
+const PrescriptionsSection = ({ prescriptions, prescriber, facility, getLocalisation }) => {
   return (
     <View>
       <DataSection hideBottomRule title="Prescription details">

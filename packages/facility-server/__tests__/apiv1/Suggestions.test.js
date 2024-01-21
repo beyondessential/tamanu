@@ -6,7 +6,7 @@ import {
   randomRecords,
   splitIds,
 } from '@tamanu/shared/demoData';
-import { fake, findOneOrCreate } from '@tamanu/shared/test-helpers';
+import { findOneOrCreate } from '@tamanu/shared/test-helpers';
 import { createTestContext } from '../utilities';
 import { testDiagnoses } from '../seed';
 

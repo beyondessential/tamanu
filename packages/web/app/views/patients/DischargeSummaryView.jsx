@@ -33,7 +33,7 @@ export const DischargeSummaryView = React.memo(() => {
   const { data: additionalData } = usePatientAdditionalDataQuery(
     patient.id,
   );
-  const { data: village, isLoading: isVillageLoading } = useReferenceData(patient?.villageId);
+  const { data: village } = useReferenceData(patient?.villageId);
 
   // If there is no encounter loaded then this screen can't be displayed
   if (!encounter?.id) {

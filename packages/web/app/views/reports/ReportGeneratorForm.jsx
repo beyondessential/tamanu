@@ -291,7 +291,8 @@ export const ReportGeneratorForm = () => {
               <Spacer />
               <FormGrid columns={3}>
                 {parameters.map(
-                  ({ parameterField, required, name, label, options, ...restOfProps }) => {
+                  ({ parameterField, required, name, label, ...restOfProps }) => {
+                    delete restOfProps.options;
                     return (
                       <ParameterField
                         key={name || parameterField}
