@@ -1,5 +1,5 @@
 import { REPORT_DB_SCHEMAS, REPORT_VERSION_EXPORT_FORMATS } from '@tamanu/constants/reports';
-import { createTestContext, withDate } from '../../utilities';
+import { createTestContext, withDateUnsafelyFaked } from '../../utilities';
 import { readJSON, sanitizeFilename, verifyQuery } from '../../../dist/admin/reports/utils';
 import { User } from '@tamanu/shared/models/User';
 import path from 'path';
@@ -78,7 +78,7 @@ describe('reportRoutes', () => {
     it('should return version count and last updated', async () => {
       const { ReportDefinitionVersion } = models;
       await ReportDefinitionVersion.create(getMockReportVersion(1));
-      const latestVersion = await withDate(new Date(Date.now() + 10000), () =>
+      const latestVersion = await withDateUnsafelyFaked(new Date(Date.now() + 10000), () =>
         ReportDefinitionVersion.create(getMockReportVersion(2)),
       );
       const res = await adminApp.get('/v1/admin/reports');

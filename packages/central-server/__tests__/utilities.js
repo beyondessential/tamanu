@@ -82,7 +82,7 @@ export async function createTestContext() {
 // cases where we need control over the date without changing all instances of
 // Date.now() and new Date in the codebase and dependencies, or wrapping the
 // test runner to override the system clock. Use sparingly.
-export async function withDate(fakeDate, fn) {
+export async function withDateUnsafelyFaked(fakeDate, fn) {
   const OldDate = global.Date;
   try {
     global.Date = class extends OldDate {
