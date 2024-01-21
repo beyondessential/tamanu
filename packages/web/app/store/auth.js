@@ -36,7 +36,6 @@ export const login = (email, password) => async (dispatch, getState, { api }) =>
 
   try {
     const { user, token, localisation, server, ability, role, settings } = await api.login(
-      host,
       email,
       password,
     );
