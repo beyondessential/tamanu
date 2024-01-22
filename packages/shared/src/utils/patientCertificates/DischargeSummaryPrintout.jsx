@@ -194,6 +194,7 @@ const MedicationsTable = ({ medications }) => {
 export const DischargeSummaryPrintout = ({
   patientData,
   encounter,
+  discharge,
   logo,
   title,
   subTitle,
@@ -222,7 +223,7 @@ export const DischargeSummaryPrintout = ({
           <PatientDetailsWithAddress patient={patientData} getLocalisation={getLocalisation} />
         </SectionContainer>
         <SectionContainer>
-          <EncounterDetailsExtended encounter={encounter} />
+          <EncounterDetailsExtended encounter={encounter} discharge={discharge} />
         </SectionContainer>
         <SectionContainer>
           {primaryDiagnoses.length > 0 && (
@@ -257,7 +258,6 @@ export const DischargeSummaryPrintout = ({
         <SectionContainer>
           <NotesSection />
         </SectionContainer>
-        <Footer />
       </Page>
     </Document>
   );

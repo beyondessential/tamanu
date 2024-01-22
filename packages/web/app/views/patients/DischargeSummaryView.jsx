@@ -8,13 +8,15 @@ import { useEncounter } from '../../contexts/Encounter';
 import { Colors } from '../../constants';
 import { useCertificate } from '../../utils/useCertificate';
 import { useLocalisation } from '../../contexts/Localisation';
-import { usePatientAdditionalDataQuery } from '../../api/queries';
+import { usePatientAdditionalDataQuery, useReferenceData } from '../../api/queries';
 import { DischargeSummaryPrintout } from '@tamanu/shared/utils/patientCertificates';
 import { printPDF, PDFViewer } from '../../components/PatientPrinting/PDFViewer';
+import { LoadingIndicator } from '../../components/LoadingIndicator';
+import { useEncounterDischarge } from '../../api/queries/useEncounterDischarge';
 
 const Container = styled.div`
   background: ${Colors.white};
-  height: 100%;
+  height: calc(100vh - 142px);
 `;
 
 const NavContainer = styled.div`
@@ -33,11 +35,16 @@ export const DischargeSummaryView = React.memo(() => {
   const { data: additionalData, isLoading: isPADLoading } = usePatientAdditionalDataQuery(
     patient.id,
   );
+  const { data: village, isLoading: isVillageLoading } = useReferenceData(patient?.villageId);
 
   // If there is no encounter loaded then this screen can't be displayed
   if (!encounter?.id) {
     return <Redirect to="/patients/all" />;
   }
+
+  const { data: discharge, isLoading: isDischargeLoading } = useEncounterDischarge(encounter);
+
+  if (isPADLoading || isDischargeLoading) return <LoadingIndicator />;
 
   return (
     <Container>
@@ -54,8 +61,9 @@ export const DischargeSummaryView = React.memo(() => {
       </NavContainer>
       <PDFViewer id="discharge-summary" showToolbar={false}>
         <DischargeSummaryPrintout
-          patientData={{ ...patient, additionalData }}
+          patientData={{ ...patient, additionalData, village }}
           encounter={encounter}
+          discharge={discharge}
           logo={logo}
           title={title}
           subTitle={subTitle}

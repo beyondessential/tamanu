@@ -2,11 +2,11 @@ import React, { useCallback, useMemo, useState, useRef, useEffect } from 'react'
 import styled from 'styled-components';
 import EditIcon from '@material-ui/icons/Edit';
 
-import { NOTE_PERMISSION_TYPES, NOTE_TYPES } from '@tamanu/constants';
+import { NOTE_PERMISSION_TYPES, NOTE_TYPES, NOTE_TYPE_LABELS } from '@tamanu/constants';
 
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
-import { Colors, NOTE_FORM_MODES, NOTE_TYPE_LABELS } from '../constants';
+import { Colors, NOTE_FORM_MODES } from '../constants';
 import { useAuth } from '../contexts/Auth';
 import { NoteModal } from './NoteModal';
 import { withPermissionCheck } from './withPermissionCheck';
