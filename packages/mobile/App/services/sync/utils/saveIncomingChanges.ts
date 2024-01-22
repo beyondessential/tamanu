@@ -5,7 +5,7 @@ import { SyncRecord } from '../types';
 import { sortInDependencyOrder } from './sortInDependencyOrder';
 import { SQLITE_MAX_PARAMETERS } from '../../../infra/db/helpers';
 import { buildFromSyncRecord } from './buildFromSyncRecord';
-import { executeInserts, executeUpdates, executeDeletes, executeRestores } from './executeCrud';
+import { executeDeletes, executeInserts, executeRestores, executeUpdates } from './executeCrud';
 import { MODELS_MAP } from '../../../models/modelsMap';
 import { BaseModel } from '../../../models/BaseModel';
 import { readFileInDocuments } from '../../../ui/helpers/file';

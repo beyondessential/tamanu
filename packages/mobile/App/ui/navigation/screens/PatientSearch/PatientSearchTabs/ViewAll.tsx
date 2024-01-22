@@ -1,7 +1,7 @@
-import React, { ReactElement, useCallback, FC, useMemo } from 'react';
+import React, { FC, ReactElement, useCallback, useMemo } from 'react';
 import { format } from 'date-fns';
-import { Like, FindOperator } from 'typeorm';
-import { useField, FieldInputProps, FieldMetaProps, FieldHelperProps } from 'formik';
+import { FindOperator, Like } from 'typeorm';
+import { FieldHelperProps, FieldInputProps, FieldMetaProps, useField } from 'formik';
 import { compose } from 'redux';
 // Containers
 import { withPatient } from '/containers/Patient';
@@ -19,7 +19,7 @@ import { theme } from '/styled/theme';
 import { FilterIcon } from '/components/Icons/FilterIcon';
 import { useFilterFields } from './PatientFilterScreen';
 import { IPatient } from '~/types';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
 
 interface ActiveFilters {
   count: number;

@@ -1,5 +1,5 @@
 import styled from 'styled-components/native';
-import { screenPercentageToDP, Orientation } from '~/ui/helpers/screen';
+import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 
 export const ReportSelectorContainer = styled.View`
   background-color: yellow;

@@ -1,5 +1,5 @@
 import { random, sample } from 'lodash';
-import { v4 as uuidv4 } from 'uuid';
+import crypto from 'crypto';
 import * as yup from 'yup';
 
 import { FhirBaseType } from './baseType';
@@ -43,7 +43,7 @@ export class FhirCoding extends FhirBaseType {
 
   static fake(model, { fieldName }, id) {
     return new this({
-      system: `https://tamanu.io/${model.name}/${uuidv4()}`,
+      system: `https://tamanu.io/${model.name}/${crypto.randomUUID()}`,
       version: `${random(1, 9)}.0`,
       code: `${fieldName}.${id}`,
       display: fieldName.toUpperCase(),
