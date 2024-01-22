@@ -26,7 +26,9 @@ const Content = styled.div`
   ${props => props.$heroImage && 'max-width: 467px;'}
 `;
 
-const ErrorMessage = styled(Typography)`
+const ErrorMessage = styled(Typography).attrs({
+  variant: 'h1',
+})`
   font-weight: 500;
   font-size: 38px;
   line-height: 32px;
@@ -63,7 +65,8 @@ const AnimateEllipsis = styled.span`
   }
 `;
 
-const HeroImage = styled.img`
+const HeroImage = styled.div`
+  background-image: url(${screen_4});
   background-size: cover;
   height: 100vh;
   width: 50vw;
@@ -84,7 +87,7 @@ export const StatusPage = ({ message, description, heroImage }) => {
           </ErrorDescription>
         </Content>
       </Container>
-      {heroImage && <HeroImage src={heroImage} />}
+      {heroImage && <HeroImage />}
     </FlexContainer>
   );
 };
