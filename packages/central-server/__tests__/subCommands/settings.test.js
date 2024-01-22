@@ -10,32 +10,24 @@ import { createTestContext } from '../utilities';
 
 describe('settings', () => {
   let ctx;
-  let facility;
+  const facility = '38ee9650-9b0c-440f-8b0c-c9526fba35ea';
   beforeAll(async () => {
     ctx = await createTestContext();
+    const { Facility } = ctx.store.models;
+    await Facility.create(fake(Facility, { id: facility }));
   });
-
   afterAll(() => ctx.close());
 
   beforeEach(async () => {
-    const { Setting, Facility } = ctx.store.models;
+    const { Setting } = ctx.store.models;
 
-    try {
-      await ctx.store.sequelize.query('DELETE FROM settings WHERE "key" LIKE \'test%\'');
-    } catch (err) {
-      console.log('#TEMP DEBUG:', err);
-      throw err;
-    }
-
-    if (facility) {
-      await Facility.destroy({
-        where: {
-          id: facility,
+    await Setting.destroy({
+      where: {
+        key: {
+          [Op.like]: 'test%',
         },
-      });
-    }
-    const newFacility = await Facility.create(fake(Facility));
-    facility = newFacility.id;
+      },
+    });
 
     await Setting.set(
       'test',
