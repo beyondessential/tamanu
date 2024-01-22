@@ -14,7 +14,7 @@ import {
   LoadingStatusPage,
   UnavailableStatusPage,
   UnsupportedBrowserStatusPage,
-  UnsupportedDeviceStatusPage,
+  MobileStatusPage,
 } from './components/StatusPage';
 import { useCheckServerAliveQuery } from './api/queries/useCheckServerAliveQuery';
 
@@ -44,7 +44,7 @@ export function App({ sidebar, children }) {
   const isDebugMode = localStorage.getItem('DEBUG_PROD');
 
   if (!isDebugMode) { // Skip browser/platform check in debug mode
-    if (!isDesktop) return <UnsupportedDeviceStatusPage platformType={platformType} />;
+    if (!isDesktop) return <MobileStatusPage platformType={platformType} />;
     if (!isChrome) return <UnsupportedBrowserStatusPage />;
   }
   if (isLoading) return <LoadingStatusPage />;
