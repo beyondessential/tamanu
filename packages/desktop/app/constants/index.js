@@ -576,6 +576,17 @@ export const REPORT_TYPES = {
   TABLE: 'table',
 };
 
+export const LOCAL_STORAGE_KEYS = {
+  HOST: 'host',
+  TOKEN: 'apiToken',
+  LOCALISATION: 'localisation',
+  SERVER: 'server',
+  REMEMBER_EMAIL: 'remember-email',
+  PERMISSIONS: 'permissions',
+  ROLE: 'role',
+  LANGUAGE: 'language',
+};
+
 export const appointmentTypeOptions = Object.values(APPOINTMENT_TYPES).map(type => ({
   label: type,
   value: type,
@@ -817,15 +828,4 @@ export const NOTE_FORM_MODES = {
   CREATE_NOTE: 'createNote',
   EDIT_NOTE: 'editNote',
   VIEW_NOTE: 'viewNote',
-};
-
-export const LOCAL_STORAGE_KEYS = {
-  HOST: 'host',
-  TOKEN: 'apiToken',
-  LOCALISATION: 'localisation',
-  SERVER: 'server',
-  REMEMBER_EMAIL: 'remember-email',
-  PERMISSIONS: 'permissions',
-  ROLE: 'role',
-  LANGUAGE: 'language',
 };
