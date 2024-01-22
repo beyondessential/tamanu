@@ -6,6 +6,7 @@ import { PatientDetailsWithAddress } from './printComponents/PatientDetailsWithA
 import { DIAGNOSIS_CERTAINTIES_TO_HIDE } from '@tamanu/constants';
 import { EncounterDetailsExtended } from './printComponents/EncounterDetailsExtended';
 import { Footer } from './printComponents/Footer';
+import { P } from './Typography';
 
 const borderStyle = '1 solid black';
 const tableLabelWidth = 150;
@@ -91,12 +92,6 @@ const notesSectionStyles = StyleSheet.create({
     border: borderStyle,
     height: 76,
   },
-  title: {
-    fontFamily: 'Helvetica-Bold',
-    marginBottom: 3,
-    fontSize: 11,
-    fontWeight: 500,
-  },
 });
 
 const extractDiagnosesInfo = ({ diagnoses, getLocalisation }) => {
@@ -144,7 +139,9 @@ const ProceduresTable = ({ procedures, getLocalisation }) => (
 
 const NotesSection = () => (
   <View>
-    <Text style={notesSectionStyles.title}>Discharge planning notes</Text>
+    <P bold fontSize={11} mb={3}>
+      Discharge planning notes
+    </P>
     <View style={notesSectionStyles.notesBox} />
   </View>
 );
@@ -177,12 +174,12 @@ const MedicationsTable = ({ medications }) => {
       </MedicationsTableTitleCol>
       <View style={{ flexDirection: 'column', flex: 1 }}>
         <MedicationsTableInfoBox
-          label="Current medications"
+          label="Current"
           info={currentMedications.map(item => item?.medication?.name)}
           hasBottomBorder={true}
         />
         <MedicationsTableInfoBox
-          label="Discontinued medications"
+          label="Discontinued"
           info={discontinuedMedications.map(item => item?.medication?.name)}
           hasBottomBorder={false}
         />
