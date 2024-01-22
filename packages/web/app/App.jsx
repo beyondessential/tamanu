@@ -10,7 +10,12 @@ import { LoginView } from './views';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { PromiseErrorBoundary } from './components/PromiseErrorBoundary';
 import { ForbiddenErrorModal } from './components/ForbiddenErrorModal';
-import { LoadingStatusPage, UnavailableStatusPage, UnsupportedBrowserStatusPage, UnsupportedDeviceStatusPage } from './components/StatusPage';
+import {
+  LoadingStatusPage,
+  UnavailableStatusPage,
+  UnsupportedBrowserStatusPage,
+  UnsupportedDeviceStatusPage,
+} from './components/StatusPage';
 import { useCheckServerAliveQuery } from './api/queries/useCheckServerAliveQuery';
 
 const AppContainer = styled.div`
@@ -31,16 +36,17 @@ export function App({ sidebar, children }) {
   const currentRoute = useSelector(getCurrentRoute);
 
   const browser = Bowser.getParser(window.navigator.userAgent);
-
   const isChrome = browser.satisfies({
-    chrome: ">=88.0.4324.109" // Early 2021 release of chrome. Arbitrarily chosen as recentish.
-  })
-
+    chrome: '>=88.0.4324.109', // Early 2021 release of chrome. Arbitrarily chosen as recentish.
+  });
   const platformType = browser.getPlatformType();
   const isDesktop = platformType === 'desktop';
+  const isDebugMode = localStorage.getItem('DEBUG_PROD');
 
-  if (!isDesktop) return <UnsupportedDeviceStatusPage platformType={platformType}/>;
-  if (!isChrome) return <UnsupportedBrowserStatusPage />;
+  if (!isDebugMode) { // Skip browser/platform check in debug mode
+    if (!isDesktop) return <UnsupportedDeviceStatusPage platformType={platformType} />;
+    if (!isChrome) return <UnsupportedBrowserStatusPage />;
+  }
   if (isLoading) return <LoadingStatusPage />;
   if (!isServerAlive) return <UnavailableStatusPage />;
   if (!isUserLoggedIn) return <LoginView />;

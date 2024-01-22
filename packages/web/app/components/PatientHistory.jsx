@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 import { OutlinedButton } from './Button';
@@ -8,6 +8,7 @@ import { MarkPatientForSync } from './MarkPatientForSync';
 import { ENCOUNTER_OPTIONS_BY_VALUE } from '../constants';
 import { LocationGroupCell } from './LocationCell';
 import { LimitedLinesCell } from './FormattedTableCell';
+import { useRefreshCount } from '../hooks/useRefreshCount';
 
 const DateWrapper = styled.div`
   min-width: 90px;
@@ -61,7 +62,7 @@ const RefreshButton = styled(OutlinedButton)`
 `;
 
 export const PatientHistory = ({ patient, onItemClick }) => {
-  const [refreshCount, setRefreshCount] = useState(0);
+  const [refreshCount, updateRefreshCount] = useRefreshCount();
 
   if (!patient.markedForSync) {
     return <MarkPatientForSync patient={patient} />;
@@ -71,7 +72,7 @@ export const PatientHistory = ({ patient, onItemClick }) => {
       {patient.syncing && (
         <SyncWarning>
           Patient is being synced, so records might not be fully updated.
-          <RefreshButton onClick={() => setRefreshCount(refreshCount + 1)}>Refresh</RefreshButton>
+          <RefreshButton onClick={updateRefreshCount}>Refresh</RefreshButton>
         </SyncWarning>
       )}
       <DataFetchingTable

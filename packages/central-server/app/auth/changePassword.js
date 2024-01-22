@@ -32,6 +32,16 @@ changePassword.post(
   }),
 );
 
+changePassword.post(
+  '/validate-reset-code',
+  asyncHandler(async (req, res) => {
+    const { store, body } = req;
+
+    await validateResetCode(store, body);
+    res.send({ ok: 'ok' });
+  }),
+);
+
 const doChangePassword = async (store, { email, newPassword, token }) => {
   const { models } = store;
 
@@ -70,4 +80,19 @@ const doChangePassword = async (store, { email, newPassword, token }) => {
       { where: { id: oneTimeLogin.id } },
     );
   });
+};
+
+const validateResetCode = async (store, { email, token }) => {
+  const { models } = store;
+
+  const user = await findUser(models, email);
+  const userId = user ? user.id : 'thwart-timing-attack';
+  const oneTimeLogin = await models.OneTimeLogin.findOne({
+    where: { userId, token },
+  });
+
+  if (!oneTimeLogin) {
+    log.info('oneTimeLogin.tokenNotFound', { token });
+    throw new ValidationError('Token not found for this user');
+  }
 };
