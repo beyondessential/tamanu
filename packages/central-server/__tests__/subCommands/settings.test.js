@@ -22,7 +22,13 @@ describe('settings', () => {
   beforeEach(async () => {
     const { Setting, Facility } = ctx.store.models;
 
-    await Setting.destroy({ where: { key: { [Op.startsWith]: 'test' } } });
+    await Setting.destroy({
+      where: {
+        key: {
+          [Op.like]: 'test%',
+        },
+      },
+    });
 
     if (facility) {
       await Facility.destroy({
