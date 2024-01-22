@@ -304,9 +304,9 @@ export const EncounterRecord = React.memo(
     const { department, location, examiner, reasonForEncounter, startDate, endDate } = encounter;
     const { title, subTitle, logo } = certificateData;
 
-    const getVitalsColumn = (startIndex, endIndex) => {
-      const dateArray = recordedDates.slice(startIndex, endIndex);
-      const width = 100 / (dateArray.length + 1);
+    const getVitalsColumn = startIndex => {
+      const dateArray = [...recordedDates].reverse().slice(startIndex, startIndex + 12);
+      const width = Math.floor(100 / (dateArray.length + 1));
       return [
         {
           key: 'measure',
@@ -468,10 +468,7 @@ export const EncounterRecord = React.memo(
               recordedDates.length > start ? (
                 <>
                   <TableHeading>Vitals</TableHeading>
-                  <CompactListTable
-                    data={vitalsData}
-                    columns={getVitalsColumn(start, start + 12)}
-                  />
+                  <CompactListTable data={vitalsData} columns={getVitalsColumn(start)} />
                 </>
               ) : null,
             )}
