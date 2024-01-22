@@ -30,3 +30,5 @@ export const ModalGenericButtonRow = makeModalRow(ButtonRow);
 export const ModalActionRow = makeModalRow(ConfirmCancelRow, false);
 
 export const ModalFormActionRow = makeModalRow(FormSubmitCancelRow, false);
+
+export const ModalCancelRow = makeModalRow(ConfirmCancelRow, false);
