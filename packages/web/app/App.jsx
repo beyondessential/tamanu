@@ -10,8 +10,13 @@ import { LoginView } from './views';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { PromiseErrorBoundary } from './components/PromiseErrorBoundary';
 import { ForbiddenErrorModal } from './components/ForbiddenErrorModal';
-import { LoadingStatusPage, UnavailableStatusPage, UnsupportedBrowserStatusPage } from './components/StatusPage';
+import {
+  LoadingStatusPage,
+  UnavailableStatusPage,
+  UnsupportedBrowserStatusPage,
+} from './components/StatusPage';
 import { useCheckServerAliveQuery } from './api/queries/useCheckServerAliveQuery';
+import { IS_DEVELOPMENT } from './utils/env';
 
 const AppContainer = styled.div`
   display: flex;
@@ -33,10 +38,14 @@ export function App({ sidebar, children }) {
   const browser = Bowser.getParser(window.navigator.userAgent);
 
   const isChrome = browser.satisfies({
-    chrome: ">=88.0.4324.109" // Early 2021 release of chrome. Arbitrarily chosen as recentish.
-  })
+    chrome: '>=88.0.4324.109', // Early 2021 release of chrome. Arbitrarily chosen as recentish.
+  });
 
-  if (!isChrome) return <UnsupportedBrowserStatusPage />;
+  const isDebugMode = localStorage.getItem('DEBUG_PROD');
+
+  if (!isDebugMode) {
+    if (!isChrome) return <UnsupportedBrowserStatusPage />;
+  }
   if (isLoading) return <LoadingStatusPage />;
   if (!isServerAlive) return <UnavailableStatusPage />;
   if (!isUserLoggedIn) return <LoginView />;
