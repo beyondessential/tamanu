@@ -1,6 +1,7 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
+import Bowser from 'bowser';
 import 'typeface-roboto';
 import { Colors } from './constants';
 import { checkIsLoggedIn } from './store/auth';
@@ -9,7 +10,11 @@ import { LoginView } from './views';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { PromiseErrorBoundary } from './components/PromiseErrorBoundary';
 import { ForbiddenErrorModal } from './components/ForbiddenErrorModal';
-import { LoadingStatusPage, UnavailableStatusPage } from './components/StatusPage';
+import {
+  LoadingStatusPage,
+  UnavailableStatusPage,
+  UnsupportedBrowserStatusPage,
+} from './components/StatusPage';
 import { useCheckServerAliveQuery } from './api/queries/useCheckServerAliveQuery';
 
 const AppContainer = styled.div`
@@ -29,6 +34,17 @@ export function App({ sidebar, children }) {
   const isUserLoggedIn = useSelector(checkIsLoggedIn);
   const currentRoute = useSelector(getCurrentRoute);
 
+  const browser = Bowser.getParser(window.navigator.userAgent);
+
+  const isChrome = browser.satisfies({
+    chrome: '>=88.0.4324.109', // Early 2021 release of chrome. Arbitrarily chosen as recentish.
+  });
+
+  const isDebugMode = localStorage.getItem('DEBUG_PROD');
+
+  if (!isDebugMode) { // Skip browser check in debug mode
+    if (!isChrome) return <UnsupportedBrowserStatusPage />;
+  }
   if (isLoading) return <LoadingStatusPage />;
   if (!isServerAlive) return <UnavailableStatusPage />;
   if (!isUserLoggedIn) return <LoginView />;
