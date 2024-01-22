@@ -11,10 +11,12 @@ import { useLocalisation } from '../../contexts/Localisation';
 import { usePatientAdditionalDataQuery, useReferenceData } from '../../api/queries';
 import { DischargeSummaryPrintout } from '@tamanu/shared/utils/patientCertificates';
 import { printPDF, PDFViewer } from '../../components/PatientPrinting/PDFViewer';
+import { LoadingIndicator } from '../../components/LoadingIndicator';
+import { useEncounterDischarge } from '../../api/queries/useEncounterDischarge';
 
 const Container = styled.div`
   background: ${Colors.white};
-  height: 100%;
+  height: calc(100vh - 142px);
 `;
 
 const NavContainer = styled.div`
@@ -40,6 +42,10 @@ export const DischargeSummaryView = React.memo(() => {
     return <Redirect to="/patients/all" />;
   }
 
+  const { data: discharge, isLoading: isDischargeLoading } = useEncounterDischarge(encounter);
+
+  if (isPADLoading || isDischargeLoading) return <LoadingIndicator />;
+
   return (
     <Container>
       <NavContainer>
@@ -57,6 +63,7 @@ export const DischargeSummaryView = React.memo(() => {
         <DischargeSummaryPrintout
           patientData={{ ...patient, additionalData, village }}
           encounter={encounter}
+          discharge={discharge}
           logo={logo}
           title={title}
           subTitle={subTitle}
