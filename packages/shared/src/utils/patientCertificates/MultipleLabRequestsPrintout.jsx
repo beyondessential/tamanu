@@ -168,7 +168,7 @@ export const MultipleLabRequestsPrintout = React.memo(
               getLocalisation={getLocalisation}
               logoSrc={logo}
               letterheadConfig={certificateData}
-              certificateTitle="Lab Request"
+              certificateTitle="Lab request"
             />
             <SectionContainer>
               <PatientDetailsWithBarcode patient={patientData} getLocalisation={getLocalisation} />
