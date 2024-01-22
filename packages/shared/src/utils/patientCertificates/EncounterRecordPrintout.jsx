@@ -360,11 +360,6 @@ export const EncounterRecordPrintout = ({
   imagingRequests,
   notes,
   discharge,
-  // <<<<<<< HEAD
-  //   village,
-  //   pad,
-  // =======
-  // >>>>>>> main
   medications,
   getLocalisation,
   clinicianText,
@@ -375,18 +370,6 @@ export const EncounterRecordPrintout = ({
     <Document>
       <Page size="A4" style={{ paddingHorizontal: 50, paddingVertical: 30 }}>
         {watermark && <Watermark src={watermark} />}
-        {/*<<<<<<< HEAD*/}
-        {/*=======*/}
-        <FixedHeader>
-          <View
-            fixed
-            render={({ pageNumber }) =>
-              pageNumber > 1 && <EncounterRecordHeader patient={patientData} />
-            }
-          />
-        </FixedHeader>
-        <View fixed render={({ pageNumber }) => pageNumber > 1 && <PageBreakPadding />} />
-        {/*>>>>>>> main*/}
         <CertificateHeader>
           <LetterheadSection
             getLocalisation={getLocalisation}
