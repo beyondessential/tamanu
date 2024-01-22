@@ -81,6 +81,12 @@ const ResendCodeButton = styled(TextButton)`
   }
 `;
 
+const PasswordField = styled(Field)`
+  .MuiInputBase-input {
+    -webkit-text-security: disc;
+  }
+`;
+
 const REQUIRED_VALIDATION_MESSAGE = '*Required';
 
 const ChangePasswordFormComponent = ({
@@ -117,9 +123,9 @@ const ChangePasswordFormComponent = ({
           autoComplete="off"
         />
         <HorizontalDivider />
-        <Field
+        <PasswordField
           name="newPassword"
-          type="password"
+          type="text"
           label="New password"
           required
           component={TextField}
@@ -131,9 +137,9 @@ const ChangePasswordFormComponent = ({
           }}
           autoComplete="new-password"
         />
-        <Field
+        <PasswordField
           name="confirmNewPassword"
-          type="password"
+          type="text"
           label="Confirm new password"
           required
           component={TextField}
