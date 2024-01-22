@@ -1,9 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
 
+import { SEX_VALUE_INDEX } from '@tamanu/constants';
+
 import { theme } from '../../../theme';
 import { DateDisplay } from '../../../components/DateDisplay';
-import { SEX_VALUE_INDEX } from '../../../constants';
 
 const Label = styled.span`
   color: ${theme.palette.text.tertiary};

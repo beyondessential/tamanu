@@ -7,6 +7,7 @@ import doubleUp from '../../assets/images/double_up.svg';
 import { Button, TextButton } from '../Button';
 import { Form } from '../Field';
 import { Colors, FORM_TYPES } from '../../constants';
+import { ThemedTooltip } from '../Tooltip';
 
 const Container = styled.div`
   border: 1px solid ${Colors.outline};
@@ -90,17 +91,19 @@ export const CustomisableSearchBar = ({
             {children}
             <ActionsContainer>
               {showExpandButton && (
-                <IconButton
-                  onClick={() => {
-                    switchExpandValue();
-                  }}
-                  color="primary"
-                >
-                  <img
-                    src={isExpanded ? doubleUp : doubleDown}
-                    alt={`${isExpanded ? 'hide' : 'show'} advanced filters`}
-                  />
-                </IconButton>
+                <ThemedTooltip title={isExpanded ? 'Hide advanced search' : 'Advanced search'}>
+                  <IconButton
+                    onClick={() => {
+                      switchExpandValue();
+                    }}
+                    color="primary"
+                  >
+                    <img
+                      src={isExpanded ? doubleUp : doubleDown}
+                      alt={`${isExpanded ? 'hide' : 'show'} advanced search`}
+                    />
+                  </IconButton>
+                </ThemedTooltip>
               )}
               <SearchButton type="submit">Search</SearchButton>
               <ClearButton

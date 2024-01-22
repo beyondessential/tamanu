@@ -5,9 +5,13 @@ import { useCertificate } from '../../../utils/useCertificate';
 import { LoadingIndicator } from '../../LoadingIndicator';
 import { useApi } from '../../../api';
 
-import { PrescriptionPrintout } from '../printouts/PrescriptionPrintout';
+import { PrescriptionPrintout } from '@tamanu/shared/utils/patientCertificates';
+import { useLocalisation } from '../../../contexts/Localisation';
+import { PDFViewer, printPDF } from '../PDFViewer';
+import { useAuth } from '../../../contexts/Auth';
 
 export const PrintPrescriptionModal = ({ medication, open, onClose }) => {
+  const { getLocalisation } = useLocalisation();
   const certificateData = useCertificate();
   const api = useApi();
   const [encounter, setEncounter] = useState({});
@@ -18,6 +22,7 @@ export const PrintPrescriptionModal = ({ medication, open, onClose }) => {
   const [patientLoading, setPatientLoading] = useState(false);
   const [additionalDataLoading, setAdditionalDataLoading] = useState(false);
   const [villageLoading, setVillageLoading] = useState(false);
+  const { facility } = useAuth();
 
   useEffect(() => {
     setEncounterLoading(true);
@@ -65,16 +70,27 @@ export const PrintPrescriptionModal = ({ medication, open, onClose }) => {
 
   return (
     <>
-      <Modal title="Prescription" open={open} onClose={onClose} width="md" printable>
+      <Modal
+        title="Prescription"
+        open={open}
+        onClose={onClose}
+        width="md"
+        printable
+        onPrint={() => printPDF('prescription-printout')}
+      >
         {encounterLoading || patientLoading || additionalDataLoading || villageLoading ? (
           <LoadingIndicator />
         ) : (
-          <PrescriptionPrintout
-            patientData={{ ...patient, additionalData, village }}
-            prescriptionData={medication}
-            encounterData={encounter}
-            certificateData={certificateData}
-          />
+          <PDFViewer id="prescription-printout">
+            <PrescriptionPrintout
+              patientData={{ ...patient, additionalData, village }}
+              prescriptions={[medication]}
+              encounterData={encounter}
+              certificateData={certificateData}
+              facility={facility}
+              getLocalisation={getLocalisation}
+            />
+          </PDFViewer>
         )}
       </Modal>
     </>
