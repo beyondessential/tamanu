@@ -15,15 +15,15 @@ const PATIENT_FIELDS = {
   rightCol: [
     { key: 'displayId', label: 'Patient ID' },
     { key: 'sex', label: 'Sex', accessor: getSex },
-    { key: 'villageName', label: 'Village' },
+    { key: 'villageId', label: 'Village' },
   ],
 };
 
-export const PatientDetailsWithAddress = ({ patient, getLocalisation, village }) => {
+export const PatientDetailsWithAddress = ({ patient, getLocalisation }) => {
   return (
     <DataSection title="Patient details">
-      <Col>{renderDataItems(PATIENT_FIELDS.leftCol, patient, village, getLocalisation)}</Col>
-      <Col>{renderDataItems(PATIENT_FIELDS.rightCol, patient, village, getLocalisation)}</Col>
+      <Col>{renderDataItems(PATIENT_FIELDS.leftCol, patient, getLocalisation)}</Col>
+      <Col>{renderDataItems(PATIENT_FIELDS.rightCol, patient, getLocalisation)}</Col>
     </DataSection>
   );
 };
