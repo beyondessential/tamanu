@@ -11,9 +11,6 @@ import { DataItem } from './printComponents/DataItem';
 import { getDisplayDate } from './getDisplayDate';
 import { getCurrentDateString } from '../dateTime';
 import { LetterheadSection } from './LetterheadSection';
-import { Footer } from './printComponents/Footer';
-import { MultiPageHeader } from './printComponents/MultiPageHeader';
-import { getName } from '../patientAccessors';
 import { P } from './Typography';
 
 const columns = [
@@ -117,11 +114,6 @@ export const PrescriptionPrintout = ({
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        <MultiPageHeader
-          documentName="Prescription"
-          patientName={getName(patientData)}
-          patiendId={patientData?.displayId}
-        />
         <CertificateHeader>
           <LetterheadSection
             letterheadConfig={certificateData}
@@ -149,7 +141,6 @@ export const PrescriptionPrintout = ({
             <PrescriptionSigningSection />
           </SectionContainer>
         </CertificateContent>
-        <Footer />
       </Page>
     </Document>
   );
