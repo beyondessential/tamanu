@@ -2,7 +2,7 @@ import React from 'react';
 import { DataSection } from './DataSection';
 import { DataItem } from './DataItem';
 import { Col } from '../Layout';
-import { getAddress, getDOBWithAge, getSex } from '../../patientAccessors';
+import { getAddress, getDOBWithAge, getSex, getVillageName } from '../../patientAccessors';
 import { renderDataItems } from './renderDataItems';
 
 const PATIENT_FIELDS = {
@@ -15,7 +15,7 @@ const PATIENT_FIELDS = {
   rightCol: [
     { key: 'displayId', label: 'Patient ID' },
     { key: 'sex', label: 'Sex', accessor: getSex },
-    { key: 'village', label: 'Village' },
+    { key: 'villageName', label: 'Village' , accessor: getVillageName},
   ],
 };
 

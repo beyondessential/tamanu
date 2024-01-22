@@ -31,22 +31,20 @@ export const DischargeSummaryView = React.memo(() => {
   const { getLocalisation } = useLocalisation();
   const { encounter } = useEncounter();
   const { title, subTitle, logo } = useCertificate();
+  const patient = useSelector(state => state.patient);
+  const { data: additionalData, isLoading: isPADLoading } = usePatientAdditionalDataQuery(
+    patient.id,
+  );
+  const { data: village, isLoading: isVillageLoading } = useReferenceData(patient?.villageId);
 
   // If there is no encounter loaded then this screen can't be displayed
   if (!encounter?.id) {
     return <Redirect to="/patients/all" />;
   }
 
-  const patient = useSelector(state => state.patient);
-  const { data: additionalData, isLoading: isPADLoading } = usePatientAdditionalDataQuery(
-    patient.id,
-  );
-
   const { data: discharge, isLoading: isDischargeLoading } = useEncounterDischarge(encounter);
 
   if (isPADLoading || isDischargeLoading) return <LoadingIndicator />;
-
-  patient.village = useReferenceData(patient?.villageId)?.data?.name;
 
   return (
     <Container>
@@ -63,7 +61,7 @@ export const DischargeSummaryView = React.memo(() => {
       </NavContainer>
       <PDFViewer id="discharge-summary" showToolbar={false}>
         <DischargeSummaryPrintout
-          patientData={{ ...patient, additionalData }}
+          patientData={{ ...patient, additionalData, village }}
           encounter={encounter}
           discharge={discharge}
           logo={logo}

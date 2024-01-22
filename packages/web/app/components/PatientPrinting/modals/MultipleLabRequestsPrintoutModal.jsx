@@ -53,9 +53,7 @@ export const MultipleLabRequestsPrintoutModal = ({ encounter, labRequests, open,
         <PDFViewer id="lab-request-printout">
           <MultipleLabRequestsPrintout
             certificateData={certificateData}
-            patient={patient}
-            additionalData={additionalData}
-            village={village}
+            patientData={{ ...patient, additionalData, village }}
             encounter={encounter}
             labRequests={labRequests}
             getLocalisation={getLocalisation}

@@ -71,13 +71,13 @@ storiesOf('Table', module)
   .add('In error state', () => (
     <Table columns={dummyColumns} errorMessage="Something has gone wrong with all this fruit!" />
   ))
-  .add('In loading state', () => <Table columns={dummyColumns} isLoading />)
+  .add('In loading state', () => <Table columns={dummyColumns} isLoading data={[]} />)
   .add('With no data', () => <Table columns={dummyColumns} data={[]} />)
   .add('With option row', () => (
-    <Table 
+    <Table
       columns={dummyColumns}
       data={dummyData}
-      optionRow={<CheckInput label={<small>Include citrus fruits</small>} />} 
+      optionRow={<CheckInput label={<small>Include citrus fruits</small>} />}
     />
   ))
   .add('With sorting', () => <TableStateWrapper columns={sortableColumns} data={dummyData} />);

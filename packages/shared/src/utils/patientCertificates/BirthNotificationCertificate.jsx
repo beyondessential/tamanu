@@ -97,9 +97,9 @@ const FlexCell = ({ children, style = {}, fontStyle = {} }) => (
   </View>
 );
 
-const Cell = ({ children, style = {} }) => (
+const Cell = ({ children, style = {}, fontStyle = {} }) => (
   <View style={[tableStyles.baseCell, style]}>
-    <P>{children}</P>
+    <P style={fontStyle}>{children}</P>
   </View>
 );
 
@@ -146,7 +146,9 @@ const ChildSection = ({ data }) => {
         </Cell>
         <Cell style={{ width: 100 }}>Birth time</Cell>
         <FlexCell>
-          {data?.birthData?.timeOfBirth ? getDisplayDate(data?.birthData?.timeOfBirth) : ''}
+          {data?.birthData?.timeOfBirth
+            ? getDisplayDate(data?.birthData?.timeOfBirth, 'hh:mm a')
+            : ''}
         </FlexCell>
       </Row>
       <Row>
@@ -190,7 +192,9 @@ const ParentSection = ({ parentType, data = {} }) => {
       <Row>
         <LeftCell>Ethnicity</LeftCell>
         <Cell style={{ width: 150 }}>{data?.ethnicity?.name}</Cell>
-        <Cell style={{ width: 90 }}>Marital status</Cell>
+        <Cell style={{ width: 90 }} fontStyle={{ fontFamily: 'Helvetica-Bold' }}>
+          Marital status
+        </Cell>
         <FlexCell>
           {getLabelFromValue(MARITAL_STATUS_OPTIONS, data?.additionalData?.maritalStatus)}
         </FlexCell>
@@ -200,13 +204,17 @@ const ParentSection = ({ parentType, data = {} }) => {
         <Cell style={{ width: 150 }}>
           {data?.dateOfBirth ? getDisplayDate(data?.dateOfBirth) : ''}
         </Cell>
-        <Cell style={{ width: 90 }}>Age</Cell>
+        <Cell style={{ width: 90 }} fontStyle={{ fontFamily: 'Helvetica-Bold' }}>
+          Age
+        </Cell>
         <FlexCell>{data?.dateOfBirth ? ageInYears(data.dateOfBirth) : ''}</FlexCell>
       </Row>
       <Row>
         <LeftCell>Occupation</LeftCell>
         <Cell style={{ width: 150 }}>{data?.occupation?.name}</Cell>
-        <Cell style={{ width: 90 }}>Patient ID</Cell>
+        <Cell style={{ width: 90 }} fontStyle={{ fontFamily: 'Helvetica-Bold' }}>
+          Patient ID
+        </Cell>
         <FlexCell>{data?.displayId}</FlexCell>
       </Row>
       <Row>
@@ -248,6 +256,7 @@ const signatureStyles = StyleSheet.create({
   rightText: {
     width: 30,
     marginRight: 10,
+    fontFamily: 'Helvetica-Bold',
   },
   line: {
     flex: 1,

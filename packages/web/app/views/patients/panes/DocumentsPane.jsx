@@ -10,7 +10,8 @@ import { DocumentModal } from '../../../components/DocumentModal';
 import { PatientLetterModal } from '../../../components/PatientLetterModal';
 import { DocumentsSearchBar } from '../../../components/DocumentsSearchBar';
 import { TabPane } from '../components';
-import { OutlinedButton, Button, ContentPane, TableButtonRow } from '../../../components';
+import { Button, ContentPane, OutlinedButton, TableButtonRow } from '../../../components';
+import { useRefreshCount } from '../../../hooks/useRefreshCount';
 import { saveFile } from '../../../utils/fileSystemAccess';
 
 const MODAL_STATES = {
@@ -32,8 +33,8 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
 
   const [modalStatus, setModalStatus] = useState(MODAL_STATES.CLOSED);
   const [searchParameters, setSearchParameters] = useState({});
-  const [refreshCount, setRefreshCount] = useState(0);
   const [selectedDocument, setSelectedDocument] = useState(null);
+  const [refreshCount, updateRefreshCount] = useRefreshCount();
 
   const isFromEncounter = !!encounter?.id;
 
@@ -109,7 +110,6 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
     [api],
   );
 
-  const refreshTable = useCallback(() => setRefreshCount(count => count + 1), [setRefreshCount]);
   const closeModal = useCallback(() => setModalStatus(MODAL_STATES.CLOSED), [setModalStatus]);
   const downloadCurrent = useCallback(() => onDownload(selectedDocument), [
     onDownload,
@@ -146,7 +146,7 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
         open={modalStatus === MODAL_STATES.PATIENT_LETTER_OPEN}
         onClose={closeModal}
         endpoint={createPatientLetterEndpoint}
-        refreshTable={refreshTable}
+        refreshTable={updateRefreshCount}
         openDocumentPreview={openDocumentPreview}
         patient={patient}
       />
@@ -154,7 +154,7 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
         open={modalStatus === MODAL_STATES.DOCUMENT_OPEN}
         onClose={closeModal}
         endpoint={documentMetadataEndpoint}
-        refreshTable={refreshTable}
+        refreshTable={updateRefreshCount}
       />
       <DocumentPreviewModal
         open={modalStatus === MODAL_STATES.DOCUMENT_PREVIEW_OPEN}
