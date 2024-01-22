@@ -76,7 +76,6 @@ export const PrintPrescriptionModal = ({ medication, open, onClose }) => {
       if (medication.prescriberId) {
         const res = await api.get(`user/${encodeURIComponent(medication.prescriberId)}`);
         setPrescriber(res);
-        console.log(res);
       }
       setPrescriberLoading(false);
     })();
