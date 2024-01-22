@@ -16,7 +16,6 @@ import {
   UnsupportedBrowserStatusPage,
 } from './components/StatusPage';
 import { useCheckServerAliveQuery } from './api/queries/useCheckServerAliveQuery';
-import { IS_DEVELOPMENT } from './utils/env';
 
 const AppContainer = styled.div`
   display: flex;
@@ -43,7 +42,7 @@ export function App({ sidebar, children }) {
 
   const isDebugMode = localStorage.getItem('DEBUG_PROD');
 
-  if (!isDebugMode) {
+  if (!isDebugMode) { // Skip browser check in debug mode
     if (!isChrome) return <UnsupportedBrowserStatusPage />;
   }
   if (isLoading) return <LoadingStatusPage />;
