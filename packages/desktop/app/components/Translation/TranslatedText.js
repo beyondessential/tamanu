@@ -34,7 +34,7 @@ export const TranslatedText = ({ stringId, fallback, replacements }) => {
   const { getTranslation } = useTranslation();
   const [isDebugMode, setIsDebugMode] = useState(false);
 
-  const translation = getTranslation(stringId, fallback);
+  const translation = getTranslation(stringId, fallback?.split('\\n').join('\n'));
 
   useEffect(() => {
     const getDebugMode = async () => setIsDebugMode(safeGetIsDebugMode());
