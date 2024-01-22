@@ -1,5 +1,5 @@
 import { join } from 'path';
-import { promises as fs } from 'fs';
+import { mkdtemp, rmdir, writeFile } from 'fs/promises';
 import { tmpdir } from 'os';
 import { fake } from '@tamanu/shared/test-helpers/fake';
 import { Op } from 'sequelize';
@@ -8,28 +8,31 @@ import { getSetting, setSetting, loadSettings } from '../../app/subCommands/sett
 
 import { createTestContext } from '../utilities';
 
-const { mkdtemp, rmdir, writeFile } = fs;
-
 describe('settings', () => {
   let ctx;
-  const facility = '38ee9650-9b0c-440f-8b0c-c9526fba35ea';
+  let facility;
   beforeAll(async () => {
     ctx = await createTestContext();
     const { Facility } = ctx.store.models;
     await Facility.create(fake(Facility, { id: facility }));
   });
+
   afterAll(() => ctx.close());
 
   beforeEach(async () => {
-    const { Setting } = ctx.store.models;
+    const { Setting, Facility } = ctx.store.models;
 
-    await Setting.destroy({
-      where: {
-        key: {
-          [Op.like]: 'test%',
+    await Setting.destroy({ where: { key: { [Op.startsWith]: 'test' } } });
+
+    if (facility) {
+      await Facility.destroy({
+        where: {
+          id: facility,
         },
-      },
-    });
+      });
+    }
+    const newFacility = await Facility.create(fake(Facility));
+    facility = newFacility.id;
 
     await Setting.set(
       'test',
