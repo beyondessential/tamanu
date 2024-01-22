@@ -195,7 +195,15 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
       onClick: onChangeDepartment,
     },
     {
-      label: `Change ${clinicianText.toLowerCase()}`,
+      label: (
+        <TranslatedText
+          stringId="encounter.action.changeClinician"
+          fallback="Change :clinician"
+          replacements={{
+            clinician: clinicianText.toLowerCase(),
+          }}
+        />
+      ),
       onClick: onChangeClinician,
     },
     {

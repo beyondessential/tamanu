@@ -12,6 +12,7 @@ import { Modal } from '../components/Modal';
 import { ErrorMessage } from '../components/ErrorMessage';
 import { useAuth } from '../contexts/Auth';
 import { useEncounter } from '../contexts/Encounter';
+import { TranslatedText } from '../components/Translation/TranslatedText';
 
 export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterType }) => {
   const {
@@ -89,7 +90,11 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterTyp
           values={values}
           setFieldValue={setFieldValue}
           submitButton={
-            <FormSubmitCancelRow confirmText="Record" onConfirm={submitForm} onCancel={onClose} />
+            <FormSubmitCancelRow
+              confirmText={<TranslatedText stringId="general.action.record" fallback="Record" />}
+              onConfirm={submitForm}
+              onCancel={onClose}
+            />
           }
           encounterType={encounterType}
         />
