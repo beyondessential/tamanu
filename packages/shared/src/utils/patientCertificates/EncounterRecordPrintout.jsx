@@ -412,20 +412,12 @@ export const EncounterRecordPrintout = ({
     <Document>
       <Page size="A4" style={{ paddingHorizontal: 50, paddingVertical: 30 }}>
         {watermark && <Watermark src={watermark} />}
-        <FixedHeader>
-          <View
-            fixed
-            render={({ pageNumber }) =>
-              pageNumber > 1 && <EncounterRecordHeader patient={patient} />
-            }
-          />
-        </FixedHeader>
-        <View fixed render={({ pageNumber }) => pageNumber > 1 && <PageBreakPadding />} />
         <CertificateHeader>
           <LetterheadSection
             getLocalisation={getLocalisation}
             logoSrc={logo}
             certificateTitle="Patient Encounter Record"
+            letterheadConfig={certificateData}
           />
         </CertificateHeader>
         <SectionSpacing />
@@ -471,10 +463,6 @@ export const EncounterRecordPrintout = ({
           <TableSection title="Medications" data={medications} columns={COLUMNS.medications} />
         )}
         {notes.length > 0 && <NotesSection notes={notes} />}
-        <PageBreakPadding />
-        <FixedFooter>
-          <Footer style={{ width: '100%', left: 0, right: 0 }} />
-        </FixedFooter>
       </Page>
     </Document>
   );
