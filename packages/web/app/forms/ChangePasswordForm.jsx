@@ -123,9 +123,9 @@ const ChangePasswordFormComponent = ({
           autoComplete="off"
         />
         <HorizontalDivider />
-        <PasswordField
+        <Field
           name="newPassword"
-          type="text"
+          type="password"
           label="New password"
           required
           component={TextField}
@@ -135,11 +135,11 @@ const ChangePasswordFormComponent = ({
               setFieldError('newPassword', '');
             }
           }}
-          autoComplete="new-password"
+          autoComplete="new-password off"
         />
-        <PasswordField
+        <Field
           name="confirmNewPassword"
-          type="text"
+          type="password"
           label="Confirm new password"
           required
           component={TextField}
@@ -149,6 +149,7 @@ const ChangePasswordFormComponent = ({
               setFieldError('confirmNewPassword', '');
             }
           }}
+          autoComplete="off"
         />
       </FieldContainer>
       <ActionButtonContainer>
