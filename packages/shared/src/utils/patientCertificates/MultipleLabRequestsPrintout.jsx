@@ -166,11 +166,6 @@ export const MultipleLabRequestsPrintout = React.memo(
     return (
       <Document>
         <Page size="A4" style={styles.page}>
-          <MultiPageHeader
-            documentName="Lab request"
-            patientName={getName(patientData)}
-            patiendId={patientData.displayId}
-          />
           <CertificateHeader>
             <LetterheadSection
               getLocalisation={getLocalisation}
@@ -193,7 +188,6 @@ export const MultipleLabRequestsPrintout = React.memo(
               <LabRequestSigningSection labRequests={labRequests} />
             </SectionContainer>
           </CertificateContent>
-          <Footer />
         </Page>
       </Document>
     );
