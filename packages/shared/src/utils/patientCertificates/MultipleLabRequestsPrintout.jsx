@@ -25,7 +25,7 @@ const signingSectionStyles = StyleSheet.create({
     paddingRight: 32,
   },
   disclaimerText: {
-    fontFamily: 'Helvetica',
+    fontFamily: 'Helvetica-Oblique',
     fontSize: 8,
     fontStyle: 'italic',
   },
