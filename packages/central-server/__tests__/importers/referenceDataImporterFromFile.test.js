@@ -1,6 +1,6 @@
 import { REFERENCE_TYPES } from '@tamanu/constants';
 import { GENERAL_IMPORTABLE_DATA_TYPES } from '@tamanu/constants/importable';
-import { createDummyPatient } from 'shared/demoData/patients';
+import { createDummyPatient } from '@tamanu/shared/demoData/patients';
 import { exporter } from '../../app/admin/exporter/exporter';
 import { importerTransaction } from '../../app/admin/importerEndpoint';
 import { referenceDataImporter } from '../../app/admin/referenceDataImporter';
