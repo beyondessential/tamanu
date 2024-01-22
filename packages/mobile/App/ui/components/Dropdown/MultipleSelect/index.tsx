@@ -3,14 +3,14 @@
 
 import React, { Component } from 'react';
 import {
-  Text,
-  View,
-  ScrollView,
-  TextInput,
-  TouchableWithoutFeedback,
-  TouchableOpacity,
   FlatList,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
   UIManager,
+  View,
 } from 'react-native';
 // import {ViewPropTypes, TextPropTypes} from 'deprecated-react-native-prop-types';
 import PropTypes from 'prop-types';
@@ -598,13 +598,10 @@ export class MultiSelect extends Component {
     const selectedLabel = this._getSelectLabel();
     return (
       <View
-        style={[
-          {
-            flexDirection: 'column',
-          } &&
-            styleMainWrapper &&
-            styleMainWrapper,
-        ]}
+        style={{
+          flexDirection: 'column',
+          ...styleMainWrapper,
+        }}
       >
         {selector && !disabled ? (
           <View

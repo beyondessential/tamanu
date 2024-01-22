@@ -1,4 +1,4 @@
-import { it, expect } from '@jest/globals';
+import { expect, it } from '@jest/globals';
 import { hello } from '../src/index';
 
 it('should work', () => {

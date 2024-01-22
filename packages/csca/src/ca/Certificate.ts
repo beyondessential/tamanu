@@ -1,9 +1,9 @@
-/* eslint-disable camelcase, @typescript-eslint/camelcase */
+/* eslint-disable camelcase */
 
 import { promises as fs } from 'fs';
 
 import { AsnConvert } from '@peculiar/asn1-schema';
-import { PrivateKeyUsagePeriod, id_ce_privateKeyUsagePeriod } from '@peculiar/asn1-x509';
+import { id_ce_privateKeyUsagePeriod, PrivateKeyUsagePeriod } from '@peculiar/asn1-x509';
 import {
   JsonAttributeAndValue,
   JsonName,

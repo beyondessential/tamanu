@@ -1,17 +1,17 @@
 import React, { FC, ReactElement } from 'react';
 import { compose } from 'redux';
 import {
-  createBottomTabNavigator,
-  BottomTabNavigationOptions,
   BottomTabBarProps,
+  BottomTabNavigationOptions,
+  createBottomTabNavigator,
 } from '@react-navigation/bottom-tabs';
 import { PatientHome } from '/navigation/screens/home/Tabs/PatientHome';
 import {
   RowView,
-  StyledView,
   StyledSafeAreaView,
   StyledText,
   StyledTouchableOpacity,
+  StyledView,
 } from '/styled/common';
 import { theme } from '/styled/theme';
 import { HomeScreen } from '/navigation/screens/home/Tabs/HomeScreen';
@@ -19,18 +19,9 @@ import { withPatient } from '/containers/Patient';
 import { SvgProps } from 'react-native-svg';
 import { BaseAppProps } from '/interfaces/BaseAppProps';
 import { Routes } from '/helpers/routes';
-import {
-  HomeBottomLogoIcon,
-  BarChartIcon,
-  SyncDataIcon,
-  MoreMenuIcon,
-} from '/components/Icons';
-import {
-  ReportScreen,
-  SyncDataScreen,
-  MoreScreen,
-} from '/navigation/screens/home/Tabs';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
+import { BarChartIcon, HomeBottomLogoIcon, MoreMenuIcon, SyncDataIcon } from '/components/Icons';
+import { MoreScreen, ReportScreen, SyncDataScreen } from '/navigation/screens/home/Tabs';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { IconWithSizeProps } from '../../interfaces/WithSizeProps';
 import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
 
@@ -44,10 +35,7 @@ interface TabIconProps {
 export function TabIcon({ Icon, color }: TabIconProps): JSX.Element {
   return (
     <StyledView>
-      <Icon
-        fill={color}
-        size={screenPercentageToDP(3.03, Orientation.Height)}
-      />
+      <Icon fill={color} size={screenPercentageToDP(3.03, Orientation.Height)} />
     </StyledView>
   );
 }
@@ -80,11 +68,7 @@ const MoreScreenOptions: BottomTabNavigationOptions = {
 
 const tabLabelFontSize = screenPercentageToDP(1.21, Orientation.Height);
 
-function MyTabBar({
-  state,
-  descriptors,
-  navigation,
-}: BottomTabBarProps): ReactElement {
+function MyTabBar({ state, descriptors, navigation }: BottomTabBarProps): ReactElement {
   return (
     <StyledSafeAreaView background={theme.colors.PRIMARY_MAIN}>
       <RowView
@@ -129,25 +113,21 @@ function MyTabBar({
                 onPress={onPress}
                 onLongPress={onLongPress}
                 accessibilityRole="button"
-                accessibilityState={isFocused ? {selected: true} : {}}
+                accessibilityState={isFocused ? { selected: true } : {}}
                 accessibilityLabel={options.tabBarAccessibilityLabel}
                 testID={options.tabBarTestID}
                 alignItems="center"
                 justifyContent="center"
                 flex={1}
               >
-                {Icon
-                  && Icon({
+                {Icon &&
+                  Icon({
                     focused: isFocused,
-                    color: isFocused
-                      ? theme.colors.SECONDARY_MAIN
-                      : theme.colors.WHITE,
+                    color: isFocused ? theme.colors.SECONDARY_MAIN : theme.colors.WHITE,
                     size: screenPercentageToDP(3.03, Orientation.Height),
                   })}
                 <StyledText
-                  color={
-                    isFocused ? theme.colors.SECONDARY_MAIN : theme.colors.WHITE
-                  }
+                  color={isFocused ? theme.colors.SECONDARY_MAIN : theme.colors.WHITE}
                   marginTop={3}
                   fontSize={tabLabelFontSize}
                 >
