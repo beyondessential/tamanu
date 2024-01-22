@@ -8,7 +8,7 @@ import { useEncounter } from '../../contexts/Encounter';
 import { Colors } from '../../constants';
 import { useCertificate } from '../../utils/useCertificate';
 import { useLocalisation } from '../../contexts/Localisation';
-import { usePatientAdditionalDataQuery } from '../../api/queries';
+import { usePatientAdditionalDataQuery, useReferenceData } from '../../api/queries';
 import { DischargeSummaryPrintout } from '@tamanu/shared/utils/patientCertificates';
 import { printPDF, PDFViewer } from '../../components/PatientPrinting/PDFViewer';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
@@ -45,6 +45,8 @@ export const DischargeSummaryView = React.memo(() => {
   const { data: discharge, isLoading: isDischargeLoading } = useEncounterDischarge(encounter);
 
   if (isPADLoading || isDischargeLoading) return <LoadingIndicator />;
+
+  patient.village = useReferenceData(patient?.villageId)?.data?.name;
 
   return (
     <Container>

@@ -258,7 +258,6 @@ export const DischargeSummaryPrintout = ({
         <SectionContainer>
           <NotesSection />
         </SectionContainer>
-        <Footer />
       </Page>
     </Document>
   );
