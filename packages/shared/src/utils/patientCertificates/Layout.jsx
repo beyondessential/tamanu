@@ -32,13 +32,13 @@ export const styles = StyleSheet.create({
   },
   signatureText: {
     fontFamily: 'Helvetica-Bold',
-    fontSize: 12,
     fontWeight: 400,
     width: 100,
   },
   line: {
     width: 300,
-    borderBottom: '1 solid black',
+    borderBottomColor: 'black',
+    borderBottomStyle: 'solid',
   },
   signingImage: {
     width: '100%',
@@ -105,10 +105,10 @@ export const Box = ({ mt, mb, ...props }) => (
   <View style={[styles.box, { marginTop: mt, marginBottom: mb }]} {...props} />
 );
 
-export const Signature = ({ text }) => (
+export const Signature = ({ text, fontSize = 12, lineThickness = 1 }) => (
   <View style={styles.signature}>
-    <Text style={styles.signatureText}>{text}:</Text>
-    <View style={styles.line} />
+    <Text style={{ ...styles.signatureText, fontSize: fontSize }}>{text}:</Text>
+    <View style={{ ...styles.line, borderBottomWidth: lineThickness }} />
   </View>
 );
 
