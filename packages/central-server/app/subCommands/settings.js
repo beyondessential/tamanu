@@ -6,10 +6,10 @@ import { canonicalize } from 'json-canonicalize';
 import { initDatabase } from '../database';
 import { loadSettingFile } from '../utils/loadSettingFile';
 
-export async function getSetting(key, { facility, scope } = {}) {
+export async function getSetting({ store }, key, { facility, scope } = {}) {
   const {
     models: { Setting },
-  } = await initDatabase({ testMode: false });
+  } = store;
 
   const setting = await Setting.get(key, facility, scope);
   if (setting === undefined) {
@@ -19,10 +19,10 @@ export async function getSetting(key, { facility, scope } = {}) {
   return `value:\n${canonicalize(setting)}`;
 }
 
-export async function setSetting(key, value, { facility, scope } = {}) {
+export async function setSetting({ store }, key, value, { facility, scope } = {}) {
   const {
     models: { Setting },
-  } = await initDatabase({ testMode: false });
+  } = store;
 
   const setting = await Setting.get(key, facility, scope);
   const preValue =
@@ -35,11 +35,10 @@ export async function setSetting(key, value, { facility, scope } = {}) {
   return `${preValue}\nnew value set`;
 }
 
-export async function loadSettings(key, filepath, { facility, preview, scope } = {}) {
+export async function loadSettings({ store }, key, filepath, { facility, preview, scope } = {}) {
   const {
     models: { Setting },
-  } = await initDatabase({ testMode: false });
-
+  } = store;
   if (key.length < 1) {
     throw new Error('Key must be specified');
   }
@@ -55,6 +54,13 @@ export async function loadSettings(key, filepath, { facility, preview, scope } =
   return JSON.stringify(currentValue, null, 2);
 }
 
+const commandWithContext = action => {
+  return async (...args) => {
+    const store = await initDatabase({ testMode: false });
+    return action({ store }, ...args);
+  };
+};
+
 export const settingsCommand = new Command('settings')
   .description('Manage settings')
   .addCommand(
@@ -64,7 +70,7 @@ export const settingsCommand = new Command('settings')
       .option('--scope <scope>', 'scope to retrieve setting for')
       .option('--facility <facility>', 'ID of facility to scope to')
       .action(async (...args) =>
-        console.log(`-------------------------\n${await getSetting(...args)}`),
+        console.log(`-------------------------\n${await commandWithContext(getSetting)(...args)}`),
       ),
   )
   .addCommand(
@@ -75,7 +81,7 @@ export const settingsCommand = new Command('settings')
       .option('--scope <scope>', 'scope to set setting for')
       .option('--facility <facility>', 'ID of facility to scope to')
       .action(async (...args) =>
-        console.log(`-------------------------\n${await setSetting(...args)}`),
+        console.log(`-------------------------\n${await commandWithContext(setSetting)(...args)}`),
       ),
   )
   .addCommand(
@@ -87,6 +93,8 @@ export const settingsCommand = new Command('settings')
       .option('--facility <facility>', 'ID of facility to scope to')
       .option('--preview', 'Print the settings that would be loaded in JSON')
       .action(async (...args) =>
-        console.log(`-------------------------\n${await loadSettings(...args)}`),
+        console.log(
+          `-------------------------\n${await commandWithContext(loadSettings)(...args)}`,
+        ),
       ),
   );
