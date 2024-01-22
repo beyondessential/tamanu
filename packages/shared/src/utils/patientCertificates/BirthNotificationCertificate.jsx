@@ -91,15 +91,15 @@ const Table = props => <View style={tableStyles.table} {...props} />;
 const Row = props => <View style={tableStyles.row} {...props} />;
 const P = ({ style = {}, children }) => <Text style={[tableStyles.p, style]}>{children}</Text>;
 
-const FlexCell = ({ children, style = {}, fontStyle = {} }) => (
+const FlexCell = ({ children, style = {}, bold = false }) => (
   <View style={[tableStyles.baseCell, tableStyles.flexCell, style]}>
-    <P style={fontStyle}>{children}</P>
+    <P style={{ fontFamily: bold ? 'Helvetica-Bold' : 'Helvetica' }}>{children}</P>
   </View>
 );
 
-const Cell = ({ children, style = {}, fontStyle = {} }) => (
+const Cell = ({ children, style = {}, bold }) => (
   <View style={[tableStyles.baseCell, style]}>
-    <P style={fontStyle}>{children}</P>
+    <P style={{ fontFamily: bold ? 'Helvetica-Bold' : 'Helvetica' }}>{children}</P>
   </View>
 );
 
@@ -118,12 +118,10 @@ const getFullName = patient => `${patient?.firstName ?? ''} ${patient?.lastName 
 
 const ChildSection = ({ data }) => {
   const causeOfDeath = data?.deathData?.causes?.primary?.condition?.name ?? 'N/A';
-
-  console.log('data', data);
   return (
     <Table>
       <Row>
-        <FlexCell fontStyle={{ fontFamily: 'Helvetica-Bold' }}>Child</FlexCell>
+        <FlexCell bold>Child</FlexCell>
       </Row>
       <Row>
         <LeftCell>Name (if known)</LeftCell>
@@ -132,21 +130,29 @@ const ChildSection = ({ data }) => {
       <Row>
         <LeftCell>Gestation (weeks)</LeftCell>
         <Cell style={{ width: 50 }}>{data?.birthData?.gestationalAgeEstimate}</Cell>
-        <Cell style={{ width: 80 }}>Delivery type</Cell>
+        <Cell style={{ width: 80 }} bold>
+          Delivery type
+        </Cell>
         <Cell style={{ width: 70 }}>
           {getLabelFromValue(BIRTH_DELIVERY_TYPE_OPTIONS, data?.birthData?.birthDeliveryType)}
         </Cell>
-        <Cell style={{ width: 100 }}>Single/plural births</Cell>
+        <Cell style={{ width: 100 }} bold>
+          Single/plural births
+        </Cell>
         <FlexCell>{getLabelFromValue(BIRTH_TYPE_OPTIONS, data?.birthData?.birthType)}</FlexCell>
       </Row>
       <Row>
         <LeftCell>Birth Weight (kg)</LeftCell>
         <Cell style={{ width: 50 }}>{data?.birthData?.birthWeight}</Cell>
-        <Cell style={{ width: 80 }}>Birth date</Cell>
+        <Cell style={{ width: 80 }} bold>
+          Birth date
+        </Cell>
         <Cell style={{ width: 70 }}>
           {data?.dateOfBirth ? getDisplayDate(data?.dateOfBirth) : ''}
         </Cell>
-        <Cell style={{ width: 100 }}>Birth time</Cell>
+        <Cell style={{ width: 100 }} bold>
+          Birth time
+        </Cell>
         <FlexCell>
           {data?.birthData?.timeOfBirth
             ? getDisplayDate(data?.birthData?.timeOfBirth, 'hh:mm a')
@@ -162,7 +168,7 @@ const ChildSection = ({ data }) => {
       <Row>
         <LeftCell>Sex</LeftCell>
         <Cell style={{ width: 130 }}>{getLabelFromValue(SEX_OPTIONS, data?.sex)}</Cell>
-        <FlexCell>Ethnicity</FlexCell>
+        <FlexCell bold>Ethnicity</FlexCell>
         <FlexCell>{data?.ethnicity?.name}</FlexCell>
       </Row>
       <Row>
@@ -170,7 +176,7 @@ const ChildSection = ({ data }) => {
         <Cell style={{ width: 130 }}>
           {getLabelFromValue(ATTENDANT_OF_BIRTH_OPTIONS, data?.birthData?.attendantAtBirth)}
         </Cell>
-        <FlexCell>Name of attendant</FlexCell>
+        <FlexCell bold>Name of attendant</FlexCell>
         <FlexCell>{data?.birthData?.nameOfAttendantAtBirth}</FlexCell>
       </Row>
       <Row>
@@ -185,7 +191,7 @@ const ParentSection = ({ parentType, data = {} }) => {
   return (
     <Table>
       <Row>
-        <FlexCell fontStyle={{ fontFamily: 'Helvetica-Bold' }}>{parentType}</FlexCell>
+        <FlexCell bold>{parentType}</FlexCell>
       </Row>
       <Row>
         <LeftCell>Name</LeftCell>
@@ -194,7 +200,7 @@ const ParentSection = ({ parentType, data = {} }) => {
       <Row>
         <LeftCell>Ethnicity</LeftCell>
         <Cell style={{ width: 150 }}>{data?.ethnicity?.name}</Cell>
-        <Cell style={{ width: 90 }} fontStyle={{ fontFamily: 'Helvetica-Bold' }}>
+        <Cell style={{ width: 90 }} bold>
           Marital status
         </Cell>
         <FlexCell>
@@ -206,7 +212,7 @@ const ParentSection = ({ parentType, data = {} }) => {
         <Cell style={{ width: 150 }}>
           {data?.dateOfBirth ? getDisplayDate(data?.dateOfBirth) : ''}
         </Cell>
-        <Cell style={{ width: 90 }} fontStyle={{ fontFamily: 'Helvetica-Bold' }}>
+        <Cell style={{ width: 90 }} bold>
           Age
         </Cell>
         <FlexCell>{data?.dateOfBirth ? ageInYears(data.dateOfBirth) : ''}</FlexCell>
@@ -214,7 +220,7 @@ const ParentSection = ({ parentType, data = {} }) => {
       <Row>
         <LeftCell>Occupation</LeftCell>
         <Cell style={{ width: 150 }}>{data?.occupation?.name}</Cell>
-        <Cell style={{ width: 90 }} fontStyle={{ fontFamily: 'Helvetica-Bold' }}>
+        <Cell style={{ width: 90 }} bold>
           Patient ID
         </Cell>
         <FlexCell>{data?.displayId}</FlexCell>
@@ -276,7 +282,7 @@ const SignatureSection = () => {
         </View>
         <View style={signatureStyles.leftCell}>
           <P style={signatureStyles.leftText}>Circle applicable:</P>
-          <P>Doctor/midwife/nurse</P>
+          <P style={{ fontFamily: 'Helvetica-Bold' }}>Doctor/midwife/nurse</P>
         </View>
       </View>
       <View style={{ flex: 1 }}>

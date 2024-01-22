@@ -3,7 +3,7 @@ import { DataSection } from './DataSection';
 import { View } from '@react-pdf/renderer';
 import { P } from '../Typography';
 import { Col } from '../Layout';
-import { getDOBWithAge, getSex } from '../../patientAccessors';
+import { getDOBWithAge, getSex, getVillageName } from '../../patientAccessors';
 import { PrintableBarcode } from './PrintableBarcode';
 import { renderDataItems } from './renderDataItems';
 
@@ -13,7 +13,7 @@ const PATIENT_FIELDS = {
     { key: 'lastName', label: 'Last name' },
     { key: 'dateOfBirth', label: 'DOB', accessor: getDOBWithAge },
     { key: 'sex', label: 'Sex', accessor: getSex },
-    { key: 'villageId', label: 'Village' },
+    { key: 'villageName', label: 'Village', accessor: getVillageName },
   ],
   rightCol: [{ key: 'displayId', label: 'Patient ID' }],
 };
@@ -25,7 +25,7 @@ export const PatientDetailsWithBarcode = ({ patient, getLocalisation }) => {
       <Col>
         {renderDataItems(PATIENT_FIELDS.rightCol, patient, getLocalisation)}
         <View style={{ flexDirection: 'row' }}>
-          <P style={{ marginTop: 9 }} bold>
+          <P style={{ marginTop: 9 }} fontSize={9} bold>
             Patient ID barcode:
           </P>
           <PrintableBarcode id={patient.displayId} />

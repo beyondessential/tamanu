@@ -1,5 +1,8 @@
 import { Document, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
 import React from 'react';
+
+import { DRUG_ROUTE_VALUE_TO_LABEL } from '@tamanu/constants';
+
 import { CertificateContent, CertificateHeader, Col, Signature, styles } from './Layout';
 import { PatientDetailsWithBarcode } from './printComponents/PatientDetailsWithBarcode';
 import { Table } from './Table';
@@ -11,23 +14,7 @@ import { LetterheadSection } from './LetterheadSection';
 import { Footer } from './printComponents/Footer';
 import { MultiPageHeader } from './printComponents/MultiPageHeader';
 import { getName } from '../patientAccessors';
-
-// Copied from web constants
-const DRUG_ROUTE_VALUE_TO_LABEL = {
-  dermal: 'Dermal',
-  ear: 'Ear',
-  eye: 'Eye',
-  intramuscular: 'IM',
-  intravenous: 'IV',
-  inhaled: 'Inhaled',
-  nasal: 'Nasal',
-  oral: 'Oral',
-  rectal: 'Rectal',
-  subcutaneous: 'S/C',
-  sublingual: 'Sublingual',
-  topical: 'Topical',
-  vaginal: 'Vaginal',
-};
+import { P } from './Typography';
 
 const columns = [
   {
@@ -63,12 +50,6 @@ const prescriptonSectionStyles = StyleSheet.create({
 });
 
 const notesSectionStyles = StyleSheet.create({
-  title: {
-    fontFamily: 'Helvetica-Bold',
-    marginBottom: 3,
-    fontSize: 14,
-    fontWeight: 500,
-  },
   notesContainer: {
     border: '1px solid black',
     height: 69,
@@ -89,13 +70,7 @@ const generalStyles = StyleSheet.create({
 
 const SectionContainer = props => <View style={generalStyles.container} {...props} />;
 
-const PrescriptionsSection = ({
-  prescriptions,
-  prescriber,
-  encounter,
-  facility,
-  getLocalisation,
-}) => {
+const PrescriptionsSection = ({ prescriptions, prescriber, facility, getLocalisation }) => {
   return (
     <View>
       <DataSection hideBottomRule title="Prescription details">
@@ -117,14 +92,16 @@ const PrescriptionsSection = ({
 
 const PrescriptionSigningSection = () => (
   <View style={signingSectionStyles.container}>
-    <Signature text="Signed" />
-    <Signature text="Date" />
+    <Signature fontSize={9} lineThickness={0.5} text="Signed" />
+    <Signature fontSize={9} lineThickness={0.5} text="Date" />
   </View>
 );
 
 const NotesSection = () => (
   <View>
-    <Text style={notesSectionStyles.title}>Notes</Text>
+    <P bold fontSize={11} mb={3}>
+      Notes
+    </P>
     <View style={notesSectionStyles.notesContainer} />
   </View>
 );
@@ -133,7 +110,6 @@ export const PrescriptionPrintout = ({
   patientData,
   prescriptions,
   prescriber,
-  encounterData,
   certificateData,
   facility,
   getLocalisation,
@@ -161,7 +137,6 @@ export const PrescriptionPrintout = ({
             <PrescriptionsSection
               prescriptions={prescriptions}
               prescriber={prescriber}
-              encounter={encounterData}
               facility={facility}
               getLocalisation={getLocalisation}
             />
