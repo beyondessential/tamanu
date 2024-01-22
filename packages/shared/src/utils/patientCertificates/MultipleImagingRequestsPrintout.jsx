@@ -150,7 +150,6 @@ export const MultipleImagingRequestsPrintout = React.memo(
               <MultipleImagingRequestSigningSection />
             </SectionContainer>
           </CertificateContent>
-          <Footer />
         </Page>
       </Document>
     );

@@ -1,8 +1,8 @@
 import React from 'react';
 import { PDFViewer, printPDF } from '../PDFViewer';
 import { MultipleImagingRequestsPrintout } from '@tamanu/shared/utils/patientCertificates';
-import { useQuery } from '@tanstack/react-query';
-import { useApi } from '../../../api';
+import { usePatientData } from '../../../api/queries/usePatientData';
+import { useReferenceData } from '../../../api/queries/useReferenceData';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
 import { Colors } from '../../../constants';
 import { useLocalisation } from '../../../contexts/Localisation';
@@ -12,25 +12,10 @@ import { Modal } from '../../Modal';
 export const MultipleImagingRequestsWrapper = ({ encounter, imagingRequests }) => {
   const { getLocalisation } = useLocalisation();
   const certificateData = useCertificate();
-  const api = useApi();
-  const { data: patient, isLoading: isPatientLoading } = useQuery(
-    ['patient', encounter.patientId],
-    () => api.get(`patient/${encodeURIComponent(encounter.patientId)}`),
-  );
-  const { data: additionalData, isLoading: isAdditionalDataLoading } = useQuery(
-    ['additionalData', encounter.patientId],
-    () => api.get(`patient/${encodeURIComponent(encounter.patientId)}/additionalData`),
-  );
-  const isVillageEnabled = !!patient?.villageId;
-  const { data: village = {}, isLoading: isVillageLoading } = useQuery(
-    ['village', encounter.patientId],
-    () => api.get(`referenceData/${encodeURIComponent(patient.villageId)}`),
-    {
-      enabled: isVillageEnabled,
-    },
-  );
-  const isLoading =
-    isPatientLoading || isAdditionalDataLoading || (isVillageEnabled && isVillageLoading);
+  const { data: patient, isLoading: isPatientLoading } = usePatientData(encounter.patientId);
+  const isVillageEnabled = patient?.villageId;
+  const { data: village, isLoading: isVillageLoading } = useReferenceData(patient?.villageId);
+  const isLoading = isPatientLoading || (isVillageEnabled && isVillageLoading);
   if (isLoading) {
     return <LoadingIndicator />;
   }
@@ -39,7 +24,7 @@ export const MultipleImagingRequestsWrapper = ({ encounter, imagingRequests }) =
     <PDFViewer id="imaging-request-printout">
       <MultipleImagingRequestsPrintout
         getLocalisation={getLocalisation}
-        patient={patient}
+        patient={{ ...patient, village }}
         encounter={encounter}
         imagingRequests={imagingRequests}
         certificateData={certificateData}
