@@ -1,11 +1,10 @@
 import { join } from 'path';
-import { mkdtemp, rmdir, writeFile } from 'fs/promises';
+import { mkdtemp, writeFile, rmdir } from 'fs/promises';
 import { tmpdir } from 'os';
 import { fake } from '@tamanu/shared/test-helpers/fake';
 import { Op } from 'sequelize';
 import { SETTINGS_SCOPES } from '@tamanu/constants';
 import { getSetting, setSetting, loadSettings } from '../../app/subCommands/settings';
-
 import { createTestContext } from '../utilities';
 
 describe('settings', () => {
