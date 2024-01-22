@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { DeathCertificate } from '../printouts/DeathCertificate';
 import { Modal } from '../../Modal';
 import { Button } from '../../Button';
 import { useCertificate } from '../../../utils/useCertificate';

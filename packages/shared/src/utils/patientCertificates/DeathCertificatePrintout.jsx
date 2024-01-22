@@ -21,12 +21,15 @@ const generalStyles = StyleSheet.create({
     marginHorizontal: 16,
     marginVertical: 8,
   },
+  tableContainer: {
+    marginTop: 30
+  },
   sectionContainer: {
     marginVertical: 7,
   },
 });
 
-const TableContainer = props => <View style={generalStyles.container} {...props} />;
+const TableContainer = props => <View style={[generalStyles.container, generalStyles.tableContainer]} {...props} />;
 
 const infoBoxStyles = StyleSheet.create({
   row: {
@@ -135,7 +138,7 @@ const UnderlinedField = ({ text, label, helperText, ...props }) => {
 };
 const InfoBoxDataCol = props => <View style={infoBoxStyles.dataCol} {...props} />;
 
-const AuthorisedAndSignSection = props => (
+const AuthorisedAndSignSection = () => (
   <View style={signStyles.container}>
     <View style={signStyles.row}>
       <P style={signStyles.text}>Authorised by (print name):</P>
@@ -154,13 +157,13 @@ const AuthorisedAndSignSection = props => (
   </View>
 );
 
-const placeOfDeathAcessor = ({ facility }) => {
+const placeOfDeathAccessor = ({ facility }) => {
   return facility?.name;
 };
 
 const getCauseName = cause => cause?.condition?.name;
 
-const causeOfDeathAcessor = ({ causes }) => {
+const causeOfDeathAccessor = ({ causes }) => {
   const causeOfDeath = getCauseName(causes?.primary);
   return causeOfDeath;
 };
@@ -176,8 +179,8 @@ const HEADER_FIELDS = {
   rightCol: [
     { key: 'lastName', label: 'Last name' },
     { key: 'displayId', label: 'Patient ID' },
-    { key: 'placeOfDeath', label: 'Place of death', accessor: placeOfDeathAcessor },
-    { key: 'lastName', label: 'Cause of death', accessor: causeOfDeathAcessor },
+    { key: 'placeOfDeath', label: 'Place of death', accessor: placeOfDeathAccessor },
+    { key: 'lastName', label: 'Cause of death', accessor: causeOfDeathAccessor },
   ],
 };
 
@@ -230,14 +233,14 @@ export const DeathCertificatePrintout = React.memo(
               <InfoBoxLabelCol>
                 <Text style={infoBoxStyles.boldText}>
                   I {'\n'}
-                  Diesease or condition directly {'\n'}
+                  Disease or condition directly {'\n'}
                   leading to death*
                 </Text>
                 <Text style={[infoBoxStyles.italicBoldText, infoBoxStyles.marginTop]}>
                   Antecedent Causes
                 </Text>
                 <Text style={infoBoxStyles.infoText}>
-                  Morbit conditions, if any,{'\n'}
+                  Morbid conditions, if any,{'\n'}
                   giving rise to the above cause,{'\n'}
                   stating the underlying{'\n'}
                   condition last
@@ -294,7 +297,7 @@ export const DeathCertificatePrintout = React.memo(
               the disease, injury, or complication that caused death.
             </Text>
           </View>
-          <AuthorisedAndSignSection></AuthorisedAndSignSection>
+          <AuthorisedAndSignSection />
           <Footer />
         </Page>
       </Document>
