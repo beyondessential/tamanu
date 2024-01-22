@@ -70,12 +70,7 @@ const generalStyles = StyleSheet.create({
 
 const SectionContainer = props => <View style={generalStyles.container} {...props} />;
 
-const PrescriptionsSection = ({
-  prescriptions,
-  prescriber,
-  facility,
-  getLocalisation,
-}) => {
+const PrescriptionsSection = ({ prescriptions, prescriber, facility, getLocalisation }) => {
   return (
     <View>
       <DataSection hideBottomRule title="Prescription details">
@@ -129,6 +124,7 @@ export const PrescriptionPrintout = ({
         />
         <CertificateHeader>
           <LetterheadSection
+            letterheadConfig={certificateData}
             getLocalisation={getLocalisation}
             logoSrc={certificateData.logo}
             certificateTitle="Prescription"
