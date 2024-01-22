@@ -67,14 +67,12 @@ export const PatientStickerLabelPage = ({ patient }) => {
   // }, [printPage]);
 
   return (
-    <PrintPortal>
-      <Page {...measures}>
-        <LabelPage {...measures}>
-          {[...Array(30).keys()].map(x => (
-            <PatientStickerLabel key={`label-${x}`} patient={patient} />
-          ))}
-        </LabelPage>
-      </Page>
-    </PrintPortal>
+    <Page {...measures}>
+      <LabelPage {...measures}>
+        {[...Array(30).keys()].map(x => (
+          <PatientStickerLabel key={`label-${x}`} patient={patient} />
+        ))}
+      </LabelPage>
+    </Page>
   );
 };
