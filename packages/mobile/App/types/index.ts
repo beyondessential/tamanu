@@ -33,6 +33,7 @@ export * from './IFacility';
 export * from './ILocation';
 export * from './ILocationGroup';
 export * from './IDepartment';
+export * from './IPatientContact';
 
 export * from './ID';
 export * from './DateString';
