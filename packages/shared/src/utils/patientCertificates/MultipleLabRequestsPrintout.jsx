@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { Document, Page, StyleSheet, View, Text } from '@react-pdf/renderer';
+import { Document, Page, StyleSheet, View } from '@react-pdf/renderer';
 import { PatientDetailsWithBarcode } from './printComponents/PatientDetailsWithBarcode';
 import { styles, CertificateContent, CertificateHeader, Col, Row, Signature } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
@@ -11,8 +11,11 @@ import { PrintableBarcode } from './printComponents/PrintableBarcode';
 import { HorizontalRule } from './printComponents/HorizontalRule';
 import { EncounterDetails } from './printComponents/EncounterDetails';
 import { getDisplayDate } from './getDisplayDate';
+import { DoubleHorizontalRule } from './printComponents/DoubleHorizontalRule';
 
 const DATE_TIME_FORMAT = 'dd/MM/yyyy h:mma';
+const headingFontSize = 11;
+const textFontSize = 9;
 
 const signingSectionStyles = StyleSheet.create({
   underlinedText: {
@@ -41,7 +44,7 @@ const labDetailsSectionStyles = StyleSheet.create({
   },
   heading: {
     fontFamily: 'Helvetica-Bold',
-    fontSize: 14,
+    fontSize: 11,
     fontWeight: 500,
     marginVertical: 3,
   },
@@ -58,12 +61,12 @@ const SectionContainer = props => <View style={generalStyles.container} {...prop
 const LabRequestSigningSection = () => {
   const BaseSigningSection = ({ title }) => (
     <View style={{ flexDirection: 'column' }}>
-      <P bold style={signingSectionStyles.underlinedText}>
+      <P bold style={signingSectionStyles.underlinedText} fontSize={9}>
         {title}
       </P>
       <View style={signingSectionStyles.signatureView}>
-        <Signature text={'Signed'} />
-        <Signature text={'Date'} />
+        <Signature text="Signed" fontSize={textFontSize} lineThickness={0.5} />
+        <Signature text="Date" fontSize={textFontSize} lineThickness={0.5} />
       </View>
     </View>
   );
@@ -99,9 +102,11 @@ const LabRequestDetailsView = ({ labRequests }) => {
 
   return (
     <View>
-      <Text style={labDetailsSectionStyles.heading}>Lab request details</Text>
-      <HorizontalRule width="0.5px" />
-      {labRequests.map(request => {
+      <P bold fontSize={headingFontSize} mb={3}>
+        Lab request details
+      </P>
+      <HorizontalRule />
+      {labRequests.map((request, index) => {
         return (
           <View key={request.id} style={labDetailsSectionStyles.detailsContainer}>
             <Row>
@@ -118,7 +123,7 @@ const LabRequestDetailsView = ({ labRequests }) => {
               </Col>
               <Col>
                 <Row>
-                  <P style={labDetailsSectionStyles.barcodeLabelText} bold>
+                  <P style={labDetailsSectionStyles.barcodeLabelText} fontSize={textFontSize} bold>
                     Request ID barcode:
                   </P>
                   <PrintableBarcode id={request.displayId} />
@@ -128,7 +133,7 @@ const LabRequestDetailsView = ({ labRequests }) => {
             <Row>
               <DataItem label="Notes" value={notesAccessor(request)} />
             </Row>
-            <HorizontalRule width="0.5px" />
+            <HorizontalRule />
             <Row>
               <Col>
                 <DataItem
@@ -142,10 +147,11 @@ const LabRequestDetailsView = ({ labRequests }) => {
                 <DataItem label="Specimen type" value={request.specimenType?.name} />
               </Col>
             </Row>
-            <View style={labDetailsSectionStyles.divider} />
+            {index < labRequests.length - 1 && <View style={labDetailsSectionStyles.divider} />}
           </View>
         );
       })}
+      <DoubleHorizontalRule />
     </View>
   );
 };
