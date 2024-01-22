@@ -13,8 +13,6 @@ describe('settings', () => {
   let facility;
   beforeAll(async () => {
     ctx = await createTestContext();
-    const { Facility } = ctx.store.models;
-    await Facility.create(fake(Facility, { id: facility }));
   });
 
   afterAll(() => ctx.close());
@@ -23,13 +21,7 @@ describe('settings', () => {
     const { Setting, Facility } = ctx.store.models;
 
     try {
-      await Setting.destroy({
-        where: {
-          key: {
-            [Op.like]: 'test%',
-          },
-        },
-      });
+      await ctx.store.sequelize.query('DELETE FROM settings WHERE "key" LIKE \'test%\'');
     } catch (err) {
       console.log('#TEMP DEBUG:', err);
       throw err;
