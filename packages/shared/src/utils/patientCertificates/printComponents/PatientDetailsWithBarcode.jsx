@@ -25,7 +25,7 @@ export const PatientDetailsWithBarcode = ({ patient, getLocalisation }) => {
       <Col>
         {renderDataItems(PATIENT_FIELDS.rightCol, patient, getLocalisation)}
         <View style={{ flexDirection: 'row' }}>
-          <P style={{ marginTop: 9 }} bold>
+          <P style={{ marginTop: 9 }} fontSize={9} bold>
             Patient ID barcode:
           </P>
           <PrintableBarcode id={patient.displayId} />

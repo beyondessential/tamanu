@@ -24,7 +24,7 @@ const textStyles = StyleSheet.create({
   sectionTitle: {
     fontFamily: 'Helvetica-Bold',
     marginBottom: 3,
-    fontSize: 14,
+    fontSize: 11,
     fontWeight: 500,
   },
   tableColumnHeader: {
