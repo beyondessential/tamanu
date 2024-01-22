@@ -87,7 +87,7 @@ export const ImagingRequestForm = React.memo(
   }) => {
     const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
     const { getLocalisation } = useLocalisation();
-    const imagingTypes = getLocalisation('imagingTypes') || {};
+    const imagingTypes = [{'value':'patient-discharged','label':'Patient discharged'}];
     const imagingTypeOptions = Object.entries(imagingTypes).map(([key, val]) => ({
       label: val.label,
       value: key,
