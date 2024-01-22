@@ -21,12 +21,19 @@ const Container = styled.div`
 const Content = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: ${props => (props.$heroImage ? 'flex-start' : 'center')};
-  margin: ${props => (props.$heroImage ? '200px' : '50px')} auto;
-  ${props => props.$heroImage && 'max-width: 467px;'}
+  align-items: center;
+  margin: 50px auto;
 `;
 
-const ErrorMessage = styled(Typography)`
+const HeroContent = styled(Content)`
+  align-items: flex-start;
+  margin: 200px auto;
+  max-width: 467px;
+`;
+
+const ErrorMessage = styled(Typography).attrs({
+  variant: 'h1',
+})`
   font-weight: 500;
   font-size: 38px;
   line-height: 32px;
@@ -36,6 +43,10 @@ const ErrorDescription = styled(LargeBodyText)`
   margin-top: 20px;
   max-width: 450px;
   text-align: ${props => (props.$heroImage ? 'left' : 'center')};
+`;
+
+const HeroErrorDescription = styled(ErrorDescription)`
+  text-align: left;
 `;
 
 const Logo = styled(TamanuLogoLeftIconBlue)`
@@ -63,7 +74,8 @@ const AnimateEllipsis = styled.span`
   }
 `;
 
-const HeroImage = styled.img`
+const HeroImage = styled.div`
+  background-image: url(${screen_4});
   background-size: cover;
   height: 100vh;
   width: 50vw;
@@ -106,14 +118,14 @@ export const StatusPageWithHeroImage = ({ message, description }) => {
     <FlexContainer>
       <Container>
         <Logo onClick={handleRefreshPage} />
-        <Content $heroImage>
+        <HeroContent>
           <ErrorMessage>{message}</ErrorMessage>
-          <ErrorDescription $heroImage color="textTertiary">
+          <HeroErrorDescription color="textTertiary">
             {description}
-          </ErrorDescription>
-        </Content>
+          </HeroErrorDescription>
+        </HeroContent>
       </Container>
-      <HeroImage src={screen_4} />
+      <HeroImage />
     </FlexContainer>
   );
 };
