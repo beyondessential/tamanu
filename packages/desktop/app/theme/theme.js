@@ -38,7 +38,29 @@ const palette = {
     unit: MUI_SPACING_UNIT,
   },
 };
-const typography = { useNextVariants: true, fontSize: 15 };
+const typography = {
+  useNextVariants: true,
+  fontSize: 15,
+  fontFamily: 'Battambang, Roboto',
+  h1: {
+    fontFamily: 'Moul, Roboto',
+  },
+  h2: {
+    fontFamily: 'Moul, Roboto',
+  },
+  h3: {
+    fontFamily: 'Moul, Roboto',
+  },
+  h4: {
+    fontFamily: 'Moul, Roboto',
+  },
+  h5: {
+    fontFamily: 'Moul, Roboto',
+  },
+  h6: {
+    fontFamily: 'Moul, Roboto',
+  },
+};
 const shape = { borderRadius: 3 };
 const overrides = {
   MuiCard: {
