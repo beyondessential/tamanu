@@ -10,9 +10,6 @@ import { DataItem } from './printComponents/DataItem';
 import { PrintableBarcode } from './printComponents/PrintableBarcode';
 import { HorizontalRule } from './printComponents/HorizontalRule';
 import { EncounterDetails } from './printComponents/EncounterDetails';
-import { MultiPageHeader } from './printComponents/MultiPageHeader';
-import { Footer } from './printComponents/Footer';
-import { getName } from '../patientAccessors';
 import { getDisplayDate } from './getDisplayDate';
 
 const DATE_TIME_FORMAT = 'dd/MM/yyyy h:mma';
