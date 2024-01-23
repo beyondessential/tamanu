@@ -109,6 +109,12 @@ export const ContactDetails = ({ name }) => {
 };
 
 export const ReminderContactModal = ({ openReminderModal, handleClose, patient = {} }) => {
+  const [openAddReminderContactModal, setOpenAddReminderContactModal] = useState(false);
+
+  const handleAddReminderContactModal = () => {
+    setOpenAddReminderContactModal(true)
+  }
+
   return (
     <BaseModal
       width="md"
@@ -122,7 +128,7 @@ export const ReminderContactModal = ({ openReminderModal, handleClose, patient =
         variant="outlined"
         color="primary"
         size="small"
-        // onClick={onClickModal}
+        onClick={handleAddReminderContactModal}
       >
         <PlusIcon fill={Colors.primary} />
         Add contact
