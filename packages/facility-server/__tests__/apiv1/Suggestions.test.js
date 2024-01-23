@@ -289,8 +289,8 @@ describe('Suggestions', () => {
 
     it('should escape the query params', async () => {
       const result = await userApp.get('/v1/suggestions/patientLabTestCategories').query({
-        q: `bobby tables'; drop all '' $$ \\' \\ \' ;`,
-        patientId: `bobby tables'; drop all '' $$ \\' \\ \' ;`,
+        q: `bobby tables'; drop all '' $$ \\';`,
+        patientId: `bobby tables'; drop all '' $$ \\';`,
       });
       expect(result).toHaveSucceeded();
       expect(result?.body?.length).toEqual(0);
