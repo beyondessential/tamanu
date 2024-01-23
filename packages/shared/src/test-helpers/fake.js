@@ -13,6 +13,7 @@ import {
   REFERENCE_TYPE_VALUES,
   VISIBILITY_STATUSES,
   LAB_REQUEST_STATUSES,
+  REPORT_STATUSES,
 } from '@tamanu/constants';
 import { toDateTimeString, toDateString } from '../utils/dateTime';
 import { fakeUUID } from '../utils/generateId';
@@ -368,6 +369,9 @@ const MODEL_SPECIFIC_OVERRIDES = {
   Location: () => ({
     maxOccupancy: 1,
   }),
+  ReportDefinitionVersion: () => ({
+    status: chance.pickone(REPORT_STATUSES),
+  })
 };
 
 const FHIR_MODELS_HANDLERS = {

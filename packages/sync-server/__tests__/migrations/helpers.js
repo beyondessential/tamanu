@@ -36,7 +36,9 @@ export async function initQueryCollectingDb() {
 
 // collects name, queries, and affected tables for all migrations back to `earliestMigration`
 export async function collectInfoForMigrations(umzug, flushQueries, earliestMigration) {
-  await resetToMigration(umzug, earliestMigration);
+  const pending = await umzug.pending();
+  const earliestMigrationIndex = pending.findIndex(m => m.file === earliestMigration);
+  await resetToMigration(umzug, pending[earliestMigrationIndex - 1].file);
 
   // collect query info
   const migrationsInfo = [];
@@ -100,7 +102,8 @@ function tableNamesFromQuery(query) {
   return tables.values();
 }
 
-const UNHASHED_TABLES = ['SequelizeMeta', 'pg_attribute', 'pg_class', 'pg_index', 'tables'];
+const UNHASHED_TABLES = ['SequelizeMeta', 'columns', 'key_column_usage', 'pg_attribute', 'pg_class', 'pg_description',
+  'pg_enum', 'pg_statio_all_tables', 'pg_type', 'pg_index', 'table_constraints', 'tables'];
 const UNHASHED_COLUMNS = ['created_at', 'updated_at', 'deleted_at', 'updated_at_sync_tick'];
 const ORDER_BY_OVERRIDE = {};
 

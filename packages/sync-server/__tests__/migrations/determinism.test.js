@@ -6,14 +6,12 @@ import {
   resetToMigration,
   getHashesForTables,
 } from './helpers';
-import { generateData } from './data';
+import { regenerateData, generateData } from './data';
 
-const EARLIEST_MIGRATION_TO_CHECK = '1692827975392-addDbUserToReportDefinitions.js';
+const EARLIEST_MIGRATION_TO_CHECK = '1688259204459-addFhirTriggersForNotesTable.js';
 
 describe('deterministic migrations', () => {
-  let db;
-  let migrationsInfo;
-  let umzug;
+  let db, migrationsInfo, umzug, fakeData;
   beforeAll(async () => {
     const qc = await initQueryCollectingDb();
     const { flushQueries } = qc;
@@ -27,17 +25,23 @@ describe('deterministic migrations', () => {
       EARLIEST_MIGRATION_TO_CHECK,
     );
     await runPostMigration(log, db.sequelize); // necessary for data to be generated
-    await generateData(db.sequelize.models); // populates tables that will be migrated
+    fakeData = await generateData(db.sequelize.models); // populates tables that will be migrated
   });
 
   it('produces identical data when run', async () => {
     for (const { name, upTables } of migrationsInfo) {
       // collect hash info
       await resetToMigration(umzug, name);
-      const hashes1 = await getHashesForTables(db.sequelize, upTables);
+      await runPostMigration(log, db.sequelize); // necessary for data to be generated
+      await regenerateData(name, fakeData, db.sequelize.models);
+      let hashes1 = await getHashesForTables(db.sequelize, upTables);
+
       await umzug.down({ migrations: [name] });
       await umzug.up({ migrations: [name] });
-      const hashes2 = await getHashesForTables(db.sequelize, upTables);
+
+      await runPostMigration(log, db.sequelize); // necessary for data to be generated
+      await regenerateData(name, fakeData, db.sequelize.models);
+      let hashes2 = await getHashesForTables(db.sequelize, upTables);
 
       // compare
       try {
