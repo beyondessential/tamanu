@@ -268,7 +268,6 @@ createSuggester(
   'ReferenceData',
   (search, query) => {
     const baseWhere = DEFAULT_WHERE_BUILDER(search);
-    const status = query?.status || 'published';
 
     if (!query.patientId) {
       return { ...baseWhere, type: REFERENCE_TYPES.LAB_TEST_CATEGORY };
