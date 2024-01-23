@@ -36,9 +36,9 @@ export class PatientContact extends BaseModel implements IPatientContact {
   patientId: string;
 
   @ReferenceDataRelation()
-  category: ReferenceData;
-  @RelationId(({ category }) => category)
-  categoryId: string;
+  relationship: ReferenceData;
+  @RelationId(({ relationship }) => relationship)
+  relationshipId: string;
 
   static getTableNameForSync(): string {
     return 'patient_contacts';
