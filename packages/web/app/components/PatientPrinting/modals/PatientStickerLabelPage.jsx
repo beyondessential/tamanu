@@ -56,6 +56,7 @@ const LabelPage = styled.div`
   display: grid;
   padding-top: ${p => p.pageMarginTop};
   padding-left: ${p => p.pageMarginLeft};
+  howc
   grid-template-columns: repeat(${p => p.columnTotal}, ${p => p.columnWidth});
   grid-template-rows: repeat(${p => p.rowTotal}, ${p => p.rowHeight});
   grid-column-gap: ${p => p.columnGap};
@@ -69,20 +70,20 @@ export const PatientStickerLabelPage = React.memo(({ patient }) => {
   // useEffect(() => { // TODO(web)
   //   printPage();
   // }, [printPage]);
-  console.log(measures)
+  console.log(measures);
 
   return (
     <Modal open={open} onClose={() => setOpen(false)} width="md" printable keepMounted>
+      {/* <Page {...measures}>
+        <LabelPage {...measures}>
+          {[...Array(30).keys()].map(x => (
+            <PatientStickerLabel key={`label-${x}`} patient={patient} />
+          ))}
+        </LabelPage>
+      </Page> */}
       <PDFViewer id="patient-label-printout">
-        <IDLabelPrintout patient={patient} />
+        <IDLabelPrintout patient={patient} measures={measures} />
       </PDFViewer>
     </Modal>
-    // <Page {...measures}>
-    //   <LabelPage {...measures}>
-    //     {[...Array(30).keys()].map(x => (
-    //       <PatientStickerLabel key={`label-${x}`} patient={patient} />
-    //     ))}
-    //   </LabelPage>
-    // </Page>
   );
 });

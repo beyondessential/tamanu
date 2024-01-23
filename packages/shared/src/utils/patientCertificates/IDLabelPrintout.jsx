@@ -13,9 +13,11 @@ const styles = StyleSheet.create({
   },
   row: {
     flexDirection: 'row',
+    padding: '2mm',
   },
   col: {
     flexDirection: 'column',
+    padding: '2mm',
   },
 });
 
@@ -28,25 +30,60 @@ const IDLabel = ({ patient }) => {
       <Col>
         <Row>
           <Col>
-            <DataItem label="Name" value={getName(patient)} />
-            <DataItem label="DOB" value={getDOB(patient)} />
+            <DataItem label="Name" value={getName(patient)} fontSize={10} />
+            <DataItem label="DOB" value={getDOB(patient)} fontSize={10} />
           </Col>
           <Col>
-            <DataItem label="Sex" value={getSex(patient)} />
-            <DataItem label="Patient ID" value={patient.displayId} />
+            <DataItem label="Sex" value={getSex(patient)} fontSize={10} />
+            <DataItem label="Patient ID" value={patient.displayId} fontSize={10} />
           </Col>
         </Row>
-        <PrintableBarcode id={patient.id} />
+        <PrintableBarcode width={136} barHeight={51} id={patient.displayId} />
       </Col>
     </View>
   );
 };
 
-export const IDLabelPrintout = ({ patient }) => {
+`display: grid;
+  padding-top: ${p => p.pageMarginTop};
+  padding-left: ${p => p.pageMarginLeft};how c
+  grid-template-columns: repeat(${p => p.columnTotal}, ${p => p.columnWidth});
+  grid-template-rows: repeat(${p => p.rowTotal}, ${p => p.rowHeight});
+  grid-column-gap: ${p => p.columnGap};
+  grid-row-gap: ${p => p.rowGap};`;
+
+export const IDLabelPrintout = ({ patient, measures }) => {
+  console.log(measures);
+
+  const pageStyles = StyleSheet.create({
+    grid: {
+      display: 'flex',
+      flexWrap: 'wrap',
+      flexDirection: 'row',
+      width: '100%'
+    },
+    gridItem: {
+      width: `${100 / measures.columnTotal}%`,
+      height: measures.rowHeight,
+    },
+  });
+
   return (
     <Document>
-      <Page size={"A4"}>
-        <IDLabel patient={patient} />
+      <Page
+        size={'A4'}
+        style={{
+          paddingVertical: measures.pageMarginTop,
+          paddingHorizontal: measures.pageMarginLeft,
+        }}
+      >
+        <View style={pageStyles.grid} debug>
+          {[...Array(30)].map((_, i) => (
+            <View style={pageStyles.gridItem} key={`label-${i}`}>
+              <IDLabel patient={patient} key={i} />
+            </View>
+          ))}
+        </View>
       </Page>
     </Document>
   );

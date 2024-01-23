@@ -14,5 +14,5 @@ export const PrintableBarcode = ({
   JsBarcode(canvas, id, { width: barWidth, height: barHeight, fontSize: fontSize });
   const barcode = canvas.toDataURL();
 
-  return <Image source={barcode} style={{ width: width }} />;
+  return <Image debug source={barcode} style={{ width: width }} />;
 };

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import { SEX_VALUE_INDEX } from '@tamanu/constants';
@@ -8,6 +8,7 @@ import { DateDisplay } from '../../DateDisplay';
 
 import { PatientBarcode } from '../printouts/reusable/PatientBarcode';
 import { PrintPortal } from '../PrintPortal';
+import { Modal } from '../../Modal';
 
 const cardDimensions = {
   width: 85.6,
@@ -131,27 +132,28 @@ const PatientPhoto = ({ imageData }) => (
   </PhotoFrame>
 );
 
-export const PatientIDCardPage = ({ patient, imageData }) => {
+export const PatientIDCardPage = React.memo(({ patient, imageData }) => {
   // const { printPage } = useElectron(); TODO(web)
   const { getLocalisation } = useLocalisation();
   const measures = getLocalisation('printMeasures.idCardPage');
-  useEffect(() => {
-    window.print({
-      // TODO(web)
-      landscape: true,
-      margins: {
-        marginType: 'none',
-      },
-      pageSize: {
-        // it expects dimensions in microns
-        height: cardDimensions.width * 1000,
-        width: cardDimensions.height * 1000,
-      },
-    });
-  });
+  const [open, setOpen] = useState(true);
+  // useEffect(() => {
+  //   window.print({
+  //     // TODO(web)
+  //     landscape: true,
+  //     margins: {
+  //       marginType: 'none',
+  //     },
+  //     pageSize: {
+  //       // it expects dimensions in microns
+  //       height: cardDimensions.width * 1000,
+  //       width: cardDimensions.height * 1000,
+  //     },
+  //   });
+  // });
 
   return (
-    <PrintPortal>
+    <Modal open={open} onClose={() => setOpen(false)} width="md" printable keepMounted>
       <Card {...measures}>
         <TopBar />
         <MainSection>
@@ -172,6 +174,6 @@ export const PatientIDCardPage = ({ patient, imageData }) => {
         </BarcodeRow>
         <BottomBar />
       </Card>
-    </PrintPortal>
+    </Modal>
   );
-};
+});
