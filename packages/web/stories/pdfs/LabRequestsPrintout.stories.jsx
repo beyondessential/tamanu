@@ -1085,7 +1085,7 @@ const certificateData = {
   watermark: Watermark,
 };
 
-export const BirthNotificationCertificate = {
+export const LabRequestsPrintout = {
   render: () => (
     <PDFViewer width={800} height={1000} showToolbar={false}>
       <Component

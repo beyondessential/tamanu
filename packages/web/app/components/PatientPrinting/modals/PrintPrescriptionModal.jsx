@@ -85,7 +85,6 @@ export const PrintPrescriptionModal = ({ medication, open, onClose }) => {
             <PrescriptionPrintout
               patientData={{ ...patient, additionalData, village }}
               prescriptions={[medication]}
-              encounterData={encounter}
               certificateData={certificateData}
               facility={facility}
               getLocalisation={getLocalisation}

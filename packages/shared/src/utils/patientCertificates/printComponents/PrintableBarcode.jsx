@@ -4,9 +4,9 @@ import JsBarcode from 'jsbarcode';
 
 export const PrintableBarcode = ({
   id,
-  width = 124,
+  width = 105,
   barWidth = 1,
-  barHeight = 45,
+  barHeight = 35,
   fontSize = 13,
 }) => {
   // eslint-disable-next-line no-undef
