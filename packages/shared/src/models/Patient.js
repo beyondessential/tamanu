@@ -96,6 +96,16 @@ export class Patient extends Model {
       as: 'fieldValues',
     });
 
+    this.hasMany(models.PatientProgramRegistration, {
+      foreignKey: 'patientId',
+      as: 'patientProgramRegistrations',
+    });
+
+    this.hasMany(models.PatientProgramRegistrationCondition, {
+      foreignKey: 'patientId',
+      as: 'patientProgramRegistrationConditions',
+    });
+
     this.hasMany(models.PatientContact, {
       foreignKey: 'patientId',
       as: 'contacts',
