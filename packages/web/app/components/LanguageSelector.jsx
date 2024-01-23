@@ -8,8 +8,8 @@ import { SelectInput } from './Field';
 
 const LanguageSelectorContainer = styled.div`
   position: absolute;
-  bottom: 17px;
-  left: 17px;
+  bottom: 35px;
+  right: 17px;
   border-bottom: 0.1px solid ${Colors.primary};
   width: 143px;
   .label-field {
@@ -75,15 +75,19 @@ export const LanguageSelector = ({ setFieldValue }) => {
   const api = useApi();
   const [selectedLanguage, setSelectedLanguage] = useState(null);
 
+  console.log('rendering!')
+
   const storedHost = localStorage.getItem('host') || null;
 
   const { data: languageOptions = [], error } = useQuery(
     ['languageList'],
     () => api.get('translation/preLogin'),
-    {
-      enabled: !!storedHost,
-    },
+    // {
+    //   enabled: !!storedHost,
+    // },
   );
+
+  console.log(languageOptions)
 
   const initialLanguage = getInitialLanguage(languageOptions);
 

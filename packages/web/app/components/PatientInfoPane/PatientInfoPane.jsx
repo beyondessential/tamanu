@@ -20,6 +20,11 @@ import { Colors } from '../../constants';
 import { PatientCarePlanDetails } from './PatientCarePlanNotes';
 import { useLocalisation } from '../../contexts/Localisation';
 import {
+  CONDITIONS_TITLE,
+  ALLERGIES_TITLE,
+  FAMILY_HISTORY_TITLE,
+  ISSUES_TITLE,
+  CARE_PLANS_TITLE,
   PROGRAM_REGISTRY,
 } from './paneTitles';
 import { isErrorUnknownAllow404s, useApi } from '../../api';
@@ -32,6 +37,7 @@ const OngoingConditionDisplay = memo(({ patient, readonly }) => (
     patient={patient}
     readonly={readonly}
     id={PANE_SECTION_IDS.CONDITIONS}
+    title={FAMILY_HISTORY_TITLE}
     endpoint="ongoingCondition"
     getEndpoint={`patient/${patient.id}/conditions`}
     Form={OngoingConditionForm}
@@ -47,6 +53,7 @@ const AllergyDisplay = memo(({ patient, readonly }) => (
     patient={patient}
     readonly={readonly}
     id={PANE_SECTION_IDS.ALLERGIES}
+    title={ALLERGIES_TITLE}
     endpoint="allergy"
     getEndpoint={`patient/${patient.id}/allergies`}
     Form={AllergyForm}
@@ -59,6 +66,7 @@ const FamilyHistoryDisplay = memo(({ patient, readonly }) => (
     patient={patient}
     readonly={readonly}
     id={PANE_SECTION_IDS.FAMILY_HISTORY}
+    title={CONDITIONS_TITLE}
     endpoint="familyHistory"
     getEndpoint={`patient/${patient.id}/familyHistory`}
     Form={FamilyHistoryForm}
@@ -76,6 +84,7 @@ const PatientIssuesDisplay = memo(({ patient, readonly }) => (
     patient={patient}
     readonly={readonly}
     id={PANE_SECTION_IDS.ISSUES}
+    title={ISSUES_TITLE}
     endpoint="patientIssue"
     getEndpoint={`patient/${patient.id}/issues`}
     Form={PatientIssueForm}
@@ -88,6 +97,7 @@ const CarePlanDisplay = memo(({ patient, readonly }) => (
     patient={patient}
     readonly={readonly}
     id={PANE_SECTION_IDS.CARE_PLANS}
+    title={CARE_PLANS_TITLE}
     endpoint="patientCarePlan"
     getEndpoint={`patient/${patient.id}/carePlans`}
     Form={PatientCarePlanForm}

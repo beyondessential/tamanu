@@ -16,6 +16,7 @@ import {
   TextField,
 } from '../components';
 import { Colors } from '../constants';
+import { LanguageSelector } from '../components/LanguageSelector';
 
 const FormSubtext = styled(BodyText)`
   color: ${Colors.midText};
@@ -90,6 +91,7 @@ const INCORRECT_CREDENTIALS_ERROR_MESSAGE =
 const LoginFormComponent = ({
   errorMessage,
   onNavToResetPassword,
+  setFieldValue,
   setFieldError,
   rememberEmail,
 }) => {
@@ -147,6 +149,7 @@ const LoginFormComponent = ({
         </RememberMeRow>
       </div>
       <LoginButton text="Log in" />
+      <LanguageSelector setFieldValue={setFieldValue} />
       <ForgotPasswordButton onClick={onNavToResetPassword} color="default" variant="text">
         Forgot password?
       </ForgotPasswordButton>
