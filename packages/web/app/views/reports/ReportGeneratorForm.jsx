@@ -190,16 +190,16 @@ export const ReportGeneratorForm = () => {
           ['Filters:', filterString],
         ];
 
-        const filePath = await saveExcelFile(
-          { data: excelData, metadata },
-          {
-            promptForFilePath: true,
+        try {
+          await saveExcelFile({
+            data: excelData,
+            metadata,
             defaultFileName: getFileName(reportName),
             bookType,
-          },
-        );
-        if (filePath) {
-          setSuccessMessage(`Report successfully exported. File saved at: ${filePath}.`);
+          });
+          setSuccessMessage(`Report successfully exported`);
+        } catch (error) {
+          setRequestError(`Unable to export report - ${error.message}`);
         }
       } else {
         await api.post(`reportRequest`, {
@@ -289,19 +289,21 @@ export const ReportGeneratorForm = () => {
             <>
               <Spacer />
               <FormGrid columns={3}>
-                {parameters.map(({ parameterField, required, name, label, ...restOfProps }) => {
-                  return (
-                    <ParameterField
-                      key={name || parameterField}
-                      required={required}
-                      name={name}
-                      label={label}
-                      parameterValues={values}
-                      parameterField={parameterField}
-                      {...restOfProps}
-                    />
-                  );
-                })}
+                {parameters.map(
+                  ({ parameterField, required, name, label, options, ...restOfProps }) => {
+                    return (
+                      <ParameterField
+                        key={name || parameterField}
+                        required={required}
+                        name={name}
+                        label={label}
+                        parameterValues={values}
+                        parameterField={parameterField}
+                        {...restOfProps}
+                      />
+                    );
+                  },
+                )}
               </FormGrid>
             </>
           ) : null}
