@@ -4,7 +4,7 @@ import asyncHandler from 'express-async-handler';
 import { getAutocompleteComponentMap } from '@tamanu/shared/reports/utilities';
 export const surveyResponse = express.Router();
 
-// also update getDisplayNameForModel in /packages/mobile/App/ui/helpers/fields.ts when this changes
+// also update getNameColumnForModel in /packages/facility-server/app/routes/apiv1/surveyResponse.js when this changes
 function getNameColumnForModel(modelName) {
   switch (modelName) {
     case 'User':
@@ -14,6 +14,7 @@ function getNameColumnForModel(modelName) {
   }
 }
 
+// also update getDisplayNameForModel in /packages/mobile/App/ui/helpers/fields.ts when this changes
 function getDisplayNameForModel(modelName, record) {
   const columnName = getNameColumnForModel(modelName);
   return record[columnName] || record.id;
