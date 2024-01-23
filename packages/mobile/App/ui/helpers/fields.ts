@@ -33,9 +33,7 @@ export const PatientFieldDefinitionTypes = {
   NUMBER: 'number',
   SELECT: 'select',
 };
-export const PatientFieldDefinitionTypeValues = Object.values(
-  PatientFieldDefinitionTypes,
-);
+export const PatientFieldDefinitionTypeValues = Object.values(PatientFieldDefinitionTypes);
 
 export const getStringValue = (type: string, value: any): string => {
   switch (type) {
@@ -275,11 +273,16 @@ export function checkMandatory(mandatory: boolean | Record<string, any>, values:
 }
 
 // also update getDisplayNameForModel in /packages/facility-server/app/routes/apiv1/surveyResponse.js when this changes
-export function getDisplayNameForModel(modelName: string, record: any): string {
-  switch(modelName) {
+export function getNameColumnForModel(modelName: string): string {
+  switch (modelName) {
     case 'User':
-      return record.displayName;
+      return 'displayName';
     default:
-      return record.name || record.id;
+      return 'name';
   }
+}
+
+export function getDisplayNameForModel(modelName: string, record: any): string {
+  const columnName = getNameColumnForModel(modelName);
+  return record[columnName] || record.id;
 }
