@@ -1,12 +1,12 @@
 /* eslint-disable no-param-reassign, camelcase, no-unused-vars */
 
 import {
-  format,
   differenceInMilliseconds,
-  startOfDay,
   endOfDay,
-  subDays,
+  format,
   parseISO,
+  startOfDay,
+  subDays,
 } from 'date-fns';
 import { groupBy } from 'lodash';
 import { toDateTimeString } from '../utils/dateTime';
