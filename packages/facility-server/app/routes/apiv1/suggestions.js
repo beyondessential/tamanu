@@ -24,8 +24,7 @@ function createSuggesterRoute(
   endpoint,
   modelName,
   whereBuilder,
-  mapper = defaultMapper,
-  searchColumn = 'name',
+  { mapper, searchColumn, extraReplacementsBuilder },
 ) {
   suggestions.get(
     `/${endpoint}$`,
@@ -46,6 +45,7 @@ function createSuggesterRoute(
         order: [positionQuery, [Sequelize.literal(searchColumn), 'ASC']],
         replacements: {
           positionMatch: searchQuery,
+          ...extraReplacementsBuilder(query),
         },
         limit: defaultLimit,
       });
@@ -59,7 +59,7 @@ function createSuggesterRoute(
 // this exists so a control can look up the associated information of a given suggester endpoint
 // when it's already been given an id so that it's guaranteed to have the same structure as the
 // options endpoint
-function createSuggesterLookupRoute(endpoint, modelName, mapper = defaultMapper) {
+function createSuggesterLookupRoute(endpoint, modelName, { mapper }) {
   suggestions.get(
     `/${endpoint}/:id`,
     asyncHandler(async (req, res) => {
@@ -73,13 +73,7 @@ function createSuggesterLookupRoute(endpoint, modelName, mapper = defaultMapper)
   );
 }
 
-function createAllRecordsRoute(
-  endpoint,
-  modelName,
-  whereBuilder,
-  mapper = defaultMapper,
-  orderColumn = 'name',
-) {
+function createAllRecordsRoute(endpoint, modelName, whereBuilder, { mapper, searchColumn }) {
   suggestions.get(
     `/${endpoint}/all$`,
     asyncHandler(async (req, res) => {
@@ -90,7 +84,8 @@ function createAllRecordsRoute(
       const where = whereBuilder('%', query);
       const results = await model.findAll({
         where,
-        order: [[Sequelize.literal(orderColumn), 'ASC']],
+        order: [[Sequelize.literal(searchColumn), 'ASC']],
+        replacements: extraReplacementsBuilder(query),
       });
 
       // Allow for async mapping functions (currently only used by location suggester)
@@ -103,12 +98,18 @@ function createAllRecordsRoute(
 // Records will be filtered based on the whereSql parameter. The user's search term
 // will be passed to the sql query as ":search" - see the existing suggestion
 // endpoints for usage examples.
-function createSuggester(endpoint, modelName, whereBuilder, mapper, searchColumn) {
+function createSuggester(endpoint, modelName, whereBuilder, optionOverrides) {
+  const options = {
+    mapper: defaultMapper,
+    searchColumn: 'name',
+    extraReplacementsBuilder: () => {},
+    ...optionOverrides,
+  };
   // Note: createAllRecordsRoute and createSuggesterLookupRoute must
   // be added in this order otherwise the :id param will match all
-  createAllRecordsRoute(endpoint, modelName, whereBuilder, mapper, searchColumn);
+  createAllRecordsRoute(endpoint, modelName, whereBuilder, options);
   createSuggesterLookupRoute(endpoint, modelName, mapper);
-  createSuggesterRoute(endpoint, modelName, whereBuilder, mapper, searchColumn);
+  createSuggesterRoute(endpoint, modelName, whereBuilder, options);
 }
 
 // this should probably be changed to a `visibility_criteria IN ('list', 'of', 'statuses')`
@@ -125,12 +126,9 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
   }));
 });
 
-createSuggester(
-  'labTestType',
-  'LabTestType',
-  () => VISIBILITY_CRITERIA,
-  ({ name, code, id, labTestCategoryId }) => ({ name, code, id, labTestCategoryId }),
-);
+createSuggester('labTestType', 'LabTestType', () => VISIBILITY_CRITERIA, {
+  mapper: ({ name, code, id, labTestCategoryId }) => ({ name, code, id, labTestCategoryId }),
+});
 
 const DEFAULT_WHERE_BUILDER = search => ({
   name: { [Op.iLike]: search },
@@ -154,10 +152,12 @@ const createNameSuggester = (
   modelName = pascal(endpoint),
   whereBuilderFn = DEFAULT_WHERE_BUILDER,
 ) =>
-  createSuggester(endpoint, modelName, whereBuilderFn, ({ id, name }) => ({
-    id,
-    name,
-  }));
+  createSuggester(endpoint, modelName, whereBuilderFn, {
+    mapper: ({ id, name }) => ({
+      id,
+      name,
+    }),
+  });
 
 createNameSuggester('department', 'Department', filterByFacilityWhereBuilder);
 createNameSuggester('facility');
@@ -181,21 +181,23 @@ createSuggester(
       parentId: query.parentId,
     };
   },
-  async location => {
-    const availability = await location.getAvailability();
-    const { name, code, id, maxOccupancy, facilityId } = location;
+  {
+    mapper: async location => {
+      const availability = await location.getAvailability();
+      const { name, code, id, maxOccupancy, facilityId } = location;
 
-    const lg = await location.getLocationGroup();
-    const locationGroup = lg && { name: lg.name, code: lg.code, id: lg.id };
-    return {
-      name,
-      code,
-      maxOccupancy,
-      id,
-      availability,
-      facilityId,
-      ...(locationGroup && { locationGroup }),
-    };
+      const lg = await location.getLocationGroup();
+      const locationGroup = lg && { name: lg.name, code: lg.code, id: lg.id };
+      return {
+        name,
+        code,
+        maxOccupancy,
+        id,
+        availability,
+        facilityId,
+        ...(locationGroup && { locationGroup }),
+      };
+    },
   },
 );
 
@@ -221,7 +223,7 @@ createSuggester(
     name: { [Op.iLike]: search },
     itemType: INVOICE_LINE_TYPES.ADDITIONAL,
   }),
-  ({ id, name, price }) => ({ id, name, price }),
+  { mapper: ({ id, name, price }) => ({ id, name, price }) },
 );
 
 createSuggester(
@@ -231,11 +233,13 @@ createSuggester(
     displayName: { [Op.iLike]: search },
     ...VISIBILITY_CRITERIA,
   }),
-  ({ id, displayName }) => ({
-    id,
-    name: displayName,
-  }),
-  'display_name',
+  {
+    mapper: ({ id, displayName }) => ({
+      id,
+      name: displayName,
+    }),
+    searchColumn: 'display_name',
+  },
 );
 
 createSuggester(
@@ -250,8 +254,7 @@ createSuggester(
       { displayId: { [Op.iLike]: search } },
     ],
   }),
-  patient => patient,
-  'first_name',
+  { mapper: patient => patient, searchColumn: 'first_name' },
 );
 
 // Specifically fetches lab test categories that have a lab request against a patient
