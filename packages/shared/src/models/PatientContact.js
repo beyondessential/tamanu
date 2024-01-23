@@ -32,7 +32,7 @@ export class PatientContact extends Model {
       as: 'patient',
     });
     this.belongsTo(models.ReferenceData, {
-      foreignKey: 'contactRelationshipId',
+      foreignKey: 'relationshipId',
       as: 'relationship',
     });
   }
