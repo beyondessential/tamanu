@@ -221,7 +221,7 @@ describe('Suggestions', () => {
     });
   });
 
-  // Labs has functionality for only returning panels that have results for a patient
+  // Labs has functionality for only returning categories that have results for a particular patient
   describe('patientLabTestCategories', () => {
     let patientId;
 
