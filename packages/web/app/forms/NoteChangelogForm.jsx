@@ -1,9 +1,10 @@
 import React from 'react';
 
+import { NOTE_TYPE_LABELS } from '@tamanu/constants';
+
 import { NoteChangeLogs } from '../components/NoteChangeLogs';
 import { ConfirmCancelRow } from '../components/ButtonRow';
 import { NoteInfoSection, StyledDivider, WrittenByText } from '../components/NoteCommonFields';
-import { NOTE_TYPE_LABELS } from '../constants';
 
 export const NoteChangelogForm = ({ note, onCancel }) => {
   const createdByAuthorName = note.revisedBy
