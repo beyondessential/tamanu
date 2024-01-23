@@ -1,14 +1,14 @@
-import React, { useCallback, ReactElement } from 'react';
+import React, { ReactElement, useCallback } from 'react';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native';
 
-import { StyledView, StyledText, FullView } from '../../../../styled/common';
+import { FullView, StyledText, StyledView } from '../../../../styled/common';
 import { theme } from '../../../../styled/theme';
 
 import { StackHeader } from '../../../../components/StackHeader';
 import { formatStringDate } from '../../../../helpers/date';
-import { AutocompleteSourceToColumnMap, DateFormats } from '../../../../helpers/constants';
-import { FieldTypes } from '../../../../helpers/fields';
+import { DateFormats } from '../../../../helpers/constants';
+import { FieldTypes, getDisplayNameForModel } from '../../../../helpers/fields';
 import { SurveyResultBadge } from '../../../../components/SurveyResultBadge';
 import { ViewPhotoLink } from '../../../../components/ViewPhotoLink';
 import { LoadingScreen } from '../../../../components/LoadingScreen';
@@ -16,7 +16,6 @@ import { useBackendEffect } from '../../../../hooks';
 
 const AutocompleteAnswer = ({ question, answer }): ReactElement => {
   const config = JSON.parse(question.config);
-  const columnName = AutocompleteSourceToColumnMap[config.source];
   const [refData, error] = useBackendEffect(
     ({ models }) => models[config.source].getRepository().findOne(answer),
     [question],
@@ -30,7 +29,7 @@ const AutocompleteAnswer = ({ question, answer }): ReactElement => {
   }
   return (
     <StyledText textAlign="right" color={theme.colors.TEXT_DARK}>
-      {refData[columnName]}
+      {getDisplayNameForModel(config.source, refData)}
     </StyledText>
   );
 };

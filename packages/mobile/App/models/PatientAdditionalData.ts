@@ -1,14 +1,14 @@
 import {
-  Entity,
-  Column,
-  RelationId,
-  ManyToOne,
-  PrimaryColumn,
+  AfterLoad,
   BeforeInsert,
   BeforeUpdate,
-  AfterLoad,
+  Column,
+  Entity,
+  ManyToOne,
+  PrimaryColumn,
+  RelationId,
 } from 'typeorm/browser';
-import { snakeCase, isEqual, isEmpty } from 'lodash';
+import { isEmpty, isEqual, snakeCase } from 'lodash';
 import { BaseModel, IdRelation } from './BaseModel';
 import { IPatientAdditionalData } from '~/types';
 import { ReferenceData, ReferenceDataRelation } from './ReferenceData';

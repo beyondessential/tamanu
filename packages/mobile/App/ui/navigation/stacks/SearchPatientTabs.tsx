@@ -1,10 +1,7 @@
 import React, { ReactElement } from 'react';
 import { MaterialTopTabBarOptions } from '@react-navigation/material-top-tabs';
 // Components
-import {
-  RecentViewedScreen,
-  ViewAllScreen,
-} from '../screens/PatientSearch/PatientSearchTabs';
+import { RecentViewedScreen, ViewAllScreen } from '../screens/PatientSearch/PatientSearchTabs';
 // Helpers
 import { theme } from '/styled/theme';
 import { Routes } from '/helpers/routes';
@@ -18,6 +15,7 @@ const SearchPatientTabOptions: MaterialTopTabBarOptions = {
   inactiveTintColor: theme.colors.TEXT_DARK,
   labelStyle: {
     fontSize: 12,
+    textTransform: 'none',
   },
   indicatorStyle: {
     backgroundColor: theme.colors.PRIMARY_MAIN,
@@ -32,14 +30,14 @@ export const SearchPatientTabs = ({ route }): ReactElement => (
   <Tabs.Navigator tabBarOptions={SearchPatientTabOptions}>
     <Tabs.Screen
       options={{
-        tabBarLabel: 'RECENTLY VIEWED PATIENTS',
+        tabBarLabel: 'Recently viewed',
       }}
       name={Routes.HomeStack.SearchPatientStack.SearchPatientTabs.RecentViewed}
       component={RecentViewedScreen}
     />
     <Tabs.Screen
       options={{
-        tabBarLabel: 'VIEW ALL PATIENTS',
+        tabBarLabel: 'All patients',
       }}
       name={Routes.HomeStack.SearchPatientStack.SearchPatientTabs.ViewAll}
       component={ViewAllScreen}

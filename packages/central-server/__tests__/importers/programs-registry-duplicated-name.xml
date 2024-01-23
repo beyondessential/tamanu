@@ -1,0 +1,123 @@
+<?xml version="1.0"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:o="urn:schemas-microsoft-com:office:office"
+ xmlns:x="urn:schemas-microsoft-com:office:excel"
+ xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:html="http://www.w3.org/TR/REC-html40">
+ <Worksheet ss:Name="Metadata">
+  <Table x:FullColumns="1" x:FullRows="1">
+   <Row>
+    <Cell><Data ss:Type="String">programName</Data></Cell>
+    <Cell><Data ss:Type="String">Tamanu test suite program</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">programCode</Data></Cell>
+    <Cell><Data ss:Type="String">test-questions-program</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">country</Data></Cell>
+    <Cell><Data ss:Type="String">dev</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">homeServer</Data></Cell>
+   </Row>
+   <Row ss:Index="6">
+    <Cell><Data ss:Type="String">code</Data></Cell>
+    <Cell><Data ss:Type="String">name</Data></Cell>
+    <Cell><Data ss:Type="String">surveyType</Data></Cell>
+    <Cell><Data ss:Type="String">targetLocationId</Data></Cell>
+    <Cell><Data ss:Type="String">targetDepartmentId</Data></Cell>
+    <Cell><Data ss:Type="String">status</Data></Cell>
+    <Cell><Data ss:Type="String">isSensitive</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Test-ImportRegistryWithSurvey</Data></Cell>
+    <Cell><Data ss:Type="String">Import Registry With Survey</Data></Cell>
+    <Cell><Data ss:Type="String">programs</Data></Cell>
+    <Cell><Data ss:Type="String">Test-location-id</Data></Cell>
+    <Cell><Data ss:Type="String">Test-department-id</Data></Cell>
+    <Cell><Data ss:Type="String">publish</Data></Cell>
+    <Cell><Data ss:Type="Boolean">0</Data></Cell>
+   </Row>
+  </Table>
+ </Worksheet>
+ <Worksheet ss:Name="Registry">
+  <Table x:FullColumns="1" x:FullRows="1">
+   <Row>
+    <Cell><Data ss:Type="String">registryName</Data></Cell>
+    <Cell><Data ss:Type="String">Valid Registry</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">registryCode</Data></Cell>
+    <Cell><Data ss:Type="String">AnotherValidRegistry</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">visibilityStatus</Data></Cell>
+    <Cell><Data ss:Type="String">current</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">currentlyAtType</Data></Cell>
+    <Cell><Data ss:Type="String">village</Data></Cell>
+   </Row>
+   <Row/>
+   <Row>
+    <Cell><Data ss:Type="String">code</Data></Cell>
+    <Cell><Data ss:Type="String">name</Data></Cell>
+    <Cell><Data ss:Type="String">color</Data></Cell>
+    <Cell><Data ss:Type="String">visibilityStatus</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Registered</Data></Cell>
+    <Cell><Data ss:Type="String">Registered</Data></Cell>
+    <Cell><Data ss:Type="String">green</Data></Cell>
+    <Cell><Data ss:Type="String">current</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">ImportedDuringSetup</Data></Cell>
+    <Cell><Data ss:Type="String">Imported During Setup</Data></Cell>
+    <Cell><Data ss:Type="String">orange</Data></Cell>
+    <Cell><Data ss:Type="String">current</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Inactive</Data></Cell>
+    <Cell><Data ss:Type="String">Inactive</Data></Cell>
+    <Cell><Data ss:Type="String">red</Data></Cell>
+    <Cell><Data ss:Type="String">current</Data></Cell>
+   </Row>
+  </Table>
+ </Worksheet>
+ <Worksheet ss:Name="Import Registry With Survey">
+  <Table x:FullColumns="1" x:FullRows="1">
+   <Row>
+    <Cell><Data ss:Type="String">code</Data></Cell>
+    <Cell><Data ss:Type="String">type</Data></Cell>
+    <Cell><Data ss:Type="String">name</Data></Cell>
+    <Cell><Data ss:Type="String">text</Data></Cell>
+    <Cell><Data ss:Type="String">detail</Data></Cell>
+    <Cell><Data ss:Type="String">newScreen</Data></Cell>
+    <Cell><Data ss:Type="String">options</Data></Cell>
+    <Cell><Data ss:Type="String">optionLabels</Data></Cell>
+    <Cell><Data ss:Type="String">optionColors</Data></Cell>
+    <Cell><Data ss:Type="String">visibilityCriteria</Data></Cell>
+    <Cell><Data ss:Type="String">validationCriteria</Data></Cell>
+    <Cell><Data ss:Type="String">optionSet</Data></Cell>
+    <Cell><Data ss:Type="String">questionLabel</Data></Cell>
+    <Cell><Data ss:Type="String">detailLabel</Data></Cell>
+    <Cell><Data ss:Type="String">calculation</Data></Cell>
+    <Cell><Data ss:Type="String">config</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Registry-Succeed-Number</Data></Cell>
+    <Cell><Data ss:Type="String">Number</Data></Cell>
+    <Cell><Data ss:Type="String">Number: Full config</Data></Cell>
+    <Cell ss:Index="11"><Data ss:Type="String">{ &quot;min&quot;: 0, &quot;max&quot;: 100, &quot;mandatory&quot;: true, &quot;normalRange&quot;: { &quot;min&quot;: 25, &quot;max&quot;: 75 } }</Data></Cell>
+    <Cell ss:Index="16"><Data ss:Type="String">{ &quot;unit&quot;: &quot;kg&quot; }</Data></Cell>
+   </Row>
+  </Table>
+ </Worksheet>
+ <Worksheet ss:Name="Ignore">
+  <Table x:FullColumns="1" x:FullRows="1">
+  </Table>
+ </Worksheet>
+</Workbook>
