@@ -1,8 +1,6 @@
 import { MigrationInterface, QueryRunner, Table, TableColumn, TableForeignKey } from 'typeorm';
 
 const TABLE_NAME = 'patient_contact';
-const ISO9075_FORMAT = 'YYYY-MM-DD HH:mm:ss';
-const ISO9075_FORMAT_LENGTH = ISO9075_FORMAT.length;
 
 const BaseColumns = [
   new TableColumn({
