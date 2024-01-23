@@ -155,7 +155,7 @@ export const LabRequestFormScreen2 = props => {
       <div style={{ gridColumn: '1 / -1' }}>
         <Field
           name="notes"
-          label=<TranslatedText stringId="general.form.notes.label" fallback="Notes" />
+          label={<TranslatedText stringId="general.form.notes.label" fallback="Notes" />}
           component={TextField}
           multiline
           rows={3}

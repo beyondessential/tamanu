@@ -1,5 +1,5 @@
 import React from 'react';
-import { SEX_VALUE_INDEX } from '../../constants';
+import { SEX_VALUE_INDEX } from '@tamanu/constants';
 import { TranslatedText } from './TranslatedText';
 
 export const SexDisplay = ({ sex }) => {

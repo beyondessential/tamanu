@@ -2,7 +2,6 @@ import config from 'config';
 import crypto from 'crypto';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import config from 'config';
 import { getLanguageOptions } from '@tamanu/shared/utils/translation/getLanguageOptions';
 import { NOT_MODIFIED_STATUS_CODE } from '@tamanu/constants';
 

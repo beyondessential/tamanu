@@ -177,7 +177,7 @@ export const LabRequestSummaryPane = React.memo(
             columns={[selectableColumn, ...getColumns(requestFormType)]}
             data={labRequests}
             elevated={false}
-            noDataMessage=<TranslatedText stringId="lab.requestSummary.table.noData" />
+            noDataMessage={<TranslatedText stringId="lab.requestSummary.table.noData" />}
             allowExport={false}
           />
         </Card>

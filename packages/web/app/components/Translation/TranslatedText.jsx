@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { ipcRenderer } from 'electron';
 import { DebugTooltip } from './DebugTooltip';
 
 const safeGetIsDebugMode = () => {
@@ -10,11 +9,6 @@ const safeGetIsDebugMode = () => {
     return false;
   }
 };
-
-ipcRenderer.on('toggleTranslationDebug', () => {
-  localStorage.setItem('debugTranslation', !safeGetIsDebugMode());
-  window.dispatchEvent(new Event('debugTranslation'));
-});
 
 const replaceStringVariables = (templateString, replacements) => {
   const jsxElements = templateString.split(/(:[a-zA-Z]+)/g).map((part, index) => {
@@ -30,29 +24,17 @@ const replaceStringVariables = (templateString, replacements) => {
 // "stringId" is used in future functionality
 // eslint-disable-next-line no-unused-vars
 export const TranslatedText = ({ stringId, fallback, replacements }) => {
-  const [isDebugMode, setIsDebugMode] = useState(false);
   // "setTranslation" is used in future functionality
   // eslint-disable-next-line no-unused-vars
   const [translation, setTranslation] = useState(fallback?.split('\\n').join('\n'));
   const [displayElements, setDisplayElements] = useState(fallback);
 
   useEffect(() => {
-    const getDebugMode = async () => {
-      setIsDebugMode(safeGetIsDebugMode());
-    };
-    getDebugMode();
-
-    window.addEventListener('debugTranslation', getDebugMode);
-    return () => {
-      window.removeEventListener('debugTranslation', getDebugMode);
-    };
-  }, []);
-
-  useEffect(() => {
     if (!replacements) setDisplayElements(translation);
     setDisplayElements(replaceStringVariables(translation, replacements));
   }, [translation, replacements]);
 
+  const isDebugMode = safeGetIsDebugMode();
   if (isDebugMode)
     return (
       <DebugTooltip stringId={stringId} replacements={replacements} fallback={fallback}>

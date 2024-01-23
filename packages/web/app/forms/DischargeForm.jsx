@@ -219,27 +219,27 @@ const EncounterOverview = ({
   return (
     <>
       <DateTimeInput
-        label=<TranslatedText
+        label={<TranslatedText
           stringId="discharge.form.admissionDate.label"
           fallback="Admission date"
-        />
+        />}
         value={startDate}
         disabled
       />
       <TextInput
-        label=<TranslatedText
+        label={<TranslatedText
           stringId="discharge.form.supervisingClinician.label"
           fallback="Supervising :clinicianText"
           replacements={{ clinicianText: clinicianText.toLowerCase() }}
-        />
+        />}
         value={examiner ? examiner.displayName : '-'}
         disabled
       />
       <TextInput
-        label=<TranslatedText
+        label={<TranslatedText
           stringId="discharge.form.encounterReason.label"
           fallback="Reason for encounter"
-        />
+        />}
         value={reasonForEncounter}
         disabled
         style={{ gridColumn: '1 / -1' }}

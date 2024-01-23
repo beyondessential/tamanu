@@ -48,23 +48,23 @@ export const LabRequestFormScreen1 = ({
       />
       <Field
         name="requestedDate"
-        label=<TranslatedText
+        label={<TranslatedText
           stringId="lab.form.requestDateTime.label"
           fallback="Request date & time"
-        />
+        />}
         required
         component={DateTimeField}
         saveDateAsString
       />
       <Field
         name="departmentId"
-        label=<TranslatedText stringId="general.form.department.label" fallback="Department" />
+        label={<TranslatedText stringId="general.form.department.label" fallback="Department" />}
         component={AutocompleteField}
         suggester={departmentSuggester}
       />
       <Field
         name="labTestPriorityId"
-        label=<TranslatedText stringId="lab.form.priority.label" fallback="Priority" />
+        label={<TranslatedText stringId="lab.form.priority.label" fallback="Priority" />}
         component={SuggesterSelectField}
         endpoint="labTestPriority"
       />

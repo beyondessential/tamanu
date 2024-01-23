@@ -1,18 +1,20 @@
 import { capitalize } from 'lodash';
 import React from 'react';
 
+// TODO: This file shouldnt contain any TranslatedText components or be jsx. We did it this way initially but
+// part way through development realised that this is a bad pattern and have come up with a better solution.
+// Will be addressed in upcoming constants pr NASS-952
+
 import { createValueIndex } from '@tamanu/shared/utils/valueIndex';
 import {
   APPOINTMENT_STATUSES,
-  REFERRAL_STATUSES,
-  INVOICE_STATUSES,
-  INVOICE_PAYMENT_STATUSES,
   BIRTH_DELIVERY_TYPES,
   BIRTH_TYPES,
   PLACE_OF_BIRTH_TYPES,
   ATTENDANT_OF_BIRTH_TYPES,
   APPOINTMENT_TYPES,
   DOCUMENT_SOURCES,
+  ENCOUNTER_LABELS,
   ENCOUNTER_TYPES,
   IMAGING_REQUEST_STATUS_CONFIG,
   IMAGING_REQUEST_STATUS_TYPES,

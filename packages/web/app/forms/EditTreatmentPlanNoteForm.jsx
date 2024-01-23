@@ -33,40 +33,40 @@ export const EditTreatmentPlanNoteForm = ({ note, onNoteContentChange, onSubmit,
       <NoteInfoSection
         numberOfColumns={3}
         noteType={NOTE_TYPE_LABELS[note.noteType]}
-        writtenByLabel=<TranslatedText
+        writtenByLabel={<TranslatedText
           stringId="treatmentPlan.note.form.lastUpdatedBy.label"
           fallback="Last updated by (or on behalf of)"
-        />
+        />}
         writtenBy={writtenBy}
-        dateLabel=<TranslatedText
+        dateLabel={<TranslatedText
           stringId="treatmentPlan.note.form.lastUpdatedAt.label"
           fallback="Last updated at date & time"
-        />
+        />}
         date={note.date}
       />
       <StyledFormGrid columns={2}>
         <WrittenByField
-          label=<TranslatedText
+          label={<TranslatedText
             stringId="treatmentPlan.note.form.updatedBy.label"
             fallback="Updated by (or on behalf of)"
-          />
+          />}
           required
         />
         <NoteDateTimeField required />
       </StyledFormGrid>
 
       <NoteContentField
-        label=<TranslatedText
+        label={<TranslatedText
           stringId="treatmentPlan.note.form.updateTreatmentPlan.label"
           fallback="Update treatment plan"
-        />
+        />}
         onChange={onNoteContentChange}
       />
       <StyledDivider />
       <FormSubmitCancelRow
         onConfirm={onSubmit}
-        confirmText=<TranslatedText stringId="general.action.save" fallback="Save" />
-        cancelText=<TranslatedText stringId="general.action.cancel" fallback="Cancel" />
+        confirmText={<TranslatedText stringId="general.action.save" fallback="Save" />}
+        cancelText={<TranslatedText stringId="general.action.cancel" fallback="Cancel" />}
         onCancel={onCancel}
       />
     </>

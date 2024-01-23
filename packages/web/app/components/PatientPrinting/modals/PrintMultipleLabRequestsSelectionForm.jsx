@@ -122,26 +122,26 @@ export const PrintMultipleLabRequestsSelectionForm = React.memo(({ encounter, on
         onClose={() => setOpenPrintoutModal(false)}
       />
       <PrintMultipleSelectionTable
-        label=<TranslatedText
+        label={<TranslatedText
           stringId="lab.modal.printMultiple.selectText"
           fallback="Select the lab requests you would like to print"
-        />
+        />}
         headerColor={Colors.white}
         columns={[selectableColumn, ...COLUMNS]}
         data={labRequestsData || []}
         elevated={false}
         isLoading={isLoading}
         errorMessage={error?.message}
-        noDataMessage=<TranslatedText
+        noDataMessage={<TranslatedText
           stringId="lab.modal.printMultiple.table.noData"
           fallback="No lab requests found"
-        />
+        />}
         allowExport={false}
       />
       <FormDivider />
       <ConfirmCancelRow
-        cancelText=<TranslatedText stringId="general.action.close" fallback="Close" />
-        confirmText=<TranslatedText stringId="general.action.print" fallback="Print" />
+        cancelText={<TranslatedText stringId="general.action.close" fallback="Close" />}
+        confirmText={<TranslatedText stringId="general.action.print" fallback="Print" />}
         onConfirm={handlePrintConfirm}
         onCancel={onClose}
       />

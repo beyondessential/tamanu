@@ -13,15 +13,9 @@ const ENCOUNTER_TYPE_TO_STATUS = {
 };
 
 const STATUS_TO_LABEL = {
-  [PATIENT_STATUS.INPATIENT]: (
-    <TranslatedText stringId="patient.table.status.inpatient" fallback="Inpatient" />
-  ),
-  [PATIENT_STATUS.OUTPATIENT]: (
-    <TranslatedText stringId="patient.table.status.outpatient" fallback="Outpatient" />
-  ),
-  [PATIENT_STATUS.EMERGENCY]: (
-    <TranslatedText stringId="patient.table.status.emergency" fallback="Emergency" />
-  ),
+  [PATIENT_STATUS.INPATIENT]: "Inpatient",
+  [PATIENT_STATUS.OUTPATIENT]: "Outpatient",
+  [PATIENT_STATUS.EMERGENCY]: "Emergency",
 };
 
 export const getPatientStatus = encounterType => {

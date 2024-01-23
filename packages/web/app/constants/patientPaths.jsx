@@ -1,6 +1,10 @@
 import React from 'react';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 
+// TODO: This file shouldnt contain any TranslatedText components or be jsx. We did it this way initially but
+// part way through development realised that this is a bad pattern and have come up with a better solution.
+// Will be addressed in upcoming constants pr NASS-952
+
 export const PATIENT_CATEGORIES = {
   ALL: 'all',
   EMERGENCY: 'emergency',

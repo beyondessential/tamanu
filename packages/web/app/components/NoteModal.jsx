@@ -86,7 +86,7 @@ export const NoteModal = ({
   return (
     <>
       <ConfirmModal
-        title=<TranslatedText stringId="note.modal.delete.title" fallback="Discard note" />
+        title={<TranslatedText stringId="note.modal.delete.title" fallback="Discard note" />}
         open={openNoteCancelConfirmModal}
         width="sm"
         onCancel={() => setOpenNoteCancelConfirmModal(false)}

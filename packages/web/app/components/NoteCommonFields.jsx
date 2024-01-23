@@ -146,7 +146,7 @@ export const NoteInfoSection = ({
     <InfoCardItem
       numberOfColumns={numberOfColumns}
       fontSize={14}
-      label=<TranslatedText stringId="note.form.noteType.label" fallback="Note type" />
+      label={<TranslatedText stringId="note.form.noteType.label" fallback="Note type" />}
       value={noteType}
       borderHeight={50}
     />

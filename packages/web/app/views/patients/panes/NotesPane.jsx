@@ -28,12 +28,12 @@ export const NotesPane = React.memo(({ encounter, readonly }) => {
   return (
     <TabPane>
       <NoteModal
-        title=<TranslatedText stringId="note.modal.create.title" fallback="New note" />
+        title={<TranslatedText stringId="note.modal.create.title" fallback="New note" />}
         open={modalOpen}
         encounterId={encounter.id}
         onClose={() => setModalOpen(false)}
         onSaved={noteModalOnSaved}
-        confirmText=<TranslatedText stringId="note.action.add" fallback="Add note" />
+        confirmText={<TranslatedText stringId="note.action.add" fallback="Add note" />}
         noteFormMode={NOTE_FORM_MODES.CREATE_NOTE}
       />
       <TableButtonRow variant="small" justifyContent="space-between">
