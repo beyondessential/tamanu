@@ -1,4 +1,4 @@
-import { RouteProp, NavigationProp } from '@react-navigation/native';
+import { NavigationProp, RouteProp } from '@react-navigation/native';
 import { IPatient, IProgram, SurveyTypes } from '~/types';
 
 type SurveyResponseScreenParams = {

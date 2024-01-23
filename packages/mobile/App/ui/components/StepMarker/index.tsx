@@ -1,15 +1,15 @@
 import React, { FC } from 'react';
-import { StyledView, RowView } from '/styled/common';
+import { RowView, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
 
-interface Circle {
+interface CircleProps {
   currentStep?: boolean;
 }
 
 const circleSize = screenPercentageToDP(0.85, Orientation.Height);
 
-const Circle: FC<any> = ({ currentStep }: Circle) => (
+const Circle: FC<any> = ({ currentStep }: CircleProps) => (
   <StyledView
     width={circleSize}
     height={circleSize}
