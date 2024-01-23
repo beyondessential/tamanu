@@ -21,7 +21,7 @@ import { getPatientDetailsValidation } from './patientDetailsValidationSchema';
 import { PatientAdditionalData } from '~/models/PatientAdditionalData';
 import { usePatientAdditionalData } from '~/ui/hooks/usePatientAdditionalData';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
-import { getInitialValues } from '../../PatientAdditionalDataForm/helpers';
+import { getInitialAdditionalValues } from '../../PatientAdditionalDataForm/helpers';
 
 export type FormSection = {
   scrollToField: (fieldName: string) => () => void;
@@ -55,7 +55,11 @@ const getPatientInitialValues = (isEdit: boolean, patient, patientAdditionalData
     true,
     getBool,
   );
-  const initialPatientAdditionalDataValues = getInitialValues(patientAdditionalData, requiredPADFields);
+
+  const initialPatientAdditionalDataValues = getInitialAdditionalValues(
+    patientAdditionalData,
+    requiredPADFields,
+  );
 
   const initialPatientValues = {
     firstName,
@@ -80,7 +84,7 @@ const containsAdditionalData = values =>
 export const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit }): ReactElement => {
   const navigation = useNavigation();
   const { patientAdditionalData, loading } = usePatientAdditionalData(selectedPatient?.id);
-  const onCreateNewPatient = useCallback(async values => {
+  const onCreateNewPatient = useCallback(async (values, { resetForm }) => {
     // submit form to server for new patient
     const { dateOfBirth, ...otherValues } = values;
     const newPatient = await Patient.createAndSaveOne({
@@ -99,6 +103,7 @@ export const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit }): 
     // (related fields won't display all info otherwise)
     const reloadedPatient = await Patient.findOne(newPatient.id);
     setSelectedPatient(reloadedPatient);
+    resetForm();
     navigation.navigate(Routes.HomeStack.RegisterPatientStack.NewPatient);
   }, []);
 

@@ -1,6 +1,4 @@
-import { Op } from 'sequelize';
 import config from 'config';
-import asyncPool from 'tiny-async-pool';
 
 import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
 
@@ -8,69 +6,67 @@ import { sortInDependencyOrder } from '../models/sortInDependencyOrder';
 import { log } from '../services/logging/log';
 import { findSyncSnapshotRecords } from './findSyncSnapshotRecords';
 import { countSyncSnapshotRecords } from './countSyncSnapshotRecords';
-import { mergeRecord } from './mergeRecord';
 import { SYNC_SESSION_DIRECTION } from './constants';
+import { saveCreates, saveDeletes, saveRestores, saveUpdates } from './saveChanges';
 
-const {
-  persistedCacheBatchSize,
-  pauseBetweenPersistedCacheBatchesInMilliseconds,
-  persistUpdateWorkerPoolSize,
-} = config.sync;
+const { persistedCacheBatchSize, pauseBetweenPersistedCacheBatchesInMilliseconds } = config.sync;
 
-const saveCreates = async (model, records) => {
-  // can end up with duplicate create records, e.g. if syncAllLabRequests is turned on, an
-  // encounter may turn up twice, once because it is for a marked-for-sync patient, and once more
-  // because it has a lab request attached
-  const deduplicated = [];
-  const idsAdded = new Set();
-  for (const record of records) {
-    const { id } = record;
-    if (!idsAdded.has(id)) {
-      deduplicated.push(record);
-      idsAdded.add(id);
-    }
-  }
-  return model.bulkCreate(deduplicated);
-};
-
-const saveUpdates = async (model, incomingRecords, idToExistingRecord, isCentralServer) => {
-  const recordsToSave = isCentralServer
-    ? // on the central server, merge the records coming in from different clients
-      incomingRecords.map(incoming => {
-        const existing = idToExistingRecord[incoming.id];
-        return mergeRecord(existing, incoming);
-      })
-    : // on the facility server, trust the resolved central server version
-      incomingRecords;
-  await asyncPool(persistUpdateWorkerPoolSize, recordsToSave, async r =>
-    model.update(r, { where: { id: r.id } }),
-  );
-};
-
-const saveDeletes = async (model, recordIds) => {
-  if (recordIds.length === 0) return;
-  await model.destroy({ where: { id: { [Op.in]: recordIds } } });
-};
-
-const saveChangesForModel = async (model, changes, isCentralServer) => {
+export const saveChangesForModel = async (model, changes, isCentralServer) => {
   const sanitizeData = d =>
     isCentralServer ? model.sanitizeForCentralServer(d) : model.sanitizeForFacilityServer(d);
 
   // split changes into create, update, delete
-  const idsForDelete = changes.filter(c => c.isDeleted).map(c => c.data.id);
-  const idsForUpsert = changes.filter(c => !c.isDeleted && c.data.id).map(c => c.data.id);
-  const existingRecords = await model.findByIds(idsForUpsert);
-  const idToExistingRecord = Object.fromEntries(
-    existingRecords.map(e => [e.id, e.get({ plain: true })]),
+  const incomingRecords = changes.filter(c => c.data.id).map(c => c.data);
+  const idsForIncomingRecords = incomingRecords.map(r => r.id);
+  // add all records that already exist in the db to the list to be updated
+  // even if they are being deleted or restored, we should also run an update query to keep the data in sync
+  const existingRecords = (await model.findByIds(idsForIncomingRecords, false)).map(r =>
+    r.get({ plain: true }),
   );
+  const idToExistingRecord = Object.fromEntries(existingRecords.map(e => [e.id, e]));
+  // follow the same pattern for incoming records
+  // https://github.com/beyondessential/tamanu/pull/4854#discussion_r1403828225
+  const idToIncomingRecord = Object.fromEntries(
+    changes.filter(c => c.data.id).map(e => [e.data.id, e]),
+  );
+  const idsForUpdate = new Set();
+  const idsForRestore = new Set();
+  const idsForDelete = new Set();
+
+  existingRecords.forEach(existing => {
+    // compares incoming and existing records by id
+    const incoming = idToIncomingRecord[existing.id];
+    idsForUpdate.add(existing.id);
+
+    // don't do anything if incoming record is deleted and existing record is already deleted
+    if (existing.deletedAt && !incoming.isDeleted) {
+      idsForRestore.add(existing.id);
+    }
+    if (!existing.deletedAt && incoming.isDeleted) {
+      idsForDelete.add(existing.id);
+    }
+  });
   const recordsForCreate = changes
-    .filter(c => !c.isDeleted && idToExistingRecord[c.data.id] === undefined)
+    .filter(c => idToExistingRecord[c.data.id] === undefined)
+    .map(({ data, isDeleted }) => {
+      // validateRecord(data, null); TODO add in validation
+      // pass in 'isDeleted' to be able to create new records even if they are soft deleted.
+      return { ...sanitizeData(data), isDeleted };
+    });
+  const recordsForUpdate = changes
+    .filter(r => idsForUpdate.has(r.data.id))
     .map(({ data }) => {
       // validateRecord(data, null); TODO add in validation
       return sanitizeData(data);
     });
-  const recordsForUpdate = changes
-    .filter(r => !r.isDeleted && !!idToExistingRecord[r.data.id])
+  const recordsForRestore = changes
+    .filter(r => idsForRestore.has(r.data.id))
+    .map(({ data }) => {
+      // validateRecord(data, null); TODO add in validation
+      return sanitizeData(data);
+    });
+  const recordsForDelete = changes
+    .filter(r => idsForDelete.has(r.data.id))
     .map(({ data }) => {
       // validateRecord(data, null); TODO add in validation
       return sanitizeData(data);
@@ -78,11 +74,21 @@ const saveChangesForModel = async (model, changes, isCentralServer) => {
 
   // run each import process
   log.debug(`saveIncomingChanges: Creating ${recordsForCreate.length} new records`);
-  await saveCreates(model, recordsForCreate);
+  if (recordsForCreate.length > 0) {
+    await saveCreates(model, recordsForCreate);
+  }
   log.debug(`saveIncomingChanges: Updating ${recordsForUpdate.length} existing records`);
-  await saveUpdates(model, recordsForUpdate, idToExistingRecord, isCentralServer);
-  log.debug(`saveIncomingChanges: Deleting ${idsForDelete.length} old records`);
-  await saveDeletes(model, idsForDelete);
+  if (recordsForUpdate.length > 0) {
+    await saveUpdates(model, recordsForUpdate, idToExistingRecord, isCentralServer);
+  }
+  log.debug(`saveIncomingChanges: Soft deleting ${recordsForDelete.length} old records`);
+  if (recordsForDelete.length > 0) {
+    await saveDeletes(model, recordsForDelete);
+  }
+  log.debug(`saveIncomingChanges: Restoring ${recordsForRestore.length} deleted records`);
+  if (recordsForRestore.length > 0) {
+    await saveRestores(model, recordsForRestore);
+  }
 };
 
 const saveChangesForModelInBatches = async (

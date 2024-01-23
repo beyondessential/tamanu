@@ -5,31 +5,31 @@ import { inspect } from 'util';
 import { formatISO9075 } from 'date-fns';
 
 import {
+  CURRENTLY_AT_TYPES,
   DIAGNOSIS_CERTAINTY_VALUES,
   ENCOUNTER_TYPE_VALUES,
   IMAGING_REQUEST_STATUS_TYPES,
+  LAB_REQUEST_STATUSES,
   NOTE_TYPE_VALUES,
   PROGRAM_DATA_ELEMENT_TYPE_VALUES,
   REFERENCE_TYPE_VALUES,
-  VISIBILITY_STATUSES,
-  LAB_REQUEST_STATUSES,
-  CURRENTLY_AT_TYPES,
   REGISTRATION_STATUSES,
+  VISIBILITY_STATUSES,
 } from '@tamanu/constants';
-import { toDateTimeString, toDateString } from '../utils/dateTime';
+import { toDateString, toDateTimeString } from '../utils/dateTime';
 import { fakeUUID } from '../utils/generateId';
 import {
   FhirAddress,
   FhirAnnotation,
   FhirCodeableConcept,
   FhirContactPoint,
+  FhirExtension,
   FhirHumanName,
   FhirIdentifier,
-  FhirPatientLink,
-  FhirReference,
-  FhirExtension,
   FhirImmunizationPerformer,
   FhirImmunizationProtocolApplied,
+  FhirPatientLink,
+  FhirReference,
 } from '../services/fhirTypes';
 
 // this file is most commonly used within tests, but also outside them
@@ -377,6 +377,7 @@ const MODEL_SPECIFIC_OVERRIDES = {
     // It will be fixed properly as part of EPI-160
     id: undefined,
     noteType: chance.pickone(NOTE_TYPE_VALUES),
+    revisedById: undefined,
   }),
   Location: () => ({
     maxOccupancy: 1,

@@ -7,7 +7,7 @@ import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { log } from './logging';
 import { serviceContext, serviceName } from './logging/context';
 
-import { migrate, assertUpToDate, NON_SYNCING_TABLES } from './migrations';
+import { assertUpToDate, migrate, NON_SYNCING_TABLES } from './migrations';
 import * as models from '../models';
 import { createDateTypes } from './createDateTypes';
 import { setupQuote } from '../utils/pgComposite';
@@ -121,7 +121,7 @@ async function connectToDatabase(dbOptions) {
 export async function initDatabase(dbOptions) {
   // connect to database
   const {
-    makeEveryModelParanoid = false,
+    makeEveryModelParanoid = true,
     saltRounds = null,
     alwaysCreateConnection = true,
     primaryKeyDefault = Sequelize.UUIDV4,

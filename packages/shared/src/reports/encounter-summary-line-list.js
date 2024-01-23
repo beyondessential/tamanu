@@ -1,5 +1,5 @@
 import config from 'config';
-import { endOfDay, startOfDay, parseISO } from 'date-fns';
+import { endOfDay, parseISO, startOfDay } from 'date-fns';
 import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
 import { toDateTimeString } from '../utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
@@ -321,7 +321,7 @@ with
         when 'admission' then  'Hospital admission'
         when 'clinic' then 'Clinic'
         when 'imaging' then 'Imaging'
-        when 'surveyResponse' then 'Survey response'
+        when 'surveyResponse' then 'Form response'
         else e.encounter_type
       end encounter_type,
       case "from"

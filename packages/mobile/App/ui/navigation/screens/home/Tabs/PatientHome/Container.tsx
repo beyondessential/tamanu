@@ -1,4 +1,4 @@
-import React, { ReactElement, useMemo, useCallback, useState, useEffect } from 'react';
+import React, { ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
 import { compose } from 'redux';
 import { useFocusEffect } from '@react-navigation/core';
 import { setStatusBar } from '/helpers/screen';
@@ -128,7 +128,7 @@ const PatientHomeContainer = ({
   const onSyncPatient = useCallback(async (): Promise<void> => {
     try {
       await Patient.markForSync(selectedPatient.id);
-      syncManager.triggerSync();
+      syncManager.triggerSync({ urgent: true });
       navigation.navigate(Routes.HomeStack.HomeTabs.SyncData);
     } catch (error) {
       setErrorMessage(error.message);

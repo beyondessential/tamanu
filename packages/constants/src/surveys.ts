@@ -87,9 +87,13 @@ export const VITAL_CHARTS = {
 const makeLookupFields = (model: string, fields: string[]) =>
   Object.fromEntries(fields.map(f => [f, [model, f]]));
 
+type PatientDataFieldLocationsType = {
+  [key: string]: Array<string>;
+};
+
 // Please keep in sync with:
 // - mobile/App/constants/surveys
-export const PATIENT_DATA_FIELD_LOCATIONS = {
+export const PATIENT_DATA_FIELD_LOCATIONS: PatientDataFieldLocationsType = {
   registrationClinicalStatus: ['PatientProgramRegistration', 'clinicalStatusId'],
   programRegistrationStatus: ['PatientProgramRegistration', 'registrationStatus'],
   registrationClinician: ['PatientProgramRegistration', 'clinicianId'],
@@ -142,3 +146,7 @@ export const PATIENT_DATA_FIELD_LOCATIONS = {
     'countryOfBirthId',
   ]),
 };
+
+export const PROGRAM_REGISTRY_FIELD_LOCATIONS = Object.keys(PATIENT_DATA_FIELD_LOCATIONS).filter(
+  key => PATIENT_DATA_FIELD_LOCATIONS[key][0] === 'PatientProgramRegistration',
+);

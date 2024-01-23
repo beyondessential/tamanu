@@ -1,14 +1,14 @@
-import React, { useCallback, ReactElement } from 'react';
+import React, { ReactElement, useCallback } from 'react';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native';
 
-import { StyledView, StyledText, FullView } from '../../../../styled/common';
+import { FullView, StyledText, StyledView } from '../../../../styled/common';
 import { theme } from '../../../../styled/theme';
 
 import { StackHeader } from '../../../../components/StackHeader';
 import { formatStringDate } from '../../../../helpers/date';
-import { AutocompleteSourceToColumnMap, DateFormats } from '../../../../helpers/constants';
-import { FieldTypes } from '../../../../helpers/fields';
+import { DateFormats } from '../../../../helpers/constants';
+import { FieldTypes, getDisplayNameForModel } from '../../../../helpers/fields';
 import { SurveyResultBadge } from '../../../../components/SurveyResultBadge';
 import { ViewPhotoLink } from '../../../../components/ViewPhotoLink';
 import { LoadingScreen } from '../../../../components/LoadingScreen';
@@ -16,7 +16,6 @@ import { useBackendEffect } from '../../../../hooks';
 
 const AutocompleteAnswer = ({ question, answer }): ReactElement => {
   const config = JSON.parse(question.config);
-  const columnName = AutocompleteSourceToColumnMap[config.source];
   const [refData, error] = useBackendEffect(
     ({ models }) => models[config.source].getRepository().findOne(answer),
     [question],
@@ -28,7 +27,11 @@ const AutocompleteAnswer = ({ question, answer }): ReactElement => {
     console.error(error);
     return <StyledText>{error.message}</StyledText>;
   }
-  return <StyledText textAlign="right" color={theme.colors.TEXT_DARK}>{refData[columnName]}</StyledText>;
+  return (
+    <StyledText textAlign="right" color={theme.colors.TEXT_DARK}>
+      {getDisplayNameForModel(config.source, refData)}
+    </StyledText>
+  );
 };
 
 function getAnswerText(question, answer): string | number {
@@ -42,7 +45,6 @@ function getAnswerText(question, answer): string | number {
       return typeof answer === 'number' ? answer.toFixed(1) : answer;
     case FieldTypes.TEXT:
     case FieldTypes.SELECT:
-    case FieldTypes.MULTI_SELECT:
     case FieldTypes.RESULT:
     case FieldTypes.RADIO:
     case FieldTypes.CONDITION:
@@ -57,6 +59,8 @@ function getAnswerText(question, answer): string | number {
       return formatStringDate(answer, DateFormats.DDMMYY);
     case FieldTypes.PATIENT_ISSUE_GENERATOR:
       return 'PATIENT_ISSUE_GENERATOR';
+    case FieldTypes.MULTI_SELECT:
+      return JSON.parse(answer).join(', ');
     default:
       console.warn(`Unknown field type: ${question.dataElement.type}`);
       return `?? ${question.dataElement.type}`;
@@ -129,9 +133,7 @@ export const SurveyResponseDetailsScreen = ({ route }): ReactElement => {
   const { patient } = encounter;
 
   const attachAnswer = (q): { answer: string; question: any } | null => {
-    const answerObject = answers.find(
-      (a) => a.dataElement.id === q.dataElement.id,
-    );
+    const answerObject = answers.find(a => a.dataElement.id === q.dataElement.id);
     return {
       question: q,
       answer: (answerObject || null) && answerObject.body,
@@ -139,18 +141,13 @@ export const SurveyResponseDetailsScreen = ({ route }): ReactElement => {
   };
 
   const questionToAnswerItem = ({ question, answer }, i): ReactElement => (
-    <AnswerItem
-      key={question.id}
-      index={i}
-      question={question}
-      answer={answer}
-    />
+    <AnswerItem key={question.id} index={i} question={question} answer={answer} />
   );
 
   const answerItems = questions
-    .filter((q) => q.dataElement.name)
+    .filter(q => q.dataElement.name)
     .map(attachAnswer)
-    .filter((q) => q.answer !== null && q.answer !== '')
+    .filter(q => q.answer !== null && q.answer !== '')
     .map(questionToAnswerItem);
 
   return (

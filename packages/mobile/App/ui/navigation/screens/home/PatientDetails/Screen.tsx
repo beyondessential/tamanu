@@ -1,29 +1,29 @@
-import React, { useCallback, ReactElement } from 'react';
+import React, { ReactElement, useCallback } from 'react';
 
 import { compose } from 'redux';
 import { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
 import { Routes } from '~/ui/helpers/routes';
 import { withPatient } from '~/ui/containers/Patient';
-import { joinNames, getGender } from '~/ui/helpers/user';
+import { getGender, joinNames } from '~/ui/helpers/user';
 import { getAgeFromDate } from '~/ui/helpers/date';
 import {
-  StyledView,
-  StyledSafeAreaView,
   FullView,
   RowView,
-  StyledTouchableOpacity,
-  StyledText,
+  StyledSafeAreaView,
   StyledScrollView,
+  StyledText,
+  StyledTouchableOpacity,
+  StyledView,
 } from '~/ui/styled/common';
 import { theme } from '~/ui/styled/theme';
-import { screenPercentageToDP, Orientation } from '~/ui/helpers/screen';
+import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { ArrowLeftIcon } from '~/ui/components/Icons';
 import { UserAvatar } from '~/ui/components/UserAvatar';
 import {
+  AdditionalInfo,
   GeneralInfo,
   HealthIdentificationRow,
   PatientIssues,
-  AdditionalInfo,
 } from './CustomComponents';
 
 const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => {
@@ -38,12 +38,15 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => 
   }, [navigation, selectedPatient]);
 
   const editPatientAdditionalData = useCallback(
-    (additionalData, sectionTitle) => {
+    (additionalData, sectionTitle, isCustomFields, customSectionFields, customPatientFieldValues) => {
       navigation.navigate(Routes.HomeStack.PatientDetailsStack.EditPatientAdditionalData, {
         patientId: selectedPatient.id,
         patientName: joinNames(selectedPatient),
         additionalDataJSON: JSON.stringify(additionalData),
         sectionTitle,
+        isCustomFields,
+        customSectionFields,
+        customPatientFieldValues,
       });
     },
     [navigation, selectedPatient],

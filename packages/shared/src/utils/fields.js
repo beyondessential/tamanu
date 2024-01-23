@@ -1,4 +1,4 @@
-import { PROGRAM_DATA_ELEMENT_TYPES, ACTION_DATA_ELEMENT_TYPES } from '@tamanu/constants';
+import { ACTION_DATA_ELEMENT_TYPES, PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { log } from '../services/logging';
 import { checkJSONCriteria } from './criteria';
 
@@ -31,7 +31,7 @@ function compareData(dataType, expected, given) {
       break;
     }
     case PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT:
-      return given.split(', ').includes(expected);
+      return JSON.parse(given).includes(expected);
     default:
       if (expected === given) return true;
       break;
@@ -44,9 +44,9 @@ function compareData(dataType, expected, given) {
  * IMPORTANT: We have 4 other versions of this method:
  *
  * - mobile/App/ui/helpers/fields.ts
- * - desktop/app/utils/survey.js
+ * - web/app/utils/survey.js
  * - shared/src/utils/fields.js
- * - sync-server/app/subCommands/calculateSurveyResults.js
+ * - central-server/app/subCommands/calculateSurveyResults.js
  *
  * So if there is an update to this method, please make the same update
  * in the other versions
@@ -93,12 +93,12 @@ function fallbackParseVisibilityCriteria(visibilityCriteria, values, allComponen
 }
 
 /*
-  Ad hoc function. Currently desktop client sends all
+  Ad hoc function. Currently web client sends all
   survey answers in an object shaped with ProgramDataElement.id as keys.
   However, mobile uses ProgramDataElement.code as keys instead. The logic
   used is the same in both places but is just copy/pasted - for that reason,
   this will convert the values object to match the one from mobile (in the meantime).
-  TODO: properly refactor the code. Probably by simply changing the desktop SurveyQuestion
+  TODO: properly refactor the code. Probably by simply changing the web SurveyQuestion
   and pass name={code} instead of name={id}.
 */
 function getValuesByCode(components, valuesById) {

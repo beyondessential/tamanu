@@ -1,6 +1,6 @@
-import React, { useState, useCallback, useRef, useEffect, ReactElement } from 'react';
+import React, { ReactElement, useCallback, useEffect, useRef, useState } from 'react';
 
-import { StyledView, StyledText } from '/styled/common';
+import { StyledText, StyledView } from '/styled/common';
 import { MultiSelect } from './MultipleSelect';
 import { MultiSelectProps } from './MultipleSelect/types';
 import { BaseInputProps } from '../../interfaces/BaseInputProps';
@@ -98,7 +98,7 @@ export const Dropdown = React.memo(
     const onSelectedItemsChange = useCallback(
       items => {
         setSelectedItems(items);
-        onChange(items.join(', ')); // Form submits selected items as comma separated string.
+        onChange(multiselect ? JSON.stringify(items) : items[0]); // Form submits multiselect items as JSON array string OR single item as value string
       },
       [selectedItems],
     );
