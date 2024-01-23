@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 
 import { SEX_VALUE_INDEX } from '@tamanu/constants';
@@ -8,6 +8,9 @@ import { useLocalisation } from '../../../contexts/Localisation';
 
 import { PrintPortal } from '../PrintPortal';
 import { PatientBarcode } from '../printouts/reusable/PatientBarcode';
+import { PDFViewer } from '../PDFViewer';
+import { IDLabelPrintout } from '../../../../../shared/src/utils/patientCertificates/IDLabelPrintout';
+import { Modal } from '../../Modal';
 
 const Sticker = styled.div`
   font-family: monospace;
@@ -59,20 +62,27 @@ const LabelPage = styled.div`
   grid-row-gap: ${p => p.rowGap};
 `;
 
-export const PatientStickerLabelPage = ({ patient }) => {
+export const PatientStickerLabelPage = React.memo(({ patient }) => {
+  const [open, setOpen] = useState(true);
   const { getLocalisation } = useLocalisation();
   const measures = getLocalisation('printMeasures.stickerLabelPage');
   // useEffect(() => { // TODO(web)
   //   printPage();
   // }, [printPage]);
+  console.log(measures)
 
   return (
-    <Page {...measures}>
-      <LabelPage {...measures}>
-        {[...Array(30).keys()].map(x => (
-          <PatientStickerLabel key={`label-${x}`} patient={patient} />
-        ))}
-      </LabelPage>
-    </Page>
+    <Modal open={open} onClose={() => setOpen(false)} width="md" printable keepMounted>
+      <PDFViewer id="patient-label-printout">
+        <IDLabelPrintout patient={patient} />
+      </PDFViewer>
+    </Modal>
+    // <Page {...measures}>
+    //   <LabelPage {...measures}>
+    //     {[...Array(30).keys()].map(x => (
+    //       <PatientStickerLabel key={`label-${x}`} patient={patient} />
+    //     ))}
+    //   </LabelPage>
+    // </Page>
   );
-};
+});

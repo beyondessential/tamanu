@@ -162,9 +162,7 @@ export const PrintPatientDetailsModal = ({ patient }) => {
       <Button size="small" onClick={openModal}>
         Print ID forms
       </Button>
-      <PDFViewer id='print-patient-details-modal'>
-        <IDLabelPrintout patient={patient} />
-      </PDFViewer>
+      {mainComponent}
     </>
   );
 };

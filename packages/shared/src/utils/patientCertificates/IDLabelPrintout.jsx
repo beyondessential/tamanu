@@ -45,7 +45,7 @@ const IDLabel = ({ patient }) => {
 export const IDLabelPrintout = ({ patient }) => {
   return (
     <Document>
-      <Page>
+      <Page size={"A4"}>
         <IDLabel patient={patient} />
       </Page>
     </Document>
