@@ -374,7 +374,7 @@ export const EncounterRecordPrintout = ({
           <LetterheadSection
             getLocalisation={getLocalisation}
             logoSrc={logo}
-            certificateTitle="Patient Encounter Record"
+            certificateTitle="Patient encounter record"
             letterheadConfig={certificateData}
           />
         </CertificateHeader>
