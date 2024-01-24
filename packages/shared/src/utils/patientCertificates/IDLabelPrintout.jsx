@@ -1,6 +1,5 @@
 import React from 'react';
 import { Page, StyleSheet, View, Document } from '@react-pdf/renderer';
-import { DataItem } from './printComponents/DataItem';
 import { getDOB, getName, getSex } from '../patientAccessors';
 import { PrintableBarcode } from './printComponents/PrintableBarcode';
 import { P } from './Typography';
@@ -14,11 +13,10 @@ const styles = StyleSheet.create({
   },
   row: {
     flexDirection: 'row',
-    padding: '2mm',
   },
   col: {
     flexDirection: 'column',
-    padding: '2mm',
+    flexGrow: 1,
   },
 });
 
@@ -29,47 +27,31 @@ const IDLabel = ({ patient }) => {
   return (
     <View style={styles.idLabel}>
       <Row>
-        <PrintableBarcode width={128} barHeight={22} id={patient.displayId} />
-        <Col>
-          <P mb={0} fontSize={8}>
+        <PrintableBarcode
+          barHeight={22}
+          id={patient.displayId}
+          fontSize={10}
+          barcodeStyle={{ margin: 0, marginBottom: 2, textAlign: 'left' }}
+        />
+        <Col style={{ marginTop: '1mm' }}>
+          <P mb={2} fontSize={10} style={{ marginLeft: '2mm', color: '#444444' }}>
             {getSex(patient)}
           </P>
-          <P mb={0} fontSize={8}>
+          <P mb={0} fontSize={10} style={{ marginLeft: '2mm', color: '#444444' }}>
             {getDOB(patient)}
           </P>
         </Col>
       </Row>
-      <P mb={0} fontSize={8}>
-        {getName(patient)}
-      </P>
-      {/* <Col>
-        <Row>
-          <Col>
-            <DataItem label="Name" value={getName(patient)} fontSize={10} />
-            <DataItem label="DOB" value={getDOB(patient)} fontSize={10} />
-          </Col>
-          <Col>
-            <DataItem label="Sex" value={getSex(patient)} fontSize={10} />
-            <DataItem label="Patient ID" value={patient.displayId} fontSize={10} />
-          </Col>
-        </Row>
-        <PrintableBarcode width={136} barHeight={51} id={patient.displayId} />
-      </Col> */}
+      <Col>
+        <P mb={0} mt={2} fontSize={10} style={{ color: '#444444' }}>
+          {getName(patient)}
+        </P>
+      </Col>
     </View>
   );
 };
 
-`display: grid;
-  padding-top: ${p => p.pageMarginTop};
-  padding-left: ${p => p.pageMarginLeft};how c
-  grid-template-columns: repeat(${p => p.columnTotal}, ${p => p.columnWidth});
-  grid-template-rows: repeat(${p => p.rowTotal}, ${p => p.rowHeight});
-  grid-column-gap: ${p => p.columnGap};
-  grid-row-gap: ${p => p.rowGap};`;
-
 export const IDLabelPrintout = ({ patient, measures }) => {
-  console.log(measures);
-
   const pageStyles = StyleSheet.create({
     grid: {
       display: 'flex',
@@ -92,7 +74,7 @@ export const IDLabelPrintout = ({ patient, measures }) => {
           paddingHorizontal: measures.pageMarginLeft,
         }}
       >
-        <View style={pageStyles.grid}>
+        <View style={pageStyles.grid} wrap={false}>
           {[...Array(30)].map((_, i) => (
             <View style={pageStyles.gridItem} key={`label-${i}`}>
               <IDLabel patient={patient} key={i} />
