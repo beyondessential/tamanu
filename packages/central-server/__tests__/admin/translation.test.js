@@ -1,5 +1,5 @@
 import { fake } from '@tamanu/shared/test-helpers/fake';
-import { createTestContext } from './utilities';
+import { createTestContext } from '../utilities';
 
 const LANGUAGE_CODES = {
   ENGLISH: 'en',
