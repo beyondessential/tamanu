@@ -102,22 +102,6 @@ export const styles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 10,
   },
-  fixedHeader: {
-    position: 'absolute',
-    top: 25,
-    right: 50,
-  },
-  fixedFooter: {
-    position: 'absolute',
-    bottom: 16,
-    left: 50,
-    right: 50,
-    textAlign: 'left',
-  },
-  pageBreakPadding: {
-    height: 26,
-    width: '100%',
-  },
 });
 
 export const Row = props => <View style={styles.row} {...props} />;
