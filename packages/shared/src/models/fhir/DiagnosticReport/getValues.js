@@ -1,5 +1,3 @@
-import config from 'config';
-
 import { FHIR_DIAGNOSTIC_REPORT_STATUS, LAB_REQUEST_STATUSES } from '@tamanu/constants';
 import {
   FhirCodeableConcept,
@@ -10,22 +8,22 @@ import {
 } from '../../../services/fhirTypes';
 import { formatFhirDate } from '../../../utils/fhir';
 
-export async function getValues(upstream, models) {
+export async function getValues(upstream, models, settings) {
   const { LabTest } = models;
 
-  if (upstream instanceof LabTest) return getValuesFromLabTest(upstream);
+  if (upstream instanceof LabTest) return getValuesFromLabTest(upstream, settings);
   throw new Error(`Invalid upstream type for service request ${upstream.constructor.name}`);
 }
 
-async function getValuesFromLabTest(labTest) {
+async function getValuesFromLabTest(labTest, settings) {
   const { labTestType, labTestMethod, labRequest } = labTest;
   const { encounter, laboratory } = labRequest;
   const { patient, examiner } = encounter;
 
   return {
     lastUpdated: new Date(),
-    extension: extension(labTestMethod),
-    identifier: identifiers(labRequest),
+    extension: await extension(labTestMethod, settings),
+    identifier: await identifiers(labRequest, settings),
     status: status(labRequest),
     code: code(labTestType),
     subject: patientReference(patient),
@@ -36,12 +34,14 @@ async function getValuesFromLabTest(labTest) {
   };
 }
 
-function extension(labTestMethod) {
+async function extension(labTestMethod, settings) {
   if (!labTestMethod) {
     return [];
   }
 
-  const groupNamespace = `${config.hl7.dataDictionaries.testMethod}/covid-test-methods`;
+  const testMethodDataDictionary = await settings.get('hl7.dataDictionaries.testMethod');
+
+  const groupNamespace = `${testMethodDataDictionary}/covid-test-methods`;
   const testsNamespace = `${groupNamespace}/rdt`;
 
   return [
@@ -60,11 +60,12 @@ function extension(labTestMethod) {
   ];
 }
 
-function identifiers(labRequest) {
+async function identifiers(labRequest, settings) {
+  const labRequestDisplayIdDict = await settings.get('hl7.dataDictionaries.labRequestDisplayId');
   return [
     new FhirIdentifier({
       use: 'official',
-      system: config.hl7.dataDictionaries.labRequestDisplayId,
+      system: labRequestDisplayIdDict,
       value: labRequest.displayId,
     }),
   ];

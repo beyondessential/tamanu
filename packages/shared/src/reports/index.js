@@ -22,7 +22,6 @@ import * as covidSwabLabTestsSummary from './covid-module/covid-swab-lab-tests-s
 import * as indiaAssistiveTechnologyDeviceLineList from './india-assistive-technology-device-line-list';
 import * as iraqAssistiveTechnologyDeviceLineList from './iraq-assistive-technology-device-line-list';
 import * as pngAssistiveTechnologyDeviceLineList from './png-assistive-technology-device-line-list';
-import * as encounterSummaryLineList from './encounter-summary-line-list';
 import * as fijiRecentAttendanceList from './fiji-recent-attendance-list';
 import * as fijiNcdPrimaryScreeningLineList from './fiji-ncd-primary-screening/fiji-ncd-primary-screening-line-list';
 import * as fijiNcdPrimaryScreeningPendingReferralsLineList from './fiji-ncd-primary-screening/fiji-ncd-primary-screening-pending-referrals-line-list';
@@ -95,8 +94,6 @@ export async function getReportModule(reportId, models) {
       return iraqAssistiveTechnologyDeviceLineList;
     case 'png-assistive-technology-device-line-list':
       return pngAssistiveTechnologyDeviceLineList;
-    case 'encounter-summary-line-list':
-      return encounterSummaryLineList;
     case 'fiji-recent-attendance-list':
       return fijiRecentAttendanceList;
     case 'fiji-ncd-primary-screening-line-list':

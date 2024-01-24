@@ -1,9 +1,10 @@
 import config from 'config';
 import { Command } from 'commander';
 
-import { log } from '@tamanu/shared/services/logging';
+import { log, initHoneyComb } from '@tamanu/shared/services/logging';
 
 import { performTimeZoneChecks } from '@tamanu/shared/utils/timeZoneCheck';
+import { ReadSettings } from '@tamanu/settings';
 import { checkConfig } from '../checkConfig';
 import { initDeviceId } from '../sync/initDeviceId';
 import { performDatabaseIntegrityChecks } from '../database';
@@ -31,17 +32,27 @@ async function serve({ skipMigrationCheck }) {
     await context.sequelize.assertUpToDate({ skipMigrationCheck });
   }
 
+  const settings = new ReadSettings(context.models, config.serverFacilityId);
+  context.settings = settings;
+
+  const syncConfig = await settings.get('sync');
+  const countryTimeZone = await settings.get('countryTimeZone');
+  const discoverySettings = await settings.get('discovery');
+
+  await initHoneyComb(context);
+
   await initDeviceId(context);
   await checkConfig(config, context);
   await performDatabaseIntegrityChecks(context);
 
-  context.centralServer = new CentralServerConnection(context);
+  context.centralServer = new CentralServerConnection(context, syncConfig);
+
   context.syncManager = new FacilitySyncManager(context);
 
   await performTimeZoneChecks({
     remote: context.centralServer,
     sequelize: context.sequelize,
-    config,
+    countryTimeZone,
   });
 
   const app = createApp(context);
@@ -55,7 +66,18 @@ async function serve({ skipMigrationCheck }) {
     server.close();
   });
 
-  startScheduledTasks(context);
+  const syncSchedule = await settings.get('sync.schedule');
+  const schedules = await settings.get('schedules');
+
+  startScheduledTasks({
+    ...context,
+    schedules: {
+      ...schedules,
+      sync: {
+        schedule: syncSchedule,
+      },
+    },
+  });
 }
 
 export const serveCommand = new Command('serve')

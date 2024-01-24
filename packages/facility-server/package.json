@@ -36,6 +36,7 @@
   "dependencies": {
     "@opentelemetry/api": "^1.4.0",
     "@tamanu/shared": "*",
+    "@tamanu/settings": "*",
     "abort-controller": "^3.0.0",
     "basic-auth": "^2.0.1",
     "bcrypt": "^5.1.1",

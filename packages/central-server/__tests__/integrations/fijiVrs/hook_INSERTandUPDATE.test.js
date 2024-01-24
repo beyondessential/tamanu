@@ -1,18 +1,17 @@
 import { parseISO } from 'date-fns';
-import config from 'config';
 
 import { fake } from '@tamanu/shared/test-helpers/fake';
 import { toDateString } from '@tamanu/shared/utils/dateTime';
 import { createTestContext } from '@tamanu/central-server/__tests__/utilities';
 import { fakeVRSPatient, prepareVRSMocks } from './sharedHookHelpers';
 
-const { host } = config.integrations.fijiVrs;
-
 describe('VRS integration hook: INSERT and UPDATE operations', () => {
   let ctx;
+  let host;
   let app;
   beforeAll(async () => {
     ctx = await createTestContext();
+    host = await ctx.settings.get('integrations.fijiVrs.host');
     app = await ctx.baseApp.asRole('practitioner');
   });
   afterAll(() => ctx.close());

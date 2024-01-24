@@ -1,5 +1,5 @@
 /* eslint-disable no-undef */
-
+require('../app/utils/customYupMethods');
 require('jest-expect-message');
 const jestExtendedMatchers = require('jest-extended');
 

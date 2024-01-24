@@ -1,9 +1,9 @@
-import { Op } from 'sequelize';
 import config from 'config';
+import { Op } from 'sequelize';
 import asyncPool from 'tiny-async-pool';
 import { mergeRecord } from './mergeRecord';
 
-const { persistUpdateWorkerPoolSize } = config.sync;
+const { persistUpdateWorkerPoolSize } = config;
 
 export const saveCreates = async (model, records) => {
   // can end up with duplicate create records, e.g. if syncAllLabRequests is turned on, an

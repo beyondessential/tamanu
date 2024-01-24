@@ -8,7 +8,7 @@ import { log } from '@tamanu/shared/services/logging';
 
 const mailgun = new Mailgun(formData);
 
-const { apiKey, domain } = config.mailgun;
+const { apiKey } = config.mailgun;
 
 async function getReadStreamSafe(path) {
   return new Promise((resolve, reject) => {
@@ -28,12 +28,18 @@ async function getReadStreamSafe(path) {
 }
 
 export class EmailService {
-  constructor() {
+  constructor(settings) {
+    this.settings = settings;
+  }
+
+  async init() {
+    const mailgunDomain = await this.settings.get('mailgun.domain');
     this.mailgunService =
-      apiKey && domain ? mailgun.client({ username: 'api', key: apiKey }) : null;
+      apiKey && mailgunDomain ? mailgun.client({ username: 'api', key: apiKey }) : null;
   }
 
   async sendEmail({ attachment: untypedAttachment, ...email }) {
+    const mailgunDomain = await this.settings.get('mailgun.domain');
     // no mailgun service, unable to send email
     if (!this.mailgunService) {
       return { status: COMMUNICATION_STATUSES.ERROR, error: 'Email service not found' };
@@ -77,7 +83,7 @@ export class EmailService {
     }
 
     try {
-      const emailResult = await this.mailgunService.messages.create(domain, {
+      const emailResult = await this.mailgunService.messages.create(mailgunDomain, {
         ...email,
         attachment,
       });

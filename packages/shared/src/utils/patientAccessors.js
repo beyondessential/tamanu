@@ -5,8 +5,10 @@ import { ageInYears } from './dateTime';
 export const getName = ({ firstName, lastName }) => `${firstName} ${lastName}`;
 export const getSex = ({ sex }) => `${capitalize(sex)}`;
 
-export const getDOB = ({ dateOfBirth }, getLocalisation) =>
-  dateOfBirth ? getDisplayDate(dateOfBirth, 'dd/MM/yyyy', getLocalisation) : 'Unknown';
+export const getDOB = ({ dateOfBirth }, getSetting) =>
+  dateOfBirth
+    ? getDisplayDate(dateOfBirth, 'dd/MM/yyyy', getSetting('countryTimeZone'))
+    : 'Unknown';
 
 export const getDOBWithAge = ({ dateOfBirth }, getLocalisation) => {
   if (!dateOfBirth) return 'Unkown';

@@ -8,7 +8,6 @@ import {
   VACCINE_STATUS,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
-import config from 'config';
 import {
   configString,
   jsonString,
@@ -192,10 +191,16 @@ export const baseConfigShape = yup.object().noUnknown();
 
 export const SurveyScreenComponent = Base.shape({
   visibilityCriteria: jsonString(),
-  validationCriteria: config.validateQuestionConfigs.enabled
-    ? validationString(baseValidationShape)
-    : jsonString(),
-  config: config.validateQuestionConfigs.enabled ? configString(baseConfigShape) : jsonString(),
+  validationCriteria: yup.string().whenSetting('validateQuestionConfigs.enabled', {
+    is: true,
+    then: validationString(baseValidationShape),
+    otherwise: jsonString(),
+  }),
+  config: yup.string().whenSetting('validateQuestionConfigs.enabled', {
+    is: true,
+    then: configString(baseConfigShape),
+    otherwise: jsonString(),
+  }),
   screenIndex: yup.number().required(),
   componentIndex: yup.number().required(),
   options: jsonString(),

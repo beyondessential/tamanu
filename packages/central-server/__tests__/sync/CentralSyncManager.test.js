@@ -1035,49 +1035,10 @@ describe('CentralSyncManager', () => {
           });
         });
 
-        it('syncs the configured vaccine encounters when it is enabled and client is mobile', async () => {
-          // Create the vaccines to be tested
-          const {
-            CentralSyncManager: TestCentralSyncManager,
-          } = require('../../dist/sync/CentralSyncManager');
-
-          // Turn on syncAllEncountersForTheseVaccines config
-          TestCentralSyncManager.overrideConfig({
-            sync: { syncAllEncountersForTheseVaccines: ['drug-COVAX', 'drug-COVID-19-Pfizer'] },
-          });
-
-          const centralSyncManager = new TestCentralSyncManager(ctx);
-
-          const { sessionId } = await centralSyncManager.startSession();
-          await waitForSession(centralSyncManager, sessionId);
-
-          await centralSyncManager.setupSnapshotForPull(
-            sessionId,
-            {
-              since: 1,
-              facilityId: facility.id,
-              isMobile: true,
-            },
-            () => true,
-          );
-
-          const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
-
-          // Test if the outgoingChanges also sync the configured vaccines and the associated encounters
-          expect(outgoingChanges.map(r => r.recordId)).toEqual(
-            expect.arrayContaining([administeredVaccine1.id, administeredVaccine2.id]),
-          );
-        });
-
         it('does not sync any vaccine encounters when it is disabled and client is mobile', async () => {
           const {
             CentralSyncManager: TestCentralSyncManager,
           } = require('../../dist/sync/CentralSyncManager');
-
-          // Turn off syncAllEncountersForTheseVaccines config
-          TestCentralSyncManager.overrideConfig({
-            sync: { syncAllEncountersForTheseVaccines: [] },
-          });
 
           const centralSyncManager = new TestCentralSyncManager(ctx);
 
@@ -1109,6 +1070,36 @@ describe('CentralSyncManager', () => {
           // Test if the outgoingChanges still contain the vaccine that belong to a marked for sync patient
           expect(outgoingChanges.map(r => r.recordId)).toEqual(
             expect.arrayContaining([fullSyncedAdministeredVaccine3.id]),
+          );
+        });
+
+        it('syncs the configured vaccine encounters when it is enabled and client is mobile', async () => {
+          await models.Setting.create({
+            key: 'sync.syncAllEncountersForTheseVaccines',
+            value: ['drug-COVAX', 'drug-COVID-19-Pfizer'],
+            scope: SETTINGS_SCOPES.CENTRAL,
+          });
+
+          const centralSyncManager = initializeCentralSyncManager();
+
+          const { sessionId } = await centralSyncManager.startSession();
+          await waitForSession(centralSyncManager, sessionId);
+
+          await centralSyncManager.setupSnapshotForPull(
+            sessionId,
+            {
+              since: 1,
+              facilityId: facility.id,
+              isMobile: true,
+            },
+            () => true,
+          );
+
+          const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
+
+          // Test if the outgoingChanges also sync the configured vaccines and the associated encounters
+          expect(outgoingChanges.map(r => r.recordId)).toEqual(
+            expect.arrayContaining([administeredVaccine1.id, administeredVaccine2.id]),
           );
         });
       });

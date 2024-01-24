@@ -1,7 +1,10 @@
 import { FHIR_INTERACTIONS, JOB_TOPICS } from '@tamanu/constants';
 import { resourcesThatCanDo } from '@tamanu/shared/utils/fhir/resources';
 
-export async function fromUpstream({ payload: { resource, upstreamId } }, { log, models }) {
+export async function fromUpstream(
+  { payload: { resource, upstreamId } },
+  { log, models, settings },
+) {
   const materialisableResources = resourcesThatCanDo(
     models,
     FHIR_INTERACTIONS.INTERNAL.MATERIALISE,
@@ -13,7 +16,7 @@ export async function fromUpstream({ payload: { resource, upstreamId } }, { log,
   }
 
   log.debug('Starting materialise', { resource, upstreamId });
-  const result = await Resource.materialiseFromUpstream(upstreamId);
+  const result = await Resource.materialiseFromUpstream(upstreamId, settings);
   log.debug('Done materialising', {
     resource,
     upstreamId,

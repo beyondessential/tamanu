@@ -2,24 +2,22 @@ import React from 'react';
 
 import * as yup from 'yup';
 import { Field } from './Field';
-import { useLocalisation } from '../../contexts/Localisation';
+import { useSettings } from '../../contexts/Settings';
 
 export const LocalisedField = ({
   name,
   useShortLabel,
-  path = `fields.${name}`,
+  path = `localisation.fields.${name}`,
   defaultLabel,
   ...props
 }) => {
-  const { getLocalisation } = useLocalisation();
-  const hidden = getLocalisation(`${path}.hidden`);
+  const { getSetting } = useSettings();
+  const hidden = getSetting(`${path}.hidden`);
   const label =
-    (useShortLabel
-      ? getLocalisation(`${path}.shortLabel`)
-      : getLocalisation(`${path}.longLabel`)) ||
+    (useShortLabel ? getSetting(`${path}.shortLabel`) : getSetting(`${path}.longLabel`)) ||
     defaultLabel ||
     path;
-  const required = getLocalisation(`${path}.required`) || false;
+  const required = getSetting(`${path}.required`) || false;
   if (hidden) {
     return null;
   }
@@ -27,12 +25,12 @@ export const LocalisedField = ({
 };
 
 export const useLocalisedSchema = () => {
-  const { getLocalisation } = useLocalisation();
+  const { getSetting } = useSettings();
   return {
     getLocalisedSchema: ({ name, path = `fields.${name}` }) => {
-      const hidden = getLocalisation(`${path}.hidden`);
-      const label = getLocalisation(`${path}.longLabel`) || path;
-      const required = getLocalisation(`${path}.required`) || false;
+      const hidden = getSetting(`${path}.hidden`);
+      const label = getSetting(`${path}.longLabel`) || path;
+      const required = getSetting(`${path}.required`) || false;
 
       if (hidden) {
         return yup.string().nullable();

@@ -32,10 +32,11 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
   beforeAll(async () => {
     ctx = await createTestContext();
     app = await ctx.baseApp.asRole('practitioner');
-    resources = await fakeResourcesOfFhirServiceRequest(ctx.store.models);
+    resources = await fakeResourcesOfFhirServiceRequest(ctx.store.models, ctx.settings);
     const { FhirPractitioner } = ctx.store.models;
     const fhirPractitioner = await FhirPractitioner.materialiseFromUpstream(
       resources.practitioner.id,
+      ctx.settings,
     );
     fhirResources.fhirPractitioner = fhirPractitioner;
   });
@@ -60,7 +61,10 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       await LabTestPanel.destroy({ where: {} });
       await LabTestPanelRequest.destroy({ where: {} });
 
-      const fhirEncounter = await FhirEncounter.materialiseFromUpstream(resources.encounter.id);
+      const fhirEncounter = await FhirEncounter.materialiseFromUpstream(
+        resources.encounter.id,
+        ctx.settings,
+      );
       fhirResources.fhirEncounter = fhirEncounter;
     });
 
@@ -99,7 +103,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
 
       await ir.setAreas([resources.area1.id, resources.area2.id]);
       await ir.reload();
-      const mat = await FhirServiceRequest.materialiseFromUpstream(ir.id);
+      const mat = await FhirServiceRequest.materialiseFromUpstream(ir.id, ctx.settings);
       await FhirServiceRequest.resolveUpstreams();
 
       const path = `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest/${mat.id}`;
@@ -211,7 +215,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
         ctx.store.models,
         resources,
       );
-      const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+      const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id, ctx.settings);
       await FhirServiceRequest.resolveUpstreams();
 
       const path = `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest/${mat.id}`;
@@ -306,7 +310,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       );
       await ir.setAreas([resources.area1.id, resources.area2.id]);
       await ir.reload();
-      const mat = await FhirServiceRequest.materialiseFromUpstream(ir.id);
+      const mat = await FhirServiceRequest.materialiseFromUpstream(ir.id, ctx.settings);
       await FhirServiceRequest.resolveUpstreams();
 
       const path = `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest/${mat.id}`;
@@ -350,7 +354,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       );
       await ir.setAreas([resources.area1.id, resources.area2.id]);
       await ir.reload();
-      await FhirServiceRequest.materialiseFromUpstream(ir.id);
+      await FhirServiceRequest.materialiseFromUpstream(ir.id, ctx.settings);
       await FhirServiceRequest.resolveUpstreams();
 
       const id = encodeURIComponent(
@@ -469,7 +473,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       );
       await ir.setAreas([resources.area1.id, resources.area2.id]);
       await ir.reload();
-      await FhirServiceRequest.materialiseFromUpstream(ir.id);
+      await FhirServiceRequest.materialiseFromUpstream(ir.id, ctx.settings);
       await FhirServiceRequest.resolveUpstreams();
 
       const id = encodeURIComponent(
@@ -588,7 +592,10 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       await ImagingRequest.destroy({ where: {} });
       await ImagingRequestArea.destroy({ where: {} });
 
-      const fhirEncounter = await FhirEncounter.materialiseFromUpstream(resources.encounter.id);
+      const fhirEncounter = await FhirEncounter.materialiseFromUpstream(
+        resources.encounter.id,
+        ctx.settings,
+      );
       fhirResources.fhirEncounter = fhirEncounter;
 
       irs = await Promise.all([
@@ -606,7 +613,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
 
           await ir.setAreas([resources.area1.id]);
           await ir.reload();
-          const mat = await FhirServiceRequest.materialiseFromUpstream(ir.id);
+          const mat = await FhirServiceRequest.materialiseFromUpstream(ir.id, ctx.settings);
           mat.update({ lastUpdated: addDays(new Date(), 5) });
           return ir;
         })(),
@@ -624,7 +631,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
 
           await ir.setAreas([resources.area2.id]);
           await ir.reload();
-          const mat = await FhirServiceRequest.materialiseFromUpstream(ir.id);
+          const mat = await FhirServiceRequest.materialiseFromUpstream(ir.id, ctx.settings);
           mat.update({ lastUpdated: addDays(new Date(), 10) });
           return ir;
         })(),

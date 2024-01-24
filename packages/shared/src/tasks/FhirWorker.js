@@ -1,5 +1,5 @@
 import { SpanStatusCode } from '@opentelemetry/api';
-import theConfig from 'config';
+
 import { formatRFC3339 } from 'date-fns';
 import ms from 'ms';
 import { hostname } from 'os';
@@ -13,7 +13,7 @@ export class FhirWorker {
 
   worker = null;
 
-  config = theConfig.integrations.fhir.worker;
+  settings = null;
 
   processing = new Set();
 
@@ -22,22 +22,23 @@ export class FhirWorker {
   // in "testMode" it's disabled.
   testMode = false;
 
-  constructor(context, log) {
+  constructor(context, log, settings) {
     this.models = context.models;
     this.sequelize = context.sequelize;
+    this.settings = settings;
     this.log = log;
   }
 
   async start() {
-    const { FhirJobWorker, Setting } = this.models;
-    const { enabled } = this.config;
+    const { FhirJobWorker } = this.models;
+    const enabled = await this.settings.get('integrations.fhir.worker.enabled');
 
     if (!enabled) {
       this.log.info('FhirWorker: disabled');
       return;
     }
 
-    const heartbeatInterval = await Setting.get('fhir.worker.heartbeat');
+    const heartbeatInterval = await this.settings.get('fhir.worker.heartbeat');
     this.log.debug('FhirWorker: got raw heartbeat interval', { heartbeatInterval });
     const heartbeat = Math.round(ms(heartbeatInterval) * (1 + Math.random() * 0.2 - 0.1)); // +/- 10%
     this.log.debug('FhirWorker: added some jitter to the heartbeat', { heartbeat });
@@ -48,6 +49,7 @@ export class FhirWorker {
       hostname: hostname(),
       ...(global.serverInfo ?? {}),
     });
+
     this.log.info('FhirWorker: registered', { workerId: this.worker?.id });
 
     this.log.debug('FhirWorker: scheduling heartbeat', { intervalMs: heartbeat });
@@ -101,8 +103,8 @@ export class FhirWorker {
    *
    * @returns {number} Amount of jobs to grab.
    */
-  totalCapacity() {
-    return Math.max(0, this.config.concurrency - this.processing.size);
+  totalCapacity(concurrency) {
+    return Math.max(0, concurrency - this.processing.size);
   }
 
   /**
@@ -113,12 +115,12 @@ export class FhirWorker {
    *
    * @returns {number} Amount of jobs to grab for a topic.
    */
-  topicCapacity() {
+  topicCapacity(concurrency) {
     return Math.max(
       // return at least 1 if there's any capacity
-      this.totalCapacity() > 0 ? 1 : 0,
+      this.totalCapacity(concurrency) > 0 ? 1 : 0,
       // otherwise divide the capacity evenly among the topics
-      Math.floor(this.totalCapacity() / this.handlers.size),
+      Math.floor(this.totalCapacity(concurrency) / this.handlers.size),
     );
   }
 
@@ -135,6 +137,7 @@ export class FhirWorker {
   processQueue() {
     // start a new root span here to avoid tying this to any callers
     return getTracer().startActiveSpan(`FhirWorker.processQueue`, { root: true }, async span => {
+      const concurrency = await this.settings.get('integrations.fhir.worker.concurrency');
       this.log.debug(`Starting to process the queue from worker ${this.worker.id}.`);
       span.setAttributes({
         'code.function': 'processQueue',
@@ -145,19 +148,19 @@ export class FhirWorker {
 
       try {
         this.currentlyProcessing = true;
-        if (this.totalCapacity() === 0) {
+        if (this.totalCapacity(concurrency) === 0) {
           this.log.debug('FhirWorker: no capacity');
           return;
         }
 
-        span.setAttribute('job.capacity', this.totalCapacity());
+        span.setAttribute('job.capacity', this.totalCapacity(concurrency));
 
         const { FhirJob } = this.models;
 
         const runs = [];
         for (const topic of this.handlers.keys()) {
           this.log.debug('FhirWorker: checking queue', { topic });
-          const capacity = this.topicCapacity();
+          const capacity = this.topicCapacity(concurrency);
           const count = await FhirJob.backlogUntilLimit(topic, capacity);
           if (count === 0) {
             this.log.debug('FhirWorker: nothing in queue', { topic });
@@ -235,6 +238,7 @@ export class FhirWorker {
                 log: this.log.child({ topic, jobId: job.id }),
                 models: this.models,
                 sequelize: this.sequelize,
+                settings: this.settings,
               }),
             );
           } catch (workErr) {

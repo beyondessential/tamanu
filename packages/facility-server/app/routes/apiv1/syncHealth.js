@@ -9,7 +9,7 @@ syncHealth.get(
   asyncHandler(async (req, res) => {
     const { deviceId } = req;
     req.flagPermissionChecked();
-    const centralServer = new CentralServerConnection({ deviceId });
+    const centralServer = new CentralServerConnection({ deviceId }, await req.settings.get('sync'));
 
     // The web app and facility server should still work without a connected
     // central, we just want to notify the user they aren't connected to central.

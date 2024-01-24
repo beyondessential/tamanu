@@ -81,7 +81,7 @@ export class FhirResource extends Model {
 
   // set upstream_id, call updateMaterialisation
   // do not set relatedToId when calling this, it's for internal use only.
-  static async materialiseFromUpstream(id, relatedToId = null) {
+  static async materialiseFromUpstream(id, settings, relatedToId = null) {
     let resource = await this.findOne({
       where: {
         upstreamId: id,
@@ -96,7 +96,7 @@ export class FhirResource extends Model {
       });
     }
 
-    await resource.updateMaterialisation();
+    await resource.updateMaterialisation(settings);
     await resource.save();
 
     // don't look up related records if we're already in the process of doing so
@@ -107,7 +107,7 @@ export class FhirResource extends Model {
       for (const relatedId of await resource.getRelatedUpstreamIds()) {
         if (relatedId === id) continue;
         if (relatedId === relatedToId) continue;
-        await this.materialiseFromUpstream(relatedId, id);
+        await this.materialiseFromUpstream(relatedId, settings, id);
       }
     }
 
@@ -127,11 +127,11 @@ export class FhirResource extends Model {
   }
 
   // call updateMat, don't save, output bool
-  async isUpToDate() {
+  async isUpToDate(settings) {
     const resource = await this.constructor.findByPk(this.id);
     if (!resource) return false;
 
-    await resource.updateMaterialisation();
+    await resource.updateMaterialisation(settings);
     return !resource.changed();
   }
 

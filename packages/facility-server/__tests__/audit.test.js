@@ -1,13 +1,16 @@
-import { createTestContext } from './utilities';
+import { SETTINGS_SCOPES } from '@tamanu/constants';
+import config from 'config';
 import { fake } from '@tamanu/shared/test-helpers';
 import { AuditLogItem } from '../dist/middleware/auditLog';
 import { createDummyPatient } from '@tamanu/shared/demoData/patients';
+import { createTestContext } from './utilities';
 
 describe('Audit log', () => {
   let ctx = null;
   let app = null;
   let baseApp = null;
   let models = null;
+  const ENABLE_AUDIT_LOG_SETTINGS_KEY = 'log.enableAuditLog';
 
   // log entries aren't persisted (yet), so use this array to track audit log entries
   // as they get resolved.
@@ -27,10 +30,17 @@ describe('Audit log', () => {
     ctx = await createTestContext();
     baseApp = ctx.baseApp;
     models = ctx.models;
+    const { Setting } = models;
+    await Setting.set(
+      ENABLE_AUDIT_LOG_SETTINGS_KEY,
+      true,
+      SETTINGS_SCOPES.FACILITY,
+      config.serverFacilityId,
+    );
     app = await baseApp.asRole('practitioner');
   });
-  afterAll(() => {
-    ctx.close();
+  afterAll(async () => {
+    await ctx.close();
     jest.restoreAllMocks();
   });
 
@@ -76,7 +86,7 @@ describe('Audit log', () => {
     expect(log.permissionChecks[0]).toMatchObject({
       verb: 'read',
       noun: 'Patient',
-      objectId: undefined,  // intentional; happens before looking up a particular patient
+      objectId: undefined, // intentional; happens before looking up a particular patient
     });
     expect(log.permissionChecks[1]).toMatchObject({
       verb: 'write',

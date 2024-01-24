@@ -16,8 +16,16 @@ const CHANGE_PASSWORD_FAILURE = 'CHANGE_PASSWORD_FAILURE';
 
 export const restoreSession = () => async (dispatch, getState, { api }) => {
   try {
-    const { user, token, localisation, server, ability, role } = await api.restoreSession();
-    dispatch({ type: LOGIN_SUCCESS, user, token, localisation, server, ability, role });
+    const {
+      user,
+      token,
+      localisation,
+      server,
+      ability,
+      role,
+      settings,
+    } = await api.restoreSession();
+    dispatch({ type: LOGIN_SUCCESS, user, token, localisation, server, ability, role, settings });
   } catch (e) {
     // no action required -- this just means we haven't logged in
   }
@@ -27,11 +35,11 @@ export const login = (email, password) => async (dispatch, getState, { api }) =>
   dispatch({ type: LOGIN_START });
 
   try {
-    const { user, token, localisation, server, ability, role } = await api.login(
+    const { user, token, localisation, server, ability, role, settings } = await api.login(
       email,
       password,
     );
-    dispatch({ type: LOGIN_SUCCESS, user, token, localisation, server, ability, role });
+    dispatch({ type: LOGIN_SUCCESS, user, token, localisation, server, ability, role, settings });
   } catch (error) {
     dispatch({ type: LOGIN_FAILURE, error: error.message });
   }
@@ -60,7 +68,7 @@ export const idleTimeout = () => ({
   error: 'You have been logged out due to inactivity',
 });
 
-export const requestPasswordReset = (email) => async (dispatch, getState, { api }) => {
+export const requestPasswordReset = email => async (dispatch, getState, { api }) => {
   dispatch({ type: REQUEST_PASSWORD_RESET_START });
 
   try {
@@ -75,7 +83,7 @@ export const restartPasswordResetFlow = () => async dispatch => {
   dispatch({ type: PASSWORD_RESET_RESTART });
 };
 
-export const changePassword = (data) => async (dispatch, getState, { api }) => {
+export const changePassword = data => async (dispatch, getState, { api }) => {
   dispatch({ type: CHANGE_PASSWORD_START });
 
   try {
@@ -131,6 +139,7 @@ const actionHandlers = {
     role: action.role,
     resetPassword: defaultState.resetPassword,
     changePassword: defaultState.changePassword,
+    settings: action.settings,
   }),
   [LOGIN_FAILURE]: action => ({
     loading: false,

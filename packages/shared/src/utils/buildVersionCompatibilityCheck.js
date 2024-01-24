@@ -1,6 +1,5 @@
 import compareVersions from 'semver-compare';
 import semverDiff from 'semver-diff';
-import config from 'config';
 import { VERSION_COMPATIBILITY_ERRORS } from '@tamanu/constants';
 import { log } from '../services/logging';
 
@@ -8,17 +7,12 @@ const respondWithError = (res, error) => {
   res.status(400).json({ error });
 };
 
-function getUpdateInformation(req) {
-  if (!config.updateUrls) return {};
-
-  const clientType = req.header('X-Tamanu-Client') || '';
-  if (clientType.includes('Tamanu Mobile')) {
-    return {
-      updateUrl: config.updateUrls.mobile,
-    };
-  }
-
-  return {};
+async function getUpdateInformation({ settings, header }) {
+  const mobileUpdateUrls = await settings.get('updateUrls.mobile');
+  if (!mobileUpdateUrls || !header('X-Tamanu-Client')?.includes('Tamanu Mobile')) return {};
+  return {
+    updateUrl: mobileUpdateUrls,
+  };
 }
 
 export const buildVersionCompatibilityCheck = (min, max) => (req, res, next) => {

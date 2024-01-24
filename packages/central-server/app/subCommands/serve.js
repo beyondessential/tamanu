@@ -1,7 +1,7 @@
 import config from 'config';
 import { Command } from 'commander';
 
-import { log } from '@tamanu/shared/services/logging';
+import { log, initHoneyComb } from '@tamanu/shared/services/logging';
 import { performTimeZoneChecks } from '@tamanu/shared/utils/timeZoneCheck';
 
 import { provision } from './provision';
@@ -23,26 +23,30 @@ export const serve = async ({ skipMigrationCheck, provisioning }) => {
   });
 
   const context = await new ApplicationContext().init();
-  const { store } = context;
+  const { store, settings } = context;
+
+  await initHoneyComb(context);
 
   await store.sequelize.assertUpToDate({ skipMigrationCheck });
 
   const app = createApp(context);
 
+  const countryTimeZone = await settings.get('countryTimeZone');
+  const numberConcurrentPullSnapshots = await settings.get('sync.numberConcurrentPullSnapshots');
+
   await performTimeZoneChecks({
     sequelize: store.sequelize,
-    config,
+    countryTimeZone,
   });
 
   const minConnectionPoolSnapshotHeadroom = 4;
-  const connectionPoolSnapshotHeadroom =
-    config.db?.pool?.max - config?.sync?.numberConcurrentPullSnapshots;
+  const connectionPoolSnapshotHeadroom = config.db?.pool?.max - numberConcurrentPullSnapshots;
   if (connectionPoolSnapshotHeadroom < minConnectionPoolSnapshotHeadroom) {
     log.warn(
       `WARNING: config.db.pool.max is dangerously close to config.sync.numberConcurrentPullSnapshots (within ${minConnectionPoolSnapshotHeadroom} connections)`,
       {
         'config.db.pool.max': config.db?.pool?.max,
-        'config.sync.numberConcurrentPullSnapshots': config.sync?.numberConcurrentPullSnapshots,
+        'config.sync.numberConcurrentPullSnapshots': numberConcurrentPullSnapshots,
         connectionPoolSnapshotHeadroom,
       },
     );

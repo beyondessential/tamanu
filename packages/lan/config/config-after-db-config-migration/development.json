@@ -1,9 +1,0 @@
-{
-  "admin": {
-    "allowAdminRoutes": true
-  },
-  "db": {
-    "name": "develop"
-  },
-  "countryTimeZone": "Pacific/Auckland"
-}

@@ -66,12 +66,6 @@
       }
     }
   },
-  "senaite": {
-    "enabled": false,
-    "server": "https://192.168.33.100",
-    "username": "admin",
-    "password": "admin"
-  },
   "auth": {
     "saltRounds": 12,
     "tokenDuration": "1h",
@@ -93,13 +87,6 @@
       "schedule": "1 0 * * *"
     }
   },
-  // Note: this config should be duplicated on the central server if the same behavior is
-  // desired for "this facility" and "all facilities"
-  "reportConfig": {
-    "encounter-summary-line-list": {
-      "includedPatientFieldIds": []
-    }
-  },
   "questionCodeIds": {
     "passport": "pde-FijCOVRDT005",
     "nationalityId": "pde-PalauCOVSamp7"
@@ -118,5 +105,4 @@
   // this should be an IANA tzdata timezone
   // @see here for a list of available options https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
   "countryTimeZone": "Australia/Melbourne",
-  "allowMismatchedTimeZones": false
 }

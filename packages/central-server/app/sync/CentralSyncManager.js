@@ -1,5 +1,6 @@
 import { trace } from '@opentelemetry/api';
 import { Op, Transaction } from 'sequelize';
+// TODO: use db config fetcher
 import _config from 'config';
 
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
@@ -49,10 +50,13 @@ export class CentralSyncManager {
 
   store;
 
+  settings;
+
   purgeInterval;
 
   constructor(ctx) {
     this.store = ctx.store;
+    this.settings = ctx.settings;
     ctx.onClose(this.close);
   }
 
@@ -227,7 +231,7 @@ export class CentralSyncManager {
 
       // will wait for concurrent snapshots to complete if we are currently at capacity, then
       // set the snapshot_started_at timestamp before we proceed with the heavy work below
-      await startSnapshotWhenCapacityAvailable(sequelize, sessionId);
+      await startSnapshotWhenCapacityAvailable({ sequelize, settings: this.settings }, sessionId);
 
       // get a sync tick that we can safely consider the snapshot to be up to (because we use the
       // "tick" of the tick-tock, so we know any more changes on the server, even while the snapshot
@@ -267,13 +271,15 @@ export class CentralSyncManager {
       const patientIdsForFullSync = newPatientFacilities.map(n => n.patientId);
 
       const syncAllLabRequests = await models.Setting.get('syncAllLabRequests', facilityId);
+      const syncAllEncountersForTheseVaccines = await this.settings.get(
+        'sync.syncAllEncountersForTheseVaccines',
+      );
       const sessionConfig = {
         // for facilities with a lab, need ongoing lab requests
         // no need for historical ones on initial sync, and no need on mobile
         syncAllLabRequests: syncAllLabRequests && !isMobile && since > -1,
-        syncAllEncountersForTheseVaccines: isMobile
-          ? this.constructor.config.sync.syncAllEncountersForTheseVaccines
-          : [],
+        // TODO db config fetcher
+        syncAllEncountersForTheseVaccines: isMobile ? syncAllEncountersForTheseVaccines : [],
         isMobile,
       };
 
@@ -293,6 +299,7 @@ export class CentralSyncManager {
             sessionId,
             facilityId,
             {}, // sending empty session config because this snapshot attempt is only for syncing new marked for sync patients
+            this.settings,
           );
 
           // get changes since the last successful sync for all other synced patients and independent
@@ -312,6 +319,7 @@ export class CentralSyncManager {
             sessionId,
             facilityId,
             sessionConfig,
+            this.settings,
           );
 
           // any tables for full resync from (used when mobile needs to wipe and resync tables as
@@ -325,6 +333,7 @@ export class CentralSyncManager {
               sessionId,
               facilityId,
               sessionConfig,
+              this.settings,
             );
           }
 
@@ -448,7 +457,11 @@ export class CentralSyncManager {
       // tick tock global clock so that if records are modified by adjustDataPostSyncPush(),
       // they will be picked up for pulling in the same session (specifically won't be removed by removeEchoedChanges())
       await this.tickTockGlobalClock();
-      await adjustDataPostSyncPush(sequelize, modelsToInclude, sessionId);
+      await adjustDataPostSyncPush(
+        { sequelize, settings: this.settings },
+        modelsToInclude,
+        sessionId,
+      );
 
       // mark persisted so that client polling "completePush" can stop
       await models.SyncSession.update(

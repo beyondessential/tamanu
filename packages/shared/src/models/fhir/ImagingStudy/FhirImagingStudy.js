@@ -1,4 +1,3 @@
-import config from 'config';
 import { DataTypes } from 'sequelize';
 import * as yup from 'yup';
 
@@ -47,13 +46,14 @@ export class FhirImagingStudy extends FhirResource {
 
   // This is currently very hardcoded for Aspen's use case.
   // We'll need to make it more generic at some point, but not today!
-  async pushUpstream() {
+  async pushUpstream(settings) {
+    const dataDictionaries = await settings.get('hl7.dataDictionaries');
     const { FhirServiceRequest, ImagingRequest, ImagingResult } = this.sequelize.models;
 
     const results = this.note.map(n => n.text).join('\n\n');
 
     const imagingAccessCode = this.identifier.find(
-      i => i?.system === config.hl7.dataDictionaries.imagingStudyAccessionId,
+      i => i?.system === dataDictionaries.imagingStudyAccessionId,
     )?.value;
     if (!imagingAccessCode) {
       throw new Invalid('Need to have Accession Number identifier', {
@@ -68,12 +68,12 @@ export class FhirImagingStudy extends FhirResource {
     const serviceRequestId = this.basedOn.find(
       b =>
         b?.type === 'ServiceRequest' &&
-        b?.identifier?.system === config.hl7.dataDictionaries.serviceRequestImagingId,
+        b?.identifier?.system === dataDictionaries.serviceRequestImagingId,
     )?.identifier.value;
     const serviceRequestDisplayId = this.basedOn.find(
       b =>
         b?.type === 'ServiceRequest' &&
-        b?.identifier?.system === config.hl7.dataDictionaries.serviceRequestImagingDisplayId,
+        b?.identifier?.system === dataDictionaries.serviceRequestImagingDisplayId,
     )?.identifier.value;
 
     let upstreamRequest;

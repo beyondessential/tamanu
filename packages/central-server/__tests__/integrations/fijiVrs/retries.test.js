@@ -1,16 +1,20 @@
-import config from 'config';
 import { createTestContext } from '@tamanu/central-server/__tests__/utilities';
 import { VRSActionRetrier } from '@tamanu/central-server/app/tasks/VRSActionRetrier';
 import { prepareVRSMocks } from './sharedHookHelpers';
 
-const { host } = config.integrations.fijiVrs;
-
 describe('VRS integration - VRSActionRetrier', () => {
   let ctx;
+  let host;
   beforeAll(async () => {
     ctx = await createTestContext();
+    host = await ctx.settings.get('integrations.fijiVrs.host');
+    ctx.schedules = {
+      vrsActionRetrier: {
+        schedule: '',
+      },
+    };
   });
-  afterAll(async () => ctx.close());
+  afterAll(() => ctx.close());
 
   beforeEach(() => {
     // clear token before each test case

@@ -41,6 +41,10 @@
       "require": "./dist/cjs/services/logging/*.js",
       "import": "./dist/mjs/services/logging/*.js"
     },
+    "./settings/middleware": {
+      "require": "./dist/cjs/settings/middleware.js",
+      "import": "./dist/mjs/settings/middleware.js"
+    },
     "./sync/*": {
       "require": "./dist/cjs/sync/*.js",
       "import": "./dist/mjs/sync/*.js"

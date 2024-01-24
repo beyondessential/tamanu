@@ -3,19 +3,26 @@
   "version": "1.31.0",
   "private": true,
   "description": "BES - Settings",
-  "main": "./dist/cjs/index.js",
-  "module": "./dist/mjs/index.js",
+  "main": "dist/cjs/index.js",
+  "module": "dist/mjs/index.js",
   "exports": {
     ".": {
       "import": "./dist/mjs/index.js",
       "require": "./dist/cjs/index.js"
     },
-    "./*": {
-      "import": "./dist/mjs/*",
-      "require": "./dist/cjs/*"
+    "./cache": {
+      "import": "./dist/mjs/cache/index.js",
+      "require": "./dist/cjs/cache/index.js"
+    },
+    "./defaults": {
+      "import": "./dist/mjs/defaults/index.js",
+      "require": "./dist/cjs/defaults/index.js"
+    },
+    "./reader": {
+      "import": "./dist/mjs/reader/index.js",
+      "require": "./dist/cjs/reader/index.js"
     }
   },
-  "types": "./dist/index.d.ts",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
   "repository": "git@github.com:beyondessential/tamanu.git",
   "author": "Beyond Essential Systems Pty. Ltd.",

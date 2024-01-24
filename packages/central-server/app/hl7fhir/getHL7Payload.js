@@ -25,7 +25,7 @@ export async function getHL7Payload({
   toHL7List,
   extraOptions = {},
 }) {
-  const query = await parseQuery(req.query, querySchema);
+  const query = await parseQuery(req.query, querySchema, req.settings);
   const [, displayId] = decodeIdentifier(query['subject:identifier']);
   const { _count, _page, _sort, after } = query;
   const offset = _count * _page;

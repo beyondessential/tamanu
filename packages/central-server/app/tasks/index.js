@@ -1,4 +1,3 @@
-import config from 'config';
 import { log } from '@tamanu/shared/services/logging';
 
 import { PatientEmailCommunicationProcessor } from './PatientEmailCommunicationProcessor';
@@ -21,6 +20,10 @@ import { FhirMissingResources } from './FhirMissingResources';
 export { startFhirWorkerTasks } from './fhir';
 
 export async function startScheduledTasks(context) {
+  const { settings } = context;
+  const schedules = await settings.get('schedules');
+  const integrations = await settings.get('integrations');
+
   const taskClasses = [
     OutpatientDischarger,
     DeceasedPatientDischarger,
@@ -31,27 +34,27 @@ export async function startScheduledTasks(context) {
     FhirMissingResources,
   ];
 
-  if (config.schedules.automaticLabTestResultPublisher.enabled) {
+  if (schedules.automaticLabTestResultPublisher.enabled) {
     taskClasses.push(AutomaticLabTestResultPublisher);
   }
 
-  if (config.schedules.covidClearanceCertificatePublisher.enabled) {
+  if (schedules.covidClearanceCertificatePublisher.enabled) {
     taskClasses.push(CovidClearanceCertificatePublisher);
   }
 
-  if (config.integrations.fijiVrs.enabled) {
+  if (integrations.fijiVrs.enabled) {
     taskClasses.push(VRSActionRetrier);
   }
 
-  if (config.integrations.signer.enabled) {
+  if (integrations.signer.enabled) {
     taskClasses.push(SignerWorkingPeriodChecker, SignerRenewalChecker, SignerRenewalSender);
   }
 
-  if (config.schedules.plannedMoveTimeout.enabled) {
+  if (schedules.plannedMoveTimeout.enabled) {
     taskClasses.push(PlannedMoveTimeout);
   }
 
-  if (config.schedules.staleSyncSessionCleaner.enabled) {
+  if (schedules.staleSyncSessionCleaner.enabled) {
     taskClasses.push(StaleSyncSessionCleaner);
   }
 
@@ -60,7 +63,13 @@ export async function startScheduledTasks(context) {
     ...taskClasses.map(Task => {
       try {
         log.debug(`Starting to initialise scheduled task ${Task.name}`);
-        return new Task(context);
+        return new Task({
+          ...context,
+          schedules: {
+            ...schedules,
+            vrsActionRetrier: { schedule: integrations.fijiVrs.retrySchedule },
+          },
+        });
       } catch (err) {
         log.warn('Failed to initialise scheduled task', { name: Task.name, err });
         return null;
@@ -74,9 +83,10 @@ export async function startScheduledTasks(context) {
 
 async function getReportSchedulers(context) {
   const systemUser = await context.store.models.User.getSystemUser();
-
+  const { settings } = context;
   const schedulers = [];
-  for (const options of config.scheduledReports) {
+  const scheduledReports = await settings.get('scheduledReports');
+  for (const options of scheduledReports) {
     schedulers.push(
       new ReportRequestScheduler(context, { ...options, requestedByUserId: systemUser.id }),
     );

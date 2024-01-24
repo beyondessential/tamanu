@@ -4,6 +4,12 @@ export const globalTestSettings = {
     'alpha-2': 'UT',
     'alpha-3': 'UTO',
   },
+  fhir: {
+    worker: {
+      heartbeat: 400,
+      assumeDroppedAfter: '10 minutes',
+    },
+  },
   imagingTypes: {
     xRay: { label: 'X-Ray' },
     ctScan: { label: 'CT Scan' },
@@ -19,11 +25,6 @@ export const globalTestSettings = {
     colonoscopy: { label: 'Colonoscopy' },
     vascularStudy: { label: 'Vascular Study' },
     stressTest: { label: 'Treadmill' },
-  },
-  reportConfig: {
-    'encounter-summary-line-list': {
-      includedPatientFieldIds: ['test-field-id-1', 'test-field-id-2'],
-    },
   },
   survey: {
     defaultCodes: {

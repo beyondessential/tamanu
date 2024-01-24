@@ -1,3 +1,4 @@
+import { ReadSettings } from '@tamanu/settings';
 import config from 'config';
 import { EmailService } from './services/EmailService';
 import { closeDatabase, initDatabase, initReporting } from './database';
@@ -12,11 +13,15 @@ export class ApplicationContext {
 
   integrations = null;
 
+  settings = null;
+
   closeHooks = [];
 
   async init({ testMode } = {}) {
-    this.emailService = new EmailService();
     this.store = await initDatabase({ testMode });
+    this.settings = new ReadSettings(this.store.models);
+    this.emailService = new EmailService(this.settings);
+    await this.emailService.init();
     if (config.db.reportSchemas?.enabled) {
       this.reportSchemaStores = await initReporting();
     }

@@ -43,8 +43,8 @@ const columns = [
   {
     key: 'date',
     title: 'Date',
-    accessor: ({ date }, getLocalisation) =>
-      date ? getDisplayDate(date, undefined, getLocalisation) : 'Unknown',
+    accessor: ({ date }, getSetting) =>
+      date ? getDisplayDate(date, undefined, getSetting('countryTimeZone')) : 'Unknown',
   },
   {
     key: 'batch',
@@ -63,16 +63,16 @@ export const CovidVaccineCertificate = ({
   vdsSrc,
   logoSrc,
   uvci,
-  getLocalisation,
+  getSetting,
   extraPatientFields,
   printedDate,
 }) => {
-  const contactEmail = getLocalisation('templates.vaccineCertificate.emailAddress');
-  const contactNumber = getLocalisation('templates.vaccineCertificate.contactNumber');
-  const healthFacility = getLocalisation('templates.vaccineCertificate.healthFacility');
-  const countryCode = getLocalisation('country.alpha-2');
-  const countryName = getLocalisation('country.name');
-  const uvciFormat = getLocalisation('previewUvciFormat');
+  const contactEmail = getSetting('localisation.templates.vaccineCertificate.emailAddress');
+  const contactNumber = getSetting('localisation.templates.vaccineCertificate.contactNumber');
+  const healthFacility = getSetting('localisation.templates.vaccineCertificate.healthFacility');
+  const countryCode = getSetting('country.alpha-2');
+  const countryName = getSetting('country.name');
+  const uvciFormat = getSetting('previewUvciFormat');
 
   const data = vaccinations.map(vaccination => ({ ...vaccination, countryName, healthFacility }));
   const vaxes = vaccinations.filter(v => v.certifiable).sort(compareDateStrings('desc'));
@@ -84,18 +84,18 @@ export const CovidVaccineCertificate = ({
     <Document>
       <Page size="A4" style={styles.page}>
         {watermarkSrc && <Watermark src={watermarkSrc} />}
-        <CovidLetterheadSection getLocalisation={getLocalisation} logoSrc={logoSrc} />
+        <CovidLetterheadSection getSetting={getSetting} logoSrc={logoSrc} />
         <H3>COVID-19 Vaccine Certificate</H3>
         <CovidPatientDetailsSection
           patient={patient}
           vdsSrc={vdsSrc}
-          getLocalisation={getLocalisation}
+          getSetting={getSetting}
           certificateId={certificateId}
           extraFields={extraPatientFields}
           uvci={actualUvci}
         />
         <Box mb={20}>
-          <Table data={data} columns={columns} getLocalisation={getLocalisation} />
+          <Table data={data} columns={columns} getSetting={getSetting} />
         </Box>
         <Box>
           <Row>

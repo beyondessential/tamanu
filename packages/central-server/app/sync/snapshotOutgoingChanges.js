@@ -6,7 +6,6 @@ import {
 } from '@tamanu/shared/sync';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging/log';
-import { withConfig } from '@tamanu/shared/utils/withConfig';
 
 const snapshotChangesForModel = async (
   model,
@@ -15,7 +14,7 @@ const snapshotChangesForModel = async (
   sessionId,
   facilityId,
   sessionConfig,
-  config,
+  settings,
 ) => {
   log.debug('snapshotOutgoingChanges.beginCountingModel', {
     model: model.tableName,
@@ -23,7 +22,7 @@ const snapshotChangesForModel = async (
     sessionId,
   });
 
-  const CHUNK_SIZE = config.sync.maxRecordsPerPullSnapshotChunk;
+  const chunkSize = await settings.get('sync.maxRecordsPerPullSnapshotChunk');
   const modelHasPatientSyncFilter = !!model.buildPatientSyncFilter;
   const patientSyncFilter = modelHasPatientSyncFilter
     ? model.buildPatientSyncFilter(patientIds, sessionConfig)
@@ -106,7 +105,7 @@ const snapshotChangesForModel = async (
           // see e.g. Referral.buildSyncFilter
           patientIds,
           facilityId,
-          limit: CHUNK_SIZE,
+          limit: chunkSize,
           fromId,
         },
       },
@@ -127,47 +126,53 @@ const snapshotChangesForModel = async (
   return totalCount;
 };
 
-export const snapshotOutgoingChanges = withConfig(
-  async (outgoingModels, since, patientIds, sessionId, facilityId, sessionConfig, config) => {
-    const invalidModelNames = Object.values(outgoingModels)
-      .filter(
-        m =>
-          ![SYNC_DIRECTIONS.BIDIRECTIONAL, SYNC_DIRECTIONS.PULL_FROM_CENTRAL].includes(
-            m.syncDirection,
-          ),
-      )
-      .map(m => m.tableName);
+export const snapshotOutgoingChanges = async (
+  outgoingModels,
+  since,
+  patientIds,
+  sessionId,
+  facilityId,
+  sessionConfig,
+  settings,
+) => {
+  const invalidModelNames = Object.values(outgoingModels)
+    .filter(
+      m =>
+        ![SYNC_DIRECTIONS.BIDIRECTIONAL, SYNC_DIRECTIONS.PULL_FROM_CENTRAL].includes(
+          m.syncDirection,
+        ),
+    )
+    .map(m => m.tableName);
 
-    if (invalidModelNames.length) {
-      throw new Error(
-        `Invalid sync direction(s) when pulling these models from central: ${invalidModelNames}`,
+  if (invalidModelNames.length) {
+    throw new Error(
+      `Invalid sync direction(s) when pulling these models from central: ${invalidModelNames}`,
+    );
+  }
+
+  let changesCount = 0;
+
+  for (const model of Object.values(outgoingModels)) {
+    try {
+      const modelChangesCount = await snapshotChangesForModel(
+        model,
+        since,
+        patientIds,
+        sessionId,
+        facilityId,
+        sessionConfig,
+        settings,
       );
+
+      changesCount += modelChangesCount || 0;
+    } catch (e) {
+      log.error(`Failed to snapshot ${model.name}: `);
+      log.debug(e);
+      throw new Error(`Failed to snapshot ${model.name}: ${e.message}`);
     }
+  }
 
-    let changesCount = 0;
+  log.debug('snapshotOutgoingChanges.countedAll', { count: changesCount, since, sessionId });
 
-    for (const model of Object.values(outgoingModels)) {
-      try {
-        const modelChangesCount = await snapshotChangesForModel(
-          model,
-          since,
-          patientIds,
-          sessionId,
-          facilityId,
-          sessionConfig,
-          config,
-        );
-
-        changesCount += modelChangesCount || 0;
-      } catch (e) {
-        log.error(`Failed to snapshot ${model.name}: `);
-        log.debug(e);
-        throw new Error(`Failed to snapshot ${model.name}: ${e.message}`);
-      }
-    }
-
-    log.debug('snapshotOutgoingChanges.countedAll', { count: changesCount, since, sessionId });
-
-    return changesCount;
-  },
-);
+  return changesCount;
+};

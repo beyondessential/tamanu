@@ -1,7 +1,9 @@
+import { ReadSettings } from '@tamanu/settings';
 import { Command } from 'commander';
 
 import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
 import { log } from '@tamanu/shared/services/logging';
+import config from 'config';
 import { initDeviceId } from '../sync/initDeviceId';
 import { CentralServerConnection, FacilitySyncManager } from '../sync';
 import { ApplicationContext } from '../ApplicationContext';
@@ -14,8 +16,9 @@ async function sync({ delay: delaySecondsStr }) {
   const context = await new ApplicationContext().init();
 
   await initDeviceId(context);
-
-  context.centralServer = new CentralServerConnection(context);
+  const settings = new ReadSettings(context.models, config.serverFacilityId);
+  const syncConfig = await settings.get('sync');
+  context.centralServer = new CentralServerConnection({ ...context, settings }, syncConfig);
   context.centralServer.connect(); // preemptively connect central server to speed up sync
   context.syncManager = new FacilitySyncManager(context);
 

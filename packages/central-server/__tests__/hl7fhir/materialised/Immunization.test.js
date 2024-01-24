@@ -115,7 +115,10 @@ describe(`Materialised FHIR - Immunization`, () => {
         scheduledVaccine,
         administeredVaccine,
       } = await createAdministeredVaccineHierarchy(ctx.store.models);
-      const mat = await FhirImmunization.materialiseFromUpstream(administeredVaccine.id);
+      const mat = await FhirImmunization.materialiseFromUpstream(
+        administeredVaccine.id,
+        ctx.settings,
+      );
 
       const path = `/v1/integration/${INTEGRATION_ROUTE}/Immunization/${mat.id}`;
       const response = await app.get(path);
@@ -171,7 +174,10 @@ describe(`Materialised FHIR - Immunization`, () => {
       const { administeredVaccine } = await createAdministeredVaccineHierarchy(ctx.store.models);
       administeredVaccine.recorderId = null;
       await administeredVaccine.save();
-      const mat = await FhirImmunization.materialiseFromUpstream(administeredVaccine.id);
+      const mat = await FhirImmunization.materialiseFromUpstream(
+        administeredVaccine.id,
+        ctx.settings,
+      );
 
       const path = `/v1/integration/${INTEGRATION_ROUTE}/Immunization/${mat.id}`;
       const response = await app.get(path);
@@ -193,7 +199,7 @@ describe(`Materialised FHIR - Immunization`, () => {
 
       for (let i = 0; i < 2; i++) {
         const { administeredVaccine } = await createAdministeredVaccineHierarchy(ctx.store.models);
-        await FhirImmunization.materialiseFromUpstream(administeredVaccine.id);
+        await FhirImmunization.materialiseFromUpstream(administeredVaccine.id, ctx.settings);
       }
 
       const path = `/v1/integration/${INTEGRATION_ROUTE}/Immunization`;
@@ -218,7 +224,7 @@ describe(`Materialised FHIR - Immunization`, () => {
         const { patient, administeredVaccine } = await createAdministeredVaccineHierarchy(
           ctx.store.models,
         );
-        await FhirImmunization.materialiseFromUpstream(administeredVaccine.id);
+        await FhirImmunization.materialiseFromUpstream(administeredVaccine.id, ctx.settings);
         if (i === 0) {
           patientId = patient.id;
         }
@@ -237,14 +243,14 @@ describe(`Materialised FHIR - Immunization`, () => {
         ctx.store.models,
         true,
       );
-      await FhirImmunization.materialiseFromUpstream(administeredVaccine.id);
+      await FhirImmunization.materialiseFromUpstream(administeredVaccine.id, ctx.settings);
       const vaccineId = vaccine.id;
       const vaccineCode = vaccineId === 'drug-COVAX' ? 'COVAST' : 'COMIRN';
 
       const { administeredVaccine: otherAdmVx } = await createAdministeredVaccineHierarchy(
         ctx.store.models,
       );
-      await FhirImmunization.materialiseFromUpstream(otherAdmVx.id);
+      await FhirImmunization.materialiseFromUpstream(otherAdmVx.id, ctx.settings);
 
       const path = `/v1/integration/${INTEGRATION_ROUTE}/Immunization?vaccine-code=${vaccineCode}`;
       const response = await app.get(path);
@@ -281,7 +287,7 @@ describe(`Materialised FHIR - Immunization`, () => {
     it('returns some errors when passed wrong query params', async () => {
       const { FhirImmunization } = ctx.store.models;
       const { administeredVaccine } = await createAdministeredVaccineHierarchy(ctx.store.models);
-      await FhirImmunization.materialiseFromUpstream(administeredVaccine.id);
+      await FhirImmunization.materialiseFromUpstream(administeredVaccine.id, ctx.settings);
 
       const path = `/v1/integration/${INTEGRATION_ROUTE}/Immunization?_sort=id&_page=z&_count=x`;
       const response = await app.get(path);
@@ -327,7 +333,7 @@ describe(`Materialised FHIR - Immunization`, () => {
     it('returns an error if there are any unknown immunization params', async () => {
       const { FhirImmunization } = ctx.store.models;
       const { administeredVaccine } = await createAdministeredVaccineHierarchy(ctx.store.models);
-      await FhirImmunization.materialiseFromUpstream(administeredVaccine.id);
+      await FhirImmunization.materialiseFromUpstream(administeredVaccine.id, ctx.settings);
 
       const path = `/v1/integration/${INTEGRATION_ROUTE}/Immunization?whatever=something`;
       const response = await app.get(path);

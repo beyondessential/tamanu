@@ -147,7 +147,7 @@ describe(`Materialised FHIR - DiagnosticReport`, () => {
         labTestType,
         laboratory,
       } = await createLabTestHierarchy(ctx.store.models, patient);
-      const mat = await FhirDiagnosticReport.materialiseFromUpstream(labTest.id);
+      const mat = await FhirDiagnosticReport.materialiseFromUpstream(labTest.id, ctx.settings);
 
       const path = `/v1/integration/${INTEGRATION_ROUTE}/DiagnosticReport/${mat.id}`;
       const response = await app.get(path);
@@ -223,7 +223,7 @@ describe(`Materialised FHIR - DiagnosticReport`, () => {
 
       for (const patient of patients) {
         const { labTest } = await createLabTestHierarchy(ctx.store.models, patient);
-        await FhirDiagnosticReport.materialiseFromUpstream(labTest.id);
+        await FhirDiagnosticReport.materialiseFromUpstream(labTest.id, ctx.settings);
       }
 
       const path = `/v1/integration/${INTEGRATION_ROUTE}/DiagnosticReport`;
@@ -247,7 +247,7 @@ describe(`Materialised FHIR - DiagnosticReport`, () => {
         the ones that are actually possible.
       */
       await Promise.all([laboratory.destroy(), labTestMethod.destroy()]);
-      const mat = await FhirDiagnosticReport.materialiseFromUpstream(labTest.id);
+      const mat = await FhirDiagnosticReport.materialiseFromUpstream(labTest.id, ctx.settings);
 
       const path = `/v1/integration/${INTEGRATION_ROUTE}/DiagnosticReport/${mat.id}`;
       const response = await app.get(path);
@@ -278,7 +278,7 @@ describe(`Materialised FHIR - DiagnosticReport`, () => {
         labTestType,
         laboratory,
       } = await createLabTestHierarchy(ctx.store.models, patient);
-      const mat = await FhirDiagnosticReport.materialiseFromUpstream(labTest.id);
+      const mat = await FhirDiagnosticReport.materialiseFromUpstream(labTest.id, ctx.settings);
 
       const id = encodeURIComponent(`${IDENTIFIER_NAMESPACE}|${patient.displayId}`);
       const path = `/v1/integration/${INTEGRATION_ROUTE}/DiagnosticReport?subject%3Aidentifier=${id}`;
@@ -393,7 +393,7 @@ describe(`Materialised FHIR - DiagnosticReport`, () => {
       const { FhirDiagnosticReport, Patient } = ctx.store.models;
       const patient = await Patient.create(fake(Patient));
       const { labTest } = await createLabTestHierarchy(ctx.store.models, patient);
-      await FhirDiagnosticReport.materialiseFromUpstream(labTest.id);
+      await FhirDiagnosticReport.materialiseFromUpstream(labTest.id, ctx.settings);
 
       const path = `/v1/integration/${INTEGRATION_ROUTE}/DiagnosticReport?_sort=id&_page=z&_count=x`;
       const response = await app.get(path);
@@ -440,7 +440,7 @@ describe(`Materialised FHIR - DiagnosticReport`, () => {
       const { FhirDiagnosticReport, Patient } = ctx.store.models;
       const patient = await Patient.create(fake(Patient));
       const { labTest } = await createLabTestHierarchy(ctx.store.models, patient);
-      await FhirDiagnosticReport.materialiseFromUpstream(labTest.id);
+      await FhirDiagnosticReport.materialiseFromUpstream(labTest.id, ctx.settings);
 
       const path = `/v1/integration/${INTEGRATION_ROUTE}/DiagnosticReport?whatever=something`;
       const response = await app.get(path);

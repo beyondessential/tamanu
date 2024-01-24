@@ -17,9 +17,9 @@ describe('FHIR refresh handler', () => {
     ctx = await createTestContext();
     const { FhirEncounter } = ctx.store.models;
 
-    resources = await fakeResourcesOfFhirServiceRequest(ctx.store.models);
+    resources = await fakeResourcesOfFhirServiceRequest(ctx.store.models, ctx.settings);
 
-    await FhirEncounter.materialiseFromUpstream(resources.encounter.id);
+    await FhirEncounter.materialiseFromUpstream(resources.encounter.id, ctx.settings);
 
     imagingRequest = await fakeResourcesOfFhirServiceRequestWithImagingRequest(
       ctx.store.models,

@@ -1,5 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+
 import config from 'config';
 import * as yup from 'yup';
 import { addMinutes } from 'date-fns';
@@ -36,7 +37,7 @@ resetPassword.post(
       // so we return the same ok result
     } else {
       const token = await createOneTimeLogin(models, user);
-      await sendResetEmail(req.emailService, user, token);
+      await sendResetEmail(req.emailService, user, token, await req.settings.get('mailgun.from'));
     }
 
     return res.send({ ok: 'ok' });
@@ -57,7 +58,7 @@ const createOneTimeLogin = async (models, user) => {
   return token;
 };
 
-const sendResetEmail = async (emailService, user, token) => {
+const sendResetEmail = async (emailService, user, token, from) => {
   const emailText = `
       Hi ${user.displayName},
 
@@ -71,7 +72,7 @@ const sendResetEmail = async (emailService, user, token) => {
       tamanu.io`;
 
   const result = await emailService.sendEmail({
-    from: config.mailgun.from,
+    from,
     to: user.email,
     subject: 'Tamanu password reset',
     text: emailText,

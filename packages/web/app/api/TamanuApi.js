@@ -7,7 +7,7 @@ import { ForbiddenError, NotFoundError } from '@tamanu/shared/errors';
 import { LOCAL_STORAGE_KEYS } from '../constants';
 import { getDeviceId, notifyError } from '../utils';
 
-const { TOKEN, LOCALISATION, SERVER, PERMISSIONS, ROLE } = LOCAL_STORAGE_KEYS;
+const { HOST, TOKEN, LOCALISATION, SERVER, PERMISSIONS, ROLE, SETTINGS } = LOCAL_STORAGE_KEYS;
 
 const getResponseJsonSafely = async response => {
   try {
@@ -68,16 +68,18 @@ function restoreFromLocalStorage() {
   const server = safeGetStoredJSON(SERVER);
   const permissions = safeGetStoredJSON(PERMISSIONS);
   const role = safeGetStoredJSON(ROLE);
+  const settings = safeGetStoredJSON(SETTINGS);
 
-  return { token, localisation, server, permissions, role };
+  return { token, localisation, server, permissions, role, settings };
 }
 
-function saveToLocalStorage({ token, localisation, server, permissions, role }) {
+function saveToLocalStorage({ token, localisation, server, permissions, role, settings }) {
   localStorage.setItem(TOKEN, token);
   localStorage.setItem(LOCALISATION, JSON.stringify(localisation));
   localStorage.setItem(SERVER, JSON.stringify(server));
   localStorage.setItem(PERMISSIONS, JSON.stringify(permissions));
   localStorage.setItem(ROLE, JSON.stringify(role));
+  localStorage.setItem(SETTINGS, JSON.stringify(settings));
 }
 
 function clearLocalStorage() {
@@ -86,6 +88,7 @@ function clearLocalStorage() {
   localStorage.removeItem(SERVER);
   localStorage.removeItem(PERMISSIONS);
   localStorage.removeItem(ROLE);
+  localStorage.removeItem(SETTINGS);
 }
 
 export function isErrorUnknownDefault(error, response) {
@@ -129,7 +132,7 @@ export class TamanuApi {
   }
 
   async restoreSession() {
-    const { token, localisation, server, permissions, role } = restoreFromLocalStorage();
+    const { token, localisation, server, permissions, role, settings } = restoreFromLocalStorage();
     if (!token) {
       throw new Error('No stored session found.');
     }
@@ -138,7 +141,7 @@ export class TamanuApi {
     this.user = user;
     const ability = buildAbilityForUser(user, permissions);
 
-    return { user, token, localisation, server, ability, role };
+    return { user, token, localisation, server, ability, role, settings };
   }
 
   async login(email, password) {
@@ -163,10 +166,12 @@ export class TamanuApi {
       permissions,
       centralHost,
       role,
+      settings,
     } = await response.json();
     server.type = serverType;
     server.centralHost = centralHost;
-    saveToLocalStorage({ token, localisation, server, permissions, role });
+    saveToLocalStorage({ token, localisation, server, permissions, role, settings });
+
     this.setToken(token);
     this.lastRefreshed = Date.now();
 
@@ -174,7 +179,7 @@ export class TamanuApi {
     this.user = user;
     const ability = buildAbilityForUser(user, permissions);
 
-    return { user, token, localisation, server, ability, role };
+    return { user, token, localisation, server, ability, role, settings };
   }
 
   async requestPasswordReset(email) {

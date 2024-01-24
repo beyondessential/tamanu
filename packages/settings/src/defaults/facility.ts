@@ -1,8 +1,4 @@
 export const facilityDefaults = {
-  admin: {
-    allowAdminRoutes: false,
-  },
-  allowMismatchedTimeZones: false,
   countryTimeZone: 'Australia/Melbourne',
   debugging: {
     requestFailureRate: 0,
@@ -29,10 +25,6 @@ export const facilityDefaults = {
       // every day at 12:01 AM
       schedule: '1 0 * * *',
     },
-  },
-  senaite: {
-    enabled: false,
-    server: 'https://192.168.33.100',
   },
   sync: {
     backoff: {

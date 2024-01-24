@@ -19,7 +19,11 @@ const baseParameters = {
     .test(
       'is-correct-format-and-namespace',
       'subject:identifier must be in the format "<namespace>|<id>"',
-      isValidIdentifier,
+      async (val, { options }) => {
+        const { settings } = options.context;
+        const identifierNamespace = await settings.get('hl7.dataDictionaries.patientDisplayId');
+        return isValidIdentifier(val, identifierNamespace);
+      },
     ),
   _count: yup
     .number()
@@ -133,7 +137,11 @@ export const diagnosticReport = {
         .test(
           'is-correct-format-and-namespace',
           'subject:identifier must be in the format "<namespace>|<id>"',
-          isValidIdentifier,
+          async (val, { options }) => {
+            const { settings } = options.context;
+            const identifierNamespace = await settings.get('hl7.dataDictionaries.patientDisplayId');
+            return isValidIdentifier(val, identifierNamespace);
+          },
         )
         .required(),
       _include: yup

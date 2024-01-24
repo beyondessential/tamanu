@@ -1,3 +1,4 @@
+import '../utils/customYupMethods';
 import { resolve } from 'path';
 import { Command } from 'commander';
 
@@ -9,6 +10,7 @@ import {
 } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
 
+import { ReadSettings } from '@tamanu/settings';
 import { initDatabase } from '../database';
 import { checkIntegrationsConfig } from '../integrations';
 import { loadSettingFile } from '../utils/loadSettingFile';
@@ -30,7 +32,8 @@ export async function provision({ file: provisioningFile, skipIfNotNeeded }) {
     throw new Error(`Found ${userCount} users already in the database, aborting provision`);
   }
 
-  checkIntegrationsConfig();
+  const dbSettings = new ReadSettings(store.models);
+  await checkIntegrationsConfig(dbSettings);
 
   const {
     users = {},

@@ -12,6 +12,7 @@ import { MedicationDiscontinuer } from '../../dist/tasks/MedicationDiscontinuer'
 // It can't be done through test.json file in config because
 // local.json5 will have priority and will overwrite it.
 // Plus, it's better to have a unique facilityId to test this
+// TODO: DB defined
 jest.mock(
   'config',
   () => ({
@@ -45,6 +46,11 @@ describe('Encounter', () => {
   beforeAll(async () => {
     context = await createTestContext();
     models = context.models;
+    context.schedules = {
+      medicationDiscontinuer: {
+        schedule: '',
+      },
+    };
     await context.baseApp.asRole('practitioner');
     patient = await models.Patient.create(await createDummyPatient(models));
 

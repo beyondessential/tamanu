@@ -30,6 +30,9 @@ jest.mock('../../dist/database', () => ({
       SurveyResponseAnswer: {
         bulkCreate: jest.fn(),
       },
+      Setting: {
+        get: jest.fn().mockResolvedValue({}),
+      },
     },
     sequelize: {
       query: jest.fn(),

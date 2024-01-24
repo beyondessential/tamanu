@@ -1,7 +1,0 @@
-{
-  "db": {
-    "name": "tamanu-lan-test",
-    "migrateOnStartup": true
-  },
-  "serverFacilityId": "balwyn"
-}

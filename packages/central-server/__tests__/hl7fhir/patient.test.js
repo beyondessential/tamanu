@@ -24,6 +24,7 @@ describe('HL7 Patient', () => {
       store: {
         models,
       },
+      settings: ctx.settings,
     };
   });
 

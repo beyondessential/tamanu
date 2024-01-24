@@ -1,12 +1,15 @@
 import bodyParser from 'body-parser';
 import compression from 'compression';
 import config from 'config';
+
 import express from 'express';
 import path from 'path';
 
 import { getLoggingMiddleware } from '@tamanu/shared/services/logging';
 import { constructPermission } from '@tamanu/shared/permissions/middleware';
 import { SERVER_TYPES } from '@tamanu/constants';
+
+import { buildSettingsReader } from '@tamanu/shared/settings/middleware';
 
 import { buildRoutes } from './buildRoutes';
 import { authModule } from './auth';
@@ -38,8 +41,6 @@ export function createApp(ctx) {
     next();
   });
 
-  app.use(versionCompatibility);
-
   app.use((req, res, next) => {
     req.models = store.models; // cross-compatibility with facility for shared middleware
     req.store = store;
@@ -49,6 +50,9 @@ export function createApp(ctx) {
     req.ctx = ctx;
     next();
   });
+
+  app.use(buildSettingsReader);
+  app.use(versionCompatibility);
 
   // TODO: serve index page
   app.get('/$', (req, res) => {

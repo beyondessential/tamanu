@@ -29,6 +29,10 @@
       "path": "packages/settings"
     },
     {
+      "name": "constants",
+      "path": "packages/constants"
+    },
+    {
       "name": "shared",
       "path": "packages/shared"
     },

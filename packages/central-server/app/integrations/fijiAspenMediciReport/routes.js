@@ -5,14 +5,10 @@ import { upperFirst } from 'lodash';
 import { parseISO } from 'date-fns';
 import { formatInTimeZone } from 'date-fns-tz';
 import { FHIR_DATETIME_PRECISION } from '@tamanu/constants/fhir';
-import { formatFhirDate, parseDateTime } from '@tamanu/shared/utils/fhir/datetime';
-import config from 'config';
-
+import { parseDateTime, formatFhirDate } from '@tamanu/shared/utils/fhir/datetime';
 import { requireClientHeaders } from '../../middleware/requireClientHeaders';
 
 export const routes = express.Router();
-
-const COUNTRY_TIMEZONE = config?.countryTimeZone;
 
 // Workaround for this test changing from a hotfix, see EPI-483/484
 function formatDate(date) {
@@ -35,14 +31,14 @@ notes_info as (
         'noteType', note_type,
         'content', "content",
         'noteDate', "date"::timestamp at time zone $timezone_string
-      ) 
+      )
     ) aggregated_notes
   from notes
   group by record_id
 ),
 
 lab_test_info as (
-  select 
+  select
     lab_request_id,
     json_agg(
       json_build_object(
@@ -51,11 +47,11 @@ lab_test_info as (
     ) tests
   from lab_tests lt
   left join lab_test_types ltt on ltt.id = lt.lab_test_type_id
-  group by lab_request_id 
+  group by lab_request_id
 ),
 
 lab_request_info as (
-  select 
+  select
     encounter_id,
     json_agg(
       json_build_object(
@@ -85,7 +81,7 @@ procedure_info as (
   from "procedures" p
   left join reference_data proc ON proc.id = procedure_type_id
   left join locations loc on loc.id = location_id
-  group by encounter_id 
+  group by encounter_id
 ),
 
 medications_info as (
@@ -132,8 +128,8 @@ vaccine_info as (
       ) order by date desc
     ) "Vaccinations"
   from administered_vaccines av
-  join scheduled_vaccines sv on sv.id = av.scheduled_vaccine_id 
-  join reference_data drug on drug.id = sv.vaccine_id 
+  join scheduled_vaccines sv on sv.id = av.scheduled_vaccine_id
+  join reference_data drug on drug.id = sv.vaccine_id
   group by encounter_id
 ),
 
@@ -158,7 +154,7 @@ imaging_info as (
     ) "Imaging requests"
   from imaging_requests ir
   left join notes_info ni on ni.record_id = ir.id::varchar
-  left join imaging_areas_by_request iabr on iabr.imaging_request_id = ir.id 
+  left join imaging_areas_by_request iabr on iabr.imaging_request_id = ir.id
   group by encounter_id
 ),
 
@@ -192,20 +188,20 @@ note_history as (
   		regexp_matches(content, 'Changed (.*) from (.*) to (.*)') matched_vals
   	from notes
   ) matched_vals
-  on matched_vals.id = n.id 
+  on matched_vals.id = n.id
   where note_type = 'system'
   and n.content ~ 'Changed (.*) from (.*) to (.*)'
 ),
 
 department_info as (
-  select 
+  select
     e.id encounter_id,
     case when count("from") = 0
       then json_build_array(json_build_object(
         'department', d.name,
         'assignedTime', e.start_date::timestamp at time zone $timezone_string
       ))
-      else 
+      else
         array_to_json(json_build_object(
           'department', first_from, --first "from" from note
           'assignedTime', e.start_date::timestamp at time zone $timezone_string
@@ -235,7 +231,7 @@ department_info as (
 ),
 
 location_info as (
-  select 
+  select
     e.id encounter_id,
     case when count("from") = 0
       then json_build_array(json_build_object(
@@ -393,8 +389,8 @@ ORDER BY e.end_date DESC
 LIMIT $limit OFFSET $offset;
 `;
 
-const parseDateParam = date => {
-  const { plain: parsedDate } = parseDateTime(date, { withTz: COUNTRY_TIMEZONE });
+const parseDateParam = (date, timezone) => {
+  const { plain: parsedDate } = parseDateTime(date, { withTz: timezone });
   return parsedDate || null;
 };
 
@@ -410,20 +406,22 @@ routes.get(
       encounters,
       offset = 0,
     } = req.query;
-    if (!COUNTRY_TIMEZONE) {
-      throw new Error('A countryTimeZone must be configured in local.json5 for this report to run');
+    const timezone = await req.settings.get('countryTimeZone');
+
+    if (!timezone) {
+      throw new Error('A countryTimeZone must be configured in config for this report to run');
     }
 
     const data = await sequelize.query(reportQuery, {
       type: QueryTypes.SELECT,
       bind: {
-        from_date: parseDateParam(fromDate, COUNTRY_TIMEZONE),
-        to_date: parseDateParam(toDate, COUNTRY_TIMEZONE),
+        from_date: parseDateParam(fromDate, timezone),
+        to_date: parseDateParam(toDate, timezone),
         input_encounter_ids: encounters?.split(',') ?? [],
         billing_type: null,
         limit: parseInt(limit, 10),
         offset, // Should still be able to offset even with no limit
-        timezone_string: COUNTRY_TIMEZONE,
+        timezone_string: timezone,
       },
     });
 

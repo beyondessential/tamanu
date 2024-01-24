@@ -36,7 +36,7 @@ const SCOPED_KEY_TRANSFORM_MAPS = {
     'honeycomb.apiKey': null,
     'mailgun.apiKey': null,
     'integrations.signer.keySecret': null,
-    'integrations.omnilab.secret': null,
+    'integrations.omniLab.secret': null,
     'integrations.fijiVrs.username': null,
     'integrations.fijiVrs.password': null,
   },
@@ -67,8 +67,9 @@ const SCOPED_KEY_TRANSFORM_MAPS = {
 const prepareReplacementsForInsert = (settings, serverFacilityId, scope) => {
   // Transform settings that need to be moved or deleted
   Object.entries(SCOPED_KEY_TRANSFORM_MAPS[scope]).forEach(([oldKey, newKey]) => {
-    const value = has(settings, oldKey) && get(settings, oldKey);
-    if (value) {
+    const exists = has(settings, oldKey);
+    if (exists) {
+      const value = get(settings, oldKey);
       if (newKey) set(settings, newKey, value);
       unset(settings, oldKey);
     }
@@ -90,25 +91,10 @@ const prepareReplacementsForInsert = (settings, serverFacilityId, scope) => {
 export async function up(query) {
   const { serverFacilityId = null } = config;
 
-  // In the case of facility ci migration test run-through
-  // we need to skip this migration as it predates seeding
-  // of initial facility and will fail foreign key constraint
-  if (process.env.NODE_ENV === 'test' && serverFacilityId) {
-    const facility = await query.sequelize.query(
-      `
-        SELECT id
-        FROM facilities
-        WHERE id = :facilityId
-      `,
-      {
-        replacements: {
-          facilityId: serverFacilityId,
-        },
-        type: query.sequelize.QueryTypes.SELECT,
-      },
-    );
-    if (!facility.length) return;
-  }
+  // Tests seed settings after migrations
+  // This is so we don't have to keep config/test.json around to seed settings
+  // Test settings overrides are now defined in @tamanu/settings/test/{SETTINGS_SCOPE}
+  if (process.env.NODE_ENV === 'test') return;
 
   // Merge env specific config -> local if exists
   const localConfig = await [`config/${process.env.NODE_ENV}.json`, 'config/local.json'].reduce(

@@ -65,9 +65,11 @@ const getRefreshToken = async (models, { refreshSecret, userId, deviceId }) => {
 
 export const login = ({ secret, refreshSecret }) =>
   asyncHandler(async (req, res) => {
-    const { store, body } = req;
+    const { store, body, settings } = req;
     const { models } = store;
     const { email, password, facilityId, deviceId } = body;
+
+    const settingsObject = await settings.getAll();
 
     if (!email || !password) {
       throw new BadAuthenticationError('Missing credentials');
@@ -128,5 +130,6 @@ export const login = ({ secret, refreshSecret }) =>
       facility,
       localisation,
       centralHost: config.canonicalHostName,
+      settings: settingsObject,
     });
   });

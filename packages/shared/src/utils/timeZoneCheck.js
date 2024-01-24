@@ -5,10 +5,6 @@ function getSystemTimeZone() {
   return Intl.DateTimeFormat().resolvedOptions().timeZone;
 }
 
-function getConfigTimeZone(config) {
-  return config.countryTimeZone;
-}
-
 async function getDatabaseTimeZone(sequelize) {
   const rows = await sequelize.query(
     "SELECT setting FROM pg_settings WHERE name ILIKE 'timezone'",
@@ -33,10 +29,10 @@ async function getRemoteTimeZone(remote) {
   return null;
 }
 
-export async function performTimeZoneChecks({ config, sequelize, remote }) {
+export async function performTimeZoneChecks({ countryTimeZone, sequelize, remote }) {
   const zones = {
     system: getSystemTimeZone(),
-    config: getConfigTimeZone(config),
+    config: countryTimeZone,
     database: await getDatabaseTimeZone(sequelize),
   };
 
@@ -45,25 +41,11 @@ export async function performTimeZoneChecks({ config, sequelize, remote }) {
   }
 
   /*
-  TODO: 
-  When Sequelize connects to Postgres without an explicit timezone parameter, it causes 
-  it to report its timezone slightly weirdly (as '<+00>-00' rather than a named TZ).
+  The orginal check below was disabled as Sequelize connects to Postgres without an explicit timezone parameter,
+  it causes it to report its timezone slightly weirdly (as '<+00>-00' rather than a named TZ).
   But providing the timezone explicitly breaks some of our reports...! 
-  So just log the timezones for now and we perform the more rigid check once
-  we've sorted those issues out.
+  It likely should be reinstated at some point. but we fixed all of the problems 
+  that it was originally checking for so it's not urgent.
   */
   log.info('Checking timezone consistency', zones);
-  /*
-  const unique = new Set(Object.values(zones));
-  if (unique.size > 1) {
-    const errorText = `Detected mismatched time zones. Details: ${JSON.stringify(zones)}.`;
-    if (config.allowMismatchedTimeZones) {
-      log.warn(errorText);
-    } else {
-      throw new InvalidConfigError(
-        `${errorText} Please ensure these are consistent, or set config.allowMismatchedTimeZones to true.`,
-      );
-    }
-  }
-  */
 }

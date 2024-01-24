@@ -1,7 +1,4 @@
 export const centralTestSettings = {
-  cors: {
-    allowedOrigin: 'https://fake-place-xxx-yyy.com',
-  },
   disk: {
     freeSpaceRequired: {
       gigabytesForUploadingDocuments: 4,
@@ -29,6 +26,10 @@ export const centralTestSettings = {
     },
     fhir: {
       enabled: true,
+      worker: {
+        enabled: true,
+        concurrency: 1,
+      },
     },
     omniLab: {
       enabled: true,

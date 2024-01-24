@@ -14,7 +14,8 @@ async function mapErr(promise, fn) {
 
 export function createHandler(FhirResource) {
   return asyncHandler(async (req, res) => {
-    const { FhirMaterialiseJob } = req.store.models;
+    const { settings, store } = req;
+    const { FhirMaterialiseJob } = store.models;
 
     const validated = await mapErr(
       FhirResource.INTAKE_SCHEMA.shape({
@@ -31,7 +32,7 @@ export function createHandler(FhirResource) {
     );
 
     const resource = new FhirResource(validated);
-    const upstream = await resource.pushUpstream();
+    const upstream = await resource.pushUpstream(settings);
 
     if (FhirResource.CAN_DO.has(FHIR_INTERACTIONS.INTERNAL.MATERIALISE)) {
       FhirMaterialiseJob.enqueue({ resource: FhirResource.fhirName, upstreamId: upstream.id });
