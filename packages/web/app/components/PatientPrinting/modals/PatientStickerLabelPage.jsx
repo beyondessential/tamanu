@@ -8,7 +8,7 @@ import { useLocalisation } from '../../../contexts/Localisation';
 
 import { PrintPortal } from '../PrintPortal';
 import { PatientBarcode } from '../printouts/reusable/PatientBarcode';
-import { PDFViewer } from '../PDFViewer';
+import { PDFViewer, printPDF } from '../PDFViewer';
 import { IDLabelPrintout } from '../../../../../shared/src/utils/patientCertificates/IDLabelPrintout';
 import { Modal } from '../../Modal';
 
@@ -56,8 +56,7 @@ const LabelPage = styled.div`
   display: grid;
   padding-top: ${p => p.pageMarginTop};
   padding-left: ${p => p.pageMarginLeft};
-  howc
-  grid-template-columns: repeat(${p => p.columnTotal}, ${p => p.columnWidth});
+  howcgrid-template-columns: repeat(${p => p.columnTotal}, ${p => p.columnWidth});
   grid-template-rows: repeat(${p => p.rowTotal}, ${p => p.rowHeight});
   grid-column-gap: ${p => p.columnGap};
   grid-row-gap: ${p => p.rowGap};
@@ -73,7 +72,14 @@ export const PatientStickerLabelPage = React.memo(({ patient }) => {
   console.log(measures);
 
   return (
-    <Modal open={open} onClose={() => setOpen(false)} width="md" printable keepMounted>
+    <Modal
+      open={open}
+      onClose={() => setOpen(false)}
+      width="md"
+      printable
+      keepMounted
+      onPrint={() => printPDF('patient-label-printout')}
+    >
       {/* <Page {...measures}>
         <LabelPage {...measures}>
           {[...Array(30).keys()].map(x => (

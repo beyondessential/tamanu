@@ -3,6 +3,7 @@ import { Page, StyleSheet, View, Document } from '@react-pdf/renderer';
 import { DataItem } from './printComponents/DataItem';
 import { getDOB, getName, getSex } from '../patientAccessors';
 import { PrintableBarcode } from './printComponents/PrintableBarcode';
+import { P } from './Typography';
 
 const styles = StyleSheet.create({
   idLabel: {
@@ -27,7 +28,21 @@ const Col = props => <View style={styles.col} {...props} />;
 const IDLabel = ({ patient }) => {
   return (
     <View style={styles.idLabel}>
-      <Col>
+      <Row>
+        <PrintableBarcode width={128} barHeight={22} id={patient.displayId} />
+        <Col>
+          <P mb={0} fontSize={8}>
+            {getSex(patient)}
+          </P>
+          <P mb={0} fontSize={8}>
+            {getDOB(patient)}
+          </P>
+        </Col>
+      </Row>
+      <P mb={0} fontSize={8}>
+        {getName(patient)}
+      </P>
+      {/* <Col>
         <Row>
           <Col>
             <DataItem label="Name" value={getName(patient)} fontSize={10} />
@@ -39,7 +54,7 @@ const IDLabel = ({ patient }) => {
           </Col>
         </Row>
         <PrintableBarcode width={136} barHeight={51} id={patient.displayId} />
-      </Col>
+      </Col> */}
     </View>
   );
 };
@@ -60,7 +75,7 @@ export const IDLabelPrintout = ({ patient, measures }) => {
       display: 'flex',
       flexWrap: 'wrap',
       flexDirection: 'row',
-      width: '100%'
+      width: '100%',
     },
     gridItem: {
       width: `${100 / measures.columnTotal}%`,
@@ -77,7 +92,7 @@ export const IDLabelPrintout = ({ patient, measures }) => {
           paddingHorizontal: measures.pageMarginLeft,
         }}
       >
-        <View style={pageStyles.grid} debug>
+        <View style={pageStyles.grid}>
           {[...Array(30)].map((_, i) => (
             <View style={pageStyles.gridItem} key={`label-${i}`}>
               <IDLabel patient={patient} key={i} />
