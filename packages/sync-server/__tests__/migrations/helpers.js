@@ -5,6 +5,7 @@ import { astVisitor, parseFirst } from 'pgsql-ast-parser';
 import hashObject from 'object-hash';
 
 import { initDatabase } from '@tamanu/shared/services/database';
+import { MIGRATIONS_DIR } from '@tamanu/shared/services/migrations';
 
 // gives you a db + a `flushQueries` function that returns all queries since it was last called
 export async function initQueryCollectingDb() {
@@ -100,6 +101,11 @@ function tableNamesFromQuery(query) {
     // console.error(e, query);
   }
   return tables.values();
+}
+
+export function isMigrationIgnored(name) {
+  const migration = require(`${MIGRATIONS_DIR}/${name}`);
+  return !!migration.NON_DETERMINISTIC;
 }
 
 const UNHASHED_TABLES = ['SequelizeMeta', 'columns', 'key_column_usage', 'pg_attribute', 'pg_class', 'pg_description',

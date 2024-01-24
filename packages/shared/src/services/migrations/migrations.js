@@ -6,9 +6,10 @@ import { runPostMigration } from './runPostMigration';
 // before this, we just cut our losses and accept irreversible migrations
 const LAST_REVERSIBLE_MIGRATION = '048_changeNoteRecordTypeColumn.js';
 
+export const MIGRATIONS_DIR = path.join(__dirname, '../..', 'migrations');
+
 export function createMigrationInterface(log, sequelize) {
   // ie, shared/src/migrations
-  const migrationsDir = path.join(__dirname, '../..', 'migrations');
 
   // Double check the migrations directory exists (should catch any issues
   // arising out of build systems omitting the migrations dir, for eg)

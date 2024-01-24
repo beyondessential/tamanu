@@ -14,7 +14,8 @@ export async function regenerateData(name, origs, models) {
 export async function generateData(models) {
   const { Department, Encounter, Facility, Location, EncounterHistory,
     Patient, User, Note, PatientBirthData, SurveyScreenComponent, ReportDefinition,
-    ReportDefinitionVersion, LabRequestLog, LabRequest, UserPreference } = models;
+    ReportDefinitionVersion, LabRequestLog, LabRequest, UserPreference,
+    ProgramDataElement } = models;
 
   const examiner = await User.create(fake(User));
   const patient = await Patient.create(fake(Patient));
@@ -94,6 +95,9 @@ export async function generateData(models) {
     fake(UserPreference, {
       userId: examiner.id
     })
+  );
+  await ProgramDataElement.create(
+    fake(ProgramDataElement)
   );
 
   return { userPreference: userPreference.dataValues };

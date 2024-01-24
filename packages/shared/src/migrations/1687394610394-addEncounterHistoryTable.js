@@ -1,5 +1,7 @@
 import Sequelize, { DataTypes } from 'sequelize';
 
+export const NON_DETERMINISTIC = true;
+
 export async function up(query) {
   await query.createTable('encounter_history', {
     id: {

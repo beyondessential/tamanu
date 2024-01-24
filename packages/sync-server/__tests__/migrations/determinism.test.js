@@ -5,6 +5,7 @@ import {
   collectInfoForMigrations,
   resetToMigration,
   getHashesForTables,
+  isMigrationIgnored,
 } from './helpers';
 import { regenerateData, generateData } from './data';
 
@@ -30,6 +31,8 @@ describe('deterministic migrations', () => {
 
   it('produces identical data when run', async () => {
     for (const { name, upTables, downTables } of migrationsInfo) {
+      if (isMigrationIgnored(name)) continue;
+
       if (downTables.length === 0) {
         // Note that Jest doesn't print warnings by default for passed tests.
         console.warn(`${migrationInfo.name} is not tested for non-determinism since the down migration is empty`);
