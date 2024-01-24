@@ -50,46 +50,12 @@ const customStyles = {
   }),
 };
 
-const LANGUAGE_FIELD_NAME = 'language';
-
-const getInitialLanguage = languageOptions => {
-  const storedLanguage = localStorage.getItem(LANGUAGE_LOCAL_STORAGE_KEY) || null;
-  const localeLanguageCode = navigator.language;
-  const isLocaleLanguageCodeInOptions = languageOptions.some(
-    ({ value }) => value === localeLanguageCode,
-  );
-  const genericLanguageCode = localeLanguageCode.split('-')[0];
-  const isGenericLanguageCodeInOptions = languageOptions.some(
-    ({ value }) => value === genericLanguageCode,
-  );
-
-  return (
-    storedLanguage ||
-    (isLocaleLanguageCodeInOptions && localeLanguageCode) ||
-    (isGenericLanguageCodeInOptions && genericLanguageCode) ||
-    ENGLISH_LANGUAGE_CODE
-  );
-};
-
-export const LanguageSelector = ({ setFieldValue }) => {
+export const LanguageSelector = ({ field }) => {
   const api = useApi();
-  const [selectedLanguage, setSelectedLanguage] = useState(null);
 
   const { data: languageOptions = [], error } = useQuery(['languageList'], () =>
     api.get('translation/preLogin'),
   );
-
-  const initialLanguage = getInitialLanguage(languageOptions);
-
-  useEffect(() => {
-    setFieldValue(LANGUAGE_FIELD_NAME, initialLanguage);
-    setSelectedLanguage(initialLanguage);
-  }, [setFieldValue, initialLanguage]);
-
-  const onChangeLanguage = event => {
-    setSelectedLanguage(event.target.value);
-    setFieldValue(LANGUAGE_FIELD_NAME, event.target.value);
-  };
 
   // If multiple languages not implemented, no need for this component to show
   if (languageOptions.length <= 1) return null;
@@ -97,14 +63,12 @@ export const LanguageSelector = ({ setFieldValue }) => {
   return (
     <LanguageSelectorContainer>
       <SelectInput
-        value={selectedLanguage}
-        onChange={onChangeLanguage}
         options={languageOptions}
         label="Language"
-        name="languageCode"
         isClearable={false}
         error={!!error}
         customStyleObject={customStyles}
+        {...field}
       />
     </LanguageSelectorContainer>
   );

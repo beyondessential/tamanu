@@ -138,6 +138,7 @@ export const LoginView = () => {
     // redux-thunk definitely returns a promise, and this works
     await dispatch(login(email, password));
     dispatch(restartPasswordResetFlow());
+
     localStorage.setItem(LOCAL_STORAGE_KEYS.LANGUAGE, language);
   };
 
