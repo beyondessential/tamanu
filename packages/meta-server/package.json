@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/meta-server",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "private": true,
   "description": "Meta server for Tamanu",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
@@ -15,7 +15,7 @@
     "test": "NODE_ENV=test jest",
     "setup-dev": "node dist setup",
     "shell": "yarn build && node dist shell",
-    "start-watch": "chokidar --initial \"dist/**/*.js\" \"config/**/*\" -c \"yarn run start\"",
+    "start-watch": "nodemon \"dist/**/*.js\"",
     "test-watch": "yarn test --watch",
     "build-watch": "yarn run build --watch",
     "start-dev": "concurrently npm:build-watch npm:start-watch"

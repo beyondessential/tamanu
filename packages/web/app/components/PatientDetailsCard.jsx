@@ -2,7 +2,9 @@ import React from 'react';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 
-import { Colors, SEX_VALUE_INDEX } from '../constants';
+import { SEX_VALUE_INDEX } from '@tamanu/constants';
+
+import { Colors } from '../constants';
 import { DateDisplay } from '.';
 
 const Card = styled(Box)`
