@@ -75,14 +75,8 @@ export const LanguageSelector = ({ setFieldValue }) => {
   const api = useApi();
   const [selectedLanguage, setSelectedLanguage] = useState(null);
 
-  const storedHost = localStorage.getItem('host') || null;
-
-  const { data: languageOptions = [], error } = useQuery(
-    ['languageList'],
-    () => api.get('translation/preLogin'),
-    {
-      enabled: !!storedHost,
-    },
+  const { data: languageOptions = [], error } = useQuery(['languageList'], () =>
+    api.get('translation/preLogin'),
   );
 
   const initialLanguage = getInitialLanguage(languageOptions);
