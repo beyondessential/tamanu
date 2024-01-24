@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 
 import styled from 'styled-components';
 
@@ -8,6 +8,7 @@ import { BaseModal } from './BaseModal';
 import { ModalCancelRow } from './ModalActionRow';
 import { Colors } from '../constants';
 import { PlusIcon } from '../assets/icons/PlusIcon';
+import { AddReminderContactModal } from './AddReminderContactModal';
 
 const StyledText = styled.p`
   margin-bottom: 33px;
@@ -111,9 +112,13 @@ export const ContactDetails = ({ name }) => {
 export const ReminderContactModal = ({ openReminderModal, handleClose, patient = {} }) => {
   const [openAddReminderContactModal, setOpenAddReminderContactModal] = useState(false);
 
-  const handleAddReminderContactModal = () => {
+  const handleAddReminderContactModal = useCallback(() => {
     setOpenAddReminderContactModal(true)
-  }
+  }, []);
+
+  const handleCloseAddRemindersModal = useCallback(() => {
+    setOpenAddReminderContactModal(false);
+  }, []);
 
   return (
     <BaseModal
@@ -134,6 +139,11 @@ export const ReminderContactModal = ({ openReminderModal, handleClose, patient =
         Add contact
       </StyledButton>
       <ModalCancelRow confirmText="Close" confirmColor="primary" onConfirm={handleClose} />
+      <AddReminderContactModal
+        openAddReminderContactModal={openAddReminderContactModal}
+        handleClose={handleCloseAddRemindersModal}
+        patient={patient}
+      />
     </BaseModal>
   );
 };
