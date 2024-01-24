@@ -12,7 +12,7 @@ export async function regenerateData(name, origs, models) {
 }
 
 export async function generateData(models) {
-  const { Department, Encounter, Facility, Location,
+  const { Department, Encounter, Facility, Location, EncounterHistory,
     Patient, User, Note, PatientBirthData, SurveyScreenComponent, ReportDefinition,
     ReportDefinitionVersion, LabRequestLog, LabRequest, UserPreference } = models;
 
