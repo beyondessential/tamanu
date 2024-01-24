@@ -8,8 +8,8 @@ import { SelectInput } from './Field';
 
 const LanguageSelectorContainer = styled.div`
   position: absolute;
-  bottom: 17px;
-  left: 17px;
+  bottom: 35px;
+  right: 17px;
   border-bottom: 0.1px solid ${Colors.primary};
   width: 143px;
   .label-field {
@@ -50,52 +50,12 @@ const customStyles = {
   }),
 };
 
-const LANGUAGE_FIELD_NAME = 'language';
-
-const getInitialLanguage = languageOptions => {
-  const storedLanguage = localStorage.getItem(LOCAL_STORAGE_KEYS.LANGUAGE) || null;
-  const localeLanguageCode = navigator.language;
-  const isLocaleLanguageCodeInOptions = languageOptions.some(
-    ({ value }) => value === localeLanguageCode,
-  );
-  const genericLanguageCode = localeLanguageCode.split('-')[0];
-  const isGenericLanguageCodeInOptions = languageOptions.some(
-    ({ value }) => value === genericLanguageCode,
-  );
-
-  return (
-    storedLanguage ||
-    (isLocaleLanguageCodeInOptions && localeLanguageCode) ||
-    (isGenericLanguageCodeInOptions && genericLanguageCode) ||
-    ENGLISH_LANGUAGE_CODE
-  );
-};
-
-export const LanguageSelector = ({ setFieldValue }) => {
+export const LanguageSelector = ({ field }) => {
   const api = useApi();
-  const [selectedLanguage, setSelectedLanguage] = useState(null);
 
-  const storedHost = localStorage.getItem(LOCAL_STORAGE_KEYS.HOST) || null;
-
-  const { data: languageOptions = [], error } = useQuery(
-    ['languageList'],
-    () => api.get('translation/preLogin'),
-    {
-      enabled: !!storedHost,
-    },
+  const { data: languageOptions = [], error } = useQuery(['languageList'], () =>
+    api.get('translation/preLogin'),
   );
-
-  const initialLanguage = getInitialLanguage(languageOptions);
-
-  useEffect(() => {
-    setFieldValue(LANGUAGE_FIELD_NAME, initialLanguage);
-    setSelectedLanguage(initialLanguage);
-  }, [setFieldValue, initialLanguage]);
-
-  const onChangeLanguage = event => {
-    setSelectedLanguage(event.target.value);
-    setFieldValue(LANGUAGE_FIELD_NAME, event.target.value);
-  };
 
   // If multiple languages not implemented, no need for this component to show
   if (languageOptions.length <= 1) return null;
@@ -103,14 +63,12 @@ export const LanguageSelector = ({ setFieldValue }) => {
   return (
     <LanguageSelectorContainer>
       <SelectInput
-        value={selectedLanguage}
-        onChange={onChangeLanguage}
         options={languageOptions}
         label="Language"
-        name="languageCode"
         isClearable={false}
         error={!!error}
         customStyleObject={customStyles}
+        {...field}
       />
     </LanguageSelectorContainer>
   );

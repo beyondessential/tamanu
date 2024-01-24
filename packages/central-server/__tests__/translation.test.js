@@ -1,4 +1,4 @@
-import { fake } from 'shared/test-helpers/fake';
+import { fake } from '@tamanu/shared/test-helpers/fake';
 import Chance from 'chance';
 import { createTestContext } from './utilities';
 

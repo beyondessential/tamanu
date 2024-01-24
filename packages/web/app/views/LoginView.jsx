@@ -120,7 +120,7 @@ export const LoginView = () => {
   const isSupportUrlLoaded = !!supportUrl;
 
   const submitLogin = async data => {
-    const { email, password, rememberMe } = data;
+    const { email, password, rememberMe, language } = data;
 
     // If a different user logs in, reset patient state and navigate to index
     if (email !== api.user?.email) {
@@ -138,6 +138,8 @@ export const LoginView = () => {
     // redux-thunk definitely returns a promise, and this works
     await dispatch(login(email, password));
     dispatch(restartPasswordResetFlow());
+
+    localStorage.setItem(LOCAL_STORAGE_KEYS.LANGUAGE, language);
   };
 
   return (
