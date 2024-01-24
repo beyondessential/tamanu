@@ -37,7 +37,7 @@ const OngoingConditionDisplay = memo(({ patient, readonly }) => (
     patient={patient}
     readonly={readonly}
     id={PANE_SECTION_IDS.CONDITIONS}
-    title={FAMILY_HISTORY_TITLE}
+    title={CONDITIONS_TITLE}
     endpoint="ongoingCondition"
     getEndpoint={`patient/${patient.id}/conditions`}
     Form={OngoingConditionForm}
@@ -66,7 +66,7 @@ const FamilyHistoryDisplay = memo(({ patient, readonly }) => (
     patient={patient}
     readonly={readonly}
     id={PANE_SECTION_IDS.FAMILY_HISTORY}
-    title={CONDITIONS_TITLE}
+    title={FAMILY_HISTORY_TITLE}
     endpoint="familyHistory"
     getEndpoint={`patient/${patient.id}/familyHistory`}
     Form={FamilyHistoryForm}
