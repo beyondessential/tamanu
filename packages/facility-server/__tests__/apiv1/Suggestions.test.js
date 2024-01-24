@@ -1,9 +1,15 @@
-import { LOCATION_AVAILABILITY_STATUS, SURVEY_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import {
+  LAB_REQUEST_STATUSES,
+  LOCATION_AVAILABILITY_STATUS,
+  SURVEY_TYPES,
+  VISIBILITY_STATUSES,
+} from '@tamanu/constants';
 import {
   buildDiagnosis,
   createDummyEncounter,
   createDummyPatient,
   randomRecords,
+  randomLabRequest,
   splitIds,
 } from '@tamanu/shared/demoData';
 import { fake, findOneOrCreate } from '@tamanu/shared/test-helpers';
@@ -212,6 +218,82 @@ describe('Suggestions', () => {
       expect(result).toHaveSucceeded();
       expect(result?.body?.length).toEqual(1);
       expect(result.body[0].facilityId).toEqual(facility.id);
+    });
+  });
+
+  // Labs has functionality for only returning categories that have results for a particular patient
+  describe('patientLabTestCategories', () => {
+    let patientId;
+
+    beforeAll(async () => {
+      await models.ReferenceData.destroy({ where: { type: 'labTestCategory' } });
+      await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        name: 'AA-decoy1',
+        type: 'labTestCategory',
+      });
+      await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        name: 'BB-decoy2',
+        type: 'labTestCategory',
+      });
+      const { id: unpublishedCategoryId } = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        name: 'AA-unpublished',
+        type: 'labTestCategory',
+      });
+      const { id: usedCategoryId } = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        name: 'AA-used',
+        type: 'labTestCategory',
+      });
+      patientId = (await models.Patient.create(await createDummyPatient(models))).id;
+
+      const { id: encounterId } = await models.Encounter.create(
+        await createDummyEncounter(models, { patientId }),
+      );
+
+      await models.LabRequest.createWithTests(
+        await randomLabRequest(models, {
+          labTestCategoryId: unpublishedCategoryId,
+          status: LAB_REQUEST_STATUSES.RESULTS_PENDING,
+          encounterId,
+        }),
+      );
+      await models.LabRequest.createWithTests(
+        await randomLabRequest(models, {
+          labTestCategoryId: usedCategoryId,
+          status: LAB_REQUEST_STATUSES.PUBLISHED,
+          encounterId,
+        }),
+      );
+    });
+
+    it('should not filter if there is no patient id', async () => {
+      const result = await userApp
+        .get('/v1/suggestions/patientLabTestCategories')
+        .query({ q: 'AA' });
+      expect(result).toHaveSucceeded();
+      expect(result?.body?.length).toEqual(3);
+    });
+
+    it('should filter lab test categories by use', async () => {
+      const result = await userApp.get('/v1/suggestions/patientLabTestCategories').query({
+        patientId,
+        status: LAB_REQUEST_STATUSES.PUBLISHED,
+      });
+      expect(result).toHaveSucceeded();
+      expect(result?.body?.length).toEqual(1);
+      expect(result.body[0].name).toEqual('AA-used');
+    });
+
+    it('should escape the query params', async () => {
+      const result = await userApp.get('/v1/suggestions/patientLabTestCategories').query({
+        q: `bobby tables'; drop all '' $$ \\';`,
+        patientId: `bobby tables'; drop all '' $$ \\';`,
+      });
+      expect(result).toHaveSucceeded();
+      expect(result?.body?.length).toEqual(0);
     });
   });
 
