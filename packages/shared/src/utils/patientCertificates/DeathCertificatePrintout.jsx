@@ -2,13 +2,14 @@ import PropTypes from 'prop-types';
 import React from 'react';
 
 import { Document, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
-import { getName, getDOBWithAge, getTimeOfDeath, getDateOfDeath } from '../patientAccessors';
+import { getName, getTimeOfDeath, getDateOfDeath, getSex } from '../patientAccessors';
 import { CertificateHeader, Col, Row, styles } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
 import { Footer } from './printComponents/Footer';
 import { MultiPageHeader } from './printComponents/MultiPageHeader';
 import { renderDataItems } from './printComponents/renderDataItems';
 import { P } from './Typography';
+import { getDisplayDate } from './getDisplayDate';
 
 const borderStyle = '1 solid black';
 const tableLabelWidth = 250;
@@ -167,20 +168,22 @@ const causeOfDeathAccessor = ({ causes }) => {
   const causeOfDeath = getCauseName(causes?.primary);
   return causeOfDeath;
 };
+export const getDOB = ({ dateOfBirth }, getLocalisation) =>
+  dateOfBirth ? getDisplayDate(dateOfBirth, 'dd.MM.yyyy', getLocalisation) : 'Unknown';
 
 const HEADER_FIELDS = {
   leftCol: [
     { key: 'firstName', label: 'First name' },
-    { key: 'dateOfBirth', label: 'DOB', accessor: getDOBWithAge },
-    { key: 'dateOfDeath', label: 'Date of death', accessor: getDateOfDeath },
+    { key: 'dateOfBirth', label: 'DOB', accessor: getDOB },
+    { key: 'deathDate', label: 'Date of death', accessor: getDateOfDeath },
     { key: 'timeOfDeath', label: 'Time of death', accessor: getTimeOfDeath },
     { key: 'printedBy', label: 'Printed by' },
   ],
   rightCol: [
     { key: 'lastName', label: 'Last name' },
-    { key: 'displayId', label: 'Patient ID' },
+    { key: 'sex', label: 'Sex', acessor: getSex },
     { key: 'placeOfDeath', label: 'Place of death', accessor: placeOfDeathAccessor },
-    { key: 'lastName', label: 'Cause of death', accessor: causeOfDeathAccessor },
+    { key: 'causeOfDeath', label: 'Cause of death', accessor: causeOfDeathAccessor },
   ],
 };
 
