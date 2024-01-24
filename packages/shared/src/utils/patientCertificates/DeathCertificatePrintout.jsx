@@ -84,7 +84,6 @@ const infoBoxStyles = StyleSheet.create({
 
 const signStyles = StyleSheet.create({
   container: {
-    backgroundColor: '#d9d9d9',
     padding: signContainerPadding,
     marginVertical: 30,
     marginHorizontal: 16,
