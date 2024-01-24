@@ -6,7 +6,6 @@ import { SEX_VALUE_INDEX } from '@tamanu/constants';
 import { DateDisplay } from '../../DateDisplay';
 import { useLocalisation } from '../../../contexts/Localisation';
 
-import { PrintPortal } from '../PrintPortal';
 import { PatientBarcode } from '../printouts/reusable/PatientBarcode';
 import { PDFViewer, printPDF } from '../PDFViewer';
 import { IDLabelPrintout } from '../../../../../shared/src/utils/patientCertificates/IDLabelPrintout';

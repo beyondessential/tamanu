@@ -18,6 +18,9 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     flexGrow: 1,
   },
+  text: {
+    color: '#444444',
+  },
 });
 
 const Row = props => <View style={styles.row} {...props} />;
@@ -33,17 +36,17 @@ const IDLabel = ({ patient }) => {
           fontSize={10}
           barcodeStyle={{ margin: 0, marginBottom: 2, textAlign: 'left' }}
         />
-        <Col style={{ marginTop: '1mm' }}>
-          <P mb={2} fontSize={10} style={{ marginLeft: '2mm', color: '#444444' }}>
+        <Col style={{ marginTop: '1mm', marginLeft: '2mm' }}>
+          <P mb={2} fontSize={10} style={styles.text}>
             {getSex(patient)}
           </P>
-          <P mb={0} fontSize={10} style={{ marginLeft: '2mm', color: '#444444' }}>
+          <P mb={0} fontSize={10} style={styles.text}>
             {getDOB(patient)}
           </P>
         </Col>
       </Row>
       <Col>
-        <P mb={0} mt={2} fontSize={10} style={{ color: '#444444' }}>
+        <P mb={0} mt={2} fontSize={10} style={styles.text}>
           {getName(patient)}
         </P>
       </Col>
