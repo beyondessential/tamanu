@@ -1,8 +1,5 @@
-import { fake } from 'shared/test-helpers/fake';
-import Chance from 'chance';
+import { fake } from '@tamanu/shared/test-helpers/fake';
 import { createTestContext } from './utilities';
-
-const chance = new Chance();
 
 const LANGUAGE_CODES = {
   ENGLISH: 'en',
