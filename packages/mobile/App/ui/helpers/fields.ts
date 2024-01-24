@@ -33,9 +33,7 @@ export const PatientFieldDefinitionTypes = {
   NUMBER: 'number',
   SELECT: 'select',
 };
-export const PatientFieldDefinitionTypeValues = Object.values(
-  PatientFieldDefinitionTypes,
-);
+export const PatientFieldDefinitionTypeValues = Object.values(PatientFieldDefinitionTypes);
 
 export const getStringValue = (type: string, value: any): string => {
   switch (type) {
@@ -272,4 +270,20 @@ export function checkMandatory(mandatory: boolean | Record<string, any>, values:
   }
 
   return checkJSONCriteria(JSON.stringify(mandatory), [], values);
+}
+
+// also update getNameColumnForModel in /packages/facility-server/app/routes/apiv1/surveyResponse.js when this changes
+export function getNameColumnForModel(modelName: string): string {
+  switch (modelName) {
+    case 'User':
+      return 'displayName';
+    default:
+      return 'name';
+  }
+}
+
+// also update getDisplayNameForModel in /packages/facility-server/app/routes/apiv1/surveyResponse.js when this changes
+export function getDisplayNameForModel(modelName: string, record: any): string {
+  const columnName = getNameColumnForModel(modelName);
+  return record[columnName] || record.id;
 }

@@ -42,7 +42,7 @@ function readSurveyInfo(workbook, surveyInfo) {
 }
 
 export async function importSurvey(context, workbook, surveyInfo) {
-  const { sheetName, surveyType } = surveyInfo;
+  const { sheetName, surveyType, programId } = surveyInfo;
 
   if (surveyType === SURVEY_TYPES.VITALS) {
     await validateVitalsSurvey(context, surveyInfo);
@@ -51,9 +51,16 @@ export async function importSurvey(context, workbook, surveyInfo) {
   const records = readSurveyInfo(workbook, surveyInfo);
   const stats = validateProgramDataElementRecords(records, { context, sheetName });
 
-  return importRows(context, {
-    sheetName,
-    rows: records,
-    stats,
-  });
+  return importRows(
+    context,
+    {
+      sheetName,
+      rows: records,
+      stats,
+    },
+    {
+      models: context.models,
+      programId,
+    },
+  );
 }

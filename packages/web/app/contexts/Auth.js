@@ -19,7 +19,8 @@ export const useAuth = () => {
     localStorage.removeItem(LOCAL_STORAGE_KEYS.TOKEN);
     // removes items from cache but doesn't trigger a re-render
     // because the login screen doesn't have any queries on it, this should be fine
-    queries.removeQueries();
+    // Excluding serverAlive query which only should fire on first load
+    queries.removeQueries({ predicate: ({ queryKey }) => queryKey[0] !== 'serverAlive' });
     resetNoteContext();
   };
 
