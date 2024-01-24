@@ -35,17 +35,14 @@ const Tabs = createBottomTabNavigator();
 interface TabIconProps {
   Icon: FC<IconWithSizeProps>;
   focusedColor: string;
+  strokeColor: string;
   color: string;
 }
 
-export function TabIcon({ Icon, color, focusedColor }: TabIconProps): JSX.Element {
+export function TabIcon({ Icon, color, focusedColor, strokeColor }: TabIconProps): JSX.Element {
   return (
     <StyledView>
-      <Icon
-        fill={color}
-        focusedColor={focusedColor}
-        size={screenPercentageToDP(3.03, Orientation.Height)}
-      />
+      <Icon fill={color} focusedColor={focusedColor} strokeColor={strokeColor} />
     </StyledView>
   );
 }
@@ -53,6 +50,7 @@ export function TabIcon({ Icon, color, focusedColor }: TabIconProps): JSX.Elemen
 const TabScreenIcon = (Icon: FC<SvgProps>) => (props: {
   focused: boolean;
   focusedColor: string;
+  strokeColor: string;
   color: string;
 }): ReactElement => <TabIcon Icon={Icon} {...props} />;
 
@@ -82,13 +80,14 @@ const MoreScreenOptions: BottomTabNavigationOptions = {
   tabBarTestID: 'MORE',
 };
 
-const tabLabelFontSize = screenPercentageToDP(1.21, Orientation.Height);
+// const tabLabelFontSize = screenPercentageToDP(1.21, Orientation.Height);
 
 function MyTabBar({ state, descriptors, navigation }: BottomTabBarProps): ReactElement {
   return (
     <StyledSafeAreaView background={theme.colors.PRIMARY_MAIN}>
       <RowView
-        height={screenPercentageToDP(6.5, Orientation.Height)}
+        // height={screenPercentageToDP(6.5, Orientation.Height)}
+        height={65}
         background={theme.colors.PRIMARY_MAIN}
         justifyContent="center"
         alignItems="center"
@@ -124,7 +123,7 @@ function MyTabBar({ state, descriptors, navigation }: BottomTabBarProps): ReactE
           };
 
           return (
-            <StyledView key={route.key} flex={1}>
+            <StyledView key={route.key} flex={1} paddingTop={13} paddingBottom={13}>
               <StyledTouchableOpacity
                 onPress={onPress}
                 onLongPress={onLongPress}
@@ -140,10 +139,11 @@ function MyTabBar({ state, descriptors, navigation }: BottomTabBarProps): ReactE
                   Icon({
                     focused: isFocused,
                     focusedColor: isFocused ? theme.colors.SECONDARY_MAIN : theme.colors.WHITE,
+                    strokeColor: isFocused ? theme.colors.PRIMARY_MAIN : theme.colors.WHITE,
                     color: isFocused ? theme.colors.SECONDARY_MAIN : 'none',
-                    size: screenPercentageToDP(3.03, Orientation.Height),
                   })}
-                <StyledText color={theme.colors.WHITE} marginTop={3} fontSize={tabLabelFontSize}>
+                {/* <StyledText color={theme.colors.WHITE} fontSize={tabLabelFontSize} fontWeight={500}> */}
+                <StyledText color={theme.colors.WHITE} fontSize={12} fontWeight={500}>
                   {label}
                 </StyledText>
               </StyledTouchableOpacity>

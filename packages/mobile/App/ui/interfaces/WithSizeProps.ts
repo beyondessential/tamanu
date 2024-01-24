@@ -5,4 +5,5 @@ export interface IconWithSizeProps extends SvgProps {
   background?: string;
   fill?: string;
   focusedColor?: string;
+  strokeColor?: string;
 }
