@@ -15,7 +15,6 @@ const borderStyle = '1 solid black';
 const tableLabelWidth = 250;
 const tablePadding = 10;
 const dataColPadding = 10;
-const signContainerPadding = 20;
 
 const generalStyles = StyleSheet.create({
   container: {
@@ -23,14 +22,16 @@ const generalStyles = StyleSheet.create({
     marginVertical: 8,
   },
   tableContainer: {
-    marginTop: 30
+    marginTop: 30,
   },
   sectionContainer: {
     marginVertical: 7,
   },
 });
 
-const TableContainer = props => <View style={[generalStyles.container, generalStyles.tableContainer]} {...props} />;
+const TableContainer = props => (
+  <View style={[generalStyles.container, generalStyles.tableContainer]} {...props} />
+);
 
 const infoBoxStyles = StyleSheet.create({
   row: {
@@ -84,7 +85,7 @@ const infoBoxStyles = StyleSheet.create({
 
 const signStyles = StyleSheet.create({
   container: {
-    padding: signContainerPadding,
+    paddingBottom: 20,
     marginVertical: 30,
     marginHorizontal: 16,
   },
@@ -92,28 +93,27 @@ const signStyles = StyleSheet.create({
     fontFamily: 'Helvetica-Bold',
     fontSize: 12,
     fontWeight: 500,
-    lineHeight: 1
+    lineHeight: 1,
   },
   line: {
     flex: 1,
     borderBottom: '1 solid black',
     height: 14,
-    marginLeft: 5
+    marginLeft: 5,
   },
-  row:{
+  row: {
     flexDirection: 'row',
-    paddingTop: 20
+    paddingTop: 20,
   },
-  leftCol:{
+  leftCol: {
     flexDirection: 'row',
     width: 300,
-    paddingRight: 20
+    paddingRight: 20,
   },
-  rightCol:{
+  rightCol: {
     flexDirection: 'row',
     flex: 1,
-  }
-
+  },
 });
 
 const InfoBoxRow = props => <View style={infoBoxStyles.row} {...props} />;
@@ -127,11 +127,11 @@ const UnderlinedField = ({ text, label, helperText, ...props }) => {
   return (
     <View {...props}>
       <Row>
-        {label && <Text style={infoBoxStyles.infoText}>{label}) </Text>}
+        {label && <Text style={infoBoxStyles.infoText}>({label}) </Text>}
         <UnderlinedText text={text}> </UnderlinedText>
       </Row>
       {helperText && (
-        <Text style={[infoBoxStyles.boldText, infoBoxStyles.smallMarginTop]}>{helperText}</Text>
+        <Text style={[infoBoxStyles.infoText, infoBoxStyles.smallMarginTop]}>{helperText}</Text>
       )}
     </View>
   );
@@ -218,6 +218,7 @@ export const DeathCertificatePrintout = React.memo(
                     HEADER_FIELDS.leftCol,
                     { ...certificateData, ...patientData },
                     getLocalisation,
+                    12,
                   )}
                 </Col>
                 <Col>
@@ -225,6 +226,7 @@ export const DeathCertificatePrintout = React.memo(
                     HEADER_FIELDS.rightCol,
                     { ...certificateData, ...patientData },
                     getLocalisation,
+                    12,
                   )}
                 </Col>
               </Row>
@@ -295,8 +297,8 @@ export const DeathCertificatePrintout = React.memo(
           </TableContainer>
           <View style={generalStyles.container}>
             <Text style={infoBoxStyles.italicText}>
-              * This does not mean the mode of dying, e.g heart failure, respiratory failure. It means
-              the disease, injury, or complication that caused death.
+              * This does not mean the mode of dying, e.g heart failure, respiratory failure. It
+              means the disease, injury, or complication that caused death.
             </Text>
           </View>
           <AuthorisedAndSignSection />

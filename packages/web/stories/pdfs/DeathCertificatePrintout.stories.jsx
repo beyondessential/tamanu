@@ -183,7 +183,7 @@ const patientData = {
   pregnancy: null,
   fetalOrInfant: false,
 };
-export const DeathCertificateData = {
+export const DeathCertificatePrintout = {
   render: () => (
     <PDFViewer width={800} height={1000} showToolbar={false}>
       <Component
