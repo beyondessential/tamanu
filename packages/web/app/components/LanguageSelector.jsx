@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { useQuery } from '@tanstack/react-query';
-import { ENGLISH_LANGUAGE_CODE } from '@tamanu/constants';
-import { LOCAL_STORAGE_KEYS, Colors } from '../constants';
+import { Colors } from '../constants';
 import { useApi } from '../api';
 import { SelectInput } from './Field';
 
@@ -53,8 +52,10 @@ const customStyles = {
 export const LanguageSelector = ({ field }) => {
   const api = useApi();
 
+  const isCentralServer = false; // currently only works for facility server. We need to find a way to check on login screen if it's central server or not
+
   const { data: languageOptions = [], error } = useQuery(['languageList'], () =>
-    api.get('translation/preLogin'),
+    api.get(`${isCentralServer ? 'public/' : ''}translation/preLogin`),
   );
 
   // If multiple languages not implemented, no need for this component to show
