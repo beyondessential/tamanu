@@ -9,7 +9,6 @@ const getActualDateTime = ({ date, startTime }) => {
   // Both date and startTime only keep track of either date or time, accordingly.
   // This grabs both relevant parts for the table.
   const actualDateTime = date.slice(0, -8).concat(startTime.slice(-8));
-  console.log(actualDateTime); // Remove before merge
   return <DateDisplay date={actualDateTime} />
 };
 
