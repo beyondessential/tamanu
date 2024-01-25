@@ -2,13 +2,13 @@ import React, { useCallback, useState } from 'react';
 
 import styled from 'styled-components';
 
-import { Button } from './Button';
-import { DataFetchingTable } from './Table';
-import { BaseModal } from './BaseModal';
-import { ModalCancelRow } from './ModalActionRow';
-import { Colors } from '../constants';
 import { PlusIcon } from '../assets/icons/PlusIcon';
+import { Colors } from '../constants';
 import { AddReminderContactModal } from './AddReminderContactModal';
+import { BaseModal } from './BaseModal';
+import { Button } from './Button';
+import { ModalCancelRow } from './ModalActionRow';
+import { DataFetchingTable } from './Table';
 
 const StyledText = styled.p`
   margin-bottom: 33px;
@@ -109,11 +109,13 @@ export const ContactDetails = ({ name }) => {
   );
 };
 
-export const ReminderContactModal = ({ openReminderModal, handleClose, patient = {} }) => {
+export const ReminderContactModal = ({ openReminderModal, handleCloseReminderModal, patient = {} }) => {
   const [openAddReminderContactModal, setOpenAddReminderContactModal] = useState(false);
 
   const handleAddReminderContactModal = useCallback(() => {
-    setOpenAddReminderContactModal(true)
+    handleCloseReminderModal();
+    setOpenAddReminderContactModal(true);
+
   }, []);
 
   const handleCloseAddRemindersModal = useCallback(() => {
@@ -121,29 +123,32 @@ export const ReminderContactModal = ({ openReminderModal, handleClose, patient =
   }, []);
 
   return (
-    <BaseModal
-      width="md"
-      title="Reminder contacts"
-      open={openReminderModal}
-      cornerExitButton={false}
-    >
-      <ContactDetails name={`${patient?.firstName} ${patient?.lastName}`} />
-
-      <StyledButton
-        variant="outlined"
-        color="primary"
-        size="small"
-        onClick={handleAddReminderContactModal}
+    <>
+      <BaseModal
+        width="md"
+        title="Reminder contacts"
+        open={openReminderModal}
+        onClose={handleCloseReminderModal}
       >
-        <PlusIcon fill={Colors.primary} />
-        Add contact
-      </StyledButton>
-      <ModalCancelRow confirmText="Close" confirmColor="primary" onConfirm={handleClose} />
+        <ContactDetails name={`${patient?.firstName} ${patient?.lastName}`} />
+
+        <StyledButton
+          variant="outlined"
+          color="primary"
+          size="small"
+          onClick={handleAddReminderContactModal}
+        >
+          <PlusIcon fill={Colors.primary} />
+          Add contact
+        </StyledButton>
+        <ModalCancelRow confirmText="Close" confirmColor="primary" onConfirm={handleCloseReminderModal} />
+
+      </BaseModal>
       <AddReminderContactModal
         openAddReminderContactModal={openAddReminderContactModal}
-        handleClose={handleCloseAddRemindersModal}
+        handleCloseAddReminder={handleCloseAddRemindersModal}
         patient={patient}
       />
-    </BaseModal>
+    </>
   );
 };

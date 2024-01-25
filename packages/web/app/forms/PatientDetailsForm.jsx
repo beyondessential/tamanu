@@ -1,22 +1,18 @@
+import { useQuery } from '@tanstack/react-query';
+import { groupBy, isEmpty } from 'lodash';
 import React, { Fragment, useCallback, useState } from 'react';
 import styled from 'styled-components';
-import { groupBy, isEmpty } from 'lodash';
-import { useQuery } from '@tanstack/react-query';
 
-import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
+import NotificationsNoneIcon from '@material-ui/icons/NotificationsNone';
 import {
+  PATIENT_FIELD_DEFINITION_TYPES,
   PATIENT_REGISTRY_TYPES,
   PLACE_OF_BIRTH_TYPES,
   SEX_OPTIONS,
-  PATIENT_FIELD_DEFINITION_TYPES,
 } from '@tamanu/constants';
-import NotificationsNoneIcon from '@material-ui/icons/NotificationsNone';
+import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
 
-import { useSexValues } from '../hooks';
-import { Colors } from '../constants';
-import { useLocalisation } from '../contexts/Localisation';
 import { useApi, useSuggester } from '../api';
-import { getPatientDetailsValidation } from '../validations';
 import {
   AutocompleteField,
   Button,
@@ -32,7 +28,6 @@ import {
   SelectField,
   TextField,
 } from '../components';
-import { LoadingIndicator } from '../components/LoadingIndicator';
 import {
   BirthDetailsFields,
   ContactInformationFields,
@@ -40,8 +35,13 @@ import {
   LocationInformationFields,
   PersonalInformationFields,
 } from '../components/ConfiguredMandatoryPatientFields';
-import { useAuth } from '../contexts/Auth';
+import { LoadingIndicator } from '../components/LoadingIndicator';
 import { ReminderContactModal } from '../components/ReminderContactModal';
+import { Colors } from '../constants';
+import { useAuth } from '../contexts/Auth';
+import { useLocalisation } from '../contexts/Localisation';
+import { useSexValues } from '../hooks';
+import { getPatientDetailsValidation } from '../validations';
 
 const StyledHeading = styled.div`
 display: flex;
@@ -87,18 +87,18 @@ export const PrimaryDetailsGroup = ({ values = {}, patientRegistryType }) => {
   const isRequiredPatientData = fieldName =>
     getLocalisation(`fields.${fieldName}.requiredPatientData`);
 
-    const handleOpenRemindersModal = useCallback(() => {
-      setOpenReminderModal(true);
-    }, []);
-  
-    const handleCloseRemindersModal = useCallback(() => {
-      setOpenReminderModal(false);
-    }, []);
+  const handleOpenRemindersModal = useCallback(() => {
+    setOpenReminderModal(true);
+  }, []);
+
+  const handleCloseRemindersModal = useCallback(() => {
+    setOpenReminderModal(false);
+  }, []);
 
   return (
     <>
       <StyledHeading>
-      <StyledHeadingText>General information</StyledHeadingText>
+        <StyledHeadingText>General information</StyledHeadingText>
         {canReadReminderContacts && (
           <StyledButton
             variant="outlined"
@@ -113,7 +113,7 @@ export const PrimaryDetailsGroup = ({ values = {}, patientRegistryType }) => {
       </StyledHeading>
       <ReminderContactModal
         openReminderModal={openReminderModal}
-        handleClose={handleCloseRemindersModal}
+        handleCloseReminderModal={handleCloseRemindersModal}
         patient={values}
       />
 
