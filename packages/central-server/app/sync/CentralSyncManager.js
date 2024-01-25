@@ -275,6 +275,9 @@ export class CentralSyncManager {
         'syncTheseProgramRegistries',
         facilityId,
       );
+      const syncAllEncountersForTheseVaccines = await models.Setting.get(
+        'syncAllEncountersForTheseVaccines',
+      );
       const sessionConfig = {
         // for facilities with a lab, need ongoing lab requests
         // no need for historical ones on initial sync, and no need on mobile

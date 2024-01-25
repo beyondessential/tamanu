@@ -61,7 +61,6 @@ export async function importSurvey(context, workbook, surveyInfo) {
     {
       models: context.models,
       programId,
-      settings,
     },
   );
 }
