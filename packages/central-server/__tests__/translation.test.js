@@ -1,8 +1,5 @@
 import { fake } from '@tamanu/shared/test-helpers/fake';
-import Chance from 'chance';
 import { createTestContext } from './utilities';
-
-const chance = new Chance();
 
 const LANGUAGE_CODES = {
   ENGLISH: 'en',
@@ -45,7 +42,7 @@ describe('translations', () => {
       language: LANGUAGE_CODES.KHMER,
     });
 
-    const result = await app.get('/v1/translation/preLogin');
+    const result = await app.get('/v1/admin/translation/preLogin');
     expect(result).toHaveSucceeded();
 
     const expectedResult = [

@@ -10,7 +10,7 @@ export const translationRouter = express.Router();
 
 translationRouter.use(ensurePermissionCheck);
 
-translationRouter.get('/translation/preLogin', async (req, res) => {
+translationRouter.get('/preLogin', async (req, res) => {
   req.flagPermissionChecked();
   const response = await getLanguageOptions(req.models, req.headers['if-none-match']);
   if (response === NOT_MODIFIED_STATUS_CODE) {
