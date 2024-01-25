@@ -16,14 +16,14 @@ export function createMigrationInterface(log, sequelize) {
   // Note that Umzug will throw if the directory is missing, but won't report
   // errors if the directory is empty - so this is maybe overcautious, but, it's
   // just a few ms on startup, we'll be ok.
-  const migrationFiles = readdirSync(migrationsDir);
+  const migrationFiles = readdirSync(MIGRATIONS_DIR);
   if (migrationFiles.length === 0) {
     throw new Error('Could not find migrations');
   }
 
   const umzug = new Umzug({
     migrations: {
-      path: migrationsDir,
+      path: MIGRATIONS_DIR,
       params: [sequelize.getQueryInterface()],
       wrap: updown => (...args) => sequelize.transaction(() => updown(...args)),
     },
