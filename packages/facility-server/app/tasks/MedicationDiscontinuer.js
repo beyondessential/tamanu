@@ -13,8 +13,8 @@ export class MedicationDiscontinuer extends ScheduledTask {
 
   constructor(context, isDebug) {
     const { schedules } = context;
-    const { jitterTime } = config.schedules.medicationDiscontinuer;
-    super(schedules.medicationDiscontinuer.schedule, log, jitterTime);
+    const { jitterTime, schedule } = schedules.medicationDiscontinuer;
+    super(schedule, log, jitterTime);
     this.models = context.models;
     this.sequelize = context.sequelize;
 

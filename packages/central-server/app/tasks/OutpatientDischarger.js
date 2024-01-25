@@ -1,5 +1,3 @@
-import config from 'config';
-
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import {
@@ -16,11 +14,10 @@ export class OutpatientDischarger extends ScheduledTask {
 
   constructor(context, overrideConfig = null) {
     const { schedules, settings } = context;
-    const { schedule, suppressInitialRun } = {
+    const { schedule, suppressInitialRun, jitterTime } = {
       ...schedules.outpatientDischarger,
       ...overrideConfig,
     };
-    const { jitterTime } = config.schedules.outpatientDischarger;
     super(schedule, log, jitterTime);
     this.settings = settings;
     this.overrides = overrideConfig;

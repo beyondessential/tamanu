@@ -1,4 +1,3 @@
-import config from 'config';
 import { format } from 'date-fns';
 import { Op, Sequelize } from 'sequelize';
 
@@ -7,8 +6,8 @@ import { log } from '@tamanu/shared/services/logging';
 
 export class SignerRenewalSender extends ScheduledTask {
   constructor({ store, settings, schedules, emailService }) {
-    const { jitterTime } = config.schedules.signerRenewalSender;
-    super(schedules.signerRenewalSender.schedule, log, jitterTime);
+    const { jitterTime, schedule } = schedules.signerRenewalSender;
+    super(schedule, log, jitterTime);
     this.emailService = emailService;
     this.settings = settings;
     this.models = store.models;

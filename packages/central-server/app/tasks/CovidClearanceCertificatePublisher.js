@@ -1,5 +1,3 @@
-import config from 'config';
-
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import {
   getCovidClearanceCertificateFilter,
@@ -18,8 +16,8 @@ export class CovidClearanceCertificatePublisher extends ScheduledTask {
 
   constructor(context) {
     const { schedules } = context;
-    const { jitterTime } = config.schedules.covidClearanceCertificatePublisher;
-    super(schedules.covidClearanceCertificatePublisher.schedule, log, jitterTime);
+    const { schedule, jitterTime } = schedules.covidClearanceCertificatePublishe;
+    super(schedule, log, jitterTime);
     this.models = context.store.models;
     this.settings = context.settings;
   }

@@ -1,4 +1,3 @@
-import config from 'config';
 import { Op, Sequelize } from 'sequelize';
 
 import { ScheduledTask } from '@tamanu/shared/tasks';
@@ -6,8 +5,8 @@ import { log } from '@tamanu/shared/services/logging';
 
 export class SignerWorkingPeriodChecker extends ScheduledTask {
   constructor({ store, schedules }) {
-    const { jitterTime } = config.schedules.signerWorkingPeriodChecker;
-    super(schedules.signerWorkingPeriodChecker.schedule, log, jitterTime);
+    const { jitterTime, schedule } = schedule.signerWorkingPeriodChecker;
+    super(schedules, log, jitterTime);
     this.models = store.models;
   }
 

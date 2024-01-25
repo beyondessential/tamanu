@@ -1,4 +1,3 @@
-import config from 'config';
 import { Op } from 'sequelize';
 
 import { ScheduledTask } from '@tamanu/shared/tasks';
@@ -8,8 +7,8 @@ import { newKeypairAndCsr } from '../integrations/Signer';
 export class SignerRenewalChecker extends ScheduledTask {
   constructor(context) {
     const { schedules, settings, store } = context;
-    const { jitterTime } = config.schedules.signerRenewalChecker;
-    super(schedules.signerRenewalChecker.schedule, log, jitterTime);
+    const { jitterTime, schedule } = schedules.signerRenewalChecker;
+    super(schedule, log, jitterTime);
     this.settings = settings;
     this.models = store.models;
     this.runImmediately();

@@ -1,5 +1,4 @@
 import sequelize from 'sequelize';
-import config from 'config';
 import { spawn } from 'child_process';
 
 import { REPORT_REQUEST_STATUSES } from '@tamanu/constants';
@@ -15,7 +14,7 @@ export class ReportRequestProcessor extends ScheduledTask {
   }
 
   constructor({ schedules, settings, store, emailService, reportsSchemasStore }) {
-    const { jitterTime } = config.schedules.reportRequestProcessor;
+    const { jitterTime, schedule } = schedules.reportRequestProcessor;
     super(schedules.reportRequestProcessor.schedule, log, jitterTime);
     this.settings = settings;
     this.store = store;

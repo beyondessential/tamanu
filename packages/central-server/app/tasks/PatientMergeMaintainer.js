@@ -1,6 +1,4 @@
 /* eslint camelcase: ["error", { allow: ["^specificUpdate_"] }] */
-import config from 'config';
-
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import { NOTE_RECORD_TYPES } from '@tamanu/constants/notes';
@@ -23,8 +21,7 @@ export class PatientMergeMaintainer extends ScheduledTask {
 
   constructor(context, overrideConfig = null) {
     const { schedules, store } = context;
-    const { jitterTime } = config.schedules.patientMergeMaintainer;
-    const schedule = overrideConfig?.schedule || schedules.patientMergeMaintainer.schedule;
+    const { schedule, jitterTime } = overrideConfig || schedules.patientMergeMaintainer;
     super(schedule, log, jitterTime);
     this.models = store.models;
   }
