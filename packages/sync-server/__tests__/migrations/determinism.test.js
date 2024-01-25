@@ -35,7 +35,7 @@ describe('deterministic migrations', () => {
 
       if (downTables.length === 0) {
         // Note that Jest doesn't print warnings by default for passed tests.
-        console.warn(`${migrationInfo.name} is not tested for non-determinism since the down migration is empty`);
+        console.warn(`${name} is not tested for non-determinism since the down migration is empty`);
       }
 
       // collect hash info
