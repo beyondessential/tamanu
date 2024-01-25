@@ -9,6 +9,8 @@ import { DateDisplay } from '../../DateDisplay';
 import { PatientBarcode } from '../printouts/reusable/PatientBarcode';
 import { PrintPortal } from '../PrintPortal';
 import { Modal } from '../../Modal';
+import { PDFViewer, printPDF } from '../PDFViewer';
+import { IDCardPrintout } from '@tamanu/shared/utils/patientCertificates';
 
 const cardDimensions = {
   width: 85.6,
@@ -153,8 +155,18 @@ export const PatientIDCardPage = React.memo(({ patient, imageData }) => {
   // });
 
   return (
-    <Modal open={open} onClose={() => setOpen(false)} width="md" printable keepMounted>
-      <Card {...measures}>
+    <Modal
+      open={open}
+      onClose={() => setOpen(false)}
+      width="md"
+      printable
+      keepMounted
+      onPrint={() => printPDF('patient-card-printout')}
+    >
+      <PDFViewer id="patient-card-printout">
+        <IDCardPrintout cardDimensions={cardDimensions} patientImageData={imageData} measures={measures} />
+      </PDFViewer>
+      {/* <Card {...measures}>
         <TopBar />
         <MainSection>
           <PhotoContainer>
@@ -173,7 +185,7 @@ export const PatientIDCardPage = React.memo(({ patient, imageData }) => {
           <PatientBarcode patient={patient} width="43mm" height="5.9mm" />
         </BarcodeRow>
         <BottomBar />
-      </Card>
+      </Card> */}
     </Modal>
   );
 });

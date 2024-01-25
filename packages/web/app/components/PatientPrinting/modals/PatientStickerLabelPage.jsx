@@ -8,7 +8,7 @@ import { useLocalisation } from '../../../contexts/Localisation';
 
 import { PatientBarcode } from '../printouts/reusable/PatientBarcode';
 import { PDFViewer, printPDF } from '../PDFViewer';
-import { IDLabelPrintout } from '../../../../../shared/src/utils/patientCertificates/IDLabelPrintout';
+import { IDLabelPrintout } from '@tamanu/shared/utils/patientCertificates';
 import { Modal } from '../../Modal';
 
 const Sticker = styled.div`
@@ -68,8 +68,6 @@ export const PatientStickerLabelPage = React.memo(({ patient }) => {
   // useEffect(() => { // TODO(web)
   //   printPage();
   // }, [printPage]);
-  console.log(measures);
-
   return (
     <Modal
       open={open}
