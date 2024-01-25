@@ -141,8 +141,8 @@ describe('User', () => {
       });
       expect(result).toHaveSucceeded();
       expect(result.body).toHaveProperty('settings');
-      // TODO: fix
-      // expect(result.body.settings).toEqual(settings);
+      // bit unsure about this one. seems that the login request and settings.get access different settings so this could be flaky
+      expect(result.body.settings.features).toEqual(settings.features);
     });
 
     it('should include permissions in the data returned by a successful login', async () => {
