@@ -14,7 +14,7 @@ export const TranslationProvider = ({ children }) => {
   const [translations, setTranslations] = useState(null);
 
   const fetchTranslations = useCallback(
-    async language => {
+    async (language = 'en') => {
       localStorage.setItem(LOCAL_STORAGE_KEYS.LANGUAGE, language);
       const recievedTranslations = await api.get(`translation/${language}`);
       setTranslations(recievedTranslations);

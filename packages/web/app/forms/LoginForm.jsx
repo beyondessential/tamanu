@@ -186,7 +186,7 @@ export const LoginForm = React.memo(
         initialValues={{
           email: rememberEmail,
           rememberMe: !!rememberEmail,
-          language: localStorage.getItem(LOCAL_STORAGE_KEYS.LANGUAGE) || null,
+          language: localStorage.getItem(LOCAL_STORAGE_KEYS.LANGUAGE) || 'en',
         }}
         validationSchema={yup.object().shape({
           email: yup
