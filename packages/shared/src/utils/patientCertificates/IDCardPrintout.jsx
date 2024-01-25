@@ -95,7 +95,6 @@ export const IDCardPrintout = ({
   measures,
   getLocalisation,
 }) => {
-  console.log(measures);
   return (
     <Document>
       <Page
