@@ -55,7 +55,6 @@ describe('TranslatedString', () => {
 
   describe('/prelogin GET', () => {
     it('Should receive a list of languages stored in the DB in the format of select options', async () => {
-
       const result = await app.get('/v1/translation/preLogin');
       expect(result).toHaveSucceeded();
 
@@ -66,6 +65,7 @@ describe('TranslatedString', () => {
       expect(result.body).toEqual(expectedResult);
     });
   });
+
   describe('/translation/:languageCode GET', () => {
     it('Should receive a dictionary of all translated text for selected language keyed by stringId', async () => {
       const englishResult = await app.get('/v1/translation/en');
@@ -77,6 +77,7 @@ describe('TranslatedString', () => {
       expect(khmerResult.body).toEqual(khmerTranslations);
     });
   });
+  
   describe('/ POST', () => {
     it('should create a new translated string', async () => {
       const mockText = 'test-fallback';
