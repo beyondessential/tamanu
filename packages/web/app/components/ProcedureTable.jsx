@@ -23,6 +23,18 @@ const COLUMNS = [
   { key: 'ProcedureType.name', title: 'Procedure', accessor: getProcedureLabel },
 ];
 
+const sortByDateTime = (a, b) => {
+  const aDateTime = getActualDateTime(a);
+  const bDateTime = getActualDateTime(b);
+
+  if (aDateTime < bDateTime) {
+    return -1;
+  } else if (aDateTime > bDateTime) {
+    return 1;
+  }
+  return 0;
+};
+
 export const ProcedureTable = React.memo(({ encounterId, onItemClick }) => (
   <DataFetchingTable
     columns={COLUMNS}
