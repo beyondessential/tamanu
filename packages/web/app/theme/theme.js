@@ -40,18 +40,18 @@ const palette = {
 };
 
 const bodyFontVariants = 'Battambang, Roboto';
-const headingFonrVariants = 'Moul, Roboto';
+const headingFontVariants = 'Moul, Roboto';
 
 const typography = {
   useNextVariants: true,
   fontSize: 15,
   fontFamily: bodyFontVariants,
-  h1: { fontFamily: headingFonrVariants },
-  h2: { fontFamily: headingFonrVariants },
-  h3: { fontFamily: headingFonrVariants },
-  h4: { fontFamily: headingFonrVariants },
-  h5: { fontFamily: headingFonrVariants },
-  h6: { fontFamily: headingFonrVariants },
+  h1: { fontFamily: headingFontVariants },
+  h2: { fontFamily: headingFontVariants },
+  h3: { fontFamily: headingFontVariants },
+  h4: { fontFamily: headingFontVariants },
+  h5: { fontFamily: headingFontVariants },
+  h6: { fontFamily: headingFontVariants },
 };
 const shape = { borderRadius: 3 };
 const overrides = {
