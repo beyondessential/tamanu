@@ -3,11 +3,9 @@ import { createValueIndex } from '@tamanu/shared/utils/valueIndex';
 import {
   APPOINTMENT_STATUSES,
   APPOINTMENT_TYPES,
-  ATTENDANT_OF_BIRTH_TYPES,
-  BIRTH_DELIVERY_TYPES,
-  BIRTH_TYPES,
   DOCUMENT_SOURCES,
   ENCOUNTER_TYPES,
+  ENCOUNTER_LABELS,
   IMAGING_REQUEST_STATUS_CONFIG,
   IMAGING_REQUEST_STATUS_TYPES,
   INVOICE_PAYMENT_STATUSES,
@@ -17,8 +15,8 @@ import {
   LOCATION_AVAILABILITY_STATUS,
   LOCATION_AVAILABILITY_TAG_CONFIG,
   NOTE_TYPES,
+  NOTE_TYPE_LABELS,
   PATIENT_REGISTRY_TYPES,
-  PLACE_OF_BIRTH_TYPES,
   REFERRAL_STATUSES,
   REGISTRATION_STATUSES,
   TEMPLATE_TYPES,
@@ -169,58 +167,72 @@ export const nonEmergencyDiagnosisCertaintyOptions = diagnosisCertaintyOptions.f
 // The order here is how they'll show up in the dropdown
 // Treatment plan first and alphabetical after that
 export const noteTypes = [
-  { value: NOTE_TYPES.TREATMENT_PLAN, label: 'Treatment plan' },
-  { value: NOTE_TYPES.ADMISSION, label: 'Admission' },
-  { value: NOTE_TYPES.CLINICAL_MOBILE, label: 'Clinical note (mobile)', hideFromDropdown: true },
-  { value: NOTE_TYPES.DIETARY, label: 'Dietary' },
-  { value: NOTE_TYPES.DISCHARGE, label: 'Discharge planning' },
-  { value: NOTE_TYPES.HANDOVER, label: 'Handover note' },
-  { value: NOTE_TYPES.MEDICAL, label: 'Medical' },
-  { value: NOTE_TYPES.NURSING, label: 'Nursing' },
-  { value: NOTE_TYPES.OTHER, label: 'Other' },
-  { value: NOTE_TYPES.PHARMACY, label: 'Pharmacy' },
-  { value: NOTE_TYPES.PHYSIOTHERAPY, label: 'Physiotherapy' },
-  { value: NOTE_TYPES.SOCIAL, label: 'Social welfare' },
-  { value: NOTE_TYPES.SURGICAL, label: 'Surgical' },
-  { value: NOTE_TYPES.SYSTEM, label: 'System', hideFromDropdown: true },
+  { value: NOTE_TYPES.TREATMENT_PLAN, label: NOTE_TYPE_LABELS[NOTE_TYPES.TREATMENT_PLAN] },
+  { value: NOTE_TYPES.ADMISSION, label: NOTE_TYPE_LABELS[NOTE_TYPES.ADMISSION] },
+  {
+    value: NOTE_TYPES.CLINICAL_MOBILE,
+    label: NOTE_TYPE_LABELS[NOTE_TYPES.CLINICAL_MOBILE],
+    hideFromDropdown: true,
+  },
+  { value: NOTE_TYPES.DIETARY, label: NOTE_TYPE_LABELS[NOTE_TYPES.DIETARY] },
+
+  { value: NOTE_TYPES.DISCHARGE, label: NOTE_TYPE_LABELS[NOTE_TYPES.DISCHARGE] },
+  { value: NOTE_TYPES.HANDOVER, label: NOTE_TYPE_LABELS[NOTE_TYPES.HANDOVER] },
+  { value: NOTE_TYPES.MEDICAL, label: NOTE_TYPE_LABELS[NOTE_TYPES.MEDICAL] },
+  { value: NOTE_TYPES.NURSING, label: NOTE_TYPE_LABELS[NOTE_TYPES.NURSING] },
+  { value: NOTE_TYPES.OTHER, label: NOTE_TYPE_LABELS[NOTE_TYPES.OTHER] },
+  { value: NOTE_TYPES.PHARMACY, label: NOTE_TYPE_LABELS[NOTE_TYPES.PHARMACY] },
+  { value: NOTE_TYPES.PHYSIOTHERAPY, label: NOTE_TYPE_LABELS[NOTE_TYPES.PHYSIOTHERAPY] },
+  { value: NOTE_TYPES.SOCIAL, label: NOTE_TYPE_LABELS[NOTE_TYPES.SOCIAL] },
+  { value: NOTE_TYPES.SURGICAL, label: NOTE_TYPE_LABELS[NOTE_TYPES.SURGICAL] },
+  { value: NOTE_TYPES.SYSTEM, label: NOTE_TYPE_LABELS[NOTE_TYPES.SYSTEM], hideFromDropdown: true },
 ];
 
-export const NOTE_TYPE_LABELS = Object.fromEntries(
-  noteTypes.map(noteType => [noteType.value, noteType.label]),
-);
-
 export const encounterOptions = [
-  { value: ENCOUNTER_TYPES.ADMISSION, label: 'Hospital admission', image: medicationIcon },
+  {
+    value: ENCOUNTER_TYPES.ADMISSION,
+    label: ENCOUNTER_LABELS[ENCOUNTER_TYPES.ADMISSION],
+    image: medicationIcon,
+  },
   {
     value: ENCOUNTER_TYPES.TRIAGE,
-    label: 'Triage',
+    label: ENCOUNTER_LABELS[ENCOUNTER_TYPES.TRIAGE],
     image: patientIcon,
     triageFlowOnly: true,
   },
-  { value: ENCOUNTER_TYPES.CLINIC, label: 'Clinic', image: administrationIcon },
-  { value: ENCOUNTER_TYPES.IMAGING, label: 'Imaging', image: radiologyIcon, hideFromMenu: true },
+  {
+    value: ENCOUNTER_TYPES.CLINIC,
+    label: ENCOUNTER_LABELS[ENCOUNTER_TYPES.CLINIC],
+    image: administrationIcon,
+  },
+  {
+    value: ENCOUNTER_TYPES.IMAGING,
+    label: ENCOUNTER_LABELS[ENCOUNTER_TYPES.IMAGING],
+    image: radiologyIcon,
+    hideFromMenu: true,
+  },
   {
     value: ENCOUNTER_TYPES.EMERGENCY,
-    label: 'Emergency short stay',
+    label: ENCOUNTER_LABELS[ENCOUNTER_TYPES.EMERGENCY],
     image: scheduleIcon,
     hideFromMenu: true,
   },
   {
     value: ENCOUNTER_TYPES.OBSERVATION,
-    label: 'Active ED patient',
+    label: ENCOUNTER_LABELS[ENCOUNTER_TYPES.OBSERVATION],
     image: patientIcon,
     triageFlowOnly: true,
     hideFromMenu: true,
   },
   {
     value: ENCOUNTER_TYPES.SURVEY_RESPONSE,
-    label: 'Form response',
+    label: ENCOUNTER_LABELS[ENCOUNTER_TYPES.SURVEY_RESPONSE],
     image: patientIcon,
     hideFromMenu: true,
   },
   {
     value: ENCOUNTER_TYPES.VACCINATION,
-    label: 'Vaccination record',
+    label: ENCOUNTER_LABELS[ENCOUNTER_TYPES.VACCINATION],
     image: vaccineIcon,
     hideFromMenu: true,
   },
@@ -250,12 +262,6 @@ export const bloodOptions = [
   { value: 'O-', label: 'O-' },
 ];
 
-export const sexOptions = [
-  { value: 'male', label: 'Male' },
-  { value: 'female', label: 'Female' },
-  { value: 'other', label: 'Other' },
-];
-
 export const titleOptions = [
   { value: 'Mr', label: 'Mr' },
   { value: 'Mrs', label: 'Mrs' },
@@ -275,16 +281,6 @@ export const socialMediaOptions = [
   { value: 'WhatsApp', label: 'WhatsApp' },
 ];
 
-export const maritalStatusOptions = [
-  { value: 'Defacto', label: 'De facto' },
-  { value: 'Married', label: 'Married' },
-  { value: 'Single', label: 'Single' },
-  { value: 'Widow', label: 'Widow' },
-  { value: 'Divorced', label: 'Divorced' },
-  { value: 'Separated', label: 'Separated' },
-  { value: 'Unknown', label: 'Unknown' },
-];
-
 export const educationalAttainmentOptions = [
   { value: 'No formal schooling', label: 'No formal schooling' },
   { value: 'Less than primary school', label: 'Less than primary school' },
@@ -294,8 +290,6 @@ export const educationalAttainmentOptions = [
   { value: 'University completed', label: 'University completed' },
   { value: 'Post grad completed', label: 'Post grad completed' },
 ];
-
-export const SEX_VALUE_INDEX = createValueIndex(sexOptions);
 
 export const pregnancyOutcomes = [
   { value: '', label: 'N/A' },
@@ -400,38 +394,6 @@ export const INVOICE_PAYMENT_STATUS_OPTIONS = [
   { label: 'Paid', value: INVOICE_PAYMENT_STATUSES.PAID },
 ];
 
-export const BIRTH_DELIVERY_TYPE_OPTIONS = [
-  { value: BIRTH_DELIVERY_TYPES.NORMAL_VAGINAL_DELIVERY, label: 'Normal vaginal delivery' },
-  { value: BIRTH_DELIVERY_TYPES.BREECH, label: 'Breech' },
-  { value: BIRTH_DELIVERY_TYPES.EMERGENCY_C_SECTION, label: 'Emergency C-section' },
-  { value: BIRTH_DELIVERY_TYPES.ELECTIVE_C_SECTION, label: 'Elective C-section' },
-  { value: BIRTH_DELIVERY_TYPES.VACUUM_EXTRACTION, label: 'Vacuum extraction' },
-  { value: BIRTH_DELIVERY_TYPES.FORCEPS, label: 'Forceps' },
-  { value: BIRTH_DELIVERY_TYPES.OTHER, label: 'Other' },
-];
-
-export const BIRTH_TYPE_OPTIONS = [
-  { value: BIRTH_TYPES.SINGLE, label: 'Single' },
-  { value: BIRTH_TYPES.PLURAL, label: 'Plural' },
-];
-
-export const PLACE_OF_BIRTH_OPTIONS = [
-  { value: PLACE_OF_BIRTH_TYPES.HEALTH_FACILITY, label: 'Health facility' },
-  { value: PLACE_OF_BIRTH_TYPES.HOME, label: 'Home' },
-  { value: PLACE_OF_BIRTH_TYPES.OTHER, label: 'Other' },
-];
-
-export const ATTENDANT_OF_BIRTH_OPTIONS = [
-  { value: ATTENDANT_OF_BIRTH_TYPES.DOCTOR, label: 'Doctor' },
-  { value: ATTENDANT_OF_BIRTH_TYPES.MIDWIFE, label: 'Midwife' },
-  { value: ATTENDANT_OF_BIRTH_TYPES.NURSE, label: 'Nurse' },
-  {
-    value: ATTENDANT_OF_BIRTH_TYPES.TRADITIONAL_BIRTH_ATTENDANT,
-    label: 'Traditional birth attendant',
-  },
-  { value: ATTENDANT_OF_BIRTH_TYPES.OTHER, label: 'Other' },
-];
-
 export const PATIENT_REGISTRY_OPTIONS = [
   { value: PATIENT_REGISTRY_TYPES.NEW_PATIENT, label: 'Create new patient' },
   { value: PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY, label: 'Register birth' },
@@ -446,22 +408,6 @@ export const PATIENT_STATUS = {
   OUTPATIENT: 'Outpatient',
   EMERGENCY: 'Emergency',
   DECEASED: 'Deceased',
-};
-
-export const DRUG_ROUTE_VALUE_TO_LABEL = {
-  dermal: 'Dermal',
-  ear: 'Ear',
-  eye: 'Eye',
-  intramuscular: 'IM',
-  intravenous: 'IV',
-  inhaled: 'Inhaled',
-  nasal: 'Nasal',
-  oral: 'Oral',
-  rectal: 'Rectal',
-  subcutaneous: 'S/C',
-  sublingual: 'Sublingual',
-  topical: 'Topical',
-  vaginal: 'Vaginal',
 };
 
 export const FORM_STATUSES = {

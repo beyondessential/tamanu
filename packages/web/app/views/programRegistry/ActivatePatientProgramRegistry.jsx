@@ -1,9 +1,9 @@
 import React from 'react';
 import * as yup from 'yup';
 import { difference } from 'lodash';
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { useQueryClient } from '@tanstack/react-query';
 import { Divider } from '@material-ui/core';
-import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import {
   AutocompleteField,
