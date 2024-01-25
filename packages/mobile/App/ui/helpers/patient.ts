@@ -1,5 +1,6 @@
 import { differenceInWeeks, parseISO } from 'date-fns';
 import { IPatientAdditionalData } from '~/types';
+import { GetSettings } from '../contexts/SettingContext';
 
 export enum VaccineStatus {
   UNKNOWN = 'UNKNOWN',
@@ -142,9 +143,13 @@ export const getFieldData = (data: IPatientAdditionalData, fieldName: string): s
   return data?.[fieldName];
 };
 
-export const getConfiguredPatientAdditionalDataFields = (fields, showMandatory, getBool) => {
+export const getConfiguredPatientAdditionalDataFields = (
+  fields: string[],
+  showMandatory: boolean,
+  getSettings: GetSettings,
+) => {
   return fields.filter(fieldName => {
-    const requiredPatientData = getBool(`fields.${fieldName}.requiredPatientData`);
+    const requiredPatientData = getSettings<boolean>(`fields.${fieldName}.requiredPatientData`);
     return !!requiredPatientData === showMandatory;
   });
 };
