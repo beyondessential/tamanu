@@ -5,6 +5,7 @@ import { inspect } from 'util';
 import { formatISO9075 } from 'date-fns';
 
 import {
+  CURRENTLY_AT_TYPES,
   DIAGNOSIS_CERTAINTY_VALUES,
   ENCOUNTER_TYPE_VALUES,
   IMAGING_REQUEST_STATUS_TYPES,
@@ -12,6 +13,7 @@ import {
   NOTE_TYPE_VALUES,
   PROGRAM_DATA_ELEMENT_TYPE_VALUES,
   REFERENCE_TYPE_VALUES,
+  REGISTRATION_STATUSES,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import { toDateString, toDateTimeString } from '../utils/dateTime';
@@ -341,17 +343,29 @@ const MODEL_SPECIFIC_OVERRIDES = {
       stillborn: chance.pickone(options),
     };
   },
+  PatientProgramRegistration: () => ({
+    registrationStatus: REGISTRATION_STATUSES.ACTIVE,
+  }),
   User: () => ({
     email: chance.email(),
     displayId: chance.hash({ length: 5 }),
     displayName: chance.name(),
     role: 'practitioner',
   }),
+  ReferenceData: () => ({
+    type: chance.pickone(REFERENCE_TYPE_VALUES),
+  }),
   Role: () => ({
     name: `${snakeCase(chance.profession())}_${chance.hash({ length: 8 })}`,
   }),
   Survey: () => ({
     isSensitive: false,
+  }),
+  SurveyScreenComponent: () => ({
+    calculation: null,
+    visibilityCriteria: null,
+    config: null,
+    options: null,
   }),
   Encounter: () => ({
     encounterType: chance.pickone(ENCOUNTER_TYPE_VALUES),
@@ -370,6 +384,9 @@ const MODEL_SPECIFIC_OVERRIDES = {
   }),
   Setting: () => ({
     value: chance.string(),
+  }),
+  ProgramRegistry: () => ({
+    currentlyAtType: chance.pickone(Object.values(CURRENTLY_AT_TYPES)),
   }),
 };
 

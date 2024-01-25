@@ -42,11 +42,11 @@ function loadExisting(Model, values) {
 }
 
 export async function importRows(
-  { errors, log, models },
+  { errors, log, models, settings },
   { rows, sheetName, stats: previousStats = {}, foreignKeySchemata = {} },
+  validationContext = {},
 ) {
   const stats = { ...previousStats };
-  const settings = new ReadSettings(models);
   log.debug('Importing rows to database', { count: rows.length });
   if (rows.length === 0) {
     log.debug('Nothing to do, skipping');
@@ -173,9 +173,7 @@ export async function importRows(
         sheetRow,
         values: await schema.validate(values, {
           abortEarly: false,
-          context: {
-            settings,
-          },
+          context: { ...validationContext, settings },
         }),
       });
     } catch (err) {

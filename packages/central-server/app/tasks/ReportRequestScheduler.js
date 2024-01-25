@@ -1,7 +1,6 @@
 import { REPORT_REQUEST_STATUSES } from '@tamanu/constants';
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
-
 import { ReportRequest } from '@tamanu/shared/models';
 
 /**
@@ -15,8 +14,8 @@ export class ReportRequestScheduler extends ScheduledTask {
   }
 
   constructor(context, options) {
-    const { schedule } = options;
-    super(schedule, log);
+    const { schedule, jitterTime } = options;
+    super(schedule, log, jitterTime);
     this.context = context;
     this.options = options;
   }

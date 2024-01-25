@@ -1,3 +1,5 @@
+import config from 'config';
+
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import {
@@ -18,7 +20,8 @@ export class OutpatientDischarger extends ScheduledTask {
       ...schedules.outpatientDischarger,
       ...overrideConfig,
     };
-    super(schedule, log);
+    const { jitterTime } = config.schedules.outpatientDischarger;
+    super(schedule, log, jitterTime);
     this.settings = settings;
     this.overrides = overrideConfig;
     this.models = context.store.models;

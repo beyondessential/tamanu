@@ -13,6 +13,8 @@ const PASSWORD_RESET_RESTART = 'PASSWORD_RESET_RESTART';
 const CHANGE_PASSWORD_START = 'CHANGE_PASSWORD_START';
 const CHANGE_PASSWORD_SUCCESS = 'CHANGE_PASSWORD_SUCCESS';
 const CHANGE_PASSWORD_FAILURE = 'CHANGE_PASSWORD_FAILURE';
+const VALIDATE_RESET_CODE_START = 'VALIDATE_RESET_CODE_START';
+const VALIDATE_RESET_CODE_COMPLETE = 'VALIDATE_RESET_CODE_COMPLETE';
 
 export const restoreSession = () => async (dispatch, getState, { api }) => {
   try {
@@ -83,6 +85,13 @@ export const restartPasswordResetFlow = () => async dispatch => {
   dispatch({ type: PASSWORD_RESET_RESTART });
 };
 
+export const validateResetCode = data => async (dispatch, getState, { api }) => {
+  dispatch({ type: VALIDATE_RESET_CODE_START });
+
+  await api.post('changePassword/validate-reset-code', data);
+  dispatch({ type: VALIDATE_RESET_CODE_COMPLETE });
+};
+
 export const changePassword = data => async (dispatch, getState, { api }) => {
   dispatch({ type: CHANGE_PASSWORD_START });
 
@@ -115,6 +124,11 @@ const defaultState = {
     lastEmailUsed: null,
   },
   changePassword: {
+    loading: false,
+    success: false,
+    error: null,
+  },
+  validateResetCode: {
     loading: false,
     success: false,
     error: null,
@@ -200,6 +214,18 @@ const actionHandlers = {
     changePassword: {
       ...defaultState.changePassword,
       error: action.error,
+    },
+  }),
+  [VALIDATE_RESET_CODE_START]: () => ({
+    validateResetCode: {
+      ...defaultState.validateResetCode,
+      loading: true,
+    },
+  }),
+  [VALIDATE_RESET_CODE_COMPLETE]: () => ({
+    validateResetCode: {
+      ...defaultState.validateResetCode,
+      completed: true,
     },
   }),
 };

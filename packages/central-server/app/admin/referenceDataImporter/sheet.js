@@ -59,7 +59,7 @@ const FOREIGN_KEY_SCHEMATA = {
   ],
 };
 
-export async function importSheet({ errors, log, models }, { loader, sheetName, sheet }) {
+export async function importSheet({ errors, log, models, settings }, { loader, sheetName, sheet }) {
   const stats = {};
 
   log.debug('Loading rows from sheet');
@@ -126,7 +126,7 @@ export async function importSheet({ errors, log, models }, { loader, sheetName, 
   }
 
   await importRows(
-    { errors, log, models },
+    { errors, log, models, settings },
     { rows: tableRows, sheetName, stats, foreignKeySchemata: FOREIGN_KEY_SCHEMATA },
   );
 

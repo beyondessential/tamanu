@@ -1,13 +1,21 @@
+import config from 'config';
+
 import { FHIR_INTERACTIONS, JOB_TOPICS } from '@tamanu/constants';
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import { resourcesThatCanDo } from '@tamanu/shared/utils/fhir/resources';
+
 import { prepareQuery } from '../utils/prepareQuery';
 
 export class FhirMissingResources extends ScheduledTask {
   constructor(context) {
     const { schedules, settings } = context;
-    super(schedules.fhirMissingResources.schedule, log.child({ task: 'FhirMissingResources' }));
+    const { jitterTime } = config.schedules.fhirMissingResources;
+    super(
+      schedules.fhirMissingResources.schedule,
+      log.child({ task: 'FhirMissingResources' }),
+      jitterTime,
+    );
     this.settings = settings;
     this.context = context;
     this.materialisableResources = resourcesThatCanDo(

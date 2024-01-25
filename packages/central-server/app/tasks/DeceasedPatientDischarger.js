@@ -1,3 +1,4 @@
+import config from 'config';
 import { Op } from 'sequelize';
 
 import { ScheduledTask } from '@tamanu/shared/tasks';
@@ -12,7 +13,8 @@ export class DeceasedPatientDischarger extends ScheduledTask {
 
   constructor(context) {
     const { settings, schedules } = context;
-    super(schedules.deceasedPatientDischarger.schedule, log);
+    const { jitterTime } = config.schedules.deceasedPatientDischarger;
+    super(schedules.deceasedPatientDischarger.schedule, log, jitterTime);
     this.settings = settings;
     this.models = context.store.models;
   }

@@ -1,5 +1,6 @@
-import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
+import config from 'config';
 
+import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 
@@ -10,8 +11,9 @@ export class AutomaticLabTestResultPublisher extends ScheduledTask {
 
   constructor(context, overrideConfig = null) {
     const { schedules, settings, store } = context;
+    const { jitterTime } = config.schedules.automaticLabTestResultPublisher;
     const schedule = overrideConfig.schedule || schedules.automaticLabTestResultPublisher.schedule;
-    super(schedule, log);
+    super(schedule, log, jitterTime);
     this.overrides = overrideConfig;
     this.settings = settings;
     this.models = store.models;

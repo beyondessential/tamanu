@@ -1,3 +1,5 @@
+import config from 'config';
+
 import {
   CERTIFICATE_NOTIFICATION_STATUSES,
   COMMUNICATION_STATUSES,
@@ -23,10 +25,10 @@ import { LabRequestNotificationGenerator } from './LabRequestNotificationGenerat
 
 export class CertificateNotificationProcessor extends ScheduledTask {
   constructor(context) {
-    const { schedules, settings, store } = context;
-    super(schedules.certificateNotificationProcessor.schedule, log);
-    this.settings = settings;
-    this.models = store.models;
+    const { schedules } = context;
+    const { jitterTime } = config.schedules.certificateNotificationProcessor;
+    super(schedules.certificateNotificationProcessor.schedule, log, jitterTime);
+    this.context = context;
     this.subtasks = [new LabRequestNotificationGenerator(context)];
   }
 

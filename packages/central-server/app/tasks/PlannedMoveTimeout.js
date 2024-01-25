@@ -1,3 +1,4 @@
+import config from 'config';
 import { subHours } from 'date-fns';
 import { Op } from 'sequelize';
 
@@ -21,7 +22,8 @@ export class PlannedMoveTimeout extends ScheduledTask {
       ...schedules.plannedMoveTimeout,
       ...overrideConfig,
     };
-    super(schedule, log);
+    const { jitterTime } = config.schedules.plannedMoveTimeout;
+    super(schedule, log, jitterTime);
     this.overrides = overrideConfig;
     this.models = store.models;
     this.settings = settings;

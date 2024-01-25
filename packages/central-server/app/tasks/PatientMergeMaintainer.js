@@ -1,4 +1,6 @@
 /* eslint camelcase: ["error", { allow: ["^specificUpdate_"] }] */
+import config from 'config';
+
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import { NOTE_RECORD_TYPES } from '@tamanu/constants/notes';
@@ -21,8 +23,9 @@ export class PatientMergeMaintainer extends ScheduledTask {
 
   constructor(context, overrideConfig = null) {
     const { schedules, store } = context;
+    const { jitterTime } = config.schedules.patientMergeMaintainer;
     const schedule = overrideConfig?.schedule || schedules.patientMergeMaintainer.schedule;
-    super(schedule, log);
+    super(schedule, log, jitterTime);
     this.models = store.models;
   }
 
@@ -47,9 +50,9 @@ export class PatientMergeMaintainer extends ScheduledTask {
     const [, result] = await model.sequelize.query(`
       UPDATE ${tableName}
       SET ${patientFieldName} = patients.merged_into_id
-      FROM patients 
-      WHERE 
-        patients.id = ${tableName}.${patientFieldName} 
+      FROM patients
+      WHERE
+        patients.id = ${tableName}.${patientFieldName}
         AND patients.merged_into_id IS NOT NULL
         ${additionalWhere}
       RETURNING patients.id, patients.merged_into_id;
@@ -61,12 +64,12 @@ export class PatientMergeMaintainer extends ScheduledTask {
     const tableName = model.getTableName();
     return model.sequelize.query(
       `
-      SELECT 
+      SELECT
         patients.id as "mergedPatientId",
         patients.merged_into_id as "keepPatientId"
       FROM ${tableName}
       JOIN patients ON patients.id = ${tableName}.patient_id
-      WHERE 
+      WHERE
         patients.merged_into_id IS NOT NULL
         ;
     `,
