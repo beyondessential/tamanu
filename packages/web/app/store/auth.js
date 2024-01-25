@@ -27,7 +27,7 @@ export const login = (email, password) => async (dispatch, getState, { api }) =>
   dispatch({ type: LOGIN_START });
 
   try {
-    const { user, token, server, ability, role, settings } = await api.login(host, email, password);
+    const { user, token, server, ability, role, settings } = await api.login(email, password);
     dispatch({ type: LOGIN_SUCCESS, user, token, server, ability, role, settings });
   } catch (error) {
     dispatch({ type: LOGIN_FAILURE, error: error.message });
