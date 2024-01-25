@@ -5,12 +5,12 @@
       "path": "."
     },
     {
-      "name": "desktop",
-      "path": "packages/desktop"
+      "name": "web",
+      "path": "packages/web"
     },
     {
-      "name": "lan",
-      "path": "packages/lan"
+      "name": "facility-server",
+      "path": "packages/facility-server"
     },
     {
       "name": "meta-server",
@@ -37,8 +37,8 @@
       "path": "packages/shared"
     },
     {
-      "name": "sync-server",
-      "path": "packages/sync-server"
+      "name": "central-server",
+      "path": "packages/central-server"
     }
   ],
   "settings": {
@@ -50,7 +50,7 @@
     "json.schemas": [
       {
         "fileMatch": ["*.hl7.json"],
-        "url": "./packages/sync-server/__tests__/hl7fhir/fhir.schema.json"
+        "url": "./packages/central-server/__tests__/hl7fhir/fhir.schema.json"
       }
     ]
   }

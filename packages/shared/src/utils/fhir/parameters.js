@@ -1,24 +1,30 @@
 import * as yup from 'yup';
-import config from 'config';
 
 import {
-  FHIR_SEARCH_PARAMETERS,
-  FHIR_SEARCH_TOKEN_TYPES,
   FHIR_DATETIME_PRECISION,
   FHIR_MAX_RESOURCES_PER_PAGE,
+  FHIR_SEARCH_PARAMETERS,
+  FHIR_SEARCH_TOKEN_TYPES,
 } from '@tamanu/constants';
 
 import { DEFAULT_SCHEMA_FOR_TYPE, INCLUDE_SCHEMA } from './schemata';
 
-// Extract config values with a fallback
-// FHIR_COUNT_CONFIG_MAX needs to be at least as big as the default
-const FHIR_COUNT_CONFIG = config?.integrations?.fhir?.parameters?._count || {};
-export const FHIR_COUNT_CONFIG_DEFAULT = FHIR_COUNT_CONFIG?.default || FHIR_MAX_RESOURCES_PER_PAGE;
-const FHIR_COUNT_CONFIG_MAX = Math.max(FHIR_COUNT_CONFIG?.max || 0, FHIR_COUNT_CONFIG_DEFAULT);
+export async function getCountParameters(settings) {
+  const countConfig = (await settings.get('integrations.fhir.parameters._count')) || {};
+  const countDefault = countConfig.default || FHIR_MAX_RESOURCES_PER_PAGE;
+  return {
+    default: countDefault,
+    max: Math.max(countConfig.max || 0, countDefault),
+  };
+}
 
-if (config?.integrations?.fhir?.enabled && FHIR_COUNT_CONFIG_DEFAULT > FHIR_COUNT_CONFIG?.max) {
-  // eslint-disable-next-line no-console
-  console.warn('FHIR _count config default value is bigger than the max.');
+export async function validateCountConfig(settings) {
+  const enabled = await settings.get('integrations.fhir.enabled');
+  if (!enabled) return;
+  const { default: countDefault, max: countMax } = await getCountParameters(settings);
+  if (countDefault > countMax) {
+    throw new Error('FHIR _count config default value is bigger than the max.');
+  }
 }
 
 export function normaliseParameter([key, param], overrides = {}) {
@@ -45,43 +51,45 @@ export function normaliseParameter([key, param], overrides = {}) {
   return [key, norm];
 }
 
-export const RESULT_PARAMETERS = {
-  _total: {
-    type: FHIR_SEARCH_PARAMETERS.SPECIAL,
-    parameterSchema: yup.string().oneOf(['none', 'estimate', 'accurate']),
-  },
-  _summary: {
-    type: FHIR_SEARCH_PARAMETERS.SPECIAL,
-    parameterSchema: yup.string().oneOf(['true', 'text', 'data', 'count', 'false']),
-  },
-  _count: {
-    type: FHIR_SEARCH_PARAMETERS.SPECIAL,
-    parameterSchema: yup
-      .number()
-      .integer()
-      .min(0) // equivalent to _summary=count
-      .max(FHIR_COUNT_CONFIG_MAX)
-      .default(FHIR_COUNT_CONFIG_DEFAULT),
-  },
-  _page: {
-    type: FHIR_SEARCH_PARAMETERS.SPECIAL,
-    parameterSchema: yup
-      .number()
-      .integer()
-      .min(0)
-      .default(0),
-  },
-  _include: {
-    type: FHIR_SEARCH_PARAMETERS.SPECIAL,
-    parameterSchema: INCLUDE_SCHEMA,
-  },
-  _revinclude: {
-    type: FHIR_SEARCH_PARAMETERS.SPECIAL,
-    parameterSchema: INCLUDE_SCHEMA,
-  },
+export const getResultsParameterSchema = ({ default: countDefault, max: countMax } = {}) => {
+  return {
+    total: {
+      type: FHIR_SEARCH_PARAMETERS.SPECIAL,
+      parameterSchema: yup.string().oneOf(['none', 'estimate', 'accurate']),
+    },
+    _summary: {
+      type: FHIR_SEARCH_PARAMETERS.SPECIAL,
+      parameterSchema: yup.string().oneOf(['true', 'text', 'data', 'count', 'false']),
+    },
+    _count: {
+      type: FHIR_SEARCH_PARAMETERS.SPECIAL,
+      parameterSchema: yup
+        .number()
+        .integer()
+        .min(0) // equivalent to _summary=count
+        .max(countMax)
+        .default(countDefault),
+    },
+    _page: {
+      type: FHIR_SEARCH_PARAMETERS.SPECIAL,
+      parameterSchema: yup
+        .number()
+        .integer()
+        .min(0)
+        .default(0),
+    },
+    _include: {
+      type: FHIR_SEARCH_PARAMETERS.SPECIAL,
+      parameterSchema: INCLUDE_SCHEMA,
+    },
+    _revinclude: {
+      type: FHIR_SEARCH_PARAMETERS.SPECIAL,
+      parameterSchema: INCLUDE_SCHEMA,
+    },
+  };
 };
 
-export const RESULT_PARAMETER_NAMES = ['_sort', ...Object.keys(RESULT_PARAMETERS)];
+export const RESULT_PARAMETER_NAMES = ['_sort', ...Object.keys(getResultsParameterSchema())];
 
 function sortParameter(sortableParameters) {
   return {
@@ -124,7 +132,7 @@ function sortParameter(sortableParameters) {
 
 const cache = new Map();
 
-export function normaliseParameters(FhirResource) {
+export async function normaliseParameters(FhirResource, settings) {
   const cacheKey = FhirResource.fhirName;
   if (!cacheKey) {
     throw new Error('DEV: not a proper Resource');
@@ -142,7 +150,7 @@ export function normaliseParameters(FhirResource) {
 
   const resultParameters = Object.entries({
     ...sortParameter(sortableParameters),
-    ...RESULT_PARAMETERS,
+    ...getResultsParameterSchema(await getCountParameters(settings)),
   }).map(param =>
     normaliseParameter(param, {
       path: [],

@@ -1,6 +1,6 @@
 import { parseISO } from 'date-fns';
-import { keyBy, groupBy } from 'lodash';
-import { format, differenceInMilliseconds, isISOString } from '../../utils/dateTime';
+import { groupBy, keyBy } from 'lodash';
+import { differenceInMilliseconds, format, isISOString } from '../../utils/dateTime';
 
 const MODEL_COLUMN_TO_ANSWER_DISPLAY_VALUE = {
   User: 'displayName',
