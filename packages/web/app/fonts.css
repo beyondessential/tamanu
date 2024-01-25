@@ -8,3 +8,17 @@ html {
   font-family: 'Fira Code';
   src: url('FiraCode-Medium.ttf') format('truetype');
 }
+
+@font-face {
+  font-family: 'Battambang';
+  font-style: normal;
+  font-display: swap;
+  src: url(Battambang-Regular.ttf) format('truetype');
+}
+
+@font-face {
+  font-family: 'Moul';
+  font-style: normal;
+  font-display: swap;
+  src: url(Moul-Regular.ttf) format('truetype');
+}

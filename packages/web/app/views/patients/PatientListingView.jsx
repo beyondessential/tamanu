@@ -30,6 +30,7 @@ import {
 } from './columns';
 import { useAuth } from '../../contexts/Auth';
 import { PatientSearchKeys, usePatientSearch } from '../../contexts/PatientSearch';
+import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 const PATIENT_SEARCH_ENDPOINT = 'patient';
 
@@ -135,7 +136,7 @@ export const PatientListingView = ({ onViewPatient }) => {
 
   return (
     <PageContainer>
-      <TopBar title="Patient listing">
+      <TopBar title={<TranslatedText stringId="patientList.default.title" fallback="Patient listing"  />}>
         <NewPatientButton onCreateNewPatient={onViewPatient} />
       </TopBar>
       <RecentlyViewedPatientsList />
