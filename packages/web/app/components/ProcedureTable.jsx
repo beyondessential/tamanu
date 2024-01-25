@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
+import { useTableSorting } from './Table/useTableSorting';
 
 const getActualDateTime = ({ date, startTime }) => {
   // Both date and startTime only keep track of either date or time, accordingly.
@@ -35,12 +36,29 @@ const sortByDateTime = (a, b) => {
   return 0;
 };
 
-export const ProcedureTable = React.memo(({ encounterId, onItemClick }) => (
-  <DataFetchingTable
-    columns={COLUMNS}
-    endpoint={`encounter/${encounterId}/procedures`}
-    onRowClick={row => onItemClick(row)}
-    elevated={false}
-    initialSort={{ orderBy: 'date', order: 'desc' }}
-  />
-));
+export const ProcedureTable = React.memo(({ encounterId, onItemClick }) => {
+  const { orderBy, order, onChangeOrderBy } = useTableSorting({
+    initialSortKey: 'date',
+    initialSortDirection: 'desc',
+  });
+  const customSortByDateTime = useCallback(data => {
+    if (orderBy !== 'date') return data;
+
+    const newOrder = data.slice().sort(sortByDateTime);
+    if (order === 'desc') return newOrder;
+    return newOrder.reverse();
+  }, [orderBy, order])
+
+  return (
+    <DataFetchingTable
+      columns={COLUMNS}
+      endpoint={`encounter/${encounterId}/procedures`}
+      onRowClick={row => onItemClick(row)}
+      elevated={false}
+      order={order}
+      orderBy={orderBy}
+      onChangeOrderBy={onChangeOrderBy}
+      customSort={customSortByDateTime}
+    />
+  );
+});
