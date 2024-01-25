@@ -233,10 +233,13 @@ describe('CentralServerConnection', () => {
       centralServerConnection.setToken(mockToken);
 
       const fetchRes = await centralServerConnection.fetch(mockPath, mockQuery, mockConfig);
-      expect(fetchWithTimeout).toBeCalledWith(`${mockHost}/v1/${mockPath}?test=${mockQuery.test}`, {
-        headers: mockHeaders,
-        ...mockConfig,
-      });
+      expect(fetchWithTimeout).toBeCalledWith(
+        `${mockHost}/api/${mockPath}?test=${mockQuery.test}`,
+        {
+          headers: mockHeaders,
+          ...mockConfig,
+        },
+      );
       expect(fetchRes).toEqual('test-result');
     });
     it('should invoke itself after invalid token and refresh endpoint', async () => {
@@ -276,7 +279,7 @@ describe('CentralServerConnection', () => {
       await centralServerConnection.fetch(mockPath, {}, {});
       expect(refreshSpy).toHaveBeenCalledTimes(1);
 
-      expect(fetchWithTimeout).toHaveBeenNthCalledWith(1, `${mockHost}/v1/${mockPath}`, {
+      expect(fetchWithTimeout).toHaveBeenNthCalledWith(1, `${mockHost}/api/${mockPath}`, {
         headers: getHeadersWithToken(mockToken),
       });
       expect(centralServerConnection.emitter.emit).toHaveBeenNthCalledWith(
@@ -284,7 +287,7 @@ describe('CentralServerConnection', () => {
         'statusChange',
         CentralConnectionStatus.Disconnected,
       );
-      expect(fetchWithTimeout).toHaveBeenNthCalledWith(2, `${mockHost}/v1/refresh`, {
+      expect(fetchWithTimeout).toHaveBeenNthCalledWith(2, `${mockHost}/api/refresh`, {
         headers: { ...getHeadersWithToken(mockToken), 'Content-Type': 'application/json' },
         method: 'POST',
         body: JSON.stringify({
@@ -297,7 +300,7 @@ describe('CentralServerConnection', () => {
         'statusChange',
         CentralConnectionStatus.Connected,
       );
-      expect(fetchWithTimeout).toHaveBeenNthCalledWith(3, `${mockHost}/v1/${mockPath}`, {
+      expect(fetchWithTimeout).toHaveBeenNthCalledWith(3, `${mockHost}/api/${mockPath}`, {
         headers: getHeadersWithToken(mockNewToken),
       });
       // Check that the fetch would not recursively call itself again on failure post refresh
