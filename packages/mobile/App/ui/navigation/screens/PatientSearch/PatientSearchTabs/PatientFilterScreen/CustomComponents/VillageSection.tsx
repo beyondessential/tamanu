@@ -7,9 +7,8 @@ import { StyledView } from '~/ui/styled/common';
 import { LocalisedField } from '~/ui/components/Forms/LocalisedField';
 import { AutocompleteModalField } from '~/ui/components/AutocompleteModal/AutocompleteModalField';
 // Helpers
-import { useLocalisation } from '~/ui/contexts/LocalisationContext';
+import { useSettings } from '~/ui/contexts/SettingContext';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
-import { Routes } from '~/ui/helpers/routes';
 import { ReferenceDataType } from '~/types';
 import { Suggester } from '~/ui/helpers/suggester';
 import { useBackend } from '~/ui/hooks';
@@ -17,7 +16,7 @@ import { useBackend } from '~/ui/hooks';
 export const VillageSection = (): ReactElement => {
   const navigation = useNavigation();
   const { models } = useBackend();
-  const { getString } = useLocalisation();
+  const { getSetting } = useSettings();
 
   const villageSuggester = new Suggester(models.ReferenceData, {
     where: {
@@ -34,7 +33,7 @@ export const VillageSection = (): ReactElement => {
       >
         <LocalisedField
           component={AutocompleteModalField}
-          placeholder={`Search for ${getString('fields.villageId.longLabel', 'Village')}`}
+          placeholder={`Search for ${getSetting('fields.villageId.longLabel', 'Village')}`}
           navigation={navigation}
           suggester={villageSuggester}
           name="villageId"

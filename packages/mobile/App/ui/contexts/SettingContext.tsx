@@ -2,8 +2,10 @@ import { PropsWithChildren, createContext, useContext, useEffect, useMemo, useSt
 import { useBackend } from '../hooks/index';
 import { SettingService } from '~/services/settings';
 
+export type GetSettings = <T>(path: string, defaultValue?: T) => T;
+
 interface SettingContextData {
-  getSetting: <T>(path: string, defaultValue: T) => T;
+  getSetting: GetSettings;
 }
 
 const SettingContext = createContext<SettingContextData>({} as SettingContextData);
@@ -33,4 +35,4 @@ export const SettingProvider = ({ children }: PropsWithChildren<object>) => {
   return <SettingContext.Provider value={helpers}>{children}</SettingContext.Provider>;
 };
 
-export const useSetting = (): SettingContextData => useContext(SettingContext);
+export const useSettings = (): SettingContextData => useContext(SettingContext);

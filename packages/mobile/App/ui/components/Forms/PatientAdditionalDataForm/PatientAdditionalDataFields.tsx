@@ -3,7 +3,7 @@ import { useNavigation } from '@react-navigation/native';
 import { StyledView } from '/styled/common';
 import { TextField } from '../../TextField/TextField';
 import { Dropdown } from '~/ui/components/Dropdown';
-import { useLocalisation } from '~/ui/contexts/LocalisationContext';
+import { useSettings } from '~/ui/contexts/SettingContext';
 import { LocalisedField } from '~/ui/components/Forms/LocalisedField';
 import { Field } from '~/ui/components/Forms/FormField';
 import { AutocompleteModalField } from '~/ui/components/AutocompleteModal/AutocompleteModalField';
@@ -39,10 +39,10 @@ const SelectField = ({ fieldName, required }): ReactElement => (
 
 const RelationField = ({ fieldName, required }): ReactElement => {
   const { models } = useBackend();
-  const { getString } = useLocalisation();
+  const { getSetting } = useSettings();
   const navigation = useNavigation();
   const { type, placeholder } = relationIdFieldsProperties[fieldName];
-  const localisedPlaceholder = getString(`fields.${fieldName}.longLabel`, placeholder);
+  const localisedPlaceholder = getSetting<string>(`fields.${fieldName}.longLabel`, placeholder);
   const suggester = getSuggester(models, type);
 
   return (
@@ -58,7 +58,9 @@ const RelationField = ({ fieldName, required }): ReactElement => {
   );
 };
 
-function getComponentForField(fieldName: string): React.FC<{ fieldName: string }> {
+function getComponentForField(
+  fieldName: string,
+): React.FC<{ fieldName: string; required: boolean }> {
   if (plainFields.includes(fieldName)) {
     return PlainField;
   }
@@ -73,29 +75,26 @@ function getComponentForField(fieldName: string): React.FC<{ fieldName: string }
 }
 
 const getCustomFieldComponent = ({ id, name, options, fieldType }) => {
-  return <Field
-    name={id}
-    label={name}
-    component={PatientFieldDefinitionComponents[fieldType]}
-    options={options?.split(',')?.map(option => ({ label: option, value: option }))}
-  />;
-}
+  return (
+    <Field
+      name={id}
+      label={name}
+      component={PatientFieldDefinitionComponents[fieldType]}
+      options={options?.split(',')?.map(option => ({ label: option, value: option }))}
+    />
+  );
+};
 
 export const PatientAdditionalDataFields = ({
   fields,
   isCustomFields,
   showMandatory = true,
-}): ReactElement => {
-
-  const { getBool } = useLocalisation();
+}): ReactElement[] => {
+  const { getSetting } = useSettings();
 
   if (isCustomFields) return fields.map(getCustomFieldComponent);
 
-  const padFields = getConfiguredPatientAdditionalDataFields(
-    fields,
-    showMandatory,
-    getBool,
-  );
+  const padFields = getConfiguredPatientAdditionalDataFields(fields, showMandatory, getSetting);
 
   return padFields.map(fieldName => {
     const Component = getComponentForField(fieldName);
