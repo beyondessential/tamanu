@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 
-import { useLocalisation } from '~/ui/contexts/LocalisationContext';
+import { useSettings } from '~/ui/contexts/SettingContext';
 import { LocalisedField } from '~/ui/components/Forms/LocalisedField';
 import { Gender, GenderOptions } from '~/ui/helpers/constants';
 import { RadioButtonGroup } from '~/ui/components/RadioButtonGroup';
@@ -8,9 +8,9 @@ import { DateField } from '~/ui/components/DateField/DateField';
 import { TextField } from '../../../TextField/TextField';
 
 export const KeyInformationSection = (): ReactElement => {
-  const { getBool } = useLocalisation();
+  const { getSetting } = useSettings();
   let filteredGenderOptions = GenderOptions;
-  if (getBool('features.hideOtherSex') === true) {
+  if (getSetting<boolean>('features.hideOtherSex') === true) {
     filteredGenderOptions = filteredGenderOptions.filter(({ value }) => value !== Gender.Other);
   }
   return (
@@ -25,7 +25,7 @@ export const KeyInformationSection = (): ReactElement => {
       <LocalisedField
         name="email"
         component={TextField}
-        required={getBool('fields.email.requiredPatientData')}
+        required={getSetting<boolean>('fields.email.requiredPatientData')}
       />
     </>
   );
