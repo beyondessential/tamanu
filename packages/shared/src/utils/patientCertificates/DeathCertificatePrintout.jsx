@@ -180,7 +180,7 @@ const HEADER_FIELDS = {
   ],
   rightCol: [
     { key: 'lastName', label: 'Last name' },
-    { key: 'sex', label: 'Sex', acessor: getSex },
+    { key: 'sex', label: 'Sex', accessor: getSex },
     { key: 'placeOfDeath', label: 'Place of death', accessor: placeOfDeathAccessor },
     { key: 'causeOfDeath', label: 'Cause of death', accessor: causeOfDeathAccessor },
   ],
