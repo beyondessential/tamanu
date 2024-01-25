@@ -80,14 +80,13 @@ const MoreScreenOptions: BottomTabNavigationOptions = {
   tabBarTestID: 'MORE',
 };
 
-// const tabLabelFontSize = screenPercentageToDP(1.21, Orientation.Height);
+const tabLabelFontSize = screenPercentageToDP(1.47, Orientation.Height);
 
 function MyTabBar({ state, descriptors, navigation }: BottomTabBarProps): ReactElement {
   return (
     <StyledSafeAreaView background={theme.colors.PRIMARY_MAIN}>
       <RowView
-        // height={screenPercentageToDP(6.5, Orientation.Height)}
-        height={65}
+        height={screenPercentageToDP(8, Orientation.Height)}
         background={theme.colors.PRIMARY_MAIN}
         justifyContent="center"
         alignItems="center"
@@ -142,8 +141,7 @@ function MyTabBar({ state, descriptors, navigation }: BottomTabBarProps): ReactE
                     strokeColor: isFocused ? theme.colors.PRIMARY_MAIN : theme.colors.WHITE,
                     color: isFocused ? theme.colors.SECONDARY_MAIN : 'none',
                   })}
-                {/* <StyledText color={theme.colors.WHITE} fontSize={tabLabelFontSize} fontWeight={500}> */}
-                <StyledText color={theme.colors.WHITE} fontSize={12} fontWeight={500}>
+                <StyledText color={theme.colors.WHITE} fontSize={tabLabelFontSize} fontWeight={500}>
                   {label}
                 </StyledText>
               </StyledTouchableOpacity>
