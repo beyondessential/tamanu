@@ -39,8 +39,9 @@ import {
   LocationInformationFields,
   PersonalInformationFields,
 } from '../components/ConfiguredMandatoryPatientFields';
+import { Typography } from '@material-ui/core';
 
-const StyledHeading = styled.div`
+const StyledHeading = styled(Typography).attrs({ variant: 'h6' })`
   font-weight: 500;
   font-size: 16px;
   color: ${Colors.darkText};
