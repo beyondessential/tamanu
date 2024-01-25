@@ -38,28 +38,20 @@ const palette = {
     unit: MUI_SPACING_UNIT,
   },
 };
+
+const bodyFontVariants = 'Battambang, Roboto';
+const headingFonrVariants = 'Moul, Roboto';
+
 const typography = {
   useNextVariants: true,
   fontSize: 15,
-  fontFamily: 'Battambang, Roboto',
-  h1: {
-    fontFamily: 'Moul, Roboto',
-  },
-  h2: {
-    fontFamily: 'Moul, Roboto',
-  },
-  h3: {
-    fontFamily: 'Moul, Roboto',
-  },
-  h4: {
-    fontFamily: 'Moul, Roboto',
-  },
-  h5: {
-    fontFamily: 'Moul, Roboto',
-  },
-  h6: {
-    fontFamily: 'Moul, Roboto',
-  },
+  fontFamily: bodyFontVariants,
+  h1: { fontFamily: headingFonrVariants },
+  h2: { fontFamily: headingFonrVariants },
+  h3: { fontFamily: headingFonrVariants },
+  h4: { fontFamily: headingFonrVariants },
+  h5: { fontFamily: headingFonrVariants },
+  h6: { fontFamily: headingFonrVariants },
 };
 const shape = { borderRadius: 3 };
 const overrides = {
