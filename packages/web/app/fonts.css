@@ -14,6 +14,7 @@ html {
   font-style: normal;
   font-display: swap;
   src: url(Battambang-Regular.ttf) format('truetype');
+  unicode-range: U+1780-17FF;
 }
 
 @font-face {
@@ -21,4 +22,5 @@ html {
   font-style: normal;
   font-display: swap;
   src: url(Moul-Regular.ttf) format('truetype');
+  unicode-range: U+1780-17FF;
 }
