@@ -4,6 +4,8 @@ import { getDOB, getName, getSex } from '../patientAccessors';
 import { PrintableBarcode } from './printComponents/PrintableBarcode';
 import { P } from './Typography';
 
+const fontSize = 11;
+
 const convertToPt = mm => {
   // remove 'mm' etc from strings
   if (typeof mm === 'string') return parseFloat(mm.replace(/[^0-9.]/i, '')) * 2.835;
@@ -28,6 +30,11 @@ const styles = StyleSheet.create({
   text: {
     color: '#444444',
   },
+  barcode: {
+    margin: 0,
+    marginBottom: 2,
+    textAlign: 'left',
+  },
 });
 
 const Row = props => <View style={styles.row} {...props} />;
@@ -40,20 +47,20 @@ const IDLabel = ({ patient }) => {
         <PrintableBarcode
           barHeight={22}
           id={patient.displayId}
-          fontSize={10}
-          barcodeStyle={{ margin: 0, marginBottom: 2, textAlign: 'left' }}
+          fontSize={fontSize}
+          barcodeStyle={styles.barcode}
         />
         <Col style={{ marginTop: '1mm', marginLeft: '2mm' }}>
-          <P mb={2} fontSize={10} style={styles.text}>
+          <P mb={2} fontSize={fontSize} style={styles.text}>
             {getSex(patient)}
           </P>
-          <P mb={0} fontSize={10} style={styles.text}>
+          <P mb={0} fontSize={fontSize} style={styles.text}>
             {getDOB(patient)}
           </P>
         </Col>
       </Row>
       <Col>
-        <P mb={0} mt={2} fontSize={10} style={styles.text}>
+        <P mb={0} mt={2} fontSize={fontSize} style={styles.text}>
           {getName(patient)}
         </P>
       </Col>
@@ -91,7 +98,7 @@ export const IDLabelPrintout = ({ patient, measures }) => {
       >
         <View style={pageStyles.grid} wrap={false}>
           {[...Array(30)].map((_, i) => (
-            <View style={pageStyles.gridItem} key={`label-${i}`} debug>
+            <View style={pageStyles.gridItem} key={`label-${i}`}>
               <IDLabel patient={patient} key={i} />
             </View>
           ))}

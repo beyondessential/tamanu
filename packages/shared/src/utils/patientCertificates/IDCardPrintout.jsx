@@ -3,7 +3,12 @@ import { Document, Image, Page, StyleSheet, View, Text } from '@react-pdf/render
 import { getDOB, getSex } from '../patientAccessors';
 import { PrintableBarcode } from './printComponents/PrintableBarcode';
 
-const convertToPt = mm => mm * 2.835;
+const convertToPt = mm => {
+  // remove 'mm' etc from strings
+  if (typeof mm === 'string') return parseFloat(mm.replace(/[^0-9.]/i, '')) * 2.835;
+
+  return mm * 2.835;
+};
 
 const styles = StyleSheet.create({
   mainContainer: {
