@@ -1,4 +1,4 @@
-import { Entity, Column, ManyToMany, JoinTable } from 'typeorm/browser';
+import { Column, Entity, JoinTable, ManyToMany } from 'typeorm/browser';
 
 import { ILabTestPanel } from '~/types';
 import { BaseModel } from './BaseModel';

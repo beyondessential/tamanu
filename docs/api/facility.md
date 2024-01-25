@@ -1,15 +1,14 @@
 # Facility server API Endpoint Docs
 
-Route implementations can be found in: `packages/lan/app/routes`
+Route implementations can be found in: `packages/facility-server/app/routes`
 
-TODO: 
-  - Add explanation of how route permissions work.
+TODO: Add explanation of how route permissions work.
 
 ### Suggestions
 
 route: `/v1/suggestions`
 
-Used by the desktop app `Suggester` class to add auto completing search functionality to form fields.
+Used by the web app `Suggester` class to add auto completing search functionality to form fields.
 
 ### User
 
