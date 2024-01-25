@@ -14,7 +14,7 @@ import { version } from '/root/package.json';
 import { callWithBackoff, fetchWithTimeout, getResponseJsonSafely, sleepAsync } from './utils';
 import { CentralConnectionStatus } from '~/types';
 
-const API_PREFIX = 'api';
+const API_PREFIX = __DEV__ ? 'v1' : 'api';
 
 const fetchAndParse = async (
   url: string,
