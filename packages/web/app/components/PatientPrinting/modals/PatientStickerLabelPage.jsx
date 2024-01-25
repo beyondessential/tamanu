@@ -65,9 +65,6 @@ export const PatientStickerLabelPage = React.memo(({ patient }) => {
   const [open, setOpen] = useState(true);
   const { getLocalisation } = useLocalisation();
   const measures = getLocalisation('printMeasures.stickerLabelPage');
-  // useEffect(() => { // TODO(web)
-  //   printPage();
-  // }, [printPage]);
   return (
     <Modal
       open={open}
