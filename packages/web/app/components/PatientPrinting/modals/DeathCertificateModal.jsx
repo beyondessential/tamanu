@@ -15,7 +15,7 @@ export const DeathCertificateModal = ({ patient, deathData }) => {
   return (
     <>
       <Modal
-        title="Patient Death Certificate"
+        title="Cause of death certificate"
         open={isOpen}
         onClose={() => setIsOpen(false)}
         width="md"
