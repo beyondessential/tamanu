@@ -42,7 +42,7 @@ describe('translations', () => {
       language: LANGUAGE_CODES.KHMER,
     });
 
-    const result = await app.get('/v1/admin/translation/preLogin');
+    const result = await app.get('/v1/public/translation/preLogin');
     expect(result).toHaveSucceeded();
 
     const expectedResult = [
