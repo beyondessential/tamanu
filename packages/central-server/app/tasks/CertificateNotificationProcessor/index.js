@@ -30,6 +30,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
     super(schedules.certificateNotificationProcessor.schedule, log, jitterTime);
     this.context = context;
     this.subtasks = [new LabRequestNotificationGenerator(context)];
+    this.models = context.store.models;
   }
 
   getName() {
