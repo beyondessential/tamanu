@@ -14,7 +14,9 @@ import { version } from '/root/package.json';
 import { callWithBackoff, fetchWithTimeout, getResponseJsonSafely, sleepAsync } from './utils';
 import { CentralConnectionStatus } from '~/types';
 
-const API_PREFIX = 'api';
+// The API is served from the /v1 path, but on production the url needs to go through the /api path to be rewritten by vite config to the correct path
+// The server will be updated soon so that the API is served from /api after which this condition won't be necessary
+const API_PREFIX = __DEV__ ? 'v1' : 'api';
 
 const fetchAndParse = async (
   url: string,
