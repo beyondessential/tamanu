@@ -4,7 +4,7 @@ import { Command } from 'commander';
 import { SETTINGS_SCOPES } from '@tamanu/constants';
 import { ReadSettings } from '@tamanu/settings';
 import { log } from '@tamanu/shared/services/logging';
-import { syncWithContext } from './sync';
+import { triggerSyncWithContext } from './sync';
 
 import { CentralServerConnection, FacilitySyncManager } from '../sync';
 import { ApplicationContext } from '../ApplicationContext';
@@ -57,7 +57,7 @@ export async function pushFacilityScopedSettings() {
     });
 
     // sync settings back down
-    await syncWithContext(context, { delay: 0 });
+    await triggerSyncWithContext(context, { delay: 0 });
 
     log.info('Successfully pushed facility scoped settings to central server');
     process.exit(0);

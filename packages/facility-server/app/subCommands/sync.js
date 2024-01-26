@@ -8,7 +8,7 @@ import { initDeviceId } from '../sync/initDeviceId';
 import { CentralServerConnection, FacilitySyncManager } from '../sync';
 import { ApplicationContext } from '../ApplicationContext';
 
-export const syncWithContext = async (context, delay) => {
+export const triggerSyncWithContext = async (context, delay) => {
   // eslint-disable-next-line no-constant-condition
   while (true) {
     log.info('Sync subcommand: beginning sync');
@@ -24,8 +24,8 @@ export const syncWithContext = async (context, delay) => {
       break;
     }
     if (queued) {
-      log.info('Sync subcommand: sync queued, retrying', { delaySeconds });
-      await sleepAsync(delaySeconds * 1000);
+      log.info('Sync subcommand: sync queued, retrying', { delay });
+      await sleepAsync(delay * 1000);
       continue;
     }
     // sync is enabled, did not run, and was not queued - error!
@@ -47,7 +47,7 @@ async function sync({ delay: delaySecondsStr }) {
   context.centralServer.connect(); // preemptively connect central server to speed up sync
   context.syncManager = new FacilitySyncManager(context);
 
-  await syncWithContext(context, delaySeconds);
+  await triggerSyncWithContext(context, delaySeconds);
 }
 
 export const syncCommand = new Command('sync')
