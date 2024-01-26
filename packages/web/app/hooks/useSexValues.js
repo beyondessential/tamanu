@@ -1,9 +1,9 @@
 import { useSettings } from '../contexts/Settings';
-import { sexOptions } from '../constants';
+import { SEX_OPTIONS } from '@tamanu/constants';
 
 export const useSexValues = () => {
   const { getSetting } = useSettings();
-  const sexValues = sexOptions.map(o => o.value);
+  const sexValues = SEX_OPTIONS.map(o => o.value);
 
   const hideOtherSex = getSetting('features.hideOtherSex');
   if (hideOtherSex) {
@@ -16,7 +16,7 @@ export const useSexValues = () => {
 export const useSexOptions = (includeAll = false) => {
   const { getSetting } = useSettings();
   const hideOtherSex = getSetting('features.hideOtherSex');
-  const options = hideOtherSex ? sexOptions.filter(s => s.value !== 'other') : sexOptions;
+  const options = hideOtherSex ? SEX_OPTIONS.filter(s => s.value !== 'other') : sexOptions;
 
   return [...(includeAll ? [{ value: '', label: 'All' }] : []), ...options];
 };

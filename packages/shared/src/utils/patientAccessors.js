@@ -11,7 +11,7 @@ export const getDOB = ({ dateOfBirth }, getSetting) =>
     : 'Unknown';
 
 export const getDOBWithAge = ({ dateOfBirth }, getLocalisation) => {
-  if (!dateOfBirth) return 'Unkown';
+  if (!dateOfBirth) return 'Unknown';
 
   const dob = getDisplayDate(dateOfBirth, 'dd/MM/yyyy', getLocalisation);
   const age = ageInYears(dateOfBirth);
@@ -28,7 +28,7 @@ export const getPassportNumber = ({ additionalData }) => (additionalData || {}).
 export const getAddress = ({ additionalData }) => {
   let address = 'N/A';
 
-  const { streetVillage, cityTown, country } = additionalData;
+  const { streetVillage, cityTown, country } = additionalData || {};
 
   if (streetVillage && cityTown && country) {
     address = `${streetVillage}, ${cityTown}, ${country.name}`;
@@ -36,3 +36,8 @@ export const getAddress = ({ additionalData }) => {
 
   return address;
 };
+
+export const getLocationName = ({ location }) =>
+  location.locationGroup ? `${location.locationGroup.name}, ${location.name}` : location.name;
+
+export const getVillageName = ({ village }) => village?.name;

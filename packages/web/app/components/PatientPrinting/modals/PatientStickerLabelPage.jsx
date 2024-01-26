@@ -1,7 +1,8 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
-import { SEX_VALUE_INDEX } from '../../../constants';
+import { SEX_VALUE_INDEX } from '@tamanu/constants';
+
 import { DateDisplay } from '../../DateDisplay';
 import { useSettings } from '../../../contexts/Settings';
 

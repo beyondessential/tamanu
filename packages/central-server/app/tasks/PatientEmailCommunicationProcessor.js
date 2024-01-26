@@ -1,6 +1,7 @@
 import { PATIENT_COMMUNICATION_CHANNELS, COMMUNICATION_STATUSES } from '@tamanu/constants';
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
+
 import { removeFile } from '../utils/files';
 
 // turns 'hello there' into 'h*********e'
@@ -12,7 +13,8 @@ const maskEmail = email => email.replace(/[^@]*/g, maskMiddle);
 export class PatientEmailCommunicationProcessor extends ScheduledTask {
   constructor(context) {
     const { schedules, settings, store, emailService } = context;
-    super(schedules.patientEmailCommunicationProcessor.schedule, log);
+    const { jitterTime, schedule } = schedules.patientEmailCommunicationProcessor;
+    super(schedule, log, jitterTime);
     this.models = store.models;
     this.settings = settings;
     this.emailService = emailService;

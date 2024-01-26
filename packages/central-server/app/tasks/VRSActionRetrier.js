@@ -6,9 +6,11 @@ export class VRSActionRetrier extends ScheduledTask {
     return 'VRSActionRetrier';
   }
 
-  constructor({ schedules, integrations }) {
-    super(schedules.vrsActionRetrier.schedule, log);
-    this.vrsIntegration = integrations.fijiVrs;
+  constructor(context) {
+    const { schedules } = context;
+    const { jitterTime, schedule } = schedules.vrsActionRetrier;
+    super(schedule, log, jitterTime);
+    this.context = context;
   }
 
   async run() {

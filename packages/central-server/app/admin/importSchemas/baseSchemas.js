@@ -5,6 +5,7 @@ import {
   LAB_TEST_RESULT_TYPES,
   LAB_TEST_TYPE_VISIBILITY_STATUSES,
   PROGRAM_DATA_ELEMENT_TYPE_VALUES,
+  STATUS_COLOR,
   VACCINE_STATUS,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
@@ -261,6 +262,28 @@ export const Survey = Base.shape({
     .required()
     .oneOf(['programs', 'referral', 'obsolete', 'vitals']),
   isSensitive: yup.boolean().required(),
+});
+
+export const ProgramRegistry = Base.shape({
+  code: fieldTypes.code.required(),
+  name: yup.string().required(),
+  visibilityStatus,
+});
+
+export const ProgramRegistryClinicalStatus = Base.shape({
+  code: fieldTypes.code.required(),
+  name: yup.string().required(),
+  color: yup
+    .string()
+    .required()
+    .oneOf(Object.keys(STATUS_COLOR)),
+  visibilityStatus,
+});
+
+export const ProgramRegistryCondition = Base.shape({
+  code: fieldTypes.code.required(),
+  name: yup.string().required(),
+  visibilityStatus,
 });
 
 export const AdministeredVaccine = Base.shape({

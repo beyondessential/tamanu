@@ -14,11 +14,11 @@ export class OutpatientDischarger extends ScheduledTask {
 
   constructor(context, overrideConfig = null) {
     const { schedules, settings } = context;
-    const { schedule, suppressInitialRun } = {
+    const { schedule, suppressInitialRun, jitterTime } = {
       ...schedules.outpatientDischarger,
       ...overrideConfig,
     };
-    super(schedule, log);
+    super(schedule, log, jitterTime);
     this.settings = settings;
     this.overrides = overrideConfig;
     this.models = context.store.models;

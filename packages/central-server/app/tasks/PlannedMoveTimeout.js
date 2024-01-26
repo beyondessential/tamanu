@@ -17,11 +17,11 @@ export class PlannedMoveTimeout extends ScheduledTask {
 
   constructor(context, overrideConfig = null) {
     const { store, settings, schedules } = context;
-    const { schedule, suppressInitialRun } = {
+    const { schedule, jitterTime, suppressInitialRun } = {
       ...schedules.plannedMoveTimeout,
       ...overrideConfig,
     };
-    super(schedule, log);
+    super(schedule, log, jitterTime);
     this.overrides = overrideConfig;
     this.models = store.models;
     this.settings = settings;

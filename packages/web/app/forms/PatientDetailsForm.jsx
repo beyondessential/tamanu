@@ -4,11 +4,15 @@ import { groupBy, isEmpty } from 'lodash';
 import { useQuery } from '@tanstack/react-query';
 
 import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
-import { PATIENT_REGISTRY_TYPES, PLACE_OF_BIRTH_TYPES } from '@tamanu/constants';
-import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants/patientFields';
+import {
+  PATIENT_REGISTRY_TYPES,
+  PLACE_OF_BIRTH_TYPES,
+  SEX_OPTIONS,
+  PATIENT_FIELD_DEFINITION_TYPES,
+} from '@tamanu/constants';
 
 import { useSexValues } from '../hooks';
-import { Colors, sexOptions } from '../constants';
+import { Colors } from '../constants';
 import { useSettings } from '../contexts/Settings';
 import { useApi, useSuggester } from '../api';
 import { getPatientDetailsValidation } from '../validations';
@@ -57,7 +61,7 @@ const StyledPatientDetailSecondaryDetailsGroupWrapper = styled.div`
 export const PrimaryDetailsGroup = ({ values = {}, patientRegistryType }) => {
   const villageSuggester = useSuggester('village');
   const { getSetting } = useSettings();
-  let filteredSexOptions = sexOptions;
+  let filteredSexOptions = SEX_OPTIONS;
   const hideOtherSex = getSetting('features.hideOtherSex');
   if (hideOtherSex) {
     filteredSexOptions = filteredSexOptions.filter(s => s.value !== 'other');

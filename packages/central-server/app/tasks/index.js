@@ -67,7 +67,10 @@ export async function startScheduledTasks(context) {
           ...context,
           schedules: {
             ...schedules,
-            vrsActionRetrier: { schedule: integrations.fijiVrs.retrySchedule },
+            vrsActionRetrier: {
+              schedule: integrations.fijiVrs.retrySchedule,
+              jitterTime: integrations.fijiVrs.jitterTime,
+            },
           },
         });
       } catch (err) {

@@ -14,7 +14,8 @@ export class ReportRequestProcessor extends ScheduledTask {
   }
 
   constructor({ schedules, settings, store, emailService, reportsSchemasStore }) {
-    super(schedules.reportRequestProcessor.schedule, log);
+    const { jitterTime, schedule } = schedules.reportRequestProcessor;
+    super(schedules.reportRequestProcessor.schedule, log, jitterTime);
     this.settings = settings;
     this.store = store;
     this.emailService = emailService;
@@ -219,7 +220,7 @@ export class ReportRequestProcessor extends ScheduledTask {
     try {
       const requests = await this.store.models.ReportRequest.findAll({
         where: sequelize.literal(
-          `status = '${REPORT_REQUEST_STATUSES.PROCESSING}' AND 
+          `status = '${REPORT_REQUEST_STATUSES.PROCESSING}' AND
           EXTRACT(EPOCH FROM CURRENT_TIMESTAMP - process_started_time) > ${timeoutDurationSeconds}`,
         ), // find processing report requests that have been running more than the timeout limit
         order: [['createdAt', 'ASC']], // process in order received

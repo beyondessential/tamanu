@@ -23,11 +23,12 @@ import { LabRequestNotificationGenerator } from './LabRequestNotificationGenerat
 
 export class CertificateNotificationProcessor extends ScheduledTask {
   constructor(context) {
-    const { schedules, settings, store } = context;
-    super(schedules.certificateNotificationProcessor.schedule, log);
-    this.settings = settings;
-    this.models = store.models;
+    const { schedules } = context;
+    const { jitterTime, schedule } = schedules.certificateNotificationProcessor;
+    super(schedule, log, jitterTime);
+    this.context = context;
     this.subtasks = [new LabRequestNotificationGenerator(context)];
+    this.models = context.store.models;
   }
 
   getName() {

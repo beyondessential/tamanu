@@ -12,7 +12,8 @@ export class DeceasedPatientDischarger extends ScheduledTask {
 
   constructor(context) {
     const { settings, schedules } = context;
-    super(schedules.deceasedPatientDischarger.schedule, log);
+    const { jitterTime, schedule } = schedules.deceasedPatientDischarger.schedule;
+    super(schedule, log, jitterTime);
     this.settings = settings;
     this.models = context.store.models;
   }

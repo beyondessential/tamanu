@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import styled from 'styled-components';
 
 import { useSettings } from '../../../contexts/Settings';
-import { SEX_VALUE_INDEX } from '../../../constants';
+import { SEX_VALUE_INDEX } from '@tamanu/constants';
 import { DateDisplay } from '../../DateDisplay';
 
 import { PatientBarcode } from '../printouts/reusable/PatientBarcode';
