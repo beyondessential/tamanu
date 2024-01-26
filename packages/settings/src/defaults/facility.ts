@@ -3,12 +3,6 @@ export const facilityDefaults = {
   debugging: {
     requestFailureRate: 0,
   },
-  discovery: {
-    enabled: true,
-    overrideAddress: '',
-    overridePort: null,
-    protocol: 'https',
-  },
   honeycomb: {
     enabled: true,
     level: 'info',
