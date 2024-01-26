@@ -1,25 +1,29 @@
 import React, { Fragment } from 'react';
 import styled from 'styled-components';
-import { isEmpty, groupBy } from 'lodash';
+import { groupBy, isEmpty } from 'lodash';
 import { useQuery } from '@tanstack/react-query';
 
 import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
-import { PATIENT_REGISTRY_TYPES, PLACE_OF_BIRTH_TYPES } from '@tamanu/constants';
-import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants/patientFields';
+import {
+  PATIENT_REGISTRY_TYPES,
+  PLACE_OF_BIRTH_TYPES,
+  SEX_OPTIONS,
+  PATIENT_FIELD_DEFINITION_TYPES,
+} from '@tamanu/constants';
 
 import { useSexValues } from '../hooks';
-import { Colors, sexOptions } from '../constants';
+import { Colors } from '../constants';
 import { useLocalisation } from '../contexts/Localisation';
 import { useApi, useSuggester } from '../api';
 import { getPatientDetailsValidation } from '../validations';
 import {
   AutocompleteField,
-  FormSubmitButton,
   ButtonRow,
   DateField,
   Field,
   Form,
   FormGrid,
+  FormSubmitButton,
   LocalisedField,
   NumberField,
   RadioField,
@@ -29,10 +33,10 @@ import {
 import { LoadingIndicator } from '../components/LoadingIndicator';
 import {
   BirthDetailsFields,
-  IdentificationInformationFields,
   ContactInformationFields,
-  PersonalInformationFields,
+  IdentificationInformationFields,
   LocationInformationFields,
+  PersonalInformationFields,
 } from '../components/ConfiguredMandatoryPatientFields';
 
 const StyledHeading = styled.div`
@@ -57,7 +61,7 @@ const StyledPatientDetailSecondaryDetailsGroupWrapper = styled.div`
 export const PrimaryDetailsGroup = ({ values = {}, patientRegistryType }) => {
   const villageSuggester = useSuggester('village');
   const { getLocalisation } = useLocalisation();
-  let filteredSexOptions = sexOptions;
+  let filteredSexOptions = SEX_OPTIONS;
   if (getLocalisation('features.hideOtherSex') === true) {
     filteredSexOptions = filteredSexOptions.filter(s => s.value !== 'other');
   }

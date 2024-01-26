@@ -1,12 +1,18 @@
-import { SURVEY_TYPES, VISIBILITY_STATUSES, LOCATION_AVAILABILITY_STATUS } from '@tamanu/constants';
 import {
-  splitIds,
+  LAB_REQUEST_STATUSES,
+  LOCATION_AVAILABILITY_STATUS,
+  SURVEY_TYPES,
+  VISIBILITY_STATUSES,
+} from '@tamanu/constants';
+import {
   buildDiagnosis,
-  createDummyPatient,
   createDummyEncounter,
+  createDummyPatient,
   randomRecords,
+  randomLabRequest,
+  splitIds,
 } from '@tamanu/shared/demoData';
-import { findOneOrCreate } from '@tamanu/shared/test-helpers';
+import { fake, findOneOrCreate } from '@tamanu/shared/test-helpers';
 import { createTestContext } from '../utilities';
 import { testDiagnoses } from '../seed';
 
@@ -215,6 +221,82 @@ describe('Suggestions', () => {
     });
   });
 
+  // Labs has functionality for only returning categories that have results for a particular patient
+  describe('patientLabTestCategories', () => {
+    let patientId;
+
+    beforeAll(async () => {
+      await models.ReferenceData.destroy({ where: { type: 'labTestCategory' } });
+      await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        name: 'AA-decoy1',
+        type: 'labTestCategory',
+      });
+      await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        name: 'BB-decoy2',
+        type: 'labTestCategory',
+      });
+      const { id: unpublishedCategoryId } = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        name: 'AA-unpublished',
+        type: 'labTestCategory',
+      });
+      const { id: usedCategoryId } = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        name: 'AA-used',
+        type: 'labTestCategory',
+      });
+      patientId = (await models.Patient.create(await createDummyPatient(models))).id;
+
+      const { id: encounterId } = await models.Encounter.create(
+        await createDummyEncounter(models, { patientId }),
+      );
+
+      await models.LabRequest.createWithTests(
+        await randomLabRequest(models, {
+          labTestCategoryId: unpublishedCategoryId,
+          status: LAB_REQUEST_STATUSES.RESULTS_PENDING,
+          encounterId,
+        }),
+      );
+      await models.LabRequest.createWithTests(
+        await randomLabRequest(models, {
+          labTestCategoryId: usedCategoryId,
+          status: LAB_REQUEST_STATUSES.PUBLISHED,
+          encounterId,
+        }),
+      );
+    });
+
+    it('should not filter if there is no patient id', async () => {
+      const result = await userApp
+        .get('/v1/suggestions/patientLabTestCategories')
+        .query({ q: 'AA' });
+      expect(result).toHaveSucceeded();
+      expect(result?.body?.length).toEqual(3);
+    });
+
+    it('should filter lab test categories by use', async () => {
+      const result = await userApp.get('/v1/suggestions/patientLabTestCategories').query({
+        patientId,
+        status: LAB_REQUEST_STATUSES.PUBLISHED,
+      });
+      expect(result).toHaveSucceeded();
+      expect(result?.body?.length).toEqual(1);
+      expect(result.body[0].name).toEqual('AA-used');
+    });
+
+    it('should escape the query params', async () => {
+      const result = await userApp.get('/v1/suggestions/patientLabTestCategories').query({
+        q: `bobby tables'; drop all '' $$ \\';`,
+        patientId: `bobby tables'; drop all '' $$ \\';`,
+      });
+      expect(result).toHaveSucceeded();
+      expect(result?.body?.length).toEqual(0);
+    });
+  });
+
   describe('General functionality (via diagnoses)', () => {
     const limit = 25;
 
@@ -260,7 +342,9 @@ describe('Suggestions', () => {
       expect(body).toHaveProperty('name', record.name);
       expect(body).toHaveProperty('id', record.id);
     });
+  });
 
+  describe('Other suggesters', () => {
     it('should get suggestions for a medication', async () => {
       const result = await userApp.get('/v1/suggestions/drug?q=a');
       expect(result).toHaveSucceeded();
@@ -270,38 +354,50 @@ describe('Suggestions', () => {
     });
 
     it('should get suggestions for a survey', async () => {
-      const programId = 'all-survey-program-id';
+      const programId1 = 'all-survey-program-id';
+      const programId2 = 'alternative-program-id';
       const obsoleteSurveyId = 'obsolete-survey-id';
       await models.Program.create({
-        id: programId,
+        id: programId1,
+        name: 'Program',
+      });
+      await models.Program.create({
+        id: programId2,
         name: 'Program',
       });
 
       await models.Survey.bulkCreate([
         {
           id: obsoleteSurveyId,
-          programId,
+          programId: programId1,
           name: 'XX - Obsolete Survey',
           surveyType: SURVEY_TYPES.OBSOLETE,
         },
         {
           id: 'referral-survey-id',
-          programId,
+          programId: programId1,
           name: 'XX - Referral Survey',
         },
         {
           id: 'program-survey-id',
-          programId,
+          programId: programId1,
           name: 'XX - Program Survey',
         },
         {
           id: 'program-survey-id-2',
-          programId,
+          programId: programId1,
           name: 'ZZ - Program Survey',
+        },
+        {
+          id: 'program2-survey-id-2',
+          programId: programId2,
+          name: 'AA - Program Survey',
         },
       ]);
 
-      const result = await userApp.get('/v1/suggestions/survey?q=X');
+      const result = await userApp
+        .get('/v1/suggestions/survey')
+        .query({ q: 'X', programId: 'all-survey-program-id' });
       expect(result).toHaveSucceeded();
       const { body } = result;
       expect(body).toBeInstanceOf(Array);

@@ -1,14 +1,15 @@
 import React, { memo, useCallback, useMemo } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { useApi } from '../../api';
 import { Suggester } from '../../utils/suggester';
 import {
-  CONDITIONS_TITLE,
   ALLERGIES_TITLE,
+  CARE_PLANS_TITLE,
+  CONDITIONS_TITLE,
   FAMILY_HISTORY_TITLE,
   ISSUES_TITLE,
-  CARE_PLANS_TITLE,
 } from './paneTitles';
 
 const FormContainer = styled.div`
@@ -37,41 +38,39 @@ const getSuggesters = (title, items) => {
   }
 };
 
-export const InfoPaneAddEditForm = memo(
-  ({ patient, endpoint, onClose, Form, item, title, items }) => {
-    const api = useApi();
-    const queryClient = useQueryClient();
+export const InfoPaneAddEditForm = memo(({ endpoint, onClose, Form, item, title, items }) => {
+  const api = useApi();
+  const queryClient = useQueryClient();
+  const patient = useSelector(state => state.patient);
+  const onSubmit = useCallback(
+    async data => {
+      if (data.id) {
+        // don't need to include patientId as the existing record will already have it
+        await api.put(`${endpoint}/${data.id}`, data);
+      } else {
+        await api.post(endpoint, { ...data, patientId: patient.id });
+      }
 
-    const onSubmit = useCallback(
-      async data => {
-        if (data.id) {
-          // don't need to include patientId as the existing record will already have it
-          await api.put(`${endpoint}/${data.id}`, data);
-        } else {
-          await api.post(endpoint, { ...data, patientId: patient.id });
-        }
+      queryClient.invalidateQueries([`infoPaneListItem-${title}`, patient.id]);
+      onClose();
+    },
+    [api, endpoint, onClose, patient.id, title, queryClient],
+  );
 
-        queryClient.invalidateQueries([`infoPaneListItem-${title}`, patient.id]);
-        onClose();
-      },
-      [api, endpoint, onClose, patient.id, title, queryClient],
-    );
+  const suggesters = useMemo(
+    () =>
+      Object.fromEntries(
+        Object.entries(getSuggesters(title, items)).map(([key, options = {}]) => [
+          `${key}Suggester`,
+          new Suggester(api, key, options),
+        ]),
+      ),
+    [api, title, items],
+  );
 
-    const suggesters = useMemo(
-      () =>
-        Object.fromEntries(
-          Object.entries(getSuggesters(title, items)).map(([key, options = {}]) => [
-            `${key}Suggester`,
-            new Suggester(api, key, options),
-          ]),
-        ),
-      [api, title, items],
-    );
-
-    return (
-      <FormContainer>
-        <Form onCancel={onClose} editedObject={item} onSubmit={onSubmit} {...suggesters} />
-      </FormContainer>
-    );
-  },
-);
+  return (
+    <FormContainer>
+      <Form onCancel={onClose} editedObject={item} onSubmit={onSubmit} {...suggesters} />
+    </FormContainer>
+  );
+});

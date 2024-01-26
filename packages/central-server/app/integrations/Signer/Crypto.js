@@ -3,27 +3,27 @@ import nodeCrypto from 'crypto';
 import { add } from 'date-fns';
 import { Crypto } from '@peculiar/webcrypto';
 import {
+  Set as Asn1Set,
+  BitString,
   fromBER,
   Integer,
-  PrintableString,
-  Utf8String,
-  BitString,
   OctetString,
+  PrintableString,
   Sequence,
-  Set as Asn1Set,
+  Utf8String,
 } from 'asn1js';
 import {
-  Time,
-  setEngine,
-  CryptoEngine,
+  AttributeTypeAndValue,
+  AuthorityKeyIdentifier,
+  BasicConstraints,
   Certificate,
   CertificationRequest,
-  AttributeTypeAndValue,
-  BasicConstraints,
+  CryptoEngine,
   Extension,
   Extensions,
   ExtKeyUsage,
-  AuthorityKeyIdentifier,
+  setEngine,
+  Time,
 } from 'pkijs';
 import { ICAO_DOCUMENT_TYPES, X502_OIDS } from '@tamanu/constants';
 import { depem, pem } from '@tamanu/shared/utils';

@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import { calculateInvoiceTotal } from '../utils';
 
 import {
-  INVOICE_STATUS_LABELS,
-  INVOICE_STATUS_COLORS,
-  INVOICE_PAYMENT_STATUS_LABELS,
   ENCOUNTER_OPTIONS_BY_VALUE,
+  INVOICE_PAYMENT_STATUS_LABELS,
+  INVOICE_STATUS_COLORS,
+  INVOICE_STATUS_LABELS,
 } from '../constants';
 
 import { useApi } from '../api';

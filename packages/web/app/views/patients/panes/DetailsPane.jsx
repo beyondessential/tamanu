@@ -7,7 +7,7 @@ import { useAuth } from '../../../contexts/Auth';
 import { ContentPane } from '../../../components';
 import { PatientDetailsForm } from '../../../forms/PatientDetailsForm';
 import { reloadPatient } from '../../../store/patient';
-import { notifyError, invalidatePatientDataQueries } from '../../../utils';
+import { invalidatePatientDataQueries, notifyError } from '../../../utils';
 
 // Momentary component to just display a message, will need design and
 // refactor later.
@@ -36,7 +36,7 @@ export const PatientDetailsPane = React.memo(
       }
 
       // invalidate the cache of patient data queries to reload the patient data
-      invalidatePatientDataQueries(queryClient, patient.id);
+      await invalidatePatientDataQueries(queryClient, patient.id);
       dispatch(reloadPatient(patient.id));
     };
 

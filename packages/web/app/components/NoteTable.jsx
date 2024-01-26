@@ -1,12 +1,12 @@
-import React, { useCallback, useMemo, useState, useRef } from 'react';
+import React, { useCallback, useMemo, useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
 import EditIcon from '@material-ui/icons/Edit';
 
-import { NOTE_TYPES, NOTE_PERMISSION_TYPES } from '@tamanu/constants';
+import { NOTE_PERMISSION_TYPES, NOTE_TYPES, NOTE_TYPE_LABELS } from '@tamanu/constants';
 
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
-import { Colors, NOTE_FORM_MODES, NOTE_TYPE_LABELS } from '../constants';
+import { Colors, NOTE_FORM_MODES } from '../constants';
 import { useAuth } from '../contexts/Auth';
 import { NoteModal } from './NoteModal';
 import { withPermissionCheck } from './withPermissionCheck';
@@ -162,6 +162,11 @@ const NoteContent = ({
       ? note.onBehalfOf?.displayName
       : note.revisedBy?.onBehalfOf?.displayName;
 
+  useEffect(() => {
+    const el = noteContentContainerRef.current;
+    if (el) setContentIsClipped(el.offsetHeight < el.scrollHeight);
+  }, [contentIsExpanded]);
+
   return (
     <NoteRowContainer>
       {isNotFilteredByNoteType && (
@@ -170,13 +175,7 @@ const NoteContent = ({
         </NoteHeaderContainer>
       )}
       <NoteBodyContainer>
-        <NoteContentContainer
-          $expanded={contentIsExpanded}
-          ref={el => {
-            noteContentContainerRef.current = el;
-            setContentIsClipped(el?.offsetHeight < el?.scrollHeight);
-          }}
-        >
+        <NoteContentContainer $expanded={contentIsExpanded} ref={noteContentContainerRef}>
           {note?.content?.split('\n').map((line, i, { length }) => {
             const elementRef = contentLineClipping?.current?.[i];
             const contentOffsetHeight = noteContentContainerRef.current?.offsetHeight;

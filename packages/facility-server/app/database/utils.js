@@ -1,4 +1,4 @@
-import { Sequelize, Op } from 'sequelize';
+import { Op, Sequelize } from 'sequelize';
 
 /*
 Returns an array with the correct structure to support regular

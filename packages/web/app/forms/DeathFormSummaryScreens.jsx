@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Box, Typography } from '@material-ui/core';
-import { Button, OutlinedButton, FormGrid } from '../components';
+import { Button, FormGrid, OutlinedButton } from '../components';
 
 const Actions = styled(Box)`
   display: flex;

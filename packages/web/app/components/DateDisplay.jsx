@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { format } from 'date-fns';
 import { parseDate } from '@tamanu/shared/utils/dateTime';
-import { Typography, Box } from '@material-ui/core';
+import { Box, Typography } from '@material-ui/core';
 import styled from 'styled-components';
 import { ThemedTooltip } from './Tooltip';
 
@@ -27,7 +27,7 @@ const intlFormatDate = (date, formatOptions, fallback = 'Unknown') => {
 export const formatShortest = date =>
   intlFormatDate(date, { month: '2-digit', day: '2-digit', year: '2-digit' }, '--/--'); // 12/04/20
 
-const formatShort = date =>
+export const formatShort = date =>
   intlFormatDate(date, { day: '2-digit', month: '2-digit', year: 'numeric' }, '--/--/----'); // 12/04/2020
 
 export const formatTime = date =>

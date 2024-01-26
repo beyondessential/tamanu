@@ -10,6 +10,7 @@ import { flattenObject } from '../../utils';
 import { Dialog } from '../Dialog';
 import { FORM_STATUSES, FORM_TYPES } from '../../constants';
 import { useFormSubmission } from '../../contexts/FormSubmission';
+import { IS_DEVELOPMENT } from '../../utils/env';
 
 const ErrorMessage = ({ error }) => `${JSON.stringify(error)}`;
 
@@ -74,7 +75,7 @@ export class Form extends React.PureComponent {
 
     const { onSubmit, formType = FORM_TYPES.DATA_FORM } = props;
     const hasNonAsyncSubmitHandler =
-      process.env.NODE_ENV === 'development' &&
+      IS_DEVELOPMENT &&
       formType === FORM_TYPES.DATA_FORM &&
       onSubmit.constructor.name !== 'AsyncFunction';
 
@@ -253,6 +254,8 @@ export class Form extends React.PureComponent {
       validateOnChange,
       validateOnBlur,
       initialValues,
+      suppressErrorDialog = false,
+      render, // unused, but extracted from props so we don't pass it to formik
       ...props
     } = this.props;
     const { validationErrors } = this.state;
@@ -263,7 +266,7 @@ export class Form extends React.PureComponent {
       throw new Error('Form must not have any children -- use the `render` prop instead please!');
     }
 
-    const displayErrorDialog = Object.keys(validationErrors).length > 0;
+    const hasErrors = Object.keys(validationErrors).length > 0;
 
     return (
       <>
@@ -276,15 +279,18 @@ export class Form extends React.PureComponent {
             page: 1,
           }}
           {...props}
-          render={this.renderFormContents}
-        />
-        <Dialog
-          isVisible={displayErrorDialog}
-          onClose={this.hideErrorDialog}
-          headerTitle="Please fix below errors to continue"
-          disableDevWarning
-          contentText={<FormErrors errors={validationErrors} />}
-        />
+        >
+          {this.renderFormContents}
+        </Formik>
+        {!suppressErrorDialog && (
+          <Dialog
+            isVisible={hasErrors}
+            onClose={this.hideErrorDialog}
+            headerTitle="Please fix below errors to continue"
+            disableDevWarning
+            contentText={<FormErrors errors={validationErrors} />}
+          />
+        )}
       </>
     );
   }

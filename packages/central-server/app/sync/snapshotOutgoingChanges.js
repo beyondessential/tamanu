@@ -1,8 +1,8 @@
 import { snake } from 'case';
 import {
+  COLUMNS_EXCLUDED_FROM_SYNC,
   getSnapshotTableName,
   SYNC_SESSION_DIRECTION,
-  COLUMNS_EXCLUDED_FROM_SYNC,
 } from '@tamanu/shared/sync';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging/log';

@@ -1,13 +1,13 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
 import { Box } from '@material-ui/core';
 import { addDays, isAfter, isBefore, parse } from 'date-fns';
 import {
+  format as formatDate,
   toDateString,
   toDateTimeString,
-  format as formatDate,
 } from '@tamanu/shared/utils/dateTime';
 import PropTypes from 'prop-types';
 
@@ -71,6 +71,10 @@ export const DateInput = ({
   const onValueChange = useCallback(
     event => {
       const formattedValue = event.target.value;
+      if (!formattedValue) {
+        onChange({ target: { value: '', name } });
+        return;
+      }
       const date = parse(formattedValue, format, new Date());
 
       if (max) {
@@ -91,8 +95,11 @@ export const DateInput = ({
 
       let outputValue;
       if (saveDateAsString) {
-        if (type === 'date') outputValue = toDateString(date);
-        else if (['time', 'datetime-local'].includes(type)) outputValue = toDateTimeString(date);
+        if (type === 'date') {
+          outputValue = toDateString(date);
+        } else if (['time', 'datetime-local'].includes(type)) {
+          outputValue = toDateTimeString(date);
+        }
       } else {
         outputValue = date.toISOString();
       }

@@ -2,12 +2,12 @@ import config from 'config';
 import { get } from 'lodash';
 
 import {
+  CERTIFICATE_NOTIFICATION_STATUSES,
   COMMUNICATION_STATUSES,
+  COVID_19_CLEARANCE_CERTIFICATE,
+  ICAO_DOCUMENT_TYPES,
   PATIENT_COMMUNICATION_CHANNELS,
   PATIENT_COMMUNICATION_TYPES,
-  ICAO_DOCUMENT_TYPES,
-  CERTIFICATE_NOTIFICATION_STATUSES,
-  COVID_19_CLEARANCE_CERTIFICATE,
   VACCINATION_CERTIFICATE,
 } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
@@ -15,9 +15,9 @@ import { ScheduledTask } from '@tamanu/shared/tasks';
 import { generateUVCI } from '@tamanu/shared/utils/uvci';
 import { CertificateTypes } from '@tamanu/shared/utils/patientCertificates';
 import {
-  makeVaccineCertificate,
-  makeCovidVaccineCertificate,
   makeCovidCertificate,
+  makeCovidVaccineCertificate,
+  makeVaccineCertificate,
 } from '../../utils/makePatientCertificate';
 import { getLocalisation } from '../../localisation';
 import { createVdsNcVaccinationData, VdsNcDocument } from '../../integrations/VdsNc';
@@ -28,7 +28,8 @@ import { LabRequestNotificationGenerator } from './LabRequestNotificationGenerat
 export class CertificateNotificationProcessor extends ScheduledTask {
   constructor(context) {
     const conf = config.schedules.certificateNotificationProcessor;
-    super(conf.schedule, log);
+    const { schedule, jitterTime } = conf;
+    super(schedule, log, jitterTime);
     this.config = conf;
     this.context = context;
     this.subtasks = [new LabRequestNotificationGenerator(context)];

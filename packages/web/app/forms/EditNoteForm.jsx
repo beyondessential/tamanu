@@ -1,5 +1,7 @@
 import React from 'react';
 
+import { NOTE_TYPE_LABELS } from '@tamanu/constants';
+
 import { FormSubmitCancelRow } from '../components/ButtonRow';
 import {
   NoteContentField,
@@ -7,7 +9,6 @@ import {
   StyledDivider,
   WrittenByText,
 } from '../components/NoteCommonFields';
-import { NOTE_TYPE_LABELS } from '../constants';
 
 export const EditNoteForm = ({ note, onNoteContentChange, onSubmit, onCancel }) => {
   const noteAuthorName = note.revisedBy

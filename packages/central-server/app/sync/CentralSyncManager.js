@@ -6,19 +6,19 @@ import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { CURRENT_SYNC_TIME_KEY } from '@tamanu/shared/sync/constants';
 import { log } from '@tamanu/shared/services/logging';
 import {
-  createSnapshotTable,
-  insertSnapshotRecords,
-  updateSnapshotRecords,
+  adjustDataPostSyncPush,
   completeSyncSession,
   countSyncSnapshotRecords,
+  createSnapshotTable,
   findSyncSnapshotRecords,
   getModelsForDirection,
+  getSyncTicksOfPendingEdits,
+  insertSnapshotRecords,
   removeEchoedChanges,
   saveIncomingChanges,
-  adjustDataPostSyncPush,
-  waitForPendingEditsUsingSyncTick,
-  getSyncTicksOfPendingEdits,
   SYNC_SESSION_DIRECTION,
+  updateSnapshotRecords,
+  waitForPendingEditsUsingSyncTick,
 } from '@tamanu/shared/sync';
 import { uuidToFairlyUniqueInteger } from '@tamanu/shared/utils';
 
@@ -267,6 +267,10 @@ export class CentralSyncManager {
       const patientIdsForFullSync = newPatientFacilities.map(n => n.patientId);
 
       const syncAllLabRequests = await models.Setting.get('syncAllLabRequests', facilityId);
+      const syncTheseProgramRegistries = await models.Setting.get(
+        'syncTheseProgramRegistries',
+        facilityId,
+      );
       const sessionConfig = {
         // for facilities with a lab, need ongoing lab requests
         // no need for historical ones on initial sync, and no need on mobile
@@ -275,6 +279,7 @@ export class CentralSyncManager {
           ? this.constructor.config.sync.syncAllEncountersForTheseVaccines
           : [],
         isMobile,
+        syncTheseProgramRegistries: isMobile ? [] : syncTheseProgramRegistries || [],
       };
 
       // snapshot inside a "repeatable read" transaction, so that other changes made while this

@@ -1,7 +1,7 @@
 import { Op } from 'sequelize';
 import { chunk, omit, omitBy } from 'lodash';
 import config from 'config';
-import { VISIBILITY_STATUSES, PATIENT_MERGE_DELETION_ACTIONS } from '@tamanu/constants';
+import { PATIENT_MERGE_DELETION_ACTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { NOTE_RECORD_TYPES } from '@tamanu/constants/notes';
 import { InvalidParameterError } from '@tamanu/shared/errors';
 import { log } from '@tamanu/shared/services/logging';
@@ -26,6 +26,8 @@ export const simpleUpdateModels = [
   'CertificateNotification',
   'DeathRevertLog',
   'UserRecentlyViewedPatient',
+  'PatientProgramRegistration',
+  'PatientProgramRegistrationCondition',
 ];
 
 // These ones need a little more attention.

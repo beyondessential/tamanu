@@ -6,7 +6,7 @@ import { log } from '@tamanu/shared/services/logging';
 import { fetchWithTimeout } from '@tamanu/shared/utils/fetchWithTimeout';
 
 import { makeTableResponse } from './render/table';
-import { getUrl, getBool, getMilliseconds } from './render/cell';
+import { getBool, getMilliseconds, getUrl } from './render/cell';
 
 export const serversRouter = express.Router();
 

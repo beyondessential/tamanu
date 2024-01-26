@@ -1,25 +1,25 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op, QueryTypes } from 'sequelize';
-import { NotFoundError, InvalidParameterError } from '@tamanu/shared/errors';
+import { InvalidParameterError, NotFoundError } from '@tamanu/shared/errors';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import {
-  LAB_REQUEST_STATUSES,
   DOCUMENT_SIZE_LIMIT,
   DOCUMENT_SOURCES,
+  IMAGING_REQUEST_STATUS_TYPES,
   INVOICE_STATUSES,
+  LAB_REQUEST_STATUSES,
   NOTE_RECORD_TYPES,
   VITALS_DATA_ELEMENT_IDS,
-  IMAGING_REQUEST_STATUS_TYPES,
 } from '@tamanu/constants';
 
 import {
+  paginatedGetList,
+  permissionCheckingRouter,
+  runPaginatedQuery,
   simpleGet,
   simpleGetHasOne,
   simpleGetList,
-  permissionCheckingRouter,
-  runPaginatedQuery,
-  paginatedGetList,
 } from '@tamanu/shared/utils/crudHelpers';
 import { uploadAttachment } from '../../utils/uploadAttachment';
 import { noteChangelogsHandler, noteListHandler } from '../../routeHandlers';
@@ -177,7 +177,7 @@ encounterRelations.get(
 
     req.checkPermission('list', 'ImagingRequest');
 
-    const associations = ImagingRequest.getListReferenceAssociations(models) || [];
+    const associations = ImagingRequest.getListReferenceAssociations() || [];
 
     const baseQueryOptions = {
       where: {
@@ -209,6 +209,7 @@ encounterRelations.get(
           ...ir.forResponse(),
           ...(includeNote ? await ir.extractNotes() : undefined),
           areas: ir.areas.map(a => a.forResponse()),
+          results: ir.results.map(result => result.forResponse()),
         };
       }),
     );

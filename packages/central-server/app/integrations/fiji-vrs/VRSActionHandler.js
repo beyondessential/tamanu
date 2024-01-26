@@ -1,7 +1,7 @@
 import util from 'util';
 
 import { log } from '@tamanu/shared/services/logging';
-import { RemoteCallFailedError, InvalidOperationError } from '@tamanu/shared/errors';
+import { InvalidOperationError, RemoteCallFailedError } from '@tamanu/shared/errors';
 
 import * as schema from './schema';
 

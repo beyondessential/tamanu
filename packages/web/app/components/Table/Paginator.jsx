@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import styled from 'styled-components';
 import { Pagination, PaginationItem } from '@material-ui/lab';
-import { Select, MenuItem } from '@material-ui/core';
+import { MenuItem, Select } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { Colors } from '../../constants';
 import { ChevronIcon } from '../Icons/ChevronIcon';
@@ -133,7 +133,9 @@ export const Paginator = React.memo(
             MenuProps={{ classes: { paper: classes.selectMenu } }}
           >
             {rowsPerPageOptions.map(option => (
-              <StyledMenuItem value={option}>{option}</StyledMenuItem>
+              <StyledMenuItem key={option} value={option}>
+                {option}
+              </StyledMenuItem>
             ))}
           </StyledSelectField>
           <StyledPagination

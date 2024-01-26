@@ -1,16 +1,15 @@
 import React from 'react';
 
-import { PATIENT_REGISTRY_TYPES } from '@tamanu/constants';
+import { PATIENT_REGISTRY_TYPES, MARITAL_STATUS_OPTIONS } from '@tamanu/constants';
 
 import { AutocompleteField, SelectField, SuggesterSelectField, TextField } from '..';
 import {
   bloodOptions,
   educationalAttainmentOptions,
-  maritalStatusOptions,
   socialMediaOptions,
   titleOptions,
 } from '../../constants';
-import { useSuggester, usePatientSuggester } from '../../api';
+import { usePatientSuggester, useSuggester } from '../../api';
 import { ConfiguredMandatoryPatientFields } from './ConfiguredMandatoryPatientFields';
 
 export const PersonalInformationFields = ({ patientRegistryType, showMandatory }) => {
@@ -28,7 +27,7 @@ export const PersonalInformationFields = ({ patientRegistryType, showMandatory }
     },
     maritalStatus: {
       component: SelectField,
-      options: maritalStatusOptions,
+      options: MARITAL_STATUS_OPTIONS,
       condition: () => patientRegistryType === PATIENT_REGISTRY_TYPES.NEW_PATIENT,
     },
     bloodType: {

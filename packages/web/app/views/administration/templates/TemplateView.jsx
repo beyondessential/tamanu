@@ -1,9 +1,9 @@
-import React, { useState, useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
 
-import { TopBar, PageContainer, ContentPane } from '../../../components';
+import { ContentPane, PageContainer, TopBar } from '../../../components';
 import { Colors } from '../../../constants';
 import { NewTemplateForm } from './NewTemplateForm';
 import { useApi } from '../../../api';
@@ -12,6 +12,7 @@ import { useAuth } from '../../../contexts/Auth';
 import { TEMPLATE_ENDPOINT } from '../constants';
 import { TemplateList } from './TemplateList';
 import { EditTemplateModal } from './EditTemplateModal';
+import { useRefreshCount } from '../../../hooks/useRefreshCount';
 
 const ContentContainer = styled.div`
   padding: 32px 30px;
@@ -23,12 +24,10 @@ const ContentContainer = styled.div`
 
 export const TemplateView = () => {
   const [editingTemplate, setEditingTemplate] = useState(null);
-  const [refreshCount, setRefreshCount] = useState(0);
+  const [refreshCount, updateRefreshCount] = useRefreshCount();
 
   const api = useApi();
   const { currentUser } = useAuth();
-
-  const refreshTable = useCallback(() => setRefreshCount(count => count + 1), [setRefreshCount]);
 
   const createTemplate = useCallback(
     async (data, { resetForm }) => {
@@ -36,10 +35,10 @@ export const TemplateView = () => {
         createdById: currentUser.id,
         ...data,
       });
-      refreshTable();
+      updateRefreshCount();
       resetForm();
     },
-    [api, currentUser.id, refreshTable],
+    [api, currentUser.id, updateRefreshCount],
   );
 
   const onEditTemplate = useCallback(
@@ -48,19 +47,19 @@ export const TemplateView = () => {
         createdById: currentUser.id,
         ...data,
       });
-      refreshTable();
+      updateRefreshCount();
       setEditingTemplate(null);
     },
-    [api, currentUser.id, refreshTable],
+    [api, currentUser.id, updateRefreshCount],
   );
 
   const onDeleteTemplate = useCallback(async () => {
     await api.put(`${TEMPLATE_ENDPOINT}/${editingTemplate.id}`, {
       visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
     });
-    refreshTable();
+    updateRefreshCount();
     setEditingTemplate(null);
-  }, [api, refreshTable, editingTemplate?.id]);
+  }, [api, updateRefreshCount, editingTemplate?.id]);
 
   return (
     <PageContainer>
@@ -74,7 +73,7 @@ export const TemplateView = () => {
       <TopBar title="Templates" />
       <ContentPane>
         <ContentContainer>
-          <NewTemplateForm onSubmit={createTemplate} refreshTable={refreshTable} />
+          <NewTemplateForm onSubmit={createTemplate} refreshTable={updateRefreshCount} />
         </ContentContainer>
         <TemplateList refreshCount={refreshCount} onRowClick={setEditingTemplate} />
       </ContentPane>
