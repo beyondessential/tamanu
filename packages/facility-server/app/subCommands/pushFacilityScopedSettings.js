@@ -1,12 +1,13 @@
-import { Command } from 'commander';
 import config from 'config';
+import { Command } from 'commander';
+
+import { SETTINGS_SCOPES } from '@tamanu/constants';
+import { ReadSettings } from '@tamanu/settings';
+import { log } from '@tamanu/shared/services/logging';
 
 import { CentralServerConnection } from '../sync';
 import { ApplicationContext } from '../ApplicationContext';
 import { initDeviceId } from '../sync/initDeviceId';
-
-import { SETTINGS_SCOPES } from '@tamanu/constants';
-import { ReadSettings } from '@tamanu/settings';
 
 async function pushFacilityScopedSettings() {
   const context = await new ApplicationContext().init();
@@ -24,23 +25,31 @@ async function pushFacilityScopedSettings() {
   const centralServer = new CentralServerConnection({ ...context, settings });
   await centralServer.connect();
 
-  const res = await centralServer.forwardRequest(
-    {
-      method: 'PUT',
-      body: {
-        settings: facilityScopedSettings,
-        facilityId: config.serverFacilityId,
-        scope: SETTINGS_SCOPES.FACILITY,
+  try {
+    await centralServer.forwardRequest(
+      {
+        method: 'PUT',
+        body: {
+          settings: facilityScopedSettings,
+          facilityId: config.serverFacilityId,
+          scope: SETTINGS_SCOPES.FACILITY,
+        },
       },
-    },
-    '/admin/settings',
-  );
+      '/admin/settings',
+    );
 
-  console.log('Pushed facility scoped settings to central server', res);
+    log.info('Successfully pushed facility scoped settings to central server');
+    process.exit(0);
+  } catch (err) {
+    process.stderr.write(
+      `Failed to push facility scoped settings to central server: ${error.stack}\n`,
+    );
+    process.exit(1);
+  }
 }
 
 export const pushFacilityScopedSettingsCommand = new Command('pushFacilityScopedSettings')
   .description(
-    'Push initial facility scoped settings to central server on upgrading from config-based settings',
+    'Push initial facility scoped settings to central server on upgrading from config files to database defined settings',
   )
   .action(pushFacilityScopedSettings);
