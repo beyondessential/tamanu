@@ -46,7 +46,7 @@ async function pushFacilityScopedSettings() {
     process.exit(0);
   } catch (err) {
     process.stderr.write(
-      `Failed to push facility scoped settings to central server: ${error.stack}\n`,
+      `Failed to push facility scoped settings to central server: ${err.stack}\n`,
     );
     process.exit(1);
   }
