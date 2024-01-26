@@ -14,9 +14,9 @@ import { UserAvatar } from '/components/UserAvatar';
 import { BackButton, VisitTypeButtonList, PatientMenuButtons } from './CustomComponents';
 // Helpers
 import { theme } from '/styled/theme';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { IPatient } from '~/types';
-import { joinNames, getGender } from '/helpers/user';
+import { getGender, joinNames } from '/helpers/user';
 import { getAgeFromDate } from '/helpers/date';
 import { setDotsOnMaxLength } from '/helpers/text';
 import { SyncInactiveAlert } from '~/ui/components/SyncInactiveAlert';

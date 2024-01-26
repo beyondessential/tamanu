@@ -1,4 +1,4 @@
-import { Entity, Column, Index, OneToMany } from 'typeorm/browser';
+import { Column, Entity, Index, OneToMany } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
 import { Referral } from './Referral';
 import { IUser } from '~/types';
