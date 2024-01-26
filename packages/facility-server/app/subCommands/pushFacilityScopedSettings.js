@@ -13,7 +13,7 @@ import { initDeviceId } from '../sync/initDeviceId';
  * Push initial facility scoped settings to central server on upgrading from pre db-defined settings version
  * This is a one-off command that should be run as part of the manual release steps of the upgrade
  */
-async function pushFacilityScopedSettings() {
+export async function pushFacilityScopedSettings() {
   const context = await new ApplicationContext().init();
   const { serverFacilityId } = config;
   const { models } = context;
