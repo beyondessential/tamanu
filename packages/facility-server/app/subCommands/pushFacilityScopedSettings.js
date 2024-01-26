@@ -11,10 +11,10 @@ import { initDeviceId } from '../sync/initDeviceId';
 
 async function pushFacilityScopedSettings() {
   const context = await new ApplicationContext().init();
+  const { serverFacilityId } = config;
   const { models } = context;
   await initDeviceId(context);
-  // TODO: We need to add settings to ApplicationContext as its that way in central server but not facility
-  const settings = new ReadSettings(models, config.serverFacilityId);
+  const settings = new ReadSettings(models, serverFacilityId);
 
   const facilityScopedSettings = await models.Setting.get(
     '',
@@ -31,7 +31,7 @@ async function pushFacilityScopedSettings() {
         method: 'PUT',
         body: {
           settings: facilityScopedSettings,
-          facilityId: config.serverFacilityId,
+          facilityId: serverFacilityId,
           scope: SETTINGS_SCOPES.FACILITY,
         },
       },
