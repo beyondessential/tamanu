@@ -8,6 +8,7 @@ import { log } from '@tamanu/shared/services/logging';
 import {
   migrateAppointmentsToLocationGroupsCommand,
   migrateCommand,
+  pushFacilityScopedSettingsCommand,
   reportCommand,
   serveCommand,
   syncCommand,
@@ -24,6 +25,7 @@ async function run() {
   program.addCommand(syncCommand);
   program.addCommand(migrateCommand);
   program.addCommand(migrateAppointmentsToLocationGroupsCommand);
+  program.addCommand(pushFacilityScopedSettingsCommand);
 
   await program.parseAsync(process.argv);
 }
