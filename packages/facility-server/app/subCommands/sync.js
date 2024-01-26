@@ -8,20 +8,7 @@ import { initDeviceId } from '../sync/initDeviceId';
 import { CentralServerConnection, FacilitySyncManager } from '../sync';
 import { ApplicationContext } from '../ApplicationContext';
 
-async function sync({ delay: delaySecondsStr }) {
-  const delaySeconds = parseInt(delaySecondsStr, 10);
-  if (!Number.isFinite(delaySeconds) || delaySeconds < 0) {
-    throw new Error('invalid option for delay');
-  }
-  const context = await new ApplicationContext().init();
-
-  await initDeviceId(context);
-  const settings = new ReadSettings(context.models, config.serverFacilityId);
-  const syncConfig = await settings.get('sync');
-  context.centralServer = new CentralServerConnection({ ...context, settings }, syncConfig);
-  context.centralServer.connect(); // preemptively connect central server to speed up sync
-  context.syncManager = new FacilitySyncManager(context);
-
+export const syncWithContext = async (context, delay) => {
   // eslint-disable-next-line no-constant-condition
   while (true) {
     log.info('Sync subcommand: beginning sync');
@@ -44,6 +31,23 @@ async function sync({ delay: delaySecondsStr }) {
     // sync is enabled, did not run, and was not queued - error!
     throw new Error('sync is in an unknown state');
   }
+};
+
+async function sync({ delay: delaySecondsStr }) {
+  const delaySeconds = parseInt(delaySecondsStr, 10);
+  if (!Number.isFinite(delaySeconds) || delaySeconds < 0) {
+    throw new Error('invalid option for delay');
+  }
+  const context = await new ApplicationContext().init();
+
+  await initDeviceId(context);
+  const settings = new ReadSettings(context.models, config.serverFacilityId);
+  const syncConfig = await settings.get('sync');
+  context.centralServer = new CentralServerConnection({ ...context, settings }, syncConfig);
+  context.centralServer.connect(); // preemptively connect central server to speed up sync
+  context.syncManager = new FacilitySyncManager(context);
+
+  await syncWithContext(context, delaySeconds);
 }
 
 export const syncCommand = new Command('sync')

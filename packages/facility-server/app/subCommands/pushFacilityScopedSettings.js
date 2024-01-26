@@ -4,8 +4,9 @@ import { Command } from 'commander';
 import { SETTINGS_SCOPES } from '@tamanu/constants';
 import { ReadSettings } from '@tamanu/settings';
 import { log } from '@tamanu/shared/services/logging';
+import { syncWithContext } from './sync';
 
-import { CentralServerConnection } from '../sync';
+import { CentralServerConnection, FacilitySyncManager } from '../sync';
 import { ApplicationContext } from '../ApplicationContext';
 import { initDeviceId } from '../sync/initDeviceId';
 
@@ -17,6 +18,7 @@ export async function pushFacilityScopedSettings() {
   const context = await new ApplicationContext().init();
   const { serverFacilityId } = config;
   const { models } = context;
+  const { Setting } = models;
   await initDeviceId(context);
   const settings = new ReadSettings(models, serverFacilityId);
 
@@ -26,11 +28,14 @@ export async function pushFacilityScopedSettings() {
     SETTINGS_SCOPES.FACILITY,
   );
 
-  const centralServer = new CentralServerConnection({ ...context, settings });
-  await centralServer.connect();
+  const syncConfig = await settings.get('sync');
+
+  context.centralServer = new CentralServerConnection({ ...context, settings }, syncConfig);
+  context.syncManager = new FacilitySyncManager(context);
+  await context.centralServer.connect();
 
   try {
-    await centralServer.forwardRequest(
+    await context.centralServer.forwardRequest(
       {
         method: 'PUT',
         body: {
@@ -41,6 +46,18 @@ export async function pushFacilityScopedSettings() {
       },
       '/admin/settings',
     );
+
+    // Destroy the settings on the facility server so that central server is the source of truth
+    await Setting.destroy({
+      where: {
+        scope: SETTINGS_SCOPES.FACILITY,
+        facilityId: serverFacilityId,
+      },
+      force: true,
+    });
+
+    // sync settings back down
+    await syncWithContext(context, { delay: 0 });
 
     log.info('Successfully pushed facility scoped settings to central server');
     process.exit(0);
