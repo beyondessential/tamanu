@@ -14,14 +14,29 @@ async function pushFacilityScopedSettings() {
   await initDeviceId(context);
   // TODO: We need to add settings to ApplicationContext as its that way in central server but not facility
   const settings = new ReadSettings(models, config.serverFacilityId);
-  const facilitySettings = await models.Setting.findAll({
-    where: { facilityId: config.serverFacilityId, scope: SETTINGS_SCOPES.FACILITY },
-  });
-  console.log(facilitySettings);
+
+  const facilityScopedSettings = await models.Setting.get(
+    '',
+    config.serverFacilityId,
+    SETTINGS_SCOPES.FACILITY,
+  );
+
   const centralServer = new CentralServerConnection({ ...context, settings });
   await centralServer.connect();
 
-  // await centralServer.post('admin/settings', { settings: facilitySettings });
+  const res = await centralServer.forwardRequest(
+    {
+      method: 'PUT',
+      body: {
+        settings: facilityScopedSettings,
+        facilityId: config.serverFacilityId,
+        scope: SETTINGS_SCOPES.FACILITY,
+      },
+    },
+    '/admin/settings',
+  );
+
+  console.log('Pushed facility scoped settings to central server', res);
 }
 
 export const pushFacilityScopedSettingsCommand = new Command('pushFacilityScopedSettings')
