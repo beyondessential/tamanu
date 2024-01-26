@@ -3,11 +3,7 @@ import { ActivityIndicator } from 'react-native';
 import styled from 'styled-components/native';
 import * as styledSystem from 'styled-system';
 import { theme } from '/styled/theme';
-import {
-  RowView,
-  StyledTouchableOpacity,
-  StyledViewProps,
-} from '/styled/common';
+import { RowView, StyledTouchableOpacity, StyledViewProps } from '/styled/common';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 
 type StrNumType = number | string;
@@ -27,7 +23,7 @@ interface ButtonContainerProps extends StyledViewProps {
 export interface StyledButtonProps extends ButtonContainerProps {
   id?: string;
   color?: string;
-  buttonText?: string;
+  buttonText?: any;
   onPress: (value: any) => void | Promise<any> | Function;
   fontSize?: string | number;
   textColor?: string;
@@ -37,9 +33,8 @@ export interface StyledButtonProps extends ButtonContainerProps {
 
 const ButtonContainer = styled(RowView)<ButtonContainerProps>`
   ${styledSystem.flexbox};
-  height: ${(props): any => (props.height
-    ? props.height
-    : screenPercentageToDP(6.07, Orientation.Height))};
+  height: ${(props): any =>
+    props.height ? props.height : screenPercentageToDP(6.07, Orientation.Height)};
   width: ${(props): any => (props.width ? props.width : '100%')};
   border-width: ${(props): any => (props.outline ? '1px' : props.borderWidth)};
   border-color: ${(props): string => props.borderColor || 'transparent'};
@@ -69,9 +64,8 @@ interface ButtonTextProps {
 }
 
 const StyledButtonText = styled.Text<ButtonTextProps>`
-  font-size: ${(props): StrNumType => (props.fontSize
-    ? props.fontSize
-    : screenPercentageToDP(1.94, Orientation.Height))};
+  font-size: ${(props): StrNumType =>
+    props.fontSize ? props.fontSize : screenPercentageToDP(1.94, Orientation.Height)};
   font-weight: ${(props): StrNumType => (props.fontWeight ? props.fontWeight : 'bold')};
   color: ${(props): string => {
     if (props.textColor) return props.textColor;
@@ -103,8 +97,8 @@ export const Button = ({
   ...rest
 }: StyledButtonProps): FunctionComponentElement<{}> => (
   <StyledTouchableOpacity
-    testID={id || buttonText}
-    accessibilityLabel={buttonText}
+    testID={id || buttonText?.props?.fallback || buttonText}
+    accessibilityLabel={buttonText?.props?.fallback || buttonText}
     flex={flex}
     onPress={onPress}
     {...rest}
@@ -125,9 +119,7 @@ export const Button = ({
       padding={padding}
       disabled={disabled}
     >
-      {loadingAction && (
-        <ActivityIndicator size="large" color={theme.colors.WHITE} />
-      )}
+      {loadingAction && <ActivityIndicator size="large" color={theme.colors.WHITE} />}
       {!loadingAction && children}
       {!loadingAction && (
         <StyledButtonText

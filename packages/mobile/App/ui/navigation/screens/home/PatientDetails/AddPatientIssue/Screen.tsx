@@ -65,7 +65,11 @@ export const Screen = ({
                 label={<TranslatedText stringId="general.form.note.label" fallback="Note" />}
                 name="note"
               />
-              <Button marginTop={10} onPress={handleSubmit} buttonText="Submit" />
+              <Button
+                marginTop={10}
+                onPress={handleSubmit}
+                buttonText={<TranslatedText stringId="general.action.submit" fallback="Submit" />}
+              />
             </ScrollView>
           </KeyboardAvoidingView>
         )}
