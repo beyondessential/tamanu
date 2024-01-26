@@ -1,6 +1,6 @@
 import { parseISO } from 'date-fns';
-import { keyBy, groupBy } from 'lodash';
-import { format, differenceInMilliseconds, isISOString } from '../../utils/dateTime';
+import { groupBy, keyBy } from 'lodash';
+import { differenceInMilliseconds, format, isISOString } from '../../utils/dateTime';
 
 const MODEL_COLUMN_TO_ANSWER_DISPLAY_VALUE = {
   User: 'displayName',
@@ -60,11 +60,14 @@ export const getAnswerBody = async (models, componentConfig, type, answer, trans
 
 export const getAutocompleteComponentMap = surveyComponents => {
   const autocompleteComponents = surveyComponents
-    .filter(c => c.dataElement.dataValues.type === 'Autocomplete')
     .map(({ dataElementId, config: componentConfig }) => [
       dataElementId,
       componentConfig ? JSON.parse(componentConfig) : {},
-    ]);
+    ])
+    // We only care that components have a config.source
+    // This is at the time of writing only Autocomplete components or PatientData
+    // questions with writeToPatient.fieldType = 'Autocomplete'
+    .filter(([_, config]) => config.source);
   return new Map(autocompleteComponents);
 };
 

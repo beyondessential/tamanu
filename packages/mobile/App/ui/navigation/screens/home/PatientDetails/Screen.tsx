@@ -1,4 +1,4 @@
-import React, { useCallback, ReactElement } from 'react';
+import React, { ReactElement, useCallback } from 'react';
 
 import { compose } from 'redux';
 import { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
@@ -7,23 +7,23 @@ import { withPatient } from '~/ui/containers/Patient';
 import { joinNames, getGender } from '~/ui/helpers/user';
 import { getDisplayAge } from '~/ui/helpers/date';
 import {
-  StyledView,
-  StyledSafeAreaView,
   FullView,
   RowView,
-  StyledTouchableOpacity,
-  StyledText,
+  StyledSafeAreaView,
   StyledScrollView,
+  StyledText,
+  StyledTouchableOpacity,
+  StyledView,
 } from '~/ui/styled/common';
 import { theme } from '~/ui/styled/theme';
-import { screenPercentageToDP, Orientation } from '~/ui/helpers/screen';
+import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { ArrowLeftIcon } from '~/ui/components/Icons';
 import { UserAvatar } from '~/ui/components/UserAvatar';
 import {
+  AdditionalInfo,
   GeneralInfo,
   HealthIdentificationRow,
   PatientIssues,
-  AdditionalInfo,
 } from './CustomComponents';
 import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 

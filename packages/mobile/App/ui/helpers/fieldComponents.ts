@@ -1,6 +1,6 @@
 import { FieldTypes, PatientFieldDefinitionTypes } from './fields';
 
-import { TextField, LimitedTextField } from '~/ui/components/TextField/TextField';
+import { LimitedTextField, TextField } from '~/ui/components/TextField/TextField';
 import { RadioButtonGroup } from '~/ui/components/RadioButtonGroup';
 import { DateField } from '~/ui/components/DateField/DateField';
 import { Dropdown, MultiSelectDropdown } from '~/ui/components/Dropdown';

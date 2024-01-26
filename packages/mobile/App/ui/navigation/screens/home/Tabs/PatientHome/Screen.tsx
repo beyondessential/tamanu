@@ -1,13 +1,13 @@
 import React, { ReactElement } from 'react';
 import { StatusBar } from 'react-native';
 // Components
-import { FullView, StyledView, StyledSafeAreaView, RowView, StyledText } from '/styled/common';
+import { FullView, RowView, StyledSafeAreaView, StyledText, StyledView } from '/styled/common';
 import { UserAvatar } from '/components/UserAvatar';
 import { Button } from '/components/Button';
-import { BackButton, VisitTypeButtonList, PatientMenuButtons } from './CustomComponents';
+import { BackButton, PatientMenuButtons, VisitTypeButtonList } from './CustomComponents';
 // Helpers
 import { theme } from '/styled/theme';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { IPatient } from '~/types';
 import { joinNames, getGender } from '/helpers/user';
 import { getDisplayAge } from '/helpers/date';

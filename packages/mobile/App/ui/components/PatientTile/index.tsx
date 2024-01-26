@@ -1,10 +1,10 @@
 import React from 'react';
-import { RowView, StyledView, StyledText } from '/styled/common';
+import { RowView, StyledText, StyledView } from '/styled/common';
 import { UserAvatar } from '../UserAvatar';
 import { getDisplayAge } from '/helpers/date';
 import { theme } from '/styled/theme';
 import { getGender, joinNames } from '/helpers/user';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { IPatient } from '~/types';
 import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 

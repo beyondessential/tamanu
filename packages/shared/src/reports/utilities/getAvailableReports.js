@@ -1,4 +1,4 @@
-import { REPORT_STATUSES, REPORT_DATE_RANGE_LABELS } from '@tamanu/constants';
+import { REPORT_DATE_RANGE_LABELS, REPORT_STATUSES } from '@tamanu/constants';
 import { REPORT_DEFINITIONS } from '../reportDefinitions';
 import { canRunStaticReport } from './canRunStaticReport';
 
@@ -40,6 +40,7 @@ const getDbReports = async (ability, models) => {
         REPORT_DATE_RANGE_LABELS[version.queryOptions.defaultDateRange],
       parameters: version.getParameters(),
       version: version.versionNumber,
+      notes: version.notes,
     };
   });
 };
