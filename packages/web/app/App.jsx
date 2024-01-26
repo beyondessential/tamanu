@@ -37,8 +37,9 @@ export function App({ sidebar, children }) {
   const isUserLoggedIn = useSelector(checkIsLoggedIn);
   const currentRoute = useSelector(getCurrentRoute);
   const isPrimaryTab = useSingleTab();
+  const disableSingleTab = localStorage.getItem('DISABLE_SINGLE_TAB');
 
-  if (!isPrimaryTab) {
+  if (!isPrimaryTab && !disableSingleTab) {
     return <MultiTabErrorScreen />;
   }
 
