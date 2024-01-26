@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { TamanuLogoHorizontal } from '../components';
+import { TamanuLogoBlue } from '../components';
 
 const Body = styled.div`
   display: flex;
@@ -31,7 +31,7 @@ export const MultiTabErrorScreen = () => {
     <>
       <Body>
         <LogoContainer>
-          <TamanuLogoHorizontal size="8.75rem" />
+          <TamanuLogoBlue size="8.75rem" />
         </LogoContainer>
         <TextContainer>
           <h1>Tamanu can not be opened across multiple tabs.</h1>
