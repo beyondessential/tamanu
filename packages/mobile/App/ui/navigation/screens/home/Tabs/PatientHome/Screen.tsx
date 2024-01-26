@@ -49,7 +49,7 @@ export const Screen = ({
         justifyContent="space-between"
       >
         <StyledView flex={1}>
-          <BackButton />
+          <BackButton onPress={navigateToSearchPatients} />
         </StyledView>
         <StyledView flexDirection="column" justifyContent="center">
           <StyledView alignItems="center">
