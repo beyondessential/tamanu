@@ -8,9 +8,12 @@ import { useCertificate } from '../../../utils/useCertificate';
 import { useApi } from '../../../api';
 import { Colors } from '../../../constants';
 
-import { MultipleLabRequestsPrintout } from '../printouts/MultipleLabRequestsPrintout';
+import { PDFViewer, printPDF } from '../PDFViewer';
+import { useLocalisation } from '../../../contexts/Localisation';
+import { MultipleLabRequestsPrintout } from '@tamanu/shared/utils/patientCertificates';
 
 export const MultipleLabRequestsPrintoutModal = ({ encounter, labRequests, open, onClose }) => {
+  const { getLocalisation } = useLocalisation();
   const certificateData = useCertificate();
   const api = useApi();
 
@@ -42,18 +45,20 @@ export const MultipleLabRequestsPrintoutModal = ({ encounter, labRequests, open,
       onClose={onClose}
       color={Colors.white}
       printable
+      onPrint={() => printPDF('lab-request-printout')}
     >
       {patientLoading || additionalDataLoading || villageLoading ? (
         <LoadingIndicator />
       ) : (
-        <MultipleLabRequestsPrintout
-          certificateData={certificateData}
-          patient={patient}
-          additionalData={additionalData}
-          village={village}
-          encounter={encounter}
-          labRequests={labRequests}
-        />
+        <PDFViewer id="lab-request-printout">
+          <MultipleLabRequestsPrintout
+            certificateData={certificateData}
+            patientData={{ ...patient, additionalData, village }}
+            encounter={encounter}
+            labRequests={labRequests}
+            getLocalisation={getLocalisation}
+          />
+        </PDFViewer>
       )}
     </Modal>
   );

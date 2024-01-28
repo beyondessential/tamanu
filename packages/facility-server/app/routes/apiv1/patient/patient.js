@@ -20,7 +20,7 @@ import { patientInvoiceRoutes } from './patientInvoice';
 import { patientRelations } from './patientRelations';
 import { patientBirthData } from './patientBirthData';
 import { patientLocations } from './patientLocations';
-import { activeCovid19PatientsHandler } from '../../../routeHandlers';
+import { patientProgramRegistration } from './patientProgramRegistration';
 import { getOrderClause } from '../../../database/utils';
 import { dbRecordToResponse, pickPatientBirthData, requestBodyToRecord } from './utils';
 import { PATIENT_SORT_KEYS } from './constants';
@@ -496,13 +496,12 @@ patientRoute.post(
   }),
 );
 
-patientRoute.get('/program/activeCovid19Patients', asyncHandler(activeCovid19PatientsHandler));
-
 patientRoute.use(patientRelations);
 patientRoute.use(patientVaccineRoutes);
 patientRoute.use(patientDocumentMetadataRoutes);
 patientRoute.use(patientInvoiceRoutes);
 patientRoute.use(patientBirthData);
 patientRoute.use(patientLocations);
+patientRoute.use(patientProgramRegistration);
 
 export { patientRoute as patient };

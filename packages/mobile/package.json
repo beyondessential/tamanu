@@ -1,6 +1,6 @@
 {
   "name": "tamanuapp",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "private": true,
   "scripts": {
     "android": "npx react-native run-android",
@@ -50,7 +50,7 @@
     "popup-ui": "^1.2.2",
     "prop-types": "^15.7.2",
     "react": "17.0.2",
-    "react-native": "0.67.2",
+    "react-native": "0.67.5",
     "react-native-autocomplete-input": "^5.0.2",
     "react-native-bcrypt": "^2.4.0",
     "react-native-bg-thread": "^1.2.0",

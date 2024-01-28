@@ -13,6 +13,8 @@ import {
   PatientCarePlanForm,
   PatientIssueForm,
 } from '../../forms';
+import { PatientProgramRegistryForm } from '../../views/programRegistry/PatientProgramRegistryForm';
+import { ProgramRegistryListItem } from '../../views/programRegistry/ProgramRegistryListItem';
 import { DeathModal } from '../DeathModal';
 import { Colors } from '../../constants';
 import { PatientCarePlanDetails } from './PatientCarePlanNotes';
@@ -23,6 +25,7 @@ import {
   CONDITIONS_TITLE,
   FAMILY_HISTORY_TITLE,
   ISSUES_TITLE,
+  PROGRAM_REGISTRY,
 } from './paneTitles';
 import { isErrorUnknownAllow404s, useApi } from '../../api';
 import { RecordDeathSection } from '../RecordDeathSection';
@@ -99,6 +102,22 @@ const CarePlanDisplay = memo(({ patient, readonly }) => (
   />
 ));
 
+const ProgramRegistryDisplay = memo(({ patient, readonly }) => (
+  <InfoPaneList
+    patient={patient}
+    readonly={readonly}
+    title={PROGRAM_REGISTRY}
+    endpoint={`patient/${patient.id}/programRegistration`}
+    getEndpoint={`patient/${patient.id}/programRegistration`}
+    Form={PatientProgramRegistryForm}
+    overrideContentPadding
+    ListItemComponent={ProgramRegistryListItem}
+    behavior="modal"
+    itemTitle="Add program registry"
+    getEditFormName={programRegistry => `Program registry: ${programRegistry.name}`}
+  />
+));
+
 const CauseOfDeathButton = memo(({ openModal }) => {
   return (
     <OutlinedButton size="small" onClick={openModal}>
@@ -165,6 +184,7 @@ export const PatientInfoPane = () => {
         <FamilyHistoryDisplay patient={patient} readonly={readonly} />
         <PatientIssuesDisplay patient={patient} readonly={readonly} />
         <CarePlanDisplay patient={patient} readonly={readonly} />
+        <ProgramRegistryDisplay patient={patient} readonly={readonly} />
         <Buttons>
           {showCauseOfDeathButton && <CauseOfDeathButton openModal={openModal} />}
           <PrintSection patient={patient} readonly={readonly} />
