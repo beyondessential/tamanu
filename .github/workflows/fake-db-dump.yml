@@ -1,0 +1,108 @@
+name: Fake DB Dump
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - release/*
+
+jobs:
+  generate-fake:
+    strategy:
+      fail-fast: false
+      matrix:
+        server:
+          - central-server
+          - facility-server
+        postgres:
+          - "12"
+          - "14"
+          - "15"
+          - "16"
+
+    name: Make a db dump of fake data for server=${{ matrix.server }}, pg=${{ matrix.postgres }}
+    runs-on: ubuntu-latest
+    env:
+      DUMP_FILE: fake-${{ matrix.server }}-pg${{ matrix.pg }}.dump
+    steps:
+      - uses: actions/checkout@4
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20.x
+          cache: yarn
+      - uses: actions/cache/restore@v3
+        with:
+          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+          path: ${{ env.NODE_MODULES_PATHS }}
+
+      - run: yarn
+      - run: yarn build-shared
+
+      - name: Install and start postgres ${{ matrix.postgres }}
+        run: |
+          source .github/scripts/install-postgres-ubuntu.sh ${{ matrix.postgres }}
+          .github/scripts/setup-postgres-for-one-package.sh fake
+
+      - run: |
+          set -euxo pipefail
+
+          yarn workspace @tamanu/${{ matrix.server }} run build
+          yarn workspace @tamanu/${{ matrix.server }} run start migrate up
+          yarn workspace @tamanu/${{ matrix.server }} run start generate fake
+      - run: pg_dump fake --format custom --file $DUMP_FILE
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fake-${{ matrix.server }}-pg${{ matrix.pg }}
+          path: $DUMP_FILE
+
+  upload:
+    if: false
+    needs: ['generate-fake']
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write # allow accessing OIDC token for AWS
+      contents: read
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          aws-region: ap-southeast-2
+          # TODO: use a correct role
+          role-to-assume: arn:aws:iam::143295493206:role/gha-ops-pglies-s3
+          role-session-name: GHA@pglies=build
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: fake
+          pattern: fake-*
+          merge-multiple: true
+
+      - name: Get minisign
+        run: |
+          set -ex
+          curl --proto '=https' --tlsv1.2 -LO https://github.com/jedisct1/minisign/releases/download/0.11/minisign-0.11-linux.tar.gz
+          echo 'f0a0954413df8531befed169e447a66da6868d79052ed7e892e50a4291af7ae0  minisign-0.11-linux.tar.gz' | sha256sum -c
+          tar -xvf minisign-0.11-linux.tar.gz
+          mv minisign-linux/x86_64/minisign .
+      - name: Sign artifacts
+        env:
+          MINISIGN_KEY: ${{ secrets.SIGNING_KEY }}
+        run: |
+          set -e
+          echo "$MINISIGN_KEY" > minisign.key
+          set -x
+          ./minisign -R \
+            -s minisign.key \
+            -p minisign.pub
+          for file in fake/*; do
+            ./minisign -S \
+              -s minisign.key \
+              -m $file \
+              -x $file.sig \
+              -t "built on $(date --iso-8601=seconds) from tamanu/${{ github.sha }}"
+          done
+          rm minisign.*
+
+      # - name: Push to S3
+      #   run: aws s3 sync pg_lies s3://bes-ops-tools/pg_lies/${{ github.sha }} --no-progress
