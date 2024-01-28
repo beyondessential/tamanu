@@ -6,6 +6,12 @@ import { Suggester } from '../utils/suggester';
 import { FormModal } from './FormModal';
 import { ProcedureForm } from '../forms/ProcedureForm';
 
+const getActualDateTime = ({ date, startTime }) => {
+  // Both date and startTime only keep track of either date or time, accordingly.
+  // This grabs both relevant parts for the table.
+  return `${date.slice(0, 10)} ${startTime.slice(-8)}`;
+};
+
 export const ProcedureModal = ({ onClose, onSaved, encounterId, editedProcedure }) => {
   const api = useApi();
   const locationSuggester = new Suggester(api, 'location', {
@@ -24,13 +30,18 @@ export const ProcedureModal = ({ onClose, onSaved, encounterId, editedProcedure 
     >
       <ProcedureForm
         onSubmit={async data => {
-          if (data.id) {
-            await api.put(`procedure/${data.id}`, data);
+          const actualDateTime = getActualDateTime(data);
+          const updatedData = {
+            ...data,
+            date: actualDateTime,
+            startTime: actualDateTime,
+            encounterId
+          };
+
+          if (updatedData.id) {
+            await api.put(`procedure/${updatedData.id}`, updatedData);
           } else {
-            await api.post('procedure', {
-              ...data,
-              encounterId,
-            });
+            await api.post('procedure', updatedData);
           }
           onSaved();
         }}
