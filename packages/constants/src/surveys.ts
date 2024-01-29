@@ -147,7 +147,7 @@ export const PATIENT_DATA_FIELD_LOCATIONS: PatientDataFieldLocationsType = {
   ]),
 };
 
-// The display for the following fields is defined on the frontend
+// The 'location' for the following fields is defined on the frontend
 // Please keep in sync with:
 // - mobile/App/constants/surveys
 export const READONLY_DATA_FIELDS = {
