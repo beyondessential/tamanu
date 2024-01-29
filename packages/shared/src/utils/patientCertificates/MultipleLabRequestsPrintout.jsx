@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { Document, Page, StyleSheet, View, Text } from '@react-pdf/renderer';
+import { Document, Page, StyleSheet, View } from '@react-pdf/renderer';
 import { PatientDetailsWithBarcode } from './printComponents/PatientDetailsWithBarcode';
 import { styles, CertificateContent, CertificateHeader, Col, Row, Signature } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
