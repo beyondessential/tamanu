@@ -10,6 +10,7 @@ import { ENCOUNTER_OPTIONS_BY_VALUE } from '../constants';
 import { LocationGroupCell } from './LocationCell';
 import { LimitedLinesCell } from './FormattedTableCell';
 import { MenuButton } from './MenuButton';
+import { DeleteEncounterModal } from '../views/patients/components/DeleteEncounterModal';
 import { useAuth } from '../contexts/Auth';
 
 const DateWrapper = styled.div`
@@ -127,7 +128,7 @@ export const PatientHistory = ({ patient, onItemClick }) => {
         initialSort={{ orderBy: 'startDate', order: 'desc' }}
         refreshCount={refreshCount}
       />
-      <ActiveModal
+      <DeleteEncounterModal
         open={modalOpen}
         encounterToDelete={selectedEncounterData}
         patient={patient}
