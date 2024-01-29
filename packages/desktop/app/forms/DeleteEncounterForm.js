@@ -1,6 +1,5 @@
 import React from 'react';
 import * as yup from 'yup';
-import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import styled from 'styled-components';
 
 import { Field, Form } from '../components/Field';
@@ -57,7 +56,6 @@ export const DeleteEncounterForm = ({
   onSubmit,
   onCancel,
   encounterToDelete,
-  initialNewType,
   patient,
 }) => {
   const { encounterType, facilityName, startDate, endDate, reasonForEncounter } = encounterToDelete;
@@ -65,11 +63,6 @@ export const DeleteEncounterForm = ({
 
   return (
     <Form
-      initialValues={{
-        encounterType: initialNewType,
-        // Used in creation of associated notes
-        submittedTime: getCurrentDateTimeString(),
-      }}
       render={({ submitForm }) => {
         return (
           <div>
