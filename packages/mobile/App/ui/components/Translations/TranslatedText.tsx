@@ -8,6 +8,7 @@ interface TranslatedTextProps {
   stringId: string;
   fallback: string;
   replacements?: Replacements;
+  allCaps?: boolean;
 }
 
 const TextWrapper = styled(StyledText)<{
@@ -36,9 +37,11 @@ export const TranslatedText = ({
   stringId,
   fallback,
   replacements,
+  allCaps = false,
 }: TranslatedTextProps): ReactElement => {
   const { debugMode, getTranslation } = useTranslation();
-  const translation = getTranslation(stringId) || fallback;
+  let translation = getTranslation(stringId) || fallback;
+  allCaps && (translation = translation.toUpperCase());
 
   const displayElements = useMemo(() => {
     if (!replacements) {
