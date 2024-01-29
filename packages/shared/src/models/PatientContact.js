@@ -13,10 +13,7 @@ export class PatientContact extends Model {
           type: Sequelize.TEXT,
           allowNull: false,
         },
-        address: {
-          type: Sequelize.TEXT,
-          allowNull: false,
-        },
+        connectionDetails: Sequelize.JSONB,
         deletionStatus: Sequelize.TEXT,
       },
       {

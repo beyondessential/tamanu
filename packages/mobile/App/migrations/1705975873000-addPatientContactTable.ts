@@ -41,9 +41,9 @@ const PatientContact = new Table({
       isNullable: false,
     }),
     new TableColumn({
-      name: 'address',
+      name: 'connectionDetails',
       type: 'varchar',
-      isNullable: false,
+      isNullable: true,
     }),
     new TableColumn({
       name: 'deletionStatus',

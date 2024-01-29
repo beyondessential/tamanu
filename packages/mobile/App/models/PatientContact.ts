@@ -21,8 +21,8 @@ export class PatientContact extends BaseModel implements IPatientContact {
   @Column({ nullable: false })
   method: string;
 
-  @Column({ nullable: false })
-  address: string;
+  @Column({ nullable: true })
+  connectionDetails: string;
 
   @Column({ nullable: true })
   deletionStatus: string;

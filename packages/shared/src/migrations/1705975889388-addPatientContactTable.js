@@ -31,9 +31,9 @@ export async function up(query) {
       type: DataTypes.TEXT,
       allowNull: false,
     },
-    address: {
-      type: DataTypes.TEXT,
-      allowNull: false,
+    connectionDetails: {
+      type: DataTypes.JSONB,
+      allowNull: true,
     },
     deletion_status: {
       type: DataTypes.TEXT,
