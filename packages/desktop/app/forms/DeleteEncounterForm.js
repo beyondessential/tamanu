@@ -49,6 +49,10 @@ const NHNField = styled(Field)`
   width: 300px;
 `;
 
+const WhiteFormGrid = styled(FormGrid)`
+  background-color: white;
+`;
+
 export const DeleteEncounterForm = ({
   onSubmit,
   onCancel,
@@ -69,7 +73,7 @@ export const DeleteEncounterForm = ({
       render={({ submitForm }) => {
         return (
           <div>
-            <FormGrid columns={2} $color="white">
+            <WhiteFormGrid columns={2}>
               <GridItem>
                 <GridContent>
                   <Label>Date</Label>
@@ -88,7 +92,7 @@ export const DeleteEncounterForm = ({
                   <Value>{reasonForEncounter}</Value>
                 </div>
               </GridItem>
-            </FormGrid>
+            </WhiteFormGrid>
             <WarningWrapper>
               <WarningTitle>Confirm encounter deletion</WarningTitle>
               <Paragraph>
