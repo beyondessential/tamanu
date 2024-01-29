@@ -20,6 +20,10 @@ describe('subcommands/pushFacilityScopedSettings', () => {
 
   afterAll(() => ctx.close());
 
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   it('should push facility scoped settings to central server', async () => {
     const settings = {
       dog: {
@@ -73,5 +77,17 @@ describe('subcommands/pushFacilityScopedSettings', () => {
     await models.Setting.set('', settings, SETTINGS_SCOPES.FACILITY, config.serverFacilityId);
     await pushFacilityScopedSettings();
     expect(exitSpy).toBeCalledWith(0);
+  });
+  it('should exit with error if push fails', async () => {
+    const exitSpy = jest.spyOn(process, 'exit').mockImplementation(() => {});
+    CentralServerConnection.mockImplementationOnce(() => ({
+      __esModule: true,
+      connect: jest.fn(async () => {}),
+      forwardRequest: jest.fn(async () => {
+        throw new Error('test failure');
+      }),
+    }));
+    await pushFacilityScopedSettings();
+    expect(exitSpy).toBeCalledWith(1);
   });
 });
