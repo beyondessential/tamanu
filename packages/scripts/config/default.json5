@@ -1,0 +1,21 @@
+{
+  "db": {
+    "name": "fake",
+    // when verbose to true, log.consoleLevel must be set to "debug" to see any output
+    "verbose": false,
+    "username": "",
+    "password": "",
+    "migrateOnStartup": true,
+    "pool": {
+      "max": 10
+      // "min": 5,
+      // "idle": 10000,
+      // "acquire": 60000,
+      // "evict": 1000
+    },
+  },
+  // this should be an IANA tzdata timezone
+  // @see here for a list of available options https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+  "countryTimeZone": "Australia/Melbourne",
+  "allowMismatchedTimeZones": false
+}
