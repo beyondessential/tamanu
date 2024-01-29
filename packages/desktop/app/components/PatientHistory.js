@@ -10,7 +10,6 @@ import { ENCOUNTER_OPTIONS_BY_VALUE } from '../constants';
 import { LocationGroupCell } from './LocationCell';
 import { LimitedLinesCell } from './FormattedTableCell';
 import { MenuButton } from './MenuButton';
-import { DeleteEncounterModal } from '../views/patients/components/DeleteEncounterModal';
 import { useAuth } from '../contexts/Auth';
 
 const DateWrapper = styled.div`
@@ -39,13 +38,6 @@ const SyncWarning = styled.p`
 const RefreshButton = styled(OutlinedButton)`
   margin-left: 0.5rem;
 `;
-
-const MODAL_IDS = {
-  DELETE: 'delete',
-};
-const MODALS = {
-  [MODAL_IDS.DELETE]: DeleteEncounterModal,
-};
 
 export const PatientHistory = ({ patient, onItemClick }) => {
   const queryClient = useQueryClient();
