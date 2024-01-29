@@ -31,7 +31,7 @@ export async function up(query) {
       type: DataTypes.TEXT,
       allowNull: false,
     },
-    connectionDetails: {
+    connection_details: {
       type: DataTypes.JSONB,
       allowNull: true,
     },
