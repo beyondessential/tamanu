@@ -1,4 +1,4 @@
-import { DataTypes } from 'sequelize';
+import { DataTypes, Sequelize } from 'sequelize';
 
 export async function up(query) {
   await query.dropTable('user_localisation_caches');
