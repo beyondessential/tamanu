@@ -267,11 +267,11 @@
         "concurrency": 100,
         "resourceMaterialisationEnabled": {
             "Patient": true,
-            "ServiceRequest": true,
-            "DiagnosticReport": true,
-            "Encounter": true,
-            "Immunization": true,
-            "Practitioner": true,
+            "ServiceRequest": false,
+            "DiagnosticReport": false,
+            "Encounter": false,
+            "Immunization": false,
+            "Practitioner": false,
         },
       },
       "parameters": {

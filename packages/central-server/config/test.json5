@@ -87,7 +87,17 @@
       "enabled": true
     },
     "fhir": {
-      "enabled": true
+      "enabled": true,
+      "worker": {
+        "resourceMaterialisationEnabled": {
+          "Patient": true,
+          "ServiceRequest": true,
+          "DiagnosticReport": true,
+          "Encounter": true,
+          "Immunization": true,
+          "Practitioner": true,
+        },
+      },
     },
     "omniLab": {
       "enabled": true,
