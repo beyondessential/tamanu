@@ -5,38 +5,38 @@ import { BaseModal } from "./BaseModal";
 import { Field, SelectField } from './Field';
 import { ModalBackCancelConfirmRow } from "./ModalActionRow";
 
+const StyledText = styled.p`
+    margin: 0;
+    font-size: 14px;
+    line-height: 18px;
+
+    span {
+        font-weight: 500;
+    }
+
+    &.headerText {
+        margin: 7px 0 9px 0;
+        font-weight: 500;
+    }
+
+    &.bottomText {
+        margin-bottom: 31px;
+        font-weight: 500;
+    }
+`;
+
+const StyledTextField = styled.div`
+    display: flex;
+    gap: 20px;
+    margin-top: 20px;
+    margin-bottom: 38px;
+
+    > div {
+        flex: 1;
+    }
+`;
+
 export const AddReminderContactModal = ({ openAddReminderContactModal, handleCloseAddReminder, patient = {} }) => {
-
-    const StyledText = styled.p`
-        margin: 0;
-        font-size: 14px;
-        line-height: 18px;
-
-        span {
-            font-weight: 500;
-        }
-    
-        &.headerText {
-            margin: 7px 0 9px 0;
-            font-weight: 500;
-        }
-
-        &.bottomText {
-            margin-bottom: 31px;
-            font-weight: 500;
-        }
-    `;
-
-    const StyledTextField = styled.div`
-        display: flex;
-        gap: 20px;
-        margin-top: 20px;
-        margin-bottom: 38px;
-
-        > div {
-            flex-grow: 1;
-        }
-    `;
 
     return (
         <BaseModal

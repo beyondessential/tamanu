@@ -34,6 +34,10 @@ const SectionRow = styled.div`
   // ensure the button row takes up the full width if it's used in a grid context
   grid-column: 1 / -1;
 
+  div {
+    margin-top: 1px;
+  }
+
   > div:not(:first-child) { 
     margin-left: 20px;
   }
