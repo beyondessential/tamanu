@@ -33,7 +33,6 @@ describe('Template', () => {
       const result = await app.get(`/v1/template/${TEST_KEY}?facilityId=${facility.id}`).send({});
 
       expect(result).toHaveSucceeded();
-      console.log(result.body)
       expect(result.body.data).toEqual(TEST_VALUE);
     });
 
