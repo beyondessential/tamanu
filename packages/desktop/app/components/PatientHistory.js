@@ -51,19 +51,13 @@ export const PatientHistory = ({ patient, onItemClick }) => {
   const queryClient = useQueryClient();
   const { ability } = useAuth();
   const [refreshCount, setRefreshCount] = useState(0);
-  const [modalId, setModalId] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedEncounterData, setSelectedEncounterData] = useState(null);
-
-  const handleChangeModalId = id => {
-    setModalId(id);
-    setModalOpen(true);
-  };
 
   const allMenuActions = [
     {
       label: 'Delete',
-      action: () => handleChangeModalId(MODAL_IDS.DELETE),
+      action: () => setModalOpen(true),
       permissionCheck: () => {
         return ability?.can('delete', 'Encounter');
       },
@@ -121,8 +115,6 @@ export const PatientHistory = ({ patient, onItemClick }) => {
     },
   ];
 
-  const ActiveModal = MODALS[modalId] || null;
-
   if (!patient.markedForSync) {
     return <MarkPatientForSync patient={patient} />;
   }
@@ -143,18 +135,16 @@ export const PatientHistory = ({ patient, onItemClick }) => {
         initialSort={{ orderBy: 'startDate', order: 'desc' }}
         refreshCount={refreshCount}
       />
-      {ActiveModal && (
-        <ActiveModal
-          open={modalOpen}
-          encounterToDelete={selectedEncounterData}
-          patient={patient}
-          onClose={() => {
-            setModalOpen(false);
-            queryClient.invalidateQueries(['patientCurrentEncounter', patient.id]);
-            setRefreshCount(refreshCount + 1);
-          }}
-        />
-      )}
+      <ActiveModal
+        open={modalOpen}
+        encounterToDelete={selectedEncounterData}
+        patient={patient}
+        onClose={() => {
+          setModalOpen(false);
+          queryClient.invalidateQueries(['patientCurrentEncounter', patient.id]);
+          setRefreshCount(refreshCount + 1);
+        }}
+      />
     </>
   );
 };
