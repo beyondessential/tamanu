@@ -26,6 +26,7 @@
     "persistUpdateWorkerPoolSize": 5,
     "assertIfPulledRecordsUpdatedAfterPushSnapshot": true,
     "enabled": true,
+    "jitterTime": "1s",
     "backoff": {
       "multiplierMs": 300,
       "maxAttempts": 15,

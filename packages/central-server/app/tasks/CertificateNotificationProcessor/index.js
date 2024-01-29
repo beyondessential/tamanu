@@ -28,7 +28,8 @@ import { LabRequestNotificationGenerator } from './LabRequestNotificationGenerat
 export class CertificateNotificationProcessor extends ScheduledTask {
   constructor(context) {
     const conf = config.schedules.certificateNotificationProcessor;
-    super(conf.schedule, log);
+    const { schedule, jitterTime } = conf;
+    super(schedule, log, jitterTime);
     this.config = conf;
     this.context = context;
     this.subtasks = [new LabRequestNotificationGenerator(context)];
