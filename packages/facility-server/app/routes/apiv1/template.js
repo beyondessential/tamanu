@@ -9,15 +9,16 @@ template.get(
     req.flagPermissionChecked();
 
     const {
+      models: { Setting },
       params: { key },
-      settings,
+      query: { facilityId },
     } = req;
 
     if (!key.startsWith('localisation.templates.')) {
       throw new Error('Invalid template key');
     }
 
-    const templateValue = await settings.get(key);
+    const templateValue = await Setting.get(key, facilityId);
 
     res.send({ data: templateValue || null });
   }),
