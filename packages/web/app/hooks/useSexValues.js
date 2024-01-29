@@ -16,7 +16,7 @@ export const useSexValues = () => {
 export const useSexOptions = (includeAll = false) => {
   const { getSetting } = useSettings();
   const hideOtherSex = getSetting('features.hideOtherSex');
-  const options = hideOtherSex ? SEX_OPTIONS.filter(s => s.value !== 'other') : sexOptions;
+  const options = hideOtherSex ? SEX_OPTIONS.filter(s => s.value !== 'other') : SEX_OPTIONS;
 
   return [...(includeAll ? [{ value: '', label: 'All' }] : []), ...options];
 };

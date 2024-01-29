@@ -7,7 +7,6 @@ import { CssBaseline } from '@material-ui/core';
 import { MuiThemeProvider, StylesProvider } from '@material-ui/core/styles';
 
 import { theme } from '../app/theme';
-import { Provider } from 'react-redux';
 import { ConnectedRouter } from 'connected-react-router';
 import { store, history } from './__mocks__/store';
 import { MockedApi } from '../stories/utils/mockedApi';

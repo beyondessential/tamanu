@@ -291,7 +291,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
           discharge={discharge}
           village={village}
           medications={medications}
-          getLocalisation={getLocalisation}
+          getSetting={getSetting}
           clinicianText={clinicianText}
         />
       </PDFViewer>
