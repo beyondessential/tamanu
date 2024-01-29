@@ -5,7 +5,7 @@ import { FORM_STATUSES } from '/helpers/constants';
 export interface FieldProps {
   component: ReactNode;
   name: string;
-  label?: any;
+  label?: string;
   type?: string;
   disabled?: boolean;
   [key: string]: any;
