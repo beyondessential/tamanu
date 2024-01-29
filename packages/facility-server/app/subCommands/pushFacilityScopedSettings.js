@@ -20,7 +20,7 @@ export async function pushFacilityScopedSettings() {
   const { models } = context;
   const { Setting } = models;
   await initDeviceId(context);
-  const settings = new ReadSettings(models, serverFacilityId);
+  context.settings = new ReadSettings(models, serverFacilityId);
 
   const facilityScopedSettings = await models.Setting.get(
     '',
@@ -28,10 +28,11 @@ export async function pushFacilityScopedSettings() {
     SETTINGS_SCOPES.FACILITY,
   );
 
-  const syncConfig = await settings.get('sync');
+  const syncConfig = await context.settings.get('sync');
 
-  context.centralServer = new CentralServerConnection({ ...context, settings }, syncConfig);
+  context.centralServer = new CentralServerConnection(context, syncConfig);
   context.syncManager = new FacilitySyncManager(context);
+
   await context.centralServer.connect();
 
   try {

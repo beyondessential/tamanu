@@ -5,6 +5,10 @@ import { createTestContext } from '../utilities';
 
 import { SETTINGS_SCOPES } from '@tamanu/constants';
 
+jest.mock('../../dist/subCommands/sync', () => ({
+  triggerSyncWithContext: jest.fn(),
+}));
+
 describe('subcommands/pushFacilityScopedSettings', () => {
   let ctx = null;
   let models = null;
@@ -49,6 +53,7 @@ describe('subcommands/pushFacilityScopedSettings', () => {
     CentralServerConnection.mockImplementationOnce(() => ({
       __esModule: true,
       connect: jest.fn(async () => {}),
+
       forwardRequest: jest.fn(async (req, path) => {
         expect(path).toBe('/admin/settings');
         expect(req).toMatchObject({
