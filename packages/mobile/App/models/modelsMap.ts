@@ -6,6 +6,7 @@ import { PatientFieldDefinition } from './PatientFieldDefinition';
 import { PatientFieldDefinitionCategory } from './PatientFieldDefinitionCategory';
 import { PatientIssue } from './PatientIssue';
 import { PatientSecondaryId } from './PatientSecondaryId';
+import { PatientContact } from './PatientContact';
 import { User } from './User';
 import { Encounter } from './Encounter';
 import { EncounterHistory } from './EncounterHistory';
@@ -49,6 +50,7 @@ export const MODELS_MAP = {
   PatientFieldValue,
   PatientIssue,
   PatientSecondaryId,
+  PatientContact,
   User,
   Encounter,
   EncounterHistory,

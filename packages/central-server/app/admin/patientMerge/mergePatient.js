@@ -28,6 +28,7 @@ export const simpleUpdateModels = [
   'UserRecentlyViewedPatient',
   'PatientProgramRegistration',
   'PatientProgramRegistrationCondition',
+  'PatientContact',
 ];
 
 // These ones need a little more attention.

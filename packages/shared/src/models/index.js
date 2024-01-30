@@ -12,6 +12,7 @@ export * from './PatientAdditionalData';
 export * from './PatientVRSData';
 export * from './PatientSecondaryId';
 export * from './PatientFacility';
+export * from './PatientContact';
 
 export * from './PatientFieldDefinitionCategory';
 export * from './PatientFieldDefinition';
