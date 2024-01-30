@@ -308,7 +308,7 @@ describe('SurveyResponseAnswer', () => {
       });
 
       it('should return error if feature flag does not exist', async () => {
-        await models.Setting.truncate({ cascade: true });
+        await models.Setting.truncate();
 
         const result = await app.put(`/v1/surveyResponseAnswer/vital/nonImportantID`).send({
           reasonForChange: 'test8',
@@ -395,7 +395,7 @@ describe('SurveyResponseAnswer', () => {
       });
 
       it('should return error if feature flag does not exist', async () => {
-        await models.Setting.truncate({ cascade: true });
+        await models.Setting.truncate();
         const result = await app.post('/v1/surveyResponseAnswer/vital').send({
           reasonForChange: 'another-test4',
           newValue: chance.integer({ min: 0, max: 100 }),
