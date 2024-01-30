@@ -14,14 +14,14 @@ const signingSectionStyles = StyleSheet.create({
 
 export const BaseSigningSection = ({ title }) => (
   <Col>
-    {
-    title && <P bold style={signingSectionStyles.underlinedText}>
-      {title}
-    </P>
-    }
+    {title && (
+      <P bold style={signingSectionStyles.underlinedText}>
+        {title}
+      </P>
+    )}
     <View style={signingSectionStyles.signatureView}>
-      <Signature text={'Signed'} />
-      <Signature text={'Date'} />
+      <Signature text={'Signed'} fontSize={9} />
+      <Signature text={'Date'} fontSize={9} />
     </View>
   </Col>
 );
