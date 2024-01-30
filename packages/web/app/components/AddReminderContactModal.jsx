@@ -36,7 +36,7 @@ const StyledTextField = styled.div`
     }
 `;
 
-export const AddReminderContactModal = ({ openAddReminderContactModal, handleCloseAddReminder, patient = {} }) => {
+export const AddReminderContactModal = ({ openAddReminderContactModal, handleCloseAddReminder, handleBackAddReminder, patient = {} }) => {
 
     return (
         <BaseModal
@@ -69,7 +69,7 @@ export const AddReminderContactModal = ({ openAddReminderContactModal, handleClo
             </StyledTextField>
 
             <StyledText className='bottomText'>Connect using the QR code on the following screen.</StyledText>
-            <ModalBackCancelConfirmRow onBack={handleCloseAddReminder} confirmText="Confirm & connect" confirmColor="primary" onConfirm={handleCloseAddReminder} onCancel={handleCloseAddReminder} />
+            <ModalBackCancelConfirmRow onBack={handleBackAddReminder} confirmText="Confirm & connect" confirmColor="primary" onConfirm={handleCloseAddReminder} onCancel={handleCloseAddReminder} />
         </BaseModal>
     );
 };

@@ -114,6 +114,7 @@ export const PrimaryDetailsGroup = ({ values = {}, patientRegistryType }) => {
       <ReminderContactModal
         openReminderModal={openReminderModal}
         handleCloseReminderModal={handleCloseRemindersModal}
+        handleOpenRemindersModal={handleOpenRemindersModal}
         patient={values}
       />
 

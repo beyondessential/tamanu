@@ -109,16 +109,20 @@ export const ContactDetails = ({ name }) => {
   );
 };
 
-export const ReminderContactModal = ({ openReminderModal, handleCloseReminderModal, patient = {} }) => {
+export const ReminderContactModal = ({ openReminderModal, handleCloseReminderModal, patient = {}, handleOpenRemindersModal }) => {
   const [openAddReminderContactModal, setOpenAddReminderContactModal] = useState(false);
 
   const handleAddReminderContactModal = useCallback(() => {
     handleCloseReminderModal();
     setOpenAddReminderContactModal(true);
-
   }, []);
 
   const handleCloseAddRemindersModal = useCallback(() => {
+    setOpenAddReminderContactModal(false);
+  }, []);
+
+  const handleBackAddReminderModal = useCallback(() => {
+    handleOpenRemindersModal();
     setOpenAddReminderContactModal(false);
   }, []);
 
@@ -148,6 +152,7 @@ export const ReminderContactModal = ({ openReminderModal, handleCloseReminderMod
         openAddReminderContactModal={openAddReminderContactModal}
         handleCloseAddReminder={handleCloseAddRemindersModal}
         patient={patient}
+        handleBackAddReminder={handleBackAddReminderModal}
       />
     </>
   );
