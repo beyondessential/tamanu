@@ -204,7 +204,6 @@ export const LabRequestStatus = {
   published: 'published',
 };
 
-
 export const VitalsDataElements = {
   dateRecorded: 'pde-PatientVitalsDate',
 };
@@ -239,4 +238,14 @@ export const NOTE_TYPES = {
 
 export const FORM_STATUSES = {
   SUBMIT_SCREEN_ATTEMPTED: 'SUBMIT_SCREEN_ATTEMPTED',
+};
+
+// also update /packages/lan/app/routes/apiv1/surveyResponse.js when this changes
+export const AutocompleteSourceToColumnMap = {
+  Department: 'name',
+  Facility: 'name',
+  Location: 'name',
+  LocationGroup: 'name',
+  ReferenceData: 'name',
+  User: 'displayName',
 };
