@@ -71,12 +71,12 @@ const getAreaNote = ({ areas, areaNote }) => {
 };
 
 
-const ImagingRequestDetailsView = ({ imagingRequests, getLocalisation }) => {
+const ImagingRequestDetailsView = ({ imagingRequests, getSetting }) => {
   const notesAccessor = ({ notes }) => {
     return notes?.filter(note => note.noteType === NOTE_TYPES.OTHER).map(note => note.content).join(', ');
   };
 
-  const imagingTypes = getLocalisation('imagingTypes') || {};
+  const imagingTypes = getSetting('imagingTypes') || {};
   
   return (
     <View>
@@ -117,7 +117,7 @@ export const MultipleImagingRequestsPrintout = React.memo(
     imagingRequests,
     encounter,
     certificateData,
-    getLocalisation,
+    getSetting,
   }) => {
     const { logo } = certificateData;
     return (
@@ -130,13 +130,13 @@ export const MultipleImagingRequestsPrintout = React.memo(
           />
           <CertificateHeader>
             <LetterheadSection
-              getLocalisation={getLocalisation}
+              getSetting={getSetting}
               logoSrc={logo}
               letterheadConfig={certificateData}
               certificateTitle="Imaging Request"
             />
             <SectionContainer>
-              <PatientDetailsWithBarcode patient={patient} getLocalisation={getLocalisation} />
+              <PatientDetailsWithBarcode patient={patient} getSetting={getSetting} />
             </SectionContainer>
             <SectionContainer>
               <EncounterDetails encounter={encounter} />
@@ -144,7 +144,7 @@ export const MultipleImagingRequestsPrintout = React.memo(
           </CertificateHeader>
           <CertificateContent>
             <SectionContainer>
-              <ImagingRequestDetailsView imagingRequests={imagingRequests} getLocalisation={getLocalisation} />
+              <ImagingRequestDetailsView imagingRequests={imagingRequests} getSetting={getSetting} />
             </SectionContainer>
             <SectionContainer>
               <MultipleImagingRequestSigningSection />
