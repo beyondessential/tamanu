@@ -14,7 +14,6 @@ import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { SurveySelector } from '../programs/SurveySelector';
 import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from '../programs/ProgramsPane';
 import { getCurrentUser } from '../../store';
-import { getAnswersFromData } from '../../utils';
 import { PATIENT_TABS } from '../../constants/patientPaths';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 
@@ -52,7 +51,7 @@ const ReferralFlow = ({ patient, currentUser }) => {
       startTime,
       patientId: patient.id,
       endTime: getCurrentDateTimeString(),
-      answers: getAnswersFromData(data, referralSurvey),
+      answers: data,
     });
 
     navigateToPatient(patient.id, { tab: PATIENT_TABS.REFERRALS });

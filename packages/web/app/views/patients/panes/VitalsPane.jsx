@@ -6,7 +6,6 @@ import { Button, FormModal, TableButtonRow } from '../../../components';
 import { TabPane } from '../components';
 import { useApi } from '../../../api';
 import { VitalsForm } from '../../../forms';
-import { getAnswersFromData } from '../../../utils';
 import { VitalChartDataProvider } from '../../../contexts/VitalChartData';
 import { VitalChartsModal } from '../../../components/VitalChartsModal';
 
@@ -25,7 +24,7 @@ export const VitalsPane = React.memo(({ patient, encounter, readonly }) => {
       patientId: patient.id,
       encounterId: encounter.id,
       endTime: getCurrentDateTimeString(),
-      answers: getAnswersFromData(data, survey),
+      answers: data,
     });
     queryClient.invalidateQueries(['encounterVitals', encounter.id]);
     handleClose();

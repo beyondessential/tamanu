@@ -23,7 +23,6 @@ import { ModalFormActionRow } from '../components/ModalActionRow';
 import { NestedVitalsModal } from '../components/NestedVitalsModal';
 import { useApi, useSuggester } from '../api';
 import { useLocalisation } from '../contexts/Localisation';
-import { getAnswersFromData } from '../utils';
 import { useLocalisedText } from '../components';
 
 const InfoPopupLabel = React.memo(() => (
@@ -136,7 +135,7 @@ export const TriageForm = ({
         startTime: getCurrentDateTimeString(),
         endTime: getCurrentDateTimeString(),
         patientId: patient.id,
-        answers: getAnswersFromData(data, survey),
+        answers: data,
       };
     }
 

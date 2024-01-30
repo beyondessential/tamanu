@@ -14,7 +14,6 @@ import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { PatientListingView } from '..';
 import { usePatientAdditionalDataQuery } from '../../api/queries';
 import { ErrorMessage } from '../../components/ErrorMessage';
-import { getAnswersFromData } from '../../utils';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { useEncounter } from '../../contexts/Encounter';
 import { PATIENT_TABS } from '../../constants/patientPaths';
@@ -93,7 +92,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
       startTime,
       patientId: patient.id,
       endTime: getCurrentDateTimeString(),
-      answers: getAnswersFromData(data, survey),
+      answers: data,
     });
     if (params?.encounterId && encounter && !encounter.endDate) {
       navigateToEncounter(params.encounterId, { tab: ENCOUNTER_TAB_NAMES.FORMS });

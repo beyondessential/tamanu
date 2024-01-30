@@ -10,7 +10,6 @@ import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { ProgramRegistryProvider } from '../../contexts/ProgramRegistry';
 import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
-import { getAnswersFromData } from '../../utils';
 import { useApi } from '../../api';
 
 export const ProgramRegistrySurveyView = () => {
@@ -43,7 +42,7 @@ export const ProgramRegistrySurveyView = () => {
       startTime,
       patientId: patient.id,
       endTime: getCurrentDateTimeString(),
-      answers: getAnswersFromData(data, survey),
+      answers: data,
     });
 
     navigateToProgramRegistry();

@@ -282,17 +282,6 @@ export function getFormInitialValues(
   return initialValues;
 }
 
-export const getAnswersFromData = (data, survey) =>
-  Object.entries(data).reduce((acc, [key, val]) => {
-    if (
-      survey.components.find(({ dataElement }) => dataElement.id === key)?.dataElement?.type !==
-      'PatientIssue'
-    ) {
-      acc[key] = val;
-    }
-    return acc;
-  }, {});
-
 export const getValidationSchema = (surveyData, valuesToCheckMandatory = {}) => {
   if (!surveyData) return {};
   const { components } = surveyData;
