@@ -56,20 +56,23 @@ const patientDataColumnString = allowedLocations =>
       return true;
     });
 
+const READ_DATA_FIELDS = [
+  ...Object.keys(PATIENT_DATA_FIELD_LOCATIONS),
+  ...Object.values(READONLY_DATA_FIELDS),
+];
+const WRITE_DATA_FIELDS = Object.keys(PATIENT_DATA_FIELD_LOCATIONS);
+
 export const SSCPatientData = SurveyScreenComponent.shape({
   config: configString(
     columnReferenceConfig.shape({
       source: yup.string(),
       // Note that it would be nice to validate the where parameter here
       where: yup.string(),
-      column: patientDataColumnString([
-        ...Object.keys(PATIENT_DATA_FIELD_LOCATIONS),
-        ...Object.values(READONLY_DATA_FIELDS),
-      ]),
+      column: patientDataColumnString(READ_DATA_FIELDS),
       writeToPatient: yup
         .object()
         .shape({
-          fieldName: patientDataColumnString(Object.keys(PATIENT_DATA_FIELD_LOCATIONS)).required(),
+          fieldName: patientDataColumnString(WRITE_DATA_FIELDS).required(),
           isAdditionalData: yup.boolean(),
           fieldType: yup
             .string()
