@@ -40,7 +40,7 @@ function transformPatientData(
       return getAgeWithMonthsFromDate(dateOfBirth);
     case READONLY_DATA_FIELDS.FULL_NAME:
       return joinNames({ firstName, lastName });
-    default:
+    default: {
       const { modelName, fieldName } = getPatientDataDbLocation(column);
       switch (modelName) {
         case 'Patient':
@@ -53,6 +53,7 @@ function transformPatientData(
         default:
           return undefined;
       }
+    }
   }
 }
 

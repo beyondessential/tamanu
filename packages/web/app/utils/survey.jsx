@@ -197,7 +197,7 @@ function transformPatientData(patient, additionalData, patientProgramRegistratio
       return `${years} year${yearPlural}, ${months} month${monthPlural}`;
     case READONLY_DATA_FIELDS.FULL_NAME:
       return joinNames({ firstName, lastName });
-    default:
+    default: {
       const { modelName, fieldName } = getPatientDataDbLocation(column);
       switch (modelName) {
         case 'Patient':
@@ -209,6 +209,7 @@ function transformPatientData(patient, additionalData, patientProgramRegistratio
         default:
           return undefined;
       }
+    }
   }
 }
 export function getFormInitialValues(
