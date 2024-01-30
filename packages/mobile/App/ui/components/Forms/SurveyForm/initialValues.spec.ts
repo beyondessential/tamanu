@@ -80,10 +80,6 @@ describe('getFormInitialValues()', () => {
         type: FieldTypes.PATIENT_DATA,
         config: {
           column: 'passport',
-          // TODO: EPI-550 (shouldn't have to set writeToPatient)
-          writeToPatient: {
-            isAdditionalDataField: true,
-          },
         },
       },
     ]);
