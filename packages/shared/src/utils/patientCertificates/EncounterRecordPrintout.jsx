@@ -197,10 +197,10 @@ const COLUMNS = {
       style: { width: '17.5%' },
     },
     {
-      key: 'completedDate',
+      key: 'publishedDate',
       title: 'Published date',
-      accessor: ({ completedDate }) =>
-        completedDate ? getDisplayDate(completedDate, DATE_FORMAT) : '--/--/----',
+      accessor: ({ publishedDate }) =>
+        publishedDate ? getDisplayDate(publishedDate, DATE_FORMAT) : '--/--/----',
       style: { width: '17.5%' },
     },
   ],
