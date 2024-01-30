@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { Document, Page, StyleSheet, View } from '@react-pdf/renderer';
+import { Document, Page, StyleSheet, View, Text } from '@react-pdf/renderer';
 import { PatientDetailsWithBarcode } from './printComponents/PatientDetailsWithBarcode';
 import { styles, CertificateContent, CertificateHeader, Col, Row, Signature } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
@@ -10,9 +10,6 @@ import { DataItem } from './printComponents/DataItem';
 import { PrintableBarcode } from './printComponents/PrintableBarcode';
 import { HorizontalRule } from './printComponents/HorizontalRule';
 import { EncounterDetails } from './printComponents/EncounterDetails';
-import { MultiPageHeader } from './printComponents/MultiPageHeader';
-import { Footer } from './printComponents/Footer';
-import { getName } from '../patientAccessors';
 import { getDisplayDate } from './getDisplayDate';
 import { DoubleHorizontalRule } from './printComponents/DoubleHorizontalRule';
 
@@ -26,6 +23,11 @@ const signingSectionStyles = StyleSheet.create({
   },
   signatureView: {
     paddingRight: 32,
+  },
+  disclaimerText: {
+    fontFamily: 'Helvetica-Oblique',
+    fontSize: 8,
+    fontStyle: 'italic',
   },
 });
 
@@ -58,7 +60,7 @@ const SectionContainer = props => <View style={generalStyles.container} {...prop
 
 const LabRequestSigningSection = () => {
   const BaseSigningSection = ({ title }) => (
-    <Col>
+    <View style={{ flexDirection: 'column' }}>
       <P bold style={signingSectionStyles.underlinedText} fontSize={9}>
         {title}
       </P>
@@ -66,14 +68,21 @@ const LabRequestSigningSection = () => {
         <Signature text="Signed" fontSize={textFontSize} lineThickness={0.5} />
         <Signature text="Date" fontSize={textFontSize} lineThickness={0.5} />
       </View>
-    </Col>
+    </View>
   );
 
   return (
     <View>
       <Row>
-        <BaseSigningSection title="Clinician" />
-        <BaseSigningSection title="Patient" />
+        <Col>
+          <BaseSigningSection title="Clinician" />
+        </Col>
+        <Col>
+          <BaseSigningSection title="Patient" />
+          <Text style={signingSectionStyles.disclaimerText}>
+            Patient to sign if required, according to local regulations
+          </Text>
+        </Col>
       </Row>
     </View>
   );
@@ -88,7 +97,7 @@ const LabRequestDetailsView = ({ labRequests }) => {
   };
 
   const notesAccessor = ({ notes }) => {
-    return notes?.map(note => note.content).join(', ');
+    return notes?.map(note => note.content).join(',\n');
   };
 
   return (
@@ -160,17 +169,12 @@ export const MultipleLabRequestsPrintout = React.memo(
     return (
       <Document>
         <Page size="A4" style={styles.page}>
-          <MultiPageHeader
-            documentName="Lab request"
-            patientName={getName(patientData)}
-            patiendId={patientData.displayId}
-          />
           <CertificateHeader>
             <LetterheadSection
               getLocalisation={getLocalisation}
               logoSrc={logo}
               letterheadConfig={certificateData}
-              certificateTitle="Lab Request"
+              certificateTitle="Lab request"
             />
             <SectionContainer>
               <PatientDetailsWithBarcode patient={patientData} getLocalisation={getLocalisation} />
@@ -187,7 +191,6 @@ export const MultipleLabRequestsPrintout = React.memo(
               <LabRequestSigningSection labRequests={labRequests} />
             </SectionContainer>
           </CertificateContent>
-          <Footer />
         </Page>
       </Document>
     );

@@ -170,7 +170,7 @@ encounterRelations.get(
       orderBy = 'createdAt',
       rowsPerPage,
       page,
-      includeNotes: includeNotesStr = 'false',
+      includeNotes: includeNotesStr = 'true',
       status,
     } = query;
     const includeNote = includeNotesStr === 'true';
