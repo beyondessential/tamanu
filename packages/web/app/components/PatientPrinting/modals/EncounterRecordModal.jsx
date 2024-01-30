@@ -219,6 +219,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
             testCategory: labRequest.category?.name,
             requestedByName: labRequest.requestedBy?.displayName,
             requestDate: labRequest.requestedDate,
+            publishedDate: labRequest.publishedDate,
             completedDate: test.completedDate,
           });
         });
