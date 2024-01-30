@@ -10,7 +10,7 @@ export default {
 };
 
 const getSetting = key => {
-  const config = {
+  const settings = {
     'localisation.templates.letterhead.title': 'TAMANU MINISTRY OF HEALTH & MEDICAL SERVICES',
     'localisation.templates.letterhead.subTitle': 'PO Box 12345, Melbourne, Australia',
     'localisation.templates.vaccineCertificate.emailAddress': 'tamanu@health.govt',
@@ -22,7 +22,7 @@ const getSetting = key => {
     'localisation.fields.clinician.shortLabel': 'Clinician',
     previewUvciFormat: 'tamanu',
   };
-  return config[key];
+  return settings[key];
 };
 
 // const LocalisedText
