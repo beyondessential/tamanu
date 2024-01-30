@@ -8,7 +8,11 @@ import { Modal } from '../../Modal';
 import { useApi } from '../../../api';
 import { EmailButton } from '../../Email/EmailButton';
 import { useCertificate } from '../../../utils/useCertificate';
-import { usePatientAdditionalDataQuery, useAdministeredVaccines } from '../../../api/queries';
+import {
+  usePatientAdditionalDataQuery,
+  useAdministeredVaccines,
+  useReferenceData,
+} from '../../../api/queries';
 
 import { PDFViewer, printPDF } from '../PDFViewer';
 import { useSettings } from '../../../contexts/Settings';
@@ -42,13 +46,16 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
     [api, patient.id, printedBy],
   );
 
-  const patientData = { ...patient, additionalData };
+  const villageName = useReferenceData(patient.villageId).data?.name;
+  const patientData = { ...patient, villageName, additionalData };
+
+  if (isFetching) return null;
 
   if (isFetching) return null;
 
   return (
     <Modal
-      title="Vaccine Certificate"
+      title="Immunisation Certificate"
       open={open}
       onClose={onClose}
       width="md"

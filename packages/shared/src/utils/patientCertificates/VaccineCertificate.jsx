@@ -1,15 +1,33 @@
 import React from 'react';
-import { Document, Page } from '@react-pdf/renderer';
+import { Document, Page, View, Text, StyleSheet } from '@react-pdf/renderer';
 
 import { Table } from './Table';
-import { Box, CertificateFooter, CertificateHeader, Col, Row, styles, Watermark } from './Layout';
+import {
+  styles,
+  Box,
+  Watermark,
+  CertificateHeader,
+  PageBreakPadding,
+  FixedFooter,
+  FixedHeader,
+} from './Layout';
 import { PatientDetailsSection } from './PatientDetailsSection';
-import { SigningSection } from './SigningSection';
-import { P } from './Typography';
+import { H3 } from './Typography';
 import { LetterheadSection } from './LetterheadSection';
 import { getDisplayDate } from './getDisplayDate';
 
 const columns = [
+  {
+    key: 'date',
+    title: 'Date given',
+    accessor: ({ date }, getLocalisation) =>
+      date ? getDisplayDate(date, undefined, getLocalisation) : 'Unknown',
+  },
+  {
+    key: 'schedule',
+    title: 'Schedule',
+    accessor: ({ scheduledVaccine }) => (scheduledVaccine || {}).schedule,
+  },
   {
     key: 'vaccine',
     title: 'Vaccine',
@@ -23,35 +41,44 @@ const columns = [
     accessor: ({ scheduledVaccine, vaccineBrand }) =>
       vaccineBrand || ((scheduledVaccine || {}).vaccine || {}).name,
   },
-  {
-    key: 'schedule',
-    title: 'Schedule',
-    accessor: ({ scheduledVaccine }) => (scheduledVaccine || {}).schedule,
-  },
+
   {
     key: 'countryName',
     title: 'Country',
     accessor: ({ countryName }) => countryName,
   },
-  {
-    key: 'healthFacility',
-    title: 'Health facility',
-    customStyles: { minWidth: 30 },
-    accessor: ({ healthFacility }) => healthFacility,
-  },
-  {
-    key: 'date',
-    title: 'Date',
-    accessor: ({ date }, getSetting) =>
-      date ? getDisplayDate(date, undefined, getSetting('countryTimeZone')) : 'Unknown',
-  },
-  {
-    key: 'batch',
-    title: 'Batch number',
-    customStyles: { minWidth: 30 },
-    accessor: ({ batch }) => batch,
-  },
 ];
+
+const vaccineCertificateStyles = StyleSheet.create({
+  footerContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  footerLeft: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  footerRight: {
+    flex: 1,
+    textAlign: 'right',
+  },
+  labelText: {
+    fontSize: 8,
+    fontFamily: 'Helvetica-Bold',
+    fontWeight: 400,
+    color: '#888888',
+  },
+  valueText: {
+    fontSize: 8,
+    fontWeight: 400,
+    fontFamily: 'Helvetica',
+    color: '#888888',
+  },
+  documentHeaderContent: {
+    flexDirection: 'row',
+  },
+});
 
 export const VaccineCertificate = ({
   patient,
@@ -59,28 +86,60 @@ export const VaccineCertificate = ({
   printedDate,
   vaccinations,
   certificateId,
-  signingSrc,
   watermarkSrc,
   logoSrc,
   getSetting,
   extraPatientFields,
 }) => {
-  const contactEmail = getSetting('localisation.templates.vaccineCertificate.emailAddress');
-  const contactNumber = getSetting('localisation.templates.vaccineCertificate.contactNumber');
   const healthFacility = getSetting('localisation.templates.vaccineCertificate.healthFacility');
   const countryName = getSetting('country.name');
 
   const data = vaccinations.map(vaccination => ({ ...vaccination, countryName, healthFacility }));
 
+  const VaccineCertificateHeader = () => (
+    <View style={vaccineCertificateStyles.documentHeaderContent}>
+      <Text style={vaccineCertificateStyles.labelText}>Immunisation Certificate | </Text>
+      <Text style={vaccineCertificateStyles.labelText}>Patient name: </Text>
+      <Text style={vaccineCertificateStyles.valueText}>
+        {patient.firstName} {patient.lastName} |{' '}
+      </Text>
+      <Text style={vaccineCertificateStyles.labelText}>Patient ID: </Text>
+      <Text style={vaccineCertificateStyles.valueText}>{patient.displayId}</Text>
+    </View>
+  );
+
+  const VaccineCertificateFooter = () => (
+    <View style={vaccineCertificateStyles.footerContent}>
+      <View style={vaccineCertificateStyles.footerLeft}>
+        <Text style={vaccineCertificateStyles.labelText}>Print date: </Text>
+        <Text style={vaccineCertificateStyles.valueText}>{getDisplayDate(printedDate)} | </Text>
+        <Text style={vaccineCertificateStyles.labelText}>Printing facility: </Text>
+        <Text style={vaccineCertificateStyles.valueText}>{healthFacility} | </Text>
+        <Text style={vaccineCertificateStyles.labelText}>Printed by: </Text>
+        <Text style={vaccineCertificateStyles.valueText}>{printedBy}</Text>
+      </View>
+      <View style={vaccineCertificateStyles.footerRight}>
+        <Text
+          style={vaccineCertificateStyles.valueText}
+          render={({ pageNumber, totalPages }) => `${pageNumber} of ${totalPages}`}
+        />
+      </View>
+    </View>
+  );
+
   return (
     <Document>
-      <Page size="A4" style={styles.page}>
+      <Page size="A4" style={{ ...styles.page, paddingBottom: 51 }}>
+        <FixedHeader>
+          <View fixed render={({ pageNumber }) => pageNumber > 1 && <VaccineCertificateHeader />} />
+        </FixedHeader>
+        <View fixed render={({ pageNumber }) => pageNumber > 1 && <PageBreakPadding />} />
         {watermarkSrc && <Watermark src={watermarkSrc} />}
         <CertificateHeader>
           <LetterheadSection
             getSetting={getSetting}
             logoSrc={logoSrc}
-            certificateTitle="Vaccine Certificate"
+            certificateTitle="Immunisation Certificate"
           />
           <PatientDetailsSection
             patient={patient}
@@ -89,7 +148,8 @@ export const VaccineCertificate = ({
             extraFields={extraPatientFields}
           />
         </CertificateHeader>
-        <Box mb={20}>
+        <Box style={{ ...styles.box, marginLeft: '18px', marginRight: '18px' }}>
+          <H3>Immunisation history</H3>
           <Table
             data={data}
             columns={columns}
@@ -97,29 +157,9 @@ export const VaccineCertificate = ({
             columnStyle={{ padding: '10px 5px' }}
           />
         </Box>
-        <CertificateFooter>
-          <Box>
-            <Row>
-              <Col>
-                <P>
-                  <P bold>Printed by: </P>
-                  {printedBy}
-                </P>
-              </Col>
-              <Col>
-                <P>
-                  <P bold>Printing date: </P>
-                  {getDisplayDate(printedDate)}
-                </P>
-              </Col>
-            </Row>
-          </Box>
-          <SigningSection signingSrc={signingSrc} />
-          <Box>
-            {contactEmail ? <P>Email address: {contactEmail}</P> : null}
-            {contactNumber ? <P>Contact number: {contactNumber}</P> : null}
-          </Box>
-        </CertificateFooter>
+        <FixedFooter>
+          <VaccineCertificateFooter />
+        </FixedFooter>
       </Page>
     </Document>
   );
