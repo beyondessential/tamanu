@@ -1,4 +1,4 @@
-import { STRING, DATE, BOOLEAN, NOW, UUIDV4, INTEGER, JSON, TEXT } from 'sequelize';
+import { BOOLEAN, DATE, INTEGER, JSON, NOW, STRING, TEXT, UUIDV4 } from 'sequelize';
 
 const REPORT_STATUSES = { DRAFT: 'draft', PUBLISHED: 'published' };
 

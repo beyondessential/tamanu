@@ -1,6 +1,6 @@
-import React, { useState, useCallback, useRef, useEffect, ReactElement } from 'react';
+import React, { ReactElement, useCallback, useEffect, useRef, useState } from 'react';
 
-import { StyledView, StyledText } from '/styled/common';
+import { StyledText, StyledView } from '/styled/common';
 import { MultiSelect } from './MultipleSelect';
 import { MultiSelectProps } from './MultipleSelect/types';
 import { BaseInputProps } from '../../interfaces/BaseInputProps';

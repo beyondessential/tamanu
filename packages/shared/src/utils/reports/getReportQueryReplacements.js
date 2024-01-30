@@ -1,4 +1,4 @@
-import { subDays, startOfDay } from 'date-fns';
+import { subDays, startOfDay, subYears } from 'date-fns';
 import { REPORT_DEFAULT_DATE_RANGES } from '@tamanu/constants';
 
 const CATCH_ALL_FROM_DATE = '1970-01-01';
@@ -7,6 +7,8 @@ function getStartDate(dateRange, endDate) {
   switch (dateRange) {
     case REPORT_DEFAULT_DATE_RANGES.ALL_TIME:
       return new Date(CATCH_ALL_FROM_DATE);
+    case REPORT_DEFAULT_DATE_RANGES.EIGHTEEN_YEARS:
+      return startOfDay(subYears(endDate, 18));
     case REPORT_DEFAULT_DATE_RANGES.THIRTY_DAYS:
       // If we have a toDate, but no fromDate, run 30 days prior to the toDate
       return startOfDay(subDays(endDate, 30));

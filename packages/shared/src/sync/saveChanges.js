@@ -1,6 +1,5 @@
 import { Op } from 'sequelize';
 import config from 'config';
-import { isEmpty } from 'lodash';
 import asyncPool from 'tiny-async-pool';
 import { mergeRecord } from './mergeRecord';
 
@@ -25,6 +24,7 @@ export const saveCreates = async (model, records) => {
   }
   await model.bulkCreate(deduplicated);
 
+  // To create soft deleted records, we need to first create them, then destroy them
   if (idsForSoftDeleted.length > 0) {
     await model.destroy({ where: { id: { [Op.in]: idsForSoftDeleted } } });
   }
@@ -40,26 +40,18 @@ export const saveUpdates = async (model, incomingRecords, idToExistingRecord, is
     : // on the facility server, trust the resolved central server version
       incomingRecords;
   await asyncPool(persistUpdateWorkerPoolSize, recordsToSave, async r =>
-    model.update(r, { where: { id: r.id } }),
+    model.update(r, { where: { id: r.id }, paranoid: false }),
   );
 };
 
 // model.update cannot update deleted_at field, so we need to do update (in case there are still any new changes even if it is being deleted) and destroy
-export const saveDeletes = async (model, recordsForDelete, idToExistingRecord, isCentralServer) => {
+export const saveDeletes = async (model, recordsForDelete) => {
   if (recordsForDelete.length === 0) return;
-  if (!isEmpty(idToExistingRecord)) {
-    await saveUpdates(model, recordsForDelete, idToExistingRecord, isCentralServer);
-  }
+
   await model.destroy({ where: { id: { [Op.in]: recordsForDelete.map(r => r.id) } } });
 };
 
-export const saveRestores = async (
-  model,
-  recordsForRestore,
-  idToExistingRecord,
-  isCentralServer,
-) => {
+export const saveRestores = async (model, recordsForRestore) => {
   if (recordsForRestore.length === 0) return;
   await model.restore({ where: { id: { [Op.in]: recordsForRestore.map(r => r.id) } } });
-  await saveUpdates(model, recordsForRestore, idToExistingRecord, isCentralServer);
 };
