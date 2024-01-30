@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useSettings } from '../../../contexts/Settings';
 import { Modal } from '../../Modal';
 import { PDFViewer, printPDF } from '../PDFViewer';
@@ -11,7 +11,7 @@ const cardDimensions = {
 
 export const PatientIDCardPage = React.memo(({ patient, imageData }) => {
   const { getSetting } = useSettings();
-  const measures = getLocalisation('printMeasures.idCardPage');
+  const measures = getSetting('printMeasures.idCardPage');
   const [open, setOpen] = useState(true);
 
   return (
