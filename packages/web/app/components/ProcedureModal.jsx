@@ -17,6 +17,7 @@ const getActualDateTime = (date, time) => {
 // endTime has the same caveat as startTime, this will fix it and
 // make an educated guess if the procedure ended the next day.
 const getEndDateTime = ({ date, startTime, endTime }) => {
+  if (!endTime) return undefined;
   const actualEndDateTime = getActualDateTime(date, endTime);
   const startTimeString = startTime.slice(-8);
   const endTimeString = endTime.slice(-8);
@@ -49,7 +50,8 @@ export const ProcedureModal = ({ onClose, onSaved, encounterId, editedProcedure 
             ...data,
             date: actualDateTime,
             startTime: actualDateTime,
-            encounterId
+            endTime: getEndDateTime(data),
+            encounterId,
           };
 
           if (updatedData.id) {
