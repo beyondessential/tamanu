@@ -37,14 +37,11 @@ export const PatientFieldDefinitionTypes = {
 export const PatientFieldDefinitionTypeValues = Object.values(PatientFieldDefinitionTypes);
 
 export const getPatientDataDbLocation = fieldName => {
-  if (PATIENT_DATA_FIELD_LOCATIONS[fieldName]) {
-    const [modelName, columnName] = PATIENT_DATA_FIELD_LOCATIONS[fieldName];
-    return {
-      modelName,
-      fieldName: columnName,
-    };
-  }
-  throw new Error(`Unknown fieldName: ${fieldName}`);
+  const [modelName, columnName] = PATIENT_DATA_FIELD_LOCATIONS[fieldName] ?? [null, null];
+  return {
+    modelName,
+    fieldName: columnName,
+  };
 };
 
 export const getStringValue = (type: string, value: any): string => {
