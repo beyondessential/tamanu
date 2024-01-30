@@ -1,6 +1,5 @@
 import { Sequelize } from 'sequelize';
 import {
-  PATIENT_DATA_FIELD_LOCATIONS,
   PROGRAM_DATA_ELEMENT_TYPES,
   SYNC_DIRECTIONS,
   VISIBILITY_STATUSES,
@@ -9,7 +8,12 @@ import { InvalidOperationError } from '../errors';
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 import { runCalculations } from '../utils/calculations';
-import { getActiveActionComponents, getResultValue, getStringValue } from '../utils/fields';
+import {
+  getPatientDataDbLocation,
+  getActiveActionComponents,
+  getResultValue,
+  getStringValue,
+} from '../utils/fields';
 import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
 
@@ -30,17 +34,6 @@ async function createPatientIssues(models, questions, patientId) {
     });
   }
 }
-
-const getDbLocation = fieldName => {
-  if (PATIENT_DATA_FIELD_LOCATIONS[fieldName]) {
-    const [modelName, columnName] = PATIENT_DATA_FIELD_LOCATIONS[fieldName];
-    return {
-      modelName,
-      fieldName: columnName,
-    };
-  }
-  throw new Error(`Unknown fieldName: ${fieldName}`);
-};
 
 /** Returns in the format:
  * {
@@ -69,7 +62,7 @@ const getFieldsToWrite = (models, questions, answers) => {
     }
 
     const value = answers[dataElement.id];
-    const { modelName, fieldName } = getDbLocation(configFieldName);
+    const { modelName, fieldName } = getPatientDataDbLocation(configFieldName);
     if (!recordValuesByModel[modelName]) recordValuesByModel[modelName] = {};
     recordValuesByModel[modelName][fieldName] = value;
   }
