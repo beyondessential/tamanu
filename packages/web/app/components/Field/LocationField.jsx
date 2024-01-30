@@ -156,11 +156,8 @@ export const LocalisedLocationField = React.memo(
   ({ defaultGroupLabel = 'Area', defaultLabel = 'Location', ...props }) => {
     const { getSetting } = useSettings();
 
-    const locationGroupIdPath = 'localisation.fields.locationGroupId';
-    const locationGroupLabel = getSetting(`${locationGroupIdPath}.longLabel`) || defaultGroupLabel;
-
-    const locationIdPath = 'localisation.fields.locationId';
-    const locationLabel = getSetting(`${locationIdPath}.longLabel`) || defaultLabel;
+    const locationGroupLabel = getSetting('localisation.fields.locationGroupId.longLabel') || defaultGroupLabel;
+    const locationLabel = getSetting('localisation.fields.locationId.longLabel') || defaultLabel;
 
     return (
       <LocationField label={locationLabel} locationGroupLabel={locationGroupLabel} {...props} />
