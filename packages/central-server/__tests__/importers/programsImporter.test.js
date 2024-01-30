@@ -232,7 +232,7 @@ describe('Programs import', () => {
       'config: this field has unspecified keys: foo on Question Validation Fail at row 31',
       'config: source must be a `string` type, but the final value was: `true`. on Question Validation Fail at row 32',
       'config: source is a required field on Question Validation Fail at row 33',
-      'config: isAdditionalData is deprecated in Tamanu 2.1, it is now just inferred from the fieldName on Question Validation Fail at row 34',
+      'config: isAdditionalDataField is deprecated in Tamanu 2.1, it is now just inferred from the fieldName on Question Validation Fail at row 34',
     ];
 
     expectedErrorMessages.forEach((message, i) => {
