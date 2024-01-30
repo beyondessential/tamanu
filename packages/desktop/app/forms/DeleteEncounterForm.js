@@ -52,12 +52,7 @@ const WhiteFormGrid = styled(FormGrid)`
   background-color: white;
 `;
 
-export const DeleteEncounterForm = ({
-  onSubmit,
-  onCancel,
-  encounterToDelete,
-  patient,
-}) => {
+export const DeleteEncounterForm = ({ onSubmit, onCancel, encounterToDelete, patient }) => {
   const { encounterType, facilityName, startDate, endDate, reasonForEncounter } = encounterToDelete;
   const currentType = ENCOUNTER_OPTIONS_BY_VALUE[encounterType].label;
 
