@@ -37,16 +37,18 @@ const DumbVitalsTabs = ({
       <Tabs.Navigator swipeEnabled={false} lazy>
         <Tabs.Screen
           options={{
-            // title: <TranslatedText stringId="patient.vitals.add" fallback="Add Vitals" />,
-            title: 'Add Vitals',
-            // tabBarLabel: <TranslatedText stringId="patient.vitals.add" fallback="Add Vitals" />,
+            tabBarLabel: () => (
+              <TranslatedText stringId="patient.vitals.add" fallback="Add Vitals" />
+            ),
           }}
           name={Routes.HomeStack.VitalsStack.VitalsTabs.AddDetails}
           component={AddVitalsScreen}
         />
         <Tabs.Screen
           options={{
-            title: 'History',
+            tabBarLabel: () => (
+              <TranslatedText stringId="patient.vitals.history" fallback="History" />
+            ),
           }}
           name={Routes.HomeStack.VitalsStack.VitalsTabs.ViewHistory}
           component={ViewHistoryScreen}
