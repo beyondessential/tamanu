@@ -1,61 +1,80 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
+import { Typography } from '@material-ui/core';
 import { FormGrid } from '../components/FormGrid';
 import {
+  BodyText,
   Button,
   Field,
   Form,
-  StyledPrimarySubmitButton,
+  FormSubmitButton,
+  TextButton,
   TextField,
 } from '../components';
+import { Colors } from '../constants';
 
-const SuccessMessage = styled.p`
-  margin-top: 0;
+const ResetPasswordButton = styled(FormSubmitButton)`
+  font-size: 14px;
+  line-height: 18px;
+  padding: 14px 0;
+  margin-top: 31px;
 `;
 
+const BackToLoginButton = styled(Button)`
+  padding: 14px 0;
+  margin-top: 4px;
+`;
+
+const FormHeading = styled(Typography)`
+  color: ${Colors.darkestText};
+  font-weight: 500;
+  font-size: 38px;
+  line-height: 32px;
+`;
+
+const FormSubtext = styled(BodyText)`
+  color: ${Colors.midText};
+  padding: 10px 0;
+`;
+
+const ResetPasswordFormComponent = ({ errorMessage, onNavToLogin, setFieldError }) => {
+  return (
+    <FormGrid columns={1}>
+      <div>
+        <FormHeading>Forgot password</FormHeading>
+        <FormSubtext>Enter your email address below and we will send you a reset code.</FormSubtext>
+        {!!errorMessage && <FormSubtext>{errorMessage}</FormSubtext>}
+      </div>
+      <Field
+        name="email"
+        type="email"
+        label="Email"
+        required
+        component={TextField}
+        placeholder="Enter your email address"
+        autoComplete="off"
+      />
+      <ResetPasswordButton text="Send reset code" />
+      <BackToLoginButton onClick={onNavToLogin} variant="outlined">
+        Back to login
+      </BackToLoginButton>
+    </FormGrid>
+  );
+};
+
 export const ResetPasswordForm = React.memo(
-  ({
-    onSubmit,
-    errorMessage,
-    success,
-    initialEmail,
-    resetPasswordEmail,
-    onRestartFlow,
-    onNavToChangePassword,
-    onNavToLogin,
-  }) => {
-    const renderForm = () => (
-      <FormGrid columns={1}>
-        <h3>Reset Password</h3>
-        <div>Enter your account email</div>
-        <div>{errorMessage}</div>
-        <Field name="email" type="email" label="Email" required component={TextField} />
-        <StyledPrimarySubmitButton text="Reset Password" />
-        <Button onClick={onNavToLogin} color="default" variant="text">
-          Back
-        </Button>
-      </FormGrid>
+  ({ onSubmit, errorMessage, success, initialEmail, onNavToChangePassword, onNavToLogin }) => {
+    const renderForm = ({ setFieldError }) => (
+      <ResetPasswordFormComponent
+        errorMessage={errorMessage}
+        onNavToLogin={onNavToLogin}
+        setFieldError={setFieldError}
+      />
     );
 
     if (success) {
-      return (
-        <FormGrid columns={1}>
-          <h3>Reset Password</h3>
-          {/* prettier-ignore */}
-          <SuccessMessage>
-            An email with instructions has been sent to
-            {' '}
-            <strong>{resetPasswordEmail}</strong>
-            . If you do not receive this email within a few minutes please try again.
-          </SuccessMessage>
-          <Button fullWidth variant="contained" color="primary" onClick={onNavToChangePassword}>
-            Continue
-          </Button>
-          <Button onClick={onRestartFlow}>Resend password reset email</Button>
-          <Button onClick={onNavToLogin}>Back</Button>
-        </FormGrid>
-      );
+      onNavToChangePassword();
     }
 
     return (
@@ -63,14 +82,15 @@ export const ResetPasswordForm = React.memo(
         onSubmit={onSubmit}
         render={renderForm}
         initialValues={{
-          email: initialEmail,
+          email: initialEmail || '',
         }}
         validationSchema={yup.object().shape({
           email: yup
             .string()
             .email('Must enter a valid email')
-            .required(),
+            .required('*Required'),
         })}
+        suppressErrorDialog
       />
     );
   },

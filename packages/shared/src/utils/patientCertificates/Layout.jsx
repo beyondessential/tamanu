@@ -1,6 +1,8 @@
 import React from 'react';
 import { Image, StyleSheet, Text, View } from '@react-pdf/renderer';
 
+const certificateMargins = '0 18px';
+
 export const styles = StyleSheet.create({
   page: {
     fontFamily: 'Helvetica',
@@ -30,13 +32,13 @@ export const styles = StyleSheet.create({
   },
   signatureText: {
     fontFamily: 'Helvetica-Bold',
-    fontSize: 12,
     fontWeight: 400,
     width: 100,
   },
   line: {
     width: 300,
-    borderBottom: '1 solid black',
+    borderBottomColor: 'black',
+    borderBottomStyle: 'solid',
   },
   signingImage: {
     width: '100%',
@@ -71,10 +73,34 @@ export const styles = StyleSheet.create({
     width: 66,
   },
   certificateHeader: {
-    margin: '0 18px',
+    margin: certificateMargins,
   },
   certificateFooter: {
-    margin: '0 18px',
+    margin: certificateMargins,
+  },
+  certificateContent: {
+    margin: certificateMargins,
+  },
+  fixedHeader: {
+    position: 'absolute',
+    top: 25,
+    right: 50,
+  },
+  fixedFooter: {
+    position: 'absolute',
+    bottom: 16,
+    left: 50,
+    right: 50,
+    textAlign: 'left',
+  },
+  pageBreakPadding: {
+    height: 26,
+    width: '100%',
+  },
+  lightDivider: {
+    borderTop: '0.5 solid #000000',
+    marginTop: 10,
+    marginBottom: 10,
   },
 });
 
@@ -84,10 +110,10 @@ export const Box = ({ mt, mb, ...props }) => (
   <View style={[styles.box, { marginTop: mt, marginBottom: mb }]} {...props} />
 );
 
-export const Signature = ({ text }) => (
+export const Signature = ({ text, fontSize = 12, lineThickness = 1 }) => (
   <View style={styles.signature}>
-    <Text style={styles.signatureText}>{text}:</Text>
-    <View style={styles.line} />
+    <Text style={{ ...styles.signatureText, fontSize: fontSize }}>{text}:</Text>
+    <View style={{ ...styles.line, borderBottomWidth: lineThickness }} />
   </View>
 );
 
@@ -114,3 +140,25 @@ export const CertificateLogo = ({ logoSrc }) => (
 
 export const CertificateHeader = props => <View style={styles.certificateHeader} {...props} />;
 export const CertificateFooter = props => <View style={styles.certificateFooter} {...props} />;
+export const LightDivider = props => <View style={styles.lightDivider} {...props} />;
+export const CertificateContent = props => <View style={styles.certificateContent} {...props} />;
+
+export const FixedHeader = ({ children, props }) => (
+  <View fixed style={styles.fixedHeader} {...props}>
+    {children}
+  </View>
+);
+
+export const FixedFooter = ({ children, props }) => (
+  <View fixed style={styles.fixedFooter} {...props}>
+    <View style={{ ...styles.lightDivider, borderTopColor: '#888888' }} />
+    {children}
+  </View>
+);
+
+export const PageBreakPadding = ({ size }) => (
+  <View
+    fixed
+    style={{ ...styles.pageBreakPadding, height: size || styles.pageBreakPadding.height }}
+  />
+);

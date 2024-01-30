@@ -6,7 +6,8 @@ import { Op, Sequelize } from 'sequelize';
 export class SignerWorkingPeriodChecker extends ScheduledTask {
   constructor(context) {
     const conf = config.schedules.signerWorkingPeriodChecker;
-    super(conf.schedule, log);
+    const { schedule, jitterTime } = conf;
+    super(schedule, log, jitterTime);
     this.config = conf;
     this.context = context;
   }
