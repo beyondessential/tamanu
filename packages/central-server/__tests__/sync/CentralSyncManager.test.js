@@ -829,7 +829,7 @@ describe('CentralSyncManager', () => {
           // Enable syncAllLabRequests
           await models.Setting.create({
             facilityId: facility.id,
-            key: 'syncAllLabRequests',
+            key: 'sync.syncAllLabRequests',
             scope: SETTINGS_SCOPES.FACILITY,
             value: true,
           });

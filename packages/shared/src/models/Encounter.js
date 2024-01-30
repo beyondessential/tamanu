@@ -207,8 +207,10 @@ export class Encounter extends Model {
     // this.hasMany(models.Report);
   }
 
-  static buildPatientSyncFilter(patientIds, sessionConfig) {
-    const { syncAllLabRequests, syncAllEncountersForTheseVaccines } = sessionConfig;
+  static buildPatientSyncFilter(
+    patientIds,
+    { syncAllEncountersForTheseVaccines, syncAllLabRequests },
+  ) {
     const joins = [];
     const encountersToIncludeClauses = [];
     const updatedAtSyncTickClauses = ['encounters.updated_at_sync_tick > :since'];

@@ -3,7 +3,7 @@ import { Op, Transaction } from 'sequelize';
 // TODO: use db config fetcher
 import _config from 'config';
 
-import { SYNC_DIRECTIONS } from '@tamanu/constants';
+import { SETTINGS_SCOPES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { CURRENT_SYNC_TIME_KEY } from '@tamanu/shared/sync/constants';
 import { log } from '@tamanu/shared/services/logging';
 import {
@@ -270,13 +270,20 @@ export class CentralSyncManager {
       });
       const patientIdsForFullSync = newPatientFacilities.map(n => n.patientId);
 
-      const syncAllLabRequests = await models.Setting.get('syncAllLabRequests', facilityId);
-      const syncTheseProgramRegistries = await models.Setting.get(
-        'syncTheseProgramRegistries',
+      const syncAllLabRequests = await models.Setting.get(
+        'sync.syncAllLabRequests',
         facilityId,
+        SETTINGS_SCOPES.FACILITY,
+      );
+      const syncTheseProgramRegistries = await models.Setting.get(
+        'sync.syncTheseProgramRegistries',
+        facilityId,
+        SETTINGS_SCOPES.FACILITY,
       );
       const syncAllEncountersForTheseVaccines = await models.Setting.get(
-        'syncAllEncountersForTheseVaccines',
+        'sync.syncAllEncountersForTheseVaccines',
+        null,
+        SETTINGS_SCOPES.CENTRAL,
       );
       const sessionConfig = {
         // for facilities with a lab, need ongoing lab requests

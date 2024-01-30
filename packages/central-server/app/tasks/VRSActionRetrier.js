@@ -14,6 +14,6 @@ export class VRSActionRetrier extends ScheduledTask {
   }
 
   async run() {
-    await this.vrsIntegration.actionHandler.retryPendingActions();
+    await this.context.integrations.fijiVrs.actionHandler.retryPendingActions();
   }
 }
