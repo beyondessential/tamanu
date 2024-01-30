@@ -13,7 +13,7 @@ import { PatientProgramRegistrationCondition } from './PatientProgramRegistratio
 import { ProgramRegistry } from './ProgramRegistry';
 import { ProgramRegistryClinicalStatus } from './ProgramRegistryClinicalStatus';
 
-@Entity('program_registry_condition')
+@Entity('program_registry_conditions')
 export class ProgramRegistryCondition extends BaseModel implements IProgramRegistryCondition {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 
@@ -36,4 +36,8 @@ export class ProgramRegistryCondition extends BaseModel implements IProgramRegis
     ({ programRegistryClinicalStatus }) => programRegistryClinicalStatus,
   )
   patientProgramRegistrationConditions: IPatientProgramRegistrationCondition[];
+
+  static getTableNameForSync(): string {
+    return 'program_registry_conditions';
+  }
 }

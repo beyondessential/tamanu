@@ -22,11 +22,11 @@ import { User } from './User';
 import { RegistrationStatus } from '~/constants/programRegistries';
 import { DateTimeStringColumn } from './DateColumns';
 
-@Entity('patient_program_registration')
+@Entity('patient_program_registrations')
 export class PatientProgramRegistration extends BaseModel implements IPatientProgramRegistration {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 
-  @Column({ nullable: false, default: RegistrationStatus.Active })
+  @Column({ type: 'varchar', nullable: false, default: RegistrationStatus.Active })
   registrationStatus: RegistrationStatus;
 
   @DateTimeStringColumn()
@@ -44,11 +44,9 @@ export class PatientProgramRegistration extends BaseModel implements IPatientPro
   patientId: ID;
 
   @ManyToOne(() => ProgramRegistryClinicalStatus, undefined, { nullable: true })
-  programRegistryClinicalStatus?: IProgramRegistryClinicalStatus;
-  @RelationId<PatientProgramRegistration>(
-    ({ programRegistryClinicalStatus }) => programRegistryClinicalStatus,
-  )
-  programRegistryClinicalStatusId?: ID;
+  clinicalStatus?: IProgramRegistryClinicalStatus;
+  @RelationId<PatientProgramRegistration>(({ clinicalStatus }) => clinicalStatus)
+  clinicalStatusId?: ID;
 
   @NullableReferenceDataRelation()
   village?: IReferenceData;
@@ -69,4 +67,16 @@ export class PatientProgramRegistration extends BaseModel implements IPatientPro
   clinician?: IUser;
   @RelationId<PatientProgramRegistration>(({ clinician }) => clinician)
   clinicianId?: ID;
+
+  dateRemoved: DateTimeString;
+
+  // @ManyToOne(() => User, undefined, { nullable: true })
+  removedBy?: IUser;
+
+  // @RelationId<PatientProgramRegistration>(({ clinician }) => clinician)
+  removedById?: ID;
+
+  static getTableNameForSync(): string {
+    return 'patient_program_registrations';
+  }
 }

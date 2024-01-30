@@ -14,9 +14,9 @@ import { PatientProgramRegistration } from './PatientProgramRegistration';
 import { ProgramRegistryClinicalStatus } from './ProgramRegistryClinicalStatus';
 import { PatientProgramRegistrationCondition } from './PatientProgramRegistrationCondition';
 
-@Entity('lab_test_panel_request')
+@Entity('program_registries')
 export class ProgramRegistry extends BaseModel implements IProgramRegistry {
-  static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
+  static syncDirection = SYNC_DIRECTIONS.PULL_FROM_CENTRAL;
 
   @Column({ nullable: false })
   code: string;
@@ -24,10 +24,11 @@ export class ProgramRegistry extends BaseModel implements IProgramRegistry {
   @Column({ nullable: false })
   name?: string;
 
-  @Column({ default: VisibilityStatus.Current, nullable: true })
+  @Column({ type: 'varchar', default: VisibilityStatus.Current, nullable: true })
   visibilityStatus: VisibilityStatus;
 
   // TODO: Make this an enum
+  @Column({ nullable: false })
   currentlyAtType: string;
 
   @OneToMany<ProgramRegistryClinicalStatus>(
@@ -50,6 +51,11 @@ export class ProgramRegistry extends BaseModel implements IProgramRegistry {
 
   @ManyToOne(() => Program)
   program: Program;
-  @RelationId<ProgramRegistry>(({ program }) => program)
+
+  @RelationId<Program>(({ program }) => program)
   programId: ID;
+
+  static getTableNameForSync(): string {
+    return 'program_registries';
+  }
 }

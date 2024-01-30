@@ -17,7 +17,7 @@ import { Facility } from './Facility';
 import { User } from './User';
 import { DateTimeStringColumn } from './DateColumns';
 
-@Entity('patient_program_registration_condition')
+@Entity('patient_program_registration_conditions')
 export class PatientProgramRegistrationCondition extends BaseModel
   implements IPatientProgramRegistrationCondition {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
@@ -59,4 +59,8 @@ export class PatientProgramRegistrationCondition extends BaseModel
   deletionClinician?: IUser;
   @RelationId<PatientProgramRegistrationCondition>(({ deletionClinician }) => deletionClinician)
   deletionClinicianId?: ID;
+
+  static getTableNameForSync(): string {
+    return 'patient_program_registration_conditions';
+  }
 }

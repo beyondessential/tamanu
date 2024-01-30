@@ -1,11 +1,17 @@
 import {
   MigrationInterface,
+  TableIndex,
   QueryRunner,
   Table,
   TableColumn,
   TableForeignKey,
-  TableIndex,
 } from 'typeorm';
+
+const TABLE_NAME = 'program_registries';
+
+const baseIndex = new TableIndex({
+  columnNames: ['updatedAtSyncTick'],
+});
 
 const BaseColumns = [
   new TableColumn({
@@ -29,51 +35,58 @@ const BaseColumns = [
     isNullable: false,
     default: -999,
   }),
+  new TableColumn({
+    name: 'deletedAt',
+    type: 'datetime',
+    isNullable: true,
+  }),
 ];
 
-const SettingTable = new Table({
-  name: 'setting',
+const ProgramRegistry = new Table({
+  name: TABLE_NAME,
   columns: [
     ...BaseColumns,
     new TableColumn({
-      name: 'key',
+      name: 'code',
       type: 'varchar',
       isNullable: false,
     }),
     new TableColumn({
-      name: 'value',
+      name: 'name',
       type: 'varchar',
       isNullable: false,
     }),
     new TableColumn({
-      name: 'facilityId',
+      name: 'currentlyAtType',
+      type: 'varchar',
+      isNullable: false,
+    }),
+    new TableColumn({
+      name: 'visibilityStatus',
       type: 'varchar',
       isNullable: true,
+    }),
+    new TableColumn({
+      name: 'programId',
+      type: 'varchar',
+      isNullable: false,
     }),
   ],
   foreignKeys: [
     new TableForeignKey({
-      columnNames: ['facilityId'],
-      referencedTableName: 'facility',
+      columnNames: ['programId'],
+      referencedTableName: 'program',
       referencedColumnNames: ['id'],
     }),
   ],
+  indices: [baseIndex],
 });
-
-const ifNotExist = true;
-
-const updatedAtSyncTickIndex = {
-  columnNames: ['updatedAtSyncTick'],
-};
-
-export class addSettingTable1678400759000 implements MigrationInterface {
+export class addProgramRegistry1706106989000 implements MigrationInterface {
   async up(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.createTable(SettingTable, ifNotExist);
-
-    await queryRunner.createIndex(SettingTable, new TableIndex(updatedAtSyncTickIndex));
+    await queryRunner.createTable(ProgramRegistry, true);
   }
 
   async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.dropTable(SettingTable);
+    await queryRunner.dropTable(TABLE_NAME, true);
   }
 }

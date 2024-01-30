@@ -12,7 +12,7 @@ import { VisibilityStatus } from '~/visibilityStatuses';
 import { PatientProgramRegistration } from './PatientProgramRegistration';
 import { ProgramRegistry } from './ProgramRegistry';
 
-@Entity('program_registry_clinical_status')
+@Entity('program_registry_clinical_statuses')
 export class ProgramRegistryClinicalStatus extends BaseModel
   implements IProgramRegistryClinicalStatus {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
@@ -23,7 +23,7 @@ export class ProgramRegistryClinicalStatus extends BaseModel
   @Column({ nullable: false })
   name: string;
 
-  @Column({ default: VisibilityStatus.Current, nullable: true })
+  @Column({ type: 'varchar', default: VisibilityStatus.Current, nullable: true })
   visibilityStatus: VisibilityStatus;
 
   @Column({ nullable: true })
@@ -39,4 +39,8 @@ export class ProgramRegistryClinicalStatus extends BaseModel
     ({ programRegistryClinicalStatus }) => programRegistryClinicalStatus,
   )
   patientProgramRegistrations: IPatientProgramRegistration[];
+
+  static getTableNameForSync(): string {
+    return 'program_registry_clinical_statuses';
+  }
 }
