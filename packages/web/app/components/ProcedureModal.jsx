@@ -6,9 +6,9 @@ import { Suggester } from '../utils/suggester';
 import { FormModal } from './FormModal';
 import { ProcedureForm } from '../forms/ProcedureForm';
 
+// Both date and startTime only keep track of either date or time, accordingly.
+// This grabs both relevant parts for the table.
 const getActualDateTime = ({ date, startTime }) => {
-  // Both date and startTime only keep track of either date or time, accordingly.
-  // This grabs both relevant parts for the table.
   return `${date.slice(0, 10)} ${startTime.slice(-8)}`;
 };
 
