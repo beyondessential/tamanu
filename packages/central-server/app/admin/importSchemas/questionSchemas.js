@@ -73,8 +73,8 @@ export const SSCPatientData = SurveyScreenComponent.shape({
         })
         .test(
           'test-isAdditionalData-key-present',
-          'isAdditionalData is deprecated in Tamanu 2.1, it is now just inferred from the fieldName',
-          writeToPatient => !writeToPatient || writeToPatient?.isAdditionalData === undefined,
+          'isAdditionalDataField is deprecated in Tamanu 2.1, it is now just inferred from the fieldName',
+          writeToPatient => !writeToPatient || writeToPatient?.isAdditionalDataField === undefined,
         )
         .noUnknown()
         .default(null),

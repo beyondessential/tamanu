@@ -2,7 +2,7 @@
 import * as Yup from 'yup';
 
 import { getAgeFromDate, getAgeWithMonthsFromDate } from '~/ui/helpers/date';
-import { checkMandatory, FieldTypes } from '~/ui/helpers/fields';
+import { getPatientDataDbLocation, checkMandatory, FieldTypes } from '~/ui/helpers/fields';
 import { joinNames } from '~/ui/helpers/user';
 import {
   IPatient,
@@ -29,8 +29,7 @@ function transformPatientData(
   additionalData: IPatientAdditionalData | null,
   config,
 ): string | undefined | null {
-  const { writeToPatient = {}, column = 'fullName' } = config;
-  const { isAdditionalDataField = false } = writeToPatient;
+  const { column = 'fullName' } = config;
   const { dateOfBirth, firstName, lastName } = patient;
 
   switch (column) {
@@ -41,10 +40,18 @@ function transformPatientData(
     case 'fullName':
       return joinNames({ firstName, lastName });
     default:
-      if (isAdditionalDataField) {
-        return additionalData ? additionalData[column] : undefined;
+      const { modelName, fieldName } = getPatientDataDbLocation(column);
+      switch (modelName) {
+        case 'Patient':
+          return patient[fieldName];
+        case 'PatientAdditionalData':
+          return additionalData ? additionalData[fieldName] : undefined;
+        case 'PatientProgramRegistration':
+          // PatientProgramRegistrations are not implemented on mobile yet
+          return undefined;
+        default:
+          return undefined;
       }
-      return patient[column];
   }
 }
 

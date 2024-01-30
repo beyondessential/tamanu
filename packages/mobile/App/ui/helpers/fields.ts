@@ -1,6 +1,7 @@
 import { inRange, isNil } from 'lodash';
 import { formatISO9075, isDate } from 'date-fns';
 import { DataElementType, ISurveyScreenComponent } from '~/types/ISurvey';
+import { PATIENT_DATA_FIELD_LOCATIONS } from '~/constants';
 
 export const FieldTypes = {
   TEXT: 'FreeText',
@@ -34,6 +35,17 @@ export const PatientFieldDefinitionTypes = {
   SELECT: 'select',
 };
 export const PatientFieldDefinitionTypeValues = Object.values(PatientFieldDefinitionTypes);
+
+export const getPatientDataDbLocation = fieldName => {
+  if (PATIENT_DATA_FIELD_LOCATIONS[fieldName]) {
+    const [modelName, columnName] = PATIENT_DATA_FIELD_LOCATIONS[fieldName];
+    return {
+      modelName,
+      fieldName: columnName,
+    };
+  }
+  throw new Error(`Unknown fieldName: ${fieldName}`);
+};
 
 export const getStringValue = (type: string, value: any): string => {
   switch (type) {
