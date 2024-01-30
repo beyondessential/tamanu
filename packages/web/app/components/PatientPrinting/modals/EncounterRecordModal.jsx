@@ -108,7 +108,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
   const patient = patientQuery.data;
 
   const padDataQuery = usePatientAdditionalDataQuery(patient?.id);
-  const padData = padDataQuery.data;
+  const { data: additionalData, isLoading: isPADLoading } = padDataQuery;
 
   const labRequestsQuery = useLabRequests(encounter.id, {
     order: 'asc',
@@ -277,7 +277,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
         showToolbar={false}
       >
         <EncounterRecordPrintout
-          patientData={{ ...patient, padData, village }}
+          patientData={{ ...patient, additionalData, village }}
           encounter={encounter}
           certificateData={certificateData}
           encounterTypeHistory={encounterTypeHistory}
