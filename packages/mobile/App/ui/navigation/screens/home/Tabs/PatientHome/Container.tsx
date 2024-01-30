@@ -64,6 +64,7 @@ const showPatientWarningPopups = (issues: IPatientIssue[]): void =>
 const PatientHomeContainer = ({
   navigation,
   selectedPatient,
+  setSelectedPatient,
 }: PatientHomeScreenProps): ReactElement => {
   const [errorMessage, setErrorMessage] = useState();
   const visitTypeButtons = useMemo(
@@ -121,6 +122,7 @@ const PatientHomeContainer = ({
   );
 
   const onNavigateToSearchPatients = useCallback(() => {
+    setSelectedPatient(null);
     navigation.navigate(Routes.HomeStack.SearchPatientStack.Index);
   }, []);
 
