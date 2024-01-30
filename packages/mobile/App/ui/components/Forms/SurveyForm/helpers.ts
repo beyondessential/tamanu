@@ -1,6 +1,7 @@
 // Much of this file is duplicated in `packages/web/app/utils/survey.js`
 import * as Yup from 'yup';
 
+import { READONLY_DATA_FIELDS } from '~/constants';
 import { getAgeFromDate, getAgeWithMonthsFromDate } from '~/ui/helpers/date';
 import { getPatientDataDbLocation, checkMandatory, FieldTypes } from '~/ui/helpers/fields';
 import { joinNames } from '~/ui/helpers/user';
@@ -33,11 +34,11 @@ function transformPatientData(
   const { dateOfBirth, firstName, lastName } = patient;
 
   switch (column) {
-    case 'age':
+    case READONLY_DATA_FIELDS.AGE:
       return getAgeFromDate(dateOfBirth).toString();
-    case 'ageWithMonths':
+    case READONLY_DATA_FIELDS.AGE_WITH_MONTHS:
       return getAgeWithMonthsFromDate(dateOfBirth);
-    case 'fullName':
+    case READONLY_DATA_FIELDS.FULL_NAME:
       return joinNames({ firstName, lastName });
     default: {
       const { modelName, fieldName } = getPatientDataDbLocation(column);
