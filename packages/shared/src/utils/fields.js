@@ -7,14 +7,11 @@ import { log } from '../services/logging';
 import { checkJSONCriteria } from './criteria';
 
 export const getPatientDataDbLocation = fieldName => {
-  if (PATIENT_DATA_FIELD_LOCATIONS[fieldName]) {
-    const [modelName, columnName] = PATIENT_DATA_FIELD_LOCATIONS[fieldName];
-    return {
-      modelName,
-      fieldName: columnName,
-    };
-  }
-  throw new Error(`Unknown fieldName: ${fieldName}`);
+  const [modelName, columnName] = PATIENT_DATA_FIELD_LOCATIONS[fieldName] ?? [null, null];
+  return {
+    modelName,
+    fieldName: columnName,
+  };
 };
 
 export function getStringValue(type, value) {

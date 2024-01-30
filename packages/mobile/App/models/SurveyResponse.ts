@@ -52,6 +52,9 @@ const getFieldsToWrite = (questions, answers): RecordValuesByModel => {
 
     const value = answers[dataElement.code];
     const { modelName, fieldName } = getPatientDataDbLocation(configFieldName);
+    if (!modelName) {
+      throw new Error(`Unknown fieldName: ${configFieldName}`);
+    }
     if (!recordValuesByModel[modelName]) recordValuesByModel[modelName] = {};
     recordValuesByModel[modelName][fieldName] = value;
   }
