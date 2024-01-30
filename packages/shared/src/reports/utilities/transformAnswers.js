@@ -60,6 +60,7 @@ export const getAnswerBody = async (models, componentConfig, type, answer, trans
 
 export const getAutocompleteComponentMap = surveyComponents => {
   const autocompleteComponents = surveyComponents
+    .filter(c => c.dataElement.type === 'Autocomplete')
     .map(({ dataElementId, config: componentConfig }) => [
       dataElementId,
       componentConfig ? JSON.parse(componentConfig) : {},
