@@ -73,12 +73,16 @@ export const SSCPatientData = SurveyScreenComponent.shape({
         .object()
         .shape({
           fieldName: patientDataColumnString(WRITE_DATA_FIELDS).required(),
-          isAdditionalData: yup.boolean(),
           fieldType: yup
             .string()
             .oneOf(PROGRAM_DATA_ELEMENT_TYPE_VALUES)
             .required(),
         })
+        .test(
+          'test-isAdditionalData-key-present',
+          'isAdditionalData is deprecated in Tamanu 2.1, it is now just inferred from the fieldName',
+          writeToPatient => !writeToPatient || writeToPatient?.isAdditionalData === undefined,
+        )
         .noUnknown()
         .default(null),
     }),

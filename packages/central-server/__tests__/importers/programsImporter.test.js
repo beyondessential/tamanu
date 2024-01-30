@@ -232,6 +232,7 @@ describe('Programs import', () => {
       'config: this field has unspecified keys: foo on Question Validation Fail at row 31',
       'config: source must be a `string` type, but the final value was: `true`. on Question Validation Fail at row 32',
       'config: source is a required field on Question Validation Fail at row 33',
+      'config: isAdditionalData is deprecated in Tamanu 2.1, it is now just inferred from the fieldName on Question Validation Fail at row 34',
     ];
 
     expectedErrorMessages.forEach((message, i) => {
@@ -249,7 +250,7 @@ describe('Programs import', () => {
         Program: { created: 1, updated: 0, errored: 0 },
         Survey: { created: 2, updated: 0, errored: 0 },
         ProgramDataElement: { created: 45, updated: 0, errored: 0 },
-        SurveyScreenComponent: { created: 13, updated: 0, errored: 32 }, // 31 fields in failure test, 11 in success test
+        SurveyScreenComponent: { created: 12, updated: 0, errored: 33 },
       });
     });
   });

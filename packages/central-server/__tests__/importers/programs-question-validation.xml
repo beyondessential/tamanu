@@ -378,6 +378,12 @@
     <Cell><Data ss:Type="String">SurveyAnswer: Missing required field in config</Data></Cell>
     <Cell ss:Index="16"><Data ss:Type="String">{}</Data></Cell>
    </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Fail-PatientDataConfisAdditionalDataPresent</Data></Cell>
+    <Cell><Data ss:Type="String">PatientData</Data></Cell>
+    <Cell><Data ss:Type="String">PatientData: Old "isAdditionalData" field present</Data></Cell>
+    <Cell ss:Index="16"><Data ss:Type="String">{ &quot;column&quot;: &quot;email&quot;, &quot;writeToPatient&quot;: { &quot;fieldName&quot;: &quot;email&quot;, &quot;isAdditionalData&quot;: &quot;false&quot; }}</Data></Cell>
+   </Row>
   </Table>
  </Worksheet>
 </Workbook>
