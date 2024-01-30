@@ -4,7 +4,7 @@ import * as yup from 'yup';
 import { intervalToDuration, parseISO } from 'date-fns';
 import { isNull, isUndefined } from 'lodash';
 import { checkJSONCriteria } from '@tamanu/shared/utils/criteria';
-import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
+import { PROGRAM_DATA_ELEMENT_TYPES, READONLY_DATA_FIELDS } from '@tamanu/constants';
 
 import {
   DateField,
@@ -188,14 +188,14 @@ function transformPatientData(patient, additionalData, config) {
   const monthPlural = months !== 1 ? 's' : '';
 
   switch (column) {
-    case 'age':
+    case READONLY_DATA_FIELDS.AGE:
       return years.toString();
-    case 'ageWithMonths':
+    case READONLY_DATA_FIELDS.AGE_WITH_MONTHS:
       if (!years) {
         return `${months} month${monthPlural}`;
       }
       return `${years} year${yearPlural}, ${months} month${monthPlural}`;
-    case 'fullName':
+    case READONLY_DATA_FIELDS.FULL_NAME:
       return joinNames({ firstName, lastName });
     default:
       if (isAdditionalDataField) {
