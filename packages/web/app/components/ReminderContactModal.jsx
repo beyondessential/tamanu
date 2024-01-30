@@ -9,6 +9,7 @@ import { BaseModal } from './BaseModal';
 import { Button } from './Button';
 import { ModalCancelRow } from './ModalActionRow';
 import { DataFetchingTable } from './Table';
+import { useAuth } from '../contexts/Auth';
 
 const StyledText = styled.p`
   margin-bottom: 33px;
@@ -109,11 +110,13 @@ export const ContactDetails = ({ name }) => {
   );
 };
 
-export const ReminderContactModal = ({ openReminderModal, handleCloseReminderModal, patient = {}, handleOpenRemindersModal }) => {
+export const ReminderContactModal = ({ openReminderModal, patient = {}, handleOpenCloseRemindersModal }) => {
   const [openAddReminderContactModal, setOpenAddReminderContactModal] = useState(false);
+  const { ability } = useAuth();
+  const canAddReminderContacts = ability.can('write', 'Patient');
 
   const handleAddReminderContactModal = useCallback(() => {
-    handleCloseReminderModal();
+    handleOpenCloseRemindersModal(false);
     setOpenAddReminderContactModal(true);
   }, []);
 
@@ -122,7 +125,7 @@ export const ReminderContactModal = ({ openReminderModal, handleCloseReminderMod
   }, []);
 
   const handleBackAddReminderModal = useCallback(() => {
-    handleOpenRemindersModal();
+    handleOpenCloseRemindersModal(true);
     setOpenAddReminderContactModal(false);
   }, []);
 
@@ -132,20 +135,21 @@ export const ReminderContactModal = ({ openReminderModal, handleCloseReminderMod
         width="md"
         title="Reminder contacts"
         open={openReminderModal}
-        onClose={handleCloseReminderModal}
+        onClose={() => handleOpenCloseRemindersModal(false)}
       >
         <ContactDetails name={`${patient?.firstName} ${patient?.lastName}`} />
 
-        <StyledButton
-          variant="outlined"
-          color="primary"
-          size="small"
-          onClick={handleAddReminderContactModal}
-        >
-          <PlusIcon fill={Colors.primary} />
-          Add contact
-        </StyledButton>
-        <ModalCancelRow confirmText="Close" confirmColor="primary" onConfirm={handleCloseReminderModal} />
+        {canAddReminderContacts &&
+          (<StyledButton
+            variant="outlined"
+            color="primary"
+            size="small"
+            onClick={handleAddReminderContactModal}
+          >
+            <PlusIcon fill={Colors.primary} />
+            Add contact
+          </StyledButton>)}
+        <ModalCancelRow confirmText="Close" confirmColor="primary" onConfirm={() => handleOpenCloseRemindersModal(false)} />
 
       </BaseModal>
       <AddReminderContactModal

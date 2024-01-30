@@ -87,12 +87,8 @@ export const PrimaryDetailsGroup = ({ values = {}, patientRegistryType }) => {
   const isRequiredPatientData = fieldName =>
     getLocalisation(`fields.${fieldName}.requiredPatientData`);
 
-  const handleOpenRemindersModal = useCallback(() => {
-    setOpenReminderModal(true);
-  }, []);
-
-  const handleCloseRemindersModal = useCallback(() => {
-    setOpenReminderModal(false);
+  const handleOpenCloseRemindersModal = useCallback((value) => {
+    setOpenReminderModal(value);
   }, []);
 
   return (
@@ -104,7 +100,7 @@ export const PrimaryDetailsGroup = ({ values = {}, patientRegistryType }) => {
             variant="outlined"
             color="primary"
             size="small"
-            onClick={handleOpenRemindersModal}
+            onClick={() => handleOpenCloseRemindersModal(true)}
           >
             <NotificationsNoneIcon />
             Reminder contacts
@@ -113,8 +109,7 @@ export const PrimaryDetailsGroup = ({ values = {}, patientRegistryType }) => {
       </StyledHeading>
       <ReminderContactModal
         openReminderModal={openReminderModal}
-        handleCloseReminderModal={handleCloseRemindersModal}
-        handleOpenRemindersModal={handleOpenRemindersModal}
+        handleOpenCloseRemindersModal={handleOpenCloseRemindersModal}
         patient={values}
       />
 

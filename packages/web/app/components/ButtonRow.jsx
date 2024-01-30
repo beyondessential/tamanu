@@ -97,29 +97,6 @@ export const ConfirmCancelRow = React.memo(
   ),
 );
 
-export const ConfirmCancelBackRow = React.memo(
-  ({
-    onCancel,
-    onConfirm,
-    confirmText = 'Confirm',
-    confirmColor = 'primary',
-    cancelText = 'Cancel',
-    confirmDisabled,
-    onBack,
-    backButtonText = 'Back',
-    ...props
-  }) => (
-    <SectionButtonRow {...props}>
-      {onBack && (
-        <GoBackButtonContainer>
-          <OutlinedButton onClick={onBack}>{backButtonText}</OutlinedButton>
-        </GoBackButtonContainer>
-      )}
-      <FormSubmitCancelRow confirmText={confirmText} onCancel={onCancel} />
-    </SectionButtonRow>
-  ),
-);
-
 const GoBackButtonContainer = styled(ButtonRow)`
   align-items: stretch;
   justify-content: flex-start;
@@ -139,4 +116,27 @@ export const FormConfirmCancelBackRow = ({ onBack, backButtonText = 'Back', ...p
     )}
     <FormSubmitCancelRow {...props} />
   </FlexSpaceBetween>
+);
+
+export const ConfirmCancelBackRow = React.memo(
+  ({
+    onCancel,
+    onConfirm,
+    confirmText = 'Confirm',
+    confirmColor = 'primary',
+    cancelText = 'Cancel',
+    confirmDisabled,
+    onBack,
+    backButtonText = 'Back',
+    ...props
+  }) => (
+    <SectionButtonRow {...props}>
+      {onBack && (
+        <GoBackButtonContainer>
+          <OutlinedButton onClick={onBack}>{backButtonText}</OutlinedButton>
+        </GoBackButtonContainer>
+      )}
+      <FormSubmitCancelRow confirmColor={confirmColor} confirmText={confirmText} onConfirm={onConfirm} confirmDisabled={confirmDisabled} onCancel={onCancel} cancelText={cancelText} />
+    </SectionButtonRow>
+  ),
 );
