@@ -8,6 +8,7 @@ import { AddVitalsScreen, ViewHistoryScreen } from '../screens/vitals/tabs';
 import { withPatient } from '~/ui/containers/Patient';
 import { IPatient } from '~/types';
 import { joinNames } from '~/ui/helpers/user';
+import { TranslatedText } from '/components/Translations/TranslatedText';
 
 const Tabs = createTopTabNavigator();
 
@@ -28,11 +29,17 @@ const DumbVitalsTabs = ({
 
   return (
     <>
-      <StackHeader title="Vitals" subtitle={getPatientName(selectedPatient)} onGoBack={goBack} />
+      <StackHeader
+        title={<TranslatedText stringId="patient.vitals.title" fallback="Vitals" />}
+        subtitle={getPatientName(selectedPatient)}
+        onGoBack={goBack}
+      />
       <Tabs.Navigator swipeEnabled={false} lazy>
         <Tabs.Screen
           options={{
+            // title: <TranslatedText stringId="patient.vitals.add" fallback="Add Vitals" />,
             title: 'Add Vitals',
+            // tabBarLabel: <TranslatedText stringId="patient.vitals.add" fallback="Add Vitals" />,
           }}
           name={Routes.HomeStack.VitalsStack.VitalsTabs.AddDetails}
           component={AddVitalsScreen}

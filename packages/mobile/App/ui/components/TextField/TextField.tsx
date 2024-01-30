@@ -33,6 +33,7 @@ export interface TextFieldProps extends BaseInputProps {
   blurOnSubmit?: boolean;
   inputRef?: RefObject<TextInput>;
   onSubmitEditing?: () => void;
+  label?: any;
   labelColor?: string;
   labelFontWeight?: string;
   labelFontSize?: string;
@@ -116,7 +117,7 @@ export const TextField = React.memo(
             focused={focused}
             hasValue={value?.length > 0}
             error={error}
-            testID={label}
+            testID={label?.props?.fallback || label}
             value={!hideValue && value}
             height={inputHeight}
             ref={ref}
@@ -124,7 +125,7 @@ export const TextField = React.memo(
             autoFocus={autoFocus}
             returnKeyType={returnKeyType}
             autoCorrect={hints}
-            accessibilityLabel={label}
+            accessibilityLabel={label?.props?.fallback || label}
             keyboardType={keyboardType}
             onChangeText={onChange}
             onFocus={onFocusInput}

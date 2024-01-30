@@ -2,6 +2,7 @@ import React, { ReactElement } from 'react';
 import { useFormikContext } from 'formik';
 import { theme } from '/styled/theme';
 import { Button, StyledButtonProps } from '/components/Button';
+import { TranslatedText } from '/components/Translations/TranslatedText';
 
 interface SubmitButtonProps extends StyledButtonProps {
   onSubmit?: () => Promise<void>;
@@ -13,7 +14,13 @@ export const SubmitButton = ({ onSubmit, ...props }: SubmitButtonProps): ReactEl
     <Button
       onPress={onSubmit || submitForm}
       disabled={isSubmitting}
-      buttonText={isSubmitting ? 'Submitting...' : 'Submit'}
+      buttonText={
+        isSubmitting ? (
+          <TranslatedText stringId="general.action.submit" fallback="Submitting..." />
+        ) : (
+          <TranslatedText stringId="general.action.submit" fallback="Submit" />
+        )
+      }
       backgroundColor={theme.colors.PRIMARY_MAIN}
       {...props}
     />
