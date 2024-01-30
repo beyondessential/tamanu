@@ -16,7 +16,8 @@ export const MultipleImagingRequestsWrapper = ({ encounter, imagingRequests }) =
   const isVillageEnabled = patient?.villageId;
   const { data: village, isLoading: isVillageLoading } = useReferenceData(patient?.villageId);
   const isLoading = isPatientLoading || (isVillageEnabled && isVillageLoading);
-  if (isLoading) {
+
+  if (isLoading || !certificateData.logo) {
     return <LoadingIndicator />;
   }
 
