@@ -47,7 +47,7 @@ const getDbReports = async (ability, models) => {
 
 const getDisabledReportIds = async models => {
   const { Setting } = models;
-  const disabledReports = await Setting.get('localisation.disabledReports');
+  const disabledReports = await Setting.get('disabledReports');
   return disabledReports || [];
 };
 
