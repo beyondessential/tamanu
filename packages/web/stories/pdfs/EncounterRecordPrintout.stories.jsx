@@ -9,17 +9,17 @@ export default {
   component: EncounterRecordPrintout,
 };
 
-const getLocalisation = key => {
+const getSetting = key => {
   const config = {
-    'templates.letterhead.title': 'TAMANU MINISTRY OF HEALTH & MEDICAL SERVICES',
-    'templates.letterhead.subTitle': 'PO Box 12345, Melbourne, Australia',
-    'templates.vaccineCertificate.emailAddress': 'tamanu@health.govt',
-    'templates.vaccineCertificate.contactNumber': '123456',
-    'fields.firstName.longLabel': 'First Name',
-    'fields.lastName.longLabel': 'Last Name',
-    'fields.dateOfBirth.longLabel': 'Date of Birth',
-    'fields.sex.longLabel': 'Sex',
-    'fields.clinician.shortLabel': 'Clinician',
+    'localisation.templates.letterhead.title': 'TAMANU MINISTRY OF HEALTH & MEDICAL SERVICES',
+    'localisation.templates.letterhead.subTitle': 'PO Box 12345, Melbourne, Australia',
+    'localisation.templates.vaccineCertificate.emailAddress': 'tamanu@health.govt',
+    'localisation.templates.vaccineCertificate.contactNumber': '123456',
+    'localisation.fields.firstName.longLabel': 'First Name',
+    'localisation.fields.lastName.longLabel': 'Last Name',
+    'localisation.fields.dateOfBirth.longLabel': 'Date of Birth',
+    'localisation.fields.sex.longLabel': 'Sex',
+    'localisation.fields.clinician.shortLabel': 'Clinician',
     previewUvciFormat: 'tamanu',
   };
   return config[key];
@@ -237,7 +237,7 @@ const Template = () => (
   <PDFViewer width={800} height={1000} showToolbar={false}>
     <EncounterRecordPrintout
       certificateData={certificateData}
-      getLocalisation={getLocalisation}
+      getSetting={getSetting}
       patient={patientData}
       encounter={encounterData}
       encounterTypeHistory={encounterTypesData}

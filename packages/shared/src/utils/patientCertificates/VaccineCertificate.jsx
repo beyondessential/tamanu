@@ -20,8 +20,8 @@ const columns = [
   {
     key: 'date',
     title: 'Date given',
-    accessor: ({ date }, getLocalisation) =>
-      date ? getDisplayDate(date, undefined, getLocalisation) : 'Unknown',
+    accessor: ({ date }, getSetting) =>
+      date ? getDisplayDate(date, undefined, getSetting) : 'Unknown',
   },
   {
     key: 'schedule',

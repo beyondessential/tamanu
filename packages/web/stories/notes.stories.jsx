@@ -20,7 +20,7 @@ const getSetting = key => {
     'localisation.fields.lastName.longLabel': 'Last Name',
     'localisation.fields.dateOfBirth.longLabel': 'Date of Birth',
     'localisation.fields.sex.longLabel': 'Sex',
-    'localisation.previewUvciFormat': 'tamanu',
+    'previewUvciFormat': 'tamanu',
   };
   return settings[key];
 };

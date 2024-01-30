@@ -361,7 +361,7 @@ export const EncounterRecordPrintout = ({
   notes,
   discharge,
   medications,
-  getLocalisation,
+  getSetting,
   clinicianText,
 }) => {
   const { watermark, logo } = certificateData;
@@ -372,14 +372,14 @@ export const EncounterRecordPrintout = ({
         {watermark && <Watermark src={watermark} />}
         <CertificateHeader>
           <LetterheadSection
-            getLocalisation={getLocalisation}
+            getSetting={getSetting}
             logoSrc={logo}
             certificateTitle="Patient encounter record"
             letterheadConfig={certificateData}
           />
         </CertificateHeader>
         <SectionSpacing />
-        <PatientDetailsWithAddress getLocalisation={getLocalisation} patient={patientData} />
+        <PatientDetailsWithAddress getSetting={getSetting} patient={patientData} />
         <SectionSpacing />
         <EncounterDetailsExtended
           encounter={encounter}

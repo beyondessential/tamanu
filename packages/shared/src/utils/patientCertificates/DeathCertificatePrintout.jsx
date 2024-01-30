@@ -167,8 +167,8 @@ const causeOfDeathAccessor = ({ causes }) => {
   const causeOfDeath = getCauseName(causes?.primary);
   return causeOfDeath;
 };
-export const getDOB = ({ dateOfBirth }, getLocalisation) =>
-  dateOfBirth ? getDisplayDate(dateOfBirth, 'dd.MM.yyyy', getLocalisation) : 'Unknown';
+export const getDOB = ({ dateOfBirth }, getSetting) =>
+  dateOfBirth ? getDisplayDate(dateOfBirth, 'dd.MM.yyyy', getSetting) : 'Unknown';
 
 const HEADER_FIELDS = {
   leftCol: [
@@ -189,7 +189,7 @@ const HEADER_FIELDS = {
 const SectionContainer = props => <View style={generalStyles.sectionContainer} {...props} />;
 
 export const DeathCertificatePrintout = React.memo(
-  ({ patientData, certificateData, getLocalisation }) => {
+  ({ patientData, certificateData, getSetting }) => {
     const { logo } = certificateData;
 
     const { causes } = patientData;
@@ -206,7 +206,7 @@ export const DeathCertificatePrintout = React.memo(
           />
           <CertificateHeader>
             <LetterheadSection
-              getLocalisation={getLocalisation}
+              getSetting={getSetting}
               logoSrc={logo}
               letterheadConfig={certificateData}
               certificateTitle="Cause of death certificate"
@@ -217,7 +217,7 @@ export const DeathCertificatePrintout = React.memo(
                   {renderDataItems(
                     HEADER_FIELDS.leftCol,
                     { ...certificateData, ...patientData },
-                    getLocalisation,
+                    getSetting,
                     12,
                   )}
                 </Col>
@@ -225,7 +225,7 @@ export const DeathCertificatePrintout = React.memo(
                   {renderDataItems(
                     HEADER_FIELDS.rightCol,
                     { ...certificateData, ...patientData },
-                    getLocalisation,
+                    getSetting,
                     12,
                   )}
                 </Col>
