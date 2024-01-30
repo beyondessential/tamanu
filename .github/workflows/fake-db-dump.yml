@@ -3,6 +3,9 @@ name: Fake DB Dump
 on:
   workflow_dispatch:
   push:
+    branches:
+      - main
+      - release/*
 
 env:
   NODE_OPTIONS: "--max-old-space-size=6144"
