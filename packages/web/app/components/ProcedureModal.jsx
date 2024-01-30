@@ -8,8 +8,8 @@ import { ProcedureForm } from '../forms/ProcedureForm';
 
 // Both date and startTime only keep track of either date or time, accordingly.
 // This grabs both relevant parts for the table.
-const getActualDateTime = ({ date, startTime }) => {
-  return `${date.slice(0, 10)} ${startTime.slice(-8)}`;
+const getActualDateTime = (date, time) => {
+  return `${date.slice(0, 10)} ${time.slice(-8)}`;
 };
 
 export const ProcedureModal = ({ onClose, onSaved, encounterId, editedProcedure }) => {
@@ -30,7 +30,7 @@ export const ProcedureModal = ({ onClose, onSaved, encounterId, editedProcedure 
     >
       <ProcedureForm
         onSubmit={async data => {
-          const actualDateTime = getActualDateTime(data);
+          const actualDateTime = getActualDateTime(data.date, data.startTime);
           const updatedData = {
             ...data,
             date: actualDateTime,
