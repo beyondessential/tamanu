@@ -21,6 +21,7 @@ export class PatientContact extends BaseModel implements IPatientContact {
   @Column({ nullable: false })
   method: string;
 
+  // This is actually JSON
   @Column({ nullable: true })
   connectionDetails: string;
 
