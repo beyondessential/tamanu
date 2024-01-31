@@ -39,7 +39,7 @@ export const Screen = ({
       <StackHeader
         title={
           <TranslatedText
-            stringId="patient.details.add.patientIssue"
+            stringId="patient.details.action.addPatientIssue"
             fallback="Add patient issue"
           />
         }

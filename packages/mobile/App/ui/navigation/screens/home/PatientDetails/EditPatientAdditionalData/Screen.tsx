@@ -31,7 +31,7 @@ export const EditPatientAdditionalDataScreen = ({ navigation, route }): ReactEle
       <StackHeader
         title={
           <TranslatedText
-            stringId="patient.details.edit.additionalData"
+            stringId="patient.details.action.editAdditionalData"
             fallback="Edit Patient Additional Data"
           />
         }

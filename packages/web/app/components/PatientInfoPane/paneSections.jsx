@@ -26,10 +26,7 @@ export const PANE_SECTION_TITLES = {
     />
   ),
   [PANE_SECTION_IDS.ISSUES]: (
-    <TranslatedText
-      stringId="patient.detailsSidebar.subheading.issues"
-      fallback="Other patient issues"
-    />
+    <TranslatedText stringId="subheading.otherPatientIssues" fallback="Other patient issues" />
   ),
   [PANE_SECTION_IDS.CARE_PLANS]: (
     <TranslatedText stringId="patient.detailsSidebar.subheading.carePlans" fallback="Care plans" />
