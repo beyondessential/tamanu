@@ -90,7 +90,7 @@ const MedicationsTableTitleCol = props => (
 const notesSectionStyles = StyleSheet.create({
   notesBox: {
     border: borderStyle,
-    height: 76,
+    minHeight: 76,
     padding: 10,
   },
 });
