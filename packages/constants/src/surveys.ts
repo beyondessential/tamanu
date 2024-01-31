@@ -146,7 +146,7 @@ export const PATIENT_DATA_FIELD_LOCATIONS: PatientDataFieldLocationsType = {
     'countryOfBirthId',
   ]),
 };
-
+// comment
 // The 'location' for the following fields is defined on the frontend
 // Please keep in sync with:
 // - mobile/App/constants/surveys
