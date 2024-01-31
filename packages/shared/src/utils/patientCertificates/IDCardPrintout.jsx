@@ -103,8 +103,10 @@ export const IDCardPrintout = ({
           height: convertToPt(cardDimensions.height),
         }}
         style={{
-          paddingHorizontal: measures.cardMaginLeft,
-          paddingVertical: measures.cardMarginTop,
+          paddingLeft: measures.cardMaginLeft,
+          paddingRight: '1mm',
+          paddingTop: measures.cardMarginTop,
+          paddingBottom: '1mm',
           alignItems: 'center',
           justifyContent: 'center',
         }}
@@ -138,6 +140,7 @@ export const IDCardPrintout = ({
         <BarcodeRow>
           <PrintableBarcode
             width={convertToPt(43)}
+            barHeight={convertToPt(5.9)}
             id={patient.displayId}
             barcodeStyle={{ displayValue: false }}
           />
