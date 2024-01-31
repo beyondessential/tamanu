@@ -117,7 +117,7 @@ export const LoginView = () => {
 
   const { data: supportDeskData, isLoading: isUrlLoading } = useQuery(
     ['supportDeskUrl'],
-    () => api.get(`public/supportDeskUrl`),
+    () => api.get('public/supportDeskUrl'),
   );
 
   const submitLogin = async data => {
