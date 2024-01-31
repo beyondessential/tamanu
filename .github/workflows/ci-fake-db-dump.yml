@@ -57,7 +57,7 @@ jobs:
           path: ${{ env.ARTIFACT_NAME }}.dump
 
   upload:
-    needs: ['generate-fake']
+    needs: generate-fake
     runs-on: ubuntu-latest
     permissions:
       id-token: write # allow accessing OIDC token for AWS
@@ -75,32 +75,6 @@ jobs:
           path: fake
           pattern: fake-*
           merge-multiple: true
-
-      - name: Get minisign
-        run: |
-          set -ex
-          curl --proto '=https' --tlsv1.2 -LO https://github.com/jedisct1/minisign/releases/download/0.11/minisign-0.11-linux.tar.gz
-          echo 'f0a0954413df8531befed169e447a66da6868d79052ed7e892e50a4291af7ae0  minisign-0.11-linux.tar.gz' | sha256sum -c
-          tar -xvf minisign-0.11-linux.tar.gz
-          mv minisign-linux/x86_64/minisign .
-      - name: Sign artifacts
-        env:
-          MINISIGN_KEY: ${{ secrets.SIGNING_KEY }}
-        run: |
-          set -e
-          echo "$MINISIGN_KEY" > minisign.key
-          set -x
-          ./minisign -R \
-            -s minisign.key \
-            -p minisign.pub
-          for file in fake/*; do
-            ./minisign -S \
-              -s minisign.key \
-              -m $file \
-              -x $file.sig \
-              -t "built on $(date --iso-8601=seconds) from tamanu/${{ github.sha }}"
-          done
-          rm minisign.*
 
       - name: Push to S3
         run: aws s3 sync fake s3://bes-tamanu-test-data-snapshots/${{ github.sha }} --no-progress
