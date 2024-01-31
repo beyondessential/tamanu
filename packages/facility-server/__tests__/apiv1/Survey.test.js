@@ -41,7 +41,7 @@ describe('Survey', () => {
       });
     });
     it('should return the vitals survey', async () => {
-      const result = await app.get(`/v1/survey/vitals`);
+      const result = await app.get(`/api/survey/vitals`);
       expect(result).toHaveSucceeded();
       expect(result.body).toMatchObject({
         id: 'vitals-survey',

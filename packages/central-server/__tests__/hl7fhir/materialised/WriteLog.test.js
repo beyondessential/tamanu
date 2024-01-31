@@ -43,7 +43,7 @@ describe(`Materialised FHIR - WriteLog`, () => {
           },
         ],
       };
-      const response = await app.post(`/v1/integration/${INTEGRATION_ROUTE}/FooBarBaz`).send(body);
+      const response = await app.post(`/api/integration/${INTEGRATION_ROUTE}/FooBarBaz`).send(body);
 
       expect(response.status).not.toBe(201);
       const flog = await FhirWriteLog.findOne({
@@ -75,7 +75,7 @@ describe(`Materialised FHIR - WriteLog`, () => {
           },
         ],
       };
-      const response = await app.post(`/v1/integration/${INTEGRATION_ROUTE}/FooBarBaz`).send(body);
+      const response = await app.post(`/api/integration/${INTEGRATION_ROUTE}/FooBarBaz`).send(body);
 
       expect(response.status).not.toBe(201);
       const flog = await FhirWriteLog.findOne({
@@ -93,7 +93,7 @@ describe(`Materialised FHIR - WriteLog`, () => {
         at: 'the pass',
       };
       const response = await app
-        .post(`/v1/integration/${INTEGRATION_ROUTE}/HeadMeOff`)
+        .post(`/api/integration/${INTEGRATION_ROUTE}/HeadMeOff`)
         .set('X-Forwarded-For', '123.45.67.89')
         .set('Authz', 'lmao')
         .set('X-Tamanu-Field', 'it me')

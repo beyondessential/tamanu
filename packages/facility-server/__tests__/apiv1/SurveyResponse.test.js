@@ -93,7 +93,7 @@ describe('SurveyResponse', () => {
       );
 
       // act
-      const result = await app.get(`/v1/surveyResponse/${response.id}`);
+      const result = await app.get(`/api/surveyResponse/${response.id}`);
 
       // assert
       expect(result).toHaveSucceeded();
@@ -119,7 +119,7 @@ describe('SurveyResponse', () => {
       const { response } = await setupAutocompleteSurvey('{}', facility.id);
 
       // act
-      const result = await app.get(`/v1/surveyResponse/${response.id}`);
+      const result = await app.get(`/api/surveyResponse/${response.id}`);
 
       // assert
       expect(result).not.toHaveSucceeded();
@@ -140,7 +140,7 @@ describe('SurveyResponse', () => {
       );
 
       // act
-      const result = await app.get(`/v1/surveyResponse/${response.id}`);
+      const result = await app.get(`/api/surveyResponse/${response.id}`);
 
       // assert
       expect(result).not.toHaveSucceeded();
@@ -161,7 +161,7 @@ describe('SurveyResponse', () => {
       );
 
       // act
-      const result = await app.get(`/v1/surveyResponse/${response.id}`);
+      const result = await app.get(`/api/surveyResponse/${response.id}`);
 
       // assert
       expect(result).not.toHaveSucceeded();
@@ -182,7 +182,7 @@ describe('SurveyResponse', () => {
       );
 
       // act
-      const result = await app.get(`/v1/surveyResponse/${response.id}`);
+      const result = await app.get(`/api/surveyResponse/${response.id}`);
 
       // assert
       expect(result).not.toHaveSucceeded();

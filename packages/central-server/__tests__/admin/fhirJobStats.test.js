@@ -26,7 +26,7 @@ describe('FHIR job stats', () => {
     );
 
     // act
-    const response = await app.get('/v1/admin/fhir/jobStats?order=desc&orderBy=count');
+    const response = await app.get('/api/admin/fhir/jobStats?order=desc&orderBy=count');
 
     // assert
     expect(response.status).toBe(200);
