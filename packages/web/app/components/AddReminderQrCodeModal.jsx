@@ -16,15 +16,21 @@ const StyledText = styled.p`
     }
 
     &.headerText {
-        margin: 7px 0 9px 0;
+        margin: 15px 0 9px 0;
         font-weight: 500;
     }
 `;
 
-const StyledDiv = styled.div`
+const StyledQR = styled.div`
+    text-align: center;
     margin-top: 23px;
     margin-bottom: 21px;
-    text-align: center;
+
+    img {
+        height: 185px;
+        width: 185px;
+    }
+    
 `
 
 export const AddReminderQrCodeModal = ({ openReminderQrCodeModal, patient = {}, handleOpenCloseQrCodeModal }) => {
@@ -64,9 +70,9 @@ export const AddReminderQrCodeModal = ({ openReminderQrCodeModal, patient = {}, 
             <StyledText>Please ask the contact to scan the QR code to register their Telegram account to received automated reminder messages for <span>{patient.firstName} {patient.lastName}.</span></StyledText>
             <StyledText>They will receive a confirmation message from Telegram once their account is successfully registered.</StyledText>
 
-            <StyledDiv>
+            <StyledQR>
                 {qrCodeURL && <img src={qrCodeURL} alt="QR Code" />}
-            </StyledDiv>
+            </StyledQR>
             <ModalCancelRow confirmText="Close" confirmColor="primary" onConfirm={() => handleOpenCloseQrCodeModal(false)} />
         </BaseModal>
     );
