@@ -196,18 +196,16 @@ export const DischargeSummaryPrintout = ({
   encounter,
   discharge,
   patientConditions,
-  logo,
-  title,
-  subTitle,
+  certificateData,
   getLocalisation,
 }) => {
+  const { logo } = certificateData;
   const { diagnoses, procedures, medications } = encounter;
   const visibleDiagnoses = diagnoses.filter(
     ({ certainty }) => !DIAGNOSIS_CERTAINTIES_TO_HIDE.includes(certainty),
   );
   const primaryDiagnoses = visibleDiagnoses.filter(d => d.isPrimary);
   const secondaryDiagnoses = visibleDiagnoses.filter(d => !d.isPrimary);
-  const letterheadConfig = { title: title, subTitle: subTitle };
   const notes = discharge?.note;
 
   return (
@@ -217,7 +215,7 @@ export const DischargeSummaryPrintout = ({
           <LetterheadSection
             getLocalisation={getLocalisation}
             certificateTitle="Patient discharge summary"
-            letterheadConfig={letterheadConfig}
+            letterheadConfig={certificateData}
             logoSrc={logo}
           />
         </CertificateHeader>
