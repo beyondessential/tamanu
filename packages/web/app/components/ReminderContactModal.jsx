@@ -10,6 +10,7 @@ import { Button } from './Button';
 import { ModalCancelRow } from './ModalActionRow';
 import { DataFetchingTable } from './Table';
 import { useAuth } from '../contexts/Auth';
+import { RemoveReminderContactModal } from './RemoveReminderContactModal';
 
 const StyledText = styled.p`
   margin-bottom: 33px;
@@ -95,6 +96,7 @@ export const ContactDetails = ({ name }) => {
       <StyledText>
         The below contact list is registered to receive reminders for <span>{name}</span>.
       </StyledText>
+      {/* Show Remove button only if user have "write" -> "Patient" permission */}
       <ContactInformationContainer
         columns={columns}
         noDataMessage="No contacts registered for this patient."
@@ -112,6 +114,7 @@ export const ContactDetails = ({ name }) => {
 
 export const ReminderContactModal = ({ openReminderModal, patient = {}, handleOpenCloseRemindersModal }) => {
   const [openAddReminderContactModal, setOpenAddReminderContactModal] = useState(false);
+  const [openRemoveReminderContactModal, setOpenRemoveReminderContactModal] = useState(false);
   const { ability } = useAuth();
   const canAddReminderContacts = ability.can('write', 'Patient');
 
@@ -124,9 +127,18 @@ export const ReminderContactModal = ({ openReminderModal, patient = {}, handleOp
     setOpenAddReminderContactModal(false);
   }, []);
 
+  const handleCloseRemoveReminder = useCallback(() => {
+    setOpenRemoveReminderContactModal(false);
+  }, []);
+
   const handleBackAddReminderModal = useCallback(() => {
     handleOpenCloseRemindersModal(true);
     setOpenAddReminderContactModal(false);
+  }, []);
+
+  const handleBackRemoveReminderModal = useCallback(() => {
+    handleOpenCloseRemindersModal(true);
+    setOpenRemoveReminderContactModal(false);
   }, []);
 
   return (
@@ -157,6 +169,11 @@ export const ReminderContactModal = ({ openReminderModal, patient = {}, handleOp
         handleCloseAddReminder={handleCloseAddRemindersModal}
         patient={patient}
         handleBackAddReminder={handleBackAddReminderModal}
+      />
+      <RemoveReminderContactModal
+        openRemoveReminderContactModal={openRemoveReminderContactModal}
+        handleCloseRemoveReminder={handleCloseRemoveReminder}
+        handleBackRemoveReminder={handleBackRemoveReminderModal}
       />
     </>
   );
