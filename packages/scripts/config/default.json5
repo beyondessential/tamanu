@@ -1,3 +1,4 @@
+// Used only by the `generate-fake-db` command to import `shared`.
 {
   "db": {
     "name": "fake",
