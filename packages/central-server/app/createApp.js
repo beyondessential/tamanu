@@ -2,7 +2,6 @@ import bodyParser from 'body-parser';
 import compression from 'compression';
 import config from 'config';
 import express from 'express';
-import path from 'path';
 
 import { getLoggingMiddleware } from '@tamanu/shared/services/logging';
 import { constructPermission } from '@tamanu/shared/permissions/middleware';
@@ -17,6 +16,15 @@ import { loadshedder } from './middleware/loadshedder';
 import { versionCompatibility } from './middleware/versionCompatibility';
 
 import { version } from './serverInfo';
+
+function api(ctx) {
+  const apiRoutes = express.Router();
+  apiRoutes.use('/public', publicRoutes);
+  apiRoutes.use(authModule);
+  apiRoutes.use(constructPermission);
+  apiRoutes.use(buildRoutes(ctx));
+  return apiRoutes;
+}
 
 export function createApp(ctx) {
   const { store, emailService, reportSchemaStores } = ctx;
@@ -50,7 +58,6 @@ export function createApp(ctx) {
     next();
   });
 
-  // TODO: serve index page
   app.get('/$', (req, res) => {
     res.send({
       index: true,
@@ -71,13 +78,4 @@ export function createApp(ctx) {
   app.use(defaultErrorHandler);
 
   return app;
-}
-
-function api(ctx) {
-  const apiRoutes = express.Router();
-  apiRoutes.use('/public', publicRoutes);
-  apiRoutes.use(authModule);
-  apiRoutes.use(constructPermission);
-  apiRoutes.use(buildRoutes(ctx));
-  return apiRoutes;
 }
