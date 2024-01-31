@@ -27,7 +27,7 @@ const intlFormatDate = (date, formatOptions, fallback = 'Unknown') => {
 export const formatShortest = date =>
   intlFormatDate(date, { month: '2-digit', day: '2-digit', year: '2-digit' }, '--/--'); // 12/04/20
 
-const formatShort = date =>
+export const formatShort = date =>
   intlFormatDate(date, { day: '2-digit', month: '2-digit', year: 'numeric' }, '--/--/----'); // 12/04/2020
 
 export const formatTime = date =>
@@ -154,13 +154,13 @@ export const getDateDisplay = (
 };
 
 export const DateDisplay = React.memo(
-  ({ date: dateValue, timeOnlyTooltip = false, color = 'unset', ...props }) => {
+  ({ date: dateValue, timeOnlyTooltip = false, color = 'unset', fontWeight, ...props }) => {
     const displayDateString = getDateDisplay(dateValue, { ...props });
     const dateObj = parseDate(dateValue);
 
     return (
       <DateTooltip date={dateObj} timeOnlyTooltip={timeOnlyTooltip}>
-        <span style={{ color }}>{displayDateString}</span>
+        <span style={{ color, fontWeight }}>{displayDateString}</span>
       </DateTooltip>
     );
   },

@@ -2,9 +2,9 @@
 import React from 'react';
 import * as yup from 'yup';
 import { intervalToDuration, parseISO } from 'date-fns';
+import { isNull, isUndefined } from 'lodash';
 import { checkJSONCriteria } from '@tamanu/shared/utils/criteria';
-import { ageInMonths, ageInWeeks, ageInYears } from '@tamanu/shared/utils/dateTime';
-import { ACTION_DATA_ELEMENT_TYPES, PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
+import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 
 import {
   DateField,
@@ -14,14 +14,18 @@ import {
   MultiselectField,
   NullableBooleanField,
   NumberField,
+  PatientDataDisplayField,
   ReadOnlyTextField,
   SelectField,
   SurveyQuestionAutocompleteField,
   SurveyResponseSelectField,
   UnsupportedPhotoField,
 } from '../components/Field';
+import { ageInMonths, ageInWeeks, ageInYears } from '@tamanu/shared/utils/dateTime';
 import { joinNames } from './user';
 import { notifyError } from './utils';
+
+const isNullOrUndefined = value => isNull(value) || isUndefined(value);
 
 const InstructionField = ({ label, helperText }) => (
   <p>
@@ -54,11 +58,17 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE]: InstructionField,
 };
 
-export function getComponentForQuestionType(type, { writeToPatient: { fieldType } = {} }) {
+export function getComponentForQuestionType(type, { source, writeToPatient: { fieldType } = {} }) {
   let component = QUESTION_COMPONENTS[type];
-  if (type === PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA && fieldType) {
-    // PatientData specifically can overwrite field type if we are writing back to patient record
-    component = QUESTION_COMPONENTS[fieldType];
+  if (type === PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA) {
+    if (fieldType) {
+      // PatientData specifically can overwrite field type if we are writing back to patient record
+      component = QUESTION_COMPONENTS[fieldType];
+    } else if (source) {
+      // we're displaying a relation, so use PatientDataDisplayField
+      // (using a LimitedTextField will just display the bare id)
+      component = PatientDataDisplayField;
+    }
   }
   if (component === undefined) {
     return LimitedTextField;
@@ -194,12 +204,46 @@ function transformPatientData(patient, additionalData, config) {
       return patient[column];
   }
 }
+function transformPatientProgramRegistrationData(patientProgramRegistration, config) {
+  const { column } = config;
+  const {
+    clinicalStatus,
+    registrationStatus,
+    clinician,
+    facility,
+    registeringFacility,
+    village,
+  } = patientProgramRegistration;
+  switch (column) {
+    case 'registrationClinicalStatus':
+      return clinicalStatus.id;
+    case 'programRegistrationStatus':
+      return registrationStatus;
+    case 'registrationClinician':
+      return clinician.id;
+    case 'registeringFacility':
+      return registeringFacility.id;
+    case 'registrationCurrentlyAtVillage':
+      return village?.id;
+    case 'registrationCurrentlyAtFacility':
+      return facility?.id;
 
-export function getFormInitialValues(components, patient, additionalData, currentUser = {}) {
+    default:
+      return undefined;
+  }
+}
+
+export function getFormInitialValues(
+  components,
+  patient,
+  additionalData,
+  currentUser = {},
+  patientProgramRegistration,
+) {
   const initialValues = components.reduce((acc, { dataElement }) => {
     const initialValue = getInitialValue(dataElement);
     const propName = dataElement.id;
-    if (initialValue === undefined) {
+    if (isNullOrUndefined(initialValue)) {
       return acc;
     }
     acc[propName] = initialValue;
@@ -215,13 +259,24 @@ export function getFormInitialValues(components, patient, additionalData, curren
     if (component.dataElement.type === 'UserData') {
       const { column = 'displayName' } = config;
       const userValue = currentUser[column];
-      if (userValue !== undefined) initialValues[component.dataElement.id] = userValue;
+      if (userValue !== undefined) {
+        initialValues[component.dataElement.id] = userValue;
+      }
     }
-
     // patient data
     if (component.dataElement.type === 'PatientData') {
-      const patientValue = transformPatientData(patient, additionalData, config);
-      if (patientValue !== undefined) initialValues[component.dataElement.id] = patientValue;
+      let patientValue = transformPatientData(patient, additionalData, config);
+
+      if (patientProgramRegistration && isNullOrUndefined(patientValue)) {
+        patientValue = transformPatientProgramRegistrationData(patientProgramRegistration, config);
+      }
+
+      // explicitly check against undefined and null rather than just !patientValue
+      if (isNullOrUndefined(patientValue)) {
+        initialValues[component.dataElement.id] = '';
+      } else {
+        initialValues[component.dataElement.id] = patientValue;
+      }
     }
   }
   return initialValues;
@@ -234,17 +289,6 @@ export const getAnswersFromData = (data, survey) =>
       'PatientIssue'
     ) {
       acc[key] = val;
-    }
-    return acc;
-  }, {});
-
-export const getActionsFromData = (data, survey) =>
-  Object.entries(data).reduce((acc, [key]) => {
-    const component = survey.components.find(({ dataElement }) => dataElement.id === key);
-    if (ACTION_DATA_ELEMENT_TYPES.includes(component?.dataElement?.type)) {
-      if (checkVisibility(component, data, survey.components)) {
-        acc[key] = true;
-      }
     }
     return acc;
   }, {});
