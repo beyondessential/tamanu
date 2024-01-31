@@ -130,8 +130,10 @@ export const StyledView = styled.View<StyledViewProps>`
   ${flexbox}
   ${flexGrow}
   ${background}
-  ${({ borderLeftWidth }): string | number => `border-left-width: ${borderLeftWidth || 0}`};
-  ${({ borderBottomWidth }): string | number => `border-bottom-width: ${borderBottomWidth || 0}`};
+  ${({ borderLeftWidth }): string | number =>
+    borderLeftWidth ? `border-left-width: ${borderLeftWidth}` : 0};
+  ${({ borderBottomWidth }): string | number =>
+    borderBottomWidth ? `border-bottom-width: ${borderBottomWidth}` : 0};
   ${boxShadow}
   ${zIndex}
   ${justifyContent}
