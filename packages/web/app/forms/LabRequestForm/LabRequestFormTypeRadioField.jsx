@@ -54,7 +54,7 @@ const RadioItemSkeleton = ({ itemsLength }) => (
 const useLabRequestFormTypeOptions = () => {
   const api = useApi();
   const { getSetting } = useSettings();
-  const onlyAllowLabPanels = getSetting('features.onlyAllowLabPanels') || {};
+  const onlyAllowLabPanels = getSetting('features.onlyAllowLabPanels');
 
   const { data, isSuccess, isLoading, isFetching } = useQuery(
     ['suggestions/labTestPanel/all'],
