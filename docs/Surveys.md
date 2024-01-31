@@ -27,7 +27,7 @@ machine.
 
 ```
 ###
-POST http://localhost:4000/v1/admin/importSurvey
+POST http://localhost:4000/api/admin/importSurvey
 Content-Type: application/json
 
 {
