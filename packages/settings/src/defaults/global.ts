@@ -654,6 +654,7 @@ export const globalDefaults = {
         value: 'other',
       },
     ],
+    supportDeskUrl: "https://bes-support.zendesk.com/hc/en-us",
   },
   // UVCI format for vaccine certificate *previews* on Desktop.
   // This should match whichever of integrations.euDcc or .vdsNc is enabled, and
