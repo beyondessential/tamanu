@@ -2,6 +2,7 @@ name: Fake DB Dump
 
 on:
   workflow_dispatch:
+  pull_request:
   push:
     branches:
       - main
