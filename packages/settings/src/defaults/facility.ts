@@ -40,7 +40,6 @@ export const facilityDefaults = {
       optimalTimePerPageMs: 2000, // aim for 2 seconds per page
     },
     enabled: true,
-    host: 'https://central-dev.tamanu.io',
     persistedCacheBatchSize: 10000,
     schedule: '*/1 * * * *',
     timeout: 10000,
