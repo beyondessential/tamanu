@@ -8,6 +8,7 @@ import { BaseInputProps } from '../../interfaces/BaseInputProps';
 import { TextFieldErrorMessage } from './TextFieldErrorMessage';
 import { theme } from '~/ui/styled/theme';
 import { RequiredIndicator } from '../RequiredIndicator';
+import { TranslatedTextElement } from '/components/Translations/TranslatedText';
 
 export interface RefObject<T> {
   readonly current: T | null;
@@ -33,7 +34,7 @@ export interface TextFieldProps extends BaseInputProps {
   blurOnSubmit?: boolean;
   inputRef?: RefObject<TextInput>;
   onSubmitEditing?: () => void;
-  label?: any;
+  label?: TranslatedTextElement;
   labelColor?: string;
   labelFontWeight?: string;
   labelFontSize?: string;
