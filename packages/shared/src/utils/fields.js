@@ -1,21 +1,9 @@
 import {
   ACTION_DATA_ELEMENT_TYPES,
   PROGRAM_DATA_ELEMENT_TYPES,
-  PATIENT_DATA_FIELD_LOCATIONS,
 } from '@tamanu/constants';
 import { log } from '../services/logging';
 import { checkJSONCriteria } from './criteria';
-
-export const getPatientDataDbLocation = fieldName => {
-  if (PATIENT_DATA_FIELD_LOCATIONS[fieldName]) {
-    const [modelName, columnName] = PATIENT_DATA_FIELD_LOCATIONS[fieldName];
-    return {
-      modelName,
-      fieldName: columnName,
-    };
-  }
-  throw new Error(`Unknown fieldName: ${fieldName}`);
-};
 
 export function getStringValue(type, value) {
   if (value === null) {

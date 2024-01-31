@@ -3,7 +3,7 @@ import React from 'react';
 import * as yup from 'yup';
 import { intervalToDuration, parseISO } from 'date-fns';
 import { isNull, isUndefined } from 'lodash';
-import { getPatientDataDbLocation } from '@tamanu/shared/utils/fields';
+import { getPatientDataDbLocation } from '@tamanu/shared/utils/getPatientDataDbLocation';
 import { checkJSONCriteria } from '@tamanu/shared/utils/criteria';
 import { PROGRAM_DATA_ELEMENT_TYPES, READONLY_DATA_FIELDS } from '@tamanu/constants';
 
@@ -197,7 +197,7 @@ function transformPatientData(patient, additionalData, patientProgramRegistratio
       return `${years} year${yearPlural}, ${months} month${monthPlural}`;
     case READONLY_DATA_FIELDS.FULL_NAME:
       return joinNames({ firstName, lastName });
-    default:
+    default: {
       const { modelName, fieldName } = getPatientDataDbLocation(column);
       switch (modelName) {
         case 'Patient':
@@ -209,6 +209,7 @@ function transformPatientData(patient, additionalData, patientProgramRegistratio
         default:
           return undefined;
       }
+    }
   }
 }
 export function getFormInitialValues(
