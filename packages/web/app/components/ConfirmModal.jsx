@@ -10,6 +10,7 @@ const Content = styled.div`
   margin-bottom: 2rem;
 `;
 
+// pls
 export const ConfirmModal = ({
   open,
   onCancel,
