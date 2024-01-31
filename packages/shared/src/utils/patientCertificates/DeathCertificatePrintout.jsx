@@ -2,14 +2,13 @@ import PropTypes from 'prop-types';
 import React from 'react';
 
 import { Document, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
-import { getName, getTimeOfDeath, getDateOfDeath, getSex } from '../patientAccessors';
+import { getName, getTimeOfDeath, getDateOfDeath, getSex, getDOB } from '../patientAccessors';
 import { CertificateHeader, Col, Row, styles } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
 import { Footer } from './printComponents/Footer';
 import { MultiPageHeader } from './printComponents/MultiPageHeader';
 import { renderDataItems } from './printComponents/renderDataItems';
 import { P } from './Typography';
-import { getDisplayDate } from './getDisplayDate';
 
 const borderStyle = '1 solid black';
 const tableLabelWidth = 250;
@@ -164,11 +163,8 @@ const placeOfDeathAccessor = ({ facility }) => {
 const getCauseName = cause => cause?.condition?.name;
 
 const causeOfDeathAccessor = ({ causes }) => {
-  const causeOfDeath = getCauseName(causes?.primary);
-  return causeOfDeath;
+  return getCauseName(causes?.primary);
 };
-export const getDOB = ({ dateOfBirth }, getLocalisation) =>
-  dateOfBirth ? getDisplayDate(dateOfBirth, 'dd.MM.yyyy', getLocalisation) : 'Unknown';
 
 const HEADER_FIELDS = {
   leftCol: [
@@ -180,7 +176,7 @@ const HEADER_FIELDS = {
   ],
   rightCol: [
     { key: 'lastName', label: 'Last name' },
-    { key: 'sex', label: 'Sex', acessor: getSex },
+    { key: 'sex', label: 'Sex', accessor: getSex },
     { key: 'placeOfDeath', label: 'Place of death', accessor: placeOfDeathAccessor },
     { key: 'causeOfDeath', label: 'Cause of death', accessor: causeOfDeathAccessor },
   ],

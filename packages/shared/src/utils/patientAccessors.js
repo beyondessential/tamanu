@@ -18,20 +18,13 @@ export const getDOBWithAge = ({ dateOfBirth }, getLocalisation) => {
 
 export const getDateOfDeath = ({ dateOfDeath }, getLocalisation) => {
   if (!dateOfDeath) return 'Unknown';
-
-  const formatedDate = getDisplayDate(dateOfDeath, 'dd.MM.yyyy', getLocalisation);
-  return formatedDate;
+  return getDisplayDate(dateOfDeath, 'dd/MM/yyyy', getLocalisation);
 };
 
 export const getTimeOfDeath = ({ dateOfDeath }, getLocalisation) => {
   if (!dateOfDeath) return 'Unknown';
-
-  const formatedDate = getDisplayDate(dateOfDeath, 'hh.mma', getLocalisation).toLowerCase();
-  return formatedDate;
+  return getDisplayDate(dateOfDeath, 'hh:mma', getLocalisation).toLowerCase();
 };
-
-
-
 
 export const getPlaceOfBirth = ({ additionalData }) => (additionalData || {}).placeOfBirth;
 
