@@ -1,8 +1,13 @@
 import React from 'react';
-import { Page, StyleSheet, View, Document } from '@react-pdf/renderer';
+import { Page, StyleSheet, View, Document, Font } from '@react-pdf/renderer';
 import { getDOB, getName, getSex } from '../patientAccessors';
 import { PrintableBarcode } from './printComponents/PrintableBarcode';
 import { P } from './Typography';
+
+Font.register({
+  family: 'Roboto-Mono',
+  src: 'http://fonts.gstatic.com/s/robotomono/v4/hMqPNLsu_dywMa4C_DEpY50EAVxt0G0biEntp43Qt6E.ttf',
+});
 
 const fontSize = 11;
 
@@ -29,6 +34,7 @@ const styles = StyleSheet.create({
   },
   text: {
     color: '#444444',
+    fontFamily: 'Roboto-Mono',
   },
   barcodeContainer: {
     flexDirection: 'column',
@@ -74,7 +80,7 @@ const IDLabel = ({ patient }) => {
         </Col>
       </Row>
       <Col>
-        <P mb={0} mt={2} fontSize={fontSize} style={styles.text}>
+        <P mb={0} mt={0} fontSize={fontSize} style={styles.text}>
           {getName(patient)}
         </P>
       </Col>
@@ -93,7 +99,7 @@ export const IDLabelPrintout = ({ patient, measures }) => {
       rowGap: measures.rowGap,
       position: 'absolute',
       left: measures.pageMarginLeft,
-      top: convertToPt(measures.pageMarginTop) + convertToPt('2mm'),
+      top: convertToPt(measures.pageMarginTop) + convertToPt('3mm'),
     },
     gridItem: {
       width: measures.columnWidth,
