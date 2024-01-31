@@ -68,7 +68,7 @@ export const PatientIssues = ({ onEdit, patientId }: PatientIssuesProps): ReactE
       <PatientSection
         title={
           <TranslatedText
-            stringId="patientIssues.subheading.otherPatientIssues"
+            stringId="patient.detailsSidebar.subheading.otherPatientIssues"
             fallback="Other patient issues"
           />
         }
