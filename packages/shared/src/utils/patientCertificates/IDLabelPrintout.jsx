@@ -30,26 +30,40 @@ const styles = StyleSheet.create({
   text: {
     color: '#444444',
   },
+  barcodeContainer: {
+    flexDirection: 'column',
+  },
+  barcodeText: {
+    fontFamily: 'Helvetica-Bold',
+    color: '#444444',
+  },
   barcode: {
     margin: 0,
     marginBottom: 2,
     textAlign: 'left',
+    displayValue: false,
   },
 });
 
 const Row = props => <View style={styles.row} {...props} />;
 const Col = props => <View style={styles.col} {...props} />;
+const BarcodeContainer = props => <View style={styles.barcodeContainer} {...props} />;
 
 const IDLabel = ({ patient }) => {
   return (
     <View style={styles.idLabel}>
       <Row>
-        <PrintableBarcode
-          barHeight={22}
-          id={patient.displayId}
-          fontSize={fontSize}
-          barcodeStyle={styles.barcode}
-        />
+        <BarcodeContainer>
+          <PrintableBarcode
+            barHeight={22}
+            id={patient.displayId}
+            fontSize={fontSize}
+            barcodeStyle={styles.barcode}
+          />
+          <P mb={0} fontSize={fontSize} style={styles.barcodeText}>
+            {patient.displayId}
+          </P>
+        </BarcodeContainer>
         <Col style={{ marginTop: '1mm', marginLeft: '2mm' }}>
           <P mb={2} fontSize={fontSize} style={styles.text}>
             {getSex(patient)}
@@ -77,6 +91,9 @@ export const IDLabelPrintout = ({ patient, measures }) => {
       width: '100%',
       columnGap: measures.columnGap,
       rowGap: measures.rowGap,
+      position: 'absolute',
+      left: measures.pageMarginLeft,
+      top: convertToPt(measures.pageMarginTop) + convertToPt('2mm'),
     },
     gridItem: {
       width: measures.columnWidth,
@@ -90,10 +107,6 @@ export const IDLabelPrintout = ({ patient, measures }) => {
         size={{
           width: convertToPt(measures.pageWidth),
           height: convertToPt(measures.pageHeight),
-        }}
-        style={{
-          paddingTop: measures.pageMarginTop,
-          paddingLeft: measures.pageMarginLeft,
         }}
       >
         <View style={pageStyles.grid} wrap={false}>
