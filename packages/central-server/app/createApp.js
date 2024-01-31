@@ -57,11 +57,11 @@ export function createApp(ctx) {
     });
   });
 
-  // API v1
-  app.use('/v1/public', publicRoutes);
-  app.use('/v1', authModule);
-  app.use('/v1', constructPermission);
-  app.use('/v1', buildRoutes(ctx));
+  // API
+  app.use('/api', api(ctx));
+
+  // Legacy API endpoint
+  app.use('/v1', api(ctx));
 
   // Dis-allow all other routes
   app.use('*', (req, res) => {
@@ -71,4 +71,13 @@ export function createApp(ctx) {
   app.use(defaultErrorHandler);
 
   return app;
+}
+
+function api(ctx) {
+  const apiRoutes = express.Router();
+  apiRoutes.use('/public', publicRoutes);
+  apiRoutes.use(authModule);
+  apiRoutes.use(constructPermission);
+  apiRoutes.use(buildRoutes(ctx));
+  return apiRoutes;
 }
