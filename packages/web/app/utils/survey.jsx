@@ -3,7 +3,6 @@ import React from 'react';
 import * as yup from 'yup';
 import { intervalToDuration, parseISO } from 'date-fns';
 import { isNull, isUndefined } from 'lodash';
-import { getPatientDataDbLocation } from '@tamanu/shared/utils/fields';
 import { checkJSONCriteria } from '@tamanu/shared/utils/criteria';
 import { PROGRAM_DATA_ELEMENT_TYPES, READONLY_DATA_FIELDS } from '@tamanu/constants';
 
@@ -175,8 +174,9 @@ export function getConfigObject(componentId, config) {
   }
 }
 
-function transformPatientData(patient, additionalData, patientProgramRegistration, config) {
-  const { column = 'fullName' } = config;
+function transformPatientData(patient, additionalData, config) {
+  const { writeToPatient = {}, column = 'fullName' } = config;
+  const { isAdditionalDataField = false } = writeToPatient;
   const { dateOfBirth, firstName, lastName } = patient;
 
   const { months, years } = intervalToDuration({
@@ -197,21 +197,42 @@ function transformPatientData(patient, additionalData, patientProgramRegistratio
       return `${years} year${yearPlural}, ${months} month${monthPlural}`;
     case READONLY_DATA_FIELDS.FULL_NAME:
       return joinNames({ firstName, lastName });
-    default: {
-      const { modelName, fieldName } = getPatientDataDbLocation(column);
-      switch (modelName) {
-        case 'Patient':
-          return patient[fieldName];
-        case 'PatientAdditionalData':
-          return additionalData ? additionalData[fieldName] : undefined;
-        case 'PatientProgramRegistration':
-          return patientProgramRegistration ? patientProgramRegistration[fieldName]: undefined
-        default:
-          return undefined;
+    default:
+      if (isAdditionalDataField) {
+        return additionalData ? additionalData[column] : undefined;
       }
-    }
+      return patient[column];
   }
 }
+function transformPatientProgramRegistrationData(patientProgramRegistration, config) {
+  const { column } = config;
+  const {
+    clinicalStatus,
+    registrationStatus,
+    clinician,
+    facility,
+    registeringFacility,
+    village,
+  } = patientProgramRegistration;
+  switch (column) {
+    case 'registrationClinicalStatus':
+      return clinicalStatus.id;
+    case 'programRegistrationStatus':
+      return registrationStatus;
+    case 'registrationClinician':
+      return clinician.id;
+    case 'registeringFacility':
+      return registeringFacility.id;
+    case 'registrationCurrentlyAtVillage':
+      return village?.id;
+    case 'registrationCurrentlyAtFacility':
+      return facility?.id;
+
+    default:
+      return undefined;
+  }
+}
+
 export function getFormInitialValues(
   components,
   patient,
@@ -244,7 +265,11 @@ export function getFormInitialValues(
     }
     // patient data
     if (component.dataElement.type === 'PatientData') {
-      let patientValue = transformPatientData(patient, additionalData, patientProgramRegistration, config);
+      let patientValue = transformPatientData(patient, additionalData, config);
+
+      if (patientProgramRegistration && isNullOrUndefined(patientValue)) {
+        patientValue = transformPatientProgramRegistrationData(patientProgramRegistration, config);
+      }
 
       // explicitly check against undefined and null rather than just !patientValue
       if (isNullOrUndefined(patientValue)) {
