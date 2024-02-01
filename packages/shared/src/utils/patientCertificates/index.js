@@ -7,7 +7,11 @@ export * from './Layout';
 export * from './Typography';
 export * from './Table';
 export * from './labRequestAccessors';
-export * from './EncounterRecordPrintout';
+export * from './DeathCertificatePrintout';
 export * from './DischargeSummaryPrintout';
-export * from './MultipleLabRequestsPrintout';
+export * from './EncounterRecordPrintout';
+export * from './MultipleImagingRequestsPrintout'
+export * from './MultipleLabRequestsPrintout'
 export * from './PrescriptionPrintout';
+export * from './IDCardPrintout'
+export * from './IDLabelPrintout';

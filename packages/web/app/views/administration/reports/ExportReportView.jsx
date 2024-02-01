@@ -4,10 +4,10 @@ import styled from 'styled-components';
 import { toast } from 'react-toastify';
 import { REPORT_VERSION_EXPORT_FORMATS } from '@tamanu/constants/reports';
 import { Field, Form, FormGrid, OutlinedButton, RadioField } from '../../../components';
-import { useApi } from '../../../api';
 import { ReportSelectField, VersionSelectField } from './ReportsSelectFields';
 import { Colors } from '../../../constants';
 import { saveFile } from '../../../utils/fileSystemAccess';
+import { useApi } from '../../../api/useApi';
 
 const StyledButton = styled(OutlinedButton)`
   margin-top: 30px;
@@ -16,10 +16,6 @@ const StyledButton = styled(OutlinedButton)`
 const InnerContainer = styled.div`
   padding: 20px;
   max-width: 500px;
-`;
-const StyledLink = styled.span`
-  cursor: pointer;
-  text-decoration: underline;
 `;
 
 const schema = yup.object().shape({
@@ -30,12 +26,6 @@ const schema = yup.object().shape({
     .oneOf(Object.values(REPORT_VERSION_EXPORT_FORMATS))
     .required('Format is a required field'),
 });
-
-const SuccessMessage = ({ onClick, filePath }) => (
-  <>
-    Successfully exported to <StyledLink onClick={onClick}>{filePath}</StyledLink>
-  </>
-);
 
 export const ExportReportView = () => {
   const api = useApi();
