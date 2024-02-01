@@ -11,7 +11,6 @@ import {
   FormSubmitButton,
   TextButton,
   TextField,
-  StyledPrimarySubmitButton,
 } from '../components';
 import { Colors } from '../constants';
 import ApprovedIcon from '../assets/images/approved_circle.svg';
