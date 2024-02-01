@@ -70,3 +70,8 @@ export * from './SyncData';
 export * from './HomeBottomLogo';
 export * from './BarChart';
 export * from './More';
+export * from './HomeLogo';
+export * from './SyncCloud';
+export * from './Patient';
+export * from './Reports';
+export * from './MoreLogo';
