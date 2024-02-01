@@ -180,10 +180,6 @@ export class TamanuApi {
     query: QueryData = {},
     config: FetchConfig = {},
   ) {
-    if (!this.#host) {
-      throw new Error("API can't be used until the host is set");
-    }
-
     const { headers, returnResponse = false, throwResponse = false, ...otherConfig } = config;
     const queryString = qs.stringify(query || {});
     const path = `${endpoint}${query ? `?${queryString}` : ''}`;
@@ -273,6 +269,25 @@ export class TamanuApi {
     });
     const blob = await response.blob();
     return blob;
+  }
+
+  async postWithFileUpload(endpoint: string, file: File, body: object, options: FetchConfig = {}) {
+    const blob = new Blob([file]);
+
+    // We have to use multipart/formdata to support sending the file data,
+    // but sending the other fields in that format loses type information
+    // (for eg, sending a value of false will arrive as the string "false")
+    // So, we just piggyback a json string over the multipart format, and
+    // parse that on the backend.
+    const formData = new FormData();
+    formData.append('jsonData', JSON.stringify(body));
+    formData.append('file', blob);
+
+    return this.fetch(endpoint, undefined, {
+      method: 'POST',
+      body: formData,
+      ...options,
+    });
   }
 
   async post<T>(endpoint: string, body?: T, config: FetchConfig = {}) {
