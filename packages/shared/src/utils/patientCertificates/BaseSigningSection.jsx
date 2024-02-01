@@ -20,8 +20,8 @@ export const BaseSigningSection = ({ title }) => (
       </P>
     )}
     <View style={signingSectionStyles.signatureView}>
-      <Signature text={'Signed'} fontSize={9} />
-      <Signature text={'Date'} fontSize={9} />
+      <Signature text={'Signed'} fontSize={9} lineThickness={0.5} />
+      <Signature text={'Date'} fontSize={9} lineThickness={0.5} />
     </View>
   </Col>
 );

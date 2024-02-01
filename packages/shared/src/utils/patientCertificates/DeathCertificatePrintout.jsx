@@ -2,13 +2,14 @@ import PropTypes from 'prop-types';
 import React from 'react';
 
 import { Document, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
-import { getName, getTimeOfDeath, getDateOfDeath, getSex, getDOB } from '../patientAccessors';
+import { getName, getTimeOfDeath, getDateOfDeath, getSex } from '../patientAccessors';
 import { CertificateHeader, Col, Row, styles } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
 import { Footer } from './printComponents/Footer';
 import { MultiPageHeader } from './printComponents/MultiPageHeader';
 import { renderDataItems } from './printComponents/renderDataItems';
 import { P } from './Typography';
+import { getDisplayDate } from './getDisplayDate';
 
 const borderStyle = '1 solid black';
 const tableLabelWidth = 250;
@@ -165,6 +166,10 @@ const getCauseName = cause => cause?.condition?.name;
 const causeOfDeathAccessor = ({ causes }) => {
   return getCauseName(causes?.primary);
 };
+
+// Death certificate has a slightly different DOB format to other certificates so needs it's own accessor
+const getDOB = ({ dateOfBirth }, getLocalisation) =>
+  dateOfBirth ? getDisplayDate(dateOfBirth, 'd MMM yyyy', getLocalisation) : 'Unknown';
 
 const HEADER_FIELDS = {
   leftCol: [
