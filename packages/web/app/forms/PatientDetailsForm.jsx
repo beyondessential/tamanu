@@ -203,25 +203,23 @@ export const PatientFieldsGroup = ({ fieldDefinitions, fieldValues }) => {
 };
 
 function sanitiseRecordForValues(data) {
-  const {
-    // unwanted ids
-    id,
-    patientId,
+  const values = { ...data };
 
-    // backend fields
-    markedForSync,
-    createdAt,
-    updatedAt,
-    updatedAtSyncTick,
+  // unwanted ids
+  delete values.id;
+  delete values.patientId;
 
-    // state fields
-    loading,
-    error,
+  // backend fields
+  delete values.markedForSync;
+  delete values.createdAt;
+  delete values.updatedAt;
+  delete values.updatedAtSyncTick;
 
-    ...remaining
-  } = data;
+  // state fields
+  delete values.loading;
+  delete values.error;
 
-  return Object.entries(remaining)
+  return Object.entries(values)
     .filter(([, v]) => {
       if (Array.isArray(v)) return false;
       if (typeof v === 'object') return false;

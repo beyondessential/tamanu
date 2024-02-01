@@ -7,11 +7,9 @@ import { PDFViewer } from '@react-pdf/renderer';
 
 import { PatientLetter } from '@tamanu/shared/utils/patientLetters/PatientLetter';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
-import { DeathCertificate } from '../app/components/PatientPrinting/printouts/DeathCertificate';
 import SigningImage from './assets/signing-image.png';
 import Watermark from './assets/watermark.png';
 import Logo from './assets/tamanu-logo.png';
-import { Modal } from '../app/components';
 
 const dummyPatient = createDummyPatient();
 const dummyAdditionalData = createDummyPatientAdditionalData();
@@ -90,42 +88,6 @@ const getLocalisation = key => {
   };
   return config[key];
 };
-
-const certificateData = {
-  title: 'Tamanu Ministry of Health & Medical Services',
-  subTitle: 'PS Box 123456, Melbourne, Australia',
-  logo: Logo,
-  logoType: 'image/png',
-  watermark: Watermark,
-  watermarkType: 'image/png',
-  footerImg: SigningImage,
-  footerImgType: 'image/png',
-  printedBy: 'Initial Admin',
-};
-
-storiesOf('Certificates', module).add('DeathCertificate', () => {
-  return (
-    <Modal title="Record patient death" open width="md">
-      <DeathCertificate
-        patientData={{
-          ...patient,
-          timeOfDeath: new Date(),
-          causes: {
-            primary: { condition: { name: 'Diabetes' } },
-            antecedent1: { condition: { name: 'Eating too much sugar' } },
-            antecedent2: { condition: { name: 'Living in a nutritionally poor environment' } },
-            contributing: [
-              { condition: { name: 'Old age' } },
-              { condition: { name: 'Overweight' } },
-              { condition: { name: 'Smoking' } },
-            ],
-          },
-        }}
-        certificateData={certificateData}
-      />
-    </Modal>
-  );
-});
 
 storiesOf('Certificates', module).add('CovidLabCertificate', () => (
   // TODO(web)
