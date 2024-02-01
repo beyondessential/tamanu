@@ -12,7 +12,7 @@ import { IDiagnosis, INote } from '~/types';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 
 const DEFAULT_FIELD_VAL = (
-  <TranslatedText stringId="general.field.default" fallback="N/A" allCaps />
+  <TranslatedText stringId="general.fallback.notApplicable" fallback="N/A" uppercase />
 );
 
 const displayNotes = (notes: INote[]): string =>
@@ -23,12 +23,12 @@ const displayNotes = (notes: INote[]): string =>
 
 const visitsHistoryRows = {
   diagnoses: {
-    name: <TranslatedText stringId="general.diagnosis.label" fallback="Diagnosis" />,
+    name: <TranslatedText stringId="general.form.diagnosis.label" fallback="Diagnosis" />,
     accessor: (diagnoses: IDiagnosis[]): string =>
       diagnoses.map(d => `${d.diagnosis?.name} (${d.certainty})`).join('\n\n') || DEFAULT_FIELD_VAL,
   },
   notes: {
-    name: <TranslatedText stringId="encounter.clinicalNote.label" fallback="Clinical Note" />,
+    name: <TranslatedText stringId="note.property.type.clinicalNote" fallback="Clinical Note" />,
     accessor: displayNotes,
   },
 };

@@ -27,7 +27,7 @@ const TabNavigator = ({ navigation, selectedPatient }: HistoryVitalsStackProps):
     <ErrorBoundary>
       <FullView>
         <StackHeader
-          title={<TranslatedText stringId="patient.history.title" fallback="History" />}
+          title={<TranslatedText stringId="patient.vitals.history.title" fallback="History" />}
           subtitle={joinNames(selectedPatient)}
           onGoBack={goBack}
         />

@@ -11,14 +11,14 @@ export const HistoryVitalsTabs = (): ReactElement => (
   <Tabs.Navigator swipeEnabled={false}>
     <Tabs.Screen
       options={{
-        title: () => <TranslatedText stringId="general.visits.label" fallback="Visits" allCaps/>,
+        title: () => <TranslatedText stringId="general.visits.label" fallback="VISITS" uppercase/>,
       }}
       name={Routes.HomeStack.HistoryVitalsStack.HistoryVitalsTabs.Visits}
       component={VisitsScreen}
     />
     <Tabs.Screen
       options={{
-        title: () => <TranslatedText stringId="general.vaccines.label" fallback="Vaccines" allCaps/>,
+        title: () => <TranslatedText stringId="general.vaccines.label" fallback="VACCINES" uppercase/>,
       }}
       name={Routes.HomeStack.HistoryVitalsStack.HistoryVitalsTabs.Vaccines}
       component={VaccinesScreen}
