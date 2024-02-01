@@ -20,6 +20,7 @@ import { useEncounter } from '../../contexts/Encounter';
 import { PATIENT_TABS } from '../../constants/patientPaths';
 import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
 import { useApi } from '../../api';
+import _ from 'lodash';
 
 const SurveyFlow = ({ patient, currentUser }) => {
   const api = useApi();
@@ -87,13 +88,20 @@ const SurveyFlow = ({ patient, currentUser }) => {
     [api, selectedProgramId, clearProgram],
   );
 
-  const submitSurveyResponse = async data => {
+  const submitSurveyResponse = async (data, { initialValues }) => {
+    // exclude answers where value = '' and initial value = ''
+    const answers = Object.fromEntries(
+      Object.entries(data).map(([key, value]) =>
+        value === '' && initialValues[key] === '' ? [key, undefined] : [key, value],
+      ),
+    );
+
     await api.post('surveyResponse', {
       surveyId: survey.id,
       startTime,
       patientId: patient.id,
       endTime: getCurrentDateTimeString(),
-      answers: getAnswersFromData(data, survey),
+      answers: getAnswersFromData(answers, survey),
     });
     if (params?.encounterId && encounter && !encounter.endDate) {
       navigateToEncounter(params.encounterId, { tab: ENCOUNTER_TAB_NAMES.FORMS });
