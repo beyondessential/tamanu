@@ -59,8 +59,7 @@
       "packages/meta-server",
       "packages/shared",
       "packages/constants",
-      "packages/api-client",
-      "packages/api-cli"
+      "packages/api-client"
     ],
     "nohoist": [
       "**/fbjs-scripts",

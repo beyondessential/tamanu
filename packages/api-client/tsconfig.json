@@ -1,11 +1,9 @@
 {
   "extends": ["../../common.tsconfig.json"],
   "include": [
-    "src/**/*.ts",
-    "package.json"
+    "src/**/*.ts"
   ],
   "compilerOptions": {
-    "baseUrl": "./src",
-    "resolveJsonModule": true
+    "baseUrl": "./src"
   }
 }
