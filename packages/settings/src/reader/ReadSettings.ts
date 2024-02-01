@@ -15,6 +15,8 @@ export class ReadSettings {
     return lodashGet(settings, key);
   }
 
+  // This is what is called on login. This gets only settings relevant to 
+  // the frontend so only what is needed is sent. No sensitive data is sent.
   async getFrontEndSettings() {
     const settings = await this.getAll();
     const frontEndSettingKeys = [

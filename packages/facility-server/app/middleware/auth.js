@@ -85,6 +85,7 @@ async function localLogin({ models, settings }, email, password) {
   });
 
   const settingsObject = await settings.getFrontEndSettings();
+  settingsObject.countryTimeZone = config.countryTimeZone // This needs to be in config but also needs to be front end accessible
 
   if (user && user.visibilityStatus !== VISIBILITY_STATUSES.CURRENT) {
     throw new BadAuthenticationError(USER_DEACTIVATED_ERROR_MESSAGE);
