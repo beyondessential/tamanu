@@ -335,18 +335,6 @@ const NotesSection = ({ notes }) => (
   </View>
 );
 
-const EncounterRecordHeader = ({ patient }) => (
-  <View style={{ flexDirection: 'row' }}>
-    <Text style={textStyles.headerLabel}>Patient encounter record | </Text>
-    <Text style={textStyles.headerLabel}>Patient name: </Text>
-    <Text style={textStyles.headerValue}>
-      {patient.firstName} {patient.lastName} |{' '}
-    </Text>
-    <Text style={textStyles.headerLabel}>Patient ID: </Text>
-    <Text style={textStyles.headerValue}>{patient.displayId}</Text>
-  </View>
-);
-
 export const EncounterRecordPrintout = ({
   patientData,
   encounter,
