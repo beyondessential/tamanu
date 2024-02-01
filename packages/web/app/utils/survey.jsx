@@ -272,9 +272,7 @@ export function getFormInitialValues(
       }
 
       // explicitly check against undefined and null rather than just !patientValue
-      if (isNullOrUndefined(patientValue)) {
-        initialValues[component.dataElement.id] = undefined;
-      } else {
+      if (!isNullOrUndefined(patientValue)) {
         initialValues[component.dataElement.id] = patientValue;
       }
     }
