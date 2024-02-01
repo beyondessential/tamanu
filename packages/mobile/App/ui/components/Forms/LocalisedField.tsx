@@ -9,7 +9,7 @@ type LocalisedFieldProps = FieldProps & {
 
 export const LocalisedField = ({
   name,
-  localisationPath = `fields.${name}`,
+  localisationPath = `localisation.fields.${name}`,
   ...props
 }: LocalisedFieldProps): JSX.Element => {
   const { getSetting } = useSettings();
