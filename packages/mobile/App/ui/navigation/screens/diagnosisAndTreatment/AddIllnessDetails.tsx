@@ -120,7 +120,12 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
                   <Field
                     component={AutocompleteModalField}
                     label={<TranslatedText stringId="general.action.select" fallback="Select" />}
-                    placeholder="Diagnosis"
+                    placeholder={
+                      <TranslatedText
+                        stringId="general.form.diagnosis.label"
+                        fallback="Diagnosis"
+                      />
+                    }
                     navigation={navigation}
                     suggester={icd10Suggester}
                     name="diagnosis"
@@ -132,7 +137,7 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
                     name="certainty"
                     label={
                       <TranslatedText
-                        stringId="patient.diagnosis.form.certainty.label"
+                        stringId="diagnosis.form.certainty.label"
                         fallback="Certainty"
                       />
                     }
@@ -143,16 +148,31 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
                     component={TextField}
                     name="clinicalNote"
                     multiline
-                    placeholder="Clinical Note"
+                    placeholder={
+                      <TranslatedText
+                        stringId="diagnosis.form.clinicalNote.label"
+                        fallback="Clinical Notes"
+                      />
+                    }
                   />
                   <Spacer height="24px" />
-                  <CurrentUserField name="examiner" label="Recorded By" />
+                  <CurrentUserField
+                    name="examiner"
+                    label={
+                      <TranslatedText
+                        stringId="diagnosis.form.examiner.label"
+                        fallback="Recorded By"
+                      />
+                    }
+                  />
                   <Button
                     marginTop={screenPercentageToDP(1.22, Orientation.Height)}
                     marginBottom={screenPercentageToDP(1.22, Orientation.Height)}
                     backgroundColor={theme.colors.PRIMARY_MAIN}
                     onPress={handleSubmit}
-                    buttonText="Submit"
+                    buttonText={
+                      <TranslatedText stringId="general.action.submit" fallback="Submit" />
+                    }
                   />
                 </StyledView>
               </ScrollView>

@@ -22,6 +22,7 @@ import { ReferenceData } from '~/models/ReferenceData';
 import { NumberField } from '~/ui/components/NumberField';
 import { authUserSelector } from '~/ui/helpers/selectors';
 import { getCurrentDateTimeString } from '~/ui/helpers/date';
+import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 
 const styles = StyleSheet.create({
   KeyboardAvoidingViewStyles: { flex: 1 },
@@ -83,10 +84,14 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
                 scrollToOverflowEnabled
                 overScrollMode="always"
               >
-                <SectionHeader h3>MEDICATION</SectionHeader>
+                <SectionHeader h3>
+                  <TranslatedText stringId="medication.heading.medication" fallback="MEDICATION" />
+                </SectionHeader>
                 <Field
                   component={AutocompleteModalField}
-                  placeholder="Search"
+                  placeholder={
+                    <TranslatedText stringId="general.action.search" fallback="Search" />
+                  }
                   navigation={navigation}
                   suggester={medicationSuggester}
                   name="medication"
@@ -96,21 +101,53 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
                   justifyContent="space-between"
                 >
                   <SectionHeader h3 marginBottom={screenPercentageToDP(2.105, Orientation.Height)}>
-                    INFO
+                    <TranslatedText stringId="medication.heading.info" fallback="INFO" />
                   </SectionHeader>
-                  <Field component={TextField} name="prescription" label="Instruction" />
-                  <Field component={TextField} name="indication" label="Indication" />
-                  <Field component={TextField} name="route" label="Route" />
+                  <Field
+                    component={TextField}
+                    name="prescription"
+                    label={
+                      <TranslatedText
+                        stringId="medication.form.instructions.label"
+                        fallback="Instructions"
+                      />
+                    }
+                  />
+                  <Field
+                    component={TextField}
+                    name="indication"
+                    label={
+                      <TranslatedText
+                        stringId="medication.form.indication.label"
+                        fallback="Indication"
+                      />
+                    }
+                  />
+                  <Field
+                    component={TextField}
+                    name="route"
+                    label={
+                      <TranslatedText stringId="medication.form.route.label" fallback="Route" />
+                    }
+                  />
                   <Field
                     component={NumberField}
                     name="quantity"
-                    label="Quantity (in single units)"
+                    label={
+                      <TranslatedText
+                        stringId="medication.form.quantityWithUnits.label"
+                        fallback="Quantity (in single units)"
+                      />
+                    }
                   />
                 </StyledView>
-                <StyledView
-                  marginBottom={screenPercentageToDP(0.605, Orientation.Height)}
-                >
-                  <SectionHeader h3>Prescription notes</SectionHeader>
+                <StyledView marginBottom={screenPercentageToDP(0.605, Orientation.Height)}>
+                  <SectionHeader h3>
+                    <TranslatedText
+                      stringId="medication.form.notes.label"
+                      fallback="Prescription notes"
+                    />
+                  </SectionHeader>
                 </StyledView>
                 <Field component={TextField} name="note" multiline />
                 <Button
@@ -118,7 +155,7 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
                   marginBottom={screenPercentageToDP(1.22, Orientation.Height)}
                   backgroundColor={theme.colors.PRIMARY_MAIN}
                   onPress={handleSubmit}
-                  buttonText="Submit"
+                  buttonText={<TranslatedText stringId="general.action.submit" fallback="Submit" />}
                 />
               </ScrollView>
             </KeyboardAvoidingView>

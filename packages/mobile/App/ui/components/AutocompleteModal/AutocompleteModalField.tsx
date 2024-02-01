@@ -8,10 +8,11 @@ import { Button } from '../Button';
 import { Routes } from '~/ui/helpers/routes';
 import { TextFieldErrorMessage } from '/components/TextField/TextFieldErrorMessage';
 import { RequiredIndicator } from '../RequiredIndicator';
+import { TranslatedTextElement } from '../Translations/TranslatedText';
 
 interface AutocompleteModalFieldProps {
   value?: string;
-  placeholder?: string;
+  placeholder?: TranslatedTextElement;
   onChange: (newValue: string) => void;
   suggester: Suggester<BaseModelSubclass>;
   modalRoute: string;

@@ -1,11 +1,12 @@
 import React, { ReactNode } from 'react';
 import { Field as FormikField, useField, useFormikContext } from 'formik';
 import { FORM_STATUSES } from '/helpers/constants';
+import { TranslatedTextElement } from '../Translations/TranslatedText';
 
 export interface FieldProps {
   component: ReactNode;
   name: string;
-  label?: string;
+  label?: TranslatedTextElement;
   type?: string;
   disabled?: boolean;
   [key: string]: any;
