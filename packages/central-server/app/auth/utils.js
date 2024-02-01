@@ -16,7 +16,8 @@ const verify = promisify(verifyCallback);
 const MAX_U32_VALUE = 2 ** 32 - 1;
 
 export const stripUser = user => {
-  const { password, ...userData } = user;
+  const userData = { ...user };
+  delete userData.password;
   return userData;
 };
 
