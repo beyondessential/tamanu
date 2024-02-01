@@ -116,7 +116,7 @@ export async function createEuDccVaccinationData(administeredVaccineId, { models
   if (!certVax) throw new Error('Vaccine is not certifiable');
   if (!certVax.usableForEuDcc()) throw new Error('Vaccination is not usable for EU DCC');
 
-  const timeZone = await settings.get('countryTimeZone');
+  const timeZone = config.countryTimeZone;
   const countryCode = await settings.get('country.alpha-2');
 
   const dob = formatInTimeZone(patient.dateOfBirth, timeZone, FORMAT_ISODATE);
