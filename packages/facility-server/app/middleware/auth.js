@@ -84,7 +84,7 @@ async function localLogin({ models, settings }, email, password) {
     where: { email },
   });
 
-  const settingsObject = await settings.getAll();
+  const settingsObject = await settings.getFrontEndSettings();
 
   if (user && user.visibilityStatus !== VISIBILITY_STATUSES.CURRENT) {
     throw new BadAuthenticationError(USER_DEACTIVATED_ERROR_MESSAGE);

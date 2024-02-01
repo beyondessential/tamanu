@@ -68,7 +68,7 @@ export const login = ({ secret, refreshSecret }) =>
     const { models } = store;
     const { email, password, facilityId, deviceId } = body;
 
-    const settingsObject = await settings.getAll();
+    const settingsObject = await settings.getFrontEndSettings();
 
     if (!email || !password) {
       throw new BadAuthenticationError('Missing credentials');

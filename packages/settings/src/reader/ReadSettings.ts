@@ -15,6 +15,24 @@ export class ReadSettings {
     return lodashGet(settings, key);
   }
 
+  async getFrontEndSettings() {
+    const settings = await this.getAll();
+    const frontEndSettingKeys = [
+      'features',
+      'localisation',
+      'previewUvciFormat',
+      'imagingTypes',
+      'country',
+      'printMeasures',
+    ];
+
+    const frontEndSettings = Object.fromEntries(
+      Object.entries(settings).filter(([key]) => frontEndSettingKeys.includes(key)),
+    );
+
+    return frontEndSettings;
+  }
+
   async getAll() {
     let settings = settingsCache.get();
     if (!settings) {
