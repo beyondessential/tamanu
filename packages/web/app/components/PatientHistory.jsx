@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 
 import { DataFetchingTable } from './Table';
@@ -8,6 +8,7 @@ import { ENCOUNTER_OPTIONS_BY_VALUE } from '../constants';
 import { LocationGroupCell } from './LocationCell';
 import { LimitedLinesCell } from './FormattedTableCell';
 import { useSyncState } from '../contexts/SyncState';
+import { useRefreshCount } from '../hooks/useRefreshCount';
 
 const DateWrapper = styled.div`
   min-width: 90px;
