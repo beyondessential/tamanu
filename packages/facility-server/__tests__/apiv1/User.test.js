@@ -37,7 +37,7 @@ describe('User', () => {
     settings = await ctx.settings.getFrontEndSettings();
     // We append this on the end of the settings object in the login logic 
     // as its the only setting that has to be in config that we also want on the front end
-    settings.countryTimeZone = "Pacific/Auckland";
+    settings.countryTimeZone = "Australia/Melbourne";
   });
   afterAll(() => ctx.close());
 
