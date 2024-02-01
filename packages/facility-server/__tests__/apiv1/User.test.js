@@ -1,5 +1,4 @@
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
-import { pick } from 'lodash';
 import { chance, disableHardcodedPermissionsForSuite, fake } from '@tamanu/shared/test-helpers';
 import { addHours } from 'date-fns';
 import { createDummyEncounter } from '@tamanu/shared/demoData/patients';
@@ -35,7 +34,7 @@ describe('User', () => {
     models = ctx.models;
     centralServer = ctx.centralServer;
     CentralServerConnection.mockImplementation(() => centralServer);
-    settings = await models.Setting.get();
+    settings = await ctx.settings.getAll();
   });
   afterAll(() => ctx.close());
 
@@ -134,15 +133,14 @@ describe('User', () => {
       expect(result).toHaveRequestError();
     });
 
-    it('should return feature flags in the login request', async () => {
+    it('should return settings in the login request', async () => {
       const result = await baseApp.post('/v1/login').send({
         email: authUser.email,
         password: rawPassword,
       });
       expect(result).toHaveSucceeded();
       expect(result.body).toHaveProperty('settings');
-      // bit unsure about this one. seems that the login request and settings.get access different settings so this could be flaky
-      expect(result.body.settings.features).toEqual(settings.features);
+      expect(result.body.settings).toEqual(settings);
     });
 
     it('should include permissions in the data returned by a successful login', async () => {
