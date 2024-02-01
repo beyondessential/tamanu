@@ -271,10 +271,7 @@ export function getFormInitialValues(
         patientValue = transformPatientProgramRegistrationData(patientProgramRegistration, config);
       }
 
-      // explicitly check against undefined and null rather than just !patientValue
-      if (!isNullOrUndefined(patientValue)) {
-        initialValues[component.dataElement.id] = patientValue;
-      }
+      initialValues[component.dataElement.id] = patientValue;
     }
   }
   return initialValues;
