@@ -166,20 +166,20 @@ describe('PatientVaccine', () => {
 
   it('should reject with insufficient permissions', async () => {
     const noPermsApp = await baseApp.asRole('base');
-    const result = await noPermsApp.get(`/v1/patient/${patient.id}/scheduledVaccines`, {});
+    const result = await noPermsApp.get(`/api/patient/${patient.id}/scheduledVaccines`, {});
     expect(result).toBeForbidden();
   });
 
   describe('Scheduled vaccines', () => {
     it('should only return vaccines with some that have not been administered', async () => {
-      const result = await app.get(`/v1/patient/${patient.id}/scheduledVaccines`);
+      const result = await app.get(`/api/patient/${patient.id}/scheduledVaccines`);
       expect(result).toHaveSucceeded();
       expect(result.body).toHaveLength(3);
     });
 
     it('should get a list of scheduled vaccines based on category', async () => {
       const result = await app.get(
-        `/v1/patient/${patient.id}/scheduledVaccines?category=${VACCINE_CATEGORIES.CAMPAIGN}`,
+        `/api/patient/${patient.id}/scheduledVaccines?category=${VACCINE_CATEGORIES.CAMPAIGN}`,
       );
       expect(result).toHaveSucceeded();
       expect(result.body).toHaveLength(1);
@@ -190,7 +190,7 @@ describe('PatientVaccine', () => {
       // add an administered vaccine for patient1, of schedule 2
 
       const result = await app.get(
-        `/v1/patient/${patient.id}/scheduledVaccines?category=${VACCINE_CATEGORIES.ROUTINE}`,
+        `/api/patient/${patient.id}/scheduledVaccines?category=${VACCINE_CATEGORIES.ROUTINE}`,
       );
       expect(result).toHaveSucceeded();
       expect(result.body).toHaveLength(1);
@@ -204,7 +204,7 @@ describe('PatientVaccine', () => {
       // just create a new patient with no vaccinations
       const freshPatient = await models.Patient.create(await createDummyPatient(models));
       const result = await app.get(
-        `/v1/patient/${freshPatient.id}/scheduledVaccines?category=${VACCINE_CATEGORIES.ROUTINE}`,
+        `/api/patient/${freshPatient.id}/scheduledVaccines?category=${VACCINE_CATEGORIES.ROUTINE}`,
       );
       expect(result).toHaveSucceeded();
       expect(result.body).toHaveLength(1);
@@ -217,7 +217,7 @@ describe('PatientVaccine', () => {
     it('should only return vaccines with some that have not been administered for a category', async () => {
       // just create a new patient with no vaccinations
       const result = await app.get(
-        `/v1/patient/${patient.id}/scheduledVaccines?category=${VACCINE_CATEGORIES.CATCHUP}`,
+        `/api/patient/${patient.id}/scheduledVaccines?category=${VACCINE_CATEGORIES.CATCHUP}`,
       );
       expect(result).toHaveSucceeded();
       expect(result.body).toHaveLength(1);
@@ -253,7 +253,7 @@ describe('PatientVaccine', () => {
     });
 
     it('Should get administered vaccines', async () => {
-      const result = await app.get(`/v1/patient/${patient.id}/administeredVaccines`);
+      const result = await app.get(`/api/patient/${patient.id}/administeredVaccines`);
       expect(result).toHaveSucceeded();
       expect(result.body.count).toEqual(5); // there are 5 recorded given vaccines in beforeAll
     });
@@ -266,7 +266,7 @@ describe('PatientVaccine', () => {
       });
 
       const result = await app.get(
-        `/v1/patient/${freshPatient.id}/administeredVaccines?includeNotGiven=true`,
+        `/api/patient/${freshPatient.id}/administeredVaccines?includeNotGiven=true`,
       );
 
       expect(result).toHaveSucceeded();
@@ -276,10 +276,10 @@ describe('PatientVaccine', () => {
     });
 
     it('Should mark an administered vaccine as recorded in error', async () => {
-      const result = await app.get(`/v1/patient/${patient.id}/administeredVaccines`);
+      const result = await app.get(`/api/patient/${patient.id}/administeredVaccines`);
 
       const markedAsRecordedInError = await app
-        .put(`/v1/patient/${patient.id}/administeredVaccine/${result.body.data[0].id}`)
+        .put(`/api/patient/${patient.id}/administeredVaccine/${result.body.data[0].id}`)
         .send({ status: 'RECORDED_IN_ERROR' });
       expect(markedAsRecordedInError).toHaveSucceeded();
       expect(markedAsRecordedInError.body.status).toEqual('RECORDED_IN_ERROR');
@@ -292,7 +292,7 @@ describe('PatientVaccine', () => {
         code: 'Australia',
       });
 
-      const result = await app.post(`/v1/patient/${patient.id}/administeredVaccine`).send({
+      const result = await app.post(`/api/patient/${patient.id}/administeredVaccine`).send({
         status: VACCINE_RECORDING_TYPES.GIVEN,
         scheduledVaccineId: scheduled1.id,
         recorderId: clinician.id,
@@ -319,7 +319,7 @@ describe('PatientVaccine', () => {
         await createScheduledVaccine(models, { category: VACCINE_CATEGORIES.OTHER }),
       );
 
-      const result = await app.post(`/v1/patient/${patient.id}/administeredVaccine`).send({
+      const result = await app.post(`/api/patient/${patient.id}/administeredVaccine`).send({
         status: VACCINE_RECORDING_TYPES.GIVEN,
         category: VACCINE_CATEGORIES.OTHER,
         locationId: location.id,
@@ -354,7 +354,7 @@ describe('PatientVaccine', () => {
         facility.id,
       );
 
-      const result = await app.post(`/v1/patient/${patient.id}/administeredVaccine`).send({
+      const result = await app.post(`/api/patient/${patient.id}/administeredVaccine`).send({
         status: VACCINE_RECORDING_TYPES.GIVEN,
         scheduledVaccineId: scheduled1.id,
         recorderId: clinician.id,
@@ -379,7 +379,7 @@ describe('PatientVaccine', () => {
         status: VACCINE_STATUS.NOT_GIVEN,
       });
 
-      const result = await app.post(`/v1/patient/${freshPatient.id}/administeredVaccine`).send({
+      const result = await app.post(`/api/patient/${freshPatient.id}/administeredVaccine`).send({
         status: VACCINE_STATUS.GIVEN,
         scheduledVaccineId: scheduled1.id,
         recorderId: clinician.id,
@@ -397,7 +397,7 @@ describe('PatientVaccine', () => {
     });
 
     it('Should assign current date to vaccine date when no date is provided', async () => {
-      const result = await app.post(`/v1/patient/${patient.id}/administeredVaccine`).send({
+      const result = await app.post(`/api/patient/${patient.id}/administeredVaccine`).send({
         status: VACCINE_STATUS.GIVEN,
         scheduledVaccineId: scheduled1.id,
         recorderId: clinician.id,
@@ -414,7 +414,7 @@ describe('PatientVaccine', () => {
     });
 
     it('Should not have current date as default', async () => {
-      const result = await app.post(`/v1/patient/${patient.id}/administeredVaccine`).send({
+      const result = await app.post(`/api/patient/${patient.id}/administeredVaccine`).send({
         status: VACCINE_STATUS.GIVEN,
         scheduledVaccineId: scheduled1.id,
         recorderId: clinician.id,
@@ -429,7 +429,7 @@ describe('PatientVaccine', () => {
     });
 
     it('Should create a vaccine encounter with the correct description', async () => {
-      const result = await app.post(`/v1/patient/${patient.id}/administeredVaccine`).send({
+      const result = await app.post(`/api/patient/${patient.id}/administeredVaccine`).send({
         status: VACCINE_STATUS.GIVEN,
         scheduledVaccineId: scheduled1.id,
         recorderId: clinician.id,
@@ -448,13 +448,13 @@ describe('PatientVaccine', () => {
     });
 
     it('Should update reason for encounter with correct description when vaccine is recorded in error', async () => {
-      const result = await app.get(`/v1/patient/${patient.id}/administeredVaccines`);
+      const result = await app.get(`/api/patient/${patient.id}/administeredVaccines`);
       const vaccineId = result.body.data[0].id;
       const vaccine = await models.AdministeredVaccine.findByPk(vaccineId);
       const encounter = await vaccine.getEncounter();
 
       const markedAsRecordedInError = await app
-        .put(`/v1/patient/${patient.id}/administeredVaccine/${vaccineId}`)
+        .put(`/api/patient/${patient.id}/administeredVaccine/${vaccineId}`)
         .send({ status: VACCINE_STATUS.RECORDED_IN_ERROR });
 
       expect(markedAsRecordedInError).toHaveSucceeded();
@@ -490,14 +490,14 @@ describe('PatientVaccine', () => {
     });
 
     it('Should return the vaccines for a patient', async () => {
-      const result = await app.get(`/v1/patient/${readPatient.id}/administeredVaccines`);
+      const result = await app.get(`/api/patient/${readPatient.id}/administeredVaccines`);
       expect(result).toHaveSucceeded();
       expect(result.body.data).toHaveLength(3);
     });
 
     it('Should sort null dates as though they are old', async () => {
       const result = await app.get(
-        `/v1/patient/${readPatient.id}/administeredVaccines?orderBy=date`,
+        `/api/patient/${readPatient.id}/administeredVaccines?orderBy=date`,
       );
       expect(result).toHaveSucceeded();
       expect(result.body.data).toHaveLength(3);
@@ -510,7 +510,7 @@ describe('PatientVaccine', () => {
 
     it('Should sort null dates as though they are old (descending)', async () => {
       const result = await app.get(
-        `/v1/patient/${readPatient.id}/administeredVaccines?orderBy=date&order=desc`,
+        `/api/patient/${readPatient.id}/administeredVaccines?orderBy=date&order=desc`,
       );
       expect(result).toHaveSucceeded();
       expect(result.body.data).toHaveLength(3);

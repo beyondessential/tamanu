@@ -66,7 +66,7 @@ export const getAutocompleteComponentMap = surveyComponents => {
     .filter(
       ({ config, dataElement }) =>
         dataElement.type === 'Autocomplete' ||
-        (config && JSON.parse(config).writeToPatient.fieldType === 'Autocomplete'),
+        (config && JSON.parse(config).writeToPatient?.fieldType === 'Autocomplete'),
     )
     .map(({ dataElementId, config: componentConfig }) => [
       dataElementId,
