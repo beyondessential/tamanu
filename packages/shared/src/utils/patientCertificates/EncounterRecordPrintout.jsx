@@ -219,7 +219,7 @@ const COLUMNS = {
       key: 'imagingType',
       title: 'Request type',
       accessor: ({ imagingName }) => imagingName?.label,
-      style: { width: '20%' },
+      style: { width: '17%' },
     },
     {
       key: 'areaToBeImaged',
@@ -228,13 +228,13 @@ const COLUMNS = {
         imagingRequest?.areas?.length
           ? imagingRequest?.areas.map(area => area.name).join(', ')
           : imagingRequest?.areaNote,
-      style: { width: '20%' },
+      style: { width: '25%' },
     },
     {
       key: 'requestedBy',
       title: 'Requested by',
       accessor: ({ requestedBy }) => requestedBy?.displayName,
-      style: { width: '20%' },
+      style: { width: '18%' },
     },
     {
       key: 'requestDate',
@@ -276,26 +276,53 @@ const COLUMNS = {
       key: 'prescriber',
       title: 'Prescriber',
       accessor: ({ prescriber }) => prescriber?.displayName,
-      style: { width: '30%' },
+      style: { width: '25%' },
     },
     {
       key: 'prescriptionDate',
       title: 'Prescription date',
       accessor: ({ date }) => (date ? getDisplayDate(date, DATE_FORMAT) : '--/--/----'),
-      style: { width: '17.5%' },
+      style: { width: '22.5%' },
     },
   ],
 };
 
-const DataTable = ({ data, columns }) => (
-  <Table break>
-    <Row fixed wrap={false}>
-      {columns.map(({ key, title, style }) => (
-        <HeaderCell key={key} style={style}>
-          {title}
-        </HeaderCell>
-      ))}
-    </Row>
+const TableHeading = ({ title }) => {
+  let firstPageOccurence = Number.MAX_SAFE_INTEGER;
+  return (
+    <Text
+      fixed
+      style={textStyles.sectionTitle}
+      render={({ pageNumber, subPageNumber }) => {
+        if (pageNumber < firstPageOccurence && subPageNumber) {
+          firstPageOccurence = pageNumber;
+        }
+        return pageNumber === firstPageOccurence ? title : `${title} cont...`;
+      }}
+    >
+      {title}
+    </Text>
+  );
+};
+
+const DataTableHeader = ({ columns, title }) => {
+  return (
+    <View fixed>
+      <TableHeading title={title} />
+      <Row wrap={false}>
+        {columns.map(({ key, title, style }) => (
+          <HeaderCell key={key} style={style}>
+            {title}
+          </HeaderCell>
+        ))}
+      </Row>
+    </View>
+  );
+};
+
+const DataTable = ({ data, columns, title }) => (
+  <Table>
+    <DataTableHeader columns={columns} title={title} />
     {data.map(row => (
       <Row key={row.id} wrap={false}>
         {columns.map(({ key, accessor, style }) => (
@@ -309,68 +336,55 @@ const DataTable = ({ data, columns }) => (
 );
 
 const TableSection = ({ title, data, columns }) => {
-  let firstPageOccurence = Number.MAX_SAFE_INTEGER;
   return (
     <View>
-      <Text
-        style={textStyles.sectionTitle}
-        fixed
-        render={({ pageNumber, subPageNumber }) => {
-          if (pageNumber < firstPageOccurence && subPageNumber) {
-            firstPageOccurence = pageNumber;
-          }
-          return pageNumber === firstPageOccurence ? title : `${title} cont...`;
-        }}
-      >
-        {title}
-      </Text>
-      <DataTable data={data} columns={columns} />
+      <View minPresenceAhead={35} />
+      <DataTable data={data} columns={columns} title={title} />
       <SectionSpacing />
     </View>
   );
 };
 
-const NotesSection = ({ notes }) => {
-  let firstPageOccurence = Number.MAX_SAFE_INTEGER;
-  return (
-    <View>
-      <Text
-        style={textStyles.sectionTitle}
-        fixed
-        render={({ pageNumber, subPageNumber }) => {
-          if (pageNumber < firstPageOccurence && subPageNumber) {
-            firstPageOccurence = pageNumber;
-          }
-          return pageNumber === firstPageOccurence ? 'Notes' : 'Notes cont...';
-        }}
-      ></Text>
-      <Table>
-        {/*<View style={{ borderTop: '1px solid black' }} fixed />*/}
-        {notes.map(note => (
-          <Row key={note.id}>
-            <FlexCell>
-              <Text style={textStyles.tableColumnHeader}>{NOTE_TYPE_LABELS[note.noteType]}</Text>
+const NoteFooter = ({ note }) => (
+  <View>
+    <Text style={textStyles.tableCellFooter}>
+      {note.noteType === NOTE_TYPES.TREATMENT_PLAN ? 'Last updated: ' : ''}
+    </Text>
+    <Text style={textStyles.tableCellFooter}>{note.author?.displayName || ''}</Text>
+    <Text style={textStyles.tableCellFooter}>
+      {note.onBehalfOf ? ` on behalf of ${note.onBehalfOf.displayName}` : null}
+    </Text>
+    <Text style={textStyles.tableCellFooter} fixed>
+      {` ${getDisplayDate(note.date)} ${getDisplayDate(note.date, 'h:mma')}`}
+    </Text>
+  </View>
+);
+
+const NotesSection = ({ notes }) => (
+  <View>
+    <TableHeading title="Notes" />
+    <Table>
+      {/*<View style={{ borderTop: '1px solid black' }} fixed />*/}
+      {notes.map(note => (
+        <Row key={note.id}>
+          <FlexCell>
+            <Text style={textStyles.tableColumnHeader} fixed>
+              {NOTE_TYPE_LABELS[note.noteType]}
               {`\n`}
-              <Text style={textStyles.tableCellContent}>{note.content}</Text>
+            </Text>
+            <Text style={textStyles.tableCellContent}>
+              {note.content}
               {`\n`}
-              <Text style={textStyles.tableCellFooter}>
-                {note.noteType === NOTE_TYPES.TREATMENT_PLAN ? 'Last updated: ' : ''}
-              </Text>
-              <Text style={textStyles.tableCellFooter}>{note.author?.displayName || ''}</Text>
-              <Text style={textStyles.tableCellFooter}>
-                {note.onBehalfOf ? ` on behalf of ${note.onBehalfOf.displayName}` : null}
-              </Text>
-              <Text style={textStyles.tableCellFooter}>
-                {` ${getDisplayDate(note.date)} ${getDisplayDate(note.date, 'h:mma')}`}
-              </Text>
-            </FlexCell>
-          </Row>
-        ))}
-        <View style={{ borderBottom: '1px solid black' }} fixed />
-      </Table>
-    </View>
-  );
-};
+            </Text>
+            <NoteFooter note={note} />
+          </FlexCell>
+        </Row>
+      ))}
+      {/*<View style={{ borderBottom: '1px solid black' }} fixed />*/}
+    </Table>
+  </View>
+);
+
 export const EncounterRecordPrintout = ({
   patientData,
   encounter,
