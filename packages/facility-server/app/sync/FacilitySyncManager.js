@@ -133,8 +133,6 @@ export class FacilitySyncManager {
 
     await this.pushChanges(sessionId, newSyncClockTime);
 
-    await new Promise(resolve => setTimeout(resolve, 10000));
-
     await this.pullChanges(sessionId);
 
     await this.centralServer.endSyncSession(sessionId);
