@@ -9,11 +9,11 @@ import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 import { runCalculations } from '../utils/calculations';
 import {
-  getPatientDataDbLocation,
   getActiveActionComponents,
   getResultValue,
   getStringValue,
 } from '../utils/fields';
+import { getPatientDataDbLocation } from '../utils/getPatientDataDbLocation';
 import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
 
