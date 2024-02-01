@@ -25,7 +25,7 @@ export const KeyInformationSection = (): ReactElement => {
       <LocalisedField
         name="email"
         component={TextField}
-        required={getSetting<boolean>('fields.email.requiredPatientData')}
+        required={getSetting<boolean>('localisation.fields.email.requiredPatientData')}
       />
     </>
   );

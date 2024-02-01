@@ -33,7 +33,10 @@ export const VillageSection = (): ReactElement => {
       >
         <LocalisedField
           component={AutocompleteModalField}
-          placeholder={`Search for ${getSetting('fields.villageId.longLabel', 'Village')}`}
+          placeholder={`Search for ${getSetting(
+            'localisation.fields.villageId.longLabel',
+            'Village',
+          )}`}
           navigation={navigation}
           suggester={villageSuggester}
           name="villageId"

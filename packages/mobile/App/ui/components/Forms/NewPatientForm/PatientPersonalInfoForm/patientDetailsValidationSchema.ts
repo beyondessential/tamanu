@@ -7,8 +7,10 @@ const requiredWhenConfiguredMandatory = (
   baseType: Yup.MixedSchema<any>,
 ) => {
   return baseType.when([], {
-    is: () => !!getSetting<boolean>(`fields.${name}.requiredPatientData`),
-    then: baseType.required(`${getSetting<string>(`fields.${name}.shortLabel`)} is required `),
+    is: () => !!getSetting<boolean>(`localisation.fields.${name}.requiredPatientData`),
+    then: baseType.required(
+      `${getSetting<string>(`localisation.fields.${name}.shortLabel`)} is required `,
+    ),
     otherwise: baseType.nullable(),
   });
 };

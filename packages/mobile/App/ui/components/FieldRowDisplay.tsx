@@ -15,7 +15,7 @@ export const FieldRowDisplay = ({ fields, isCustomFields }: FieldRowDisplayProps
   const { getSetting } = useSettings();
   const visibleFields = isCustomFields
     ? fields
-    : fields.filter(([name]) => getSetting<boolean>(`fields.${name}.hidden`) !== true);
+    : fields.filter(([name]) => getSetting<boolean>(`localisation.fields.${name}.hidden`) !== true);
   const fieldsPerRow = isTablet() ? 2 : 1;
   const rows = chunk(visibleFields, fieldsPerRow);
 
@@ -27,7 +27,9 @@ export const FieldRowDisplay = ({ fields, isCustomFields }: FieldRowDisplayProps
             <InformationBox
               key={name}
               flex={1}
-              title={isCustomFields ? name : getSetting<string>(`fields.${name}.longLabel`)}
+              title={
+                isCustomFields ? name : getSetting<string>(`localisation.fields.${name}.longLabel`)
+              }
               info={info}
             />
           ))}

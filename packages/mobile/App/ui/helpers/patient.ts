@@ -149,7 +149,9 @@ export const getConfiguredPatientAdditionalDataFields = (
   getSettings: GetSettings,
 ) => {
   return fields.filter(fieldName => {
-    const requiredPatientData = getSettings<boolean>(`fields.${fieldName}.requiredPatientData`);
+    const requiredPatientData = getSettings<boolean>(
+      `localisation.fields.${fieldName}.requiredPatientData`,
+    );
     return !!requiredPatientData === showMandatory;
   });
 };

@@ -46,7 +46,9 @@ export const AdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps): ReactE
   const additionalSections = additionalDataSections.map(({ title, fields }) => {
     const onEditCallback = (): void => onEdit(patientAdditionalData, title, false);
     const mappedFields = fields
-      .filter(fieldName => !getSetting<boolean>(`fields.${fieldName}.requiredPatientData`))
+      .filter(
+        fieldName => !getSetting<boolean>(`localisation.fields.${fieldName}.requiredPatientData`),
+      )
       .map(fieldName => [fieldName, getFieldData(patientAdditionalData, fieldName)]);
     return { title, fields: mappedFields, onEditCallback };
   });

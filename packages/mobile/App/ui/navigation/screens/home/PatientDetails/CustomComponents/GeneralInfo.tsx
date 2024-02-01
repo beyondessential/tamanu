@@ -37,7 +37,9 @@ export const GeneralInfo = ({ onEdit, patient }: GeneralInfoProps): ReactElement
   const { patientAdditionalData, loading, error } = usePatientAdditionalData(patient.id);
 
   const patientAdditionalDataFields = allAdditionalDataFields
-    .filter(fieldName => getSetting<boolean>(`fields.${fieldName}.requiredPatientData`))
+    .filter(fieldName =>
+      getSetting<boolean>(`localisation.fields.${fieldName}.requiredPatientData`),
+    )
     .map(fieldName => [fieldName, getFieldData(patientAdditionalData, fieldName)]);
   if (error) {
     return <ErrorScreen error={error} />;

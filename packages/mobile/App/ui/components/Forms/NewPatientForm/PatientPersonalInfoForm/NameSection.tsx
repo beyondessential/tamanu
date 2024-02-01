@@ -12,13 +12,13 @@ export const NameSection = (): ReactElement => {
       <LocalisedField
         name="middleName"
         component={TextField}
-        required={getSetting<boolean>('fields.middleName.requiredPatientData')}
+        required={getSetting<boolean>('localisation.fields.middleName.requiredPatientData')}
       />
       <LocalisedField name="lastName" component={TextField} required />
       <LocalisedField
         name="culturalName"
         component={TextField}
-        required={getSetting<boolean>('fields.culturalName.requiredPatientData')}
+        required={getSetting<boolean>('localisation.fields.culturalName.requiredPatientData')}
       />
     </>
   );

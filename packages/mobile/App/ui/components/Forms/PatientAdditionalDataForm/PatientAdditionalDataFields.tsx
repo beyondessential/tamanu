@@ -42,7 +42,10 @@ const RelationField = ({ fieldName, required }): ReactElement => {
   const { getSetting } = useSettings();
   const navigation = useNavigation();
   const { type, placeholder } = relationIdFieldsProperties[fieldName];
-  const localisedPlaceholder = getSetting<string>(`fields.${fieldName}.longLabel`, placeholder);
+  const localisedPlaceholder = getSetting<string>(
+    `localisation.fields.${fieldName}.longLabel`,
+    placeholder,
+  );
   const suggester = getSuggester(models, type);
 
   return (

@@ -22,11 +22,14 @@ export const LocationDetailsSection = (): ReactElement => {
   return (
     <LocalisedField
       component={AutocompleteModalField}
-      placeholder={`Search for ${getSetting<string>('fields.villageId.longLabel', 'Village')}`}
+      placeholder={`Search for ${getSetting<string>(
+        'localisation.fields.villageId.longLabel',
+        'Village',
+      )}`}
       navigation={navigation}
       suggester={villageSuggester}
       name="villageId"
-      required={getSetting<boolean>('fields.villageId.requiredPatientData')}
+      required={getSetting<boolean>('localisation.fields.villageId.requiredPatientData')}
     />
   );
 };
