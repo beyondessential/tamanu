@@ -1,10 +1,9 @@
 import React from 'react';
 import { Document, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
-import { CertificateHeader, FixedFooter, FixedHeader, PageBreakPadding, Watermark } from './Layout';
+import { CertificateHeader, Watermark } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
 import { PatientDetailsWithAddress } from './printComponents/PatientDetailsWithAddress';
 import { startCase } from 'lodash';
-import { Footer } from './printComponents/Footer';
 import {
   ENCOUNTER_LABELS,
   NOTE_TYPE_LABELS,
@@ -115,7 +114,7 @@ const COLUMNS = {
     {
       key: 'dateMoved',
       title: 'Date & time moved',
-      accessor: ({ date }) => getDisplayDate(date, DATE_TIME_FORMAT),
+      accessor: ({ date }) => (date ? getDisplayDate(date, DATE_TIME_FORMAT) : '--/--/----'),
       style: { width: '35%' },
     },
   ],
@@ -135,7 +134,7 @@ const COLUMNS = {
     {
       key: 'dateMoved',
       title: 'Date & time moved',
-      accessor: ({ date }) => getDisplayDate(date, DATE_TIME_FORMAT),
+      accessor: ({ date }) => (date ? getDisplayDate(date, DATE_TIME_FORMAT) : '--/--/----'),
       style: { width: '35%' },
     },
   ],
@@ -155,7 +154,7 @@ const COLUMNS = {
     {
       key: 'date',
       title: 'Date',
-      accessor: ({ date }) => getDisplayDate(date, DATE_FORMAT),
+      accessor: ({ date }) => (date ? getDisplayDate(date, DATE_FORMAT) : '--/--/----'),
       style: { width: '25%' },
     },
   ],
@@ -169,7 +168,7 @@ const COLUMNS = {
     {
       key: 'procedureDate',
       title: 'Procedure date',
-      accessor: ({ date }) => getDisplayDate(date, DATE_FORMAT),
+      accessor: ({ date }) => (date ? getDisplayDate(date, DATE_FORMAT) : '--/--/----'),
       style: { width: '25%' },
     },
   ],
@@ -192,13 +191,15 @@ const COLUMNS = {
     {
       key: 'requestDate',
       title: 'Request date',
-      accessor: ({ requestDate }) => getDisplayDate(requestDate, DATE_FORMAT),
+      accessor: ({ requestDate }) =>
+        requestDate ? getDisplayDate(requestDate, DATE_FORMAT) : '--/--/----',
       style: { width: '17.5%' },
     },
     {
       key: 'completedDate',
       title: 'Published date',
-      accessor: ({ completedDate }) => getDisplayDate(completedDate, DATE_FORMAT),
+      accessor: ({ completedDate }) =>
+        completedDate ? getDisplayDate(completedDate, DATE_FORMAT) : '--/--/----',
       style: { width: '17.5%' },
     },
   ],
@@ -227,7 +228,8 @@ const COLUMNS = {
     {
       key: 'requestDate',
       title: 'Request date',
-      accessor: ({ requestedDate }) => getDisplayDate(requestedDate, DATE_FORMAT),
+      accessor: ({ requestedDate }) =>
+        requestedDate ? getDisplayDate(requestedDate, DATE_FORMAT) : '--/--/----',
       style: { width: '20%' },
     },
     {
@@ -257,7 +259,7 @@ const COLUMNS = {
       key: 'route',
       title: 'Route',
       accessor: ({ route }) => DRUG_ROUTE_VALUE_TO_LABEL[route] || '',
-      style: { width: '10%' },
+      style: { width: '12.5%' },
     },
     {
       key: 'prescriber',
@@ -268,8 +270,8 @@ const COLUMNS = {
     {
       key: 'prescriptionDate',
       title: 'Prescription date',
-      accessor: ({ date }) => getDisplayDate(date, DATE_FORMAT),
-      style: { width: '20%' },
+      accessor: ({ date }) => (date ? getDisplayDate(date, DATE_FORMAT) : '--/--/----'),
+      style: { width: '17.5%' },
     },
   ],
 };
@@ -333,18 +335,6 @@ const NotesSection = ({ notes }) => (
   </View>
 );
 
-const EncounterRecordHeader = ({ patient }) => (
-  <View style={{ flexDirection: 'row' }}>
-    <Text style={textStyles.headerLabel}>Patient encounter record | </Text>
-    <Text style={textStyles.headerLabel}>Patient name: </Text>
-    <Text style={textStyles.headerValue}>
-      {patient.firstName} {patient.lastName} |{' '}
-    </Text>
-    <Text style={textStyles.headerLabel}>Patient ID: </Text>
-    <Text style={textStyles.headerValue}>{patient.displayId}</Text>
-  </View>
-);
-
 export const EncounterRecordPrintout = ({
   patientData,
   encounter,
@@ -362,25 +352,17 @@ export const EncounterRecordPrintout = ({
   clinicianText,
 }) => {
   const { watermark, logo } = certificateData;
-  
+
   return (
     <Document>
       <Page size="A4" style={{ paddingHorizontal: 50, paddingVertical: 30 }}>
         {watermark && <Watermark src={watermark} />}
-        <FixedHeader>
-          <View
-            fixed
-            render={({ pageNumber }) =>
-              pageNumber > 1 && <EncounterRecordHeader patient={patientData} />
-            }
-          />
-        </FixedHeader>
-        <View fixed render={({ pageNumber }) => pageNumber > 1 && <PageBreakPadding />} />
         <CertificateHeader>
           <LetterheadSection
             getLocalisation={getLocalisation}
             logoSrc={logo}
-            certificateTitle="Patient Encounter Record"
+            certificateTitle="Patient encounter record"
+            letterheadConfig={certificateData}
           />
         </CertificateHeader>
         <SectionSpacing />
@@ -422,10 +404,6 @@ export const EncounterRecordPrintout = ({
           <TableSection title="Medications" data={medications} columns={COLUMNS.medications} />
         )}
         {notes.length > 0 && <NotesSection notes={notes} />}
-        <PageBreakPadding />
-        <FixedFooter>
-          <Footer style={{ width: '100%', left: 0, right: 0 }} />
-        </FixedFooter>
       </Page>
     </Document>
   );

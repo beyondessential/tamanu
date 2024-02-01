@@ -93,6 +93,7 @@ export const prepareVRSMocks = async (ctx, opts = {}) => {
     throw new Error('unexpected call to fetch', url, ...args);
   });
 
+  // eslint-disable-next-line require-atomic-updates
   ctx.integrations.fijiVrs.remote.fetchImplementation = fetch;
   return { fetchId, vrsPatient };
 };

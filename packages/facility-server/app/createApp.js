@@ -2,7 +2,6 @@ import bodyParser from 'body-parser';
 import compression from 'compression';
 import config from 'config';
 import express from 'express';
-import path from 'path';
 
 import { SERVER_TYPES } from '@tamanu/constants';
 import { getLoggingMiddleware } from '@tamanu/shared/services/logging';
