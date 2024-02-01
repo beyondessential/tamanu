@@ -5,7 +5,7 @@ import { ENCOUNTER_TYPES } from '@tamanu/constants/encounters';
 import { useApi } from '../api';
 import { StatisticsCard, StatisticsCardContainer } from './StatisticsCard';
 import { Colors } from '../constants';
-import { useLocalisation } from '../contexts/Localisation';
+import { useSettings } from '../contexts/Settings';
 
 const getAverageWaitTime = categoryData => {
   if (categoryData.length === 0) {
@@ -22,8 +22,8 @@ const getAverageWaitTime = categoryData => {
 const useTriageData = () => {
   const api = useApi();
   const [data, setData] = useState([]);
-  const { getLocalisation } = useLocalisation();
-  const triageCategories = getLocalisation('triageCategories');
+  const { getSetting } = useSettings();
+  const triageCategories = getSetting('localisation.triageCategories');
 
   useEffect(() => {
     const fetchTriageData = async () => {

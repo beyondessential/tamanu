@@ -95,8 +95,8 @@ const notesSectionStyles = StyleSheet.create({
   },
 });
 
-const extractDiagnosesInfo = ({ diagnoses, getLocalisation }) => {
-  const displayIcd10Codes = getLocalisation('features.displayIcd10CodesInDischargeSummary');
+const extractDiagnosesInfo = ({ diagnoses, getSetting }) => {
+  const displayIcd10Codes = getSetting('features.displayIcd10CodesInDischargeSummary');
   if (!displayIcd10Codes) {
     return diagnoses.map(item => item?.diagnosis?.name);
   } else {
@@ -104,8 +104,8 @@ const extractDiagnosesInfo = ({ diagnoses, getLocalisation }) => {
   }
 };
 
-const extractProceduresInfo = ({ procedures, getLocalisation }) => {
-  const displayProcedureCodes = getLocalisation('features.displayProcedureCodesInDischargeSummary');
+const extractProceduresInfo = ({ procedures, getSetting }) => {
+  const displayProcedureCodes = getSetting('features.displayProcedureCodesInDischargeSummary');
   if (!displayProcedureCodes) {
     return procedures.map(item => item?.procedureType?.name);
   } else {
@@ -130,12 +130,12 @@ const InfoBox = ({ label, info }) => (
   </InfoBoxRow>
 );
 
-const DiagnosesTable = ({ title, diagnoses, getLocalisation }) => (
-  <InfoBox label={title} info={extractDiagnosesInfo({ diagnoses, getLocalisation })} />
+const DiagnosesTable = ({ title, diagnoses, getSetting }) => (
+  <InfoBox label={title} info={extractDiagnosesInfo({ diagnoses, getSetting })} />
 );
 
-const ProceduresTable = ({ procedures, getLocalisation }) => (
-  <InfoBox label="Procedures" info={extractProceduresInfo({ procedures, getLocalisation })} />
+const ProceduresTable = ({ procedures, getSetting }) => (
+  <InfoBox label="Procedures" info={extractProceduresInfo({ procedures, getSetting })} />
 );
 
 const NotesSection = ({ notes }) => (
@@ -199,7 +199,7 @@ export const DischargeSummaryPrintout = ({
   logo,
   title,
   subTitle,
-  getLocalisation,
+  getSetting,
 }) => {
   const { diagnoses, procedures, medications } = encounter;
   const visibleDiagnoses = diagnoses.filter(
@@ -215,14 +215,14 @@ export const DischargeSummaryPrintout = ({
       <Page size="A4" style={styles.page}>
         <CertificateHeader>
           <LetterheadSection
-            getLocalisation={getLocalisation}
+            getSetting={getSetting}
             certificateTitle="Patient discharge summary"
             letterheadConfig={letterheadConfig}
             logoSrc={logo}
           />
         </CertificateHeader>
         <SectionContainer>
-          <PatientDetailsWithAddress patient={patientData} getLocalisation={getLocalisation} />
+          <PatientDetailsWithAddress patient={patientData} getSetting={getSetting} />
         </SectionContainer>
         <SectionContainer>
           <EncounterDetailsExtended encounter={encounter} discharge={discharge} />
@@ -233,7 +233,7 @@ export const DischargeSummaryPrintout = ({
               <DiagnosesTable
                 title="Ongoing conditions"
                 diagnoses={patientConditions}
-                getLocalisation={getLocalisation}
+                getSetting={getSetting}
               />
             </TableContainer>
           )}
@@ -242,7 +242,7 @@ export const DischargeSummaryPrintout = ({
               <DiagnosesTable
                 title="Primary diagnoses"
                 diagnoses={primaryDiagnoses}
-                getLocalisation={getLocalisation}
+                getSetting={getSetting}
               />
             </TableContainer>
           )}
@@ -251,13 +251,13 @@ export const DischargeSummaryPrintout = ({
               <DiagnosesTable
                 title="Secondary diagnoses"
                 diagnoses={secondaryDiagnoses}
-                getLocalisation={getLocalisation}
+                getSetting={getSetting}
               />
             </TableContainer>
           )}
           {procedures.length > 0 && (
             <TableContainer>
-              <ProceduresTable procedures={procedures} getLocalisation={getLocalisation} />
+              <ProceduresTable procedures={procedures} getSetting={getSetting} />
             </TableContainer>
           )}
           {medications.length > 0 && (

@@ -75,19 +75,19 @@ const vdsData = {
 
 const vds = () => QRCode.toDataURL(vdsData);
 
-const getLocalisation = key => {
-  const config = {
-    'templates.letterhead.title': 'TAMANU MINISTRY OF HEALTH & MEDICAL SERVICES',
-    'templates.letterhead.subTitle': 'PO Box 12345, Melbourne, Australia',
-    'templates.vaccineCertificate.emailAddress': 'tamanu@health.govt',
-    'templates.vaccineCertificate.contactNumber': '123456',
-    'fields.firstName.longLabel': 'First Name',
-    'fields.lastName.longLabel': 'Last Name',
-    'fields.dateOfBirth.longLabel': 'Date of Birth',
-    'fields.sex.longLabel': 'Sex',
-    previewUvciFormat: 'tamanu',
+const getSetting = key => {
+  const settings = {
+    'localisation.templates.letterhead.title': 'TAMANU MINISTRY OF HEALTH & MEDICAL SERVICES',
+    'localisation.templates.letterhead.subTitle': 'PO Box 12345, Melbourne, Australia',
+    'localisation.templates.vaccineCertificate.emailAddress': 'tamanu@health.govt',
+    'localisation.templates.vaccineCertificate.contactNumber': '123456',
+    'localisation.fields.firstName.longLabel': 'First Name',
+    'localisation.fields.lastName.longLabel': 'Last Name',
+    'localisation.fields.dateOfBirth.longLabel': 'Date of Birth',
+    'localisation.fields.sex.longLabel': 'Sex',
+    'previewUvciFormat': 'tamanu',
   };
-  return config[key];
+  return settings[key];
 };
 
 const certificateData = {
@@ -113,7 +113,7 @@ storiesOf('Certificates', module).add('CovidLabCertificate', () => (
       signingSrc={SigningImage}
       logoSrc={Logo}
       vdsSrc={vds}
-      getLocalisation={getLocalisation}
+      getSetting={getSetting}
       printedBy="Initial Admin"
     />
   // </PDFViewer>
@@ -205,7 +205,7 @@ storiesOf('Certificates', module).add('VaccineCertificate', () => {
         signingSrc={SigningImage}
         logoSrc={Logo}
         vdsSrc={vdsSrc}
-        getLocalisation={getLocalisation}
+        getSetting={getSetting}
       />
     </PDFViewer>
   );
@@ -223,7 +223,7 @@ storiesOf('Certificates', module).add('PatientLetter', () => {
 
   return (
     <PDFViewer width={800} height={1000} showToolbar={false}>
-      <PatientLetter logoSrc={Logo} getLocalisation={getLocalisation} data={patientLetterData} />
+      <PatientLetter logoSrc={Logo} getSetting={getSetting} data={patientLetterData} />
     </PDFViewer>
   );
 });

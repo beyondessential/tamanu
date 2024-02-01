@@ -13,7 +13,7 @@ import {
 
 import { useSexValues } from '../hooks';
 import { Colors } from '../constants';
-import { useLocalisation } from '../contexts/Localisation';
+import { useSettings } from '../contexts/Settings';
 import { useApi, useSuggester } from '../api';
 import { getPatientDetailsValidation } from '../validations';
 import {
@@ -60,14 +60,15 @@ const StyledPatientDetailSecondaryDetailsGroupWrapper = styled.div`
 
 export const PrimaryDetailsGroup = ({ values = {}, patientRegistryType }) => {
   const villageSuggester = useSuggester('village');
-  const { getLocalisation } = useLocalisation();
+  const { getSetting } = useSettings();
   let filteredSexOptions = SEX_OPTIONS;
-  if (getLocalisation('features.hideOtherSex') === true) {
+  const hideOtherSex = getSetting('features.hideOtherSex');
+  if (hideOtherSex) {
     filteredSexOptions = filteredSexOptions.filter(s => s.value !== 'other');
   }
 
   const isRequiredPatientData = fieldName =>
-    getLocalisation(`fields.${fieldName}.requiredPatientData`);
+    getSetting(`localisation.fields.${fieldName}.requiredPatientData`);
 
   return (
     <>
@@ -269,7 +270,7 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
 
   const sexValues = useSexValues();
 
-  const { getLocalisation } = useLocalisation();
+  const { getSetting } = useSettings();
 
   const api = useApi();
   const {
@@ -322,11 +323,7 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
         ),
       }}
       onSubmit={handleSubmit}
-      validationSchema={getPatientDetailsValidation(
-        patientRegistryType,
-        sexValues,
-        getLocalisation,
-      )}
+      validationSchema={getPatientDetailsValidation(patientRegistryType, sexValues, getSetting)}
     />
   );
 };

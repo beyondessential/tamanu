@@ -4,12 +4,12 @@ import { Button } from '../../Button';
 import { useCertificate } from '../../../utils/useCertificate';
 import { PDFViewer, printPDF } from '../PDFViewer';
 import { DeathCertificatePrintout } from '@tamanu/shared/utils/patientCertificates';
-import { useLocalisation } from '../../../contexts/Localisation';
+import { useSettings } from '../../../contexts/Settings';
 
 export const DeathCertificateModal = ({ patient, deathData }) => {
   const [isOpen, setIsOpen] = useState();
   const patientData = { ...patient, ...deathData };
-  const { getLocalisation } = useLocalisation();
+  const { getSetting } = useSettings();
   const certificateData = useCertificate();
 
   return (
@@ -26,7 +26,7 @@ export const DeathCertificateModal = ({ patient, deathData }) => {
           <DeathCertificatePrintout
             patientData={patientData}
             certificateData={certificateData}
-            getLocalisation={getLocalisation}
+            getSetting={getSetting}
           />
         </PDFViewer>
       </Modal>

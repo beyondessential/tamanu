@@ -1,5 +1,4 @@
 export const centralDefaults = {
-  countryTimeZone: 'Australia/Melbourne',
   disk: {
     diskPath: 'C:/',
     freeSpaceRequired: {

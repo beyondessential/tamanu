@@ -7,7 +7,7 @@ import { Button } from '../../components/Button';
 import { useEncounter } from '../../contexts/Encounter';
 import { Colors } from '../../constants';
 import { useCertificate } from '../../utils/useCertificate';
-import { useLocalisation } from '../../contexts/Localisation';
+import { useSettings } from '../../contexts/Settings';
 import {
   usePatientAdditionalDataQuery,
   useReferenceData,
@@ -32,7 +32,7 @@ const NavContainer = styled.div`
 `;
 
 export const DischargeSummaryView = React.memo(() => {
-  const { getLocalisation } = useLocalisation();
+  const { getSetting } = useSettings();
   const { encounter } = useEncounter();
   const { title, subTitle, logo } = useCertificate();
   const patient = useSelector(state => state.patient);
@@ -74,7 +74,7 @@ export const DischargeSummaryView = React.memo(() => {
           logo={logo}
           title={title}
           subTitle={subTitle}
-          getLocalisation={getLocalisation}
+          getSetting={getSetting}
         />
       </PDFViewer>
     </Container>

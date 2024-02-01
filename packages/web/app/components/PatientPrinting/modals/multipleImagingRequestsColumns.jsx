@@ -4,7 +4,7 @@ import { startCase } from 'lodash';
 import { MultilineDatetimeDisplay } from '../../DateDisplay';
 import { getImagingRequestType } from '../../../utils/getImagingRequestType';
 import { getAreaNote } from '../../../utils/areaNote';
-import { useLocalisation } from '../../../contexts/Localisation';
+import { useSettings } from '../../../contexts/Settings';
 
 export const COLUMN_KEYS = {
   ID: 'displayId',
@@ -17,8 +17,8 @@ export const COLUMN_KEYS = {
 };
 
 const ImagingType = ({ imagingType }) => {
-  const { getLocalisation } = useLocalisation();
-  const imagingTypes = getLocalisation('imagingTypes') || {};
+  const { getSetting } = useSettings();
+  const imagingTypes = getSetting('imagingTypes') || {};
   return getImagingRequestType(imagingTypes)({ imagingType });
 };
 

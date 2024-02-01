@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { Box, Divider } from '@material-ui/core';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import { useEncounter } from '../../contexts/Encounter';
-import { useLocalisation } from '../../contexts/Localisation';
+import { useSettings } from '../../contexts/Settings';
 import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
 import { ContentPane, EncounterTopBar } from '../../components';
 import { DiagnosisView } from '../../components/DiagnosisView';
@@ -81,7 +81,7 @@ const TABS = [
     label: 'Invoicing',
     key: 'invoicing',
     render: props => <InvoicingPane {...props} />,
-    condition: getLocalisation => getLocalisation('features.enableInvoicing'),
+    condition: getSetting => getSetting('features.enableInvoicing'),
   },
 ];
 
@@ -126,7 +126,7 @@ const StyledTabDisplay = styled(TabDisplay)`
 export const EncounterView = () => {
   const api = useApi();
   const query = useUrlSearchParams();
-  const { getLocalisation } = useLocalisation();
+  const { getSetting } = useSettings();
   const { facility } = useAuth();
   const patient = useSelector(state => state.patient);
   const { encounter, isLoadingEncounter } = useEncounter();
@@ -140,7 +140,7 @@ export const EncounterView = () => {
 
   if (!encounter || isLoadingEncounter || patient.loading) return <LoadingIndicator />;
 
-  const visibleTabs = TABS.filter(tab => !tab.condition || tab.condition(getLocalisation));
+  const visibleTabs = TABS.filter(tab => !tab.condition || tab.condition(getSetting));
 
   return (
     <GridColumnContainer>
@@ -160,7 +160,7 @@ export const EncounterView = () => {
       <ContentPane>
         <EncounterInfoPane
           encounter={encounter}
-          getLocalisation={getLocalisation}
+          getSetting={getSetting}
           patientBillingType={patientBillingTypeData?.name}
         />
         <Box mt={4} mb={4}>

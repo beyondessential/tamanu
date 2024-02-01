@@ -17,7 +17,7 @@ import { useEncounterNotes } from '../../../api/queries/useEncounterNotes';
 import { useEncounterDischarge } from '../../../api/queries/useEncounterDischarge';
 import { useReferenceData } from '../../../api/queries/useReferenceData';
 import { usePatientAdditionalDataQuery } from '../../../api/queries/usePatientAdditionalDataQuery';
-import { useLocalisation } from '../../../contexts/Localisation';
+import { useSettings } from '../../../contexts/Settings';
 import { LoadingIndicator } from '../../LoadingIndicator';
 import { Colors } from '../../../constants';
 import { ForbiddenErrorModalContents } from '../../ForbiddenErrorModal';
@@ -99,9 +99,10 @@ const extractLocationHistory = (notes, encounterData) => {
 };
 
 export const EncounterRecordModal = ({ encounter, open, onClose }) => {
+  const { getSetting } = useSettings();
+  
   const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
 
-  const { getLocalisation } = useLocalisation();
   const certificateData = useCertificate();
 
   const patientQuery = usePatientData(encounter.patientId);
@@ -233,7 +234,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
     IMAGING_REQUEST_STATUS_TYPES.DELETED,
   ];
 
-  const imagingTypeNames = getLocalisation('imagingTypes') || {};
+  const imagingTypeNames = getSetting('imagingTypes') || {};
 
   const imagingRequests = imagingRequestsData
     .filter(({ status }) => !imagingStatusesToExclude.includes(status))
@@ -290,7 +291,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
           discharge={discharge}
           village={village}
           medications={medications}
-          getLocalisation={getLocalisation}
+          getSetting={getSetting}
           clinicianText={clinicianText}
         />
       </PDFViewer>

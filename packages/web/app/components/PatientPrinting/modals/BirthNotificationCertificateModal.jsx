@@ -7,7 +7,7 @@ import { isErrorUnknownAllow404s, useApi } from '../../../api';
 import { LoadingIndicator } from '../../LoadingIndicator';
 import { useCertificate } from '../../../utils/useCertificate';
 import { usePatientAdditionalDataQuery } from '../../../api/queries';
-import { useLocalisation } from '../../../contexts/Localisation';
+import { useSettings } from '../../../contexts/Settings';
 
 import { BirthNotificationCertificate } from '@tamanu/shared/utils/patientCertificates/BirthNotificationCertificate';
 import { PDFViewer, printPDF } from '../PDFViewer';
@@ -95,7 +95,7 @@ export const BirthNotificationCertificateModal = React.memo(({ patient }) => {
   const [open, setOpen] = useState(true);
   const api = useApi();
   const { facility } = useAuth();
-  const { getLocalisation } = useLocalisation();
+  const { getSetting } = useSettings();
   const certificateData = useCertificate();
   const { data: additionalData, isLoading: additionalDataLoading } = usePatientAdditionalDataQuery(
     patient.id,
@@ -158,7 +158,7 @@ export const BirthNotificationCertificateModal = React.memo(({ patient }) => {
             childData={{ ...patient, birthData, additionalData, ethnicity, deathData }}
             facility={facility}
             certificateData={certificateData}
-            getLocalisation={getLocalisation}
+            getSetting={getSetting}
           />
         </PDFViewer>
       )}

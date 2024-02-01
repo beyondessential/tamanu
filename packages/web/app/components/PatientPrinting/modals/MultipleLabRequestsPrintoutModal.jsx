@@ -9,11 +9,11 @@ import { useApi } from '../../../api';
 import { Colors } from '../../../constants';
 
 import { PDFViewer, printPDF } from '../PDFViewer';
-import { useLocalisation } from '../../../contexts/Localisation';
+import { useSettings } from '../../../contexts/Settings';
 import { MultipleLabRequestsPrintout } from '@tamanu/shared/utils/patientCertificates';
 
 export const MultipleLabRequestsPrintoutModal = ({ encounter, labRequests, open, onClose }) => {
-  const { getLocalisation } = useLocalisation();
+  const { getSetting } = useSettings();
   const certificateData = useCertificate();
   const api = useApi();
 
@@ -56,7 +56,7 @@ export const MultipleLabRequestsPrintoutModal = ({ encounter, labRequests, open,
             patientData={{ ...patient, additionalData, village }}
             encounter={encounter}
             labRequests={labRequests}
-            getLocalisation={getLocalisation}
+            getSetting={getSetting}
           />
         </PDFViewer>
       )}

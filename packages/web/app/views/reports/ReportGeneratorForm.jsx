@@ -28,7 +28,7 @@ import { Colors } from '../../constants';
 import { saveExcelFile } from '../../utils/saveExcelFile';
 import { EmailField, parseEmails } from './EmailField';
 import { ParameterField } from './ParameterField';
-import { useLocalisation } from '../../contexts/Localisation';
+import { useSettings } from '../../contexts/Settings';
 import { ReportAboutModal } from './ReportAboutModal';
 
 const Spacer = styled.div`
@@ -84,8 +84,8 @@ const buildParameterFieldValidation = ({ name, required }) => {
 };
 
 const useFileName = () => {
-  const { getLocalisation } = useLocalisation();
-  const country = getLocalisation('country');
+  const { getSetting } = useSettings();
+  const country = getSetting('country');
   const date = format(new Date(), 'ddMMyyyy');
 
   return reportName => {

@@ -19,7 +19,7 @@ import { ExpandMore } from '@material-ui/icons';
 import { PaperStyles } from '../Paper';
 import { LoadingIndicator } from '../LoadingIndicator';
 import { DownloadDataButton } from './DownloadDataButton';
-import { useLocalisation } from '../../contexts/Localisation';
+import { useSettings } from '../../contexts/Settings';
 import { Colors } from '../../constants';
 import { ThemedTooltip } from '../Tooltip';
 import { ErrorBoundary } from '../ErrorBoundary';
@@ -312,7 +312,7 @@ class TableComponent extends React.Component {
       order,
       orderBy,
       onChangeOrderBy,
-      getLocalisation,
+      getSetting,
       titleData,
       headerOnChange,
     } = this.props;
@@ -333,10 +333,10 @@ class TableComponent extends React.Component {
           onClick={() => onChangeOrderBy(key)}
           IconComponent={orderBy === key ? ActiveSortIcon : InactiveSortIcon}
         >
-          {title || getLocalisation(`fields.${key}.shortLabel`) || key}
+          {title || getSetting(`localisation.fields.${key}.shortLabel`) || key}
         </TableSortLabel>
       ) : (
-        <span>{displayTitle || getLocalisation(`fields.${key}.shortLabel`) || key}</span>
+        <span>{displayTitle || getSetting(`localisation.fields.${key}.shortLabel`) || key}</span>
       );
 
       const headerElement = titleCellComponent || defaultHeaderElement;
@@ -584,9 +584,9 @@ TableComponent.defaultProps = {
 
 export const Table = React.forwardRef(
   ({ columns: allColumns, data, exportName, ...props }, ref) => {
-    const { getLocalisation } = useLocalisation();
+    const { getSetting } = useSettings();
     const columns = allColumns.filter(
-      ({ key }) => getLocalisation(`fields.${key}.hidden`) !== true,
+      ({ key }) => getSetting(`localisation.fields.${key}.hidden`) !== true,
     );
 
     return (
@@ -594,7 +594,7 @@ export const Table = React.forwardRef(
         columns={columns}
         data={data}
         exportname={exportName}
-        getLocalisation={getLocalisation}
+        getSetting={getSetting}
         tableRef={ref}
         {...props}
       />

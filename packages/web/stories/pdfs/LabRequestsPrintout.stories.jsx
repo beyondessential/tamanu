@@ -9,8 +9,6 @@ export default {
   component: Component,
 };
 
-const getLocalisation = () => {};
-
 const encounter = {
   "id": "76df3ccd-36c2-4f9f-a516-5d6e1bc9dd1e",
   "encounterType": "admission",

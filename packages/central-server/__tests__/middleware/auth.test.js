@@ -168,7 +168,7 @@ describe('Auth', () => {
       });
 
       expect(response).toHaveSucceeded();
-      expect(response.body).toHaveProperty('localisation.fields.displayId', {
+      expect(response.body.settings).toHaveProperty('localisation.fields.displayId', {
         shortLabel: 'NHN',
         longLabel: 'National Health Number',
         pattern: '[\\s\\S]*',

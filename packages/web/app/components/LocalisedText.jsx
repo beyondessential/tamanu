@@ -1,11 +1,11 @@
-import { useLocalisation } from '../contexts/Localisation';
+import { useSettings } from '../contexts/Settings';
 
 export const LocalisedText = ({ path }) => {
-  const { getLocalisation } = useLocalisation();
+  const { getSetting } = useSettings();
   if (!path) {
     return '<no path specified>';
   }
-  const value = getLocalisation(path);
+  const value = getSetting(`localisation.${path}`);
   if (typeof value !== 'string') {
     return `<path not set to text: ${path}>`;
   }

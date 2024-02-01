@@ -5,8 +5,8 @@ import Tooltip from '@material-ui/core/Tooltip';
 import { NOTE_TYPES } from '@tamanu/constants';
 
 import { InfoCard, InfoCardItem } from './InfoCard';
-import { AutocompleteField, DateTimeField, Field, SelectField, TextField } from './Field';
-import { useLocalisation } from '../contexts/Localisation';
+import { Field, AutocompleteField, TextField, DateTimeField, SelectField } from './Field';
+import { useSettings } from '../contexts/Settings';
 
 import { useSuggester } from '../api';
 import { DateDisplay } from './DateDisplay';
@@ -93,7 +93,7 @@ export const WrittenByField = ({ label = 'Written by (or on behalf of)', require
 };
 
 export const NoteDateTimeField = ({ required, disabled }) => {
-  const { getLocalisation } = useLocalisation();
+  const { getSetting } = useSettings();
 
   return (
     <Field
@@ -101,7 +101,7 @@ export const NoteDateTimeField = ({ required, disabled }) => {
       label="Date & time"
       component={DateTimeField}
       required={required}
-      disabled={!getLocalisation('features.enableNoteBackdating') || disabled}
+      disabled={!getSetting('features.enableNoteBackdating') || disabled}
       saveDateAsString
     />
   );

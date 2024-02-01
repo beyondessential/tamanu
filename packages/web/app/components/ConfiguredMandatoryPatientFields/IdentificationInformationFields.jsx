@@ -2,13 +2,13 @@ import React from 'react';
 
 import { PATIENT_REGISTRY_TYPES } from '@tamanu/constants';
 
-import { useLocalisation } from '../../contexts/Localisation';
+import { useSettings } from '../../contexts/Settings';
 import { DisplayIdField, TextField } from '..';
 import { ConfiguredMandatoryPatientFields } from './ConfiguredMandatoryPatientFields';
 
 export const IdentificationInformationFields = ({ isEdit, patientRegistryType, showMandatory }) => {
-  const { getLocalisation } = useLocalisation();
-  const canEditDisplayId = isEdit && getLocalisation('features.editPatientDisplayId');
+  const { getSetting } = useSettings();
+  const canEditDisplayId = isEdit && getSetting('features.editPatientDisplayId');
 
   const IDENTIFICATION_INFORMATION_FIELDS = {
     displayId: {

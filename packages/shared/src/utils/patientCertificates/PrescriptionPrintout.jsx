@@ -67,7 +67,7 @@ const generalStyles = StyleSheet.create({
 
 const SectionContainer = props => <View style={generalStyles.container} {...props} />;
 
-const PrescriptionsSection = ({ prescriptions, prescriber, facility, getLocalisation }) => {
+const PrescriptionsSection = ({ prescriptions, prescriber, facility, getSetting }) => {
   return (
     <View>
       <DataSection hideBottomRule title="Prescription details">
@@ -81,7 +81,7 @@ const PrescriptionsSection = ({ prescriptions, prescriber, facility, getLocalisa
         </Col>
       </DataSection>
       <View style={prescriptonSectionStyles.tableContainer}>
-        <Table columns={columns} data={prescriptions} getLocalisation={getLocalisation} />
+        <Table columns={columns} data={prescriptions} getSetting={getSetting} />
       </View>
     </View>
   );
@@ -109,7 +109,7 @@ export const PrescriptionPrintout = ({
   prescriber,
   certificateData,
   facility,
-  getLocalisation,
+  getSetting,
 }) => {
   return (
     <Document>
@@ -117,12 +117,12 @@ export const PrescriptionPrintout = ({
         <CertificateHeader>
           <LetterheadSection
             letterheadConfig={certificateData}
-            getLocalisation={getLocalisation}
+            getSetting={getSetting}
             logoSrc={certificateData.logo}
             certificateTitle="Prescription"
           />
           <SectionContainer>
-            <PatientDetailsWithBarcode patient={patientData} getLocalisation={getLocalisation} />
+            <PatientDetailsWithBarcode patient={patientData} getSetting={getSetting} />
           </SectionContainer>
         </CertificateHeader>
         <CertificateContent>
@@ -131,7 +131,7 @@ export const PrescriptionPrintout = ({
               prescriptions={prescriptions}
               prescriber={prescriber}
               facility={facility}
-              getLocalisation={getLocalisation}
+              getSetting={getSetting}
             />
           </SectionContainer>
           <SectionContainer>

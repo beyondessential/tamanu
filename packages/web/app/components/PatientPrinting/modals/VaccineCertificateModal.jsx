@@ -8,7 +8,6 @@ import { Modal } from '../../Modal';
 import { useApi } from '../../../api';
 import { EmailButton } from '../../Email/EmailButton';
 import { useCertificate } from '../../../utils/useCertificate';
-import { useLocalisation } from '../../../contexts/Localisation';
 import {
   usePatientAdditionalDataQuery,
   useAdministeredVaccines,
@@ -16,10 +15,11 @@ import {
 } from '../../../api/queries';
 
 import { PDFViewer, printPDF } from '../PDFViewer';
+import { useSettings } from '../../../contexts/Settings';
 
 export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) => {
   const api = useApi();
-  const { getLocalisation } = useLocalisation();
+  const { getSetting } = useSettings();
   const { watermark, logo, footerImg, printedBy } = useCertificate({
     footerAssetName: ASSET_NAMES.VACCINATION_CERTIFICATE_FOOTER,
   });
@@ -73,7 +73,7 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
           signingSrc={footerImg}
           printedBy={printedBy}
           printedDate={getCurrentDateString()}
-          getLocalisation={getLocalisation}
+          getSetting={getSetting}
         />
       </PDFViewer>
     </Modal>

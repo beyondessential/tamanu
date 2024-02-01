@@ -5,12 +5,12 @@ import { usePatientData } from '../../../api/queries/usePatientData';
 import { useReferenceData } from '../../../api/queries/useReferenceData';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
 import { Colors } from '../../../constants';
-import { useLocalisation } from '../../../contexts/Localisation';
+import { useSettings } from '../../../contexts/Settings';
 import { useCertificate } from '../../../utils/useCertificate';
 import { Modal } from '../../Modal';
 
 export const MultipleImagingRequestsWrapper = ({ encounter, imagingRequests }) => {
-  const { getLocalisation } = useLocalisation();
+  const { getSetting } = useSettings();
   const certificateData = useCertificate();
   const { data: patient, isLoading: isPatientLoading } = usePatientData(encounter.patientId);
   const isVillageEnabled = patient?.villageId;
@@ -23,7 +23,7 @@ export const MultipleImagingRequestsWrapper = ({ encounter, imagingRequests }) =
   return (
     <PDFViewer id="imaging-request-printout">
       <MultipleImagingRequestsPrintout
-        getLocalisation={getLocalisation}
+        getSetting={getSetting}
         patient={{ ...patient, village }}
         encounter={encounter}
         imagingRequests={imagingRequests}

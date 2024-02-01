@@ -68,8 +68,8 @@ const DetailsKey = props => <Text style={styles.detailsKey} {...props} />;
 const DetailsValue = props => <Text style={styles.detailsValue} {...props} />;
 const BarcodeRow = props => <View style={styles.barcodeRow} {...props} />;
 
-const DetailsRow = ({ name, value, getLocalisation }) => {
-  const label = getLocalisation(`fields.${name}.shortLabel`);
+const DetailsRow = ({ name, value, getSetting }) => {
+  const label = getSetting(`localisation.fields.${name}.shortLabel`);
   return (
     <InfoRow>
       <DetailsKey>{`${label}: `}</DetailsKey>
@@ -93,7 +93,7 @@ export const IDCardPrintout = ({
   patientImageData,
   cardDimensions,
   measures,
-  getLocalisation,
+  getSetting,
 }) => {
   return (
     <Document>
@@ -115,24 +115,24 @@ export const IDCardPrintout = ({
             <DetailsRow
               name="displayId"
               value={patient.displayId}
-              getLocalisation={getLocalisation}
+              getSetting={getSetting}
             />
             <DetailsRow
               name="lastName"
               value={patient.lastName}
-              getLocalisation={getLocalisation}
+              getSetting={getSetting}
             />
             <DetailsRow
               name="firstName"
               value={patient.firstName}
-              getLocalisation={getLocalisation}
+              getSetting={getSetting}
             />
             <DetailsRow
               name="dateOfBirth"
               value={getDOB(patient)}
-              getLocalisation={getLocalisation}
+              getSetting={getSetting}
             />
-            <DetailsRow name="sex" value={getSex(patient)} getLocalisation={getLocalisation} />
+            <DetailsRow name="sex" value={getSex(patient)} getSetting={getSetting} />
           </Details>
         </MainContainer>
         <BarcodeRow>

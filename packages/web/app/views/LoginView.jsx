@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { push } from 'connected-react-router';
 import { Launch } from '@material-ui/icons';
+import { useQuery } from '@tanstack/react-query';
 
 import { Colors, LOCAL_STORAGE_KEYS } from '../constants';
 import { TamanuLogoBlue } from '../components';
@@ -23,7 +24,6 @@ import { useApi } from '../api';
 
 import { SyncHealthNotificationComponent } from '../components/SyncHealthNotification';
 
-import { useLocalisation } from '../contexts/Localisation';
 import { Typography } from '@material-ui/core';
 const { REMEMBER_EMAIL } = LOCAL_STORAGE_KEYS;
 
@@ -109,15 +109,16 @@ export const LoginView = () => {
   const resetPasswordEmail = useSelector(state => state.auth.resetPassword.lastEmailUsed);
   const changePasswordError = useSelector(state => state.auth.changePassword.error);
   const changePasswordSuccess = useSelector(state => state.auth.changePassword.success);
-  const { getLocalisation } = useLocalisation();
   const { appVersion } = api;
 
   const rememberEmail = localStorage.getItem(REMEMBER_EMAIL);
 
   const [screen, setScreen] = useState('login');
 
-  const supportUrl = getLocalisation('supportDeskUrl');
-  const isSupportUrlLoaded = !!supportUrl;
+  const { data: supportDeskData, isLoading: isUrlLoading } = useQuery(
+    ['supportDeskUrl'],
+    () => api.get('public/supportDeskUrl'),
+  );
 
   const submitLogin = async data => {
     const { email, password, rememberMe } = data;
@@ -193,8 +194,8 @@ export const LoginView = () => {
             />
           )}
         </LoginFormContainer>
-        {isSupportUrlLoaded && (
-          <SupportDesktopLink href={supportUrl} target="_blank" rel="noreferrer">
+        {!isUrlLoading && (
+          <SupportDesktopLink href={supportDeskData.url} target="_blank" rel="noreferrer">
             Support centre
             <Launch style={{ marginLeft: '3px', fontSize: '12px' }} />
           </SupportDesktopLink>

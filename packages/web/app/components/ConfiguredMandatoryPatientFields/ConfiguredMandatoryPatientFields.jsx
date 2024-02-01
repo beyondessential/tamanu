@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from 'react';
 
-import { useLocalisation } from '../../contexts/Localisation';
+import { useSettings } from '../../contexts/Settings';
 import { LocalisedField } from '..';
 
 export const ConfiguredMandatoryPatientFields = ({ fields, showMandatory = true }) => {
-  const { getLocalisation } = useLocalisation();
+  const { getSetting } = useSettings();
   const [fieldsToShow, setFieldsToShow] = useState([]);
 
   useEffect(() => {
     const configuredFieldsToShow = Object.keys(fields)
       // Check if fields are mandatory and if we want to show mandatory fields or not
       .filter(
-        fieldName => !!getLocalisation(`fields.${fieldName}.requiredPatientData`) === showMandatory,
+        fieldName => !!getSetting(`localisation.fields.${fieldName}.requiredPatientData`) === showMandatory,
       )
       // Check if any condition is there for vibisibility
       .filter(fieldName => (fields[fieldName].condition ? fields[fieldName].condition() : true))

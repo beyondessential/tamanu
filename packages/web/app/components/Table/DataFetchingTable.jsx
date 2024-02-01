@@ -3,7 +3,7 @@ import { isEqual } from 'lodash';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 import { useApi } from '../../api';
-import { useLocalisation } from '../../contexts/Localisation';
+import { useSettings } from '../../contexts/Settings';
 
 import { Table } from './Table';
 import { TableNotification } from './TableNotification';
@@ -51,9 +51,9 @@ export const DataFetchingTable = memo(
     const tableRef = useRef(null);
     const api = useApi();
 
-    const { getLocalisation } = useLocalisation();
+    const { getSetting } = useSettings();
     const autoRefreshConfig =
-      overrideLocalisationForStorybook || getLocalisation('features.tableAutoRefresh');
+      overrideLocalisationForStorybook || getSetting('features.tableAutoRefresh');
     const enableAutoRefresh = autoRefreshConfig && autoRefreshConfig.enabled && autoRefresh;
 
     // This callback will be passed to table cell accessors so they can force a table refresh

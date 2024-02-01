@@ -4,8 +4,8 @@ import styled from 'styled-components';
 import { Modal } from '../../Modal';
 import { Button } from '../../Button';
 import { Colors } from '../../../constants';
-import { isErrorUnknownAllow404s, useApi } from '../../../api';
-import { useLocalisation } from '../../../contexts/Localisation';
+import { useApi, isErrorUnknownAllow404s } from '../../../api';
+import { useSettings } from '../../../contexts/Settings';
 
 import { PatientIDCardPage } from './PatientIDCardPage';
 import { PatientStickerLabelPage } from './PatientStickerLabelPage';
@@ -31,7 +31,7 @@ const PRINT_OPTIONS = {
   covidClearanceCert: {
     label: 'COVID-19 clearance certificate',
     component: CovidClearanceCertificateModal,
-    condition: getLocalisation => getLocalisation('features.enableCovidClearanceCertificate'),
+    condition: getSetting => getSetting('features.enableCovidClearanceCertificate'),
   },
   birthNotification: {
     label: 'Birth notification',
@@ -40,12 +40,12 @@ const PRINT_OPTIONS = {
 };
 
 const PrintOptionList = ({ className, setCurrentlyPrinting }) => {
-  const { getLocalisation } = useLocalisation();
+  const { getSetting } = useSettings();
 
   return (
     <div className={className}>
       {Object.entries(PRINT_OPTIONS)
-        .filter(([, { condition }]) => !condition || condition(getLocalisation))
+        .filter(([, { condition }]) => !condition || condition(getSetting))
         .map(([type, { label, icon }]) => (
           <PrintOption
             key={type}

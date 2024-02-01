@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import styled from 'styled-components';
-import { useLocalisation } from '../../../contexts/Localisation';
+import React, { useState } from 'react';
+import { useSettings } from '../../../contexts/Settings';
 import { Modal } from '../../Modal';
 import { PDFViewer, printPDF } from '../PDFViewer';
 import { IDCardPrintout } from '@tamanu/shared/utils/patientCertificates';
@@ -11,8 +10,8 @@ const cardDimensions = {
 };
 
 export const PatientIDCardPage = React.memo(({ patient, imageData }) => {
-  const { getLocalisation } = useLocalisation();
-  const measures = getLocalisation('printMeasures.idCardPage');
+  const { getSetting } = useSettings();
+  const measures = getSetting('printMeasures.idCardPage');
   const [open, setOpen] = useState(true);
 
   return (
@@ -30,7 +29,7 @@ export const PatientIDCardPage = React.memo(({ patient, imageData }) => {
           patientImageData={imageData}
           measures={measures}
           patient={patient}
-          getLocalisation={getLocalisation}
+          getSetting={getSetting}
         />
       </PDFViewer>
     </Modal>

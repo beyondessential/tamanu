@@ -162,7 +162,7 @@ export const MultipleLabRequestsPrintout = React.memo(
     labRequests,
     encounter,
     certificateData,
-    getLocalisation,
+    getSetting,
   }) => {
     const { logo } = certificateData;
 
@@ -171,13 +171,13 @@ export const MultipleLabRequestsPrintout = React.memo(
         <Page size="A4" style={styles.page}>
           <CertificateHeader>
             <LetterheadSection
-              getLocalisation={getLocalisation}
+              getSetting={getSetting}
               logoSrc={logo}
               letterheadConfig={certificateData}
               certificateTitle="Lab request"
             />
             <SectionContainer>
-              <PatientDetailsWithBarcode patient={patientData} getLocalisation={getLocalisation} />
+              <PatientDetailsWithBarcode patient={patientData} getSetting={getSetting} />
             </SectionContainer>
             <SectionContainer>
               <EncounterDetails encounter={encounter} />
