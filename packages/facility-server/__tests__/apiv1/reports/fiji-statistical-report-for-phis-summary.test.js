@@ -5,7 +5,6 @@ import {
   createDummyPatient,
   randomReferenceId,
 } from '@tamanu/shared/demoData/patients';
-import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { createTestContext } from '../../utilities';
 import {
   createBreastCancerFormSurveyResponse,
