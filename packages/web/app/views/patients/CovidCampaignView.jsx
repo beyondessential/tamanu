@@ -53,16 +53,17 @@ export const covidVaccinationStatus = {
 
 const COLUMNS = [displayId, firstName, lastName, village, covidVaccinationStatus];
 
-const PatientCovidCampaignTable = React.memo(({ onPatientSelect, getVaccines, ...props }) => (
-  <DataFetchingTable
+const PatientCovidCampaignTable = React.memo(({ onPatientSelect, ...props }) => {
+  delete props.getVaccines;
+  return <DataFetchingTable
     endpoint="patient"
     columns={COLUMNS}
     noDataMessage="No patients found"
     exportName="Covid Campaign"
     onRowClick={onPatientSelect}
     {...props}
-  />
-));
+  />;
+});
 
 export const CovidCampaignView = ({ getPatientVaccinations }) => {
   const [searchParameters, setSearchParameters] = useState({});
