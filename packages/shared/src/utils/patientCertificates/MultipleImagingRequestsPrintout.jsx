@@ -10,7 +10,6 @@ import { NOTE_TYPES } from '@tamanu/constants/notes';
 import { LetterheadSection } from './LetterheadSection';
 import { DataItem } from './printComponents/DataItem';
 import { EncounterDetails } from './printComponents/EncounterDetails';
-import { Footer } from './printComponents/Footer';
 import { HorizontalRule } from './printComponents/HorizontalRule';
 import { MultiPageHeader } from './printComponents/MultiPageHeader';
 import { PatientDetailsWithBarcode } from './printComponents/PatientDetailsWithBarcode';

@@ -36,7 +36,7 @@ export const DischargeSummaryView = React.memo(() => {
   const { encounter } = useEncounter();
   const { title, subTitle, logo } = useCertificate();
   const patient = useSelector(state => state.patient);
-  const { data: additionalData } = usePatientAdditionalDataQuery(
+  const { data: additionalData, isLoading: isPADLoading } = usePatientAdditionalDataQuery(
     patient.id,
   );
   const { data: village } = useReferenceData(patient?.villageId);

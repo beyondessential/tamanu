@@ -472,13 +472,6 @@ const encounter = {
   ],
 };
 
-const certificateData = {
-  title: 'TAMANU MINISTRY OF HEALTH & MEDICAL SERVICES',
-  subTitle: 'PO Box 12345, Melbourne, Australia',
-  logo: Logo,
-  watermark: Watermark,
-};
-
 export const DischargeSummaryPrintout = {
   render: () => (
     <PDFViewer width={800} height={1000} showToolbar={false}>
