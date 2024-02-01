@@ -3,7 +3,7 @@ import { CentralServerConnection, MobileSyncManager } from './sync';
 import { readConfig } from './config';
 import { AuthService } from './auth';
 import { AuthenticationError } from './error';
-import { LocalisationService } from './localisation';
+import { SettingService } from './settings';
 import { PermissionsService } from './permissions';
 import { MODELS_MAP } from '../models/modelsMap';
 
@@ -24,18 +24,18 @@ export class BackendManager {
 
   auth: AuthService;
 
-  localisation: LocalisationService;
+  settings: SettingService;
 
   permissions: PermissionsService;
 
-  interval: number;
+  interval: NodeJS.Timeout;
 
   constructor() {
     const { models } = Database;
     this.models = models;
     this.centralServer = new CentralServerConnection();
     this.auth = new AuthService(models, this.centralServer);
-    this.localisation = new LocalisationService(this.auth);
+    this.settings = new SettingService(this.auth);
     this.permissions = new PermissionsService(this.auth);
     this.syncManager = new MobileSyncManager(this.centralServer);
   }

@@ -1,6 +1,6 @@
 import React, { PropsWithChildren, ReactElement } from 'react';
 
-import { useLocalisation } from '~/ui/contexts/LocalisationContext';
+import { useSettings } from '~/ui/contexts/SettingContext';
 import { StyledView } from '~/ui/styled/common';
 import { SectionHeader } from '~/ui/components/SectionHeader';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
@@ -19,30 +19,22 @@ export const Section = ({
   localisationPath,
   children,
 }: PropsWithChildren<ISection>): ReactElement => {
-  const { getString, getBool } = useLocalisation();
+  const { getSetting } = useSettings();
 
   let title: string;
   if (localisationPath) {
-    const isHidden = getBool(`${localisationPath}.hidden`);
+    const isHidden = getSetting<boolean>(`${localisationPath}.hidden`);
     if (isHidden) {
       return null;
     }
-    title = getString(`${localisationPath}.longLabel`);
+    title = getSetting<string>(`${localisationPath}.longLabel`);
   } else if (title) {
     title = propTitle;
   }
   return (
     <>
-      <StyledView
-        paddingTop={20}
-        paddingLeft={20}
-        paddingRight={20}
-        marginBottom={20}
-      >
-        <SectionHeader
-          h1
-          marginBottom={screenPercentageToDP(2.43, Orientation.Height)}
-        >
+      <StyledView paddingTop={20} paddingLeft={20} paddingRight={20} marginBottom={20}>
+        <SectionHeader h1 marginBottom={screenPercentageToDP(2.43, Orientation.Height)}>
           {title}
         </SectionHeader>
         {children}
