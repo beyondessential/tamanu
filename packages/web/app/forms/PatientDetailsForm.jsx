@@ -1,15 +1,14 @@
+import React, { Fragment, useCallback, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { groupBy, isEmpty } from 'lodash';
-import React, { Fragment, useCallback, useState } from 'react';
 import styled from 'styled-components';
 
 import NotificationsNoneIcon from '@material-ui/icons/NotificationsNone';
 import {
   PATIENT_FIELD_DEFINITION_TYPES,
-  PATIENT_FIELD_DEFINITION_TYPES,
   PATIENT_REGISTRY_TYPES,
   PLACE_OF_BIRTH_TYPES,
-  SEX_OPTIONS,
+  SEX_OPTIONS
 } from '@tamanu/constants';
 import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
 
