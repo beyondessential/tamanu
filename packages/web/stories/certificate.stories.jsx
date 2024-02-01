@@ -10,7 +10,6 @@ import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import SigningImage from './assets/signing-image.png';
 import Watermark from './assets/watermark.png';
 import Logo from './assets/tamanu-logo.png';
-import { Modal } from '../app/components';
 
 const dummyPatient = createDummyPatient();
 const dummyAdditionalData = createDummyPatientAdditionalData();
@@ -88,18 +87,6 @@ const getLocalisation = key => {
     previewUvciFormat: 'tamanu',
   };
   return config[key];
-};
-
-const certificateData = {
-  title: 'Tamanu Ministry of Health & Medical Services',
-  subTitle: 'PS Box 123456, Melbourne, Australia',
-  logo: Logo,
-  logoType: 'image/png',
-  watermark: Watermark,
-  watermarkType: 'image/png',
-  footerImg: SigningImage,
-  footerImgType: 'image/png',
-  printedBy: 'Initial Admin',
 };
 
 storiesOf('Certificates', module).add('CovidLabCertificate', () => (

@@ -56,6 +56,7 @@ export interface Extension {
 // cannot be interpreted is a fatal error. In other words, non-critical
 // extensions can be ignored. The criticality of an extension is specified by
 // 9303-12, generally in the tables in §7.1.
+/* eslint-disable no-unused-vars */
 export enum ExtensionName {
   AuthorityKeyIdentifier = 'AuthorityKeyIdentifier',
   BasicConstraints = 'BasicConstraints',
@@ -68,6 +69,7 @@ export enum ExtensionName {
   SubjectAltName = 'SubjectAltName',
   SubjectKeyIdentifier = 'SubjectKeyIdentifier',
 }
+/* eslint-enable no-unused-vars */
 
 export const ComputedExtension = 'computed';
 
@@ -177,10 +179,12 @@ const NAME_OIDS = new Map(
   }),
 );
 
+/* eslint-disable no-unused-vars */
 enum AltVariant {
   Subject = 0,
   Issuer = 1,
 }
+/* eslint-enable no-unused-vars */
 
 // SubjectAltName (SAN) and IssuerAltName (IAN): two standard (X.509) extensions
 // that contain a list of alternative names for the subject or issuer of a

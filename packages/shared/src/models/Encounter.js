@@ -529,7 +529,7 @@ export class Encounter extends Model {
         await EncounterHistory.createSnapshot(updatedEncounter, {
           actorId: user?.id,
           changeType,
-          submittedTime: data.submittedTime,
+          submittedTime,
         });
       }
 

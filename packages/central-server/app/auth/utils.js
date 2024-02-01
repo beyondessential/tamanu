@@ -16,17 +16,18 @@ const verify = promisify(verifyCallback);
 const MAX_U32_VALUE = 2 ** 32 - 1;
 
 export const stripUser = user => {
-  const { password, ...userData } = user;
+  const userData = { ...user };
+  delete userData.password;
   return userData;
 };
 
 export const getToken = async (data, secret, options) => sign(data, secret, options);
 
-export const getRandomBase64String = async length => {
+export const getRandomBase64String = async (length, encoding = 'base64') => {
   return new Promise((resolve, reject) => {
     randomBytes(length, (err, buf) => {
       if (err) reject(err);
-      resolve(buf.toString('base64'));
+      resolve(buf.toString(encoding));
     });
   });
 };
