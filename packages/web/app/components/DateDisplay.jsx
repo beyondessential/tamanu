@@ -154,13 +154,13 @@ export const getDateDisplay = (
 };
 
 export const DateDisplay = React.memo(
-  ({ date: dateValue, timeOnlyTooltip = false, color = 'unset', ...props }) => {
+  ({ date: dateValue, timeOnlyTooltip = false, color = 'unset', fontWeight, ...props }) => {
     const displayDateString = getDateDisplay(dateValue, { ...props });
     const dateObj = parseDate(dateValue);
 
     return (
       <DateTooltip date={dateObj} timeOnlyTooltip={timeOnlyTooltip}>
-        <span style={{ color }}>{displayDateString}</span>
+        <span style={{ color, fontWeight }}>{displayDateString}</span>
       </DateTooltip>
     );
   },

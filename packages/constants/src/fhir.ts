@@ -121,6 +121,16 @@ export const FHIR_BUNDLE_TYPES = {
   COLLECTION: 'collection',
 };
 
+export const FHIR_RESOURCE_TYPES = {
+  BUNDLE: 'Bundle',
+  COMPOSITION: 'Composition',
+  PATIENT: 'Patient',
+  MEDICATION_STATEMENT: 'MedicationStatement',
+  ALLERGY_INTOLERANCE: 'AllergyIntolerance',
+  CONDITION: 'Condition',
+  IMMUNIZATION: 'Immunization',
+};
+
 export const FHIR_ISSUE_SEVERITY = {
   INFORMATION: 'information',
   WARNING: 'warning',
@@ -280,3 +290,10 @@ export const FHIR_LOCATION_PHYSICAL_TYPE_DISPLAY = Object.fromEntries(
     `${k.substring(0, 1).toUpperCase()}${k.substring(1).toLowerCase()}`,
   ]),
 );
+
+export const IPS_REQUEST_STATUSES = {
+  QUEUED: 'Queued',
+  PROCESSED: 'Processed',
+  ERROR: 'Error',
+  IGNORE: 'Ignore',
+};

@@ -7,5 +7,6 @@ export async function initDeviceId(context) {
     deviceId = `facility-${shortid()}`;
     await LocalSystemFact.set('deviceId', deviceId);
   }
+  // eslint-disable-next-line require-atomic-updates
   context.deviceId = deviceId;
 }
