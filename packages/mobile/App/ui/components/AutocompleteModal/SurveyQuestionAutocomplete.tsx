@@ -1,13 +1,10 @@
 import React from 'react';
-import { Routes } from '~/ui/helpers/routes';
 import { Suggester } from '~/ui/helpers/suggester';
-import { AutocompleteSourceToColumnMap } from '~/ui/helpers/constants';
 import { useFacility } from '~/ui/contexts/FacilityContext';
 import { useBackend } from '~/ui/hooks';
-import { StyledText } from '~/ui/styled/common';
-import { theme } from '~/ui/styled/theme';
 import { AutocompleteModalField } from './AutocompleteModalField';
 import { SurveyScreenConfig } from '~/types';
+import { getNameColumnForModel, getDisplayNameForModel } from '~/ui/helpers/fields';
 
 const useFilterByResource = ({ source, scope }: SurveyScreenConfig): object => {
   const { facilityId } = useFacility();
@@ -24,24 +21,14 @@ export const SurveyQuestionAutocomplete = (props): JSX.Element => {
   const filter = useFilterByResource(props.config);
   const { source, where } = props.config;
 
-  const columnName = AutocompleteSourceToColumnMap[source];
-
-  if (!columnName) {
-    return (
-      <StyledText color={theme.colors.ALERT} fontWeight="bold">
-        Error: invalid source supplied for Autocomplete question: {props.name}
-      </StyledText>
-    );
-  }
-
   const suggester = new Suggester(
     models[source],
     {
       where: { ...where, ...filter },
-      column: columnName,
+      column: getNameColumnForModel(source),
     },
     val => ({
-      label: val[columnName],
+      label: getDisplayNameForModel(source, val),
       value: val.id,
     }),
   );

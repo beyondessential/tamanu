@@ -26,6 +26,9 @@ export const simpleUpdateModels = [
   'CertificateNotification',
   'DeathRevertLog',
   'UserRecentlyViewedPatient',
+  'PatientProgramRegistration',
+  'PatientProgramRegistrationCondition',
+  'IPSRequest',
 ];
 
 // These ones need a little more attention.

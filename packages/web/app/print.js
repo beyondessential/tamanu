@@ -1,7 +1,7 @@
 // TODO(web)
 export const PRINT_EVENT = 'print-page';
 
-export const printPage = (options = {}) => {
+export const printPage = (/* options = {} */) => {
   // ipcRenderer.send(PRINT_EVENT, options);
 };
 

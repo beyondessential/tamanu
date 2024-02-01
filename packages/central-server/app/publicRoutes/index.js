@@ -20,5 +20,9 @@ if (cors.allowedOrigin) {
   );
 }
 
+publicRoutes.get('/ping', (_req, res) => {
+  res.send({ ok: true });
+});
+
 publicRoutes.use('/labResultWidget', labResultWidgetRoutes);
 publicRoutes.use('/integration', publicIntegrationRoutes);

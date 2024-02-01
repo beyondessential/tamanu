@@ -96,6 +96,8 @@ export const executeDeletes = async (
       );
     }
   }
+
+  await executeUpdates(model, recordsForDelete);
 };
 
 export const executeRestores = async (
