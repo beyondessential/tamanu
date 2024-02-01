@@ -168,7 +168,7 @@ const causeOfDeathAccessor = ({ causes }) => {
 };
 
 // Death certificate has a slightly different DOB format to other certificates so needs it's own accessor
-export const getDOB = ({ dateOfBirth }, getLocalisation) =>
+const getDOB = ({ dateOfBirth }, getLocalisation) =>
   dateOfBirth ? getDisplayDate(dateOfBirth, 'd MMM yyyy', getLocalisation) : 'Unknown';
 
 const HEADER_FIELDS = {
