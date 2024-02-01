@@ -10,12 +10,12 @@ import { DataItem } from './printComponents/DataItem';
 import { PrintableBarcode } from './printComponents/PrintableBarcode';
 import { HorizontalRule } from './printComponents/HorizontalRule';
 import { EncounterDetails } from './printComponents/EncounterDetails';
-import { MultiPageHeader } from './printComponents/MultiPageHeader';
-import { Footer } from './printComponents/Footer';
-import { getName } from '../patientAccessors';
 import { getDisplayDate } from './getDisplayDate';
+import { DoubleHorizontalRule } from './printComponents/DoubleHorizontalRule';
 
 const DATE_TIME_FORMAT = 'dd/MM/yyyy h:mma';
+const headingFontSize = 11;
+const textFontSize = 9;
 
 const signingSectionStyles = StyleSheet.create({
   underlinedText: {
@@ -23,6 +23,11 @@ const signingSectionStyles = StyleSheet.create({
   },
   signatureView: {
     paddingRight: 32,
+  },
+  disclaimerText: {
+    fontFamily: 'Helvetica-Oblique',
+    fontSize: 8,
+    fontStyle: 'italic',
   },
 });
 
@@ -39,7 +44,7 @@ const labDetailsSectionStyles = StyleSheet.create({
   },
   heading: {
     fontFamily: 'Helvetica-Bold',
-    fontSize: 14,
+    fontSize: 11,
     fontWeight: 500,
     marginVertical: 3,
   },
@@ -55,22 +60,29 @@ const SectionContainer = props => <View style={generalStyles.container} {...prop
 
 const LabRequestSigningSection = () => {
   const BaseSigningSection = ({ title }) => (
-    <Col>
-      <P bold style={signingSectionStyles.underlinedText}>
+    <View style={{ flexDirection: 'column' }}>
+      <P bold style={signingSectionStyles.underlinedText} fontSize={9}>
         {title}
       </P>
       <View style={signingSectionStyles.signatureView}>
-        <Signature text={'Signed'} />
-        <Signature text={'Date'} />
+        <Signature text="Signed" fontSize={textFontSize} lineThickness={0.5} />
+        <Signature text="Date" fontSize={textFontSize} lineThickness={0.5} />
       </View>
-    </Col>
+    </View>
   );
 
   return (
     <View>
       <Row>
-        <BaseSigningSection title="Clinician" />
-        <BaseSigningSection title="Patient" />
+        <Col>
+          <BaseSigningSection title="Clinician" />
+        </Col>
+        <Col>
+          <BaseSigningSection title="Patient" />
+          <Text style={signingSectionStyles.disclaimerText}>
+            Patient to sign if required, according to local regulations
+          </Text>
+        </Col>
       </Row>
     </View>
   );
@@ -85,14 +97,16 @@ const LabRequestDetailsView = ({ labRequests }) => {
   };
 
   const notesAccessor = ({ notes }) => {
-    return notes?.map(note => note.content).join(', ');
+    return notes?.map(note => note.content).join(',\n');
   };
 
   return (
     <View>
-      <Text style={labDetailsSectionStyles.heading}>Lab request details</Text>
-      <HorizontalRule width="0.5px" />
-      {labRequests.map(request => {
+      <P bold fontSize={headingFontSize} mb={3}>
+        Lab request details
+      </P>
+      <HorizontalRule />
+      {labRequests.map((request, index) => {
         return (
           <View key={request.id} style={labDetailsSectionStyles.detailsContainer}>
             <Row>
@@ -109,7 +123,7 @@ const LabRequestDetailsView = ({ labRequests }) => {
               </Col>
               <Col>
                 <Row>
-                  <P style={labDetailsSectionStyles.barcodeLabelText} bold>
+                  <P style={labDetailsSectionStyles.barcodeLabelText} fontSize={textFontSize} bold>
                     Request ID barcode:
                   </P>
                   <PrintableBarcode id={request.displayId} />
@@ -119,7 +133,7 @@ const LabRequestDetailsView = ({ labRequests }) => {
             <Row>
               <DataItem label="Notes" value={notesAccessor(request)} />
             </Row>
-            <HorizontalRule width="0.5px" />
+            <HorizontalRule />
             <Row>
               <Col>
                 <DataItem
@@ -133,10 +147,11 @@ const LabRequestDetailsView = ({ labRequests }) => {
                 <DataItem label="Specimen type" value={request.specimenType?.name} />
               </Col>
             </Row>
-            <View style={labDetailsSectionStyles.divider} />
+            {index < labRequests.length - 1 && <View style={labDetailsSectionStyles.divider} />}
           </View>
         );
       })}
+      <DoubleHorizontalRule />
     </View>
   );
 };
@@ -154,17 +169,12 @@ export const MultipleLabRequestsPrintout = React.memo(
     return (
       <Document>
         <Page size="A4" style={styles.page}>
-          <MultiPageHeader
-            documentName="Lab request"
-            patientName={getName(patientData)}
-            patiendId={patientData.displayId}
-          />
           <CertificateHeader>
             <LetterheadSection
               getLocalisation={getLocalisation}
               logoSrc={logo}
               letterheadConfig={certificateData}
-              certificateTitle="Lab Request"
+              certificateTitle="Lab request"
             />
             <SectionContainer>
               <PatientDetailsWithBarcode patient={patientData} getLocalisation={getLocalisation} />
@@ -181,7 +191,6 @@ export const MultipleLabRequestsPrintout = React.memo(
               <LabRequestSigningSection labRequests={labRequests} />
             </SectionContainer>
           </CertificateContent>
-          <Footer />
         </Page>
       </Document>
     );

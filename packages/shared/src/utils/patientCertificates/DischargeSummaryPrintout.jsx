@@ -6,6 +6,7 @@ import { PatientDetailsWithAddress } from './printComponents/PatientDetailsWithA
 import { DIAGNOSIS_CERTAINTIES_TO_HIDE } from '@tamanu/constants';
 import { EncounterDetailsExtended } from './printComponents/EncounterDetailsExtended';
 import { Footer } from './printComponents/Footer';
+import { P } from './Typography';
 
 const borderStyle = '1 solid black';
 const tableLabelWidth = 150;
@@ -90,12 +91,7 @@ const notesSectionStyles = StyleSheet.create({
   notesBox: {
     border: borderStyle,
     height: 76,
-  },
-  title: {
-    fontFamily: 'Helvetica-Bold',
-    marginBottom: 3,
-    fontSize: 11,
-    fontWeight: 500,
+    padding: 10,
   },
 });
 
@@ -142,10 +138,14 @@ const ProceduresTable = ({ procedures, getLocalisation }) => (
   <InfoBox label="Procedures" info={extractProceduresInfo({ procedures, getLocalisation })} />
 );
 
-const NotesSection = () => (
+const NotesSection = ({ notes }) => (
   <View>
-    <Text style={notesSectionStyles.title}>Discharge planning notes</Text>
-    <View style={notesSectionStyles.notesBox} />
+    <P bold fontSize={11} mb={3}>
+      Discharge planning notes
+    </P>
+    <View style={notesSectionStyles.notesBox}>
+      <Text style={infoBoxStyles.infoText}>{notes}</Text>
+    </View>
   </View>
 );
 
@@ -177,12 +177,12 @@ const MedicationsTable = ({ medications }) => {
       </MedicationsTableTitleCol>
       <View style={{ flexDirection: 'column', flex: 1 }}>
         <MedicationsTableInfoBox
-          label="Current medications"
+          label="Current"
           info={currentMedications.map(item => item?.medication?.name)}
           hasBottomBorder={true}
         />
         <MedicationsTableInfoBox
-          label="Discontinued medications"
+          label="Discontinued"
           info={discontinuedMedications.map(item => item?.medication?.name)}
           hasBottomBorder={false}
         />
@@ -194,6 +194,8 @@ const MedicationsTable = ({ medications }) => {
 export const DischargeSummaryPrintout = ({
   patientData,
   encounter,
+  discharge,
+  patientConditions,
   logo,
   title,
   subTitle,
@@ -206,6 +208,7 @@ export const DischargeSummaryPrintout = ({
   const primaryDiagnoses = visibleDiagnoses.filter(d => d.isPrimary);
   const secondaryDiagnoses = visibleDiagnoses.filter(d => !d.isPrimary);
   const letterheadConfig = { title: title, subTitle: subTitle };
+  const notes = discharge?.note;
 
   return (
     <Document>
@@ -222,9 +225,18 @@ export const DischargeSummaryPrintout = ({
           <PatientDetailsWithAddress patient={patientData} getLocalisation={getLocalisation} />
         </SectionContainer>
         <SectionContainer>
-          <EncounterDetailsExtended encounter={encounter} />
+          <EncounterDetailsExtended encounter={encounter} discharge={discharge} />
         </SectionContainer>
         <SectionContainer>
+          {patientConditions.length > 0 && (
+            <TableContainer>
+              <DiagnosesTable
+                title="Ongoing conditions"
+                diagnoses={patientConditions}
+                getLocalisation={getLocalisation}
+              />
+            </TableContainer>
+          )}
           {primaryDiagnoses.length > 0 && (
             <TableContainer>
               <DiagnosesTable
@@ -255,9 +267,8 @@ export const DischargeSummaryPrintout = ({
           )}
         </SectionContainer>
         <SectionContainer>
-          <NotesSection />
+          <NotesSection notes={notes} />
         </SectionContainer>
-        <Footer />
       </Page>
     </Document>
   );

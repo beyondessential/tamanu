@@ -11,9 +11,7 @@ import { DataItem } from './printComponents/DataItem';
 import { getDisplayDate } from './getDisplayDate';
 import { getCurrentDateString } from '../dateTime';
 import { LetterheadSection } from './LetterheadSection';
-import { Footer } from './printComponents/Footer';
-import { MultiPageHeader } from './printComponents/MultiPageHeader';
-import { getName } from '../patientAccessors';
+import { P } from './Typography';
 
 const columns = [
   {
@@ -49,12 +47,6 @@ const prescriptonSectionStyles = StyleSheet.create({
 });
 
 const notesSectionStyles = StyleSheet.create({
-  title: {
-    fontFamily: 'Helvetica-Bold',
-    marginBottom: 3,
-    fontSize: 14,
-    fontWeight: 500,
-  },
   notesContainer: {
     border: '1px solid black',
     height: 69,
@@ -97,14 +89,16 @@ const PrescriptionsSection = ({ prescriptions, prescriber, facility, getLocalisa
 
 const PrescriptionSigningSection = () => (
   <View style={signingSectionStyles.container}>
-    <Signature text="Signed" />
-    <Signature text="Date" />
+    <Signature fontSize={9} lineThickness={0.5} text="Signed" />
+    <Signature fontSize={9} lineThickness={0.5} text="Date" />
   </View>
 );
 
 const NotesSection = () => (
   <View>
-    <Text style={notesSectionStyles.title}>Notes</Text>
+    <P bold fontSize={11} mb={3}>
+      Notes
+    </P>
     <View style={notesSectionStyles.notesContainer} />
   </View>
 );
@@ -113,7 +107,6 @@ export const PrescriptionPrintout = ({
   patientData,
   prescriptions,
   prescriber,
-  encounterData,
   certificateData,
   facility,
   getLocalisation,
@@ -121,13 +114,9 @@ export const PrescriptionPrintout = ({
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        <MultiPageHeader
-          documentName="Prescription"
-          patientName={getName(patientData)}
-          patiendId={patientData?.displayId}
-        />
         <CertificateHeader>
           <LetterheadSection
+            letterheadConfig={certificateData}
             getLocalisation={getLocalisation}
             logoSrc={certificateData.logo}
             certificateTitle="Prescription"
@@ -141,7 +130,6 @@ export const PrescriptionPrintout = ({
             <PrescriptionsSection
               prescriptions={prescriptions}
               prescriber={prescriber}
-              encounter={encounterData}
               facility={facility}
               getLocalisation={getLocalisation}
             />
@@ -153,7 +141,6 @@ export const PrescriptionPrintout = ({
             <PrescriptionSigningSection />
           </SectionContainer>
         </CertificateContent>
-        <Footer />
       </Page>
     </Document>
   );
