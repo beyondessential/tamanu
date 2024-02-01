@@ -57,7 +57,6 @@ const MultipleImagingRequestSigningSection = () => {
 const getImagingRequestType = imagingTypes => ({ imagingType }) =>
   imagingTypes[imagingType]?.label || 'Unknown';
 
-
 const getAreaNote = ({ areas, areaNote }) => {
   if (areas && areas.length > 0) {
     return areas.join(',');
@@ -70,14 +69,16 @@ const getAreaNote = ({ areas, areaNote }) => {
   return '';
 };
 
-
 const ImagingRequestDetailsView = ({ imagingRequests, getLocalisation }) => {
   const notesAccessor = ({ notes }) => {
-    return notes?.filter(note => note.noteType === NOTE_TYPES.OTHER).map(note => note.content).join(', ');
+    return notes
+      ?.filter(note => note.noteType === NOTE_TYPES.OTHER)
+      .map(note => note.content)
+      .join(', ');
   };
 
   const imagingTypes = getLocalisation('imagingTypes') || {};
-  
+
   return (
     <View>
       <Text style={labDetailsSectionStyles.heading}>Imaging request details</Text>
@@ -98,8 +99,11 @@ const ImagingRequestDetailsView = ({ imagingRequests, getLocalisation }) => {
               </Col>
               <Col>
                 <Row>
-                  <DataItem label="Requested date & time" value={getDisplayDate(imagingRequest.requestedDate, DATE_TIME_FORMAT)}/>
-                  <DataItem label="Requested by"  value={imagingRequest.requestedBy?.displayName}  />  
+                  <DataItem
+                    label="Requested date & time"
+                    value={getDisplayDate(imagingRequest.requestedDate, DATE_TIME_FORMAT)}
+                  />
+                  <DataItem label="Requested by" value={imagingRequest.requestedBy?.displayName} />
                 </Row>
               </Col>
             </Row>
@@ -112,13 +116,7 @@ const ImagingRequestDetailsView = ({ imagingRequests, getLocalisation }) => {
 };
 
 export const MultipleImagingRequestsPrintout = React.memo(
-  ({
-    patient,
-    imagingRequests,
-    encounter,
-    certificateData,
-    getLocalisation,
-  }) => {
+  ({ patient, imagingRequests, encounter, certificateData, getLocalisation }) => {
     const { logo } = certificateData;
     return (
       <Document>
@@ -126,7 +124,7 @@ export const MultipleImagingRequestsPrintout = React.memo(
           <MultiPageHeader
             documentName="Imaging request"
             patientName={getName(patient)}
-            patiendId={patient.displayId}
+            patientId={patient.displayId}
           />
           <CertificateHeader>
             <LetterheadSection
@@ -144,7 +142,10 @@ export const MultipleImagingRequestsPrintout = React.memo(
           </CertificateHeader>
           <CertificateContent>
             <SectionContainer>
-              <ImagingRequestDetailsView imagingRequests={imagingRequests} getLocalisation={getLocalisation} />
+              <ImagingRequestDetailsView
+                imagingRequests={imagingRequests}
+                getLocalisation={getLocalisation}
+              />
             </SectionContainer>
             <SectionContainer>
               <MultipleImagingRequestSigningSection />

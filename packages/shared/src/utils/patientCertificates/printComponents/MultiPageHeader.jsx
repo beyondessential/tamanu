@@ -3,22 +3,27 @@ import React from 'react';
 
 const styles = StyleSheet.create({
   header: {
-    position: 'absolute',
+    // position: 'absolute',
     flexDirection: 'row',
-    top: 25,
-    right: 50,
+    // top: 25,
+    // right: 50,
+    display: 'flex',
+    alignSelf: 'flex-end',
+    marginBottom: 20,
   },
 
   labelText: {
     fontSize: 8,
     fontWeight: 400,
     fontFamily: 'Helvetica-Bold',
+    color: '#888888',
   },
 
   valueText: {
     fontSize: 8,
     fontWeight: 400,
     fontFamily: 'Helvetica',
+    color: '#888888',
   },
 });
 
@@ -34,7 +39,7 @@ const ValueText = ({ children, props }) => (
   </Text>
 );
 
-export const MultiPageHeader = ({ documentName, patientName, patiendId }) => {
+export const MultiPageHeader = ({ documentName, patientName, patientId }) => {
   const HeaderContent = () => (
     <>
       <LabelText>{documentName}</LabelText>
@@ -43,11 +48,16 @@ export const MultiPageHeader = ({ documentName, patientName, patiendId }) => {
       <ValueText>: {patientName}</ValueText>
       <ValueText> | </ValueText>
       <LabelText>Patient ID</LabelText>
-      <ValueText>: {patiendId}</ValueText>
+      <ValueText>: {patientId}</ValueText>
     </>
   );
 
   return (
-    <View style={styles.header} render={({ pageNumber }) => pageNumber > 1 && <HeaderContent />} />
+    // <View style={styles.header} render={({ pageNumber }) => <HeaderContent />} fixed />
+    <View
+      style={styles.header}
+      render={({ pageNumber }) => pageNumber > 1 && <HeaderContent />}
+      fixed
+    />
   );
 };

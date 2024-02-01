@@ -13,12 +13,22 @@ import {
 } from '@tamanu/constants';
 import { getDisplayDate } from './getDisplayDate';
 import { EncounterDetailsExtended } from './printComponents/EncounterDetailsExtended';
+import { MultiPageHeader } from './printComponents/MultiPageHeader';
+import { getName } from '../patientAccessors';
 
 const borderStyle = '1 solid black';
 
 const DATE_FORMAT = 'dd/MM/yyyy';
 
 const DATE_TIME_FORMAT = 'dd/MM/yyyy h:mma';
+
+const pageStyles = StyleSheet.create({
+  body: {
+    paddingHorizontal: 50,
+    paddingTop: 30,
+    paddingBottom: 70,
+  },
+});
 
 const textStyles = StyleSheet.create({
   sectionTitle: {
@@ -186,7 +196,7 @@ const COLUMNS = {
     },
     {
       key: 'requestedByName',
-      title: 'Requested By',
+      title: 'Requested by',
       style: { width: '20%' },
     },
     {
@@ -278,8 +288,8 @@ const COLUMNS = {
 };
 
 const DataTable = ({ data, columns }) => (
-  <Table>
-    <Row>
+  <Table break>
+    <Row fixed wrap={false}>
       {columns.map(({ key, title, style }) => (
         <HeaderCell key={key} style={style}>
           {title}
@@ -287,7 +297,7 @@ const DataTable = ({ data, columns }) => (
       ))}
     </Row>
     {data.map(row => (
-      <Row key={row.id}>
+      <Row key={row.id} wrap={false}>
         {columns.map(({ key, accessor, style }) => (
           <Cell key={key} style={style}>
             {accessor ? accessor(row) : row[key] || ''}
@@ -299,55 +309,68 @@ const DataTable = ({ data, columns }) => (
 );
 
 const TableSection = ({ title, data, columns }) => {
+  let firstPageOccurence = Number.MAX_SAFE_INTEGER;
   return (
     <View>
-      <Text style={textStyles.sectionTitle}>{title}</Text>
+      <Text
+        style={textStyles.sectionTitle}
+        fixed
+        render={({ pageNumber, subPageNumber }) => {
+          if (pageNumber < firstPageOccurence && subPageNumber) {
+            firstPageOccurence = pageNumber;
+          }
+          return pageNumber === firstPageOccurence ? title : `${title} cont...`;
+        }}
+      >
+        {title}
+      </Text>
       <DataTable data={data} columns={columns} />
       <SectionSpacing />
     </View>
   );
 };
 
-const NotesSection = ({ notes }) => (
-  <View>
-    <Text style={textStyles.sectionTitle}>Notes</Text>
-    <Table>
-      {notes.map(note => (
-        <Row key={note.id}>
-          <FlexCell>
-            <Text style={textStyles.tableColumnHeader}>{NOTE_TYPE_LABELS[note.noteType]}</Text>
-            {`\n`}
-            <Text style={textStyles.tableCellContent}>{note.content}</Text>
-            {`\n`}
-            <Text style={textStyles.tableCellFooter}>
-              {note.noteType === NOTE_TYPES.TREATMENT_PLAN ? 'Last updated: ' : ''}
-            </Text>
-            <Text style={textStyles.tableCellFooter}>{note.author?.displayName || ''}</Text>
-            <Text style={textStyles.tableCellFooter}>
-              {note.onBehalfOf ? ` on behalf of ${note.onBehalfOf.displayName}` : null}
-            </Text>
-            <Text style={textStyles.tableCellFooter}>
-              {`${getDisplayDate(note.date)} ${getDisplayDate(note.date, 'h:mma')}`}
-            </Text>
-          </FlexCell>
-        </Row>
-      ))}
-    </Table>
-  </View>
-);
-
-const EncounterRecordHeader = ({ patient }) => (
-  <View style={{ flexDirection: 'row' }}>
-    <Text style={textStyles.headerLabel}>Patient encounter record | </Text>
-    <Text style={textStyles.headerLabel}>Patient name: </Text>
-    <Text style={textStyles.headerValue}>
-      {patient.firstName} {patient.lastName} |{' '}
-    </Text>
-    <Text style={textStyles.headerLabel}>Patient ID: </Text>
-    <Text style={textStyles.headerValue}>{patient.displayId}</Text>
-  </View>
-);
-
+const NotesSection = ({ notes }) => {
+  let firstPageOccurence = Number.MAX_SAFE_INTEGER;
+  return (
+    <View>
+      <Text
+        style={textStyles.sectionTitle}
+        fixed
+        render={({ pageNumber, subPageNumber }) => {
+          if (pageNumber < firstPageOccurence && subPageNumber) {
+            firstPageOccurence = pageNumber;
+          }
+          return pageNumber === firstPageOccurence ? 'Notes' : 'Notes cont...';
+        }}
+      ></Text>
+      <Table>
+        {/*<View style={{ borderTop: '1px solid black' }} fixed />*/}
+        {notes.map(note => (
+          <Row key={note.id}>
+            <FlexCell>
+              <Text style={textStyles.tableColumnHeader}>{NOTE_TYPE_LABELS[note.noteType]}</Text>
+              {`\n`}
+              <Text style={textStyles.tableCellContent}>{note.content}</Text>
+              {`\n`}
+              <Text style={textStyles.tableCellFooter}>
+                {note.noteType === NOTE_TYPES.TREATMENT_PLAN ? 'Last updated: ' : ''}
+              </Text>
+              <Text style={textStyles.tableCellFooter}>{note.author?.displayName || ''}</Text>
+              <Text style={textStyles.tableCellFooter}>
+                {note.onBehalfOf ? ` on behalf of ${note.onBehalfOf.displayName}` : null}
+              </Text>
+              <Text style={textStyles.tableCellFooter}>
+                {` ${getDisplayDate(note.date)} ${getDisplayDate(note.date, 'h:mma')}`}
+              </Text>
+            </FlexCell>
+          </Row>
+        ))}
+        <View style={{ borderBottom: '1px solid black' }} fixed />
+      </Table>
+    </View>
+  );
+};
 export const EncounterRecordPrintout = ({
   patientData,
   encounter,
@@ -368,8 +391,13 @@ export const EncounterRecordPrintout = ({
 
   return (
     <Document>
-      <Page size="A4" style={{ paddingHorizontal: 50, paddingVertical: 30 }}>
+      <Page size="A4" style={pageStyles.body} wrap>
         {watermark && <Watermark src={watermark} />}
+        <MultiPageHeader
+          documentName="Patient encounter record"
+          patientId={patientData.displayId}
+          patientName={getName(patientData)}
+        />
         <CertificateHeader>
           <LetterheadSection
             getLocalisation={getLocalisation}
@@ -417,6 +445,7 @@ export const EncounterRecordPrintout = ({
           <TableSection title="Medications" data={medications} columns={COLUMNS.medications} />
         )}
         {notes.length > 0 && <NotesSection notes={notes} />}
+        <Footer />
       </Page>
     </Document>
   );
