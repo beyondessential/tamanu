@@ -6,6 +6,7 @@ import Autocomplete from 'react-native-autocomplete-input';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { theme } from '../../styled/theme';
 import { BaseModelSubclass, Suggester } from '../../helpers/suggester';
+import { TranslatedText } from '../Translations/TranslatedText';
 
 const styles = StyleSheet.create({
   container: {
@@ -92,7 +93,7 @@ export const AutocompleteModalScreen = ({
         }}
       />
       <Button mode="contained" style={styles.backButton} onPress={onNavigateBack}>
-        Back
+        <TranslatedText stringId="general.action.back" fallback="Back" />
       </Button>
     </View>
   );
