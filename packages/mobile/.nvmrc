@@ -1,2 +1,1 @@
 lts/iron
-node-options="--openssl-legacy-provider"

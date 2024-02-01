@@ -17,7 +17,7 @@
     "typecheck": "tsc --project tsconfig.json",
     "storybook": "cat storybook/script-usage-instructions.md && (adb reverse tcp:7007 tcp:7007 || true) && start-storybook",
     "prestorybook": "rnstl",
-    "postinstall": "patch-package",
+    "postinstall": "npx jetify && patch-package",
     "mockserver": "cd mockserver/functions && npm run serve",
     "migrate-create": "../../scripts/create_mobile_migration.sh"
   },
@@ -137,8 +137,7 @@
     "sqlite3": "^5.1.6",
     "ts-jest": "^26.0.0",
     "typescript": "^3.9.2",
-    "uuid": "^8.3.2",
-    "yarn-audit-fix": "^10.0.7"
+    "uuid": "^8.3.2"
   },
   "detox": {
     "test-runner": "jest"
