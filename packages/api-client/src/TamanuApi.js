@@ -76,15 +76,10 @@ export class TamanuApi {
     return { user, token, localisation, server, ability, role };
   }
 
-  async fetchUserData(permissions = null) {
+  async fetchUserData(permissions) {
     const user = await this.get('user/me');
     this.lastRefreshed = Date.now();
     this.user = user;
-
-    if (!permissions) {
-      // TODO: fetch permissions from server
-      return { user, ability: buildAbilityForUser(user, []) };
-    }
 
     const ability = buildAbilityForUser(user, permissions);
     return { user, ability };
