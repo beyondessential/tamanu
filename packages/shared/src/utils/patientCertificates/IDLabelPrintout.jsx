@@ -3,10 +3,11 @@ import { Page, StyleSheet, View, Document, Font } from '@react-pdf/renderer';
 import { getDOB, getName, getSex } from '../patientAccessors';
 import { PrintableBarcode } from './printComponents/PrintableBarcode';
 import { P } from './Typography';
+import RobotoMonoRegular from '../../fonts/Roboto-Mono-Regular.ttf';
 
 Font.register({
   family: 'Roboto-Mono',
-  src: 'http://fonts.gstatic.com/s/robotomono/v4/hMqPNLsu_dywMa4C_DEpY50EAVxt0G0biEntp43Qt6E.ttf',
+  src: RobotoMonoRegular,
 });
 
 const fontSize = 11;
@@ -61,16 +62,17 @@ const IDLabel = ({ patient }) => {
       <Row>
         <BarcodeContainer>
           <PrintableBarcode
-            barHeight={22}
+            barHeight={'24px'}
             id={patient.displayId}
             fontSize={fontSize}
             barcodeStyle={styles.barcode}
+            width={'92px'}
           />
           <P mb={0} fontSize={fontSize} style={styles.barcodeText}>
             {patient.displayId}
           </P>
         </BarcodeContainer>
-        <Col style={{ marginTop: '1mm', marginLeft: '2mm' }}>
+        <Col style={{ marginLeft: '3mm' }}>
           <P mb={2} fontSize={fontSize} style={styles.text}>
             {getSex(patient)}
           </P>
@@ -79,7 +81,7 @@ const IDLabel = ({ patient }) => {
           </P>
         </Col>
       </Row>
-      <Col>
+      <Col style={{ marginTop: -1 }}>
         <P mb={0} mt={0} fontSize={fontSize} style={styles.text}>
           {getName(patient)}
         </P>
