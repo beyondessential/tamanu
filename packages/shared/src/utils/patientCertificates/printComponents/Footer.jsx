@@ -14,7 +14,6 @@ const styles = StyleSheet.create({
     color: '#888888',
     borderTop: '1px solid #888888',
     paddingTop: 2,
-    // marginTop: 20,
   },
 
   footerLeftContent: {

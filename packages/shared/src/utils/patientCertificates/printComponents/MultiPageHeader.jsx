@@ -3,10 +3,7 @@ import React from 'react';
 
 const styles = StyleSheet.create({
   header: {
-    // position: 'absolute',
     flexDirection: 'row',
-    // top: 25,
-    // right: 50,
     display: 'flex',
     alignSelf: 'flex-end',
     marginBottom: 20,
@@ -53,7 +50,6 @@ export const MultiPageHeader = ({ documentName, patientName, patientId }) => {
   );
 
   return (
-    // <View style={styles.header} render={({ pageNumber }) => <HeaderContent />} fixed />
     <View
       style={styles.header}
       render={({ pageNumber }) => pageNumber > 1 && <HeaderContent />}
