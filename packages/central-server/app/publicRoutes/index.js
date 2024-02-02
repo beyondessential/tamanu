@@ -25,5 +25,14 @@ publicRoutes.get('/ping', (_req, res) => {
   res.send({ ok: true });
 });
 
+publicRoutes.get(
+  '/supportDeskUrl',
+  asyncHandler(async (req, res) => {
+    const { settings } = req;
+    const url = await settings.get('localisation.supportDeskUrl');
+    return res.send({ url });
+  }),
+);
+
 publicRoutes.use('/labResultWidget', labResultWidgetRoutes);
 publicRoutes.use('/integration', publicIntegrationRoutes);
