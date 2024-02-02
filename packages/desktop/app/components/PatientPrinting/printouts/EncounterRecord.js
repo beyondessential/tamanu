@@ -6,7 +6,7 @@ import { startCase } from 'lodash';
 import { NOTE_TYPES } from '@tamanu/constants';
 
 import { PrintLetterhead } from './reusable/PrintLetterhead';
-import { DateDisplay } from '../../DateDisplay';
+import { DateDisplay, formatShortest, formatTimeWithSeconds } from '../../DateDisplay';
 import { capitaliseFirstLetter } from '../../../utils/capitalise';
 import { CertificateWrapper } from './reusable/CertificateWrapper';
 import { ListTable } from './reusable/ListTable';
@@ -19,6 +19,7 @@ import {
 
 import { ImagingRequestData } from './reusable/ImagingRequestData';
 import { useLocalisedText } from '../../LocalisedText';
+import { DateHeadCell } from '../../FormattedTableCell';
 
 // STYLES
 const CompactListTable = styled(ListTable)`
@@ -273,6 +274,12 @@ const COLUMNS = {
   ],
 };
 
+const getExportOverrideTitle = date => {
+  const shortestDate = DateDisplay.stringFormat(date, formatShortest);
+  const timeWithSeconds = DateDisplay.stringFormat(date, formatTimeWithSeconds);
+  return `${shortestDate} ${timeWithSeconds}`;
+};
+
 export const EncounterRecord = React.memo(
   ({
     patient,
@@ -289,11 +296,40 @@ export const EncounterRecord = React.memo(
     village,
     pad,
     medications,
+    vitalsData,
+    recordedDates,
   }) => {
     const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' }).toLowerCase();
     const { firstName, lastName, dateOfBirth, sex, displayId } = patient;
     const { department, location, examiner, reasonForEncounter, startDate, endDate } = encounter;
     const { title, subTitle, logo } = certificateData;
+
+    const getVitalsColumn = startIndex => {
+      const dateArray = [...recordedDates].reverse().slice(startIndex, startIndex + 12);
+      const width = Math.floor(100 / (dateArray.length + 1));
+      return [
+        {
+          key: 'measure',
+          title: 'Measure',
+          accessor: ({ value }) => value,
+          style: { width: `${width}%` },
+        },
+        ...dateArray
+          .sort((a, b) => b.localeCompare(a))
+          .map(date => ({
+            title: <DateHeadCell value={date} />,
+            key: date,
+            accessor: cells => {
+              const { value } = cells[date];
+              return value || '-';
+            },
+            style: { width: `${width}%` },
+            exportOverrides: {
+              title: getExportOverrideTitle(date),
+            },
+          })),
+      ];
+    };
 
     return (
       <ShiftedCertificateWrapper>
@@ -423,6 +459,19 @@ export const EncounterRecord = React.memo(
                 </Row>
               ))}
             </Table>
+          </>
+        ) : null}
+
+        {vitalsData.length > 0 && recordedDates.length > 0 ? (
+          <>
+            {[0, 12, 24, 36, 48].map(start =>
+              recordedDates.length > start ? (
+                <>
+                  <TableHeading>Vitals</TableHeading>
+                  <CompactListTable data={vitalsData} columns={getVitalsColumn(start)} />
+                </>
+              ) : null,
+            )}
           </>
         ) : null}
       </ShiftedCertificateWrapper>
