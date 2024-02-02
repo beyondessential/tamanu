@@ -35,7 +35,7 @@ export const LabRequestPrintLabelModal = ({ open, onClose, labRequests }) => {
     <Modal title="Print label" width="md" open={open} onClose={onClose} printable>
       <Container>
         {labRequests.map(lab => (
-          <Box mb={3}>
+          <Box key={lab.displayId} mb={3}>
             <LabRequestPrintLabel
               printWidth={labelWidth}
               data={{

@@ -38,8 +38,6 @@ describe('PatientVaccine', () => {
   let locationGroup = null;
   let department = null;
   let facility = null;
-  let givenVaccine1 = null;
-  let notGivenVaccine1 = null;
   let patient = null;
   let drug = null;
 
@@ -145,11 +143,11 @@ describe('PatientVaccine', () => {
 
     // set up clinical data
 
-    givenVaccine1 = await recordAdministeredVaccine(patient, scheduled2, {
+    await recordAdministeredVaccine(patient, scheduled2, {
       status: VACCINE_STATUS.GIVEN,
     });
 
-    notGivenVaccine1 = await recordAdministeredVaccine(patient, scheduled2, {
+    await recordAdministeredVaccine(patient, scheduled2, {
       status: VACCINE_STATUS.NOT_GIVEN,
     });
 

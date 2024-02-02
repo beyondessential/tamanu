@@ -6,8 +6,6 @@ describe('Scheduled Vaccine', () => {
   let baseApp = null;
   let app = null;
   let scheduledVaccine1 = null;
-  let scheduledVaccine2 = null;
-  let historicalVisibilityVaccine = null;
   let ctx;
 
   beforeAll(async () => {
@@ -24,12 +22,12 @@ describe('Scheduled Vaccine', () => {
         visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       }),
     );
-    scheduledVaccine2 = await models.ScheduledVaccine.create(
+    await models.ScheduledVaccine.create(
       await createScheduledVaccine(models, {
         visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       }),
     );
-    historicalVisibilityVaccine = await models.ScheduledVaccine.create(
+    await models.ScheduledVaccine.create(
       await createScheduledVaccine(models, {
         visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
       }),

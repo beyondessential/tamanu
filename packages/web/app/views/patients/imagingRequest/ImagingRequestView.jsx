@@ -150,12 +150,11 @@ const NewResultSection = ({ disabled = false }) => {
   );
 };
 
+function openUrl(url) { window.open(url, '_blank'); }
 const ImagingResultRow = ({ result }) => {
   const { externalUrl, completedAt, completedBy, description } = result;
 
-  // const { openUrl } = useElectron(); // TODO(web)
-  function openUrl(url) { window.open(url, '_blank'); }
-  const onOpenUrl = useCallback(() => openUrl(externalUrl), [openUrl, externalUrl]);
+  const onOpenUrl = useCallback(() => openUrl(externalUrl), [externalUrl]);
 
   return (
     <BottomAlignFormGrid columns={externalUrl ? 3 : 2}>

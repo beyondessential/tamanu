@@ -255,6 +255,7 @@ export const Sidebar = React.memo(({ items }) => {
           if (!item.children) {
             return (
               <TopLevelSidebarItem
+                key={item.path}
                 {...commonProps}
                 isCurrent={currentPath.includes(item.path)}
                 disabled={!permissionCheck(item)}
@@ -264,10 +265,10 @@ export const Sidebar = React.memo(({ items }) => {
           }
 
           if (isRetracted) {
-            return <PrimarySidebarItem {...commonProps} />;
+            return <PrimarySidebarItem key={item.path} {...commonProps} />;
           }
           return (
-            <PrimarySidebarItem {...commonProps}>
+            <PrimarySidebarItem key={item.path} {...commonProps}>
               {item.children.map(child => (
                 <SecondarySidebarItem
                   key={child.path}
