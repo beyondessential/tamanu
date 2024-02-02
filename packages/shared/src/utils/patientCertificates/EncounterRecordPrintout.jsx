@@ -82,23 +82,26 @@ const tableStyles = StyleSheet.create({
     alignItems: 'flex-start',
     padding: 7,
   },
-  flexCell: {
-    flex: 1,
-  },
   p: {
     fontFamily: 'Helvetica',
     fontSize: 10,
+  },
+  notesCell: {
+    width: '100%',
+    flexDirection: 'column',
+    borderLeft: borderStyle,
+    alignItems: 'flex-start',
+    padding: 7,
+  },
+  notesFooter: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
   },
 });
 
 const Table = props => <View style={tableStyles.table} {...props} />;
 const Row = props => <View style={tableStyles.row} {...props} />;
 const P = ({ style = {}, children }) => <Text style={[tableStyles.p, style]}>{children}</Text>;
-const FlexCell = ({ children, style = {}, fontStyle = {} }) => (
-  <View style={[tableStyles.baseCell, tableStyles.flexCell, style]}>
-    <P style={fontStyle}>{children}</P>
-  </View>
-);
 
 const Cell = ({ children, style = {} }) => (
   <View style={[tableStyles.baseCell, style]}>
@@ -110,6 +113,10 @@ const HeaderCell = ({ children, style }) => (
   <View style={[tableStyles.baseCell, style]}>
     <P style={{ fontFamily: 'Helvetica-Bold' }}>{children}</P>
   </View>
+);
+
+const NotesCell = ({ children, style = {} }) => (
+  <View style={[tableStyles.notesCell, style]}>{children}</View>
 );
 
 const SectionSpacing = () => <View style={{ paddingBottom: '10px' }} />;
@@ -287,12 +294,12 @@ const COLUMNS = {
   ],
 };
 
-const TableHeading = ({ title }) => {
+const MultipageTableHeading = ({ title, style = textStyles.sectionTitle }) => {
   let firstPageOccurence = Number.MAX_SAFE_INTEGER;
   return (
     <Text
       fixed
-      style={textStyles.sectionTitle}
+      style={style}
       render={({ pageNumber, subPageNumber }) => {
         if (pageNumber < firstPageOccurence && subPageNumber) {
           firstPageOccurence = pageNumber;
@@ -308,7 +315,7 @@ const TableHeading = ({ title }) => {
 const DataTableHeader = ({ columns, title }) => {
   return (
     <View fixed>
-      <TableHeading title={title} />
+      <MultipageTableHeading title={title} />
       <Row wrap={false}>
         {columns.map(({ key, title, style }) => (
           <HeaderCell key={key} style={style}>
@@ -346,38 +353,28 @@ const TableSection = ({ title, data, columns }) => {
 };
 
 const NoteFooter = ({ note }) => (
-  <View>
-    <Text style={textStyles.tableCellFooter}>
-      {note.noteType === NOTE_TYPES.TREATMENT_PLAN ? 'Last updated: ' : ''}
-    </Text>
-    <Text style={textStyles.tableCellFooter}>{note.author?.displayName || ''}</Text>
-    <Text style={textStyles.tableCellFooter}>
-      {note.onBehalfOf ? ` on behalf of ${note.onBehalfOf.displayName}` : null}
-    </Text>
-    <Text style={textStyles.tableCellFooter} fixed>
-      {` ${getDisplayDate(note.date)} ${getDisplayDate(note.date, 'h:mma')}`}
-    </Text>
-  </View>
+  <Text style={textStyles.tableCellFooter}>
+    {`${note.noteType === NOTE_TYPES.TREATMENT_PLAN ? 'Last updated: ' : ''}${note.author
+      ?.displayName || ''}${note.onBehalfOf ? ` on behalf of ${note.onBehalfOf.displayName}` : ''}`}
+    {` ${getDisplayDate(note.date)} ${getDisplayDate(note.date, 'h:mma')}`}
+  </Text>
 );
 
 const NotesSection = ({ notes }) => (
   <View>
-    <TableHeading title="Notes" />
+    <MultipageTableHeading title="Notes" />
     <Table>
       {/*<View style={{ borderTop: '1px solid black' }} fixed />*/}
       {notes.map(note => (
         <Row key={note.id}>
-          <FlexCell>
-            <Text style={textStyles.tableColumnHeader} fixed>
-              {NOTE_TYPE_LABELS[note.noteType]}
-              {`\n`}
-            </Text>
-            <Text style={textStyles.tableCellContent}>
-              {note.content}
-              {`\n`}
-            </Text>
+          <NotesCell>
+            <MultipageTableHeading
+              title={NOTE_TYPE_LABELS[note.noteType]}
+              style={textStyles.tableColumnHeader}
+            />
+            <Text style={textStyles.tableCellContent}>{`${note.content}\n`}</Text>
             <NoteFooter note={note} />
-          </FlexCell>
+          </NotesCell>
         </Row>
       ))}
       {/*<View style={{ borderBottom: '1px solid black' }} fixed />*/}
