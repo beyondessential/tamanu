@@ -1,7 +1,16 @@
-import { get as lodashGet } from 'lodash';
+import { get as lodashGet, pick } from 'lodash';
 import { buildSettings } from '../index';
 import { settingsCache } from '../cache';
 import { Models } from './readers/SettingsDBReader';
+
+const KEYS_EXPOSED_TO_FRONT_END = [
+  'features',
+  'localisation',
+  'previewUvciFormat',
+  'imagingTypes',
+  'country',
+  'printMeasures',
+];
 export class ReadSettings {
   models: Models;
   facilityId?: string;
@@ -21,21 +30,9 @@ export class ReadSettings {
     let settings = settingsCache.getFrontEndSettings()
     if (!settings) {
       const allSettings = await this.getAll();
-      const frontEndSettingKeys = [
-        'features',
-        'localisation',
-        'previewUvciFormat',
-        'imagingTypes',
-        'country',
-        'printMeasures',
-      ];
-  
-      settings = Object.fromEntries(
-        Object.entries(allSettings).filter(([key]) => frontEndSettingKeys.includes(key)),
-      );
+      settings = pick(allSettings, KEYS_EXPOSED_TO_FRONT_END);
       settingsCache.setFrontEndSettings(settings);
     }
-
     return settings;
   }
 
