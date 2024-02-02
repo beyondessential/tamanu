@@ -2,7 +2,7 @@ import qs from 'qs';
 
 import { SERVER_TYPES } from '@tamanu/constants';
 import { NotFoundError, ForbiddenError } from '@tamanu/shared/errors';
-import { Permission, buildAbilityForUser } from '@tamanu/shared/permissions/buildAbility';
+import { buildAbilityForUser } from '@tamanu/shared/permissions/buildAbility';
 
 import {
   AuthExpiredError,
