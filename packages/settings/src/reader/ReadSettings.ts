@@ -18,28 +18,32 @@ export class ReadSettings {
   // This is what is called on login. This gets only settings relevant to 
   // the frontend so only what is needed is sent. No sensitive data is sent.
   async getFrontEndSettings() {
-    const settings = await this.getAll();
-    const frontEndSettingKeys = [
-      'features',
-      'localisation',
-      'previewUvciFormat',
-      'imagingTypes',
-      'country',
-      'printMeasures',
-    ];
+    let settings = settingsCache.getFrontEndSettings()
+    if (!settings) {
+      const allSettings = await this.getAll();
+      const frontEndSettingKeys = [
+        'features',
+        'localisation',
+        'previewUvciFormat',
+        'imagingTypes',
+        'country',
+        'printMeasures',
+      ];
+  
+      settings = Object.fromEntries(
+        Object.entries(allSettings).filter(([key]) => frontEndSettingKeys.includes(key)),
+      );
+      settingsCache.setFrontEndSettings(settings);
+    }
 
-    const frontEndSettings = Object.fromEntries(
-      Object.entries(settings).filter(([key]) => frontEndSettingKeys.includes(key)),
-    );
-
-    return frontEndSettings;
+    return settings;
   }
 
   async getAll() {
-    let settings = settingsCache.get();
+    let settings = settingsCache.getAllSettings();
     if (!settings) {
       settings = await buildSettings(this.models, this.facilityId);
-      settingsCache.set(settings);
+      settingsCache.setAllSettings(settings);
     }
     return settings;
   }
