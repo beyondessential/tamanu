@@ -1,14 +1,6 @@
 import { ServerUnavailableError } from './errors';
 
-export interface ResponseError {
-  name: string;
-  message: string;
-}
-
-export async function fetchOrThrowIfUnavailable(
-  url: Request | string | URL,
-  config?: RequestInit,
-): Promise<Response> {
+export async function fetchOrThrowIfUnavailable(url, config = {}) {
   try {
     const response = await fetch(url, config);
     return response;
@@ -24,9 +16,7 @@ export async function fetchOrThrowIfUnavailable(
   }
 }
 
-export async function getResponseErrorSafely(
-  response: Response,
-): Promise<{ error: ResponseError }> {
+export async function getResponseErrorSafely(response) {
   try {
     return await response.json();
   } catch (e) {

@@ -1,16 +1,11 @@
 import { VERSION_COMPATIBILITY_ERRORS } from '@tamanu/constants';
 
-import { ResponseError } from './fetch';
-
-export class ServerResponseError extends Error { }
-export class AuthExpiredError extends ServerResponseError { }
-export class VersionIncompatibleError extends ServerResponseError { }
+export class ServerResponseError extends Error {}
+export class AuthExpiredError extends ServerResponseError {}
+export class VersionIncompatibleError extends ServerResponseError {}
 export class ServerUnavailableError extends Error {}
 
-export function getVersionIncompatibleMessage(
-  error: ResponseError,
-  response: Response,
-): string | null {
+export function getVersionIncompatibleMessage(error, response) {
   if (error.message === VERSION_COMPATIBILITY_ERRORS.LOW) {
     return 'Tamanu is out of date, reload to get the new version! If that does not work, contact your system administrator.';
   }

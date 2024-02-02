@@ -1,9 +1,5 @@
-/// <reference path="../../shared/types/errors.d.ts" />
-/// <reference path="../../shared/types/buildAbility.d.ts" />
-
 import qs from 'qs';
 
-import type { AnyAbility, PureAbility } from '@casl/ability';
 import { SERVER_TYPES } from '@tamanu/constants';
 import { NotFoundError, ForbiddenError } from '@tamanu/shared/errors';
 import { Permission, buildAbilityForUser } from '@tamanu/shared/permissions/buildAbility';
@@ -14,75 +10,20 @@ import {
   VersionIncompatibleError,
   getVersionIncompatibleMessage,
 } from './errors';
-import {
-  fetchOrThrowIfUnavailable,
-  getResponseErrorSafely,
-} from './fetch';
-
-export interface UserResponse {
-  id: string;
-}
-
-export type AuthFailureHandler = (message: string) => void;
-export type VersionIncompatibleHandler = (message: string) => void;
-
-export interface QueryData {
-  [key: string]: string | number | boolean;
-}
-
-export interface FetchConfig extends RequestInit {
-  /**
-   * If true, the Response object will be returned instead of the parsed JSON.
-   *
-   * Defaults to false.
-   */
-  returnResponse?: boolean;
-
-  /**
-   * If true, the Response object will be thrown instead of attempting to parse
-   * an error from the response body.
-   *
-   * Defaults to false.
-   */
-  throwResponse?: boolean;
-}
-
-export interface ChangePasswordArgs {
-  email: string;
-}
-
-export interface LoginOutput<T extends AnyAbility = PureAbility> {
-  user: UserResponse;
-  token: string;
-  localisation: object;
-  server: string;
-  ability: T;
-  role: string;
-}
-
-export interface TamanuApiArgs {
-  endpoint: string;
-  agentName: string;
-  agentVersion: string;
-  deviceId?: string;
-}
+import { fetchOrThrowIfUnavailable, getResponseErrorSafely } from './fetch';
 
 export class TamanuApi {
-  agentName: string;
-  agentVersion: string;
-  deviceId?: string;
+  #host;
+  #prefix;
 
-  #host?: string;
-  #prefix?: string;
+  #onAuthFailure;
+  #onVersionIncompatible;
+  #authHeader;
 
-  #onAuthFailure?: AuthFailureHandler;
-  #onVersionIncompatible?: VersionIncompatibleHandler;
-  #authHeader?: Record<string, string>;
+  lastRefreshed = null;
+  user = null;
 
-  lastRefreshed?: number;
-  user?: UserResponse;
-
-  constructor({ endpoint, agentName, agentVersion, deviceId }: TamanuApiArgs) {
+  constructor({ endpoint, agentName, agentVersion, deviceId }) {
     this.#prefix = endpoint;
     const endpointUrl = new URL(endpoint);
     this.#host = endpointUrl.origin;
@@ -92,22 +33,19 @@ export class TamanuApi {
     this.deviceId = deviceId;
   }
 
-  getHost(): string | undefined {
+  getHost() {
     return this.#host;
   }
 
-  setAuthFailureHandler(handler: AuthFailureHandler) {
+  setAuthFailureHandler(handler) {
     this.#onAuthFailure = handler;
   }
 
-  setVersionIncompatibleHandler(handler: VersionIncompatibleHandler) {
+  setVersionIncompatibleHandler(handler) {
     this.#onVersionIncompatible = handler;
   }
 
-  async login(
-    email: string,
-    password: string,
-  ): Promise<LoginOutput> {
+  async login(email, password) {
     const response = await this.post(
       'login',
       {
@@ -138,7 +76,7 @@ export class TamanuApi {
     return { user, token, localisation, server, ability, role };
   }
 
-  async fetchUserData(permissions?: Permission[]) {
+  async fetchUserData(permissions = null) {
     const user = await this.get('user/me');
     this.lastRefreshed = Date.now();
     this.user = user;
@@ -152,11 +90,11 @@ export class TamanuApi {
     return { user, ability };
   }
 
-  async requestPasswordReset(email: string) {
+  async requestPasswordReset(email) {
     return this.post('resetPassword', { email });
   }
 
-  async changePassword(args: ChangePasswordArgs) {
+  async changePassword(args) {
     return this.post('changePassword', args);
   }
 
@@ -171,15 +109,11 @@ export class TamanuApi {
     }
   }
 
-  setToken(token: string) {
+  setToken(token) {
     this.#authHeader = { authorization: `Bearer ${token}` };
   }
 
-  async fetch(
-    endpoint: string,
-    query: QueryData = {},
-    config: FetchConfig = {},
-  ) {
+  async fetch(endpoint, query = {}, config = {}) {
     const { headers, returnResponse = false, throwResponse = false, ...otherConfig } = config;
     const queryString = qs.stringify(query || {});
     const path = `${endpoint}${query ? `?${queryString}` : ''}`;
@@ -218,7 +152,7 @@ export class TamanuApi {
    *
    * Generally only used internally.
    */
-  async extractError(endpoint: string, response: Response) {
+  async extractError(endpoint, response) {
     const { error } = await getResponseErrorSafely(response);
     const message = error?.message || response.status.toString();
 
@@ -232,11 +166,7 @@ export class TamanuApi {
     }
 
     // handle auth expiring
-    if (
-      response.status === 401 &&
-      endpoint !== 'login' &&
-      this.#onAuthFailure
-    ) {
+    if (response.status === 401 && endpoint !== 'login' && this.#onAuthFailure) {
       const message = 'Your session has expired. Please log in again.';
       this.#onAuthFailure(message);
       throw new AuthExpiredError(message);
@@ -244,10 +174,7 @@ export class TamanuApi {
 
     // handle version incompatibility
     if (response.status === 400 && error) {
-      const versionIncompatibleMessage = getVersionIncompatibleMessage(
-        error,
-        response,
-      );
+      const versionIncompatibleMessage = getVersionIncompatibleMessage(error, response);
       if (versionIncompatibleMessage) {
         if (this.#onVersionIncompatible) {
           this.#onVersionIncompatible(versionIncompatibleMessage);
@@ -259,11 +186,11 @@ export class TamanuApi {
     throw new ServerResponseError(`Server error response: ${message}`);
   }
 
-  async get(endpoint: string, query: QueryData = {}, config: FetchConfig = {}) {
+  async get(endpoint, query = {}, config = {}) {
     return this.fetch(endpoint, query, { ...config, method: 'GET' });
   }
 
-  async download(endpoint: string, query: QueryData = {}) {
+  async download(endpoint, query = {}) {
     const response = await this.fetch(endpoint, query, {
       returnResponse: true,
     });
@@ -271,7 +198,7 @@ export class TamanuApi {
     return blob;
   }
 
-  async postWithFileUpload(endpoint: string, file: File, body: object, options: FetchConfig = {}) {
+  async postWithFileUpload(endpoint, file, body, options = {}) {
     const blob = new Blob([file]);
 
     // We have to use multipart/formdata to support sending the file data,
@@ -290,7 +217,7 @@ export class TamanuApi {
     });
   }
 
-  async post<T>(endpoint: string, body?: T, config: FetchConfig = {}) {
+  async post(endpoint, body = undefined, config = {}) {
     return this.fetch(
       endpoint,
       {},
@@ -305,7 +232,7 @@ export class TamanuApi {
     );
   }
 
-  async put<T>(endpoint: string, body?: T, config: FetchConfig = {}) {
+  async put(endpoint, body = undefined, config = {}) {
     return this.fetch(
       endpoint,
       {},
@@ -320,11 +247,7 @@ export class TamanuApi {
     );
   }
 
-  async delete(
-    endpoint: string,
-    query: QueryData = {},
-    config: FetchConfig = {},
-  ) {
+  async delete(endpoint, query = {}, config = {}) {
     return this.fetch(endpoint, query, { ...config, method: 'DELETE' });
   }
 }
