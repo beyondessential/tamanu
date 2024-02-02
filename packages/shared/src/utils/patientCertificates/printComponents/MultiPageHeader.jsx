@@ -42,12 +42,12 @@ const ValueText = ({ children, props }) => (
 export const MultiPageHeader = ({ documentName, patientName, patientId }) => {
   const HeaderContent = () => (
     <>
-      <LabelText>{documentName}</LabelText>
-      <ValueText> | </ValueText>
-      <LabelText>Patient name</LabelText>
-      <ValueText>: {patientName}</ValueText>
-      <ValueText> | </ValueText>
-      <LabelText>Patient ID</LabelText>
+      <LabelText>{`${documentName} `}</LabelText>
+      <ValueText>|</ValueText>
+      <LabelText> Patient name</LabelText>
+      <ValueText>: {patientName} </ValueText>
+      <ValueText>|</ValueText>
+      <LabelText> Patient ID</LabelText>
       <ValueText>: {patientId}</ValueText>
     </>
   );
