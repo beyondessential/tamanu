@@ -18,7 +18,7 @@ export const getDOBWithAge = ({ dateOfBirth }, getLocalisation) => {
 
 export const getDateOfDeath = ({ dateOfDeath }, getLocalisation) => {
   if (!dateOfDeath) return 'Unknown';
-  return getDisplayDate(dateOfDeath, 'dd/MM/yyyy', getLocalisation);
+  return getDisplayDate(dateOfDeath, 'd MMM yyyy', getLocalisation);
 };
 
 export const getTimeOfDeath = ({ dateOfDeath }, getLocalisation) => {
