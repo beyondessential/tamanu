@@ -108,11 +108,11 @@ describe('SurveyResponse', () => {
       });
     });
 
-    // This test currently fails because some survey utils filter the missing-source config out before 
-    // it reaches the logic that would throw the "misconfigured" error. A question with a missing 
+    // This test currently fails because some survey utils filter the missing-source config out before
+    // it reaches the logic that would throw the "misconfigured" error. A question with a missing
     // source will be obviously broken anyway, so while this should be fixed eventually it doesn't
     // represent a risk to data or user experience, just a chance of inconveniencing a PM.
-    it.skip('should error if the config has no source', async () => {
+    it('should error if the config has no source', async () => {
       // arrange
       const { Facility } = models;
       const facility = await Facility.create(fake(Facility));
@@ -170,6 +170,23 @@ describe('SurveyResponse', () => {
           message: `Selected answer Facility[this-facility-id-does-not-exist] not found`,
         },
       });
+    });
+
+    it('should skip error if the answer body is an empty string', async () => {
+      // arrange
+      const { Facility } = models;
+      await Facility.create(fake(Facility));
+      const { response } = await setupAutocompleteSurvey(
+        JSON.stringify({ source: 'Facility' }),
+        '',
+      );
+
+      // act
+      const result = await app.get(`/api/surveyResponse/${response.id}`);
+
+      // assert
+      expect(result).toHaveSucceeded();
+      expect(result.body.answers[0].body).toBe('');
     });
 
     it('should error and hint if users might have legacy ReferenceData sources', async () => {
