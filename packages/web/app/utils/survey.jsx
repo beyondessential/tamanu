@@ -205,7 +205,7 @@ function transformPatientData(patient, additionalData, patientProgramRegistratio
         case 'PatientAdditionalData':
           return additionalData ? additionalData[fieldName] : undefined;
         case 'PatientProgramRegistration':
-          return patientProgramRegistration ? patientProgramRegistration[fieldName]: undefined
+          return patientProgramRegistration ? patientProgramRegistration[fieldName] : undefined;
         default:
           return undefined;
       }
@@ -244,11 +244,17 @@ export function getFormInitialValues(
     }
     // patient data
     if (component.dataElement.type === 'PatientData') {
-      let patientValue = transformPatientData(patient, additionalData, patientProgramRegistration, config);
+      let patientValue = transformPatientData(
+        patient,
+        additionalData,
+        patientProgramRegistration,
+        config,
+      );
 
       // explicitly check against undefined and null rather than just !patientValue
       if (isNullOrUndefined(patientValue)) {
-        initialValues[component.dataElement.id] = '';
+        // Set the initial value to null rather than an empty string so that it doesn't save an empty answer record.
+        initialValues[component.dataElement.id] = null;
       } else {
         initialValues[component.dataElement.id] = patientValue;
       }
