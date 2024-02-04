@@ -1,4 +1,5 @@
 import { formatInTimeZone } from 'date-fns-tz';
+import config from 'config';
 import { transliterate as tr } from 'transliteration';
 import { log } from '@tamanu/shared/services/logging';
 
@@ -43,7 +44,7 @@ export const createVdsNcVaccinationData = async (patientId, { models, settings }
   } = models;
 
   const countryCode = await settings.get('country.alpha-3');
-  const timeZone = await settings.get('countryTimeZone');
+  const timeZone = config.countryTimeZone;
 
   const patient = await Patient.findOne({
     where: { id: patientId },
