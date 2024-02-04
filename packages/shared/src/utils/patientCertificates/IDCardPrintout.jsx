@@ -1,7 +1,6 @@
 import React from 'react';
 import { Document, Image, Page, StyleSheet, View, Text } from '@react-pdf/renderer';
 import { getDOB, getSex } from '../patientAccessors';
-import { PrintableBarcode } from './printComponents/PrintableBarcode';
 import JsBarcode from 'jsbarcode';
 
 const CustomBarcode = ({ id, width, height }) => {
@@ -12,7 +11,7 @@ const CustomBarcode = ({ id, width, height }) => {
     displayValue: false,
   });
   const barcode = canvas.toDataURL();
-  return <Image source={barcode} style={{height: height, maxWidth: width, objectFit: 'cover'}} />;
+  return <Image source={barcode} style={{ height: height, maxWidth: width, objectFit: 'cover' }} />;
 };
 
 const convertToPt = mm => {
@@ -118,7 +117,6 @@ export const IDCardPrintout = ({
     },
   });
 
-  console.log(measures);
   const Card = props => <View style={pageStyles.card} {...props} />;
 
   return (
