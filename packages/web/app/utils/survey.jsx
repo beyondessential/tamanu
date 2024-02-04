@@ -251,13 +251,8 @@ export function getFormInitialValues(
         config,
       );
 
-      // explicitly check against undefined and null rather than just !patientValue
-      if (isNullOrUndefined(patientValue)) {
-        // Set the initial value to null rather than an empty string so that it doesn't save an empty answer record.
-        initialValues[component.dataElement.id] = null;
-      } else {
-        initialValues[component.dataElement.id] = patientValue;
-      }
+      // Let the initial value be null of undefined rather than an empty string so that it doesn't save an empty answer record.
+      initialValues[component.dataElement.id] = patientValue;
     }
   }
   return initialValues;
