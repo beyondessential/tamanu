@@ -1,5 +1,5 @@
 import React from 'react';
-import { Document, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
+import { Document, Page, StyleSheet, Text, View, Font } from '@react-pdf/renderer';
 import { CertificateHeader, FixedFooter, FixedHeader, PageBreakPadding, Watermark } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
 import { PatientDetailsWithAddress } from './printComponents/PatientDetailsWithAddress';
@@ -306,9 +306,7 @@ const MultipageTableHeading = ({ title, style = textStyles.sectionTitle }) => {
         }
         return pageNumber === firstPageOccurence ? title : `${title} cont...`;
       }}
-    >
-      {title}
-    </Text>
+    />
   );
 };
 
@@ -345,7 +343,7 @@ const DataTable = ({ data, columns, title }) => (
 const TableSection = ({ title, data, columns }) => {
   return (
     <View>
-      <View minPresenceAhead={35} />
+      <View minPresenceAhead={60} />
       <DataTable data={data} columns={columns} title={title} />
       <SectionSpacing />
     </View>
@@ -360,27 +358,54 @@ const NoteFooter = ({ note }) => (
   </Text>
 );
 
-const NotesSection = ({ notes }) => (
-  <View>
-    <MultipageTableHeading title="Notes" />
-    <Table>
-      {/*<View style={{ borderTop: '1px solid black' }} fixed />*/}
-      {notes.map(note => (
-        <Row key={note.id}>
-          <NotesCell>
-            <MultipageTableHeading
-              title={NOTE_TYPE_LABELS[note.noteType]}
-              style={textStyles.tableColumnHeader}
+const NotesMultipageCellPadding = () => {
+  let firstPageOccurence = Number.MAX_SAFE_INTEGER;
+  return (
+    <View
+      fixed
+      render={({ pageNumber, subPageNumber }) => {
+        if (pageNumber < firstPageOccurence && subPageNumber) {
+          firstPageOccurence = pageNumber;
+        }
+        return pageNumber !== firstPageOccurence && <View style={{ paddingBottom: 7 }} debug />;
+      }}
+    />
+  );
+};
+
+const NotesSection = ({ notes }) => {
+  return (
+    <View>
+      <MultipageTableHeading title="Notes" />
+      <Table>
+        {notes.map(note => (
+          <Row key={note.id}>
+            <View
+              style={{
+                borderTop: borderStyle,
+                position: 'absolute',
+                top: -1,
+                right: -1,
+                left: 0,
+              }}
+              fixed
             />
-            <Text style={textStyles.tableCellContent}>{`${note.content}\n`}</Text>
-            <NoteFooter note={note} />
-          </NotesCell>
-        </Row>
-      ))}
-      {/*<View style={{ borderBottom: '1px solid black' }} fixed />*/}
-    </Table>
-  </View>
-);
+            <NotesCell>
+              <NotesMultipageCellPadding />
+              <MultipageTableHeading
+                title={NOTE_TYPE_LABELS[note.noteType]}
+                style={textStyles.tableColumnHeader}
+              />
+              <Text style={textStyles.tableCellContent}>{`${note.content}\n`}</Text>
+              <NoteFooter note={note} />
+            </NotesCell>
+          </Row>
+        ))}
+        <View style={{ borderBottom: borderStyle }} fixed />
+      </Table>
+    </View>
+  );
+};
 
 export const EncounterRecordPrintout = ({
   patientData,
