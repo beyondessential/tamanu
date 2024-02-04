@@ -4,6 +4,7 @@ import { getDOB, getSex } from '../patientAccessors';
 import JsBarcode from 'jsbarcode';
 
 const CustomBarcode = ({ id, width, height }) => {
+  // eslint-disable-next-line no-undef
   const canvas = document.createElement('canvas');
   JsBarcode(canvas, id, {
     width: 1,
@@ -65,7 +66,6 @@ const styles = StyleSheet.create({
   },
   barcodeRow: {
     height: '6.3mm',
-    // padding: '1mm',
     marginLeft: '29.4mm',
   },
 });

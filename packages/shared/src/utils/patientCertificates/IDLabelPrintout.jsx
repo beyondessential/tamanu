@@ -1,14 +1,8 @@
 import React from 'react';
-import { Page, StyleSheet, View, Document, Font } from '@react-pdf/renderer';
+import { Page, StyleSheet, View, Document } from '@react-pdf/renderer';
 import { getDOB, getName, getSex } from '../patientAccessors';
 import { PrintableBarcode } from './printComponents/PrintableBarcode';
 import { P } from './Typography';
-import RobotoMonoRegular from '../../fonts/Roboto-Mono-Regular.ttf';
-
-Font.register({
-  family: 'Roboto-Mono',
-  src: RobotoMonoRegular,
-});
 
 const fontSize = 11;
 
@@ -35,13 +29,13 @@ const styles = StyleSheet.create({
   },
   text: {
     color: '#444444',
-    fontFamily: 'Roboto-Mono',
+    fontFamily: 'Courier',
   },
   barcodeContainer: {
     flexDirection: 'column',
   },
   barcodeText: {
-    fontFamily: 'Helvetica-Bold',
+    fontFamily: 'Courier-Bold',
     color: '#444444',
   },
   barcode: {
@@ -62,11 +56,11 @@ const IDLabel = ({ patient }) => {
       <Row>
         <BarcodeContainer>
           <PrintableBarcode
-            barHeight={'24px'}
+            barHeight="24px"
             id={patient.displayId}
             fontSize={fontSize}
             barcodeStyle={styles.barcode}
-            width={'92px'}
+            width="92px"
           />
           <P mb={0} fontSize={fontSize} style={styles.barcodeText}>
             {patient.displayId}
