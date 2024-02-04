@@ -16,6 +16,7 @@ import { withPatient } from '/containers/Patient';
 import { useBackend } from '~/ui/hooks';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { Patient } from '../../../../../../models/Patient';
+import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 
 interface IPopup {
   title: string;
@@ -69,32 +70,37 @@ const PatientHomeContainer = ({
   const visitTypeButtons = useMemo(
     () => [
       {
-        title: 'Diagnosis &\nTreatment',
+        title: (
+          <TranslatedText
+            stringId="patient.diagnosisAndTreatment.title"
+            fallback="Diagnosis & Treatment"
+          />
+        ),
         Icon: Icons.DiagnosisAndTreatmentIcon,
         onPress: (): void => navigation.navigate(Routes.HomeStack.DiagnosisAndTreatmentTabs.Index),
       },
       {
-        title: 'Vitals',
+        title: <TranslatedText stringId="patient.vitals.title" fallback="Vitals" />,
         Icon: Icons.VitalsIcon,
         onPress: (): void => navigation.navigate(Routes.HomeStack.VitalsStack.Index),
       },
       {
-        title: 'Programs',
+        title: <TranslatedText stringId="patient.programs.title" fallback="Programs" />,
         Icon: Icons.PregnancyIcon,
         onPress: (): void => navigation.navigate(Routes.HomeStack.ProgramStack.Index),
       },
       {
-        title: 'Referral',
+        title: <TranslatedText stringId="patient.referral.title" fallback="Referral" />,
         Icon: Icons.FamilyPlanningIcon,
         onPress: (): void => navigation.navigate(Routes.HomeStack.ReferralStack.Index),
       },
       {
-        title: 'Vaccine',
+        title: <TranslatedText stringId="patient.vaccine.title" fallback="Vaccine" />,
         Icon: Icons.VaccineIcon,
         onPress: (): void => navigation.navigate(Routes.HomeStack.VaccineStack.Index),
       },
       {
-        title: 'Tests',
+        title: <TranslatedText stringId="patient.tests.title" fallback="Tests" />,
         Icon: Icons.LabRequestIcon,
         onPress: (): void => navigation.navigate(Routes.HomeStack.LabRequestStack.Index),
       },
@@ -105,11 +111,13 @@ const PatientHomeContainer = ({
   const patientMenuButtons = useMemo(
     () => [
       {
-        title: 'View patient details',
+        title: (
+          <TranslatedText stringId="patient.details.action.view" fallback="View patient details" />
+        ),
         onPress: (): void => navigation.navigate(Routes.HomeStack.PatientDetailsStack.Index),
       },
       {
-        title: 'View history',
+        title: <TranslatedText stringId="patient.history.action.view" fallback="View history" />,
         onPress: (): void => navigation.navigate(Routes.HomeStack.HistoryVitalsStack.Index),
       },
     ],

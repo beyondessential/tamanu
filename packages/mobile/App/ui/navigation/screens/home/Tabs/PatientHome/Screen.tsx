@@ -14,6 +14,7 @@ import { getAgeFromDate } from '/helpers/date';
 import { setDotsOnMaxLength } from '/helpers/text';
 import { SyncInactiveAlert } from '~/ui/components/SyncInactiveAlert';
 import { MenuOptionButtonProps } from '~/types/MenuOptionButtonProps';
+import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 
 interface ScreenProps {
   navigateToSearchPatients: () => void;
@@ -71,7 +72,9 @@ export const Screen = ({
               marginTop={screenPercentageToDP(1.21, Orientation.Height)}
               width={screenPercentageToDP(23.11, Orientation.Width)}
               height={screenPercentageToDP(4.86, Orientation.Height)}
-              buttonText="Sync Data"
+              buttonText={
+                <TranslatedText stringId="general.action.syncData" fallback="Sync Data" />
+              }
               fontSize={screenPercentageToDP(1.57, Orientation.Height)}
               onPress={markPatientForSync}
               outline
