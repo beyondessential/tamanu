@@ -172,7 +172,7 @@ describe('SurveyResponse', () => {
       });
     });
 
-    it.only('should skip error if the answer body is an empty string', async () => {
+    it('should skip error if the answer body is an empty string', async () => {
       // arrange
       const { Facility } = models;
       await Facility.create(fake(Facility));
