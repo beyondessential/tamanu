@@ -14,7 +14,7 @@ export class ReportRequestProcessor extends ScheduledTask {
   }
 
   constructor({ schedules, settings, store, emailService, reportsSchemasStore }) {
-    const { jitterTime, schedule } = schedules.reportRequestProcessor;
+    const { jitterTime } = schedules.reportRequestProcessor;
     super(schedules.reportRequestProcessor.schedule, log, jitterTime);
     this.settings = settings;
     this.store = store;

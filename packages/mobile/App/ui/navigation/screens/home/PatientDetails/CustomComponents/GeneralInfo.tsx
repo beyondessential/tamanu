@@ -4,7 +4,7 @@ import { formatStringDate } from '/helpers/date';
 import { DateFormats } from '/helpers/constants';
 import { FieldRowDisplay } from '~/ui/components/FieldRowDisplay';
 import { PatientSection } from './PatientSection';
-import { useLocalisation } from '~/ui/contexts/LocalisationContext';
+import { useSettings } from '~/ui/contexts/SettingContext';
 import { getGender } from '~/ui/helpers/user';
 import { IPatient } from '~/types';
 import { allAdditionalDataFields } from '~/ui/helpers/additionalData';
@@ -31,13 +31,15 @@ export const GeneralInfo = ({ onEdit, patient }: GeneralInfoProps): ReactElement
   ];
 
   // Check if patient information should be editable
-  const { getBool } = useLocalisation();
-  const isEditable = getBool('features.editPatientDetailsOnMobile');
+  const { getSetting } = useSettings();
+  const isEditable = getSetting<boolean>('features.editPatientDetailsOnMobile');
 
   const { patientAdditionalData, loading, error } = usePatientAdditionalData(patient.id);
 
   const patientAdditionalDataFields = allAdditionalDataFields
-    .filter(fieldName => getBool(`fields.${fieldName}.requiredPatientData`))
+    .filter(fieldName =>
+      getSetting<boolean>(`localisation.fields.${fieldName}.requiredPatientData`),
+    )
     .map(fieldName => [fieldName, getFieldData(patientAdditionalData, fieldName)]);
   if (error) {
     return <ErrorScreen error={error} />;

@@ -17,7 +17,7 @@ import { useAuth } from '~/ui/contexts/AuthContext';
 import { useFacility } from '~/ui/contexts/FacilityContext';
 import { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
 import { authUserSelector } from '/helpers/selectors';
-import { useLocalisation } from '~/ui/contexts/LocalisationContext';
+import { useSettings } from '~/ui/contexts/SettingContext';
 
 const StyledSeparator = styled(Separator)`
   padding-left: ${screenPercentageToDP(4.86, Orientation.Width)}px;
@@ -92,8 +92,8 @@ const Footer = ({ version, deviceId }: FooterProps): ReactElement => (
 );
 
 export const MoreScreen = ({ navigation }: BaseAppProps): ReactElement => {
-  const { getLocalisation } = useLocalisation();
-  const supportDeskUrl = getLocalisation('supportDeskUrl');
+  const { getSetting } = useSettings();
+  const supportDeskUrl = getSetting<string>('supportDeskUrl');
   const authCtx = useAuth();
   const user = useSelector(authUserSelector);
   const { facilityName } = useFacility();

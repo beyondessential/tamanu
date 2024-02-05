@@ -1,17 +1,17 @@
 import React, { ReactElement } from 'react';
-import { useLocalisation } from '~/ui/contexts/LocalisationContext';
+import { useSettings } from '~/ui/contexts/SettingContext';
 
 type LocalisedTextProps = {
   path: string;
-}
+};
 
 export const LocalisedText = ({ path }: LocalisedTextProps): ReactElement => {
-  const { getString } = useLocalisation();
+  const { getSetting } = useSettings();
   if (!path) {
     if (__DEV__) {
       throw new Error(`ConfigurableText: missing path!`);
     }
     return <>{'no path specified'}</>;
   }
-  return <>{getString(path)}</>;
+  return <>{getSetting<string>(path)}</>;
 };

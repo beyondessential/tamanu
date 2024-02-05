@@ -5,7 +5,7 @@ import { get } from 'lodash';
 import { PatientLetter, tmpdir } from '@tamanu/shared/utils';
 import crypto from 'crypto';
 
-export const makePatientLetter = async (req, { id, facilityId, ...data }) => {
+export const makePatientLetter = async (req, { id, ...data }) => {
   const { settings, models } = req;
   const settingsObject = await settings.get();
   const getSetting = key => get(settingsObject, key);

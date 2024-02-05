@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import { useNavigation } from '@react-navigation/core';
 
-import { useLocalisation } from '~/ui/contexts/LocalisationContext';
+import { useSettings } from '~/ui/contexts/SettingContext';
 import { LocalisedField } from '~/ui/components/Forms/LocalisedField';
 import { AutocompleteModalField } from '~/ui/components/AutocompleteModal/AutocompleteModalField';
 import { ReferenceDataType } from '~/types';
@@ -11,7 +11,7 @@ import { useBackend } from '~/ui/hooks';
 export const LocationDetailsSection = (): ReactElement => {
   const navigation = useNavigation();
   const { models } = useBackend();
-  const { getString, getBool } = useLocalisation();
+  const { getSetting } = useSettings();
 
   const villageSuggester = new Suggester(models.ReferenceData, {
     where: {
@@ -22,11 +22,14 @@ export const LocationDetailsSection = (): ReactElement => {
   return (
     <LocalisedField
       component={AutocompleteModalField}
-      placeholder={`Search for ${getString('fields.villageId.longLabel', 'Village')}`}
+      placeholder={`Search for ${getSetting<string>(
+        'localisation.fields.villageId.longLabel',
+        'Village',
+      )}`}
       navigation={navigation}
       suggester={villageSuggester}
       name="villageId"
-      required={getBool('fields.villageId.requiredPatientData')}
+      required={getSetting<boolean>('localisation.fields.villageId.requiredPatientData')}
     />
   );
 };

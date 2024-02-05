@@ -125,51 +125,10 @@ describe('FacilitySyncManager edge cases', () => {
 
   describe('handles local updates between "snapshot for push" and "pull"', () => {
     let patient;
-    let encounter;
     let syncManager;
 
     const CURRENT_SYNC_TICK = '6';
     const NEW_SYNC_TICK = '8';
-
-    const initializeSyncManager = (pulledEncounter, configToOverride) => {
-      const {
-        FacilitySyncManager: TestFacilitySyncManager,
-      } = require('../../dist/sync/FacilitySyncManager');
-      if (configToOverride) {
-        TestFacilitySyncManager.overrideConfig(configToOverride);
-      }
-      syncManager = new TestFacilitySyncManager({
-        models,
-        sequelize,
-        centralServer: {
-          startSyncSession: jest.fn().mockImplementation(async () => ({
-            sessionId: TEST_SESSION_ID,
-            startedAtTick: NEW_SYNC_TICK,
-          })),
-          settings,
-          push: jest.fn(),
-          pull: jest.fn().mockImplementation(async () => [
-            {
-              id: pulledEncounter.id,
-              recordId: pulledEncounter.id,
-              isDeleted: false,
-              recordType: models.Encounter.tableName,
-              savedAtSyncTick: 1,
-              data: {
-                ...pulledEncounter.dataValues,
-              },
-            },
-          ]),
-          completePush: jest.fn(),
-          endSyncSession: jest.fn(),
-          initiatePull: jest.fn().mockImplementation(async () => ({
-            totalToPull: 1,
-            pullUntil: 1,
-          })),
-        },
-      });
-      syncManager.__testSpyEnabled = true;
-    };
 
     beforeAll(async () => {
       const facility = await models.Facility.create({
@@ -189,6 +148,51 @@ describe('FacilitySyncManager edge cases', () => {
       });
     });
 
+    const initializeSyncManager = async (configToOverride = null) => {
+      const encounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId: patient.id,
+      });
+      const {
+        FacilitySyncManager: TestFacilitySyncManager,
+      } = require('../../dist/sync/FacilitySyncManager');
+      if (configToOverride) {
+        TestFacilitySyncManager.overrideConfig(configToOverride);
+      }
+      syncManager = new TestFacilitySyncManager({
+        models,
+        sequelize,
+        centralServer: {
+          startSyncSession: jest.fn().mockImplementation(async () => ({
+            sessionId: TEST_SESSION_ID,
+            startedAtTick: NEW_SYNC_TICK,
+          })),
+          settings,
+          push: jest.fn(),
+          pull: jest.fn().mockImplementation(async () => [
+            {
+              id: encounter.id,
+              recordId: encounter.id,
+              isDeleted: false,
+              recordType: models.Encounter.tableName,
+              savedAtSyncTick: 1,
+              data: {
+                ...encounter.dataValues,
+              },
+            },
+          ]),
+          completePush: jest.fn(),
+          endSyncSession: jest.fn(),
+          initiatePull: jest.fn().mockImplementation(async () => ({
+            totalToPull: 1,
+            pullUntil: 1,
+          })),
+        },
+      });
+      syncManager.__testSpyEnabled = true;
+      return encounter;
+    };
+
     beforeEach(async () => {
       jest.resetModules();
 
@@ -196,11 +200,6 @@ describe('FacilitySyncManager edge cases', () => {
       await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, CURRENT_SYNC_TICK);
       await models.LocalSystemFact.set(LAST_SUCCESSFUL_SYNC_PUSH_KEY, LAST_SUCCESSFUL_SYNC_PUSH);
       await models.LocalSystemFact.set(LAST_SUCCESSFUL_SYNC_PULL_KEY, LAST_SUCCESSFUL_SYNC_PULL);
-
-      encounter = await models.Encounter.create({
-        ...(await createDummyEncounter(models)),
-        patientId: patient.id,
-      });
     });
 
     it('does not throw an error if pulled records was not updated between push and pull', async () => {
@@ -215,7 +214,7 @@ describe('FacilitySyncManager edge cases', () => {
         }),
       }));
 
-      initializeSyncManager(encounter);
+      await initializeSyncManager();
 
       // start the sync
       const syncPromise = syncManager.runSync();
@@ -244,7 +243,7 @@ describe('FacilitySyncManager edge cases', () => {
         }),
       }));
 
-      initializeSyncManager(encounter);
+      const encounter = await initializeSyncManager();
 
       // start the sync
       const syncPromise = syncManager.runSync();
@@ -289,7 +288,7 @@ describe('FacilitySyncManager edge cases', () => {
         config.serverFacilityId,
       );
 
-      initializeSyncManager(encounter, configToOverride);
+      const encounter = await initializeSyncManager(configToOverride);
 
       // start the sync
       const syncPromise = syncManager.runSync();

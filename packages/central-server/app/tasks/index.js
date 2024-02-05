@@ -11,6 +11,7 @@ import { SignerWorkingPeriodChecker } from './SignerWorkingPeriodChecker';
 import { SignerRenewalChecker } from './SignerRenewalChecker';
 import { SignerRenewalSender } from './SignerRenewalSender';
 import { CertificateNotificationProcessor } from './CertificateNotificationProcessor';
+import { IPSRequestProcessor } from './IPSRequestProcessor';
 import { AutomaticLabTestResultPublisher } from './AutomaticLabTestResultPublisher';
 import { CovidClearanceCertificatePublisher } from './CovidClearanceCertificatePublisher';
 import { PlannedMoveTimeout } from './PlannedMoveTimeout';
@@ -30,6 +31,7 @@ export async function startScheduledTasks(context) {
     PatientEmailCommunicationProcessor,
     ReportRequestProcessor,
     CertificateNotificationProcessor,
+    IPSRequestProcessor,
     PatientMergeMaintainer,
     FhirMissingResources,
   ];

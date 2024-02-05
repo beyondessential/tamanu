@@ -5,7 +5,6 @@ import { LetterheadSection } from './LetterheadSection';
 import { PatientDetailsWithAddress } from './printComponents/PatientDetailsWithAddress';
 import { DIAGNOSIS_CERTAINTIES_TO_HIDE } from '@tamanu/constants';
 import { EncounterDetailsExtended } from './printComponents/EncounterDetailsExtended';
-import { Footer } from './printComponents/Footer';
 import { P } from './Typography';
 
 const borderStyle = '1 solid black';

@@ -13,13 +13,15 @@ export const saveCreates = async (model, records) => {
   const idsAdded = new Set();
   const idsForSoftDeleted = records
     .filter(row => row.isDeleted)
-    .map(({ isDeleted, ...row }) => row.id);
+    .map(row => row.id);
 
   for (const record of records) {
-    const { id, isDeleted, ...data } = record;
-    if (!idsAdded.has(id)) {
-      deduplicated.push({ ...data, id });
-      idsAdded.add(id);
+    const data = { ...record };
+    delete data.isDeleted;
+
+    if (!idsAdded.has(data.id)) {
+      deduplicated.push(data);
+      idsAdded.add(data.id);
     }
   }
   await model.bulkCreate(deduplicated);
