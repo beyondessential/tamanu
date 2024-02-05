@@ -35,8 +35,12 @@ export const VACCINE_GIVEN_INITIAL_VALUES = {
   consent: false,
 };
 
-export const VACCINE_GIVEN_VALIDATION_SCHEMA = {
-  consent: yup.bool().oneOf([true], REQUIRED_INLINE_ERROR_MESSAGE),
+export const VACCINE_GIVEN_VALIDATION_SCHEMA = vaccineConsentEnabled => ({
+  consent: yup.bool().when([], {
+    is: () => vaccineConsentEnabled,
+    then: yup.bool().oneOf([true], REQUIRED_INLINE_ERROR_MESSAGE),
+    otherwise: yup.bool(),
+  }),
   givenBy: yup.string().when('givenElsewhere', {
     is: true,
     then: yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
@@ -48,7 +52,7 @@ export const VACCINE_GIVEN_VALIDATION_SCHEMA = {
     then: yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
     otherwise: yup.string().nullable(),
   }),
-};
+});
 
 export const VaccineGivenForm = ({
   vaccineLabel,
@@ -64,6 +68,7 @@ export const VaccineGivenForm = ({
   setVaccineLabel,
   values,
   setValues,
+  vaccineConsentEnabled,
 }) => {
   return (
     <TwoTwoGrid>
@@ -156,17 +161,19 @@ export const VaccineGivenForm = ({
 
       {!editMode && <RecordedByField />}
 
-      <StyledDivider />
-
-      <ConsentField
-        label={
-          values.givenElsewhere
-            ? 'Do you have consent to record in Tamanu?'
-            : 'Do you have consent from the recipient/parent/guardian to give this vaccine and record in Tamanu?'
-        }
-      />
-
-      <ConsentGivenByField />
+      {vaccineConsentEnabled && (
+        <>
+          <StyledDivider />
+          <ConsentField
+            label={
+              values.givenElsewhere
+                ? 'Do you have consent to record in Tamanu?'
+                : 'Do you have consent from the recipient/parent/guardian to give this vaccine and record in Tamanu?'
+            }
+          />
+          <ConsentGivenByField />
+        </>
+      )}
 
       <StyledDivider />
 
