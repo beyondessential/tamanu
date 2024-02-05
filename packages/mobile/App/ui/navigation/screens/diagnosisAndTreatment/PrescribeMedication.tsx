@@ -109,7 +109,7 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
                     label={
                       <TranslatedText
                         stringId="medication.form.instructions.label"
-                        fallback="Instructions"
+                        fallback="Instruction"
                       />
                     }
                   />
@@ -135,7 +135,7 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
                     name="quantity"
                     label={
                       <TranslatedText
-                        stringId="medication.form.quantityWithUnits.label"
+                        stringId="medication.form.quantityInSingleUnits.label"
                         fallback="Quantity (in single units)"
                       />
                     }

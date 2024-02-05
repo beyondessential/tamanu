@@ -151,7 +151,7 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
                     placeholder={
                       <TranslatedText
                         stringId="diagnosis.form.clinicalNote.label"
-                        fallback="Clinical Notes"
+                        fallback="Clinical Note"
                       />
                     }
                   />
