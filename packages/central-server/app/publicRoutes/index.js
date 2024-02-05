@@ -1,5 +1,6 @@
 import express from 'express';
 import config from 'config';
+import asyncHandler from 'express-async-handler';
 import { log } from '@tamanu/shared/services/logging';
 
 import { labResultWidgetRoutes } from './labResultWidget';
