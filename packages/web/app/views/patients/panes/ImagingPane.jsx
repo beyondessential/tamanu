@@ -31,8 +31,12 @@ export const ImagingPane = React.memo(({ encounter, readonly }) => {
         >
           Print
         </Button>
-        <ButtonWithPermissionCheck onClick={() => setNewRequestModalOpen(true)} disabled={readonly} verb="create"
-          noun="ImagingRequest">
+        <ButtonWithPermissionCheck
+          onClick={() => setNewRequestModalOpen(true)}
+          disabled={readonly}
+          verb="create"
+          noun="ImagingRequest"
+        >
           New imaging request
         </ButtonWithPermissionCheck>
       </TableButtonRow>
