@@ -26,7 +26,7 @@ const pageStyles = StyleSheet.create({
   body: {
     paddingHorizontal: 50,
     paddingTop: 30,
-    paddingBottom: 70,
+    paddingBottom: 50,
   },
 });
 
@@ -66,7 +66,7 @@ const textStyles = StyleSheet.create({
 const tableStyles = StyleSheet.create({
   table: {
     flexDirection: 'column',
-    marginBottom: 15,
+    marginBottom: 5,
   },
   row: {
     flexDirection: 'row',
@@ -74,6 +74,12 @@ const tableStyles = StyleSheet.create({
     borderTop: borderStyle,
     borderRight: borderStyle,
     borderBottom: borderStyle,
+    marginBottom: -1,
+  },
+  notesRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    borderTop: borderStyle,
     marginBottom: -1,
   },
   baseCell: {
@@ -90,6 +96,8 @@ const tableStyles = StyleSheet.create({
     width: '100%',
     flexDirection: 'column',
     borderLeft: borderStyle,
+    borderRight: borderStyle,
+    borderBottom: borderStyle,
     alignItems: 'flex-start',
     padding: 7,
   },
@@ -379,7 +387,7 @@ const NotesSection = ({ notes }) => {
       <MultipageTableHeading title="Notes" />
       <Table>
         {notes.map(note => (
-          <Row key={note.id}>
+          <View style={tableStyles.notesRow} key={note.id}>
             <View
               style={{
                 borderTop: borderStyle,
@@ -390,6 +398,7 @@ const NotesSection = ({ notes }) => {
               }}
               fixed
             />
+            <View minPresenceAhead={30} />
             <NotesCell>
               <NotesMultipageCellPadding />
               <MultipageTableHeading
@@ -399,9 +408,9 @@ const NotesSection = ({ notes }) => {
               <Text style={textStyles.tableCellContent}>{`${note.content}\n`}</Text>
               <NoteFooter note={note} />
             </NotesCell>
-          </Row>
+            <View style={{ borderBottom: borderStyle }} fixed />
+          </View>
         ))}
-        <View style={{ borderBottom: borderStyle }} fixed />
       </Table>
     </View>
   );
