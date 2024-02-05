@@ -160,10 +160,14 @@ export const VaccineCertificate = ({
           />
         </Box>
         <FixedFooter>
+          <View
+            render={({ pageNumber, totalPages }) =>
+              pageNumber === totalPages && <SigningSection signingSrc={signingSrc} />
+            }
+          />
           <VaccineCertificateFooter />
         </FixedFooter>
       </Page>
-      <SigningSection signingSrc={signingSrc} />
     </Document>
   );
 };
