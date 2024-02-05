@@ -69,12 +69,24 @@ export class PatientProgramRegistration extends BaseModel implements IPatientPro
   clinicianId?: ID;
 
   dateRemoved: DateTimeString;
-
-  // @ManyToOne(() => User, undefined, { nullable: true })
   removedBy?: IUser;
-
-  // @RelationId<PatientProgramRegistration>(({ clinician }) => clinician)
   removedById?: ID;
+
+  static async getByProgramAndPatientId(
+    programId?: string,
+    patientId?: string,
+  ): Promise<ProgramRegistry[]> {
+    return !!programId && !!patientId
+      ? this.getRepository(PatientProgramRegistration)
+          .createQueryBuilder('registration')
+          .leftJoinAndSelect('registration.programRegistry', 'program_registries')
+          .leftJoinAndSelect('program_registries.program', 'program')
+          .where('program.id = :programId', { programId })
+          .andWhere('registration.patientId = :patientId', { patientId })
+          .orderBy('registration.date', 'DESC')
+          .getOne()
+      : undefined;
+  }
 
   static getTableNameForSync(): string {
     return 'patient_program_registrations';

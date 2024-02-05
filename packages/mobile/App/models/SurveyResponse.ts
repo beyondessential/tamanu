@@ -19,8 +19,7 @@ import { VitalLog } from './VitalLog';
 import { SYNC_DIRECTIONS } from './types';
 import { DateTimeStringColumn } from './DateColumns';
 
-
-const getDbLocation = fieldName => {
+export const getDbLocation = fieldName => {
   if (PATIENT_DATA_FIELD_LOCATIONS[fieldName]) {
     const [modelName, columnName] = PATIENT_DATA_FIELD_LOCATIONS[fieldName];
     return {
@@ -32,10 +31,10 @@ const getDbLocation = fieldName => {
 };
 
 type RecordValuesByModel = {
-  Patient?: Record<string, string>,
-  PatientAdditionalData?: Record<string, string>,
-  PatientProgramRegistration?: Record<string, string>,
-}
+  Patient?: Record<string, string>;
+  PatientAdditionalData?: Record<string, string>;
+  PatientProgramRegistration?: Record<string, string>;
+};
 
 const getFieldsToWrite = (questions, answers): RecordValuesByModel => {
   const recordValuesByModel = {};
@@ -235,7 +234,7 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
       }
       setNote('Writing patient data');
 
-      await writeToPatientFields(components, finalValues, patientId)
+      await writeToPatientFields(components, finalValues, patientId);
       setNote('Done');
 
       return responseRecord;

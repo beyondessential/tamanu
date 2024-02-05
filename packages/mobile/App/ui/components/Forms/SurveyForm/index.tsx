@@ -1,4 +1,12 @@
-import React, { Dispatch, ReactElement, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react';
+import React, {
+  Dispatch,
+  ReactElement,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { useSelector } from 'react-redux';
 import { getFormInitialValues, getFormSchema } from './helpers';
 import { IPatientAdditionalData, ISurveyScreenComponent } from '~/types';
@@ -10,6 +18,7 @@ import { authUserSelector } from '/helpers/selectors';
 import { useBackendEffect } from '~/ui/hooks';
 import { ErrorScreen } from '../../ErrorScreen';
 import { LoadingScreen } from '../../LoadingScreen';
+import { IPatientProgramRegistration } from '~/types/IPatientProgramRegistration';
 
 export type SurveyFormProps = {
   onSubmit: (values: any) => Promise<void>;
@@ -21,6 +30,7 @@ export type SurveyFormProps = {
   note: string;
   validate?: any;
   patientAdditionalData: IPatientAdditionalData;
+  patientProgramRegistration?: IPatientProgramRegistration;
   setCurrentScreenIndex: Dispatch<SetStateAction<number>>;
   currentScreenIndex: number;
 };
@@ -31,6 +41,7 @@ export const SurveyForm = ({
   note,
   patient,
   patientAdditionalData,
+  patientProgramRegistration,
   validate,
   onCancel,
   setCurrentScreenIndex,
@@ -39,8 +50,15 @@ export const SurveyForm = ({
 }: SurveyFormProps): ReactElement => {
   const currentUser = useSelector(authUserSelector);
   const initialValues = useMemo(
-    () => getFormInitialValues(components, currentUser, patient, patientAdditionalData),
-    [components, currentUser, patient, patientAdditionalData],
+    () =>
+      getFormInitialValues(
+        components,
+        currentUser,
+        patient,
+        patientAdditionalData,
+        patientProgramRegistration,
+      ),
+    [components, currentUser, patient, patientAdditionalData, patientProgramRegistration],
   );
   const [encounterResult, encounterError, isEncounterLoading] = useBackendEffect(
     async ({ models }) => {
