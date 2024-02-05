@@ -1,6 +1,5 @@
 import config from 'config';
 import { formatInTimeZone } from 'date-fns-tz';
-import config from 'config';
 import { transliterate as tr } from 'transliteration';
 import { log } from '@tamanu/shared/services/logging';
 
