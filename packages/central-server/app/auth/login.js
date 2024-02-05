@@ -68,7 +68,8 @@ export const login = ({ secret, refreshSecret }) =>
     const { models } = store;
     const { email, password, facilityId, deviceId } = body;
 
-    const settingsObject = await settings.getAll();
+    const settingsObject = await settings.getFrontEndSettings();
+    settingsObject.countryTimeZone = config.countryTimeZone // This needs to be in config but also needs to be front end accessible
 
     if (!email || !password) {
       throw new BadAuthenticationError('Missing credentials');

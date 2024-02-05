@@ -37,7 +37,6 @@ async function serve({ skipMigrationCheck }) {
 
   const syncConfig = await settings.get('sync');
   const countryTimeZone = config.countryTimeZone;
-  const discoverySettings = await settings.get('discovery');
 
   await initHoneyComb(context);
 

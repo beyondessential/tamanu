@@ -84,7 +84,8 @@ async function localLogin({ models, settings }, email, password) {
     where: { email },
   });
 
-  const settingsObject = await settings.getAll();
+  const settingsObject = await settings.getFrontEndSettings();
+  settingsObject.countryTimeZone = config.countryTimeZone // This needs to be in config but also needs to be front end accessible
 
   if (user && user.visibilityStatus !== VISIBILITY_STATUSES.CURRENT) {
     throw new BadAuthenticationError(USER_DEACTIVATED_ERROR_MESSAGE);
@@ -201,6 +202,7 @@ async function getUserFromToken(request) {
 
 export const authMiddleware = async (req, res, next) => {
   try {
+    // eslint-disable-next-line require-atomic-updates
     req.user = await getUserFromToken(req);
     const spanAttributes = req.user
       ? {

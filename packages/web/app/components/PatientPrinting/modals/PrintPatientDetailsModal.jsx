@@ -12,8 +12,7 @@ import { PatientStickerLabelPage } from './PatientStickerLabelPage';
 import { CovidTestCertificateModal } from './CovidTestCertificateModal';
 import { CovidClearanceCertificateModal } from './CovidClearanceCertificateModal';
 import { BirthNotificationCertificateModal } from './BirthNotificationCertificateModal';
-import { PDFViewer } from '../PDFViewer';
-import { IDLabelPrintout } from '../../../../../shared/src/utils/patientCertificates/IDLabelPrintout';
+import { IPSQRCodeModal } from './IPSQRCodeModal';
 
 const PRINT_OPTIONS = {
   barcode: {
@@ -36,6 +35,11 @@ const PRINT_OPTIONS = {
   birthNotification: {
     label: 'Birth notification',
     component: BirthNotificationCertificateModal,
+  },
+  ipsQrCode: {
+    label: 'International Patient Summary',
+    component: IPSQRCodeModal,
+    condition: (_, ability) => ability?.can('create', 'IPSRequest'),
   },
 };
 
@@ -160,7 +164,7 @@ export const PrintPatientDetailsModal = ({ patient }) => {
   return (
     <>
       <Button size="small" onClick={openModal}>
-        Print ID forms
+        ID forms
       </Button>
       {mainComponent}
     </>

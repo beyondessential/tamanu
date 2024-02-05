@@ -1,10 +1,9 @@
 import React from 'react';
 import { Document, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
-import { CertificateHeader, FixedFooter, FixedHeader, PageBreakPadding, Watermark } from './Layout';
+import { CertificateHeader, Watermark } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
 import { PatientDetailsWithAddress } from './printComponents/PatientDetailsWithAddress';
 import { startCase } from 'lodash';
-import { Footer } from './printComponents/Footer';
 import {
   ENCOUNTER_LABELS,
   NOTE_TYPE_LABELS,
@@ -333,18 +332,6 @@ const NotesSection = ({ notes }) => (
         </Row>
       ))}
     </Table>
-  </View>
-);
-
-const EncounterRecordHeader = ({ patient }) => (
-  <View style={{ flexDirection: 'row' }}>
-    <Text style={textStyles.headerLabel}>Patient encounter record | </Text>
-    <Text style={textStyles.headerLabel}>Patient name: </Text>
-    <Text style={textStyles.headerValue}>
-      {patient.firstName} {patient.lastName} |{' '}
-    </Text>
-    <Text style={textStyles.headerLabel}>Patient ID: </Text>
-    <Text style={textStyles.headerValue}>{patient.displayId}</Text>
   </View>
 );
 

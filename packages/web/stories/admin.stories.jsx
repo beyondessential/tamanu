@@ -67,7 +67,9 @@ const sampleResponse = {
 
 const dummySubmit = overrides => async formData => {
   action('submitStart')(formData);
-  await new Promise(resolve => setTimeout(resolve, 1000));
+  await new Promise(resolve => {
+    setTimeout(resolve, 1000);
+  });
   action('submitEnd')();
   return {
     ...sampleResponse,

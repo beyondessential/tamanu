@@ -1,10 +1,10 @@
 import React, { ReactElement } from 'react';
 import { TextField } from '../../../TextField/TextField';
 import { LocalisedField } from '~/ui/components/Forms/LocalisedField';
-import { useLocalisation } from '~/ui/contexts/LocalisationContext';
+import { useSettings } from '~/ui/contexts/SettingContext';
 
 export const NameSection = (): ReactElement => {
-  const { getBool } = useLocalisation();
+  const { getSetting } = useSettings();
 
   return (
     <>
@@ -12,13 +12,13 @@ export const NameSection = (): ReactElement => {
       <LocalisedField
         name="middleName"
         component={TextField}
-        required={getBool('fields.middleName.requiredPatientData')}
+        required={getSetting<boolean>('localisation.fields.middleName.requiredPatientData')}
       />
       <LocalisedField name="lastName" component={TextField} required />
       <LocalisedField
         name="culturalName"
         component={TextField}
-        required={getBool('fields.culturalName.requiredPatientData')}
+        required={getSetting<boolean>('localisation.fields.culturalName.requiredPatientData')}
       />
     </>
   );

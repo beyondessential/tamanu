@@ -7,7 +7,7 @@ import { Provider } from 'react-redux';
 import { persistor, store } from '../../store/index';
 import { AuthProvider } from '../../contexts/AuthContext';
 import { FacilityProvider } from '../../contexts/FacilityContext';
-import { LocalisationProvider } from '../../contexts/LocalisationContext';
+import { SettingProvider } from '../../contexts/SettingContext';
 import { Core } from './Core';
 import { DetectIdleLayer } from './DetectIdleLayer';
 
@@ -19,7 +19,7 @@ export const RootStack = (): ReactElement => {
         <Provider store={store}>
           <PersistGate loading={null} persistor={persistor}>
             <NavigationContainer ref={navigationRef}>
-              <LocalisationProvider>
+              <SettingProvider>
                 <AuthProvider navRef={navigationRef}>
                   <FacilityProvider>
                     <DetectIdleLayer>
@@ -27,7 +27,7 @@ export const RootStack = (): ReactElement => {
                     </DetectIdleLayer>
                   </FacilityProvider>
                 </AuthProvider>
-              </LocalisationProvider>
+              </SettingProvider>
             </NavigationContainer>
           </PersistGate>
         </Provider>

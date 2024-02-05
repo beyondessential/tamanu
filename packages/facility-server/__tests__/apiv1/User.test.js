@@ -3,7 +3,7 @@ import { chance, disableHardcodedPermissionsForSuite, fake } from '@tamanu/share
 import { addHours } from 'date-fns';
 import { createDummyEncounter } from '@tamanu/shared/demoData/patients';
 
-import { centralServerLogin, getToken } from '../../dist/middleware/auth';
+import { getToken } from '../../dist/middleware/auth';
 import { CentralServerConnection } from '../../dist/sync/CentralServerConnection';
 import { createTestContext } from '../utilities';
 
@@ -34,7 +34,10 @@ describe('User', () => {
     models = ctx.models;
     centralServer = ctx.centralServer;
     CentralServerConnection.mockImplementation(() => centralServer);
-    settings = await ctx.settings.getAll();
+    settings = await ctx.settings.getFrontEndSettings();
+    // We append this on the end of the settings object in the login logic 
+    // as its the only setting that has to be in config that we also want on the front end
+    settings.countryTimeZone = "Australia/Melbourne";
   });
   afterAll(() => ctx.close());
 
@@ -133,7 +136,7 @@ describe('User', () => {
       expect(result).toHaveRequestError();
     });
 
-    it('should return settings in the login request', async () => {
+    it('should return front-end settings in the login request', async () => {
       const result = await baseApp.post('/v1/login').send({
         email: authUser.email,
         password: rawPassword,

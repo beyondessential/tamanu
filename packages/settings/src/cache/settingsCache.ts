@@ -1,29 +1,45 @@
 type Cache = Record<string, string | number | object>;
 export class SettingsCache {
-  cache: Cache | null = null;
+  allSettingsCache: Cache | null = null;
+  frontEndSettingsCache: Cache | null = null;
 
   expirationTimestamp: number | null = null;
 
   // TTL in milliseconds
   ttl = 60000;
 
-  get() {
+  getAllSettings() {
     // If cache is expired, reset it.
     if (!this.isValid()) {
       this.reset();
     }
 
-    return this.cache;
+    return this.allSettingsCache;
   }
 
-  set(value: Cache) {
-    this.cache = value;
+  getFrontEndSettings() {
+    if (!this.isValid()) {
+      this.reset();
+    }
+
+    return this.frontEndSettingsCache;
+  }
+
+  setAllSettings(value: Cache) {
+    this.allSettingsCache = value;
     // Calculate expiration timestamp based on ttl
     this.expirationTimestamp = Date.now() + this.ttl;
   }
 
+  setFrontEndSettings(value: Cache) {
+    this.frontEndSettingsCache = value;
+    this.expirationTimestamp = Date.now() + this.ttl;
+  }
+
+
   reset() {
-    this.cache = null;
+    this.allSettingsCache = null;
+    this.frontEndSettingsCache = null;
     this.expirationTimestamp = null;
   }
 

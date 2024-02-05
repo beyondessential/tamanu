@@ -18,6 +18,7 @@ import { ImagingRequestsProvider } from './contexts/ImagingRequests';
 import { PatientSearchProvider } from './contexts/PatientSearch';
 import { EncounterNotesProvider } from './contexts/EncounterNotes';
 import { SettingsProvider } from './contexts/Settings';
+import { SyncStateProvider } from './contexts/SyncState';
 
 const StateContextProviders = ({ children, store }) => (
   <EncounterProvider store={store}>
@@ -26,7 +27,9 @@ const StateContextProviders = ({ children, store }) => (
         <EncounterNotesProvider>
           <LabRequestProvider store={store}>
             <PatientSearchProvider>
-              <SettingsProvider>{children}</SettingsProvider>
+              <SyncStateProvider>
+                <SettingsProvider>{children}</SettingsProvider>
+              </SyncStateProvider>
             </PatientSearchProvider>
           </LabRequestProvider>
         </EncounterNotesProvider>
@@ -55,19 +58,19 @@ function Root({ api, store, history }) {
                 <ThemeProvider theme={theme}>
                   <StateContextProviders store={store}>
                     <ReactQueryDevtools initialIsOpen={false} />
-                      <ToastContainer
-                        hideProgressBar
-                        transition={Slide}
-                        closeOnClick
-                        pauseOnFocusLoss
-                        draggable
-                        pauseOnHover
-                        theme="colored"
-                        icon={false}
-                        limit={5}
-                      />
-                      <CssBaseline />
-                      <RoutingApp />
+                    <ToastContainer
+                      hideProgressBar
+                      transition={Slide}
+                      closeOnClick
+                      pauseOnFocusLoss
+                      draggable
+                      pauseOnHover
+                      theme="colored"
+                      icon={false}
+                      limit={5}
+                    />
+                    <CssBaseline />
+                    <RoutingApp />
                   </StateContextProviders>
                 </ThemeProvider>
               </MuiThemeProvider>
