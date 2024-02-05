@@ -159,11 +159,11 @@ export const VaccineCertificate = ({
             columnStyle={{ padding: '10px 5px' }}
           />
         </Box>
-        <SigningSection signingSrc={signingSrc} />
         <FixedFooter>
           <VaccineCertificateFooter />
         </FixedFooter>
       </Page>
+      <SigningSection signingSrc={signingSrc} />
     </Document>
   );
 };

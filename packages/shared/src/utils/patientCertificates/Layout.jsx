@@ -42,6 +42,9 @@ export const styles = StyleSheet.create({
   },
   signingImage: {
     width: '100%',
+    position: 'absolute',
+    bottom: 40,
+    padding: '0 30',
   },
   watermarkContainer: {
     position: 'absolute',
