@@ -20,7 +20,7 @@ export const VitalsTableTitle = (): JSX.Element => (
       fontWeight={500}
       color="#326699"
     >
-      <TranslatedText stringId="vitals.table.column.header.measure" fallback="Measure" />
+      <TranslatedText stringId="vitals.table.column.measure" fallback="Measure" />
     </StyledText>
   </StyledView>
 );

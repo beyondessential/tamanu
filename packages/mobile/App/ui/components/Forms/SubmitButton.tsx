@@ -16,7 +16,7 @@ export const SubmitButton = ({ onSubmit, ...props }: SubmitButtonProps): ReactEl
       disabled={isSubmitting}
       buttonText={
         isSubmitting ? (
-          <TranslatedText stringId="general.action.submit" fallback="Submitting..." />
+          <TranslatedText stringId="general.action.submitting" fallback="Submitting..." />
         ) : (
           <TranslatedText stringId="general.action.submit" fallback="Submit" />
         )

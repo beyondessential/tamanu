@@ -38,7 +38,7 @@ const DumbVitalsTabs = ({
         <Tabs.Screen
           options={{
             tabBarLabel: () => (
-              <TranslatedText stringId="patient.vitals.add" fallback="Add Vitals" />
+              <TranslatedText stringId="patient.vitals.heading.addVitals" fallback="Add Vitals" />
             ),
           }}
           name={Routes.HomeStack.VitalsStack.VitalsTabs.AddDetails}
@@ -47,7 +47,7 @@ const DumbVitalsTabs = ({
         <Tabs.Screen
           options={{
             tabBarLabel: () => (
-              <TranslatedText stringId="patient.vitals.history" fallback="History" />
+              <TranslatedText stringId="patient.vitals.heading.history" fallback="History" />
             ),
           }}
           name={Routes.HomeStack.VitalsStack.VitalsTabs.ViewHistory}
