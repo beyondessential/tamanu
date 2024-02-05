@@ -1,7 +1,19 @@
 import React from 'react';
 import { Document, Image, Page, StyleSheet, View, Text } from '@react-pdf/renderer';
 import { getDOB, getSex } from '../patientAccessors';
-import { PrintableBarcode } from './printComponents/PrintableBarcode';
+import JsBarcode from 'jsbarcode';
+
+const CustomBarcode = ({ id, width, height }) => {
+  // eslint-disable-next-line no-undef
+  const canvas = document.createElement('canvas');
+  JsBarcode(canvas, id, {
+    width: 1,
+    margin: 0,
+    displayValue: false,
+  });
+  const barcode = canvas.toDataURL();
+  return <Image source={barcode} style={{ height: height, maxWidth: width, objectFit: 'cover' }} />;
+};
 
 const convertToPt = mm => {
   // remove 'mm' etc from strings
@@ -41,7 +53,7 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     fontSize: '2.4mm',
-    marginVertical: 1.5,
+    marginVertical: 1.8,
   },
   detailsKey: {
     width: '18mm',
@@ -54,8 +66,7 @@ const styles = StyleSheet.create({
   },
   barcodeRow: {
     height: '6.3mm',
-    padding: '1mm',
-    marginLeft: '1.157in',
+    marginLeft: '29.4mm',
   },
 });
 
@@ -95,53 +106,53 @@ export const IDCardPrintout = ({
   measures,
   getLocalisation,
 }) => {
+  const pageStyles = StyleSheet.create({
+    card: {
+      width: cardDimensions.width,
+      height: cardDimensions.height,
+      marginTop: convertToPt(measures.cardMarginTop),
+      marginLeft: convertToPt(measures.cardMarginLeft),
+      display: 'flex',
+      flexDirection: 'column',
+    },
+  });
+
+  const Card = props => <View style={pageStyles.card} {...props} />;
+
   return (
     <Document>
-      <Page
-        size={{
-          width: convertToPt(cardDimensions.width),
-          height: convertToPt(cardDimensions.height),
-        }}
-        style={{
-          paddingHorizontal: measures.cardMaginLeft,
-          paddingVertical: measures.cardMarginTop,
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        <MainContainer>
-          <PatientPhoto patientImageData={patientImageData} />
-          <Details>
-            <DetailsRow
-              name="displayId"
-              value={patient.displayId}
-              getLocalisation={getLocalisation}
-            />
-            <DetailsRow
-              name="lastName"
-              value={patient.lastName}
-              getLocalisation={getLocalisation}
-            />
-            <DetailsRow
-              name="firstName"
-              value={patient.firstName}
-              getLocalisation={getLocalisation}
-            />
-            <DetailsRow
-              name="dateOfBirth"
-              value={getDOB(patient)}
-              getLocalisation={getLocalisation}
-            />
-            <DetailsRow name="sex" value={getSex(patient)} getLocalisation={getLocalisation} />
-          </Details>
-        </MainContainer>
-        <BarcodeRow>
-          <PrintableBarcode
-            width={convertToPt(43)}
-            id={patient.displayId}
-            barcodeStyle={{ displayValue: false }}
-          />
-        </BarcodeRow>
+      <Page size="A4" style={{ paddingTop: convertToPt('10.6mm') }}>
+        <Card>
+          <MainContainer>
+            <PatientPhoto patientImageData={patientImageData} />
+            <Details>
+              <DetailsRow
+                name="displayId"
+                value={patient.displayId}
+                getLocalisation={getLocalisation}
+              />
+              <DetailsRow
+                name="lastName"
+                value={patient.lastName}
+                getLocalisation={getLocalisation}
+              />
+              <DetailsRow
+                name="firstName"
+                value={patient.firstName}
+                getLocalisation={getLocalisation}
+              />
+              <DetailsRow
+                name="dateOfBirth"
+                value={getDOB(patient)}
+                getLocalisation={getLocalisation}
+              />
+              <DetailsRow name="sex" value={getSex(patient)} getLocalisation={getLocalisation} />
+            </Details>
+          </MainContainer>
+          <BarcodeRow>
+            <CustomBarcode height="5.9mm" width="33mm" id={patient.displayId} />
+          </BarcodeRow>
+        </Card>
       </Page>
     </Document>
   );
