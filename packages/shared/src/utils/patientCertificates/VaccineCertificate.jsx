@@ -162,7 +162,7 @@ export const VaccineCertificate = ({
         <FixedFooter>
           <View
             render={({ pageNumber, totalPages }) =>
-              pageNumber === totalPages && <SigningSection signingSrc={signingSrc} />
+              pageNumber === totalPages && <SigningSection signingSrc={signingSrc} /> // TODO: Corrent pattern but error
             }
           />
           <VaccineCertificateFooter />
