@@ -7,7 +7,7 @@ import {
   TableForeignKey,
 } from 'typeorm';
 
-const TABLE_NAME = 'program_registry_conditions';
+const TABLE_NAME = 'program_registry_condition';
 
 const baseIndex = new TableIndex({
   columnNames: ['updatedAtSyncTick'],
@@ -37,8 +37,9 @@ const BaseColumns = [
   }),
   new TableColumn({
     name: 'deletedAt',
-    type: 'datetime',
     isNullable: true,
+    type: 'date',
+    default: null,
   }),
 ];
 
@@ -70,7 +71,7 @@ const ClinicalStatuses = new Table({
   foreignKeys: [
     new TableForeignKey({
       columnNames: ['programRegistryId'],
-      referencedTableName: 'program_registries',
+      referencedTableName: 'program_registry',
       referencedColumnNames: ['id'],
     }),
   ],

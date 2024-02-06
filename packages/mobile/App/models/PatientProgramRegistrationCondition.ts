@@ -17,7 +17,7 @@ import { Facility } from './Facility';
 import { User } from './User';
 import { DateTimeStringColumn } from './DateColumns';
 
-@Entity('patient_program_registration_conditions')
+@Entity('patient_program_registration_condition')
 export class PatientProgramRegistrationCondition extends BaseModel
   implements IPatientProgramRegistrationCondition {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;

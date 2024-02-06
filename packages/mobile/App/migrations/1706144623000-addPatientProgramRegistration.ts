@@ -1,8 +1,19 @@
-import { MigrationInterface, QueryRunner, Table, TableColumn, TableForeignKey } from 'typeorm';
+import {
+  MigrationInterface,
+  QueryRunner,
+  Table,
+  TableColumn,
+  TableForeignKey,
+  TableIndex,
+} from 'typeorm';
 
-const TABLE_NAME = 'patient_program_registrations';
+const TABLE_NAME = 'patient_program_registration';
 const ISO9075_FORMAT = 'YYYY-MM-DD HH:mm:ss';
 const ISO9075_FORMAT_LENGTH = ISO9075_FORMAT.length;
+
+const baseIndex = new TableIndex({
+  columnNames: ['updatedAtSyncTick'],
+});
 
 const BaseColumns = [
   new TableColumn({
@@ -28,8 +39,9 @@ const BaseColumns = [
   }),
   new TableColumn({
     name: 'deletedAt',
-    type: 'datetime',
     isNullable: true,
+    type: 'date',
+    default: null,
   }),
 ];
 
@@ -84,11 +96,6 @@ const PatientProgramRegistration = new Table({
       type: 'varchar',
       isNullable: true,
     }),
-    new TableColumn({
-      name: 'removedByClinicianId',
-      type: 'varchar',
-      isNullable: true,
-    }),
   ],
   foreignKeys: [
     new TableForeignKey({
@@ -99,12 +106,12 @@ const PatientProgramRegistration = new Table({
     new TableForeignKey({
       columnNames: ['programRegistryId'],
       referencedColumnNames: ['id'],
-      referencedTableName: 'program_registries',
+      referencedTableName: 'program_registry',
     }),
     new TableForeignKey({
       columnNames: ['clinicalStatusId'],
       referencedColumnNames: ['id'],
-      referencedTableName: 'program_registry_clinical_statuses',
+      referencedTableName: 'program_registry_clinical_status',
     }),
     new TableForeignKey({
       columnNames: ['clinicianId'],
@@ -126,12 +133,8 @@ const PatientProgramRegistration = new Table({
       referencedColumnNames: ['id'],
       referencedTableName: 'reference_data',
     }),
-    new TableForeignKey({
-      columnNames: ['removedByClinicianId'],
-      referencedColumnNames: ['id'],
-      referencedTableName: 'user',
-    }),
   ],
+  indices: [baseIndex],
 });
 
 export class addPatientProgramRegistration1706144623000 implements MigrationInterface {

@@ -7,7 +7,7 @@ import {
   TableForeignKey,
 } from 'typeorm';
 
-const TABLE_NAME = 'program_registries';
+const TABLE_NAME = 'program_registry';
 
 const baseIndex = new TableIndex({
   columnNames: ['updatedAtSyncTick'],
@@ -37,8 +37,9 @@ const BaseColumns = [
   }),
   new TableColumn({
     name: 'deletedAt',
-    type: 'datetime',
     isNullable: true,
+    type: 'date',
+    default: null,
   }),
 ];
 

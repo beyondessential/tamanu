@@ -22,7 +22,7 @@ import { User } from './User';
 import { RegistrationStatus } from '~/constants/programRegistries';
 import { DateTimeStringColumn } from './DateColumns';
 
-@Entity('patient_program_registrations')
+@Entity('patient_program_registration')
 export class PatientProgramRegistration extends BaseModel implements IPatientProgramRegistration {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 

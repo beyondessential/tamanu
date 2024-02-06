@@ -7,7 +7,7 @@ import {
   TableForeignKey,
 } from 'typeorm';
 
-const TABLE_NAME = 'program_registry_clinical_statuses';
+const TABLE_NAME = 'program_registry_clinical_status';
 
 const baseIndex = new TableIndex({
   columnNames: ['updatedAtSyncTick'],
@@ -37,8 +37,9 @@ const BaseColumns = [
   }),
   new TableColumn({
     name: 'deletedAt',
-    type: 'datetime',
     isNullable: true,
+    type: 'date',
+    default: null,
   }),
 ];
 
@@ -64,7 +65,7 @@ const ClinicalStatuses = new Table({
     new TableColumn({
       name: 'color',
       type: 'varchar',
-      isNullable: false,
+      isNullable: true,
     }),
     new TableColumn({
       name: 'programRegistryId',
@@ -75,12 +76,13 @@ const ClinicalStatuses = new Table({
   foreignKeys: [
     new TableForeignKey({
       columnNames: ['programRegistryId'],
-      referencedTableName: 'program_registries',
+      referencedTableName: 'program_registry',
       referencedColumnNames: ['id'],
     }),
   ],
   indices: [baseIndex],
 });
+
 export class addProgramRegistryClinicalStatuses1706506699000 implements MigrationInterface {
   async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(ClinicalStatuses, true);
