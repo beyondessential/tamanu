@@ -133,11 +133,6 @@ const PatientProgramRegistration = new Table({
       referencedColumnNames: ['id'],
       referencedTableName: 'reference_data',
     }),
-    new TableForeignKey({
-      columnNames: ['removedByClinicianId'],
-      referencedColumnNames: ['id'],
-      referencedTableName: 'user',
-    }),
   ],
   indices: [baseIndex],
 });
