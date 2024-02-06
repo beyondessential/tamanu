@@ -79,8 +79,8 @@ export class PatientProgramRegistration extends BaseModel implements IPatientPro
     return !!programId && !!patientId
       ? this.getRepository(PatientProgramRegistration)
           .createQueryBuilder('registration')
-          .leftJoinAndSelect('registration.programRegistry', 'program_registries')
-          .leftJoinAndSelect('program_registries.program', 'program')
+          .leftJoinAndSelect('registration.programRegistry', 'program_registry')
+          .leftJoinAndSelect('program_registry.program', 'program')
           .where('program.id = :programId', { programId })
           .andWhere('registration.patientId = :patientId', { patientId })
           .orderBy('registration.date', 'DESC')
