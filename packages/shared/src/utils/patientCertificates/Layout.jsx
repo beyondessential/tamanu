@@ -97,6 +97,11 @@ export const styles = StyleSheet.create({
     height: 26,
     width: '100%',
   },
+  lightDivider: {
+    borderTop: '0.5 solid #000000',
+    marginTop: 10,
+    marginBottom: 10,
+  },
 });
 
 export const Row = props => <View style={styles.row} {...props} />;
@@ -135,6 +140,7 @@ export const CertificateLogo = ({ logoSrc }) => (
 
 export const CertificateHeader = props => <View style={styles.certificateHeader} {...props} />;
 export const CertificateFooter = props => <View style={styles.certificateFooter} {...props} />;
+export const LightDivider = props => <View style={styles.lightDivider} {...props} />;
 export const CertificateContent = props => <View style={styles.certificateContent} {...props} />;
 
 export const FixedHeader = ({ children, props }) => (

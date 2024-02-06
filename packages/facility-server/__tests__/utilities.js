@@ -193,7 +193,7 @@ export async function createTestContext({ enableReportInstances } = {}) {
   const centralServer = new CentralServerConnection({ deviceId: 'test' });
 
   context.onClose(async () => {
-    await new Promise(resolve => appServer.close(resolve));
+    await new Promise(resolve => { appServer.close(resolve); });
   });
 
   context.centralServer = centralServer;
