@@ -204,7 +204,7 @@ const SurveyTable = new Table({
     new TableColumn({
       name: 'surveyType',
       type: 'varchar',
-      default: "'program'",
+      default: "'programs'",
       isNullable: true,
     }),
     new TableColumn({

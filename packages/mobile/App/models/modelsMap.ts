@@ -11,6 +11,7 @@ import { Encounter } from './Encounter';
 import { EncounterHistory } from './EncounterHistory';
 import { Program } from './Program';
 import { ProgramRegistry } from './ProgramRegistry';
+import { ProgramRegistryCondition } from './ProgramRegistryCondition';
 import { PatientProgramRegistration } from './PatientProgramRegistration';
 import { PatientProgramRegistrationCondition } from './PatientProgramRegistrationCondition';
 import { ProgramRegistryClinicalStatus } from './ProgramRegistryClinicalStatus';
@@ -58,6 +59,7 @@ export const MODELS_MAP = {
   EncounterHistory,
   Program,
   ProgramRegistry,
+  ProgramRegistryCondition,
   PatientProgramRegistration,
   PatientProgramRegistrationCondition,
   ProgramRegistryClinicalStatus,

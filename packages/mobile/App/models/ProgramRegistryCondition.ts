@@ -13,7 +13,7 @@ import { PatientProgramRegistrationCondition } from './PatientProgramRegistratio
 import { ProgramRegistry } from './ProgramRegistry';
 import { ProgramRegistryClinicalStatus } from './ProgramRegistryClinicalStatus';
 
-@Entity('program_registry_conditions')
+@Entity('program_registry_condition')
 export class ProgramRegistryCondition extends BaseModel implements IProgramRegistryCondition {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 
@@ -23,7 +23,7 @@ export class ProgramRegistryCondition extends BaseModel implements IProgramRegis
   @Column({ nullable: false })
   name: string;
 
-  @Column({ default: VisibilityStatus.Current, nullable: true })
+  @Column({ type: 'varchar', default: VisibilityStatus.Current, nullable: true })
   visibilityStatus: VisibilityStatus;
 
   @ManyToOne(() => ProgramRegistry)

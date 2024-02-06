@@ -1,9 +1,9 @@
-import { Entity, ManyToOne, RelationId, Column, OneToMany } from 'typeorm/browser';
+import { Entity, OneToOne, JoinColumn, RelationId, Column, OneToMany } from 'typeorm/browser';
 
 import {
   IProgramRegistry,
   IPatientProgramRegistration,
-  IPatientProgramRegistrationCondition,
+  IProgramRegistryCondition,
   ID,
 } from '~/types';
 import { BaseModel } from './BaseModel';
@@ -12,9 +12,9 @@ import { VisibilityStatus } from '~/visibilityStatuses';
 import { Program } from './Program';
 import { PatientProgramRegistration } from './PatientProgramRegistration';
 import { ProgramRegistryClinicalStatus } from './ProgramRegistryClinicalStatus';
-import { PatientProgramRegistrationCondition } from './PatientProgramRegistrationCondition';
+import { ProgramRegistryCondition } from './ProgramRegistryCondition';
 
-@Entity('program_registries')
+@Entity('program_registry')
 export class ProgramRegistry extends BaseModel implements IProgramRegistry {
   static syncDirection = SYNC_DIRECTIONS.PULL_FROM_CENTRAL;
 
@@ -43,13 +43,14 @@ export class ProgramRegistry extends BaseModel implements IProgramRegistry {
   )
   patientProgramRegistrations: IPatientProgramRegistration[];
 
-  @OneToMany<PatientProgramRegistrationCondition>(
-    () => PatientProgramRegistrationCondition,
+  @OneToMany<ProgramRegistryCondition>(
+    () => ProgramRegistryCondition,
     ({ programRegistry }) => programRegistry,
   )
-  patientProgramRegistrationConditions: IPatientProgramRegistrationCondition[];
+  ProgramRegistryConditions: IProgramRegistryCondition[];
 
-  @ManyToOne(() => Program)
+  @OneToOne(() => Program)
+  @JoinColumn()
   program: Program;
 
   @RelationId<Program>(({ program }) => program)

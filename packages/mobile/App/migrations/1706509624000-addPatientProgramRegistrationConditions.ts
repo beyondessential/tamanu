@@ -7,7 +7,7 @@ import {
   TableForeignKey,
 } from 'typeorm';
 
-const TABLE_NAME = 'patient_program_registration_conditions';
+const TABLE_NAME = 'patient_program_registration_condition';
 const ISO9075_FORMAT = 'YYYY-MM-DD HH:mm:ss';
 const ISO9075_FORMAT_LENGTH = ISO9075_FORMAT.length;
 
@@ -39,8 +39,9 @@ const BaseColumns = [
   }),
   new TableColumn({
     name: 'deletedAt',
-    type: 'datetime',
     isNullable: true,
+    type: 'date',
+    default: null,
   }),
 ];
 
@@ -60,7 +61,7 @@ const PatientProgramRegistrationConditions = new Table({
       type: 'varchar',
       length: `${ISO9075_FORMAT_LENGTH}`,
       isNullable: true,
-      default: "date('now')",
+      default: null,
     }),
     new TableColumn({
       name: 'deletionClinicianId',
@@ -75,12 +76,12 @@ const PatientProgramRegistrationConditions = new Table({
     new TableColumn({
       name: 'programRegistryConditionId',
       type: 'varchar',
-      isNullable: false,
+      isNullable: true,
     }),
     new TableColumn({
       name: 'patientId',
       type: 'varchar',
-      isNullable: true,
+      isNullable: false,
     }),
     new TableColumn({
       name: 'programRegistryId',
@@ -97,12 +98,12 @@ const PatientProgramRegistrationConditions = new Table({
     new TableForeignKey({
       columnNames: ['programRegistryId'],
       referencedColumnNames: ['id'],
-      referencedTableName: 'program_registries',
+      referencedTableName: 'program_registry',
     }),
     new TableForeignKey({
       columnNames: ['programRegistryConditionId'],
       referencedColumnNames: ['id'],
-      referencedTableName: 'program_registry_conditions',
+      referencedTableName: 'program_registry_condition',
     }),
     new TableForeignKey({
       columnNames: ['deletionClinicianId'],
