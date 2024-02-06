@@ -1,6 +1,5 @@
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
-import { IDLabelPrintout } from '@tamanu/shared/utils/patientCertificates/IDLabelPrintout';
 
 import { Modal } from '../../Modal';
 import { Button } from '../../Button';
@@ -15,7 +14,7 @@ import { CovidTestCertificateModal } from './CovidTestCertificateModal';
 import { CovidClearanceCertificateModal } from './CovidClearanceCertificateModal';
 import { BirthNotificationCertificateModal } from './BirthNotificationCertificateModal';
 import { IPSQRCodeModal } from './IPSQRCodeModal';
-import { PDFViewer } from '../PDFViewer';
+
 const PRINT_OPTIONS = {
   barcode: {
     label: 'ID Labels',

@@ -1,7 +1,13 @@
 import React from 'react';
 import { Col, LightDivider, Row } from './Layout';
 import { H3, P } from './Typography';
-import { getDOB, getSex, getVillageName } from '../patientAccessors';
+import {
+  getDOB,
+  getSex,
+  getVillageName,
+  getNationality,
+  getPassportNumber,
+} from '../patientAccessors';
 
 const PATIENT_FIELDS = [
   { key: 'firstName', label: 'First Name' },

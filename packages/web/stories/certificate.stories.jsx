@@ -90,45 +90,8 @@ const getLocalisation = key => {
   return config[key];
 };
 
-const certificateData = {
-  title: 'Tamanu Ministry of Health & Medical Services',
-  subTitle: 'PS Box 123456, Melbourne, Australia',
-  logo: Logo,
-  logoType: 'image/png',
-  watermark: Watermark,
-  watermarkType: 'image/png',
-  footerImg: SigningImage,
-  footerImgType: 'image/png',
-  printedBy: 'Initial Admin',
-};
-
-storiesOf('Certificates', module).add('DeathCertificate', () => {
-  return (
-    <Modal title="Record patient death" open width="md">
-      <DeathCertificate
-        patientData={{
-          ...patient,
-          timeOfDeath: new Date(),
-          causes: {
-            primary: { condition: { name: 'Diabetes' } },
-            antecedent1: { condition: { name: 'Eating too much sugar' } },
-            antecedent2: { condition: { name: 'Living in a nutritionally poor environment' } },
-            contributing: [
-              { condition: { name: 'Old age' } },
-              { condition: { name: 'Overweight' } },
-              { condition: { name: 'Smoking' } },
-            ],
-          },
-        }}
-        certificateData={certificateData}
-      />
-    </Modal>
-  );
-});
-
 storiesOf('Certificates', module).add('CovidLabCertificate', () => (
-  // TODO(web)
-  // <PDFViewer width={800} height={1000} showToolbar={false}>
+  <PDFViewer width={800} height={1000} showToolbar={false}>
     <CovidLabCertificate
       patient={patient}
       createdBy="Initial Admin"
@@ -140,7 +103,7 @@ storiesOf('Certificates', module).add('CovidLabCertificate', () => (
       getLocalisation={getLocalisation}
       printedBy="Initial Admin"
     />
-  // </PDFViewer>
+  </PDFViewer>
 ));
 
 const examiner = {
