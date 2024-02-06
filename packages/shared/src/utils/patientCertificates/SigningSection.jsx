@@ -8,6 +8,8 @@ export const SigningSection = ({ signingSrc }) => (
       flexDirection: 'column',
       justifyContent: 'flex-end',
       flex: 1,
+      paddingLeft: 15,
+      paddingRight: 15,
     }}
   >
     {signingSrc ? (
