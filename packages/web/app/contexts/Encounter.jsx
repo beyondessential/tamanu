@@ -73,7 +73,7 @@ export const EncounterProvider = ({ children }) => {
   // create, fetch and set encounter then navigate to encounter view.
   const createEncounter = async data => {
     setIsLoadingEncounter(true);
-    const createdEncounter = await api.post('encounter', data);
+    const createdEncounter = await api.post(`encounter`, data);
     await loadEncounter(createdEncounter.id);
     setIsLoadingEncounter(false);
     return createdEncounter;
