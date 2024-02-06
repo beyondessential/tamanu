@@ -1,8 +1,15 @@
 import React from 'react';
-import { Box, Row, Signature, SigningImage } from './Layout';
+import { View } from '@react-pdf/renderer';
+import { Box, Signature, SigningImage } from './Layout';
 
 export const SigningSection = ({ signingSrc }) => (
-  <Row>
+  <View
+    style={{
+      flexDirection: 'column',
+      justifyContent: 'flex-end',
+      flex: 1,
+    }}
+  >
     {signingSrc ? (
       <SigningImage src={signingSrc} />
     ) : (
@@ -18,5 +25,5 @@ export const SigningSection = ({ signingSrc }) => (
         </Box>
       </Box>
     )}
-  </Row>
+  </View>
 );
