@@ -14,11 +14,6 @@ describe('Incomplete Referrals report', () => {
   let village1 = null;
   let village2 = null;
   let patient1 = null;
-  let patient2 = null;
-  let practitioner1 = null;
-  let practitioner2 = null;
-  let department = null;
-  let facility = null;
   let baseApp = null;
   let models = null;
   let expectedDiagnosis1 = null;
@@ -35,13 +30,13 @@ describe('Incomplete Referrals report', () => {
     patient1 = await models.Patient.create(
       await createDummyPatient(models, { villageId: village1 }),
     );
-    patient2 = await models.Patient.create(
+    await models.Patient.create(
       await createDummyPatient(models, { villageId: village2 }),
     );
-    practitioner1 = await randomUser(models);
-    practitioner2 = await randomUser(models);
-    department = await randomRecordId(models, 'Department');
-    facility = await randomRecordId(models, 'Facility');
+    await randomUser(models);
+    await randomUser(models);
+    await randomRecordId(models, 'Department');
+    await randomRecordId(models, 'Facility');
     expectedDiagnosis1 = await randomReferenceId(models, 'icd10');
     expectedDiagnosis2 = await randomReferenceId(models, 'icd10');
     encounter = await models.Encounter.create({
@@ -75,7 +70,7 @@ describe('Incomplete Referrals report', () => {
   describe('returns data based on supplied parameters', () => {
     beforeAll(async () => {
       await models.Referral.destroy({ where: {}, truncate: true });
-      const referral = await models.Referral.create({
+      await models.Referral.create({
         initiatingEncounterId: encounter.id,
         referredFacility: 'Test facility',
       });

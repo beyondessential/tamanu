@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import { Document, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
+
 import { getName } from '../patientAccessors';
 import { BaseSigningSection } from './BaseSigningSection';
 import { getDisplayDate } from './getDisplayDate';
@@ -61,6 +62,8 @@ const getAreaNote = ({ areas, areaNote }) => {
     return areas.map(area => area.name).join(',');
   }
   if (areaNote) {
+    // there's no sensible way to key this except by array index
+    // eslint-disable-next-line react/no-array-index-key
     return areaNote;
   }
   return '';

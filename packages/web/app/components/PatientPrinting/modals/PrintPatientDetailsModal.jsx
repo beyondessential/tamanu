@@ -1,20 +1,21 @@
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
+import { IDLabelPrintout } from '@tamanu/shared/utils/patientCertificates/IDLabelPrintout';
 
 import { Modal } from '../../Modal';
 import { Button } from '../../Button';
 import { Colors } from '../../../constants';
 import { isErrorUnknownAllow404s, useApi } from '../../../api';
 import { useLocalisation } from '../../../contexts/Localisation';
+import { useAuth } from '../../../contexts/Auth';
 
 import { PatientIDCardPage } from './PatientIDCardPage';
 import { PatientStickerLabelPage } from './PatientStickerLabelPage';
 import { CovidTestCertificateModal } from './CovidTestCertificateModal';
 import { CovidClearanceCertificateModal } from './CovidClearanceCertificateModal';
 import { BirthNotificationCertificateModal } from './BirthNotificationCertificateModal';
+import { IPSQRCodeModal } from './IPSQRCodeModal';
 import { PDFViewer } from '../PDFViewer';
-import { IDLabelPrintout } from '../../../../../shared/src/utils/patientCertificates/IDLabelPrintout';
-
 const PRINT_OPTIONS = {
   barcode: {
     label: 'ID Labels',
@@ -37,15 +38,21 @@ const PRINT_OPTIONS = {
     label: 'Birth notification',
     component: BirthNotificationCertificateModal,
   },
+  ipsQrCode: {
+    label: 'International Patient Summary',
+    component: IPSQRCodeModal,
+    condition: (_, ability) => ability?.can('create', 'IPSRequest'),
+  },
 };
 
 const PrintOptionList = ({ className, setCurrentlyPrinting }) => {
   const { getLocalisation } = useLocalisation();
+  const { ability } = useAuth();
 
   return (
     <div className={className}>
       {Object.entries(PRINT_OPTIONS)
-        .filter(([, { condition }]) => !condition || condition(getLocalisation))
+        .filter(([, { condition }]) => !condition || condition(getLocalisation, ability))
         .map(([type, { label, icon }]) => (
           <PrintOption
             key={type}

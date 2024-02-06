@@ -49,7 +49,6 @@ describe('Fiji NCD Primary Screening line list', () => {
   let village2 = null;
   let ethnicity1 = null;
   let ethnicity2 = null;
-  const subdivision = null;
   let medicalArea = null;
   let nursingZone = null;
   let ctx;

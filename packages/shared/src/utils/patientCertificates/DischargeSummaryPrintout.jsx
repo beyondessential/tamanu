@@ -93,6 +93,12 @@ const notesSectionStyles = StyleSheet.create({
     minHeight: 76,
     padding: 10,
   },
+  title: {
+    fontFamily: 'Helvetica-Bold',
+    marginBottom: 3,
+    fontSize: 11,
+    fontWeight: 500,
+  },
 });
 
 const extractOngoingConditions = patientConditions =>
@@ -231,9 +237,10 @@ export const DischargeSummaryPrintout = ({
         <SectionContainer>
           {patientConditions.length > 0 && (
             <TableContainer>
-              <InfoBox
-                label="Ongoing conditions"
-                info={extractOngoingConditions(patientConditions)}
+              <DiagnosesTable
+                title="Ongoing conditions"
+                diagnoses={patientConditions}
+                getLocalisation={getLocalisation}
               />
             </TableContainer>
           )}

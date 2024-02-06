@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import styled from 'styled-components';
+import React, { useState } from 'react';
 import { useLocalisation } from '../../../contexts/Localisation';
 import { Modal } from '../../Modal';
 import { PDFViewer, printPDF } from '../PDFViewer';

@@ -71,8 +71,8 @@ const Screen = ({ navigation, setSelectedPatient }: RecentViewedScreenProps): Re
         renderItem={({ item }: { item: any }): ReactElement => {
           const onNavigateToPatientHome = (): void => {
             setSelectedPatient(item);
-            navigation.navigate(Routes.HomeStack.HomeTabs.Index, {
-              screen: Routes.HomeStack.HomeTabs.Home,
+            navigation.navigate(Routes.HomeStack.SearchPatientStack.Index, {
+              screen: Routes.HomeStack.SearchPatientStack.Index,
             });
           };
           return (
