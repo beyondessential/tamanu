@@ -176,12 +176,12 @@ export const VaccineGivenForm = ({
         label={
           values.givenElsewhere ? (
             <TranslatedText
-              stringId="vaccine.form.consentGivenElsewhere.label"
+              stringId="vaccine.form.consentGivenElsewhere.text"
               fallback="Do you have consent to record in Tamanu?"
             />
           ) : (
             <TranslatedText
-              stringId="vaccine.form.consent.label"
+              stringId="vaccine.form.consent.text"
               fallback="Do you have consent from the recipient/parent/guardian to give this vaccine and record in Tamanu?"
             />
           )

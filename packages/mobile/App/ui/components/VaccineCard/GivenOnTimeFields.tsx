@@ -19,7 +19,7 @@ const GivenOnTimeFields: FC<VaccineDataProps> = ({ administeredVaccine }) => (
     <RowField
       label="Date given"
       value={
-        administeredVaccine.date
+        administeredVaccine.date 
           ? formatStringDate(administeredVaccine.date, DateFormats.DDMMYY)
           : null
       }

@@ -14,6 +14,7 @@ import { Routes } from '~/ui/helpers/routes';
 import { Suggester } from '~/ui/helpers/suggester';
 import { useFacility } from '~/ui/contexts/FacilityContext';
 import { useBackend } from '~/ui/hooks';
+import { TranslatedText, TranslatedTextElement } from '../../Translations/TranslatedText';
 
 const InjectionSiteDropdown = ({ value, label, onChange, selectPlaceholderText }): JSX.Element => (
   <Dropdown
@@ -26,7 +27,7 @@ const InjectionSiteDropdown = ({ value, label, onChange, selectPlaceholderText }
 );
 
 interface LabelledFieldProps {
-  label?: string;
+  label?: TranslatedTextElement;
   required?: boolean;
 }
 
@@ -35,7 +36,7 @@ interface NavigationFieldProps {
 }
 
 export const DateGivenField = ({
-  label = 'Date given',
+  label = <TranslatedText stringId="vaccine.form.dateGiven.label" fallback="Date given" />,
   required = true,
 }: LabelledFieldProps): JSX.Element => (
   <Field component={DateField} name="date" label={label} required={required} />
@@ -45,7 +46,7 @@ export const BatchField = (): JSX.Element => (
   <Field
     component={TextField}
     name="batch"
-    label="Batch"
+    label={<TranslatedText stringId="vaccine.form.batch.label" fallback="Batch" />}
     labelFontSize="14"
     placeholder="Batch number"
   />
@@ -55,7 +56,7 @@ export const InjectionSiteField = (): JSX.Element => (
   <Field
     component={InjectionSiteDropdown}
     name="injectionSite"
-    label="Injection site"
+    label={<TranslatedText stringId="vaccine.form.injectionSite.label" fallback="Injection site" />}
     selectPlaceholderText="Select"
   />
 );
@@ -64,7 +65,7 @@ export const NotGivenReasonField = (): JSX.Element => (
   <Field
     component={SuggesterDropdown}
     name="notGivenReasonId"
-    label="Reason"
+    label={<TranslatedText stringId="vaccine.form.reasonNotGiven.label" fallback="Reason" />}
     selectPlaceholderText="Select"
     referenceDataType={ReferenceDataType.VaccineNotGivenReason}
   />
@@ -90,27 +91,38 @@ export const DepartmentField = ({ navigation }: NavigationFieldProps): JSX.Eleme
       navigation={navigation}
       suggester={departmentSuggester}
       name="departmentId"
-      label="Department"
+      label={<TranslatedText stringId="general.form.department.label" fallback="Department" />}
       placeholder="Search..."
       required
     />
   );
 };
 
-export const GivenByField = ({ label = 'Given by' }: LabelledFieldProps): JSX.Element => (
+export const GivenByField = ({
+  label = <TranslatedText stringId="vaccine.form.givenBy.label" fallback="Given by" />,
+}: LabelledFieldProps): JSX.Element => (
   <Field component={TextField} label={label} name="givenBy" labelFontSize="14" />
 );
 
 export const RecordedByField = (): JSX.Element => (
-  <CurrentUserField label="Recorded by" name="recorderId" labelFontSize="14" />
+  <CurrentUserField
+    label={<TranslatedText stringId="vaccine.form.recordedBy.label" fallback="Recorded by" />}
+    name="recorderId"
+    labelFontSize="14"
+  />
 );
 
 export const ConsentField = (): JSX.Element => (
   <Field
     component={Checkbox}
     name="consent"
-    label="Consent"
-    text="Do you have consent from the recipient/parent/guardian to give this vaccine and record in Tamanu?"
+    label={<TranslatedText stringId="vaccine.form.consent.label" fallback="Consent" />}
+    text={
+      <TranslatedText
+        stringId="vaccine.form.consent.text"
+        fallback="Do you have consent from the recipient/parent/guardian to give this vaccine and record in Tamanu?"
+      />
+    }
     required
   />
 );
@@ -119,7 +131,9 @@ export const ConsentGivenByField = (): JSX.Element => (
   <Field
     component={TextField}
     name="consentGivenBy"
-    label="Consent given by"
+    label={
+      <TranslatedText stringId="vaccine.form.consentGivenBy.label" fallback="Consent given by" />
+    }
     placeholder="Consent given by"
     labelFontSize="14"
   />
