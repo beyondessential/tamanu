@@ -19,16 +19,16 @@ describe('TranslatedString', () => {
   let app = null;
   let baseApp = null;
   let models = null;
+  let englishTranslations = null;
+  let khmerTranslations = null;
 
   beforeAll(async () => {
     ctx = await createTestContext();
     baseApp = ctx.baseApp;
     models = ctx.models;
     app = await baseApp.asRole('practitioner');
-  });
-
-  beforeEach(async () => {
-    await models.TranslatedString.truncate();
+    englishTranslations = await seedTranslationsForLanguage(LANGUAGE_CODES.ENGLISH);
+    khmerTranslations = await seedTranslationsForLanguage(LANGUAGE_CODES.KHMER);
   });
 
   afterAll(() => ctx.close());
@@ -40,7 +40,7 @@ describe('TranslatedString', () => {
         (
           await TranslatedString.create({
             ...fake(TranslatedString),
-            stringId: i === 0 ? 'languageName' : `${chance.word()}.${chance.word()}`,
+            stringId: i === 0 ? 'languageName' : `${language}.${i}`,
             text: i === 0 ? LANGUAGE_NAMES[language] : chance.sentence(),
             language,
           })
@@ -55,9 +55,6 @@ describe('TranslatedString', () => {
 
   describe('/prelogin GET', () => {
     it('Should receive a list of languages stored in the DB in the format of select options', async () => {
-      await seedTranslationsForLanguage(LANGUAGE_CODES.ENGLISH);
-      await seedTranslationsForLanguage(LANGUAGE_CODES.KHMER);
-
       const result = await app.get('/v1/translation/preLogin');
       expect(result).toHaveSucceeded();
 
@@ -68,11 +65,9 @@ describe('TranslatedString', () => {
       expect(result.body).toEqual(expectedResult);
     });
   });
+
   describe('/translation/:languageCode GET', () => {
     it('Should receive a dictionary of all translated text for selected language keyed by stringId', async () => {
-      const englishTranslations = await seedTranslationsForLanguage(LANGUAGE_CODES.ENGLISH);
-      const khmerTranslations = await seedTranslationsForLanguage(LANGUAGE_CODES.KHMER);
-
       const englishResult = await app.get('/v1/translation/en');
       expect(englishResult).toHaveSucceeded();
       expect(englishResult.body).toEqual(englishTranslations);
@@ -82,6 +77,7 @@ describe('TranslatedString', () => {
       expect(khmerResult.body).toEqual(khmerTranslations);
     });
   });
+  
   describe('/ POST', () => {
     it('should create a new translated string', async () => {
       const mockText = 'test-fallback';

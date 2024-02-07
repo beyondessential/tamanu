@@ -5,6 +5,9 @@ import { log } from '@tamanu/shared/services/logging';
 import { labResultWidgetRoutes } from './labResultWidget';
 import { publicIntegrationRoutes } from '../integrations';
 
+import { getLanguageOptions } from '@tamanu/shared/utils/translation/getLanguageOptions';
+import { NOT_MODIFIED_STATUS_CODE } from '@tamanu/constants';
+
 export const publicRoutes = express.Router();
 
 const { cors } = config;
@@ -26,3 +29,13 @@ publicRoutes.get('/ping', (_req, res) => {
 
 publicRoutes.use('/labResultWidget', labResultWidgetRoutes);
 publicRoutes.use('/integration', publicIntegrationRoutes);
+publicRoutes.get('/translation/preLogin', async (req, res) => {
+  const response = await getLanguageOptions(req.models, req.headers['if-none-match']);
+  if (response === NOT_MODIFIED_STATUS_CODE) {
+    res.status(NOT_MODIFIED_STATUS_CODE).end();
+    return;
+  }
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('ETag', response.eTag);
+  res.send(response.languageOptions);
+});

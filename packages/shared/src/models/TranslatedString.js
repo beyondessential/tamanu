@@ -80,6 +80,7 @@ export class TranslatedString extends Model {
     ).toString();
   };
 
+  // TODO: improved validation for not having a languageName key
   static etagForLanguageOptions = async () => {
     return (
       await this.max('updated_at_sync_tick', {

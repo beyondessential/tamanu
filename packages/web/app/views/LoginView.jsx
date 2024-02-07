@@ -25,6 +25,7 @@ import { SyncHealthNotificationComponent } from '../components/SyncHealthNotific
 
 import { Typography } from '@material-ui/core';
 const { REMEMBER_EMAIL } = LOCAL_STORAGE_KEYS;
+import { useTranslation } from '../contexts/Translation';
 
 const Container = styled.div`
   display: flex;
@@ -110,6 +111,8 @@ export const LoginView = () => {
   const changePasswordSuccess = useSelector(state => state.auth.changePassword.success);
   const { appVersion } = api;
 
+  const { fetchTranslations } = useTranslation();
+
   const rememberEmail = localStorage.getItem(REMEMBER_EMAIL);
 
   const [screen, setScreen] = useState('login');
@@ -136,10 +139,9 @@ export const LoginView = () => {
 
     // The await is necessary to prevent redux-form unlocking submission
     // redux-thunk definitely returns a promise, and this works
+    await fetchTranslations(language);
     await dispatch(login(email, password));
     dispatch(restartPasswordResetFlow());
-
-    localStorage.setItem(LOCAL_STORAGE_KEYS.LANGUAGE, language);
   };
 
   return (
