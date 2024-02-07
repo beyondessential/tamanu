@@ -289,16 +289,8 @@ const fakeAllData = async models => {
   const encounter = await models.Encounter.findByPk(encounterId);
   await encounter.update({
     locationId: location2Id,
+    submittedTime: createLocalDateTimeStringFromUTC(2022, 6 - 1, 9, 8, 4, 54),
   });
-
-  const systemNote = await models.Note.findOne({
-    where: {
-      noteType: NOTE_TYPES.SYSTEM,
-    },
-  });
-
-  systemNote.date = createLocalDateTimeStringFromUTC(2022, 6 - 1, 9, 8, 4, 54);
-  await systemNote.save();
 
   return { patient, encounterId };
 };

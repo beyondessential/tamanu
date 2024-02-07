@@ -38,6 +38,7 @@ notes_info as (
       ) 
     ) aggregated_notes
   from notes
+  where note_type <> 'system' and record_type in ('LabRequest','ImagingRequest')
   group by record_id
 ),
 
@@ -174,7 +175,7 @@ encounter_notes_info as (
       ) order by n.date desc
     ) "Notes"
   from notes n
-  where note_type != 'system'
+  where note_type <> 'system' and record_type = 'Encounter'
   group by record_id
 ),
 
@@ -198,62 +199,40 @@ note_history as (
 ),
 
 department_info as (
-  select 
-    e.id encounter_id,
-    case when count("from") = 0
-      then json_build_array(json_build_object(
-        'department', d.name,
-        'assignedTime', e.start_date::timestamp at time zone $timezone_string
-      ))
-      else 
-        array_to_json(json_build_object(
-          'department', first_from, --first "from" from note
-          'assignedTime', e.start_date::timestamp at time zone $timezone_string
-        ) ||
-        array_agg(
-          json_build_object(
-            'department', "to",
-            'assignedTime', nh.date::timestamp at time zone $timezone_string
-          ) ORDER BY nh.date
-        ))
-    end department_history
-  from encounters e
-  left join departments d on e.department_id = d.id
-  left join note_history nh
-  on nh.encounter_id = e.id and nh.place = 'department'
-  left join (
-    select
-      nh2.encounter_id enc_id,
-      "from" first_from,
-      date
-    from note_history nh2
-    order by date
-    limit 1
-  ) first_from
-  on e.id = first_from.enc_id
-  group by e.id, d.name, e.start_date, first_from
+  select
+        eh.encounter_id,
+        json_agg(
+          json_build_object('department', d.name, 
+                            'assignedTime', (case when eh.change_type is null 
+                                              then e.start_date::timestamp at time zone $timezone_string 
+                                              else eh.date::timestamp at time zone $timezone_string 
+                                              end)) order by eh.change_type nulls first, eh.date) 
+        as department_history
+    from encounters e
+    join encounter_history eh on eh.encounter_id = e.id
+      and eh.deleted_at is null
+    left join departments d on d.id = eh.department_id
+    where change_type isnull or change_type = 'department'
+    group by eh.encounter_id
 ),
 
 location_info as (
-  select 
-    e.id encounter_id,
-    case when count("from") = 0
-      then json_build_array(json_build_object(
-        'location', coalesce(lg.name || ', ', '' ) || l.name,
-        'assignedTime', e.start_date::timestamp at time zone $timezone_string
-      ))
-      else
-        json_build_array(json_build_object(
-          'location', coalesce(lg.name || ', ', '' ) || l.name,
-          'assignedTime', MAX(nh.date::timestamp at time zone $timezone_string)
-        ))
-    end location_history
+  select
+    distinct on(eh.encounter_id)
+    eh.encounter_id,
+    json_build_array(
+      json_build_object('location', coalesce(lg.name || ', ', '' ) || l.name, 
+                        'assignedTime', ((case when eh.change_type is null 
+                                            then e.start_date::timestamp at time zone $timezone_string 
+                                            else eh.date::timestamp at time zone $timezone_string end)))) 
+    as location_history
   from encounters e
-  left join locations l on e.location_id = l.id
+  join encounter_history eh on eh.encounter_id = e.id
+  and eh.deleted_at is null
+  left join locations l on eh.location_id = l.id
   left join location_groups lg on l.location_group_id = lg.id
-  left join note_history nh
-  on nh.encounter_id = e.id and nh.place = 'location'
-  group by e.id, l.name, lg.name, e.start_date
+  where change_type isnull or change_type = 'location'
+  order by eh.encounter_id, eh.change_type nulls last, eh.date desc
 ),
 
 triage_info as (
