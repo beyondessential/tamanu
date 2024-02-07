@@ -57,10 +57,7 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
 
   const [patientProgramRegistration, pprError, isPprLoading] = useBackendEffect(
     ({ models }) =>
-      models.PatientProgramRegistration.getByProgramAndPatientId(
-        survey?.programId,
-        selectedPatient.id,
-      ),
+      models.PatientProgramRegistration.getRecentOne(survey?.programId, selectedPatient.id),
     [survey],
   );
 
