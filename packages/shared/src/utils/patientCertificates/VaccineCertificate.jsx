@@ -90,9 +90,10 @@ export const VaccineCertificate = ({
   watermarkSrc,
   signingSrc,
   logoSrc,
-  getLocalisation,
+  localisation,
   extraPatientFields,
 }) => {
+  const getLocalisation = key => localisation[key];
   const healthFacility = getLocalisation('templates.vaccineCertificate.healthFacility');
   const countryName = getLocalisation('country.name');
 

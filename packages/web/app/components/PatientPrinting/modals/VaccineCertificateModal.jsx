@@ -79,6 +79,18 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
       </PDFViewer> */}
       <RenderedPDFViewer
         text=""
+        pdfProps={{
+          patient: patientData,
+          vaccinations,
+          watermarkSrc: watermark,
+          logoSrc: logo,
+          signingSrc: footerImg,
+          printedBy,
+          printedDate: getCurrentDateString(),
+          localisation: {},
+          // getLocalisation,
+          style: { backgroundColor: 'grey', width: '500px', height: '760px' },
+        }}
         style={{ backgroundColor: 'grey', width: '500px', height: '760px' }}
       />
     </Modal>
