@@ -25,7 +25,7 @@ export const PatientDetailsSection = ({ patient, getLocalisation, extraFields = 
       <H3 style={{ marginBottom: 0 }}>Patient Details</H3>
       <LightDivider />
       <Row>
-        <Col style={{ marginBottom: 5 }}>
+        <Col>
           <Row>
             {detailsToDisplay.map(({ key, label: defaultLabel, accessor }) => {
               const value = (accessor ? accessor(patient, getLocalisation) : patient[key]) || '';
@@ -33,8 +33,11 @@ export const PatientDetailsSection = ({ patient, getLocalisation, extraFields = 
 
               return (
                 <Col style={{ width: '50%' }} key={key}>
-                  <P mb={6}>
-                    <P bold>{label}:</P> {value}
+                  <P mb={6} fontSize={9}>
+                    <P bold fontSize={9}>
+                      {label}:
+                    </P>{' '}
+                    {value}
                   </P>
                 </Col>
               );

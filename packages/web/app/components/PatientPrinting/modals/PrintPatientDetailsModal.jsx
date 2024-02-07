@@ -12,8 +12,6 @@ import { PatientStickerLabelPage } from './PatientStickerLabelPage';
 import { CovidTestCertificateModal } from './CovidTestCertificateModal';
 import { CovidClearanceCertificateModal } from './CovidClearanceCertificateModal';
 import { BirthNotificationCertificateModal } from './BirthNotificationCertificateModal';
-import { PDFViewer } from '../PDFViewer';
-import { IDLabelPrintout } from '../../../../../shared/src/utils/patientCertificates/IDLabelPrintout';
 
 const PRINT_OPTIONS = {
   barcode: {
