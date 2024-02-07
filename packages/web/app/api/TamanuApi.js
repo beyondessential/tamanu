@@ -201,7 +201,7 @@ export class TamanuApi {
   }
 
   setToken(token) {
-    this.authHeader = { authorization: `Bearer ${token}` };
+    this.authHeader = token ? { authorization: `Bearer ${token}` } : {};
   }
 
   async fetch(endpoint, query, config) {

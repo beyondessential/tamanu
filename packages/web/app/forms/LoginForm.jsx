@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 
-import { USER_DEACTIVATED_ERROR_MESSAGE, LANGUAGE_LOCAL_STORAGE_KEY } from '@tamanu/constants';
+import { USER_DEACTIVATED_ERROR_MESSAGE } from '@tamanu/constants';
 
 import { Typography } from '@material-ui/core';
 import { FormGrid } from '../components/FormGrid';
@@ -15,7 +15,7 @@ import {
   TextButton,
   TextField,
 } from '../components';
-import { Colors } from '../constants';
+import { Colors, LOCAL_STORAGE_KEYS } from '../constants';
 import { LanguageSelector } from '../components/LanguageSelector';
 
 const FormSubtext = styled(BodyText)`
@@ -186,7 +186,7 @@ export const LoginForm = React.memo(
         initialValues={{
           email: rememberEmail,
           rememberMe: !!rememberEmail,
-          language: localStorage.getItem(LANGUAGE_LOCAL_STORAGE_KEY) || null,
+          language: localStorage.getItem(LOCAL_STORAGE_KEYS.LANGUAGE) || 'en',
         }}
         validationSchema={yup.object().shape({
           email: yup

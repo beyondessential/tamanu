@@ -1,10 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
+import { useTranslation } from '../../contexts/Translation';
 import { DebugTooltip } from './DebugTooltip';
 
+// Set DEBUG_TRANSLATION to true in localstorage if you want to highlight all translated strings in red
+const DEBUG_TRANSLATION_KEY = 'DEBUG_TRANSLATION';
 const safeGetIsDebugMode = () => {
   try {
-    return JSON.parse(localStorage.getItem('debugTranslation'));
+    return JSON.parse(localStorage.getItem(DEBUG_TRANSLATION_KEY));
   } catch (e) {
     return false;
   }
@@ -21,17 +24,14 @@ const replaceStringVariables = (templateString, replacements) => {
   return jsxElements;
 };
 
-// "stringId" is used in future functionality
-// eslint-disable-next-line no-unused-vars
 export const TranslatedText = ({ stringId, fallback, replacements }) => {
-  // "setTranslation" is used in future functionality
-  // eslint-disable-next-line no-unused-vars
-  const [translation, setTranslation] = useState(fallback?.split('\\n').join('\n'));
-  const [displayElements, setDisplayElements] = useState(fallback);
+  const { getTranslation } = useTranslation();
 
-  useEffect(() => {
-    if (!replacements) setDisplayElements(translation);
-    setDisplayElements(replaceStringVariables(translation, replacements));
+  const translation = getTranslation(stringId, fallback?.split('\\n').join('\n'));
+
+  const displayElements = useMemo(() => {
+    if (!replacements) return translation;
+    return replaceStringVariables(translation, replacements);
   }, [translation, replacements]);
 
   const isDebugMode = safeGetIsDebugMode();
