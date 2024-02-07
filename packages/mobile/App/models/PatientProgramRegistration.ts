@@ -72,10 +72,10 @@ export class PatientProgramRegistration extends BaseModel implements IPatientPro
   removedBy?: IUser;
   removedById?: ID;
 
-  static async getByProgramAndPatientId(
+  static async getRecentOne(
     programId?: string,
     patientId?: string,
-  ): Promise<ProgramRegistry[]> {
+  ): Promise<PatientProgramRegistration> {
     return !!programId && !!patientId
       ? this.getRepository(PatientProgramRegistration)
           .createQueryBuilder('registration')

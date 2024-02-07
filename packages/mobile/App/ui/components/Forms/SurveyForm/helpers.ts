@@ -32,7 +32,8 @@ function transformPatientData(
   patientProgramRegistration: IPatientProgramRegistration | null,
   config,
 ): string | undefined | null {
-  const { column = 'fullName' } = config;
+  const { writeToPatient = {}, column = 'fullName' } = config;
+  const { isAdditionalDataField = false } = writeToPatient;
   const { dateOfBirth, firstName, lastName } = patient;
 
   switch (column) {
@@ -48,7 +49,7 @@ function transformPatientData(
         case 'Patient':
           return patient[fieldName];
         case 'PatientAdditionalData':
-          return additionalData ? additionalData[fieldName] : undefined;
+          return isAdditionalDataField && additionalData ? additionalData[fieldName] : undefined;
         case 'PatientProgramRegistration':
           return patientProgramRegistration ? patientProgramRegistration[fieldName] : undefined;
         default:
