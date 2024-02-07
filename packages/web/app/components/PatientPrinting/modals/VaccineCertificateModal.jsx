@@ -16,6 +16,7 @@ import {
 } from '../../../api/queries';
 
 import { PDFViewer, printPDF } from '../PDFViewer';
+import { RenderedPDFViewer } from '../RenderedPDFViewer';
 
 export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) => {
   const api = useApi();
@@ -64,7 +65,7 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
       onPrint={() => printPDF('vaccine-certificate')}
       additionalActions={<EmailButton onEmail={createVaccineCertificateNotification} />}
     >
-      <PDFViewer id="vaccine-certificate">
+      {/* <PDFViewer id="vaccine-certificate">
         <VaccineCertificate
           patient={patientData}
           vaccinations={vaccinations}
@@ -75,7 +76,11 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
           printedDate={getCurrentDateString()}
           getLocalisation={getLocalisation}
         />
-      </PDFViewer>
+      </PDFViewer> */}
+      <RenderedPDFViewer
+        text=""
+        style={{ backgroundColor: 'grey', width: '500px', height: '760px' }}
+      />
     </Modal>
   );
 });
