@@ -7,6 +7,7 @@ import { theme } from '/styled/theme';
 import { Routes } from '/helpers/routes';
 // Navigator
 import { createSearchPatientNavigator } from '../navigators/SearchPatientTabs';
+import { PatientHomeFromRoute } from '~/ui/helpers/constants';
 
 const Tabs = createSearchPatientNavigator();
 
@@ -26,21 +27,30 @@ const SearchPatientTabOptions: MaterialTopTabBarOptions = {
   },
 };
 
-export const SearchPatientTabs = ({ route }): ReactElement => (
-  <Tabs.Navigator tabBarOptions={SearchPatientTabOptions}>
-    <Tabs.Screen
-      options={{
-        tabBarLabel: 'Recently viewed',
-      }}
-      name={Routes.HomeStack.SearchPatientStack.SearchPatientTabs.RecentViewed}
-      component={RecentViewedScreen}
-    />
-    <Tabs.Screen
-      options={{
-        tabBarLabel: 'All patients',
-      }}
-      name={Routes.HomeStack.SearchPatientStack.SearchPatientTabs.ViewAll}
-      component={ViewAllScreen}
-    />
-  </Tabs.Navigator>
-);
+export const SearchPatientTabs = ({ routingFrom }): ReactElement => {
+  return (
+    <Tabs.Navigator
+      tabBarOptions={SearchPatientTabOptions}
+      initialRouteName={
+        routingFrom === PatientHomeFromRoute.ALL_PATIENT
+          ? Routes.HomeStack.SearchPatientStack.SearchPatientTabs.ViewAll
+          : Routes.HomeStack.SearchPatientStack.SearchPatientTabs.RecentViewed
+      }
+    >
+      <Tabs.Screen
+        options={{
+          tabBarLabel: 'Recently viewed',
+        }}
+        name={Routes.HomeStack.SearchPatientStack.SearchPatientTabs.RecentViewed}
+        component={RecentViewedScreen}
+      />
+      <Tabs.Screen
+        options={{
+          tabBarLabel: 'All patients',
+        }}
+        name={Routes.HomeStack.SearchPatientStack.SearchPatientTabs.ViewAll}
+        component={ViewAllScreen}
+      />
+    </Tabs.Navigator>
+  );
+};

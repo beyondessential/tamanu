@@ -24,6 +24,12 @@ export const VisitTypes = {
   VISIT: 'Visit',
 };
 
+export const PatientHomeFromRoute = {
+  HOME: 'home',
+  RECENTLY_VIEWED: 'recentlyViewed',
+  ALL_PATIENT: 'allPatient',
+};
+
 export const HeaderIcons = {
   //TODO: find correct icons for each EncounterType
   [EncounterType.Clinic]: Icons.ClipboardIcon,
@@ -203,7 +209,6 @@ export const LabRequestStatus = {
   verified: 'Verified',
   published: 'published',
 };
-
 
 export const VitalsDataElements = {
   dateRecorded: 'pde-PatientVitalsDate',

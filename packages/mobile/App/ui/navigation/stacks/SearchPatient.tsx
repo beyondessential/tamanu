@@ -24,8 +24,9 @@ const DEFAULT_FILTERS = {
   onlyShowText: false,
 };
 
-export const SearchPatientStack = ({ navigation }): ReactElement => {
+export const SearchPatientStack = ({ navigation, route }): ReactElement => {
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
+  const routingFrom = route?.params?.params?.from;
 
   const submitPatientFilters = (values): void => {
     navigation.navigate(Routes.HomeStack.SearchPatientStack.SearchPatientTabs.Index);
@@ -39,7 +40,7 @@ export const SearchPatientStack = ({ navigation }): ReactElement => {
           <Stack.Navigator headerMode="none" screenOptions={noSwipeGestureOnNavigator}>
             <Stack.Screen
               name={Routes.HomeStack.SearchPatientStack.SearchPatientTabs.Index}
-              component={SearchPatientTabs}
+              children={() => <SearchPatientTabs routingFrom={routingFrom} />}
               initialParams={filters}
             />
             <Stack.Screen
