@@ -2,10 +2,12 @@ import { Country } from './Config';
 import { ComputedExtension, Extension, ExtensionName } from './certificateExtensions';
 import { EKU_DCC_RECOVERY, EKU_DCC_TEST, EKU_DCC_VACCINATION, EKU_VDS_NC } from './constants';
 
+/* eslint-disable no-unused-vars */
 export enum Profile {
   VDS = 'vds',
   EUDCC = 'eudcc',
 }
+/* eslint-enable no-unused-vars */
 
 /**
  * Add some amount of days to periods to pre-empt leap days.

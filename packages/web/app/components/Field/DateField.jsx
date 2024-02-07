@@ -57,7 +57,6 @@ export const DateInput = ({
   format = 'yyyy-MM-dd',
   onChange,
   name,
-  placeholder,
   max = '9999-12-31',
   min,
   saveDateAsString = false,
@@ -65,12 +64,18 @@ export const DateInput = ({
   inputProps = {},
   ...props
 }) => {
+  delete props.placeholder;
+
   const [currentText, setCurrentText] = useState(fromRFC3339(value, format));
   const [isPlaceholder, setIsPlaceholder] = useState(!value);
 
   const onValueChange = useCallback(
     event => {
       const formattedValue = event.target.value;
+      if (!formattedValue) {
+        onChange({ target: { value: '', name } });
+        return;
+      }
       const date = parse(formattedValue, format, new Date());
 
       if (max) {
@@ -91,8 +96,11 @@ export const DateInput = ({
 
       let outputValue;
       if (saveDateAsString) {
-        if (type === 'date') outputValue = toDateString(date);
-        else if (['time', 'datetime-local'].includes(type)) outputValue = toDateTimeString(date);
+        if (type === 'date') {
+          outputValue = toDateString(date);
+        } else if (['time', 'datetime-local'].includes(type)) {
+          outputValue = toDateTimeString(date);
+        }
       } else {
         outputValue = date.toISOString();
       }

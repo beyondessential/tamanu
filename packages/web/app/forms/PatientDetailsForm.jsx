@@ -4,11 +4,15 @@ import { groupBy, isEmpty } from 'lodash';
 import { useQuery } from '@tanstack/react-query';
 
 import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
-import { PATIENT_REGISTRY_TYPES, PLACE_OF_BIRTH_TYPES } from '@tamanu/constants';
-import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants/patientFields';
+import {
+  PATIENT_REGISTRY_TYPES,
+  PLACE_OF_BIRTH_TYPES,
+  SEX_OPTIONS,
+  PATIENT_FIELD_DEFINITION_TYPES,
+} from '@tamanu/constants';
 
 import { useSexValues } from '../hooks';
-import { Colors, sexOptions } from '../constants';
+import { Colors } from '../constants';
 import { useLocalisation } from '../contexts/Localisation';
 import { useApi, useSuggester } from '../api';
 import { getPatientDetailsValidation } from '../validations';
@@ -57,7 +61,7 @@ const StyledPatientDetailSecondaryDetailsGroupWrapper = styled.div`
 export const PrimaryDetailsGroup = ({ values = {}, patientRegistryType }) => {
   const villageSuggester = useSuggester('village');
   const { getLocalisation } = useLocalisation();
-  let filteredSexOptions = sexOptions;
+  let filteredSexOptions = SEX_OPTIONS;
   if (getLocalisation('features.hideOtherSex') === true) {
     filteredSexOptions = filteredSexOptions.filter(s => s.value !== 'other');
   }
@@ -199,25 +203,23 @@ export const PatientFieldsGroup = ({ fieldDefinitions, fieldValues }) => {
 };
 
 function sanitiseRecordForValues(data) {
-  const {
-    // unwanted ids
-    id,
-    patientId,
+  const values = { ...data };
 
-    // backend fields
-    markedForSync,
-    createdAt,
-    updatedAt,
-    updatedAtSyncTick,
+  // unwanted ids
+  delete values.id;
+  delete values.patientId;
 
-    // state fields
-    loading,
-    error,
+  // backend fields
+  delete values.markedForSync;
+  delete values.createdAt;
+  delete values.updatedAt;
+  delete values.updatedAtSyncTick;
 
-    ...remaining
-  } = data;
+  // state fields
+  delete values.loading;
+  delete values.error;
 
-  return Object.entries(remaining)
+  return Object.entries(values)
     .filter(([, v]) => {
       if (Array.isArray(v)) return false;
       if (typeof v === 'object') return false;

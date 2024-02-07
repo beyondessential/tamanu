@@ -8,6 +8,7 @@ import {
   vaccineIcon,
 } from '../../constants/images';
 import { Colors } from '../../constants';
+import { ProgramRegistrySidebarItem } from '../../views/programRegistry/ProgramRegistrySidebarItem';
 
 export const FACILITY_MENU_ITEMS = [
   {
@@ -133,17 +134,13 @@ export const FACILITY_MENU_ITEMS = [
     ],
   },
   {
-    key: 'programs',
-    label: 'Programs',
-    path: '/programs',
+    key: 'programRegistry',
+    label: 'Program registry',
+    path: '/program-registry',
     icon: programsIcon,
-    ability: { action: 'read', subject: 'program' },
-    children: [
-      {
-        label: 'Active COVID-19 patients',
-        path: `/programs/active-covid-19-patients`,
-      },
-    ],
+    component: ProgramRegistrySidebarItem,
+    ability: { action: 'read', subject: 'programRegistry' },
+    children: [],
   },
   {
     key: 'facilityAdmin',
@@ -180,6 +177,11 @@ export const SYNC_MENU_ITEMS = [
     key: 'programs',
     label: 'Programs',
     path: '/admin/programs',
+  },
+  {
+    key: 'surveyResponses',
+    label: 'Survey Responses',
+    path: '/admin/surveyResponses',
   },
   {
     key: 'patientMerge',

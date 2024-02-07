@@ -158,7 +158,8 @@ export const ReportGeneratorForm = () => {
   }, [api]);
 
   const submitRequestReport = async formValues => {
-    const { reportId, emails, ...filterValues } = formValues;
+    const { reportId, ...filterValues } = formValues;
+    delete filterValues.emails;
 
     const updatedFilters = Object.fromEntries(
       Object.entries(filterValues).map(([key, value]) => {
@@ -289,19 +290,22 @@ export const ReportGeneratorForm = () => {
             <>
               <Spacer />
               <FormGrid columns={3}>
-                {parameters.map(({ parameterField, required, name, label, ...restOfProps }) => {
-                  return (
-                    <ParameterField
-                      key={name || parameterField}
-                      required={required}
-                      name={name}
-                      label={label}
-                      parameterValues={values}
-                      parameterField={parameterField}
-                      {...restOfProps}
-                    />
-                  );
-                })}
+                {parameters.map(
+                  ({ parameterField, required, name, label, ...restOfProps }) => {
+                    delete restOfProps.options;
+                    return (
+                      <ParameterField
+                        key={name || parameterField}
+                        required={required}
+                        name={name}
+                        label={label}
+                        parameterValues={values}
+                        parameterField={parameterField}
+                        {...restOfProps}
+                      />
+                    );
+                  },
+                )}
               </FormGrid>
             </>
           ) : null}

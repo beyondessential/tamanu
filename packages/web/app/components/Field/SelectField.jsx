@@ -19,7 +19,7 @@ const StyledFormControl = styled(FormControl)`
   // helper text
   .MuiFormHelperText-root {
     font-weight: 500;
-    font-size: 12px;
+    font-size: 11px;
     line-height: 15px;
     margin: 4px 2px 2px;
   }
@@ -96,12 +96,13 @@ export const SelectInput = ({
   name,
   helperText,
   inputRef,
-  form,
-  tabIndex,
   inputProps = {},
   isClearable = true,
   ...props
 }) => {
+  delete props.form;
+  delete props.tabIndex;
+
   const handleChange = useCallback(
     changedOption => {
       const userClickedClear = !changedOption;

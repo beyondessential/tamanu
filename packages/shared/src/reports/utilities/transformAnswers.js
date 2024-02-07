@@ -59,8 +59,15 @@ export const getAnswerBody = async (models, componentConfig, type, answer, trans
 };
 
 export const getAutocompleteComponentMap = surveyComponents => {
+  // There's a couple of components that use the "source" config option
+  // to specify foreign data for the question answers to link to,
+  // but we only want to transform the Autocomplete ones here (for now)
   const autocompleteComponents = surveyComponents
-    .filter(c => c.dataElement.dataValues.type === 'Autocomplete')
+    .filter(
+      ({ config, dataElement }) =>
+        dataElement.type === 'Autocomplete' ||
+        (config && JSON.parse(config).writeToPatient?.fieldType === 'Autocomplete'),
+    )
     .map(({ dataElementId, config: componentConfig }) => [
       dataElementId,
       componentConfig ? JSON.parse(componentConfig) : {},
