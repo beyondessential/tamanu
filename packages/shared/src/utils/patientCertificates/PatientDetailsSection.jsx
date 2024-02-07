@@ -1,7 +1,13 @@
 import React from 'react';
 import { Col, LightDivider, Row } from './Layout';
 import { H3, P } from './Typography';
-import { getDOB, getSex } from '../patientAccessors';
+import {
+  getDOB,
+  getSex,
+  getVillageName,
+  getNationality,
+  getPassportNumber,
+} from '../patientAccessors';
 
 const PATIENT_FIELDS = [
   { key: 'firstName', label: 'First Name' },
@@ -13,7 +19,9 @@ const PATIENT_FIELDS = [
     label: 'DOB',
     accessor: getDOB,
   },
-  { key: 'villageName', label: 'Village' },
+  { key: 'villageName', label: 'Village', accessor: getVillageName },
+  { key: 'passport', label: 'Passport Number', accessor: getPassportNumber },
+  { key: 'nationality', label: 'Nationality', accessor: getNationality },
 ];
 
 export const PatientDetailsSection = ({ patient, getLocalisation, extraFields = [] }) => {

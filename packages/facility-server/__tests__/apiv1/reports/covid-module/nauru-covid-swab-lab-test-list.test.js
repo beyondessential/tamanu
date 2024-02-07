@@ -14,7 +14,7 @@ import {
   LAB_METHOD_NAME,
 } from './covid-swab-lab-test-report-utils';
 
-const REPORT_URL = '/v1/reports/nauru-covid-swab-lab-test-list';
+const REPORT_URL = '/api/reports/nauru-covid-swab-lab-test-list';
 const PROGRAM_ID = 'program-naurucovid19';
 const SURVEY_ID = 'program-naurucovid19-naurucovidtestregistration';
 
@@ -57,7 +57,7 @@ async function submitInitialFormForPatient(app, models, patient, date, answers) 
   const encounter = await models.Encounter.create(
     await createDummyEncounter(models, { patientId: patient.id }),
   );
-  return app.post('/v1/surveyResponse').send({
+  return app.post('/api/surveyResponse').send({
     surveyId: SURVEY_ID,
     startTime: date,
     patientId: patient.id,

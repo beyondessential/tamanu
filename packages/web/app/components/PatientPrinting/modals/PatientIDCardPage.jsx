@@ -18,7 +18,7 @@ export const PatientIDCardPage = React.memo(({ patient, imageData }) => {
     <Modal
       open={open}
       onClose={() => setOpen(false)}
-      width="sm"
+      width="md"
       printable
       keepMounted
       onPrint={() => printPDF('patient-card-printout')}

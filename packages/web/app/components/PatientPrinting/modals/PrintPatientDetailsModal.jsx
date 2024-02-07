@@ -166,7 +166,7 @@ export const PrintPatientDetailsModal = ({ patient }) => {
   return (
     <>
       <Button size="small" onClick={openModal}>
-        ID forms
+        Print ID forms
       </Button>
       {mainComponent}
     </>

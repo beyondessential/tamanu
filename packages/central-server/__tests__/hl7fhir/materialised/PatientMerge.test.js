@@ -73,7 +73,7 @@ describe(`Materialised FHIR - Patient Merge`, () => {
 
     // Flaky test (EPI-275)
     it.skip('links patients that were merged into the top level patient A (as fetch)', async () => {
-      const path = `/v1/integration/${INTEGRATION_ROUTE}/Patient/${ids.a}`;
+      const path = `/api/integration/${INTEGRATION_ROUTE}/Patient/${ids.a}`;
 
       // act
       const response = await app.get(path);
@@ -124,7 +124,7 @@ describe(`Materialised FHIR - Patient Merge`, () => {
 
     // Flaky test (EPI-275)
     it.skip('links patients that were merged into, and patients that replaced, the mid level patient B (as fetch)', async () => {
-      const path = `/v1/integration/${INTEGRATION_ROUTE}/Patient/${ids.b}`;
+      const path = `/api/integration/${INTEGRATION_ROUTE}/Patient/${ids.b}`;
 
       // act
       const response = await app.get(path);
@@ -174,7 +174,7 @@ describe(`Materialised FHIR - Patient Merge`, () => {
     });
 
     it('links patients that replaced the mid level patients C and D (as search)', async () => {
-      const path = `/v1/integration/${INTEGRATION_ROUTE}/Patient?_id=${ids.c},${ids.d}`;
+      const path = `/api/integration/${INTEGRATION_ROUTE}/Patient?_id=${ids.c},${ids.d}`;
 
       // act
       const response = await app.get(path);
@@ -294,7 +294,7 @@ describe(`Materialised FHIR - Patient Merge`, () => {
     });
 
     it('links patients that were merged into the top level patient A (as fetch)', async () => {
-      const path = `/v1/integration/${INTEGRATION_ROUTE}/Patient/${ids.a}`;
+      const path = `/api/integration/${INTEGRATION_ROUTE}/Patient/${ids.a}`;
 
       // act
       const response = await app.get(path);
@@ -345,7 +345,7 @@ describe(`Materialised FHIR - Patient Merge`, () => {
 
     // Flaky test (EPI-275)
     it.skip('links patients that were merged into, and patients that replaced, the mid level patient B (as fetch)', async () => {
-      const path = `/v1/integration/${INTEGRATION_ROUTE}/Patient/${ids.b}`;
+      const path = `/api/integration/${INTEGRATION_ROUTE}/Patient/${ids.b}`;
 
       // act
       const response = await app.get(path);
@@ -395,7 +395,7 @@ describe(`Materialised FHIR - Patient Merge`, () => {
     });
 
     it('links patients that replaced the mid level patients C and D (as search)', async () => {
-      const path = `/v1/integration/${INTEGRATION_ROUTE}/Patient?_id=${ids.c},${ids.d}`;
+      const path = `/api/integration/${INTEGRATION_ROUTE}/Patient?_id=${ids.c},${ids.d}`;
 
       // act
       const response = await app.get(path);
