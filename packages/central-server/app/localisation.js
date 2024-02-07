@@ -268,6 +268,13 @@ const fieldsSchema = yup
   .required()
   .noUnknown();
 
+const sidebarSchema = yup
+  .object({
+    // Todo: add schema
+    patients: yup.object().required(),
+  })
+  .noUnknown();
+
 const imagingTypeSchema = yup
   .object({
     label: yup.string().required(),
@@ -358,6 +365,7 @@ const rootLocalisationSchema = yup
         .required(),
     },
     fields: fieldsSchema,
+    sidebar: sidebarSchema,
     templates: templatesSchema,
     timeZone: yup.string().nullable(),
     imagingTypes: imagingTypesSchema,

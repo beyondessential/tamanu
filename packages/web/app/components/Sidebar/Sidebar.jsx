@@ -178,6 +178,37 @@ const isHighlighted = (currentPath, menuItemPath, sectionIsOpen, isRetracted) =>
   return sectionPath === itemPath && (!sectionIsOpen || isRetracted);
 };
 
+const tempLocalisation = {
+  patients: {
+    hidden: false,
+    sort: -1000,
+  },
+  scheduling: {
+    hidden: false,
+    sort: 0,
+  },
+  medication: {
+    hidden: false,
+    sort: 0,
+  },
+  imaging: {
+    hidden: false,
+    sort: 0,
+  },
+  labs: {
+    hidden: false,
+    sort: 0,
+  },
+  immunisations: {
+    hidden: false,
+    sort: 0,
+  },
+  programRegistry: {
+    hidden: false,
+    sort: 0,
+  },
+};
+
 export const Sidebar = React.memo(({ items }) => {
   const [selectedParentItem, setSelectedParentItem] = useState('');
   const [isRetracted, setIsRetracted] = useState(false);
@@ -186,6 +217,24 @@ export const Sidebar = React.memo(({ items }) => {
   const currentPath = useSelector(getCurrentRoute);
   const dispatch = useDispatch();
   const { getLocalisation } = useLocalisation();
+
+  // const sidebarConfig = getLocalisation('sidebar');
+
+  const localisedItems = items
+    .map(item => {
+      const localisedItem = tempLocalisation[item.key];
+      const hidden = localisedItem?.hidden !== undefined ? localisedItem.hidden : false;
+      const sort = localisedItem?.sort !== undefined ? localisedItem.sort : 0;
+      return { ...item, hidden, sort };
+    })
+    .filter(item => !item.hidden)
+    .sort((a, b) => {
+      // Always show facilityAdmin last
+      if (a.key === 'facilityAdmin') {
+        return 1;
+      }
+      return a.sort - b.sort;
+    });
 
   const extendSidebar = () => setIsRetracted(false);
 
@@ -230,7 +279,7 @@ export const Sidebar = React.memo(({ items }) => {
         )}
       </HeaderContainer>
       <List component="nav">
-        {items.map(item => {
+        {localisedItems.map(item => {
           const commonProps = {
             retracted: isRetracted,
             icon: item.icon,

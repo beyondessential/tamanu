@@ -315,6 +315,12 @@
         "alpha-2": "",
         "alpha-3": ""
       },
+      "sidebar": {
+        "patients": {
+          "hidden": false,
+          "sort": 0
+        }
+      },
       "fields": {
         "countryName": {
           "shortLabel": "Country",
