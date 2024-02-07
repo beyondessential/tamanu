@@ -125,6 +125,12 @@ export const MedicationForm = React.memo(
       })();
     }, [awaitingPrint, submittedMedication]);
 
+    const preventNegative = value => {
+      if (!value.target.validity.valid) {
+        value.target.value = 0;
+      }
+    };
+
     return (
       <>
         <Form
@@ -244,11 +250,14 @@ export const MedicationForm = React.memo(
                       fallback="morning"
                     />
                   }
+                  min={0}
                   component={NumberField}
+                  onInput={preventNegative}
                   disabled={readOnly}
                 />
                 <Field
                   name="qtyLunch"
+                  min={0}
                   label={
                     <TranslatedText
                       stringId="medication.form.quantityLunch.label"
@@ -257,6 +266,7 @@ export const MedicationForm = React.memo(
                   }
                   component={NumberField}
                   disabled={readOnly}
+                  onInput={preventNegative}
                 />
                 <Field
                   name="qtyEvening"
@@ -266,8 +276,10 @@ export const MedicationForm = React.memo(
                       fallback="Evening"
                     />
                   }
+                  min={0}
                   component={NumberField}
                   disabled={readOnly}
+                  onInput={preventNegative}
                 />
                 <Field
                   name="qtyNight"
@@ -277,8 +289,10 @@ export const MedicationForm = React.memo(
                       fallback="Night"
                     />
                   }
+                  min={0}
                   component={NumberField}
                   disabled={readOnly}
+                  onInput={preventNegative}
                 />
               </FormGrid>
               <Field
@@ -300,8 +314,10 @@ export const MedicationForm = React.memo(
                     fallback="Discharge quantity"
                   />
                 }
+                min={0}
                 component={NumberField}
                 disabled={readOnly}
+                onInput={preventNegative}
               />
               {shouldShowDiscontinuationButton && (
                 <>

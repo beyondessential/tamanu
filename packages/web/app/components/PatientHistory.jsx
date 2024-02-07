@@ -1,7 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 
-import { OutlinedButton } from './Button';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { MarkPatientForSync } from './MarkPatientForSync';
@@ -9,6 +8,7 @@ import { ENCOUNTER_OPTIONS_BY_VALUE } from '../constants';
 import { LocationGroupCell } from './LocationCell';
 import { LimitedLinesCell } from './FormattedTableCell';
 import { TranslatedText } from './Translation/TranslatedText';
+import { useSyncState } from '../contexts/SyncState';
 import { useRefreshCount } from '../hooks/useRefreshCount';
 
 const DateWrapper = styled.div`
@@ -76,9 +76,28 @@ const SyncWarning = styled.p`
   margin: 1rem;
 `;
 
-const RefreshButton = styled(OutlinedButton)`
-  margin-left: 0.5rem;
-`;
+const SyncWarningBanner = ({ patient, onRefresh }) => {
+  const syncState = useSyncState();
+  const isSyncing = syncState.isPatientSyncing(patient.id);
+  const [wasSyncing, setWasSyncing] = useState(isSyncing);
+
+  if (isSyncing !== wasSyncing) {
+    setWasSyncing(isSyncing);
+    // refresh the table on a timeout so we aren't updating two components at once
+    setTimeout(onRefresh, 100);
+  }
+
+  if (!isSyncing) return null;
+
+  return (
+    <SyncWarning>
+      <TranslatedText
+        stringId="patient.history.syncWarning"
+        fallback="Patient is being synced, so records might not be fully updated."
+      />
+    </SyncWarning>
+  );
+};
 
 export const PatientHistory = ({ patient, onItemClick }) => {
   const [refreshCount, updateRefreshCount] = useRefreshCount();
@@ -88,17 +107,7 @@ export const PatientHistory = ({ patient, onItemClick }) => {
   }
   return (
     <>
-      {patient.syncing && (
-        <SyncWarning>
-          <TranslatedText
-            stringId="patient.history.syncWarning"
-            fallback="Patient is being synced, so records might not be fully updated."
-          />
-          <RefreshButton onClick={updateRefreshCount}>
-            <TranslatedText stringId="general.action.refresh" fallback="Refresh" />
-          </RefreshButton>
-        </SyncWarning>
-      )}
+      <SyncWarningBanner patient={patient} onRefresh={updateRefreshCount} />
       <DataFetchingTable
         columns={columns}
         onRowClick={row => onItemClick(row.id)}

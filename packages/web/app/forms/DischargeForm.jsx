@@ -269,7 +269,9 @@ const DischargeFormScreen = props => {
         <FormSubmitCancelRow
           onCancel={onCancel}
           onConfirm={async () => {
-            const { isCanceled, ...formErrors } = await validateForm();
+            const formErrors = await validateForm();
+            delete formErrors.isCanceled;
+
             if (Object.keys(formErrors).length > 0) {
               // Hacky, set to SUBMIT_ATTEMPTED status to view error before summary page
               // without hitting submit button, it works with one page only. Ideally we should

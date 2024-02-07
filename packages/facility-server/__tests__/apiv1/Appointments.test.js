@@ -21,7 +21,7 @@ describe('Appointments', () => {
   });
   afterAll(() => ctx.close());
   it('should create a new appointment', async () => {
-    const result = await userApp.post('/v1/appointments').send({
+    const result = await userApp.post('/api/appointments').send({
       patientId: patient.id,
       startTime: add(new Date(), { days: 1 }), // create a date in the future
       clinicianId: userApp.user.dataValues.id,
@@ -34,7 +34,7 @@ describe('Appointments', () => {
     expect(result.body.clinicianId).toEqual(userApp.user.dataValues.id);
   });
   it('should list appointments', async () => {
-    const result = await userApp.get('/v1/appointments');
+    const result = await userApp.get('/api/appointments');
     expect(result).toHaveSucceeded();
     expect(result.body.count).toEqual(1);
     // verify that the appointment returned is the one created above
@@ -50,16 +50,16 @@ describe('Appointments', () => {
         where: { id: appointment.id },
       },
     );
-    const result = await userApp.get('/v1/appointments');
+    const result = await userApp.get('/api/appointments');
     expect(result.body.data[0].locationGroup.id).toEqual(locationId);
   });
   it('should cancel an appointment', async () => {
-    const result = await userApp.put(`/v1/appointments/${appointment.id}`).send({
+    const result = await userApp.put(`/api/appointments/${appointment.id}`).send({
       status: APPOINTMENT_STATUSES.CANCELLED,
     });
     expect(result).toHaveSucceeded();
     expect(result.body.status).toEqual(APPOINTMENT_STATUSES.CANCELLED);
-    const getResult = await userApp.get('/v1/appointments');
+    const getResult = await userApp.get('/api/appointments');
     expect(getResult).toHaveSucceeded();
     expect(getResult.body.count).toEqual(1);
     expect(getResult.body.data[0].status).toEqual(APPOINTMENT_STATUSES.CANCELLED);

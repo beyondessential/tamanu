@@ -743,7 +743,7 @@ describe('Patient merge', () => {
     it('Should call the function from the endpoint', async () => {
       const [keep, merge] = await makeTwoPatients();
 
-      const response = await adminApp.post('/v1/admin/mergePatient').send({
+      const response = await adminApp.post('/api/admin/mergePatient').send({
         keepPatientId: keep.id,
         unwantedPatientId: merge.id,
       });
@@ -768,7 +768,7 @@ describe('Patient merge', () => {
       const [keep, merge] = await makeTwoPatients();
       const app = await baseApp.asRole('reception');
 
-      const response = await app.post('/v1/admin/mergePatient').send({
+      const response = await app.post('/api/admin/mergePatient').send({
         keepPatientId: keep.id,
         unwantedPatientId: merge.id,
       });
@@ -779,7 +779,7 @@ describe('Patient merge', () => {
       const { Patient } = models;
       const patient = await Patient.create(fake(Patient));
 
-      const response = await adminApp.post('/v1/admin/mergePatient').send({
+      const response = await adminApp.post('/api/admin/mergePatient').send({
         keepPatientId: patient.id,
         unwantedPatientId: 'doesnt exist',
       });

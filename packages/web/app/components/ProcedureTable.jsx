@@ -11,7 +11,7 @@ const COLUMNS = [
   {
     key: 'date',
     title: <TranslatedText stringId="general.table.column.date" fallback="date" />,
-    accessor: ({ startTime }) => <DateDisplay date={startTime} />,
+    accessor: ({ date }) => <DateDisplay date={date} />,
   },
   {
     key: 'ProcedureType.code',
