@@ -375,7 +375,7 @@ const NotesMultipageCellPadding = () => {
         if (pageNumber < firstPageOccurence && subPageNumber) {
           firstPageOccurence = pageNumber;
         }
-        return pageNumber !== firstPageOccurence && <View style={{ paddingBottom: 7 }} debug />;
+        return pageNumber !== firstPageOccurence && <View style={{ paddingBottom: 7 }} />;
       }}
     />
   );
@@ -393,7 +393,7 @@ const NotesSection = ({ notes }) => {
                 borderTop: borderStyle,
                 position: 'absolute',
                 top: -1,
-                right: -1,
+                right: 0,
                 left: 0,
               }}
               fixed
@@ -407,8 +407,17 @@ const NotesSection = ({ notes }) => {
               />
               <Text style={textStyles.tableCellContent}>{`${note.content}\n`}</Text>
               <NoteFooter note={note} />
+              <View
+                style={{
+                  borderBottom: borderStyle,
+                  position: 'absolute',
+                  bottom: -1,
+                  right: -1,
+                  left: -1,
+                }}
+                fixed
+              />
             </NotesCell>
-            <View style={{ borderBottom: borderStyle }} fixed />
           </View>
         ))}
       </Table>
