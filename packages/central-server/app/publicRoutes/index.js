@@ -1,5 +1,6 @@
 import express from 'express';
 import config from 'config';
+import asyncHandler from 'express-async-handler';
 import { log } from '@tamanu/shared/services/logging';
 
 import { labResultWidgetRoutes } from './labResultWidget';
@@ -23,6 +24,15 @@ if (cors.allowedOrigin) {
 publicRoutes.get('/ping', (_req, res) => {
   res.send({ ok: true });
 });
+
+publicRoutes.get(
+  '/supportDeskUrl',
+  asyncHandler(async (req, res) => {
+    const { settings } = req;
+    const url = await settings.get('localisation.supportDeskUrl');
+    return res.send({ url });
+  }),
+);
 
 publicRoutes.use('/labResultWidget', labResultWidgetRoutes);
 publicRoutes.use('/integration', publicIntegrationRoutes);

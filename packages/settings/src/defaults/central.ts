@@ -103,36 +103,6 @@ export const centralDefaults = {
       enabled: false,
     },
   },
-  loadshedder: {
-    // paths are checked sequentially until a path matches a prefix
-    // (e.g. the path `/v1/sync/xxx/pull` would match the prefix `/v1/sync/`)
-    //
-    // if the path of a request matches a prefix it is added to that queue and
-    // may be dropped under heavy load
-    //
-    // if the path of a request matches nothing, the server never drops the
-    // request
-    queues: [
-      // sync queue
-      // (defaults to shedding requests for sync or attachments earlier than other requests)
-      {
-        maxActiveRequests: 4,
-        maxQueuedRequests: 8,
-        name: 'low_priority',
-        prefixes: ['/v1/sync', '/v1/attachment'],
-        queueTimeout: 7500,
-      },
-      // global queue for non-sync non-attachment requests
-      // (defaults to queueing more requests than sync/attachments and them shedding much later)
-      {
-        maxActiveRequests: 8,
-        maxQueuedRequests: 32,
-        name: 'high_priority',
-        prefixes: ['/'],
-        queueTimeout: 7500,
-      },
-    ],
-  },
   log: {
     color: true,
     consoleLevel: 'http',
