@@ -90,8 +90,7 @@ const getLocalisation = key => {
 };
 
 storiesOf('Certificates', module).add('CovidLabCertificate', () => (
-  // TODO(web)
-  // <PDFViewer width={800} height={1000} showToolbar={false}>
+  <PDFViewer width={800} height={1000} showToolbar={false}>
     <CovidLabCertificate
       patient={patient}
       createdBy="Initial Admin"
@@ -103,7 +102,7 @@ storiesOf('Certificates', module).add('CovidLabCertificate', () => (
       getLocalisation={getLocalisation}
       printedBy="Initial Admin"
     />
-  // </PDFViewer>
+  </PDFViewer>
 ));
 
 const examiner = {

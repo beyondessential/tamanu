@@ -54,11 +54,17 @@ surveyResponse.get(
 
         const result = await model.findByPk(answer.dataValues.body);
         if (!result) {
+          // If the answer is empty, return it as is rather than throwing an error
+          if (answer.dataValues.body === '') {
+            return answer;
+          }
+
           if (componentConfig.source === 'ReferenceData') {
             throw new Error(
               `Selected answer ${componentConfig.source}[${answer.dataValues.body}] not found (check that the surveyquestion's source isn't ReferenceData for a Location, Facility, or Department)`,
             );
           }
+
           throw new Error(
             `Selected answer ${componentConfig.source}[${answer.dataValues.body}] not found`,
           );
