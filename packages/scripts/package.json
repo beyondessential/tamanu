@@ -7,8 +7,7 @@
     "test": "echo 'No tests on scripts'",
     "download-translations": "node src/downloadTranslations.js ../web/resources/strings",
     "generate-fake-db": "node src/fake.js",
-    "collect-migration-info": "node src/collectMigrationInfo.js",
-    "get-hashes-for-table": "node src/getHashes.js"
+    "test-determinism": "node src/testDeterminism.js"
   },
   "dependencies": {
     "google-spreadsheet": "^2.0.7",

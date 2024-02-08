@@ -3,8 +3,8 @@ import Sequelize, { DataTypes } from 'sequelize';
 export async function up(query) {
     await query.addColumn('encounter_history', 'barbaz', {
         type: Sequelize.STRING,
-        allowNull: false,
-        defaultValue: Sequelize.fn('uuid_generate_v4'), // using uuid_generate_v4 here
+        allowNull: true,
+        // defaultValue: Sequelize.fn('uuid_generate_v4'), // using uuid_generate_v4 here
     });
 }
 
