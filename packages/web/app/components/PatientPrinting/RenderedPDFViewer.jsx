@@ -1,5 +1,7 @@
 import React, { useDeferredValue } from 'react';
 import { useRenderPDF } from '../../utils/useRenderPDF';
+import styled from 'styled-components';
+import { LoadingIndicator } from '../LoadingIndicator';
 
 const FullIframe = styled.iframe`
   width: 100%;
@@ -19,12 +21,7 @@ export const RenderedPDFViewer = ({
   const { url, loading, error } = useRenderPDF(pdfProps);
 
   const src = url ? `${url}#toolbar=${showToolbar ? 1 : 0}` : null;
-  if (loading)
-    return (
-      <div className={className} style={style}>
-        Loading...
-      </div>
-    );
+  if (loading) return <LoadingIndicator />;
 
   if (error) {
     console.log({ error });
@@ -35,5 +32,5 @@ export const RenderedPDFViewer = ({
     );
   }
 
-  return <FullIframe src={src} ref={innerRef} style={style} className={className} {...props} />;
+  return <FullIframe src={src} ref={innerRef} {...props} />;
 };
