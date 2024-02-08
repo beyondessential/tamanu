@@ -53,17 +53,37 @@ const StyledField = styled(Field)`
 `;
 
 const HEADERS = [
-  <TranslatedText stringId="lab.sampleDetail.table.column.category" fallback="Category" />,
+  <TranslatedText
+    stringId="lab.sampleDetail.table.column.category"
+    fallback="Category"
+    key="lab.sampleDetail.table.column.category"
+  />,
   <TranslatedText
     stringId="lab.sampleDetail.table.column.collectionDateTime"
     fallback="Date & time collected"
   />,
-  <TranslatedText stringId="lab.sampleDetail.table.column.collectedBy" fallback="Collected by" />,
-  <TranslatedText stringId="lab.sampleDetail.table.column.specimenType" fallback="Specimen type" />,
-  <TranslatedText stringId="lab.sampleDetail.table.column.site" fallback="Site" />,
+  <TranslatedText
+    stringId="lab.sampleDetail.table.column.collectedBy"
+    key="lab.sampleDetail.table.column.collectedBy"
+    fallback="Collected by"
+  />,
+  <TranslatedText
+    stringId="lab.sampleDetail.table.column.specimenType"
+    key="lab.sampleDetail.table.column.specimenType"
+    fallback="Specimen type"
+  />,
+  <TranslatedText
+    stringId="lab.sampleDetail.table.column.site"
+    key="lab.sampleDetail.table.column.site"
+    fallback="Site"
+  />,
 ];
 const WITH_PANELS_HEADERS = [
-  <TranslatedText stringId="lab.sampleDetail.table.column.panel" fallback="Panel" />,
+  <TranslatedText
+    stringId="lab.sampleDetail.table.column.panel"
+    fallback="Panel"
+    key="lab.sampleDetail.table.column.panel"
+  />,
   ...HEADERS,
 ];
 export const SAMPLE_DETAILS_FIELD_PREFIX = 'sample-details-field-';
