@@ -157,10 +157,18 @@ export const MobileStatusPage = ({ platformType }) => (
   </MobileContainer>
 );
 
+const SingleTabErrorMessage = styled(ErrorMessage)`
+  text-align: center;
+`;
+
 export const SingleTabStatusPage = () => {
   return (
     <StatusPage
-      message="Tamanu can not be opened across multiple tabs."
+      message={
+        <SingleTabErrorMessage>
+          Tamanu can not be opened across <br /> multiple tabs.
+        </SingleTabErrorMessage>
+      }
       description="Please continue working in the existing tab."
     />
   );
