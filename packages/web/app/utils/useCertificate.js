@@ -32,7 +32,7 @@ export const useCertificate = ({ footerAssetName } = {}) => {
 
   const currentUser = useSelector(getCurrentUser);
 
-  return {
+  const data = {
     title,
     subTitle,
     logo,
@@ -40,6 +40,10 @@ export const useCertificate = ({ footerAssetName } = {}) => {
     footerImg,
     deathCertFooterImg,
     printedBy: currentUser?.displayName,
+  };
+
+  return {
+    data
     isFetching,
   };
 };

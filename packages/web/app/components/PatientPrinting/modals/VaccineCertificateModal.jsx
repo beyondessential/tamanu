@@ -20,13 +20,7 @@ import { PDFViewer, printPDF } from '../PDFViewer';
 export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) => {
   const api = useApi();
   const { getLocalisation } = useLocalisation();
-  const {
-    watermark,
-    logo,
-    footerImg,
-    printedBy,
-    isFetching: isCertificateFetching,
-  } = useCertificate({
+  const { data: certificateData, isFetching: isCertificateFetching } = useCertificate({
     footerAssetName: ASSET_NAMES.VACCINATION_CERTIFICATE_FOOTER,
   });
   const {
@@ -57,6 +51,7 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
 
   const village = useReferenceData(patient.villageId).data;
   const patientData = { ...patient, village, additionalData };
+  const { logo, watermark, footerImg, printedBy } = certificateData;
 
   if (isAdditionalDataFetching || isVaccineFetching || isCertificateFetching) return null;
 

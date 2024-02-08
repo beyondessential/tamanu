@@ -18,7 +18,7 @@ export const CovidClearanceCertificateModal = React.memo(({ patient }) => {
   const [open, setOpen] = useState(true);
   const { getLocalisation } = useLocalisation();
   const api = useApi();
-  const { watermark, logo, footerImg, printedBy } = useCertificate({
+  const { data: certificateData, isFetching: isCertificateFetching } = useCertificate({
     footerAssetName: ASSET_NAMES.COVID_CLEARANCE_CERTIFICATE_FOOTER,
   });
   const {
@@ -30,7 +30,9 @@ export const CovidClearanceCertificateModal = React.memo(({ patient }) => {
     CertificateTypes.clearance,
   );
 
-  const isLoading = isLabTestsLoading || isAdditionalDataLoading;
+  const { watermark, logo, footerImg, printedBy } = certificateData;
+
+  const isLoading = isLabTestsLoading || isAdditionalDataLoading || isCertificateFetching;
 
   const createCovidTestCertNotification = useCallback(
     data =>

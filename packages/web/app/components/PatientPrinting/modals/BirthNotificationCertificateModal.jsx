@@ -96,7 +96,7 @@ export const BirthNotificationCertificateModal = React.memo(({ patient }) => {
   const api = useApi();
   const { facility } = useAuth();
   const { getLocalisation } = useLocalisation();
-  const certificateData = useCertificate();
+  const { data: certificateData, isFetching: isCertificateFetching } = useCertificate();
   const { data: additionalData, isLoading: additionalDataLoading } = usePatientAdditionalDataQuery(
     patient.id,
   );
@@ -137,7 +137,8 @@ export const BirthNotificationCertificateModal = React.memo(({ patient }) => {
     fatherDataLoading ||
     birthDataLoading ||
     ethnicityLoading ||
-    deathDataLoading;
+    deathDataLoading ||
+    isCertificateFetching;
 
   return (
     <Modal
