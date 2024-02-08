@@ -143,7 +143,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
     dischargeQuery,
     villageQuery,
     notesQuery,
-    isFetching,
+    certificateQuery,
   ]);
 
   const modalProps = {
