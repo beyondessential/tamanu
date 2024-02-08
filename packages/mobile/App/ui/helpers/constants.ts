@@ -24,7 +24,7 @@ export const VisitTypes = {
   VISIT: 'Visit',
 };
 
-export const PatientHomeFromRoute = {
+export const PatientFromRoute = {
   HOME: 'home',
   RECENTLY_VIEWED: 'recentlyViewed',
   ALL_PATIENT: 'allPatient',

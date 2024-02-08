@@ -20,7 +20,7 @@ import { FilterIcon } from '/components/Icons/FilterIcon';
 import { useFilterFields } from './PatientFilterScreen';
 import { IPatient } from '~/types';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
-import { PatientHomeFromRoute } from '~/ui/helpers/constants';
+import { PatientFromRoute } from '~/ui/helpers/constants';
 
 interface ActiveFilters {
   count: number;
@@ -105,7 +105,7 @@ const Screen: FC<ViewAllScreenProps> = ({
     setSelectedPatient(patient);
     navigation.navigate(Routes.HomeStack.SearchPatientStack.Index, {
       screen: Routes.HomeStack.SearchPatientStack.Index,
-      from: PatientHomeFromRoute.ALL_PATIENT,
+      from: PatientFromRoute.ALL_PATIENT,
     });
   }, []);
 

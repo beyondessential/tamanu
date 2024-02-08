@@ -7,7 +7,7 @@ import { theme } from '/styled/theme';
 import { Routes } from '/helpers/routes';
 // Navigator
 import { createSearchPatientNavigator } from '../navigators/SearchPatientTabs';
-import { PatientHomeFromRoute } from '~/ui/helpers/constants';
+import { PatientFromRoute } from '~/ui/helpers/constants';
 
 const Tabs = createSearchPatientNavigator();
 
@@ -32,7 +32,7 @@ export const SearchPatientTabs = ({ routingFrom }): ReactElement => {
     <Tabs.Navigator
       tabBarOptions={SearchPatientTabOptions}
       initialRouteName={
-        routingFrom === PatientHomeFromRoute.ALL_PATIENT
+        routingFrom === PatientFromRoute.ALL_PATIENT
           ? Routes.HomeStack.SearchPatientStack.SearchPatientTabs.ViewAll
           : Routes.HomeStack.SearchPatientStack.SearchPatientTabs.RecentViewed
       }

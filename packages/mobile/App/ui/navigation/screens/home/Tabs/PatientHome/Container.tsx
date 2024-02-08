@@ -16,7 +16,7 @@ import { withPatient } from '/containers/Patient';
 import { useBackend } from '~/ui/hooks';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { Patient } from '../../../../../../models/Patient';
-import { PatientHomeFromRoute } from '~/ui/helpers/constants';
+import { PatientFromRoute } from '~/ui/helpers/constants';
 
 interface IPopup {
   title: string;
@@ -124,10 +124,7 @@ const PatientHomeContainer = ({
   const onNavigateToSearchPatients = useCallback(() => {
     setSelectedPatient(null);
 
-    if (
-      from === PatientHomeFromRoute.ALL_PATIENT ||
-      from === PatientHomeFromRoute.RECENTLY_VIEWED
-    ) {
+    if (from === PatientFromRoute.ALL_PATIENT || from === PatientFromRoute.RECENTLY_VIEWED) {
       navigation.navigate(Routes.HomeStack.SearchPatientStack.Index, {
         screen: Routes.HomeStack.SearchPatientStack.Index,
         params: {
