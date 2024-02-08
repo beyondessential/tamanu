@@ -40,9 +40,10 @@ export const SearchPatientStack = ({ navigation, route }): ReactElement => {
           <Stack.Navigator headerMode="none" screenOptions={noSwipeGestureOnNavigator}>
             <Stack.Screen
               name={Routes.HomeStack.SearchPatientStack.SearchPatientTabs.Index}
-              children={() => <SearchPatientTabs routingFrom={routingFrom} />}
               initialParams={filters}
-            />
+            >
+              {props => <SearchPatientTabs {...props} routingFrom={routingFrom} />}
+            </Stack.Screen>
             <Stack.Screen
               name={Routes.HomeStack.SearchPatientStack.FilterSearch}
               component={PatientFilterScreen}
