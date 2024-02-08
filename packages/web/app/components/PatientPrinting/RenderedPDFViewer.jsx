@@ -11,7 +11,7 @@ const FullIframe = styled.iframe`
 export const RenderedPDFViewer = props => {
   const { url, loading, error } = useRenderPDF(props);
 
-  const src = url ? `${url}#toolbar=${showToolbar ? 1 : 0}` : null;
+  const src = url ? `${url}#toolbar=0` : null;
   if (loading) return <LoadingIndicator />;
 
   if (error) {

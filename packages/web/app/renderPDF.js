@@ -1,12 +1,14 @@
 import { createElement } from 'react';
-import { pdf } from '@react-pdf/renderer';
-import { VaccineCertificate } from '@tamanu/shared/utils/patientCertificates';
 
 const idToComponent = {
-  'vaccine-certificate': VaccineCertificate,
+  'vaccine-certificate': async () => {
+    const { VaccineCertificate } = await import('@tamanu/shared/utils/patientCertificates');
+    return VaccineCertificate;
+  },
 };
 
 export const renderPDF = async ({ id, ...props }) => {
-  const component = idToComponent[id];
+  const { pdf } = await import('@react-pdf/renderer');
+  const component = await idToComponent[id]();
   return pdf(createElement(component, props)).toBlob();
 };
