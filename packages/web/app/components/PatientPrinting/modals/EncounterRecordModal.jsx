@@ -102,7 +102,8 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
   const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
 
   const { getLocalisation } = useLocalisation();
-  const certificateData = useCertificate();
+  const certificateQuery = useCertificate();
+  const { data: certificateData } = certificateQuery;
 
   const patientQuery = usePatientData(encounter.patientId);
   const patient = patientQuery.data;
@@ -142,6 +143,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
     dischargeQuery,
     villageQuery,
     notesQuery,
+    isFetching,
   ]);
 
   const modalProps = {
