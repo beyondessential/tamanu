@@ -213,7 +213,7 @@ describe('Programs import', () => {
       'config: this field has unspecified keys: foo on Question Validation Fail at row 12',
       'config: unit must be a `string` type, but the final value was: `true`. on Question Validation Fail at row 13',
       'config: this field has unspecified keys: foo on Question Validation Fail at row 14',
-      'config: column must be one of the following values: registrationClinicalStatus, programRegistrationStatus, registrationClinician, registeringFacility, registrationCurrentlyAtVillage, registrationCurrentlyAtFacility, firstName, middleName, lastName, culturalName, dateOfBirth, dateOfDeath, sex, email, villageId, placeOfBirth, bloodType, primaryContactNumber, secondaryContactNumber, maritalStatus, cityTown, streetVillage, educationalLevel, socialMedia, title, birthCertificate, drivingLicense, passport, emergencyContactName, emergencyContactNumber, registeredById, motherId, fatherId, nationalityId, countryId, divisionId, subdivisionId, medicalAreaId, nursingZoneId, settlementId, ethnicityId, occupationId, religionId, patientBillingTypeId, countryOfBirthId on Question Validation Fail at row 15',
+      'config: column must be one of the following values: registrationClinicalStatus, programRegistrationStatus, registrationClinician, registeringFacility, registrationCurrentlyAtVillage, registrationCurrentlyAtFacility, firstName, middleName, lastName, culturalName, dateOfBirth, dateOfDeath, sex, email, villageId, placeOfBirth, bloodType, primaryContactNumber, secondaryContactNumber, maritalStatus, cityTown, streetVillage, educationalLevel, socialMedia, title, birthCertificate, drivingLicense, passport, emergencyContactName, emergencyContactNumber, registeredById, motherId, fatherId, nationalityId, countryId, divisionId, subdivisionId, medicalAreaId, nursingZoneId, settlementId, ethnicityId, occupationId, religionId, patientBillingTypeId, countryOfBirthId, age, ageWithMonths, fullName on Question Validation Fail at row 15',
       'config: writeToPatient.fieldName must be one of the following values: registrationClinicalStatus, programRegistrationStatus, registrationClinician, registeringFacility, registrationCurrentlyAtVillage, registrationCurrentlyAtFacility, firstName, middleName, lastName, culturalName, dateOfBirth, dateOfDeath, sex, email, villageId, placeOfBirth, bloodType, primaryContactNumber, secondaryContactNumber, maritalStatus, cityTown, streetVillage, educationalLevel, socialMedia, title, birthCertificate, drivingLicense, passport, emergencyContactName, emergencyContactNumber, registeredById, motherId, fatherId, nationalityId, countryId, divisionId, subdivisionId, medicalAreaId, nursingZoneId, settlementId, ethnicityId, occupationId, religionId, patientBillingTypeId, countryOfBirthId on Question Validation Fail at row 16',
       'config: writeToPatient.fieldType is a required field on Question Validation Fail at row 17',
       'config: this field has unspecified keys: foo on Question Validation Fail at row 18',
@@ -232,6 +232,7 @@ describe('Programs import', () => {
       'config: this field has unspecified keys: foo on Question Validation Fail at row 31',
       'config: source must be a `string` type, but the final value was: `true`. on Question Validation Fail at row 32',
       'config: source is a required field on Question Validation Fail at row 33',
+      'config: isAdditionalDataField is deprecated in Tamanu 2.1, it is now just inferred from the fieldName on Question Validation Fail at row 34',
     ];
 
     expectedErrorMessages.forEach((message, i) => {
@@ -248,8 +249,8 @@ describe('Programs import', () => {
       expect(stats).toMatchObject({
         Program: { created: 1, updated: 0, errored: 0 },
         Survey: { created: 2, updated: 0, errored: 0 },
-        ProgramDataElement: { created: 44, updated: 0, errored: 0 },
-        SurveyScreenComponent: { created: 12, updated: 0, errored: 32 }, // 31 fields in failure test, 11 in success test
+        ProgramDataElement: { created: 46, updated: 0, errored: 0 },
+        SurveyScreenComponent: { created: 13, updated: 0, errored: 33 },
       });
     });
   });

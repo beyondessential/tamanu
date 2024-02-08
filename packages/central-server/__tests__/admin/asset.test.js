@@ -26,7 +26,7 @@ describe('Asset upload', () => {
   });
 
   it('should forbid uploading without permission', async () => {
-    const response = await baseApp.put(`/v1/admin/asset/${NAME}`).send({
+    const response = await baseApp.put(`/api/admin/asset/${NAME}`).send({
       name: NAME,
       filename: 'test.png',
       data: B64_PNG_1X1_CLEAR,
@@ -35,7 +35,7 @@ describe('Asset upload', () => {
   });
 
   it('should upload a new asset', async () => {
-    const response = await adminApp.put(`/v1/admin/asset/${NAME}`).send({
+    const response = await adminApp.put(`/api/admin/asset/${NAME}`).send({
       filename: 'test.png',
       data: B64_PNG_1X1_CLEAR,
     });
@@ -52,7 +52,7 @@ describe('Asset upload', () => {
   });
 
   it('should update an existing asset', async () => {
-    const response = await adminApp.put(`/v1/admin/asset/${OTHER_NAME}`).send({
+    const response = await adminApp.put(`/api/admin/asset/${OTHER_NAME}`).send({
       name: OTHER_NAME,
       filename: 'test.png',
       data: B64_PNG_1X1_WHITE,
@@ -60,7 +60,7 @@ describe('Asset upload', () => {
     expect(response).toHaveSucceeded();
     expect(response.body).toHaveProperty('action', 'created');
 
-    const response2 = await adminApp.put(`/v1/admin/asset/${OTHER_NAME}`).send({
+    const response2 = await adminApp.put(`/api/admin/asset/${OTHER_NAME}`).send({
       name: OTHER_NAME,
       filename: 'test.png',
       data: B64_PNG_1X1_BLACK,
@@ -75,7 +75,7 @@ describe('Asset upload', () => {
   });
 
   it('should reject an asset with an invalid name', async () => {
-    const response = await adminApp.put('/v1/admin/asset/madeupname').send({
+    const response = await adminApp.put('/api/admin/asset/madeupname').send({
       filename: 'test.png',
       data: B64_PNG_1X1_CLEAR,
     });
@@ -84,7 +84,7 @@ describe('Asset upload', () => {
   });
 
   it('should detect .svg as image/svg', async () => {
-    const response = await adminApp.put(`/v1/admin/asset/${NAME}`).send({
+    const response = await adminApp.put(`/api/admin/asset/${NAME}`).send({
       filename: 'test.svg',
       data: B64_PNG_1X1_CLEAR,
     });
@@ -97,7 +97,7 @@ describe('Asset upload', () => {
   });
 
   it('should reject an asset with an invalid mime filename', async () => {
-    const response = await adminApp.put(`/v1/admin/asset/${NAME}`).send({
+    const response = await adminApp.put(`/api/admin/asset/${NAME}`).send({
       filename: 'test.xyz',
       data: B64_PNG_1X1_CLEAR,
     });
@@ -106,7 +106,7 @@ describe('Asset upload', () => {
   });
 
   it('should reject an asset without data', async () => {
-    const response = await adminApp.put(`/v1/admin/asset/${NAME}`).send({
+    const response = await adminApp.put(`/api/admin/asset/${NAME}`).send({
       filename: 'test.png',
       data: '',
     });
