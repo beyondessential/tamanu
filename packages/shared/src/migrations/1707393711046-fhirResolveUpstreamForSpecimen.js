@@ -4,15 +4,18 @@ export async function up(query) {
     LANGUAGE SQL
     AS $$
       UPDATE fhir.specimens s
-      SET type = jsonb_build_object(
-          'reference', 'ServceRequest/' || sr.id,
-          'type', 'ServiceRequest'
-        )
+      SET request = to_jsonb(
+        ARRAY[
+          jsonb_build_object(
+            'reference', 'ServceRequest/' || sr.id,
+            'type', 'ServiceRequest'
+          )
+        ])
       FROM fhir.service_requests sr
       WHERE true
         AND jsonb_extract_path_text(s.request, 'type') = 'upstream://service_request'
         AND sr.upstream_id::text = jsonb_extract_path_text(s.request, 'reference')
-    $$
+    $$;
   `);
 
   await query.sequelize.query(`
