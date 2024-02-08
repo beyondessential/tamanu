@@ -8,7 +8,7 @@ import {
   PATIENT_FIELD_DEFINITION_TYPES,
   PATIENT_REGISTRY_TYPES,
   PLACE_OF_BIRTH_TYPES,
-  SEX_OPTIONS
+  SEX_OPTIONS,
 } from '@tamanu/constants';
 import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
 
@@ -44,7 +44,7 @@ import { useSexValues } from '../hooks';
 import { getPatientDetailsValidation } from '../validations';
 
 const StyledHeading = styled.div`
-display: flex;
+  display: flex;
   justify-content: space-between;
   align-items: flex-start;
 `;
@@ -87,8 +87,12 @@ export const PrimaryDetailsGroup = ({ values = {}, patientRegistryType }) => {
   const isRequiredPatientData = fieldName =>
     getLocalisation(`fields.${fieldName}.requiredPatientData`);
 
-  const handleOpenCloseRemindersModal = useCallback((value) => {
-    setOpenReminderModal(value);
+  const handleOpenRemindersModal = useCallback(() => {
+    setOpenReminderModal(true);
+  }, []);
+
+  const handleCloseRemindersModal = useCallback(() => {
+    setOpenReminderModal(false);
   }, []);
 
   return (
@@ -100,7 +104,7 @@ export const PrimaryDetailsGroup = ({ values = {}, patientRegistryType }) => {
             variant="outlined"
             color="primary"
             size="small"
-            onClick={() => handleOpenCloseRemindersModal(true)}
+            onClick={handleOpenRemindersModal}
           >
             <NotificationsNoneIcon />
             Reminder contacts
@@ -109,7 +113,8 @@ export const PrimaryDetailsGroup = ({ values = {}, patientRegistryType }) => {
       </StyledHeading>
       <ReminderContactModal
         openReminderModal={openReminderModal}
-        handleOpenCloseRemindersModal={handleOpenCloseRemindersModal}
+        handleCloseRemindersModal={handleCloseRemindersModal}
+        handleOpenRemindersModal={handleOpenRemindersModal}
         patient={values}
       />
 
