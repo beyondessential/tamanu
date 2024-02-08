@@ -23,6 +23,7 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
   const { data: certificateData, isFetching: isCertificateFetching } = useCertificate({
     footerAssetName: ASSET_NAMES.VACCINATION_CERTIFICATE_FOOTER,
   });
+  const { logo, watermark, footerImg, printedBy } = certificateData;
   const {
     data: additionalData,
     isFetching: isAdditionalDataFetching,
@@ -51,7 +52,6 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
 
   const village = useReferenceData(patient.villageId).data;
   const patientData = { ...patient, village, additionalData };
-  const { logo, watermark, footerImg, printedBy } = certificateData;
 
   if (isAdditionalDataFetching || isVaccineFetching || isCertificateFetching) return null;
 
