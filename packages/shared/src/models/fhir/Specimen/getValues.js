@@ -25,9 +25,9 @@ async function getValuesFromLabRequest(upstream) {
 
 function requestRef(labRequest) {
   const refToLabRequest = new FhirReference({
-    type: 'upstream://serviceRequest',
+    type: 'upstream://service_request',
     reference: labRequest.id,
-    display: `${labRequest.displayId}`,
+    // display: `${labRequest.displayId}`,
   });
   console.log({ refToLabRequest });
   return refToLabRequest;
