@@ -35,6 +35,14 @@ const unhideableFieldSchema = yup
   .required()
   .noUnknown();
 
+const tabSchema = yup
+  .object({
+    sortPriority: yup.number().required(),
+    hidden: yup.boolean().required(),
+  })
+  .required()
+  .noUnknown();
+
 const UNHIDEABLE_FIELDS = [
   'markedForSync',
   'displayId',
@@ -110,6 +118,18 @@ const HIDEABLE_FIELDS = [
   'prescriberId',
   'facility',
   'dischargeDisposition',
+];
+
+const TABS = [
+  'history',
+  'details',
+  'results',
+  'referrals',
+  'programs',
+  'documents',
+  'vaccines',
+  'medication',
+  'invoices',
 ];
 
 const ageDurationSchema = yup
@@ -268,6 +288,16 @@ const fieldsSchema = yup
   .required()
   .noUnknown();
 
+const tabsSchema = yup.object({
+  ...TABS.reduce(
+    (tabs, tab) => ({
+      ...tabs,
+      [tab]: tabSchema,
+    }),
+    {},
+  ),
+});
+
 const imagingTypeSchema = yup
   .object({
     label: yup.string().required(),
@@ -338,6 +368,7 @@ const printMeasuresSchema = yup
 
 const rootLocalisationSchema = yup
   .object({
+    tabs: tabsSchema,
     units: yup.object({
       temperature: yup.string().oneOf(['celsius', 'fahrenheit']),
     }),

@@ -307,6 +307,44 @@
     },
     "data": {
       // To do: review this section when implementing the patient charts feature
+      "tabs": {
+        "history": {
+          "sortPriority": 0,
+          "hidden": false
+        },
+        "details": {
+          "sortPriority": 1,
+          "hidden": false
+        },
+        "results": {
+          "sortPriority": 2,
+          "hidden": true
+        },
+        "referrals": {
+          "sortPriority": 10,
+          "hidden": false
+        },
+        "programs": {
+          "sortPriority": 4,
+          "hidden": false
+        },
+        "documents": {
+          "sortPriority": 5,
+          "hidden": false
+        },
+        "vaccines": {
+          "sortPriority": 6,
+          "hidden": false
+        },
+        "medication": {
+          "sortPriority": 7,
+          "hidden": false
+        },
+        "invoices": {
+          "sortPriority": 8,
+          "hidden": false
+        }
+      },
       "units": {
         "temperature": "celsius"
       },
