@@ -10,13 +10,13 @@ export const useAsset = assetName => {
 
   const fallbackAssetName = ASSET_FALLBACK_NAMES[assetName];
 
-  const { data: queryData, isFetched: assetFetched } = useQuery({
+  const { data: queryData, isFetched: assetFetched, isFetching: isAssetFetching } = useQuery({
     queryKey: ['asset', assetName],
     queryFn: () => api.get(`asset/${assetName}`),
     enabled: !!assetName,
   });
 
-  const { data: fallbackQueryData } = useQuery({
+  const { data: fallbackQueryData, isFetching: isFallbackFetching } = useQuery({
     queryKey: ['asset', fallbackAssetName],
     queryFn: () => api.get(`asset/${fallbackAssetName}`),
     enabled: !!fallbackAssetName && assetFetched && !queryData,
@@ -39,9 +39,8 @@ export const useAsset = assetName => {
     }
   }, [queryData, fallbackQueryData]);
 
-  if (!assetData) {
-    return null;
-  }
-
-  return `data:${assetDataType};base64,${assetData}`;
+  return {
+    data: `data:${assetDataType};base64,${assetData}`,
+    isFetching: isAssetFetching || isFallbackFetching,
+  };
 };
