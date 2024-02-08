@@ -1,6 +1,7 @@
 import { useTranslation } from '../../contexts/Translation.jsx';
 import { DebugTooltip } from './DebugTooltip.jsx';
 import React from 'react';
+import PropTypes from 'prop-types';
 
 // Set DEBUG_TRANSLATION to true in localstorage if you want to highlight all translated strings in red
 const DEBUG_TRANSLATION_KEY = 'DEBUG_TRANSLATION';
@@ -28,4 +29,10 @@ export const TranslatedEnum = ({ prefix, value, enumValues }) => {
       </DebugTooltip>
     );
   return translation;
+};
+
+TranslatedEnum.propTypes = {
+  prefix: PropTypes.string.isRequired,
+  value: PropTypes.string.isRequired,
+  enumValues: PropTypes.object.isRequired,
 };

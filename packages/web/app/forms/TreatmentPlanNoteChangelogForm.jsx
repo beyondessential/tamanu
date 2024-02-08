@@ -6,6 +6,7 @@ import { NoteChangeLogs } from '../components/NoteChangeLogs';
 import { ConfirmCancelRow } from '../components/ButtonRow';
 import { NoteInfoSection, StyledDivider, WrittenByText } from '../components/NoteCommonFields';
 import { TranslatedText } from '../components/Translation/TranslatedText';
+import { TranslatedEnum } from '../components/Translation/TranslatedEnum.jsx';
 
 export const TreatmentPlanNoteChangelogForm = ({ note, onCancel }) => {
   const updatedByAuthorName = note.author?.displayName;
@@ -22,16 +23,26 @@ export const TreatmentPlanNoteChangelogForm = ({ note, onCancel }) => {
     <>
       <NoteInfoSection
         numberOfColumns={3}
-        noteType={NOTE_TYPE_LABELS[note.noteType]}
+        noteType={
+          <TranslatedEnum
+            prefix="note.property.type.label"
+            value={note.noteType}
+            enumValues={NOTE_TYPE_LABELS}
+          />
+        }
         date={note.date}
-        dateLabel={<TranslatedText
-          stringId="note.form.lastUpdatedAt.label"
-          fallback="Last updated at date & time"
-        />}
-        writtenByLabel={<TranslatedText
-          stringId="note.form.lastUpdatedBy.label"
-          fallback="Last updated by (or on behalf of)"
-        />}
+        dateLabel={
+          <TranslatedText
+            stringId="note.form.lastUpdatedAt.label"
+            fallback="Last updated at date & time"
+          />
+        }
+        writtenByLabel={
+          <TranslatedText
+            stringId="note.form.lastUpdatedBy.label"
+            fallback="Last updated by (or on behalf of)"
+          />
+        }
         writtenBy={writtenBy}
       />
       <br />

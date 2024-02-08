@@ -178,7 +178,7 @@ const NoteContent = ({
         <NoteHeaderContainer>
           <NoteHeaderText>
             <TranslatedEnum
-              prefix="noteType.label"
+              prefix="note.property.type.label"
               value={note.noteType}
               enumValues={NOTE_TYPE_LABELS}
             />
