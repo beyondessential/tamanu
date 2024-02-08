@@ -167,7 +167,7 @@ const causeOfDeathAccessor = ({ causes }) => {
   return getCauseName(causes?.primary);
 };
 
-// Death certificate has a slightly different DOB format to other certificates so needs it's own accessor
+// Death certificate has a slightly different DOB format to other certificates so needs its own accessor
 const getDOB = ({ dateOfBirth }, getLocalisation) =>
   dateOfBirth ? getDisplayDate(dateOfBirth, 'd MMM yyyy', getLocalisation) : 'Unknown';
 

@@ -12,7 +12,7 @@ const CustomBarcode = ({ id, width, height }) => {
     displayValue: false,
   });
   const barcode = canvas.toDataURL();
-  return <Image source={barcode} style={{ height: height, maxWidth: width, objectFit: 'cover' }} />;
+  return <Image source={barcode} style={{ height, maxWidth: width, objectFit: 'cover' }} />;
 };
 
 const convertToPt = mm => {

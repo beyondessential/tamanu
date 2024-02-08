@@ -32,7 +32,7 @@ const NavContainer = styled.div`
 `;
 
 export const DischargeSummaryView = React.memo(() => {
-  const certiciateData = useCertificate();
+  const certificateData = useCertificate();
   const { getLocalisation } = useLocalisation();
   const { encounter } = useEncounter();
   const patient = useSelector(state => state.patient);
@@ -71,7 +71,7 @@ export const DischargeSummaryView = React.memo(() => {
           encounter={encounter}
           discharge={discharge}
           patientConditions={patientConditions}
-          certificateData={certiciateData}
+          certificateData={certificateData}
           getLocalisation={getLocalisation}
         />
       </PDFViewer>

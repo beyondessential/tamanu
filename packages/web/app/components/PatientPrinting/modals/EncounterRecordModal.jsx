@@ -1,4 +1,5 @@
 import React from 'react';
+import { PDFViewer } from '@react-pdf/renderer';
 
 import { NOTE_TYPES } from '@tamanu/constants/notes';
 import { LAB_REQUEST_STATUSES } from '@tamanu/constants/labs';
@@ -22,7 +23,6 @@ import { LoadingIndicator } from '../../LoadingIndicator';
 import { Colors } from '../../../constants';
 import { ForbiddenErrorModalContents } from '../../ForbiddenErrorModal';
 import { ModalActionRow } from '../../ModalActionRow';
-import { PDFViewer } from '@react-pdf/renderer';
 import { printPDF } from '../PDFViewer.jsx';
 import { useLocalisedText } from '../../LocalisedText.jsx';
 
@@ -108,7 +108,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
   const patient = patientQuery.data;
 
   const padDataQuery = usePatientAdditionalDataQuery(patient?.id);
-  const { data: additionalData, isLoading: isPADLoading } = padDataQuery;
+  const { data: additionalData } = padDataQuery;
 
   const labRequestsQuery = useLabRequests(encounter.id, {
     order: 'asc',

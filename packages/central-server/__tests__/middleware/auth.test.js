@@ -6,7 +6,7 @@ import jwt from 'jsonwebtoken';
 import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
 import { VISIBILITY_STATUSES } from '@tamanu/constants/importable';
 import { disableHardcodedPermissionsForSuite, fake } from '@tamanu/shared/test-helpers';
-import { createTestContext, withDate } from '../utilities';
+import { createTestContext, withDateUnsafelyFaked } from '../utilities';
 
 const TEST_EMAIL = 'test@beyondessential.com.au';
 const TEST_ROLE_EMAIL = 'testrole@bes.au';
@@ -199,7 +199,7 @@ describe('Auth', () => {
         password: TEST_PASSWORD,
         deviceId: TEST_DEVICE_ID,
       });
-      expect(response).toBeForbidden();
+      expect(response).toHaveRequestError();
     });
   });
 
@@ -215,7 +215,7 @@ describe('Auth', () => {
       const { token, refreshToken } = loginResponse.body;
 
       // Make sure that Date used in signing new token is different from global mock date
-      const refreshResponse = await withDate(new Date(Date.now() + 10000), () =>
+      const refreshResponse = await withDateUnsafelyFaked(new Date(Date.now() + 10000), () =>
         baseApp.post('/api/refresh').send({
           refreshToken,
           deviceId: TEST_DEVICE_ID,
@@ -253,7 +253,7 @@ describe('Auth', () => {
       const { refreshToken, user } = loginResponse.body;
 
       // Make sure that Date used in signing new token is different from global mock date
-      const refreshResponse = await withDate(new Date(Date.now() + 10000), () =>
+      const refreshResponse = await withDateUnsafelyFaked(new Date(Date.now() + 10000), () =>
         baseApp.post('/api/refresh').send({
           refreshToken,
           deviceId: TEST_DEVICE_ID,
