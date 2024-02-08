@@ -35,7 +35,7 @@ const unhideableFieldSchema = yup
   .required()
   .noUnknown();
 
-const tabSchema = yup
+const patientTabSchema = yup
   .object({
     sortPriority: yup.number().required(),
     hidden: yup.boolean().required(),
@@ -120,7 +120,7 @@ const HIDEABLE_FIELDS = [
   'dischargeDisposition',
 ];
 
-const TABS = [
+const PATIENT_TABS = [
   'history',
   'details',
   'results',
@@ -288,11 +288,11 @@ const fieldsSchema = yup
   .required()
   .noUnknown();
 
-const tabsSchema = yup.object({
-  ...TABS.reduce(
+const patientTabsSchema = yup.object({
+  ...PATIENT_TABS.reduce(
     (tabs, tab) => ({
       ...tabs,
-      [tab]: tabSchema,
+      [tab]: patientTabSchema,
     }),
     {},
   ),
@@ -368,7 +368,7 @@ const printMeasuresSchema = yup
 
 const rootLocalisationSchema = yup
   .object({
-    tabs: tabsSchema,
+    patientTabs: patientTabsSchema,
     units: yup.object({
       temperature: yup.string().oneOf(['celsius', 'fahrenheit']),
     }),

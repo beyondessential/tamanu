@@ -13,7 +13,6 @@ export const useLocalisation = () => useContext(LocalisationContext);
 export const LocalisationProvider = ({ children }) => {
   const [localisation, setLocalisation] = useState({});
   const reduxLocalisation = useSelector(state => state.auth.localisation);
-  console.log(localisation);
   useEffect(() => {
     setLocalisation({ ...reduxLocalisation, ...overrides });
   }, [reduxLocalisation]);

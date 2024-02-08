@@ -96,6 +96,12 @@ const TABS = [
   },
 ];
 
+const tabCompare = ({ firstTab, secondTab, getLocalisation }) => {
+  const firstTabSortPriority = getLocalisation(`patientTabs.${firstTab.key}.sortPriority`);
+  const secondTabSortPriority = getLocalisation(`patientTabs.${secondTab.key}.sortPriority`);
+  return firstTabSortPriority - secondTabSortPriority;
+};
+
 export const PatientView = () => {
   const queryClient = useQueryClient();
   const { getLocalisation } = useLocalisation();
@@ -144,7 +150,12 @@ export const PatientView = () => {
     return <LoadingIndicator />;
   }
 
-  const visibleTabs = TABS.filter(tab => !tab.condition || tab.condition(getLocalisation));
+  const visibleTabs = TABS.filter(
+    tab =>
+      (!tab.condition || tab.condition(getLocalisation)) &&
+      !getLocalisation(`patientTabs.${tab.key}.hidden`),
+  );
+  visibleTabs.sort((firstTab, secondTab) => tabCompare({ firstTab, secondTab, getLocalisation }));
 
   return (
     <PatientSearchParametersProvider>

@@ -307,42 +307,42 @@
     },
     "data": {
       // To do: review this section when implementing the patient charts feature
-      "tabs": {
+      "patientTabs": {
         "history": {
-          "sortPriority": 0,
+          "sortPriority": -100,
           "hidden": false
         },
         "details": {
-          "sortPriority": 1,
+          "sortPriority": -50,
           "hidden": false
         },
         "results": {
-          "sortPriority": 2,
+          "sortPriority": 0,
           "hidden": true
         },
         "referrals": {
-          "sortPriority": 10,
-          "hidden": false
+          "sortPriority": 0,
+          "hidden": true
         },
         "programs": {
-          "sortPriority": 4,
-          "hidden": false
+          "sortPriority": 0,
+          "hidden": true
         },
         "documents": {
-          "sortPriority": 5,
-          "hidden": false
+          "sortPriority": 0,
+          "hidden": true
         },
         "vaccines": {
-          "sortPriority": 6,
-          "hidden": false
+          "sortPriority": 0,
+          "hidden": true
         },
         "medication": {
-          "sortPriority": 7,
-          "hidden": false
+          "sortPriority": 0,
+          "hidden": true
         },
         "invoices": {
-          "sortPriority": 8,
-          "hidden": false
+          "sortPriority": 0,
+          "hidden": true
         }
       },
       "units": {
