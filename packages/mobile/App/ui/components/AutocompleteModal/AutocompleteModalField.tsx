@@ -8,6 +8,7 @@ import { Button } from '../Button';
 import { Routes } from '~/ui/helpers/routes';
 import { TextFieldErrorMessage } from '/components/TextField/TextFieldErrorMessage';
 import { RequiredIndicator } from '../RequiredIndicator';
+import { TranslatedText } from '../Translations/TranslatedText';
 
 interface AutocompleteModalFieldProps {
   value?: string;
@@ -41,10 +42,11 @@ export const AutocompleteModalField = ({
     setLabel(selectedItem.label);
   };
 
-  const openModal = (): void => navigation.navigate(modalRoute, {
-    callback: onPress,
-    suggester,
-  });
+  const openModal = (): void =>
+    navigation.navigate(modalRoute, {
+      callback: onPress,
+      suggester,
+    });
 
   useEffect(() => {
     if (!suggester) return;
@@ -75,7 +77,10 @@ export const AutocompleteModalField = ({
         marginTop={marginTop}
         backgroundColor={theme.colors.WHITE}
         textColor={label ? theme.colors.TEXT_SUPER_DARK : theme.colors.TEXT_SOFT}
-        buttonText={label || placeholder || 'Select'}
+        buttonText={
+          label ||
+          placeholder || <TranslatedText stringId="general.action.select" fallback="Select" />
+        }
         height={screenPercentageToDP(6.68, Orientation.Height)}
         justifyContent="flex-start"
         borderRadius={3}
