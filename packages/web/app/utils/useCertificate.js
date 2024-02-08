@@ -43,7 +43,7 @@ export const useCertificate = ({ footerAssetName } = {}) => {
   };
 
   return {
-    data
+    data,
     isFetching,
   };
 };
