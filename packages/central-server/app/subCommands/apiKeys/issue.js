@@ -1,6 +1,7 @@
 import { Command } from 'commander';
 import config from 'config';
 import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
+import { VISIBILITY_STATUSES } from '@tamanu/constants/importable';
 import { DEFAULT_JWT_SECRET } from '../../auth';
 import { getToken } from '../../auth/utils';
 import { closeDatabase, initDatabase } from '../../database';
@@ -25,7 +26,7 @@ export const genToken = async (keyType, email, { expiresIn }) => {
   // find user
   const store = await initDatabase({ testMode: false });
   const user = await store.sequelize.models.User.findOne({
-    where: { email },
+    where: { email, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
   });
   if (!user) {
     throw new Error('Could not find user with that email');
