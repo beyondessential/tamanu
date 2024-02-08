@@ -22,6 +22,7 @@ export const LocalisationProvider = ({ children }) => {
     <LocalisationContext.Provider
       value={{
         getLocalisation: path => get(localisation, path),
+        localisation,
       }}
     >
       {children}

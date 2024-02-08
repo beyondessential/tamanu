@@ -20,7 +20,7 @@ import { RenderedPDFViewer } from '../RenderedPDFViewer';
 
 export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) => {
   const api = useApi();
-  const { getLocalisation } = useLocalisation();
+  const { localisation } = useLocalisation();
   const { watermark, logo, footerImg, printedBy } = useCertificate({
     footerAssetName: ASSET_NAMES.VACCINATION_CERTIFICATE_FOOTER,
   });
@@ -52,8 +52,6 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
 
   if (isFetching) return null;
 
-  if (isFetching) return null;
-
   return (
     <Modal
       title="Immunisation Certificate"
@@ -65,33 +63,16 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
       onPrint={() => printPDF('vaccine-certificate')}
       additionalActions={<EmailButton onEmail={createVaccineCertificateNotification} />}
     >
-      {/* <PDFViewer id="vaccine-certificate">
-        <VaccineCertificate
-          patient={patientData}
-          vaccinations={vaccinations}
-          watermarkSrc={watermark}
-          logoSrc={logo}
-          signingSrc={footerImg}
-          printedBy={printedBy}
-          printedDate={getCurrentDateString()}
-          getLocalisation={getLocalisation}
-        />
-      </PDFViewer> */}
       <RenderedPDFViewer
-        text=""
-        pdfProps={{
-          patient: patientData,
-          vaccinations,
-          watermarkSrc: watermark,
-          logoSrc: logo,
-          signingSrc: footerImg,
-          printedBy,
-          printedDate: getCurrentDateString(),
-          localisation: {},
-          // getLocalisation,
-          style: { backgroundColor: 'grey', width: '500px', height: '760px' },
-        }}
-        style={{ backgroundColor: 'grey', width: '500px', height: '760px' }}
+        id="vaccine-certificate"
+        vaccinations={vaccinations}
+        patient={patientData}
+        watermarkSrc={watermark}
+        logoSrc={logo}
+        signingSrc={footerImg}
+        printedBy={printedBy}
+        printedDate={getCurrentDateString()}
+        localisation={localisation}
       />
     </Modal>
   );
