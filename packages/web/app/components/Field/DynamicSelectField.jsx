@@ -5,7 +5,8 @@ import { AutocompleteInput } from './AutocompleteField';
 
 const SELECT_OPTIONS_LIMIT = 7;
 
-export const DynamicSelectField = ({ field, options, suggester, name, ...props }) => {
+export const DynamicSelectField = ({ field, options, suggester, ...props }) => {
+  delete props.name;
   const [selectOptions, setSelectOptions] = useState([]);
 
   useEffect(() => {
