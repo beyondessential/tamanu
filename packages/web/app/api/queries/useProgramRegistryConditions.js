@@ -3,7 +3,7 @@ import { useApi } from '../useApi';
 
 export const useProgramRegistryConditions = (programRegistryId, fetchOptions) => {
   const api = useApi();
-  return useQuery(['PatientProgramRegistryConditions', programRegistryId], () =>
+  return useQuery(['ProgramRegistryConditions', programRegistryId], () =>
     api.get(`programRegistry/${encodeURIComponent(programRegistryId)}/conditions`, {
       orderBy: 'name',
       order: 'ASC',
