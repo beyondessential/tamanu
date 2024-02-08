@@ -96,7 +96,6 @@
     "react-select": "^4.2.1",
     "react-table": "^6.8.6",
     "react-toastify": "8.2.0",
-    "react-use": "^17.5.0",
     "recharts": "^2.6.2",
     "redux": "^4.0.2",
     "redux-logger": "^3.0.6",
