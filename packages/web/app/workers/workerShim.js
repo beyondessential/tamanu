@@ -5,7 +5,7 @@ if (typeof WorkerGlobalScope !== 'undefined' && self instanceof DedicatedWorkerG
 
 if (import.meta.env.DEV) {
   const RefreshRuntime = await import('/@react-refresh');
-  RefreshRuntime.injectIntoGlobalHook(self.window);
+  RefreshRuntime.injectIntoGlobalHook(window);
   window.$RefreshReg$ = () => {};
   window.$RefreshSig$ = () => type => type;
   window.__vite_plugin_react_preamble_installed__ = true;
