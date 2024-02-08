@@ -7,10 +7,8 @@ export interface IProgramRegistryCondition {
   id: ID;
   code: string;
   name: string;
-  visibilityStatus: VisibilityStatus;
-
+  visibilityStatus?: VisibilityStatus;
   programRegistryId: ID;
   programRegistry: IProgramRegistry;
-
   patientProgramRegistrationConditions: IPatientProgramRegistrationCondition[];
 }

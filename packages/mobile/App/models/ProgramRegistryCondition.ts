@@ -24,7 +24,7 @@ export class ProgramRegistryCondition extends BaseModel implements IProgramRegis
   name: string;
 
   @Column({ type: 'varchar', default: VisibilityStatus.Current, nullable: true })
-  visibilityStatus: VisibilityStatus;
+  visibilityStatus?: VisibilityStatus;
 
   @ManyToOne(() => ProgramRegistry)
   programRegistry: IProgramRegistry;

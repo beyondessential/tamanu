@@ -1,11 +1,6 @@
 import { Entity, ManyToOne, RelationId, Column, OneToMany } from 'typeorm/browser';
 
-import {
-  ID,
-  IPatientProgramRegistration,
-  IProgramRegistry,
-  IProgramRegistryClinicalStatus,
-} from '~/types';
+import { ID, IProgramRegistryClinicalStatus } from '~/types';
 import { BaseModel } from './BaseModel';
 import { SYNC_DIRECTIONS } from './types';
 import { VisibilityStatus } from '~/visibilityStatuses';
@@ -24,13 +19,13 @@ export class ProgramRegistryClinicalStatus extends BaseModel
   name: string;
 
   @Column({ type: 'varchar', default: VisibilityStatus.Current, nullable: true })
-  visibilityStatus: VisibilityStatus;
+  visibilityStatus?: VisibilityStatus;
 
   @Column({ nullable: true })
   color: string;
 
   @ManyToOne(() => ProgramRegistry)
-  programRegistry: IProgramRegistry;
+  programRegistry: ProgramRegistry;
   @RelationId<ProgramRegistryClinicalStatus>(({ programRegistry }) => programRegistry)
   programRegistryId: ID;
 
@@ -38,7 +33,7 @@ export class ProgramRegistryClinicalStatus extends BaseModel
     () => PatientProgramRegistration,
     ({ programRegistryClinicalStatus }) => programRegistryClinicalStatus,
   )
-  patientProgramRegistrations: IPatientProgramRegistration[];
+  patientProgramRegistrations: PatientProgramRegistration[];
 
   static getTableNameForSync(): string {
     return 'program_registry_clinical_statuses';

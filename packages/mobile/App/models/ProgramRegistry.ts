@@ -1,18 +1,14 @@
 import { Entity, OneToOne, JoinColumn, RelationId, Column, OneToMany } from 'typeorm/browser';
 
-import {
-  IProgramRegistry,
-  IPatientProgramRegistration,
-  IProgramRegistryCondition,
-  ID,
-} from '~/types';
+import { IProgramRegistry, ID } from '~/types';
 import { BaseModel } from './BaseModel';
 import { SYNC_DIRECTIONS } from './types';
 import { VisibilityStatus } from '~/visibilityStatuses';
+import { CurrentlyAtType } from '~/constants/programRegistries';
 import { Program } from './Program';
 import { PatientProgramRegistration } from './PatientProgramRegistration';
 import { ProgramRegistryClinicalStatus } from './ProgramRegistryClinicalStatus';
-import { ProgramRegistryCondition } from './ProgramRegistryCondition';
+import { PatientProgramRegistrationCondition } from './PatientProgramRegistrationCondition';
 
 @Entity('program_registry')
 export class ProgramRegistry extends BaseModel implements IProgramRegistry {
@@ -22,14 +18,13 @@ export class ProgramRegistry extends BaseModel implements IProgramRegistry {
   code: string;
 
   @Column({ nullable: false })
-  name?: string;
+  name: string;
 
   @Column({ type: 'varchar', default: VisibilityStatus.Current, nullable: true })
-  visibilityStatus: VisibilityStatus;
+  visibilityStatus?: VisibilityStatus;
 
-  // TODO: Make this an enum
-  @Column({ nullable: false })
-  currentlyAtType: string;
+  @Column({ type: 'varchar', nullable: false })
+  currentlyAtType: CurrentlyAtType;
 
   @OneToMany<ProgramRegistryClinicalStatus>(
     () => ProgramRegistryClinicalStatus,
@@ -41,13 +36,13 @@ export class ProgramRegistry extends BaseModel implements IProgramRegistry {
     () => PatientProgramRegistration,
     ({ programRegistry }) => programRegistry,
   )
-  patientProgramRegistrations: IPatientProgramRegistration[];
+  patientProgramRegistrations: PatientProgramRegistration[];
 
-  @OneToMany<ProgramRegistryCondition>(
-    () => ProgramRegistryCondition,
+  @OneToMany<PatientProgramRegistrationCondition>(
+    () => PatientProgramRegistrationCondition,
     ({ programRegistry }) => programRegistry,
   )
-  ProgramRegistryConditions: IProgramRegistryCondition[];
+  PatientProgramRegistryConditions: PatientProgramRegistrationCondition[];
 
   @OneToOne(() => Program)
   @JoinColumn()

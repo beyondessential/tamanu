@@ -45,7 +45,7 @@ const BaseColumns = [
   }),
 ];
 
-const PatientProgramRegistrationConditions = new Table({
+const PatientProgramRegistrationCondition = new Table({
   name: TABLE_NAME,
   columns: [
     ...BaseColumns,
@@ -93,7 +93,7 @@ const PatientProgramRegistrationConditions = new Table({
     new TableForeignKey({
       columnNames: ['patientId'],
       referencedColumnNames: ['id'],
-      referencedTableName: 'patients',
+      referencedTableName: 'patient',
     }),
     new TableForeignKey({
       columnNames: ['programRegistryId'],
@@ -120,7 +120,7 @@ const PatientProgramRegistrationConditions = new Table({
 });
 export class addPatientProgramRegistrationConditions1706509624000 implements MigrationInterface {
   async up(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.createTable(PatientProgramRegistrationConditions, true);
+    await queryRunner.createTable(PatientProgramRegistrationCondition, true);
   }
 
   async down(queryRunner: QueryRunner): Promise<void> {
