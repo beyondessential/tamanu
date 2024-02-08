@@ -16,7 +16,7 @@ async function getValuesFromLabRequest(upstream) {
     sampleTime: upstream.sampleTime,
     collection: {
       collectedDateTime: upstream.sampleTime,
-      collector: upstream.collectedBy,
+      collector: collectorRef(upstream),
     },
     type: sampleType(upstream),
     request: requestRef(upstream),
@@ -24,18 +24,21 @@ async function getValuesFromLabRequest(upstream) {
 }
 
 function requestRef(labRequest) {
-  const refToLabRequest = new FhirReference({
+  return new FhirReference({
     type: 'upstream://service_request',
     reference: labRequest.id,
-    // display: `${labRequest.displayId}`,
   });
-  console.log({ refToLabRequest });
-  return refToLabRequest;
+}
+
+function collectorRef(labRequest) {
+  return new FhirReference({
+    type: 'upstream://practitioner',
+    reference: labRequest.collectedById,
+  });
 }
 
 function sampleType(labRequest) {
-  // const code = classificationCode(labRequest);
-  // if (!code) return [];
+  if (!labRequest.sampleId) return [];
 
   return [
     new FhirCodeableConcept({

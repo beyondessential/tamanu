@@ -30,10 +30,8 @@ export class FhirSpecimen extends FhirResource {
   ]);
 
   async updateMaterialisation() {
-    console.log('Updating Materialisation');
     const upstream = await this.getUpstream(getQueryOptions(this.sequelize.models));
     const values = await getValues(upstream, this.sequelize.models);
-    console.log({ values });
     this.set(values);
   }
 
@@ -41,7 +39,6 @@ export class FhirSpecimen extends FhirResource {
     const { LabRequest } = this.sequelize.models;
 
     if (upstreamTable === LabRequest.tableName) {
-      console.log('getting lab request...');
       return fromLabRequest(this.sequelize.models, table, id, deletedRow);
     }
     return null;
