@@ -11,6 +11,8 @@ import {
   IUser,
   SurveyScreenValidationCriteria,
 } from '~/types';
+import { getDbLocation } from '~/models/SurveyResponse';
+import { IPatientProgramRegistration } from '~/types/IPatientProgramRegistration';
 
 function getInitialValue(dataElement): string {
   switch (dataElement.type) {
@@ -27,6 +29,7 @@ function getInitialValue(dataElement): string {
 function transformPatientData(
   patient: IPatient,
   additionalData: IPatientAdditionalData | null,
+  patientProgramRegistration: IPatientProgramRegistration | null,
   config,
 ): string | undefined | null {
   const { writeToPatient = {}, column = 'fullName' } = config;
@@ -40,11 +43,19 @@ function transformPatientData(
       return getAgeWithMonthsFromDate(dateOfBirth);
     case 'fullName':
       return joinNames({ firstName, lastName });
-    default:
-      if (isAdditionalDataField) {
-        return additionalData ? additionalData[column] : undefined;
+    default: {
+      const { modelName, fieldName } = getDbLocation(column);
+      switch (modelName) {
+        case 'Patient':
+          return patient[fieldName];
+        case 'PatientAdditionalData':
+          return isAdditionalDataField && additionalData ? additionalData[fieldName] : undefined;
+        case 'PatientProgramRegistration':
+          return patientProgramRegistration ? patientProgramRegistration[fieldName] : undefined;
+        default:
+          return undefined;
       }
-      return patient[column];
+    }
   }
 }
 
@@ -53,6 +64,7 @@ export function getFormInitialValues(
   currentUser: IUser,
   patient: IPatient,
   patientAdditionalData: IPatientAdditionalData,
+  patientProgramRegistration: IPatientProgramRegistration,
 ): { [key: string]: any } {
   const initialValues = components.reduce<{ [key: string]: any }>((acc, { dataElement }) => {
     const initialValue = getInitialValue(dataElement);
@@ -78,7 +90,12 @@ export function getFormInitialValues(
 
     // patient data
     if (component.dataElement.type === 'PatientData') {
-      const patientValue = transformPatientData(patient, patientAdditionalData, config);
+      const patientValue = transformPatientData(
+        patient,
+        patientAdditionalData,
+        patientProgramRegistration,
+        config,
+      );
       if (patientValue !== undefined) initialValues[component.dataElement.code] = patientValue;
     }
   }
