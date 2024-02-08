@@ -19,6 +19,7 @@ import { VitalLog } from './VitalLog';
 import { SYNC_DIRECTIONS } from './types';
 import { DateTimeStringColumn } from './DateColumns';
 import { PatientProgramRegistration } from './PatientProgramRegistration';
+import { IPatientProgramRegistration } from '~/types/IPatientProgramRegistration';
 
 export const getDbLocation = fieldName => {
   if (PATIENT_DATA_FIELD_LOCATIONS[fieldName]) {
@@ -65,6 +66,24 @@ const getFieldsToWrite = (questions, answers): RecordValuesByModel => {
   return recordValuesByModel;
 };
 
+const newPprObjectFactory = (
+  ppr: IPatientProgramRegistration,
+  newValues: { [key: string]: any },
+) => {
+  const newPpr = {
+    date: getCurrentDateTimeString(),
+    programRegistry: newValues?.programRegistryId || ppr.programRegistryId,
+    clinician: newValues?.clinicianId || ppr.clinicianId,
+    clinicalStatus: newValues?.clinicalStatusId || ppr.clinicalStatusId,
+    registeringFacility: newValues?.registeringFacilityId || ppr.registeringFacilityId,
+    patient: ppr.patientId,
+    registrationStatus: newValues?.registrationStatus || ppr.registrationStatus,
+    village: newValues?.villageId || ppr.villageId,
+    facility: newValues?.facilityId || ppr.facilityId,
+  };
+  return newPpr;
+};
+
 /**
  * DUPLICATED IN shared/models/SurveyResponse.js
  * Please keep in sync
@@ -83,22 +102,7 @@ async function writeToPatientFields(questions, answers, patientId, surveyId) {
   if (valuesByModel.PatientProgramRegistration) {
     const { programId } = await Survey.findOne({ id: surveyId });
     const ppr = await PatientProgramRegistration.getRecentOne(programId, patientId);
-    const newPpr = {
-      date: getCurrentDateTimeString(),
-      programRegistry:
-        valuesByModel.PatientProgramRegistration?.programRegistryId || ppr.programRegistryId,
-      clinician: valuesByModel.PatientProgramRegistration?.clinicianId || ppr.clinicianId,
-      clinicalStatus:
-        valuesByModel.PatientProgramRegistration?.clinicalStatusId || ppr.clinicalStatusId,
-      registeringFacility:
-        valuesByModel.PatientProgramRegistration?.registeringFacilityId ||
-        ppr.registeringFacilityId,
-      patient: patientId,
-      registrationStatus:
-        valuesByModel.PatientProgramRegistration?.registrationStatus || ppr.registrationStatus,
-      village: valuesByModel.PatientProgramRegistration?.villageId || ppr.villageId,
-      facility: valuesByModel.PatientProgramRegistration?.facilityId || ppr.facilityId,
-    };
+    const newPpr = newPprObjectFactory(ppr, valuesByModel.PatientProgramRegistration);
 
     await PatientProgramRegistration.createAndSaveOne(newPpr);
   }

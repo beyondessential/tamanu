@@ -76,16 +76,15 @@ export class PatientProgramRegistration extends BaseModel implements IPatientPro
     programId?: string,
     patientId?: string,
   ): Promise<PatientProgramRegistration> {
-    return !!programId && !!patientId
-      ? this.getRepository(PatientProgramRegistration)
-          .createQueryBuilder('registration')
-          .leftJoinAndSelect('registration.programRegistry', 'program_registry')
-          .leftJoinAndSelect('program_registry.program', 'program')
-          .where('program.id = :programId', { programId })
-          .andWhere('registration.patientId = :patientId', { patientId })
-          .orderBy('registration.date', 'DESC')
-          .getOne()
-      : undefined;
+    if (!programId || !patientId) return null;
+    return this.getRepository(PatientProgramRegistration)
+      .createQueryBuilder('registration')
+      .leftJoinAndSelect('registration.programRegistry', 'program_registry')
+      .leftJoinAndSelect('program_registry.program', 'program')
+      .where('program.id = :programId', { programId })
+      .andWhere('registration.patientId = :patientId', { patientId })
+      .orderBy('registration.date', 'DESC')
+      .getOne();
   }
 
   static getTableNameForSync(): string {
