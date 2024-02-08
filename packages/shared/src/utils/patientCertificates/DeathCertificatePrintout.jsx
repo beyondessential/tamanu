@@ -164,11 +164,12 @@ const placeOfDeathAccessor = ({ facility }) => {
 const getCauseName = cause => cause?.condition?.name;
 
 const causeOfDeathAccessor = ({ causes }) => {
-  const causeOfDeath = getCauseName(causes?.primary);
-  return causeOfDeath;
+  return getCauseName(causes?.primary);
 };
-export const getDOB = ({ dateOfBirth }, getLocalisation) =>
-  dateOfBirth ? getDisplayDate(dateOfBirth, 'dd.MM.yyyy', getLocalisation) : 'Unknown';
+
+// Death certificate has a slightly different DOB format to other certificates so needs its own accessor
+const getDOB = ({ dateOfBirth }, getLocalisation) =>
+  dateOfBirth ? getDisplayDate(dateOfBirth, 'd MMM yyyy', getLocalisation) : 'Unknown';
 
 const HEADER_FIELDS = {
   leftCol: [
@@ -180,7 +181,7 @@ const HEADER_FIELDS = {
   ],
   rightCol: [
     { key: 'lastName', label: 'Last name' },
-    { key: 'sex', label: 'Sex', acessor: getSex },
+    { key: 'sex', label: 'Sex', accessor: getSex },
     { key: 'placeOfDeath', label: 'Place of death', accessor: placeOfDeathAccessor },
     { key: 'causeOfDeath', label: 'Cause of death', accessor: causeOfDeathAccessor },
   ],

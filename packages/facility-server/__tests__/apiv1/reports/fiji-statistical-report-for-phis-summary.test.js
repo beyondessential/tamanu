@@ -340,7 +340,7 @@ describe('Fiji statistical report for phis summary', () => {
   describe('checks permissions', () => {
     it('should reject creating a report with insufficient permissions', async () => {
       const noPermsApp = await baseApp.asRole('base');
-      const result = await noPermsApp.post(`/v1/reports/fiji-statistical-report-for-phis-summary`, {
+      const result = await noPermsApp.post(`/api/reports/fiji-statistical-report-for-phis-summary`, {
         parameters: {
           fromDate: '1960-01-01',
         },
@@ -351,7 +351,7 @@ describe('Fiji statistical report for phis summary', () => {
 
   describe('returns the correct data', () => {
     it('should sort the dates from oldest to most recent', async () => {
-      const result = await app.post('/v1/reports/fiji-statistical-report-for-phis-summary').send({
+      const result = await app.post('/api/reports/fiji-statistical-report-for-phis-summary').send({
         parameters: {
           fromDate: '1960-01-01',
         },
@@ -362,7 +362,7 @@ describe('Fiji statistical report for phis summary', () => {
     });
 
     it('should return latest data per patient and latest data per patient per date', async () => {
-      const result = await app.post('/v1/reports/fiji-statistical-report-for-phis-summary').send({
+      const result = await app.post('/api/reports/fiji-statistical-report-for-phis-summary').send({
         parameters: {
           fromDate: '1960-01-01',
         },
@@ -482,7 +482,7 @@ describe('Fiji statistical report for phis summary', () => {
     });
 
     it('should return correct data after filtering', async () => {
-      const result = await app.post('/v1/reports/fiji-statistical-report-for-phis-summary').send({
+      const result = await app.post('/api/reports/fiji-statistical-report-for-phis-summary').send({
         parameters: {
           fromDate: '1960-01-01',
           medicalArea: medicalArea.id,

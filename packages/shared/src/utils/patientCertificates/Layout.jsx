@@ -69,11 +69,13 @@ export const styles = StyleSheet.create({
     position: 'absolute',
     top: 0,
     left: 0,
-    height: 'auto',
-    width: 66,
+    height: 60,
+    width: 120,
+    objectFit: 'contain',
+    objectPosition: 'top left',
   },
   certificateHeader: {
-    margin: certificateMargins,
+    margin: 0,
   },
   certificateFooter: {
     margin: certificateMargins,
