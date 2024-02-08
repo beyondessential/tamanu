@@ -1,6 +1,6 @@
 import React from 'react';
-import { Document, Page, StyleSheet, Text, View, Font } from '@react-pdf/renderer';
-import { CertificateHeader, FixedFooter, FixedHeader, PageBreakPadding, Watermark } from './Layout';
+import { Document, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
+import { CertificateHeader, Watermark } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
 import { PatientDetailsWithAddress } from './printComponents/PatientDetailsWithAddress';
 import { startCase } from 'lodash';
@@ -306,7 +306,6 @@ const MultipageTableHeading = ({ title, style = textStyles.sectionTitle }) => {
   let firstPageOccurence = Number.MAX_SAFE_INTEGER;
   return (
     <Text
-      fixed
       style={style}
       render={({ pageNumber, subPageNumber }) => {
         if (pageNumber < firstPageOccurence && subPageNumber) {
@@ -318,7 +317,7 @@ const MultipageTableHeading = ({ title, style = textStyles.sectionTitle }) => {
   );
 };
 
-const DataTableHeader = ({ columns, title }) => {
+const DataTableHeading = ({ columns, title }) => {
   return (
     <View fixed>
       <MultipageTableHeading title={title} />
@@ -335,7 +334,7 @@ const DataTableHeader = ({ columns, title }) => {
 
 const DataTable = ({ data, columns, title }) => (
   <Table>
-    <DataTableHeader columns={columns} title={title} />
+    <DataTableHeading columns={columns} title={title} />
     {data.map(row => (
       <Row key={row.id} wrap={false}>
         {columns.map(({ key, accessor, style }) => (
