@@ -8,10 +8,14 @@ import { Routes } from '/helpers/routes';
 import { compose } from 'redux';
 import { withPatient } from '/containers/Patient';
 import { NewPatientScreenProps } from '/interfaces/screens/RegisterPatientStack/NewPatientScreenProps';
-import { joinNames } from '~/ui/helpers/user';
+import { getGender, joinNames } from '~/ui/helpers/user';
 import { getAgeFromDate } from '~/ui/helpers/date';
 
 const Screen = ({ navigation, selectedPatient }: NewPatientScreenProps): ReactElement => {
+  const patientAgeText = `${getGender(selectedPatient.sex)}, ${getAgeFromDate(
+    selectedPatient.dateOfBirth,
+  )} years old`;
+
   const onNavigateToHome = useCallback(() => {
     navigation.navigate(Routes.HomeStack.HomeTabs.Index);
   }, []);
@@ -70,8 +74,7 @@ const Screen = ({ navigation, selectedPatient }: NewPatientScreenProps): ReactEl
           {joinNames(selectedPatient)}
         </StyledText>
         <StyledText color={theme.colors.TEXT_MID} marginTop={10}>
-          {selectedPatient.gender} {getAgeFromDate(selectedPatient.dateOfBirth).toString()} years
-          old{' '}
+          {patientAgeText}
         </StyledText>
         <StyledText
           fontSize={screenPercentageToDP(2.55, Orientation.Height)}
