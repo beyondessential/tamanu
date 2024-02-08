@@ -8,7 +8,7 @@ import {
   createPatient,
 } from './covid-swab-lab-test-report-utils';
 
-const REPORT_URL = '/v1/reports/fiji-traveller-covid-lab-test-list';
+const REPORT_URL = '/api/reports/fiji-traveller-covid-lab-test-list';
 const PROGRAM_ID = 'program-fijicovidtourism';
 const SURVEY_ID = 'program-fijicovidtourism-fijicovidtravform';
 
@@ -209,7 +209,7 @@ async function createFormAnswerForPatient(app, models, patient, formData) {
     await createDummyEncounter(models, { patientId: patient.id }),
   );
 
-  return app.post('/v1/surveyResponse').send({
+  return app.post('/api/surveyResponse').send({
     surveyId: SURVEY_ID,
     startTime: formData.formDate,
     patientId: patient.id,

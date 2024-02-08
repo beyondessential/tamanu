@@ -36,7 +36,7 @@ describe('Recent Diagnoses report', () => {
 
   it('should reject creating a diagnoses report with insufficient permissions', async () => {
     const noPermsApp = await baseApp.asRole('base');
-    const result = await noPermsApp.post(`/v1/reports/recent-diagnoses`, {});
+    const result = await noPermsApp.post(`/api/reports/recent-diagnoses`, {});
     expect(result).toBeForbidden();
   });
 
@@ -74,7 +74,7 @@ describe('Recent Diagnoses report', () => {
         }),
       );
 
-      const result = await app.post('/v1/reports/recent-diagnoses').send({
+      const result = await app.post('/api/reports/recent-diagnoses').send({
         parameters: { diagnosis: expectedDiagnosis },
       });
       expect(result).toHaveSucceeded();
@@ -114,7 +114,7 @@ describe('Recent Diagnoses report', () => {
         }),
       );
 
-      const result = await app.post('/v1/reports/recent-diagnoses').send({
+      const result = await app.post('/api/reports/recent-diagnoses').send({
         parameters: { diagnosis: firstDiagnosis.id, diagnosis2: secondDiagnosis.id },
       });
       expect(result).toHaveSucceeded();

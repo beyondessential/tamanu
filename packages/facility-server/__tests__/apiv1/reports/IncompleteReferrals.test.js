@@ -63,7 +63,7 @@ describe('Incomplete Referrals report', () => {
 
   it('should reject creating a diagnoses report with insufficient permissions', async () => {
     const noPermsApp = await baseApp.asRole('base');
-    const result = await noPermsApp.post(`/v1/reports/incomplete-referrals`, {});
+    const result = await noPermsApp.post(`/api/reports/incomplete-referrals`, {});
     expect(result).toBeForbidden();
   });
 
@@ -76,7 +76,7 @@ describe('Incomplete Referrals report', () => {
       });
     });
     it('should return only requested village', async () => {
-      const result = await app.post('/v1/reports/incomplete-referrals').send({
+      const result = await app.post('/api/reports/incomplete-referrals').send({
         parameters: { village: village1 },
       });
 
@@ -87,7 +87,7 @@ describe('Incomplete Referrals report', () => {
     });
 
     it('should return multiple diagnoses', async () => {
-      const result = await app.post('/v1/reports/incomplete-referrals').send({
+      const result = await app.post('/api/reports/incomplete-referrals').send({
         parameters: { village: village1 },
       });
 

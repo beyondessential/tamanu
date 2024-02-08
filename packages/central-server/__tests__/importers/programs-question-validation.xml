@@ -101,6 +101,12 @@
     <Cell ss:Index="16"><Data ss:Type="String">{ &quot;column&quot;: &quot;email&quot;, &quot;writeToPatient&quot;: { &quot;fieldName&quot;: &quot;email&quot;, &quot;fieldType&quot;: &quot;FreeText&quot; } }</Data></Cell>
    </Row>
    <Row>
+    <Cell><Data ss:Type="String">Succeed-PatientData-Readonly</Data></Cell>
+    <Cell><Data ss:Type="String">PatientData</Data></Cell>
+    <Cell><Data ss:Type="String">PatientData: Read only config</Data></Cell>
+    <Cell ss:Index="16"><Data ss:Type="String">{ &quot;column&quot;: &quot;ageWithMonths&quot; }</Data></Cell>
+   </Row>
+   <Row>
     <Cell><Data ss:Type="String">Succeed-PatientData-Empty</Data></Cell>
     <Cell><Data ss:Type="String">PatientData</Data></Cell>
     <Cell><Data ss:Type="String">PatientData: Empty config</Data></Cell>
@@ -371,6 +377,12 @@
     <Cell><Data ss:Type="String">SurveyAnswer</Data></Cell>
     <Cell><Data ss:Type="String">SurveyAnswer: Missing required field in config</Data></Cell>
     <Cell ss:Index="16"><Data ss:Type="String">{}</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Fail-PatientDataConfisAdditionalDataPresent</Data></Cell>
+    <Cell><Data ss:Type="String">PatientData</Data></Cell>
+    <Cell><Data ss:Type="String">PatientData: Old "isAdditionalDataField" field present</Data></Cell>
+    <Cell ss:Index="16"><Data ss:Type="String">{ &quot;column&quot;: &quot;email&quot;, &quot;writeToPatient&quot;: { &quot;fieldName&quot;: &quot;email&quot;, &quot;isAdditionalDataField&quot;: &quot;false&quot; }}</Data></Cell>
    </Row>
   </Table>
  </Worksheet>

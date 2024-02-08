@@ -77,7 +77,7 @@ describe('PatientDeath', () => {
     const { clinicianId, facilityId, cond1Id, cond2Id, cond3Id } = commons;
 
     const dod = '2021-09-01 00:00:00';
-    const result = await app.post(`/v1/patient/${id}/death`).send({
+    const result = await app.post(`/api/patient/${id}/death`).send({
       clinicianId,
       facilityId,
       outsideHealthFacility: false,
@@ -114,7 +114,7 @@ describe('PatientDeath', () => {
     const { Patient } = models;
     const { id } = await Patient.create({ ...fake(Patient), dateOfDeath: null });
 
-    const result = await app.post(`/v1/patient/${id}/death`).send({});
+    const result = await app.post(`/api/patient/${id}/death`).send({});
     expect(result).not.toHaveSucceeded();
   });
 
@@ -122,7 +122,7 @@ describe('PatientDeath', () => {
     const { Patient } = models;
     const { id } = await Patient.create({ ...fake(Patient), dateOfDeath: null });
 
-    const result = await app.post(`/v1/patient/${id}/death`).send({
+    const result = await app.post(`/api/patient/${id}/death`).send({
       timeOfDeath: 'this is not a date',
     });
     expect(result).not.toHaveSucceeded();
@@ -141,7 +141,7 @@ describe('PatientDeath', () => {
       endDate: null,
     });
 
-    const result = await app.post(`/v1/patient/${id}/death`).send({
+    const result = await app.post(`/api/patient/${id}/death`).send({
       clinicianId,
       facilityId,
       timeOfDeath: '2021-09-01 00:00:00',
@@ -167,7 +167,7 @@ describe('PatientDeath', () => {
     const { Patient } = models;
     const { id, dateOfBirth } = await Patient.create({ ...fake(Patient), dateOfDeath: null });
 
-    const result = await app.get(`/v1/patient/${id}/death`);
+    const result = await app.get(`/api/patient/${id}/death`);
 
     expect(result).toHaveStatus(404);
     expect(result.body).toMatchObject({
@@ -183,7 +183,7 @@ describe('PatientDeath', () => {
     const { clinicianId, facilityId, cond1, cond2, cond3, cond1Id, cond2Id, cond3Id } = commons;
 
     const dod = '2021-09-01 12:30:25';
-    await app.post(`/v1/patient/${id}/death`).send({
+    await app.post(`/api/patient/${id}/death`).send({
       clinicianId,
       facilityId,
       outsideHealthFacility: false,
@@ -211,7 +211,7 @@ describe('PatientDeath', () => {
       numberOfHoursSurvivedSinceBirth: 12,
     });
 
-    const result = await app.get(`/v1/patient/${id}/death`);
+    const result = await app.get(`/api/patient/${id}/death`);
 
     expect(result).toHaveSucceeded();
     expect(result.body.dateOfDeath).toEqual(dod);
@@ -271,7 +271,7 @@ describe('PatientDeath', () => {
       const { clinicianId } = commons;
 
       const dod = '2021-09-01 00:00:00';
-      const result = await app.post(`/v1/patient/${id}/death`).send({
+      const result = await app.post(`/api/patient/${id}/death`).send({
         clinicianId,
         timeOfDeath: dod,
         isPartialWorkflow: true,
@@ -295,7 +295,7 @@ describe('PatientDeath', () => {
       });
 
       const mod = 'Accident';
-      const result = await app.post(`/v1/patient/${id}/death`).send({
+      const result = await app.post(`/api/patient/${id}/death`).send({
         clinicianId,
         facilityId,
         outsideHealthFacility: false,
@@ -341,7 +341,7 @@ describe('PatientDeath', () => {
         isFinal: false,
       });
 
-      const result = await app.post(`/v1/patient/${id}/revertDeath`).send({});
+      const result = await app.post(`/api/patient/${id}/revertDeath`).send({});
       expect(result).toHaveSucceeded();
       const deathData = await PatientDeathData.findAll({
         where: { patientId: id, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
@@ -362,7 +362,7 @@ describe('PatientDeath', () => {
         isFinal: true,
       });
 
-      const result = await app.post(`/v1/patient/${id}/revertDeath`).send({});
+      const result = await app.post(`/api/patient/${id}/revertDeath`).send({});
       expect(result).not.toHaveSucceeded();
       const deathData = await PatientDeathData.findAll({
         where: { patientId: id, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
@@ -381,7 +381,7 @@ describe('PatientDeath', () => {
         isFinal: false,
       });
 
-      const result = await app.post(`/v1/patient/${id}/revertDeath`).send({});
+      const result = await app.post(`/api/patient/${id}/revertDeath`).send({});
       expect(result).toHaveSucceeded();
       const revertLog = await DeathRevertLog.findOne({ where: { patientId: id } });
       expect(revertLog).toBeTruthy();
