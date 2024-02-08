@@ -12,7 +12,7 @@ export const TranslatedReferenceData = ({ category, value, fallback, placeholder
 
 TranslatedReferenceData.propTypes = {
   category: PropTypes.string.isRequired,
-  value: PropTypes.string.isRequired,
+  value: PropTypes.string,
   fallback: PropTypes.string.isRequired,
   placeholder: PropTypes.element,
 };
