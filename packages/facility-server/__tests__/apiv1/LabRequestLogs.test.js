@@ -25,7 +25,7 @@ describe('Lab request logs', () => {
       await randomLabRequest(models, { patientId }),
     );
     const status = LAB_REQUEST_STATUSES.TO_BE_VERIFIED;
-    const response = await app.put(`/v1/labRequest/${requestId}`).send({ status });
+    const response = await app.put(`/api/labRequest/${requestId}`).send({ status });
     expect(response).toHaveRequestError();
 
     // Errored request should not have updated status
@@ -34,13 +34,13 @@ describe('Lab request logs', () => {
   });
 
   it('should create a lab request log when updating a labs status', async () => {
-    const user = await app.get('/v1/user/me');
+    const user = await app.get('/api/user/me');
     const { id: requestId } = await models.LabRequest.createWithTests(
       await randomLabRequest(models, { patientId }),
     );
     const status = LAB_REQUEST_STATUSES.TO_BE_VERIFIED;
     const userId = user.body.id;
-    const response = await app.put(`/v1/labRequest/${requestId}`).send({ status, userId });
+    const response = await app.put(`/api/labRequest/${requestId}`).send({ status, userId });
     expect(response).toHaveSucceeded();
 
     const labRequest = await models.LabRequest.findByPk(requestId);
@@ -62,7 +62,7 @@ describe('Lab request logs', () => {
     const { id: requestId } = await models.LabRequest.createWithTests(
       await randomLabRequest(models, { patientId }),
     );
-    const response = await app.put(`/v1/labRequest/${requestId}`).send({ urgent: true });
+    const response = await app.put(`/api/labRequest/${requestId}`).send({ urgent: true });
     expect(response).toHaveSucceeded();
 
     const labRequestLog = await models.LabRequestLog.findAll({

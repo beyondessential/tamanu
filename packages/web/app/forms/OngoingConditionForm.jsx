@@ -112,14 +112,15 @@ export const OngoingConditionForm = ({
   };
 
   const onDataSubmit = async data => {
-    if (data.resolved) {
-      await onSubmit(data);
-      return;
+    const fields = { ...data };
+
+    if (!fields.resolved) {
+      delete fields.resolutionDate;
+      delete fields.resolutionNote;
+      delete fields.resolutionPractitionerId;
     }
 
-    // remove resolution-specific fields if not resolved
-    const { resolutionDate, resolutionNote, resolutionPractitionerId, ...rest } = data;
-    await onSubmit(rest);
+    await onSubmit(fields);
   };
 
   return (

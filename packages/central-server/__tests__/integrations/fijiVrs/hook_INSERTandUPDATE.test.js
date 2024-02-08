@@ -62,7 +62,7 @@ describe('VRS integration hook: INSERT and UPDATE operations', () => {
 
         // act
         const response = await app
-          .post(`/v1/integration/fijiVrs/hooks/patientCreated`)
+          .post(`/api/integration/fijiVrs/hooks/patientCreated`)
           .send({
             fetch_id: fetchId,
             operation,
@@ -142,7 +142,7 @@ describe('VRS integration hook: INSERT and UPDATE operations', () => {
 
       // act
       const response = await app
-        .post(`/v1/integration/fijiVrs/hooks/patientCreated`)
+        .post(`/api/integration/fijiVrs/hooks/patientCreated`)
         .send({
           fetch_id: fetchId,
           operation: 'INSERT',
@@ -181,7 +181,7 @@ describe('VRS integration hook: INSERT and UPDATE operations', () => {
 
       // act
       const response = await app
-        .post(`/v1/integration/fijiVrs/hooks/patientCreated`)
+        .post(`/api/integration/fijiVrs/hooks/patientCreated`)
         .send({
           fetch_id: fetchId,
           operation: 'INSERT',
@@ -228,7 +228,7 @@ describe('VRS integration hook: INSERT and UPDATE operations', () => {
 
       // act
       const response = await app
-        .post(`/v1/integration/fijiVrs/hooks/patientCreated`)
+        .post(`/api/integration/fijiVrs/hooks/patientCreated`)
         .send({
           fetch_id: fetchId,
           operation: 'INSERT',
@@ -269,7 +269,7 @@ describe('VRS integration hook: INSERT and UPDATE operations', () => {
 
       // act
       const response = await app
-        .post(`/v1/integration/fijiVrs/hooks/patientCreated`)
+        .post(`/api/integration/fijiVrs/hooks/patientCreated`)
         .send({
           fetch_id: fetchId,
           operation: 'INSERT',
@@ -313,7 +313,7 @@ describe('VRS integration hook: INSERT and UPDATE operations', () => {
 
       // act
       const response = await app
-        .post(`/v1/integration/fijiVrs/hooks/patientCreated`)
+        .post(`/api/integration/fijiVrs/hooks/patientCreated`)
         .send({
           fetch_id: fetchId,
           operation: 'INSERT',
