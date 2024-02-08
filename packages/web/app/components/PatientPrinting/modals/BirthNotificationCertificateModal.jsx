@@ -13,7 +13,7 @@ import { BirthNotificationCertificate } from '@tamanu/shared/utils/patientCertif
 import { PDFViewer, printPDF } from '../PDFViewer';
 
 const useParent = (api, enabled, parentId) => {
-  const { data: parentData, isLoading: isParentDataIsLoading } = useQuery(
+  const { data: parentData, isLoading: isParentDataLoading } = useQuery(
     ['parentData', parentId],
     async () => (parentId ? api.get(`patient/${encodeURIComponent(parentId)}`) : null),
     { enabled },
@@ -81,7 +81,7 @@ const useParent = (api, enabled, parentId) => {
       father: grandFather,
     },
     isLoading:
-      isParentDataIsLoading ||
+      isParentDataLoading ||
       isAdditionalDataLoading ||
       isGrandMotherLoading ||
       isGrandFatherLoading ||
