@@ -20,16 +20,16 @@ export const MultiplePrescriptionPrintoutModal = ({
   onClose,
 }) => {
   const { getLocalisation } = useLocalisation();
-  const { data: certificateData, isFetching: isFetchingCertificate } = useCertificate();
+  const { data: certificateData, isFetching: isCertificateFetching } = useCertificate();
   const api = useApi();
   const { facility } = useAuth();
 
-  const { data: patient, isLoading: isLoadingPatient } = useQuery(
+  const { data: patient, isLoading: isPatientLoading } = useQuery(
     ['patient', encounter.patientId],
     () => api.get(`patient/${encounter.patientId}`),
   );
 
-  const { data: prescriber, isLoading: isLoadingPrescriber } = useQuery(
+  const { data: prescriber, isLoading: isPrescriberLoading } = useQuery(
     ['prescriber', prescriberId],
     () => api.get(`user/${prescriberId}`),
     {
@@ -37,12 +37,12 @@ export const MultiplePrescriptionPrintoutModal = ({
     },
   );
 
-  const { data: additionalData, isLoading: isLoadingAdditionalData } = useQuery(
+  const { data: additionalData, isLoading: isAdditionalDataLoading } = useQuery(
     ['additionalData', encounter.patientId],
     () => api.get(`patient/${encounter.patientId}/additionalData`),
   );
 
-  const { data: village = {}, isLoading: isLoadingVillage } = useQuery(
+  const { data: village = {}, isLoading: isVillageLoading } = useQuery(
     ['village', encounter.patientId],
     () => api.get(`referenceData/${encodeURIComponent(patient.villageId)}`),
     {
@@ -50,13 +50,12 @@ export const MultiplePrescriptionPrintoutModal = ({
     },
   );
 
-  const isVillageLoading = isLoadingVillage && !!patient?.villageId;
   const isLoading =
-    isLoadingPatient ||
-    isLoadingAdditionalData ||
-    isVillageLoading ||
-    isFetchingCertificate ||
-    isLoadingPrescriber;
+    isPatientLoading ||
+    isAdditionalDataLoading ||
+    isPrescriberLoading ||
+    (isVillageLoading && !!patient?.villageId) ||
+    isCertificateFetching;
 
   return (
     <Modal

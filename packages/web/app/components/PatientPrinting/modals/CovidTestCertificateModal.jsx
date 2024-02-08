@@ -17,15 +17,15 @@ export const CovidTestCertificateModal = React.memo(({ patient }) => {
   const [open, setOpen] = useState(true);
   const { getLocalisation } = useLocalisation();
   const api = useApi();
+
   const { data: certificateData, isFetching: isCertificateFetching } = useCertificate({
     footerAssetName: ASSET_NAMES.COVID_TEST_CERTIFICATE_FOOTER,
   });
-
+  const { watermark, logo, footerImg, printedBy } = certificateData;
   const { data: labTestsResponse, isLoading: isLabTestsLoading } = useCovidLabTestQuery(
     patient.id,
     CertificateTypes.test,
   );
-  const { watermark, logo, footerImg, printedBy } = certificateData;
   const {
     data: additionalData,
     isLoading: isAdditionalDataLoading,

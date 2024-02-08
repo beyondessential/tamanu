@@ -21,6 +21,7 @@ export const CovidClearanceCertificateModal = React.memo(({ patient }) => {
   const { data: certificateData, isFetching: isCertificateFetching } = useCertificate({
     footerAssetName: ASSET_NAMES.COVID_CLEARANCE_CERTIFICATE_FOOTER,
   });
+  const { watermark, logo, footerImg, printedBy } = certificateData;
   const {
     data: additionalData,
     isLoading: isAdditionalDataLoading,
@@ -29,8 +30,6 @@ export const CovidClearanceCertificateModal = React.memo(({ patient }) => {
     patient.id,
     CertificateTypes.clearance,
   );
-
-  const { watermark, logo, footerImg, printedBy } = certificateData;
 
   const isLoading = isLabTestsLoading || isAdditionalDataLoading || isCertificateFetching;
 
