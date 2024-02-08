@@ -55,11 +55,12 @@ const StyledField = styled(Field)`
 const HEADERS = [
   <TranslatedText
     stringId="lab.sampleDetail.table.column.category"
-    fallback="Category"
     key="lab.sampleDetail.table.column.category"
+    fallback="Category"
   />,
   <TranslatedText
     stringId="lab.sampleDetail.table.column.collectionDateTime"
+    key="lab.sampleDetail.table.column.collectionDateTime"
     fallback="Date & time collected"
   />,
   <TranslatedText
