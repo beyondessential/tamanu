@@ -51,6 +51,8 @@ export const styles = StyleSheet.create({
     bottom: 0,
     minWidth: '100%',
     minHeight: '100%',
+    maxWidth: '100vw',
+    maxHeight: '100vh',
     backgroundColor: '#aaaaaa',
     opacity: 0.05,
     flexDirection: 'row',
