@@ -9,14 +9,12 @@ import { searchParameters } from './searchParameters';
 
 export class FhirSpecimen extends FhirResource {
   static init(options, models) {
-    console.log('here')
     super.init(
       {
-        sampleId: DataTypes.TEXT,
         sampleTime: DataTypes.DATE,
-        // collection: DataTypes.JSONB,
-        // request: DataTypes.JSONB,
-        // type: DataTypes.JSONB,
+        collection: DataTypes.JSONB,
+        request: DataTypes.JSONB,
+        type: DataTypes.JSONB,
       },
       options,
     );

@@ -33,13 +33,17 @@ export async function up(query) {
       allowNull: true,
     },
     request: {
-      type: Sequelize.UUID,
-      allowNull: false,
-      references: {
-        model: { schema: 'fhir', tableName: 'service_requests' },
-        key: 'id',
-      },
+      type: DataTypes.JSONB,
+      allowNull: true,
     },
+    // request: {
+    //   type: Sequelize.UUID,
+    //   allowNull: false,
+    //   references: {
+    //     model: { schema: 'fhir', tableName: 'service_requests' },
+    //     key: 'id',
+    //   },
+    // },
     type: {
       type: DataTypes.JSONB,
       allowNull: true,

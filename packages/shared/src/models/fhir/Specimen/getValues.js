@@ -1,4 +1,6 @@
-import { FhirContactPoint, FhirHumanName, FhirIdentifier } from '../../../services/fhirTypes';
+import config from 'config';
+
+import { FhirReference, FhirCoding, FhirCodeableConcept } from '../../../services/fhirTypes';
 
 export async function getValues(upstream, models) {
   const { LabRequest } = models;
@@ -8,23 +10,42 @@ export async function getValues(upstream, models) {
 }
 
 async function getValuesFromLabRequest(upstream) {
+  console.log({ upstream });
   return {
     lastUpdated: new Date(),
-    sampleId: {
-      sampleId: upstream.sampleId
-    },
     sampleTime: upstream.sampleTime,
-    // name: [
-    //   new FhirHumanName({
-    //     text: upstream.displayName,
-    //   }),
-    // ],
-    // telecom: [
-    //   new FhirContactPoint({
-    //     system: 'email',
-    //     value: upstream.email,
-    //   }),
-    // ],
+    collection: {
+      collectedDateTime: upstream.sampleTime,
+      collector: upstream.collectedBy,
+    },
+    type: sampleType(upstream),
+    request: requestRef(upstream),
   };
 }
 
+function requestRef(labRequest) {
+  const refToLabRequest = new FhirReference({
+    type: 'upstream://serviceRequest',
+    reference: labRequest.id,
+    display: `${labRequest.displayId}`,
+  });
+  console.log({ refToLabRequest });
+  return refToLabRequest;
+}
+
+function sampleType(labRequest) {
+  // const code = classificationCode(labRequest);
+  // if (!code) return [];
+
+  return [
+    new FhirCodeableConcept({
+      coding: [
+        new FhirCoding({
+          system: config.hl7.dataDictionaries.specimenType,
+          code: labRequest.sampleId, // Todo: map to external code
+          display: null,
+        }),
+      ],
+    }),
+  ];
+}
