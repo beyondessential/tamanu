@@ -306,6 +306,7 @@ const MultipageTableHeading = ({ title, style = textStyles.sectionTitle }) => {
   let firstPageOccurence = Number.MAX_SAFE_INTEGER;
   return (
     <Text
+      fixed
       style={style}
       render={({ pageNumber, subPageNumber }) => {
         if (pageNumber < firstPageOccurence && subPageNumber) {
