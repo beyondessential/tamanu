@@ -11,6 +11,7 @@ import { useAuth } from '../contexts/Auth';
 import { NoteModal } from './NoteModal';
 import { withPermissionCheck } from './withPermissionCheck';
 import { TranslatedText } from './Translation/TranslatedText';
+import { TranslatedEnum } from './Translation/TranslatedEnum.jsx';
 
 const StyledEditIcon = styled(EditIcon)`
   cursor: pointer;
@@ -171,8 +172,17 @@ const NoteContent = ({
   return (
     <NoteRowContainer>
       {isNotFilteredByNoteType && (
+        // <NoteHeaderContainer>
+        //   <NoteHeaderText>{NOTE_TYPE_LABELS[note.noteType]}</NoteHeaderText>
+        // </NoteHeaderContainer>
         <NoteHeaderContainer>
-          <NoteHeaderText>{NOTE_TYPE_LABELS[note.noteType]}</NoteHeaderText>
+          <NoteHeaderText>
+            <TranslatedEnum
+              prefix="noteType.label"
+              value={note.noteType}
+              enumValues={NOTE_TYPE_LABELS}
+            />
+          </NoteHeaderText>
         </NoteHeaderContainer>
       )}
       <NoteBodyContainer>
