@@ -10,7 +10,7 @@ export const useAsset = assetName => {
 
   const fallbackAssetName = ASSET_FALLBACK_NAMES[assetName];
 
-  const { data: queryData, isFetched: assetFetched, isFetching: isAssetFetching } = useQuery({
+  const { data: queryData, isFetching: isAssetFetching, isFetched: assetFetched } = useQuery({
     queryKey: ['asset', assetName],
     queryFn: () => api.get(`asset/${assetName}`),
     enabled: !!assetName,
