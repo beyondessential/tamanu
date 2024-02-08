@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-undef
 if (typeof WorkerGlobalScope !== 'undefined' && self instanceof DedicatedWorkerGlobalScope) {
   self.global = self;
   self.window = self;
