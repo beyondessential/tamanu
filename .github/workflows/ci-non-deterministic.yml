@@ -66,4 +66,4 @@ jobs:
 
       - run: aws s3 cp s3://bes-tamanu-test-data-snapshots/${{ steps.commit-finder.outputs.commit }}/fake-pg${{ matrix.postgres }}.dump ./ --no-progress
 
-      - run: yarn workspace scripts run test-determinism $(realpath fake-pg${{ matrix.postgres }}.dump)
+      - run: yarn workspace scripts run test-determinism --dump-path $(realpath fake-pg${{ matrix.postgres }}.dump)

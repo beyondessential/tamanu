@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "google-spreadsheet": "^2.0.7",
+    "commander": "^9.0.0",
     "object-hash": "^3.0.0",
     "pgsql-ast-parser": "^11.1.0"
   }

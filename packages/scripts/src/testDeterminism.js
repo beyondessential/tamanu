@@ -1,12 +1,13 @@
 const { spawn } = require('node:child_process');
 const { once } = require('node:events');
 const { isEqual, zip, difference, uniq, sortedUniq } = require('lodash');
+const { injectReplacements } = require('sequelize/lib/utils/sql');
+const { program } = require('commander');
 const hashObject = require('object-hash');
 const { astVisitor, parseFirst } = require('pgsql-ast-parser');
 const { createMigrationInterface } = require('@tamanu/shared/services/migrations');
 const { initDatabase } = require('@tamanu/shared/services/database');
 const { log } = require('@tamanu/shared/services/logging');
-const { injectReplacements } = require('sequelize/lib/utils/sql');
 const config = require('config');
 
 // retrieves table names from a list of SQL queries
@@ -137,17 +138,24 @@ async function getColumnsForModel(model) {
   return Object.keys(description);
 }
 
-const dumpFilepath = process.argv[2];
-
 async function run(command, args) {
   const proc = spawn(command, args);
   proc.stdout.on('data', d => console.log(d.toString()));
   proc.stderr.on('data', d => console.error(d.toString()));
-  await once(proc, "exit");
+  const [code] = await once(proc, "exit");
+  if (code !== 0) {
+    console.error(`${command} failed with ${code}.`);
+    process.exit(1);
+  }
 }
 
+program
+  .requiredOption('-d, --dump-path <string>', 'An absolute path to a pg dump file');
+
+program.parse();
+
 async function getHashesForDb(migrationsInfo) {
-  await run("pg_restore", ["--create", "--clean", "-d", "postgres", dumpFilepath]);
+  await run("pg_restore", ["--create", "--clean", "-d", "postgres", program.opts().dumpPath]);
   const db = await initDatabase({ testMode: true, ...config.db });
   const umzug = createMigrationInterface(log, db.sequelize);
 
@@ -167,7 +175,8 @@ async function getHashesForDb(migrationsInfo) {
 }
 
 (async () => {
-  await run("pg_restore", ["-d", "fake", dumpFilepath]);
+  // The `setup-postgres-for-one-package` script makes a db so reuse that.
+  await run("pg_restore", ["-d", "fake", program.opts().dumpPath]);
   const qc = await initQueryCollectingDb({ testMode: true, ...config.db });
   const { flushQueries } = qc;
   const db = qc.db;
