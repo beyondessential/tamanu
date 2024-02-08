@@ -6,9 +6,13 @@
   "scripts": {
     "test": "echo 'No tests on scripts'",
     "download-translations": "node src/downloadTranslations.js ../web/resources/strings",
-    "generate-fake-db": "node src/fake.js"
+    "generate-fake-db": "node src/fake.js",
+    "collect-migration-info": "node src/collectMigrationInfo.js",
+    "get-hashes-for-table": "node src/getHashes.js"
   },
   "dependencies": {
-    "google-spreadsheet": "^2.0.7"
+    "google-spreadsheet": "^2.0.7",
+    "object-hash": "^3.0.0",
+    "pgsql-ast-parser": "^11.1.0"
   }
 }

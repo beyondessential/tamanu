@@ -1,4 +1,4 @@
-name: Test Migrations on Non Determinism
+name: Test Migrations for Determinism
 
 on:
   workflow_dispatch:
@@ -30,7 +30,7 @@ jobs:
           - "14"
           - "15"
           - "16"
-    name: Make a db dump of fake data for pg${{ matrix.postgres }}
+    name: Test Migrations for Determinism on pg${{ matrix.postgres }}
     runs-on: ubuntu-latest
     env:
       ARTIFACT_NAME: fake-pg${{ matrix.postgres }}
@@ -65,6 +65,32 @@ jobs:
         run: echo "commit=$(python3 .github/scripts/find-dumped.py --github-token ${{ github.token }} --branch ${{ github.ref_name }})" >> $GITHUB_OUTPUT
 
       - run: aws s3 cp s3://bes-tamanu-test-data-snapshots/${{ steps.commit-finder.outputs.commit }}/fake-pg${{ matrix.postgres }}.dump ./ --no-progress
-      - run: pg_restore -d fake fake-pg${{ matrix.postgres }}.dump
 
-      # - run: yarn workspace scripts run generate-fake-db
+      - name: Calculate hashes after migrating twice
+        id: hashing
+        run: |
+          set -euxo pipefail
+
+          pg_restore -d fake fake-pg${{ matrix.postgres }}.dump
+          info=$(yarn -s workspace scripts run -s collect-migration-info)
+
+          pg_restore --create --clean -d postgres fake-pg${{ matrix.postgres }}.dump
+          hashesList1=$(yarn -s workspace scripts run -s get-hashes-for-table $info)
+          echo "hashesList1=$hashesList1" >> $GITHUB_OUTPUT
+
+          pg_restore --create --clean -d postgres fake-pg${{ matrix.postgres }}.dump
+          hashesList2=$(yarn -s workspace scripts run -s get-hashes-for-table $info)
+          echo "hashesList2=$hashesList2" >> $GITHUB_OUTPUT
+
+      - run: |
+          import json
+
+          hashesList1 = json.loads(${{ steps.hashing.outputs.hashesList1 }})
+          hashesList2 = json.loads(${{ steps.hashing.outputs.hashesList2 }})
+
+          for hashes1, hashes2 in zip(hashesList1, hashesList2):
+            if (hashes1["hashes"] != hashes2["hashes"]):
+              print(f"The migration {hashes1['name']} is not deterministic.")
+              exit(1)
+          print(f"The migrations are deterministic. Tested: {list(map(lambda h: h['name'], hashes1))}")
+        shell: python

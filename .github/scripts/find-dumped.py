@@ -1,5 +1,4 @@
 import argparse
-import os
 from gql import gql, Client
 from gql.transport.httpx import HTTPXTransport
 import boto3
@@ -47,6 +46,7 @@ gh_query = gql(query_string)
 dumped = next(dumped_iter)
 commits = gql_client.execute(gh_query)["repository"]["ref"]["target"]["history"]
 
+commits["nodes"] = commits["nodes"][1:] # Skip the latest commit as we want an old db dump.
 commits_iter = iter(commits["nodes"])
 while True:
     try:
