@@ -31,7 +31,7 @@ const useParent = (api, enabled, parentId) => {
       parentData?.villageId
         ? api.get(`referenceData/${encodeURIComponent(parentData.villageId)}`)
         : null,
-    { enabled: !parentDataIsLoading },
+    { enabled: !isParentDataLoading },
   );
 
   const { data: occupation, isLoading: isOccupationLoading } = useQuery(
@@ -40,7 +40,7 @@ const useParent = (api, enabled, parentId) => {
       additionalData?.occupationId
         ? api.get(`referenceData/${encodeURIComponent(additionalData.occupationId)}`)
         : null,
-    { enabled: !additionalDataLoading },
+    { enabled: !isAdditionalDataLoading },
   );
 
   const { data: ethnicity, isLoading: isEthnicityLoading } = useQuery(
@@ -49,7 +49,7 @@ const useParent = (api, enabled, parentId) => {
       additionalData?.ethnicityId
         ? api.get(`referenceData/${encodeURIComponent(additionalData.ethnicityId)}`)
         : null,
-    { enabled: !additionalDataLoading },
+    { enabled: !isAdditionalDataLoading },
   );
 
   const { data: grandMother, isLoading: isGrandMotherLoading } = useQuery(
@@ -58,7 +58,7 @@ const useParent = (api, enabled, parentId) => {
       additionalData?.motherId
         ? api.get(`patient/${encodeURIComponent(additionalData?.motherId)}`)
         : null,
-    { enabled: !additionalDataLoading },
+    { enabled: !isAdditionalDataLoading },
   );
 
   const { data: grandFather, isLoading: isGrandFatherLoading } = useQuery(
@@ -67,7 +67,7 @@ const useParent = (api, enabled, parentId) => {
       additionalData?.fatherId
         ? api.get(`patient/${encodeURIComponent(additionalData?.fatherId)}`)
         : null,
-    { enabled: !additionalDataLoading },
+    { enabled: !isAdditionalDataLoading },
   );
 
   return {
