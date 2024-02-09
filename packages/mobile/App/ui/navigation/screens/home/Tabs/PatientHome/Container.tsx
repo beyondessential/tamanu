@@ -112,12 +112,12 @@ const PatientHomeContainer = ({
     () => [
       {
         title: (
-          <TranslatedText stringId="patient.details.action.view" fallback="View patient details" />
+          <TranslatedText stringId="patient.action.viewPatientDetails" fallback="View patient details" />
         ),
         onPress: (): void => navigation.navigate(Routes.HomeStack.PatientDetailsStack.Index),
       },
       {
-        title: <TranslatedText stringId="patient.history.action.view" fallback="View history" />,
+        title: <TranslatedText stringId="patient.action.viewVitalHistory" fallback="View history" />,
         onPress: (): void => navigation.navigate(Routes.HomeStack.HistoryVitalsStack.Index),
       },
     ],
