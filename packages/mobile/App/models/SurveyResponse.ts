@@ -66,7 +66,7 @@ const getFieldsToWrite = (questions, answers): RecordValuesByModel => {
   return recordValuesByModel;
 };
 
-const newPprObjectFactory = (
+const getUpdatedPPRValues = (
   ppr: IPatientProgramRegistration,
   newValues: { [key: string]: any },
 ) => {
@@ -102,7 +102,7 @@ async function writeToPatientFields(questions, answers, patientId, surveyId) {
   if (valuesByModel.PatientProgramRegistration) {
     const { programId } = await Survey.findOne({ id: surveyId });
     const ppr = await PatientProgramRegistration.getRecentOne(programId, patientId);
-    const newPpr = newPprObjectFactory(ppr, valuesByModel.PatientProgramRegistration);
+    const newPpr = getUpdatedPPRValues(ppr, valuesByModel.PatientProgramRegistration);
 
     await PatientProgramRegistration.createAndSaveOne(newPpr);
   }

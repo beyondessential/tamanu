@@ -22,7 +22,7 @@ export class ProgramRegistryClinicalStatus extends BaseModel
   visibilityStatus?: VisibilityStatus;
 
   @Column({ nullable: true })
-  color: string;
+  color?: string;
 
   @ManyToOne(() => ProgramRegistry)
   programRegistry: ProgramRegistry;

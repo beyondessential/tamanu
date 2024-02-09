@@ -15,7 +15,7 @@ import { ProgramRegistryClinicalStatus } from './ProgramRegistryClinicalStatus';
 
 @Entity('program_registry_condition')
 export class ProgramRegistryCondition extends BaseModel implements IProgramRegistryCondition {
-  static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
+  static syncDirection = SYNC_DIRECTIONS.PULL_FROM_CENTRAL;
 
   @Column({ nullable: false })
   code: string;

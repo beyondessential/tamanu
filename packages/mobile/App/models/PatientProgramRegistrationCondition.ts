@@ -16,6 +16,7 @@ import { Patient } from './Patient';
 import { Facility } from './Facility';
 import { User } from './User';
 import { DateTimeStringColumn } from './DateColumns';
+import { ProgramRegistryCondition } from './ProgramRegistryCondition';
 
 @Entity('patient_program_registration_condition')
 export class PatientProgramRegistrationCondition extends BaseModel
@@ -43,8 +44,13 @@ export class PatientProgramRegistrationCondition extends BaseModel
   @RelationId<PatientProgramRegistrationCondition>(({ patient }) => patient)
   patientId: ID;
 
-  @ManyToOne(() => Facility, undefined, { nullable: true })
+  @ManyToOne(
+    () => ProgramRegistryCondition,
+    ({ patientProgramRegistrationConditions }) => patientProgramRegistrationConditions,
+    { nullable: true },
+  )
   programRegistryCondition?: IProgramRegistryCondition;
+
   @RelationId<PatientProgramRegistrationCondition>(
     ({ programRegistryCondition }) => programRegistryCondition,
   )

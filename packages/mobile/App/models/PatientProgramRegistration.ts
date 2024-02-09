@@ -63,10 +63,10 @@ export class PatientProgramRegistration extends BaseModel implements IPatientPro
   @RelationId<PatientProgramRegistration>(({ registeringFacility }) => registeringFacility)
   registeringFacilityId?: ID;
 
-  @ManyToOne(() => User, undefined, { nullable: true })
-  clinician?: IUser;
+  @ManyToOne(() => User, undefined, { nullable: false })
+  clinician: IUser;
   @RelationId<PatientProgramRegistration>(({ clinician }) => clinician)
-  clinicianId?: ID;
+  clinicianId: ID;
 
   dateRemoved: DateTimeString;
   removedBy?: IUser;

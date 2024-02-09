@@ -42,7 +42,7 @@ export class ProgramRegistry extends BaseModel implements IProgramRegistry {
     () => PatientProgramRegistrationCondition,
     ({ programRegistry }) => programRegistry,
   )
-  PatientProgramRegistryConditions: PatientProgramRegistrationCondition[];
+  PatientProgramRegistrationConditions: PatientProgramRegistrationCondition[];
 
   @OneToOne(() => Program)
   @JoinColumn()

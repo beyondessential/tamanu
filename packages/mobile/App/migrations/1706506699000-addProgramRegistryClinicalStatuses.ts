@@ -43,7 +43,7 @@ const BaseColumns = [
   }),
 ];
 
-const ClinicalStatuse = new Table({
+const ClinicalStatus = new Table({
   name: TABLE_NAME,
   columns: [
     ...BaseColumns,
@@ -85,7 +85,7 @@ const ClinicalStatuse = new Table({
 
 export class addProgramRegistryClinicalStatuses1706506699000 implements MigrationInterface {
   async up(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.createTable(ClinicalStatuse, true);
+    await queryRunner.createTable(ClinicalStatus, true);
   }
 
   async down(queryRunner: QueryRunner): Promise<void> {

@@ -8,7 +8,7 @@ export interface IProgramRegistryClinicalStatus {
   code: string;
   name: string;
   visibilityStatus?: VisibilityStatus;
-  color: string;
+  color?: string;
   programRegistryId: ID;
   programRegistry: IProgramRegistry;
   patientProgramRegistrations: IPatientProgramRegistration[];

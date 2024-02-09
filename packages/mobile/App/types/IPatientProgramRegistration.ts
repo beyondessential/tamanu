@@ -20,8 +20,8 @@ export interface IPatientProgramRegistration {
   clinicalStatusId?: ID;
   clinicalStatus?: IProgramRegistryClinicalStatus;
 
-  clinicianId?: ID;
-  clinician?: IUser;
+  clinicianId: ID;
+  clinician: IUser;
 
   registeringFacilityId?: ID;
   registeringFacility?: IFacility;
