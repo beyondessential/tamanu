@@ -10,6 +10,8 @@ parser.add_argument("--github-token", required=True)
 parser.add_argument("--branch", required=True)
 args = parser.parse_args()
 
+exit(1)
+
 aws_client = boto3.client("s3")
 dumped_iter = iter(
     aws_client.get_paginator("list_objects_v2").paginate(
