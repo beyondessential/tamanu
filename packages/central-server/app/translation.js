@@ -31,3 +31,8 @@ translationRoutes.get(
     res.send(mapValues(keyBy(translatedStringRecords, 'stringId'), 'text'));
   }),
 );
+
+translationRoutes.post('/', (req, res) => {
+  // TODO finish this
+  res.send({ ok: 'ok' });
+});
