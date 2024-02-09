@@ -27,9 +27,8 @@ publicRoutes.get('/ping', (_req, res) => {
   res.send({ ok: true });
 });
 
-publicRoutes.use('/labResultWidget', labResultWidgetRoutes);
-publicRoutes.use('/integration', publicIntegrationRoutes);
 publicRoutes.get('/translation/preLogin', async (req, res) => {
+  console.log('holla');
   const response = await getLanguageOptions(req.models, req.headers['if-none-match']);
   if (response === NOT_MODIFIED_STATUS_CODE) {
     res.status(NOT_MODIFIED_STATUS_CODE).end();
@@ -39,3 +38,6 @@ publicRoutes.get('/translation/preLogin', async (req, res) => {
   res.setHeader('ETag', response.eTag);
   res.send(response.languageOptions);
 });
+
+publicRoutes.use('/labResultWidget', labResultWidgetRoutes);
+publicRoutes.use('/integration', publicIntegrationRoutes);
