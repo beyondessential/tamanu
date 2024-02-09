@@ -153,7 +153,8 @@ export const PatientView = () => {
   const visibleTabs = TABS.filter(
     tab =>
       (!tab.condition || tab.condition(getLocalisation)) &&
-      !getLocalisation(`patientTabs.${tab.key}.hidden`),
+      (!getLocalisation(`patientTabs.${tab.key}.hidden`) ||
+        getLocalisation(`patientTabs.${tab.key}.required`)),
   );
   visibleTabs.sort((firstTab, secondTab) => tabCompare({ firstTab, secondTab, getLocalisation }));
 

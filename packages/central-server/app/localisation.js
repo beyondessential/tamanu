@@ -38,7 +38,8 @@ const unhideableFieldSchema = yup
 const patientTabSchema = yup
   .object({
     sortPriority: yup.number().required(),
-    hidden: yup.boolean().required(),
+    hidden: yup.boolean(),
+    required: yup.boolean(),
   })
   .required()
   .noUnknown();
