@@ -1,12 +1,20 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { Typography } from '@material-ui/core';
 
 import { BaseModal } from './BaseModal';
 import { Field, SelectField } from './Field';
 import { ModalBackCancelConfirmRow } from './ModalActionRow';
 import { AddReminderQrCodeModal } from './AddReminderQrCodeModal';
 
-const StyledText = styled.p`
+const StyledHeaderText = styled(Typography)`
+  margin: 7px 0 9px 0;
+  font-size: 14px;
+  line-height: 18px;
+  font-weight: 500;
+`;
+
+const StyledText = styled(Typography)`
   margin: 0;
   font-size: 14px;
   line-height: 18px;
@@ -14,19 +22,16 @@ const StyledText = styled.p`
   span {
     font-weight: 500;
   }
-
-  &.headerText {
-    margin: 7px 0 9px 0;
-    font-weight: 500;
-  }
-
-  &.bottomText {
-    margin-bottom: 31px;
-    font-weight: 500;
-  }
 `;
 
-const StyledTextField = styled.div`
+const StyledFooterText = styled(Typography)`
+  font-size: 14px;
+  line-height: 18px;
+  margin-bottom: 31px;
+  font-weight: 500;
+`;
+
+const StyledFormContainer = styled.div`
   display: flex;
   gap: 20px;
   margin-top: 20px;
@@ -62,9 +67,7 @@ export const AddReminderContactModal = ({
         open={openAddReminderContactModal}
         onClose={handleCloseAddReminder}
       >
-        <StyledText className="headerText">
-          Please provide details below to add a new contact.
-        </StyledText>
+        <StyledHeaderText>Please provide details below to add a new contact.</StyledHeaderText>
         <StyledText>
           By providing their details, the individual consents to receiving automated reminder
           messages for{' '}
@@ -73,7 +76,7 @@ export const AddReminderContactModal = ({
           </span>
         </StyledText>
 
-        <StyledTextField>
+        <StyledFormContainer>
           <Field name={'Contact name'} label="Contact name" required={true} />
 
           <Field
@@ -88,11 +91,9 @@ export const AddReminderContactModal = ({
             ]}
             required={true}
           />
-        </StyledTextField>
+        </StyledFormContainer>
 
-        <StyledText className="bottomText">
-          Connect using the QR code on the following screen.
-        </StyledText>
+        <StyledFooterText>Connect using the QR code on the following screen.</StyledFooterText>
         <ModalBackCancelConfirmRow
           onBack={handleBackAddReminder}
           confirmText="Confirm & connect"
