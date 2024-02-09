@@ -14,6 +14,7 @@ import { SurveyResponseDetailsModal } from './SurveyResponseDetailsModal';
 import { DeleteButton } from './Button';
 import { ConfirmModal } from './ConfirmModal';
 import { TranslatedText } from './Translation/TranslatedText';
+import { TranslatedEnum } from './Translation/TranslatedEnum.jsx';
 
 const ACTION_MODAL_STATES = {
   CLOSED: 'closed',
@@ -151,7 +152,14 @@ const getDate = ({ surveyResponse: { submissionDate } }) => {
 };
 const getReferralType = ({ surveyResponse: { survey } }) => survey.name;
 const getReferralBy = ({ surveyResponse }) => <ReferralBy surveyResponse={surveyResponse} />;
-const getStatus = ({ status }) => REFERRAL_STATUS_LABELS[status] || 'Unknown';
+const getStatus = ({ status }) =>
+  (
+    <TranslatedEnum
+      prefix="referral.property.status.label"
+      value={status}
+      enumValues={REFERRAL_STATUS_LABELS}
+    />
+  ) || 'Unknown';
 const getActions = ({ refreshTable, ...row }) => (
   <ActionDropdown refreshTable={refreshTable} row={row} />
 );
