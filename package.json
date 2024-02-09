@@ -1,6 +1,6 @@
 {
   "name": "tamanu",
-  "version": "2.1.1",
+  "version": "2.3.0",
   "description": "This repo contains all the packages for Tamanu",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
   "repository": "git@github.com:beyondessential/tamanu.git",
@@ -58,7 +58,8 @@
       "packages/central-server",
       "packages/meta-server",
       "packages/shared",
-      "packages/constants"
+      "packages/constants",
+      "packages/api-client"
     ],
     "nohoist": [
       "**/fbjs-scripts",

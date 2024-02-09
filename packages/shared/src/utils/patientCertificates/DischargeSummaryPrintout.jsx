@@ -5,7 +5,6 @@ import { LetterheadSection } from './LetterheadSection';
 import { PatientDetailsWithAddress } from './printComponents/PatientDetailsWithAddress';
 import { DIAGNOSIS_CERTAINTIES_TO_HIDE } from '@tamanu/constants';
 import { EncounterDetailsExtended } from './printComponents/EncounterDetailsExtended';
-import { Footer } from './printComponents/Footer';
 import { P } from './Typography';
 
 const borderStyle = '1 solid black';
@@ -92,6 +91,12 @@ const notesSectionStyles = StyleSheet.create({
     border: borderStyle,
     minHeight: 76,
     padding: 10,
+  },
+  title: {
+    fontFamily: 'Helvetica-Bold',
+    marginBottom: 3,
+    fontSize: 11,
+    fontWeight: 500,
   },
 });
 

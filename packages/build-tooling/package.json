@@ -1,11 +1,11 @@
 {
   "name": "@tamanu/build-tooling",
-  "version": "2.1.1",
+  "version": "2.3.0",
   "description": "Build tooling for Tamanu packages",
   "main": "index.mjs",
   "type": "module",
   "bin": {
-    "chokidar": "./node_modules/.bin/chokidar",
+    "nodemon": "./node_modules/.bin/nodemon",
     "concurrently": "./node_modules/.bin/concurrently",
     "dual-pkg": "./dual-pkg.mjs",
     "move-dts": "./move-dts.mjs",
@@ -16,9 +16,9 @@
   "dependencies": {
     "@swc/cli": "^0.1.63",
     "@swc/core": "^1.3.100",
-    "chokidar-cli": "^3.0.0",
     "concurrently": "^8.2.1",
     "glob": "^10.3.3",
+    "nodemon": "^2.0.19",
     "pkg": "^4.4.8",
     "swc-loader": "^0.2.3",
     "typescript": "^5.1.6"

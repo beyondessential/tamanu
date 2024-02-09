@@ -3,7 +3,6 @@ import QRCode from 'qrcode';
 import { createDummyPatient, createDummyPatientAdditionalData } from '@tamanu/shared/demoData';
 import { VaccineCertificate as Component } from '@tamanu/shared/utils/patientCertificates';
 import { PDFViewer } from '@react-pdf/renderer';
-import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import SigningImage from '../assets/signing-image.png';
 import Watermark from '../assets/watermark.png';
 import Logo from '../assets/tamanu-logo.png';

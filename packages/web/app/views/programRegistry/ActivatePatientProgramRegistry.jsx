@@ -48,7 +48,9 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
   const registeringFacilitySuggester = useSuggester('facility');
 
   const activate = async data => {
-    const { id, date, ...rest } = data;
+    const { ...rest } = data;
+    delete rest.id;
+    delete rest.date;
 
     // Extract condition IDs from registrationConditions.data and data
     const existingConditionIds = registrationConditions.data.map(
