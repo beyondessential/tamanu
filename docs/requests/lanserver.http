@@ -8,7 +8,7 @@
 ### ----------------------------------------
 # Obtain a token
 # @name login
-POST {{lanserver}}/v1/login
+POST {{lanserver}}/api/login
 Content-Type: application/json
 
 {
@@ -19,6 +19,5 @@ Content-Type: application/json
 ### ----------------------------------------
 # get vitals by vital data element id
 
-GET {{lanserver}}/v1/encounter/{{encounterId}}/vitals/{{vitalDataElementId}}?startDate={{startDate}}&endDate={{endDate}}
+GET {{lanserver}}/api/encounter/{{encounterId}}/vitals/{{vitalDataElementId}}?startDate={{startDate}}&endDate={{endDate}}
 Authorization: Bearer {{token}}
- 

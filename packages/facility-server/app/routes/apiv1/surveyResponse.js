@@ -1,17 +1,23 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 
-import { getAutocompleteComponentMap } from '@tamanu/shared/reports/utilities'
+import { getAutocompleteComponentMap } from '@tamanu/shared/reports/utilities';
 export const surveyResponse = express.Router();
 
-// also update getDisplayNameForModel in /packages/mobile/App/ui/helpers/fields.ts when this changes
-function getDisplayNameForModel(model, record) {
-  switch(model) {
+// also update getNameColumnForModel in /packages/facility-server/app/routes/apiv1/surveyResponse.js when this changes
+function getNameColumnForModel(modelName) {
+  switch (modelName) {
     case 'User':
-      return record.displayName;
+      return 'displayName';
     default:
-      return record.name || record.id;
+      return 'name';
   }
+}
+
+// also update getDisplayNameForModel in /packages/mobile/App/ui/helpers/fields.ts when this changes
+function getDisplayNameForModel(modelName, record) {
+  const columnName = getNameColumnForModel(modelName);
+  return record[columnName] || record.id;
 }
 
 surveyResponse.get(
@@ -48,11 +54,17 @@ surveyResponse.get(
 
         const result = await model.findByPk(answer.dataValues.body);
         if (!result) {
+          // If the answer is empty, return it as is rather than throwing an error
+          if (answer.dataValues.body === '') {
+            return answer;
+          }
+
           if (componentConfig.source === 'ReferenceData') {
             throw new Error(
               `Selected answer ${componentConfig.source}[${answer.dataValues.body}] not found (check that the surveyquestion's source isn't ReferenceData for a Location, Facility, or Department)`,
             );
           }
+
           throw new Error(
             `Selected answer ${componentConfig.source}[${answer.dataValues.body}] not found`,
           );

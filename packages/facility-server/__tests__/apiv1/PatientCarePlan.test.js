@@ -18,7 +18,7 @@ describe('PatientCarePlan', () => {
 
   it('should reject creating an admissions report with insufficient permissions', async () => {
     const noPermsApp = await baseApp.asRole('base');
-    const result = await noPermsApp.post(`/v1/patientCarePlan`, {});
+    const result = await noPermsApp.post(`/api/patientCarePlan`, {});
     expect(result).toBeForbidden();
   });
 
@@ -33,7 +33,7 @@ describe('PatientCarePlan', () => {
     it('should create a care plan with note', async () => {
       const onBehalfOfUserId = await randomUser(models);
       const carePlanDate = getCurrentDateTimeString();
-      const result = await app.post('/v1/patientCarePlan').send({
+      const result = await app.post('/api/patientCarePlan').send({
         date: carePlanDate,
         carePlanId,
         patientId: patient.get('id'),
@@ -45,7 +45,7 @@ describe('PatientCarePlan', () => {
       expect(result.body).toHaveProperty('date', carePlanDate);
       expect(result.body.patientId).toBe(patient.get('id'));
       expect(result.body.carePlanId).toBe(carePlanId);
-      const noteResult = await app.get(`/v1/patientCarePlan/${result.body.id}/notes`);
+      const noteResult = await app.get(`/api/patientCarePlan/${result.body.id}/notes`);
       expect(noteResult).toHaveSucceeded();
       expect(noteResult.body.length).toBeGreaterThan(0);
       expect(noteResult.body[0].content).toBe('Main care plan');
@@ -53,7 +53,7 @@ describe('PatientCarePlan', () => {
     });
 
     it('should reject care plan without notes', async () => {
-      const result = await app.post('/v1/patientCarePlan').send({
+      const result = await app.post('/api/patientCarePlan').send({
         date: getCurrentDateTimeString(),
         carePlanId,
         patientId: patient.get('id'),
@@ -63,7 +63,7 @@ describe('PatientCarePlan', () => {
 
     it('should return return notes in order of creation', async () => {
       const onBehalfOfUserId = await randomUser(models);
-      const createCarePlanRequest = await app.post('/v1/patientCarePlan').send({
+      const createCarePlanRequest = await app.post('/api/patientCarePlan').send({
         date: getCurrentDateTimeString(),
         carePlanId,
         patientId: patient.get('id'),
@@ -72,7 +72,7 @@ describe('PatientCarePlan', () => {
       });
       expect(createCarePlanRequest).toHaveSucceeded();
       const additionalNoteRequest = await app
-        .post(`/v1/patientCarePlan/${createCarePlanRequest.body.id}/notes`)
+        .post(`/api/patientCarePlan/${createCarePlanRequest.body.id}/notes`)
         .send({
           date: getCurrentDateTimeString(),
           content: 'Second note',
@@ -80,7 +80,7 @@ describe('PatientCarePlan', () => {
         });
       expect(additionalNoteRequest).toHaveSucceeded();
       const noteResult = await app.get(
-        `/v1/patientCarePlan/${createCarePlanRequest.body.id}/notes`,
+        `/api/patientCarePlan/${createCarePlanRequest.body.id}/notes`,
       );
 
       expect(noteResult).toHaveSucceeded();
@@ -92,16 +92,16 @@ describe('PatientCarePlan', () => {
 
     it('should delete a note', async () => {
       const noteDate = getCurrentDateTimeString();
-      const result = await app.post('/v1/patientCarePlan').send({
+      const result = await app.post('/api/patientCarePlan').send({
         date: noteDate,
         carePlanId,
         patientId: patient.get('id'),
         content: 'Main care plan',
       });
-      const noteResult = await app.get(`/v1/patientCarePlan/${result.body.id}/notes`);
-      const deleteResult = await app.delete(`/v1/notes/${noteResult.body[0].id}`);
+      const noteResult = await app.get(`/api/patientCarePlan/${result.body.id}/notes`);
+      const deleteResult = await app.delete(`/api/notes/${noteResult.body[0].id}`);
       expect(deleteResult).toHaveSucceeded();
-      const emptyNotesResult = await app.get(`/v1/patientCarePlan/${result.body.id}/notes`);
+      const emptyNotesResult = await app.get(`/api/patientCarePlan/${result.body.id}/notes`);
       expect(emptyNotesResult.body.length).toBe(0);
     });
   });

@@ -1,11 +1,12 @@
 {
   "name": "scripts",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "main": "index.js",
   "license": "SEE LICENSE IN license",
   "scripts": {
     "test": "echo 'No tests on scripts'",
-    "download-translations": "node src/downloadTranslations.js ../web/resources/strings"
+    "download-translations": "node src/downloadTranslations.js ../web/resources/strings",
+    "generate-fake-db": "node src/fake.js"
   },
   "dependencies": {
     "google-spreadsheet": "^2.0.7"

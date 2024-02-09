@@ -107,3 +107,4 @@ export * from './SyncSession';
 export * from './SyncQueuedDevice';
 
 export * from './fhir';
+export * from './IPSRequest';
