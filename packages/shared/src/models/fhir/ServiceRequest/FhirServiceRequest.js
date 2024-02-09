@@ -12,7 +12,6 @@ export class FhirServiceRequest extends FhirResource {
   static init(options, models) {
     super.init(
       {
-        contained: DataTypes.JSONB,
         identifier: DataTypes.JSONB,
         status: {
           type: DataTypes.TEXT,
