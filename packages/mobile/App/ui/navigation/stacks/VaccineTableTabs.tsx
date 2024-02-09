@@ -26,7 +26,7 @@ export const VaccineTableTabs = (): ReactElement => {
       <Tabs.Screen
         options={{
           title: () => (
-            <TranslatedText stringId="patient.vaccine.subheading.routine" fallback="Routine" />
+            <TranslatedText stringId="vaccine.form.category.option.routine" fallback="Routine" />
           ),
         }}
         name={Routes.HomeStack.VaccineStack.VaccineTabs.Routine}
@@ -35,7 +35,7 @@ export const VaccineTableTabs = (): ReactElement => {
       <Tabs.Screen
         options={{
           title: () => (
-            <TranslatedText stringId="patient.vaccine.subheading.catchup" fallback="Catchup" />
+            <TranslatedText stringId="vaccine.form.category.option.catchUp" fallback="Catchup" />
           ),
         }}
         name={Routes.HomeStack.VaccineStack.VaccineTabs.Catchup}
@@ -44,7 +44,7 @@ export const VaccineTableTabs = (): ReactElement => {
       <Tabs.Screen
         options={{
           title: () => (
-            <TranslatedText stringId="patient.vaccine.subheading.campaign" fallback="Campaign" />
+            <TranslatedText stringId="vaccine.form.category.option.campaign" fallback="Campaign" />
           ),
         }}
         name={Routes.HomeStack.VaccineStack.VaccineTabs.Campaign}

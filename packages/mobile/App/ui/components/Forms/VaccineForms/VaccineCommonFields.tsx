@@ -65,7 +65,7 @@ export const NotGivenReasonField = (): JSX.Element => (
   <Field
     component={SuggesterDropdown}
     name="notGivenReasonId"
-    label={<TranslatedText stringId="vaccine.form.reasonNotGiven.label" fallback="Reason" />}
+    label={<TranslatedText stringId="vaccine.form.reason.label" fallback="Reason" />}
     selectPlaceholderText="Select"
     referenceDataType={ReferenceDataType.VaccineNotGivenReason}
   />
