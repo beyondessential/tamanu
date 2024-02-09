@@ -55,7 +55,12 @@ async function getPatientVaccines(models, patient) {
     where: { patientId: patient.id },
     include: models.PatientAdditionalData.getFullReferenceAssociations(),
   });
-  const patientData = { ...patient.dataValues, additionalData: additionalData?.dataValues };
+  const village = await models.ReferenceData.findByPk(patient.villageId, {});
+  const patientData = {
+    ...patient.dataValues,
+    village,
+    additionalData: additionalData?.dataValues,
+  };
   return { certifiableVaccines, vaccines, patientData };
 }
 

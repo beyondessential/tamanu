@@ -1,6 +1,5 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-
 import { Document, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
 import { getName } from '../patientAccessors';
 import { BaseSigningSection } from './BaseSigningSection';
@@ -14,6 +13,7 @@ import { HorizontalRule } from './printComponents/HorizontalRule';
 import { MultiPageHeader } from './printComponents/MultiPageHeader';
 import { PatientDetailsWithBarcode } from './printComponents/PatientDetailsWithBarcode';
 import { startCase } from 'lodash';
+import { DoubleHorizontalRule } from './printComponents/DoubleHorizontalRule';
 
 const DATE_TIME_FORMAT = 'dd/MM/yyyy h:mma';
 const labDetailsSectionStyles = StyleSheet.create({
@@ -29,7 +29,7 @@ const labDetailsSectionStyles = StyleSheet.create({
   },
   heading: {
     fontFamily: 'Helvetica-Bold',
-    fontSize: 14,
+    fontSize: 11,
     fontWeight: 500,
     marginVertical: 3,
   },
@@ -56,10 +56,9 @@ const MultipleImagingRequestSigningSection = () => {
 const getImagingRequestType = imagingTypes => ({ imagingType }) =>
   imagingTypes[imagingType]?.label || 'Unknown';
 
-
 const getAreaNote = ({ areas, areaNote }) => {
   if (areas && areas.length > 0) {
-    return areas.join(',');
+    return areas.map(area => area.name).join(',');
   }
   if (areaNote) {
     // there's no sensible way to key this except by array index
@@ -69,19 +68,21 @@ const getAreaNote = ({ areas, areaNote }) => {
   return '';
 };
 
-
 const ImagingRequestDetailsView = ({ imagingRequests, getLocalisation }) => {
   const notesAccessor = ({ notes }) => {
-    return notes?.filter(note => note.noteType === NOTE_TYPES.OTHER).map(note => note.content).join(', ');
+    return notes
+      ?.filter(note => note.noteType === NOTE_TYPES.OTHER)
+      .map(note => note.content)
+      .join(', ');
   };
 
   const imagingTypes = getLocalisation('imagingTypes') || {};
-  
+
   return (
     <View>
       <Text style={labDetailsSectionStyles.heading}>Imaging request details</Text>
       <HorizontalRule width="0.5px" />
-      {imagingRequests.map(imagingRequest => {
+      {imagingRequests.map((imagingRequest, index) => {
         return (
           <View key={imagingRequest.id} style={labDetailsSectionStyles.detailsContainer}>
             <Row>
@@ -97,12 +98,21 @@ const ImagingRequestDetailsView = ({ imagingRequests, getLocalisation }) => {
               </Col>
               <Col>
                 <Row>
-                  <DataItem label="Requested date & time" value={getDisplayDate(imagingRequest.requestedDate, DATE_TIME_FORMAT)}/>
-                  <DataItem label="Requested by"  value={imagingRequest.requestedBy?.displayName}  />  
+                  <DataItem
+                    label="Requested date & time"
+                    value={getDisplayDate(imagingRequest.requestedDate, DATE_TIME_FORMAT)}
+                  />
+                  <DataItem label="Requested by" value={imagingRequest.requestedBy?.displayName} />
                 </Row>
               </Col>
             </Row>
-            <HorizontalRule width="0.5px" />
+            <View style={{ marginTop: 5 }}>
+              {index < imagingRequests.length - 1 ? (
+                <HorizontalRule width="0.5px" />
+              ) : (
+                <DoubleHorizontalRule />
+              )}
+            </View>
           </View>
         );
       })}
@@ -111,13 +121,7 @@ const ImagingRequestDetailsView = ({ imagingRequests, getLocalisation }) => {
 };
 
 export const MultipleImagingRequestsPrintout = React.memo(
-  ({
-    patient,
-    imagingRequests,
-    encounter,
-    certificateData,
-    getLocalisation,
-  }) => {
+  ({ patient, imagingRequests, encounter, certificateData, getLocalisation }) => {
     const { logo } = certificateData;
     return (
       <Document>
@@ -143,7 +147,10 @@ export const MultipleImagingRequestsPrintout = React.memo(
           </CertificateHeader>
           <CertificateContent>
             <SectionContainer>
-              <ImagingRequestDetailsView imagingRequests={imagingRequests} getLocalisation={getLocalisation} />
+              <ImagingRequestDetailsView
+                imagingRequests={imagingRequests}
+                getLocalisation={getLocalisation}
+              />
             </SectionContainer>
             <SectionContainer>
               <MultipleImagingRequestSigningSection />

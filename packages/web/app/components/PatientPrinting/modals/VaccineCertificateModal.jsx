@@ -46,8 +46,8 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
     [api, patient.id, printedBy],
   );
 
-  const villageName = useReferenceData(patient.villageId).data?.name;
-  const patientData = { ...patient, villageName, additionalData };
+  const village = useReferenceData(patient.villageId).data;
+  const patientData = { ...patient, village, additionalData };
 
   if (isFetching) return null;
 
