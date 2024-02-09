@@ -28,7 +28,6 @@ publicRoutes.get('/ping', (_req, res) => {
 });
 
 publicRoutes.get('/translation/preLogin', async (req, res) => {
-  console.log('holla');
   const response = await getLanguageOptions(req.models, req.headers['if-none-match']);
   if (response === NOT_MODIFIED_STATUS_CODE) {
     res.status(NOT_MODIFIED_STATUS_CODE).end();

@@ -52,8 +52,6 @@ const customStyles = {
 export const LanguageSelector = ({ field }) => {
   const api = useApi();
 
-  const isCentralServer = false; // currently only works for facility server. We need to find a way to check on login screen if it's central server or not
-
   const { data: languageOptions = [], error } = useQuery(['languageList'], () =>
     api.get('public/translation/preLogin', null),
   );
