@@ -9,8 +9,10 @@ export const LocalisedField = ({
   useShortLabel,
   path = `fields.${name}`,
   defaultLabel,
+  form,
   ...props
 }) => {
+  console.log(form);
   const { getLocalisation } = useLocalisation();
   const hidden = getLocalisation(`${path}.hidden`);
   const label =
@@ -19,6 +21,7 @@ export const LocalisedField = ({
       : getLocalisation(`${path}.longLabel`)) ||
     defaultLabel ||
     path;
+  // const defaultValue = getLocalisation(`${path}.defaultValue`);
   const required = getLocalisation(`${path}.required`) || false;
   if (hidden) {
     return null;
