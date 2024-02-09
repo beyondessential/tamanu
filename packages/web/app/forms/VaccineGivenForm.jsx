@@ -36,11 +36,9 @@ export const VACCINE_GIVEN_INITIAL_VALUES = {
 };
 
 export const VACCINE_GIVEN_VALIDATION_SCHEMA = vaccineConsentEnabled => ({
-  consent: yup.bool().when([], {
-    is: () => vaccineConsentEnabled,
-    then: yup.bool().oneOf([true], REQUIRED_INLINE_ERROR_MESSAGE),
-    otherwise: yup.bool(),
-  }),
+  consent: vaccineConsentEnabled
+    ? yup.bool().oneOf([true], REQUIRED_INLINE_ERROR_MESSAGE)
+    : yup.bool(),
   givenBy: yup.string().when('givenElsewhere', {
     is: true,
     then: yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
