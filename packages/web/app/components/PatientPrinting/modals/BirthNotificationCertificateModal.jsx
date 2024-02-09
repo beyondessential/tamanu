@@ -9,7 +9,7 @@ import { useCertificate } from '../../../utils/useCertificate';
 import { usePatientAdditionalDataQuery } from '../../../api/queries';
 import { useLocalisation } from '../../../contexts/Localisation';
 
-import { BirthNotificationCertificate } from '@tamanu/shared/utils/patientCertificates/BirthNotificationCertificate';
+import { BirthNotificationCertificate } from '@tamanu/shared/utils/patientCertificates';
 import { PDFViewer, printPDF } from '../PDFViewer';
 
 const useParent = (api, enabled, parentId) => {
