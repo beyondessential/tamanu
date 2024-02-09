@@ -20,7 +20,14 @@ export const PatientPersonalInfoScreen = ({
     <FullView background={theme.colors.BACKGROUND_GREY}>
       <StatusBar barStyle="light-content" />
       <Header onGoBack={onGoBack} />
-      <PatientSectionHeader name={<TranslatedText stringId='patient.register.heading.general' fallback='General Information' />} />
+      <PatientSectionHeader
+        name={
+          <TranslatedText
+            stringId="patient.register.heading.general"
+            fallback="General Information"
+          />
+        }
+      />
       <PatientPersonalInfoForm />
     </FullView>
   );
