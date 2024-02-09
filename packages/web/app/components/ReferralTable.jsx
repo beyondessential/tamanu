@@ -159,7 +159,7 @@ const getStatus = ({ status }) =>
       value={status}
       enumValues={REFERRAL_STATUS_LABELS}
     />
-  ) || 'Unknown';
+  ) || <TranslatedText stringId="general.fallback.unknown" fallback="Unknown" />;
 const getActions = ({ refreshTable, ...row }) => (
   <ActionDropdown refreshTable={refreshTable} row={row} />
 );
