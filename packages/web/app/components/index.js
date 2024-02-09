@@ -30,4 +30,7 @@ export * from './Typography';
 export * from './ImmunisationsTable';
 export * from './LocalisedText';
 export * from './FormSectionSeparator';
-export * from './AddReminderContactModal';
+export * from './AddReminderContactContainer';
+export * from './AddReminderQrCodeContainer';
+export * from './ReminderContactModal';
+export * from './ReminderContactListContainer';

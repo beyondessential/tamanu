@@ -24,25 +24,6 @@ const Row = styled.div`
   }
 `;
 
-const SectionRow = styled.div`
-  display: flex;
-  align-items: stretch;
-  justify-content: flex-end;
-  margin-top: 10px;
-  width: 100%;
-
-  // ensure the button row takes up the full width if it's used in a grid context
-  grid-column: 1 / -1;
-
-  div {
-    margin-top: 1px;
-  }
-
-  > div:not(:first-child) { 
-    margin-left: 20px;
-  }
-`;
-
 const ConfirmButton = styled(Button)`
   min-width: 90px;
 `;
@@ -51,12 +32,6 @@ export const ButtonRow = React.memo(({ children, ...props }) => (
   <Row items={Children.toArray(children).length || 1} {...props}>
     {children}
   </Row>
-));
-
-export const SectionButtonRow = React.memo(({ children, ...props }) => (
-  <SectionRow items={Children.toArray(children).length || 1} {...props}>
-    {children}
-  </SectionRow>
 ));
 
 export const FormSubmitCancelRow = React.memo(
@@ -116,27 +91,4 @@ export const FormConfirmCancelBackRow = ({ onBack, backButtonText = 'Back', ...p
     )}
     <FormSubmitCancelRow {...props} />
   </FlexSpaceBetween>
-);
-
-export const ConfirmCancelBackRow = React.memo(
-  ({
-    onCancel,
-    onConfirm,
-    confirmText = 'Confirm',
-    confirmColor = 'primary',
-    cancelText = 'Cancel',
-    confirmDisabled,
-    onBack,
-    backButtonText = 'Back',
-    ...props
-  }) => (
-    <SectionButtonRow {...props}>
-      {onBack && (
-        <GoBackButtonContainer>
-          <OutlinedButton onClick={onBack}>{backButtonText}</OutlinedButton>
-        </GoBackButtonContainer>
-      )}
-      <FormSubmitCancelRow confirmColor={confirmColor} confirmText={confirmText} onConfirm={onConfirm} confirmDisabled={confirmDisabled} onCancel={onCancel} cancelText={cancelText} />
-    </SectionButtonRow>
-  ),
 );
