@@ -20,16 +20,16 @@ export const MultiplePrescriptionPrintoutModal = ({
   onClose,
 }) => {
   const { getLocalisation } = useLocalisation();
-  const certificateData = useCertificate();
+  const { data: certificateData, isFetching: isCertificateFetching } = useCertificate();
   const api = useApi();
   const { facility } = useAuth();
 
-  const { data: patient, isLoading: patientLoading } = useQuery(
+  const { data: patient, isLoading: isPatientLoading } = useQuery(
     ['patient', encounter.patientId],
     () => api.get(`patient/${encounter.patientId}`),
   );
 
-  const { data: prescriber, isLoading: prescriberLoading } = useQuery(
+  const { data: prescriber, isLoading: isPrescriberLoading } = useQuery(
     ['prescriber', prescriberId],
     () => api.get(`user/${prescriberId}`),
     {
@@ -37,12 +37,12 @@ export const MultiplePrescriptionPrintoutModal = ({
     },
   );
 
-  const { data: additionalData, isLoading: additionalDataLoading } = useQuery(
+  const { data: additionalData, isLoading: isAdditionalDataLoading } = useQuery(
     ['additionalData', encounter.patientId],
     () => api.get(`patient/${encounter.patientId}/additionalData`),
   );
 
-  const { data: village = {}, isLoading: villageQueryLoading } = useQuery(
+  const { data: village = {}, isLoading: isVillageLoading } = useQuery(
     ['village', encounter.patientId],
     () => api.get(`referenceData/${encodeURIComponent(patient.villageId)}`),
     {
@@ -50,7 +50,12 @@ export const MultiplePrescriptionPrintoutModal = ({
     },
   );
 
-  const villageLoading = villageQueryLoading && !!patient?.villageId;
+  const isLoading =
+    isPatientLoading ||
+    isAdditionalDataLoading ||
+    isPrescriberLoading ||
+    (isVillageLoading && !!patient?.villageId) ||
+    isCertificateFetching;
 
   return (
     <Modal
@@ -62,7 +67,7 @@ export const MultiplePrescriptionPrintoutModal = ({
       printable
       onPrint={() => printPDF('prescription-printout')}
     >
-      {patientLoading || additionalDataLoading || villageLoading || prescriberLoading ? (
+      {isLoading ? (
         <LoadingIndicator />
       ) : (
         <PDFViewer id="prescription-printout">
