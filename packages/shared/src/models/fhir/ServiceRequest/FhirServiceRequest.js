@@ -34,6 +34,7 @@ export class FhirServiceRequest extends FhirResource {
         requester: DataTypes.JSONB,
         locationCode: DataTypes.JSONB,
         note: DataTypes.JSONB,
+        specimen: DataTypes.JSONB,
       },
       options,
     );
