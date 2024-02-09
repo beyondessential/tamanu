@@ -67,6 +67,6 @@ export async function down(query) {
       CALL fhir.service_requests_resolve_upstream_practitioner();
     $$
 `);
-  await query.sequelize.query('DROP PROCEDURE fhir.service_requests_resolve_upstream_specimen');
-  await query.sequelize.query('DROP PROCEDURE fhir.service_requests_resolve_upstream_specimen');
+  await query.sequelize.query('DROP PROCEDURE fhir.specimen_resolve_upstream_service_request');
+  await query.sequelize.query('DROP PROCEDURE fhir.specimen_resolve_upstream_practitioner');
 }

@@ -36,14 +36,6 @@ export async function up(query) {
       type: DataTypes.JSONB,
       allowNull: true,
     },
-    // request: {
-    //   type: Sequelize.UUID,
-    //   allowNull: false,
-    //   references: {
-    //     model: { schema: 'fhir', tableName: 'service_requests' },
-    //     key: 'id',
-    //   },
-    // },
     type: {
       type: DataTypes.JSONB,
       allowNull: true,
@@ -53,10 +45,10 @@ export async function up(query) {
   await query.addIndex(TABLE, ['id', 'version_id']);
   await query.addIndex(TABLE, ['upstream_id'], { unique: true });
 
-  // await query.sequelize.query(`
-  //   CREATE TRIGGER versioning BEFORE UPDATE ON fhir.${TABLE.tableName}
-  //   FOR EACH ROW EXECUTE FUNCTION fhir.trigger_versioning()
-  // `);
+  await query.sequelize.query(`
+    CREATE TRIGGER versioning BEFORE UPDATE ON fhir.${TABLE.tableName}
+    FOR EACH ROW EXECUTE FUNCTION fhir.trigger_versioning()
+  `);
 }
 
 export async function down(query) {
