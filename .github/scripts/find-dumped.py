@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import argparse
 from gql import gql, Client
 from gql.transport.httpx import HTTPXTransport
