@@ -19,6 +19,7 @@ import { PatientSearchProvider } from './contexts/PatientSearch';
 import { EncounterNotesProvider } from './contexts/EncounterNotes';
 import { SyncStateProvider } from './contexts/SyncState';
 import { TranslationProvider } from './contexts/Translation';
+import { LocalisationProvider } from './contexts/Localisation';
 
 const StateContextProviders = ({ children, store }) => (
   <EncounterProvider store={store}>
@@ -28,7 +29,9 @@ const StateContextProviders = ({ children, store }) => (
           <LabRequestProvider store={store}>
             <PatientSearchProvider>
               <SyncStateProvider>
-                <TranslationProvider>{children}</TranslationProvider>
+                <TranslationProvider>
+                  <LocalisationProvider store={store}>{children}</LocalisationProvider>
+                </TranslationProvider>
               </SyncStateProvider>
             </PatientSearchProvider>
           </LabRequestProvider>
