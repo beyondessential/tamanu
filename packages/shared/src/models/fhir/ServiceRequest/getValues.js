@@ -146,12 +146,10 @@ async function getValuesFromLabRequest(upstream) {
       reference: upstream.requestedBy.id,
     }),
     note: labAnnotations(upstream),
-    specimen: [
-      new FhirReference({
+    specimen: new FhirReference({
         type: 'upstream://specimen',
         reference: upstream.id,
-      })
-    ],
+      }),
   };
 }
 
