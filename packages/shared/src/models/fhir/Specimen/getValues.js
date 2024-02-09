@@ -5,12 +5,12 @@ import { FhirReference, FhirCoding, FhirCodeableConcept } from '../../../service
 export async function getValues(upstream, models) {
   const { LabRequest } = models;
 
-  if (upstream instanceof LabRequest) return getValuesFromLabRequest(upstream);
+  if (upstream instanceof LabRequest) return getValuesFromLabRequest(upstream, models);
   throw new Error(`Invalid upstream type for specimen ${upstream.constructor.name}`);
 }
 
-async function getValuesFromLabRequest(upstream) {
-  console.log({ upstream });
+async function getValuesFromLabRequest(upstream, models) {
+
   return {
     lastUpdated: new Date(),
     sampleTime: upstream.sampleTime,
@@ -18,7 +18,7 @@ async function getValuesFromLabRequest(upstream) {
       collectedDateTime: upstream.sampleTime,
       collector: collectorRef(upstream),
     },
-    type: sampleType(upstream),
+    type: await resolveSpecimenType(upstream, models),
     request: requestRef(upstream),
   };
 }
@@ -37,18 +37,24 @@ function collectorRef(labRequest) {
   });
 }
 
-function sampleType(labRequest) {
-  if (!labRequest.sampleId) return [];
-
-  return [
-    new FhirCodeableConcept({
+async function resolveSpecimenType(upstream, models) {
+  const { ReferenceData } = models;
+  const { specimenTypeId } = upstream;
+  
+  const specimenType = await ReferenceData.findOne({
+    where: {
+      id: specimenTypeId,
+    }
+  });
+  if (!specimenType) return [];
+  console.log({ specimenType });
+  return new FhirCodeableConcept({
       coding: [
         new FhirCoding({
           system: config.hl7.dataDictionaries.specimenType,
-          code: labRequest.sampleId, // Todo: map to external code
-          display: null,
+          code: specimenType.code,
+          display: specimenType.name,
         }),
       ],
-    }),
-  ];
+    });
 }
