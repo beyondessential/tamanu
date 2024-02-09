@@ -21,6 +21,7 @@ import { ConfirmModal } from './ConfirmModal';
 import { DropdownButton } from './DropdownButton';
 import { DateDisplay } from './DateDisplay';
 import { TranslatedText } from './Translation/TranslatedText';
+import { TranslatedEnum } from './Translation/TranslatedEnum.jsx';
 
 const InvoiceLineDetail = styled.p`
   font-size: 15px;
@@ -188,7 +189,14 @@ const getInvoicePriceChangeCode = row => {
 const getInvoiceLineCategory = row => {
   const { name } = row.invoiceLineType;
   const { itemType } = row.invoiceLineType;
-  const category = INVOICE_LINE_TYPE_LABELS[itemType] || 'Unknown';
+  const category =
+    (
+      <TranslatedEnum
+        prefix="invoice.line.property.type"
+        value={itemType}
+        enumValues={INVOICE_LINE_TYPE_LABELS}
+      />
+    ) || 'Unknown';
   return (
     <>
       <p>{category}</p>
@@ -202,7 +210,14 @@ const getInvoicePriceChangeCategory = row => {
   if (row.invoicePriceChangeType) {
     name = row.invoicePriceChangeType.name;
     const { itemType } = row.invoicePriceChangeType;
-    category = INVOICE_PRICE_CHANGE_TYPE_LABELS[itemType] || 'Unknown';
+    category =
+      (
+        <TranslatedEnum
+          prefix="invoice.priceChange.property.type"
+          value={itemType}
+          enumValues={INVOICE_PRICE_CHANGE_TYPE_LABELS}
+        />
+      ) || 'Unknown';
   } else {
     name = row.description;
     category = 'Additional';

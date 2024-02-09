@@ -29,7 +29,7 @@ export const NoteChangelogForm = ({ note, onCancel }) => {
         numberOfColumns={3}
         noteType={
           <TranslatedEnum
-            prefix="note.property.type.label"
+            prefix="note.property.type"
             value={note.noteType}
             enumValues={NOTE_TYPE_LABELS}
           />

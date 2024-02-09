@@ -155,7 +155,7 @@ const getReferralBy = ({ surveyResponse }) => <ReferralBy surveyResponse={survey
 const getStatus = ({ status }) =>
   (
     <TranslatedEnum
-      prefix="referral.property.status.label"
+      prefix="referral.property.status"
       value={status}
       enumValues={REFERRAL_STATUS_LABELS}
     />

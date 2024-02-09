@@ -172,13 +172,10 @@ const NoteContent = ({
   return (
     <NoteRowContainer>
       {isNotFilteredByNoteType && (
-        // <NoteHeaderContainer>
-        //   <NoteHeaderText>{NOTE_TYPE_LABELS[note.noteType]}</NoteHeaderText>
-        // </NoteHeaderContainer>
         <NoteHeaderContainer>
           <NoteHeaderText>
             <TranslatedEnum
-              prefix="note.property.type.label"
+              prefix="note.property.type"
               value={note.noteType}
               enumValues={NOTE_TYPE_LABELS}
             />
