@@ -62,7 +62,8 @@ jobs:
 
       - id: commit-finder
         run: |
-          commit=.github/scripts/find-dumped.py --github-token ${{ github.token }} --branch ${{ github.head_ref || github.ref_name }}
+          commit=$(.github/scripts/find-dumped.py --github-token ${{ github.token }} --branch ${{ github.head_ref || github.ref_name }})
+          (( $? == 0 )) || exit 1
           echo "commit=$commit" >> $GITHUB_OUTPUT
 
       - run: aws s3 cp s3://bes-tamanu-test-data-snapshots/${{ steps.commit-finder.outputs.commit }}/fake-pg${{ matrix.postgres }}.dump ./ --no-progress
