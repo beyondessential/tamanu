@@ -10,6 +10,7 @@ import { useApi } from '../api';
 
 import { DateDisplay } from './DateDisplay';
 import { Modal } from './Modal';
+import { TranslatedEnum } from './Translation/TranslatedEnum.jsx';
 
 const Container = styled.div`
   display: flex;
@@ -137,7 +138,15 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
     disease: { label: 'Disease', value: disease || '-' },
     status: {
       label: 'Status',
-      value: givenElsewhere ? 'Given elsewhere' : VACCINE_STATUS_LABELS[status] || '-',
+      value: givenElsewhere
+        ? 'Given elsewhere'
+        : (
+            <TranslatedEnum
+              prefix="vaccine.property.status"
+              value={status}
+              enumValues={VACCINE_STATUS_LABELS}
+            />
+          ) || '-',
     },
     country: { label: 'Country', value: givenBy || '-' },
     reason: { label: 'Reason', value: notGivenReason?.name || '-' },

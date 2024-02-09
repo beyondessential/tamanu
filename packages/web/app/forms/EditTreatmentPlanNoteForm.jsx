@@ -14,6 +14,7 @@ import {
   WrittenByText,
 } from '../components/NoteCommonFields';
 import { TranslatedText } from '../components/Translation/TranslatedText';
+import { TranslatedEnum } from '../components/Translation/TranslatedEnum.jsx';
 
 const StyledFormGrid = styled(FormGrid)`
   width: 700px;
@@ -32,34 +33,48 @@ export const EditTreatmentPlanNoteForm = ({ note, onNoteContentChange, onSubmit,
     <>
       <NoteInfoSection
         numberOfColumns={3}
-        noteType={NOTE_TYPE_LABELS[note.noteType]}
-        writtenByLabel={<TranslatedText
-          stringId="treatmentPlan.note.form.lastUpdatedBy.label"
-          fallback="Last updated by (or on behalf of)"
-        />}
+        noteType={
+          <TranslatedEnum
+            prefix="note.property.type"
+            value={note.noteType}
+            enumValues={NOTE_TYPE_LABELS}
+          />
+        }
+        writtenByLabel={
+          <TranslatedText
+            stringId="treatmentPlan.note.form.lastUpdatedBy.label"
+            fallback="Last updated by (or on behalf of)"
+          />
+        }
         writtenBy={writtenBy}
-        dateLabel={<TranslatedText
-          stringId="treatmentPlan.note.form.lastUpdatedAt.label"
-          fallback="Last updated at date & time"
-        />}
+        dateLabel={
+          <TranslatedText
+            stringId="treatmentPlan.note.form.lastUpdatedAt.label"
+            fallback="Last updated at date & time"
+          />
+        }
         date={note.date}
       />
       <StyledFormGrid columns={2}>
         <WrittenByField
-          label={<TranslatedText
-            stringId="treatmentPlan.note.form.updatedBy.label"
-            fallback="Updated by (or on behalf of)"
-          />}
+          label={
+            <TranslatedText
+              stringId="treatmentPlan.note.form.updatedBy.label"
+              fallback="Updated by (or on behalf of)"
+            />
+          }
           required
         />
         <NoteDateTimeField required />
       </StyledFormGrid>
 
       <NoteContentField
-        label={<TranslatedText
-          stringId="treatmentPlan.note.form.updateTreatmentPlan.label"
-          fallback="Update treatment plan"
-        />}
+        label={
+          <TranslatedText
+            stringId="treatmentPlan.note.form.updateTreatmentPlan.label"
+            fallback="Update treatment plan"
+          />
+        }
         onChange={onNoteContentChange}
       />
       <StyledDivider />

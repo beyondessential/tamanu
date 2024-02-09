@@ -10,6 +10,7 @@ import {
   WrittenByText,
 } from '../components/NoteCommonFields';
 import { TranslatedText } from '../components/Translation/TranslatedText';
+import { TranslatedEnum } from '../components/Translation/TranslatedEnum.jsx';
 
 export const EditNoteForm = ({ note, onNoteContentChange, onSubmit, onCancel }) => {
   const noteAuthorName = note.revisedBy
@@ -26,12 +27,20 @@ export const EditNoteForm = ({ note, onNoteContentChange, onSubmit, onCancel }) 
     <>
       <NoteInfoSection
         numberOfColumns={3}
-        noteType={NOTE_TYPE_LABELS[note.noteType]}
+        noteType={
+          <TranslatedEnum
+            prefix="note.property.type"
+            value={note.noteType}
+            enumValues={NOTE_TYPE_LABELS}
+          />
+        }
         date={note.revisedBy ? note.revisedBy.date : note.date}
-        writtenByLabel={<TranslatedText
-          stringId="note.form.writtenBy.label"
-          fallback="Written by (or on behalf of)"
-        />}
+        writtenByLabel={
+          <TranslatedText
+            stringId="note.form.writtenBy.label"
+            fallback="Written by (or on behalf of)"
+          />
+        }
         writtenBy={writtenBy}
         dateLabel={<TranslatedText stringId="note.form.dateTime.label" fallback="Date & time" />}
       />
