@@ -47,7 +47,6 @@ async function resolveSpecimenType(upstream, models) {
     }
   });
   if (!specimenType) return [];
-  console.log({ specimenType });
   return new FhirCodeableConcept({
       coding: [
         new FhirCoding({
