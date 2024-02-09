@@ -61,7 +61,9 @@ jobs:
       - run: python3 -m pip install gql boto3 httpx
 
       - id: commit-finder
-        run: echo "commit=$(python3 .github/scripts/find-dumped.py --github-token ${{ github.token }} --branch ${{ github.ref_name }})" >> $GITHUB_OUTPUT
+        run: |
+          commit=python3 .github/scripts/find-dumped.py --github-token ${{ github.token }} --branch ${{ github.ref_name }})
+          echo "commit=$commit" >> $GITHUB_OUTPUT
 
       - run: aws s3 cp s3://bes-tamanu-test-data-snapshots/${{ steps.commit-finder.outputs.commit }}/fake-pg${{ matrix.postgres }}.dump ./ --no-progress
 
