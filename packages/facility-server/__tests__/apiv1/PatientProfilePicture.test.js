@@ -62,7 +62,7 @@ describe('Patient profile picture', () => {
     const patient = await models.Patient.create(await createDummyPatient(models));
     await uploadDummyProfilePicture(models, patient.id);
 
-    const result = await app.get(`/v1/patient/${patient.id}/profilePicture`);
+    const result = await app.get(`/api/patient/${patient.id}/profilePicture`);
     expect(result).toHaveSucceeded();
 
     expect(result.body).toHaveProperty('data');
@@ -72,7 +72,7 @@ describe('Patient profile picture', () => {
   it('should send a placeholder picture when no real one is available', async () => {
     const otherPatient = await models.Patient.create(await createDummyPatient(models));
 
-    const result = await app.get(`/v1/patient/${otherPatient.id}/profilePicture`);
+    const result = await app.get(`/api/patient/${otherPatient.id}/profilePicture`);
     expect(result).toHaveRequestError();
   });
 });

@@ -41,7 +41,7 @@ describe('Triage', () => {
 
   it('should admit a patient to triage', async () => {
     const encounterPatient = await models.Patient.create(await createDummyPatient(models));
-    const response = await app.post('/v1/triage').send(
+    const response = await app.post('/api/triage').send(
       await createDummyTriage(models, {
         patientId: encounterPatient.id,
         departmentId: await randomRecordId(models, 'Department'),
@@ -63,7 +63,7 @@ describe('Triage', () => {
       name: 'Test arrival mode',
     });
     const encounterPatient = await models.Patient.create(await createDummyPatient(models));
-    const response = await app.post('/v1/triage').send(
+    const response = await app.post('/api/triage').send(
       await createDummyTriage(models, {
         patientId: encounterPatient.id,
         departmentId: await randomRecordId(models, 'Department'),
@@ -91,7 +91,7 @@ describe('Triage', () => {
 
     expect(encounter.endDate).toBeFalsy();
 
-    const response = await app.post('/v1/triage').send(
+    const response = await app.post('/api/triage').send(
       await createDummyTriage(models, {
         patientId: encounterPatient.id,
         departmentId: await randomRecordId(models, 'Department'),
@@ -111,7 +111,7 @@ describe('Triage', () => {
 
     expect(encounter.endDate).toBeTruthy();
 
-    const response = await app.post('/v1/triage').send(
+    const response = await app.post('/api/triage').send(
       await createDummyTriage(models, {
         patientId: encounterPatient.id,
         departmentId: await randomRecordId(models, 'Department'),
@@ -131,7 +131,7 @@ describe('Triage', () => {
     const createdEncounter = await models.Encounter.findByPk(createdTriage.encounterId);
     expect(createdEncounter).toBeTruthy();
 
-    const progressResponse = await app.put(`/v1/encounter/${createdEncounter.id}`).send({
+    const progressResponse = await app.put(`/api/encounter/${createdEncounter.id}`).send({
       encounterType: ENCOUNTER_TYPES.EMERGENCY,
       submittedTime: getCurrentDateTimeString(),
     });
@@ -151,7 +151,7 @@ describe('Triage', () => {
     const createdEncounter = await models.Encounter.findByPk(createdTriage.encounterId);
     expect(createdEncounter).toBeTruthy();
 
-    const progressResponse = await app.put(`/v1/encounter/${createdEncounter.id}`).send({
+    const progressResponse = await app.put(`/api/encounter/${createdEncounter.id}`).send({
       endDate: Date.now(),
     });
     expect(progressResponse).toHaveSucceeded();
@@ -174,7 +174,7 @@ describe('Triage', () => {
     const DATE_2 = '2023-01-01 10:30:00';
 
     // progress encounter once (which should update the triage)
-    const progressResponse = await app.put(`/v1/encounter/${createdEncounter.id}`).send({
+    const progressResponse = await app.put(`/api/encounter/${createdEncounter.id}`).send({
       encounterType: ENCOUNTER_TYPES.EMERGENCY,
       submittedTime: DATE_1,
     });
@@ -183,7 +183,7 @@ describe('Triage', () => {
     expect(updatedTriage.closedTime).toEqual(DATE_1);
 
     // and again (which should NOT update the triage)
-    const progressResponse2 = await app.put(`/v1/encounter/${createdEncounter.id}`).send({
+    const progressResponse2 = await app.put(`/api/encounter/${createdEncounter.id}`).send({
       encounterType: ENCOUNTER_TYPES.ADMISSION,
       submittedTime: DATE_2,
     });
@@ -313,7 +313,7 @@ describe('Triage', () => {
     });
 
     it('should get a list of triages ordered by score and arrival time', async () => {
-      const response = await app.get('/v1/triage');
+      const response = await app.get('/api/triage');
       const results = response.body;
       expect(results.count).toEqual(5);
       // Test Score
@@ -334,7 +334,7 @@ describe('Triage', () => {
         reasonForEncounter: 'Test include short stay',
         encounterType: ENCOUNTER_TYPES.EMERGENCY,
       });
-      const response = await app.get('/v1/triage');
+      const response = await app.get('/api/triage');
 
       expect(response.body.data.some(b => b.encounterId === createdEncounter.id)).toEqual(true);
     });
