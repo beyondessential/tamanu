@@ -18,6 +18,7 @@ import {
 import { FileChooserField } from '../../../components/Field/FileChooserField';
 import { ReportSelectField } from './ReportsSelectFields';
 import { Colors } from '../../../constants';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const InnerContainer = styled.div`
   padding: 20px;
@@ -46,18 +47,37 @@ const schema = yup.object().shape({
 
 const ImportFeedback = ({ feedback }) => (
   <Alert>
-    <Heading4 mb={1}>{feedback.dryRun ? 'Dry Run' : 'Successfully imported'}</Heading4>
+    <Heading4 mb={1}>
+      {feedback.dryRun ? (
+        <TranslatedText stringId="reportImport.message.dryRun" fallback="Dry run" />
+      ) : (
+        <TranslatedText stringId="reportImport.message.success" fallback="Successfully imported" />
+      )}
+    </Heading4>
     <BodyText mb={1}>
-      {feedback.createdDefinition ? 'Created new' : 'Updated existing'} definition:{' '}
+      {feedback.createdDefinition ? (
+        <TranslatedText stringId="reportImport.message.createNew" fallback="Created new" />
+      ) : (
+        <TranslatedText
+          stringId="reportImport.message.updatedExisting"
+          fallback="Updated existing"
+        />
+      )}{' '}
+      <TranslatedText stringId="reportImport.message.definition" fallback="Definition" />:{' '}
       <b>{feedback.name}</b>
     </BodyText>
     {feedback.reportDefinitionId && (
       <BodyText mb={1}>
-        Report id: <b>{feedback.reportDefinitionId}</b>
+        <TranslatedText stringId="reportImport.message.reportId" fallback="report id" />:{' '}
+        <b>{feedback.reportDefinitionId}</b>
       </BodyText>
     )}
     <BodyText>
-      created new version: <b>{feedback.versionNumber}</b>
+      <TranslatedText
+        stringId="reportImport.message.createdNewVersion"
+        fallback="created new version"
+      />
+      : <b>{feedback.versionNumber}</b>
     </BodyText>
   </Alert>
 );
@@ -74,7 +94,9 @@ const ImportForm = ({ isSubmitting, setFieldValue, feedback, values = {} }) => {
       <FormContainer columns={1}>
         <Field
           required
-          label="Report Name"
+          label={
+            <TranslatedText stringId="reportImport.form.reportName.label" fallback="Report name" />
+          }
           name="name"
           onChange={handleNameChange}
           component={TextField}
@@ -83,21 +105,27 @@ const ImportForm = ({ isSubmitting, setFieldValue, feedback, values = {} }) => {
         <Field
           component={ReportSelectField}
           required
-          label="Report"
+          label={<TranslatedText stringId="reportImport.form.report.label" fallback="Report" />}
           name="reportDefinitionId"
           includeNameChangeEvent
           placeholder="Select a report definition"
         />
         <Field
-          label="Report JSON"
+          label={
+            <TranslatedText stringId="reportImport.form.reportJson.label" fallback="Report JSON" />
+          }
           name="file"
           component={StyledFileChooserField}
           filters={[{ name: 'JSON (.json)', extensions: ['json'] }]}
         />
-        <Field label="Dry Run" name="dryRun" component={CheckField} />
+        <Field
+          label={<TranslatedText stringId="reportImport.form.dryRun.label" fallback="Dry run" />}
+          name="dryRun"
+          component={CheckField}
+        />
       </FormContainer>
       <StyledButton type="submit" isSubmitting={isSubmitting}>
-        Import
+        <TranslatedText stringId="generic.action.import" fallback="Import" />
       </StyledButton>
       {feedback && <ImportFeedback name={values.name} dryRun={values.dryRun} feedback={feedback} />}
     </InnerContainer>

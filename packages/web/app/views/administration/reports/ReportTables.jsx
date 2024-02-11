@@ -6,6 +6,7 @@ import { Table } from '../../../components/Table';
 import { Colors } from '../../../constants';
 import { StatusTag } from '../../../components/Tag';
 import { useTableSorting } from '../../../components/Table/useTableSorting';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const STATUS_CONFIG = {
   [REPORT_STATUSES.DRAFT]: {
@@ -67,16 +68,16 @@ export const ReportTable = React.memo(({ data, selected, onRowClick, loading, er
       })}
       columns={[
         {
-          title: 'Name',
+          title: <TranslatedText stringId="reportList.table.column.name" fallback="Name" />,
           key: 'name',
         },
         {
-          title: 'Last updated',
+          title: <TranslatedText stringId="reportList.table.column.lastUpdated" fallback="Last updated" />,
           key: 'lastUpdated',
           accessor: ({ lastUpdated }) => getDateTime(lastUpdated),
         },
         {
-          title: 'Version count',
+          title: <TranslatedText stringId="reportList.table.column.versionCount" fallback="Version count" />,
           key: 'versionCount',
           numeric: true,
         },

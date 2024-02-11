@@ -8,6 +8,7 @@ import { ReportSelectField, VersionSelectField } from './ReportsSelectFields';
 import { Colors } from '../../../constants';
 import { saveFile } from '../../../utils/fileSystemAccess';
 import { useApi } from '../../../api/useApi';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const StyledButton = styled(OutlinedButton)`
   margin-top: 30px;
@@ -59,7 +60,7 @@ export const ExportReportView = () => {
             <Field
               component={ReportSelectField}
               required
-              label="Report"
+              label={<TranslatedText stringId="reportExport.form.report.label" fallback="Report" />}
               name="reportId"
               placeholder="Select a report definition"
             />
@@ -67,15 +68,15 @@ export const ExportReportView = () => {
               <Field
                 component={VersionSelectField}
                 required
-                label="Version"
+                label={<TranslatedText stringId="reportExport.form.version.label" fallback="Version" />}
                 name="versionId"
                 placeholder="Select a report version"
-              />
+            />
             )}
             {values.versionId && (
               <Field
                 component={RadioField}
-                label="Format"
+                label={<TranslatedText stringId="reportExport.form.format.label" fallback="Format" />}
                 name="format"
                 options={Object.entries(REPORT_VERSION_EXPORT_FORMATS).map(([label, value]) => ({
                   label,
@@ -85,7 +86,7 @@ export const ExportReportView = () => {
             )}
           </FormGrid>
           <StyledButton type="submit" isSubmitting={isSubmitting}>
-            Export
+            <TranslatedText stringId="general.action.export" fallback="Export" />
           </StyledButton>
         </InnerContainer>
       )}
