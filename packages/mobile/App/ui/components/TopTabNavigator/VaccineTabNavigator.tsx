@@ -1,20 +1,20 @@
 import React, { ComponentType, FunctionComponent } from 'react';
 import { Dimensions, StyleSheet } from 'react-native';
 import {
-  TabView,
-  SceneMap,
-  TabBar,
-  SceneRendererProps,
   NavigationState,
   Route,
+  SceneMap,
+  SceneRendererProps,
+  TabBar,
+  TabView,
 } from 'react-native-tab-view';
 import { SvgProps } from 'react-native-svg';
 import { theme } from '/styled/theme';
-import { StyledView, StyledText } from '/styled/common';
+import { StyledText, StyledView } from '/styled/common';
 import * as Icons from '../Icons';
 import { IconWithSizeProps } from '/interfaces/WithSizeProps';
 import { VaccineDataProps } from '../VaccineCard';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
 
 type CustomRoute = Route & {
   icon: FunctionComponent<SvgProps>;
@@ -104,7 +104,7 @@ const renderTabBar = (props: TabBarProps): JSX.Element => (
   <CustomTabBar {...props} />
 );
 
-interface VaccineTabNavigator {
+interface VaccineTabNavigatorProps {
   state: any;
   scenes: {
     [key: string]: ComponentType<SceneRendererProps & { route: CustomRoute }>;
@@ -119,7 +119,7 @@ const TabViewStyle = StyleSheet.create({
 });
 
 export const VaccineTabNavigator = React.memo(
-  ({ state, scenes, onChangeTab }: VaccineTabNavigator): JSX.Element => (
+  ({ state, scenes, onChangeTab }: VaccineTabNavigatorProps): JSX.Element => (
     <TabView
       navigationState={state}
       renderScene={SceneMap(scenes)}

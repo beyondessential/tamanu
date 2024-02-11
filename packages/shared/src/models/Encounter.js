@@ -2,11 +2,11 @@ import { Sequelize } from 'sequelize';
 import { endOfDay, isBefore, parseISO, startOfToday } from 'date-fns';
 
 import {
-  ENCOUNTER_TYPES,
   ENCOUNTER_TYPE_VALUES,
+  ENCOUNTER_TYPES,
+  EncounterChangeType,
   NOTE_TYPES,
   SYNC_DIRECTIONS,
-  EncounterChangeType,
 } from '@tamanu/constants';
 import { InvalidOperationError } from '../errors';
 import { dateTimeType } from './dateTimeTypes';
@@ -14,7 +14,6 @@ import { dateTimeType } from './dateTimeTypes';
 import { Model } from './Model';
 import { onSaveMarkPatientForSync } from './onSaveMarkPatientForSync';
 import { dischargeOutpatientEncounters } from '../utils/dischargeOutpatientEncounters';
-import { getCurrentDateTimeString } from '../utils/dateTime';
 
 export class Encounter extends Model {
   static init({ primaryKey, hackToSkipEncounterValidation, ...options }) {
@@ -321,7 +320,7 @@ export class Encounter extends Model {
     const { EncounterHistory } = this.sequelize.models;
     await EncounterHistory.createSnapshot(encounter, {
       actorId: actorId || encounter.examinerId,
-      submittedTime: getCurrentDateTimeString(),
+      submittedTime: encounter.startDate,
     });
 
     return encounter;
@@ -530,7 +529,7 @@ export class Encounter extends Model {
         await EncounterHistory.createSnapshot(updatedEncounter, {
           actorId: user?.id,
           changeType,
-          submittedTime: data.submittedTime,
+          submittedTime,
         });
       }
 

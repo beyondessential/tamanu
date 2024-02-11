@@ -1,15 +1,16 @@
-// Much of this file is duplicated in `packages/desktop/app/utils/survey.js`
+// Much of this file is duplicated in `packages/web/app/utils/survey.js`
 import * as Yup from 'yup';
 
+import { READONLY_DATA_FIELDS } from '~/constants';
 import { getAgeFromDate, getAgeWithMonthsFromDate } from '~/ui/helpers/date';
-import { FieldTypes, checkMandatory } from '~/ui/helpers/fields';
+import { getPatientDataDbLocation, checkMandatory, FieldTypes } from '~/ui/helpers/fields';
 import { joinNames } from '~/ui/helpers/user';
 import {
   IPatient,
+  IPatientAdditionalData,
   ISurveyScreenComponent,
   IUser,
   SurveyScreenValidationCriteria,
-  IPatientAdditionalData,
 } from '~/types';
 
 function getInitialValue(dataElement): string {
@@ -29,22 +30,30 @@ function transformPatientData(
   additionalData: IPatientAdditionalData | null,
   config,
 ): string | undefined | null {
-  const { writeToPatient = {}, column = 'fullName' } = config;
-  const { isAdditionalDataField = false } = writeToPatient;
+  const { column = 'fullName' } = config;
   const { dateOfBirth, firstName, lastName } = patient;
 
   switch (column) {
-    case 'age':
+    case READONLY_DATA_FIELDS.AGE:
       return getAgeFromDate(dateOfBirth).toString();
-    case 'ageWithMonths':
+    case READONLY_DATA_FIELDS.AGE_WITH_MONTHS:
       return getAgeWithMonthsFromDate(dateOfBirth);
-    case 'fullName':
+    case READONLY_DATA_FIELDS.FULL_NAME:
       return joinNames({ firstName, lastName });
-    default:
-      if (isAdditionalDataField) {
-        return additionalData ? additionalData[column] : undefined;
+    default: {
+      const { modelName, fieldName } = getPatientDataDbLocation(column);
+      switch (modelName) {
+        case 'Patient':
+          return patient[fieldName];
+        case 'PatientAdditionalData':
+          return additionalData ? additionalData[fieldName] : undefined;
+        case 'PatientProgramRegistration':
+          // PatientProgramRegistrations are not implemented on mobile yet
+          return undefined;
+        default:
+          return undefined;
       }
-      return patient[column];
+    }
   }
 }
 

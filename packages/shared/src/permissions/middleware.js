@@ -1,4 +1,4 @@
-import { ForbiddenError, BadAuthenticationError } from '../errors';
+import { BadAuthenticationError, ForbiddenError } from '../errors';
 import { getAbilityForUser, getPermissionsForRoles } from './rolesToPermissions';
 
 // copied from casl source as it's not exported directly
@@ -18,6 +18,7 @@ function getSubjectName(subject) {
 
 export async function constructPermission(req, res, next) {
   try {
+    // eslint-disable-next-line require-atomic-updates
     req.ability = await getAbilityForUser(req.models, req.user);
     next();
   } catch (e) {
