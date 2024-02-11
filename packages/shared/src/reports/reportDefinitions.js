@@ -1,5 +1,3 @@
-import React from 'react';
-
 import {
   APPOINTMENT_STATUSES,
   IMAGING_REQUEST_STATUS_CONFIG,
