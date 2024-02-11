@@ -1,18 +1,17 @@
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
-import { useDispatch, useSelector } from 'react-redux';
-import { push } from 'connected-react-router';
 import { Box, Button, Divider, IconButton, List, Typography } from '@material-ui/core';
 import { Launch, NavigateBefore, NavigateNext } from '@material-ui/icons';
-
+import { useDispatch, useSelector } from 'react-redux';
+import { push } from 'connected-react-router';
 import { TamanuLogoWhite, TamanuLogoWhiteNoText } from '../TamanuLogo';
+import { getCurrentRoute } from '../../store/router';
 import { Colors } from '../../constants';
 import { Translated } from '../Translated';
 import { HiddenSyncAvatar } from '../HiddenSyncAvatar';
 import { TopLevelSidebarItem } from './TopLevelSidebarItem';
 import { PrimarySidebarItem } from './PrimarySidebarItem';
 import { SecondarySidebarItem } from './SecondarySidebarItem';
-import { getCurrentRoute } from '../../store/router';
 import { checkAbility } from '../../utils/ability';
 import { useAuth } from '../../contexts/Auth';
 import { useApi } from '../../api';
@@ -209,20 +208,14 @@ const tempLocalisation = {
   },
 };
 
-export const Sidebar = React.memo(({ items }) => {
-  const [selectedParentItem, setSelectedParentItem] = useState('');
-  const [isRetracted, setIsRetracted] = useState(false);
-  const { appVersion } = useApi();
-  const { facility, centralHost, currentUser, onLogout, currentRole } = useAuth();
-  const currentPath = useSelector(getCurrentRoute);
-  const dispatch = useDispatch();
+const useSidebarItems = items => {
   const { getLocalisation } = useLocalisation();
-
   // const sidebarConfig = getLocalisation('sidebar');
+  const sidebarConfig = tempLocalisation;
 
-  const localisedItems = items
+  return items
     .map(item => {
-      const localisedItem = tempLocalisation[item.key];
+      const localisedItem = sidebarConfig[item.key];
       const hidden = localisedItem?.hidden !== undefined ? localisedItem.hidden : false;
       const sort = localisedItem?.sort !== undefined ? localisedItem.sort : 0;
       return { ...item, hidden, sort };
@@ -235,6 +228,17 @@ export const Sidebar = React.memo(({ items }) => {
       }
       return a.sort - b.sort;
     });
+};
+export const Sidebar = React.memo(({ items }) => {
+  const [selectedParentItem, setSelectedParentItem] = useState('');
+  const [isRetracted, setIsRetracted] = useState(false);
+  const { appVersion } = useApi();
+  const { facility, centralHost, currentUser, onLogout, currentRole } = useAuth();
+  const currentPath = useSelector(getCurrentRoute);
+  const dispatch = useDispatch();
+
+  const { getLocalisation } = useLocalisation();
+  const localisedItems = useSidebarItems(items);
 
   const extendSidebar = () => setIsRetracted(false);
 
