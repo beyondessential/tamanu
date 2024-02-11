@@ -1,0 +1,71 @@
+name: Test Migrations for Determinism
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches:
+      - main
+      - release/*
+
+env:
+  NODE_OPTIONS: "--max-old-space-size=6144"
+  NODE_ENV: test
+  NODE_MODULES_PATHS: |
+    node_modules
+    packages/*/node_modules
+    !packages/mobile/node_modules
+
+jobs:
+  test-for-non-determinism:
+    permissions:
+      id-token: write # allow accessing OIDC token for AWS
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        postgres:
+          - "12"
+          - "14"
+          - "15"
+          - "16"
+    name: Test Migrations for Determinism on pg${{ matrix.postgres }}
+    runs-on: ubuntu-latest
+    env:
+      ARTIFACT_NAME: fake-pg${{ matrix.postgres }}
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          aws-region: ap-southeast-2
+          role-to-assume: arn:aws:iam::143295493206:role/gha-tamanu-test-data-snapshots-s3
+          role-session-name: GHA@fake=generate
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: yarn
+      - uses: actions/cache/restore@v3
+        with:
+          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+          path: ${{ env.NODE_MODULES_PATHS }}
+
+      - run: yarn
+      - run: yarn build-shared
+
+      - name: Install and start postgres ${{ matrix.postgres }}
+        run: |
+          source .github/scripts/install-postgres-ubuntu.sh ${{ matrix.postgres }}
+          .github/scripts/setup-postgres-for-one-package.sh fake
+
+      - run: python3 -m pip install gql boto3 httpx
+
+      - id: commit-finder
+        run: |
+          commit=$(.github/scripts/find-dumped.py --github-token ${{ github.token }} --branch ${{ github.head_ref || github.ref_name }})
+          (( $? == 0 )) || exit 1
+          echo "commit=$commit" >> $GITHUB_OUTPUT
+
+      - run: aws s3 cp s3://bes-tamanu-test-data-snapshots/${{ steps.commit-finder.outputs.commit }}/fake-pg${{ matrix.postgres }}.dump ./ --no-progress
+
+      - run: yarn workspace scripts run test-determinism --dump-path $(realpath fake-pg${{ matrix.postgres }}.dump)
