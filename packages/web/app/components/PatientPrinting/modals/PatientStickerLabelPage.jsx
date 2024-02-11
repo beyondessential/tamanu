@@ -17,7 +17,7 @@ export const PatientStickerLabelPage = React.memo(({ patient }) => {
       keepMounted
       onPrint={() => printPDF('patient-label-printout')}
     >
-      <PDFViewer id="patient-label-printout">
+      <PDFViewer isDataReady={true} id="patient-label-printout">
         <IDLabelPrintout patient={patient} measures={measures} />
       </PDFViewer>
     </Modal>

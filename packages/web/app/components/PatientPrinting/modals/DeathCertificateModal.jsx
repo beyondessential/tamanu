@@ -12,8 +12,6 @@ export const DeathCertificateModal = ({ patient, deathData }) => {
   const { getLocalisation } = useLocalisation();
   const { data: certificateData, isFetching: isCertificateFetching } = useCertificate();
 
-  if (isCertificateFetching) return null;
-
   return (
     <>
       <Modal
@@ -24,7 +22,7 @@ export const DeathCertificateModal = ({ patient, deathData }) => {
         printable
         onPrint={() => printPDF('death-certificate-printout')}
       >
-        <PDFViewer id="death-certificate-printout">
+        <PDFViewer isDataReady={!isCertificateFetching} id="death-certificate-printout">
           <DeathCertificatePrintout
             patientData={patientData}
             certificateData={certificateData}

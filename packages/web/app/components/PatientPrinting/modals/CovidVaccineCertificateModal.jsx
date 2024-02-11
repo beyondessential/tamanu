@@ -45,7 +45,7 @@ export const CovidVaccineCertificateModal = React.memo(({ open, onClose, patient
 
   const patientData = { ...patient, additionalData };
 
-  if (isVaccineFetching || isCertificateFetching) return null;
+  const isLoading = isVaccineFetching || isCertificateFetching;
 
   return (
     <Modal
@@ -58,7 +58,7 @@ export const CovidVaccineCertificateModal = React.memo(({ open, onClose, patient
       onPrint={() => printPDF('covid-vaccine-certificate')}
       additionalActions={<EmailButton onEmail={createCovidVaccineCertificateNotification} />}
     >
-      <PDFViewer id="covid-vaccine-certificate">
+      <PDFViewer isDataReady={!isLoading} id="covid-vaccine-certificate">
         <CovidVaccineCertificate
           patient={patientData}
           vaccinations={vaccinations}

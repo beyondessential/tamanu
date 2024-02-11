@@ -26,48 +26,41 @@ const Loader = styled.div`
   }
 `;
 
+const LoadingIndicator = () => (
+  <Loader>
+    <CircularProgress size="5rem" />
+    <Typography>Loading...</Typography>
+  </Loader>
+);
+
+const ErrorDisplay = () => (
+  <Box p={5} my={5}>
+    <Typography variant="h5" gutterBottom>
+      Error
+    </Typography>
+    <Typography>
+      Error loading document. Please try logging in again to view the document.
+    </Typography>
+  </Box>
+);
+
+export const PDFViewer = React.memo(({ id, children, isDataReady }) => {
+  if (!isDataReady) return <LoadingIndicator />;
+
+  return <PDFViewerInner id={id} children={children} />;
+});
+
 // @react-pdf/renderer ships with its own version of PDFViewer. However it is a bit flaky because
 // it doesn't include updateInstance in the useEffect dependencies. Also it is convenient to set
 // width, height and toolbar settings in one place
-export const PDFViewer = ({ id, children }) => {
-  const [loaded, setLoaded] = useState(false);
-  const [instance, updateInstance] = usePDF({ document: children });
+export const PDFViewerInner = React.memo(({ id, children }) => {
+  const [instance] = usePDF({ document: children });
 
-  useEffect(() => {
-    updateInstance();
-  }, [updateInstance, children, id, loaded]);
-
-  useEffect(() => {
-    setTimeout(() => {
-      // Delay loading to stop flicker
-      setLoaded(true);
-    }, 2000);
-  });
-
-  if (!loaded) {
-    return (
-      <Loader>
-        <CircularProgress size="5rem" />
-        <Typography>Loading...</Typography>
-      </Loader>
-    );
-  }
-
-  if (!instance.url) {
-    return (
-      <Box p={5} my={5}>
-        <Typography variant="h5" gutterBottom>
-          Error
-        </Typography>
-        <Typography>
-          Error loading document. Please try logging in again to view the document.
-        </Typography>
-      </Box>
-    );
-  }
+  if (instance.loading) return <LoadingIndicator />;
+  if (!instance.url) return <ErrorDisplay />;
 
   return <FullIframe src={`${instance.url}#toolbar=0`} title={id} id={id} key={id} />;
-};
+});
 
 export const printPDF = elementId => {
   const iframe = document.getElementById(elementId);

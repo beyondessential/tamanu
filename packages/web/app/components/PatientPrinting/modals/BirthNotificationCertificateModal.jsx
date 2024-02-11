@@ -153,20 +153,16 @@ export const BirthNotificationCertificateModal = React.memo(({ patient }) => {
       keepMounted
       onPrint={() => printPDF('birth-notification')}
     >
-      {isLoading ? (
-        <LoadingIndicator />
-      ) : (
-        <PDFViewer id="birth-notification">
-          <BirthNotificationCertificate
-            motherData={motherData}
-            fatherData={fatherData}
-            childData={{ ...patient, birthData, additionalData, ethnicity, deathData }}
-            facility={facility}
-            certificateData={certificateData}
-            getLocalisation={getLocalisation}
-          />
-        </PDFViewer>
-      )}
+      <PDFViewer isDataReady={!isLoading} id="birth-notification">
+        <BirthNotificationCertificate
+          motherData={motherData}
+          fatherData={fatherData}
+          childData={{ ...patient, birthData, additionalData, ethnicity, deathData }}
+          facility={facility}
+          certificateData={certificateData}
+          getLocalisation={getLocalisation}
+        />
+      </PDFViewer>
     </Modal>
   );
 });

@@ -38,11 +38,11 @@ export const HandoverNotesModal = React.memo(({ area: areaId, ...props }) => {
     }
   }, [refetchHandoverNotes, areaId]);
 
-  if (isFetchingCertificate || isFetchingHandoverNotes) return null;
+  const isLoading = isFetchingCertificate || isFetchingHandoverNotes;
 
   return (
     <Modal {...props} title={modalTitle} onPrint={() => printPDF('handover-notes')}>
-      <PDFViewer id="handover-notes" width={800} height={1000} showToolbar={false}>
+      <PDFViewer isDataReady={!isLoading} id="handover-notes">
         <HandoverNotesPDF
           logoSrc={logo}
           handoverNotes={handoverNotes}

@@ -57,22 +57,18 @@ export const CovidTestCertificateModal = React.memo(({ patient }) => {
       onPrint={() => printPDF('test-certificate')}
       additionalActions={<EmailButton onEmail={createCovidTestCertNotification} />}
     >
-      {isLoading ? (
-        <LoadingIndicator />
-      ) : (
-        <PDFViewer id="test-certificate">
-          <CovidLabCertificate
-            patient={patientData}
-            labs={labTestsResponse.data}
-            watermarkSrc={watermark}
-            signingSrc={footerImg}
-            logoSrc={logo}
-            getLocalisation={getLocalisation}
-            printedBy={printedBy}
-            certType={CertificateTypes.test}
-          />
-        </PDFViewer>
-      )}
+      <PDFViewer isDataReady={!isLoading} id="test-certificate">
+        <CovidLabCertificate
+          patient={patientData}
+          labs={labTestsResponse?.data}
+          watermarkSrc={watermark}
+          signingSrc={footerImg}
+          logoSrc={logo}
+          getLocalisation={getLocalisation}
+          printedBy={printedBy}
+          certType={CertificateTypes.test}
+        />
+      </PDFViewer>
     </Modal>
   );
 });

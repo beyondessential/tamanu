@@ -52,8 +52,8 @@ export const DischargeSummaryView = React.memo(() => {
     return <Redirect to="/patients/all" />;
   }
 
-  if (isPADLoading || isDischargeLoading || isLoadingPatientConditions || isCertificateFetching)
-    return <LoadingIndicator />;
+  const isLoading =
+    isPADLoading || isDischargeLoading || isLoadingPatientConditions || isCertificateFetching;
 
   return (
     <Container>
@@ -68,7 +68,7 @@ export const DischargeSummaryView = React.memo(() => {
           Print Summary
         </Button>
       </NavContainer>
-      <PDFViewer id="discharge-summary" showToolbar={false}>
+      <PDFViewer id="discharge-summary" isDataReady={!isLoading}>
         <DischargeSummaryPrintout
           patientData={{ ...patient, additionalData, village }}
           encounter={encounter}
