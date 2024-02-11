@@ -1,4 +1,4 @@
-import { object, mixed } from 'yup';
+import { mixed, object } from 'yup';
 import { enumerate, parse } from './parse';
 
 export class Composite {

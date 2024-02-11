@@ -7,7 +7,7 @@ import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { log } from './logging';
 import { serviceContext, serviceName } from './logging/context';
 
-import { migrate, assertUpToDate, NON_SYNCING_TABLES } from './migrations';
+import { assertUpToDate, migrate, NON_SYNCING_TABLES } from './migrations';
 import * as models from '../models';
 import { createDateTypes } from './createDateTypes';
 import { setupQuote } from '../utils/pgComposite';
@@ -140,6 +140,7 @@ export async function initDatabase(dbOptions) {
   // attach migration function to the sequelize object - leaving the responsibility
   // of calling it to the implementing server (this allows for skipping migrations
   // in favour of calling sequelize.sync() during test mode)
+  // eslint-disable-next-line require-atomic-updates
   sequelize.migrate = async direction => {
     await migrate(log, sequelize, direction);
   };
@@ -190,4 +191,31 @@ export async function initDatabase(dbOptions) {
   sequelize.isInsideTransaction = () => !!asyncLocalStorage.getStore();
 
   return { sequelize, models };
+}
+
+// this being a Map and not an object is load-bearing!
+// Map.entries() will iterate the whole map even if more entries are inserted
+// Object.entries(...) will iterate only the state of the object at the time of the call
+// we take advantage of that in closeAllDatabases to ensure we _do_ close everything
+export const databaseCollection = new Map();
+
+export async function openDatabase(key, dbOptions) {
+  if (databaseCollection.has(key)) {
+    return databaseCollection.get(key);
+  }
+
+  const store = await initDatabase(dbOptions);
+  if (databaseCollection.has(key)) {
+    throw new Error(`race condition! openDatabase() called for the same key=${key} in parallel`);
+  }
+
+  databaseCollection.set(key, store);
+  return store;
+}
+
+export async function closeAllDatabases() {
+  for (const [key, connection] of databaseCollection.entries()) {
+    databaseCollection.delete(key);
+    await connection.sequelize.close();
+  }
 }

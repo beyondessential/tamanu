@@ -1,5 +1,5 @@
 import React, { RefObject, useMemo, useRef } from 'react';
-import { ScrollView, StyleSheet, TouchableWithoutFeedback, TouchableOpacity } from 'react-native';
+import { ScrollView, StyleSheet, TouchableOpacity, TouchableWithoutFeedback } from 'react-native';
 import { IPatient } from '~/types';
 import { PatientTile } from '../PatientTile';
 import { groupEntriesByLetter } from '/helpers/list';
@@ -91,7 +91,7 @@ export const PatientSectionList = ({ patients, onPressItem }: PatientSectionList
             onPress={() => {
               if (scrollViewRef.current) {
                 let offset = 0;
-                for (var i = 0; i < sectionIndex; i++) {
+                for (let i = 0; i < sectionIndex; i += 1) {
                   offset = offset + SECTION_HEADER_HEIGHT;
                   offset = offset + groupedPatients[i].items.length * ITEM_HEIGHT;
                 }

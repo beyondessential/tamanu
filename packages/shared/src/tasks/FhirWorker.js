@@ -64,7 +64,7 @@ export class FhirWorker {
     this.pg = await this.sequelize.connectionManager.getConnection();
     this.pg.on('notification', msg => {
       if (msg.channel === 'jobs') {
-        this.log.debug('FhirWorker: got postgres notification', { msg });
+        this.log.debug('FhirWorker: got postgres notification', msg);
         this.processQueueNow();
       }
     });
