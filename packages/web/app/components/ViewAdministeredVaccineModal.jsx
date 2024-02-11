@@ -10,7 +10,7 @@ import { useApi } from '../api';
 
 import { DateDisplay } from './DateDisplay';
 import { Modal } from './Modal';
-import { TranslatedText } from './TranslatedText';
+import { TranslatedText } from './Translation/TranslatedText';
 
 const Container = styled.div`
   display: flex;

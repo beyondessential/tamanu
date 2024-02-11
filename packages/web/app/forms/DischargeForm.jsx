@@ -35,7 +35,6 @@ import { useEncounter } from '../contexts/Encounter';
 import {
   MODAL_PADDING_LEFT_AND_RIGHT,
   MODAL_PADDING_TOP_AND_BOTTOM,
-  useLocalisedText,
 } from '../components';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 
