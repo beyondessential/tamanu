@@ -311,7 +311,6 @@
         "history": {
           "sortPriority": -100,
           "required": true,
-          "hidden": true,
         },
         "details": {
           "sortPriority": -50,
@@ -319,7 +318,6 @@
         },
         "results": {
           "sortPriority": 0,
-          "hidden": true
         },
         "referrals": {
           "sortPriority": 0,
