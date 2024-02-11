@@ -26,7 +26,7 @@ export function testSingleResourceHandler(integrationName, requestHeaders = {}) 
         });
         await patient.reload();
 
-        const path = `/v1/integration/${integrationName}/Patient/${patient.id}`;
+        const path = `/api/integration/${integrationName}/Patient/${patient.id}`;
         const response = await app.get(path).set(requestHeaders);
         expect(response).toHaveSucceeded();
         expect(response.body).toEqual({
@@ -84,7 +84,7 @@ export function testSingleResourceHandler(integrationName, requestHeaders = {}) 
 
       it('returns a 422 error when the resource does not exist', async () => {
         const nonExistingId = '1234567890';
-        const path = `/v1/integration/${integrationName}/Patient/${nonExistingId}`;
+        const path = `/api/integration/${integrationName}/Patient/${nonExistingId}`;
         const response = await app.get(path).set(requestHeaders);
         expect(response).toHaveRequestError(422);
         expect(response.body).toMatchObject({

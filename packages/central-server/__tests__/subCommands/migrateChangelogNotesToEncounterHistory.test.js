@@ -1457,7 +1457,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         const location2 = await createLocation('location same name', {
           locationGroupId: locationGroup1.id,
         });
-        const location3 = await createLocation('location same name', {
+        await createLocation('location same name', {
           locationGroupId: locationGroup2.id,
         });
         const location4 = await createLocation('location 4', {
@@ -1678,7 +1678,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         const location2 = await createLocation('location same name', {
           locationGroupId: locationGroup1.id,
         });
-        const location3 = await createLocation('location same name', {
+        await createLocation('location same name', {
           locationGroupId: locationGroup1.id,
           visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
         });
@@ -2039,7 +2039,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         const location1 = await createLocation('location same name', {
           locationGroupId: locationGroup1.id,
         });
-        const location2 = await createLocation('location same name', {
+        await createLocation('location same name', {
           locationGroupId: locationGroup2.id,
         });
         const department1 = await createDepartment('department 1');
@@ -2227,7 +2227,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         const department2 = await createDepartment('department same name', {
           facilityId: facility1.id,
         });
-        const department3 = await createDepartment('department same name', {
+        await createDepartment('department same name', {
           facilityId: facility2.id,
         });
         const department4 = await createDepartment('department 4', {
@@ -2321,7 +2321,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         const department2 = await createDepartment('department same name', {
           facilityId: facility1.id,
         });
-        const department3 = await createDepartment('department same name', {
+        await createDepartment('department same name', {
           facilityId: facility1.id,
           visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
         });
@@ -2698,7 +2698,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         const department1 = await createDepartment('department same name', {
           facilityId: facility1.id,
         });
-        const department2 = await createDepartment('department same name', {
+        await createDepartment('department same name', {
           facilityId: facility2.id,
         });
         const clinician = await createUser('user');
@@ -2954,7 +2954,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
           facilityId: facility1.id,
         });
         const clinician1 = await createUser('clinician same name');
-        const clinician2 = await createUser('clinician same name');
+        await createUser('clinician same name');
         const encounterType = 'admission';
 
         const encounter = await createEncounter(patient, {
