@@ -1,5 +1,4 @@
 import React from 'react';
-import { TranslatedText } from 'desktop/app/components/Translation/TranslatedText';
 
 import {
   APPOINTMENT_STATUSES,
@@ -93,7 +92,7 @@ export const REPORT_DEFINITIONS = [
     dataSourceOptions: [REPORT_DATA_SOURCES.ALL_FACILITIES],
   },
   {
-    name: <TranslatedText stringId="report" fallbac="hello" />,
+    name: 'Adverse Event Following Immunization',
     id: 'aefi',
     filterDateRangeAsStrings: true,
     dateRangeLabel: ALL_TIME_DATE_LABEL,
