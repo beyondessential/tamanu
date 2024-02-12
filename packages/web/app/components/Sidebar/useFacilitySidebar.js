@@ -94,14 +94,11 @@ const sortTopLevelItems = (a, b) => {
 
 export const useFacilitySidebar = () => {
   const { getLocalisation } = useLocalisation();
-  const test = getLocalisation('sidebar');
-  console.log('test', test);
-  // const sidebarConfig = getLocalisation('sidebar');
-  const sidebarConfig = tempLocalisation;
+  const sidebarConfig = getLocalisation('sidebar');
+  console.log('sidebarConfig', sidebarConfig);
 
-  const output = FACILITY_MENU_ITEMS.reduce((topLevelItems, item) => {
+  return FACILITY_MENU_ITEMS.reduce((topLevelItems, item) => {
     const localisedItem = sidebarConfig[item.key];
-
     if (!localisedItem) {
       return [...topLevelItems, item];
     }
@@ -134,6 +131,4 @@ export const useFacilitySidebar = () => {
 
     return [...topLevelItems, { ...item, sort, children }];
   }, []).sort(sortTopLevelItems);
-
-  return output;
 };
