@@ -58,15 +58,16 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
 
     it('fetches a specimen by materialised ID', async () => {
       // arrange
-      const { FhirSpecimen } = ctx.store.models;
-      const { labTestPanel, labRequest } = await fakeResourcesOfFhirSpecimen(
+      const { FhirSpecimen, FhirServiceRequest } = ctx.store.models;
+      const { category, labRequest } = await fakeResourcesOfFhirSpecimen(
         ctx.store.models,
         resources,
       );
-      const mat = await FhirSpecimen.materialiseFromUpstream(labRequest.id);
+      const materialisedServiceRequest = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+      const materialiseSpecimen = await FhirSpecimen.materialiseFromUpstream(labRequest.id);
       await FhirSpecimen.resolveUpstreams();
-      console.log({ mat });
-      const path = `/v1/integration/${INTEGRATION_ROUTE}/Specimen/${mat.id}`;
+      console.log({ materialiseSpecimen });
+      const path = `/v1/integration/${INTEGRATION_ROUTE}/Specimen/${materialiseSpecimen.id}`;
 
       // act
       const response = await app.get(path);
@@ -76,27 +77,33 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       response.body?.orderDetail?.sort((a, b) => a.text.localeCompare(b.text));
       response.body?.identifier?.sort((a, b) => a.system.localeCompare(b.system));
 
-       const {  fhirPractitioner } = fhirResources;
-       console.log({ fhirPractitioner });
+      const { fhirPractitioner } = fhirResources;
+      console.log({ body: response.body });
 
       // assert
       expect(response.body).toMatchObject({
         resourceType: 'Specimen',
         id: expect.any(String),
         meta: {
-          lastUpdated: formatFhirDate(mat.lastUpdated),
+          lastUpdated: formatFhirDate(materialiseSpecimen.lastUpdated),
         },
-        sampleTime: formatFhirDate(labRequest.sampleTime),
         collection: {
-          collectedDateTime: formatFhirDate(mat.sampleTime),
+          collectedDateTime: formatFhirDate('2022-07-27 15:05:00'),
           collector: {
             type: 'Practitioner',
             display: fhirPractitioner.name[0].text,
             reference: `Practitioner/${fhirPractitioner.id}`
+          },
+          bodySite: {
+            coding: [{
+              code: category.code,
+              system: 'http://bodySITE.NEW',
+              display: category.name
+            }]
           }
         }
       });
-      expect(response.headers['last-modified']).toBe(formatRFC7231(new Date(mat.lastUpdated)));
+      expect(response.headers['last-modified']).toBe(formatRFC7231(new Date(materialiseSpecimen.lastUpdated)));
       expect(response).toHaveSucceeded();
     });
 

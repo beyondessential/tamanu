@@ -1,6 +1,7 @@
 import config from 'config';
 
 import { FhirReference, FhirCoding, FhirCodeableConcept } from '../../../services/fhirTypes';
+import { formatFhirDate } from '../../../utils/fhir';
 
 export async function getValues(upstream, models) {
   const { LabRequest } = models;
@@ -10,13 +11,14 @@ export async function getValues(upstream, models) {
 }
 
 async function getValuesFromLabRequest(upstream, models) {
-
+  console.log({ sampleTimeinFHIR: formatFhirDate(upstream.sampleTime) });
   return {
     lastUpdated: new Date(),
     sampleTime: upstream.sampleTime,
     collection: {
-      collectedDateTime: upstream.sampleTime,
+      collectedDateTime: formatFhirDate(upstream.sampleTime),
       collector: collectorRef(upstream),
+      bodySite:  await resolveBodySite(upstream, models),
     },
     type: await resolveSpecimenType(upstream, models),
     request: requestRef(upstream),
@@ -35,6 +37,27 @@ function collectorRef(labRequest) {
     type: 'upstream://practitioner',
     reference: labRequest.collectedById,
   });
+}
+
+async function resolveBodySite(upstream, models) {
+  const { ReferenceData } = models;
+  const { labSampleSiteId } = upstream;
+  
+  const bodySite = await ReferenceData.findOne({
+    where: {
+      id: labSampleSiteId,
+    }
+  });
+  if (!bodySite) return null;
+  return new FhirCodeableConcept({
+      coding: [
+        new FhirCoding({
+          system: config.hl7.dataDictionaries.sampleBodySite,
+          code: bodySite.code,
+          display: bodySite.name,
+        }),
+      ],
+    });
 }
 
 async function resolveSpecimenType(upstream, models) {
