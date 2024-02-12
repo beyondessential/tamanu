@@ -27,6 +27,7 @@ import { DateTimeField, DateTimeInput } from '../components/Field/DateField';
 import { TextInput } from '../components/Field/TextField';
 import { FormGrid } from '../components/FormGrid';
 import { TableFormFields } from '../components/Table';
+import { LowerCase } from '../components/Typography';
 
 import { FormConfirmCancelBackRow, FormSubmitCancelRow } from '../components/ButtonRow';
 import { DiagnosisList } from '../components/DiagnosisList';
@@ -34,7 +35,6 @@ import { useEncounter } from '../contexts/Encounter';
 import {
   MODAL_PADDING_LEFT_AND_RIGHT,
   MODAL_PADDING_TOP_AND_BOTTOM,
-  useLocalisedText,
 } from '../components';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 
@@ -211,8 +211,6 @@ const medicationColumns = [
 const EncounterOverview = ({
   encounter: { procedures, diagnoses, startDate, examiner, reasonForEncounter },
 }) => {
-  const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
-
   // Only display diagnoses that don't have a certainty of 'error' or 'disproven'
   const currentDiagnoses = diagnoses.filter(d => !['error', 'disproven'].includes(d.certainty));
 
@@ -227,11 +225,22 @@ const EncounterOverview = ({
         disabled
       />
       <TextInput
-        label={<TranslatedText
-          stringId="discharge.form.supervisingClinician.label"
-          fallback="Supervising :clinicianText"
-          replacements={{ clinicianText: clinicianText.toLowerCase() }}
-        />}
+        label={
+          <TranslatedText
+            stringId="general.form.supervisingClinician.label"
+            fallback="Supervising :clinician"
+            replacements={{
+              clinician: (
+                <LowerCase>
+                  <TranslatedText
+                    stringId="general.localisedField.clinician.label.short"
+                    fallback="Clinician"
+                  />
+                </LowerCase>
+              ),
+            }}
+          />
+        }
         value={examiner ? examiner.displayName : '-'}
         disabled
       />
@@ -318,7 +327,6 @@ export const DischargeForm = ({
   onSubmit,
 }) => {
   const { encounter } = useEncounter();
-  const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
   const [dischargeNotes, setDischargeNotes] = useState([]);
   const api = useApi();
   const { getLocalisedSchema } = useLocalisedSchema();
@@ -360,13 +368,7 @@ export const DischargeForm = ({
         discharge: yup
           .object()
           .shape({
-            dischargerId: foreignKey(
-              <TranslatedText
-                stringId="discharge.form.dischargingClinician.validation"
-                fallback="Discharging :clinicianText is a required field"
-                replacements={{ clinicianText: clinicianText.toLowerCase() }}
-              />,
-            ),
+            dischargerId: foreignKey('Required'),
           })
           .shape({
             dispositionId: getLocalisedSchema({
@@ -396,9 +398,16 @@ export const DischargeForm = ({
           name="discharge.dischargerId"
           label={
             <TranslatedText
-              stringId="discharge.form.dischargingClinician.label"
-              fallback="Discharging :clinicianText"
-              replacements={{ clinicianText: clinicianText.toLowerCase() }}
+              stringId="general.form.dischargingClinician.label"
+              fallback="Discharging :clinician"
+              replacements={{
+                clinician: (
+                  <TranslatedText
+                    stringId="general.localisedField.clinician.label"
+                    fallback="Clinician"
+                  />
+                ),
+              }}
             />
           }
           component={AutocompleteField}
@@ -407,6 +416,12 @@ export const DischargeForm = ({
         />
         <LocalisedField
           name="discharge.dispositionId"
+          label={
+            <TranslatedText
+              stringId="general.localisedField.discharge.dischargeDisposition.label"
+              fallback="Discharge disposition"
+            />
+          }
           path="fields.dischargeDisposition"
           component={AutocompleteField}
           suggester={dispositionSuggester}

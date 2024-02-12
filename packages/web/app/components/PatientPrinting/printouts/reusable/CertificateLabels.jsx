@@ -1,7 +1,6 @@
 import React from 'react';
 import { Typography } from '@material-ui/core';
 import styled from 'styled-components';
-import { LocalisedText } from '../../../LocalisedText';
 
 export const CertificateLabel = ({ name, children, className }) => (
   <Typography className={className}>
@@ -10,16 +9,9 @@ export const CertificateLabel = ({ name, children, className }) => (
   </Typography>
 );
 
-export const LocalisedCertificateLabel = ({
-  name,
-  children,
-  className,
-  path = `fields.${name}.longLabel`,
-}) => (
+export const LocalisedCertificateLabel = ({ children, className, label }) => (
   <Typography className={className}>
-    <strong>
-      <LocalisedText path={path} />:{' '}
-    </strong>
+    <strong>{label}: </strong>
     {children}
   </Typography>
 );

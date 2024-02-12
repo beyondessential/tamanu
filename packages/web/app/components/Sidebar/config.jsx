@@ -218,7 +218,7 @@ export const SYNC_MENU_ITEMS = [
   },
   {
     key: 'translation',
-    label: 'Translation',
+    label: <TranslatedText stringId="adminSidebar.translation" fallback="Translation" />,
     path: '/admin/translation',
     ability: { action: 'write', subject: 'translation' },
   },
@@ -234,7 +234,7 @@ export const SYNC_MENU_ITEMS = [
   },
   {
     key: 'fhirJobStats',
-    label: 'FHIR job stats',
+    label: <TranslatedText stringId="adminSidebar.fhirJobStats" fallback="FHIR job stats" />,
     path: '/admin/fhir/jobStats',
   },
   {

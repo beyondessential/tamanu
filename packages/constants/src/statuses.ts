@@ -7,39 +7,48 @@ export const IMAGING_REQUEST_STATUS_TYPES = {
   ENTERED_IN_ERROR: 'entered_in_error',
 };
 
+export const IMAGING_REQUEST_STATUS_LABELS = {
+  [IMAGING_REQUEST_STATUS_TYPES.PENDING]: 'Pending',
+  [IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS]: 'In progress',
+  [IMAGING_REQUEST_STATUS_TYPES.COMPLETED]: 'Completed',
+  [IMAGING_REQUEST_STATUS_TYPES.CANCELLED]: 'Cancelled',
+  [IMAGING_REQUEST_STATUS_TYPES.DELETED]: 'Deleted',
+  [IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR]: 'Entered in error',
+};
+
 export const IMAGING_REQUEST_STATUS_CONFIG = {
   [IMAGING_REQUEST_STATUS_TYPES.PENDING]: {
-    label: 'Pending',
+    label: IMAGING_REQUEST_STATUS_LABELS.PENDING,
     color: '#CB6100',
     background: '#FAF0E6',
   },
   [IMAGING_REQUEST_STATUS_TYPES.COMPLETED]: {
-    label: 'Completed',
+    label: IMAGING_REQUEST_STATUS_LABELS.COMPLETED,
     color: '#19934E',
     background: '#DEF0EE',
   },
   [IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS]: {
-    label: 'In progress',
+    label: IMAGING_REQUEST_STATUS_LABELS.IN_PROGRESS,
     color: '#4101C9;',
     background: '#ECE6FA',
   },
   [IMAGING_REQUEST_STATUS_TYPES.CANCELLED]: {
-    label: 'Cancelled',
+    label: IMAGING_REQUEST_STATUS_LABELS.CANCELLED,
     color: '#444444;',
     background: '#EDEDED',
   },
   [IMAGING_REQUEST_STATUS_TYPES.DELETED]: {
-    label: 'Deleted',
+    label: IMAGING_REQUEST_STATUS_LABELS.DELETED,
     color: '#444444;',
     background: '#EDEDED',
   },
   [IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR]: {
-    label: 'Entered in error',
+    label: IMAGING_REQUEST_STATUS_LABELS.ENTERED_IN_ERROR,
     color: '#444444;',
     background: '#EDEDED',
   },
   unknown: {
-    label: 'Unknown',
+    label: IMAGING_REQUEST_STATUS_LABELS.UNKNOWN,
     color: '#444444;',
     background: '#EDEDED',
   },
