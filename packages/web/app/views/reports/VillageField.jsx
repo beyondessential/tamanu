@@ -5,7 +5,6 @@ import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 export const VillageField = ({ name = 'villageName', required }) => {
   const villageSuggester = useSuggester('village');
-  // TODO do we use this in reports with specific names mapped to localisation
   return (
     <LocalisedField
       name={name}
