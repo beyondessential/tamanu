@@ -53,7 +53,7 @@ export const MultipleLabRequestsPrintoutModal = ({ encounter, labRequests, open,
       printable
       onPrint={() => printPDF('lab-request-printout')}
     >
-      <PDFViewer isDataReady={!isLoading} id="lab-request-printout">
+      <PDFViewer isLoading={isLoading} id="lab-request-printout">
         <MultipleLabRequestsPrintout
           certificateData={certificateData}
           patientData={{ ...patient, additionalData, village }}

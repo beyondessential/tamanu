@@ -73,7 +73,7 @@ export const MultiplePrescriptionPrintoutModal = ({
       printable
       onPrint={() => printPDF('prescription-printout')}
     >
-      <PDFViewer isDataReady={!isLoading} id="prescription-printout">
+      <PDFViewer isLoading={isLoading} id="prescription-printout">
         <PrescriptionPrintout
           certificateData={certificateData}
           patientData={{ ...patient, additionalData, village }}

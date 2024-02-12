@@ -22,7 +22,7 @@ export const DeathCertificateModal = ({ patient, deathData }) => {
         printable
         onPrint={() => printPDF('death-certificate-printout')}
       >
-        <PDFViewer isDataReady={!isCertificateFetching} id="death-certificate-printout">
+        <PDFViewer isLoading={isCertificateFetching} id="death-certificate-printout">
           <DeathCertificatePrintout
             patientData={patientData}
             certificateData={certificateData}

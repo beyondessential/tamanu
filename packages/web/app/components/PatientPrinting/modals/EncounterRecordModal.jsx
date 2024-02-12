@@ -309,7 +309,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
   return (
     <Modal {...modalProps} onPrint={() => printPDF('encounter-record')}>
       <PDFViewer
-        isDataReady={!allQueries.isFetching}
+        isLoading={allQueries.isFetching}
         style={{ width: '100%', height: '600px' }}
         id="encounter-record"
         showToolbar={false}

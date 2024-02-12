@@ -42,7 +42,7 @@ export const HandoverNotesModal = React.memo(({ area: areaId, ...props }) => {
 
   return (
     <Modal {...props} title={modalTitle} onPrint={() => printPDF('handover-notes')}>
-      <PDFViewer isDataReady={!isLoading} id="handover-notes">
+      <PDFViewer isLoading={isLoading} id="handover-notes">
         <HandoverNotesPDF
           logoSrc={logo}
           handoverNotes={handoverNotes}

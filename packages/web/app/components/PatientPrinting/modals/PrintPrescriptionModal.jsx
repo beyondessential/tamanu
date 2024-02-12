@@ -100,7 +100,7 @@ export const PrintPrescriptionModal = ({ medication, open, onClose }) => {
         printable
         onPrint={() => printPDF('prescription-printout')}
       >
-        <PDFViewer isDataReady={!isLoading} id="prescription-printout">
+        <PDFViewer isLoading={isLoading} id="prescription-printout">
           <PrescriptionPrintout
             patientData={{ ...patient, additionalData, village }}
             prescriptions={[medication]}

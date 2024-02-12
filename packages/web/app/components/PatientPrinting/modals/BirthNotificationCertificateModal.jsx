@@ -152,7 +152,7 @@ export const BirthNotificationCertificateModal = React.memo(({ patient }) => {
       printable
       onPrint={() => printPDF('birth-notification')}
     >
-      <PDFViewer isDataReady={!isLoading} id="birth-notification">
+      <PDFViewer isLoading={isLoading} id="birth-notification">
         <BirthNotificationCertificate
           motherData={motherData}
           fatherData={fatherData}

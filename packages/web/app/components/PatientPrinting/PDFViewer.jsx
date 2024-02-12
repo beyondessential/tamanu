@@ -44,8 +44,8 @@ const ErrorDisplay = () => (
   </Box>
 );
 
-export const PDFViewer = React.memo(({ id, children, isDataReady }) => {
-  if (!isDataReady) return <LoadingIndicator />;
+export const PDFViewer = React.memo(({ id, children, isLoading = false }) => {
+  if (isLoading) return <LoadingIndicator />;
   return <PDFViewerInner id={id}>{children}</PDFViewerInner>;
 });
 
@@ -58,7 +58,7 @@ export const PDFViewerInner = React.memo(({ id, children }) => {
   if (instance.loading) return <LoadingIndicator />;
   if (!instance.url) return <ErrorDisplay />;
 
-  return <FullIframe src={`${instance.url}#toolbar=0`} title={id} id={id} />;
+  return <FullIframe src={`${instance.url}#toolbar=0`} title={id} id={id} key={id} />;
 });
 
 export const printPDF = elementId => {

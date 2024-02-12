@@ -68,7 +68,7 @@ export const DischargeSummaryView = React.memo(() => {
           Print Summary
         </Button>
       </NavContainer>
-      <PDFViewer id="discharge-summary" isDataReady={!isLoading}>
+      <PDFViewer isLoading={isLoading} id="discharge-summary">
         <DischargeSummaryPrintout
           patientData={{ ...patient, additionalData, village }}
           encounter={encounter}

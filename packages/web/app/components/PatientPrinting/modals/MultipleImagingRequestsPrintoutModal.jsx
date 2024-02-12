@@ -19,7 +19,7 @@ export const MultipleImagingRequestsWrapper = ({ encounter, imagingRequests }) =
   const isLoading =
     isPatientLoading || (isVillageEnabled && isVillageLoading) || isCertificateFetching;
   return (
-    <PDFViewer isDataReady={!isLoading} id="imaging-request-printout">
+    <PDFViewer isLoading={isLoading} id="imaging-request-printout">
       <MultipleImagingRequestsPrintout
         getLocalisation={getLocalisation}
         patient={{ ...patient, village }}
