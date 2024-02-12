@@ -114,3 +114,43 @@ export const fakeResourcesOfFhirServiceRequestWithImagingRequest = async (models
 
   return imagingRequest;
 };
+
+export const fakeResourcesOfFhirSpecimen = async (models, resources) => {
+  const { LabRequest,LabTestPanelRequest,LabTestPanel,  ReferenceData } = models;
+  const specimenType = await ReferenceData.create({
+    ...fake(ReferenceData),
+    type: 'specimenType',
+  });
+  const bodySiteRef = await ReferenceData.create({
+    ...fake(ReferenceData),
+    type: 'labSampleSite',
+  });
+  const category = await ReferenceData.create({
+    ...fake(ReferenceData),
+    type: 'labTestCategory',
+  });
+  const labTestPanel = await LabTestPanel.create({
+    ...fake(LabTestPanel),
+    categoryId: category.id,
+  });
+  const labTestPanelRequest = await LabTestPanelRequest.create({
+    ...fake(LabTestPanelRequest),
+    labTestPanelId: labTestPanel.id,
+    encounterId: resources.encounter.id,
+  });
+  const labRequestData = await randomLabRequest(models, {
+    requestedById: resources.practitioner.id,
+    collectedById: resources.practitioner.id,
+    patientId: resources.patient.id,
+    encounterId: resources.encounter.id,
+    status: LAB_REQUEST_STATUSES.PUBLISHED,
+    specimenTypeId: specimenType.id,
+    labSampleSiteId: bodySiteRef.id,
+    requestedDate: '2022-07-27 16:30:00',
+    sampleTime: '2022-07-27 15:05:00',
+    specimenAttached: true,
+    labTestPanelRequestId: labTestPanelRequest.id, // make one of them part of a panel
+  });
+  const labRequest = await LabRequest.create(labRequestData);
+  return { labRequest, specimenType, bodySiteRef };
+};
