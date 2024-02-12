@@ -60,7 +60,7 @@ jobs:
           source .github/scripts/install-postgres-ubuntu.sh ${{ matrix.postgres }}
           .github/scripts/setup-postgres-for-one-package.sh fake
 
-      - run: python3 -m pip install gql
+      - run: python3 -m pip install boto3
 
       - id: commit-finder
         run: |
