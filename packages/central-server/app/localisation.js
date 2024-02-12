@@ -268,12 +268,36 @@ const fieldsSchema = yup
   .required()
   .noUnknown();
 
-const sidebarSchema = yup
+const sidebarItemSchema = yup
   .object({
-    // Todo: add schema
-    patients: yup.object().required(),
+    sortPriority: yup.number().required(),
+    hidden: yup.boolean(),
   })
+  .required()
   .noUnknown();
+
+const SIDEBAR_ITEMS = {
+  results: ['patientsAll', 'patientsInpatients', 'patientsEmergency', 'patientsOutpatients'],
+  scheduling: ['schedulingAppointments', 'schedulingCalendar', 'schedulingNew'],
+  medication: ['medicationRequests'],
+  imaging: ['imagingActive', 'imagingCompleted'],
+  labs: ['labsRequests', 'labsPublished'],
+  immunisations: ['immunisationsAll'],
+  programRegistry: [],
+};
+
+const sidebarSchema = yup.object({
+  ...Object.entries(SIDEBAR_ITEMS).reduce((items, [section, children]) => {
+    const childItems = children.reduce((childItems, childItem) => {
+      return { ...childItems, [childItem]: sidebarItemSchema };
+    }, {});
+
+    return {
+      ...items,
+      [section]: { ...sidebarItemSchema, ...childItems },
+    };
+  }, {}),
+});
 
 const imagingTypeSchema = yup
   .object({

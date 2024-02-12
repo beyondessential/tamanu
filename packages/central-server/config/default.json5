@@ -316,10 +316,86 @@
         "alpha-3": ""
       },
       "sidebar": {
-        "patients": {
-          "hidden": false,
-          "sort": 0
-        }
+        patients: {
+          hidden: false,
+          sortPriority: -1000,
+          patientsAll: {
+            hidden: false,
+            sortPriority: 0,
+          },
+          patientsInpatients: {
+            hidden: false,
+            sortPriority: 0,
+          },
+          patientsEmergency: {
+            hidden: false,
+            sortPriority: 0,
+          },
+          patientsOutpatients: {
+            hidden: false,
+            sortPriority: 0,
+          },
+        },
+        scheduling: {
+          hidden: false,
+          sortPriority: 0,
+          schedulingAppointments: {
+            hidden: false,
+            sortPriority: 0,
+          },
+          schedulingCalendar: {
+            hidden: false,
+            sortPriority: 0,
+          },
+          schedulingNew: {
+            hidden: false,
+            sortPriority: 0,
+          },
+        },
+        medication: {
+          hidden: false,
+          sortPriority: 0,
+          medicationRequests: {
+            hidden: false,
+            sortPriority: 0,
+          },
+        },
+        imaging: {
+          hidden: false,
+          sortPriority: 0,
+          imagingActive: {
+            hidden: false,
+            sortPriority: 0,
+          },
+          imagingCompleted: {
+            hidden: false,
+            sortPriority: 0,
+          },
+        },
+        labs: {
+          hidden: false,
+          sortPriority: 0,
+          labsRequests: {
+            hidden: false,
+            sortPriority: 0,
+          },
+          labsPublished: {
+            hidden: false,
+            sortPriority: 0,
+          },
+        },
+        immunisations: {
+          hidden: false,
+          sortPriority: 0,
+          immunisationsAll: {
+            hidden: false,
+            sortPriority: 0,
+          },
+        },
+        programRegistry: {
+          hidden: false,
+          sortPriority: 0,
+        },
       },
       "fields": {
         "countryName": {

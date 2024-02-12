@@ -5,83 +5,83 @@ import { useLocalisation } from '../app/contexts/Localisation';
 const defaultConfig = {
   patients: {
     hidden: false,
-    sort: -1000,
+    sortPriority: -1000,
     patientsAll: {
       hidden: false,
-      sort: 0,
+      sortPriority: 0,
     },
     patientsInpatients: {
       hidden: false,
-      sort: 0,
+      sortPriority: 0,
     },
     patientsEmergency: {
       hidden: false,
-      sort: 0,
+      sortPriority: 0,
     },
     patientsOutpatients: {
       hidden: false,
-      sort: 0,
+      sortPriority: 0,
     },
   },
   scheduling: {
     hidden: false,
-    sort: 0,
+    sortPriority: 0,
     schedulingAppointments: {
       hidden: false,
-      sort: 0,
+      sortPriority: 0,
     },
     schedulingCalendar: {
       hidden: false,
-      sort: 0,
+      sortPriority: 0,
     },
     schedulingNew: {
       hidden: false,
-      sort: 0,
+      sortPriority: 0,
     },
   },
   medication: {
     hidden: false,
-    sort: 0,
+    sortPriority: 0,
     medicationRequests: {
       hidden: false,
-      sort: 0,
+      sortPriority: 0,
     },
   },
   imaging: {
     hidden: false,
-    sort: 0,
+    sortPriority: 0,
     imagingActive: {
       hidden: false,
-      sort: 0,
+      sortPriority: 0,
     },
     imagingCompleted: {
       hidden: false,
-      sort: 0,
+      sortPriority: 0,
     },
   },
   labs: {
     hidden: false,
-    sort: 0,
+    sortPriority: 0,
     labsRequests: {
       hidden: false,
-      sort: 0,
+      sortPriority: 0,
     },
     labsPublished: {
       hidden: false,
-      sort: 0,
+      sortPriority: 0,
     },
   },
   immunisations: {
     hidden: false,
-    sort: 0,
+    sortPriority: 0,
     immunisationsAll: {
       hidden: false,
-      sort: 0,
+      sortPriority: 0,
     },
   },
   programRegistry: {
     hidden: false,
-    sort: 0,
+    sortPriority: 0,
   },
 };
 

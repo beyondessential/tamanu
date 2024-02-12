@@ -1,95 +1,12 @@
 import { FACILITY_MENU_ITEMS } from './config';
 import { useLocalisation } from '../../contexts/Localisation';
 
-const tempLocalisation = {
-  patients: {
-    hidden: false,
-    sort: -1000,
-    patientsAll: {
-      hidden: false,
-      sort: 0,
-    },
-    patientsInpatients: {
-      hidden: false,
-      sort: 0,
-    },
-    patientsEmergency: {
-      hidden: false,
-      sort: 0,
-    },
-    patientsOutpatients: {
-      hidden: false,
-      sort: 0,
-    },
-  },
-  scheduling: {
-    hidden: false,
-    sort: 0,
-    schedulingAppointments: {
-      hidden: false,
-      sort: 0,
-    },
-    schedulingCalendar: {
-      hidden: false,
-      sort: 0,
-    },
-    schedulingNew: {
-      hidden: false,
-      sort: 0,
-    },
-  },
-  medication: {
-    hidden: false,
-    sort: 0,
-    medicationRequests: {
-      hidden: false,
-      sort: 0,
-    },
-  },
-  imaging: {
-    hidden: false,
-    sort: 0,
-    imagingActive: {
-      hidden: false,
-      sort: 0,
-    },
-    imagingCompleted: {
-      hidden: false,
-      sort: 0,
-    },
-  },
-  labs: {
-    hidden: false,
-    sort: 0,
-    labsRequests: {
-      hidden: false,
-      sort: 0,
-    },
-    labsPublished: {
-      hidden: false,
-      sort: 0,
-    },
-  },
-  immunisations: {
-    hidden: false,
-    sort: 0,
-    immunisationsAll: {
-      hidden: false,
-      sort: 0,
-    },
-  },
-  programRegistry: {
-    hidden: false,
-    sort: 0,
-  },
-};
-
 const sortTopLevelItems = (a, b) => {
   // Always show facilityAdmin last
   if (a.key === 'facilityAdmin') {
     return 1;
   }
-  return a.sort - b.sort;
+  return a.sortPriority - b.sortPriority;
 };
 
 export const useFacilitySidebar = () => {
@@ -103,7 +20,7 @@ export const useFacilitySidebar = () => {
       return [...topLevelItems, item];
     }
 
-    const { sort, hidden } = localisedItem;
+    const { sortPriority, hidden } = localisedItem;
 
     if (hidden) {
       return topLevelItems;
@@ -118,17 +35,17 @@ export const useFacilitySidebar = () => {
           if (!localisedChild) {
             return [...childItems, child];
           }
-          const { hidden, sort } = localisedChild;
+          const { hidden, sortPriority } = localisedChild;
 
           if (hidden) {
             return childItems;
           }
 
-          return [...childItems, { ...child, sort }];
+          return [...childItems, { ...child, sortPriority }];
         }, [])
-        .sort((a, b) => a.sort - b.sort);
+        .sort((a, b) => a.sortPriority - b.sortPriority);
     }
 
-    return [...topLevelItems, { ...item, sort, children }];
+    return [...topLevelItems, { ...item, sortPriority, children }];
   }, []).sort(sortTopLevelItems);
 };
