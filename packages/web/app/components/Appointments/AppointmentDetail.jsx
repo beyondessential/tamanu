@@ -21,6 +21,7 @@ import { EncounterModal } from '../EncounterModal';
 import { LocalisedText } from '../LocalisedText';
 import { usePatientCurrentEncounter } from '../../api/queries';
 import { Modal } from '../Modal';
+import { TranslatedText } from '../Translation/TranslatedText';
 
 const Heading = styled.div`
   font-weight: 700;
@@ -85,24 +86,32 @@ const PatientInfo = ({ patient }) => {
       <table>
         <tbody>
           <tr>
-            <PatientInfoLabel>Sex</PatientInfoLabel>
+            <PatientInfoLabel>
+              <TranslatedText stringId="general.sex.label" fallback="Sex" />
+            </PatientInfoLabel>
             <PatientInfoValue>{sex}</PatientInfoValue>
           </tr>
           <tr>
-            <PatientInfoLabel>Date of Birth</PatientInfoLabel>
+            <PatientInfoLabel>
+              <TranslatedText stringId="general.dateOfBirth.label" fallback="Date of Birth" />
+            </PatientInfoLabel>
             <PatientInfoValue>
               <DateDisplay date={dateOfBirth} />
             </PatientInfoValue>
           </tr>
           {additionalData && additionalData.primaryContactNumber && (
             <tr>
-              <PatientInfoLabel>Contact Number</PatientInfoLabel>
+              <PatientInfoLabel>
+                <TranslatedText stringId="general.contactNumber.label" fallback="Contact Number" />
+              </PatientInfoLabel>
               <PatientInfoValue>{additionalData.primaryContactNumber}</PatientInfoValue>
             </tr>
           )}
           {village && (
             <tr>
-              <PatientInfoLabel>Village</PatientInfoLabel>
+              <PatientInfoLabel>
+                <TranslatedText stringId="general.village.label" fallback="Village" />
+              </PatientInfoLabel>
               <PatientInfoValue>{village.name}</PatientInfoValue>
             </tr>
           )}
@@ -133,16 +142,42 @@ const Details = styled.div`
 const CancelAppointmentModal = ({ open, onClose, onConfirm, appointment }) => {
   const { type, patient } = appointment;
   return (
-    <Modal width="sm" title="Cancel Appointment" onClose={onClose} open={open}>
-      <Heading>Are you sure you want to cancel this appointment?</Heading>
+    <Modal
+      width="sm"
+      title={
+        <TranslatedText
+          stringId="scheduling.modal.cancelAppointment.title"
+          fallback="Cancel Appointment"
+        />
+      }
+      onClose={onClose}
+      open={open}
+    >
+      <Heading>
+        <TranslatedText
+          stringId="scheduling.modal.cancelAppointment.heading"
+          fallback="Are you sure you want to cancel this appointment?"
+        />
+      </Heading>
       <Details>
-        {`${type} appointment for `}
+        {
+          <TranslatedText
+            stringId="scheduling.modal.cancelAppointment.detailsText"
+            fallback=":appointmentType appointment for"
+            replacements={{ appointmentType: type }}
+          />
+        }{' '}
         <PatientNameDisplay patient={patient} />
         {' - '}
         <AppointmentTime {...appointment} />
       </Details>
       <Row>
-        <DeleteButton onClick={onConfirm}>Yes, Cancel</DeleteButton>
+        <DeleteButton onClick={onConfirm}>
+          <TranslatedText
+            stringId="scheduling.modal.cancelAppointment.action.cancel"
+            fallback="Yes, Cancel"
+          />
+        </DeleteButton>
       </Row>
     </Modal>
   );
@@ -244,15 +279,24 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
       {errorMessage && <Section>{errorMessage}</Section>}
       <FirstRow>
         <div>
-          <Heading>Type</Heading>
+          <Heading>
+            <TranslatedText stringId="general.type.label" fallback="Type" />
+          </Heading>
           {type}
-          <Heading>Time</Heading>
+          <Heading>
+            <TranslatedText stringId="general.time.label" fallback="Time" />
+          </Heading>
           <div>
             <AppointmentTime {...appointment} />
           </div>
         </div>
         <Select
-          placeholder="Select Status"
+          placeholder={
+            <TranslatedText
+              stringId="scheduling.appointmentDetail.select.status.label"
+              fallback="Select Status"
+            />
+          }
           options={appointmentStatusOptions}
           value={statusOption}
           name="status"
@@ -304,11 +348,16 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
       </Section>
       <PatientInfo patient={patient} />
       <Section>
-        <Heading>Area</Heading>
+        <Heading>
+          <TranslatedText stringId="general.area.label" fallback="Area" />
+        </Heading>
         {locationGroup.name}
       </Section>
       <Button variant="outlined" color="primary" onClick={onOpenAppointmentModal}>
-        Reschedule
+        <TranslatedText
+          stringId="scheduling.appointmentDetail.action.reschedule"
+          fallback="Reschedule"
+        />
       </Button>
       {!currentEncounter &&
         !currentEncounterError &&
@@ -316,7 +365,12 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
         !additionalDataLoading &&
         !createdEncounter && (
           <Button variant="text" color="primary" onClick={onOpenEncounterModal}>
-            <u>Admit or check-in</u>
+            <u>
+              <TranslatedText
+                stringId="scheduling.action.admitOrCheckIn"
+                fallback="Admit or check-in"
+              />
+            </u>
           </Button>
         )}
       {showErrorAlert && (
@@ -361,7 +415,12 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
           } catch (e) {
             // eslint-disable-next-line no-console
             console.error(e);
-            setErrorMessage('Unable to cancel appointment. Please try again.');
+            setErrorMessage(
+              <TranslatedText
+                stringId="scheduling.modal.cancelAppointment.error.unableToCancel"
+                fallback="Unable to cancel appointment. Please try again."
+              />,
+            );
           }
           setCancelConfirmed(false);
           setCancelModal(false);

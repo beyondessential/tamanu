@@ -8,6 +8,7 @@ import { FormSeparatorLine } from '../FormSeparatorLine';
 import { useApi, usePatientSuggester, useSuggester } from '../../api';
 import { appointmentTypeOptions } from '../../constants';
 import { useLocalisedText } from '../LocalisedText';
+import { TranslatedText } from '../Translation/TranslatedText';
 
 export const AppointmentForm = props => {
   const { onSuccess = () => {}, onCancel, appointment } = props;
@@ -67,7 +68,12 @@ export const AppointmentForm = props => {
         <>
           <FormGrid columns={1}>
             <Field
-              label="Patient"
+              label={
+                <TranslatedText
+                  stringId="general.patient.label"
+                  fallback="Patient"
+                />
+              }
               name="patientId"
               component={AutocompleteField}
               suggester={patientSuggester}
@@ -75,7 +81,12 @@ export const AppointmentForm = props => {
             />
             <FormSeparatorLine />
             <Field
-              label="Appointment type"
+              label={
+                <TranslatedText
+                  stringId="scheduling.newAppointment.form.type.label"
+                  fallback="Appointment type"
+                />
+              }
               name="type"
               component={SelectField}
               options={appointmentTypeOptions}
@@ -85,13 +96,20 @@ export const AppointmentForm = props => {
           <div style={{ marginTop: '1rem' }}>
             <FormGrid>
               <Field
-                label="Start time"
+                label={
+                  <TranslatedText stringId="general.startTime.label" fallback="Start time" />
+                }
                 name="startTime"
                 component={DateTimeField}
                 saveDateAsString
                 required
               />
-              <Field label="End time" name="endTime" saveDateAsString component={DateTimeField} />
+              <Field
+                label={<TranslatedText stringId="general.endTime.label" fallback="End time" />}
+                name="endTime"
+                saveDateAsString
+                component={DateTimeField}
+              />
               <Field
                 label={clinicianText}
                 name="clinicianId"
@@ -100,7 +118,7 @@ export const AppointmentForm = props => {
                 required
               />
               <Field
-                label="Area"
+                label={<TranslatedText stringId="general.area.label" fallback="Area" />}
                 name="locationGroupId"
                 component={AutocompleteField}
                 suggester={locationGroupSuggester}
@@ -111,7 +129,19 @@ export const AppointmentForm = props => {
               <FormSubmitCancelRow
                 onCancel={onCancel}
                 onConfirm={submitForm}
-                confirmText={isUpdating ? 'Update appointment' : 'Schedule appointment'}
+                confirmText={
+                  isUpdating ? (
+                    <TranslatedText
+                      stringId="scheduling.newAppointment.action.updateAppointment"
+                      fallback="'Update appointment'"
+                    />
+                  ) : (
+                    <TranslatedText
+                      stringId="scheduling.newAppointment.action.scheduleAppointment"
+                      fallback="Schedule appointment"
+                    />
+                  )
+                }
               />
             </FormGrid>
           </div>
