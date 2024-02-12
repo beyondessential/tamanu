@@ -35,7 +35,7 @@ const StyledQrContainer = styled.div`
   }
 `;
 
-export const AddReminderQrCodeContainer = ({ patient, handleCloseRemindersModal }) => {
+export const ReminderContactQR = ({ patient, onClose }) => {
   const [qrCodeURL, setQRCodeURL] = useState('');
   const data = {
     patientContactId: 'ff306f40-5068-49eb-b9f6-93bb4d2539d8',
@@ -61,12 +61,12 @@ export const AddReminderQrCodeContainer = ({ patient, handleCloseRemindersModal 
   };
 
   const handleSubmitQrCode = () => {
-    handleCloseRemindersModal();
+    onClose();
   };
 
   return (
     <>
-      <StyledHeaderText className="headerText">Scan QR code below</StyledHeaderText>
+      <StyledHeaderText>Scan QR code below</StyledHeaderText>
       <StyledText>
         Please ask the contact to scan the QR code to register their Telegram account to received
         automated reminder messages for{' '}

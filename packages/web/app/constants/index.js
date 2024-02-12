@@ -436,17 +436,3 @@ export const NOTE_FORM_MODES = {
   EDIT_NOTE: 'editNote',
   VIEW_NOTE: 'viewNote',
 };
-
-export const REMINDER_CONTACT_VIEWS = {
-  REMINDER_CONTACT_LIST: 'ReminderContactList',
-  ADD_REMINDER_FORM: 'AddReminderFrom',
-  ADD_REMINDER_QR_CODE: 'AddReminderQrCode',
-  REMOVE_REMINDER: 'RemoveReminder',
-};
-
-export const REMINDER_CONTACT_MODAL_TITLE = {
-  REMINDER_CONTACT_LIST: 'Reminder contacts',
-  ADD_REMINDER_FORM: 'Add reminder contact',
-  ADD_REMINDER_QR_CODE: 'Add reminder contact',
-  REMOVE_REMINDER: '',
-};

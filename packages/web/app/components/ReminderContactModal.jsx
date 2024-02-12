@@ -3,17 +3,30 @@ import styled from 'styled-components';
 
 import { Box } from '@material-ui/core';
 
-import { REMINDER_CONTACT_MODAL_TITLE, REMINDER_CONTACT_VIEWS } from '../constants';
-import { AddReminderContactContainer } from './AddReminderContactContainer';
-import { AddReminderQrCodeContainer } from './AddReminderQrCodeContainer';
+import { AddReminderContact } from './AddReminderContact';
 import { BaseModal } from './BaseModal';
-import { ReminderContactListContainer } from './ReminderContactListContainer';
+import { ReminderContactList } from './ReminderContactList';
+import { ReminderContactQR } from './ReminderContactQR';
 
 const ReminderModalContainer = styled(Box)`
   margin: 0 8px;
 `;
 
-export const ReminderContactModal = ({ patient, handleCloseRemindersModal }) => {
+const REMINDER_CONTACT_VIEWS = {
+  REMINDER_CONTACT_LIST: 'ReminderContactList',
+  ADD_REMINDER_FORM: 'AddReminderForm',
+  ADD_REMINDER_QR_CODE: 'AddReminderQrCode',
+  REMOVE_REMINDER: 'RemoveReminder',
+};
+
+const REMINDER_CONTACT_MODAL_TITLE = {
+  REMINDER_CONTACT_LIST: 'Reminder contacts',
+  ADD_REMINDER_FORM: 'Add reminder contact',
+  ADD_REMINDER_QR_CODE: 'Add reminder contact',
+  REMOVE_REMINDER: 'Remove reminder contact',
+};
+
+export const ReminderContactModal = ({ patient, onClose }) => {
   const [activeView, setActiveView] = useState(REMINDER_CONTACT_VIEWS.REMINDER_CONTACT_LIST);
 
   const handleActiveView = value => {
@@ -33,28 +46,35 @@ export const ReminderContactModal = ({ patient, handleCloseRemindersModal }) => 
     }
   };
 
+  const onContinue = async data => {
+    handleActiveView(REMINDER_CONTACT_VIEWS.ADD_REMINDER_QR_CODE);
+    await console.log(data);
+  };
+
+  const onBack = () => {
+    handleActiveView(REMINDER_CONTACT_VIEWS.REMINDER_CONTACT_LIST);
+  };
+
   return (
-    <BaseModal width="md" title={getModalTitle()} open onClose={handleCloseRemindersModal}>
+    <BaseModal width="md" title={getModalTitle()} open onClose={onClose}>
       <ReminderModalContainer>
         {activeView === REMINDER_CONTACT_VIEWS.REMINDER_CONTACT_LIST && (
-          <ReminderContactListContainer
+          <ReminderContactList
             patient={patient}
-            handleActiveView={handleActiveView}
-            handleCloseRemindersModal={handleCloseRemindersModal}
+            onAddContact={() => handleActiveView(REMINDER_CONTACT_VIEWS.ADD_REMINDER_FORM)}
+            onClose={onClose}
           />
         )}
         {activeView === REMINDER_CONTACT_VIEWS.ADD_REMINDER_FORM && (
-          <AddReminderContactContainer
+          <AddReminderContact
             patient={patient}
-            handleActiveView={handleActiveView}
-            handleCloseRemindersModal={handleCloseRemindersModal}
+            onContinue={onContinue}
+            onBack={onBack}
+            onClose={onClose}
           />
         )}
         {activeView === REMINDER_CONTACT_VIEWS.ADD_REMINDER_QR_CODE && (
-          <AddReminderQrCodeContainer
-            patient={patient}
-            handleCloseRemindersModal={handleCloseRemindersModal}
-          />
+          <ReminderContactQR patient={patient} onClose={onClose} />
         )}
       </ReminderModalContainer>
     </BaseModal>

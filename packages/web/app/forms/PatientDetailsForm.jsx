@@ -92,7 +92,7 @@ export const PrimaryDetailsGroup = ({ values = {}, patientRegistryType }) => {
     setOpenReminderModal(true);
   }, []);
 
-  const handleCloseRemindersModal = useCallback(() => {
+  const onClose = useCallback(() => {
     setOpenReminderModal(false);
   }, []);
 
@@ -114,7 +114,7 @@ export const PrimaryDetailsGroup = ({ values = {}, patientRegistryType }) => {
       </StyledHeading>
       {openReminderModal && (
         <ReminderContactModal
-          handleCloseRemindersModal={handleCloseRemindersModal}
+          onClose={onClose}
           handleOpenRemindersModal={handleOpenRemindersModal}
           patient={values}
         />

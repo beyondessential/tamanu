@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
 
 import { PlusIcon } from '../assets/icons/PlusIcon';
-import { Colors, REMINDER_CONTACT_VIEWS } from '../constants';
+import { Colors } from '../constants';
 import { useAuth } from '../contexts/Auth';
 import { Button } from './Button';
 import { ModalCancelRow } from './ModalActionRow';
@@ -108,11 +108,7 @@ const ContactDetails = ({ name }) => {
   );
 };
 
-export const ReminderContactListContainer = ({
-  patient,
-  handleActiveView,
-  handleCloseRemindersModal,
-}) => {
+export const ReminderContactList = ({ patient, onClose, onAddContact }) => {
   const { ability } = useAuth();
   const canAddReminderContacts = ability.can('write', 'Patient');
 
@@ -125,17 +121,13 @@ export const ReminderContactListContainer = ({
           variant="outlined"
           color="primary"
           size="small"
-          onClick={() => handleActiveView(REMINDER_CONTACT_VIEWS.ADD_REMINDER_FORM)}
+          onClick={onAddContact}
         >
           <PlusIcon fill={Colors.primary} />
           Add contact
         </StyledAddContactButton>
       )}
-      <ModalCancelRow
-        confirmText="Close"
-        confirmColor="primary"
-        onConfirm={handleCloseRemindersModal}
-      />
+      <ModalCancelRow confirmText="Close" confirmColor="primary" onConfirm={onClose} />
     </>
   );
 };

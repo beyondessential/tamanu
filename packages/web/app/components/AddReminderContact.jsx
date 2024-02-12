@@ -4,7 +4,7 @@ import * as yup from 'yup';
 
 import { Box, Divider, Typography } from '@material-ui/core';
 
-import { Colors, REMINDER_CONTACT_VIEWS } from '../constants';
+import { Colors } from '../constants';
 import { FormConfirmCancelBackRow } from './ButtonRow';
 import { Field, Form, SelectField } from './Field';
 
@@ -54,12 +54,7 @@ const StyledDivider = styled(Divider)`
 
 const REQUIRED_VALIDATION_MESSAGE = '*Required';
 
-const AddReminderForm = ({
-  patient,
-  onSubmitAddReminderForm,
-  handleCloseRemindersModal,
-  handleBackReminderModel,
-}) => {
+export const AddReminderContact = ({ patient, onContinue, onClose, onBack }) => {
   const relationshipArray = [
     {
       label: 'Son',
@@ -74,13 +69,12 @@ const AddReminderForm = ({
   return (
     <>
       <Form
-        onSubmit={onSubmitAddReminderForm}
+        onSubmit={onContinue}
         initialValues={{ contactName: 'test', relationship: 'son' }}
         validationSchema={yup.object().shape({
           contactName: yup.string().required(REQUIRED_VALIDATION_MESSAGE),
           relationship: yup.string().required(REQUIRED_VALIDATION_MESSAGE),
         })}
-        suppressErrorDialog
         render={({ submitForm }) => {
           return (
             <>
@@ -117,9 +111,9 @@ const AddReminderForm = ({
                 <StyledDivider />
               </StyledFullWidthContainer>
               <FormConfirmCancelBackRow
-                onBack={handleBackReminderModel}
+                onBack={onBack}
                 onConfirm={submitForm}
-                onCancel={handleCloseRemindersModal}
+                onCancel={onClose}
                 confirmText="Confirm & connect"
               />
             </>
@@ -127,29 +121,5 @@ const AddReminderForm = ({
         }}
       />
     </>
-  );
-};
-
-export const AddReminderContactContainer = ({
-  handleCloseRemindersModal,
-  handleActiveView,
-  patient,
-}) => {
-  const onSubmitAddReminderForm = async data => {
-    handleActiveView(REMINDER_CONTACT_VIEWS.ADD_REMINDER_QR_CODE);
-    await console.log(data);
-  };
-
-  const handleBackReminderModel = () => {
-    handleActiveView(REMINDER_CONTACT_VIEWS.REMINDER_CONTACT_LIST);
-  };
-
-  return (
-    <AddReminderForm
-      patient={patient}
-      handleBackReminderModel={handleBackReminderModel}
-      onSubmitAddReminderForm={onSubmitAddReminderForm}
-      handleCloseRemindersModal={handleCloseRemindersModal}
-    ></AddReminderForm>
   );
 };
