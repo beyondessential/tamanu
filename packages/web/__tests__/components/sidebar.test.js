@@ -91,7 +91,7 @@ const localisationMock = config => ({
   getLocalisation: () => ({ ...defaultConfig, ...config }),
 });
 
-describe.only('useFacilitySidebar', () => {
+describe('useFacilitySidebar', () => {
   afterEach(() => {
     vi.resetAllMocks();
   });
