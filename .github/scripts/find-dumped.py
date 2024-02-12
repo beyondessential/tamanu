@@ -13,7 +13,7 @@ dumped_iter = iter(
 commits_bytes = subprocess.run(
     ["/usr/bin/git", "log", "--pretty=format:%H"], check=True, capture_output=True
 ).stdout.splitlines()
-commits = map(lambda c: str(c, encoding="ascii"), commits_bytes)
+commits = list(map(lambda c: str(c, encoding="ascii"), commits_bytes))
 commits = commits[1:]  # Skip the latest commit as we want an old db dump.
 
 dumped = next(dumped_iter)
