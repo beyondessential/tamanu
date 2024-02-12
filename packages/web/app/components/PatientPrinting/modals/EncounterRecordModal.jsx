@@ -1,5 +1,4 @@
 import React from 'react';
-import { PDFViewer } from '@react-pdf/renderer';
 
 import { NOTE_TYPES } from '@tamanu/constants/notes';
 import { LAB_REQUEST_STATUSES } from '@tamanu/constants/labs';
@@ -27,6 +26,7 @@ import { TranslatedText } from '../../Translation/TranslatedText';
 import { useVitals } from '../../../api/queries/useVitals';
 import { DateDisplay, formatShortest, formatTime } from '../../DateDisplay';
 import { useTranslation } from '../../../contexts/Translation';
+import { PDFLoader } from '../PDFLoader';
 
 // These below functions are used to extract the history of changes made to the encounter that are stored in notes.
 // obviously a better solution needs to be to properly implemented for storing and accessing this data, but this is an ok workaround for now.
