@@ -1,6 +1,6 @@
 import { describe, expect, afterEach, it, vi } from 'vitest';
-import { useFacilitySidebar } from '../app/components/Sidebar';
-import { useLocalisation } from '../app/contexts/Localisation';
+import { useFacilitySidebar } from '../../app/components/Sidebar/index.js';
+import { useLocalisation } from '../../app/contexts/Localisation.jsx';
 
 const defaultConfig = {
   patients: {
@@ -85,10 +85,10 @@ const defaultConfig = {
   },
 };
 
-vi.mock('../app/contexts/Localisation');
+vi.mock('../../app/contexts/Localisation');
 
-const localisationMock = (config = defaultConfig) => ({
-  getLocalisation: () => config,
+const localisationMock = config => ({
+  getLocalisation: () => ({ ...defaultConfig, ...config }),
 });
 
 describe.only('useFacilitySidebar', () => {
@@ -96,17 +96,70 @@ describe.only('useFacilitySidebar', () => {
     vi.resetAllMocks();
   });
 
-  it.only('should display the correct items', () => {
+  it('should display the correct items', () => {
     vi.mocked(useLocalisation).mockReturnValue(localisationMock());
     const items = useFacilitySidebar();
     expect(items.length).toBe(8);
+    expect(items[0].key).toBe('patients');
+    expect(items[0].children.length).toBe(4);
   });
-  it.only('should hide top level items', () => {
+
+  it('should hide top level items', () => {
     vi.mocked(useLocalisation).mockReturnValue(localisationMock({ patients: { hidden: true } }));
     const items = useFacilitySidebar();
     expect(items.length).toBe(7);
   });
-  it('should hide secondary level items', () => {});
-  it('should sort top level items', () => {});
-  it('should sort secondary level items', () => {});
+
+  it('should hide secondary level items', () => {
+    vi.mocked(useLocalisation).mockReturnValue(
+      localisationMock({ patients: { patientsEmergency: { hidden: true } } }),
+    );
+    const items = useFacilitySidebar();
+    expect(items[0].children.length).toBe(3);
+  });
+
+  it('should sort top level items', () => {
+    vi.mocked(useLocalisation).mockReturnValue(
+      localisationMock({ patients: { sortPriority: 10 } }),
+    );
+    const items = useFacilitySidebar();
+    expect(items.map(item => item.key)).toStrictEqual([
+      'scheduling',
+      'medication',
+      'imaging',
+      'labs',
+      'immunisations',
+      'programRegistry',
+      'patients',
+      'facilityAdmin',
+    ]);
+  });
+
+  it('should sort secondary level items', () => {
+    vi.mocked(useLocalisation).mockReturnValue(
+      localisationMock({
+        patients: {
+          patientsAll: {
+            sortPriority: 3,
+          },
+          patientsInpatients: {
+            sortPriority: 2,
+          },
+          patientsEmergency: {
+            sortPriority: 1,
+          },
+          patientsOutpatients: {
+            sortPriority: -1,
+          },
+        },
+      }),
+    );
+    const items = useFacilitySidebar();
+    expect(items[0].children.map(item => item.key)).toStrictEqual([
+      'patientsOutpatients',
+      'patientsEmergency',
+      'patientsInpatients',
+      'patientsAll',
+    ]);
+  });
 });

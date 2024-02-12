@@ -9,10 +9,11 @@ const sortTopLevelItems = (a, b) => {
   return a.sortPriority - b.sortPriority;
 };
 
+// This hook is used to get the menu items for the facility sidebar. It gets the configured hidden and
+// sortPriority values from  sidebar config and merges them with the FACILITY_MENU_ITEMS constant
 export const useFacilitySidebar = () => {
   const { getLocalisation } = useLocalisation();
   const sidebarConfig = getLocalisation('sidebar');
-  console.log('sidebarConfig', sidebarConfig);
 
   return FACILITY_MENU_ITEMS.reduce((topLevelItems, item) => {
     const localisedItem = sidebarConfig[item.key];
