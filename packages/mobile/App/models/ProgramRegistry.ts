@@ -48,7 +48,7 @@ export class ProgramRegistry extends BaseModel implements IProgramRegistry {
   @JoinColumn()
   program: Program;
 
-  @RelationId<Program>(({ program }) => program)
+  @RelationId(({ program }) => program)
   programId: ID;
 
   static getTableNameForSync(): string {

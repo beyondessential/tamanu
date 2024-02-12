@@ -26,7 +26,7 @@ export class ProgramRegistryClinicalStatus extends BaseModel
 
   @ManyToOne(() => ProgramRegistry)
   programRegistry: ProgramRegistry;
-  @RelationId<ProgramRegistryClinicalStatus>(({ programRegistry }) => programRegistry)
+  @RelationId(({ programRegistry }) => programRegistry)
   programRegistryId: ID;
 
   @OneToMany<PatientProgramRegistration>(

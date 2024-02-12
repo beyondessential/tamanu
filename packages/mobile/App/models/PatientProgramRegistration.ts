@@ -35,42 +35,42 @@ export class PatientProgramRegistration extends BaseModel implements IPatientPro
   // Relations
   @ManyToOne(() => ProgramRegistry)
   programRegistry: IProgramRegistry;
-  @RelationId<PatientProgramRegistration>(({ programRegistry }) => programRegistry)
+  @RelationId(({ programRegistry }) => programRegistry)
   programRegistryId: ID;
 
   @ManyToOne(() => Patient)
   patient: IPatient;
-  @RelationId<PatientProgramRegistration>(({ patient }) => patient)
+  @RelationId(({ patient }) => patient)
   patientId: ID;
 
   @ManyToOne(() => ProgramRegistryClinicalStatus, undefined, { nullable: true })
   clinicalStatus?: IProgramRegistryClinicalStatus;
-  @RelationId<PatientProgramRegistration>(({ clinicalStatus }) => clinicalStatus)
+  @RelationId(({ clinicalStatus }) => clinicalStatus)
   clinicalStatusId?: ID;
 
   @NullableReferenceDataRelation()
   village?: IReferenceData;
-  @RelationId<PatientProgramRegistration>(({ village }) => village)
+  @RelationId(({ village }) => village)
   villageId?: ID;
 
   @ManyToOne(() => Facility, undefined, { nullable: true })
   facility?: IFacility;
-  @RelationId<PatientProgramRegistration>(({ facility }) => facility)
+  @RelationId(({ facility }) => facility)
   facilityId?: ID;
 
   @ManyToOne(() => Facility, undefined, { nullable: true })
   registeringFacility?: IFacility;
-  @RelationId<PatientProgramRegistration>(({ registeringFacility }) => registeringFacility)
+  @RelationId(({ registeringFacility }) => registeringFacility)
   registeringFacilityId?: ID;
 
   @ManyToOne(() => User, undefined, { nullable: false })
   clinician: IUser;
-  @RelationId<PatientProgramRegistration>(({ clinician }) => clinician)
+  @RelationId(({ clinician }) => clinician)
   clinicianId: ID;
 
-  dateRemoved: DateTimeString;
-  removedBy?: IUser;
-  removedById?: ID;
+  // dateRemoved: DateTimeString;
+  // removedBy?: IUser;
+  // removedById?: ID;
 
   static async getRecentOne(
     programId?: string,
