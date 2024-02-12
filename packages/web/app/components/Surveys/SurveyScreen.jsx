@@ -120,7 +120,7 @@ export const SurveyScreen = ({
         {submitButton || (
           <>
             <OutlinedButton onClick={onStepBack || undefined} disabled={!onStepBack}>
-              <TranslatedText stringId="general.action.prev" fallback="Prev" />
+              <TranslatedText stringId="general.action.previous" fallback="Prev" />
             </OutlinedButton>
             <Button color="primary" variant="contained" onClick={validateAndStep}>
               <TranslatedText stringId="general.action.next" fallback="Next" />

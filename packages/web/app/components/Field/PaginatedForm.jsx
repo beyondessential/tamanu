@@ -14,18 +14,18 @@ import { TranslatedText } from '../Translation/TranslatedText';
 const DefaultSummaryScreen = ({ onStepBack, submitForm }) => (
   <div>
     <Typography variant="h6" gutterBottom>
-      <TranslatedText stringId="program.modal.surveyResponse.complete" fallback="Survey complete" />
+      <TranslatedText stringId="paginatedForm.summary.heading" fallback="Form complete" />
     </Typography>
     <Typography>
       <TranslatedText
-        stringId="program.modal.surveyResponse.completeMessage"
+        stringId="paginatedForm.summary.completeMessage"
         fallback='Press "Complete" to submit your response, or use the Back button to review answers.'
       />
     </Typography>
     <div>
       <ButtonRow>
         <OutlinedButton onClick={onStepBack}>
-          <TranslatedText stringId="general.action.prev" fallback="Prev" />
+          <TranslatedText stringId="general.action.previous" fallback="Prev" />
         </OutlinedButton>
         <Button color="primary" variant="contained" onClick={submitForm}>
           <TranslatedText stringId="general.action.complete" fallback="Complete" />
@@ -42,7 +42,7 @@ const StyledAlert = styled(Alert)`
 const DefaultSuccessScreen = ({ onClose }) => (
   <div>
     <StyledAlert severity="success">
-      <TranslatedText stringId="" fallback="Your response has been successfully submitted." />
+      <TranslatedText stringId="paginatedForm.success.heading" fallback="Your response has been successfully submitted." />
     </StyledAlert>
     <ButtonRow>
       <Button variant="contained" color="primary" onClick={onClose}>
