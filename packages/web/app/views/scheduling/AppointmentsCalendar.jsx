@@ -98,7 +98,7 @@ export const AppointmentsCalendar = () => {
 
   const filters = {
     locationGroup: {
-      label: 'Area',
+      label: <TranslatedText stringId="general.area.label" fallback="Area" />,
       component: (
         <AutocompleteInput
           value={filterValue}
@@ -139,7 +139,7 @@ export const AppointmentsCalendar = () => {
     <PageContainer>
       <TwoColumnDisplay>
         <LeftContainer>
-          <TopBarBase title="Calendar" />
+          <TopBarBase title={<TranslatedText stringId="appointments.calendar.heading" />} />
           <Section>
             <SectionTitle variant="subtitle2">View calendar by:</SectionTitle>
             <FilterSwitch>

@@ -21,7 +21,7 @@ export const AppointmentListingView = () => {
   const COLUMNS = [
     {
       key: 'startTime',
-      title: 'Date',
+      title: <TranslatedText stringId='general.date.label' fallback="Date" />,
       accessor: row => <DateDisplay date={row.startTime} showTime />,
     },
     {
@@ -33,7 +33,7 @@ export const AppointmentListingView = () => {
     },
     {
       key: 'patientName',
-      title: 'Patient',
+      title: <TranslatedText stringId='general.patient.label' fallback="Patient" />,
       accessor: row => `${row.patient.firstName} ${row.patient.lastName}`,
     },
     {
@@ -57,11 +57,11 @@ export const AppointmentListingView = () => {
     },
     {
       key: 'locationGroupId',
-      title: 'Area',
+      title: <TranslatedText stringId="general.area.label" fallback="Area" />,
       accessor: row => row.locationGroup.name,
     },
-    { key: 'type', title: 'Type' },
-    { key: 'status', title: 'Status' },
+    { key: 'type', title: <TranslatedText stringId="general.type.label" fallback="Type" /> },
+    { key: 'status', title: <TranslatedText stringId="general.status.label" fallback="Status" /> },
   ];
 
   const [searchParams, setSearchParams] = useState({});
@@ -69,16 +69,23 @@ export const AppointmentListingView = () => {
 
   return (
     <PageContainer>
-      <TopBar title="Appointments">
+      <TopBar title={<TranslatedText stringId="appointments.heading" fallback="Appointments" />}>
         <NewAppointmentButton onSuccess={updateRefreshCount} />
       </TopBar>
       <ContentPane>
-        <SearchTableTitle>Appointment search</SearchTableTitle>
+        <SearchTableTitle>
+          <TranslatedText stringId="appointments.search.heading" fallback="Appointment search" />
+        </SearchTableTitle>
         <AppointmentsSearchBar onSearch={setSearchParams} />
         <SearchTable
           endpoint="appointments"
           columns={COLUMNS}
-          noDataMessage="No appointments found"
+          noDataMessage={
+            <TranslatedText
+              stringId="appointments.table.noDataMessage"
+              fallback="No appointments found"
+            />
+          }
           initialSort={{ order: 'asc', orderBy: 'startTime' }}
           fetchOptions={searchParams}
           refreshCount={refreshCount}

@@ -48,13 +48,13 @@ const LISTING_COLUMNS = [
 
 const location = {
   key: 'locationName',
-  title: 'Location',
+  title: <TranslatedText stringId="general.location.label" fallback="Location" />,
   accessor: LocationCell,
 };
 
 const locationGroup = {
   key: 'locationGroupName',
-  title: 'Area',
+  title: <TranslatedText stringId="general.area.label" fallback="Area" />,
   accessor: LocationGroupCell,
 };
 
