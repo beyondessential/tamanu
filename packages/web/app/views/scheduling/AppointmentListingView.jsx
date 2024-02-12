@@ -21,7 +21,7 @@ export const AppointmentListingView = () => {
   const COLUMNS = [
     {
       key: 'startTime',
-      title: 'Date',
+      title: <TranslatedText stringId="general.table.column.date" fallback="Date" />,
       accessor: row => <DateDisplay date={row.startTime} showTime />,
     },
     {
@@ -33,7 +33,7 @@ export const AppointmentListingView = () => {
     },
     {
       key: 'patientName',
-      title: 'Patient',
+      title: <TranslatedText stringId="general.table.column.patientName" fallback="Patient" />,
       accessor: row => `${row.patient.firstName} ${row.patient.lastName}`,
     },
     {
@@ -57,11 +57,14 @@ export const AppointmentListingView = () => {
     },
     {
       key: 'locationGroupId',
-      title: 'Area',
+      title: <TranslatedText stringId="general.table.column.area" fallback="Area" />,
       accessor: row => row.locationGroup.name,
     },
-    { key: 'type', title: 'Type' },
-    { key: 'status', title: 'Status' },
+    { key: 'type', title: <TranslatedText stringId="general.table.column.type" fallback="Type" /> },
+    {
+      key: 'status',
+      title: <TranslatedText stringId="general.table.column.status" fallback="Status" />,
+    },
   ];
 
   const [searchParams, setSearchParams] = useState({});
@@ -69,11 +72,20 @@ export const AppointmentListingView = () => {
 
   return (
     <PageContainer>
-      <TopBar title="Appointments">
+      <TopBar
+        title={
+          <TranslatedText stringId="scheduling.upcomingAppointment.title" fallback="Appointments" />
+        }
+      >
         <NewAppointmentButton onSuccess={updateRefreshCount} />
       </TopBar>
       <ContentPane>
-        <SearchTableTitle>Appointment search</SearchTableTitle>
+        <SearchTableTitle>
+          <TranslatedText
+            stringId="scheduling.upcomingAppointment.search.title"
+            fallback="Appointment search"
+          />
+        </SearchTableTitle>
         <AppointmentsSearchBar onSearch={setSearchParams} />
         <SearchTable
           endpoint="appointments"

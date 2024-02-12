@@ -98,7 +98,9 @@ export const AppointmentsCalendar = () => {
 
   const filters = {
     locationGroup: {
-      label: 'Area',
+      label: (
+        <TranslatedText stringId="general.area.label" fallback="Area" />
+      ),
       component: (
         <AutocompleteInput
           value={filterValue}
@@ -139,9 +141,19 @@ export const AppointmentsCalendar = () => {
     <PageContainer>
       <TwoColumnDisplay>
         <LeftContainer>
-          <TopBarBase title="Calendar" />
+          <TopBarBase
+            title={
+              <TranslatedText stringId="scheduling.appointmentCalendar.title" fallback="Calendar" />
+            }
+          />
           <Section>
-            <SectionTitle variant="subtitle2">View calendar by:</SectionTitle>
+            <SectionTitle variant="subtitle2">
+              <TranslatedText
+                stringId="scheduling.appointmentCalendar.subTitle"
+                fallback="View calendar by"
+              />
+              :
+            </SectionTitle>
             <FilterSwitch>
               {Object.entries(filters).map(([key, { label }]) => (
                 <Button
@@ -163,7 +175,12 @@ export const AppointmentsCalendar = () => {
             {filters[activeFilter].component}
           </Section>
           <Section>
-            <SectionTitle variant="subtitle2">Appointment type</SectionTitle>
+            <SectionTitle variant="subtitle2">
+              <TranslatedText
+                stringId="scheduling.appointmentCalendar.filter.appointmentType"
+                fallback="Appointment type"
+              />
+            </SectionTitle>
             <MultiselectInput
               onChange={e => {
                 if (!e.target.value) {
@@ -185,7 +202,10 @@ export const AppointmentsCalendar = () => {
                   setDate(new Date());
                 }}
               >
-                Today
+                <TranslatedText
+                  stringId="scheduling.appointmentCalendar.action.today"
+                  fallback="Today"
+                />
               </TodayButton>
 
               <NavigationButton
