@@ -59,14 +59,13 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
     it('fetches a specimen by materialised ID', async () => {
       // arrange
       const { FhirSpecimen, FhirServiceRequest } = ctx.store.models;
-      const { category, labRequest } = await fakeResourcesOfFhirSpecimen(
+      const { labRequest, specimenType, bodySiteRef } = await fakeResourcesOfFhirSpecimen(
         ctx.store.models,
         resources,
       );
       const materialisedServiceRequest = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
       const materialiseSpecimen = await FhirSpecimen.materialiseFromUpstream(labRequest.id);
       await FhirSpecimen.resolveUpstreams();
-      console.log({ materialiseSpecimen });
       const path = `/v1/integration/${INTEGRATION_ROUTE}/Specimen/${materialiseSpecimen.id}`;
 
       // act
@@ -78,7 +77,6 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       response.body?.identifier?.sort((a, b) => a.system.localeCompare(b.system));
 
       const { fhirPractitioner } = fhirResources;
-      console.log({ body: response.body });
 
       // assert
       expect(response.body).toMatchObject({
@@ -88,7 +86,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
           lastUpdated: formatFhirDate(materialiseSpecimen.lastUpdated),
         },
         collection: {
-          collectedDateTime: formatFhirDate('2022-07-27 15:05:00'),
+          collectedDateTime: formatFhirDate(labRequest.sampleTime),
           collector: {
             type: 'Practitioner',
             display: fhirPractitioner.name[0].text,
@@ -96,12 +94,20 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
           },
           bodySite: {
             coding: [{
-              code: category.code,
+              code: bodySiteRef.code,
               system: 'http://bodySITE.NEW',
-              display: category.name
+              display: bodySiteRef.name
             }]
-          }
+          },
+        },
+        type: {
+          coding: [{
+            code: specimenType.code,
+            system: 'http://www.senaite.com/data/sample_types',
+            display: specimenType.name
+          }]
         }
+
       });
       expect(response.headers['last-modified']).toBe(formatRFC7231(new Date(materialiseSpecimen.lastUpdated)));
       expect(response).toHaveSucceeded();

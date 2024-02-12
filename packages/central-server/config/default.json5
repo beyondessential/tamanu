@@ -970,7 +970,8 @@
       "imagingStudyAccessionId": "http://data-dictionary.tamanu-fiji.org/ris-accession-number.html",
       "ethnicityId": "http://data-dictionary.tamanu-fiji.org/extensions/ethnic-group-code.html",
       "locationPhysicalType": "http://terminology.hl7.org/CodeSystem/location-physical-type",
-      "specimenType": "http://www.senaite.com/data/sample_types"
+      "specimenType": "http://www.senaite.com/data/sample_types",
+      "sampleBodySite": "http://bodySITE.NEW"
     }
   },
   "s3": {},
