@@ -3,12 +3,6 @@
 import { addDays, formatRFC7231 } from 'date-fns';
 
 import { fake } from '@tamanu/shared/test-helpers';
-import {
-  FHIR_DATETIME_PRECISION,
-  IMAGING_REQUEST_STATUS_TYPES,
-  NOTE_TYPES,
-  VISIBILITY_STATUSES,
-} from '@tamanu/constants';
 import { fakeUUID } from '@tamanu/shared/utils/generateId';
 import { formatFhirDate } from '@tamanu/shared/utils/fhir/datetime';
 
@@ -16,6 +10,7 @@ import { createTestContext } from '../../utilities';
 import {
   fakeResourcesOfFhirServiceRequest,
   fakeResourcesOfFhirServiceRequestWithLabRequest,
+  fakeResourcesOfFhirSpecimen,
 } from '../../fake/fhir';
 
 const INTEGRATION_ROUTE = 'fhir/mat';
@@ -45,17 +40,13 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
     beforeEach(async () => {
       const {
         FhirServiceRequest,
-        ImagingRequest,
-        ImagingRequestArea,
         LabRequest,
         LabTestPanel,
         LabTestPanelRequest,
         FhirEncounter,
       } = ctx.store.models;
       await FhirEncounter.destroy({ where: {} });
-      await FhirServiceRequest.destroy({ where: {} });
-      await ImagingRequest.destroy({ where: {} });
-      await ImagingRequestArea.destroy({ where: {} });
+      //await FhirServiceRequest.destroy({ where: {} });
       await LabRequest.destroy({ where: {} });
       await LabTestPanel.destroy({ where: {} });
       await LabTestPanelRequest.destroy({ where: {} });
@@ -67,15 +58,15 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
 
     it('fetches a specimen by materialised ID', async () => {
       // arrange
-      const { FhirServiceRequest } = ctx.store.models;
-      const { labTestPanel, labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
+      const { FhirSpecimen } = ctx.store.models;
+      const { labTestPanel, labRequest } = await fakeResourcesOfFhirSpecimen(
         ctx.store.models,
         resources,
       );
-      const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
-      await FhirServiceRequest.resolveUpstreams();
-
-      const path = `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest/${mat.id}`;
+      const mat = await FhirSpecimen.materialiseFromUpstream(labRequest.id);
+      await FhirSpecimen.resolveUpstreams();
+      console.log({ mat });
+      const path = `/v1/integration/${INTEGRATION_ROUTE}/Specimen/${mat.id}`;
 
       // act
       const response = await app.get(path);
@@ -85,70 +76,28 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       response.body?.orderDetail?.sort((a, b) => a.text.localeCompare(b.text));
       response.body?.identifier?.sort((a, b) => a.system.localeCompare(b.system));
 
+       const {  fhirPractitioner } = fhirResources;
+       console.log({ fhirPractitioner });
+
       // assert
       expect(response.body).toMatchObject({
-        resourceType: 'ServiceRequest',
+        resourceType: 'Specimen',
         id: expect.any(String),
         meta: {
           lastUpdated: formatFhirDate(mat.lastUpdated),
         },
-        identifier: [
-          {
-            system: 'http://data-dictionary.tamanu-fiji.org/tamanu-id-labrequest.html',
-            value: labRequest.id,
-          },
-          {
-            system: 'http://data-dictionary.tamanu-fiji.org/tamanu-mrid-labrequest.html',
-            value: labRequest.displayId,
-          },
-        ],
-        status: 'completed',
-        intent: 'order',
-        category: [
-          {
-            coding: [
-              {
-                system: 'http://snomed.info/sct',
-                code: '108252007',
-              },
-            ],
-          },
-        ],
-        priority: 'routine',
-        code: {
-          coding: [
-            {
-              code: labTestPanel.externalCode,
-              display: labTestPanel.name,
-              system:
-                'http://intersystems.com/fhir/extn/sda3/lib/code-table-translated-prior-codes',
-            },
-          ],
-        },
-        orderDetail: [],
-        subject: {
-          reference: `Patient/${resources.fhirPatient.id}`,
-          type: 'Patient',
-          display: `${resources.patient.firstName} ${resources.patient.lastName}`,
-        },
-        encounter: {
-          reference: `Encounter/${fhirResources.fhirEncounter.id}`,
-          type: 'Encounter',
-        },
-        occurrenceDateTime: formatFhirDate('2022-07-27 16:30:00'),
-        requester: {
-          type: 'Practitioner',
-          reference: `Practitioner/${fhirResources.fhirPractitioner.id}`,
-          display: fhirResources.fhirPractitioner.name[0].text,
-        },
-        locationCode: [],
-        note: [],
+        sampleTime: formatFhirDate(labRequest.sampleTime),
+        collection: {
+          collectedDateTime: formatFhirDate(mat.sampleTime),
+          collector: {
+            type: 'Practitioner',
+            display: fhirPractitioner.name[0].text,
+            reference: `Practitioner/${fhirPractitioner.id}`
+          }
+        }
       });
       expect(response.headers['last-modified']).toBe(formatRFC7231(new Date(mat.lastUpdated)));
       expect(response).toHaveSucceeded();
-
-      // regression EPI-403
-      expect(response.body.subject).not.toHaveProperty('identifier');
     });
 
   });
