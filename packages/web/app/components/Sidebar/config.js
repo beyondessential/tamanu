@@ -22,24 +22,28 @@ export const FACILITY_MENU_ITEMS = [
         label: 'All patients',
         color: Colors.blue,
         path: '/patients/all',
+        key: 'patientsAll',
         ability: { action: 'read' },
       },
       {
         label: 'Inpatients',
         color: Colors.green,
         path: '/patients/inpatient',
+        key: 'patientsInpatients',
         ability: { action: 'read' },
       },
       {
         label: 'Emergency patients',
         color: Colors.orange,
         path: '/patients/emergency',
+        key: 'patientsEmergency',
         ability: { action: 'read' },
       },
       {
         label: 'Outpatients',
         color: '#F9BA5B',
         path: '/patients/outpatient',
+        key: 'patientsOutpatients',
         ability: { action: 'read' },
       },
     ],
@@ -54,16 +58,19 @@ export const FACILITY_MENU_ITEMS = [
       {
         label: 'Upcoming appointments',
         path: '/appointments/all',
+        key: 'schedulingAll',
         ability: { action: 'read' },
       },
       {
         label: 'Appointments calendar',
         path: '/appointments/calendar',
+        key: 'schedulingCalendar',
         ability: { action: 'read' },
       },
       {
         label: 'New appointment',
         path: '/appointments/new',
+        key: 'schedulingNew',
         ability: { action: 'create' },
       },
     ],
@@ -78,6 +85,7 @@ export const FACILITY_MENU_ITEMS = [
       {
         label: 'Requests',
         path: '/medication-requests/all',
+        key: 'medicationRequests',
         ability: { action: 'read' },
       },
     ],
@@ -92,11 +100,13 @@ export const FACILITY_MENU_ITEMS = [
       {
         label: 'Active requests',
         path: '/imaging-requests/active',
+        key: 'imagingActive',
         ability: { action: 'read' },
       },
       {
         label: 'Completed',
         path: '/imaging-requests/completed',
+        key: 'imagingCompleted',
         ability: { action: 'read' },
       },
     ],
@@ -111,11 +121,13 @@ export const FACILITY_MENU_ITEMS = [
       {
         label: 'Active requests',
         path: '/lab-requests/all',
+        key: 'labsRequests',
         ability: { action: 'read' },
       },
       {
         label: 'Published',
         path: '/lab-requests/published',
+        key: 'labsPublished',
         ability: { action: 'read' },
       },
     ],
@@ -130,6 +142,7 @@ export const FACILITY_MENU_ITEMS = [
       {
         label: 'Immunisation register',
         path: `/immunisations/all`,
+        key: `immunisationsAll`,
       },
     ],
   },
