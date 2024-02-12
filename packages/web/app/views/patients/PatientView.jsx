@@ -40,7 +40,7 @@ const StyledDisplayTabs = styled(TabDisplay)`
 
 const TABS = [
   {
-    label: <TranslatedText stringId="patienthistory" fallback="History" />,
+    label: <TranslatedText stringId="patient.tab.history" fallback="History" />,
     key: PATIENT_TABS.HISTORY,
     icon: 'fa fa-calendar-day',
     render: props => <HistoryPane {...props} />,
