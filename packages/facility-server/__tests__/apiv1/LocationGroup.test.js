@@ -108,7 +108,7 @@ describe('Location groups', () => {
         revisedById: note2.id,
         date: getDateTimeSubtractedFromNow(2),
       });
-      const note1Edited = await models.Note.create({
+      await models.Note.create({
         content: 'Note 1 edited',
         noteType: NOTE_TYPES.HANDOVER,
         recordType: NOTE_RECORD_TYPES.ENCOUNTER,
@@ -117,7 +117,7 @@ describe('Location groups', () => {
         date: getDateTimeSubtractedFromNow(1),
       });
 
-      const result = await app.get(`/v1/locationGroup/${group.id}/handoverNotes`);
+      const result = await app.get(`/api/locationGroup/${group.id}/handoverNotes`);
       expect(result).toHaveSucceeded();
       expect(result.body.data).toHaveLength(1);
       expect(result.body.data[0]).toMatchObject({
@@ -142,7 +142,7 @@ describe('Location groups', () => {
         recordId: encounter.id,
         date: getDateTimeSubtractedFromNow(4),
       });
-      const note1Edited = await models.Note.create({
+      await models.Note.create({
         content: 'Note 1 edited',
         noteType: NOTE_TYPES.HANDOVER,
         recordType: NOTE_RECORD_TYPES.ENCOUNTER,
@@ -151,7 +151,7 @@ describe('Location groups', () => {
         date: getDateTimeSubtractedFromNow(1),
       });
 
-      const result = await app.get(`/v1/locationGroup/${group.id}/handoverNotes`);
+      const result = await app.get(`/api/locationGroup/${group.id}/handoverNotes`);
       expect(result).toHaveSucceeded();
       expect(result.body.data).toHaveLength(1);
       expect(result.body.data[0]).toMatchObject({

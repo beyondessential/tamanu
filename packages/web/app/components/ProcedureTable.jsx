@@ -7,7 +7,7 @@ const getProcedureLabel = ({ procedureType }) => procedureType.name;
 const getCodeLabel = ({ procedureType }) => procedureType.code;
 
 const COLUMNS = [
-  { key: 'date', title: 'Date', accessor: ({ startTime }) => <DateDisplay date={startTime} /> },
+  { key: 'date', title: 'Date', accessor: ({ date }) => <DateDisplay date={date} /> },
   { key: 'ProcedureType.code', title: 'Code', accessor: getCodeLabel },
   { key: 'ProcedureType.name', title: 'Procedure', accessor: getProcedureLabel },
 ];

@@ -291,7 +291,7 @@ const createSurveys = async (models, app, expectedPatient1, expectedPatient2) =>
   );
 
   // ----Submit answers for patient 1----
-  await app.post('/v1/surveyResponse').send({
+  await app.post('/api/surveyResponse').send({
     surveyId: FIJI_SAMP_SURVEY_ID,
     startTime: '2021-03-11 10:50:28',
     patientId: expectedPatient1.id,
@@ -305,7 +305,7 @@ const createSurveys = async (models, app, expectedPatient1, expectedPatient2) =>
       'pde-FijCOVSamp11': 'pde-FijCOVSamp11-on-2021-03-13 10:53:15-Patient1',
     },
   });
-  await app.post('/v1/surveyResponse').send({
+  await app.post('/api/surveyResponse').send({
     surveyId: FIJI_SAMP_SURVEY_ID,
     startTime: '2021-03-14 10:50:28',
     patientId: expectedPatient1.id,
@@ -319,7 +319,7 @@ const createSurveys = async (models, app, expectedPatient1, expectedPatient2) =>
       'pde-FijCOVSamp11': 'pde-FijCOVSamp11-on-2021-03-14 10:53:15-Patient1',
     },
   });
-  await app.post('/v1/surveyResponse').send({
+  await app.post('/api/surveyResponse').send({
     surveyId: FIJI_SAMP_SURVEY_ID,
     startTime: '2021-03-16 10:50:28',
     patientId: expectedPatient1.id,
@@ -333,7 +333,7 @@ const createSurveys = async (models, app, expectedPatient1, expectedPatient2) =>
       'pde-FijCOVSamp11': 'pde-FijCOVSamp11-on-2021-03-16 10:53:15-Patient1',
     },
   });
-  await app.post('/v1/surveyResponse').send({
+  await app.post('/api/surveyResponse').send({
     surveyId: FIJI_SAMP_SURVEY_ID,
     startTime: '2021-03-18 10:50:28',
     patientId: expectedPatient1.id,
@@ -349,7 +349,7 @@ const createSurveys = async (models, app, expectedPatient1, expectedPatient2) =>
   });
 
   // ----Submit answers for patient 2----
-  await app.post('/v1/surveyResponse').send({
+  await app.post('/api/surveyResponse').send({
     surveyId: FIJI_SAMP_SURVEY_ID,
     startTime: '2021-03-18 10:50:28',
     patientId: expectedPatient2.id,
@@ -363,7 +363,7 @@ const createSurveys = async (models, app, expectedPatient1, expectedPatient2) =>
       'pde-FijCOVSamp11': 'pde-FijCOVSamp11-on-2021-03-18 10:53:15-Patient2',
     },
   });
-  await app.post('/v1/surveyResponse').send({
+  await app.post('/api/surveyResponse').send({
     surveyId: FIJI_SAMP_SURVEY_ID,
     startTime: '2021-03-19 10:50:28',
     patientId: expectedPatient2.id,
@@ -377,7 +377,7 @@ const createSurveys = async (models, app, expectedPatient1, expectedPatient2) =>
       'pde-FijCOVSamp11': 'pde-FijCOVSamp11-on-2021-03-19 10:53:15-Patient2',
     },
   });
-  await app.post('/v1/surveyResponse').send({
+  await app.post('/api/surveyResponse').send({
     surveyId: FIJI_SAMP_SURVEY_ID,
     startTime: '2021-03-21 10:50:28',
     patientId: expectedPatient2.id,
@@ -391,7 +391,7 @@ const createSurveys = async (models, app, expectedPatient1, expectedPatient2) =>
       'pde-FijCOVSamp11': 'pde-FijCOVSamp11-on-2021-03-21 10:53:15-Patient2',
     },
   });
-  await app.post('/v1/surveyResponse').send({
+  await app.post('/api/surveyResponse').send({
     surveyId: FIJI_SAMP_SURVEY_ID,
     startTime: '2021-03-23 10:50:28',
     patientId: expectedPatient2.id,
@@ -448,7 +448,7 @@ describe('Covid swab lab test list', () => {
   describe('checks permissions', () => {
     it('should reject creating a report with insufficient permissions', async () => {
       const noPermsApp = await baseApp.asRole('base');
-      const result = await noPermsApp.post(`/v1/reports/fiji-covid-swab-lab-test-list`, {});
+      const result = await noPermsApp.post(`/api/reports/fiji-covid-swab-lab-test-list`, {});
       expect(result).toBeForbidden();
     });
   });
@@ -456,7 +456,7 @@ describe('Covid swab lab test list', () => {
   describe('returns the correct data', () => {
     it('with a village parameter', async () => {
       const PATIENT_ID_COLUMN = 4;
-      const result = await app.post('/v1/reports/fiji-covid-swab-lab-test-list').send({
+      const result = await app.post('/api/reports/fiji-covid-swab-lab-test-list').send({
         parameters: {
           village: village1,
           fromDate: '2021-03-01',
@@ -471,7 +471,7 @@ describe('Covid swab lab test list', () => {
       ]);
     });
     it('should return latest data per patient and latest data per patient per date', async () => {
-      const result = await app.post('/v1/reports/fiji-covid-swab-lab-test-list').send({
+      const result = await app.post('/api/reports/fiji-covid-swab-lab-test-list').send({
         parameters: {
           fromDate: '2021-03-01',
         },

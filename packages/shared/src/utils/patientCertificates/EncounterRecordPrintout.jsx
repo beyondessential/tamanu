@@ -4,7 +4,6 @@ import { CertificateHeader, Watermark } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
 import { PatientDetailsWithAddress } from './printComponents/PatientDetailsWithAddress';
 import { startCase } from 'lodash';
-import { Footer } from './printComponents/Footer';
 import {
   ENCOUNTER_LABELS,
   NOTE_TYPE_LABELS,
@@ -15,6 +14,7 @@ import { getDisplayDate } from './getDisplayDate';
 import { EncounterDetailsExtended } from './printComponents/EncounterDetailsExtended';
 import { MultiPageHeader } from './printComponents/MultiPageHeader';
 import { getName } from '../patientAccessors';
+import { Footer } from './printComponents/Footer';
 
 const borderStyle = '1 solid black';
 
@@ -222,10 +222,10 @@ const COLUMNS = {
       style: { width: '17.5%' },
     },
     {
-      key: 'completedDate',
+      key: 'publishedDate',
       title: 'Published date',
-      accessor: ({ completedDate }) =>
-        completedDate ? getDisplayDate(completedDate, DATE_FORMAT) : '--/--/----',
+      accessor: ({ publishedDate }) =>
+        publishedDate ? getDisplayDate(publishedDate, DATE_FORMAT) : '--/--/----',
       style: { width: '17.5%' },
     },
   ],

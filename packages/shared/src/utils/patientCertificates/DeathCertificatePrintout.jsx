@@ -3,7 +3,7 @@ import React from 'react';
 
 import { Document, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
 import { getName, getTimeOfDeath, getDateOfDeath, getSex } from '../patientAccessors';
-import { CertificateHeader, Col, Row, styles } from './Layout';
+import { CertificateHeader, Col, Row, styles, SigningImage } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
 import { Footer } from './printComponents/Footer';
 import { MultiPageHeader } from './printComponents/MultiPageHeader';
@@ -164,11 +164,12 @@ const placeOfDeathAccessor = ({ facility }) => {
 const getCauseName = cause => cause?.condition?.name;
 
 const causeOfDeathAccessor = ({ causes }) => {
-  const causeOfDeath = getCauseName(causes?.primary);
-  return causeOfDeath;
+  return getCauseName(causes?.primary);
 };
-export const getDOB = ({ dateOfBirth }, getLocalisation) =>
-  dateOfBirth ? getDisplayDate(dateOfBirth, 'dd.MM.yyyy', getLocalisation) : 'Unknown';
+
+// Death certificate has a slightly different DOB format to other certificates so needs its own accessor
+const getDOB = ({ dateOfBirth }, getLocalisation) =>
+  dateOfBirth ? getDisplayDate(dateOfBirth, 'd MMM yyyy', getLocalisation) : 'Unknown';
 
 const HEADER_FIELDS = {
   leftCol: [
@@ -180,7 +181,7 @@ const HEADER_FIELDS = {
   ],
   rightCol: [
     { key: 'lastName', label: 'Last name' },
-    { key: 'sex', label: 'Sex', acessor: getSex },
+    { key: 'sex', label: 'Sex', accessor: getSex },
     { key: 'placeOfDeath', label: 'Place of death', accessor: placeOfDeathAccessor },
     { key: 'causeOfDeath', label: 'Cause of death', accessor: causeOfDeathAccessor },
   ],
@@ -190,7 +191,7 @@ const SectionContainer = props => <View style={generalStyles.sectionContainer} {
 
 export const DeathCertificatePrintout = React.memo(
   ({ patientData, certificateData, getLocalisation }) => {
-    const { logo } = certificateData;
+    const { logo, deathCertFooterImg } = certificateData;
 
     const { causes } = patientData;
     const causeOfDeath = getCauseName(causes?.primary);
@@ -198,7 +199,7 @@ export const DeathCertificatePrintout = React.memo(
     const antecedentCause2 = getCauseName(causes?.antecedent2);
     return (
       <Document>
-        <Page size="A4" style={styles.page}>
+        <Page size="A4" style={{...styles.page, paddingBottom: 25}}>
           <MultiPageHeader
             documentName="Cause of death certificate"
             patientName={getName(patientData)}
@@ -301,7 +302,7 @@ export const DeathCertificatePrintout = React.memo(
               means the disease, injury, or complication that caused death.
             </Text>
           </View>
-          <AuthorisedAndSignSection />
+          {deathCertFooterImg ? <SigningImage src={deathCertFooterImg} /> : <AuthorisedAndSignSection />}
           <Footer />
         </Page>
       </Document>

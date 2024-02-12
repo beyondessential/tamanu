@@ -32,17 +32,17 @@ const NavContainer = styled.div`
 `;
 
 export const DischargeSummaryView = React.memo(() => {
+  const { data: certiciateData, isFetching: isCertificateFetching } = useCertificate();
   const { getLocalisation } = useLocalisation();
   const { encounter } = useEncounter();
-  const { title, subTitle, logo } = useCertificate();
   const patient = useSelector(state => state.patient);
-  const { data: additionalData, isLoading: isPADLoading } = usePatientAdditionalDataQuery(
+  const { data: additionalData, isFetching: isPADLoading } = usePatientAdditionalDataQuery(
     patient.id,
   );
   const { data: village } = useReferenceData(patient?.villageId);
-  const { data: discharge, isLoading: isDischargeLoading } = useEncounterDischarge(encounter);
+  const { data: discharge, isFetching: isDischargeLoading } = useEncounterDischarge(encounter);
 
-  const { data: patientConditions, isLoading: isLoadingPatientConditions } = usePatientConditions(
+  const { data: patientConditions, isFetching: isLoadingPatientConditions } = usePatientConditions(
     patient.id,
   );
   // If there is no encounter loaded then this screen can't be displayed
@@ -50,7 +50,8 @@ export const DischargeSummaryView = React.memo(() => {
     return <Redirect to="/patients/all" />;
   }
 
-  if (isPADLoading || isDischargeLoading || isLoadingPatientConditions) return <LoadingIndicator />;
+  if (isPADLoading || isDischargeLoading || isLoadingPatientConditions || isCertificateFetching)
+    return <LoadingIndicator />;
 
   return (
     <Container>
@@ -71,9 +72,7 @@ export const DischargeSummaryView = React.memo(() => {
           encounter={encounter}
           discharge={discharge}
           patientConditions={patientConditions}
-          logo={logo}
-          title={title}
-          subTitle={subTitle}
+          certificateData={certiciateData}
           getLocalisation={getLocalisation}
         />
       </PDFViewer>

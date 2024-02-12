@@ -39,7 +39,7 @@ describe('Patient', () => {
 
   it('should reject reading a patient with insufficient permissions', async () => {
     const noPermsApp = await baseApp.asRole('base');
-    const result = await noPermsApp.get(`/v1/patient/${patient.id}`);
+    const result = await noPermsApp.get(`/api/patient/${patient.id}`);
     expect(result).toBeForbidden();
   });
 
@@ -49,7 +49,7 @@ describe('Patient', () => {
   test.todo('should reject listing of patients with insufficient permissions');
 
   it('should get the details of a patient', async () => {
-    const result = await app.get(`/v1/patient/${patient.id}`);
+    const result = await app.get(`/api/patient/${patient.id}`);
     expect(result).toHaveSucceeded();
     expect(result.body).toHaveProperty('displayId', patient.displayId);
     expect(result.body).toHaveProperty('firstName', patient.firstName);
@@ -69,7 +69,7 @@ describe('Patient', () => {
     });
 
     // Expect result data to be empty since there are no discharged encounters or medications
-    const result = await app.get(`/v1/patient/${patient.id}/lastDischargedEncounter/medications`);
+    const result = await app.get(`/api/patient/${patient.id}/lastDischargedEncounter/medications`);
     expect(result).toHaveSucceeded();
     expect(result.body).toMatchObject({
       count: 0,
@@ -112,7 +112,7 @@ describe('Patient', () => {
 
     // Expect encounter to be the second encounter discharged
     // and include discharged medication with reference associations
-    const result = await app.get(`/v1/patient/${patient.id}/lastDischargedEncounter/medications`);
+    const result = await app.get(`/api/patient/${patient.id}/lastDischargedEncounter/medications`);
     expect(result).toHaveSucceeded();
     expect(result.body).toMatchObject({
       count: 1,
@@ -131,7 +131,7 @@ describe('Patient', () => {
     it('should reject users with insufficient permissions', async () => {
       const noPermsApp = await baseApp.asRole('base');
 
-      const result = await noPermsApp.put(`/v1/patient/${patient.id}`).send({
+      const result = await noPermsApp.put(`/api/patient/${patient.id}`).send({
         firstName: 'New',
       });
 
@@ -140,7 +140,7 @@ describe('Patient', () => {
 
     it('should create a new patient', async () => {
       const newPatient = await createDummyPatient(models);
-      const result = await app.post('/v1/patient').send(newPatient);
+      const result = await app.post('/api/patient').send(newPatient);
       expect(result).toHaveSucceeded();
       expect(result.body).toHaveProperty('displayId', newPatient.displayId);
       expect(result.body).toHaveProperty('firstName', newPatient.firstName);
@@ -149,7 +149,7 @@ describe('Patient', () => {
 
     it('should create a new patient with additional data', async () => {
       const newPatient = await createDummyPatient(models);
-      const result = await app.post('/v1/patient').send({
+      const result = await app.post('/api/patient').send({
         ...newPatient,
         passport: 'TEST-PASSPORT',
       });
@@ -176,7 +176,7 @@ describe('Patient', () => {
       const newPatient = await createDummyPatient(models);
 
       // Act
-      const result = await app.post('/v1/patient').send({
+      const result = await app.post('/api/patient').send({
         ...newPatient,
         patientFields: {
           [definition.id]: 'Test Field Value',
@@ -198,11 +198,11 @@ describe('Patient', () => {
     it('should update patient details', async () => {
       // skip middleName, to be added in PUT request
       const newPatient = await createDummyPatient(models, { middleName: '' });
-      const result = await app.post('/v1/patient').send(newPatient);
+      const result = await app.post('/api/patient').send(newPatient);
       expect(result.body.middleName).toEqual('');
 
       const newVillage = await randomReferenceId(models, 'village');
-      const updateResult = await app.put(`/v1/patient/${result.body.id}`).send({
+      const updateResult = await app.put(`/api/patient/${result.body.id}`).send({
         villageId: newVillage,
         middleName: 'MiddleName',
         bloodType: 'AB+',
@@ -212,7 +212,7 @@ describe('Patient', () => {
       expect(updateResult.body).toHaveProperty('villageId', newVillage);
       expect(updateResult.body).toHaveProperty('middleName', 'MiddleName');
 
-      const additionalDataResult = await app.get(`/v1/patient/${result.body.id}/additionalData`);
+      const additionalDataResult = await app.get(`/api/patient/${result.body.id}/additionalData`);
 
       expect(additionalDataResult).toHaveSucceeded();
       expect(additionalDataResult.body).toHaveProperty('bloodType', 'AB+');
@@ -232,7 +232,7 @@ describe('Patient', () => {
       const newPatient = await createDummyPatient(models);
       const {
         body: { id: patientId },
-      } = await app.post('/v1/patient').send({
+      } = await app.post('/api/patient').send({
         ...newPatient,
         patientFields: {
           [definition.id]: 'Test Field Value',
@@ -240,7 +240,7 @@ describe('Patient', () => {
       });
 
       // Act
-      const result = await app.put(`/v1/patient/${patientId}`).send({
+      const result = await app.put(`/api/patient/${patientId}`).send({
         patientFields: {
           [definition.id]: 'Test Field Value 2',
         },
@@ -315,7 +315,7 @@ describe('Patient', () => {
       });
 
       const newDisplayId = '123456789';
-      const updateResult = await app.put(`/v1/patient/${newPatient.id}`).send({
+      const updateResult = await app.put(`/api/patient/${newPatient.id}`).send({
         displayId: newDisplayId,
       });
       expect(updateResult).toHaveSucceeded();
@@ -335,7 +335,7 @@ describe('Patient', () => {
       });
 
       const newDisplayId = '555666777';
-      const updateResult = await app.put(`/v1/patient/${newPatient.id}`).send({
+      const updateResult = await app.put(`/api/patient/${newPatient.id}`).send({
         displayId: newDisplayId,
       });
       expect(updateResult).toHaveSucceeded();
@@ -431,7 +431,7 @@ describe('Patient', () => {
       });
 
       const result = await app.get(
-        `/v1/patient/${patient1.id}/covidLabTests?certType=${CertificateTypes.clearance}`,
+        `/api/patient/${patient1.id}/covidLabTests?certType=${CertificateTypes.clearance}`,
       );
 
       expect(result).toHaveSucceeded();
@@ -476,7 +476,7 @@ describe('Patient', () => {
       });
 
       const result = await app.get(
-        `/v1/patient/${patient2.id}/covidLabTests?certType=${CertificateTypes.clearance}`,
+        `/api/patient/${patient2.id}/covidLabTests?certType=${CertificateTypes.clearance}`,
       );
 
       expect(result).toHaveSucceeded();
@@ -522,7 +522,7 @@ describe('Patient', () => {
       });
 
       const result = await app.get(
-        `/v1/patient/${patient1.id}/covidLabTests?certType=${CertificateTypes.clearance}`,
+        `/api/patient/${patient1.id}/covidLabTests?certType=${CertificateTypes.clearance}`,
       );
 
       expect(result).toHaveSucceeded();
