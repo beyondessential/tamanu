@@ -9,7 +9,7 @@ import { usePatientAdditionalDataQuery } from '../../../api/queries';
 import { useLocalisation } from '../../../contexts/Localisation';
 
 import { BirthNotificationCertificate } from '@tamanu/shared/utils/patientCertificates';
-import { PDFViewer, printPDF } from '../PDFViewer';
+import { PDFLoader, printPDF } from '../PDFLoader';
 
 const useParent = (api, enabled, parentId) => {
   const { data: parentData, isLoading: isParentDataLoading } = useQuery(
@@ -151,7 +151,7 @@ export const BirthNotificationCertificateModal = React.memo(({ patient }) => {
       printable
       onPrint={() => printPDF('birth-notification')}
     >
-      <PDFViewer isLoading={isLoading} id="birth-notification">
+      <PDFLoader isLoading={isLoading} id="birth-notification">
         <BirthNotificationCertificate
           motherData={motherData}
           fatherData={fatherData}
@@ -160,7 +160,7 @@ export const BirthNotificationCertificateModal = React.memo(({ patient }) => {
           certificateData={certificateData}
           getLocalisation={getLocalisation}
         />
-      </PDFViewer>
+      </PDFLoader>
     </Modal>
   );
 });

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Modal } from '../../Modal';
 import { Button } from '../../Button';
 import { useCertificate } from '../../../utils/useCertificate';
-import { PDFViewer, printPDF } from '../PDFViewer';
+import { PDFLoader, printPDF } from '../PDFLoader';
 import { DeathCertificatePrintout } from '@tamanu/shared/utils/patientCertificates';
 import { useLocalisation } from '../../../contexts/Localisation';
 
@@ -22,13 +22,13 @@ export const DeathCertificateModal = ({ patient, deathData }) => {
         printable
         onPrint={() => printPDF('death-certificate-printout')}
       >
-        <PDFViewer isLoading={isCertificateFetching} id="death-certificate-printout">
+        <PDFLoader isLoading={isCertificateFetching} id="death-certificate-printout">
           <DeathCertificatePrintout
             patientData={patientData}
             certificateData={certificateData}
             getLocalisation={getLocalisation}
           />
-        </PDFViewer>
+        </PDFLoader>
       </Modal>
       <Button variant="contained" color="primary" onClick={() => setIsOpen(true)}>
         View death certificate

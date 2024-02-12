@@ -9,7 +9,7 @@ import { EmailButton } from '../../Email/EmailButton';
 import { useCertificate } from '../../../utils/useCertificate';
 import { usePatientAdditionalDataQuery } from '../../../api/queries';
 
-import { PDFViewer, printPDF } from '../PDFViewer';
+import { PDFLoader, printPDF } from '../PDFLoader';
 import { useCovidLabTestQuery } from '../../../api/queries/useCovidLabTestsQuery';
 
 export const CovidTestCertificateModal = React.memo(({ patient }) => {
@@ -55,7 +55,7 @@ export const CovidTestCertificateModal = React.memo(({ patient }) => {
       onPrint={() => printPDF('test-certificate')}
       additionalActions={<EmailButton onEmail={createCovidTestCertNotification} />}
     >
-      <PDFViewer isLoading={isLoading} id="test-certificate">
+      <PDFLoader isLoading={isLoading} id="test-certificate">
         <CovidLabCertificate
           patient={patientData}
           labs={labTestsResponse?.data}
@@ -66,7 +66,7 @@ export const CovidTestCertificateModal = React.memo(({ patient }) => {
           printedBy={printedBy}
           certType={CertificateTypes.test}
         />
-      </PDFViewer>
+      </PDFLoader>
     </Modal>
   );
 });

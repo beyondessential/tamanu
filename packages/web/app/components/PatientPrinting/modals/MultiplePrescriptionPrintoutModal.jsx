@@ -8,7 +8,7 @@ import { useApi } from '../../../api';
 import { Colors } from '../../../constants';
 import { PrescriptionPrintout } from '@tamanu/shared/utils/patientCertificates';
 import { useLocalisation } from '../../../contexts/Localisation';
-import { PDFViewer, printPDF } from '../PDFViewer';
+import { PDFLoader, printPDF } from '../PDFLoader';
 import { useAuth } from '../../../contexts/Auth';
 import { TranslatedText } from '../../Translation/TranslatedText';
 
@@ -72,7 +72,7 @@ export const MultiplePrescriptionPrintoutModal = ({
       printable
       onPrint={() => printPDF('prescription-printout')}
     >
-      <PDFViewer isLoading={isLoading} id="prescription-printout">
+      <PDFLoader isLoading={isLoading} id="prescription-printout">
         <PrescriptionPrintout
           certificateData={certificateData}
           patientData={{ ...patient, additionalData, village }}
@@ -82,7 +82,7 @@ export const MultiplePrescriptionPrintoutModal = ({
           facility={facility}
           getLocalisation={getLocalisation}
         />
-      </PDFViewer>
+      </PDFLoader>
     </Modal>
   );
 };

@@ -44,15 +44,13 @@ const ErrorDisplay = () => (
   </Box>
 );
 
-export const PDFViewer = React.memo(({ id, children, isLoading = false }) => {
+export const PDFLoader = React.memo(({ id, children, isLoading = false }) => {
   if (isLoading) return <LoadingIndicator />;
-  return <PDFViewerInner id={id}>{children}</PDFViewerInner>;
+  return <PDFViewer id={id}>{children}</PDFViewer>;
 });
 
-// @react-pdf/renderer ships with its own version of PDFViewer. However it is a bit flaky because
-// it doesn't include updateInstance in the useEffect dependencies. Also it is convenient to set
-// width, height and toolbar settings in one place
-const PDFViewerInner = React.memo(({ id, children }) => {
+// PDF Viewer should be used within a PDFLoader to ensure that any preparation of the document data is done before rendering
+const PDFViewer = React.memo(({ id, children }) => {
   const [instance] = usePDF({ document: children });
 
   if (instance.loading) return <LoadingIndicator />;
