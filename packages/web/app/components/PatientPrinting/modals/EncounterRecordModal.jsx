@@ -1,5 +1,5 @@
 import React from 'react';
-import { PDFLoader } from '@react-pdf/renderer';
+import { PDFViewer } from '@react-pdf/renderer';
 
 import { NOTE_TYPES } from '@tamanu/constants/notes';
 import { LAB_REQUEST_STATUSES } from '@tamanu/constants/labs';
@@ -308,12 +308,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
 
   return (
     <Modal {...modalProps} onPrint={() => printPDF('encounter-record')}>
-      <PDFLoader
-        isLoading={allQueries.isFetching}
-        style={{ width: '100%', height: '600px' }}
-        id="encounter-record"
-        showToolbar={false}
-      >
+      <PDFLoader isLoading={allQueries.isFetching} id="encounter-record">
         <EncounterRecordPrintout
           patientData={{ ...patient, additionalData, village }}
           encounter={encounter}
