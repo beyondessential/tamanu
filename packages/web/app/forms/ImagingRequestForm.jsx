@@ -223,7 +223,7 @@ export const ImagingRequestForm = React.memo(
                       fallback="Areas to be imaged"
                     />
                   }
-                  component={TranslatedMultiselectField}
+                  component={MultiselectField}
                 />
               ) : (
                 <Field
