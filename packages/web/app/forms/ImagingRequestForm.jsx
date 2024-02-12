@@ -31,6 +31,7 @@ import { FormSeparatorLine } from '../components/FormSeparatorLine';
 import { FormSubmitDropdownButton } from '../components/DropdownButton';
 import { useLocalisedText } from '../components';
 import { TranslatedText } from '../components/Translation/TranslatedText';
+import { TranslatedMultiselectField } from '../components/Translation/TranslatedSelectField.jsx';
 
 function getEncounterTypeLabel(type) {
   return encounterOptions.find(x => x.value === type).label;
@@ -193,7 +194,7 @@ export const ImagingRequestForm = React.memo(
                       fallback="Areas to be imaged"
                     />
                   }
-                  component={MultiselectField}
+                  component={TranslatedMultiselectField}
                 />
               ) : (
                 <Field

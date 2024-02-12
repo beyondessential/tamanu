@@ -1,10 +1,10 @@
 import { TranslatedText } from './TranslatedText.jsx';
-import { SelectField, SelectInput } from '../Field/index.js';
+import { MultiselectField, MultiselectInput, SelectField, SelectInput } from '../Field/index.js';
 import PropTypes from 'prop-types';
 import React from 'react';
 
-export const TranslatedSelectField = ({ options, prefix, name, value, ...props }) => {
-  const translatedOptions = options.map(option => ({
+const getTranslatedOptions = (options, prefix) => {
+  return options.map(option => ({
     value: option.value,
     label: (
       <TranslatedText
@@ -17,17 +17,16 @@ export const TranslatedSelectField = ({ options, prefix, name, value, ...props }
       />
     ),
   }));
-
-  return (
-    <SelectField
-      field={SelectInput}
-      options={translatedOptions}
-      value={value}
-      name={name}
-      {...props}
-    />
-  );
 };
+
+export const TranslatedSelectField = ({ options, prefix, name, value, ...props }) => (
+  <SelectInput
+    options={getTranslatedOptions(options, prefix)}
+    value={value}
+    name={name}
+    {...props}
+  />
+);
 
 TranslatedSelectField.propTypes = {
   options: PropTypes.object.isRequired,
@@ -35,3 +34,12 @@ TranslatedSelectField.propTypes = {
   name: PropTypes.string.isRequired,
   value: PropTypes.string.isRequired,
 };
+
+export const TranslatedMultiselectField = ({ options, prefix, name, value, ...props }) => (
+  <MultiselectInput
+    options={getTranslatedOptions(options, prefix)}
+    value={value}
+    name={name}
+    {...props}
+  />
+);
