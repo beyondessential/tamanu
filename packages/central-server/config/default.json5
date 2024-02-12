@@ -310,9 +310,11 @@
       "patientTabs": {
         "history": {
           "sortPriority": -100,
+          "hidden": false
         },
         "details": {
           "sortPriority": -50,
+          "hidden": false
         },
         "results": {
           "sortPriority": 0,

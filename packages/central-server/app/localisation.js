@@ -46,6 +46,10 @@ const patientTabSchema = yup
 const unhideablePatientTabSchema = yup
   .object({
     sortPriority: yup.number().required(),
+    hidden: yup
+      .boolean()
+      .oneOf([false], 'unhideable tabs must not be hidden')
+      .required(),
   })
   .required();
 
@@ -129,8 +133,6 @@ const HIDEABLE_FIELDS = [
 const UNHIDEABLE_PATIENT_TABS = ['history', 'details'];
 
 const HIDEABLE_PATIENT_TABS = [
-  'history',
-  'details',
   'results',
   'referrals',
   'programs',
