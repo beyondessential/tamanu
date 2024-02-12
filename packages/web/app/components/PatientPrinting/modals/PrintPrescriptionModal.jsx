@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 
 import { Modal } from '../../Modal';
 import { useCertificate } from '../../../utils/useCertificate';
-import { LoadingIndicator } from '../../LoadingIndicator';
 import { useApi } from '../../../api';
 
 import { PrescriptionPrintout } from '@tamanu/shared/utils/patientCertificates';

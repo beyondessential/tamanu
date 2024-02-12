@@ -3,7 +3,6 @@ import { PDFViewer, printPDF } from '../PDFViewer';
 import { MultipleImagingRequestsPrintout } from '@tamanu/shared/utils/patientCertificates';
 import { usePatientData } from '../../../api/queries/usePatientData';
 import { useReferenceData } from '../../../api/queries/useReferenceData';
-import { LoadingIndicator } from '../../../components/LoadingIndicator';
 import { Colors } from '../../../constants';
 import { useLocalisation } from '../../../contexts/Localisation';
 import { useCertificate } from '../../../utils/useCertificate';

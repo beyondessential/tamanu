@@ -11,7 +11,6 @@ import { usePatientAdditionalDataQuery } from '../../../api/queries';
 
 import { PDFViewer, printPDF } from '../PDFViewer';
 import { useCovidLabTestQuery } from '../../../api/queries/useCovidLabTestsQuery';
-import { LoadingIndicator } from '../../LoadingIndicator';
 
 export const CovidTestCertificateModal = React.memo(({ patient }) => {
   const [open, setOpen] = useState(true);

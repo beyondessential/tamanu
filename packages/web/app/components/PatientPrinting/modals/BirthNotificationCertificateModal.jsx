@@ -4,7 +4,6 @@ import { useQuery } from '@tanstack/react-query';
 import { Modal } from '../../Modal';
 import { useAuth } from '../../../contexts/Auth';
 import { isErrorUnknownAllow404s, useApi } from '../../../api';
-import { LoadingIndicator } from '../../LoadingIndicator';
 import { useCertificate } from '../../../utils/useCertificate';
 import { usePatientAdditionalDataQuery } from '../../../api/queries';
 import { useLocalisation } from '../../../contexts/Localisation';

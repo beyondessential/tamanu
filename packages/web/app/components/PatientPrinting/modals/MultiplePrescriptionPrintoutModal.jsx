@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { useQuery } from '@tanstack/react-query';
 
 import { Modal } from '../../Modal';
-import { LoadingIndicator } from '../../LoadingIndicator';
 import { useCertificate } from '../../../utils/useCertificate';
 import { useApi } from '../../../api';
 import { Colors } from '../../../constants';
