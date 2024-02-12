@@ -310,32 +310,37 @@
       "patientTabs": {
         "history": {
           "sortPriority": -100,
-          "required": true,
         },
         "details": {
           "sortPriority": -50,
-          "required": true
         },
         "results": {
           "sortPriority": 0,
+          "hidden": false
         },
         "referrals": {
           "sortPriority": 0,
+          "hidden": false
         },
         "programs": {
           "sortPriority": 0,
+          "hidden": false
         },
         "documents": {
           "sortPriority": 0,
+          "hidden": false
         },
         "vaccines": {
           "sortPriority": 0,
+          "hidden": false
         },
         "medication": {
           "sortPriority": 0,
+          "hidden": false
         },
         "invoices": {
           "sortPriority": 0,
+          "hidden": false
         }
       },
       "units": {

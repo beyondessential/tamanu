@@ -39,10 +39,15 @@ const patientTabSchema = yup
   .object({
     sortPriority: yup.number().required(),
     hidden: yup.boolean(),
-    required: yup.boolean(),
   })
   .required()
   .noUnknown();
+
+const unhideablePatientTabSchema = yup
+  .object({
+    sortPriority: yup.number().required(),
+  })
+  .required();
 
 const UNHIDEABLE_FIELDS = [
   'markedForSync',
@@ -121,7 +126,9 @@ const HIDEABLE_FIELDS = [
   'dischargeDisposition',
 ];
 
-const PATIENT_TABS = [
+const UNHIDEABLE_PATIENT_TABS = ['history', 'details'];
+
+const HIDEABLE_PATIENT_TABS = [
   'history',
   'details',
   'results',
@@ -290,7 +297,14 @@ const fieldsSchema = yup
   .noUnknown();
 
 const patientTabsSchema = yup.object({
-  ...PATIENT_TABS.reduce(
+  ...UNHIDEABLE_PATIENT_TABS.reduce(
+    (tabs, tab) => ({
+      ...tabs,
+      [tab]: unhideablePatientTabSchema,
+    }),
+    {},
+  ),
+  ...HIDEABLE_PATIENT_TABS.reduce(
     (tabs, tab) => ({
       ...tabs,
       [tab]: patientTabSchema,
