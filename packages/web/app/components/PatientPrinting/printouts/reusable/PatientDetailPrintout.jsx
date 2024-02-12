@@ -7,6 +7,7 @@ import { capitaliseFirstLetter } from '../../../../utils/capitalise';
 
 import { LocalisedCertificateLabel } from './CertificateLabels';
 import { PatientBarcode } from './PatientBarcode';
+import { TranslatedText } from '../../../Translation/TranslatedText';
 
 const RowContainer = styled.div`
   display: flex;
@@ -37,17 +38,73 @@ export const PatientDetailPrintout = React.memo(
     return (
       <RowContainer>
         <ColumnContainer>
-          <LocalisedLabel name="firstName">{firstName}</LocalisedLabel>
-          <LocalisedLabel name="lastName">{lastName}</LocalisedLabel>
-          <LocalisedLabel path="fields.dateOfBirth.shortLabel">
+          <LocalisedLabel
+            label={
+              <TranslatedText
+                stringId="general.localisedField.firstName.label"
+                fallback="First name"
+              />
+            }
+          >
+            {firstName}
+          </LocalisedLabel>
+          <LocalisedLabel
+            label={
+              <TranslatedText
+                stringId="general.localisedField.lastName.label"
+                fallback="Last name"
+              />
+            }
+          >
+            {lastName}
+          </LocalisedLabel>
+          <LocalisedLabel
+            label={
+              <TranslatedText
+                stringId="general.localisedField.dateOfBirth.label.short"
+                fallback="DOB"
+              />
+            }
+          >
             <DateDisplay date={dateOfBirth} />
           </LocalisedLabel>
-          <LocalisedLabel name="sex">{capitaliseFirstLetter(sex)}</LocalisedLabel>
-          <LocalisedLabel name="streetVillage">{streetVillage}</LocalisedLabel>
+          <LocalisedLabel
+            label={<TranslatedText stringId="general.localisedField.sex.label" fallback="Sex" />}
+          >
+            {capitaliseFirstLetter(sex)}
+          </LocalisedLabel>
+          <LocalisedLabel
+            label={
+              <TranslatedText
+                stringId="general.localisedField.streetVillage.label"
+                fallback="Residential landmark"
+              />
+            }
+          >
+            {streetVillage}
+          </LocalisedLabel>
         </ColumnContainer>
         <ColumnContainer>
-          <LocalisedLabel name="villageName">{villageName}</LocalisedLabel>
-          <LocalisedLabel path="fields.displayId.shortLabel">{displayId}</LocalisedLabel>
+          <LocalisedLabel
+            label={
+              <TranslatedText
+                stringId="general.localisedField.villageName.label"
+                fallback="Village"
+              />
+            }
+          >
+            {villageName}
+          </LocalisedLabel>
+          <LocalisedLabel
+            label={
+              <TranslatedText
+                stringId="general.localisedField.displayId.label.short"
+                fallback="NHN"
+              />
+            }
+          >
+            {displayId}
+          </LocalisedLabel>
           <PatientBarcode patient={patient} barWidth={2} barHeight={60} margin={0} />
         </ColumnContainer>
       </RowContainer>

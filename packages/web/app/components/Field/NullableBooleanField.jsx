@@ -7,6 +7,7 @@ import FormHelperText from '@material-ui/core/FormHelperText';
 import MuiButton from '@material-ui/core/Button';
 import MuiButtonGroup from '@material-ui/core/ButtonGroup';
 import { Colors } from '../../constants';
+import { TranslatedText } from '../Translation/TranslatedText';
 
 const ControlLabel = styled(FormLabel)`
   width: max-content;
@@ -52,10 +53,10 @@ const NullableBooleanControl = React.memo(({ value, onChange, disabled, name }) 
   return (
     <MuiButtonGroup size="small" variant="contained" disableElevation>
       <MuiButton disabled={disabled} onClick={onClickTrue} color={yesColor}>
-        Yes
+        <TranslatedText stringId="general.action.yes" fallback="Yes" />
       </MuiButton>
       <MuiButton disabled={disabled} onClick={onClickFalse} color={noColor}>
-        No
+        <TranslatedText stringId="general.action.no" fallback="No" />
       </MuiButton>
     </MuiButtonGroup>
   );

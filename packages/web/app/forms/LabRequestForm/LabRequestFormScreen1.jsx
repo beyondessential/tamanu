@@ -1,12 +1,11 @@
 import React from 'react';
-import { BodyText, Heading3 } from '../../components/Typography';
+import { Heading3, BodyText, LowerCase } from '../../components/Typography';
 import {
   AutocompleteField,
   DateTimeField,
   Field,
   FormSeparatorLine,
   SuggesterSelectField,
-  useLocalisedText,
 } from '../../components';
 import { LabRequestFormTypeRadioField } from './LabRequestFormTypeRadioField';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
@@ -18,8 +17,6 @@ export const LabRequestFormScreen1 = ({
   practitionerSuggester,
   departmentSuggester,
 }) => {
-  const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
-
   return (
     <>
       <div style={{ gridColumn: '1 / -1' }}>
@@ -39,7 +36,14 @@ export const LabRequestFormScreen1 = ({
           <TranslatedText
             stringId="lab.form.requestingClinician.label"
             fallback="Requesting :clinician"
-            replacements={{ clinician: clinicianText.toLowerCase() }}
+            replacements={{ clinician: (
+              <LowerCase>
+                <TranslatedText
+                  stringId="general.localisedField.clinician.label.short"
+                  fallback="Clinician"
+                />
+              </LowerCase>
+            ), }}
           />
         }
         required

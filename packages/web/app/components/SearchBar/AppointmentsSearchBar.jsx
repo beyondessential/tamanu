@@ -8,14 +8,13 @@ import {
   SearchField,
   SelectField,
 } from '../Field';
+import { TranslatedText } from '../Translation/TranslatedText';
 import { appointmentStatusOptions, appointmentTypeOptions } from '../../constants';
 import { useSuggester } from '../../api';
-import { useLocalisedText } from '../LocalisedText';
 
 export const AppointmentsSearchBar = ({ onSearch }) => {
   const practitionerSuggester = useSuggester('practitioner');
   const locationGroupSuggester = useSuggester('facilityLocationGroup');
-  const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
 
   return (
     <CustomisableSearchBar
@@ -34,30 +33,56 @@ export const AppointmentsSearchBar = ({ onSearch }) => {
         after: startOfDay(new Date()),
       }}
     >
-      <LocalisedField name="firstName" component={SearchField} />
-      <LocalisedField name="lastName" component={SearchField} />
+      <LocalisedField
+        name="firstName"
+        label={
+          <TranslatedText stringId="general.localisedField.firstName.label" fallback="First name" />
+        }
+        component={SearchField}
+      />
+      <LocalisedField
+        name="lastName"
+        label={
+          <TranslatedText stringId="general.localisedField.lastName.label" fallback="Last name" />
+        }
+        component={SearchField}
+      />
       <LocalisedField
         name="clinicianId"
-        defaultLabel={clinicianText}
+        label={
+          <TranslatedText stringId="general.localisedField.clinician.label" fallback="Clinician" />
+        }
         component={AutocompleteField}
         suggester={practitionerSuggester}
       />
       <LocalisedField
-        defaultLabel="Area"
         name="locationGroupId"
+        label={
+          <TranslatedText stringId="general.localisedField.locationGroupId.label" fallback="Area" />
+        }
         component={AutocompleteField}
         suggester={locationGroupSuggester}
       />
       <LocalisedField
         name="type"
-        defaultLabel="Appointment Type"
+        label={
+          <TranslatedText
+            stringId="general.localisedField.type.label"
+            fallback="Appointment Type"
+          />
+        }
         component={SelectField}
         options={appointmentTypeOptions}
         size="small"
       />
       <LocalisedField
         name="status"
-        defaultLabel="Appointment Status"
+        label={
+          <TranslatedText
+            stringId="general.localisedField.status.label"
+            fallback="Appointment Status"
+          />
+        }
         component={SelectField}
         options={appointmentStatusOptions}
         size="small"
@@ -65,16 +90,25 @@ export const AppointmentsSearchBar = ({ onSearch }) => {
       <LocalisedField
         saveDateAsString
         name="after"
-        defaultLabel="Start from"
+        label={
+          <TranslatedText stringId="general.localisedField.after.label" fallback="Start from" />
+        }
         component={DateTimeField}
       />
       <LocalisedField
         saveDateAsString
         name="before"
-        defaultLabel="Until"
+        label={<TranslatedText stringId="general.localisedField.before.label" fallback="Until" />}
         component={DateTimeField}
       />
-      <LocalisedField useShortLabel keepLetterCase name="displayId" component={SearchField} />
+      <LocalisedField
+        keepLetterCase
+        label={
+          <TranslatedText stringId="general.localisedField.displayId.label.short" fallback="NHN" />
+        }
+        name="displayId"
+        component={SearchField}
+      />
     </CustomisableSearchBar>
   );
 };
