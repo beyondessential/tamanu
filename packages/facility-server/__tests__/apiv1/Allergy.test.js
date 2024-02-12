@@ -22,7 +22,7 @@ describe('Allergy', () => {
   afterAll(() => ctx.close());
 
   it('should record an allergy', async () => {
-    const result = await app.post('/v1/allergy').send({
+    const result = await app.post('/api/allergy').send({
       allergyId: await randomReferenceId(models, 'allergy'),
       patientId: patient.id,
       practitionerId: await randomUser(models),
@@ -32,7 +32,7 @@ describe('Allergy', () => {
   });
 
   it('should require a valid allergy', async () => {
-    const result = await app.post('/v1/allergy').send({
+    const result = await app.post('/api/allergy').send({
       allergyId: 'invalid id',
       patientId: patient.id,
       practitionerId: await randomUser(models),

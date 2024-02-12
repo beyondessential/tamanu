@@ -207,6 +207,7 @@ async function getUserFromToken(request) {
 
 export const authMiddleware = async (req, res, next) => {
   try {
+    // eslint-disable-next-line require-atomic-updates
     req.user = await getUserFromToken(req);
     req.getLocalisation = async () =>
       req.models.UserLocalisationCache.getLocalisation({

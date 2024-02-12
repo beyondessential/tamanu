@@ -23,9 +23,9 @@ import { useApi } from '../api';
 
 import { SyncHealthNotificationComponent } from '../components/SyncHealthNotification';
 
-import { useLocalisation } from '../contexts/Localisation';
 import { Typography } from '@material-ui/core';
 const { REMEMBER_EMAIL } = LOCAL_STORAGE_KEYS;
+import { useTranslation } from '../contexts/Translation';
 
 const Container = styled.div`
   display: flex;
@@ -109,14 +109,17 @@ export const LoginView = () => {
   const resetPasswordEmail = useSelector(state => state.auth.resetPassword.lastEmailUsed);
   const changePasswordError = useSelector(state => state.auth.changePassword.error);
   const changePasswordSuccess = useSelector(state => state.auth.changePassword.success);
-  const { getLocalisation } = useLocalisation();
   const { appVersion } = api;
+
+  const { fetchTranslations } = useTranslation();
 
   const rememberEmail = localStorage.getItem(REMEMBER_EMAIL);
 
   const [screen, setScreen] = useState('login');
 
-  const supportUrl = getLocalisation('supportDeskUrl');
+  // TODO: This is a temp fix to get the support desk URL into the app. It will be updated in the settings project
+  // const supportUrl = getLocalisation('supportDeskUrl');
+  const supportUrl = 'https://bes-support.zendesk.com/hc/en-us';
   const isSupportUrlLoaded = !!supportUrl;
 
   const submitLogin = async data => {
@@ -136,10 +139,9 @@ export const LoginView = () => {
 
     // The await is necessary to prevent redux-form unlocking submission
     // redux-thunk definitely returns a promise, and this works
+    await fetchTranslations(language);
     await dispatch(login(email, password));
     dispatch(restartPasswordResetFlow());
-
-    localStorage.setItem(LOCAL_STORAGE_KEYS.LANGUAGE, language);
   };
 
   return (

@@ -2,6 +2,7 @@ import * as yup from 'yup';
 import {
   CURRENTLY_AT_TYPES,
   PATIENT_DATA_FIELD_LOCATIONS,
+  READONLY_DATA_FIELDS,
   PROGRAM_DATA_ELEMENT_TYPE_VALUES,
   PROGRAM_REGISTRY_FIELD_LOCATIONS,
   VISIBILITY_STATUSES,
@@ -23,10 +24,10 @@ export const SSCUserData = SurveyScreenComponent.shape({
   config: configString(columnReferenceConfig),
 });
 
-const patientDataColumnString = () =>
+const patientDataColumnString = allowedLocations =>
   yup
     .string()
-    .oneOf(Object.keys(PATIENT_DATA_FIELD_LOCATIONS))
+    .oneOf(allowedLocations)
     .test('test-program-registry-conditions', async (value, { options, createError, path }) => {
       // No need to validate non-program registry fields
       if (!PROGRAM_REGISTRY_FIELD_LOCATIONS.includes(value)) return true;
@@ -55,23 +56,57 @@ const patientDataColumnString = () =>
       return true;
     });
 
+const READ_DATA_FIELDS = [
+  ...Object.keys(PATIENT_DATA_FIELD_LOCATIONS),
+  ...Object.values(READONLY_DATA_FIELDS),
+];
+const WRITE_DATA_FIELDS = Object.keys(PATIENT_DATA_FIELD_LOCATIONS);
+
+// Note this config needs "source" as a sibling
+const whereConfig = () =>
+  yup
+    .object()
+    .when('source', {
+      is: 'ReferenceData',
+      then: yup
+        .object()
+        .shape({
+          type: yup.string().required(),
+        })
+        .required(),
+    })
+    .default(null)
+    .test(
+      'only-where-on-referenceData',
+      "where field only used for when source='ReferenceData'",
+      (where, context) => {
+        if (where) {
+          return context.options.parent.source === 'ReferenceData';
+        }
+        return true;
+      },
+    );
+
 export const SSCPatientData = SurveyScreenComponent.shape({
   config: configString(
     columnReferenceConfig.shape({
       source: yup.string(),
-      // Note that it would be nice to validate the where parameter here
-      where: yup.string(),
-      column: patientDataColumnString(),
+      where: whereConfig(),
+      column: patientDataColumnString(READ_DATA_FIELDS),
       writeToPatient: yup
         .object()
         .shape({
-          fieldName: patientDataColumnString().required(),
-          isAdditionalData: yup.boolean(),
+          fieldName: patientDataColumnString(WRITE_DATA_FIELDS).required(),
           fieldType: yup
             .string()
             .oneOf(PROGRAM_DATA_ELEMENT_TYPE_VALUES)
             .required(),
         })
+        .test(
+          'test-isAdditionalData-key-present',
+          'isAdditionalDataField is deprecated in Tamanu 2.1, it is now just inferred from the fieldName',
+          writeToPatient => !writeToPatient || writeToPatient?.isAdditionalDataField === undefined,
+        )
         .noUnknown()
         .default(null),
     }),
@@ -93,32 +128,10 @@ export const SSCSurveyAnswer = SurveyScreenComponent.shape({
 });
 export const SSCAutocomplete = SurveyScreenComponent.shape({
   config: configString(
-    sourceReferenceConfig
-      .shape({
-        scope: yup.string(),
-        where: yup
-          .object()
-          .when('source', {
-            is: 'ReferenceData',
-            then: yup
-              .object()
-              .shape({
-                type: yup.string().required(),
-              })
-              .required(),
-          })
-          .default(null),
-      })
-      .test(
-        'only-where-on-referenceData',
-        "where field only used for when source='ReferenceData'",
-        ({ source, where }) => {
-          if (where) {
-            return source === 'ReferenceData';
-          }
-          return true;
-        },
-      ),
+    sourceReferenceConfig.shape({
+      scope: yup.string(),
+      where: whereConfig(),
+    }),
   ),
 });
 

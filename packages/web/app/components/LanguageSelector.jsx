@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { useQuery } from '@tanstack/react-query';
-import { ENGLISH_LANGUAGE_CODE, LANGUAGE_LOCAL_STORAGE_KEY } from '@tamanu/constants';
 import { Colors } from '../constants';
 import { useApi } from '../api';
 import { SelectInput } from './Field';
@@ -54,7 +53,7 @@ export const LanguageSelector = ({ field }) => {
   const api = useApi();
 
   const { data: languageOptions = [], error } = useQuery(['languageList'], () =>
-    api.get('translation/preLogin'),
+    api.get('public/translation/preLogin', null),
   );
 
   // If multiple languages not implemented, no need for this component to show

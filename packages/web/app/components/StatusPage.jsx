@@ -30,7 +30,6 @@ const ErrorMessage = styled(Typography).attrs({
 })`
   font-weight: 500;
   font-size: 38px;
-  line-height: 32px;
 `;
 
 const ErrorDescription = styled(LargeBodyText)`
@@ -157,3 +156,12 @@ export const MobileStatusPage = ({ platformType }) => (
     </ErrorDescription>
   </MobileContainer>
 );
+
+export const SingleTabStatusPage = () => {
+  return (
+    <StatusPage
+      message="Tamanu can not be opened across multiple tabs."
+      description="Please continue working in the existing tab."
+    />
+  );
+};
