@@ -1,15 +1,12 @@
 /* eslint-disable no-unused-expressions */
 
-import { addDays, formatRFC7231 } from 'date-fns';
+import { formatRFC7231 } from 'date-fns';
 
-import { fake } from '@tamanu/shared/test-helpers';
-import { fakeUUID } from '@tamanu/shared/utils/generateId';
 import { formatFhirDate } from '@tamanu/shared/utils/fhir/datetime';
 
 import { createTestContext } from '../../utilities';
 import {
   fakeResourcesOfFhirServiceRequest,
-  fakeResourcesOfFhirServiceRequestWithLabRequest,
   fakeResourcesOfFhirSpecimen,
 } from '../../fake/fhir';
 
@@ -39,7 +36,6 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
   describe('materialise', () => {
     beforeEach(async () => {
       const {
-        FhirServiceRequest,
         LabRequest,
         LabTestPanel,
         LabTestPanelRequest,
