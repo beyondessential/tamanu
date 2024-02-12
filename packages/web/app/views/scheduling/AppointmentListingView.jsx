@@ -8,7 +8,6 @@ import {
   SearchTable,
   SearchTableTitle,
   TopBar,
-  useLocalisedText,
 } from '../../components';
 import { NewAppointmentButton } from '../../components/Appointments/NewAppointmentButton';
 import { useRefreshCount } from '../../hooks/useRefreshCount';
@@ -19,7 +18,6 @@ const CapitalisedValue = styled.span`
 `;
 
 export const AppointmentListingView = () => {
-  const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
   const COLUMNS = [
     {
       key: 'startTime',
@@ -28,6 +26,9 @@ export const AppointmentListingView = () => {
     },
     {
       key: 'displayId',
+      title: (
+        <TranslatedText stringId="general.localisedField.displayId.label.short" fallback="DOB" />
+      ),
       accessor: row => row.patient.displayId,
     },
     {
@@ -37,15 +38,21 @@ export const AppointmentListingView = () => {
     },
     {
       key: 'sex',
+      title: <TranslatedText stringId="general.localisedField.sex.label" fallback="Sex" />,
       accessor: row => <CapitalisedValue>{row.patient.sex}</CapitalisedValue>,
     },
     {
       key: 'dateOfBirth',
+      title: (
+        <TranslatedText stringId="general.localisedField.dateOfBirth.label.short" fallback="DOB" />
+      ),
       accessor: row => <DateDisplay date={row.patient.dateOfBirth} />,
     },
     {
       key: 'clinicianId',
-      title: clinicianText,
+      title: (
+        <TranslatedText stringId="general.localisedField.clinician.label" fallback="Clinician" />
+      ),
       accessor: row => `${row.clinician && row.clinician.displayName}`,
     },
     {

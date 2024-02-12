@@ -73,22 +73,62 @@ export const PrimaryDetailsGroup = ({ values = {}, patientRegistryType }) => {
 
   return (
     <>
-      <StyledHeading>General information</StyledHeading>
+      <StyledHeading>
+        <TranslatedText
+          stringId="patient.detail.subheading.general"
+          fallback="General information"
+        />
+      </StyledHeading>
       <FormGrid>
-        <LocalisedField name="firstName" component={TextField} required />
+        <LocalisedField
+          name="firstName"
+          label={
+            <TranslatedText
+              stringId="general.localisedField.firstName.label"
+              fallback="First name"
+            />
+          }
+          component={TextField}
+          required
+        />
         <LocalisedField
           name="middleName"
+          label={
+            <TranslatedText
+              stringId="general.localisedField.middleName.label"
+              fallback="Middle name"
+            />
+          }
           component={TextField}
           required={isRequiredPatientData('middleName')}
         />
-        <LocalisedField name="lastName" component={TextField} required />
+        <LocalisedField
+          name="lastName"
+          label={
+            <TranslatedText stringId="general.localisedField.lastName.label" fallback="Last name" />
+          }
+          component={TextField}
+          required
+        />
         <LocalisedField
           name="culturalName"
+          label={
+            <TranslatedText
+              stringId="general.localisedField.culturalName.label"
+              fallback="Cultural/traditional name"
+            />
+          }
           component={TextField}
           required={isRequiredPatientData('culturalName')}
         />
         <LocalisedField
           name="dateOfBirth"
+          label={
+            <TranslatedText
+              stringId="general.localisedField.dateOfBirth.label"
+              fallback="Date of birth"
+            />
+          }
           max={getCurrentDateString()}
           component={DateField}
           required
@@ -96,18 +136,30 @@ export const PrimaryDetailsGroup = ({ values = {}, patientRegistryType }) => {
         />
         <LocalisedField
           name="villageId"
+          label={
+            <TranslatedText stringId="general.localisedField.villageId.label" fallback="Village" />
+          }
           component={AutocompleteField}
           suggester={villageSuggester}
           required={isRequiredPatientData('villageId')}
         />
-        <LocalisedField name="sex" component={RadioField} options={filteredSexOptions} required />
+        <LocalisedField
+          name="sex"
+          label={<TranslatedText stringId="general.localisedField.sex.label" fallback="Sex" />}
+          component={RadioField}
+          options={filteredSexOptions}
+          required
+        />
         <LocalisedField
           name="email"
+          label={
+            <TranslatedText
+              stringId="general.localisedField.email.label"
+              fallback="Email address"
+            />
+          }
           component={TextField}
           type="email"
-          defaultLabel={
-            <TranslatedText stringId="general.form.email.label" fallback="Email Address" />
-          }
           required={isRequiredPatientData('email')}
         />
         {patientRegistryType === PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY && (
@@ -129,7 +181,7 @@ export const SecondaryDetailsGroup = ({ values = {}, patientRegistryType, isEdit
         <>
           <StyledHeading>
             <TranslatedText
-              stringId="patient.details.subheading.birthDetails"
+              stringId="patient.detail.subheading.birthDetails"
               fallback="Birth details"
             />
           </StyledHeading>
@@ -144,7 +196,7 @@ export const SecondaryDetailsGroup = ({ values = {}, patientRegistryType, isEdit
 
       <StyledHeading>
         <TranslatedText
-          stringId="patient.details.subheading.identificationInformation"
+          stringId="patient.detail.subheading.identificationInformation"
           fallback="Identification information"
         />
       </StyledHeading>
@@ -158,7 +210,7 @@ export const SecondaryDetailsGroup = ({ values = {}, patientRegistryType, isEdit
 
       <StyledHeading>
         <TranslatedText
-          stringId="patient.details.subheading.contactInformation"
+          stringId="patient.detail.subheading.contactInformation"
           fallback="Contact information"
         />
       </StyledHeading>
@@ -168,7 +220,7 @@ export const SecondaryDetailsGroup = ({ values = {}, patientRegistryType, isEdit
 
       <StyledHeading>
         <TranslatedText
-          stringId="patient.details.subheading.personalInformation"
+          stringId="patient.detail.subheading.personalInformation"
           fallback="Personal information"
         />
       </StyledHeading>
@@ -181,7 +233,7 @@ export const SecondaryDetailsGroup = ({ values = {}, patientRegistryType, isEdit
 
       <StyledHeading>
         <TranslatedText
-          stringId="patient.details.subheading.locationInformation"
+          stringId="patient.detail.subheading.locationInformation"
           fallback="Location information"
         />
       </StyledHeading>

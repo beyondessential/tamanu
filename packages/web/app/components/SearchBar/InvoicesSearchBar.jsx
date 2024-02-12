@@ -5,21 +5,40 @@ import { INVOICE_PAYMENT_STATUS_OPTIONS, INVOICE_STATUS_OPTIONS } from '../../co
 import { TranslatedText } from '../Translation/TranslatedText';
 
 export const InvoicesSearchBar = React.memo(({ onSearch }) => (
-  <CustomisableSearchBar
-    title={<TranslatedText stringId="invoice.search.title" fallback="Search invoices" />}
-    onSearch={onSearch}
-  >
-    <LocalisedField name="invoiceDisplayId" defaultLabel="Invoice number" />
-    <LocalisedField name="receiptNumber" defaultLabel="Receipt number" />
+  <CustomisableSearchBar title="Search invoices" onSearch={onSearch}>
+    <LocalisedField
+      name="invoiceDisplayId"
+      defaultLabel="Invoice number"
+      label={
+        <TranslatedText
+          stringId="general.localisedField.invoiceDisplayId.label"
+          fallback="Invoice number"
+        />
+      }
+    />
+    <LocalisedField
+      name="receiptNumber"
+      label={
+        <TranslatedText
+          stringId="general.localisedField.receiptNumber.label"
+          fallback="Receipt number"
+        />
+      }
+    />
     <LocalisedField
       name="status"
+      label={<TranslatedText stringId="general.localisedField.status.label" fallback="Status" />}
       component={SelectField}
       options={INVOICE_STATUS_OPTIONS}
-      defaultLabel="Status"
     />
     <LocalisedField
       name="paymentStatus"
-      defaultLabel="Payment status"
+      label={
+        <TranslatedText
+          stringId="general.localisedField.paymentStatus.label"
+          fallback="Payment status"
+        />
+      }
       component={SelectField}
       options={INVOICE_PAYMENT_STATUS_OPTIONS}
     />

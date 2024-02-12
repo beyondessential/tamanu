@@ -7,14 +7,12 @@ import { FormSubmitCancelRow } from '../ButtonRow';
 import { FormSeparatorLine } from '../FormSeparatorLine';
 import { useApi, usePatientSuggester, useSuggester } from '../../api';
 import { appointmentTypeOptions } from '../../constants';
-import { useLocalisedText } from '../LocalisedText';
 import { TranslatedText } from '../Translation/TranslatedText';
 
 export const AppointmentForm = props => {
   const { onSuccess = () => {}, onCancel, appointment } = props;
   const api = useApi();
   const isUpdating = !!appointment;
-  const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
   const clinicianSuggester = useSuggester('practitioner');
   const patientSuggester = usePatientSuggester();
   const locationGroupSuggester = useSuggester('facilityLocationGroup');
@@ -58,7 +56,7 @@ export const AppointmentForm = props => {
         patientId: yup.string().required('Please select a patient'),
         type: yup.string().required('Please choose an appointment type'),
         startTime: yup.string().required('Please select a start time'),
-        clinicianId: yup.string().required(`Please select a ${clinicianText.toLowerCase()}`),
+        clinicianId: yup.string().required('Required'),
         locationGroupId: yup
           .string()
           .required('Please select an area')
@@ -111,7 +109,12 @@ export const AppointmentForm = props => {
                 component={DateTimeField}
               />
               <Field
-                label={clinicianText}
+                label={
+                  <TranslatedText
+                    stringId="general.localisedField.clinician.label.short"
+                    fallback="Clinician"
+                  />
+                }
                 name="clinicianId"
                 component={AutocompleteField}
                 suggester={clinicianSuggester}

@@ -18,7 +18,6 @@ import { reloadPatient } from '../../store/patient';
 import { AppointmentModal } from './AppointmentModal';
 import { Button, DeleteButton } from '../Button';
 import { EncounterModal } from '../EncounterModal';
-import { LocalisedText } from '../LocalisedText';
 import { usePatientCurrentEncounter } from '../../api/queries';
 import { Modal } from '../Modal';
 import { TranslatedText } from '../Translation/TranslatedText';
@@ -342,7 +341,10 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
       </FirstRow>
       <Section>
         <Heading>
-          <LocalisedText path="fields.clinician.shortLabel" />
+          <TranslatedText
+            stringId="general.localisedField.clinician.label.short"
+            fallback="Clinician"
+          />
         </Heading>
         {clinician.displayName}
       </Section>

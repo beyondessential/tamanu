@@ -14,18 +14,19 @@ import {
   FieldWithTooltip,
   FormGrid,
   FormSeparatorLine,
+  LowerCase,
   NumberField,
   PaginatedForm,
   RadioField,
   SelectField,
   TextField,
   TimeWithUnitField,
-  useLocalisedText,
 } from '../components';
 import { useAuth } from '../contexts/Auth';
 import { DeathFormScreen } from './DeathFormScreen';
 import { SummaryScreenThree, SummaryScreenTwo } from './DeathFormSummaryScreens';
 import { binaryOptions, binaryUnknownOptions } from '../constants';
+import { TranslatedText } from '../components/Translation/TranslatedText';
 
 const StyledFormGrid = styled(FormGrid)`
   min-height: 200px;
@@ -64,7 +65,6 @@ export const DeathForm = React.memo(
     facilitySuggester,
   }) => {
     const { currentUser } = useAuth();
-    const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
     const canBePregnant = patient.sex === 'female' && ageInYears(patient.dateOfBirth) >= 12;
     const isInfant = ageInMonths(patient.dateOfBirth) <= 2;
 
@@ -81,15 +81,9 @@ export const DeathForm = React.memo(
           }),
           causeOfDeathInterval: yup.string().when('isPartialWorkflow', {
             is: undefined,
-            then: yup
-              .string()
-              .required()
-              .label('Time between onset and death'),
+            then: yup.string().required(),
           }),
-          clinicianId: yup
-            .string()
-            .required()
-            .label(`Attending ${clinicianText.toLowerCase()}`),
+          clinicianId: yup.string().required(),
           lastSurgeryDate: yup
             .date()
             .max(yup.ref('timeOfDeath'), "Date of last surgery can't be after time of death"),
@@ -117,7 +111,22 @@ export const DeathForm = React.memo(
           />
           <Field
             name="clinicianId"
-            label={`Attending ${clinicianText.toLowerCase()}`}
+            label={
+              <TranslatedText
+                stringId="general.form.attendingClinician.label"
+                fallback="Attending :clinician"
+                replacements={{
+                  clinician: (
+                    <LowerCase>
+                      <TranslatedText
+                        stringId="general.localisedField.clinician.label.short"
+                        fallback="Clinician"
+                      />
+                    </LowerCase>
+                  ),
+                }}
+              />
+            }
             component={AutocompleteField}
             suggester={practitionerSuggester}
             required

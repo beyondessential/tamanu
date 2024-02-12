@@ -44,3 +44,7 @@ export const Heading5 = styled(Typography).attrs({ component: 'h5' })`
   font-size: 14px;
   line-height: 18px;
 `;
+
+export const LowerCase = styled.span`
+  text-transform: lowercase;
+`;
