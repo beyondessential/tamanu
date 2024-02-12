@@ -15,6 +15,10 @@ export const useFacilitySidebar = () => {
   const { getLocalisation } = useLocalisation();
   const sidebarConfig = getLocalisation('sidebar');
 
+  if (!sidebarConfig) {
+    return FACILITY_MENU_ITEMS;
+  }
+
   return FACILITY_MENU_ITEMS.reduce((topLevelItems, item) => {
     const localisedItem = sidebarConfig[item.key];
     if (!localisedItem) {
