@@ -7,7 +7,7 @@ export async function up(query) {
       SET request = to_jsonb(
         ARRAY[
           jsonb_build_object(
-            'reference', 'ServceRequest/' || sr.id,
+            'reference', 'ServiceRequest/' || sr.id,
             'type', 'ServiceRequest'
           )
         ])

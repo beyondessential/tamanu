@@ -106,8 +106,11 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
             system: 'http://www.senaite.com/data/sample_types',
             display: specimenType.name
           }]
-        }
-
+        },
+        request: [{
+          type: 'ServiceRequest',
+          reference: `ServiceRequest/${materialisedServiceRequest.id}`
+        }]
       });
       expect(response.headers['last-modified']).toBe(formatRFC7231(new Date(materialiseSpecimen.lastUpdated)));
       expect(response).toHaveSucceeded();
