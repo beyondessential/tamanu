@@ -2,7 +2,7 @@ import React, { ReactElement, useEffect } from 'react';
 import { Platform } from 'react-native';
 import { compose } from 'redux';
 import { NavigationProp } from '@react-navigation/native';
-import { TouchableOpacity, FlatList } from 'react-native-gesture-handler';
+import { FlatList, TouchableOpacity } from 'react-native-gesture-handler';
 // Containers
 import { withPatient } from '/containers/Patient';
 // Components
@@ -13,11 +13,12 @@ import { ErrorScreen } from '/components/ErrorScreen';
 import { RecentViewedScreenProps } from '/interfaces/screens/PatientSearchStack';
 // Helpers
 import { Routes } from '/helpers/routes';
-import { StyledView, FullView } from '/styled/common';
+import { FullView, StyledText, StyledView } from '/styled/common';
 import { joinNames } from '/helpers/user';
 import { getAgeFromDate } from '~/ui/helpers/date';
 import { useRecentlyViewedPatients } from '~/ui/hooks/localConfig';
 import { navigateAfterTimeout } from '~/ui/helpers/navigators';
+import { theme } from '~/ui/styled/theme';
 
 interface PatientListProps {
   list: any[];
@@ -25,10 +26,18 @@ interface PatientListProps {
   navigation: NavigationProp<any>;
 }
 
-const Screen = ({
-  navigation,
-  setSelectedPatient,
-}: RecentViewedScreenProps): ReactElement => {
+const NoPatientsCard = (): ReactElement => (
+  <StyledText
+    color={theme.colors.TEXT_SUPER_DARK}
+    fontWeight={'500'}
+    margin="58px auto 0"
+    fontSize={14}
+  >
+    No recently viewed patients to display.
+  </StyledText>
+);
+
+const Screen = ({ navigation, setSelectedPatient }: RecentViewedScreenProps): ReactElement => {
   const [recentlyViewedPatients, error] = useRecentlyViewedPatients();
 
   useEffect(() => {
@@ -45,8 +54,12 @@ const Screen = ({
     return <ErrorScreen error={error} />;
   }
 
-  if (!recentlyViewedPatients || !recentlyViewedPatients.length) {
+  if (!recentlyViewedPatients) {
     return <LoadingScreen />;
+  }
+
+  if (recentlyViewedPatients.length === 0) {
+    return <NoPatientsCard />;
   }
 
   return (
@@ -58,8 +71,8 @@ const Screen = ({
         renderItem={({ item }: { item: any }): ReactElement => {
           const onNavigateToPatientHome = (): void => {
             setSelectedPatient(item);
-            navigation.navigate(Routes.HomeStack.HomeTabs.Index, {
-              screen: Routes.HomeStack.HomeTabs.Home,
+            navigation.navigate(Routes.HomeStack.SearchPatientStack.Index, {
+              screen: Routes.HomeStack.SearchPatientStack.Index,
             });
           };
           return (
@@ -73,13 +86,7 @@ const Screen = ({
           );
         }}
       />
-      <StyledView
-        position="absolute"
-        zIndex={2}
-        width="100%"
-        alignItems="center"
-        bottom={30}
-      />
+      <StyledView position="absolute" zIndex={2} width="100%" alignItems="center" bottom={30} />
     </FullView>
   );
 };

@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import { TouchableHighlight } from 'react-native';
-import { StyledView, StyledText, RowView } from '/styled/common';
+import { RowView, StyledText, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { BaseInputProps } from '/interfaces/BaseInputProps';

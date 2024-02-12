@@ -1,19 +1,19 @@
 import { snakeCase } from 'lodash';
-import { Sequelize, Utils, DataTypes } from 'sequelize';
+import { DataTypes, Sequelize, Utils } from 'sequelize';
 import { subMinutes } from 'date-fns';
 
 import {
-  SYNC_DIRECTIONS,
+  FHIR_DATETIME_PRECISION,
   FHIR_SEARCH_PARAMETERS,
   FHIR_SEARCH_TOKEN_TYPES,
-  FHIR_DATETIME_PRECISION,
+  SYNC_DIRECTIONS,
 } from '@tamanu/constants';
 import { objectAsFhir } from './utils';
 import { formatFhirDate } from '../../utils/fhir';
 import { Model } from '../Model';
 
 export class FhirResource extends Model {
-  static init(attributes, { primaryKey, ...options }) {
+  static init(attributes, options) {
     super.init(
       {
         id: {

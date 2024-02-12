@@ -1,5 +1,5 @@
-import React, { useState, ReactElement } from 'react';
-import { StyledView, StyledText } from '/styled/common';
+import React, { ReactElement, useState } from 'react';
+import { StyledText, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { createTopTabNavigator } from './index';
 import * as Icons from '../Icons';
