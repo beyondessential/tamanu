@@ -53,7 +53,6 @@ export const CovidClearanceCertificateModal = React.memo(({ patient }) => {
       onClose={() => setOpen(false)}
       width="md"
       printable
-      keepMounted
       onPrint={() => printPDF('clearance-certificate')}
       additionalActions={<EmailButton onEmail={createCovidTestCertNotification} />}
     >

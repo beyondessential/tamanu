@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { usePDF } from '@react-pdf/renderer';
 import { Box, CircularProgress, Typography } from '@material-ui/core';
 import styled from 'styled-components';
@@ -46,8 +46,7 @@ const ErrorDisplay = () => (
 
 export const PDFViewer = React.memo(({ id, children, isDataReady }) => {
   if (!isDataReady) return <LoadingIndicator />;
-
-  return <PDFViewerInner id={id} children={children} />;
+  return <PDFViewerInner id={id}>{children}</PDFViewerInner>;
 });
 
 // @react-pdf/renderer ships with its own version of PDFViewer. However it is a bit flaky because
@@ -59,7 +58,7 @@ export const PDFViewerInner = React.memo(({ id, children }) => {
   if (instance.loading) return <LoadingIndicator />;
   if (!instance.url) return <ErrorDisplay />;
 
-  return <FullIframe src={`${instance.url}#toolbar=0`} title={id} id={id} key={id} />;
+  return <FullIframe src={`${instance.url}#toolbar=0`} title={id} id={id} />;
 });
 
 export const printPDF = elementId => {

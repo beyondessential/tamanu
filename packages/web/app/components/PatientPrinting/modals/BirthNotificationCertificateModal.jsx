@@ -150,7 +150,6 @@ export const BirthNotificationCertificateModal = React.memo(({ patient }) => {
       onClose={() => setOpen(false)}
       width="md"
       printable
-      keepMounted
       onPrint={() => printPDF('birth-notification')}
     >
       <PDFViewer isDataReady={!isLoading} id="birth-notification">

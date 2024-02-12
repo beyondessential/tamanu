@@ -14,7 +14,6 @@ export const PatientStickerLabelPage = React.memo(({ patient }) => {
       onClose={() => setOpen(false)}
       width="md"
       printable
-      keepMounted
       onPrint={() => printPDF('patient-label-printout')}
     >
       <PDFViewer isDataReady={true} id="patient-label-printout">
