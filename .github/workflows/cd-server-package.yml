@@ -49,6 +49,8 @@ jobs:
     env:
       BUILD_NAME: "release-v${{ needs.info.outputs.version }}"
       ARTIFACT_NAME: "${{ matrix.package }}-${{ needs.info.outputs.version }}"
+      OUTPUT_NAME: "${{ matrix.package }}-${{ needs.info.outputs.version }}-linux-amd64"
+      S3_PATH: s3://bes-tamanu-release-servers/${{ needs.info.outputs.version }}
 
     steps:
       - name: Configure AWS Credentials
@@ -94,14 +96,52 @@ jobs:
             packages/${{ matrix.package }}-server/pm2.config.js > ${{ env.BUILD_NAME }}/pm2.config.js
 
       - name: Prepare artifact output
-        run: zip -r '${{ env.BUILD_NAME }}.zip' '${{ env.BUILD_NAME }}'
+        run: |
+          zip -r '${{ env.BUILD_NAME }}.zip' '${{ env.BUILD_NAME }}'
+          tar -cf '${{ env.OUTPUT_NAME }}.tar' '${{ env.BUILD_NAME }}'
+          zstd --rm --adapt -T0 -10 '${{ env.OUTPUT_NAME }}.tar' -o '${{ env.OUTPUT_NAME }}.tar.zst'
 
-      - name: Upload artifact
+      - name: Sign build
+        shell: bash
+        env:
+          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
+        run: |
+          curl -Lo bestool https://tools.ops.tamanu.io/bestool/gha/${{ runner.os }}-${{ runner.arch }}
+          chmod +x bestool
+          ./bestool crypto sign --key-env SIGNING_KEY  \
+            --comment 'ts={timestamp} repo=${{ github.repository }} commit=${{ needs.info.outputs.actual_ref }} gharun=${{ github.run_id }}' \
+            '${{ env.OUTPUT_NAME }}.tar.zst'
+
+      - name: Upload artifact for next step
         uses: actions/upload-artifact@v3
         with:
           name: ${{ env.ARTIFACT_NAME }}
           path: '${{ env.BUILD_NAME }}.zip'
           retention-days: 1
+
+      - name: Upload final output
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.ARTIFACT_NAME }}
+          path: |
+            ${{ env.OUTPUT_NAME }}.tar.zst
+            ${{ env.OUTPUT_NAME }}.tar.zst.sig
+          retention-days: 15
+
+      - name: Configure AWS Credentials
+        if: github.event_name != 'workflow_dispatch'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ap-southeast-2
+          role-to-assume: arn:aws:iam::143295493206:role/gha-server-s3
+          role-session-name: GHA@Tamanu=ServerPackage
+
+      - name: Push to S3
+        if: github.event_name != 'workflow_dispatch'
+        run: |
+          aws s3 cp '${{ env.OUTPUT_NAME }}.tar.zst' '${{ env.S3_PATH }}/${{ env.OUTPUT_NAME }}.tar.zst' --no-progress
+          aws s3 cp '${{ env.OUTPUT_NAME }}.tar.zst.sig' '${{ env.S3_PATH }}/${{ env.OUTPUT_NAME }}.tar.zst.sig' --no-progress
 
   windows-zip:
     needs:
@@ -167,8 +207,18 @@ jobs:
             --comment 'ts={timestamp} repo=${{ github.repository }} commit=${{ needs.info.outputs.actual_ref }} gharun=${{ github.run_id }}' \
             '${{ env.OUTPUT_NAME }}.tar.zst'
 
+      - name: Upload final build
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.OUTPUT_NAME }}
+          path: |
+            ${{ env.OUTPUT_NAME }}.tar.zst
+            ${{ env.OUTPUT_NAME }}.tar.zst.sig
+          retention-days: 15
 
       - name: Configure AWS Credentials
+        if: github.event_name != 'workflow_dispatch'
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: ap-southeast-2
@@ -176,6 +226,7 @@ jobs:
           role-session-name: GHA@Tamanu=ServerPackage
 
       - name: Push to S3
+        if: github.event_name != 'workflow_dispatch'
         run: |
           aws s3 cp '${{ env.OUTPUT_NAME }}.tar.zst' '${{ env.S3_PATH }}/${{ env.OUTPUT_NAME }}.tar.zst' --no-progress
           aws s3 cp '${{ env.OUTPUT_NAME }}.tar.zst.sig' '${{ env.S3_PATH }}/${{ env.OUTPUT_NAME }}.tar.zst.sig' --no-progress
