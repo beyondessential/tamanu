@@ -94,6 +94,8 @@ const sortTopLevelItems = (a, b) => {
 
 export const useFacilitySidebar = () => {
   const { getLocalisation } = useLocalisation();
+  const test = getLocalisation('sidebar');
+  console.log('test', test);
   // const sidebarConfig = getLocalisation('sidebar');
   const sidebarConfig = tempLocalisation;
 

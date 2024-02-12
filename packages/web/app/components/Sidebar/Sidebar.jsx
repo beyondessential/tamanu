@@ -7,7 +7,6 @@ import { push } from 'connected-react-router';
 import { TamanuLogoWhite, TamanuLogoWhiteNoText } from '../TamanuLogo';
 import { getCurrentRoute } from '../../store/router';
 import { Colors } from '../../constants';
-import { Translated } from '../Translated';
 import { HiddenSyncAvatar } from '../HiddenSyncAvatar';
 import { TopLevelSidebarItem } from './TopLevelSidebarItem';
 import { PrimarySidebarItem } from './PrimarySidebarItem';
@@ -304,7 +303,7 @@ export const Sidebar = React.memo(({ items }) => {
                   id="logout"
                   data-test-id="siderbar-logout-item"
                 >
-                  <Translated id="logout" />
+                  Logout
                 </LogoutButton>
               </Box>
             </StyledUserInfoContent>
