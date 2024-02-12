@@ -66,7 +66,7 @@ describe('AEFI report', () => {
       await createDummyEncounter(models, { patientId: wrongVillagePatient.id, current: true }),
     );
 
-    await app.post('/v1/surveyResponse').send({
+    await app.post('/api/surveyResponse').send({
       surveyId: 'program-aefi/survey-aefi_immunisation',
       startTime: '2021-03-17T21:50:28.133Z',
       patientId: expectedPatient.id,
@@ -74,7 +74,7 @@ describe('AEFI report', () => {
       answers: createDummyAefiSurveyAnswers(),
     });
 
-    await app.post('/v1/surveyResponse').send({
+    await app.post('/api/surveyResponse').send({
       surveyId: 'program-aefi/survey-aefi_immunisation',
       startTime: '2021-03-17T21:50:28.133Z',
       patientId: wrongVillagePatient.id,
@@ -115,13 +115,13 @@ describe('AEFI report', () => {
 
   it('should reject creating an aefi report with insufficient permissions', async () => {
     const noPermsApp = await baseApp.asRole('base');
-    const result = await noPermsApp.post(`/v1/reports/aefi`, {});
+    const result = await noPermsApp.post(`/api/reports/aefi`, {});
     expect(result).toBeForbidden();
   });
 
   describe('returns data based on parameters', () => {
     it('should return data for patients of the right village', async () => {
-      const result = await app.post('/v1/reports/aefi').send({
+      const result = await app.post('/api/reports/aefi').send({
         parameters: { village: village, fromDate: '2021-03-15' },
       });
 

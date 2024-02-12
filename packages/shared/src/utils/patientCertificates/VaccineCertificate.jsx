@@ -15,6 +15,7 @@ import { PatientDetailsSection } from './PatientDetailsSection';
 import { H3 } from './Typography';
 import { LetterheadSection } from './LetterheadSection';
 import { getDisplayDate } from './getDisplayDate';
+import { SigningSection } from './SigningSection';
 
 const columns = [
   {
@@ -87,6 +88,7 @@ export const VaccineCertificate = ({
   vaccinations,
   certificateId,
   watermarkSrc,
+  signingSrc,
   logoSrc,
   getLocalisation,
   extraPatientFields,
@@ -149,7 +151,7 @@ export const VaccineCertificate = ({
           />
         </CertificateHeader>
         <Box style={{ ...styles.box, marginLeft: '18px', marginRight: '18px' }}>
-          <H3>Immunisation history</H3>
+          <H3 style={{ marginBottom: 5, marginTop: 5 }}>Immunisation history</H3>
           <Table
             data={data}
             columns={columns}
@@ -157,6 +159,7 @@ export const VaccineCertificate = ({
             columnStyle={{ padding: '10px 5px' }}
           />
         </Box>
+        <SigningSection signingSrc={signingSrc} />
         <FixedFooter>
           <VaccineCertificateFooter />
         </FixedFooter>

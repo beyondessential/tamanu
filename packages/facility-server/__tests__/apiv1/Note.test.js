@@ -49,7 +49,7 @@ describe('Note', () => {
     beforeAll(async () => {
       const categoryId = await randomReferenceId(models, 'labTestCategory');
       const labTestTypeIds = (await randomLabTests(models, categoryId, 2)).map(({ id }) => id);
-      labRequest = await app.post('/v1/labRequest').send({
+      labRequest = await app.post('/api/labRequest').send({
         categoryId,
         displayId: 'TESTID',
         labTestTypeIds,
@@ -59,7 +59,7 @@ describe('Note', () => {
 
     it('should attach a note to a lab request', async () => {
       const content = chance.paragraph();
-      const response = await app.post(`/v1/labRequest/${labRequest.body[0].id}/notes`).send({
+      const response = await app.post(`/api/labRequest/${labRequest.body[0].id}/notes`).send({
         content,
         noteType: NOTE_TYPES.OTHER,
       });
@@ -87,7 +87,7 @@ describe('Note', () => {
 
     it('should attach a note to an encounter', async () => {
       const content = chance.paragraph();
-      const response = await app.post(`/v1/encounter/${encounter.id}/notes`).send({
+      const response = await app.post(`/api/encounter/${encounter.id}/notes`).send({
         content,
         noteType: NOTE_TYPES.SYSTEM,
       });
@@ -104,7 +104,7 @@ describe('Note', () => {
     });
 
     it('should not write a note on an non-existent record', async () => {
-      const response = await app.post('/v1/encounter/fakeEncounterId/notes').send({
+      const response = await app.post('/api/encounter/fakeEncounterId/notes').send({
         content: chance.paragraph(),
       });
 
@@ -121,7 +121,7 @@ describe('Note', () => {
       test.todo('should forbid reading notes on a forbidden record');
 
       it('should forbid writing notes on a forbidden record', async () => {
-        const response = await noPermsApp.post(`/v1/encounter/${encounter.id}/notes`).send({
+        const response = await noPermsApp.post(`/api/encounter/${encounter.id}/notes`).send({
           content: chance.paragraph(),
           noteType: NOTE_TYPES.SYSTEM,
         });
@@ -137,7 +137,7 @@ describe('Note', () => {
           chance.paragraph(),
         );
 
-        const response = await noPermsApp.put(`/v1/notes/${note.id}`).send({
+        const response = await noPermsApp.put(`/api/notes/${note.id}`).send({
           content: 'forbidden',
         });
 
@@ -153,7 +153,7 @@ describe('Note', () => {
           app.user.id,
         );
 
-        const response = await app.put(`/v1/notes/${note.id}`).send({
+        const response = await app.put(`/api/notes/${note.id}`).send({
           content: 'updated',
         });
 
@@ -179,7 +179,7 @@ describe('Note', () => {
         chance.paragraph(),
         testUser.id,
       );
-      const response = await app.put(`/v1/notes/${note.id}`).send({
+      const response = await app.put(`/api/notes/${note.id}`).send({
         content: 'updated',
       });
 
@@ -199,7 +199,7 @@ describe('Note', () => {
     // yourself for a big chunk of utility functions to get that all together!
 
     const postEncounterNote = async props => {
-      const response = await app.post(`/v1/encounter/${encounter.id}/notes`).send(fake(models.Note, props));
+      const response = await app.post(`/api/encounter/${encounter.id}/notes`).send(fake(models.Note, props));
       expect(response).toHaveSucceeded();
       return response.body;
     };
@@ -287,7 +287,7 @@ describe('Note', () => {
     });
 
     it('should list the latest revision of each note', async () => {
-      const response = await app.get(`/v1/encounter/${encounter.id}/notes?rowsPerPage=${noteGroupCount}`);
+      const response = await app.get(`/api/encounter/${encounter.id}/notes?rowsPerPage=${noteGroupCount}`);
       expect(response).toHaveSucceeded();
       expect(response.body).toHaveProperty('count', noteGroups.length);
       response.body.data.forEach(n => {
@@ -297,11 +297,11 @@ describe('Note', () => {
 
     it('should paginate notes correctly when they have revisions', async () => {
       // grab the first two pages - they should have the right counts & no duplicates
-      const firstPage = await app.get(`/v1/encounter/${encounter.id}/notes?rowsPerPage=5`);
+      const firstPage = await app.get(`/api/encounter/${encounter.id}/notes?rowsPerPage=5`);
       expect(firstPage).toHaveSucceeded();
       expect(firstPage.body.data).toHaveLength(5);
 
-      const secondPage = await app.get(`/v1/encounter/${encounter.id}/notes?rowsPerPage=5&page=1`);
+      const secondPage = await app.get(`/api/encounter/${encounter.id}/notes?rowsPerPage=5&page=1`);
       expect(secondPage).toHaveSucceeded();
       expect(secondPage.body.data).toHaveLength(5);
 
@@ -321,7 +321,7 @@ describe('Note', () => {
     });
 
     it('should filter notes correctly when they have revisions', async () => {
-      const results = await app.get(`/v1/encounter/${encounter.id}/notes?noteType=${NOTE_TYPES.MEDICAL}&rowsPerPage=10`);
+      const results = await app.get(`/api/encounter/${encounter.id}/notes?noteType=${NOTE_TYPES.MEDICAL}&rowsPerPage=10`);
       expect(results).toHaveSucceeded();
       results.body.data.forEach(note => {
         expect(note).toHaveProperty('noteType', NOTE_TYPES.MEDICAL);
@@ -336,7 +336,7 @@ describe('Note', () => {
       const [historicalNote] = noteGroups.find(([base]) => base.content === "TO BE HISTORICAL");
       await postRevision(historicalNote, { content: 'HISTORICAL', visibilityStatus: VISIBILITY_STATUSES.HISTORICAL });
 
-      const response = await app.get(`/v1/encounter/${encounter.id}/notes?rowsPerPage=${noteGroupCount}`);
+      const response = await app.get(`/api/encounter/${encounter.id}/notes?rowsPerPage=${noteGroupCount}`);
       expect(response).toHaveSucceeded();
       expect(response.body).toHaveProperty('count', noteGroups.length - 1);
       response.body.data.forEach(n => {
