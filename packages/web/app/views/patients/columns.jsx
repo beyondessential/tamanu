@@ -84,13 +84,13 @@ export const village = {
 
 export const department = {
   key: 'departmentName',
-  title: 'Department',
+  title: <TranslatedText stringId="general.department.label" fallback="Department" />,
   minWidth: 100,
 };
 
 export const status = {
   key: 'patientStatus',
-  title: 'Status',
+  title: <TranslatedText stringId="general.status.label" fallback="Status" />,
   sortable: false,
   minWidth: 100,
   accessor: ({ dateOfDeath: dod, encounterType }) =>
@@ -99,13 +99,15 @@ export const status = {
 
 export const clinician = {
   key: 'clinician',
-  title: 'Clinician',
+  title: (
+    <TranslatedText stringId="general.localisedField.clinician.label.short" fallback="Clinician" />
+  ),
   sortable: false,
 };
 
 export const vaccinationStatus = {
   key: 'vaccinationStatus',
-  title: 'Vaccine status',
+  title: <TranslatedText stringId="vaccine.status.label" fallback="Village" />,
   minWidth: 100,
   accessor: row => row.vaccinationStatus || 'Unknown',
 };
