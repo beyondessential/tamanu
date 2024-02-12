@@ -154,6 +154,14 @@ const StyledMetadataBox = styled(Box)`
   margin-bottom: 5px;
 `;
 
+// This is a little temporary message specifically for the cambodia demo to really make it clear that this is a work in progress
+const isDev = process.env.NODE_ENV === 'development';
+const DisclaimerMessage = styled.div`
+  text-align: center;
+  width: 200px;
+  margin: 10px auto;
+`;
+
 const getInitials = string =>
   string
     .match(/\b(\w)/g)
@@ -284,6 +292,7 @@ export const Sidebar = React.memo(({ items }) => {
           );
         })}
       </List>
+      {isDev && <DisclaimerMessage><TranslatedText stringId="demoDisclaimer" fallback="disclaimer" /></DisclaimerMessage>}
       <Footer $retracted={isRetracted}>
         <StyledDivider $invisible={isRetracted} />
         <UserInfo $retracted={isRetracted}>
