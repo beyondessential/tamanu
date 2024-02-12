@@ -11,6 +11,7 @@ import { useApi } from '../api';
 import { DateDisplay } from './DateDisplay';
 import { Modal } from './Modal';
 import { TranslatedText } from './Translation/TranslatedText';
+import { LowerCase } from './Typography';
 
 const Container = styled.div`
   display: flex;

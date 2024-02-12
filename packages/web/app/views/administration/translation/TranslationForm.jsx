@@ -41,7 +41,7 @@ const ReservedText = styled.p`
   font-size: 14px;
 `;
 
-const validationSchema = yup.lazy(({ search, ...values }) => {
+const validationSchema = yup.lazy(values => {
   const newEntrySchema = {
     stringId: yup
       .string()
@@ -236,7 +236,7 @@ export const TranslationForm = () => {
     [translations],
   );
 
-  const handleSubmit = async ({ search, ...payload }) => {
+  const handleSubmit = async payload => {
     // Swap temporary id out for stringId
     const submitData = Object.fromEntries(
       Object.entries(payload).map(([key, { stringId, ...rest }]) => [stringId || key, rest]),
