@@ -27,6 +27,7 @@ import { DeathFormScreen } from './DeathFormScreen';
 import { SummaryScreenThree, SummaryScreenTwo } from './DeathFormSummaryScreens';
 import { binaryOptions, binaryUnknownOptions } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
+import { TranslatedSelectField } from '../components/Translation/TranslatedSelectField.jsx';
 
 const StyledFormGrid = styled(FormGrid)`
   min-height: 200px;
@@ -249,9 +250,10 @@ export const DeathForm = React.memo(
           <Field
             name="mannerOfDeath"
             label="What was the manner of death?"
-            component={SelectField}
+            component={TranslatedSelectField}
             options={MANNER_OF_DEATH_OPTIONS}
             required
+            prefix="death.property.mannerOfDeath"
           />
           <Field
             name="mannerOfDeathDate"
@@ -263,9 +265,10 @@ export const DeathForm = React.memo(
           <Field
             name="mannerOfDeathLocation"
             label="Where did this external cause occur?"
-            component={SelectField}
+            component={TranslatedSelectField}
             options={placeOptions}
             visibilityCriteria={mannerOfDeathVisibilityCriteria}
+            prefix="death.property.mannerOfDeath.location"
           />
           <Field
             name="mannerOfDeathOther"

@@ -31,7 +31,6 @@ import { FormSeparatorLine } from '../components/FormSeparatorLine';
 import { FormSubmitDropdownButton } from '../components/DropdownButton';
 import { LowerCase } from '../components/Typography';
 import { TranslatedText } from '../components/Translation/TranslatedText';
-import { TranslatedMultiselectField } from '../components/Translation/TranslatedSelectField.jsx';
 
 function getEncounterTypeLabel(type) {
   return encounterOptions.find(x => x.value === type).label;
