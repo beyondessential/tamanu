@@ -11053,11 +11053,6 @@ react-native-svg-charts@^5.3.0:
     d3-shape "^1.0.6"
     prop-types "^15.6.0"
 
-react-native-svg-mock@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/react-native-svg-mock/-/react-native-svg-mock-2.0.0.tgz#27f4793e860ec6cae783930e6afb54869f0a2ea9"
-  integrity sha512-+Op91zndXy+fUHZlcYo2YU3RzW5yXvKXE/mqMgYOdJLLS2kWwZBjAGt+CiKGl/+ZKnJ8/h0TWiiT0vCSv2NxEA==
-
 react-native-svg-transformer@^0.13.0:
   version "0.13.0"
   resolved "https://registry.yarnpkg.com/react-native-svg-transformer/-/react-native-svg-transformer-0.13.0.tgz#ec0913f76d58c4df7092f52c98e8db368e5f894f"

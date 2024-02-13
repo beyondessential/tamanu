@@ -122,7 +122,6 @@
     "metro-react-native-babel-preset": "^0.66.2",
     "react-dom": "16.9.0",
     "react-native-storybook-loader": "^1.8.1",
-    "react-native-svg-mock": "^2.0.0",
     "react-native-svg-transformer": "^0.13.0",
     "react-test-renderer": "17.0.2",
     "sqlite3": "^4.2.0",
