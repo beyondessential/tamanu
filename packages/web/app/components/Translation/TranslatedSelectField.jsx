@@ -4,27 +4,35 @@ import PropTypes from 'prop-types';
 import React from 'react';
 
 const transformStringIdSuffix = suffix => {
-  const words = suffix.split(/\s/g).map((word, index) => {
-    return index === 0
-      ? word.charAt(0).toLowerCase() + word.slice(1)
-      : word.charAt(0).toUpperCase() + word.slice(1);
-  });
+  const words = suffix
+    .toString()
+    .split(/\s/g)
+    .map((word, index) => {
+      return index === 0
+        ? word.charAt(0).toLowerCase() + word.slice(1)
+        : word.charAt(0).toUpperCase() + word.slice(1);
+    });
 
   // console.log(suffix.split(/\s/g));
   return words.join('');
 };
 
 const getTranslatedOptions = (options, prefix) => {
+  console.log(options);
   const translatedOptions = options.map(option => ({
     value: option.value,
     label: (
       <TranslatedText
         stringId={
-          typeof option.label !== 'string'
+          option.label.type === TranslatedText
             ? option.label.props.stringId // handling when the options list already has TranslatedText components in it
             : `${prefix}.${transformStringIdSuffix(option.value)}`
         }
-        fallback={typeof option.label !== 'string' ? option.label.props.fallback : option.label}
+        fallback={
+          option.label.type === TranslatedText
+            ? option.label.props.fallback
+            : option.label.toString()
+        }
       />
     ),
   }));

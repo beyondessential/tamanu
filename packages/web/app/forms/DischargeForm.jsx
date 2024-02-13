@@ -32,11 +32,9 @@ import { LowerCase } from '../components/Typography';
 import { FormConfirmCancelBackRow, FormSubmitCancelRow } from '../components/ButtonRow';
 import { DiagnosisList } from '../components/DiagnosisList';
 import { useEncounter } from '../contexts/Encounter';
-import {
-  MODAL_PADDING_LEFT_AND_RIGHT,
-  MODAL_PADDING_TOP_AND_BOTTOM,
-} from '../components';
+import { MODAL_PADDING_LEFT_AND_RIGHT, MODAL_PADDING_TOP_AND_BOTTOM } from '../components';
 import { TranslatedText } from '../components/Translation/TranslatedText';
+import { TranslatedSelectField } from '../components/Translation/TranslatedSelectField.jsx';
 
 const Divider = styled(BaseDivider)`
   margin: 30px -${MODAL_PADDING_LEFT_AND_RIGHT}px;
@@ -173,8 +171,9 @@ const RepeatsAccessor = ({ id }) => (
   <Field
     name={`medications.${id}.repeats`}
     isClearable={false}
-    component={SelectField}
+    component={TranslatedSelectField}
     options={REPEATS_OPTIONS}
+    prefix="discharge.medication.property.repeats"
   />
 );
 
@@ -217,10 +216,9 @@ const EncounterOverview = ({
   return (
     <>
       <DateTimeInput
-        label={<TranslatedText
-          stringId="discharge.form.admissionDate.label"
-          fallback="Admission date"
-        />}
+        label={
+          <TranslatedText stringId="discharge.form.admissionDate.label" fallback="Admission date" />
+        }
         value={startDate}
         disabled
       />
@@ -245,10 +243,12 @@ const EncounterOverview = ({
         disabled
       />
       <TextInput
-        label={<TranslatedText
-          stringId="discharge.form.encounterReason.label"
-          fallback="Reason for encounter"
-        />}
+        label={
+          <TranslatedText
+            stringId="discharge.form.encounterReason.label"
+            fallback="Reason for encounter"
+          />
+        }
         value={reasonForEncounter}
         disabled
         style={{ gridColumn: '1 / -1' }}
