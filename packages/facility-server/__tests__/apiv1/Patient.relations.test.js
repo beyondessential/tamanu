@@ -86,7 +86,7 @@ describe('Patient relations', () => {
   describe('programResponses', () => {
     it('should return empty list if no programResponses', async () => {
       const patient = await models.Patient.create(await createDummyPatient(models));
-      const response = await app.get(`/v1/patient/${patient.id}/programResponses`);
+      const response = await app.get(`/api/patient/${patient.id}/programResponses`);
       expect(response.body).toEqual({ count: 0, data: [] });
     });
 
@@ -94,7 +94,7 @@ describe('Patient relations', () => {
       const { patient } = await setupSurvey({
         surveyName: 'test-survey-name',
       });
-      const response = await app.get(`/v1/patient/${patient.id}/programResponses`);
+      const response = await app.get(`/api/patient/${patient.id}/programResponses`);
       expect(response).toHaveSucceeded();
       expect(response.body.count).toEqual(1);
       expect(response.body.data).toHaveLength(1);
@@ -113,7 +113,7 @@ describe('Patient relations', () => {
         endTime: '2019-01-02 00:00:00',
         patientId: patient.id,
       });
-      const response = await app.get(`/v1/patient/${patient.id}/programResponses`);
+      const response = await app.get(`/api/patient/${patient.id}/programResponses`);
       expect(response).toHaveSucceeded();
       expect(response.body.count).toEqual(3);
       expect(response.body.data).toHaveLength(3);
@@ -137,7 +137,7 @@ describe('Patient relations', () => {
         patientId: patient.id,
       });
       const response = await app.get(
-        `/v1/patient/${patient.id}/programResponses?orderBy=surveyName&order=asc`,
+        `/api/patient/${patient.id}/programResponses?orderBy=surveyName&order=asc`,
       );
       expect(response).toHaveSucceeded();
       expect(response.body.count).toEqual(3);
@@ -153,13 +153,13 @@ describe('Patient relations', () => {
   describe('referrals', () => {
     it('should return empty list if no referrals', async () => {
       const patient = await models.Patient.create(await createDummyPatient(models));
-      const response = await app.get(`/v1/patient/${patient.id}/referrals`);
+      const response = await app.get(`/api/patient/${patient.id}/referrals`);
       expect(response.body).toEqual({ count: 0, data: [] });
     });
 
     it('should return list of referrals', async () => {
       const { patient, referral } = await setupSurvey({ withReferral: true });
-      const response = await app.get(`/v1/patient/${patient.id}/referrals`);
+      const response = await app.get(`/api/patient/${patient.id}/referrals`);
       expect(response).toHaveSucceeded();
       expect(response.body.count).toEqual(1);
       expect(response.body.data).toHaveLength(1);
@@ -171,7 +171,7 @@ describe('Patient relations', () => {
         submissionDate: '2020-01-01',
       });
 
-      const response = await app.get(`/v1/patient/${patient.id}/referrals`);
+      const response = await app.get(`/api/patient/${patient.id}/referrals`);
       expect(response).toHaveSucceeded();
       expect(response.body.count).toEqual(1);
       expect(response.body.data).toHaveLength(1);
@@ -184,7 +184,7 @@ describe('Patient relations', () => {
       const { patient, surveyResponse, referral } = await setupSurvey({
         withReferral: true,
       });
-      const response = await app.get(`/v1/patient/${patient.id}/referrals`);
+      const response = await app.get(`/api/patient/${patient.id}/referrals`);
       expect(response).toHaveSucceeded();
       expect(response.body.count).toEqual(1);
       expect(response.body.data).toHaveLength(1);
@@ -206,7 +206,7 @@ describe('Patient relations', () => {
         submissionDate: '2019-01-02',
         patientId: patient.id,
       });
-      const response = await app.get(`/v1/patient/${patient.id}/referrals`);
+      const response = await app.get(`/api/patient/${patient.id}/referrals`);
       expect(response).toHaveSucceeded();
       expect(response.body.count).toEqual(3);
       expect(response.body.data).toHaveLength(3);
@@ -232,7 +232,7 @@ describe('Patient relations', () => {
         patientId: patient.id,
       });
       const response = await app.get(
-        `/v1/patient/${patient.id}/referrals?orderBy=referralType&order=asc`,
+        `/api/patient/${patient.id}/referrals?orderBy=referralType&order=asc`,
       );
       expect(response).toHaveSucceeded();
       expect(response.body.count).toEqual(3);
@@ -249,7 +249,7 @@ describe('Patient relations', () => {
     it('should get an empty list of patient issues', async () => {
       const patient = await models.Patient.create(await createDummyPatient(models));
 
-      const result = await app.get(`/v1/patient/${patient.id}/issues`);
+      const result = await app.get(`/api/patient/${patient.id}/issues`);
       expect(result).toHaveSucceeded();
       expect(result.body.count).toEqual(0);
     });
@@ -274,7 +274,7 @@ describe('Patient relations', () => {
         type: 'issue',
       });
 
-      const result = await app.get(`/v1/patient/${patient.id}/issues`);
+      const result = await app.get(`/api/patient/${patient.id}/issues`);
       expect(result).toHaveSucceeded();
       expect(result.body.count).toEqual(2);
       expect(result.body.data.every(x => x.note.includes('include'))).toEqual(true);
@@ -285,7 +285,7 @@ describe('Patient relations', () => {
     it('should get an empty list of patient allergies', async () => {
       const patient = await models.Patient.create(await createDummyPatient(models));
 
-      const result = await app.get(`/v1/patient/${patient.id}/allergies`);
+      const result = await app.get(`/api/patient/${patient.id}/allergies`);
       expect(result).toHaveSucceeded();
       expect(result.body.count).toEqual(0);
     });
@@ -310,7 +310,7 @@ describe('Patient relations', () => {
         note: 'fail',
       });
 
-      const result = await app.get(`/v1/patient/${patient.id}/allergies`);
+      const result = await app.get(`/api/patient/${patient.id}/allergies`);
       expect(result).toHaveSucceeded();
       expect(result.body.count).toEqual(2);
       expect(result.body.data.every(x => x.note.includes('include'))).toEqual(true);
@@ -324,7 +324,7 @@ describe('Patient relations', () => {
         patientId: patient.id,
       });
 
-      const result = await app.get(`/v1/patient/${patient.id}/allergies`);
+      const result = await app.get(`/api/patient/${patient.id}/allergies`);
       expect(result).toHaveSucceeded();
       expect(result.body.data[0].allergy).toHaveProperty('name');
     });
@@ -334,7 +334,7 @@ describe('Patient relations', () => {
     it('should get an empty list of history items', async () => {
       const patient = await models.Patient.create(await createDummyPatient(models));
 
-      const result = await app.get(`/v1/patient/${patient.id}/familyHistory`);
+      const result = await app.get(`/api/patient/${patient.id}/familyHistory`);
       expect(result).toHaveSucceeded();
       expect(result.body.count).toEqual(0);
     });
@@ -359,7 +359,7 @@ describe('Patient relations', () => {
         note: 'fail',
       });
 
-      const result = await app.get(`/v1/patient/${patient.id}/familyHistory`);
+      const result = await app.get(`/api/patient/${patient.id}/familyHistory`);
       expect(result).toHaveSucceeded();
       expect(result.body.count).toEqual(2);
       expect(result.body.data.every(x => x.note.includes('include'))).toEqual(true);
@@ -373,7 +373,7 @@ describe('Patient relations', () => {
         patientId: patient.id,
       });
 
-      const result = await app.get(`/v1/patient/${patient.id}/familyHistory`);
+      const result = await app.get(`/api/patient/${patient.id}/familyHistory`);
       expect(result).toHaveSucceeded();
       expect(result.body.data[0].diagnosis).toHaveProperty('name');
     });
@@ -383,7 +383,7 @@ describe('Patient relations', () => {
     it('should get an empty list of conditions', async () => {
       const patient = await models.Patient.create(await createDummyPatient(models));
 
-      const result = await app.get(`/v1/patient/${patient.id}/conditions`);
+      const result = await app.get(`/api/patient/${patient.id}/conditions`);
       expect(result).toHaveSucceeded();
       expect(result.body.count).toEqual(0);
     });
@@ -408,7 +408,7 @@ describe('Patient relations', () => {
         note: 'fail',
       });
 
-      const result = await app.get(`/v1/patient/${patient.id}/conditions`);
+      const result = await app.get(`/api/patient/${patient.id}/conditions`);
       expect(result).toHaveSucceeded();
       expect(result.body.count).toEqual(2);
       expect(result.body.data.every(x => x.note.includes('include'))).toEqual(true);
@@ -422,7 +422,7 @@ describe('Patient relations', () => {
         patientId: patient.id,
       });
 
-      const result = await app.get(`/v1/patient/${patient.id}/conditions`);
+      const result = await app.get(`/api/patient/${patient.id}/conditions`);
       expect(result).toHaveSucceeded();
       expect(result.body.data[0].condition).toHaveProperty('name');
     });
@@ -432,7 +432,7 @@ describe('Patient relations', () => {
     it('should get an empty list of patient secondary IDs', async () => {
       const patient = await models.Patient.create(await createDummyPatient(models));
 
-      const result = await app.get(`/v1/patient/${patient.id}/secondaryId`);
+      const result = await app.get(`/api/patient/${patient.id}/secondaryId`);
       expect(result).toHaveSucceeded();
       expect(result.body.count).toEqual(0);
     });
@@ -461,7 +461,7 @@ describe('Patient relations', () => {
         patientId: otherPatient.id,
       });
 
-      const result = await app.get(`/v1/patient/${patient.id}/secondaryId`);
+      const result = await app.get(`/api/patient/${patient.id}/secondaryId`);
       expect(result).toHaveSucceeded();
       expect(result.body.count).toEqual(2);
     });
@@ -469,7 +469,7 @@ describe('Patient relations', () => {
     it('should create a new secondary ID', async () => {
       const patient = await models.Patient.create(await createDummyPatient(models));
       const idValue = '12345678910';
-      const result = await app.post(`/v1/patient/${patient.id}/secondaryId`).send({
+      const result = await app.post(`/api/patient/${patient.id}/secondaryId`).send({
         value: idValue,
         visibilityStatus: 'current',
         typeId: await randomReferenceId(models, 'secondaryIdType'),
@@ -488,7 +488,7 @@ describe('Patient relations', () => {
         patientId: patient.id,
       });
       const newVisibilityStatus = 'historical';
-      const result = await app.put(`/v1/patient/${patient.id}/secondaryId/${secondaryId.id}`).send({
+      const result = await app.put(`/api/patient/${patient.id}/secondaryId/${secondaryId.id}`).send({
         visibilityStatus: newVisibilityStatus,
       });
       expect(result).toHaveSucceeded();
@@ -534,7 +534,7 @@ describe('Patient relations', () => {
       });
 
       // Act
-      const result = await app.get(`/v1/patient/${patient.id}/fields`);
+      const result = await app.get(`/api/patient/${patient.id}/fields`);
 
       // Assert
       expect(result).toHaveSucceeded();
@@ -564,7 +564,7 @@ describe('Patient relations', () => {
       });
 
       // Act
-      const result = await app.get(`/v1/patientFieldDefinition`);
+      const result = await app.get(`/api/patientFieldDefinition`);
 
       // Assert
       expect(result).toHaveSucceeded();
@@ -635,7 +635,7 @@ describe('Patient relations', () => {
     });
 
     it('Defaults to only fetching published lab tests', async () => {
-      const response = await app.get(`/v1/patient/${labTestsPatient.id}/labTestResults`);
+      const response = await app.get(`/api/patient/${labTestsPatient.id}/labTestResults`);
       expect(response).toHaveSucceeded();
       expect(response.body.count).toEqual(labTestTypes.length);
       response.body.data.forEach(testResults => {
@@ -647,7 +647,7 @@ describe('Patient relations', () => {
 
     it('Allows overriding the status filter', async () => {
       const response = await app.get(
-        `/v1/patient/${labTestsPatient.id}/labTestResults?status=${LAB_REQUEST_STATUSES.RECEPTION_PENDING}`,
+        `/api/patient/${labTestsPatient.id}/labTestResults?status=${LAB_REQUEST_STATUSES.RECEPTION_PENDING}`,
       );
       expect(response).toHaveSucceeded();
       expect(response.body.count).toEqual(labTestTypes.length);
@@ -659,7 +659,7 @@ describe('Patient relations', () => {
     });
 
     it('Fetches lab tests across multiple categories', async () => {
-      const response = await app.get(`/v1/patient/${labTestsPatient.id}/labTestResults`);
+      const response = await app.get(`/api/patient/${labTestsPatient.id}/labTestResults`);
       expect(response).toHaveSucceeded();
       expect(response.body.count).toEqual(labTestTypes.length);
       const uniqueCategories = [...new Set(response.body.data.map(x => x.testCategory))];
@@ -668,7 +668,7 @@ describe('Patient relations', () => {
 
     it('Allows filtering lab tests by category', async () => {
       const response = await app.get(
-        `/v1/patient/${labTestsPatient.id}/labTestResults?categoryId=${randomCategory.id}`,
+        `/api/patient/${labTestsPatient.id}/labTestResults?categoryId=${randomCategory.id}`,
       );
       expect(response).toHaveSucceeded();
       response.body.data.forEach(labTest => {

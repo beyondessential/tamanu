@@ -20,7 +20,7 @@ describe('SyncQueuedDevice', () => {
   };
 
   const requestSync = async (device, lastSyncedTick = 0, urgent = false) => {
-    const result = await app.post('/v1/sync').send({
+    const result = await app.post('/api/sync').send({
       deviceId: `queue-${device}`,
       facilityId: `facility${device}`,
       lastSyncedTick,

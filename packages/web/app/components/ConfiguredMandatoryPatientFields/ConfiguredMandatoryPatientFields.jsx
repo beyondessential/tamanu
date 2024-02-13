@@ -30,7 +30,7 @@ export const ConfiguredMandatoryPatientFields = ({ fields, showMandatory = true 
   return fieldsToShow.length ? (
     <>
       {fieldsToShow.map(field => (
-        <LocalisedField {...field} />
+        <LocalisedField key={field.name} {...field} />
       ))}
     </>
   ) : null;

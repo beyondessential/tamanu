@@ -6,6 +6,7 @@ import { LoadingIndicator } from '../../../components/LoadingIndicator';
 import { Modal } from '../../../components/Modal';
 import { MultipleImagingRequestsWrapper } from '../../../components/PatientPrinting/modals/MultipleImagingRequestsPrintoutModal';
 import { Colors } from '../../../constants';
+import { printPDF } from '../../../components/PatientPrinting/PDFViewer';
 
 const PrintModalInternals = ({ imagingRequest }) => {
   const encounterQuery = useEncounterData(imagingRequest.encounterId);
@@ -44,6 +45,7 @@ export const PrintModalButton = props => {
         width="md"
         color={Colors.white}
         printable
+        onPrint={() => printPDF('imaging-request-printout')}
       >
         <PrintModalInternals {...props} />
       </Modal>

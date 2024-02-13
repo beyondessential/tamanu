@@ -17,7 +17,7 @@ describe('Reference data', () => {
   afterAll(() => ctx.close());
 
   it('should not allow a regular user to create a new reference item', async () => {
-    const result = await userApp.post('/v1/referenceData').send({
+    const result = await userApp.post('/api/referenceData').send({
       type: 'icd10',
       name: 'fail',
       code: 'fail',
@@ -31,14 +31,14 @@ describe('Reference data', () => {
       name: 'no-user-change',
       code: 'no-user-change',
     });
-    const result = await userApp.put(`/v1/referenceData/${existing.id}`).send({
+    const result = await userApp.put(`/api/referenceData/${existing.id}`).send({
       name: 'fail',
     });
     expect(result).toBeForbidden();
   });
 
   it('should allow an admin create a new reference data item', async () => {
-    const result = await adminApp.post('/v1/referenceData').send({
+    const result = await adminApp.post('/api/referenceData').send({
       type: 'icd10',
       code: 'succeed',
       name: 'succeed',
@@ -52,7 +52,7 @@ describe('Reference data', () => {
       name: 'change-label',
       code: 'change-label',
     });
-    const result = await adminApp.put(`/v1/referenceData/${existing.id}`).send({
+    const result = await adminApp.put(`/api/referenceData/${existing.id}`).send({
       name: 'succeed',
     });
     expect(result).toHaveSucceeded();
@@ -64,14 +64,14 @@ describe('Reference data', () => {
       name: 'no-change-type',
       code: 'no-change-type',
     });
-    const result = await adminApp.put(`/v1/referenceData/${existing.id}`).send({
+    const result = await adminApp.put(`/api/referenceData/${existing.id}`).send({
       type: 'drug',
     });
     expect(result).toHaveRequestError();
   });
 
   it('should not allow creating a reference data with an invalid type', async () => {
-    const result = await adminApp.post('/v1/referenceData').send({
+    const result = await adminApp.post('/api/referenceData').send({
       type: 'fail',
       name: 'test',
     });
