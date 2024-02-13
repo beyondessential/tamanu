@@ -33,11 +33,14 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
   const programRegistryStatusSuggester = useSuggester('programRegistryClinicalStatus', {
     baseQueryParameters: { programRegistryId: patientProgramRegistration.programRegistryId },
   });
-  const { data: registrationConditions } = usePatientProgramRegistryConditionsQuery(
+  const {
+    data: registrationConditions,
+    isLoading: isPatientConditionsLoading,
+  } = usePatientProgramRegistryConditionsQuery(
     patientProgramRegistration.patientId,
     patientProgramRegistration.programRegistryId,
   );
-  const { data: conditions } = useProgramRegistryConditionsQuery(
+  const { data: conditions, isLoading: isConditionsLoading } = useProgramRegistryConditionsQuery(
     patientProgramRegistration.programRegistryId,
   );
 
@@ -45,7 +48,9 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
   const registeringFacilitySuggester = useSuggester('facility');
 
   const activate = async data => {
-    const { id, date, ...rest } = data;
+    const { ...rest } = data;
+    delete rest.id;
+    delete rest.date;
 
     // Extract condition IDs from registrationConditions.data and data
     const existingConditionIds = registrationConditions.data.map(
@@ -88,6 +93,8 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
     queryClient.invalidateQueries([`infoPaneListItem-${PROGRAM_REGISTRY}`]);
     onClose();
   };
+
+  if (isPatientConditionsLoading || isConditionsLoading) return null;
 
   return (
     <Modal

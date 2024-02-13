@@ -4,11 +4,11 @@ import { IProgramRegistry, ID } from '~/types';
 import { BaseModel } from './BaseModel';
 import { SYNC_DIRECTIONS } from './types';
 import { VisibilityStatus } from '~/visibilityStatuses';
+import { CurrentlyAtType, RegistrationStatus } from '~/constants/programRegistries';
 import { Program } from './Program';
 import { PatientProgramRegistration } from './PatientProgramRegistration';
 import { ProgramRegistryClinicalStatus } from './ProgramRegistryClinicalStatus';
 import { PatientProgramRegistrationCondition } from './PatientProgramRegistrationCondition';
-import { CurrentlyAtType, RegistrationStatus } from '~/constants/programRegistries';
 
 @Entity('program_registry')
 export class ProgramRegistry extends BaseModel implements IProgramRegistry {

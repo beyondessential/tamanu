@@ -36,12 +36,12 @@ export class PatientProgramRegistrationCondition extends BaseModel
   // Relations
   @ManyToOne(() => ProgramRegistry)
   programRegistry: IProgramRegistry;
-  @RelationId<PatientProgramRegistrationCondition>(({ programRegistry }) => programRegistry)
+  @RelationId(({ programRegistry }) => programRegistry)
   programRegistryId: ID;
 
   @ManyToOne(() => Patient)
   patient: IPatient;
-  @RelationId<PatientProgramRegistrationCondition>(({ patient }) => patient)
+  @RelationId(({ patient }) => patient)
   patientId: ID;
 
   @ManyToOne(
@@ -51,19 +51,17 @@ export class PatientProgramRegistrationCondition extends BaseModel
   )
   programRegistryCondition?: IProgramRegistryCondition;
 
-  @RelationId<PatientProgramRegistrationCondition>(
-    ({ programRegistryCondition }) => programRegistryCondition,
-  )
+  @RelationId(({ programRegistryCondition }) => programRegistryCondition)
   programRegistryConditionId?: ID;
 
   @ManyToOne(() => User, undefined, { nullable: true })
   clinician?: IUser;
-  @RelationId<PatientProgramRegistrationCondition>(({ clinician }) => clinician)
+  @RelationId(({ clinician }) => clinician)
   clinicianId?: ID;
 
   @ManyToOne(() => User, undefined, { nullable: true })
   deletionClinician?: IUser;
-  @RelationId<PatientProgramRegistrationCondition>(({ deletionClinician }) => deletionClinician)
+  @RelationId(({ deletionClinician }) => deletionClinician)
   deletionClinicianId?: ID;
 
   static getTableNameForSync(): string {

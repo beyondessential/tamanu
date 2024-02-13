@@ -1,5 +1,5 @@
 import { BirthNotificationCertificate as Component } from '@tamanu/shared/utils/patientCertificates';
-import Logo from '../assets/tamanu-logo.png';
+import Logo from '../assets/tamanu-blue-long.png';
 import { PDFViewer } from '@react-pdf/renderer';
 import React from 'react';
 import Watermark from '../assets/watermark.png';

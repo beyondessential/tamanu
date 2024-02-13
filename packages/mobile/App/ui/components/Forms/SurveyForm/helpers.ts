@@ -1,8 +1,9 @@
 // Much of this file is duplicated in `packages/web/app/utils/survey.js`
 import * as Yup from 'yup';
 
+import { READONLY_DATA_FIELDS } from '~/constants';
 import { getAgeFromDate, getAgeWithMonthsFromDate } from '~/ui/helpers/date';
-import { checkMandatory, FieldTypes } from '~/ui/helpers/fields';
+import { getPatientDataDbLocation, checkMandatory, FieldTypes } from '~/ui/helpers/fields';
 import { joinNames } from '~/ui/helpers/user';
 import {
   IPatient,
@@ -11,7 +12,6 @@ import {
   IUser,
   SurveyScreenValidationCriteria,
 } from '~/types';
-import { getDbLocation } from '~/models/SurveyResponse';
 import { IPatientProgramRegistration } from '~/types/IPatientProgramRegistration';
 
 function getInitialValue(dataElement): string {
@@ -37,14 +37,14 @@ function transformPatientData(
   const { dateOfBirth, firstName, lastName } = patient;
 
   switch (column) {
-    case 'age':
+    case READONLY_DATA_FIELDS.AGE:
       return getAgeFromDate(dateOfBirth).toString();
-    case 'ageWithMonths':
+    case READONLY_DATA_FIELDS.AGE_WITH_MONTHS:
       return getAgeWithMonthsFromDate(dateOfBirth);
-    case 'fullName':
+    case READONLY_DATA_FIELDS.FULL_NAME:
       return joinNames({ firstName, lastName });
     default: {
-      const { modelName, fieldName } = getDbLocation(column);
+      const { modelName, fieldName } = getPatientDataDbLocation(column);
       switch (modelName) {
         case 'Patient':
           return patient[fieldName];

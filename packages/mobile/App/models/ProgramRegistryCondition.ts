@@ -11,7 +11,6 @@ import { SYNC_DIRECTIONS } from './types';
 import { VisibilityStatus } from '~/visibilityStatuses';
 import { PatientProgramRegistrationCondition } from './PatientProgramRegistrationCondition';
 import { ProgramRegistry } from './ProgramRegistry';
-import { ProgramRegistryClinicalStatus } from './ProgramRegistryClinicalStatus';
 
 @Entity('program_registry_condition')
 export class ProgramRegistryCondition extends BaseModel implements IProgramRegistryCondition {
@@ -28,7 +27,7 @@ export class ProgramRegistryCondition extends BaseModel implements IProgramRegis
 
   @ManyToOne(() => ProgramRegistry)
   programRegistry: IProgramRegistry;
-  @RelationId<ProgramRegistryClinicalStatus>(({ programRegistry }) => programRegistry)
+  @RelationId(({ programRegistry }) => programRegistry)
   programRegistryId: ID;
 
   @OneToMany<PatientProgramRegistrationCondition>(
