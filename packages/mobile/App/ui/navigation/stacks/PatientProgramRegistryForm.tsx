@@ -15,9 +15,9 @@ export interface IPatientProgramRegistryForm {
   programRegistryId: string;
   clinicalStatusId: string;
   date: any;
-  facilityId: string;
+  registeringFacilityId: string;
   clinicianId: string;
-  conditions: string[];
+  conditions: any[];
 }
 export interface PatientProgramRegistryProps extends BaseAppProps {
   navigation: NavigationProp<any>;

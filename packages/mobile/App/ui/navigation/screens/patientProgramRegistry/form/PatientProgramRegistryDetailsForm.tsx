@@ -9,7 +9,6 @@ import { OptionType, Suggester } from '~/ui/helpers/suggester';
 import { useBackend } from '~/ui/hooks';
 import { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
 import { FullView, StyledView } from '~/ui/styled/common';
-import { ReferenceDataType } from '~/types';
 import { Dropdown } from '~/ui/components/Dropdown';
 import { Button } from '~/ui/components/Button';
 import { theme } from '~/ui/styled/theme';
@@ -19,28 +18,65 @@ import { useAuth } from '~/ui/contexts/AuthContext';
 import { IPatientProgramRegistryForm } from '../../../stacks/PatientProgramRegistryForm';
 import { getCurrentDateTimeString } from '~/ui/helpers/date';
 import { MultiSelectModalField } from '~/ui/components/MultiSelectModal/MultiSelectModalField';
+import { VisibilityStatus } from '~/visibilityStatuses';
+import { PatientProgramRegistration } from '~/models/PatientProgramRegistration';
+import { useBackendEffect } from '~/ui/hooks/index';
+import { PatientProgramRegistrationCondition } from '~/models/PatientProgramRegistrationCondition';
+import { Routes } from '~/ui/helpers/routes';
 
 export const PatientProgramRegistryDetailsForm = ({ route }: BaseAppProps) => {
   const navigation = useNavigation();
-  const { programRegistry, editedObject } = route.params;
+  const { programRegistry, editedObject, selectedPatient } = route.params;
   const { models } = useBackend();
   const practitionerSuggester = new Suggester(
     models.User,
     { column: 'displayName' },
     (model): OptionType => ({ label: model.displayName, value: model.id }),
   );
-  const facilitySuggester = new Suggester(models.ReferenceData, {
+  const facilitySuggester = new Suggester(models.Facility, {
     where: {
-      type: ReferenceDataType.Facility,
+      visibilityStatus: VisibilityStatus.Current,
     },
   });
-  const conditionSuggester = new Suggester(models.ReferenceData, {
+  const conditionSuggester = new Suggester(models.ProgramRegistryCondition, {
     where: {
-      type: ReferenceDataType.Condition,
+      programRegistry: programRegistry.id,
     },
   });
+
+  const [clinicalStatusOptions] = useBackendEffect(
+    async ({ models }) =>
+      await models.ProgramRegistryClinicalStatus.find({
+        where: {
+          visibilityStatus: VisibilityStatus.Current,
+          programRegistry: programRegistry.id,
+        },
+      }),
+    [],
+  );
   const submitPatientProgramRegistration = async (formData: IPatientProgramRegistryForm) => {
-    console.log(formData);
+    const newPpr: any = await PatientProgramRegistration.createAndSaveOne({
+      date: formData.date,
+      clinicalStatus: formData.clinicalStatusId,
+      registeringFacility: formData.registeringFacilityId,
+      clinician: formData.clinicianId,
+      programRegistry: programRegistry.id,
+      patient: selectedPatient.id,
+    });
+
+    for (const condition of formData.conditions) {
+      await PatientProgramRegistrationCondition.createAndSaveOne({
+        date: formData.date,
+        programRegistry: programRegistry.id,
+        patient: selectedPatient.id,
+        programRegistryCondition: condition.value,
+        clinician: formData.clinicianId,
+      });
+    }
+
+    navigation.navigate(Routes.HomeStack.PatientProgramRegistryDetailsStack.Index, {
+      patientProgramRegistration: newPpr,
+    });
   };
   const { user } = useAuth();
   return (
@@ -61,14 +97,13 @@ export const PatientProgramRegistryDetailsForm = ({ route }: BaseAppProps) => {
           // programRegistryId: yup.string().required('Program Registry must be selected'),
           clinicalStatusId: yup.string(),
           date: yup.date(),
-          facilityId: yup.string(),
+          registeringFacilityId: yup.string(),
           clinicianId: yup.string().required('Registered by must be selected'),
           conditions: yup.string(),
         })}
         onSubmit={submitPatientProgramRegistration}
       >
         {({ errors, handleSubmit, values }): ReactElement => {
-          console.log(values);
           return (
             <>
               <StyledView marginTop={20} marginLeft={20} marginRight={20}>
@@ -99,7 +134,7 @@ export const PatientProgramRegistryDetailsForm = ({ route }: BaseAppProps) => {
                   placeholder={`Search`}
                   navigation={navigation}
                   suggester={facilitySuggester}
-                  name="facilityId"
+                  name="registeringFacilityId"
                 />
               </StyledView>
               <StyledView marginLeft={20} marginRight={20}>
@@ -108,10 +143,7 @@ export const PatientProgramRegistryDetailsForm = ({ route }: BaseAppProps) => {
                   labelFontSize={14}
                   component={Dropdown}
                   name="clinicalStatusId"
-                  options={[
-                    { label: 'Active', value: 'active' },
-                    { label: 'Removed', value: 'removed' },
-                  ]}
+                  options={clinicalStatusOptions?.map(x => ({ label: x.name, value: x.id })) || []}
                 />
               </StyledView>
               <StyledView marginLeft={20} marginRight={20}>
@@ -121,7 +153,6 @@ export const PatientProgramRegistryDetailsForm = ({ route }: BaseAppProps) => {
                   component={MultiSelectModalField}
                   modalTitle="Conditions"
                   suggester={conditionSuggester}
-                  suggesterParams={{ programRegistryId: programRegistry.id }}
                   placeholder={`Search`}
                   navigation={navigation}
                   name="conditions"

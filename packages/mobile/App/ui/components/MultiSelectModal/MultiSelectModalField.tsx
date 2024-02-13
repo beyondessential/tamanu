@@ -11,7 +11,6 @@ import { RequiredIndicator } from '../RequiredIndicator';
 
 interface MultiSelectModalFieldProps {
   value?: string[];
-  suggesterParams?: { [key: string]: any };
   modalTitle: string;
   placeholder?: string;
   onChange: (newValue: OptionType[]) => void;
@@ -27,7 +26,6 @@ interface MultiSelectModalFieldProps {
 export const MultiSelectModalField = ({
   label: fieldLabel,
   value,
-  suggesterParams,
   modalTitle = 'Title',
   placeholder,
   onChange,
@@ -56,7 +54,6 @@ export const MultiSelectModalField = ({
       callback: onPress,
       suggester,
       modalTitle,
-      suggesterParams,
       value,
     });
   const loadDefaultValues = async (values: string[]) => {

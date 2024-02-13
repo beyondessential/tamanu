@@ -65,7 +65,6 @@ export class ProgramRegistry extends BaseModel implements IProgramRegistry {
     const programRegistryRepository = this.getRepository(ProgramRegistry);
     const filteredProgramRegistries = await programRegistryRepository
       .createQueryBuilder('pr')
-      .select(['pr.id', 'pr.name'])
       .where(`pr.id NOT IN (${subquery.getQuery()})`)
       .setParameter('patientId', patientId)
       .setParameter('registrationStatus', RegistrationStatus.RecordedInError)
