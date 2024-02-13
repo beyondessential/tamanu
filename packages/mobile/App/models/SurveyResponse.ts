@@ -18,9 +18,10 @@ import { PatientAdditionalData } from './PatientAdditionalData';
 import { VitalLog } from './VitalLog';
 import { SYNC_DIRECTIONS } from './types';
 import { DateTimeStringColumn } from './DateColumns';
+import { PatientProgramRegistration } from './PatientProgramRegistration';
+import { IPatientProgramRegistration } from '~/types/IPatientProgramRegistration';
 
-
-const getDbLocation = fieldName => {
+export const getDbLocation = fieldName => {
   if (PATIENT_DATA_FIELD_LOCATIONS[fieldName]) {
     const [modelName, columnName] = PATIENT_DATA_FIELD_LOCATIONS[fieldName];
     return {
@@ -32,10 +33,10 @@ const getDbLocation = fieldName => {
 };
 
 type RecordValuesByModel = {
-  Patient?: Record<string, string>,
-  PatientAdditionalData?: Record<string, string>,
-  PatientProgramRegistration?: Record<string, string>,
-}
+  Patient?: Record<string, string>;
+  PatientAdditionalData?: Record<string, string>;
+  PatientProgramRegistration?: Record<string, string>;
+};
 
 const getFieldsToWrite = (questions, answers): RecordValuesByModel => {
   const recordValuesByModel = {};
@@ -65,11 +66,29 @@ const getFieldsToWrite = (questions, answers): RecordValuesByModel => {
   return recordValuesByModel;
 };
 
+const getUpdatedPPRValues = (
+  ppr: IPatientProgramRegistration,
+  newValues: { [key: string]: any },
+) => {
+  const newPpr = {
+    date: getCurrentDateTimeString(),
+    programRegistry: newValues?.programRegistryId || ppr.programRegistryId,
+    clinician: newValues?.clinicianId || ppr.clinicianId,
+    clinicalStatus: newValues?.clinicalStatusId || ppr.clinicalStatusId,
+    registeringFacility: newValues?.registeringFacilityId || ppr.registeringFacilityId,
+    patient: ppr.patientId,
+    registrationStatus: newValues?.registrationStatus || ppr.registrationStatus,
+    village: newValues?.villageId || ppr.villageId,
+    facility: newValues?.facilityId || ppr.facilityId,
+  };
+  return newPpr;
+};
+
 /**
  * DUPLICATED IN shared/models/SurveyResponse.js
  * Please keep in sync
  */
-async function writeToPatientFields(questions, answers, patientId) {
+async function writeToPatientFields(questions, answers, patientId, surveyId) {
   const valuesByModel = getFieldsToWrite(questions, answers);
 
   if (valuesByModel.Patient) {
@@ -81,7 +100,11 @@ async function writeToPatientFields(questions, answers, patientId) {
   }
 
   if (valuesByModel.PatientProgramRegistration) {
-    throw new Error('Program registrations not yet implemented on mobile');
+    const { programId } = await Survey.findOne({ id: surveyId });
+    const ppr = await PatientProgramRegistration.getRecentOne(programId, patientId);
+    const newPpr = getUpdatedPPRValues(ppr, valuesByModel.PatientProgramRegistration);
+
+    await PatientProgramRegistration.createAndSaveOne(newPpr);
   }
 }
 
@@ -235,7 +258,7 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
       }
       setNote('Writing patient data');
 
-      await writeToPatientFields(components, finalValues, patientId)
+      await writeToPatientFields(components, finalValues, patientId, surveyId);
       setNote('Done');
 
       return responseRecord;

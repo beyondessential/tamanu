@@ -91,12 +91,11 @@ export const AutocompleteModalField = ({
         padding={10}
         onPress={openModal}
         disabled={disabled}
-        children={
-          <StyledView marginRight={5}>
-            <SearchIcon fill={theme.colors.TEXT_SOFT} />
-          </StyledView>
-        }
-      />
+      >
+        <StyledView marginRight={5}>
+          <SearchIcon fill={theme.colors.TEXT_SOFT} />
+        </StyledView>
+      </Button>
       {error && <TextFieldErrorMessage>{error}</TextFieldErrorMessage>}
     </StyledView>
   );

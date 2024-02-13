@@ -1,11 +1,17 @@
 import {
   MigrationInterface,
+  TableIndex,
   QueryRunner,
   Table,
   TableColumn,
   TableForeignKey,
-  TableIndex,
 } from 'typeorm';
+
+const TABLE_NAME = 'program_registry_clinical_status';
+
+const baseIndex = new TableIndex({
+  columnNames: ['updatedAtSyncTick'],
+});
 
 const BaseColumns = [
   new TableColumn({
@@ -29,51 +35,60 @@ const BaseColumns = [
     isNullable: false,
     default: -999,
   }),
+  new TableColumn({
+    name: 'deletedAt',
+    isNullable: true,
+    type: 'date',
+    default: null,
+  }),
 ];
 
-const SettingTable = new Table({
-  name: 'setting',
+const ClinicalStatus = new Table({
+  name: TABLE_NAME,
   columns: [
     ...BaseColumns,
     new TableColumn({
-      name: 'key',
+      name: 'code',
       type: 'varchar',
       isNullable: false,
     }),
     new TableColumn({
-      name: 'value',
+      name: 'name',
       type: 'varchar',
       isNullable: false,
     }),
     new TableColumn({
-      name: 'facilityId',
+      name: 'visibilityStatus',
       type: 'varchar',
       isNullable: true,
+    }),
+    new TableColumn({
+      name: 'color',
+      type: 'varchar',
+      isNullable: true,
+    }),
+    new TableColumn({
+      name: 'programRegistryId',
+      type: 'varchar',
+      isNullable: false,
     }),
   ],
   foreignKeys: [
     new TableForeignKey({
-      columnNames: ['facilityId'],
-      referencedTableName: 'facility',
+      columnNames: ['programRegistryId'],
+      referencedTableName: 'program_registry',
       referencedColumnNames: ['id'],
     }),
   ],
+  indices: [baseIndex],
 });
 
-const ifNotExist = true;
-
-const updatedAtSyncTickIndex = {
-  columnNames: ['updatedAtSyncTick'],
-};
-
-export class addSettingTable1678400759000 implements MigrationInterface {
+export class addProgramRegistryClinicalStatuses1706506699000 implements MigrationInterface {
   async up(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.createTable(SettingTable, ifNotExist);
-
-    await queryRunner.createIndex(SettingTable, new TableIndex(updatedAtSyncTickIndex));
+    await queryRunner.createTable(ClinicalStatus, true);
   }
 
   async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.dropTable(SettingTable);
+    await queryRunner.dropTable(TABLE_NAME, true);
   }
 }
