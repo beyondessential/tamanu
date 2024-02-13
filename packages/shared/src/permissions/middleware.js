@@ -18,6 +18,7 @@ function getSubjectName(subject) {
 
 export async function constructPermission(req, res, next) {
   try {
+    // eslint-disable-next-line require-atomic-updates
     req.ability = await getAbilityForUser(req.models, req.user);
     next();
   } catch (e) {

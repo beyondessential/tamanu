@@ -7,7 +7,9 @@ import { Button, Field, Form, FormGrid, TextField } from '../../app/components';
 async function asyncSubmit(data) {
   action('submitStart')(data);
 
-  await new Promise(resolve => setTimeout(resolve, 1000));
+  await new Promise(resolve => {
+    setTimeout(resolve, 1000);
+  });
 
   action('submitEnd')(data);
 }
@@ -42,7 +44,9 @@ storiesOf('Forms', module).add('Async submission form', () => (
 async function asyncSubmitWithError(data, { setErrors }) {
   action('submitStart')(data);
 
-  await new Promise(resolve => setTimeout(resolve, 1000));
+  await new Promise(resolve => {
+    setTimeout(resolve, 1000);
+  });
 
   setErrors({
     message: 'This will not work',

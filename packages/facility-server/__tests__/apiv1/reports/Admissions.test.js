@@ -89,7 +89,7 @@ describe('Admissions report', () => {
 
   it('should reject creating an admissions report with insufficient permissions', async () => {
     const noPermsApp = await baseApp.asRole('base');
-    const result = await noPermsApp.post(`/v1/reports/admissions`, {});
+    const result = await noPermsApp.post(`/api/reports/admissions`, {});
     expect(result).toBeForbidden();
   });
 
@@ -207,7 +207,7 @@ describe('Admissions report', () => {
         date: '2021-02-20 12:10:00',
       });
 
-      const result = await app.post('/v1/reports/admissions').send({
+      const result = await app.post('/api/reports/admissions').send({
         parameters: {
           fromDate: '2021-02-01 00:00:00',
           locationGroup: expectedLocationGroup.id,
