@@ -1,8 +1,9 @@
 import React, { Fragment, useCallback, useState } from 'react';
-import NotificationsNoneIcon from '@material-ui/icons/NotificationsNone';
+import styled from 'styled-components';
+
 import { useQuery } from '@tanstack/react-query';
 import { groupBy, isEmpty } from 'lodash';
-import styled from 'styled-components';
+import NotificationsNoneIcon from '@material-ui/icons/NotificationsNone';
 
 import {
   PATIENT_FIELD_DEFINITION_TYPES,
@@ -91,7 +92,7 @@ export const PrimaryDetailsGroup = ({ values = {}, patientRegistryType }) => {
     setOpenReminderModal(true);
   }, []);
 
-  const handleCloseRemindersModal = useCallback(() => {
+  const onClose = useCallback(() => {
     setOpenReminderModal(false);
   }, []);
 
@@ -111,11 +112,13 @@ export const PrimaryDetailsGroup = ({ values = {}, patientRegistryType }) => {
           </StyledButton>
         )}
       </StyledHeading>
-      <ReminderContactModal
-        openReminderModal={openReminderModal}
-        handleClose={handleCloseRemindersModal}
-        patient={values}
-      />
+      {openReminderModal && (
+        <ReminderContactModal
+          onClose={onClose}
+          handleOpenRemindersModal={handleOpenRemindersModal}
+          patient={values}
+        />
+      )}
 
       <FormGrid>
         <LocalisedField name="firstName" component={TextField} required />

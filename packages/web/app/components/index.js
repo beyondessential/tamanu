@@ -30,3 +30,7 @@ export * from './Typography';
 export * from './ImmunisationsTable';
 export * from './LocalisedText';
 export * from './FormSectionSeparator';
+export * from './AddReminderContact';
+export * from './ReminderContactQR';
+export * from './ReminderContactModal';
+export * from './ReminderContactList';
