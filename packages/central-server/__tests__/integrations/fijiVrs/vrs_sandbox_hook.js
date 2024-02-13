@@ -58,7 +58,7 @@ app.use('/api', (req, res, next) => {
 
 // step 1. - call the hook
 const callHook = async body => {
-  const url = `${tamanuHost}/v1/public/integration/fijiVrs/hooks/patientCreated`;
+  const url = `${tamanuHost}/api/public/integration/fijiVrs/hooks/patientCreated`;
   const opts = {
     method: 'POST',
     body: JSON.stringify(body),
@@ -134,6 +134,10 @@ app.get('/api/Tamanu/Acknowledge', (req, res) => {
 // error handling middleware - we need this for debugging auth with the 401
 class AuthError extends Error {}
 app.use((error, req, res, next) => {
+  // express relies on function arity to determine if this is an error handler.
+  // "use" the unused `next` argument so it's not elided
+  void(next);
+
   console.error(error);
   if (error instanceof AuthError) {
     res.status(401).send({ error });

@@ -1,7 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
-import { lookup as lookupMimeType } from 'mime-types';
 import { Typography } from '@material-ui/core';
 
 import { ForbiddenError } from '@tamanu/shared/errors';

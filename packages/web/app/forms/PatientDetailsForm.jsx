@@ -1,9 +1,10 @@
-import { useQuery } from '@tanstack/react-query';
-import { groupBy, isEmpty } from 'lodash';
 import React, { Fragment, useCallback, useState } from 'react';
 import styled from 'styled-components';
 
+import { useQuery } from '@tanstack/react-query';
+import { groupBy, isEmpty } from 'lodash';
 import NotificationsNoneIcon from '@material-ui/icons/NotificationsNone';
+
 import {
   PATIENT_FIELD_DEFINITION_TYPES,
   PATIENT_REGISTRY_TYPES,
@@ -44,7 +45,7 @@ import { useSexValues } from '../hooks';
 import { getPatientDetailsValidation } from '../validations';
 
 const StyledHeading = styled.div`
-display: flex;
+  display: flex;
   justify-content: space-between;
   align-items: flex-start;
 `;
@@ -87,8 +88,12 @@ export const PrimaryDetailsGroup = ({ values = {}, patientRegistryType }) => {
   const isRequiredPatientData = fieldName =>
     getLocalisation(`fields.${fieldName}.requiredPatientData`);
 
-  const handleOpenCloseRemindersModal = useCallback((value) => {
-    setOpenReminderModal(value);
+  const handleOpenRemindersModal = useCallback(() => {
+    setOpenReminderModal(true);
+  }, []);
+
+  const onClose = useCallback(() => {
+    setOpenReminderModal(false);
   }, []);
 
   return (
@@ -100,18 +105,20 @@ export const PrimaryDetailsGroup = ({ values = {}, patientRegistryType }) => {
             variant="outlined"
             color="primary"
             size="small"
-            onClick={() => handleOpenCloseRemindersModal(true)}
+            onClick={handleOpenRemindersModal}
           >
             <NotificationsNoneIcon />
             Reminder contacts
           </StyledButton>
         )}
       </StyledHeading>
-      <ReminderContactModal
-        openReminderModal={openReminderModal}
-        handleOpenCloseRemindersModal={handleOpenCloseRemindersModal}
-        patient={values}
-      />
+      {openReminderModal && (
+        <ReminderContactModal
+          onClose={onClose}
+          handleOpenRemindersModal={handleOpenRemindersModal}
+          patient={values}
+        />
+      )}
 
       <FormGrid>
         <LocalisedField name="firstName" component={TextField} required />
@@ -244,25 +251,23 @@ export const PatientFieldsGroup = ({ fieldDefinitions, fieldValues }) => {
 };
 
 function sanitiseRecordForValues(data) {
-  const {
-    // unwanted ids
-    id,
-    patientId,
+  const values = { ...data };
 
-    // backend fields
-    markedForSync,
-    createdAt,
-    updatedAt,
-    updatedAtSyncTick,
+  // unwanted ids
+  delete values.id;
+  delete values.patientId;
 
-    // state fields
-    loading,
-    error,
+  // backend fields
+  delete values.markedForSync;
+  delete values.createdAt;
+  delete values.updatedAt;
+  delete values.updatedAtSyncTick;
 
-    ...remaining
-  } = data;
+  // state fields
+  delete values.loading;
+  delete values.error;
 
-  return Object.entries(remaining)
+  return Object.entries(values)
     .filter(([, v]) => {
       if (Array.isArray(v)) return false;
       if (typeof v === 'object') return false;

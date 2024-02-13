@@ -1,0 +1,12 @@
+{
+  "cSpell.language": "en-GB",
+  "cSpell.words": ["singularize", "upsert", "upserted"],
+  "eslint.experimental.useFlatConfig": true,
+  "eslint.lintTask.enable": true,
+  "json.schemas": [
+    {
+      "fileMatch": ["*.hl7.json"],
+      "url": "./packages/central-server/__tests__/hl7fhir/fhir.schema.json"
+    }
+  ]
+}
