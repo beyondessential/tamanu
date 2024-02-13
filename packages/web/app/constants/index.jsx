@@ -161,35 +161,44 @@ export const reportOptions = [
   { value: 'encounter', label: 'Encounter', className: 'State-NT' },
 ];
 
+export const DIAGNOSIS_CERTAINTY_TYPES = {
+  EMERGENCY: 'emergency',
+  SUSPECTED: 'suspected',
+  CONFIRMED: 'confirmed',
+  DISPROVEN: 'disproven',
+  ERROR: 'recordedInError',
+};
+
+export const DIAGNOSIS_CERTAINTY_LABELS = {
+  [DIAGNOSIS_CERTAINTY_TYPES.EMERGENCY]: 'Emergency',
+  [DIAGNOSIS_CERTAINTY_TYPES.SUSPECTED]: 'Suspected',
+  [DIAGNOSIS_CERTAINTY_TYPES.CONFIRMED]: 'Confirmed',
+  [DIAGNOSIS_CERTAINTY_TYPES.DISPROVEN]: 'Disproven',
+  [DIAGNOSIS_CERTAINTY_TYPES.ERROR]: 'Recorded in error',
+};
+
 export const diagnosisCertaintyOptions = [
   {
-    value: 'emergency',
-    label: (
-      <TranslatedText stringId="diagnosis.certainty.option.edDiagnosis" fallback="ED Diagnosis" />
-    ),
+    value: DIAGNOSIS_CERTAINTY_TYPES.EMERGENCY,
+    label: DIAGNOSIS_CERTAINTY_LABELS[DIAGNOSIS_CERTAINTY_TYPES.EMERGENCY],
     triageOnly: true,
   },
   {
-    value: 'suspected',
-    label: <TranslatedText stringId="diagnosis.certainty.option.suspected" fallback="Suspected" />,
+    value: DIAGNOSIS_CERTAINTY_TYPES.SUSPECTED,
+    label: DIAGNOSIS_CERTAINTY_LABELS[DIAGNOSIS_CERTAINTY_TYPES.SUSPECTED],
   },
   {
-    value: 'confirmed',
-    label: <TranslatedText stringId="diagnosis.certainty.option.confirmed" fallback="Confirmed" />,
+    value: DIAGNOSIS_CERTAINTY_TYPES.CONFIRMED,
+    label: DIAGNOSIS_CERTAINTY_LABELS[DIAGNOSIS_CERTAINTY_TYPES.CONFIRMED],
   },
   {
-    value: 'disproven',
-    label: <TranslatedText stringId="diagnosis.certainty.option.disproven" fallback="Disproven" />,
+    value: DIAGNOSIS_CERTAINTY_TYPES.DISPROVEN,
+    label: DIAGNOSIS_CERTAINTY_LABELS[DIAGNOSIS_CERTAINTY_TYPES.DISPROVEN],
     editOnly: true,
   },
   {
-    value: 'error',
-    label: (
-      <TranslatedText
-        stringId="diagnosis.certainty.option.recordedInError"
-        fallback="Recorded in error"
-      />
-    ),
+    value: DIAGNOSIS_CERTAINTY_TYPES.ERROR,
+    label: DIAGNOSIS_CERTAINTY_LABELS[DIAGNOSIS_CERTAINTY_TYPES.ERROR],
     editOnly: true,
   },
 ];

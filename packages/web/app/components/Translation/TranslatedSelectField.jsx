@@ -21,7 +21,7 @@ const getTranslatedOptions = (options, prefix) => {
       <TranslatedText
         stringId={
           typeof option.label !== 'string'
-            ? option.label.props.stringId
+            ? option.label.props.stringId // handling when the options list already has TranslatedText components in it
             : `${prefix}.${transformStringIdSuffix(option.value)}`
         }
         fallback={typeof option.label !== 'string' ? option.label.props.fallback : option.label}
