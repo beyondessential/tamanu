@@ -3,7 +3,7 @@
 @since=0
 
 ### Log in
-POST {{server}}/v1/login
+POST {{server}}/api/login
 Content-Type: application/json
 
 {
@@ -12,16 +12,16 @@ Content-Type: application/json
 }
 
 ### Get current user details
-GET {{server}}/v1/whoami
+GET {{server}}/api/whoami
 Authorization: Bearer {{token}}
 
 ### List users
-GET {{server}}/v1/sync/user?since={{since}}
+GET {{server}}/api/sync/user?since={{since}}
 Authorization: Bearer {{token}}
 
 ### Create an account
 # The server will hash the password if provided
-POST {{server}}/v1/sync/user
+POST {{server}}/api/sync/user
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
@@ -35,7 +35,7 @@ Authorization: Bearer {{token}}
 }]
 
 ### Update user details (including changing a password)
-POST {{server}}/v1/sync/user
+POST {{server}}/api/sync/user
 Content-Type: application/json
 Authorization: Bearer {{token}}
 

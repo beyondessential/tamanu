@@ -338,7 +338,7 @@ describe('fijiAspenMediciReport', () => {
           end,
         )}`;
         const response = await app
-          .get(`/v1/integration/fijiAspenMediciReport?${query}`)
+          .get(`/api/integration/fijiAspenMediciReport?${query}`)
           .set({ 'X-Tamanu-Client': 'medici', 'X-Version': '0.0.1' });
 
         expect(response).toHaveSucceeded();
@@ -351,7 +351,7 @@ describe('fijiAspenMediciReport', () => {
         'nonexistant-id',
       ])}`;
       const response = await app
-        .get(`/v1/integration/fijiAspenMediciReport?${query}`)
+        .get(`/api/integration/fijiAspenMediciReport?${query}`)
         .set({ 'X-Tamanu-Client': 'medici', 'X-Version': '0.0.1' });
 
       expect(response).toHaveSucceeded();
@@ -364,7 +364,7 @@ describe('fijiAspenMediciReport', () => {
         'nonexistant-id',
       ])}`;
       const response = await app
-        .get(`/v1/integration/fijiAspenMediciReport?${query}`)
+        .get(`/api/integration/fijiAspenMediciReport?${query}`)
         .set({ 'X-Tamanu-Client': 'medici', 'X-Version': '0.0.1' });
 
       expect(response).toHaveSucceeded();
@@ -374,7 +374,7 @@ describe('fijiAspenMediciReport', () => {
 
   it('should produce reports without any params', async () => {
     const response = await app
-      .get('/v1/integration/fijiAspenMediciReport')
+      .get('/api/integration/fijiAspenMediciReport')
       .set({ 'X-Tamanu-Client': 'medici', 'X-Version': '0.0.1' });
 
     expect(response).toHaveSucceeded();
@@ -388,7 +388,7 @@ describe('fijiAspenMediciReport', () => {
     const isoStringRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\+00:00$/;
     // act
     const response = await app
-      .get('/v1/integration/fijiAspenMediciReport?period.start=2022-05-09&period.end=2022-10-09')
+      .get('/api/integration/fijiAspenMediciReport?period.start=2022-05-09&period.end=2022-10-09')
       .set({ 'X-Tamanu-Client': 'medici', 'X-Version': '0.0.1' });
 
     // assert

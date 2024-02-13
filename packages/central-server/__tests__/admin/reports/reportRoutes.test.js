@@ -1,5 +1,5 @@
 import { REPORT_DB_SCHEMAS, REPORT_VERSION_EXPORT_FORMATS } from '@tamanu/constants/reports';
-import { createTestContext, withDate } from '../../utilities';
+import { createTestContext, withDateUnsafelyFaked } from '../../utilities';
 import { readJSON, sanitizeFilename, verifyQuery } from '../../../dist/admin/reports/utils';
 import { User } from '@tamanu/shared/models/User';
 import path from 'path';
@@ -61,13 +61,13 @@ describe('reportRoutes', () => {
 
   describe('GET /reports', () => {
     it('should not return reports with no versions', async () => {
-      const res = await adminApp.get('/v1/admin/reports');
+      const res = await adminApp.get('/api/admin/reports');
       expect(res).toHaveSucceeded();
       expect(res.body).toHaveLength(0);
     });
     it('should return a list of reports', async () => {
       await models.ReportDefinitionVersion.create(getMockReportVersion(1));
-      const res = await adminApp.get('/v1/admin/reports');
+      const res = await adminApp.get('/api/admin/reports');
       expect(res).toHaveSucceeded();
       expect(res.body).toHaveLength(1);
       expect(res.body[0]).toMatchObject({
@@ -78,10 +78,10 @@ describe('reportRoutes', () => {
     it('should return version count and last updated', async () => {
       const { ReportDefinitionVersion } = models;
       await ReportDefinitionVersion.create(getMockReportVersion(1));
-      const latestVersion = await withDate(new Date(Date.now() + 10000), () =>
+      const latestVersion = await withDateUnsafelyFaked(new Date(Date.now() + 10000), () =>
         ReportDefinitionVersion.create(getMockReportVersion(2)),
       );
-      const res = await adminApp.get('/v1/admin/reports');
+      const res = await adminApp.get('/api/admin/reports');
       expect(res).toHaveSucceeded();
       expect(res.body[0].versionCount).toBe(2);
       expect(new Date(res.body[0].lastUpdated)).toEqual(latestVersion.updatedAt);
@@ -93,7 +93,7 @@ describe('reportRoutes', () => {
       const { ReportDefinitionVersion } = models;
       const v1 = await ReportDefinitionVersion.create(getMockReportVersion(1));
       const v2 = await ReportDefinitionVersion.create(getMockReportVersion(2));
-      const res = await adminApp.get(`/v1/admin/reports/${testReport.id}/versions`);
+      const res = await adminApp.get(`/api/admin/reports/${testReport.id}/versions`);
       expect(res).toHaveSucceeded();
       expect(res.body).toHaveLength(2);
       expect(res.body.map(x => x.id)).toEqual(expect.arrayContaining([v1.id, v2.id]));
@@ -101,7 +101,7 @@ describe('reportRoutes', () => {
     it('shouldnt return unnecessary metadata', async () => {
       const { ReportDefinitionVersion } = models;
       await ReportDefinitionVersion.create(getMockReportVersion(1));
-      const res = await adminApp.get(`/v1/admin/reports/${testReport.id}/versions`);
+      const res = await adminApp.get(`/api/admin/reports/${testReport.id}/versions`);
       expect(res).toHaveSucceeded();
       const allowedKeys = [
         'id',
@@ -124,11 +124,12 @@ describe('reportRoutes', () => {
     it('should create a report', async () => {
       const name = 'Test Report 2';
       const { ReportDefinition, ReportDefinitionVersion } = models;
+      // eslint-disable-next-line no-unused-vars
       const { versionNumber, ...definition } = getMockReportVersion(
         1,
         'select * from patients limit 1',
       );
-      const res = await adminApp.post('/v1/admin/reports').send({ name, dbSchema, ...definition });
+      const res = await adminApp.post('/api/admin/reports').send({ name, dbSchema, ...definition });
       expect(res).toHaveSucceeded();
       expect(res.body.query).toBe('select * from patients limit 1');
       expect(res.body.versionNumber).toBe(1);
@@ -147,12 +148,13 @@ describe('reportRoutes', () => {
     });
 
     it('should not return unnecessary metadata', async () => {
+      // eslint-disable-next-line no-unused-vars
       const { versionNumber, ...definition } = getMockReportVersion(
         1,
         'select * from patients limit 1',
       );
       const res = await adminApp
-        .post('/v1/admin/reports')
+        .post('/api/admin/reports')
         .send({ name: 'Test Report 3', dbSchema, ...definition });
       expect(res).toHaveSucceeded();
       expect(Object.keys(res.body)).toEqual(
@@ -179,7 +181,7 @@ describe('reportRoutes', () => {
         'select * from patients limit 1',
       );
       const res = await adminApp
-        .post(`/v1/admin/reports/${testReport.id}/versions`)
+        .post(`/api/admin/reports/${testReport.id}/versions`)
         .send(newVersion);
       expect(res).toHaveSucceeded();
       expect(res.body.query).toBe('select * from patients limit 1');
@@ -193,12 +195,14 @@ describe('reportRoutes', () => {
     });
 
     it('should not return unnecessary metadata', async () => {
-      const { versionNumber, ...newVersion } = getMockReportVersion(
+      const newVersion = getMockReportVersion(
         1,
         'select * from patients limit 1',
       );
+      delete newVersion.versionNumber;
+
       const res = await adminApp
-        .post(`/v1/admin/reports/${testReport.id}/versions`)
+        .post(`/api/admin/reports/${testReport.id}/versions`)
         .send(newVersion);
       expect(res).toHaveSucceeded();
       expect(Object.keys(res.body)).toEqual(
@@ -222,7 +226,7 @@ describe('reportRoutes', () => {
       const versionData = getMockReportVersion(1);
       const v1 = await ReportDefinitionVersion.create(versionData);
       const res = await adminApp.get(
-        `/v1/admin/reports/${testReport.id}/versions/${v1.id}/export/json`,
+        `/api/admin/reports/${testReport.id}/versions/${v1.id}/export/json`,
       );
       expect(res).toHaveSucceeded();
 
@@ -241,7 +245,7 @@ describe('reportRoutes', () => {
       const versionData = getMockReportVersion(1, 'select\n bark from dog');
       const v1 = await ReportDefinitionVersion.create(versionData);
       const res = await adminApp.get(
-        `/v1/admin/reports/${testReport.id}/versions/${v1.id}/export/sql`,
+        `/api/admin/reports/${testReport.id}/versions/${v1.id}/export/sql`,
       );
       expect(res).toHaveSucceeded();
       expect(res.body.filename).toBe('test-report-v1.sql');
@@ -252,7 +256,7 @@ describe('reportRoutes', () => {
 
   describe('POST /reports/import', () => {
     it('should not create a version if dry run', async () => {
-      const res = await adminApp.post(`/v1/admin/reports/import`).send({
+      const res = await adminApp.post(`/api/admin/reports/import`).send({
         file: path.join(__dirname, '/data/without-version-number.json'),
         name: 'Report Import Test Dry Run',
         dryRun: true,
@@ -274,7 +278,7 @@ describe('reportRoutes', () => {
       expect(report).toBeFalsy();
     });
     it('should import a version for new definition', async () => {
-      const res = await adminApp.post(`/v1/admin/reports/import`).send({
+      const res = await adminApp.post(`/api/admin/reports/import`).send({
         file: path.join(__dirname, '/data/without-version-number.json'),
         name: 'Report Import Test',
         deleteFileAfterImport: false,
@@ -300,7 +304,7 @@ describe('reportRoutes', () => {
     it('should create a new latest version if existing definition and no version number', async () => {
       const { ReportDefinitionVersion } = models;
       await ReportDefinitionVersion.create(getMockReportVersion(1));
-      const res = await adminApp.post(`/v1/admin/reports/import`).send({
+      const res = await adminApp.post(`/api/admin/reports/import`).send({
         file: path.join(__dirname, '/data/without-version-number.json'),
         name: testReport.name,
         deleteFileAfterImport: false,
@@ -325,7 +329,7 @@ describe('reportRoutes', () => {
     it('should fail with InvalidOperationError if version number is specified', async () => {
       const { ReportDefinitionVersion } = models;
       await ReportDefinitionVersion.create(getMockReportVersion(1));
-      const res = await adminApp.post(`/v1/admin/reports/import`).send({
+      const res = await adminApp.post(`/api/admin/reports/import`).send({
         file: path.join(__dirname, '/data/with-version-number.json'),
         name: testReport.name,
         deleteFileAfterImport: false,

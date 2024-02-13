@@ -80,7 +80,7 @@ describe('Assistive technology device line list', () => {
     ]);
 
     // ----Submit answers for patient 1----
-    await app.post('/v1/surveyResponse').send({
+    await app.post('/api/surveyResponse').send({
       surveyId: REGISTRATION_FORM_SURVEY_ID,
       startTime: '2021-03-12 10:50:28',
       patientId: expectedPatient1.id,
@@ -90,7 +90,7 @@ describe('Assistive technology device line list', () => {
       },
     });
 
-    await app.post('/v1/surveyResponse').send({
+    await app.post('/api/surveyResponse').send({
       surveyId: REGISTRATION_FORM_SURVEY_ID,
       startTime: '2021-03-15 10:50:28',
       patientId: expectedPatient1.id,
@@ -100,7 +100,7 @@ describe('Assistive technology device line list', () => {
       },
     });
 
-    await app.post('/v1/surveyResponse').send({
+    await app.post('/api/surveyResponse').send({
       surveyId: MOBILITY_SURVEY_ID,
       startTime: '2021-03-17 10:50:28',
       patientId: expectedPatient1.id,
@@ -112,7 +112,7 @@ describe('Assistive technology device line list', () => {
       },
     });
 
-    await app.post('/v1/surveyResponse').send({
+    await app.post('/api/surveyResponse').send({
       surveyId: MOBILITY_SURVEY_ID,
       startTime: '2021-03-17 11:50:28',
       patientId: expectedPatient1.id,
@@ -124,7 +124,7 @@ describe('Assistive technology device line list', () => {
       },
     });
 
-    await app.post('/v1/surveyResponse').send({
+    await app.post('/api/surveyResponse').send({
       surveyId: MOBILITY_SURVEY_ID,
       startTime: '2021-03-20 10:50:28',
       patientId: expectedPatient1.id,
@@ -136,7 +136,7 @@ describe('Assistive technology device line list', () => {
       },
     });
 
-    await app.post('/v1/surveyResponse').send({
+    await app.post('/api/surveyResponse').send({
       surveyId: MOBILITY_SURVEY_ID,
       startTime: '2021-03-20 11:50:28',
       patientId: expectedPatient1.id,
@@ -149,7 +149,7 @@ describe('Assistive technology device line list', () => {
     });
 
     // ----Submit answers for patient 2----
-    await app.post('/v1/surveyResponse').send({
+    await app.post('/api/surveyResponse').send({
       surveyId: REGISTRATION_FORM_SURVEY_ID,
       startTime: '2021-03-12 10:50:28',
       patientId: expectedPatient2.id,
@@ -159,7 +159,7 @@ describe('Assistive technology device line list', () => {
       },
     });
 
-    await app.post('/v1/surveyResponse').send({
+    await app.post('/api/surveyResponse').send({
       surveyId: MOBILITY_SURVEY_ID,
       startTime: '2021-03-17 10:50:28',
       patientId: expectedPatient2.id,
@@ -177,7 +177,7 @@ describe('Assistive technology device line list', () => {
     it('should reject creating an assistive technology device line list report with insufficient permissions', async () => {
       const noPermsApp = await baseApp.asRole('base');
       const result = await noPermsApp.post(
-        `/v1/reports/iraq-assistive-technology-device-line-list`,
+        `/api/reports/iraq-assistive-technology-device-line-list`,
         {},
       );
       expect(result).toBeForbidden();
@@ -187,7 +187,7 @@ describe('Assistive technology device line list', () => {
   describe('returns the correct data', () => {
     it('should return latest data per patient and latest data per patient per date', async () => {
       const result = await app
-        .post('/v1/reports/iraq-assistive-technology-device-line-list')
+        .post('/api/reports/iraq-assistive-technology-device-line-list')
         .send({});
 
       expect(result).toHaveSucceeded();
@@ -307,7 +307,7 @@ describe('Assistive technology device line list', () => {
 
     it('should return data within date range', async () => {
       const result = await app
-        .post('/v1/reports/iraq-assistive-technology-device-line-list')
+        .post('/api/reports/iraq-assistive-technology-device-line-list')
         .send({ parameters: { fromDate: '2021-03-18', toDate: '2021-03-21' } });
 
       expect(result).toHaveSucceeded();

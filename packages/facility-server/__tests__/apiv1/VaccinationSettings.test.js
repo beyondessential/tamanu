@@ -37,7 +37,7 @@ describe('Vaccination Settings', () => {
 
       await Setting.set(TEST_KEY, TEST_VALUE, config.serverFacilityId);
 
-      const result = await app.get(`/v1/vaccinationSettings/${TEST_KEY}`).send({});
+      const result = await app.get(`/api/vaccinationSettings/${TEST_KEY}`).send({});
 
       expect(result).toHaveSucceeded();
       expect(result.body.data).toEqual(TEST_VALUE);
@@ -51,7 +51,7 @@ describe('Vaccination Settings', () => {
 
       await Setting.set(TEST_KEY, TEST_VALUE, anotherFacility.id);
 
-      const result = await app.get(`/v1/vaccinationSettings/${TEST_KEY}`).send({});
+      const result = await app.get(`/api/vaccinationSettings/${TEST_KEY}`).send({});
 
       expect(result).toHaveSucceeded();
       expect(result.body.data).toEqual(null);
