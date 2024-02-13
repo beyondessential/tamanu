@@ -58,3 +58,13 @@ TranslatedSelectField.propTypes = {
   name: PropTypes.string.isRequired,
   value: PropTypes.string.isRequired,
 };
+
+export const TranslatedMultiselectField = ({ field, options, prefix, ...props }) => (
+  <MultiselectInput
+    options={getTranslatedOptions(options, prefix)}
+    value={field.value}
+    name={field.name}
+    onChange={field.onChange}
+    {...props}
+  />
+);
