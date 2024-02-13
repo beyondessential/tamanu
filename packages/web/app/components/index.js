@@ -34,4 +34,4 @@ export * from './AddReminderContact';
 export * from './ReminderContactQR';
 export * from './ReminderContactModal';
 export * from './ReminderContactList';
-export * from './RemoveReminderContactModal';
+export * from './RemoveReminderContact';

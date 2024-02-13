@@ -7,6 +7,7 @@ import { AddReminderContact } from './AddReminderContact';
 import { BaseModal } from './BaseModal';
 import { ReminderContactList } from './ReminderContactList';
 import { ReminderContactQR } from './ReminderContactQR';
+import { RemoveReminderContact } from './RemoveReminderContact';
 
 const ReminderModalContainer = styled(Box)`
   margin: 0 8px;
@@ -56,7 +57,12 @@ export const ReminderContactModal = ({ patient, onClose }) => {
   };
 
   return (
-    <BaseModal width="md" title={getModalTitle()} open onClose={onClose}>
+    <BaseModal
+      width={activeView === REMINDER_CONTACT_VIEWS.REMOVE_REMINDER ? 'sm' : 'md'}
+      title={getModalTitle()}
+      open
+      onClose={onClose}
+    >
       <ReminderModalContainer>
         {activeView === REMINDER_CONTACT_VIEWS.REMINDER_CONTACT_LIST && (
           <ReminderContactList
@@ -75,6 +81,9 @@ export const ReminderContactModal = ({ patient, onClose }) => {
         )}
         {activeView === REMINDER_CONTACT_VIEWS.ADD_REMINDER_QR_CODE && (
           <ReminderContactQR patient={patient} onClose={onClose} />
+        )}
+        {activeView === REMINDER_CONTACT_VIEWS.REMOVE_REMINDER && (
+          <RemoveReminderContact onClose={onClose} onBack={onBack} />
         )}
       </ReminderModalContainer>
     </BaseModal>
