@@ -1,4 +1,5 @@
 import React, { ReactElement } from 'react';
+import { compose } from 'redux';
 import { StyledView, RowView } from '/styled/common';
 import { SectionHeader } from '/components/SectionHeader';
 import { theme } from '/styled/theme';
@@ -7,11 +8,16 @@ import { CircleAdd } from '~/ui/components/Icons';
 import { useNavigation } from '@react-navigation/native';
 import { Routes } from '~/ui/helpers/routes';
 import { PatientProgramRegistryList } from './PatientProgramRegistryList';
-import { compose } from 'redux';
 import { withPatient } from '~/ui/containers/Patient';
+import { useBackendEffect } from '~/ui/hooks/index';
 
 const PatientProgramRegistrySummary_ = ({ selectedPatient }): ReactElement => {
   const navigation = useNavigation();
+  const [programRegistries, programRegistrieError, isprogramRegistrieLoading] = useBackendEffect(
+    async ({ models }) =>
+      await models.ProgramRegistry.getFilteredProgramRegistries(selectedPatient.id),
+    [],
+  );
 
   return (
     <StyledView margin={20} borderRadius={5}>
@@ -25,10 +31,14 @@ const PatientProgramRegistrySummary_ = ({ selectedPatient }): ReactElement => {
           Program registry
         </SectionHeader>
         <Button
-          backgroundColor={theme.colors.PRIMARY_MAIN}
+          backgroundColor={
+            programRegistries?.length === 0 ? theme.colors.DISABLED_GREY : theme.colors.PRIMARY_MAIN
+          }
           borderRadius={100}
           width={32}
           height={32}
+          loadingAction={isprogramRegistrieLoading}
+          disabled={programRegistries?.length === 0}
           onPress={() => {
             navigation.navigate(Routes.HomeStack.PatientProgramRegistryFormStack.Index);
           }}
