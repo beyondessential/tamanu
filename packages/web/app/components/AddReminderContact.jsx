@@ -67,59 +67,57 @@ export const AddReminderContact = ({ patient, onContinue, onClose, onBack }) => 
   ];
 
   return (
-    <>
-      <Form
-        onSubmit={onContinue}
-        initialValues={{ contactName: 'test', relationship: 'son' }}
-        validationSchema={yup.object().shape({
-          contactName: yup.string().required(REQUIRED_VALIDATION_MESSAGE),
-          relationship: yup.string().required(REQUIRED_VALIDATION_MESSAGE),
-        })}
-        render={({ submitForm }) => {
-          return (
-            <>
-              <FormHeading>Please provide details below to add a new contact.</FormHeading>
-              <FormSubHeading>
-                By providing their details, the individual consents to receiving automated reminder
-                messages for{' '}
-                <span>
-                  {patient.firstName} {patient.lastName}
-                </span>
-              </FormSubHeading>
-              <StyledFormContainer>
-                <Field
-                  name="contactName"
-                  label="Contact name"
-                  type="text"
-                  placeholder="Enter contact name"
-                  autoComplete="off"
-                  required
-                />
-
-                <Field
-                  name="relationship"
-                  label="Relationship"
-                  component={SelectField}
-                  placeholder="Select relationship"
-                  options={relationshipArray}
-                  required
-                />
-              </StyledFormContainer>
-
-              <FormFooterText>Connect using the QR code on the following screen.</FormFooterText>
-              <StyledFullWidthContainer>
-                <StyledDivider />
-              </StyledFullWidthContainer>
-              <FormConfirmCancelBackRow
-                onBack={onBack}
-                onConfirm={submitForm}
-                onCancel={onClose}
-                confirmText="Confirm & connect"
+    <Form
+      onSubmit={onContinue}
+      initialValues={{ contactName: 'test', relationship: 'son' }}
+      validationSchema={yup.object().shape({
+        contactName: yup.string().required(REQUIRED_VALIDATION_MESSAGE),
+        relationship: yup.string().required(REQUIRED_VALIDATION_MESSAGE),
+      })}
+      render={({ submitForm }) => {
+        return (
+          <>
+            <FormHeading>Please provide details below to add a new contact.</FormHeading>
+            <FormSubHeading>
+              By providing their details, the individual consents to receiving automated reminder
+              messages for{' '}
+              <span>
+                {patient.firstName} {patient.lastName}
+              </span>
+            </FormSubHeading>
+            <StyledFormContainer>
+              <Field
+                name="contactName"
+                label="Contact name"
+                type="text"
+                placeholder="Enter contact name"
+                autoComplete="off"
+                required
               />
-            </>
-          );
-        }}
-      />
-    </>
+
+              <Field
+                name="relationship"
+                label="Relationship"
+                component={SelectField}
+                placeholder="Select relationship"
+                options={relationshipArray}
+                required
+              />
+            </StyledFormContainer>
+
+            <FormFooterText>Connect using the QR code on the following screen.</FormFooterText>
+            <StyledFullWidthContainer>
+              <StyledDivider />
+            </StyledFullWidthContainer>
+            <FormConfirmCancelBackRow
+              onBack={onBack}
+              onConfirm={submitForm}
+              onCancel={onClose}
+              confirmText="Confirm & connect"
+            />
+          </>
+        );
+      }}
+    />
   );
 };
