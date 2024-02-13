@@ -87,6 +87,37 @@ export class PatientProgramRegistration extends BaseModel implements IPatientPro
       .getOne();
   }
 
+  static async getMostRecentRegistrationsForPatient(patientId: string) {
+    const registrationRepository = this.getRepository(PatientProgramRegistration);
+
+    const GET_MOST_RECENT_REGISTRATIONS_QUERY = `
+    SELECT id
+      FROM patient_program_registration AS main
+      WHERE id = (
+        SELECT id
+        FROM patient_program_registration AS sub
+        WHERE main.patientId = sub.patientId AND main.programRegistryId = sub.programRegistryId
+        ORDER BY date DESC, id DESC
+        LIMIT 1
+      )
+    `;
+
+    const mostRecentRegistrations = await registrationRepository
+      .createQueryBuilder('registration')
+      .where(`registration.id IN (${GET_MOST_RECENT_REGISTRATIONS_QUERY})`)
+      .andWhere('registration.registrationStatus != :status', {
+        status: RegistrationStatus.RecordedInError,
+      })
+      .andWhere('registration.patientId = :patientId', { patientId })
+      .leftJoinAndSelect('registration.clinicalStatus', 'clinicalStatus')
+      .leftJoinAndSelect('registration.programRegistry', 'programRegistry')
+      .orderBy('registration.registrationStatus', 'ASC')
+      .addOrderBy('programRegistry.name', 'ASC')
+      .getMany();
+
+    return mostRecentRegistrations;
+  }
+
   static getTableNameForSync(): string {
     return 'patient_program_registrations';
   }
