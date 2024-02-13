@@ -34,25 +34,16 @@ const getTranslatedOptions = (options, prefix) => {
   // }));
 };
 
-export const TranslatedSelectField = ({ field, options, prefix, ...props }) => (
-  <TranslatedSelectInput
-    options={getTranslatedOptions(options, prefix)}
-    value={field.value}
-    name={field.name}
-    {...props}
-  />
-);
-
-const TranslatedSelectInput = ({ options, prefix, value, name, ...props }) => (
+export const TranslatedSelectField = ({ field, options, prefix, value, name, ...props }) => (
   <SelectInput
     options={getTranslatedOptions(options, prefix)}
-    value={value}
-    name={name}
+    value={field ? field.value : value}
+    name={field ? field.name : name}
     {...props}
   />
 );
 
-TranslatedSelectField.propTypes = {
+SelectField.propTypes = {
   options: PropTypes.object.isRequired,
   prefix: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
