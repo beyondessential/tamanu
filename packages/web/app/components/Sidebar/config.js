@@ -85,7 +85,7 @@ export const FACILITY_MENU_ITEMS = [
       {
         label: 'Requests',
         path: '/medication-requests/all',
-        key: 'medicationRequests',
+        key: 'medicationAll',
         ability: { action: 'read' },
       },
     ],
@@ -121,7 +121,7 @@ export const FACILITY_MENU_ITEMS = [
       {
         label: 'Active requests',
         path: '/lab-requests/all',
-        key: 'labsRequests',
+        key: 'labsAll',
         ability: { action: 'read' },
       },
       {

@@ -278,9 +278,9 @@ const sidebarItemSchema = yup
 const SIDEBAR_ITEMS = {
   patients: ['patientsAll', 'patientsInpatients', 'patientsEmergency', 'patientsOutpatients'],
   scheduling: ['schedulingAppointments', 'schedulingCalendar', 'schedulingNew'],
-  medication: ['medicationRequests'],
+  medication: ['medicationAll'],
   imaging: ['imagingActive', 'imagingCompleted'],
-  labs: ['labsRequests', 'labsPublished'],
+  labs: ['labsAll', 'labsPublished'],
   immunisations: ['immunisationsAll'],
   programRegistry: [],
 };
