@@ -118,6 +118,10 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       const { labRequest, specimenType, bodySiteRef } = await fakeResourcesOfFhirSpecimen(
         ctx.store.models,
         resources,
+        {
+          labSampleSiteId: null,
+          specimenTypeId: null,
+        }
       );
       const materialisedServiceRequest = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
       const materialiseSpecimen = await FhirSpecimen.materialiseFromUpstream(labRequest.id);
@@ -133,9 +137,13 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       response.body?.identifier?.sort((a, b) => a.system.localeCompare(b.system));
 
       const { fhirPractitioner } = fhirResources;
+      const { body, headers } = response;
+      console.log({ body });
+      expect(body).not.toHaveProperty('type');
+      expect(body).not.toHaveProperty('collection.bodySite');
 
       // assert
-      expect(response.body).toMatchObject({
+      expect(body).toMatchObject({
         resourceType: 'Specimen',
         id: expect.any(String),
         meta: {
@@ -148,27 +156,13 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
             display: fhirPractitioner.name[0].text,
             reference: `Practitioner/${fhirPractitioner.id}`
           },
-          bodySite: {
-            coding: [{
-              code: bodySiteRef.code,
-              system: 'http://bodySITE.NEW',
-              display: bodySiteRef.name
-            }]
-          },
-        },
-        type: {
-          coding: [{
-            code: specimenType.code,
-            system: 'http://www.senaite.com/data/sample_types',
-            display: specimenType.name
-          }]
         },
         request: [{
           type: 'ServiceRequest',
           reference: `ServiceRequest/${materialisedServiceRequest.id}`
         }]
       });
-      expect(response.headers['last-modified']).toBe(formatRFC7231(new Date(materialiseSpecimen.lastUpdated)));
+      expect(headers['last-modified']).toBe(formatRFC7231(new Date(materialiseSpecimen.lastUpdated)));
       expect(response).toHaveSucceeded();
     });
 
