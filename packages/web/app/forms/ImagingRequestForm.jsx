@@ -31,6 +31,7 @@ import { FormSeparatorLine } from '../components/FormSeparatorLine';
 import { FormSubmitDropdownButton } from '../components/DropdownButton';
 import { LowerCase } from '../components/Typography';
 import { TranslatedText } from '../components/Translation/TranslatedText';
+import { TranslatedSelectField } from '../components/Translation/TranslatedSelectField.jsx';
 
 function getEncounterTypeLabel(type) {
   return encounterOptions.find(x => x.value === type).label;
@@ -206,8 +207,9 @@ export const ImagingRequestForm = React.memo(
                   />
                 }
                 required
-                component={SelectField}
+                component={TranslatedSelectField}
                 options={imagingTypeOptions}
+                prefix="imaging.property.type"
               />
               {imagingAreas.length ? (
                 <Field

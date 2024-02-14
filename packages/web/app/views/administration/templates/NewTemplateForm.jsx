@@ -17,6 +17,7 @@ import { TEMPLATE_TYPE_OPTIONS } from '../../../constants';
 
 import { Button } from '../../../components/Button';
 import { ButtonRow } from '../../../components/ButtonRow';
+import { TranslatedSelectField } from '../../../components/Translation/TranslatedSelectField.jsx';
 
 const ConfirmButton = styled(Button)`
   min-width: 90px;
@@ -42,9 +43,10 @@ export const NewTemplateForm = memo(({ onSubmit }) => {
         <Field
           name="type"
           label="Type"
-          component={SelectField}
+          component={TranslatedSelectField}
           options={TEMPLATE_TYPE_OPTIONS}
           required
+          prefix="template.property.type"
         />
         <Field name="name" label="Template name" component={TextField} required />
       </FormGrid>

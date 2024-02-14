@@ -35,6 +35,7 @@ import { SimpleTopBar } from '../../../components';
 import { CancelModalButton } from './CancelModalButton';
 import { PrintModalButton } from './PrintModalButton';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { TranslatedSelectField } from '../../../components/Translation/TranslatedSelectField.jsx';
 
 const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
   const { getLocalisation } = useLocalisation();
@@ -76,11 +77,12 @@ const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
       <Field
         name="status"
         label={<TranslatedText stringId="imaging.form.status.label" fallback="Status" />}
-        component={SelectField}
+        component={TranslatedSelectField}
         options={isCancelled ? cancelledOption : IMAGING_REQUEST_STATUS_OPTIONS}
         disabled={isCancelled}
         isClearable={false}
         required
+        prefix="imaging.property.status"
       />
       <DateTimeInput
         value={imagingRequest.requestedDate}
@@ -168,7 +170,9 @@ const NewResultSection = ({ disabled = false }) => {
   );
 };
 
-function openUrl(url) { window.open(url, '_blank'); }
+function openUrl(url) {
+  window.open(url, '_blank');
+}
 const ImagingResultRow = ({ result }) => {
   const { externalUrl, completedAt, completedBy, description } = result;
 

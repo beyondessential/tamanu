@@ -9,6 +9,7 @@ import { FormGrid } from '../../components/FormGrid';
 import { ButtonRow } from '../../components/ButtonRow';
 import { LargeSubmitButton } from '../../components/Button';
 import { AdminViewContainer } from './components/AdminViewContainer';
+import { TranslatedSelectField } from '../../components/Translation/TranslatedSelectField.jsx';
 
 const ResultDisplay = ({ result }) => {
   if (!result) return null;
@@ -82,11 +83,12 @@ export const AssetUploaderView = memo(() => {
           <ContentPane>
             <FormGrid columns={1}>
               <Field
-                component={SelectField}
+                component={TranslatedSelectField}
                 options={nameOptions}
                 label="Select asset"
                 name="name"
                 required
+                prefix="asset.property.type"
               />
               <Field
                 component={FileChooserField}
