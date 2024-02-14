@@ -7,12 +7,12 @@ import { useFormikContext } from 'formik';
 import { FORM_TYPES } from '../../constants';
 
 /**
- * Default values should only be pre-filled when the form is in create mode and an initial value has not been supplied
- * i.e edit form or a hardcoded initial value
+ * Default values should not be pre-filled on search forms,
+ * edit forms or where an initial value has been explicitly defined for the field
  */
-const shouldPrefillDefaultValue = (initialValue, formType) => {
-  return formType !== FORM_TYPES.SEARCH_FORM && !initialValue
-}
+const shouldPrefillDefaultValue = (initialValue, formType, hidden, defaultValue) => {
+  return !hidden && formType !== FORM_TYPES.SEARCH_FORM && !initialValue && defaultValue;
+};
 
 export const LocalisedField = ({
   name,
@@ -23,24 +23,18 @@ export const LocalisedField = ({
 }) => {
   const { getLocalisation } = useLocalisation();
 
-  const fieldConfig = getLocalisation(path);
-  const { hidden,defaultValue, longLabel, shortLabel, required } = fieldConfig;
+  const { hidden, defaultValue, longLabel, shortLabel, required } = getLocalisation(path) || {};
 
-  const label = (useShortLabel
-      ? shortLabel
-      : longLabel) ||
-    defaultLabel ||
-    path;
+  const label = (useShortLabel ? shortLabel : longLabel) || defaultLabel || path;
 
-
-  const {initialValues, status, setFieldValue} = useFormikContext();
-  const initialValue = initialValues[name]
+  const { initialValues, status = {}, setFieldValue } = useFormikContext();
+  const { formType } = status;
+  const initialValue = initialValues[name];
 
   useEffect(() => {
-    if (hidden || !defaultValue) return
-    if  (!shouldPrefillDefaultValue(initialValue, status?.formType)) return
+    if (!shouldPrefillDefaultValue({ initialValue, formType, hidden, defaultValue })) return;
     setFieldValue(name, defaultValue);
-  },[initialValue, status, fieldConfig, name, setFieldValue, defaultValue, hidden])
+  }, [initialValue, formType, name, setFieldValue, defaultValue, hidden]);
 
   if (hidden) {
     return null;
