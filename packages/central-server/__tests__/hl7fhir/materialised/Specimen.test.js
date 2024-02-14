@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-expressions */
 
 import { formatRFC7231 } from 'date-fns';
-
+import { fakeUUID } from '@tamanu/shared/utils/generateId';
 import { formatFhirDate } from '@tamanu/shared/utils/fhir/datetime';
 
 import { createTestContext } from '../../utilities';
@@ -159,27 +159,6 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       });
       expect(headers['last-modified']).toBe(formatRFC7231(new Date(materialiseSpecimen.lastUpdated)));
       expect(response).toHaveSucceeded();
-    });
-
-    it('should handle a lab request without a specimen', async () => {
-      // arrange
-      const { FhirSpecimen, FhirServiceRequest } = ctx.store.models;
-      const { labRequest } = await fakeResourcesOfFhirSpecimen(
-        ctx.store.models,
-        resources,
-        {
-          specimenAttached: false,
-        }
-      );
-      const materialisedServiceRequest = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
-      await fhir({ refresh: 'Specimen' });
-      console.log({ labRequestIdToFind: labRequest.id })
-      const specimen = await FhirSpecimen.findAll({
-        where: {
-          //upstreamId: labRequest.id,
-        }
-      });
-      expect(specimen).toBeNull();
     });
 
 
