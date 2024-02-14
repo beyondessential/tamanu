@@ -25,20 +25,13 @@ export const RoutingApp = () => {
   return isSyncServer ? <RoutingAdminApp /> : <RoutingFacilityApp />;
 };
 
-const getHomePageUrl = items => {
-  // Get the first child item of the first parent item
-  const firstItem = items.find(item => item.children.length > 0);
-  return firstItem.children[0].path;
-};
-
 export const RoutingFacilityApp = React.memo(() => {
   const sidebarMenuItems = useFacilitySidebar();
-  const homePageUrl = getHomePageUrl(sidebarMenuItems);
   return (
     <App sidebar={<Sidebar items={sidebarMenuItems} />}>
       <UserActivityMonitor />
       <Switch>
-        <Redirect exact path="/" to={homePageUrl} />
+        <Redirect exact path="/" to="/patients/all" />
         <Route path="/patients" component={PatientsRoutes} />
         <Route path="/appointments" component={AppointmentRoutes} />
         <Route path="/imaging-requests" component={ImagingRoutes} />

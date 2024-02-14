@@ -2,9 +2,21 @@ import { FACILITY_MENU_ITEMS } from './config';
 import { useLocalisation } from '../../contexts/Localisation';
 
 const sortTopLevelItems = (a, b) => {
+  // Always show patients first
+  if (a.key === 'patients') {
+    return -1;
+  }
   // Always show facilityAdmin last
   if (a.key === 'facilityAdmin') {
     return 1;
+  }
+  return a.sortPriority - b.sortPriority;
+};
+
+const sortChildItems = (a, b) => {
+  // Always show all patients first
+  if (a.key === 'patientsAll') {
+    return -1;
   }
   return a.sortPriority - b.sortPriority;
 };
@@ -35,7 +47,7 @@ export const useFacilitySidebar = () => {
 
           return [...childItems, { ...child, sortPriority: localisedChild.sortPriority }];
         }, [])
-        .sort((a, b) => a.sortPriority - b.sortPriority);
+        .sort(sortChildItems);
     }
 
     return [...topLevelItems, { ...item, sortPriority: localisedItem.sortPriority, children }];

@@ -317,12 +317,6 @@
       },
       "sidebar": {
         patients: {
-          hidden: false,
-          sortPriority: -1000,
-          patientsAll: {
-            hidden: false,
-            sortPriority: 0,
-          },
           patientsInpatients: {
             hidden: false,
             sortPriority: 0,
