@@ -361,7 +361,6 @@ class TableComponent extends React.Component {
       refreshTable,
       isLoadingMore,
     } = this.props;
-
     const status = this.getStatusMessage();
     if (status) {
       return (
