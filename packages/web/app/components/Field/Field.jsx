@@ -19,6 +19,7 @@ export const Field = formikConnect(
       errors,
       status: { submitStatus },
       setFieldValue,
+      initialValues,
     },
     name,
     defaultValue,
@@ -47,8 +48,10 @@ export const Field = formikConnect(
       : baseOnChange;
 
     useEffect(() => {
+      console.log(component.name)
+      if (initialValues[name] || !defaultValue) return
       setFieldValue(name, defaultValue);
-    },[defaultValue])
+    },[defaultValue, initialValues, name, setFieldValue])
 
     return (
       <FormikField

@@ -409,14 +409,12 @@ export const LocalisationProvider = ({ children }) => {
 
   useEffect(() => {
     setLocalisation({ ...reduxLocalisation.localisation, ...overrides });
-    console.log(reduxLocalisation, 'reduxLocalisation')
   }, [reduxLocalisation]);
 
   return (
     <LocalisationContext.Provider
       value={{
         getLocalisation: path => {
-          console.log(path, localisation)
           return get(localisation, path)
         } ,
       }}

@@ -65,8 +65,6 @@ export async function centralServerLogin(models, email, password, deviceId) {
   const { user, localisation } = response;
   const { id, ...userDetails } = user;
 
-  console.log(localisation, 'heyy');
-
   await models.User.sequelize.transaction(async () => {
     await models.User.upsert({
       id,

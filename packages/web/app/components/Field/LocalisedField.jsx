@@ -20,8 +20,6 @@ export const LocalisedField = ({
     defaultLabel ||
     path;
 
-console.log(props)
-
   const defaultValue = getLocalisation(`${path}.defaultValue`);
   const required = getLocalisation(`${path}.required`) || false;
   if (hidden) {
