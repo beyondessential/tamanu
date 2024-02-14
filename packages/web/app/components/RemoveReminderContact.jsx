@@ -65,19 +65,16 @@ const columns = [
     key: 'contactName',
     title: 'Contact',
     sortable: false,
-    accessor: ({ contactName }) => contactName,
   },
   {
     key: 'relationshipType',
     title: 'Relationship',
     sortable: false,
-    accessor: ({ relationshipType }) => relationshipType,
   },
   {
     key: 'contactMethod',
     title: 'Contact method',
     sortable: false,
-    accessor: ({ contactMethod }) => contactMethod,
   },
 ];
 
