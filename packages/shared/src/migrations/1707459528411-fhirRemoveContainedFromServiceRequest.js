@@ -1,8 +1,3 @@
-
-const schema = 'fhir';
-const tableName = 'service_requests';
-const column = 'contained';
-
 export async function up(query) {
   await query.sequelize.query(`
     ALTER TABLE fhir.service_requests

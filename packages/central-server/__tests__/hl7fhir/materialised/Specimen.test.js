@@ -9,7 +9,6 @@ import {
   fakeResourcesOfFhirServiceRequest,
   fakeResourcesOfFhirSpecimen,
 } from '../../fake/fhir';
-import { fhir } from '../../../app/subCommands/fhir';
 
 const INTEGRATION_ROUTE = 'fhir/mat';
 
@@ -167,7 +166,6 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
 
   describe('search', () => {
     const specimens = [];
-    const testEmail = 'testEmailForFilteringByTelecom@something.com';
     beforeAll(async () => {
       const { FhirSpecimen, FhirServiceRequest } = ctx.store.models;
       await FhirSpecimen.destroy({ where: {} });
