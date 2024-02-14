@@ -48,7 +48,7 @@ const NHNField = styled(Field)`
   width: 300px;
 `;
 
-const WhiteFormGrid = styled(FormGrid)`
+const StyledFormGrid = styled(FormGrid)`
   background-color: white;
 `;
 
@@ -61,7 +61,7 @@ export const DeleteEncounterForm = ({ onSubmit, onCancel, encounterToDelete, pat
       render={({ submitForm }) => {
         return (
           <div>
-            <WhiteFormGrid columns={2}>
+            <StyledFormGrid columns={2}>
               <GridItem>
                 <GridContent>
                   <Label>Date</Label>
@@ -80,7 +80,7 @@ export const DeleteEncounterForm = ({ onSubmit, onCancel, encounterToDelete, pat
                   <Value>{reasonForEncounter}</Value>
                 </div>
               </GridItem>
-            </WhiteFormGrid>
+            </StyledFormGrid>
             <WarningWrapper>
               <WarningTitle>Confirm encounter deletion</WarningTitle>
               <Paragraph>
