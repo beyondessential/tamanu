@@ -3,7 +3,16 @@ import React, { useEffect } from 'react';
 import * as yup from 'yup';
 import { Field } from './Field';
 import { useLocalisation } from '../../contexts/Localisation';
-import { useField, useFormikContext } from 'formik';
+import { useFormikContext } from 'formik';
+import { FORM_TYPES } from '../../constants';
+
+/**
+ * Default values should only be pre-filled when the form is in create mode and an initial value has not been supplied
+ * i.e edit form or a hardcoded initial value
+ */
+const shouldPrefillDefaultValue = (initialValue, formType) => {
+  return formType !== FORM_TYPES.SEARCH_FORM && !initialValue
+}
 
 export const LocalisedField = ({
   name,
@@ -13,30 +22,31 @@ export const LocalisedField = ({
   ...props
 }) => {
   const { getLocalisation } = useLocalisation();
-  const hidden = getLocalisation(`${path}.hidden`);
-  const label =
-    (useShortLabel
-      ? getLocalisation(`${path}.shortLabel`)
-      : getLocalisation(`${path}.longLabel`)) ||
+
+  const fieldConfig = getLocalisation(path);
+  const { hidden,defaultValue, longLabel, shortLabel, required } = fieldConfig;
+
+  const label = (useShortLabel
+      ? shortLabel
+      : longLabel) ||
     defaultLabel ||
     path;
 
-  const defaultValue = getLocalisation(`${path}.defaultValue`);
-  const required = getLocalisation(`${path}.required`) || false;
 
-  const { setFieldValue } = useFormikContext();
-  const [field] = useField(name);
+  const {initialValues, status, setFieldValue} = useFormikContext();
+  const initialValue = initialValues[name]
 
   useEffect(() => {
-    if  (hidden || field.value || !defaultValue) return
+    if (hidden || !defaultValue) return
+    if  (!shouldPrefillDefaultValue(initialValue, status?.formType)) return
     setFieldValue(name, defaultValue);
-  },[defaultValue, field.value, hidden, name, setFieldValue])
+  },[initialValue, status, fieldConfig, name, setFieldValue, defaultValue, hidden])
 
   if (hidden) {
     return null;
   }
 
-  return <Field defaultValue={defaultValue} label={label} name={name} required={required} {...props} />;
+  return <Field label={label} name={name} required={required} {...props} />;
 };
 
 export const useLocalisedSchema = () => {

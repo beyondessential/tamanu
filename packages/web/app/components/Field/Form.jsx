@@ -255,6 +255,7 @@ export class Form extends React.PureComponent {
       validateOnChange,
       validateOnBlur,
       initialValues,
+      formType,
       suppressErrorDialog = false,
       ...props
     } = this.props;
@@ -280,6 +281,7 @@ export class Form extends React.PureComponent {
           initialValues={initialValues}
           initialStatus={{
             page: 1,
+            formType,
           }}
           {...props}
         >
