@@ -164,16 +164,61 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
 
   });
 
-  describe('materialise', () => {
-    test.todo('should return a list when passed no query params');
-    describe('sorts', () => {
-      test.todo('should sort by lastUpdated ascending');
-      test.todo('should sort by lastUpdated descending');
-    });
-    describe('filters', () => {
-      test.todo('should filter by identifier');
+  describe('search', () => {
+    const specimens = [];
+    const testEmail = 'testEmailForFilteringByTelecom@something.com';
+    beforeAll(async () => {
+      const { FhirSpecimen, FhirServiceRequest } = ctx.store.models;
+      await FhirSpecimen.destroy({ where: {} });
 
-    })
+      specimens.push(await makeSpecimen());
+      specimens.push(await makeSpecimen());
+      specimens.push(await makeSpecimen());
+      async function makeSpecimen(overrides = {}) {
+        const { labRequest } = await fakeResourcesOfFhirSpecimen(
+          ctx.store.models,
+          resources,
+          overrides
+        );
+        await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+        const materialiseSpecimen = await FhirSpecimen.materialiseFromUpstream(labRequest.id);
+        return [labRequest, materialiseSpecimen];
+      }
+    });
+
+    it('should return a list when passed no query params', async () => {
+      const response = await app.get(`/v1/integration/${INTEGRATION_ROUTE}/Specimen`);
+
+      expect(response.body.total).toBe(3);
+      expect(response.body.entry).toHaveLength(3);
+      expect(response).toHaveSucceeded();
+    });
+    
+    describe('sorts', () => {
+      it('should sort by lastUpdated ascending', async () => {
+        const response = await app.get(
+          `/v1/integration/${INTEGRATION_ROUTE}/Specimen?_sort=_lastUpdated`,
+        );
+
+        expect(response.body.total).toBe(3);
+        expect(response.body.entry.map(entry => entry.resource.id)).toEqual(
+          specimens.map(([, mat]) => mat.id),
+        );
+        expect(response).toHaveSucceeded();
+      });
+
+      it('should sort by lastUpdated descending', async () => {
+        const response = await app.get(
+          `/v1/integration/${INTEGRATION_ROUTE}/Specimen?_sort=-_lastUpdated`,
+        );
+
+        expect(response.body.total).toBe(3);
+        expect(response.body.entry.map(entry => entry.resource.id)).toEqual(
+          specimens.map(([, mat]) => mat.id).reverse(),
+        );
+        expect(response).toHaveSucceeded();
+      });
+    });
   });
   describe('errors', () => {
     it('returns not found when fetching a non-existent specimen', async () => {

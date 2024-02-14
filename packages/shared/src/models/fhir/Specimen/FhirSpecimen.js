@@ -6,6 +6,7 @@ import { getQueryOptions } from './getQueryOptions';
 import { getValues } from './getValues';
 import { fromLabRequest } from './getQueryToFindUpstreamIds';
 import { searchParameters } from './searchParameters';
+import { filterFromLabRequests } from './getQueryToFilterUpstream';
 
 export class FhirSpecimen extends FhirResource {
   static init(options, models) {
@@ -41,6 +42,15 @@ export class FhirSpecimen extends FhirResource {
     if (upstreamTable === LabRequest.tableName) {
       return fromLabRequest(this.sequelize.models, table, id, deletedRow);
     }
+    return null;
+  }
+
+  static async queryToFilterUpstream(upstreamTable) {
+    const { LabRequest } = this.sequelize.models;
+    if (upstreamTable === LabRequest.tableName) {
+      return filterFromLabRequests(this.sequelize.models, upstreamTable);
+    }
+
     return null;
   }
 

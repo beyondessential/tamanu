@@ -115,8 +115,8 @@ export const fakeResourcesOfFhirServiceRequestWithImagingRequest = async (models
   return imagingRequest;
 };
 
-export const fakeResourcesOfFhirSpecimen = async (models, resources) => {
-  const { LabRequest,LabTestPanelRequest,LabTestPanel,  ReferenceData } = models;
+export const fakeResourcesOfFhirSpecimen = async (models, resources, overrides = {}) => {
+  const { LabRequest, LabTestPanelRequest, LabTestPanel, ReferenceData } = models;
   const specimenType = await ReferenceData.create({
     ...fake(ReferenceData),
     type: 'specimenType',
@@ -150,6 +150,7 @@ export const fakeResourcesOfFhirSpecimen = async (models, resources) => {
     sampleTime: '2022-07-27 15:05:00',
     specimenAttached: true,
     labTestPanelRequestId: labTestPanelRequest.id, // make one of them part of a panel
+    ...overrides,
   });
   const labRequest = await LabRequest.create(labRequestData);
   return { labRequest, specimenType, bodySiteRef };
