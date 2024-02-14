@@ -10,7 +10,7 @@ import { FORM_TYPES } from '../../constants';
  * Default values should not be pre-filled on search forms,
  * edit forms or where an initial value has been explicitly defined for the field
  */
-const shouldPrefillDefaultValue = (initialValue, formType, hidden, defaultValue) => {
+const shouldPrefillDefaultValue = ({initialValue, formType, hidden, defaultValue}) => {
   return !hidden && formType !== FORM_TYPES.SEARCH_FORM && !initialValue && defaultValue;
 };
 
