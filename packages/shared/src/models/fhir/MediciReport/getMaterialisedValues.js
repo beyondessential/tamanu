@@ -57,7 +57,7 @@ procedure_info as (
       json_build_object(
         'name', proc.name,
         'code', proc.code,
-        'date', date::timestamp at time zone $timezone_string,
+        'date', date::timestamp at time zone 'Australia/Sydney',
         'location', loc.name,
         'notes', p.note,
         'completedNotes', completed_note
@@ -117,7 +117,7 @@ vaccine_info as (
     ) "Vaccinations"
   from administered_vaccines av
   join scheduled_vaccines sv on sv.id = av.scheduled_vaccine_id 
-  join reference_data drug on drug.id = sv.vaccine_id
+  join reference_data drug on drug.id = sv.vaccine_id 
   where encounter_id = $encounter_id
   group by encounter_id
 ),
@@ -145,7 +145,7 @@ imaging_info as (
     ) "Imaging requests"
   from imaging_requests ir
   left join notes_info ni on ni.record_id = ir.id::varchar
-  left join imaging_areas_by_request iabr on iabr.imaging_request_id = ir.id 
+  left join imaging_areas_by_request iabr on iabr.imaging_request_id = ir.id
   where encounter_id = $encounter_id
   group by encounter_id
 ),
@@ -158,7 +158,7 @@ encounter_notes_info as (
       json_build_object(
         'noteType', note_type,
         'content', "content",
-        'noteDate', "date"::timestamp at time zone $timezone_string
+        'noteDate', "date"::timestamp at time zone 'Australia/Sydney'
       ) order by n.date desc
     ) "Notes"
   from notes n
@@ -167,84 +167,43 @@ encounter_notes_info as (
   group by record_id
 ),
 
-note_history as (
-  select
-    record_id encounter_id,
-    matched_vals[1] place,
-    matched_vals[2] "from",
-    matched_vals[3] "to",
-    n.date
-  from notes n
-  join (
-  	select
-  		id,
-  		regexp_matches(content, 'Changed (.*) from (.*) to (.*)') matched_vals
-  	from notes
-  ) matched_vals
-  on matched_vals.id = n.id 
-  where note_type = 'system'
-  and n.content ~ 'Changed (.*) from (.*) to (.*)'
-),
-
 department_info as (
-  select 
-    e.id encounter_id,
-    case when count("from") = 0
-      then json_build_array(json_build_object(
-        'department', d.name,
-        'assignedTime', e.start_date::timestamp at time zone $timezone_string
-      ))
-      else 
-        array_to_json(json_build_object(
-          'department', first_from, --first "from" from note
-          'assignedTime', e.start_date::timestamp at time zone $timezone_string
-        ) ||
-        array_agg(
-          json_build_object(
-            'department', "to",
-            'assignedTime', nh.date::timestamp at time zone $timezone_string
-          ) ORDER BY nh.date
-        ))
-    end department_history
-  from encounters e
-  left join departments d on e.department_id = d.id
-  left join note_history nh
-  on nh.encounter_id = e.id and nh.place = 'department'
-  left join (
-    select
-      nh2.encounter_id enc_id,
-      "from" first_from,
-      date
-    from note_history nh2
-    order by date
-    limit 1
-  ) first_from
-  on e.id = first_from.enc_id
-  where e.id = $encounter_id
-  group by e.id, d.name, e.start_date, first_from
+  select
+        eh.encounter_id,
+        json_agg(
+          json_build_object('department', d.name, 
+                            'assignedTime', (case when eh.change_type is null 
+                                              then e.start_date::timestamp at time zone $timezone_string 
+                                              else eh.date::timestamp at time zone $timezone_string 
+                                              end)) order by eh.change_type nulls first, eh.date) 
+        as department_history
+    from encounters e
+    join encounter_history eh on eh.encounter_id = e.id
+      and eh.deleted_at is null
+    left join departments d on d.id = eh.department_id
+    where change_type isnull or change_type = 'department'
+    and e.id = $encounter_id
+    group by eh.encounter_id
 ),
 
 location_info as (
-  select 
-    e.id encounter_id,
-    case when count("from") = 0
-      then json_build_array(json_build_object(
-        'location', coalesce(lg.name || ', ', $encounter_id ) || l.name,
-        'assignedTime', e.start_date::timestamp at time zone $timezone_string
-      ))
-      else
-        json_build_array(json_build_object(
-          'location', coalesce(lg.name || ', ', $encounter_id ) || l.name,
-          'assignedTime', MAX(nh.date::timestamp at time zone $timezone_string)
-        ))
-    end location_history
+  select
+    distinct on(eh.encounter_id)
+    eh.encounter_id,
+    json_build_array(
+      json_build_object('location', coalesce(lg.name || ', ', '' ) || l.name, 
+                        'assignedTime', ((case when eh.change_type is null 
+                                            then e.start_date::timestamp at time zone $timezone_string 
+                                            else eh.date::timestamp at time zone $timezone_string end)))) 
+    as location_history
   from encounters e
-  left join locations l on e.location_id = l.id
+  join encounter_history eh on eh.encounter_id = e.id
+  and eh.deleted_at is null
+  left join locations l on eh.location_id = l.id
   left join location_groups lg on l.location_group_id = lg.id
-  left join note_history nh
-  on nh.encounter_id = e.id and nh.place = 'location'
-  where e.id = $encounter_id
-  group by e.id, l.name, lg.name, e.start_date
+  where change_type isnull or change_type = 'location'
+  and e.id = $encounter_id
+  order by eh.encounter_id, eh.change_type nulls last, eh.date desc
 ),
 
 triage_info as (
@@ -266,6 +225,7 @@ triage_info as (
 
 discharge_disposition_info as (
   select
+    distinct on (encounter_id)
     encounter_id,
     json_build_object(
       'code', disposition.code,
@@ -281,6 +241,7 @@ discharge_disposition_info as (
   join reference_data disposition on disposition.id = d.disposition_id
   where encounter_id = $encounter_id
 ),
+
 
 encounter_history_info as (
   select
@@ -307,8 +268,8 @@ encounter_history_info as (
 
 SELECT
 p.display_id "patientId",
-p.first_name "firstName",
-p.last_name "lastName",
+p.first_name "firstname",
+p.last_name "lastname",
 p.date_of_birth "dateOfBirth",
 extract(year from age(p.date_of_birth::date)) "age",
 p.sex "sex",
@@ -328,7 +289,7 @@ case e.encounter_type
     when 'admission' then  'Hospital admission'
     when 'clinic' then 'Clinic'
     when 'imaging' then 'Imaging'
-    when 'surveyResponse' then 'Form response'
+    when 'surveyResponse' then 'Survey response'
     else e.encounter_type
 end "visitType",
 ddi."encounterDischargeDisposition" "episodeEndStatus",
