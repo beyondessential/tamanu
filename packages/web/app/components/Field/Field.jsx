@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   connect as formikConnect,
   Field as FormikField,
@@ -18,8 +18,10 @@ export const Field = formikConnect(
     formik: {
       errors,
       status: { submitStatus },
+      setFieldValue,
     },
     name,
+    defaultValue,
     component = TextField,
     onChange,
     helperText,
@@ -43,6 +45,10 @@ export const Field = formikConnect(
           return baseOnChange(...args);
         }
       : baseOnChange;
+
+    useEffect(() => {
+      setFieldValue(name, defaultValue);
+    },[defaultValue])
 
     return (
       <FormikField

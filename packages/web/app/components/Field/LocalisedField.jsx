@@ -9,10 +9,8 @@ export const LocalisedField = ({
   useShortLabel,
   path = `fields.${name}`,
   defaultLabel,
-  form,
   ...props
 }) => {
-  console.log(form);
   const { getLocalisation } = useLocalisation();
   const hidden = getLocalisation(`${path}.hidden`);
   const label =
@@ -21,12 +19,15 @@ export const LocalisedField = ({
       : getLocalisation(`${path}.longLabel`)) ||
     defaultLabel ||
     path;
-  // const defaultValue = getLocalisation(`${path}.defaultValue`);
+
+console.log(props)
+
+  const defaultValue = getLocalisation(`${path}.defaultValue`);
   const required = getLocalisation(`${path}.required`) || false;
   if (hidden) {
     return null;
   }
-  return <Field label={label} name={name} required={required} {...props} />;
+  return <Field defaultValue={defaultValue} label={label} name={name} required={required} {...props} />;
 };
 
 export const useLocalisedSchema = () => {

@@ -19,8 +19,11 @@ import { PatientSearchProvider } from './contexts/PatientSearch';
 import { EncounterNotesProvider } from './contexts/EncounterNotes';
 import { SyncStateProvider } from './contexts/SyncState';
 import { TranslationProvider } from './contexts/Translation';
+import { LocalisationProvider } from './contexts/Localisation';
 
 const StateContextProviders = ({ children, store }) => (
+  <LocalisationProvider>
+
   <EncounterProvider store={store}>
     <ReferralProvider>
       <ImagingRequestsProvider>
@@ -36,6 +39,7 @@ const StateContextProviders = ({ children, store }) => (
       </ImagingRequestsProvider>
     </ReferralProvider>
   </EncounterProvider>
+  </LocalisationProvider>
 );
 
 const queryClient = new QueryClient({

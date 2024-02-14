@@ -67,7 +67,7 @@ export class TamanuApi extends ApiClient {
     host.search = '';
     host.hash = '';
     host.pathname = '/api';
-    
+
     super({
       endpoint: host.toString(),
       agentName: SERVER_TYPES.WEBAPP,
@@ -91,6 +91,7 @@ export class TamanuApi extends ApiClient {
 
   async login(email, password) {
     const output = await super.login(email, password);
+    console.log(output, 'output')
     const { token, localisation, server, permissions, role } = output;
     saveToLocalStorage({ token, localisation, server, permissions, role });
     return output;
@@ -125,7 +126,7 @@ export class TamanuApi extends ApiClient {
   async get(endpoint, query, { showUnknownErrorToast = true, ...options } = {}) {
     return this.fetch(endpoint, query, { method: 'GET', showUnknownErrorToast, ...options });
   }
-  
+
   async checkServerAlive() {
     return this.get('public/ping', null, { showUnknownErrorToast: false });
   }
