@@ -10,7 +10,6 @@ import {
   fakeResourcesOfFhirSpecimen,
 } from '../../fake/fhir';
 import { fhir } from '../../../app/subCommands/fhir';
-import { ApplicationContext } from '../../../app/ApplicationContext';
 
 const INTEGRATION_ROUTE = 'fhir/mat';
 
@@ -32,14 +31,8 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       resources.practitioner.id,
     );
     fhirResources.fhirPractitioner = fhirPractitioner;
-    jest
-      .spyOn(ApplicationContext.prototype, 'close')
-      .mockImplementation(() => 'do not close database at the end of the fhir subcommand');
   });
-  afterAll(() => {
-    ctx.close();
-    jest.clearAllMocks();
-  });
+  afterAll(() => ctx.close());
 
   describe('materialise', () => {
     beforeEach(async () => {
@@ -174,12 +167,16 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       const { labRequest } = await fakeResourcesOfFhirSpecimen(
         ctx.store.models,
         resources,
+        {
+          specimenAttached: false,
+        }
       );
+      const materialisedServiceRequest = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
       await fhir({ refresh: 'Specimen' });
       console.log({ labRequestIdToFind: labRequest.id })
-      const specimen = await FhirSpecimen.findOne({
+      const specimen = await FhirSpecimen.findAll({
         where: {
-          upstreamId: labRequest.id,
+          //upstreamId: labRequest.id,
         }
       });
       expect(specimen).toBeNull();
@@ -200,7 +197,55 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
     })
   });
   describe('errors', () => {
-    test.todo('returns not found when fetching a non-existent practitioner');
-    test.todo('returns an error if there are any unknown search params');
+    it('returns not found when fetching a non-existent specimen', async () => {
+      // arrange
+      const id = fakeUUID();
+      const path = `/v1/integration/${INTEGRATION_ROUTE}/Specimen/${id}`;
+
+      // act
+      const response = await app.get(path);
+
+      // assert
+      expect(response.body).toMatchObject({
+        resourceType: 'OperationOutcome',
+        id: expect.any(String),
+        issue: [
+          {
+            severity: 'error',
+            code: 'not-found',
+            diagnostics: expect.any(String),
+            details: {
+              text: `no Specimen with id ${id}`,
+            },
+          },
+        ],
+      });
+      expect(response.status).toBe(404);
+    });
+
+    it('returns an error if there are any unknown search params', async () => {
+      // arrange
+      const path = `/v1/integration/${INTEGRATION_ROUTE}/Specimen?whatever=something`;
+
+      // act
+      const response = await app.get(path);
+
+      // assert
+      expect(response.body).toMatchObject({
+        resourceType: 'OperationOutcome',
+        id: expect.any(String),
+        issue: [
+          {
+            severity: 'error',
+            code: 'not-supported',
+            diagnostics: expect.any(String),
+            details: {
+              text: 'parameter is not supported: whatever',
+            },
+          },
+        ],
+      });
+      expect(response).toHaveRequestError(501);
+    });
   });
 });
