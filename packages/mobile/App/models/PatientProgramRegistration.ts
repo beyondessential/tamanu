@@ -118,6 +118,22 @@ export class PatientProgramRegistration extends BaseModel implements IPatientPro
     return mostRecentRegistrations;
   }
 
+  static async getFullPprbyId(id: string) {
+    const registrationRepository = this.getRepository(PatientProgramRegistration);
+    const fullPpr = await registrationRepository
+      .createQueryBuilder('registration')
+      .where('registration.id = :id', { id })
+      .leftJoinAndSelect('registration.programRegistry', 'programRegistry')
+      .leftJoinAndSelect('registration.patient', 'patient')
+      .leftJoinAndSelect('registration.clinicalStatus', 'clinicalStatus')
+      .leftJoinAndSelect('registration.village', 'village')
+      .leftJoinAndSelect('registration.facility', 'facility')
+      .leftJoinAndSelect('registration.registeringFacility', 'registeringFacility')
+      .leftJoinAndSelect('registration.clinician', 'clinician')
+      .getOne();
+    return fullPpr;
+  }
+
   static getTableNameForSync(): string {
     return 'patient_program_registrations';
   }

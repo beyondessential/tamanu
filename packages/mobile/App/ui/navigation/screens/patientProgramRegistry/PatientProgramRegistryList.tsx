@@ -25,7 +25,7 @@ export const PatientProgramRegistryList = ({ selectedPatient }): ReactElement =>
 
   const onNavigateToPatientProgramRegistryDetails = (item: any) => {
     navigation.navigate(Routes.HomeStack.PatientProgramRegistryDetailsStack.Index, {
-      patientProgramRegistry: item,
+      patientProgramRegistration: item,
     });
   };
 

@@ -1,6 +1,7 @@
 import React from 'react';
 import { DateFormats } from '~/ui/helpers/constants';
 import { formatStringDate } from '~/ui/helpers/date';
+import { useBackendEffect } from '~/ui/hooks/index';
 import { FullView, StyledText, StyledView } from '~/ui/styled/common';
 import { theme } from '~/ui/styled/theme';
 
@@ -52,7 +53,15 @@ const DataRow = (props: { label: string; value: string | string[] }) => {
 };
 
 export const PatientProgramRegistryDetails = ({ route }) => {
-  const { patientProgramRegistry } = route.params;
+  const { patientProgramRegistration } = route.params;
+  const [pprCondition] = useBackendEffect(
+    async ({ models }) =>
+      await models.PatientProgramRegistrationCondition.getPprConditions(
+        patientProgramRegistration.programRegistryId,
+        patientProgramRegistration.patientId,
+      ),
+    [patientProgramRegistration],
+  );
   return (
     <FullView background={theme.colors.WHITE}>
       <StyledView
@@ -62,20 +71,19 @@ export const PatientProgramRegistryDetails = ({ route }) => {
       ></StyledView>
       <DataRow
         label="Date of registration"
-        value={formatStringDate(patientProgramRegistry.date, DateFormats.DDMMYY)}
+        value={formatStringDate(patientProgramRegistration.date, DateFormats.DDMMYY)}
       />
-      <DataRow label="Registered by" value={patientProgramRegistry.clinician.displayName} />
+      <DataRow label="Registered by" value={patientProgramRegistration.clinician.displayName} />
       <DataRow
         label="Registration facility"
-        value={patientProgramRegistry.registeringFacility.name}
+        value={patientProgramRegistration.registeringFacility.name}
       />
-      <DataRow label="Status" value={patientProgramRegistry.clinicalStatus.name || '-'} />
+      <DataRow label="Status" value={patientProgramRegistration.clinicalStatus.name || '-'} />
       <DataRow
         label="Conditions"
         value={
-          Array.isArray(patientProgramRegistry.conditions) &&
-          patientProgramRegistry.conditions.length > 0
-            ? patientProgramRegistry.conditions.map(x => x.name)
+          Array.isArray(pprCondition) && pprCondition.length > 0
+            ? pprCondition.map(x => x.programRegistryCondition.name)
             : '-'
         }
       />

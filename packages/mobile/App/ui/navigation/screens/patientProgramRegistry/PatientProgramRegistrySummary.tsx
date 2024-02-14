@@ -10,6 +10,8 @@ import { Routes } from '~/ui/helpers/routes';
 import { PatientProgramRegistryList } from './PatientProgramRegistryList';
 import { withPatient } from '~/ui/containers/Patient';
 import { useBackendEffect } from '~/ui/hooks/index';
+import { LoadingScreen } from '~/ui/components/LoadingScreen';
+import { ErrorScreen } from '~/ui/components/ErrorScreen';
 
 const PatientProgramRegistrySummary_ = ({ selectedPatient }): ReactElement => {
   const navigation = useNavigation();
@@ -18,6 +20,9 @@ const PatientProgramRegistrySummary_ = ({ selectedPatient }): ReactElement => {
       await models.ProgramRegistry.getFilteredProgramRegistries(selectedPatient.id),
     [],
   );
+
+  if (isprogramRegistrieLoading) return <LoadingScreen />;
+  if (programRegistrieError) return <ErrorScreen error={programRegistrieError} />;
 
   return (
     <StyledView margin={20} borderRadius={5}>
