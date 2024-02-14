@@ -6,10 +6,15 @@ import { useParams } from 'react-router-dom';
 import { pick } from 'lodash';
 import styled from 'styled-components';
 
-import { IMAGING_REQUEST_STATUS_TYPES, LAB_REQUEST_STATUS_CONFIG } from '@tamanu/constants';
+import {
+  IMAGING_REQUEST_STATUS_CONFIG,
+  IMAGING_REQUEST_STATUS_TYPES,
+  IMAGING_REQUEST_STATUS_LABELS,
+  LAB_REQUEST_STATUS_CONFIG,
+} from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 
-import { IMAGING_REQUEST_STATUS_OPTIONS } from '../../../constants';
+// import { IMAGING_REQUEST_STATUS_OPTIONS } from '../../../constants';
 import { ENCOUNTER_TAB_NAMES } from '../../../constants/encounterTabNames';
 
 import { useLocalisation } from '../../../contexts/Localisation';
@@ -36,6 +41,7 @@ import { CancelModalButton } from './CancelModalButton';
 import { PrintModalButton } from './PrintModalButton';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { TranslatedSelectField } from '../../../components/Translation/TranslatedSelectField.jsx';
+import { IMAGING_REQUEST_STATUS_OPTIONS } from '../../../constants/index.jsx';
 
 const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
   const { getLocalisation } = useLocalisation();
@@ -78,6 +84,7 @@ const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
         name="status"
         label={<TranslatedText stringId="imaging.form.status.label" fallback="Status" />}
         component={TranslatedSelectField}
+        // component={SelectField}
         options={isCancelled ? cancelledOption : IMAGING_REQUEST_STATUS_OPTIONS}
         disabled={isCancelled}
         isClearable={false}
