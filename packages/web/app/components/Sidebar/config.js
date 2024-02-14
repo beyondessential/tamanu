@@ -141,8 +141,8 @@ export const FACILITY_MENU_ITEMS = [
     children: [
       {
         label: 'Immunisation register',
-        path: `/immunisations/all`,
-        key: `immunisationsAll`,
+        path: '/immunisations/all',
+        key: 'immunisationsAll',
       },
     ],
   },

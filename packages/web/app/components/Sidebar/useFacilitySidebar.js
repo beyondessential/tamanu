@@ -21,15 +21,8 @@ export const useFacilitySidebar = () => {
 
   return FACILITY_MENU_ITEMS.reduce((topLevelItems, item) => {
     const localisedItem = sidebarConfig[item.key];
-    if (!localisedItem) {
-      return [...topLevelItems, item];
-    }
-
-    const { sortPriority, hidden } = localisedItem;
-
-    if (hidden) {
-      return topLevelItems;
-    }
+    if (!localisedItem) return [...topLevelItems, item];
+    if (localisedItem.hidden) return topLevelItems;
 
     let children = [];
 
@@ -37,20 +30,14 @@ export const useFacilitySidebar = () => {
       children = item.children
         ?.reduce((childItems, child) => {
           const localisedChild = localisedItem[child.key];
-          if (!localisedChild) {
-            return [...childItems, child];
-          }
-          const { hidden, sortPriority } = localisedChild;
+          if (!localisedChild) return [...childItems, child];
+          if (localisedChild.hidden) return childItems;
 
-          if (hidden) {
-            return childItems;
-          }
-
-          return [...childItems, { ...child, sortPriority }];
+          return [...childItems, { ...child, sortPriority: localisedChild.sortPriority }];
         }, [])
         .sort((a, b) => a.sortPriority - b.sortPriority);
     }
 
-    return [...topLevelItems, { ...item, sortPriority, children }];
+    return [...topLevelItems, { ...item, sortPriority: localisedItem.sortPriority, children }];
   }, []).sort(sortTopLevelItems);
 };
