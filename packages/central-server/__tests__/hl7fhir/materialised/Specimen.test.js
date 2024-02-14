@@ -41,6 +41,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
         LabTestPanel,
         LabTestPanelRequest,
         FhirEncounter,
+        FhirServiceRequest,
       } = ctx.store.models;
       await FhirEncounter.destroy({ where: {} });
       await FhirServiceRequest.destroy({ where: {} });
