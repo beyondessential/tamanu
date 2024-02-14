@@ -9,6 +9,8 @@ import {
   fakeResourcesOfFhirServiceRequest,
   fakeResourcesOfFhirSpecimen,
 } from '../../fake/fhir';
+import { fhir } from '../../../app/subCommands/fhir';
+import { ApplicationContext } from '../../../app/ApplicationContext';
 
 const INTEGRATION_ROUTE = 'fhir/mat';
 
@@ -30,8 +32,14 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       resources.practitioner.id,
     );
     fhirResources.fhirPractitioner = fhirPractitioner;
+    jest
+      .spyOn(ApplicationContext.prototype, 'close')
+      .mockImplementation(() => 'do not close database at the end of the fhir subcommand');
   });
-  afterAll(() => ctx.close());
+  afterAll(() => {
+    ctx.close();
+    jest.clearAllMocks();
+  });
 
   describe('materialise', () => {
     beforeEach(async () => {
@@ -49,6 +57,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
 
       const fhirEncounter = await FhirEncounter.materialiseFromUpstream(resources.encounter.id);
       fhirResources.fhirEncounter = fhirEncounter;
+
     });
 
 
@@ -112,15 +121,17 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       expect(response).toHaveSucceeded();
     });
 
-    it('does not return empty or null values', async () => {
+    it('should handle a minimal specimen elegantly', async () => {
       // arrange
       const { FhirSpecimen, FhirServiceRequest } = ctx.store.models;
-      const { labRequest, specimenType, bodySiteRef } = await fakeResourcesOfFhirSpecimen(
+      const { labRequest } = await fakeResourcesOfFhirSpecimen(
         ctx.store.models,
         resources,
         {
           labSampleSiteId: null,
           specimenTypeId: null,
+          sampleTime: null,
+          collectedById: null,
         }
       );
       const materialisedServiceRequest = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
@@ -136,11 +147,10 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       response.body?.orderDetail?.sort((a, b) => a.text.localeCompare(b.text));
       response.body?.identifier?.sort((a, b) => a.system.localeCompare(b.system));
 
-      const { fhirPractitioner } = fhirResources;
       const { body, headers } = response;
-      console.log({ body });
       expect(body).not.toHaveProperty('type');
       expect(body).not.toHaveProperty('collection.bodySite');
+      expect(body).not.toHaveProperty('collection.collectedDateTime');
 
       // assert
       expect(body).toMatchObject({
@@ -148,14 +158,6 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
         id: expect.any(String),
         meta: {
           lastUpdated: formatFhirDate(materialiseSpecimen.lastUpdated),
-        },
-        collection: {
-          collectedDateTime: formatFhirDate(labRequest.sampleTime),
-          collector: {
-            type: 'Practitioner',
-            display: fhirPractitioner.name[0].text,
-            reference: `Practitioner/${fhirPractitioner.id}`
-          },
         },
         request: [{
           type: 'ServiceRequest',
@@ -165,6 +167,24 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       expect(headers['last-modified']).toBe(formatRFC7231(new Date(materialiseSpecimen.lastUpdated)));
       expect(response).toHaveSucceeded();
     });
+
+    it('should handle a lab request without a specimen', async () => {
+      // arrange
+      const { FhirSpecimen, FhirServiceRequest } = ctx.store.models;
+      const { labRequest } = await fakeResourcesOfFhirSpecimen(
+        ctx.store.models,
+        resources,
+      );
+      await fhir({ refresh: 'Specimen' });
+      console.log({ labRequestIdToFind: labRequest.id })
+      const specimen = await FhirSpecimen.findOne({
+        where: {
+          upstreamId: labRequest.id,
+        }
+      });
+      expect(specimen).toBeNull();
+    });
+
 
   });
 
