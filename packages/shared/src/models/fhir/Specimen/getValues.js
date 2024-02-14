@@ -11,14 +11,13 @@ export async function getValues(upstream, models) {
 }
 
 async function getValuesFromLabRequest(upstream, models) {
-  console.log({ sampleTimeinFHIR: formatFhirDate(upstream.sampleTime) });
   return {
     lastUpdated: new Date(),
     sampleTime: upstream.sampleTime,
     collection: {
       collectedDateTime: formatFhirDate(upstream.sampleTime),
       collector: collectorRef(upstream),
-      bodySite:  await resolveBodySite(upstream, models),
+      bodySite: await resolveBodySite(upstream, models),
     },
     type: await resolveSpecimenType(upstream, models),
     request: requestRef(upstream),
@@ -42,7 +41,7 @@ function collectorRef(labRequest) {
 async function resolveBodySite(upstream, models) {
   const { ReferenceData } = models;
   const { labSampleSiteId } = upstream;
-  
+
   const bodySite = await ReferenceData.findOne({
     where: {
       id: labSampleSiteId,
@@ -50,20 +49,20 @@ async function resolveBodySite(upstream, models) {
   });
   if (!bodySite) return null;
   return new FhirCodeableConcept({
-      coding: [
-        new FhirCoding({
-          system: config.hl7.dataDictionaries.sampleBodySite,
-          code: bodySite.code,
-          display: bodySite.name,
-        }),
-      ],
-    });
+    coding: [
+      new FhirCoding({
+        system: config.hl7.dataDictionaries.sampleBodySite,
+        code: bodySite.code,
+        display: bodySite.name,
+      }),
+    ],
+  });
 }
 
 async function resolveSpecimenType(upstream, models) {
   const { ReferenceData } = models;
   const { specimenTypeId } = upstream;
-  
+
   const specimenType = await ReferenceData.findOne({
     where: {
       id: specimenTypeId,
@@ -71,12 +70,12 @@ async function resolveSpecimenType(upstream, models) {
   });
   if (!specimenType) return [];
   return new FhirCodeableConcept({
-      coding: [
-        new FhirCoding({
-          system: config.hl7.dataDictionaries.specimenType,
-          code: specimenType.code,
-          display: specimenType.name,
-        }),
-      ],
-    });
+    coding: [
+      new FhirCoding({
+        system: config.hl7.dataDictionaries.specimenType,
+        code: specimenType.code,
+        display: specimenType.name,
+      }),
+    ],
+  });
 }
