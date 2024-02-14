@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import * as yup from 'yup';
 import { Field } from './Field';
 import { useLocalisation } from '../../contexts/Localisation';
+import { useField, useFormikContext } from 'formik';
 
 export const LocalisedField = ({
   name,
@@ -22,9 +23,19 @@ export const LocalisedField = ({
 
   const defaultValue = getLocalisation(`${path}.defaultValue`);
   const required = getLocalisation(`${path}.required`) || false;
+
+  const { setFieldValue } = useFormikContext();
+  const [field] = useField(name);
+
+  useEffect(() => {
+    if  (hidden || field.value || !defaultValue) return
+    setFieldValue(name, defaultValue);
+  },[defaultValue, field.value, hidden, name, setFieldValue])
+
   if (hidden) {
     return null;
   }
+
   return <Field defaultValue={defaultValue} label={label} name={name} required={required} {...props} />;
 };
 
