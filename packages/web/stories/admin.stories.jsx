@@ -65,7 +65,9 @@ const sampleResponse = {
 
 const dummySubmit = overrides => async formData => {
   action('submitStart')(formData);
-  await new Promise(resolve => setTimeout(resolve, 1000));
+  await new Promise(resolve => {
+    setTimeout(resolve, 1000);
+  });
   action('submitEnd')();
   return {
     ...sampleResponse,
@@ -92,5 +94,4 @@ storiesOf('Admin/ErrorTable', module)
   .add('Default', () => <ImportErrorsTable errors={sampleResponse.errors} />)
   .add('No errors', () => <ImportErrorsTable errors={[]} />);
 
-storiesOf('Admin/AssetUploaderView', module)
-  .add('Default', () => <AssetUploaderView />);
+storiesOf('Admin/AssetUploaderView', module).add('Default', () => <AssetUploaderView />);

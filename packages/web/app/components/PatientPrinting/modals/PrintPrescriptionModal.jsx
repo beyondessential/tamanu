@@ -12,7 +12,7 @@ import { useAuth } from '../../../contexts/Auth';
 
 export const PrintPrescriptionModal = ({ medication, open, onClose }) => {
   const { getLocalisation } = useLocalisation();
-  const certificateData = useCertificate();
+  const { data: certificateData, isFetching: isFetchingCertificate } = useCertificate();
   const api = useApi();
   const [encounter, setEncounter] = useState({});
   const [patient, setPatient] = useState({});
@@ -81,6 +81,14 @@ export const PrintPrescriptionModal = ({ medication, open, onClose }) => {
     })();
   }, [api, medication.prescriberId]);
 
+  const isLoading =
+    encounterLoading ||
+    patientLoading ||
+    additionalDataLoading ||
+    villageLoading ||
+    prescriberLoading ||
+    isFetchingCertificate;
+
   return (
     <>
       <Modal
@@ -91,11 +99,7 @@ export const PrintPrescriptionModal = ({ medication, open, onClose }) => {
         printable
         onPrint={() => printPDF('prescription-printout')}
       >
-        {encounterLoading ||
-        patientLoading ||
-        additionalDataLoading ||
-        villageLoading ||
-        prescriberLoading ? (
+        {isLoading ? (
           <LoadingIndicator />
         ) : (
           <PDFViewer id="prescription-printout">

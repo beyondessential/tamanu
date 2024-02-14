@@ -111,7 +111,6 @@ export class Form extends React.PureComponent {
 
   createSubmissionHandler = ({
     validateForm,
-    handleSubmit,
     isSubmitting,
     setSubmitting,
     getValues,
@@ -119,6 +118,8 @@ export class Form extends React.PureComponent {
     status,
     ...rest
   }) => async (event, submissionParameters, componentsToValidate) => {
+    delete rest.handleSubmit;
+
     event.preventDefault();
     event.persist();
 
@@ -138,7 +139,8 @@ export class Form extends React.PureComponent {
     // There is a bug in formik when you have validateOnChange set to true and validate manually as
     // well where it adds { isCanceled: true } to the errors so a work around is to manually remove it.
     // @see https://github.com/jaredpalmer/formik/issues/1209
-    const { isCanceled, ...formErrors } = await validateForm(values);
+    const formErrors = await validateForm(values);
+    delete formErrors.isCanceled;
 
     const validFormErrors = componentsToValidate
       ? Object.keys(formErrors || {}).filter(problematicComponent =>
@@ -194,10 +196,10 @@ export class Form extends React.PureComponent {
   renderFormContents = ({
     isValid,
     isSubmitting,
-    submitForm: originalSubmitForm,
     setValues: originalSetValues,
     ...formProps
   }) => {
+    delete formProps.submitForm;
     let { values } = formProps;
 
     // we need this func for nested forms
@@ -250,14 +252,15 @@ export class Form extends React.PureComponent {
   render() {
     const {
       onSubmit,
-      showInlineErrorsOnly,
       validateOnChange,
       validateOnBlur,
       initialValues,
       suppressErrorDialog = false,
-      render, // unused, but extracted from props so we don't pass it to formik
       ...props
     } = this.props;
+    delete props.showInlineErrorsOnly;
+    delete props.render; // we don't want to pass that to formik
+
     const { validationErrors } = this.state;
 
     // read children from additional props rather than destructuring so

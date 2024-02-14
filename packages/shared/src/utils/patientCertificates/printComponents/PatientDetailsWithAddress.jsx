@@ -1,6 +1,5 @@
 import React from 'react';
 import { DataSection } from './DataSection';
-import { DataItem } from './DataItem';
 import { Col } from '../Layout';
 import { getAddress, getDOBWithAge, getSex, getVillageName } from '../../patientAccessors';
 import { renderDataItems } from './renderDataItems';

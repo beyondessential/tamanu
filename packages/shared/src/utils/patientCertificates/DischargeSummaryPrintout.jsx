@@ -5,7 +5,6 @@ import { LetterheadSection } from './LetterheadSection';
 import { PatientDetailsWithAddress } from './printComponents/PatientDetailsWithAddress';
 import { DIAGNOSIS_CERTAINTIES_TO_HIDE } from '@tamanu/constants';
 import { EncounterDetailsExtended } from './printComponents/EncounterDetailsExtended';
-import { Footer } from './printComponents/Footer';
 import { P } from './Typography';
 
 const borderStyle = '1 solid black';
@@ -90,10 +89,19 @@ const MedicationsTableTitleCol = props => (
 const notesSectionStyles = StyleSheet.create({
   notesBox: {
     border: borderStyle,
-    height: 76,
+    minHeight: 76,
     padding: 10,
   },
+  title: {
+    fontFamily: 'Helvetica-Bold',
+    marginBottom: 3,
+    fontSize: 11,
+    fontWeight: 500,
+  },
 });
+
+const extractOngoingConditions = patientConditions =>
+  patientConditions.map(item => item?.diagnosis?.name);
 
 const extractDiagnosesInfo = ({ diagnoses, getLocalisation }) => {
   const displayIcd10Codes = getLocalisation('features.displayIcd10CodesInDischargeSummary');
@@ -196,18 +204,16 @@ export const DischargeSummaryPrintout = ({
   encounter,
   discharge,
   patientConditions,
-  logo,
-  title,
-  subTitle,
+  certificateData,
   getLocalisation,
 }) => {
+  const { logo } = certificateData;
   const { diagnoses, procedures, medications } = encounter;
   const visibleDiagnoses = diagnoses.filter(
     ({ certainty }) => !DIAGNOSIS_CERTAINTIES_TO_HIDE.includes(certainty),
   );
   const primaryDiagnoses = visibleDiagnoses.filter(d => d.isPrimary);
   const secondaryDiagnoses = visibleDiagnoses.filter(d => !d.isPrimary);
-  const letterheadConfig = { title: title, subTitle: subTitle };
   const notes = discharge?.note;
 
   return (
@@ -217,7 +223,7 @@ export const DischargeSummaryPrintout = ({
           <LetterheadSection
             getLocalisation={getLocalisation}
             certificateTitle="Patient discharge summary"
-            letterheadConfig={letterheadConfig}
+            letterheadConfig={certificateData}
             logoSrc={logo}
           />
         </CertificateHeader>
@@ -230,10 +236,9 @@ export const DischargeSummaryPrintout = ({
         <SectionContainer>
           {patientConditions.length > 0 && (
             <TableContainer>
-              <DiagnosesTable
-                title="Ongoing conditions"
-                diagnoses={patientConditions}
-                getLocalisation={getLocalisation}
+              <InfoBox
+                label="Ongoing conditions"
+                info={extractOngoingConditions(patientConditions)}
               />
             </TableContainer>
           )}

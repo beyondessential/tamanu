@@ -65,7 +65,7 @@
   },
   "loadshedder": {
     // paths are checked sequentially until a path matches a prefix
-    // (e.g. the path `/v1/sync/xxx/pull` would match the prefix `/v1/sync/`)
+    // (e.g. the path `/api/sync/xxx/pull` would match the prefix `/api/sync/`)
     //
     // if the path of a request matches a prefix it is added to that queue and
     // may be dropped under heavy load
@@ -77,7 +77,7 @@
       // (defaults to shedding requests for sync or attachments earlier than other requests)
       {
         "name": "low_priority",
-        "prefixes": ["/v1/sync", "/v1/attachment"],
+        "prefixes": ["/api/sync", "/api/attachment"],
         "maxActiveRequests": 4,
         "maxQueuedRequests": 8,
         "queueTimeout": 7500
@@ -149,6 +149,11 @@
       "schedule": "12 * * * *"
     },
     "certificateNotificationProcessor": {
+      // every 30 seconds /!\
+      "schedule": "*/30 * * * * *",
+      "limit": 10
+    },
+    "IPSRequestProcessor": {
       // every 30 seconds /!\
       "schedule": "*/30 * * * * *",
       "limit": 10
@@ -230,6 +235,14 @@
     "euDcc": {
       "enabled": false,
       "issuer": null // Responsible org for vax cert issuance, e.g. 'Ministry of Health of the Tamanu Republic'. If null defaults to the facility name.
+    },
+    "ips": {
+      "attester": "Ministry of Health",
+      "author": "Tamanu is a free and open-source EHR for low resource and remote settings.",
+      "email": {
+        "subject": "Your International Patient Summary",
+        "bodyText": "Please scan the QR code attached to view your International Patient Summary"
+      }
     },
     "vdsNc": {
       "enabled": false
@@ -970,11 +983,26 @@
       "imagingStudyAccessionId": "http://data-dictionary.tamanu-fiji.org/ris-accession-number.html",
       "ethnicityId": "http://data-dictionary.tamanu-fiji.org/extensions/ethnic-group-code.html",
       "locationPhysicalType": "http://terminology.hl7.org/CodeSystem/location-physical-type",
+      "ips": {
+        "medicationEncoding": "http://nzmt.org.nz",
+        "allergyIntoleranceEncoding": "http://snomed.info/sct",
+        "conditionEncoding": "http://snomed.info/sct",
+        "immunizationEncoding": "http://nzmt.org.nz",
+        "absentUnknown": "http://hl7.org/fhir/uv/ips/CodeSystem/absent-unknown-uv-ips",
+      },
       "specimenType": "http://www.senaite.com/data/sample_types",
       "sampleBodySite": "http://bodySITE.NEW"
     }
   },
-  "s3": {},
+  "s3": {
+    "ips": {
+      "region": "ap-southeast-2",
+      "bucketName": "bes-tamanu-ips-public",
+      "jsonBucketPath": "ips-demo",
+      "viewerBucketPath": "viewer",
+      "publicUrl": "https://public.tamanu.io"
+    }
+  },
   "scheduledReports": [],
   "disk": {
     "diskPath": "C:/",

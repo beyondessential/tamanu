@@ -161,7 +161,7 @@ describe('SurveyResponseAnswer', () => {
         const answers = await response.getAnswers();
         const singleAnswer = answers.find(answer => answer.dataElementId === dataElements[0].id);
         const newValue = parseInt(singleAnswer.body, 10) + 1;
-        const result = await app.put(`/v1/surveyResponseAnswer/vital/${singleAnswer.id}`).send({
+        const result = await app.put(`/api/surveyResponseAnswer/vital/${singleAnswer.id}`).send({
           reasonForChange: 'test',
           newValue,
           date: getCurrentDateTimeString(),
@@ -178,7 +178,7 @@ describe('SurveyResponseAnswer', () => {
         const previousValue = singleAnswer.body;
         const newValue = parseInt(previousValue, 10) + 1;
         const reasonForChange = 'test2';
-        const result = await app.put(`/v1/surveyResponseAnswer/vital/${singleAnswer.id}`).send({
+        const result = await app.put(`/api/surveyResponseAnswer/vital/${singleAnswer.id}`).send({
           reasonForChange,
           newValue,
           date: getCurrentDateTimeString(),
@@ -208,7 +208,7 @@ describe('SurveyResponseAnswer', () => {
         const newCalculatedValue = (newValue + 1).toFixed(1);
         const reasonForChange = 'test3';
 
-        const result = await app.put(`/v1/surveyResponseAnswer/vital/${usedAnswer.id}`).send({
+        const result = await app.put(`/api/surveyResponseAnswer/vital/${usedAnswer.id}`).send({
           reasonForChange,
           newValue,
           date: getCurrentDateTimeString(),
@@ -264,7 +264,7 @@ describe('SurveyResponseAnswer', () => {
         );
         const answers = await response.getAnswers();
         const singleAnswer = answers.find(answer => answer.dataElementId === pde.id);
-        const result = await app.put(`/v1/surveyResponseAnswer/vital/${singleAnswer.id}`).send({
+        const result = await app.put(`/api/surveyResponseAnswer/vital/${singleAnswer.id}`).send({
           reasonForChange: 'test4',
           newValue: chance.string(),
           date: getCurrentDateTimeString(),
@@ -280,7 +280,7 @@ describe('SurveyResponseAnswer', () => {
           answer => answer.dataElementId === dataElements[2].id,
         );
 
-        const result = await app.put(`/v1/surveyResponseAnswer/vital/${calculatedAnswer.id}`).send({
+        const result = await app.put(`/api/surveyResponseAnswer/vital/${calculatedAnswer.id}`).send({
           reasonForChange: 'test5',
           newValue: chance.integer({ min: 0, max: 100 }),
           date: getCurrentDateTimeString(),
@@ -294,7 +294,7 @@ describe('SurveyResponseAnswer', () => {
         const answers = await response.getAnswers();
         const singleAnswer = answers.find(answer => answer.dataElementId === dataElements[0].id);
         const newValue = singleAnswer.body;
-        const result = await app.put(`/v1/surveyResponseAnswer/vital/${singleAnswer.id}`).send({
+        const result = await app.put(`/api/surveyResponseAnswer/vital/${singleAnswer.id}`).send({
           reasonForChange: 'test6',
           newValue,
         });
@@ -312,7 +312,7 @@ describe('SurveyResponseAnswer', () => {
           localisation: JSON.stringify({ features: { enableVitalEdit: false } }),
         });
 
-        const result = await app.put(`/v1/surveyResponseAnswer/vital/nonImportantID`).send({
+        const result = await app.put(`/api/surveyResponseAnswer/vital/nonImportantID`).send({
           reasonForChange: 'test7',
           newValue: chance.integer({ min: 0, max: 100 }),
         });
@@ -323,7 +323,7 @@ describe('SurveyResponseAnswer', () => {
       it('should return error if feature flag does not exist', async () => {
         await models.UserLocalisationCache.truncate({ cascade: true });
 
-        const result = await app.put(`/v1/surveyResponseAnswer/vital/nonImportantID`).send({
+        const result = await app.put(`/api/surveyResponseAnswer/vital/nonImportantID`).send({
           reasonForChange: 'test8',
           newValue: chance.integer({ min: 0, max: 100 }),
         });
@@ -365,7 +365,7 @@ describe('SurveyResponseAnswer', () => {
         const answers = await response.getAnswers();
         const dateAnswer = answers.find(answer => answer.dataElementId === dataElements[3].id);
         const newValue = chance.integer({ min: 0, max: 100 });
-        const result = await app.post('/v1/surveyResponseAnswer/vital').send({
+        const result = await app.post('/api/surveyResponseAnswer/vital').send({
           reasonForChange: 'another-test',
           newValue,
           date: getCurrentDateTimeString(),
@@ -387,7 +387,7 @@ describe('SurveyResponseAnswer', () => {
         const newValue = chance.integer({ min: 0, max: 100 });
         const reasonForChange = 'another-test2';
         const date = getCurrentDateTimeString();
-        const result = await app.post('/v1/surveyResponseAnswer/vital').send({
+        const result = await app.post('/api/surveyResponseAnswer/vital').send({
           reasonForChange,
           newValue,
           date,
@@ -414,7 +414,7 @@ describe('SurveyResponseAnswer', () => {
           localisation: JSON.stringify({ features: { enableVitalEdit: false } }),
         });
 
-        const result = await app.post('/v1/surveyResponseAnswer/vital').send({
+        const result = await app.post('/api/surveyResponseAnswer/vital').send({
           reasonForChange: 'another-test3',
           newValue: chance.integer({ min: 0, max: 100 }),
         });
@@ -425,7 +425,7 @@ describe('SurveyResponseAnswer', () => {
       it('should return error if feature flag does not exist', async () => {
         await models.UserLocalisationCache.truncate({ cascade: true, force: true });
 
-        const result = await app.post('/v1/surveyResponseAnswer/vital').send({
+        const result = await app.post('/api/surveyResponseAnswer/vital').send({
           reasonForChange: 'another-test4',
           newValue: chance.integer({ min: 0, max: 100 }),
         });
