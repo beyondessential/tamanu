@@ -84,7 +84,6 @@ const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
         name="status"
         label={<TranslatedText stringId="imaging.form.status.label" fallback="Status" />}
         component={TranslatedSelectField}
-        // component={SelectField}
         options={isCancelled ? cancelledOption : IMAGING_REQUEST_STATUS_OPTIONS}
         disabled={isCancelled}
         isClearable={false}

@@ -2,6 +2,7 @@ import React from 'react';
 
 import { Field, SelectField } from '../../components';
 import { useLocalisation } from '../../contexts/Localisation';
+import { TranslatedSelectField } from '../../components/Translation/TranslatedSelectField.jsx';
 
 export const ImagingTypeField = ({ name = 'imagingType', required }) => {
   const { getLocalisation } = useLocalisation();
@@ -15,9 +16,10 @@ export const ImagingTypeField = ({ name = 'imagingType', required }) => {
     <Field
       name={name}
       label="Imaging type"
-      component={SelectField}
+      component={TranslatedSelectField}
       options={imagingTypeOptions}
       required={required}
+      prefix="imaging.property.type"
     />
   );
 };

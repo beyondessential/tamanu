@@ -4,6 +4,7 @@ import { Field } from './Field';
 import { SelectField } from './SelectField';
 import { useLocalisation } from '../../contexts/Localisation';
 import { TranslatedText } from '../Translation/TranslatedText';
+import { TranslatedSelectField } from '../Translation/TranslatedSelectField.jsx';
 
 export const ImagingPriorityField = ({ name = 'priority', required }) => {
   const { getLocalisation } = useLocalisation();
@@ -13,9 +14,10 @@ export const ImagingPriorityField = ({ name = 'priority', required }) => {
     <Field
       name={name}
       label={<TranslatedText stringId="imaging.form.priority.label" fallback="Priority" />}
-      component={SelectField}
+      component={TranslatedSelectField}
       options={imagingPriorities}
       required={required}
+      prefix="imaging.property.priority"
     />
   );
 };

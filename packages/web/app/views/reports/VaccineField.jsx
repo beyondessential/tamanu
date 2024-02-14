@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useApi } from '../../api';
 import { Dialog, Field, SelectField } from '../../components';
+import { TranslatedSelectField } from '../../components/Translation/TranslatedSelectField.jsx';
 
 export const VaccineField = ({ name = 'vaccine', required, parameterValues }) => {
   const api = useApi();
@@ -40,9 +41,10 @@ export const VaccineField = ({ name = 'vaccine', required, parameterValues }) =>
       <Field
         name={name}
         label="Vaccine"
-        component={SelectField}
+        component={TranslatedSelectField}
         required={required}
         options={vaccineOptions}
+        prefix="vaccine.property.name"
       />
       <Dialog
         headerTitle="Error"
