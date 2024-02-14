@@ -48,11 +48,12 @@ export class FhirResource extends Model {
         ...attributes,
       },
       {
+        tableName: snakeCase(Utils.pluralize(this.fhirName)),
         ...options,
         syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC,
         schema: 'fhir',
-        tableName: snakeCase(Utils.pluralize(this.fhirName)),
         timestamps: false,
+
       },
     );
   }
