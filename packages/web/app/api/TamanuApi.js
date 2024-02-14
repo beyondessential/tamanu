@@ -91,7 +91,6 @@ export class TamanuApi extends ApiClient {
 
   async login(email, password) {
     const output = await super.login(email, password);
-    console.log(output, 'output')
     const { token, localisation, server, permissions, role } = output;
     saveToLocalStorage({ token, localisation, server, permissions, role });
     return output;

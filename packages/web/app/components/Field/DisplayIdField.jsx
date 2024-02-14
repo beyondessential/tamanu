@@ -9,7 +9,6 @@ export const DisplayIdField = ({ name = 'displayId', required }) => {
   const { initialValues } = useFormikContext();
   const { getLocalisation } = useLocalisation();
   const longLabel = getLocalisation('fields.displayId.longLabel');
-  console.log(longLabel, 'longLabel')
   const pattern = getLocalisation('fields.displayId.pattern') || null;
   const regex = pattern ? new RegExp(pattern) : null;
 

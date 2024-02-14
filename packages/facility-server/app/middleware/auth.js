@@ -103,7 +103,6 @@ async function localLogin(models, email, password) {
     order: [['createdAt', 'DESC']],
   });
 
-  console.log(localisation, 'heyy');
   return { central: false, user, localisation };
 }
 
