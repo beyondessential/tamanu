@@ -146,11 +146,18 @@ async function getValuesFromLabRequest(upstream) {
       reference: upstream.requestedBy.id,
     }),
     note: labAnnotations(upstream),
-    specimen: new FhirReference({
-        type: 'upstream://specimen',
-        reference: upstream.id,
-      }),
+    specimen: resolveSpecimen(upstream),
   };
+}
+
+function resolveSpecimen(upstream) {
+  if (!upstream.specimenAttached) {
+    return null;
+  }
+  return new FhirReference({
+    type: 'upstream://specimen',
+    reference: upstream.id,
+  });
 }
 
 function imagingCode(upstream) {
