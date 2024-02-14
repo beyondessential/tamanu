@@ -1,7 +1,6 @@
 import config from 'config';
 import * as yup from 'yup';
-import { defaultsDeep } from 'lodash';
-
+import { defaultsDeep, mapValues, keyBy } from 'lodash';
 import { log } from '@tamanu/shared/services/logging';
 import { IMAGING_TYPES } from '@tamanu/constants';
 
@@ -277,7 +276,7 @@ const sidebarItemSchema = yup
   .noUnknown();
 
 const SIDEBAR_ITEMS = {
-  results: ['patientsAll', 'patientsInpatients', 'patientsEmergency', 'patientsOutpatients'],
+  patients: ['patientsAll', 'patientsInpatients', 'patientsEmergency', 'patientsOutpatients'],
   scheduling: ['schedulingAppointments', 'schedulingCalendar', 'schedulingNew'],
   medication: ['medicationRequests'],
   imaging: ['imagingActive', 'imagingCompleted'],
@@ -286,18 +285,12 @@ const SIDEBAR_ITEMS = {
   programRegistry: [],
 };
 
-const sidebarSchema = yup.object({
-  ...Object.entries(SIDEBAR_ITEMS).reduce((items, [section, children]) => {
-    const childItems = children.reduce((childItems, childItem) => {
-      return { ...childItems, [childItem]: sidebarItemSchema };
-    }, {});
-
-    return {
-      ...items,
-      [section]: { ...sidebarItemSchema, ...childItems },
-    };
-  }, {}),
-});
+const sidebarSchema = yup.object(
+  mapValues(SIDEBAR_ITEMS, childItem => ({
+    ...sidebarItemSchema,
+    ...mapValues(keyBy(childItem), () => sidebarItemSchema),
+  })),
+);
 
 const imagingTypeSchema = yup
   .object({
