@@ -53,7 +53,6 @@ export class FhirResource extends Model {
         syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC,
         schema: 'fhir',
         timestamps: false,
-
       },
     );
   }
