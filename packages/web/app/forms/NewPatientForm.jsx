@@ -19,7 +19,7 @@ import {
   PatientFieldsGroup,
   PrimaryDetailsGroup,
   SecondaryDetailsGroup,
-} from './PatientDetailsForm';
+} from './PatientDetailsForm/PatientDetailsForm';
 import { useSexValues } from '../hooks';
 import { useApi } from '../api';
 import { LoadingIndicator } from '../components/LoadingIndicator';

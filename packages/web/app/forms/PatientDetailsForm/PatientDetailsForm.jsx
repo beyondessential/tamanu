@@ -11,11 +11,11 @@ import {
   PATIENT_FIELD_DEFINITION_TYPES,
 } from '@tamanu/constants';
 
-import { useSexValues } from '../hooks';
-import { Colors } from '../constants';
-import { useLocalisation } from '../contexts/Localisation';
-import { useApi, useSuggester } from '../api';
-import { getPatientDetailsValidation } from '../validations';
+import { useSexValues } from '../../hooks';
+import { Colors } from '../../constants';
+import { useLocalisation } from '../../contexts/Localisation';
+import { useApi, useSuggester } from '../../api';
+import { getPatientDetailsValidation } from '../../validations';
 import {
   AutocompleteField,
   ButtonRow,
@@ -29,15 +29,15 @@ import {
   RadioField,
   SelectField,
   TextField,
-} from '../components';
-import { LoadingIndicator } from '../components/LoadingIndicator';
+} from '../../components';
+import { LoadingIndicator } from '../../components/LoadingIndicator';
 import {
   BirthDetailsFields,
   ContactInformationFields,
   IdentificationInformationFields,
   LocationInformationFields,
   PersonalInformationFields,
-} from '../components/ConfiguredMandatoryPatientFields';
+} from '../../components/ConfiguredMandatoryPatientFields';
 
 const StyledHeading = styled.div`
   font-weight: 500;
