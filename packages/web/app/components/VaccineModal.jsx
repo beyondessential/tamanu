@@ -56,7 +56,7 @@ export const VaccineModal = ({ open, onClose, patientId }) => {
 
   const TABS = [
     {
-      label: <TranslatedText stringId="vaccine.form.tab.given" fallback="Given" />,
+      label: <TranslatedText stringId="vaccine.property.status.given" fallback="Given" />,
       key: VACCINE_RECORDING_TYPES.GIVEN,
       render: () => (
         <VaccineForm
@@ -69,7 +69,7 @@ export const VaccineModal = ({ open, onClose, patientId }) => {
       ),
     },
     {
-      label: <TranslatedText stringId="vaccine.form.tab.notGiven" fallback="Not Given" />,
+      label: <TranslatedText stringId="vaccine.property.status.notGiven" fallback="Not given" />,
       key: VACCINE_RECORDING_TYPES.NOT_GIVEN,
       render: () => (
         <VaccineForm

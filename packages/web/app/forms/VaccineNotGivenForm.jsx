@@ -20,6 +20,7 @@ import {
 } from '../components/VaccineCommonFields';
 import { Field, SuggesterSelectField } from '../components/Field';
 import { TranslatedText } from '../components/Translation/TranslatedText';
+import { LowerCase } from '../components';
 
 export const VaccineNotGivenForm = ({
   vaccineLabel,
@@ -86,8 +87,18 @@ export const VaccineNotGivenForm = ({
     <GivenByField
       label={
         <TranslatedText
-          stringId="vaccine.form.supervisingClinician.label"
-          fallback="Supervising clinician"
+          stringId="general.form.supervisingClinician.label"
+          fallback="Supervising :clinician"
+          replacements={{
+            clinician: (
+              <LowerCase>
+                <TranslatedText
+                  stringId="general.localisedField.clinician.label.short"
+                  fallback="Clinician"
+                />
+              </LowerCase>
+            ),
+          }}
         />
       }
     />

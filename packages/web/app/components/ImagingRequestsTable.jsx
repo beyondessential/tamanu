@@ -14,6 +14,7 @@ import { getImagingRequestType } from '../utils/getImagingRequestType';
 import { TableCellTag } from './Tag';
 import { useImagingRequests } from '../contexts/ImagingRequests';
 import { capitaliseFirstLetter } from '../utils/capitalise';
+import { TranslatedText } from './Translation/TranslatedText';
 
 const StatusDisplay = React.memo(({ status }) => {
   const { background, color, label } = IMAGING_REQUEST_STATUS_CONFIG[status];
@@ -73,7 +74,9 @@ export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, status
   const globalColumns = [
     {
       key: 'encounter.patient.displayId',
-      title: 'NHN',
+      title: (
+        <TranslatedText stringId="general.localisedField.displayId.label.short" fallback="NHN" />
+      ),
       accessor: getPatientDisplayId,
       sortable: false,
     },

@@ -14,20 +14,14 @@ const shouldPrefillDefaultValue = ({ initialValue, formType, hidden, defaultValu
   return !hidden && formType === FORM_TYPES.CREATE_DATA_FORM && !initialValue && defaultValue;
 };
 
-export const LocalisedField = ({
-  name,
-  useShortLabel,
-  path = `fields.${name}`,
-  defaultLabel,
-  ...props
-}) => {
+export const LocalisedField = ({ name, path = `fields.${name}`, label, ...props }) => {
   const { getLocalisation } = useLocalisation();
-  const { hidden, defaultValue, longLabel, shortLabel, required } = getLocalisation(path) || {};
-  const { initialValues, status = {}, setFieldValue } = useFormikContext();
-  const { formType } = status;
 
-  const label = (useShortLabel ? shortLabel : longLabel) || defaultLabel || path;
-  const initialValue = initialValues[name];
+const { hidden, defaultValue, required=false } = getLocalisation(path) || {};
+const { initialValues, status = {}, setFieldValue } = useFormikContext();
+
+const { formType } = status;
+const initialValue = initialValues[name];
 
   useEffect(() => {
     if (!shouldPrefillDefaultValue({ initialValue, formType, hidden, defaultValue })) return;

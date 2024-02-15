@@ -7,7 +7,6 @@ import { FormGrid } from '../components/FormGrid';
 import { FormSubmitCancelRow } from '../components/ButtonRow';
 
 import { foreignKey } from '../utils/validation';
-import { LocalisedText } from '../components';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { FORM_TYPES } from '../constants';
 
@@ -40,7 +39,12 @@ export const PatientCarePlanForm = ({
           />
           <Field
             name="examinerId"
-            label={<LocalisedText path="fields.clinician.shortLabel" />}
+            label={
+              <TranslatedText
+                stringId="general.localisedField.practitioner.label.short"
+                label="Practitioner"
+              />
+            }
             component={AutocompleteField}
             suggester={practitionerSuggester}
           />

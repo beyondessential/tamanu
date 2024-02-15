@@ -16,7 +16,6 @@ import {
   SelectField,
   SuggesterSelectField,
   TextField,
-  useLocalisedText,
 } from '../components';
 import { FORM_TYPES, encounterOptions } from '../constants';
 import { useSuggester } from '../api';
@@ -29,7 +28,6 @@ export const EncounterForm = React.memo(
       baseQueryParameters: { filterByFacility: true },
     });
     const referralSourceSuggester = useSuggester('referralSource');
-    const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
 
     const renderForm = ({ submitForm, values }) => {
       const buttonText = editedObject ? (
@@ -79,7 +77,7 @@ export const EncounterForm = React.memo(
           />
           <Field
             name="examinerId"
-            label={clinicianText}
+            label={<TranslatedText stringId="general.localisedField.practitioner.label.short" />}
             required
             component={AutocompleteField}
             suggester={practitionerSuggester}
@@ -95,11 +93,23 @@ export const EncounterForm = React.memo(
           />
           <LocalisedField
             name="referralSourceId"
+            label={
+              <TranslatedText
+                stringId="general.localisedField.referralSourceId.label"
+                fallback="Referral source"
+              />
+            }
             suggester={referralSourceSuggester}
             component={AutocompleteField}
           />
           <LocalisedField
             name="patientBillingTypeId"
+            label={
+              <TranslatedText
+                stringId="general.localisedField.patientBillingTypeId.label"
+                fallback="Patient type"
+              />
+            }
             endpoint="patientBillingType"
             component={SuggesterSelectField}
           />
@@ -137,7 +147,7 @@ export const EncounterForm = React.memo(
         }}
         formType={editedObject ? FORM_TYPES.EDIT_DATA_FORM : FORM_TYPES.CREATE_DATA_FORM}
         validationSchema={yup.object().shape({
-          examinerId: foreignKey(`${clinicianText} is required`),
+          examinerId: foreignKey('Required'),
           locationId: foreignKey('Location is required'),
           departmentId: foreignKey('Department is required'),
           startDate: yup.date().required(),
