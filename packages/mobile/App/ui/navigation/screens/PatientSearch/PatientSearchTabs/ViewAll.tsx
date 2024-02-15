@@ -124,7 +124,7 @@ const Screen: FC<ViewAllScreenProps> = ({
     return () => {
       syncManager.emitter.off('*', handler);
     };
-  });
+  }, [syncManager, list.length]);
 
   const onNavigateToPatientHome = useCallback(patient => {
     setSelectedPatient(patient);
