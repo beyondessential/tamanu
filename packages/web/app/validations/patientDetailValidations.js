@@ -224,6 +224,7 @@ export const getPatientDetailsValidation = (patientRegistryType, sexValues, getL
     }),
   });
 
+  console.log(getLocalisation('fields'))
   const validatedProperties = Object.keys(patientDetailsValidationSchema.describe().fields);
   const localisedFields = getLocalisation('fields');
   const localisedPatientFields = Object.keys(localisedFields).filter(fieldName =>

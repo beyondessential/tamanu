@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import { groupBy, isEmpty } from 'lodash';
 import { useQuery } from '@tanstack/react-query';
 
-import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
 import {
   PATIENT_REGISTRY_TYPES,
   PLACE_OF_BIRTH_TYPES,
@@ -17,16 +16,12 @@ import { useLocalisation } from '../../contexts/Localisation';
 import { useApi, useSuggester } from '../../api';
 import { getPatientDetailsValidation } from '../../validations';
 import {
-  AutocompleteField,
   ButtonRow,
-  DateField,
   Field,
   Form,
   FormGrid,
   FormSubmitButton,
-  LocalisedField,
   NumberField,
-  RadioField,
   SelectField,
   TextField,
 } from '../../components';
@@ -38,6 +33,8 @@ import {
   LocationInformationFields,
   PersonalInformationFields,
 } from '../../components/ConfiguredMandatoryPatientFields';
+import { GenericPrimaryDetailsLayout } from './layouts/GenericLayout';
+import { CambodiaPrimaryDetailsLayout } from './layouts/CambodiaLayout';
 
 const StyledHeading = styled.div`
   font-weight: 500;
@@ -60,6 +57,13 @@ const StyledPatientDetailSecondaryDetailsGroupWrapper = styled.div`
 
 export const PrimaryDetailsGroup = ({ values = {}, patientRegistryType }) => {
   const villageSuggester = useSuggester('village');
+  const subdivisionSuggester = useSuggester('subdivision');
+  const divisionSuggester = useSuggester('division');
+  const countrySuggester = useSuggester('country');
+  const settlementSuggester = useSuggester('settlement');
+  const medicalAreaSuggester = useSuggester('medicalArea');
+const nursingZoneSuggester = useSuggester('nursingZone');
+
   const { getLocalisation } = useLocalisation();
   let filteredSexOptions = SEX_OPTIONS;
   if (getLocalisation('features.hideOtherSex') === true) {
@@ -69,52 +73,21 @@ export const PrimaryDetailsGroup = ({ values = {}, patientRegistryType }) => {
   const isRequiredPatientData = fieldName =>
     getLocalisation(`fields.${fieldName}.requiredPatientData`);
 
-  return (
-    <>
-      <StyledHeading>General information</StyledHeading>
-      <FormGrid>
-        <LocalisedField name="firstName" component={TextField} required />
-        <LocalisedField
-          name="middleName"
-          component={TextField}
-          required={isRequiredPatientData('middleName')}
+  return  <CambodiaPrimaryDetailsLayout
+          patientRegistryType={patientRegistryType}
+          values={values}
+          sexOptions={filteredSexOptions}
+          villageSuggester={villageSuggester}
+          nursingZoneSuggester={nursingZoneSuggester}
+          medicalAreaSuggester={medicalAreaSuggester}
+          settlementSuggester={settlementSuggester}
+          subdivisionSuggester={subdivisionSuggester}
+          divisionSuggester={divisionSuggester}
+          countrySuggester={countrySuggester}
+          isRequiredPatientData={isRequiredPatientData}
         />
-        <LocalisedField name="lastName" component={TextField} required />
-        <LocalisedField
-          name="culturalName"
-          component={TextField}
-          required={isRequiredPatientData('culturalName')}
-        />
-        <LocalisedField
-          name="dateOfBirth"
-          max={getCurrentDateString()}
-          component={DateField}
-          required
-          saveDateAsString
-        />
-        <LocalisedField
-          name="villageId"
-          component={AutocompleteField}
-          suggester={villageSuggester}
-          required={isRequiredPatientData('villageId')}
-        />
-        <LocalisedField name="sex" component={RadioField} options={filteredSexOptions} required />
-        <LocalisedField
-          name="email"
-          component={TextField}
-          type="email"
-          defaultLabel="Email address"
-          required={isRequiredPatientData('email')}
-        />
-        {patientRegistryType === PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY && (
-          <BirthDetailsFields registeredBirthPlace={values.registeredBirthPlace} />
-        )}
-        <IdentificationInformationFields patientRegistryType={patientRegistryType} />
-        <ContactInformationFields />
-        <PersonalInformationFields patientRegistryType={patientRegistryType} />
-        <LocationInformationFields />
-      </FormGrid>
-    </>
+
+
   );
 };
 
