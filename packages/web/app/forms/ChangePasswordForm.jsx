@@ -210,7 +210,7 @@ export const ChangePasswordForm = React.memo(
         initialValues={{
           email,
         }}
-        formType={FORM_TYPES.CREDENTIALS_FORM}
+        formType={FORM_TYPES.CREDENTIALS_DATA_FORM}
         validationSchema={yup.object().shape({
           token: yup
             .string()

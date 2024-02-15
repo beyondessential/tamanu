@@ -183,7 +183,7 @@ export const LoginForm = React.memo(
         onSubmit={onSubmit}
         onError={onError}
         render={renderForm}
-        formType={FORM_TYPES.CREDENTIALS_FORM}
+        formType={FORM_TYPES.CREDENTIALS_DATA_FORM}
         initialValues={{
           email: rememberEmail,
           rememberMe: !!rememberEmail,

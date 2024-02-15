@@ -229,7 +229,7 @@ export const ReportGeneratorForm = () => {
         reportId: '',
         emails: currentUser.email,
       }}
-      formType={FORM_TYPES.CREATE_FORM}
+      formType={FORM_TYPES.CREATE_DATA_FORM}
       onSubmit={submitRequestReport}
       validationSchema={Yup.object().shape({
         reportId: Yup.string().required(

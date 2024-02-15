@@ -31,7 +31,7 @@ export const ChangeDepartmentForm = ({ onCancel, departmentSuggester, onSubmit }
         // Used in creation of associated notes
         submittedTime: getCurrentDateTimeString(),
       }}
-      formType={FORM_TYPES.EDIT_FORM}
+      formType={FORM_TYPES.EDIT_DATA_FORM}
       validationSchema={yup.object().shape({
         departmentId: yup.string().required('Department is required'),
       })}

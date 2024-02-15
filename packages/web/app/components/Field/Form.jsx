@@ -8,7 +8,7 @@ import styled from 'styled-components';
 
 import { flattenObject } from '../../utils';
 import { Dialog } from '../Dialog';
-import { DATA_FORM_TYPES, FORM_STATUSES, FORM_TYPES } from '../../constants';
+import { DATA_FORM_TYPES, FORM_STATUSES } from '../../constants';
 import { useFormSubmission } from '../../contexts/FormSubmission';
 import { IS_DEVELOPMENT } from '../../utils/env';
 

@@ -51,7 +51,7 @@ export const AddConditionFormModal = ({
       <Form
         showInlineErrorsOnly
         onSubmit={submit}
-        formType={FORM_TYPES.CREATE_FORM}
+        formType={FORM_TYPES.CREATE_DATA_FORM}
         render={({ submitForm }) => {
           const handleCancel = () => onClose();
           return (

@@ -50,7 +50,7 @@ export function CarePlanNoteForm({
       validationSchema={yup.object().shape({
         content: yup.string().required('Content is required'),
       })}
-      formType={note ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
+      formType={note ? FORM_TYPES.EDIT_DATA_FORM : FORM_TYPES.CREATE_DATA_FORM}
       render={() => (
         <>
           <FormGrid columns={2}>

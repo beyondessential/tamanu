@@ -185,7 +185,7 @@ export const NewPatientForm = memo(({ onSubmit, onCancel, generateId }) => {
     <Form
       onSubmit={handleSubmit}
       render={renderForm}
-      formType={FORM_TYPES.CREATE_FORM}
+      formType={FORM_TYPES.CREATE_DATA_FORM}
       initialValues={{
         displayId: generateId(),
       }}

@@ -135,7 +135,7 @@ export const LabRequestNoteForm = React.memo(({ labRequestId, isReadOnly }) => {
             onSubmit={async (values, formProps) => {
               await saveNote({ values, formProps });
             }}
-            formType={FORM_TYPES.CREATE_FORM}
+            formType={FORM_TYPES.CREATE_DATA_FORM}
             render={({ values }) => {
               const formSubmitIsDisabled = !values.content?.trim();
               return active ? (

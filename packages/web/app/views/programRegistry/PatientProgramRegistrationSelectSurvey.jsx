@@ -80,7 +80,7 @@ export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistrat
             patientProgramRegistration.programRegistry.name,
           );
         }}
-        formType={FORM_TYPES.CREATE_FORM}
+        formType={FORM_TYPES.CREATE_DATA_FORM}
         render={({ values, submitForm }) => {
           const isRemoved =
             patientProgramRegistration.registrationStatus === REGISTRATION_STATUSES.INACTIVE;

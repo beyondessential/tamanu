@@ -21,7 +21,7 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
           // Used in creation of associated notes
           submittedTime: getCurrentDateTimeString(),
         }}
-        formType={FORM_TYPES.EDIT_FORM}
+        formType={FORM_TYPES.EDIT_DATA_FORM}
         onSubmit={submit}
         render={({ submitForm }) => (
           <FormGrid columns={1}>

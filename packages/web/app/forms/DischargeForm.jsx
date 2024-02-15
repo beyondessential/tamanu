@@ -354,7 +354,7 @@ export const DischargeForm = ({
       onCancel={onCancel}
       initialValues={getDischargeInitialValues(encounter, dischargeNotes, medicationInitialValues)}
       FormScreen={DischargeFormScreen}
-      formType={FORM_TYPES.CREATE_FORM}
+      formType={FORM_TYPES.CREATE_DATA_FORM}
       SummaryScreen={DischargeSummaryScreen}
       validationSchema={yup.object().shape({
         endDate: yup.date().required(),

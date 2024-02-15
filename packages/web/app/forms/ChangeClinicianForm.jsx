@@ -35,7 +35,7 @@ export const ChangeClinicianForm = ({ clinicianSuggester, onCancel, onSubmit }) 
       validationSchema={yup.object().shape({
         examinerId: yup.string().required(`${clinicianText} is required`),
       })}
-      formType={FORM_TYPES.EDIT_FORM}
+      formType={FORM_TYPES.EDIT_DATA_FORM}
       render={renderForm}
       onSubmit={onSubmit}
     />

@@ -61,7 +61,7 @@ export const NewTemplateForm = memo(({ onSubmit }) => {
     <Form
       onSubmit={onSubmit}
       render={renderForm}
-      formType={FORM_TYPES.CREATE_FORM}
+      formType={FORM_TYPES.CREATE_DATA_FORM}
       initialValues={{ type: TEMPLATE_TYPES.PATIENT_LETTER }}
       validationSchema={yup.object().shape({
         type: yup.string().required(),

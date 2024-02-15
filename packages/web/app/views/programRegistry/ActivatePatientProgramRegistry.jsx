@@ -178,7 +178,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
           conditionIds: registrationConditions?.data.map(x => x.programRegistryConditionId),
           clinicalStatusId: patientProgramRegistration.clinicalStatus?.id,
         }}
-        formType={FORM_TYPES.EDIT_FORM}
+        formType={FORM_TYPES.EDIT_DATA_FORM}
         validationSchema={yup.object().shape({
           clinicalStatusId: optionalForeignKey().nullable(),
           date: yup.date().required('Date of registration must be selected'),

@@ -42,7 +42,7 @@ export const LabRequestChangeStatusModal = React.memo(
           initialValues={labRequest}
           validationSchema={validationSchema}
           showInlineErrorsOnly
-          formType={FORM_TYPES.EDIT_FORM}
+          formType={FORM_TYPES.EDIT_DATA_FORM}
           render={({ values, submitForm }) => (
             <FormGrid columns={1}>
               <Field

@@ -65,7 +65,7 @@ export const PatientIssueForm = ({ onSubmit, editedObject, onCancel }) => (
       type: PATIENT_ISSUE_TYPES.ISSUE,
       ...editedObject,
     }}
-    formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
+    formType={editedObject ? FORM_TYPES.EDIT_DATA_FORM : FORM_TYPES.CREATE_DATA_FORM}
     validationSchema={yup.object().shape({
       note: yup.string().required(),
       recordedDate: yup.date().required(),

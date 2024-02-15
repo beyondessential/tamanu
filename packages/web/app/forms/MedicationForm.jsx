@@ -155,7 +155,7 @@ export const MedicationForm = React.memo(
             quantity: medication?.quantity ?? 0,
             indication: medication?.indication ?? '',
           }}
-          formType={readOnly ? FORM_TYPES.READ_ONLY_FORM : medication ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
+          formType={readOnly ? FORM_TYPES.READ_ONLY_FORM : medication ? FORM_TYPES.EDIT_DATA_FORM : FORM_TYPES.CREATE_DATA_FORM}
           validationSchema={validationSchema(readOnly)}
           render={({ submitForm }) => (
             <FormGrid>

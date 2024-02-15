@@ -15,7 +15,7 @@ export const ChangeEncounterTypeForm = ({ onSubmit, onCancel, encounter, initial
         // Used in creation of associated notes
         submittedTime: getCurrentDateTimeString(),
       }}
-      formType={FORM_TYPES.EDIT_FORM}
+      formType={FORM_TYPES.EDIT_DATA_FORM}
       render={({ submitForm, values }) => {
         const currentType = ENCOUNTER_OPTIONS_BY_VALUE[encounter.encounterType].label;
         const newType = ENCOUNTER_OPTIONS_BY_VALUE[values.encounterType].label;

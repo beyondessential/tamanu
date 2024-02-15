@@ -716,14 +716,19 @@ export const REQUIRED_INLINE_ERROR_MESSAGE = '*Required';
 
 export const FORM_TYPES = {
   READ_ONLY_FORM: 'readOnlyForm',
-  CREDENTIALS_FORM: 'credentialsForm',
   SEARCH_FORM: 'searchForm',
-  EDIT_FORM: 'editForm',
-  CREATE_FORM: 'createForm',
-  SURVEY_FORM: 'surveyForm',
+  CREDENTIALS_DATA_FORM: 'credentialsDataForm',
+  SURVEY_DATA_FORM: 'surveyDataForm',
+  EDIT_DATA_FORM: 'editDataForm',
+  CREATE_DATA_FORM: 'createDataForm',
 };
 
-export const DATA_FORM_TYPES =[FORM_TYPES.EDIT_FORM, FORM_TYPES.CREATE_FORM];
+export const DATA_FORM_TYPES = [
+  FORM_TYPES.EDIT_DATA_FORM,
+  FORM_TYPES.CREDENTIALS_DATA_FORM,
+  FORM_TYPES.SURVEY_DATA_FORM,
+  FORM_TYPES.CREATE_DATA_FORM,
+];
 
 export const NOTE_FORM_MODES = {
   CREATE_NOTE: 'createNote',

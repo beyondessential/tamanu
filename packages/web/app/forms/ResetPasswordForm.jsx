@@ -83,7 +83,7 @@ export const ResetPasswordForm = React.memo(
         initialValues={{
           email: initialEmail || '',
         }}
-        formType={FORM_TYPES.CREDENTIALS_FORM}
+        formType={FORM_TYPES.CREDENTIALS_DATA_FORM}
         validationSchema={yup.object().shape({
           email: yup
             .string()

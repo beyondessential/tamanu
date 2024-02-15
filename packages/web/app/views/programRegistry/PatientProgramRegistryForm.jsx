@@ -166,7 +166,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
         clinicianId: currentUser.id,
         ...editedObject,
       }}
-      formType={editedObject? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
+      formType={editedObject? FORM_TYPES.EDIT_DATA_FORM : FORM_TYPES.CREATE_DATA_FORM}
       validationSchema={yup.object().shape({
         programRegistryId: foreignKey('Program registry must be selected'),
         clinicalStatusId: optionalForeignKey().nullable(),

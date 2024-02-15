@@ -149,7 +149,7 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose }) => {
       onSubmit={handleSubmit}
       validationSchema={validationSchema}
       initialValues={{ [valueName]: initialValue }}
-      formType={FORM_TYPES.EDIT_FORM}
+      formType={FORM_TYPES.EDIT_DATA_FORM}
       validate={validateFn}
       render={({ setFieldValue, submitForm }) => (
         <FormGrid columns={4}>

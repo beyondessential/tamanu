@@ -344,7 +344,7 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
           </ButtonRow>
         </>
       )}
-      formType={FORM_TYPES.EDIT_FORM}
+      formType={FORM_TYPES.EDIT_DATA_FORM}
       initialValues={{
         ...stripPatientData(patient, additionalData, birthData),
         patientFields: addMissingFieldValues(

@@ -44,7 +44,7 @@ export const DiagnosisForm = React.memo(
           certainty: defaultCertainty,
           ...diagnosis,
         }}
-        formType={diagnosis ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
+        formType={diagnosis ? FORM_TYPES.EDIT_DATA_FORM : FORM_TYPES.CREATE_DATA_FORM}
         validationSchema={yup.object().shape({
           diagnosisId: foreignKey('Diagnosis must be selected'),
           certainty: yup

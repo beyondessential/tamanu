@@ -88,7 +88,7 @@ export const IPSQRCodeForm = ({ patient, onSubmit, confirmDisabled, onCancel }) 
         .oneOf([Yup.ref('email'), null], 'Emails must match')
         .required(),
     })}
-    formType={FORM_TYPES.CREDENTIALS_FORM}
+    formType={FORM_TYPES.CREDENTIALS_DATA_FORM}
     render={({ submitForm }) => (
       <IPSQRCodeFormComponent
         patient={patient}
