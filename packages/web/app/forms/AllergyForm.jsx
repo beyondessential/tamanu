@@ -9,6 +9,7 @@ import { FormSubmitCancelRow } from '../components/ButtonRow';
 import { useLocalisedText } from '../components/LocalisedText';
 import { foreignKey } from '../utils/validation';
 import { TranslatedText } from '../components/Translation/TranslatedText';
+import { FORM_TYPES } from '../constants';
 
 export const AllergyForm = ({
   onSubmit,
@@ -70,6 +71,7 @@ export const AllergyForm = ({
         recordedDate: getCurrentDateTimeString(),
         ...editedObject,
       }}
+      formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
       validationSchema={yup.object().shape({
         allergyId: foreignKey('An allergy must be selected'),
         recordedDate: yup.date().required(),

@@ -13,7 +13,7 @@ import { IdField } from '../components/Field/IdField';
 import { ModalFormActionRow } from '../components/ModalActionRow';
 import { RadioField } from '../components';
 import { IdBanner } from '../components/IdBanner';
-import { Colors } from '../constants';
+import { Colors, FORM_TYPES } from '../constants';
 import { getPatientDetailsValidation } from '../validations';
 import {
   PatientFieldsGroup,
@@ -185,6 +185,7 @@ export const NewPatientForm = memo(({ editedObject, onSubmit, onCancel, generate
     <Form
       onSubmit={handleSubmit}
       render={renderForm}
+      formType={FORM_TYPES.CREATE_FORM}
       initialValues={{
         displayId: generateId(),
         ...editedObject,

@@ -11,7 +11,7 @@ import { FORM_TYPES } from '../../constants';
  * edit forms or where an initial value has been explicitly defined for the field
  */
 const shouldPrefillDefaultValue = ({initialValue, formType, hidden, defaultValue}) => {
-  return !hidden && formType !== FORM_TYPES.SEARCH_FORM && !initialValue && defaultValue;
+  return !hidden && formType === FORM_TYPES.CREATE_FORM && !initialValue && defaultValue;
 };
 
 export const LocalisedField = ({

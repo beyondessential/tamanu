@@ -715,9 +715,13 @@ export const SUPPORTED_DOCUMENT_TYPES = {
 export const REQUIRED_INLINE_ERROR_MESSAGE = '*Required';
 
 export const FORM_TYPES = {
+  READ_ONLY_FORM: 'readOnlyForm',
   SEARCH_FORM: 'searchForm',
-  DATA_FORM: 'dataForm',
+  EDIT_FORM: 'editForm',
+  CREATE_FORM: 'createForm',
 };
+
+export const DATA_FORM_TYPES =[FORM_TYPES.EDIT_FORM, FORM_TYPES.CREATE_FORM];
 
 export const NOTE_FORM_MODES = {
   CREATE_NOTE: 'createNote',

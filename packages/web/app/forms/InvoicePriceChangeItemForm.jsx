@@ -15,18 +15,20 @@ import {
 import { FormGrid } from '../components/FormGrid';
 import { FormSubmitCancelRow } from '../components/ButtonRow';
 import { TranslatedText } from '../components/Translation/TranslatedText';
+import { FORM_TYPES } from '../constants';
 
 export const InvoicePriceChangeItemForm = ({
   actionText,
   onSubmit,
   onCancel,
   invoicePriceChangeItem,
+  formType
 }) => {
   const practitionerSuggester = useSuggester('practitioner');
 
   return (
     <Form
-      onSubmit={onSubmit}
+    onSubmit={onSubmit}
       render={({ submitForm }) => (
         <FormGrid>
           <Field
@@ -81,6 +83,7 @@ export const InvoicePriceChangeItemForm = ({
         date: getCurrentDateTimeString(),
         ...invoicePriceChangeItem,
       }}
+          formType={invoicePriceChangeItem ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
       validationSchema={yup.object().shape({
         description: foreignKey('Details is required'),
         orderedById: foreignKey('Ordered by must be selected'),

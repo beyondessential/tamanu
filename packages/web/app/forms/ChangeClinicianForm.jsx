@@ -8,6 +8,7 @@ import { AutocompleteField, Field, Form } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { FormSubmitCancelRow } from '../components/ButtonRow';
 import { useLocalisedText } from '../components';
+import { FORM_TYPES } from '../constants';
 
 export const ChangeClinicianForm = ({ clinicianSuggester, onCancel, onSubmit }) => {
   const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
@@ -34,6 +35,7 @@ export const ChangeClinicianForm = ({ clinicianSuggester, onCancel, onSubmit }) 
       validationSchema={yup.object().shape({
         examinerId: yup.string().required(`${clinicianText} is required`),
       })}
+      formType={FORM_TYPES.EDIT_FORM}
       render={renderForm}
       onSubmit={onSubmit}
     />

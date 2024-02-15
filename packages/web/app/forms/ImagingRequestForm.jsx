@@ -5,7 +5,7 @@ import shortid from 'shortid';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { useDispatch } from 'react-redux';
 import { foreignKey } from '../utils/validation';
-import { encounterOptions } from '../constants';
+import { FORM_TYPES, encounterOptions } from '../constants';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
 import { useEncounter } from '../contexts/Encounter';
 import { reloadImagingRequest } from '../store';
@@ -114,6 +114,7 @@ export const ImagingRequestForm = React.memo(
           requestedDate: getCurrentDateTimeString(),
           ...editedObject,
         }}
+        formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
         validationSchema={yup.object().shape({
           requestedById: foreignKey(`Requesting ${clinicianText.toLowerCase()} is required`),
           requestedDate: yup.date().required(),

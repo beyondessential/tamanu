@@ -8,7 +8,7 @@ import styled from 'styled-components';
 
 import { flattenObject } from '../../utils';
 import { Dialog } from '../Dialog';
-import { FORM_STATUSES, FORM_TYPES } from '../../constants';
+import { DATA_FORM_TYPES, FORM_STATUSES, FORM_TYPES } from '../../constants';
 import { useFormSubmission } from '../../contexts/FormSubmission';
 import { IS_DEVELOPMENT } from '../../utils/env';
 
@@ -73,10 +73,10 @@ export class Form extends React.PureComponent {
   constructor(props) {
     super(props);
 
-    const { onSubmit, formType = FORM_TYPES.DATA_FORM } = props;
+    const { onSubmit, formType } = props;
     const hasNonAsyncSubmitHandler =
       IS_DEVELOPMENT &&
-      formType === FORM_TYPES.DATA_FORM &&
+      DATA_FORM_TYPES.includes(formType) &&
       onSubmit.constructor.name !== 'AsyncFunction';
 
     this.state = {
@@ -157,7 +157,7 @@ export class Form extends React.PureComponent {
     }
 
     // submission phase
-    const { onSubmit, onSuccess, formType = FORM_TYPES.DATA_FORM } = this.props;
+    const { onSubmit, onSuccess, formType} = this.props;
     const { touched } = rest;
     const newValues = { ...values };
 
@@ -166,7 +166,7 @@ export class Form extends React.PureComponent {
     // 1. If it is an edit submit form, we need to be able to save the cleared values as null in the database if we are
     // trying to remove a value when editing a record
     // 2. If it is a new submit form, it does not matter if the empty value is undefined or null
-    if (formType === FORM_TYPES.DATA_FORM) {
+    if (DATA_FORM_TYPES.includes(formType)) {
       for (const key of Object.keys(touched)) {
         if (newValues[key] === undefined) {
           newValues[key] = null;
@@ -263,6 +263,8 @@ export class Form extends React.PureComponent {
     delete props.render; // we don't want to pass that to formik
 
     const { validationErrors } = this.state;
+
+    console.log(formType, initialValues, props)
 
     // read children from additional props rather than destructuring so
     // eslint ignores it (there's not good support for "forbidden" props)
