@@ -3,29 +3,51 @@ import { DataTypes } from 'sequelize';
 import { FHIR_INTERACTIONS } from '@tamanu/constants';
 import { FhirResource } from '../Resource';
 
-import { fromEncounters } from '../Encounter/getQueryToFindUpstreamIds';
-import { filterFromEncounters } from '../Encounter/getQueryToFilterUpstream';
+import { fromEncounters } from './getQueryToFindUpstreamIds';
 import { getMaterialisedValues } from './getMaterialisedValues';
 
 export class MediciReport extends FhirResource {
   static init(options, models) {
     super.init(
       {
-        patientId: DataTypes.TEXT,
-        firstName: DataTypes.TEXT,
-        lastName: DataTypes.TEXT,
-        dateOfBirth: DataTypes.TEXT,
-        sex: DataTypes.TEXT,
+        patientId: {
+          type: DataTypes.STRING,
+          allowNull: false,
+        },
+        firstName: {
+          type: DataTypes.TEXT,
+          allowNull: false,
+        },
+        lastName: {
+          type: DataTypes.TEXT,
+          allowNull: false,
+        },
+        dateOfBirth: DataTypes.STRING,
+        sex: {
+          type: DataTypes.STRING,
+          allowNull: false,
+        },
+        patientBillingId: DataTypes.STRING,
         patientBillingType: DataTypes.TEXT,
-        encounterId: DataTypes.UUID,
-        encounterStartDate: DataTypes.DATE,
-        encounterEndDate: DataTypes.DATE,
-        dischargeDate: DataTypes.DATE,
+        encounterId: {
+          type: DataTypes.STRING,
+          allowNull: false,
+        },
+        age: DataTypes.INTEGER,
+        encounterStartDate: {
+          type: DataTypes.STRING,
+          allowNull: false,
+        },
+        encounterEndDate: DataTypes.STRING,
+        dischargeDate: DataTypes.STRING,
         encounterType: DataTypes.JSONB,
-        weight: DataTypes.TEXT,
-        visitType: DataTypes.TEXT,
+        weight: DataTypes.DECIMAL,
+        visitType: {
+          type: DataTypes.STRING,
+          allowNull: false,
+        },
         episodeEndStatus: DataTypes.JSONB,
-        waitTime: DataTypes.TEXT,
+        waitTime: DataTypes.STRING,
         departments: DataTypes.JSONB,
         locations: DataTypes.JSONB,
         reasonForEncounter: DataTypes.TEXT,
@@ -65,6 +87,7 @@ export class MediciReport extends FhirResource {
       models.Triage,
       models.Vitals,
       models.Note,
+      models.Referral,
     ];
   }
 
@@ -84,15 +107,6 @@ export class MediciReport extends FhirResource {
 
     if (upstreamTable === Encounter.tableName) {
       return fromEncounters(this.sequelize.models, table, id, deletedRow);
-    }
-    return null;
-  }
-
-  static async queryToFilterUpstream(upstreamTable) {
-    const { Encounter } = this.sequelize.models;
-
-    if (upstreamTable === Encounter.tableName) {
-      return filterFromEncounters(this.sequelize.models, upstreamTable);
     }
 
     return null;

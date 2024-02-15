@@ -27,7 +27,6 @@ export async function up(query) {
     patient_id: {
       type: Sequelize.TEXT,
       allowNull: false,
-      unique: true,
     },
     first_name: {
       type: DataTypes.TEXT,
@@ -38,38 +37,43 @@ export async function up(query) {
       allowNull: false,
     },
     date_of_birth: {
-      type: DataTypes.TEXT,
-      allowNull: false,
+      type: DataTypes.STRING,
+    },
+    age: {
+      type: DataTypes.INTEGER,
     },
     sex: {
-      type: DataTypes.TEXT,
+      type: DataTypes.STRING,
       allowNull: false,
+    },
+    patient_billing_id: {
+      type: DataTypes.STRING,
     },
     patient_billing_type: {
       type: DataTypes.TEXT,
     },
     encounter_id: {
-      type: Sequelize.UUID,
+      type: DataTypes.STRING,
       allowNull: false,
     },
     encounter_start_date: {
-      type: DataTypes.DATE,
+      type: DataTypes.STRING,
       allowNull: false,
     },
     encounter_end_date: {
-      type: DataTypes.DATE,
+      type: DataTypes.STRING,
     },
     discharge_date: {
-      type: DataTypes.DATE,
+      type: DataTypes.STRING,
     },
     encounter_type: {
       type: DataTypes.JSONB,
     },
     weight: {
-      type: DataTypes.TEXT,
+      type: DataTypes.DECIMAL,
     },
     visit_type: {
-      type: DataTypes.TEXT,
+      type: DataTypes.STRING,
       allowNull: false,
     },
     episode_end_status: {
@@ -79,7 +83,7 @@ export async function up(query) {
       type: DataTypes.TEXT,
     },
     wait_time: {
-      type: DataTypes.TEXT,
+      type: DataTypes.STRING,
     },
     departments: {
       type: DataTypes.JSONB,

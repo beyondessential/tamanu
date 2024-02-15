@@ -28,7 +28,7 @@ const reportQuery = `
 SELECT * FROM fhir.non_fhir_medici_report
 
 WHERE true
-  AND coalesce(billing.id, '-') LIKE coalesce($billing_type, '%%')
+  AND coalesce(patient_billing_id, '-') LIKE coalesce($billing_type, '%%')
   AND encounter_end_date IS NOT NULL
   AND CASE WHEN coalesce($from_date, 'not_a_date') != 'not_a_date'
     THEN (last_updated::timestamp at time zone $timezone_string) >= $from_date::timestamptz

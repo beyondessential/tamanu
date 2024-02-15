@@ -57,7 +57,7 @@ procedure_info as (
       json_build_object(
         'name', proc.name,
         'code', proc.code,
-        'date', date::timestamp at time zone 'Australia/Sydney',
+        'date', date::timestamp at time zone $timezone_string,
         'location', loc.name,
         'notes', p.note,
         'completedNotes', completed_note
@@ -158,7 +158,7 @@ encounter_notes_info as (
       json_build_object(
         'noteType', note_type,
         'content', "content",
-        'noteDate', "date"::timestamp at time zone 'Australia/Sydney'
+        'noteDate', "date"::timestamp at time zone $timezone_string
       ) order by n.date desc
     ) "Notes"
   from notes n
@@ -268,16 +268,17 @@ encounter_history_info as (
 
 SELECT
 p.display_id "patientId",
-p.first_name "firstname",
-p.last_name "lastname",
+p.first_name "firstName",
+p.last_name "lastName",
 p.date_of_birth "dateOfBirth",
 extract(year from age(p.date_of_birth::date)) "age",
 p.sex "sex",
+billing.id "patientBillingId",
 billing.name "patientBillingType",
 e.id "encounterId",
-e.start_date::timestamp at time zone $timezone_string "encounterStartDate",
-e.end_date::timestamp at time zone $timezone_string "encounterEndDate",
-e.end_date::timestamp at time zone $timezone_string "dischargeDate",
+(e.start_date::timestamp at time zone $timezone_string)::text "encounterStartDate",
+(e.end_date::timestamp at time zone $timezone_string)::text "encounterEndDate",
+(e.end_date::timestamp at time zone $timezone_string)::text "dischargeDate",
 ehi."Encounter history" "encounterType",
 birth_data.birth_weight "weight",
 0 "hoursOfVentilation",
@@ -293,7 +294,6 @@ case e.encounter_type
     else e.encounter_type
 end "visitType",
 ddi."encounterDischargeDisposition" "episodeEndStatus",
-ddi."encounterDischargeDisposition",
 t.score "triageCategory",
 ti."waitTimeFollowingTriage" "waitTime",
 di2.department_history "departments",
