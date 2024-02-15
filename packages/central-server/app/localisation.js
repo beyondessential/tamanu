@@ -286,6 +286,11 @@ const imagingTypesSchema = yup
   })
   .required();
 
+const patientDetailsSchema = yup
+  .object({
+    layout: yup.string().required().oneOf(['default', 'cambodia'])
+  })
+
 const validCssAbsoluteLength = yup
   .string()
   .required()
@@ -433,6 +438,7 @@ const rootLocalisationSchema = yup
       )
       .min(3)
       .max(5),
+    patientDetails: patientDetailsSchema,
     previewUvciFormat: yup
       .string()
       .required()

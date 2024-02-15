@@ -846,6 +846,9 @@
           "label": "Other"
         }
       ],
+      "patientDetails": {
+        "layout": "default"
+      },
       "printMeasures": {
         "labRequestPrintLabel": {
           "width": 50.8
