@@ -16,6 +16,7 @@ import { NullableReferenceDataRelation, ReferenceData } from './ReferenceData';
 import { SYNC_DIRECTIONS } from './types';
 
 import { DateStringColumn } from './DateColumns';
+import { PatientProgramRegistration } from './PatientProgramRegistration';
 const TIME_OFFSET = 3;
 
 @Entity('patient')
@@ -119,11 +120,12 @@ export class Patient extends BaseModel implements IPatient {
       .addSelect('count(distinct surveyResponse.encounterId)', 'totalSurveys')
       .leftJoin('patient.encounters', 'encounter')
       .leftJoin(
-        subQuery => subQuery
-          .select('surveyResponse.id', 'id')
-          .addSelect('surveyResponse.encounterId', 'encounterId')
-          .from('survey_response', 'surveyResponse')
-          .where('surveyResponse.surveyId = :surveyId', { surveyId }),
+        subQuery =>
+          subQuery
+            .select('surveyResponse.id', 'id')
+            .addSelect('surveyResponse.encounterId', 'encounterId')
+            .from('survey_response', 'surveyResponse')
+            .where('surveyResponse.surveyId = :surveyId', { surveyId }),
         'surveyResponse',
         '"surveyResponse"."encounterId" = encounter.id',
       )
@@ -146,11 +148,12 @@ export class Patient extends BaseModel implements IPatient {
       .addSelect('count(distinct surveyResponse.encounterId)', 'totalSurveys')
       .leftJoin('patient.encounters', 'encounter')
       .leftJoin(
-        subQuery => subQuery
-          .select('surveyResponse.id', 'id')
-          .addSelect('surveyResponse.encounterId', 'encounterId')
-          .from('survey_response', 'surveyResponse')
-          .where('surveyResponse.surveyId = :surveyId', { surveyId }),
+        subQuery =>
+          subQuery
+            .select('surveyResponse.id', 'id')
+            .addSelect('surveyResponse.encounterId', 'encounterId')
+            .from('survey_response', 'surveyResponse')
+            .where('surveyResponse.surveyId = :surveyId', { surveyId }),
         'surveyResponse',
         '"surveyResponse"."encounterId" = encounter.id',
       )
@@ -167,11 +170,12 @@ export class Patient extends BaseModel implements IPatient {
       .addSelect('count(distinct surveyResponse.encounterId)', 'totalSurveys')
       .leftJoin('patient.encounters', 'encounter')
       .leftJoin(
-        subQuery => subQuery
-          .select('surveyResponse.id', 'id')
-          .addSelect('surveyResponse.encounterId', 'encounterId')
-          .from('survey_response', 'surveyResponse')
-          .where('surveyResponse.surveyId = :surveyId', { surveyId }),
+        subQuery =>
+          subQuery
+            .select('surveyResponse.id', 'id')
+            .addSelect('surveyResponse.encounterId', 'encounterId')
+            .from('survey_response', 'surveyResponse')
+            .where('surveyResponse.surveyId = :surveyId', { surveyId }),
         'surveyResponse',
         '"surveyResponse"."encounterId" = encounter.id',
       )
@@ -248,5 +252,42 @@ export class Patient extends BaseModel implements IPatient {
     const columns = Object.keys(data).sort((a, b) => parseISO(b).getTime() - parseISO(a).getTime());
 
     return { data, columns };
+  }
+
+  static async filterPatients(filters: { [key: string]: any }, searchKey: string) {
+    let whereFilters = ``;
+    Object.keys(filters).forEach(key => {
+      const value = filters[key];
+      if (key === 'programRegistryId') {
+        whereFilters += ` AND id IN (
+          SELECT DISTINCT ppr.patientId 
+          FROM patient_program_registration ppr 
+          WHERE ( ppr.programRegistryId = '${filters.programRegistryId}' ) 
+          AND ( ppr.deletedAt IS NULL )
+        ) `;
+      } else if (value) {
+        if (typeof value === 'string') whereFilters += ` AND ${key} = '${value}'`;
+        else whereFilters += ` AND ${key} LIKE '${value._value}'`;
+      }
+    });
+
+    // Must match ONE of following lines entirely. ([{a}, {b}] is OR, [{a, b}] is AND)
+    // Note also that the filters can override 'firstName' for example, (making the search field irrelevant?)
+    const patients = await this.getRepository().query(`
+      SELECT *
+      FROM patient WHERE ( 
+          (displayId LIKE '%${searchKey}' OR 
+          firstName LIKE '%${searchKey}' OR 
+          middleName LIKE '%${searchKey}' OR 
+          lastName LIKE '%${searchKey}' OR 
+          culturalName LIKE '%${searchKey}')
+          ${whereFilters}
+        ) 
+        AND (deletedAt IS NULL ) 
+        ORDER BY 
+          lastName ASC, 
+          firstName ASC 
+        LIMIT 100`);
+    return patients;
   }
 }

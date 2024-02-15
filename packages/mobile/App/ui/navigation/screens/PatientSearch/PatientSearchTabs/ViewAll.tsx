@@ -59,23 +59,7 @@ const applyActiveFilters = (
   { value: searchValue }: FieldInputProps<any>,
 ): IPatient[] => {
   const value = searchValue.trim();
-  return models.Patient.find({
-    order: {
-      lastName: 'ASC',
-      firstName: 'ASC',
-    },
-    // Must match ONE of following lines entirely. ([{a}, {b}] is OR, [{a, b}] is AND)
-    // Note also that the filters can override 'firstName' for example, (making the search field irrelevant?)
-    where: [
-      { displayId: Like(`%${value}%`), ...filters },
-      { firstName: Like(`%${value}%`), ...filters },
-      { middleName: Like(`%${value}%`), ...filters },
-      { lastName: Like(`%${value}%`), ...filters },
-      { culturalName: Like(`%${value}%`), ...filters },
-    ],
-    take: 100,
-    cache: true,
-  });
+  return models.Patient.filterPatients(filters, value);
 };
 
 const Screen: FC<ViewAllScreenProps> = ({
