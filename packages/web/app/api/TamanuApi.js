@@ -1,7 +1,4 @@
-import {
-  TamanuApi as ApiClient,
-  AuthExpiredError,
-} from '@tamanu/api-client';
+import { TamanuApi as ApiClient, AuthExpiredError } from '@tamanu/api-client';
 import { SERVER_TYPES } from '@tamanu/constants';
 import { buildAbilityForUser } from '@tamanu/shared/permissions/buildAbility';
 
@@ -44,20 +41,18 @@ function clearLocalStorage() {
   localStorage.removeItem(ROLE);
 }
 
-export function isErrorUnknownDefault(error, response) {
-  void(error); // error is required for this function signature, but we don't use it
-
-  if (!response || typeof response.status !== 'number') {
+export function isErrorUnknownDefault(error) {
+  if (!error || typeof error.status !== 'number') {
     return true;
   }
-  return response.status >= 400;
+  return error.status >= 400;
 }
 
-export function isErrorUnknownAllow404s(error, response) {
-  if (response?.status === 404) {
+export function isErrorUnknownAllow404s(error) {
+  if (error?.status === 404) {
     return false;
   }
-  return isErrorUnknownDefault(error, response);
+  return isErrorUnknownDefault(error);
 }
 
 export class TamanuApi extends ApiClient {
@@ -67,12 +62,12 @@ export class TamanuApi extends ApiClient {
     host.search = '';
     host.hash = '';
     host.pathname = '/api';
-    
+
     super({
       endpoint: host.toString(),
       agentName: SERVER_TYPES.WEBAPP,
       agentVersion: appVersion,
-      deviceId: getDeviceId()
+      deviceId: getDeviceId(),
     });
   }
 
@@ -106,11 +101,11 @@ export class TamanuApi extends ApiClient {
     try {
       return await super.fetch(endpoint, query, otherConfig);
     } catch (err) {
-      const message = err?.message || err?.response?.status;
+      const message = err?.message || err?.status;
 
       if (err instanceof AuthExpiredError) {
         clearLocalStorage();
-      } else if (showUnknownErrorToast && isErrorUnknown(err, err.response)) {
+      } else if (showUnknownErrorToast && isErrorUnknown(err)) {
         notifyError([
           'Network request failed',
           `Path: ${err.path ?? endpoint}`,
@@ -125,7 +120,7 @@ export class TamanuApi extends ApiClient {
   async get(endpoint, query, { showUnknownErrorToast = true, ...options } = {}) {
     return this.fetch(endpoint, query, { method: 'GET', showUnknownErrorToast, ...options });
   }
-  
+
   async checkServerAlive() {
     return this.get('public/ping', null, { showUnknownErrorToast: false });
   }
