@@ -163,7 +163,7 @@ export const DocumentForm = ({ onStart, onSubmit, onError, onCancel, editedObjec
     <Form
       onSubmit={handleSubmit}
       render={renderForm}
-      formType={editedObject ? FORM_TYPES.EDIT_DATA_FORM: FORM_TYPES.CREATE_DATA_FORM}
+      formType={editedObject ? FORM_TYPES.EDIT_DATA_FORM : FORM_TYPES.CREATE_DATA_FORM}
       initialValues={{
         date: new Date(),
         ...editedObject,

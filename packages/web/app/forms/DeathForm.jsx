@@ -106,8 +106,7 @@ export const DeathForm = React.memo(
           timeOfDeath: patient?.dateOfDeath || getCurrentDateTimeString(),
           clinicianId: deathData?.clinicianId || currentUser.id,
         }}
-         formType={FORM_TYPES.CREATE_DATA_FORM}
-
+        formType={FORM_TYPES.CREATE_DATA_FORM}
       >
         <StyledFormGrid columns={1}>
           <Field

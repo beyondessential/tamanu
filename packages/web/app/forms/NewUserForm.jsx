@@ -6,7 +6,7 @@ import { FormGrid } from '../components/FormGrid';
 import { ModalFormActionRow } from '../components/ModalActionRow';
 import { FORM_TYPES } from '../constants';
 
-export const NewUserForm = memo(({onSubmit, onCancel }) => {
+export const NewUserForm = memo(({ onSubmit, onCancel }) => {
   const renderForm = ({ submitForm }) => (
     <FormGrid>
       <Field name="name" label="Name" component={TextField} required />

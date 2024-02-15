@@ -77,7 +77,11 @@ export const NoteForm = ({
         writtenById: currentUser.id,
         content: note?.content,
       }}
-      formType={noteFormMode === NOTE_FORM_MODES.EDIT_NOTE ? FORM_TYPES.EDIT_DATA_FORM : FORM_TYPES.CREATE_DATA_FORM}
+      formType={
+        noteFormMode === NOTE_FORM_MODES.EDIT_NOTE
+          ? FORM_TYPES.EDIT_DATA_FORM
+          : FORM_TYPES.CREATE_DATA_FORM
+      }
       validationSchema={yup.object().shape({
         noteType: yup
           .string()

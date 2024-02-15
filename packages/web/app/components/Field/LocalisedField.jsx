@@ -10,7 +10,7 @@ import { FORM_TYPES } from '../../constants';
  * Default values should not be pre-filled on search forms,
  * edit forms or where an initial value has been explicitly defined for the field
  */
-const shouldPrefillDefaultValue = ({initialValue, formType, hidden, defaultValue}) => {
+const shouldPrefillDefaultValue = ({ initialValue, formType, hidden, defaultValue }) => {
   return !hidden && formType === FORM_TYPES.CREATE_DATA_FORM && !initialValue && defaultValue;
 };
 
@@ -47,10 +47,10 @@ export const useLocalisedSchema = () => {
   const { getLocalisation } = useLocalisation();
   return {
     getLocalisedSchema: ({ name, path = `fields.${name}` }) => {
-      const { hidden, longLabel=path, required=false } = getLocalisation(`${path}`) || {};
+      const { hidden, longLabel = path, required = false } = getLocalisation(`${path}`) || {};
       if (hidden) return yup.string().nullable();
       if (required) return yup.string().required(`${longLabel} is a required field`);
       return yup.string();
-    }
-  }
+    },
+  };
 };

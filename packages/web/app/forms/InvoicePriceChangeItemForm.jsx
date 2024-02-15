@@ -27,7 +27,7 @@ export const InvoicePriceChangeItemForm = ({
 
   return (
     <Form
-    onSubmit={onSubmit}
+      onSubmit={onSubmit}
       render={({ submitForm }) => (
         <FormGrid>
           <Field
@@ -82,7 +82,7 @@ export const InvoicePriceChangeItemForm = ({
         date: getCurrentDateTimeString(),
         ...invoicePriceChangeItem,
       }}
-          formType={invoicePriceChangeItem ? FORM_TYPES.EDIT_DATA_FORM : FORM_TYPES.CREATE_DATA_FORM}
+      formType={invoicePriceChangeItem ? FORM_TYPES.EDIT_DATA_FORM : FORM_TYPES.CREATE_DATA_FORM}
       validationSchema={yup.object().shape({
         description: foreignKey('Details is required'),
         orderedById: foreignKey('Ordered by must be selected'),

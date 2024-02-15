@@ -41,8 +41,8 @@ const ReservedText = styled.p`
   font-size: 14px;
 `;
 
-const validationSchema = yup.lazy((values) => {
-  const validationValues = {...values};
+const validationSchema = yup.lazy(values => {
+  const validationValues = { ...values };
   delete validationValues.search;
   const newEntrySchema = {
     stringId: yup
@@ -52,8 +52,8 @@ const validationSchema = yup.lazy((values) => {
         'isUnique',
         'Must be unique',
         value =>
-          Object.entries(validationValues).filter(([k, v]) => k === value || v.stringId === value).length ===
-          1,
+          Object.entries(validationValues).filter(([k, v]) => k === value || v.stringId === value)
+            .length === 1,
       ),
   };
   return yup.object().shape(
@@ -238,8 +238,8 @@ export const TranslationForm = () => {
     [translations],
   );
 
-  const handleSubmit = async (payload) => {
-    const submitPayload = {...payload};
+  const handleSubmit = async payload => {
+    const submitPayload = { ...payload };
     delete submitPayload.search;
     // Swap temporary id out for stringId
     const submitData = Object.fromEntries(

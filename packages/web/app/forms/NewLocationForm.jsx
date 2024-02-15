@@ -21,7 +21,7 @@ export const NewLocationForm = memo(({ editedObject, onSubmit, onCancel }) => {
     <Form
       onSubmit={onSubmit}
       render={renderForm}
-      formType={editedObject ? FORM_TYPES.EDIT_DATA_FORM: FORM_TYPES.CREATE_DATA_FORM}
+      formType={editedObject ? FORM_TYPES.EDIT_DATA_FORM : FORM_TYPES.CREATE_DATA_FORM}
       initialValues={editedObject}
       validationSchema={yup.object().shape({
         name: yup.string().required(),

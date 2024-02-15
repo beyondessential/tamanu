@@ -157,7 +157,7 @@ export class Form extends React.PureComponent {
     }
 
     // submission phase
-    const { onSubmit, onSuccess, formType} = this.props;
+    const { onSubmit, onSuccess, formType } = this.props;
     const { touched } = rest;
     const newValues = { ...values };
 
@@ -193,12 +193,7 @@ export class Form extends React.PureComponent {
     }
   };
 
-  renderFormContents = ({
-    isValid,
-    isSubmitting,
-    setValues: originalSetValues,
-    ...formProps
-  }) => {
+  renderFormContents = ({ isValid, isSubmitting, setValues: originalSetValues, ...formProps }) => {
     delete formProps.submitForm;
     let { values } = formProps;
 
