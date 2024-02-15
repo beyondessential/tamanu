@@ -15,7 +15,7 @@ import {
   TextButton,
   TextField,
 } from '../components';
-import { Colors, LOCAL_STORAGE_KEYS } from '../constants';
+import { Colors, FORM_TYPES, LOCAL_STORAGE_KEYS } from '../constants';
 import { LanguageSelector } from '../components/LanguageSelector';
 
 const FormSubtext = styled(BodyText)`
@@ -183,6 +183,7 @@ export const LoginForm = React.memo(
         onSubmit={onSubmit}
         onError={onError}
         render={renderForm}
+        formType={FORM_TYPES.CREDENTIALS_FORM}
         initialValues={{
           email: rememberEmail,
           rememberMe: !!rememberEmail,

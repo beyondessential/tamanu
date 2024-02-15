@@ -5,7 +5,7 @@ import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { Form } from '../../components/Field';
 import { checkVisibility, getFormInitialValues, getValidationSchema } from '../../utils';
 import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from './ProgramsPane';
-import { Colors } from '../../constants';
+import { Colors, FORM_TYPES } from '../../constants';
 import { SurveyScreenPaginator } from '../../components/Surveys';
 
 export const SurveyPaneHeader = styled(ProgramsPaneHeader)`
@@ -97,6 +97,7 @@ export const SurveyView = ({
       </SurveyPaneHeader>
       <Form
         initialValues={initialValues}
+        formType={FORM_TYPES.SURVEY_FORM}
         onSubmit={onSubmit}
         render={renderSurvey}
         validationSchema={validationSchema}

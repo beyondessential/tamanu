@@ -24,7 +24,7 @@ import {
   TextButton,
 } from '../../components';
 import { FormSubmitDropdownButton } from '../../components/DropdownButton';
-import { Colors } from '../../constants';
+import { Colors, FORM_TYPES } from '../../constants';
 import { saveExcelFile } from '../../utils/saveExcelFile';
 import { EmailField, parseEmails } from './EmailField';
 import { ParameterField } from './ParameterField';
@@ -229,6 +229,7 @@ export const ReportGeneratorForm = () => {
         reportId: '',
         emails: currentUser.email,
       }}
+      formType={FORM_TYPES.CREATE_FORM}
       onSubmit={submitRequestReport}
       validationSchema={Yup.object().shape({
         reportId: Yup.string().required(

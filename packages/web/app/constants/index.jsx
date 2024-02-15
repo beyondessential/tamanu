@@ -716,9 +716,11 @@ export const REQUIRED_INLINE_ERROR_MESSAGE = '*Required';
 
 export const FORM_TYPES = {
   READ_ONLY_FORM: 'readOnlyForm',
+  CREDENTIALS_FORM: 'credentialsForm',
   SEARCH_FORM: 'searchForm',
   EDIT_FORM: 'editForm',
   CREATE_FORM: 'createForm',
+  SURVEY_FORM: 'surveyForm',
 };
 
 export const DATA_FORM_TYPES =[FORM_TYPES.EDIT_FORM, FORM_TYPES.CREATE_FORM];

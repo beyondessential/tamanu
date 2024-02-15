@@ -11,7 +11,7 @@ import {
   FormSubmitButton,
   TextField,
 } from '../components';
-import { Colors } from '../constants';
+import { Colors, FORM_TYPES } from '../constants';
 
 const ResetPasswordButton = styled(FormSubmitButton)`
   font-size: 14px;
@@ -83,6 +83,7 @@ export const ResetPasswordForm = React.memo(
         initialValues={{
           email: initialEmail || '',
         }}
+        formType={FORM_TYPES.CREDENTIALS_FORM}
         validationSchema={yup.object().shape({
           email: yup
             .string()

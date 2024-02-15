@@ -12,7 +12,7 @@ import {
   TextButton,
   TextField,
 } from '../components';
-import { Colors } from '../constants';
+import { Colors, FORM_TYPES } from '../constants';
 import ApprovedIcon from '../assets/images/approved_circle.svg';
 
 const FormTitleSection = styled.div`
@@ -210,6 +210,7 @@ export const ChangePasswordForm = React.memo(
         initialValues={{
           email,
         }}
+        formType={FORM_TYPES.CREDENTIALS_FORM}
         validationSchema={yup.object().shape({
           token: yup
             .string()

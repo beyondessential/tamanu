@@ -20,7 +20,7 @@ import {
 } from '../../../components';
 import { AccessorField } from '../../patients/components/AccessorField';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
-import { Colors } from '../../../constants';
+import { Colors, FORM_TYPES } from '../../../constants';
 
 const StyledTableFormFields = styled(TableFormFields)`
   thead tr th {
@@ -256,6 +256,7 @@ export const TranslationForm = () => {
       enableReinitialize
       showInlineErrorsOnly
       onSubmit={handleSubmit}
+      formType={FORM_TYPES.CREATE_FORM}
       validationSchema={validationSchema}
       render={props => (
         <FormContents

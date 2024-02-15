@@ -13,6 +13,7 @@ import { ErrorMessage } from '../components/ErrorMessage';
 import { useAuth } from '../contexts/Auth';
 import { useEncounter } from '../contexts/Encounter';
 import { TranslatedText } from '../components/Translation/TranslatedText';
+import { FORM_TYPES } from '../constants';
 
 export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterType }) => {
   const {
@@ -69,6 +70,7 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterTyp
       showInlineErrorsOnly
       validateOnChange
       validateOnBlur
+      formType={FORM_TYPES.SURVEY_FORM}
       validationSchema={validationSchema}
       initialValues={{
         [VITALS_DATA_ELEMENT_IDS.dateRecorded]: getCurrentDateTimeString(),

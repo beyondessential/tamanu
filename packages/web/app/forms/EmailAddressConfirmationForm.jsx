@@ -5,6 +5,7 @@ import { useSelector } from 'react-redux';
 import { FormSubmitCancelRow } from '../components/ButtonRow';
 import { Field, Form, TextField } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
+import { FORM_TYPES } from '../constants';
 
 export const EmailAddressConfirmationForm = React.memo(({ onCancel, onSubmit }) => {
   const patient = useSelector(state => state.patient);
@@ -13,6 +14,7 @@ export const EmailAddressConfirmationForm = React.memo(({ onCancel, onSubmit }) 
     <Form
       onSubmit={onSubmit}
       initialValues={{ email: patient.email }}
+      formType={FORM_TYPES.CREDENTIALS_FORM}
       validationSchema={Yup.object().shape({
         email: Yup.string()
           .email('Must be a valid email address')

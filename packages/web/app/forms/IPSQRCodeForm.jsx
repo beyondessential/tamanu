@@ -8,7 +8,7 @@ import { FormGrid } from '../components/FormGrid';
 import { DateDisplay } from '../components';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
 import { PATIENT_TABS } from '../constants/patientPaths';
-import { Colors } from '../constants';
+import { Colors, FORM_TYPES } from '../constants';
 
 const StyledPatientDetailsLink = styled.span`
   cursor: pointer;
@@ -88,6 +88,7 @@ export const IPSQRCodeForm = ({ patient, onSubmit, confirmDisabled, onCancel }) 
         .oneOf([Yup.ref('email'), null], 'Emails must match')
         .required(),
     })}
+    formType={FORM_TYPES.CREDENTIALS_FORM}
     render={({ submitForm }) => (
       <IPSQRCodeFormComponent
         patient={patient}
