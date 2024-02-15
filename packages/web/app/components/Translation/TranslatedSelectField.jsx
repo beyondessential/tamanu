@@ -9,8 +9,8 @@ const transformStringIdSuffix = suffix => {
     .split(/\s/g)
     .map((word, index) => {
       return index === 0
-        ? word.charAt(0).toLowerCase() + word.slice(1)
-        : word.charAt(0).toUpperCase() + word.slice(1);
+        ? word.charAt(0).toLowerCase() + word.slice(1).toLowerCase()
+        : word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
     });
 
   // console.log(suffix.split(/\s/g));
@@ -18,7 +18,8 @@ const transformStringIdSuffix = suffix => {
 };
 
 const getTranslatedOptions = (options, prefix) => {
-  console.log(options);
+  console.log('this is original', options);
+  console.log(prefix);
   const translatedOptions = options.map(option => ({
     value: option.value,
     label: (
@@ -26,7 +27,7 @@ const getTranslatedOptions = (options, prefix) => {
         stringId={
           option.label.type === TranslatedText
             ? option.label.props.stringId // handling when the options list already has TranslatedText components in it
-            : `${prefix}.${transformStringIdSuffix(option.value)}`
+            : `${prefix}.${transformStringIdSuffix(option.label)}`
         }
         fallback={
           option.label.type === TranslatedText

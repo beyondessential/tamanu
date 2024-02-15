@@ -17,6 +17,7 @@ import { useSuggester } from '../../api';
 import { useImagingRequests } from '../../contexts/ImagingRequests';
 import { useAdvancedFields } from './useAdvancedFields';
 import { TranslatedText } from '../Translation/TranslatedText';
+import { TranslatedSelectField } from '../Translation/TranslatedSelectField.jsx';
 
 const FacilityCheckbox = styled.div`
   display: flex;
@@ -157,11 +158,12 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFie
           label={
             <TranslatedText stringId="general.localisedField.status.label" fallback="Status" />
           }
-          component={SelectField}
+          component={TranslatedSelectField}
           options={IMAGING_REQUEST_STATUS_OPTIONS.filter(
             ({ value }) => value !== IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
           )}
           size="small"
+          prefix="imaging.property.status"
         />
       )}
       {isCompletedTable && <Spacer />}
@@ -170,9 +172,10 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFie
         label={
           <TranslatedText stringId="general.localisedField.imagingType.label" fallback="Type" />
         }
-        component={SelectField}
+        component={TranslatedSelectField}
         options={imagingTypeOptions}
         size="small"
+        prefix="imaging.property.type"
       />
       <LocalisedField
         name="requestedDateFrom"
@@ -202,9 +205,10 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFie
           label={
             <TranslatedText stringId="general.localisedField.priority.label" fallback="Priority" />
           }
-          component={SelectField}
+          component={TranslatedSelectField}
           options={imagingPriorities}
           size="small"
+          prefix="imaging.property.priority"
         />
       )}
       {isCompletedTable && (

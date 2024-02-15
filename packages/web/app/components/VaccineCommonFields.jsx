@@ -3,10 +3,7 @@ import styled from 'styled-components';
 import Divider from '@material-ui/core/Divider';
 import { CheckCircleRounded } from '@material-ui/icons';
 
-import {
-  INJECTION_SITE_VALUES,
-  VACCINE_CATEGORIES,
-} from '@tamanu/constants';
+import { VACCINE_CATEGORIES, INJECTION_SITE_OPTIONS } from '@tamanu/constants';
 
 import { OuterLabelFieldWrapper } from './Field/OuterLabelFieldWrapper';
 import {
@@ -24,6 +21,7 @@ import { useSuggester } from '../api';
 import { useAuth } from '../contexts/Auth';
 import { Colors } from '../constants';
 import { TranslatedText } from './Translation/TranslatedText';
+import { TranslatedSelectField } from './Translation/TranslatedSelectField.jsx';
 
 export const FullWidthCol = styled.div`
   grid-column: 1/-1;
@@ -59,38 +57,38 @@ const VACCINE_FIELD_CATEGORY_OPTIONS = [
   },
 ];
 
-const VACCINE_FIELD_INJECTION_SITE_OPTIONS = [
-  {
-    value: INJECTION_SITE_VALUES.LEFT_ARM,
-    label: <TranslatedText stringId="vaccine.property.injectionSite.leftArm" fallback="Left arm" />,
-  },
-  {
-    value: INJECTION_SITE_VALUES.RIGHT_ARM,
-    label: (
-      <TranslatedText stringId="vaccine.property.injectionSite.rightArm" fallback="Right arm" />
-    ),
-  },
-  {
-    value: INJECTION_SITE_VALUES.LEFT_THIGH,
-    label: (
-      <TranslatedText stringId="vaccine.property.injectionSite.leftThigh" fallback="Left thigh" />
-    ),
-  },
-  {
-    value: INJECTION_SITE_VALUES.RIGHT_THIGH,
-    label: (
-      <TranslatedText stringId="vaccine.property.injectionSite.rightThigh" fallback="Right thigh" />
-    ),
-  },
-  {
-    value: INJECTION_SITE_VALUES.ORAL,
-    label: <TranslatedText stringId="vaccine.property.injectionSite.oral" fallback="Oral" />,
-  },
-  {
-    value: INJECTION_SITE_VALUES.OTHER,
-    label: <TranslatedText stringId="vaccine.property.injectionSite.other" fallback="Other" />,
-  },
-];
+// const VACCINE_FIELD_INJECTION_SITE_OPTIONS = [
+//   {
+//     value: INJECTION_SITE_VALUES.LEFT_ARM,
+//     label: <TranslatedText stringId="vaccine.property.injectionSite.leftArm" fallback="Left arm" />,
+//   },
+//   {
+//     value: INJECTION_SITE_VALUES.RIGHT_ARM,
+//     label: (
+//       <TranslatedText stringId="vaccine.property.injectionSite.rightArm" fallback="Right arm" />
+//     ),
+//   },
+//   {
+//     value: INJECTION_SITE_VALUES.LEFT_THIGH,
+//     label: (
+//       <TranslatedText stringId="vaccine.property.injectionSite.leftThigh" fallback="Left thigh" />
+//     ),
+//   },
+//   {
+//     value: INJECTION_SITE_VALUES.RIGHT_THIGH,
+//     label: (
+//       <TranslatedText stringId="vaccine.property.injectionSite.rightThigh" fallback="Right thigh" />
+//     ),
+//   },
+//   {
+//     value: INJECTION_SITE_VALUES.ORAL,
+//     label: <TranslatedText stringId="vaccine.property.injectionSite.oral" fallback="Oral" />,
+//   },
+//   {
+//     value: INJECTION_SITE_VALUES.OTHER,
+//     label: <TranslatedText stringId="vaccine.property.injectionSite.other" fallback="Other" />,
+//   },
+// ];
 
 export const CategoryField = ({ setCategory, setVaccineLabel, resetForm }) => (
   <FullWidthCol>
@@ -113,10 +111,11 @@ export const VaccineLabelField = ({ vaccineOptions, setVaccineLabel }) => (
   <Field
     name="vaccineLabel"
     label={<TranslatedText stringId="vaccine.form.vaccine.label" fallback="Vaccine" />}
-    component={SelectField}
+    component={TranslatedSelectField}
     options={vaccineOptions}
     onChange={e => setVaccineLabel(e.target.value)}
     required
+    prefix="vaccine.property.name"
   />
 );
 
@@ -136,8 +135,9 @@ export const InjectionSiteField = () => (
   <Field
     name="injectionSite"
     label={<TranslatedText stringId="vaccine.form.injectionSite.label" fallback="Injection site" />}
-    component={SelectField}
-    options={VACCINE_FIELD_INJECTION_SITE_OPTIONS}
+    component={TranslatedSelectField}
+    options={INJECTION_SITE_OPTIONS}
+    prefix="vaccine.property.injectionSite"
   />
 );
 

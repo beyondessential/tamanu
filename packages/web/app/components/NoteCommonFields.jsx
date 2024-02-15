@@ -13,6 +13,7 @@ import { DateDisplay } from './DateDisplay';
 import { Colors, noteTypes } from '../constants';
 import { FormGrid } from './FormGrid';
 import { TranslatedText } from './Translation/TranslatedText';
+import { TranslatedSelectField } from './Translation/TranslatedSelectField.jsx';
 
 export const StyledDivider = styled(Divider)`
   margin-top: 30px;
@@ -174,9 +175,10 @@ export const NoteTypeField = ({ required, noteTypeCountByType }) => (
     name="noteType"
     label={<TranslatedText stringId="note.form.type.label" fallback="Type" />}
     required={required}
-    component={SelectField}
+    component={TranslatedSelectField}
     options={getSelectableNoteTypes(noteTypeCountByType)}
     formatOptionLabel={option => renderOptionLabel(option, noteTypeCountByType)}
+    prefix="note.property.type"
   />
 );
 
