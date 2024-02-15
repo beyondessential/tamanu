@@ -13,7 +13,7 @@ import {
   SuggesterSelectField,
 } from '../../../components';
 
-import { LAB_REQUEST_STATUS_OPTIONS } from '../../../constants';
+import { FORM_TYPES, LAB_REQUEST_STATUS_OPTIONS } from '../../../constants';
 
 const validationSchema = yup.object().shape({
   status: yup
@@ -42,6 +42,7 @@ export const LabRequestChangeStatusModal = React.memo(
           initialValues={labRequest}
           validationSchema={validationSchema}
           showInlineErrorsOnly
+          formType={FORM_TYPES.EDIT_FORM}
           render={({ values, submitForm }) => (
             <FormGrid columns={1}>
               <Field

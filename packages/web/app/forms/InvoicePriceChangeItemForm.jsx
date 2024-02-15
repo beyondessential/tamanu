@@ -22,7 +22,6 @@ export const InvoicePriceChangeItemForm = ({
   onSubmit,
   onCancel,
   invoicePriceChangeItem,
-  formType
 }) => {
   const practitionerSuggester = useSuggester('practitioner');
 

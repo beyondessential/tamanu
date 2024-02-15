@@ -11,7 +11,6 @@ const PRICE_CHANGE_ITEM_INITIAL_VALUES = {
 export const InvoicePriceChangeItemModal = ({
   title,
   actionText,
-  isEdit,
   open,
   onClose,
   onSaved,

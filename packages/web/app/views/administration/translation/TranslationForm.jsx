@@ -236,7 +236,9 @@ export const TranslationForm = () => {
     [translations],
   );
 
-  const handleSubmit = async ({ search, ...payload }) => {
+  const handleSubmit = async (payload) => {
+    const submitPayload = {...payload};
+    delete submitPayload.search;
     // Swap temporary id out for stringId
     const submitData = Object.fromEntries(
       Object.entries(payload).map(([key, { stringId, ...rest }]) => [stringId || key, rest]),

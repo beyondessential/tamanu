@@ -73,7 +73,7 @@ const StyledRadioField = styled(RadioField)`
   margin-bottom: 10px;
 `;
 
-export const NewPatientForm = memo(({ editedObject, onSubmit, onCancel, generateId }) => {
+export const NewPatientForm = memo(({ onSubmit, onCancel, generateId }) => {
   const [isExpanded, setExpanded] = useState(false);
   const [patientRegistryType, setPatientRegistryType] = useState(
     PATIENT_REGISTRY_TYPES.NEW_PATIENT,
@@ -188,7 +188,6 @@ export const NewPatientForm = memo(({ editedObject, onSubmit, onCancel, generate
       formType={FORM_TYPES.CREATE_FORM}
       initialValues={{
         displayId: generateId(),
-        ...editedObject,
       }}
       validationSchema={getPatientDetailsValidation(
         patientRegistryType,

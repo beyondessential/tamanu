@@ -9,7 +9,7 @@ import styled from 'styled-components';
 import { IMAGING_REQUEST_STATUS_TYPES, LAB_REQUEST_STATUS_CONFIG } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 
-import { IMAGING_REQUEST_STATUS_OPTIONS } from '../../../constants';
+import { FORM_TYPES, IMAGING_REQUEST_STATUS_OPTIONS } from '../../../constants';
 import { ENCOUNTER_TAB_NAMES } from '../../../constants/encounterTabNames';
 
 import { useLocalisation } from '../../../contexts/Localisation';
@@ -234,7 +234,7 @@ const ImagingRequestInfoPane = React.memo(({ imagingRequest, onSubmit }) => {
       }}
       enableReinitialize // Updates form to reflect changes in initialValues
       initialStatus={{}}
-
+      formType={FORM_TYPES.EDIT_FORM}
       initialValues={{
         ...imagingRequest,
         newResult: {

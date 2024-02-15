@@ -20,6 +20,7 @@ import { FormSubmitCancelRow } from '../components/ButtonRow';
 import { foreignKey, optionalForeignKey } from '../utils/validation';
 import { useLocalisedText } from '../components';
 import { TranslatedText } from '../components/Translation/TranslatedText';
+import { FORM_TYPES } from '../constants';
 
 const suggesterType = PropTypes.shape({
   fetchSuggestions: PropTypes.func,
@@ -219,6 +220,7 @@ export const ProcedureForm = React.memo(
           startTime: getCurrentDateTimeString(),
           ...editedObject,
         }}
+        formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
         validationSchema={yup.object().shape({
           procedureTypeId: foreignKey('Procedure must be selected'),
           locationId: foreignKey('Location must be selected'),

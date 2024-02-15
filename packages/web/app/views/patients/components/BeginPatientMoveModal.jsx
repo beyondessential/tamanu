@@ -14,6 +14,7 @@ import {
 } from '../../../components';
 import { ModalActionRow } from '../../../components/ModalActionRow';
 import { useLocalisation } from '../../../contexts/Localisation';
+import { FORM_TYPES } from '../../../constants';
 
 const patientMoveActionOptions = [
   { label: 'Plan', value: 'plan' },
@@ -54,6 +55,7 @@ export const BeginPatientMoveModal = React.memo(({ onClose, open, encounter }) =
         validationSchema={yup.object().shape({
           plannedLocationId: yup.string().required('Please select a planned location'),
         })}
+        type={FORM_TYPES.EDIT_FORM}
         render={({ submitForm, values }) => {
           return (
             <>
