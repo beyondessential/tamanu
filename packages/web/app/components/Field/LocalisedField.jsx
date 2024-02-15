@@ -7,8 +7,8 @@ import { useFormikContext } from 'formik';
 import { FORM_TYPES } from '../../constants';
 
 /**
- * Default values should not be pre-filled on search forms,
- * edit forms or where an initial value has been explicitly defined for the field
+ * Field localisation default values should only be applied on create forms
+ * and where an initial value has not been explicitly defined for the field
  */
 const shouldPrefillDefaultValue = ({ initialValue, formType, hidden, defaultValue }) => {
   return !hidden && formType === FORM_TYPES.CREATE_DATA_FORM && !initialValue && defaultValue;
