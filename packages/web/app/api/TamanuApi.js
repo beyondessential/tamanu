@@ -67,7 +67,7 @@ export class TamanuApi extends ApiClient {
     host.search = '';
     host.hash = '';
     host.pathname = '/api';
-
+    
     super({
       endpoint: host.toString(),
       agentName: SERVER_TYPES.WEBAPP,
@@ -125,7 +125,7 @@ export class TamanuApi extends ApiClient {
   async get(endpoint, query, { showUnknownErrorToast = true, ...options } = {}) {
     return this.fetch(endpoint, query, { method: 'GET', showUnknownErrorToast, ...options });
   }
-
+  
   async checkServerAlive() {
     return this.get('public/ping', null, { showUnknownErrorToast: false });
   }

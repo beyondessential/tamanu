@@ -264,8 +264,6 @@ export class Form extends React.PureComponent {
 
     const { validationErrors } = this.state;
 
-    console.log(formType, initialValues, props)
-
     // read children from additional props rather than destructuring so
     // eslint ignores it (there's not good support for "forbidden" props)
     if (props.children) {

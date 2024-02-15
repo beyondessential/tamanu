@@ -23,22 +23,21 @@ import { LocalisationProvider } from './contexts/Localisation';
 
 const StateContextProviders = ({ children, store }) => (
   <LocalisationProvider>
-
-  <EncounterProvider store={store}>
-    <ReferralProvider>
-      <ImagingRequestsProvider>
-        <EncounterNotesProvider>
-          <LabRequestProvider store={store}>
-            <PatientSearchProvider>
-              <SyncStateProvider>
-                <TranslationProvider>{children}</TranslationProvider>
-              </SyncStateProvider>
-            </PatientSearchProvider>
-          </LabRequestProvider>
-        </EncounterNotesProvider>
-      </ImagingRequestsProvider>
-    </ReferralProvider>
-  </EncounterProvider>
+    <EncounterProvider store={store}>
+      <ReferralProvider>
+        <ImagingRequestsProvider>
+          <EncounterNotesProvider>
+            <LabRequestProvider store={store}>
+              <PatientSearchProvider>
+                <SyncStateProvider>
+                  <TranslationProvider>{children}</TranslationProvider>
+                </SyncStateProvider>
+              </PatientSearchProvider>
+            </LabRequestProvider>
+          </EncounterNotesProvider>
+        </ImagingRequestsProvider>
+      </ReferralProvider>
+    </EncounterProvider>
   </LocalisationProvider>
 );
 
