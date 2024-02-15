@@ -22,19 +22,19 @@ export const LocalisedField = ({
   ...props
 }) => {
   const { getLocalisation } = useLocalisation();
-
   const { hidden, defaultValue, longLabel, shortLabel, required } = getLocalisation(path) || {};
-
-  const label = (useShortLabel ? shortLabel : longLabel) || defaultLabel || path;
-
   const { initialValues, status = {}, setFieldValue } = useFormikContext();
   const { formType } = status;
+
+  const label = (useShortLabel ? shortLabel : longLabel) || defaultLabel || path;
   const initialValue = initialValues[name];
 
   useEffect(() => {
     if (!shouldPrefillDefaultValue({ initialValue, formType, hidden, defaultValue })) return;
     setFieldValue(name, defaultValue);
-  }, [initialValue, formType, name, setFieldValue, defaultValue, hidden]);
+    // only check to prefill default value when initialValue or formType changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialValue, formType]);
 
   if (hidden) {
     return null;
@@ -47,17 +47,10 @@ export const useLocalisedSchema = () => {
   const { getLocalisation } = useLocalisation();
   return {
     getLocalisedSchema: ({ name, path = `fields.${name}` }) => {
-      const hidden = getLocalisation(`${path}.hidden`);
-      const label = getLocalisation(`${path}.longLabel`) || path;
-      const required = getLocalisation(`${path}.required`) || false;
-
-      if (hidden) {
-        return yup.string().nullable();
-      }
-      if (required) {
-        return yup.string().required(`${label} is a required field`);
-      }
+      const { hidden, longLabel=path, required=false } = getLocalisation(`${path}`) || {};
+      if (hidden) return yup.string().nullable();
+      if (required) return yup.string().required(`${longLabel} is a required field`);
       return yup.string();
-    },
-  };
+    }
+  }
 };

@@ -41,7 +41,9 @@ const ReservedText = styled.p`
   font-size: 14px;
 `;
 
-const validationSchema = yup.lazy(({ search, ...values }) => {
+const validationSchema = yup.lazy((values) => {
+  const validationValues = {...values};
+  delete validationValues.search;
   const newEntrySchema = {
     stringId: yup
       .string()
@@ -50,16 +52,16 @@ const validationSchema = yup.lazy(({ search, ...values }) => {
         'isUnique',
         'Must be unique',
         value =>
-          Object.entries(values).filter(([k, v]) => k === value || v.stringId === value).length ===
+          Object.entries(validationValues).filter(([k, v]) => k === value || v.stringId === value).length ===
           1,
       ),
   };
   return yup.object().shape(
-    Object.keys(values).reduce(
+    Object.keys(validationValues).reduce(
       (acc, key) => ({
         ...acc,
         [key]: yup.object({
-          ...(has(values[key], 'stringId') && newEntrySchema),
+          ...(has(validationValues[key], 'stringId') && newEntrySchema),
         }),
       }),
       {},

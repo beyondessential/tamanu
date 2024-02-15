@@ -306,6 +306,7 @@ Form.propTypes = {
   onSuccess: PropTypes.func,
   onSubmit: PropTypes.func.isRequired,
   render: PropTypes.func.isRequired,
+  formType: PropTypes.string.isRequired,
   showInlineErrorsOnly: PropTypes.bool,
   initialValues: PropTypes.shape({}),
   validateOnChange: PropTypes.bool,
