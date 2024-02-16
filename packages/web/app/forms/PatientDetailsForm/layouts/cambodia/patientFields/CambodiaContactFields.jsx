@@ -4,7 +4,7 @@ import { AutocompleteField, TextField } from '../../../../../components';
 import { ConfiguredMandatoryPatientFields } from '../../../../../components/ConfiguredMandatoryPatientFields';
 
 export const CambodiaContactFields = ({
-  showMandatory,
+  filterByMandatory,
   nursingZoneSuggester,
   medicalAreaSuggester,
 }) => {
@@ -33,5 +33,5 @@ export const CambodiaContactFields = ({
       suggester: nursingZoneSuggester,
     },
   };
-  return <ConfiguredMandatoryPatientFields fields={CONTACT_FIELDS} showMandatory={showMandatory} />;
+  return <ConfiguredMandatoryPatientFields fields={CONTACT_FIELDS} filterByMandatory={filterByMandatory} />;
 };

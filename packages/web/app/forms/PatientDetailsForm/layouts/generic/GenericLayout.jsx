@@ -96,10 +96,11 @@ export const GenericPrimaryDetailsLayout = ({
         <GenericBirthFields
           facilitySuggester={facilitySuggester}
           registeredBirthPlace={values.registeredBirthPlace}
+          filterByMandatory
         />
       )}
-      <GenericIdentificationFields patientRegistryType={patientRegistryType} />
-      <GenericContactFields />
+      <GenericIdentificationFields patientRegistryType={patientRegistryType} filterByMandatory />
+      <GenericContactFields filterByMandatory />
       <GenericPersonalFields
         countrySuggester={countrySuggester}
         ethnicitySuggester={ethnicitySuggester}
@@ -108,6 +109,7 @@ export const GenericPrimaryDetailsLayout = ({
         religionSuggester={religionSuggester}
         patientSuggester={patientSuggester}
         patientRegistryType={patientRegistryType}
+        filterByMandatory
       />
       <GenericLocationFields
         divisionSuggester={divisionSuggester}
@@ -116,6 +118,7 @@ export const GenericPrimaryDetailsLayout = ({
         medicalAreaSuggester={medicalAreaSuggester}
         nursingZoneSuggester={nursingZoneSuggester}
         countrySuggester={countrySuggester}
+        filterByMandatory
       />
     </FormGrid>
   </>
@@ -147,7 +150,7 @@ export const GenericSecondaryDetailsLayout = ({
             <GenericBirthFields
               facilitySuggester={facilitySuggester}
               registeredBirthPlace={values.registeredBirthPlace}
-              showMandatory={false}
+              filterByMandatory={false}
             />
           </SecondaryDetailsFormGrid>
         </>
@@ -158,13 +161,13 @@ export const GenericSecondaryDetailsLayout = ({
         <GenericIdentificationFields
           isEdit={isEdit}
           patientRegistryType={patientRegistryType}
-          showMandatory={false}
+          filterByMandatory={false}
         />
       </SecondaryDetailsFormGrid>
 
       <PatientDetailsHeading>Contact information</PatientDetailsHeading>
       <SecondaryDetailsFormGrid>
-        <GenericContactFields showMandatory={false} />
+        <GenericContactFields filterByMandatory={false} />
       </SecondaryDetailsFormGrid>
 
       <PatientDetailsHeading>Personal information</PatientDetailsHeading>
@@ -177,7 +180,7 @@ export const GenericSecondaryDetailsLayout = ({
           religionSuggester={religionSuggester}
           patientSuggester={patientSuggester}
           patientRegistryType={patientRegistryType}
-          showMandatory={false}
+          filterByMandatory={false}
         />
       </SecondaryDetailsFormGrid>
 
@@ -190,7 +193,7 @@ export const GenericSecondaryDetailsLayout = ({
           medicalAreaSuggester={medicalAreaSuggester}
           nursingZoneSuggester={nursingZoneSuggester}
           countrySuggester={countrySuggester}
-          showMandatory={false}
+          filterByMandatory={false}
         />
       </SecondaryDetailsFormGrid>
     </SecondaryDetailsGroup>

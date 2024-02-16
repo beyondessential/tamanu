@@ -3,7 +3,7 @@ import { TextField } from '../../../../../components';
 import { ConfiguredMandatoryPatientFields } from '../../../../../components/ConfiguredMandatoryPatientFields';
 
 
-export const CambodiaIdentificationFields = ({  showMandatory }) => {
+export const CambodiaIdentificationFields = ({  filterByMandatory }) => {
   const IDENTIFICATION_FIELDS = {
     birthCertificate: {
       component: TextField,
@@ -16,7 +16,7 @@ export const CambodiaIdentificationFields = ({  showMandatory }) => {
   return (
     <ConfiguredMandatoryPatientFields
       fields={IDENTIFICATION_FIELDS}
-      showMandatory={showMandatory}
+      filterByMandatory={filterByMandatory}
     />
   );
 };

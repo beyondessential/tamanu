@@ -16,17 +16,6 @@ import { CambodiaPersonalFields } from './patientFields/CambodiaPersonalFields';
 import { GenericBirthFields } from '../generic/patientFields/GenericBirthFields';
 
 export const CambodiaPrimaryDetailsLayout = ({
-  values = {},
-  patientRegistryType,
-  nursingZoneSuggester,
-  medicalAreaSuggester,
-  villageSuggester,
-  subdivisionSuggester,
-  divisionSuggester,
-  settlementSuggester,
-  countrySuggester,
-  nationalitySuggester,
-  facilitySuggester,
   sexOptions,
   isRequiredPatientData,
 }) => (
@@ -48,22 +37,6 @@ export const CambodiaPrimaryDetailsLayout = ({
         component={TextField}
         required={isRequiredPatientData('culturalName')}
       />
-      <CambodiaLocationFields
-        villageSuggester={villageSuggester}
-        subdivisionSuggester={subdivisionSuggester}
-        divisionSuggester={divisionSuggester}
-        settlementSuggester={settlementSuggester}
-      />
-      <CambodiaContactFields
-        nursingZoneSuggester={nursingZoneSuggester}
-        medicalAreaSuggester={medicalAreaSuggester}
-      />
-
-      {patientRegistryType === PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY && (
-        <GenericBirthFields facilitySuggester={facilitySuggester} registeredBirthPlace={values.registeredBirthPlace} />
-      )}
-      <CambodiaIdentificationFields patientRegistryType={patientRegistryType} />
-      <CambodiaPersonalFields countrySuggester={countrySuggester} nationalitySuggester={nationalitySuggester} patientRegistryType={patientRegistryType} />
     </FormGrid>
   </>
 );

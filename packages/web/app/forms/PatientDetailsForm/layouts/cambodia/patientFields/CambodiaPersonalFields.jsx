@@ -8,7 +8,7 @@ import { ConfiguredMandatoryPatientFields } from '../../../../../components/Conf
 export const CambodiaPersonalFields = ({
   countrySuggester,
   nationalitySuggester,
-  showMandatory,
+  filterByMandatory,
 }) => {
   const PERSONAL_FIELDS = {
     countryOfBirthId: {
@@ -22,6 +22,6 @@ export const CambodiaPersonalFields = ({
   };
 
   return (
-    <ConfiguredMandatoryPatientFields fields={PERSONAL_FIELDS} showMandatory={showMandatory} />
+    <ConfiguredMandatoryPatientFields fields={PERSONAL_FIELDS} filterByMandatory={filterByMandatory} />
   );
 };

@@ -3,7 +3,7 @@ import { AutocompleteField, TextField } from "../../../../../components";
 import { ConfiguredMandatoryPatientFields } from "../../../../../components/ConfiguredMandatoryPatientFields";
 
 export const GenericLocationFields = ({
-  showMandatory,
+  filterByMandatory,
   subdivisionSuggester,
   divisionSuggester,
   countrySuggester,
@@ -46,7 +46,7 @@ export const GenericLocationFields = ({
   return (
     <ConfiguredMandatoryPatientFields
       fields={LOCATION_FIELDS}
-      showMandatory={showMandatory}
+      filterByMandatory={filterByMandatory}
     />
   );
 };

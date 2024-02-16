@@ -135,13 +135,13 @@ const overrides = {
       "shortLabel": "Settlement",
       "longLabel": "Commune",
       "hidden": false,
-      "requiredPatientData": false
+      "requiredPatientData": true
     },
     "streetVillage": {
       "shortLabel": "Street no. & name",
       "longLabel": "Street no. & name",
       "hidden": false,
-      "requiredPatientData": false
+      "requiredPatientData": true
     },
     "cityTown": {
       "shortLabel": "City/town",
@@ -153,13 +153,13 @@ const overrides = {
       "shortLabel": "District",
       "longLabel": "District",
       "hidden": false,
-      "requiredPatientData": false
+      "requiredPatientData": true
     },
     "divisionId": {
       "shortLabel": "Division",
       "longLabel": "Province",
       "hidden": false,
-      "requiredPatientData": false
+      "requiredPatientData": true
     },
     "countryId": {
       "shortLabel": "Country",
@@ -211,7 +211,7 @@ const overrides = {
     "villageId": {
       "shortLabel": "Village",
       "longLabel": "Village",
-      "hidden": false
+      "hidden": true
     },
     "birthCertificate": {
       "shortLabel": "Birth certificate",

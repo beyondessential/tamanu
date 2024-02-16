@@ -10,7 +10,7 @@ import {
 import { AutocompleteField, SelectField, TextField, TimeField } from '../../../../../components';
 import { ConfiguredMandatoryPatientFields } from '../../../../../components/ConfiguredMandatoryPatientFields';
 
-export const GenericBirthFields = ({ registeredBirthPlace, showMandatory, facilitySuggester }) => {
+export const GenericBirthFields = ({ filterByMandatory, registeredBirthPlace, facilitySuggester }) => {
   const BIRTH_FIELDS = {
     timeOfBirth: {
       component: TimeField,
@@ -71,7 +71,7 @@ export const GenericBirthFields = ({ registeredBirthPlace, showMandatory, facili
   return (
     <ConfiguredMandatoryPatientFields
       fields={BIRTH_FIELDS}
-      showMandatory={showMandatory}
+      filterByMandatory={filterByMandatory}
     />
   );
 };

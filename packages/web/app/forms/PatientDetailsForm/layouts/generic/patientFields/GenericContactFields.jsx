@@ -4,7 +4,7 @@ import { TextField } from '../../../../../components';
 import { ConfiguredMandatoryPatientFields } from '../../../../../components/ConfiguredMandatoryPatientFields';
 
 export const GenericContactFields = ({
-  showMandatory,
+  filterByMandatory,
 }) => {
   const CONTACT_FIELDS = {
     primaryContactNumber: {
@@ -23,5 +23,5 @@ export const GenericContactFields = ({
       type: 'tel',
     },
   };
-  return <ConfiguredMandatoryPatientFields fields={CONTACT_FIELDS} showMandatory={showMandatory} />;
+  return <ConfiguredMandatoryPatientFields fields={CONTACT_FIELDS} filterByMandatory={filterByMandatory} />;
 };

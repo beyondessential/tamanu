@@ -6,7 +6,7 @@ import { useLocalisation } from '../../../../../contexts/Localisation';
 import { DisplayIdField, TextField } from '../../../../../components';
 import { ConfiguredMandatoryPatientFields } from '../../../../../components/ConfiguredMandatoryPatientFields';
 
-export const GenericIdentificationFields = ({ isEdit, patientRegistryType, showMandatory }) => {
+export const GenericIdentificationFields = ({ isEdit, patientRegistryType, filterByMandatory }) => {
   const { getLocalisation } = useLocalisation();
   const canEditDisplayId = isEdit && getLocalisation('features.editPatientDisplayId');
 
@@ -30,7 +30,7 @@ export const GenericIdentificationFields = ({ isEdit, patientRegistryType, showM
   return (
     <ConfiguredMandatoryPatientFields
       fields={IDENTIFICATION_INFORMATION_FIELDS}
-      showMandatory={showMandatory}
+      filterByMandatory={filterByMandatory}
     />
   );
 };

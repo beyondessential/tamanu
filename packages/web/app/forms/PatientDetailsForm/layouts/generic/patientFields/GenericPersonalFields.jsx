@@ -24,7 +24,7 @@ export const GenericPersonalFields = ({
   occupationSuggester,
   religionSuggester,
   patientSuggester,
-  showMandatory,
+  filterByMandatory
 }) => {
   const PERSONAL_FIELDS = {
     title: {
@@ -89,6 +89,6 @@ export const GenericPersonalFields = ({
   };
 
   return (
-    <ConfiguredMandatoryPatientFields fields={PERSONAL_FIELDS} showMandatory={showMandatory} />
+    <ConfiguredMandatoryPatientFields fields={PERSONAL_FIELDS} filterByMandatory={filterByMandatory} />
   );
 };
