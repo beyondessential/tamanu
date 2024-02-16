@@ -14,7 +14,7 @@ import {
   AutocompleteField,
   SuggesterSelectField,
 } from '../../../../../components';
-import { ConfiguredMandatoryPatientFields } from '../../../../../components/ConfiguredMandatoryPatientFields/ConfiguredMandatoryPatientFields';
+import { ConfiguredMandatoryPatientFields } from '../../../../../components/ConfiguredMandatoryPatientFields';
 
 export const GenericPersonalFields = ({
   patientRegistryType,

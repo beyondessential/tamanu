@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { TextField } from '../../../../../components';
-import { ConfiguredMandatoryPatientFields } from '../../../../../components/ConfiguredMandatoryPatientFields/ConfiguredMandatoryPatientFields';
+import { ConfiguredMandatoryPatientFields } from '../../../../../components/ConfiguredMandatoryPatientFields';
 
 export const GenericContactFields = ({
   showMandatory,

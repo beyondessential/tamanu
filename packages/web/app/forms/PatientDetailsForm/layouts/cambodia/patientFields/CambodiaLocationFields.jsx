@@ -1,6 +1,6 @@
 import React from "react";
 import { AutocompleteField, TextField } from "../../../../../components";
-import { ConfiguredMandatoryPatientFields } from "../../../../../components/ConfiguredMandatoryPatientFields/ConfiguredMandatoryPatientFields";
+import { ConfiguredMandatoryPatientFields } from "../../../../../components/ConfiguredMandatoryPatientFields";
 
 export const CambodiaLocationFields = ({
   showMandatory,

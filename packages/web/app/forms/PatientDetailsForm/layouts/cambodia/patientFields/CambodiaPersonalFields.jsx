@@ -3,7 +3,7 @@ import React from 'react';
 import {
   AutocompleteField,
 } from '../../../../../components';
-import { ConfiguredMandatoryPatientFields } from '../../../../../components/ConfiguredMandatoryPatientFields/ConfiguredMandatoryPatientFields';
+import { ConfiguredMandatoryPatientFields } from '../../../../../components/ConfiguredMandatoryPatientFields';
 
 export const CambodiaPersonalFields = ({
   countrySuggester,

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
-import { useLocalisation } from '../../contexts/Localisation';
-import { LocalisedField } from '..';
+import { useLocalisation } from '../contexts/Localisation';
+import { LocalisedField } from '.';
 
 export const ConfiguredMandatoryPatientFields = ({ fields, showMandatory = true }) => {
   const { getLocalisation } = useLocalisation();

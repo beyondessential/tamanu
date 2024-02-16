@@ -2,9 +2,9 @@ import React from 'react';
 
 import { PATIENT_REGISTRY_TYPES } from '@tamanu/constants';
 
-import { useLocalisation } from '../../contexts/Localisation';
-import { DisplayIdField, TextField } from '..';
-import { ConfiguredMandatoryPatientFields } from './ConfiguredMandatoryPatientFields';
+import { useLocalisation } from '../../../../../contexts/Localisation';
+import { DisplayIdField, TextField } from '../../../../../components';
+import { ConfiguredMandatoryPatientFields } from '../../../../../components/ConfiguredMandatoryPatientFields';
 
 export const GenericIdentificationFields = ({ isEdit, patientRegistryType, showMandatory }) => {
   const { getLocalisation } = useLocalisation();

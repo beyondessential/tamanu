@@ -12,7 +12,7 @@ import {
 import { CambodiaLocationFields } from './patientFields/CambodiaLocationFields';
 import { CambodiaContactFields } from './patientFields/CambodiaContactFields';
 import { CambodiaIdentificationFields } from './patientFields/CambodiaIdentificationFields';
-import { CambodiaPersonalFields } from './patientFields/GenericPersonalFields';
+import { CambodiaPersonalFields } from './patientFields/CambodiaPersonalFields';
 import { GenericBirthFields } from '../generic/patientFields/GenericBirthFields';
 
 export const CambodiaPrimaryDetailsLayout = ({
