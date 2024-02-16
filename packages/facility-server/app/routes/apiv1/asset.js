@@ -18,6 +18,11 @@ asset.get(
         name,
       },
     });
-    res.send(assetRecord);
+
+    if (assetRecord) {
+      res.send(assetRecord);
+    } else {
+      res.send({});
+    }
   }),
 );

@@ -26,21 +26,21 @@ export const useAsset = assetName => {
   const [assetDataType, setAssetDataType] = useState(null);
 
   useEffect(() => {
-    if (queryData) {
+    if (queryData?.data) {
       setAssetData(queryResponseToAssetData(queryData));
       setAssetDataType(queryData.type);
     }
   }, [queryData]);
 
   useEffect(() => {
-    if (!queryData && fallbackQueryData) {
+    if (!queryData?.data && fallbackQueryData?.data) {
       setAssetData(queryResponseToAssetData(fallbackQueryData));
       setAssetDataType(fallbackQueryData.type);
     }
   }, [queryData, fallbackQueryData]);
 
   return {
-    data: `data:${assetDataType};base64,${assetData}`,
+    data: assetData && assetDataType ? `data:${assetDataType};base64,${assetData}` : null,
     isFetching: isAssetFetching || isFallbackFetching,
   };
 };
