@@ -83,7 +83,7 @@ export const ParameterItem = props => {
             },
           }}
           placeholder="Text"
-          label={<TranslatedText stringId="reportEditor.form.name.label" fallback="Name" />}
+          label={<TranslatedText stringId="general.name.label" fallback="Name" />}
         />
       </Grid>
       <Grid item xs={5}>
@@ -96,7 +96,7 @@ export const ParameterItem = props => {
             },
           }}
           placeholder="Text"
-          label={<TranslatedText stringId="reportEditor.form.label.label" fallback="Label" />}
+          label={<TranslatedText stringId="report.editor.label.label" fallback="Label" />}
         />
       </Grid>
       <Grid item xs={1}>
@@ -114,7 +114,7 @@ export const ParameterItem = props => {
             },
           }}
           placeholder="Text"
-          label={<TranslatedText stringId="reportEditor.form.fieldType.label" fallback="Field Type" />}
+          label={<TranslatedText stringId="report.editor.fieldType.label" fallback="Field type" />}
           options={Object.keys(PARAMETER_FIELD_COMPONENTS).map(key => ({
             label: key,
             value: key,

@@ -15,7 +15,7 @@ const validateCommaSeparatedEmails = async emails => {
   if (!emails) {
     return (
       <TranslatedText
-        stringId="report.generate.email.validation.empty"
+        stringId="report.generate.email.validation.atLeastOneRequired"
         fallback="At least 1 email address is required"
       />
     );
