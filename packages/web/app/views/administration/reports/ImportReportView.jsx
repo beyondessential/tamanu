@@ -49,7 +49,7 @@ const ImportFeedback = ({ feedback }) => (
   <Alert>
     <Heading4 mb={1}>
       {feedback.dryRun ? (
-        <TranslatedText stringId="admin.report.import.feedback.dryRun" fallback="Dry run" />
+        <TranslatedText stringId="admin.report.import.dryRun.label" fallback="Dry run" />
       ) : (
         <TranslatedText
           stringId="admin.report.import.feedback.success"
@@ -71,7 +71,7 @@ const ImportFeedback = ({ feedback }) => (
     </BodyText>
     {feedback.reportDefinitionId && (
       <BodyText mb={1}>
-        <TranslatedText stringId="admin.report.import.feedback.reportId" fallback="report id" />:{' '}
+        <TranslatedText stringId="admin.report.import.feedback.reportId" fallback="Report id" />:{' '}
         <b>{feedback.reportDefinitionId}</b>
       </BodyText>
     )}

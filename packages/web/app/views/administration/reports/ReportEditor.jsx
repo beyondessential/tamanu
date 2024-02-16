@@ -140,7 +140,7 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
             required
             label={
               <TranslatedText
-                stringId="reportEditor.form.reportName.label"
+                stringId="admin.report.editor.reportName.label"
                 fallback="Report name"
               />
             }
@@ -152,7 +152,7 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
           <StyledField
             label={
               <TranslatedText
-                stringId="reportEditor.form.defaultDateRange.label"
+                stringId="admin.report.editor.defaultDateRange.label"
                 fallback="Default date range"
               />
             }
@@ -166,7 +166,7 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
           <Grid item xs={4}>
             <StyledField
               label={
-                <TranslatedText stringId="reportEditor.form.dbSchema.label" fallback="DB Schema" />
+                <TranslatedText stringId="admin.report.editor.dbSchema.label" fallback="DB Schema" />
               }
               name="dbSchema"
               component={SelectField}
@@ -181,7 +181,7 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
             <StyledField
               label={
                 <TranslatedText
-                  stringId="reportEditor.form.dataSources.label"
+                  stringId="admin.report.editor.canBeRunOn.label"
                   fallback="Can be run on"
                 />
               }
@@ -193,7 +193,7 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
         )}
         <Grid item xs={12}>
           <StyledField
-            label={<TranslatedText stringId="reportEditor.form.notes.label" fallback="Notes" />}
+            label={<TranslatedText stringId="general.notes.label" fallback="Notes" />}
             name="notes"
             multiline
           />
@@ -203,10 +203,10 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
         <AccordionSummary>
           <Grid container spacing={1}>
             <Grid item xs={8}>
-              <TranslatedText stringId="reportEditor.form.query.label" fallback="Query" />
+              <TranslatedText stringId="admin.report.editor.query.label" fallback="Query" />
             </Grid>
             <Grid item xs={4}>
-              <TranslatedText stringId="reportEditor.form.parameters.label" fallback="Parameters" />
+              <TranslatedText stringId="admin.report.editor.parameters.label" fallback="Parameters" />
             </Grid>
           </Grid>
         </AccordionSummary>
@@ -252,7 +252,7 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
           isSubmitting={isSubmitting}
         >
           {isEdit ? (
-            <TranslatedText stringId="reportEditor.action.createNewVersion" fallback="Create new version" />
+            <TranslatedText stringId="admin.report.editor.action.createNewVersion" fallback="Create new version" />
           ) : (
             <TranslatedText stringId="general.action.create" fallback="Create" />
           )}
