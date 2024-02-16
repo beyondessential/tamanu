@@ -230,7 +230,7 @@ export const InvoiceDetailForm = ({
             ? ENCOUNTER_OPTIONS_BY_VALUE[invoice.admissionType].label
             : '',
         }}
-        formType={FORM_TYPES.EDIT_DATA_FORM}
+        formType={FORM_TYPES.EDIT_FORM}
         validationSchema={yup.object().shape({
           status: foreignKey('Status is required'),
         })}

@@ -14,7 +14,6 @@ export const EmailAddressConfirmationForm = React.memo(({ onCancel, onSubmit }) 
     <Form
       onSubmit={onSubmit}
       initialValues={{ email: patient.email }}
-      formType={FORM_TYPES.CREDENTIALS_DATA_FORM}
       validationSchema={Yup.object().shape({
         email: Yup.string()
           .email('Must be a valid email address')

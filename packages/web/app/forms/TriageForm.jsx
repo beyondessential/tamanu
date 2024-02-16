@@ -221,7 +221,7 @@ export const TriageForm = ({
         triageTime: getCurrentDateTimeString(),
         ...editedObject,
       }}
-      formType={editedObject ? FORM_TYPES.EDIT_DATA_FORM : FORM_TYPES.CREATE_DATA_FORM}
+      formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
       validationSchema={yup.object().shape({
         arrivalTime: yup.date().max(new Date(), 'Arrival time cannot be in the future'),
         triageTime: yup

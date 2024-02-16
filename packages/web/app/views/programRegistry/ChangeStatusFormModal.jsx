@@ -77,7 +77,7 @@ export const ChangeStatusFormModal = ({ patientProgramRegistration, onClose, ope
           initialValues={{
             clinicalStatusId: patientProgramRegistration.clinicalStatus?.id,
           }}
-          formType={FORM_TYPES.EDIT_DATA_FORM}
+          formType={FORM_TYPES.EDIT_FORM}
           validationSchema={yup.object().shape({
             clinicalStatusId: optionalForeignKey(),
           })}

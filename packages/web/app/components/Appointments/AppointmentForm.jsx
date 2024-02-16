@@ -51,7 +51,7 @@ export const AppointmentForm = props => {
   return (
     <Form
       initialValues={initialValues}
-      formType={isUpdating ? FORM_TYPES.EDIT_DATA_FORM : FORM_TYPES.CREATE_DATA_FORM}
+      formType={isUpdating ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
       onSubmit={createAppointment}
       validationSchema={yup.object().shape({
         patientId: yup.string().required('Please select a patient'),

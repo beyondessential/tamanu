@@ -35,7 +35,7 @@ export const LabRequestChangeLabModal = React.memo(
           initialValues={{
             labTestLaboratoryId: labRequest?.labTestLaboratoryId,
           }}
-          formType={FORM_TYPES.EDIT_DATA_FORM}
+          formType={FORM_TYPES.EDIT_FORM}
           render={({ submitForm }) => (
             <FormGrid columns={1}>
               <Field

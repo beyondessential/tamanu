@@ -52,7 +52,7 @@ export const ExportReportView = () => {
       initialValues={{
         format: REPORT_VERSION_EXPORT_FORMATS.JSON,
       }}
-      formType={FORM_TYPES.CREATE_DATA_FORM}
+      formType={FORM_TYPES.CREATE_FORM}
       showInlineErrorsOnly
       render={({ values, isSubmitting }) => (
         <InnerContainer>

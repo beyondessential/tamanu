@@ -55,7 +55,7 @@ export const BeginPatientMoveModal = React.memo(({ onClose, open, encounter }) =
         validationSchema={yup.object().shape({
           plannedLocationId: yup.string().required('Please select a planned location'),
         })}
-        formType={FORM_TYPES.EDIT_DATA_FORM}
+        formType={FORM_TYPES.EDIT_FORM}
         render={({ submitForm, values }) => {
           return (
             <>

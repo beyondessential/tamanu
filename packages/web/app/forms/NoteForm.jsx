@@ -79,8 +79,8 @@ export const NoteForm = ({
       }}
       formType={
         noteFormMode === NOTE_FORM_MODES.EDIT_NOTE
-          ? FORM_TYPES.EDIT_DATA_FORM
-          : FORM_TYPES.CREATE_DATA_FORM
+          ? FORM_TYPES.EDIT_FORM
+          : FORM_TYPES.CREATE_FORM
       }
       validationSchema={yup.object().shape({
         noteType: yup

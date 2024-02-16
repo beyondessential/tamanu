@@ -73,7 +73,7 @@ export const AssetUploaderView = memo(() => {
   return (
     <Form
       key={resetKey}
-      formType={FORM_TYPES.CREATE_DATA_FORM}
+      formType={FORM_TYPES.CREATE_FORM}
       onSubmit={onSubmitUpload}
       validationSchema={yup.object().shape({
         name: yup.string().required(),

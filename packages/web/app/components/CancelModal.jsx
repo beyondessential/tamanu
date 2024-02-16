@@ -28,7 +28,7 @@ export const CancelModal = React.memo(
     <FormModal width="sm" title={title} onClose={onClose} open={open}>
       <Form
         onSubmit={onConfirm}
-        formType={FORM_TYPES.EDIT_DATA_FORM}
+        formType={FORM_TYPES.EDIT_FORM}
         validationSchema={yup.object().shape({
           reasonForCancellation: yup.string().required(),
         })}

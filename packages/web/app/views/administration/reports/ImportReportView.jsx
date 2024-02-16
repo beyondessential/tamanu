@@ -132,7 +132,7 @@ export const ImportReportView = () => {
       <Form
         onSubmit={handleSubmit}
         validationSchema={schema}
-        formType={FORM_TYPES.CREATE_DATA_FORM}
+        formType={FORM_TYPES.CREATE_FORM}
         initialValues={{
           dryRun: true,
         }}

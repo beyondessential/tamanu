@@ -59,7 +59,7 @@ export const ExporterView = memo(({ title, endpoint, dataTypes, dataTypesSelecta
         validationSchema={yup.object().shape({
           includedDataTypes: yup.array(),
         })}
-        formType={FORM_TYPES.CREATE_DATA_FORM}
+        formType={FORM_TYPES.CREATE_FORM}
         initialValues={{
           includedDataTypes: [...dataTypes],
         }}

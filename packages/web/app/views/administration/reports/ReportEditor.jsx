@@ -243,7 +243,7 @@ export const ReportEditor = ({ initialValues, onSubmit, isEdit }) => {
       onSubmit={onSubmit}
       enableReinitialize
       validationSchema={schema}
-      formType={isEdit ? FORM_TYPES.EDIT_DATA_FORM : FORM_TYPES.CREATE_DATA_FORM}
+      formType={isEdit ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
       initialValues={initialValues}
       render={formikContext => <ReportEditorForm {...formikContext} isEdit={isEdit} />}
     />

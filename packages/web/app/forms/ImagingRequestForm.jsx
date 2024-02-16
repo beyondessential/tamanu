@@ -113,7 +113,7 @@ export const ImagingRequestForm = React.memo(
           requestedDate: getCurrentDateTimeString(),
           ...editedObject,
         }}
-        formType={editedObject ? FORM_TYPES.EDIT_DATA_FORM : FORM_TYPES.CREATE_DATA_FORM}
+        formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
         validationSchema={yup.object().shape({
           requestedById: foreignKey('Required'),
           requestedDate: yup.date().required(),

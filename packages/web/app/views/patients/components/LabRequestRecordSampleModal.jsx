@@ -133,7 +133,7 @@ export const LabRequestRecordSampleModal = React.memo(
           onSubmit={updateSample}
           validationSchema={validationSchema}
           showInlineErrorsOnly
-          formType={FORM_TYPES.EDIT_DATA_FORM}
+          formType={FORM_TYPES.EDIT_FORM}
           initialValues={{
             sampleTime: labRequest.sampleTime,
             labSampleSiteId: labRequest.labSampleSiteId,

@@ -61,7 +61,7 @@ export const EditPatientLetterTemplateForm = memo(
       <Form
         onSubmit={onSubmit}
         render={renderForm}
-        formType={FORM_TYPES.EDIT_DATA_FORM}
+        formType={FORM_TYPES.EDIT_FORM}
         initialValues={editedObject}
         validationSchema={yup.object().shape({
           name: yup.string().required(),

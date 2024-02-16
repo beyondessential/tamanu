@@ -21,7 +21,7 @@ export const NewUserForm = memo(({ onSubmit, onCancel }) => {
     <Form
       onSubmit={onSubmit}
       render={renderForm}
-      formType={FORM_TYPES.CREATE_DATA_FORM}
+      formType={FORM_TYPES.CREATE_FORM}
       validationSchema={yup.object().shape({
         name: yup.string().required(),
         displayName: yup.string().required(),

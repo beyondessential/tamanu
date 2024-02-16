@@ -258,7 +258,7 @@ export const TranslationForm = () => {
       enableReinitialize
       showInlineErrorsOnly
       onSubmit={handleSubmit}
-      formType={FORM_TYPES.CREATE_DATA_FORM}
+      formType={FORM_TYPES.CREATE_FORM}
       validationSchema={validationSchema}
       render={props => (
         <FormContents

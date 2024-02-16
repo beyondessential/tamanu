@@ -183,7 +183,7 @@ export const ImporterView = memo(({ endpoint, dataTypes, dataTypesSelectable, se
       <Form
         key={resetKey}
         onSubmit={onSubmitUpload}
-        formType={FORM_TYPES.CREATE_DATA_FORM}
+        formType={FORM_TYPES.CREATE_FORM}
         validationSchema={yup.object().shape({
           includedDataTypes: dataTypesSelectable
             ? yup

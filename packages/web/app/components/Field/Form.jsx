@@ -8,7 +8,7 @@ import styled from 'styled-components';
 
 import { flattenObject } from '../../utils';
 import { Dialog } from '../Dialog';
-import { DATA_FORM_TYPES, FORM_STATUSES } from '../../constants';
+import { FORM_STATUSES, FORM_TYPES } from '../../constants';
 import { useFormSubmission } from '../../contexts/FormSubmission';
 import { IS_DEVELOPMENT } from '../../utils/env';
 
@@ -76,7 +76,7 @@ export class Form extends React.PureComponent {
     const { onSubmit, formType } = props;
     const hasNonAsyncSubmitHandler =
       IS_DEVELOPMENT &&
-      DATA_FORM_TYPES.includes(formType) &&
+      formType !== FORM_TYPES.SEARCH_FORM &&
       onSubmit.constructor.name !== 'AsyncFunction';
 
     this.state = {
@@ -161,12 +161,12 @@ export class Form extends React.PureComponent {
     const { touched } = rest;
     const newValues = { ...values };
 
-    // If it is a data form, before submission, convert all the touched undefined values
+    // If it is a data form i.e not search form, before submission, convert all the touched undefined values
     // to null because
     // 1. If it is an edit submit form, we need to be able to save the cleared values as null in the database if we are
     // trying to remove a value when editing a record
     // 2. If it is a new submit form, it does not matter if the empty value is undefined or null
-    if (DATA_FORM_TYPES.includes(formType)) {
+    if (formType !== FORM_TYPES.SEARCH_FORM) {
       for (const key of Object.keys(touched)) {
         if (newValues[key] === undefined) {
           newValues[key] = null;
@@ -301,7 +301,7 @@ Form.propTypes = {
   onSuccess: PropTypes.func,
   onSubmit: PropTypes.func.isRequired,
   render: PropTypes.func.isRequired,
-  formType: PropTypes.string.isRequired,
+  formType: PropTypes.oneOf(Object.values(FORM_TYPES)),
   showInlineErrorsOnly: PropTypes.bool,
   initialValues: PropTypes.shape({}),
   validateOnChange: PropTypes.bool,
