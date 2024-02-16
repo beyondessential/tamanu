@@ -1,14 +1,18 @@
-import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { ASSET_FALLBACK_NAMES } from '@tamanu/constants';
-import { useApi } from '../api';
+import { useApi } from '../useApi';
 
-const queryResponseToAssetData = response => Buffer.from(response.data).toString('base64');
+const queryResponseToDataURL = response => {
+  const assetData = Buffer.from(response.data).toString('base64');
+  const assetDataType = response.type;
+  return `data:${assetDataType};base64,${assetData}`;
+};
 
 export const useAsset = assetName => {
   const api = useApi();
-
   const fallbackAssetName = ASSET_FALLBACK_NAMES[assetName];
+
+  let dataURL = null;
 
   const { data: queryData, isFetching: isAssetFetching, isFetched: assetFetched } = useQuery({
     queryKey: ['asset', assetName],
@@ -22,25 +26,14 @@ export const useAsset = assetName => {
     enabled: !!fallbackAssetName && assetFetched && !queryData,
   });
 
-  const [assetData, setAssetData] = useState(null);
-  const [assetDataType, setAssetDataType] = useState(null);
-
-  useEffect(() => {
-    if (queryData?.data) {
-      setAssetData(queryResponseToAssetData(queryData));
-      setAssetDataType(queryData.type);
-    }
-  }, [queryData]);
-
-  useEffect(() => {
-    if (!queryData?.data && fallbackQueryData?.data) {
-      setAssetData(queryResponseToAssetData(fallbackQueryData));
-      setAssetDataType(fallbackQueryData.type);
-    }
-  }, [queryData, fallbackQueryData]);
+  if (queryData?.data) {
+    dataURL = queryResponseToDataURL(queryData);
+  } else if (!queryData?.data && fallbackQueryData?.data) {
+    dataURL = queryResponseToDataURL(fallbackQueryData);
+  }
 
   return {
-    data: assetData && assetDataType ? `data:${assetDataType};base64,${assetData}` : null,
+    data: dataURL,
     isFetching: isAssetFetching || isFallbackFetching,
   };
 };
