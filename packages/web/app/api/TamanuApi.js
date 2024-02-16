@@ -113,7 +113,7 @@ export class TamanuApi extends ApiClient {
         ]);
       }
 
-      throw new Error(`Facility server error response: ${message}`);
+      throw new Error(message);
     }
   }
 
