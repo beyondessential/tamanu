@@ -83,7 +83,7 @@ const StyledCheckboxField = styled(Field)`
 `;
 
 const INCORRECT_CREDENTIALS_ERROR_MESSAGE =
-  'Facility server error response: Incorrect username or password, please try again';
+  'Server error response: Incorrect username or password, please try again';
 
 const LoginFormComponent = ({
   errorMessage,
