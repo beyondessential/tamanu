@@ -15,7 +15,7 @@ import {
   TextButton,
   TextField,
 } from '../components';
-import { Colors, FORM_TYPES, LOCAL_STORAGE_KEYS } from '../constants';
+import { Colors, LOCAL_STORAGE_KEYS } from '../constants';
 import { LanguageSelector } from '../components/LanguageSelector';
 
 const FormSubtext = styled(BodyText)`

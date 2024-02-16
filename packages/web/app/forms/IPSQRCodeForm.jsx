@@ -8,7 +8,7 @@ import { FormGrid } from '../components/FormGrid';
 import { DateDisplay } from '../components';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
 import { PATIENT_TABS } from '../constants/patientPaths';
-import { Colors, FORM_TYPES } from '../constants';
+import { Colors } from '../constants';
 
 const StyledPatientDetailsLink = styled.span`
   cursor: pointer;

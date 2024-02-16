@@ -5,7 +5,6 @@ import { useSelector } from 'react-redux';
 import { FormSubmitCancelRow } from '../components/ButtonRow';
 import { Field, Form, TextField } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
-import { FORM_TYPES } from '../constants';
 
 export const EmailAddressConfirmationForm = React.memo(({ onCancel, onSubmit }) => {
   const patient = useSelector(state => state.patient);

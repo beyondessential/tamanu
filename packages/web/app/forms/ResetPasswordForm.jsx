@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
 import { FormGrid } from '../components/FormGrid';
 import { BodyText, Button, Field, Form, FormSubmitButton, TextField } from '../components';
-import { Colors, FORM_TYPES } from '../constants';
+import { Colors } from '../constants';
 
 const ResetPasswordButton = styled(FormSubmitButton)`
   font-size: 14px;
