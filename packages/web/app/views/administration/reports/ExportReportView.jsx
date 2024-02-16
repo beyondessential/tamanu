@@ -60,7 +60,7 @@ export const ExportReportView = () => {
             <Field
               component={ReportSelectField}
               required
-              label={<TranslatedText stringId="reportExport.form.report.label" fallback="Report" />}
+              label={<TranslatedText stringId="admin.report.export.report.label" fallback="Report" />}
               name="reportId"
               placeholder="Select a report definition"
             />
@@ -68,7 +68,7 @@ export const ExportReportView = () => {
               <Field
                 component={VersionSelectField}
                 required
-                label={<TranslatedText stringId="reportExport.form.version.label" fallback="Version" />}
+                label={<TranslatedText stringId="admin.report.export.version.label" fallback="Version" />}
                 name="versionId"
                 placeholder="Select a report version"
             />
@@ -76,7 +76,7 @@ export const ExportReportView = () => {
             {values.versionId && (
               <Field
                 component={RadioField}
-                label={<TranslatedText stringId="reportExport.form.format.label" fallback="Format" />}
+                label={<TranslatedText stringId="admin.report.export.format.label" fallback="Format" />}
                 name="format"
                 options={Object.entries(REPORT_VERSION_EXPORT_FORMATS).map(([label, value]) => ({
                   label,
