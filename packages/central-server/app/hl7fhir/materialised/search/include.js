@@ -161,7 +161,7 @@ function* flattenIncludes(includes) {
 }
 
 function* pathInto(record, path) {
-  const [field, ...rest] = path;
+  const [[field, ...rest]] = path;
   const value = record[field];
   if (value === undefined) {
     // yield nothing and return
@@ -172,11 +172,11 @@ function* pathInto(record, path) {
   } else if (field === '[]') {
     // iterate over array
     for (const item of value) {
-      yield* pathInto(item, rest);
+      yield* pathInto(item, [rest]);
     }
   } else if (rest.length > 0) {
     // more path to go, recurse
-    yield* pathInto(value, rest);
+    yield pathInto(value, [rest]);
   } else {
     // reached the end of the path
     yield value;
