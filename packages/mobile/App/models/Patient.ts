@@ -1,4 +1,4 @@
-import { Column, Entity, Index, OneToMany } from 'typeorm/browser';
+import { Column, Entity, Index, OneToMany, getManager } from 'typeorm/browser';
 import { getUniqueId } from 'react-native-device-info';
 import { addHours, parseISO, startOfDay, subYears } from 'date-fns';
 import { groupBy } from 'lodash';
@@ -14,9 +14,8 @@ import { PatientAdditionalData } from './PatientAdditionalData';
 import { PatientFacility } from './PatientFacility';
 import { NullableReferenceDataRelation, ReferenceData } from './ReferenceData';
 import { SYNC_DIRECTIONS } from './types';
-
 import { DateStringColumn } from './DateColumns';
-import { PatientProgramRegistration } from './PatientProgramRegistration';
+
 const TIME_OFFSET = 3;
 
 @Entity('patient')
@@ -255,39 +254,46 @@ export class Patient extends BaseModel implements IPatient {
   }
 
   static async filterPatients(filters: { [key: string]: any }, searchKey: string) {
-    let whereFilters = ``;
+    const queryBuilder = getManager()
+      .getRepository(Patient)
+      .createQueryBuilder('patient');
+
+    queryBuilder.where(
+      `(
+        patient.displayId LIKE :searchKey OR
+        patient.firstName LIKE :searchKey OR
+        patient.middleName LIKE :searchKey OR
+        patient.lastName LIKE :searchKey OR
+        patient.culturalName LIKE :searchKey
+      )`,
+      { searchKey: `%${searchKey}%` },
+    );
+    queryBuilder.andWhere('patient.deletedAt IS NULL');
+
     Object.keys(filters).forEach(key => {
       const value = filters[key];
       if (key === 'programRegistryId') {
-        whereFilters += ` AND id IN (
-          SELECT DISTINCT ppr.patientId 
-          FROM patient_program_registration ppr 
-          WHERE ( ppr.programRegistryId = '${filters.programRegistryId}' ) 
-          AND ( ppr.deletedAt IS NULL )
-        ) `;
+        queryBuilder.andWhere(
+          `patient.id IN 
+          (
+            SELECT DISTINCT ppr.patientId 
+            FROM patient_program_registration ppr 
+            WHERE ( ppr.programRegistryId = :programRegistryId ) 
+            AND ( ppr.deletedAt IS NULL )
+          )`,
+          { programRegistryId: value },
+        );
       } else if (value) {
-        if (typeof value === 'string') whereFilters += ` AND ${key} = '${value}'`;
-        else whereFilters += ` AND ${key} LIKE '${value._value}'`;
+        if (typeof value === 'string') queryBuilder.andWhere(`patient.${key} = :value`, { value });
+        else queryBuilder.andWhere(`patient.${key} LIKE :value`, { value: `%${value._value}%` });
       }
     });
 
-    // Must match ONE of following lines entirely. ([{a}, {b}] is OR, [{a, b}] is AND)
-    // Note also that the filters can override 'firstName' for example, (making the search field irrelevant?)
-    const patients = await this.getRepository().query(`
-      SELECT *
-      FROM patient WHERE ( 
-          (displayId LIKE '%${searchKey}' OR 
-          firstName LIKE '%${searchKey}' OR 
-          middleName LIKE '%${searchKey}' OR 
-          lastName LIKE '%${searchKey}' OR 
-          culturalName LIKE '%${searchKey}')
-          ${whereFilters}
-        ) 
-        AND (deletedAt IS NULL ) 
-        ORDER BY 
-          lastName ASC, 
-          firstName ASC 
-        LIMIT 100`);
+    queryBuilder.orderBy('patient.lastName', 'ASC');
+    queryBuilder.addOrderBy('patient.firstName', 'ASC');
+    queryBuilder.limit(100);
+
+    const patients = await queryBuilder.getMany();
     return patients;
   }
 }

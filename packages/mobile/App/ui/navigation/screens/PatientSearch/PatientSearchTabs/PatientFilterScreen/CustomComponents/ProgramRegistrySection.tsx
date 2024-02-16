@@ -20,7 +20,6 @@ export const ProgramRegistrySection = (): ReactElement => {
     },
   });
 
-  // uses new IdRelation decorator on model, so the field is `villageId` and not `village`
   return (
     <StyledView marginLeft={20} marginRight={20}>
       <LocalisedField
