@@ -16,7 +16,7 @@ const options = [
 ];
 
 export const SexSection = (): ReactElement => (
-  <StyledView marginLeft={20} marginRight={20}>
+  <StyledView marginLeft={20} marginRight={20} marginBottom={20}>
     <LocalisedField
       localisationPath="fields.sex"
       component={RadioButtonGroup}
