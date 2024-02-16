@@ -116,7 +116,7 @@ const Screen: FC<ViewAllScreenProps> = ({
 
   useEffect(() => {
     const handler = (action: string): void => {
-      if (action === SYNC_EVENT_ACTIONS.SYNC_ENDED && list.length === 0) {
+      if (action === SYNC_EVENT_ACTIONS.SYNC_ENDED && list?.length === 0) {
         setSyncEnded(true);
       }
     };
@@ -124,7 +124,7 @@ const Screen: FC<ViewAllScreenProps> = ({
     return () => {
       syncManager.emitter.off('*', handler);
     };
-  }, [syncManager, list.length]);
+  }, [syncManager, list?.length]);
 
   const onNavigateToPatientHome = useCallback(patient => {
     setSelectedPatient(patient);
