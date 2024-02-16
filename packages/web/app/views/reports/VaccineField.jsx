@@ -41,13 +41,13 @@ export const VaccineField = ({ name = 'vaccine', required, parameterValues }) =>
     <>
       <Field
         name={name}
-        label={<TranslatedText stringId="report.parameter.vaccine.label" fallback="Vaccine" />}
+        label={<TranslatedText stringId="vaccine.vaccine.label" fallback="Vaccine" />}
         component={SelectField}
         required={required}
         options={vaccineOptions}
       />
       <Dialog
-        headerTitle={<TranslatedText stringId="report.parameter.vaccine.error" fallback="Error" />}
+        headerTitle={<TranslatedText stringId="general.error" fallback="Error" />}
         isVisible={isErrorDialogVisible}
         onClose={() => setIsErrorDialogVisible(false)}
         contentText={`Error occurred when fetching vaccine types: ${error}`}

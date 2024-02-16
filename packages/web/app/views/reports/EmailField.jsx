@@ -15,7 +15,7 @@ const validateCommaSeparatedEmails = async emails => {
   if (!emails) {
     return (
       <TranslatedText
-        stringId="reportGenerator.form.email.validation.empty"
+        stringId="report.generate.email.validation.empty"
         fallback="At least 1 email address is required"
       />
     );
@@ -25,7 +25,7 @@ const validateCommaSeparatedEmails = async emails => {
   if (emailList.length === 0) {
     return (
       <TranslatedText
-        stringId="reportGenerator.form.email.validation.invalid"
+        stringId="report.generate.email.validation.invalid"
         fallback=":emails is invalid."
         replacements={{ emails }}
       />
@@ -37,9 +37,9 @@ const validateCommaSeparatedEmails = async emails => {
     if (!isEmailValid) {
       return (
         <TranslatedText
-          stringId="reportGenerator.form.email.validation.invalid"
-          fallback=":emails is invalid."
-          replacements={{ emails: emailList[i] }}
+          stringId="report.generate.email.validation.invalid"
+          fallback=":email is invalid."
+          replacements={{ email: emailList[i] }}
         />
       );
     }
@@ -53,7 +53,7 @@ export const EmailField = () => (
     name="emails"
     label={
       <TranslatedText
-        stringId="reportGenerator.form.email.label"
+        stringId="report.generate.emailList.label"
         fallback="Email to (seperate emails with a comma)"
       />
     }

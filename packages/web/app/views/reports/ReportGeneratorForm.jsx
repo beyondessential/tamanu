@@ -414,7 +414,7 @@ export const ReportGeneratorForm = () => {
                 {
                   label: (
                     <TranslatedText
-                      stringId="reportGenerator.action.generateXlsx"
+                      stringId="reportGenerator.action.generateXLSX"
                       fallback="Generate XLSX"
                     />
                   ),
@@ -426,7 +426,7 @@ export const ReportGeneratorForm = () => {
                 {
                   label: (
                     <TranslatedText
-                      stringId="reportGenerator.action.generateCsv"
+                      stringId="reportGenerator.action.generateCSV"
                       fallback="Generate CSV"
                     />
                   ),

@@ -13,7 +13,7 @@ const VACCINE_CATEGORY_OPTIONS = Object.values(VACCINE_CATEGORIES).map(category 
 export const VaccineCategoryField = ({ name = 'category', required }) => (
   <Field
     name={name}
-    label={<TranslatedText stringId="report.parameter.vaccineCategory.label" fallback="Category" />}
+    label={<TranslatedText stringId="vaccine.category.label" fallback="Category" />}
     component={SelectField}
     required={required}
     options={VACCINE_CATEGORY_OPTIONS}
