@@ -1,18 +1,17 @@
-import React from 'react';
+import React from "react";
+import { AutocompleteField, TextField } from "../../../../../components";
+import { ConfiguredMandatoryPatientFields } from "../../../../../components/ConfiguredMandatoryPatientFields/ConfiguredMandatoryPatientFields";
 
-import { AutocompleteField, TextField } from '..';
-import { useSuggester } from '../../api';
-import { ConfiguredMandatoryPatientFields } from './ConfiguredMandatoryPatientFields';
-
-export const LocationInformationFields = ({ showMandatory }) => {
-  const countrySuggester = useSuggester('country');
-  const divisionSuggester = useSuggester('division');
-  const medicalAreaSuggester = useSuggester('medicalArea');
-  const nursingZoneSuggester = useSuggester('nursingZone');
-  const settlementSuggester = useSuggester('settlement');
-  const subdivisionSuggester = useSuggester('subdivision');
-
-  const LOCATION_INFORMATION_FIELDS = {
+export const GenericLocationFields = ({
+  showMandatory,
+  subdivisionSuggester,
+  divisionSuggester,
+  countrySuggester,
+  settlementSuggester,
+  medicalAreaSuggester,
+  nursingZoneSuggester,
+}) => {
+  const LOCATION_FIELDS = {
     cityTown: {
       component: TextField,
     },
@@ -44,10 +43,9 @@ export const LocationInformationFields = ({ showMandatory }) => {
       component: TextField,
     },
   };
-
   return (
     <ConfiguredMandatoryPatientFields
-      fields={LOCATION_INFORMATION_FIELDS}
+      fields={LOCATION_FIELDS}
       showMandatory={showMandatory}
     />
   );

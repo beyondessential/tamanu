@@ -6,7 +6,7 @@ import { useLocalisation } from '../../contexts/Localisation';
 import { DisplayIdField, TextField } from '..';
 import { ConfiguredMandatoryPatientFields } from './ConfiguredMandatoryPatientFields';
 
-export const IdentificationInformationFields = ({ isEdit, patientRegistryType, showMandatory }) => {
+export const GenericIdentificationFields = ({ isEdit, patientRegistryType, showMandatory }) => {
   const { getLocalisation } = useLocalisation();
   const canEditDisplayId = isEdit && getLocalisation('features.editPatientDisplayId');
 

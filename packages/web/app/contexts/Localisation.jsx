@@ -11,12 +11,12 @@ const overrides = {
     },
     "emergencyContactName": {
       "shortLabel": "Emergency contact name",
-      "longLabel": "Emergency contact name",
+      "longLabel": "Guardian's name",
       "requiredPatientData": false
     },
     "emergencyContactNumber": {
       "shortLabel": "Emergency contact number",
-      "longLabel": "Emergency contact number",
+      "longLabel": "Guardian's number",
       "requiredPatientData": false
     },
     "markedForSync": {
@@ -115,13 +115,13 @@ const overrides = {
     },
     "primaryContactNumber": {
       "shortLabel": "Primary contact number",
-      "longLabel": "Primary contact number",
+      "longLabel": "Mother's contact number",
       "hidden": false,
       "requiredPatientData": false
     },
     "secondaryContactNumber": {
       "shortLabel": "Secondary contact number",
-      "longLabel": "Secondary contact number",
+      "longLabel": "Father's contact number",
       "hidden": false,
       "requiredPatientData": false
     },
@@ -133,13 +133,13 @@ const overrides = {
     },
     "settlementId": {
       "shortLabel": "Settlement",
-      "longLabel": "Settlement",
+      "longLabel": "Commune",
       "hidden": false,
       "requiredPatientData": false
     },
     "streetVillage": {
-      "shortLabel": "Residential landmark",
-      "longLabel": "Residential landmark",
+      "shortLabel": "Street no. & name",
+      "longLabel": "Street no. & name",
       "hidden": false,
       "requiredPatientData": false
     },
@@ -150,14 +150,14 @@ const overrides = {
       "requiredPatientData": false
     },
     "subdivisionId": {
-      "shortLabel": "Sub division",
-      "longLabel": "Sub division",
+      "shortLabel": "District",
+      "longLabel": "District",
       "hidden": false,
       "requiredPatientData": false
     },
     "divisionId": {
       "shortLabel": "Division",
-      "longLabel": "Division",
+      "longLabel": "Province",
       "hidden": false,
       "requiredPatientData": false
     },
@@ -169,13 +169,13 @@ const overrides = {
     },
     "medicalAreaId": {
       "shortLabel": "Medical area",
-      "longLabel": "Medical area",
+      "longLabel": "Operational district",
       "hidden": false,
       "requiredPatientData": false
     },
     "nursingZoneId": {
       "shortLabel": "Nursing zone",
-      "longLabel": "Nursing zone",
+      "longLabel": "Health center",
       "hidden": false,
       "requiredPatientData": false
     },

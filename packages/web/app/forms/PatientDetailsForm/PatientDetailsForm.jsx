@@ -13,7 +13,7 @@ import {
 import { useSexValues } from '../../hooks';
 import { Colors } from '../../constants';
 import { useLocalisation } from '../../contexts/Localisation';
-import { useApi, useSuggester } from '../../api';
+import { useApi, usePatientSuggester, useSuggester } from '../../api';
 import { getPatientDetailsValidation } from '../../validations';
 import {
   ButtonRow,
@@ -26,15 +26,11 @@ import {
   TextField,
 } from '../../components';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
+
 import {
-  BirthDetailsFields,
-  ContactInformationFields,
-  IdentificationInformationFields,
-  LocationInformationFields,
-  PersonalInformationFields,
-} from '../../components/ConfiguredMandatoryPatientFields';
-import { GenericPrimaryDetailsLayout } from './layouts/GenericLayout';
-import { CambodiaPrimaryDetailsLayout } from './layouts/CambodiaLayout';
+  CambodiaPrimaryDetailsLayout,
+  CambodiaSecondaryDetailsLayout,
+} from './layouts/cambodia/CambodiaLayout';
 
 const StyledHeading = styled.div`
   font-weight: 500;
@@ -45,10 +41,6 @@ const StyledHeading = styled.div`
 
 const StyledFormGrid = styled(FormGrid)`
   margin-bottom: 70px;
-`;
-
-const StyledSecondaryDetailsGroup = styled.div`
-  margin-top: 20px;
 `;
 
 const StyledPatientDetailSecondaryDetailsGroupWrapper = styled.div`
@@ -62,7 +54,12 @@ export const PrimaryDetailsGroup = ({ values = {}, patientRegistryType }) => {
   const countrySuggester = useSuggester('country');
   const settlementSuggester = useSuggester('settlement');
   const medicalAreaSuggester = useSuggester('medicalArea');
-const nursingZoneSuggester = useSuggester('nursingZone');
+  const nursingZoneSuggester = useSuggester('nursingZone');
+  const ethnicitySuggester = useSuggester('ethnicity')
+  const nationalitySuggester = useSuggester('nationality')
+  const occupationSuggester = useSuggester('occupation')
+  const religionSuggester = useSuggester('religion')
+  const patientSuggester = usePatientSuggester();
 
   const { getLocalisation } = useLocalisation();
   let filteredSexOptions = SEX_OPTIONS;
@@ -73,66 +70,61 @@ const nursingZoneSuggester = useSuggester('nursingZone');
   const isRequiredPatientData = fieldName =>
     getLocalisation(`fields.${fieldName}.requiredPatientData`);
 
-  return  <CambodiaPrimaryDetailsLayout
-          patientRegistryType={patientRegistryType}
-          values={values}
-          sexOptions={filteredSexOptions}
-          villageSuggester={villageSuggester}
-          nursingZoneSuggester={nursingZoneSuggester}
-          medicalAreaSuggester={medicalAreaSuggester}
-          settlementSuggester={settlementSuggester}
-          subdivisionSuggester={subdivisionSuggester}
-          divisionSuggester={divisionSuggester}
-          countrySuggester={countrySuggester}
-          isRequiredPatientData={isRequiredPatientData}
-        />
-
-
+  return (
+    <CambodiaPrimaryDetailsLayout
+      patientRegistryType={patientRegistryType}
+      values={values}
+      sexOptions={filteredSexOptions}
+      villageSuggester={villageSuggester}
+      nursingZoneSuggester={nursingZoneSuggester}
+      medicalAreaSuggester={medicalAreaSuggester}
+      settlementSuggester={settlementSuggester}
+      subdivisionSuggester={subdivisionSuggester}
+      divisionSuggester={divisionSuggester}
+      countrySuggester={countrySuggester}
+      ethnicitySuggester={ethnicitySuggester}
+      occupationSuggester={occupationSuggester}
+      nationalitySuggester={nationalitySuggester}
+      religionSuggester={religionSuggester}
+      patientSuggester={patientSuggester}
+      isRequiredPatientData={isRequiredPatientData}
+    />
   );
 };
 
 export const SecondaryDetailsGroup = ({ values = {}, patientRegistryType, isEdit = false }) => {
+  const villageSuggester = useSuggester('village');
+  const subdivisionSuggester = useSuggester('subdivision');
+  const divisionSuggester = useSuggester('division');
+  const countrySuggester = useSuggester('country');
+  const settlementSuggester = useSuggester('settlement');
+  const medicalAreaSuggester = useSuggester('medicalArea');
+  const nursingZoneSuggester = useSuggester('nursingZone');
+  const ethnicitySuggester = useSuggester('ethnicity')
+  const nationalitySuggester = useSuggester('nationality')
+  const occupationSuggester = useSuggester('occupation')
+  const religionSuggester = useSuggester('religion')
+  const patientSuggester = usePatientSuggester();
+
+
   return (
-    <StyledSecondaryDetailsGroup>
-      {patientRegistryType === PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY && (
-        <>
-          <StyledHeading>Birth details</StyledHeading>
-          <StyledFormGrid>
-            <BirthDetailsFields
-              registeredBirthPlace={values.registeredBirthPlace}
-              showMandatory={false}
-            />
-          </StyledFormGrid>
-        </>
-      )}
-
-      <StyledHeading>Identification information</StyledHeading>
-      <StyledFormGrid>
-        <IdentificationInformationFields
-          isEdit={isEdit}
-          patientRegistryType={patientRegistryType}
-          showMandatory={false}
-        />
-      </StyledFormGrid>
-
-      <StyledHeading>Contact information</StyledHeading>
-      <StyledFormGrid>
-        <ContactInformationFields showMandatory={false} />
-      </StyledFormGrid>
-
-      <StyledHeading>Personal information</StyledHeading>
-      <StyledFormGrid>
-        <PersonalInformationFields
-          patientRegistryType={patientRegistryType}
-          showMandatory={false}
-        />
-      </StyledFormGrid>
-
-      <StyledHeading>Location information</StyledHeading>
-      <StyledFormGrid>
-        <LocationInformationFields showMandatory={false} />
-      </StyledFormGrid>
-    </StyledSecondaryDetailsGroup>
+    <CambodiaSecondaryDetailsLayout
+      patientRegistryType={patientRegistryType}
+      values={values}
+      isEdit={isEdit}
+      villageSuggester={villageSuggester}
+      nursingZoneSuggester={nursingZoneSuggester}
+      medicalAreaSuggester={medicalAreaSuggester}
+      settlementSuggester={settlementSuggester}
+      subdivisionSuggester={subdivisionSuggester}
+      divisionSuggester={divisionSuggester}
+      countrySuggester={countrySuggester}
+      ethnicitySuggester={ethnicitySuggester}
+      occupationSuggester={occupationSuggester}
+      nationalitySuggester={nationalitySuggester}
+      religionSuggester={religionSuggester}
+      patientSuggester={patientSuggester}
+    />
   );
 };
 
