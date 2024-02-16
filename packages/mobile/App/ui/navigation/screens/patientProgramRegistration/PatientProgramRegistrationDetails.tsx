@@ -52,11 +52,11 @@ const DataRow = (props: { label: string; value: string | string[] }) => {
   );
 };
 
-export const PatientProgramRegistryDetails = ({ route }) => {
+export const PatientProgramRegistrationDetails = ({ route }) => {
   const { patientProgramRegistration } = route.params;
   const [pprCondition] = useBackendEffect(
     async ({ models }) =>
-      await models.PatientProgramRegistrationCondition.getPprConditions(
+      await models.PatientProgramRegistrationCondition.findForRegistryAndPatient(
         patientProgramRegistration.programRegistryId,
         patientProgramRegistration.patientId,
       ),
@@ -73,12 +73,12 @@ export const PatientProgramRegistryDetails = ({ route }) => {
         label="Date of registration"
         value={formatStringDate(patientProgramRegistration.date, DateFormats.DDMMYY)}
       />
-      <DataRow label="Registered by" value={patientProgramRegistration.clinician.displayName} />
+      <DataRow label="Registered by" value={patientProgramRegistration?.clinician?.displayName} />
       <DataRow
         label="Registration facility"
         value={patientProgramRegistration.registeringFacility.name}
       />
-      <DataRow label="Status" value={patientProgramRegistration.clinicalStatus.name || '-'} />
+      <DataRow label="Status" value={patientProgramRegistration?.clinicalStatus?.name || '-'} />
       <DataRow
         label="Conditions"
         value={

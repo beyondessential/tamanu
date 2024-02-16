@@ -64,7 +64,7 @@ export class PatientProgramRegistrationCondition extends BaseModel
   @RelationId(({ deletionClinician }) => deletionClinician)
   deletionClinicianId?: ID;
 
-  static async getPprConditions(programRegistryId: string, patientId: string) {
+  static async findForRegistryAndPatient(programRegistryId: string, patientId: string) {
     const registrationRepository = this.getRepository(PatientProgramRegistration);
     const fullPprConditions = await registrationRepository
       .createQueryBuilder('registration')

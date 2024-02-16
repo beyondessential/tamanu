@@ -118,7 +118,7 @@ export class PatientProgramRegistration extends BaseModel implements IPatientPro
     return mostRecentRegistrations;
   }
 
-  static async getFullPprbyId(id: string) {
+  static async getFullPprById(id: string) {
     const registrationRepository = this.getRepository(PatientProgramRegistration);
     const fullPpr = await registrationRepository
       .createQueryBuilder('registration')

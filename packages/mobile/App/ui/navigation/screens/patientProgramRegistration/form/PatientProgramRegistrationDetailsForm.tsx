@@ -1,6 +1,5 @@
 import React, { ReactElement } from 'react';
 import * as yup from 'yup';
-import { useNavigation } from '@react-navigation/native';
 import { AutocompleteModalField } from '~/ui/components/AutocompleteModal/AutocompleteModalField';
 import { DateField } from '~/ui/components/DateField/DateField';
 import { LocalisedField } from '~/ui/components/Forms/LocalisedField';
@@ -24,8 +23,7 @@ import { useBackendEffect } from '~/ui/hooks/index';
 import { PatientProgramRegistrationCondition } from '~/models/PatientProgramRegistrationCondition';
 import { Routes } from '~/ui/helpers/routes';
 
-export const PatientProgramRegistryDetailsForm = ({ route }: BaseAppProps) => {
-  const navigation = useNavigation();
+export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: BaseAppProps) => {
   const { programRegistry, editedObject, selectedPatient } = route.params;
   const { models } = useBackend();
   const practitionerSuggester = new Suggester(
@@ -74,7 +72,7 @@ export const PatientProgramRegistryDetailsForm = ({ route }: BaseAppProps) => {
       });
     }
 
-    navigation.navigate(Routes.HomeStack.PatientProgramRegistryDetailsStack.Index, {
+    navigation.navigate(Routes.HomeStack.PatientProgramRegistrationDetailsStack.Index, {
       patientProgramRegistration: newPpr,
     });
   };

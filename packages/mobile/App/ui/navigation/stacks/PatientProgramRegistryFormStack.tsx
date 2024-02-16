@@ -7,7 +7,7 @@ import { withPatient } from '~/ui/containers/Patient';
 import { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
 import { FullView } from '~/ui/styled/common';
 import { Routes } from '~/ui/helpers/routes';
-import { PatientProgramRegistryForm } from '../screens/patientProgramRegistry/PatientProgramRegistryForm';
+import { PatientProgramRegistryForm } from '../screens/patientProgramRegistration/PatientProgramRegistryForm';
 import { createStackNavigator } from '@react-navigation/stack';
 
 const Stack = createStackNavigator();

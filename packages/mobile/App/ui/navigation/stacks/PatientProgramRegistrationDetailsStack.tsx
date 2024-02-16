@@ -5,18 +5,18 @@ import { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
 import { FullView } from '~/ui/styled/common';
 import { Routes } from '~/ui/helpers/routes';
 import { createStackNavigator } from '@react-navigation/stack';
-import { PatientProgramRegistryDetails } from '../screens/patientProgramRegistry/PatientProgramRegistryDetails';
-import { PatientProgramRegistryRegistrationStatus } from '../screens/patientProgramRegistry/PatientProgramRegistryRegistrationStatus';
+import { PatientProgramRegistrationDetails } from '../screens/patientProgramRegistration/PatientProgramRegistrationDetails';
+import { PatientProgramRegistryRegistrationStatus } from '../screens/patientProgramRegistration/PatientProgramRegistryRegistrationStatus';
 import { useBackendEffect } from '~/ui/hooks/index';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 
 const Stack = createStackNavigator();
-export const PatientProgramRegistryDetailsStack = ({ navigation, route }: BaseAppProps) => {
+export const PatientProgramRegistrationDetailsStack = ({ navigation, route }: BaseAppProps) => {
   const { patientProgramRegistration } = route.params;
   const [registration, registrationError, isRegistrationLoading] = useBackendEffect(
     async ({ models }) =>
-      await models.PatientProgramRegistration.getFullPprbyId(patientProgramRegistration.id),
+      await models.PatientProgramRegistration.getFullPprById(patientProgramRegistration.id),
     [patientProgramRegistration.id],
   );
 
@@ -34,10 +34,10 @@ export const PatientProgramRegistryDetailsStack = ({ navigation, route }: BaseAp
             />
           }
         />
-        <Stack.Navigator headerMode="none" initialRouteName="PatientProgramRegistryDetails">
+        <Stack.Navigator headerMode="none" initialRouteName="PatientProgramRegistrationDetails">
           <Stack.Screen
-            name={Routes.HomeStack.PatientProgramRegistryDetailsStack.Index}
-            component={PatientProgramRegistryDetails}
+            name={Routes.HomeStack.PatientProgramRegistrationDetailsStack.Index}
+            component={PatientProgramRegistrationDetails}
             initialParams={{ patientProgramRegistration: registration }}
           />
         </Stack.Navigator>
