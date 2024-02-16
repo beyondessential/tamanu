@@ -12,7 +12,6 @@ export class FhirSpecimen extends FhirResource {
   static init(options, models) {
     super.init(
       {
-        sampleTime: DataTypes.DATE,
         collection: DataTypes.JSONB,
         request: DataTypes.JSONB,
         type: DataTypes.JSONB,

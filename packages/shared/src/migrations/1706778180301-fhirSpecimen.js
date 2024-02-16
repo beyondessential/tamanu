@@ -28,10 +28,6 @@ export async function up(query) {
       type: DataTypes.JSONB,
       allowNull: true,
     },
-    sample_time: {
-      type: DataTypes.DATE,
-      allowNull: true,
-    },
     request: {
       type: DataTypes.JSONB,
       allowNull: true,

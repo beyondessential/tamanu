@@ -11,23 +11,30 @@ export async function getValues(upstream, models) {
 }
 
 async function getValuesFromLabRequest(upstream, models) {
-  const collectedDateTime = formatFhirDate(upstream.sampleTime);
-  const collector = collectorRef(upstream);
-  const bodySite = await resolveBodySite(upstream, models);
-
-  const collection = (collectedDateTime === null & collector === null && bodySite === null) ? null : {
-    collectedDateTime,
-    collector,
-    bodySite
-  };
-
   return {
     lastUpdated: new Date(),
-    sampleTime: upstream.sampleTime,
-    collection,
+    collection: createCollection(
+      formatFhirDate(upstream.sampleTime),
+      collectorRef(upstream),
+      await resolveBodySite(upstream, models)
+    ),
     type: await resolveSpecimenType(upstream, models),
     request: requestRef(upstream),
   };
+}
+
+function createCollection(collectedDateTime, collector, bodySite) {
+  return (
+    collectedDateTime === null &&
+    collector === null &&
+    bodySite === null
+  ) ?
+    null
+    : {
+      collectedDateTime,
+      collector,
+      bodySite
+    };
 }
 
 function requestRef(labRequest) {
