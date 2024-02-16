@@ -211,7 +211,8 @@ const overrides = {
     "villageId": {
       "shortLabel": "Village",
       "longLabel": "Village",
-      "hidden": true
+      "hidden": false,
+      "requiredPatientData": true
     },
     "birthCertificate": {
       "shortLabel": "Birth certificate",
