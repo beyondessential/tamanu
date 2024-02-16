@@ -5,8 +5,11 @@ import { FormModal } from '../../../components';
 import { NewPatientForm } from '../../../forms';
 import { useApi } from '../../../api';
 import { notifyError } from '../../../utils';
+import { useLocalisation } from '../../../contexts/Localisation';
 
 export const NewPatientModal = ({ open, onCancel, onCreateNewPatient, ...formProps }) => {
+  const {getLocalisation} = useLocalisation();
+
   const api = useApi();
   const onSubmit = useCallback(
     async data => {
@@ -25,6 +28,7 @@ export const NewPatientModal = ({ open, onCancel, onCreateNewPatient, ...formPro
         generateId={generateId}
         onCancel={onCancel}
         onSubmit={onSubmit}
+        expandableAdditionalFields={getLocalisation('patientDetails.layout') !== 'cambodia'}
         {...formProps}
       />
     </FormModal>

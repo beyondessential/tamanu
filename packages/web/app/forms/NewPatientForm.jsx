@@ -72,7 +72,7 @@ const StyledRadioField = styled(RadioField)`
   margin-bottom: 10px;
 `;
 
-export const NewPatientForm = memo(({ editedObject, onSubmit, onCancel, generateId }) => {
+export const NewPatientForm = memo(({ editedObject, expandableAdditionalFields , onSubmit, onCancel, generateId }) => {
   const [isExpanded, setExpanded] = useState(false);
   const [patientRegistryType, setPatientRegistryType] = useState(
     PATIENT_REGISTRY_TYPES.NEW_PATIENT,
@@ -121,7 +121,9 @@ export const NewPatientForm = memo(({ editedObject, onSubmit, onCancel, generate
         />
         <PrimaryDetailsGroup values={values} patientRegistryType={patientRegistryType} />
         <AdditionalInformationRow>
-          <div>
+          {expandableAdditionalFields && (
+
+            <div>
             {isExpanded ? (
               <StyledImageButton onClick={() => setExpanded(false)}>
                 <img alt="Minus button" src={minusCircle} />
@@ -134,8 +136,9 @@ export const NewPatientForm = memo(({ editedObject, onSubmit, onCancel, generate
             Add additional information
             <span> (religion, occupation, blood type...)</span>
           </div>
+                )}
         </AdditionalInformationRow>
-        <Collapse in={isExpanded} style={{ gridColumn: 'span 2' }}>
+        <Collapse in={!expandableAdditionalFields || isExpanded} style={{ gridColumn: 'span 2' }}>
           <SecondaryDetailsGroup patientRegistryType={patientRegistryType} values={values} />
           {isLoading ? (
             <LoadingIndicator />
