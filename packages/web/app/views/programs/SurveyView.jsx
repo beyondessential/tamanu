@@ -97,7 +97,6 @@ export const SurveyView = ({
       </SurveyPaneHeader>
       <Form
         initialValues={initialValues}
-        formType={FORM_TYPES.SURVEY_DATA_FORM}
         onSubmit={onSubmit}
         render={renderSurvey}
         validationSchema={validationSchema}

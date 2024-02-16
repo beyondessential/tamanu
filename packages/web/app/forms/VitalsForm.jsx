@@ -70,7 +70,6 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterTyp
       showInlineErrorsOnly
       validateOnChange
       validateOnBlur
-      formType={FORM_TYPES.SURVEY_DATA_FORM}
       validationSchema={validationSchema}
       initialValues={{
         [VITALS_DATA_ELEMENT_IDS.dateRecorded]: getCurrentDateTimeString(),
