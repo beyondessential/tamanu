@@ -19,10 +19,6 @@ asset.get(
       },
     });
 
-    if (assetRecord) {
-      res.send(assetRecord);
-    } else {
-      res.send({});
-    }
+    res.send(assetRecord || {});
   }),
 );
