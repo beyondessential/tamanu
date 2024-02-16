@@ -36,15 +36,15 @@ export const SelectProgramRegistryForm = ({ navigation, route }: BaseAppProps) =
   const { selectedPatient } = route.params;
   const [searchValue, setSearchValue] = useState('');
 
-  const [programRegistries, programRegistrieError, isprogramRegistrieLoading] = useBackendEffect(
+  const [programRegistries, programRegistryError, isProgramRegistryLoading] = useBackendEffect(
     async ({ models }) =>
-      await models.ProgramRegistry.getFilteredProgramRegistries(selectedPatient.id),
+      await models.ProgramRegistry.getProgramRegistriesForPatient(selectedPatient.id),
     [],
   );
 
-  if (isprogramRegistrieLoading) return <LoadingScreen />;
+  if (isProgramRegistryLoading) return <LoadingScreen />;
 
-  if (programRegistrieError) return <ErrorScreen error={programRegistrieError} />;
+  if (programRegistryError) return <ErrorScreen error={programRegistryError} />;
 
   return (
     <FullView background={theme.colors.WHITE}>

@@ -10,7 +10,7 @@ import { useBackendEffect } from '~/ui/hooks/index';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 
-export const PatientProgramRegistryList = ({ selectedPatient }): ReactElement => {
+export const PatientProgramRegistrationList = ({ selectedPatient }): ReactElement => {
   const navigation = useNavigation();
   const [registrations, registrationError, isRegistrationLoading] = useBackendEffect(
     async ({ models }) =>
@@ -23,8 +23,8 @@ export const PatientProgramRegistryList = ({ selectedPatient }): ReactElement =>
 
   if (registrationError) return <ErrorScreen error={registrationError} />;
 
-  const onNavigateToPatientProgramRegistryDetails = (item: any) => {
-    navigation.navigate(Routes.HomeStack.PatientProgramRegistryDetailsStack.Index, {
+  const onNavigateToPatientProgramRegistrationDetails = (item: any) => {
+    navigation.navigate(Routes.HomeStack.PatientProgramRegistrationDetailsStack.Index, {
       patientProgramRegistration: item,
     });
   };
@@ -34,7 +34,7 @@ export const PatientProgramRegistryList = ({ selectedPatient }): ReactElement =>
       data={registrations}
       ItemSeparatorComponent={Separator}
       renderItem={({ item }) => (
-        <TouchableOpacity onPress={() => onNavigateToPatientProgramRegistryDetails(item)}>
+        <TouchableOpacity onPress={() => onNavigateToPatientProgramRegistrationDetails(item)}>
           <StyledView paddingTop={10} paddingBottom={10}>
             <RowView justifyContent="space-between">
               <RowView>

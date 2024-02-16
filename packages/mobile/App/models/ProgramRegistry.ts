@@ -51,26 +51,23 @@ export class ProgramRegistry extends BaseModel implements IProgramRegistry {
   @RelationId(({ program }) => program)
   programId: ID;
 
-  static async getFilteredProgramRegistries(patientId: string) {
+  static async getProgramRegistriesForPatient(patientId: string) {
     const subquery = PatientProgramRegistration.getRepository()
       .createQueryBuilder('ppr')
       .leftJoinAndSelect('ppr.programRegistry', 'program_registry')
       .select(['ppr.programRegistryId as id'])
       .distinct(true)
-      .where('ppr.patientId = :patientId', { patientId })
-      .andWhere('ppr.registrationStatus != :registrationStatus', {
-        registrationStatus: RegistrationStatus.RecordedInError,
-      });
+      .where('ppr.patientId = :patientId')
+      .andWhere('ppr.registrationStatus != :registrationStatus');
 
     const programRegistryRepository = this.getRepository(ProgramRegistry);
     const filteredProgramRegistries = await programRegistryRepository
       .createQueryBuilder('pr')
       .where(`pr.id NOT IN (${subquery.getQuery()})`)
       .setParameter('patientId', patientId)
-      .setParameter('registrationStatus', RegistrationStatus.RecordedInError)
-      .getMany();
+      .setParameter('registrationStatus', RegistrationStatus.RecordedInError);
 
-    return filteredProgramRegistries;
+    return filteredProgramRegistries.getMany();
   }
 
   static getTableNameForSync(): string {

@@ -7,7 +7,7 @@ import { Button } from '~/ui/components/Button';
 import { CircleAdd } from '~/ui/components/Icons';
 import { useNavigation } from '@react-navigation/native';
 import { Routes } from '~/ui/helpers/routes';
-import { PatientProgramRegistryList } from './PatientProgramRegistryList';
+import { PatientProgramRegistrationList } from './PatientProgramRegistrationList';
 import { withPatient } from '~/ui/containers/Patient';
 import { useBackendEffect } from '~/ui/hooks/index';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
@@ -15,14 +15,14 @@ import { ErrorScreen } from '~/ui/components/ErrorScreen';
 
 const PatientProgramRegistrySummary_ = ({ selectedPatient }): ReactElement => {
   const navigation = useNavigation();
-  const [programRegistries, programRegistrieError, isprogramRegistrieLoading] = useBackendEffect(
+  const [programRegistries, programRegistryError, isProgramRegistryLoading] = useBackendEffect(
     async ({ models }) =>
-      await models.ProgramRegistry.getFilteredProgramRegistries(selectedPatient.id),
+      await models.ProgramRegistry.getProgramRegistriesForPatient(selectedPatient.id),
     [],
   );
 
-  if (isprogramRegistrieLoading) return <LoadingScreen />;
-  if (programRegistrieError) return <ErrorScreen error={programRegistrieError} />;
+  if (isProgramRegistryLoading) return <LoadingScreen />;
+  if (programRegistryError) return <ErrorScreen error={programRegistryError} />;
 
   return (
     <StyledView margin={20} borderRadius={5}>
@@ -42,7 +42,7 @@ const PatientProgramRegistrySummary_ = ({ selectedPatient }): ReactElement => {
           borderRadius={100}
           width={32}
           height={32}
-          loadingAction={isprogramRegistrieLoading}
+          loadingAction={isProgramRegistryLoading}
           disabled={programRegistries?.length === 0}
           onPress={() => {
             navigation.navigate(Routes.HomeStack.PatientProgramRegistryFormStack.Index);
@@ -53,7 +53,7 @@ const PatientProgramRegistrySummary_ = ({ selectedPatient }): ReactElement => {
       </RowView>
       <StyledView borderColor={theme.colors.BOX_OUTLINE} height={1} />
       <StyledView paddingLeft={20} paddingRight={20} background={theme.colors.WHITE}>
-        <PatientProgramRegistryList selectedPatient={selectedPatient} />
+        <PatientProgramRegistrationList selectedPatient={selectedPatient} />
       </StyledView>
     </StyledView>
   );
