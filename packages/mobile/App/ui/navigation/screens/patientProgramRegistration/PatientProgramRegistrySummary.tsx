@@ -1,4 +1,5 @@
 import React, { ReactElement } from 'react';
+import { compose } from 'redux';
 import { StyledView, RowView } from '/styled/common';
 import { SectionHeader } from '/components/SectionHeader';
 import { theme } from '/styled/theme';
@@ -6,12 +7,22 @@ import { Button } from '~/ui/components/Button';
 import { CircleAdd } from '~/ui/components/Icons';
 import { useNavigation } from '@react-navigation/native';
 import { Routes } from '~/ui/helpers/routes';
-import { PatientProgramRegistryList } from './PatientProgramRegistryList';
-import { compose } from 'redux';
+import { PatientProgramRegistrationList } from './PatientProgramRegistrationList';
 import { withPatient } from '~/ui/containers/Patient';
+import { useBackendEffect } from '~/ui/hooks/index';
+import { LoadingScreen } from '~/ui/components/LoadingScreen';
+import { ErrorScreen } from '~/ui/components/ErrorScreen';
 
 const PatientProgramRegistrySummary_ = ({ selectedPatient }): ReactElement => {
   const navigation = useNavigation();
+  const [programRegistries, programRegistryError, isProgramRegistryLoading] = useBackendEffect(
+    async ({ models }) =>
+      await models.ProgramRegistry.getProgramRegistriesForPatient(selectedPatient.id),
+    [],
+  );
+
+  if (isProgramRegistryLoading) return <LoadingScreen />;
+  if (programRegistryError) return <ErrorScreen error={programRegistryError} />;
 
   return (
     <StyledView margin={20} borderRadius={5}>
@@ -25,10 +36,14 @@ const PatientProgramRegistrySummary_ = ({ selectedPatient }): ReactElement => {
           Program registry
         </SectionHeader>
         <Button
-          backgroundColor={theme.colors.PRIMARY_MAIN}
+          backgroundColor={
+            programRegistries?.length === 0 ? theme.colors.DISABLED_GREY : theme.colors.PRIMARY_MAIN
+          }
           borderRadius={100}
           width={32}
           height={32}
+          loadingAction={isProgramRegistryLoading}
+          disabled={programRegistries?.length === 0}
           onPress={() => {
             navigation.navigate(Routes.HomeStack.PatientProgramRegistryFormStack.Index);
           }}
@@ -38,7 +53,7 @@ const PatientProgramRegistrySummary_ = ({ selectedPatient }): ReactElement => {
       </RowView>
       <StyledView borderColor={theme.colors.BOX_OUTLINE} height={1} />
       <StyledView paddingLeft={20} paddingRight={20} background={theme.colors.WHITE}>
-        <PatientProgramRegistryList selectedPatient={selectedPatient} />
+        <PatientProgramRegistrationList selectedPatient={selectedPatient} />
       </StyledView>
     </StyledView>
   );

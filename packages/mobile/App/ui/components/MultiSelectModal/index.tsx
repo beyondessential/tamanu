@@ -9,6 +9,7 @@ import { GreenTickIcon } from '~/ui/components/Icons';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { Row } from '~/ui/navigation/screens/home/Tabs/PatientHome/ReportScreen/RecentPatientSurveyReportStyled';
 import { Suggester, BaseModelSubclass } from '~/ui/helpers/suggester';
+import { Button } from '../Button/index';
 
 interface IMultiSelectModalScreen {
   navigation;
@@ -17,36 +18,33 @@ interface IMultiSelectModalScreen {
       callback: (item: any) => any;
       suggester: Suggester<BaseModelSubclass>;
       modalTitle: string;
-      suggesterParams?: { [key: string]: any };
       value: { label: string; value: string }[];
     };
   };
 }
 export const MultiSelectModalScreen = (props: IMultiSelectModalScreen) => {
-  const { callback, modalTitle, suggesterParams, suggester, value } = props.route.params;
+  const { callback, modalTitle, suggester, value } = props.route.params;
   const [searchValue, setSearchValue] = useState('');
   const [options, setOptions] = useState<{ value: string; label: string; selected: boolean }[]>([]);
 
   useEffect(() => {
     (async (): Promise<void> => {
-      const data = await suggester.fetch(suggesterParams);
+      const data = await suggester.fetchSuggestions(searchValue);
       setOptions(
         data.map((x: any) => {
           const selected = Array.isArray(value) && !!value.find(v => v.value === x.id);
-          return { label: x.name, value: x.id, selected };
+          return { ...x, selected };
         }),
       );
     })();
-  }, []);
+  }, [searchValue]);
 
-  console.log(callback, modalTitle, suggesterParams, suggester, value);
   return (
     <FullView background={theme.colors.WHITE}>
       <EmptyStackHeader
         title={modalTitle}
         onGoBack={() => {
           props.navigation.goBack();
-          callback(options.filter(x => x.selected));
         }}
       />
       <StyledView borderColor={theme.colors.BOX_OUTLINE} borderBottomWidth={1}></StyledView>
@@ -65,7 +63,7 @@ export const MultiSelectModalScreen = (props: IMultiSelectModalScreen) => {
           placeholder={'Search conditions...'}
         />
       </StyledView>
-      <StyledView marginRight={20} marginLeft={20}>
+      <StyledView marginRight={20} marginLeft={20} marginBottom={20}>
         <FlatList
           data={options.filter(x => {
             if (!searchValue) return true;
@@ -106,6 +104,15 @@ export const MultiSelectModalScreen = (props: IMultiSelectModalScreen) => {
               </StyledView>
             </StyledTouchableOpacity>
           )}
+        />
+      </StyledView>
+      <StyledView marginRight={20} marginLeft={20} marginBottom={20}>
+        <Button
+          onPress={() => {
+            props.navigation.goBack();
+            callback(options.filter(x => x.selected));
+          }}
+          buttonText="Save"
         />
       </StyledView>
     </FullView>

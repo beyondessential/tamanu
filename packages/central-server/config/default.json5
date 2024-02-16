@@ -718,6 +718,10 @@
         "conditions": {
           "shortLabel": "Conditions",
           "longLabel": "Conditions"
+        },
+        "programRegistry": {
+          "shortLabel": "Program Registry",
+          "longLabel": "Program Registry"
         }
       },
       "features": {

@@ -58,6 +58,7 @@ const UNHIDEABLE_FIELDS = [
   'registeredBy',
   'status',
   'conditions',
+  'programRegistry',
 ];
 
 const HIDEABLE_FIELDS = [

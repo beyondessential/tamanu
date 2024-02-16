@@ -4,7 +4,7 @@ import { IProgramRegistry, ID } from '~/types';
 import { BaseModel } from './BaseModel';
 import { SYNC_DIRECTIONS } from './types';
 import { VisibilityStatus } from '~/visibilityStatuses';
-import { CurrentlyAtType } from '~/constants/programRegistries';
+import { CurrentlyAtType, RegistrationStatus } from '~/constants/programRegistries';
 import { Program } from './Program';
 import { PatientProgramRegistration } from './PatientProgramRegistration';
 import { ProgramRegistryClinicalStatus } from './ProgramRegistryClinicalStatus';
@@ -50,6 +50,25 @@ export class ProgramRegistry extends BaseModel implements IProgramRegistry {
 
   @RelationId(({ program }) => program)
   programId: ID;
+
+  static async getProgramRegistriesForPatient(patientId: string) {
+    const subquery = PatientProgramRegistration.getRepository()
+      .createQueryBuilder('ppr')
+      .leftJoinAndSelect('ppr.programRegistry', 'program_registry')
+      .select(['ppr.programRegistryId as id'])
+      .distinct(true)
+      .where('ppr.patientId = :patientId')
+      .andWhere('ppr.registrationStatus != :registrationStatus');
+
+    const programRegistryRepository = this.getRepository(ProgramRegistry);
+    const filteredProgramRegistries = await programRegistryRepository
+      .createQueryBuilder('pr')
+      .where(`pr.id NOT IN (${subquery.getQuery()})`)
+      .setParameter('patientId', patientId)
+      .setParameter('registrationStatus', RegistrationStatus.RecordedInError);
+
+    return filteredProgramRegistries.getMany();
+  }
 
   static getTableNameForSync(): string {
     return 'program_registries';

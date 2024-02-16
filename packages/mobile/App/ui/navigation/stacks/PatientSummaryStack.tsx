@@ -8,7 +8,7 @@ import { withPatient } from '~/ui/containers/Patient';
 import { NavigationProp } from '@react-navigation/native';
 import { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
 import { createStackNavigator } from '@react-navigation/stack';
-import { PatientProgramRegistrySummary } from '../screens/patientProgramRegistry/PatientProgramRegistrySummary';
+import { PatientProgramRegistrySummary } from '../screens/patientProgramRegistration/PatientProgramRegistrySummary';
 
 const Stack = createStackNavigator();
 interface PatientSummaryStackProps extends BaseAppProps {

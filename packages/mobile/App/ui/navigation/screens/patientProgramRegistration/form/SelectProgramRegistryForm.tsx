@@ -7,6 +7,10 @@ import { SearchInput } from '~/ui/components/SearchInput';
 import { FlatList } from 'react-native';
 import { Separator } from '~/ui/components/Separator';
 import { EmptyStackHeader } from '~/ui/components/StackHeader';
+import { useBackendEffect } from '~/ui/hooks/index';
+import { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
+import { LoadingScreen } from '~/ui/components/LoadingScreen';
+import { ErrorScreen } from '~/ui/components/ErrorScreen';
 
 const ProgramRegistryListItem = ({ item }) => {
   const navigation = useNavigation();
@@ -28,9 +32,19 @@ const ProgramRegistryListItem = ({ item }) => {
   );
 };
 
-export const SelectProgramRegistryForm = () => {
-  const navigation = useNavigation();
+export const SelectProgramRegistryForm = ({ navigation, route }: BaseAppProps) => {
+  const { selectedPatient } = route.params;
   const [searchValue, setSearchValue] = useState('');
+
+  const [programRegistries, programRegistryError, isProgramRegistryLoading] = useBackendEffect(
+    async ({ models }) =>
+      await models.ProgramRegistry.getProgramRegistriesForPatient(selectedPatient.id),
+    [],
+  );
+
+  if (isProgramRegistryLoading) return <LoadingScreen />;
+
+  if (programRegistryError) return <ErrorScreen error={programRegistryError} />;
 
   return (
     <FullView background={theme.colors.WHITE}>
@@ -58,11 +72,7 @@ export const SelectProgramRegistryForm = () => {
       </StyledView>
       <StyledView marginRight={20} marginLeft={20}>
         <FlatList
-          data={[
-            { id: 1, name: 'Hepatitis A' },
-            { id: 2, name: 'Hepatitis B' },
-            { id: 3, name: 'Hepatitis C' },
-          ].filter(x => {
+          data={programRegistries?.filter(x => {
             if (!searchValue) return true;
             return x.name.toLowerCase().includes(searchValue.toLowerCase());
           })}

@@ -1,8 +1,8 @@
 import React from 'react';
 import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
 import { Routes } from '~/ui/helpers/routes';
-import { SelectProgramRegistryForm } from '../screens/patientProgramRegistry/form/SelectProgramRegistryForm';
-import { PatientProgramRegistryDetailsForm } from '../screens/patientProgramRegistry/form/PatientProgramRegistryDetailsForm';
+import { SelectProgramRegistryForm } from '../screens/patientProgramRegistration/form/SelectProgramRegistryForm';
+import { PatientProgramRegistrationDetailsForm } from '../screens/patientProgramRegistration/form/PatientProgramRegistrationDetailsForm';
 import { NavigationProp } from '@react-navigation/native';
 import { compose } from 'redux';
 import { withPatient } from '~/ui/containers/Patient';
@@ -15,9 +15,9 @@ export interface IPatientProgramRegistryForm {
   programRegistryId: string;
   clinicalStatusId: string;
   date: any;
-  facilityId: string;
+  registeringFacilityId: string;
   clinicianId: string;
-  conditions: string[];
+  conditions: any[];
 }
 export interface PatientProgramRegistryProps extends BaseAppProps {
   navigation: NavigationProp<any>;
@@ -35,7 +35,7 @@ const PatientProgramRegistryForm = ({ selectedPatient }: PatientProgramRegistryP
         />
         <Stack.Screen
           name={Routes.HomeStack.PatientProgramRegistryFormStack.PatientProgramRegistryForm}
-          component={PatientProgramRegistryDetailsForm}
+          component={PatientProgramRegistrationDetailsForm}
           initialParams={{ selectedPatient }}
         />
       </Stack.Navigator>

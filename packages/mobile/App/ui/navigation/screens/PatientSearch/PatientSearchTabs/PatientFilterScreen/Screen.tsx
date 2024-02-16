@@ -6,10 +6,15 @@ import {
   StyledSafeAreaView,
   StyledScrollView,
   StyledText,
-  StyledView,
 } from '/styled/common';
 import { theme } from '/styled/theme';
-import { DateSection, NameSection, SexSection, VillageSection } from './CustomComponents';
+import {
+  DateSection,
+  NameSection,
+  SexSection,
+  VillageSection,
+  ProgramRegistrySection,
+} from './CustomComponents';
 import SubmitSection from './CustomComponents/SubmitSection';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 
@@ -61,6 +66,7 @@ export const Screen = ({ onSubmit, onClear, onCancel }: ScreenProps): ReactEleme
         <DateSection />
         <VillageSection />
         <SexSection />
+        <ProgramRegistrySection />
         <SubmitSection onSubmit={onSubmit} />
       </FullView>
     </StyledScrollView>

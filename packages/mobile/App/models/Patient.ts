@@ -1,4 +1,4 @@
-import { Column, Entity, Index, OneToMany } from 'typeorm/browser';
+import { Column, Entity, Index, OneToMany, getManager } from 'typeorm/browser';
 import { getUniqueId } from 'react-native-device-info';
 import { addHours, parseISO, startOfDay, subYears } from 'date-fns';
 import { groupBy } from 'lodash';
@@ -14,8 +14,8 @@ import { PatientAdditionalData } from './PatientAdditionalData';
 import { PatientFacility } from './PatientFacility';
 import { NullableReferenceDataRelation, ReferenceData } from './ReferenceData';
 import { SYNC_DIRECTIONS } from './types';
-
 import { DateStringColumn } from './DateColumns';
+
 const TIME_OFFSET = 3;
 
 @Entity('patient')
@@ -119,11 +119,12 @@ export class Patient extends BaseModel implements IPatient {
       .addSelect('count(distinct surveyResponse.encounterId)', 'totalSurveys')
       .leftJoin('patient.encounters', 'encounter')
       .leftJoin(
-        subQuery => subQuery
-          .select('surveyResponse.id', 'id')
-          .addSelect('surveyResponse.encounterId', 'encounterId')
-          .from('survey_response', 'surveyResponse')
-          .where('surveyResponse.surveyId = :surveyId', { surveyId }),
+        subQuery =>
+          subQuery
+            .select('surveyResponse.id', 'id')
+            .addSelect('surveyResponse.encounterId', 'encounterId')
+            .from('survey_response', 'surveyResponse')
+            .where('surveyResponse.surveyId = :surveyId', { surveyId }),
         'surveyResponse',
         '"surveyResponse"."encounterId" = encounter.id',
       )
@@ -146,11 +147,12 @@ export class Patient extends BaseModel implements IPatient {
       .addSelect('count(distinct surveyResponse.encounterId)', 'totalSurveys')
       .leftJoin('patient.encounters', 'encounter')
       .leftJoin(
-        subQuery => subQuery
-          .select('surveyResponse.id', 'id')
-          .addSelect('surveyResponse.encounterId', 'encounterId')
-          .from('survey_response', 'surveyResponse')
-          .where('surveyResponse.surveyId = :surveyId', { surveyId }),
+        subQuery =>
+          subQuery
+            .select('surveyResponse.id', 'id')
+            .addSelect('surveyResponse.encounterId', 'encounterId')
+            .from('survey_response', 'surveyResponse')
+            .where('surveyResponse.surveyId = :surveyId', { surveyId }),
         'surveyResponse',
         '"surveyResponse"."encounterId" = encounter.id',
       )
@@ -167,11 +169,12 @@ export class Patient extends BaseModel implements IPatient {
       .addSelect('count(distinct surveyResponse.encounterId)', 'totalSurveys')
       .leftJoin('patient.encounters', 'encounter')
       .leftJoin(
-        subQuery => subQuery
-          .select('surveyResponse.id', 'id')
-          .addSelect('surveyResponse.encounterId', 'encounterId')
-          .from('survey_response', 'surveyResponse')
-          .where('surveyResponse.surveyId = :surveyId', { surveyId }),
+        subQuery =>
+          subQuery
+            .select('surveyResponse.id', 'id')
+            .addSelect('surveyResponse.encounterId', 'encounterId')
+            .from('survey_response', 'surveyResponse')
+            .where('surveyResponse.surveyId = :surveyId', { surveyId }),
         'surveyResponse',
         '"surveyResponse"."encounterId" = encounter.id',
       )
@@ -248,5 +251,49 @@ export class Patient extends BaseModel implements IPatient {
     const columns = Object.keys(data).sort((a, b) => parseISO(b).getTime() - parseISO(a).getTime());
 
     return { data, columns };
+  }
+
+  static async filterPatients(filters: { [key: string]: any }, searchKey: string) {
+    const queryBuilder = getManager()
+      .getRepository(Patient)
+      .createQueryBuilder('patient');
+
+    queryBuilder.where(
+      `(
+        patient.displayId LIKE :searchKey OR
+        patient.firstName LIKE :searchKey OR
+        patient.middleName LIKE :searchKey OR
+        patient.lastName LIKE :searchKey OR
+        patient.culturalName LIKE :searchKey
+      )`,
+      { searchKey: `%${searchKey}%` },
+    );
+    queryBuilder.andWhere('patient.deletedAt IS NULL');
+
+    Object.keys(filters).forEach(key => {
+      const value = filters[key];
+      if (key === 'programRegistryId') {
+        queryBuilder.andWhere(
+          `patient.id IN 
+          (
+            SELECT DISTINCT ppr.patientId 
+            FROM patient_program_registration ppr 
+            WHERE ( ppr.programRegistryId = :programRegistryId ) 
+            AND ( ppr.deletedAt IS NULL )
+          )`,
+          { programRegistryId: value },
+        );
+      } else if (value) {
+        if (typeof value === 'string') queryBuilder.andWhere(`patient.${key} = :value`, { value });
+        else queryBuilder.andWhere(`patient.${key} LIKE :value`, { value: `%${value._value}%` });
+      }
+    });
+
+    queryBuilder.orderBy('patient.lastName', 'ASC');
+    queryBuilder.addOrderBy('patient.firstName', 'ASC');
+    queryBuilder.limit(100);
+
+    const patients = await queryBuilder.getMany();
+    return patients;
   }
 }
