@@ -1,4 +1,4 @@
-import { Column, Entity, Index, OneToMany, getManager, Like, Not, IsNull } from 'typeorm/browser';
+import { Column, Entity, Index, OneToMany, getManager, Raw, IsNull } from 'typeorm/browser';
 import { getUniqueId } from 'react-native-device-info';
 import { addHours, parseISO, startOfDay, subYears } from 'date-fns';
 import { groupBy } from 'lodash';
@@ -253,29 +253,40 @@ export class Patient extends BaseModel implements IPatient {
     return { data, columns };
   }
 
-  static async filterPatients(incomingFilters: { [key: string]: any }, searchKey: string) {
-    const repo = getManager().getRepository(Patient);
+  static async filterPatients(filters: { [key: string]: any }, searchTerm: string) {
+    const queryBuilder = getManager()
+      .getRepository(Patient)
+      .createQueryBuilder('patient');
 
-    const filters = { ...incomingFilters, deletedAt: Not(IsNull()) };
+    queryBuilder.where(
+      `(
+        patient.displayId LIKE :searchValue OR
+        patient.firstName LIKE :searchValue OR
+        patient.middleName LIKE :searchValue OR
+        patient.lastName LIKE :searchValue OR
+        patient.culturalName LIKE :searchValue
+      )`,
+      { searchValue: `%${searchTerm}%` },
+    );
+    queryBuilder.andWhere('patient.deletedAt IS NULL');
 
-    return repo.find({
-      order: {
-        lastName: 'ASC',
-        firstName: 'ASC',
-      },
-      // Must match ONE of following lines entirely. ([{a}, {b}] is OR, [{a, b}] is AND)
-      // Note also that the filters can override 'firstName' for example, in which case the search
-      // will not bother matching against that field, and instead filter within the subset defined
-      // by the filters across the other fields that aren't specified
-      where: [
-        { displayId: Like(`%${searchKey}%`), ...filters },
-        { firstName: Like(`%${searchKey}%`), ...filters },
-        { middleName: Like(`%${searchKey}%`), ...filters },
-        { lastName: Like(`%${searchKey}%`), ...filters },
-        { culturalName: Like(`%${searchKey}%`), ...filters },
-      ],
-      take: 100,
-      cache: true,
+    Object.entries(filters).forEach(([key, value]) => {
+      if (!value) {
+        return;
+      }
+
+      if (typeof value === 'object') {
+        queryBuilder.andWhere(value.where, value.substitutions);
+      } else {
+        queryBuilder.andWhere(`patient.${key} = :value`, { value });
+      }
     });
+
+    queryBuilder.orderBy('patient.lastName', 'ASC');
+    queryBuilder.addOrderBy('patient.firstName', 'ASC');
+    queryBuilder.limit(100);
+
+    const patients = await queryBuilder.getMany();
+    return patients;
   }
 }

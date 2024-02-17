@@ -44,20 +44,23 @@ const getActiveFilters = (filters: ActiveFilters, filter: FieldProp): ActiveFilt
       const date = format(field.value, 'yyyy-MM-dd');
       activeFilters.filters[field.name] = date;
     } else if (['firstName', 'lastName'].includes(field.name)) {
-      activeFilters.filters[field.name] = Like(`%${field.value}%`);
+      activeFilters.filters[field.name] = {
+        where: `${field.name} LIKE :fieldValue`,
+        substitutions: { fieldValue: `%${field.value}%` },
+      };
     } else if (field.name === 'programRegistryId') {
-      activeFilters.filters[field.name] = Raw(
-        () => `
-        patient.id IN
-          (
-            SELECT DISTINCT ppr.patientId
-            FROM patient_program_registration ppr
-            WHERE ( ppr.programRegistryId = :programRegistryId )
-            AND ( ppr.deletedAt IS NULL )
-          )
+      activeFilters.filters[field.name] = {
+        where: `
+          patient.id IN
+            (
+              SELECT DISTINCT ppr.patientId
+              FROM patient_program_registration ppr
+              WHERE ( ppr.programRegistryId = :programRegistryId )
+              AND ( ppr.deletedAt IS NULL )
+            )
         `,
-        { programRegistryId: field.value },
-      );
+        substitutions: { programRegistryId: field.value },
+      };
     } else {
       activeFilters.filters[field.name] = field.value; // use equal for any other filters
     }
