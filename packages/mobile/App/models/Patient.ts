@@ -264,7 +264,9 @@ export class Patient extends BaseModel implements IPatient {
         firstName: 'ASC',
       },
       // Must match ONE of following lines entirely. ([{a}, {b}] is OR, [{a, b}] is AND)
-      // Note also that the filters can override 'firstName' for example, (making the search field irrelevant?)
+      // Note also that the filters can override 'firstName' for example, in which case the search
+      // will not bother matching against that field, and instead filter within the subset defined
+      // by the filters across the other fields that aren't specified
       where: [
         { displayId: Like(`%${searchKey}%`), ...filters },
         { firstName: Like(`%${searchKey}%`), ...filters },
