@@ -48,7 +48,7 @@ function transformPatientData(
         case 'Patient':
           return patient[fieldName];
         case 'PatientAdditionalData':
-          return additionalData ? additionalData[fieldName] : undefined;
+          return isAdditionalDataField && additionalData ? additionalData[fieldName] : undefined;
         case 'PatientProgramRegistration':
           return patientProgramRegistration ? patientProgramRegistration[fieldName] : undefined;
         default:
