@@ -1,6 +1,6 @@
 import React, { FC, ReactElement, useCallback, useMemo } from 'react';
 import { format } from 'date-fns';
-import { FindOperator, Like } from 'typeorm';
+import { FindOperator, Like, Raw } from 'typeorm';
 import { FieldHelperProps, FieldInputProps, FieldMetaProps, useField } from 'formik';
 import { compose } from 'redux';
 // Containers
@@ -45,6 +45,19 @@ const getActiveFilters = (filters: ActiveFilters, filter: FieldProp): ActiveFilt
       activeFilters.filters[field.name] = date;
     } else if (['firstName', 'lastName'].includes(field.name)) {
       activeFilters.filters[field.name] = Like(`%${field.value}%`);
+    } else if (field.name === 'programRegistryId') {
+      activeFilters.filters[field.name] = Raw(
+        () => `
+        patient.id IN
+          (
+            SELECT DISTINCT ppr.patientId
+            FROM patient_program_registration ppr
+            WHERE ( ppr.programRegistryId = :programRegistryId )
+            AND ( ppr.deletedAt IS NULL )
+          )
+        `,
+        { programRegistryId: field.value },
+      );
     } else {
       activeFilters.filters[field.name] = field.value; // use equal for any other filters
     }

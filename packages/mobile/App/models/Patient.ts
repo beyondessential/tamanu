@@ -1,4 +1,4 @@
-import { Column, Entity, Index, OneToMany, getManager } from 'typeorm/browser';
+import { Column, Entity, Index, OneToMany, getManager, Like, Not, IsNull } from 'typeorm/browser';
 import { getUniqueId } from 'react-native-device-info';
 import { addHours, parseISO, startOfDay, subYears } from 'date-fns';
 import { groupBy } from 'lodash';
@@ -253,47 +253,27 @@ export class Patient extends BaseModel implements IPatient {
     return { data, columns };
   }
 
-  static async filterPatients(filters: { [key: string]: any }, searchKey: string) {
-    const queryBuilder = getManager()
-      .getRepository(Patient)
-      .createQueryBuilder('patient');
+  static async filterPatients(incomingFilters: { [key: string]: any }, searchKey: string) {
+    const repo = getManager().getRepository(Patient);
 
-    queryBuilder.where(
-      `(
-        patient.displayId LIKE :searchKey OR
-        patient.firstName LIKE :searchKey OR
-        patient.middleName LIKE :searchKey OR
-        patient.lastName LIKE :searchKey OR
-        patient.culturalName LIKE :searchKey
-      )`,
-      { searchKey: `%${searchKey}%` },
-    );
-    queryBuilder.andWhere('patient.deletedAt IS NULL');
+    const filters = { ...incomingFilters, deletedAt: Not(IsNull()) };
 
-    Object.keys(filters).forEach(key => {
-      const value = filters[key];
-      if (key === 'programRegistryId') {
-        queryBuilder.andWhere(
-          `patient.id IN 
-          (
-            SELECT DISTINCT ppr.patientId 
-            FROM patient_program_registration ppr 
-            WHERE ( ppr.programRegistryId = :programRegistryId ) 
-            AND ( ppr.deletedAt IS NULL )
-          )`,
-          { programRegistryId: value },
-        );
-      } else if (value) {
-        if (typeof value === 'string') queryBuilder.andWhere(`patient.${key} = :value`, { value });
-        else queryBuilder.andWhere(`patient.${key} LIKE :value`, { value: `%${value._value}%` });
-      }
+    return repo.find({
+      order: {
+        lastName: 'ASC',
+        firstName: 'ASC',
+      },
+      // Must match ONE of following lines entirely. ([{a}, {b}] is OR, [{a, b}] is AND)
+      // Note also that the filters can override 'firstName' for example, (making the search field irrelevant?)
+      where: [
+        { displayId: Like(`%${searchKey}%`), ...filters },
+        { firstName: Like(`%${searchKey}%`), ...filters },
+        { middleName: Like(`%${searchKey}%`), ...filters },
+        { lastName: Like(`%${searchKey}%`), ...filters },
+        { culturalName: Like(`%${searchKey}%`), ...filters },
+      ],
+      take: 100,
+      cache: true,
     });
-
-    queryBuilder.orderBy('patient.lastName', 'ASC');
-    queryBuilder.addOrderBy('patient.firstName', 'ASC');
-    queryBuilder.limit(100);
-
-    const patients = await queryBuilder.getMany();
-    return patients;
   }
 }

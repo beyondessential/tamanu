@@ -96,7 +96,7 @@ export class PatientProgramRegistration extends BaseModel implements IPatientPro
       WHERE id = (
         SELECT id
         FROM patient_program_registration AS sub
-        WHERE main.patientId = sub.patientId AND main.programRegistryId = sub.programRegistryId
+        WHERE main.patientId = :patientId AND sub.patientId = :patientId AND main.programRegistryId = sub.programRegistryId
         ORDER BY date DESC, id DESC
         LIMIT 1
       )
@@ -104,7 +104,7 @@ export class PatientProgramRegistration extends BaseModel implements IPatientPro
 
     const mostRecentRegistrations = await registrationRepository
       .createQueryBuilder('registration')
-      .where(`registration.id IN (${GET_MOST_RECENT_REGISTRATIONS_QUERY})`)
+      .where(`registration.id IN (${GET_MOST_RECENT_REGISTRATIONS_QUERY})`, { patientId })
       .andWhere('registration.registrationStatus != :status', {
         status: RegistrationStatus.RecordedInError,
       })
