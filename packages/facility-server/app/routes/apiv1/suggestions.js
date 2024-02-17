@@ -156,12 +156,14 @@ const createNameSuggester = (
   endpoint,
   modelName = pascal(endpoint),
   whereBuilderFn = DEFAULT_WHERE_BUILDER,
+  options,
 ) =>
   createSuggester(endpoint, modelName, whereBuilderFn, {
     mapper: ({ id, name }) => ({
       id,
       name,
     }),
+    ...options,
   });
 
 createNameSuggester('department', 'Department', filterByFacilityWhereBuilder);
