@@ -51,6 +51,7 @@ const servers = [
 
   // development servers
   { name: 'Dev (main)', type: 'dev', host: 'https://central.main.internal.tamanu.io' },
+  { name: 'Dev (program-registries-mobile)', type: 'dev', host: 'https://central.epic-program-registries-mobile.internal.tamanu.io/#/' },
   { name: 'RC (1.28)', type: 'dev', host: 'https://central.release-1-28.internal.tamanu.io' },
   { name: 'RC (1.29)', type: 'dev', host: 'https://central.release-1-29.internal.tamanu.io' },
   { name: 'RC (1.30)', type: 'dev', host: 'https://central.release-1-30.internal.tamanu.io' },
