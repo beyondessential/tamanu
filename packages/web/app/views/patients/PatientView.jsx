@@ -96,9 +96,22 @@ const TABS = [
   },
 ];
 
+const tabCompare = ({ firstTab, secondTab, patientTabLocalisation }) => {
+  const firstTabSortPriority = patientTabLocalisation?.[firstTab.key]?.sortPriority || 0;
+  const secondTabSortPriority = patientTabLocalisation?.[secondTab.key]?.sortPriority || 0;
+  return firstTabSortPriority - secondTabSortPriority;
+};
+
+const usePatientTabs = () => {
+  const { getLocalisation } = useLocalisation();
+  const patientTabLocalisation = getLocalisation('patientTabs');
+  return TABS.filter(
+    tab => patientTabLocalisation?.[tab.key]?.hidden === false,
+  ).sort((firstTab, secondTab) => tabCompare({ firstTab, secondTab, patientTabLocalisation }));
+};
+
 export const PatientView = () => {
   const queryClient = useQueryClient();
-  const { getLocalisation } = useLocalisation();
   const { navigateToPatient } = usePatientNavigation();
   const query = useUrlSearchParams();
   const patient = useSelector(state => state.patient);
@@ -140,11 +153,11 @@ export const PatientView = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [patient.syncing]);
 
+  const visibleTabs = usePatientTabs();
+
   if (patient.loading || isLoadingAdditionalData || isLoadingBirthData) {
     return <LoadingIndicator />;
   }
-
-  const visibleTabs = TABS.filter(tab => !tab.condition || tab.condition(getLocalisation));
 
   return (
     <PatientSearchParametersProvider>

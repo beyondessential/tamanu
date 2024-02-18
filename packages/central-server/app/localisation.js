@@ -34,6 +34,24 @@ const unhideableFieldSchema = yup
   .required()
   .noUnknown();
 
+const patientTabSchema = yup
+  .object({
+    sortPriority: yup.number().required(),
+    hidden: yup.boolean(),
+  })
+  .required()
+  .noUnknown();
+
+const unhideablePatientTabSchema = yup
+  .object({
+    sortPriority: yup.number().required(),
+    hidden: yup
+      .boolean()
+      .oneOf([false], 'unhideable tabs must not be hidden')
+      .required(),
+  })
+  .required();
+
 const UNHIDEABLE_FIELDS = [
   'markedForSync',
   'displayId',
@@ -109,6 +127,18 @@ const HIDEABLE_FIELDS = [
   'prescriberId',
   'facility',
   'dischargeDisposition',
+];
+
+const UNHIDEABLE_PATIENT_TABS = ['history', 'details'];
+
+const HIDEABLE_PATIENT_TABS = [
+  'results',
+  'referrals',
+  'programs',
+  'documents',
+  'vaccines',
+  'medication',
+  'invoices',
 ];
 
 const ageDurationSchema = yup
@@ -267,6 +297,23 @@ const fieldsSchema = yup
   .required()
   .noUnknown();
 
+const patientTabsSchema = yup.object({
+  ...UNHIDEABLE_PATIENT_TABS.reduce(
+    (tabs, tab) => ({
+      ...tabs,
+      [tab]: unhideablePatientTabSchema,
+    }),
+    {},
+  ),
+  ...HIDEABLE_PATIENT_TABS.reduce(
+    (tabs, tab) => ({
+      ...tabs,
+      [tab]: patientTabSchema,
+    }),
+    {},
+  ),
+});
+
 const SIDEBAR_ITEMS = {
   patients: ['patientsAll', 'patientsInpatients', 'patientsEmergency', 'patientsOutpatients'],
   scheduling: ['schedulingAppointments', 'schedulingCalendar', 'schedulingNew'],
@@ -376,6 +423,7 @@ const printMeasuresSchema = yup
 
 const rootLocalisationSchema = yup
   .object({
+    patientTabs: patientTabsSchema,
     units: yup.object({
       temperature: yup.string().oneOf(['celsius', 'fahrenheit']),
     }),
