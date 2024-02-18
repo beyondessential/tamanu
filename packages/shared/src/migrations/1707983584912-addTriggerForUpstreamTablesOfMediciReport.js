@@ -7,7 +7,7 @@ const TABLES_FOR_REFRESH = [
   'survey_responses',
   'triages',
   'vitals',
-  'referrals'
+  'referrals',
 ];
 
 export async function up(query) {

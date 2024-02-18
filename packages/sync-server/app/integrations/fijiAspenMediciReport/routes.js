@@ -61,12 +61,12 @@ WHERE true
   AND coalesce(patient_billing_id, '-') LIKE coalesce($billing_type, '%%')
   AND encounter_end_date IS NOT NULL
   AND CASE WHEN coalesce($from_date, 'not_a_date') != 'not_a_date'
-    THEN last_updated at time zone $timezone_string >= $from_date::timestamptz at time zone $timezone_string
+    THEN last_updated >= $from_date::timestamptz at time zone $timezone_string
   ELSE
     true
   END
   AND CASE WHEN coalesce($to_date, 'not_a_date') != 'not_a_date'
-    THEN last_updated at time zone $timezone_string <= $to_date::timestamptz at time zone $timezone_string
+    THEN last_updated <= $to_date::timestamptz at time zone $timezone_string
   ELSE
     true
   END
