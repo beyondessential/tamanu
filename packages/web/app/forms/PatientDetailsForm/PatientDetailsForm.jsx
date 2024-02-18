@@ -28,6 +28,7 @@ import {
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 
 import {
+  CambodiaPatientFieldLayout,
   CambodiaPrimaryDetailsLayout,
   CambodiaSecondaryDetailsLayout,
 } from './layouts/cambodia/CambodiaLayout';
@@ -166,7 +167,7 @@ function stripPatientData(patient, additionalData, birthData) {
 
 export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmit }) => {
   const patientRegistryType = !isEmpty(birthData)
-  ? PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY
+    ? PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY
     : PATIENT_REGISTRY_TYPES.NEW_PATIENT;
 
   const handleSubmit = async data => {
@@ -188,18 +189,7 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
     data: fieldDefinitionsResponse,
     error: fieldDefError,
     isLoading: isLoadingFieldDefinitions,
-  } = useQuery(['patientFieldDefinition'], () => api.get(`patientFieldDefinition`), {
-    select: ({ data, count }) => {
-      if (getLocalisation('patientDetails.layout') !== 'cambodia') return { data, count };
-      // Filter out cambodia custom fields which are used inline
-      return {
-        data: data.filter(
-          ({ categoryId }) => categoryId !== 'fieldCategory-CambodiaCorePatientFields',
-        ),
-        count,
-      };
-    },
-  });
+  } = useQuery(['patientFieldDefinition'], () => api.get(`patientFieldDefinition`));
 
   const {
     data: fieldValuesResponse,
@@ -230,7 +220,7 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
               isEdit
             />
           </StyledPatientDetailSecondaryDetailsGroupWrapper>
-          <PatientFieldsGroup
+          <CambodiaPatientFieldLayout
             fieldDefinitions={fieldDefinitionsResponse.data}
             fieldValues={fieldValuesResponse?.data}
           />

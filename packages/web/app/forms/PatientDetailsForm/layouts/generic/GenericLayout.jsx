@@ -19,6 +19,7 @@ import { GenericIdentificationFields } from './patientFields/GenericIdentifiatio
 import { GenericPersonalFields } from './patientFields/GenericPersonalFields';
 import { GenericBirthFields } from './patientFields/GenericBirthFields';
 import { useSuggester } from '../../../../api';
+import { PatientFieldsGroup } from '../../PatientDetailsForm';
 
 export const PatientDetailsHeading = styled.div`
   font-weight: 500;
@@ -47,106 +48,101 @@ export const GenericPrimaryDetailsLayout = ({
 }) => {
   const villageSuggester = useSuggester('village');
   return (
-  <>
-    <PatientDetailsHeading>General information</PatientDetailsHeading>
-    <FormGrid>
-      <LocalisedField name="firstName" component={TextField} required />
-      <LocalisedField
-        name="middleName"
-        component={TextField}
-        required={isRequiredPatientData('middleName')}
-      />
-      <LocalisedField name="lastName" component={TextField} required />
-      <LocalisedField
-        name="culturalName"
-        component={TextField}
-        required={isRequiredPatientData('culturalName')}
-      />
-      <LocalisedField
-        name="dateOfBirth"
-        max={getCurrentDateTimeString()}
-        component={DateField}
-        required
-        saveDateAsString
-      />
-      <LocalisedField
-        name="villageId"
-        component={AutocompleteField}
-        suggester={villageSuggester}
-        required={isRequiredPatientData('villageId')}
-      />
-      <LocalisedField name="sex" component={RadioField} options={sexOptions} required />
-      <LocalisedField
-        name="email"
-        component={TextField}
-        type="email"
-        defaultLabel="Email address"
-        required={isRequiredPatientData('email')}
-      />
-      {patientRegistryType === PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY && (
-        <GenericBirthFields
-          registeredBirthPlace={values.registeredBirthPlace}
-          filterByMandatory
+    <>
+      <PatientDetailsHeading>General information</PatientDetailsHeading>
+      <FormGrid>
+        <LocalisedField name="firstName" component={TextField} required />
+        <LocalisedField
+          name="middleName"
+          component={TextField}
+          required={isRequiredPatientData('middleName')}
         />
-      )}
-      <GenericIdentificationFields patientRegistryType={patientRegistryType} filterByMandatory />
-      <GenericContactFields filterByMandatory />
-      <GenericPersonalFields
-        patientRegistryType={patientRegistryType}
-        filterByMandatory
-      />
-      <GenericLocationFields
-        filterByMandatory
-      />
-    </FormGrid>
-  </>
-);
-      }
+        <LocalisedField name="lastName" component={TextField} required />
+        <LocalisedField
+          name="culturalName"
+          component={TextField}
+          required={isRequiredPatientData('culturalName')}
+        />
+        <LocalisedField
+          name="dateOfBirth"
+          max={getCurrentDateTimeString()}
+          component={DateField}
+          required
+          saveDateAsString
+        />
+        <LocalisedField
+          name="villageId"
+          component={AutocompleteField}
+          suggester={villageSuggester}
+          required={isRequiredPatientData('villageId')}
+        />
+        <LocalisedField name="sex" component={RadioField} options={sexOptions} required />
+        <LocalisedField
+          name="email"
+          component={TextField}
+          type="email"
+          defaultLabel="Email address"
+          required={isRequiredPatientData('email')}
+        />
+        {patientRegistryType === PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY && (
+          <GenericBirthFields
+            registeredBirthPlace={values.registeredBirthPlace}
+            filterByMandatory
+          />
+        )}
+        <GenericIdentificationFields patientRegistryType={patientRegistryType} filterByMandatory />
+        <GenericContactFields filterByMandatory />
+        <GenericPersonalFields patientRegistryType={patientRegistryType} filterByMandatory />
+        <GenericLocationFields filterByMandatory />
+      </FormGrid>
+    </>
+  );
+};
 
 export const GenericSecondaryDetailsLayout = ({
   values = {},
   patientRegistryType,
   isEdit = false,
 }) => (
-    <SecondaryDetailsGroup>
-      {patientRegistryType === PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY && (
-        <>
-          <PatientDetailsHeading>Birth details</PatientDetailsHeading>
-          <SecondaryDetailsFormGrid>
-            <GenericBirthFields
-              registeredBirthPlace={values.registeredBirthPlace}
-              filterByMandatory={false}
-            />
-          </SecondaryDetailsFormGrid>
-        </>
-      )}
+  <SecondaryDetailsGroup>
+    {patientRegistryType === PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY && (
+      <>
+        <PatientDetailsHeading>Birth details</PatientDetailsHeading>
+        <SecondaryDetailsFormGrid>
+          <GenericBirthFields
+            registeredBirthPlace={values.registeredBirthPlace}
+            filterByMandatory={false}
+          />
+        </SecondaryDetailsFormGrid>
+      </>
+    )}
 
-      <PatientDetailsHeading>Identification information</PatientDetailsHeading>
-      <SecondaryDetailsFormGrid>
-        <GenericIdentificationFields
-          isEdit={isEdit}
-          patientRegistryType={patientRegistryType}
-          filterByMandatory={false}
-        />
-      </SecondaryDetailsFormGrid>
+    <PatientDetailsHeading>Identification information</PatientDetailsHeading>
+    <SecondaryDetailsFormGrid>
+      <GenericIdentificationFields
+        isEdit={isEdit}
+        patientRegistryType={patientRegistryType}
+        filterByMandatory={false}
+      />
+    </SecondaryDetailsFormGrid>
 
-      <PatientDetailsHeading>Contact information</PatientDetailsHeading>
-      <SecondaryDetailsFormGrid>
-        <GenericContactFields filterByMandatory={false} />
-      </SecondaryDetailsFormGrid>
+    <PatientDetailsHeading>Contact information</PatientDetailsHeading>
+    <SecondaryDetailsFormGrid>
+      <GenericContactFields filterByMandatory={false} />
+    </SecondaryDetailsFormGrid>
 
-      <PatientDetailsHeading>Personal information</PatientDetailsHeading>
-      <SecondaryDetailsFormGrid>
-        <GenericPersonalFields
-          filterByMandatory={false}
-        />
-      </SecondaryDetailsFormGrid>
+    <PatientDetailsHeading>Personal information</PatientDetailsHeading>
+    <SecondaryDetailsFormGrid>
+      <GenericPersonalFields filterByMandatory={false} />
+    </SecondaryDetailsFormGrid>
 
-      <PatientDetailsHeading>Location information</PatientDetailsHeading>
-      <SecondaryDetailsFormGrid>
-        <GenericLocationFields
-          filterByMandatory={false}
-        />
-      </SecondaryDetailsFormGrid>
-    </SecondaryDetailsGroup>
-  );
+    <PatientDetailsHeading>Location information</PatientDetailsHeading>
+    <SecondaryDetailsFormGrid>
+      <GenericLocationFields filterByMandatory={false} />
+    </SecondaryDetailsFormGrid>
+  </SecondaryDetailsGroup>
+);
+
+export const GenericPatientFieldLayout = ({ fieldDefinition, fieldValues }) => (
+  <PatientFieldsGroup fieldDefinitions={fieldDefinition} fieldValues={fieldValues} />
+);

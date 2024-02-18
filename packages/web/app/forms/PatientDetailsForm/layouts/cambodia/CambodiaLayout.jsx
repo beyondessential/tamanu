@@ -14,9 +14,11 @@ import { CambodiaContactFields } from './patientFields/CambodiaContactFields';
 import { CambodiaIdentificationFields } from './patientFields/CambodiaIdentificationFields';
 import { CambodiaPersonalFields } from './patientFields/CambodiaPersonalFields';
 import { GenericBirthFields } from '../generic/patientFields/GenericBirthFields';
-import { PatientField } from '../../PatientDetailsForm';
+import { PatientField, PatientFieldsGroup } from '../../PatientDetailsForm';
 
 const FATHERS_FIRST_NAME_DEFINITION_ID = 'fieldDefinition-fathersFirstName';
+
+const CAMBODIA_CORE_FIELD_CATEGORY_ID = 'fieldCategory-cambodiaCorePatientFields';
 
 export const CambodiaPrimaryDetailsLayout = ({ sexOptions, isRequiredPatientData }) => (
   <>
@@ -86,4 +88,11 @@ export const CambodiaSecondaryDetailsLayout = ({ values = {}, patientRegistryTyp
       </SecondaryDetailsFormGrid>
     </SecondaryDetailsGroup>
   );
+};
+
+export const CambodiaPatientFieldLayout = ({ fieldDefinitions, fieldValues }) => {
+  const filteredDefinitions = fieldDefinitions.filter(
+    field => field.categoryId !== CAMBODIA_CORE_FIELD_CATEGORY_ID,
+  );
+  return <PatientFieldsGroup fieldDefinitions={filteredDefinitions} fieldValues={fieldValues} />;
 };
