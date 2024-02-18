@@ -384,43 +384,45 @@ const NotesMultipageCellPadding = () => {
 const NotesSection = ({ notes }) => {
   return (
     <>
-      <View minPresenceAhead={80} />
+      <View minPresenceAhead={50} />
       <View>
         <MultipageTableHeading title="Notes" />
         <Table>
           {notes.map(note => (
-            <View style={tableStyles.notesRow} key={note.id}>
-              <View minPresenceAhead={60} />
-              <View
-                style={{
-                  borderTop: borderStyle,
-                  position: 'absolute',
-                  top: -1,
-                  right: 0,
-                  left: 0,
-                }}
-                fixed
-              />
-              <NotesCell>
-                <NotesMultipageCellPadding />
-                <MultipageTableHeading
-                  title={NOTE_TYPE_LABELS[note.noteType]}
-                  style={textStyles.tableColumnHeader}
-                />
-                <Text style={textStyles.tableCellContent}>{`${note.content}\n`}</Text>
-                <NoteFooter note={note} />
+            <>
+              <View minPresenceAhead={50} />
+              <View style={tableStyles.notesRow} key={note.id}>
                 <View
                   style={{
-                    borderBottom: borderStyle,
+                    borderTop: borderStyle,
                     position: 'absolute',
-                    bottom: -1,
-                    right: -1,
-                    left: -1,
+                    top: -1,
+                    right: 0,
+                    left: 0,
                   }}
                   fixed
                 />
-              </NotesCell>
-            </View>
+                <NotesCell>
+                  <NotesMultipageCellPadding />
+                  <MultipageTableHeading
+                    title={NOTE_TYPE_LABELS[note.noteType]}
+                    style={textStyles.tableColumnHeader}
+                  />
+                  <Text style={textStyles.tableCellContent}>{`${note.content}\n`}</Text>
+                  <NoteFooter note={note} />
+                  <View
+                    style={{
+                      borderBottom: borderStyle,
+                      position: 'absolute',
+                      bottom: -1,
+                      right: -1,
+                      left: -1,
+                    }}
+                    fixed
+                  />
+                </NotesCell>
+              </View>
+            </>
           ))}
         </Table>
       </View>
