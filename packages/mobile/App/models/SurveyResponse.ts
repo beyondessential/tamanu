@@ -256,6 +256,7 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
       setNote('Writing patient data');
 
       await writeToPatientFields(components, finalValues, patientId, surveyId);
+
       setNote('Done');
 
       return responseRecord;

@@ -58,6 +58,7 @@ const HomeScreenOptions: BottomTabNavigationOptions = {
   tabBarIcon: TabScreenIcon(HomeLogoIcon),
   tabBarLabel: 'Home',
   tabBarTestID: 'HOME',
+  unmountOnBlur: true,
 };
 const ReportScreenOptions: BottomTabNavigationOptions = {
   tabBarIcon: TabScreenIcon(ReportsIcon),
