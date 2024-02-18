@@ -27,7 +27,7 @@ import {
 } from '../../reports/ParameterField';
 import { useAuth } from '../../../contexts/Auth';
 import { useApi } from '../../../api';
-import { TranslatedSelectField } from '../../../components/Translation/TranslatedSelectField.jsx';
+import { SelectField } from '../../../components/Translation/TranslatedSelectField.jsx';
 
 const StyledField = styled(Field)`
   flex-grow: 1;
@@ -147,7 +147,7 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
           <StyledField
             label="Default date range"
             name="defaultDateRange"
-            component={TranslatedSelectField}
+            component={SelectField}
             isClearable={false}
             options={DATE_RANGE_OPTIONS}
             prefix="report.property.defaultDateRange"
@@ -220,7 +220,7 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
       <ButtonRow>
         <StatusField
           name="status"
-          component={TranslatedSelectField}
+          component={SelectField}
           isClearable={false}
           options={STATUS_OPTIONS}
           prefix="report.property.status"

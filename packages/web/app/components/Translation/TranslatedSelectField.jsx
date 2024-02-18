@@ -53,7 +53,7 @@ const getTranslatedOptions = (options, prefix) => {
 };
 
 // NOTE: not compatible with disabled SelectFields
-export const TranslatedSelectField = ({ field, options, prefix, value, name, ...props }) => (
+export const SelectField = ({ field, options, prefix, value, name, ...props }) => (
   <SelectInput
     options={getTranslatedOptions(options, prefix)}
     value={field ? field.value : value}
@@ -62,7 +62,7 @@ export const TranslatedSelectField = ({ field, options, prefix, value, name, ...
   />
 );
 
-TranslatedSelectField.propTypes = {
+SelectField.propTypes = {
   options: PropTypes.object.isRequired,
   prefix: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,

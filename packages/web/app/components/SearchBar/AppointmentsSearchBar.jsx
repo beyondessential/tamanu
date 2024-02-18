@@ -11,7 +11,7 @@ import {
 import { TranslatedText } from '../Translation/TranslatedText';
 import { appointmentStatusOptions, appointmentTypeOptions } from '../../constants';
 import { useSuggester } from '../../api';
-import { TranslatedSelectField } from '../Translation/TranslatedSelectField.jsx';
+import { SelectField } from '../Translation/TranslatedSelectField.jsx';
 
 export const AppointmentsSearchBar = ({ onSearch }) => {
   const practitionerSuggester = useSuggester('practitioner');
@@ -72,7 +72,7 @@ export const AppointmentsSearchBar = ({ onSearch }) => {
             fallback="Appointment Type"
           />
         }
-        component={TranslatedSelectField}
+        component={SelectField}
         options={appointmentTypeOptions}
         size="small"
         prefix="appointment.property.type"
@@ -85,7 +85,7 @@ export const AppointmentsSearchBar = ({ onSearch }) => {
             fallback="Appointment Status"
           />
         }
-        component={TranslatedSelectField}
+        component={SelectField}
         options={appointmentStatusOptions}
         size="small"
         prefix="appointment.property.status"

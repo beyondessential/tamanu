@@ -21,7 +21,7 @@ import { TranslatedText } from '../Translation/TranslatedText';
 const BASE_ADVANCED_FIELDS = ['locationGroupId', 'departmentId', 'allFacilities'];
 const PUBLISHED_ADVANCED_FIELDS = [...BASE_ADVANCED_FIELDS, 'publishedDate'];
 const ALL_ADVANCED_FIELDS = [...BASE_ADVANCED_FIELDS, 'priority', 'laboratory'];
-import { TranslatedSelectField } from '../Translation/TranslatedSelectField.jsx';
+import { SelectField } from '../Translation/TranslatedSelectField.jsx';
 
 const FacilityCheckbox = styled.div`
   display: flex;
@@ -192,7 +192,7 @@ export const LabRequestsSearchBar = ({ status = '' }) => {
             label={
               <TranslatedText stringId="general.localisedField.status.label" fallback="Status" />
             }
-            component={TranslatedSelectField}
+            component={SelectField}
             options={LAB_REQUEST_STATUS_OPTIONS.filter(
               option => option.value !== LAB_REQUEST_STATUSES.PUBLISHED,
             )}

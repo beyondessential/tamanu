@@ -16,7 +16,7 @@ import { DateField } from '../Field/DateField';
 import { useSexOptions } from '../../hooks';
 import { SearchBarCheckField } from './SearchBarCheckField';
 import { TranslatedText } from '../Translation/TranslatedText';
-import { TranslatedSelectField } from '../Translation/TranslatedSelectField.jsx';
+import { SelectField } from '../Translation/TranslatedSelectField.jsx';
 
 const TwoColumnsField = styled(Box)`
   grid-column: span 2;
@@ -62,7 +62,7 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
             <SexLocalisedField
               name="sex"
               label={<TranslatedText stringId="general.localisedField.sex.label" fallback="Sex" />}
-              component={TranslatedSelectField}
+              component={SelectField}
               options={sexOptions}
               size="small"
               prefix="patient.property.sex"

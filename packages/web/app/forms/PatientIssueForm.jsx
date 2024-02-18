@@ -6,7 +6,7 @@ import { DateField, Field, Form, BaseSelectField, TextField } from '../component
 import { FormGrid } from '../components/FormGrid';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { FormSubmitCancelRow } from '../components/ButtonRow';
-import { TranslatedSelectField } from '../components/Translation/TranslatedSelectField.jsx';
+import { SelectField } from '../components/Translation/TranslatedSelectField.jsx';
 
 export const PatientIssueForm = ({ onSubmit, editedObject, onCancel }) => (
   <Form
@@ -16,7 +16,7 @@ export const PatientIssueForm = ({ onSubmit, editedObject, onCancel }) => (
         <Field
           name="type"
           label={<TranslatedText stringId="general.form.type.label" fallback="Type" />}
-          component={TranslatedSelectField}
+          component={SelectField}
           options={PATIENT_ISSUE_OPTIONS}
           required
           prefix="issues.property.option"

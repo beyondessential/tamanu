@@ -3,7 +3,7 @@ import { CustomisableSearchBar } from './CustomisableSearchBar';
 import { LocalisedField, BaseSelectField } from '../Field';
 import { INVOICE_PAYMENT_STATUS_OPTIONS, INVOICE_STATUS_OPTIONS } from '../../constants';
 import { TranslatedText } from '../Translation/TranslatedText';
-import { TranslatedSelectField } from '../Translation/TranslatedSelectField.jsx';
+import { SelectField } from '../Translation/TranslatedSelectField.jsx';
 
 export const InvoicesSearchBar = React.memo(({ onSearch }) => (
   <CustomisableSearchBar title="Search invoices" onSearch={onSearch}>
@@ -29,7 +29,7 @@ export const InvoicesSearchBar = React.memo(({ onSearch }) => (
     <LocalisedField
       name="status"
       label={<TranslatedText stringId="general.localisedField.status.label" fallback="Status" />}
-      component={TranslatedSelectField}
+      component={SelectField}
       options={INVOICE_STATUS_OPTIONS}
       prefix="invoice.property.status"
     />
@@ -41,7 +41,7 @@ export const InvoicesSearchBar = React.memo(({ onSearch }) => (
           fallback="Payment status"
         />
       }
-      component={TranslatedSelectField}
+      component={SelectField}
       options={INVOICE_PAYMENT_STATUS_OPTIONS}
       prefix="invoice.property.paymentStatus"
     />

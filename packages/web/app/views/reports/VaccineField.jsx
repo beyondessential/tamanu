@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useApi } from '../../api';
 import { Dialog, Field, BaseSelectField } from '../../components';
-import { TranslatedSelectField } from '../../components/Translation/TranslatedSelectField.jsx';
+import { SelectField } from '../../components/Translation/TranslatedSelectField.jsx';
 
 export const VaccineField = ({ name = 'vaccine', required, parameterValues }) => {
   const api = useApi();
@@ -41,7 +41,7 @@ export const VaccineField = ({ name = 'vaccine', required, parameterValues }) =>
       <Field
         name={name}
         label="Vaccine"
-        component={TranslatedSelectField}
+        component={SelectField}
         required={required}
         options={vaccineOptions}
         prefix="vaccine.property.name"

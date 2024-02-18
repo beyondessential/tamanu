@@ -14,7 +14,7 @@ import {
 } from '../../../components';
 
 import { LAB_REQUEST_STATUS_OPTIONS } from '../../../constants';
-import { TranslatedSelectField } from '../../../components/Translation/TranslatedSelectField.jsx';
+import { SelectField } from '../../../components/Translation/TranslatedSelectField.jsx';
 
 const validationSchema = yup.object().shape({
   status: yup
@@ -49,7 +49,7 @@ export const LabRequestChangeStatusModal = React.memo(
                 label="Status"
                 name="status"
                 options={LAB_REQUEST_STATUS_OPTIONS}
-                component={TranslatedSelectField}
+                component={SelectField}
                 required
                 prefix="lab.property.status"
               />

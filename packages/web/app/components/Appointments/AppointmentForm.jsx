@@ -8,7 +8,7 @@ import { FormSeparatorLine } from '../FormSeparatorLine';
 import { useApi, usePatientSuggester, useSuggester } from '../../api';
 import { appointmentTypeOptions } from '../../constants';
 import { TranslatedText } from '../Translation/TranslatedText';
-import { TranslatedSelectField } from '../Translation/TranslatedSelectField.jsx';
+import { SelectField } from '../Translation/TranslatedSelectField.jsx';
 
 export const AppointmentForm = props => {
   const { onSuccess = () => {}, onCancel, appointment } = props;
@@ -82,7 +82,7 @@ export const AppointmentForm = props => {
                 />
               }
               name="type"
-              component={TranslatedSelectField}
+              component={SelectField}
               options={appointmentTypeOptions}
               required
               prefix="appointment.property.type"

@@ -40,7 +40,7 @@ import { SimpleTopBar } from '../../../components';
 import { CancelModalButton } from './CancelModalButton';
 import { PrintModalButton } from './PrintModalButton';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
-import { TranslatedSelectField } from '../../../components/Translation/TranslatedSelectField.jsx';
+import { SelectField } from '../../../components/Translation/TranslatedSelectField.jsx';
 import { IMAGING_REQUEST_STATUS_OPTIONS } from '../../../constants/index.jsx';
 
 const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
@@ -83,7 +83,7 @@ const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
       <Field
         name="status"
         label={<TranslatedText stringId="imaging.form.status.label" fallback="Status" />}
-        component={TranslatedSelectField}
+        component={SelectField}
         options={isCancelled ? cancelledOption : IMAGING_REQUEST_STATUS_OPTIONS}
         disabled={isCancelled}
         isClearable={false}

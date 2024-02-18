@@ -21,7 +21,7 @@ import { useSuggester } from '../api';
 import { useAuth } from '../contexts/Auth';
 import { Colors } from '../constants';
 import { TranslatedText } from './Translation/TranslatedText';
-import { TranslatedSelectField } from './Translation/TranslatedSelectField.jsx';
+import { SelectField } from './Translation/TranslatedSelectField.jsx';
 
 export const FullWidthCol = styled.div`
   grid-column: 1/-1;
@@ -111,7 +111,7 @@ export const VaccineLabelField = ({ vaccineOptions, setVaccineLabel }) => (
   <Field
     name="vaccineLabel"
     label={<TranslatedText stringId="vaccine.form.vaccine.label" fallback="Vaccine" />}
-    component={TranslatedSelectField}
+    component={SelectField}
     options={vaccineOptions}
     onChange={e => setVaccineLabel(e.target.value)}
     required
@@ -135,7 +135,7 @@ export const InjectionSiteField = () => (
   <Field
     name="injectionSite"
     label={<TranslatedText stringId="vaccine.form.injectionSite.label" fallback="Injection site" />}
-    component={TranslatedSelectField}
+    component={SelectField}
     options={INJECTION_SITE_OPTIONS}
     prefix="vaccine.property.injectionSite"
   />

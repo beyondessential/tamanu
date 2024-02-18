@@ -22,7 +22,7 @@ import {
   TextField,
 } from '../components';
 import { TranslatedText } from '../components/Translation/TranslatedText';
-import { TranslatedSelectField } from '../components/Translation/TranslatedSelectField.jsx';
+import { SelectField } from '../components/Translation/TranslatedSelectField.jsx';
 
 const drugRouteOptions = [
   { label: 'Dermal', value: 'dermal' },
@@ -193,7 +193,7 @@ export const MedicationForm = React.memo(
                     fallback="Route of admission"
                   />
                 }
-                component={TranslatedSelectField}
+                component={SelectField}
                 options={drugRouteOptions}
                 disabled={readOnly}
                 required={!readOnly}

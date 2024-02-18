@@ -17,7 +17,7 @@ import {
 import { useSuggester } from '../api';
 import { useLocalisation } from '../contexts/Localisation';
 import { TranslatedText } from '../components/Translation/TranslatedText';
-import { TranslatedSelectField } from '../components/Translation/TranslatedSelectField.jsx';
+import { SelectField } from '../components/Translation/TranslatedSelectField.jsx';
 
 export const DiagnosisForm = React.memo(
   ({ isTriage = false, onCancel, onSave, diagnosis, excludeDiagnoses }) => {
@@ -77,7 +77,7 @@ export const DiagnosisForm = React.memo(
               label={
                 <TranslatedText stringId="diagnosis.form.certainty.label" fallback="Certainty" />
               }
-              component={TranslatedSelectField}
+              component={SelectField}
               options={certaintyOptions}
               required
               prefix="diagnosis.property.certainty"

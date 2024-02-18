@@ -11,7 +11,7 @@ import { AutocompleteField, BaseSelectField, TextField, TimeField } from '..';
 import { useSuggester } from '../../api';
 import { ConfiguredMandatoryPatientFields } from './ConfiguredMandatoryPatientFields';
 import { TranslatedText } from '../Translation/TranslatedText';
-import { TranslatedSelectField } from '../Translation/TranslatedSelectField.jsx';
+import { SelectField } from '../Translation/TranslatedSelectField.jsx';
 
 export const BirthDetailsFields = ({ registeredBirthPlace, showMandatory }) => {
   const facilitySuggester = useSuggester('facility');
@@ -39,7 +39,7 @@ export const BirthDetailsFields = ({ registeredBirthPlace, showMandatory }) => {
       ),
     },
     registeredBirthPlace: {
-      component: TranslatedSelectField,
+      component: SelectField,
       options: PLACE_OF_BIRTH_OPTIONS,
       label: (
         <TranslatedText
@@ -61,7 +61,7 @@ export const BirthDetailsFields = ({ registeredBirthPlace, showMandatory }) => {
       ),
     },
     attendantAtBirth: {
-      component: TranslatedSelectField,
+      component: SelectField,
       options: ATTENDANT_OF_BIRTH_OPTIONS,
       label: (
         <TranslatedText
@@ -82,7 +82,7 @@ export const BirthDetailsFields = ({ registeredBirthPlace, showMandatory }) => {
       ),
     },
     birthDeliveryType: {
-      component: TranslatedSelectField,
+      component: SelectField,
       options: BIRTH_DELIVERY_TYPE_OPTIONS,
       label: (
         <TranslatedText
@@ -93,7 +93,7 @@ export const BirthDetailsFields = ({ registeredBirthPlace, showMandatory }) => {
       prefix: 'localisedField.property.birthDeliveryType',
     },
     birthType: {
-      component: TranslatedSelectField,
+      component: SelectField,
       options: BIRTH_TYPE_OPTIONS,
       label: (
         <TranslatedText

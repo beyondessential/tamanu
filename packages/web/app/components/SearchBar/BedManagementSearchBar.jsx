@@ -9,7 +9,7 @@ import { HandoverNotesModal } from '../BedManagement/HandoverNotesModal';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
 import { ThemedTooltip } from '../Tooltip';
 import { TranslatedText } from '../Translation/TranslatedText';
-import { TranslatedSelectField } from '../Translation/TranslatedSelectField.jsx';
+import { SelectField } from '../Translation/TranslatedSelectField.jsx';
 
 const HandoverNotesButton = styled(Button)`
   font-weight: 500;
@@ -99,7 +99,7 @@ export const BedManagementSearchBar = React.memo(({ onSearch, searchParameters }
             <TranslatedText stringId="general.localisedField.status.label" fallback="Status" />
           }
           size="small"
-          component={TranslatedSelectField}
+          component={SelectField}
           options={locationAvailabilityOptions}
           prefix="bedManagement.property.status"
         />
