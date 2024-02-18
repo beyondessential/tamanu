@@ -12,7 +12,7 @@ export const ImagingPriorityField = ({ name = 'priority', required }) => {
   return (
     <Field
       name={name}
-      label={<TranslatedText stringId="imaging.form.priority.label" fallback="Priority" />}
+      label={<TranslatedText stringId="imaging.priority.label" fallback="Priority" />}
       component={SelectField}
       options={imagingPriorities}
       required={required}

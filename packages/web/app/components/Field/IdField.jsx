@@ -45,7 +45,7 @@ export const IdInput = ({ value, name, onChange, regenerateId }) => (
     <RegenerateId onClick={() => onChange({ target: { value: regenerateId(), name } })}>
       <Autorenew />
       <Text>
-        <TranslatedText stringId="patient.form.id.regenerate" fallback="Regenerate" />
+        <TranslatedText stringId="patient.id.regenerate" fallback="Regenerate" />
       </Text>
     </RegenerateId>
   </IdControl>

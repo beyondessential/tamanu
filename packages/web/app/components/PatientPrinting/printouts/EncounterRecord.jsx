@@ -327,7 +327,7 @@ export const EncounterRecord = React.memo(
             <DisplayValue
               name={
                 <TranslatedText
-                  stringId="general.form.supervisingClinician.label"
+                  stringId="general.supervisingClinician.label"
                   fallback="Supervising :clinician"
                   replacements={{
                     clinician: (
@@ -348,7 +348,7 @@ export const EncounterRecord = React.memo(
             <DisplayValue
               name={
                 <TranslatedText
-                  stringId="general.form.dischargingClinician.label"
+                  stringId="general.dischargingClinician.label"
                   fallback="Discharging :clinician"
                   replacements={{
                     clinician: (

@@ -75,7 +75,7 @@ export const LabRequestCard = ({ labRequest, actions }) => {
         </CardItem>
         <BorderSection>
           <CardLabel><TranslatedText
-            stringId="general.form.requestingClinician.label"
+            stringId="general.requestingClinician.label"
             fallback="Requesting :clinician"
             replacements={{
               clinician: (

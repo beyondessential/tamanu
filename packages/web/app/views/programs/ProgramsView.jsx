@@ -137,7 +137,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
             onChange={selectProgram}
             label={
               <TranslatedText
-                stringId="program.modal.selectSurvey.form.selectProgram.label"
+                stringId="program.modal.selectSurvey.selectProgram.label"
                 fallback="Select program"
               />
             }
