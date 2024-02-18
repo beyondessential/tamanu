@@ -1,4 +1,12 @@
-import React, { FC, ReactElement, useCallback, useMemo } from 'react';
+import React, {
+  FC,
+  ReactElement,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { format } from 'date-fns';
 import { FieldHelperProps, FieldInputProps, FieldMetaProps, useField } from 'formik';
 import { compose } from 'redux';
@@ -19,6 +27,9 @@ import { FilterIcon } from '/components/Icons/FilterIcon';
 import { useFilterFields } from './PatientFilterScreen';
 import { IPatient } from '~/types';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { SYNC_EVENT_ACTIONS } from '~/services/sync/types';
+import { BackendContext } from '~/ui/contexts/BackendContext';
+import { MobileSyncManager } from '~/services/sync/MobileSyncManager';
 
 type FieldProp = [FieldInputProps<any>, FieldMetaProps<any>, FieldHelperProps<any>];
 
@@ -118,6 +129,9 @@ const Screen: FC<ViewAllScreenProps> = ({
   /** Get Search Input */
   const [searchField] = useField('search');
 
+  const backend = useContext(BackendContext);
+  const syncManager: MobileSyncManager = backend.syncManager;
+  const [syncEnded, setSyncEnded] = useState(false);
   // Get filters
   const filterFields: FieldProp[] = useFilterFields();
 
@@ -135,6 +149,18 @@ const Screen: FC<ViewAllScreenProps> = ({
     ({ models }) => searchAndFilterPatients(models, searchField, activeFilters),
     [searchField.value, activeFilters],
   );
+
+  useEffect(() => {
+    const handler = (action: string): void => {
+      if (action === SYNC_EVENT_ACTIONS.SYNC_ENDED && list.length === 0) {
+        setSyncEnded(true);
+      }
+    };
+    syncManager.emitter.on('*', handler);
+    return () => {
+      syncManager.emitter.off('*', handler);
+    };
+  });
 
   const onNavigateToPatientHome = useCallback(patient => {
     setSelectedPatient(patient);
