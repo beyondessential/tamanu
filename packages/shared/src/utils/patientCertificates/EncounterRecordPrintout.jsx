@@ -390,7 +390,7 @@ const NotesSection = ({ notes }) => {
         <Table>
           {notes.map(note => (
             <View style={tableStyles.notesRow} key={note.id}>
-              <View minPresenceAhead={50} />
+              <View minPresenceAhead={60} />
               <View
                 style={{
                   borderTop: borderStyle,
