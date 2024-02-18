@@ -69,12 +69,19 @@ export const AppointmentListingView = () => {
 
   return (
     <PageContainer>
-      <TopBar title={<TranslatedText stringId="appointments.heading" fallback="Appointments" />}>
+      <TopBar
+        title={
+          <TranslatedText stringId="scheduling.upcomingAppointment.title" fallback="Appointments" />
+        }
+      >
         <NewAppointmentButton onSuccess={updateRefreshCount} />
       </TopBar>
       <ContentPane>
         <SearchTableTitle>
-          <TranslatedText stringId="appointments.search.heading" fallback="Appointment search" />
+          <TranslatedText
+            stringId="scheduling.upcomingAppointment.search.title"
+            fallback="Appointment search"
+          />
         </SearchTableTitle>
         <AppointmentsSearchBar onSearch={setSearchParams} />
         <SearchTable
@@ -82,7 +89,7 @@ export const AppointmentListingView = () => {
           columns={COLUMNS}
           noDataMessage={
             <TranslatedText
-              stringId="appointments.table.noDataMessage"
+              stringId="scheduling.upcomingAppointment.table.noDataMessage"
               fallback="No appointments found"
             />
           }

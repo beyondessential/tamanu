@@ -4,7 +4,7 @@ import Divider from '@material-ui/core/Divider';
 import { CheckCircleRounded } from '@material-ui/icons';
 
 import {
-  INJECTION_SITE_OPTIONS,
+  INJECTION_SITE_VALUES,
   VACCINE_CATEGORIES,
 } from '@tamanu/constants';
 
@@ -61,33 +61,33 @@ const VACCINE_FIELD_CATEGORY_OPTIONS = [
 
 const VACCINE_FIELD_INJECTION_SITE_OPTIONS = [
   {
-    value: INJECTION_SITE_OPTIONS.LEFT_ARM,
+    value: INJECTION_SITE_VALUES.LEFT_ARM,
     label: <TranslatedText stringId="vaccine.property.injectionSite.leftArm" fallback="Left arm" />,
   },
   {
-    value: INJECTION_SITE_OPTIONS.RIGHT_ARM,
+    value: INJECTION_SITE_VALUES.RIGHT_ARM,
     label: (
       <TranslatedText stringId="vaccine.property.injectionSite.rightArm" fallback="Right arm" />
     ),
   },
   {
-    value: INJECTION_SITE_OPTIONS.LEFT_THIGH,
+    value: INJECTION_SITE_VALUES.LEFT_THIGH,
     label: (
       <TranslatedText stringId="vaccine.property.injectionSite.leftThigh" fallback="Left thigh" />
     ),
   },
   {
-    value: INJECTION_SITE_OPTIONS.RIGHT_THIGH,
+    value: INJECTION_SITE_VALUES.RIGHT_THIGH,
     label: (
       <TranslatedText stringId="vaccine.property.injectionSite.rightThigh" fallback="Right thigh" />
     ),
   },
   {
-    value: INJECTION_SITE_OPTIONS.ORAL,
+    value: INJECTION_SITE_VALUES.ORAL,
     label: <TranslatedText stringId="vaccine.property.injectionSite.oral" fallback="Oral" />,
   },
   {
-    value: INJECTION_SITE_OPTIONS.OTHER,
+    value: INJECTION_SITE_VALUES.OTHER,
     label: <TranslatedText stringId="vaccine.property.injectionSite.other" fallback="Other" />,
   },
 ];
