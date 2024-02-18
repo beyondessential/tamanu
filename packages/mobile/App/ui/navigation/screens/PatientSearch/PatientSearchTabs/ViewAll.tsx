@@ -76,7 +76,7 @@ const searchAndFilterPatients = async (
 ): Promise<IPatient[]> => {
   const searchValue = searchTerm.trim();
 
-  const queryBuilder = models.Patient.getRepository();
+  const queryBuilder = models.Patient.getRepository().createQueryBuilder('patient');
 
   // Add the search term, which can match across any of 5 key fields
   queryBuilder.where(
