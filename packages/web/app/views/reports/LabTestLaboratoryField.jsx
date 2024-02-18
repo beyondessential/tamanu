@@ -10,7 +10,7 @@ export const LabTestLaboratoryField = ({ name = 'labTestLaboratory', required })
       name={name}
       label={
         <TranslatedText
-          stringId="report.parameter.labTestLaboratory.label"
+          stringId="report.generate.parameter.labTestLaboratory.label"
           fallback="Lab Test Laboratory"
         />
       }

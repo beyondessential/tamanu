@@ -135,7 +135,7 @@ export const ReportGeneratorForm = () => {
   const {
     parameters = [],
     dateRangeLabel = (
-      <TranslatedText stringId="reportGenerator.form.dateRange.label" fallback="Date range" />
+      <TranslatedText stringId="report.generate.dateRange.label" fallback="Date range" />
     ),
     dataSourceOptions = REPORT_DATA_SOURCE_VALUES,
     filterDateRangeAsStrings = false,
@@ -158,7 +158,7 @@ export const ReportGeneratorForm = () => {
         setRequestError(
           `${(
             <TranslatedText
-              stringId="reportGenerator.error.cantLoad"
+              stringId="report.generate.requestError.loadFailure"
               fallback="Unable to load available reports"
             />
           )} - ${error.message}`,
@@ -210,9 +210,8 @@ export const ReportGeneratorForm = () => {
           });
           setSuccessMessage(
             <TranslatedText
-              stringId="reportGenerator.message.export.success"
-              fallback="Report successfully exported. File saved at: :filePath"
-              replacements={{ filePath }}
+              stringId="report.generate.message.export.success"
+              fallback="Report successfully exported"
             />,
           );
         } catch (error) {
@@ -227,7 +226,7 @@ export const ReportGeneratorForm = () => {
         });
         setSuccessMessage(
           <TranslatedText
-            stringId="reportGenerator.message.request.success"
+            stringId="report.generate.message.request.success"
             fallback="Report successfully requested. You will receive an email soon."
           />,
         );
@@ -260,7 +259,7 @@ export const ReportGeneratorForm = () => {
       validationSchema={Yup.object().shape({
         reportId: Yup.string().required(
           <TranslatedText
-            stringId="reportGenerator.form.validation.reportId.required"
+            stringId="report.generate.validation.reportId.required"
             fallback="Report id is required. A report must be selected from the dropdown; just entering a report name will not work. If you can't see a specific report, please contact your system administrator."
           />,
         ),
@@ -278,7 +277,7 @@ export const ReportGeneratorForm = () => {
             <Field
               name="reportId"
               label={
-                <TranslatedText stringId="reportGenerator.form.report.label" fallback="Report" />
+                <TranslatedText stringId="report.generate.report.label" fallback="Report" />
               }
               component={ReportIdField}
               options={reportOptions}
@@ -299,7 +298,7 @@ export const ReportGeneratorForm = () => {
                 {
                   label: (
                     <TranslatedText
-                      stringId="reportGenerator.form.dataSource.option.thisFacility"
+                      stringId="report.generate.dataSource.option.thisFacility"
                       fallback="This facility"
                     />
                   ),
@@ -308,7 +307,7 @@ export const ReportGeneratorForm = () => {
                 {
                   label: (
                     <TranslatedText
-                      stringId="reportGenerator.form.dataSource.option.allFacilities"
+                      stringId="report.generate.dataSource.option.allFacilities"
                       fallback="All facilities"
                     />
                   ),
@@ -363,7 +362,7 @@ export const ReportGeneratorForm = () => {
               name="fromDate"
               label={
                 <TranslatedText
-                  stringId="reportGenerator.form.fromDate.label"
+                  stringId="report.generate.fromDate.label"
                   fallback="From date"
                 />
               }
@@ -373,7 +372,7 @@ export const ReportGeneratorForm = () => {
             <Field
               name="toDate"
               label={
-                <TranslatedText stringId="reportGenerator.form.toDate.label" fallback="To date" />
+                <TranslatedText stringId="report.generate.toDate.label" fallback="To date" />
               }
               component={DateField}
               saveDateAsString={filterDateRangeAsStrings}
@@ -414,7 +413,7 @@ export const ReportGeneratorForm = () => {
                 {
                   label: (
                     <TranslatedText
-                      stringId="reportGenerator.action.generateXLSX"
+                      stringId="report.generate.action.generateXLSX"
                       fallback="Generate XLSX"
                     />
                   ),
@@ -426,7 +425,7 @@ export const ReportGeneratorForm = () => {
                 {
                   label: (
                     <TranslatedText
-                      stringId="reportGenerator.action.generateCSV"
+                      stringId="report.generate.action.generateCSV"
                       fallback="Generate CSV"
                     />
                   ),

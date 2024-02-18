@@ -27,7 +27,7 @@ export const LabTestTypeField = ({ name = 'labTestTypeIds', required, parameterV
     <Field
       name={name}
       label={
-        <TranslatedText stringId="report.parameter.labTestType.label" fallback="Lab Test Type" />
+        <TranslatedText stringId="report.generate.parameter.labTestType.label" fallback="Test type" />
       }
       component={MultiselectField}
       required={required}

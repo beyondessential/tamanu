@@ -13,8 +13,8 @@ export const LabTestCategoryField = ({
     includeAllOption={includeAllOption}
     label={
       <TranslatedText
-        stringId="report.parameter.labTestCategory.label"
-        fallback="Lab Test Category"
+        stringId="report.generate.parameter.labTestCategory.label"
+        fallback="Test category"
       />
     }
     component={SuggesterSelectField}

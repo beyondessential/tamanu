@@ -16,7 +16,7 @@ export const ImagingTypeField = ({ name = 'imagingType', required }) => {
     <Field
       name={name}
       label={
-        <TranslatedText stringId="report.parameter.imagingType.label" fallback="Imaging type" />
+        <TranslatedText stringId="report.generate.parameter.imagingType.label" fallback="Imaging type" />
       }
       component={SelectField}
       options={imagingTypeOptions}
