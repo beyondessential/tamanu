@@ -4,6 +4,10 @@ import { ConfiguredMandatoryPatientFields } from '../../../../../components/Conf
 import { PatientField } from '../../../PatientDetailsForm';
 import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants';
 
+const NATIONAL_ID_DEFINITION_ID = 'fieldDefinition-nationalId';
+const ID_POOR_CARD_NUMBER_DEFINITION_ID = 'fieldDefinition-idPoorCardNumber';
+const PMRS_NUMBER_DEFINITION_ID = 'fieldDefinition-pmrsNumber';
+
 export const CambodiaIdentificationFields = ({ filterByMandatory }) => {
   const IDENTIFICATION_FIELDS = {
     birthCertificate: {
@@ -23,21 +27,21 @@ export const CambodiaIdentificationFields = ({ filterByMandatory }) => {
       <PatientField
         definition={{
           name: 'National ID',
-          definitionId: 'fieldDefinition-nationalId',
+          definitionId: NATIONAL_ID_DEFINITION_ID,
           fieldType: PATIENT_FIELD_DEFINITION_TYPES.STRING,
         }}
       />
       <PatientField
         definition={{
           name: 'ID Poor Card Number',
-          definitionId: 'fieldDefinition-idPoorCardNumber',
+          definitionId: ID_POOR_CARD_NUMBER_DEFINITION_ID,
           fieldType: PATIENT_FIELD_DEFINITION_TYPES.STRING,
         }}
       />
       <PatientField
         definition={{
           name: 'PMRS Number',
-          definitionId: 'fieldDefinition-PMRSNumber',
+          definitionId: PMRS_NUMBER_DEFINITION_ID,
           fieldType: PATIENT_FIELD_DEFINITION_TYPES.STRING,
         }}
       />

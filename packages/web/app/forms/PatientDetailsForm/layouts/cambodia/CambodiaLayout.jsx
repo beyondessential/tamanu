@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { PATIENT_REGISTRY_TYPES } from '@tamanu/constants';
+import { PATIENT_FIELD_DEFINITION_TYPES, PATIENT_REGISTRY_TYPES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 import { LocalisedField, TextField, DateField, RadioField, FormGrid } from '../../../../components';
@@ -14,11 +14,11 @@ import { CambodiaContactFields } from './patientFields/CambodiaContactFields';
 import { CambodiaIdentificationFields } from './patientFields/CambodiaIdentificationFields';
 import { CambodiaPersonalFields } from './patientFields/CambodiaPersonalFields';
 import { GenericBirthFields } from '../generic/patientFields/GenericBirthFields';
+import { PatientField } from '../../PatientDetailsForm';
 
-export const CambodiaPrimaryDetailsLayout = ({
-  sexOptions,
-  isRequiredPatientData,
-}) => (
+const FATHERS_FIRST_NAME_DEFINITION_ID = 'fieldDefinition-fathersFirstName';
+
+export const CambodiaPrimaryDetailsLayout = ({ sexOptions, isRequiredPatientData }) => (
   <>
     <PatientDetailsHeading>General information</PatientDetailsHeading>
     <FormGrid>
@@ -37,13 +37,17 @@ export const CambodiaPrimaryDetailsLayout = ({
         component={TextField}
         required={isRequiredPatientData('culturalName')}
       />
+      <PatientField
+        definition={{
+          name: "Father's first name",
+          definitionId: FATHERS_FIRST_NAME_DEFINITION_ID,
+          fieldType: PATIENT_FIELD_DEFINITION_TYPES.STRING,
+        }}
+      />
     </FormGrid>
   </>
 );
-export const CambodiaSecondaryDetailsLayout = ({
-  values = {},
-  patientRegistryType,
-}) => {
+export const CambodiaSecondaryDetailsLayout = ({ values = {}, patientRegistryType }) => {
   return (
     <SecondaryDetailsGroup>
       {patientRegistryType === PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY && (
@@ -60,16 +64,12 @@ export const CambodiaSecondaryDetailsLayout = ({
 
       <PatientDetailsHeading>Current address</PatientDetailsHeading>
       <SecondaryDetailsFormGrid>
-        <CambodiaLocationFields
-          showMandatory={false}
-        />
+        <CambodiaLocationFields showMandatory={false} />
       </SecondaryDetailsFormGrid>
 
       <PatientDetailsHeading>Contact information</PatientDetailsHeading>
       <SecondaryDetailsFormGrid>
-        <CambodiaContactFields
-          showMandatory={false}
-        />
+        <CambodiaContactFields showMandatory={false} />
       </SecondaryDetailsFormGrid>
 
       <PatientDetailsHeading>Identification information</PatientDetailsHeading>
@@ -82,10 +82,7 @@ export const CambodiaSecondaryDetailsLayout = ({
 
       <PatientDetailsHeading>Personal information</PatientDetailsHeading>
       <SecondaryDetailsFormGrid>
-        <CambodiaPersonalFields
-          patientRegistryType={patientRegistryType}
-          showMandatory={false}
-        />
+        <CambodiaPersonalFields patientRegistryType={patientRegistryType} showMandatory={false} />
       </SecondaryDetailsFormGrid>
     </SecondaryDetailsGroup>
   );

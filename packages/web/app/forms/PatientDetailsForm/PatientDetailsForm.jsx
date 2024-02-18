@@ -166,7 +166,7 @@ function stripPatientData(patient, additionalData, birthData) {
 
 export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmit }) => {
   const patientRegistryType = !isEmpty(birthData)
-    ? PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY
+  ? PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY
     : PATIENT_REGISTRY_TYPES.NEW_PATIENT;
 
   const handleSubmit = async data => {

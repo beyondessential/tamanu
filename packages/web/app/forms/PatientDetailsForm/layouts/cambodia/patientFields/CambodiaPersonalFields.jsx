@@ -1,14 +1,10 @@
 import React from 'react';
 
-import {
-  AutocompleteField,
-} from '../../../../../components';
+import { AutocompleteField } from '../../../../../components';
 import { ConfiguredMandatoryPatientFields } from '../../../../../components/ConfiguredMandatoryPatientFields';
 import { useSuggester } from '../../../../../api';
 
-export const CambodiaPersonalFields = ({
-  filterByMandatory,
-}) => {
+export const CambodiaPersonalFields = ({ filterByMandatory }) => {
   const countrySuggester = useSuggester('country');
   const nationalitySuggester = useSuggester('nationality');
   const PERSONAL_FIELDS = {
@@ -23,6 +19,9 @@ export const CambodiaPersonalFields = ({
   };
 
   return (
-    <ConfiguredMandatoryPatientFields fields={PERSONAL_FIELDS} filterByMandatory={filterByMandatory} />
+    <ConfiguredMandatoryPatientFields
+      fields={PERSONAL_FIELDS}
+      filterByMandatory={filterByMandatory}
+    />
   );
 };
