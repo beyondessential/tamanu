@@ -122,7 +122,7 @@ export const NewPatientForm = memo(({ editedObject, onSubmit, onCancel, generate
               value: PATIENT_REGISTRY_TYPES.NEW_PATIENT,
               label: (
                 <TranslatedText
-                  stringId="patient.form.newPatientAction.option.newPatient"
+                  stringId="patient.newPatientAction.option.newPatient"
                   fallback="Create new patient"
                 />
               ),
@@ -131,7 +131,7 @@ export const NewPatientForm = memo(({ editedObject, onSubmit, onCancel, generate
               value: PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY,
               label: (
                 <TranslatedText
-                  stringId="patient.form.newPatientAction.option.birthRegistry"
+                  stringId="patient.newPatientAction.option.birthRegistry"
                   fallback="Register birth"
                 />
               ),
@@ -152,13 +152,13 @@ export const NewPatientForm = memo(({ editedObject, onSubmit, onCancel, generate
               </StyledImageButton>
             )}
             <TranslatedText
-              stringId="patient.form.additionalInformation.label"
+              stringId="patient.additionalInformation.label"
               fallback="Add additional information"
             />
             <span>
               {' '}
               <TranslatedText
-                stringId="patient.form.additionalInformation.exampleText"
+                stringId="patient.additionalInformation.exampleText"
                 fallback="(religion, occupation, blood type...)"
               />
             </span>

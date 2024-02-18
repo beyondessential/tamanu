@@ -151,7 +151,7 @@ export const VaccineCertificate = ({
           />
         </CertificateHeader>
         <Box style={{ ...styles.box, marginLeft: '18px', marginRight: '18px' }}>
-          <H3>Immunisation history</H3>
+          <H3 style={{ marginBottom: 5, marginTop: 5 }}>Immunisation history</H3>
           <Table
             data={data}
             columns={columns}

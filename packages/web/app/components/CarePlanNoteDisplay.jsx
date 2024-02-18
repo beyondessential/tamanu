@@ -66,7 +66,7 @@ export const CarePlanNoteDisplay = ({ note, isMainCarePlan, onEditClicked, onNot
             <NoteOnBehalfOf>
               &nbsp;&nbsp;|&nbsp;&nbsp;
               <TranslatedText
-                stringId="carePlan.form.noteOnBehalfOf.label"
+                stringId="carePlan.noteOnBehalfOf.label"
                 fallback="On behalf of"
               />{' '}
               {note.onBehalfOf.displayName}

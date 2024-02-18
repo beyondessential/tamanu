@@ -2,6 +2,7 @@ import React from 'react';
 
 import { Field, SelectField } from '../../components';
 import { useLocalisation } from '../../contexts/Localisation';
+import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 export const ImagingTypeField = ({ name = 'imagingType', required }) => {
   const { getLocalisation } = useLocalisation();
@@ -14,7 +15,9 @@ export const ImagingTypeField = ({ name = 'imagingType', required }) => {
   return (
     <Field
       name={name}
-      label="Imaging type"
+      label={
+        <TranslatedText stringId="report.generate.parameter.imagingType.label" fallback="Imaging type" />
+      }
       component={SelectField}
       options={imagingTypeOptions}
       required={required}
