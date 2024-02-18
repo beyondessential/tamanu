@@ -15,7 +15,7 @@ import {
   SuggesterSelectField,
 } from '../../../../../components';
 import { ConfiguredMandatoryPatientFields } from '../../../../../components/ConfiguredMandatoryPatientFields';
-import { useSuggester } from '../../../../../api';
+import { usePatientSuggester, useSuggester } from '../../../../../api';
 
 export const GenericPersonalFields = ({
   patientRegistryType,
@@ -26,7 +26,7 @@ export const GenericPersonalFields = ({
   const nationalitySuggester = useSuggester('nationality')
   const occupationSuggester = useSuggester('occupation')
   const religionSuggester = useSuggester('religion')
-  const patientSuggester = useSuggester('patient');
+  const patientSuggester = usePatientSuggester()
 
   const PERSONAL_FIELDS = {
     title: {

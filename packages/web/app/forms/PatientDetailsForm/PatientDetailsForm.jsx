@@ -13,7 +13,7 @@ import {
 import { useSexValues } from '../../hooks';
 import { Colors } from '../../constants';
 import { useLocalisation } from '../../contexts/Localisation';
-import { useApi, usePatientSuggester, useSuggester } from '../../api';
+import { useApi } from '../../api';
 import { getPatientDetailsValidation } from '../../validations';
 import {
   ButtonRow,
@@ -48,19 +48,6 @@ const StyledPatientDetailSecondaryDetailsGroupWrapper = styled.div`
 `;
 
 export const PrimaryDetailsGroup = ({ values = {}, patientRegistryType }) => {
-  const villageSuggester = useSuggester('village');
-  const subdivisionSuggester = useSuggester('subdivision');
-  const divisionSuggester = useSuggester('division');
-  const countrySuggester = useSuggester('country');
-  const settlementSuggester = useSuggester('settlement');
-  const medicalAreaSuggester = useSuggester('medicalArea');
-  const nursingZoneSuggester = useSuggester('nursingZone');
-  const ethnicitySuggester = useSuggester('ethnicity')
-  const nationalitySuggester = useSuggester('nationality')
-  const occupationSuggester = useSuggester('occupation')
-  const religionSuggester = useSuggester('religion')
-  const patientSuggester = usePatientSuggester();
-
   const { getLocalisation } = useLocalisation();
   let filteredSexOptions = SEX_OPTIONS;
   if (getLocalisation('features.hideOtherSex') === true) {
@@ -75,55 +62,17 @@ export const PrimaryDetailsGroup = ({ values = {}, patientRegistryType }) => {
       patientRegistryType={patientRegistryType}
       values={values}
       sexOptions={filteredSexOptions}
-      villageSuggester={villageSuggester}
-      nursingZoneSuggester={nursingZoneSuggester}
-      medicalAreaSuggester={medicalAreaSuggester}
-      settlementSuggester={settlementSuggester}
-      subdivisionSuggester={subdivisionSuggester}
-      divisionSuggester={divisionSuggester}
-      countrySuggester={countrySuggester}
-      ethnicitySuggester={ethnicitySuggester}
-      occupationSuggester={occupationSuggester}
-      nationalitySuggester={nationalitySuggester}
-      religionSuggester={religionSuggester}
-      patientSuggester={patientSuggester}
       isRequiredPatientData={isRequiredPatientData}
     />
   );
 };
 
 export const SecondaryDetailsGroup = ({ values = {}, patientRegistryType, isEdit = false }) => {
-  const villageSuggester = useSuggester('village');
-  const subdivisionSuggester = useSuggester('subdivision');
-  const divisionSuggester = useSuggester('division');
-  const countrySuggester = useSuggester('country');
-  const settlementSuggester = useSuggester('settlement');
-  const medicalAreaSuggester = useSuggester('medicalArea');
-  const nursingZoneSuggester = useSuggester('nursingZone');
-  const ethnicitySuggester = useSuggester('ethnicity')
-  const nationalitySuggester = useSuggester('nationality')
-  const occupationSuggester = useSuggester('occupation')
-  const religionSuggester = useSuggester('religion')
-  const patientSuggester = usePatientSuggester();
-
-
   return (
     <CambodiaSecondaryDetailsLayout
       patientRegistryType={patientRegistryType}
       values={values}
       isEdit={isEdit}
-      villageSuggester={villageSuggester}
-      nursingZoneSuggester={nursingZoneSuggester}
-      medicalAreaSuggester={medicalAreaSuggester}
-      settlementSuggester={settlementSuggester}
-      subdivisionSuggester={subdivisionSuggester}
-      divisionSuggester={divisionSuggester}
-      countrySuggester={countrySuggester}
-      ethnicitySuggester={ethnicitySuggester}
-      occupationSuggester={occupationSuggester}
-      nationalitySuggester={nationalitySuggester}
-      religionSuggester={religionSuggester}
-      patientSuggester={patientSuggester}
     />
   );
 };

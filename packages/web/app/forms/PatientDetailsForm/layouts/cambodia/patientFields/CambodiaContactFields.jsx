@@ -4,9 +4,7 @@ import { AutocompleteField, TextField } from '../../../../../components';
 import { ConfiguredMandatoryPatientFields } from '../../../../../components/ConfiguredMandatoryPatientFields';
 import { useSuggester } from '../../../../../api';
 
-export const CambodiaContactFields = ({
-  filterByMandatory,
-}) => {
+export const CambodiaContactFields = ({ filterByMandatory }) => {
   const medicalAreaSuggester = useSuggester('medicalArea');
   const nursingZoneSuggester = useSuggester('nursingZone');
   const CONTACT_FIELDS = {
@@ -34,5 +32,12 @@ export const CambodiaContactFields = ({
       suggester: nursingZoneSuggester,
     },
   };
-  return <ConfiguredMandatoryPatientFields fields={CONTACT_FIELDS} filterByMandatory={filterByMandatory} />;
+  return (
+    <>
+      <ConfiguredMandatoryPatientFields
+        fields={CONTACT_FIELDS}
+        filterByMandatory={filterByMandatory}
+      />
+    </>
+  );
 };
