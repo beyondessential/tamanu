@@ -25,11 +25,11 @@ export const TreatmentPlanNoteChangelogForm = ({ note, onCancel }) => {
         noteType={NOTE_TYPE_LABELS[note.noteType]}
         date={note.date}
         dateLabel={<TranslatedText
-          stringId="note.form.lastUpdatedAt.label"
+          stringId="note.lastUpdatedAt.label"
           fallback="Last updated at date & time"
         />}
         writtenByLabel={<TranslatedText
-          stringId="note.form.lastUpdatedBy.label"
+          stringId="note.lastUpdatedBy.label"
           fallback="Last updated by (or on behalf of)"
         />}
         writtenBy={writtenBy}

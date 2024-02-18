@@ -68,14 +68,14 @@ const DocumentFormContents = ({ submitForm, departmentSuggester, onCancel }) => 
       <Field
         component={FileChooserField}
         filters={FILE_FILTERS}
-        label={<TranslatedText stringId="general.form.selectFile.label" fallback="Select file" />}
+        label={<TranslatedText stringId="general.selectFile.label" fallback="Select file" />}
         name="file"
         required
         style={{ gridColumn: '1 / -1' }}
       />
       <Field
         name="name"
-        label={<TranslatedText stringId="general.form.fileName.label" fallback="File name" />}
+        label={<TranslatedText stringId="general.fileName.label" fallback="File name" />}
         required
         component={TextField}
         style={{ gridColumn: '1 / -1' }}
@@ -83,19 +83,19 @@ const DocumentFormContents = ({ submitForm, departmentSuggester, onCancel }) => 
       <Field
         name="documentOwner"
         label={
-          <TranslatedText stringId="document.form.documentOwner.label" fallback="Document owner" />
+          <TranslatedText stringId="document.documentOwner.label" fallback="Document owner" />
         }
         component={TextField}
       />
       <Field
         name="departmentId"
-        label={<TranslatedText stringId="general.form.department.label" fallback="Department" />}
+        label={<TranslatedText stringId="general.department.label" fallback="Department" />}
         component={AutocompleteField}
         suggester={departmentSuggester}
       />
       <Field
         name="note"
-        label={<TranslatedText stringId="general.form.note.label" fallback="Note" />}
+        label={<TranslatedText stringId="general.note.label" fallback="Note" />}
         component={TextField}
         style={{ gridColumn: '1 / -1' }}
       />

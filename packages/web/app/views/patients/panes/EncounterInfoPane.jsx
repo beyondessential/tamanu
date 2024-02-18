@@ -33,7 +33,7 @@ export const EncounterInfoPane = React.memo(
       }
     >
       <InfoCardItem
-        label={<TranslatedText stringId="general.form.deparment.label" fallback="Department" />}
+        label={<TranslatedText stringId="general.department.label" fallback="Department" />}
         value={getDepartmentName(encounter)}
       />
       <InfoCardItem
@@ -43,7 +43,7 @@ export const EncounterInfoPane = React.memo(
         value={patientBillingType}
       />
       <InfoCardItem
-        label={<TranslatedText stringId="general.form.location.label" fallback="Location" />}
+        label={<TranslatedText stringId="general.location.label" fallback="Location" />}
         value={getFullLocationName(encounter?.location)}
       />
       {!getLocalisation(`${referralSourcePath}.hidden`) && (
