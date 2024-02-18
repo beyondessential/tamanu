@@ -32,7 +32,7 @@ const NavContainer = styled.div`
 `;
 
 export const DischargeSummaryView = React.memo(() => {
-  const certificateData = useCertificate();
+  const { data: certiciateData, isFetching: isCertificateFetching } = useCertificate();
   const { getLocalisation } = useLocalisation();
   const { encounter } = useEncounter();
   const patient = useSelector(state => state.patient);
@@ -50,7 +50,8 @@ export const DischargeSummaryView = React.memo(() => {
     return <Redirect to="/patients/all" />;
   }
 
-  if (isPADLoading || isDischargeLoading || isLoadingPatientConditions) return <LoadingIndicator />;
+  if (isPADLoading || isDischargeLoading || isLoadingPatientConditions || isCertificateFetching)
+    return <LoadingIndicator />;
 
   return (
     <Container>
@@ -71,7 +72,7 @@ export const DischargeSummaryView = React.memo(() => {
           encounter={encounter}
           discharge={discharge}
           patientConditions={patientConditions}
-          certificateData={certificateData}
+          certificateData={certiciateData}
           getLocalisation={getLocalisation}
         />
       </PDFViewer>

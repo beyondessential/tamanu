@@ -100,6 +100,9 @@ const notesSectionStyles = StyleSheet.create({
   },
 });
 
+const extractOngoingConditions = patientConditions =>
+  patientConditions.map(item => item?.diagnosis?.name);
+
 const extractDiagnosesInfo = ({ diagnoses, getLocalisation }) => {
   const displayIcd10Codes = getLocalisation('features.displayIcd10CodesInDischargeSummary');
   if (!displayIcd10Codes) {
@@ -233,10 +236,9 @@ export const DischargeSummaryPrintout = ({
         <SectionContainer>
           {patientConditions.length > 0 && (
             <TableContainer>
-              <DiagnosesTable
-                title="Ongoing conditions"
-                diagnoses={patientConditions}
-                getLocalisation={getLocalisation}
+              <InfoBox
+                label="Ongoing conditions"
+                info={extractOngoingConditions(patientConditions)}
               />
             </TableContainer>
           )}
