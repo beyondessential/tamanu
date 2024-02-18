@@ -27,6 +27,20 @@ export const CambodiaIdentificationFields = ({ filterByMandatory }) => {
           fieldType: PATIENT_FIELD_DEFINITION_TYPES.STRING,
         }}
       />
+      <PatientField
+        definition={{
+          name: 'ID Poor Card Number',
+          definitionId: 'fieldDefinition-idPoorCardNumber',
+          fieldType: PATIENT_FIELD_DEFINITION_TYPES.STRING,
+        }}
+      />
+      <PatientField
+        definition={{
+          name: 'PMRS Number',
+          definitionId: 'fieldDefinition-PMRSNumber',
+          fieldType: PATIENT_FIELD_DEFINITION_TYPES.STRING,
+        }}
+      />
     </>
   );
 };

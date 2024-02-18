@@ -188,7 +188,19 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
     data: fieldDefinitionsResponse,
     error: fieldDefError,
     isLoading: isLoadingFieldDefinitions,
-  } = useQuery(['patientFieldDefinition'], () => api.get(`patientFieldDefinition`));
+  } = useQuery(['patientFieldDefinition'], () => api.get(`patientFieldDefinition`), {
+    select: ({ data, count }) => {
+      if (getLocalisation('patientDetails.layout') !== 'cambodia') return { data, count };
+      // Filter out cambodia custom fields which are used inline
+      return {
+        data: data.filter(
+          ({ categoryId }) => categoryId !== 'fieldCategory-CambodiaCorePatientFields',
+        ),
+        count,
+      };
+    },
+  });
+
   const {
     data: fieldValuesResponse,
     error: fieldValError,
@@ -196,6 +208,7 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
   } = useQuery(['patientFields', patient.id], () => api.get(`patient/${patient.id}/fields`), {
     enabled: Boolean(patient.id),
   });
+
   const errors = [fieldDefError, fieldValError].filter(e => Boolean(e));
   if (errors.length > 0) {
     return <pre>{errors.map(e => e.stack).join('\n')}</pre>;
