@@ -13,14 +13,13 @@ import {
   LocalisedField,
   LocalisedLocationField,
   LocationAvailabilityWarningMessage,
-  SelectField,
+  BaseSelectField,
   SuggesterSelectField,
   TextField,
 } from '../components';
 import { encounterOptions } from '../constants';
 import { useSuggester } from '../api';
 import { TranslatedText } from '../components/Translation/TranslatedText';
-import { TranslatedSelectField } from '../components/Translation/TranslatedSelectField.jsx';
 
 export const EncounterForm = React.memo(
   ({ editedObject, onSubmit, patientBillingTypeId, encounterType }) => {
@@ -51,7 +50,7 @@ export const EncounterForm = React.memo(
               />
             }
             disabled
-            component={SelectField}
+            component={BaseSelectField}
             options={encounterOptions}
           />
           <Field

@@ -6,7 +6,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { FormSubmitCancelRow } from '../components/ButtonRow';
-import { Field, Form, OuterLabelFieldWrapper, SelectField } from '../components/Field';
+import { Field, Form, OuterLabelFieldWrapper, BaseSelectField } from '../components/Field';
 import { useLocalisation } from '../contexts/Localisation';
 import { FormGrid } from '../components/FormGrid';
 import { FormSeparatorLine } from '../components/FormSeparatorLine';
@@ -161,7 +161,7 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose }) => {
           )}
           <Field
             required={mandatoryVitalEditReason}
-            component={SelectField}
+            component={BaseSelectField}
             label={
               <TranslatedText
                 stringId="encounter.vitals.form.editReason.label"

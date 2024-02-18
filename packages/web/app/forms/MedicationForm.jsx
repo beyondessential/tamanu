@@ -18,7 +18,7 @@ import {
   FormGrid,
   FormSubmitButton,
   NumberField,
-  SelectField,
+  BaseSelectField,
   TextField,
 } from '../components';
 import { TranslatedText } from '../components/Translation/TranslatedText';

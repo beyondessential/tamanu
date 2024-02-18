@@ -7,10 +7,11 @@ import {
   PLACE_OF_BIRTH_OPTIONS,
   PLACE_OF_BIRTH_TYPES,
 } from '@tamanu/constants';
-import { AutocompleteField, SelectField, TextField, TimeField } from '..';
+import { AutocompleteField, BaseSelectField, TextField, TimeField } from '..';
 import { useSuggester } from '../../api';
 import { ConfiguredMandatoryPatientFields } from './ConfiguredMandatoryPatientFields';
 import { TranslatedText } from '../Translation/TranslatedText';
+import { TranslatedSelectField } from '../Translation/TranslatedSelectField.jsx';
 
 export const BirthDetailsFields = ({ registeredBirthPlace, showMandatory }) => {
   const facilitySuggester = useSuggester('facility');
@@ -38,7 +39,7 @@ export const BirthDetailsFields = ({ registeredBirthPlace, showMandatory }) => {
       ),
     },
     registeredBirthPlace: {
-      component: SelectField,
+      component: TranslatedSelectField,
       options: PLACE_OF_BIRTH_OPTIONS,
       label: (
         <TranslatedText
@@ -46,6 +47,7 @@ export const BirthDetailsFields = ({ registeredBirthPlace, showMandatory }) => {
           fallback="Place of birth"
         />
       ),
+      prefix: 'localisedField.property.registeredBirthPlace',
     },
     birthFacilityId: {
       component: AutocompleteField,
@@ -59,7 +61,7 @@ export const BirthDetailsFields = ({ registeredBirthPlace, showMandatory }) => {
       ),
     },
     attendantAtBirth: {
-      component: SelectField,
+      component: TranslatedSelectField,
       options: ATTENDANT_OF_BIRTH_OPTIONS,
       label: (
         <TranslatedText
@@ -67,6 +69,7 @@ export const BirthDetailsFields = ({ registeredBirthPlace, showMandatory }) => {
           fallback="Attendant at birth"
         />
       ),
+      prefix: 'localisedField.property.attendantAtBirth',
     },
     nameOfAttendantAtBirth: {
       component: TextField,
@@ -79,7 +82,7 @@ export const BirthDetailsFields = ({ registeredBirthPlace, showMandatory }) => {
       ),
     },
     birthDeliveryType: {
-      component: SelectField,
+      component: TranslatedSelectField,
       options: BIRTH_DELIVERY_TYPE_OPTIONS,
       label: (
         <TranslatedText
@@ -87,9 +90,10 @@ export const BirthDetailsFields = ({ registeredBirthPlace, showMandatory }) => {
           fallback="Delivery type"
         />
       ),
+      prefix: 'localisedField.property.birthDeliveryType',
     },
     birthType: {
-      component: SelectField,
+      component: TranslatedSelectField,
       options: BIRTH_TYPE_OPTIONS,
       label: (
         <TranslatedText
@@ -97,6 +101,7 @@ export const BirthDetailsFields = ({ registeredBirthPlace, showMandatory }) => {
           fallback="Single/Plural birth"
         />
       ),
+      prefix: 'localisedField.property.birthType',
     },
     birthWeight: {
       component: TextField,

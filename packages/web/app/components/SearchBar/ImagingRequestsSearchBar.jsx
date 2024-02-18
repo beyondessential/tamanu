@@ -9,7 +9,7 @@ import {
   Field,
   LocalisedField,
   SearchField,
-  SelectField,
+  BaseSelectField,
 } from '../Field';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
 import { useLocalisation } from '../../contexts/Localisation';

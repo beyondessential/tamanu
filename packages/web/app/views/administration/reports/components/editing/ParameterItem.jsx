@@ -11,7 +11,7 @@ import {
   DefaultIconButton,
   Field,
   OuterLabelFieldWrapper,
-  SelectField,
+  BaseSelectField,
   TextField,
 } from '../../../../../components';
 import {
@@ -104,7 +104,7 @@ export const ParameterItem = props => {
         </IconButton>
       </Grid>
       <Grid item xs={11}>
-        <SelectField
+        <BaseSelectField
           field={{
             name: 'parameterField',
             value: parameterField,
@@ -122,7 +122,7 @@ export const ParameterItem = props => {
       </Grid>
       {FIELD_TYPES_WITH_SUGGESTERS.includes(parameterField) && (
         <Grid item xs={11}>
-          <SelectField
+          <BaseSelectField
             field={{
               name: 'suggesterEndpoint',
               value: suggesterEndpoint,

@@ -17,7 +17,7 @@ import {
   Field,
   Form,
   MultiselectField,
-  SelectField,
+  BaseSelectField,
   TextField,
 } from '../../../components';
 import { ParameterItem, ParameterList, SQLQueryEditor } from './components/editing';
@@ -158,7 +158,7 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
             <StyledField
               label="DB schema"
               name="dbSchema"
-              component={SelectField}
+              component={BaseSelectField}
               options={schemaOptions}
               disabled={isEdit}
               isClearable={false}

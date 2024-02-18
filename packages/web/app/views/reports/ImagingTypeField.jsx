@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Field, SelectField } from '../../components';
+import { Field, BaseSelectField } from '../../components';
 import { useLocalisation } from '../../contexts/Localisation';
 import { TranslatedSelectField } from '../../components/Translation/TranslatedSelectField.jsx';
 

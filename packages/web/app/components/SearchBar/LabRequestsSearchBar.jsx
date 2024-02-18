@@ -9,7 +9,7 @@ import {
   Field,
   LocalisedField,
   SearchField,
-  SelectField,
+  BaseSelectField,
   SuggesterSelectField,
 } from '../Field';
 import { CustomisableSearchBar } from './CustomisableSearchBar';

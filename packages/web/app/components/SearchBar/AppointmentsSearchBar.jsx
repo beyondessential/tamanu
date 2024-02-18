@@ -6,7 +6,7 @@ import {
   DateTimeField,
   LocalisedField,
   SearchField,
-  SelectField,
+  BaseSelectField,
 } from '../Field';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { appointmentStatusOptions, appointmentTypeOptions } from '../../constants';

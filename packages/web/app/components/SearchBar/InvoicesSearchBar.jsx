@@ -1,6 +1,6 @@
 import React from 'react';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
-import { LocalisedField, SelectField } from '../Field';
+import { LocalisedField, BaseSelectField } from '../Field';
 import { INVOICE_PAYMENT_STATUS_OPTIONS, INVOICE_STATUS_OPTIONS } from '../../constants';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { TranslatedSelectField } from '../Translation/TranslatedSelectField.jsx';

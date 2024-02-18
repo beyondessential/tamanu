@@ -8,7 +8,7 @@ import { TEMPLATE_TYPES } from '@tamanu/constants';
 import {
   Field,
   Form,
-  SelectField,
+  BaseSelectField,
   TallMultilineTextField,
   TextField,
 } from '../../../components/Field';

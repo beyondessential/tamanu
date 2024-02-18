@@ -2,7 +2,7 @@ import React, { memo, useCallback, useState } from 'react';
 import * as yup from 'yup';
 import { ASSET_NAMES } from '@tamanu/constants/importable';
 import { useApi } from '../../api';
-import { Field, Form, SelectField } from '../../components/Field';
+import { Field, Form, BaseSelectField } from '../../components/Field';
 import { FileChooserField, FILTER_IMAGES } from '../../components/Field/FileChooserField';
 import { ContentPane } from '../../components/ContentPane';
 import { FormGrid } from '../../components/FormGrid';

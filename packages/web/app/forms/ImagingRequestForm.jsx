@@ -19,7 +19,7 @@ import {
   Form,
   ImagingPriorityField,
   MultiselectField,
-  SelectField,
+  BaseSelectField,
   TextField,
   TextInput,
 } from '../components/Field';

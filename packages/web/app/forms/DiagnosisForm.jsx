@@ -12,7 +12,7 @@ import {
   DateField,
   Field,
   Form,
-  SelectField,
+  BaseSelectField,
 } from '../components/Field';
 import { useSuggester } from '../api';
 import { useLocalisation } from '../contexts/Localisation';

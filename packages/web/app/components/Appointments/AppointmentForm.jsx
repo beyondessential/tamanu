@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import * as yup from 'yup';
 import { APPOINTMENT_STATUSES } from '@tamanu/constants';
 import { FormGrid } from '../FormGrid';
-import { AutocompleteField, DateTimeField, Field, Form, SelectField } from '../Field';
+import { AutocompleteField, DateTimeField, Field, Form, BaseSelectField } from '../Field';
 import { FormSubmitCancelRow } from '../ButtonRow';
 import { FormSeparatorLine } from '../FormSeparatorLine';
 import { useApi, usePatientSuggester, useSuggester } from '../../api';

@@ -222,7 +222,7 @@ export const SelectInput = ({
   );
 };
 
-export const SelectField = ({ field, ...props }) => (
+export const BaseSelectField = ({ field, ...props }) => (
   <SelectInput name={field.name} onChange={field.onChange} value={field.value} {...props} />
 );
 
@@ -237,7 +237,7 @@ export const SelectField = ({ field, ...props }) => (
   The reason is because it's inheriting from the Select
   component from react-select.
 */
-const StyledField = styled(SelectField)`
+const StyledField = styled(BaseSelectField)`
   .styled-select-container {
     padding: 8px 8px 2px 8px;
     border: 1px solid #dedede;

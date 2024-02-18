@@ -31,7 +31,7 @@ import {
   DateTimeInput,
   Field,
   Form,
-  SelectField,
+  BaseSelectField,
   TextField,
   TextInput,
 } from '../../../components/Field';

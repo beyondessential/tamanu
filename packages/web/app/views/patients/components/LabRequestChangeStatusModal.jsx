@@ -9,7 +9,7 @@ import {
   FormGrid,
   FormModal,
   FormSubmitCancelRow,
-  SelectField,
+  BaseSelectField,
   SuggesterSelectField,
 } from '../../../components';
 

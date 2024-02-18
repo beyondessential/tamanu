@@ -7,7 +7,7 @@ import { useApi } from '../../api';
 import { Colors } from '../../constants';
 import { Heading5 } from '../../components/Typography';
 import { Button } from '../../components/Button';
-import { Field, Form, SelectField } from '../../components/Field';
+import { Field, Form, BaseSelectField } from '../../components/Field';
 import { FormGrid } from '../../components/FormGrid';
 import { foreignKey } from '../../utils/validation';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
@@ -89,7 +89,7 @@ export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistrat
                 <Field
                   name="surveyId"
                   label="Select form"
-                  component={SelectField}
+                  component={BaseSelectField}
                   placeholder="Select"
                   options={surveys}
                   disabled={isRemoved}

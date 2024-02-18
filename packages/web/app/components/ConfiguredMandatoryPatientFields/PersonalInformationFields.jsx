@@ -2,7 +2,7 @@ import React from 'react';
 
 import { PATIENT_REGISTRY_TYPES, MARITAL_STATUS_OPTIONS } from '@tamanu/constants';
 
-import { AutocompleteField, SelectField, SuggesterSelectField, TextField } from '..';
+import { AutocompleteField, BaseSelectField, SuggesterSelectField, TextField } from '..';
 import {
   bloodOptions,
   educationalAttainmentOptions,
@@ -23,12 +23,12 @@ export const PersonalInformationFields = ({ patientRegistryType, showMandatory }
 
   const PERSONAL_INFORMATION_FIELDS = {
     title: {
-      component: SelectField,
+      component: BaseSelectField,
       options: titleOptions,
       label: <TranslatedText stringId="general.localisedField.title.label" fallback="Title" />,
     },
     maritalStatus: {
-      component: SelectField,
+      component: BaseSelectField,
       options: MARITAL_STATUS_OPTIONS,
       condition: () => patientRegistryType === PATIENT_REGISTRY_TYPES.NEW_PATIENT,
       label: (
@@ -39,7 +39,7 @@ export const PersonalInformationFields = ({ patientRegistryType, showMandatory }
       ),
     },
     bloodType: {
-      component: SelectField,
+      component: BaseSelectField,
       options: bloodOptions,
       label: (
         <TranslatedText stringId="general.localisedField.bloodType.label" fallback="Blood type" />
@@ -89,7 +89,7 @@ export const PersonalInformationFields = ({ patientRegistryType, showMandatory }
       ),
     },
     educationalLevel: {
-      component: SelectField,
+      component: BaseSelectField,
       options: educationalAttainmentOptions,
       condition: () => patientRegistryType === PATIENT_REGISTRY_TYPES.NEW_PATIENT,
       label: (
@@ -111,7 +111,7 @@ export const PersonalInformationFields = ({ patientRegistryType, showMandatory }
       ),
     },
     socialMedia: {
-      component: SelectField,
+      component: BaseSelectField,
       options: socialMediaOptions,
       condition: () => patientRegistryType === PATIENT_REGISTRY_TYPES.NEW_PATIENT,
       label: (

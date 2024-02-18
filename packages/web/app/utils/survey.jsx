@@ -17,7 +17,7 @@ import {
   NumberField,
   PatientDataDisplayField,
   ReadOnlyTextField,
-  SelectField,
+  BaseSelectField,
   SurveyQuestionAutocompleteField,
   SurveyResponseSelectField,
   UnsupportedPhotoField,
@@ -37,8 +37,8 @@ const InstructionField = ({ label, helperText }) => (
 const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.TEXT]: LimitedTextField,
   [PROGRAM_DATA_ELEMENT_TYPES.MULTILINE]: MultilineTextField,
-  [PROGRAM_DATA_ELEMENT_TYPES.RADIO]: SelectField, // TODO: Implement proper radio field?
-  [PROGRAM_DATA_ELEMENT_TYPES.SELECT]: SelectField,
+  [PROGRAM_DATA_ELEMENT_TYPES.RADIO]: BaseSelectField, // TODO: Implement proper radio field?
+  [PROGRAM_DATA_ELEMENT_TYPES.SELECT]: BaseSelectField,
   [PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT]: MultiselectField,
   [PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE]: SurveyQuestionAutocompleteField,
   [PROGRAM_DATA_ELEMENT_TYPES.DATE]: props => <DateField {...props} saveDateAsString />,

@@ -9,7 +9,7 @@ import {
   Field,
   LocalisedField,
   SearchField,
-  SelectField,
+  BaseSelectField,
 } from '../Field';
 import { useSuggester } from '../../api';
 import { DateField } from '../Field/DateField';

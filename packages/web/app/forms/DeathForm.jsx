@@ -18,7 +18,7 @@ import {
   NumberField,
   PaginatedForm,
   RadioField,
-  SelectField,
+  BaseSelectField,
   TextField,
   TimeWithUnitField,
 } from '../components';

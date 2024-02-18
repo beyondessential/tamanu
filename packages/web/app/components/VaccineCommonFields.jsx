@@ -13,7 +13,7 @@ import {
   Field,
   LocalisedLocationField,
   RadioField,
-  SelectField,
+  BaseSelectField,
   TextField,
 } from './Field';
 import { FormSubmitCancelRow } from './ButtonRow';
@@ -192,7 +192,7 @@ export const RecordedByField = () => {
       disabled
       name="recorderId"
       label={<TranslatedText stringId="vaccine.form.recordedBy.label" fallback="Recorded by" />}
-      component={SelectField}
+      component={BaseSelectField}
       options={[
         {
           label: currentUser.displayName,

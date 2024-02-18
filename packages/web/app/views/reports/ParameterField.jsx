@@ -8,7 +8,7 @@ import {
   AutocompleteField,
   Field,
   MultiselectField,
-  SelectField,
+  BaseSelectField,
   SuggesterSelectField,
 } from '../../components';
 import { VillageField } from './VillageField';
@@ -44,7 +44,7 @@ const ParameterAutocompleteField = ({ suggesterEndpoint, suggesterOptions, name,
 };
 
 const ParameterSelectField = ({ name, ...props }) => (
-  <Field component={SelectField} name={name} {...props} />
+  <Field component={BaseSelectField} name={name} {...props} />
 );
 
 const ParameterMultiselectField = ({ name, ...props }) => (

@@ -1,5 +1,5 @@
 import { TranslatedText } from './TranslatedText.jsx';
-import { MultiselectField, MultiselectInput, SelectField, SelectInput } from '../Field/index.js';
+import { SelectInput } from '../Field/index.js';
 import PropTypes from 'prop-types';
 import React from 'react';
 
@@ -12,8 +12,6 @@ const transformStringIdSuffix = suffix => {
         ? word.charAt(0).toLowerCase() + word.slice(1).toLowerCase()
         : word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
     });
-
-  // console.log(suffix.split(/\s/g));
   return words.join('');
 };
 
@@ -64,7 +62,7 @@ export const TranslatedSelectField = ({ field, options, prefix, value, name, ...
   />
 );
 
-SelectField.propTypes = {
+TranslatedSelectField.propTypes = {
   options: PropTypes.object.isRequired,
   prefix: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
