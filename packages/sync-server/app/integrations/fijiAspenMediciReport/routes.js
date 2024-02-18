@@ -1,13 +1,13 @@
 import { QueryTypes } from 'sequelize';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { upperFirst } from 'lodash';
+import config from 'config';
+import { mapKeys, camelCase, upperFirst } from 'lodash';
 import { parseISO } from 'date-fns';
 import { formatInTimeZone } from 'date-fns-tz';
+
 import { FHIR_DATETIME_PRECISION } from '@tamanu/constants/fhir';
 import { parseDateTime, formatFhirDate } from '@tamanu/shared/utils/fhir/datetime';
-import config from 'config';
-import { mapKeys, camelCase } from 'lodash';
 
 import { requireClientHeaders } from '../../middleware/requireClientHeaders';
 

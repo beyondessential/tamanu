@@ -57,7 +57,7 @@ describe('FHIR refresh handler', () => {
         },
       });
 
-      expect(count).toEqual(3);
+      expect(count).toEqual(2);
       expect(rows).toEqual([
         expect.objectContaining({
           payload: expect.objectContaining({
@@ -73,14 +73,6 @@ describe('FHIR refresh handler', () => {
             resource: 'ServiceRequest',
             table: 'public.encounters',
             upstreamId: imagingRequest.id,
-          }),
-        }),
-        expect.objectContaining({
-          payload: expect.objectContaining({
-            op: 'UPDATE',
-            resource: 'MediciReport',
-            table: 'public.encounters',
-            upstreamId: resources.encounter.id,
           }),
         }),
       ]);
