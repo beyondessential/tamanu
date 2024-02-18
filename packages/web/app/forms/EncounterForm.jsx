@@ -20,6 +20,7 @@ import {
 import { encounterOptions } from '../constants';
 import { useSuggester } from '../api';
 import { TranslatedText } from '../components/Translation/TranslatedText';
+import { TranslatedSelectField } from '../components/Translation/TranslatedSelectField.jsx';
 
 export const EncounterForm = React.memo(
   ({ editedObject, onSubmit, patientBillingTypeId, encounterType }) => {

@@ -54,6 +54,7 @@ const getTranslatedOptions = (options, prefix) => {
   // }));
 };
 
+// NOTE: not compatible with disabled SelectFields
 export const TranslatedSelectField = ({ field, options, prefix, value, name, ...props }) => (
   <SelectInput
     options={getTranslatedOptions(options, prefix)}

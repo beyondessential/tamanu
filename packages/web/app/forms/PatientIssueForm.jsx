@@ -1,22 +1,12 @@
 import React from 'react';
 import * as yup from 'yup';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
-import { PATIENT_ISSUE_TYPES } from '@tamanu/constants';
+import { PATIENT_ISSUE_TYPES, PATIENT_ISSUE_OPTIONS } from '@tamanu/constants';
 import { DateField, Field, Form, SelectField, TextField } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { FormSubmitCancelRow } from '../components/ButtonRow';
-
-const ISSUE_TYPES = [
-  {
-    value: PATIENT_ISSUE_TYPES.ISSUE,
-    label: <TranslatedText stringId="issues.form.option.issue" fallback="Issue" />,
-  },
-  {
-    value: PATIENT_ISSUE_TYPES.WARNING,
-    label: <TranslatedText stringId="issues.form.option.warning" fallback="Warning" />,
-  },
-];
+import { TranslatedSelectField } from '../components/Translation/TranslatedSelectField.jsx';
 
 export const PatientIssueForm = ({ onSubmit, editedObject, onCancel }) => (
   <Form
@@ -26,9 +16,10 @@ export const PatientIssueForm = ({ onSubmit, editedObject, onCancel }) => (
         <Field
           name="type"
           label={<TranslatedText stringId="general.form.type.label" fallback="Type" />}
-          component={SelectField}
-          options={ISSUE_TYPES}
+          component={TranslatedSelectField}
+          options={PATIENT_ISSUE_OPTIONS}
           required
+          prefix="issues.property.option"
         />
         <Field
           name="note"
