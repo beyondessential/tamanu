@@ -1,6 +1,5 @@
 import React, { FC, ReactElement, useCallback, useMemo } from 'react';
 import { format } from 'date-fns';
-import { FindOperator, Like, Raw } from 'typeorm';
 import { FieldHelperProps, FieldInputProps, FieldMetaProps, useField } from 'formik';
 import { compose } from 'redux';
 // Containers
@@ -21,35 +20,39 @@ import { useFilterFields } from './PatientFilterScreen';
 import { IPatient } from '~/types';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 
-interface ActiveFilters {
-  count: number;
-  filters: {
-    [key: string]: FindOperator<string> | any;
-  };
-}
-
 type FieldProp = [FieldInputProps<any>, FieldMetaProps<any>, FieldHelperProps<any>];
 
-const getActiveFilters = (filters: ActiveFilters, filter: FieldProp): ActiveFilters => {
-  const field = filter[0];
-  const activeFilters = { ...filters };
+type QueryConfig = { where: string; substitutions: {} };
 
-  if (field.value) {
-    activeFilters.count += 1;
-    if (field.name === 'sex') {
-      if (field.value !== 'all') {
-        activeFilters.filters[field.name] = field.value;
+const getQueryConfigForField = (fieldName, fieldValue): QueryConfig => {
+  const defaultConfig = {
+    where: `patient.${fieldName} = :value`,
+    substitutions: {
+      value: fieldValue,
+    },
+  };
+
+  switch (fieldName) {
+    case 'sex':
+      if (fieldValue === 'all') {
+        return null;
       }
-    } else if (field.name === 'dateOfBirth') {
-      const date = format(field.value, 'yyyy-MM-dd');
-      activeFilters.filters[field.name] = date;
-    } else if (['firstName', 'lastName'].includes(field.name)) {
-      activeFilters.filters[field.name] = {
-        where: `${field.name} LIKE :fieldValue`,
-        substitutions: { fieldValue: `%${field.value}%` },
+      return defaultConfig;
+    case 'dateOfBirth':
+      return {
+        where: `patient.${fieldName} = :value`,
+        substitutions: {
+          value: format(fieldValue, 'yyyy-MM-dd'),
+        },
       };
-    } else if (field.name === 'programRegistryId') {
-      activeFilters.filters[field.name] = {
+    case 'firstName':
+    case 'lastName':
+      return {
+        where: `${fieldName} LIKE :fieldValue`,
+        substitutions: { fieldValue: `%${fieldValue}%` },
+      };
+    case 'programRegistryId':
+      return {
         where: `
           patient.id IN
             (
@@ -59,23 +62,53 @@ const getActiveFilters = (filters: ActiveFilters, filter: FieldProp): ActiveFilt
               AND ( ppr.deletedAt IS NULL )
             )
         `,
-        substitutions: { programRegistryId: field.value },
+        substitutions: { programRegistryId: fieldValue },
       };
-    } else {
-      activeFilters.filters[field.name] = field.value; // use equal for any other filters
-    }
+    default:
+      return defaultConfig;
   }
-
-  return activeFilters;
 };
 
-const applyActiveFilters = (
+const searchAndFilterPatients = async (
   models,
-  { filters }: ActiveFilters,
-  { value: searchValue }: FieldInputProps<any>,
-): IPatient[] => {
-  const value = searchValue.trim();
-  return models.Patient.filterAndSearchPatients(filters, value);
+  { value: searchTerm }: FieldInputProps<any>,
+  filters: Record<string, string>,
+): Promise<IPatient[]> => {
+  const searchValue = searchTerm.trim();
+
+  const queryBuilder = models.Patient.getRepository();
+
+  // Add the search term, which can match across any of 5 key fields
+  queryBuilder.where(
+    `(
+      patient.displayId LIKE :search OR
+      patient.firstName LIKE :search OR
+      patient.middleName LIKE :search OR
+      patient.lastName LIKE :search OR
+      patient.culturalName LIKE :search
+    )`,
+    { search: `%${searchValue}%` },
+  );
+
+  // Filter patients by any of the specific "advanced"/"per-field" filters the user has specified
+  Object.entries(filters).forEach(([fieldName, fieldValue]) => {
+    const queryConfig = getQueryConfigForField(fieldName, fieldValue);
+    if (!queryConfig) {
+      return;
+    }
+    const { where, substitutions } = queryConfig;
+    queryBuilder.andWhere(where, substitutions);
+  });
+
+  // Don't return deleted patients
+  queryBuilder.andWhere('patient.deletedAt IS NULL');
+
+  queryBuilder.orderBy('patient.lastName', 'ASC');
+  queryBuilder.addOrderBy('patient.firstName', 'ASC');
+  queryBuilder.limit(100);
+
+  const patients = await queryBuilder.getMany();
+  return patients;
 };
 
 const Screen: FC<ViewAllScreenProps> = ({
@@ -84,19 +117,22 @@ const Screen: FC<ViewAllScreenProps> = ({
 }: ViewAllScreenProps): ReactElement => {
   /** Get Search Input */
   const [searchField] = useField('search');
+
   // Get filters
-  const filterFields = useFilterFields();
-  const activeFilters = useMemo(
-    () =>
-      filterFields.reduce<ActiveFilters>(getActiveFilters, {
-        count: 0,
-        filters: {},
-      }),
-    [filterFields],
-  );
+  const filterFields: FieldProp[] = useFilterFields();
+
+  // Get fields in active use, and transform from formik fields to a simple object
+  const activeFilters = useMemo(() => {
+    const entries = filterFields
+      .filter(field => field[0].value)
+      .map(field => [field[0].name, field[0].value]);
+    return Object.fromEntries(entries);
+  }, [filterFields]);
+
+  const activeFilterCount = Object.keys(activeFilters).length;
 
   const [list, error] = useBackendEffect(
-    ({ models }) => applyActiveFilters(models, activeFilters, searchField),
+    ({ models }) => searchAndFilterPatients(models, searchField, activeFilters),
     [searchField.value, activeFilters],
   );
 
@@ -126,11 +162,11 @@ const Screen: FC<ViewAllScreenProps> = ({
           bordered
           textColor={theme.colors.WHITE}
           onPress={onNavigateToFilters}
-          buttonText={`Filters ${activeFilters.count > 0 ? `${activeFilters.count}` : ''}`}
+          buttonText={`Filters ${activeFilterCount > 0 ? `${activeFilterCount}` : ''}`}
         >
           <StyledView marginRight={screenPercentageToDP(2.43, Orientation.Width)}>
             <FilterIcon
-              fill={activeFilters.count > 0 ? theme.colors.SECONDARY_MAIN : theme.colors.WHITE}
+              fill={activeFilterCount > 0 ? theme.colors.SECONDARY_MAIN : theme.colors.WHITE}
               height={20}
             />
           </StyledView>

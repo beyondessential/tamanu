@@ -252,41 +252,4 @@ export class Patient extends BaseModel implements IPatient {
 
     return { data, columns };
   }
-
-  static async filterAndSearchPatients(filters: { [key: string]: any }, searchTerm: string) {
-    const queryBuilder = getManager()
-      .getRepository(Patient)
-      .createQueryBuilder('patient');
-
-    queryBuilder.where(
-      `(
-        patient.displayId LIKE :searchValue OR
-        patient.firstName LIKE :searchValue OR
-        patient.middleName LIKE :searchValue OR
-        patient.lastName LIKE :searchValue OR
-        patient.culturalName LIKE :searchValue
-      )`,
-      { searchValue: `%${searchTerm}%` },
-    );
-    queryBuilder.andWhere('patient.deletedAt IS NULL');
-
-    Object.entries(filters).forEach(([key, value]) => {
-      if (!value) {
-        return;
-      }
-
-      if (typeof value === 'object') {
-        queryBuilder.andWhere(value.where, value.substitutions);
-      } else {
-        queryBuilder.andWhere(`patient.${key} = :value`, { value });
-      }
-    });
-
-    queryBuilder.orderBy('patient.lastName', 'ASC');
-    queryBuilder.addOrderBy('patient.firstName', 'ASC');
-    queryBuilder.limit(100);
-
-    const patients = await queryBuilder.getMany();
-    return patients;
-  }
 }
