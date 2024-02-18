@@ -27,7 +27,7 @@ export const fetchWithTimeout = async (url: string, config?: FetchOptions): Prom
   const { timeout, ...otherConfig } = config || {};
   const { cleanup, promise: timeoutPromise } = createTimeoutPromise(timeout);
   try {
-    const response = await Promise.race([fetch(url, otherConfig), timeoutPromise]);
+    const response = await Promise.race([fetch(url, otherConfig), timeoutPromise]); // Memory error happens here!
     // assert type because timeoutPromise is guaranteed not to resolve unless cleaned up
     return response as Response;
   } finally {
