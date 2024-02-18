@@ -17,16 +17,13 @@ import {
 import { ConfiguredMandatoryPatientFields } from '../../../../../components/ConfiguredMandatoryPatientFields';
 import { usePatientSuggester, useSuggester } from '../../../../../api';
 
-export const GenericPersonalFields = ({
-  patientRegistryType,
-  filterByMandatory
-}) => {
+export const GenericPersonalFields = ({ patientRegistryType, filterByMandatory }) => {
   const countrySuggester = useSuggester('country');
-  const ethnicitySuggester = useSuggester('ethnicity')
-  const nationalitySuggester = useSuggester('nationality')
-  const occupationSuggester = useSuggester('occupation')
-  const religionSuggester = useSuggester('religion')
-  const patientSuggester = usePatientSuggester()
+  const ethnicitySuggester = useSuggester('ethnicity');
+  const nationalitySuggester = useSuggester('nationality');
+  const occupationSuggester = useSuggester('occupation');
+  const religionSuggester = useSuggester('religion');
+  const patientSuggester = usePatientSuggester();
 
   const PERSONAL_FIELDS = {
     title: {
@@ -91,6 +88,9 @@ export const GenericPersonalFields = ({
   };
 
   return (
-    <ConfiguredMandatoryPatientFields fields={PERSONAL_FIELDS} filterByMandatory={filterByMandatory} />
+    <ConfiguredMandatoryPatientFields
+      fields={PERSONAL_FIELDS}
+      filterByMandatory={filterByMandatory}
+    />
   );
 };

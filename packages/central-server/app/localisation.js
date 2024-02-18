@@ -3,7 +3,7 @@ import * as yup from 'yup';
 import { defaultsDeep } from 'lodash';
 
 import { log } from '@tamanu/shared/services/logging';
-import { IMAGING_TYPES } from '@tamanu/constants';
+import { IMAGING_TYPES, PATIENT_DETAIL_LAYOUTS } from '@tamanu/constants';
 
 const fieldSchema = yup
   .object({
@@ -290,7 +290,7 @@ const patientDetailsSchema = yup.object({
   layout: yup
     .string()
     .required()
-    .oneOf(['generic', 'cambodia']),
+    .oneOf(Object.values(PATIENT_DETAIL_LAYOUTS)),
 });
 
 const validCssAbsoluteLength = yup

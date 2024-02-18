@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useMemo } from 'react';
 import styled from 'styled-components';
 import { groupBy, isEmpty } from 'lodash';
 import { useQuery } from '@tanstack/react-query';
@@ -8,6 +8,7 @@ import {
   PLACE_OF_BIRTH_TYPES,
   SEX_OPTIONS,
   PATIENT_FIELD_DEFINITION_TYPES,
+  PATIENT_DETAIL_LAYOUTS,
 } from '@tamanu/constants';
 
 import { useSexValues } from '../../hooks';
@@ -32,6 +33,24 @@ import {
   CambodiaPrimaryDetailsLayout,
   CambodiaSecondaryDetailsLayout,
 } from './layouts/cambodia/CambodiaLayout';
+import {
+  GenericPatientFieldLayout,
+  GenericPrimaryDetailsLayout,
+  GenericSecondaryDetailsLayout,
+} from './layouts/generic/GenericLayout';
+
+const LAYOUT_COMPONENTS = {
+  [PATIENT_DETAIL_LAYOUTS.GENERIC]: {
+    PrimaryDetailGroup: GenericPrimaryDetailsLayout,
+    SecondaryDetailGroup: GenericSecondaryDetailsLayout,
+    PatientFieldGroup: GenericPatientFieldLayout,
+  },
+  [PATIENT_DETAIL_LAYOUTS.CAMBODIA]: {
+    PrimaryDetailGroup: CambodiaPrimaryDetailsLayout,
+    SecondaryDetailGroup: CambodiaSecondaryDetailsLayout,
+    PatientFieldGroup: CambodiaPatientFieldLayout,
+  },
+};
 
 const StyledHeading = styled.div`
   font-weight: 500;
@@ -184,6 +203,20 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
 
   const { getLocalisation } = useLocalisation();
 
+  const layout = getLocalisation('patientDetails.layout');
+  const { PrimaryDetailGroup, SecondaryDetailGroup, PatientFieldGroup } = useMemo(
+    () => LAYOUT_COMPONENTS[layout],
+    [layout],
+  );
+
+  let filteredSexOptions = SEX_OPTIONS;
+  if (getLocalisation('features.hideOtherSex') === true) {
+    filteredSexOptions = filteredSexOptions.filter(s => s.value !== 'other');
+  }
+
+  const isRequiredPatientData = fieldName =>
+    getLocalisation(`fields.${fieldName}.requiredPatientData`);
+
   const api = useApi();
   const {
     data: fieldDefinitionsResponse,
@@ -210,17 +243,20 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
 
   return (
     <Form
-      render={({ values }) => (
+      render={({ values = {} }) => (
         <>
-          <PrimaryDetailsGroup values={values} patientRegistryType={patientRegistryType} />
+          <PrimaryDetailGroup
+            isRequiredPatientData={isRequiredPatientData}
+            sexOptions={filteredSexOptions}
+          />
           <StyledPatientDetailSecondaryDetailsGroupWrapper>
-            <SecondaryDetailsGroup
+            <SecondaryDetailGroup
+              registeredBirthPlace={values.registeredBirthPlace}
               patientRegistryType={patientRegistryType}
-              values={values}
               isEdit
             />
           </StyledPatientDetailSecondaryDetailsGroupWrapper>
-          <CambodiaPatientFieldLayout
+          <PatientFieldGroup
             fieldDefinitions={fieldDefinitionsResponse.data}
             fieldValues={fieldValuesResponse?.data}
           />

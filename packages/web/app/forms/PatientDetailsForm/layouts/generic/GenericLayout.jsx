@@ -41,8 +41,8 @@ export const SecondaryDetailsFormGrid = styled(FormGrid)`
 `;
 
 export const GenericPrimaryDetailsLayout = ({
-  values = {},
   patientRegistryType,
+  registeredBirthPlace,
   sexOptions,
   isRequiredPatientData,
 }) => {
@@ -85,10 +85,7 @@ export const GenericPrimaryDetailsLayout = ({
           required={isRequiredPatientData('email')}
         />
         {patientRegistryType === PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY && (
-          <GenericBirthFields
-            registeredBirthPlace={values.registeredBirthPlace}
-            filterByMandatory
-          />
+          <GenericBirthFields registeredBirthPlace={registeredBirthPlace} filterByMandatory />
         )}
         <GenericIdentificationFields patientRegistryType={patientRegistryType} filterByMandatory />
         <GenericContactFields filterByMandatory />
@@ -100,7 +97,7 @@ export const GenericPrimaryDetailsLayout = ({
 };
 
 export const GenericSecondaryDetailsLayout = ({
-  values = {},
+  registeredBirthPlace,
   patientRegistryType,
   isEdit = false,
 }) => (
@@ -110,7 +107,7 @@ export const GenericSecondaryDetailsLayout = ({
         <PatientDetailsHeading>Birth details</PatientDetailsHeading>
         <SecondaryDetailsFormGrid>
           <GenericBirthFields
-            registeredBirthPlace={values.registeredBirthPlace}
+            registeredBirthPlace={registeredBirthPlace}
             filterByMandatory={false}
           />
         </SecondaryDetailsFormGrid>

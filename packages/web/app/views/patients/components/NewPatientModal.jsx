@@ -1,5 +1,7 @@
 import React, { useCallback } from 'react';
+
 import { generateId } from '@tamanu/shared/utils/generateId';
+import { PATIENT_DETAIL_LAYOUTS } from '@tamanu/constants';
 
 import { FormModal } from '../../../components';
 import { NewPatientForm } from '../../../forms';
@@ -9,8 +11,10 @@ import { useLocalisation } from '../../../contexts/Localisation';
 
 export const NewPatientModal = ({ open, onCancel, onCreateNewPatient, ...formProps }) => {
   const { getLocalisation } = useLocalisation();
-
-  const collapseAdditionalFields = getLocalisation('patientDetails.layout') !== 'cambodia';
+  // This is a hack to allow the cambodian patients form layout to have have
+  // mandatory fields that are not in the primary details
+  const collapseAdditionalFields =
+    getLocalisation('patientDetails.layout') !== PATIENT_DETAIL_LAYOUTS.CAMBODIA;
 
   const api = useApi();
   const onSubmit = useCallback(

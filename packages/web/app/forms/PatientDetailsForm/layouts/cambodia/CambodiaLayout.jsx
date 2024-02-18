@@ -49,6 +49,7 @@ export const CambodiaPrimaryDetailsLayout = ({ sexOptions, isRequiredPatientData
     </FormGrid>
   </>
 );
+
 export const CambodiaSecondaryDetailsLayout = ({ values = {}, patientRegistryType }) => {
   return (
     <SecondaryDetailsGroup>
