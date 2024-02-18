@@ -18,8 +18,6 @@ import { allFromUpstream } from '../../../app/tasks/fhir/refresh/allFromUpstream
 
 const COUNTRY_TIMEZONE = config?.countryTimeZone;
 
-jest.setTimeout(100000);
-
 const createLocalDateTimeFromUTC = (year, month, day, hour, minute, second, millisecond = 0) => {
   // Interprets inputs AS utc, and "utcTime" is the **local** version of that time
   // ie. 2022-02-03 2:30 -> 2022-02-03 4:30 (+02:00 (implied by local timezone))
@@ -324,7 +322,7 @@ const fakeAllData = async (models, ctx) => {
   const medici = await models.MediciReport.findOne();
 
   await medici.update({
-    lastUpdated: new Date(Date.UTC(2022, 6 - 1, 11, 13, 2, 54, 225)),
+    lastUpdated: new Date(Date.UTC(2022, 6 - 1, 12, 0, 2, 54, 225)),
   });
 
   return { patient, encounterId };
