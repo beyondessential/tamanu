@@ -8,7 +8,9 @@ import { notifyError } from '../../../utils';
 import { useLocalisation } from '../../../contexts/Localisation';
 
 export const NewPatientModal = ({ open, onCancel, onCreateNewPatient, ...formProps }) => {
-  const {getLocalisation} = useLocalisation();
+  const { getLocalisation } = useLocalisation();
+
+  const collapseAdditionalFields = getLocalisation('patientDetails.layout') !== 'cambodia';
 
   const api = useApi();
   const onSubmit = useCallback(
@@ -28,7 +30,7 @@ export const NewPatientModal = ({ open, onCancel, onCreateNewPatient, ...formPro
         generateId={generateId}
         onCancel={onCancel}
         onSubmit={onSubmit}
-        expandableAdditionalFields={getLocalisation('patientDetails.layout') !== 'cambodia'}
+        collapseAdditionalFields={collapseAdditionalFields}
         {...formProps}
       />
     </FormModal>

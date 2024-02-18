@@ -72,98 +72,99 @@ const StyledRadioField = styled(RadioField)`
   margin-bottom: 10px;
 `;
 
-export const NewPatientForm = memo(({ editedObject, expandableAdditionalFields , onSubmit, onCancel, generateId }) => {
-  const [isExpanded, setExpanded] = useState(false);
-  const [patientRegistryType, setPatientRegistryType] = useState(
-    PATIENT_REGISTRY_TYPES.NEW_PATIENT,
-  );
-  const api = useApi();
-  const { data: fieldDefinitions, error, isLoading } = useQuery(['patientFieldDefinition'], () =>
-    api.get(`patientFieldDefinition`),
-  );
-  const sexValues = useSexValues();
+export const NewPatientForm = memo(
+  ({ editedObject, collapseAdditionalFields, onSubmit, onCancel, generateId }) => {
+    const [isExpanded, setExpanded] = useState(false);
+    const [patientRegistryType, setPatientRegistryType] = useState(
+      PATIENT_REGISTRY_TYPES.NEW_PATIENT,
+    );
+    const api = useApi();
+    const { data: fieldDefinitions, error, isLoading } = useQuery(['patientFieldDefinition'], () =>
+      api.get(`patientFieldDefinition`),
+    );
+    const sexValues = useSexValues();
 
-  const { getLocalisation } = useLocalisation();
+    const { getLocalisation } = useLocalisation();
 
-  if (error) {
-    return <pre>{error.stack}</pre>;
-  }
-
-  const handleSubmit = async data => {
-    const newData = { ...data };
-    newData.patientRegistryType = patientRegistryType;
-
-    if (newData.registeredBirthPlace !== PLACE_OF_BIRTH_TYPES.HEALTH_FACILITY) {
-      newData.birthFacilityId = null;
+    if (error) {
+      return <pre>{error.stack}</pre>;
     }
 
-    await onSubmit(newData);
-  };
+    const handleSubmit = async data => {
+      const newData = { ...data };
+      newData.patientRegistryType = patientRegistryType;
 
-  const renderForm = ({ submitForm, values, setValues }) => {
-    return (
-      <>
-        <IdBannerContainer>
-          <RandomPatientButton setValues={setValues} generateId={generateId} />
-          <IdBanner>
-            <Field name="displayId" component={IdField} regenerateId={generateId} />
-          </IdBanner>
-        </IdBannerContainer>
-        <StyledRadioField
-          field={{
-            name: 'newPatient',
-            label: 'New patient action',
-            value: patientRegistryType,
-            onChange: event => setPatientRegistryType(event.target?.value),
-          }}
-          options={PATIENT_REGISTRY_OPTIONS}
-          style={{ gridColumn: '1 / -1' }}
-        />
-        <PrimaryDetailsGroup values={values} patientRegistryType={patientRegistryType} />
-        <AdditionalInformationRow>
-          {expandableAdditionalFields && (
+      if (newData.registeredBirthPlace !== PLACE_OF_BIRTH_TYPES.HEALTH_FACILITY) {
+        newData.birthFacilityId = null;
+      }
 
-            <div>
-            {isExpanded ? (
-              <StyledImageButton onClick={() => setExpanded(false)}>
-                <img alt="Minus button" src={minusCircle} />
-              </StyledImageButton>
-            ) : (
-              <StyledImageButton onClick={() => setExpanded(true)}>
-                <img alt="Plus button" src={plusCircle} />
-              </StyledImageButton>
-            )}
-            Add additional information
-            <span> (religion, occupation, blood type...)</span>
-          </div>
+      await onSubmit(newData);
+    };
+
+    const renderForm = ({ submitForm, values, setValues }) => {
+      return (
+        <>
+          <IdBannerContainer>
+            <RandomPatientButton setValues={setValues} generateId={generateId} />
+            <IdBanner>
+              <Field name="displayId" component={IdField} regenerateId={generateId} />
+            </IdBanner>
+          </IdBannerContainer>
+          <StyledRadioField
+            field={{
+              name: 'newPatient',
+              label: 'New patient action',
+              value: patientRegistryType,
+              onChange: event => setPatientRegistryType(event.target?.value),
+            }}
+            options={PATIENT_REGISTRY_OPTIONS}
+            style={{ gridColumn: '1 / -1' }}
+          />
+          <PrimaryDetailsGroup values={values} patientRegistryType={patientRegistryType} />
+          <AdditionalInformationRow>
+            {collapseAdditionalFields && (
+              <div>
+                {isExpanded ? (
+                  <StyledImageButton onClick={() => setExpanded(false)}>
+                    <img alt="Minus button" src={minusCircle} />
+                  </StyledImageButton>
+                ) : (
+                  <StyledImageButton onClick={() => setExpanded(true)}>
+                    <img alt="Plus button" src={plusCircle} />
+                  </StyledImageButton>
                 )}
-        </AdditionalInformationRow>
-        <Collapse in={!expandableAdditionalFields || isExpanded} style={{ gridColumn: 'span 2' }}>
-          <SecondaryDetailsGroup patientRegistryType={patientRegistryType} values={values} />
-          {isLoading ? (
-            <LoadingIndicator />
-          ) : (
-            <PatientFieldsGroup fieldDefinitions={fieldDefinitions?.data} />
-          )}
-        </Collapse>
-        <ModalFormActionRow confirmText="Confirm" onConfirm={submitForm} onCancel={onCancel} />
-      </>
-    );
-  };
+                Add additional information
+                <span> (religion, occupation, blood type...)</span>
+              </div>
+            )}
+          </AdditionalInformationRow>
+          <Collapse in={!collapseAdditionalFields || isExpanded} style={{ gridColumn: 'span 2' }}>
+            <SecondaryDetailsGroup patientRegistryType={patientRegistryType} values={values} />
+            {isLoading ? (
+              <LoadingIndicator />
+            ) : (
+              <PatientFieldsGroup fieldDefinitions={fieldDefinitions?.data} />
+            )}
+          </Collapse>
+          <ModalFormActionRow confirmText="Confirm" onConfirm={submitForm} onCancel={onCancel} />
+        </>
+      );
+    };
 
-  return (
-    <Form
-      onSubmit={handleSubmit}
-      render={renderForm}
-      initialValues={{
-        displayId: generateId(),
-        ...editedObject,
-      }}
-      validationSchema={getPatientDetailsValidation(
-        patientRegistryType,
-        sexValues,
-        getLocalisation,
-      )}
-    />
-  );
-});
+    return (
+      <Form
+        onSubmit={handleSubmit}
+        render={renderForm}
+        initialValues={{
+          displayId: generateId(),
+          ...editedObject,
+        }}
+        validationSchema={getPatientDetailsValidation(
+          patientRegistryType,
+          sexValues,
+          getLocalisation,
+        )}
+      />
+    );
+  },
+);
