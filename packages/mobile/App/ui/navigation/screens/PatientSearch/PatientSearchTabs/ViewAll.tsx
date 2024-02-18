@@ -75,7 +75,7 @@ const applyActiveFilters = (
   { value: searchValue }: FieldInputProps<any>,
 ): IPatient[] => {
   const value = searchValue.trim();
-  return models.Patient.filterPatients(filters, value);
+  return models.Patient.filterAndSearchPatients(filters, value);
 };
 
 const Screen: FC<ViewAllScreenProps> = ({

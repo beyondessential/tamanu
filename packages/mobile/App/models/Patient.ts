@@ -253,7 +253,7 @@ export class Patient extends BaseModel implements IPatient {
     return { data, columns };
   }
 
-  static async filterPatients(filters: { [key: string]: any }, searchTerm: string) {
+  static async filterAndSearchPatients(filters: { [key: string]: any }, searchTerm: string) {
     const queryBuilder = getManager()
       .getRepository(Patient)
       .createQueryBuilder('patient');
