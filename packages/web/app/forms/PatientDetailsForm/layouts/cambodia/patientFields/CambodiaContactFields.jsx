@@ -33,11 +33,9 @@ export const CambodiaContactFields = ({ filterByMandatory }) => {
     },
   };
   return (
-    <>
-      <ConfiguredMandatoryPatientFields
-        fields={CONTACT_FIELDS}
-        filterByMandatory={filterByMandatory}
-      />
-    </>
+    <ConfiguredMandatoryPatientFields
+      fields={CONTACT_FIELDS}
+      filterByMandatory={filterByMandatory}
+    />
   );
 };
