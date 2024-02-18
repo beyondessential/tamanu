@@ -6,6 +6,7 @@ import { Button } from '../../Button';
 import { Colors } from '../../../constants';
 import { isErrorUnknownAllow404s, useApi } from '../../../api';
 import { useLocalisation } from '../../../contexts/Localisation';
+import { useAuth } from '../../../contexts/Auth';
 
 import { PatientIDCardPage } from './PatientIDCardPage';
 import { PatientStickerLabelPage } from './PatientStickerLabelPage';
@@ -13,6 +14,7 @@ import { CovidTestCertificateModal } from './CovidTestCertificateModal';
 import { CovidClearanceCertificateModal } from './CovidClearanceCertificateModal';
 import { BirthNotificationCertificateModal } from './BirthNotificationCertificateModal';
 import { TranslatedText } from '../../Translation/TranslatedText';
+import { IPSQRCodeModal } from './IPSQRCodeModal';
 
 const PRINT_OPTIONS = {
   barcode: {
@@ -51,15 +53,21 @@ const PRINT_OPTIONS = {
     ),
     component: BirthNotificationCertificateModal,
   },
+  ipsQrCode: {
+    label: 'International Patient Summary',
+    component: IPSQRCodeModal,
+    condition: (_, ability) => ability?.can('create', 'IPSRequest'),
+  },
 };
 
 const PrintOptionList = ({ className, setCurrentlyPrinting }) => {
   const { getLocalisation } = useLocalisation();
+  const { ability } = useAuth();
 
   return (
     <div className={className}>
       {Object.entries(PRINT_OPTIONS)
-        .filter(([, { condition }]) => !condition || condition(getLocalisation))
+        .filter(([, { condition }]) => !condition || condition(getLocalisation, ability))
         .map(([type, { label, icon }]) => (
           <PrintOption
             key={type}

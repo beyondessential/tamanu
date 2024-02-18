@@ -72,14 +72,14 @@ describe('Vaccine list report', () => {
   describe('permission check', () => {
     it('should reject creating an vaccine line list report with insufficient permissions', async () => {
       const noPermsApp = await baseApp.asRole('base');
-      const result = await noPermsApp.post(`/v1/reports/vaccine-list`, {});
+      const result = await noPermsApp.post(`/api/reports/vaccine-list`, {});
       expect(result).toBeForbidden();
     });
   });
 
   describe('returns data based on parameters', () => {
     it('should return data for patients of the right village', async () => {
-      const result = await app.post('/v1/reports/vaccine-list').send({
+      const result = await app.post('/api/reports/vaccine-list').send({
         parameters: { village, fromDate: '2021-03-15' },
       });
 
@@ -96,7 +96,7 @@ describe('Vaccine list report', () => {
     });
 
     it('should return no data for patients with random village', async () => {
-      const result = await app.post('/v1/reports/vaccine-list').send({
+      const result = await app.post('/api/reports/vaccine-list').send({
         parameters: { village: 'RANDOM_VILLAGE', fromDate: '2021-03-15' },
       });
 
@@ -105,7 +105,7 @@ describe('Vaccine list report', () => {
     });
 
     it('should return data for patients with the right vaccine category and vaccine type', async () => {
-      const result = await app.post('/v1/reports/vaccine-list').send({
+      const result = await app.post('/api/reports/vaccine-list').send({
         parameters: { category: 'Campaign', vaccine: 'COVID-19', fromDate: '2021-03-01' },
       });
 
@@ -122,7 +122,7 @@ describe('Vaccine list report', () => {
     });
 
     it('should return no data for patients with random vaccine type', async () => {
-      const result = await app.post('/v1/reports/vaccine-list').send({
+      const result = await app.post('/api/reports/vaccine-list').send({
         parameters: { category: 'Campaign', vaccine: 'RANDOM_VACCINE', fromDate: '2021-03-01' },
       });
 

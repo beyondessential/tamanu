@@ -7,10 +7,14 @@ const chance = new Chance();
 const LANGUAGE_CODES = {
   ENGLISH: 'en',
   KHMER: 'km',
+  FRENCH: 'fr',
+  SPANISH: 'es',
 };
 
 const LANGUAGE_NAMES = {
   [LANGUAGE_CODES.ENGLISH]: '🇬🇧 English',
+  [LANGUAGE_CODES.FRENCH]: '🇫🇷 Français',
+  [LANGUAGE_CODES.SPANISH]: '🇪🇸 Español',
   [LANGUAGE_CODES.KHMER]: '🇰🇭 ភាសាខ្មែរ',
 };
 
@@ -68,16 +72,16 @@ describe('TranslatedString', () => {
 
   describe('/translation/:languageCode GET', () => {
     it('Should receive a dictionary of all translated text for selected language keyed by stringId', async () => {
-      const englishResult = await app.get('/v1/translation/en');
+      const englishResult = await app.get(`/v1/translation/${LANGUAGE_CODES.ENGLISH}`);
       expect(englishResult).toHaveSucceeded();
       expect(englishResult.body).toEqual(englishTranslations);
 
-      const khmerResult = await app.get('/v1/translation/km');
+      const khmerResult = await app.get(`/v1/translation/${LANGUAGE_CODES.KHMER}`);
       expect(khmerResult).toHaveSucceeded();
       expect(khmerResult.body).toEqual(khmerTranslations);
     });
   });
-  
+
   describe('/ POST', () => {
     it('should create a new translated string', async () => {
       const mockText = 'test-fallback';

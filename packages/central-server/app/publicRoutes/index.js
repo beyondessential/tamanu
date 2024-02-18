@@ -1,7 +1,6 @@
 import express from 'express';
 import config from 'config';
 import { log } from '@tamanu/shared/services/logging';
-import asyncHandler from 'express-async-handler';
 
 import { labResultWidgetRoutes } from './labResultWidget';
 import { publicIntegrationRoutes } from '../integrations';
@@ -26,6 +25,17 @@ if (cors.allowedOrigin) {
 
 publicRoutes.get('/ping', (_req, res) => {
   res.send({ ok: true });
+});
+
+publicRoutes.get('/translation/preLogin', async (req, res) => {
+  const response = await getLanguageOptions(req.models, req.headers['if-none-match']);
+  if (response === NOT_MODIFIED_STATUS_CODE) {
+    res.status(NOT_MODIFIED_STATUS_CODE).end();
+    return;
+  }
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('ETag', response.eTag);
+  res.send(response.languageOptions);
 });
 
 publicRoutes.use('/labResultWidget', labResultWidgetRoutes);

@@ -1,6 +1,10 @@
 import { SpanStatusCode } from '@opentelemetry/api';
 import shortid from 'shortid';
 import { scheduleJob } from 'node-schedule';
+import ms from 'ms';
+
+import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
+
 import { getTracer, spanWrapFn } from '../services/logging';
 
 export class ScheduledTask {
@@ -10,7 +14,7 @@ export class ScheduledTask {
     throw new Error(`ScheduledTask::getName not overridden for ${this.constructor.name}`);
   }
 
-  constructor(schedule, log) {
+  constructor(schedule, log, jitterTime) {
     log.info('Initialising scheduled task', {
       name: this.getName(),
     });
@@ -21,6 +25,7 @@ export class ScheduledTask {
     this.isRunning = false;
     this.start = null;
     this.subtasks = [];
+    this.jitterTime = jitterTime;
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -141,6 +146,11 @@ export class ScheduledTask {
       const name = this.getName();
       this.log.info(`ScheduledTask: ${name}: Scheduled for ${this.schedule}`);
       this.job = scheduleJob(this.schedule, async () => {
+        if (this.jitterTime) {
+          const randomOffset = Math.floor(Math.random() * ms(this.jitterTime));
+          await sleepAsync(randomOffset);
+        }
+
         await this.runImmediately();
       });
     }

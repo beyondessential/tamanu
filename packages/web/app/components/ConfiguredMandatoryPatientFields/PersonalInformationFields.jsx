@@ -11,6 +11,7 @@ import {
 } from '../../constants';
 import { usePatientSuggester, useSuggester } from '../../api';
 import { ConfiguredMandatoryPatientFields } from './ConfiguredMandatoryPatientFields';
+import { TranslatedText } from '../Translation/TranslatedText';
 
 export const PersonalInformationFields = ({ patientRegistryType, showMandatory }) => {
   const countrySuggester = useSuggester('country');
@@ -24,61 +25,121 @@ export const PersonalInformationFields = ({ patientRegistryType, showMandatory }
     title: {
       component: SelectField,
       options: titleOptions,
+      label: <TranslatedText stringId="general.localisedField.title.label" fallback="Title" />,
     },
     maritalStatus: {
       component: SelectField,
       options: MARITAL_STATUS_OPTIONS,
       condition: () => patientRegistryType === PATIENT_REGISTRY_TYPES.NEW_PATIENT,
+      label: (
+        <TranslatedText
+          stringId="general.localisedField.maritalStatus.label"
+          fallback="Marital status"
+        />
+      ),
     },
     bloodType: {
       component: SelectField,
       options: bloodOptions,
+      label: (
+        <TranslatedText stringId="general.localisedField.bloodType.label" fallback="Blood type" />
+      ),
     },
     placeOfBirth: {
       component: TextField,
+      label: (
+        <TranslatedText
+          stringId="general.localisedField.placeOfBirth.label"
+          fallback="Birth location"
+        />
+      ),
     },
     countryOfBirthId: {
       component: AutocompleteField,
       suggester: countrySuggester,
+      label: (
+        <TranslatedText
+          stringId="general.localisedField.countryOfBirthId.label"
+          fallback="Country of birth"
+        />
+      ),
     },
     nationalityId: {
       component: AutocompleteField,
       suggester: nationalitySuggester,
+      label: (
+        <TranslatedText
+          stringId="general.localisedField.nationalityId.label"
+          fallback="Nationality"
+        />
+      ),
     },
     ethnicityId: {
       component: AutocompleteField,
       suggester: ethnicitySuggester,
+      label: (
+        <TranslatedText stringId="general.localisedField.ethnicityId.label" fallback="Ethnicity" />
+      ),
     },
     religionId: {
       component: AutocompleteField,
       suggester: religionSuggester,
+      label: (
+        <TranslatedText stringId="general.localisedField.religionId.label" fallback="Religion" />
+      ),
     },
     educationalLevel: {
       component: SelectField,
       options: educationalAttainmentOptions,
       condition: () => patientRegistryType === PATIENT_REGISTRY_TYPES.NEW_PATIENT,
+      label: (
+        <TranslatedText
+          stringId="general.localisedField.educationalLevel.label"
+          fallback="Educational attainment"
+        />
+      ),
     },
     occupationId: {
       component: AutocompleteField,
       suggester: occupationSuggester,
       condition: () => patientRegistryType === PATIENT_REGISTRY_TYPES.NEW_PATIENT,
+      label: (
+        <TranslatedText
+          stringId="general.localisedField.occupationId.label"
+          fallback="Occupation"
+        />
+      ),
     },
     socialMedia: {
       component: SelectField,
       options: socialMediaOptions,
       condition: () => patientRegistryType === PATIENT_REGISTRY_TYPES.NEW_PATIENT,
+      label: (
+        <TranslatedText
+          stringId="general.localisedField.socialMedia.label"
+          fallback="Social media"
+        />
+      ),
     },
     patientBillingTypeId: {
       component: SuggesterSelectField,
       endpoint: 'patientBillingType',
+      label: (
+        <TranslatedText
+          stringId="general.localisedField.patientBillingTypeId.label"
+          fallback="Patient type"
+        />
+      ),
     },
     motherId: {
       component: AutocompleteField,
       suggester: patientSuggester,
+      label: <TranslatedText stringId="general.localisedField.motherId.label" fallback="Mother" />,
     },
     fatherId: {
       component: AutocompleteField,
       suggester: patientSuggester,
+      label: <TranslatedText stringId="general.localisedField.fatherId.label" fallback="Father" />,
     },
   };
 

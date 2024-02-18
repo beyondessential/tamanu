@@ -6,12 +6,7 @@ import ArrowBackIcon from '@material-ui/icons/KeyboardArrowLeft';
 import ArrowForwardIcon from '@material-ui/icons/KeyboardArrowRight';
 
 import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
-import {
-  PageContainer,
-  TOP_BAR_HEIGHT,
-  TopBar as TopBarBase,
-  useLocalisedText,
-} from '../../components';
+import { PageContainer, TOP_BAR_HEIGHT, TopBar as TopBarBase } from '../../components';
 import { TwoColumnDisplay } from '../../components/TwoColumnDisplay';
 import { DailySchedule } from '../../components/Appointments/DailySchedule';
 import { NewAppointmentButton } from '../../components/Appointments/NewAppointmentButton';
@@ -20,6 +15,7 @@ import { AutocompleteInput, MultiselectInput } from '../../components/Field';
 import { Suggester } from '../../utils/suggester';
 import { appointmentTypeOptions, Colors } from '../../constants';
 import { useApi, useSuggester } from '../../api';
+import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 const LeftContainer = styled.div`
   min-height: 100%;
@@ -87,7 +83,6 @@ const TodayButton = styled(Button)`
 export const AppointmentsCalendar = () => {
   const api = useApi();
   const locationGroupSuggester = useSuggester('facilityLocationGroup');
-  const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
 
   const [date, setDate] = useState(new Date());
   const [filterValue, setFilterValue] = useState('');
@@ -103,7 +98,9 @@ export const AppointmentsCalendar = () => {
 
   const filters = {
     locationGroup: {
-      label: 'Area',
+      label: (
+        <TranslatedText stringId="general.area.label" fallback="Area" />
+      ),
       component: (
         <AutocompleteInput
           value={filterValue}
@@ -113,7 +110,12 @@ export const AppointmentsCalendar = () => {
       ),
     },
     clinician: {
-      label: `${clinicianText}s`,
+      label: (
+        <TranslatedText
+          stringId="general.localisedField.clinician.label.plural"
+          fallback="Clinicians"
+        />
+      ),
       component: (
         <AutocompleteInput
           value={filterValue}
@@ -139,9 +141,19 @@ export const AppointmentsCalendar = () => {
     <PageContainer>
       <TwoColumnDisplay>
         <LeftContainer>
-          <TopBarBase title="Calendar" />
+          <TopBarBase
+            title={
+              <TranslatedText stringId="scheduling.appointmentCalendar.title" fallback="Calendar" />
+            }
+          />
           <Section>
-            <SectionTitle variant="subtitle2">View calendar by:</SectionTitle>
+            <SectionTitle variant="subtitle2">
+              <TranslatedText
+                stringId="scheduling.appointmentCalendar.subTitle"
+                fallback="View calendar by"
+              />
+              :
+            </SectionTitle>
             <FilterSwitch>
               {Object.entries(filters).map(([key, { label }]) => (
                 <Button
@@ -163,7 +175,12 @@ export const AppointmentsCalendar = () => {
             {filters[activeFilter].component}
           </Section>
           <Section>
-            <SectionTitle variant="subtitle2">Appointment type</SectionTitle>
+            <SectionTitle variant="subtitle2">
+              <TranslatedText
+                stringId="scheduling.appointmentCalendar.filter.appointmentType"
+                fallback="Appointment type"
+              />
+            </SectionTitle>
             <MultiselectInput
               onChange={e => {
                 if (!e.target.value) {
@@ -185,7 +202,10 @@ export const AppointmentsCalendar = () => {
                   setDate(new Date());
                 }}
               >
-                Today
+                <TranslatedText
+                  stringId="scheduling.appointmentCalendar.action.today"
+                  fallback="Today"
+                />
               </TodayButton>
 
               <NavigationButton
