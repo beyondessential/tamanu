@@ -26,7 +26,6 @@ export function createMigrationInterface(log, sequelize) {
     migrations: {
       path: migrationsDir,
       params: [sequelize.getQueryInterface()],
-      // wrap: updown => (...args) => sequelize.transaction(() => updown(...args)),
       customResolver: sqlPath => {
         const migration = require(sqlPath);
         const transaction = (updown, ...args) => sequelize.transaction(() => updown(...args));
@@ -37,7 +36,7 @@ export function createMigrationInterface(log, sequelize) {
 
         const timestamp = path.basename(sqlPath).split(/[-_]/, 1);
         const is_no_sync = !migration.NON_DETERMINISTIC && timestamp > NO_SYNC_MIGRATION_TIMESTAMP;
-        // const is_no_sync = false;
+
         return chain(migration)
           .pick(['up', 'down'])
           .mapValues(updown => is_no_sync ? wrap(updown, disableSyncTrigger) : updown)
