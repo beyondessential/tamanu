@@ -18,6 +18,7 @@ import { GenericContactFields } from './patientFields/GenericContactFields';
 import { GenericIdentificationFields } from './patientFields/GenericIdentifiationFields';
 import { GenericPersonalFields } from './patientFields/GenericPersonalFields';
 import { GenericBirthFields } from './patientFields/GenericBirthFields';
+import { useSuggester } from '../../../../api';
 
 export const PatientDetailsHeading = styled.div`
   font-weight: 500;
@@ -41,21 +42,11 @@ export const SecondaryDetailsFormGrid = styled(FormGrid)`
 export const GenericPrimaryDetailsLayout = ({
   values = {},
   patientRegistryType,
-  countrySuggester,
-  villageSuggester,
-  divisionSuggester,
-  settlementSuggester,
-  medicalAreaSuggester,
-  nursingZoneSuggester,
-  ethnicitySuggester,
-  nationalitySuggester,
-  occupationSuggester,
-  religionSuggester,
-  patientSuggester,
-  facilitySuggester,
   sexOptions,
   isRequiredPatientData,
-}) => (
+}) => {
+  const villageSuggester = useSuggester('village');
+  return (
   <>
     <PatientDetailsHeading>General information</PatientDetailsHeading>
     <FormGrid>
@@ -94,7 +85,6 @@ export const GenericPrimaryDetailsLayout = ({
       />
       {patientRegistryType === PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY && (
         <GenericBirthFields
-          facilitySuggester={facilitySuggester}
           registeredBirthPlace={values.registeredBirthPlace}
           filterByMandatory
         />
@@ -102,53 +92,28 @@ export const GenericPrimaryDetailsLayout = ({
       <GenericIdentificationFields patientRegistryType={patientRegistryType} filterByMandatory />
       <GenericContactFields filterByMandatory />
       <GenericPersonalFields
-        countrySuggester={countrySuggester}
-        ethnicitySuggester={ethnicitySuggester}
-        nationalitySuggester={nationalitySuggester}
-        occupationSuggester={occupationSuggester}
-        religionSuggester={religionSuggester}
-        patientSuggester={patientSuggester}
         patientRegistryType={patientRegistryType}
         filterByMandatory
       />
       <GenericLocationFields
-        divisionSuggester={divisionSuggester}
-        subdivisionSuggester={divisionSuggester}
-        settlementSuggester={settlementSuggester}
-        medicalAreaSuggester={medicalAreaSuggester}
-        nursingZoneSuggester={nursingZoneSuggester}
-        countrySuggester={countrySuggester}
         filterByMandatory
       />
     </FormGrid>
   </>
 );
+      }
 
 export const GenericSecondaryDetailsLayout = ({
   values = {},
   patientRegistryType,
   isEdit = false,
-  subdivisionSuggester,
-  divisionSuggester,
-  settlementSuggester,
-  medicalAreaSuggester,
-  nursingZoneSuggester,
-  ethnicitySuggester,
-  nationalitySuggester,
-  occupationSuggester,
-  religionSuggester,
-  patientSuggester,
-  countrySuggester,
-  facilitySuggester,
-}) => {
-  return (
+}) => (
     <SecondaryDetailsGroup>
       {patientRegistryType === PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY && (
         <>
           <PatientDetailsHeading>Birth details</PatientDetailsHeading>
           <SecondaryDetailsFormGrid>
             <GenericBirthFields
-              facilitySuggester={facilitySuggester}
               registeredBirthPlace={values.registeredBirthPlace}
               filterByMandatory={false}
             />
@@ -173,13 +138,6 @@ export const GenericSecondaryDetailsLayout = ({
       <PatientDetailsHeading>Personal information</PatientDetailsHeading>
       <SecondaryDetailsFormGrid>
         <GenericPersonalFields
-          countrySuggester={countrySuggester}
-          ethnicitySuggester={ethnicitySuggester}
-          nationalitySuggester={nationalitySuggester}
-          occupationSuggester={occupationSuggester}
-          religionSuggester={religionSuggester}
-          patientSuggester={patientSuggester}
-          patientRegistryType={patientRegistryType}
           filterByMandatory={false}
         />
       </SecondaryDetailsFormGrid>
@@ -187,15 +145,8 @@ export const GenericSecondaryDetailsLayout = ({
       <PatientDetailsHeading>Location information</PatientDetailsHeading>
       <SecondaryDetailsFormGrid>
         <GenericLocationFields
-          subdivisionSuggester={subdivisionSuggester}
-          divisionSuggester={divisionSuggester}
-          settlementSuggester={settlementSuggester}
-          medicalAreaSuggester={medicalAreaSuggester}
-          nursingZoneSuggester={nursingZoneSuggester}
-          countrySuggester={countrySuggester}
           filterByMandatory={false}
         />
       </SecondaryDetailsFormGrid>
     </SecondaryDetailsGroup>
   );
-};

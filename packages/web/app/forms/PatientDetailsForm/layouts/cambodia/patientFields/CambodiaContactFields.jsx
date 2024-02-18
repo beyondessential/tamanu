@@ -2,12 +2,13 @@ import React from 'react';
 
 import { AutocompleteField, TextField } from '../../../../../components';
 import { ConfiguredMandatoryPatientFields } from '../../../../../components/ConfiguredMandatoryPatientFields';
+import { useSuggester } from '../../../../../api';
 
 export const CambodiaContactFields = ({
   filterByMandatory,
-  nursingZoneSuggester,
-  medicalAreaSuggester,
 }) => {
+  const medicalAreaSuggester = useSuggester('medicalArea');
+  const nursingZoneSuggester = useSuggester('nursingZone');
   const CONTACT_FIELDS = {
     primaryContactNumber: {
       component: TextField,

@@ -15,17 +15,19 @@ import {
   SuggesterSelectField,
 } from '../../../../../components';
 import { ConfiguredMandatoryPatientFields } from '../../../../../components/ConfiguredMandatoryPatientFields';
+import { useSuggester } from '../../../../../api';
 
 export const GenericPersonalFields = ({
   patientRegistryType,
-  countrySuggester,
-  ethnicitySuggester,
-  nationalitySuggester,
-  occupationSuggester,
-  religionSuggester,
-  patientSuggester,
   filterByMandatory
 }) => {
+  const countrySuggester = useSuggester('country');
+  const ethnicitySuggester = useSuggester('ethnicity')
+  const nationalitySuggester = useSuggester('nationality')
+  const occupationSuggester = useSuggester('occupation')
+  const religionSuggester = useSuggester('religion')
+  const patientSuggester = useSuggester('patient');
+
   const PERSONAL_FIELDS = {
     title: {
       component: SelectField,

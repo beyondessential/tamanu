@@ -9,8 +9,10 @@ import {
 } from '@tamanu/constants';
 import { AutocompleteField, SelectField, TextField, TimeField } from '../../../../../components';
 import { ConfiguredMandatoryPatientFields } from '../../../../../components/ConfiguredMandatoryPatientFields';
+import { useSuggester } from '../../../../../api';
 
-export const GenericBirthFields = ({ filterByMandatory, registeredBirthPlace, facilitySuggester }) => {
+export const GenericBirthFields = ({ filterByMandatory, registeredBirthPlace }) => {
+  const facilitySuggester = useSuggester('facility');
   const BIRTH_FIELDS = {
     timeOfBirth: {
       component: TimeField,

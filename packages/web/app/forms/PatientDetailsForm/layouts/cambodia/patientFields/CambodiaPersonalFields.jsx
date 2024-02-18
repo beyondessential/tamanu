@@ -4,12 +4,13 @@ import {
   AutocompleteField,
 } from '../../../../../components';
 import { ConfiguredMandatoryPatientFields } from '../../../../../components/ConfiguredMandatoryPatientFields';
+import { useSuggester } from '../../../../../api';
 
 export const CambodiaPersonalFields = ({
-  countrySuggester,
-  nationalitySuggester,
   filterByMandatory,
 }) => {
+  const countrySuggester = useSuggester('country');
+  const nationalitySuggester = useSuggester('nationality');
   const PERSONAL_FIELDS = {
     countryOfBirthId: {
       component: AutocompleteField,

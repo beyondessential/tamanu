@@ -42,16 +42,7 @@ export const CambodiaPrimaryDetailsLayout = ({
 );
 export const CambodiaSecondaryDetailsLayout = ({
   values = {},
-  countrySuggester,
   patientRegistryType,
-  subdivisionSuggester,
-  divisionSuggester,
-  settlementSuggester,
-  villageSuggester,
-  nursingZoneSuggester,
-  medicalAreaSuggester,
-  nationalitySuggester,
-  facilitySuggester
 }) => {
   return (
     <SecondaryDetailsGroup>
@@ -60,7 +51,6 @@ export const CambodiaSecondaryDetailsLayout = ({
           <PatientDetailsHeading>Birth details</PatientDetailsHeading>
           <SecondaryDetailsFormGrid>
             <GenericBirthFields
-              facilitySuggester={facilitySuggester}
               registeredBirthPlace={values.registeredBirthPlace}
               showMandatory={false}
             />
@@ -71,10 +61,6 @@ export const CambodiaSecondaryDetailsLayout = ({
       <PatientDetailsHeading>Current address</PatientDetailsHeading>
       <SecondaryDetailsFormGrid>
         <CambodiaLocationFields
-          villageSuggester={villageSuggester}
-          subdivisionSuggester={subdivisionSuggester}
-          divisionSuggester={divisionSuggester}
-          settlementSuggester={settlementSuggester}
           showMandatory={false}
         />
       </SecondaryDetailsFormGrid>
@@ -82,8 +68,6 @@ export const CambodiaSecondaryDetailsLayout = ({
       <PatientDetailsHeading>Contact information</PatientDetailsHeading>
       <SecondaryDetailsFormGrid>
         <CambodiaContactFields
-          nursingZoneSuggester={nursingZoneSuggester}
-          medicalAreaSuggester={medicalAreaSuggester}
           showMandatory={false}
         />
       </SecondaryDetailsFormGrid>
@@ -99,8 +83,6 @@ export const CambodiaSecondaryDetailsLayout = ({
       <PatientDetailsHeading>Personal information</PatientDetailsHeading>
       <SecondaryDetailsFormGrid>
         <CambodiaPersonalFields
-          countrySuggester={countrySuggester}
-          nationalitySuggester={nationalitySuggester}
           patientRegistryType={patientRegistryType}
           showMandatory={false}
         />

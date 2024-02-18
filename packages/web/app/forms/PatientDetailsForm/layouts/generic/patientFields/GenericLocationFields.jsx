@@ -1,16 +1,18 @@
 import React from "react";
 import { AutocompleteField, TextField } from "../../../../../components";
 import { ConfiguredMandatoryPatientFields } from "../../../../../components/ConfiguredMandatoryPatientFields";
+import { useSuggester } from "../../../../../api";
 
 export const GenericLocationFields = ({
   filterByMandatory,
-  subdivisionSuggester,
-  divisionSuggester,
-  countrySuggester,
-  settlementSuggester,
-  medicalAreaSuggester,
-  nursingZoneSuggester,
 }) => {
+  const subdivisionSuggester = useSuggester("subdivision");
+  const divisionSuggester = useSuggester("division");
+  const settlementSuggester = useSuggester("settlement");
+  const countrySuggester = useSuggester("country");
+  const medicalAreaSuggester = useSuggester("medicalArea");
+  const nursingZoneSuggester = useSuggester("nursingZone");
+
   const LOCATION_FIELDS = {
     cityTown: {
       component: TextField,

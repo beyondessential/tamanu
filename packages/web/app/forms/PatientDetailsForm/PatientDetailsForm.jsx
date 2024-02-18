@@ -128,7 +128,7 @@ export const SecondaryDetailsGroup = ({ values = {}, patientRegistryType, isEdit
   );
 };
 
-const PatientField = ({ definition: { definitionId, name, fieldType, options } }) => {
+export const PatientField = ({ definition: { definitionId, name, fieldType, options } }) => {
   // TODO: temporary placeholder component
   // the plan is to reuse the survey question components for these fields
   const fieldName = `patientFields.${definitionId}`;
