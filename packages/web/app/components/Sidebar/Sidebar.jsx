@@ -233,7 +233,6 @@ export const Sidebar = React.memo(({ items }) => {
             icon: item.icon,
             label: item.label,
             divider: item.divider,
-            key: item.key,
             path: item.path,
             highlighted: isHighlighted(
               currentPath,
@@ -245,8 +244,9 @@ export const Sidebar = React.memo(({ items }) => {
             onClick: () => clickedParentItem(item),
           };
 
-          if (item.component) {
-            return item.component(commonProps);
+          if (item.Component) {
+            const { Component } = item;
+            return <Component {...commonProps} key={item.key} />;
           }
 
           if (!item.children) {

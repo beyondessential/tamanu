@@ -58,7 +58,7 @@ export const FACILITY_MENU_ITEMS = [
       {
         label: 'Upcoming appointments',
         path: '/appointments/all',
-        key: 'schedulingAll',
+        key: 'schedulingAppointments',
         ability: { action: 'read' },
       },
       {
@@ -151,7 +151,7 @@ export const FACILITY_MENU_ITEMS = [
     label: 'Program registry',
     path: '/program-registry',
     icon: programsIcon,
-    component: ProgramRegistrySidebarItem,
+    Component: ProgramRegistrySidebarItem,
     ability: { action: 'read', subject: 'programRegistry' },
     children: [],
   },
