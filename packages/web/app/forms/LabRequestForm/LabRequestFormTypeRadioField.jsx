@@ -12,21 +12,21 @@ import { TranslatedText } from '../../components/Translation/TranslatedText';
 const OPTIONS = {
   INDIVIDUAL: {
     label: (
-      <TranslatedText stringId="lab.form.formType.option.individual.label" fallback="Individual" />
+      <TranslatedText stringId="lab.formType.option.individual.label" fallback="Individual" />
     ),
     description: (
       <TranslatedText
-        stringId="lab.form.formType.option.individual.description"
+        stringId="lab.formType.option.individual.description"
         fallback="Select an individual or multiple individual tests"
       />
     ),
     value: LAB_REQUEST_FORM_TYPES.INDIVIDUAL,
   },
   PANEL: {
-    label: <TranslatedText stringId="lab.form.formType.option.panel.label" fallback="Panel" />,
+    label: <TranslatedText stringId="lab.formType.option.panel.label" fallback="Panel" />,
     description: (
       <TranslatedText
-        stringId="lab.form.formType.option.panel.description"
+        stringId="lab.formType.option.panel.description"
         fallback="Select from a list of test panels"
       />
     ),
@@ -34,11 +34,11 @@ const OPTIONS = {
   },
   SUPERSET: {
     label: (
-      <TranslatedText stringId="lab.form.formType.option.superset.label" fallback="Superset" />
+      <TranslatedText stringId="lab.formType.option.superset.label" fallback="Superset" />
     ),
     description: (
       <TranslatedText
-        stringId="lab.form.formType.option.superset.description"
+        stringId="lab.formType.option.superset.description"
         fallback="Select from a list of supersets"
       />
     ),
@@ -106,7 +106,7 @@ export const LabRequestFormTypeRadioField = ({ value, setFieldValue }) => {
     <div style={{ gridColumn: '1 / -1' }}>
       <OuterLabelFieldWrapper
         label={
-          <TranslatedText stringId="lab.form.formType.label" fallback="Select your request type" />
+          <TranslatedText stringId="lab.formType.label" fallback="Select your request type" />
         }
         required
       >

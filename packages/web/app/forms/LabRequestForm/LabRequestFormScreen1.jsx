@@ -21,11 +21,11 @@ export const LabRequestFormScreen1 = ({
     <>
       <div style={{ gridColumn: '1 / -1' }}>
         <Heading3 mb="12px">
-          <TranslatedText stringId="lab.form.create.header" fallback="Creating a new lab request" />
+          <TranslatedText stringId="lab.create.header" fallback="Creating a new lab request" />
         </Heading3>
         <BodyText mb="28px" color="textTertiary">
           <TranslatedText
-            stringId="lab.form.create.instruction"
+            stringId="lab.create.instruction"
             fallback="Please complete the details below and select the lab request type"
           />
         </BodyText>
@@ -34,7 +34,7 @@ export const LabRequestFormScreen1 = ({
         name="requestedById"
         label={
           <TranslatedText
-            stringId="lab.form.requestingClinician.label"
+            stringId="lab.requestingClinician.label"
             fallback="Requesting :clinician"
             replacements={{ clinician: (
               <LowerCase>
@@ -53,7 +53,7 @@ export const LabRequestFormScreen1 = ({
       <Field
         name="requestedDate"
         label={<TranslatedText
-          stringId="lab.form.requestDateTime.label"
+          stringId="lab.requestDateTime.label"
           fallback="Request date & time"
         />}
         required
@@ -62,13 +62,13 @@ export const LabRequestFormScreen1 = ({
       />
       <Field
         name="departmentId"
-        label={<TranslatedText stringId="general.form.department.label" fallback="Department" />}
+        label={<TranslatedText stringId="general.department.label" fallback="Department" />}
         component={AutocompleteField}
         suggester={departmentSuggester}
       />
       <Field
         name="labTestPriorityId"
-        label={<TranslatedText stringId="lab.form.priority.label" fallback="Priority" />}
+        label={<TranslatedText stringId="lab.priority.label" fallback="Priority" />}
         component={SuggesterSelectField}
         endpoint="labTestPriority"
       />

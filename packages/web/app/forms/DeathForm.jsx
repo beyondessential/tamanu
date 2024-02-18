@@ -113,7 +113,7 @@ export const DeathForm = React.memo(
             name="clinicianId"
             label={
               <TranslatedText
-                stringId="general.form.attendingClinician.label"
+                stringId="general.attendingClinician.label"
                 fallback="Attending :clinician"
                 replacements={{
                   clinician: (

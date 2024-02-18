@@ -125,7 +125,7 @@ export const ImagingRequestForm = React.memo(
                 name="displayId"
                 label={
                   <TranslatedText
-                    stringId="imaging.form.requestCode.label"
+                    stringId="imaging.requestCode.label"
                     fallback="Imaging request code"
                   />
                 }
@@ -136,7 +136,7 @@ export const ImagingRequestForm = React.memo(
                 name="requestedDate"
                 label={
                   <TranslatedText
-                    stringId="imaging.form.requestedDate.label"
+                    stringId="imaging.requestedDate.label"
                     fallback="Order date and time"
                   />
                 }
@@ -147,7 +147,7 @@ export const ImagingRequestForm = React.memo(
               <TextInput
                 label={
                   <TranslatedText
-                    stringId="general.form.supervisingClinician.label"
+                    stringId="general.supervisingClinician.label"
                     fallback="Supervising :clinician"
                     replacements={{
                       clinician: (
@@ -168,7 +168,7 @@ export const ImagingRequestForm = React.memo(
                 name="requestedById"
                 label={
                   <TranslatedText
-                    stringId="general.form.requestingClinician.label"
+                    stringId="general.requestingClinician.label"
                     fallback="Requesting :clinician"
                     replacements={{
                       clinician: (
@@ -192,7 +192,7 @@ export const ImagingRequestForm = React.memo(
               <FormSeparatorLine />
               <TextInput
                 label={
-                  <TranslatedText stringId="imaging.form.encounter.label" fallback="Encounter" />
+                  <TranslatedText stringId="imaging.encounter.label" fallback="Encounter" />
                 }
                 disabled
                 value={encounterLabel}
@@ -201,7 +201,7 @@ export const ImagingRequestForm = React.memo(
                 name="imagingType"
                 label={
                   <TranslatedText
-                    stringId="imaging.form.imagingType.label"
+                    stringId="imaging.imagingType.label"
                     fallback="Imaging request type"
                   />
                 }
@@ -218,7 +218,7 @@ export const ImagingRequestForm = React.memo(
                   name="areas"
                   label={
                     <TranslatedText
-                      stringId="imaging.form.areas.label"
+                      stringId="imaging.areas.label"
                       fallback="Areas to be imaged"
                     />
                   }
@@ -229,7 +229,7 @@ export const ImagingRequestForm = React.memo(
                   name="areaNote"
                   label={
                     <TranslatedText
-                      stringId="imaging.form.imagingNote.label"
+                      stringId="imaging.imagingNote.label"
                       fallback="Areas to be imaged"
                     />
                   }
@@ -241,7 +241,7 @@ export const ImagingRequestForm = React.memo(
               )}
               <Field
                 name="note"
-                label={<TranslatedText stringId="general.form.notes.label" fallback="Notes" />}
+                label={<TranslatedText stringId="general.notes.label" fallback="Notes" />}
                 component={TextField}
                 multiline
                 style={{ gridColumn: '1 / -1' }}
