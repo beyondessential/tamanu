@@ -286,10 +286,12 @@ const imagingTypesSchema = yup
   })
   .required();
 
-const patientDetailsSchema = yup
-  .object({
-    layout: yup.string().required().oneOf(['default', 'cambodia'])
-  })
+const patientDetailsSchema = yup.object({
+  layout: yup
+    .string()
+    .required()
+    .oneOf(['generic', 'cambodia']),
+});
 
 const validCssAbsoluteLength = yup
   .string()

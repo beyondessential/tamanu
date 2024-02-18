@@ -847,7 +847,7 @@
         }
       ],
       "patientDetails": {
-        "layout": "default"
+        "layout": "generic"
       },
       "printMeasures": {
         "labRequestPrintLabel": {
