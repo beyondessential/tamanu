@@ -122,7 +122,7 @@ routes.get(
 
     const mappedData = data.map(encounterData => {
       const encounter = mapKeys(encounterData, (_v, k) => camelCase(k));
-        return {
+      return {
         ...encounter,
         weight: parseFloat(encounter.weight),
         encounterStartDate: new Date(encounter.encounterStartDate).toISOString(),

@@ -30,6 +30,7 @@ export function fromEncounters(models, table, id, deletedRow) {
     LocationGroup,
     Department,
     Referral,
+    ReferenceData,
   } = models;
 
   console.log('tabletable', table);
@@ -283,9 +284,9 @@ export function fromEncounters(models, table, id, deletedRow) {
         where: {
           [Op.or]: {
             '$initiatedReferrals.id$': id,
-            '$completedReferrals.id$': id
-          }
-        }
+            '$completedReferrals.id$': id,
+          },
+        },
       };
 
     case Triage.tableName:
