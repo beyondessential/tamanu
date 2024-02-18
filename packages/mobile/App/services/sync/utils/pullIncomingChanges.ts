@@ -24,6 +24,20 @@ const persistBatch = async (
   );
 };
 
+const WITH_ERROR = false;
+const LIMIT = 15000;
+
+async function getRecords(centralServer, sessionId, limit, fromId) {
+  if (WITH_ERROR) return centralServer.pull(sessionId, limit, fromId);
+
+  // Mock records
+  const records = [];
+  for (let i = 0; i < LIMIT; i++) {
+    records.push({ recordType: 'test', data: { sumfield: String(i) } });
+  }
+  return records;
+}
+
 /**
  * Pull incoming changes in batches and save them in sync_session_records table,
  * which will be used to persist to actual tables later
@@ -52,19 +66,25 @@ export const pullIncomingChanges = async (
     return { totalPulled: 0, pullUntil };
   }
 
-  await Promise.all(
-    tableNames.map(t => makeDirectoryInDocuments(`syncSessions/${sessionId}/${t}`)),
-  );
+  if (WITH_ERROR) {
+    await Promise.all(
+      tableNames.map(t => makeDirectoryInDocuments(`syncSessions/${sessionId}/${t}`)),
+    );
+  } else {
+    await Promise.all(
+      ['test'].map(t => makeDirectoryInDocuments(`syncSessions/${sessionId}/${t}`)),
+    );
+  }
 
   let fromId;
-  let limit = calculatePageLimit();
+  let limit = WITH_ERROR ? LIMIT : calculatePageLimit();
   let currentBatchIndex = 0;
   let totalPulled = 0;
 
   // pull changes a page at a time
-  while (totalPulled < totalToPull) {
+  while (true) {
     const startTime = Date.now();
-    const records = await centralServer.pull(sessionId, limit, fromId);
+    const records = await getRecords(centralServer, sessionId, limit, fromId);
     const pullTime = Date.now() - startTime;
     const recordsToSave = records.map(r => ({
       ...r,
@@ -80,15 +100,18 @@ export const pullIncomingChanges = async (
     // So store the data in sync_session_records table instead and will persist it to
     //  the actual tables later
 
-    await persistBatch(sessionId, currentBatchIndex, recordsToSave);
-    currentBatchIndex++;
+    if (WITH_ERROR === false) {
+      await persistBatch(sessionId, currentBatchIndex, recordsToSave);
+      currentBatchIndex++;
+    }
 
-    fromId = records[records.length - 1].id;
+    fromId = WITH_ERROR ? fromId : records[records.length - 1].id;
     totalPulled += recordsToSave.length;
-    limit = calculatePageLimit(limit, pullTime);
+    limit = WITH_ERROR ? LIMIT : calculatePageLimit(limit, pullTime);
 
+    console.log('records saved', totalPulled);
     progressCallback(totalToPull, totalPulled);
   }
 
-  return { totalPulled: totalToPull, pullUntil };
+  return { totalPulled: 0, pullUntil: 0 };
 };
