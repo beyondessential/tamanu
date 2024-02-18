@@ -33,8 +33,6 @@ export function fromEncounters(models, table, id, deletedRow) {
     ReferenceData,
   } = models;
 
-  console.log('tabletable', table);
-
   switch (table) {
     case Encounter.tableName:
       return { where: { id } };
