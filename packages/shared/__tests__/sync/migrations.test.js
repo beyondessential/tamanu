@@ -32,8 +32,8 @@ describe('migrations', () => {
             const tickAtStart = await report_definition.updatedAtSyncTick;
 
             // act
-            await models.LocalSystemFact.set('currentSyncTick', 2);
             await umzug.down({ to: '1692710205000-allowDisablingSyncTrigger' });
+            await models.LocalSystemFact.set('currentSyncTick', 2);
             await umzug.up({ step: 1 });
             await report_definition.reload();
             const tickAfterMigration = await report_definition.updatedAtSyncTick;
@@ -47,8 +47,8 @@ describe('migrations', () => {
             const tickAtStart = await report_definition.updatedAtSyncTick;
 
             // act
-            await models.LocalSystemFact.set('currentSyncTick', 2);
             await umzug.down({ to: '1692710205000-allowDisablingSyncTrigger' });
+            await models.LocalSystemFact.set('currentSyncTick', 2);
             await umzug.up({ step: 1 });
 
             // make sure running migration doesn't affect normal sync tick update
