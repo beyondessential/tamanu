@@ -7,6 +7,7 @@ import { formatInTimeZone } from 'date-fns-tz';
 import { FHIR_DATETIME_PRECISION } from '@tamanu/constants/fhir';
 import { parseDateTime, formatFhirDate } from '@tamanu/shared/utils/fhir/datetime';
 import config from 'config';
+import { mapKeys, camelCase } from 'lodash';
 
 import { requireClientHeaders } from '../../middleware/requireClientHeaders';
 
@@ -25,18 +26,47 @@ function formatDate(date) {
 }
 
 const reportQuery = `
-SELECT * FROM fhir.non_fhir_medici_report
+SELECT 
+  patient_id,
+  first_name,
+  last_name,
+  date_of_birth,
+  age,
+  sex,
+  patient_billing_type,
+  encounter_id,
+  encounter_start_date,
+  encounter_end_date,
+  discharge_date,
+  encounter_type,
+  weight,
+  visit_type,
+  episode_end_status,
+  encounter_discharge_disposition,
+  triage_category,
+  wait_time,
+  departments,
+  locations,
+  reason_for_encounter,
+  diagnoses,
+  medications,
+  vaccinations,
+  procedures,
+  lab_requests,
+  imaging_requests,
+  notes
+FROM fhir.non_fhir_medici_report
 
 WHERE true
   AND coalesce(patient_billing_id, '-') LIKE coalesce($billing_type, '%%')
   AND encounter_end_date IS NOT NULL
   AND CASE WHEN coalesce($from_date, 'not_a_date') != 'not_a_date'
-    THEN (last_updated::timestamp at time zone $timezone_string) >= $from_date::timestamptz
+    THEN last_updated at time zone $timezone_string >= $from_date::timestamptz at time zone $timezone_string
   ELSE
     true
   END
   AND CASE WHEN coalesce($to_date, 'not_a_date') != 'not_a_date'
-    THEN (last_updated::timestamp at time zone $timezone_string) <= $to_date::timestamptz
+    THEN last_updated at time zone $timezone_string <= $to_date::timestamptz at time zone $timezone_string
   ELSE
     true
   END
@@ -74,8 +104,8 @@ routes.get(
     const data = await sequelize.query(reportQuery, {
       type: QueryTypes.SELECT,
       bind: {
-        from_date: parseDateParam(fromDate, COUNTRY_TIMEZONE),
-        to_date: parseDateParam(toDate, COUNTRY_TIMEZONE),
+        from_date: fromDate ? parseDateParam(fromDate, COUNTRY_TIMEZONE) : null,
+        to_date: toDate ? parseDateParam(toDate, COUNTRY_TIMEZONE) : null,
         input_encounter_ids: encounters?.split(',') ?? [],
         billing_type: null,
         limit: parseInt(limit, 10),
@@ -90,37 +120,44 @@ routes.get(
         noteDate: formatDate(note.noteDate),
       }));
 
-    const mappedData = data.map(encounter => ({
-      ...encounter,
-      age: parseInt(encounter.age),
-      weight: parseFloat(encounter.weight),
-      sex: upperFirst(encounter.sex),
-      departments: encounter.departments?.map(department => ({
-        ...department,
-        assignedTime: formatDate(department.assignedTime),
-      })),
-      locations: encounter.locations?.map(location => ({
-        ...location,
-        assignedTime: formatDate(location.assignedTime),
-      })),
-      imagingRequests: encounter.imagingRequests?.map(ir => ({
-        ...ir,
-        notes: mapNotes(ir.notes),
-      })),
-      labRequests: encounter.labRequests?.map(lr => ({
-        ...lr,
-        notes: mapNotes(lr.notes),
-      })),
-      procedures: encounter.procedures?.map(procedure => ({
-        ...procedure,
-        date: formatDate(procedure.date),
-      })),
-      notes: mapNotes(encounter.notes),
-      encounterType: encounter.encounterType?.map(encounterType => ({
-        ...encounterType,
-        startDate: formatDate(encounterType.startDate),
-      })),
-    }));
+    const mappedData = data.map(encounterData => {
+      const encounter = mapKeys(encounterData, (_v, k) => camelCase(k));
+        return {
+        ...encounter,
+        weight: parseFloat(encounter.weight),
+        encounterStartDate: new Date(encounter.encounterStartDate).toISOString(),
+        encounterEndDate: new Date(encounter.encounterEndDate).toISOString(),
+        dischargeDate: new Date(encounter.dischargeDate).toISOString(),
+        sex: upperFirst(encounter.sex),
+        departments: encounter.departments?.map(department => ({
+          ...department,
+          assignedTime: formatDate(department.assignedTime),
+        })),
+        locations: encounter.locations?.map(location => ({
+          ...location,
+          assignedTime: formatDate(location.assignedTime),
+        })),
+        imagingRequests: encounter.imagingRequests?.map(ir => ({
+          ...ir,
+          notes: mapNotes(ir.notes),
+        })),
+        labRequests: encounter.labRequests?.map(lr => ({
+          ...lr,
+          notes: mapNotes(lr.notes),
+        })),
+        procedures: encounter.procedures?.map(procedure => ({
+          ...procedure,
+          date: formatDate(procedure.date),
+        })),
+        notes: mapNotes(encounter.notes),
+        encounterType: encounter.encounterType?.map(encounterType => ({
+          ...encounterType,
+          startDate: formatDate(encounterType.startDate),
+        })),
+        hoursOfVentilation: 0,
+        leaveDays: 0,
+      };
+    });
 
     res.status(200).send({ data: mappedData });
   }),

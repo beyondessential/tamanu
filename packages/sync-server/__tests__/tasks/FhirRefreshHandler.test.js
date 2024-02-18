@@ -1,3 +1,5 @@
+import { Op } from 'sequelize';
+
 import { fake } from '@tamanu/shared/test-helpers';
 import { log } from '@tamanu/shared/services/logging';
 
@@ -55,7 +57,7 @@ describe('FHIR refresh handler', () => {
         },
       });
 
-      expect(count).toEqual(2);
+      expect(count).toEqual(3);
       expect(rows).toEqual([
         expect.objectContaining({
           payload: expect.objectContaining({
@@ -71,6 +73,14 @@ describe('FHIR refresh handler', () => {
             resource: 'ServiceRequest',
             table: 'public.encounters',
             upstreamId: imagingRequest.id,
+          }),
+        }),
+        expect.objectContaining({
+          payload: expect.objectContaining({
+            op: 'UPDATE',
+            resource: 'MediciReport',
+            table: 'public.encounters',
+            upstreamId: resources.encounter.id,
           }),
         }),
       ]);
@@ -107,6 +117,11 @@ describe('FHIR refresh handler', () => {
       const { count, rows } = await ctx.store.models.FhirJob.findAndCountAll({
         where: {
           topic: 'fhir.refresh.fromUpstream',
+          payload: {
+            resource: {
+              [Op.ne]: 'MediciReport',
+            },
+          },
         },
       });
 

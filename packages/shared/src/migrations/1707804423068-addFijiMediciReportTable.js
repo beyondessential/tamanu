@@ -79,6 +79,9 @@ export async function up(query) {
     episode_end_status: {
       type: DataTypes.JSONB,
     },
+    encounter_discharge_disposition: {
+      type: DataTypes.JSONB,
+    },
     triage_category: {
       type: DataTypes.TEXT,
     },

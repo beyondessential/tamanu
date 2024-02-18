@@ -15,7 +15,7 @@ notes_info as (
       ) 
     ) aggregated_notes
   from notes
-  where record_id = $encounter_id
+  where note_type <> 'system' and record_type in ('LabRequest','ImagingRequest')
   group by record_id
 ),
 
@@ -294,6 +294,7 @@ case e.encounter_type
     else e.encounter_type
 end "visitType",
 ddi."encounterDischargeDisposition" "episodeEndStatus",
+ddi."encounterDischargeDisposition",
 t.score "triageCategory",
 ti."waitTimeFollowingTriage" "waitTime",
 di2.department_history "departments",
