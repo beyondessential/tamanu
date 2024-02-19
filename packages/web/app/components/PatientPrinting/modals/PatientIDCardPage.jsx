@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import styled from 'styled-components';
+import React, { useState } from 'react';
 import { useLocalisation } from '../../../contexts/Localisation';
 import { Modal } from '../../Modal';
 import { PDFViewer, printPDF } from '../PDFViewer';
@@ -19,7 +18,7 @@ export const PatientIDCardPage = React.memo(({ patient, imageData }) => {
     <Modal
       open={open}
       onClose={() => setOpen(false)}
-      width="sm"
+      width="md"
       printable
       keepMounted
       onPrint={() => printPDF('patient-card-printout')}

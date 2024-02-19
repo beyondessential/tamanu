@@ -1,4 +1,4 @@
-import { EncounterRecordPrintout } from '@tamanu/shared/utils/patientCertificates';
+import { EncounterRecordPrintout as Component } from '@tamanu/shared/utils/patientCertificates';
 import Logo from '../assets/tamanu-logo.png';
 import { PDFViewer } from '@react-pdf/renderer';
 import React from 'react';
@@ -6,7 +6,7 @@ import Watermark from '../assets/watermark.png';
 
 export default {
   title: 'pdfs/EncounterRecordPrintout',
-  component: EncounterRecordPrintout,
+  component: Component,
 };
 
 const getLocalisation = key => {
@@ -24,10 +24,6 @@ const getLocalisation = key => {
   };
   return config[key];
 };
-
-// const LocalisedText
-//
-// const useLocalisedText = props => LocalisedText(props);
 
 const certificateData = {
   logo: Logo,
@@ -171,14 +167,6 @@ const labRequestsData = [
   },
 ];
 
-// const imagingRequestsData = [
-// //   {
-// //     imagingName: {
-// //       label: 'Lorem',
-// //     },
-// //   },
-// // ];
-
 const medicationsData = [
   {
     id: 'test',
@@ -218,6 +206,7 @@ const medicationsData = [
   },
 ];
 
+// eslint-disable-next-line no-unused-vars
 const imagingRequestsData = [];
 
 const notesData = [
@@ -233,12 +222,12 @@ const notesData = [
   },
 ];
 
-const Template = () => (
+export const EncounterRecordPrintout = () => (
   <PDFViewer width={800} height={1000} showToolbar={false}>
-    <EncounterRecordPrintout
+    <Component
       certificateData={certificateData}
       getLocalisation={getLocalisation}
-      patient={patientData}
+      patientData={patientData}
       encounter={encounterData}
       encounterTypeHistory={encounterTypesData}
       locationHistory={locationsData}
@@ -247,9 +236,7 @@ const Template = () => (
       labRequests={labRequestsData}
       medications={medicationsData}
       notes={notesData}
+      imagingRequests={imagingRequestsData}
     />
   </PDFViewer>
 );
-
-export const Default = Template.bind({});
-Default.args = {};

@@ -15,8 +15,10 @@ import {
   UnavailableStatusPage,
   UnsupportedBrowserStatusPage,
   MobileStatusPage,
+  SingleTabStatusPage,
 } from './components/StatusPage';
 import { useCheckServerAliveQuery } from './api/queries/useCheckServerAliveQuery';
+import { useSingleTab } from './utils/singleTab';
 
 const AppContainer = styled.div`
   display: flex;
@@ -34,6 +36,12 @@ export function App({ sidebar, children }) {
   const { data: isServerAlive, isLoading } = useCheckServerAliveQuery();
   const isUserLoggedIn = useSelector(checkIsLoggedIn);
   const currentRoute = useSelector(getCurrentRoute);
+  const isPrimaryTab = useSingleTab();
+  const disableSingleTab = localStorage.getItem('DISABLE_SINGLE_TAB');
+
+  if (!isPrimaryTab && !disableSingleTab) {
+    return <SingleTabStatusPage />;
+  }
 
   const browser = Bowser.getParser(window.navigator.userAgent);
   const isChrome = browser.satisfies({
@@ -43,7 +51,8 @@ export function App({ sidebar, children }) {
   const isDesktop = platformType === 'desktop';
   const isDebugMode = localStorage.getItem('DEBUG_PROD');
 
-  if (!isDebugMode) { // Skip browser/platform check in debug mode
+  if (!isDebugMode) {
+    // Skip browser/platform check in debug mode
     if (!isDesktop) return <MobileStatusPage platformType={platformType} />;
     if (!isChrome) return <UnsupportedBrowserStatusPage />;
   }

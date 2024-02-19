@@ -8,7 +8,7 @@ import {
   createPatient,
 } from './covid-swab-lab-test-report-utils';
 
-const REPORT_URL = '/v1/reports/samoa-covid-swab-lab-test-list';
+const REPORT_URL = '/api/reports/samoa-covid-swab-lab-test-list';
 const PROGRAM_ID = 'program-samoacovid19';
 const SURVEY_ID = 'program-samoacovid19-samcovidsampcollectionv2';
 
@@ -85,7 +85,7 @@ async function createFormAnswerForPatient(app, models, patient, formData) {
   const encounter = await models.Encounter.create(
     await createDummyEncounter(models, { patientId: patient.id }),
   );
-  return app.post('/v1/surveyResponse').send({
+  return app.post('/api/surveyResponse').send({
     surveyId: SURVEY_ID,
     startTime: formData.formDate,
     patientId: patient.id,
