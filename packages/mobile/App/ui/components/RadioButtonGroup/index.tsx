@@ -29,7 +29,7 @@ const Label = styled(StyledText)`
   color: ${theme.colors.TEXT_SUPER_DARK};
   font-size: ${screenPercentageToDP(2.1, Orientation.Height)};
   font-weight: 600;
-  padding-left: ${screenPercentageToDP(1, Orientation.Width)};
+  // padding-left: ${screenPercentageToDP(1, Orientation.Width)};
   margin-bottom: ${screenPercentageToDP(0.5, Orientation.Width)};
 `;
 

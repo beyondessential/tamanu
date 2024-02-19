@@ -136,10 +136,7 @@ export const Dropdown = React.memo(
           selectedItemIconColor={theme.colors.PRIMARY_MAIN}
           itemTextColor={theme.colors.TEXT_SUPER_DARK}
           itemFontSize={fontSize}
-          searchInputStyle={{
-            color: theme.colors.PRIMARY_MAIN,
-            fontSize: screenPercentageToDP(2.1, Orientation.Height),
-          }}
+          searchInputStyle={{ color: theme.colors.PRIMARY_MAIN }}
           submitButtonColor={theme.colors.SAFE}
           submitButtonText="Confirm selection"
           styleMainWrapper={{ zIndex: 999 }}
@@ -173,7 +170,7 @@ export const Dropdown = React.memo(
           textInputProps={filterable ? {} : { editable: false, autoFocus: false }}
           searchIcon={filterable ? undefined : null}
           disabled={disabled}
-          fontSize={screenPercentageToDP(2.1, Orientation.Height)}
+          fontSize={fontSize}
           {...getStyleProps(error, disabled)}
         />
         {error && <TextFieldErrorMessage>{error}</TextFieldErrorMessage>}
