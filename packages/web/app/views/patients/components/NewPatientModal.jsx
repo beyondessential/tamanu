@@ -11,8 +11,8 @@ import { useLocalisation } from '../../../contexts/Localisation';
 
 export const NewPatientModal = ({ open, onCancel, onCreateNewPatient, ...formProps }) => {
   const { getLocalisation } = useLocalisation();
-  // This is a hack to allow the cambodian patients form layout to have have
-  // mandatory fields that are not in the primary details
+  // This is a hack to allow cambodia patient details template to have
+  // mandatory fields that are not moved up into the primary details section.
   const collapseAdditionalFields =
     getLocalisation('patientDetails.layout') !== PATIENT_DETAIL_LAYOUTS.CAMBODIA;
 
