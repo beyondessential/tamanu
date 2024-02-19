@@ -6,9 +6,11 @@ export const deleteDocumentMetadata = asyncHandler(async (req, res) => {
 
   const model = models.DocumentMetadata;
   const object = await model.findByPk(params.documentMetadataId);
-  if (object) {
-    await object.destroy();
+
+  if (!object) {
+    throw new Error(`Cannot find document with id ${params.documentMetadataId}`)
   }
 
+  await object.destroy();
   res.send({ message: 'Document deleted successfully' });
 });
