@@ -20,8 +20,6 @@ export async function up(query) {
   `);
 
   await query.sequelize.query(`
-    ALTER TABLE fhir.encounters
-      DROP COLUMN service_provider;
     CREATE OR REPLACE PROCEDURE fhir.resolve_upstreams()
     LANGUAGE SQL
     AS $$
@@ -40,6 +38,8 @@ export async function up(query) {
 
 export async function down(query) {
   await query.sequelize.query(`
+    ALTER TABLE fhir.encounters
+      DROP COLUMN service_provider;
     CREATE OR REPLACE PROCEDURE fhir.resolve_upstreams()
     LANGUAGE SQL
     AS $$
