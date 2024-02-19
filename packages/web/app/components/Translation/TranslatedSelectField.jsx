@@ -21,11 +21,11 @@ const getTranslatedOptions = (options, prefix) =>
     label: (
       <TranslatedText
         stringId={
-          typeof option.label !== 'string'
+          option.label.type === TranslatedText
             ? option.label.props.stringId
-            : `${prefix}.${option.value}`
+            : `${prefix}.${transformStringIdSuffix(option.label)}`
         }
-        fallback={typeof option.label !== 'string' ? option.label.props.fallback : option.label}
+        fallback={option.label.type === TranslatedText ? option.label.props.fallback : option.label}
       />
     ),
   }));
