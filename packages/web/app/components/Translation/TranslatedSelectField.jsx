@@ -15,42 +15,20 @@ const transformStringIdSuffix = suffix => {
   return words.join('');
 };
 
-const getTranslatedOptions = (options, prefix) => {
-  console.log('this is original', options);
-  console.log(prefix);
-  const translatedOptions = options.map(option => ({
+const getTranslatedOptions = (options, prefix) =>
+  options.map(option => ({
     value: option.value,
     label: (
       <TranslatedText
         stringId={
-          option.label.type === TranslatedText
-            ? option.label.props.stringId // handling when the options list already has TranslatedText components in it
-            : `${prefix}.${transformStringIdSuffix(option.label)}`
+          typeof option.label !== 'string'
+            ? option.label.props.stringId
+            : `${prefix}.${option.value}`
         }
-        fallback={
-          option.label.type === TranslatedText
-            ? option.label.props.fallback
-            : option.label.toString()
-        }
+        fallback={typeof option.label !== 'string' ? option.label.props.fallback : option.label}
       />
     ),
   }));
-  console.log(translatedOptions);
-  return translatedOptions;
-  // return options.map(option => ({
-  //   value: option.value,
-  //   label: (
-  //     <TranslatedText
-  //       stringId={
-  //         typeof option.label !== 'string'
-  //           ? option.label.props.stringId
-  //           : `${prefix}.${option.value}`
-  //       }
-  //       fallback={typeof option.label !== 'string' ? option.label.props.fallback : option.label}
-  //     />
-  //   ),
-  // }));
-};
 
 // NOTE: not compatible with disabled SelectFields
 export const SelectField = ({ field, options, prefix, value, name, ...props }) => (
