@@ -3,7 +3,7 @@ import * as yup from 'yup';
 import { defaultsDeep } from 'lodash';
 
 import { log } from '@tamanu/shared/services/logging';
-import { IMAGING_TYPES } from '@tamanu/constants';
+import { BRANDS, IMAGING_TYPES } from '@tamanu/constants';
 
 const fieldSchema = yup
   .object({
@@ -355,6 +355,11 @@ const validCssAbsoluteLength = yup
     return /(^\d+$)|(^\d+\.\d+$)/.test(numberString);
   });
 
+const brandSchema = yup
+  .string()
+  .required()
+  .oneOf(Object.values(BRANDS));
+
 const printMeasuresSchema = yup
   .object({
     labRequestPrintLabel: yup.object({
@@ -521,6 +526,7 @@ const rootLocalisationSchema = yup
       .required()
       .noUnknown(),
     printMeasures: printMeasuresSchema,
+    brand: brandSchema,
     disabledReports: yup.array(yup.string().required()).defined(),
     supportDeskUrl: yup.string().required(),
     ageDisplayFormat: yup

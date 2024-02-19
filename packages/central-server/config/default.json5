@@ -348,6 +348,7 @@
       "units": {
         "temperature": "celsius"
       },
+      "brand": "tamanu",
       "country": {
         "name": "",
         "alpha-2": "",

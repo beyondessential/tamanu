@@ -22,7 +22,7 @@ export * from './Preloader';
 export * from './LocationSearchBar';
 export * from './SearchBar';
 export * from './Table';
-export * from './TamanuLogo';
+export * from './Logo.jsx';
 export * from './Tag';
 export * from './Tile';
 export * from './TopBar';

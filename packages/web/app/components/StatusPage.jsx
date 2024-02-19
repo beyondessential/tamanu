@@ -2,9 +2,8 @@ import React from 'react';
 import { LargeBodyText } from './Typography';
 import styled, { keyframes } from 'styled-components';
 import { Colors } from '../constants';
-import { TamanuLogoLeftIconBlue } from './TamanuLogo';
+import { LogoDark } from './Logo';
 import { Typography } from '@material-ui/core';
-
 import HeroImg from '../assets/images/splashscreens/screen_4.png';
 
 const FlexContainer = styled.div`
@@ -38,7 +37,7 @@ const ErrorDescription = styled(LargeBodyText)`
   text-align: ${props => (props.$heroImage ? 'left' : 'center')};
 `;
 
-const Logo = styled(TamanuLogoLeftIconBlue)`
+const Logo = styled(LogoDark)`
   cursor: pointer;
 `;
 
