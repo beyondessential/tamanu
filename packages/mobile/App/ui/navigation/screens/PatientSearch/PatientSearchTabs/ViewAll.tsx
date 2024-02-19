@@ -114,6 +114,7 @@ const searchAndFilterPatients = async (
   // Don't return deleted patients
   queryBuilder.andWhere('patient.deletedAt IS NULL');
 
+  // Order and limit
   queryBuilder.orderBy('patient.lastName', 'ASC');
   queryBuilder.addOrderBy('patient.firstName', 'ASC');
   queryBuilder.limit(100);
