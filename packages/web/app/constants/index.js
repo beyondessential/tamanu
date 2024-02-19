@@ -436,9 +436,3 @@ export const NOTE_FORM_MODES = {
   EDIT_NOTE: 'editNote',
   VIEW_NOTE: 'viewNote',
 };
-
-export const APP_COUNTIES = {
-  cambodia: {
-    name: 'khmEIR',
-  },
-};
