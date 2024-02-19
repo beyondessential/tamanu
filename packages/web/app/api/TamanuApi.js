@@ -1,7 +1,4 @@
-import {
-  TamanuApi as ApiClient,
-  AuthExpiredError,
-} from '@tamanu/api-client';
+import { TamanuApi as ApiClient, AuthExpiredError } from '@tamanu/api-client';
 import { SERVER_TYPES } from '@tamanu/constants';
 import { buildAbilityForUser } from '@tamanu/shared/permissions/buildAbility';
 
@@ -45,7 +42,7 @@ function clearLocalStorage() {
 }
 
 export function isErrorUnknownDefault(error, response) {
-  void(error); // error is required for this function signature, but we don't use it
+  void error; // error is required for this function signature, but we don't use it
 
   if (!response || typeof response.status !== 'number') {
     return true;
@@ -67,12 +64,12 @@ export class TamanuApi extends ApiClient {
     host.search = '';
     host.hash = '';
     host.pathname = '/api';
-    
+
     super({
       endpoint: host.toString(),
       agentName: SERVER_TYPES.WEBAPP,
       agentVersion: appVersion,
-      deviceId: getDeviceId()
+      deviceId: getDeviceId(),
     });
   }
 
@@ -125,7 +122,7 @@ export class TamanuApi extends ApiClient {
   async get(endpoint, query, { showUnknownErrorToast = true, ...options } = {}) {
     return this.fetch(endpoint, query, { method: 'GET', showUnknownErrorToast, ...options });
   }
-  
+
   async checkServerAlive() {
     return this.get('public/ping', null, { showUnknownErrorToast: false });
   }
