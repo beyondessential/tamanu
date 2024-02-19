@@ -16,6 +16,7 @@ export async function up(query) {
         AND p.upstream_id::text = jsonb_extract_path_text(sr.requester, 'reference')
     $$
   `);
+
   await query.sequelize.query(`
     CREATE OR REPLACE PROCEDURE fhir.resolve_upstreams()
     LANGUAGE SQL
