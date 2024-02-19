@@ -146,7 +146,7 @@ const Screen: FC<ViewAllScreenProps> = ({
 
   const activeFilterCount = Object.keys(activeFilters).length;
 
-  const [list, error] = useBackendEffect(
+  const [list] = useBackendEffect(
     ({ models }) => searchAndFilterPatients(models, searchField, activeFilters),
     [searchField.value, activeFilters],
   );
