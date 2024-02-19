@@ -125,7 +125,7 @@ export const PersonalInformationFields = ({ patientRegistryType, showMandatory }
           fallback="Social media"
         />
       ),
-      property: 'localisedField.property.socialMedia',
+      prefix: 'localisedField.property.socialMedia',
     },
     patientBillingTypeId: {
       component: SuggesterSelectField,
