@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { useApi } from '../api/useApi';
 import { LOCAL_STORAGE_KEYS } from '../constants';
-import { useTranslations } from '../api/queries';
+import { useTranslations } from '../api/queries/useTranslations';
 
 const TranslationContext = React.createContext();
 
