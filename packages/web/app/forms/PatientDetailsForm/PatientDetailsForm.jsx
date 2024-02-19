@@ -67,36 +67,6 @@ const StyledPatientDetailSecondaryDetailsGroupWrapper = styled.div`
   margin-top: 70px;
 `;
 
-export const PrimaryDetailsGroup = ({ values = {}, patientRegistryType }) => {
-  const { getLocalisation } = useLocalisation();
-  let filteredSexOptions = SEX_OPTIONS;
-  if (getLocalisation('features.hideOtherSex') === true) {
-    filteredSexOptions = filteredSexOptions.filter(s => s.value !== 'other');
-  }
-
-  const isRequiredPatientData = fieldName =>
-    getLocalisation(`fields.${fieldName}.requiredPatientData`);
-
-  return (
-    <CambodiaPrimaryDetailsLayout
-      patientRegistryType={patientRegistryType}
-      values={values}
-      sexOptions={filteredSexOptions}
-      isRequiredPatientData={isRequiredPatientData}
-    />
-  );
-};
-
-export const SecondaryDetailsGroup = ({ values = {}, patientRegistryType, isEdit = false }) => {
-  return (
-    <CambodiaSecondaryDetailsLayout
-      patientRegistryType={patientRegistryType}
-      values={values}
-      isEdit={isEdit}
-    />
-  );
-};
-
 export const PatientField = ({ definition: { definitionId, name, fieldType, options } }) => {
   // TODO: temporary placeholder component
   // the plan is to reuse the survey question components for these fields
@@ -205,7 +175,7 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
 
   const layout = getLocalisation('patientDetails.layout');
   const { PrimaryDetails, SecondaryDetails, PatientFields } = useMemo(
-    () => LAYOUT_COMPONENTS[layout],
+    () => LAYOUT_COMPONENTS[layout || PATIENT_DETAIL_LAYOUTS.GENERIC],
     [layout],
   );
 
