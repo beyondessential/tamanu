@@ -19,6 +19,7 @@ import find from 'lodash/find';
 import get from 'lodash/get';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import styles, { colorPack } from './styles';
+import { screenPercentageToDP, Orientation } from '../../../helpers/screen';
 
 const ViewPropTypes = {
   style: PropTypes.any,
@@ -630,6 +631,7 @@ export class MultiSelect extends Component {
                     name="chevron-down"
                     style={[
                       styles.indicator,
+                      { fontSize: screenPercentageToDP(2.1, Orientation.Height) },
                       { paddingLeft: 15, paddingRight: 15 },
                       styleIndicator && styleIndicator,
                     ]}
@@ -716,7 +718,11 @@ export class MultiSelect extends Component {
                       <TouchableWithoutFeedback onPress={this._removeAllItems}>
                         <Icon
                           name={hideSubmitButton ? 'menu-right' : 'close'}
-                          style={[styles.removeIndicator, styleIndicator && styleIndicator]}
+                          style={[
+                            styles.removeIndicator,
+                            { fontSize: screenPercentageToDP(2.1, Orientation.Height) },
+                            styleIndicator && styleIndicator,
+                          ]}
                         />
                       </TouchableWithoutFeedback>
                     ) : null}
