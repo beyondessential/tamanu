@@ -94,7 +94,7 @@ const useFileName = () => {
       .replace(/\s+/g, '-')
       .replace(/-+/g, '-')
       .toLowerCase();
-    return `tamanu-report-${date}-${dashedName}`;
+    return `report-${date}-${dashedName}`;
   };
 };
 
@@ -290,22 +290,20 @@ export const ReportGeneratorForm = () => {
             <>
               <Spacer />
               <FormGrid columns={3}>
-                {parameters.map(
-                  ({ parameterField, required, name, label, ...restOfProps }) => {
-                    delete restOfProps.options;
-                    return (
-                      <ParameterField
-                        key={name || parameterField}
-                        required={required}
-                        name={name}
-                        label={label}
-                        parameterValues={values}
-                        parameterField={parameterField}
-                        {...restOfProps}
-                      />
-                    );
-                  },
-                )}
+                {parameters.map(({ parameterField, required, name, label, ...restOfProps }) => {
+                  delete restOfProps.options;
+                  return (
+                    <ParameterField
+                      key={name || parameterField}
+                      required={required}
+                      name={name}
+                      label={label}
+                      parameterValues={values}
+                      parameterField={parameterField}
+                      {...restOfProps}
+                    />
+                  );
+                })}
               </FormGrid>
             </>
           ) : null}

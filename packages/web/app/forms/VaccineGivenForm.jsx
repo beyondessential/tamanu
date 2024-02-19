@@ -161,8 +161,8 @@ export const VaccineGivenForm = ({
       <ConsentField
         label={
           values.givenElsewhere
-            ? 'Do you have consent to record in Tamanu?'
-            : 'Do you have consent from the recipient/parent/guardian to give this vaccine and record in Tamanu?'
+            ? 'Do you have consent to record this vaccine?'
+            : 'Do you have consent from the recipient/parent/guardian to give this vaccine and record?'
         }
       />
 
