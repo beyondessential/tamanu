@@ -12,7 +12,6 @@ import {
   Field,
   FieldWithTooltip,
   Form,
-  MultiselectField,
 } from '../../components/Field';
 import { FormGrid } from '../../components/FormGrid';
 import { ConfirmCancelRow } from '../../components/ButtonRow';
@@ -20,6 +19,7 @@ import { foreignKey, optionalForeignKey } from '../../utils/validation';
 import { useSuggester } from '../../api';
 import { useAuth } from '../../contexts/Auth';
 import { useApi } from '../../api/useApi';
+import { MultiselectField } from '../../components/Translation/TranslatedSelectField.jsx';
 
 export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject }) => {
   const api = useApi();
@@ -140,6 +140,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                   component={MultiselectField}
                   options={conditions}
                   disabled={!conditions || conditions.length === 0}
+                  prefix="programRegistry.property.relatedCondition"
                 />
               </FormGrid>
             </FormGrid>

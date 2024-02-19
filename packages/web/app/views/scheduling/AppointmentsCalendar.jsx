@@ -16,7 +16,7 @@ import { Suggester } from '../../utils/suggester';
 import { appointmentTypeOptions, Colors } from '../../constants';
 import { useApi, useSuggester } from '../../api';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
-import { TranslatedMultiselectField } from '../../components/Translation/TranslatedSelectField.jsx';
+import { MultiselectField } from '../../components/Translation/TranslatedSelectField.jsx';
 
 const LeftContainer = styled.div`
   min-height: 100%;
@@ -180,7 +180,7 @@ export const AppointmentsCalendar = () => {
                 fallback="Appointment type"
               />
             </SectionTitle>
-            <TranslatedMultiselectField
+            <MultiselectField
               onChange={e => {
                 if (!e.target.value) {
                   setAppointmentType([]);

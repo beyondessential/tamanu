@@ -18,7 +18,6 @@ import {
   Field,
   Form,
   ImagingPriorityField,
-  MultiselectField,
   SelectField,
   TextField,
   TextInput,
@@ -31,7 +30,7 @@ import { FormSeparatorLine } from '../components/FormSeparatorLine';
 import { FormSubmitDropdownButton } from '../components/DropdownButton';
 import { LowerCase } from '../components/Typography';
 import { TranslatedText } from '../components/Translation/TranslatedText';
-import { TranslatedMultiselectField } from '../components/Translation/TranslatedSelectField.jsx';
+import { MultiselectField } from '../components/Translation/TranslatedSelectField.jsx';
 
 function getEncounterTypeLabel(type) {
   return encounterOptions.find(x => x.value === type).label;
@@ -192,9 +191,7 @@ export const ImagingRequestForm = React.memo(
               </div>
               <FormSeparatorLine />
               <TextInput
-                label={
-                  <TranslatedText stringId="imaging.encounter.label" fallback="Encounter" />
-                }
+                label={<TranslatedText stringId="imaging.encounter.label" fallback="Encounter" />}
                 disabled
                 value={encounterLabel}
               />
@@ -218,12 +215,9 @@ export const ImagingRequestForm = React.memo(
                   }))}
                   name="areas"
                   label={
-                    <TranslatedText
-                      stringId="imaging.areas.label"
-                      fallback="Areas to be imaged"
-                    />
+                    <TranslatedText stringId="imaging.areas.label" fallback="Areas to be imaged" />
                   }
-                  component={TranslatedMultiselectField}
+                  component={MultiselectField}
                   prefix="imaging.property.area"
                 />
               ) : (

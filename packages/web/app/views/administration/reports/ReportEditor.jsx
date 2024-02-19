@@ -11,15 +11,7 @@ import {
   REPORT_DEFAULT_DATE_RANGES_VALUES,
   REPORT_STATUSES_VALUES,
 } from '@tamanu/constants/reports';
-import {
-  Button,
-  ButtonRow,
-  Field,
-  Form,
-  MultiselectField,
-  SelectField,
-  TextField,
-} from '../../../components';
+import { Button, ButtonRow, Field, Form, SelectField, TextField } from '../../../components';
 import { ParameterItem, ParameterList, SQLQueryEditor } from './components/editing';
 import {
   FIELD_TYPES_WITH_PREDEFINED_OPTIONS,
@@ -28,7 +20,7 @@ import {
 import { useAuth } from '../../../contexts/Auth';
 import { useApi } from '../../../api';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
-import { TranslatedMultiselectField } from '../../../components/Translation/TranslatedSelectField.jsx';
+import { MultiselectField } from '../../../components/Translation/TranslatedSelectField.jsx';
 
 const StyledField = styled(Field)`
   flex-grow: 1;
@@ -190,7 +182,7 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
                 />
               }
               name="dataSources"
-              component={TranslatedMultiselectField}
+              component={MultiselectField}
               options={DATA_SOURCE_OPTIONS}
               prefix="report.property.canBeRunOn"
             />
