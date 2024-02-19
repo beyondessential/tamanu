@@ -1,5 +1,4 @@
 export async function up(query) {
-  try {
   await query.sequelize.query(`
     CREATE OR REPLACE PROCEDURE fhir.service_requests_resolve_upstream_practitioner()
     LANGUAGE SQL
@@ -17,7 +16,6 @@ export async function up(query) {
         AND p.upstream_id::text = jsonb_extract_path_text(sr.requester, 'reference')
     $$
   `);
-  } catch (e) { console.log(e)}
   await query.sequelize.query(`
     CREATE OR REPLACE PROCEDURE fhir.resolve_upstreams()
     LANGUAGE SQL
