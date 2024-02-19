@@ -384,13 +384,14 @@ const NotesMultipageCellPadding = () => {
 const NotesSection = ({ notes }) => {
   return (
     <>
-      <View minPresenceAhead={50} />
+      <View minPresenceAhead={80} />
       <View>
+        <View minPresenceAhead={80} />
         <MultipageTableHeading title="Notes" />
         <Table>
           {notes.map(note => (
             <>
-              <View minPresenceAhead={50} />
+              <View minPresenceAhead={80} />
               <View style={tableStyles.notesRow} key={note.id}>
                 <View
                   style={{
