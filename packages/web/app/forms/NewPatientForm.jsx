@@ -4,7 +4,7 @@ import Collapse from '@material-ui/core/Collapse';
 import Button from '@material-ui/core/Button';
 import { useQuery } from '@tanstack/react-query';
 
-import { PATIENT_REGISTRY_TYPES, PLACE_OF_BIRTH_TYPES } from '@tamanu/constants';
+import { PATIENT_REGISTRY_TYPES, PLACE_OF_BIRTH_TYPES, SEX_OPTIONS } from '@tamanu/constants';
 
 import { useLocalisation } from '../contexts/Localisation';
 
@@ -82,11 +82,15 @@ export const NewPatientForm = memo(
     const sexValues = useSexValues();
 
     const { getLocalisation } = useLocalisation();
-    const {
-      PrimaryDetailsGroup,
-      SecondaryDetailsGroup,
-      PatientFieldsGroup,
-    } = useLayoutComponents();
+    const { PrimaryDetails, SecondaryDetails, PatientFields } = useLayoutComponents();
+
+    let filteredSexOptions = SEX_OPTIONS;
+    if (getLocalisation('features.hideOtherSex') === true) {
+      filteredSexOptions = filteredSexOptions.filter(s => s.value !== 'other');
+    }
+
+    const isRequiredPatientData = fieldName =>
+      getLocalisation(`fields.${fieldName}.requiredPatientData`);
 
     if (error) {
       return <pre>{error.stack}</pre>;
@@ -103,55 +107,62 @@ export const NewPatientForm = memo(
       await onSubmit(newData);
     };
 
-    const renderForm = ({ submitForm, values, setValues }) => {
-      return (
-        <>
-          <IdBannerContainer>
-            <RandomPatientButton setValues={setValues} generateId={generateId} />
-            <IdBanner>
-              <Field name="displayId" component={IdField} regenerateId={generateId} />
-            </IdBanner>
-          </IdBannerContainer>
-          <StyledRadioField
-            field={{
-              name: 'newPatient',
-              label: 'New patient action',
-              value: patientRegistryType,
-              onChange: event => setPatientRegistryType(event.target?.value),
-            }}
-            options={PATIENT_REGISTRY_OPTIONS}
-            style={{ gridColumn: '1 / -1' }}
+    const renderForm = ({ submitForm, values, setValues }) => (
+      <>
+        <IdBannerContainer>
+          <RandomPatientButton setValues={setValues} generateId={generateId} />
+          <IdBanner>
+            <Field name="displayId" component={IdField} regenerateId={generateId} />
+          </IdBanner>
+        </IdBannerContainer>
+        <StyledRadioField
+          field={{
+            name: 'newPatient',
+            label: 'New patient action',
+            value: patientRegistryType,
+            onChange: event => setPatientRegistryType(event.target?.value),
+          }}
+          options={PATIENT_REGISTRY_OPTIONS}
+          style={{ gridColumn: '1 / -1' }}
+        />
+        <PrimaryDetails
+          registeredBirthPlace={values.registeredBirthPlace}
+          isRequiredPatientData={isRequiredPatientData}
+          sexOptions={filteredSexOptions}
+          values={values}
+          patientRegistryType={patientRegistryType}
+        />
+        <AdditionalInformationRow>
+          {collapseAdditionalFields && (
+            <div>
+              {isExpanded ? (
+                <StyledImageButton onClick={() => setExpanded(false)}>
+                  <img alt="Minus button" src={minusCircle} />
+                </StyledImageButton>
+              ) : (
+                <StyledImageButton onClick={() => setExpanded(true)}>
+                  <img alt="Plus button" src={plusCircle} />
+                </StyledImageButton>
+              )}
+              Add additional information
+              <span> (religion, occupation, blood type...)</span>
+            </div>
+          )}
+        </AdditionalInformationRow>
+        <Collapse in={!collapseAdditionalFields || isExpanded} style={{ gridColumn: 'span 2' }}>
+          <SecondaryDetails
+            patientRegistryType={patientRegistryType}
+            registeredBirthPlace={values.registeredBirthPlace}
           />
-          <PrimaryDetailsGroup values={values} patientRegistryType={patientRegistryType} />
-          <AdditionalInformationRow>
-            {collapseAdditionalFields && (
-              <div>
-                {isExpanded ? (
-                  <StyledImageButton onClick={() => setExpanded(false)}>
-                    <img alt="Minus button" src={minusCircle} />
-                  </StyledImageButton>
-                ) : (
-                  <StyledImageButton onClick={() => setExpanded(true)}>
-                    <img alt="Plus button" src={plusCircle} />
-                  </StyledImageButton>
-                )}
-                Add additional information
-                <span> (religion, occupation, blood type...)</span>
-              </div>
-            )}
-          </AdditionalInformationRow>
-          <Collapse in={!collapseAdditionalFields || isExpanded} style={{ gridColumn: 'span 2' }}>
-            <SecondaryDetailsGroup patientRegistryType={patientRegistryType} values={values} />
-            {isLoading ? (
-              <LoadingIndicator />
-            ) : (
-              <PatientFieldsGroup fieldDefinitions={fieldDefinitions?.data} />
-            )}
-          </Collapse>
-          <ModalFormActionRow confirmText="Confirm" onConfirm={submitForm} onCancel={onCancel} />
-        </>
-      );
-    };
+          {isLoading ? (
+            <LoadingIndicator />
+          ) : (
+            <PatientFields fieldDefinitions={fieldDefinitions?.data} />
+          )}
+        </Collapse>
+        <ModalFormActionRow confirmText="Confirm" onConfirm={submitForm} onCancel={onCancel} />
+      </>
+    );
 
     return (
       <Form

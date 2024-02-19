@@ -523,7 +523,8 @@
         "villageId": {
           "shortLabel": "Village",
           "longLabel": "Village",
-          "hidden": false
+          "hidden": false,
+          "requiredPatientData": false
         },
         "birthCertificate": {
           "shortLabel": "Birth certificate",
