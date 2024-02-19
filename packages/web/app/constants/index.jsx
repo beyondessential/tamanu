@@ -8,10 +8,6 @@ import React from 'react';
 import { createValueIndex } from '@tamanu/shared/utils/valueIndex';
 import {
   APPOINTMENT_STATUSES,
-  BIRTH_DELIVERY_TYPES,
-  BIRTH_TYPES,
-  PLACE_OF_BIRTH_TYPES,
-  ATTENDANT_OF_BIRTH_TYPES,
   APPOINTMENT_TYPES,
   DOCUMENT_SOURCES,
   ENCOUNTER_LABELS,
@@ -30,7 +26,6 @@ import {
   REFERRAL_STATUSES,
   REGISTRATION_STATUSES,
   TEMPLATE_TYPES,
-  BIRTH_DELIVERY_LABELS,
 } from '@tamanu/constants';
 
 import {
