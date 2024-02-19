@@ -18,7 +18,7 @@ export const ChangeClinicianForm = ({ clinicianSuggester, onCancel, onSubmit }) 
         component={AutocompleteField}
         label={
           <TranslatedText
-            stringId="patient.form.changeClinician.examinerId.label"
+            stringId="patient.changeClinician.examinerId.label"
             fallback="Search new :clinician"
             replacements={{
               clinician: (

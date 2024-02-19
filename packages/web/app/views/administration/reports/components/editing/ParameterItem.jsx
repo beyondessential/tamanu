@@ -20,6 +20,7 @@ import {
   FIELD_TYPES_WITH_SUGGESTERS,
   PARAMETER_FIELD_COMPONENTS,
 } from '../../../../reports/ParameterField';
+import { TranslatedText } from '../../../../../components/Translation/TranslatedText';
 
 const Divider = styled(BaseDivider)`
   margin-top: 20px;
@@ -82,7 +83,7 @@ export const ParameterItem = props => {
             },
           }}
           placeholder="Text"
-          label="Name"
+          label={<TranslatedText stringId="general.name.label" fallback="Name" />}
         />
       </Grid>
       <Grid item xs={5}>
@@ -95,7 +96,7 @@ export const ParameterItem = props => {
             },
           }}
           placeholder="Text"
-          label="Label"
+          label={<TranslatedText stringId="report.editor.label.label" fallback="Label" />}
         />
       </Grid>
       <Grid item xs={1}>
@@ -113,7 +114,7 @@ export const ParameterItem = props => {
             },
           }}
           placeholder="Text"
-          label="Field type"
+          label={<TranslatedText stringId="report.editor.fieldType.label" fallback="Field type" />}
           options={Object.keys(PARAMETER_FIELD_COMPONENTS).map(key => ({
             label: key,
             value: key,

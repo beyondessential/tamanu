@@ -217,7 +217,7 @@ const EncounterOverview = ({
     <>
       <DateTimeInput
         label={
-          <TranslatedText stringId="discharge.form.admissionDate.label" fallback="Admission date" />
+          <TranslatedText stringId="discharge.admissionDate.label" fallback="Admission date" />
         }
         value={startDate}
         disabled
@@ -225,7 +225,7 @@ const EncounterOverview = ({
       <TextInput
         label={
           <TranslatedText
-            stringId="general.form.supervisingClinician.label"
+            stringId="general.supervisingClinician.label"
             fallback="Supervising :clinician"
             replacements={{
               clinician: (
@@ -245,7 +245,7 @@ const EncounterOverview = ({
       <TextInput
         label={
           <TranslatedText
-            stringId="discharge.form.encounterReason.label"
+            stringId="discharge.encounterReason.label"
             fallback="Reason for encounter"
           />
         }
@@ -254,13 +254,13 @@ const EncounterOverview = ({
         style={{ gridColumn: '1 / -1' }}
       />
       <OuterLabelFieldWrapper
-        label={<TranslatedText stringId="discharge.form.diagnoses.label" fallback="Diagnoses" />}
+        label={<TranslatedText stringId="discharge.diagnoses.label" fallback="Diagnoses" />}
         style={{ gridColumn: '1 / -1' }}
       >
         <DiagnosisList diagnoses={currentDiagnoses} />
       </OuterLabelFieldWrapper>
       <OuterLabelFieldWrapper
-        label={<TranslatedText stringId="discharge.form.procedures.label" fallback="Procedures" />}
+        label={<TranslatedText stringId="discharge.procedures.label" fallback="Procedures" />}
         style={{ gridColumn: '1 / -1' }}
       >
         <ProcedureList procedures={procedures} />
@@ -384,10 +384,7 @@ export const DischargeForm = ({
         <Field
           name="endDate"
           label={
-            <TranslatedText
-              stringId="discharge.form.dischargeDate.label"
-              fallback="Discharge date"
-            />
+            <TranslatedText stringId="discharge.dischargeDate.label" fallback="Discharge date" />
           }
           component={DateTimeField}
           min={format(encounter.startDate, "yyyy-MM-dd'T'HH:mm")}
@@ -398,7 +395,7 @@ export const DischargeForm = ({
           name="discharge.dischargerId"
           label={
             <TranslatedText
-              stringId="general.form.dischargingClinician.label"
+              stringId="general.dischargingClinician.label"
               fallback="Discharging :clinician"
               replacements={{
                 clinician: (
@@ -429,7 +426,7 @@ export const DischargeForm = ({
         <OuterLabelFieldWrapper
           label={
             <TranslatedText
-              stringId="discharge.form.dischargeMedications.label"
+              stringId="discharge.dischargeMedications.label"
               fallback="Discharge medications"
             />
           }
@@ -441,14 +438,14 @@ export const DischargeForm = ({
           name="sendToPharmacy"
           label={
             <TranslatedText
-              stringId="discharge.form.sendToPharmacy.label"
+              stringId="discharge.sendToPharmacy.label"
               fallback="Send prescription to pharmacy"
             />
           }
           component={CheckField}
           helperText={
             <TranslatedText
-              stringId="discharge.form.sendToPharmacy.helperText"
+              stringId="discharge.sendToPharmacy.helperText"
               fallback="Requires mSupply"
             />
           }
@@ -459,7 +456,7 @@ export const DischargeForm = ({
           name="discharge.note"
           label={
             <TranslatedText
-              stringId="discharge.form.notes.label"
+              stringId="discharge.notes.label"
               fallback="Discharge treatment plan and follow-up notes"
             />
           }

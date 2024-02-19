@@ -107,7 +107,7 @@ export const ProgramRegistrySearchBar = ({ searchParameters, setSearchParameters
         name="currentlyIn"
         component={AutocompleteField}
         suggester={
-          programRegistry && programRegistry.currentlyAt === 'village'
+          programRegistry && programRegistry.currentlyAtType === 'village'
             ? villageSuggester
             : facilitySuggester
         }

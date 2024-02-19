@@ -1,8 +1,9 @@
 import React from 'react';
 
-import { Field, BaseSelectField } from '../../components';
+import { Field } from '../../components';
 import { useLocalisation } from '../../contexts/Localisation';
 import { SelectField } from '../../components/Translation/TranslatedSelectField.jsx';
+import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 export const ImagingTypeField = ({ name = 'imagingType', required }) => {
   const { getLocalisation } = useLocalisation();
@@ -15,7 +16,12 @@ export const ImagingTypeField = ({ name = 'imagingType', required }) => {
   return (
     <Field
       name={name}
-      label="Imaging type"
+      label={
+        <TranslatedText
+          stringId="report.generate.parameter.imagingType.label"
+          fallback="Imaging type"
+        />
+      }
       component={SelectField}
       options={imagingTypeOptions}
       required={required}

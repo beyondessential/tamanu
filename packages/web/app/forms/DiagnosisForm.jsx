@@ -68,14 +68,14 @@ export const DiagnosisForm = React.memo(
               style={{ gridColumn: '1 / -1' }}
               name="isPrimary"
               label={
-                <TranslatedText stringId="diagnosis.form.isPrimary.label" fallback="Is primary" />
+                <TranslatedText stringId="diagnosis.isPrimary.label" fallback="Is primary" />
               }
               component={CheckField}
             />
             <Field
               name="certainty"
               label={
-                <TranslatedText stringId="diagnosis.form.certainty.label" fallback="Certainty" />
+                <TranslatedText stringId="diagnosis.certainty.label" fallback="Certainty" />
               }
               component={SelectField}
               options={certaintyOptions}
@@ -84,7 +84,7 @@ export const DiagnosisForm = React.memo(
             />
             <Field
               name="date"
-              label={<TranslatedText stringId="general.form.date.label" fallback="Date" />}
+              label={<TranslatedText stringId="general.date.label" fallback="Date" />}
               component={DateField}
               required
               saveDateAsString
