@@ -137,14 +137,12 @@ const Screen: FC<ViewAllScreenProps> = ({
   const filterFields: FieldProp[] = useFilterFields();
 
   // Get fields in active use, and transform from formik fields to a simple object
-  const activeFilters = useMemo(() => {
+  const [activeFilters, activeFilterCount] = useMemo(() => {
     const entries = filterFields
       .filter(field => field[0].value)
       .map(field => [field[0].name, field[0].value]);
-    return Object.fromEntries(entries);
+    return [Object.fromEntries(entries), entries.length];
   }, [filterFields]);
-
-  const activeFilterCount = Object.keys(activeFilters).length;
 
   const [list] = useBackendEffect(
     ({ models }) => searchAndFilterPatients(models, searchField, activeFilters),
