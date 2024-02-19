@@ -41,14 +41,14 @@ import {
 
 const LAYOUT_COMPONENTS = {
   [PATIENT_DETAIL_LAYOUTS.GENERIC]: {
-    PrimaryDetailGroup: GenericPrimaryDetailsLayout,
-    SecondaryDetailGroup: GenericSecondaryDetailsLayout,
-    PatientFieldGroup: GenericPatientFieldLayout,
+    PrimaryDetails: GenericPrimaryDetailsLayout,
+    SecondaryDetails: GenericSecondaryDetailsLayout,
+    PatientFields: GenericPatientFieldLayout,
   },
   [PATIENT_DETAIL_LAYOUTS.CAMBODIA]: {
-    PrimaryDetailGroup: CambodiaPrimaryDetailsLayout,
-    SecondaryDetailGroup: CambodiaSecondaryDetailsLayout,
-    PatientFieldGroup: CambodiaPatientFieldLayout,
+    PrimaryDetails: CambodiaPrimaryDetailsLayout,
+    SecondaryDetails: CambodiaSecondaryDetailsLayout,
+    PatientFields: CambodiaPatientFieldLayout,
   },
 };
 
@@ -204,7 +204,7 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
   const { getLocalisation } = useLocalisation();
 
   const layout = getLocalisation('patientDetails.layout');
-  const { PrimaryDetailGroup, SecondaryDetailGroup, PatientFieldGroup } = useMemo(
+  const { PrimaryDetails, SecondaryDetails, PatientFields } = useMemo(
     () => LAYOUT_COMPONENTS[layout],
     [layout],
   );
@@ -245,18 +245,18 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
     <Form
       render={({ values = {} }) => (
         <>
-          <PrimaryDetailGroup
+          <PrimaryDetails
             isRequiredPatientData={isRequiredPatientData}
             sexOptions={filteredSexOptions}
           />
           <StyledPatientDetailSecondaryDetailsGroupWrapper>
-            <SecondaryDetailGroup
+            <SecondaryDetails
               registeredBirthPlace={values.registeredBirthPlace}
               patientRegistryType={patientRegistryType}
               isEdit
             />
           </StyledPatientDetailSecondaryDetailsGroupWrapper>
-          <PatientFieldGroup
+          <PatientFields
             fieldDefinitions={fieldDefinitionsResponse.data}
             fieldValues={fieldValuesResponse?.data}
           />
