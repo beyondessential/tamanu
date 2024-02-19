@@ -71,8 +71,8 @@ if (UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
-const checkIconSize = screenPercentageToDP(2.1, Orientation.Height);
-const chevronIconSize = screenPercentageToDP(3, Orientation.Height);
+const regularFontSize = screenPercentageToDP(2.1, Orientation.Height);
+const largeFontSize = screenPercentageToDP(3, Orientation.Height);
 
 const defaultSearchIcon = () => null;
 export class MultiSelect extends Component {
@@ -257,7 +257,7 @@ export class MultiSelect extends Component {
               {
                 flex: 1,
                 color: tagTextColor,
-                fontSize: 15,
+                fontSize: regularFontSize,
               },
               styleTextTag && styleTextTag,
               fontFamily ? { fontFamily } : {},
@@ -275,7 +275,7 @@ export class MultiSelect extends Component {
               name="close-circle"
               style={{
                 color: tagRemoveIconColor,
-                fontSize: 22,
+                fontSize: largeFontSize,
                 marginLeft: 10,
               }}
             />
@@ -428,7 +428,7 @@ export class MultiSelect extends Component {
               <Icon
                 name="check"
                 style={{
-                  fontSize: checkIconSize,
+                  fontSize: regularFontSize,
                   marginRight: -5,
                   color: selectedItemIconColor,
                 }}
@@ -635,7 +635,7 @@ export class MultiSelect extends Component {
                     style={[
                       styles.indicator,
                       { paddingLeft: 15, paddingRight: 15 },
-                      { fontSize: chevronIconSize },
+                      { fontSize: largeFontSize },
                       styleIndicator && styleIndicator,
                     ]}
                   />
@@ -650,7 +650,7 @@ export class MultiSelect extends Component {
                   style={[
                     { marginRight: 10 },
                     styles.indicator,
-                    { fontSize: chevronIconSize },
+                    { fontSize: largeFontSize },
                     styleIndicator && styleIndicator,
                   ]}
                 />
@@ -728,7 +728,7 @@ export class MultiSelect extends Component {
                           name={hideSubmitButton ? 'menu-right' : 'close'}
                           style={[
                             styles.removeIndicator,
-                            { fontSize: checkIconSize },
+                            { fontSize: regularFontSize },
                             styleIndicator && styleIndicator,
                           ]}
                         />
@@ -740,7 +740,7 @@ export class MultiSelect extends Component {
                       style={[
                         { marginRight: -7 },
                         styles.indicator,
-                        { fontSize: chevronIconSize },
+                        { fontSize: largeFontSize },
                         styleIndicator && styleIndicator,
                       ]}
                     />
