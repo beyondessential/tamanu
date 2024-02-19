@@ -425,7 +425,7 @@ export class MultiSelect extends Component {
               <Icon
                 name="check"
                 style={{
-                  fontSize: 20,
+                  fontSize: screenPercentageToDP(2.1, Orientation.Height),
                   marginRight: -5,
                   color: selectedItemIconColor,
                 }}
@@ -631,9 +631,9 @@ export class MultiSelect extends Component {
                     name="chevron-down"
                     style={[
                       styles.indicator,
-                      { fontSize: screenPercentageToDP(2.1, Orientation.Height) },
                       { paddingLeft: 15, paddingRight: 15 },
                       styleIndicator && styleIndicator,
+                      { fontSize: screenPercentageToDP(3, Orientation.Height) },
                     ]}
                   />
                 </TouchableOpacity>
@@ -644,7 +644,12 @@ export class MultiSelect extends Component {
                   size={20}
                   onPress={this._clearSelectorCallback}
                   color={colorPack.placeholderTextColor}
-                  style={[{ marginRight: 10 }, styles.indicator, styleIndicator && styleIndicator]}
+                  style={[
+                    { marginRight: 10 },
+                    styles.indicator,
+                    styleIndicator && styleIndicator,
+                    { fontSize: screenPercentageToDP(3, Orientation.Height) },
+                  ]}
                 />
               )}
             </View>
@@ -732,6 +737,7 @@ export class MultiSelect extends Component {
                       style={[
                         { marginRight: -7 },
                         styles.indicator,
+                        { fontSize: screenPercentageToDP(3, Orientation.Height) },
                         styleIndicator && styleIndicator,
                       ]}
                     />
