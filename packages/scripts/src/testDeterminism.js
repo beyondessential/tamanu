@@ -127,7 +127,8 @@ async function getHashesForTables(sequelize, tables) {
       attributes: columns,
       order: [[orderBy, 'DESC']]
     })).map(d => d.dataValues);
-    if (data.length === 0) throw new Error(`table not populated with data: ${table}`);
+    if (data.length === 0) throw new Error(`table not populated with data: ${table}. ` +
+      'See the note "How to resolve an error in Test for Determinism" to resolve this.');
     hashes[table] = hashObject(data);
   }
   return hashes;
