@@ -30,6 +30,7 @@ import {
   REFERRAL_STATUSES,
   REGISTRATION_STATUSES,
   TEMPLATE_TYPES,
+  BIRTH_DELIVERY_LABELS,
 } from '@tamanu/constants';
 
 import {
@@ -296,164 +297,206 @@ export const operativePlanStatusList = Object.values(operativePlanStatuses).map(
   label: capitalize(status),
 }));
 
+export const BLOOD_TYPES = {
+  A_POSITIVE: 'a+',
+  A_NEGATIVE: 'a-',
+  AB_POSITIVE: 'ab+',
+  AB_NEGATIVE: 'ab-',
+  B_POSITIVE: 'b+',
+  B_NEGATIVE: 'b-',
+  O_POSITIVE: 'o+',
+  O_NEGATIVE: 'o-',
+};
+export const BLOOD_LABELS = {
+  [BLOOD_TYPES.A_POSITIVE]: 'A+',
+  [BLOOD_TYPES.A_NEGATIVE]: 'A-',
+  [BLOOD_TYPES.AB_POSITIVE]: 'AB+',
+  [BLOOD_TYPES.AB_NEGATIVE]: 'AB-',
+  [BLOOD_TYPES.B_POSITIVE]: 'B+',
+  [BLOOD_TYPES.B_NEGATIVE]: 'B-',
+  [BLOOD_TYPES.O_POSITIVE]: 'O+',
+  [BLOOD_TYPES.O_NEGATIVE]: 'O-',
+};
+
 export const bloodOptions = [
   {
-    value: 'A+',
-    label: <TranslatedText stringId="patient.property.bloodType.a+" fallback="A+" />,
+    value: BLOOD_TYPES.A_POSITIVE,
+    label: BLOOD_LABELS[BLOOD_TYPES.A_POSITIVE],
   },
   {
-    value: 'A-',
-    label: <TranslatedText stringId="patient.property.bloodType.a-" fallback="A-" />,
+    value: BLOOD_TYPES.A_NEGATIVE,
+    label: BLOOD_LABELS[BLOOD_TYPES.A_NEGATIVE],
   },
   {
-    value: 'AB-',
-    label: <TranslatedText stringId="patient.property.bloodType.ab-" fallback="AB-" />,
+    value: BLOOD_TYPES.AB_POSITIVE,
+    label: BLOOD_LABELS[BLOOD_TYPES.AB_POSITIVE],
   },
   {
-    value: 'AB+',
-    label: <TranslatedText stringId="patient.property.bloodType.ab+" fallback="AB+" />,
+    value: BLOOD_TYPES.AB_NEGATIVE,
+    label: BLOOD_LABELS[BLOOD_TYPES.AB_NEGATIVE],
   },
   {
-    value: 'B+',
-    label: <TranslatedText stringId="patient.property.bloodType.b+" fallback="B+" />,
+    value: BLOOD_TYPES.B_POSITIVE,
+    label: BLOOD_LABELS[BLOOD_TYPES.B_POSITIVE],
   },
   {
-    value: 'B-',
-    label: <TranslatedText stringId="patient.property.bloodType.b-" fallback="B-" />,
+    value: BLOOD_TYPES.B_NEGATIVE,
+    label: BLOOD_LABELS[BLOOD_TYPES.B_NEGATIVE],
   },
   {
-    value: 'O+',
-    label: <TranslatedText stringId="patient.property.bloodType.o+" fallback="O+" />,
+    value: BLOOD_TYPES.O_POSITIVE,
+    label: BLOOD_LABELS[BLOOD_TYPES.O_POSITIVE],
   },
   {
-    value: 'O-',
-    label: <TranslatedText stringId="patient.property.bloodType.o-" fallback="O-" />,
+    value: BLOOD_TYPES.O_NEGATIVE,
+    label: BLOOD_LABELS[BLOOD_TYPES.O_NEGATIVE],
   },
 ];
+
+export const TITLE_TYPES = {
+  MR: 'mr',
+  MRS: 'mrs',
+  MS: 'ms',
+  MISS: 'miss',
+  DR: 'dr',
+  SR: 'sr',
+  SN: 'sn',
+};
+
+export const TITLE_LABELS = {
+  [TITLE_TYPES.MR]: 'Mr',
+  [TITLE_TYPES.MRS]: 'Mrs',
+  [TITLE_TYPES.MS]: 'Ms',
+  [TITLE_TYPES.MISS]: 'Miss',
+  [TITLE_TYPES.DR]: 'Dr',
+  [TITLE_TYPES.SR]: 'Sr',
+  [TITLE_TYPES.SN]: 'Sn',
+};
 
 export const titleOptions = [
   {
-    value: 'Mr',
-    label: <TranslatedText stringId="patient.property.title.mr" fallback="Mr" />,
+    value: TITLE_TYPES.MR,
+    label: TITLE_LABELS[TITLE_TYPES.MR],
   },
   {
-    value: 'Mrs',
-    label: <TranslatedText stringId="patient.property.title.mr" fallback="Mrs" />,
+    value: TITLE_TYPES.MRS,
+    label: TITLE_LABELS[TITLE_TYPES.MRS],
   },
   {
-    value: 'Ms',
-    label: <TranslatedText stringId="patient.property.title.ms" fallback="Ms" />,
+    value: TITLE_TYPES.MS,
+    label: TITLE_LABELS[TITLE_TYPES.MS],
   },
   {
-    value: 'Miss',
-    label: <TranslatedText stringId="patient.property.title.miss" fallback="Miss" />,
+    value: TITLE_TYPES.MISS,
+    label: TITLE_LABELS[TITLE_TYPES.MISS],
   },
   {
-    value: 'Dr',
-    label: <TranslatedText stringId="patient.property.title.dr" fallback="Dr" />,
+    value: TITLE_TYPES.DR,
+    label: TITLE_LABELS[TITLE_TYPES.DR],
   },
   {
-    value: 'Sr',
-    label: <TranslatedText stringId="patient.property.title.sr" fallback="Sr" />,
+    value: TITLE_TYPES.SR,
+    label: TITLE_LABELS[TITLE_TYPES.SR],
   },
   {
-    value: 'Sn',
-    label: <TranslatedText stringId="patient.property.title.sn" fallback="Sn" />,
+    value: TITLE_TYPES.SN,
+    label: TITLE_LABELS[TITLE_TYPES.SN],
   },
 ];
+
+export const SOCIAL_MEDIA_TYPES = {
+  FACEBOOK: 'facebook',
+  INSTAGRAM: 'instagram',
+  LINKEDIN: 'linkedin',
+  TWITTER: 'twitter',
+  VIBER: 'viber',
+  WHATSAPP: 'whatsapp',
+};
+
+export const SOCIAL_MEDIA_LABELS = {
+  [SOCIAL_MEDIA_TYPES.FACEBOOK]: 'Facebook',
+  [SOCIAL_MEDIA_TYPES.INSTAGRAM]: 'Instagram',
+  [SOCIAL_MEDIA_TYPES.LINKEDIN]: 'LinkedIn',
+  [SOCIAL_MEDIA_TYPES.TWITTER]: 'Twitter',
+  [SOCIAL_MEDIA_TYPES.VIBER]: 'Viber',
+  [SOCIAL_MEDIA_TYPES.WHATSAPP]: 'WhatsApp',
+};
 
 export const socialMediaOptions = [
   {
-    value: 'Facebook',
-    label: <TranslatedText stringId="patient.property.socialMedia.facebook" fallback="Facebook" />,
+    value: SOCIAL_MEDIA_TYPES.FACEBOOK,
+    label: SOCIAL_MEDIA_LABELS[SOCIAL_MEDIA_TYPES.FACEBOOK],
   },
   {
-    value: 'Instagram',
-    label: (
-      <TranslatedText stringId="patient.property.socialMedia.instagram" fallback="Instagram" />
-    ),
+    value: SOCIAL_MEDIA_TYPES.INSTAGRAM,
+    label: SOCIAL_MEDIA_LABELS[SOCIAL_MEDIA_TYPES.INSTAGRAM],
   },
   {
-    value: 'LinkedIn',
-    label: <TranslatedText stringId="patient.property.socialMedia.linkedIn" fallback="LinkedIn" />,
+    value: SOCIAL_MEDIA_TYPES.LINKEDIN,
+    label: SOCIAL_MEDIA_LABELS[SOCIAL_MEDIA_TYPES.LINKEDIN],
   },
   {
-    value: 'Twitter',
-    label: <TranslatedText stringId="patient.property.socialMedia.twitter" fallback="Twitter" />,
+    value: SOCIAL_MEDIA_TYPES.TWITTER,
+    label: SOCIAL_MEDIA_LABELS[SOCIAL_MEDIA_TYPES.TWITTER],
   },
   {
-    value: 'Viber',
-    label: <TranslatedText stringId="patient.property.socialMedia.viber" fallback="Viber" />,
+    value: SOCIAL_MEDIA_TYPES.VIBER,
+    label: SOCIAL_MEDIA_LABELS[SOCIAL_MEDIA_TYPES.VIBER],
   },
   {
-    value: 'WhatsApp',
-    label: <TranslatedText stringId="patient.property.socialMedia.whatsApp" fallback="WhatsApp" />,
+    value: SOCIAL_MEDIA_TYPES.WHATSAPP,
+    label: SOCIAL_MEDIA_LABELS[SOCIAL_MEDIA_TYPES.WHATSAPP],
   },
 ];
 
+export const EDUCATIONAL_ATTAINMENT_TYPES = {
+  NO_FORMAL_SCHOOLING: 'noFormalSchooling',
+  LESS_THAN_PRIMARY_SCHOOL: 'lessThanPrimarySchool',
+  PRIMARY_SCHOOL_COMPLETED: 'primarySchoolCompleted',
+  SEC_SCHOOL_COMPLETED: 'secSchoolCompleted',
+  HIGH_SCHOOL_COMPLETED: 'highSchoolCompleted',
+  UNIVERSITY_COMPLETED: 'universityCompleted',
+  POST_GRAD_COMPLETED: 'postGradCompleted',
+};
+
+export const EDUCATIONAL_ATTAINMENT_LABELS = {
+  [EDUCATIONAL_ATTAINMENT_TYPES.NO_FORMAL_SCHOOLING]: 'No formal schooling',
+  [EDUCATIONAL_ATTAINMENT_TYPES.LESS_THAN_PRIMARY_SCHOOL]: 'Less than primary',
+  [EDUCATIONAL_ATTAINMENT_TYPES.PRIMARY_SCHOOL_COMPLETED]: 'Primary school completed',
+  [EDUCATIONAL_ATTAINMENT_TYPES.SEC_SCHOOL_COMPLETED]: 'Sec school completed',
+  [EDUCATIONAL_ATTAINMENT_TYPES.HIGH_SCHOOL_COMPLETED]: 'High school completed',
+  [EDUCATIONAL_ATTAINMENT_TYPES.UNIVERSITY_COMPLETED]: 'University completed',
+  [EDUCATIONAL_ATTAINMENT_TYPES.POST_GRAD_COMPLETED]: 'Post grad completed',
+};
+
 export const educationalAttainmentOptions = [
   {
-    value: 'No formal schooling',
-    label: (
-      <TranslatedText
-        stringId="patient.property.educationalAttainment.noFormalSchooling"
-        fallback="No formal schooling"
-      />
-    ),
+    value: EDUCATIONAL_ATTAINMENT_TYPES.NO_FORMAL_SCHOOLING,
+    label: EDUCATIONAL_ATTAINMENT_LABELS[EDUCATIONAL_ATTAINMENT_TYPES.NO_FORMAL_SCHOOLING],
   },
   {
-    value: 'Less than primary school',
-    label: (
-      <TranslatedText
-        stringId="patient.property.educationalAttainment.lessThanPrimary"
-        fallback="Less than primary"
-      />
-    ),
+    value: EDUCATIONAL_ATTAINMENT_TYPES.LESS_THAN_PRIMARY_SCHOOL,
+    label: EDUCATIONAL_ATTAINMENT_LABELS[EDUCATIONAL_ATTAINMENT_TYPES.LESS_THAN_PRIMARY_SCHOOL],
   },
   {
-    value: 'Primary school completed',
-    label: (
-      <TranslatedText
-        stringId="patient.property.educationalAttainment.primaryCompleted"
-        fallback="Primary school completed"
-      />
-    ),
+    value: EDUCATIONAL_ATTAINMENT_TYPES.PRIMARY_SCHOOL_COMPLETED,
+    label: EDUCATIONAL_ATTAINMENT_LABELS[EDUCATIONAL_ATTAINMENT_TYPES.PRIMARY_SCHOOL_COMPLETED],
   },
   {
-    value: 'Sec school completed',
-    label: (
-      <TranslatedText
-        stringId="patient.property.educationalAttainment.secSchoolCompleted"
-        fallback="Sec school completed"
-      />
-    ),
+    value: EDUCATIONAL_ATTAINMENT_TYPES.SEC_SCHOOL_COMPLETED,
+    label: EDUCATIONAL_ATTAINMENT_LABELS[EDUCATIONAL_ATTAINMENT_TYPES.SEC_SCHOOL_COMPLETED],
   },
   {
-    value: 'High school completed',
-    label: (
-      <TranslatedText
-        stringId="patient.property.educationalAttainment.highSchoolCompleted"
-        fallback="High school completed"
-      />
-    ),
+    value: EDUCATIONAL_ATTAINMENT_TYPES.HIGH_SCHOOL_COMPLETED,
+    label: EDUCATIONAL_ATTAINMENT_LABELS[EDUCATIONAL_ATTAINMENT_TYPES.HIGH_SCHOOL_COMPLETED],
   },
   {
-    value: 'University completed',
-    label: (
-      <TranslatedText
-        stringId="patient.property.educationalAttainment.universityCompleted"
-        fallback="University completed"
-      />
-    ),
+    value: EDUCATIONAL_ATTAINMENT_TYPES.UNIVERSITY_COMPLETED,
+    label: EDUCATIONAL_ATTAINMENT_LABELS[EDUCATIONAL_ATTAINMENT_TYPES.UNIVERSITY_COMPLETED],
   },
   {
-    value: 'Post grad completed',
-    label: (
-      <TranslatedText
-        stringId="patient.property.educationalAttainment.postGradCompleted"
-        fallback="Post grad completed"
-      />
-    ),
+    value: EDUCATIONAL_ATTAINMENT_TYPES.POST_GRAD_COMPLETED,
+    label: EDUCATIONAL_ATTAINMENT_LABELS[EDUCATIONAL_ATTAINMENT_TYPES.POST_GRAD_COMPLETED],
   },
 ];
 
@@ -582,115 +625,6 @@ export const INVOICE_PAYMENT_STATUS_OPTIONS = [
   { label: 'Paid', value: INVOICE_PAYMENT_STATUSES.PAID },
 ];
 
-export const BIRTH_DELIVERY_TYPE_OPTIONS = [
-  {
-    value: BIRTH_DELIVERY_TYPES.NORMAL_VAGINAL_DELIVERY,
-    label: (
-      <TranslatedText
-        stringId="birth.property.deliveryType.normalVaginalDelivery"
-        fallback="Normal vaginal delivery"
-      />
-    ),
-  },
-  {
-    value: BIRTH_DELIVERY_TYPES.BREECH,
-    label: <TranslatedText stringId="birth.property.deliveryType.breech" fallback="Breech" />,
-  },
-  {
-    value: BIRTH_DELIVERY_TYPES.EMERGENCY_C_SECTION,
-    label: (
-      <TranslatedText
-        stringId="birth.property.deliveryType.emergencyCSection"
-        fallback="Emergency C-section"
-      />
-    ),
-  },
-  {
-    value: BIRTH_DELIVERY_TYPES.ELECTIVE_C_SECTION,
-    label: (
-      <TranslatedText
-        stringId="birth.property.deliveryType.electiveCSection"
-        fallback="Elective C-section"
-      />
-    ),
-  },
-  {
-    value: BIRTH_DELIVERY_TYPES.VACUUM_EXTRACTION,
-    label: (
-      <TranslatedText
-        stringId="birth.property.deliveryType.vacuumExtraction"
-        fallback="Vacuum extraction"
-      />
-    ),
-  },
-  {
-    value: BIRTH_DELIVERY_TYPES.FORCEPS,
-    label: <TranslatedText stringId="birth.property.deliveryType.forceps" fallback="Forceps" />,
-  },
-  {
-    value: BIRTH_DELIVERY_TYPES.OTHER,
-    label: <TranslatedText stringId="birth.property.deliveryType.other" fallback="Other" />,
-  },
-];
-
-export const BIRTH_TYPE_OPTIONS = [
-  {
-    value: BIRTH_TYPES.SINGLE,
-    label: <TranslatedText stringId="birth.property.birthType.single" fallback="Single" />,
-  },
-  {
-    value: BIRTH_TYPES.PLURAL,
-    label: <TranslatedText stringId="birth.property.birthType.plural" fallback="Plural" />,
-  },
-];
-
-export const PLACE_OF_BIRTH_OPTIONS = [
-  {
-    value: PLACE_OF_BIRTH_TYPES.HEALTH_FACILITY,
-    label: (
-      <TranslatedText
-        stringId="birth.property.placeOfBirth.healthFacility"
-        fallback="Health facility"
-      />
-    ),
-  },
-  {
-    value: PLACE_OF_BIRTH_TYPES.HOME,
-    label: <TranslatedText stringId="birth.property.placeOfBirth.home" fallback="Home" />,
-  },
-  {
-    value: PLACE_OF_BIRTH_TYPES.OTHER,
-    label: <TranslatedText stringId="birth.property.placeOfBirth.other" fallback="Other" />,
-  },
-];
-
-export const ATTENDANT_OF_BIRTH_OPTIONS = [
-  {
-    value: ATTENDANT_OF_BIRTH_TYPES.DOCTOR,
-    label: <TranslatedText stringId="birth.property.attendantOfBirth.doctor" fallback="Doctor" />,
-  },
-  {
-    value: ATTENDANT_OF_BIRTH_TYPES.MIDWIFE,
-    label: <TranslatedText stringId="birth.property.attendantOfBirth.midwife" fallback="Midwife" />,
-  },
-  {
-    value: ATTENDANT_OF_BIRTH_TYPES.NURSE,
-    label: <TranslatedText stringId="birth.property.attendantOfBirth.nurse" fallback="Nurse" />,
-  },
-  {
-    value: ATTENDANT_OF_BIRTH_TYPES.TRADITIONAL_BIRTH_ATTENDANT,
-    label: (
-      <TranslatedText
-        stringId="birth.property.attendantOfBirth.traditionalBirthAttendant"
-        fallback="Traditional birth attendant"
-      />
-    ),
-  },
-  {
-    value: ATTENDANT_OF_BIRTH_TYPES.OTHER,
-    label: <TranslatedText stringId="birth.property.attendantOfBirth.other" fallback="Other" />,
-  },
-];
 export const PATIENT_REGISTRY_OPTIONS = [
   { value: PATIENT_REGISTRY_TYPES.NEW_PATIENT, label: 'Create new patient' },
   { value: PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY, label: 'Register birth' },

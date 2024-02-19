@@ -12,6 +12,7 @@ import {
 import { usePatientSuggester, useSuggester } from '../../api';
 import { ConfiguredMandatoryPatientFields } from './ConfiguredMandatoryPatientFields';
 import { TranslatedText } from '../Translation/TranslatedText';
+import { SelectField } from '../Translation/TranslatedSelectField.jsx';
 
 export const PersonalInformationFields = ({ patientRegistryType, showMandatory }) => {
   const countrySuggester = useSuggester('country');
@@ -23,12 +24,13 @@ export const PersonalInformationFields = ({ patientRegistryType, showMandatory }
 
   const PERSONAL_INFORMATION_FIELDS = {
     title: {
-      component: BaseSelectField,
+      component: SelectField,
       options: titleOptions,
       label: <TranslatedText stringId="general.localisedField.title.label" fallback="Title" />,
+      prefix: 'localisedField.property.title',
     },
     maritalStatus: {
-      component: BaseSelectField,
+      component: SelectField,
       options: MARITAL_STATUS_OPTIONS,
       condition: () => patientRegistryType === PATIENT_REGISTRY_TYPES.NEW_PATIENT,
       label: (
@@ -37,13 +39,15 @@ export const PersonalInformationFields = ({ patientRegistryType, showMandatory }
           fallback="Marital status"
         />
       ),
+      prefix: 'localisedField.property.maritalStatus',
     },
     bloodType: {
-      component: BaseSelectField,
+      component: SelectField,
       options: bloodOptions,
       label: (
         <TranslatedText stringId="general.localisedField.bloodType.label" fallback="Blood type" />
       ),
+      prefix: 'localisedField.property.bloodType',
     },
     placeOfBirth: {
       component: TextField,
@@ -89,7 +93,7 @@ export const PersonalInformationFields = ({ patientRegistryType, showMandatory }
       ),
     },
     educationalLevel: {
-      component: BaseSelectField,
+      component: SelectField,
       options: educationalAttainmentOptions,
       condition: () => patientRegistryType === PATIENT_REGISTRY_TYPES.NEW_PATIENT,
       label: (
@@ -98,6 +102,7 @@ export const PersonalInformationFields = ({ patientRegistryType, showMandatory }
           fallback="Educational attainment"
         />
       ),
+      prefix: 'localisedField.property.educationalLevel',
     },
     occupationId: {
       component: AutocompleteField,
@@ -111,7 +116,7 @@ export const PersonalInformationFields = ({ patientRegistryType, showMandatory }
       ),
     },
     socialMedia: {
-      component: BaseSelectField,
+      component: SelectField,
       options: socialMediaOptions,
       condition: () => patientRegistryType === PATIENT_REGISTRY_TYPES.NEW_PATIENT,
       label: (
@@ -120,6 +125,7 @@ export const PersonalInformationFields = ({ patientRegistryType, showMandatory }
           fallback="Social media"
         />
       ),
+      property: 'localisedField.property.socialMedia',
     },
     patientBillingTypeId: {
       component: SuggesterSelectField,
