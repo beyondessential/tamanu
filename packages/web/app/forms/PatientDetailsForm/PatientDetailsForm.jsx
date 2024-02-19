@@ -1,4 +1,4 @@
-import React, { Fragment, useMemo } from 'react';
+import React, { Fragment } from 'react';
 import styled from 'styled-components';
 import { groupBy, isEmpty } from 'lodash';
 import { useQuery } from '@tanstack/react-query';
@@ -8,7 +8,6 @@ import {
   PLACE_OF_BIRTH_TYPES,
   SEX_OPTIONS,
   PATIENT_FIELD_DEFINITION_TYPES,
-  PATIENT_DETAIL_LAYOUTS,
 } from '@tamanu/constants';
 
 import { useSexValues } from '../../hooks';
@@ -27,30 +26,7 @@ import {
   TextField,
 } from '../../components';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
-
-import {
-  CambodiaPatientFieldLayout,
-  CambodiaPrimaryDetailsLayout,
-  CambodiaSecondaryDetailsLayout,
-} from './layouts/cambodia/CambodiaLayout';
-import {
-  GenericPatientFieldLayout,
-  GenericPrimaryDetailsLayout,
-  GenericSecondaryDetailsLayout,
-} from './layouts/generic/GenericLayout';
-
-const LAYOUT_COMPONENTS = {
-  [PATIENT_DETAIL_LAYOUTS.GENERIC]: {
-    PrimaryDetails: GenericPrimaryDetailsLayout,
-    SecondaryDetails: GenericSecondaryDetailsLayout,
-    PatientFields: GenericPatientFieldLayout,
-  },
-  [PATIENT_DETAIL_LAYOUTS.CAMBODIA]: {
-    PrimaryDetails: CambodiaPrimaryDetailsLayout,
-    SecondaryDetails: CambodiaSecondaryDetailsLayout,
-    PatientFields: CambodiaPatientFieldLayout,
-  },
-};
+import { useLayoutComponents } from './useLayoutComponents';
 
 const StyledHeading = styled.div`
   font-weight: 500;
@@ -172,12 +148,7 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
   const sexValues = useSexValues();
 
   const { getLocalisation } = useLocalisation();
-
-  const layout = getLocalisation('patientDetails.layout');
-  const { PrimaryDetails, SecondaryDetails, PatientFields } = useMemo(
-    () => LAYOUT_COMPONENTS[layout || PATIENT_DETAIL_LAYOUTS.GENERIC],
-    [layout],
-  );
+  const { PrimaryDetails, SecondaryDetails, PatientFields } = useLayoutComponents();
 
   let filteredSexOptions = SEX_OPTIONS;
   if (getLocalisation('features.hideOtherSex') === true) {

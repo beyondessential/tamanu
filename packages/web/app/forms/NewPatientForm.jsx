@@ -15,11 +15,7 @@ import { RadioField } from '../components';
 import { IdBanner } from '../components/IdBanner';
 import { Colors, PATIENT_REGISTRY_OPTIONS } from '../constants';
 import { getPatientDetailsValidation } from '../validations';
-import {
-  PatientFieldsGroup,
-  PrimaryDetailsGroup,
-  SecondaryDetailsGroup,
-} from './PatientDetailsForm/PatientDetailsForm';
+
 import { useSexValues } from '../hooks';
 import { useApi } from '../api';
 import { LoadingIndicator } from '../components/LoadingIndicator';
@@ -27,6 +23,7 @@ import { LoadingIndicator } from '../components/LoadingIndicator';
 import plusCircle from '../assets/images/plus_circle.svg';
 import minusCircle from '../assets/images/minus_circle.svg';
 import { RandomPatientButton } from '../views/patients/components/RandomPatientButton';
+import { useLayoutComponents } from './PatientDetailsForm';
 
 const StyledImageButton = styled(Button)`
   min-width: 30px;
@@ -85,6 +82,11 @@ export const NewPatientForm = memo(
     const sexValues = useSexValues();
 
     const { getLocalisation } = useLocalisation();
+    const {
+      PrimaryDetailsGroup,
+      SecondaryDetailsGroup,
+      PatientFieldsGroup,
+    } = useLayoutComponents();
 
     if (error) {
       return <pre>{error.stack}</pre>;
