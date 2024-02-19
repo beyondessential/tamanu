@@ -147,7 +147,7 @@ export const EncounterTopBar = ({ title, subTitle, encounter, children }) => (
         <Cell>
           <Label>
             <TranslatedText
-              stringId="general.form.supervisingClinician.label"
+              stringId="general.supervisingClinician.label"
               fallback="Supervising :clinician"
               replacements={{
                 clinician: (

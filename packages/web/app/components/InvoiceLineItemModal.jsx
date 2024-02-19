@@ -59,7 +59,7 @@ export const InvoiceLineItemModal = ({
           <FormGrid>
             <Field
               name="dateGenerated"
-              label={<TranslatedText stringId="general.form.date.label" fallback="Date" />}
+              label={<TranslatedText stringId="general.date.label" fallback="Date" />}
               required
               component={DateField}
               saveDateAsString
@@ -68,7 +68,7 @@ export const InvoiceLineItemModal = ({
               name="invoiceLineTypeId"
               label={
                 <TranslatedText
-                  stringId="invoice.modal.addInvoice.form.details.label"
+                  stringId="invoice.modal.addInvoice.details.label"
                   fallback="Details"
                 />
               }
@@ -80,7 +80,7 @@ export const InvoiceLineItemModal = ({
               name="orderedById"
               label={
                 <TranslatedText
-                  stringId="invoice.modal.addInvoice.form.orderedBy.label"
+                  stringId="invoice.modal.addInvoice.orderedBy.label"
                   fallback="Ordered by"
                 />
               }
@@ -92,7 +92,7 @@ export const InvoiceLineItemModal = ({
               name="price"
               label={
                 <TranslatedText
-                  stringId="invoice.modal.addInvoice.form.price.label"
+                  stringId="invoice.modal.addInvoice.price.label"
                   fallback="Price ($)"
                 />
               }
@@ -104,7 +104,7 @@ export const InvoiceLineItemModal = ({
               name="percentageChange"
               label={
                 <TranslatedText
-                  stringId="invoice.modal.addInvoice.form.percentageChange.label"
+                  stringId="invoice.modal.addInvoice.percentageChange.label"
                   fallback="Discount/markup % (-/+)"
                 />
               }

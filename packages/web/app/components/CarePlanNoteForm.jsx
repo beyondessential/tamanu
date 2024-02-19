@@ -57,7 +57,7 @@ export function CarePlanNoteForm({
               name="onBehalfOfId"
               label={
                 <TranslatedText
-                  stringId="carePlan.form.noteOnBehalfOf.label"
+                  stringId="carePlan.noteOnBehalfOf.label"
                   fallback="On behalf of"
                 />
               }
@@ -68,7 +68,7 @@ export function CarePlanNoteForm({
               name="date"
               label={
                 <TranslatedText
-                  stringId="carePlan.form.noteDateRecorded.label"
+                  stringId="carePlan.noteDateRecorded.label"
                   fallback="Date Recorded"
                 />
               }

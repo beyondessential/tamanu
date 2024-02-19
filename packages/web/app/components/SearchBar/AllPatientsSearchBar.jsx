@@ -116,7 +116,7 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
         name="dateOfBirthExact"
         component={DateField}
         saveDateAsString
-        label={<TranslatedText stringId="general.form.dateOfBirth.label" fallback="DOB" />}
+        label={<TranslatedText stringId="general.dateOfBirth.label" fallback="DOB" />}
         max={getCurrentDateString()}
       />
     </CustomisableSearchBar>

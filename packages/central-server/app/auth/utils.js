@@ -3,12 +3,7 @@ import { sign as signCallback, verify as verifyCallback } from 'jsonwebtoken';
 import { randomBytes, randomInt } from 'crypto';
 import { promisify } from 'util';
 
-import {
-  SERVER_TYPES,
-  USER_DEACTIVATED_ERROR_MESSAGE,
-  VISIBILITY_STATUSES,
-} from '@tamanu/constants';
-import { ForbiddenError } from '@tamanu/shared/errors';
+import { SERVER_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
 
 const sign = promisify(signCallback);
 const verify = promisify(verifyCallback);
@@ -40,19 +35,18 @@ export const verifyToken = async (token, secret, options) => verify(token, secre
 
 export const findUser = async (models, email) => {
   const user = await models.User.scope('withPassword').findOne({
-    // email addresses are case insensitive so compare them as such
-    where: Sequelize.where(
-      Sequelize.fn('lower', Sequelize.col('email')),
-      Sequelize.fn('lower', email),
-    ),
+    where: {
+      // email addresses are case insensitive so compare them as such
+      email: Sequelize.where(
+        Sequelize.fn('lower', Sequelize.col('email')),
+        Sequelize.fn('lower', email),
+      ),
+      visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+    },
   });
 
   if (!user) {
     return null;
-  }
-
-  if (user.visibilityStatus !== VISIBILITY_STATUSES.CURRENT) {
-    throw new ForbiddenError(USER_DEACTIVATED_ERROR_MESSAGE);
   }
 
   return user.get({ plain: true });
