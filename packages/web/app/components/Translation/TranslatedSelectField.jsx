@@ -15,8 +15,9 @@ const transformStringIdSuffix = suffix => {
   return words.join('');
 };
 
-const getTranslatedOptions = (options, prefix) =>
-  options.map(option => ({
+const getTranslatedOptions = (options, prefix) => {
+  console.log(options);
+  const translatedOptions = options.map(option => ({
     value: option.value,
     label: (
       <TranslatedText
@@ -29,6 +30,23 @@ const getTranslatedOptions = (options, prefix) =>
       />
     ),
   }));
+  console.log(prefix);
+  console.log(translatedOptions);
+  return translatedOptions;
+};
+// options.map(option => ({
+//   value: option.value,
+//   label: (
+//     <TranslatedText
+//       stringId={
+//         option.label.type === TranslatedText
+//           ? option.label.props.stringId
+//           : `${prefix}.${transformStringIdSuffix(option.label)}`
+//       }
+//       fallback={option.label.type === TranslatedText ? option.label.props.fallback : option.label}
+//     />
+//   ),
+// }));
 
 // NOTE: not compatible with disabled SelectFields
 export const TranslatedSelectField = ({ field, options, prefix, value, name, ...props }) => (
@@ -47,12 +65,18 @@ TranslatedSelectField.propTypes = {
   value: PropTypes.string.isRequired,
 };
 
-export const TranslatedMultiselectField = ({ field, options, prefix, ...props }) => (
+export const TranslatedMultiselectField = ({ field, options, prefix, value, name, ...props }) => (
   <MultiselectInput
     options={getTranslatedOptions(options, prefix)}
-    value={field.value}
-    name={field.name}
-    onChange={field.onChange}
+    value={field ? field.value : value}
+    name={field ? field.name : name}
     {...props}
   />
 );
+
+TranslatedMultiselectField.propTypes = {
+  options: PropTypes.array.isRequired,
+  prefix: PropTypes.string.isRequired,
+  name: PropTypes.string.isRequired,
+  value: PropTypes.any.isRequired,
+};

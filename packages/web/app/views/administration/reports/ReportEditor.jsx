@@ -28,6 +28,7 @@ import {
 import { useAuth } from '../../../contexts/Auth';
 import { useApi } from '../../../api';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { TranslatedMultiselectField } from '../../../components/Translation/TranslatedSelectField.jsx';
 
 const StyledField = styled(Field)`
   flex-grow: 1;
@@ -166,7 +167,10 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
           <Grid item xs={4}>
             <StyledField
               label={
-                <TranslatedText stringId="admin.report.editor.dbSchema.label" fallback="DB Schema" />
+                <TranslatedText
+                  stringId="admin.report.editor.dbSchema.label"
+                  fallback="DB Schema"
+                />
               }
               name="dbSchema"
               component={SelectField}
@@ -186,8 +190,9 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
                 />
               }
               name="dataSources"
-              component={MultiselectField}
+              component={TranslatedMultiselectField}
               options={DATA_SOURCE_OPTIONS}
+              prefix="report.property.canBeRunOn"
             />
           </Grid>
         )}
@@ -206,7 +211,10 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
               <TranslatedText stringId="admin.report.editor.query.label" fallback="Query" />
             </Grid>
             <Grid item xs={4}>
-              <TranslatedText stringId="admin.report.editor.parameters.label" fallback="Parameters" />
+              <TranslatedText
+                stringId="admin.report.editor.parameters.label"
+                fallback="Parameters"
+              />
             </Grid>
           </Grid>
         </AccordionSummary>
@@ -252,7 +260,10 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
           isSubmitting={isSubmitting}
         >
           {isEdit ? (
-            <TranslatedText stringId="admin.report.editor.action.createNewVersion" fallback="Create new version" />
+            <TranslatedText
+              stringId="admin.report.editor.action.createNewVersion"
+              fallback="Create new version"
+            />
           ) : (
             <TranslatedText stringId="general.action.create" fallback="Create" />
           )}
