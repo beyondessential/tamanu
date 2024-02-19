@@ -314,6 +314,7 @@ const MultipageTableHeading = ({ title, style = textStyles.sectionTitle }) => {
         }
         return pageNumber === firstPageOccurence ? title : `${title} cont...`;
       }}
+      debug
     />
   );
 };
@@ -386,7 +387,6 @@ const NotesSection = ({ notes }) => {
     <>
       <View minPresenceAhead={80} />
       <View>
-        <View minPresenceAhead={80} />
         <MultipageTableHeading title="Notes" />
         <Table>
           {notes.map(note => (
