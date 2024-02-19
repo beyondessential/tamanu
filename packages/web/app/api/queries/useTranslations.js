@@ -3,7 +3,6 @@ import { useQuery } from '@tanstack/react-query';
 
 export const useTranslations = (language = 'en') => {
   const api = useApi();
-  console.log('query language', language);
   return useQuery(
     ['translations', language],
     () => {
