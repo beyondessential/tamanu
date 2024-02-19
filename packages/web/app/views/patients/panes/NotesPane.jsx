@@ -10,9 +10,8 @@ import { SelectInput } from '../../../components/Field';
 import { NOTE_FORM_MODES, noteTypes } from '../../../constants';
 import { useEncounterNotes } from '../../../contexts/EncounterNotes';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
-import { TranslatedSelectField } from '../../../components/Translation/TranslatedSelectField.jsx';
 
-const StyledTranslatedSelectField = styled(TranslatedSelectField)`
+const StyledSelectField = styled(SelectInput)`
   width: 200px;
 `;
 
@@ -38,7 +37,7 @@ export const NotesPane = React.memo(({ encounter, readonly }) => {
         noteFormMode={NOTE_FORM_MODES.CREATE_NOTE}
       />
       <TableButtonRow variant="small" justifyContent="space-between">
-        <StyledTranslatedSelectField
+        <StyledSelectField
           options={[
             {
               value: null,
@@ -49,7 +48,6 @@ export const NotesPane = React.memo(({ encounter, readonly }) => {
           onChange={e => setNoteType(e.target.value)}
           value={noteType}
           name="noteType"
-          prefix="note.property.type"
           isClearable={false}
         />
         <ButtonWithPermissionCheck
