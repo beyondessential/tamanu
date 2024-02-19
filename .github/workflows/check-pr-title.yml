@@ -5,12 +5,11 @@ on:
     types:
       - opened
       - edited
+      - synchronize
 
 jobs:
-  merge-to-main:
-    name: When merging to main
+  check:
     runs-on: ubuntu-latest
-    if: github.event.pull_request.base.ref == 'main' || github.event.pull_request.base.ref == 'dev'
     env:
       PR_TITLE: ${{ github.event.pull_request.title }}
     steps:
