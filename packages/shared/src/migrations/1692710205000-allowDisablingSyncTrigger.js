@@ -6,7 +6,7 @@ export async function up(query) {
       LANGUAGE plpgsql AS
       $func$
       BEGIN
-        IF (SELECT current_setting('tamanu.sync') = 'disabled') THEN
+        IF ((SELECT value FROM local_system_facts WHERE key = 'syncTrigger') = 'disabled') THEN
             RETURN NEW;
         END IF;
         -- If setting to "-1" representing "not marked as updated on this client", we actually use

@@ -30,8 +30,10 @@ export function createMigrationInterface(log, sequelize) {
         const migration = require(sqlPath);
         const transaction = (updown, ...args) => sequelize.transaction(() => updown(...args));
         const disableSyncTrigger = async (updown, query, ...args) => {
-          await query.sequelize.query("SET LOCAL tamanu.sync TO 'disabled';");
+          const { LocalSystemFact } = query.sequelize.models;
+          await LocalSystemFact.set('syncTrigger', 'disabled');
           await updown(query, ...args);
+          await LocalSystemFact.set('syncTrigger', 'enabled');
         };
 
         const timestamp = path.basename(sqlPath).split(/[-_]/, 1);
