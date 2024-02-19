@@ -71,6 +71,9 @@ if (UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
+const checkIconSize = screenPercentageToDP(2.1, Orientation.Height);
+const chevronIconSize = screenPercentageToDP(3, Orientation.Height);
+
 const defaultSearchIcon = () => null;
 export class MultiSelect extends Component {
   static propTypes = {
@@ -425,7 +428,7 @@ export class MultiSelect extends Component {
               <Icon
                 name="check"
                 style={{
-                  fontSize: screenPercentageToDP(2.1, Orientation.Height),
+                  fontSize: checkIconSize,
                   marginRight: -5,
                   color: selectedItemIconColor,
                 }}
@@ -632,8 +635,8 @@ export class MultiSelect extends Component {
                     style={[
                       styles.indicator,
                       { paddingLeft: 15, paddingRight: 15 },
+                      { fontSize: chevronIconSize },
                       styleIndicator && styleIndicator,
-                      { fontSize: screenPercentageToDP(3, Orientation.Height) },
                     ]}
                   />
                 </TouchableOpacity>
@@ -647,8 +650,8 @@ export class MultiSelect extends Component {
                   style={[
                     { marginRight: 10 },
                     styles.indicator,
+                    { fontSize: chevronIconSize },
                     styleIndicator && styleIndicator,
-                    { fontSize: screenPercentageToDP(3, Orientation.Height) },
                   ]}
                 />
               )}
@@ -725,7 +728,7 @@ export class MultiSelect extends Component {
                           name={hideSubmitButton ? 'menu-right' : 'close'}
                           style={[
                             styles.removeIndicator,
-                            { fontSize: screenPercentageToDP(2.1, Orientation.Height) },
+                            { fontSize: checkIconSize },
                             styleIndicator && styleIndicator,
                           ]}
                         />
@@ -737,7 +740,7 @@ export class MultiSelect extends Component {
                       style={[
                         { marginRight: -7 },
                         styles.indicator,
-                        { fontSize: screenPercentageToDP(3, Orientation.Height) },
+                        { fontSize: chevronIconSize },
                         styleIndicator && styleIndicator,
                       ]}
                     />
