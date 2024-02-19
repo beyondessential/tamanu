@@ -7,7 +7,7 @@ import tamanuLogoDark from '../assets/images/tamanu_logo_blue.svg';
 import cambodiaLogoWhite from '../assets/cambodia/cambodia-logo-light.png';
 import cambodiaLogoWhiteNoText from '../assets/cambodia/cambodia-logo-light-no-text.png';
 import cambodiaLogoDark from '../assets/cambodia/cambodia-logo-dark.png';
-import { useLocalisation } from '../contexts/Localisation';
+import { BRAND_NAME } from '../utils';
 
 const TamanuLogoImage = styled.img`
   display: inline-block;
@@ -27,7 +27,7 @@ const logos = {
     dark: tamanuLogoDark,
     lightNoText: tamanuLogoWhiteNoText,
   },
-  [BRANDS.CAMBODIA]: {
+  [BRANDS.KHMEIR]: {
     light: cambodiaLogoWhite,
     dark: cambodiaLogoDark,
     lightNoText: cambodiaLogoWhiteNoText,
@@ -35,10 +35,9 @@ const logos = {
 };
 
 const Logo = ({ size, height, className, onClick, type = 'dark' }) => {
-  const { getLocalisation } = useLocalisation();
-  const brand = getLocalisation('brand') || BRANDS.TAMANU;
-  const Component = brand === BRANDS.TAMANU ? TamanuLogoImage : CambodiaLogoImage;
-  const src = logos[brand][type];
+  const Component = BRAND_NAME === BRANDS.TAMANU ? TamanuLogoImage : CambodiaLogoImage;
+  const src = logos[BRAND_NAME][type];
+  console.log('size', size);
   return (
     <Component
       src={src}

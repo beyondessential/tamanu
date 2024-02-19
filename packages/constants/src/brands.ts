@@ -1,4 +1,4 @@
 export const BRANDS = {
-  TAMANU: 'tamanu',
-  CAMBODIA: 'cambodia',
+  TAMANU: 'Tamanu',
+  KHMEIR: 'KhmEIR',
 };

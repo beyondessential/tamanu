@@ -5,6 +5,7 @@ import { Colors } from '../constants';
 import { LogoDark } from './Logo';
 import { Typography } from '@material-ui/core';
 import HeroImg from '../assets/images/splashscreens/screen_4.png';
+import { BRAND_NAME } from '../utils';
 
 const FlexContainer = styled.div`
   display: flex;
@@ -48,7 +49,7 @@ const handleRefreshPage = () => {
 export const StatusPage = ({ message, description }) => {
   return (
     <Container>
-      <Logo onClick={handleRefreshPage} />
+      <Logo onClick={handleRefreshPage} size="140px" />
       <Content>
         <ErrorMessage>{message}</ErrorMessage>
         <ErrorDescription color="textTertiary">{description}</ErrorDescription>
@@ -59,8 +60,8 @@ export const StatusPage = ({ message, description }) => {
 
 export const UnavailableStatusPage = () => (
   <StatusPage
-    message="Tamanu is currently unavailable"
-    description="Tamanu is currently unavailable. Please try again later or contact your system administrator for further information."
+    message={`${BRAND_NAME} is currently unavailable`}
+    description={`${BRAND_NAME} is currently unavailable. Please try again later or contact your system administrator for further information.`}
   />
 );
 
@@ -87,8 +88,8 @@ const AnimateEllipsis = styled.span`
 
 export const LoadingStatusPage = () => (
   <StatusPage
-    message={<AnimateEllipsis>Tamanu is loading</AnimateEllipsis>}
-    description="Tamanu is currently loading. Please do not navigate away from this page."
+    message={<AnimateEllipsis>{BRAND_NAME} is loading</AnimateEllipsis>}
+    description={`${BRAND_NAME} is currently loading. Please do not navigate away from this page.`}
   />
 );
 
@@ -113,7 +114,7 @@ export const StatusPageWithHeroImage = ({ message, description }) => {
   return (
     <FlexContainer>
       <Container>
-        <Logo onClick={handleRefreshPage} />
+        <Logo onClick={handleRefreshPage} size="140px" />
         <HeroContent>
           <ErrorMessage>{message}</ErrorMessage>
           <HeroErrorDescription color="textTertiary">{description}</HeroErrorDescription>
@@ -126,8 +127,8 @@ export const StatusPageWithHeroImage = ({ message, description }) => {
 
 export const UnsupportedBrowserStatusPage = () => (
   <StatusPageWithHeroImage
-    message="Tamanu is only available on Chrome"
-    description="Please contact your system administrator for further information on how to access Tamanu using a Chrome browser."
+    message={`${BRAND_NAME} is only available on Chrome`}
+    description={`Please contact your system administrator for further information on how to access ${BRAND_NAME} using a Chrome browser.`}
   />
 );
 
@@ -148,9 +149,10 @@ const MobileContainer = styled(Container)`
 
 export const MobileStatusPage = ({ platformType }) => (
   <MobileContainer $platformType={platformType}>
-    <Logo onClick={handleRefreshPage} />
+    <Logo onClick={handleRefreshPage} size="140px" />
     <ErrorDescription color="textTertiary">
-      Tamanu Desktop is not currently supported by mobile or tablet devices. Please access Tamanu
+      {BRAND_NAME} Desktop is not currently supported by mobile or tablet devices. Please access{' '}
+      {BRAND_NAME}
       via a desktop computer or laptop.
     </ErrorDescription>
   </MobileContainer>
@@ -165,7 +167,7 @@ export const SingleTabStatusPage = () => {
     <StatusPage
       message={
         <SingleTabErrorMessage>
-          Tamanu can not be opened across <br /> multiple tabs.
+          {BRAND_NAME} can not be opened across <br /> multiple tabs.
         </SingleTabErrorMessage>
       }
       description="Please continue working in the existing tab."

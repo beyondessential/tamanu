@@ -95,8 +95,8 @@ const ChangePasswordFormComponent = ({
       <FormTitleSection>
         <FormHeading>Reset password</FormHeading>
         <FormSubtext>
-          An email has been sent to the specified email address if it is registered with Tamanu.
-          Please follow the instructions outlined in the email.
+          An email has been sent to the specified email address if it is registered. Please follow
+          the instructions outlined in the email.
         </FormSubtext>
         {!!errorMessage && <FormSubtext>{errorMessage}</FormSubtext>}
       </FormTitleSection>
