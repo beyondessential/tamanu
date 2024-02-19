@@ -12,7 +12,7 @@ async function getValuesFromFacility(upstream) {
     lastUpdated: new Date(),
     identifier: [
       new FhirIdentifier({
-        value: upstream.id,
+        value: upstream.code,
       }),
     ],
     name: upstream.name,
