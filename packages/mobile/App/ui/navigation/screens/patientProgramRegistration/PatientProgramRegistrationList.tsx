@@ -14,9 +14,7 @@ export const PatientProgramRegistrationList = ({ selectedPatient }): ReactElemen
   const navigation = useNavigation();
   const [registrations, registrationError, isRegistrationLoading] = useBackendEffect(
     async ({ models }) =>
-      await models.PatientProgramRegistration.getMostRecentRegistrationsForPatient(
-        selectedPatient.id,
-      ),
+      await models.PatientProgramRegistration.getRegistrationsForPatient(selectedPatient.id),
     [],
   );
   if (isRegistrationLoading) return <LoadingScreen />;
