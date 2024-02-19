@@ -84,17 +84,26 @@ export const GenericPrimaryDetailsLayout = ({
           defaultLabel="Email address"
           required={isRequiredPatientData('email')}
         />
-        {patientRegistryType === PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY && (
-          <GenericBirthFields registeredBirthPlace={registeredBirthPlace} filterByMandatory />
-        )}
-        <GenericIdentificationFields patientRegistryType={patientRegistryType} filterByMandatory />
-        <GenericContactFields filterByMandatory />
-        <GenericPersonalFields patientRegistryType={patientRegistryType} filterByMandatory />
-        <GenericLocationFields filterByMandatory />
+        <RequiredSecondaryDetails
+          patientRegistryType={patientRegistryType}
+          registeredBirthPlace={registeredBirthPlace}
+        />
       </FormGrid>
     </>
   );
 };
+
+export const RequiredSecondaryDetails = ({ patientRegistryType, registeredBirthPlace }) => (
+  <>
+    {patientRegistryType === PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY && (
+      <GenericBirthFields registeredBirthPlace={registeredBirthPlace} filterByMandatory />
+    )}
+    <GenericIdentificationFields patientRegistryType={patientRegistryType} filterByMandatory />
+    <GenericContactFields filterByMandatory />
+    <GenericPersonalFields patientRegistryType={patientRegistryType} filterByMandatory />
+    <GenericLocationFields filterByMandatory />
+  </>
+);
 
 export const GenericSecondaryDetailsLayout = ({
   registeredBirthPlace,

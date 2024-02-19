@@ -246,6 +246,8 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
       render={({ values = {} }) => (
         <>
           <PrimaryDetails
+            registeredBirthPlace={values.registeredBirthPlace}
+            patientRegistryType={patientRegistryType}
             isRequiredPatientData={isRequiredPatientData}
             sexOptions={filteredSexOptions}
           />

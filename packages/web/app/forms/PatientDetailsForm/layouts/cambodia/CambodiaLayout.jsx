@@ -57,35 +57,29 @@ export const CambodiaSecondaryDetailsLayout = ({ values = {}, patientRegistryTyp
         <>
           <PatientDetailsHeading>Birth details</PatientDetailsHeading>
           <SecondaryDetailsFormGrid>
-            <GenericBirthFields
-              registeredBirthPlace={values.registeredBirthPlace}
-              showMandatory={false}
-            />
+            <GenericBirthFields registeredBirthPlace={values.registeredBirthPlace} />
           </SecondaryDetailsFormGrid>
         </>
       )}
 
       <PatientDetailsHeading>Current address</PatientDetailsHeading>
       <SecondaryDetailsFormGrid>
-        <CambodiaLocationFields showMandatory={false} />
+        <CambodiaLocationFields />
       </SecondaryDetailsFormGrid>
 
       <PatientDetailsHeading>Contact information</PatientDetailsHeading>
       <SecondaryDetailsFormGrid>
-        <CambodiaContactFields showMandatory={false} />
+        <CambodiaContactFields />
       </SecondaryDetailsFormGrid>
 
       <PatientDetailsHeading>Identification information</PatientDetailsHeading>
       <SecondaryDetailsFormGrid>
-        <CambodiaIdentificationFields
-          patientRegistryType={patientRegistryType}
-          showMandatory={false}
-        />
+        <CambodiaIdentificationFields patientRegistryType={patientRegistryType} />
       </SecondaryDetailsFormGrid>
 
       <PatientDetailsHeading>Personal information</PatientDetailsHeading>
       <SecondaryDetailsFormGrid>
-        <CambodiaPersonalFields patientRegistryType={patientRegistryType} showMandatory={false} />
+        <CambodiaPersonalFields patientRegistryType={patientRegistryType} />
       </SecondaryDetailsFormGrid>
     </SecondaryDetailsGroup>
   );

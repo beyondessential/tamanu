@@ -10,7 +10,7 @@ export const GenericIdentificationFields = ({ isEdit, patientRegistryType, filte
   const { getLocalisation } = useLocalisation();
   const canEditDisplayId = isEdit && getLocalisation('features.editPatientDisplayId');
 
-  const IDENTIFICATION_INFORMATION_FIELDS = {
+  const IDENTIFICATION_FIELDS = {
     displayId: {
       component: DisplayIdField,
       condition: () => !!canEditDisplayId,
@@ -29,7 +29,7 @@ export const GenericIdentificationFields = ({ isEdit, patientRegistryType, filte
 
   return (
     <ConfiguredMandatoryPatientFields
-      fields={IDENTIFICATION_INFORMATION_FIELDS}
+      fields={IDENTIFICATION_FIELDS}
       filterByMandatory={filterByMandatory}
     />
   );
