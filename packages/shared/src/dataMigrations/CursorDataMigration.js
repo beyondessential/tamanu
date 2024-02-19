@@ -26,17 +26,11 @@ export class CursorDataMigration extends DataMigration {
     } = this;
     this.started = true;
     log.debug('CursorDataMigration batch started', { lastMaxId });
-    const [[{ maxId }], { rowCount }] = await sequelize.transaction(async () => {
-      const { LocalSystemFact } = sequelize.models;
-      await LocalSystemFact.set('syncTrigger', 'disabled');
-      const res = await sequelize.query(await this.getQuery(), {
-        bind: {
-          fromId: lastMaxId,
-          limit,
-        },
-      });
-      await LocalSystemFact.set('syncTrigger', 'enabled');
-      return res;
+    const [[{ maxId }], { rowCount }] = await sequelize.query(await this.getQuery(), {
+      bind: {
+        fromId: lastMaxId,
+        limit,
+      },
     });
     log.debug('CursorDataMigration batch done', { lastMaxId, maxId });
     this.lastMaxId = maxId;
