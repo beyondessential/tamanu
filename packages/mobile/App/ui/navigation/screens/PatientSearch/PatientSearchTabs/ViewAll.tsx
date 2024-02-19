@@ -69,8 +69,8 @@ const getQueryConfigForField = (fieldName, fieldValue): QueryConfig => {
             (
               SELECT DISTINCT ppr.patientId
               FROM patient_program_registration ppr
-              WHERE ( ppr.programRegistryId = :programRegistryId )
-              AND ( ppr.deletedAt IS NULL )
+              WHERE ppr.programRegistryId = :programRegistryId
+              AND ppr.deletedAt IS NULL
             )
         `,
         substitutions: { programRegistryId: fieldValue },
