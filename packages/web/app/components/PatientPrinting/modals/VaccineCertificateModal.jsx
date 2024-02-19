@@ -52,8 +52,6 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
 
   if (isFetching) return null;
 
-  if (isFetching) return null;
-
   return (
     <Modal
       title="Immunisation Certificate"
