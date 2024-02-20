@@ -67,7 +67,14 @@ export const fakeResourcesOfFhirServiceRequest = async models => {
 };
 
 export const fakeResourcesOfFhirServiceRequestWithLabRequest = async (models, resources) => {
-  const { LabRequest, ReferenceData, LabTestPanel, LabTestPanelRequest } = models;
+  const {
+    LabRequest,
+    ReferenceData,
+    LabTestType,
+    LabTestPanel,
+    LabTestPanelRequest,
+    LabTestPanelLabTestTypes,
+  } = models;
   const category = await ReferenceData.create({
     ...fake(ReferenceData),
     type: 'labTestCategory',
@@ -76,6 +83,20 @@ export const fakeResourcesOfFhirServiceRequestWithLabRequest = async (models, re
     ...fake(LabTestPanel),
     categoryId: category.id,
   });
+  const labTestTypes = [];
+  for (let numberOfTests = 0; numberOfTests < 10; numberOfTests++) {
+    const currentLabTest = await LabTestType.create({
+      ...fake(LabTestType),
+      labTestCategoryId: category.id,
+    });
+    labTestTypes.push(currentLabTest);
+    await LabTestPanelLabTestTypes
+      .create({
+        labTestPanelId: labTestPanel.id,
+        labTestTypeId: currentLabTest.id,
+      });
+  }
+
   const labTestPanelRequest = await LabTestPanelRequest.create({
     ...fake(LabTestPanelRequest),
     labTestPanelId: labTestPanel.id,

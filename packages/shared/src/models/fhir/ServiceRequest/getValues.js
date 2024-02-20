@@ -23,7 +23,7 @@ export async function getValues(upstream, models) {
   const { ImagingRequest, LabRequest } = models;
 
   if (upstream instanceof ImagingRequest) return getValuesFromImagingRequest(upstream, models);
-  if (upstream instanceof LabRequest) return getValuesFromLabRequest(upstream);
+  if (upstream instanceof LabRequest) return getValuesFromLabRequest(upstream, models);
   throw new Error(`Invalid upstream type for service request ${upstream.constructor.name}`);
 }
 
@@ -72,16 +72,16 @@ async function getValuesFromImagingRequest(upstream, models) {
     orderDetail: upstream.areas.flatMap(({ id }) =>
       areaExtCodes.has(id)
         ? [
-            new FhirCodeableConcept({
-              text: areaExtCodes.get(id)?.description,
-              coding: [
-                new FhirCoding({
-                  code: areaExtCodes.get(id)?.code,
-                  system: config.hl7.dataDictionaries.areaExternalCode,
-                }),
-              ],
-            }),
-          ]
+          new FhirCodeableConcept({
+            text: areaExtCodes.get(id)?.description,
+            coding: [
+              new FhirCoding({
+                code: areaExtCodes.get(id)?.code,
+                system: config.hl7.dataDictionaries.areaExternalCode,
+              }),
+            ],
+          }),
+        ]
         : [],
     ),
     subject: new FhirReference({
@@ -103,7 +103,7 @@ async function getValuesFromImagingRequest(upstream, models) {
   };
 }
 
-async function getValuesFromLabRequest(upstream) {
+async function getValuesFromLabRequest(upstream, models) {
   return {
     lastUpdated: new Date(),
     contained: labContained(upstream),
@@ -131,7 +131,7 @@ async function getValuesFromLabRequest(upstream) {
     ],
     priority: validatePriority(upstream.priority),
     code: labCode(upstream),
-    orderDetail: labOrderDetails(upstream),
+    orderDetail: await labOrderDetails(upstream, models),
     subject: new FhirReference({
       type: 'upstream://patient',
       reference: upstream.encounter.patient.id,
@@ -227,18 +227,33 @@ function statusFromLabRequest(upstream) {
 function labCode(upstream) {
   const { labTestPanelRequest } = upstream;
   if (!labTestPanelRequest) throw new Error('No lab test panel request specified.');
-  const { externalCode, name } = labTestPanelRequest.labTestPanel;
-  if (!externalCode) throw new Error('No external code specified for this lab test panel.');
-
-  return new FhirCodeableConcept({
-    coding: [
+  const { externalCode, name, code } = labTestPanelRequest.labTestPanel;
+  const coding = [];
+  if (code) {
+    coding.push(
       new FhirCoding({
-        system: 'http://intersystems.com/fhir/extn/sda3/lib/code-table-translated-prior-codes',
+        system: config.hl7.dataDictionaries.serviceRequestLabPanelCodeSystem,
+        code,
+        display: name,
+      }),
+    );
+  }
+
+  if (externalCode) {
+    coding.push(
+      new FhirCoding({
+        system: config.hl7.dataDictionaries.serviceRequestLabPanelExternalCodeSystem,
         code: externalCode,
         display: name,
       }),
-    ],
-  });
+    )
+  }
+  if (coding.length > 0) {
+    return new FhirCodeableConcept({
+      coding,
+    });
+  }
+  return null;
 }
 
 function labContained(upstream) {
@@ -252,23 +267,57 @@ function labContained(upstream) {
   ];
 }
 
-function labOrderDetails(upstream) {
-  return upstream.tests.map(test => {
+async function labOrderDetails(upstream, models) {
+  const tests = await resolveTests(upstream, models);
+  return tests.map(test => {
     if (!test) throw new Exception('Received a null test');
 
-    const { externalCode, name } = test.labTestType;
-    if (!externalCode) throw new Error('No external code specified for this lab test type.');
+    const { externalCode, code, name } = test.labTestType;
 
-    return new FhirCodeableConcept({
-      coding: [
+    const coding = [];
+    if (code) {
+      coding.push(
         new FhirCoding({
-          system: 'http://intersystems.com/fhir/extn/sda3/lib/code-table-translated-prior-codes',
+          system: config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+          code,
+          display: name,
+        }),
+      );
+    }
+
+    if (externalCode) {
+      coding.push(
+        new FhirCoding({
+          system: config.hl7.dataDictionaries.serviceRequestLabTestExternalCodeSystem,
           code: externalCode,
           display: name,
         }),
-      ],
-    });
+      )
+    }
+    if (coding.length > 0) {
+      return new FhirCodeableConcept({
+        coding,
+      });
+    }
+    return null;
   });
+}
+// The lab tests will either need to be directly associated 
+// with the lab tests or through the panels
+async function resolveTests(upstream, models) {
+  const { labTestPanelRequest } = upstream;
+  const { labTestPanelId } = labTestPanelRequest;
+
+  const { LabTestPanel } = models;
+  const tests = await LabTestPanel.findOne({
+    where: { id: labTestPanelId },
+    include: 'labTestTypes',
+  });
+  console.log({ labTestTypes: JSON.stringify(tests.labTestTypes) });
+  return tests.labTestTypes;
+  if (upstream.tests.length > 0)
+    return upstream.tests;
+  return null;
 }
 
 function labAnnotations(upstream) {

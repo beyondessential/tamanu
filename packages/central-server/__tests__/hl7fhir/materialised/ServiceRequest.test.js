@@ -223,7 +223,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       // eslint-disable-next-line no-unused-expressions
       response.body?.orderDetail?.sort((a, b) => a.text.localeCompare(b.text));
       response.body?.identifier?.sort((a, b) => a.system.localeCompare(b.system));
-
+        // console.log(response.body.orderDetail)
       // assert
       expect(response.body).toMatchObject({
         resourceType: 'ServiceRequest',
@@ -257,10 +257,16 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
         code: {
           coding: [
             {
+              code: labTestPanel.code,
+              display: labTestPanel.name,
+              system:
+                'https://www.senaite.com/profileCodes.html',
+            },
+            {
               code: labTestPanel.externalCode,
               display: labTestPanel.name,
               system:
-                'http://intersystems.com/fhir/extn/sda3/lib/code-table-translated-prior-codes',
+                'http://loinc.org',
             },
           ],
         },
