@@ -12,3 +12,8 @@ export const disableSyncTrigger = async (sequelize, callback) => {
     await callback();
     await LocalSystemFact.set('syncTrigger', 'enabled');
 };
+
+export const isSyncTriggerDisabled = async sequelize => {
+    const state = await sequelize.models.LocalSystemFact.get('syncTrigger');
+    return state === 'disabled';
+};
