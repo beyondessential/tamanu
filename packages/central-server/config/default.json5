@@ -353,6 +353,82 @@
         "alpha-2": "",
         "alpha-3": ""
       },
+      "sidebar": {
+        patients: {
+          patientsInpatients: {
+            hidden: false,
+            sortPriority: 0,
+          },
+          patientsEmergency: {
+            hidden: false,
+            sortPriority: 0,
+          },
+          patientsOutpatients: {
+            hidden: false,
+            sortPriority: 0,
+          },
+        },
+        scheduling: {
+          hidden: false,
+          sortPriority: 0,
+          schedulingAppointments: {
+            hidden: false,
+            sortPriority: 0,
+          },
+          schedulingCalendar: {
+            hidden: false,
+            sortPriority: 0,
+          },
+          schedulingNew: {
+            hidden: false,
+            sortPriority: 0,
+          },
+        },
+        medication: {
+          hidden: false,
+          sortPriority: 0,
+          medicationAll: {
+            hidden: false,
+            sortPriority: 0,
+          },
+        },
+        imaging: {
+          hidden: false,
+          sortPriority: 0,
+          imagingActive: {
+            hidden: false,
+            sortPriority: 0,
+          },
+          imagingCompleted: {
+            hidden: false,
+            sortPriority: 0,
+          },
+        },
+        labs: {
+          hidden: false,
+          sortPriority: 0,
+          labsAll: {
+            hidden: false,
+            sortPriority: 0,
+          },
+          labsPublished: {
+            hidden: false,
+            sortPriority: 0,
+          },
+        },
+        immunisations: {
+          hidden: false,
+          sortPriority: 0,
+          immunisationsAll: {
+            hidden: false,
+            sortPriority: 0,
+          },
+        },
+        programRegistry: {
+          hidden: false,
+          sortPriority: 0,
+        },
+      },
       "fields": {
         "countryName": {
           "shortLabel": "Country",

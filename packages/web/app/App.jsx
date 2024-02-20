@@ -18,7 +18,7 @@ import {
   SingleTabStatusPage,
 } from './components/StatusPage';
 import { useCheckServerAliveQuery } from './api/queries/useCheckServerAliveQuery';
-import { useSingleTab } from './singleTab/singleTab';
+import { useSingleTab } from './utils/singleTab';
 
 const AppContainer = styled.div`
   display: flex;
@@ -39,10 +39,6 @@ export function App({ sidebar, children }) {
   const isPrimaryTab = useSingleTab();
   const disableSingleTab = localStorage.getItem('DISABLE_SINGLE_TAB');
 
-  if (!isPrimaryTab && !disableSingleTab) {
-    return <SingleTabStatusPage />;
-  }
-
   const browser = Bowser.getParser(window.navigator.userAgent);
   const isChrome = browser.satisfies({
     chrome: '>=88.0.4324.109', // Early 2021 release of chrome. Arbitrarily chosen as recentish.
@@ -56,6 +52,7 @@ export function App({ sidebar, children }) {
     if (!isDesktop) return <MobileStatusPage platformType={platformType} />;
     if (!isChrome) return <UnsupportedBrowserStatusPage />;
   }
+  if (!isPrimaryTab && !disableSingleTab) return <SingleTabStatusPage />;
   if (isLoading) return <LoadingStatusPage />;
   if (!isServerAlive) return <UnavailableStatusPage />;
   if (!isUserLoggedIn) return <LoginView />;

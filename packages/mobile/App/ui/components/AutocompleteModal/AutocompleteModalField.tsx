@@ -60,12 +60,14 @@ export const AutocompleteModalField = ({
     })();
   }, [value]);
 
+  const fontSize = screenPercentageToDP(2.1, Orientation.Height);
+
   return (
     <StyledView marginBottom={screenPercentageToDP('2.24', Orientation.Height)} width="100%">
       {!!fieldLabel && (
         <StyledText
-          fontSize={14}
-          fontWeight={500}
+          fontSize={fontSize}
+          fontWeight={600}
           marginBottom={2}
           color={theme.colors.TEXT_SUPER_DARK}
         >
@@ -87,7 +89,7 @@ export const AutocompleteModalField = ({
         borderColor={error ? theme.colors.ERROR : '#EBEBEB'}
         borderWidth={1}
         fontWeight={400}
-        fontSize={16}
+        fontSize={fontSize}
         padding={10}
         onPress={openModal}
         disabled={disabled}
