@@ -186,7 +186,7 @@ export async function provision(provisioningFile, { skipIfNotNeeded }) {
 
 export const provisionCommand = new Command('provision')
   .description(
-    'Set up initial data. See https://beyond-essential.slab.com/posts/tamanu-provisioning-file-h1urgi86 for details or /docs/provisioning/example.kdl for a sample file.',
+    'Set up initial data. See https://beyond-essential.slab.com/posts/tamanu-provisioning-file-h1urgi86 for details or /docs/provisioning/example.json5 for a sample file.',
   )
   .argument('<file>', 'Path to the provisioning file')
   .option(
