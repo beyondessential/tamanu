@@ -15,3 +15,13 @@ export const usePublicConfig = () => {
     initialData,
   });
 };
+
+export const useBrandName = () => {
+  const { data } = usePublicConfig();
+  return data.brand.name;
+};
+
+export const useBrandId = () => {
+  const { data } = usePublicConfig();
+  return data.brand.id;
+};

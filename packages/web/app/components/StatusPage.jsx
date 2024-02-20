@@ -5,6 +5,7 @@ import { Colors } from '../constants';
 import { LogoDark } from './Logo';
 import { Typography } from '@material-ui/core';
 import HeroImg from '../assets/images/splashscreens/screen_4.png';
+import { useBrandId, useBrandName } from '../api/queries/usePublicConfig';
 
 const FlexContainer = styled.div`
   display: flex;
@@ -57,13 +58,15 @@ export const StatusPage = ({ message, description }) => {
   );
 };
 
-const BRAND_NAME = 'Tamanu';
-export const UnavailableStatusPage = () => (
-  <StatusPage
-    message={`${BRAND_NAME} is currently unavailable`}
-    description={`${BRAND_NAME} is currently unavailable. Please try again later or contact your system administrator for further information.`}
-  />
-);
+export const UnavailableStatusPage = () => {
+  const brandName = useBrandName();
+  return (
+    <StatusPage
+      message={`${brandName} is currently unavailable`}
+      description={`${brandName} is currently unavailable. Please try again later or contact your system administrator for further information.`}
+    />
+  );
+};
 
 const ellipsis = keyframes`
   from {
@@ -86,12 +89,15 @@ const AnimateEllipsis = styled.span`
   }
 `;
 
-export const LoadingStatusPage = () => (
-  <StatusPage
-    message={<AnimateEllipsis>{BRAND_NAME} is loading</AnimateEllipsis>}
-    description={`${BRAND_NAME} is currently loading. Please do not navigate away from this page.`}
-  />
-);
+export const LoadingStatusPage = () => {
+  const brandName = useBrandName();
+  return (
+    <StatusPage
+      message={<AnimateEllipsis>{brandName} is loading</AnimateEllipsis>}
+      description={`${brandName} is currently loading. Please do not navigate away from this page.`}
+    />
+  );
+};
 
 const HeroImage = styled.div`
   background-image: url(${HeroImg});
@@ -125,12 +131,15 @@ export const StatusPageWithHeroImage = ({ message, description }) => {
   );
 };
 
-export const UnsupportedBrowserStatusPage = () => (
-  <StatusPageWithHeroImage
-    message={`${BRAND_NAME} is only available on Chrome`}
-    description={`Please contact your system administrator for further information on how to access ${BRAND_NAME} using a Chrome browser.`}
-  />
-);
+export const UnsupportedBrowserStatusPage = () => {
+  const brandName = useBrandName();
+  return (
+    <StatusPageWithHeroImage
+      message={`${brandName} is only available on Chrome`}
+      description={`Please contact your system administrator for further information on how to access ${brandName} using a Chrome browser.`}
+    />
+  );
+};
 
 const MobileContainer = styled(Container)`
   display: flex;
@@ -147,27 +156,31 @@ const MobileContainer = styled(Container)`
   }
 `;
 
-export const MobileStatusPage = ({ platformType }) => (
-  <MobileContainer $platformType={platformType}>
-    <Logo onClick={handleRefreshPage} size="140px" />
-    <ErrorDescription color="textTertiary">
-      {BRAND_NAME} Desktop is not currently supported by mobile or tablet devices. Please access{' '}
-      {BRAND_NAME}
-      via a desktop computer or laptop.
-    </ErrorDescription>
-  </MobileContainer>
-);
+export const MobileStatusPage = ({ platformType }) => {
+  const brandName = useBrandName();
+  return (
+    <MobileContainer $platformType={platformType}>
+      <Logo onClick={handleRefreshPage} size="140px" />
+      <ErrorDescription color="textTertiary">
+        {brandName} Desktop is not currently supported by mobile or tablet devices. Please access{' '}
+        {brandName}
+        via a desktop computer or laptop.
+      </ErrorDescription>
+    </MobileContainer>
+  );
+};
 
 const SingleTabErrorMessage = styled(ErrorMessage)`
   text-align: center;
 `;
 
 export const SingleTabStatusPage = () => {
+  const brandName = useBrandName();
   return (
     <StatusPage
       message={
         <SingleTabErrorMessage>
-          {BRAND_NAME} can not be opened across <br /> multiple tabs.
+          {brandName} can not be opened across <br /> multiple tabs.
         </SingleTabErrorMessage>
       }
       description="Please continue working in the existing tab."
