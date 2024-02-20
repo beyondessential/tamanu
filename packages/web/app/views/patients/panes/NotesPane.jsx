@@ -11,7 +11,7 @@ import { NOTE_FORM_MODES, noteTypes } from '../../../constants';
 import { useEncounterNotes } from '../../../contexts/EncounterNotes';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
-const StyledSelectField = styled(SelectInput)`
+const StyledSelectInput = styled(SelectInput)`
   width: 200px;
 `;
 
@@ -37,7 +37,7 @@ export const NotesPane = React.memo(({ encounter, readonly }) => {
         noteFormMode={NOTE_FORM_MODES.CREATE_NOTE}
       />
       <TableButtonRow variant="small" justifyContent="space-between">
-        <StyledSelectField
+        <StyledSelectInput
           options={[
             {
               value: null,
