@@ -7,7 +7,6 @@ import { LOCATION_AVAILABILITY_STATUS, LOCATION_AVAILABILITY_TAG_CONFIG } from '
 import { AutocompleteInput } from './AutocompleteField';
 import { useApi, useSuggester } from '../../api';
 import { Suggester } from '../../utils/suggester';
-import { useLocalisation } from '../../contexts/Localisation';
 import { BodyText } from '../Typography';
 import { useAuth } from '../../contexts/Auth';
 import { TranslatedText } from '../Translation/TranslatedText';
