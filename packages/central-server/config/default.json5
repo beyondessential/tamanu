@@ -123,6 +123,28 @@
   "cors": {
     "allowedOrigin": ""
   },
+  vaccines: {
+    status: {
+      scheduled: {
+        to: -28,
+      },
+      upcoming: {
+        from: -28,
+        to: -7,
+      },
+      due: {
+        from: -7,
+        to: 7,
+      },
+      overdue: {
+        from: 7,
+        to: 56,
+      },
+      missed: {
+        from: 56,
+      },
+  },
+},
   "schedules": {
     // batchSize == run through them all in one run, in batches of N
     // limit == run through N per task run
