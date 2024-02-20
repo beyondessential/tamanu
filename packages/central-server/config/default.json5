@@ -143,8 +143,8 @@
       missed: {
         from: 56,
       },
+    },
   },
-},
   "schedules": {
     // batchSize == run through them all in one run, in batches of N
     // limit == run through N per task run
