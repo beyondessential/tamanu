@@ -90,28 +90,6 @@ export const REFERRAL_STATUS_LABELS = {
   [REFERRAL_STATUSES.COMPLETED]: 'Completed',
 };
 
-export const columnStyle = {
-  backgroundColor: Colors.white,
-  height: '60px',
-  color: Colors.primaryDark,
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-};
-
-export const columnStyleSlim = {
-  backgroundColor: Colors.white,
-  height: '40px',
-  color: Colors.primaryDark,
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-};
-
-export const headerStyle = {
-  backgroundColor: Colors.searchTintColor,
-};
-
 export const BINARY = {
   YES: 'yes',
   NO: 'no',
