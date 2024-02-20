@@ -5,7 +5,6 @@ import { Colors } from '../constants';
 import { LogoDark } from './Logo';
 import { Typography } from '@material-ui/core';
 import HeroImg from '../assets/images/splashscreens/screen_4.png';
-import { useBrandId, useBrandName } from '../api/queries/usePublicConfig';
 
 const FlexContainer = styled.div`
   display: flex;
@@ -59,11 +58,10 @@ export const StatusPage = ({ message, description }) => {
 };
 
 export const UnavailableStatusPage = () => {
-  const brandName = useBrandName();
   return (
     <StatusPage
-      message={`${brandName} is currently unavailable`}
-      description={`${brandName} is currently unavailable. Please try again later or contact your system administrator for further information.`}
+      message="Page is currently unavailable"
+      description="Page is currently unavailable. Please try again later or contact your system administrator for further information."
     />
   );
 };
@@ -90,11 +88,10 @@ const AnimateEllipsis = styled.span`
 `;
 
 export const LoadingStatusPage = () => {
-  const brandName = useBrandName();
   return (
     <StatusPage
-      message={<AnimateEllipsis>{brandName} is loading</AnimateEllipsis>}
-      description={`${brandName} is currently loading. Please do not navigate away from this page.`}
+      message={<AnimateEllipsis>Page is loading</AnimateEllipsis>}
+      description="Page is currently loading. Please do not navigate away from this page."
     />
   );
 };
@@ -132,11 +129,10 @@ export const StatusPageWithHeroImage = ({ message, description }) => {
 };
 
 export const UnsupportedBrowserStatusPage = () => {
-  const brandName = useBrandName();
   return (
     <StatusPageWithHeroImage
-      message={`${brandName} is only available on Chrome`}
-      description={`Please contact your system administrator for further information on how to access ${brandName} using a Chrome browser.`}
+      message="Page is only available on Chrome"
+      description={`Please contact your system administrator for further information on how to access using a Chrome browser.`}
     />
   );
 };
@@ -157,14 +153,12 @@ const MobileContainer = styled(Container)`
 `;
 
 export const MobileStatusPage = ({ platformType }) => {
-  const brandName = useBrandName();
   return (
     <MobileContainer $platformType={platformType}>
       <Logo onClick={handleRefreshPage} size="140px" />
       <ErrorDescription color="textTertiary">
-        {brandName} Desktop is not currently supported by mobile or tablet devices. Please access{' '}
-        {brandName}
-        via a desktop computer or laptop.
+        This page is not currently supported by mobile or tablet devices. Please access via a
+        desktop computer or laptop.
       </ErrorDescription>
     </MobileContainer>
   );
@@ -175,12 +169,11 @@ const SingleTabErrorMessage = styled(ErrorMessage)`
 `;
 
 export const SingleTabStatusPage = () => {
-  const brandName = useBrandName();
   return (
     <StatusPage
       message={
         <SingleTabErrorMessage>
-          {brandName} can not be opened across <br /> multiple tabs.
+          This page can not be opened across <br /> multiple tabs.
         </SingleTabErrorMessage>
       }
       description="Please continue working in the existing tab."

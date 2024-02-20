@@ -36,6 +36,9 @@ const logos = {
 
 const Logo = ({ size, height, className, onClick, type = 'dark' }) => {
   const brandId = useBrandId();
+  if (!brandId) {
+    return null;
+  }
   const Component = brandId === BRAND_IDS.TAMANU ? TamanuLogoImage : CambodiaLogoImage;
   const src = logos[brandId][type];
   return (

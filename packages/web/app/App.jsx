@@ -51,12 +51,13 @@ export function App({ sidebar, children }) {
   const isDesktop = platformType === 'desktop';
   const isDebugMode = localStorage.getItem('DEBUG_PROD');
 
+  if (isLoading) return <LoadingStatusPage />;
+
   if (!isDebugMode) {
     // Skip browser/platform check in debug mode
     if (!isDesktop) return <MobileStatusPage platformType={platformType} />;
     if (!isChrome) return <UnsupportedBrowserStatusPage />;
   }
-  if (isLoading) return <LoadingStatusPage />;
   if (!isServerAlive) return <UnavailableStatusPage />;
   if (!isUserLoggedIn) return <LoginView />;
 
