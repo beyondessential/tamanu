@@ -11,11 +11,12 @@ import { TwoColumnDisplay } from '../../components/TwoColumnDisplay';
 import { DailySchedule } from '../../components/Appointments/DailySchedule';
 import { NewAppointmentButton } from '../../components/Appointments/NewAppointmentButton';
 import { Button } from '../../components/Button';
-import { AutocompleteInput, MultiselectInput } from '../../components/Field';
+import { AutocompleteInput } from '../../components/Field';
 import { Suggester } from '../../utils/suggester';
 import { appointmentTypeOptions, Colors } from '../../constants';
 import { useApi, useSuggester } from '../../api';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
+import { MultiselectField } from '../../components/Translation/TranslatedSelectField.jsx';
 
 const LeftContainer = styled.div`
   min-height: 100%;
@@ -179,7 +180,7 @@ export const AppointmentsCalendar = () => {
                 fallback="Appointment type"
               />
             </SectionTitle>
-            <MultiselectInput
+            <MultiselectField
               onChange={e => {
                 if (!e.target.value) {
                   setAppointmentType([]);
@@ -187,7 +188,10 @@ export const AppointmentsCalendar = () => {
                 }
                 setAppointmentType(JSON.parse(e.target.value));
               }}
+              value={appointmentType}
+              name="appointmentType"
               options={appointmentTypeOptions}
+              prefix="appointment.property.type"
             />
           </Section>
         </LeftContainer>
