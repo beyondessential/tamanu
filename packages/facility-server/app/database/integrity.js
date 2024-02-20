@@ -1,8 +1,13 @@
 import config from 'config';
 import { log } from '@tamanu/shared/services/logging';
+import { isSyncTriggerDisabled } from '@tamanu/shared/dataMigrations';
 import { CentralServerConnection } from '../sync';
 
 export async function performDatabaseIntegrityChecks(context) {
+  if (await isSyncTriggerDisabled(context.sequelize)) {
+    throw Error("Sync Trigger is disabled in the database.");
+  }
+
   // run in a transaction so any errors roll back all changes
   await context.sequelize.transaction(async () => {
     await ensureHostMatches(context);
