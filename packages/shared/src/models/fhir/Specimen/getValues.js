@@ -19,7 +19,7 @@ async function getValuesFromLabRequest(upstream, models) {
       await resolveBodySite(upstream, models)
     ),
     type: await resolveSpecimenType(upstream, models),
-    request: requestRef(upstream),
+    request: [requestRef(upstream)],
   };
 }
 

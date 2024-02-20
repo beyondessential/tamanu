@@ -13,8 +13,8 @@ export async function up(query) {
         ])
       FROM fhir.service_requests sr
       WHERE true
-        AND jsonb_extract_path_text(s.request, 'type') = 'upstream://service_request'
-        AND sr.upstream_id::text = jsonb_extract_path_text(s.request, 'reference')
+        AND jsonb_extract_path_text(s.request -> 0, 'type') = 'upstream://service_request'
+        AND sr.upstream_id::text = jsonb_extract_path_text(s.request -> 0, 'reference')
     $$;
   `);
 
