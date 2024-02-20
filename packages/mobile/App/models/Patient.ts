@@ -284,8 +284,9 @@ export class Patient extends BaseModel implements IPatient {
           { programRegistryId: value },
         );
       } else if (value) {
-        if (typeof value === 'string') queryBuilder.andWhere(`patient.${key} = :value`, { value });
-        else queryBuilder.andWhere(`patient.${key} LIKE :value`, { value: `%${value._value}%` });
+        queryBuilder.andWhere(`patient.${key} LIKE :${key}`, {
+          [key]: value?._value ? value._value : `%${value}%`,
+        });
       }
     });
 
