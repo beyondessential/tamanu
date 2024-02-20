@@ -13,7 +13,7 @@ import {
   TextButton,
   TextField,
 } from '../components';
-import { Colors, LOCAL_STORAGE_KEYS } from '../constants';
+import { Colors } from '../constants';
 import { LanguageSelector } from '../components/LanguageSelector';
 
 const FormSubtext = styled(BodyText)`
@@ -84,7 +84,7 @@ const StyledCheckboxField = styled(Field)`
 `;
 
 const INCORRECT_CREDENTIALS_ERROR_MESSAGE =
-  'Facility server error response: Incorrect username or password, please try again';
+  'Server error response: Incorrect username or password, please try again';
 
 const LoginFormComponent = ({
   errorMessage,
@@ -144,7 +144,7 @@ const LoginFormComponent = ({
         </RememberMeRow>
       </div>
       <LoginButton text="Log in" />
-      <Field name="language" component={LanguageSelector} />
+      <LanguageSelector />
       <ForgotPasswordButton onClick={onNavToResetPassword} color="default" variant="text">
         Forgot password?
       </ForgotPasswordButton>
@@ -182,7 +182,6 @@ export const LoginForm = React.memo(
         initialValues={{
           email: rememberEmail,
           rememberMe: !!rememberEmail,
-          language: localStorage.getItem(LOCAL_STORAGE_KEYS.LANGUAGE) || 'en',
         }}
         validationSchema={yup.object().shape({
           email: yup
