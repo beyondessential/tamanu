@@ -4,11 +4,14 @@ import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
 import { Model } from './Model';
 
+// this query is needed because the way patient_program_registrations are stored in the database
+// is a bit unusual - we keep a record per edit, so only the most recent one for each program is
+// a valid, current record
 const GET_MOST_RECENT_REGISTRATIONS_QUERY = `
   (
     SELECT id
     FROM (
-      SELECT 
+      SELECT
         id,
         ROW_NUMBER() OVER (PARTITION BY patient_id, program_registry_id ORDER BY date DESC, id DESC) AS row_num
       FROM patient_program_registrations
