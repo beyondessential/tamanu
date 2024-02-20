@@ -2,8 +2,8 @@
 	root * /app
 	encode zstd gzip
 	log {
-    output stderr
-  }
+		output stderr
+	}
 
 	file_server {
 		precompressed zstd br gzip
