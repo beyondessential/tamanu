@@ -11,12 +11,12 @@ import { PatientFieldDefinitionComponents } from '~/ui/helpers/fieldComponents';
 import { useBackend } from '~/ui/hooks';
 
 import {
+  getSuggester,
   plainFields,
-  selectFields,
-  selectFieldsOptions,
   relationIdFields,
   relationIdFieldsProperties,
-  getSuggester,
+  selectFields,
+  selectFieldsOptions,
 } from './helpers';
 import { getConfiguredPatientAdditionalDataFields } from '~/ui/helpers/patient';
 
@@ -72,11 +72,6 @@ function getComponentForField(fieldName: string): React.FC<{ fieldName: string }
   throw new Error(`Unexpected field ${fieldName} for patient additional data.`);
 }
 
-const getFieldComponent = fieldName => {
-  const Component = getComponentForField(fieldName);
-  return <Component fieldName={fieldName} key={fieldName} />;
-}
-
 const getCustomFieldComponent = ({ id, name, options, fieldType }) => {
   return <Field
     name={id}
@@ -96,11 +91,14 @@ export const PatientAdditionalDataFields = ({
 
   if (isCustomFields) return fields.map(getCustomFieldComponent);
 
-  const nonRequiredPADFields = getConfiguredPatientAdditionalDataFields(
+  const padFields = getConfiguredPatientAdditionalDataFields(
     fields,
     showMandatory,
     getBool,
   );
 
-  return nonRequiredPADFields.map(getFieldComponent);
+  return padFields.map(fieldName => {
+    const Component = getComponentForField(fieldName);
+    return <Component fieldName={fieldName} key={fieldName} required={showMandatory} />;
+  });
 };

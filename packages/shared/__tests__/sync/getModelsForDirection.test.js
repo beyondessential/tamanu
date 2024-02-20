@@ -1,8 +1,8 @@
 import * as fc from 'fast-check';
 import { SYNC_DIRECTIONS, SYNC_DIRECTIONS_VALUES } from '@tamanu/constants';
 
-import { Model } from '../../src/models/Model';
-import { getModelsForDirection } from '../../src/sync/getModelsForDirection';
+import { Model } from '../../dist/cjs/models/Model';
+import { getModelsForDirection } from '../../dist/cjs/sync/getModelsForDirection';
 
 const arbitrarySyncDirection = fc.oneof(...SYNC_DIRECTIONS_VALUES.map(dir => fc.constant(dir)));
 const directionalSyncDirection = fc.oneof(

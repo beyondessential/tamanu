@@ -1,8 +1,8 @@
-import React, { useEffect, useState, ReactElement } from 'react';
+import React, { ReactElement, useEffect, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { StyledView, StyledText } from '/styled/common';
-import { screenPercentageToDP, Orientation } from '../../helpers/screen';
-import { Suggester, BaseModelSubclass } from '../../helpers/suggester';
+import { StyledText, StyledView } from '/styled/common';
+import { Orientation, screenPercentageToDP } from '../../helpers/screen';
+import { BaseModelSubclass, Suggester } from '../../helpers/suggester';
 import { theme } from '../../styled/theme';
 import { Button } from '../Button';
 import { Routes } from '~/ui/helpers/routes';
@@ -41,10 +41,11 @@ export const AutocompleteModalField = ({
     setLabel(selectedItem.label);
   };
 
-  const openModal = (): void => navigation.navigate(modalRoute, {
-    callback: onPress,
-    suggester,
-  });
+  const openModal = (): void =>
+    navigation.navigate(modalRoute, {
+      callback: onPress,
+      suggester,
+    });
 
   useEffect(() => {
     if (!suggester) return;
@@ -58,11 +59,13 @@ export const AutocompleteModalField = ({
     })();
   }, [value]);
 
+  const fontSize = screenPercentageToDP(2.1, Orientation.Height)
+
   return (
     <StyledView marginBottom={screenPercentageToDP('2.24', Orientation.Height)} width="100%">
       {!!fieldLabel && (
         <StyledText
-          fontSize={14}
+          fontSize={fontSize}
           fontWeight={600}
           marginBottom={2}
           color={theme.colors.TEXT_SUPER_DARK}
@@ -83,7 +86,7 @@ export const AutocompleteModalField = ({
         borderColor={error ? theme.colors.ERROR : '#EBEBEB'}
         borderWidth={1}
         fontWeight={400}
-        fontSize={15}
+        fontSize={fontSize}
         padding={10}
         onPress={openModal}
         disabled={disabled}

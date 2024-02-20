@@ -6,6 +6,7 @@ import Certificate from './Certificate';
 import { ConfigFile } from './Config';
 import Crl from './Crl';
 
+/* eslint-disable no-unused-vars */
 export enum Operation {
   Creation = 'creation',
   Reconfiguration = 'reconfiguration',
@@ -13,6 +14,7 @@ export enum Operation {
   Revocation = 'revocation',
   CrlGeneration = 'crl-generation',
 }
+/* eslint-enable no-unused-vars */
 
 export interface LogMetadata {
   slot?: string;

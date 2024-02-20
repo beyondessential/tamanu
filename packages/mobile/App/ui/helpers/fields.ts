@@ -1,6 +1,7 @@
 import { inRange, isNil } from 'lodash';
-import { isDate, formatISO9075 } from 'date-fns';
-import { ISurveyScreenComponent, DataElementType } from '~/types/ISurvey';
+import { formatISO9075 } from 'date-fns';
+import { DataElementType, ISurveyScreenComponent } from '~/types/ISurvey';
+import { PATIENT_DATA_FIELD_LOCATIONS } from '~/constants';
 
 export const FieldTypes = {
   TEXT: 'FreeText',
@@ -33,9 +34,15 @@ export const PatientFieldDefinitionTypes = {
   NUMBER: 'number',
   SELECT: 'select',
 };
-export const PatientFieldDefinitionTypeValues = Object.values(
-  PatientFieldDefinitionTypes,
-);
+export const PatientFieldDefinitionTypeValues = Object.values(PatientFieldDefinitionTypes);
+
+export const getPatientDataDbLocation = fieldName => {
+  const [modelName, columnName] = PATIENT_DATA_FIELD_LOCATIONS[fieldName] ?? [null, null];
+  return {
+    modelName,
+    fieldName: columnName,
+  };
+};
 
 export const getStringValue = (type: string, value: any): string => {
   switch (type) {
@@ -193,9 +200,9 @@ export function checkJSONCriteria(
  * IMPORTANT: We have 4 other versions of this method:
  *
  * - mobile/App/ui/helpers/fields.ts
- * - desktop/app/utils/survey.js
+ * - web/app/utils/survey.js
  * - shared/src/utils/fields.js
- * - sync-server/app/subCommands/calculateSurveyResults.js
+ * - central-server/app/subCommands/calculateSurveyResults.js
  *
  * So if there is an update to this method, please make the same update
  * in the other versions
@@ -223,12 +230,12 @@ interface ResultValue {
 }
 
 /**
- * IMPORTANT: We also have another version of this method in sync-server
+ * IMPORTANT: We also have another version of this method in central-server
  * sub commands 'calculateSurveyResults'.
  * The sub command is for recalculate survey results due to an issue that
- * resultText was not synced properly to sync-server before.
+ * resultText was not synced properly to central-server before.
  * So if there is an update to this method, please make the same update
- * in the other version in sync-server
+ * in the other version in central-server
  */
 export function getResultValue(allComponents: ISurveyScreenComponent[], values: {}): ResultValue {
   // find a component with a Result data type and use its value as the overall result
@@ -272,4 +279,20 @@ export function checkMandatory(mandatory: boolean | Record<string, any>, values:
   }
 
   return checkJSONCriteria(JSON.stringify(mandatory), [], values);
+}
+
+// also update getNameColumnForModel in /packages/facility-server/app/routes/apiv1/surveyResponse.js when this changes
+export function getNameColumnForModel(modelName: string): string {
+  switch (modelName) {
+    case 'User':
+      return 'displayName';
+    default:
+      return 'name';
+  }
+}
+
+// also update getDisplayNameForModel in /packages/facility-server/app/routes/apiv1/surveyResponse.js when this changes
+export function getDisplayNameForModel(modelName: string, record: any): string {
+  const columnName = getNameColumnForModel(modelName);
+  return record[columnName] || record.id;
 }

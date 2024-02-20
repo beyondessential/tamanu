@@ -48,6 +48,11 @@ export * from './ImagingAreaExternalCode';
 export * from './ImagingResult';
 
 export * from './Program';
+export * from './ProgramRegistry';
+export * from './ProgramRegistryClinicalStatus';
+export * from './ProgramRegistryCondition';
+export * from './PatientProgramRegistration';
+export * from './PatientProgramRegistrationCondition';
 export * from './Survey';
 export * from './SurveyScreenComponent';
 export * from './ProgramDataElement';
@@ -99,5 +104,7 @@ export * from './LegacyNoteItem';
 export * from './Note';
 
 export * from './SyncSession';
+export * from './SyncQueuedDevice';
 
 export * from './fhir';
+export * from './IPSRequest';

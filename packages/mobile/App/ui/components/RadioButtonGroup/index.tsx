@@ -3,8 +3,8 @@ import { StyleSheet } from 'react-native';
 import styled from 'styled-components/native';
 import { RowView, StyledText, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
-import { RadioOption, RadioButton } from '../RadioButton';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { RadioButton, RadioOption } from '../RadioButton';
 import { TextFieldErrorMessage } from '/components/TextField/TextFieldErrorMessage';
 import { RequiredIndicator } from '../RequiredIndicator';
 
@@ -52,7 +52,7 @@ export const RadioButtonGroup = ({
           {required && <RequiredIndicator />}
         </Label>
       )}
-      <RowView>
+      <RowView marginBottom={10}>
         {options.map((option, index) => (
           <RadioComponent
             key={option.label}
