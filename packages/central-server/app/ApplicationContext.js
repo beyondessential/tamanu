@@ -3,6 +3,7 @@ import { isSyncTriggerDisabled } from '@tamanu/shared/dataMigrations';
 import { EmailService } from './services/EmailService';
 import { closeDatabase, initDatabase, initReporting } from './database';
 import { initIntegrations } from './integrations';
+import { log } from '@tamanu/shared/services/logging';
 
 export class ApplicationContext {
   store = null;
