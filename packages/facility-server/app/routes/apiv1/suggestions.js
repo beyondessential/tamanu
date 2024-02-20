@@ -352,7 +352,7 @@ createNameSuggester(
   }),
 );
 
-createNameSuggester(
+createSuggester(
   'programRegistry',
   'ProgramRegistry',
   (search, query) => {

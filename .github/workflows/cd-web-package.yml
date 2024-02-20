@@ -16,8 +16,8 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  id-token: write # OIDC token for AWS
   contents: read
+  id-token: write # OIDC token for AWS
 
 jobs:
   build:
@@ -42,35 +42,28 @@ jobs:
           mv resources dist/resources
           mv dist tamanu-web-$ver
           zip -r -0 tamanu-web-$ver.zip tamanu-web-$ver
+          tar -cf web-$ver.tar tamanu-web-$ver
+          zstd --rm --adapt -T0 -10 web-$ver.tar -o web-$ver.tar.zst
 
-      - uses: cargo-bins/cargo-binstall@main
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Sign build
-        shell: bash
         working-directory: packages/web
         env:
-          MINISIGN_KEY: ${{ secrets.SIGNING_KEY }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
         run: |
-          set -e
-          echo "$MINISIGN_KEY" > minisign.key
-          set -x
-          ver=$(jq -r .version package.json)
-          cargo binstall -y --only-signed rsign2
-          rsign sign -W \
-            -s minisign.key \
-            -x "tamanu-web-$ver.zip.sig" \
-            -t "ts=$(date +%s) repo=${{ github.repository }} commit=${{ github.sha }} gharun=${{ github.run_id }}" \
-            "tamanu-web-$ver.zip"
-          rm minisign.*
+          curl -Lo bestool https://tools.ops.tamanu.io/bestool/gha/${{ runner.os }}-${{ runner.arch }}
+          chmod +x bestool
+          ./bestool crypto sign --key-env SIGNING_KEY  \
+            --comment 'ts={timestamp} repo=${{ github.repository }} commit=${{ github.sha }} gharun=${{ github.run_id }}' \
+            web-*.tar.zst
 
       - name: Upload to artifact
         uses: actions/upload-artifact@v4
         with:
           name: web-package
-          path: packages/web/tamanu-web*.zip*
-          retention-days: 14
+          path: |
+            packages/web/tamanu-web*.zip
+            packages/web/web*.tar.zst*
+          retention-days: 15
           if-no-files-found: error
 
       - name: Set S3 destination
@@ -83,7 +76,7 @@ jobs:
             if (context.ref == 'refs/heads/main') {
               return `${base}/main/${(new Date).toISOString().replaceAll(':','-').split('.')[0]}.${context.sha.slice(0, 10)}`;
             } else if (context.ref.startsWith('refs/tags/v')) {
-              return `${base}/${context.ref.replace('refs/tags/', '')}`;
+              return `${base}/${context.ref.replace('refs/tags/v', '')}`;
             } else if (context.ref.startsWith('refs/heads/release/')) {
               return `${base}/${context.ref.replace('refs/tags/', '')}-rc`;
             } else {
@@ -105,6 +98,6 @@ jobs:
           target: ${{ steps.destination.outputs.result }}
         run: |
           set -exu
-          for file in *.zip*; do
+          for file in *.tar.zst*; do
             aws s3 cp $file $target/$file --no-progress
           done
