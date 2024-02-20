@@ -1,3 +1,5 @@
+import { Op } from 'sequelize';
+
 import { fake } from '@tamanu/shared/test-helpers';
 import { log } from '@tamanu/shared/services/logging';
 
@@ -6,7 +8,7 @@ import {
   fakeResourcesOfFhirServiceRequest,
   fakeResourcesOfFhirServiceRequestWithImagingRequest,
 } from '../fake/fhir';
-import { allFromUpstream } from '../../dist/tasks/fhir/refresh/allFromUpstream';
+import { allFromUpstream } from '../../app/tasks/fhir/refresh/allFromUpstream';
 
 describe('FHIR refresh handler', () => {
   let ctx;
@@ -107,6 +109,11 @@ describe('FHIR refresh handler', () => {
       const { count, rows } = await ctx.store.models.FhirJob.findAndCountAll({
         where: {
           topic: 'fhir.refresh.fromUpstream',
+          payload: {
+            resource: {
+              [Op.ne]: 'MediciReport',
+            },
+          },
         },
       });
 
