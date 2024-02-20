@@ -59,9 +59,21 @@ apiv1.use('/changePassword', changePassword);
 
 apiv1.get(
   '/public/ping',
-  asyncHandler((req, res) => {
+  asyncHandler(async (req, res) => {
     req.flagPermissionChecked();
     return res.send({ ok: 'ok' });
+  }),
+);
+
+apiv1.get(
+  '/public/localisation',
+  asyncHandler(async (req, res) => {
+    req.flagPermissionChecked();
+    const localisation = await req.models.UserLocalisationCache.getLocalisation({
+      order: [['createdAt', 'DESC']],
+    });
+    const { brand } = localisation;
+    return res.send({ brand });
   }),
 );
 

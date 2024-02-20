@@ -1,13 +1,13 @@
 import React from 'react';
 import styled from 'styled-components';
-import { BRANDS } from '@tamanu/constants';
+import { BRAND_IDS } from '@tamanu/constants';
 import tamanuLogoWhite from '../assets/images/tamanu_logo_white.svg';
 import tamanuLogoWhiteNoText from '../assets/images/tamanu_logo_white_no_text.svg';
 import tamanuLogoDark from '../assets/images/tamanu_logo_blue.svg';
 import cambodiaLogoWhite from '../assets/cambodia/cambodia-logo-light.png';
 import cambodiaLogoWhiteNoText from '../assets/cambodia/cambodia-logo-light-no-text.png';
 import cambodiaLogoDark from '../assets/cambodia/cambodia-logo-dark.png';
-import { BRAND_NAME } from '../utils';
+import { usePublicConfig } from '../api/queries/usePublicConfig.js';
 
 const TamanuLogoImage = styled.img`
   display: inline-block;
@@ -22,12 +22,12 @@ const CambodiaLogoImage = styled.img`
 `;
 
 const logos = {
-  [BRANDS.TAMANU]: {
+  [BRAND_IDS.TAMANU]: {
     light: tamanuLogoWhite,
     dark: tamanuLogoDark,
     lightNoText: tamanuLogoWhiteNoText,
   },
-  [BRANDS.KHMEIR]: {
+  [BRAND_IDS.KHMEIR]: {
     light: cambodiaLogoWhite,
     dark: cambodiaLogoDark,
     lightNoText: cambodiaLogoWhiteNoText,
@@ -35,9 +35,11 @@ const logos = {
 };
 
 const Logo = ({ size, height, className, onClick, type = 'dark' }) => {
-  const Component = BRAND_NAME === BRANDS.TAMANU ? TamanuLogoImage : CambodiaLogoImage;
-  const src = logos[BRAND_NAME][type];
-  console.log('size', size);
+  const {
+    data: { brand },
+  } = usePublicConfig();
+  const Component = brand.id === BRAND_IDS.TAMANU ? TamanuLogoImage : CambodiaLogoImage;
+  const src = logos[brand.id][type];
   return (
     <Component
       src={src}

@@ -69,7 +69,7 @@
   <link rel="icon" href="/resources/icon.ico" />
   <link rel="manifest" href="/manifest.json" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>%VITE_BRAND_NAME%</title>
+  <title>Tamanu</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap');
 
@@ -150,7 +150,7 @@
 <body>
   <div id="root">
     <div id="temp-loading-container">
-      <img class="logo" alt="logo" src="/%VITE_BRAND_LOGO%" />
+      <img class="logo" alt="logo" src="/tamanu_logo.svg" />
       <div class="content-container">
         <p class="title">%VITE_BRAND_NAME% is loading</p>
         <p class="description">
@@ -160,6 +160,14 @@
     </div>
   </div>
   <script type="module" src="/app/index.js"></script>
+  <script type="module">
+    async function logMovies() {
+      const response = await fetch("http://example.com/movies.json");
+      const movies = await response.json();
+      console.log(movies);
+    }
+    // logMovies();
+  </script>
 </body>
 
 </html>

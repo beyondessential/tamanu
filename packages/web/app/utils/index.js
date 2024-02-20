@@ -5,4 +5,3 @@ export { flattenObject } from './flattenObject';
 export * from './invoice';
 export * from './getVisibleQuestions';
 export * from './invalidatePatientDataQueries';
-export { BRAND_NAME } from './env';

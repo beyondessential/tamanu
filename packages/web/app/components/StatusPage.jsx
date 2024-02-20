@@ -5,7 +5,6 @@ import { Colors } from '../constants';
 import { LogoDark } from './Logo';
 import { Typography } from '@material-ui/core';
 import HeroImg from '../assets/images/splashscreens/screen_4.png';
-import { BRAND_NAME } from '../utils';
 
 const FlexContainer = styled.div`
   display: flex;
@@ -58,6 +57,7 @@ export const StatusPage = ({ message, description }) => {
   );
 };
 
+const BRAND_NAME = 'Tamanu';
 export const UnavailableStatusPage = () => (
   <StatusPage
     message={`${BRAND_NAME} is currently unavailable`}

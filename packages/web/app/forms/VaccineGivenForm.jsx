@@ -162,7 +162,7 @@ export const VaccineGivenForm = ({
         label={
           values.givenElsewhere
             ? 'Do you have consent to record this vaccine?'
-            : 'Do you have consent from the recipient/parent/guardian to give this vaccine and record?'
+            : 'Do you have consent from the recipient/parent/guardian to give and record this vaccine?'
         }
       />
 

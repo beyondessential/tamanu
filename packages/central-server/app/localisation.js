@@ -2,7 +2,7 @@ import config from 'config';
 import * as yup from 'yup';
 import { defaultsDeep, mapValues } from 'lodash';
 import { log } from '@tamanu/shared/services/logging';
-import { IMAGING_TYPES } from '@tamanu/constants';
+import { BRAND_IDS, IMAGING_TYPES } from '@tamanu/constants';
 
 const fieldSchema = yup
   .object({
@@ -38,6 +38,17 @@ const patientTabSchema = yup
   .object({
     sortPriority: yup.number().required(),
     hidden: yup.boolean(),
+  })
+  .required()
+  .noUnknown();
+
+const brandSchema = yup
+  .object({
+    name: yup.string().required(),
+    id: yup
+      .string()
+      .oneOf(Object.values(BRAND_IDS))
+      .required(),
   })
   .required()
   .noUnknown();
@@ -423,6 +434,7 @@ const printMeasuresSchema = yup
 
 const rootLocalisationSchema = yup
   .object({
+    brand: brandSchema,
     patientTabs: patientTabsSchema,
     units: yup.object({
       temperature: yup.string().oneOf(['celsius', 'fahrenheit']),

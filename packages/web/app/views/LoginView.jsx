@@ -5,7 +5,7 @@ import { push } from 'connected-react-router';
 import { Launch } from '@material-ui/icons';
 import { Colors, LOCAL_STORAGE_KEYS } from '../constants';
 import { LogoDark } from '../components';
-import { splashImages, cambodiaSplash } from '../constants/images';
+import { splashImages } from '../constants/images';
 import { LoginForm } from '../forms/LoginForm';
 import { ResetPasswordForm } from '../forms/ResetPasswordForm';
 import { ChangePasswordForm } from '../forms/ChangePasswordForm';
@@ -20,6 +20,7 @@ import {
 import { useApi } from '../api';
 import { SyncHealthNotificationComponent } from '../components/SyncHealthNotification';
 import { Typography } from '@material-ui/core';
+import { usePublicConfig } from '../api/queries/usePublicConfig';
 
 const { REMEMBER_EMAIL } = LOCAL_STORAGE_KEYS;
 
@@ -34,8 +35,7 @@ const LoginSplashImage = styled.div`
   max-width: 50vw;
   width: 50vw;
   height: inherit;
-  // background-image: url(${splashImages[3]});
-  background-image: url(${cambodiaSplash});
+  background-image: url(${props => splashImages[props.brandId]});
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center right;
@@ -99,6 +99,9 @@ const DesktopVersionText = styled(Typography)`
 
 export const LoginView = () => {
   const api = useApi();
+  const {
+    data: { brand },
+  } = usePublicConfig();
   const dispatch = useDispatch();
   const loginError = useSelector(state => state.auth.error);
   const requestPasswordResetError = useSelector(state => state.auth.resetPassword.error);
@@ -199,7 +202,7 @@ export const LoginView = () => {
         )}
         <DesktopVersionText>Version {appVersion}</DesktopVersionText>
       </LoginContainer>
-      <LoginSplashImage />
+      <LoginSplashImage brandId={brand.id} />
     </Container>
   );
 };
