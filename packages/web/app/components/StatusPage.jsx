@@ -5,6 +5,7 @@ import { Colors } from '../constants';
 import { LogoDark } from './Logo';
 import { Typography } from '@material-ui/core';
 import HeroImg from '../assets/images/splashscreens/screen_4.png';
+import { getBrandName } from '../utils';
 
 const FlexContainer = styled.div`
   display: flex;
@@ -58,6 +59,7 @@ export const StatusPage = ({ message, description }) => {
 };
 
 export const UnavailableStatusPage = () => {
+  const brandName = getBrandName();
   return (
     <StatusPage
       message="Page is currently unavailable"
@@ -88,10 +90,11 @@ const AnimateEllipsis = styled.span`
 `;
 
 export const LoadingStatusPage = () => {
+  const brandName = getBrandName();
   return (
     <StatusPage
-      message={<AnimateEllipsis>Page is loading</AnimateEllipsis>}
-      description="Page is currently loading. Please do not navigate away from this page."
+      message={<AnimateEllipsis>{brandName} is loading</AnimateEllipsis>}
+      description={`${brandName} is currently loading. Please do not navigate away from this page.`}
     />
   );
 };
@@ -129,10 +132,11 @@ export const StatusPageWithHeroImage = ({ message, description }) => {
 };
 
 export const UnsupportedBrowserStatusPage = () => {
+  const brandName = getBrandName();
   return (
     <StatusPageWithHeroImage
-      message="Page is only available on Chrome"
-      description={`Please contact your system administrator for further information on how to access using a Chrome browser.`}
+      message={`${brandName} is only available on Chrome`}
+      description={`Please contact your system administrator for further information on how to access ${brandName} using a Chrome browser.`}
     />
   );
 };
@@ -153,11 +157,12 @@ const MobileContainer = styled(Container)`
 `;
 
 export const MobileStatusPage = ({ platformType }) => {
+  const brandName = getBrandName();
   return (
     <MobileContainer $platformType={platformType}>
       <Logo onClick={handleRefreshPage} size="140px" />
       <ErrorDescription color="textTertiary">
-        This page is not currently supported by mobile or tablet devices. Please access via a
+        {brandName} is not currently supported by mobile or tablet devices. Please access via a
         desktop computer or laptop.
       </ErrorDescription>
     </MobileContainer>
@@ -169,11 +174,12 @@ const SingleTabErrorMessage = styled(ErrorMessage)`
 `;
 
 export const SingleTabStatusPage = () => {
+  const brandName = getBrandName();
   return (
     <StatusPage
       message={
         <SingleTabErrorMessage>
-          This page can not be opened across <br /> multiple tabs.
+          {brandName} can not be opened across <br /> multiple tabs.
         </SingleTabErrorMessage>
       }
       description="Please continue working in the existing tab."

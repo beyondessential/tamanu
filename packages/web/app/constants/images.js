@@ -1,13 +1,13 @@
 import { BRAND_IDS } from '@tamanu/constants';
-import splash1 from '../assets/images/splashscreens/screen_1.jpg';
-import splash2 from '../assets/images/splashscreens/screen_2.jpg';
-import splash3 from '../assets/images/splashscreens/screen_3.jpg';
+// import splash1 from '../assets/images/splashscreens/screen_1.jpg';
+// import splash2 from '../assets/images/splashscreens/screen_2.jpg';
+// import splash3 from '../assets/images/splashscreens/screen_3.jpg';
 import splash4 from '../assets/images/splashscreens/screen_4.png';
 import cambodiaSplash from '../assets/cambodia/cambodia-splash-screen.png';
 
 export const splashImages = {
   [BRAND_IDS.TAMANU]: splash4,
-  [BRAND_IDS.KHMEIR]: cambodiaSplash,
+  [BRAND_IDS.CAMBODIA]: cambodiaSplash,
 };
 
 export { default as administrationIcon } from '../assets/images/administration.svg';

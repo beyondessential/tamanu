@@ -7,7 +7,7 @@ import tamanuLogoDark from '../assets/images/tamanu_logo_blue.svg';
 import cambodiaLogoWhite from '../assets/cambodia/cambodia-logo-light.png';
 import cambodiaLogoWhiteNoText from '../assets/cambodia/cambodia-logo-light-no-text.png';
 import cambodiaLogoDark from '../assets/cambodia/cambodia-logo-dark.png';
-import { useBrandId } from '../api/queries/usePublicConfig';
+import { getBrandId } from '../utils';
 
 const TamanuLogoImage = styled.img`
   display: inline-block;
@@ -27,7 +27,7 @@ const logos = {
     dark: tamanuLogoDark,
     lightNoText: tamanuLogoWhiteNoText,
   },
-  [BRAND_IDS.KHMEIR]: {
+  [BRAND_IDS.CAMBODIA]: {
     light: cambodiaLogoWhite,
     dark: cambodiaLogoDark,
     lightNoText: cambodiaLogoWhiteNoText,
@@ -35,10 +35,7 @@ const logos = {
 };
 
 const Logo = ({ size, height, className, onClick, type = 'dark' }) => {
-  const brandId = useBrandId();
-  if (!brandId) {
-    return null;
-  }
+  const brandId = getBrandId();
   const Component = brandId === BRAND_IDS.TAMANU ? TamanuLogoImage : CambodiaLogoImage;
   const src = logos[brandId][type];
   return (

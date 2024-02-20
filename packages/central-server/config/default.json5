@@ -306,10 +306,6 @@
       "testTypeWhitelist": ["labTestType-COVID"]
     },
     "data": {
-      "brand": {
-        name: "Tamanu",
-        id: "tamanu",
-      },
       // To do: review this section when implementing the patient charts feature
       "patientTabs": {
         "history": {

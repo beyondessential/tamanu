@@ -20,7 +20,7 @@ import {
 import { useApi } from '../api';
 import { SyncHealthNotificationComponent } from '../components/SyncHealthNotification';
 import { Typography } from '@material-ui/core';
-import { useBrandId } from '../api/queries/usePublicConfig';
+import { getBrandId } from '../utils';
 
 const { REMEMBER_EMAIL } = LOCAL_STORAGE_KEYS;
 
@@ -99,7 +99,6 @@ const DesktopVersionText = styled(Typography)`
 
 export const LoginView = () => {
   const api = useApi();
-  const brandId = useBrandId();
   const dispatch = useDispatch();
   const loginError = useSelector(state => state.auth.error);
   const requestPasswordResetError = useSelector(state => state.auth.resetPassword.error);
@@ -138,6 +137,8 @@ export const LoginView = () => {
     await dispatch(login(email, password));
     dispatch(restartPasswordResetFlow());
   };
+
+  const brandId = getBrandId();
 
   return (
     <Container>

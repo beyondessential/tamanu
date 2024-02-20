@@ -65,19 +65,6 @@ apiv1.get(
   }),
 );
 
-apiv1.get(
-  '/public/localisation',
-  asyncHandler(async (req, res) => {
-    req.flagPermissionChecked();
-    const localisation = await req.models.UserLocalisationCache.getLocalisation({
-      order: [['createdAt', 'DESC']],
-    });
-    // The brand name may be moved to be in a .env variable in NOTAM-298 in which case this endpoint could be deleted
-    const { brand } = localisation;
-    return res.send({ brand });
-  }),
-);
-
 apiv1.use(authMiddleware);
 apiv1.use(constructPermission);
 
