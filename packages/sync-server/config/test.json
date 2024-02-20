@@ -66,9 +66,7 @@
     "fijiVrs": {
       "enabled": true,
       "host": "http://localhost:8080",
-      "expectAccessToken": [
-        "test-access-token"
-      ]
+      "expectAccessToken": ["test-access-token"]
     },
     "fijiVps": {
       "enabled": true
@@ -87,7 +85,18 @@
       "enabled": true
     },
     "fhir": {
-      "enabled": true
+      "enabled": true,
+      "worker": {
+        "resourceMaterialisationEnabled": {
+          "Patient": true,
+          "ServiceRequest": true,
+          "DiagnosticReport": true,
+          "Encounter": true,
+          "Immunization": true,
+          "Practitioner": true,
+          "MediciReport": false
+        }
+      }
     },
     "omniLab": {
       "enabled": true,
@@ -101,9 +110,7 @@
   },
   "notifications": {
     "certificates": {
-      "labTestCategoryIds": [
-        "labTestCategory-COVID"
-      ]
+      "labTestCategoryIds": ["labTestCategory-COVID"]
     }
   },
   "validateQuestionConfigs": {
