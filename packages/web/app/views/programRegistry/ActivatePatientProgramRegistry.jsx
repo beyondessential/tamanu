@@ -11,7 +11,6 @@ import {
   Field,
   FieldWithTooltip,
   Form,
-  MultiselectField,
 } from '../../components/Field';
 import { FormGrid } from '../../components/FormGrid';
 import { ConfirmCancelRow } from '../../components/ButtonRow';
@@ -25,6 +24,7 @@ import {
   usePatientProgramRegistryConditionsQuery,
   useProgramRegistryConditionsQuery,
 } from '../../api/queries/usePatientProgramRegistryConditions';
+import { MultiselectField } from '../../components/Translation/TranslatedSelectField.jsx';
 
 export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistration, open }) => {
   const api = useApi();
@@ -155,6 +155,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
                     component={MultiselectField}
                     options={conditions}
                     disabled={!conditions || conditions.length === 0}
+                    prefix="programRegistry.property.relatedCondition"
                   />
                 </FormGrid>
               </FormGrid>

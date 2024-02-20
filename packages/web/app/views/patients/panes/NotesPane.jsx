@@ -47,6 +47,7 @@ export const NotesPane = React.memo(({ encounter, readonly }) => {
           ]}
           onChange={e => setNoteType(e.target.value)}
           value={noteType}
+          name="noteType"
           isClearable={false}
         />
         <ButtonWithPermissionCheck
