@@ -2,18 +2,7 @@ import { TranslatedText } from './TranslatedText.jsx';
 import { SelectInput } from '../Field/index.js';
 import PropTypes from 'prop-types';
 import React from 'react';
-
-const transformStringIdSuffix = suffix => {
-  const words = suffix
-    .toString()
-    .split(/\s/g)
-    .map((word, index) => {
-      return index === 0
-        ? word.charAt(0).toLowerCase() + word.slice(1).toLowerCase()
-        : word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
-    });
-  return words.join('');
-};
+import { camelCase } from 'lodash';
 
 const getTranslatedOptions = (options, prefix) =>
   options.map(option => ({
@@ -23,7 +12,7 @@ const getTranslatedOptions = (options, prefix) =>
         stringId={
           option.label.type === TranslatedText
             ? option.label.props.stringId
-            : `${prefix}.${transformStringIdSuffix(option.label)}`
+            : `${prefix}.${camelCase(option.label)}`
         }
         fallback={option.label.type === TranslatedText ? option.label.props.fallback : option.label}
       />
