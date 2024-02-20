@@ -19,14 +19,6 @@ import { DeathModal } from '../DeathModal';
 import { Colors } from '../../constants';
 import { PatientCarePlanDetails } from './PatientCarePlanNotes';
 import { useLocalisation } from '../../contexts/Localisation';
-import {
-  CONDITIONS_TITLE,
-  ALLERGIES_TITLE,
-  FAMILY_HISTORY_TITLE,
-  ISSUES_TITLE,
-  CARE_PLANS_TITLE,
-  PROGRAM_REGISTRY,
-} from './paneTitles';
 import { isErrorUnknownAllow404s, useApi } from '../../api';
 import { PANE_SECTION_IDS } from './paneSections';
 import { RecordDeathSection } from '../RecordDeathSection';
