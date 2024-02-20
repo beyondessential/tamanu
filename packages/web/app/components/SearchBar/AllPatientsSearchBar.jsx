@@ -3,14 +3,7 @@ import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
 import Box from '@material-ui/core/Box';
 import styled from 'styled-components';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
-import {
-  AutocompleteField,
-  DOBFields,
-  Field,
-  LocalisedField,
-  SearchField,
-  BaseSelectField,
-} from '../Field';
+import { AutocompleteField, DOBFields, Field, LocalisedField, SearchField } from '../Field';
 import { useSuggester } from '../../api';
 import { DateField } from '../Field/DateField';
 import { useSexOptions } from '../../hooks';

@@ -2,7 +2,7 @@ import React from 'react';
 
 import { PATIENT_REGISTRY_TYPES, MARITAL_STATUS_OPTIONS } from '@tamanu/constants';
 
-import { AutocompleteField, BaseSelectField, SuggesterSelectField, TextField } from '..';
+import { AutocompleteField, SuggesterSelectField, TextField } from '..';
 import {
   bloodOptions,
   educationalAttainmentOptions,

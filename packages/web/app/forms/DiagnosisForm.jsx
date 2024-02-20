@@ -6,14 +6,7 @@ import { diagnosisCertaintyOptions } from '../constants';
 
 import { FormSubmitCancelRow } from '../components/ButtonRow';
 import { FormGrid } from '../components/FormGrid';
-import {
-  AutocompleteField,
-  CheckField,
-  DateField,
-  Field,
-  Form,
-  BaseSelectField,
-} from '../components/Field';
+import { AutocompleteField, CheckField, DateField, Field, Form } from '../components/Field';
 import { useSuggester } from '../api';
 import { useLocalisation } from '../contexts/Localisation';
 import { TranslatedText } from '../components/Translation/TranslatedText';
@@ -67,16 +60,12 @@ export const DiagnosisForm = React.memo(
             <Field
               style={{ gridColumn: '1 / -1' }}
               name="isPrimary"
-              label={
-                <TranslatedText stringId="diagnosis.isPrimary.label" fallback="Is primary" />
-              }
+              label={<TranslatedText stringId="diagnosis.isPrimary.label" fallback="Is primary" />}
               component={CheckField}
             />
             <Field
               name="certainty"
-              label={
-                <TranslatedText stringId="diagnosis.certainty.label" fallback="Certainty" />
-              }
+              label={<TranslatedText stringId="diagnosis.certainty.label" fallback="Certainty" />}
               component={SelectField}
               options={certaintyOptions}
               required

@@ -31,7 +31,6 @@ import {
   DateTimeInput,
   Field,
   Form,
-  BaseSelectField,
   TextField,
   TextInput,
 } from '../../../components/Field';
@@ -93,18 +92,13 @@ const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
       <DateTimeInput
         value={imagingRequest.requestedDate}
         label={
-          <TranslatedText
-            stringId="imaging.requestedDate.label"
-            fallback="Request date and time"
-          />
+          <TranslatedText stringId="imaging.requestedDate.label" fallback="Request date and time" />
         }
         disabled
       />
       {allowLocationChange && (
         <Field
-          label={
-            <TranslatedText stringId="imaging.facilityArea.label" fallback="Facility area" />
-          }
+          label={<TranslatedText stringId="imaging.facilityArea.label" fallback="Facility area" />}
           name="locationGroupId"
           component={AutocompleteField}
           suggester={locationGroupSuggester}

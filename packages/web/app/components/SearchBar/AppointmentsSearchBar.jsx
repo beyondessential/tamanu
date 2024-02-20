@@ -1,13 +1,7 @@
 import React from 'react';
 import { startOfDay } from 'date-fns';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
-import {
-  AutocompleteField,
-  DateTimeField,
-  LocalisedField,
-  SearchField,
-  BaseSelectField,
-} from '../Field';
+import { AutocompleteField, DateTimeField, LocalisedField, SearchField } from '../Field';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { appointmentStatusOptions, appointmentTypeOptions } from '../../constants';
 import { useSuggester } from '../../api';

@@ -19,7 +19,6 @@ import {
   Form,
   ImagingPriorityField,
   MultiselectField,
-  BaseSelectField,
   TextField,
   TextInput,
 } from '../components/Field';
@@ -192,9 +191,7 @@ export const ImagingRequestForm = React.memo(
               </div>
               <FormSeparatorLine />
               <TextInput
-                label={
-                  <TranslatedText stringId="imaging.encounter.label" fallback="Encounter" />
-                }
+                label={<TranslatedText stringId="imaging.encounter.label" fallback="Encounter" />}
                 disabled
                 value={encounterLabel}
               />
@@ -219,10 +216,7 @@ export const ImagingRequestForm = React.memo(
                   }))}
                   name="areas"
                   label={
-                    <TranslatedText
-                      stringId="imaging.areas.label"
-                      fallback="Areas to be imaged"
-                    />
+                    <TranslatedText stringId="imaging.areas.label" fallback="Areas to be imaged" />
                   }
                   component={MultiselectField}
                 />

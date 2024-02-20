@@ -18,7 +18,6 @@ import {
   FormGrid,
   FormSubmitButton,
   NumberField,
-  BaseSelectField,
   TextField,
 } from '../components';
 import { TranslatedText } from '../components/Translation/TranslatedText';
@@ -162,10 +161,7 @@ export const MedicationForm = React.memo(
                 <Field
                   name="medicationId"
                   label={
-                    <TranslatedText
-                      stringId="medication.medication.label"
-                      fallback="Medication"
-                    />
+                    <TranslatedText stringId="medication.medication.label" fallback="Medication" />
                   }
                   component={AutocompleteField}
                   suggester={drugSuggester}
@@ -188,10 +184,7 @@ export const MedicationForm = React.memo(
               <Field
                 name="route"
                 label={
-                  <TranslatedText
-                    stringId="medication.route.label"
-                    fallback="Route of admission"
-                  />
+                  <TranslatedText stringId="medication.route.label" fallback="Route of admission" />
                 }
                 component={SelectField}
                 options={drugRouteOptions}
@@ -202,10 +195,7 @@ export const MedicationForm = React.memo(
               <Field
                 name="date"
                 label={
-                  <TranslatedText
-                    stringId="medication.date.label"
-                    fallback="Prescription date"
-                  />
+                  <TranslatedText stringId="medication.date.label" fallback="Prescription date" />
                 }
                 saveDateAsString
                 component={DateField}
@@ -214,9 +204,7 @@ export const MedicationForm = React.memo(
               />
               <Field
                 name="endDate"
-                label={
-                  <TranslatedText stringId="medication.endDate.label" fallback="End date" />
-                }
+                label={<TranslatedText stringId="medication.endDate.label" fallback="End date" />}
                 saveDateAsString
                 component={DateField}
                 disabled={readOnly}
@@ -225,10 +213,7 @@ export const MedicationForm = React.memo(
               <Field
                 name="prescriberId"
                 label={
-                  <TranslatedText
-                    stringId="medication.prescriber.label"
-                    fallback="Prescriber"
-                  />
+                  <TranslatedText stringId="medication.prescriber.label" fallback="Prescriber" />
                 }
                 component={AutocompleteField}
                 suggester={practitionerSuggester}
@@ -261,10 +246,7 @@ export const MedicationForm = React.memo(
                   name="qtyLunch"
                   min={0}
                   label={
-                    <TranslatedText
-                      stringId="medication.quantityLunch.label"
-                      fallback="Lunch"
-                    />
+                    <TranslatedText stringId="medication.quantityLunch.label" fallback="Lunch" />
                   }
                   component={NumberField}
                   disabled={readOnly}
@@ -286,10 +268,7 @@ export const MedicationForm = React.memo(
                 <Field
                   name="qtyNight"
                   label={
-                    <TranslatedText
-                      stringId="medication.quantityNight.label"
-                      fallback="Night"
-                    />
+                    <TranslatedText stringId="medication.quantityNight.label" fallback="Night" />
                   }
                   min={0}
                   component={NumberField}
@@ -300,10 +279,7 @@ export const MedicationForm = React.memo(
               <Field
                 name="indication"
                 label={
-                  <TranslatedText
-                    stringId="medication.indication.label"
-                    fallback="Indication"
-                  />
+                  <TranslatedText stringId="medication.indication.label" fallback="Indication" />
                 }
                 component={TextField}
                 disabled={readOnly}

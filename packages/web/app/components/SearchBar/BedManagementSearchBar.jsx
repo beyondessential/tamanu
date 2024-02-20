@@ -4,7 +4,7 @@ import { Button } from '@material-ui/core';
 import { useSuggester } from '../../api';
 import { Colors, locationAvailabilityOptions } from '../../constants';
 import { HandoverNotesIcon } from '../../assets/icons/HandoverNotesIcon';
-import { AutocompleteField, LocalisedField, BaseSelectField } from '../Field';
+import { AutocompleteField, LocalisedField } from '../Field';
 import { HandoverNotesModal } from '../BedManagement/HandoverNotesModal';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
 import { ThemedTooltip } from '../Tooltip';

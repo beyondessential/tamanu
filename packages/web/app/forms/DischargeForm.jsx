@@ -17,7 +17,6 @@ import {
   Field,
   LocalisedField,
   PaginatedForm,
-  BaseSelectField,
   StyledTextField,
   TextField,
   useLocalisedSchema,
