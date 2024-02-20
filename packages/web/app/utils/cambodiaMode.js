@@ -10,8 +10,7 @@ const TAMANU_CONFIG = {
   name: 'Tamanu',
 };
 
-const checkIsURLCambodia = () => {
-  const currentURL = window.location.href;
+export const checkIsURLCambodia = (currentURL = window.location.hostname) => {
   const whitelist = ['khmer', 'cambodia', 'khmeir'];
   const regex = new RegExp(whitelist.join('|'), 'i');
   return regex.test(currentURL);

@@ -62,8 +62,8 @@ export const UnavailableStatusPage = () => {
   const brandName = getBrandName();
   return (
     <StatusPage
-      message="Page is currently unavailable"
-      description="Page is currently unavailable. Please try again later or contact your system administrator for further information."
+      message={`${brandName} is currently unavailable`}
+      description={`${brandName} is currently unavailable. Please try again later or contact your system administrator for further information.`}
     />
   );
 };
