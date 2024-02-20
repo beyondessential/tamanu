@@ -197,7 +197,7 @@ export const PrintPatientDetailsModal = ({ patient }) => {
       <Button size="small" onClick={openModal}>
         <TranslatedText
           stringId="patient.detailsSidebar.action.printIdForms"
-          fallback="Print ID forms"
+          fallback="ID forms"
         />
       </Button>
       {mainComponent}

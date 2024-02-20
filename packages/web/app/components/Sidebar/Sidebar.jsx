@@ -180,7 +180,7 @@ const isHighlighted = (currentPath, menuItemPath, sectionIsOpen, isRetracted) =>
 export const Sidebar = React.memo(({ items }) => {
   const [selectedParentItem, setSelectedParentItem] = useState('');
   const [isRetracted, setIsRetracted] = useState(false);
-  const { appVersion } = useApi();
+  const { agentVersion } = useApi();
   const { facility, centralHost, currentUser, onLogout, currentRole } = useAuth();
   const currentPath = useSelector(getCurrentRoute);
   const dispatch = useDispatch();
@@ -322,7 +322,7 @@ export const Sidebar = React.memo(({ items }) => {
                 <Launch style={{ marginLeft: '5px', fontSize: '12px' }} />
               </SupportDesktopLink>
               <Version>
-                <TranslatedText stringId="general.meta.version" fallback="Version" /> {appVersion}
+                <TranslatedText stringId="general.meta.version" fallback="Version" /> {agentVersion}
               </Version>
             </StyledMetadataBox>
           </>
