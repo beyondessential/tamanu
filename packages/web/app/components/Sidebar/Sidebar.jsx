@@ -1,17 +1,16 @@
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
-import { useDispatch, useSelector } from 'react-redux';
-import { push } from 'connected-react-router';
 import { Box, Button, Divider, IconButton, List, Typography } from '@material-ui/core';
 import { Launch, NavigateBefore, NavigateNext } from '@material-ui/icons';
-
+import { useDispatch, useSelector } from 'react-redux';
+import { push } from 'connected-react-router';
 import { TamanuLogoWhite, TamanuLogoWhiteNoText } from '../TamanuLogo';
+import { getCurrentRoute } from '../../store/router';
 import { Colors } from '../../constants';
 import { HiddenSyncAvatar } from '../HiddenSyncAvatar';
 import { TopLevelSidebarItem } from './TopLevelSidebarItem';
 import { PrimarySidebarItem } from './PrimarySidebarItem';
 import { SecondarySidebarItem } from './SecondarySidebarItem';
-import { getCurrentRoute } from '../../store/router';
 import { checkAbility } from '../../utils/ability';
 import { useAuth } from '../../contexts/Auth';
 import { useApi } from '../../api';
@@ -197,12 +196,11 @@ const isHighlighted = (currentPath, menuItemPath, sectionIsOpen, isRetracted) =>
 export const Sidebar = React.memo(({ items }) => {
   const [selectedParentItem, setSelectedParentItem] = useState('');
   const [isRetracted, setIsRetracted] = useState(false);
-  const { appVersion } = useApi();
+  const { agentVersion } = useApi();
   const { facility, centralHost, currentUser, onLogout, currentRole } = useAuth();
   const currentPath = useSelector(getCurrentRoute);
   const dispatch = useDispatch();
   const { getLocalisation } = useLocalisation();
-
   const extendSidebar = () => setIsRetracted(false);
 
   const onPathChanged = newPath => dispatch(push(newPath));
@@ -252,7 +250,6 @@ export const Sidebar = React.memo(({ items }) => {
             icon: item.icon,
             label: item.label,
             divider: item.divider,
-            key: item.key,
             path: item.path,
             highlighted: isHighlighted(
               currentPath,
@@ -264,8 +261,9 @@ export const Sidebar = React.memo(({ items }) => {
             onClick: () => clickedParentItem(item),
           };
 
-          if (item.component) {
-            return item.component(commonProps);
+          if (item.Component) {
+            const { Component } = item;
+            return <Component {...commonProps} key={item.key} />;
           }
 
           if (!item.children) {
@@ -342,7 +340,7 @@ export const Sidebar = React.memo(({ items }) => {
                 <Launch style={{ marginLeft: '5px', fontSize: '12px' }} />
               </SupportDesktopLink>
               <Version>
-                <TranslatedText stringId="general.meta.version" fallback="Version" /> {appVersion}
+                <TranslatedText stringId="general.meta.version" fallback="Version" /> {agentVersion}
               </Version>
             </StyledMetadataBox>
           </>

@@ -25,7 +25,6 @@ import { SyncHealthNotificationComponent } from '../components/SyncHealthNotific
 
 import { Typography } from '@material-ui/core';
 const { REMEMBER_EMAIL } = LOCAL_STORAGE_KEYS;
-import { useTranslation } from '../contexts/Translation';
 
 const Container = styled.div`
   display: flex;
@@ -109,9 +108,7 @@ export const LoginView = () => {
   const resetPasswordEmail = useSelector(state => state.auth.resetPassword.lastEmailUsed);
   const changePasswordError = useSelector(state => state.auth.changePassword.error);
   const changePasswordSuccess = useSelector(state => state.auth.changePassword.success);
-  const { appVersion } = api;
-
-  const { fetchTranslations } = useTranslation();
+  const { agentVersion } = api;
 
   const rememberEmail = localStorage.getItem(REMEMBER_EMAIL);
 
@@ -123,7 +120,7 @@ export const LoginView = () => {
   const isSupportUrlLoaded = !!supportUrl;
 
   const submitLogin = async data => {
-    const { email, password, rememberMe, language } = data;
+    const { email, password, rememberMe } = data;
 
     // If a different user logs in, reset patient state and navigate to index
     if (email !== api.user?.email) {
@@ -137,9 +134,6 @@ export const LoginView = () => {
       localStorage.removeItem(REMEMBER_EMAIL);
     }
 
-    // The await is necessary to prevent redux-form unlocking submission
-    // redux-thunk definitely returns a promise, and this works
-    await fetchTranslations(language);
     await dispatch(login(email, password));
     dispatch(restartPasswordResetFlow());
   };
@@ -203,7 +197,7 @@ export const LoginView = () => {
             <Launch style={{ marginLeft: '3px', fontSize: '12px' }} />
           </SupportDesktopLink>
         )}
-        <DesktopVersionText>Version {appVersion}</DesktopVersionText>
+        <DesktopVersionText>Version {agentVersion}</DesktopVersionText>
       </LoginContainer>
       <LoginSplashImage />
     </Container>

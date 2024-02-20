@@ -220,7 +220,7 @@ export const TestSelectorInput = ({
                 ]}
                 label={
                   <TranslatedText
-                    stringId="lab.form.testSelect.testCategory.label"
+                    stringId="lab.testSelect.testCategory.label"
                     fallback="Test category"
                   />
                 }

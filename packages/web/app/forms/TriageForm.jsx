@@ -31,7 +31,7 @@ const InfoPopupLabel = React.memo(() => (
   <span>
     <span>
       <TranslatedText
-        stringId="patient.modal.triage.form.triageScore.label"
+        stringId="patient.modal.triage.triageScore.label"
         fallback="Triage score"
       />
     </span>
@@ -61,7 +61,7 @@ export const TriageForm = ({
           name="arrivalTime"
           label={
             <TranslatedText
-              stringId="patient.modal.triage.form.arrivalTime.label"
+              stringId="patient.modal.triage.arrivalTime.label"
               fallback="Arrival date & time"
             />
           }
@@ -74,7 +74,7 @@ export const TriageForm = ({
           name="triageTime"
           label={
             <TranslatedText
-              stringId="patient.modal.triage.form.triageDateTime.label"
+              stringId="patient.modal.triage.triageDateTime.label"
               fallback="Triage date & time"
             />
           }
@@ -117,7 +117,7 @@ export const TriageForm = ({
             name="chiefComplaintId"
             label={
               <TranslatedText
-                stringId="patient.modal.triage.form.chiefComplaint.label"
+                stringId="patient.modal.triage.chiefComplaint.label"
                 fallback="Chief complaint"
               />
             }
@@ -129,7 +129,7 @@ export const TriageForm = ({
             name="secondaryComplaintId"
             label={
               <TranslatedText
-                stringId="patient.modal.triage.form.secondaryComplaint.label"
+                stringId="patient.modal.triage.secondaryComplaint.label"
                 fallback="Secondary complaint"
               />
             }
@@ -149,7 +149,7 @@ export const TriageForm = ({
           name="practitionerId"
           label={
             <TranslatedText
-              stringId="triage.form.practitionerId.label"
+              stringId="triage.practitionerId.label"
               fallback="Triage :clinician"
               replacements={{
                 clinician: (

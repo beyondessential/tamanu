@@ -81,7 +81,7 @@ export const AppointmentForm = props => {
             <Field
               label={
                 <TranslatedText
-                  stringId="scheduling.newAppointment.form.type.label"
+                  stringId="scheduling.newAppointment.type.label"
                   fallback="Appointment type"
                 />
               }

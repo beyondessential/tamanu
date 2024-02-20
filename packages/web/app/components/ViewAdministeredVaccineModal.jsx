@@ -127,55 +127,55 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
 
   const fieldObjects = {
     vaccine: {
-      label: <TranslatedText stringId="vaccine.form.vaccine.label" fallback="Vaccine" />,
+      label: <TranslatedText stringId="vaccine.vaccine.label" fallback="Vaccine" />,
       value: vaccineLabel || '-',
     },
     batch: {
-      label: <TranslatedText stringId="vaccine.form.batch.label" fallback="Batch" />,
+      label: <TranslatedText stringId="vaccine.batch.label" fallback="Batch" />,
       value: batch || '-',
     },
     schedule: {
-      label: <TranslatedText stringId="vaccine.form.schedule.label" fallback="Schedule" />,
+      label: <TranslatedText stringId="vaccine.schedule.label" fallback="Schedule" />,
       value: schedule || '-',
     },
     dateRecorded: {
-      label: <TranslatedText stringId="vaccine.form.dateRecorded.label" fallback="Date recorded" />,
+      label: <TranslatedText stringId="vaccine.dateRecorded.label" fallback="Date recorded" />,
       value: <DateDisplay date={date} />,
     },
     dateGiven: {
-      label: <TranslatedText stringId="vaccine.form.dateGiven.label" fallback="Date given" />,
+      label: <TranslatedText stringId="vaccine.dateGiven.label" fallback="Date given" />,
       value: <DateDisplay date={date} />,
     },
     injectionSite: {
       label: (
-        <TranslatedText stringId="vaccine.form.injectionSite.label" fallback="Injection site" />
+        <TranslatedText stringId="vaccine.injectionSite.label" fallback="Injection site" />
       ),
       value: injectionSite || '-',
     },
     area: {
-      label: <TranslatedText stringId="general.form.area.label" fallback="Area" />,
+      label: <TranslatedText stringId="general.area.label" fallback="Area" />,
       value: location?.locationGroup?.name || '-',
     },
     location: {
-      label: <TranslatedText stringId="general.form.location.label" fallback="Location" />,
+      label: <TranslatedText stringId="general.location.label" fallback="Location" />,
       value: location?.name || '-',
     },
     department: {
-      label: <TranslatedText stringId="general.form.department.label" fallback="Department" />,
+      label: <TranslatedText stringId="general.department.label" fallback="Department" />,
       value: department?.name || '-',
     },
     facility: {
-      label: <TranslatedText stringId="general.form.facility.label" fallback="Facility" />,
+      label: <TranslatedText stringId="general.facility.label" fallback="Facility" />,
       value: location?.facility.name || encounter.location.facility.name || '-',
     },
     givenBy: {
-      label: <TranslatedText stringId="vaccine.form.givenBy.label" fallback="Given by" />,
+      label: <TranslatedText stringId="vaccine.givenBy.label" fallback="Given by" />,
       value: givenBy || '-',
     },
     supervisingClinician: {
       label: (
         <TranslatedText
-          stringId="general.form.supervisingClinician.label"
+          stringId="general.supervisingClinician.label"
           fallback="Supervising :clinician"
           replacements={{
             clinician: (
@@ -192,35 +192,35 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
       value: givenBy || '-',
     },
     recordedBy: {
-      label: <TranslatedText stringId="vaccine.form.recordedBy.label" fallback="Recorded by" />,
+      label: <TranslatedText stringId="vaccine.recordedBy.label" fallback="Recorded by" />,
       value: recorder?.displayName || '-',
     },
     vaccineName: {
-      label: <TranslatedText stringId="vaccine.form.vaccineName.label" fallback="Vaccine name" />,
+      label: <TranslatedText stringId="vaccine.vaccineName.label" fallback="Vaccine name" />,
       value: vaccineName || '-',
     },
     vaccineBrand: {
-      label: <TranslatedText stringId="vaccine.form.vaccineBrand.label" fallback="Vaccine brand" />,
+      label: <TranslatedText stringId="vaccine.vaccineBrand.label" fallback="Vaccine brand" />,
       value: vaccineBrand || '-',
     },
     disease: {
-      label: <TranslatedText stringId="vaccine.form.disease.label" fallback="Disease" />,
+      label: <TranslatedText stringId="vaccine.disease.label" fallback="Disease" />,
       value: disease || '-',
     },
     status: {
-      label: <TranslatedText stringId="vaccine.form.status.label" fallback="Status" />,
+      label: <TranslatedText stringId="vaccine.status.label" fallback="Status" />,
       value: givenElsewhere ? 'Given elsewhere' : VACCINE_STATUS_LABELS[status] || '-',
     },
     country: {
-      label: <TranslatedText stringId="vaccine.form.country.label" fallback="Country" />,
+      label: <TranslatedText stringId="vaccine.country.label" fallback="Country" />,
       value: givenBy || '-',
     },
     reason: {
-      label: <TranslatedText stringId="vaccine.form.reason.label" fallback="Reason" />,
+      label: <TranslatedText stringId="vaccine.reason.label" fallback="Reason" />,
       value: notGivenReason?.name || '-',
     },
     circumstance: {
-      label: <TranslatedText stringId="vaccine.form.circumstance.label" fallback="Circumstance" />,
+      label: <TranslatedText stringId="vaccine.circumstance.label" fallback="Circumstance" />,
       value:
         vaccineCircumstances?.length > 0
           ? vaccineCircumstances?.map(circumstance => circumstance?.name)?.join(', ')
@@ -440,23 +440,25 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
 
   const modalVersion = modalVersions.find(modalType => modalType.condition === true);
   if (!modalVersion) return <ErrorMessage />;
-
-  const fieldGroups = Object.entries(modalVersion.fieldGroups)
+  const fieldGroups = modalVersion.fieldGroups
     .map(group =>
-      group
-        .filter(field => {
-          // filter out fields if they're conditional on the editMode, and the editMode doesn't match
-          // this can be written more concisely but i want it explicit
-          if (editMode && field.editMode === true) return true;
-          if (!editMode && field.editMode === false) return true;
-          if (!Object.prototype.hasOwnProperty.call(field, 'editMode')) return true;
-          return false;
-        })
-        .map(({ field }) => field),
+      ({
+        ...group,
+        fields: group.fields
+          .filter(field => {
+            // filter out fields if they're conditional on the editMode, and the editMode doesn't match
+            // this can be written more concisely but i want it explicit
+            if (editMode && field.editMode === true) return true;
+            if (!editMode && field.editMode === false) return true;
+            if (!Object.prototype.hasOwnProperty.call(field, 'editMode')) return true;
+            return false;
+          })
+          .map(({ field }) => field)
+      })
     )
     .filter(group => {
       // eliminate empty groups
-      return group.length > 0;
+      return group.fields.length > 0;
     });
 
   return <FieldsViewer labelValueFieldGroups={fieldGroups} editMode={editMode} />;

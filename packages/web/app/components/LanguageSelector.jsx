@@ -1,9 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
-import { useQuery } from '@tanstack/react-query';
 import { Colors } from '../constants';
-import { useApi } from '../api';
+import { useTranslationOptions } from '../api/queries';
 import { SelectInput } from './Field';
+import { useTranslation } from '../contexts/Translation.jsx';
 
 const LanguageSelectorContainer = styled.div`
   position: absolute;
@@ -49,15 +49,16 @@ const customStyles = {
   }),
 };
 
-export const LanguageSelector = ({ field }) => {
-  const api = useApi();
-
-  const { data: languageOptions = [], error } = useQuery(['languageList'], () =>
-    api.get('public/translation/preLogin', null),
-  );
+export const LanguageSelector = () => {
+  const { updateStoredLanguage, storedLanguage } = useTranslation();
+  const { data: languageOptions = [], error } = useTranslationOptions();
 
   // If multiple languages not implemented, no need for this component to show
   if (languageOptions.length <= 1) return null;
+
+  const handleLanguageChange = event => {
+    updateStoredLanguage(event.target.value);
+  };
 
   return (
     <LanguageSelectorContainer>
@@ -67,7 +68,9 @@ export const LanguageSelector = ({ field }) => {
         isClearable={false}
         error={!!error}
         customStyleObject={customStyles}
-        {...field}
+        name="Language"
+        value={storedLanguage}
+        onChange={handleLanguageChange}
       />
     </LanguageSelectorContainer>
   );

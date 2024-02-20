@@ -123,7 +123,7 @@ export const VaccineForm = ({
     return (
       <ErrorMessage
         title={
-          <TranslatedText stringId="vaccine.form.loadError" fallback="Cannot load vaccine form" />
+          <TranslatedText stringId="vaccine.loadError" fallback="Cannot load vaccine form" />
         }
         errorMessage={currentEncounterError?.message || vaccinationDefaultsError?.message}
       />
