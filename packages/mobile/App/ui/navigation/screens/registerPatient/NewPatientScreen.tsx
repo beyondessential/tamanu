@@ -1,11 +1,5 @@
 import React, { ReactElement, useCallback } from 'react';
-import {
-  FullView,
-  RowView,
-  StyledSafeAreaView,
-  StyledText,
-  StyledView,
-} from '/styled/common';
+import { FullView, RowView, StyledSafeAreaView, StyledText, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { Button } from '/components/Button';
@@ -14,7 +8,7 @@ import { Routes } from '/helpers/routes';
 import { compose } from 'redux';
 import { withPatient } from '/containers/Patient';
 import { NewPatientScreenProps } from '/interfaces/screens/RegisterPatientStack/NewPatientScreenProps';
-import { joinNames } from '~/ui/helpers/user';
+import { getGender, joinNames } from '~/ui/helpers/user';
 import { getDisplayAge } from '~/ui/helpers/date';
 import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 
@@ -34,7 +28,7 @@ const Screen = ({ navigation, selectedPatient }: NewPatientScreenProps): ReactEl
 
   const onStartVisit = useCallback(() => {
     navigation.navigate(Routes.HomeStack.HomeTabs.Index, {
-      screen: Routes.HomeStack.PatientDetailsStack.Index,
+      screen: Routes.HomeStack.SearchPatientStack.Index,
     });
   }, []);
 
@@ -80,8 +74,8 @@ const Screen = ({ navigation, selectedPatient }: NewPatientScreenProps): ReactEl
           {joinNames(selectedPatient)}
         </StyledText>
         <StyledText color={theme.colors.TEXT_MID} marginTop={10}>
-          {selectedPatient.gender} {getDisplayAge(selectedPatient.dateOfBirth, ageDisplayFormat)}{' '}
-          old{' '}
+          {getGender(selectedPatient.sex)}{' '}
+          {getDisplayAge(selectedPatient.dateOfBirth, ageDisplayFormat)} old{' '}
         </StyledText>
         <StyledText
           fontSize={screenPercentageToDP(2.55, Orientation.Height)}

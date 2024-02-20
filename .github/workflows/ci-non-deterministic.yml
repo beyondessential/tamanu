@@ -31,8 +31,6 @@ jobs:
           - "16"
     name: Test Migrations for Determinism on pg${{ matrix.postgres }}
     runs-on: ubuntu-latest
-    env:
-      ARTIFACT_NAME: fake-pg${{ matrix.postgres }}
     steps:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v3
@@ -41,6 +39,8 @@ jobs:
           role-to-assume: arn:aws:iam::143295493206:role/gha-tamanu-test-data-snapshots-s3
           role-session-name: GHA@fake=generate
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 4000
       - uses: actions/setup-node@v4
         with:
           node-version: 20.x
@@ -58,11 +58,11 @@ jobs:
           source .github/scripts/install-postgres-ubuntu.sh ${{ matrix.postgres }}
           .github/scripts/setup-postgres-for-one-package.sh fake
 
-      - run: python3 -m pip install gql boto3 httpx
+      - run: python3 -m pip install boto3
 
       - id: commit-finder
         run: |
-          commit=$(.github/scripts/find-dumped.py --github-token ${{ github.token }} --branch ${{ github.head_ref || github.ref_name }})
+          commit=$(.github/scripts/find-dumped.py)
           (( $? == 0 )) || exit 1
           echo "commit=$commit" >> $GITHUB_OUTPUT
 
