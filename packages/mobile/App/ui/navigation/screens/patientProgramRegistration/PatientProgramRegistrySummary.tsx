@@ -12,9 +12,11 @@ import { withPatient } from '~/ui/containers/Patient';
 import { useBackendEffect } from '~/ui/hooks/index';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
+import { useAuth } from '~/ui/contexts/AuthContext';
 
 const PatientProgramRegistrySummary_ = ({ selectedPatient }): ReactElement => {
   const navigation = useNavigation();
+  const { ability } = useAuth();
   const [programRegistries, programRegistryError, isProgramRegistryLoading] = useBackendEffect(
     async ({ models }) =>
       await models.ProgramRegistry.getProgramRegistriesForPatient(selectedPatient.id),
@@ -52,9 +54,11 @@ const PatientProgramRegistrySummary_ = ({ selectedPatient }): ReactElement => {
         </Button>
       </RowView>
       <StyledView borderColor={theme.colors.BOX_OUTLINE} height={1} />
-      <StyledView paddingLeft={20} paddingRight={20} background={theme.colors.WHITE}>
-        <PatientProgramRegistrationList selectedPatient={selectedPatient} />
-      </StyledView>
+      {ability.can('PatientProgramRegistry', 'list') && (
+        <StyledView paddingLeft={20} paddingRight={20} background={theme.colors.WHITE}>
+          <PatientProgramRegistrationList selectedPatient={selectedPatient} />
+        </StyledView>
+      )}
     </StyledView>
   );
 };
