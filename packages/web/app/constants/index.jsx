@@ -1,5 +1,3 @@
-import { capitalize } from 'lodash';
-
 import { createValueIndex } from '@tamanu/shared/utils/valueIndex';
 import {
   APPOINTMENT_STATUSES,
@@ -9,6 +7,7 @@ import {
   ATTENDANT_OF_BIRTH_TYPES,
   APPOINTMENT_TYPES,
   DOCUMENT_SOURCES,
+  DIAGNOSIS_CERTAINTY,
   ENCOUNTER_LABELS,
   ENCOUNTER_TYPES,
   IMAGING_REQUEST_STATUS_CONFIG,
@@ -113,61 +112,63 @@ export const headerStyle = {
   backgroundColor: Colors.searchTintColor,
 };
 
-export const medicationStatuses = {
-  COMPLETED: 'Completed',
-  FULFILLED: 'Fulfilled',
-  REQUESTED: 'Requested',
+export const BINARY = {
+  YES: 'yes',
+  NO: 'no',
+  UNKNOWN: 'unknown',
 };
 
-export const binaryOptions = [
-  { value: 'yes', label: 'Yes' },
-  { value: 'no', label: 'No' },
+export const BINARY_LABELS = {
+  [BINARY.YES]: 'Yes',
+  [BINARY.NO]: 'No',
+  [BINARY.UNKNOWN]: 'Unknown',
+};
+
+export const BINARY_OPTIONS = [
+  { value: BINARY.YES, label: BINARY_LABELS[BINARY.YES] },
+  { value: BINARY.NO, label: BINARY_LABELS[BINARY.NO] },
 ];
 
-export const binaryUnknownOptions = [...binaryOptions, { value: 'unknown', label: 'Unknown' }];
+export const BINARY_UNKNOWN_OPTIONS = [
+  ...BINARY_OPTIONS,
+  { value: BINARY.UNKNOWN, label: BINARY_LABELS[BINARY.UNKNOWN] },
+];
 
-export const locationOptions = [
+export const DIAGNOSIS_CERTAINTY_LABELS = {
+  [DIAGNOSIS_CERTAINTY.EMERGENCY]: 'ED Diagnosis',
+  [DIAGNOSIS_CERTAINTY.SUSPECTED]: 'Suspected',
+  [DIAGNOSIS_CERTAINTY.CONFIRMED]: 'Confirmed',
+  [DIAGNOSIS_CERTAINTY.DISPROVEN]: 'Disproven',
+  [DIAGNOSIS_CERTAINTY.RECORDED_IN_ERROR]: 'Recorded in error',
+};
+
+export const DIAGNOSIS_CERTAINTY_OPTIONS = [
   {
-    value: 'australian-capital-territory',
-    label: 'Australian Capital Territory',
-    className: 'State-ACT',
+    value: DIAGNOSIS_CERTAINTY.EMERGENCY,
+    label: DIAGNOSIS_CERTAINTY_LABELS[DIAGNOSIS_CERTAINTY.EMERGENCY],
+    triageOnly: true,
   },
-  { value: 'new-south-wales', label: 'New South Wales', className: 'State-NSW' },
-  { value: 'victoria', label: 'Victoria', className: 'State-Vic' },
-  { value: 'queensland', label: 'Queensland', className: 'State-Qld' },
-  { value: 'western-australia', label: 'Western Australia', className: 'State-WA' },
-  { value: 'south-australia', label: 'South Australia', className: 'State-SA' },
-  { value: 'tasmania', label: 'Tasmania', className: 'State-Tas' },
-  { value: 'northern-territory', label: 'Northern Territory', className: 'State-NT' },
+  {
+    value: DIAGNOSIS_CERTAINTY.SUSPECTED,
+    label: DIAGNOSIS_CERTAINTY_LABELS[DIAGNOSIS_CERTAINTY.SUSPECTED],
+  },
+  {
+    value: DIAGNOSIS_CERTAINTY.CONFIRMED,
+    label: DIAGNOSIS_CERTAINTY_LABELS[DIAGNOSIS_CERTAINTY.CONFIRMED],
+  },
+  {
+    value: DIAGNOSIS_CERTAINTY.DISPROVEN,
+    label: DIAGNOSIS_CERTAINTY_LABELS[DIAGNOSIS_CERTAINTY.DISPROVEN],
+    editOnly: true,
+  },
+  {
+    value: DIAGNOSIS_CERTAINTY.RECORDED_IN_ERROR,
+    label: DIAGNOSIS_CERTAINTY_LABELS[DIAGNOSIS_CERTAINTY.RECORDED_IN_ERROR],
+    editOnly: true,
+  },
 ];
 
-export const reportOptions = [
-  { value: 'detailedAdmissions', label: 'Admissions Detail', className: 'State-ACT' },
-  { value: 'admissions', label: 'Admissions Summary', className: 'State-NSW' },
-  { value: 'diagnostic', label: 'Diagnostic Testing', className: 'State-Vic' },
-  { value: 'detailedDischarges', label: 'Discharges Detail', className: 'State-Qld' },
-  { value: 'discharges', label: 'Discharges Summary', className: 'State-WA' },
-  { value: 'detailedProcedures', label: 'Procedures Detail', className: 'State-SA' },
-  { value: 'procedures', label: 'Procedures Summary', className: 'State-Tas' },
-  { value: 'status', label: 'Patient Status', className: 'State-NT' },
-  { value: 'patientDays', label: 'Total Patient Days', className: 'State-NT' },
-  { value: 'detailedPatientDays', label: 'Total Patient Days (Detailed)', className: 'State-NT' },
-  { value: 'encounter', label: 'Encounter', className: 'State-NT' },
-];
-
-export const diagnosisCertaintyOptions = [
-  { value: 'emergency', label: 'ED Diagnosis', triageOnly: true },
-  { value: 'suspected', label: 'Suspected' },
-  { value: 'confirmed', label: 'Confirmed' },
-  { value: 'disproven', label: 'Disproven', editOnly: true },
-  { value: 'error', label: 'Recorded in error', editOnly: true },
-];
-
-export const CERTAINTY_OPTIONS_BY_VALUE = createValueIndex(diagnosisCertaintyOptions);
-
-export const nonEmergencyDiagnosisCertaintyOptions = diagnosisCertaintyOptions.filter(
-  x => x.value !== CERTAINTY_OPTIONS_BY_VALUE.emergency.value,
-);
+export const CERTAINTY_OPTIONS_BY_VALUE = createValueIndex(DIAGNOSIS_CERTAINTY_OPTIONS);
 
 // The order here is how they'll show up in the dropdown
 // Treatment plan first and alphabetical after that
@@ -245,62 +246,145 @@ export const encounterOptions = [
 
 export const ENCOUNTER_OPTIONS_BY_VALUE = createValueIndex(encounterOptions);
 
-export const operativePlanStatuses = {
-  PLANNED: 'planned',
-  DROPPED: 'dropped',
-  COMPLETED: 'completed',
+export const BLOOD_TYPES = {
+  A_POSITIVE: 'A+',
+  A_NEGATIVE: 'A-',
+  AB_NEGATIVE: 'AB-',
+  AB_POSITIVE: 'AB+',
+  B_POSITIVE: 'B+',
+  B_NEGATIVE: 'B-',
+  O_POSITIVE: 'O+',
+  O_NEGATIVE: 'O-',
 };
 
-export const operativePlanStatusList = Object.values(operativePlanStatuses).map(status => ({
-  value: status,
-  label: capitalize(status),
-}));
+export const BLOOD_LABELS = {
+  [BLOOD_TYPES.A_POSITIVE]: 'A+',
+  [BLOOD_TYPES.A_NEGATIVE]: 'A-',
+  [BLOOD_TYPES.AB_NEGATIVE]: 'AB-',
+  [BLOOD_TYPES.AB_POSITIVE]: 'AB+',
+  [BLOOD_TYPES.B_POSITIVE]: 'B+',
+  [BLOOD_TYPES.B_NEGATIVE]: 'B-',
+  [BLOOD_TYPES.O_POSITIVE]: 'O+',
+  [BLOOD_TYPES.O_NEGATIVE]: 'O-',
+};
 
-export const bloodOptions = [
-  { value: 'A+', label: 'A+' },
-  { value: 'A-', label: 'A-' },
-  { value: 'AB-', label: 'AB-' },
-  { value: 'AB+', label: 'AB+' },
-  { value: 'B+', label: 'B+' },
-  { value: 'B-', label: 'B-' },
-  { value: 'O+', label: 'O+' },
-  { value: 'O-', label: 'O-' },
+export const BLOOD_OPTIONS = [
+  { value: BLOOD_TYPES.A_POSITIVE, label: BLOOD_LABELS[BLOOD_TYPES.A_POSITIVE] },
+  { value: BLOOD_TYPES.A_NEGATIVE, label: BLOOD_LABELS[BLOOD_TYPES.A_NEGATIVE] },
+  { value: BLOOD_TYPES.AB_NEGATIVE, label: BLOOD_LABELS[BLOOD_TYPES.AB_NEGATIVE] },
+  { value: BLOOD_TYPES.AB_POSITIVE, label: BLOOD_LABELS[BLOOD_TYPES.AB_POSITIVE] },
+  { value: BLOOD_TYPES.B_POSITIVE, label: BLOOD_LABELS[BLOOD_TYPES.B_POSITIVE] },
+  { value: BLOOD_TYPES.B_NEGATIVE, label: BLOOD_LABELS[BLOOD_TYPES.B_NEGATIVE] },
+  { value: BLOOD_TYPES.O_POSITIVE, label: BLOOD_LABELS[BLOOD_TYPES.O_POSITIVE] },
+  { value: BLOOD_TYPES.O_NEGATIVE, label: BLOOD_LABELS[BLOOD_TYPES.O_NEGATIVE] },
 ];
 
-export const titleOptions = [
-  { value: 'Mr', label: 'Mr' },
-  { value: 'Mrs', label: 'Mrs' },
-  { value: 'Ms', label: 'Ms' },
-  { value: 'Miss', label: 'Miss' },
-  { value: 'Dr', label: 'Dr' },
-  { value: 'Sr', label: 'Sr' },
-  { value: 'Sn', label: 'Sn' },
+export const TITLES = {
+  MR: 'Mr',
+  MRS: 'Mrs',
+  MS: 'Ms',
+  MISS: 'Miss',
+  DR: 'Dr',
+  SR: 'Sr',
+  SN: 'Sn',
+};
+
+export const TITLE_LABELS = {
+  [TITLES.MR]: 'Mr',
+  [TITLES.MRS]: 'Mrs',
+  [TITLES.MS]: 'Ms',
+  [TITLES.MISS]: 'Miss',
+  [TITLES.DR]: 'Dr',
+  [TITLES.SR]: 'Sr',
+  [TITLES.SN]: 'Sn',
+};
+
+export const TITLE_OPTIONS = [
+  { value: TITLES.MR, label: TITLE_LABELS[TITLES.MR] },
+  { value: TITLES.MRS, label: TITLE_LABELS[TITLES.MRS] },
+  { value: TITLES.MS, label: TITLE_LABELS[TITLES.MS] },
+  { value: TITLES.MISS, label: TITLE_LABELS[TITLES.MISS] },
+  { value: TITLES.DR, label: TITLE_LABELS[TITLES.DR] },
+  { value: TITLES.SR, label: TITLE_LABELS[TITLES.SR] },
+  { value: TITLES.SN, label: TITLE_LABELS[TITLES.SN] },
 ];
 
-export const socialMediaOptions = [
-  { value: 'Facebook', label: 'Facebook' },
-  { value: 'Instagram', label: 'Instagram' },
-  { value: 'LinkedIn', label: 'LinkedIn' },
-  { value: 'Twitter', label: 'Twitter' },
-  { value: 'Viber', label: 'Viber' },
-  { value: 'WhatsApp', label: 'WhatsApp' },
+export const SOCIAL_MEDIA_TYPES = {
+  FACEBOOK: 'Facebook',
+  INSTAGRAM: 'Instagram',
+  LINKEDIN: 'LinkedIn',
+  TWITTER: 'Twitter',
+  VIBER: 'Viber',
+  WHATSAPP: 'WhatsApp',
+};
+
+export const SOCIAL_MEDIA_LABELS = {
+  [SOCIAL_MEDIA_TYPES.FACEBOOK]: 'Facebook',
+  [SOCIAL_MEDIA_TYPES.INSTAGRAM]: 'Instagram',
+  [SOCIAL_MEDIA_TYPES.LINKEDIN]: 'LinkedIn',
+  [SOCIAL_MEDIA_TYPES.TWITTER]: 'Twitter',
+  [SOCIAL_MEDIA_TYPES.VIBER]: 'Viber',
+  [SOCIAL_MEDIA_TYPES.WHATSAPP]: 'WhatsApp',
+};
+
+export const SOCIAL_MEDIA_OPTIONS = [
+  { value: SOCIAL_MEDIA_TYPES.FACEBOOK, label: SOCIAL_MEDIA_LABELS[SOCIAL_MEDIA_TYPES.FACEBOOK] },
+  { value: SOCIAL_MEDIA_TYPES.INSTAGRAM, label: SOCIAL_MEDIA_LABELS[SOCIAL_MEDIA_TYPES.INSTAGRAM] },
+  { value: SOCIAL_MEDIA_TYPES.LINKEDIN, label: SOCIAL_MEDIA_LABELS[SOCIAL_MEDIA_TYPES.LINKEDIN] },
+  { value: SOCIAL_MEDIA_TYPES.TWITTER, label: SOCIAL_MEDIA_LABELS[SOCIAL_MEDIA_TYPES.TWITTER] },
+  { value: SOCIAL_MEDIA_TYPES.VIBER, label: SOCIAL_MEDIA_LABELS[SOCIAL_MEDIA_TYPES.VIBER] },
+  { value: SOCIAL_MEDIA_TYPES.WHATSAPP, label: SOCIAL_MEDIA_LABELS[SOCIAL_MEDIA_TYPES.WHATSAPP] },
 ];
 
-export const educationalAttainmentOptions = [
-  { value: 'No formal schooling', label: 'No formal schooling' },
-  { value: 'Less than primary school', label: 'Less than primary school' },
-  { value: 'Primary school completed', label: 'Primary school completed' },
-  { value: 'Sec school completed', label: 'Sec school completed' },
-  { value: 'High school completed', label: 'High school completed' },
-  { value: 'University completed', label: 'University completed' },
-  { value: 'Post grad completed', label: 'Post grad completed' },
-];
+export const EDUCATIONAL_ATTAINMENT_TYPES = {
+  NO_FORMAL_SCHOOLING: 'No formal schooling',
+  LESS_THAN_PRIMARY_SCHOOL: 'Less than primary school',
+  PRIMARY_SCHOOL_COMPLETED: 'Primary school completed',
+  SEC_SCHOOL_COMPLETED: 'Sec school completed',
+  HIGH_SCHOOL_COMPLETED: 'High school completed',
+  UNIVERSITY_COMPLETED: 'University completed',
+  POST_GRAD_COMPLETED: 'Post grad completed',
+};
 
-export const pregnancyOutcomes = [
-  { value: '', label: 'N/A' },
-  { value: 'liveBirth', label: 'Live Birth' },
-  { value: 'stillBirth', label: 'Still Birth' },
-  { value: 'fetalDeath', label: 'Fetal Death' },
+export const EDUCATIONAL_ATTAINMENT_LABELS = {
+  [EDUCATIONAL_ATTAINMENT_TYPES.NO_FORMAL_SCHOOLING]: 'No formal schooling',
+  [EDUCATIONAL_ATTAINMENT_TYPES.LESS_THAN_PRIMARY_SCHOOL]: 'Less than primary school',
+  [EDUCATIONAL_ATTAINMENT_TYPES.PRIMARY_SCHOOL_COMPLETED]: 'Primary school completed',
+  [EDUCATIONAL_ATTAINMENT_TYPES.SEC_SCHOOL_COMPLETED]: 'Sec school completed',
+  [EDUCATIONAL_ATTAINMENT_TYPES.HIGH_SCHOOL_COMPLETED]: 'High school completed',
+  [EDUCATIONAL_ATTAINMENT_TYPES.UNIVERSITY_COMPLETED]: 'University completed',
+  [EDUCATIONAL_ATTAINMENT_TYPES.POST_GRAD_COMPLETED]: 'Post grad completed',
+};
+
+export const EDUCATIONAL_ATTAINMENT_OPTIONS = [
+  {
+    value: EDUCATIONAL_ATTAINMENT_TYPES.NO_FORMAL_SCHOOLING,
+    label: EDUCATIONAL_ATTAINMENT_LABELS[EDUCATIONAL_ATTAINMENT_TYPES.NO_FORMAL_SCHOOLING],
+  },
+  {
+    value: EDUCATIONAL_ATTAINMENT_TYPES.LESS_THAN_PRIMARY_SCHOOL,
+    label: EDUCATIONAL_ATTAINMENT_LABELS[EDUCATIONAL_ATTAINMENT_TYPES.LESS_THAN_PRIMARY_SCHOOL],
+  },
+  {
+    value: EDUCATIONAL_ATTAINMENT_TYPES.PRIMARY_SCHOOL_COMPLETED,
+    label: EDUCATIONAL_ATTAINMENT_LABELS[EDUCATIONAL_ATTAINMENT_TYPES.PRIMARY_SCHOOL_COMPLETED],
+  },
+  {
+    value: EDUCATIONAL_ATTAINMENT_TYPES.SEC_SCHOOL_COMPLETED,
+    label: EDUCATIONAL_ATTAINMENT_LABELS[EDUCATIONAL_ATTAINMENT_TYPES.SEC_SCHOOL_COMPLETED],
+  },
+  {
+    value: EDUCATIONAL_ATTAINMENT_TYPES.HIGH_SCHOOL_COMPLETED,
+    label: EDUCATIONAL_ATTAINMENT_LABELS[EDUCATIONAL_ATTAINMENT_TYPES.HIGH_SCHOOL_COMPLETED],
+  },
+  {
+    value: EDUCATIONAL_ATTAINMENT_TYPES.UNIVERSITY_COMPLETED,
+    label: EDUCATIONAL_ATTAINMENT_LABELS[EDUCATIONAL_ATTAINMENT_TYPES.UNIVERSITY_COMPLETED],
+  },
+  {
+    value: EDUCATIONAL_ATTAINMENT_TYPES.POST_GRAD_COMPLETED,
+    label: EDUCATIONAL_ATTAINMENT_LABELS[EDUCATIONAL_ATTAINMENT_TYPES.POST_GRAD_COMPLETED],
+  },
 ];
 
 export const REPORT_TYPES = {
@@ -321,6 +405,7 @@ export const LOCAL_STORAGE_KEYS = {
   LANGUAGE: 'language',
 };
 
+// TODO: Need to think about these ones more
 export const appointmentTypeOptions = Object.values(APPOINTMENT_TYPES).map(type => ({
   label: type,
   value: type,
@@ -372,17 +457,26 @@ export const ALPHABET_FOR_ID =
   // eslint-disable-next-line no-useless-concat
   'ABCDEFGH' + /* I */ 'JK' + /* L */ 'MN' + /* O */ 'PQRSTUVWXYZ' + /* 01 */ '23456789';
 
-export const INVOICE_STATUS_OPTIONS = [
-  { label: 'Cancelled', value: INVOICE_STATUSES.CANCELLED },
-  { label: 'In progress', value: INVOICE_STATUSES.IN_PROGRESS },
-  { label: 'Finalised', value: INVOICE_STATUSES.FINALISED },
-];
-
 export const INVOICE_STATUS_LABELS = {
   [INVOICE_STATUSES.CANCELLED]: 'Cancelled',
   [INVOICE_STATUSES.IN_PROGRESS]: 'In progress',
   [INVOICE_STATUSES.FINALISED]: 'Finalised',
 };
+
+export const INVOICE_STATUS_OPTIONS = [
+  {
+    value: INVOICE_STATUSES.CANCELLED,
+    label: INVOICE_STATUS_LABELS[INVOICE_STATUSES.CANCELLED],
+  },
+  {
+    value: INVOICE_STATUSES.IN_PROGRESS,
+    label: INVOICE_STATUS_LABELS[INVOICE_STATUSES.IN_PROGRESS],
+  },
+  {
+    value: INVOICE_STATUSES.FINALISED,
+    label: INVOICE_STATUS_LABELS[INVOICE_STATUSES.FINALISED],
+  },
+];
 
 export const INVOICE_STATUS_COLORS = {
   [INVOICE_STATUSES.CANCELLED]: '#FFCC24',
@@ -396,62 +490,141 @@ export const INVOICE_PAYMENT_STATUS_LABELS = {
 };
 
 export const INVOICE_PAYMENT_STATUS_OPTIONS = [
-  { label: 'Unpaid', value: INVOICE_PAYMENT_STATUSES.UNPAID },
-  { label: 'Paid', value: INVOICE_PAYMENT_STATUSES.PAID },
+  {
+    value: INVOICE_PAYMENT_STATUSES.UNPAID,
+    label: INVOICE_PAYMENT_STATUS_LABELS[INVOICE_PAYMENT_STATUSES.UNPAID],
+  },
+  {
+    value: INVOICE_PAYMENT_STATUSES.PAID,
+    label: INVOICE_PAYMENT_STATUS_LABELS[INVOICE_PAYMENT_STATUSES.PAID],
+  },
 ];
+
+export const BIRTH_DELIVERY_TYPE_LABELS = {
+  [BIRTH_DELIVERY_TYPES.NORMAL_VAGINAL_DELIVERY]: 'Normal vaginal delivery',
+  [BIRTH_DELIVERY_TYPES.BREECH]: 'Breech',
+  [BIRTH_DELIVERY_TYPES.EMERGENCY_C_SECTION]: 'Emergency C-section',
+  [BIRTH_DELIVERY_TYPES.ELECTIVE_C_SECTION]: 'Elective C-section',
+  [BIRTH_DELIVERY_TYPES.VACUUM_EXTRACTION]: 'Vacuum extraction',
+  [BIRTH_DELIVERY_TYPES.FORCEPS]: 'Forceps',
+  [BIRTH_DELIVERY_TYPES.OTHER]: 'Other',
+};
 
 export const BIRTH_DELIVERY_TYPE_OPTIONS = [
-  { value: BIRTH_DELIVERY_TYPES.NORMAL_VAGINAL_DELIVERY, label: 'Normal vaginal delivery' },
-  { value: BIRTH_DELIVERY_TYPES.BREECH, label: 'Breech' },
-  { value: BIRTH_DELIVERY_TYPES.EMERGENCY_C_SECTION, label: 'Emergency C-section' },
-  { value: BIRTH_DELIVERY_TYPES.ELECTIVE_C_SECTION, label: 'Elective C-section' },
-  { value: BIRTH_DELIVERY_TYPES.VACUUM_EXTRACTION, label: 'Vacuum extraction' },
-  { value: BIRTH_DELIVERY_TYPES.FORCEPS, label: 'Forceps' },
-  { value: BIRTH_DELIVERY_TYPES.OTHER, label: 'Other' },
+  {
+    value: BIRTH_DELIVERY_TYPES.NORMAL_VAGINAL_DELIVERY,
+    label: BIRTH_DELIVERY_TYPE_LABELS[BIRTH_DELIVERY_TYPES.NORMAL_VAGINAL_DELIVERY],
+  },
+  {
+    value: BIRTH_DELIVERY_TYPES.BREECH,
+    label: BIRTH_DELIVERY_TYPE_LABELS[BIRTH_DELIVERY_TYPES.BREECH],
+  },
+  {
+    value: BIRTH_DELIVERY_TYPES.EMERGENCY_C_SECTION,
+    label: BIRTH_DELIVERY_TYPE_LABELS[BIRTH_DELIVERY_TYPES.EMERGENCY_C_SECTION],
+  },
+  {
+    value: BIRTH_DELIVERY_TYPES.ELECTIVE_C_SECTION,
+    label: BIRTH_DELIVERY_TYPE_LABELS[BIRTH_DELIVERY_TYPES.ELECTIVE_C_SECTION],
+  },
+  {
+    value: BIRTH_DELIVERY_TYPES.VACUUM_EXTRACTION,
+    label: BIRTH_DELIVERY_TYPE_LABELS[BIRTH_DELIVERY_TYPES.VACUUM_EXTRACTION],
+  },
+  {
+    value: BIRTH_DELIVERY_TYPES.FORCEPS,
+    label: BIRTH_DELIVERY_TYPE_LABELS[BIRTH_DELIVERY_TYPES.FORCEPS],
+  },
+  {
+    value: BIRTH_DELIVERY_TYPES.OTHER,
+    label: BIRTH_DELIVERY_TYPE_LABELS[BIRTH_DELIVERY_TYPES.OTHER],
+  },
 ];
+
+export const BIRTH_TYPE_LABELS = {
+  [BIRTH_TYPES.SINGLE]: 'Single',
+  [BIRTH_TYPES.PLURAL]: 'Plural',
+};
 
 export const BIRTH_TYPE_OPTIONS = [
-  { value: BIRTH_TYPES.SINGLE, label: 'Single' },
-  { value: BIRTH_TYPES.PLURAL, label: 'Plural' },
+  { value: BIRTH_TYPES.SINGLE, label: BIRTH_TYPE_LABELS[BIRTH_TYPES.SINGLE] },
+  { value: BIRTH_TYPES.PLURAL, label: BIRTH_TYPE_LABELS[BIRTH_TYPES.PLURAL] },
 ];
 
+export const PLACE_OF_BIRTH_LABELS = {
+  [PLACE_OF_BIRTH_TYPES.HEALTH_FACILITY]: 'Health facility',
+  [PLACE_OF_BIRTH_TYPES.HOME]: 'Home',
+  [PLACE_OF_BIRTH_TYPES.OTHER]: 'Other',
+};
+
 export const PLACE_OF_BIRTH_OPTIONS = [
-  { value: PLACE_OF_BIRTH_TYPES.HEALTH_FACILITY, label: 'Health facility' },
-  { value: PLACE_OF_BIRTH_TYPES.HOME, label: 'Home' },
-  { value: PLACE_OF_BIRTH_TYPES.OTHER, label: 'Other' },
+  {
+    value: PLACE_OF_BIRTH_TYPES.HEALTH_FACILITY,
+    label: PLACE_OF_BIRTH_LABELS[PLACE_OF_BIRTH_TYPES.HEALTH_FACILITY],
+  },
+  { value: PLACE_OF_BIRTH_TYPES.HOME, label: PLACE_OF_BIRTH_LABELS[PLACE_OF_BIRTH_TYPES.HOME] },
+  { value: PLACE_OF_BIRTH_TYPES.OTHER, label: PLACE_OF_BIRTH_LABELS[PLACE_OF_BIRTH_TYPES.OTHER] },
 ];
+
+export const ATTENDANT_OF_BIRTH_LABELS = {
+  [ATTENDANT_OF_BIRTH_TYPES.DOCTOR]: 'Doctor',
+  [ATTENDANT_OF_BIRTH_TYPES.MIDWIFE]: 'Midwife',
+  [ATTENDANT_OF_BIRTH_TYPES.NURSE]: 'Nurse',
+  [ATTENDANT_OF_BIRTH_TYPES.TRADITIONAL_BIRTH_ATTENDANT]: 'Traditional birth attendant',
+  [ATTENDANT_OF_BIRTH_TYPES.OTHER]: 'Other',
+};
 
 export const ATTENDANT_OF_BIRTH_OPTIONS = [
   {
     value: ATTENDANT_OF_BIRTH_TYPES.DOCTOR,
-    label: 'Doctor',
+    label: ATTENDANT_OF_BIRTH_LABELS[ATTENDANT_OF_BIRTH_TYPES.DOCTOR],
   },
   {
     value: ATTENDANT_OF_BIRTH_TYPES.MIDWIFE,
-    label: 'Midwife',
+    label: ATTENDANT_OF_BIRTH_LABELS[ATTENDANT_OF_BIRTH_TYPES.MIDWIFE],
   },
   {
     value: ATTENDANT_OF_BIRTH_TYPES.NURSE,
-    label: 'Nurse',
+    label: ATTENDANT_OF_BIRTH_LABELS[ATTENDANT_OF_BIRTH_TYPES.NURSE],
   },
   {
     value: ATTENDANT_OF_BIRTH_TYPES.TRADITIONAL_BIRTH_ATTENDANT,
-    label: 'Traditional birth attendant',
+    label: ATTENDANT_OF_BIRTH_LABELS[ATTENDANT_OF_BIRTH_TYPES.TRADITIONAL_BIRTH_ATTENDANT],
   },
   {
     value: ATTENDANT_OF_BIRTH_TYPES.OTHER,
-    label: 'Other',
+    label: ATTENDANT_OF_BIRTH_LABELS[ATTENDANT_OF_BIRTH_TYPES.OTHER],
   },
 ];
+
+export const PATIENT_REGISTRY_LABELS = {
+  [PATIENT_REGISTRY_TYPES.NEW_PATIENT]: 'Create new patient',
+  [PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY]: 'Register birth',
+};
+
 export const PATIENT_REGISTRY_OPTIONS = [
-  { value: PATIENT_REGISTRY_TYPES.NEW_PATIENT, label: 'Create new patient' },
-  { value: PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY, label: 'Register birth' },
+  {
+    value: PATIENT_REGISTRY_TYPES.NEW_PATIENT,
+    label: PATIENT_REGISTRY_LABELS[PATIENT_REGISTRY_TYPES.NEW_PATIENT],
+  },
+  {
+    value: PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY,
+    label: PATIENT_REGISTRY_LABELS[PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY],
+  },
 ];
+
+export const TEMPLATE_TYPE_LABELS = {
+  [TEMPLATE_TYPES.PATIENT_LETTER]: 'Patient Letter',
+};
 
 export const TEMPLATE_TYPE_OPTIONS = [
-  { value: TEMPLATE_TYPES.PATIENT_LETTER, label: 'Patient Letter' },
+  {
+    value: TEMPLATE_TYPES.PATIENT_LETTER,
+    label: TEMPLATE_TYPE_LABELS[TEMPLATE_TYPES.PATIENT_LETTER],
+  },
 ];
 
+// TODO: Need to think about this more
 export const PATIENT_STATUS = {
   INPATIENT: 'Inpatient',
   OUTPATIENT: 'Outpatient',

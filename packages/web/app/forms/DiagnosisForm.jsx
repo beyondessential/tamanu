@@ -2,7 +2,7 @@ import React from 'react';
 import * as yup from 'yup';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { foreignKey } from '../utils/validation';
-import { diagnosisCertaintyOptions } from '../constants';
+import { DIAGNOSIS_CERTAINTY_OPTIONS } from '../constants';
 
 import { FormSubmitCancelRow } from '../components/ButtonRow';
 import { FormGrid } from '../components/FormGrid';
@@ -24,7 +24,7 @@ export const DiagnosisForm = React.memo(
 
     // don't show the "ED Diagnosis" option if we're just on a regular encounter
     // (unless we're editing a diagnosis with ED certainty already set)
-    const certaintyOptions = diagnosisCertaintyOptions.filter(x => {
+    const certaintyOptions = DIAGNOSIS_CERTAINTY_OPTIONS.filter(x => {
       if (x.editOnly && !(diagnosis && diagnosis.id)) return false;
       if (x.triageOnly && !isTriage) return false;
       return true;
