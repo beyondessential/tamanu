@@ -175,7 +175,9 @@ createSuggester(
   (search, query) => {
     const baseWhere = filterByFacilityWhereBuilder(search, query);
 
-    const { q, filterByFacility, ...filters } = query;
+    const { ...filters } = query;
+    delete filters.q;
+    delete filters.filterByFacility;
 
     if (!query.parentId) {
       return { ...baseWhere, ...filters };
@@ -348,7 +350,7 @@ createNameSuggester(
   }),
 );
 
-createNameSuggester(
+createSuggester(
   'programRegistry',
   'ProgramRegistry',
   (search, query) => {

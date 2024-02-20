@@ -2,8 +2,6 @@ import React, { useEffect, useState } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 
-import { USER_DEACTIVATED_ERROR_MESSAGE } from '@tamanu/constants';
-
 import { Typography } from '@material-ui/core';
 import { FormGrid } from '../components/FormGrid';
 import {
@@ -85,7 +83,7 @@ const StyledCheckboxField = styled(Field)`
 `;
 
 const INCORRECT_CREDENTIALS_ERROR_MESSAGE =
-  'Facility server error response: Incorrect username or password, please try again';
+  'Server error response: Incorrect username or password, please try again';
 
 const LoginFormComponent = ({
   errorMessage,
@@ -96,9 +94,7 @@ const LoginFormComponent = ({
   const [genericMessage, setGenericMessage] = useState(null);
 
   useEffect(() => {
-    if (errorMessage === USER_DEACTIVATED_ERROR_MESSAGE) {
-      setFieldError('email', `*${errorMessage}`);
-    } else if (errorMessage === INCORRECT_CREDENTIALS_ERROR_MESSAGE) {
+    if (errorMessage === INCORRECT_CREDENTIALS_ERROR_MESSAGE) {
       setFieldError('email', 'Incorrect credentials');
       setFieldError('password', 'Incorrect credentials');
     } else {

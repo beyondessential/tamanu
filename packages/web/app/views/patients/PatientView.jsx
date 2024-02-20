@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+
 import { TabDisplay } from '../../components/TabDisplay';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { PatientAlert } from '../../components/PatientAlert';
@@ -24,6 +25,7 @@ import { NAVIGATION_CONTAINER_HEIGHT } from '../../components/PatientNavigation'
 import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
 import { PatientSearchParametersProvider } from '../../contexts/PatientViewSearchParameters';
 import { invalidatePatientDataQueries } from '../../utils';
+import { usePatientNavigation } from '../../utils/usePatientNavigation';
 
 const StyledDisplayTabs = styled(TabDisplay)`
   overflow: initial;
@@ -94,12 +96,27 @@ const TABS = [
   },
 ];
 
+const tabCompare = ({ firstTab, secondTab, patientTabLocalisation }) => {
+  const firstTabSortPriority = patientTabLocalisation?.[firstTab.key]?.sortPriority || 0;
+  const secondTabSortPriority = patientTabLocalisation?.[secondTab.key]?.sortPriority || 0;
+  return firstTabSortPriority - secondTabSortPriority;
+};
+
+const usePatientTabs = () => {
+  const { getLocalisation } = useLocalisation();
+  const patientTabLocalisation = getLocalisation('patientTabs');
+  return TABS.filter(
+    tab => patientTabLocalisation?.[tab.key]?.hidden === false,
+  ).sort((firstTab, secondTab) => tabCompare({ firstTab, secondTab, patientTabLocalisation }));
+};
+
 export const PatientView = () => {
   const queryClient = useQueryClient();
-  const { getLocalisation } = useLocalisation();
+  const { navigateToPatient } = usePatientNavigation();
   const query = useUrlSearchParams();
   const patient = useSelector(state => state.patient);
-  const [currentTab, setCurrentTab] = useState(query.get('tab') || PATIENT_TABS.HISTORY);
+  const queryTab = query.get('tab');
+  const [currentTab, setCurrentTab] = useState(queryTab || PATIENT_TABS.HISTORY);
   const disabled = !!patient.death;
   const api = useApi();
   const { data: additionalData, isLoading: isLoadingAdditionalData } = useQuery(
@@ -110,6 +127,17 @@ export const PatientView = () => {
     ['birthData', patient.id],
     () => api.get(`patient/${patient.id}/birthData`),
   );
+
+  useEffect(() => {
+    if (queryTab && queryTab !== currentTab) {
+      setCurrentTab(queryTab);
+      // remove the query parameter 'tab' after the tab has already been selected
+      navigateToPatient(patient.id);
+    }
+
+    // only fire when queryTab is changed
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [queryTab]);
 
   useEffect(() => {
     api.post(`user/recently-viewed-patients/${patient.id}`);
@@ -125,11 +153,11 @@ export const PatientView = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [patient.syncing]);
 
+  const visibleTabs = usePatientTabs();
+
   if (patient.loading || isLoadingAdditionalData || isLoadingBirthData) {
     return <LoadingIndicator />;
   }
-
-  const visibleTabs = TABS.filter(tab => !tab.condition || tab.condition(getLocalisation));
 
   return (
     <PatientSearchParametersProvider>

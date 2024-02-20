@@ -2,9 +2,14 @@ import { Column, Entity, ManyToOne, OneToMany, RelationId } from 'typeorm/browse
 
 import { EncounterType, ICreateSurveyResponse, ISurveyResponse } from '~/types';
 
-import { FieldTypes, getResultValue, getStringValue, isCalculated } from '~/ui/helpers/fields';
+import {
+  FieldTypes,
+  getResultValue,
+  getStringValue,
+  isCalculated,
+  getPatientDataDbLocation,
+} from '~/ui/helpers/fields';
 
-import { PATIENT_DATA_FIELD_LOCATIONS } from '~/constants';
 import { runCalculations } from '~/ui/helpers/calculations';
 import { getCurrentDateTimeString } from '~/ui/helpers/date';
 
@@ -20,17 +25,6 @@ import { SYNC_DIRECTIONS } from './types';
 import { DateTimeStringColumn } from './DateColumns';
 import { PatientProgramRegistration } from './PatientProgramRegistration';
 import { IPatientProgramRegistration } from '~/types/IPatientProgramRegistration';
-
-export const getDbLocation = fieldName => {
-  if (PATIENT_DATA_FIELD_LOCATIONS[fieldName]) {
-    const [modelName, columnName] = PATIENT_DATA_FIELD_LOCATIONS[fieldName];
-    return {
-      modelName,
-      fieldName: columnName,
-    };
-  }
-  throw new Error(`Unknown fieldName: ${fieldName}`);
-};
 
 type RecordValuesByModel = {
   Patient?: Record<string, string>;
@@ -59,7 +53,10 @@ const getFieldsToWrite = (questions, answers): RecordValuesByModel => {
     }
 
     const value = answers[dataElement.code];
-    const { modelName, fieldName } = getDbLocation(configFieldName);
+    const { modelName, fieldName } = getPatientDataDbLocation(configFieldName);
+    if (!modelName) {
+      throw new Error(`Unknown fieldName: ${configFieldName}`);
+    }
     if (!recordValuesByModel[modelName]) recordValuesByModel[modelName] = {};
     recordValuesByModel[modelName][fieldName] = value;
   }

@@ -401,7 +401,7 @@ export const EncounterRecord = React.memo(
             <TableHeading>Notes</TableHeading>
             <Table>
               {notes.map(note => (
-                <Row>
+                <Row key={note.id}>
                   <RowContent>
                     <BoldText>{NOTE_TYPE_LABELS[note.noteType]}</BoldText>
                     <ChildNote>{note.content}</ChildNote>

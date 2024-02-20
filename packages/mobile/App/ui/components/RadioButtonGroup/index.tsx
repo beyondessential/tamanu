@@ -51,7 +51,7 @@ export const RadioButtonGroup = ({
           {required && <RequiredIndicator />}
         </Label>
       )}
-      <RowView>
+      <RowView marginBottom={10}>
         {options.map((option, index) => (
           <RadioComponent
             key={option.label}
