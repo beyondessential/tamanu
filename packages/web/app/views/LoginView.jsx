@@ -106,7 +106,7 @@ export const LoginView = () => {
   const resetPasswordEmail = useSelector(state => state.auth.resetPassword.lastEmailUsed);
   const changePasswordError = useSelector(state => state.auth.changePassword.error);
   const changePasswordSuccess = useSelector(state => state.auth.changePassword.success);
-  const { appVersion } = api;
+  const { agentVersion } = api;
 
   const rememberEmail = localStorage.getItem(REMEMBER_EMAIL);
 
@@ -199,7 +199,7 @@ export const LoginView = () => {
             <Launch style={{ marginLeft: '3px', fontSize: '12px' }} />
           </SupportDesktopLink>
         )}
-        <DesktopVersionText>Version {appVersion}</DesktopVersionText>
+        <DesktopVersionText>Version {agentVersion}</DesktopVersionText>
       </LoginContainer>
       <LoginSplashImage brandId={brandId} />
     </Container>
