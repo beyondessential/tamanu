@@ -119,7 +119,7 @@ const NewPatientButton = ({ onCreateNewPatient }) => {
         noun="Patient"
         onClick={showNewPatient}
       >
-        +
+        +{'\u00A0'}
         <TranslatedText stringId="patientList.action.add" fallback="Add new patient" />
       </ButtonWithPermissionCheck>
       <NewPatientModal
@@ -167,7 +167,14 @@ export const AdmittedPatientsView = () => {
 
   return (
     <PageContainer>
-      <TopBar title={<TranslatedText stringId="patientList.inpatient.title" fallback="Admitted patient listing" />} />
+      <TopBar
+        title={
+          <TranslatedText
+            stringId="patientList.inpatient.title"
+            fallback="Admitted patient listing"
+          />
+        }
+      />
       <RecentlyViewedPatientsList encounterType="admission" />
       <ContentPane>
         <SearchTableTitle>
@@ -192,7 +199,11 @@ export const OutpatientsView = () => {
 
   return (
     <PageContainer>
-      <TopBar title={<TranslatedText stringId="patientList.outpatient.title" fallback="Outpatient listing" />} />
+      <TopBar
+        title={
+          <TranslatedText stringId="patientList.outpatient.title" fallback="Outpatient listing" />
+        }
+      />
       <RecentlyViewedPatientsList encounterType="clinic" />
       <ContentPane>
         <SearchTableTitle>
