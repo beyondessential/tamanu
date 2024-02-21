@@ -4,7 +4,7 @@ export async function up(query) {
   await query.addColumn('patient_program_registrations', 'is_most_recent', {
     type: DataTypes.BOOLEAN,
     allowNull: false,
-    defaultValue: true,
+    defaultValue: false,
   });
 }
 
