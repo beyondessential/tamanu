@@ -15,6 +15,7 @@ import {
 } from '../components';
 import { Colors } from '../constants';
 import { LanguageSelector } from '../components/LanguageSelector';
+import { TranslatedText } from '../components/Translation/TranslatedText';
 
 const FormSubtext = styled(BodyText)`
   color: ${Colors.midText};
@@ -114,14 +115,22 @@ const LoginFormComponent = ({
   return (
     <FormGrid columns={1}>
       <div>
-        <LoginHeading>{rememberEmail ? 'Welcome back' : 'Log in'}</LoginHeading>
-        <LoginSubtext>Enter your details below to log in</LoginSubtext>
+        <LoginHeading>
+          {rememberEmail ? (
+            <TranslatedText stringId="login.heading.welcomeBack" fallback="Welcome back" />
+          ) : (
+            <TranslatedText stringId="login.heading.login" fallback="Log in" />
+          )}
+        </LoginHeading>
+        <LoginSubtext>
+          <TranslatedText stringId="login.subtext" fallback="Enter your details below to log in" />
+        </LoginSubtext>
         {!!genericMessage && <FormSubtext>{genericMessage}</FormSubtext>}
       </div>
       <StyledField
         name="email"
         type="email"
-        label="Email"
+        label={<TranslatedText stringId="login.email.label" fallback="Email" />}
         required
         component={TextField}
         placeholder="Enter your email address"
@@ -131,7 +140,7 @@ const LoginFormComponent = ({
       <div>
         <StyledField
           name="password"
-          label="Password"
+          label={<TranslatedText stringId="login.password.label" fallback="Password" />}
           type="password"
           required
           component={TextField}
@@ -140,13 +149,17 @@ const LoginFormComponent = ({
           autoComplete="off"
         />
         <RememberMeRow>
-          <StyledCheckboxField name="rememberMe" label="Remember me" component={CheckField} />
+          <StyledCheckboxField
+            name="rememberMe"
+            label={<TranslatedText stringId="login.rememberMe.label" fallback="Remember me" />}
+            component={CheckField}
+          />
         </RememberMeRow>
       </div>
-      <LoginButton text="Log in" />
+      <LoginButton text={<TranslatedText stringId="login.login.label" fallback="Log in" />} />
       <LanguageSelector />
       <ForgotPasswordButton onClick={onNavToResetPassword} color="default" variant="text">
-        Forgot password?
+        <TranslatedText stringId="login.forgotPassword.label" fallback="Forgot your password?" />
       </ForgotPasswordButton>
     </FormGrid>
   );

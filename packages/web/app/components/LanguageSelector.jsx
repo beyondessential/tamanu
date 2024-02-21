@@ -4,6 +4,7 @@ import { Colors } from '../constants';
 import { useTranslationOptions } from '../api/queries';
 import { SelectInput } from './Field';
 import { useTranslation } from '../contexts/Translation.jsx';
+import { TranslatedText } from './Translation/TranslatedText.jsx';
 
 const LanguageSelectorContainer = styled.div`
   position: absolute;
@@ -64,7 +65,7 @@ export const LanguageSelector = () => {
     <LanguageSelectorContainer>
       <SelectInput
         options={languageOptions}
-        label="Language"
+        label={<TranslatedText id="login.languageSelector.label" fallback="Language" />}
         isClearable={false}
         error={!!error}
         customStyleObject={customStyles}
