@@ -1063,13 +1063,6 @@ describe(`Materialised FHIR - Patient`, () => {
       return result;
     };
 
-    const countFhirPatients = async (sequelize) => {
-      const result = await sequelize.query(`
-          SELECT COUNT(*) FROM fhir.patients    
-        `);
-      return result[0][0].count;
-    };
-
     beforeEach(async () => {
       const { models } = ctx.store;
       const { FhirPatient, Patient, PatientAdditionalData } = models;
@@ -1096,7 +1089,7 @@ describe(`Materialised FHIR - Patient`, () => {
         console.log({ resource: e.resource });
         const { id, display } = e.resource;
       })
-      console.log({ entry });
+      console.log({ body: JSON.stringify(response.body) });
 
       expect(response).toHaveSucceeded();
       expect(response.body.total).toBe(2);
