@@ -27,7 +27,7 @@ const replaceStringVariables = (templateString, replacements) => {
 export const TranslatedText = ({ stringId, fallback, replacements }) => {
   const { getTranslation } = useTranslation();
 
-  const translation = getTranslation(stringId, fallback?.split('\\n').join('\n'));
+  const translation = getTranslation({ stringId, fallback: fallback?.split('\\n').join('\n') });
 
   const displayElements = useMemo(() => {
     if (!replacements) return translation;

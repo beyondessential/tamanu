@@ -16,7 +16,7 @@ export const TranslationProvider = ({ children }) => {
 
   const { data: translations } = useTranslations(storedLanguage);
 
-  const getTranslation = (stringId, fallback) => {
+  const getTranslation = ({ stringId, fallback }) => {
     if (!translations) return fallback;
     if (translations[stringId]) return translations[stringId];
     // This section here is a dev tool to help populate the db with the translation ids we have defined
