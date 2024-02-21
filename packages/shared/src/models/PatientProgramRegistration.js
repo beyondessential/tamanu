@@ -34,6 +34,11 @@ export class PatientProgramRegistration extends Model {
           type: Sequelize.TEXT,
           defaultValue: REGISTRATION_STATUSES.ACTIVE,
         },
+        isMostRecent: {
+          type: Sequelize.BOOLEAN,
+          allowNull: false,
+          defaultValue: true,
+        },
       },
       {
         ...options,
