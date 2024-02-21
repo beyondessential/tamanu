@@ -40,11 +40,11 @@ const renderSearchBar = ({ submitForm, clearForm }) => (
     <FormGrid columns={3}>
       <Field
         name="type"
-        label={<TranslatedText stringId="general.type.label" fallback="Owner" />}
+        label={<TranslatedText stringId="general.type.label" fallback="Type" />}
         component={DynamicSelectField}
         options={DOCUMENT_TYPE_OPTIONS}
       />
-      <Field name="documentOwner" label={<TranslatedText stringId="patient.document.search.owner.label" fallback="Owner" />} component={SearchField} />
+      <Field name="documentOwner" label={<TranslatedText stringId="document.owner.label" fallback="Owner" />} component={SearchField} />
       <Field name="departmentName" label={<TranslatedText stringId="general.department.label" fallback="Department" />} component={SearchField} />
     </FormGrid>
     <Box display="flex" alignItems="center" justifyContent="flex-end" mt={2}>
