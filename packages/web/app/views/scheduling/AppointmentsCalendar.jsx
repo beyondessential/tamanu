@@ -13,7 +13,7 @@ import { NewAppointmentButton } from '../../components/Appointments/NewAppointme
 import { Button } from '../../components/Button';
 import { AutocompleteInput } from '../../components/Field';
 import { Suggester } from '../../utils/suggester';
-import { appointmentTypeOptions, Colors } from '../../constants';
+import { APPOINTMENT_TYPE_OPTIONS, Colors } from '../../constants';
 import { useApi, useSuggester } from '../../api';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { MultiselectField } from '../../components/Translation/TranslatedSelectField.jsx';
@@ -190,7 +190,7 @@ export const AppointmentsCalendar = () => {
               }}
               value={appointmentType}
               name="appointmentType"
-              options={appointmentTypeOptions}
+              options={APPOINTMENT_TYPE_OPTIONS}
               prefix="appointment.property.type"
             />
           </Section>

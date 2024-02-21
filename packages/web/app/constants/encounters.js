@@ -9,7 +9,7 @@ import {
   vaccineIcon,
 } from './images';
 
-export const encounterOptions = [
+export const ENCOUNTER_OPTIONS = [
   {
     value: ENCOUNTER_TYPES.ADMISSION,
     label: ENCOUNTER_LABELS[ENCOUNTER_TYPES.ADMISSION],
@@ -59,4 +59,4 @@ export const encounterOptions = [
   },
 ];
 
-export const ENCOUNTER_OPTIONS_BY_VALUE = createValueIndex(encounterOptions);
+export const ENCOUNTER_OPTIONS_BY_VALUE = createValueIndex(ENCOUNTER_OPTIONS);

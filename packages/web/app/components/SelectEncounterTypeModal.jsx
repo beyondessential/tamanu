@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import Avatar from '@material-ui/core/Avatar';
-import { Colors, encounterOptions } from '../constants';
+import { Colors, ENCOUNTER_OPTIONS } from '../constants';
 import { Button } from './Button';
 import { Modal } from './Modal';
 import { TranslatedText } from './Translation/TranslatedText';
@@ -36,7 +36,7 @@ const EncounterOptionButton = ({ label, image, onClick }) => (
 );
 
 export const SelectEncounterTypeModal = React.memo(({ open, onClose, onSelectEncounterType }) => {
-  const items = encounterOptions
+  const items = ENCOUNTER_OPTIONS
     .filter(option => !option.hideFromMenu)
     .map(({ label, value, image }) => (
       <EncounterOptionButton
