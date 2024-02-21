@@ -9,7 +9,7 @@ const config = require('config');
 
 // generate fake data enough to test recent migrations
 async function generateData(models) {
-    const { Department, Encounter, Facility, Location, EncounterHistory,
+    const { Department, Encounter, Facility, Location, LocationGroup, EncounterHistory,
         Patient, User, Note, PatientBirthData, SurveyScreenComponent, ReportDefinition,
         ReportDefinitionVersion, LabRequestLog, LabRequest, UserPreference,
         ProgramDataElement } = models;
@@ -22,9 +22,15 @@ async function generateData(models) {
             facilityId: facility.id,
         }),
     );
+    const locationGroup = await LocationGroup.create(
+        fake(LocationGroup, {
+            facilityId: facility.id,
+        }),
+    );
     const location = await Location.create(
         fake(Location, {
             facilityId: facility.id,
+            locationGroupId: locationGroup.id,
         }),
     );
     const encounter = await Encounter.create(
