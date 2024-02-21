@@ -30,7 +30,7 @@ export const PatientProgramRegistrationDetailsStack = ({ navigation, route }: Ba
           onGoBack={() => navigation.navigate(Routes.HomeStack.PatientSummaryStack.Index)}
           status={
             <PatientProgramRegistryRegistrationStatus
-              registrationStatus={registration.registrationStatus?.name}
+              registrationStatus={registration.registrationStatus}
             />
           }
         />
