@@ -14,7 +14,6 @@ import { Button, ContentPane, OutlinedButton, TableButtonRow } from '../../../co
 import { useRefreshCount } from '../../../hooks/useRefreshCount';
 import { saveFile } from '../../../utils/fileSystemAccess';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
-import { useTranslation } from '../../../contexts/Translation';
 
 const MODAL_STATES = {
   DOCUMENT_OPEN: 'document',
@@ -85,12 +84,7 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
           extensions: [fileExtension],
         });
 
-        notifySuccess(
-          getTranslation(
-            'patient.documents.download.successMessage',
-            'Successfully downloaded file',
-          ),
-        );
+        notifySuccess('Successfully downloaded file');
       } catch (error) {
         notifyError(error.message);
       }
