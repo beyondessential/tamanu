@@ -11,11 +11,13 @@ import { Modal } from '../../Modal';
 
 export const MultipleImagingRequestsWrapper = ({ encounter, imagingRequests }) => {
   const { getLocalisation } = useLocalisation();
-  const certificateData = useCertificate();
+  const { data: certificateData, isFetching: isCertificateFetching } = useCertificate();
   const { data: patient, isLoading: isPatientLoading } = usePatientData(encounter.patientId);
   const isVillageEnabled = patient?.villageId;
   const { data: village, isLoading: isVillageLoading } = useReferenceData(patient?.villageId);
-  const isLoading = isPatientLoading || (isVillageEnabled && isVillageLoading);
+  const isLoading =
+    isPatientLoading || (isVillageEnabled && isVillageLoading) || isCertificateFetching;
+
   if (isLoading) {
     return <LoadingIndicator />;
   }

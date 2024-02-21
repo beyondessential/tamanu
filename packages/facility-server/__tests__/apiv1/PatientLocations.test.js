@@ -65,7 +65,7 @@ describe('PatientLocations', () => {
       endDate: null,
     });
 
-    const oneReservedTwoOccupiedStatsResponse = await app.get('/v1/patient/locations/stats');
+    const oneReservedTwoOccupiedStatsResponse = await app.get('/api/patient/locations/stats');
     expect(oneReservedTwoOccupiedStatsResponse).toHaveSucceeded();
 
     const {
@@ -82,7 +82,7 @@ describe('PatientLocations', () => {
       endDate: new Date(),
     });
 
-    const oneOccupiedStatsResponse = await app.get('/v1/patient/locations/stats');
+    const oneOccupiedStatsResponse = await app.get('/api/patient/locations/stats');
     expect(oneOccupiedStatsResponse).toHaveSucceeded();
 
     const {
@@ -101,7 +101,7 @@ describe('PatientLocations', () => {
   });
 
   it('should return accurate occupancy', async () => {
-    const oneInpatientEncounterOccupancyResponse = await app.get('/v1/patient/locations/occupancy');
+    const oneInpatientEncounterOccupancyResponse = await app.get('/api/patient/locations/occupancy');
 
     expect(oneInpatientEncounterOccupancyResponse).toHaveSucceeded();
     expect(oneInpatientEncounterOccupancyResponse.body.data).toBeGreaterThanOrEqual(
@@ -123,7 +123,7 @@ describe('PatientLocations', () => {
     });
 
     const oneOutpatientOneInpatientOccupancyResponse = await app.get(
-      '/v1/patient/locations/occupancy',
+      '/api/patient/locations/occupancy',
     );
 
     expect(oneOutpatientOneInpatientOccupancyResponse).toHaveSucceeded();
@@ -136,7 +136,7 @@ describe('PatientLocations', () => {
   });
 
   it('should return accurate readmissions', async () => {
-    const oneEncounterReadmissionsResponse = await app.get('/v1/patient/locations/readmissions');
+    const oneEncounterReadmissionsResponse = await app.get('/api/patient/locations/readmissions');
     expect(oneEncounterReadmissionsResponse).toHaveSucceeded();
     expect(oneEncounterReadmissionsResponse.body.data).toEqual(0);
 
@@ -154,7 +154,7 @@ describe('PatientLocations', () => {
     });
 
     const oneReadmittedPatientnReadmissionsResponse = await app.get(
-      '/v1/patient/locations/readmissions',
+      '/api/patient/locations/readmissions',
     );
     expect(oneReadmittedPatientnReadmissionsResponse).toHaveSucceeded();
     expect(oneReadmittedPatientnReadmissionsResponse.body.data).toEqual(1);
@@ -175,7 +175,7 @@ describe('PatientLocations', () => {
       endDate: new Date(),
     });
 
-    const oneEncounterAlosResponse = await app.get('/v1/patient/locations/alos');
+    const oneEncounterAlosResponse = await app.get('/api/patient/locations/alos');
     expect(oneEncounterAlosResponse).toHaveSucceeded();
     expect(oneEncounterAlosResponse.body.data).toEqual(2);
 
@@ -193,18 +193,18 @@ describe('PatientLocations', () => {
       endDate: new Date(),
     });
 
-    const twoEncountersAlosResponse = await app.get('/v1/patient/locations/alos');
+    const twoEncountersAlosResponse = await app.get('/api/patient/locations/alos');
     expect(twoEncountersAlosResponse).toHaveSucceeded();
     expect(twoEncountersAlosResponse.body.data).toEqual((4 + 2) / 2);
   });
 
   it('should return correct bed management table values', async () => {
-    const oneEncounterBedManagementResponse = await app.get('/v1/patient/locations/bedManagement');
+    const oneEncounterBedManagementResponse = await app.get('/api/patient/locations/bedManagement');
     expect(oneEncounterBedManagementResponse).toHaveSucceeded();
     expect(oneEncounterBedManagementResponse.body.count).toEqual(locations.length);
 
     const oneEncounterLocationBedManagementResponse = await app.get(
-      `/v1/patient/locations/bedManagement?location=${maxOneOccupancyLocations[0].id}`,
+      `/api/patient/locations/bedManagement?location=${maxOneOccupancyLocations[0].id}`,
     );
     expect(oneEncounterLocationBedManagementResponse).toHaveSucceeded();
     expect(oneEncounterLocationBedManagementResponse.body.data).toHaveLength(1);
@@ -234,7 +234,7 @@ describe('PatientLocations', () => {
     });
 
     const twoEncountersLocationBedManagementResponse = await app.get(
-      `/v1/patient/locations/bedManagement?location=${maxOneOccupancyLocations[0].id}`,
+      `/api/patient/locations/bedManagement?location=${maxOneOccupancyLocations[0].id}`,
     );
     expect(twoEncountersLocationBedManagementResponse).toHaveSucceeded();
     expect(twoEncountersLocationBedManagementResponse.body.data).toHaveLength(1);
@@ -264,13 +264,13 @@ describe('PatientLocations', () => {
     });
 
     const threeEncountersBedManagementResponse = await app.get(
-      '/v1/patient/locations/bedManagement',
+      '/api/patient/locations/bedManagement',
     );
     expect(threeEncountersBedManagementResponse).toHaveSucceeded();
     expect(threeEncountersBedManagementResponse.body.count).toEqual(locations.length + 1);
 
     const threeEncountersLocationBedManagementResponse = await app.get(
-      `/v1/patient/locations/bedManagement?location=${maxOneOccupancyLocations[1].id}`,
+      `/api/patient/locations/bedManagement?location=${maxOneOccupancyLocations[1].id}`,
     );
     expect(threeEncountersLocationBedManagementResponse).toHaveSucceeded();
     expect(threeEncountersLocationBedManagementResponse.body.data).toHaveLength(1);
@@ -299,7 +299,7 @@ describe('PatientLocations', () => {
     const locationIds = createdLocations.map(l => l.id);
 
     // Act
-    const response = await app.get('/v1/patient/locations/bedManagement');
+    const response = await app.get('/api/patient/locations/bedManagement');
 
     // Assert
     expect(response).toHaveSucceeded();

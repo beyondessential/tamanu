@@ -4,7 +4,7 @@
 ### ----------------------------------------
 # Obtain a token
 # @name login
-POST {{syncserver}}/v1/login
+POST {{syncserver}}/api/login
 Content-Type: application/json
 
 {
@@ -15,5 +15,5 @@ Content-Type: application/json
 ### ----------------------------------------
 # Export reference data
 # @name exportReferenceData
-GET {{syncserver}}/v1/admin/export/referenceData?include=Patient,Facility
+GET {{syncserver}}/api/admin/export/referenceData?include=Patient,Facility
 Authorization: Bearer {{token}}

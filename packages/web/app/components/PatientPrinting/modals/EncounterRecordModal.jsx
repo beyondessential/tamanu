@@ -6,8 +6,8 @@ import { LAB_REQUEST_STATUSES } from '@tamanu/constants/labs';
 import { IMAGING_REQUEST_STATUS_TYPES } from '@tamanu/constants/statuses';
 import { DIAGNOSIS_CERTAINTIES_TO_HIDE } from '@tamanu/constants/diagnoses';
 import { ForbiddenError, NotFoundError } from '@tamanu/shared/errors';
-import { EncounterRecordPrintout } from '@tamanu/shared/utils/patientCertificates/EncounterRecordPrintout';
 
+import { EncounterRecordPrintout } from '@tamanu/shared/utils/patientCertificates';
 import { Modal } from '../../Modal';
 import { useCertificate } from '../../../utils/useCertificate';
 import { usePatientData } from '../../../api/queries/usePatientData';
@@ -102,7 +102,8 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
   const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
 
   const { getLocalisation } = useLocalisation();
-  const certificateData = useCertificate();
+  const certificateQuery = useCertificate();
+  const { data: certificateData } = certificateQuery;
 
   const patientQuery = usePatientData(encounter.patientId);
   const patient = patientQuery.data;
@@ -142,6 +143,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
     dischargeQuery,
     villageQuery,
     notesQuery,
+    certificateQuery,
   ]);
 
   const modalProps = {
@@ -219,6 +221,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
             testCategory: labRequest.category?.name,
             requestedByName: labRequest.requestedBy?.displayName,
             requestDate: labRequest.requestedDate,
+            publishedDate: labRequest.publishedDate,
             completedDate: test.completedDate,
           });
         });

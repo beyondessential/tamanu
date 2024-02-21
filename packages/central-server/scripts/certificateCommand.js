@@ -4,7 +4,6 @@ const fs = require('fs');
 const prompts = require('prompts');
 const program = require('commander');
 
-const API_VERSION = 'v1';
 let token = null; // Auth token, saved after login
 
 // Required args for all commands
@@ -38,7 +37,7 @@ program.parse();
 async function fetchFromSyncServer(address, endpoint, params = {}) {
   const { headers = {}, body, method = 'GET', ...otherParams } = params;
 
-  const url = `${address}/${API_VERSION}/${endpoint}`;
+  const url = `${address}/api/${endpoint}`;
 
   const response = await fetch(url, {
     method,

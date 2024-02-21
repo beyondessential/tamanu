@@ -162,14 +162,14 @@ describe('Fiji NCD Primary Screening line list', () => {
   describe('checks permissions', () => {
     it('should reject creating a report request with insufficient permissions', async () => {
       const noPermsApp = await baseApp.asRole('base');
-      const result = await noPermsApp.post(`/v1/reports/fiji-ncd-primary-screening-line-list`, {});
+      const result = await noPermsApp.post(`/api/reports/fiji-ncd-primary-screening-line-list`, {});
       expect(result).toBeForbidden();
     });
   });
 
   describe('returns the correct data', () => {
     it('should generate a row for each form submission and pull referral details if it was created on the same date', async () => {
-      const result = await app.post('/v1/reports/fiji-ncd-primary-screening-line-list').send({});
+      const result = await app.post('/api/reports/fiji-ncd-primary-screening-line-list').send({});
 
       expect(result).toHaveSucceeded();
       expect(result.body).toHaveLength(4);
