@@ -1063,6 +1063,13 @@ describe(`Materialised FHIR - Patient`, () => {
       return result;
     };
 
+    const countFhirPatients = async (sequelize) => {
+      const result = await sequelize.query(`
+          SELECT COUNT(*) FROM fhir.patients    
+        `);
+      return result[0][0].count;
+    };
+
     beforeEach(async () => {
       const { models } = ctx.store;
       const { FhirPatient, Patient, PatientAdditionalData } = models;
@@ -1074,25 +1081,26 @@ describe(`Materialised FHIR - Patient`, () => {
       const { models } = ctx.store;
       const [keep, merge] = await makeTwoPatients(models);
       const { FhirPatient } = models;
-
       const { updates } = await mergePatient(models, keep.id, merge.id);
       expect(updates).toEqual({
         Patient: 2,
       });
-      const [keepMaterialised, mergeMaterialised] = await Promise.all(
-        [keep, merge].map(({ id }) => FhirPatient.materialiseFromUpstream(id)),
-      );
-
+      const keepMaterialised = await FhirPatient.materialiseFromUpstream(keep.id);
+      const mergeMaterialised = await FhirPatient.materialiseFromUpstream(merge.id);
       await resolveUpstreams(ctx.store.sequelize);
 
-      const path = `/api/integration/${INTEGRATION_ROUTE}/Patient`;
+      const path = `/api/integration/${INTEGRATION_ROUTE}/Patient?_include=Patient:link&_count=1`;
       const response = await app.get(path);
       const { entry } = response.body;
+      entry.forEach(e => { 
+        console.log({ resource: e.resource });
+        const { id, display } = e.resource;
+      })
       console.log({ entry });
 
       expect(response).toHaveSucceeded();
-      expect(response.body.total).toBe(1);
-      expect(response.body.entry.length).toBe(1);
+      expect(response.body.total).toBe(2);
+      expect(response.body.entry.length).toBe(2);
     });
   });
 
