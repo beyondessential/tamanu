@@ -15,6 +15,7 @@ import { FormGrid } from '../components/FormGrid';
 import { FormSubmitCancelRow } from '../components/ButtonRow';
 import { foreignKey } from '../utils/validation';
 import { TranslatedText } from '../components/Translation/TranslatedText';
+import { FORM_TYPES } from '../constants';
 
 export const OngoingConditionForm = ({
   onSubmit,
@@ -148,6 +149,7 @@ export const OngoingConditionForm = ({
         resolved: false,
         ...editedObject,
       }}
+      formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
       validationSchema={yup.object().shape({
         conditionId: foreignKey('Condition is a required field'),
         recordedDate: yup.date(),

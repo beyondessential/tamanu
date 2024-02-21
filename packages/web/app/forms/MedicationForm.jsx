@@ -22,6 +22,7 @@ import {
   TextField,
 } from '../components';
 import { TranslatedText } from '../components/Translation/TranslatedText';
+import { FORM_TYPES } from '../constants';
 
 const drugRouteOptions = [
   { label: 'Dermal', value: 'dermal' },
@@ -154,6 +155,9 @@ export const MedicationForm = React.memo(
             quantity: medication?.quantity ?? 0,
             indication: medication?.indication ?? '',
           }}
+          formType={
+            !readOnly && (medication ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM)
+          }
           validationSchema={validationSchema(readOnly)}
           render={({ submitForm }) => (
             <FormGrid>

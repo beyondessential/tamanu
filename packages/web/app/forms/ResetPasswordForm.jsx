@@ -3,14 +3,7 @@ import * as yup from 'yup';
 import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
 import { FormGrid } from '../components/FormGrid';
-import {
-  BodyText,
-  Button,
-  Field,
-  Form,
-  FormSubmitButton,
-  TextField,
-} from '../components';
+import { BodyText, Button, Field, Form, FormSubmitButton, TextField } from '../components';
 import { Colors } from '../constants';
 
 const ResetPasswordButton = styled(FormSubmitButton)`

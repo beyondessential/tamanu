@@ -20,7 +20,7 @@ import {
 } from '../../../components';
 import { AccessorField } from '../../patients/components/AccessorField';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
-import { Colors } from '../../../constants';
+import { Colors, FORM_TYPES } from '../../../constants';
 
 const StyledTableFormFields = styled(TableFormFields)`
   thead tr th {
@@ -42,6 +42,8 @@ const ReservedText = styled.p`
 `;
 
 const validationSchema = yup.lazy(values => {
+  const validationValues = { ...values };
+  delete validationValues.search;
   const newEntrySchema = {
     stringId: yup
       .string()
@@ -50,16 +52,16 @@ const validationSchema = yup.lazy(values => {
         'isUnique',
         'Must be unique',
         value =>
-          Object.entries(values).filter(([k, v]) => k === value || v.stringId === value).length ===
-          1,
+          Object.entries(validationValues).filter(([k, v]) => k === value || v.stringId === value)
+            .length === 1,
       ),
   };
   return yup.object().shape(
-    Object.keys(values).reduce(
+    Object.keys(validationValues).reduce(
       (acc, key) => ({
         ...acc,
         [key]: yup.object({
-          ...(has(values[key], 'stringId') && newEntrySchema),
+          ...(has(validationValues[key], 'stringId') && newEntrySchema),
         }),
       }),
       {},
@@ -237,6 +239,8 @@ export const TranslationForm = () => {
   );
 
   const handleSubmit = async payload => {
+    const submitPayload = { ...payload };
+    delete submitPayload.search;
     // Swap temporary id out for stringId
     const submitData = Object.fromEntries(
       Object.entries(payload).map(([key, { stringId, ...rest }]) => [stringId || key, rest]),
@@ -254,6 +258,7 @@ export const TranslationForm = () => {
       enableReinitialize
       showInlineErrorsOnly
       onSubmit={handleSubmit}
+      formType={FORM_TYPES.CREATE_FORM}
       validationSchema={validationSchema}
       render={props => (
         <FormContents

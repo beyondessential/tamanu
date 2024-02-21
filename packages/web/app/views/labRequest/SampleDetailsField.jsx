@@ -54,29 +54,37 @@ const StyledField = styled(Field)`
 
 const HEADERS = [
   <TranslatedText
-    key="category"
+    key={'sample-details-header-category'}
     stringId="lab.sampleDetail.table.column.category"
     fallback="Category"
   />,
   <TranslatedText
-    key="dateTimeCollected"
+    key={'sample-details-header-sampleTime'}
     stringId="lab.sampleDetail.table.column.collectionDateTime"
     fallback="Date & time collected"
   />,
   <TranslatedText
-    key="dateTimeCollected"
+    key={'sample-details-header-collectedBy'}
     stringId="lab.sampleDetail.table.column.collectedBy"
     fallback="Collected by"
   />,
   <TranslatedText
-    key="specimentType"
+    key={'sample-details-header-specimenType'}
     stringId="lab.sampleDetail.table.column.specimenType"
     fallback="Specimen type"
   />,
-  <TranslatedText key="site" stringId="lab.sampleDetail.table.column.site" fallback="Site" />,
+  <TranslatedText
+    key={'sample-details-header-labSampleSite'}
+    stringId="lab.sampleDetail.table.column.site"
+    fallback="Site"
+  />,
 ];
 const WITH_PANELS_HEADERS = [
-  <TranslatedText key="panel" stringId="lab.sampleDetail.table.column.panel" fallback="Panel" />,
+  <TranslatedText
+    key={'sample-details-header-panel'}
+    stringId="lab.sampleDetail.table.column.panel"
+    fallback="Panel"
+  />,
   ...HEADERS,
 ];
 export const SAMPLE_DETAILS_FIELD_PREFIX = 'sample-details-field-';

@@ -17,8 +17,8 @@ import {
 } from '../../../components';
 import { FileChooserField } from '../../../components/Field/FileChooserField';
 import { ReportSelectField } from './ReportsSelectFields';
-import { Colors } from '../../../constants';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { Colors, FORM_TYPES } from '../../../constants';
 
 const InnerContainer = styled.div`
   padding: 20px;
@@ -169,6 +169,7 @@ export const ImportReportView = () => {
       <Form
         onSubmit={handleSubmit}
         validationSchema={schema}
+        formType={FORM_TYPES.CREATE_FORM}
         initialValues={{
           dryRun: true,
         }}

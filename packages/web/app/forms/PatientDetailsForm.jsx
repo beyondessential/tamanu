@@ -12,7 +12,7 @@ import {
 } from '@tamanu/constants';
 
 import { useSexValues } from '../hooks';
-import { Colors } from '../constants';
+import { Colors, FORM_TYPES } from '../constants';
 import { useLocalisation } from '../contexts/Localisation';
 import { useApi, useSuggester } from '../api';
 import { getPatientDetailsValidation } from '../validations';
@@ -397,6 +397,7 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
           </ButtonRow>
         </>
       )}
+      formType={FORM_TYPES.EDIT_FORM}
       initialValues={{
         ...stripPatientData(patient, additionalData, birthData),
         patientFields: addMissingFieldValues(

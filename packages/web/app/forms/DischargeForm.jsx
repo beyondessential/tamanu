@@ -5,7 +5,7 @@ import { range } from 'lodash';
 import { isFuture, parseISO, set } from 'date-fns';
 import { format, getCurrentDateTimeString, toDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { Divider as BaseDivider } from '@material-ui/core';
-import { Colors, FORM_STATUSES } from '../constants';
+import { Colors, FORM_STATUSES, FORM_TYPES } from '../constants';
 import { useApi } from '../api';
 import { foreignKey } from '../utils/validation';
 
@@ -32,10 +32,7 @@ import { LowerCase } from '../components/Typography';
 import { FormConfirmCancelBackRow, FormSubmitCancelRow } from '../components/ButtonRow';
 import { DiagnosisList } from '../components/DiagnosisList';
 import { useEncounter } from '../contexts/Encounter';
-import {
-  MODAL_PADDING_LEFT_AND_RIGHT,
-  MODAL_PADDING_TOP_AND_BOTTOM,
-} from '../components';
+import { MODAL_PADDING_LEFT_AND_RIGHT, MODAL_PADDING_TOP_AND_BOTTOM } from '../components';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 
 const Divider = styled(BaseDivider)`
@@ -217,10 +214,9 @@ const EncounterOverview = ({
   return (
     <>
       <DateTimeInput
-        label={<TranslatedText
-          stringId="discharge.admissionDate.label"
-          fallback="Admission date"
-        />}
+        label={
+          <TranslatedText stringId="discharge.admissionDate.label" fallback="Admission date" />
+        }
         value={startDate}
         disabled
       />
@@ -245,10 +241,12 @@ const EncounterOverview = ({
         disabled
       />
       <TextInput
-        label={<TranslatedText
-          stringId="discharge.encounterReason.label"
-          fallback="Reason for encounter"
-        />}
+        label={
+          <TranslatedText
+            stringId="discharge.encounterReason.label"
+            fallback="Reason for encounter"
+          />
+        }
         value={reasonForEncounter}
         disabled
         style={{ gridColumn: '1 / -1' }}
@@ -362,6 +360,7 @@ export const DischargeForm = ({
       onCancel={onCancel}
       initialValues={getDischargeInitialValues(encounter, dischargeNotes, medicationInitialValues)}
       FormScreen={DischargeFormScreen}
+      formType={FORM_TYPES.CREATE_FORM}
       SummaryScreen={DischargeSummaryScreen}
       validationSchema={yup.object().shape({
         endDate: yup.date().required(),
@@ -384,10 +383,7 @@ export const DischargeForm = ({
         <Field
           name="endDate"
           label={
-            <TranslatedText
-              stringId="discharge.dischargeDate.label"
-              fallback="Discharge date"
-            />
+            <TranslatedText stringId="discharge.dischargeDate.label" fallback="Discharge date" />
           }
           component={DateTimeField}
           min={format(encounter.startDate, "yyyy-MM-dd'T'HH:mm")}

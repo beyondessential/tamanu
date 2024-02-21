@@ -16,6 +16,7 @@ const fieldSchema = yup
     }),
     hidden: yup.boolean().required(),
     required: yup.boolean(),
+    defaultValue: yup.mixed(),
     requiredPatientData: yup.boolean(),
     pattern: yup.string(),
   })
