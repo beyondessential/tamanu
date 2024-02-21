@@ -100,8 +100,8 @@ async function writeToPatientFields(models, questions, answers, patientId, surve
     await models.PatientProgramRegistration.create({
       patientId,
       programRegistryId,
-      clinicianId: userId,
       ...valuesByModel.PatientProgramRegistration,
+      clinicianId: valuesByModel.PatientProgramRegistration.clinicianId || userId,
     });
   }
 }
