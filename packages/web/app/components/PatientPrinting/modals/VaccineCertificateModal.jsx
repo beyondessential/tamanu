@@ -9,19 +9,27 @@ import { useApi } from '../../../api';
 import { EmailButton } from '../../Email/EmailButton';
 import { useCertificate } from '../../../utils/useCertificate';
 import { useLocalisation } from '../../../contexts/Localisation';
-import { useAdministeredVaccines, usePatientAdditionalDataQuery } from '../../../api/queries';
+import {
+  usePatientAdditionalDataQuery,
+  useAdministeredVaccines,
+  useReferenceData,
+} from '../../../api/queries';
 
 import { PDFViewer, printPDF } from '../PDFViewer';
 
 export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) => {
   const api = useApi();
   const { getLocalisation } = useLocalisation();
-  const { watermark, logo, footerImg, printedBy } = useCertificate({
+  const { data: certificateData, isFetching: isCertificateFetching } = useCertificate({
     footerAssetName: ASSET_NAMES.VACCINATION_CERTIFICATE_FOOTER,
   });
-  const { data: additionalData } = usePatientAdditionalDataQuery(patient.id);
+  const { logo, watermark, footerImg, printedBy } = certificateData;
+  const {
+    data: additionalData,
+    isFetching: isAdditionalDataFetching,
+  } = usePatientAdditionalDataQuery(patient.id);
 
-  const { data: vaccineData, isFetching } = useAdministeredVaccines(patient.id, {
+  const { data: vaccineData, isFetching: isVaccineFetching } = useAdministeredVaccines(patient.id, {
     orderBy: 'date',
     order: 'ASC',
     invertNullDateOrdering: true,
@@ -42,13 +50,14 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
     [api, patient.id, printedBy],
   );
 
-  const patientData = { ...patient, additionalData };
+  const village = useReferenceData(patient.villageId).data;
+  const patientData = { ...patient, village, additionalData };
 
-  if (isFetching) return null;
+  if (isAdditionalDataFetching || isVaccineFetching || isCertificateFetching) return null;
 
   return (
     <Modal
-      title="Vaccine Certificate"
+      title="Immunisation Certificate"
       open={open}
       onClose={onClose}
       width="md"

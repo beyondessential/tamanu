@@ -24,12 +24,14 @@ export const FACILITY_MENU_ITEMS = [
         label: <TranslatedText stringId="sidebar.patients.all" fallback="All Patients" />,
         color: Colors.blue,
         path: '/patients/all',
+        key: 'patientsAll',
         ability: { action: 'read' },
       },
       {
         label: <TranslatedText stringId="sidebar.patients.inpatients" fallback="Inpatients" />,
         color: Colors.green,
         path: '/patients/inpatient',
+        key: 'patientsInpatients',
         ability: { action: 'read' },
       },
       {
@@ -38,12 +40,14 @@ export const FACILITY_MENU_ITEMS = [
         ),
         color: Colors.orange,
         path: '/patients/emergency',
+        key: 'patientsEmergency',
         ability: { action: 'read' },
       },
       {
         label: <TranslatedText stringId="sidebar.patients.outpatients" fallback="Outpatients" />,
         color: '#F9BA5B',
         path: '/patients/outpatient',
+        key: 'patientsOutpatients',
         ability: { action: 'read' },
       },
     ],
@@ -63,6 +67,7 @@ export const FACILITY_MENU_ITEMS = [
           />
         ),
         path: '/appointments/all',
+        key: 'schedulingAppointments',
         ability: { action: 'read' },
       },
       {
@@ -70,6 +75,7 @@ export const FACILITY_MENU_ITEMS = [
           <TranslatedText stringId="sidebar.scheduling.calendar" fallback="Appointments calendar" />
         ),
         path: '/appointments/calendar',
+        key: 'schedulingCalendar',
         ability: { action: 'read' },
       },
       {
@@ -77,6 +83,7 @@ export const FACILITY_MENU_ITEMS = [
           <TranslatedText stringId="sidebar.scheduling.newAppointment" fallback="New appointment" />
         ),
         path: '/appointments/new',
+        key: 'schedulingNew',
         ability: { action: 'create' },
       },
     ],
@@ -91,6 +98,7 @@ export const FACILITY_MENU_ITEMS = [
       {
         label: <TranslatedText stringId="sidebar.medication.requests" fallback="Requests" />,
         path: '/medication-requests/all',
+        key: 'medicationAll',
         ability: { action: 'read' },
       },
     ],
@@ -105,11 +113,13 @@ export const FACILITY_MENU_ITEMS = [
       {
         label: <TranslatedText stringId="sidebar.imaging.active" fallback="Active requests" />,
         path: '/imaging-requests/active',
+        key: 'imagingActive',
         ability: { action: 'read' },
       },
       {
         label: <TranslatedText stringId="sidebar.imaging.completed" fallback="Completed" />,
         path: '/imaging-requests/completed',
+        key: 'imagingCompleted',
         ability: { action: 'read' },
       },
     ],
@@ -124,11 +134,13 @@ export const FACILITY_MENU_ITEMS = [
       {
         label: <TranslatedText stringId="sidebar.labs.active" fallback="Active requests" />,
         path: '/lab-requests/all',
+        key: 'labsAll',
         ability: { action: 'read' },
       },
       {
         label: <TranslatedText stringId="sidebar.labs.published" fallback="Published" />,
         path: '/lab-requests/published',
+        key: 'labsPublished',
         ability: { action: 'read' },
       },
     ],
@@ -147,7 +159,8 @@ export const FACILITY_MENU_ITEMS = [
             fallback="Immunisation register"
           />
         ),
-        path: `/immunisations/all`,
+        path: '/immunisations/all',
+        key: 'immunisationsAll',
       },
     ],
   },
@@ -156,7 +169,7 @@ export const FACILITY_MENU_ITEMS = [
     label: <TranslatedText stringId="sidebar.programRegistry" fallback="Program Registry" />,
     path: '/program-registry',
     icon: programsIcon,
-    component: ProgramRegistrySidebarItem,
+    Component: ProgramRegistrySidebarItem,
     ability: { action: 'read', subject: 'programRegistry' },
     children: [],
   },
@@ -202,6 +215,11 @@ export const SYNC_MENU_ITEMS = [
     path: '/admin/programs',
   },
   {
+    key: 'surveyResponses',
+    label: 'Survey Responses',
+    path: '/admin/surveyResponses',
+  },
+  {
     key: 'patientMerge',
     label: <TranslatedText stringId="adminSidebar.patientMerge" fallback="Patient merge" />,
     path: '/admin/patientMerge',
@@ -213,7 +231,7 @@ export const SYNC_MENU_ITEMS = [
   },
   {
     key: 'translation',
-    label: 'Translation',
+    label: <TranslatedText stringId="adminSidebar.translation" fallback="Translation" />,
     path: '/admin/translation',
     ability: { action: 'write', subject: 'translation' },
   },
@@ -229,7 +247,7 @@ export const SYNC_MENU_ITEMS = [
   },
   {
     key: 'fhirJobStats',
-    label: 'FHIR job stats',
+    label: <TranslatedText stringId="adminSidebar.fhirJobStats" fallback="FHIR job stats" />,
     path: '/admin/fhir/jobStats',
   },
   {

@@ -5,6 +5,7 @@ import { push } from 'connected-react-router';
 import { Button, TableButtonRow } from '../../../components';
 import { DataFetchingProgramsTable } from '../../../components/ProgramResponsesTable';
 import { TabPane } from '../components';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 export const EncounterProgramsPane = React.memo(() => {
   const dispatch = useDispatch();
@@ -20,7 +21,9 @@ export const EncounterProgramsPane = React.memo(() => {
   return (
     <TabPane>
       <TableButtonRow variant="small">
-        <Button onClick={handleNewSurvey}>New form</Button>
+        <Button onClick={handleNewSurvey}>
+          <TranslatedText stringId="program.action.newSurvey" fallback="New survey" />
+        </Button>
       </TableButtonRow>
       <DataFetchingProgramsTable endpoint={`encounter/${params.encounterId}/programResponses`} />
     </TabPane>

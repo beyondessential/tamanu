@@ -149,14 +149,22 @@ LocationInput.defaultProps = {
   className: '',
 };
 
-export const LocationField = React.memo(({ field, error, ...props }) => (
-  <LocationInput name={field.name} value={field.value || ''} onChange={field.onChange} {...props} />
-));
+export const LocationField = React.memo(({ field, ...props }) => {
+  delete props.error;
+  return (
+    <LocationInput
+      name={field.name}
+      value={field.value || ''}
+      onChange={field.onChange}
+      {...props}
+    />
+  );
+});
 
 export const LocalisedLocationField = React.memo(
   ({
-    defaultGroupLabel = <TranslatedText stringId="general.form.area.label" fallback="Area" />,
-    defaultLabel = <TranslatedText stringId="general.form.location.label" fallback="Location" />,
+    defaultGroupLabel = <TranslatedText stringId="general.area.label" fallback="Area" />,
+    defaultLabel = <TranslatedText stringId="general.location.label" fallback="Location" />,
     ...props
   }) => {
     const { getLocalisation } = useLocalisation();

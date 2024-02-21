@@ -148,7 +148,7 @@ export const InvoiceDetailForm = ({
               name="paymentStatus"
               label={
                 <TranslatedText
-                  stringId="invoice.modal.view.form.paymentStatus.label"
+                  stringId="invoice.modal.view.paymentStatus.label"
                   fallback="Payment status"
                 />
               }
@@ -160,7 +160,7 @@ export const InvoiceDetailForm = ({
               name="total"
               label={
                 <TranslatedText
-                  stringId="invoice.modal.view.form.total.label"
+                  stringId="invoice.modal.view.total.label"
                   fallback="Total ($)"
                 />
               }
@@ -170,7 +170,7 @@ export const InvoiceDetailForm = ({
             />
             <Field
               name="date"
-              label={<TranslatedText stringId="general.form.date.label" fallback="Date" />}
+              label={<TranslatedText stringId="general.date.label" fallback="Date" />}
               disabled
               required
               component={DateField}
@@ -180,7 +180,7 @@ export const InvoiceDetailForm = ({
               name="admissionType"
               label={
                 <TranslatedText
-                  stringId="invoice.modal.view.form.admissionType.label"
+                  stringId="invoice.modal.view.admissionType.label"
                   fallback="Admission type"
                 />
               }
@@ -191,7 +191,7 @@ export const InvoiceDetailForm = ({
               name="receiptNumber"
               label={
                 <TranslatedText
-                  stringId="invoice.modal.view.form.receiptNumber.label"
+                  stringId="invoice.modal.view.receiptNumber.label"
                   fallback="Receipt number"
                 />
               }

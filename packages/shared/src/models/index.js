@@ -109,3 +109,5 @@ export * from './SyncQueuedDevice';
 export * from './fhir';
 
 export * from './TranslatedString';
+
+export * from './IPSRequest';

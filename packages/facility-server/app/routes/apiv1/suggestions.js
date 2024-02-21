@@ -24,8 +24,7 @@ function createSuggesterRoute(
   endpoint,
   modelName,
   whereBuilder,
-  mapper = defaultMapper,
-  searchColumn = 'name',
+  { mapper, searchColumn, extraReplacementsBuilder },
 ) {
   suggestions.get(
     `/${endpoint}$`,
@@ -46,6 +45,7 @@ function createSuggesterRoute(
         order: [positionQuery, [Sequelize.literal(searchColumn), 'ASC']],
         replacements: {
           positionMatch: searchQuery,
+          ...extraReplacementsBuilder(query),
         },
         limit: defaultLimit,
       });
@@ -59,7 +59,7 @@ function createSuggesterRoute(
 // this exists so a control can look up the associated information of a given suggester endpoint
 // when it's already been given an id so that it's guaranteed to have the same structure as the
 // options endpoint
-function createSuggesterLookupRoute(endpoint, modelName, mapper = defaultMapper) {
+function createSuggesterLookupRoute(endpoint, modelName, { mapper }) {
   suggestions.get(
     `/${endpoint}/:id`,
     asyncHandler(async (req, res) => {
@@ -77,8 +77,7 @@ function createAllRecordsRoute(
   endpoint,
   modelName,
   whereBuilder,
-  mapper = defaultMapper,
-  orderColumn = 'name',
+  { mapper, searchColumn, extraReplacementsBuilder },
 ) {
   suggestions.get(
     `/${endpoint}/all$`,
@@ -90,7 +89,8 @@ function createAllRecordsRoute(
       const where = whereBuilder('%', query);
       const results = await model.findAll({
         where,
-        order: [[Sequelize.literal(orderColumn), 'ASC']],
+        order: [[Sequelize.literal(searchColumn), 'ASC']],
+        replacements: extraReplacementsBuilder(query),
       });
 
       // Allow for async mapping functions (currently only used by location suggester)
@@ -103,12 +103,18 @@ function createAllRecordsRoute(
 // Records will be filtered based on the whereSql parameter. The user's search term
 // will be passed to the sql query as ":search" - see the existing suggestion
 // endpoints for usage examples.
-function createSuggester(endpoint, modelName, whereBuilder, mapper, searchColumn) {
+function createSuggester(endpoint, modelName, whereBuilder, optionOverrides) {
+  const options = {
+    mapper: defaultMapper,
+    searchColumn: 'name',
+    extraReplacementsBuilder: () => {},
+    ...optionOverrides,
+  };
   // Note: createAllRecordsRoute and createSuggesterLookupRoute must
   // be added in this order otherwise the :id param will match all
-  createAllRecordsRoute(endpoint, modelName, whereBuilder, mapper, searchColumn);
-  createSuggesterLookupRoute(endpoint, modelName, mapper);
-  createSuggesterRoute(endpoint, modelName, whereBuilder, mapper, searchColumn);
+  createAllRecordsRoute(endpoint, modelName, whereBuilder, options);
+  createSuggesterLookupRoute(endpoint, modelName, options);
+  createSuggesterRoute(endpoint, modelName, whereBuilder, options);
 }
 
 // this should probably be changed to a `visibility_criteria IN ('list', 'of', 'statuses')`
@@ -125,12 +131,9 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
   }));
 });
 
-createSuggester(
-  'labTestType',
-  'LabTestType',
-  () => VISIBILITY_CRITERIA,
-  ({ name, code, id, labTestCategoryId }) => ({ name, code, id, labTestCategoryId }),
-);
+createSuggester('labTestType', 'LabTestType', () => VISIBILITY_CRITERIA, {
+  mapper: ({ name, code, id, labTestCategoryId }) => ({ name, code, id, labTestCategoryId }),
+});
 
 const DEFAULT_WHERE_BUILDER = search => ({
   name: { [Op.iLike]: search },
@@ -154,10 +157,12 @@ const createNameSuggester = (
   modelName = pascal(endpoint),
   whereBuilderFn = DEFAULT_WHERE_BUILDER,
 ) =>
-  createSuggester(endpoint, modelName, whereBuilderFn, ({ id, name }) => ({
-    id,
-    name,
-  }));
+  createSuggester(endpoint, modelName, whereBuilderFn, {
+    mapper: ({ id, name }) => ({
+      id,
+      name,
+    }),
+  });
 
 createNameSuggester('department', 'Department', filterByFacilityWhereBuilder);
 createNameSuggester('facility');
@@ -170,7 +175,9 @@ createSuggester(
   (search, query) => {
     const baseWhere = filterByFacilityWhereBuilder(search, query);
 
-    const { q, filterByFacility, ...filters } = query;
+    const { ...filters } = query;
+    delete filters.q;
+    delete filters.filterByFacility;
 
     if (!query.parentId) {
       return { ...baseWhere, ...filters };
@@ -181,21 +188,23 @@ createSuggester(
       parentId: query.parentId,
     };
   },
-  async location => {
-    const availability = await location.getAvailability();
-    const { name, code, id, maxOccupancy, facilityId } = location;
+  {
+    mapper: async location => {
+      const availability = await location.getAvailability();
+      const { name, code, id, maxOccupancy, facilityId } = location;
 
-    const lg = await location.getLocationGroup();
-    const locationGroup = lg && { name: lg.name, code: lg.code, id: lg.id };
-    return {
-      name,
-      code,
-      maxOccupancy,
-      id,
-      availability,
-      facilityId,
-      ...(locationGroup && { locationGroup }),
-    };
+      const lg = await location.getLocationGroup();
+      const locationGroup = lg && { name: lg.name, code: lg.code, id: lg.id };
+      return {
+        name,
+        code,
+        maxOccupancy,
+        id,
+        availability,
+        facilityId,
+        ...(locationGroup && { locationGroup }),
+      };
+    },
   },
 );
 
@@ -221,7 +230,7 @@ createSuggester(
     name: { [Op.iLike]: search },
     itemType: INVOICE_LINE_TYPES.ADDITIONAL,
   }),
-  ({ id, name, price }) => ({ id, name, price }),
+  { mapper: ({ id, name, price }) => ({ id, name, price }) },
 );
 
 createSuggester(
@@ -231,11 +240,13 @@ createSuggester(
     displayName: { [Op.iLike]: search },
     ...VISIBILITY_CRITERIA,
   }),
-  ({ id, displayName }) => ({
-    id,
-    name: displayName,
-  }),
-  'display_name',
+  {
+    mapper: ({ id, displayName }) => ({
+      id,
+      name: displayName,
+    }),
+    searchColumn: 'display_name',
+  },
 );
 
 createSuggester(
@@ -250,51 +261,61 @@ createSuggester(
       { displayId: { [Op.iLike]: search } },
     ],
   }),
-  patient => patient,
-  'first_name',
+  { mapper: patient => patient, searchColumn: 'first_name' },
 );
 
 // Specifically fetches lab test categories that have a lab request against a patient
-createSuggester('patientLabTestCategories', 'ReferenceData', (search, query) => {
-  const baseWhere = DEFAULT_WHERE_BUILDER(search);
-  const status = query?.status || 'published';
+createSuggester(
+  'patientLabTestCategories',
+  'ReferenceData',
+  (search, query) => {
+    const baseWhere = DEFAULT_WHERE_BUILDER(search);
 
-  if (!query.patientId) {
-    return { ...baseWhere, type: REFERENCE_TYPES.LAB_TEST_CATEGORY };
-  }
+    if (!query.patientId) {
+      return { ...baseWhere, type: REFERENCE_TYPES.LAB_TEST_CATEGORY };
+    }
 
-  return {
-    ...baseWhere,
-    type: REFERENCE_TYPES.LAB_TEST_CATEGORY,
-    id: {
-      [Op.in]: Sequelize.literal(
-        `(
+    return {
+      ...baseWhere,
+      type: REFERENCE_TYPES.LAB_TEST_CATEGORY,
+      id: {
+        [Op.in]: Sequelize.literal(
+          `(
           SELECT DISTINCT(lab_test_category_id)
           FROM lab_requests
           INNER JOIN
             encounters ON encounters.id = lab_requests.encounter_id
-          WHERE lab_requests.status = '${status}'
-            AND encounters.patient_id = '${query.patientId}'
+          WHERE lab_requests.status = :lab_request_status
+            AND encounters.patient_id = :patient_id
         )`,
-      ),
-    },
-  };
-});
+        ),
+      },
+    };
+  },
+  {
+    extraReplacementsBuilder: query => ({
+      lab_request_status: query?.status || 'published',
+      patient_id: query.patientId,
+    }),
+  },
+);
 
 // Specifically fetches lab panels that have a lab test against a patient
-createSuggester('patientLabTestPanelTypes', 'LabTestPanel', (search, query) => {
-  const baseWhere = DEFAULT_WHERE_BUILDER(search);
-  const status = query?.status || 'published';
+createSuggester(
+  'patientLabTestPanelTypes',
+  'LabTestPanel',
+  (search, query) => {
+    const baseWhere = DEFAULT_WHERE_BUILDER(search);
 
-  if (!query.patientId) {
-    return baseWhere;
-  }
+    if (!query.patientId) {
+      return baseWhere;
+    }
 
-  return {
-    ...baseWhere,
-    id: {
-      [Op.in]: Sequelize.literal(
-        `(
+    return {
+      ...baseWhere,
+      id: {
+        [Op.in]: Sequelize.literal(
+          `(
           SELECT DISTINCT(lab_test_panel_id)
           FROM lab_test_panel_lab_test_types
           INNER JOIN
@@ -305,13 +326,20 @@ createSuggester('patientLabTestPanelTypes', 'LabTestPanel', (search, query) => {
             lab_requests ON lab_requests.id = lab_tests.lab_request_id
           INNER JOIN
             encounters ON encounters.id = lab_requests.encounter_id
-          WHERE lab_requests.status = '${status}'
-            AND encounters.patient_id = '${query.patientId}'
+          WHERE lab_requests.status = :lab_request_status
+            AND encounters.patient_id = :patient_id
         )`,
-      ),
-    },
-  };
-});
+        ),
+      },
+    };
+  },
+  {
+    extraReplacementsBuilder: query => ({
+      lab_request_status: query?.status || 'published',
+      patient_id: query.patientId,
+    }),
+  },
+);
 
 createNameSuggester(
   'programRegistryClinicalStatus',
@@ -322,31 +350,40 @@ createNameSuggester(
   }),
 );
 
-createNameSuggester('programRegistry', 'ProgramRegistry', (search, query) => {
-  const baseWhere = DEFAULT_WHERE_BUILDER(search);
-  if (!query.patientId) {
-    return baseWhere;
-  }
+createSuggester(
+  'programRegistry',
+  'ProgramRegistry',
+  (search, query) => {
+    const baseWhere = DEFAULT_WHERE_BUILDER(search);
+    if (!query.patientId) {
+      return baseWhere;
+    }
 
-  return {
-    ...baseWhere,
-    // Only suggest program registries this patient isn't already part of
-    id: {
-      [Op.notIn]: Sequelize.literal(
-        `(
+    return {
+      ...baseWhere,
+      // Only suggest program registries this patient isn't already part of
+      id: {
+        [Op.notIn]: Sequelize.literal(
+          `(
           SELECT DISTINCT(pr.id)
           FROM program_registries pr
           INNER JOIN patient_program_registrations ppr
           ON ppr.program_registry_id = pr.id
           WHERE
-            ppr.patient_id = '${query.patientId}'
+            ppr.patient_id = :patient_id
           AND
             ppr.registration_status != '${REGISTRATION_STATUSES.RECORDED_IN_ERROR}'
         )`,
-      ),
-    },
-  };
-});
+        ),
+      },
+    };
+  },
+  {
+    extraReplacementsBuilder: query => ({
+      patient_id: query.patientId,
+    }),
+  },
+);
 
 // TODO: Use generic LabTest permissions for this suggester
 createNameSuggester('labTestPanel', 'LabTestPanel');

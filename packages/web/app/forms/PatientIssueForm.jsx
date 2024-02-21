@@ -8,8 +8,14 @@ import { TranslatedText } from '../components/Translation/TranslatedText';
 import { FormSubmitCancelRow } from '../components/ButtonRow';
 
 const ISSUE_TYPES = [
-  { value: PATIENT_ISSUE_TYPES.ISSUE, label: 'Issue' },
-  { value: PATIENT_ISSUE_TYPES.WARNING, label: 'Warning' },
+  {
+    value: PATIENT_ISSUE_TYPES.ISSUE,
+    label: <TranslatedText stringId="issues.option.issue" fallback="Issue" />,
+  },
+  {
+    value: PATIENT_ISSUE_TYPES.WARNING,
+    label: <TranslatedText stringId="issues.option.warning" fallback="Warning" />,
+  },
 ];
 
 export const PatientIssueForm = ({ onSubmit, editedObject, onCancel }) => (
@@ -19,14 +25,14 @@ export const PatientIssueForm = ({ onSubmit, editedObject, onCancel }) => (
       <FormGrid columns={1}>
         <Field
           name="type"
-          label={<TranslatedText stringId="general.form.type.label" fallback="Type" />}
+          label={<TranslatedText stringId="general.type.label" fallback="Type" />}
           component={SelectField}
           options={ISSUE_TYPES}
           required
         />
         <Field
           name="note"
-          label={<TranslatedText stringId="general.form.notes.label" fallback="Notes" />}
+          label={<TranslatedText stringId="general.notes.label" fallback="Notes" />}
           component={TextField}
           multiline
           rows={2}
@@ -34,7 +40,7 @@ export const PatientIssueForm = ({ onSubmit, editedObject, onCancel }) => (
         <Field
           name="recordedDate"
           label={
-            <TranslatedText stringId="general.form.recordedDate.label" fallback="Date recorded" />
+            <TranslatedText stringId="general.recordedDate.label" fallback="Date recorded" />
           }
           component={DateField}
           saveDateAsString

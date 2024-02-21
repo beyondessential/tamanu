@@ -2,8 +2,6 @@ import React, { useEffect, useState } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 
-import { USER_DEACTIVATED_ERROR_MESSAGE, LANGUAGE_LOCAL_STORAGE_KEY } from '@tamanu/constants';
-
 import { Typography } from '@material-ui/core';
 import { FormGrid } from '../components/FormGrid';
 import {
@@ -86,7 +84,7 @@ const StyledCheckboxField = styled(Field)`
 `;
 
 const INCORRECT_CREDENTIALS_ERROR_MESSAGE =
-  'Facility server error response: Incorrect username or password, please try again';
+  'Server error response: Incorrect username or password, please try again';
 
 const LoginFormComponent = ({
   errorMessage,
@@ -97,9 +95,7 @@ const LoginFormComponent = ({
   const [genericMessage, setGenericMessage] = useState(null);
 
   useEffect(() => {
-    if (errorMessage === USER_DEACTIVATED_ERROR_MESSAGE) {
-      setFieldError('email', `*${errorMessage}`);
-    } else if (errorMessage === INCORRECT_CREDENTIALS_ERROR_MESSAGE) {
+    if (errorMessage === INCORRECT_CREDENTIALS_ERROR_MESSAGE) {
       setFieldError('email', 'Incorrect credentials');
       setFieldError('password', 'Incorrect credentials');
     } else {
@@ -148,7 +144,7 @@ const LoginFormComponent = ({
         </RememberMeRow>
       </div>
       <LoginButton text="Log in" />
-      <Field name="language" component={LanguageSelector} />
+      <LanguageSelector />
       <ForgotPasswordButton onClick={onNavToResetPassword} color="default" variant="text">
         Forgot password?
       </ForgotPasswordButton>
@@ -186,7 +182,6 @@ export const LoginForm = React.memo(
         initialValues={{
           email: rememberEmail,
           rememberMe: !!rememberEmail,
-          language: localStorage.getItem(LANGUAGE_LOCAL_STORAGE_KEY) || null,
         }}
         validationSchema={yup.object().shape({
           email: yup

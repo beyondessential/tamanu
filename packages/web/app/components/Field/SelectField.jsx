@@ -96,13 +96,14 @@ export const SelectInput = ({
   name,
   helperText,
   inputRef,
-  form,
-  tabIndex,
   inputProps = {},
   isClearable = true,
   customStyleObject,
   ...props
 }) => {
+  delete props.form;
+  delete props.tabIndex;
+
   const handleChange = useCallback(
     changedOption => {
       const userClickedClear = !changedOption;
