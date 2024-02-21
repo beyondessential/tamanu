@@ -20,6 +20,7 @@ export class FhirEncounter extends FhirResource {
         subject: DataTypes.JSONB,
         actualPeriod: DataTypes.JSONB,
         location: DataTypes.JSONB,
+        serviceProvider: DataTypes.JSONB,
       },
       options,
     );

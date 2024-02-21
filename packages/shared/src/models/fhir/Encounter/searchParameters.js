@@ -29,4 +29,9 @@ export const searchParameters = {
     path: [['subject']],
     referenceTypes: ['Patient'],
   },
+  serviceProvider: {
+    type: FHIR_SEARCH_PARAMETERS.REFERENCE,
+    path: [['serviceProvider']],
+    referenceTypes: ['Organization'],
+  },
 };
