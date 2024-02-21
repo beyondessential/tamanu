@@ -71,7 +71,7 @@ export class PatientProgramRegistration extends Model {
     });
 
     this.belongsTo(models.User, {
-      foreignKey: 'clinicianId',
+      foreignKey: { name: 'clinicianId', allowNull: false },
       as: 'clinician',
     });
 
