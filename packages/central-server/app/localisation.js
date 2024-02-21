@@ -286,8 +286,8 @@ const imagingTypesSchema = yup
   })
   .required();
 
-const patientDetailsSchema = yup.object({
-  layout: yup
+const layoutsSchema = yup.object({
+  patientDetails: yup
     .string()
     .required()
     .oneOf(Object.values(PATIENT_DETAIL_LAYOUTS)),
@@ -440,7 +440,7 @@ const rootLocalisationSchema = yup
       )
       .min(3)
       .max(5),
-    patientDetails: patientDetailsSchema,
+    layouts: layoutsSchema,
     previewUvciFormat: yup
       .string()
       .required()

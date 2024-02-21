@@ -29,7 +29,7 @@ const LAYOUT_COMPONENTS = {
 
 export const useLayoutComponents = () => {
   const { getLocalisation } = useLocalisation();
-  const layout = getLocalisation('patientDetails.layout') || PATIENT_DETAIL_LAYOUTS.GENERIC;
+  const layout = getLocalisation('layouts.patientDetails') || PATIENT_DETAIL_LAYOUTS.GENERIC;
   const layoutComponents = useMemo(() => LAYOUT_COMPONENTS[layout], [layout]);
   return layoutComponents;
 };
