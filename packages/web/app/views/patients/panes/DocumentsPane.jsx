@@ -29,7 +29,6 @@ const base64ToUint8Array = base64 => {
 
 export const DocumentsPane = React.memo(({ encounter, patient }) => {
   const api = useApi();
-  const { getTranslation } = useTranslation();
   const [dataUrl, setDataUrl] = useState('');
 
   const [modalStatus, setModalStatus] = useState(MODAL_STATES.CLOSED);
