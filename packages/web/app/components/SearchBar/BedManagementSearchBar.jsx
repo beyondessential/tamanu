@@ -2,7 +2,7 @@ import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { Button } from '@material-ui/core';
 import { useSuggester } from '../../api';
-import { Colors, locationAvailabilityOptions } from '../../constants';
+import { Colors, LOCATION_AVAILABILITY_OPTIONS } from '../../constants';
 import { HandoverNotesIcon } from '../../assets/icons/HandoverNotesIcon';
 import { AutocompleteField, LocalisedField } from '../Field';
 import { HandoverNotesModal } from '../BedManagement/HandoverNotesModal';
@@ -100,7 +100,7 @@ export const BedManagementSearchBar = React.memo(({ onSearch, searchParameters }
           }
           size="small"
           component={SelectField}
-          options={locationAvailabilityOptions}
+          options={LOCATION_AVAILABILITY_OPTIONS}
           prefix="bedManagement.property.status"
         />
       </CustomisableSearchBar>

@@ -48,7 +48,12 @@ export const EncounterInfoPane = React.memo(
       />
       {!getLocalisation(`${referralSourcePath}.hidden`) && (
         <InfoCardItem
-          label={getLocalisation(`${referralSourcePath}.shortLabel`)}
+          label={
+            <TranslatedText
+              stringId="general.localisedField.referralSourceId.label"
+              fallback="Referral source"
+            />
+          }
           value={getReferralSource(encounter)}
         />
       )}

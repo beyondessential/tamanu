@@ -7,8 +7,8 @@ import {
 import {
   AutocompleteField,
   Field,
-  MultiselectField,
   BaseSelectField,
+  BaseMultiselectField,
   SuggesterSelectField,
 } from '../../components';
 import { VillageField } from './VillageField';
@@ -48,7 +48,7 @@ const ParameterSelectField = ({ name, ...props }) => (
 );
 
 const ParameterMultiselectField = ({ name, ...props }) => (
-  <Field component={MultiselectField} name={name} {...props} />
+  <Field component={BaseMultiselectField} name={name} {...props} />
 );
 
 const EmptyField = styled.div``;

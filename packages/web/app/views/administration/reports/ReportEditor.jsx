@@ -16,8 +16,6 @@ import {
   ButtonRow,
   Field,
   Form,
-  MultiselectField,
-  BaseSelectField,
   TextField,
 } from '../../../components';
 import { ParameterItem, ParameterList, SQLQueryEditor } from './components/editing';
@@ -29,6 +27,7 @@ import { useAuth } from '../../../contexts/Auth';
 import { useApi } from '../../../api';
 import { SelectField } from '../../../components/Translation/TranslatedSelectField.jsx';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { MultiselectField } from '../../../components/Translation/TranslatedSelectField.jsx';
 
 const StyledField = styled(Field)`
   flex-grow: 1;
@@ -193,6 +192,7 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
               name="dataSources"
               component={MultiselectField}
               options={DATA_SOURCE_OPTIONS}
+              prefix="report.property.canBeRunOn"
             />
           </Grid>
         )}

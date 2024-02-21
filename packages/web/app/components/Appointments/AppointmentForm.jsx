@@ -6,7 +6,7 @@ import { AutocompleteField, DateTimeField, Field, Form } from '../Field';
 import { FormSubmitCancelRow } from '../ButtonRow';
 import { FormSeparatorLine } from '../FormSeparatorLine';
 import { useApi, usePatientSuggester, useSuggester } from '../../api';
-import { appointmentTypeOptions } from '../../constants';
+import { APPOINTMENT_TYPE_OPTIONS } from '../../constants';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { SelectField } from '../Translation/TranslatedSelectField.jsx';
 
@@ -83,7 +83,7 @@ export const AppointmentForm = props => {
               }
               name="type"
               component={SelectField}
-              options={appointmentTypeOptions}
+              options={APPOINTMENT_TYPE_OPTIONS}
               required
               prefix="appointment.property.type"
             />

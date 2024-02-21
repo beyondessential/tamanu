@@ -3,7 +3,7 @@ import { startOfDay } from 'date-fns';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
 import { AutocompleteField, DateTimeField, LocalisedField, SearchField } from '../Field';
 import { TranslatedText } from '../Translation/TranslatedText';
-import { appointmentStatusOptions, appointmentTypeOptions } from '../../constants';
+import { APPOINTMENT_STATUS_OPTIONS, APPOINTMENT_TYPE_OPTIONS } from '../../constants';
 import { useSuggester } from '../../api';
 import { SelectField } from '../Translation/TranslatedSelectField.jsx';
 
@@ -67,7 +67,7 @@ export const AppointmentsSearchBar = ({ onSearch }) => {
           />
         }
         component={SelectField}
-        options={appointmentTypeOptions}
+        options={APPOINTMENT_TYPE_OPTIONS}
         size="small"
         prefix="appointment.property.type"
       />
@@ -80,7 +80,7 @@ export const AppointmentsSearchBar = ({ onSearch }) => {
           />
         }
         component={SelectField}
-        options={appointmentStatusOptions}
+        options={APPOINTMENT_STATUS_OPTIONS}
         size="small"
         prefix="appointment.property.status"
       />

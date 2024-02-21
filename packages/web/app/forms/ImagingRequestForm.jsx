@@ -5,7 +5,7 @@ import shortid from 'shortid';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { useDispatch } from 'react-redux';
 import { foreignKey } from '../utils/validation';
-import { encounterOptions } from '../constants';
+import { ENCOUNTER_OPTIONS } from '../constants';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
 import { useEncounter } from '../contexts/Encounter';
 import { reloadImagingRequest } from '../store';
@@ -18,7 +18,6 @@ import {
   Field,
   Form,
   ImagingPriorityField,
-  MultiselectField,
   TextField,
   TextInput,
 } from '../components/Field';
@@ -30,10 +29,11 @@ import { FormSeparatorLine } from '../components/FormSeparatorLine';
 import { FormSubmitDropdownButton } from '../components/DropdownButton';
 import { LowerCase } from '../components/Typography';
 import { TranslatedText } from '../components/Translation/TranslatedText';
+import { MultiselectField } from '../components/Translation/TranslatedSelectField.jsx';
 import { SelectField } from '../components/Translation/TranslatedSelectField.jsx';
 
 function getEncounterTypeLabel(type) {
-  return encounterOptions.find(x => x.value === type).label;
+  return ENCOUNTER_OPTIONS.find(x => x.value === type).label;
 }
 
 function getEncounterLabel(encounter) {
@@ -219,6 +219,7 @@ export const ImagingRequestForm = React.memo(
                     <TranslatedText stringId="imaging.areas.label" fallback="Areas to be imaged" />
                   }
                   component={MultiselectField}
+                  prefix="imaging.property.area"
                 />
               ) : (
                 <Field

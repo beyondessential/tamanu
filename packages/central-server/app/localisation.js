@@ -1,7 +1,6 @@
 import config from 'config';
 import * as yup from 'yup';
-import { defaultsDeep } from 'lodash';
-
+import { defaultsDeep, mapValues } from 'lodash';
 import { log } from '@tamanu/shared/services/logging';
 import { IMAGING_TYPES } from '@tamanu/constants';
 
@@ -315,6 +314,45 @@ const patientTabsSchema = yup.object({
   ),
 });
 
+const SIDEBAR_ITEMS = {
+  patients: ['patientsAll', 'patientsInpatients', 'patientsEmergency', 'patientsOutpatients'],
+  scheduling: ['schedulingAppointments', 'schedulingCalendar', 'schedulingNew'],
+  medication: ['medicationAll'],
+  imaging: ['imagingActive', 'imagingCompleted'],
+  labs: ['labsAll', 'labsPublished'],
+  immunisations: ['immunisationsAll'],
+  programRegistry: [],
+};
+
+const sidebarItemSchema = yup
+  .object({
+    sortPriority: yup.number().required(),
+    hidden: yup.boolean(),
+  })
+  .required()
+  .noUnknown();
+
+// patients and patientsAll are intentionally not configurable
+const sidebarSchema = yup
+  .object(
+    mapValues(SIDEBAR_ITEMS, (children, topItem) => {
+      const childSchema = yup
+        .object(
+          children.reduce(
+            (obj, childItem) =>
+              childItem === 'patientsAll' ? obj : { ...obj, [childItem]: sidebarItemSchema },
+            {},
+          ),
+        )
+        .required()
+        .noUnknown();
+
+      return topItem === 'patients' ? childSchema : sidebarItemSchema.concat(childSchema);
+    }),
+  )
+  .required()
+  .noUnknown();
+
 const imagingTypeSchema = yup
   .object({
     label: yup.string().required(),
@@ -406,6 +444,7 @@ const rootLocalisationSchema = yup
         .required(),
     },
     fields: fieldsSchema,
+    sidebar: sidebarSchema,
     templates: templatesSchema,
     timeZone: yup.string().nullable(),
     imagingTypes: imagingTypesSchema,
@@ -579,6 +618,7 @@ const localisationPromise = rootLocalisationSchema
     log.error(
       `Error(s) validating localisation (check localisation.data in your config):${errors}`,
     );
+
     if (!config.localisation.allowInvalid) {
       process.exit(1);
     }

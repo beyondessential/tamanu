@@ -235,7 +235,7 @@ export const MultiselectInput = ({
   );
 };
 
-export const MultiselectField = ({ field, ...props }) => (
+export const BaseMultiselectField = ({ field, ...props }) => (
   <MultiselectInput name={field.name} onChange={field.onChange} value={field.value} {...props} />
 );
 

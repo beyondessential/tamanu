@@ -326,6 +326,7 @@ describe('VRS integration hook: INSERT and UPDATE operations', () => {
       expect(response.body).toEqual({
         response: false,
         error: {
+          status: 502,
           message: expect.stringContaining('500'),
           name: 'RemoteCallFailedError',
         },

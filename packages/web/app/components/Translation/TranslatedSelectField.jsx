@@ -1,4 +1,5 @@
 import { TranslatedText } from './TranslatedText.jsx';
+import { MultiselectInput, SelectInput } from '../Field/index.js';
 import { SelectInput } from '../Field/index.js';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -34,4 +35,20 @@ SelectField.propTypes = {
   prefix: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
   value: PropTypes.string.isRequired,
+};
+
+export const MultiselectField = ({ field, options, prefix, value, name, ...props }) => (
+  <MultiselectInput
+    options={getTranslatedOptions(options, prefix)}
+    value={field ? field.value : value}
+    name={field ? field.name : name}
+    {...props}
+  />
+);
+
+MultiselectField.propTypes = {
+  options: PropTypes.array.isRequired,
+  prefix: PropTypes.string.isRequired,
+  name: PropTypes.string.isRequired,
+  value: PropTypes.any.isRequired,
 };
