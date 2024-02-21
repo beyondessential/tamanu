@@ -29,6 +29,9 @@ export class PatientProgramRegistration extends BaseModel implements IPatientPro
   @Column({ type: 'varchar', nullable: false, default: RegistrationStatus.Active })
   registrationStatus: RegistrationStatus;
 
+  @Column({ type: 'boolean', nullable: false, default: 1 })
+  isMostRecent: boolean;
+
   @DateTimeStringColumn()
   date: DateTimeString;
 

@@ -10,6 +10,7 @@ export interface IPatientProgramRegistration {
   date: DateTimeString;
 
   registrationStatus: RegistrationStatus;
+  isMostRecent: boolean;
 
   programRegistryId: ID;
   programRegistry: IProgramRegistry;
