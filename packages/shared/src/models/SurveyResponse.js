@@ -8,11 +8,7 @@ import { InvalidOperationError } from '../errors';
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 import { runCalculations } from '../utils/calculations';
-import {
-  getActiveActionComponents,
-  getResultValue,
-  getStringValue,
-} from '../utils/fields';
+import { getActiveActionComponents, getResultValue, getStringValue } from '../utils/fields';
 import { getPatientDataDbLocation } from '../utils/getPatientDataDbLocation';
 import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
@@ -91,15 +87,14 @@ async function writeToPatientFields(models, questions, answers, patientId, surve
 
   if (valuesByModel.PatientProgramRegistration) {
     const { programId } = await models.Survey.findByPk(surveyId);
-    const { id: programRegistryId } = await models.ProgramRegistry.findOne({
+    const existingPpr = await models.ProgramRegistry.findOne({
       where: { programId, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
     });
-    if (!programRegistryId) {
+    if (!existingPpr) {
       throw new Error('No program registry configured for the current form');
     }
     await models.PatientProgramRegistration.create({
-      patientId,
-      programRegistryId,
+      ...existingPpr,
       ...valuesByModel.PatientProgramRegistration,
     });
   }
@@ -227,14 +222,7 @@ export class SurveyResponse extends Model {
       throw new Error('SurveyResponse.createWithAnswers must always run inside a transaction!');
     }
     const { models } = this.sequelize;
-    const {
-      answers,
-      surveyId,
-      patientId,
-      encounterId,
-      forceNewEncounter,
-      ...responseData
-    } = data;
+    const { answers, surveyId, patientId, encounterId, forceNewEncounter, ...responseData } = data;
 
     // ensure survey exists
     const survey = await models.Survey.findByPk(surveyId);
