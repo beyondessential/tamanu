@@ -218,7 +218,52 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
         expect(response).toHaveSucceeded();
       });
     });
+
+    describe('including', () => {
+        const resolveUpstreams = async (sequelize) => {
+        const result = await sequelize.query(`
+            CALL fhir.resolve_upstreams();      
+          `);
+        return result;
+      };
+  
+      beforeEach(async () => {
+        const { models } = ctx.store;
+        const { FhirSpecimen, FhirServiceRequest, LabRequest } = models;
+        await FhirSpecimen.destroy({ where: {} });
+        await FhirServiceRequest.destroy({ where: {} });
+        await LabRequest.destroy({ where: {} });
+      });
+
+      it('correctly includes a ServiceRequest', async () => {
+        const { models } = ctx.store;
+        const { FhirSpecimen, FhirServiceRequest } = models;
+        const { labRequest } = await fakeResourcesOfFhirSpecimen(models, resources);
+        const materialisedServiceRequest = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+        const materialiseSpecimen = await FhirSpecimen.materialiseFromUpstream(labRequest.id);
+        
+        await FhirSpecimen.resolveUpstreams();
+        
+        const path = `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest?_include=Specimen:specimen`;
+        const response = await app.get(path);
+        const { entry } = response.body;
+
+        console.log({ response });
+        const fetchedServiceRequest = entry.find(
+          ({ search: { mode } }) => mode === 'match',
+        );
+  
+        const includedSpecimen = entry.find(
+          ({ search: { mode } }) => mode === 'include',
+        );
+        expect(response).toHaveSucceeded();
+        expect(fetchedServiceRequest.resource.id).toBe(materialisedServiceRequest.id);
+        expect(includedSpecimen.resource.id).toBe(materialiseSpecimen.id);
+        expect(response.body.entry.length).toBe(2);
+      });
+    });
   });
+
   describe('errors', () => {
     it('returns not found when fetching a non-existent specimen', async () => {
       // arrange

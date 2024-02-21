@@ -42,4 +42,9 @@ export const searchParameters = {
     path: [['requester']],
     referenceTypes: ['Practitioner'],
   },
+  specimen: {
+    type: FHIR_SEARCH_PARAMETERS.REFERENCE,
+    path: [['specimen', '[]', '*']],
+    referenceTypes: ['Specimen'],
+  },
 };
