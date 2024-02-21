@@ -16,6 +16,7 @@ import { createTestContext } from '../../utilities';
 import {
   fakeResourcesOfFhirServiceRequest,
   fakeResourcesOfFhirServiceRequestWithLabRequest,
+  fakeResourcesOfFhirSpecimen,
 } from '../../fake/fhir';
 
 const INTEGRATION_ROUTE = 'fhir/mat';
@@ -574,263 +575,319 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
   });
 
   describe('search', () => {
-    let irs;
+    describe('Imaging Requests as ServiceRequests', () => {
+      let irs;
 
-    beforeAll(async () => {
-      const {
-        FhirEncounter,
-        FhirServiceRequest,
-        ImagingRequest,
-        ImagingRequestArea,
-      } = ctx.store.models;
-      await FhirEncounter.destroy({ where: {} });
-      await FhirServiceRequest.destroy({ where: {} });
-      await ImagingRequest.destroy({ where: {} });
-      await ImagingRequestArea.destroy({ where: {} });
+      beforeAll(async () => {
+        const {
+          FhirEncounter,
+          FhirServiceRequest,
+          ImagingRequest,
+          ImagingRequestArea,
+        } = ctx.store.models;
+        await FhirEncounter.destroy({ where: {} });
+        await FhirServiceRequest.destroy({ where: {} });
+        await ImagingRequest.destroy({ where: {} });
+        await ImagingRequestArea.destroy({ where: {} });
 
-      const fhirEncounter = await FhirEncounter.materialiseFromUpstream(resources.encounter.id);
-      fhirResources.fhirEncounter = fhirEncounter;
+        const fhirEncounter = await FhirEncounter.materialiseFromUpstream(resources.encounter.id);
+        fhirResources.fhirEncounter = fhirEncounter;
 
-      irs = await Promise.all([
-        (async () => {
-          const ir = await ImagingRequest.create(
-            fake(ImagingRequest, {
-              requestedById: resources.practitioner.id,
-              encounterId: resources.encounter.id,
-              locationId: resources.location.id,
-              status: IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS,
-              priority: 'urgent',
-              requestedDate: '2022-03-04 15:30:00',
-            }),
+        irs = await Promise.all([
+          (async () => {
+            const ir = await ImagingRequest.create(
+              fake(ImagingRequest, {
+                requestedById: resources.practitioner.id,
+                encounterId: resources.encounter.id,
+                locationId: resources.location.id,
+                status: IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS,
+                priority: 'urgent',
+                requestedDate: '2022-03-04 15:30:00',
+              }),
+            );
+
+            await ir.setAreas([resources.area1.id]);
+            await ir.reload();
+            const mat = await FhirServiceRequest.materialiseFromUpstream(ir.id);
+            mat.update({ lastUpdated: addDays(new Date(), 5) });
+            return ir;
+          })(),
+          (async () => {
+            const ir = await ImagingRequest.create(
+              fake(ImagingRequest, {
+                requestedById: resources.practitioner.id,
+                encounterId: resources.encounter.id,
+                locationId: resources.location.id,
+                status: IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
+                priority: 'routine',
+                requestedDate: '2023-11-12 13:14:15',
+              }),
+            );
+
+            await ir.setAreas([resources.area2.id]);
+            await ir.reload();
+            const mat = await FhirServiceRequest.materialiseFromUpstream(ir.id);
+            mat.update({ lastUpdated: addDays(new Date(), 10) });
+            return ir;
+          })(),
+        ]);
+        await FhirServiceRequest.resolveUpstreams();
+      });
+
+      it('returns a list when passed no query params', async () => {
+        const response = await app.get(`/api/integration/${INTEGRATION_ROUTE}/ServiceRequest`);
+
+        expect(response.body.total).toBe(2);
+        expect(response).toHaveSucceeded();
+      });
+
+      it('sorts by lastUpdated ascending', async () => {
+        const response = await app.get(
+          `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?_sort=_lastUpdated`,
+        );
+
+        expect(response.body.total).toBe(2);
+        expect(response.body.entry.map(entry => entry.resource.identifier[0].value)).toEqual([
+          irs[0].id,
+          irs[1].id,
+        ]);
+        expect(response).toHaveSucceeded();
+      });
+
+      it('sorts by lastUpdated descending', async () => {
+        const response = await app.get(
+          `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?_sort=-_lastUpdated`,
+        );
+
+        expect(response.body.total).toBe(2);
+        expect(response.body.entry.map(entry => entry.resource.identifier[0].value)).toEqual([
+          irs[1].id,
+          irs[0].id,
+        ]);
+        expect(response).toHaveSucceeded();
+      });
+
+      it('sorts by status', async () => {
+        const response = await app.get(
+          `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?_sort=status`,
+        );
+
+        expect(response.body.total).toBe(2);
+        expect(response.body.entry.map(entry => entry.resource.identifier[0].value)).toEqual([
+          irs[0].id, // active
+          irs[1].id, // completed
+        ]);
+        expect(response).toHaveSucceeded();
+      });
+
+      it('sorts by priority', async () => {
+        const response = await app.get(
+          `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?_sort=priority`,
+        );
+
+        expect(response.body.total).toBe(2);
+        expect(response.body.entry.map(entry => entry.resource.identifier[0].value)).toEqual([
+          irs[1].id, // normal
+          irs[0].id, // urgent
+        ]);
+        expect(response).toHaveSucceeded();
+      });
+
+      it('filters by lastUpdated=gt with a date', async () => {
+        const response = await app.get(
+          `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?_lastUpdated=gt${formatFhirDate(
+            addDays(new Date(), 7),
+            FHIR_DATETIME_PRECISION.DAYS,
+          )}`,
+        );
+
+        expect(response.body.total).toBe(1);
+        expect(response.body.entry[0].resource.identifier[0].value).toBe(irs[1].id);
+        expect(response).toHaveSucceeded();
+      });
+
+      it('filters by lastUpdated=gt with a datetime', async () => {
+        const response = await app.get(
+          `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?_lastUpdated=gt${encodeURIComponent(
+            formatFhirDate(addDays(new Date(), 7)),
+          )}`,
+        );
+
+        expect(response.body.total).toBe(1);
+        expect(response.body.entry[0].resource.identifier[0].value).toBe(irs[1].id);
+        expect(response).toHaveSucceeded();
+      });
+
+      it('filters by upstream ID (identifier)', async () => {
+        const response = await app.get(
+          `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?identifier=${irs[0].id}`,
+        );
+
+        expect(response.body.total).toBe(1);
+        expect(response.body.entry[0].resource.identifier[0].value).toBe(irs[0].id);
+        expect(response).toHaveSucceeded();
+      });
+
+      it('filters by status', async () => {
+        const response = await app.get(
+          `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?status=active`,
+        );
+
+        expect(response.body.total).toBe(1);
+        expect(response.body.entry[0].resource.identifier[0].value).toBe(irs[0].id);
+        expect(response).toHaveSucceeded();
+      });
+
+      it('filters by priority', async () => {
+        const response = await app.get(
+          `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?priority=urgent`,
+        );
+
+        expect(response.body.total).toBe(1);
+        expect(response.body.entry[0].resource.identifier[0].value).toBe(irs[0].id);
+        expect(response).toHaveSucceeded();
+      });
+
+      it('filters by category (match)', async () => {
+        const response = await app.get(
+          `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?category=363679005`,
+        );
+
+        expect(response.body.total).toBe(2);
+        expect(response).toHaveSucceeded();
+      });
+
+      it('filters by category (no match)', async () => {
+        const response = await app.get(
+          `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?category=363679123`,
+        );
+
+        expect(response.body.total).toBe(0);
+        expect(response).toHaveSucceeded();
+      });
+
+      it('includes subject patient', async () => {
+        const response = await app.get(
+          `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?category=363679005&_include=Patient:subject`,
+        );
+
+        expect(response.body.total).toBe(2);
+        expect(response.body.entry.length).toBe(3);
+        expect(response.body.entry.filter(({ search: { mode } }) => mode === 'match').length).toBe(2);
+        expect(
+          response.body.entry.find(({ search: { mode } }) => mode === 'include')?.resource.id,
+        ).toBe(resources.fhirPatient.id);
+        expect(response).toHaveSucceeded();
+      });
+
+      it('includes subject patient with targetType (match)', async () => {
+        const response = await app.get(
+          `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?category=363679005&_include=Patient:subject:Patient`,
+        );
+
+        expect(response.body.total).toBe(2);
+        expect(response.body.entry.length).toBe(3);
+        expect(response.body.entry.filter(({ search: { mode } }) => mode === 'match').length).toBe(2);
+        expect(
+          response.body.entry.find(({ search: { mode } }) => mode === 'include')?.resource.id,
+        ).toBe(resources.fhirPatient.id);
+        expect(response).toHaveSucceeded();
+      });
+
+      it('includes subject patient with targetType (no match)', async () => {
+        const response = await app.get(
+          `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?category=363679005&_include=Patient:subject:Practitioner`,
+        );
+
+        expect(response.body.total).toBe(2);
+        expect(response.body.entry.length).toBe(2);
+        expect(response.body.entry.filter(({ search: { mode } }) => mode === 'match').length).toBe(2);
+        expect(response).toHaveSucceeded();
+      });
+
+      it('includes encounter as materialised encounter', async () => {
+        const response = await app.get(
+          `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?category=363679005&_include=Encounter:encounter`,
+        );
+        expect(response.body.total).toBe(2);
+        expect(response.body.entry.length).toBe(3);
+        expect(response.body.entry.filter(({ search: { mode } }) => mode === 'match').length).toBe(2);
+        expect(
+          response.body.entry.find(({ search: { mode } }) => mode === 'include')?.resource.id,
+        ).toBe(fhirResources.fhirEncounter.id);
+      });
+
+      it('includes requester practitioner', async () => {
+        const response = await app.get(
+          `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?category=363679005&_include=Practitioner:requester`,
+        );
+        const practitionerRef = response.body.entry.find(
+          ({ search: { mode } }) => mode === 'include',
+        );
+        expect(practitionerRef).toBeDefined();
+        expect(practitionerRef.resource.id).toBe(fhirResources.fhirPractitioner.id);
+        expect(practitionerRef.resource.name.length).toBe(1);
+        expect(practitionerRef.resource.name[0].text).toBe(
+          fhirResources.fhirPractitioner.name[0].text,
+        );
+        expect(response).toHaveSucceeded();
+      });
+
+
+
+
+    });
+
+    describe('Lab Requests as ServiceRequests', () => {
+      test.todo('Need to complete rigorous testing for aspects of Lab Requests searching here');
+
+      describe('including', () => {
+        const resolveUpstreams = async (sequelize) => {
+          const result = await sequelize.query(`
+            CALL fhir.resolve_upstreams();      
+          `);
+          return result;
+        };
+
+        beforeEach(async () => {
+          const { models } = ctx.store;
+          const { FhirSpecimen, FhirServiceRequest, LabRequest } = models;
+          await FhirSpecimen.destroy({ where: {} });
+          await FhirServiceRequest.destroy({ where: {} });
+          await LabRequest.destroy({ where: {} });
+        });
+
+        it('correctly includes a ServiceRequest', async () => {
+          const { models, sequelize } = ctx.store;
+          const { FhirSpecimen, FhirServiceRequest } = models;
+          const { labRequest } = await fakeResourcesOfFhirSpecimen(models, resources);
+          const materialisedServiceRequest = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+          const materialiseSpecimen = await FhirSpecimen.materialiseFromUpstream(labRequest.id);
+
+          await resolveUpstreams(sequelize);
+
+          const path = `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest?_include=Specimen:specimen`;
+          const response = await app.get(path);
+          const { entry } = response.body;
+
+          console.log({ response });
+          const fetchedServiceRequest = entry.find(
+            ({ search: { mode } }) => mode === 'match',
           );
 
-          await ir.setAreas([resources.area1.id]);
-          await ir.reload();
-          const mat = await FhirServiceRequest.materialiseFromUpstream(ir.id);
-          mat.update({ lastUpdated: addDays(new Date(), 5) });
-          return ir;
-        })(),
-        (async () => {
-          const ir = await ImagingRequest.create(
-            fake(ImagingRequest, {
-              requestedById: resources.practitioner.id,
-              encounterId: resources.encounter.id,
-              locationId: resources.location.id,
-              status: IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
-              priority: 'routine',
-              requestedDate: '2023-11-12 13:14:15',
-            }),
+          const includedSpecimen = entry.find(
+            ({ search: { mode } }) => mode === 'include',
           );
+          expect(response).toHaveSucceeded();
+          expect(includedSpecimen).toBeDefined();
+          expect(fetchedServiceRequest.resource.id).toBe(materialisedServiceRequest.id);
+          expect(includedSpecimen.resource.id).toBe(materialiseSpecimen.id);
+          expect(response.body.entry.length).toBe(2);
+        });
+      });
 
-          await ir.setAreas([resources.area2.id]);
-          await ir.reload();
-          const mat = await FhirServiceRequest.materialiseFromUpstream(ir.id);
-          mat.update({ lastUpdated: addDays(new Date(), 10) });
-          return ir;
-        })(),
-      ]);
-      await FhirServiceRequest.resolveUpstreams();
     });
-
-    it('returns a list when passed no query params', async () => {
-      const response = await app.get(`/api/integration/${INTEGRATION_ROUTE}/ServiceRequest`);
-
-      expect(response.body.total).toBe(2);
-      expect(response).toHaveSucceeded();
-    });
-
-    it('sorts by lastUpdated ascending', async () => {
-      const response = await app.get(
-        `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?_sort=_lastUpdated`,
-      );
-
-      expect(response.body.total).toBe(2);
-      expect(response.body.entry.map(entry => entry.resource.identifier[0].value)).toEqual([
-        irs[0].id,
-        irs[1].id,
-      ]);
-      expect(response).toHaveSucceeded();
-    });
-
-    it('sorts by lastUpdated descending', async () => {
-      const response = await app.get(
-        `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?_sort=-_lastUpdated`,
-      );
-
-      expect(response.body.total).toBe(2);
-      expect(response.body.entry.map(entry => entry.resource.identifier[0].value)).toEqual([
-        irs[1].id,
-        irs[0].id,
-      ]);
-      expect(response).toHaveSucceeded();
-    });
-
-    it('sorts by status', async () => {
-      const response = await app.get(
-        `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?_sort=status`,
-      );
-
-      expect(response.body.total).toBe(2);
-      expect(response.body.entry.map(entry => entry.resource.identifier[0].value)).toEqual([
-        irs[0].id, // active
-        irs[1].id, // completed
-      ]);
-      expect(response).toHaveSucceeded();
-    });
-
-    it('sorts by priority', async () => {
-      const response = await app.get(
-        `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?_sort=priority`,
-      );
-
-      expect(response.body.total).toBe(2);
-      expect(response.body.entry.map(entry => entry.resource.identifier[0].value)).toEqual([
-        irs[1].id, // normal
-        irs[0].id, // urgent
-      ]);
-      expect(response).toHaveSucceeded();
-    });
-
-    it('filters by lastUpdated=gt with a date', async () => {
-      const response = await app.get(
-        `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?_lastUpdated=gt${formatFhirDate(
-          addDays(new Date(), 7),
-          FHIR_DATETIME_PRECISION.DAYS,
-        )}`,
-      );
-
-      expect(response.body.total).toBe(1);
-      expect(response.body.entry[0].resource.identifier[0].value).toBe(irs[1].id);
-      expect(response).toHaveSucceeded();
-    });
-
-    it('filters by lastUpdated=gt with a datetime', async () => {
-      const response = await app.get(
-        `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?_lastUpdated=gt${encodeURIComponent(
-          formatFhirDate(addDays(new Date(), 7)),
-        )}`,
-      );
-
-      expect(response.body.total).toBe(1);
-      expect(response.body.entry[0].resource.identifier[0].value).toBe(irs[1].id);
-      expect(response).toHaveSucceeded();
-    });
-
-    it('filters by upstream ID (identifier)', async () => {
-      const response = await app.get(
-        `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?identifier=${irs[0].id}`,
-      );
-
-      expect(response.body.total).toBe(1);
-      expect(response.body.entry[0].resource.identifier[0].value).toBe(irs[0].id);
-      expect(response).toHaveSucceeded();
-    });
-
-    it('filters by status', async () => {
-      const response = await app.get(
-        `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?status=active`,
-      );
-
-      expect(response.body.total).toBe(1);
-      expect(response.body.entry[0].resource.identifier[0].value).toBe(irs[0].id);
-      expect(response).toHaveSucceeded();
-    });
-
-    it('filters by priority', async () => {
-      const response = await app.get(
-        `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?priority=urgent`,
-      );
-
-      expect(response.body.total).toBe(1);
-      expect(response.body.entry[0].resource.identifier[0].value).toBe(irs[0].id);
-      expect(response).toHaveSucceeded();
-    });
-
-    it('filters by category (match)', async () => {
-      const response = await app.get(
-        `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?category=363679005`,
-      );
-
-      expect(response.body.total).toBe(2);
-      expect(response).toHaveSucceeded();
-    });
-
-    it('filters by category (no match)', async () => {
-      const response = await app.get(
-        `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?category=363679123`,
-      );
-
-      expect(response.body.total).toBe(0);
-      expect(response).toHaveSucceeded();
-    });
-
-    it('includes subject patient', async () => {
-      const response = await app.get(
-        `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?category=363679005&_include=Patient:subject`,
-      );
-
-      expect(response.body.total).toBe(2);
-      expect(response.body.entry.length).toBe(3);
-      expect(response.body.entry.filter(({ search: { mode } }) => mode === 'match').length).toBe(2);
-      expect(
-        response.body.entry.find(({ search: { mode } }) => mode === 'include')?.resource.id,
-      ).toBe(resources.fhirPatient.id);
-      expect(response).toHaveSucceeded();
-    });
-
-    it('includes subject patient with targetType (match)', async () => {
-      const response = await app.get(
-        `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?category=363679005&_include=Patient:subject:Patient`,
-      );
-
-      expect(response.body.total).toBe(2);
-      expect(response.body.entry.length).toBe(3);
-      expect(response.body.entry.filter(({ search: { mode } }) => mode === 'match').length).toBe(2);
-      expect(
-        response.body.entry.find(({ search: { mode } }) => mode === 'include')?.resource.id,
-      ).toBe(resources.fhirPatient.id);
-      expect(response).toHaveSucceeded();
-    });
-
-    it('includes subject patient with targetType (no match)', async () => {
-      const response = await app.get(
-        `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?category=363679005&_include=Patient:subject:Practitioner`,
-      );
-
-      expect(response.body.total).toBe(2);
-      expect(response.body.entry.length).toBe(2);
-      expect(response.body.entry.filter(({ search: { mode } }) => mode === 'match').length).toBe(2);
-      expect(response).toHaveSucceeded();
-    });
-
-    it('includes encounter as materialised encounter', async () => {
-      const response = await app.get(
-        `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?category=363679005&_include=Encounter:encounter`,
-      );
-      expect(response.body.total).toBe(2);
-      expect(response.body.entry.length).toBe(3);
-      expect(response.body.entry.filter(({ search: { mode } }) => mode === 'match').length).toBe(2);
-      expect(
-        response.body.entry.find(({ search: { mode } }) => mode === 'include')?.resource.id,
-      ).toBe(fhirResources.fhirEncounter.id);
-    });
-
-    it('includes requester practitioner', async () => {
-      const response = await app.get(
-        `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?category=363679005&_include=Practitioner:requester`,
-      );
-      const practitionerRef = response.body.entry.find(
-        ({ search: { mode } }) => mode === 'include',
-      );
-      expect(practitionerRef).toBeDefined();
-      expect(practitionerRef.resource.id).toBe(fhirResources.fhirPractitioner.id);
-      expect(practitionerRef.resource.name.length).toBe(1);
-      expect(practitionerRef.resource.name[0].text).toBe(
-        fhirResources.fhirPractitioner.name[0].text,
-      );
-      expect(response).toHaveSucceeded();
-    });
-  });
+  })
 
   describe('errors', () => {
     it('returns not found when fetching a non-existent service request', async () => {

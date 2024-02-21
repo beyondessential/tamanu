@@ -1071,7 +1071,7 @@ describe(`Materialised FHIR - Patient`, () => {
       await PatientAdditionalData.destroy({ where: {} });
     });
     it('correctly includes a linked patient', async () => {
-      const { models } = ctx.store;
+      const { models, sequelize } = ctx.store;
       const [keep, merge] = await makeTwoPatients(models);
       const { FhirPatient } = models;
       const { updates } = await mergePatient(models, keep.id, merge.id);
@@ -1080,7 +1080,7 @@ describe(`Materialised FHIR - Patient`, () => {
       });
       const keepMaterialised = await FhirPatient.materialiseFromUpstream(keep.id);
       const mergeMaterialised = await FhirPatient.materialiseFromUpstream(merge.id);
-      await resolveUpstreams(ctx.store.sequelize);
+      await resolveUpstreams(sequelize);
 
       const path = `/api/integration/${INTEGRATION_ROUTE}/Patient?_include=Patient:link&active=true`;
       const response = await app.get(path);

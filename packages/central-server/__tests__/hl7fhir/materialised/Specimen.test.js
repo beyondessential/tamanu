@@ -229,36 +229,38 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
   
       beforeEach(async () => {
         const { models } = ctx.store;
-        const { FhirSpecimen, FhirServiceRequest, LabRequest } = models;
+        const { FhirSpecimen, FhirPractitioner, LabRequest } = models;
         await FhirSpecimen.destroy({ where: {} });
-        await FhirServiceRequest.destroy({ where: {} });
+        await FhirPractitioner.destroy({ where: {} });
         await LabRequest.destroy({ where: {} });
       });
 
-      it('correctly includes a ServiceRequest', async () => {
-        const { models } = ctx.store;
-        const { FhirSpecimen, FhirServiceRequest } = models;
+      it('correctly includes a practitioner', async () => {
+        const { models, sequelize } = ctx.store;
+        const { FhirSpecimen, FhirPractitioner } = models;
         const { labRequest } = await fakeResourcesOfFhirSpecimen(models, resources);
-        const materialisedServiceRequest = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+        // const materialisedServiceRequest = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
         const materialiseSpecimen = await FhirSpecimen.materialiseFromUpstream(labRequest.id);
+        const materialisePractitioner = await FhirPractitioner.materialiseFromUpstream(labRequest.collectedById);
         
-        await FhirSpecimen.resolveUpstreams();
+        await resolveUpstreams(sequelize);
         
-        const path = `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest?_include=Specimen:specimen`;
+        const path = `/v1/integration/${INTEGRATION_ROUTE}/Specimen?_include=Practitioner:collector`;
         const response = await app.get(path);
         const { entry } = response.body;
 
         console.log({ response });
-        const fetchedServiceRequest = entry.find(
+        const fetchedSpecimen = entry.find(
           ({ search: { mode } }) => mode === 'match',
         );
   
-        const includedSpecimen = entry.find(
+        const includedPractitioner = entry.find(
           ({ search: { mode } }) => mode === 'include',
         );
         expect(response).toHaveSucceeded();
-        expect(fetchedServiceRequest.resource.id).toBe(materialisedServiceRequest.id);
-        expect(includedSpecimen.resource.id).toBe(materialiseSpecimen.id);
+        expect(includedPractitioner).toBeDefined();
+        expect(fetchedSpecimen.resource.id).toBe(materialiseSpecimen.id);
+        expect(includedPractitioner.resource.id).toBe(materialisePractitioner.id);
         expect(response.body.entry.length).toBe(2);
       });
     });
