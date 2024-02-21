@@ -90,21 +90,24 @@ export class PatientProgramRegistration extends BaseModel implements IPatientPro
   static async getMostRecentRegistrationsForPatient(patientId: string) {
     const registrationRepository = this.getRepository(PatientProgramRegistration);
 
+    // this query is needed because the way patient_program_registrations are stored in the database
+    // is a bit unusual - we keep a record per edit, so only the most recent one for each program is
+    // a valid, current record
     const GET_MOST_RECENT_REGISTRATIONS_QUERY = `
-    SELECT id
-      FROM patient_program_registration AS main
-      WHERE id = (
-        SELECT id
-        FROM patient_program_registration AS sub
-        WHERE main.patientId = sub.patientId AND main.programRegistryId = sub.programRegistryId
-        ORDER BY date DESC, id DESC
-        LIMIT 1
-      )
+      SELECT id
+      FROM (
+        SELECT
+          id,
+          ROW_NUMBER() OVER (PARTITION BY programRegistryId ORDER BY date DESC, id DESC) AS rowNum
+        FROM patient_program_registration
+        WHERE patientId = :patientId
+      ) n
+      WHERE n.rowNum = 1
     `;
 
     const mostRecentRegistrations = await registrationRepository
       .createQueryBuilder('registration')
-      .where(`registration.id IN (${GET_MOST_RECENT_REGISTRATIONS_QUERY})`)
+      .where(`registration.id IN (${GET_MOST_RECENT_REGISTRATIONS_QUERY})`, { patientId })
       .andWhere('registration.registrationStatus != :status', {
         status: RegistrationStatus.RecordedInError,
       })
