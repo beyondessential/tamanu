@@ -218,7 +218,54 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
         expect(response).toHaveSucceeded();
       });
     });
+
+    describe('including', () => {
+        const resolveUpstreams = async (sequelize) => {
+        const result = await sequelize.query(`
+            CALL fhir.resolve_upstreams();      
+          `);
+        return result;
+      };
+  
+      beforeEach(async () => {
+        const { models } = ctx.store;
+        const { FhirSpecimen, FhirPractitioner, LabRequest } = models;
+        await FhirSpecimen.destroy({ where: {} });
+        await FhirPractitioner.destroy({ where: {} });
+        await LabRequest.destroy({ where: {} });
+      });
+
+      it('correctly includes a practitioner', async () => {
+        const { models, sequelize } = ctx.store;
+        const { FhirSpecimen, FhirPractitioner } = models;
+        const { labRequest } = await fakeResourcesOfFhirSpecimen(models, resources);
+        // const materialisedServiceRequest = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+        const materialiseSpecimen = await FhirSpecimen.materialiseFromUpstream(labRequest.id);
+        const materialisePractitioner = await FhirPractitioner.materialiseFromUpstream(labRequest.collectedById);
+        
+        await resolveUpstreams(sequelize);
+        
+        const path = `/v1/integration/${INTEGRATION_ROUTE}/Specimen?_include=Practitioner:collector`;
+        const response = await app.get(path);
+        const { entry } = response.body;
+
+        console.log({ response });
+        const fetchedSpecimen = entry.find(
+          ({ search: { mode } }) => mode === 'match',
+        );
+  
+        const includedPractitioner = entry.find(
+          ({ search: { mode } }) => mode === 'include',
+        );
+        expect(response).toHaveSucceeded();
+        expect(includedPractitioner).toBeDefined();
+        expect(fetchedSpecimen.resource.id).toBe(materialiseSpecimen.id);
+        expect(includedPractitioner.resource.id).toBe(materialisePractitioner.id);
+        expect(response.body.entry.length).toBe(2);
+      });
+    });
   });
+
   describe('errors', () => {
     it('returns not found when fetching a non-existent specimen', async () => {
       // arrange

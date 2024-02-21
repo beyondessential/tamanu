@@ -161,22 +161,26 @@ function* flattenIncludes(includes) {
 }
 
 function* pathInto(record, path) {
-  const [field, ...rest] = path;
+  const [[field, ...rest]] = path;
   const value = record[field];
-  if (value === undefined) {
+
+  if (field === '[]') {
+    // iterate over array
+    for (const item of record) {
+      yield* pathInto(item, [rest]);
+    }
+  } else if (field === '*') {
+    yield record;
+  }
+  else if (value === undefined) {
     // yield nothing and return
   } else if (value === null) {
     // yield nothing and return
     // in OUR particular case, we don't care about nulls, but in general we might!
     // if copying or exporting/using this code elsewhere, check what you want to do
-  } else if (field === '[]') {
-    // iterate over array
-    for (const item of value) {
-      yield* pathInto(item, rest);
-    }
   } else if (rest.length > 0) {
     // more path to go, recurse
-    yield* pathInto(value, rest);
+    yield* pathInto(value, [rest]);
   } else {
     // reached the end of the path
     yield value;

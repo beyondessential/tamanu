@@ -5,6 +5,10 @@ import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
 import { fakeUUID } from '@tamanu/shared/utils/generateId';
 import { formatFhirDate } from '@tamanu/shared/utils/fhir/datetime';
 import { FHIR_DATETIME_PRECISION } from '@tamanu/constants/fhir';
+import {
+  mergePatient,
+} from '../../../dist/admin/patientMerge/mergePatient';
+
 
 import { createTestContext } from '../../utilities';
 import { IDENTIFIER_NAMESPACE } from '../../../dist/hl7fhir/utils';
@@ -1034,6 +1038,64 @@ describe(`Materialised FHIR - Patient`, () => {
         timestamp: expect.any(String),
         total: 1,
       });
+    });
+
+  });
+
+  describe('including', () => {
+    const makeTwoPatients = async (models, overridesKeep = {}, overridesMerge = {}) => {
+      const { Patient } = models;
+      const keep = await models.Patient.create({
+        ...fake(Patient),
+        ...overridesKeep,
+      });
+      const merge = await models.Patient.create({
+        ...fake(Patient),
+        ...overridesMerge,
+      });
+      return [keep, merge];
+    };
+
+    const resolveUpstreams = async (sequelize) => {
+      const result = await sequelize.query(`
+          CALL fhir.resolve_upstreams();      
+        `);
+      return result;
+    };
+
+    beforeEach(async () => {
+      const { models } = ctx.store;
+      const { FhirPatient, Patient, PatientAdditionalData } = models;
+      await FhirPatient.destroy({ where: {} });
+      await Patient.destroy({ where: {} });
+      await PatientAdditionalData.destroy({ where: {} });
+    });
+    it('correctly includes a linked patient', async () => {
+      const { models, sequelize } = ctx.store;
+      const [keep, merge] = await makeTwoPatients(models);
+      const { FhirPatient } = models;
+      const { updates } = await mergePatient(models, keep.id, merge.id);
+      expect(updates).toEqual({
+        Patient: 2,
+      });
+      const keepMaterialised = await FhirPatient.materialiseFromUpstream(keep.id);
+      const mergeMaterialised = await FhirPatient.materialiseFromUpstream(merge.id);
+      await resolveUpstreams(sequelize);
+
+      const path = `/api/integration/${INTEGRATION_ROUTE}/Patient?_include=Patient:link&active=true`;
+      const response = await app.get(path);
+      const { entry } = response.body;
+      const isThisKeep = entry.find(
+        ({ search: { mode } }) => mode === 'match',
+      );
+
+      const isThisMerged = entry.find(
+        ({ search: { mode } }) => mode === 'include',
+      );
+      expect(response).toHaveSucceeded();
+      expect(isThisKeep.resource.id).toBe(keepMaterialised.id);
+      expect(isThisMerged.resource.id).toBe(mergeMaterialised.id);
+      expect(response.body.entry.length).toBe(2);
     });
   });
 
