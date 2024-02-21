@@ -118,6 +118,7 @@ export const TextField = React.memo(
             focused={focused}
             hasValue={value?.length > 0}
             error={error}
+            // TODO: testID and accessibilityLabel for translated field labels require strings
             testID={label?.props?.fallback || label}
             value={!hideValue && value}
             height={inputHeight}

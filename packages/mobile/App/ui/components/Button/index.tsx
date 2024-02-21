@@ -98,6 +98,7 @@ export const Button = ({
   ...rest
 }: StyledButtonProps): FunctionComponentElement<{}> => (
   <StyledTouchableOpacity
+    // TODO: testID and accessibilityLabel for translated buttons require strings
     testID={id || buttonText?.props?.fallback || buttonText}
     accessibilityLabel={buttonText?.props?.fallback || buttonText}
     flex={flex}
