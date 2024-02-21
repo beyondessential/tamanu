@@ -9,7 +9,7 @@ import {
   SelectField,
 } from '../Field';
 import { TranslatedText } from '../Translation/TranslatedText';
-import { appointmentStatusOptions, appointmentTypeOptions } from '../../constants';
+import { APPOINTMENT_STATUS_OPTIONS, APPOINTMENT_TYPE_OPTIONS } from '../../constants';
 import { useSuggester } from '../../api';
 
 export const AppointmentsSearchBar = ({ onSearch }) => {
@@ -72,7 +72,7 @@ export const AppointmentsSearchBar = ({ onSearch }) => {
           />
         }
         component={SelectField}
-        options={appointmentTypeOptions}
+        options={APPOINTMENT_TYPE_OPTIONS}
         size="small"
       />
       <LocalisedField
@@ -84,7 +84,7 @@ export const AppointmentsSearchBar = ({ onSearch }) => {
           />
         }
         component={SelectField}
-        options={appointmentStatusOptions}
+        options={APPOINTMENT_STATUS_OPTIONS}
         size="small"
       />
       <LocalisedField

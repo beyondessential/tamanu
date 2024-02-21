@@ -12,7 +12,7 @@ import { useQuery } from '@tanstack/react-query';
 import { PatientNameDisplay } from '../PatientNameDisplay';
 import { TextDisplayIdLabel } from '../DisplayIdLabel';
 import { DateDisplay } from '../DateDisplay';
-import { appointmentStatusOptions, Colors } from '../../constants';
+import { APPOINTMENT_STATUS_OPTIONS, Colors } from '../../constants';
 import { useApi } from '../../api';
 import { reloadPatient } from '../../store/patient';
 import { AppointmentModal } from './AppointmentModal';
@@ -226,7 +226,7 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
     () => api.get(`patient/${patient.id}/additionalData`),
   );
   const [statusOption, setStatusOption] = useState(
-    appointmentStatusOptions.find(option => option.value === status),
+    APPOINTMENT_STATUS_OPTIONS.find(option => option.value === status),
   );
   const [appointmentModal, setAppointmentModal] = useState(false);
   const [encounterModal, setEncounterModal] = useState(false);
@@ -237,7 +237,7 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
   const [showErrorAlert, setShowErrorAlert] = useState(false);
 
   useEffect(() => {
-    setStatusOption(appointmentStatusOptions.find(option => option.value === status));
+    setStatusOption(APPOINTMENT_STATUS_OPTIONS.find(option => option.value === status));
   }, [status]);
 
   useEffect(() => {
@@ -296,7 +296,7 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
               fallback="Select Status"
             />
           }
-          options={appointmentStatusOptions}
+          options={APPOINTMENT_STATUS_OPTIONS}
           value={statusOption}
           name="status"
           onChange={async selectedOption => {

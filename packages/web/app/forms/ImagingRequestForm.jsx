@@ -5,7 +5,7 @@ import shortid from 'shortid';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { useDispatch } from 'react-redux';
 import { foreignKey } from '../utils/validation';
-import { encounterOptions } from '../constants';
+import { ENCOUNTER_OPTIONS } from '../constants';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
 import { useEncounter } from '../contexts/Encounter';
 import { reloadImagingRequest } from '../store';
@@ -33,7 +33,7 @@ import { TranslatedText } from '../components/Translation/TranslatedText';
 import { MultiselectField } from '../components/Translation/TranslatedSelectField.jsx';
 
 function getEncounterTypeLabel(type) {
-  return encounterOptions.find(x => x.value === type).label;
+  return ENCOUNTER_OPTIONS.find(x => x.value === type).label;
 }
 
 function getEncounterLabel(encounter) {
