@@ -73,10 +73,10 @@ export class Form extends React.PureComponent {
   constructor(props) {
     super(props);
 
-    const { onSubmit, formType = FORM_TYPES.DATA_FORM } = props;
+    const { onSubmit, formType } = props;
     const hasNonAsyncSubmitHandler =
       IS_DEVELOPMENT &&
-      formType === FORM_TYPES.DATA_FORM &&
+      formType !== FORM_TYPES.SEARCH_FORM &&
       onSubmit.constructor.name !== 'AsyncFunction';
 
     this.state = {
@@ -157,16 +157,16 @@ export class Form extends React.PureComponent {
     }
 
     // submission phase
-    const { onSubmit, onSuccess, formType = FORM_TYPES.DATA_FORM } = this.props;
+    const { onSubmit, onSuccess, formType } = this.props;
     const { touched } = rest;
     const newValues = { ...values };
 
-    // If it is a data form, before submission, convert all the touched undefined values
+    // If it is a data form i.e not search form, before submission, convert all the touched undefined values
     // to null because
     // 1. If it is an edit submit form, we need to be able to save the cleared values as null in the database if we are
     // trying to remove a value when editing a record
     // 2. If it is a new submit form, it does not matter if the empty value is undefined or null
-    if (formType === FORM_TYPES.DATA_FORM) {
+    if (formType !== FORM_TYPES.SEARCH_FORM) {
       for (const key of Object.keys(touched)) {
         if (newValues[key] === undefined) {
           newValues[key] = null;
@@ -193,12 +193,7 @@ export class Form extends React.PureComponent {
     }
   };
 
-  renderFormContents = ({
-    isValid,
-    isSubmitting,
-    setValues: originalSetValues,
-    ...formProps
-  }) => {
+  renderFormContents = ({ isValid, isSubmitting, setValues: originalSetValues, ...formProps }) => {
     delete formProps.submitForm;
     let { values } = formProps;
 
@@ -255,6 +250,7 @@ export class Form extends React.PureComponent {
       validateOnChange,
       validateOnBlur,
       initialValues,
+      formType,
       suppressErrorDialog = false,
       ...props
     } = this.props;
@@ -280,6 +276,7 @@ export class Form extends React.PureComponent {
           initialValues={initialValues}
           initialStatus={{
             page: 1,
+            formType,
           }}
           {...props}
         >
@@ -304,6 +301,7 @@ Form.propTypes = {
   onSuccess: PropTypes.func,
   onSubmit: PropTypes.func.isRequired,
   render: PropTypes.func.isRequired,
+  formType: PropTypes.oneOf(Object.values(FORM_TYPES)),
   showInlineErrorsOnly: PropTypes.bool,
   initialValues: PropTypes.shape({}),
   validateOnChange: PropTypes.bool,

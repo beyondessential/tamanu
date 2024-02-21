@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 import { REPORT_VERSION_EXPORT_FORMATS } from '@tamanu/constants/reports';
 import { Field, Form, FormGrid, OutlinedButton, RadioField } from '../../../components';
 import { ReportSelectField, VersionSelectField } from './ReportsSelectFields';
-import { Colors } from '../../../constants';
+import { Colors, FORM_TYPES } from '../../../constants';
 import { saveFile } from '../../../utils/fileSystemAccess';
 import { useApi } from '../../../api/useApi';
 
@@ -52,6 +52,7 @@ export const ExportReportView = () => {
       initialValues={{
         format: REPORT_VERSION_EXPORT_FORMATS.JSON,
       }}
+      formType={FORM_TYPES.CREATE_FORM}
       showInlineErrorsOnly
       render={({ values, isSubmitting }) => (
         <InnerContainer>

@@ -4,7 +4,12 @@ import * as yup from 'yup';
 import Collapse from '@material-ui/core/Collapse';
 import PrintIcon from '@material-ui/icons/Print';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
-import { Colors, ENCOUNTER_OPTIONS_BY_VALUE, INVOICE_PAYMENT_STATUS_OPTIONS } from '../constants';
+import {
+  Colors,
+  ENCOUNTER_OPTIONS_BY_VALUE,
+  FORM_TYPES,
+  INVOICE_PAYMENT_STATUS_OPTIONS,
+} from '../constants';
 import { foreignKey } from '../utils/validation';
 import { isInvoiceEditable } from '../utils';
 
@@ -144,6 +149,7 @@ export const InvoiceDetailForm = ({
             ? ENCOUNTER_OPTIONS_BY_VALUE[invoice.admissionType].label
             : '',
         }}
+        formType={FORM_TYPES.EDIT_FORM}
         validationSchema={yup.object().shape({
           status: foreignKey('Status is required'),
         })}

@@ -427,8 +427,9 @@ export const SUPPORTED_DOCUMENT_TYPES = {
 export const REQUIRED_INLINE_ERROR_MESSAGE = '*Required';
 
 export const FORM_TYPES = {
+  CREATE_FORM: 'createDataForm',
+  EDIT_FORM: 'editDataForm',
   SEARCH_FORM: 'searchForm',
-  DATA_FORM: 'dataForm',
 };
 
 export const NOTE_FORM_MODES = {

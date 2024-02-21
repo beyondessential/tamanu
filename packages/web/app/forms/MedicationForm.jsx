@@ -21,6 +21,7 @@ import {
   SelectField,
   TextField,
 } from '../components';
+import { FORM_TYPES } from '../constants';
 
 const drugRouteOptions = [
   { label: 'Dermal', value: 'dermal' },
@@ -110,11 +111,11 @@ export const MedicationForm = React.memo(
       })();
     }, [awaitingPrint, submittedMedication]);
 
-    const preventNegative = (value) => {
+    const preventNegative = value => {
       if (!value.target.validity.valid) {
         value.target.value = 0;
       }
-    }
+    };
 
     return (
       <>
@@ -139,6 +140,7 @@ export const MedicationForm = React.memo(
             quantity: medication?.quantity ?? 0,
             indication: medication?.indication ?? '',
           }}
+          formType={!readOnly && (medication ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM)}
           validationSchema={validationSchema(readOnly)}
           render={({ submitForm }) => (
             <FormGrid>
@@ -208,7 +210,14 @@ export const MedicationForm = React.memo(
                   onInput={preventNegative}
                   disabled={readOnly}
                 />
-                <Field name="qtyLunch" min={0} label="Lunch" component={NumberField} disabled={readOnly} onInput={preventNegative} />
+                <Field
+                  name="qtyLunch"
+                  min={0}
+                  label="Lunch"
+                  component={NumberField}
+                  disabled={readOnly}
+                  onInput={preventNegative}
+                />
                 <Field
                   name="qtyEvening"
                   label="Evening"
@@ -217,7 +226,14 @@ export const MedicationForm = React.memo(
                   disabled={readOnly}
                   onInput={preventNegative}
                 />
-                <Field name="qtyNight" label="Night" min={0} component={NumberField} disabled={readOnly} onInput={preventNegative} />
+                <Field
+                  name="qtyNight"
+                  label="Night"
+                  min={0}
+                  component={NumberField}
+                  disabled={readOnly}
+                  onInput={preventNegative}
+                />
               </FormGrid>
               <Field
                 name="indication"

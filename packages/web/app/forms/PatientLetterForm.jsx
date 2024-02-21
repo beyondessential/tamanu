@@ -19,6 +19,7 @@ import { ModalLoader } from '../components/BaseModal';
 import { Button, OutlinedButton } from '../components';
 import { PatientDetailsCard } from '../components/PatientDetailsCard';
 import { ModalGenericButtonRow } from '../components/ModalActionRow';
+import { FORM_TYPES } from '../constants';
 
 const TallMultilineTextField = props => (
   <MultilineTextField style={{ minHeight: '156px' }} {...props} />
@@ -147,6 +148,7 @@ export const PatientLetterForm = ({ onSubmit, onCancel, editedObject, endpoint, 
         clinicianId: currentUser.id,
         ...editedObject,
       }}
+      formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
       validationSchema={yup.object().shape({
         date: yup.date().required('Date is required'),
         clinicianId: yup.string().required('Clinician is required'),

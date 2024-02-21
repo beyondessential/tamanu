@@ -12,7 +12,7 @@ import { FormGrid } from '../components/FormGrid';
 import { FormSeparatorLine } from '../components/FormSeparatorLine';
 import { SurveyQuestion } from '../components/Surveys';
 import { getValidationSchema } from '../utils';
-import { Colors } from '../constants';
+import { Colors, FORM_TYPES } from '../constants';
 import { useApi } from '../api';
 import { useEncounter } from '../contexts/Encounter';
 import { DateDisplay } from '../components/DateDisplay';
@@ -138,6 +138,7 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose }) => {
       onSubmit={handleSubmit}
       validationSchema={validationSchema}
       initialValues={{ [valueName]: initialValue }}
+      formType={FORM_TYPES.EDIT_FORM}
       validate={validateFn}
       render={({ setFieldValue, submitForm }) => (
         <FormGrid columns={4}>

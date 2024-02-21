@@ -5,6 +5,7 @@ import { PATIENT_ISSUE_TYPES } from '@tamanu/constants';
 import { DateField, Field, Form, SelectField, TextField } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { FormSubmitCancelRow } from '../components/ButtonRow';
+import { FORM_TYPES } from '../constants';
 
 const ISSUE_TYPES = [
   { value: PATIENT_ISSUE_TYPES.ISSUE, label: 'Issue' },
@@ -37,6 +38,7 @@ export const PatientIssueForm = ({ onSubmit, editedObject, onCancel }) => (
       type: 'issue',
       ...editedObject,
     }}
+    formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
     validationSchema={yup.object().shape({
       note: yup.string().required(),
       recordedDate: yup.date().required(),

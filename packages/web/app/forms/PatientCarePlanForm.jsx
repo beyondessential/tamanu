@@ -8,6 +8,7 @@ import { FormSubmitCancelRow } from '../components/ButtonRow';
 
 import { foreignKey } from '../utils/validation';
 import { LocalisedText } from '../components';
+import { FORM_TYPES } from '../constants';
 
 export const PatientCarePlanForm = ({
   practitionerSuggester,
@@ -55,6 +56,7 @@ export const PatientCarePlanForm = ({
       date: getCurrentDateTimeString(),
       ...editedObject,
     }}
+    formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
     validationSchema={yup.object().shape({
       carePlanId: foreignKey('Care plan is a required field'),
       date: yup.date(),

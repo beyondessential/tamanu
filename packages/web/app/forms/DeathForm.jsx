@@ -25,7 +25,7 @@ import {
 import { useAuth } from '../contexts/Auth';
 import { DeathFormScreen } from './DeathFormScreen';
 import { SummaryScreenThree, SummaryScreenTwo } from './DeathFormSummaryScreens';
-import { binaryOptions, binaryUnknownOptions } from '../constants';
+import { binaryOptions, binaryUnknownOptions, FORM_TYPES } from '../constants';
 
 const StyledFormGrid = styled(FormGrid)`
   min-height: 200px;
@@ -106,6 +106,7 @@ export const DeathForm = React.memo(
           timeOfDeath: patient?.dateOfDeath || getCurrentDateTimeString(),
           clinicianId: deathData?.clinicianId || currentUser.id,
         }}
+        formType={FORM_TYPES.CREATE_FORM}
       >
         <StyledFormGrid columns={1}>
           <Field

@@ -5,7 +5,7 @@ import * as yup from 'yup';
 import { SETTING_KEYS, VACCINE_CATEGORIES, VACCINE_RECORDING_TYPES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 
-import { REQUIRED_INLINE_ERROR_MESSAGE } from '../constants';
+import { FORM_TYPES, REQUIRED_INLINE_ERROR_MESSAGE } from '../constants';
 import { Form } from '../components/Field';
 import { ErrorMessage } from '../components/ErrorMessage';
 import { LoadingIndicator } from '../components/LoadingIndicator';
@@ -135,6 +135,7 @@ export const VaccineForm = ({
     <Form
       onSubmit={async data => onSubmit({ ...data, category })}
       showInlineErrorsOnly
+      formType={editMode ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
       initialValues={
         !editMode
           ? {
