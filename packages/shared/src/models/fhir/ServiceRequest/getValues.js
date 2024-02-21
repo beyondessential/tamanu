@@ -72,16 +72,16 @@ async function getValuesFromImagingRequest(upstream, models) {
     orderDetail: upstream.areas.flatMap(({ id }) =>
       areaExtCodes.has(id)
         ? [
-            new FhirCodeableConcept({
-              text: areaExtCodes.get(id)?.description,
-              coding: [
-                new FhirCoding({
-                  code: areaExtCodes.get(id)?.code,
-                  system: config.hl7.dataDictionaries.areaExternalCode,
-                }),
-              ],
-            }),
-          ]
+          new FhirCodeableConcept({
+            text: areaExtCodes.get(id)?.description,
+            coding: [
+              new FhirCoding({
+                code: areaExtCodes.get(id)?.code,
+                system: config.hl7.dataDictionaries.areaExternalCode,
+              }),
+            ],
+          }),
+        ]
         : [],
     ),
     subject: new FhirReference({
@@ -106,7 +106,6 @@ async function getValuesFromImagingRequest(upstream, models) {
 async function getValuesFromLabRequest(upstream) {
   return {
     lastUpdated: new Date(),
-    contained: labContained(upstream),
     identifier: [
       new FhirIdentifier({
         system: config.hl7.dataDictionaries.serviceRequestLabId,
@@ -147,7 +146,18 @@ async function getValuesFromLabRequest(upstream) {
       reference: upstream.requestedBy.id,
     }),
     note: labAnnotations(upstream),
+    specimen: resolveSpecimen(upstream),
   };
+}
+
+function resolveSpecimen(upstream) {
+  if (!upstream.specimenAttached) {
+    return null;
+  }
+  return new FhirReference({
+    type: 'upstream://specimen',
+    reference: upstream.id,
+  });
 }
 
 function imagingCode(upstream) {
@@ -239,17 +249,6 @@ function labCode(upstream) {
       }),
     ],
   });
-}
-
-function labContained(upstream) {
-  return [
-    {
-      resourceType: 'Specimen',
-      collection: {
-        collectedDateTime: formatFhirDate(upstream.sampleTime),
-      },
-    },
-  ];
 }
 
 function labOrderDetails(upstream) {

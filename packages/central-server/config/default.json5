@@ -1103,7 +1103,9 @@
         "conditionEncoding": "http://snomed.info/sct",
         "immunizationEncoding": "http://nzmt.org.nz",
         "absentUnknown": "http://hl7.org/fhir/uv/ips/CodeSystem/absent-unknown-uv-ips",
-      }
+      },
+      "specimenType": "http://www.senaite.com/data/sample_types",
+      "sampleBodySite": "http://bodySITE.NEW"
     }
   },
   "s3": {

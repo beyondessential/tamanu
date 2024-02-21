@@ -6,6 +6,8 @@ export * from './Organization';
 export * from './Patient';
 export * from './Practitioner';
 export * from './ServiceRequest';
+export * from './Specimen';
+
 
 export * from './Job';
 export * from './JobWorker';
