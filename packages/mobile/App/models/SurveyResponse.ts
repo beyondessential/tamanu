@@ -99,9 +99,10 @@ async function writeToPatientFields(questions, answers, patientId, surveyId) {
   if (valuesByModel.PatientProgramRegistration) {
     const { programId } = await Survey.findOne({ id: surveyId });
     const ppr = await PatientProgramRegistration.getRecentOne(programId, patientId);
-    const newPpr = getUpdatedPPRValues(ppr, valuesByModel.PatientProgramRegistration);
-
-    await PatientProgramRegistration.createAndSaveOne(newPpr);
+    if (ppr) {
+      const newPpr = getUpdatedPPRValues(ppr, valuesByModel.PatientProgramRegistration);
+      await PatientProgramRegistration.createAndSaveOne(newPpr);
+    }
   }
 }
 
