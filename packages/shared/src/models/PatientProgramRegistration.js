@@ -88,10 +88,6 @@ export class PatientProgramRegistration extends Model {
   static async create(values) {
     const { programRegistryId, patientId, ...restOfUpdates } = values;
     const existingRegistration = await this.sequelize.models.PatientProgramRegistration.findOne({
-      attributes: {
-        // We don't want to override the defaults for the new record.
-        exclude: ['id', 'updatedAt', 'updatedAtSyncTick'],
-      },
       where: {
         isMostRecent: true,
         programRegistryId,
@@ -99,7 +95,6 @@ export class PatientProgramRegistration extends Model {
       },
       order: [['date', 'DESC']],
       limit: 1,
-      raw: true,
     });
 
     // Most recent registration will now be the new one
@@ -115,6 +110,7 @@ export class PatientProgramRegistration extends Model {
       // but if a date was provided in the function params, we should go with that.
       date: getCurrentDateTimeString(),
       ...restOfUpdates,
+      id: undefined,
       isMostRecent: true,
     });
   }
