@@ -17,7 +17,7 @@ import {
   SuggesterSelectField,
   TextField,
 } from '../components';
-import { encounterOptions } from '../constants';
+import { ENCOUNTER_OPTIONS } from '../constants';
 import { useSuggester } from '../api';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 
@@ -45,19 +45,19 @@ export const EncounterForm = React.memo(
             name="encounterType"
             label={
               <TranslatedText
-                stringId="patient.modal.checkIn.form.encounterType.label"
+                stringId="patient.modal.checkIn.encounterType.label"
                 fallback="Encounter type"
               />
             }
             disabled
             component={SelectField}
-            options={encounterOptions}
+            options={ENCOUNTER_OPTIONS}
           />
           <Field
             name="startDate"
             label={
               <TranslatedText
-                stringId="patient.modal.checkIn.form.checkInDate.label"
+                stringId="patient.modal.checkIn.checkInDate.label"
                 fallback="Check-in date"
               />
             }
@@ -69,7 +69,7 @@ export const EncounterForm = React.memo(
           <Field
             name="departmentId"
             label={
-              <TranslatedText stringId="general.form.department.label" fallback="Department" />
+              <TranslatedText stringId="general.department.label" fallback="Department" />
             }
             required
             component={AutocompleteField}
@@ -117,7 +117,7 @@ export const EncounterForm = React.memo(
             name="reasonForEncounter"
             label={
               <TranslatedText
-                stringId="modal.checkIn.form.reasonForEncounter.label"
+                stringId="modal.checkIn.reasonForEncounter.label"
                 fallback="Reason for encounter"
               />
             }
@@ -152,7 +152,7 @@ export const EncounterForm = React.memo(
           startDate: yup.date().required(),
           encounterType: yup
             .string()
-            .oneOf(encounterOptions.map(x => x.value))
+            .oneOf(ENCOUNTER_OPTIONS.map(x => x.value))
             .required(),
         })}
       />

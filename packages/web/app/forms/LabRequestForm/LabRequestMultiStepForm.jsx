@@ -32,7 +32,7 @@ export const LabRequestMultiStepForm = ({
   const screen1ValidationSchema = yup.object().shape({
     requestedById: foreignKey(
       <TranslatedText
-        stringId="lab.form.requestedBy.validation"
+        stringId="lab.requestedBy.validation"
         fallback="Requesting :clinicianText is required"
         replacements={{
           clinician: (
@@ -50,7 +50,7 @@ export const LabRequestMultiStepForm = ({
       .date()
       .required(
         <TranslatedText
-          stringId="lab.form.requestedDate.validation"
+          stringId="lab.requestedDate.validation"
           fallback="Request date is required"
         />,
       ),
@@ -59,7 +59,7 @@ export const LabRequestMultiStepForm = ({
       .oneOf(Object.values(LAB_REQUEST_FORM_TYPES))
       .required(
         <TranslatedText
-          stringId="lab.form.requestFormType.validation"
+          stringId="lab.requestFormType.validation"
           fallback="Request type must be selected"
         />,
       ),

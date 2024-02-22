@@ -4,10 +4,10 @@ import { PATIENT_REGISTRY_TYPES, MARITAL_STATUS_OPTIONS } from '@tamanu/constant
 
 import { AutocompleteField, SelectField, SuggesterSelectField, TextField } from '..';
 import {
-  bloodOptions,
-  educationalAttainmentOptions,
-  socialMediaOptions,
-  titleOptions,
+  BLOOD_OPTIONS,
+  EDUCATIONAL_ATTAINMENT_OPTIONS,
+  SOCIAL_MEDIA_OPTIONS,
+  TITLE_OPTIONS,
 } from '../../constants';
 import { usePatientSuggester, useSuggester } from '../../api';
 import { ConfiguredMandatoryPatientFields } from './ConfiguredMandatoryPatientFields';
@@ -24,7 +24,7 @@ export const PersonalInformationFields = ({ patientRegistryType, showMandatory }
   const PERSONAL_INFORMATION_FIELDS = {
     title: {
       component: SelectField,
-      options: titleOptions,
+      options: TITLE_OPTIONS,
       label: <TranslatedText stringId="general.localisedField.title.label" fallback="Title" />,
     },
     maritalStatus: {
@@ -40,7 +40,7 @@ export const PersonalInformationFields = ({ patientRegistryType, showMandatory }
     },
     bloodType: {
       component: SelectField,
-      options: bloodOptions,
+      options: BLOOD_OPTIONS,
       label: (
         <TranslatedText stringId="general.localisedField.bloodType.label" fallback="Blood type" />
       ),
@@ -90,7 +90,7 @@ export const PersonalInformationFields = ({ patientRegistryType, showMandatory }
     },
     educationalLevel: {
       component: SelectField,
-      options: educationalAttainmentOptions,
+      options: EDUCATIONAL_ATTAINMENT_OPTIONS,
       condition: () => patientRegistryType === PATIENT_REGISTRY_TYPES.NEW_PATIENT,
       label: (
         <TranslatedText
@@ -112,7 +112,7 @@ export const PersonalInformationFields = ({ patientRegistryType, showMandatory }
     },
     socialMedia: {
       component: SelectField,
-      options: socialMediaOptions,
+      options: SOCIAL_MEDIA_OPTIONS,
       condition: () => patientRegistryType === PATIENT_REGISTRY_TYPES.NEW_PATIENT,
       label: (
         <TranslatedText

@@ -6,7 +6,7 @@ import { AutocompleteField, DateTimeField, Field, Form, SelectField } from '../F
 import { FormSubmitCancelRow } from '../ButtonRow';
 import { FormSeparatorLine } from '../FormSeparatorLine';
 import { useApi, usePatientSuggester, useSuggester } from '../../api';
-import { appointmentTypeOptions } from '../../constants';
+import { APPOINTMENT_TYPE_OPTIONS } from '../../constants';
 import { TranslatedText } from '../Translation/TranslatedText';
 
 export const AppointmentForm = props => {
@@ -81,13 +81,13 @@ export const AppointmentForm = props => {
             <Field
               label={
                 <TranslatedText
-                  stringId="scheduling.newAppointment.form.type.label"
+                  stringId="scheduling.newAppointment.type.label"
                   fallback="Appointment type"
                 />
               }
               name="type"
               component={SelectField}
-              options={appointmentTypeOptions}
+              options={APPOINTMENT_TYPE_OPTIONS}
               required
             />
           </FormGrid>

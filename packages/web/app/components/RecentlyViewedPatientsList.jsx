@@ -148,7 +148,7 @@ const Card = ({ patient, handleClick }) => {
           <SexDisplay sex={patient.sex} />
         </CapitalizedCardText>
         <CardText>
-          <TranslatedText stringId="general.form.dateOfBirth.label" fallback="DOB" />
+          <TranslatedText stringId="general.dateOfBirth.label" fallback="DOB" />
           : <DateDisplay date={patient.dateOfBirth} shortYear />
         </CardText>
       </CardComponentContent>

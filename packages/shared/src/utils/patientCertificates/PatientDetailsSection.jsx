@@ -41,8 +41,11 @@ export const PatientDetailsSection = ({ patient, getLocalisation, extraFields = 
 
               return (
                 <Col style={{ width: '50%' }} key={key}>
-                  <P mb={6}>
-                    <P bold>{label}:</P> {value}
+                  <P mb={6} fontSize={9}>
+                    <P bold fontSize={9}>
+                      {label}:
+                    </P>{' '}
+                    {value}
                   </P>
                 </Col>
               );

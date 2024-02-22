@@ -22,7 +22,7 @@ export const FamilyHistoryForm = ({
       <FormGrid columns={1}>
         <Field
           name="diagnosisId"
-          label={<TranslatedText stringId="general.form.diagnosis.label" fallback="Diagnosis" />}
+          label={<TranslatedText stringId="general.diagnosis.label" fallback="Diagnosis" />}
           required
           component={AutocompleteField}
           suggester={icd10Suggester}
@@ -30,7 +30,7 @@ export const FamilyHistoryForm = ({
         <Field
           name="recordedDate"
           label={
-            <TranslatedText stringId="general.form.recordedDate.label" fallback="Date recorded" />
+            <TranslatedText stringId="general.recordedDate.label" fallback="Date recorded" />
           }
           required
           component={DateField}
@@ -40,7 +40,7 @@ export const FamilyHistoryForm = ({
           name="relationship"
           label={
             <TranslatedText
-              stringId="familyHistory.form.relationship.label"
+              stringId="familyHistory.relationship.label"
               fallback="Relationship to patient"
             />
           }
@@ -59,7 +59,7 @@ export const FamilyHistoryForm = ({
         />
         <Field
           name="note"
-          label={<TranslatedText stringId="general.form.notes.label" fallback="Notes" />}
+          label={<TranslatedText stringId="general.notes.label" fallback="Notes" />}
           component={TextField}
           multiline
           rows={2}

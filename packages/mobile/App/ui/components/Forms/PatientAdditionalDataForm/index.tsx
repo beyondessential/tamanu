@@ -12,8 +12,9 @@ import {
 import { PatientAdditionalData } from '~/models/PatientAdditionalData';
 import { PatientFieldValue } from '~/models/PatientFieldValue';
 import { Routes } from '~/ui/helpers/routes';
-import { additionalDataSections } from '~/ui/helpers/additionalData';
+import { additionalDataSections } from '/helpers/additionalData';
 import { Button } from '../../Button';
+import { TranslatedText } from '/components/Translations/TranslatedText';
 
 export const PatientAdditionalDataForm = ({
   patientId,
@@ -36,8 +37,8 @@ export const PatientAdditionalDataForm = ({
               patientId,
               definitionId,
               values[definitionId],
-            )
-          )
+            ),
+          ),
         );
       } else {
         await PatientAdditionalData.updateForPatient(patientId, values);
@@ -49,16 +50,24 @@ export const PatientAdditionalDataForm = ({
   );
 
   // Get the actual additional data section object
-  const section = isCustomFields ?
-    { fields: customSectionFields.map(({ id, name, fieldType, options }) => ({ id, name, fieldType, options })) } :
-    additionalDataSections.find(({ title }) => title === sectionTitle);
+  const section = isCustomFields
+    ? {
+        fields: customSectionFields.map(({ id, name, fieldType, options }) => ({
+          id,
+          name,
+          fieldType,
+          options,
+        })),
+      }
+    : additionalDataSections.find(({ title }) => title === sectionTitle);
   const { fields } = section;
 
   return (
     <Form
-      initialValues={isCustomFields ?
-        getInitialCustomValues(customPatientFieldValues, fields) :
-        getInitialAdditionalValues(additionalData, fields)
+      initialValues={
+        isCustomFields
+          ? getInitialCustomValues(customPatientFieldValues, fields)
+          : getInitialAdditionalValues(additionalData, fields)
       }
       validationSchema={patientAdditionalDataValidationSchema}
       onSubmit={onCreateOrEditAdditionalData}
@@ -75,7 +84,7 @@ export const PatientAdditionalDataForm = ({
               backgroundColor={theme.colors.PRIMARY_MAIN}
               onPress={handleSubmit}
               loadingAction={isSubmitting}
-              buttonText="Save"
+              buttonText={<TranslatedText stringId="general.action.save" fallback="Save" />}
               marginTop={10}
             />
           </StyledView>

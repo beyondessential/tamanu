@@ -139,7 +139,7 @@ export const EncounterTopBar = ({ title, subTitle, encounter, children }) => (
     <Container>
       <div>
         <Cell>
-          <Label>Arrival Date:</Label>
+          <Label><TranslatedText stringId="encounter.arrivalDate.label" fallback="Arrival Date" />:</Label>
           <Value>
             <DateDisplay date={encounter.startDate} />
           </Value>
@@ -147,7 +147,7 @@ export const EncounterTopBar = ({ title, subTitle, encounter, children }) => (
         <Cell>
           <Label>
             <TranslatedText
-              stringId="general.form.supervisingClinician.label"
+              stringId="general.supervisingClinician.label"
               fallback="Supervising :clinician"
               replacements={{
                 clinician: (

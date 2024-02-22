@@ -21,7 +21,7 @@ export const AppointmentListingView = () => {
   const COLUMNS = [
     {
       key: 'startTime',
-      title: <TranslatedText stringId="general.table.column.date" fallback="Date" />,
+      title: <TranslatedText stringId='general.date.label' fallback="Date" />,
       accessor: row => <DateDisplay date={row.startTime} showTime />,
     },
     {
@@ -33,7 +33,7 @@ export const AppointmentListingView = () => {
     },
     {
       key: 'patientName',
-      title: <TranslatedText stringId="general.table.column.patientName" fallback="Patient" />,
+      title: <TranslatedText stringId='general.patient.label' fallback="Patient" />,
       accessor: row => `${row.patient.firstName} ${row.patient.lastName}`,
     },
     {
@@ -57,14 +57,11 @@ export const AppointmentListingView = () => {
     },
     {
       key: 'locationGroupId',
-      title: <TranslatedText stringId="general.table.column.area" fallback="Area" />,
+      title: <TranslatedText stringId="general.area.label" fallback="Area" />,
       accessor: row => row.locationGroup.name,
     },
-    { key: 'type', title: <TranslatedText stringId="general.table.column.type" fallback="Type" /> },
-    {
-      key: 'status',
-      title: <TranslatedText stringId="general.table.column.status" fallback="Status" />,
-    },
+    { key: 'type', title: <TranslatedText stringId="general.type.label" fallback="Type" /> },
+    { key: 'status', title: <TranslatedText stringId="general.status.label" fallback="Status" /> },
   ];
 
   const [searchParams, setSearchParams] = useState({});
@@ -90,7 +87,12 @@ export const AppointmentListingView = () => {
         <SearchTable
           endpoint="appointments"
           columns={COLUMNS}
-          noDataMessage="No appointments found"
+          noDataMessage={
+            <TranslatedText
+              stringId="scheduling.upcomingAppointment.table.noDataMessage"
+              fallback="No appointments found"
+            />
+          }
           initialSort={{ order: 'asc', orderBy: 'startTime' }}
           fetchOptions={searchParams}
           refreshCount={refreshCount}

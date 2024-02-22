@@ -20,7 +20,7 @@ createDateTypes();
 const asyncLocalStorage = new AsyncLocalStorage();
 // eslint-disable-next-line react-hooks/rules-of-hooks
 Sequelize.useCLS({
-  bind: () => {}, // compatibility with cls-hooked, not used by sequelize
+  bind: () => { }, // compatibility with cls-hooked, not used by sequelize
   get: id => asyncLocalStorage.getStore()?.get(id),
   set: (id, value) => asyncLocalStorage.getStore()?.set(id, value),
   run: callback => asyncLocalStorage.run(new Map(), callback),
@@ -63,6 +63,7 @@ async function connectToDatabase(dbOptions) {
     verbose = false,
     pool,
     alwaysCreateConnection = true,
+    loggingOverride = null, // used in tests for migration determinism
   } = dbOptions;
   let { name } = dbOptions;
 
@@ -82,13 +83,18 @@ async function connectToDatabase(dbOptions) {
     name,
   });
 
-  const logging = verbose
-    ? (query, obj) =>
-        log.debug('databaseQuery', {
-          query: util.inspect(query),
-          binding: util.inspect(obj.bind || [], { breakLength: Infinity }),
-        })
-    : null;
+  let logging;
+  if (loggingOverride) {
+    logging = loggingOverride;
+  } else if (verbose) {
+    logging = (query, obj) =>
+      log.debug('databaseQuery', {
+        query: util.inspect(query),
+        binding: util.inspect(obj.bind || [], { breakLength: Infinity }),
+      });
+  } else {
+    logging = null;
+  }
 
   const options = {
     dialect: 'postgres',
