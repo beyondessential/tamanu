@@ -50,7 +50,8 @@ async function getPatientVaccines(models, patient) {
     order: [['date', 'ASC']],
     includeNotGiven: false,
   });
-  const certifiableVaccines = vaccines.filter(vaccine => vaccine.certifiable);
+  const vaccineData = vaccines.filter(vaccine => !vaccine.scheduledVaccine.hideFromCertificate);
+  const certifiableVaccines = vaccineData.filter(vaccine => vaccine.certifiable);
   const additionalData = await models.PatientAdditionalData.findOne({
     where: { patientId: patient.id },
     include: models.PatientAdditionalData.getFullReferenceAssociations(),
@@ -61,7 +62,7 @@ async function getPatientVaccines(models, patient) {
     village,
     additionalData: additionalData?.dataValues,
   };
-  return { certifiableVaccines, vaccines, patientData };
+  return { certifiableVaccines, vaccines: vaccineData, patientData };
 }
 
 export const makeCovidVaccineCertificate = async (
