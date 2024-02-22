@@ -26,6 +26,7 @@ export const PersonalInformationFields = ({ patientRegistryType, showMandatory }
       component: SelectField,
       options: TITLE_OPTIONS,
       label: <TranslatedText stringId="general.localisedField.title.label" fallback="Title" />,
+      prefix: 'localisedField.property.title',
     },
     maritalStatus: {
       component: SelectField,
@@ -37,6 +38,7 @@ export const PersonalInformationFields = ({ patientRegistryType, showMandatory }
           fallback="Marital status"
         />
       ),
+      prefix: 'localisedField.property.maritalStatus',
     },
     bloodType: {
       component: SelectField,
@@ -44,6 +46,7 @@ export const PersonalInformationFields = ({ patientRegistryType, showMandatory }
       label: (
         <TranslatedText stringId="general.localisedField.bloodType.label" fallback="Blood type" />
       ),
+      prefix: 'localisedField.property.bloodType',
     },
     placeOfBirth: {
       component: TextField,
@@ -98,6 +101,7 @@ export const PersonalInformationFields = ({ patientRegistryType, showMandatory }
           fallback="Educational attainment"
         />
       ),
+      prefix: 'localisedField.property.educationalLevel',
     },
     occupationId: {
       component: AutocompleteField,
@@ -120,6 +124,7 @@ export const PersonalInformationFields = ({ patientRegistryType, showMandatory }
           fallback="Social media"
         />
       ),
+      prefix: 'localisedField.property.socialMedia',
     },
     patientBillingTypeId: {
       component: SuggesterSelectField,

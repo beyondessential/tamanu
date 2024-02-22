@@ -1,9 +1,8 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../../api';
-import { Field } from '../../components';
+import { MultiselectField, Field } from '../../components';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
-import { MultiselectField } from '../../components/Translation/TranslatedSelectField.jsx';
 
 export const useLabTestTypes = labTestCategoryId => {
   const api = useApi();

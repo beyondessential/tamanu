@@ -3,7 +3,6 @@ import { useApi } from '../../api';
 import { Dialog, Field, SelectField } from '../../components';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 
-
 export const VaccineField = ({ name = 'vaccine', required, parameterValues }) => {
   const api = useApi();
   const { category } = parameterValues;
@@ -45,6 +44,7 @@ export const VaccineField = ({ name = 'vaccine', required, parameterValues }) =>
         component={SelectField}
         required={required}
         options={vaccineOptions}
+        prefix="vaccine.property.name"
       />
       <Dialog
         headerTitle={<TranslatedText stringId="general.error" fallback="Error" />}

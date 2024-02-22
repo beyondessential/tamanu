@@ -16,6 +16,7 @@ export const ImagingPriorityField = ({ name = 'priority', required }) => {
       component={SelectField}
       options={imagingPriorities}
       required={required}
+      prefix="imaging.property.priority"
     />
   );
 };

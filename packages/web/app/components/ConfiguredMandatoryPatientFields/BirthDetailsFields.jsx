@@ -46,6 +46,7 @@ export const BirthDetailsFields = ({ registeredBirthPlace, showMandatory }) => {
           fallback="Place of birth"
         />
       ),
+      prefix: 'localisedField.property.registeredBirthPlace',
     },
     birthFacilityId: {
       component: AutocompleteField,
@@ -67,6 +68,7 @@ export const BirthDetailsFields = ({ registeredBirthPlace, showMandatory }) => {
           fallback="Attendant at birth"
         />
       ),
+      prefix: 'localisedField.property.attendantAtBirth',
     },
     nameOfAttendantAtBirth: {
       component: TextField,
@@ -87,6 +89,7 @@ export const BirthDetailsFields = ({ registeredBirthPlace, showMandatory }) => {
           fallback="Delivery type"
         />
       ),
+      prefix: 'localisedField.property.birthDeliveryType',
     },
     birthType: {
       component: SelectField,
@@ -97,6 +100,7 @@ export const BirthDetailsFields = ({ registeredBirthPlace, showMandatory }) => {
           fallback="Single/Plural birth"
         />
       ),
+      prefix: 'localisedField.property.birthType',
     },
     birthWeight: {
       component: TextField,

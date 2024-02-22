@@ -1,22 +1,11 @@
 import React from 'react';
 import * as yup from 'yup';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
-import { PATIENT_ISSUE_TYPES } from '@tamanu/constants';
+import { PATIENT_ISSUE_TYPES, PATIENT_ISSUE_OPTIONS } from '@tamanu/constants';
 import { DateField, Field, Form, SelectField, TextField } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { FormSubmitCancelRow } from '../components/ButtonRow';
-
-const ISSUE_TYPES = [
-  {
-    value: PATIENT_ISSUE_TYPES.ISSUE,
-    label: <TranslatedText stringId="issues.option.issue" fallback="Issue" />,
-  },
-  {
-    value: PATIENT_ISSUE_TYPES.WARNING,
-    label: <TranslatedText stringId="issues.option.warning" fallback="Warning" />,
-  },
-];
 
 export const PatientIssueForm = ({ onSubmit, editedObject, onCancel }) => (
   <Form
@@ -27,8 +16,9 @@ export const PatientIssueForm = ({ onSubmit, editedObject, onCancel }) => (
           name="type"
           label={<TranslatedText stringId="general.type.label" fallback="Type" />}
           component={SelectField}
-          options={ISSUE_TYPES}
+          options={PATIENT_ISSUE_OPTIONS}
           required
+          prefix="issues.property.option"
         />
         <Field
           name="note"
@@ -39,9 +29,7 @@ export const PatientIssueForm = ({ onSubmit, editedObject, onCancel }) => (
         />
         <Field
           name="recordedDate"
-          label={
-            <TranslatedText stringId="general.recordedDate.label" fallback="Date recorded" />
-          }
+          label={<TranslatedText stringId="general.recordedDate.label" fallback="Date recorded" />}
           component={DateField}
           saveDateAsString
           required

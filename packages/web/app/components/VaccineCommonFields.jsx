@@ -3,10 +3,7 @@ import styled from 'styled-components';
 import Divider from '@material-ui/core/Divider';
 import { CheckCircleRounded } from '@material-ui/icons';
 
-import {
-  INJECTION_SITE_VALUES,
-  VACCINE_CATEGORIES,
-} from '@tamanu/constants';
+import { VACCINE_CATEGORIES, INJECTION_SITE_OPTIONS } from '@tamanu/constants';
 
 import { OuterLabelFieldWrapper } from './Field/OuterLabelFieldWrapper';
 import {
@@ -59,39 +56,6 @@ const VACCINE_FIELD_CATEGORY_OPTIONS = [
   },
 ];
 
-const VACCINE_FIELD_INJECTION_SITE_OPTIONS = [
-  {
-    value: INJECTION_SITE_VALUES.LEFT_ARM,
-    label: <TranslatedText stringId="vaccine.property.injectionSite.leftArm" fallback="Left arm" />,
-  },
-  {
-    value: INJECTION_SITE_VALUES.RIGHT_ARM,
-    label: (
-      <TranslatedText stringId="vaccine.property.injectionSite.rightArm" fallback="Right arm" />
-    ),
-  },
-  {
-    value: INJECTION_SITE_VALUES.LEFT_THIGH,
-    label: (
-      <TranslatedText stringId="vaccine.property.injectionSite.leftThigh" fallback="Left thigh" />
-    ),
-  },
-  {
-    value: INJECTION_SITE_VALUES.RIGHT_THIGH,
-    label: (
-      <TranslatedText stringId="vaccine.property.injectionSite.rightThigh" fallback="Right thigh" />
-    ),
-  },
-  {
-    value: INJECTION_SITE_VALUES.ORAL,
-    label: <TranslatedText stringId="vaccine.property.injectionSite.oral" fallback="Oral" />,
-  },
-  {
-    value: INJECTION_SITE_VALUES.OTHER,
-    label: <TranslatedText stringId="vaccine.property.injectionSite.other" fallback="Other" />,
-  },
-];
-
 export const CategoryField = ({ setCategory, setVaccineLabel, resetForm }) => (
   <FullWidthCol>
     <Field
@@ -117,6 +81,7 @@ export const VaccineLabelField = ({ vaccineOptions, setVaccineLabel }) => (
     options={vaccineOptions}
     onChange={e => setVaccineLabel(e.target.value)}
     required
+    prefix="vaccine.property.name"
   />
 );
 
@@ -137,7 +102,8 @@ export const InjectionSiteField = () => (
     name="injectionSite"
     label={<TranslatedText stringId="vaccine.injectionSite.label" fallback="Injection site" />}
     component={SelectField}
-    options={VACCINE_FIELD_INJECTION_SITE_OPTIONS}
+    options={INJECTION_SITE_OPTIONS}
+    prefix="vaccine.property.injectionSite"
   />
 );
 
@@ -192,7 +158,7 @@ export const RecordedByField = () => {
       disabled
       name="recorderId"
       label={<TranslatedText stringId="vaccine.recordedBy.label" fallback="Recorded by" />}
-      component={SelectField}
+      component={BaseSelectField}
       options={[
         {
           label: currentUser.displayName,
@@ -218,9 +184,7 @@ export const ConsentField = ({ label }) => (
 export const ConsentGivenByField = () => (
   <Field
     name="consentGivenBy"
-    label={
-      <TranslatedText stringId="vaccine.consentGivenBy.label" fallback="Consent given by" />
-    }
+    label={<TranslatedText stringId="vaccine.consentGivenBy.label" fallback="Consent given by" />}
     component={TextField}
   />
 );

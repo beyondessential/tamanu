@@ -46,6 +46,7 @@ export const CancelModal = React.memo(
                 name="reasonForCancellation"
                 options={options}
                 helperText={isReasonForDelete(values.reasonForCancellation) ? helperText : null}
+                prefix="imaging.cancel.property.reason"
               />
             </Wrapper>
             <FormSubmitCancelRow

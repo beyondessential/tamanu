@@ -196,6 +196,7 @@ export const LabRequestsSearchBar = ({ status = '' }) => {
               option => option.value !== LAB_REQUEST_STATUSES.PUBLISHED,
             )}
             size="small"
+            prefix="labs.property.status"
           />
         )}
       </>

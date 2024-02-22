@@ -64,6 +64,7 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
               component={SelectField}
               options={sexOptions}
               size="small"
+              prefix="patient.property.sex"
             />
           </TwoColumnsField>
           <VillageLocalisedField
