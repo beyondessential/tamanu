@@ -20,8 +20,10 @@ const PatientProgramRegistrySummary_ = ({ selectedPatient }): ReactElement => {
   const canListRegistrations = ability.can('list', 'PatientProgramRegistration');
   const canCreateRegistration = ability.can('create', 'PatientProgramRegistration');
   const [programRegistries, programRegistryError, isProgramRegistryLoading] = useBackendEffect(
-    async ({ models }) =>
-      await models.ProgramRegistry.getProgramRegistriesForPatient(selectedPatient.id, ability),
+    async ({ models }) => {
+      if (canListRegistrations === false) return [];
+      return await models.ProgramRegistry.getProgramRegistriesForPatient(selectedPatient.id);
+    },
     [],
   );
 
