@@ -21,9 +21,9 @@ export const ConfiguredMandatoryPatientFields = ({ fields, filterByMandatory }) 
         required: !!getLocalisation(`fields.${fieldName}.requiredPatientData`),
         name: fieldName,
       }));
-    // We only need to work out which fields to show if fields are changed
+    // We only need to work out which fields to show if either fields or filterByMandatory are changed
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fields]);
+  }, [fields, filterByMandatory]);
 
   return fieldsToShow.length ? (
     <>
