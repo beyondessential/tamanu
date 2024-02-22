@@ -1,6 +1,6 @@
 import React from 'react';
 import { TextField } from '../../../../../components';
-import { ConfiguredMandatoryPatientFields } from '../../../../../components/ConfiguredMandatoryPatientFields';
+import { ConfiguredMandatoryPatientFields } from '../../../ConfiguredMandatoryPatientFields';
 import { PatientField } from '../../../PatientDetailsForm';
 import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants';
 

@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { AutocompleteField, TextField } from '../../../../../components';
-import { ConfiguredMandatoryPatientFields } from '../../../../../components/ConfiguredMandatoryPatientFields';
+import { ConfiguredMandatoryPatientFields } from '../../../ConfiguredMandatoryPatientFields';
 import { useSuggester } from '../../../../../api';
 
 export const CambodiaContactFields = ({ filterByMandatory }) => {

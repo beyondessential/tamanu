@@ -1,15 +1,13 @@
-import React from "react";
-import { AutocompleteField, TextField } from "../../../../../components";
-import { ConfiguredMandatoryPatientFields } from "../../../../../components/ConfiguredMandatoryPatientFields";
-import { useSuggester } from "../../../../../api";
+import React from 'react';
+import { AutocompleteField, TextField } from '../../../../../components';
+import { ConfiguredMandatoryPatientFields } from '../../../ConfiguredMandatoryPatientFields';
+import { useSuggester } from '../../../../../api';
 
-export const CambodiaLocationFields = ({
-  filterByMandatory,
-}) => {
-  const subdivisionSuggester = useSuggester("subdivision");
-  const divisionSuggester = useSuggester("division");
-  const settlementSuggester = useSuggester("settlement");
-  const villageSuggester = useSuggester("village");
+export const CambodiaLocationFields = ({ filterByMandatory }) => {
+  const subdivisionSuggester = useSuggester('subdivision');
+  const divisionSuggester = useSuggester('division');
+  const settlementSuggester = useSuggester('settlement');
+  const villageSuggester = useSuggester('village');
 
   const LOCATION_FIELDS = {
     divisionId: {

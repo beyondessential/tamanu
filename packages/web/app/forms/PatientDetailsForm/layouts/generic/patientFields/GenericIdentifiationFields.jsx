@@ -4,7 +4,7 @@ import { PATIENT_REGISTRY_TYPES } from '@tamanu/constants';
 
 import { useLocalisation } from '../../../../../contexts/Localisation';
 import { DisplayIdField, TextField } from '../../../../../components';
-import { ConfiguredMandatoryPatientFields } from '../../../../../components/ConfiguredMandatoryPatientFields';
+import { ConfiguredMandatoryPatientFields } from '../../../ConfiguredMandatoryPatientFields';
 
 export const GenericIdentificationFields = ({ isEdit, patientRegistryType, filterByMandatory }) => {
   const { getLocalisation } = useLocalisation();

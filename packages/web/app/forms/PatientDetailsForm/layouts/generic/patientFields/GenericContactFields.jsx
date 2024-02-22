@@ -1,11 +1,9 @@
 import React from 'react';
 
 import { TextField } from '../../../../../components';
-import { ConfiguredMandatoryPatientFields } from '../../../../../components/ConfiguredMandatoryPatientFields';
+import { ConfiguredMandatoryPatientFields } from '../../../ConfiguredMandatoryPatientFields';
 
-export const GenericContactFields = ({
-  filterByMandatory,
-}) => {
+export const GenericContactFields = ({ filterByMandatory }) => {
   const CONTACT_FIELDS = {
     primaryContactNumber: {
       component: TextField,
@@ -23,5 +21,10 @@ export const GenericContactFields = ({
       type: 'tel',
     },
   };
-  return <ConfiguredMandatoryPatientFields fields={CONTACT_FIELDS} filterByMandatory={filterByMandatory} />;
+  return (
+    <ConfiguredMandatoryPatientFields
+      fields={CONTACT_FIELDS}
+      filterByMandatory={filterByMandatory}
+    />
+  );
 };

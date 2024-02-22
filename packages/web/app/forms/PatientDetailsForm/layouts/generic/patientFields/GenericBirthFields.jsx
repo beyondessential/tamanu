@@ -8,7 +8,7 @@ import {
   PLACE_OF_BIRTH_TYPES,
 } from '@tamanu/constants';
 import { AutocompleteField, SelectField, TextField, TimeField } from '../../../../../components';
-import { ConfiguredMandatoryPatientFields } from '../../../../../components/ConfiguredMandatoryPatientFields';
+import { ConfiguredMandatoryPatientFields } from '../../../ConfiguredMandatoryPatientFields';
 import { useSuggester } from '../../../../../api';
 
 export const GenericBirthFields = ({ filterByMandatory, registeredBirthPlace }) => {
@@ -71,9 +71,6 @@ export const GenericBirthFields = ({ filterByMandatory, registeredBirthPlace }) 
   };
 
   return (
-    <ConfiguredMandatoryPatientFields
-      fields={BIRTH_FIELDS}
-      filterByMandatory={filterByMandatory}
-    />
+    <ConfiguredMandatoryPatientFields fields={BIRTH_FIELDS} filterByMandatory={filterByMandatory} />
   );
 };
