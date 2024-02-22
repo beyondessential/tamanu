@@ -99,7 +99,7 @@ export class PatientProgramRegistration extends BaseModel implements IPatientPro
       .createQueryBuilder('registration')
       .leftJoinAndSelect('registration.programRegistry', 'program_registry')
       .leftJoinAndSelect('program_registry.program', 'program')
-      .where(`registration.isMostRecent = TRUE`)
+      .where(`registration.isMostRecent = 1`)
       .andWhere('program.id = :programId', { programId })
       .andWhere('registration.patientId = :patientId', { patientId })
       .getOne();
@@ -109,7 +109,7 @@ export class PatientProgramRegistration extends BaseModel implements IPatientPro
     const registrationRepository = this.getRepository(PatientProgramRegistration);
     const mostRecentRegistrations = await registrationRepository
       .createQueryBuilder('registration')
-      .where(`registration.isMostRecent = TRUE`)
+      .where(`registration.isMostRecent = 1`)
       .andWhere('registration.registrationStatus != :status', {
         status: RegistrationStatus.RecordedInError,
       })
@@ -150,7 +150,9 @@ export class PatientProgramRegistration extends BaseModel implements IPatientPro
       patientId,
     );
     if (existingRegistration) {
-      await PatientProgramRegistration.updateValues(programRegistryId, { isMostRecent: false });
+      await PatientProgramRegistration.updateValues(existingRegistration.id, {
+        isMostRecent: false,
+      });
     }
 
     return PatientProgramRegistration.createAndSaveOne({

@@ -57,9 +57,9 @@ export class ProgramRegistry extends BaseModel implements IProgramRegistry {
       .leftJoinAndSelect('ppr.programRegistry', 'program_registry')
       .select(['ppr.programRegistryId as id'])
       .distinct(true)
-      .where(`ppr.patientId = '${patientId}'`, { patientId })
-      .andWhere("ppr.registrationStatus = 'active'", { active: RegistrationStatus.Active })
-      .andWhere('ppr.isMostRecent = TRUE');
+      .where(`ppr.patientId = :patientId`, { patientId })
+      .andWhere('ppr.registrationStatus = :active', { active: RegistrationStatus.Active })
+      .andWhere('ppr.isMostRecent = 1');
 
     const programRegistryRepository = this.getRepository(ProgramRegistry);
     const filteredProgramRegistries = await programRegistryRepository
