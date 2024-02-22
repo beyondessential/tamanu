@@ -7,7 +7,7 @@ import FormHelperText from '@material-ui/core/FormHelperText';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { StyledTextField } from './TextField';
 import { Colors } from '../../constants';
-import { getTranslatedOptions } from '../Translation/TranslatedSelectField';
+import { getTranslatedOptions } from '../Translation/getTranslatedOptions';
 
 const StyledFormControl = styled(FormControl)`
   display: flex;
