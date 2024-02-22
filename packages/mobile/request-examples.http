@@ -3,7 +3,7 @@
 
 ### Login
 # @name login
-POST {{server}}/v1/login
+POST {{server}}/api/login
 Content-Type: application/json
 
 {
@@ -13,12 +13,12 @@ Content-Type: application/json
 }
 
 ### Retrieve first 100 patient records for sync
-GET {{server}}/v1/sync/patient?since=0&limit=100
+GET {{server}}/api/sync/patient?since=0&limit=100
 Authorization: Bearer {{token}}
 Accept: application/json
 
 ### Get all surveys
-GET {{server}}/v1/sync/survey?since=1614690000000;aaa   HTTP/1.1
+GET {{server}}/api/sync/survey?since=1614690000000;aaa   HTTP/1.1
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
@@ -27,7 +27,7 @@ Authorization: Bearer {{token}}
 ###
 
 # update an existing survey screen component
-POST {{server}}/v1/sync/survey HTTP/1.1
+POST {{server}}/api/sync/survey HTTP/1.1
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
@@ -58,8 +58,8 @@ Content-Type: application/json
 ###
 
 # See: https://github.com/beyondessential/tamanu/blob/dev/docs/Surveys.md for more info.
-# requires tamanu lan server to be running locally.
-POST http://localhost:4000/v1/admin/importSurvey
+# requires tamanu facility server to be running locally.
+POST http://localhost:4000/api/admin/importSurvey
 X-Client-Version: 1.0.0
 Content-Type: application/json
 
@@ -76,8 +76,8 @@ Content-Type: application/json
 ###
 
 # See: https://github.com/beyondessential/tamanu/blob/dev/docs/Surveys.md for more info.
-# requires tamanu lan server to be running locally.
-POST http://localhost:4000/v1/admin/importSurvey
+# requires tamanu facility server to be running locally.
+POST http://localhost:4000/api/admin/importSurvey
 X-Client-Version: 1.0.0
 Content-Type: application/json
 
@@ -94,8 +94,8 @@ Content-Type: application/json
 ###
 
 # See: https://github.com/beyondessential/tamanu/blob/dev/docs/Surveys.md for more info.
-# requires tamanu lan server to be running locally.
-POST http://localhost:4000/v1/admin/importSurvey
+# requires tamanu facility server to be running locally.
+POST http://localhost:4000/api/admin/importSurvey
 X-Client-Version: 1.0.0
 Content-Type: application/json
 

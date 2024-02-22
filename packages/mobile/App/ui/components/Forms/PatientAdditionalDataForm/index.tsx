@@ -1,19 +1,18 @@
 import React, { ReactElement, useCallback, useRef } from 'react';
-import { theme } from '/styled/theme';
 import { StyledView } from '/styled/common';
 import { Form } from '../Form';
 import { FormScreenView } from '/components/Forms/FormScreenView';
 import { PatientAdditionalDataFields } from './PatientAdditionalDataFields';
 import {
-  patientAdditionalDataValidationSchema,
   getInitialAdditionalValues,
   getInitialCustomValues,
+  patientAdditionalDataValidationSchema,
 } from './helpers';
 import { PatientAdditionalData } from '~/models/PatientAdditionalData';
 import { PatientFieldValue } from '~/models/PatientFieldValue';
 import { Routes } from '~/ui/helpers/routes';
 import { additionalDataSections } from '~/ui/helpers/additionalData';
-import { Button } from '../../Button';
+import { SubmitButton } from '../SubmitButton';
 
 export const PatientAdditionalDataForm = ({
   patientId,
@@ -36,8 +35,8 @@ export const PatientAdditionalDataForm = ({
               patientId,
               definitionId,
               values[definitionId],
-            )
-          )
+            ),
+          ),
         );
       } else {
         await PatientAdditionalData.updateForPatient(patientId, values);
@@ -49,21 +48,29 @@ export const PatientAdditionalDataForm = ({
   );
 
   // Get the actual additional data section object
-  const section = isCustomFields ?
-    { fields: customSectionFields.map(({ id, name, fieldType, options }) => ({ id, name, fieldType, options })) } :
-    additionalDataSections.find(({ title }) => title === sectionTitle);
+  const section = isCustomFields
+    ? {
+        fields: customSectionFields.map(({ id, name, fieldType, options }) => ({
+          id,
+          name,
+          fieldType,
+          options,
+        })),
+      }
+    : additionalDataSections.find(({ title }) => title === sectionTitle);
   const { fields } = section;
 
   return (
     <Form
-      initialValues={isCustomFields ?
-        getInitialCustomValues(customPatientFieldValues, fields) :
-        getInitialAdditionalValues(additionalData, fields)
+      initialValues={
+        isCustomFields
+          ? getInitialCustomValues(customPatientFieldValues, fields)
+          : getInitialAdditionalValues(additionalData, fields)
       }
       validationSchema={patientAdditionalDataValidationSchema}
       onSubmit={onCreateOrEditAdditionalData}
     >
-      {({ handleSubmit, isSubmitting }): ReactElement => (
+      {(): ReactElement => (
         <FormScreenView scrollViewRef={scrollViewRef}>
           <StyledView justifyContent="space-between">
             <PatientAdditionalDataFields
@@ -71,13 +78,7 @@ export const PatientAdditionalDataForm = ({
               isCustomFields={isCustomFields}
               showMandatory={false}
             />
-            <Button
-              backgroundColor={theme.colors.PRIMARY_MAIN}
-              onPress={handleSubmit}
-              loadingAction={isSubmitting}
-              buttonText="Save"
-              marginTop={10}
-            />
+            <SubmitButton buttonText="Save" marginTop={10} />
           </StyledView>
         </FormScreenView>
       )}

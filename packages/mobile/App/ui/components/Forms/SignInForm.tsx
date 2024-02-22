@@ -1,22 +1,22 @@
 import React, {
   FunctionComponent,
   ReactElement,
-  useRef,
   useCallback,
   useEffect,
+  useRef,
   useState,
 } from 'react';
 import * as Yup from 'yup';
-import { StyledView, StyledText } from '/styled/common';
+import { StyledText, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { readConfig } from '~/services/config';
 import { useFacility } from '~/ui/contexts/FacilityContext';
 import { Form } from './Form';
 import { Field } from './FormField';
 import { TextField } from '../TextField/TextField';
-import { Button } from '../Button';
+import { SubmitButton } from './SubmitButton';
 import { ServerSelector } from '../ServerSelectorField/ServerSelector';
 
 interface SignInFormModelValues {
@@ -87,7 +87,7 @@ export const SignInForm: FunctionComponent<any> = ({ onError, onSuccess }) => {
       })}
       onSubmit={signIn}
     >
-      {({ handleSubmit, isSubmitting }): ReactElement => (
+      {({ handleSubmit }): ReactElement => (
         <StyledView
           marginTop={screenPercentageToDP(3.7, Orientation.Height)}
           marginRight={screenPercentageToDP(2.43, Orientation.Width)}
@@ -126,11 +126,9 @@ export const SignInForm: FunctionComponent<any> = ({ onError, onSuccess }) => {
               onSubmitEditing={handleSubmit}
             />
           </StyledView>
-          <Button
+          <SubmitButton
             marginTop={20}
             backgroundColor={theme.colors.SECONDARY_MAIN}
-            onPress={handleSubmit}
-            loadingAction={isSubmitting}
             textColor={theme.colors.TEXT_SUPER_DARK}
             fontSize={screenPercentageToDP('1.94', Orientation.Height)}
             fontWeight={500}

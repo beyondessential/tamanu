@@ -1,4 +1,4 @@
-import React, { useCallback, ReactElement, useState } from 'react';
+import React, { ReactElement, useCallback, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Dimensions, Text } from 'react-native';
 import Modal from 'react-native-modal';
@@ -11,7 +11,7 @@ import { Routes } from '/helpers/routes';
 import { SurveyForm } from '~/ui/components/Forms/SurveyForm';
 
 import { useBackend, useBackendEffect } from '~/ui/hooks';
-import { SurveyTypes, GenericFormValues } from '~/types';
+import { GenericFormValues, SurveyTypes } from '~/types';
 import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
 import { authUserSelector } from '~/ui/helpers/selectors';
 import { joinNames } from '~/ui/helpers/user';
@@ -43,7 +43,7 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
   );
 
   const [components, componentsError, areComponentsLoading] = useBackendEffect(
-    () => survey && survey.getComponents(),
+    () => survey && survey.getComponents({ includeAllVitals: false }),
     [survey],
   );
 
