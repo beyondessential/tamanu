@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
+import { Button, ButtonWithPermissionCheck, TableButtonRow } from '../../../components';
 import { ImagingRequestModal } from '../../../components/ImagingRequestModal';
 import { ImagingRequestsTable } from '../../../components/ImagingRequestsTable';
 import { PrintMultipleImagingRequestsSelectionModal } from '../../../components/PatientPrinting';
-import { Button, TableButtonRow } from '../../../components';
 import { TabPane } from '../components';
 
 export const ImagingPane = React.memo(({ encounter, readonly }) => {
@@ -31,9 +31,14 @@ export const ImagingPane = React.memo(({ encounter, readonly }) => {
         >
           Print
         </Button>
-        <Button onClick={() => setNewRequestModalOpen(true)} disabled={readonly}>
+        <ButtonWithPermissionCheck
+          onClick={() => setNewRequestModalOpen(true)}
+          disabled={readonly}
+          verb="create"
+          noun="ImagingRequest"
+        >
           New imaging request
-        </Button>
+        </ButtonWithPermissionCheck>
       </TableButtonRow>
       <ImagingRequestsTable encounterId={encounter.id} />
     </TabPane>
