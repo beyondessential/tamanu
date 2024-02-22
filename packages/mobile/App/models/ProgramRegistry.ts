@@ -1,4 +1,5 @@
 import { Entity, OneToOne, JoinColumn, RelationId, Column, OneToMany } from 'typeorm/browser';
+import { PureAbility } from '@casl/ability';
 
 import { IProgramRegistry, ID } from '~/types';
 import { BaseModel } from './BaseModel';
@@ -51,7 +52,9 @@ export class ProgramRegistry extends BaseModel implements IProgramRegistry {
   @RelationId(({ program }) => program)
   programId: ID;
 
-  static async getProgramRegistriesForPatient(patientId: string) {
+  static async getProgramRegistriesForPatient(patientId: string, ability: PureAbility) {
+    if (ability.can('list', 'ProgramRegistry') === false) return [];
+
     const subquery = PatientProgramRegistration.getRepository()
       .createQueryBuilder('ppr')
       .leftJoinAndSelect('ppr.programRegistry', 'program_registry')

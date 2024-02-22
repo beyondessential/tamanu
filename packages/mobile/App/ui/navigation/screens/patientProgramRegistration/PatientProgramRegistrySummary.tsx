@@ -19,7 +19,7 @@ const PatientProgramRegistrySummary_ = ({ selectedPatient }): ReactElement => {
   const { ability } = useAuth();
   const [programRegistries, programRegistryError, isProgramRegistryLoading] = useBackendEffect(
     async ({ models }) =>
-      await models.ProgramRegistry.getProgramRegistriesForPatient(selectedPatient.id),
+      await models.ProgramRegistry.getProgramRegistriesForPatient(selectedPatient.id, ability),
     [],
   );
 
