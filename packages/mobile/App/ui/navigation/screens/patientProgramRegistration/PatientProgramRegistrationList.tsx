@@ -20,7 +20,7 @@ export const PatientProgramRegistrationList = ({ selectedPatient }): ReactElemen
       await models.PatientProgramRegistration.getMostRecentRegistrationsForPatient(
         selectedPatient.id,
       ),
-    [],
+    [selectedPatient.id],
   );
   if (isRegistrationLoading) return <LoadingScreen />;
 

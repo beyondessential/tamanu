@@ -44,7 +44,7 @@ export const SelectProgramRegistryForm = ({ navigation, route }: BaseAppProps) =
       if (canListRegistrations === false) return [];
       return await models.ProgramRegistry.getProgramRegistriesForPatient(selectedPatient.id)
     },
-    [],
+    [canListRegistrations, selectedPatient.id],
   );
 
   if (isProgramRegistryLoading) return <LoadingScreen />;
