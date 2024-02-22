@@ -307,44 +307,6 @@
     },
     "data": {
       // To do: review this section when implementing the patient charts feature
-      "patientTabs": {
-        "history": {
-          "sortPriority": -100,
-          "hidden": false
-        },
-        "details": {
-          "sortPriority": -50,
-          "hidden": false
-        },
-        "results": {
-          "sortPriority": 0,
-          "hidden": false
-        },
-        "referrals": {
-          "sortPriority": 0,
-          "hidden": false
-        },
-        "programs": {
-          "sortPriority": 0,
-          "hidden": false
-        },
-        "documents": {
-          "sortPriority": 0,
-          "hidden": false
-        },
-        "vaccines": {
-          "sortPriority": 0,
-          "hidden": false
-        },
-        "medication": {
-          "sortPriority": 0,
-          "hidden": false
-        },
-        "invoices": {
-          "sortPriority": 0,
-          "hidden": false
-        }
-      },
       "units": {
         "temperature": "celsius"
       },
@@ -352,82 +314,6 @@
         "name": "",
         "alpha-2": "",
         "alpha-3": ""
-      },
-      "sidebar": {
-        patients: {
-          patientsInpatients: {
-            hidden: false,
-            sortPriority: 0,
-          },
-          patientsEmergency: {
-            hidden: false,
-            sortPriority: 0,
-          },
-          patientsOutpatients: {
-            hidden: false,
-            sortPriority: 0,
-          },
-        },
-        scheduling: {
-          hidden: false,
-          sortPriority: 0,
-          schedulingAppointments: {
-            hidden: false,
-            sortPriority: 0,
-          },
-          schedulingCalendar: {
-            hidden: false,
-            sortPriority: 0,
-          },
-          schedulingNew: {
-            hidden: false,
-            sortPriority: 0,
-          },
-        },
-        medication: {
-          hidden: false,
-          sortPriority: 0,
-          medicationAll: {
-            hidden: false,
-            sortPriority: 0,
-          },
-        },
-        imaging: {
-          hidden: false,
-          sortPriority: 0,
-          imagingActive: {
-            hidden: false,
-            sortPriority: 0,
-          },
-          imagingCompleted: {
-            hidden: false,
-            sortPriority: 0,
-          },
-        },
-        labs: {
-          hidden: false,
-          sortPriority: 0,
-          labsAll: {
-            hidden: false,
-            sortPriority: 0,
-          },
-          labsPublished: {
-            hidden: false,
-            sortPriority: 0,
-          },
-        },
-        immunisations: {
-          hidden: false,
-          sortPriority: 0,
-          immunisationsAll: {
-            hidden: false,
-            sortPriority: 0,
-          },
-        },
-        programRegistry: {
-          hidden: false,
-          sortPriority: 0,
-        },
       },
       "fields": {
         "countryName": {
@@ -963,6 +849,120 @@
       ],
       "layouts": {
         "patientDetails": "generic",
+        "patientTabs": {
+          "history": {
+            "sortPriority": -100,
+            "hidden": false
+          },
+          "details": {
+            "sortPriority": -50,
+            "hidden": false
+          },
+          "results": {
+            "sortPriority": 0,
+            "hidden": false
+          },
+          "referrals": {
+            "sortPriority": 0,
+            "hidden": false
+          },
+          "programs": {
+            "sortPriority": 0,
+            "hidden": false
+          },
+          "documents": {
+            "sortPriority": 0,
+            "hidden": false
+          },
+          "vaccines": {
+            "sortPriority": 0,
+            "hidden": false
+          },
+          "medication": {
+            "sortPriority": 0,
+            "hidden": false
+          },
+          "invoices": {
+            "sortPriority": 0,
+            "hidden": false
+          }
+        },
+        "sidebar": {
+          "patients": {
+            "patientsInpatients": {
+              hidden: false,
+              sortPriority: 0,
+            },
+            patientsEmergency: {
+              hidden: false,
+              sortPriority: 0,
+            },
+            patientsOutpatients: {
+              hidden: false,
+              sortPriority: 0,
+            },
+          },
+          scheduling: {
+            hidden: false,
+            sortPriority: 0,
+            schedulingAppointments: {
+              hidden: false,
+              sortPriority: 0,
+            },
+            schedulingCalendar: {
+              hidden: false,
+              sortPriority: 0,
+            },
+            schedulingNew: {
+              hidden: false,
+              sortPriority: 0,
+            },
+          },
+          medication: {
+            hidden: false,
+            sortPriority: 0,
+            medicationAll: {
+              hidden: false,
+              sortPriority: 0,
+            },
+          },
+          imaging: {
+            hidden: false,
+            sortPriority: 0,
+            imagingActive: {
+              hidden: false,
+              sortPriority: 0,
+            },
+            imagingCompleted: {
+              hidden: false,
+              sortPriority: 0,
+            },
+          },
+          labs: {
+            hidden: false,
+            sortPriority: 0,
+            labsAll: {
+              hidden: false,
+              sortPriority: 0,
+            },
+            labsPublished: {
+              hidden: false,
+              sortPriority: 0,
+            },
+          },
+          immunisations: {
+            hidden: false,
+            sortPriority: 0,
+            immunisationsAll: {
+              hidden: false,
+              sortPriority: 0,
+            },
+          },
+          programRegistry: {
+            hidden: false,
+            sortPriority: 0,
+          },
+        },
       },
       "printMeasures": {
         "labRequestPrintLabel": {

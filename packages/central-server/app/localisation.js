@@ -376,6 +376,8 @@ const layoutsSchema = yup.object({
     .string()
     .required()
     .oneOf(Object.values(PATIENT_DETAIL_LAYOUTS)),
+  patientTabs: patientTabsSchema,
+  sidebar: sidebarSchema,
 });
 
 const validCssAbsoluteLength = yup
@@ -430,7 +432,6 @@ const printMeasuresSchema = yup
 
 const rootLocalisationSchema = yup
   .object({
-    patientTabs: patientTabsSchema,
     units: yup.object({
       temperature: yup.string().oneOf(['celsius', 'fahrenheit']),
     }),
@@ -451,7 +452,6 @@ const rootLocalisationSchema = yup
         .required(),
     },
     fields: fieldsSchema,
-    sidebar: sidebarSchema,
     templates: templatesSchema,
     timeZone: yup.string().nullable(),
     imagingTypes: imagingTypesSchema,

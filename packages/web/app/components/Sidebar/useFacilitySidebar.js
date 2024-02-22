@@ -25,7 +25,7 @@ const sortChildItems = (a, b) => {
 // sortPriority values from  sidebar config and merges them with the FACILITY_MENU_ITEMS constant
 export const useFacilitySidebar = () => {
   const { getLocalisation } = useLocalisation();
-  const sidebarConfig = getLocalisation('sidebar');
+  const sidebarConfig = getLocalisation('layouts.sidebar');
 
   if (!sidebarConfig) {
     return FACILITY_MENU_ITEMS;
