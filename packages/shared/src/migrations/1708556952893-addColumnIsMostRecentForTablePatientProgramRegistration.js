@@ -9,5 +9,5 @@ export async function up(query) {
 }
 
 export async function down(query) {
-  await query.removeColumn('users', 'is_most_recent');
+  await query.removeColumn('patient_program_registrations', 'is_most_recent');
 }
