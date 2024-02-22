@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 
-import { useLocalisation } from '../contexts/Localisation';
-import { LocalisedField } from '.';
+import { useLocalisation } from '../../contexts/Localisation';
+import { LocalisedField } from '../../components/LocalisedField';
 import { isBoolean } from 'lodash';
 
 export const ConfiguredMandatoryPatientFields = ({ fields, filterByMandatory }) => {
