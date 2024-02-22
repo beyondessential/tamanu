@@ -19,11 +19,13 @@ interface IMultiSelectModalScreen {
       suggester: Suggester<BaseModelSubclass>;
       modalTitle: string;
       value: { label: string; value: string }[];
+      searchPlaceholder?: string;
     };
   };
 }
+
 export const MultiSelectModalScreen = (props: IMultiSelectModalScreen) => {
-  const { callback, modalTitle, suggester, value } = props.route.params;
+  const { callback, modalTitle, suggester, value, searchPlaceholder = 'Search...' } = props.route.params;
   const [searchValue, setSearchValue] = useState('');
   const [options, setOptions] = useState<{ value: string; label: string; selected: boolean }[]>([]);
 
@@ -60,7 +62,7 @@ export const MultiSelectModalScreen = (props: IMultiSelectModalScreen) => {
         <SearchInput
           value={searchValue}
           onChange={(text: string) => setSearchValue(text)}
-          placeholder={'Search conditions...'}
+          placeholder={searchPlaceholder}
         />
       </StyledView>
       <StyledView marginRight={20} marginLeft={20} marginBottom={20}>
