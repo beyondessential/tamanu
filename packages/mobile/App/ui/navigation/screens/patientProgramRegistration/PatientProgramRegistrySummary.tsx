@@ -54,7 +54,7 @@ const PatientProgramRegistrySummary_ = ({ selectedPatient }): ReactElement => {
         </Button>
       </RowView>
       <StyledView borderColor={theme.colors.BOX_OUTLINE} height={1} />
-      {ability.can('PatientProgramRegistry', 'list') && (
+      {ability.can('list', 'PatientProgramRegistration') && (
         <StyledView paddingLeft={20} paddingRight={20} background={theme.colors.WHITE}>
           <PatientProgramRegistrationList selectedPatient={selectedPatient} />
         </StyledView>
