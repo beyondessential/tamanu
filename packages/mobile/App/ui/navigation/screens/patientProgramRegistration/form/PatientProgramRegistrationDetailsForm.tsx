@@ -53,14 +53,16 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
     [programRegistry.id],
   );
   const submitPatientProgramRegistration = async (formData: IPatientProgramRegistryForm) => {
-    const newPpr: any = await PatientProgramRegistration.createAndSaveOne({
-      date: formData.date,
-      clinicalStatus: formData.clinicalStatusId,
-      registeringFacility: formData.registeringFacilityId,
-      clinician: formData.clinicianId,
-      programRegistry: programRegistry.id,
-      patient: selectedPatient.id,
-    });
+    const newPpr: any = await PatientProgramRegistration.appendRegistration(
+      selectedPatient.id,
+      programRegistry.id,
+      {
+        date: formData.date,
+        clinicalStatus: formData.clinicalStatusId,
+        registeringFacility: formData.registeringFacilityId,
+        clinician: formData.clinicianId,
+      },
+    );
 
     for (const condition of formData.conditions) {
       await PatientProgramRegistrationCondition.createAndSaveOne({
@@ -158,7 +160,7 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
                 />
               </StyledView>
               <Button
-                buttonText="Confifrm"
+                buttonText="Confirm"
                 backgroundColor={theme.colors.PRIMARY_MAIN}
                 marginLeft={screenPercentageToDP(2.43, Orientation.Width)}
                 marginRight={screenPercentageToDP(7, Orientation.Width)}

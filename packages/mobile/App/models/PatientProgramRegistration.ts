@@ -22,12 +22,27 @@ import { User } from './User';
 import { RegistrationStatus } from '~/constants/programRegistries';
 import { DateTimeStringColumn } from './DateColumns';
 
+// TypeORM expects keys without the "ID" part. i.e. patient instead of patientId
+// and here we have to extract values from the preexistent model to work
+const getValuesFromRelations = values => {
+  return {
+    clinician: values.clinicianId,
+    clinicalStatus: values.clinicalStatusId,
+    registeringFacility: values.registeringFacilityId,
+    village: values.villageId,
+    facility: values.facilityId,
+  };
+};
+
 @Entity('patient_program_registration')
 export class PatientProgramRegistration extends BaseModel implements IPatientProgramRegistration {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 
   @Column({ type: 'varchar', nullable: false, default: RegistrationStatus.Active })
   registrationStatus: RegistrationStatus;
+
+  @Column({ type: 'boolean', nullable: false, default: 0 })
+  isMostRecent: boolean;
 
   @DateTimeStringColumn()
   date: DateTimeString;
@@ -81,30 +96,17 @@ export class PatientProgramRegistration extends BaseModel implements IPatientPro
       .createQueryBuilder('registration')
       .leftJoinAndSelect('registration.programRegistry', 'program_registry')
       .leftJoinAndSelect('program_registry.program', 'program')
-      .where('program.id = :programId', { programId })
+      .where(`registration.isMostRecent`, { isMostRecent: 1 })
+      .andWhere('program.id = :programId', { programId })
       .andWhere('registration.patientId = :patientId', { patientId })
-      .orderBy('registration.date', 'DESC')
       .getOne();
   }
 
   static async getMostRecentRegistrationsForPatient(patientId: string) {
     const registrationRepository = this.getRepository(PatientProgramRegistration);
-
-    const GET_MOST_RECENT_REGISTRATIONS_QUERY = `
-    SELECT id
-      FROM patient_program_registration AS main
-      WHERE id = (
-        SELECT id
-        FROM patient_program_registration AS sub
-        WHERE main.patientId = sub.patientId AND main.programRegistryId = sub.programRegistryId
-        ORDER BY date DESC, id DESC
-        LIMIT 1
-      )
-    `;
-
     const mostRecentRegistrations = await registrationRepository
       .createQueryBuilder('registration')
-      .where(`registration.id IN (${GET_MOST_RECENT_REGISTRATIONS_QUERY})`)
+      .where(`registration.isMostRecent`, { isMostRecent: 1 })
       .andWhere('registration.registrationStatus != :status', {
         status: RegistrationStatus.RecordedInError,
       })
@@ -132,6 +134,30 @@ export class PatientProgramRegistration extends BaseModel implements IPatientPro
       .leftJoinAndSelect('registration.clinician', 'clinician')
       .getOne();
     return fullPpr;
+  }
+
+  static async appendRegistration(
+    patientId: string,
+    programRegistryId: string,
+    data: any,
+  ): Promise<PatientProgramRegistration> {
+    const { programId } = await ProgramRegistry.findOne({ id: programRegistryId });
+    const existingRegistration = await PatientProgramRegistration.getRecentOne(
+      programId,
+      patientId,
+    );
+    if (existingRegistration) {
+      await PatientProgramRegistration.updateValues(programRegistryId, { isMostRecent: 0 });
+    }
+
+    return PatientProgramRegistration.createAndSaveOne({
+      ...getValuesFromRelations(existingRegistration),
+      ...getValuesFromRelations(data),
+      ...data,
+      program: programRegistryId,
+      patient: patientId,
+      isMostRecent: 1,
+    });
   }
 
   static getTableNameForSync(): string {

@@ -36,6 +36,8 @@ import { addPatientProgramRegistration1706144623000 } from './1706144623000-addP
 import { addProgramRegistryClinicalStatuses1706506699000 } from './1706506699000-addProgramRegistryClinicalStatuses';
 import { addProgramRegistryConditions1706507296000 } from './1706507296000-addProgramRegistryConditions';
 import { addPatientProgramRegistrationConditions1706509624000 } from './1706509624000-addPatientProgramRegistrationConditions';
+import { addColumnIsMostRecentForTablePatientProgramRegistration1708557002000 } from './1708557002000-addColumnIsMostRecentForTablePatientProgramRegistration';
+import { addHideFromCertificateToScheduledVaccines1705264433000 } from './1705264433000-addHideFromCertificateToScheduledVaccines';
 
 export const migrationList = [
   databaseSetup1661160427226,
@@ -75,4 +77,6 @@ export const migrationList = [
   addProgramRegistryClinicalStatuses1706506699000,
   addProgramRegistryConditions1706507296000,
   addPatientProgramRegistrationConditions1706509624000,
+  addColumnIsMostRecentForTablePatientProgramRegistration1708557002000,
+  addHideFromCertificateToScheduledVaccines1705264433000,
 ];

@@ -16,6 +16,7 @@ import { getCurrentDateTimeString } from '~/ui/helpers/date';
 import { BaseModel } from './BaseModel';
 import { Survey } from './Survey';
 import { Encounter } from './Encounter';
+import { ProgramRegistry } from './ProgramRegistry';
 import { SurveyResponseAnswer } from './SurveyResponseAnswer';
 import { Referral } from './Referral';
 import { Patient } from './Patient';
@@ -24,7 +25,7 @@ import { VitalLog } from './VitalLog';
 import { SYNC_DIRECTIONS } from './types';
 import { DateTimeStringColumn } from './DateColumns';
 import { PatientProgramRegistration } from './PatientProgramRegistration';
-import { IPatientProgramRegistration } from '~/types/IPatientProgramRegistration';
+import { VisibilityStatus } from '../visibilityStatuses';
 
 type RecordValuesByModel = {
   Patient?: Record<string, string>;
@@ -63,24 +64,6 @@ const getFieldsToWrite = (questions, answers): RecordValuesByModel => {
   return recordValuesByModel;
 };
 
-const getUpdatedPPRValues = (
-  ppr: IPatientProgramRegistration,
-  newValues: { [key: string]: any },
-) => {
-  const newPpr = {
-    date: getCurrentDateTimeString(),
-    programRegistry: newValues?.programRegistryId || ppr.programRegistryId,
-    clinician: newValues?.clinicianId || ppr.clinicianId,
-    clinicalStatus: newValues?.clinicalStatusId || ppr.clinicalStatusId,
-    registeringFacility: newValues?.registeringFacilityId || ppr.registeringFacilityId,
-    patient: ppr.patientId,
-    registrationStatus: newValues?.registrationStatus || ppr.registrationStatus,
-    village: newValues?.villageId || ppr.villageId,
-    facility: newValues?.facilityId || ppr.facilityId,
-  };
-  return newPpr;
-};
-
 /**
  * DUPLICATED IN shared/models/SurveyResponse.js
  * Please keep in sync
@@ -98,10 +81,17 @@ async function writeToPatientFields(questions, answers, patientId, surveyId) {
 
   if (valuesByModel.PatientProgramRegistration) {
     const { programId } = await Survey.findOne({ id: surveyId });
-    const ppr = await PatientProgramRegistration.getRecentOne(programId, patientId);
-    const newPpr = getUpdatedPPRValues(ppr, valuesByModel.PatientProgramRegistration);
-
-    await PatientProgramRegistration.createAndSaveOne(newPpr);
+    const { id: programRegistryId } = await ProgramRegistry.findOne({
+      where: { programId, visibilityStatus: VisibilityStatus.Current },
+    });
+    if (!programRegistryId) {
+      throw new Error('No program registry configured for the current form');
+    }
+    await PatientProgramRegistration.appendRegistration(
+      patientId,
+      programRegistryId,
+      valuesByModel.PatientProgramRegistration,
+    );
   }
 }
 
