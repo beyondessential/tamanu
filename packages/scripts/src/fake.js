@@ -12,7 +12,9 @@ async function generateData(models) {
     const { Department, Encounter, Facility, Location, EncounterHistory,
         Patient, User, Note, PatientBirthData, SurveyScreenComponent, ReportDefinition,
         ReportDefinitionVersion, LabRequestLog, LabRequest, UserPreference,
-        ProgramDataElement } = models;
+        ProgramDataElement, Program, ProgramRegistry, ProgramRegistryCondition,
+        ProgramRegistryClinicalStatus, PatientProgramRegistration,
+        PatientProgramRegistrationCondition } = models;
 
     const examiner = await User.create(fake(User));
     const patient = await Patient.create(fake(Patient));
@@ -96,6 +98,35 @@ async function generateData(models) {
     );
     await ProgramDataElement.create(
         fake(ProgramDataElement)
+    );
+    const program = await Program.create(fake(Program));
+    const program_registry = await ProgramRegistry.create(
+        fake(ProgramRegistry, {
+            programId: program.id
+        }),
+    );
+    await ProgramRegistryCondition.create(
+        fake(ProgramRegistryCondition, {
+            programRegistryId: program_registry.id,
+        }),
+    );
+    await ProgramRegistryClinicalStatus.create(
+        fake(ProgramRegistryClinicalStatus, {
+            programRegistryId: program_registry.id,
+        }),
+    );
+    await PatientProgramRegistration.create(
+        fake(PatientProgramRegistration, {
+            clinicianId: examiner.id,
+            patientId: patient.id,
+            programRegistryId: program_registry.id,
+        }),
+    );
+    await PatientProgramRegistrationCondition.create(
+        fake(PatientProgramRegistrationCondition, {
+            patientId: patient.id,
+            programRegistryId: program_registry.id,
+        }),
     );
 }
 
