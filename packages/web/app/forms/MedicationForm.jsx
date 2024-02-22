@@ -162,7 +162,7 @@ export const MedicationForm = React.memo(
                   name="medicationId"
                   label={
                     <TranslatedText
-                      stringId="medication.form.medication.label"
+                      stringId="medication.medication.label"
                       fallback="Medication"
                     />
                   }
@@ -176,7 +176,7 @@ export const MedicationForm = React.memo(
                 name="prescription"
                 label={
                   <TranslatedText
-                    stringId="medication.form.instructions.label"
+                    stringId="medication.instructions.label"
                     fallback="Instructions"
                   />
                 }
@@ -188,7 +188,7 @@ export const MedicationForm = React.memo(
                 name="route"
                 label={
                   <TranslatedText
-                    stringId="medication.form.route.label"
+                    stringId="medication.route.label"
                     fallback="Route of admission"
                   />
                 }
@@ -201,7 +201,7 @@ export const MedicationForm = React.memo(
                 name="date"
                 label={
                   <TranslatedText
-                    stringId="medication.form.date.label"
+                    stringId="medication.date.label"
                     fallback="Prescription date"
                   />
                 }
@@ -213,7 +213,7 @@ export const MedicationForm = React.memo(
               <Field
                 name="endDate"
                 label={
-                  <TranslatedText stringId="medication.form.endDate.label" fallback="End date" />
+                  <TranslatedText stringId="medication.endDate.label" fallback="End date" />
                 }
                 saveDateAsString
                 component={DateField}
@@ -224,7 +224,7 @@ export const MedicationForm = React.memo(
                 name="prescriberId"
                 label={
                   <TranslatedText
-                    stringId="medication.form.prescriber.label"
+                    stringId="medication.prescriber.label"
                     fallback="Prescriber"
                   />
                 }
@@ -235,7 +235,7 @@ export const MedicationForm = React.memo(
               />
               <Field
                 name="note"
-                label={<TranslatedText stringId="general.form.notes.label" fallback="Notes" />}
+                label={<TranslatedText stringId="general.notes.label" fallback="Notes" />}
                 component={TextField}
                 style={{ gridColumn: '1/-1' }}
                 disabled={readOnly}
@@ -246,7 +246,7 @@ export const MedicationForm = React.memo(
                   name="qtyMorning"
                   label={
                     <TranslatedText
-                      stringId="medication.form.quantityMorning.label"
+                      stringId="medication.quantityMorning.label"
                       fallback="morning"
                     />
                   }
@@ -260,7 +260,7 @@ export const MedicationForm = React.memo(
                   min={0}
                   label={
                     <TranslatedText
-                      stringId="medication.form.quantityLunch.label"
+                      stringId="medication.quantityLunch.label"
                       fallback="Lunch"
                     />
                   }
@@ -272,7 +272,7 @@ export const MedicationForm = React.memo(
                   name="qtyEvening"
                   label={
                     <TranslatedText
-                      stringId="medication.form.quantityEvening.label"
+                      stringId="medication.quantityEvening.label"
                       fallback="Evening"
                     />
                   }
@@ -285,7 +285,7 @@ export const MedicationForm = React.memo(
                   name="qtyNight"
                   label={
                     <TranslatedText
-                      stringId="medication.form.quantityNight.label"
+                      stringId="medication.quantityNight.label"
                       fallback="Night"
                     />
                   }
@@ -299,7 +299,7 @@ export const MedicationForm = React.memo(
                 name="indication"
                 label={
                   <TranslatedText
-                    stringId="medication.form.indication.label"
+                    stringId="medication.indication.label"
                     fallback="Indication"
                   />
                 }
@@ -310,7 +310,7 @@ export const MedicationForm = React.memo(
                 name="quantity"
                 label={
                   <TranslatedText
-                    stringId="medication.form.dischargeQuantity.label"
+                    stringId="medication.dischargeQuantity.label"
                     fallback="Discharge quantity"
                   />
                 }
@@ -353,7 +353,7 @@ export const MedicationForm = React.memo(
                       name="discontinuingClinicianId"
                       label={
                         <TranslatedText
-                          stringId="medication.form.discontinuedBy.label"
+                          stringId="medication.discontinuedBy.label"
                           fallback="Discontinued by"
                         />
                       }
@@ -365,7 +365,7 @@ export const MedicationForm = React.memo(
                       name="discontinuingReason"
                       label={
                         <TranslatedText
-                          stringId="medication.form.discontinuedReason.label"
+                          stringId="medication.discontinuedReason.label"
                           fallback="Discontinued reason"
                         />
                       }

@@ -20,6 +20,7 @@ import {
 } from '../components/VaccineCommonFields';
 import { Field, SuggesterSelectField } from '../components/Field';
 import { TranslatedText } from '../components/Translation/TranslatedText';
+import { LowerCase } from '../components';
 
 export const VaccineNotGivenForm = ({
   vaccineLabel,
@@ -67,13 +68,13 @@ export const VaccineNotGivenForm = ({
 
     <Field
       name="notGivenReasonId"
-      label={<TranslatedText stringId="vaccine.form.notGivenReason.label" fallback="Reason" />}
+      label={<TranslatedText stringId="vaccine.notGivenReason.label" fallback="Reason" />}
       component={SuggesterSelectField}
       endpoint="vaccineNotGivenReason"
     />
 
     <VaccineDateField
-      label={<TranslatedText stringId="vaccine.form.dateRecorded.label" fallback="Date recorded" />}
+      label={<TranslatedText stringId="vaccine.dateRecorded.label" fallback="Date recorded" />}
     />
 
     <StyledDivider />
@@ -86,8 +87,18 @@ export const VaccineNotGivenForm = ({
     <GivenByField
       label={
         <TranslatedText
-          stringId="vaccine.form.supervisingClinician.label"
-          fallback="Supervising clinician"
+          stringId="general.supervisingClinician.label"
+          fallback="Supervising :clinician"
+          replacements={{
+            clinician: (
+              <LowerCase>
+                <TranslatedText
+                  stringId="general.localisedField.clinician.label.short"
+                  fallback="Clinician"
+                />
+              </LowerCase>
+            ),
+          }}
         />
       }
     />

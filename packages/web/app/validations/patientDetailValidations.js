@@ -11,7 +11,7 @@ import {
 const requiredWhenConfiguredMandatory = (getLocalisation, name, baseType) => {
   return baseType.when([], {
     is: () => !!getLocalisation(`fields.${name}.requiredPatientData`),
-    then: baseType.required(`${getLocalisation(`fields.${name}.shortLabel`)} is required `),
+    then: baseType.required('Required'),
     otherwise: baseType,
   });
 };

@@ -155,7 +155,7 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
           name="prescriberId"
           label={
             <TranslatedText
-              stringId="medication.modal.printMultiple.form.prescriber.label"
+              stringId="medication.modal.printMultiple.prescriber.label"
               fallback="Prescriber"
             />
           }

@@ -24,14 +24,14 @@ import { NestedVitalsModal } from '../components/NestedVitalsModal';
 import { useApi, useSuggester } from '../api';
 import { useLocalisation } from '../contexts/Localisation';
 import { getAnswersFromData } from '../utils';
-import { useLocalisedText } from '../components';
+import { LowerCase } from '../components';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 
 const InfoPopupLabel = React.memo(() => (
   <span>
     <span>
       <TranslatedText
-        stringId="patient.modal.triage.form.triageScore.label"
+        stringId="patient.modal.triage.triageScore.label"
         fallback="Triage score"
       />
     </span>
@@ -49,7 +49,6 @@ export const TriageForm = ({
 }) => {
   const api = useApi();
   const dispatch = useDispatch();
-  const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
   const { getLocalisation } = useLocalisation();
   const triageCategories = getLocalisation('triageCategories');
   const practitionerSuggester = useSuggester('practitioner');
@@ -62,7 +61,7 @@ export const TriageForm = ({
           name="arrivalTime"
           label={
             <TranslatedText
-              stringId="patient.modal.triage.form.arrivalTime.label"
+              stringId="patient.modal.triage.arrivalTime.label"
               fallback="Arrival date & time"
             />
           }
@@ -75,7 +74,7 @@ export const TriageForm = ({
           name="triageTime"
           label={
             <TranslatedText
-              stringId="patient.modal.triage.form.triageDateTime.label"
+              stringId="patient.modal.triage.triageDateTime.label"
               fallback="Triage date & time"
             />
           }
@@ -96,6 +95,12 @@ export const TriageForm = ({
         />
         <LocalisedField
           name="arrivalModeId"
+          label={
+            <TranslatedText
+              stringId="general.localisedField.arrivalModeId.label"
+              fallback="Arrival mode"
+            />
+          }
           component={SuggesterSelectField}
           endpoint="arrivalMode"
         />
@@ -112,7 +117,7 @@ export const TriageForm = ({
             name="chiefComplaintId"
             label={
               <TranslatedText
-                stringId="patient.modal.triage.form.chiefComplaint.label"
+                stringId="patient.modal.triage.chiefComplaint.label"
                 fallback="Chief complaint"
               />
             }
@@ -124,7 +129,7 @@ export const TriageForm = ({
             name="secondaryComplaintId"
             label={
               <TranslatedText
-                stringId="patient.modal.triage.form.secondaryComplaint.label"
+                stringId="patient.modal.triage.secondaryComplaint.label"
                 fallback="Secondary complaint"
               />
             }
@@ -142,7 +147,22 @@ export const TriageForm = ({
         </FormGrid>
         <Field
           name="practitionerId"
-          label={`Triage ${clinicianText.toLowerCase()}`}
+          label={
+            <TranslatedText
+              stringId="triage.practitionerId.label"
+              fallback="Triage :clinician"
+              replacements={{
+                clinician: (
+                  <LowerCase>
+                    <TranslatedText
+                      stringId="general.localisedField.clinician.label.short"
+                      fallback="Clinician"
+                    />
+                  </LowerCase>
+                ),
+              }}
+            />
+          }
           required
           component={AutocompleteField}
           suggester={practitionerSuggester}
@@ -207,7 +227,7 @@ export const TriageForm = ({
           .required()
           .max(new Date(), 'Triage time cannot be in the future'),
         chiefComplaintId: foreignKey('Chief complaint must be selected'),
-        practitionerId: foreignKey(`Triage ${clinicianText.toLowerCase()} must be selected`),
+        practitionerId: foreignKey('Required'),
         locationId: foreignKey('Location must be selected'),
         score: yup.string().required(),
       })}

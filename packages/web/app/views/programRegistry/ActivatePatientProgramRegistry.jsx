@@ -11,7 +11,6 @@ import {
   Field,
   FieldWithTooltip,
   Form,
-  MultiselectField,
 } from '../../components/Field';
 import { FormGrid } from '../../components/FormGrid';
 import { ConfirmCancelRow } from '../../components/ButtonRow';
@@ -25,6 +24,7 @@ import {
   usePatientProgramRegistryConditionsQuery,
   useProgramRegistryConditionsQuery,
 } from '../../api/queries/usePatientProgramRegistryConditions';
+import { MultiselectField } from '../../components/Translation/TranslatedSelectField.jsx';
 
 export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistration, open }) => {
   const api = useApi();
@@ -33,11 +33,14 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
   const programRegistryStatusSuggester = useSuggester('programRegistryClinicalStatus', {
     baseQueryParameters: { programRegistryId: patientProgramRegistration.programRegistryId },
   });
-  const { data: registrationConditions } = usePatientProgramRegistryConditionsQuery(
+  const {
+    data: registrationConditions,
+    isLoading: isPatientConditionsLoading,
+  } = usePatientProgramRegistryConditionsQuery(
     patientProgramRegistration.patientId,
     patientProgramRegistration.programRegistryId,
   );
-  const { data: conditions } = useProgramRegistryConditionsQuery(
+  const { data: conditions, isLoading: isConditionsLoading } = useProgramRegistryConditionsQuery(
     patientProgramRegistration.programRegistryId,
   );
 
@@ -90,6 +93,8 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
     queryClient.invalidateQueries([`infoPaneListItem-${PROGRAM_REGISTRY}`]);
     onClose();
   };
+
+  if (isPatientConditionsLoading || isConditionsLoading) return null;
 
   return (
     <Modal
@@ -150,6 +155,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
                     component={MultiselectField}
                     options={conditions}
                     disabled={!conditions || conditions.length === 0}
+                    prefix="programRegistry.property.relatedCondition"
                   />
                 </FormGrid>
               </FormGrid>

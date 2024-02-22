@@ -6,8 +6,8 @@ import { LAB_REQUEST_STATUSES } from '@tamanu/constants/labs';
 import { IMAGING_REQUEST_STATUS_TYPES } from '@tamanu/constants/statuses';
 import { DIAGNOSIS_CERTAINTIES_TO_HIDE } from '@tamanu/constants/diagnoses';
 import { ForbiddenError, NotFoundError } from '@tamanu/shared/errors';
-import { EncounterRecordPrintout } from '@tamanu/shared/utils/patientCertificates/EncounterRecordPrintout';
 
+import { EncounterRecordPrintout } from '@tamanu/shared/utils/patientCertificates';
 import { Modal } from '../../Modal';
 import { useCertificate } from '../../../utils/useCertificate';
 import { usePatientData } from '../../../api/queries/usePatientData';
@@ -24,8 +24,8 @@ import { Colors } from '../../../constants';
 import { ForbiddenErrorModalContents } from '../../ForbiddenErrorModal';
 import { ModalActionRow } from '../../ModalActionRow';
 import { printPDF } from '../PDFViewer.jsx';
-import { useLocalisedText } from '../../LocalisedText.jsx';
 import { TranslatedText } from '../../Translation/TranslatedText';
+import { LowerCase } from '../../Typography';
 
 // These below functions are used to extract the history of changes made to the encounter that are stored in notes.
 // obviously a better solution needs to be to properly implemented for storing and accessing this data, but this is an ok workaround for now.
@@ -100,10 +100,18 @@ const extractLocationHistory = (notes, encounterData) => {
 };
 
 export const EncounterRecordModal = ({ encounter, open, onClose }) => {
-  const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
+  const clinicianText = (
+    <LowerCase>
+      <TranslatedText
+        stringId="general.localisedField.clinician.label.short"
+        fallback="Clinician"
+      />
+    </LowerCase>
+  );
 
   const { getLocalisation } = useLocalisation();
-  const certificateData = useCertificate();
+  const certificateQuery = useCertificate();
+  const { data: certificateData } = certificateQuery;
 
   const patientQuery = usePatientData(encounter.patientId);
   const patient = patientQuery.data;
@@ -143,6 +151,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
     dischargeQuery,
     villageQuery,
     notesQuery,
+    certificateQuery,
   ]);
 
   const modalProps = {
