@@ -132,7 +132,7 @@ export class PatientProgramRegistration extends BaseModel implements IPatientPro
     const { programId } = await ProgramRegistry.findOne({ id: programRegistryId });
     const ppr = await PatientProgramRegistration.getRecentOne(programId, patientId);
     if (ppr) {
-      await PatientProgramRegistration.updateValues(programRegistryId, { isMostRecent: false });
+      await PatientProgramRegistration.updateValues(programRegistryId, { isMostRecent: 0 });
     }
 
     return PatientProgramRegistration.createAndSaveOne({
