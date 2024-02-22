@@ -5,8 +5,7 @@ import { ConfirmCancelRow } from './ButtonRow';
 import { DateDisplay } from './DateDisplay';
 import { DataFetchingTable } from './Table';
 import { Modal } from './Modal';
-import { TranslatedText } from './Translation/TranslatedText';
-import { TranslatedEnum } from './Translation/TranslatedEnum.jsx';
+import { TranslatedEnum, TranslatedText } from './Translation';
 
 const COLUMNS = [
   { key: 'date', title: 'Date', accessor: ({ date }) => <DateDisplay date={date} /> },

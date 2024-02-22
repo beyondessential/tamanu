@@ -7,11 +7,9 @@ import { VACCINE_STATUS, VACCINE_STATUS_LABELS } from '@tamanu/constants';
 import { ModalActionRow } from './ModalActionRow';
 import { Colors } from '../constants';
 import { useApi } from '../api';
-
 import { DateDisplay } from './DateDisplay';
 import { Modal } from './Modal';
-import { TranslatedEnum } from './Translation/TranslatedEnum.jsx';
-import { TranslatedText } from './Translation/TranslatedText';
+import { TranslatedText, TranslatedEnum } from './Translation';
 import { LowerCase } from './Typography';
 
 const Container = styled.div`
@@ -148,9 +146,7 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
       value: <DateDisplay date={date} />,
     },
     injectionSite: {
-      label: (
-        <TranslatedText stringId="vaccine.injectionSite.label" fallback="Injection site" />
-      ),
+      label: <TranslatedText stringId="vaccine.injectionSite.label" fallback="Injection site" />,
       value: injectionSite || '-',
     },
     area: {
@@ -450,21 +446,19 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
   const modalVersion = modalVersions.find(modalType => modalType.condition === true);
   if (!modalVersion) return <ErrorMessage />;
   const fieldGroups = modalVersion.fieldGroups
-    .map(group =>
-      ({
-        ...group,
-        fields: group.fields
-          .filter(field => {
-            // filter out fields if they're conditional on the editMode, and the editMode doesn't match
-            // this can be written more concisely but i want it explicit
-            if (editMode && field.editMode === true) return true;
-            if (!editMode && field.editMode === false) return true;
-            if (!Object.prototype.hasOwnProperty.call(field, 'editMode')) return true;
-            return false;
-          })
-          .map(({ field }) => field)
-      })
-    )
+    .map(group => ({
+      ...group,
+      fields: group.fields
+        .filter(field => {
+          // filter out fields if they're conditional on the editMode, and the editMode doesn't match
+          // this can be written more concisely but i want it explicit
+          if (editMode && field.editMode === true) return true;
+          if (!editMode && field.editMode === false) return true;
+          if (!Object.prototype.hasOwnProperty.call(field, 'editMode')) return true;
+          return false;
+        })
+        .map(({ field }) => field),
+    }))
     .filter(group => {
       // eliminate empty groups
       return group.fields.length > 0;

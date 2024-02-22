@@ -15,8 +15,7 @@ import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { OutlinedButton } from './Button';
 import { InvoiceDetailModal } from './InvoiceDetailModal';
-import { TranslatedText } from './Translation/TranslatedText';
-import { TranslatedEnum } from './Translation/TranslatedEnum.jsx';
+import { TranslatedEnum, TranslatedText } from './Translation';
 
 const StatusLabel = styled.div`
   background: ${p => p.color};

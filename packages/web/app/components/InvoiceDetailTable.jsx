@@ -20,8 +20,7 @@ import { InvoicePriceChangeItemModal } from './InvoicePriceChangeItemModal';
 import { ConfirmModal } from './ConfirmModal';
 import { DropdownButton } from './DropdownButton';
 import { DateDisplay } from './DateDisplay';
-import { TranslatedText } from './Translation/TranslatedText';
-import { TranslatedEnum } from './Translation/TranslatedEnum.jsx';
+import { TranslatedEnum, TranslatedText } from './Translation';
 
 const InvoiceLineDetail = styled.p`
   font-size: 15px;

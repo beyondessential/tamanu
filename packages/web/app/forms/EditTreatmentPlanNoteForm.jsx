@@ -13,8 +13,7 @@ import {
   WrittenByField,
   WrittenByText,
 } from '../components/NoteCommonFields';
-import { TranslatedText } from '../components/Translation/TranslatedText';
-import { TranslatedEnum } from '../components/Translation/TranslatedEnum.jsx';
+import { TranslatedEnum, TranslatedText } from '../components/Translation';
 
 const StyledFormGrid = styled(FormGrid)`
   width: 700px;

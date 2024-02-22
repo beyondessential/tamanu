@@ -5,8 +5,7 @@ import { NOTE_TYPE_LABELS } from '@tamanu/constants';
 import { NoteChangeLogs } from '../components/NoteChangeLogs';
 import { ConfirmCancelRow } from '../components/ButtonRow';
 import { NoteInfoSection, StyledDivider, WrittenByText } from '../components/NoteCommonFields';
-import { TranslatedText } from '../components/Translation/TranslatedText';
-import { TranslatedEnum } from '../components/Translation/TranslatedEnum.jsx';
+import { TranslatedText, TranslatedEnum } from '../components/Translation';
 
 export const TreatmentPlanNoteChangelogForm = ({ note, onCancel }) => {
   const updatedByAuthorName = note.author?.displayName;

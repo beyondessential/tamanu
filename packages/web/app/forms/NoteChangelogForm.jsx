@@ -5,8 +5,7 @@ import { NOTE_TYPE_LABELS } from '@tamanu/constants';
 import { NoteChangeLogs } from '../components/NoteChangeLogs';
 import { ConfirmCancelRow } from '../components/ButtonRow';
 import { NoteInfoSection, StyledDivider, WrittenByText } from '../components/NoteCommonFields';
-import { TranslatedText } from '../components/Translation/TranslatedText';
-import { TranslatedEnum } from '../components/Translation/TranslatedEnum.jsx';
+import { TranslatedEnum, TranslatedText } from '../components/Translation';
 
 export const NoteChangelogForm = ({ note, onCancel }) => {
   const createdByAuthorName = note.revisedBy
@@ -37,10 +36,7 @@ export const NoteChangelogForm = ({ note, onCancel }) => {
         date={note.revisedBy?.date || note.date}
         dateLabel={<TranslatedText stringId="note.dateTime.label" fallback="Date & time" />}
         writtenByLabel={
-          <TranslatedText
-            stringId="note.writtenBy.label"
-            fallback="Written by (or on behalf of)"
-          />
+          <TranslatedText stringId="note.writtenBy.label" fallback="Written by (or on behalf of)" />
         }
         writtenBy={writtenBy}
       />

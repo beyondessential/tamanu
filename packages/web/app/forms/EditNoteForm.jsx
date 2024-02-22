@@ -9,8 +9,7 @@ import {
   StyledDivider,
   WrittenByText,
 } from '../components/NoteCommonFields';
-import { TranslatedText } from '../components/Translation/TranslatedText';
-import { TranslatedEnum } from '../components/Translation/TranslatedEnum.jsx';
+import { TranslatedText, TranslatedEnum } from '../components/Translation';
 
 export const EditNoteForm = ({ note, onNoteContentChange, onSubmit, onCancel }) => {
   const noteAuthorName = note.revisedBy

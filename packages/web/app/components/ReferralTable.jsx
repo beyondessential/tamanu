@@ -13,8 +13,7 @@ import { isErrorUnknownAllow404s, useApi } from '../api';
 import { SurveyResponseDetailsModal } from './SurveyResponseDetailsModal';
 import { DeleteButton } from './Button';
 import { ConfirmModal } from './ConfirmModal';
-import { TranslatedText } from './Translation/TranslatedText';
-import { TranslatedEnum } from './Translation/TranslatedEnum.jsx';
+import { TranslatedText, TranslatedEnum } from './Translation';
 
 const ACTION_MODAL_STATES = {
   CLOSED: 'closed',

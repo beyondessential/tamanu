@@ -10,8 +10,7 @@ import { Colors, NOTE_FORM_MODES } from '../constants';
 import { useAuth } from '../contexts/Auth';
 import { NoteModal } from './NoteModal';
 import { withPermissionCheck } from './withPermissionCheck';
-import { TranslatedText } from './Translation/TranslatedText';
-import { TranslatedEnum } from './Translation/TranslatedEnum.jsx';
+import { TranslatedEnum, TranslatedText } from './Translation';
 
 const StyledEditIcon = styled(EditIcon)`
   cursor: pointer;
