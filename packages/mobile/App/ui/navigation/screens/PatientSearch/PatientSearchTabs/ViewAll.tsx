@@ -30,6 +30,7 @@ import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { SYNC_EVENT_ACTIONS } from '~/services/sync/types';
 import { BackendContext } from '~/ui/contexts/BackendContext';
 import { MobileSyncManager } from '~/services/sync/MobileSyncManager';
+import { RegistrationStatus } from '~/constants/programRegistries';
 
 type FieldProp = [FieldInputProps<any>, FieldMetaProps<any>, FieldHelperProps<any>];
 
@@ -70,10 +71,11 @@ const getQueryConfigForField = (fieldName, fieldValue): QueryConfig => {
               SELECT DISTINCT ppr.patientId
               FROM patient_program_registration ppr
               WHERE ppr.programRegistryId = :programRegistryId
+              AND ppr.registrationStatus = :active
               AND ppr.deletedAt IS NULL
             )
         `,
-        substitutions: { programRegistryId: fieldValue },
+        substitutions: { programRegistryId: fieldValue, active: RegistrationStatus.Active },
       };
     default:
       return defaultConfig;
