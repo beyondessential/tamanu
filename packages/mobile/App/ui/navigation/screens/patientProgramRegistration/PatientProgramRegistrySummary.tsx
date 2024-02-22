@@ -17,6 +17,7 @@ import { useAuth } from '~/ui/contexts/AuthContext';
 const PatientProgramRegistrySummary_ = ({ selectedPatient }): ReactElement => {
   const navigation = useNavigation();
   const { ability } = useAuth();
+  const canCreateRegistration = ability.can('create', 'PatientProgramRegistration');
   const [programRegistries, programRegistryError, isProgramRegistryLoading] = useBackendEffect(
     async ({ models }) =>
       await models.ProgramRegistry.getProgramRegistriesForPatient(selectedPatient.id, ability),
@@ -37,21 +38,23 @@ const PatientProgramRegistrySummary_ = ({ selectedPatient }): ReactElement => {
         <SectionHeader h1 fontSize={14} fontWeight={500} color={theme.colors.TEXT_SUPER_DARK}>
           Program registry
         </SectionHeader>
-        <Button
-          backgroundColor={
-            programRegistries?.length === 0 ? theme.colors.DISABLED_GREY : theme.colors.PRIMARY_MAIN
-          }
-          borderRadius={100}
-          width={32}
-          height={32}
-          loadingAction={isProgramRegistryLoading}
-          disabled={programRegistries?.length === 0}
-          onPress={() => {
-            navigation.navigate(Routes.HomeStack.PatientProgramRegistryFormStack.Index);
-          }}
-        >
-          <CircleAdd size={32} />
-        </Button>
+        {canCreateRegistration && (
+          <Button
+            backgroundColor={
+              programRegistries?.length === 0 ? theme.colors.DISABLED_GREY : theme.colors.PRIMARY_MAIN
+            }
+            borderRadius={100}
+            width={32}
+            height={32}
+            loadingAction={isProgramRegistryLoading}
+            disabled={programRegistries?.length === 0}
+            onPress={() => {
+              navigation.navigate(Routes.HomeStack.PatientProgramRegistryFormStack.Index);
+            }}
+          >
+            <CircleAdd size={32} />
+          </Button>
+        )}
       </RowView>
       <StyledView borderColor={theme.colors.BOX_OUTLINE} height={1} />
       {ability.can('list', 'PatientProgramRegistration') && (
