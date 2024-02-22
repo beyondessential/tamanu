@@ -1,86 +1,22 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import styled from 'styled-components';
-import { groupBy, isEmpty } from 'lodash';
+import { isEmpty } from 'lodash';
 import { useQuery } from '@tanstack/react-query';
 
-import {
-  PATIENT_REGISTRY_TYPES,
-  PLACE_OF_BIRTH_TYPES,
-  PATIENT_FIELD_DEFINITION_TYPES,
-} from '@tamanu/constants';
+import { PATIENT_REGISTRY_TYPES, PLACE_OF_BIRTH_TYPES } from '@tamanu/constants';
 
 import { useSexOptions, useSexValues } from '../../hooks';
-import { Colors } from '../../constants';
 import { useLocalisation } from '../../contexts/Localisation';
 import { useApi } from '../../api';
 import { getPatientDetailsValidation } from '../../validations';
-import {
-  ButtonRow,
-  Field,
-  Form,
-  FormGrid,
-  FormSubmitButton,
-  NumberField,
-  SelectField,
-  TextField,
-} from '../../components';
+import { ButtonRow, Form, FormSubmitButton } from '../../components';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { useLayoutComponents } from './useLayoutComponents';
 import { usePatientFieldDefinitionQuery } from '../../api/queries/usePatientFieldDefinitionQuery';
 
-const StyledHeading = styled.div`
-  font-weight: 500;
-  font-size: 16px;
-  color: ${Colors.darkText};
-  margin-bottom: 30px;
-`;
-
-const StyledFormGrid = styled(FormGrid)`
-  margin-bottom: 70px;
-`;
-
 const StyledPatientDetailSecondaryDetailsGroupWrapper = styled.div`
   margin-top: 70px;
 `;
-
-export const PatientField = ({ definition: { definitionId, name, fieldType, options } }) => {
-  // TODO: temporary placeholder component
-  // the plan is to reuse the survey question components for these fields
-  const fieldName = `patientFields.${definitionId}`;
-  if (fieldType === PATIENT_FIELD_DEFINITION_TYPES.SELECT) {
-    const fieldOptions = options.map(o => ({ label: o, value: o }));
-    return <Field name={fieldName} component={SelectField} label={name} options={fieldOptions} />;
-  }
-  if (fieldType === PATIENT_FIELD_DEFINITION_TYPES.STRING) {
-    return <Field name={fieldName} component={TextField} label={name} />;
-  }
-  if (fieldType === PATIENT_FIELD_DEFINITION_TYPES.NUMBER) {
-    return <Field name={fieldName} component={NumberField} label={name} />;
-  }
-  return <p>Unknown field type: {fieldType}</p>;
-};
-
-export const PatientFieldsGroup = ({ fieldDefinitions, fieldValues }) => {
-  const groupedFieldDefs = Object.entries(groupBy(fieldDefinitions, 'category'));
-  return (
-    <div>
-      {groupedFieldDefs.map(([category, defs]) => (
-        <Fragment key={category}>
-          <StyledHeading>{category}</StyledHeading>
-          <StyledFormGrid>
-            {defs.map(f => (
-              <PatientField
-                key={f.definitionId}
-                definition={f}
-                value={fieldValues ? fieldValues[f.definitionId] : ''}
-              />
-            ))}
-          </StyledFormGrid>
-        </Fragment>
-      ))}
-    </div>
-  );
-};
 
 function sanitiseRecordForValues(data) {
   const values = { ...data };
