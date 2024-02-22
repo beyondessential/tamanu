@@ -69,8 +69,3 @@ lints.md
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
-packages/central-server/default.xlsx
-packages/central-server/immunisation.xlsx
-packages/central-server/ncd-primary-screening.xlsx
-packages/central-server/provisioning.kdl
-packages/central-server/vitals.xlsx
