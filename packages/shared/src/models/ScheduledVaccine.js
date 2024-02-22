@@ -13,6 +13,10 @@ export class ScheduledVaccine extends Model {
         weeksFromBirthDue: Sequelize.INTEGER,
         weeksFromLastVaccinationDue: Sequelize.INTEGER,
         index: Sequelize.INTEGER,
+        hideFromCertificate: {
+          type: Sequelize.BOOLEAN,
+          defaultValue: false,
+        },
         visibilityStatus: {
           type: Sequelize.TEXT,
           defaultValue: VISIBILITY_STATUSES.CURRENT,
