@@ -25,6 +25,9 @@ import { DateTimeStringColumn } from './DateColumns';
 // TypeORM expects keys without the "ID" part. i.e. patient instead of patientId
 // and here we have to extract values from the preexistent model to work
 const getValuesFromRelations = values => {
+  if (!values) {
+    return {};
+  }
   return {
     clinician: values.clinicianId,
     clinicalStatus: values.clinicalStatusId,
@@ -106,7 +109,7 @@ export class PatientProgramRegistration extends BaseModel implements IPatientPro
     const registrationRepository = this.getRepository(PatientProgramRegistration);
     const mostRecentRegistrations = await registrationRepository
       .createQueryBuilder('registration')
-      .where(`registration.isMostRecent`, { isMostRecent: 1 })
+      .where(`registration.isMostRecent = TRUE`)
       .andWhere('registration.registrationStatus != :status', {
         status: RegistrationStatus.RecordedInError,
       })
@@ -154,7 +157,7 @@ export class PatientProgramRegistration extends BaseModel implements IPatientPro
       ...getValuesFromRelations(existingRegistration),
       ...getValuesFromRelations(data),
       ...data,
-      program: programRegistryId,
+      programRegistry: programRegistryId,
       patient: patientId,
       isMostRecent: 1,
     });
