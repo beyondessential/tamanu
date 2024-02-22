@@ -13,14 +13,13 @@ const COLUMNS = [
   {
     key: 'type',
     title: 'Category',
-    accessor: ({ type }) =>
-      (
-        <TranslatedEnum
-          prefix="invoice.line.property.type"
-          value={type}
-          enumValues={INVOICE_LINE_TYPE_LABELS}
-        />
-      ) || 'Unknown',
+    accessor: ({ type }) => (
+      <TranslatedEnum
+        prefix="invoice.line.property.type"
+        value={type}
+        enumValues={INVOICE_LINE_TYPE_LABELS}
+      />
+    ),
   },
   { key: 'orderedBy', title: 'Ordered by' },
   { key: 'price', title: 'Price', accessor: ({ price }) => `$${price}` },

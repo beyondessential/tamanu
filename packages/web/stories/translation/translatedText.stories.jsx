@@ -1,25 +1,40 @@
 import React from 'react';
 import styled from 'styled-components';
-import { TranslatedText } from '../app/components/Translation/TranslatedText';
-import { TextInput, Button } from '../app/components';
+import { TranslatedText } from '../../app/components/Translation';
+import { TextInput, Button } from '../../app/components';
+import { TranslationProvider } from '../../app/contexts/Translation';
+import { MockedApi } from '../utils/mockedApi';
 
 const Container = styled.div`
   padding: 1rem;
   max-width: 500px;
 `;
 
+const endpoints = {
+  'translation/en': () => {
+    return {
+      'fruitBowl.banana': 'Banana123',
+    };
+  },
+};
+
 export default {
   title: 'Translation/TranslatedText',
   component: TranslatedText,
+  decorators: [
+    Story => (
+      <MockedApi endpoints={endpoints}>
+        <TranslationProvider>
+          <Container>
+            <Story />
+          </Container>
+        </TranslationProvider>
+      </MockedApi>
+    ),
+  ],
 };
 
-const StringTemplate = args => {
-  return (
-    <Container>
-      <TranslatedText {...args} />
-    </Container>
-  );
-};
+const StringTemplate = args => <TranslatedText {...args} />;
 
 export const String = StringTemplate.bind({});
 String.args = {
@@ -51,21 +66,15 @@ StringWithReplacements.args = {
 };
 
 const InputTemplate = () => {
-  return (
-    <Container>
-      <TextInput label={<TranslatedText stringId="fields.textField" fallback="Text Field" />} />
-    </Container>
-  );
+  return <TextInput label={<TranslatedText stringId="fields.textField" fallback="Text Field" />} />;
 };
 export const TranslatedInput = InputTemplate.bind({});
 
 const ButtonTemplate = () => {
   return (
-    <Container>
-      <Button>
-        <TranslatedText stringId="button.label" fallback="Press here" />
-      </Button>
-    </Container>
+    <Button>
+      <TranslatedText stringId="button.label" fallback="Press here" />
+    </Button>
   );
 };
 export const TranslatedButton = ButtonTemplate.bind({});

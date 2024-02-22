@@ -1,7 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
-import { LanguageSelector } from '../app/components/LanguageSelector';
-import { ApiContext } from '../app/api';
+import { LanguageSelector } from '../../app/components/LanguageSelector';
+import { ApiContext } from '../../app/api/index.js';
+import { TranslationProvider } from '../../app/contexts/Translation';
 
 const exampleOptions = [
   {
@@ -42,15 +43,22 @@ const Container = styled.div`
 export default {
   title: 'Translation/LanguageSelector',
   component: LanguageSelector,
+  decorators: [
+    Story => (
+      <TranslationProvider>
+        <Container>
+          <Story />
+        </Container>
+      </TranslationProvider>
+    ),
+  ],
 };
 
 const Template = args => {
   const { api } = args;
   return (
     <ApiContext.Provider value={api}>
-      <Container>
-        <LanguageSelector setFieldValue={() => null} {...args} />
-      </Container>
+      <LanguageSelector setFieldValue={() => null} {...args} />
     </ApiContext.Provider>
   );
 };

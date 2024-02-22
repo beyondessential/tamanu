@@ -188,17 +188,15 @@ const getInvoicePriceChangeCode = row => {
 const getInvoiceLineCategory = row => {
   const { name } = row.invoiceLineType;
   const { itemType } = row.invoiceLineType;
-  const category =
-    (
-      <TranslatedEnum
-        prefix="invoice.line.property.type"
-        value={itemType}
-        enumValues={INVOICE_LINE_TYPE_LABELS}
-      />
-    ) || 'Unknown';
   return (
     <>
-      <p>{category}</p>
+      <p>
+        <TranslatedEnum
+          prefix="invoice.line.property.type"
+          value={itemType}
+          enumValues={INVOICE_LINE_TYPE_LABELS}
+        />
+      </p>
       <InvoiceLineDetail title={name}>{name}</InvoiceLineDetail>
     </>
   );
@@ -209,14 +207,13 @@ const getInvoicePriceChangeCategory = row => {
   if (row.invoicePriceChangeType) {
     name = row.invoicePriceChangeType.name;
     const { itemType } = row.invoicePriceChangeType;
-    category =
-      (
-        <TranslatedEnum
-          prefix="invoice.priceChange.property.type"
-          value={itemType}
-          enumValues={INVOICE_PRICE_CHANGE_TYPE_LABELS}
-        />
-      ) || 'Unknown';
+    category = (
+      <TranslatedEnum
+        prefix="invoice.priceChange.property.type"
+        value={itemType}
+        enumValues={INVOICE_PRICE_CHANGE_TYPE_LABELS}
+      />
+    );
   } else {
     name = row.description;
     category = 'Additional';

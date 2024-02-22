@@ -151,14 +151,13 @@ const getDate = ({ surveyResponse: { submissionDate } }) => {
 };
 const getReferralType = ({ surveyResponse: { survey } }) => survey.name;
 const getReferralBy = ({ surveyResponse }) => <ReferralBy surveyResponse={surveyResponse} />;
-const getStatus = ({ status }) =>
-  (
-    <TranslatedEnum
-      prefix="referral.property.status"
-      value={status}
-      enumValues={REFERRAL_STATUS_LABELS}
-    />
-  ) || <TranslatedText stringId="general.fallback.unknown" fallback="Unknown" />;
+const getStatus = ({ status }) => (
+  <TranslatedEnum
+    prefix="referral.property.status"
+    value={status}
+    enumValues={REFERRAL_STATUS_LABELS}
+  />
+);
 const getActions = ({ refreshTable, ...row }) => (
   <ActionDropdown refreshTable={refreshTable} row={row} />
 );
