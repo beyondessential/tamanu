@@ -91,7 +91,7 @@ export const MultiSelectModalScreen = (props: IMultiSelectModalScreen) => {
                     justifyContent: 'space-between',
                   }}
                 >
-                  <StyledText fontSize={14} fontWeight={400} onPress={() => {}}>
+                  <StyledText fontSize={14} fontWeight={400}>
                     {item.label}
                   </StyledText>
                   {item.selected && (
