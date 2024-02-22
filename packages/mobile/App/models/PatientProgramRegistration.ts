@@ -139,10 +139,13 @@ export class PatientProgramRegistration extends BaseModel implements IPatientPro
   static async appendRegistration(
     patientId: string,
     programRegistryId: string,
-    data: any
+    data: any,
   ): Promise<PatientProgramRegistration> {
     const { programId } = await ProgramRegistry.findOne({ id: programRegistryId });
-    const existingRegistration = await PatientProgramRegistration.getRecentOne(programId, patientId);
+    const existingRegistration = await PatientProgramRegistration.getRecentOne(
+      programId,
+      patientId,
+    );
     if (existingRegistration) {
       await PatientProgramRegistration.updateValues(programRegistryId, { isMostRecent: 0 });
     }
@@ -153,7 +156,7 @@ export class PatientProgramRegistration extends BaseModel implements IPatientPro
       ...data,
       program: programRegistryId,
       patient: patientId,
-      isMostRecent: true,
+      isMostRecent: 1,
     });
   }
 
