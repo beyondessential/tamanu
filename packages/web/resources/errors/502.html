@@ -56,7 +56,7 @@
 
   function checkIsURLCambodia() {
     const URL_WHITELIST = ["khmer", "cambodia", "khmeir"];
-    const currentURL = window.location.href;
+    const currentURL = window.location.hostname;
     const regex = new RegExp(URL_WHITELIST.join("|"), "i");
     return regex.test(currentURL);
   }

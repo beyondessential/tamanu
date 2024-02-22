@@ -67,7 +67,7 @@
 
   <meta charset="UTF-8" />
   <link rel="icon" href="/resources/icon.ico" />
-  <link rel="manifest" href="/manifest.json" />
+  <link rel="manifest" id="manifest" href="/manifest.json"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Tamanu</title>
   <style>
@@ -156,7 +156,7 @@
 
     function checkIsURLCambodia() {
       const URL_WHITELIST = ["khmer", "cambodia", "khmeir"];
-      const currentURL = window.location.href;
+      const currentURL = window.location.hostname;
       const regex = new RegExp(URL_WHITELIST.join("|"), "i");
       return regex.test(currentURL);
     }
@@ -182,8 +182,13 @@
         updateLogo(logoUrl);
         updateDocumentTitle(name);
         updateBrandNameText(name);
+
+        // Remove manifest link on cambodia mode to disable the PWA
+        const manifest = document.querySelector('#manifest');
+        manifest.remove();
       }
     }
+
     cambodiaMode();
   </script>
 
