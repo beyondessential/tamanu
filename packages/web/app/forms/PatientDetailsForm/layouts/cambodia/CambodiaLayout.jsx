@@ -8,7 +8,7 @@ import {
   PatientDetailsHeading,
   SecondaryDetailsFormGrid,
   SecondaryDetailsGroup,
-} from '../generic/GenericLayout';
+} from '../../PatientDetailsCommonElements';
 import { CambodiaLocationFields } from './patientFields/CambodiaLocationFields';
 import { CambodiaContactFields } from './patientFields/CambodiaContactFields';
 import { CambodiaIdentificationFields } from './patientFields/CambodiaIdentificationFields';
