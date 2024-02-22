@@ -100,7 +100,7 @@ export class PatientProgramRegistration extends Model {
       await existingRegistration.update({ isMostRecent: false });
     }
 
-    return super.create({
+    const newRegistrationValues = {
       patientId,
       programRegistryId,
       ...(existingRegistration ?? {}),
@@ -108,9 +108,13 @@ export class PatientProgramRegistration extends Model {
       // but if a date was provided in the function params, we should go with that.
       date: getCurrentDateTimeString(),
       ...restOfUpdates,
-      id: undefined,
       isMostRecent: true,
-    });
+    };
+
+    // Ensure a new id is generated, rather than using the one from existingRegistration
+    delete newRegistrationValues.id;
+
+    return super.create(newRegistrationValues);
   }
 
   static async getMostRecentRegistrationsForPatient(patientId) {
