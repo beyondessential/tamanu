@@ -25,7 +25,6 @@ import { VitalLog } from './VitalLog';
 import { SYNC_DIRECTIONS } from './types';
 import { DateTimeStringColumn } from './DateColumns';
 import { PatientProgramRegistration } from './PatientProgramRegistration';
-import { IPatientProgramRegistration } from '~/types/IPatientProgramRegistration';
 import { VisibilityStatus } from '../visibilityStatuses';
 
 type RecordValuesByModel = {
