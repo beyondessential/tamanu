@@ -38,9 +38,9 @@ type QueryConfig = { where: string; substitutions: {} };
 
 const getQueryConfigForField = (fieldName, fieldValue): QueryConfig => {
   const defaultConfig = {
-    where: `patient.${fieldName} = :value`,
+    where: `patient.${fieldName} = :${fieldName}`,
     substitutions: {
-      value: fieldValue,
+      [fieldName]: fieldValue,
     },
   };
 
@@ -52,16 +52,16 @@ const getQueryConfigForField = (fieldName, fieldValue): QueryConfig => {
       return defaultConfig;
     case 'dateOfBirth':
       return {
-        where: `patient.${fieldName} = :value`,
+        where: `patient.${fieldName} = :${fieldName}`,
         substitutions: {
-          value: format(fieldValue, 'yyyy-MM-dd'),
+          [fieldName]: format(fieldValue, 'yyyy-MM-dd'),
         },
       };
     case 'firstName':
     case 'lastName':
       return {
-        where: `${fieldName} LIKE :fieldValue`,
-        substitutions: { fieldValue: `%${fieldValue}%` },
+        where: `${fieldName} LIKE :${fieldName}`,
+        substitutions: { [fieldName]: `%${fieldValue}%` },
       };
     case 'programRegistryId':
       return {
