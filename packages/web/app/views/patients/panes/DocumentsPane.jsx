@@ -14,6 +14,7 @@ import { Button, ContentPane, OutlinedButton, TableButtonRow } from '../../../co
 import { useRefreshCount } from '../../../hooks/useRefreshCount';
 import { saveFile } from '../../../utils/fileSystemAccess';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { useTranslation } from '../../../contexts/Translation';
 
 const MODAL_STATES = {
   DOCUMENT_OPEN: 'document',
@@ -29,6 +30,7 @@ const base64ToUint8Array = base64 => {
 
 export const DocumentsPane = React.memo(({ encounter, patient }) => {
   const api = useApi();
+  const { getTranslation } = useTranslation();
   const [dataUrl, setDataUrl] = useState('');
 
   const [modalStatus, setModalStatus] = useState(MODAL_STATES.CLOSED);
@@ -68,7 +70,13 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
     async document => {
       try {
         // Give feedback to user that download is starting
-        notify('Your download has started, please wait.', { type: 'info' });
+        notify(
+          getTranslation({
+            stringId: 'document.notification.downloadStarted',
+            fallback: 'Your download has started, please wait.',
+          }),
+          { type: 'info' },
+        );
 
         // Download attachment (*currently the API only supports base64 responses)
         const { data } = await api.get(`attachment/${document.attachmentId}`, {
@@ -83,7 +91,12 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
           extensions: [fileExtension],
         });
 
-        notifySuccess('Successfully downloaded file');
+        notifySuccess(
+          getTranslation({
+            stringId: 'document.notification.downloadSuccess',
+            fallback: 'Successfully downloaded file',
+          }),
+        );
       } catch (error) {
         notifyError(error.message);
       }
