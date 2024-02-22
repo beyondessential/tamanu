@@ -93,8 +93,6 @@ export class PatientProgramRegistration extends Model {
         programRegistryId,
         patientId,
       },
-      order: [['date', 'DESC']],
-      limit: 1,
     });
 
     // Most recent registration will now be the new one
