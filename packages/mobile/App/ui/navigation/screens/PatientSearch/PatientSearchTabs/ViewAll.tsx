@@ -72,7 +72,7 @@ const getQueryConfigForField = (fieldName, fieldValue): QueryConfig => {
               FROM patient_program_registration ppr
               WHERE ppr.programRegistryId = :programRegistryId
               AND ppr.registrationStatus = :active
-              AND ppr.isMostRecent = 1
+              AND ppr.isMostRecent = TRUE
               AND ppr.deletedAt IS NULL
             )
         `,
