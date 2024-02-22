@@ -154,7 +154,7 @@ export async function down(query) {
 
   await query.removeConstraint('program_registry_clinical_statuses', 'program_registry_clinical_statuses_program_registry_id_fkey');
 
-  await query.removeConstraint('program_registry_conditions', 'program_registry_clinical_statuses_program_registry_id_fkey');
+  await query.removeConstraint('program_registry_conditions', 'program_registry_conditions_program_registry_id_fkey');
 
   await query.removeConstraint('patient_program_registrations', 'patient_program_registrations_patient_id_fkey');
   await query.removeConstraint('patient_program_registrations', 'patient_program_registrations_program_registry_id_fkey');
