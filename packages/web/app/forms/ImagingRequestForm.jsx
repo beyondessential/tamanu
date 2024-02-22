@@ -114,9 +114,11 @@ export const ImagingRequestForm = React.memo(
           ...editedObject,
         }}
         validationSchema={yup.object().shape({
-          requestedById: foreignKey('Required'),
+          requestedById: foreignKey(`*Required`),
           requestedDate: yup.date().required(),
+          imagingType: foreignKey(`*Required`),
         })}
+        suppressErrorDialog
         render={({ submitForm, values }) => {
           const imagingAreas = getAreasForImagingType(values.imagingType);
           return (
