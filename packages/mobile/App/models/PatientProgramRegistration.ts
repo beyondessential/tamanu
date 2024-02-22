@@ -124,7 +124,7 @@ export class PatientProgramRegistration extends BaseModel implements IPatientPro
     return fullPpr;
   }
 
-  static async createNewRegistration(
+  static async appendRegistration(
     patientId: string,
     programRegistryId: string,
     data: any

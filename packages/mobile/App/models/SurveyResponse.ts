@@ -88,7 +88,7 @@ async function writeToPatientFields(questions, answers, patientId, surveyId) {
     if (!programRegistryId) {
       throw new Error('No program registry configured for the current form');
     }
-    await PatientProgramRegistration.createNewRegistration(patientId, programRegistryId, valuesByModel.PatientProgramRegistration);
+    await PatientProgramRegistration.appendRegistration(patientId, programRegistryId, valuesByModel.PatientProgramRegistration);
   }
 }
 

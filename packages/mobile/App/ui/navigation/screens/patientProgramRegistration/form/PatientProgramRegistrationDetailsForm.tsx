@@ -53,7 +53,7 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
     [],
   );
   const submitPatientProgramRegistration = async (formData: IPatientProgramRegistryForm) => {
-    const newPpr: any = await PatientProgramRegistration.createNewRegistration(
+    const newPpr: any = await PatientProgramRegistration.appendRegistration(
       selectedPatient.id,
       programRegistry.id,
       {
