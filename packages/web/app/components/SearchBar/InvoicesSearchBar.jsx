@@ -1,9 +1,8 @@
 import React from 'react';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
-import { LocalisedField } from '../Field';
+import { LocalisedField, SelectField } from '../Field';
 import { INVOICE_PAYMENT_STATUS_OPTIONS, INVOICE_STATUS_OPTIONS } from '../../constants';
 import { TranslatedText } from '../Translation/TranslatedText';
-import { SelectField } from '../Translation/TranslatedSelectField.jsx';
 
 export const InvoicesSearchBar = React.memo(({ onSearch }) => (
   <CustomisableSearchBar title="Search invoices" onSearch={onSearch}>

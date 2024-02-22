@@ -1,12 +1,11 @@
 import React from 'react';
 import * as yup from 'yup';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
-import { PATIENT_ISSUE_TYPES, PATIENT_ISSUE_OPTIONS } from '@tamanu/constants';
-import { DateField, Field, Form, TextField } from '../components/Field';
+import { PATIENT_ISSUE_TYPES } from '@tamanu/constants';
+import { DateField, Field, Form, SelectField, TextField } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { FormSubmitCancelRow } from '../components/ButtonRow';
-import { SelectField } from '../components/Translation/TranslatedSelectField.jsx';
 
 export const PatientIssueForm = ({ onSubmit, editedObject, onCancel }) => (
   <Form

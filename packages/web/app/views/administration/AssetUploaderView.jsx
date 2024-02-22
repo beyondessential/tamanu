@@ -2,14 +2,13 @@ import React, { memo, useCallback, useState } from 'react';
 import * as yup from 'yup';
 import { ASSET_NAMES } from '@tamanu/constants/importable';
 import { useApi } from '../../api';
-import { Field, Form } from '../../components/Field';
+import { Field, Form, SelectField } from '../../components/Field';
 import { FileChooserField, FILTER_IMAGES } from '../../components/Field/FileChooserField';
 import { ContentPane } from '../../components/ContentPane';
 import { FormGrid } from '../../components/FormGrid';
 import { ButtonRow } from '../../components/ButtonRow';
 import { LargeSubmitButton } from '../../components/Button';
 import { AdminViewContainer } from './components/AdminViewContainer';
-import { SelectField } from '../../components/Translation/TranslatedSelectField.jsx';
 
 const ResultDisplay = ({ result }) => {
   if (!result) return null;

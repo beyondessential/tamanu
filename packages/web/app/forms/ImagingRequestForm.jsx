@@ -18,8 +18,10 @@ import {
   Field,
   Form,
   ImagingPriorityField,
+  SelectField,
   TextField,
   TextInput,
+  MultiselectField,
 } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { FormCancelButton } from '../components/Button';
@@ -29,8 +31,6 @@ import { FormSeparatorLine } from '../components/FormSeparatorLine';
 import { FormSubmitDropdownButton } from '../components/DropdownButton';
 import { LowerCase } from '../components/Typography';
 import { TranslatedText } from '../components/Translation/TranslatedText';
-import { MultiselectField } from '../components/Translation/TranslatedSelectField.jsx';
-import { SelectField } from '../components/Translation/TranslatedSelectField.jsx';
 
 function getEncounterTypeLabel(type) {
   return ENCOUNTER_OPTIONS.find(x => x.value === type).label;

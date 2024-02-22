@@ -7,11 +7,10 @@ import {
   PLACE_OF_BIRTH_OPTIONS,
   PLACE_OF_BIRTH_TYPES,
 } from '@tamanu/constants';
-import { AutocompleteField, TextField, TimeField } from '..';
+import { AutocompleteField, SelectField, TextField, TimeField } from '..';
 import { useSuggester } from '../../api';
 import { ConfiguredMandatoryPatientFields } from './ConfiguredMandatoryPatientFields';
 import { TranslatedText } from '../Translation/TranslatedText';
-import { SelectField } from '../Translation/TranslatedSelectField.jsx';
 
 export const BirthDetailsFields = ({ registeredBirthPlace, showMandatory }) => {
   const facilitySuggester = useSuggester('facility');

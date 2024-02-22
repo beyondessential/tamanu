@@ -16,6 +16,8 @@ import {
   ButtonRow,
   Field,
   Form,
+  SelectField,
+  MultiselectField,
   TextField,
 } from '../../../components';
 import { ParameterItem, ParameterList, SQLQueryEditor } from './components/editing';
@@ -25,9 +27,7 @@ import {
 } from '../../reports/ParameterField';
 import { useAuth } from '../../../contexts/Auth';
 import { useApi } from '../../../api';
-import { SelectField } from '../../../components/Translation/TranslatedSelectField.jsx';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
-import { MultiselectField } from '../../../components/Translation/TranslatedSelectField.jsx';
 
 const StyledField = styled(Field)`
   flex-grow: 1;
@@ -173,7 +173,8 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
                 />
               }
               name="dbSchema"
-              component={BaseSelectField}
+              prefix="report.property.canWrite"
+              component={SelectField}
               options={schemaOptions}
               disabled={isEdit}
               isClearable={false}

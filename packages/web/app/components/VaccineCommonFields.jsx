@@ -13,7 +13,7 @@ import {
   Field,
   LocalisedLocationField,
   RadioField,
-  BaseSelectField,
+  SelectField,
   TextField,
 } from './Field';
 import { FormSubmitCancelRow } from './ButtonRow';
@@ -21,7 +21,6 @@ import { useSuggester } from '../api';
 import { useAuth } from '../contexts/Auth';
 import { Colors } from '../constants';
 import { TranslatedText } from './Translation/TranslatedText';
-import { SelectField } from './Translation/TranslatedSelectField.jsx';
 
 export const FullWidthCol = styled.div`
   grid-column: 1/-1;

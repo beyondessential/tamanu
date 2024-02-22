@@ -1,8 +1,6 @@
 import { TranslatedText } from './TranslatedText';
-import { MultiselectInput, SelectInput } from '../Field';
-import PropTypes from 'prop-types';
-import React from 'react';
 import { camelCase } from 'lodash';
+import React from 'react';
 
 export const getTranslatedOptions = (options, prefix) =>
   options.map(option => ({

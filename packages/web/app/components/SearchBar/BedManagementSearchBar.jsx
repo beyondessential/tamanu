@@ -4,12 +4,11 @@ import { Button } from '@material-ui/core';
 import { useSuggester } from '../../api';
 import { Colors, LOCATION_AVAILABILITY_OPTIONS } from '../../constants';
 import { HandoverNotesIcon } from '../../assets/icons/HandoverNotesIcon';
-import { AutocompleteField, LocalisedField } from '../Field';
+import { AutocompleteField, LocalisedField, SelectField } from '../Field';
 import { HandoverNotesModal } from '../BedManagement/HandoverNotesModal';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
 import { ThemedTooltip } from '../Tooltip';
 import { TranslatedText } from '../Translation/TranslatedText';
-import { SelectField } from '../Translation/TranslatedSelectField.jsx';
 
 const HandoverNotesButton = styled(Button)`
   font-weight: 500;

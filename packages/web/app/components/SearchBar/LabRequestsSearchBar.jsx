@@ -9,6 +9,7 @@ import {
   Field,
   LocalisedField,
   SearchField,
+  SelectField,
   SuggesterSelectField,
 } from '../Field';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
@@ -20,7 +21,6 @@ import { TranslatedText } from '../Translation/TranslatedText';
 const BASE_ADVANCED_FIELDS = ['locationGroupId', 'departmentId', 'allFacilities'];
 const PUBLISHED_ADVANCED_FIELDS = [...BASE_ADVANCED_FIELDS, 'publishedDate'];
 const ALL_ADVANCED_FIELDS = [...BASE_ADVANCED_FIELDS, 'priority', 'laboratory'];
-import { SelectField } from '../Translation/TranslatedSelectField.jsx';
 
 const FacilityCheckbox = styled.div`
   display: flex;

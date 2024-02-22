@@ -18,6 +18,7 @@ import {
   NumberField,
   PaginatedForm,
   RadioField,
+  SelectField,
   TextField,
   TimeWithUnitField,
 } from '../components';
@@ -26,7 +27,6 @@ import { DeathFormScreen } from './DeathFormScreen';
 import { SummaryScreenThree, SummaryScreenTwo } from './DeathFormSummaryScreens';
 import { BINARY_OPTIONS, BINARY_UNKNOWN_OPTIONS } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
-import { SelectField } from '../components/Translation/TranslatedSelectField.jsx';
 
 const StyledFormGrid = styled(FormGrid)`
   min-height: 200px;

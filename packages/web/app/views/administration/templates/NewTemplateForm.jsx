@@ -5,13 +5,18 @@ import { Link } from '@material-ui/core';
 
 import { TEMPLATE_TYPES } from '@tamanu/constants';
 
-import { Field, Form, TallMultilineTextField, TextField } from '../../../components/Field';
+import {
+  Field,
+  Form,
+  SelectField,
+  TallMultilineTextField,
+  TextField,
+} from '../../../components/Field';
 import { FormGrid, SmallGridSpacer } from '../../../components/FormGrid';
 import { TEMPLATE_TYPE_OPTIONS } from '../../../constants';
 
 import { Button } from '../../../components/Button';
 import { ButtonRow } from '../../../components/ButtonRow';
-import { SelectField } from '../../../components/Translation/TranslatedSelectField.jsx';
 
 const ConfirmButton = styled(Button)`
   min-width: 90px;

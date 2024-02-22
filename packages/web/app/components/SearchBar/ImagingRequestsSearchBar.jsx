@@ -9,6 +9,7 @@ import {
   Field,
   LocalisedField,
   SearchField,
+  SelectField,
 } from '../Field';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
 import { useLocalisation } from '../../contexts/Localisation';
@@ -16,7 +17,6 @@ import { useSuggester } from '../../api';
 import { useImagingRequests } from '../../contexts/ImagingRequests';
 import { useAdvancedFields } from './useAdvancedFields';
 import { TranslatedText } from '../Translation/TranslatedText';
-import { SelectField } from '../Translation/TranslatedSelectField.jsx';
 
 const FacilityCheckbox = styled.div`
   display: flex;

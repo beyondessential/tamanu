@@ -3,13 +3,19 @@ import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
 import Box from '@material-ui/core/Box';
 import styled from 'styled-components';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
-import { AutocompleteField, DOBFields, Field, LocalisedField, SearchField } from '../Field';
+import {
+  AutocompleteField,
+  DOBFields,
+  Field,
+  LocalisedField,
+  SearchField,
+  SelectField,
+} from '../Field';
 import { useSuggester } from '../../api';
 import { DateField } from '../Field/DateField';
 import { useSexOptions } from '../../hooks';
 import { SearchBarCheckField } from './SearchBarCheckField';
 import { TranslatedText } from '../Translation/TranslatedText';
-import { SelectField } from '../Translation/TranslatedSelectField.jsx';
 
 const TwoColumnsField = styled(Box)`
   grid-column: span 2;

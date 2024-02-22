@@ -1,8 +1,7 @@
 import React from 'react';
 
-import { Field } from '../../components';
+import { Field, SelectField } from '../../components';
 import { useLocalisation } from '../../contexts/Localisation';
-import { SelectField } from '../../components/Translation/TranslatedSelectField.jsx';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 export const ImagingTypeField = ({ name = 'imagingType', required }) => {

@@ -1,9 +1,9 @@
 import React from 'react';
 
 import { Field } from './Field';
+import { SelectField } from './SelectField';
 import { useLocalisation } from '../../contexts/Localisation';
 import { TranslatedText } from '../Translation/TranslatedText';
-import { SelectField } from '../Translation/TranslatedSelectField.jsx';
 
 export const ImagingPriorityField = ({ name = 'priority', required }) => {
   const { getLocalisation } = useLocalisation();

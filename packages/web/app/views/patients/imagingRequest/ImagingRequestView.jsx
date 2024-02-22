@@ -24,6 +24,7 @@ import {
   DateTimeInput,
   Field,
   Form,
+  SelectField,
   TextField,
   TextInput,
 } from '../../../components/Field';
@@ -32,8 +33,7 @@ import { SimpleTopBar } from '../../../components';
 import { CancelModalButton } from './CancelModalButton';
 import { PrintModalButton } from './PrintModalButton';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
-import { SelectField } from '../../../components/Translation/TranslatedSelectField.jsx';
-import { IMAGING_REQUEST_STATUS_OPTIONS } from '../../../constants/index.jsx';
+import { IMAGING_REQUEST_STATUS_OPTIONS } from '../../../constants';
 
 const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
   const { getLocalisation } = useLocalisation();

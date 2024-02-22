@@ -6,11 +6,17 @@ import { DIAGNOSIS_CERTAINTY_OPTIONS } from '../constants';
 
 import { FormSubmitCancelRow } from '../components/ButtonRow';
 import { FormGrid } from '../components/FormGrid';
-import { AutocompleteField, CheckField, DateField, Field, Form } from '../components/Field';
+import {
+  AutocompleteField,
+  CheckField,
+  DateField,
+  Field,
+  Form,
+  SelectField,
+} from '../components/Field';
 import { useSuggester } from '../api';
 import { useLocalisation } from '../contexts/Localisation';
 import { TranslatedText } from '../components/Translation/TranslatedText';
-import { SelectField } from '../components/Translation/TranslatedSelectField.jsx';
 
 export const DiagnosisForm = React.memo(
   ({ isTriage = false, onCancel, onSave, diagnosis, excludeDiagnoses }) => {

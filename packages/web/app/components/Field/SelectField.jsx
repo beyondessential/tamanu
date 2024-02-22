@@ -11,6 +11,7 @@ import { Colors } from '../../constants';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { StyledTextField } from './TextField';
 import { FormFieldTag } from '../Tag';
+import { getTranslatedOptions } from '../Translation/TranslatedSelectField';
 
 const StyledFormControl = styled(FormControl)`
   display: flex;
@@ -225,6 +226,23 @@ export const SelectInput = ({
 export const BaseSelectField = ({ field, ...props }) => (
   <SelectInput name={field.name} onChange={field.onChange} value={field.value} {...props} />
 );
+
+// NOTE: not compatible with disabled SelectFields
+export const SelectField = ({ field, options, prefix, value, name, ...props }) => (
+  <SelectInput
+    options={getTranslatedOptions(options, prefix)}
+    value={field ? field.value : value}
+    name={field ? field.name : name}
+    {...props}
+  />
+);
+
+SelectField.propTypes = {
+  options: PropTypes.object.isRequired,
+  prefix: PropTypes.string.isRequired,
+  name: PropTypes.string.isRequired,
+  value: PropTypes.string.isRequired,
+};
 
 /*
   To be able to actually apply the styles, the component

@@ -10,10 +10,10 @@ import {
   FormModal,
   FormSubmitCancelRow,
   SuggesterSelectField,
+  SelectField,
 } from '../../../components';
 
 import { LAB_REQUEST_STATUS_OPTIONS } from '../../../constants';
-import { SelectField } from '../../../components/Translation/TranslatedSelectField.jsx';
 
 const validationSchema = yup.object().shape({
   status: yup

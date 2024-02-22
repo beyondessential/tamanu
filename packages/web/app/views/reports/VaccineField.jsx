@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useApi } from '../../api';
-import { Dialog, Field } from '../../components';
-import { SelectField } from '../../components/Translation/TranslatedSelectField.jsx';
+import { Dialog, Field, SelectField } from '../../components';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 export const VaccineField = ({ name = 'vaccine', required, parameterValues }) => {

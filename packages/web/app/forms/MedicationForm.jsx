@@ -18,10 +18,10 @@ import {
   FormGrid,
   FormSubmitButton,
   NumberField,
+  SelectField,
   TextField,
 } from '../components';
 import { TranslatedText } from '../components/Translation/TranslatedText';
-import { SelectField } from '../components/Translation/TranslatedSelectField.jsx';
 
 const drugRouteOptions = [
   { label: 'Dermal', value: 'dermal' },

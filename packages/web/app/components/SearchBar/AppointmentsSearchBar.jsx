@@ -1,11 +1,16 @@
 import React from 'react';
 import { startOfDay } from 'date-fns';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
-import { AutocompleteField, DateTimeField, LocalisedField, SearchField } from '../Field';
+import {
+  AutocompleteField,
+  DateTimeField,
+  LocalisedField,
+  SearchField,
+  SelectField,
+} from '../Field';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { APPOINTMENT_STATUS_OPTIONS, APPOINTMENT_TYPE_OPTIONS } from '../../constants';
 import { useSuggester } from '../../api';
-import { SelectField } from '../Translation/TranslatedSelectField.jsx';
 
 export const AppointmentsSearchBar = ({ onSearch }) => {
   const practitionerSuggester = useSuggester('practitioner');

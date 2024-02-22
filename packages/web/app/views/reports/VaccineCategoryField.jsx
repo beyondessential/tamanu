@@ -2,8 +2,7 @@ import React from 'react';
 
 import { VACCINE_CATEGORIES } from '@tamanu/constants';
 
-import { Field } from '../../components';
-import { SelectField } from '../../components/Translation/TranslatedSelectField.jsx';
+import { SelectField, Field } from '../../components';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 const VACCINE_CATEGORY_OPTIONS = Object.values(VACCINE_CATEGORIES).map(category => ({
