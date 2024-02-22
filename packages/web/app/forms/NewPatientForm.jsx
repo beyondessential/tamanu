@@ -2,9 +2,8 @@ import React, { memo, useState } from 'react';
 import styled from 'styled-components';
 import Collapse from '@material-ui/core/Collapse';
 import Button from '@material-ui/core/Button';
-import { useQuery } from '@tanstack/react-query';
 
-import { PATIENT_REGISTRY_TYPES, PLACE_OF_BIRTH_TYPES, SEX_OPTIONS } from '@tamanu/constants';
+import { PATIENT_REGISTRY_TYPES, PLACE_OF_BIRTH_TYPES } from '@tamanu/constants';
 
 import { useLocalisation } from '../contexts/Localisation';
 
@@ -16,7 +15,7 @@ import { IdBanner } from '../components/IdBanner';
 import { Colors, PATIENT_REGISTRY_OPTIONS } from '../constants';
 import { getPatientDetailsValidation } from '../validations';
 
-import { useSexValues } from '../hooks';
+import { useSexOptions, useSexValues } from '../hooks';
 import { useApi } from '../api';
 import { LoadingIndicator } from '../components/LoadingIndicator';
 
@@ -24,6 +23,7 @@ import plusCircle from '../assets/images/plus_circle.svg';
 import minusCircle from '../assets/images/minus_circle.svg';
 import { RandomPatientButton } from '../views/patients/components/RandomPatientButton';
 import { useLayoutComponents } from './PatientDetailsForm';
+import { usePatientFieldDefinitionQuery } from '../api/queries/usePatientFieldDefinitionQuery';
 
 const StyledImageButton = styled(Button)`
   min-width: 30px;
@@ -75,19 +75,13 @@ export const NewPatientForm = memo(
     const [patientRegistryType, setPatientRegistryType] = useState(
       PATIENT_REGISTRY_TYPES.NEW_PATIENT,
     );
-    const api = useApi();
-    const { data: fieldDefinitions, error, isLoading } = useQuery(['patientFieldDefinition'], () =>
-      api.get(`patientFieldDefinition`),
-    );
-    const sexValues = useSexValues();
+    const { data: fieldDefinitions, error, isLoading } = usePatientFieldDefinitionQuery();
 
     const { getLocalisation } = useLocalisation();
     const { PrimaryDetails, SecondaryDetails, PatientFields } = useLayoutComponents();
 
-    let filteredSexOptions = SEX_OPTIONS;
-    if (getLocalisation('features.hideOtherSex') === true) {
-      filteredSexOptions = filteredSexOptions.filter(s => s.value !== 'other');
-    }
+    const sexValues = useSexValues();
+    const sexOptions = useSexOptions();
 
     const isRequiredPatientData = fieldName =>
       getLocalisation(`fields.${fieldName}.requiredPatientData`);
@@ -128,7 +122,7 @@ export const NewPatientForm = memo(
         <PrimaryDetails
           registeredBirthPlace={values.registeredBirthPlace}
           isRequiredPatientData={isRequiredPatientData}
-          sexOptions={filteredSexOptions}
+          sexOptions={sexOptions}
           values={values}
           patientRegistryType={patientRegistryType}
         />

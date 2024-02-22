@@ -1,5 +1,3 @@
-import { useMemo } from 'react';
-
 import { PATIENT_DETAIL_LAYOUTS } from '@tamanu/constants';
 
 import {

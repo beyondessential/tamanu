@@ -6,11 +6,10 @@ import { useQuery } from '@tanstack/react-query';
 import {
   PATIENT_REGISTRY_TYPES,
   PLACE_OF_BIRTH_TYPES,
-  SEX_OPTIONS,
   PATIENT_FIELD_DEFINITION_TYPES,
 } from '@tamanu/constants';
 
-import { useSexValues } from '../../hooks';
+import { useSexOptions, useSexValues } from '../../hooks';
 import { Colors } from '../../constants';
 import { useLocalisation } from '../../contexts/Localisation';
 import { useApi } from '../../api';
@@ -27,6 +26,7 @@ import {
 } from '../../components';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { useLayoutComponents } from './useLayoutComponents';
+import { usePatientFieldDefinitionQuery } from '../../api/queries/usePatientFieldDefinitionQuery';
 
 const StyledHeading = styled.div`
   font-weight: 500;
@@ -150,10 +150,7 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
   const { getLocalisation } = useLocalisation();
   const { PrimaryDetails, SecondaryDetails, PatientFields } = useLayoutComponents();
 
-  let filteredSexOptions = SEX_OPTIONS;
-  if (getLocalisation('features.hideOtherSex') === true) {
-    filteredSexOptions = filteredSexOptions.filter(s => s.value !== 'other');
-  }
+  const sexOptions = useSexOptions();
 
   const isRequiredPatientData = fieldName =>
     getLocalisation(`fields.${fieldName}.requiredPatientData`);
@@ -163,7 +160,7 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
     data: fieldDefinitionsResponse,
     error: fieldDefError,
     isLoading: isLoadingFieldDefinitions,
-  } = useQuery(['patientFieldDefinition'], () => api.get(`patientFieldDefinition`));
+  } = usePatientFieldDefinitionQuery();
 
   const {
     data: fieldValuesResponse,
@@ -190,7 +187,7 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
             registeredBirthPlace={values.registeredBirthPlace}
             patientRegistryType={patientRegistryType}
             isRequiredPatientData={isRequiredPatientData}
-            sexOptions={filteredSexOptions}
+            sexOptions={sexOptions}
           />
           <StyledPatientDetailSecondaryDetailsGroupWrapper>
             <SecondaryDetails
