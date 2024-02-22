@@ -17,6 +17,7 @@ import { useAuth } from '~/ui/contexts/AuthContext';
 const PatientProgramRegistrySummary_ = ({ selectedPatient }): ReactElement => {
   const navigation = useNavigation();
   const { ability } = useAuth();
+  const canListRegistrations = ability.can('list', 'PatientProgramRegistration');
   const canCreateRegistration = ability.can('create', 'PatientProgramRegistration');
   const [programRegistries, programRegistryError, isProgramRegistryLoading] = useBackendEffect(
     async ({ models }) =>
@@ -57,7 +58,7 @@ const PatientProgramRegistrySummary_ = ({ selectedPatient }): ReactElement => {
         )}
       </RowView>
       <StyledView borderColor={theme.colors.BOX_OUTLINE} height={1} />
-      {ability.can('list', 'PatientProgramRegistration') && (
+      {canListRegistrations && (
         <StyledView paddingLeft={20} paddingRight={20} background={theme.colors.WHITE}>
           <PatientProgramRegistrationList selectedPatient={selectedPatient} />
         </StyledView>
