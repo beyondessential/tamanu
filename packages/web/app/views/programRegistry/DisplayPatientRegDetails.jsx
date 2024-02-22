@@ -126,7 +126,7 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
           <TextColumns style={{ fontWeight: 500 }}>
             <DateDisplay date={patientProgramRegistration.registrationDate} />
             <div>
-              {!!patientProgramRegistration.registrationClinician
+              {patientProgramRegistration.registrationClinician
                 ? patientProgramRegistration.registrationClinician.displayName
                 : patientProgramRegistration.clinician.displayName}
             </div>
