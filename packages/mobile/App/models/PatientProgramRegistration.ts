@@ -96,9 +96,9 @@ export class PatientProgramRegistration extends BaseModel implements IPatientPro
       .createQueryBuilder('registration')
       .leftJoinAndSelect('registration.programRegistry', 'program_registry')
       .leftJoinAndSelect('program_registry.program', 'program')
-      .where('program.id = :programId', { programId })
+      .where(`registration.isMostRecent`, { isMostRecent: 1 })
+      .andWhere('program.id = :programId', { programId })
       .andWhere('registration.patientId = :patientId', { patientId })
-      .orderBy('registration.date', 'DESC')
       .getOne();
   }
 
