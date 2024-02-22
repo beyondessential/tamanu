@@ -12,8 +12,8 @@ export const ResetPasswordForm: FunctionComponent<ResetPasswordFormProps> = ({
     validationSchema={resetPasswordValidationSchema}
     onSubmit={onSubmitForm}
   >
-    {({ handleSubmit, isSubmitting }): ReactElement => (
-      <ResetPasswordFields handleSubmit={handleSubmit} isSubmitting={isSubmitting} />
+    {(): ReactElement => (
+      <ResetPasswordFields />
     )}
   </Form>
 );
