@@ -379,6 +379,7 @@ export const checkMandatory = (mandatory, values) => {
     return checkJSONCriteria(JSON.stringify(mandatory), [], values);
   } catch (error) {
     notifyError(
+      // TODO: Figure out how to translate
       `Failed to use mandatory in validationCriteria: ${JSON.stringify(mandatory)}, error: ${
         error.message
       }`,

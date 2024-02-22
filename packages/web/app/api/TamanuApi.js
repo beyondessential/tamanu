@@ -106,6 +106,7 @@ export class TamanuApi extends ApiClient {
       if (err instanceof AuthExpiredError) {
         clearLocalStorage();
       } else if (showUnknownErrorToast && isErrorUnknown(err)) {
+        // TODO: Find a way to translate
         notifyError([
           'Network request failed',
           `Path: ${err.path ?? endpoint}`,
