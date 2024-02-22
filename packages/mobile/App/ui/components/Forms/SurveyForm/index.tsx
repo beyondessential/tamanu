@@ -1,5 +1,6 @@
 import React, { Dispatch, ReactElement, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
+import { FormikHandlers } from 'formik';
 import { getFormInitialValues, getFormSchema } from './helpers';
 import { IPatientAdditionalData, ISurveyScreenComponent } from '~/types';
 import { Form } from '../Form';
@@ -100,7 +101,7 @@ export const SurveyForm = ({
       onSubmit={submitVisibleValues}
       validate={validate}
     >
-      {({ values, setFieldValue }): ReactElement => {
+      {({ values, setFieldValue, isSubmitting }: FormikHandlers): ReactElement => {
         useEffect(() => {
           // recalculate dynamic fields
           const calculatedValues = runCalculations(components, values);
@@ -121,6 +122,7 @@ export const SurveyForm = ({
             components={components}
             note={note}
             patient={patient}
+            isSubmitting={isSubmitting}
             onCancel={onCancel}
             setCurrentScreenIndex={setCurrentScreenIndex}
             currentScreenIndex={currentScreenIndex}

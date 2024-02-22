@@ -93,8 +93,10 @@ const getAnswerValue = async ({
       if (
         Object.keys(options).length > 0 &&
         answer.split(',').filter(a => !Object.keys(options).includes(a.trim())).length > 0
-      )
+      ) {
         throw new Error(`Values must be one of ${Object.keys(options)}`);
+      }
+      answer = JSON.stringify(answer.split(','));
       break;
     case PROGRAM_DATA_ELEMENT_TYPES.DATE_TIME:
     case PROGRAM_DATA_ELEMENT_TYPES.SUBMISSION_DATE:
