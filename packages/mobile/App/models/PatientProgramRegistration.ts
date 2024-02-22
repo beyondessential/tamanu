@@ -22,6 +22,18 @@ import { User } from './User';
 import { RegistrationStatus } from '~/constants/programRegistries';
 import { DateTimeStringColumn } from './DateColumns';
 
+// TypeORM expects keys without the "ID" part. i.e. patient instead of patientId
+// and here we have to extract values from the preexistent model to work
+const getValuesFromRelations = values => {
+  return {
+    clinician: values.clinicianId,
+    clinicalStatus: values.clinicalStatusId,
+    registeringFacility: values.registeringFacilityId,
+    village: values.villageId,
+    facility: values.facilityId,
+  };
+};
+
 @Entity('patient_program_registration')
 export class PatientProgramRegistration extends BaseModel implements IPatientProgramRegistration {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
@@ -130,12 +142,14 @@ export class PatientProgramRegistration extends BaseModel implements IPatientPro
     data: any
   ): Promise<PatientProgramRegistration> {
     const { programId } = await ProgramRegistry.findOne({ id: programRegistryId });
-    const ppr = await PatientProgramRegistration.getRecentOne(programId, patientId);
-    if (ppr) {
+    const existingRegistration = await PatientProgramRegistration.getRecentOne(programId, patientId);
+    if (existingRegistration) {
       await PatientProgramRegistration.updateValues(programRegistryId, { isMostRecent: 0 });
     }
 
     return PatientProgramRegistration.createAndSaveOne({
+      ...getValuesFromRelations(existingRegistration),
+      ...getValuesFromRelations(data),
       ...data,
       program: programRegistryId,
       patient: patientId,
