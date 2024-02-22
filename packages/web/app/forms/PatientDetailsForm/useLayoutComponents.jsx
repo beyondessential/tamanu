@@ -30,6 +30,5 @@ const LAYOUT_COMPONENTS = {
 export const useLayoutComponents = () => {
   const { getLocalisation } = useLocalisation();
   const layout = getLocalisation('layouts.patientDetails') || PATIENT_DETAIL_LAYOUTS.GENERIC;
-  const layoutComponents = useMemo(() => LAYOUT_COMPONENTS[layout], [layout]);
-  return layoutComponents;
+  return LAYOUT_COMPONENTS[layout];
 };
