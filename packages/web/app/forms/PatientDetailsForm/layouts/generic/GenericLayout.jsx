@@ -19,7 +19,7 @@ import { GenericIdentificationFields } from './patientFields/GenericIdentifiatio
 import { GenericPersonalFields } from './patientFields/GenericPersonalFields';
 import { GenericBirthFields } from './patientFields/GenericBirthFields';
 import { useSuggester } from '../../../../api';
-import { PatientFieldsGroup } from '../../PatientDetailsForm';
+import { PatientFieldsGroup } from '../../PatientFields';
 
 export const PatientDetailsHeading = styled.div`
   font-weight: 500;
@@ -30,10 +30,6 @@ export const PatientDetailsHeading = styled.div`
 
 export const SecondaryDetailsGroup = styled.div`
   margin-top: 20px;
-`;
-
-export const SecondaryDetailsGroupWrapper = styled.div`
-  margin-top: 70px;
 `;
 
 export const SecondaryDetailsFormGrid = styled(FormGrid)`

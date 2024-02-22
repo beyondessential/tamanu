@@ -16,7 +16,6 @@ import { Colors, PATIENT_REGISTRY_OPTIONS } from '../constants';
 import { getPatientDetailsValidation } from '../validations';
 
 import { useSexOptions, useSexValues } from '../hooks';
-import { useApi } from '../api';
 import { LoadingIndicator } from '../components/LoadingIndicator';
 
 import plusCircle from '../assets/images/plus_circle.svg';

@@ -1,7 +1,7 @@
 import React from 'react';
 import { TextField } from '../../../../../components';
 import { ConfiguredMandatoryPatientFields } from '../../../ConfiguredMandatoryPatientFields';
-import { PatientField } from '../../../PatientDetailsForm';
+import { PatientField } from '../../../PatientFields';
 import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants';
 
 const NATIONAL_ID_DEFINITION_ID = 'fieldDefinition-nationalId';

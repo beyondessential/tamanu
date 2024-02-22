@@ -14,7 +14,7 @@ import { CambodiaContactFields } from './patientFields/CambodiaContactFields';
 import { CambodiaIdentificationFields } from './patientFields/CambodiaIdentificationFields';
 import { CambodiaPersonalFields } from './patientFields/CambodiaPersonalFields';
 import { GenericBirthFields } from '../generic/patientFields/GenericBirthFields';
-import { PatientField, PatientFieldsGroup } from '../../PatientDetailsForm';
+import { PatientField, PatientFieldsGroup } from '../../PatientFields';
 
 const FATHERS_FIRST_NAME_DEFINITION_ID = 'fieldDefinition-fathersFirstName';
 
@@ -50,38 +50,40 @@ export const CambodiaPrimaryDetailsLayout = ({ sexOptions, isRequiredPatientData
   </>
 );
 
-export const CambodiaSecondaryDetailsLayout = ({ values = {}, patientRegistryType }) => {
+export const CambodiaSecondaryDetailsLayout = ({ values = {}, patientRegistryType, className }) => {
   return (
-    <SecondaryDetailsGroup>
-      {patientRegistryType === PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY && (
-        <>
-          <PatientDetailsHeading>Birth details</PatientDetailsHeading>
-          <SecondaryDetailsFormGrid>
-            <GenericBirthFields registeredBirthPlace={values.registeredBirthPlace} />
-          </SecondaryDetailsFormGrid>
-        </>
-      )}
+    <div className={className}>
+      <SecondaryDetailsGroup>
+        {patientRegistryType === PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY && (
+          <>
+            <PatientDetailsHeading>Birth details</PatientDetailsHeading>
+            <SecondaryDetailsFormGrid>
+              <GenericBirthFields registeredBirthPlace={values.registeredBirthPlace} />
+            </SecondaryDetailsFormGrid>
+          </>
+        )}
 
-      <PatientDetailsHeading>Current address</PatientDetailsHeading>
-      <SecondaryDetailsFormGrid>
-        <CambodiaLocationFields />
-      </SecondaryDetailsFormGrid>
+        <PatientDetailsHeading>Current address</PatientDetailsHeading>
+        <SecondaryDetailsFormGrid>
+          <CambodiaLocationFields />
+        </SecondaryDetailsFormGrid>
 
-      <PatientDetailsHeading>Contact information</PatientDetailsHeading>
-      <SecondaryDetailsFormGrid>
-        <CambodiaContactFields />
-      </SecondaryDetailsFormGrid>
+        <PatientDetailsHeading>Contact information</PatientDetailsHeading>
+        <SecondaryDetailsFormGrid>
+          <CambodiaContactFields />
+        </SecondaryDetailsFormGrid>
 
-      <PatientDetailsHeading>Identification information</PatientDetailsHeading>
-      <SecondaryDetailsFormGrid>
-        <CambodiaIdentificationFields patientRegistryType={patientRegistryType} />
-      </SecondaryDetailsFormGrid>
+        <PatientDetailsHeading>Identification information</PatientDetailsHeading>
+        <SecondaryDetailsFormGrid>
+          <CambodiaIdentificationFields patientRegistryType={patientRegistryType} />
+        </SecondaryDetailsFormGrid>
 
-      <PatientDetailsHeading>Personal information</PatientDetailsHeading>
-      <SecondaryDetailsFormGrid>
-        <CambodiaPersonalFields patientRegistryType={patientRegistryType} />
-      </SecondaryDetailsFormGrid>
-    </SecondaryDetailsGroup>
+        <PatientDetailsHeading>Personal information</PatientDetailsHeading>
+        <SecondaryDetailsFormGrid>
+          <CambodiaPersonalFields patientRegistryType={patientRegistryType} />
+        </SecondaryDetailsFormGrid>
+      </SecondaryDetailsGroup>
+    </div>
   );
 };
 
