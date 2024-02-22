@@ -65,24 +65,6 @@ const getFieldsToWrite = (questions, answers): RecordValuesByModel => {
   return recordValuesByModel;
 };
 
-const getUpdatedPPRValues = (
-  ppr: IPatientProgramRegistration,
-  newValues: { [key: string]: any },
-) => {
-  const newPpr = {
-    date: getCurrentDateTimeString(),
-    programRegistry: newValues?.programRegistryId || ppr.programRegistryId,
-    clinician: newValues?.clinicianId || ppr.clinicianId,
-    clinicalStatus: newValues?.clinicalStatusId || ppr.clinicalStatusId,
-    registeringFacility: newValues?.registeringFacilityId || ppr.registeringFacilityId,
-    patient: ppr.patientId,
-    registrationStatus: newValues?.registrationStatus || ppr.registrationStatus,
-    village: newValues?.villageId || ppr.villageId,
-    facility: newValues?.facilityId || ppr.facilityId,
-  };
-  return newPpr;
-};
-
 /**
  * DUPLICATED IN shared/models/SurveyResponse.js
  * Please keep in sync
@@ -107,13 +89,6 @@ async function writeToPatientFields(questions, answers, patientId, surveyId) {
       throw new Error('No program registry configured for the current form');
     }
     await PatientProgramRegistration.createNewRegistration(patientId, programRegistryId, valuesByModel.PatientProgramRegistration);
-    /*
-    const ppr = await PatientProgramRegistration.getRecentOne(programId, patientId);
-    if (ppr) {
-      const newPpr = getUpdatedPPRValues(ppr, valuesByModel.PatientProgramRegistration);
-      await PatientProgramRegistration.createAndSaveOne(newPpr);
-    }
-    */
   }
 }
 
