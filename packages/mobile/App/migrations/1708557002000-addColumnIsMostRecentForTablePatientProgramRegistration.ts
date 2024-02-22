@@ -12,7 +12,7 @@ export class addColumnIsMostRecentForTablePatientProgramRegistration170855700200
       new TableColumn({
         name: 'isMostRecent',
         type: 'boolean',
-        default: 1,
+        default: 0,
         isNullable: false,
       }),
     );

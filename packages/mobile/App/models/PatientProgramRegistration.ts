@@ -29,7 +29,7 @@ export class PatientProgramRegistration extends BaseModel implements IPatientPro
   @Column({ type: 'varchar', nullable: false, default: RegistrationStatus.Active })
   registrationStatus: RegistrationStatus;
 
-  @Column({ type: 'boolean', nullable: false, default: 1 })
+  @Column({ type: 'boolean', nullable: false, default: 0 })
   isMostRecent: boolean;
 
   @DateTimeStringColumn()
@@ -92,25 +92,9 @@ export class PatientProgramRegistration extends BaseModel implements IPatientPro
 
   static async getMostRecentRegistrationsForPatient(patientId: string) {
     const registrationRepository = this.getRepository(PatientProgramRegistration);
-
-    // this query is needed because the way patient_program_registrations are stored in the database
-    // is a bit unusual - we keep a record per edit, so only the most recent one for each program is
-    // a valid, current record
-    const GET_MOST_RECENT_REGISTRATIONS_QUERY = `
-      SELECT id
-      FROM (
-        SELECT
-          id,
-          ROW_NUMBER() OVER (PARTITION BY programRegistryId ORDER BY date DESC, id DESC) AS rowNum
-        FROM patient_program_registration
-        WHERE patientId = :patientId
-      ) n
-      WHERE n.rowNum = 1
-    `;
-
     const mostRecentRegistrations = await registrationRepository
       .createQueryBuilder('registration')
-      .where(`registration.id IN (${GET_MOST_RECENT_REGISTRATIONS_QUERY})`, { patientId })
+      .where(`registration.isMostRecent`, { isMostRecent: 1 })
       .andWhere('registration.registrationStatus != :status', {
         status: RegistrationStatus.RecordedInError,
       })
@@ -138,6 +122,25 @@ export class PatientProgramRegistration extends BaseModel implements IPatientPro
       .leftJoinAndSelect('registration.clinician', 'clinician')
       .getOne();
     return fullPpr;
+  }
+
+  static async createNewRegistration(
+    patientId: string,
+    programRegistryId: string,
+    data: any
+  ): Promise<PatientProgramRegistration> {
+    const { programId } = await ProgramRegistry.findOne({ id: programRegistryId });
+    const ppr = await PatientProgramRegistration.getRecentOne(programId, patientId);
+    if (ppr) {
+      await PatientProgramRegistration.updateValues(programRegistryId, { isMostRecent: false });
+    }
+
+    return PatientProgramRegistration.createAndSaveOne({
+      ...data,
+      program: programRegistryId,
+      patient: patientId,
+      isMostRecent: true,
+    });
   }
 
   static getTableNameForSync(): string {

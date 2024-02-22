@@ -53,14 +53,16 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
     [],
   );
   const submitPatientProgramRegistration = async (formData: IPatientProgramRegistryForm) => {
-    const newPpr: any = await PatientProgramRegistration.createAndSaveOne({
-      date: formData.date,
-      clinicalStatus: formData.clinicalStatusId,
-      registeringFacility: formData.registeringFacilityId,
-      clinician: formData.clinicianId,
-      programRegistry: programRegistry.id,
-      patient: selectedPatient.id,
-    });
+    const newPpr: any = await PatientProgramRegistration.createNewRegistration(
+      selectedPatient.id,
+      programRegistry.id,
+      {
+        date: formData.date,
+        clinicalStatus: formData.clinicalStatusId,
+        registeringFacility: formData.registeringFacilityId,
+        clinician: formData.clinicianId,
+      },
+    );
 
     for (const condition of formData.conditions) {
       await PatientProgramRegistrationCondition.createAndSaveOne({
