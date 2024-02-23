@@ -157,6 +157,7 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
                   navigation={navigation}
                   name="conditions"
                   value={values.conditions}
+                  searchPlaceholder="Search conditions..."
                 />
               </StyledView>
               <Button
