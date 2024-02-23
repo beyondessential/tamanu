@@ -1,7 +1,7 @@
-import React, { ReactElement, useEffect } from 'react';
+import React, { ReactElement } from 'react';
 import { RowView, StyledView } from '/styled/common';
 import { Subheading } from 'react-native-paper';
-import { FlatList, Text, TouchableOpacity, View } from 'react-native';
+import { FlatList, TouchableOpacity, View } from 'react-native';
 import { Separator } from '~/ui/components/Separator';
 import { theme } from '~/ui/styled/theme';
 import { Routes } from '~/ui/helpers/routes';
