@@ -3,7 +3,7 @@ import React from 'react';
 
 import { Document, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
 import { getName, getTimeOfDeath, getDateOfDeath, getSex } from '../patientAccessors';
-import { CertificateHeader, Col, Row, styles } from './Layout';
+import { CertificateHeader, Col, Row, styles, SigningImage } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
 import { Footer } from './printComponents/Footer';
 import { MultiPageHeader } from './printComponents/MultiPageHeader';
@@ -191,7 +191,7 @@ const SectionContainer = props => <View style={generalStyles.sectionContainer} {
 
 export const DeathCertificatePrintout = React.memo(
   ({ patientData, certificateData, getLocalisation }) => {
-    const { logo } = certificateData;
+    const { logo, deathCertFooterImg } = certificateData;
 
     const { causes } = patientData;
     const causeOfDeath = getCauseName(causes?.primary);
@@ -199,11 +199,11 @@ export const DeathCertificatePrintout = React.memo(
     const antecedentCause2 = getCauseName(causes?.antecedent2);
     return (
       <Document>
-        <Page size="A4" style={styles.page}>
+        <Page size="A4" style={{...styles.page, paddingBottom: 25}}>
           <MultiPageHeader
             documentName="Cause of death certificate"
             patientName={getName(patientData)}
-            patiendId={patientData.displayId}
+            patientId={patientData.displayId}
           />
           <CertificateHeader>
             <LetterheadSection
@@ -302,7 +302,7 @@ export const DeathCertificatePrintout = React.memo(
               means the disease, injury, or complication that caused death.
             </Text>
           </View>
-          <AuthorisedAndSignSection />
+          {deathCertFooterImg ? <SigningImage src={deathCertFooterImg} /> : <AuthorisedAndSignSection />}
           <Footer />
         </Page>
       </Document>
