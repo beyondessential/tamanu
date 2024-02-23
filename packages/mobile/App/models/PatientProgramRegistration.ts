@@ -25,6 +25,9 @@ import { DateTimeStringColumn } from './DateColumns';
 // TypeORM expects keys without the "ID" part. i.e. patient instead of patientId
 // and here we have to extract values from the preexistent model to work
 const getValuesFromRelations = values => {
+  if (!values) {
+    return {};
+  }
   return {
     clinician: values.clinicianId,
     clinicalStatus: values.clinicalStatusId,
@@ -96,7 +99,7 @@ export class PatientProgramRegistration extends BaseModel implements IPatientPro
       .createQueryBuilder('registration')
       .leftJoinAndSelect('registration.programRegistry', 'program_registry')
       .leftJoinAndSelect('program_registry.program', 'program')
-      .where(`registration.isMostRecent`, { isMostRecent: 1 })
+      .where(`registration.isMostRecent = 1`)
       .andWhere('program.id = :programId', { programId })
       .andWhere('registration.patientId = :patientId', { patientId })
       .getOne();
@@ -106,7 +109,7 @@ export class PatientProgramRegistration extends BaseModel implements IPatientPro
     const registrationRepository = this.getRepository(PatientProgramRegistration);
     const mostRecentRegistrations = await registrationRepository
       .createQueryBuilder('registration')
-      .where(`registration.isMostRecent`, { isMostRecent: 1 })
+      .where(`registration.isMostRecent = 1`)
       .andWhere('registration.registrationStatus != :status', {
         status: RegistrationStatus.RecordedInError,
       })
@@ -147,16 +150,18 @@ export class PatientProgramRegistration extends BaseModel implements IPatientPro
       patientId,
     );
     if (existingRegistration) {
-      await PatientProgramRegistration.updateValues(programRegistryId, { isMostRecent: 0 });
+      await PatientProgramRegistration.updateValues(existingRegistration.id, {
+        isMostRecent: false,
+      });
     }
 
     return PatientProgramRegistration.createAndSaveOne({
       ...getValuesFromRelations(existingRegistration),
       ...getValuesFromRelations(data),
       ...data,
-      program: programRegistryId,
+      programRegistry: programRegistryId,
       patient: patientId,
-      isMostRecent: 1,
+      isMostRecent: true,
     });
   }
 

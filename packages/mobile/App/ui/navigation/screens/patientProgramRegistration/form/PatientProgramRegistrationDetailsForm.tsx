@@ -64,14 +64,16 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
       },
     );
 
-    for (const condition of formData.conditions) {
-      await PatientProgramRegistrationCondition.createAndSaveOne({
-        date: formData.date,
-        programRegistry: programRegistry.id,
-        patient: selectedPatient.id,
-        programRegistryCondition: condition.value,
-        clinician: formData.clinicianId,
-      });
+    if (formData.conditions) {
+      for (const condition of formData.conditions) {
+        await PatientProgramRegistrationCondition.createAndSaveOne({
+          date: formData.date,
+          programRegistry: programRegistry.id,
+          patient: selectedPatient.id,
+          programRegistryCondition: condition.value,
+          clinician: formData.clinicianId,
+        });
+      }
     }
 
     navigation.navigate(Routes.HomeStack.PatientProgramRegistrationDetailsStack.Index, {

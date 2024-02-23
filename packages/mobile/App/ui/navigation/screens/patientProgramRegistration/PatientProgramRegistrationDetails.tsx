@@ -76,7 +76,7 @@ export const PatientProgramRegistrationDetails = ({ route }) => {
       <DataRow label="Registered by" value={patientProgramRegistration?.clinician?.displayName} />
       <DataRow
         label="Registration facility"
-        value={patientProgramRegistration.registeringFacility.name}
+        value={patientProgramRegistration.registeringFacility?.name}
       />
       <DataRow label="Status" value={patientProgramRegistration?.clinicalStatus?.name || '-'} />
       <DataRow

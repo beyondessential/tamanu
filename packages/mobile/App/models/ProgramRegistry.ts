@@ -52,20 +52,20 @@ export class ProgramRegistry extends BaseModel implements IProgramRegistry {
   programId: ID;
 
   static async getProgramRegistriesForPatient(patientId: string) {
-    const subquery = PatientProgramRegistration.getRepository()
+    const activeRegistrations = await PatientProgramRegistration.getRepository()
       .createQueryBuilder('ppr')
       .leftJoinAndSelect('ppr.programRegistry', 'program_registry')
       .select(['ppr.programRegistryId as id'])
       .distinct(true)
-      .where('ppr.patientId = :patientId')
-      .andWhere('ppr.registrationStatus != :registrationStatus');
+      .where(`ppr.patientId = :patientId`, { patientId })
+      .andWhere('ppr.registrationStatus = :active', { active: RegistrationStatus.Active })
+      .andWhere('ppr.isMostRecent = 1')
+      .getRawMany();
 
     const programRegistryRepository = this.getRepository(ProgramRegistry);
     const filteredProgramRegistries = await programRegistryRepository
       .createQueryBuilder('pr')
-      .where(`pr.id NOT IN (${subquery.getQuery()})`)
-      .setParameter('patientId', patientId)
-      .setParameter('registrationStatus', RegistrationStatus.RecordedInError);
+      .where(`pr.id NOT IN (${activeRegistrations.map(({ id }) => `'${id}'`).join(',')})`);
 
     return filteredProgramRegistries.getMany();
   }
