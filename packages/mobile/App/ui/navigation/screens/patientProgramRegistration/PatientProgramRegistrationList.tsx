@@ -9,6 +9,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useBackendEffect } from '~/ui/hooks/index';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
+import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 
 export const PatientProgramRegistrationList = ({ selectedPatient }): ReactElement => {
   const navigation = useNavigation();
@@ -22,6 +23,14 @@ export const PatientProgramRegistrationList = ({ selectedPatient }): ReactElemen
   if (isRegistrationLoading) return <LoadingScreen />;
 
   if (registrationError) return <ErrorScreen error={registrationError} />;
+
+  if (registrations.length === 0) {
+    return (
+      <RowView paddingTop={10} paddingBottom={10}>
+        <Subheading>No program registries to display</Subheading>
+      </RowView>
+    );
+  }
 
   const onNavigateToPatientProgramRegistrationDetails = (item: any) => {
     navigation.navigate(Routes.HomeStack.PatientProgramRegistrationDetailsStack.Index, {
@@ -50,7 +59,9 @@ export const PatientProgramRegistrationList = ({ selectedPatient }): ReactElemen
                   marginTop={10}
                   marginRight={10}
                 />
-                <Subheading>{item.programRegistry.name}</Subheading>
+                <StyledView maxWidth={screenPercentageToDP(60, Orientation.Width)}>
+                  <Subheading>{item.programRegistry.name}</Subheading>
+                </StyledView>
               </RowView>
               <Subheading>{item.clinicalStatus?.name}</Subheading>
             </RowView>

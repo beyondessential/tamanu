@@ -11,6 +11,11 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { PatientProgramRegistrySummary } from '../screens/patientProgramRegistration/PatientProgramRegistrySummary';
 
 const Stack = createStackNavigator();
+
+// N.B. this component is called `PatientSummaryStack` despite only covering program registries,
+// as it is intended to be a container for other patient summary details in the future.
+// See discussion at on Figma
+// https://www.figma.com/file/6HQUhPFlEVM2gLjiLH8cu0?node-id=8701:15098&mode=design#712035286
 interface PatientSummaryStackProps extends BaseAppProps {
   navigation: NavigationProp<any>;
 }
@@ -26,7 +31,7 @@ const PatientSummary = ({
   return (
     <ErrorBoundary>
       <StackHeader
-        title="Patient Summary"
+        title="Program registries"
         subtitle={joinNames(selectedPatient)}
         onGoBack={goBack}
       />
