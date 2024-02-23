@@ -124,7 +124,7 @@ const PatientHomeContainer = ({
   const onNavigateToSearchPatients = useCallback(() => {
     setSelectedPatient(null);
     navigation.navigate(Routes.HomeStack.SearchPatientStack.Index);
-  }, []);
+  }, [navigation, setSelectedPatient]);
 
   const { models, syncManager } = useBackend();
   const onSyncPatient = useCallback(async (): Promise<void> => {
@@ -135,7 +135,7 @@ const PatientHomeContainer = ({
     } catch (error) {
       setErrorMessage(error.message);
     }
-  }, [selectedPatient]);
+  }, [navigation, syncManager, selectedPatient]);
 
   const [patientIssues, setPatientIssues] = useState(null);
   useFocusEffect(
