@@ -28,6 +28,7 @@ import { FilterIcon } from '/components/Icons/FilterIcon';
 import { useFilterFields } from './PatientFilterScreen';
 import { IPatient } from '~/types';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { PatientFromRoute } from '~/ui/helpers/constants';
 import { SYNC_EVENT_ACTIONS } from '~/services/sync/types';
 import { BackendContext } from '~/ui/contexts/BackendContext';
 import { MobileSyncManager } from '~/services/sync/MobileSyncManager';
@@ -130,6 +131,7 @@ const Screen: FC<ViewAllScreenProps> = ({
     setSelectedPatient(patient);
     navigation.navigate(Routes.HomeStack.SearchPatientStack.Index, {
       screen: Routes.HomeStack.SearchPatientStack.Index,
+      from: PatientFromRoute.ALL_PATIENT,
     });
   }, []);
 
