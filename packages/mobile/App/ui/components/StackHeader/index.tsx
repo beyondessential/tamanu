@@ -111,6 +111,8 @@ export const EmptyStackHeader = ({ title, onGoBack, status }: IEmptyStackHeader)
         color={theme.colors.TEXT_DARK}
         fontSize={24}
         fontWeight={500}
+        numberOfLines={2}
+        style={{ maxWidth: screenPercentageToDP(70, Orientation.Width) }}
       >
         {title}
       </StyledText>
