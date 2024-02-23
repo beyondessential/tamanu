@@ -327,6 +327,7 @@ const SIDEBAR_ITEMS = {
   labs: ['labsAll', 'labsPublished'],
   immunisations: ['immunisationsAll'],
   programRegistry: [],
+  facilityAdmin: ['reports', 'bedManagement'],
 };
 
 const sidebarItemSchema = yup
