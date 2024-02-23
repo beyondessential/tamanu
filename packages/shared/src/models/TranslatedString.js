@@ -71,4 +71,27 @@ export class TranslatedString extends Model {
   static buildSyncFilter() {
     return null; // syncs everywhere
   }
+
+  static getPossibleLanguages = async () => {
+    const languagesInDb = await TranslatedString.findAll({
+      attributes: ['language'],
+      group: 'language',
+    });
+
+    const languageNames = await TranslatedString.findAll({
+      where: { stringId: 'languageName' },
+    });
+
+    return { languagesInDb, languageNames };
+
+    // const languageDisplayNames = mapValues(keyBy(languageNames, 'language'), 'text');
+    // const languageOptions = languagesInDb.map(({ language }) => {
+    //   return {
+    //     label: languageDisplayNames[language],
+    //     value: language,
+    //   };
+    // });
+
+    // return { languageOptions };
+  };
 }

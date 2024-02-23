@@ -6,8 +6,6 @@ import { keyBy, mapValues } from 'lodash';
 import { labResultWidgetRoutes } from './labResultWidget';
 import { publicIntegrationRoutes } from '../integrations';
 
-import { getLanguageOptions } from '@tamanu/shared/utils/translation/getLanguageOptions';
-
 export const publicRoutes = express.Router();
 
 const { cors } = config;
@@ -28,8 +26,9 @@ publicRoutes.get('/ping', (_req, res) => {
 });
 
 publicRoutes.get('/translation/preLogin', async (req, res) => {
-  const response = await getLanguageOptions(req.models);
-  res.send(response.languageOptions);
+  const { TranslatedString } = req.models;
+  const response = await TranslatedString.getPossibleLanguages();
+  res.send(response);
 });
 
 publicRoutes.get('/translation/:language', async (req, res) => {

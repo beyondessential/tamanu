@@ -1,10 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Colors } from '../constants';
-import { useTranslationOptions } from '../api/queries';
+import { useTranslationLanguages } from '../api/queries';
 import { SelectInput } from './Field';
 import { useTranslation } from '../contexts/Translation.jsx';
 import { TranslatedText } from './Translation/TranslatedText.jsx';
+import { mapValues, keyBy } from 'lodash';
 
 const LanguageSelectorContainer = styled.div`
   position: absolute;
@@ -52,7 +53,17 @@ const customStyles = {
 
 export const LanguageSelector = () => {
   const { updateStoredLanguage, storedLanguage } = useTranslation();
-  const { data: languageOptions = [], error } = useTranslationOptions();
+  const { data = {}, error } = useTranslationLanguages();
+
+  const { languageNames = [], languagesInDb = [] } = data;
+
+  const languageDisplayNames = mapValues(keyBy(languageNames, 'language'), 'text');
+  const languageOptions = languagesInDb.map(({ language }) => {
+    return {
+      label: languageDisplayNames[language],
+      value: language,
+    };
+  });
 
   // If multiple languages not implemented, no need for this component to show
   if (languageOptions.length <= 1) return null;
