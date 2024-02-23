@@ -20,6 +20,7 @@ import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { theme } from '~/ui/styled/theme';
 import { Button } from '~/ui/components/Button';
 import { useCurrentScreen } from '~/ui/hooks/useCurrentScreen';
+import { useAuth } from '~/ui/contexts/AuthContext';
 
 const buttonSharedStyles = {
   width: screenPercentageToDP('25', Orientation.Width),
@@ -33,6 +34,8 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
   const isReferral = surveyType === SurveyTypes.Referral;
   const selectedPatientId = selectedPatient.id;
   const navigation = useNavigation();
+  const { ability } = useAuth();
+  const canReadRegistration = ability.can('read', 'PatientProgramRegistration');
   const { currentScreenIndex, onNavigatePrevious, setCurrentScreenIndex } = useCurrentScreen();
 
   const [note, setNote] = useState('');
@@ -56,8 +59,10 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
   );
 
   const [patientProgramRegistration, pprError, isPprLoading] = useBackendEffect(
-    ({ models }) =>
-      models.PatientProgramRegistration.getRecentOne(survey?.programId, selectedPatient.id),
+    ({ models }) => {
+      if (canReadRegistration === false) return null;
+      return models.PatientProgramRegistration.getRecentOne(survey?.programId, selectedPatient.id);
+    },
     [survey],
   );
 

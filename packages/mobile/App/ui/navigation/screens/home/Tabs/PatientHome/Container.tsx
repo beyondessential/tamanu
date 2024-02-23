@@ -16,6 +16,7 @@ import { withPatient } from '/containers/Patient';
 import { useBackend } from '~/ui/hooks';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { Patient } from '../../../../../../models/Patient';
+import { useAuth } from '~/ui/contexts/AuthContext';
 
 interface IPopup {
   title: string;
@@ -66,6 +67,10 @@ const PatientHomeContainer = ({
   selectedPatient,
   setSelectedPatient,
 }: PatientHomeScreenProps): ReactElement => {
+  const { ability } = useAuth();
+  const canListRegistrations = ability.can('list', 'PatientProgramRegistration');
+  const canCreateRegistration = ability.can('create', 'PatientProgramRegistration');
+  const canViewProgramRegistries = canListRegistrations || canCreateRegistration;
   const [errorMessage, setErrorMessage] = useState();
   const visitTypeButtons = useMemo(
     () => [
@@ -100,7 +105,7 @@ const PatientHomeContainer = ({
         onPress: (): void => navigation.navigate(Routes.HomeStack.LabRequestStack.Index),
       },
     ],
-    [],
+    [navigation],
   );
 
   const patientMenuButtons = useMemo(
@@ -116,15 +121,16 @@ const PatientHomeContainer = ({
       {
         title: 'Patient summary',
         onPress: (): void => navigation.navigate(Routes.HomeStack.PatientSummaryStack.Index),
+        hideFromMenu: !canViewProgramRegistries,
       },
     ],
-    [],
+    [navigation, canViewProgramRegistries],
   );
 
   const onNavigateToSearchPatients = useCallback(() => {
     setSelectedPatient(null);
     navigation.navigate(Routes.HomeStack.SearchPatientStack.Index);
-  }, []);
+  }, [navigation, setSelectedPatient]);
 
   const { models, syncManager } = useBackend();
   const onSyncPatient = useCallback(async (): Promise<void> => {
@@ -135,7 +141,7 @@ const PatientHomeContainer = ({
     } catch (error) {
       setErrorMessage(error.message);
     }
-  }, [selectedPatient]);
+  }, [navigation, syncManager, selectedPatient]);
 
   const [patientIssues, setPatientIssues] = useState(null);
   useFocusEffect(
