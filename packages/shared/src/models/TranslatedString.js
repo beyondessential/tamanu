@@ -71,21 +71,4 @@ export class TranslatedString extends Model {
   static buildSyncFilter() {
     return null; // syncs everywhere
   }
-
-  static etagForLanguage = async language => {
-    return (
-      await this.max('updated_at_sync_tick', {
-        where: { language },
-      })
-    ).toString();
-  };
-
-  // TODO: improved validation for not having a languageName key
-  static etagForLanguageOptions = async () => {
-    return (
-      await this.max('updated_at_sync_tick', {
-        where: { stringId: 'languageName' },
-      })
-    ).toString();
-  };
 }
