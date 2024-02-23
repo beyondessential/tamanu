@@ -83,15 +83,5 @@ export class TranslatedString extends Model {
     });
 
     return { languagesInDb, languageNames };
-
-    // const languageDisplayNames = mapValues(keyBy(languageNames, 'language'), 'text');
-    // const languageOptions = languagesInDb.map(({ language }) => {
-    //   return {
-    //     label: languageDisplayNames[language],
-    //     value: language,
-    //   };
-    // });
-
-    // return { languageOptions };
   };
 }
