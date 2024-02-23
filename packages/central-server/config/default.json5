@@ -704,26 +704,6 @@
           "shortLabel": "Registration number",
           "longLabel": "Registration number"
         },
-        "date": {
-          "shortLabel": "Date",
-          "longLabel": "Date"
-        },
-        "registeredBy": {
-          "shortLabel": "Registered by",
-          "longLabel": "Registered by"
-        },
-        "status": {
-          "shortLabel": "Status",
-          "longLabel": "Status"
-        },
-        "conditions": {
-          "shortLabel": "Conditions",
-          "longLabel": "Conditions"
-        },
-        "programRegistry": {
-          "shortLabel": "Program Registry",
-          "longLabel": "Program Registry"
-        }
       },
       "features": {
         "editPatientDetailsOnMobile": true,
