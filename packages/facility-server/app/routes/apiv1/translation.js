@@ -26,23 +26,3 @@ translation.post(
     res.send(translatedString);
   }),
 );
-
-translation.get(
-  '/:language',
-  asyncHandler(async (req, res) => {
-    // Everyone can access translations
-    req.flagPermissionChecked();
-
-    const {
-      models: { TranslatedString },
-      params: { language },
-    } = req;
-
-    const translatedStringRecords = await TranslatedString.findAll({
-      where: { language },
-      attributes: ['stringId', 'text'],
-    });
-
-    res.send(mapValues(keyBy(translatedStringRecords, 'stringId'), 'text'));
-  }),
-);

@@ -6,7 +6,7 @@ export const useTranslations = (language = 'en') => {
   return useQuery(
     ['translations', language],
     () => {
-      return api.get(`translation/${language}`);
+      return api.get(`/public/translation/${language}`);
     },
     {
       staleTime: 1000 * 60 * 60, // 1 hour
