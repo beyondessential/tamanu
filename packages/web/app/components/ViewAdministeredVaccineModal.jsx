@@ -389,7 +389,7 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
 export const ViewAdministeredVaccineModal = ({ open, onClose, vaccineRecord }) => {
   if (!vaccineRecord) return null;
   return (
-    <Modal title="View vaccine record" open={open} onClose={onClose} cornerExitButton={false}>
+    <Modal title="View vaccine record" open={open} onClose={onClose}>
       <ViewAdministeredVaccineContent vaccineRecord={vaccineRecord} />
       <ModalActionRow confirmText="Close" onConfirm={onClose} />
     </Modal>
