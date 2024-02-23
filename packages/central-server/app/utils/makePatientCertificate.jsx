@@ -101,7 +101,13 @@ export const makeCovidVaccineCertificate = async (
   );
 };
 
-export const makeVaccineCertificate = async (patient, printedBy, printedDate, models) => {
+export const makeVaccineCertificate = async (
+  patient,
+  printedBy,
+  printedDate,
+  facilityName,
+  models,
+) => {
   const localisation = await getLocalisation();
   const getLocalisationData = key => get(localisation, key);
 
@@ -118,6 +124,7 @@ export const makeVaccineCertificate = async (patient, printedBy, printedDate, mo
       printedBy={printedBy}
       printedDate={printedDate}
       vaccinations={vaccines}
+      facilityName={facilityName}
       signingSrc={signingImage}
       watermarkSrc={watermark}
       logoSrc={logo}
