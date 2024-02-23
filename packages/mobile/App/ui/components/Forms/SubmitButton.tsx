@@ -14,8 +14,6 @@ export const SubmitButton = ({ onSubmit, ...props }: SubmitButtonProps): ReactEl
   const handleOnPress = useCallback(async () => {
     setIsLoading(true);
     try {
-      // TODO: Remove this when testing is done
-      await sleepAsync(10000);
       if (typeof onSubmit === 'function') {
         await onSubmit();
       } else if (typeof submitForm === 'function') {
