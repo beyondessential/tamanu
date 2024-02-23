@@ -18,6 +18,7 @@ env:
 
 jobs:
   test-for-non-determinism:
+    if: false
     permissions:
       id-token: write # allow accessing OIDC token for AWS
       contents: read

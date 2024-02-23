@@ -16,6 +16,7 @@ permissions:
 
 jobs:
   info:
+    if: false
     name: Branch info
     uses: ./.github/workflows/branch-info.yml
 
