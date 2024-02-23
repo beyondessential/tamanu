@@ -703,6 +703,26 @@
         "userDisplayId": {
           "shortLabel": "Registration number",
           "longLabel": "Registration number"
+        },
+        "date": {
+          "shortLabel": "Date",
+          "longLabel": "Date"
+        },
+        "registeredBy": {
+          "shortLabel": "Registered by",
+          "longLabel": "Registered by"
+        },
+        "status": {
+          "shortLabel": "Status",
+          "longLabel": "Status"
+        },
+        "conditions": {
+          "shortLabel": "Conditions",
+          "longLabel": "Conditions"
+        },
+        "programRegistry": {
+          "shortLabel": "Program Registry",
+          "longLabel": "Program Registry"
         }
       },
       "features": {
@@ -962,6 +982,18 @@
             hidden: false,
             sortPriority: 0,
           },
+          facilityAdmin: {
+            hidden: false,
+            sortPriority: 0,
+            reports: {
+              hidden: false,
+              sortPriority: 0,
+            },
+            bedManagement: {
+              hidden: false,
+              sortPriority: 0,
+            }
+          }
         },
       },
       "printMeasures": {

@@ -163,10 +163,12 @@ export const FACILITY_MENU_ITEMS = [
     divider: true,
     children: [
       {
+        key: 'reports',
         label: 'Reports',
         path: `/facility-admin/reports`,
       },
       {
+        key: 'bedManagement',
         label: 'Bed management',
         path: `/facility-admin/bed-management`,
       },
