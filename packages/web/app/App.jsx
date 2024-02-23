@@ -18,7 +18,7 @@ import {
   SingleTabStatusPage,
 } from './components/StatusPage';
 import { useCheckServerAliveQuery } from './api/queries/useCheckServerAliveQuery';
-import { useSingleTab } from './singleTab/singleTab';
+import { useSingleTab } from './utils/singleTab';
 
 const AppContainer = styled.div`
   display: flex;
