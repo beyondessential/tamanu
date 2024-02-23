@@ -103,7 +103,7 @@ export class PatientProgramRegistration extends Model {
     const newRegistrationValues = {
       patientId,
       programRegistryId,
-      ...(existingRegistration ?? {}),
+      ...(existingRegistration?.dataValues ?? {}),
       // today's date should absolutely override the date of the previous registration record,
       // but if a date was provided in the function params, we should go with that.
       date: getCurrentDateTimeString(),
