@@ -1,41 +1,43 @@
-import { Op } from 'sequelize';
-
 export function fromEncounters(models, table, id, deletedRow) {
   const {
     Encounter,
+    EncounterHistory,
+
     ImagingRequest,
     ImagingRequestArea,
-    ImagingAreaExternalCode,
 
     LabRequest,
     LabTest,
     LabTestType,
-    LabTestPanelRequest,
-    LabTestPanel,
 
     AdministeredVaccine,
-    DocumentMetadata,
+    ScheduledVaccine,
     EncounterDiagnosis,
     EncounterMedication,
 
-    Invoice,
     Procedure,
     Discharge,
-    SurveyResponse,
     Triage,
-    Vitals,
     Note,
     Patient,
-    Location,
-    LocationGroup,
-    Department,
-    Referral,
-    ReferenceData,
+    PatientBirthData,
   } = models;
 
   switch (table) {
     case Encounter.tableName:
       return { where: { id } };
+
+    case EncounterHistory.tableName:
+      return {
+        include: [
+          {
+            model: EncounterHistory,
+            as: 'encounterHistory',
+            required: true,
+            where: { id },
+          },
+        ],
+      };
 
     case ImagingRequest.tableName:
       return {
@@ -61,38 +63,6 @@ export function fromEncounters(models, table, id, deletedRow) {
                 model: ImagingRequestArea,
                 required: true,
                 where: { id },
-              },
-            ],
-          },
-        ],
-      };
-
-    case ImagingAreaExternalCode.tableName:
-      return {
-        include: [
-          {
-            model: ImagingRequest,
-            as: 'imagingRequests',
-            required: true,
-            include: [
-              {
-                model: ImagingRequestArea,
-                required: true,
-                include: [
-                  {
-                    model: ReferenceData,
-                    as: 'area',
-                    required: true,
-                    include: [
-                      {
-                        model: ImagingAreaExternalCode,
-                        as: 'imagingAreaExternalCode',
-                        required: true,
-                        where: { id },
-                      },
-                    ],
-                  },
-                ],
               },
             ],
           },
@@ -153,35 +123,6 @@ export function fromEncounters(models, table, id, deletedRow) {
           },
         ],
       };
-    case LabTestPanelRequest.tableName:
-      return {
-        include: [
-          {
-            model: LabTestPanelRequest,
-            as: 'labTestPanelRequests',
-            required: true,
-            where: { id },
-          },
-        ],
-      };
-    case LabTestPanel.tableName:
-      return {
-        include: [
-          {
-            model: LabTestPanelRequest,
-            as: 'labTestPanelRequests',
-            required: true,
-            include: [
-              {
-                model: LabTestPanel,
-                as: 'labTestPanel',
-                required: true,
-                where: { id },
-              },
-            ],
-          },
-        ],
-      };
 
     case AdministeredVaccine.tableName:
       return {
@@ -195,14 +136,21 @@ export function fromEncounters(models, table, id, deletedRow) {
         ],
       };
 
-    case DocumentMetadata.tableName:
+    case ScheduledVaccine.tableName:
       return {
         include: [
           {
-            model: DocumentMetadata,
-            as: 'documents',
+            model: AdministeredVaccine,
+            as: 'administeredVaccines',
             required: true,
-            where: { id },
+            include: [
+              {
+                model: ScheduledVaccine,
+                as: 'scheduledVaccine',
+                required: true,
+                where: { id },
+              },
+            ],
           },
         ],
       };
@@ -231,18 +179,6 @@ export function fromEncounters(models, table, id, deletedRow) {
         ],
       };
 
-    case Invoice.tableName:
-      return {
-        include: [
-          {
-            model: Invoice,
-            as: 'invoice',
-            required: true,
-            where: { id },
-          },
-        ],
-      };
-
     case Procedure.tableName:
       return {
         include: [
@@ -255,56 +191,12 @@ export function fromEncounters(models, table, id, deletedRow) {
         ],
       };
 
-    case SurveyResponse.tableName:
-      return {
-        include: [
-          {
-            model: SurveyResponse,
-            as: 'surveyResponses',
-            required: true,
-            where: { id },
-          },
-        ],
-      };
-
-    case Referral.tableName:
-      return {
-        include: [
-          {
-            model: Referral,
-            as: 'initiatedReferrals',
-          },
-          {
-            model: Referral,
-            as: 'completedReferrals',
-          },
-        ],
-        where: {
-          [Op.or]: {
-            '$initiatedReferrals.id$': id,
-            '$completedReferrals.id$': id,
-          },
-        },
-      };
-
     case Triage.tableName:
       return {
         include: [
           {
             model: Triage,
             as: 'triages',
-            required: true,
-            where: { id },
-          },
-        ],
-      };
-
-    case Vitals.tableName:
-      return {
-        include: [
-          {
-            model: Vitals,
-            as: 'vitals',
             required: true,
             where: { id },
           },
@@ -351,45 +243,14 @@ export function fromEncounters(models, table, id, deletedRow) {
         ],
       };
 
-    case Department.tableName:
+    case PatientBirthData.tableName:
       return {
         include: [
           {
-            model: Department,
-            as: 'department',
+            model: PatientBirthData,
+            as: 'patient',
             required: true,
             where: { id },
-          },
-        ],
-      };
-
-    case Location.tableName:
-      return {
-        include: [
-          {
-            model: Location,
-            as: 'location',
-            required: true,
-            where: { id },
-          },
-        ],
-      };
-
-    case LocationGroup.tableName:
-      return {
-        include: [
-          {
-            model: Location,
-            as: 'location',
-            required: true,
-            include: [
-              {
-                model: LocationGroup,
-                as: 'locationGroup',
-                required: true,
-                where: { id },
-              },
-            ],
           },
         ],
       };

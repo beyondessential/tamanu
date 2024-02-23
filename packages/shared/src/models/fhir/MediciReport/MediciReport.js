@@ -5,6 +5,7 @@ import { FhirResource } from '../Resource';
 
 import { fromEncounters } from './getQueryToFindUpstreamIds';
 import { getMaterialisedValues } from './getMaterialisedValues';
+import { filterFromEncounters } from './filterFromEncounters';
 
 export class MediciReport extends FhirResource {
   static init(options, models) {
