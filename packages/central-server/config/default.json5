@@ -820,7 +820,7 @@
         "notGivenReasonId": {
           "shortLabel": "Reason",
           "longLabel": "Reason",
-          hidden: false
+          "hidden": false
         }
       },
       "features": {
