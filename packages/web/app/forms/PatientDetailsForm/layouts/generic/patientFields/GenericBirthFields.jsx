@@ -7,14 +7,13 @@ import {
   PLACE_OF_BIRTH_OPTIONS,
   PLACE_OF_BIRTH_TYPES,
 } from '@tamanu/constants';
-import { AutocompleteField, SelectField, TextField, TimeField } from '..';
-import { useSuggester } from '../../api';
-import { ConfiguredMandatoryPatientFields } from './ConfiguredMandatoryPatientFields';
+import { AutocompleteField, SelectField, TextField, TimeField } from '../../../../../components';
+import { ConfiguredMandatoryPatientFields } from '../../../ConfiguredMandatoryPatientFields';
+import { useSuggester } from '../../../../../api';
 
-export const BirthDetailsFields = ({ registeredBirthPlace, showMandatory }) => {
+export const GenericBirthFields = ({ filterByMandatory, registeredBirthPlace }) => {
   const facilitySuggester = useSuggester('facility');
-
-  const BIRTH_DETAILS_FIELDS_PROPS = {
+  const BIRTH_FIELDS = {
     timeOfBirth: {
       component: TimeField,
       saveDateAsString: true,
@@ -72,9 +71,6 @@ export const BirthDetailsFields = ({ registeredBirthPlace, showMandatory }) => {
   };
 
   return (
-    <ConfiguredMandatoryPatientFields
-      fields={BIRTH_DETAILS_FIELDS_PROPS}
-      showMandatory={showMandatory}
-    />
+    <ConfiguredMandatoryPatientFields fields={BIRTH_FIELDS} filterByMandatory={filterByMandatory} />
   );
 };

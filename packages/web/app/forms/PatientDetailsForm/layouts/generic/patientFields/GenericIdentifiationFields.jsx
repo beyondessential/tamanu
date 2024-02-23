@@ -2,15 +2,15 @@ import React from 'react';
 
 import { PATIENT_REGISTRY_TYPES } from '@tamanu/constants';
 
-import { useLocalisation } from '../../contexts/Localisation';
-import { DisplayIdField, TextField } from '..';
-import { ConfiguredMandatoryPatientFields } from './ConfiguredMandatoryPatientFields';
+import { useLocalisation } from '../../../../../contexts/Localisation';
+import { DisplayIdField, TextField } from '../../../../../components';
+import { ConfiguredMandatoryPatientFields } from '../../../ConfiguredMandatoryPatientFields';
 
-export const IdentificationInformationFields = ({ isEdit, patientRegistryType, showMandatory }) => {
+export const GenericIdentificationFields = ({ isEdit, patientRegistryType, filterByMandatory }) => {
   const { getLocalisation } = useLocalisation();
   const canEditDisplayId = isEdit && getLocalisation('features.editPatientDisplayId');
 
-  const IDENTIFICATION_INFORMATION_FIELDS = {
+  const IDENTIFICATION_FIELDS = {
     displayId: {
       component: DisplayIdField,
       condition: () => !!canEditDisplayId,
@@ -29,8 +29,8 @@ export const IdentificationInformationFields = ({ isEdit, patientRegistryType, s
 
   return (
     <ConfiguredMandatoryPatientFields
-      fields={IDENTIFICATION_INFORMATION_FIELDS}
-      showMandatory={showMandatory}
+      fields={IDENTIFICATION_FIELDS}
+      filterByMandatory={filterByMandatory}
     />
   );
 };
