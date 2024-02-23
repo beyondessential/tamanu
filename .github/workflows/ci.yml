@@ -198,19 +198,19 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 12.x
-          cache: yarn
+          cache: npm
       - uses: actions/cache/restore@v3
         with:
-          key: ${{ runner.os }}-yarnmobile-${{ hashFiles('mobile/yarn.lock') }}
+          key: ${{ runner.os }}-npmmobile-${{ hashFiles('mobile/package-lock.json') }}
           path: mobile/node_modules
-      - run: yarn
+      - run: npm i
         working-directory: packages/mobile
       - uses: actions/cache/save@v3
         with:
-          key: ${{ runner.os }}-yarnmobile-${{ hashFiles('mobile/yarn.lock') }}
+          key: ${{ runner.os }}-npmmobile-${{ hashFiles('mobile/package-lock.json') }}
           path: mobile/node_modules
 
-      - run: yarn test
+      - run: npm test
         working-directory: packages/mobile
 
   test-facility-offline:
@@ -250,7 +250,7 @@ jobs:
       matrix:
         workdir:
           - .
-          - packages/mobile
+          # - packages/mobile
     name: Check ${{ matrix.workdir }}/yarn.lock is up to date
     runs-on: ubuntu-latest
     steps:
