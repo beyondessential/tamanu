@@ -57,9 +57,9 @@ describe('TranslatedString', () => {
     return Object.fromEntries(tStrings.map(({ stringId, text }) => [stringId, text]));
   };
 
-  describe('/prelogin GET', () => {
+  describe('/languageOptions GET', () => {
     it('Should receive a list of languages stored in the DB in the format of select options', async () => {
-      const result = await app.get('/v1/public/translation/preLogin');
+      const result = await app.get('/v1/public/translation/languageOptions');
       expect(result).toHaveSucceeded();
 
       const expectedResult = [

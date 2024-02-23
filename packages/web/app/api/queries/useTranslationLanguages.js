@@ -3,5 +3,5 @@ import { useApi } from '../useApi';
 
 export const useTranslationLanguages = () => {
   const api = useApi();
-  return useQuery(['languageList'], () => api.get('public/translation/preLogin'));
+  return useQuery(['languageList'], () => api.get('public/translation/languageOptions'));
 };

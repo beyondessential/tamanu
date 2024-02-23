@@ -25,7 +25,7 @@ publicRoutes.get('/ping', (_req, res) => {
   res.send({ ok: true });
 });
 
-publicRoutes.get('/translation/preLogin', async (req, res) => {
+publicRoutes.get('/translation/languageOptions', async (req, res) => {
   const { TranslatedString } = req.models;
   const response = await TranslatedString.getPossibleLanguages();
   res.send(response);

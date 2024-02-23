@@ -67,7 +67,7 @@ apiv1.get(
   }),
 );
 
-apiv1.get('/public/translation/preLogin', async (req, res) => {
+apiv1.get('/public/translation/languageOptions', async (req, res) => {
   req.flagPermissionChecked();
   const { TranslatedString } = req.models;
   const response = await TranslatedString.getPossibleLanguages();
