@@ -203,7 +203,7 @@ dependencies {
     //noinspection GradleDynamicVersion
     implementation "com.facebook.react:react-native:+"  // From node_modules
 
-    implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
+    implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
     compile project(':react-native-sensitive-info')
     implementation 'com.android.support:multidex:1.0.3'
 
