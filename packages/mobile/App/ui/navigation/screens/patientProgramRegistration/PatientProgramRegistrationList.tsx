@@ -5,7 +5,7 @@ import { FlatList, TouchableOpacity } from 'react-native';
 import { Separator } from '~/ui/components/Separator';
 import { theme } from '~/ui/styled/theme';
 import { Routes } from '~/ui/helpers/routes';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useIsFocused } from '@react-navigation/native';
 import { useBackendEffect } from '~/ui/hooks/index';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
@@ -14,13 +14,7 @@ import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 export const PatientProgramRegistrationList = ({ selectedPatient }): ReactElement => {
   const navigation = useNavigation();
 
-  const [isFocused, setIsFocused] = React.useState(false);
-  useEffect(() => {
-    const unsubscribe = navigation.addListener('focus', () => {
-      setIsFocused(navigation.isFocused());
-    });
-    return unsubscribe;
-  }, [navigation]);
+  const isFocused = useIsFocused();
   const [registrations, registrationError, isRegistrationLoading] = useBackendEffect(
     async ({ models }) =>
       await models.PatientProgramRegistration.getMostRecentRegistrationsForPatient(
