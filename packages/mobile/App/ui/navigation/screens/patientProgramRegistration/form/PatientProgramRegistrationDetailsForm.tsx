@@ -50,7 +50,7 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
           programRegistry: programRegistry.id,
         },
       }),
-    [],
+    [programRegistry.id],
   );
   const submitPatientProgramRegistration = async (formData: IPatientProgramRegistryForm) => {
     const newPpr: any = await PatientProgramRegistration.appendRegistration(
@@ -159,6 +159,7 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
                   navigation={navigation}
                   name="conditions"
                   value={values.conditions}
+                  searchPlaceholder="Search conditions..."
                 />
               </StyledView>
               <Button
