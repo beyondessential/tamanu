@@ -16,6 +16,7 @@ import { withPatient } from '/containers/Patient';
 import { useBackend } from '~/ui/hooks';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { Patient } from '../../../../../../models/Patient';
+import { useAuth } from '~/ui/contexts/AuthContext';
 
 interface IPopup {
   title: string;
@@ -66,6 +67,10 @@ const PatientHomeContainer = ({
   selectedPatient,
   setSelectedPatient,
 }: PatientHomeScreenProps): ReactElement => {
+  const { ability } = useAuth();
+  const canListRegistrations = ability.can('list', 'PatientProgramRegistration');
+  const canCreateRegistration = ability.can('create', 'PatientProgramRegistration');
+  const canViewProgramRegistries = canListRegistrations || canCreateRegistration;
   const [errorMessage, setErrorMessage] = useState();
   const visitTypeButtons = useMemo(
     () => [
@@ -116,9 +121,10 @@ const PatientHomeContainer = ({
       {
         title: 'Patient summary',
         onPress: (): void => navigation.navigate(Routes.HomeStack.PatientSummaryStack.Index),
+        hideFromMenu: !canViewProgramRegistries,
       },
     ],
-    [navigation],
+    [navigation, canViewProgramRegistries],
   );
 
   const onNavigateToSearchPatients = useCallback(() => {
