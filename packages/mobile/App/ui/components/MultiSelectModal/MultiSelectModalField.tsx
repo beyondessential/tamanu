@@ -21,6 +21,7 @@ interface MultiSelectModalFieldProps {
   label?: string;
   required?: boolean;
   disabled?: boolean;
+  searchPlaceholder?: string;
 }
 
 export const MultiSelectModalField = ({
@@ -35,6 +36,7 @@ export const MultiSelectModalField = ({
   required,
   marginTop = 0,
   disabled = false,
+  searchPlaceholder,
 }: MultiSelectModalFieldProps): ReactElement => {
   const navigation = useNavigation();
   const [label, setLabel] = useState(null);
@@ -55,6 +57,7 @@ export const MultiSelectModalField = ({
       suggester,
       modalTitle,
       value,
+      searchPlaceholder,
     });
   const loadDefaultValues = async (values: string[]) => {
     const _values: OptionType[] = [];

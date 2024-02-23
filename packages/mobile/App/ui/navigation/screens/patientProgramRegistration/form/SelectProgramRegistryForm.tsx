@@ -11,6 +11,7 @@ import { useBackendEffect } from '~/ui/hooks/index';
 import { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
+import { useAuth } from '~/ui/contexts/AuthContext';
 
 const ProgramRegistryListItem = ({ item }) => {
   const navigation = useNavigation();
@@ -35,11 +36,15 @@ const ProgramRegistryListItem = ({ item }) => {
 export const SelectProgramRegistryForm = ({ navigation, route }: BaseAppProps) => {
   const { selectedPatient } = route.params;
   const [searchValue, setSearchValue] = useState('');
+  const { ability } = useAuth();
+  const canListRegistrations = ability.can('list', 'PatientProgramRegistration');
 
   const [programRegistries, programRegistryError, isProgramRegistryLoading] = useBackendEffect(
-    async ({ models }) =>
-      await models.ProgramRegistry.getProgramRegistriesForPatient(selectedPatient.id),
-    [],
+    async ({ models }) => {
+      if (canListRegistrations === false) return [];
+      return await models.ProgramRegistry.getProgramRegistriesForPatient(selectedPatient.id)
+    },
+    [canListRegistrations, selectedPatient.id],
   );
 
   if (isProgramRegistryLoading) return <LoadingScreen />;

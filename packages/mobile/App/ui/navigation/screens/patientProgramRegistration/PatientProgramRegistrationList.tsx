@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import { RowView, StyledView } from '/styled/common';
 import { Subheading } from 'react-native-paper';
-import { FlatList, Text, TouchableOpacity } from 'react-native';
+import { FlatList, Text, TouchableOpacity, View } from 'react-native';
 import { Separator } from '~/ui/components/Separator';
 import { theme } from '~/ui/styled/theme';
 import { Routes } from '~/ui/helpers/routes';
@@ -10,15 +10,18 @@ import { useBackendEffect } from '~/ui/hooks/index';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
+import { useAuth } from '~/ui/contexts/AuthContext';
 
 export const PatientProgramRegistrationList = ({ selectedPatient }): ReactElement => {
   const navigation = useNavigation();
+  const { ability } = useAuth();
+  const canReadRegistrations = ability.can('read', 'PatientProgramRegistration');
   const [registrations, registrationError, isRegistrationLoading] = useBackendEffect(
     async ({ models }) =>
       await models.PatientProgramRegistration.getMostRecentRegistrationsForPatient(
         selectedPatient.id,
       ),
-    [],
+    [selectedPatient.id],
   );
   if (isRegistrationLoading) return <LoadingScreen />;
 
@@ -38,12 +41,13 @@ export const PatientProgramRegistrationList = ({ selectedPatient }): ReactElemen
     });
   };
 
+  const ItemWrapper = canReadRegistrations ? TouchableOpacity : View;
   return (
     <FlatList
       data={registrations}
       ItemSeparatorComponent={Separator}
       renderItem={({ item }) => (
-        <TouchableOpacity onPress={() => onNavigateToPatientProgramRegistrationDetails(item)}>
+        <ItemWrapper onPress={() => onNavigateToPatientProgramRegistrationDetails(item)}>
           <StyledView paddingTop={10} paddingBottom={10}>
             <RowView justifyContent="space-between">
               <RowView>
@@ -66,7 +70,7 @@ export const PatientProgramRegistrationList = ({ selectedPatient }): ReactElemen
               <Subheading>{item.clinicalStatus?.name}</Subheading>
             </RowView>
           </StyledView>
-        </TouchableOpacity>
+        </ItemWrapper>
       )}
     ></FlatList>
   );
