@@ -101,7 +101,7 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
     encounter,
     circumstanceIds,
   } = vaccineRecord;
-  const notGivenReasonText = useLocalisedText({ path: 'fields.notGivenReasonId.shortLabel' });
+  const notGivenReasonLabelText = useLocalisedText({ path: 'fields.notGivenReasonId.shortLabel' });
   const routine = !vaccineName;
   const notGiven = VACCINE_STATUS.NOT_GIVEN === status;
 
@@ -141,7 +141,7 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
       value: givenElsewhere ? 'Given elsewhere' : VACCINE_STATUS_LABELS[status] || '-',
     },
     country: { label: 'Country', value: givenBy || '-' },
-    reason: { label: notGivenReasonText, value: notGivenReason?.name || '-' },
+    reason: { label: notGivenReasonLabelText, value: notGivenReason?.name || '-' },
     circumstance: {
       label: 'Circumstance',
       value:
