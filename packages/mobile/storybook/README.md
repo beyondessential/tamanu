@@ -7,5 +7,5 @@ The react-native-story-loader lib generates a file storyLoader.js and exports a 
 
 Troubleshoot: 
 
-- Any problems with storybook first attempt is to run "yarn run storybook" to try to map all files again.
+- Any problems with storybook first attempt is to run "npm run storybook" to try to map all files again.
 - Remove storyLoader.js and run command again.

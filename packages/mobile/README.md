@@ -28,10 +28,10 @@ The rest of the Tamanu system is in [a separate monorepo](https://github.com/bey
 
 ### Installing dependencies
 
-After downloading or cloning into your local machine, open a console window in the project structure and run yarn to install the dependencies:
+After downloading or cloning into your local machine, open a console window in the project structure and run npm to install the dependencies:
 
 ```
-yarn
+npm i
 ```
 
 ### Making Project runnable
@@ -50,7 +50,7 @@ Be sure to have [Android Studio](https://www.google.com/search?q=android+studio&
 ### Run emulator
 
 ```
-yarn android
+npm run android
 ```
 
 ### Run metro bundler
@@ -59,7 +59,7 @@ The metro-bundler works with watchman to reload stuff into the device or emulato
 First start the metro bundler with the command:
 
 ```
-yarn start
+npm start
 ```
 
 ### Run storybook
@@ -71,7 +71,7 @@ To run storybook:
 1. Have your app running (metro bundler)
 1. Open the dev menu and press `Toggle Storybook`
 
-You can also run `yarn storybook-web-ui` for a little nicer experience.
+You can also run `npm run storybook-web-ui` for a little nicer experience.
 
 ## Emulator Command Hints
 
@@ -89,7 +89,7 @@ Generate .apk files
 To generate android apk file run:
 
 ```
-yarn build:android
+npm run build:android
 ```
 
 The builded app will be in:
@@ -204,7 +204,7 @@ The sqlite instance on mobile is kept up to date using TypeORM migration files, 
 Run the following command to generate a new template migration and automatically add it to the `App/migrations/index.ts` file:
 
 ```
-yarn migrate-create <migration_name>
+npm run migrate-create <migration_name>
 ```
 
 The migration file will include the current unix timestamp, all migrations will be run in chronological order
