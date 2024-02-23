@@ -16,6 +16,7 @@ import { withPatient } from '/containers/Patient';
 import { useBackend } from '~/ui/hooks';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { Patient } from '../../../../../../models/Patient';
+import { PatientFromRoute } from '~/ui/helpers/constants';
 
 interface IPopup {
   title: string;
@@ -65,8 +66,11 @@ const PatientHomeContainer = ({
   navigation,
   selectedPatient,
   setSelectedPatient,
+  route,
 }: PatientHomeScreenProps): ReactElement => {
   const [errorMessage, setErrorMessage] = useState();
+  const { from } = route.params || {};
+
   const visitTypeButtons = useMemo(
     () => [
       {
@@ -119,7 +123,18 @@ const PatientHomeContainer = ({
 
   const onNavigateToSearchPatients = useCallback(() => {
     setSelectedPatient(null);
-    navigation.navigate(Routes.HomeStack.SearchPatientStack.Index);
+
+    if (from === PatientFromRoute.ALL_PATIENT || from === PatientFromRoute.RECENTLY_VIEWED) {
+      navigation.navigate(Routes.HomeStack.SearchPatientStack.Index, {
+        screen: Routes.HomeStack.SearchPatientStack.Index,
+        params: {
+          screen: Routes.HomeStack.SearchPatientStack.SearchPatientTabs.Index,
+          from: from,
+        },
+      });
+    } else {
+      navigation.goBack();
+    }
   }, []);
 
   const { models, syncManager } = useBackend();
