@@ -59,7 +59,7 @@ describe('TranslatedString', () => {
 
   describe('/prelogin GET', () => {
     it('Should receive a list of languages stored in the DB in the format of select options', async () => {
-      const result = await app.get('/v1/translation/preLogin');
+      const result = await app.get('/v1/public/translation/preLogin');
       expect(result).toHaveSucceeded();
 
       const expectedResult = [
