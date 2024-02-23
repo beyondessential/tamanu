@@ -18,7 +18,7 @@ import {
   VaccineLabelField,
   VaccineNameField,
 } from '../components/VaccineCommonFields';
-import { Field, SuggesterSelectField } from '../components/Field';
+import { LocalisedField, SuggesterSelectField } from '../components/Field';
 
 export const VaccineNotGivenForm = ({
   vaccineLabel,
@@ -64,9 +64,8 @@ export const VaccineNotGivenForm = ({
       <AdministeredVaccineScheduleField schedules={schedules} />
     ) : null}
 
-    <Field
+    <LocalisedField
       name="notGivenReasonId"
-      label="Reason"
       component={SuggesterSelectField}
       endpoint="vaccineNotGivenReason"
     />

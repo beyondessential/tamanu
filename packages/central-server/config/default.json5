@@ -816,6 +816,11 @@
         "userDisplayId": {
           "shortLabel": "Registration number",
           "longLabel": "Registration number"
+        },
+        "notGivenReasonId": {
+          "shortLabel": "Reason",
+          "longLabel": "Reason",
+          hidden: false
         }
       },
       "features": {

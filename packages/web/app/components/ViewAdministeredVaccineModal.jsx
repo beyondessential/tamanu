@@ -10,6 +10,7 @@ import { useApi } from '../api';
 
 import { DateDisplay } from './DateDisplay';
 import { Modal } from './Modal';
+import { useLocalisedText } from './LocalisedText';
 
 const Container = styled.div`
   display: flex;
@@ -100,7 +101,7 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
     encounter,
     circumstanceIds,
   } = vaccineRecord;
-
+  const notGivenReasonText = useLocalisedText({ path: 'fields.notGivenReasonId.shortLabel' });
   const routine = !vaccineName;
   const notGiven = VACCINE_STATUS.NOT_GIVEN === status;
 
@@ -140,7 +141,7 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
       value: givenElsewhere ? 'Given elsewhere' : VACCINE_STATUS_LABELS[status] || '-',
     },
     country: { label: 'Country', value: givenBy || '-' },
-    reason: { label: 'Reason', value: notGivenReason?.name || '-' },
+    reason: { label: notGivenReasonText, value: notGivenReason?.name || '-' },
     circumstance: {
       label: 'Circumstance',
       value:
@@ -363,21 +364,19 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
   const modalVersion = modalVersions.find(modalType => modalType.condition === true);
   if (!modalVersion) return <ErrorMessage />;
   const fieldGroups = modalVersion.fieldGroups
-    .map(group =>
-      ({
-        ...group,
-        fields: group.fields
-          .filter(field => {
-            // filter out fields if they're conditional on the editMode, and the editMode doesn't match
-            // this can be written more concisely but i want it explicit
-            if (editMode && field.editMode === true) return true;
-            if (!editMode && field.editMode === false) return true;
-            if (!Object.prototype.hasOwnProperty.call(field, 'editMode')) return true;
-            return false;
-          })
-          .map(({ field }) => field)
-      })
-    )
+    .map(group => ({
+      ...group,
+      fields: group.fields
+        .filter(field => {
+          // filter out fields if they're conditional on the editMode, and the editMode doesn't match
+          // this can be written more concisely but i want it explicit
+          if (editMode && field.editMode === true) return true;
+          if (!editMode && field.editMode === false) return true;
+          if (!Object.prototype.hasOwnProperty.call(field, 'editMode')) return true;
+          return false;
+        })
+        .map(({ field }) => field),
+    }))
     .filter(group => {
       // eliminate empty groups
       return group.fields.length > 0;

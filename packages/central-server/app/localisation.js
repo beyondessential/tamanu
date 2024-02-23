@@ -128,6 +128,7 @@ const HIDEABLE_FIELDS = [
   'prescriberId',
   'facility',
   'dischargeDisposition',
+  'notGivenReasonId',
 ];
 
 const UNHIDEABLE_PATIENT_TABS = ['history', 'details'];
