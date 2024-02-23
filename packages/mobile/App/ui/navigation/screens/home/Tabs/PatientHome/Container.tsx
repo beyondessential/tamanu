@@ -100,7 +100,7 @@ const PatientHomeContainer = ({
         onPress: (): void => navigation.navigate(Routes.HomeStack.LabRequestStack.Index),
       },
     ],
-    [],
+    [navigation],
   );
 
   const patientMenuButtons = useMemo(
@@ -118,7 +118,7 @@ const PatientHomeContainer = ({
         onPress: (): void => navigation.navigate(Routes.HomeStack.PatientSummaryStack.Index),
       },
     ],
-    [],
+    [navigation],
   );
 
   const onNavigateToSearchPatients = useCallback(() => {
