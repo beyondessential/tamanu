@@ -65,7 +65,7 @@ export const LanguageSelector = () => {
     <LanguageSelectorContainer>
       <SelectInput
         options={languageOptions}
-        label={<TranslatedText id="login.languageSelector.label" fallback="Language" />}
+        label={<TranslatedText stringId="login.languageSelector.label" fallback="Language" />}
         isClearable={false}
         error={!!error}
         customStyleObject={customStyles}
