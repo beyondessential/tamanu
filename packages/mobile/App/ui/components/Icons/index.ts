@@ -21,6 +21,7 @@ export * from './ArrowLeft';
 export * from './ArrowUp';
 export * from './Vitals';
 export * from './Pencil';
+export * from './CircleAdd';
 
 // Logos
 export * from './CLR';
