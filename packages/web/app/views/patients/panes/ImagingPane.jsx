@@ -4,6 +4,7 @@ import { ImagingRequestModal } from '../../../components/ImagingRequestModal';
 import { ImagingRequestsTable } from '../../../components/ImagingRequestsTable';
 import { PrintMultipleImagingRequestsSelectionModal } from '../../../components/PatientPrinting';
 import { TabPane } from '../components';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 export const ImagingPane = React.memo(({ encounter, readonly }) => {
   const [newRequestModalOpen, setNewRequestModalOpen] = useState(false);
@@ -29,7 +30,7 @@ export const ImagingPane = React.memo(({ encounter, readonly }) => {
           variant="outlined"
           color="primary"
         >
-          Print
+          <TranslatedText stringId="general.action.print" fallback="Print" />
         </Button>
         <ButtonWithPermissionCheck
           onClick={() => setNewRequestModalOpen(true)}
@@ -37,7 +38,7 @@ export const ImagingPane = React.memo(({ encounter, readonly }) => {
           verb="create"
           noun="ImagingRequest"
         >
-          New imaging request
+          <TranslatedText stringId="imaging.action.create" fallback="New imaging request" />
         </ButtonWithPermissionCheck>
       </TableButtonRow>
       <ImagingRequestsTable encounterId={encounter.id} />

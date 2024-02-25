@@ -71,7 +71,6 @@ export class addSettingTable1678400759000 implements MigrationInterface {
     await queryRunner.createTable(SettingTable, ifNotExist);
 
     await queryRunner.createIndex(SettingTable, new TableIndex(updatedAtSyncTickIndex));
-
   }
 
   async down(queryRunner: QueryRunner): Promise<void> {

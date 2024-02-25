@@ -24,6 +24,7 @@ import { useApi } from '../api';
 import { SyncHealthNotificationComponent } from '../components/SyncHealthNotification';
 
 import { Typography } from '@material-ui/core';
+import { TranslatedText } from '../components/Translation/TranslatedText';
 const { REMEMBER_EMAIL } = LOCAL_STORAGE_KEYS;
 
 const Container = styled.div`
@@ -134,8 +135,6 @@ export const LoginView = () => {
       localStorage.removeItem(REMEMBER_EMAIL);
     }
 
-    // The await is necessary to prevent redux-form unlocking submission
-    // redux-thunk definitely returns a promise, and this works
     await dispatch(login(email, password));
     dispatch(restartPasswordResetFlow());
   };
@@ -195,11 +194,13 @@ export const LoginView = () => {
         </LoginFormContainer>
         {isSupportUrlLoaded && (
           <SupportDesktopLink href={supportUrl} target="_blank" rel="noreferrer">
-            Support centre
+            <TranslatedText stringId="login.supportCentreLink" fallback="Support centre" />
             <Launch style={{ marginLeft: '3px', fontSize: '12px' }} />
           </SupportDesktopLink>
         )}
-        <DesktopVersionText>Version {agentVersion}</DesktopVersionText>
+        <DesktopVersionText>
+          <TranslatedText stringId="login.version" fallback="Version" /> {agentVersion}
+        </DesktopVersionText>
       </LoginContainer>
       <LoginSplashImage />
     </Container>
