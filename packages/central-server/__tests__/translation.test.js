@@ -26,7 +26,7 @@ describe('translations', () => {
 
   afterAll(async () => ctx.close());
 
-  it('Should receive a list of languages stored in the DB in the format of select options', async () => {
+  it('Should receive an object containing languageNames and languageCodes to be mapped onto options for select field', async () => {
     const { TranslatedString } = models;
 
     await TranslatedString.create({
@@ -45,10 +45,15 @@ describe('translations', () => {
     const result = await app.get('/v1/public/translation/languageOptions');
     expect(result).toHaveSucceeded();
 
-    const expectedResult = [
-      { label: LANGUAGE_NAMES[LANGUAGE_CODES.ENGLISH], value: LANGUAGE_CODES.ENGLISH },
-      { label: LANGUAGE_NAMES[LANGUAGE_CODES.KHMER], value: LANGUAGE_CODES.KHMER },
-    ];
-    expect(result.body).toEqual(expectedResult);
+    expect(result.body).toHaveProperty('languageNames');
+    expect(result.body.languageNames).toHaveLength(2);
+    expect(result.body.languageNames[0].text).toEqual(LANGUAGE_NAMES[LANGUAGE_CODES.ENGLISH]);
+    expect(result.body.languageNames[1].text).toEqual(LANGUAGE_NAMES[LANGUAGE_CODES.KHMER]);
+
+    expect(result.body).toHaveProperty('languagesInDb');
+    expect(result.body.languagesInDb).toEqual([
+      { language: LANGUAGE_CODES.ENGLISH },
+      { language: LANGUAGE_CODES.KHMER },
+    ]);
   });
 });
