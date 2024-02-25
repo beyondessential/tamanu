@@ -78,11 +78,8 @@ const renderAnswer = (question, answer): ReactElement => {
     default:
       if (question.config) {
         const config = JSON.parse(question.config);
-        const {
-          source,
-          writeToPatient: { fieldType },
-        } = config;
-        if (source && fieldType === FieldTypes.AUTOCOMPLETE) {
+        const { source, writeToPatient } = config;
+        if (source && writeToPatient?.fieldType === FieldTypes.AUTOCOMPLETE) {
           return <AutocompleteAnswer question={question} answer={answer} />;
         }
       }
