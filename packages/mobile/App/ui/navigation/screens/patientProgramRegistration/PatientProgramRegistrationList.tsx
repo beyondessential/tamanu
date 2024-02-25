@@ -1,9 +1,9 @@
 import React, { ReactElement } from 'react';
 import { FlatList, TouchableOpacity, View } from 'react-native';
+import { useNavigation, useIsFocused } from '@react-navigation/native';
 import styled from 'styled-components/native';
 import { theme } from '~/ui/styled/theme';
 import { Routes } from '~/ui/helpers/routes';
-import { useNavigation, useIsFocused } from '@react-navigation/native';
 import { useBackendEffect } from '~/ui/hooks/index';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
