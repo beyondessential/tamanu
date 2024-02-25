@@ -9,13 +9,12 @@ import { initDeviceId } from '../sync/initDeviceId';
 import { performDatabaseIntegrityChecks } from '../database';
 import { CentralServerConnection, FacilitySyncManager } from '../sync';
 import { createApp } from '../createApp';
-import { startScheduledTasks } from '../tasks';
 
 import { version } from '../serverInfo';
 import { ApplicationContext } from '../ApplicationContext';
 
-async function serve({ skipMigrationCheck }) {
-  log.info(`Starting facility server version ${version}`, {
+async function startApi({ skipMigrationCheck }) {
+  log.info(`Starting facility API server version ${version}`, {
     serverFacilityId: config.serverFacilityId,
   });
 
@@ -54,11 +53,9 @@ async function serve({ skipMigrationCheck }) {
     log.info('Received SIGTERM, closing HTTP server');
     server.close();
   });
-
-  startScheduledTasks(context);
 }
 
-export const serveCommand = new Command('serve')
-  .description('Start the Tamanu Facility server')
+export const startApiCommand = new Command('startApi')
+  .description('Start the Tamanu Facility API server')
   .option('--skipMigrationCheck', 'skip the migration check on startup')
-  .action(serve);
+  .action(startApi);

@@ -147,9 +147,7 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
       value: <DateDisplay date={date} />,
     },
     injectionSite: {
-      label: (
-        <TranslatedText stringId="vaccine.injectionSite.label" fallback="Injection site" />
-      ),
+      label: <TranslatedText stringId="vaccine.injectionSite.label" fallback="Injection site" />,
       value: injectionSite || '-',
     },
     area: {
@@ -441,21 +439,19 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
   const modalVersion = modalVersions.find(modalType => modalType.condition === true);
   if (!modalVersion) return <ErrorMessage />;
   const fieldGroups = modalVersion.fieldGroups
-    .map(group =>
-      ({
-        ...group,
-        fields: group.fields
-          .filter(field => {
-            // filter out fields if they're conditional on the editMode, and the editMode doesn't match
-            // this can be written more concisely but i want it explicit
-            if (editMode && field.editMode === true) return true;
-            if (!editMode && field.editMode === false) return true;
-            if (!Object.prototype.hasOwnProperty.call(field, 'editMode')) return true;
-            return false;
-          })
-          .map(({ field }) => field)
-      })
-    )
+    .map(group => ({
+      ...group,
+      fields: group.fields
+        .filter(field => {
+          // filter out fields if they're conditional on the editMode, and the editMode doesn't match
+          // this can be written more concisely but i want it explicit
+          if (editMode && field.editMode === true) return true;
+          if (!editMode && field.editMode === false) return true;
+          if (!Object.prototype.hasOwnProperty.call(field, 'editMode')) return true;
+          return false;
+        })
+        .map(({ field }) => field),
+    }))
     .filter(group => {
       // eliminate empty groups
       return group.fields.length > 0;
@@ -471,7 +467,6 @@ export const ViewAdministeredVaccineModal = ({ open, onClose, vaccineRecord }) =
       title={<TranslatedText stringId="vaccine.modal.view.title" fallback="View vaccine record" />}
       open={open}
       onClose={onClose}
-      cornerExitButton={false}
     >
       <ViewAdministeredVaccineContent vaccineRecord={vaccineRecord} />
       <ModalActionRow
