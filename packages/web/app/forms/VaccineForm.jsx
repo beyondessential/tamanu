@@ -18,6 +18,7 @@ import { VaccineNotGivenForm } from './VaccineNotGivenForm';
 import { usePatientCurrentEncounter } from '../api/queries';
 import { useVaccinationSettings } from '../api/queries/useVaccinationSettings';
 import { useAuth } from '../contexts/Auth';
+import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useLocalisation } from '../contexts/Localisation';
 
 const validateGivenElsewhereRequiredField = (status, givenElsewhere) =>
@@ -123,7 +124,9 @@ export const VaccineForm = ({
   if (currentEncounterError || vaccinationDefaultsError) {
     return (
       <ErrorMessage
-        title="Cannot load vaccine form"
+        title={
+          <TranslatedText stringId="vaccine.loadError" fallback="Cannot load vaccine form" />
+        }
         errorMessage={currentEncounterError?.message || vaccinationDefaultsError?.message}
       />
     );

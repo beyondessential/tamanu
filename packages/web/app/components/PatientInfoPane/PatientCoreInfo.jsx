@@ -1,13 +1,13 @@
 import React, { memo } from 'react';
 import styled from 'styled-components';
 import { Button, Typography } from '@material-ui/core';
-import { LocalisedText } from '../LocalisedText';
 import { DateDisplay } from '../DateDisplay';
 import { PatientInitialsIcon } from '../PatientInitialsIcon';
 import { Colors } from '../../constants';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { getDisplayAge } from '../../utils/dateTime';
 import { useLocalisation } from '../../contexts/Localisation';
+import { TranslatedText } from '../Translation/TranslatedText';
 
 const PatientButton = styled(Button)`
   display: block;
@@ -70,11 +70,9 @@ const CoreInfoValue = styled(Typography)`
   text-transform: capitalize;
 `;
 
-const CoreInfoCell = ({ path, children, testId }) => (
+const CoreInfoCell = ({ label, children, testId }) => (
   <CoreInfoCellContainer data-test-id={testId}>
-    <CoreInfoLabel>
-      <LocalisedText path={path} />
-    </CoreInfoLabel>
+    <CoreInfoLabel>{label}</CoreInfoLabel>
     <CoreInfoValue>{children}</CoreInfoValue>
   </CoreInfoCellContainer>
 );
@@ -85,7 +83,9 @@ const DeceasedText = styled.div`
 
 const DeceasedIndicator = ({ death }) => (
   <DeceasedText>
-    <span>Deceased, </span>
+    <span>
+      <TranslatedText stringId="patient.detailsSidebar.deceasedIndicator" fallback="Deceased" />,
+    </span>
     <DateDisplay date={death.date} />
   </DeceasedText>
 );
@@ -123,7 +123,10 @@ const HealthIdDisplay = ({ displayId }) => (
   <HealthIdContainer>
     <HealthId>
       <HealthIdText>
-        <LocalisedText path="fields.displayId.longLabel" />
+        <TranslatedText
+          stringId="general.localisedField.displayId.label"
+          fallback="National Health Number"
+        />
       </HealthIdText>
       <HealthIdText data-test-class="display-id-label">{displayId}</HealthIdText>
     </HealthId>
@@ -138,7 +141,9 @@ export const CoreInfoDisplay = memo(({ patient }) => {
   return (
     <>
       <PatientButton onClick={() => navigateToPatient(patient.id)}>
-        <NameHeader>Patient Details</NameHeader>
+        <NameHeader>
+          <TranslatedText stringId="patient.detailsSidebar.title" fallback="Patient details" />
+        </NameHeader>
         <NameContainer>
           <div>
             <NameText data-test-id="core-info-patient-first-name">{patient.firstName}</NameText>
@@ -149,10 +154,21 @@ export const CoreInfoDisplay = memo(({ patient }) => {
         </NameContainer>
       </PatientButton>
       <CoreInfoSection>
-        <CoreInfoCell path="fields.sex.shortLabel" testId="core-info-patient-sex">
+        <CoreInfoCell
+          label={<TranslatedText stringId="general.localisedField.sex.label" fallback="Sex" />}
+          testId="core-info-patient-sex"
+        >
           {patient.sex}
         </CoreInfoCell>
-        <CoreInfoCell path="fields.dateOfBirth.shortLabel" testId="core-info-patient-dob">
+        <CoreInfoCell
+          label={
+            <TranslatedText
+              stringId="general.localisedField.dateOfBirth.label.short"
+              fallback="DOB"
+            />
+          }
+          testId="core-info-patient-dob"
+        >
           <DateDisplay date={patient.dateOfBirth} />
           <AgeDisplay>{` (${getDisplayAge(patient.dateOfBirth, ageDisplayFormat)})`}</AgeDisplay>
         </CoreInfoCell>

@@ -5,6 +5,7 @@ import { FormModal } from './FormModal';
 import { Colors } from '../constants';
 import { TriageForm } from '../forms/TriageForm';
 import { DateDisplay } from './DateDisplay';
+import { TranslatedText } from './Translation/TranslatedText';
 
 const Header = styled.div`
   font-weight: 500;
@@ -68,8 +69,20 @@ export const TriageModal = React.memo(
     ));
 
     return (
-      <FormModal title="New emergency triage" open={open} width="md" onClose={onClose}>
-        <Header>Patient details</Header>
+      <FormModal
+        title={
+          <TranslatedText stringId="patient.modal.triage.title" fallback="New emergency triage" />
+        }
+        open={open}
+        width="md"
+        onClose={onClose}
+      >
+        <Header>
+          <TranslatedText
+            stringId="patient.modal.triage.patientDetails.heading"
+            fallback="Patient details"
+          />
+        </Header>
         <PatientDetails>
           <Grid>{detailsFields}</Grid>
           <DisplayIdLabel>{displayId}</DisplayIdLabel>

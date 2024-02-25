@@ -7,17 +7,31 @@ import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { AutocompleteField, Field, Form } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { FormSubmitCancelRow } from '../components/ButtonRow';
-import { useLocalisedText } from '../components';
+import { LowerCase } from '../components';
+import { TranslatedText } from '../components/Translation/TranslatedText';
 
 export const ChangeClinicianForm = ({ clinicianSuggester, onCancel, onSubmit }) => {
-  const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
-
   const renderForm = ({ submitForm }) => (
     <FormGrid columns={1}>
       <Field
         name="examinerId"
         component={AutocompleteField}
-        label={`Search new ${clinicianText.toLowerCase()}`}
+        label={
+          <TranslatedText
+            stringId="patient.changeClinician.examinerId.label"
+            fallback="Search new :clinician"
+            replacements={{
+              clinician: (
+                <LowerCase>
+                  <TranslatedText
+                    stringId="general.localisedField.clinician.label.short"
+                    fallback="Clinician"
+                  />
+                </LowerCase>
+              ),
+            }}
+          />
+        }
         required
         suggester={clinicianSuggester}
       />
@@ -32,7 +46,7 @@ export const ChangeClinicianForm = ({ clinicianSuggester, onCancel, onSubmit }) 
         submittedTime: getCurrentDateTimeString(),
       }}
       validationSchema={yup.object().shape({
-        examinerId: yup.string().required(`${clinicianText} is required`),
+        examinerId: yup.string().required('Required'),
       })}
       render={renderForm}
       onSubmit={onSubmit}

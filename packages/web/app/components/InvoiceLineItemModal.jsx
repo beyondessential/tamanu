@@ -8,6 +8,7 @@ import { FormModal } from './FormModal';
 import { AutocompleteField, DateField, Field, Form, NumberField } from './Field';
 import { FormGrid } from './FormGrid';
 import { FormSubmitCancelRow } from './ButtonRow';
+import { TranslatedText } from './Translation/TranslatedText';
 
 export const InvoiceLineItemModal = ({
   title,
@@ -58,29 +59,55 @@ export const InvoiceLineItemModal = ({
           <FormGrid>
             <Field
               name="dateGenerated"
-              label="Date"
+              label={<TranslatedText stringId="general.date.label" fallback="Date" />}
               required
               component={DateField}
               saveDateAsString
             />
             <Field
               name="invoiceLineTypeId"
-              label="Details"
+              label={
+                <TranslatedText
+                  stringId="invoice.modal.addInvoice.details.label"
+                  fallback="Details"
+                />
+              }
               required
               component={AutocompleteField}
               suggester={invoiceLineTypeSuggester}
             />
             <Field
               name="orderedById"
-              label="Ordered by"
+              label={
+                <TranslatedText
+                  stringId="invoice.modal.addInvoice.orderedBy.label"
+                  fallback="Ordered by"
+                />
+              }
               required
               component={AutocompleteField}
               suggester={practitionerSuggester}
             />
-            <Field name="price" label="Price ($)" required disabled component={NumberField} />
+            <Field
+              name="price"
+              label={
+                <TranslatedText
+                  stringId="invoice.modal.addInvoice.price.label"
+                  fallback="Price ($)"
+                />
+              }
+              required
+              disabled
+              component={NumberField}
+            />
             <Field
               name="percentageChange"
-              label="Discount/markup % (-/+)"
+              label={
+                <TranslatedText
+                  stringId="invoice.modal.addInvoice.percentageChange.label"
+                  fallback="Discount/markup % (-/+)"
+                />
+              }
               component={NumberField}
             />
             <FormSubmitCancelRow
