@@ -1,12 +1,10 @@
 import express from 'express';
 import config from 'config';
 import { log } from '@tamanu/shared/services/logging';
+import { keyBy, mapValues } from 'lodash';
 
 import { labResultWidgetRoutes } from './labResultWidget';
 import { publicIntegrationRoutes } from '../integrations';
-
-import { getLanguageOptions } from '@tamanu/shared/utils/translation/getLanguageOptions';
-import { NOT_MODIFIED_STATUS_CODE } from '@tamanu/constants';
 
 export const publicRoutes = express.Router();
 
@@ -27,15 +25,24 @@ publicRoutes.get('/ping', (_req, res) => {
   res.send({ ok: true });
 });
 
-publicRoutes.get('/translation/preLogin', async (req, res) => {
-  const response = await getLanguageOptions(req.models, req.headers['if-none-match']);
-  if (response === NOT_MODIFIED_STATUS_CODE) {
-    res.status(NOT_MODIFIED_STATUS_CODE).end();
-    return;
-  }
-  res.setHeader('Cache-Control', 'no-cache');
-  res.setHeader('ETag', response.eTag);
-  res.send(response.languageOptions);
+publicRoutes.get('/translation/languageOptions', async (req, res) => {
+  const { TranslatedString } = req.models;
+  const response = await TranslatedString.getPossibleLanguages();
+  res.send(response);
+});
+
+publicRoutes.get('/translation/:language', async (req, res) => {
+  const {
+    models: { TranslatedString },
+    params: { language },
+  } = req;
+
+  const translatedStringRecords = await TranslatedString.findAll({
+    where: { language },
+    attributes: ['stringId', 'text'],
+  });
+
+  res.send(mapValues(keyBy(translatedStringRecords, 'stringId'), 'text'));
 });
 
 publicRoutes.use('/labResultWidget', labResultWidgetRoutes);
