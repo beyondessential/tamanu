@@ -74,6 +74,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
         const type = notification.get('type');
         const printedBy = notification.get('createdBy');
         const printedDate = notification.get('printedDate');
+        const facilityName = notification.get('facilityName');
 
         const { country } = await getLocalisation();
         const countryCode = country['alpha-2'];
@@ -188,7 +189,13 @@ export class CertificateNotificationProcessor extends ScheduledTask {
 
           case VACCINATION_CERTIFICATE:
             template = 'vaccineCertificateEmail';
-            pdf = await makeVaccineCertificate(patient, printedBy, printedDate, models);
+            pdf = await makeVaccineCertificate(
+              patient,
+              printedBy,
+              printedDate,
+              facilityName,
+              models,
+            );
             break;
 
           default:

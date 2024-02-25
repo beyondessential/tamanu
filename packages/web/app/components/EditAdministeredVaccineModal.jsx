@@ -40,7 +40,7 @@ export const EditAdministeredVaccineModal = ({ open, onClose, patientId, vaccine
   const notGiven = VACCINE_STATUS.NOT_GIVEN === vaccineRecord?.status;
 
   return (
-    <FormModal title="Edit vaccine record" open={open} onClose={onClose} cornerExitButton={false}>
+    <FormModal title="Edit vaccine record" open={open} onClose={onClose}>
       <ViewAdministeredVaccineContent vaccineRecord={vaccineRecord} editMode />
       <VaccineForm
         onSubmit={handleUpdateVaccine}
