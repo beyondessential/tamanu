@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import { compose } from 'redux';
 import styled from 'styled-components/native';
-import { StyledView, RowView } from '/styled/common';
+import { StyledView } from '/styled/common';
 import { SectionHeader } from '/components/SectionHeader';
 import { theme } from '/styled/theme';
 import { Button } from '~/ui/components/Button';

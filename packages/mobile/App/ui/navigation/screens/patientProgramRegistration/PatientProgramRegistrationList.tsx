@@ -1,6 +1,4 @@
 import React, { ReactElement } from 'react';
-import { RowView } from '/styled/common';
-import { Subheading } from 'react-native-paper';
 import { FlatList, TouchableOpacity, View } from 'react-native';
 import styled from 'styled-components/native';
 import { theme } from '~/ui/styled/theme';
