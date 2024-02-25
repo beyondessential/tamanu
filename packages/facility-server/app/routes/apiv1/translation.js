@@ -1,6 +1,5 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { mapValues, keyBy } from 'lodash';
 import { ENGLISH_LANGUAGE_CODE } from '@tamanu/constants';
 
 export const translation = express.Router();
