@@ -34,7 +34,11 @@ export const LocalisedField = ({
 
   useEffect(() => {
     if (!shouldPrefillDefaultValue({ initialValue, formType, hidden, defaultValue })) return;
-    setFieldValue(name, defaultValue);
+    if (Array.isArray(defaultValue)) {
+      setFieldValue(name, JSON.stringify(defaultValue));
+    } else {
+      setFieldValue(name, defaultValue);
+    }
     // only check to prefill default value when initialValue or formType changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialValue, formType]);

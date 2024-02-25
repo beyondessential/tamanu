@@ -821,7 +821,11 @@
           "shortLabel": "Reason",
           "longLabel": "Reason",
           "hidden": false
-        }
+        },
+        "circumstanceIds": {
+          "shortLabel": "Circumstance",
+          "longLabel": "Circumstance"
+        },
       },
       "features": {
         "editPatientDetailsOnMobile": true,

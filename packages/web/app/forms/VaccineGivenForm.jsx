@@ -28,7 +28,7 @@ import {
   VaccineLabelField,
   VaccineNameField,
 } from '../components/VaccineCommonFields';
-import { CheckField, Field, SuggesterSelectField } from '../components/Field';
+import { CheckField, Field, LocalisedField, SuggesterSelectField } from '../components/Field';
 
 export const VACCINE_GIVEN_INITIAL_VALUES = {
   givenElsewhere: false,
@@ -99,9 +99,8 @@ export const VaccineGivenForm = ({
       {values.givenElsewhere && (
         <>
           <FullWidthCol>
-            <Field
+            <LocalisedField
               name="circumstanceIds"
-              label="Circumstances"
               component={SuggesterSelectField}
               endpoint="vaccineCircumstance"
               isMulti
