@@ -6,8 +6,10 @@ import { useApi } from '../../api';
 import { SelectInput } from './SelectField';
 import { MultiselectInput } from './MultiselectField';
 
+import { getTranslatedOptions } from '../Translation/getTranslatedOptions';
+
 export const SuggesterSelectField = React.memo(
-  ({ field, endpoint, filterByFacility, isMulti = false, initialOptions = [], ...props }) => {
+  ({ field, endpoint, filterByFacility, isMulti = false, initialOptions = [], prefix, ...props }) => {
     const api = useApi();
     const [options, setOptions] = useState(initialOptions);
 
@@ -69,7 +71,7 @@ export const SuggesterSelectField = React.memo(
       name: field.name,
       onChange: field.onChange,
       value: field.value,
-      options,
+      options: getTranslatedOptions(options, prefix),
     };
 
     return isMulti ? (

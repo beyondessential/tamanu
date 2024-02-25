@@ -71,6 +71,7 @@ export const LabRequestFormScreen1 = ({
         label={<TranslatedText stringId="lab.priority.label" fallback="Priority" />}
         component={SuggesterSelectField}
         endpoint="labTestPriority"
+        prefix="general.localisedField.priority"
       />
       <FormSeparatorLine />
       <LabRequestFormTypeRadioField setFieldValue={setFieldValue} value={values.requestFormType} />

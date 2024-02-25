@@ -226,6 +226,7 @@ export const TestSelectorInput = ({
                 }
                 endpoint="labTestCategory"
                 name="labTestCategoryId"
+                prefix="general.localisedField.category"
               />
               <FormSeparatorLine />
             </>

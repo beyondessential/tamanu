@@ -71,6 +71,7 @@ export const VaccineNotGivenForm = ({
       label={<TranslatedText stringId="vaccine.notGivenReason.label" fallback="Reason" />}
       component={SuggesterSelectField}
       endpoint="vaccineNotGivenReason"
+      prefix="vaccine.notGivenReason"
     />
 
     <VaccineDateField

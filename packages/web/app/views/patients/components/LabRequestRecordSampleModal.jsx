@@ -14,6 +14,7 @@ import {
 import { Colors } from '../../../constants';
 import { useSuggester } from '../../../api';
 import { ModalFormActionRow } from '../../../components/ModalActionRow';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const validationSchema = yup.object().shape({
   sampleTime: yup.date().required(),
@@ -96,10 +97,11 @@ const LabRequestRecordSampleForm = ({ submitForm, values, onClose }) => {
           />
           <StyledField
             name="labSampleSiteId"
-            label="Site"
+            label={<TranslatedText stringId="general.localisedField.sampleSite.label" fallback="Site" />}
             disabled={!values.sampleTime}
             component={SuggesterSelectField}
             endpoint="labSampleSite"
+            prefix="general.localisedField.sampleSite"
           />
         </FormGrid>
       </FieldContainer>

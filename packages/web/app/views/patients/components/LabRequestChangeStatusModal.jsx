@@ -13,6 +13,8 @@ import {
   SelectField,
 } from '../../../components';
 
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
+
 import { LAB_REQUEST_STATUS_OPTIONS } from '../../../constants';
 
 const validationSchema = yup.object().shape({
@@ -64,9 +66,10 @@ export const LabRequestChangeStatusModal = React.memo(
                     />
                     <Field
                       name="labSampleSiteId"
-                      label="Site"
+                      label={<TranslatedText stringId="general.localisedField.sampleSite.label" fallback="Site" />}
                       component={SuggesterSelectField}
                       endpoint="labSampleSite"
+                      prefix="general.localisedField.sampleSite"
                     />
                   </>
                 )}

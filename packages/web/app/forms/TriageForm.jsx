@@ -103,6 +103,7 @@ export const TriageForm = ({
           }
           component={SuggesterSelectField}
           endpoint="arrivalMode"
+          prefix="general.localisedField.arrivalModeId"
         />
         <Field
           name="score"

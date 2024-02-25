@@ -20,5 +20,6 @@ export const LabTestCategoryField = ({
     component={SuggesterSelectField}
     endpoint="labTestCategory"
     required={required}
+    prefix="general.localisedField.category"
   />
 );

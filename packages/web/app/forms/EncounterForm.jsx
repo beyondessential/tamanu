@@ -112,6 +112,7 @@ export const EncounterForm = React.memo(
             }
             endpoint="patientBillingType"
             component={SuggesterSelectField}
+            prefix="general.localisedField.patientBillingTypeId"
           />
           <Field
             name="reasonForEncounter"

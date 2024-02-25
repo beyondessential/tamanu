@@ -117,6 +117,7 @@ export const VaccineGivenForm = ({
               endpoint="vaccineCircumstance"
               isMulti
               required
+              prefix="vaccine.circumstances"
             />
           </FullWidthCol>
           <StyledDivider />

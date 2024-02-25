@@ -135,6 +135,7 @@ export const PersonalInformationFields = ({ patientRegistryType, showMandatory }
           fallback="Patient type"
         />
       ),
+      prefix: 'general.localisedField.patientBillingTypeId'
     },
     motherId: {
       component: AutocompleteField,

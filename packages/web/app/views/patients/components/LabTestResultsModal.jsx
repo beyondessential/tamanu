@@ -107,6 +107,7 @@ const getColumns = (count, onChangeResult, areLabTestResultsReadOnly) => {
           name={LAB_TEST_PROPERTIES.LAB_TEST_METHOD_ID}
           component={SuggesterSelectField}
           tabIndex={tabIndex(1, i)}
+          prefix="general.localisedField.testMethod"
         />
       ),
     },

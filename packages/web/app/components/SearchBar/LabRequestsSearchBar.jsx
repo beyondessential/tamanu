@@ -84,6 +84,7 @@ export const LabRequestsSearchBar = ({ status = '' }) => {
                 component={SuggesterSelectField}
                 endpoint="labTestLaboratory"
                 size="small"
+                prefix="general.localisedField.laboratory"
               />
               <LocalisedField
                 name="priority"
@@ -96,6 +97,7 @@ export const LabRequestsSearchBar = ({ status = '' }) => {
                 component={SuggesterSelectField}
                 endpoint="labTestPriority"
                 size="small"
+                prefix="general.localisedField.priority"
               />
             </>
           )}
@@ -137,17 +139,29 @@ export const LabRequestsSearchBar = ({ status = '' }) => {
         <Field name="requestId" label="Test ID" component={SearchField} />
         <Field
           name="category"
-          label="Test category"
+          label={
+            <TranslatedText
+              stringId="general.localisedField.category.label"
+              fallback="Test category"
+            />
+          }
           component={SuggesterSelectField}
           endpoint="labTestCategory"
           size="small"
+          prefix="general.localisedField.category"
         />
         <Field
           name="labTestPanelId"
-          label="Panel"
+          label={
+            <TranslatedText
+              stringId="general.localisedField.panel.label"
+              fallback="Panel"
+            />
+          }
           component={SuggesterSelectField}
           endpoint="labTestPanel"
           size="small"
+          prefix="general.localisedField.panel"
         />
         <LocalisedField
           name="requestedDateFrom"
@@ -184,6 +198,7 @@ export const LabRequestsSearchBar = ({ status = '' }) => {
             component={SuggesterSelectField}
             endpoint="labTestLaboratory"
             size="small"
+            prefix="general.localisedField.laboratory"
           />
         ) : (
           <LocalisedField
