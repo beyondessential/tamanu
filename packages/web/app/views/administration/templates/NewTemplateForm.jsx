@@ -45,6 +45,7 @@ export const NewTemplateForm = memo(({ onSubmit }) => {
           component={SelectField}
           options={TEMPLATE_TYPE_OPTIONS}
           required
+          prefix="template.property.type"
         />
         <Field name="name" label="Template name" component={TextField} required />
       </FormGrid>
