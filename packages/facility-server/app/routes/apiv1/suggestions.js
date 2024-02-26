@@ -13,6 +13,7 @@ import {
   SURVEY_TYPES,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
+import { keyBy, map } from 'lodash';
 
 export const suggestions = express.Router();
 
@@ -21,10 +22,9 @@ const defaultLimit = 25;
 const defaultMapper = ({ name, code, id }) => ({ name, code, id });
 
 const replaceDataLabelsWithTranslations = ({ data, translations, endpoint }) => {
+  const translationsByKey = keyBy(translations, 'stringId');
   return data.map(item => {
-    const translatedText = translations.find(
-      obj => obj.stringId === `refData.${endpoint}.${item.id}`,
-    )?.text;
+    const translatedText = translationsByKey[`refData.${endpoint}.${item.id}`]?.text;
     if (!translatedText) return item;
     return { ...item, name: translatedText };
   });
