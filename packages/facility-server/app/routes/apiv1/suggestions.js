@@ -129,8 +129,21 @@ function createAllRecordsRoute(
         replacements: extraReplacementsBuilder(query),
       });
 
+      const mappedResults = await Promise.all(results.map(mapper));
+
+      const translatedStrings = await models.TranslatedString.getReferenceDataByEndpoint({
+        language: query.language,
+        endpoint,
+      });
+
+      const translatedResults = replaceDataLabelsWithTranslations({
+        data: mappedResults,
+        translations: translatedStrings,
+        endpoint,
+      });
+
       // Allow for async mapping functions (currently only used by location suggester)
-      res.send(await Promise.all(results.map(mapper)));
+      res.send(translatedResults);
     }),
   );
 }

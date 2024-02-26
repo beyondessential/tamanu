@@ -5,6 +5,7 @@ import { unionBy } from 'lodash';
 import { useApi } from '../../api';
 import { SelectInput } from './SelectField';
 import { MultiselectInput } from './MultiselectField';
+import { getCurrentLanguageCode } from '../../utils/translation';
 
 export const SuggesterSelectField = React.memo(
   ({ field, endpoint, filterByFacility, isMulti = false, initialOptions = [], ...props }) => {
@@ -26,7 +27,9 @@ export const SuggesterSelectField = React.memo(
 
         for (const value of values) {
           api
-            .get(`suggestions/${encodeURIComponent(endpoint)}/${encodeURIComponent(value)}`)
+            .get(`suggestions/${encodeURIComponent(endpoint)}/${encodeURIComponent(value)}`, {
+              language: getCurrentLanguageCode(),
+            })
             .then(({ id, name }) => {
               setOptions(currentOptions =>
                 unionBy(
@@ -50,7 +53,10 @@ export const SuggesterSelectField = React.memo(
 
     useEffect(() => {
       api
-        .get(`suggestions/${encodeURIComponent(endpoint)}/all`, { filterByFacility })
+        .get(`suggestions/${encodeURIComponent(endpoint)}/all`, {
+          filterByFacility,
+          language: getCurrentLanguageCode(),
+        })
         .then(resultData => {
           setOptions(currentOptions =>
             unionBy(
