@@ -87,6 +87,7 @@ export const AssetUploaderView = memo(() => {
                 label="Select asset"
                 name="name"
                 required
+                prefix="asset.property.type"
               />
               <Field
                 component={FileChooserField}

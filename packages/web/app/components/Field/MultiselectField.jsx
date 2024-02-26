@@ -7,6 +7,7 @@ import FormHelperText from '@material-ui/core/FormHelperText';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { StyledTextField } from './TextField';
 import { Colors } from '../../constants';
+import { getTranslatedOptions } from '../Translation/getTranslatedOptions';
 
 const StyledFormControl = styled(FormControl)`
   display: flex;
@@ -257,4 +258,20 @@ MultiselectInput.defaultProps = {
   form: {
     initialValues: {},
   },
+};
+
+export const MultiselectField = ({ field, options, prefix, value, name, ...props }) => (
+  <MultiselectInput
+    options={getTranslatedOptions(options, prefix)}
+    value={field ? field.value : value}
+    name={field ? field.name : name}
+    {...props}
+  />
+);
+
+MultiselectField.propTypes = {
+  options: PropTypes.array.isRequired,
+  prefix: PropTypes.string.isRequired,
+  name: PropTypes.string.isRequired,
+  value: PropTypes.any.isRequired,
 };

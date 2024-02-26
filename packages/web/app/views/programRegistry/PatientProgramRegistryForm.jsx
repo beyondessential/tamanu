@@ -19,8 +19,6 @@ import { foreignKey, optionalForeignKey } from '../../utils/validation';
 import { useSuggester } from '../../api';
 import { useAuth } from '../../contexts/Auth';
 import { useApi } from '../../api/useApi';
-import { MultiselectField } from '../../components/Translation/TranslatedSelectField.jsx';
-
 export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject }) => {
   const api = useApi();
   const { currentUser, facility } = useAuth();

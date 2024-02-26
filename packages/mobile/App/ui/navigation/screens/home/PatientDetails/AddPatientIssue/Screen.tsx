@@ -4,9 +4,9 @@ import * as Yup from 'yup';
 import { Formik } from 'formik';
 import { ScrollView } from 'react-native-gesture-handler';
 
+import { SubmitButton } from '/components/Forms/SubmitButton';
 import { Field } from '~/ui/components/Forms/FormField';
 import { TextField } from '~/ui/components/TextField/TextField';
-import { Button } from '~/ui/components/Button';
 import { IPatient } from '~/types';
 import { StackHeader } from '~/ui/components/StackHeader';
 import { FullView } from '~/ui/styled/common';
@@ -65,7 +65,7 @@ export const Screen = ({
                 label={<TranslatedText stringId="general.form.note.label" fallback="Note" />}
                 name="note"
               />
-              <Button
+              <SubmitButton
                 marginTop={10}
                 onPress={handleSubmit}
                 buttonText={<TranslatedText stringId="general.action.submit" fallback="Submit" />}

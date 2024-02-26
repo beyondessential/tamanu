@@ -74,6 +74,7 @@ export const AppointmentsSearchBar = ({ onSearch }) => {
         component={SelectField}
         options={APPOINTMENT_TYPE_OPTIONS}
         size="small"
+        prefix="appointment.property.type"
       />
       <LocalisedField
         name="status"
@@ -86,6 +87,7 @@ export const AppointmentsSearchBar = ({ onSearch }) => {
         component={SelectField}
         options={APPOINTMENT_STATUS_OPTIONS}
         size="small"
+        prefix="appointment.property.status"
       />
       <LocalisedField
         saveDateAsString

@@ -3,6 +3,7 @@ import express from 'express';
 import { constructPermission } from '@tamanu/shared/permissions/middleware';
 import { authMiddleware, loginHandler, refreshHandler } from '../../middleware/auth';
 import asyncHandler from 'express-async-handler';
+import { keyBy, mapValues } from 'lodash';
 
 import { allergy } from './allergy';
 import { appointments } from './appointments';
@@ -68,17 +69,32 @@ apiv1.get(
   }),
 );
 
-apiv1.get('/public/translation/preLogin', async (req, res) => {
+apiv1.get('/public/translation/languageOptions', async (req, res) => {
   req.flagPermissionChecked();
-  const response = await getLanguageOptions(req.models, req.headers['if-none-match']);
-  if (response === NOT_MODIFIED_STATUS_CODE) {
-    res.status(NOT_MODIFIED_STATUS_CODE).end();
-    return;
-  }
-  res.setHeader('Cache-Control', 'no-cache');
-  res.setHeader('ETag', response.eTag);
-  res.send(response.languageOptions);
+  const { TranslatedString } = req.models;
+  const response = await TranslatedString.getPossibleLanguages();
+  res.send(response);
 });
+
+apiv1.get(
+  '/public/translation/:language',
+  asyncHandler(async (req, res) => {
+    // Everyone can access translations
+    req.flagPermissionChecked();
+
+    const {
+      models: { TranslatedString },
+      params: { language },
+    } = req;
+
+    const translatedStringRecords = await TranslatedString.findAll({
+      where: { language },
+      attributes: ['stringId', 'text'],
+    });
+
+    res.send(mapValues(keyBy(translatedStringRecords, 'stringId'), 'text'));
+  }),
+);
 
 apiv1.use(authMiddleware);
 apiv1.use(constructPermission);

@@ -162,6 +162,7 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFie
             ({ value }) => value !== IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
           )}
           size="small"
+          prefix="imaging.property.status"
         />
       )}
       {isCompletedTable && <Spacer />}
@@ -173,6 +174,7 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFie
         component={SelectField}
         options={imagingTypeOptions}
         size="small"
+        prefix="imaging.property.type"
       />
       <LocalisedField
         name="requestedDateFrom"
@@ -205,6 +207,7 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFie
           component={SelectField}
           options={imagingPriorities}
           size="small"
+          prefix="imaging.property.priority"
         />
       )}
       {isCompletedTable && (

@@ -61,7 +61,6 @@ const HEADERS = [
   <TranslatedText
     key="dateTimeCollected"
     stringId="lab.sampleDetail.table.column.collectionDateTime"
-    key="lab.sampleDetail.table.column.collectionDateTime"
     fallback="Date & time collected"
   />,
   <TranslatedText

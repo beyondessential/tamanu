@@ -13,7 +13,7 @@ import {
   LocalisedField,
   LocalisedLocationField,
   LocationAvailabilityWarningMessage,
-  SelectField,
+  BaseSelectField,
   SuggesterSelectField,
   TextField,
 } from '../components';
@@ -50,7 +50,7 @@ export const EncounterForm = React.memo(
               />
             }
             disabled
-            component={SelectField}
+            component={BaseSelectField}
             options={ENCOUNTER_OPTIONS}
           />
           <Field

@@ -13,8 +13,8 @@ export const ChangePasswordForm: FunctionComponent<ChangePasswordFormProps> = ({
     validationSchema={changePasswordValidationSchema}
     onSubmit={onSubmitForm}
   >
-    {({ handleSubmit, isSubmitting }): ReactElement => (
-      <ChangePasswordFields handleSubmit={handleSubmit} isSubmitting={isSubmitting} />
+    {(): ReactElement => (
+      <ChangePasswordFields />
     )}
   </Form>
 );

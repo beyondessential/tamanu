@@ -252,6 +252,7 @@ export const DeathForm = React.memo(
             component={SelectField}
             options={MANNER_OF_DEATH_OPTIONS}
             required
+            prefix="death.property.mannerOfDeath"
           />
           <Field
             name="mannerOfDeathDate"
@@ -266,6 +267,7 @@ export const DeathForm = React.memo(
             component={SelectField}
             options={placeOptions}
             visibilityCriteria={mannerOfDeathVisibilityCriteria}
+            prefix="death.property.mannerOfDeath.location"
           />
           <Field
             name="mannerOfDeathOther"

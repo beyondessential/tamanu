@@ -1,5 +1,4 @@
 import React, { ReactElement, useCallback, useRef } from 'react';
-import { theme } from '/styled/theme';
 import { StyledView } from '/styled/common';
 import { Form } from '../Form';
 import { FormScreenView } from '/components/Forms/FormScreenView';
@@ -12,8 +11,8 @@ import {
 import { PatientAdditionalData } from '~/models/PatientAdditionalData';
 import { PatientFieldValue } from '~/models/PatientFieldValue';
 import { Routes } from '~/ui/helpers/routes';
-import { additionalDataSections } from '/helpers/additionalData';
-import { Button } from '../../Button';
+import { additionalDataSections } from '~/ui/helpers/additionalData';
+import { SubmitButton } from '../SubmitButton';
 import { TranslatedText } from '/components/Translations/TranslatedText';
 
 export const PatientAdditionalDataForm = ({
@@ -72,7 +71,7 @@ export const PatientAdditionalDataForm = ({
       validationSchema={patientAdditionalDataValidationSchema}
       onSubmit={onCreateOrEditAdditionalData}
     >
-      {({ handleSubmit, isSubmitting }): ReactElement => (
+      {(): ReactElement => (
         <FormScreenView scrollViewRef={scrollViewRef}>
           <StyledView justifyContent="space-between">
             <PatientAdditionalDataFields
@@ -80,13 +79,7 @@ export const PatientAdditionalDataForm = ({
               isCustomFields={isCustomFields}
               showMandatory={false}
             />
-            <Button
-              backgroundColor={theme.colors.PRIMARY_MAIN}
-              onPress={handleSubmit}
-              loadingAction={isSubmitting}
-              buttonText={<TranslatedText stringId="general.action.save" fallback="Save" />}
-              marginTop={10}
-            />
+            <SubmitButton buttonText={<TranslatedText stringId="general.action.save" fallback="Save" />} marginTop={10} />
           </StyledView>
         </FormScreenView>
       )}

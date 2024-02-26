@@ -119,11 +119,11 @@ patientProgramRegistration.get(
 
     const registration = await PatientProgramRegistration.findOne({
       where: {
+        isMostRecent: true,
         patientId,
         programRegistryId,
       },
       include: PatientProgramRegistration.getFullReferenceAssociations(),
-      order: [['date', 'DESC']],
       raw: true,
       nest: true,
     });

@@ -66,19 +66,16 @@ export const DiagnosisForm = React.memo(
             <Field
               style={{ gridColumn: '1 / -1' }}
               name="isPrimary"
-              label={
-                <TranslatedText stringId="diagnosis.isPrimary.label" fallback="Is primary" />
-              }
+              label={<TranslatedText stringId="diagnosis.isPrimary.label" fallback="Is primary" />}
               component={CheckField}
             />
             <Field
               name="certainty"
-              label={
-                <TranslatedText stringId="diagnosis.certainty.label" fallback="Certainty" />
-              }
+              label={<TranslatedText stringId="diagnosis.certainty.label" fallback="Certainty" />}
               component={SelectField}
               options={certaintyOptions}
               required
+              prefix="diagnosis.property.certainty"
             />
             <Field
               name="date"
