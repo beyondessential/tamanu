@@ -138,13 +138,7 @@ describe('TranslatedString', () => {
         endpoint: EXPECTED_REFDATA_TYPE,
       });
 
-      console.log(translations[0].get({ plain: true }));
-
       expect(translations).toHaveLength(1);
-      // expect(translations[0].get({ plain: true })).toEqual({
-      //   stringId: expectedTranslation.stringId,
-      //   text: expectedTranslation.text,
-      // });
       expect(expectedTranslation.get({ plain: true })).toMatchObject(
         translations[0].get({ plain: true }),
       );
