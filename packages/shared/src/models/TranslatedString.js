@@ -1,5 +1,5 @@
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import { DataTypes } from 'sequelize';
+import { DataTypes, Op } from 'sequelize';
 import { Model } from './Model';
 
 export class TranslatedString extends Model {
@@ -83,5 +83,17 @@ export class TranslatedString extends Model {
     });
 
     return { languagesInDb, languageNames };
+  };
+
+  static getReferenceDataByEndpoint = async ({ language, endpoint }) => {
+    return this.findAll({
+      where: {
+        language: language,
+        stringId: {
+          [Op.startsWith]: `refData.${endpoint}`,
+        },
+      },
+      attributes: ['stringId', 'text'],
+    });
   };
 }

@@ -20,6 +20,16 @@ const defaultLimit = 25;
 
 const defaultMapper = ({ name, code, id }) => ({ name, code, id });
 
+const replaceDataLabelsWithTranslations = ({ data, translations, endpoint }) => {
+  return data.map(item => {
+    const translatedText = translations.find(
+      obj => obj.stringId === `refData.${endpoint}.${item.id}`,
+    )?.text;
+    if (!translatedText) return item;
+    return { ...item, name: translatedText };
+  });
+};
+
 function createSuggesterRoute(
   endpoint,
   modelName,
@@ -31,8 +41,6 @@ function createSuggesterRoute(
     asyncHandler(async (req, res) => {
       req.checkPermission('list', modelName);
       const { models, query } = req;
-      const { TranslatedString } = models;
-
       const model = models[modelName];
 
       const positionQuery = literal(
@@ -53,25 +61,15 @@ function createSuggesterRoute(
 
       const mappedResults = await Promise.all(results.map(mapper));
 
-      const translatedStrings = (
-        await TranslatedString.findAll({
-          where: {
-            language: 'en',
-            stringId: {
-              [Op.startsWith]: `refData.${endpoint}`,
-            },
-          },
-          attributes: ['stringId', 'text'],
-        })
-      ).map(t => t.get({ plain: true }));
+      const translatedStrings = await models.TranslatedString.getReferenceDataByEndpoint({
+        language: query.language,
+        endpoint,
+      });
 
-      const translatedResults = mappedResults.map(result => {
-        const translatedText = translatedStrings.find(
-          obj => obj.stringId === `refData.${endpoint}.${result.id}`,
-        )?.text;
-
-        if (!translatedText) return result;
-        return { ...result, name: translatedText };
+      const translatedResults = replaceDataLabelsWithTranslations({
+        data: mappedResults,
+        translations: translatedStrings,
+        endpoint,
       });
 
       // Allow for async mapping functions (currently only used by location suggester)
@@ -87,12 +85,26 @@ function createSuggesterLookupRoute(endpoint, modelName, { mapper }) {
   suggestions.get(
     `/${endpoint}/:id`,
     asyncHandler(async (req, res) => {
-      const { models, params } = req;
+      const { models, params, query } = req;
       req.checkPermission('list', modelName);
       const record = await models[modelName].findByPk(params.id);
       if (!record) throw new NotFoundError();
+
+      const mappedRecord = await mapper(record);
+
+      const translatedStrings = await models.TranslatedString.getReferenceDataByEndpoint({
+        language: query.language,
+        endpoint,
+      });
+
+      const translatedRecord = replaceDataLabelsWithTranslations({
+        data: [mappedRecord],
+        translations: translatedStrings,
+        endpoint,
+      })[0];
+
       req.checkPermission('read', record);
-      res.send(await mapper(record));
+      res.send(translatedRecord);
     }),
   );
 }
