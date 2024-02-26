@@ -8,12 +8,12 @@ const styles = StyleSheet.create({
     position: 'absolute',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    bottom: 16,
-    left: 30,
-    right: 30,
+    bottom: 25,
+    left: 50,
+    right: 50,
     color: '#888888',
     borderTop: '1px solid #888888',
-    paddingTop: 5,
+    paddingTop: 2,
   },
 
   footerLeftContent: {
@@ -53,7 +53,7 @@ const ValueText = ({ children, props }) => (
 
 export const Footer = ({ printDate, printFacility, printedBy, style }) => {
   return (
-    <View style={[styles.footer, style]}>
+    <View style={[styles.footer, style]} fixed>
       <View style={styles.footerLeftContent}>
         <LabelText>Print date: </LabelText>
         <ValueText>{getDisplayDate(printDate || getCurrentDateString())}</ValueText>
