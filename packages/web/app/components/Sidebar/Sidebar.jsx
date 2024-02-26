@@ -227,12 +227,12 @@ export const Sidebar = React.memo(({ items }) => {
         )}
       </HeaderContainer>
       <List component="nav">
-        {items.map(item => {
+        {items.map((item, i) => {
           const commonProps = {
             retracted: isRetracted,
             icon: item.icon,
             label: item.label,
-            divider: item.divider,
+            divider: i === items.length - 1 && item.divider, // Only the bottom item can have a divider
             path: item.path,
             highlighted: isHighlighted(
               currentPath,
