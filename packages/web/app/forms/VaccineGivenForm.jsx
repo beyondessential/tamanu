@@ -176,35 +176,14 @@ export const VaccineGivenForm = ({
           <ConsentField
             label={
               values.givenElsewhere
-                ? 'Do you have consent to record in Tamanu?'
-                : 'Do you have consent from the recipient/parent/guardian to give this vaccine and record in Tamanu?'
+                ? 'Do you have consent to record this vaccine?'
+                : 'Do you have consent from the recipient/parent/guardian to give and record this vaccine?'
             }
           />
           <ConsentGivenByField />
         </>
       )}
       <StyledDivider />
-
-      <ConsentField
-        label={
-          values.givenElsewhere ? (
-            <TranslatedText
-              stringId="vaccine.consentGivenElsewhere.label"
-              fallback="Do you have consent to record this vaccine?"
-            />
-          ) : (
-            <TranslatedText
-              stringId="vaccine.consent.label"
-              fallback="Do you have consent from the recipient/parent/guardian to give and record this vaccine?"
-            />
-          )
-        }
-      />
-
-      <ConsentGivenByField />
-
-      <StyledDivider />
-
       <ConfirmCancelRowField onConfirm={submitForm} editMode={editMode} onCancel={onCancel} />
     </TwoTwoGrid>
   );
