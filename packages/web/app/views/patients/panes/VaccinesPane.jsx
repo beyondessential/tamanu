@@ -9,7 +9,7 @@ import {
   CovidVaccineCertificateModal,
   VaccineCertificateModal,
 } from '../../../components/PatientPrinting';
-import { ImmunisationsTable } from '../../../features';
+import { ImmunisationsTable, ImmunisationScheduleTable } from '../../../features';
 import { useAdministeredVaccines } from '../../../api/queries/useAdministeredVaccines';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
@@ -105,6 +105,12 @@ export const VaccinesPane = React.memo(({ patient, readonly }) => {
             <TranslatedText stringId="vaccine.action.recordVaccine" fallback="Record vaccine" />
           </Button>
         </TableButtonRow>
+        <ImmunisationScheduleTable
+          patient={patient}
+          onItemClick={id => handleOpenViewModal(id)}
+          onItemEditClick={id => handleOpenEditModal(id)}
+          onItemDeleteClick={id => handleOpenDeleteModal(id)}
+        />
         <ImmunisationsTable
           patient={patient}
           onItemClick={id => handleOpenViewModal(id)}

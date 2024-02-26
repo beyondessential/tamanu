@@ -1,7 +1,5 @@
-import React, { useMemo, useState } from 'react';
-import styled from 'styled-components';
-import { TranslatedText, CheckInput, DataFetchingTable } from '../../components';
-import { Colors } from '../../constants';
+import React, { useMemo } from 'react';
+import { TranslatedText, DataFetchingTable } from '../../components';
 import {
   getSchedule,
   getVaccineName,
@@ -11,51 +9,8 @@ import {
   getActionButtons,
 } from './accessors';
 
-const OptionRow = styled.div`
-  border-bottom: 1px solid ${Colors.outline};
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-end;
-  font-size: 0.85rem;
-  padding: 0.7rem;
-`;
-
-const TableHeaderCheckbox = styled(CheckInput)`
-  color: ${Colors.darkText};
-  label {
-    display: flex;
-    align-items: center;
-  }
-  .MuiTypography-root {
-    font-size: 11px;
-    line-height: 15px;
-  }
-  .MuiButtonBase-root {
-    padding: 0 6px;
-  }
-`;
-
-const TableHeader = ({ includeNotGiven, setIncludeNotGiven }) => {
-  return (
-    <OptionRow>
-      <TableHeaderCheckbox
-        label={
-          <TranslatedText
-            stringId="vaccine.table.notGivenCheckbox.label"
-            fallback="Include vaccines not given"
-          />
-        }
-        value={includeNotGiven}
-        onClick={() => setIncludeNotGiven(!includeNotGiven)}
-      />
-    </OptionRow>
-  );
-};
-
-export const ImmunisationsTable = React.memo(
+export const ImmunisationScheduleTable = React.memo(
   ({ patient, onItemClick, onItemEditClick, onItemDeleteClick, viewOnly, disablePagination }) => {
-    const [includeNotGiven, setIncludeNotGiven] = useState(false);
-
     const COLUMNS = useMemo(
       () => [
         {
@@ -109,20 +64,11 @@ export const ImmunisationsTable = React.memo(
       <DataFetchingTable
         endpoint={`patient/${patient.id}/administeredVaccines`}
         initialSort={{ orderBy: 'date', order: 'desc' }}
-        fetchOptions={{ includeNotGiven }}
         columns={COLUMNS}
         noDataMessage={
           <TranslatedText stringId="vaccine.table.noDataMessage" fallback="No vaccinations found" />
         }
         allowExport={!viewOnly}
-        TableHeader={
-          !viewOnly && (
-            <TableHeader
-              includeNotGiven={includeNotGiven}
-              setIncludeNotGiven={setIncludeNotGiven}
-            />
-          )
-        }
         disablePagination={disablePagination}
       />
     );
