@@ -7,12 +7,12 @@
 set -euxmo pipefail
 
 # Create tamanu database and user for testing the facility server working offline
-test_facility_offline_setup_postgre() {
-    createuser --superuser "tamanu"
-    psql -c "ALTER USER \"tamanu\" PASSWORD 'tamanu';"
+test_facility_offline_setup_postgres() {
+    createuser --superuser tamanu
+    psql -c "ALTER USER tamanu PASSWORD 'tamanu';" postgres
 
-    createdb -O tamanu "central-server"
-    createdb -O tamanu "facility-server"
+    createdb -O tamanu central
+    createdb -O tamanu facility
 }
 
 # Build both the facility and central servers.
@@ -30,7 +30,7 @@ test_facility_offline_central_start() {
         "port": "3000",
         "db": {
             "host": "localhost",
-            "name": "central-server",
+            "name": "central",
             "verbose": true,
             "username": "tamanu",
             "password": "tamanu"
@@ -81,7 +81,7 @@ test_facility_offline_facility_start() {
 	    },
 	    "db": {
 	        "host": "localhost",
-	        "name": "facility-server",
+	        "name": "facility",
 	        "verbose": true,
 	        "username": "tamanu",
 	        "password": "tamanu",
