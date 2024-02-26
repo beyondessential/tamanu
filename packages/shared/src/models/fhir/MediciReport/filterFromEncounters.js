@@ -8,7 +8,7 @@ export function filterFromEncounters(models, table) {
       return {
         where: {
           endDate: {
-            [Op.is]: null,
+            [Op.not]: null,
           },
         },
       };

@@ -87,6 +87,9 @@ export class MediciReport extends FhirResource {
       models.Procedure,
       models.Triage,
       models.Note,
+      models.Department,
+      models.Location,
+      models.LocationGroup,
     ];
   }
 

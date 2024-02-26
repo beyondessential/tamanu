@@ -1,3 +1,5 @@
+import { Op } from 'sequelize';
+
 export function fromEncounters(models, table, id, deletedRow) {
   const {
     Encounter,
@@ -21,6 +23,10 @@ export function fromEncounters(models, table, id, deletedRow) {
     Note,
     Patient,
     PatientBirthData,
+
+    Location,
+    LocationGroup,
+    Department,
   } = models;
 
   switch (table) {
@@ -247,8 +253,58 @@ export function fromEncounters(models, table, id, deletedRow) {
       return {
         include: [
           {
-            model: PatientBirthData,
+            model: Patient,
             as: 'patient',
+            required: true,
+            include: [
+              {
+                model: PatientBirthData,
+                as: 'birthData',
+                required: true,
+                where: { id },
+              },
+            ],
+          },
+        ],
+      };
+
+    case Location.tableName:
+      return {
+        include: [
+          {
+            model: Location,
+            as: 'location',
+            required: true,
+            where: { id },
+          },
+        ],
+      };
+
+    case LocationGroup.tableName:
+      return {
+        include: [
+          {
+            model: Location,
+            as: 'location',
+            required: true,
+            include: [
+              {
+                model: LocationGroup,
+                as: 'locationGroup',
+                required: true,
+                where: { id },
+              },
+            ],
+          },
+        ],
+      };
+
+    case Department.tableName:
+      return {
+        include: [
+          {
+            model: Department,
+            as: 'department',
             required: true,
             where: { id },
           },
