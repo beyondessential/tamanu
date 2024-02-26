@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
-import { Button, ContentPane, TableButtonRow } from '../../../components';
+import { Button, ContentPane, TableButtonRow, TranslatedText } from '../../../components';
 import { ViewAdministeredVaccineModal } from '../../../components/ViewAdministeredVaccineModal';
 import { EditAdministeredVaccineModal } from '../../../components/EditAdministeredVaccineModal';
 import { DeleteAdministeredVaccineModal } from '../../../components/DeleteAdministeredVaccineModal';
@@ -10,8 +10,7 @@ import {
   VaccineCertificateModal,
 } from '../../../components/PatientPrinting';
 import { ImmunisationsTable, ImmunisationScheduleTable } from '../../../features';
-import { useAdministeredVaccines } from '../../../api/queries/useAdministeredVaccines';
-import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { useAdministeredVaccines } from '../../../api/queries';
 
 const CovidCertificateButton = styled(Button)`
   margin-left: 0;
@@ -20,6 +19,10 @@ const CovidCertificateButton = styled(Button)`
 
 const CovidCertificateIcon = styled.i`
   margin-right: 4px;
+`;
+
+const TableWrapper = styled.div`
+  margin-bottom: 1.5rem;
 `;
 
 export const VaccinesPane = React.memo(({ patient, readonly }) => {
@@ -43,6 +46,11 @@ export const VaccinesPane = React.memo(({ patient, readonly }) => {
 
   const handleOpenViewModal = useCallback(async row => {
     setIsViewAdministeredModalOpen(true);
+    setVaccineData(row);
+  }, []);
+
+  const handleOpenRecordModal = useCallback(row => {
+    setIsAdministerModalOpen(true);
     setVaccineData(row);
   }, []);
 
@@ -105,12 +113,12 @@ export const VaccinesPane = React.memo(({ patient, readonly }) => {
             <TranslatedText stringId="vaccine.action.recordVaccine" fallback="Record vaccine" />
           </Button>
         </TableButtonRow>
-        <ImmunisationScheduleTable
-          patient={patient}
-          onItemClick={id => handleOpenViewModal(id)}
-          onItemEditClick={id => handleOpenEditModal(id)}
-          onItemDeleteClick={id => handleOpenDeleteModal(id)}
-        />
+        <TableWrapper>
+          <ImmunisationScheduleTable
+            patient={patient}
+            onItemEdit={id => handleOpenRecordModal(id)}
+          />
+        </TableWrapper>
         <ImmunisationsTable
           patient={patient}
           onItemClick={id => handleOpenViewModal(id)}

@@ -1,12 +1,13 @@
 import React from 'react';
-import { VACCINE_STATUS } from '@tamanu/constants/vaccines';
+import { VACCINE_STATUS, VACCINE_STATUS_LABELS } from '@tamanu/constants/vaccines';
 import {
   TranslatedText,
   DateDisplay,
   MenuButton,
   OutlinedButton,
-  StatusTag,
+  TableCellTag,
 } from '../../components';
+import { mockGetStatusLogic, getDueDate } from './vaccineSchedule';
 import { Colors } from '../../constants';
 import styled from 'styled-components';
 
@@ -25,12 +26,21 @@ export const getDate = ({ date }) =>
   ) : (
     <TranslatedText stringId="general.fallback.unknown" fallback="Unknown" />
   );
+
+export const getDueDateDisplay = ({ date }) => {
+  if (!date) {
+    return <TranslatedText stringId="general.fallback.unknown" fallback="Unknown" />;
+  }
+
+  const dueDate = getDueDate(date);
+  return <DateDisplay date={dueDate} />;
+};
 export const getGiver = record => {
   if (record.status === VACCINE_STATUS.NOT_GIVEN) {
     return (
-      <StatusTag $background="#4444441a" $color={Colors.darkestText}>
+      <TableCellTag $background="#4444441a" $color={Colors.darkestText}>
         <TranslatedText stringId="vaccine.property.status.notGiven" fallback="Not given" />
-      </StatusTag>
+      </TableCellTag>
     );
   }
   if (record.givenElsewhere) {
@@ -81,4 +91,37 @@ export const getActionButtons = ({ onItemClick, onItemEditClick, onItemDeleteCli
       />
     </ActionButtonsContainer>
   );
+};
+
+export const getRecordAction = onItemEdit => record => {
+  return (
+    <ActionButtonsContainer>
+      <OutlinedButton onClick={() => onItemEdit(record)}>
+        <TranslatedText stringId="general.action.record" fallback="Record" />
+      </OutlinedButton>
+    </ActionButtonsContainer>
+  );
+};
+
+const VACCINE_STATUS_COLORS = {
+  [VACCINE_STATUS.SCHEDULED]: '#4101C9',
+  [VACCINE_STATUS.UPCOMING]: '#1172D1',
+  [VACCINE_STATUS.DUE]: '#19934E',
+  [VACCINE_STATUS.OVERDUE]: '#CB6100',
+  [VACCINE_STATUS.MISSED]: '#F76853',
+};
+
+const VaccineStatusTag = React.memo(({ status }) => {
+  const label = VACCINE_STATUS_LABELS[status] || status;
+  const color = VACCINE_STATUS_COLORS[status];
+  return (
+    <TableCellTag $color={color} noWrap>
+      {label}
+    </TableCellTag>
+  );
+});
+
+export const getStatusTag = record => {
+  const statusValue = mockGetStatusLogic(record.date);
+  return <VaccineStatusTag status={statusValue} />;
 };

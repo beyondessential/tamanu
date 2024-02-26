@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
-import { TranslatedText, CheckInput, DataFetchingTable } from '../../components';
+import { TranslatedText, CheckInput, DataFetchingTable, Heading4 } from '../../components';
 import { Colors } from '../../constants';
 import {
   getSchedule,
@@ -11,13 +11,16 @@ import {
   getActionButtons,
 } from './accessors';
 
-const OptionRow = styled.div`
+const Container = styled.div`
+  padding: 0.9rem 1.2rem 0.8rem;
   border-bottom: 1px solid ${Colors.outline};
   display: flex;
   flex-direction: row;
-  justify-content: flex-end;
-  font-size: 0.85rem;
-  padding: 0.7rem;
+  justify-content: space-between;
+`;
+
+const Title = styled(Heading4)`
+  margin: 0;
 `;
 
 const TableHeaderCheckbox = styled(CheckInput)`
@@ -37,7 +40,10 @@ const TableHeaderCheckbox = styled(CheckInput)`
 
 const TableHeader = ({ includeNotGiven, setIncludeNotGiven }) => {
   return (
-    <OptionRow>
+    <Container>
+      <Title>
+        <TranslatedText stringId="vaccine.table.recorded.label" fallback="Recorded vaccines" />
+      </Title>
       <TableHeaderCheckbox
         label={
           <TranslatedText
@@ -48,7 +54,7 @@ const TableHeader = ({ includeNotGiven, setIncludeNotGiven }) => {
         value={includeNotGiven}
         onClick={() => setIncludeNotGiven(!includeNotGiven)}
       />
-    </OptionRow>
+    </Container>
   );
 };
 
