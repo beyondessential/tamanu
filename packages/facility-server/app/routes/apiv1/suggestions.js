@@ -61,7 +61,7 @@ function createSuggesterRoute(
 
       const mappedResults = await Promise.all(results.map(mapper));
 
-      const translatedStrings = await models.TranslatedString.getReferenceDataByEndpoint({
+      const translatedStrings = await models.TranslatedString.getReferenceDataTranslationsByEndpoint({
         language: query.language,
         endpoint,
       });
@@ -92,7 +92,7 @@ function createSuggesterLookupRoute(endpoint, modelName, { mapper }) {
 
       const mappedRecord = await mapper(record);
 
-      const translatedStrings = await models.TranslatedString.getReferenceDataByEndpoint({
+      const translatedStrings = await models.TranslatedString.getReferenceDataTranslationsByEndpoint({
         language: query.language,
         endpoint,
       });
@@ -131,7 +131,7 @@ function createAllRecordsRoute(
 
       const mappedResults = await Promise.all(results.map(mapper));
 
-      const translatedStrings = await models.TranslatedString.getReferenceDataByEndpoint({
+      const translatedStrings = await models.TranslatedString.getReferenceDataTranslationsByEndpoint({
         language: query.language,
         endpoint,
       });

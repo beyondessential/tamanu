@@ -106,4 +106,48 @@ describe('TranslatedString', () => {
       );
     });
   });
+
+  describe('getReferenceDataTranslationsByEndpoint method', () => {
+    it('should return all translations for a given reference data endpoint in a given language', async () => {
+      const { TranslatedString } = models;
+
+      const EXPECTED_REFDATA_TYPE = 'icd10';
+
+      const expectedTranslation = await TranslatedString.create({
+        stringId: `refData.${EXPECTED_REFDATA_TYPE}.testDisease`,
+        text: 'Test disease',
+        language: LANGUAGE_CODES.ENGLISH,
+      });
+
+      // Response shouldnt include this record as its not english
+      await TranslatedString.create({
+        stringId: `refData.${EXPECTED_REFDATA_TYPE}.testDisease`,
+        text: '១២៣',
+        language: LANGUAGE_CODES.KHMER,
+      });
+
+      // Response shouldnt include this record as the wrong data type
+      await TranslatedString.create({
+        stringId: `refData.village.testVillage`,
+        text: 'Test Village',
+        language: LANGUAGE_CODES.ENGLISH,
+      });
+
+      const translations = await TranslatedString.getReferenceDataTranslationsByEndpoint({
+        language: LANGUAGE_CODES.ENGLISH,
+        endpoint: EXPECTED_REFDATA_TYPE,
+      });
+
+      console.log(translations[0].get({ plain: true }));
+
+      expect(translations).toHaveLength(1);
+      // expect(translations[0].get({ plain: true })).toEqual({
+      //   stringId: expectedTranslation.stringId,
+      //   text: expectedTranslation.text,
+      // });
+      expect(expectedTranslation.get({ plain: true })).toMatchObject(
+        translations[0].get({ plain: true }),
+      );
+    });
+  });
 });
