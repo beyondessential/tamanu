@@ -2,7 +2,7 @@ import { LOCAL_STORAGE_KEYS } from '../constants';
 
 const defaultFormatter = ({ name, id }) => ({ label: name, value: id });
 
-const currentLanguage = localStorage.getItem(LOCAL_STORAGE_KEYS.LANGUAGE) || 'en';
+const getCurrentLanguageCode = () => localStorage.getItem(LOCAL_STORAGE_KEYS.LANGUAGE) || 'en';
 
 export class Suggester {
   constructor(
@@ -23,7 +23,7 @@ export class Suggester {
 
   fetchCurrentOption = async value => {
     try {
-      const data = await this.fetch(`/${encodeURIComponent(value)}`, { language: currentLanguage });
+      const data = await this.fetch(`/${encodeURIComponent(value)}`, { language: getCurrentLanguageCode() });
       return this.formatter(data);
     } catch (e) {
       return undefined;
@@ -35,7 +35,7 @@ export class Suggester {
       const data = await this.fetch('', {
         ...this.baseQueryParameters,
         q: search,
-        language: currentLanguage,
+        language: getCurrentLanguageCode(),
       });
       return data.filter(this.filterer).map(this.formatter);
     } catch (e) {
