@@ -92,30 +92,32 @@ function findIncludesToFetch(records, includes, FhirResource) {
       }
 
       for (const record of records) {
-        for (const ref of pathInto(record, path)) {
-          // failing to retrieve a reference is not an error
-          try {
-            const typeId = new FhirReference(ref).fhirTypeAndId();
-            if (!typeId) {
-              throw new Unsupported(
-                `Can't _include=${resource}:${parameter} on ${FhirResource.fhirName}#${record.id} because the reference is not explicit`,
-              );
-            }
+        for (const route of path) {
+          for (const ref of routeInto(record, route)) {
+            // failing to retrieve a reference is not an error
+            try {
+              const typeId = new FhirReference(ref).fhirTypeAndId();
+              if (!typeId) {
+                throw new Unsupported(
+                  `Can't _include=${resource}:${parameter} on ${FhirResource.fhirName}#${record.id} because the reference is not explicit`,
+                );
+              }
 
-            const { type, id } = typeId;
-            if (targetType && type !== targetType) {
-              // filter off types if the _include discriminates
-              continue;
-            }
+              const { type, id } = typeId;
+              if (targetType && type !== targetType) {
+                // filter off types if the _include discriminates
+                continue;
+              }
 
-            ids.add(id);
-            referenceTypes.add(type);
-          } catch (err) {
-            if (err instanceof FhirError) {
-              // we collect errors to be nice, even though we're not required to
-              errors.push(err);
-            } else {
-              throw err;
+              ids.add(id);
+              referenceTypes.add(type);
+            } catch (err) {
+              if (err instanceof FhirError) {
+                // we collect errors to be nice, even though we're not required to
+                errors.push(err);
+              } else {
+                throw err;
+              }
             }
           }
         }
@@ -160,14 +162,14 @@ function* flattenIncludes(includes) {
   }
 }
 
-function* pathInto(record, path) {
-  const [[field, ...rest]] = path;
+function* routeInto(record, path) {
+  const [field, ...rest] = path;
   const value = record[field];
 
   if (field === '[]') {
     // iterate over array
     for (const item of record) {
-      yield* pathInto(item, [rest]);
+      yield* routeInto(item, rest);
     }
   } else if (field === '*') {
     yield record;
@@ -180,7 +182,7 @@ function* pathInto(record, path) {
     // if copying or exporting/using this code elsewhere, check what you want to do
   } else if (rest.length > 0) {
     // more path to go, recurse
-    yield* pathInto(value, [rest]);
+    yield* routeInto(value, rest);
   } else {
     // reached the end of the path
     yield value;
