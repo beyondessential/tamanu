@@ -25,6 +25,8 @@ import {
   HealthIdentificationRow,
   PatientIssues,
 } from './CustomComponents';
+import { Button } from '~/ui/components/Button';
+import { ReminderBellIcon } from '~/ui/components/Icons/ReminderBellIcon';
 
 const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => {
   const onNavigateBack = useCallback(() => {
@@ -38,7 +40,13 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => 
   }, [navigation, selectedPatient]);
 
   const editPatientAdditionalData = useCallback(
-    (additionalData, sectionTitle, isCustomFields, customSectionFields, customPatientFieldValues) => {
+    (
+      additionalData,
+      sectionTitle,
+      isCustomFields,
+      customSectionFields,
+      customPatientFieldValues,
+    ) => {
       navigation.navigate(Routes.HomeStack.PatientDetailsStack.EditPatientAdditionalData, {
         patientId: selectedPatient.id,
         patientName: joinNames(selectedPatient),
@@ -55,6 +63,10 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => 
   const onEditPatientIssues = useCallback(() => {
     navigation.navigate(Routes.HomeStack.PatientDetailsStack.AddPatientIssue);
   }, [navigation]);
+
+  const onNavigateReminder = useCallback(() => {
+    navigation.navigate(Routes.HomeStack.PatientDetailsStack.Reminder);
+  }, [navigation, selectedPatient]);
 
   return (
     <FullView>
@@ -76,7 +88,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => 
               sex={selectedPatient.sex}
             />
           </StyledView>
-          <StyledView alignItems="flex-start" marginLeft={12}>
+          <StyledView marginLeft={12}>
             <StyledText
               color={theme.colors.WHITE}
               fontSize={screenPercentageToDP(2.6, Orientation.Height)}
@@ -91,6 +103,20 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => 
               {`${getGender(selectedPatient.sex)}, `}
               {`${getAgeFromDate(selectedPatient.dateOfBirth)} years old`}
             </StyledText>
+          </StyledView>
+          <StyledView flex={1} alignSelf="flex-end" alignItems="flex-end" marginRight={15}>
+            <Button
+              marginTop={screenPercentageToDP(1.21, Orientation.Height)}
+              width={screenPercentageToDP(23.11, Orientation.Width)}
+              height={screenPercentageToDP(4.86, Orientation.Height)}
+              buttonText=" Contacts"
+              fontSize={screenPercentageToDP(1.57, Orientation.Height)}
+              onPress={onNavigateReminder}
+              outline
+              borderColor={theme.colors.WHITE}
+            >
+              <ReminderBellIcon />
+            </Button>
           </StyledView>
         </RowView>
         <HealthIdentificationRow patientId={selectedPatient.displayId} />
