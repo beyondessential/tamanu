@@ -467,9 +467,9 @@ describe('Suggestions', () => {
 
     const DATA_TYPE = 'icd10';
     const DATA_ID = 'test-diagnosis';
-    const ORIGINAL_LABEL = 'Orignal label';
-    const ENGLISH_LABEL = 'English label';
-    const KHMER_LABEL = 'Khmer label';
+    const ORIGINAL_LABEL = 'AAAOrignal label'; // A's are to ensure it comes first in the list
+    const ENGLISH_LABEL = 'AAAEnglish label';
+    const KHMER_LABEL = 'AAAKhmer label';
     const ENGLISH_CODE = 'en';
     const KHMER_CODE = 'km';
 
@@ -492,17 +492,13 @@ describe('Suggestions', () => {
       language: KHMER_CODE,
     });
 
-    const englishResults = await userApp.get(`/api/suggestions/${DATA_TYPE}`, {
-      language: ENGLISH_CODE,
-    });
-    const khmerResults = await userApp.get(`/api/suggestions/${DATA_TYPE}`, {
-      language: KHMER_CODE,
-    });
+    const englishResults = await userApp.get(`/api/suggestions/${DATA_TYPE}?language=en`);
+    const khmerResults = await userApp.get(`/api/suggestions/${DATA_TYPE}?language=km`);
 
-    const englishRecord = englishResults.find(({ id }) => id === DATA_ID);
+    const englishRecord = englishResults.body.find(({ id }) => id === DATA_ID);
     expect(englishRecord.name).toEqual(ENGLISH_LABEL);
 
-    const khmerRecord = khmerResults.find(({ id }) => id === DATA_ID);
+    const khmerRecord = khmerResults.body.find(({ id }) => id === DATA_ID);
     expect(khmerRecord.name).toEqual(KHMER_LABEL);
   });
 
