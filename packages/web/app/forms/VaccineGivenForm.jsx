@@ -1,10 +1,8 @@
 import React from 'react';
 import { PropTypes } from 'prop-types';
 import * as yup from 'yup';
-
 import { VACCINE_CATEGORIES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
-
 import { REQUIRED_INLINE_ERROR_MESSAGE } from '../constants';
 import { TwoTwoGrid } from '../components/TwoTwoGrid';
 import {
@@ -138,37 +136,26 @@ export const VaccineGivenForm = ({
           <BatchField />
         </>
       )}
-
       {!editMode && schedules?.length ? (
         <AdministeredVaccineScheduleField schedules={schedules} />
       ) : null}
-
       <VaccineDateField
         label={<TranslatedText stringId="vaccine.dateGiven.label" fallback="Date given" />}
         required={!values.givenElsewhere}
       />
-
       <InjectionSiteField />
-
       {!values.givenElsewhere ? (
         <>
           <StyledDivider />
-
           <LocationField />
           <DepartmentField />
         </>
       ) : null}
-
       <StyledDivider />
-
       {values.givenElsewhere ? <GivenByCountryField /> : <GivenByField />}
-
       {values.givenElsewhere && !editMode && <StyledDivider />}
-
       {!editMode && <RecordedByField />}
-
       <StyledDivider />
-
       <ConsentField
         label={
           values.givenElsewhere ? (
@@ -184,11 +171,8 @@ export const VaccineGivenForm = ({
           )
         }
       />
-
       <ConsentGivenByField />
-
       <StyledDivider />
-
       <ConfirmCancelRowField onConfirm={submitForm} editMode={editMode} onCancel={onCancel} />
     </TwoTwoGrid>
   );

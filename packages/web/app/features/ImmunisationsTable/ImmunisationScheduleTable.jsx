@@ -3,7 +3,7 @@ import { TranslatedText, DataFetchingTable, Heading4 } from '../../components';
 import {
   getSchedule,
   getVaccineName,
-  getDueDate,
+  getDueDateDisplay,
   getStatusTag,
   getRecordAction,
 } from './accessors';
@@ -46,7 +46,7 @@ export const ImmunisationScheduleTable = React.memo(({ patient, onItemEdit }) =>
       {
         key: 'dueDate',
         title: <TranslatedText stringId="vaccine.table.column.dueDate" fallback="Due date" />,
-        accessor: getDueDate,
+        accessor: getDueDateDisplay,
       },
       {
         key: 'status',

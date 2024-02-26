@@ -54,6 +54,11 @@ export const VaccinesPane = React.memo(({ patient, readonly }) => {
     setVaccineData(row);
   }, []);
 
+  const handleCloseRecordModal = useCallback(() => {
+    setIsAdministerModalOpen(false);
+    setVaccineData(null);
+  }, []);
+
   const { data: vaccines } = useAdministeredVaccines(patient.id);
   const vaccinations = vaccines?.data || [];
   const certifiable = vaccinations.some(v => v.certifiable);
@@ -63,7 +68,8 @@ export const VaccinesPane = React.memo(({ patient, readonly }) => {
       <VaccineModal
         open={isAdministerModalOpen}
         patientId={patient.id}
-        onClose={() => setIsAdministerModalOpen(false)}
+        vaccineRecord={vaccineData}
+        onClose={handleCloseRecordModal}
       />
       <ViewAdministeredVaccineModal
         open={isViewAdministeredModalOpen}

@@ -70,11 +70,12 @@ export const VaccineForm = ({
   getScheduledVaccines,
   vaccineRecordingType,
 }) => {
+  const defaultVaccineLabel = currentVaccineRecordValues?.scheduledVaccine?.vaccine?.code;
+  const [vaccineLabel, setVaccineLabel] = useState(defaultVaccineLabel);
   const [vaccineOptions, setVaccineOptions] = useState([]);
   const [category, setCategory] = useState(
     currentVaccineRecordValues?.vaccineName ? VACCINE_CATEGORIES.OTHER : VACCINE_CATEGORIES.ROUTINE,
   );
-  const [vaccineLabel, setVaccineLabel] = useState();
 
   const {
     data: currentEncounter,
@@ -122,9 +123,7 @@ export const VaccineForm = ({
   if (currentEncounterError || vaccinationDefaultsError) {
     return (
       <ErrorMessage
-        title={
-          <TranslatedText stringId="vaccine.loadError" fallback="Cannot load vaccine form" />
-        }
+        title={<TranslatedText stringId="vaccine.loadError" fallback="Cannot load vaccine form" />}
         errorMessage={currentEncounterError?.message || vaccinationDefaultsError?.message}
       />
     );
@@ -141,6 +140,7 @@ export const VaccineForm = ({
       initialValues={
         !editMode
           ? {
+              vaccineLabel: vaccineLabel,
               status: vaccineRecordingType,
               category,
               date: getCurrentDateTimeString(),
@@ -201,15 +201,13 @@ const VaccineFormComponent = ({
   patientId,
   ...props
 }) => {
-  const { setCategory, setVaccineLabel, editMode } = props;
+  const { setCategory, editMode } = props;
   useEffect(() => {
     // Reset the entire form values when switching between GIVEN and NOT_GIVEN tab
     resetForm();
     if (!editMode) {
       setCategory(VACCINE_CATEGORIES.ROUTINE);
-    }
-    setVaccineLabel(null);
-    // we strictly only want to reset the form values when vaccineRecordingType is changed
+    } // we strictly only want to reset the form values when vaccineRecordingType is changed
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [vaccineRecordingType]);
 
