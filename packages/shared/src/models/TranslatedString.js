@@ -85,7 +85,7 @@ export class TranslatedString extends Model {
     return { languagesInDb, languageNames };
   };
 
-  static getReferenceDataTranslationsByEndpoint = async ({ language, endpoint }) => {
+  static getReferenceDataTranslationsByEndpoint = async ({ language = 'en', endpoint }) => {
     return this.findAll({
       where: {
         language: language,
