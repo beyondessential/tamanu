@@ -55,7 +55,7 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterTyp
     return (
       <ErrorMessage
         title="Error: Cannot load vitals form"
-        errorMessage="Please contact a Tamanu Administrator to ensure the Vitals form is configured correctly."
+        errorMessage="Please contact an administrator to ensure the Vitals form is configured correctly."
         error={error}
       />
     );
