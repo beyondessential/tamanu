@@ -462,6 +462,50 @@ describe('Suggestions', () => {
     });
   });
 
+  it('should return translated labels for current language if present in the db', async () => {
+    const { TranslatedString, ReferenceData } = models;
+
+    const DATA_TYPE = 'icd10';
+    const DATA_ID = 'test-diagnosis';
+    const ORIGINAL_LABEL = 'Orignal label';
+    const ENGLISH_LABEL = 'English label';
+    const KHMER_LABEL = 'Khmer label';
+    const ENGLISH_CODE = 'en';
+    const KHMER_CODE = 'km';
+
+    await ReferenceData.create({
+      id: DATA_ID,
+      type: DATA_TYPE,
+      name: ORIGINAL_LABEL,
+      code: 'test-diagnosis',
+    });
+
+    await TranslatedString.create({
+      stringId: `refData.${DATA_TYPE}.${DATA_ID}`,
+      text: ENGLISH_LABEL,
+      language: ENGLISH_CODE,
+    });
+
+    await TranslatedString.create({
+      stringId: `refData.${DATA_TYPE}.${DATA_ID}`,
+      text: KHMER_LABEL,
+      language: KHMER_CODE,
+    });
+
+    const englishResults = await userApp.get(`/api/suggestions/${DATA_TYPE}`, {
+      language: ENGLISH_CODE,
+    });
+    const khmerResults = await userApp.get(`/api/suggestions/${DATA_TYPE}`, {
+      language: KHMER_CODE,
+    });
+
+    const englishRecord = englishResults.find(({ id }) => id === DATA_ID);
+    expect(englishRecord.name).toEqual(ENGLISH_LABEL);
+
+    const khmerRecord = khmerResults.find(({ id }) => id === DATA_ID);
+    expect(khmerRecord.name).toEqual(KHMER_LABEL);
+  });
+
   it('should respect visibility status', async () => {
     const visible = await models.ReferenceData.create({
       type: 'allergy',
