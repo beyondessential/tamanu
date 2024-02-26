@@ -15,6 +15,7 @@ import { SecondarySidebarItem } from './SecondarySidebarItem';
 import { checkAbility } from '../../utils/ability';
 import { useAuth } from '../../contexts/Auth';
 import { useApi } from '../../api';
+import { TranslatedText } from '../Translation/TranslatedText';
 import { useLocalisation } from '../../contexts/Localisation';
 
 const Container = styled.div`
@@ -304,7 +305,7 @@ export const Sidebar = React.memo(({ items }) => {
                   id="logout"
                   data-test-id="siderbar-logout-item"
                 >
-                  Logout
+                  <TranslatedText stringId="auth.action.logout" fallback="Log out" />
                 </LogoutButton>
               </Box>
             </StyledUserInfoContent>
@@ -315,10 +316,15 @@ export const Sidebar = React.memo(({ items }) => {
             <StyledDivider $invisible={isRetracted} />
             <StyledMetadataBox display="flex" justifyContent="space-between">
               <SupportDesktopLink href={supportUrl} target="_blank" rel="noreferrer">
-                Support centre
+                <TranslatedText
+                  stringId="sidebar.externalLink.supportCentre"
+                  fallback="Support centre"
+                />
                 <Launch style={{ marginLeft: '5px', fontSize: '12px' }} />
               </SupportDesktopLink>
-              <Version>Version {agentVersion}</Version>
+              <Version>
+                <TranslatedText stringId="general.meta.version" fallback="Version" /> {agentVersion}
+              </Version>
             </StyledMetadataBox>
           </>
         )}

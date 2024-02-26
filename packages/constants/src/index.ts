@@ -24,6 +24,7 @@ export * from './suggesters.js';
 export * from './surveys.js';
 export * from './sync.js';
 export * from './templates.js';
+export * from './translations'
 export * from './programRegistry.js';
 export * from './vaccines.js';
 export * from './settings.js';

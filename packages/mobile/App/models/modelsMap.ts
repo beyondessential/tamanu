@@ -1,3 +1,4 @@
+import { TranslatedString } from './TranslatedString';
 import { ReferenceData } from './ReferenceData';
 import { Patient } from './Patient';
 import { PatientAdditionalData } from './PatientAdditionalData';
@@ -47,6 +48,7 @@ import { VitalLog } from './VitalLog';
 
 export const MODELS_MAP = {
   ReferenceData,
+  TranslatedString,
   Patient,
   PatientAdditionalData,
   PatientFieldDefinitionCategory,

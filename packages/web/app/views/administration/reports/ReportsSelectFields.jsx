@@ -1,7 +1,7 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../../../api';
-import { SelectField } from '../../../components';
+import { BaseSelectField } from '../../../components';
 
 export const ReportSelectField = ({ includeNameChangeEvent, ...props }) => {
   delete props.error;
@@ -17,7 +17,7 @@ export const ReportSelectField = ({ includeNameChangeEvent, ...props }) => {
   }));
 
   return (
-    <SelectField
+    <BaseSelectField
       {...props}
       onChange={event => {
         if (includeNameChangeEvent) {
@@ -61,7 +61,7 @@ export const VersionSelectField = props => {
   delete searchProps.helperText;
 
   return (
-    <SelectField
+    <BaseSelectField
       {...props}
       options={options}
       error={!!fetchError || props.error}

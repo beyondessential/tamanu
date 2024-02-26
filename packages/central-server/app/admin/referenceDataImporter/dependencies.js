@@ -4,6 +4,7 @@ import {
   patientDataLoader,
   patientFieldDefinitionLoader,
   permissionLoader,
+  translatedStringLoader,
 } from './loaders';
 
 // All reference data is imported first, so that can be assumed for ordering.
@@ -66,4 +67,8 @@ export default {
   },
 
   imagingAreaExternalCode: {},
+
+  translatedString: {
+    loader: translatedStringLoader,
+  },
 };

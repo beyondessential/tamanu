@@ -24,6 +24,7 @@ import { Colors } from '../../constants';
 import { ThemedTooltip } from '../Tooltip';
 import { ErrorBoundary } from '../ErrorBoundary';
 import { Paginator } from './Paginator';
+import { TranslatedText } from '../Translation/TranslatedText';
 
 const preventInputCallback = e => {
   e.stopPropagation();
@@ -276,7 +277,7 @@ const StatusRow = React.memo(({ colSpan, children, textColor }) => (
 class TableComponent extends React.Component {
   getStatusMessage() {
     const { isLoading, errorMessage, data, noDataMessage } = this.props;
-    if (isLoading) return 'Loading...';
+    if (isLoading) return <TranslatedText stringId="general.table.loading" fallback="Loading..." />;
     if (errorMessage) return errorMessage;
     if (!data.length) return noDataMessage;
     return null;
@@ -307,15 +308,7 @@ class TableComponent extends React.Component {
   };
 
   renderHeaders() {
-    const {
-      columns,
-      order,
-      orderBy,
-      onChangeOrderBy,
-      getLocalisation,
-      titleData,
-      headerOnChange,
-    } = this.props;
+    const { columns, order, orderBy, onChangeOrderBy, titleData, headerOnChange } = this.props;
     const getContent = ({ key, sortable, title, titleAccessor, tooltip, TitleCellComponent }) => {
       const onChange = headerOnChange ? event => headerOnChange(event, key) : null;
       const displayTitle = titleAccessor
@@ -333,10 +326,10 @@ class TableComponent extends React.Component {
           onClick={() => onChangeOrderBy(key)}
           IconComponent={orderBy === key ? ActiveSortIcon : InactiveSortIcon}
         >
-          {title || getLocalisation(`fields.${key}.shortLabel`) || key}
+          {title || key}
         </TableSortLabel>
       ) : (
-        <span>{displayTitle || getLocalisation(`fields.${key}.shortLabel`) || key}</span>
+        <span>{displayTitle || key}</span>
       );
 
       const headerElement = titleCellComponent || defaultHeaderElement;
@@ -553,7 +546,7 @@ TableComponent.propTypes = {
 
 TableComponent.defaultProps = {
   errorMessage: '',
-  noDataMessage: 'No data found',
+  noDataMessage: <TranslatedText stringId="general.table.noDataMessage" fallback="No data found" />,
   count: 0,
   hideHeader: false,
   isLoading: false,
@@ -594,7 +587,6 @@ export const Table = React.forwardRef(
         columns={columns}
         data={data}
         exportname={exportName}
-        getLocalisation={getLocalisation}
         tableRef={ref}
         {...props}
       />

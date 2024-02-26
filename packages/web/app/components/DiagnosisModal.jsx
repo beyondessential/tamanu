@@ -3,6 +3,7 @@ import { useEncounter } from '../contexts/Encounter';
 import { DiagnosisForm } from '../forms/DiagnosisForm';
 import { useApi } from '../api';
 import { FormModal } from './FormModal';
+import { TranslatedText } from './Translation/TranslatedText';
 
 export const DiagnosisModal = React.memo(({ diagnosis, onClose, encounterId, ...props }) => {
   const api = useApi();
@@ -21,7 +22,11 @@ export const DiagnosisModal = React.memo(({ diagnosis, onClose, encounterId, ...
   };
 
   return (
-    <FormModal title="Diagnosis" open={!!diagnosis} onClose={onClose}>
+    <FormModal
+      title={<TranslatedText stringId="diagnosis.modal.title" fallback="Diagnosis" />}
+      open={!!diagnosis}
+      onClose={onClose}
+    >
       <DiagnosisForm onCancel={onClose} diagnosis={diagnosis} onSave={onSaveDiagnosis} {...props} />
     </FormModal>
   );

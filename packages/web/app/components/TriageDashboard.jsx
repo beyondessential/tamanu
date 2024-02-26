@@ -6,6 +6,7 @@ import { useApi } from '../api';
 import { StatisticsCard, StatisticsCardContainer } from './StatisticsCard';
 import { Colors } from '../constants';
 import { useLocalisation } from '../contexts/Localisation';
+import { TranslatedText } from './Translation/TranslatedText';
 
 const getAverageWaitTime = categoryData => {
   if (categoryData.length === 0) {
@@ -86,7 +87,13 @@ const CardFooter = ({ averageWaitTime, color }) => {
     <>
       <Row>
         <AccessTime htmlColor={color} />
-        <FooterLabel>Avg. wait time: </FooterLabel>
+        <FooterLabel>
+          <TranslatedText
+            stringId="patientList.triage.card.footer.avgWaitTime"
+            fallback="Avg. wait time"
+          />
+          :{' '}
+        </FooterLabel>
         <FooterTime>{averageHrs}</FooterTime>
       </Row>
       <FooterTime>{averageMins}</FooterTime>
@@ -107,7 +114,13 @@ export const TriageDashboard = () => {
         <StatisticsCard
           key={level}
           color={color}
-          title={`Level ${level} patient`}
+          title={
+            <TranslatedText
+              stringId="patientList.triage.card.patientLevel"
+              fallback="Level :level patient"
+              replacements={{ level }}
+            />
+          }
           value={numberOfPatients}
           Footer={<CardFooter color={color} averageWaitTime={averageWaitTime} />}
         />
