@@ -162,17 +162,18 @@ function* flattenIncludes(includes) {
   }
 }
 
-function* routeInto(record, path) {
-  const [field, ...rest] = path;
+function* routeInto(record, route) {
+  const [field, ...rest] = route;
   const value = record[field];
-
-  if (field === '[]') {
+  if (field === '[]' && rest.length > 0) {
     // iterate over array
     for (const item of record) {
       yield* routeInto(item, rest);
     }
-  } else if (field === '*') {
-    yield record;
+  } else if (field === '[]' && rest.length === 0) {
+    for (const item of record) {
+      yield item;
+    }
   }
   else if (value === undefined) {
     // yield nothing and return
