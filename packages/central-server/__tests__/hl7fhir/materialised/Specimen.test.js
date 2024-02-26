@@ -249,7 +249,6 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
         const response = await app.get(path);
         const { entry } = response.body;
 
-        console.log({ response });
         const fetchedSpecimen = entry.find(
           ({ search: { mode } }) => mode === 'match',
         );
