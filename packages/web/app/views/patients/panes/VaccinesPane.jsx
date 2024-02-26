@@ -9,7 +9,7 @@ import {
   CovidVaccineCertificateModal,
   VaccineCertificateModal,
 } from '../../../components/PatientPrinting';
-import { ImmunisationsTable } from '../../../components/ImmunisationsTable';
+import { ImmunisationsTable } from '../../../features';
 import { useAdministeredVaccines } from '../../../api/queries/useAdministeredVaccines';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 

@@ -1,88 +1,15 @@
 import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
-
-import { VACCINE_STATUS } from '@tamanu/constants/vaccines';
-import { OutlinedButton } from './Button';
-import { MenuButton } from './MenuButton';
-import { DataFetchingTable } from './Table';
-import { DateDisplay } from './DateDisplay';
-import { StatusTag } from './Tag';
-import { CheckInput } from './Field';
-import { Colors } from '../constants';
-import { TranslatedText } from './Translation/TranslatedText';
-
-const getSchedule = record =>
-  record.scheduledVaccine?.schedule || (
-    <TranslatedText stringId="general.fallback.notApplicable" fallback="N/A" />
-  );
-const getVaccineName = record =>
-  record.vaccineName ||
-  record.scheduledVaccine?.label || (
-    <TranslatedText stringId="general.fallback.unknown" fallback="Unknown" />
-  );
-const getDate = ({ date }) =>
-  date ? (
-    <DateDisplay date={date} />
-  ) : (
-    <TranslatedText stringId="general.fallback.unknown" fallback="Unknown" />
-  );
-const getGiver = record => {
-  if (record.status === VACCINE_STATUS.NOT_GIVEN) {
-    return (
-      <StatusTag $background="#4444441a" $color={Colors.darkestText}>
-        <TranslatedText stringId="vaccine.property.status.notGiven" fallback="Not given" />
-      </StatusTag>
-    );
-  }
-  if (record.givenElsewhere) {
-    return (
-      <TranslatedText
-        stringId="vaccine.property.status.givenElsewhere"
-        fallback="Given elsewhere"
-      />
-    );
-  }
-  return (
-    record.givenBy || <TranslatedText stringId="general.fallback.unknown" fallback="Unknown" />
-  );
-};
-const getFacility = record => {
-  const facility = record.givenElsewhere ? record.givenBy : record.location?.facility?.name;
-  return facility || '';
-};
-
-const ActionButtonsContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-`;
-
-const MarginedMenuButton = styled(MenuButton)`
-  margin-left: 15px;
-`;
-
-const getActionButtons = ({ onItemClick, onItemEditClick, onItemDeleteClick }) => record => {
-  return (
-    <ActionButtonsContainer>
-      <OutlinedButton onClick={() => onItemClick(record)}>
-        <TranslatedText stringId="general.action.view" fallback="View" />
-      </OutlinedButton>
-      <MarginedMenuButton
-        iconColor={Colors.primary}
-        actions={[
-          {
-            label: <TranslatedText stringId="general.action.edit" fallback="Edit" />,
-            action: () => onItemEditClick(record),
-          },
-          {
-            label: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
-            action: () => onItemDeleteClick(record),
-          },
-        ]}
-      />
-    </ActionButtonsContainer>
-  );
-};
+import { TranslatedText, CheckInput, DataFetchingTable } from '../../components';
+import { Colors } from '../../constants';
+import {
+  getSchedule,
+  getVaccineName,
+  getDate,
+  getGiver,
+  getFacility,
+  getActionButtons,
+} from './accessors';
 
 const TableHeaderCheckbox = styled(CheckInput)`
   color: ${Colors.darkText};
