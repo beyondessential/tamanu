@@ -1,8 +1,6 @@
-import { LOCAL_STORAGE_KEYS } from '../constants';
+import { getCurrentLanguageCode } from './translation';
 
 const defaultFormatter = ({ name, id }) => ({ label: name, value: id });
-
-const getCurrentLanguageCode = () => localStorage.getItem(LOCAL_STORAGE_KEYS.LANGUAGE) || 'en';
 
 export class Suggester {
   constructor(
@@ -23,7 +21,9 @@ export class Suggester {
 
   fetchCurrentOption = async value => {
     try {
-      const data = await this.fetch(`/${encodeURIComponent(value)}`, { language: getCurrentLanguageCode() });
+      const data = await this.fetch(`/${encodeURIComponent(value)}`, {
+        language: getCurrentLanguageCode(),
+      });
       return this.formatter(data);
     } catch (e) {
       return undefined;
