@@ -119,7 +119,7 @@
         const { brandName } = CAMBODIA_CONFIG;
         document.title = brandName;
         // Remove manifest link on cambodia mode to disable the PWA
-        const manifest = document.getElementById('#manifest');
+        const manifest = document.querySelector('#manifest');
         if (manifest) {
           manifest.remove();
         }
