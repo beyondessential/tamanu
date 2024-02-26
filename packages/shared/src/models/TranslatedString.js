@@ -85,12 +85,12 @@ export class TranslatedString extends Model {
     return { languagesInDb, languageNames };
   };
 
-  static getReferenceDataTranslationsByEndpoint = async ({ language = 'en', endpoint }) => {
+  static getReferenceDataTranslationsByEndpoint = async ({ language = 'en', refDataType }) => {
     return this.findAll({
       where: {
         language: language,
         stringId: {
-          [Op.startsWith]: `refData.${endpoint}`,
+          [Op.startsWith]: `refData.${refDataType}`,
         },
       },
       attributes: ['stringId', 'text'],

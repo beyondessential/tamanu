@@ -135,7 +135,7 @@ describe('TranslatedString', () => {
 
       const translations = await TranslatedString.getReferenceDataTranslationsByEndpoint({
         language: LANGUAGE_CODES.ENGLISH,
-        endpoint: EXPECTED_REFDATA_TYPE,
+        refDataType: EXPECTED_REFDATA_TYPE,
       });
 
       expect(translations).toHaveLength(1);

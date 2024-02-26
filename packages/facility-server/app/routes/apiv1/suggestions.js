@@ -41,6 +41,8 @@ function createSuggesterRoute(
     asyncHandler(async (req, res) => {
       req.checkPermission('list', modelName);
       const { models, query } = req;
+      const { language } = query;
+
       const model = models[modelName];
 
       const positionQuery = literal(
@@ -61,10 +63,15 @@ function createSuggesterRoute(
 
       const mappedResults = await Promise.all(results.map(mapper));
 
-      const translatedStrings = await models.TranslatedString.getReferenceDataTranslationsByEndpoint({
-        language: query.language,
-        endpoint,
-      });
+      // We only translate reference data suggester values
+      if (!REFERENCE_TYPE_VALUES.includes(endpoint)) return mappedResults;
+
+      const translatedStrings = await models.TranslatedString.getReferenceDataTranslationsByEndpoint(
+        {
+          language,
+          refDataType: endpoint,
+        },
+      );
 
       const translatedResults = replaceDataLabelsWithTranslations({
         data: mappedResults,
@@ -92,10 +99,14 @@ function createSuggesterLookupRoute(endpoint, modelName, { mapper }) {
 
       const mappedRecord = await mapper(record);
 
-      const translatedStrings = await models.TranslatedString.getReferenceDataTranslationsByEndpoint({
-        language: query.language,
-        endpoint,
-      });
+      if (!REFERENCE_TYPE_VALUES.includes(endpoint)) return mappedRecord;
+
+      const translatedStrings = await models.TranslatedString.getReferenceDataTranslationsByEndpoint(
+        {
+          language: query.language,
+          refDataType: endpoint,
+        },
+      );
 
       const translatedRecord = replaceDataLabelsWithTranslations({
         data: [mappedRecord],
@@ -131,10 +142,14 @@ function createAllRecordsRoute(
 
       const mappedResults = await Promise.all(results.map(mapper));
 
-      const translatedStrings = await models.TranslatedString.getReferenceDataTranslationsByEndpoint({
-        language: query.language,
-        endpoint,
-      });
+      if (!REFERENCE_TYPE_VALUES.includes(endpoint)) return mappedResults;
+
+      const translatedStrings = await models.TranslatedString.getReferenceDataTranslationsByEndpoint(
+        {
+          language: query.language,
+          refDataType: endpoint,
+        },
+      );
 
       const translatedResults = replaceDataLabelsWithTranslations({
         data: mappedResults,
