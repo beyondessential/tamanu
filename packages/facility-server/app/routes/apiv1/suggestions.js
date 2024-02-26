@@ -31,6 +31,7 @@ function createSuggesterRoute(
     asyncHandler(async (req, res) => {
       req.checkPermission('list', modelName);
       const { models, query } = req;
+      const { TranslatedString } = models;
 
       const model = models[modelName];
 
@@ -50,8 +51,31 @@ function createSuggesterRoute(
         limit: defaultLimit,
       });
 
+      const mappedResults = await Promise.all(results.map(mapper));
+
+      const translatedStrings = (
+        await TranslatedString.findAll({
+          where: {
+            language: 'en',
+            stringId: {
+              [Op.startsWith]: `refData.${endpoint}`,
+            },
+          },
+          attributes: ['stringId', 'text'],
+        })
+      ).map(t => t.get({ plain: true }));
+
+      const translatedResults = mappedResults.map(result => {
+        const translatedText = translatedStrings.find(
+          obj => obj.stringId === `refData.${endpoint}.${result.id}`,
+        )?.text;
+
+        if (!translatedText) return result;
+        return { ...result, name: translatedText };
+      });
+
       // Allow for async mapping functions (currently only used by location suggester)
-      res.send(await Promise.all(results.map(mapper)));
+      res.send(translatedResults);
     }),
   );
 }
