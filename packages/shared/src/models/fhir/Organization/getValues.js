@@ -1,4 +1,7 @@
 import { FhirIdentifier } from '../../../services/fhirTypes';
+import {
+  VISIBILITY_STATUSES,
+} from '@tamanu/constants';
 
 export async function getValues(upstream, models) {
   const { Facility } = models;
@@ -22,5 +25,5 @@ async function getValuesFromFacility(upstream) {
 
 function getActive(facility) {
   if (facility === null) return null;
-  return facility.visibilityStatus === 'current';
+  return facility.visibilityStatus === VISIBILITY_STATUSES.CURRENT;
 }
