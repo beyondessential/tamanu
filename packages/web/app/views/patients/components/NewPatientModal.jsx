@@ -14,7 +14,7 @@ export const NewPatientModal = ({ open, onCancel, onCreateNewPatient, ...formPro
   // This is a hack to allow cambodia patient details template to have
   // mandatory fields that are not moved up into the primary details section.
   const collapseAdditionalFields =
-    getLocalisation('layout.patientDetails') !== PATIENT_DETAIL_LAYOUTS.CAMBODIA;
+    getLocalisation('layouts.patientDetails') !== PATIENT_DETAIL_LAYOUTS.CAMBODIA;
 
   const api = useApi();
   const onSubmit = useCallback(
