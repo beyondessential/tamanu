@@ -48,8 +48,6 @@ import { vitals } from './vitals';
 import { template } from './template';
 import { translation } from './translation';
 import { vaccinationSettings } from './vaccinationSettings';
-import { getLanguageOptions } from '@tamanu/shared/utils/translation/getLanguageOptions';
-import { NOT_MODIFIED_STATUS_CODE } from '@tamanu/constants';
 
 export const apiv1 = express.Router();
 const patientDataRoutes = express.Router();
