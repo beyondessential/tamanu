@@ -79,14 +79,17 @@ function createSuggesterRoute(
       // Allow for async mapping functions (currently only used by location suggester)
       const mappedResults = await Promise.all(results.map(mapper));
 
+      if (!isTranslatable) {
+        res.send(mappedResults);
+        return;
+      }
+
       res.send(
-        isTranslatable
-          ? replaceDataLabelsWithTranslations({
-              data: mappedResults,
-              translations,
-              endpoint,
-            })
-          : mappedResults,
+        replaceDataLabelsWithTranslations({
+          data: mappedResults,
+          translations,
+          endpoint,
+        }),
       );
     }),
   );
@@ -106,7 +109,10 @@ function createSuggesterLookupRoute(endpoint, modelName, { mapper }) {
 
       const mappedRecord = await mapper(record);
 
-      if (!REFERENCE_TYPE_VALUES.includes(endpoint)) res.send(mappedRecord);
+      if (!REFERENCE_TYPE_VALUES.includes(endpoint)) {
+        res.send(mappedRecord);
+        return;
+      }
 
       const translatedStrings = await models.TranslatedString.getReferenceDataTranslationsByEndpoint(
         {
@@ -149,7 +155,10 @@ function createAllRecordsRoute(
 
       const mappedResults = await Promise.all(results.map(mapper));
 
-      if (!REFERENCE_TYPE_VALUES.includes(endpoint)) res.send(mappedResults);
+      if (!REFERENCE_TYPE_VALUES.includes(endpoint)) {
+        res.send(mappedResults);
+        return;
+      }
 
       const translatedStrings = await models.TranslatedString.getReferenceDataTranslationsByEndpoint(
         {
