@@ -3,11 +3,12 @@ import { Command } from 'commander';
 import { log } from '@tamanu/shared/services/logging';
 
 import { ApplicationContext } from '../ApplicationContext';
-import { startFhirWorkerTasks, startScheduledTasks } from '../tasks';
+import { startScheduledTasks } from '../tasks';
 import { provision } from './provision';
 import pkg from '../../package.json';
 
 export const startTasks = async ({ skipMigrationCheck, provisioning }) => {
+  // doesn't really make sense to have this, but required for current ECS stack
   if (provisioning) {
     await provision(provisioning, { skipIfNotNeeded: true });
   }
@@ -18,13 +19,11 @@ export const startTasks = async ({ skipMigrationCheck, provisioning }) => {
   await context.store.sequelize.assertUpToDate({ skipMigrationCheck });
 
   const stopScheduledTasks = await startScheduledTasks(context);
-  const worker = await startFhirWorkerTasks(context);
 
   for (const sig of ['SIGINT', 'SIGTERM']) {
     process.once(sig, async () => {
       log.info(`Received ${sig}, stopping scheduled tasks`);
       stopScheduledTasks();
-      await worker.stop();
       context.close();
     });
   }
