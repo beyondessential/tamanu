@@ -7,7 +7,7 @@ import { startFhirWorkerTasks, startScheduledTasks } from '../tasks';
 import { provision } from './provision';
 import pkg from '../../package.json';
 
-export const tasks = async ({ skipMigrationCheck, provisioning }) => {
+export const startTasks = async ({ skipMigrationCheck, provisioning }) => {
   if (provisioning) {
     await provision(provisioning, { skipIfNotNeeded: true });
   }
@@ -32,11 +32,12 @@ export const tasks = async ({ skipMigrationCheck, provisioning }) => {
   await context.waitForClose();
 };
 
-export const tasksCommand = new Command('tasks')
+export const startTasksCommand = new Command('startTasks')
+  .alias('tasks') // deprecated
   .description('Start the Tamanu Central tasks runner')
   .option('--skipMigrationCheck', 'skip the migration check on startup')
   .option(
     '--provisioning <file>',
     'if provided and no users exist, provision Tamanu from this file',
   )
-  .action(tasks);
+  .action(startTasks);

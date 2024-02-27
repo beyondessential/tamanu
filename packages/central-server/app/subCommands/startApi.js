@@ -11,7 +11,7 @@ import { version } from '../serverInfo';
 
 const { port } = config;
 
-export const serve = async ({ skipMigrationCheck, provisioning }) => {
+export const startApi = async ({ skipMigrationCheck, provisioning }) => {
   if (provisioning) {
     await provision(provisioning, { skipIfNotNeeded: true });
   }
@@ -64,11 +64,12 @@ export const serve = async ({ skipMigrationCheck, provisioning }) => {
   await context.waitForClose();
 };
 
-export const serveCommand = new Command('serve')
-  .description('Start the Tamanu Central server')
+export const startApiCommand = new Command('startApi')
+  .alias('serve') // deprecated
+  .description('Start the Tamanu Central API server')
   .option('--skipMigrationCheck', 'skip the migration check on startup')
   .option(
     '--provisioning <file>',
     'if provided and no users exist, provision Tamanu from this file',
   )
-  .action(serve);
+  .action(startApi);
