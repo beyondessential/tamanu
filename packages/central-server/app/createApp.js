@@ -16,11 +16,13 @@ import { loadshedder } from './middleware/loadshedder';
 import { versionCompatibility } from './middleware/versionCompatibility';
 
 import { version } from './serverInfo';
+import { translationRoutes } from './translation';
 
 function api(ctx) {
   const apiRoutes = express.Router();
   apiRoutes.use('/public', publicRoutes);
   apiRoutes.use(authModule);
+  apiRoutes.use('/translation', translationRoutes);
   apiRoutes.use(constructPermission);
   apiRoutes.use(buildRoutes(ctx));
   return apiRoutes;

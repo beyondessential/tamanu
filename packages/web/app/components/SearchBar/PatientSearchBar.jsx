@@ -2,14 +2,13 @@ import React from 'react';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
 import { AutocompleteField, LocalisedField, SearchField } from '../Field';
 import { useSuggester } from '../../api';
-import { useLocalisedText } from '../LocalisedText';
 import { useAdvancedFields } from './useAdvancedFields';
+import { TranslatedText } from '../Translation/TranslatedText';
 
 const ADVANCED_FIELDS = ['departmentId', 'clinicianId'];
 
 export const PatientSearchBar = React.memo(
   ({ onSearch, searchParameters, suggestByFacility = true }) => {
-    const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
     const locationGroupSuggester = useSuggester('locationGroup', {
       baseQueryParameters: suggestByFacility ? { filterByFacility: true } : {},
     });
@@ -35,14 +34,24 @@ export const PatientSearchBar = React.memo(
           <>
             <LocalisedField
               name="departmentId"
-              defaultLabel="Department"
+              label={
+                <TranslatedText
+                  stringId="general.localisedField.departmentId.label"
+                  fallback="Department"
+                />
+              }
               size="small"
               component={AutocompleteField}
               suggester={departmentSuggester}
             />
             <LocalisedField
               name="clinicianId"
-              defaultLabel={clinicianText}
+              label={
+                <TranslatedText
+                  stringId="general.localisedField.clinicianId.label"
+                  fallback="Clinician"
+                />
+              }
               component={AutocompleteField}
               size="small"
               suggester={practitionerSuggester}
@@ -50,12 +59,42 @@ export const PatientSearchBar = React.memo(
           </>
         }
       >
-        <LocalisedField useShortLabel component={SearchField} name="displayId" keepLetterCase />
-        <LocalisedField name="firstName" component={SearchField} />
-        <LocalisedField name="lastName" component={SearchField} />
+        <LocalisedField
+          component={SearchField}
+          name="displayId"
+          label={
+            <TranslatedText
+              stringId="general.localisedField.displayId.label.short"
+              fallback="NHN"
+            />
+          }
+          keepLetterCase
+        />
+        <LocalisedField
+          name="firstName"
+          label={
+            <TranslatedText
+              stringId="general.localisedField.firstName.label"
+              fallback="First name"
+            />
+          }
+          component={SearchField}
+        />
+        <LocalisedField
+          name="lastName"
+          label={
+            <TranslatedText stringId="general.localisedField.lastName.label" fallback="Last name" />
+          }
+          component={SearchField}
+        />
         <LocalisedField
           name="locationGroupId"
-          defaultLabel="Location"
+          label={
+            <TranslatedText
+              stringId="general.localisedField.locationGroupId.label"
+              fallback="Area"
+            />
+          }
           component={AutocompleteField}
           size="small"
           suggester={locationGroupSuggester}
