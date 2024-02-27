@@ -34,7 +34,6 @@ describe(`Materialised FHIR - Encounter`, () => {
       FhirPatient,
       FhirOrganization,
     } = ctx.store.models;
-
     const [practitioner, patient, facility] = await Promise.all([
       User.create(fake(User)),
       Patient.create(fake(Patient)),
@@ -330,15 +329,31 @@ describe(`Materialised FHIR - Encounter`, () => {
 
     describe('_includes', () => {
       it('includes facility as materialised organization', async () => {
+        const { Department, FhirOrganization } = ctx.store.models;
+        const department = await Department.findOne({
+          where: {
+            id: resources.department.id
+          }
+        });
+        const facilityId = department.facilityId;
+        const organization = await FhirOrganization.findOne({
+          where: {
+            upstreamId: facilityId
+          }
+        });
         const response = await app.get(
           `/api/integration/${INTEGRATION_ROUTE}/Encounter?_include=Organization:serviceProvider`,
         );
 
-        console.log({ responseBody: response.body})
         expect(response.body.total).toBe(12);
         expect(response.body.entry.length).toBe(13);
         expect(response.body.entry.filter(({ search: { mode } }) => mode === 'match').length).toBe(12);
-        expect(response.body.entry.filter(({ search: { mode } }) => mode === 'include').length).toBe(1);
+        response.body.entry
+          .filter(({ search: { mode } }) => mode === 'include')
+          .forEach(entry => {
+            // should only be 1
+            expect(entry.resource.id).toBe(organization.id);
+          });
       });
     });
 

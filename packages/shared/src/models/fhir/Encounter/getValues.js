@@ -26,7 +26,8 @@ export async function getValues(upstream, models) {
   throw new Error(`Invalid upstream type for encounter ${upstream.constructor.name}`);
 }
 
-async function getValuesFromEncounter(upstream, models) {
+async function getValuesFromEncounter(upstream) {
+  const { Department, Facility } = models;
   return {
     lastUpdated: new Date(),
     status: status(upstream),
@@ -34,7 +35,7 @@ async function getValuesFromEncounter(upstream, models) {
     actualPeriod: period(upstream),
     subject: subjectRef(upstream),
     location: locationRef(upstream),
-    serviceProvider: await serviceProviderRef(upstream, models),
+    serviceProvider: await serviceProviderRef(upstream, Department, Facility),
   };
 }
 
@@ -149,9 +150,8 @@ function locationRef(encounter) {
   ];
 }
 
-async function serviceProviderRef(encounter, models) {
+async function serviceProviderRef(encounter, Department, Facility) {
   const { departmentId } = encounter;
-  const { Department, Facility } = models;
   
   const department = await Department.findOne({
     where: { id: departmentId }
@@ -162,7 +162,6 @@ async function serviceProviderRef(encounter, models) {
   const facility = await Facility.findOne({
     where: { id: facilityId }
   });
-  if (!facility) return null;
 
   return new FhirReference({
     type: 'upstream://organization',
