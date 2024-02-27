@@ -69,7 +69,7 @@ describe(`Materialised FHIR - Encounter`, () => {
   });
   afterAll(() => ctx.close());
 
-  async function makeEncounter(overrides = {}, beforeMaterialising = () => { }) {
+  async function makeEncounter(overrides = {}, beforeMaterialising = () => {}) {
     const { Encounter, FhirEncounter } = ctx.store.models;
 
     const startDate = new Date(chance.integer({ min: 0, max: Date.now() }));
