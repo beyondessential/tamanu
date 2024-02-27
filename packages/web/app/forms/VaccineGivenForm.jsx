@@ -1,4 +1,5 @@
 import React from 'react';
+import { useSelector } from 'react-redux';
 import { PropTypes } from 'prop-types';
 import * as yup from 'yup';
 
@@ -66,6 +67,8 @@ export const VaccineGivenForm = ({
   values,
   setValues,
 }) => {
+  const patient = useSelector(state => state.patient);
+
   return (
     <TwoTwoGrid>
       {!editMode && (
@@ -149,6 +152,7 @@ export const VaccineGivenForm = ({
       <VaccineDateField
         label={<TranslatedText stringId="vaccine.dateGiven.label" fallback="Date given" />}
         required={!values.givenElsewhere}
+        min={patient.dateOfBirth}
       />
 
       <InjectionSiteField />
