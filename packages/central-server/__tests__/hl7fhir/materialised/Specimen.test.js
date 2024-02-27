@@ -220,12 +220,6 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
     });
 
     describe('including', () => {
-        const resolveUpstreams = async (sequelize) => {
-        const result = await sequelize.query(`
-            CALL fhir.resolve_upstreams();      
-          `);
-        return result;
-      };
   
       beforeEach(async () => {
         const { models } = ctx.store;
@@ -236,14 +230,13 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       });
 
       it('correctly includes a practitioner', async () => {
-        const { models, sequelize } = ctx.store;
+        const { models } = ctx.store;
         const { FhirSpecimen, FhirPractitioner } = models;
         const { labRequest } = await fakeResourcesOfFhirSpecimen(models, resources);
-        // const materialisedServiceRequest = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
         const materialiseSpecimen = await FhirSpecimen.materialiseFromUpstream(labRequest.id);
         const materialisePractitioner = await FhirPractitioner.materialiseFromUpstream(labRequest.collectedById);
         
-        await resolveUpstreams(sequelize);
+        await FhirSpecimen.resolveUpstreams();
         
         const path = `/v1/integration/${INTEGRATION_ROUTE}/Specimen?_include=Practitioner:collector`;
         const response = await app.get(path);

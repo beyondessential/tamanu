@@ -886,7 +886,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       });
 
     });
-  })
+  });
 
   describe('errors', () => {
     it('returns not found when fetching a non-existent service request', async () => {
