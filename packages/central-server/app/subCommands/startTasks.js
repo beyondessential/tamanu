@@ -4,15 +4,9 @@ import { log } from '@tamanu/shared/services/logging';
 
 import { ApplicationContext } from '../ApplicationContext';
 import { startScheduledTasks } from '../tasks';
-import { provision } from './provision';
 import pkg from '../../package.json';
 
-export const startTasks = async ({ skipMigrationCheck, provisioning }) => {
-  // doesn't really make sense to have this, but required for current ECS stack
-  if (provisioning) {
-    await provision(provisioning, { skipIfNotNeeded: true });
-  }
-
+export const startTasks = async ({ skipMigrationCheck }) => {
   log.info(`Starting Central tasks runner version ${pkg.version}`);
 
   const context = await new ApplicationContext().init({ appType: 'tasks' });
@@ -35,8 +29,4 @@ export const startTasksCommand = new Command('startTasks')
   .alias('tasks') // deprecated
   .description('Start the Tamanu Central tasks runner')
   .option('--skipMigrationCheck', 'skip the migration check on startup')
-  .option(
-    '--provisioning <file>',
-    'if provided and no users exist, provision Tamanu from this file',
-  )
   .action(startTasks);
