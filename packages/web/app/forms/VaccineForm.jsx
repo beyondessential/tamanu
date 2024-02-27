@@ -70,7 +70,7 @@ export const VaccineForm = ({
   getScheduledVaccines,
   vaccineRecordingType,
 }) => {
-  const defaultVaccineLabel = currentVaccineRecordValues?.scheduledVaccine?.vaccine?.code;
+  const defaultVaccineLabel = currentVaccineRecordValues?.label;
   const [vaccineLabel, setVaccineLabel] = useState(defaultVaccineLabel);
   const [vaccineOptions, setVaccineOptions] = useState([]);
   const [category, setCategory] = useState(

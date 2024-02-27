@@ -7,7 +7,7 @@ import {
   OutlinedButton,
   TableCellTag,
 } from '../../components';
-import { mockGetStatusLogic, getDueDate } from './vaccineSchedule';
+import { mockGetStatusLogic } from './vaccineSchedule';
 import { Colors } from '../../constants';
 import styled from 'styled-components';
 
@@ -27,13 +27,12 @@ export const getDate = ({ date }) =>
     <TranslatedText stringId="general.fallback.unknown" fallback="Unknown" />
   );
 
-export const getDueDateDisplay = ({ date }) => {
-  if (!date) {
+export const getDueDate = record => {
+  if (!record.dueDate) {
     return <TranslatedText stringId="general.fallback.unknown" fallback="Unknown" />;
   }
 
-  const dueDate = getDueDate(date);
-  return <DateDisplay date={dueDate} />;
+  return <DateDisplay date={record.dueDate} />;
 };
 export const getGiver = record => {
   if (record.status === VACCINE_STATUS.NOT_GIVEN) {
@@ -122,6 +121,6 @@ const VaccineStatusTag = React.memo(({ status }) => {
 });
 
 export const getStatusTag = record => {
-  const statusValue = mockGetStatusLogic(record.date);
+  const statusValue = mockGetStatusLogic(record.dueDate);
   return <VaccineStatusTag status={statusValue} />;
 };

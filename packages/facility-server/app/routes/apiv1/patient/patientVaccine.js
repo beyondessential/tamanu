@@ -1,5 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import { subDays, addDays } from 'date-fns';
 import Sequelize, { Op, QueryTypes } from 'sequelize';
 import config from 'config';
 
@@ -11,7 +12,7 @@ import {
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import { NotFoundError } from '@tamanu/shared/errors';
-import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateString, toDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 export const patientVaccineRoutes = express.Router();
 
@@ -24,6 +25,30 @@ const asRealNumber = value => {
     throw new Error(`asRealNumber: expected real numeric string or number, got ${value}`);
   }
   return num;
+};
+
+const mockDueDate = index => {
+  let dueDate;
+
+  switch (true) {
+    case index === 0:
+      dueDate = toDateTimeString(addDays(new Date(), 30));
+      break;
+    case index === 1:
+      dueDate = toDateTimeString(addDays(new Date(), 10));
+      break;
+    case index === 2:
+      dueDate = toDateTimeString(addDays(new Date(), 1));
+      break;
+    case index === 3:
+      dueDate = toDateTimeString(subDays(new Date(), 10));
+      break;
+    default:
+      dueDate = toDateTimeString(subDays(new Date(), 60));
+      break;
+  }
+
+  return toDateTimeString(dueDate);
 };
 
 // Todo: Update in NASS-1146
@@ -67,8 +92,6 @@ patientVaccineRoutes.get(
       },
     );
 
-    console.log('results', results.length);
-
     const vaccines = results
       .map(s => s.get({ plain: true }))
       .reduce((allVaccines, vaccineSchedule) => {
@@ -93,7 +116,14 @@ patientVaccineRoutes.get(
     const availableVaccines = Object.values(vaccines).filter(v =>
       v.schedules.some(s => !s.administered),
     );
-    res.send({ count: availableVaccines.length, data: availableVaccines });
+
+    // Todo: remove this mock logic after NASS-1146 is done
+    const mockedResults = availableVaccines.map((record, index) => {
+      // Get start of week
+      const dueDate = mockDueDate(index);
+      return { ...record, dueDate };
+    });
+    res.send({ count: availableVaccines.length, data: mockedResults });
   }),
 );
 

@@ -23,6 +23,28 @@ const CovidCertificateIcon = styled.i`
 
 const TableWrapper = styled.div`
   margin-bottom: 1.5rem;
+
+  table {
+    display: flex;
+    flex-direction: column;
+  }
+
+  tbody {
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
+    max-height: 300px;
+  }
+
+  tr {
+    flex: 1;
+    display: flex;
+  }
+
+  td,
+  th {
+    flex: 1;
+  }
 `;
 
 export const VaccinesPane = React.memo(({ patient, readonly }) => {

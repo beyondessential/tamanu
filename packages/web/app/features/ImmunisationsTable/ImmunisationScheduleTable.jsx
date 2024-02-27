@@ -1,13 +1,6 @@
 import React, { useMemo } from 'react';
-import { VACCINE_CATEGORIES } from '@tamanu/constants';
 import { TranslatedText, DataFetchingTable, Heading4 } from '../../components';
-import {
-  getSchedule,
-  getVaccineName,
-  getDueDateDisplay,
-  getStatusTag,
-  getRecordAction,
-} from './accessors';
+import { getDueDate, getStatusTag, getRecordAction } from './accessors';
 import styled from 'styled-components';
 import { Colors } from '../../constants';
 
@@ -30,6 +23,11 @@ const TableHeader = () => {
   );
 };
 
+const getSchedule = record =>
+  record.schedule || <TranslatedText stringId="general.fallback.notApplicable" fallback="N/A" />;
+const getVaccineName = record =>
+  record.label || <TranslatedText stringId="general.fallback.unknown" fallback="Unknown" />;
+
 export const ImmunisationScheduleTable = React.memo(({ patient, onItemEdit }) => {
   const COLUMNS = useMemo(
     () => [
@@ -47,7 +45,7 @@ export const ImmunisationScheduleTable = React.memo(({ patient, onItemEdit }) =>
       {
         key: 'dueDate',
         title: <TranslatedText stringId="vaccine.table.column.dueDate" fallback="Due date" />,
-        accessor: getDueDateDisplay,
+        accessor: getDueDate,
       },
       {
         key: 'status',
