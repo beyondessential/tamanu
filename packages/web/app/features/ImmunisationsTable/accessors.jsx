@@ -1,5 +1,6 @@
 import React from 'react';
 import { VACCINE_STATUS, VACCINE_STATUS_LABELS } from '@tamanu/constants/vaccines';
+import styled from 'styled-components';
 import {
   TranslatedText,
   DateDisplay,
@@ -7,9 +8,7 @@ import {
   OutlinedButton,
   TableCellTag,
 } from '../../components';
-import { mockGetStatusLogic } from './vaccineSchedule';
 import { Colors } from '../../constants';
-import styled from 'styled-components';
 
 export const getSchedule = record =>
   record.scheduledVaccine?.schedule || (
@@ -121,6 +120,5 @@ const VaccineStatusTag = React.memo(({ status }) => {
 });
 
 export const getStatusTag = record => {
-  const statusValue = mockGetStatusLogic(record.dueDate);
-  return <VaccineStatusTag status={statusValue} />;
+  return <VaccineStatusTag status={record.vaccineScheduleStatus} />;
 };
