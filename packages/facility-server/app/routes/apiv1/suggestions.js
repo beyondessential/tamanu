@@ -13,7 +13,7 @@ import {
   SURVEY_TYPES,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
-import { keyBy, map } from 'lodash';
+import { keyBy } from 'lodash';
 
 export const suggestions = express.Router();
 
@@ -25,10 +25,11 @@ const replaceDataLabelsWithTranslations = ({ data, translations, endpoint }) => 
   const translationsByKey = keyBy(translations, 'stringId');
   return data.map(item => {
     const translatedText = translationsByKey[`refData.${endpoint}.${item.id}`]?.text;
-    if (!translatedText) return item;
-    return { ...item, name: translatedText };
+    return translatedText ? { ...item, name: translatedText } : item;
   });
 };
+
+const extractRefDataId = stringId => stringId.split('.').pop();
 
 function createSuggesterRoute(
   endpoint,
@@ -41,18 +42,32 @@ function createSuggesterRoute(
     asyncHandler(async (req, res) => {
       req.checkPermission('list', modelName);
       const { models, query } = req;
-      const { language } = query;
-
       const model = models[modelName];
 
+      const searchQuery = (query.q || '').trim().toLowerCase();
+
+      const isTranslatable = REFERENCE_TYPE_VALUES.includes(endpoint);
+      let translations = [];
+      let suggestedIds = [];
+
+      if (isTranslatable) {
+        translations = await models.TranslatedString.getReferenceDataTranslationsByEndpoint({
+          language: query.language,
+          refDataType: endpoint,
+        });
+
+        suggestedIds = translations
+          .filter(({ text }) => text.toLowerCase().includes(searchQuery))
+          .map(({ stringId }) => extractRefDataId(stringId));
+      }
+
+      const where = whereBuilder(`%${searchQuery}%`, query);
       const positionQuery = literal(
         `POSITION(LOWER(:positionMatch) in LOWER(${searchColumn})) > 1`,
       );
 
-      const searchQuery = (query.q || '').trim().toLowerCase();
-      const where = whereBuilder(`%${searchQuery}%`, query);
       const results = await model.findAll({
-        where,
+        where: isTranslatable ? { [Op.or]: [where, { id: suggestedIds }] } : where,
         order: [positionQuery, [Sequelize.literal(searchColumn), 'ASC']],
         replacements: {
           positionMatch: searchQuery,
@@ -61,26 +76,18 @@ function createSuggesterRoute(
         limit: defaultLimit,
       });
 
+      // Allow for async mapping functions (currently only used by location suggester)
       const mappedResults = await Promise.all(results.map(mapper));
 
-      // We only translate reference data suggester values
-      if (!REFERENCE_TYPE_VALUES.includes(endpoint)) return mappedResults;
-
-      const translatedStrings = await models.TranslatedString.getReferenceDataTranslationsByEndpoint(
-        {
-          language,
-          refDataType: endpoint,
-        },
+      res.send(
+        isTranslatable
+          ? replaceDataLabelsWithTranslations({
+              data: mappedResults,
+              translations,
+              endpoint,
+            })
+          : mappedResults,
       );
-
-      const translatedResults = replaceDataLabelsWithTranslations({
-        data: mappedResults,
-        translations: translatedStrings,
-        endpoint,
-      });
-
-      // Allow for async mapping functions (currently only used by location suggester)
-      res.send(translatedResults);
     }),
   );
 }
