@@ -98,7 +98,7 @@ describe(`Materialised FHIR - Encounter`, () => {
     return [encounter, mat];
   }
 
-  function makeDischargedEncounter(overrides = {}, beforeMaterialising = () => { }) {
+  function makeDischargedEncounter(overrides = {}, beforeMaterialising = () => {}) {
     return makeEncounter(overrides, async (encounter, endDate) => {
       const { Discharge } = ctx.store.models;
       encounter.set('endDate', endDate);
