@@ -181,7 +181,7 @@ programRegistry.get(
           FROM patient_program_registration_conditions pprc
             JOIN program_registry_conditions prc
               ON pprc.program_registry_condition_id = prc.id
-          WHERE pprc.program_registry_id = :programRegistryId
+          WHERE pprc.program_registry_id = :programRegistryId AND pprc.deletion_status IS NULL
           GROUP BY patient_id
         )
     `;

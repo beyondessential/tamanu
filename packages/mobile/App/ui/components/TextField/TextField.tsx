@@ -8,6 +8,7 @@ import { BaseInputProps } from '../../interfaces/BaseInputProps';
 import { TextFieldErrorMessage } from './TextFieldErrorMessage';
 import { theme } from '~/ui/styled/theme';
 import { RequiredIndicator } from '../RequiredIndicator';
+import { TranslatedTextElement } from '/components/Translations/TranslatedText';
 
 export interface RefObject<T> {
   readonly current: T | null;
@@ -33,6 +34,7 @@ export interface TextFieldProps extends BaseInputProps {
   blurOnSubmit?: boolean;
   inputRef?: RefObject<TextInput>;
   onSubmitEditing?: () => void;
+  label?: TranslatedTextElement;
   labelColor?: string;
   labelFontWeight?: string;
   labelFontSize?: string;
@@ -116,7 +118,8 @@ export const TextField = React.memo(
             focused={focused}
             hasValue={value?.length > 0}
             error={error}
-            testID={label}
+            // TODO: testID and accessibilityLabel for translated field labels require strings
+            testID={label?.props?.fallback || label}
             value={!hideValue && value}
             height={inputHeight}
             ref={ref}
@@ -124,7 +127,7 @@ export const TextField = React.memo(
             autoFocus={autoFocus}
             returnKeyType={returnKeyType}
             autoCorrect={hints}
-            accessibilityLabel={label}
+            accessibilityLabel={label?.props?.fallback || label}
             keyboardType={keyboardType}
             onChangeText={onChange}
             onFocus={onFocusInput}

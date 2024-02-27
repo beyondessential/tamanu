@@ -16,6 +16,17 @@ import { loadshedder } from './middleware/loadshedder';
 import { versionCompatibility } from './middleware/versionCompatibility';
 
 import { version } from './serverInfo';
+import { translationRoutes } from './translation';
+
+function api(ctx) {
+  const apiRoutes = express.Router();
+  apiRoutes.use('/public', publicRoutes);
+  apiRoutes.use(authModule);
+  apiRoutes.use('/translation', translationRoutes);
+  apiRoutes.use(constructPermission);
+  apiRoutes.use(buildRoutes(ctx));
+  return apiRoutes;
+}
 
 export function createApp(ctx) {
   const { store, emailService, reportSchemaStores } = ctx;
@@ -49,18 +60,17 @@ export function createApp(ctx) {
     next();
   });
 
-  // TODO: serve index page
   app.get('/$', (req, res) => {
     res.send({
       index: true,
     });
   });
 
-  // API v1
-  app.use('/v1/public', publicRoutes);
-  app.use('/v1', authModule);
-  app.use('/v1', constructPermission);
-  app.use('/v1', buildRoutes(ctx));
+  // API
+  app.use('/api', api(ctx));
+
+  // Legacy API endpoint
+  app.use('/v1', api(ctx));
 
   // Dis-allow all other routes
   app.use('*', (req, res) => {

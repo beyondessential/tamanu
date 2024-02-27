@@ -197,7 +197,7 @@ export class ReportRunner {
       .replace(/\s+/g, '-')
       .replace(/-+/g, '-')
       .toLowerCase();
-    return `tamanu-report-${date}-${dashedName}`;
+    return `report-${date}-${dashedName}`;
   }
 
   /**

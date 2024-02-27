@@ -1,5 +1,6 @@
 export * from './auth.js';
 export * from './births.js';
+export * from './brands.js';
 export * from './comms.js';
 export * from './datetimes.js';
 export * from './deaths.js';
@@ -23,8 +24,8 @@ export * from './suggesters.js';
 export * from './surveys.js';
 export * from './sync.js';
 export * from './templates.js';
+export * from './translations'
 export * from './programRegistry.js';
 export * from './vaccines.js';
 export * from './settings.js';
 export * from './encounterHistory.js';
-export * from './user.js';

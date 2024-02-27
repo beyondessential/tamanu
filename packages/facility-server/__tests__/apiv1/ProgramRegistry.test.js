@@ -22,7 +22,7 @@ describe('ProgramRegistry', () => {
     await models.Patient.truncate({ cascade: true });
   });
 
-  describe('Getting (GET /v1/programRegistry/:id)', () => {
+  describe('Getting (GET /api/programRegistry/:id)', () => {
     it('should fetch a survey', async () => {
       const { id } = await models.ProgramRegistry.create(
         fake(models.ProgramRegistry, {
@@ -31,14 +31,14 @@ describe('ProgramRegistry', () => {
         }),
       );
 
-      const result = await app.get(`/v1/programRegistry/${id}`);
+      const result = await app.get(`/api/programRegistry/${id}`);
       expect(result).toHaveSucceeded();
 
       expect(result.body).toHaveProperty('name', 'Hepatitis Registry');
     });
   });
 
-  describe('Listing (GET /v1/programRegistry)', () => {
+  describe('Listing (GET /api/programRegistry)', () => {
     it('should list available program registries', async () => {
       await models.ProgramRegistry.create(
         fake(models.ProgramRegistry, { programId: testProgram.id }),
@@ -53,7 +53,7 @@ describe('ProgramRegistry', () => {
         fake(models.ProgramRegistry, { programId: testProgram.id }),
       );
 
-      const result = await app.get('/v1/programRegistry');
+      const result = await app.get('/api/programRegistry');
       expect(result).toHaveSucceeded();
 
       const { body } = result;
@@ -87,6 +87,7 @@ describe('ProgramRegistry', () => {
         fake(models.PatientProgramRegistration, {
           patientId: testPatient.id,
           programRegistryId: registryId1,
+          clinicianId: app.user.id,
         }),
       );
 
@@ -100,6 +101,7 @@ describe('ProgramRegistry', () => {
           patientId: testPatient.id,
           registrationStatus: REGISTRATION_STATUSES.ACTIVE,
           programRegistryId: registryId2,
+          clinicianId: app.user.id,
         }),
       );
       await models.PatientProgramRegistration.create(
@@ -108,6 +110,7 @@ describe('ProgramRegistry', () => {
           patientId: testPatient.id,
           registrationStatus: REGISTRATION_STATUSES.RECORDED_IN_ERROR,
           programRegistryId: registryId2,
+          clinicianId: app.user.id,
         }),
       );
 
@@ -121,6 +124,7 @@ describe('ProgramRegistry', () => {
           patientId: testPatient.id,
           registrationStatus: REGISTRATION_STATUSES.RECORDED_IN_ERROR,
           programRegistryId: registryId3,
+          clinicianId: app.user.id,
         }),
       );
       await models.PatientProgramRegistration.create(
@@ -129,11 +133,12 @@ describe('ProgramRegistry', () => {
           patientId: testPatient.id,
           registrationStatus: REGISTRATION_STATUSES.ACTIVE,
           programRegistryId: registryId3,
+          clinicianId: app.user.id,
         }),
       );
 
       const result = await app
-        .get('/v1/programRegistry')
+        .get('/api/programRegistry')
         .query({ excludePatientId: testPatient.id });
       expect(result).toHaveSucceeded();
       expect(result.body.data.length).toBe(3);
@@ -148,14 +153,14 @@ describe('ProgramRegistry', () => {
 
     it('should escape the excludePatientId parameter', async () => {
       const result = await app
-        .get('/v1/programRegistry')
+        .get('/api/programRegistry')
         .query({ excludePatientId: "'bobby tables/\\'&;" });
       expect(result).toHaveSucceeded();
       expect(result.body.data.length).toBe(0);
     });
   });
 
-  describe('Listing conditions (GET /v1/programRegistry/:id/conditions)', () => {
+  describe('Listing conditions (GET /api/programRegistry/:id/conditions)', () => {
     it('should list available conditions', async () => {
       const { id: programRegistryId } = await models.ProgramRegistry.create(
         fake(models.ProgramRegistry, { programId: testProgram.id }),
@@ -167,7 +172,7 @@ describe('ProgramRegistry', () => {
         fake(models.ProgramRegistryCondition, { programRegistryId }),
       );
 
-      const result = await app.get(`/v1/programRegistry/${programRegistryId}/conditions`);
+      const result = await app.get(`/api/programRegistry/${programRegistryId}/conditions`);
       expect(result).toHaveSucceeded();
 
       const { body } = result;
@@ -176,7 +181,7 @@ describe('ProgramRegistry', () => {
     });
   });
 
-  describe('Listing registrations (GET /v1/programRegistry/:id/registrations)', () => {
+  describe('Listing registrations (GET /api/programRegistry/:id/registrations)', () => {
     it('should list registrations', async () => {
       const { id: programRegistryId } = await models.ProgramRegistry.create(
         fake(models.ProgramRegistry, { programId: testProgram.id }),
@@ -198,6 +203,7 @@ describe('ProgramRegistry', () => {
         programRegistryId,
         registrationStatus: REGISTRATION_STATUSES.ACTIVE,
         date: '2023-09-04 08:00:00',
+        clinicianId: app.user.id,
       };
 
       // Patient 1: Should pull all required data
@@ -227,7 +233,7 @@ describe('ProgramRegistry', () => {
         }),
       );
 
-      const result = await app.get(`/v1/programRegistry/${programRegistryId}/registrations`).query({
+      const result = await app.get(`/api/programRegistry/${programRegistryId}/registrations`).query({
         sortBy: 'clinicalStatus',
       });
       expect(result).toHaveSucceeded();
@@ -287,6 +293,7 @@ describe('ProgramRegistry', () => {
         programRegistryId,
         registrationStatus: REGISTRATION_STATUSES.ACTIVE,
         date: '2023-09-04 08:00:00',
+        clinicianId: app.user.id,
       };
 
       // Patient 1: Should show
@@ -305,6 +312,7 @@ describe('ProgramRegistry', () => {
           patientId: patient1.id,
           programRegistryId,
           programRegistryConditionId: decoyCondition.id,
+          deletionStatus: null
         }),
       );
       await models.PatientProgramRegistrationCondition.create(
@@ -312,6 +320,7 @@ describe('ProgramRegistry', () => {
           patientId: patient1.id,
           programRegistryId,
           programRegistryConditionId: relevantCondition.id,
+          deletionStatus: null
         }),
       );
 
@@ -329,10 +338,11 @@ describe('ProgramRegistry', () => {
           patientId: patient2.id,
           programRegistryId,
           programRegistryConditionId: decoyCondition.id,
+          deletionStatus: null
         }),
       );
 
-      const result = await app.get(`/v1/programRegistry/${programRegistryId}/registrations`).query({
+      const result = await app.get(`/api/programRegistry/${programRegistryId}/registrations`).query({
         programRegistryCondition: relevantCondition.id,
       });
       expect(result).toHaveSucceeded();
@@ -373,6 +383,7 @@ describe('ProgramRegistry', () => {
               fake(models.PatientProgramRegistration, {
                 programRegistryId,
                 patientId: patient.id,
+                clinicianId: app.user.id,
               }),
             );
           }),
@@ -382,7 +393,7 @@ describe('ProgramRegistry', () => {
       it.each(patientFilters)(
         'Should only include records matching patient filter ($filter: $value)',
         async ({ filter, value }) => {
-          const result = await app.get(`/v1/programRegistry/${registryId}/registrations`).query({
+          const result = await app.get(`/api/programRegistry/${registryId}/registrations`).query({
             rowsPerPage: 100,
             [filter]: value,
           });

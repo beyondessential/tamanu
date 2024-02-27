@@ -162,11 +162,16 @@ describe('SurveyResponse.createWithAnswers', () => {
         },
       },
     });
+    const { id: userId } = await models.User.create({
+      displayName: 'Test clinician',
+      email: 'testclinician@test.test',
+    });
 
     await models.SurveyResponse.sequelize.transaction(() =>
       models.SurveyResponse.createWithAnswers({
         patientId,
         encounterId,
+        userId,
         surveyId: survey.id,
         answers: {
           [dataElement.id]: clinicalStatus.id,

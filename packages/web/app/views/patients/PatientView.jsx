@@ -24,6 +24,7 @@ import { PATIENT_TABS } from '../../constants/patientPaths';
 import { NAVIGATION_CONTAINER_HEIGHT } from '../../components/PatientNavigation';
 import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
 import { PatientSearchParametersProvider } from '../../contexts/PatientViewSearchParameters';
+import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { invalidatePatientDataQueries } from '../../utils';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 
@@ -39,31 +40,31 @@ const StyledDisplayTabs = styled(TabDisplay)`
 
 const TABS = [
   {
-    label: 'History',
+    label: <TranslatedText stringId="patient.tab.history" fallback="History" />,
     key: PATIENT_TABS.HISTORY,
     icon: 'fa fa-calendar-day',
     render: props => <HistoryPane {...props} />,
   },
   {
-    label: 'Details',
+    label: <TranslatedText stringId="patient.tab.details" fallback="Details" />,
     key: PATIENT_TABS.DETAILS,
     icon: 'fa fa-info-circle',
     render: props => <PatientDetailsPane {...props} />,
   },
   {
-    label: 'Results',
+    label: <TranslatedText stringId="patient.tab.results" fallback="Results" />,
     key: PATIENT_TABS.RESULTS,
     icon: 'fa fa-file-alt',
     render: props => <PatientResultsPane {...props} />,
   },
   {
-    label: 'Referrals',
+    label: <TranslatedText stringId="patient.tab.referrals" fallback="Referrals" />,
     key: PATIENT_TABS.REFERRALS,
     icon: 'fa fa-hospital',
     render: props => <ReferralPane {...props} />,
   },
   {
-    label: 'Forms',
+    label: <TranslatedText stringId="patient.tab.forms" fallback="Forms" />,
     key: PATIENT_TABS.PROGRAMS,
     icon: 'fa fa-hospital',
     render: ({ patient, ...props }) => (
@@ -71,34 +72,47 @@ const TABS = [
     ),
   },
   {
-    label: 'Documents',
+    label: <TranslatedText stringId="patient.tab.documents" fallback="Documents" />,
     key: PATIENT_TABS.DOCUMENTS,
     icon: 'fa fa-file-medical-alt',
     render: props => <DocumentsPane {...props} />,
   },
   {
-    label: 'Vaccines',
+    label: <TranslatedText stringId="patient.tab.vaccines" fallback="Vaccines" />,
     key: PATIENT_TABS.VACCINES,
     icon: 'fa fa-syringe',
     render: props => <VaccinesPane {...props} />,
   },
   {
-    label: 'Medication',
+    label: <TranslatedText stringId="patient.tab.medication" fallback="Medication" />,
     key: PATIENT_TABS.MEDICATION,
     icon: 'fa fa-medkit',
     render: props => <PatientMedicationPane {...props} />,
   },
   {
-    label: 'Invoices',
+    label: <TranslatedText stringId="patient.tab.invoices" fallback="Invoices" />,
     key: PATIENT_TABS.INVOICES,
     icon: 'fa fa-cash-register',
     render: props => <InvoicesPane {...props} />,
   },
 ];
 
+const tabCompare = ({ firstTab, secondTab, patientTabLocalisation }) => {
+  const firstTabSortPriority = patientTabLocalisation?.[firstTab.key]?.sortPriority || 0;
+  const secondTabSortPriority = patientTabLocalisation?.[secondTab.key]?.sortPriority || 0;
+  return firstTabSortPriority - secondTabSortPriority;
+};
+
+const usePatientTabs = () => {
+  const { getLocalisation } = useLocalisation();
+  const patientTabLocalisation = getLocalisation('patientTabs');
+  return TABS.filter(
+    tab => patientTabLocalisation?.[tab.key]?.hidden === false,
+  ).sort((firstTab, secondTab) => tabCompare({ firstTab, secondTab, patientTabLocalisation }));
+};
+
 export const PatientView = () => {
   const queryClient = useQueryClient();
-  const { getLocalisation } = useLocalisation();
   const { navigateToPatient } = usePatientNavigation();
   const query = useUrlSearchParams();
   const patient = useSelector(state => state.patient);
@@ -140,11 +154,11 @@ export const PatientView = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [patient.syncing]);
 
+  const visibleTabs = usePatientTabs();
+
   if (patient.loading || isLoadingAdditionalData || isLoadingBirthData) {
     return <LoadingIndicator />;
   }
-
-  const visibleTabs = TABS.filter(tab => !tab.condition || tab.condition(getLocalisation));
 
   return (
     <PatientSearchParametersProvider>

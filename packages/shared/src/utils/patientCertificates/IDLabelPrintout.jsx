@@ -29,28 +29,44 @@ const styles = StyleSheet.create({
   },
   text: {
     color: '#444444',
+    fontFamily: 'Courier',
+  },
+  barcodeContainer: {
+    flexDirection: 'column',
+  },
+  barcodeText: {
+    fontFamily: 'Courier-Bold',
+    color: '#444444',
   },
   barcode: {
     margin: 0,
     marginBottom: 2,
     textAlign: 'left',
+    displayValue: false,
   },
 });
 
 const Row = props => <View style={styles.row} {...props} />;
 const Col = props => <View style={styles.col} {...props} />;
+const BarcodeContainer = props => <View style={styles.barcodeContainer} {...props} />;
 
 const IDLabel = ({ patient }) => {
   return (
     <View style={styles.idLabel}>
       <Row>
-        <PrintableBarcode
-          barHeight={22}
-          id={patient.displayId}
-          fontSize={fontSize}
-          barcodeStyle={styles.barcode}
-        />
-        <Col style={{ marginTop: '1mm', marginLeft: '2mm' }}>
+        <BarcodeContainer>
+          <PrintableBarcode
+            barHeight="24px"
+            id={patient.displayId}
+            fontSize={fontSize}
+            barcodeStyle={styles.barcode}
+            width="92px"
+          />
+          <P mb={0} fontSize={fontSize} style={styles.barcodeText}>
+            {patient.displayId}
+          </P>
+        </BarcodeContainer>
+        <Col style={{ marginLeft: '3mm' }}>
           <P mb={2} fontSize={fontSize} style={styles.text}>
             {getSex(patient)}
           </P>
@@ -59,8 +75,8 @@ const IDLabel = ({ patient }) => {
           </P>
         </Col>
       </Row>
-      <Col>
-        <P mb={0} mt={2} fontSize={fontSize} style={styles.text}>
+      <Col style={{ marginTop: -1 }}>
+        <P mb={0} mt={0} fontSize={fontSize} style={styles.text}>
           {getName(patient)}
         </P>
       </Col>
@@ -77,6 +93,9 @@ export const IDLabelPrintout = ({ patient, measures }) => {
       width: '100%',
       columnGap: measures.columnGap,
       rowGap: measures.rowGap,
+      position: 'absolute',
+      left: measures.pageMarginLeft,
+      top: convertToPt(measures.pageMarginTop) + convertToPt('3mm'),
     },
     gridItem: {
       width: measures.columnWidth,
@@ -90,10 +109,6 @@ export const IDLabelPrintout = ({ patient, measures }) => {
         size={{
           width: convertToPt(measures.pageWidth),
           height: convertToPt(measures.pageHeight),
-        }}
-        style={{
-          paddingTop: measures.pageMarginTop,
-          paddingLeft: measures.pageMarginLeft,
         }}
       >
         <View style={pageStyles.grid} wrap={false}>
