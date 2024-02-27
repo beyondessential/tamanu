@@ -14,7 +14,7 @@ import { ViewPhotoLink } from '../../../../components/ViewPhotoLink';
 import { LoadingScreen } from '../../../../components/LoadingScreen';
 import { useBackendEffect } from '../../../../hooks';
 
-const AutocompleteAnswer = ({ question, answer }): ReactElement => {
+const AnswerFromBackend = ({ question, answer }): ReactElement => {
   const config = JSON.parse(question.config);
   const [refData, error] = useBackendEffect(
     ({ models }) => models[config.source].getRepository().findOne(answer),
@@ -74,15 +74,9 @@ const renderAnswer = (question, answer): ReactElement => {
     case FieldTypes.PHOTO:
       return <ViewPhotoLink imageId={answer} />;
     case FieldTypes.AUTOCOMPLETE:
-      return <AutocompleteAnswer question={question} answer={answer} />;
+    case FieldTypes.PATIENT_DATA:
+      return <AnswerFromBackend question={question} answer={answer} />;
     default:
-      if (question.config) {
-        const config = JSON.parse(question.config);
-        const { source, writeToPatient } = config;
-        if (source && writeToPatient?.fieldType === FieldTypes.AUTOCOMPLETE) {
-          return <AutocompleteAnswer question={question} answer={answer} />;
-        }
-      }
       return (
         <StyledText textAlign="right" color={theme.colors.TEXT_DARK}>
           {getAnswerText(question, answer)}
