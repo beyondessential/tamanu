@@ -26,6 +26,77 @@ const asRealNumber = value => {
   return num;
 };
 
+// Todo: Update in NASS-1146
+patientVaccineRoutes.get(
+  '/:id/vaccineSchedule',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('list', 'PatientVaccine');
+
+    const results = await req.db.query(
+      `
+      SELECT
+        sv.id
+        , max(sv.category) AS category
+        , max(sv.label) AS label
+        , max(sv.schedule) AS schedule
+        , max(sv.weeks_from_birth_due) AS weeks_from_birth_due
+        , max(sv.vaccine_id) AS vaccine_id
+        , max(sv.visibility_status) AS visibility_status
+        , count(av.id) AS administered
+        FROM scheduled_vaccines sv
+        LEFT JOIN (
+          SELECT
+            av.*
+          FROM
+            administered_vaccines av
+            JOIN encounters e ON av.encounter_id = e.id
+          WHERE
+            e.patient_id = :patientId) av ON sv.id = av.scheduled_vaccine_id
+        WHERE sv.category = :category
+        GROUP BY sv.id
+        ORDER BY sv.index, max(sv.label), max(sv.schedule);
+      `,
+      {
+        replacements: {
+          patientId: req.params.id,
+          category: VACCINE_CATEGORIES.ROUTINE,
+        },
+        model: req.models.ScheduledVaccine,
+        mapToModel: true,
+        type: QueryTypes.SELECT,
+      },
+    );
+
+    console.log('results', results.length);
+
+    const vaccines = results
+      .map(s => s.get({ plain: true }))
+      .reduce((allVaccines, vaccineSchedule) => {
+        const administered = asRealNumber(vaccineSchedule.administered) > 0;
+        if (!allVaccines[vaccineSchedule.label]) {
+          delete vaccineSchedule.administered;
+          vaccineSchedule.schedules = [];
+          allVaccines[vaccineSchedule.label] = vaccineSchedule;
+        }
+        // Exclude historical schedules unless administered
+        if (vaccineSchedule.visibilityStatus !== VISIBILITY_STATUSES.HISTORICAL || administered) {
+          allVaccines[vaccineSchedule.label].schedules.push({
+            schedule: vaccineSchedule.schedule,
+            scheduledVaccineId: vaccineSchedule.id,
+            administered,
+          });
+        }
+        return allVaccines;
+      }, {});
+
+    // Exclude vaccines that already have all the schedules administered for the patient
+    const availableVaccines = Object.values(vaccines).filter(v =>
+      v.schedules.some(s => !s.administered),
+    );
+    res.send({ count: availableVaccines.length, data: availableVaccines });
+  }),
+);
+
 patientVaccineRoutes.get(
   '/:id/scheduledVaccines',
   asyncHandler(async (req, res) => {
@@ -98,7 +169,7 @@ patientVaccineRoutes.get(
     const availableVaccines = Object.values(vaccines).filter(v =>
       v.schedules.some(s => !s.administered),
     );
-    res.send(availableVaccines);
+    res.send(availableVaccines || []);
   }),
 );
 

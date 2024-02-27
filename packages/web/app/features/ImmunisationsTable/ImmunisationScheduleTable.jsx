@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { VACCINE_CATEGORIES } from '@tamanu/constants';
 import { TranslatedText, DataFetchingTable, Heading4 } from '../../components';
 import {
   getSchedule,
@@ -68,7 +69,8 @@ export const ImmunisationScheduleTable = React.memo(({ patient, onItemEdit }) =>
   // Todo: scrolling for lots of resources??
   return (
     <DataFetchingTable
-      endpoint={`patient/${patient.id}/administeredVaccines`}
+      // endpoint={`patient/${patient.id}/scheduledVaccines?category=${VACCINE_CATEGORIES.ROUTINE}`}
+      endpoint={`patient/${patient.id}/vaccineSchedule`}
       initialSort={{ orderBy: 'date', order: 'desc' }}
       columns={COLUMNS}
       noDataMessage={
