@@ -118,6 +118,35 @@ export const REFERENCE_TYPES = {
 
 export const REFERENCE_TYPE_VALUES = Object.values(REFERENCE_TYPES);
 
+export const TRANSLATABLE_REFERENCE_TYPES = [
+  ...REFERENCE_TYPE_VALUES,
+  'department',
+  'facility',
+  'imagingAreaExternalCode',
+  'invoiceLineType',
+  'invoicePriceChangeType',
+  'labTestType',
+  'labTestPanel',
+  'location',
+  'locationGroup',
+  'patientFieldDefinition',
+  'patientFieldDefinitionCategory',
+  'angiogramImagingArea',
+  'colonoscopyImagingArea',
+  'ctScanImagingArea',
+  'ecgImagingArea',
+  'echocardiogramImagingArea',
+  'endoscopyImagingArea',
+  'fluroscopyImagingArea',
+  'holterMonitorImagingArea',
+  'mammogramImagingArea',
+  'mriImagingArea',
+  'stressTestImagingArea',
+  'ultrasoundImagingArea',
+  'vascularStudyImagingArea',
+  'vaccineNotGivenReason',
+];
+
 export const VISIBILITY_STATUSES = {
   CURRENT: 'current',
   HISTORICAL: 'historical',

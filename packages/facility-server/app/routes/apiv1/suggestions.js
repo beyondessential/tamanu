@@ -8,6 +8,7 @@ import {
   INVOICE_LINE_TYPES,
   REFERENCE_TYPE_VALUES,
   REFERENCE_TYPES,
+  TRANSLATABLE_REFERENCE_TYPES,
   REGISTRATION_STATUSES,
   SUGGESTER_ENDPOINTS,
   SURVEY_TYPES,
@@ -42,22 +43,24 @@ function createSuggesterRoute(
     asyncHandler(async (req, res) => {
       req.checkPermission('list', modelName);
       const { models, query } = req;
+      const { language } = query;
+      delete query.language;
       const model = models[modelName];
 
       const searchQuery = (query.q || '').trim().toLowerCase();
 
-      const isTranslatable = REFERENCE_TYPE_VALUES.includes(endpoint);
+      const isTranslatable = TRANSLATABLE_REFERENCE_TYPES.includes(endpoint);
       let translations = [];
       let suggestedIds = [];
 
       if (isTranslatable) {
         translations = await models.TranslatedString.getReferenceDataTranslationsByEndpoint({
-          language: query.language,
+          language,
           refDataType: endpoint,
         });
 
         suggestedIds = translations
-          .filter(({ text }) => text.toLowerCase().includes(searchQuery))
+          .filter(({ text }) => text.toLowerCase()?.includes(searchQuery))
           .map(({ stringId }) => extractRefDataId(stringId));
       }
 
@@ -109,7 +112,7 @@ function createSuggesterLookupRoute(endpoint, modelName, { mapper }) {
 
       const mappedRecord = await mapper(record);
 
-      if (!REFERENCE_TYPE_VALUES.includes(endpoint)) {
+      if (!TRANSLATABLE_REFERENCE_TYPES.includes(endpoint)) {
         res.send(mappedRecord);
         return;
       }
@@ -155,7 +158,7 @@ function createAllRecordsRoute(
 
       const mappedResults = await Promise.all(results.map(mapper));
 
-      if (!REFERENCE_TYPE_VALUES.includes(endpoint)) {
+      if (!TRANSLATABLE_REFERENCE_TYPES.includes(endpoint)) {
         res.send(mappedResults);
         return;
       }
