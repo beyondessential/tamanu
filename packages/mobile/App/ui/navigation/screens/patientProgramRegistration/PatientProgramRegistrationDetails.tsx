@@ -73,12 +73,12 @@ export const PatientProgramRegistrationDetails = ({ route }) => {
         label="Date of registration"
         value={formatStringDate(patientProgramRegistration.date, DateFormats.DDMMYY)}
       />
-      <DataRow label="Registered by" value={patientProgramRegistration?.clinician?.displayName} />
+      <DataRow label="Registered by" value={patientProgramRegistration?.clinicianName} />
       <DataRow
         label="Registration facility"
-        value={patientProgramRegistration.registeringFacility?.name}
+        value={patientProgramRegistration.registeringFacilityName}
       />
-      <DataRow label="Status" value={patientProgramRegistration?.clinicalStatus?.name || '-'} />
+      <DataRow label="Status" value={patientProgramRegistration?.clinicalStatusName || '-'} />
       <DataRow
         label="Conditions"
         value={

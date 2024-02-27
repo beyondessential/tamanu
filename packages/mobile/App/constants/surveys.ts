@@ -5,12 +5,12 @@ const makeLookupFields = (model: string, fields: string[]) =>
 // Please keep in sync with:
 // - @tamanu/constants/surveys.js
 export const PATIENT_DATA_FIELD_LOCATIONS = {
-  registrationClinicalStatus: ['PatientProgramRegistration', 'clinicalStatusId'],
-  programRegistrationStatus: ['PatientProgramRegistration', 'registrationStatus'],
-  registrationClinician: ['PatientProgramRegistration', 'clinicianId'],
-  registeringFacility: ['PatientProgramRegistration', 'registeringFacilityId'],
-  registrationCurrentlyAtVillage: ['PatientProgramRegistration', 'villageId'],
-  registrationCurrentlyAtFacility: ['PatientProgramRegistration', 'facilityId'],
+  registrationClinicalStatus: ['PatientProgramRegistration', 'clinicalStatusName'],
+  programRegistrationStatus: ['PatientProgramRegistration', 'registrationStatusName'],
+  registrationClinician: ['PatientProgramRegistration', 'clinicianName'],
+  registeringFacility: ['PatientProgramRegistration', 'registeringFacilityName'],
+  registrationCurrentlyAtVillage: ['PatientProgramRegistration', 'villageName'],
+  registrationCurrentlyAtFacility: ['PatientProgramRegistration', 'facilityName'],
   ...makeLookupFields('Patient', [
     'firstName',
     'middleName',

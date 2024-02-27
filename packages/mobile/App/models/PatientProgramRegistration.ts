@@ -123,20 +123,30 @@ export class PatientProgramRegistration extends BaseModel implements IPatientPro
     return mostRecentRegistrations;
   }
 
-  static async getFullPprById(id: string) {
+  static async getRegistrationForDisplay(id: string) {
     const registrationRepository = this.getRepository(PatientProgramRegistration);
-    const fullPpr = await registrationRepository
+    const registrationForDisplay = await registrationRepository
       .createQueryBuilder('registration')
       .where('registration.id = :id', { id })
-      .leftJoinAndSelect('registration.programRegistry', 'programRegistry')
-      .leftJoinAndSelect('registration.patient', 'patient')
-      .leftJoinAndSelect('registration.clinicalStatus', 'clinicalStatus')
-      .leftJoinAndSelect('registration.village', 'village')
-      .leftJoinAndSelect('registration.facility', 'facility')
-      .leftJoinAndSelect('registration.registeringFacility', 'registeringFacility')
-      .leftJoinAndSelect('registration.clinician', 'clinician')
-      .getOne();
-    return fullPpr;
+      .leftJoin('registration.programRegistry', 'programRegistry')
+      .leftJoin('registration.patient', 'patient')
+      .leftJoin('registration.clinicalStatus', 'clinicalStatus')
+      .leftJoin('registration.village', 'village')
+      .leftJoin('registration.facility', 'facility')
+      .leftJoin('registration.registeringFacility', 'registeringFacility')
+      .leftJoin('registration.clinician', 'clinician')
+      .select([
+        'registration.*',
+        'programRegistry.name as programRegistryName',
+        "patient.firstName || ' ' || patient.lastName as patientName",
+        'clinicalStatus.name as clinicalStatusName',
+        'village.name as villageName',
+        'facility.name as facilityName',
+        'registeringFacility.name as registeringFacilityName',
+        'clinician.displayName as clinicianName',
+      ])
+      .getRawOne();
+    return registrationForDisplay;
   }
 
   static async appendRegistration(

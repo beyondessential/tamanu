@@ -16,7 +16,9 @@ export const PatientProgramRegistrationDetailsStack = ({ navigation, route }: Ba
   const { patientProgramRegistration } = route.params;
   const [registration, registrationError, isRegistrationLoading] = useBackendEffect(
     async ({ models }) =>
-      await models.PatientProgramRegistration.getFullPprById(patientProgramRegistration.id),
+      await models.PatientProgramRegistration.getRegistrationForDisplay(
+        patientProgramRegistration.id,
+      ),
     [patientProgramRegistration.id],
   );
 
@@ -26,7 +28,7 @@ export const PatientProgramRegistrationDetailsStack = ({ navigation, route }: Ba
     <ErrorBoundary>
       <FullView>
         <EmptyStackHeader
-          title={registration?.programRegistry?.name}
+          title={registration?.programRegistryName}
           onGoBack={() => navigation.navigate(Routes.HomeStack.PatientSummaryStack.Index)}
           status={
             <PatientProgramRegistryRegistrationStatus

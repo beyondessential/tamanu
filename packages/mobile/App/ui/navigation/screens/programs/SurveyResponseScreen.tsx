@@ -59,9 +59,21 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
   );
 
   const [patientProgramRegistration, pprError, isPprLoading] = useBackendEffect(
-    ({ models }) => {
-      if (canReadRegistration === false) return null;
-      return models.PatientProgramRegistration.getRecentOne(survey?.programId, selectedPatient.id);
+    async ({ models }) => {
+      if (canReadRegistration === false) {
+        return null;
+      }
+
+      const registration = await models.PatientProgramRegistration.getRecentOne(
+        survey?.programId,
+        selectedPatient.id,
+      );
+
+      if (!registration) {
+        return null;
+      }
+
+      return models.PatientProgramRegistration.getRegistrationForDisplay(registration.id);
     },
     [survey],
   );
