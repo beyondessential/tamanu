@@ -1,5 +1,3 @@
-import { Op } from 'sequelize';
-
 export function fromEncounters(models, table, id, deletedRow) {
   const {
     Encounter,
