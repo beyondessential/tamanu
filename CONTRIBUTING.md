@@ -94,6 +94,24 @@ For open-source contribution branches, the naming convention is:
 
 For example, `fix/1736-pdf-export-crash`
 
+The following prefixes are conventional:
+
+- `epic/` for large features or changes that span multiple issues
+- `feature/` for new features and improvements
+- `fix/` for bug fixes
+- `merge/` for branches that merge other branches (resolving conflicts or doing complex merges)
+
+Additionally, `feature/` branches should be named after the Linear card they are associated with:
+
+```plain
+feature/team-123-my-feature
+```
+
+The following prefixes are reserved and must not be created manually:
+
+- `dependabot/` for branches created by Dependabot
+- `release/` for release branches
+
 #### Branching Strategy
 
 1. When creating a branch for your contribution, branch off the latest `main`.
@@ -107,8 +125,47 @@ your changes and provide feedback. If your pull request has been approved by a r
 will then go through a round of internal testing. Once your changes have passed testing, they
 can be merged into main and be included in an upcoming Tamanu release.
 
-_(potentially space for more information on the process of merging contributions into main (such 
-as updating changelog and info about the pr template and also the auto deploy tests))_
+#### Pull Request Title
+
+The title of pull requests must be in [Conventional Commit](https://www.conventionalcommits.org/en/v1.0.0/)
+format. This is used to generate changelogs, and to provide a consistent format for commits landing
+in the main branch, as pull requests are merged in "squash" mode.
+
+```plain
+type: <description>
+type(scope): <description>
+```
+
+When a Linear card is applicable, the Linear card number should be included:
+
+```plain
+type: TEAM-123: <description>
+type(scope): TEAM-123: <description>
+```
+
+The following types are conventional:
+
+- `ci` for changes to the CI/CD workflows
+- `config` for changes to the Tamanu configuration files
+- `db` for changes to the database schema, migrations, etc
+- `deps` for changes to dependencies or dependency upgrades
+- `doc` for documentation changes
+- `feat` for new features
+- `fix` for bug fixes
+- `fmt` for automatic formatting changes (ignored in changelogs)
+- `merge` for merging between branches (generally between `main` and `release/*`)
+- `refactor` for code refactoring
+- `release` for changes that are part of the release process (generally automated commits, not manual use)
+- `repo` for changes to the repository structure, or for config/dotfiles (e.g. `.gitignore`, `.editorconfig`, etc)
+- `revert` for reverting a previous commit
+- `style` for stylistic changes that do not affect the meaning of the code
+- `test` for adding missing tests or correcting existing tests
+- `tweak` for minor changes that do not fit into any other category
+
+When merging, additional change lines may be added to the squashed commit message to provide further
+context to be pulled into changelogs.
+
+Using Conventional Commit format for actual commit messages within pull requests is not required.
 
 ## Note on Forking
 

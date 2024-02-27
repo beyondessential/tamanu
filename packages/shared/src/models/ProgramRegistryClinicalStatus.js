@@ -16,10 +16,7 @@ export class ProgramRegistryClinicalStatus extends Model {
           type: Sequelize.TEXT,
           allowNull: false,
         },
-        color: {
-          type: Sequelize.TEXT,
-          allowNull: false,
-        },
+        color: Sequelize.TEXT,
         visibilityStatus: {
           type: Sequelize.TEXT,
           defaultValue: VISIBILITY_STATUSES.CURRENT,

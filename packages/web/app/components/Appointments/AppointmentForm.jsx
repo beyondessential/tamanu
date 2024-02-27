@@ -6,14 +6,13 @@ import { AutocompleteField, DateTimeField, Field, Form, SelectField } from '../F
 import { FormSubmitCancelRow } from '../ButtonRow';
 import { FormSeparatorLine } from '../FormSeparatorLine';
 import { useApi, usePatientSuggester, useSuggester } from '../../api';
-import { appointmentTypeOptions } from '../../constants';
-import { useLocalisedText } from '../LocalisedText';
+import { APPOINTMENT_TYPE_OPTIONS } from '../../constants';
+import { TranslatedText } from '../Translation/TranslatedText';
 
 export const AppointmentForm = props => {
   const { onSuccess = () => {}, onCancel, appointment } = props;
   const api = useApi();
   const isUpdating = !!appointment;
-  const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
   const clinicianSuggester = useSuggester('practitioner');
   const patientSuggester = usePatientSuggester();
   const locationGroupSuggester = useSuggester('facilityLocationGroup');
@@ -57,7 +56,7 @@ export const AppointmentForm = props => {
         patientId: yup.string().required('Please select a patient'),
         type: yup.string().required('Please choose an appointment type'),
         startTime: yup.string().required('Please select a start time'),
-        clinicianId: yup.string().required(`Please select a ${clinicianText.toLowerCase()}`),
+        clinicianId: yup.string().required('Required'),
         locationGroupId: yup
           .string()
           .required('Please select an area')
@@ -67,7 +66,7 @@ export const AppointmentForm = props => {
         <>
           <FormGrid columns={1}>
             <Field
-              label="Patient"
+              label={<TranslatedText stringId="general.patient.label" fallback="Patient" />}
               name="patientId"
               component={AutocompleteField}
               suggester={patientSuggester}
@@ -75,32 +74,48 @@ export const AppointmentForm = props => {
             />
             <FormSeparatorLine />
             <Field
-              label="Appointment type"
+              label={
+                <TranslatedText
+                  stringId="scheduling.newAppointment.type.label"
+                  fallback="Appointment type"
+                />
+              }
               name="type"
               component={SelectField}
-              options={appointmentTypeOptions}
+              options={APPOINTMENT_TYPE_OPTIONS}
               required
+              prefix="appointment.property.type"
             />
           </FormGrid>
           <div style={{ marginTop: '1rem' }}>
             <FormGrid>
               <Field
-                label="Start time"
+                label={<TranslatedText stringId="general.startTime.label" fallback="Start time" />}
                 name="startTime"
                 component={DateTimeField}
                 saveDateAsString
                 required
               />
-              <Field label="End time" name="endTime" saveDateAsString component={DateTimeField} />
               <Field
-                label={clinicianText}
+                label={<TranslatedText stringId="general.endTime.label" fallback="End time" />}
+                name="endTime"
+                saveDateAsString
+                component={DateTimeField}
+              />
+              <Field
+                label={
+                  <TranslatedText
+                    stringId="general.localisedField.clinician.label.short"
+                    fallback="Clinician"
+                  />
+                }
                 name="clinicianId"
                 component={AutocompleteField}
                 suggester={clinicianSuggester}
                 required
               />
               <Field
-                label="Area"
+                label={<TranslatedText stringId="general.area.label" fallback="Area" />}
                 name="locationGroupId"
                 component={AutocompleteField}
                 suggester={locationGroupSuggester}
@@ -111,7 +126,19 @@ export const AppointmentForm = props => {
               <FormSubmitCancelRow
                 onCancel={onCancel}
                 onConfirm={submitForm}
-                confirmText={isUpdating ? 'Update appointment' : 'Schedule appointment'}
+                confirmText={
+                  isUpdating ? (
+                    <TranslatedText
+                      stringId="scheduling.newAppointment.action.updateAppointment"
+                      fallback="'Update appointment'"
+                    />
+                  ) : (
+                    <TranslatedText
+                      stringId="scheduling.newAppointment.action.scheduleAppointment"
+                      fallback="Schedule appointment"
+                    />
+                  )
+                }
               />
             </FormGrid>
           </div>
