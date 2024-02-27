@@ -564,7 +564,7 @@ TableComponent.defaultProps = {
   rowsPerPageOptions: DEFAULT_ROWS_PER_PAGE_OPTIONS,
   rowIdKey: 'id', // specific to data expected for tamanu REST api fetches
   className: null,
-  exportName: 'TamanuExport',
+  exportName: 'Export',
   refreshTable: null,
   rowStyle: null,
   containerStyle: null,

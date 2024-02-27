@@ -17,5 +17,6 @@ export const VaccineCategoryField = ({ name = 'category', required }) => (
     component={SelectField}
     required={required}
     options={VACCINE_CATEGORY_OPTIONS}
+    prefix="vaccine.property.category"
   />
 );

@@ -16,8 +16,8 @@ import {
   ButtonRow,
   Field,
   Form,
-  MultiselectField,
   SelectField,
+  MultiselectField,
   TextField,
 } from '../../../components';
 import { ParameterItem, ParameterList, SQLQueryEditor } from './components/editing';
@@ -160,15 +160,20 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
             component={SelectField}
             isClearable={false}
             options={DATE_RANGE_OPTIONS}
+            prefix="report.property.defaultDateRange"
           />
         </Grid>
         {canWriteRawReportUser && schemaOptions?.length > 0 && (
           <Grid item xs={4}>
             <StyledField
               label={
-                <TranslatedText stringId="admin.report.editor.dbSchema.label" fallback="DB Schema" />
+                <TranslatedText
+                  stringId="admin.report.editor.dbSchema.label"
+                  fallback="DB Schema"
+                />
               }
               name="dbSchema"
+              prefix="report.property.canWrite"
               component={SelectField}
               options={schemaOptions}
               disabled={isEdit}
@@ -188,6 +193,7 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
               name="dataSources"
               component={MultiselectField}
               options={DATA_SOURCE_OPTIONS}
+              prefix="report.property.canBeRunOn"
             />
           </Grid>
         )}
@@ -206,7 +212,10 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
               <TranslatedText stringId="admin.report.editor.query.label" fallback="Query" />
             </Grid>
             <Grid item xs={4}>
-              <TranslatedText stringId="admin.report.editor.parameters.label" fallback="Parameters" />
+              <TranslatedText
+                stringId="admin.report.editor.parameters.label"
+                fallback="Parameters"
+              />
             </Grid>
           </Grid>
         </AccordionSummary>
@@ -243,6 +252,7 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
           component={SelectField}
           isClearable={false}
           options={STATUS_OPTIONS}
+          prefix="report.property.status"
         />
         <Button
           disabled={!dirty}
@@ -252,7 +262,10 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
           isSubmitting={isSubmitting}
         >
           {isEdit ? (
-            <TranslatedText stringId="admin.report.editor.action.createNewVersion" fallback="Create new version" />
+            <TranslatedText
+              stringId="admin.report.editor.action.createNewVersion"
+              fallback="Create new version"
+            />
           ) : (
             <TranslatedText stringId="general.action.create" fallback="Create" />
           )}

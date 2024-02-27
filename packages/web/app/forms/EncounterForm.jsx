@@ -13,11 +13,11 @@ import {
   LocalisedField,
   LocalisedLocationField,
   LocationAvailabilityWarningMessage,
-  SelectField,
+  BaseSelectField,
   SuggesterSelectField,
   TextField,
 } from '../components';
-import { encounterOptions } from '../constants';
+import { ENCOUNTER_OPTIONS } from '../constants';
 import { useSuggester } from '../api';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 
@@ -50,8 +50,8 @@ export const EncounterForm = React.memo(
               />
             }
             disabled
-            component={SelectField}
-            options={encounterOptions}
+            component={BaseSelectField}
+            options={ENCOUNTER_OPTIONS}
           />
           <Field
             name="startDate"
@@ -152,7 +152,7 @@ export const EncounterForm = React.memo(
           startDate: yup.date().required(),
           encounterType: yup
             .string()
-            .oneOf(encounterOptions.map(x => x.value))
+            .oneOf(ENCOUNTER_OPTIONS.map(x => x.value))
             .required(),
         })}
       />

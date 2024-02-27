@@ -3,10 +3,7 @@ import styled from 'styled-components';
 import Divider from '@material-ui/core/Divider';
 import { CheckCircleRounded } from '@material-ui/icons';
 
-import {
-  INJECTION_SITE_VALUES,
-  VACCINE_CATEGORIES,
-} from '@tamanu/constants';
+import { VACCINE_CATEGORIES, INJECTION_SITE_OPTIONS } from '@tamanu/constants';
 
 import { OuterLabelFieldWrapper } from './Field/OuterLabelFieldWrapper';
 import {
@@ -18,6 +15,7 @@ import {
   RadioField,
   SelectField,
   TextField,
+  BaseSelectField,
 } from './Field';
 import { FormSubmitCancelRow } from './ButtonRow';
 import { useSuggester } from '../api';
@@ -117,6 +115,7 @@ export const VaccineLabelField = ({ vaccineOptions, setVaccineLabel }) => (
     options={vaccineOptions}
     onChange={e => setVaccineLabel(e.target.value)}
     required
+    prefix="vaccine.property.name"
   />
 );
 
@@ -137,7 +136,8 @@ export const InjectionSiteField = () => (
     name="injectionSite"
     label={<TranslatedText stringId="vaccine.injectionSite.label" fallback="Injection site" />}
     component={SelectField}
-    options={VACCINE_FIELD_INJECTION_SITE_OPTIONS}
+    options={INJECTION_SITE_OPTIONS}
+    prefix="vaccine.property.injectionSite"
   />
 );
 
@@ -192,7 +192,7 @@ export const RecordedByField = () => {
       disabled
       name="recorderId"
       label={<TranslatedText stringId="vaccine.recordedBy.label" fallback="Recorded by" />}
-      component={SelectField}
+      component={BaseSelectField}
       options={[
         {
           label: currentUser.displayName,
@@ -218,9 +218,7 @@ export const ConsentField = ({ label }) => (
 export const ConsentGivenByField = () => (
   <Field
     name="consentGivenBy"
-    label={
-      <TranslatedText stringId="vaccine.consentGivenBy.label" fallback="Consent given by" />
-    }
+    label={<TranslatedText stringId="vaccine.consentGivenBy.label" fallback="Consent given by" />}
     component={TextField}
   />
 );

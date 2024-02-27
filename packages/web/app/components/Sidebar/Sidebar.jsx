@@ -4,8 +4,9 @@ import { Box, Button, Divider, IconButton, List, Typography } from '@material-ui
 import { Launch, NavigateBefore, NavigateNext } from '@material-ui/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
-import { TamanuLogoWhite, TamanuLogoWhiteNoText } from '../TamanuLogo';
 import { getCurrentRoute } from '../../store/router';
+
+import { LogoLight, LogoLightNoText } from '../Logo';
 import { Colors } from '../../constants';
 import { HiddenSyncAvatar } from '../HiddenSyncAvatar';
 import { TopLevelSidebarItem } from './TopLevelSidebarItem';
@@ -63,9 +64,9 @@ const ExtendButton = styled(RetractExtendButton)`
   transform: translate(100%);
 `;
 
-const ExtendedLogo = styled(TamanuLogoWhite)``;
+const ExtendedLogo = styled(LogoLight)``;
 
-const RetractedLogo = styled(TamanuLogoWhiteNoText)``;
+const RetractedLogo = styled(LogoLightNoText)``;
 
 const Footer = styled.div`
   margin-top: auto;

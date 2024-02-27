@@ -10,7 +10,7 @@ export const generateCertificate = async ({ patientId }) => {
   try {
     const patient = await Patient.findByPk(patientId);
     log.info(`Generating vaccine certificate for patient id "${patientId}"`);
-    const pdf = await makeVaccineCertificate(patient, 'Admin', store.models, 'uvci123');
+    const pdf = await makeVaccineCertificate(patient, 'Admin', null, store.models);
     log.info(`Certificate output: `, pdf);
   } catch (error) {
     process.stderr.write(`Report failed: ${error.stack}\n`);

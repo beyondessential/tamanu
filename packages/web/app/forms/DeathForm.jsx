@@ -25,7 +25,7 @@ import {
 import { useAuth } from '../contexts/Auth';
 import { DeathFormScreen } from './DeathFormScreen';
 import { SummaryScreenThree, SummaryScreenTwo } from './DeathFormSummaryScreens';
-import { binaryOptions, binaryUnknownOptions } from '../constants';
+import { BINARY_OPTIONS, BINARY_UNKNOWN_OPTIONS } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 
 const StyledFormGrid = styled(FormGrid)`
@@ -211,7 +211,7 @@ export const DeathForm = React.memo(
             name="surgeryInLast4Weeks"
             label="Was surgery performed in the last 4 weeks?"
             component={RadioField}
-            options={binaryUnknownOptions}
+            options={BINARY_UNKNOWN_OPTIONS}
           />
           <Field
             name="lastSurgeryDate"
@@ -234,13 +234,13 @@ export const DeathForm = React.memo(
               name="pregnant"
               label="Was the woman pregnant?"
               component={RadioField}
-              options={binaryUnknownOptions}
+              options={BINARY_UNKNOWN_OPTIONS}
             />
             <Field
               name="pregnancyContribute"
               label="Did the pregnancy contribute to the death?"
               component={RadioField}
-              options={binaryUnknownOptions}
+              options={BINARY_UNKNOWN_OPTIONS}
               visibilityCriteria={{ pregnant: 'yes' }}
             />
           </StyledFormGrid>
@@ -252,6 +252,7 @@ export const DeathForm = React.memo(
             component={SelectField}
             options={MANNER_OF_DEATH_OPTIONS}
             required
+            prefix="death.property.mannerOfDeath"
           />
           <Field
             name="mannerOfDeathDate"
@@ -266,6 +267,7 @@ export const DeathForm = React.memo(
             component={SelectField}
             options={placeOptions}
             visibilityCriteria={mannerOfDeathVisibilityCriteria}
+            prefix="death.property.mannerOfDeath.location"
           />
           <Field
             name="mannerOfDeathOther"
@@ -280,13 +282,13 @@ export const DeathForm = React.memo(
               name="fetalOrInfant"
               label="Was the death fetal or infant?"
               component={RadioField}
-              options={binaryOptions}
+              options={BINARY_OPTIONS}
             />
             <Field
               name="stillborn"
               label="Was it a stillbirth?"
               component={RadioField}
-              options={binaryUnknownOptions}
+              options={BINARY_UNKNOWN_OPTIONS}
             />
             <Field name="birthWeight" label="Birth Weight (grams):" component={NumberField} />
             <Field
@@ -305,7 +307,7 @@ export const DeathForm = React.memo(
               name="deathWithin24HoursOfBirth"
               label="Was the death within 24 hours of birth?"
               component={RadioField}
-              options={binaryOptions}
+              options={BINARY_OPTIONS}
             />
             <Field
               name="numberOfHoursSurvivedSinceBirth"

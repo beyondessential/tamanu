@@ -8,8 +8,6 @@ import styled from 'styled-components';
 
 import { IMAGING_REQUEST_STATUS_TYPES, LAB_REQUEST_STATUS_CONFIG } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
-
-import { IMAGING_REQUEST_STATUS_OPTIONS } from '../../../constants';
 import { ENCOUNTER_TAB_NAMES } from '../../../constants/encounterTabNames';
 
 import { useLocalisation } from '../../../contexts/Localisation';
@@ -35,6 +33,7 @@ import { SimpleTopBar } from '../../../components';
 import { CancelModalButton } from './CancelModalButton';
 import { PrintModalButton } from './PrintModalButton';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { IMAGING_REQUEST_STATUS_OPTIONS } from '../../../constants';
 
 const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
   const { getLocalisation } = useLocalisation();
@@ -81,22 +80,18 @@ const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
         disabled={isCancelled}
         isClearable={false}
         required
+        prefix="imaging.property.status"
       />
       <DateTimeInput
         value={imagingRequest.requestedDate}
         label={
-          <TranslatedText
-            stringId="imaging.requestedDate.label"
-            fallback="Request date and time"
-          />
+          <TranslatedText stringId="imaging.requestedDate.label" fallback="Request date and time" />
         }
         disabled
       />
       {allowLocationChange && (
         <Field
-          label={
-            <TranslatedText stringId="imaging.facilityArea.label" fallback="Facility area" />
-          }
+          label={<TranslatedText stringId="imaging.facilityArea.label" fallback="Facility area" />}
           name="locationGroupId"
           component={AutocompleteField}
           suggester={locationGroupSuggester}
@@ -168,7 +163,9 @@ const NewResultSection = ({ disabled = false }) => {
   );
 };
 
-function openUrl(url) { window.open(url, '_blank'); }
+function openUrl(url) {
+  window.open(url, '_blank');
+}
 const ImagingResultRow = ({ result }) => {
   const { externalUrl, completedAt, completedBy, description } = result;
 

@@ -6,7 +6,7 @@ import { AutocompleteField, DateTimeField, Field, Form, SelectField } from '../F
 import { FormSubmitCancelRow } from '../ButtonRow';
 import { FormSeparatorLine } from '../FormSeparatorLine';
 import { useApi, usePatientSuggester, useSuggester } from '../../api';
-import { appointmentTypeOptions } from '../../constants';
+import { APPOINTMENT_TYPE_OPTIONS } from '../../constants';
 import { TranslatedText } from '../Translation/TranslatedText';
 
 export const AppointmentForm = props => {
@@ -66,12 +66,7 @@ export const AppointmentForm = props => {
         <>
           <FormGrid columns={1}>
             <Field
-              label={
-                <TranslatedText
-                  stringId="general.patient.label"
-                  fallback="Patient"
-                />
-              }
+              label={<TranslatedText stringId="general.patient.label" fallback="Patient" />}
               name="patientId"
               component={AutocompleteField}
               suggester={patientSuggester}
@@ -87,16 +82,15 @@ export const AppointmentForm = props => {
               }
               name="type"
               component={SelectField}
-              options={appointmentTypeOptions}
+              options={APPOINTMENT_TYPE_OPTIONS}
               required
+              prefix="appointment.property.type"
             />
           </FormGrid>
           <div style={{ marginTop: '1rem' }}>
             <FormGrid>
               <Field
-                label={
-                  <TranslatedText stringId="general.startTime.label" fallback="Start time" />
-                }
+                label={<TranslatedText stringId="general.startTime.label" fallback="Start time" />}
                 name="startTime"
                 component={DateTimeField}
                 saveDateAsString

@@ -114,7 +114,6 @@ export const NoteModal = ({
             onClose();
           }
         }}
-        cornerExitButton={false}
       >
         <NoteForm
           noteFormMode={noteFormMode}

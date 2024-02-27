@@ -30,6 +30,7 @@ export const InvoicesSearchBar = React.memo(({ onSearch }) => (
       label={<TranslatedText stringId="general.localisedField.status.label" fallback="Status" />}
       component={SelectField}
       options={INVOICE_STATUS_OPTIONS}
+      prefix="invoice.property.status"
     />
     <LocalisedField
       name="paymentStatus"
@@ -41,6 +42,7 @@ export const InvoicesSearchBar = React.memo(({ onSearch }) => (
       }
       component={SelectField}
       options={INVOICE_PAYMENT_STATUS_OPTIONS}
+      prefix="invoice.property.paymentStatus"
     />
   </CustomisableSearchBar>
 ));

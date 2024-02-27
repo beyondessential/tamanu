@@ -5,7 +5,7 @@ import shortid from 'shortid';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { useDispatch } from 'react-redux';
 import { foreignKey } from '../utils/validation';
-import { encounterOptions } from '../constants';
+import { ENCOUNTER_OPTIONS } from '../constants';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
 import { useEncounter } from '../contexts/Encounter';
 import { reloadImagingRequest } from '../store';
@@ -18,10 +18,10 @@ import {
   Field,
   Form,
   ImagingPriorityField,
-  MultiselectField,
   SelectField,
   TextField,
   TextInput,
+  MultiselectField,
 } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { FormCancelButton } from '../components/Button';
@@ -33,7 +33,7 @@ import { LowerCase } from '../components/Typography';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 
 function getEncounterTypeLabel(type) {
-  return encounterOptions.find(x => x.value === type).label;
+  return ENCOUNTER_OPTIONS.find(x => x.value === type).label;
 }
 
 function getEncounterLabel(encounter) {
@@ -114,9 +114,11 @@ export const ImagingRequestForm = React.memo(
           ...editedObject,
         }}
         validationSchema={yup.object().shape({
-          requestedById: foreignKey('Required'),
+          requestedById: foreignKey(`*Required`),
           requestedDate: yup.date().required(),
+          imagingType: foreignKey(`*Required`),
         })}
+        suppressErrorDialog
         render={({ submitForm, values }) => {
           const imagingAreas = getAreasForImagingType(values.imagingType);
           return (
@@ -191,9 +193,7 @@ export const ImagingRequestForm = React.memo(
               </div>
               <FormSeparatorLine />
               <TextInput
-                label={
-                  <TranslatedText stringId="imaging.encounter.label" fallback="Encounter" />
-                }
+                label={<TranslatedText stringId="imaging.encounter.label" fallback="Encounter" />}
                 disabled
                 value={encounterLabel}
               />
@@ -208,6 +208,7 @@ export const ImagingRequestForm = React.memo(
                 required
                 component={SelectField}
                 options={imagingTypeOptions}
+                prefix="imaging.property.type"
               />
               {imagingAreas.length ? (
                 <Field
@@ -217,12 +218,10 @@ export const ImagingRequestForm = React.memo(
                   }))}
                   name="areas"
                   label={
-                    <TranslatedText
-                      stringId="imaging.areas.label"
-                      fallback="Areas to be imaged"
-                    />
+                    <TranslatedText stringId="imaging.areas.label" fallback="Areas to be imaged" />
                   }
                   component={MultiselectField}
+                  prefix="imaging.property.area"
                 />
               ) : (
                 <Field

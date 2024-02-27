@@ -177,6 +177,7 @@ export const NoteTypeField = ({ required, noteTypeCountByType }) => (
     component={SelectField}
     options={getSelectableNoteTypes(noteTypeCountByType)}
     formatOptionLabel={option => renderOptionLabel(option, noteTypeCountByType)}
+    prefix="note.property.type"
   />
 );
 

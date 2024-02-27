@@ -6,12 +6,12 @@ import { NoteModal } from '../../../components/NoteModal';
 import { NoteTableWithPermission } from '../../../components/NoteTable';
 import { ButtonWithPermissionCheck, TableButtonRow } from '../../../components';
 import { TabPane } from '../components';
-import { SelectInput } from '../../../components/Field';
+import { SelectField } from '../../../components/Field';
 import { NOTE_FORM_MODES, noteTypes } from '../../../constants';
 import { useEncounterNotes } from '../../../contexts/EncounterNotes';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
-const StyledSelectInput = styled(SelectInput)`
+const StyledTranslatedSelectField = styled(SelectField)`
   width: 200px;
 `;
 
@@ -37,7 +37,7 @@ export const NotesPane = React.memo(({ encounter, readonly }) => {
         noteFormMode={NOTE_FORM_MODES.CREATE_NOTE}
       />
       <TableButtonRow variant="small" justifyContent="space-between">
-        <StyledSelectInput
+        <StyledTranslatedSelectField
           options={[
             {
               value: null,
@@ -47,6 +47,8 @@ export const NotesPane = React.memo(({ encounter, readonly }) => {
           ]}
           onChange={e => setNoteType(e.target.value)}
           value={noteType}
+          name="noteType"
+          prefix="note.property.type"
           isClearable={false}
         />
         <ButtonWithPermissionCheck

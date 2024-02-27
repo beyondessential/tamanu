@@ -20,7 +20,6 @@ import { foreignKey, optionalForeignKey } from '../../utils/validation';
 import { useSuggester } from '../../api';
 import { useAuth } from '../../contexts/Auth';
 import { useApi } from '../../api/useApi';
-
 export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject }) => {
   const api = useApi();
   const { currentUser, facility } = useAuth();
@@ -140,6 +139,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                   component={MultiselectField}
                   options={conditions}
                   disabled={!conditions || conditions.length === 0}
+                  prefix="programRegistry.property.relatedCondition"
                 />
               </FormGrid>
             </FormGrid>

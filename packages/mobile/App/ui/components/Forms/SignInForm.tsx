@@ -16,7 +16,7 @@ import { useFacility } from '~/ui/contexts/FacilityContext';
 import { Form } from './Form';
 import { Field } from './FormField';
 import { TextField } from '../TextField/TextField';
-import { Button } from '../Button';
+import { SubmitButton } from './SubmitButton';
 import { ServerSelector } from '../ServerSelectorField/ServerSelector';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 
@@ -91,7 +91,7 @@ export const SignInForm: FunctionComponent<any> = ({ onError, onSuccess }) => {
       })}
       onSubmit={handleSignIn}
     >
-      {({ handleSubmit, isSubmitting }): ReactElement => (
+      {({ handleSubmit }): ReactElement => (
         <StyledView
           marginTop={screenPercentageToDP(3.7, Orientation.Height)}
           marginRight={screenPercentageToDP(2.43, Orientation.Width)}
@@ -130,11 +130,9 @@ export const SignInForm: FunctionComponent<any> = ({ onError, onSuccess }) => {
               onSubmitEditing={handleSubmit}
             />
           </StyledView>
-          <Button
+          <SubmitButton
             marginTop={20}
             backgroundColor={theme.colors.SECONDARY_MAIN}
-            onPress={handleSubmit}
-            loadingAction={isSubmitting}
             textColor={theme.colors.TEXT_SUPER_DARK}
             fontSize={screenPercentageToDP('1.94', Orientation.Height)}
             fontWeight={500}
