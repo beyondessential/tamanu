@@ -1,7 +1,7 @@
 import { useSelector } from 'react-redux';
 import { ASSET_NAMES } from '@tamanu/constants';
 import { useLocalisation } from '../contexts/Localisation';
-import { useAsset } from './useAsset';
+import { useAsset } from '../api/queries/useAsset';
 import { useTemplate } from './useTemplate';
 import { getCurrentUser } from '../store';
 

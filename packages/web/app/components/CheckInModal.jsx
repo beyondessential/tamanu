@@ -7,6 +7,23 @@ import { FormModal } from './FormModal';
 import { reloadPatient } from '../store/patient';
 import { EncounterForm } from '../forms/EncounterForm';
 import { useEncounter } from '../contexts/Encounter';
+import { TranslatedText } from './Translation/TranslatedText';
+
+function getEncounterTypeLabel(encounterType) {
+  switch (encounterType) {
+    case ENCOUNTER_TYPES.ADMISSION:
+      return (
+        <TranslatedText
+          stringId="encounter.property.type.admission"
+          fallback="Hospital admission"
+        />
+      );
+    case ENCOUNTER_TYPES.CLINIC:
+      return <TranslatedText stringId="encounter.property.type.clinic" fallback="Clinic" />;
+    default:
+      return '';
+  }
+}
 
 export const CheckInModal = React.memo(
   ({ open, onClose, onSubmitEncounter, patientId, referral, patientBillingTypeId, ...props }) => {
@@ -37,12 +54,16 @@ export const CheckInModal = React.memo(
       },
       [dispatch, patientId, api, createEncounter, onSubmitEncounter, onClose, referral],
     );
-
     return (
       <FormModal
-        title={`Admit or check-in | ${
-          props?.encounterType === ENCOUNTER_TYPES.ADMISSION ? 'Hospital admission' : ''
-        }${props?.encounterType === ENCOUNTER_TYPES.CLINIC ? 'Clinic' : ''}`}
+        // using replacements avoids [Object object] in the title
+        title={
+          <TranslatedText
+            stringId="patient.modal.checkIn.title"
+            fallback="Admit or check-in | :encounterType"
+            replacements={{ encounterType: getEncounterTypeLabel(props?.encounterType) }}
+          />
+        }
         open={open}
         onClose={onClose}
       >

@@ -13,28 +13,44 @@ import { PatientStickerLabelPage } from './PatientStickerLabelPage';
 import { CovidTestCertificateModal } from './CovidTestCertificateModal';
 import { CovidClearanceCertificateModal } from './CovidClearanceCertificateModal';
 import { BirthNotificationCertificateModal } from './BirthNotificationCertificateModal';
+import { TranslatedText } from '../../Translation/TranslatedText';
 import { IPSQRCodeModal } from './IPSQRCodeModal';
 
 const PRINT_OPTIONS = {
   barcode: {
-    label: 'ID Labels',
+    label: <TranslatedText stringId="patientDetails.print.action.idLabels" fallback="ID Labels" />,
     component: PatientStickerLabelPage,
   },
   idcard: {
-    label: 'ID Card',
+    label: <TranslatedText stringId="patientDetails.print.action.idCard" fallback="ID Card" />,
     component: PatientIDCardPage,
   },
   covidTestCert: {
-    label: 'COVID-19 test certificate',
+    label: (
+      <TranslatedText
+        stringId="patientDetails.print.action.covid19TestCertificate"
+        fallback="COVID-19 test certificate"
+      />
+    ),
     component: CovidTestCertificateModal,
   },
   covidClearanceCert: {
-    label: 'COVID-19 clearance certificate',
+    label: (
+      <TranslatedText
+        stringId="patientDetails.print.action.covid19ClearanceCertificate"
+        fallback="COVID-19 clearance certificate"
+      />
+    ),
     component: CovidClearanceCertificateModal,
     condition: getLocalisation => getLocalisation('features.enableCovidClearanceCertificate'),
   },
   birthNotification: {
-    label: 'Birth notification',
+    label: (
+      <TranslatedText
+        stringId="patientDetails.print.action.birthNotification"
+        fallback="Birth notification"
+      />
+    ),
     component: BirthNotificationCertificateModal,
   },
   ipsQrCode: {
@@ -153,8 +169,21 @@ export const PrintPatientDetailsModal = ({ patient }) => {
       // (triggered in the callback above)
       if (!imageData) {
         return (
-          <Modal title="Working" open>
-            <div>Preparing ID card...</div>
+          <Modal
+            title={
+              <TranslatedText
+                stringId="patientDetails.print.idCard.modal.submitting.title"
+                fallback="Working"
+              />
+            }
+            open
+          >
+            <div>
+              <TranslatedText
+                stringId="patientDetails.print.idCard.modal.submitting.loading"
+                fallback="Preparing ID card..."
+              />
+            </div>
           </Modal>
         );
       }
@@ -166,7 +195,10 @@ export const PrintPatientDetailsModal = ({ patient }) => {
   return (
     <>
       <Button size="small" onClick={openModal}>
-        Print ID forms
+        <TranslatedText
+          stringId="patient.detailsSidebar.action.printIdForms"
+          fallback="ID forms"
+        />
       </Button>
       {mainComponent}
     </>
