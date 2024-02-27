@@ -5,16 +5,11 @@ import { log } from '@tamanu/shared/services/logging';
 
 import pkg from '../../package.json';
 import { ApplicationContext } from '../ApplicationContext';
-import { provision } from './provision';
 import { startApi } from './startApi';
 import { startFhirWorker } from './startFhirWorker';
 import { startTasks } from './startTasks';
 
-export const serveAll = async ({ skipMigrationCheck, provisioning }) => {
-  if (provisioning) {
-    await provision(provisioning, { skipIfNotNeeded: true });
-  }
-
+export const serveAll = async ({ skipMigrationCheck }) => {
   log.info(`Starting Tamanu Central version ${pkg.version}`);
 
   if (config.db.migrateOnStartup) {
@@ -33,8 +28,4 @@ export const startAllCommand = new Command('startAll')
   .alias('serveAll') // deprecated
   .description('Start the Tamanu Central servers and tasks runners')
   .option('--skipMigrationCheck', 'skip the migration check on startup')
-  .option(
-    '--provisioning <file>',
-    'if provided and no users exist, provision Tamanu from this file',
-  )
   .action(serveAll);
