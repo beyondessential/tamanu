@@ -34,14 +34,12 @@ export const EditNoteForm = ({ note, onNoteContentChange, onSubmit, onCancel }) 
           />
         }
         date={note.revisedBy ? note.revisedBy.date : note.date}
-        writtenByLabel={
-          <TranslatedText
-            stringId="note.form.writtenBy.label"
-            fallback="Written by (or on behalf of)"
-          />
-        }
+        writtenByLabel={<TranslatedText
+          stringId="note.writtenBy.label"
+          fallback="Written by (or on behalf of)"
+        />}
         writtenBy={writtenBy}
-        dateLabel={<TranslatedText stringId="note.form.dateTime.label" fallback="Date & time" />}
+        dateLabel={<TranslatedText stringId="note.dateTime.label" fallback="Date & time" />}
       />
       <br />
       <NoteContentField onChange={onNoteContentChange} />

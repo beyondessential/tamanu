@@ -8,4 +8,4 @@ export * from './useAdministeredVaccines';
 export * from './usePatientConditions';
 export * from './usePatientProgramRegistration';
 export * from './useTranslations';
-export * from './useTranslationOptions';
+export * from './useTranslationLanguages';

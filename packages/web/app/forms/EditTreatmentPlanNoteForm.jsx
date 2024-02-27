@@ -56,24 +56,20 @@ export const EditTreatmentPlanNoteForm = ({ note, onNoteContentChange, onSubmit,
       />
       <StyledFormGrid columns={2}>
         <WrittenByField
-          label={
-            <TranslatedText
-              stringId="treatmentPlan.note.form.updatedBy.label"
-              fallback="Updated by (or on behalf of)"
-            />
-          }
+          label={<TranslatedText
+            stringId="treatmentPlan.note.updatedBy.label"
+            fallback="Updated by (or on behalf of)"
+          />}
           required
         />
         <NoteDateTimeField required />
       </StyledFormGrid>
 
       <NoteContentField
-        label={
-          <TranslatedText
-            stringId="treatmentPlan.note.form.updateTreatmentPlan.label"
-            fallback="Update treatment plan"
-          />
-        }
+        label={<TranslatedText
+          stringId="treatmentPlan.note.updateTreatmentPlan.label"
+          fallback="Update treatment plan"
+        />}
         onChange={onNoteContentChange}
       />
       <StyledDivider />

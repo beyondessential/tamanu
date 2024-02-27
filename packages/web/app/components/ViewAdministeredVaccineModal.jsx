@@ -81,7 +81,7 @@ const ErrorMessage = () => {
         </AlertTitle>
         <TranslatedText
           stringId="vaccine.error.cantLoadVaccine.subTitle"
-          fallback="Please contact Tamanu administrator"
+          fallback="Please contact administrator"
         />
       </Alert>
     </Box>
@@ -475,7 +475,6 @@ export const ViewAdministeredVaccineModal = ({ open, onClose, vaccineRecord }) =
       title={<TranslatedText stringId="vaccine.modal.view.title" fallback="View vaccine record" />}
       open={open}
       onClose={onClose}
-      cornerExitButton={false}
     >
       <ViewAdministeredVaccineContent vaccineRecord={vaccineRecord} />
       <ModalActionRow

@@ -11,7 +11,15 @@ import {
   REPORT_DEFAULT_DATE_RANGES_VALUES,
   REPORT_STATUSES_VALUES,
 } from '@tamanu/constants/reports';
-import { Button, ButtonRow, Field, Form, SelectField, TextField } from '../../../components';
+import {
+  Button,
+  ButtonRow,
+  Field,
+  Form,
+  SelectField,
+  MultiselectField,
+  TextField,
+} from '../../../components';
 import { ParameterItem, ParameterList, SQLQueryEditor } from './components/editing';
 import {
   FIELD_TYPES_WITH_PREDEFINED_OPTIONS,
@@ -20,7 +28,6 @@ import {
 import { useAuth } from '../../../contexts/Auth';
 import { useApi } from '../../../api';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
-import { MultiselectField } from '../../../components/Translation/TranslatedSelectField.jsx';
 
 const StyledField = styled(Field)`
   flex-grow: 1;
@@ -153,6 +160,7 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
             component={SelectField}
             isClearable={false}
             options={DATE_RANGE_OPTIONS}
+            prefix="report.property.defaultDateRange"
           />
         </Grid>
         {canWriteRawReportUser && schemaOptions?.length > 0 && (
@@ -165,6 +173,7 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
                 />
               }
               name="dbSchema"
+              prefix="report.property.canWrite"
               component={SelectField}
               options={schemaOptions}
               disabled={isEdit}
@@ -243,6 +252,7 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
           component={SelectField}
           isClearable={false}
           options={STATUS_OPTIONS}
+          prefix="report.property.status"
         />
         <Button
           disabled={!dirty}

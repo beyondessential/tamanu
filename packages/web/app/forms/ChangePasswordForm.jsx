@@ -100,7 +100,7 @@ const ChangePasswordFormComponent = ({
         <FormSubtext>
           <TranslatedText
             stringId="resetPassword.message"
-            fallback="An email has been sent to the specified email address if it is registered with Tamanu.
+            fallback="An email has been sent to the specified email address if it is registered with.
           Please follow the instructions outlined in the email."
           />
         </FormSubtext>

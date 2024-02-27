@@ -100,6 +100,7 @@ export const BedManagementSearchBar = React.memo(({ onSearch, searchParameters }
           size="small"
           component={SelectField}
           options={LOCATION_AVAILABILITY_OPTIONS}
+          prefix="bedManagement.property.status"
         />
       </CustomisableSearchBar>
       <HandoverNotesModal

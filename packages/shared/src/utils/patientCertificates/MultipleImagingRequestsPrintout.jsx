@@ -129,7 +129,7 @@ export const MultipleImagingRequestsPrintout = React.memo(
           <MultiPageHeader
             documentName="Imaging request"
             patientName={getName(patient)}
-            patiendId={patient.displayId}
+            patientId={patient.displayId}
           />
           <CertificateHeader>
             <LetterheadSection

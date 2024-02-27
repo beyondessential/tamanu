@@ -11,12 +11,11 @@ import { TwoColumnDisplay } from '../../components/TwoColumnDisplay';
 import { DailySchedule } from '../../components/Appointments/DailySchedule';
 import { NewAppointmentButton } from '../../components/Appointments/NewAppointmentButton';
 import { Button } from '../../components/Button';
-import { AutocompleteInput } from '../../components/Field';
+import { AutocompleteInput, MultiselectField } from '../../components/Field';
 import { Suggester } from '../../utils/suggester';
 import { APPOINTMENT_TYPE_OPTIONS, Colors } from '../../constants';
 import { useApi, useSuggester } from '../../api';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
-import { MultiselectField } from '../../components/Translation/TranslatedSelectField.jsx';
 
 const LeftContainer = styled.div`
   min-height: 100%;

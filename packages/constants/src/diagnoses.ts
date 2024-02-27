@@ -3,6 +3,22 @@ export const PATIENT_ISSUE_TYPES = {
   WARNING: 'warning',
 };
 
+export const PATIENT_ISSUE_LABELS = {
+  [PATIENT_ISSUE_TYPES.ISSUE]: 'Issue',
+  [PATIENT_ISSUE_TYPES.WARNING]: 'Warning',
+};
+
+export const PATIENT_ISSUE_OPTIONS = [
+  {
+    value: PATIENT_ISSUE_TYPES.ISSUE,
+    label: PATIENT_ISSUE_LABELS[PATIENT_ISSUE_TYPES.ISSUE],
+  },
+  {
+    value: PATIENT_ISSUE_TYPES.WARNING,
+    label: PATIENT_ISSUE_LABELS[PATIENT_ISSUE_TYPES.WARNING],
+  },
+];
+
 export const AVPU_TYPES = {
   ALERT: 'alert',
   VERBAL: 'verbal',

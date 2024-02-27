@@ -36,7 +36,10 @@ export const NoteChangelogForm = ({ note, onCancel }) => {
         date={note.revisedBy?.date || note.date}
         dateLabel={<TranslatedText stringId="note.dateTime.label" fallback="Date & time" />}
         writtenByLabel={
-          <TranslatedText stringId="note.writtenBy.label" fallback="Written by (or on behalf of)" />
+          <TranslatedText
+            stringId="note.writtenBy.label"
+            fallback="Written by (or on behalf of)"
+          />
         }
         writtenBy={writtenBy}
       />

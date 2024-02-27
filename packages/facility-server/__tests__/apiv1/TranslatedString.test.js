@@ -57,26 +57,31 @@ describe('TranslatedString', () => {
     return Object.fromEntries(tStrings.map(({ stringId, text }) => [stringId, text]));
   };
 
-  describe('/prelogin GET', () => {
-    it('Should receive a list of languages stored in the DB in the format of select options', async () => {
-      const result = await app.get('/v1/translation/preLogin');
+  describe('/languageOptions GET', () => {
+    it('Should receive an object containing languageNames and languageCodes to be mapped onto options for select field', async () => {
+      const result = await app.get('/v1/public/translation/languageOptions');
       expect(result).toHaveSucceeded();
 
-      const expectedResult = [
-        { label: LANGUAGE_NAMES[LANGUAGE_CODES.ENGLISH], value: LANGUAGE_CODES.ENGLISH },
-        { label: LANGUAGE_NAMES[LANGUAGE_CODES.KHMER], value: LANGUAGE_CODES.KHMER },
-      ];
-      expect(result.body).toEqual(expectedResult);
+      expect(result.body).toHaveProperty('languageNames');
+      expect(result.body.languageNames).toHaveLength(2);
+      expect(result.body.languageNames[0].text).toEqual(LANGUAGE_NAMES[LANGUAGE_CODES.ENGLISH]);
+      expect(result.body.languageNames[1].text).toEqual(LANGUAGE_NAMES[LANGUAGE_CODES.KHMER]);
+
+      expect(result.body).toHaveProperty('languagesInDb');
+      expect(result.body.languagesInDb).toEqual([
+        { language: LANGUAGE_CODES.ENGLISH },
+        { language: LANGUAGE_CODES.KHMER },
+      ]);
     });
   });
 
   describe('/translation/:languageCode GET', () => {
     it('Should receive a dictionary of all translated text for selected language keyed by stringId', async () => {
-      const englishResult = await app.get(`/v1/translation/${LANGUAGE_CODES.ENGLISH}`);
+      const englishResult = await app.get(`/v1/public/translation/${LANGUAGE_CODES.ENGLISH}`);
       expect(englishResult).toHaveSucceeded();
       expect(englishResult.body).toEqual(englishTranslations);
 
-      const khmerResult = await app.get(`/v1/translation/${LANGUAGE_CODES.KHMER}`);
+      const khmerResult = await app.get(`/v1/public/translation/${LANGUAGE_CODES.KHMER}`);
       expect(khmerResult).toHaveSucceeded();
       expect(khmerResult.body).toEqual(khmerTranslations);
     });

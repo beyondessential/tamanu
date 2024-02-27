@@ -66,12 +66,7 @@ export const AppointmentForm = props => {
         <>
           <FormGrid columns={1}>
             <Field
-              label={
-                <TranslatedText
-                  stringId="general.patient.label"
-                  fallback="Patient"
-                />
-              }
+              label={<TranslatedText stringId="general.patient.label" fallback="Patient" />}
               name="patientId"
               component={AutocompleteField}
               suggester={patientSuggester}
@@ -89,14 +84,13 @@ export const AppointmentForm = props => {
               component={SelectField}
               options={APPOINTMENT_TYPE_OPTIONS}
               required
+              prefix="appointment.property.type"
             />
           </FormGrid>
           <div style={{ marginTop: '1rem' }}>
             <FormGrid>
               <Field
-                label={
-                  <TranslatedText stringId="general.startTime.label" fallback="Start time" />
-                }
+                label={<TranslatedText stringId="general.startTime.label" fallback="Start time" />}
                 name="startTime"
                 component={DateTimeField}
                 saveDateAsString

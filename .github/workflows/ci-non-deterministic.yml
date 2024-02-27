@@ -31,8 +31,6 @@ jobs:
           - "16"
     name: Test Migrations for Determinism on pg${{ matrix.postgres }}
     runs-on: ubuntu-latest
-    env:
-      ARTIFACT_NAME: fake-pg${{ matrix.postgres }}
     steps:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v3
