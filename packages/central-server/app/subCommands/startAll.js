@@ -6,8 +6,9 @@ import { log } from '@tamanu/shared/services/logging';
 import pkg from '../../package.json';
 import { ApplicationContext } from '../ApplicationContext';
 import { provision } from './provision';
-import { startApi } from './serve';
-import { startTasks } from './tasks';
+import { startApi } from './startApi';
+import { startFhirWorker } from './startFhirWorker';
+import { startTasks } from './startTasks';
 
 export const serveAll = async ({ skipMigrationCheck, provisioning }) => {
   if (provisioning) {
@@ -21,7 +22,11 @@ export const serveAll = async ({ skipMigrationCheck, provisioning }) => {
     await store.sequelize.migrate('up');
   }
 
-  return Promise.race([startApi({ skipMigrationCheck }), startTasks({ skipMigrationCheck })]);
+  return Promise.race([
+    startApi({ skipMigrationCheck }),
+    startFhirWorker({ skipMigrationCheck }),
+    startTasks({ skipMigrationCheck }),
+  ]);
 };
 
 export const startAllCommand = new Command('startAll')
