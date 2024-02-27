@@ -5,6 +5,7 @@ import { NOTE_TYPE_LABELS } from '@tamanu/constants';
 import { NoteChangeLogs } from '../components/NoteChangeLogs';
 import { ConfirmCancelRow } from '../components/ButtonRow';
 import { NoteInfoSection, StyledDivider, WrittenByText } from '../components/NoteCommonFields';
+import { TranslatedText } from '../components/Translation/TranslatedText';
 
 export const TreatmentPlanNoteChangelogForm = ({ note, onCancel }) => {
   const updatedByAuthorName = note.author?.displayName;
@@ -23,14 +24,23 @@ export const TreatmentPlanNoteChangelogForm = ({ note, onCancel }) => {
         numberOfColumns={3}
         noteType={NOTE_TYPE_LABELS[note.noteType]}
         date={note.date}
-        dateLabel="Last updated at date & time"
-        writtenByLabel="Last updated by (or on behalf of)"
+        dateLabel={<TranslatedText
+          stringId="note.lastUpdatedAt.label"
+          fallback="Last updated at date & time"
+        />}
+        writtenByLabel={<TranslatedText
+          stringId="note.lastUpdatedBy.label"
+          fallback="Last updated by (or on behalf of)"
+        />}
         writtenBy={writtenBy}
       />
       <br />
       <NoteChangeLogs note={note} />
       <StyledDivider />
-      <ConfirmCancelRow confirmText="Close" onConfirm={onCancel} />
+      <ConfirmCancelRow
+        confirmText={<TranslatedText stringId="general.action.close" fallback="Close" />}
+        onConfirm={onCancel}
+      />
     </>
   );
 };

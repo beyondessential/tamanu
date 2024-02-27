@@ -25,7 +25,7 @@ export const serveAll = async ({ skipMigrationCheck, provisioning }) => {
 };
 
 export const serveAllCommand = new Command('serveAll')
-  .description('Start the Tamanu Central server and tasks runner')
+  .description('Start the Tamanu Central servers and tasks runner')
   .option('--skipMigrationCheck', 'skip the migration check on startup')
   .option(
     '--provisioning <file>',

@@ -71,6 +71,11 @@ const UNHIDEABLE_FIELDS = [
   'clinician',
   'diagnosis',
   'userDisplayId',
+  'date',
+  'registeredBy',
+  'status',
+  'conditions',
+  'programRegistry',
 ];
 
 const HIDEABLE_FIELDS = [

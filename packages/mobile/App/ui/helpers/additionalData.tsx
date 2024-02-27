@@ -1,3 +1,6 @@
+import React from 'react';
+import { TranslatedText } from '/components/Translations/TranslatedText';
+
 export const bloodOptions = [
   { value: 'A+', label: 'A+' },
   { value: 'A-', label: 'A-' },
@@ -54,7 +57,7 @@ const additionalDataFields = {
     'primaryContactNumber',
     'secondaryContactNumber',
     'emergencyContactName',
-    'emergencyContactNumber'
+    'emergencyContactNumber',
   ],
   personal: [
     'title',
@@ -68,7 +71,7 @@ const additionalDataFields = {
     'educationalLevel',
     'occupationId',
     'socialMedia',
-    'patientBillingTypeId'
+    'patientBillingTypeId',
   ],
   other: [
     'streetVillage',
@@ -78,15 +81,47 @@ const additionalDataFields = {
     'countryId',
     'settlementId',
     'medicalAreaId',
-    'nursingZoneId'
+    'nursingZoneId',
   ],
 };
 
 export const additionalDataSections = [
-  { title: 'Identification information', fields: additionalDataFields.identification },
-  { title: 'Contact information', fields: additionalDataFields.contact },
-  { title: 'Personal information', fields: additionalDataFields.personal },
-  { title: 'Other information', fields: additionalDataFields.other },
+  {
+    title: (
+      <TranslatedText
+        stringId="patient.details.subheading.identificationInformation"
+        fallback="Identification information"
+      />
+    ),
+    fields: additionalDataFields.identification,
+  },
+  {
+    title: (
+      <TranslatedText
+        stringId="patient.details.subheading.contactInformation"
+        fallback="Contact information"
+      />
+    ),
+    fields: additionalDataFields.contact,
+  },
+  {
+    title: (
+      <TranslatedText
+        stringId="patient.details.subheading.personalInformation"
+        fallback="Personal information"
+      />
+    ),
+    fields: additionalDataFields.personal,
+  },
+  {
+    title: (
+      <TranslatedText
+        stringId="patient.details.subheading.otherInformation"
+        fallback="Other information"
+      />
+    ),
+    fields: additionalDataFields.other,
+  },
 ];
 
 export const allAdditionalDataFields = Object.values(additionalDataFields).flat();

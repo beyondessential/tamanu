@@ -12,5 +12,6 @@ export interface IScheduledVaccine {
   category?: string;
   vaccine: IReferenceData;
   vaccineId: string;
+  hideFromCertificate: boolean;
   visibilityStatus: VisibilityStatus;
 }
