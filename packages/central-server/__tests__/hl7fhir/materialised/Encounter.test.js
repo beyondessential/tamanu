@@ -334,7 +334,6 @@ describe(`Materialised FHIR - Encounter`, () => {
           `/api/integration/${INTEGRATION_ROUTE}/Encounter?_include=Organization:serviceProvider`,
         );
 
-        console.log({ responseBody: response.body})
         expect(response.body.total).toBe(12);
         expect(response.body.entry.length).toBe(13);
         expect(response.body.entry.filter(({ search: { mode } }) => mode === 'match').length).toBe(12);
