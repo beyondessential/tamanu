@@ -21,7 +21,6 @@ import { translationRoutes } from './translation';
 function api(ctx) {
   const apiRoutes = express.Router();
   apiRoutes.use('/public', publicRoutes);
-  apiRoutes.use('/translation', translationRoutes);
   apiRoutes.use(authModule);
   apiRoutes.use('/translation', translationRoutes);
   apiRoutes.use(constructPermission);
