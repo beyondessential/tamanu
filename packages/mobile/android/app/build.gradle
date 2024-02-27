@@ -181,7 +181,6 @@ android {
         }
         release {
             // release signing done as a separate step in AppCenter
-            debuggable true
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
