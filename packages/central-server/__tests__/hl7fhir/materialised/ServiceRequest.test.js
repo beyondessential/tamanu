@@ -870,7 +870,6 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
           const response = await app.get(path);
           const { entry } = response.body;
 
-          console.log({ response });
           const fetchedServiceRequest = entry.find(
             ({ search: { mode } }) => mode === 'match',
           );
@@ -887,7 +886,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       });
 
     });
-  })
+  });
 
   describe('errors', () => {
     it('returns not found when fetching a non-existent service request', async () => {

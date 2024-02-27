@@ -1056,22 +1056,14 @@ describe(`Materialised FHIR - Patient`, () => {
       return [keep, merge];
     };
 
-    const resolveUpstreams = async (sequelize) => {
-      const result = await sequelize.query(`
-          CALL fhir.resolve_upstreams();      
-        `);
-      return result;
-    };
-
     beforeEach(async () => {
       const { models } = ctx.store;
-      const { FhirPatient, Patient, PatientAdditionalData } = models;
+      const { FhirPatient, Patient } = models;
       await FhirPatient.destroy({ where: {} });
       await Patient.destroy({ where: {} });
-      await PatientAdditionalData.destroy({ where: {} });
     });
     it('correctly includes a linked patient', async () => {
-      const { models, sequelize } = ctx.store;
+      const { models } = ctx.store;
       const [keep, merge] = await makeTwoPatients(models);
       const { FhirPatient } = models;
       const { updates } = await mergePatient(models, keep.id, merge.id);
@@ -1080,21 +1072,21 @@ describe(`Materialised FHIR - Patient`, () => {
       });
       const keepMaterialised = await FhirPatient.materialiseFromUpstream(keep.id);
       const mergeMaterialised = await FhirPatient.materialiseFromUpstream(merge.id);
-      await resolveUpstreams(sequelize);
+      await FhirPatient.resolveUpstreams();
 
       const path = `/api/integration/${INTEGRATION_ROUTE}/Patient?_include=Patient:link&active=true`;
       const response = await app.get(path);
       const { entry } = response.body;
-      const isThisKeep = entry.find(
+      const includedEntry = entry.find(
         ({ search: { mode } }) => mode === 'match',
       );
 
-      const isThisMerged = entry.find(
+      const mergedEntry = entry.find(
         ({ search: { mode } }) => mode === 'include',
       );
       expect(response).toHaveSucceeded();
-      expect(isThisKeep.resource.id).toBe(keepMaterialised.id);
-      expect(isThisMerged.resource.id).toBe(mergeMaterialised.id);
+      expect(includedEntry.resource.id).toBe(keepMaterialised.id);
+      expect(mergedEntry.resource.id).toBe(mergeMaterialised.id);
       expect(response.body.entry.length).toBe(2);
     });
   });
