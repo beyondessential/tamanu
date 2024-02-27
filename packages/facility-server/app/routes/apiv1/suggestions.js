@@ -106,7 +106,7 @@ function createSuggesterLookupRoute(endpoint, modelName, { mapper }) {
 
       const mappedRecord = await mapper(record);
 
-      if (!REFERENCE_TYPE_VALUES.includes(endpoint)) return mappedRecord;
+      if (!REFERENCE_TYPE_VALUES.includes(endpoint)) res.send(mappedRecord);
 
       const translatedStrings = await models.TranslatedString.getReferenceDataTranslationsByEndpoint(
         {
@@ -149,7 +149,7 @@ function createAllRecordsRoute(
 
       const mappedResults = await Promise.all(results.map(mapper));
 
-      if (!REFERENCE_TYPE_VALUES.includes(endpoint)) return mappedResults;
+      if (!REFERENCE_TYPE_VALUES.includes(endpoint)) res.send(mappedResults);
 
       const translatedStrings = await models.TranslatedString.getReferenceDataTranslationsByEndpoint(
         {
