@@ -2,6 +2,7 @@ import React, { Children } from 'react';
 import styled from 'styled-components';
 
 import { Button, FormCancelButton, FormSubmitButton, OutlinedButton } from './Button';
+import { TranslatedText } from './Translation/TranslatedText';
 
 const FlexSpaceBetween = styled.div`
   display: flex;
@@ -38,9 +39,9 @@ export const FormSubmitCancelRow = React.memo(
   ({
     onCancel,
     onConfirm,
-    confirmText = 'Confirm',
+    confirmText = <TranslatedText stringId="general.action.confirm" fallback="Confirm" />,
     confirmColor = 'primary',
-    cancelText = 'Cancel',
+    cancelText = <TranslatedText stringId="general.action.cancel" fallback="Cancel" />,
     confirmDisabled,
     ...props
   }) => (
@@ -57,9 +58,9 @@ export const ConfirmCancelRow = React.memo(
   ({
     onCancel,
     onConfirm,
-    confirmText = 'Confirm',
+    confirmText = <TranslatedText stringId="general.action.confirm" fallback="Confirm" />,
     confirmColor = 'primary',
-    cancelText = 'Cancel',
+    cancelText = <TranslatedText stringId="general.action.cancel" fallback="Cancel" />,
     confirmDisabled,
     ...props
   }) => (
@@ -82,7 +83,11 @@ const GoBackButtonContainer = styled(ButtonRow)`
   }
 `;
 
-export const FormConfirmCancelBackRow = ({ onBack, backButtonText = 'Back', ...props }) => (
+export const FormConfirmCancelBackRow = ({
+  onBack,
+  backButtonText = <TranslatedText stringId="general.action.back" fallback="Back" />,
+  ...props
+}) => (
   <FlexSpaceBetween>
     {onBack && (
       <GoBackButtonContainer>

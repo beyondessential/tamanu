@@ -18,6 +18,8 @@ import { VaccineNotGivenForm } from './VaccineNotGivenForm';
 import { usePatientCurrentEncounter } from '../api/queries';
 import { useVaccinationSettings } from '../api/queries/useVaccinationSettings';
 import { useAuth } from '../contexts/Auth';
+import { TranslatedText } from '../components/Translation/TranslatedText';
+import { useLocalisation } from '../contexts/Localisation';
 
 const validateGivenElsewhereRequiredField = (status, givenElsewhere) =>
   (status === VACCINE_RECORDING_TYPES.GIVEN && !givenElsewhere) ||
@@ -69,6 +71,7 @@ export const VaccineForm = ({
   getScheduledVaccines,
   vaccineRecordingType,
 }) => {
+  const { getLocalisation } = useLocalisation();
   const [vaccineOptions, setVaccineOptions] = useState([]);
   const [category, setCategory] = useState(
     currentVaccineRecordValues?.vaccineName ? VACCINE_CATEGORIES.OTHER : VACCINE_CATEGORIES.ROUTINE,
@@ -121,7 +124,9 @@ export const VaccineForm = ({
   if (currentEncounterError || vaccinationDefaultsError) {
     return (
       <ErrorMessage
-        title="Cannot load vaccine form"
+        title={
+          <TranslatedText stringId="vaccine.loadError" fallback="Cannot load vaccine form" />
+        }
         errorMessage={currentEncounterError?.message || vaccinationDefaultsError?.message}
       />
     );
@@ -130,6 +135,8 @@ export const VaccineForm = ({
   const baseSchemeValidation = editMode
     ? BASE_VACCINE_SCHEME_VALIDATION
     : NEW_RECORD_VACCINE_SCHEME_VALIDATION;
+
+  const vaccineConsentEnabled = getLocalisation('features.enableVaccineConsent');
 
   return (
     <Form
@@ -163,7 +170,7 @@ export const VaccineForm = ({
       }
       validationSchema={baseSchemeValidation.shape({
         ...(vaccineRecordingType === VACCINE_RECORDING_TYPES.GIVEN &&
-          VACCINE_GIVEN_VALIDATION_SCHEMA),
+          VACCINE_GIVEN_VALIDATION_SCHEMA(vaccineConsentEnabled)),
       })}
       render={({ submitForm, resetForm, setErrors, values, setValues }) => (
         <VaccineFormComponent
@@ -182,6 +189,7 @@ export const VaccineForm = ({
           schedules={selectedVaccine?.schedules}
           onCancel={onCancel}
           currentUser={currentUser}
+          vaccineConsentEnabled={vaccineConsentEnabled}
         />
       )}
     />

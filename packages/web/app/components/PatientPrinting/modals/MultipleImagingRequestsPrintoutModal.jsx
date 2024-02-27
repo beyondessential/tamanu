@@ -8,6 +8,7 @@ import { Colors } from '../../../constants';
 import { useLocalisation } from '../../../contexts/Localisation';
 import { useCertificate } from '../../../utils/useCertificate';
 import { Modal } from '../../Modal';
+import { TranslatedText } from '../../Translation/TranslatedText';
 
 export const MultipleImagingRequestsWrapper = ({ encounter, imagingRequests }) => {
   const { getLocalisation } = useLocalisation();
@@ -42,7 +43,12 @@ export const MultipleImagingRequestsPrintoutModal = ({
 }) => {
   return (
     <Modal
-      title="Print imaging requests"
+      title={
+        <TranslatedText
+          stringId="imaging.modal.printMultiple.title"
+          fallback="Print imaging requests"
+        />
+      }
       width="md"
       open={open}
       onClose={onClose}

@@ -19,6 +19,7 @@ import { getAgeFromDate } from '~/ui/helpers/date';
 import { useRecentlyViewedPatients } from '~/ui/hooks/localConfig';
 import { navigateAfterTimeout } from '~/ui/helpers/navigators';
 import { theme } from '~/ui/styled/theme';
+import { PatientFromRoute } from '~/ui/helpers/constants';
 
 interface PatientListProps {
   list: any[];
@@ -73,6 +74,7 @@ const Screen = ({ navigation, setSelectedPatient }: RecentViewedScreenProps): Re
             setSelectedPatient(item);
             navigation.navigate(Routes.HomeStack.SearchPatientStack.Index, {
               screen: Routes.HomeStack.SearchPatientStack.Index,
+              from: PatientFromRoute.RECENTLY_VIEWED,
             });
           };
           return (

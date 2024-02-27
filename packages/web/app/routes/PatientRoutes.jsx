@@ -22,6 +22,7 @@ import { ReferralsView } from '../views/referrals/ReferralsView';
 import { PatientProgramRegistryView } from '../views/programRegistry/PatientProgramRegistryView';
 import { ProgramRegistrySurveyView } from '../views/programRegistry/ProgramRegistrySurveyView';
 import { useUrlSearchParams } from '../utils/useUrlSearchParams';
+import { TranslatedText } from '../components/Translation/TranslatedText';
 
 export const usePatientRoutes = () => {
   const {
@@ -58,7 +59,12 @@ export const usePatientRoutes = () => {
             {
               path: `${PATIENT_PATHS.SUMMARY}/view`,
               component: DischargeSummaryView,
-              title: 'Discharge Summary',
+              title: (
+                <TranslatedText
+                  stringId="encounter.dischargeSummary.title"
+                  fallback="Discharge Summary"
+                />
+              ),
             },
             {
               path: `${PATIENT_PATHS.ENCOUNTER}/programs/new`,

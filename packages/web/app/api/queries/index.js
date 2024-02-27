@@ -7,3 +7,5 @@ export * from './usePatientCurrentEncounter';
 export * from './useAdministeredVaccines';
 export * from './usePatientConditions';
 export * from './usePatientProgramRegistration';
+export * from './useTranslations';
+export * from './useTranslationLanguages';

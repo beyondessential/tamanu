@@ -10,6 +10,7 @@ import { Routes } from '/helpers/routes';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { RowView, StyledText, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
+import { PatientFromRoute } from '~/ui/helpers/constants';
 
 const PatientCardContainer = compose<React.FC<{ displayedPatient: Patient }>>(withPatient)(
   ({ displayedPatient, setSelectedPatient }: any): ReactElement => {
@@ -22,6 +23,7 @@ const PatientCardContainer = compose<React.FC<{ displayedPatient: Patient }>>(wi
             setSelectedPatient(displayedPatient);
             navigation.navigate(Routes.HomeStack.SearchPatientStack.Index, {
               screen: Routes.HomeStack.SearchPatientStack.Index,
+              from: PatientFromRoute.HOME,
             });
           }}
           patient={displayedPatient}

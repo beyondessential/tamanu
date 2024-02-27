@@ -3,11 +3,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { push } from 'connected-react-router';
 import { Launch } from '@material-ui/icons';
-
 import { Colors, LOCAL_STORAGE_KEYS } from '../constants';
-import { TamanuLogoBlue } from '../components';
+import { LogoDark } from '../components';
 import { splashImages } from '../constants/images';
-
 import { LoginForm } from '../forms/LoginForm';
 import { ResetPasswordForm } from '../forms/ResetPasswordForm';
 import { ChangePasswordForm } from '../forms/ChangePasswordForm';
@@ -20,10 +18,11 @@ import {
   validateResetCode,
 } from '../store';
 import { useApi } from '../api';
-
 import { SyncHealthNotificationComponent } from '../components/SyncHealthNotification';
-
 import { Typography } from '@material-ui/core';
+import { getBrandId } from '../utils';
+
+import { TranslatedText } from '../components/Translation/TranslatedText';
 const { REMEMBER_EMAIL } = LOCAL_STORAGE_KEYS;
 
 const Container = styled.div`
@@ -37,7 +36,7 @@ const LoginSplashImage = styled.div`
   max-width: 50vw;
   width: 50vw;
   height: inherit;
-  background-image: url(${splashImages[3]});
+  background-image: url(${props => splashImages[props.brandId]});
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center right;
@@ -108,7 +107,7 @@ export const LoginView = () => {
   const resetPasswordEmail = useSelector(state => state.auth.resetPassword.lastEmailUsed);
   const changePasswordError = useSelector(state => state.auth.changePassword.error);
   const changePasswordSuccess = useSelector(state => state.auth.changePassword.success);
-  const { appVersion } = api;
+  const { agentVersion } = api;
 
   const rememberEmail = localStorage.getItem(REMEMBER_EMAIL);
 
@@ -134,11 +133,11 @@ export const LoginView = () => {
       localStorage.removeItem(REMEMBER_EMAIL);
     }
 
-    // The await is necessary to prevent redux-form unlocking submission
-    // redux-thunk definitely returns a promise, and this works
     await dispatch(login(email, password));
     dispatch(restartPasswordResetFlow());
   };
+
+  const brandId = getBrandId();
 
   return (
     <Container>
@@ -150,7 +149,7 @@ export const LoginView = () => {
             dispatch(restartPasswordResetFlow());
           }}
         >
-          <TamanuLogoBlue size="140px" />
+          <LogoDark size="140px" />
         </LogoContainer>
         <LoginFormContainer>
           {screen === 'login' && (
@@ -195,13 +194,15 @@ export const LoginView = () => {
         </LoginFormContainer>
         {isSupportUrlLoaded && (
           <SupportDesktopLink href={supportUrl} target="_blank" rel="noreferrer">
-            Support centre
+            <TranslatedText stringId="login.supportCentreLink" fallback="Support centre" />
             <Launch style={{ marginLeft: '3px', fontSize: '12px' }} />
           </SupportDesktopLink>
         )}
-        <DesktopVersionText>Version {appVersion}</DesktopVersionText>
+        <DesktopVersionText>
+          <TranslatedText stringId="login.version" fallback="Version" /> {agentVersion}
+        </DesktopVersionText>
       </LoginContainer>
-      <LoginSplashImage />
+      <LoginSplashImage brandId={brandId} />
     </Container>
   );
 };

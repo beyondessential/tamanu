@@ -50,7 +50,8 @@ async function getPatientVaccines(models, patient) {
     order: [['date', 'ASC']],
     includeNotGiven: false,
   });
-  const certifiableVaccines = vaccines.filter(vaccine => vaccine.certifiable);
+  const vaccineData = vaccines.filter(vaccine => !vaccine.scheduledVaccine.hideFromCertificate);
+  const certifiableVaccines = vaccineData.filter(vaccine => vaccine.certifiable);
   const additionalData = await models.PatientAdditionalData.findOne({
     where: { patientId: patient.id },
     include: models.PatientAdditionalData.getFullReferenceAssociations(),
@@ -61,7 +62,7 @@ async function getPatientVaccines(models, patient) {
     village,
     additionalData: additionalData?.dataValues,
   };
-  return { certifiableVaccines, vaccines, patientData };
+  return { certifiableVaccines, vaccines: vaccineData, patientData };
 }
 
 export const makeCovidVaccineCertificate = async (
@@ -100,7 +101,13 @@ export const makeCovidVaccineCertificate = async (
   );
 };
 
-export const makeVaccineCertificate = async (patient, printedBy, printedDate, models) => {
+export const makeVaccineCertificate = async (
+  patient,
+  printedBy,
+  printedDate,
+  facilityName,
+  models,
+) => {
   const localisation = await getLocalisation();
   const getLocalisationData = key => get(localisation, key);
 
@@ -117,6 +124,7 @@ export const makeVaccineCertificate = async (patient, printedBy, printedDate, mo
       printedBy={printedBy}
       printedDate={printedDate}
       vaccinations={vaccines}
+      facilityName={facilityName}
       signingSrc={signingImage}
       watermarkSrc={watermark}
       logoSrc={logo}

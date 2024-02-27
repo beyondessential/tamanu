@@ -21,6 +21,7 @@ export * from './ArrowLeft';
 export * from './ArrowUp';
 export * from './Vitals';
 export * from './Pencil';
+export * from './CircleAdd';
 
 // Logos
 export * from './CLR';
@@ -64,6 +65,7 @@ export * from './DiagnosisAndTreatment';
 export * from './History';
 export * from './PatientDetails';
 export * from './LabRequest';
+export * from './PatientSync';
 
 // Home Tab Icons
 export * from './SyncData';

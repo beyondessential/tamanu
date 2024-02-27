@@ -7,6 +7,7 @@ import { MarkPatientForSync } from './MarkPatientForSync';
 import { ENCOUNTER_OPTIONS_BY_VALUE } from '../constants';
 import { LocationGroupCell } from './LocationCell';
 import { LimitedLinesCell } from './FormattedTableCell';
+import { TranslatedText } from './Translation/TranslatedText';
 import { useSyncState } from '../contexts/SyncState';
 import { useRefreshCount } from '../hooks/useRefreshCount';
 
@@ -22,7 +23,11 @@ const getDate = ({ startDate, endDate }) => (
   <DateWrapper>
     <DateDisplay date={startDate} />
     {' - '}
-    {endDate ? <DateDisplay date={endDate} /> : 'Current'}
+    {endDate ? (
+      <DateDisplay date={endDate} />
+    ) : (
+      <TranslatedText stringId="general.date.current" fallback="Current" />
+    )}
   </DateWrapper>
 );
 const getType = ({ encounterType }) => ENCOUNTER_OPTIONS_BY_VALUE[encounterType].label;
@@ -30,23 +35,37 @@ const getReasonForEncounter = ({ reasonForEncounter }) => <div>{reasonForEncount
 const getFacility = ({ facilityName }) => <FacilityWrapper>{facilityName}</FacilityWrapper>;
 
 const columns = [
-  { key: 'startDate', title: 'Date', accessor: getDate },
-  { key: 'encounterType', title: 'Type', accessor: getType, sortable: false },
+  {
+    key: 'startDate',
+    title: <TranslatedText stringId="patientHistory.table.column.startDate" fallback="Date" />,
+    accessor: getDate,
+  },
+  {
+    key: 'encounterType',
+    title: <TranslatedText stringId="patientHistory.table.column.encounterType" fallback="Type" />,
+    accessor: getType,
+    sortable: false,
+  },
   {
     key: 'facilityName',
-    title: 'Facility',
+    title: <TranslatedText stringId="general.table.column.facilityName" fallback="Facility" />,
     accessor: getFacility,
     CellComponent: LimitedLinesCell,
   },
   {
     key: 'locationGroupName',
-    title: 'Area',
+    title: <TranslatedText stringId="general.table.column.area" fallback="Area" />,
     accessor: LocationGroupCell,
     CellComponent: LimitedLinesCell,
   },
   {
     key: 'reasonForEncounter',
-    title: 'Reason for encounter',
+    title: (
+      <TranslatedText
+        stringId="patientHistory.table.column.reasonForEncounter"
+        fallback="Reason for encounter"
+      />
+    ),
     accessor: getReasonForEncounter,
     sortable: false,
     CellComponent: LimitedLinesCell,
@@ -70,7 +89,14 @@ const SyncWarningBanner = ({ patient, onRefresh }) => {
 
   if (!isSyncing) return null;
 
-  return <SyncWarning>Patient is being synced, so records might not be fully updated.</SyncWarning>;
+  return (
+    <SyncWarning>
+      <TranslatedText
+        stringId="patient.history.syncWarning"
+        fallback="Patient is being synced, so records might not be fully updated."
+      />
+    </SyncWarning>
+  );
 };
 
 export const PatientHistory = ({ patient, onItemClick }) => {
@@ -85,7 +111,12 @@ export const PatientHistory = ({ patient, onItemClick }) => {
       <DataFetchingTable
         columns={columns}
         onRowClick={row => onItemClick(row.id)}
-        noDataMessage="No historical records for this patient."
+        noDataMessage={
+          <TranslatedText
+            stringId="patient.history.table.noDataMessage"
+            fallback="No historical records for this patient"
+          />
+        }
         endpoint={`patient/${patient.id}/encounters`}
         initialSort={{ orderBy: 'startDate', order: 'desc' }}
         refreshCount={refreshCount}

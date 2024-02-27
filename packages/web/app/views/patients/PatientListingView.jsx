@@ -30,6 +30,7 @@ import {
 } from './columns';
 import { useAuth } from '../../contexts/Auth';
 import { PatientSearchKeys, usePatientSearch } from '../../contexts/PatientSearch';
+import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 const PATIENT_SEARCH_ENDPOINT = 'patient';
 
@@ -47,13 +48,13 @@ const LISTING_COLUMNS = [
 
 const location = {
   key: 'locationName',
-  title: 'Location',
+  title: <TranslatedText stringId="general.location.label" fallback="Location" />,
   accessor: LocationCell,
 };
 
 const locationGroup = {
   key: 'locationGroupName',
-  title: 'Area',
+  title: <TranslatedText stringId="general.area.label" fallback="Area" />,
   accessor: LocationGroupCell,
 };
 
@@ -118,7 +119,8 @@ const NewPatientButton = ({ onCreateNewPatient }) => {
         noun="Patient"
         onClick={showNewPatient}
       >
-        + Add new patient
+        +{'\u00A0'}
+        <TranslatedText stringId="patientList.action.add" fallback="Add new patient" />
       </ButtonWithPermissionCheck>
       <NewPatientModal
         title="New patient"
@@ -135,12 +137,16 @@ export const PatientListingView = ({ onViewPatient }) => {
 
   return (
     <PageContainer>
-      <TopBar title="Patient listing">
+      <TopBar
+        title={<TranslatedText stringId="patientList.default.title" fallback="Patient listing" />}
+      >
         <NewPatientButton onCreateNewPatient={onViewPatient} />
       </TopBar>
       <RecentlyViewedPatientsList />
       <ContentPane>
-        <SearchTableTitle>Patient search</SearchTableTitle>
+        <SearchTableTitle>
+          <TranslatedText stringId="patientList.search.title" fallback="Patient search" />
+        </SearchTableTitle>
         <AllPatientsSearchBar onSearch={setSearchParameters} />
         <PatientTable
           onViewPatient={onViewPatient}
@@ -161,10 +167,19 @@ export const AdmittedPatientsView = () => {
 
   return (
     <PageContainer>
-      <TopBar title="Admitted patient listing" />
+      <TopBar
+        title={
+          <TranslatedText
+            stringId="patientList.inpatient.title"
+            fallback="Admitted patient listing"
+          />
+        }
+      />
       <RecentlyViewedPatientsList encounterType="admission" />
       <ContentPane>
-        <SearchTableTitle>Patient search</SearchTableTitle>
+        <SearchTableTitle>
+          <TranslatedText stringId="patientList.search.title" fallback="Patient search" />
+        </SearchTableTitle>
         <PatientSearchBar onSearch={setSearchParameters} searchParameters={searchParameters} />
         <PatientTable
           fetchOptions={{ inpatient: 1 }}
@@ -184,10 +199,16 @@ export const OutpatientsView = () => {
 
   return (
     <PageContainer>
-      <TopBar title="Outpatient listing" />
+      <TopBar
+        title={
+          <TranslatedText stringId="patientList.outpatient.title" fallback="Outpatient listing" />
+        }
+      />
       <RecentlyViewedPatientsList encounterType="clinic" />
       <ContentPane>
-        <SearchTableTitle>Patient search</SearchTableTitle>
+        <SearchTableTitle>
+          <TranslatedText stringId="patientList.search.title" fallback="Patient search" />
+        </SearchTableTitle>
         <PatientSearchBar onSearch={setSearchParameters} searchParameters={searchParameters} />
         <PatientTable
           fetchOptions={{ outpatient: 1 }}
