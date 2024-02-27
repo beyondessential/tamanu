@@ -839,6 +839,7 @@
         }
       },
       "features": {
+        "enableVaccineConsent": true,
         "editPatientDetailsOnMobile": true,
         "quickPatientGenerator": false,
         "enableInvoicing": false,
