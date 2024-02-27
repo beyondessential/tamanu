@@ -82,6 +82,10 @@ import groovy.json.JsonSlurper
 
 project.ext.react = [
     enableHermes: false,  // clean and rebuild if changing
+
+    bundleAssetName: "index.android.bundle",
+    bundleInDebug: true,
+    bundleInRelease: true
 ]
 
 apply from: "../../node_modules/react-native/react.gradle"
