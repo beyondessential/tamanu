@@ -57,39 +57,6 @@ const VACCINE_FIELD_CATEGORY_OPTIONS = [
   },
 ];
 
-const VACCINE_FIELD_INJECTION_SITE_OPTIONS = [
-  {
-    value: INJECTION_SITE_VALUES.LEFT_ARM,
-    label: <TranslatedText stringId="vaccine.property.injectionSite.leftArm" fallback="Left arm" />,
-  },
-  {
-    value: INJECTION_SITE_VALUES.RIGHT_ARM,
-    label: (
-      <TranslatedText stringId="vaccine.property.injectionSite.rightArm" fallback="Right arm" />
-    ),
-  },
-  {
-    value: INJECTION_SITE_VALUES.LEFT_THIGH,
-    label: (
-      <TranslatedText stringId="vaccine.property.injectionSite.leftThigh" fallback="Left thigh" />
-    ),
-  },
-  {
-    value: INJECTION_SITE_VALUES.RIGHT_THIGH,
-    label: (
-      <TranslatedText stringId="vaccine.property.injectionSite.rightThigh" fallback="Right thigh" />
-    ),
-  },
-  {
-    value: INJECTION_SITE_VALUES.ORAL,
-    label: <TranslatedText stringId="vaccine.property.injectionSite.oral" fallback="Oral" />,
-  },
-  {
-    value: INJECTION_SITE_VALUES.OTHER,
-    label: <TranslatedText stringId="vaccine.property.injectionSite.other" fallback="Other" />,
-  },
-];
-
 export const CategoryField = ({ setCategory, setVaccineLabel, resetForm }) => (
   <FullWidthCol>
     <Field
