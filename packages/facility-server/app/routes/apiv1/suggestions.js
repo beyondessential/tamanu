@@ -32,6 +32,12 @@ const replaceDataLabelsWithTranslations = ({ data, translations, endpoint }) => 
 
 const extractRefDataId = stringId => stringId.split('.').pop();
 
+const ACTUAL_DATA_TYPES = {
+  ['facilityLocationGroup']: 'locationGroup',
+};
+
+const getDataType = endpoint => ACTUAL_DATA_TYPES[endpoint] || endpoint;
+
 function createSuggesterRoute(
   endpoint,
   modelName,
@@ -49,14 +55,16 @@ function createSuggesterRoute(
 
       const searchQuery = (query.q || '').trim().toLowerCase();
 
-      const isTranslatable = TRANSLATABLE_REFERENCE_TYPES.includes(endpoint);
+      // TODO: Temporary hack to make sure this approach works
+      const isTranslatable = TRANSLATABLE_REFERENCE_TYPES.includes(getDataType(endpoint));
+      console.log(isTranslatable);
       let translations = [];
       let suggestedIds = [];
 
       if (isTranslatable) {
         translations = await models.TranslatedString.getReferenceDataTranslationsByEndpoint({
           language,
-          refDataType: endpoint,
+          refDataType: getDataType(endpoint),
         });
 
         suggestedIds = translations
@@ -91,7 +99,7 @@ function createSuggesterRoute(
         replaceDataLabelsWithTranslations({
           data: mappedResults,
           translations,
-          endpoint,
+          endpoint: getDataType(endpoint),
         }),
       );
     }),
@@ -112,7 +120,7 @@ function createSuggesterLookupRoute(endpoint, modelName, { mapper }) {
 
       const mappedRecord = await mapper(record);
 
-      if (!TRANSLATABLE_REFERENCE_TYPES.includes(endpoint)) {
+      if (!TRANSLATABLE_REFERENCE_TYPES.includes(getDataType(endpoint))) {
         res.send(mappedRecord);
         return;
       }
@@ -120,14 +128,14 @@ function createSuggesterLookupRoute(endpoint, modelName, { mapper }) {
       const translatedStrings = await models.TranslatedString.getReferenceDataTranslationsByEndpoint(
         {
           language: query.language,
-          refDataType: endpoint,
+          refDataType: getDataType(endpoint),
         },
       );
 
       const translatedRecord = replaceDataLabelsWithTranslations({
         data: [mappedRecord],
         translations: translatedStrings,
-        endpoint,
+        endpoint: getDataType(endpoint),
       })[0];
 
       req.checkPermission('read', record);
@@ -158,7 +166,7 @@ function createAllRecordsRoute(
 
       const mappedResults = await Promise.all(results.map(mapper));
 
-      if (!TRANSLATABLE_REFERENCE_TYPES.includes(endpoint)) {
+      if (!TRANSLATABLE_REFERENCE_TYPES.includes(getDataType(endpoint))) {
         res.send(mappedResults);
         return;
       }
@@ -166,14 +174,14 @@ function createAllRecordsRoute(
       const translatedStrings = await models.TranslatedString.getReferenceDataTranslationsByEndpoint(
         {
           language: query.language,
-          refDataType: endpoint,
+          refDataType: getDataType(endpoint),
         },
       );
 
       const translatedResults = replaceDataLabelsWithTranslations({
         data: mappedResults,
         translations: translatedStrings,
-        endpoint,
+        endpoint: getDataType(endpoint),
       });
 
       // Allow for async mapping functions (currently only used by location suggester)
