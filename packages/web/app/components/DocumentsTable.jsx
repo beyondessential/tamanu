@@ -10,6 +10,7 @@ import { DateDisplay } from './DateDisplay';
 import { Button } from './Button';
 import { LimitedLinesCell } from './FormattedTableCell';
 import { TranslatedText } from './Translation/TranslatedText';
+import { TranslatedReferenceData } from './Translation/TranslatedReferenceData';
 
 const ActionsContainer = styled.div`
   display: flex;
@@ -51,7 +52,13 @@ const getAttachmentType = ({ type }) => {
 
 const getUploadedDate = ({ documentUploadedAt }) =>
   documentUploadedAt ? <DateDisplay date={documentUploadedAt} /> : '';
-const getDepartmentName = ({ department }) => department?.name || '';
+const getDepartmentName = ({ department }) => (department?.name && department?.id)
+  ? <TranslatedReferenceData
+    fallback={department.name}
+    value={department.id}
+    category="department"
+  />
+  : ''
 
 export const DocumentsTable = React.memo(
   ({ endpoint, searchParameters, refreshCount, onDownload, openDocumentPreview }) => {

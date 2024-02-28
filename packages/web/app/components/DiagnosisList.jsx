@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import { Colors } from '../constants';
 import { hexToRgba } from '../utils';
 import { TranslatedText } from './Translation/TranslatedText';
+import { TranslatedReferenceData } from './Translation/TranslatedReferenceData';
 
 const DiagnosisListContainer = styled.div`
   display: flex;
@@ -46,7 +47,13 @@ const DiagnosisItem = React.memo(({ diagnosis, isPrimary, onClick }) => (
         <TranslatedText stringId="encounter.diagnosis.type.secondary" fallback="S" />
       )}
     </Category>
-    {diagnosis?.name && <DiagnosisName isPrimary={isPrimary}>{diagnosis.name}</DiagnosisName>}
+    {diagnosis?.name && diagnosis?.id && <DiagnosisName isPrimary={isPrimary}>
+      <TranslatedReferenceData
+        fallback={diagnosis.name}
+        value={diagnosis.id}
+        category="diagnosis"
+      />
+    </DiagnosisName>}
   </DiagnosisChip>
 ));
 

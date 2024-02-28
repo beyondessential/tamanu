@@ -21,6 +21,7 @@ import { EncounterModal } from '../EncounterModal';
 import { usePatientCurrentEncounter } from '../../api/queries';
 import { Modal } from '../Modal';
 import { TranslatedText } from '../Translation/TranslatedText';
+import { TranslatedReferenceData } from '../Translation/TranslatedReferenceData';
 
 const Heading = styled.div`
   font-weight: 700;
@@ -111,7 +112,13 @@ const PatientInfo = ({ patient }) => {
               <PatientInfoLabel>
                 <TranslatedText stringId="general.village.label" fallback="Village" />
               </PatientInfoLabel>
-              <PatientInfoValue>{village.name}</PatientInfoValue>
+              <PatientInfoValue>
+                <TranslatedReferenceData
+                  fallback={village.name}
+                  value={village.id}
+                  category="village"
+                />
+              </PatientInfoValue>
             </tr>
           )}
         </tbody>
@@ -353,7 +360,11 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
         <Heading>
           <TranslatedText stringId="general.area.label" fallback="Area" />
         </Heading>
-        {locationGroup.name}
+        <TranslatedReferenceData
+          fallback={locationGroup.name}
+          value={locationGroup.id}
+          category="locationGroup"
+        />
       </Section>
       <Button variant="outlined" color="primary" onClick={onOpenAppointmentModal}>
         <TranslatedText

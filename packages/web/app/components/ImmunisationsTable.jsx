@@ -10,6 +10,7 @@ import { StatusTag } from './Tag';
 import { CheckInput } from './Field';
 import { Colors } from '../constants';
 import { TranslatedText } from './Translation/TranslatedText';
+import { TranslatedReferenceData } from './Translation/TranslatedReferenceData';
 
 const getSchedule = record =>
   record.scheduledVaccine?.schedule || (
@@ -47,7 +48,14 @@ const getGiver = record => {
   );
 };
 const getFacility = record => {
-  const facility = record.givenElsewhere ? record.givenBy : record.location?.facility?.name;
+  const facility = record.givenElsewhere
+    ? record.givenBy
+    : record.location?.facility && (
+      <TranslatedReferenceData
+        fallback={record.location.facility.name}
+        value={record.location.facility.id}
+        category="facility"
+      />);
   return facility || '';
 };
 
@@ -152,14 +160,14 @@ export const ImmunisationsTable = React.memo(
         },
         ...(!viewOnly
           ? [
-              {
-                key: 'action',
-                title: <TranslatedText stringId="vaccine.table.column.action" fallback="Action" />,
-                accessor: getActionButtons({ onItemClick, onItemEditClick, onItemDeleteClick }),
-                sortable: false,
-                isExportable: false,
-              },
-            ]
+            {
+              key: 'action',
+              title: <TranslatedText stringId="vaccine.table.column.action" fallback="Action" />,
+              accessor: getActionButtons({ onItemClick, onItemEditClick, onItemDeleteClick }),
+              sortable: false,
+              isExportable: false,
+            },
+          ]
           : []),
       ],
       [onItemClick, onItemEditClick, onItemDeleteClick, viewOnly],
