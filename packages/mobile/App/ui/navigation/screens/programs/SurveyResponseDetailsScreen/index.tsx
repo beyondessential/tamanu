@@ -76,6 +76,16 @@ const renderAnswer = (question, answer): ReactElement => {
     case FieldTypes.AUTOCOMPLETE:
       return <AutocompleteAnswer question={question} answer={answer} />;
     default:
+      if (question.config) {
+        const config = JSON.parse(question.config);
+        const {
+          source,
+          writeToPatient: { fieldType },
+        } = config;
+        if (source && fieldType === FieldTypes.AUTOCOMPLETE) {
+          return <AutocompleteAnswer question={question} answer={answer} />;
+        }
+      }
       return (
         <StyledText textAlign="right" color={theme.colors.TEXT_DARK}>
           {getAnswerText(question, answer)}

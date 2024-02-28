@@ -2,7 +2,7 @@ import React, { useCallback, useState, ReactElement } from 'react';
 import { useFormikContext } from 'formik';
 import { theme } from '/styled/theme';
 import { Button, StyledButtonProps } from '/components/Button';
-import { sleepAsync } from '~/services/sync';
+import { TranslatedText } from '/components/Translations/TranslatedText';
 
 interface SubmitButtonProps extends StyledButtonProps {
   onSubmit?: () => Promise<void>;
@@ -14,8 +14,6 @@ export const SubmitButton = ({ onSubmit, ...props }: SubmitButtonProps): ReactEl
   const handleOnPress = useCallback(async () => {
     setIsLoading(true);
     try {
-      // TODO: Remove this when testing is done
-      await sleepAsync(10000);
       if (typeof onSubmit === 'function') {
         await onSubmit();
       } else if (typeof submitForm === 'function') {
@@ -29,7 +27,7 @@ export const SubmitButton = ({ onSubmit, ...props }: SubmitButtonProps): ReactEl
     <Button
       onPress={handleOnPress}
       loadingAction={isLoading}
-      buttonText="Submit"
+      buttonText={<TranslatedText stringId="general.action.submit" fallback="Submit" />}
       backgroundColor={theme.colors.PRIMARY_MAIN}
       {...props}
     />

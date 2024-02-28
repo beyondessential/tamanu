@@ -79,6 +79,12 @@ export const StyledTextField = styled(MuiTextField)`
   .MuiInputAdornment-positionStart {
     margin-right: 0;
   }
+
+  .MuiOutlinedInput-notchedOutline {
+    legend {
+      user-select: none;
+    }
+  }
 `;
 
 export const TextInput = ({ value = '', label, ...props }) => (

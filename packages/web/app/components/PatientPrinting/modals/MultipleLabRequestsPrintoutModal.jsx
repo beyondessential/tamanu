@@ -11,6 +11,7 @@ import { Colors } from '../../../constants';
 import { PDFViewer, printPDF } from '../PDFViewer';
 import { useLocalisation } from '../../../contexts/Localisation';
 import { MultipleLabRequestsPrintout } from '@tamanu/shared/utils/patientCertificates';
+import { TranslatedText } from '../../Translation/TranslatedText';
 
 export const MultipleLabRequestsPrintoutModal = ({ encounter, labRequests, open, onClose }) => {
   const { getLocalisation } = useLocalisation();
@@ -39,7 +40,9 @@ export const MultipleLabRequestsPrintoutModal = ({ encounter, labRequests, open,
 
   return (
     <Modal
-      title="Print lab requests"
+      title={
+        <TranslatedText stringId="lab.modal.printMultiple.title" fallback="Print lab requests" />
+      }
       width="md"
       open={open}
       onClose={onClose}
