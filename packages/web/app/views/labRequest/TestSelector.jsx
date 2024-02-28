@@ -12,6 +12,8 @@ import { TextButton } from '../../components/Button';
 import { BodyText } from '../../components/Typography';
 import { SelectableTestItem, TestItem } from './TestItem';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
+import { TranslatedReferenceData, getReferenceDataStringId } from '../../components/Translation/TranslatedReferenceData';
+import { useTranslation } from '../../contexts/Translation';
 
 const SELECTABLE_DATA_ENDPOINTS = {
   [LAB_REQUEST_FORM_TYPES.PANEL]: 'labTestPanel',
@@ -133,14 +135,21 @@ const useSelectable = formType => {
   });
 };
 
-const queryBySearch = (formType, data, { search, labTestCategoryId }) =>
-  data.filter(result => {
+const queryBySearch = (formType, data, { search, labTestCategoryId }) => {
+  const { getTranslation } = useTranslation();
+
+  return data.filter(result => {
     const nameMatch = subStrSearch(search, result.name);
     if (formType === LAB_REQUEST_FORM_TYPES.PANEL) {
-      return nameMatch || subStrSearch(search, result.category?.name);
+      const categoryName = getTranslation(getReferenceDataStringId(
+        result.category?.id,
+        result.category?.type
+      ), result.category?.name);
+      return nameMatch || subStrSearch(search, categoryName);
     }
     return nameMatch && (!labTestCategoryId || result.category.id === labTestCategoryId);
   });
+};
 
 const sortByCategoryAndName = (a, b) =>
   a.category?.name.localeCompare(b.category?.name) || a.name.localeCompare(b.name);
@@ -257,7 +266,9 @@ export const TestSelectorInput = ({
                     key={`${selectable.id}-checkbox`}
                     label={selectable.name}
                     name={selectable.id}
-                    category={selectable.category?.name}
+                    category={selectable.category?.name
+                      && <TranslatedReferenceData fallback={selectable.category.name} value={selectable.category.id} category={selectable.category.type} />
+                    }
                     checked={isSelected(selectable)}
                     onChange={handleSelect}
                   />
@@ -285,7 +296,9 @@ export const TestSelectorInput = ({
                   key={`${option.id}-selected`}
                   label={option.name}
                   name={option.id}
-                  category={option.category?.name}
+                  category={option.category?.name
+                    && <TranslatedReferenceData fallback={option.category.name} value={option.category.id} category={option.category.type} />
+                  }
                   onRemove={handleSelect}
                 />
               );

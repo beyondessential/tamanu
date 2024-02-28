@@ -140,7 +140,7 @@ const PatientDeathSummary = React.memo(({ patient }) => {
               (deathData?.facility?.name && <TranslatedReferenceData
                 fallback={deathData.facility.name}
                 value={deathData?.facility.id}
-                category={deathData?.facility.type}
+                category="facility"
               />) || 'Unknown'}
           </ContentText>
         </ContentItem>
