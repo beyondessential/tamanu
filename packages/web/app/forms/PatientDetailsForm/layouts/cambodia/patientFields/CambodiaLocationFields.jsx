@@ -39,6 +39,12 @@ export const CambodiaLocationFields = ({ filterByMandatory }) => {
     },
     streetVillage: {
       component: TextField,
+      label: (
+        <TranslatedText
+          stringId="cambodiaPatientDetails.streetNoAndName.label"
+          fallback="Street No. & Name"
+        />
+      ),
     },
   };
   return (

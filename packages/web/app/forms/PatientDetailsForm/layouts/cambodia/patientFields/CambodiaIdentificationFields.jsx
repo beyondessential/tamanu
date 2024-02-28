@@ -13,9 +13,21 @@ export const CambodiaIdentificationFields = ({ filterByMandatory }) => {
   const IDENTIFICATION_FIELDS = {
     birthCertificate: {
       component: TextField,
+      label: (
+        <TranslatedText
+          stringId="general.localisedField.birthCertificate.label"
+          fallback="Birth certificate number"
+        />
+      ),
     },
     passport: {
       component: TextField,
+      label: (
+        <TranslatedText
+          stringId="general.localisedField.passport.label"
+          fallback="Passport number"
+        />
+      ),
     },
   };
 

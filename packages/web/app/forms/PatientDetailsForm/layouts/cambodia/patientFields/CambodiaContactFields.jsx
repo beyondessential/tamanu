@@ -25,7 +25,7 @@ export const CambodiaContactFields = ({ filterByMandatory }) => {
       label: (
         <TranslatedText
           stringId="cambodiaPatientDetails.fathersContactNumber.label"
-          fallback="Mother's contact number"
+          fallback="Father's contact number"
         />
       ),
     },
