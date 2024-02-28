@@ -37,8 +37,10 @@ export const VACCINE_GIVEN_INITIAL_VALUES = {
   consent: false,
 };
 
-export const VACCINE_GIVEN_VALIDATION_SCHEMA = {
-  consent: yup.bool().oneOf([true], REQUIRED_INLINE_ERROR_MESSAGE),
+export const VACCINE_GIVEN_VALIDATION_SCHEMA = vaccineConsentEnabled => ({
+  consent: vaccineConsentEnabled
+    ? yup.bool().oneOf([true], REQUIRED_INLINE_ERROR_MESSAGE)
+    : yup.bool(),
   givenBy: yup.string().when('givenElsewhere', {
     is: true,
     then: yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
@@ -50,7 +52,7 @@ export const VACCINE_GIVEN_VALIDATION_SCHEMA = {
     then: yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
     otherwise: yup.string().nullable(),
   }),
-};
+});
 
 export const VaccineGivenForm = ({
   vaccineLabel,
@@ -66,6 +68,7 @@ export const VaccineGivenForm = ({
   setVaccineLabel,
   values,
   setValues,
+  vaccineConsentEnabled,
 }) => {
   const patient = useSelector(state => state.patient);
 
@@ -171,28 +174,20 @@ export const VaccineGivenForm = ({
 
       {!editMode && <RecordedByField />}
 
+      {vaccineConsentEnabled && (
+        <>
+          <StyledDivider />
+          <ConsentField
+            label={
+              values.givenElsewhere
+                ? 'Do you have consent to record this vaccine?'
+                : 'Do you have consent from the recipient/parent/guardian to give and record this vaccine?'
+            }
+          />
+          <ConsentGivenByField />
+        </>
+      )}
       <StyledDivider />
-
-      <ConsentField
-        label={
-          values.givenElsewhere ? (
-            <TranslatedText
-              stringId="vaccine.consentGivenElsewhere.label"
-              fallback="Do you have consent to record this vaccine?"
-            />
-          ) : (
-            <TranslatedText
-              stringId="vaccine.consent.label"
-              fallback="Do you have consent from the recipient/parent/guardian to give and record this vaccine?"
-            />
-          )
-        }
-      />
-
-      <ConsentGivenByField />
-
-      <StyledDivider />
-
       <ConfirmCancelRowField onConfirm={submitForm} editMode={editMode} onCancel={onCancel} />
     </TwoTwoGrid>
   );
