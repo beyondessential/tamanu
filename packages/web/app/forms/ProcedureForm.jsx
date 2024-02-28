@@ -138,20 +138,21 @@ export const ProcedureForm = React.memo(
                   rows={4}
                 />
                 <Field name="completed" label="Completed" component={CheckField} />
-                <Collapse in={isCompleted} style={{ gridColumn: 'span 2' }}>
-                  <Field
-                    name="completedNote"
-                    label="Notes on completed procedure"
-                    component={TextField}
-                    multiline
-                    rows={4}
-                  />
-                </Collapse>
-                <FormSubmitCancelRow
-                  onCancel={handleCancel}
-                  onConfirm={submitForm}
-                  confirmText={buttonText}
+              </Collapse>
+              <Collapse in={isCompleted} style={{ gridColumn: 'span 2' }}>
+                <Field
+                  name="completedNote"
+                  label="Notes on completed procedure"
+                  component={TextField}
+                  multiline
+                  rows={4}
                 />
+              </Collapse>
+              <FormSubmitCancelRow
+                onCancel={handleCancel}
+                onConfirm={submitForm}
+                confirmText={buttonText}
+              />
               </FormGrid>
             </div>
           );
