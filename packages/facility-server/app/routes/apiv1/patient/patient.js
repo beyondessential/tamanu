@@ -20,6 +20,7 @@ import { patientInvoiceRoutes } from './patientInvoice';
 import { patientRelations } from './patientRelations';
 import { patientBirthData } from './patientBirthData';
 import { patientLocations } from './patientLocations';
+import { patientVaccineScheduleRoutes } from './patientVaccineSchedule';
 import { patientProgramRegistration } from './patientProgramRegistration';
 import { getOrderClause } from '../../../database/utils';
 import { dbRecordToResponse, pickPatientBirthData, requestBodyToRecord } from './utils';
@@ -498,6 +499,7 @@ patientRoute.post(
 
 patientRoute.use(patientRelations);
 patientRoute.use(patientVaccineRoutes);
+patientRoute.use(patientVaccineScheduleRoutes);
 patientRoute.use(patientDocumentMetadataRoutes);
 patientRoute.use(patientInvoiceRoutes);
 patientRoute.use(patientBirthData);

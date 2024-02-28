@@ -98,7 +98,7 @@ patientVaccineRoutes.get(
     const availableVaccines = Object.values(vaccines).filter(v =>
       v.schedules.some(s => !s.administered),
     );
-    res.send(availableVaccines);
+    res.send(availableVaccines || []);
   }),
 );
 
