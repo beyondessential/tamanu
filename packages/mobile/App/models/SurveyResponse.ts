@@ -219,13 +219,8 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
         }
         const { dataElement } = component;
 
-        if (isCalculated(dataElement.type) && value !== 0 && !value) {
-          // calculated values will always be in the answer object - but we
-          // shouldn't save null answers
-          continue;
-        }
-
         const body = getStringValue(dataElement.type, value);
+        // Don't create null answers
         if (body === null) continue;
 
         setNote(`Attaching answer for ${dataElement.id}...`);
