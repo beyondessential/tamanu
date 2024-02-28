@@ -11,6 +11,7 @@ import { Dialog } from '../Dialog';
 import { FORM_STATUSES, FORM_TYPES } from '../../constants';
 import { useFormSubmission } from '../../contexts/FormSubmission';
 import { IS_DEVELOPMENT } from '../../utils/env';
+import { TranslatedText } from '../Translation/TranslatedText';
 
 const ErrorMessage = ({ error }) => `${JSON.stringify(error)}`;
 
@@ -286,7 +287,12 @@ export class Form extends React.PureComponent {
           <Dialog
             isVisible={hasErrors}
             onClose={this.hideErrorDialog}
-            headerTitle="Please fix below errors to continue"
+            headerTitle={
+              <TranslatedText
+                stringId="general.form.validationError.heading"
+                fallback="Please fix below errors to continue"
+              />
+            }
             disableDevWarning
             contentText={<FormErrors errors={validationErrors} />}
           />

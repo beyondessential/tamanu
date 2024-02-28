@@ -14,20 +14,12 @@ const shouldPrefillDefaultValue = ({ initialValue, formType, hidden, defaultValu
   return !hidden && formType === FORM_TYPES.CREATE_FORM && !initialValue && defaultValue;
 };
 
-export const LocalisedField = ({
-  name,
-  useShortLabel,
-  path = `fields.${name}`,
-  defaultLabel,
-  ...props
-}) => {
+export const LocalisedField = ({ name, path = `fields.${name}`, label, ...props }) => {
   const { getLocalisation } = useLocalisation();
 
-  const { hidden, defaultValue, shortLabel, longLabel, required = false } =
+  const { hidden, defaultValue, required = false } =
     getLocalisation(path) || {};
   const { initialValues, status = {}, setFieldValue } = useFormikContext();
-
-  const label = (useShortLabel ? shortLabel : longLabel) || defaultLabel || path;
 
   const { formType } = status;
   const initialValue = initialValues[name];
@@ -54,9 +46,9 @@ export const useLocalisedSchema = () => {
   const { getLocalisation } = useLocalisation();
   return {
     getLocalisedSchema: ({ name, path = `fields.${name}` }) => {
-      const { hidden, longLabel = path, required = false } = getLocalisation(`${path}`) || {};
+      const { hidden, required = false } = getLocalisation(`${path}`) || {};
       if (hidden) return yup.string().nullable();
-      if (required) return yup.string().required(`${longLabel} is a required field`);
+      if (required) return yup.string().required('Required');
       return yup.string();
     },
   };

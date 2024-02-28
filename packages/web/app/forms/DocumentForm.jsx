@@ -14,6 +14,7 @@ import { FileChooserField } from '../components/Field/FileChooserField';
 import { FormGrid } from '../components/FormGrid';
 import { ConfirmCancelRow, FormSubmitCancelRow } from '../components/ButtonRow';
 import { FORM_TYPES } from '../constants';
+import { TranslatedText } from '../components/Translation/TranslatedText';
 
 const MessageContainer = styled.div`
   margin: 0 auto;
@@ -68,27 +69,42 @@ const DocumentFormContents = ({ submitForm, departmentSuggester, onCancel }) => 
       <Field
         component={FileChooserField}
         filters={FILE_FILTERS}
-        label="Select file"
+        label={<TranslatedText stringId="general.selectFile.label" fallback="Select file" />}
         name="file"
         required
         style={{ gridColumn: '1 / -1' }}
       />
       <Field
         name="name"
-        label="File name"
+        label={<TranslatedText stringId="general.fileName.label" fallback="File name" />}
         required
         component={TextField}
         style={{ gridColumn: '1 / -1' }}
       />
-      <Field name="documentOwner" label="Document owner" component={TextField} />
+      <Field
+        name="documentOwner"
+        label={
+          <TranslatedText stringId="document.documentOwner.label" fallback="Document owner" />
+        }
+        component={TextField}
+      />
       <Field
         name="departmentId"
-        label="Department"
+        label={<TranslatedText stringId="general.department.label" fallback="Department" />}
         component={AutocompleteField}
         suggester={departmentSuggester}
       />
-      <Field name="note" label="Note" component={TextField} style={{ gridColumn: '1 / -1' }} />
-      <FormSubmitCancelRow confirmText="Add" onConfirm={submitForm} onCancel={onCancel} />
+      <Field
+        name="note"
+        label={<TranslatedText stringId="general.note.label" fallback="Note" />}
+        component={TextField}
+        style={{ gridColumn: '1 / -1' }}
+      />
+      <FormSubmitCancelRow
+        confirmText={<TranslatedText stringId="general.action.add" fallback="Add" />}
+        onConfirm={submitForm}
+        onCancel={onCancel}
+      />
     </FormGrid>
   );
 };

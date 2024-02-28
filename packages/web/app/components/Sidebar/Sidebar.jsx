@@ -4,8 +4,9 @@ import { Box, Button, Divider, IconButton, List, Typography } from '@material-ui
 import { Launch, NavigateBefore, NavigateNext } from '@material-ui/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
-import { TamanuLogoWhite, TamanuLogoWhiteNoText } from '../TamanuLogo';
 import { getCurrentRoute } from '../../store/router';
+
+import { LogoLight, LogoLightNoText } from '../Logo';
 import { Colors } from '../../constants';
 import { HiddenSyncAvatar } from '../HiddenSyncAvatar';
 import { TopLevelSidebarItem } from './TopLevelSidebarItem';
@@ -14,6 +15,7 @@ import { SecondarySidebarItem } from './SecondarySidebarItem';
 import { checkAbility } from '../../utils/ability';
 import { useAuth } from '../../contexts/Auth';
 import { useApi } from '../../api';
+import { TranslatedText } from '../Translation/TranslatedText';
 import { useLocalisation } from '../../contexts/Localisation';
 
 const Container = styled.div`
@@ -61,9 +63,9 @@ const ExtendButton = styled(RetractExtendButton)`
   transform: translate(100%);
 `;
 
-const ExtendedLogo = styled(TamanuLogoWhite)``;
+const ExtendedLogo = styled(LogoLight)``;
 
-const RetractedLogo = styled(TamanuLogoWhiteNoText)``;
+const RetractedLogo = styled(LogoLightNoText)``;
 
 const Footer = styled.div`
   margin-top: auto;
@@ -303,7 +305,7 @@ export const Sidebar = React.memo(({ items }) => {
                   id="logout"
                   data-test-id="siderbar-logout-item"
                 >
-                  Logout
+                  <TranslatedText stringId="auth.action.logout" fallback="Log out" />
                 </LogoutButton>
               </Box>
             </StyledUserInfoContent>
@@ -314,10 +316,15 @@ export const Sidebar = React.memo(({ items }) => {
             <StyledDivider $invisible={isRetracted} />
             <StyledMetadataBox display="flex" justifyContent="space-between">
               <SupportDesktopLink href={supportUrl} target="_blank" rel="noreferrer">
-                Support centre
+                <TranslatedText
+                  stringId="sidebar.externalLink.supportCentre"
+                  fallback="Support centre"
+                />
                 <Launch style={{ marginLeft: '5px', fontSize: '12px' }} />
               </SupportDesktopLink>
-              <Version>Version {agentVersion}</Version>
+              <Version>
+                <TranslatedText stringId="general.meta.version" fallback="Version" /> {agentVersion}
+              </Version>
             </StyledMetadataBox>
           </>
         )}

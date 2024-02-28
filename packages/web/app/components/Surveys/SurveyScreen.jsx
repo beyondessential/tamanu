@@ -7,6 +7,7 @@ import { Button, OutlinedButton } from '../Button';
 import { SurveyQuestion } from './SurveyQuestion';
 import { ButtonRow } from '../ButtonRow';
 import { FORM_STATUSES } from '../../constants';
+import { TranslatedText } from '../Translation/TranslatedText';
 
 const StyledButtonRow = styled(ButtonRow)`
   margin-top: 24px;
@@ -119,10 +120,10 @@ export const SurveyScreen = ({
         {submitButton || (
           <>
             <OutlinedButton onClick={onStepBack || undefined} disabled={!onStepBack}>
-              Prev
+              <TranslatedText stringId="general.action.previous" fallback="Prev" />
             </OutlinedButton>
             <Button color="primary" variant="contained" onClick={validateAndStep}>
-              Next
+              <TranslatedText stringId="general.action.next" fallback="Next" />
             </Button>
           </>
         )}

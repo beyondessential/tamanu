@@ -11,7 +11,7 @@ import {
   DateField,
   LocalisedField,
   SearchField,
-  SelectField,
+  BaseSelectField,
 } from '../../components';
 import { useProgramRegistryQuery } from '../../api/queries/useProgramRegistryQuery';
 import { useProgramRegistryConditions } from '../../api/queries/useProgramRegistryConditions';
@@ -55,7 +55,7 @@ export const ProgramRegistrySearchBar = ({ searchParameters, setSearchParameters
           <LocalisedField
             name="sex"
             defaultLabel="Sex"
-            component={SelectField}
+            component={BaseSelectField}
             options={sexOptions}
             size="small"
           />
@@ -115,7 +115,7 @@ export const ProgramRegistrySearchBar = ({ searchParameters, setSearchParameters
       <LocalisedField
         defaultLabel="Related condition"
         name="programRegistryCondition"
-        component={SelectField}
+        component={BaseSelectField}
         options={programRegistryConditions?.data.map(x => ({ label: x.name, value: x.id }))}
         size="small"
       />

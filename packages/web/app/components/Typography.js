@@ -21,26 +21,30 @@ export const SmallBodyText = styled(Typography)`
   line-height: 15px;
 `;
 
-export const Heading2 = styled(Typography)`
+export const Heading2 = styled(Typography).attrs({ component: 'h2' })`
   font-weight: 500;
   font-size: 20px;
   line-height: 28px;
 `;
 
-export const Heading3 = styled(Typography)`
+export const Heading3 = styled(Typography).attrs({ component: 'h3' })`
   font-weight: 500;
   font-size: 18px;
   line-height: 24px;
 `;
 
-export const Heading4 = styled(Typography)`
+export const Heading4 = styled(Typography).attrs({ component: 'h4' })`
   font-weight: 500;
   font-size: 16px;
   line-height: 21px;
 `;
 
-export const Heading5 = styled(Typography)`
+export const Heading5 = styled(Typography).attrs({ component: 'h5' })`
   font-weight: 500;
   font-size: 14px;
   line-height: 18px;
+`;
+
+export const LowerCase = styled.span`
+  text-transform: lowercase;
 `;

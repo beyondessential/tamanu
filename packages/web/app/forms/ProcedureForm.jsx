@@ -18,8 +18,8 @@ import { FormGrid } from '../components/FormGrid';
 import { FormSubmitCancelRow } from '../components/ButtonRow';
 
 import { foreignKey, optionalForeignKey } from '../utils/validation';
-import { useLocalisedText } from '../components';
 import { FORM_TYPES } from '../constants';
+import { TranslatedText } from '../components/Translation/TranslatedText';
 
 const suggesterType = PropTypes.shape({
   fetchSuggestions: PropTypes.func,
@@ -34,95 +34,108 @@ export const ProcedureForm = React.memo(
     anaestheticSuggester,
     procedureSuggester,
     practitionerSuggester,
-  }) => {
-    const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
+  }) => (
+    <Form
+      onSubmit={onSubmit}
+      render={({ submitForm, values }) => {
+        const handleCancel = () => onCancel && onCancel();
+        const getButtonText = isCompleted => {
+          if (isCompleted)
+            return <TranslatedText stringId="general.action.finalise" fallback="Finalise" />;
+          if (editedObject?.id)
+            return <TranslatedText stringId="general.action.update" fallback="Update" />;
+          return <TranslatedText stringId="general.action.submit" fallback="Submit" />;
+        };
 
-    return (
-      <Form
-        onSubmit={onSubmit}
-        render={({ submitForm, values }) => {
-          const handleCancel = () => onCancel && onCancel();
-          const getButtonText = isCompleted => {
-            if (isCompleted) return 'Finalise';
-            if (editedObject?.id) return 'Update';
-            return 'Submit';
-          };
-
-          const isCompleted = !!values.completed;
-          const buttonText = getButtonText(isCompleted);
-          return (
-            <div>
-              <FormGrid>
-                <div style={{ gridColumn: 'span 2' }}>
-                  <Field
-                    name="procedureTypeId"
-                    label="Procedure"
-                    required
-                    component={AutocompleteField}
-                    suggester={procedureSuggester}
-                  />
-                </div>
-                <FormGrid style={{ gridColumn: 'span 2' }}>
-                  <Field
-                    name="physicianId"
-                    label={clinicianText}
-                    required
-                    component={AutocompleteField}
-                    suggester={practitionerSuggester}
-                  />
-                  <Field
-                    name="date"
-                    label="Procedure date"
-                    saveDateAsString
-                    required
-                    component={DateField}
-                  />
-                  <Field
-                    locationGroupLabel="Procedure area"
-                    label="Procedure location"
-                    name="locationId"
-                    enableLocationStatus={false}
-                    required
-                    component={LocationField}
-                  />
-                </FormGrid>
-                <FormGrid style={{ gridColumn: 'span 2' }}>
-                  <Field
-                    name="startTime"
-                    label="Time started"
-                    component={TimeField}
-                    saveDateAsString
-                  />
-                  <Field name="endTime" label="Time ended" component={TimeField} saveDateAsString />
-                </FormGrid>
-
+        const isCompleted = !!values.completed;
+        const buttonText = getButtonText(isCompleted);
+        return (
+          <div>
+            <FormGrid>
+              <div style={{ gridColumn: 'span 2' }}>
                 <Field
-                  name="anaesthetistId"
-                  label="Anaesthetist"
+                  name="procedureTypeId"
+                  label="Procedure"
+                  required
+                  component={AutocompleteField}
+                  suggester={procedureSuggester}
+                />
+              </div>
+              <FormGrid style={{ gridColumn: 'span 2' }}>
+                <Field
+                  name="physicianId"
+                  label={
+                    <TranslatedText
+                      stringId="general.localisedField.practitioner.label.short"
+                      label="Practitioner"
+                    />
+                  }
+                  required
                   component={AutocompleteField}
                   suggester={practitionerSuggester}
                 />
                 <Field
-                  name="anaestheticId"
-                  label="Anaesthetic type"
-                  component={AutocompleteField}
-                  suggester={anaestheticSuggester}
-                  rows={4}
-                  style={{ gridColumn: 'span 2' }}
+                  name="date"
+                  label="Procedure date"
+                  saveDateAsString
+                  required
+                  component={DateField}
                 />
                 <Field
-                  name="assistantId"
-                  label="Assistant"
-                  component={AutocompleteField}
-                  suggester={practitionerSuggester}
+                  locationGroupLabel="Procedure area"
+                  label="Procedure location"
+                  name="locationId"
+                  enableLocationStatus={false}
+                  required
+                  component={LocationField}
                 />
+              </FormGrid>
+              <FormGrid style={{ gridColumn: 'span 2' }}>
                 <Field
-                  name="note"
-                  label="Notes or additional instructions"
+                  name="startTime"
+                  label="Time started"
+                  component={TimeField}
+                  saveDateAsString
+                />
+                <Field name="endTime" label="Time ended" component={TimeField} saveDateAsString />
+              </FormGrid>
+
+              <Field
+                name="anaesthetistId"
+                label="Anaesthetist"
+                component={AutocompleteField}
+                suggester={practitionerSuggester}
+              />
+              <Field
+                name="anaestheticId"
+                label="Anaesthetic type"
+                component={AutocompleteField}
+                suggester={anaestheticSuggester}
+                rows={4}
+                style={{ gridColumn: 'span 2' }}
+              />
+              <Field
+                name="assistantId"
+                label="Assistant"
+                component={AutocompleteField}
+                suggester={practitionerSuggester}
+              />
+              <Field
+                name="note"
+                label="Notes or additional instructions"
+                component={TextField}
+                multiline
+                rows={4}
+                style={{ gridColumn: 'span 2' }}
+              />
+              <Field name="completed" label="Completed" component={CheckField} />
+              <Collapse in={isCompleted} style={{ gridColumn: 'span 2' }}>
+                <Field
+                  name="completedNote"
+                  label="Notes on completed procedure"
                   component={TextField}
                   multiline
                   rows={4}
-                  style={{ gridColumn: 'span 2' }}
                 />
                 <Field name="completed" label="Completed" component={CheckField} />
                 <Collapse in={isCompleted} style={{ gridColumn: 'span 2' }}>

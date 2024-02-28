@@ -15,6 +15,7 @@ import { AccessorField, LabResultAccessorField } from './AccessorField';
 import { ConfirmCancelRow } from '../../../components/ButtonRow';
 import { useApi } from '../../../api';
 import { useAuth } from '../../../contexts/Auth';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const TableContainer = styled.div`
   overflow-y: auto;
@@ -68,13 +69,13 @@ const getColumns = (count, onChangeResult, areLabTestResultsReadOnly) => {
   return [
     {
       key: 'labTestType',
-      title: 'Test type',
+      title: <TranslatedText stringId="lab.results.table.column.testType" fallback="Test type" />,
       width: '120px',
       accessor: row => row.labTestType.name,
     },
     {
       key: LAB_TEST_PROPERTIES.RESULT,
-      title: 'Result',
+      title: <TranslatedText stringId="lab.results.table.column.result" fallback="Result" />,
       accessor: (row, i) => {
         const { resultType, options } = row.labTestType;
         return (
@@ -92,13 +93,13 @@ const getColumns = (count, onChangeResult, areLabTestResultsReadOnly) => {
     },
     {
       key: 'unit',
-      title: 'Units',
+      title: <TranslatedText stringId="lab.results.table.column.unit" fallback="Units" />,
       width: '80px',
       accessor: row => <BodyText color="textTertiary">{row.labTestType.unit || 'N/A'}</BodyText>,
     },
     {
       key: LAB_TEST_PROPERTIES.LAB_TEST_METHOD_ID,
-      title: 'Method',
+      title: <TranslatedText stringId="lab.results.table.column.method" fallback="Method" />,
       accessor: (row, i) => (
         <AccessorField
           id={row.id}
@@ -111,7 +112,9 @@ const getColumns = (count, onChangeResult, areLabTestResultsReadOnly) => {
     },
     {
       key: LAB_TEST_PROPERTIES.VERIFICATION,
-      title: 'Verification',
+      title: (
+        <TranslatedText stringId="lab.results.table.column.verification" fallback="Verification" />
+      ),
       accessor: (row, i) => (
         <AccessorField
           id={row.id}
@@ -123,7 +126,9 @@ const getColumns = (count, onChangeResult, areLabTestResultsReadOnly) => {
     },
     {
       key: LAB_TEST_PROPERTIES.COMPLETED_DATE,
-      title: 'Completed',
+      title: (
+        <TranslatedText stringId="lab.results.table.column.completedDate" fallback="Completed" />
+      ),
       width: '260px',
       accessor: (row, i) => (
         <AccessorField
@@ -208,9 +213,17 @@ const ResultsForm = ({
     <Box>
       <Box margin="0px 30px" paddingBottom="20px">
         <div>
-          <Heading4 marginBottom="10px">Enter test results</Heading4>
+          <Heading4 marginBottom="10px">
+            <TranslatedText
+              stringId="patient.lab.modal.enterResults.heading"
+              fallback="Enter test results"
+            />
+          </Heading4>
           <SmallBodyText color="textTertiary">
-            Please record test results and other test result details.
+            <TranslatedText
+              stringId="patient.lab.modal.enterResults.subHeading"
+              fallback="Please record test results and other test result details."
+            />
           </SmallBodyText>
         </div>
       </Box>
@@ -266,7 +279,13 @@ export const LabTestResultsModal = ({ labRequest, refreshLabTestTable, onClose, 
   return (
     <StyledModal
       width="lg"
-      title={`Enter results | Test ID ${displayId}`}
+      title={
+        <TranslatedText
+          stringId="patient.lab.modal.enterResults.title"
+          fallback="Enter results | Test ID :testId"
+          replacements={{ testId: displayId }}
+        />
+      }
       open={open}
       onClose={onClose}
       overrideContentPadding

@@ -17,6 +17,7 @@ import {
   TextField,
 } from '../components';
 import { FORM_TYPES } from '../constants';
+import { TranslatedText } from '../components/Translation/TranslatedText';
 
 const Container = styled.div`
   display: flex;
@@ -145,7 +146,7 @@ export const LabRequestNoteForm = React.memo(({ labRequestId, isReadOnly }) => {
                 </Box>
               ) : (
                 <ShowAddNoteFormButton $underline onClick={() => setActive(true)}>
-                  Add note
+                  <TranslatedText stringId="general.action.addNote" fallback="Add note" />
                 </ShowAddNoteFormButton>
               );
             }}

@@ -156,6 +156,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
                     component={MultiselectField}
                     options={conditions}
                     disabled={!conditions || conditions.length === 0}
+                    prefix="programRegistry.property.relatedCondition"
                   />
                 </FormGrid>
               </FormGrid>

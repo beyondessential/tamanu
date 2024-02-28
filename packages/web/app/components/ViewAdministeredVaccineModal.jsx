@@ -10,7 +10,8 @@ import { useApi } from '../api';
 
 import { DateDisplay } from './DateDisplay';
 import { Modal } from './Modal';
-import { useLocalisedText } from './LocalisedText';
+import { TranslatedText } from './Translation/TranslatedText';
+import { LowerCase } from './Typography';
 
 const Container = styled.div`
   display: flex;
@@ -73,8 +74,16 @@ const ErrorMessage = () => {
   return (
     <Box p={5}>
       <Alert severity="error">
-        <AlertTitle>Error: Cannot load view modal for this vaccine</AlertTitle>
-        Please contact Tamanu administrator
+        <AlertTitle>
+          <TranslatedText
+            stringId="vaccine.error.cantLoadVaccine.title"
+            fallback="Error: Cannot load view modal for this vaccine"
+          />
+        </AlertTitle>
+        <TranslatedText
+          stringId="vaccine.error.cantLoadVaccine.subTitle"
+          fallback="Please contact administrator"
+        />
       </Alert>
     </Box>
   );
@@ -101,7 +110,6 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
     encounter,
     circumstanceIds,
   } = vaccineRecord;
-  const notGivenReasonLabelText = useLocalisedText({ path: 'fields.notGivenReasonId.shortLabel' });
   const routine = !vaccineName;
   const notGiven = VACCINE_STATUS.NOT_GIVEN === status;
 
@@ -117,33 +125,104 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
   if (!vaccineRecord) return null;
 
   const fieldObjects = {
-    vaccine: { label: 'Vaccine', value: vaccineLabel || '-' },
-    batch: { label: 'Batch', value: batch || '-' },
-    schedule: { label: 'Schedule', value: schedule || '-' },
-    dateRecorded: { label: 'Date recorded', value: <DateDisplay date={date} /> },
-    dateGiven: { label: 'Date given', value: <DateDisplay date={date} /> },
-    injectionSite: { label: 'Injection site', value: injectionSite || '-' },
-    area: { label: 'Area', value: location?.locationGroup?.name || '-' },
-    location: { label: 'Location', value: location?.name || '-' },
-    department: { label: 'Department', value: department?.name || '-' },
+    vaccine: {
+      label: <TranslatedText stringId="vaccine.vaccine.label" fallback="Vaccine" />,
+      value: vaccineLabel || '-',
+    },
+    batch: {
+      label: <TranslatedText stringId="vaccine.batch.label" fallback="Batch" />,
+      value: batch || '-',
+    },
+    schedule: {
+      label: <TranslatedText stringId="vaccine.schedule.label" fallback="Schedule" />,
+      value: schedule || '-',
+    },
+    dateRecorded: {
+      label: <TranslatedText stringId="vaccine.dateRecorded.label" fallback="Date recorded" />,
+      value: <DateDisplay date={date} />,
+    },
+    dateGiven: {
+      label: <TranslatedText stringId="vaccine.dateGiven.label" fallback="Date given" />,
+      value: <DateDisplay date={date} />,
+    },
+    injectionSite: {
+      label: <TranslatedText stringId="vaccine.injectionSite.label" fallback="Injection site" />,
+      value: injectionSite || '-',
+    },
+    area: {
+      label: <TranslatedText stringId="general.area.label" fallback="Area" />,
+      value: location?.locationGroup?.name || '-',
+    },
+    location: {
+      label: <TranslatedText stringId="general.location.label" fallback="Location" />,
+      value: location?.name || '-',
+    },
+    department: {
+      label: <TranslatedText stringId="general.department.label" fallback="Department" />,
+      value: department?.name || '-',
+    },
     facility: {
-      label: 'Facility',
+      label: <TranslatedText stringId="general.facility.label" fallback="Facility" />,
       value: location?.facility.name || encounter.location.facility.name || '-',
     },
-    givenBy: { label: 'Given by', value: givenBy || '-' },
-    supervisingClinician: { label: 'Supervising clincian', value: givenBy || '-' },
-    recordedBy: { label: 'Recorded by', value: recorder?.displayName || '-' },
-    vaccineName: { label: 'Vaccine name', value: vaccineName || '-' },
-    vaccineBrand: { label: 'Vaccine brand', value: vaccineBrand || '-' },
-    disease: { label: 'Disease', value: disease || '-' },
+    givenBy: {
+      label: <TranslatedText stringId="vaccine.givenBy.label" fallback="Given by" />,
+      value: givenBy || '-',
+    },
+    supervisingClinician: {
+      label: (
+        <TranslatedText
+          stringId="general.supervisingClinician.label"
+          fallback="Supervising :clinician"
+          replacements={{
+            clinician: (
+              <LowerCase>
+                <TranslatedText
+                  stringId="general.localisedField.clinician.label.short"
+                  fallback="Clinician"
+                />
+              </LowerCase>
+            ),
+          }}
+        />
+      ),
+      value: givenBy || '-',
+    },
+    recordedBy: {
+      label: <TranslatedText stringId="vaccine.recordedBy.label" fallback="Recorded by" />,
+      value: recorder?.displayName || '-',
+    },
+    vaccineName: {
+      label: <TranslatedText stringId="vaccine.vaccineName.label" fallback="Vaccine name" />,
+      value: vaccineName || '-',
+    },
+    vaccineBrand: {
+      label: <TranslatedText stringId="vaccine.vaccineBrand.label" fallback="Vaccine brand" />,
+      value: vaccineBrand || '-',
+    },
+    disease: {
+      label: <TranslatedText stringId="vaccine.disease.label" fallback="Disease" />,
+      value: disease || '-',
+    },
     status: {
-      label: 'Status',
+      label: <TranslatedText stringId="vaccine.status.label" fallback="Status" />,
       value: givenElsewhere ? 'Given elsewhere' : VACCINE_STATUS_LABELS[status] || '-',
     },
-    country: { label: 'Country', value: givenBy || '-' },
-    reason: { label: notGivenReasonLabelText, value: notGivenReason?.name || '-' },
+    country: {
+      label: <TranslatedText stringId="vaccine.country.label" fallback="Country" />,
+      value: givenBy || '-',
+    },
+    reason: {
+      label: (
+        <TranslatedText
+          stringId="general.localisedField.notGivenReasonId.label.short"
+          fallback="Clinician"
+        />
+      ),
+      value: notGivenReason?.name || '-',
+    },
     circumstance: {
-      label: 'Circumstance',
+      label: <TranslatedText stringId="vaccine.circumstance.label" fallback="Circumstance" />,
       value:
         vaccineCircumstances?.length > 0
           ? vaccineCircumstances?.map(circumstance => circumstance?.name)?.join(', ')
@@ -388,9 +467,16 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
 export const ViewAdministeredVaccineModal = ({ open, onClose, vaccineRecord }) => {
   if (!vaccineRecord) return null;
   return (
-    <Modal title="View vaccine record" open={open} onClose={onClose}>
+    <Modal
+      title={<TranslatedText stringId="vaccine.modal.view.title" fallback="View vaccine record" />}
+      open={open}
+      onClose={onClose}
+    >
       <ViewAdministeredVaccineContent vaccineRecord={vaccineRecord} />
-      <ModalActionRow confirmText="Close" onConfirm={onClose} />
+      <ModalActionRow
+        confirmText={<TranslatedText stringId="general.action.close" fallback="Close" />}
+        onConfirm={onClose}
+      />
     </Modal>
   );
 };

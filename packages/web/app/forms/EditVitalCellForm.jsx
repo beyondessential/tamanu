@@ -6,7 +6,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { FormSubmitCancelRow } from '../components/ButtonRow';
-import { Field, Form, OuterLabelFieldWrapper, SelectField } from '../components/Field';
+import { Field, Form, OuterLabelFieldWrapper, BaseSelectField } from '../components/Field';
 import { useLocalisation } from '../contexts/Localisation';
 import { FormGrid } from '../components/FormGrid';
 import { FormSeparatorLine } from '../components/FormSeparatorLine';
@@ -16,6 +16,7 @@ import { Colors, FORM_TYPES } from '../constants';
 import { useApi } from '../api';
 import { useEncounter } from '../contexts/Encounter';
 import { DateDisplay } from '../components/DateDisplay';
+import { TranslatedText } from '../components/Translation/TranslatedText';
 
 const Text = styled(Typography)`
   font-size: 14px;
@@ -28,7 +29,9 @@ const DeleteEntryButton = ({ disabled, onClick }) => (
   <Box display="flex" alignSelf="start" marginTop="18px">
     <IconButton color="primary" edge="start" disabled={disabled} onClick={onClick} disableRipple>
       <DeleteOutlineIcon fontSize="small" />
-      <Text>Delete entry</Text>
+      <Text>
+        <TranslatedText stringId="encounter.vitals.action.deleteEntry" fallback="Delete entry" />
+      </Text>
     </IconButton>
   </Box>
 );
@@ -71,7 +74,15 @@ const HistoryLog = ({ logData, vitalLabel, vitalEditReasons }) => {
       <LogText>
         {vitalLabel}: {newValue === '' ? 'Entry deleted' : newValue}
       </LogText>
-      {reasonForChange && <LogText>Reason for change to record: {reasonForChangeLabel}</LogText>}
+      {reasonForChange && (
+        <LogText>
+          <TranslatedText
+            stringId="encounter.vitals.editReason.label"
+            fallback="Reason for change to record"
+          />
+          : {reasonForChangeLabel}
+        </LogText>
+      )}
       <LogTextSmall>
         {userDisplayName} <DateDisplay date={date} showTime shortYear />
       </LogTextSmall>
@@ -151,14 +162,24 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose }) => {
           )}
           <Field
             required={mandatoryVitalEditReason}
-            component={SelectField}
-            label="Reason for change to record"
+            component={BaseSelectField}
+            label={
+              <TranslatedText
+                stringId="encounter.vitals.editReason.label"
+                fallback="Reason for change to record"
+              />
+            }
             name="reasonForChange"
             options={vitalEditReasons}
             style={{ gridColumn: '1 / 4' }}
           />
           <FormSeparatorLine />
-          <OuterLabelFieldWrapper label="History" style={{ gridColumn: '1 / -1' }}>
+          <OuterLabelFieldWrapper
+            label={
+              <TranslatedText stringId="encounter.vitals.history.label" fallback="History" />
+            }
+            style={{ gridColumn: '1 / -1' }}
+          >
             <Box
               height="162px"
               overflow="auto"
@@ -177,7 +198,11 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose }) => {
               ))}
             </Box>
           </OuterLabelFieldWrapper>
-          <FormSubmitCancelRow onCancel={handleClose} onConfirm={submitForm} confirmText="Save" />
+          <FormSubmitCancelRow
+            onCancel={handleClose}
+            onConfirm={submitForm}
+            confirmText={<TranslatedText stringId="general.action.save" fallback="Save" />}
+          />
         </FormGrid>
       )}
     />

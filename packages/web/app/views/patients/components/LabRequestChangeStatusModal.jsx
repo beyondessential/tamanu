@@ -9,8 +9,8 @@ import {
   FormGrid,
   FormModal,
   FormSubmitCancelRow,
-  SelectField,
   SuggesterSelectField,
+  SelectField,
 } from '../../../components';
 
 import { FORM_TYPES, LAB_REQUEST_STATUS_OPTIONS } from '../../../constants';
@@ -51,6 +51,7 @@ export const LabRequestChangeStatusModal = React.memo(
                 options={LAB_REQUEST_STATUS_OPTIONS}
                 component={SelectField}
                 required
+                prefix="lab.property.status"
               />
               {labRequest.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED &&
                 values.status !== LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED && (
