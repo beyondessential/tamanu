@@ -20,24 +20,24 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { Routes } from '~/ui/helpers/routes';
 
 const contactMockData = [
-  {
-    contactId: '1',
-    contactName: 'Lorem Ipsum',
-    relationShip: 'Friend',
-    contactMethod: 'Telegram',
-  },
-  {
-    contactId: '2',
-    contactName: 'dolor sit',
-    relationShip: 'Father',
-    contactMethod: 'Telegram',
-  },
-  {
-    contactId: '3',
-    contactName: 'consectetur adipisicing',
-    relationShip: 'Cousin',
-    contactMethod: 'Telegram',
-  },
+  // {
+  //   contactId: '1',
+  //   contactName: 'Lorem Ipsum',
+  //   relationShip: 'Friend',
+  //   contactMethod: 'Telegram',
+  // },
+  // {
+  //   contactId: '2',
+  //   contactName: 'dolor sit',
+  //   relationShip: 'Father',
+  //   contactMethod: 'Telegram',
+  // },
+  // {
+  //   contactId: '3',
+  //   contactName: 'consectetur adipisicing',
+  //   relationShip: 'Cousin',
+  //   contactMethod: 'Telegram',
+  // },
 ];
 const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
   const [selectedContact, setSelectedContact] = useState();
@@ -78,13 +78,14 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
               >
                 {contactMockData.length > 0 ? (
                   <>
-                    The below contact list is registered to receive reminders for{' '}
+                    The below contact list is registered to receive reminders for
                     {joinNames(selectedPatient)}.
                   </>
                 ) : (
                   <>
-                    There are no contacts registered to receive reminders for{' '}
-                    {joinNames(selectedPatient)}. Please select 'Add contact' to register a contact.
+                    There are no contacts registered to receive reminders for
+                    {joinNames(selectedPatient)}. Please select &apos;Add contact&apos; to register
+                    a contact.
                   </>
                 )}
               </StyledText>
