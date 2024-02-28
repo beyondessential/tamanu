@@ -135,9 +135,7 @@ const useSelectable = formType => {
   });
 };
 
-const queryBySearch = (formType, data, { search, labTestCategoryId }) => {
-  const { getTranslation } = useTranslation();
-
+const queryBySearch = (formType, data, { search, labTestCategoryId }, getTranslation) => {
   return data.filter(result => {
     const nameMatch = subStrSearch(search, result.name);
     if (formType === LAB_REQUEST_FORM_TYPES.PANEL) {
@@ -175,7 +173,8 @@ export const TestSelectorInput = ({
   });
 
   const { data, isFetching } = useSelectable(requestFormType);
-  const queriedData = queryBySearch(requestFormType, data, searchQuery).sort(sortByCategoryAndName);
+  const { getTranslation } = useTranslation();
+  const queriedData = queryBySearch(requestFormType, data, searchQuery, getTranslation).sort(sortByCategoryAndName);
 
   const showLoadingText = isLoading || isFetching;
   const selected = useMemo(() => data.filter(({ id }) => value.includes(id)), [data, value]);
