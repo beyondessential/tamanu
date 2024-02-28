@@ -13,9 +13,9 @@ import {
   SOCIAL_MEDIA_OPTIONS,
   TITLE_OPTIONS,
 } from '../../../../../constants';
-import { usePatientSuggester, useSuggester } from '../../api';
-import { ConfiguredMandatoryPatientFields } from './ConfiguredMandatoryPatientFields';
-import { TranslatedText } from '../Translation/TranslatedText';
+import { ConfiguredMandatoryPatientFields } from '../../../ConfiguredMandatoryPatientFields';
+import { useSuggester, usePatientSuggester } from '../../../../../api';
+import { TranslatedText } from '../../../../../components/Translation/TranslatedText';
 
 export const GenericPersonalFields = ({ patientRegistryType, filterByMandatory }) => {
   const countrySuggester = useSuggester('country');
