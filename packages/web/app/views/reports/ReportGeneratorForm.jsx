@@ -31,7 +31,6 @@ import { ParameterField } from './ParameterField';
 import { useLocalisation } from '../../contexts/Localisation';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { ReportAboutModal } from './ReportAboutModal';
-import { CAMBODIA_REPORT_NAMES, checkIsURLCambodia } from '../../utils/cambodiaMode';
 
 const Spacer = styled.div`
   padding-top: 30px;
@@ -154,11 +153,7 @@ export const ReportGeneratorForm = () => {
     (async () => {
       try {
         const reports = await api.get('reports');
-
-        const visibleReports = checkIsURLCambodia()
-          ? reports.filter(report => CAMBODIA_REPORT_NAMES.includes(report.name))
-          : reports;
-        setAvailableReports(visibleReports);
+        setAvailableReports(reports);
       } catch (error) {
         setRequestError(
           `${(
