@@ -1,4 +1,4 @@
-import { SYNC_DIRECTIONS } from '@tamanu/constants';
+import { SYNC_DIRECTIONS, ENGLISH_LANGUAGE_CODE, REFERENCE_DATA_TRANSLATION_PREFIX } from '@tamanu/constants';
 import { DataTypes, Op } from 'sequelize';
 import { Model } from './Model';
 
@@ -85,12 +85,12 @@ export class TranslatedString extends Model {
     return { languagesInDb, languageNames };
   };
 
-  static getReferenceDataTranslationsByEndpoint = async ({ language = 'en', refDataType }) => {
+  static getReferenceDataTranslationsByEndpoint = async ({ language = ENGLISH_LANGUAGE_CODE, refDataType }) => {
     return this.findAll({
       where: {
         language: language,
         stringId: {
-          [Op.startsWith]: `refData.${refDataType}`,
+          [Op.startsWith]: `${REFERENCE_DATA_TRANSLATION_PREFIX}.${refDataType}`,
         },
       },
       attributes: ['stringId', 'text'],

@@ -3,6 +3,7 @@ import {
   LOCATION_AVAILABILITY_STATUS,
   SURVEY_TYPES,
   VISIBILITY_STATUSES,
+  REFERENCE_DATA_TRANSLATION_PREFIX
 } from '@tamanu/constants';
 import {
   buildDiagnosis,
@@ -481,13 +482,13 @@ describe('Suggestions', () => {
     });
 
     await TranslatedString.create({
-      stringId: `refData.${DATA_TYPE}.${DATA_ID}`,
+      stringId: `${REFERENCE_DATA_TRANSLATION_PREFIX}.${DATA_TYPE}.${DATA_ID}`,
       text: ENGLISH_LABEL,
       language: ENGLISH_CODE,
     });
 
     await TranslatedString.create({
-      stringId: `refData.${DATA_TYPE}.${DATA_ID}`,
+      stringId: `${REFERENCE_DATA_TRANSLATION_PREFIX}.${DATA_TYPE}.${DATA_ID}`,
       text: KHMER_LABEL,
       language: KHMER_CODE,
     });

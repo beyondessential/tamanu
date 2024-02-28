@@ -1,6 +1,7 @@
 import { fake } from '@tamanu/shared/test-helpers/fake';
 import Chance from 'chance';
 import { createTestContext } from '../utilities';
+import { REFERENCE_DATA_TRANSLATION_PREFIX } from '@tamanu/constants'
 
 const chance = new Chance();
 
@@ -114,21 +115,21 @@ describe('TranslatedString', () => {
       const EXPECTED_REFDATA_TYPE = 'icd10';
 
       const expectedTranslation = await TranslatedString.create({
-        stringId: `refData.${EXPECTED_REFDATA_TYPE}.testDisease`,
+        stringId: `${REFERENCE_DATA_TRANSLATION_PREFIX}.${EXPECTED_REFDATA_TYPE}.testDisease`,
         text: 'Test disease',
         language: LANGUAGE_CODES.ENGLISH,
       });
 
       // Response shouldnt include this record as its not english
       await TranslatedString.create({
-        stringId: `refData.${EXPECTED_REFDATA_TYPE}.testDisease`,
+        stringId: `${REFERENCE_DATA_TRANSLATION_PREFIX}.${EXPECTED_REFDATA_TYPE}.testDisease`,
         text: '១២៣',
         language: LANGUAGE_CODES.KHMER,
       });
 
       // Response shouldnt include this record as the wrong data type
       await TranslatedString.create({
-        stringId: `refData.village.testVillage`,
+        stringId: `${REFERENCE_DATA_TRANSLATION_PREFIX}.village.testVillage`,
         text: 'Test Village',
         language: LANGUAGE_CODES.ENGLISH,
       });
