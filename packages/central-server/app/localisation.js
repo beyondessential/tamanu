@@ -29,6 +29,7 @@ const unhideableFieldSchema = yup
     shortLabel: yup.string().required(),
     longLabel: yup.string().required(),
     required: yup.boolean(),
+    defaultValue: yup.mixed(),
     requiredPatientData: yup.boolean(),
     pattern: yup.string(),
   })
