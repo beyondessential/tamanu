@@ -180,12 +180,17 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
     },
     facility: {
       label: <TranslatedText stringId="general.facility.label" fallback="Facility" />,
-      value: location?.facility
-        ? <TranslatedReferenceData
-          fallback={encounter.location.facility.name}
-          value={encounter.location.facility.id}
+      value: (location?.facility.name &&
+        <TranslatedReferenceData
+          fallback={location.facility.name}
+          value={location.facility.id}
           category="facility"
-        /> : '-',
+        />) || (encounter.location.facility.name &&
+          <TranslatedReferenceData
+            fallback={encounter.location.facility.name}
+            value={encounter.location.facility.id}
+            category="facility"
+          />) || '-',
     },
     givenBy: {
       label: <TranslatedText stringId="vaccine.givenBy.label" fallback="Given by" />,

@@ -34,6 +34,7 @@ import { DiagnosisList } from '../components/DiagnosisList';
 import { useEncounter } from '../contexts/Encounter';
 import { MODAL_PADDING_LEFT_AND_RIGHT, MODAL_PADDING_TOP_AND_BOTTOM } from '../components';
 import { TranslatedText } from '../components/Translation/TranslatedText';
+import { TranslatedReferenceData } from '../components/Translation/TranslatedReferenceData';
 
 const Divider = styled(BaseDivider)`
   margin: 30px -${MODAL_PADDING_LEFT_AND_RIGHT}px;
@@ -62,13 +63,13 @@ const getDischargeInitialValues = (encounter, dischargeNotes, medicationInitialV
   return {
     endDate: isFuture(encounterStartDate)
       ? // In the case of a future start_date we cannot default to current datetime as it falls outside of the min date.
-        toDateTimeString(
-          set(encounterStartDate, {
-            hours: today.getHours(),
-            minutes: today.getMinutes(),
-            seconds: today.getSeconds(),
-          }),
-        )
+      toDateTimeString(
+        set(encounterStartDate, {
+          hours: today.getHours(),
+          minutes: today.getMinutes(),
+          seconds: today.getSeconds(),
+        }),
+      )
       : getCurrentDateTimeString(),
     discharge: {
       note: dischargeNotes.map(n => n.content).join('\n\n'),
@@ -106,7 +107,13 @@ const StyledUnorderedList = styled.ul`
 const ProcedureList = React.memo(({ procedures }) => (
   <StyledUnorderedList>
     {procedures.length > 0 ? (
-      procedures.map(({ procedureType }) => <li key={procedureType.id}>{procedureType.name}</li>)
+      procedures.map(({ procedureType }) => <li key={procedureType.id}>
+        <TranslatedReferenceData 
+          fallback={procedureType.name} 
+          value={procedureType.id} 
+          category={procedureType.type}  
+        />
+      </li>)
     ) : (
       <TranslatedText stringId="general.fallback.notApplicable" fallback="N/A" />
     )}
@@ -158,7 +165,9 @@ const CustomCheckField = ({ field, lineOne, lineTwo }) => (
 const MedicationAccessor = ({ id, medication, prescription }) => (
   <Field
     name={`medications.${id}.isDischarge`}
-    lineOne={medication.name}
+    lineOne={
+      <TranslatedReferenceData fallback={medication.name} value={medication.id} category={medication.type} />
+    }
     lineTwo={prescription}
     component={CustomCheckField}
   />

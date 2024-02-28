@@ -16,6 +16,7 @@ import { checkAbility } from '../../utils/ability';
 import { useAuth } from '../../contexts/Auth';
 import { useApi } from '../../api';
 import { TranslatedText } from '../Translation/TranslatedText';
+import { TranslatedReferenceData } from '../Translation/TranslatedReferenceData';
 import { useLocalisation } from '../../contexts/Localisation';
 
 const Container = styled.div`
@@ -297,7 +298,14 @@ export const Sidebar = React.memo(({ items }) => {
               <UserName>{currentUser?.displayName}</UserName>
               <Box display="flex" justifyContent="space-between">
                 <ConnectedTo>
-                  {roleName} <br /> {facility?.name ? facility.name : centralHost}
+                  {roleName} <br />
+                  {facility?.name
+                    ? <TranslatedReferenceData
+                      fallback={facility.name}
+                      value={facility.id}
+                      category="facility"
+                    />
+                    : centralHost}
                 </ConnectedTo>
                 <LogoutButton
                   type="button"

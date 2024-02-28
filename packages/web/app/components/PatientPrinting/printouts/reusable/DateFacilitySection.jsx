@@ -8,6 +8,7 @@ import { DateDisplay } from '../../../DateDisplay';
 
 import { CertificateLabel, LocalisedCertificateLabel } from './CertificateLabels';
 import { TranslatedText } from '../../../Translation/TranslatedText';
+import { TranslatedReferenceData } from '../../../Translation/TranslatedReferenceData';
 
 const RowContainer = styled.div`
   display: flex;
@@ -44,7 +45,11 @@ export const DateFacilitySection = ({ encounter }) => {
             <TranslatedText stringId="general.localisedField.facility.label" fallback="Facility" />
           }
         >
-          {encounter?.location?.facility?.name}
+          {encounter?.location?.facility && <TranslatedReferenceData
+            fallback={encounter.location.facility.name}
+            value={encounter.location.facility.id}
+            category="facility"
+          />}
         </LocalisedLabel>
       </Item>
       <Item>

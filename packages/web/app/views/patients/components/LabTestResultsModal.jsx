@@ -16,6 +16,7 @@ import { ConfirmCancelRow } from '../../../components/ButtonRow';
 import { useApi } from '../../../api';
 import { useAuth } from '../../../contexts/Auth';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { TranslatedReferenceData } from '../../../components/Translation/TranslatedReferenceData';
 
 const TableContainer = styled.div`
   overflow-y: auto;
@@ -71,7 +72,11 @@ const getColumns = (count, onChangeResult, areLabTestResultsReadOnly) => {
       key: 'labTestType',
       title: <TranslatedText stringId="lab.results.table.column.testType" fallback="Test type" />,
       width: '120px',
-      accessor: row => row.labTestType.name,
+      accessor: row => <TranslatedReferenceData
+        fallback={row.labTestType.name}
+        value={row.labTestType.id}
+        category="labTestType"
+      />,
     },
     {
       key: LAB_TEST_PROPERTIES.RESULT,

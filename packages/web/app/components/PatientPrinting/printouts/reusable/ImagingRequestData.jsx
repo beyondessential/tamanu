@@ -2,13 +2,18 @@ import React from 'react';
 
 import { useImagingRequest } from '../../../../api/queries/useImagingRequest';
 import { DateDisplay } from '../../../DateDisplay';
+import { TranslatedReferenceData } from '../../../Translation/TranslatedReferenceData';
 
 export const ImagingRequestData = ({ imagingRequestId, dataType }) => {
   const imagingRequestQuery = useImagingRequest(imagingRequestId);
   const imagingRequest = imagingRequestQuery.data;
   if (dataType === 'areas') {
     const areas = imagingRequest?.areas?.length
-      ? imagingRequest?.areas.map(area => area.name).join(', ')
+      ? imagingRequest?.areas.map(area => <TranslatedReferenceData
+        fallback={area.name}
+        value={area.id}
+        category={area.type} />
+      ).join(', ')
       : imagingRequest?.areaNote;
     return <p style={{ margin: '0' }}>{areas}</p>;
   }

@@ -20,6 +20,7 @@ import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { PatientSearchKeys, usePatientSearch } from '../../contexts/PatientSearch';
 import { columns } from './bedManagementColumns';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
+import { TranslatedReferenceData } from '../../components/Translation/TranslatedReferenceData';
 
 const DashboardContainer = styled.div`
   display: flex;
@@ -228,7 +229,7 @@ export const BedManagement = () => {
     <PageContainer>
       <TopBar
         title={<TranslatedText stringId="bedManagement.title" fallback="Bed management" />}
-        subTitle={facility.name}
+        subTitle={<TranslatedReferenceData fallback={facility.name} value={facility.id} category="facility" />}
       />
       <ContentPane>
         <DashboardContainer>

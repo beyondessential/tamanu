@@ -5,6 +5,7 @@ import { labsIcon } from '../../../constants/images';
 import { DateDisplay, LowerCase } from '../../../components';
 import { Colors } from '../../../constants';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { TranslatedReferenceData } from '../../../components/Translation/TranslatedReferenceData';
 
 const Container = styled.div`
   display: flex;
@@ -92,7 +93,10 @@ export const LabRequestCard = ({ labRequest, actions }) => {
           <CardLabel>
             <TranslatedText stringId="general.card.item.department.label" fallback="Department" />:
           </CardLabel>
-          <CardValue>{labRequest.department?.name}</CardValue>
+          <CardValue>
+            {labRequest.department?.name
+              && <TranslatedReferenceData fallback={labRequest.department.name} value={labRequest.department.id} category="department"/>}
+          </CardValue>
         </BorderSection>
       </Box>
       {actions || null}

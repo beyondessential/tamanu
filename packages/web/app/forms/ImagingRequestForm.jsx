@@ -31,6 +31,7 @@ import { FormSeparatorLine } from '../components/FormSeparatorLine';
 import { FormSubmitDropdownButton } from '../components/DropdownButton';
 import { LowerCase } from '../components/Typography';
 import { TranslatedText } from '../components/Translation/TranslatedText';
+import { TranslatedReferenceData } from '../components/Translation/TranslatedReferenceData';
 
 function getEncounterTypeLabel(type) {
   return ENCOUNTER_OPTIONS.find(x => x.value === type).label;
@@ -213,7 +214,7 @@ export const ImagingRequestForm = React.memo(
               {imagingAreas.length ? (
                 <Field
                   options={imagingAreas.map(area => ({
-                    label: area.name,
+                    label: <TranslatedReferenceData fallback={area.name} value={area.id} category={area.type} />,
                     value: area.id,
                   }))}
                   name="areas"

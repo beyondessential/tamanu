@@ -24,6 +24,7 @@ const DiagnosisItem = React.memo(({ diagnosis, onRemove }) => {
         )
       </>
       <span>
+        {" "}
         <TranslatedReferenceData fallback={diagnosis.name} value={diagnosis.id} category="diagnosis" />
       </span>
     </li>
