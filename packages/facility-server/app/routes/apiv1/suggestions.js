@@ -22,8 +22,8 @@ const defaultLimit = 25;
 
 const defaultMapper = ({ name, code, id }) => ({ name, code, id });
 
+// Translation helpers
 const extractDataId = ({ stringId }) => stringId.split('.').pop();
-
 const replaceDataLabelsWithTranslations = ({ data, translations }) => {
   const translationsByDataId = keyBy(translations, extractDataId);
   return data.map(item => {
@@ -31,12 +31,9 @@ const replaceDataLabelsWithTranslations = ({ data, translations }) => {
     return translatedText ? { ...item, name: translatedText } : item;
   });
 };
-
-// Special case where the endpoint name doesn't match the dataType
 const ENDPOINT_TO_DATA_TYPE = {
-  ['facilityLocationGroup']: 'locationGroup',
+  ['facilityLocationGroup']: 'locationGroup', // Special case where the endpoint name doesn't match the dataType
 };
-
 const getDataType = endpoint => ENDPOINT_TO_DATA_TYPE[endpoint] || endpoint;
 
 function createSuggesterRoute(
