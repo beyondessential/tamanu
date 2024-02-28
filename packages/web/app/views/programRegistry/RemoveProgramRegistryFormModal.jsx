@@ -6,6 +6,7 @@ import { ConfirmCancelRow, DateDisplay, FormSeparatorLine, Modal } from '../../c
 import { Colors } from '../../constants';
 import { useApi } from '../../api';
 import { PROGRAM_REGISTRY } from '../../components/PatientInfoPane/paneTitles';
+import { TranslatedReferenceData } from '../../components/Translation/TranslatedReferenceData';
 
 const WarningDiv = styled.div`
   display: flex;
@@ -117,7 +118,11 @@ export const RemoveProgramRegistryFormModal = ({ patientProgramRegistration, onC
             <Value>
               {(patientProgramRegistration.registeringFacility
                 ? patientProgramRegistration.registeringFacility?.name
-                : patientProgramRegistration.facility?.name) || '-'}
+                : patientProgramRegistration.facility?.name && <TranslatedReferenceData
+                  fallback={patientProgramRegistration.facility.name}
+                  value={patientProgramRegistration.facility.id}
+                  category="facility"
+                />) || '-'}
             </Value>
           </Info>
         </InfoColumn>

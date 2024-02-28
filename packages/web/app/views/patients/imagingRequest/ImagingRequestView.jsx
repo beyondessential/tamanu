@@ -33,6 +33,7 @@ import { SimpleTopBar } from '../../../components';
 import { CancelModalButton } from './CancelModalButton';
 import { PrintModalButton } from './PrintModalButton';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { TranslatedReferenceData } from '../../../components/Translation/TranslatedReferenceData';
 import { IMAGING_REQUEST_STATUS_OPTIONS } from '../../../constants';
 
 const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
@@ -102,7 +103,11 @@ const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
         value={
           // Either use free text area or multi-select areas data
           imagingRequest.areas?.length
-            ? imagingRequest.areas.map(area => area.name).join(', ')
+            ? imagingRequest.areas.map(area => (
+              <span key={area.id}>
+                <TranslatedReferenceData fallback={area.name} value={area.id} category={area.type} />
+              </span>
+            )).join(', ')
             : imagingRequest.areaNote
         }
         label={<TranslatedText stringId="imaging.areas.label" fallback="Areas to be imaged" />}

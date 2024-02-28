@@ -5,6 +5,7 @@ import { SEX_VALUE_INDEX } from '@tamanu/constants';
 
 import { theme } from '../../../theme';
 import { DateDisplay } from '../../../components/DateDisplay';
+import { TranslatedReferenceData } from '../../../components/Translation/TranslatedReferenceData';
 
 const Label = styled.span`
   color: ${theme.palette.text.tertiary};
@@ -76,7 +77,12 @@ export const PatientSummary = ({
         <LabelledValue label="Cultural name" value={patient.culturalName} />
       </div>
       <div>
-        <LabelledValue label="Village" value={patient.village?.name} />
+        <LabelledValue
+          label="Village"
+          value={patient.village
+            && <TranslatedReferenceData fallback={patient.village.name} value={patient.village.id} category="village" />
+          }
+        />
         <LabelledValue label="Sex" value={SEX_VALUE_INDEX[patient.sex]?.label} />
         <LabelledValue label="Date of birth" value={<DateDisplay date={patient.dateOfBirth} />} />
       </div>

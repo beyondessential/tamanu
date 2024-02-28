@@ -30,6 +30,7 @@ import { EmailField, parseEmails } from './EmailField';
 import { ParameterField } from './ParameterField';
 import { useLocalisation } from '../../contexts/Localisation';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
+import { TranslatedReferenceData } from '../../components/Translation/TranslatedReferenceData';
 import { ReportAboutModal } from './ReportAboutModal';
 
 const Spacer = styled.div`
@@ -89,8 +90,12 @@ const useFileName = () => {
   const country = getLocalisation('country');
   const date = format(new Date(), 'ddMMyyyy');
 
+  const countryName = <span>
+    <TranslatedReferenceData fallback={country.name} value={country.id} category="country"/>
+  </span>;
+
   return reportName => {
-    const dashedName = `${reportName}-${country.name}`
+    const dashedName = `${reportName}-${countryName}`
       .trim()
       .replace(/\s+/g, '-')
       .replace(/-+/g, '-')
