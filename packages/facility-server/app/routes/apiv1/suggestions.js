@@ -22,14 +22,17 @@ const defaultLimit = 25;
 
 const defaultMapper = ({ name, code, id }) => ({ name, code, id });
 
-const replaceDataLabelsWithTranslations = ({ data, translations, dataType }) => {
-  const translationsByKey = keyBy(translations, 'stringId');
+const extractDataId = ({ stringId }) => stringId.split('.').pop();
+
+const replaceDataLabelsWithTranslations = ({ data, translations }) => {
+  const translationsByDataId = keyBy(translations, extractDataId);
   return data.map(item => {
-    const translatedText = translationsByKey[`refData.${dataType}.${item.id}`]?.text;
+    const translatedText = translationsByDataId[item.id]?.text;
     return translatedText ? { ...item, name: translatedText } : item;
   });
 };
 
+// Special case where the endpoint name doesn't match the dataType
 const ENDPOINT_TO_DATA_TYPE = {
   ['facilityLocationGroup']: 'locationGroup',
 };
@@ -58,15 +61,20 @@ function createSuggesterRoute(
       let suggestedIds = [];
 
       if (isTranslatable) {
+        // Fetch all the possible translations for this dataType
         translations = await models.TranslatedString.getReferenceDataTranslationsByEndpoint({
           language,
           refDataType: getDataType(endpoint),
         });
 
+        // Check if any of the translated strings match the search query and generate an array of actual
+        // data ids to be supplied to the search query since they wont be matched through the usual name.
         suggestedIds = translations
           .filter(({ text }) => text.toLowerCase()?.includes(searchQuery))
-          .map(({ stringId }) => stringId.split('.').pop());
+          .map(extractDataId);
 
+        // Special case for location which is filtered by facility and its parent location group
+        // So we refine the suggestions as per these parameters.
         if (endpoint === 'location' && query.locationGroupId) {
           suggestedIds = (
             await models.Location.findAll({
@@ -109,7 +117,6 @@ function createSuggesterRoute(
         replaceDataLabelsWithTranslations({
           data: mappedResults,
           translations,
-          dataType: getDataType(endpoint),
         }),
       );
     }),
@@ -145,7 +152,6 @@ function createSuggesterLookupRoute(endpoint, modelName, { mapper }) {
       const translatedRecord = replaceDataLabelsWithTranslations({
         data: [mappedRecord],
         translations: translatedStrings,
-        dataType: getDataType(endpoint),
       })[0];
 
       req.checkPermission('read', record);
@@ -191,7 +197,6 @@ function createAllRecordsRoute(
       const translatedResults = replaceDataLabelsWithTranslations({
         data: mappedResults,
         translations: translatedStrings,
-        dataType: getDataType(endpoint),
       });
 
       // Allow for async mapping functions (currently only used by location suggester)
