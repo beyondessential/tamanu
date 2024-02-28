@@ -1,4 +1,5 @@
 import React from 'react';
+import { parseISO, startOfWeek } from 'date-fns';
 import { VACCINE_STATUS, VACCINE_STATUS_LABELS } from '@tamanu/constants/vaccines';
 import styled from 'styled-components';
 import {
@@ -31,7 +32,13 @@ export const getDueDate = record => {
     return <TranslatedText stringId="general.fallback.unknown" fallback="Unknown" />;
   }
 
-  return <DateDisplay date={record.dueDate} />;
+  const mondayDate = startOfWeek(parseISO(record.dueDate), { weekStartsOn: 1 });
+  return (
+    <div style={{ width: '140px' }}>
+      <TranslatedText stringId="general.date.weekOf" fallback="Week of" />{' '}
+      <DateDisplay date={mondayDate} />
+    </div>
+  );
 };
 export const getGiver = record => {
   if (record.status === VACCINE_STATUS.NOT_GIVEN) {
@@ -109,16 +116,12 @@ const VACCINE_STATUS_COLORS = {
   [VACCINE_STATUS.MISSED]: '#F76853',
 };
 
-const VaccineStatusTag = React.memo(({ status }) => {
-  const label = VACCINE_STATUS_LABELS[status] || status;
-  const color = VACCINE_STATUS_COLORS[status];
+export const getStatusTag = ({ vaccineScheduleStatus }) => {
+  const label = VACCINE_STATUS_LABELS[vaccineScheduleStatus] || vaccineScheduleStatus;
+  const color = VACCINE_STATUS_COLORS[vaccineScheduleStatus];
   return (
     <TableCellTag $color={color} noWrap>
       {label}
     </TableCellTag>
   );
-});
-
-export const getStatusTag = record => {
-  return <VaccineStatusTag status={record.vaccineScheduleStatus} />;
 };
