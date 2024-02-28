@@ -31,6 +31,7 @@ const Container = styled.div`
   overflow-x: hidden;
   height: 100vh;
   transition: ${props => props.theme.transitions.create(['min-width', 'max-width'])};
+  position: relative;
 
   i {
     color: ${Colors.white};
@@ -71,6 +72,12 @@ const Footer = styled.div`
   margin-top: auto;
   padding-bottom: 3px;
   padding-right: ${props => (props.$retracted ? '0' : '10px')};
+  position: absolute;
+  bottom: 0;
+  right: 10px;
+  left: 10px;
+  z-index: 10;
+  background: ${Colors.primaryDark};
 `;
 
 const UserInfo = styled.div`
@@ -152,6 +159,15 @@ const SupportDesktopLink = styled.a`
 
 const StyledMetadataBox = styled(Box)`
   margin-bottom: 5px;
+`;
+
+// This is a little temporary message specifically for the cambodia demo to really make it clear that this is a work in progress
+const DisclaimerMessage = styled.div`
+  text-align: center;
+  width: 200px;
+  margin: 10px auto;
+  border: 1px solid white;
+  padding: 5px;
 `;
 
 const getInitials = string =>
@@ -283,6 +299,8 @@ export const Sidebar = React.memo(({ items }) => {
           );
         })}
       </List>
+      {/* TODO: Hide this behind an env flag or something so can be used in future demos */}
+      <DisclaimerMessage><TranslatedText stringId="demoDisclaimer" fallback="disclaimer" /></DisclaimerMessage>
       <Footer $retracted={isRetracted}>
         <StyledDivider $invisible={isRetracted} />
         <UserInfo $retracted={isRetracted}>
