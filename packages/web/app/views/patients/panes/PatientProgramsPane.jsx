@@ -4,6 +4,7 @@ import { useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
 import { Button, ContentPane, TableButtonRow } from '../../../components';
 import { DataFetchingProgramsTable } from '../../../components/ProgramResponsesTable';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 export const PatientProgramsPane = React.memo(({ endpoint }) => {
   const dispatch = useDispatch();
@@ -15,7 +16,9 @@ export const PatientProgramsPane = React.memo(({ endpoint }) => {
   return (
     <ContentPane>
       <TableButtonRow variant="small">
-        <Button onClick={handleNewSurvey}>New form</Button>
+        <Button onClick={handleNewSurvey}>
+          <TranslatedText stringId="program.action.newSurvey" fallback="New survey" />
+        </Button>
       </TableButtonRow>
       <DataFetchingProgramsTable endpoint={endpoint} />
     </ContentPane>

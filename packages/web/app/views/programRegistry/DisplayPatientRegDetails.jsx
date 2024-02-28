@@ -125,7 +125,11 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
           </TextColumns>
           <TextColumns style={{ fontWeight: 500 }}>
             <DateDisplay date={patientProgramRegistration.registrationDate} />
-            <div>{patientProgramRegistration.clinician.displayName}</div>
+            <div>
+              {patientProgramRegistration.registrationClinician
+                ? patientProgramRegistration.registrationClinician.displayName
+                : patientProgramRegistration.clinician.displayName}
+            </div>
           </TextColumns>
         </TextColumnsContainer>
         {isRemoved && (
