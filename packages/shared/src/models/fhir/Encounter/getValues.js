@@ -27,7 +27,6 @@ export async function getValues(upstream, models) {
 }
 
 async function getValuesFromEncounter(upstream) {
-  const { Department, Facility } = models;
   return {
     lastUpdated: new Date(),
     status: status(upstream),
@@ -35,7 +34,7 @@ async function getValuesFromEncounter(upstream) {
     actualPeriod: period(upstream),
     subject: subjectRef(upstream),
     location: locationRef(upstream),
-    serviceProvider: await serviceProviderRef(upstream, Department, Facility),
+    serviceProvider: await serviceProviderRef(upstream),
   };
 }
 
@@ -150,22 +149,10 @@ function locationRef(encounter) {
   ];
 }
 
-async function serviceProviderRef(encounter, Department, Facility) {
-  const { departmentId } = encounter;
-  
-  const department = await Department.findOne({
-    where: { id: departmentId }
-  });
-  if (!department) return null;
-
-  const { facilityId } = department;
-  const facility = await Facility.findOne({
-    where: { id: facilityId }
-  });
-
+async function serviceProviderRef(encounter) {
   return new FhirReference({
     type: 'upstream://organization',
-    reference: facility.id,
-    display: facility.name,
+    reference: encounter.location.facility.id,
+    display: encounter.location.facility.name,
   });
 }

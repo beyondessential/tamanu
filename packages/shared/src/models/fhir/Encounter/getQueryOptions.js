@@ -1,5 +1,5 @@
 export function getQueryOptions(models) {
-  const { Encounter, Discharge, Patient, Location, LocationGroup } = models;
+  const { Encounter, Discharge, Patient, Facility, Location, LocationGroup } = models;
 
   return {
     [Encounter.tableName]: {
@@ -20,6 +20,16 @@ export function getQueryOptions(models) {
             {
               model: LocationGroup,
               as: 'locationGroup',
+            },
+          ],
+        },
+        {
+          model: Location,
+          as: 'location',
+          include: [
+            {
+              model: Facility,
+              as: 'facility',
             },
           ],
         },
