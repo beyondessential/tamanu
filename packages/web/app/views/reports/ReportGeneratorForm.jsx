@@ -31,6 +31,7 @@ import { ParameterField } from './ParameterField';
 import { useLocalisation } from '../../contexts/Localisation';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { ReportAboutModal } from './ReportAboutModal';
+import { CAMBODIA_REPORT_NAMES, checkIsURLCambodia } from '../../utils/cambodiaMode';
 
 const Spacer = styled.div`
   padding-top: 30px;
@@ -153,7 +154,11 @@ export const ReportGeneratorForm = () => {
     (async () => {
       try {
         const reports = await api.get('reports');
-        setAvailableReports(reports);
+
+        const visibleReports = checkIsURLCambodia()
+          ? reports.filter(report => CAMBODIA_REPORT_NAMES.includes(report.name))
+          : reports;
+        setAvailableReports(visibleReports);
       } catch (error) {
         setRequestError(
           `${(
@@ -276,9 +281,7 @@ export const ReportGeneratorForm = () => {
           <FormGrid columns={2}>
             <Field
               name="reportId"
-              label={
-                <TranslatedText stringId="report.generate.report.label" fallback="Report" />
-              }
+              label={<TranslatedText stringId="report.generate.report.label" fallback="Report" />}
               component={ReportIdField}
               options={reportOptions}
               required
@@ -356,19 +359,14 @@ export const ReportGeneratorForm = () => {
             <Field
               name="fromDate"
               label={
-                <TranslatedText
-                  stringId="report.generate.fromDate.label"
-                  fallback="From date"
-                />
+                <TranslatedText stringId="report.generate.fromDate.label" fallback="From date" />
               }
               component={DateField}
               saveDateAsString={filterDateRangeAsStrings}
             />
             <Field
               name="toDate"
-              label={
-                <TranslatedText stringId="report.generate.toDate.label" fallback="To date" />
-              }
+              label={<TranslatedText stringId="report.generate.toDate.label" fallback="To date" />}
               component={DateField}
               saveDateAsString={filterDateRangeAsStrings}
             />
