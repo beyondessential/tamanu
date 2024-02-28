@@ -27,5 +27,5 @@ export * from './Tag';
 export * from './Tile';
 export * from './TopBar';
 export * from './Typography';
-export * from './ImmunisationsTable';
 export * from './FormSectionSeparator';
+export * from './Translation';
