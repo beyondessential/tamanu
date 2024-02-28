@@ -16,6 +16,7 @@ import { ENCOUNTER_OPTIONS_BY_VALUE } from '../../../constants';
 import { ImagingRequestData } from './reusable/ImagingRequestData';
 import { LowerCase } from '../../Typography';
 import { TranslatedText } from '../../Translation/TranslatedText';
+import { TranslatedReferenceData } from '../../Translation/TranslatedReferenceData';
 
 // STYLES
 const CompactListTable = styled(ListTable)`

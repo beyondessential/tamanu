@@ -252,12 +252,15 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
       label: <TranslatedText stringId="vaccine.circumstance.label" fallback="Circumstance" />,
       value:
         vaccineCircumstances?.length > 0
-          ? vaccineCircumstances?.map(circumstance => circumstance &&
+          ? vaccineCircumstances?.map(circumstance => circumstance && <span
+            key={circumstance.id}
+          >
             <TranslatedReferenceData
               fallback={circumstance.name}
               value={circumstance.id}
               category="vaccineCircumstance"
-            />)?.join(', ')
+            />
+          </span>)?.join(', ')
           : '-',
     },
   };

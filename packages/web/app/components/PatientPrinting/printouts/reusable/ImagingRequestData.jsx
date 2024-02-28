@@ -9,11 +9,14 @@ export const ImagingRequestData = ({ imagingRequestId, dataType }) => {
   const imagingRequest = imagingRequestQuery.data;
   if (dataType === 'areas') {
     const areas = imagingRequest?.areas?.length
-      ? imagingRequest?.areas.map(area => <TranslatedReferenceData
-        fallback={area.name}
-        value={area.id}
-        category={area.type} />
-      ).join(', ')
+      ? imagingRequest?.areas.map(area => <span
+        key={area.id}
+      >
+        <TranslatedReferenceData
+          fallback={area.name}
+          value={area.id}
+          category={area.type} />
+      </span>).join(', ')
       : imagingRequest?.areaNote;
     return <p style={{ margin: '0' }}>{areas}</p>;
   }
