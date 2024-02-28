@@ -32,11 +32,11 @@ const replaceDataLabelsWithTranslations = ({ data, translations, endpoint }) => 
 
 const extractRefDataId = stringId => stringId.split('.').pop();
 
-const ACTUAL_DATA_TYPES = {
+const ENDPOINT_TO_DATA_TYPE = {
   ['facilityLocationGroup']: 'locationGroup',
 };
 
-const getDataType = endpoint => ACTUAL_DATA_TYPES[endpoint] || endpoint;
+const getDataType = endpoint => ENDPOINT_TO_DATA_TYPE[endpoint] || endpoint;
 
 function createSuggesterRoute(
   endpoint,
@@ -55,9 +55,7 @@ function createSuggesterRoute(
 
       const searchQuery = (query.q || '').trim().toLowerCase();
 
-      // TODO: Temporary hack to make sure this approach works
       const isTranslatable = TRANSLATABLE_REFERENCE_TYPES.includes(getDataType(endpoint));
-      console.log(isTranslatable);
       let translations = [];
       let suggestedIds = [];
 
@@ -70,6 +68,16 @@ function createSuggesterRoute(
         suggestedIds = translations
           .filter(({ text }) => text.toLowerCase()?.includes(searchQuery))
           .map(({ stringId }) => extractRefDataId(stringId));
+
+        if (endpoint === 'location' && query.locationGroupId) {
+          suggestedIds = (
+            await models.Location.findAll({
+              where: { locationGroupId: query.locationGroupId, id: suggestedIds },
+              attributes: ['id'],
+              raw: true,
+            })
+          ).map(({ id }) => id);
+        }
       }
 
       const where = whereBuilder(`%${searchQuery}%`, query);
