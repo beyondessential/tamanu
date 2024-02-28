@@ -30,8 +30,6 @@ const replaceDataLabelsWithTranslations = ({ data, translations, dataType }) => 
   });
 };
 
-const extractRefDataId = stringId => stringId.split('.').pop();
-
 const ENDPOINT_TO_DATA_TYPE = {
   ['facilityLocationGroup']: 'locationGroup',
 };
@@ -67,7 +65,7 @@ function createSuggesterRoute(
 
         suggestedIds = translations
           .filter(({ text }) => text.toLowerCase()?.includes(searchQuery))
-          .map(({ stringId }) => extractRefDataId(stringId));
+          .map(({ stringId }) => stringId.split('.').pop());
 
         if (endpoint === 'location' && query.locationGroupId) {
           suggestedIds = (
