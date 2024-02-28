@@ -31,7 +31,7 @@ export const AdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps): ReactE
     customPatientFieldValues,
     patientAdditionalData,
     loading,
-    error
+    error,
   } = usePatientAdditionalData(patient.id);
   // Display general error
   if (error) {
@@ -54,25 +54,29 @@ export const AdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps): ReactE
   const customSections = customPatientSections.map(([_categoryId, fields]) => {
     const title = fields[0].category.name;
     const onEditCallback = (): void => onEdit(null, title, true, fields, customPatientFieldValues);
-    const mappedFields = fields.map(field => ([field.name, customPatientFieldValues[field.id]?.[0]?.value]));
+    const mappedFields = fields.map(field => [
+      field.name,
+      customPatientFieldValues[field.id]?.[0]?.value,
+    ]);
     return { title, fields: mappedFields, onEditCallback, isCustomFields: true };
   });
 
-  const sections = [
-    ...(additionalSections || []),
-    ...(customSections || []),
-  ];
+  const sections = [...(additionalSections || []), ...(customSections || [])];
 
   return (
     <>
-      {sections.map(({ title, fields, onEditCallback, isCustomFields }) => (
+      {sections.map(({ title, fields, onEditCallback, isCustomFields }, index) => (
         <PatientSection
-          key={title}
+          key={index}
           title={title}
           onEdit={isEditable ? onEditCallback : undefined}
           isClosable
         >
-          {loading ? <LoadingScreen /> : <FieldRowDisplay fields={fields} isCustomFields={isCustomFields} />}
+          {loading ? (
+            <LoadingScreen />
+          ) : (
+            <FieldRowDisplay fields={fields} isCustomFields={isCustomFields} />
+          )}
         </PatientSection>
       ))}
     </>

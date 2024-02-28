@@ -63,13 +63,18 @@ export const ContactInfo = ({ contactName, relationShip, contactMethod }) => (
     </RowView>
   </StyledViewWithBorder>
 );
-export const ContactCard = ({ contactName, relationShip, contactMethod, contactId, patientId }) => {
-  const [open, setOpen] = useState(false);
+export const ContactCard = ({
+  contactName,
+  relationShip,
+  contactMethod,
+  contactId,
+  setSelectedContact,
+}) => {
   return (
     <StyledView marginTop={10} marginBottom={10}>
       <ContactInfo {...{ contactName, relationShip, contactMethod }} />
       <Button
-        onPress={() => setOpen(true)}
+        onPress={() => setSelectedContact({ contactName, relationShip, contactMethod, contactId })}
         width={100}
         alignSelf="flex-end"
         backgroundColor={theme.colors.WHITE}
@@ -82,13 +87,6 @@ export const ContactCard = ({ contactName, relationShip, contactMethod, contactI
           Remove
         </StyledText>
       </Button>
-      <RemoveContactModal
-        open={open}
-        onClose={() => setOpen(false)}
-        {...{ contactName, relationShip, contactMethod }}
-      >
-        <ContactInfo {...{ contactName, relationShip, contactMethod }} />
-      </RemoveContactModal>
     </StyledView>
   );
 };
