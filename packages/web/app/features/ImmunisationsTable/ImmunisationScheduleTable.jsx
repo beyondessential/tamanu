@@ -64,10 +64,8 @@ export const ImmunisationScheduleTable = React.memo(({ patient, onItemEdit }) =>
     [onItemEdit],
   );
 
-  // Todo: scrolling for lots of resources??
   return (
     <DataFetchingTable
-      // endpoint={`patient/${patient.id}/scheduledVaccines?category=${VACCINE_CATEGORIES.ROUTINE}`}
       endpoint={`patient/${patient.id}/vaccineSchedule`}
       initialSort={{ orderBy: 'date', order: 'desc' }}
       columns={COLUMNS}
