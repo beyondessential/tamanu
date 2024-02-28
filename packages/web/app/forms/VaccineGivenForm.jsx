@@ -110,6 +110,9 @@ export const VaccineGivenForm = ({
           <FullWidthCol>
             <LocalisedField
               name="circumstanceIds"
+              label={
+                <TranslatedText stringId="vaccine.circumstances.label" fallback="Circumstances" />
+              }
               component={SuggesterSelectField}
               endpoint="vaccineCircumstance"
               isMulti
