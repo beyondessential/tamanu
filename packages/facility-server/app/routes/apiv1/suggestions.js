@@ -22,10 +22,10 @@ const defaultLimit = 25;
 
 const defaultMapper = ({ name, code, id }) => ({ name, code, id });
 
-const replaceDataLabelsWithTranslations = ({ data, translations, endpoint }) => {
+const replaceDataLabelsWithTranslations = ({ data, translations, dataType }) => {
   const translationsByKey = keyBy(translations, 'stringId');
   return data.map(item => {
-    const translatedText = translationsByKey[`refData.${endpoint}.${item.id}`]?.text;
+    const translatedText = translationsByKey[`refData.${dataType}.${item.id}`]?.text;
     return translatedText ? { ...item, name: translatedText } : item;
   });
 };
@@ -72,7 +72,11 @@ function createSuggesterRoute(
         if (endpoint === 'location' && query.locationGroupId) {
           suggestedIds = (
             await models.Location.findAll({
-              where: { locationGroupId: query.locationGroupId, id: suggestedIds },
+              where: {
+                locationGroupId: query.locationGroupId,
+                id: suggestedIds,
+                facilityId: config.serverFacilityId,
+              },
               attributes: ['id'],
               raw: true,
             })
@@ -107,7 +111,7 @@ function createSuggesterRoute(
         replaceDataLabelsWithTranslations({
           data: mappedResults,
           translations,
-          endpoint: getDataType(endpoint),
+          dataType: getDataType(endpoint),
         }),
       );
     }),
@@ -143,7 +147,7 @@ function createSuggesterLookupRoute(endpoint, modelName, { mapper }) {
       const translatedRecord = replaceDataLabelsWithTranslations({
         data: [mappedRecord],
         translations: translatedStrings,
-        endpoint: getDataType(endpoint),
+        dataType: getDataType(endpoint),
       })[0];
 
       req.checkPermission('read', record);
@@ -189,7 +193,7 @@ function createAllRecordsRoute(
       const translatedResults = replaceDataLabelsWithTranslations({
         data: mappedResults,
         translations: translatedStrings,
-        endpoint: getDataType(endpoint),
+        dataType: getDataType(endpoint),
       });
 
       // Allow for async mapping functions (currently only used by location suggester)
