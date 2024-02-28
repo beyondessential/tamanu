@@ -15,6 +15,7 @@ import { CambodiaIdentificationFields } from './patientFields/CambodiaIdentifica
 import { CambodiaPersonalFields } from './patientFields/CambodiaPersonalFields';
 import { GenericBirthFields } from '../generic/patientFields/GenericBirthFields';
 import { PatientField, PatientFieldsGroup } from '../../PatientFields';
+import { TranslatedText } from '../../../../components/Translation/TranslatedText';
 
 const FATHERS_FIRST_NAME_DEFINITION_ID = 'fieldDefinition-fathersFirstName';
 
@@ -22,26 +23,65 @@ const CAMBODIA_CORE_FIELD_CATEGORY_ID = 'fieldCategory-cambodiaCorePatientFields
 
 export const CambodiaPrimaryDetailsLayout = ({ sexOptions, isRequiredPatientData }) => (
   <>
-    <PatientDetailsHeading>General information</PatientDetailsHeading>
+    <PatientDetailsHeading>
+      <TranslatedText stringId="patient.detail.subheading.general" fallback="General information" />
+    </PatientDetailsHeading>
     <FormGrid>
-      <LocalisedField name="lastName" component={TextField} required />
-      <LocalisedField name="firstName" component={TextField} required />
+      <LocalisedField
+        name="lastName"
+        label={
+          <TranslatedText stringId="general.localisedField.lastName.label" fallback="Last name" />
+        }
+        component={TextField}
+        required
+      />
+      <LocalisedField
+        name="firstName"
+        label={
+          <TranslatedText stringId="general.localisedField.firstName.label" fallback="First name" />
+        }
+        component={TextField}
+        required
+      />
       <LocalisedField
         name="dateOfBirth"
+        label={
+          <TranslatedText
+            stringId="general.localisedField.dateOfBirth.label"
+            fallback="Date of birth"
+          />
+        }
         max={getCurrentDateTimeString()}
         component={DateField}
         required
         saveDateAsString
       />
-      <LocalisedField name="sex" component={RadioField} options={sexOptions} required />
+      <LocalisedField
+        name="sex"
+        label={<TranslatedText stringId="general.localisedField.sex.label" fallback="Sex" />}
+        component={RadioField}
+        options={sexOptions}
+        required
+      />
       <LocalisedField
         name="culturalName"
+        label={
+          <TranslatedText
+            stringId="cambodiaPatientDetails.mothersFirstName.label"
+            fallback="Mother's first name"
+          />
+        }
         component={TextField}
         required={isRequiredPatientData('culturalName')}
       />
       <PatientField
         definition={{
-          name: "Father's first name",
+          name: (
+            <TranslatedText
+              stringId="cambodiaPatientDetails.fathersFirstName.label"
+              fallback="Father's first name"
+            />
+          ),
           definitionId: FATHERS_FIRST_NAME_DEFINITION_ID,
           fieldType: PATIENT_FIELD_DEFINITION_TYPES.STRING,
         }}
@@ -56,29 +96,54 @@ export const CambodiaSecondaryDetailsLayout = ({ values = {}, patientRegistryTyp
       <SecondaryDetailsGroup>
         {patientRegistryType === PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY && (
           <>
-            <PatientDetailsHeading>Birth details</PatientDetailsHeading>
+            <PatientDetailsHeading>
+              <TranslatedText
+                stringId="patient.detail.subheading.birthDetails"
+                fallback="Birth details"
+              />
+            </PatientDetailsHeading>
             <SecondaryDetailsFormGrid>
               <GenericBirthFields registeredBirthPlace={values.registeredBirthPlace} />
             </SecondaryDetailsFormGrid>
           </>
         )}
 
-        <PatientDetailsHeading>Current address</PatientDetailsHeading>
+        <PatientDetailsHeading>
+          <TranslatedText
+            stringId="patient.detail.subheading.currentAddress"
+            fallback="Current address"
+          />
+        </PatientDetailsHeading>
         <SecondaryDetailsFormGrid>
           <CambodiaLocationFields />
         </SecondaryDetailsFormGrid>
 
-        <PatientDetailsHeading>Contact information</PatientDetailsHeading>
+        <PatientDetailsHeading>
+          <TranslatedText
+            stringId="patient.detail.subheading.contactInformation"
+            fallback="Contact information"
+          />
+        </PatientDetailsHeading>
         <SecondaryDetailsFormGrid>
           <CambodiaContactFields />
         </SecondaryDetailsFormGrid>
 
-        <PatientDetailsHeading>Identification information</PatientDetailsHeading>
+        <PatientDetailsHeading>
+          <TranslatedText
+            stringId="patient.detail.subheading.identificationInformation"
+            fallback="Identification information"
+          />
+        </PatientDetailsHeading>
         <SecondaryDetailsFormGrid>
           <CambodiaIdentificationFields patientRegistryType={patientRegistryType} />
         </SecondaryDetailsFormGrid>
 
-        <PatientDetailsHeading>Personal information</PatientDetailsHeading>
+        <PatientDetailsHeading>
+          <TranslatedText
+            stringId="patient.detail.subheading.personalInformation"
+            fallback="Personal information"
+          />
+        </PatientDetailsHeading>
         <SecondaryDetailsFormGrid>
           <CambodiaPersonalFields patientRegistryType={patientRegistryType} />
         </SecondaryDetailsFormGrid>

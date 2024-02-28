@@ -23,6 +23,7 @@ import { GenericPersonalFields } from './patientFields/GenericPersonalFields';
 import { GenericBirthFields } from './patientFields/GenericBirthFields';
 import { useSuggester } from '../../../../api';
 import { PatientFieldsGroup } from '../../PatientFields';
+import { TranslatedText } from '../../../../components/Translation/TranslatedText';
 
 export const GenericPrimaryDetailsLayout = ({
   patientRegistryType,
@@ -33,22 +34,62 @@ export const GenericPrimaryDetailsLayout = ({
   const villageSuggester = useSuggester('village');
   return (
     <>
-      <PatientDetailsHeading>General information</PatientDetailsHeading>
+      <PatientDetailsHeading>
+        <TranslatedText
+          stringId="patient.detail.subheading.general"
+          fallback="General information"
+        />
+      </PatientDetailsHeading>
       <FormGrid>
-        <LocalisedField name="firstName" component={TextField} required />
+        <LocalisedField
+          name="firstName"
+          label={
+            <TranslatedText
+              stringId="general.localisedField.firstName.label"
+              fallback="First name"
+            />
+          }
+          component={TextField}
+          required
+        />
         <LocalisedField
           name="middleName"
+          label={
+            <TranslatedText
+              stringId="general.localisedField.middleName.label"
+              fallback="Middle name"
+            />
+          }
           component={TextField}
           required={isRequiredPatientData('middleName')}
         />
-        <LocalisedField name="lastName" component={TextField} required />
+        <LocalisedField
+          name="lastName"
+          label={
+            <TranslatedText stringId="general.localisedField.lastName.label" fallback="Last name" />
+          }
+          component={TextField}
+          required
+        />
         <LocalisedField
           name="culturalName"
+          label={
+            <TranslatedText
+              stringId="general.localisedField.culturalName.label"
+              fallback="Cultural/traditional name"
+            />
+          }
           component={TextField}
           required={isRequiredPatientData('culturalName')}
         />
         <LocalisedField
           name="dateOfBirth"
+          label={
+            <TranslatedText
+              stringId="general.localisedField.dateOfBirth.label"
+              fallback="Date of birth"
+            />
+          }
           max={getCurrentDateTimeString()}
           component={DateField}
           required
@@ -56,16 +97,30 @@ export const GenericPrimaryDetailsLayout = ({
         />
         <LocalisedField
           name="villageId"
+          label={
+            <TranslatedText stringId="general.localisedField.villageId.label" fallback="Village" />
+          }
           component={AutocompleteField}
           suggester={villageSuggester}
           required={isRequiredPatientData('villageId')}
         />
-        <LocalisedField name="sex" component={RadioField} options={sexOptions} required />
+        <LocalisedField
+          name="sex"
+          label={<TranslatedText stringId="general.localisedField.sex.label" fallback="Sex" />}
+          component={RadioField}
+          options={sexOptions}
+          required
+        />
         <LocalisedField
           name="email"
+          label={
+            <TranslatedText
+              stringId="general.localisedField.email.label"
+              fallback="Email address"
+            />
+          }
           component={TextField}
           type="email"
-          defaultLabel="Email address"
           required={isRequiredPatientData('email')}
         />
         <RequiredSecondaryDetails
@@ -97,7 +152,12 @@ export const GenericSecondaryDetailsLayout = ({
   <SecondaryDetailsGroup>
     {patientRegistryType === PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY && (
       <>
-        <PatientDetailsHeading>Birth details</PatientDetailsHeading>
+        <PatientDetailsHeading>
+          <TranslatedText
+            stringId="patient.detail.subheading.birthDetails"
+            fallback="Birth details"
+          />
+        </PatientDetailsHeading>
         <SecondaryDetailsFormGrid>
           <GenericBirthFields
             registeredBirthPlace={registeredBirthPlace}
@@ -107,7 +167,12 @@ export const GenericSecondaryDetailsLayout = ({
       </>
     )}
 
-    <PatientDetailsHeading>Identification information</PatientDetailsHeading>
+    <PatientDetailsHeading>
+      <TranslatedText
+        stringId="patient.detail.subheading.identificationInformation"
+        fallback="Identification information"
+      />
+    </PatientDetailsHeading>
     <SecondaryDetailsFormGrid>
       <GenericIdentificationFields
         isEdit={isEdit}
@@ -116,17 +181,32 @@ export const GenericSecondaryDetailsLayout = ({
       />
     </SecondaryDetailsFormGrid>
 
-    <PatientDetailsHeading>Contact information</PatientDetailsHeading>
+    <PatientDetailsHeading>
+      <TranslatedText
+        stringId="patient.detail.subheading.contactInformation"
+        fallback="Contact information"
+      />
+    </PatientDetailsHeading>
     <SecondaryDetailsFormGrid>
       <GenericContactFields filterByMandatory={false} />
     </SecondaryDetailsFormGrid>
 
-    <PatientDetailsHeading>Personal information</PatientDetailsHeading>
+    <PatientDetailsHeading>
+      <TranslatedText
+        stringId="patient.detail.subheading.personalInformation"
+        fallback="Personal information"
+      />
+    </PatientDetailsHeading>
     <SecondaryDetailsFormGrid>
       <GenericPersonalFields filterByMandatory={false} />
     </SecondaryDetailsFormGrid>
 
-    <PatientDetailsHeading>Location information</PatientDetailsHeading>
+    <PatientDetailsHeading>
+      <TranslatedText
+        stringId="patient.detail.subheading.locationInformation"
+        fallback="Location information"
+      />
+    </PatientDetailsHeading>
     <SecondaryDetailsFormGrid>
       <GenericLocationFields filterByMandatory={false} />
     </SecondaryDetailsFormGrid>

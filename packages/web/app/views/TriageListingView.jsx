@@ -4,6 +4,7 @@ import { ContentPane, PageContainer, TopBar } from '../components';
 import { TriageTable } from '../components/TriageTable';
 import { TriageDashboard } from '../components/TriageDashboard';
 import { Colors } from '../constants';
+import { TranslatedText } from '../components/Translation/TranslatedText';
 
 const Section = styled.div`
   background: white;
@@ -12,7 +13,9 @@ const Section = styled.div`
 
 export const TriageListingView = () => (
   <PageContainer>
-    <TopBar title="Emergency patients" />
+    <TopBar
+      title={<TranslatedText stringId="patientList.triage.title" fallback="Emergency patients" />}
+    />
     <Section>
       <ContentPane>
         <TriageDashboard />

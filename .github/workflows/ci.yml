@@ -231,8 +231,8 @@ jobs:
 
       - name: Install and start postgres
         run: |
-          source .github/scripts/install-postgres-ubuntu.sh 14
-          .github/scripts/test-facility-offline.sh setup-postgre
+          source .github/scripts/install-postgres-ubuntu.sh 16
+          .github/scripts/test-facility-offline.sh setup-postgres
       - name: Build central and facility servers
         run: .github/scripts/test-facility-offline.sh build
       - name: Start a central server

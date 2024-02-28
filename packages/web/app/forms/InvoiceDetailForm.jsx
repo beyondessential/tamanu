@@ -16,6 +16,7 @@ import { ConfirmModal } from '../components/ConfirmModal';
 import { Modal } from '../components/Modal';
 import { InvoiceDetailTable } from '../components/InvoiceDetailTable';
 import { MinusIconButton, PlusIconButton } from '../components';
+import { TranslatedText } from '../components/Translation/TranslatedText';
 
 const InvoiceDetailExpandRow = styled.div`
   margin-top: 20px;
@@ -45,9 +46,17 @@ const InvoiceDetailExpandRow = styled.div`
 `;
 
 const PrintableInvoiceDetailModal = ({ open, onClose, invoice }) => (
-  <Modal width="md" title="Invoice detail" open={open} onClose={onClose} printable>
+  <Modal
+    width="md"
+    title={<TranslatedText stringId="invoice.modal.print.title" fallback="Invoice detail" />}
+    open={open}
+    onClose={onClose}
+    printable
+  >
     <h3>
-      <span>Invoice number: </span>
+      <span>
+        <TranslatedText stringId="invoice.modal.print.subHeading" fallback="Invoice number" />:{' '}
+      </span>
       <span>{invoice.displayId}</span>
     </h3>
     <InvoiceDetailTable
@@ -72,21 +81,56 @@ export const InvoiceDetailForm = ({
   return (
     <>
       <ConfirmModal
-        title={`Finalise invoice number: ${invoice.displayId}`}
-        text="Are you sure you want to finalise this invoice?"
-        subText="You will not be able to edit the invoice once it is finalised."
+        title={
+          <TranslatedText
+            stringId="invoice.modal.view.finalise.title"
+            fallback="Finalise invoice number: :invoiceNumber"
+            replacements={{ invoiceNumber: invoice.displayId }}
+          />
+        }
+        text={
+          <TranslatedText
+            stringId="invoice.modal.view.finalise.text"
+            fallback="Are you sure you want to finalise this invoice?"
+          />
+        }
+        subText={
+          <TranslatedText
+            stringId="invoice.modal.view.finalise.subText"
+            fallback="You will not be able to edit the invoice once it is finalised."
+          />
+        }
         confirmButtonColor="primary"
-        confirmButtonText="Finalise"
+        confirmButtonText={
+          <TranslatedText stringId="general.action.finalise" fallback="Finalise" />
+        }
         open={finaliseInvoiceModalOpen}
         onCancel={() => setFinaliseInvoiceModalOpen(false)}
         onConfirm={onFinaliseInvoice}
       />
       <ConfirmModal
-        title={`Cancel invoice number: ${invoice.displayId}`}
-        text="Are you sure you want to cancel this invoice?"
-        subText="You will not be able to edit the invoice once it is cancelled."
+        title={`${(
+          <TranslatedText
+            stringId="invoice.modal.view.cancel.title"
+            fallback="Cancel invoice number"
+          />
+        )}: ${invoice.displayId}`}
+        text={
+          <TranslatedText
+            stringId="invoice.modal.view.cancel.text"
+            fallback="Are you sure you want to cancel this invoice?"
+          />
+        }
+        subText={
+          <TranslatedText
+            stringId="invoice.modal.view.cancel.subText"
+            fallback="You will not be able to edit the invoice once it is cancelled."
+          />
+        }
         confirmButtonColor="primary"
-        confirmButtonText="Cancel Invoice"
+        confirmButtonText={
+          <TranslatedText stringId="invoice.action.cancelInvoice" fallback="Cancel Invoice" />
+        }
         open={cancelInvoiceModalOpen}
         onCancel={() => setCancelInvoiceModalOpen(false)}
         onConfirm={onCancelInvoice}
@@ -102,37 +146,74 @@ export const InvoiceDetailForm = ({
           <FormGrid>
             <Field
               name="paymentStatus"
-              label="Payment status"
+              label={
+                <TranslatedText
+                  stringId="invoice.modal.view.paymentStatus.label"
+                  fallback="Payment status"
+                />
+              }
               required
               component={RadioField}
               options={INVOICE_PAYMENT_STATUS_OPTIONS}
             />
-            <Field name="total" label="Total ($)" disabled required component={NumberField} />
+            <Field
+              name="total"
+              label={
+                <TranslatedText
+                  stringId="invoice.modal.view.total.label"
+                  fallback="Total ($)"
+                />
+              }
+              disabled
+              required
+              component={NumberField}
+            />
             <Field
               name="date"
-              label="Date"
+              label={<TranslatedText stringId="general.date.label" fallback="Date" />}
               disabled
               required
               component={DateField}
               saveDateAsString
             />
-            <Field name="admissionType" label="Admission type" disabled component={TextField} />
-            <Field name="receiptNumber" label="Receipt number" component={TextField} />
+            <Field
+              name="admissionType"
+              label={
+                <TranslatedText
+                  stringId="invoice.modal.view.admissionType.label"
+                  fallback="Admission type"
+                />
+              }
+              disabled
+              component={TextField}
+            />
+            <Field
+              name="receiptNumber"
+              label={
+                <TranslatedText
+                  stringId="invoice.modal.view.receiptNumber.label"
+                  fallback="Receipt number"
+                />
+              }
+              component={TextField}
+            />
             <ButtonRow>
               {isInvoiceEditable(invoice) ? (
                 <>
-                  <FormCancelButton onClick={onCancel}>Cancel</FormCancelButton>
+                  <FormCancelButton onClick={onCancel}>
+                    <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
+                  </FormCancelButton>
                   <Button
                     variant="outlined"
                     onClick={() => setFinaliseInvoiceModalOpen(true)}
                     color="primary"
                   >
-                    Finalise
+                    <TranslatedText stringId="general.action.finalise" fallback="Finalise" />
                   </Button>
                 </>
               ) : null}
               <FormSubmitButton variant="contained" onClick={submitForm} color="primary">
-                Save
+                <TranslatedText stringId="general.action.save" fallback="Save" />
               </FormSubmitButton>
             </ButtonRow>
           </FormGrid>
@@ -149,12 +230,19 @@ export const InvoiceDetailForm = ({
         })}
       />
       <InvoiceDetailExpandRow>
-        <div>View invoice details</div>
+        <div>
+          <TranslatedText
+            stringId="invoice.modal.view.expanded.title"
+            fallback="View invoice details"
+          />
+        </div>
         <TextButton onClick={() => setPrintableInvoiceDetailModalOpen(true)}>
           <span>
             <PrintIcon />
           </span>
-          <span> Print Invoice</span>
+          <span>
+            <TranslatedText stringId="invoice.action.printInvoice" fallback="Print Invoice" />
+          </span>
         </TextButton>
         {detailExpanded ? (
           <MinusIconButton onClick={() => setDetailExpanded(false)} />
