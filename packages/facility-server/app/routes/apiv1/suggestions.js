@@ -132,6 +132,7 @@ function createSuggesterLookupRoute(endpoint, modelName, { mapper }) {
       const record = await models[modelName].findByPk(params.id);
       if (!record) throw new NotFoundError();
 
+      req.checkPermission('read', record);
       const mappedRecord = await mapper(record);
 
       if (!TRANSLATABLE_REFERENCE_TYPES.includes(getDataType(endpoint))) {
@@ -151,7 +152,6 @@ function createSuggesterLookupRoute(endpoint, modelName, { mapper }) {
         translations: translatedStrings,
       })[0];
 
-      req.checkPermission('read', record);
       res.send(translatedRecord);
     }),
   );
