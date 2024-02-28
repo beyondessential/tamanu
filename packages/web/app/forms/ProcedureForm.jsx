@@ -137,49 +137,38 @@ export const ProcedureForm = React.memo(
                   multiline
                   rows={4}
                 />
-                <Field name="completed" label="Completed" component={CheckField} />
-              </Collapse>
-              <Collapse in={isCompleted} style={{ gridColumn: 'span 2' }}>
-                <Field
-                  name="completedNote"
-                  label="Notes on completed procedure"
-                  component={TextField}
-                  multiline
-                  rows={4}
-                />
               </Collapse>
               <FormSubmitCancelRow
                 onCancel={handleCancel}
                 onConfirm={submitForm}
                 confirmText={buttonText}
               />
-              </FormGrid>
-            </div>
-          );
-        }}
-        initialValues={{
-          date: getCurrentDateTimeString(),
-          startTime: getCurrentDateTimeString(),
-          ...editedObject,
-        }}
-        formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
-        validationSchema={yup.object().shape({
-          procedureTypeId: foreignKey('Procedure must be selected'),
-          locationId: foreignKey('Location must be selected'),
-          date: yup.date().required(),
-          startTime: yup.date(),
-          endTime: yup.date(),
-          physicianId: foreignKey(`${clinicianText} must be selected`),
-          assistantId: optionalForeignKey(),
-          anaesthetistId: optionalForeignKey(),
-          anaestheticId: optionalForeignKey(),
-          note: yup.string(),
-          completed: yup.boolean(),
-          completedNote: yup.string(),
-        })}
-      />
-    );
-  },
+            </FormGrid>
+          </div>
+        );
+      }}
+      initialValues={{
+        date: getCurrentDateTimeString(),
+        startTime: getCurrentDateTimeString(),
+        ...editedObject,
+      }}
+      formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
+      validationSchema={yup.object().shape({
+        procedureTypeId: foreignKey('Procedure must be selected'),
+        locationId: foreignKey('Location must be selected'),
+        date: yup.date().required(),
+        startTime: yup.date(),
+        endTime: yup.date(),
+        physicianId: foreignKey('Required'),
+        assistantId: optionalForeignKey(),
+        anaesthetistId: optionalForeignKey(),
+        anaestheticId: optionalForeignKey(),
+        note: yup.string(),
+        completed: yup.boolean(),
+        completedNote: yup.string(),
+      })}
+    />
+  ),
 );
 
 ProcedureForm.propTypes = {
