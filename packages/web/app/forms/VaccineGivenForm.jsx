@@ -1,8 +1,10 @@
 import React from 'react';
 import { PropTypes } from 'prop-types';
 import * as yup from 'yup';
+
 import { VACCINE_CATEGORIES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+
 import { REQUIRED_INLINE_ERROR_MESSAGE } from '../constants';
 import { TwoTwoGrid } from '../components/TwoTwoGrid';
 import {
@@ -34,8 +36,10 @@ export const VACCINE_GIVEN_INITIAL_VALUES = {
   consent: false,
 };
 
-export const VACCINE_GIVEN_VALIDATION_SCHEMA = {
-  consent: yup.bool().oneOf([true], REQUIRED_INLINE_ERROR_MESSAGE),
+export const VACCINE_GIVEN_VALIDATION_SCHEMA = vaccineConsentEnabled => ({
+  consent: vaccineConsentEnabled
+    ? yup.bool().oneOf([true], REQUIRED_INLINE_ERROR_MESSAGE)
+    : yup.bool(),
   givenBy: yup.string().when('givenElsewhere', {
     is: true,
     then: yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
@@ -47,7 +51,7 @@ export const VACCINE_GIVEN_VALIDATION_SCHEMA = {
     then: yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
     otherwise: yup.string().nullable(),
   }),
-};
+});
 
 export const VaccineGivenForm = ({
   vaccineLabel,
@@ -63,6 +67,7 @@ export const VaccineGivenForm = ({
   setVaccineLabel,
   values,
   setValues,
+  vaccineConsentEnabled,
 }) => {
   return (
     <TwoTwoGrid>
@@ -136,42 +141,48 @@ export const VaccineGivenForm = ({
           <BatchField />
         </>
       )}
+
       {!editMode && schedules?.length ? (
         <AdministeredVaccineScheduleField schedules={schedules} />
       ) : null}
+
       <VaccineDateField
         label={<TranslatedText stringId="vaccine.dateGiven.label" fallback="Date given" />}
         required={!values.givenElsewhere}
       />
+
       <InjectionSiteField />
+
       {!values.givenElsewhere ? (
         <>
           <StyledDivider />
+
           <LocationField />
           <DepartmentField />
         </>
       ) : null}
+
       <StyledDivider />
+
       {values.givenElsewhere ? <GivenByCountryField /> : <GivenByField />}
+
       {values.givenElsewhere && !editMode && <StyledDivider />}
+
       {!editMode && <RecordedByField />}
-      <StyledDivider />
-      <ConsentField
-        label={
-          values.givenElsewhere ? (
-            <TranslatedText
-              stringId="vaccine.consentGivenElsewhere.label"
-              fallback="Do you have consent to record this vaccine?"
-            />
-          ) : (
-            <TranslatedText
-              stringId="vaccine.consent.label"
-              fallback="Do you have consent from the recipient/parent/guardian to give and record this vaccine?"
-            />
-          )
-        }
-      />
-      <ConsentGivenByField />
+
+      {vaccineConsentEnabled && (
+        <>
+          <StyledDivider />
+          <ConsentField
+            label={
+              values.givenElsewhere
+                ? 'Do you have consent to record this vaccine?'
+                : 'Do you have consent from the recipient/parent/guardian to give and record this vaccine?'
+            }
+          />
+          <ConsentGivenByField />
+        </>
+      )}
       <StyledDivider />
       <ConfirmCancelRowField onConfirm={submitForm} editMode={editMode} onCancel={onCancel} />
     </TwoTwoGrid>

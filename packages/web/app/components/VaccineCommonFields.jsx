@@ -74,19 +74,17 @@ export const CategoryField = ({ setCategory, setVaccineLabel, resetForm }) => (
   </FullWidthCol>
 );
 
-export const VaccineLabelField = ({ vaccineOptions, setVaccineLabel }) => {
-  return (
-    <Field
-      name="vaccineLabel"
-      label={<TranslatedText stringId="vaccine.vaccine.label" fallback="Vaccine" />}
-      component={SelectField}
-      options={vaccineOptions}
-      onChange={e => setVaccineLabel(e.target.value)}
-      required
-      prefix="vaccine.property.name"
-    />
-  );
-};
+export const VaccineLabelField = ({ vaccineOptions, setVaccineLabel }) => (
+  <Field
+    name="vaccineLabel"
+    label={<TranslatedText stringId="vaccine.vaccine.label" fallback="Vaccine" />}
+    component={SelectField}
+    options={vaccineOptions}
+    onChange={e => setVaccineLabel(e.target.value)}
+    required
+    prefix="vaccine.property.name"
+  />
+);
 
 export const BatchField = () => (
   <Field
