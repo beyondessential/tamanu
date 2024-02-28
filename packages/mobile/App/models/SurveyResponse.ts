@@ -226,6 +226,7 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
         }
 
         const body = getStringValue(dataElement.type, value);
+        if (body === null) continue;
 
         setNote(`Attaching answer for ${dataElement.id}...`);
         const answerRecord = await SurveyResponseAnswer.createAndSaveOne({
