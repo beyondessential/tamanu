@@ -16,7 +16,7 @@ import {
 } from '../../../../../components';
 import { ConfiguredMandatoryPatientFields } from '../../../ConfiguredMandatoryPatientFields';
 import { usePatientSuggester, useSuggester } from '../../../../../api';
-import { TranslatedText } from '../Translation/TranslatedText';
+import { TranslatedText } from '../../../../../components/Translation/TranslatedText';
 
 export const GenericPersonalFields = ({ patientRegistryType, filterByMandatory }) => {
   const countrySuggester = useSuggester('country');

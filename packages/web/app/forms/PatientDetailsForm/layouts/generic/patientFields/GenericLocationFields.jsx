@@ -1,8 +1,9 @@
 import React from 'react';
 import { AutocompleteField, TextField } from '../../../../../components';
 import { ConfiguredMandatoryPatientFields } from '../../../ConfiguredMandatoryPatientFields';
+
 import { useSuggester } from '../../../../../api';
-import { TranslatedText } from '../Translation/TranslatedText';
+import { TranslatedText } from '../../../../../components/Translation/TranslatedText';
 
 export const GenericLocationFields = ({ filterByMandatory }) => {
   const subdivisionSuggester = useSuggester('subdivision');
