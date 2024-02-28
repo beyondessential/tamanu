@@ -3,7 +3,11 @@ import { Op } from 'sequelize';
 import { permissionCache } from '@tamanu/shared/permissions/cache';
 import { ValidationError as YupValidationError } from 'yup';
 import config from 'config';
-import { TRANSLATABLE_REFERENCE_TYPES, ENGLISH_LANGUAGE_CODE } from '@tamanu/constants';
+import {
+  TRANSLATABLE_REFERENCE_TYPES,
+  ENGLISH_LANGUAGE_CODE,
+  REFERENCE_DATA_TRANSLATION_PREFIX,
+} from '@tamanu/constants';
 
 import { ForeignkeyResolutionError, UpsertionError, ValidationError } from './errors';
 import { statkey, updateStat } from './stats';
@@ -217,7 +221,7 @@ export async function importRows(
 
       if (TRANSLATABLE_REFERENCE_TYPES.includes(sheetName)) {
         const { TranslatedString } = models;
-        const stringId = `refData.${sheetName}.${values.id}`;
+        const stringId = `${REFERENCE_DATA_TRANSLATION_PREFIX}.${sheetName}.${values.id}`;
         const existingTranslation = await TranslatedString.findOne({ where: { stringId } });
         if (!existingTranslation) {
           await TranslatedString.create({
