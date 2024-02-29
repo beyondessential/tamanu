@@ -13,7 +13,7 @@ const { port } = config;
 
 export const serve = async ({ skipMigrationCheck, provisioning }) => {
   if (provisioning) {
-    await provision({ file: provisioning, skipIfNotNeeded: true });
+    await provision(provisioning, { skipIfNotNeeded: true });
   }
 
   log.info(`Starting central server version ${version}`);

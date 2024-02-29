@@ -1,5 +1,6 @@
 export * from './auth.js';
 export * from './births.js';
+export * from './brands.js';
 export * from './comms.js';
 export * from './datetimes.js';
 export * from './deaths.js';
@@ -16,6 +17,7 @@ export * from './locations.js';
 export * from './medications.js';
 export * from './notes.js';
 export * from './patientFields.js';
+export * from './patientDetails.js';
 export * from './reports.js';
 export * from './servers.js';
 export * from './statuses.js';
