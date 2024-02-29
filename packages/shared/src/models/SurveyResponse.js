@@ -294,7 +294,9 @@ export class SurveyResponse extends Model {
       }
       const body = getStringValue(dataElement.type, value);
       // Don't create null answers
-      if (body === null) continue;
+      if (body === null) {
+        continue;
+      }
 
       const answer = await models.SurveyResponseAnswer.create({
         dataElementId: dataElement.id,
