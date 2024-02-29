@@ -76,7 +76,7 @@ const getFieldsToWrite = (models, questions, answers) => {
  * DUPLICATED IN mobile/App/models/SurveyResponse.ts
  * Please keep in sync
  */
-async function writeToPatientFields(models, questions, answers, patientId, surveyId, userId) {
+async function writeToPatientFields(models, questions, answers, patientId, surveyId, userId, submittedTime) {
   const valuesByModel = getFieldsToWrite(models, questions, answers);
 
   if (valuesByModel.Patient) {
@@ -100,16 +100,17 @@ async function writeToPatientFields(models, questions, answers, patientId, surve
     await models.PatientProgramRegistration.create({
       patientId,
       programRegistryId,
+      date: submittedTime,
       ...valuesByModel.PatientProgramRegistration,
       clinicianId: valuesByModel.PatientProgramRegistration.clinicianId || userId,
     });
   }
 }
 
-async function handleSurveyResponseActions(models, questions, answers, patientId, surveyId, userId) {
+async function handleSurveyResponseActions(models, questions, answers, patientId, surveyId, userId, submittedTime) {
   const activeQuestions = getActiveActionComponents(questions, answers);
   await createPatientIssues(models, activeQuestions, patientId);
-  await writeToPatientFields(models, activeQuestions, answers, patientId, surveyId, userId);
+  await writeToPatientFields(models, activeQuestions, answers, patientId, surveyId, userId, submittedTime);
 }
 
 export class SurveyResponse extends Model {
@@ -319,6 +320,7 @@ export class SurveyResponse extends Model {
       encounter.patientId,
       surveyId,
       responseData.userId,
+      responseData.endTime,
     );
 
     return record;
