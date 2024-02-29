@@ -219,9 +219,15 @@ export async function importRows(
         updateStat(stats, statkey(model, sheetName), 'created');
       }
 
-      if (TRANSLATABLE_REFERENCE_TYPES.includes(sheetName)) {
+      const SHEET_NAME_TO_DATA_TYPE = {
+        ['diagnosis']: 'icd10',
+      };
+
+      const dataType = SHEET_NAME_TO_DATA_TYPE[sheetName] || sheetName;
+
+      if (TRANSLATABLE_REFERENCE_TYPES.includes(dataType)) {
         const { TranslatedString } = models;
-        const stringId = `${REFERENCE_DATA_TRANSLATION_PREFIX}.${sheetName}.${values.id}`;
+        const stringId = `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.${values.id}`;
         const existingTranslation = await TranslatedString.findOne({ where: { stringId } });
         if (!existingTranslation) {
           await TranslatedString.create({
