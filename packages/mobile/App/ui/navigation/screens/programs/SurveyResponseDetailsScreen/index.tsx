@@ -67,15 +67,17 @@ function getAnswerText(question, answer): string | number {
   }
 }
 
+const isAutocomplete = ({ config, dataElement }) => dataElement.type === 'Autocomplete' ||
+ (config && JSON.parse(config).writeToPatient?.fieldType === 'Autocomplete');
+
 const renderAnswer = (question, answer): ReactElement => {
+  if (isAutocomplete(question)) return <AnswerFromBackend question={question} answer={answer} />;
+
   switch (question.dataElement.type) {
     case FieldTypes.RESULT:
       return <SurveyResultBadge resultText={answer} />;
     case FieldTypes.PHOTO:
       return <ViewPhotoLink imageId={answer} />;
-    case FieldTypes.AUTOCOMPLETE:
-    case FieldTypes.PATIENT_DATA:
-      return <AnswerFromBackend question={question} answer={answer} />;
     default:
       return (
         <StyledText textAlign="right" color={theme.colors.TEXT_DARK}>
