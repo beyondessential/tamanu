@@ -98,7 +98,7 @@ routes.get(
       offset = 0,
     } = req.query;
     if (!COUNTRY_TIMEZONE) {
-      throw new Error('A countryTimeZone must be configured in local.json for this report to run');
+      throw new Error('A countryTimeZone must be configured in local.json5 for this report to run');
     }
 
     const data = await sequelize.query(reportQuery, {
