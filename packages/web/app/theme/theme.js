@@ -38,7 +38,35 @@ const palette = {
     unit: MUI_SPACING_UNIT,
   },
 };
-const typography = { useNextVariants: true, fontSize: 15 };
+
+// We want to use Khmer fonts for Khmer text, and Roboto for everything else. We have set the font-face
+// in fonts.css to only apply to khmer unicode characters. If more languages are added, we should
+// probably convert this into a more dynamic solution that generates the strings from font object.
+const FONTS = {
+  KHMER: {
+    HEADING: 'Moul',
+    BODY: 'Battambang',
+  },
+  DEFAULT: {
+    HEADING: 'Roboto',
+    BODY: 'Roboto',
+  }
+}
+
+const bodyFontVariants = [FONTS.KHMER.BODY, FONTS.DEFAULT.BODY].join(', ');
+const headingFontVariants = [FONTS.KHMER.HEADING, FONTS.DEFAULT.HEADING].join(', ');
+
+const typography = {
+  useNextVariants: true,
+  fontSize: 15,
+  fontFamily: bodyFontVariants,
+  h1: { fontFamily: headingFontVariants },
+  h2: { fontFamily: headingFontVariants },
+  h3: { fontFamily: headingFontVariants },
+  h4: { fontFamily: headingFontVariants },
+  h5: { fontFamily: headingFontVariants },
+  h6: { fontFamily: headingFontVariants },
+};
 const shape = { borderRadius: 3 };
 const overrides = {
   MuiCard: {

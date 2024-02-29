@@ -7,6 +7,7 @@ import { FormModal } from '../../../components';
 import { NewPatientForm } from '../../../forms';
 import { useApi } from '../../../api';
 import { notifyError } from '../../../utils';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { useLocalisation } from '../../../contexts/Localisation';
 
 export const NewPatientModal = ({ open, onCancel, onCreateNewPatient, ...formProps }) => {
@@ -14,7 +15,7 @@ export const NewPatientModal = ({ open, onCancel, onCreateNewPatient, ...formPro
   // This is a hack to allow cambodia patient details template to have
   // mandatory fields that are not moved up into the primary details section.
   const collapseAdditionalFields =
-    getLocalisation('layout.patientDetails') !== PATIENT_DETAIL_LAYOUTS.CAMBODIA;
+    getLocalisation('layouts.patientDetails') !== PATIENT_DETAIL_LAYOUTS.CAMBODIA;
 
   const api = useApi();
   const onSubmit = useCallback(
@@ -29,7 +30,11 @@ export const NewPatientModal = ({ open, onCancel, onCreateNewPatient, ...formPro
     [api, onCreateNewPatient],
   );
   return (
-    <FormModal title="Add new patient" onClose={onCancel} open={open}>
+    <FormModal
+      title={<TranslatedText stringId="patient.modal.create.title" fallback="Add new patient" />}
+      onClose={onCancel}
+      open={open}
+    >
       <NewPatientForm
         generateId={generateId}
         onCancel={onCancel}
