@@ -73,12 +73,12 @@ const UNHIDEABLE_FIELDS = [
   'clinician',
   'diagnosis',
   'userDisplayId',
-  'circumstanceIds',
   'date',
   'registeredBy',
   'status',
   'conditions',
   'programRegistry',
+  'circumstanceIds',
 ];
 
 const HIDEABLE_FIELDS = [
@@ -136,7 +136,6 @@ const HIDEABLE_FIELDS = [
   'facility',
   'dischargeDisposition',
   'notGivenReasonId',
-  'circumstanceIds',
 ];
 
 const UNHIDEABLE_PATIENT_TABS = ['history', 'details'];
