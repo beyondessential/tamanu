@@ -105,7 +105,7 @@ const tabCompare = ({ firstTab, secondTab, patientTabLocalisation }) => {
 
 const usePatientTabs = () => {
   const { getLocalisation } = useLocalisation();
-  const patientTabLocalisation = getLocalisation('patientTabs');
+  const patientTabLocalisation = getLocalisation('layouts.patientTabs');
   return TABS.filter(
     tab => patientTabLocalisation?.[tab.key]?.hidden === false,
   ).sort((firstTab, secondTab) => tabCompare({ firstTab, secondTab, patientTabLocalisation }));
