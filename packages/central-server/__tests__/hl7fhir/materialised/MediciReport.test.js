@@ -1,5 +1,4 @@
-import { fake } from '@tamanu/shared/test-helpers';
-import { chance } from '@tamanu/shared/test-helpers';
+import { fake, chance } from '@tamanu/shared/test-helpers';
 import { IMAGING_REQUEST_STATUS_TYPES, REFERENCE_TYPES } from '@tamanu/constants';
 
 import { createTestContext } from '../../utilities';
