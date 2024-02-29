@@ -1,7 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
-import { addDays, differenceInDays, parseISO, subDays } from 'date-fns';
+import { addDays, differenceInDays, parseISO } from 'date-fns';
 import { VISIBILITY_STATUSES, VACCINE_CATEGORIES, VACCINE_STATUS } from '@tamanu/constants';
 import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
 
@@ -16,27 +16,9 @@ const asRealNumber = value => {
   return num;
 };
 
-const mockDueDate = index => {
-  let dueDate;
-
-  switch (true) {
-    case index === 0:
-      dueDate = toDateTimeString(addDays(new Date(), 30));
-      break;
-    case index === 1:
-      dueDate = toDateTimeString(addDays(new Date(), 10));
-      break;
-    case index === 2:
-      dueDate = toDateTimeString(addDays(new Date(), 1));
-      break;
-    case index === 3:
-      dueDate = toDateTimeString(subDays(new Date(), 10));
-      break;
-    default:
-      dueDate = toDateTimeString(subDays(new Date(), 60));
-      break;
-  }
-
+const mockDueDate = (dob, record) => {
+  const weeksFromBirthDue = record.weeksFromBirthDue ? record.weeksFromBirthDue : 99;
+  const dueDate = toDateTimeString(addDays(new Date(dob), weeksFromBirthDue));
   return toDateTimeString(dueDate);
 };
 
@@ -60,13 +42,6 @@ const mockStatusLogic = date => {
   }
 };
 
-const mockVaccineSchedule = (record, index) => {
-  // Get start of week
-  const dueDate = mockDueDate(index);
-  const vaccineScheduleStatus = mockStatusLogic(dueDate);
-  return { ...record, dueDate, vaccineScheduleStatus };
-};
-
 export const patientVaccineScheduleRoutes = express.Router();
 
 // This is just a temporary endpoint for demoing the front-end.
@@ -75,6 +50,14 @@ patientVaccineScheduleRoutes.get(
   '/:id/vaccineSchedule',
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'PatientVaccine');
+    req.checkPermission('read', 'Patient');
+
+    const {
+      models: { Patient },
+      params: { id },
+    } = req;
+
+    const patient = await Patient.findByPk(id);
 
     const results = await req.db.query(
       `
@@ -136,7 +119,11 @@ patientVaccineScheduleRoutes.get(
       v.schedules.some(s => !s.administered),
     );
 
-    const mockedResults = availableVaccines.map(mockVaccineSchedule);
+    const mockedResults = availableVaccines.map(record => {
+      const dueDate = mockDueDate(patient.dateOfBirth, record);
+      const vaccineScheduleStatus = mockStatusLogic(dueDate);
+      return { ...record, dueDate, vaccineScheduleStatus };
+    });
     res.send({ count: availableVaccines.length, data: mockedResults });
   }),
 );
