@@ -12,7 +12,7 @@ import { EditNoteForm } from './EditNoteForm';
 import { NoteChangelogForm } from './NoteChangelogForm';
 import { CreateNoteForm } from './CreateNoteForm';
 import { TreatmentPlanNoteChangelogForm } from './TreatmentPlanNoteChangelogForm';
-import { NOTE_FORM_MODES } from '../constants';
+import { FORM_TYPES, NOTE_FORM_MODES } from '../constants';
 
 export const NoteForm = ({
   onCancel,
@@ -77,6 +77,11 @@ export const NoteForm = ({
         writtenById: currentUser.id,
         content: note?.content,
       }}
+      formType={
+        noteFormMode === NOTE_FORM_MODES.EDIT_NOTE
+          ? FORM_TYPES.EDIT_FORM
+          : FORM_TYPES.CREATE_FORM
+      }
       validationSchema={yup.object().shape({
         noteType: yup
           .string()
