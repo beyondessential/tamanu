@@ -63,9 +63,6 @@ const isAutocomplete = ({ config, dataElement }) => dataElement.type === 'Autoco
  (config && JSON.parse(config).writeToPatient?.fieldType === 'Autocomplete');
 
 export const getAutocompleteComponentMap = surveyComponents => {
-  // There's a couple of components that use the "source" config option
-  // to specify foreign data for the question answers to link to,
-  // but we only want to transform the Autocomplete ones here (for now)
   const autocompleteComponents = surveyComponents
     .filter(isAutocomplete)
     .map(({ dataElementId, config: componentConfig }) => [
