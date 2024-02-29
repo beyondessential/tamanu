@@ -8,6 +8,7 @@ import { FormSubmitCancelRow } from './ButtonRow';
 import { AutocompleteField, DateTimeField, Field, Form, TextField } from './Field';
 import { FormGrid } from './FormGrid';
 import { TranslatedText } from './Translation/TranslatedText';
+import { useTranslation } from '../contexts/Translation';
 
 const SubmitError = styled.div`
   color: ${Colors.alert};
@@ -21,6 +22,8 @@ export function CarePlanNoteForm({
   onSuccessfulSubmit,
   onCancel,
 }) {
+  const { getTranslation } = useTranslation();
+
   const [submitError, setSubmitError] = useState('');
   const practitionerSuggester = useSuggester('practitioner');
   const api = useApi();
@@ -79,7 +82,7 @@ export function CarePlanNoteForm({
           <FormGrid columns={1}>
             <Field
               name="content"
-              placeholder="Write a note..."
+              placeholder={getTranslation("general.placeholder.writeNote", "Write a note...")}
               component={TextField}
               required
               multiline

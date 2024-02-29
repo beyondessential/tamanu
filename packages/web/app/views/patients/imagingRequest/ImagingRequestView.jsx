@@ -34,6 +34,7 @@ import { CancelModalButton } from './CancelModalButton';
 import { PrintModalButton } from './PrintModalButton';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { IMAGING_REQUEST_STATUS_OPTIONS } from '../../../constants';
+import { useTranslation } from '../../../contexts/Translation';
 
 const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
   const { getLocalisation } = useLocalisation();
@@ -130,13 +131,14 @@ const BottomAlignFormGrid = styled(FormGrid)`
 
 const NewResultSection = ({ disabled = false }) => {
   const practitionerSuggester = useSuggester('practitioner');
+  const { getTranslation } = useTranslation();
 
   return (
     <FormGrid columns={2}>
       <Field
         label={<TranslatedText stringId="imaging.completedBy.label" fallback="Completed by" />}
         name="newResult.completedById"
-        placeholder="Search"
+        placeholder={getTranslation("general.placeholder.search", "Search")}
         component={AutocompleteField}
         suggester={practitionerSuggester}
         disabled={disabled}
@@ -153,7 +155,7 @@ const NewResultSection = ({ disabled = false }) => {
           <TranslatedText stringId="imaging.description.label" fallback="Result description" />
         }
         name="newResult.description"
-        placeholder="Result description..."
+        placeholder={getTranslation("general.placeholder.resultDescription", "Result description...")}
         multiline
         component={TextField}
         style={{ gridColumn: '1 / -1', minHeight: '3em' }}

@@ -25,6 +25,7 @@ import {
   usePatientProgramRegistryConditionsQuery,
   useProgramRegistryConditionsQuery,
 } from '../../api/queries/usePatientProgramRegistryConditions';
+import { useTranslation } from '../../contexts/Translation';
 
 export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistration, open }) => {
   const api = useApi();
@@ -43,6 +44,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
   const { data: conditions, isLoading: isConditionsLoading } = useProgramRegistryConditionsQuery(
     patientProgramRegistration.programRegistryId,
   );
+  const { getTranslation } = useTranslation();
 
   const registeredBySuggester = useSuggester('practitioner');
   const registeringFacilitySuggester = useSuggester('facility');
@@ -151,7 +153,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
                     }
                     name="conditionIds"
                     label="Related conditions"
-                    placeholder="Select"
+                    placeholder={getTranslation("general.placeholder.select", "Select")}
                     component={MultiselectField}
                     options={conditions}
                     disabled={!conditions || conditions.length === 0}

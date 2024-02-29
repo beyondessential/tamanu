@@ -16,6 +16,7 @@ import {
 import { Colors } from '../constants';
 import { LanguageSelector } from '../components/LanguageSelector';
 import { TranslatedText } from '../components/Translation/TranslatedText';
+import { useTranslation } from '../contexts/Translation';
 
 const FormSubtext = styled(BodyText)`
   color: ${Colors.midText};
@@ -93,6 +94,8 @@ const LoginFormComponent = ({
   setFieldError,
   rememberEmail,
 }) => {
+  const { getTranslation } = useTranslation();
+
   const [genericMessage, setGenericMessage] = useState(null);
 
   useEffect(() => {
@@ -133,7 +136,7 @@ const LoginFormComponent = ({
         label={<TranslatedText stringId="login.email.label" fallback="Email" />}
         required
         component={TextField}
-        placeholder="Enter your email address"
+        placeholder={getTranslation("general.placeholder.enterYourEmailAddress", "Enter your email address")}
         onChange={() => removeValidation()}
         autoComplete="off"
       />
@@ -144,7 +147,7 @@ const LoginFormComponent = ({
           type="password"
           required
           component={TextField}
-          placeholder="Enter your password"
+          placeholder={getTranslation("general.placeholder.enterYourPassword", "Enter your password")}
           onChange={() => removeValidation()}
           autoComplete="off"
         />

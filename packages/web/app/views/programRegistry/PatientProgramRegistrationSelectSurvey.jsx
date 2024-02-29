@@ -12,6 +12,7 @@ import { FormGrid } from '../../components/FormGrid';
 import { foreignKey } from '../../utils/validation';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { ConditionalTooltip, ThemedTooltip } from '../../components/Tooltip';
+import { useTranslation } from '../../contexts/Translation';
 
 const DisplayContainer = styled.div`
   display: flex;
@@ -52,6 +53,7 @@ const StyledButton = styled(Button)`
 export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistration }) => {
   const api = useApi();
   const { navigateToProgramRegistrySurvey } = usePatientNavigation();
+  const { getTranslation } = useTranslation();
 
   const { data: surveys } = useQuery(
     ['programSurveys', patientProgramRegistration.programRegistry.programId],
@@ -90,7 +92,7 @@ export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistrat
                   name="surveyId"
                   label="Select form"
                   component={BaseSelectField}
-                  placeholder="Select"
+                  placeholder={getTranslation("general.placeholder.select", "Select")}
                   options={surveys}
                   disabled={isRemoved}
                 />
