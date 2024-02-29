@@ -9,6 +9,6 @@ export async function up(query) {
   `);
 }
 
-export async function down(query) {
+export async function down() {
   // each deployment may have different versions of check_valid_resource_type so best not to revert it
 }
