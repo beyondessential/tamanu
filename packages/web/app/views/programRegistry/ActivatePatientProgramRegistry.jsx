@@ -177,7 +177,6 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
         }}
         initialValues={{
           ...patientProgramRegistration,
-          date: getCurrentDateTimeString(),
           registeringFacilityId: facility?.id,
           clinicianId: currentUser?.id,
           conditionIds: registrationConditions?.data.map(x => x.programRegistryConditionId),
