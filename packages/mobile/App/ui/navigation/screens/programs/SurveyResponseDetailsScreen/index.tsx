@@ -67,6 +67,8 @@ function getAnswerText(question, answer): string | number {
   }
 }
 
+// Same discriminant logic used in getAutocompleteComponentMap
+// inside file packages/shared/src/reports/utilities/transformAnswers.js
 const isAutocomplete = ({ config, dataElement }) => dataElement.type === 'Autocomplete' ||
  (config && JSON.parse(config).writeToPatient?.fieldType === 'Autocomplete');
 
