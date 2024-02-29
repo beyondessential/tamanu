@@ -9,6 +9,7 @@ import {
   socialMediaOptions,
   titleOptions
 } from '~/ui/helpers/additionalData';
+import { yupAttemptTransformToNumber } from '~/ui/helpers/numeralTranslation';
 
 // All PatientAdditionalData plain fields sorted alphabetically
 export const plainFields = [
@@ -144,16 +145,16 @@ export const patientAdditionalDataValidationSchema = Yup.object().shape({
   passport: Yup.string().nullable(),
   patientBillingTypeId: Yup.string().nullable(),
   placeOfBirth: Yup.string().nullable(),
-  primaryContactNumber: Yup.string().nullable(),
+  primaryContactNumber: Yup.number().transform(yupAttemptTransformToNumber),
   religionId: Yup.string().nullable(),
-  secondaryContactNumber: Yup.string().nullable(),
+  secondaryContactNumber: Yup.number().transform(yupAttemptTransformToNumber),
   settlementId: Yup.string().nullable(),
   socialMedia: Yup.string().nullable(),
   streetVillage: Yup.string().nullable(),
   subdivisionId: Yup.string().nullable(),
   title: Yup.string().nullable(),
   emergencyContactName: Yup.string().nullable(),
-  emergencyContactNumber: Yup.string().nullable(),
+  emergencyContactNumber: Yup.number().transform(yupAttemptTransformToNumber),
 });
 
 // Strip off unwanted fields from additional data and only keep specified ones

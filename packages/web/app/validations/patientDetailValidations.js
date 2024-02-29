@@ -8,6 +8,8 @@ import {
   PLACE_OF_BIRTH_TYPES,
 } from '@tamanu/constants';
 
+import { yupAttemptTransformToNumber } from '../utils';
+
 const requiredWhenConfiguredMandatory = (getLocalisation, name, baseType) => {
   return baseType.when([], {
     is: () => !!getLocalisation(`fields.${name}.requiredPatientData`),
@@ -155,12 +157,12 @@ export const getPatientDetailsValidation = (patientRegistryType, sexValues, getL
     primaryContactNumber: requiredWhenConfiguredMandatory(
       getLocalisation,
       'primaryContactNumber',
-      yup.number(),
+      yup.number().transform(yupAttemptTransformToNumber),
     ),
     secondaryContactNumber: requiredWhenConfiguredMandatory(
       getLocalisation,
       'secondaryContactNumber',
-      yup.number(),
+      yup.number().transform(yupAttemptTransformToNumber),
     ),
     emergencyContactName: requiredWhenConfiguredMandatory(
       getLocalisation,
@@ -170,7 +172,7 @@ export const getPatientDetailsValidation = (patientRegistryType, sexValues, getL
     emergencyContactNumber: requiredWhenConfiguredMandatory(
       getLocalisation,
       'emergencyContactNumber',
-      yup.number(),
+      yup.number().transform(yupAttemptTransformToNumber),
     ),
     title: requiredWhenConfiguredMandatory(getLocalisation, 'title', yup.string()),
     bloodType: requiredWhenConfiguredMandatory(getLocalisation, 'bloodType', yup.string()),

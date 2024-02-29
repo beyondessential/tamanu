@@ -1,4 +1,6 @@
 import * as yup from 'yup';
+import { numeralTranslation } from '@tamanu/shared/utils/numeralTranslation';
+import { isNaN } from 'lodash';
 
 // Foreign keys used to be more complicated nested objects requiring custom
 // validation, but they're just strings now. We could remove these validators entirely,
@@ -7,3 +9,8 @@ import * as yup from 'yup';
 // so there's no safety issue here)
 export const foreignKey = message => yup.string().required(message);
 export const optionalForeignKey = () => yup.string();
+
+export const yupAttemptTransformToNumber = (value, originalValue) => {
+  const translationValue = numeralTranslation(originalValue);
+  return isNaN(value) ? translationValue : value;
+};
