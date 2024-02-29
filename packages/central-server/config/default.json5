@@ -983,6 +983,18 @@
             hidden: false,
             sortPriority: 0,
           },
+          facilityAdmin: {
+            hidden: false,
+            sortPriority: 0,
+            reports: {
+              hidden: false,
+              sortPriority: 0,
+            },
+            bedManagement: {
+              hidden: false,
+              sortPriority: 0,
+            }
+          }
         },
       },
       "printMeasures": {

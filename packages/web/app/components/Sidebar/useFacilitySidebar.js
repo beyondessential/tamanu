@@ -6,10 +6,6 @@ const sortTopLevelItems = (a, b) => {
   if (a.key === 'patients') {
     return -1;
   }
-  // Always show facilityAdmin last
-  if (a.key === 'facilityAdmin') {
-    return 1;
-  }
   return a.sortPriority - b.sortPriority;
 };
 
