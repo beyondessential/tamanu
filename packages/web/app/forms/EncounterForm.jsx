@@ -17,7 +17,7 @@ import {
   SuggesterSelectField,
   TextField,
 } from '../components';
-import { ENCOUNTER_OPTIONS } from '../constants';
+import { ENCOUNTER_OPTIONS, FORM_TYPES } from '../constants';
 import { useSuggester } from '../api';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 
@@ -145,6 +145,7 @@ export const EncounterForm = React.memo(
           patientBillingTypeId,
           ...editedObject,
         }}
+        formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
         validationSchema={yup.object().shape({
           examinerId: foreignKey('Required'),
           locationId: foreignKey('Location is required'),

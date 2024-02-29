@@ -16,6 +16,7 @@ const fieldSchema = yup
     }),
     hidden: yup.boolean().required(),
     required: yup.boolean(),
+    defaultValue: yup.mixed(),
     requiredPatientData: yup.boolean(),
     pattern: yup.string(),
   })
@@ -28,6 +29,7 @@ const unhideableFieldSchema = yup
     shortLabel: yup.string().required(),
     longLabel: yup.string().required(),
     required: yup.boolean(),
+    defaultValue: yup.mixed(),
     requiredPatientData: yup.boolean(),
     pattern: yup.string(),
   })
@@ -76,6 +78,7 @@ const UNHIDEABLE_FIELDS = [
   'status',
   'conditions',
   'programRegistry',
+  'circumstanceIds',
 ];
 
 const HIDEABLE_FIELDS = [
@@ -132,6 +135,7 @@ const HIDEABLE_FIELDS = [
   'prescriberId',
   'facility',
   'dischargeDisposition',
+  'notGivenReasonId',
 ];
 
 const UNHIDEABLE_PATIENT_TABS = ['history', 'details'];

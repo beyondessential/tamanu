@@ -6,6 +6,7 @@ import { DateField, Field, Form, SelectField, TextField } from '../components/Fi
 import { FormGrid } from '../components/FormGrid';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { FormSubmitCancelRow } from '../components/ButtonRow';
+import { FORM_TYPES } from '../constants';
 
 export const PatientIssueForm = ({ onSubmit, editedObject, onCancel }) => (
   <Form
@@ -52,6 +53,7 @@ export const PatientIssueForm = ({ onSubmit, editedObject, onCancel }) => (
       type: PATIENT_ISSUE_TYPES.ISSUE,
       ...editedObject,
     }}
+    formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
     validationSchema={yup.object().shape({
       note: yup.string().required(),
       recordedDate: yup.date().required(),
