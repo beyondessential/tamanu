@@ -35,6 +35,7 @@ export const ImmunisationScheduleTable = React.memo(({ patient, onItemEdit }) =>
         key: 'vaccineDisplayName',
         title: <TranslatedText stringId="vaccine.table.column.vaccine" fallback="Vaccine" />,
         accessor: getVaccineName,
+        sortable: false,
       },
       {
         key: 'schedule',
@@ -46,6 +47,7 @@ export const ImmunisationScheduleTable = React.memo(({ patient, onItemEdit }) =>
         key: 'dueDate',
         title: <TranslatedText stringId="vaccine.table.column.dueDate" fallback="Due date" />,
         accessor: getDueDate,
+        sortable: false,
       },
       {
         key: 'status',

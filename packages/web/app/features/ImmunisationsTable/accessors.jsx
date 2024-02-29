@@ -34,7 +34,7 @@ export const getDueDate = record => {
 
   const mondayDate = startOfWeek(parseISO(record.dueDate), { weekStartsOn: 1 });
   return (
-    <div style={{ width: '140px' }}>
+    <div>
       <TranslatedText stringId="general.date.weekOf" fallback="Week of" />{' '}
       <DateDisplay date={mondayDate} />
     </div>
