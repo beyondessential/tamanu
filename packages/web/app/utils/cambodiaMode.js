@@ -29,7 +29,7 @@ const CAMBODIA_REPORT_NAMES = [
   'Generic Survey Export - Line List',
   'Patient Vaccination Summary',
   'Vaccine - Line list',
-  'And "Upcoming Vaccinations" once completed',
+  'Upcoming Vaccinations Line List Report',
 ];
 
 export const cambodiaReportsFiler = report => CAMBODIA_REPORT_NAMES.includes(report.name);
