@@ -30,13 +30,23 @@ const PRINT_OPTIONS = {
         fallback="Multiple ID labels"
       />
     ),
-    caption: 'A4 sheet of multipele patient identification labels',
+    caption: (
+      <TranslatedText
+        stringId="patientDetails.print.action.idLabels.caption"
+        fallback="A4 sheet of multipele patient identification labels"
+      />
+    ),
     icon: MultilabelIdIcon,
     component: PatientStickerLabelPage,
   },
   idcard: {
     label: <TranslatedText stringId="patientDetails.print.action.idCard" fallback="ID Card" />,
-    caption: 'Patient identification card',
+    caption: (
+      <TranslatedText
+        stringId="patientDetails.print.action.idCard.caption"
+        fallback="Patient identification card"
+      />
+    ),
     icon: IdCardIcon,
     component: PatientIDCardPage,
   },
@@ -47,7 +57,12 @@ const PRINT_OPTIONS = {
         fallback="Test certificate - COVID-19"
       />
     ),
-    caption: 'Patient COVID-19 test certificate',
+    caption: (
+      <TranslatedText
+        stringId="patientDetails.print.action.covid19TestCertificate.caption"
+        fallback="Patient COVID-19 test certificate"
+      />
+    ),
     icon: TestCertificateCovid19Icon,
     component: CovidTestCertificateModal,
   },
@@ -58,7 +73,12 @@ const PRINT_OPTIONS = {
         fallback="Clearance certificate - COVID-19"
       />
     ),
-    caption: 'Patient COVID-19 clearance certificate',
+    caption: (
+      <TranslatedText
+        stringId="patientDetails.print.action.covid19ClearanceCertificate.caption"
+        fallback="Patient COVID-19 clearance certificate"
+      />
+    ),
     icon: ClearenceCertificateCovid19Icon,
     component: CovidClearanceCertificateModal,
     condition: getLocalisation => getLocalisation('features.enableCovidClearanceCertificate'),
@@ -70,13 +90,28 @@ const PRINT_OPTIONS = {
         fallback="Birth notification"
       />
     ),
-    caption: 'Patient birth notification document',
+    caption: (
+      <TranslatedText
+        stringId="patientDetails.print.action.birthNotification.caption"
+        fallback="Patient birth notification document"
+      />
+    ),
     icon: BirthNotificationIcon,
     component: BirthNotificationCertificateModal,
   },
   ipsQrCode: {
-    label: 'International Patient Summary',
-    caption: 'Email International Patient Summary QR Code',
+    label: (
+      <TranslatedText
+        stringId="patientDetails.print.action.internationalPatientSummary"
+        fallback="International Patient Summary"
+      />
+    ),
+    caption: (
+      <TranslatedText
+        stringId="patientDetails.print.action.internationalPatientSummary.caption"
+        fallback="Email International Patient Summary QR Code"
+      />
+    ),
     icon: InternationPatientSummaryIcon,
     component: IPSQRCodeModal,
     condition: (_, ability) => ability?.can('create', 'IPSRequest'),
@@ -177,7 +212,7 @@ const StyledPrintOptionsRow = styled.div`
 
 const PrintOptionButton = styled(Button)`
   background: ${Colors.white};
-  border: 1px solid ${Colors.outline};
+  border: 2px solid ${Colors.outline};
   border-radius: 5px;
   color: ${Colors.primary};
 
