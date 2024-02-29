@@ -704,6 +704,15 @@
           "shortLabel": "Registration number",
           "longLabel": "Registration number"
         },
+        "notGivenReasonId": {
+          "shortLabel": "Reason",
+          "longLabel": "Reason",
+          "hidden": false
+        },
+        "circumstanceIds": {
+          "shortLabel": "Circumstance",
+          "longLabel": "Circumstance"
+        },
         "date": {
           "shortLabel": "Date",
           "longLabel": "Date"
