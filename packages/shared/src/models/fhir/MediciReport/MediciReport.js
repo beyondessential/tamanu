@@ -5,6 +5,7 @@ import { FhirResource } from '../Resource';
 
 import { fromEncounters } from './getQueryToFindUpstreamIds';
 import { getMaterialisedValues } from './getMaterialisedValues';
+import { filterFromEncounters } from './filterFromEncounters';
 
 export class MediciReport extends FhirResource {
   static init(options, models) {
@@ -69,27 +70,26 @@ export class MediciReport extends FhirResource {
 
     this.UpstreamModels = [models.Encounter];
     this.upstreams = [
+      models.Patient,
+      models.PatientBirthData,
       models.ImagingRequest,
       models.ImagingRequestArea,
-      models.ImagingAreaExternalCode,
       models.Encounter,
+      models.EncounterHistory,
       models.LabRequest,
       models.LabTest,
       models.LabTestType,
-      models.LabTestPanelRequest,
-      models.LabTestPanel,
       models.AdministeredVaccine,
+      models.ScheduledVaccine,
       models.Discharge,
-      models.DocumentMetadata,
       models.EncounterDiagnosis,
       models.EncounterMedication,
-      models.Invoice,
       models.Procedure,
-      models.SurveyResponse,
       models.Triage,
-      models.Vitals,
       models.Note,
-      models.Referral,
+      models.Department,
+      models.Location,
+      models.LocationGroup,
     ];
   }
 
@@ -102,6 +102,16 @@ export class MediciReport extends FhirResource {
   async updateMaterialisation() {
     const materialisedValues = await getMaterialisedValues(this.sequelize, this.upstreamId);
     this.set({ ...materialisedValues });
+  }
+
+  static async queryToFilterUpstream(upstreamTable) {
+    const { Encounter } = this.sequelize.models;
+
+    if (upstreamTable === Encounter.tableName) {
+      return filterFromEncounters(this.sequelize.models, upstreamTable);
+    }
+
+    return null;
   }
 
   static async queryToFindUpstreamIdsFromTable(upstreamTable, table, id, deletedRow = null) {
