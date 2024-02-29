@@ -75,6 +75,7 @@ export const ImmunisationScheduleTable = React.memo(({ patient, onItemEdit }) =>
       allowExport={false}
       disablePagination
       TableHeader={<TableHeader />}
+      lazyLoading
     />
   );
 });
