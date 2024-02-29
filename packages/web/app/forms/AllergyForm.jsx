@@ -7,6 +7,7 @@ import { AutocompleteField, DateField, Field, Form, TextField } from '../compone
 import { FormGrid } from '../components/FormGrid';
 import { FormSubmitCancelRow } from '../components/ButtonRow';
 import { foreignKey } from '../utils/validation';
+import { FORM_TYPES } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 
 export const AllergyForm = ({
@@ -15,68 +16,71 @@ export const AllergyForm = ({
   onCancel,
   practitionerSuggester,
   allergySuggester,
-}) => (
-  <Form
-    onSubmit={onSubmit}
-    render={({ submitForm }) => (
-      <FormGrid columns={1}>
-        <Field
-          name="allergyId"
-          label={
-            <TranslatedText stringId="allergies.allergyName.label" fallback="Allergy name" />
-          }
-          component={AutocompleteField}
-          suggester={allergySuggester}
-          required
-        />
-        <Field
-          name="recordedDate"
-          label={
-            <TranslatedText stringId="general.recordedDate.label" fallback="Date recorded" />
-          }
-          component={DateField}
-          saveDateAsString
-          required
-        />
-        <Field
-          name="practitionerId"
-          label={
-            <TranslatedText
-              stringId="general.localisedField.clinician.label.short"
-              fallback="Clinician"
-            />
-          }
-          component={AutocompleteField}
-          suggester={practitionerSuggester}
-        />
-        <Field
-          name="note"
-          label={<TranslatedText stringId="general.notes.label" fallback="Notes" />}
-          component={TextField}
-        />
-        <FormSubmitCancelRow
-          onCancel={onCancel}
-          onConfirm={submitForm}
-          confirmText={
-            editedObject ? (
-              <TranslatedText stringId="general.action.save" fallback="Save" />
-            ) : (
-              <TranslatedText stringId="general.action.add" fallback="Add" />
-            )
-          }
-        />
-      </FormGrid>
-    )}
-    initialValues={{
-      recordedDate: getCurrentDateTimeString(),
-      ...editedObject,
-    }}
-    validationSchema={yup.object().shape({
-      allergyId: foreignKey('An allergy must be selected'),
-      recordedDate: yup.date().required(),
-    })}
-  />
-);
+}) => {
+  return (
+    <Form
+      onSubmit={onSubmit}
+      render={({ submitForm }) => (
+        <FormGrid columns={1}>
+          <Field
+            name="allergyId"
+            label={
+              <TranslatedText stringId="allergies.allergyName.label" fallback="Allergy name" />
+            }
+            component={AutocompleteField}
+            suggester={allergySuggester}
+            required
+          />
+          <Field
+            name="recordedDate"
+            label={
+              <TranslatedText stringId="general.recordedDate.label" fallback="Date recorded" />
+            }
+            component={DateField}
+            saveDateAsString
+            required
+          />
+          <Field
+            name="practitionerId"
+            label={
+              <TranslatedText
+                stringId="general.localisedField.clinician.label.short"
+                fallback="Clinician"
+              />
+            }
+            component={AutocompleteField}
+            suggester={practitionerSuggester}
+          />
+          <Field
+            name="note"
+            label={<TranslatedText stringId="general.notes.label" fallback="Notes" />}
+            component={TextField}
+          />
+          <FormSubmitCancelRow
+            onCancel={onCancel}
+            onConfirm={submitForm}
+            confirmText={
+              editedObject ? (
+                <TranslatedText stringId="general.action.save" fallback="Save" />
+              ) : (
+                <TranslatedText stringId="general.action.add" fallback="Add" />
+              )
+            }
+          />
+        </FormGrid>
+      )}
+      initialValues={{
+        recordedDate: getCurrentDateTimeString(),
+        ...editedObject,
+      }}
+      formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
+      validationSchema={yup.object().shape({
+        allergyId: foreignKey('An allergy must be selected'),
+        recordedDate: yup.date().required(),
+      })}
+    />
+  );
+};
 
 AllergyForm.propTypes = {
   onSubmit: PropTypes.func.isRequired,

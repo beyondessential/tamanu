@@ -5,7 +5,7 @@ import { Form } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { FormSubmitCancelRow } from '../components/ButtonRow';
 
-import { ENCOUNTER_OPTIONS_BY_VALUE } from '../constants';
+import { ENCOUNTER_OPTIONS_BY_VALUE, FORM_TYPES } from '../constants';
 
 export const ChangeEncounterTypeForm = ({ onSubmit, onCancel, encounter, initialNewType }) => {
   return (
@@ -15,6 +15,7 @@ export const ChangeEncounterTypeForm = ({ onSubmit, onCancel, encounter, initial
         // Used in creation of associated notes
         submittedTime: getCurrentDateTimeString(),
       }}
+      formType={FORM_TYPES.EDIT_FORM}
       render={({ submitForm, values }) => {
         const currentType = ENCOUNTER_OPTIONS_BY_VALUE[encounter.encounterType].label;
         const newType = ENCOUNTER_OPTIONS_BY_VALUE[values.encounterType].label;

@@ -7,6 +7,7 @@ import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { AutocompleteField, Field, Form } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { FormSubmitCancelRow } from '../components/ButtonRow';
+import { FORM_TYPES } from '../constants';
 import { LowerCase } from '../components';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 
@@ -48,6 +49,7 @@ export const ChangeClinicianForm = ({ clinicianSuggester, onCancel, onSubmit }) 
       validationSchema={yup.object().shape({
         examinerId: yup.string().required('Required'),
       })}
+      formType={FORM_TYPES.EDIT_FORM}
       render={renderForm}
       onSubmit={onSubmit}
     />
