@@ -245,7 +245,13 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
       }
       setNote('Writing patient data');
 
-      await writeToPatientFields(components, finalValues, patientId, surveyId, responseRecord.endTime);
+      await writeToPatientFields(
+        components,
+        finalValues,
+        patientId,
+        surveyId,
+        responseRecord.endTime,
+      );
 
       setNote('Done');
 
