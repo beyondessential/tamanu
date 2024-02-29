@@ -63,7 +63,6 @@ describe(`Materialised - MediciReport`, () => {
       Procedure,
       EncounterDiagnosis,
       EncounterMedication,
-      AdministeredVaccine,
     } = ctx.store.models;
 
     const startDate = '2023-11-11 00:00:00';
@@ -125,11 +124,15 @@ describe(`Materialised - MediciReport`, () => {
         status: IMAGING_REQUEST_STATUS_TYPES.PENDING,
         priority: 'routine',
         requestedDate: '2022-03-04 15:30:00',
+        imagingType: 'vascularStudy',
       }),
     );
 
     const procedureType = await ReferenceData.create(
-      fake(ReferenceData, { type: REFERENCE_TYPES.PROCEDURE_TYPE, name: 'Glucose (hypertonic) 5%' }),
+      fake(ReferenceData, {
+        type: REFERENCE_TYPES.PROCEDURE_TYPE,
+        name: 'Glucose (hypertonic) 5%',
+      }),
     );
     const procedure = await Procedure.create({
       ...fake(Procedure),
@@ -145,6 +148,7 @@ describe(`Materialised - MediciReport`, () => {
     });
     const encounterDiagnosis = await EncounterDiagnosis.create({
       ...fake(EncounterDiagnosis),
+      isPrimary: false,
       encounterId: encounter.id,
       diagnosisId: diagnosis.id,
     });
@@ -162,7 +166,12 @@ describe(`Materialised - MediciReport`, () => {
   }
 
   it('materialise a Medici report', async () => {
-    const { encounter, encounterDiagnosis, encounterMedication, procedureType } = await makeEncounter({
+    const {
+      encounter,
+      encounterDiagnosis,
+      encounterMedication,
+      procedureType,
+    } = await makeEncounter({
       encounterType: 'emergency',
     });
 
