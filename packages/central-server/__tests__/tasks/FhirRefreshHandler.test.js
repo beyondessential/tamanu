@@ -8,7 +8,7 @@ import {
   fakeResourcesOfFhirServiceRequest,
   fakeResourcesOfFhirServiceRequestWithImagingRequest,
 } from '../fake/fhir';
-import { allFromUpstream } from '../../app/tasks/fhir/refresh/allFromUpstream';
+import { allFromUpstream } from '../../dist/tasks/fhir/refresh/allFromUpstream';
 
 describe('FHIR refresh handler', () => {
   let ctx;
