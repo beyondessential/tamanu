@@ -25,6 +25,22 @@ export class ReportRequestProcessor extends ScheduledTask {
     super(schedule, log, jitterTime);
     this.config = conf;
     this.context = context;
+    this.childProcesses = new Map();
+
+    this.registerExitListeners();
+  }
+
+  registerExitListeners() {
+    const killWorkers = event => {
+      this.childProcesses.forEach(childProcess => {
+        if (!childProcess?.kill || childProcess.killed) return;
+        childProcess.kill(childProcess.pid, event);
+        log.info('Cleaned up child process that was not killed by the parent process');
+      });
+    };
+    process.on('uncaughtException', killWorkers);
+    process.on('SIGINT', killWorkers);
+    process.on('SIGTERM', killWorkers);
   }
 
   spawnReportProcess = async request => {
@@ -77,6 +93,7 @@ export class ReportRequestProcessor extends ScheduledTask {
 
     return new Promise((resolve, reject) => {
       childProcess.on('exit', code => {
+        this.childProcesses.delete(childProcess.pid);
         if (code === 0) {
           log.info(
             `Child process running report request "${
@@ -111,6 +128,8 @@ export class ReportRequestProcessor extends ScheduledTask {
         captureErrorOutput(data.toString());
         process.stderr.write(data);
       });
+
+      this.childProcesses.set(childProcess.pid, childProcess);
     });
   };
 
@@ -216,7 +235,7 @@ export class ReportRequestProcessor extends ScheduledTask {
     try {
       const requests = await this.context.store.models.ReportRequest.findAll({
         where: sequelize.literal(
-          `status = '${REPORT_REQUEST_STATUSES.PROCESSING}' AND 
+          `status = '${REPORT_REQUEST_STATUSES.PROCESSING}' AND
           EXTRACT(EPOCH FROM CURRENT_TIMESTAMP - process_started_time) > ${config.reportProcess.timeOutDurationSeconds}`,
         ), // find processing report requests that have been running more than the timeout limit
         order: [['createdAt', 'ASC']], // process in order received
