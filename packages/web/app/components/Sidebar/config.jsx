@@ -182,6 +182,7 @@ export const FACILITY_MENU_ITEMS = [
     children: [
       {
         label: <TranslatedText stringId="sidebar.facilityAdmin.reports" fallback="Reports" />,
+        key: 'reports',
         path: `/facility-admin/reports`,
       },
       {
@@ -191,6 +192,7 @@ export const FACILITY_MENU_ITEMS = [
             fallback="Bed Management"
           />
         ),
+        key: 'bedManagement',
         path: `/facility-admin/bed-management`,
       },
     ],
