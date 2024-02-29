@@ -84,6 +84,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
       `patient/${encodeURIComponent(patientProgramRegistration.patientId)}/programRegistration`,
       {
         ...rest,
+        date: getCurrentDateTimeString(),
         conditionIds: newConditionIds,
         registrationStatus: REGISTRATION_STATUSES.ACTIVE,
       },
