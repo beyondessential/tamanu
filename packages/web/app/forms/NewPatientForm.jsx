@@ -12,7 +12,7 @@ import { IdField } from '../components/Field/IdField';
 import { ModalFormActionRow } from '../components/ModalActionRow';
 import { RadioField } from '../components';
 import { IdBanner } from '../components/IdBanner';
-import { Colors } from '../constants';
+import { Colors, FORM_TYPES } from '../constants';
 import { getPatientDetailsValidation } from '../validations';
 
 import { useSexOptions, useSexValues } from '../hooks';
@@ -70,7 +70,7 @@ const StyledRadioField = styled(RadioField)`
 `;
 
 export const NewPatientForm = memo(
-  ({ editedObject, collapseAdditionalFields, onSubmit, onCancel, generateId }) => {
+  ({ collapseAdditionalFields, onSubmit, onCancel, generateId }) => {
     const [isExpanded, setExpanded] = useState(false);
     const [patientRegistryType, setPatientRegistryType] = useState(
       PATIENT_REGISTRY_TYPES.NEW_PATIENT,
@@ -162,12 +162,12 @@ export const NewPatientForm = memo(
                 fallback="Add additional information"
               />
               <span>
-              {' '}
+                {' '}
                 <TranslatedText
                   stringId="patient.additionalInformation.exampleText"
                   fallback="(religion, occupation, blood type...)"
                 />
-            </span>
+              </span>
             </div>
           )}
         </AdditionalInformationRow>
@@ -190,9 +190,9 @@ export const NewPatientForm = memo(
       <Form
         onSubmit={handleSubmit}
         render={renderForm}
+        formType={FORM_TYPES.CREATE_FORM}
         initialValues={{
           displayId: generateId(),
-          ...editedObject,
         }}
         validationSchema={getPatientDetailsValidation(
           patientRegistryType,
