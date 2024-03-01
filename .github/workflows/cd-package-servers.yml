@@ -78,18 +78,22 @@ jobs:
             'release-v${{ steps.version.outputs.version }}'
 
       - name: Upload artifact for next step
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.package }}-${{ steps.version.outputs.version }}
-          path: '${{ matrix.package }}-${{ steps.version.outputs.version }}-linux-amd64.zip'
+          name: winjob-${{ matrix.package }}-${{ steps.version.outputs.version }}
+          path: '${{ matrix.package }}-${{ steps.version.outputs.version }}.zip'
           retention-days: 1
+          if-no-files-found: error
+          compression-level: 0
 
       - name: Upload final output
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.package }}-${{ steps.version.outputs.version }}
+          name: linux-${{ matrix.package }}-${{ steps.version.outputs.version }}
           path: '*.tar.zst*'
           retention-days: 15
+          if-no-files-found: error
+          compression-level: 0
 
       - name: Configure AWS Credentials (upload)
         if: github.event_name != 'workflow_dispatch'
@@ -120,12 +124,6 @@ jobs:
 
     name: Pack ${{ matrix.package }} for Windows
     runs-on: windows-latest
-    env:
-      BUILD_NAME: "release-v${{ needs.linux.outputs.version }}"
-      ARTIFACT_NAME: "${{ matrix.package }}-${{ needs.linux.outputs.version }}"
-      OUTPUT_NAME: "${{ matrix.package }}-${{ needs.linux.outputs.version }}-windows"
-      S3_PATH: s3://bes-tamanu-release-servers/${{ needs.linux.outputs.version }}
-
     steps:
       - uses: actions/checkout@v4
 
@@ -136,18 +134,18 @@ jobs:
           cache: yarn
 
       - name: Download artifact from build job
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
-          name: ${{ env.ARTIFACT_NAME }}
+          name: winjob-${{ matrix.package }}-${{ needs.linux.outputs.version }}
 
       - name: Unzip artifact for deployment
         shell: bash
         run: |
           ls -R
-          unzip '${{ env.BUILD_NAME }}.zip'
+          unzip 'release-v${{ needs.linux.outputs.version }}.zip'
 
       - name: Reinstall dependencies
-        working-directory: ${{ env.BUILD_NAME }}
+        working-directory: release-v${{ needs.linux.outputs.version }}
         shell: bash
         run: |
           yarn config set network-timeout 600000 -g
@@ -157,15 +155,19 @@ jobs:
         shell: bash
         run: |
           set -x
-          tar -cf '${{ env.OUTPUT_NAME }}.tar' '${{ env.BUILD_NAME }}'
-          zstd --rm --adapt -T0 -10 '${{ env.OUTPUT_NAME }}.tar' -o '${{ env.OUTPUT_NAME }}.tar.zst'
+          tar -cf \
+            '${{ matrix.package }}-${{ needs.linux.outputs.version }}-windows.tar' \
+            'release-v${{ needs.linux.outputs.version }}'
+          zstd --rm --adapt -T0 -10 '${{ matrix.package }}-${{ needs.linux.outputs.version }}-windows.tar'
 
       - name: Upload final build
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.OUTPUT_NAME }}
+          name: ${{ matrix.package }}-${{ needs.linux.outputs.version }}-windows
           path: '*.tar.zst*'
           retention-days: 15
+          if-no-files-found: error
+          compression-level: 0
 
       - name: Configure AWS Credentials (upload)
         if: github.event_name != 'workflow_dispatch'
@@ -181,5 +183,5 @@ jobs:
         run: |
           set -x
           for file in *.tar.zst*; do
-            aws s3 cp $file ${{ env.S3_PATH }}/$file --no-progress
+            aws s3 cp $file s3://bes-tamanu-release-servers/${{ needs.linux.outputs.version }}/$file --no-progress
           done
