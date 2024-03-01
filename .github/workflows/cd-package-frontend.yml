@@ -83,7 +83,7 @@ jobs:
         env:
           target: ${{ steps.destination.outputs.result }}
         run: |
-          set -exu
+          set -x
           for file in *.tar.zst*; do
             aws s3 cp $file $target/$file --no-progress
           done

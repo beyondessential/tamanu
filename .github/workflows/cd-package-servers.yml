@@ -142,20 +142,21 @@ jobs:
 
       - name: Unzip artifact for deployment
         shell: bash
-        run: unzip '${{ env.BUILD_NAME }}.zip'
+        run: |
+          ls -R
+          unzip '${{ env.BUILD_NAME }}.zip'
 
       - name: Reinstall dependencies
         working-directory: ${{ env.BUILD_NAME }}
         shell: bash
         run: |
-          set -ex
           yarn config set network-timeout 600000 -g
           yarn install --frozen-lockfile --production
 
       - name: Prepare final output
         shell: bash
         run: |
-          set -ex
+          set -x
           tar -cf '${{ env.OUTPUT_NAME }}.tar' '${{ env.BUILD_NAME }}'
           zstd --rm --adapt -T0 -10 '${{ env.OUTPUT_NAME }}.tar' -o '${{ env.OUTPUT_NAME }}.tar.zst'
 
@@ -178,7 +179,7 @@ jobs:
         if: github.event_name != 'workflow_dispatch'
         shell: bash
         run: |
-          set -exu
+          set -x
           for file in *.tar.zst*; do
             aws s3 cp $file ${{ env.S3_PATH }}/$file --no-progress
           done
