@@ -104,7 +104,6 @@ jobs:
           config-map: >
             {
             tamanu-internal:imageTag: {value: 'sha-${{ github.sha }}', secret: false},
-            tamanu-internal:arm64: {value: true, secret: false},
             tamanu-internal:salt: {value: '${{ steps.salt.outputs.salt }}', secret: true},
             postgresql:host: {value: '${{ vars.INTERNAL_DB_HOST }}', secret: false},
             postgresql:username: {value: '${{ env.INTERNAL_DB_USERNAME }}', secret: false},
