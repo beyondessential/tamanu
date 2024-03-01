@@ -45,17 +45,6 @@ jobs:
           tar -cf web-${{ steps.version.outputs.version }}.tar tamanu-web-${{ steps.version.outputs.version }}
           zstd --rm --adapt -T0 -10 web-${{ steps.version.outputs.version }}.tar
 
-      - name: Sign build
-        env:
-          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
-        run: |
-          set -x
-          curl -Lo bestool https://tools.ops.tamanu.io/bestool/gha/${{ runner.os }}-${{ runner.arch }}
-          chmod +x bestool
-          ./bestool -vvvvv crypto sign --key-env SIGNING_KEY  \
-            --comment 'ts={timestamp} repo=${{ github.repository }} commit=${{ github.sha }} gharun=${{ github.run_id }}' \
-            web-${{ steps.version.outputs.version }}.tar.zst
-
       - name: Upload to artifact
         uses: actions/upload-artifact@v4
         with:

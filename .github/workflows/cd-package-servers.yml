@@ -77,18 +77,6 @@ jobs:
             'release-v${{ steps.version.outputs.version }}.zip' \
             'release-v${{ steps.version.outputs.version }}'
 
-      - name: Sign build
-        shell: bash
-        env:
-          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
-        run: |
-          set -x
-          curl -Lo bestool https://tools.ops.tamanu.io/bestool/gha/${{ runner.os }}-${{ runner.arch }}
-          chmod +x bestool
-          ./bestool -vvvvv crypto sign --key-env SIGNING_KEY  \
-            --comment 'ts={timestamp} repo=${{ github.repository }} commit=${{ github.sha }} gharun=${{ github.run_id }}' \
-            '${{ matrix.package }}-${{ steps.version.outputs.version }}-linux-amd64.tar.zst'
-
       - name: Upload artifact for next step
         uses: actions/upload-artifact@v3
         with:
@@ -170,17 +158,6 @@ jobs:
           set -ex
           tar -cf '${{ env.OUTPUT_NAME }}.tar' '${{ env.BUILD_NAME }}'
           zstd --rm --adapt -T0 -10 '${{ env.OUTPUT_NAME }}.tar' -o '${{ env.OUTPUT_NAME }}.tar.zst'
-
-      - name: Sign build
-        shell: bash
-        env:
-          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
-        run: |
-          curl -Lo bestool https://tools.ops.tamanu.io/bestool/gha/${{ runner.os }}-${{ runner.arch }}
-          chmod +x bestool
-          ./bestool -vvvvv crypto sign --key-env SIGNING_KEY \
-            --comment 'ts={timestamp} repo=${{ github.repository }} commit=${{ github.sha }} gharun=${{ github.run_id }}' \
-            '${{ env.OUTPUT_NAME }}.tar.zst'
 
       - name: Upload final build
         uses: actions/upload-artifact@v3
