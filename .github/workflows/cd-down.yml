@@ -16,14 +16,14 @@ jobs:
     # only run for non-permanent branches when a PR closes or loses the auto-deploy label
     if: >
       (
-        !startsWith(github.ref, 'refs/heads/release') 
-        && !startsWith(github.head_ref, 'release/') 
-        && github.ref != 'refs/heads/main' 
+        !startsWith(github.ref, 'refs/heads/release')
+        && !startsWith(github.head_ref, 'release/')
+        && github.ref != 'refs/heads/main'
         && github.ref_name != 'main'
       ) && (
         (
           github.event_name == 'pull_request'
-          && github.event.action == 'unlabeled' 
+          && github.event.action == 'unlabeled'
           && !contains(github.event.pull_request.labels.*.name, 'auto-deploy')
         ) || (
           github.event_name == 'pull_request_target'
@@ -61,7 +61,7 @@ jobs:
         run: rm -rf ops/.git
 
       - name: Install Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 20.x
           cache: npm
