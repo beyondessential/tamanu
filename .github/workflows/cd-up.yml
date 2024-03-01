@@ -3,9 +3,6 @@ name: CD Up
 on:
   workflow_call:
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
-
 permissions:
   contents: read
   pull-requests: write

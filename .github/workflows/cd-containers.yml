@@ -1,4 +1,4 @@
-name: CD Containers
+name: CD
 
 on:
   pull_request:
@@ -25,7 +25,7 @@ permissions:
   pull-requests: write # for deploy workflow
 
 jobs:
-  build:
+  images:
     strategy:
       fail-fast: false
       matrix:
@@ -116,8 +116,8 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           tags: ${{ steps.login-ecr.outputs.registry }}/tamanu/${{ matrix.package.name }}:sha-${{ github.sha }}.${{ matrix.platform.arch }}
 
-  combine:
-    needs: build
+  multi-arch:
+    needs: images
     strategy:
       fail-fast: false
       matrix:
@@ -159,8 +159,8 @@ jobs:
     if: always() # always run even if dependencies fail
     name: All images built
     needs:
-      - build
-      - combine
+      - images
+      - multi-arch
     runs-on: ubuntu-latest
     steps:
       - uses: re-actors/alls-green@release/v1
@@ -179,14 +179,14 @@ jobs:
     name: Deploy PR ${{ github.event.pull_request.number }}
     uses: ./.github/workflows/cd-up.yml
 
-  package-web:
-    needs: build
+  package-frontend:
+    needs: images
     # if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
-    name: Package Web v${{ github.ref_name }}
-    uses: ./.github/workflows/cd-web-package.yml
+    name: Package Frontend v${{ github.ref_name }}
+    uses: ./.github/workflows/cd-package-frontend.yml
 
   package-servers:
-    needs: build
+    needs: images
     # if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
     name: Package Servers v${{ github.ref_name }}
-    uses: ./.github/workflows/cd-server-package.yml
+    uses: ./.github/workflows/cd-package-servers.yml

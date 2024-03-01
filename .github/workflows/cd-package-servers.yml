@@ -1,10 +1,7 @@
-name: CD Server Package
+name: CD Package Servers
 
 on:
   workflow_call:
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
 
 permissions:
   contents: read

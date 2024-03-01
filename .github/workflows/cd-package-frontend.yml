@@ -1,10 +1,7 @@
-name: CD Web Package
+name: CD Package Frontend
 
 on:
   workflow_call:
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
 
 permissions:
   contents: read
@@ -13,7 +10,7 @@ permissions:
 jobs:
   pack:
     runs-on: ubuntu-latest
-    name: Pack web frontend
+    name: Pack frontend
     steps:
       - name: Configure AWS Credentials (image)
         uses: aws-actions/configure-aws-credentials@v4
