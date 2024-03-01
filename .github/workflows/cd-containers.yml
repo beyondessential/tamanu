@@ -182,11 +182,11 @@ jobs:
   package-web:
     needs: build
     # if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
-    name: Deploy PR ${{ github.event.pull_request.number }}
+    name: Package Web v${{ github.ref_name }}
     uses: ./.github/workflows/cd-web-package.yml
 
-  package-server:
+  package-servers:
     needs: build
     # if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
-    name: Deploy PR ${{ github.event.pull_request.number }}
+    name: Package Servers v${{ github.ref_name }}
     uses: ./.github/workflows/cd-server-package.yml
