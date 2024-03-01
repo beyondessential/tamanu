@@ -43,7 +43,7 @@ jobs:
 
       - name: Extract files from image
         run: |
-          docker create --name working ${{ steps.login-ecr.outputs.registry }}/tamanu/frontend:sha-${{ github.sha }}.amd64
+          docker create --name working ${{ steps.login-ecr.outputs.registry }}/tamanu/${{ matrix.package }}:sha-${{ github.sha }}.amd64
           docker cp working:/app release-v${{ steps.version.outputs.version }}
           docker rm working
 
