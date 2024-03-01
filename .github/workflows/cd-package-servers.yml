@@ -85,7 +85,7 @@ jobs:
           set -x
           curl -Lo bestool https://tools.ops.tamanu.io/bestool/gha/${{ runner.os }}-${{ runner.arch }}
           chmod +x bestool
-          ./bestool -vvv crypto sign --key-env SIGNING_KEY  \
+          ./bestool -vvvvv crypto sign --key-env SIGNING_KEY  \
             --comment 'ts={timestamp} repo=${{ github.repository }} commit=${{ github.sha }} gharun=${{ github.run_id }}' \
             '${{ matrix.package }}-${{ steps.version.outputs.version }}-linux-amd64.tar.zst'
 
@@ -178,7 +178,7 @@ jobs:
         run: |
           curl -Lo bestool https://tools.ops.tamanu.io/bestool/gha/${{ runner.os }}-${{ runner.arch }}
           chmod +x bestool
-          ./bestool -vvv crypto sign --key-env SIGNING_KEY \
+          ./bestool -vvvvv crypto sign --key-env SIGNING_KEY \
             --comment 'ts={timestamp} repo=${{ github.repository }} commit=${{ github.sha }} gharun=${{ github.run_id }}' \
             '${{ env.OUTPUT_NAME }}.tar.zst'
 
