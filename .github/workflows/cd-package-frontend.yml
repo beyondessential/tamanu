@@ -23,6 +23,9 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
+      - name: Pull image
+        run: docker pull ${{ steps.login-ecr.outputs.registry }}/tamanu/frontend:sha-${{ github.sha }}.amd64
+
       - name: Extract version from image
         id: version
         run: |
