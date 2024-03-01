@@ -1,4 +1,4 @@
-import React, { ReactElement, useMemo, useRef, useCallback, useEffect, useState } from 'react';
+import React, { ReactElement, useCallback } from 'react';
 import { compose } from 'redux';
 import { useSelector } from 'react-redux';
 import { Formik } from 'formik';
@@ -6,20 +6,19 @@ import { ScrollView } from 'react-native-gesture-handler';
 
 import { Field } from '/components/Forms/FormField';
 import { Spacer } from '/components/Spacer';
-import { SectionHeader } from '/components/SectionHeader';
 import { FullView, StyledView } from '/styled/common';
+import { SubmitButton } from '/components/Forms/SubmitButton';
 import { TextField } from '/components/TextField/TextField';
-import { Button } from '/components/Button';
 import { theme } from '/styled/theme';
 import { KeyboardAvoidingView, StyleSheet } from 'react-native';
 import * as Yup from 'yup';
 
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { useBackend } from '~/ui/hooks';
 import { withPatient } from '~/ui/containers/Patient';
 import { Routes } from '~/ui/helpers/routes';
 import { AutocompleteModalField } from '~/ui/components/AutocompleteModal/AutocompleteModalField';
-import { CERTAINTY_OPTIONS, Certainty, ReferenceDataType } from '~/types';
+import { Certainty, CERTAINTY_OPTIONS, ReferenceDataType } from '~/types';
 import { Suggester } from '~/ui/helpers/suggester';
 import { Dropdown } from '~/ui/components/Dropdown';
 import { authUserSelector } from '~/ui/helpers/selectors';
@@ -137,12 +136,10 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
                   <Field component={TextField} name="clinicalNote" multiline placeholder="Clinical Note" />
                   <Spacer height="24px" />
                   <CurrentUserField name="examiner" label="Recorded By" />
-                  <Button
+                  <SubmitButton
                     marginTop={screenPercentageToDP(1.22, Orientation.Height)}
                     marginBottom={screenPercentageToDP(1.22, Orientation.Height)}
-                    backgroundColor={theme.colors.PRIMARY_MAIN}
-                    onPress={handleSubmit}
-                    buttonText="Submit"
+                    onSubmit={handleSubmit}
                   />
                 </StyledView>
               </ScrollView>

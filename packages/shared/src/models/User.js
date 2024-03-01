@@ -25,8 +25,9 @@ export class User extends Model {
   }
 
   forResponse() {
-    const { password, ...otherValues } = this.dataValues;
-    return otherValues;
+    const values = Object.assign({}, this.dataValues);
+    delete values.password;
+    return values;
   }
 
   async setPassword(pw) {
@@ -121,7 +122,7 @@ export class User extends Model {
         hooks: {
           async beforeUpdate(user) {
             if (user.changed('password')) {
-              // eslint-disable-next-line no-param-reassign
+              // eslint-disable-next-line require-atomic-updates
               user.password = await User.hashPassword(user.password);
             }
           },
@@ -138,6 +139,18 @@ export class User extends Model {
 
     this.hasMany(models.ImagingRequest, {
       foreignKey: 'completedById',
+    });
+
+    this.hasMany(models.PatientProgramRegistration, {
+      foreignKey: 'clinicianId',
+    });
+
+    this.hasMany(models.PatientProgramRegistrationCondition, {
+      foreignKey: 'clinicianId',
+    });
+
+    this.hasMany(models.PatientProgramRegistrationCondition, {
+      foreignKey: 'deletionClinicianId',
     });
 
     this.hasMany(models.UserPreference, {

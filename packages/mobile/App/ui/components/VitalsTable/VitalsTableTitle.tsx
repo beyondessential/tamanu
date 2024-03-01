@@ -1,9 +1,10 @@
 import React from 'react';
 import { StyledText, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { TranslatedText } from '/components/Translations/TranslatedText';
 
-export const VitalsTableTitle = () : JSX.Element => (
+export const VitalsTableTitle = (): JSX.Element => (
   <StyledView
     background={theme.colors.WHITE}
     width={screenPercentageToDP(31.63, Orientation.Width)}
@@ -19,7 +20,7 @@ export const VitalsTableTitle = () : JSX.Element => (
       fontWeight={500}
       color="#326699"
     >
-      Measure
+      <TranslatedText stringId="vitals.table.column.measure" fallback="Measure" />
     </StyledText>
   </StyledView>
 );

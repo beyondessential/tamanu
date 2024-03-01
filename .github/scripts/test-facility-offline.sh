@@ -7,69 +7,69 @@
 set -euxmo pipefail
 
 # Create tamanu database and user for testing the facility server working offline
-test_facility_offline_setup_postgre() {
-	createuser --superuser "admin"
-	createdb -O "admin" "sync-server"
-	psql -c "ALTER USER \"admin\" PASSWORD 'sync-server';" sync-server
+test_facility_offline_setup_postgres() {
+    createuser --superuser tamanu
+    psql -c "ALTER USER tamanu PASSWORD 'tamanu';" postgres
 
-	createdb -O "admin" "lan"
-	psql -c "ALTER USER \"admin\" PASSWORD 'lan';" lan
+    createdb -O tamanu central
+    createdb -O tamanu facility
 }
 
 # Build both the facility and central servers.
 test_facility_offline_build() {
-	yarn
-	yarn build-shared
-	yarn workspace sync-server build
-	yarn workspace lan build
+    yarn
+    yarn build-shared
+    yarn workspace @tamanu/central-server build
+    yarn workspace @tamanu/facility-server build
 }
 
 # Start the central server.
 test_facility_offline_central_start() {
-	cat <<- EOF > packages/sync-server/config/local.json
-	{
-	    "port": "3000",
-	    "db": {
-	        "host": "localhost",
-	        "name": "sync-server",
-	        "verbose": true,
-	        "username": "admin",
-	        "password": "sync-server"
-	    }
-	}
-	EOF
+    cat <<- EOF > packages/central-server/config/local.json5
+    {
+        "port": "3000",
+        "db": {
+            "host": "localhost",
+            "name": "central",
+            "verbose": true,
+            "username": "tamanu",
+            "password": "tamanu"
+        }
+    }
+EOF
 
-	cat <<- EOF > packages/sync-server/provisioning.kdl
-	provisioning {
-	  users {
-	    "admin@tamanu.io" {
-	        role "admin"
-	        password "admin"
-	        displayName "Initial Admin"
-	    }
-	  }
+    cat <<- EOF > packages/central-server/provisioning.json5
+    {
+        users: {
+            "admin@tamanu.io": {
+                role: "admin",
+                password: "admin",
+                displayName: "Initial Admin",
+            },
+        },
 
-	  facilities {
-	    facility-test {
-	        name "Facility Test"
-	        code "test"
-	        user "facility-test@tamanu.io"
-	        password "facility-test"
-	    }
-	  }
-	}
-	EOF
-	# specify ports for consistency
-	yarn workspace sync-server start migrate
-	nohup yarn workspace sync-server start --provisioning provisioning.kdl > central-server.out &
-	echo "CENTRAL_SERVER_PID=$!" >> $GITHUB_ENV
-	curl --retry 8 --retry-connrefused localhost:3000
+        facilities: {
+            "facility-test": {
+                name: "Facility Test",
+                code: "test",
+                user: "facility-test@tamanu.io",
+                password: "facility-test",
+            },
+        },
+    }
+EOF
+
+    # specify ports for consistency
+    yarn workspace @tamanu/central-server start migrate
+    nohup yarn workspace @tamanu/central-server start --provisioning provisioning.json5 > central-server.out &
+    echo "CENTRAL_SERVER_PID=$!" >> $GITHUB_ENV
+    curl --retry 8 --retry-connrefused localhost:3000
 }
 
 # Start the facility server, to initialise it.
 test_facility_offline_facility_start() {
 
-	cat <<- EOF > packages/lan/config/local.json
+	cat <<- EOF > packages/facility-server/config/local.json5
 	{
 	    "port": "4000",
 	    "serverFacilityId": "facility-test",
@@ -81,15 +81,15 @@ test_facility_offline_facility_start() {
 	    },
 	    "db": {
 	        "host": "localhost",
-	        "name": "lan",
+	        "name": "facility",
 	        "verbose": true,
-	        "username": "admin",
-	        "password": "lan",
+	        "username": "tamanu",
+	        "password": "tamanu",
 	        "migrateOnStartup": true
 	    }
 	}
 	EOF
-	nohup yarn workspace lan start > facility-server.out &
+	nohup yarn workspace @tamanu/facility-server start > facility-server.out &
 	echo "FACILITY_SERVER_PID=$!" >> $GITHUB_ENV
 	curl --retry 8 --retry-connrefused localhost:4000
 }
@@ -102,7 +102,7 @@ test_facility_offline_stop_and_print() {
 }
 
 test_facility_offline_facility_start_again() {
-	yarn workspace lan start &
+	yarn workspace @tamanu/facility-server start &
 	curl --retry 8 --retry-connrefused localhost:4000
 	kill -INT -$!
 }

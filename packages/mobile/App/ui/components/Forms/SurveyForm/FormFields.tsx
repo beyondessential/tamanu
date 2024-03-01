@@ -1,10 +1,10 @@
 import React, {
+  MutableRefObject,
   ReactElement,
   useCallback,
-  useState,
-  useRef,
-  MutableRefObject,
   useEffect,
+  useRef,
+  useState,
 } from 'react';
 import { useFormikContext } from 'formik';
 import { ScrollView, TouchableWithoutFeedback } from 'react-native-gesture-handler';
@@ -14,8 +14,8 @@ import { Orientation, screenPercentageToDP } from '../../../helpers/screen';
 import { SurveyQuestion } from './SurveyQuestion';
 import { FormScreenView } from '../FormScreenView';
 import { SubmitButton } from '../SubmitButton';
-import { SectionHeader } from '../../SectionHeader';
 import { Button } from '../../Button';
+import { SectionHeader } from '../../SectionHeader';
 import { ErrorBoundary } from '../../ErrorBoundary';
 import { FullView, RowView, StyledText, StyledView } from '../../../styled/common';
 import { theme } from '../../../styled/theme';
@@ -65,6 +65,7 @@ const SurveyQuestionErrorView = ({ error }): ReactElement => (
 interface FormFieldsProps {
   components: ISurveyScreenComponent[];
   patient: IPatient;
+  isSubmitting: boolean;
   note: string;
   onCancel?: () => Promise<void>;
   onGoBack?: () => void;
@@ -76,6 +77,7 @@ export const FormFields = ({
   components,
   currentScreenIndex,
   setCurrentScreenIndex,
+  isSubmitting,
   note,
   patient,
   onCancel,
@@ -226,6 +228,7 @@ export const FormFields = ({
               borderColor={theme.colors.MAIN_SUPER_DARK}
               borderWidth={0.1}
               margin={5}
+              disabled={isSubmitting}
               buttonText="Cancel"
               onPress={onCancel}
             />
@@ -236,11 +239,6 @@ export const FormFields = ({
             <SubmitButton margin={5} onSubmit={onSubmit} />
           )}
         </RowView>
-        {currentScreenIndex === maxIndex && (
-          <StyledView margin={10}>
-            <StyledText color={theme.colors.TEXT_DARK}>{note}</StyledText>
-          </StyledView>
-        )}
       </FormScreenView>
     </FullView>
   );
