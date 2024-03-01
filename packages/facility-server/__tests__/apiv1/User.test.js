@@ -56,7 +56,7 @@ describe('User', () => {
     });
 
     it('should include role in the data returned by a successful login', async () => {
-      const result = await baseApp.post('/v1/login').send({
+      const result = await baseApp.post('/api/login').send({
         email: authUser.email,
         password: rawPassword,
       });
@@ -84,7 +84,7 @@ describe('User', () => {
 
     describe('logins', () => {
       it('should obtain a valid login token', async () => {
-        const result = await baseApp.post('/v1/login').send({
+        const result = await baseApp.post('/api/login').send({
           email: authUser.email,
           password: rawPassword,
         });
@@ -93,7 +93,7 @@ describe('User', () => {
       });
 
       it('should be case insensitive', async () => {
-        const result = await baseApp.post('/v1/login').send({
+        const result = await baseApp.post('/api/login').send({
           email: authUser.email.toUpperCase(),
           password: rawPassword,
         });
@@ -101,7 +101,7 @@ describe('User', () => {
       });
 
       it('should fail to obtain a token for a wrong password', async () => {
-        const result = await baseApp.post('/v1/login').send({
+        const result = await baseApp.post('/api/login').send({
           email: authUser.email,
           password: 'PASSWARD',
         });
@@ -109,7 +109,7 @@ describe('User', () => {
       });
 
       it('should fail to obtain a token for a wrong email', async () => {
-        const result = await baseApp.post('/v1/login').send({
+        const result = await baseApp.post('/api/login').send({
           email: 'test@toast.com',
           password: rawPassword,
         });
@@ -117,7 +117,7 @@ describe('User', () => {
       });
 
       it('should return cached feature flags in the login request', async () => {
-        const result = await baseApp.post('/v1/login').send({
+        const result = await baseApp.post('/api/login').send({
           email: authUser.email,
           password: rawPassword,
         });
@@ -145,7 +145,7 @@ describe('User', () => {
       });
 
       it('should include permissions in the data returned by a successful login', async () => {
-        const result = await baseApp.post('/v1/login').send({
+        const result = await baseApp.post('/api/login').send({
           email: authUser.email,
           password: rawPassword,
         });
@@ -155,7 +155,7 @@ describe('User', () => {
 
       describe('Rejected logins', () => {
         it('should fail to obtain a token for a wrong password', async () => {
-          const result = await baseApp.post('/v1/login').send({
+          const result = await baseApp.post('/api/login').send({
             email: authUser.email,
             password: 'PASSWARD',
           });
@@ -163,7 +163,7 @@ describe('User', () => {
         });
 
         it('should fail to obtain a token for a wrong email', async () => {
-          const result = await baseApp.post('/v1/login').send({
+          const result = await baseApp.post('/api/login').send({
             email: 'test@toast.com',
             password: rawPassword,
           });
@@ -171,7 +171,7 @@ describe('User', () => {
         });
 
         it('should fail to obtain a token for a deactivated user', async () => {
-          const result = await baseApp.post('/v1/login').send({
+          const result = await baseApp.post('/api/login').send({
             email: deactivatedUser.email,
             password: rawPassword,
           });
@@ -186,27 +186,27 @@ describe('User', () => {
 
       it('should get the user based on the current token', async () => {
         const userAgent = await baseApp.asUser(authUser);
-        const result = await userAgent.get('/v1/user/me');
+        const result = await userAgent.get('/api/user/me');
         expect(result).toHaveSucceeded();
         expect(result.body).toHaveProperty('id', authUser.id);
       });
 
       it('should fail to get the user with a null token', async () => {
-        const result = await baseApp.get('/v1/user/me');
+        const result = await baseApp.get('/api/user/me');
         expect(result).toHaveRequestError();
       });
 
       it('should fail to get the user with an expired token', async () => {
         const expiredToken = await getToken(authUser, '-1s');
         const result = await baseApp
-          .get('/v1/user/me')
+          .get('/api/user/me')
           .set('authorization', `Bearer ${expiredToken}`);
         expect(result).toHaveRequestError();
       });
 
       it('should fail to get the user with an invalid token', async () => {
         const result = await baseApp
-          .get('/v1/user/me')
+          .get('/api/user/me')
           .set('authorization', 'Bearer ABC_not_a_valid_token');
         expect(result).toHaveRequestError();
       });
@@ -214,34 +214,34 @@ describe('User', () => {
       describe('Rejected tokens', () => {
         it('should get the user based on the current token', async () => {
           const userAgent = await baseApp.asUser(authUser);
-          const result = await userAgent.get('/v1/user/me');
+          const result = await userAgent.get('/api/user/me');
           expect(result).toHaveSucceeded();
           expect(result.body).toHaveProperty('id', authUser.id);
         });
 
         it('should fail to get the user with a null token', async () => {
-          const result = await baseApp.get('/v1/user/me');
+          const result = await baseApp.get('/api/user/me');
           expect(result).toHaveRequestError();
         });
 
         it('should fail to get the user with an expired token', async () => {
           const expiredToken = await getToken(authUser, '-1s');
           const result = await baseApp
-            .get('/v1/user/me')
+            .get('/api/user/me')
             .set('authorization', `Bearer ${expiredToken}`);
           expect(result).toHaveRequestError();
         });
 
         it('should fail to get the user with an invalid token', async () => {
           const result = await baseApp
-            .get('/v1/user/me')
+            .get('/api/user/me')
             .set('authorization', 'Bearer ABC_not_a_valid_token');
           expect(result).toHaveRequestError();
         });
 
         it('should fail to get a deactivated user with a valid token', async () => {
           const userAgent = await baseApp.asUser(deactivatedUser);
-          const result = await userAgent.get('/v1/user/me');
+          const result = await userAgent.get('/api/user/me');
           expect(result).toHaveRequestError();
         });
       });
@@ -266,7 +266,7 @@ describe('User', () => {
       it('succeeds if the central succeeds', async () => {
         centralServer.forwardRequest.mockResolvedValueOnce({ ok: 'ok' });
         const newPassword = `${rawPassword}_central_success`;
-        const result = await chPwApp.post('/v1/changePassword').send({
+        const result = await chPwApp.post('/api/changePassword').send({
           email: chPwUser.email,
           newPassword,
           token: "this doesn't matter here",
@@ -278,7 +278,7 @@ describe('User', () => {
       it('fails if the central fails', async () => {
         centralServer.forwardRequest.mockRejectedValueOnce(new Error('not a real error'));
         const newPassword = `${rawPassword}_central_failure`;
-        const result = await chPwApp.post('/v1/changePassword').send({
+        const result = await chPwApp.post('/api/changePassword').send({
           email: chPwUser.email,
           newPassword,
           token: "this doesn't matter here",
@@ -290,7 +290,7 @@ describe('User', () => {
       it('looks up emails case insensitively', async () => {
         centralServer.forwardRequest.mockResolvedValueOnce({ ok: 'ok' });
         const newPassword = `${rawPassword}_case`;
-        const result = await chPwApp.post('/v1/changePassword').send({
+        const result = await chPwApp.post('/api/changePassword').send({
           email: chPwUser.email.toUpperCase(),
           newPassword,
           token: "this doesn't matter here",
@@ -307,7 +307,7 @@ describe('User', () => {
     let patients = [];
 
     const viewPatient = async patient => {
-      const result = await app.post(`/v1/user/recently-viewed-patients/${patient.id}`);
+      const result = await app.post(`/api/user/recently-viewed-patients/${patient.id}`);
       expect(result).toHaveSucceeded();
       expect(result.body).toMatchObject({
         userId: user.id,
@@ -343,7 +343,7 @@ describe('User', () => {
 
       await viewPatient(firstPatient);
 
-      const getResult = await app.get('/v1/user/recently-viewed-patients');
+      const getResult = await app.get('/api/user/recently-viewed-patients');
       expect(getResult).toHaveSucceeded();
       expect(getResult.body.data).toHaveLength(1);
       expect(getResult.body.count).toBe(1);
@@ -359,7 +359,7 @@ describe('User', () => {
       const result2Date = new Date(result2.body.updatedAt);
       expect(result2Date.getTime()).toBeGreaterThan(resultDate.getTime());
 
-      const getResult = await app.get('/v1/user/recently-viewed-patients');
+      const getResult = await app.get('/api/user/recently-viewed-patients');
       expect(getResult).toHaveSucceeded();
       expect(getResult.body.data).toHaveLength(1);
       expect(getResult.body.count).toBe(1);
@@ -376,7 +376,7 @@ describe('User', () => {
         await viewPatient(p);
       }
 
-      const result = await app.get('/v1/user/recently-viewed-patients');
+      const result = await app.get('/api/user/recently-viewed-patients');
       expect(result).toHaveSucceeded();
       expect(result.body.count).toBe(12);
       expect(result.body.data).toHaveLength(12);
@@ -415,7 +415,7 @@ describe('User', () => {
         await viewPatient(p);
       }
 
-      const result = await app.get('/v1/user/recently-viewed-patients?encounterType=admission');
+      const result = await app.get('/api/user/recently-viewed-patients?encounterType=admission');
       expect(result).toHaveSucceeded();
       // orders should match
       const resultIds = result.body.data.map(x => x.id);
@@ -451,7 +451,7 @@ describe('User', () => {
         await viewPatient(p);
       }
 
-      const result = await app.get('/v1/user/recently-viewed-patients?encounterType=admission');
+      const result = await app.get('/api/user/recently-viewed-patients?encounterType=admission');
       expect(result).toHaveSucceeded();
 
       // orders should match
@@ -470,7 +470,7 @@ describe('User', () => {
       'data-element-3',
     ].join(',');
     const updateUserPreference = async userPreference => {
-      const result = await app.post('/v1/user/userPreferences').send(userPreference);
+      const result = await app.post('/api/user/userPreferences').send(userPreference);
       expect(result).toHaveSucceeded();
       expect(result.body).toMatchObject({
         id: user.id,
@@ -494,7 +494,7 @@ describe('User', () => {
     });
 
     it('should fetch current user existing user preference', async () => {
-      const result = await app.get('/v1/user/userPreferences');
+      const result = await app.get('/api/user/userPreferences');
       expect(result).toHaveSucceeded();
       expect(result.body).toMatchObject({
         selectedGraphedVitalsOnFilter: defaultSelectedGraphedVitalsOnFilter,
@@ -503,7 +503,7 @@ describe('User', () => {
 
     it('should update current user preference and updatedAt for selected graphed vitals on filter', async () => {
       const newSelectedGraphedVitalsOnFilter = ['data-element-1', 'data-element-2'].join(',');
-      const result1 = await app.get('/v1/user/userPreferences');
+      const result1 = await app.get('/api/user/userPreferences');
       const result2 = await updateUserPreference({
         selectedGraphedVitalsOnFilter: newSelectedGraphedVitalsOnFilter,
       });
