@@ -43,6 +43,7 @@ jobs:
 
       - name: Extract files from image
         run: |
+          set -x
           docker create --name working ${{ steps.login-ecr.outputs.registry }}/tamanu/${{ matrix.package }}:sha-${{ github.sha }}.amd64
           docker cp working:/app release-v${{ steps.version.outputs.version }}
           docker rm working
@@ -51,7 +52,7 @@ jobs:
       # "cwd: 'packages/facility-server'" in the new build folder for each pm2.config file.
       - name: Prepare production configuration
         run: |
-          set -ex
+          set -x
           sed -E \
             "s|cwd: '.',( //.*)?|cwd: 'packages/${{ matrix.package }}-server',|" \
             packages/${{ matrix.package }}-server/pm2.config.cjs \
@@ -59,6 +60,7 @@ jobs:
 
       - name: Prepare artifact output
         run: |
+          set -x
           zip -r \
             'release-v${{ steps.version.outputs.version }}.zip' \
             'release-v${{ steps.version.outputs.version }}'
@@ -73,6 +75,7 @@ jobs:
         env:
           SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
         run: |
+          set -x
           curl -Lo bestool https://tools.ops.tamanu.io/bestool/gha/${{ runner.os }}-${{ runner.arch }}
           chmod +x bestool
           ./bestool crypto sign --key-env SIGNING_KEY  \

@@ -29,11 +29,14 @@ jobs:
       - name: Extract version from image
         id: version
         run: |
+          set -x
           docker image inspect ${{ steps.login-ecr.outputs.registry }}/tamanu/frontend:sha-${{ github.sha }}.amd64 \
             | jq '"version=\(.[0] | .Config.Labels["org.opencontainers.image.version"])"' -r | tee -a "$GITHUB_OUTPUT"
 
       - name: Extract build from image and pack it
         run: |
+          set -x
+
           docker create --name web ${{ steps.login-ecr.outputs.registry }}/tamanu/frontend:sha-${{ github.sha }}.amd64
           docker cp web:/app tamanu-web-${{ steps.version.outputs.version }}
           docker rm web
@@ -46,11 +49,12 @@ jobs:
         env:
           SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
         run: |
+          set -x
           curl -Lo bestool https://tools.ops.tamanu.io/bestool/gha/${{ runner.os }}-${{ runner.arch }}
           chmod +x bestool
           ./bestool crypto sign --key-env SIGNING_KEY  \
             --comment 'ts={timestamp} repo=${{ github.repository }} commit=${{ github.sha }} gharun=${{ github.run_id }}' \
-            web-*.tar.zst
+            web-${{ steps.version.outputs.version }}.tar.zst
 
       - name: Upload to artifact
         uses: actions/upload-artifact@v4
