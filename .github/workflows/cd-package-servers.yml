@@ -39,7 +39,7 @@ jobs:
         id: version
         run: |
           docker image inspect ${{ steps.login-ecr.outputs.registry }}/tamanu/${{ matrix.package }}:sha-${{ github.sha }}.amd64 \
-            | jq '"version=\(.[0] | .Config.Labels["org.opencontainers.image.version"])"' -r >> "$GITHUB_OUTPUT"
+            | jq '"version=\(.[0] | .Config.Labels["org.opencontainers.image.version"])"' -r | tee -a "$GITHUB_OUTPUT"
 
       - name: Extract files from image
         run: |
