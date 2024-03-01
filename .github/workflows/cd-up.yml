@@ -2,6 +2,13 @@ name: CD Up
 
 on:
   workflow_call:
+    secrets:
+      PULUMI_ACCESS_TOKEN:
+        required: true
+      TAILSCALE_DBPROXY_ACCESS_OAUTH:
+        required: true
+      TAMANU_OPS_SSH:
+        required: true
 
 permissions:
   contents: read

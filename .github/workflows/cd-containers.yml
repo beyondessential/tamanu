@@ -172,12 +172,20 @@ jobs:
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/release/'))
     name: Deploy branch ${{ github.ref_name }}
     uses: ./.github/workflows/cd-up.yml
+    secrets:
+      PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+      TAILSCALE_DBPROXY_ACCESS_OAUTH: ${{ secrets.TAILSCALE_DBPROXY_ACCESS_OAUTH }}
+      TAMANU_OPS_SSH: ${{ secrets.TAMANU_OPS_SSH }}
 
   deploy-pr:
     needs: all-built
     if: github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'auto-deploy')
     name: Deploy PR ${{ github.event.pull_request.number }}
     uses: ./.github/workflows/cd-up.yml
+    secrets:
+      PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+      TAILSCALE_DBPROXY_ACCESS_OAUTH: ${{ secrets.TAILSCALE_DBPROXY_ACCESS_OAUTH }}
+      TAMANU_OPS_SSH: ${{ secrets.TAMANU_OPS_SSH }}
 
   package-frontend:
     needs: images
