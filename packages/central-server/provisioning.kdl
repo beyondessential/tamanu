@@ -1,0 +1,28 @@
+provisioning {
+  users {
+    "admin@tamanu.io" {
+        role "admin"
+        password "admin"
+        displayName "Initial Admin"
+    }
+  }
+
+  facilities {
+    facility-1 {
+        name "Facility 1"
+        code "1"
+        user "facility-1@tamanu.io"
+        password "facility-1"
+    }
+  }
+
+  referenceData {
+    - file="../default.xlsx"
+  }
+
+  programs {
+    - file="../vitals.xlsx"
+    - file="../immunisation.xlsx"
+    - file="../ncd-primary-screening.xlsx"
+  }
+}

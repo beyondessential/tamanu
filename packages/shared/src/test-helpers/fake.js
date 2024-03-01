@@ -270,7 +270,7 @@ const MODEL_SPECIFIC_OVERRIDES = {
       code: chance.word(),
       name: chance.word(),
       unit: chance.pickone(['mmol/L', 'umol/L', 'IU']),
-      externalCode: chance.word(),
+      externalCode: chance.pickone([ chance.word(), null]), // sometimes external code not mapped
     };
   },
   LabRequest: () => {

@@ -83,13 +83,13 @@ export const fakeResourcesOfFhirServiceRequestWithLabRequest = async (models, re
     ...fake(LabTestPanel),
     categoryId: category.id,
   });
-  const labTestTypes = [];
-  for (let numberOfTests = 0; numberOfTests < 10; numberOfTests++) {
+  const panelTestTypes = [];
+  for (let numberOfTests = 0; numberOfTests < 6; numberOfTests++) {
     const currentLabTest = await LabTestType.create({
       ...fake(LabTestType),
       labTestCategoryId: category.id,
     });
-    labTestTypes.push(currentLabTest);
+    panelTestTypes.push(currentLabTest);
     await LabTestPanelLabTestTypes
       .create({
         labTestPanelId: labTestPanel.id,
@@ -113,7 +113,7 @@ export const fakeResourcesOfFhirServiceRequestWithLabRequest = async (models, re
 
   const labRequest = await LabRequest.create(labRequestData);
 
-  return { category, labTestPanel, labTestPanelRequest, labRequest };
+  return { category, labTestPanel, panelTestTypes, labTestPanelRequest, labRequest };
 };
 
 export const fakeResourcesOfFhirServiceRequestWithImagingRequest = async (models, resources) => {

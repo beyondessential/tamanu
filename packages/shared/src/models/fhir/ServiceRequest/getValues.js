@@ -270,7 +270,6 @@ function labContained(upstream) {
 async function labOrderDetails(upstream) {
   const tests = await resolveTests(upstream);
   return tests.map(test => {
-    console.log({ test })
     if (!test) throw new Exception('Received a null test');
 
     const { externalCode, code, name } = test;
@@ -298,6 +297,7 @@ async function labOrderDetails(upstream) {
     if (coding.length > 0) {
       return new FhirCodeableConcept({
         coding,
+        text: name,
       });
     }
     return null;
