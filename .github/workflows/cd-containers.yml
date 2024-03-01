@@ -83,8 +83,8 @@ jobs:
         with:
           context: .
           platforms: linux/${{ matrix.platform.arch }}
-          cache-from: type=gha,scope=${{ github.ref }}-${{ matrix.package.name }}
-          cache-to: type=gha,mode=max,scope=${{ github.ref }}-${{ matrix.package.name }}
+          cache-from: type=gha,scope=${{ matrix.platform.arch }}-${{ github.ref }}-${{ matrix.package.name }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.platform.arch }}-${{ github.ref }}-${{ matrix.package.name }}
           build-args: PACKAGE_PATH=${{ matrix.package.path }}
           target: ${{ matrix.package.target }}
           push: true
@@ -96,6 +96,6 @@ jobs:
             org.opencontainers.image.revision=${{ github.sha }}
             org.opencontainers.image.created=${{ github.event.pull_request.merged_at || github.event.head_commit.timestamp }}
           tags: |
-            ${{ steps.login-ecr.outputs.registry }}/tamanu/${{ matrix.package.name }}:sha-${{ github.sha }}.${{ matrix.package.target }}
+            ${{ steps.login-ecr.outputs.registry }}/tamanu/${{ matrix.package.name }}:sha-${{ github.sha }}.${{ matrix.package.arch }}
     outputs:
       tag: "sha-${{ github.sha }}.${{ matrix.package.target }}"
