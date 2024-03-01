@@ -12,6 +12,7 @@ import { Colors } from '../../../constants';
 import { VersionInfo } from './components/VersionInfo';
 import { ReportEditor } from './ReportEditor';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const Container = styled.div`
   padding: 20px;
@@ -75,13 +76,23 @@ export const EditReportView = () => {
     try {
       const result = await api.post(`admin/reports/${reportDefinition.id}/versions`, payload);
       toast.success(
-        `Saved new version: ${result.versionNumber} for report ${reportDefinition.name}`,
+        <TranslatedText
+          stringId="admin.report.notification.saveReportSuccess"
+          fallback={`Saved new version: ${result.versionNumber} for report ${reportDefinition.name}`}
+          replacements={{ versionNumber: result.versionNumber, name: reportDefinition.name }}
+        />
       );
       queryClient.invalidateQueries(['reportVersions', reportDefinition.id]);
       queryClient.invalidateQueries(['reportList']);
       dispatch(push(`/admin/reports/${reportDefinition.id}/versions/${result.id}/edit`));
     } catch (err) {
-      toast.error(`Failed to save version: ${err.message}`);
+      toast.error(
+        <TranslatedText
+          stringId="admin.report.notification.saveReportFailed"
+          fallback={`Failed to save version: ${err.message}`}
+          replacements={{ message: err.message }}
+        />  
+      );
     }
   };
 

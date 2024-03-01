@@ -13,6 +13,7 @@ import { push } from 'connected-react-router';
 import { useApi } from '../../../api';
 import { ReportEditor } from './ReportEditor';
 import { useAuth } from '../../../contexts/Auth';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const Container = styled.div`
   padding: 20px;
@@ -43,9 +44,21 @@ export const CreateReportView = () => {
       });
       queryClient.invalidateQueries(['reportList']);
       dispatch(push(`/admin/reports/${reportDefinitionId}/versions/${id}/edit`));
-      toast.success(`Imported report: ${reportDefinitionId}`);
+      toast.success(
+        <TranslatedText
+          stringId="admin.report.notification.importedReport"
+          fallback={`Imported report: ${reportDefinitionId}`}
+          replacements={{ reportDefinitionId }}
+        />
+      );
     } catch (err) {
-      toast.error(`Failed to create report: ${err.message}`);
+      toast.error(
+        <TranslatedText
+          stringId="admin.report.notification.createReportFailed"
+          fallback={`Failed to create report: ${err.message}`}
+          replacements={{ message: err.message }}
+        />
+      );
     }
   };
 

@@ -79,14 +79,31 @@ const useTranslationMutation = () => {
     onSuccess: response => {
       const newStringIds = response?.data?.length;
       toast.success(
-        `Translations saved${
-          newStringIds ? `, Created ${newStringIds} new translated string entries` : ''
-        }`,
+        <span>
+          <TranslatedText
+            stringId="admin.translation.notification.translationsSaved"
+            fallback="Translations saved"
+          />
+          {newStringIds
+            ? <>
+              {", "}
+              <TranslatedText
+                stringId="admin.translation.notification.newStringIdCreated"
+                fallback={`Created ${newStringIds} new translated string entries`}
+                replacements={{ newStringIds }}
+              />
+            </>
+            : ''}
+        </span>
       );
       queryClient.invalidateQueries(['translation']);
     },
     onError: err => {
-      toast.error(`Error saving translations: ${err.message}`);
+      <TranslatedText
+        stringId="admin.translation.notification.savingFailed"
+        fallback={`Error saving translations: ${err.message}`}
+        replacements={{ message: err.message }}
+      />
     },
   });
 };

@@ -160,7 +160,13 @@ export const ImportReportView = () => {
         }
       }
     } catch (err) {
-      toast.error(`Failed to import: ${err.message}`);
+      toast.error(
+        <TranslatedText
+          stringId="admin.report.notification.importFailed"
+          fallback={`Failed to import: ${err.message}`}
+          replacements={{ message: err.message }}
+        />
+      );
     }
   };
 

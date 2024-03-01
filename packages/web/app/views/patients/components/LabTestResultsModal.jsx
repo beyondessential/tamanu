@@ -253,7 +253,13 @@ export const LabTestResultsModal = ({ labRequest, refreshLabTestTable, onClose, 
     payload => api.put(`labRequest/${labRequest.id}/tests`, payload),
     {
       onSuccess: labTestRes => {
-        toast.success(`Successfully updated ${labTestRes.length} tests for request ${displayId}`);
+        toast.success(
+          <TranslatedText
+            stringId="patient.lab.modal.notification.testsUpdatedSuccess"
+            fallback={`Successfully updated ${labTestRes.length} tests for request ${displayId}`}
+            replacements={{ length: labTestRes.length, displayId }}
+          />
+        );
         // Force refresh of lab test data fetching table
         queryClient.invalidateQueries(['labTestResults', labRequest.id]);
 
@@ -261,7 +267,13 @@ export const LabTestResultsModal = ({ labRequest, refreshLabTestTable, onClose, 
         onClose();
       },
       onError: err => {
-        toast.error(`Failed to update tests for request ${displayId}: ${err.message}`);
+        toast.error(
+          <TranslatedText
+            stringId="patient.lab.modal.notification.testsUpdatedFailed"
+            fallback={`Failed to update tests for request ${displayId}: ${err.message}`}
+            replacements={{ message: err.message, displayId }}
+          />
+          );
       },
     },
   );

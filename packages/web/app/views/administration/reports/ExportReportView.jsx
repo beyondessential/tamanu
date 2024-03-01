@@ -42,7 +42,13 @@ export const ExportReportView = () => {
         extensions: [format],
       });
     } catch (err) {
-      toast.error(`Failed to export: ${err.message}`);
+      toast.error(
+        <TranslatedText
+          stringId="admin.report.notification.exportFailed"
+          fallback={`Failed to export: ${err.message}`}
+          replacements={{ message: err.message }}
+        />  
+      );
     }
   };
 

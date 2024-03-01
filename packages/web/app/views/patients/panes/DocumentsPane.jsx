@@ -3,7 +3,7 @@ import { extension } from 'mime-types';
 
 import { useApi } from '../../../api';
 import { notify, notifyError, notifySuccess } from '../../../utils';
-
+import { useTranslation } from '../../../contexts/Translation';
 import { DocumentPreviewModal } from '../../../components/DocumentPreview';
 import { DocumentsTable } from '../../../components/DocumentsTable';
 import { DocumentModal } from '../../../components/DocumentModal';
@@ -30,7 +30,7 @@ const base64ToUint8Array = base64 => {
 export const DocumentsPane = React.memo(({ encounter, patient }) => {
   const api = useApi();
   const [dataUrl, setDataUrl] = useState('');
-
+  const { getTranslation } = useTranslation();
   const [modalStatus, setModalStatus] = useState(MODAL_STATES.CLOSED);
   const [searchParameters, setSearchParameters] = useState({});
   const [selectedDocument, setSelectedDocument] = useState(null);
@@ -68,7 +68,7 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
     async document => {
       try {
         // Give feedback to user that download is starting
-        notify('Your download has started, please wait.', { type: 'info' });
+        notify(getTranslation('document.notification.downloadStart', 'Your download has started, please wait.'), { type: 'info' });
 
         // Download attachment (*currently the API only supports base64 responses)
         const { data } = await api.get(`attachment/${document.attachmentId}`, {
@@ -83,7 +83,7 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
           extensions: [fileExtension],
         });
 
-        notifySuccess('Successfully downloaded file');
+        notifySuccess(getTranslation('document.notification.downloadSuccess', 'Successfully downloaded file'));
       } catch (error) {
         notifyError(error.message);
       }
