@@ -140,9 +140,7 @@ jobs:
 
       - name: Unzip artifact for deployment
         shell: bash
-        run: |
-          ls -R
-          unzip release-v${{ needs.linux.outputs.version }}.zip
+        run: unzip release-v${{ needs.linux.outputs.version }}.zip
 
       - name: Reinstall dependencies
         working-directory: release-v${{ needs.linux.outputs.version }}
