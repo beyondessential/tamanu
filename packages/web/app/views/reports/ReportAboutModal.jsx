@@ -28,7 +28,6 @@ export const ReportAboutModal = ({ title, open, onClose, content }) => (
     title={title}
     open={open}
     onClose={onClose}
-    cornerExitButton={false}
     fixedBottomRow
     bottomRowContent={<CloseButtonRow onClose={onClose} />}
   >

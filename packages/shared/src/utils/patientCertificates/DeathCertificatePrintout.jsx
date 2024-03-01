@@ -203,7 +203,7 @@ export const DeathCertificatePrintout = React.memo(
           <MultiPageHeader
             documentName="Cause of death certificate"
             patientName={getName(patientData)}
-            patiendId={patientData.displayId}
+            patientId={patientData.displayId}
           />
           <CertificateHeader>
             <LetterheadSection

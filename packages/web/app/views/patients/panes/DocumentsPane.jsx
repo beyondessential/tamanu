@@ -13,6 +13,7 @@ import { TabPane } from '../components';
 import { Button, ContentPane, OutlinedButton, TableButtonRow } from '../../../components';
 import { useRefreshCount } from '../../../hooks/useRefreshCount';
 import { saveFile } from '../../../utils/fileSystemAccess';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const MODAL_STATES = {
   DOCUMENT_OPEN: 'document',
@@ -28,7 +29,6 @@ const base64ToUint8Array = base64 => {
 
 export const DocumentsPane = React.memo(({ encounter, patient }) => {
   const api = useApi();
-  // const { showSaveDialog, openPath, writeFile } = useElectron();
   const [dataUrl, setDataUrl] = useState('');
 
   const [modalStatus, setModalStatus] = useState(MODAL_STATES.CLOSED);
@@ -42,7 +42,7 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
   const documentMetadataEndpoint = `${baseRoute}/documentMetadata`;
   const createPatientLetterEndpoint = `${baseRoute}/createPatientLetter`;
 
-  // In order to make sure we cleanup any iframes we create from printing, we need to 
+  // In order to make sure we cleanup any iframes we create from printing, we need to
   // trigger it in a useEffect with a cleanup function that wil remove the iframe
   // when unmounted.
   useEffect(() => {
@@ -81,9 +81,9 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
           defaultFileName: document.name,
           data: base64ToUint8Array(data),
           extensions: [fileExtension],
-        })
+        });
 
-        notifySuccess(`Successfully downloaded file`);
+        notifySuccess('Successfully downloaded file');
       } catch (error) {
         notifyError(error.message);
       }
@@ -130,9 +130,14 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
       <PaneWrapper>
         <TableButtonRow variant="small">
           <OutlinedButton onClick={() => setModalStatus(MODAL_STATES.PATIENT_LETTER_OPEN)}>
-            Patient letter
+            <TranslatedText
+              stringId="document.action.openPatientLetter"
+              fallback="Patient letter"
+            />
           </OutlinedButton>
-          <Button onClick={() => setModalStatus(MODAL_STATES.DOCUMENT_OPEN)}>Add document</Button>
+          <Button onClick={() => setModalStatus(MODAL_STATES.DOCUMENT_OPEN)}>
+            <TranslatedText stringId="document.action.addDocument" fallback="Add document" />
+          </Button>
         </TableButtonRow>
         <DocumentsTable
           endpoint={documentMetadataEndpoint}
