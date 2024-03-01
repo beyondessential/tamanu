@@ -2,15 +2,27 @@ name: CD Containers
 
 on:
   pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - labeled
   push:
     branches:
       - main
       - release/*
       - uat-release/*
+    tags:
+      - 'v*.*.*'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: false
 
 permissions:
   contents: read
   id-token: write # OIDC token for AWS
+  pull-requests: write # for deploy workflow
 
 jobs:
   build:
@@ -74,9 +86,22 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v1
 
       - uses: actions/checkout@v4
+      - name: Extract version
+        id: version
+        run: echo "version=$(jq -r .version package.json)" >> "$GITHUB_OUTPUT"
 
       - name: Setup buildkit
         uses: docker/setup-buildx-action@v2
+
+      - uses: docker/metadata-action@v5
+        id: meta
+        with:
+          labels: |
+            org.opencontainers.image.vendor=BES
+            org.opencontainers.image.title=Tamanu ${{ matrix.package.name }}
+            org.opencontainers.image.url=https://www.bes.au/products/tamanu/
+            org.opencontainers.image.source=https://github.com/beyondessential/tamanu/
+            org.opencontainers.image.version=${{ steps.version.outputs.version }}
 
       - name: Build and push
         uses: docker/build-push-action@v4
@@ -88,15 +113,8 @@ jobs:
           build-args: PACKAGE_PATH=${{ matrix.package.path }}
           target: ${{ matrix.package.target }}
           push: true
-          labels: |
-            org.opencontainers.image.vendor=BES
-            org.opencontainers.image.title=Tamanu ${{ matrix.package.name }}
-            org.opencontainers.image.url=https://www.bes.au/products/tamanu/
-            org.opencontainers.image.source=https://github.com/beyondessential/tamanu/
-            org.opencontainers.image.revision=${{ github.sha }}
-            org.opencontainers.image.created=${{ github.event.pull_request.merged_at || github.event.head_commit.timestamp }}
-          tags: |
-            ${{ steps.login-ecr.outputs.registry }}/tamanu/${{ matrix.package.name }}:sha-${{ github.sha }}.${{ matrix.platform.arch }}
+          labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ steps.login-ecr.outputs.registry }}/tamanu/${{ matrix.package.name }}:sha-${{ github.sha }}.${{ matrix.platform.arch }}
 
   combine:
     needs: build
@@ -110,7 +128,7 @@ jobs:
           - meta
 
     runs-on: ubuntu-latest
-    name: Create multi-architecture manifest for ${{ matrix.repo }}
+    name: Multi-arch for ${{ matrix.repo }}
     steps:
       - name: Install manifest-tool
         run: |
@@ -148,3 +166,27 @@ jobs:
       - uses: re-actors/alls-green@release/v1
         with:
           jobs: ${{ toJSON(needs) }}
+
+  deploy-branch:
+    needs: all-built
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/release/'))
+    name: Deploy branch ${{ github.ref_name }}
+    uses: ./.github/workflows/cd-up.yml
+
+  deploy-pr:
+    needs: all-built
+    if: github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'auto-deploy')
+    name: Deploy PR ${{ github.event.pull_request.number }}
+    uses: ./.github/workflows/cd-up.yml
+
+  package-web:
+    needs: build
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    name: Deploy PR ${{ github.event.pull_request.number }}
+    uses: ./.github/workflows/cd-web-package.yml
+
+  package-server:
+    needs: build
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    name: Deploy PR ${{ github.event.pull_request.number }}
+    uses: ./.github/workflows/cd-server-package.yml
