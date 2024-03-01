@@ -74,7 +74,6 @@ export class MobileSyncManager {
   setProgress(progress: number, progressMessage: string): void {
     this.progress = progress;
     this.progressMessage = progressMessage;
-    this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_STATE_CHANGED);
   }
 
   /**
