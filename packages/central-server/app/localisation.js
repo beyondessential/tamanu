@@ -2,7 +2,7 @@ import config from 'config';
 import * as yup from 'yup';
 import { defaultsDeep, mapValues } from 'lodash';
 import { log } from '@tamanu/shared/services/logging';
-import { IMAGING_TYPES } from '@tamanu/constants';
+import { IMAGING_TYPES, PATIENT_DETAIL_LAYOUTS } from '@tamanu/constants';
 
 const fieldSchema = yup
   .object({
@@ -16,6 +16,7 @@ const fieldSchema = yup
     }),
     hidden: yup.boolean().required(),
     required: yup.boolean(),
+    defaultValue: yup.mixed(),
     requiredPatientData: yup.boolean(),
     pattern: yup.string(),
   })
@@ -28,6 +29,7 @@ const unhideableFieldSchema = yup
     shortLabel: yup.string().required(),
     longLabel: yup.string().required(),
     required: yup.boolean(),
+    defaultValue: yup.mixed(),
     requiredPatientData: yup.boolean(),
     pattern: yup.string(),
   })
@@ -71,6 +73,12 @@ const UNHIDEABLE_FIELDS = [
   'clinician',
   'diagnosis',
   'userDisplayId',
+  'date',
+  'registeredBy',
+  'status',
+  'conditions',
+  'programRegistry',
+  'circumstanceIds',
 ];
 
 const HIDEABLE_FIELDS = [
@@ -127,6 +135,7 @@ const HIDEABLE_FIELDS = [
   'prescriberId',
   'facility',
   'dischargeDisposition',
+  'notGivenReasonId',
 ];
 
 const UNHIDEABLE_PATIENT_TABS = ['history', 'details'];
@@ -322,6 +331,7 @@ const SIDEBAR_ITEMS = {
   labs: ['labsAll', 'labsPublished'],
   immunisations: ['immunisationsAll'],
   programRegistry: [],
+  facilityAdmin: ['reports', 'bedManagement'],
 };
 
 const sidebarItemSchema = yup
@@ -370,6 +380,15 @@ const imagingTypesSchema = yup
     ),
   })
   .required();
+
+const layoutsSchema = yup.object({
+  patientDetails: yup
+    .string()
+    .required()
+    .oneOf(Object.values(PATIENT_DETAIL_LAYOUTS)),
+  patientTabs: patientTabsSchema,
+  sidebar: sidebarSchema,
+});
 
 const validCssAbsoluteLength = yup
   .string()
@@ -423,7 +442,6 @@ const printMeasuresSchema = yup
 
 const rootLocalisationSchema = yup
   .object({
-    patientTabs: patientTabsSchema,
     units: yup.object({
       temperature: yup.string().oneOf(['celsius', 'fahrenheit']),
     }),
@@ -444,7 +462,6 @@ const rootLocalisationSchema = yup
         .required(),
     },
     fields: fieldsSchema,
-    sidebar: sidebarSchema,
     templates: templatesSchema,
     timeZone: yup.string().nullable(),
     imagingTypes: imagingTypesSchema,
@@ -520,12 +537,14 @@ const rootLocalisationSchema = yup
       )
       .min(3)
       .max(5),
+    layouts: layoutsSchema,
     previewUvciFormat: yup
       .string()
       .required()
       .oneOf(['tamanu', 'eudcc', 'icao']),
     features: yup
       .object({
+        enableVaccineConsent: yup.boolean().required(),
         editPatientDetailsOnMobile: yup.boolean().required(),
         quickPatientGenerator: yup.boolean().required(),
         enableInvoicing: yup.boolean().required(),

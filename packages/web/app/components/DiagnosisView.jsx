@@ -7,6 +7,7 @@ import { DiagnosisModal } from './DiagnosisModal';
 import { DiagnosisList } from './DiagnosisList';
 import { Colors } from '../constants';
 import { useAuth } from '../contexts/Auth';
+import { TranslatedText } from './Translation/TranslatedText';
 
 const DiagnosisHeading = styled.div`
   margin-right: 1rem;
@@ -17,10 +18,18 @@ const DiagnosisHeading = styled.div`
 
 const DiagnosisLabel = React.memo(({ numberOfDiagnoses }) => {
   if (numberOfDiagnoses === 0) {
-    return <DiagnosisHeading>No diagnoses recorded.</DiagnosisHeading>;
+    return (
+      <DiagnosisHeading>
+        <TranslatedText stringId="diagnosis.list.noData" fallback="No diagnoses recorded." />
+      </DiagnosisHeading>
+    );
   }
 
-  return <DiagnosisHeading>Diagnosis:</DiagnosisHeading>;
+  return (
+    <DiagnosisHeading>
+      <TranslatedText stringId="diagnosis.list.heading" fallback="Diagnosis" />:
+    </DiagnosisHeading>
+  );
 });
 
 const DiagnosisGrid = styled.div`
@@ -49,7 +58,12 @@ export const DiagnosisView = React.memo(({ encounter, isTriage, readonly }) => {
     <>
       <div />
       <Box display="flex" alignItems="center">
-        <Typography variant="body2">You do not have permission to list diagnoses.</Typography>
+        <Typography variant="body2">
+          <TranslatedText
+            stringId="diagnosis.list.error.forbiddenMessage"
+            fallback="You do not have permission to list diagnoses."
+          />
+        </Typography>
       </Box>
     </>
   );
@@ -71,7 +85,7 @@ export const DiagnosisView = React.memo(({ encounter, isTriage, readonly }) => {
           color="primary"
           disabled={readonly}
         >
-          Add diagnosis
+          <TranslatedText stringId="diagnosis.action.add" fallback="Add diagnosis" />
         </AddDiagnosisButton>
       </DiagnosisGrid>
     </>

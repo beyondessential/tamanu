@@ -9,7 +9,7 @@ import pkg from '../../package.json';
 
 export const tasks = async ({ skipMigrationCheck, provisioning }) => {
   if (provisioning) {
-    await provision({ file: provisioning, skipIfNotNeeded: true });
+    await provision(provisioning, { skipIfNotNeeded: true });
   }
 
   log.info(`Starting Central tasks runner version ${pkg.version}`);

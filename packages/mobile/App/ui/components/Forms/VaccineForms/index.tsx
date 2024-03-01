@@ -2,6 +2,7 @@ import React, { FC, useMemo } from 'react';
 import { ScrollView } from 'react-native';
 import { useSelector } from 'react-redux';
 import * as Yup from 'yup';
+import { FormikHandlers } from 'formik';
 import { NavigationProp } from '@react-navigation/native';
 
 import { authUserSelector } from '~/ui/helpers/selectors';
@@ -158,7 +159,7 @@ export const VaccineForm = ({
       })}
       initialValues={newInitialValues}
     >
-      {(): JSX.Element => (
+      {({ isSubmitting }: FormikHandlers): JSX.Element => (
         <ScrollView style={{ flex: 1, paddingLeft: 20, paddingRight: 20 }}>
           <StatusForm navigation={navigation} />
           <RowView paddingTop={20} paddingBottom={20} flex={1}>
@@ -169,6 +170,7 @@ export const VaccineForm = ({
               outline
               borderColor={theme.colors.PRIMARY_MAIN}
               buttonText="Cancel"
+              disabled={isSubmitting}
             />
             <SubmitButton width={screenPercentageToDP(43.1, Orientation.Width)} />
           </RowView>

@@ -8,6 +8,7 @@ import { Button } from '../Button';
 import { Routes } from '~/ui/helpers/routes';
 import { TextFieldErrorMessage } from '/components/TextField/TextFieldErrorMessage';
 import { RequiredIndicator } from '../RequiredIndicator';
+import { SearchIcon } from '../Icons';
 
 interface AutocompleteModalFieldProps {
   value?: string;
@@ -59,7 +60,7 @@ export const AutocompleteModalField = ({
     })();
   }, [value]);
 
-  const fontSize = screenPercentageToDP(2.1, Orientation.Height)
+  const fontSize = screenPercentageToDP(2.1, Orientation.Height);
 
   return (
     <StyledView marginBottom={screenPercentageToDP('2.24', Orientation.Height)} width="100%">
@@ -77,7 +78,9 @@ export const AutocompleteModalField = ({
       <Button
         marginTop={marginTop}
         backgroundColor={theme.colors.WHITE}
-        textColor={label ? theme.colors.TEXT_SUPER_DARK : theme.colors.TEXT_SOFT}
+        textColor={
+          !!suggester && !!placeholder ? theme.colors.TEXT_SOFT : theme.colors.TEXT_SUPER_DARK
+        }
         buttonText={label || placeholder || 'Select'}
         height={screenPercentageToDP(6.68, Orientation.Height)}
         justifyContent="flex-start"
@@ -90,7 +93,11 @@ export const AutocompleteModalField = ({
         padding={10}
         onPress={openModal}
         disabled={disabled}
-      />
+      >
+        <StyledView marginRight={5}>
+          <SearchIcon fill={theme.colors.TEXT_SOFT} />
+        </StyledView>
+      </Button>
       {error && <TextFieldErrorMessage>{error}</TextFieldErrorMessage>}
     </StyledView>
   );

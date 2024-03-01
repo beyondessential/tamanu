@@ -9,6 +9,7 @@ import { PrescriptionPrintout } from '@tamanu/shared/utils/patientCertificates';
 import { useLocalisation } from '../../../contexts/Localisation';
 import { PDFViewer, printPDF } from '../PDFViewer';
 import { useAuth } from '../../../contexts/Auth';
+import { TranslatedText } from '../../Translation/TranslatedText';
 
 export const PrintPrescriptionModal = ({ medication, open, onClose }) => {
   const { getLocalisation } = useLocalisation();
@@ -92,7 +93,7 @@ export const PrintPrescriptionModal = ({ medication, open, onClose }) => {
   return (
     <>
       <Modal
-        title="Prescription"
+        title={<TranslatedText stringId="medication.modal.print.title" fallback="Prescription" />}
         open={open}
         onClose={onClose}
         width="md"
