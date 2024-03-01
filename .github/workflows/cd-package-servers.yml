@@ -54,8 +54,8 @@ jobs:
           set -ex
           sed -E \
             "s|cwd: '.',( //.*)?|cwd: 'packages/${{ matrix.package }}-server',|" \
-            packages/${{ matrix.package }}-server/pm2.config.js \
-          > release-v${{ steps.version.outputs.version }}/pm2.config.js
+            packages/${{ matrix.package }}-server/pm2.config.cjs \
+          > release-v${{ steps.version.outputs.version }}/pm2.config.cjs
 
       - name: Prepare artifact output
         run: |
