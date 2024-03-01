@@ -9,12 +9,7 @@ permissions:
   id-token: write # OIDC token for AWS
 
 jobs:
-  info:
-    name: Branch info
-    uses: ./.github/workflows/branch-info.yml
-
   deploy:
-    needs: info
     runs-on: ubuntu-latest
     name: Deploy
     steps:
@@ -60,13 +55,31 @@ jobs:
           oauth-secret: ${{ secrets.TAILSCALE_DBPROXY_ACCESS_OAUTH }}
           tags: tag:infra,tag:infra-gha-deploy
 
+      # derive the stack name from the branch
+      # changing this will create a new stack
+      # this must be the same as in cd-down.yml
+      - name: Normalise branch/ref name
+        uses: actions/github-script@v6
+        id: stack
+        env:
+          GH_HEAD_REF: ${{ github.head_ref }}
+          GH_REF_NAME: ${{ github.ref_name }}
+        with:
+          result-encoding: string
+          script: |
+            return ((process.env.GH_HEAD_REF || process.env.GH_REF_NAME)
+              .toLowerCase()
+              .replace(/[^a-z0-9-]/g, '-')
+              .replace(/-+/g, '-')
+              .replace(/^-|-$/g, ''));
+
       # a constant secret + a variable plain text, hashed, = a new secret!
       # importantly this needs to remain constant for the lifetime of the stack
       - name: Prepare salt
         id: salt
         env:
           KEY: ${{ secrets.TAMANU_OPS_SSH }}
-          NAME: ${{ needs.info.outputs.branch }}
+          NAME: ${{ steps.stack.outputs.result }}
         run: |
           salt=$(sha1sum <<< "$KEY$NAME" | cut -d' ' -f1)
           echo "::add-mask::$salt"
@@ -77,7 +90,7 @@ jobs:
         with:
           work-dir: ops/pulumi/stacks/tamanu/on-ecs
           command: up
-          stack-name: bes/${{ needs.info.outputs.branch }}
+          stack-name: bes/${{ steps.stack.outputs.result }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           comment-on-pr: ${{ github.event_name == 'pull_request' }}
           upsert: true
