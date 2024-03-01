@@ -31,19 +31,19 @@ describe('ReportRequestProcesser', () => {
     const processEvents = {};
     const { ReportRequest } = ctx.store.models;
     process.on = (signal, cb) => {
-      processEvents[signal] = cb;
+      signal.forEach(s => {
+        processEvents[s] = cb;
+      });
     };
     process.kill = (pid, signal) => {
       processEvents[signal](signal);
     };
     const processor = new ReportRequestProcessor(ctx);
-    expect(processEvents).toEqual(
-      expect.objectContaining({
-        SIGINT: expect.any(Function),
-        SIGTERM: expect.any(Function),
-        uncaughtException: expect.any(Function),
-      }),
-    );
+    expect(processEvents).toEqual({
+      uncaughtException: expect.any(Function),
+      SIGINT: expect.any(Function),
+      SIGTERM: expect.any(Function),
+    });
 
     const childProcessId = fakeUUID();
     const mockChildProcess = {

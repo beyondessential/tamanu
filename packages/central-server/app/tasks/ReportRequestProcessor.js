@@ -38,9 +38,7 @@ export class ReportRequestProcessor extends ScheduledTask {
         log.info('Cleaned up child process that was not killed by the parent process');
       });
     };
-    process.on('uncaughtException', killWorkers);
-    process.on('SIGINT', killWorkers);
-    process.on('SIGTERM', killWorkers);
+    process.on(['uncaughtException', 'SIGINT', 'SIGTERM'], killWorkers);
   }
 
   spawnReportProcess = async request => {
