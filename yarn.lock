@@ -15373,6 +15373,11 @@ keyv@^4.0.0, keyv@^4.5.3:
   dependencies:
     json-buffer "3.0.1"
 
+khmer-unicode-converter@^0.0.6:
+  version "0.0.6"
+  resolved "https://registry.yarnpkg.com/khmer-unicode-converter/-/khmer-unicode-converter-0.0.6.tgz#17f0da85d38c8ed6b71ea420e250a5279225bc5b"
+  integrity sha512-MKz3P9IBF3YwFAV9A2dCXnG6qoEv4ye61mPwx3aZnVGerH8zH/nQXlSlHy5IJm02jQRPa3ifWoSBXb3xBN4EMA==
+
 kind-of@^6.0.2:
   version "6.0.3"
   resolved "https://registry.yarnpkg.com/kind-of/-/kind-of-6.0.3.tgz#07c05034a6c349fa06e24fa35aa76db4580ce4dd"
