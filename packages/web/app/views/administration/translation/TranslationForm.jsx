@@ -21,6 +21,7 @@ import {
 import { AccessorField } from '../../patients/components/AccessorField';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
 import { Colors } from '../../../constants';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const StyledTableFormFields = styled(TableFormFields)`
   thead tr th {
