@@ -14,7 +14,7 @@ import { ViewPhotoLink } from '../../../../components/ViewPhotoLink';
 import { LoadingScreen } from '../../../../components/LoadingScreen';
 import { useBackendEffect } from '../../../../hooks';
 
-const AutocompleteAnswer = ({ question, answer }): ReactElement => {
+const BackendAnswer = ({ question, answer }): ReactElement => {
   const config = JSON.parse(question.config);
   const [refData, error] = useBackendEffect(
     ({ models }) => models[config.source].getRepository().findOne(answer),
@@ -67,12 +67,34 @@ function getAnswerText(question, answer): string | number {
   }
 }
 
-// Logic duplicated in packages/shared/src/reports/utilities/transformAnswers.js
-const isAutocomplete = ({ config, dataElement }) => dataElement.type === 'Autocomplete' ||
- (config && JSON.parse(config).writeToPatient?.fieldType === 'Autocomplete');
+const isFromBackend = ({ config, dataElement }) => {
+  // all autocompletes have answers connected to the backend
+  if (dataElement.type === FieldTypes.AUTOCOMPLETE) {
+    return true;
+  }
+
+  // PatientData has some special cases
+  // see getComponentForQuestionType in web/app/utils/survey.jsx for source of the following logic
+  if (dataElement.type === FieldTypes.PATIENT_DATA) {
+    const configObject = config && JSON.parse(config);
+
+    // PatientData specifically can overwrite field type if we are writing back to patient record
+    if (configObject?.writeToPatient?.fieldType === 'Autocomplete') {
+      return true;
+    }
+
+    // if config has a "source", we're displaying a relation, so need to fetch the data from the
+    // backend (otherwise the bare id will be displayed)
+    if (configObject?.source) {
+      return true;
+    }
+  }
+};
 
 const renderAnswer = (question, answer): ReactElement => {
-  if (isAutocomplete(question)) return <AutocompleteAnswer question={question} answer={answer} />;
+  if (isFromBackend(question)) {
+    return <BackendAnswer question={question} answer={answer} />;
+  }
 
   switch (question.dataElement.type) {
     case FieldTypes.RESULT:
