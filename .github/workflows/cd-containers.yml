@@ -40,8 +40,27 @@ jobs:
     runs-on: ${{ matrix.platform.runs-on }}
 
     steps:
-      - if: matrix.platform.arch == 'arm64'
-        uses: crazy-max/ghaction-setup-docker@v3
+      - name: Install docker (arm64 beta)
+        if: matrix.platform.arch == 'arm64'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ca-certificates curl acl
+          sudo install -m 0755 -d /etc/apt/keyrings
+          sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+          sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+          echo \
+            "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+            $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+            sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+          sudo apt-get update
+
+          sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+          sudo usermod -aG docker $USER
+          sudo setfacl --modify user:$USER:rw /var/run/docker.sock
+
+      - name: Verify docker works
+        run: docker run hello-world
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
