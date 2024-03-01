@@ -23,7 +23,7 @@ export async function getValues(upstream, models) {
   const { ImagingRequest, LabRequest } = models;
 
   if (upstream instanceof ImagingRequest) return getValuesFromImagingRequest(upstream, models);
-  if (upstream instanceof LabRequest) return getValuesFromLabRequest(upstream, models);
+  if (upstream instanceof LabRequest) return getValuesFromLabRequest(upstream);
   throw new Error(`Invalid upstream type for service request ${upstream.constructor.name}`);
 }
 
@@ -103,7 +103,7 @@ async function getValuesFromImagingRequest(upstream, models) {
   };
 }
 
-async function getValuesFromLabRequest(upstream, models) {
+async function getValuesFromLabRequest(upstream) {
   return {
     lastUpdated: new Date(),
     contained: labContained(upstream),
@@ -131,7 +131,7 @@ async function getValuesFromLabRequest(upstream, models) {
     ],
     priority: validatePriority(upstream.priority),
     code: labCode(upstream),
-    orderDetail: await labOrderDetails(upstream, models),
+    orderDetail: await labOrderDetails(upstream),
     subject: new FhirReference({
       type: 'upstream://patient',
       reference: upstream.encounter.patient.id,
@@ -267,12 +267,13 @@ function labContained(upstream) {
   ];
 }
 
-async function labOrderDetails(upstream, models) {
-  const tests = await resolveTests(upstream, models);
+async function labOrderDetails(upstream) {
+  const tests = await resolveTests(upstream);
   return tests.map(test => {
+    console.log({ test })
     if (!test) throw new Exception('Received a null test');
 
-    const { externalCode, code, name } = test.labTestType;
+    const { externalCode, code, name } = test;
 
     const coding = [];
     if (code) {
@@ -303,20 +304,23 @@ async function labOrderDetails(upstream, models) {
   });
 }
 // The lab tests will either need to be directly associated 
-// with the lab tests or through the panels
-async function resolveTests(upstream, models) {
-  const { labTestPanelRequest } = upstream;
-  const { labTestPanelId } = labTestPanelRequest;
+// with the lab tests or through the panels.
+async function resolveTests(upstream) {
+  const { labTestPanelRequest, tests } = upstream;
+  const { labTestPanel } = labTestPanelRequest;
 
-  const { LabTestPanel } = models;
-  const tests = await LabTestPanel.findOne({
-    where: { id: labTestPanelId },
-    include: 'labTestTypes',
-  });
-  console.log({ labTestTypes: JSON.stringify(tests.labTestTypes) });
-  return tests.labTestTypes;
-  if (upstream.tests.length > 0)
-    return upstream.tests;
+  // A single request cannot have BOTH
+  //  panels and individual tests together. 
+  if (tests.length > 0 && labTestPanel) {
+    throw new Error(`Service Request with upstream LabRequest ${upstream.id} cannot have both panels AND independent tests`);
+  }
+
+  if (tests.length > 0) {
+    return tests;
+  }
+  if (labTestPanel) {
+    return labTestPanel.labTestTypes;
+  }
   return null;
 }
 
