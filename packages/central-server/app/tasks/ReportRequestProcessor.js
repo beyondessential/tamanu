@@ -31,14 +31,14 @@ export class ReportRequestProcessor extends ScheduledTask {
   }
 
   registerExitListeners() {
-    const killWorkers = event => {
+    const killChildProcesses = event => {
       this.childProcesses.forEach(childProcess => {
         if (!childProcess?.kill || childProcess.killed) return;
         childProcess.kill(childProcess.pid, event);
         log.info('Cleaned up child process that was not killed by the parent process');
       });
     };
-    process.on(['uncaughtException', 'SIGINT', 'SIGTERM'], killWorkers);
+    process.on(['uncaughtException', 'SIGINT', 'SIGTERM'], killChildProcesses);
   }
 
   spawnReportProcess = async request => {
