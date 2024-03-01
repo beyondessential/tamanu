@@ -72,7 +72,7 @@ jobs:
 
       # derive the stack name from the branch
       # changing this will create a new stack
-      # this must be the same as in cd-down.yml
+      # this must be the same as in cd-up.yml
       - name: Normalise branch/ref name
         uses: actions/github-script@v6
         id: stack
