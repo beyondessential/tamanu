@@ -14,7 +14,7 @@ import { ViewPhotoLink } from '../../../../components/ViewPhotoLink';
 import { LoadingScreen } from '../../../../components/LoadingScreen';
 import { useBackendEffect } from '../../../../hooks';
 
-const AnswerFromBackend = ({ question, answer }): ReactElement => {
+const AutocompleteAnswer = ({ question, answer }): ReactElement => {
   const config = JSON.parse(question.config);
   const [refData, error] = useBackendEffect(
     ({ models }) => models[config.source].getRepository().findOne(answer),
@@ -72,7 +72,7 @@ const isAutocomplete = ({ config, dataElement }) => dataElement.type === 'Autoco
  (config && JSON.parse(config).writeToPatient?.fieldType === 'Autocomplete');
 
 const renderAnswer = (question, answer): ReactElement => {
-  if (isAutocomplete(question)) return <AnswerFromBackend question={question} answer={answer} />;
+  if (isAutocomplete(question)) return <AutocompleteAnswer question={question} answer={answer} />;
 
   switch (question.dataElement.type) {
     case FieldTypes.RESULT:
