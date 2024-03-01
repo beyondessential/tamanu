@@ -38,9 +38,9 @@ jobs:
           docker cp web:/app tamanu-web-${{ steps.version.outputs.version }}
           docker rm web
 
-          zip -r -0 tamanu-web-$ver.zip tamanu-web-$ver
-          tar -cf web-$ver.tar tamanu-web-$ver
-          zstd --rm --adapt -T0 -10 web-$ver.tar -o web-$ver.tar.zst
+          zip -r -0 tamanu-web-${{ steps.version.outputs.version }}.zip tamanu-web-${{ steps.version.outputs.version }}
+          tar -cf web-${{ steps.version.outputs.version }}.tar tamanu-web-${{ steps.version.outputs.version }}
+          zstd --rm --adapt -T0 -10 web-${{ steps.version.outputs.version }}.tar
 
       - name: Sign build
         env:
