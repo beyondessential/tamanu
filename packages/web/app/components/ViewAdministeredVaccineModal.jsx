@@ -10,6 +10,8 @@ import { useApi } from '../api';
 
 import { DateDisplay } from './DateDisplay';
 import { Modal } from './Modal';
+import { TranslatedText } from './Translation/TranslatedText';
+import { LowerCase } from './Typography';
 
 const Container = styled.div`
   display: flex;
@@ -51,12 +53,13 @@ const FieldGroup = styled.div`
   padding-top: 20px;
 `;
 
+/* eslint-disable react/jsx-key */
 const FieldsViewer = ({ labelValueFieldGroups, editMode }) => (
   <Container $editMode={editMode}>
-    {labelValueFieldGroups.map(fieldGroup => (
-      <FieldGroup>
-        {fieldGroup.map(({ label, value }) => (
-          <DisplayField $editMode={editMode}>
+    {labelValueFieldGroups.map(({ key, fields }) => (
+      <FieldGroup key={key}>
+        {fields.map(({ label, value }) => (
+          <DisplayField key={label} $editMode={editMode}>
             <Label>{label}</Label>
             {value}
           </DisplayField>
@@ -65,13 +68,22 @@ const FieldsViewer = ({ labelValueFieldGroups, editMode }) => (
     ))}
   </Container>
 );
+/* eslint-enable react/jsx-key */
 
 const ErrorMessage = () => {
   return (
     <Box p={5}>
       <Alert severity="error">
-        <AlertTitle>Error: Cannot load view modal for this vaccine</AlertTitle>
-        Please contact Tamanu administrator
+        <AlertTitle>
+          <TranslatedText
+            stringId="vaccine.error.cantLoadVaccine.title"
+            fallback="Error: Cannot load view modal for this vaccine"
+          />
+        </AlertTitle>
+        <TranslatedText
+          stringId="vaccine.error.cantLoadVaccine.subTitle"
+          fallback="Please contact administrator"
+        />
       </Alert>
     </Box>
   );
@@ -98,7 +110,6 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
     encounter,
     circumstanceIds,
   } = vaccineRecord;
-
   const routine = !vaccineName;
   const notGiven = VACCINE_STATUS.NOT_GIVEN === status;
 
@@ -114,33 +125,104 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
   if (!vaccineRecord) return null;
 
   const fieldObjects = {
-    vaccine: { label: 'Vaccine', value: vaccineLabel || '-' },
-    batch: { label: 'Batch', value: batch || '-' },
-    schedule: { label: 'Schedule', value: schedule || '-' },
-    dateRecorded: { label: 'Date recorded', value: <DateDisplay date={date} /> },
-    dateGiven: { label: 'Date given', value: <DateDisplay date={date} /> },
-    injectionSite: { label: 'Injection site', value: injectionSite || '-' },
-    area: { label: 'Area', value: location?.locationGroup?.name || '-' },
-    location: { label: 'Location', value: location?.name || '-' },
-    department: { label: 'Department', value: department?.name || '-' },
+    vaccine: {
+      label: <TranslatedText stringId="vaccine.vaccine.label" fallback="Vaccine" />,
+      value: vaccineLabel || '-',
+    },
+    batch: {
+      label: <TranslatedText stringId="vaccine.batch.label" fallback="Batch" />,
+      value: batch || '-',
+    },
+    schedule: {
+      label: <TranslatedText stringId="vaccine.schedule.label" fallback="Schedule" />,
+      value: schedule || '-',
+    },
+    dateRecorded: {
+      label: <TranslatedText stringId="vaccine.dateRecorded.label" fallback="Date recorded" />,
+      value: <DateDisplay date={date} />,
+    },
+    dateGiven: {
+      label: <TranslatedText stringId="vaccine.dateGiven.label" fallback="Date given" />,
+      value: <DateDisplay date={date} />,
+    },
+    injectionSite: {
+      label: <TranslatedText stringId="vaccine.injectionSite.label" fallback="Injection site" />,
+      value: injectionSite || '-',
+    },
+    area: {
+      label: <TranslatedText stringId="general.area.label" fallback="Area" />,
+      value: location?.locationGroup?.name || '-',
+    },
+    location: {
+      label: <TranslatedText stringId="general.location.label" fallback="Location" />,
+      value: location?.name || '-',
+    },
+    department: {
+      label: <TranslatedText stringId="general.department.label" fallback="Department" />,
+      value: department?.name || '-',
+    },
     facility: {
-      label: 'Facility',
+      label: <TranslatedText stringId="general.facility.label" fallback="Facility" />,
       value: location?.facility.name || encounter.location.facility.name || '-',
     },
-    givenBy: { label: 'Given by', value: givenBy || '-' },
-    supervisingClinician: { label: 'Supervising clincian', value: givenBy || '-' },
-    recordedBy: { label: 'Recorded by', value: recorder?.displayName || '-' },
-    vaccineName: { label: 'Vaccine name', value: vaccineName || '-' },
-    vaccineBrand: { label: 'Vaccine brand', value: vaccineBrand || '-' },
-    disease: { label: 'Disease', value: disease || '-' },
+    givenBy: {
+      label: <TranslatedText stringId="vaccine.givenBy.label" fallback="Given by" />,
+      value: givenBy || '-',
+    },
+    supervisingClinician: {
+      label: (
+        <TranslatedText
+          stringId="general.supervisingClinician.label"
+          fallback="Supervising :clinician"
+          replacements={{
+            clinician: (
+              <LowerCase>
+                <TranslatedText
+                  stringId="general.localisedField.clinician.label.short"
+                  fallback="Clinician"
+                />
+              </LowerCase>
+            ),
+          }}
+        />
+      ),
+      value: givenBy || '-',
+    },
+    recordedBy: {
+      label: <TranslatedText stringId="vaccine.recordedBy.label" fallback="Recorded by" />,
+      value: recorder?.displayName || '-',
+    },
+    vaccineName: {
+      label: <TranslatedText stringId="vaccine.vaccineName.label" fallback="Vaccine name" />,
+      value: vaccineName || '-',
+    },
+    vaccineBrand: {
+      label: <TranslatedText stringId="vaccine.vaccineBrand.label" fallback="Vaccine brand" />,
+      value: vaccineBrand || '-',
+    },
+    disease: {
+      label: <TranslatedText stringId="vaccine.disease.label" fallback="Disease" />,
+      value: disease || '-',
+    },
     status: {
-      label: 'Status',
+      label: <TranslatedText stringId="vaccine.status.label" fallback="Status" />,
       value: givenElsewhere ? 'Given elsewhere' : VACCINE_STATUS_LABELS[status] || '-',
     },
-    country: { label: 'Country', value: givenBy || '-' },
-    reason: { label: 'Reason', value: notGivenReason?.name || '-' },
+    country: {
+      label: <TranslatedText stringId="vaccine.country.label" fallback="Country" />,
+      value: givenBy || '-',
+    },
+    reason: {
+      label: (
+        <TranslatedText
+          stringId="general.localisedField.notGivenReasonId.label.short"
+          fallback="Clinician"
+        />
+      ),
+      value: notGivenReason?.name || '-',
+    },
     circumstance: {
-      label: 'Circumstance',
+      label: <TranslatedText stringId="vaccine.circumstance.label" fallback="Circumstance" />,
       value:
         vaccineCircumstances?.length > 0
           ? vaccineCircumstances?.map(circumstance => circumstance?.name)?.join(', ')
@@ -152,163 +234,249 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
     {
       name: 'routine',
       condition: routine && !notGiven && !givenElsewhere,
-      fields: [
-        [
-          fieldObjects.vaccine,
-          ...(editMode ? [] : [fieldObjects.batch]),
-          fieldObjects.schedule,
-          fieldObjects.status,
-          ...(editMode
-            ? [fieldObjects.recordedBy, fieldObjects.facility]
-            : [fieldObjects.dateGiven, fieldObjects.injectionSite]),
-        ],
-        ...(editMode
-          ? []
-          : [
-              [
-                fieldObjects.area,
-                fieldObjects.location,
-                fieldObjects.department,
-                fieldObjects.facility,
-              ],
-              [fieldObjects.givenBy, fieldObjects.recordedBy],
-            ]),
+      fieldGroups: [
+        {
+          key: 'vaccine',
+          fields: [
+            { field: fieldObjects.vaccine },
+            { field: fieldObjects.batch, editMode: false },
+            { field: fieldObjects.schedule },
+            { field: fieldObjects.status },
+            { field: fieldObjects.recordedBy, editMode: true },
+            { field: fieldObjects.facility, editMode: true },
+            { field: fieldObjects.dateGiven, editMode: false },
+            { field: fieldObjects.injectionSite, editMode: false },
+          ],
+        },
+        {
+          key: 'location',
+          fields: [
+            { field: fieldObjects.area, editMode: false },
+            { field: fieldObjects.location, editMode: false },
+            { field: fieldObjects.department, editMode: false },
+            { field: fieldObjects.facility, editMode: false },
+          ],
+        },
+        {
+          key: 'recorded',
+          fields: [
+            { field: fieldObjects.givenBy, editMode: false },
+            { field: fieldObjects.recordedBy, editMode: false },
+          ],
+        },
       ],
     },
     {
       name: 'routineOverseas',
       condition: routine && !notGiven && givenElsewhere,
-      fields: [
-        ...(editMode ? [] : [[fieldObjects.circumstance, fieldObjects.status]]),
-        [
-          fieldObjects.vaccine,
-          ...(editMode
-            ? [fieldObjects.schedule, fieldObjects.status, fieldObjects.recordedBy]
-            : [fieldObjects.batch, fieldObjects.dateGiven, fieldObjects.injectionSite]),
-        ],
-        ...(editMode
-          ? []
-          : [[fieldObjects.country], [fieldObjects.facility, fieldObjects.recordedBy]]),
+      fieldGroups: [
+        {
+          key: 'status',
+          fields: [
+            { field: fieldObjects.circumstance, editMode: false },
+            { field: fieldObjects.status, editMode: false },
+          ],
+        },
+        {
+          key: 'vaccine',
+          fields: [
+            { field: fieldObjects.vaccine },
+
+            { field: fieldObjects.schedule, editMode: true },
+            { field: fieldObjects.status, editMode: true },
+            { field: fieldObjects.recordedBy, editMode: true },
+
+            { field: fieldObjects.batch, editMode: false },
+            { field: fieldObjects.dateGiven, editMode: false },
+            { field: fieldObjects.injectionSite, editMode: false },
+          ],
+        },
+        { key: 'country', fields: [{ field: fieldObjects.country, editMode: false }] },
+        {
+          key: 'recorded',
+          fields: [
+            { field: fieldObjects.facility, editMode: false },
+            { field: fieldObjects.recordedBy, editMode: false },
+          ],
+        },
       ],
     },
     {
       name: 'other',
       condition: !routine && !notGiven && !givenElsewhere,
-      fields: [
-        [
-          fieldObjects.vaccineName,
-          ...(editMode
-            ? [fieldObjects.facility, fieldObjects.recordedBy]
-            : [
-                fieldObjects.batch,
-                fieldObjects.vaccineBrand,
-                fieldObjects.disease,
-                fieldObjects.dateGiven,
-                fieldObjects.injectionSite,
-              ]),
-          fieldObjects.status,
-        ],
-        ...(editMode
-          ? []
-          : [
-              [
-                fieldObjects.area,
-                fieldObjects.location,
-                fieldObjects.department,
-                fieldObjects.facility,
-              ],
-              [fieldObjects.givenBy, fieldObjects.recordedBy],
-            ]),
+      fieldGroups: [
+        {
+          key: 'vaccine',
+          fields: [
+            { field: fieldObjects.vaccineName },
+            { field: fieldObjects.facility, editMode: true },
+            { field: fieldObjects.recordedBy, editMode: true },
+            { field: fieldObjects.batch, editMode: false },
+            { field: fieldObjects.vaccineBrand, editMode: false },
+            { field: fieldObjects.disease, editMode: false },
+            { field: fieldObjects.dateGiven, editMode: false },
+            { field: fieldObjects.injectionSite, editMode: false },
+            { field: fieldObjects.status },
+          ],
+        },
+        {
+          key: 'location',
+          fields: [
+            { field: fieldObjects.area, editMode: false },
+            { field: fieldObjects.location, editMode: false },
+            { field: fieldObjects.department, editMode: false },
+            { field: fieldObjects.facility, editMode: false },
+          ],
+        },
+        {
+          key: 'recorded',
+          fields: [
+            { field: fieldObjects.givenBy, editMode: false },
+            { field: fieldObjects.recordedBy, editMode: false },
+          ],
+        },
       ],
     },
     {
       name: 'otherOverseas',
       condition: !routine && !notGiven && givenElsewhere,
-      fields: [
-        ...(editMode ? [] : [[fieldObjects.circumstance, fieldObjects.status]]),
-        [
-          fieldObjects.vaccineName,
-          ...(editMode
-            ? [fieldObjects.status, fieldObjects.facility, fieldObjects.recordedBy]
-            : [
-                fieldObjects.batch,
-                fieldObjects.vaccineBrand,
-                fieldObjects.disease,
-                fieldObjects.dateGiven,
-                fieldObjects.injectionSite,
-              ]),
-        ],
-        ...(editMode
-          ? []
-          : [[fieldObjects.country], [fieldObjects.facility, fieldObjects.recordedBy]]),
+      fieldGroups: [
+        {
+          key: 'status',
+          fields: [
+            { field: fieldObjects.circumstance, editMode: false },
+            { field: fieldObjects.status, editMode: false },
+          ],
+        },
+        {
+          key: 'vaccine',
+          fields: [
+            { field: fieldObjects.vaccineName },
+            { field: fieldObjects.status, editMode: true },
+            { field: fieldObjects.facility, editMode: true },
+            { field: fieldObjects.recordedBy, editMode: true },
+            { field: fieldObjects.batch, editMode: false },
+            { field: fieldObjects.vaccineBrand, editMode: false },
+            { field: fieldObjects.disease, editMode: false },
+            { field: fieldObjects.dateGiven, editMode: false },
+            { field: fieldObjects.injectionSite, editMode: false },
+          ],
+        },
+        { key: 'country', fields: [{ field: fieldObjects.country, editMode: false }] },
+        {
+          key: 'recorded',
+          fields: [
+            { field: fieldObjects.facility, editMode: false },
+            { field: fieldObjects.recordedBy, editMode: false },
+          ],
+        },
       ],
     },
     {
       name: 'notGiven',
       condition: notGiven && routine,
-      fields: [
-        [
-          fieldObjects.vaccine,
-          fieldObjects.schedule,
-          ...(editMode
-            ? [fieldObjects.recordedBy]
-            : [fieldObjects.reason, fieldObjects.dateRecorded]),
-          fieldObjects.status,
-        ],
-        ...(editMode
-          ? []
-          : [
-              [
-                fieldObjects.area,
-                fieldObjects.location,
-                fieldObjects.department,
-                fieldObjects.facility,
-              ],
-              [fieldObjects.supervisingClinician, fieldObjects.recordedBy],
-            ]),
+      fieldGroups: [
+        {
+          key: 'vaccine',
+          fields: [
+            { field: fieldObjects.vaccine },
+            { field: fieldObjects.schedule },
+            { field: fieldObjects.recordedBy, editMode: true },
+            { field: fieldObjects.reason, editMode: false },
+            { field: fieldObjects.dateRecorded, editMode: false },
+            { field: fieldObjects.status },
+          ],
+        },
+        {
+          key: 'location',
+          fields: [
+            { field: fieldObjects.area, editMode: false },
+            { field: fieldObjects.location, editMode: false },
+            { field: fieldObjects.department, editMode: false },
+            { field: fieldObjects.facility, editMode: false },
+          ],
+        },
+        {
+          key: 'recorded',
+          fields: [
+            { field: fieldObjects.supervisingClinician, editMode: false },
+            { field: fieldObjects.recordedBy, editMode: false },
+          ],
+        },
       ],
     },
     {
       name: 'notGivenOther',
       condition: notGiven && !routine,
-      fields: [
-        [
-          fieldObjects.vaccineName,
-          ...(editMode
-            ? [fieldObjects.recordedBy]
-            : [fieldObjects.disease, fieldObjects.reason, fieldObjects.dateRecorded]),
-          fieldObjects.status,
-        ],
-        ...(editMode
-          ? []
-          : [
-              [
-                fieldObjects.area,
-                fieldObjects.location,
-                fieldObjects.department,
-                fieldObjects.facility,
-              ],
-              [fieldObjects.supervisingClinician, fieldObjects.recordedBy],
-            ]),
+      fieldGroups: [
+        {
+          key: 'vaccine',
+          fields: [
+            { field: fieldObjects.vaccineName },
+            { field: fieldObjects.recordedBy, editMode: true },
+            { field: fieldObjects.disease, editMode: false },
+            { field: fieldObjects.reason, editMode: false },
+            { field: fieldObjects.dateRecorded, editMode: false },
+            { field: fieldObjects.status },
+          ],
+        },
+        {
+          key: 'location',
+          fields: [
+            { field: fieldObjects.area, editMode: false },
+            { field: fieldObjects.location, editMode: false },
+            { field: fieldObjects.department, editMode: false },
+            { field: fieldObjects.facility, editMode: false },
+          ],
+        },
+        {
+          key: 'recorded',
+          fields: [
+            { field: fieldObjects.supervisingClinician, editMode: false },
+            { field: fieldObjects.recordedBy, editMode: false },
+          ],
+        },
       ],
     },
   ];
 
   const modalVersion = modalVersions.find(modalType => modalType.condition === true);
+  if (!modalVersion) return <ErrorMessage />;
+  const fieldGroups = modalVersion.fieldGroups
+    .map(group => ({
+      ...group,
+      fields: group.fields
+        .filter(field => {
+          // filter out fields if they're conditional on the editMode, and the editMode doesn't match
+          // this can be written more concisely but i want it explicit
+          if (editMode && field.editMode === true) return true;
+          if (!editMode && field.editMode === false) return true;
+          if (!Object.prototype.hasOwnProperty.call(field, 'editMode')) return true;
+          return false;
+        })
+        .map(({ field }) => field),
+    }))
+    .filter(group => {
+      // eliminate empty groups
+      return group.fields.length > 0;
+    });
 
-  return modalVersion ? (
-    <FieldsViewer labelValueFieldGroups={modalVersion.fields} editMode={editMode} />
-  ) : (
-    <ErrorMessage />
-  );
+  return <FieldsViewer labelValueFieldGroups={fieldGroups} editMode={editMode} />;
 };
 
 export const ViewAdministeredVaccineModal = ({ open, onClose, vaccineRecord }) => {
   if (!vaccineRecord) return null;
   return (
-    <Modal title="View vaccine record" open={open} onClose={onClose} cornerExitButton={false}>
+    <Modal
+      title={<TranslatedText stringId="vaccine.modal.view.title" fallback="View vaccine record" />}
+      open={open}
+      onClose={onClose}
+    >
       <ViewAdministeredVaccineContent vaccineRecord={vaccineRecord} />
-      <ModalActionRow confirmText="Close" onConfirm={onClose} />
+      <ModalActionRow
+        confirmText={<TranslatedText stringId="general.action.close" fallback="Close" />}
+        onConfirm={onClose}
+      />
     </Modal>
   );
 };

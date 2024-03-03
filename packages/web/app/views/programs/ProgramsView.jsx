@@ -14,11 +14,12 @@ import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { PatientListingView } from '..';
 import { usePatientAdditionalDataQuery } from '../../api/queries';
 import { ErrorMessage } from '../../components/ErrorMessage';
-import { getActionsFromData, getAnswersFromData } from '../../utils';
+import { getAnswersFromData } from '../../utils';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { useEncounter } from '../../contexts/Encounter';
 import { PATIENT_TABS } from '../../constants/patientPaths';
 import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
+import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { useApi } from '../../api';
 
 const SurveyFlow = ({ patient, currentUser }) => {
@@ -94,7 +95,6 @@ const SurveyFlow = ({ patient, currentUser }) => {
       patientId: patient.id,
       endTime: getCurrentDateTimeString(),
       answers: getAnswersFromData(data, survey),
-      actions: getActionsFromData(data, survey),
     });
     if (params?.encounterId && encounter && !encounter.endDate) {
       navigateToEncounter(params.encounterId, { tab: ENCOUNTER_TAB_NAMES.FORMS });
@@ -112,28 +112,47 @@ const SurveyFlow = ({ patient, currentUser }) => {
   }
 
   if (isError) {
-    return <ErrorMessage title="Error" error={error} />;
+    return (
+      <ErrorMessage
+        title={
+          <TranslatedText stringId="program.modal.selectSurvey.error.title" fallback="Error" />
+        }
+        error={error}
+      />
+    );
   }
 
   if (!survey) {
     return (
       <ProgramsPane>
         <ProgramsPaneHeader>
-          <ProgramsPaneHeading variant="h6">Select form</ProgramsPaneHeading>
+          <ProgramsPaneHeading variant="h6">
+            <TranslatedText stringId="program.modal.selectSurvey.title" fallback="Select survey" />
+          </ProgramsPaneHeading>
         </ProgramsPaneHeader>
         <FormGrid columns={1}>
           <SelectInput
             options={programs.map(p => ({ value: p.id, label: p.name }))}
             value={selectedProgramId}
             onChange={selectProgram}
-            label="Select program"
+            label={
+              <TranslatedText
+                stringId="program.modal.selectSurvey.selectProgram.label"
+                fallback="Select program"
+              />
+            }
           />
           <SurveySelector
             onSubmit={setSelectedSurvey}
             onChange={setSelectedSurveyId}
             value={selectedSurveyId}
             surveys={surveys}
-            buttonText="Begin form"
+            buttonText={
+              <TranslatedText
+                stringId="program.modal.selectSurvey.action.begin"
+                fallback="Begin survey"
+              />
+            }
           />
         </FormGrid>
       </ProgramsPane>

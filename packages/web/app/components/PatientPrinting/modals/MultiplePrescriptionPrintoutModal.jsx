@@ -7,8 +7,11 @@ import { LoadingIndicator } from '../../LoadingIndicator';
 import { useCertificate } from '../../../utils/useCertificate';
 import { useApi } from '../../../api';
 import { Colors } from '../../../constants';
-
-import { MultiplePrescriptionPrintout } from '../printouts/MultiplePrescriptionPrintout';
+import { PrescriptionPrintout } from '@tamanu/shared/utils/patientCertificates';
+import { useLocalisation } from '../../../contexts/Localisation';
+import { PDFViewer, printPDF } from '../PDFViewer';
+import { useAuth } from '../../../contexts/Auth';
+import { TranslatedText } from '../../Translation/TranslatedText';
 
 export const MultiplePrescriptionPrintoutModal = ({
   encounter,
@@ -17,15 +20,17 @@ export const MultiplePrescriptionPrintoutModal = ({
   open,
   onClose,
 }) => {
-  const certificateData = useCertificate();
+  const { getLocalisation } = useLocalisation();
+  const { data: certificateData, isFetching: isCertificateFetching } = useCertificate();
   const api = useApi();
+  const { facility } = useAuth();
 
-  const { data: patient, isLoading: patientLoading } = useQuery(
+  const { data: patient, isLoading: isPatientLoading } = useQuery(
     ['patient', encounter.patientId],
     () => api.get(`patient/${encounter.patientId}`),
   );
 
-  const { data: prescriber, isLoading: prescriberLoading } = useQuery(
+  const { data: prescriber, isLoading: isPrescriberLoading } = useQuery(
     ['prescriber', prescriberId],
     () => api.get(`user/${prescriberId}`),
     {
@@ -33,12 +38,12 @@ export const MultiplePrescriptionPrintoutModal = ({
     },
   );
 
-  const { data: additionalData, isLoading: additionalDataLoading } = useQuery(
+  const { data: additionalData, isLoading: isAdditionalDataLoading } = useQuery(
     ['additionalData', encounter.patientId],
     () => api.get(`patient/${encounter.patientId}/additionalData`),
   );
 
-  const { data: village = {}, isLoading: villageQueryLoading } = useQuery(
+  const { data: village = {}, isLoading: isVillageLoading } = useQuery(
     ['village', encounter.patientId],
     () => api.get(`referenceData/${encodeURIComponent(patient.villageId)}`),
     {
@@ -46,26 +51,42 @@ export const MultiplePrescriptionPrintoutModal = ({
     },
   );
 
-  const villageLoading = villageQueryLoading && !!patient?.villageId;
+  const isLoading =
+    isPatientLoading ||
+    isAdditionalDataLoading ||
+    isPrescriberLoading ||
+    (isVillageLoading && !!patient?.villageId) ||
+    isCertificateFetching;
 
   return (
     <Modal
-      title="Print prescriptions"
+      title={
+        <TranslatedText
+          stringId="medication.modal.printMultiple.title"
+          fallback="Print prescriptions"
+        />
+      }
       width="md"
       open={open}
       onClose={onClose}
       color={Colors.white}
       printable
+      onPrint={() => printPDF('prescription-printout')}
     >
-      {patientLoading || additionalDataLoading || villageLoading || prescriberLoading ? (
+      {isLoading ? (
         <LoadingIndicator />
       ) : (
-        <MultiplePrescriptionPrintout
-          certificateData={certificateData}
-          patientData={{ ...patient, additionalData, village }}
-          prescriber={prescriber}
-          prescriptions={prescriptions}
-        />
+        <PDFViewer id="prescription-printout">
+          <PrescriptionPrintout
+            certificateData={certificateData}
+            patientData={{ ...patient, additionalData, village }}
+            prescriber={prescriber}
+            prescriptions={prescriptions}
+            encounterData={encounter}
+            facility={facility}
+            getLocalisation={getLocalisation}
+          />
+        </PDFViewer>
       )}
     </Modal>
   );

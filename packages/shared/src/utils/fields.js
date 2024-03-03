@@ -1,4 +1,7 @@
-import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
+import {
+  ACTION_DATA_ELEMENT_TYPES,
+  PROGRAM_DATA_ELEMENT_TYPES,
+} from '@tamanu/constants';
 import { log } from '../services/logging';
 import { checkJSONCriteria } from './criteria';
 
@@ -51,7 +54,7 @@ function compareData(dataType, expected, given) {
  * So if there is an update to this method, please make the same update
  * in the other versions
  */
-function checkVisibilityCriteria(component, allComponents, values) {
+export function checkVisibilityCriteria(component, allComponents, values) {
   const { visibilityCriteria } = component;
 
   try {
@@ -110,6 +113,13 @@ function getValuesByCode(components, valuesById) {
   });
 
   return valuesByCode;
+}
+
+export function getActiveActionComponents(components, originalValues) {
+  const values = getValuesByCode(components, originalValues);
+  return components
+    .filter(c => ACTION_DATA_ELEMENT_TYPES.includes(c.dataElement.type))
+    .filter(c => checkVisibilityCriteria(c, components, values));
 }
 
 export function getResultValue(components, originalValues, specialValues) {

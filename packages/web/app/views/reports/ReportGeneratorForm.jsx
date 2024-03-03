@@ -24,11 +24,12 @@ import {
   TextButton,
 } from '../../components';
 import { FormSubmitDropdownButton } from '../../components/DropdownButton';
-import { Colors } from '../../constants';
+import { Colors, FORM_TYPES } from '../../constants';
 import { saveExcelFile } from '../../utils/saveExcelFile';
 import { EmailField, parseEmails } from './EmailField';
 import { ParameterField } from './ParameterField';
 import { useLocalisation } from '../../contexts/Localisation';
+import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { ReportAboutModal } from './ReportAboutModal';
 
 const Spacer = styled.div`
@@ -94,7 +95,7 @@ const useFileName = () => {
       .replace(/\s+/g, '-')
       .replace(/-+/g, '-')
       .toLowerCase();
-    return `tamanu-report-${date}-${dashedName}`;
+    return `report-${date}-${dashedName}`;
   };
 };
 
@@ -133,7 +134,9 @@ export const ReportGeneratorForm = () => {
 
   const {
     parameters = [],
-    dateRangeLabel = 'Date range',
+    dateRangeLabel = (
+      <TranslatedText stringId="report.generate.dateRange.label" fallback="Date range" />
+    ),
     dataSourceOptions = REPORT_DATA_SOURCE_VALUES,
     filterDateRangeAsStrings = false,
   } = reportsById[selectedReportId] || {};
@@ -152,13 +155,21 @@ export const ReportGeneratorForm = () => {
         const reports = await api.get('reports');
         setAvailableReports(reports);
       } catch (error) {
-        setRequestError(`Unable to load available reports - ${error.message}`);
+        setRequestError(
+          `${(
+            <TranslatedText
+              stringId="report.generate.requestError.loadFailure"
+              fallback="Unable to load available reports"
+            />
+          )} - ${error.message}`,
+        );
       }
     })();
   }, [api]);
 
   const submitRequestReport = async formValues => {
-    const { reportId, emails, ...filterValues } = formValues;
+    const { reportId, ...filterValues } = formValues;
+    delete filterValues.emails;
 
     const updatedFilters = Object.fromEntries(
       Object.entries(filterValues).map(([key, value]) => {
@@ -197,7 +208,12 @@ export const ReportGeneratorForm = () => {
             defaultFileName: getFileName(reportName),
             bookType,
           });
-          setSuccessMessage(`Report successfully exported`);
+          setSuccessMessage(
+            <TranslatedText
+              stringId="report.generate.message.export.success"
+              fallback="Report successfully exported"
+            />,
+          );
         } catch (error) {
           setRequestError(`Unable to export report - ${error.message}`);
         }
@@ -208,10 +224,21 @@ export const ReportGeneratorForm = () => {
           emailList: parseEmails(formValues.emails),
           bookType,
         });
-        setSuccessMessage('Report successfully requested. You will receive an email soon.');
+        setSuccessMessage(
+          <TranslatedText
+            stringId="report.generate.message.request.success"
+            fallback="Report successfully requested. You will receive an email soon."
+          />,
+        );
       }
     } catch (e) {
-      setRequestError(`Unable to submit report request - ${e.message}`);
+      setRequestError(
+        <TranslatedText
+          stringId="reportGenerator.error.cantSubmitRequest"
+          fallback="Unable to submit report request - :errorMessage"
+          replacements={{ errorMessage: e.message }}
+        />,
+      );
     }
   };
 
@@ -228,10 +255,14 @@ export const ReportGeneratorForm = () => {
         reportId: '',
         emails: currentUser.email,
       }}
+      formType={FORM_TYPES.CREATE_FORM}
       onSubmit={submitRequestReport}
       validationSchema={Yup.object().shape({
         reportId: Yup.string().required(
-          "Report id is required. A report must be selected from the dropdown; just entering a report name will not work. If you can't see a specific report, please contact your system administrator.",
+          <TranslatedText
+            stringId="report.generate.validation.reportId.required"
+            fallback="Report id is required. A report must be selected from the dropdown; just entering a report name will not work. If you can't see a specific report, please contact your system administrator."
+          />,
         ),
         ...parameters.reduce(
           (schema, field) => ({
@@ -246,7 +277,9 @@ export const ReportGeneratorForm = () => {
           <FormGrid columns={2}>
             <Field
               name="reportId"
-              label="Report"
+              label={
+                <TranslatedText stringId="report.generate.report.label" fallback="Report" />
+              }
               component={ReportIdField}
               options={reportOptions}
               required
@@ -263,8 +296,24 @@ export const ReportGeneratorForm = () => {
                 setDataSource(e.target.value);
               }}
               options={[
-                { label: 'This server', value: REPORT_DATA_SOURCES.THIS_FACILITY },
-                { label: 'Central server', value: REPORT_DATA_SOURCES.ALL_FACILITIES },
+                {
+                  label: (
+                    <TranslatedText
+                      stringId="report.generate.dataSource.option.thisFacility"
+                      fallback="This facility"
+                    />
+                  ),
+                  value: REPORT_DATA_SOURCES.THIS_FACILITY,
+                },
+                {
+                  label: (
+                    <TranslatedText
+                      stringId="report.generate.dataSource.option.allFacilities"
+                      fallback="All facilities"
+                    />
+                  ),
+                  value: REPORT_DATA_SOURCES.ALL_FACILITIES,
+                },
               ]}
               component={RadioField}
               disabled={isDataSourceFieldDisabled}
@@ -290,6 +339,7 @@ export const ReportGeneratorForm = () => {
               <Spacer />
               <FormGrid columns={3}>
                 {parameters.map(({ parameterField, required, name, label, ...restOfProps }) => {
+                  delete restOfProps.options;
                   return (
                     <ParameterField
                       key={name || parameterField}
@@ -309,13 +359,20 @@ export const ReportGeneratorForm = () => {
           <FormGrid columns={2} style={{ marginBottom: 30 }}>
             <Field
               name="fromDate"
-              label="From date"
+              label={
+                <TranslatedText
+                  stringId="report.generate.fromDate.label"
+                  fallback="From date"
+                />
+              }
               component={DateField}
               saveDateAsString={filterDateRangeAsStrings}
             />
             <Field
               name="toDate"
-              label="To date"
+              label={
+                <TranslatedText stringId="report.generate.toDate.label" fallback="To date" />
+              }
               component={DateField}
               saveDateAsString={filterDateRangeAsStrings}
             />
@@ -353,14 +410,24 @@ export const ReportGeneratorForm = () => {
               size="large"
               actions={[
                 {
-                  label: 'Generate XLSX',
+                  label: (
+                    <TranslatedText
+                      stringId="report.generate.action.generateXLSX"
+                      fallback="Generate XLSX"
+                    />
+                  ),
                   onClick: event => {
                     setBookFormat(REPORT_EXPORT_FORMATS.XLSX);
                     submitForm(event);
                   },
                 },
                 {
-                  label: 'Generate CSV',
+                  label: (
+                    <TranslatedText
+                      stringId="report.generate.action.generateCSV"
+                      fallback="Generate CSV"
+                    />
+                  ),
                   onClick: event => {
                     setBookFormat(REPORT_EXPORT_FORMATS.CSV);
                     submitForm(event);

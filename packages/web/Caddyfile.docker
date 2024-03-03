@@ -1,7 +1,9 @@
-http://localhost:3000 {
+:3000 {
 	root * /app
 	encode zstd gzip
-	log
+	log {
+		output stderr
+	}
 
 	file_server {
 		precompressed zstd br gzip

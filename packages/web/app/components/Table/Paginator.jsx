@@ -5,6 +5,7 @@ import { MenuItem, Select } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { Colors } from '../../constants';
 import { ChevronIcon } from '../Icons/ChevronIcon';
+import { TranslatedText } from '../Translation/TranslatedText';
 
 const PaginatorWrapper = styled.td``;
 
@@ -123,7 +124,15 @@ export const Paginator = React.memo(
       <PaginatorWrapper colSpan={colSpan}>
         <FooterContent>
           <PageRecordCount>
-            {lowerRange}–{upperRange} of {count}
+            <TranslatedText
+              stringId="general.table.pageRecordCount"
+              fallback=":lowerRange–:upperRange of :count"
+              replacements={{
+                lowerRange,
+                upperRange,
+                count,
+              }}
+            />
           </PageRecordCount>
           <StyledSelectField
             label="Rows per page"
@@ -133,7 +142,9 @@ export const Paginator = React.memo(
             MenuProps={{ classes: { paper: classes.selectMenu } }}
           >
             {rowsPerPageOptions.map(option => (
-              <StyledMenuItem value={option}>{option}</StyledMenuItem>
+              <StyledMenuItem key={option} value={option}>
+                {option}
+              </StyledMenuItem>
             ))}
           </StyledSelectField>
           <StyledPagination

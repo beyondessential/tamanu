@@ -1,6 +1,7 @@
 import { inRange, isNil } from 'lodash';
-import { formatISO9075, isDate } from 'date-fns';
+import { formatISO9075 } from 'date-fns';
 import { DataElementType, ISurveyScreenComponent } from '~/types/ISurvey';
+import { PATIENT_DATA_FIELD_LOCATIONS } from '~/constants';
 
 export const FieldTypes = {
   TEXT: 'FreeText',
@@ -33,9 +34,15 @@ export const PatientFieldDefinitionTypes = {
   NUMBER: 'number',
   SELECT: 'select',
 };
-export const PatientFieldDefinitionTypeValues = Object.values(
-  PatientFieldDefinitionTypes,
-);
+export const PatientFieldDefinitionTypeValues = Object.values(PatientFieldDefinitionTypes);
+
+export const getPatientDataDbLocation = fieldName => {
+  const [modelName, columnName] = PATIENT_DATA_FIELD_LOCATIONS[fieldName] ?? [null, null];
+  return {
+    modelName,
+    fieldName: columnName,
+  };
+};
 
 export const getStringValue = (type: string, value: any): string => {
   switch (type) {
@@ -272,4 +279,20 @@ export function checkMandatory(mandatory: boolean | Record<string, any>, values:
   }
 
   return checkJSONCriteria(JSON.stringify(mandatory), [], values);
+}
+
+// also update getNameColumnForModel in /packages/facility-server/app/routes/apiv1/surveyResponse.js when this changes
+export function getNameColumnForModel(modelName: string): string {
+  switch (modelName) {
+    case 'User':
+      return 'displayName';
+    default:
+      return 'name';
+  }
+}
+
+// also update getDisplayNameForModel in /packages/facility-server/app/routes/apiv1/surveyResponse.js when this changes
+export function getDisplayNameForModel(modelName: string, record: any): string {
+  const columnName = getNameColumnForModel(modelName);
+  return record[columnName] || record.id;
 }

@@ -31,7 +31,7 @@ const StyledClearIcon = styled(ClearIcon)`
   color: ${Colors.darkText};
 `;
 
-export const SearchField = ({ keepLetterCase = false, ...props }) => {
+export const SearchField = props => {
   const {
     field: { value, name },
     form: { setFieldValue } = {},
@@ -64,7 +64,9 @@ export const SearchField = ({ keepLetterCase = false, ...props }) => {
           </StyledIconButton>
         ),
       }}
-      placeholder={label ? `Search ${keepLetterCase ? label : label.toLowerCase()}` : ''}
+      // TODO: Hook up to translation context or some solution for strict strings
+      // placeholder={label ? `Search ${keepLetterCase ? label : label.toLowerCase()}` : ''}
+      placeholder={label ? `Search` : ''}
       {...props}
       value={searchValue}
     />

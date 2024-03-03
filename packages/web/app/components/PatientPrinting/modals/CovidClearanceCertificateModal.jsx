@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 
 import { CertificateTypes, CovidLabCertificate } from '@tamanu/shared/utils/patientCertificates';
 import { ASSET_NAMES, COVID_19_CLEARANCE_CERTIFICATE } from '@tamanu/constants';
@@ -11,24 +11,27 @@ import { useCertificate } from '../../../utils/useCertificate';
 import { usePatientAdditionalDataQuery } from '../../../api/queries';
 
 import { PDFViewer, printPDF } from '../PDFViewer';
+import { LoadingIndicator } from '../../LoadingIndicator';
+import { useCovidLabTestQuery } from '../../../api/queries/useCovidLabTestsQuery';
 
 export const CovidClearanceCertificateModal = React.memo(({ patient }) => {
   const [open, setOpen] = useState(true);
-  const [labs, setLabs] = useState([]);
   const { getLocalisation } = useLocalisation();
   const api = useApi();
-  const { watermark, logo, footerImg, printedBy } = useCertificate({
+  const { data: certificateData, isFetching: isCertificateFetching } = useCertificate({
     footerAssetName: ASSET_NAMES.COVID_CLEARANCE_CERTIFICATE_FOOTER,
   });
-  const { data: additionalData } = usePatientAdditionalDataQuery(patient.id);
+  const { watermark, logo, footerImg, printedBy } = certificateData;
+  const {
+    data: additionalData,
+    isLoading: isAdditionalDataLoading,
+  } = usePatientAdditionalDataQuery(patient.id);
+  const { data: labTestsResponse, isLoading: isLabTestsLoading } = useCovidLabTestQuery(
+    patient.id,
+    CertificateTypes.clearance,
+  );
 
-  useEffect(() => {
-    api
-      .get(`patient/${patient.id}/covidLabTests`, { certType: CertificateTypes.clearance })
-      .then(response => {
-        setLabs(response.data);
-      });
-  }, [api, patient.id]);
+  const isLoading = isLabTestsLoading || isAdditionalDataLoading || isCertificateFetching;
 
   const createCovidTestCertNotification = useCallback(
     data =>
@@ -54,18 +57,22 @@ export const CovidClearanceCertificateModal = React.memo(({ patient }) => {
       onPrint={() => printPDF('clearance-certificate')}
       additionalActions={<EmailButton onEmail={createCovidTestCertNotification} />}
     >
-      <PDFViewer id="clearance-certificate">
-        <CovidLabCertificate
-          patient={patientData}
-          labs={labs}
-          watermarkSrc={watermark}
-          signingSrc={footerImg}
-          logoSrc={logo}
-          getLocalisation={getLocalisation}
-          printedBy={printedBy}
-          certType={CertificateTypes.clearance}
-        />
-      </PDFViewer>
+      {isLoading ? (
+        <LoadingIndicator />
+      ) : (
+        <PDFViewer id="clearance-certificate">
+          <CovidLabCertificate
+            patient={patientData}
+            labs={labTestsResponse.data}
+            watermarkSrc={watermark}
+            signingSrc={footerImg}
+            logoSrc={logo}
+            getLocalisation={getLocalisation}
+            printedBy={printedBy}
+            certType={CertificateTypes.clearance}
+          />
+        </PDFViewer>
+      )}
     </Modal>
   );
 });
