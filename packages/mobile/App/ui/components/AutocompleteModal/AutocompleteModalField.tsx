@@ -85,9 +85,7 @@ export const AutocompleteModalField = ({
       <Button
         marginTop={marginTop}
         backgroundColor={theme.colors.WHITE}
-        textColor={
-          !!suggester && !!placeholder ? theme.colors.TEXT_SOFT : theme.colors.TEXT_SUPER_DARK
-        }
+        textColor={label ? theme.colors.TEXT_SUPER_DARK : theme.colors.TEXT_SOFT}
         buttonText={label || placeholder || 'Select'}
         height={screenPercentageToDP(6.68, Orientation.Height)}
         justifyContent="flex-start"
@@ -101,9 +99,11 @@ export const AutocompleteModalField = ({
         onPress={openModal}
         disabled={disabled}
       >
-        <StyledView marginRight={5}>
-          <SearchIcon fill={theme.colors.TEXT_SOFT} />
-        </StyledView>
+        {!label && (
+          <StyledView marginRight={5}>
+            <SearchIcon fill={theme.colors.TEXT_SOFT} />
+          </StyledView>
+        )}
       </Button>
       {error && <TextFieldErrorMessage>{error}</TextFieldErrorMessage>}
     </StyledView>
