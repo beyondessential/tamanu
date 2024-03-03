@@ -1,4 +1,4 @@
-import { Entity, ManyToOne, RelationId, Column } from 'typeorm/browser';
+import { Entity, ManyToOne, RelationId, Column, BeforeInsert } from 'typeorm/browser';
 
 import {
   DateTimeString,
@@ -89,6 +89,11 @@ export class PatientProgramRegistration extends BaseModel implements IPatientPro
   // dateRemoved: DateTimeString;
   // removedBy?: IUser;
   // removedById?: ID;
+
+  @BeforeInsert()
+  async markPatientForSync(): Promise<void> {
+    await Patient.markForSync(this.patient);
+  }
 
   static async getRecentOne(
     programId?: string,
