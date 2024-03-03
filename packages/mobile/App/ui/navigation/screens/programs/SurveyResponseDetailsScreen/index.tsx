@@ -67,7 +67,7 @@ function getAnswerText(question, answer): string | number {
   }
 }
 
-const isFromBackend = ({ config, dataElement }) => {
+const isFromBackend = ({ config, dataElement }): Boolean => {
   // all autocompletes have answers connected to the backend
   if (dataElement.type === FieldTypes.AUTOCOMPLETE) {
     return true;
@@ -89,6 +89,8 @@ const isFromBackend = ({ config, dataElement }) => {
       return true;
     }
   }
+
+  return false;
 };
 
 const renderAnswer = (question, answer): ReactElement => {
