@@ -9,6 +9,7 @@ import { Routes } from '~/ui/helpers/routes';
 import { TextFieldErrorMessage } from '/components/TextField/TextFieldErrorMessage';
 import { RequiredIndicator } from '../RequiredIndicator';
 import { SearchIcon } from '../Icons';
+import { ReadOnlyField } from '../ReadOnlyField/index';
 
 interface AutocompleteModalFieldProps {
   value?: string;
@@ -21,6 +22,7 @@ interface AutocompleteModalFieldProps {
   label?: string;
   required?: boolean;
   disabled?: boolean;
+  readOnly?: boolean;
 }
 
 export const AutocompleteModalField = ({
@@ -34,6 +36,7 @@ export const AutocompleteModalField = ({
   required,
   marginTop = 0,
   disabled = false,
+  readOnly = false,
 }: AutocompleteModalFieldProps): ReactElement => {
   const navigation = useNavigation();
   const [label, setLabel] = useState(null);
@@ -55,12 +58,16 @@ export const AutocompleteModalField = ({
       if (data) {
         setLabel(data.label);
       } else {
-        setLabel(placeholder);
+        setLabel(null);
       }
     })();
   }, [value]);
 
   const fontSize = screenPercentageToDP(2.1, Orientation.Height);
+
+  if (readOnly) {
+    return <ReadOnlyField value={label} />;
+  }
 
   return (
     <StyledView marginBottom={screenPercentageToDP('2.24', Orientation.Height)} width="100%">
