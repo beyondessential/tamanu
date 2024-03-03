@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import { StyledText, StyledView } from '/styled/common';
-import { IPatient, ISurveyScreenComponent } from '~/types';
+import { IPatient, ISurveyScreenComponent, SurveyScreenConfig } from '~/types';
 import { Field } from '../FormField';
 import { FieldTypes } from '~/ui/helpers/fields';
 import { FieldByType } from '~/ui/helpers/fieldComponents';
@@ -13,7 +13,10 @@ interface SurveyQuestionProps {
   zIndex: number;
 }
 
-function getField(type: string, { writeToPatient: { fieldType = '' } = {}, source } = {}): Element {
+function getField(
+  type: string,
+  { writeToPatient: { fieldType = '' } = {}, source }: SurveyScreenConfig = {},
+): Element {
   let field = FieldByType[type];
 
   // see getComponentForQuestionType in web/app/utils/survey.jsx for source of the following logic
@@ -25,7 +28,7 @@ function getField(type: string, { writeToPatient: { fieldType = '' } = {}, sourc
       // we're displaying a relation, so use a disabled Autocomplete
       // (using a standard field will just display the bare id)
       const Autocomplete = FieldByType[FieldTypes.AUTOCOMPLETE];
-      field = props => <Autocomplete {...props} disabled />;
+      field = props => <Autocomplete {...props} readOnly />;
     }
   }
   if (field || field === null) return field;
