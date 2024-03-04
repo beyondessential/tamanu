@@ -16,48 +16,37 @@ interface TranslationContextData {
   languageOptions: string[];
   onChangeLanguage: (languageCode: string) => void;
   getTranslation: (key: string) => string;
-  fetchTranslations: () => void;
+  setLanguage: (language: string) => void;
 }
 
 const TranslationContext = createContext<TranslationContextData>({} as TranslationContextData);
 
 export const TranslationProvider = ({ children }: PropsWithChildren<object>): ReactElement => {
   const DEFAULT_LANGUAGE = 'en';
-  const LANGUAGE_STORAGE_KEY = 'language';
   const { models } = useBackend();
   const [isDebugMode, setIsDebugMode] = useState(false);
   const [translations, setTranslations] = useState({});
   const [languageOptions, setLanguageOptions] = useState(null);
   const [language, setLanguage] = useState(null);
 
-  const initialiseLanguageState = async () => {
-    // Get language options from DB, only set options if there are any present
+  const getLanguageOptions = async () => {
     const languageOptionArray = await models.TranslatedString.getLanguageOptions();
     if (languageOptionArray.length > 0) setLanguageOptions(languageOptionArray);
+  };
 
-    // Initial check for language from localStorage (config). If none, set a default of english
-    const storedLanguage = await readConfig(LANGUAGE_STORAGE_KEY);
-    if (!storedLanguage) await writeConfig(LANGUAGE_STORAGE_KEY, DEFAULT_LANGUAGE);
-    setLanguage(storedLanguage || DEFAULT_LANGUAGE);
+  const setLanguageState = async (languageCode: string = DEFAULT_LANGUAGE) => {
+    // Get language options from DB, only set options if there are any present
+    if (!languageOptions) getLanguageOptions();
+    console.log('called')
+
+    const translations = await models.TranslatedString.getForLanguage(languageCode);
+    setLanguage(languageCode);
+    setTranslations(translations);
   };
 
   useEffect(() => {
-    initialiseLanguageState();
-  }, []);
-
-  const onChangeLanguage = async (languageCode: string) => {
-    await writeConfig(LANGUAGE_STORAGE_KEY, languageCode);
-    setLanguage(languageCode);
-  };
-
-  if (__DEV__) {
-    DevSettings.addMenuItem('Toggle translation highlighting', () => setIsDebugMode(!isDebugMode));
-  }
-
-  const fetchTranslations = async (language: string = 'en') => {
-    const translations = await models.TranslatedString.getForLanguage(language);
-    setTranslations(translations);
-  };
+    setLanguageState(language);
+  }, [language]);
 
   useEffect(() => {
     if (!__DEV__) return;
@@ -70,9 +59,9 @@ export const TranslationProvider = ({ children }: PropsWithChildren<object>): Re
         debugMode: isDebugMode,
         language,
         languageOptions,
-        onChangeLanguage,
+        // setLanguageState,
         getTranslation: key => translations[key],
-        fetchTranslations,
+        setLanguage,
       }}
     >
       {children}

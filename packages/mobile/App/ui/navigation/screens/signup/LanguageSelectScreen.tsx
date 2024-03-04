@@ -15,7 +15,7 @@ import { Dropdown } from '~/ui/components/Dropdown';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 
 export const LanguageSelectScreen: FunctionComponent<any> = ({ navigation }) => {
-  const { language, languageOptions, onChangeLanguage } = useTranslation();
+  const { language, languageOptions, setLanguage } = useTranslation();
 
   const onNavigateToSignIn = useCallback(() => {
     navigation.navigate(Routes.SignUpStack.SignIn);
@@ -54,7 +54,7 @@ export const LanguageSelectScreen: FunctionComponent<any> = ({ navigation }) => 
             <Dropdown
               value={language}
               options={languageOptions}
-              onChange={onChangeLanguage}
+              onChange={setLanguage}
               label=""
               fixedHeight
               selectPlaceholderText="Select"
