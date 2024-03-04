@@ -237,8 +237,13 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
         </BoldTitle>
         <Title variant="h3">
           {ENCOUNTER_OPTIONS_BY_VALUE[encounterType].label}
-          {location?.facility?.name 
-            ? ` | ${<TranslatedReferenceData fallback={location?.facility.name} value={location?.facility.id} category="facility"/>}` 
+          {location?.facility?.name
+            ? (
+              <>
+                {' | '}
+                <TranslatedReferenceData fallback={location?.facility.name} value={location?.facility.id} category="facility" />
+              </>
+            )
             : ''}
         </Title>
         <div style={{ flexGrow: 1 }} />
