@@ -25,7 +25,6 @@ import {
 import { ageInMonths, ageInWeeks, ageInYears } from '@tamanu/shared/utils/dateTime';
 import { joinNames } from './user';
 import { notifyError } from './utils';
-import { useTranslation } from '../contexts/Translation';
 
 const isNullOrUndefined = value => isNull(value) || isUndefined(value);
 
