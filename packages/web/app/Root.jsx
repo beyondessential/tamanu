@@ -19,19 +19,22 @@ import { ImagingRequestsProvider } from './contexts/ImagingRequests';
 import { PatientSearchProvider } from './contexts/PatientSearch';
 import { EncounterNotesProvider } from './contexts/EncounterNotes';
 import { SyncStateProvider } from './contexts/SyncState';
+import { ProgramRegistryProvider } from './contexts/ProgramRegistry';
 
 const StateContextProviders = ({ children, store }) => (
   <EncounterProvider store={store}>
     <ReferralProvider>
       <ImagingRequestsProvider>
         <EncounterNotesProvider>
-          <LabRequestProvider store={store}>
-            <PatientSearchProvider>
-              <SyncStateProvider>
-                <LocalisationProvider store={store}>{children}</LocalisationProvider>
-              </SyncStateProvider>
-            </PatientSearchProvider>
-          </LabRequestProvider>
+          <ProgramRegistryProvider>
+            <LabRequestProvider store={store}>
+              <PatientSearchProvider>
+                <SyncStateProvider>
+                  <LocalisationProvider store={store}>{children}</LocalisationProvider>
+                </SyncStateProvider>
+              </PatientSearchProvider>
+            </LabRequestProvider>
+          </ProgramRegistryProvider>
         </EncounterNotesProvider>
       </ImagingRequestsProvider>
     </ReferralProvider>
