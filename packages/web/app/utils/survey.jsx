@@ -270,7 +270,7 @@ export const getAnswersFromData = (data, survey) =>
     return acc;
   }, {});
 
-export const getValidationSchema = (surveyData, valuesToCheckMandatory = {}) => {
+export const getValidationSchema = (surveyData, valuesToCheckMandatory = {}, getTranslation) => {
   if (!surveyData) return {};
   const { components } = surveyData;
   const schema = components.reduce(
@@ -292,7 +292,7 @@ export const getValidationSchema = (surveyData, valuesToCheckMandatory = {}) => 
       );
       const { type, defaultText } = dataElement;
       const text = componentText || defaultText;
-      const mandatory = checkMandatory(mandatoryConfig, valuesToCheckMandatory);
+      const mandatory = checkMandatory(mandatoryConfig, valuesToCheckMandatory, getTranslation);
       let valueSchema;
       switch (type) {
         case PROGRAM_DATA_ELEMENT_TYPES.NUMBER: {
@@ -368,10 +368,7 @@ export const getGraphRangeByAge = (visualisationConfig, patientData) => {
   return getNormalRangeByAge(mockedValidationCriteria, patientData);
 };
 
-export const checkMandatory = (mandatory, values) => {
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const { getTranslation } = useTranslation();
-
+export const checkMandatory = (mandatory, values, getTranslation) => {
   try {
     if (!mandatory) {
       return false;
@@ -385,8 +382,7 @@ export const checkMandatory = (mandatory, values) => {
     notifyError(
       getTranslation(
         "general.notification.useMandatoryFailed",
-        `Failed to use mandatory in validationCriteria: ${JSON.stringify(mandatory)}, error: ${error.message
-          }`,
+        `Failed to use mandatory in validationCriteria: ${JSON.stringify(mandatory)}, error: ${error.message}`,
         { mandatory: JSON.stringify(mandatory), message: error.message }
       )
     );

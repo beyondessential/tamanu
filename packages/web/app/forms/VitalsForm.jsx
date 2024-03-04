@@ -13,6 +13,7 @@ import { ErrorMessage } from '../components/ErrorMessage';
 import { useAuth } from '../contexts/Auth';
 import { useEncounter } from '../contexts/Encounter';
 import { TranslatedText } from '../components/Translation/TranslatedText';
+import { useTranslation } from '../contexts/Translation';
 
 export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterType }) => {
   const {
@@ -22,6 +23,7 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterTyp
     error,
   } = combineQueries([useVitalsSurveyQuery(), usePatientAdditionalDataQuery(patient.id)]);
   const { encounter } = useEncounter();
+  const { getTranslation } = useTranslation();
   const { components = [] } = vitalsSurvey || {};
   const currentComponents = components.filter(
     c => c.visibilityStatus === VISIBILITY_STATUSES.CURRENT,
@@ -33,6 +35,7 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterTyp
         {
           encounterType: encounterType || encounter?.encounterType,
         },
+        getTranslation
       ),
     [currentComponents, encounter?.encounterType, encounterType],
   );

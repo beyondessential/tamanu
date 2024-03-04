@@ -17,6 +17,7 @@ import { useApi } from '../api';
 import { useEncounter } from '../contexts/Encounter';
 import { DateDisplay } from '../components/DateDisplay';
 import { TranslatedText } from '../components/Translation/TranslatedText';
+import { useTranslation } from '../contexts/Translation';
 
 const Text = styled(Typography)`
   font-size: 14px;
@@ -94,6 +95,7 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose }) => {
   const [isDeleted, setIsDeleted] = useState(false);
   const api = useApi();
   const queryClient = useQueryClient();
+  const { getTranslation } = useTranslation();
   const { encounter } = useEncounter();
   const { getLocalisation } = useLocalisation();
   const vitalEditReasons = getLocalisation('vitalEditReasons') || [];
@@ -104,7 +106,7 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose }) => {
   const editVitalData = getEditVitalData(dataPoint.component, mandatoryVitalEditReason);
   const validationSchema = getValidationSchema(editVitalData, {
     encounterType: encounter.encounterType,
-  });
+  }, getTranslation);
   const handleDeleteEntry = useCallback(
     setFieldValue => {
       setFieldValue(valueName, '');
