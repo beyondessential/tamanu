@@ -131,20 +131,6 @@ export const TRANSLATABLE_REFERENCE_TYPES = [
   'locationGroup',
   'patientFieldDefinition',
   'patientFieldDefinitionCategory',
-  'angiogramImagingArea',
-  'colonoscopyImagingArea',
-  'ctScanImagingArea',
-  'ecgImagingArea',
-  'echocardiogramImagingArea',
-  'endoscopyImagingArea',
-  'fluroscopyImagingArea',
-  'holterMonitorImagingArea',
-  'mammogramImagingArea',
-  'mriImagingArea',
-  'stressTestImagingArea',
-  'ultrasoundImagingArea',
-  'vascularStudyImagingArea',
-  'vaccineNotGivenReason',
 ];
 
 export const VISIBILITY_STATUSES = {

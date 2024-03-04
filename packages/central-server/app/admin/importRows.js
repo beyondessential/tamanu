@@ -225,7 +225,7 @@ export async function importRows(
 
       const dataType = SHEET_NAME_TO_DATA_TYPE[sheetName] || sheetName;
 
-      if (TRANSLATABLE_REFERENCE_TYPES.includes(dataType)) {
+      if (TRANSLATABLE_REFERENCE_TYPES.includes(dataType) && camelCase(model) === 'dataType') {
         const { TranslatedString } = models;
         const stringId = `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.${values.id}`;
         const existingTranslation = await TranslatedString.findOne({ where: { stringId } });
