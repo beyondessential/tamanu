@@ -1,0 +1,36 @@
+{
+  "name": "@tamanu/api-client",
+  "version": "2.4.0",
+  "private": true,
+  "description": "API client for Tamanu Facility Server",
+  "main": "dist/cjs/index.js",
+  "module": "dist/mjs/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/mjs/index.js",
+      "require": "./dist/cjs/index.js"
+    },
+    "./*": {
+      "import": "./dist/mjs/*.js",
+      "require": "./dist/cjs/*.js"
+    }
+  },
+  "homepage": "https://github.com/beyondessential/tamanu.git#readme",
+  "repository": "git@github.com:beyondessential/tamanu.git",
+  "author": "Beyond Essential Systems Pty. Ltd.",
+  "license": "SEE LICENSE IN ../../license",
+  "scripts": {
+    "build": "yarn run build:src && yarn run build:cjs && dual-pkg dist/mjs dist/cjs",
+    "build:src": "swc --delete-dir-on-start --out-dir dist/mjs --copy-files --source-maps true src",
+    "build:cjs": "yarn run build:src --out-dir dist/cjs --config module.type=commonjs",
+    "build-watch": "yarn run build && concurrently \"yarn run build:src --watch\" \"yarn run build:cjs --watch\""
+  },
+  "devDependencies": {
+    "@tamanu/build-tooling": "*"
+  },
+  "dependencies": {
+    "@tamanu/constants": "*",
+    "@tamanu/shared": "*",
+    "qs": "^6.10.2"
+  }
+}

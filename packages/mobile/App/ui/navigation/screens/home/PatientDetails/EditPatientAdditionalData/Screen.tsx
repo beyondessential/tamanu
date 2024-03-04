@@ -1,10 +1,11 @@
-import React, { useCallback, ReactElement } from 'react';
+import React, { ReactElement, useCallback } from 'react';
 import { StatusBar } from 'react-native';
 import { FullView } from '/styled/common';
 import { StackHeader } from '~/ui/components/StackHeader';
 import { PatientAdditionalDataForm } from '/components/Forms/PatientAdditionalDataForm';
 import { theme } from '/styled/theme';
 import { PatientSectionHeader } from '~/ui/components/Forms/NewPatientForm/PatientSectionHeader';
+import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 
 export const EditPatientAdditionalDataScreen = ({ navigation, route }): ReactElement => {
   const {
@@ -28,7 +29,12 @@ export const EditPatientAdditionalDataScreen = ({ navigation, route }): ReactEle
     <FullView background={theme.colors.BACKGROUND_GREY}>
       <StatusBar barStyle="light-content" />
       <StackHeader
-        title="Edit Patient Additional Data"
+        title={
+          <TranslatedText
+            stringId="patient.details.action.editAdditionalData"
+            fallback="Edit Patient Additional Data"
+          />
+        }
         subtitle={patientName}
         onGoBack={onGoBack}
       />

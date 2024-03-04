@@ -1,6 +1,6 @@
-import React, { useState, useCallback, useRef, useEffect, ReactElement } from 'react';
+import React, { ReactElement, useCallback, useEffect, useRef, useState } from 'react';
 
-import { StyledView, StyledText } from '/styled/common';
+import { StyledText, StyledView } from '/styled/common';
 import { MultiSelect } from './MultipleSelect';
 import { MultiSelectProps } from './MultipleSelect/types';
 import { BaseInputProps } from '../../interfaces/BaseInputProps';
@@ -105,11 +105,12 @@ export const Dropdown = React.memo(
       [selectedItems],
     );
     const filterable = options.length >= MIN_COUNT_FILTERABLE_BY_DEFAULT;
+    const fontSize = screenPercentageToDP(2.1, Orientation.Height);
     return (
       <StyledView width="100%" marginBottom={screenPercentageToDP(2.24, Orientation.Height)}>
         {!!label && (
           <StyledText
-            fontSize={14}
+            fontSize={fontSize}
             fontWeight={600}
             marginBottom={2}
             color={labelColor || theme.colors.TEXT_SUPER_DARK}
@@ -136,7 +137,7 @@ export const Dropdown = React.memo(
           selectedItemTextColor={theme.colors.PRIMARY_MAIN}
           selectedItemIconColor={theme.colors.PRIMARY_MAIN}
           itemTextColor={theme.colors.TEXT_SUPER_DARK}
-          itemFontSize={14}
+          itemFontSize={fontSize}
           searchInputStyle={{ color: theme.colors.PRIMARY_MAIN }}
           submitButtonColor={theme.colors.SAFE}
           submitButtonText="Confirm selection"
@@ -172,6 +173,7 @@ export const Dropdown = React.memo(
           searchIcon={filterable ? undefined : null}
           disabled={disabled}
           clearable={clearable}
+          fontSize={fontSize}
           {...getStyleProps(error, disabled)}
         />
         {error && <TextFieldErrorMessage>{error}</TextFieldErrorMessage>}

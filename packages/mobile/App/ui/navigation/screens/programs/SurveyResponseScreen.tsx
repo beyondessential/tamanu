@@ -1,4 +1,4 @@
-import React, { useCallback, ReactElement, useState } from 'react';
+import React, { ReactElement, useCallback, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Dimensions, Text } from 'react-native';
 import Modal from 'react-native-modal';
@@ -11,7 +11,7 @@ import { Routes } from '/helpers/routes';
 import { SurveyForm } from '~/ui/components/Forms/SurveyForm';
 
 import { useBackend, useBackendEffect } from '~/ui/hooks';
-import { SurveyTypes, GenericFormValues } from '~/types';
+import { GenericFormValues, SurveyTypes } from '~/types';
 import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
 import { authUserSelector } from '~/ui/helpers/selectors';
 import { joinNames } from '~/ui/helpers/user';
@@ -20,6 +20,7 @@ import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { theme } from '~/ui/styled/theme';
 import { Button } from '~/ui/components/Button';
 import { useCurrentScreen } from '~/ui/hooks/useCurrentScreen';
+import { useAuth } from '~/ui/contexts/AuthContext';
 
 const buttonSharedStyles = {
   width: screenPercentageToDP('25', Orientation.Width),
@@ -33,6 +34,8 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
   const isReferral = surveyType === SurveyTypes.Referral;
   const selectedPatientId = selectedPatient.id;
   const navigation = useNavigation();
+  const { ability } = useAuth();
+  const canReadRegistration = ability.can('read', 'PatientProgramRegistration');
   const { currentScreenIndex, onNavigatePrevious, setCurrentScreenIndex } = useCurrentScreen();
 
   const [note, setNote] = useState('');
@@ -43,7 +46,7 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
   );
 
   const [components, componentsError, areComponentsLoading] = useBackendEffect(
-    () => survey && survey.getComponents(),
+    () => survey && survey.getComponents({ includeAllVitals: false }),
     [survey],
   );
 
@@ -53,6 +56,14 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
         patient: selectedPatient.id,
       }),
     [selectedPatient.id],
+  );
+
+  const [patientProgramRegistration, pprError, isPprLoading] = useBackendEffect(
+    ({ models }) => {
+      if (canReadRegistration === false) return null;
+      return models.PatientProgramRegistration.getRecentOne(survey?.programId, selectedPatient.id);
+    },
+    [survey],
   );
 
   const user = useSelector(authUserSelector);
@@ -114,11 +125,16 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
     }
   };
 
-  const error = surveyError || componentsError || padError;
+  const error = surveyError || componentsError || padError || pprError;
   // due to how useBackendEffect works we need to stay in the loading state for queries which depend
   // on other data, like the query for components
   const isLoading =
-    !survey || !components || isSurveyLoading || areComponentsLoading || isPadLoading;
+    !survey ||
+    !components ||
+    isSurveyLoading ||
+    areComponentsLoading ||
+    isPadLoading ||
+    isPprLoading;
   if (error) {
     return <ErrorScreen error={error} />;
   }
@@ -137,6 +153,7 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
         <SurveyForm
           patient={selectedPatient}
           patientAdditionalData={patientAdditionalData}
+          patientProgramRegistration={patientProgramRegistration}
           note={note}
           components={components}
           onSubmit={onSubmit}

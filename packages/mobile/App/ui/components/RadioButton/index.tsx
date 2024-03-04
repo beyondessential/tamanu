@@ -1,8 +1,7 @@
 import React, { useCallback } from 'react';
 import { TouchableWithoutFeedback } from 'react-native';
 import { theme } from '/styled/theme';
-import { StyledView, RowView, StyledText } from '/styled/common';
-import { ColorHelper } from '/helpers/colors';
+import { RowView, StyledText, StyledView } from '/styled/common';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 
 export interface FormField {

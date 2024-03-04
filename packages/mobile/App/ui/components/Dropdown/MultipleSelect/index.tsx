@@ -3,14 +3,14 @@
 
 import React, { Component } from 'react';
 import {
-  Text,
-  View,
-  ScrollView,
-  TextInput,
-  TouchableWithoutFeedback,
-  TouchableOpacity,
   FlatList,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
   UIManager,
+  View,
 } from 'react-native';
 // import {ViewPropTypes, TextPropTypes} from 'deprecated-react-native-prop-types';
 import PropTypes from 'prop-types';
@@ -19,6 +19,7 @@ import find from 'lodash/find';
 import get from 'lodash/get';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import styles, { colorPack } from './styles';
+import { screenPercentageToDP, Orientation } from '../../../helpers/screen';
 
 const ViewPropTypes = {
   style: PropTypes.any,
@@ -69,6 +70,9 @@ const nodeTypes = PropTypes.oneOfType([
 if (UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
+
+const regularFontSize = screenPercentageToDP(2.1, Orientation.Height);
+const largeFontSize = screenPercentageToDP(3, Orientation.Height);
 
 const defaultSearchIcon = () => null;
 export class MultiSelect extends Component {
@@ -255,7 +259,7 @@ export class MultiSelect extends Component {
               {
                 flex: 1,
                 color: tagTextColor,
-                fontSize: 15,
+                fontSize: regularFontSize,
               },
               styleTextTag && styleTextTag,
               fontFamily ? { fontFamily } : {},
@@ -273,7 +277,7 @@ export class MultiSelect extends Component {
               name="close-circle"
               style={{
                 color: tagRemoveIconColor,
-                fontSize: 22,
+                fontSize: largeFontSize,
                 marginLeft: 10,
               }}
             />
@@ -426,7 +430,7 @@ export class MultiSelect extends Component {
               <Icon
                 name="check"
                 style={{
-                  fontSize: 20,
+                  fontSize: regularFontSize,
                   marginRight: -5,
                   color: selectedItemIconColor,
                 }}
@@ -601,13 +605,10 @@ export class MultiSelect extends Component {
     const selectedLabel = this._getSelectLabel();
     return (
       <View
-        style={[
-          {
-            flexDirection: 'column',
-          } &&
-            styleMainWrapper &&
-            styleMainWrapper,
-        ]}
+        style={{
+          flexDirection: 'column',
+          ...styleMainWrapper,
+        }}
       >
         {selector && !disabled ? (
           <View
@@ -637,6 +638,7 @@ export class MultiSelect extends Component {
                     style={[
                       styles.indicator,
                       { paddingLeft: 15, paddingRight: 15 },
+                      { fontSize: largeFontSize },
                       styleIndicator && styleIndicator,
                     ]}
                   />
@@ -648,7 +650,12 @@ export class MultiSelect extends Component {
                   size={20}
                   onPress={this._clearSelectorCallback}
                   color={colorPack.placeholderTextColor}
-                  style={[{ marginRight: 10 }, styles.indicator, styleIndicator && styleIndicator]}
+                  style={[
+                    { marginRight: 10 },
+                    styles.indicator,
+                    { fontSize: largeFontSize },
+                    styleIndicator && styleIndicator,
+                  ]}
                 />
               )}
             </View>
@@ -722,7 +729,11 @@ export class MultiSelect extends Component {
                       <TouchableWithoutFeedback onPress={this._removeAllItems}>
                         <Icon
                           name={hideSubmitButton ? 'menu-right' : 'close'}
-                          style={[styles.removeIndicator, styleIndicator && styleIndicator]}
+                          style={[
+                            styles.removeIndicator,
+                            { fontSize: regularFontSize },
+                            styleIndicator && styleIndicator,
+                          ]}
                         />
                       </TouchableWithoutFeedback>
                     ) : null}
@@ -732,6 +743,7 @@ export class MultiSelect extends Component {
                       style={[
                         { marginRight: -7 },
                         styles.indicator,
+                        { fontSize: largeFontSize },
                         styleIndicator && styleIndicator,
                       ]}
                     />

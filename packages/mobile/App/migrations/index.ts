@@ -30,7 +30,15 @@ import { addEncounterHistoryTable1693484817000 } from './1693484817000-addEncoun
 import { addTranslatedStringTable1698353903000 } from './1698353903000-addTranslatedStringTable';
 import { addVisibilityStatusToSurveyScreenComponents1695096053000 } from './1695096053000-addVisibilityStatusToSurveyScreenComponents';
 import { addVisibilityStatusForUsers1697499690000 } from './1697499690000-addVisibilityStatusForUsers';
+import { addDeletedAtToAllTables1698626272000 } from './1698626272000-addDeletedAtToAllTables';
 import { addPatientCustomFieldsTables1694090332843 } from './1694090332843-addPatientCustomFieldsTables';
+import { addProgramRegistry1706106989000 } from './1706106989000-addProgramRegistries';
+import { addPatientProgramRegistration1706144623000 } from './1706144623000-addPatientProgramRegistration';
+import { addProgramRegistryClinicalStatuses1706506699000 } from './1706506699000-addProgramRegistryClinicalStatuses';
+import { addProgramRegistryConditions1706507296000 } from './1706507296000-addProgramRegistryConditions';
+import { addPatientProgramRegistrationConditions1706509624000 } from './1706509624000-addPatientProgramRegistrationConditions';
+import { addColumnIsMostRecentForTablePatientProgramRegistration1708557002000 } from './1708557002000-addColumnIsMostRecentForTablePatientProgramRegistration';
+import { addHideFromCertificateToScheduledVaccines1705264433000 } from './1705264433000-addHideFromCertificateToScheduledVaccines';
 
 export const migrationList = [
   databaseSetup1661160427226,
@@ -64,5 +72,13 @@ export const migrationList = [
   addTranslatedStringTable1698353903000,
   addVisibilityStatusToSurveyScreenComponents1695096053000,
   addVisibilityStatusForUsers1697499690000,
+  addDeletedAtToAllTables1698626272000,
   addPatientCustomFieldsTables1694090332843,
+  addProgramRegistry1706106989000,
+  addPatientProgramRegistration1706144623000,
+  addProgramRegistryClinicalStatuses1706506699000,
+  addProgramRegistryConditions1706507296000,
+  addPatientProgramRegistrationConditions1706509624000,
+  addColumnIsMostRecentForTablePatientProgramRegistration1708557002000,
+  addHideFromCertificateToScheduledVaccines1705264433000,
 ];

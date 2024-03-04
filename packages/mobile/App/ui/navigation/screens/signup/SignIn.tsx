@@ -1,15 +1,15 @@
 import React, { FunctionComponent, useCallback, useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import { KeyboardAvoidingView, StatusBar, Linking } from 'react-native';
+import { KeyboardAvoidingView, Linking, StatusBar } from 'react-native';
 import {
-  StyledView,
-  StyledSafeAreaView,
   FullView,
   RowView,
-  StyledTouchableOpacity,
+  StyledSafeAreaView,
   StyledText,
+  StyledTouchableOpacity,
+  StyledView,
 } from '/styled/common';
-import { CrossIcon, HomeBottomLogoIcon } from '/components/Icons';
+import { CrossIcon, HomeBottomLogoIcon, LaunchIcon } from '/components/Icons';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { theme } from '/styled/theme';
 import { SignInForm } from '/components/Forms/SignInForm';
@@ -20,6 +20,9 @@ import { authSelector } from '/helpers/selectors';
 import { OutdatedVersionError } from '~/services/error';
 import { useFacility } from '~/ui/contexts/FacilityContext';
 import { LanguageSelectButton } from './LanguageSelectButton';
+import { useLocalisation } from '~/ui/contexts/LocalisationContext';
+import { SupportCentreButton } from './SupportCentreButton';
+
 interface ModalContent {
   message: string;
   buttonPrompt?: string;
@@ -51,6 +54,10 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
   }, [modalContent.buttonUrl]);
 
   const { facilityId } = useFacility();
+  const { getLocalisation } = useLocalisation();
+
+  const supportCentreUrl = getLocalisation('supportDeskUrl');
+  const isSupportUrlLoaded = !!supportCentreUrl;
 
   return (
     <FullView background={theme.colors.PRIMARY_MAIN}>
@@ -141,6 +148,17 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
         </KeyboardAvoidingView>
         <LanguageSelectButton navigation={navigation} />
       </StyledSafeAreaView>
+      <StyledView
+          flexDirection="row"
+          justifyContent="flex-end"
+          position='absolute'
+          bottom={screenPercentageToDP(2.43, Orientation.Height)}
+          right={screenPercentageToDP(2.43, Orientation.Width)}
+          paddingLeft={screenPercentageToDP(2.43, Orientation.Width)}
+          paddingRight={screenPercentageToDP(2.43, Orientation.Width)}
+        >
+          {isSupportUrlLoaded && <SupportCentreButton supportCentreUrl={supportCentreUrl} />}
+        </StyledView>
     </FullView>
   );
 };

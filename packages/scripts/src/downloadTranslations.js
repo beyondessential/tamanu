@@ -25,28 +25,28 @@ const log = console.log;
 
 function login() {
   log('Logging in...');
-  return new Promise(resolve => doc.useServiceAccountAuth(creds, resolve));
+  return new Promise(resolve => {
+    doc.useServiceAccountAuth(creds, resolve);
+  });
 }
 
 function getWorksheets() {
   log('Getting worksheets...');
-  return new Promise((resolve, reject) =>
+  return new Promise((resolve, reject) => {
     doc.getInfo((err, info) => {
-      if (err) return reject(err);
-
-      resolve(info.worksheets);
-    }),
-  );
+      if (err) reject(err);
+      else resolve(info.worksheets);
+    });
+  });
 }
 
 function getRows(sheet) {
-  return new Promise((resolve, reject) =>
+  return new Promise((resolve, reject) => {
     sheet.getRows((err, rows) => {
-      if (err) return reject(err);
-
-      resolve(rows);
-    }),
-  );
+      if (err) reject(err);
+      else resolve(rows);
+    });
+  });
 }
 
 async function processSheet(sheet) {

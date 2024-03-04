@@ -53,26 +53,26 @@ jobs:
       with:
         ref: ${{ steps.branch.outputs.result }}
 
-    - name: Setup Node.js 16
+    - name: Setup Node.js
       uses: actions/setup-node@v3
       with:
-        node-version: 16.x
+        node-version: 20.x
         cache: yarn
 
     - uses: chainguard-dev/actions/setup-gitsign@main
     - name: Autolint
       run: |
         yarn install --frozen-lockfile
-        yarn build-shared
         yarn lint-fix || true
     - name: Commit and push
       run: |
         git config user.name github-actions
         git config user.email github-actions@github.com
-        git commit -am "lint (auto fix)"
+        git commit -am "fmt: automatic lint-fix"
         git push
 
     - name: Signal we're done
+      if: always()
       uses: actions/github-script@v4
       with:
         script: |

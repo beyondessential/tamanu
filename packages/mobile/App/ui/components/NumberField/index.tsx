@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ReturnKeyTypeOptions } from 'react-native';
 import { BaseInputProps } from '../../interfaces/BaseInputProps';
 import { TextField } from '../TextField/TextField';
 
 export interface NumberFieldProps extends BaseInputProps {
   label: string;
+  required?: boolean;
   value?: string;
   onChange?: (text: any) => void;
   isOpen?: boolean;
@@ -32,6 +33,7 @@ export const NumberField = (props: NumberFieldProps): JSX.Element => {
     onBlur,
     label,
     error,
+    required
   } = props;
   const [number, setNumber] = useState(undefined);
   const onChangeNumber = (newNumber: string): void => {
@@ -59,6 +61,7 @@ export const NumberField = (props: NumberFieldProps): JSX.Element => {
 
   return (
     <TextField
+      required={required}
       label={label}
       isOpen={isOpen}
       placeholder={placeholder}
