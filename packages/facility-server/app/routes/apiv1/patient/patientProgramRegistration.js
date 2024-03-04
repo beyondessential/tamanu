@@ -168,8 +168,8 @@ patientProgramRegistration.get(
 
     res.send({
       ...registration,
-      registrationDate: recentRegistrationRecord.date,
-      registrationClinician: recentRegistrationRecord.clinician,
+      registrationDate: recentRegistrationRecord?.date,
+      registrationClinician: recentRegistrationRecord?.clinician,
       ...deactivationData,
     });
   }),
