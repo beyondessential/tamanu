@@ -24,7 +24,7 @@ const SEVERITY_TO_COLORS: {
   };
 } = {
   info: {
-    background: 'rgba(50, 102, 153, 0.2)',
+    background: '#dce3ec',
     color: theme.colors.PRIMARY_MAIN,
   },
   error: {
