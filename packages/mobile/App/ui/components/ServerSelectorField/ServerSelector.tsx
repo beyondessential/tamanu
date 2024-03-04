@@ -1,15 +1,18 @@
 import React, { ReactElement, useEffect, useState } from 'react';
 import { useNetInfo } from '@react-native-community/netinfo';
+import { keyBy, mapValues } from 'lodash';
 
 import { Dropdown, SelectOption } from '../Dropdown';
 import { StyledText, StyledView } from '../../styled/common';
 import { theme } from '../../styled/theme';
 import { Orientation, screenPercentageToDP } from '../../helpers/screen';
 import * as overrides from '/root/serverOverrides.json';
+import { useBackend } from '~/ui/hooks';
+import { useTranslation } from '~/ui/contexts/TranslationContext';
 
 type Server = {
   name: string;
-  type: string; 
+  type: string;
   host: string;
 };
 
@@ -39,6 +42,33 @@ const fetchServers = async (): Promise<SelectOption[]> => {
 export const ServerSelector = ({ onChange, label, value, error }): ReactElement => {
   const [options, setOptions] = useState([]);
   const netInfo = useNetInfo();
+  const { setLanguageOptions, setLanguage } = useTranslation();
+  const [selectedOption, setSelectedOption] = useState(null);
+
+  const updateSelectedOption = value => {
+    onChange(value);
+    setSelectedOption(value);
+    if (!value) {
+      setLanguageOptions([]);
+    }
+  };
+
+  useEffect(() => {
+    async () => {
+      const response = await fetch(`${selectedOption}/api/public/translation/languageOptions`);
+      const data = await response.json();
+      const { languageNames = [], languagesInDb = [] } = data;
+      const languageDisplayNames = mapValues(keyBy(languageNames, 'language'), 'text');
+      const languageOptions = languagesInDb.map(({ language }) => {
+        return {
+          label: languageDisplayNames[language],
+          value: language,
+        };
+      });
+      setLanguage(languageOptions[0].value || 'en');
+      setLanguageOptions(languageOptions || []);
+    };
+  }, [selectedOption, setSelectedOption]);
 
   useEffect(() => {
     (async (): Promise<void> => {
@@ -61,7 +91,7 @@ export const ServerSelector = ({ onChange, label, value, error }): ReactElement 
       <Dropdown
         value={value}
         options={options}
-        onChange={onChange}
+        onChange={updateSelectedOption}
         label={label}
         fixedHeight
         selectPlaceholderText="Select"

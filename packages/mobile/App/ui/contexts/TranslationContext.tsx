@@ -13,7 +13,8 @@ import { readConfig, writeConfig } from '~/services/config';
 interface TranslationContextData {
   debugMode: boolean;
   language: string;
-  languageOptions: string[];
+  languageOptions: [];
+  setLanguageOptions: (languageOptions: []) => void;
   onChangeLanguage: (languageCode: string) => void;
   getTranslation: (key: string) => string;
   setLanguage: (language: string) => void;
@@ -37,8 +38,6 @@ export const TranslationProvider = ({ children }: PropsWithChildren<object>): Re
   const setLanguageState = async (languageCode: string = DEFAULT_LANGUAGE) => {
     // Get language options from DB, only set options if there are any present
     if (!languageOptions) getLanguageOptions();
-    console.log('called')
-
     const translations = await models.TranslatedString.getForLanguage(languageCode);
     setLanguage(languageCode);
     setTranslations(translations);
@@ -59,7 +58,7 @@ export const TranslationProvider = ({ children }: PropsWithChildren<object>): Re
         debugMode: isDebugMode,
         language,
         languageOptions,
-        // setLanguageState,
+        setLanguageOptions,
         getTranslation: key => translations[key],
         setLanguage,
       }}

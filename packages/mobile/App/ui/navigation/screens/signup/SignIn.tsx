@@ -84,8 +84,8 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
           </RowView>
           <StyledView
             style={{ flexDirection: 'row', justifyContent: 'center' }}
-            marginTop={screenPercentageToDP(7.29, Orientation.Height)}
-            marginBottom={screenPercentageToDP(14.7, Orientation.Height)}
+            marginTop={screenPercentageToDP(5.29, Orientation.Height)}
+            marginBottom={screenPercentageToDP(10.7, Orientation.Height)}
           >
             <HomeBottomLogoIcon
               size={screenPercentageToDP(7.29, Orientation.Height)}

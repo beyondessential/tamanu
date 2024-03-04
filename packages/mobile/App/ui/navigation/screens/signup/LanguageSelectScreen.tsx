@@ -34,11 +34,11 @@ export const LanguageSelectScreen: FunctionComponent<any> = ({ navigation }) => 
             width="100%"
             alignItems="center"
             marginTop={screenPercentageToDP(7.29, Orientation.Height)}
-            marginBottom={screenPercentageToDP(4, Orientation.Height)}
+            marginBottom={screenPercentageToDP(2, Orientation.Height)}
           >
             <StyledText
               marginTop={screenPercentageToDP(2.43, Orientation.Height)}
-              fontSize={screenPercentageToDP(2.55, Orientation.Height)}
+              fontSize={screenPercentageToDP(3.55, Orientation.Height)}
               color={theme.colors.WHITE}
               fontWeight="bold"
             >
@@ -56,7 +56,6 @@ export const LanguageSelectScreen: FunctionComponent<any> = ({ navigation }) => 
               options={languageOptions}
               onChange={setLanguage}
               label=""
-              fixedHeight
               selectPlaceholderText="Select"
               labelColor="white"
               clearable={false}

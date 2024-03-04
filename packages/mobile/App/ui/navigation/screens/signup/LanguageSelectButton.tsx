@@ -31,22 +31,11 @@ export const LanguageSelectButton = ({ navigation }: LanguageSelectButtonProps):
     languageOptions.find(({ value }) => value === language)?.label;
 
   if (!languageOptions) {
-    return (
-      <StyledText
-        paddingTop={screenPercentageToDP(2.43, Orientation.Height)}
-        paddingLeft={screenPercentageToDP(2.43, Orientation.Width)}
-        color={theme.colors.WHITE}
-      >
-        Connect to server and sync to get available languages
-      </StyledText>
-    );
+    return null
   }
 
   return (
-    <StyledTouchableOpacity
-      marginTop={screenPercentageToDP(3.43, Orientation.Height)}
-      onPress={onNavigateToLanguageSelect}
-    >
+    <StyledTouchableOpacity onPress={onNavigateToLanguageSelect}>
       <StyledView
         borderColor="white"
         borderBottomWidth={1}
