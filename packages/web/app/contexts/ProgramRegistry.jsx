@@ -5,7 +5,7 @@ export const ProgramRegistryContext = createContext({
   setProgramRegistryId: () => {},
 });
 
-export const useProgramRegistry = () => useContext(ProgramRegistryContext);
+export const useProgramRegistryContext = () => useContext(ProgramRegistryContext);
 
 export const ProgramRegistryProvider = ({ children }) => {
   const [programRegistryId, setProgramRegistryId] = useState(null);
