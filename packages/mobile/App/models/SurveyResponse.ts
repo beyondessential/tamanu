@@ -68,7 +68,7 @@ const getFieldsToWrite = (questions, answers): RecordValuesByModel => {
  * DUPLICATED IN shared/models/SurveyResponse.js
  * Please keep in sync
  */
-async function writeToPatientFields(questions, answers, patientId, surveyId, submittedTime) {
+async function writeToPatientFields(questions, answers, patientId, surveyId, userId, submittedTime) {
   const valuesByModel = getFieldsToWrite(questions, answers);
 
   if (valuesByModel.Patient) {
@@ -90,7 +90,11 @@ async function writeToPatientFields(questions, answers, patientId, surveyId, sub
     await PatientProgramRegistration.appendRegistration(
       patientId,
       programRegistryId,
-      { date: submittedTime, ...valuesByModel.PatientProgramRegistration },
+      {
+        date: submittedTime,
+        ...valuesByModel.PatientProgramRegistration,
+        clinicianId: valuesByModel.PatientProgramRegistration.clinicianId || userId,
+      },
     );
   }
 }
@@ -248,6 +252,7 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
         finalValues,
         patientId,
         surveyId,
+        userId,
         responseRecord.endTime,
       );
 
