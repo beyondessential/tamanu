@@ -2,13 +2,15 @@ import React from 'react';
 import { P } from '../Typography';
 import { Row } from '../Layout';
 
-export const DataItem = ({ label, value }) => {
+export const DataItem = ({ label, value, fontSize = 9 }) => {
   return (
     <Row>
-      <P style={{ marginVertical: 3 }} bold>
-        {label}:
+      <P style={{ marginVertical: 3 }} fontSize={fontSize} bold>
+        {label}:{' '}
       </P>
-      <P style={{ marginVertical: 3 }}> {value}</P>
+      <P style={{ marginVertical: 3 }} fontSize={fontSize}>
+        {value}
+      </P>
     </Row>
   );
 };

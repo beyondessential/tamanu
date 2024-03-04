@@ -5,6 +5,7 @@ import { PrintMultipleMedicationSelectionModal } from '../../../components/Patie
 import { EncounterMedicationTable } from '../../../components/MedicationTable';
 import { ButtonWithPermissionCheck, TableButtonRow } from '../../../components';
 import { TabPane } from '../components';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
   const [createMedicationModalOpen, setCreateMedicationModalOpen] = useState(false);
@@ -37,7 +38,7 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
           variant="outlined"
           color="primary"
         >
-          Print
+          <TranslatedText stringId="general.action.print" fallback="Print" />
         </ButtonWithPermissionCheck>
         <ButtonWithPermissionCheck
           onClick={() => setCreateMedicationModalOpen(true)}
@@ -45,7 +46,10 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
           verb="create"
           noun="EncounterMedication"
         >
-          New prescription
+          <TranslatedText
+            stringId="medication.action.newPrescription"
+            fallback="New prescription"
+          />
         </ButtonWithPermissionCheck>
       </TableButtonRow>
       <EncounterMedicationTable encounterId={encounter.id} />

@@ -18,7 +18,7 @@ describe('Ongoing conditions', () => {
   afterAll(() => ctx.close());
 
   it('should record an ongoing condition', async () => {
-    const result = await app.post('/v1/ongoingCondition').send({
+    const result = await app.post('/api/ongoingCondition').send({
       conditionId: await randomReferenceId(models, 'icd10'),
       patientId: patient.id,
       examinerId: await randomUser(models),
@@ -40,13 +40,13 @@ describe('Ongoing conditions', () => {
       resolutionNote: 'Resolution Note',
     };
 
-    const result = await app.post('/v1/ongoingCondition').send(dummyFormObject);
+    const result = await app.post('/api/ongoingCondition').send(dummyFormObject);
 
     expect(result.body).toMatchObject(dummyFormObject);
   });
 
   it('should require a valid diagnosis', async () => {
-    const result = await app.post('/v1/ongoingCondition').send({
+    const result = await app.post('/api/ongoingCondition').send({
       conditionId: 'invalid id',
       patientId: patient.id,
       practitionerId: await randomUser(models),

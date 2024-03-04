@@ -44,12 +44,6 @@ HeaderContent.args = {
 export const EncounterInfo = EncounterInfoPaneTemplate.bind({});
 EncounterInfo.args = {
   patientBillingType: 'Private',
-  getLocalisation: key => {
-    const config = {
-      'fields.referralSourceId.shortLabel': 'Referral',
-    };
-    return config[key];
-  },
   encounter: {
     reasonForEncounter: 'Heart attack',
     encounterType: 'admission',

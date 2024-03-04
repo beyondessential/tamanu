@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
 import { startCase } from 'lodash';
 
-import { NOTE_TYPES } from '@tamanu/constants';
+import { NOTE_TYPES, NOTE_TYPE_LABELS, DRUG_ROUTE_VALUE_TO_LABEL } from '@tamanu/constants';
 
 import { PrintLetterhead } from './reusable/PrintLetterhead';
 import { DateDisplay } from '../../DateDisplay';
@@ -11,14 +11,11 @@ import { capitaliseFirstLetter } from '../../../utils/capitalise';
 import { CertificateWrapper } from './reusable/CertificateWrapper';
 import { ListTable } from './reusable/ListTable';
 import { DisplayValue, LocalisedDisplayValue } from './reusable/CertificateLabels';
-import {
-  DRUG_ROUTE_VALUE_TO_LABEL,
-  ENCOUNTER_OPTIONS_BY_VALUE,
-  NOTE_TYPE_LABELS,
-} from '../../../constants';
+import { ENCOUNTER_OPTIONS_BY_VALUE } from '../../../constants';
 
 import { ImagingRequestData } from './reusable/ImagingRequestData';
-import { useLocalisedText } from '../../LocalisedText';
+import { LowerCase } from '../../Typography';
+import { TranslatedText } from '../../Translation/TranslatedText';
 
 // STYLES
 const CompactListTable = styled(ListTable)`
@@ -290,7 +287,6 @@ export const EncounterRecord = React.memo(
     pad,
     medications,
   }) => {
-    const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' }).toLowerCase();
     const { firstName, lastName, dateOfBirth, sex, displayId } = patient;
     const { department, location, examiner, reasonForEncounter, startDate, endDate } = encounter;
     const { title, subTitle, logo } = certificateData;
@@ -328,10 +324,46 @@ export const EncounterRecord = React.memo(
         <RowContainer>
           <div>
             <LocalisedDisplayValue name="facility">{location.facility.name}</LocalisedDisplayValue>
-            <DisplayValue name={`Supervising ${clinicianText}`} size="10px">
+            <DisplayValue
+              name={
+                <TranslatedText
+                  stringId="general.supervisingClinician.label"
+                  fallback="Supervising :clinician"
+                  replacements={{
+                    clinician: (
+                      <LowerCase>
+                        <TranslatedText
+                          stringId="general.localisedField.clinician.label.short"
+                          fallback="Clinician"
+                        />
+                      </LowerCase>
+                    ),
+                  }}
+                />
+              }
+              size="10px"
+            >
               {examiner.displayName}
             </DisplayValue>
-            <DisplayValue name={`Discharging ${clinicianText}`} size="10px">
+            <DisplayValue
+              name={
+                <TranslatedText
+                  stringId="general.dischargingClinician.label"
+                  fallback="Discharging :clinician"
+                  replacements={{
+                    clinician: (
+                      <LowerCase>
+                        <TranslatedText
+                          stringId="general.localisedField.clinician.label.short"
+                          fallback="Clinician"
+                        />
+                      </LowerCase>
+                    ),
+                  }}
+                />
+              }
+              size="10px"
+            >
               {discharge?.discharger?.displayName}
             </DisplayValue>
             <DisplayValue name="Reason for encounter" size="10px">
@@ -405,7 +437,7 @@ export const EncounterRecord = React.memo(
             <TableHeading>Notes</TableHeading>
             <Table>
               {notes.map(note => (
-                <Row>
+                <Row key={note.id}>
                   <RowContent>
                     <BoldText>{NOTE_TYPE_LABELS[note.noteType]}</BoldText>
                     <ChildNote>{note.content}</ChildNote>

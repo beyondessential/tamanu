@@ -7,18 +7,24 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: 'Helvetica-Bold',
     marginBottom: 3,
-    fontSize: 14,
+    fontSize: 11,
     fontWeight: 500,
   },
 });
 
-export const DataSection = ({ title, children, props }) => {
+export const DataSection = ({
+  title,
+  children,
+  hideTopRule = false,
+  hideBottomRule = false,
+  props,
+}) => {
   return (
     <View {...props}>
       <Text style={styles.title}>{title}</Text>
-      <HorizontalRule />
+      {!hideTopRule && <HorizontalRule />}
       <Row>{children}</Row>
-      <HorizontalRule />
+      {!hideBottomRule && <HorizontalRule />}
     </View>
   );
 };

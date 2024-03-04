@@ -1,13 +1,18 @@
 {
   "name": "scripts",
-  "version": "2.1.0",
+  "version": "2.4.0",
   "main": "index.js",
   "license": "SEE LICENSE IN license",
   "scripts": {
     "test": "echo 'No tests on scripts'",
-    "download-translations": "node src/downloadTranslations.js ../web/resources/strings"
+    "download-translations": "node src/downloadTranslations.js ../web/resources/strings",
+    "generate-fake-db": "node src/fake.js",
+    "test-determinism": "node src/testDeterminism.js"
   },
   "dependencies": {
-    "google-spreadsheet": "^2.0.7"
+    "google-spreadsheet": "^2.0.7",
+    "commander": "^9.0.0",
+    "object-hash": "^3.0.0",
+    "pgsql-ast-parser": "^11.1.0"
   }
 }

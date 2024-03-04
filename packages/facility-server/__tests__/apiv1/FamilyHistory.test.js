@@ -23,7 +23,7 @@ describe('Family history', () => {
   afterAll(() => ctx.close());
 
   it('should record family history', async () => {
-    const result = await app.post('/v1/familyHistory').send({
+    const result = await app.post('/api/familyHistory').send({
       diagnosisId: await randomReferenceId(models, 'icd10'),
       patientId: patient.id,
       practitionerId: await randomUser(models),
@@ -34,7 +34,7 @@ describe('Family history', () => {
   });
 
   it('should require a valid diagnosis', async () => {
-    const result = await app.post('/v1/familyHistory').send({
+    const result = await app.post('/api/familyHistory').send({
       diagnosisId: 'invalid id',
       patientId: patient.id,
       practitionerId: await randomUser(models),

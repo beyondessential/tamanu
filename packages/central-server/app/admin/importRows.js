@@ -33,6 +33,9 @@ const existingRecordLoaders = {
   // PatientFieldValue model has a composite PK that uses patientId & definitionId
   PatientFieldValue: (PFV, { patientId, definitionId }) =>
     PFV.findOne({ where: { patientId, definitionId } }, { paranoid: false }),
+  // TranslatedString model has a composite PK that uses stringId & language
+  TranslatedString: (TS, { stringId, language }) =>
+    TS.findOne({ where: { stringId, language } }, { paranoid: false }),
 };
 
 function loadExisting(Model, values) {
@@ -43,6 +46,7 @@ function loadExisting(Model, values) {
 export async function importRows(
   { errors, log, models },
   { rows, sheetName, stats: previousStats = {}, foreignKeySchemata = {} },
+  validationContext = {},
 ) {
   const stats = { ...previousStats };
 
@@ -168,7 +172,7 @@ export async function importRows(
       validRows.push({
         model,
         sheetRow,
-        values: await schema.validate(values, { abortEarly: false }),
+        values: await schema.validate(values, { abortEarly: false, context: validationContext }),
       });
     } catch (err) {
       updateStat(stats, statkey(model, sheetName), 'errored');
