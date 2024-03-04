@@ -203,7 +203,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       // regression EPI-403
       expect(response.body.subject).not.toHaveProperty('identifier');
     });
-    
+
     it('fetches a service request by materialised ID (lab request with panel)', async () => {
       // arrange
       const { FhirServiceRequest } = ctx.store.models;
@@ -359,8 +359,24 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       // regression EPI-403
       expect(response.body.subject).not.toHaveProperty('identifier');
     });
-    test.todo('cannot have ServiceRequest with independent tests and panel');
-    test.todo('cannot have ServiceRequest with independent tests and panel');
+    it('cannot have ServiceRequest with independent tests and panel', async () => {
+      // arrange
+      const { FhirServiceRequest } = ctx.store.models;
+      const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
+        ctx.store.models,
+        resources,
+        {
+          isWithPanels: true,
+          isWithIndependentTests: true,
+        }
+      );
+      try {
+        await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+      } catch (clashingOrderDetails) {
+        expect(clashingOrderDetails.message).toBe(`Service Request with upstream LabRequest ${labRequest.id} cannot have both panels AND independent tests`);
+      }
+
+    });
 
     it('materialises the default priority if the source data has a null priority', async () => {
       // arrange
