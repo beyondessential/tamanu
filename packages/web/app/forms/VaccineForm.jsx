@@ -5,7 +5,7 @@ import * as yup from 'yup';
 import { SETTING_KEYS, VACCINE_CATEGORIES, VACCINE_RECORDING_TYPES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 
-import { REQUIRED_INLINE_ERROR_MESSAGE } from '../constants';
+import { FORM_TYPES, REQUIRED_INLINE_ERROR_MESSAGE } from '../constants';
 import { Form } from '../components/Field';
 import { ErrorMessage } from '../components/ErrorMessage';
 import { LoadingIndicator } from '../components/LoadingIndicator';
@@ -19,6 +19,7 @@ import { usePatientCurrentEncounter } from '../api/queries';
 import { useVaccinationSettings } from '../api/queries/useVaccinationSettings';
 import { useAuth } from '../contexts/Auth';
 import { TranslatedText } from '../components/Translation/TranslatedText';
+import { useLocalisation } from '../contexts/Localisation';
 
 const validateGivenElsewhereRequiredField = (status, givenElsewhere) =>
   (status === VACCINE_RECORDING_TYPES.GIVEN && !givenElsewhere) ||
@@ -70,6 +71,7 @@ export const VaccineForm = ({
   getScheduledVaccines,
   vaccineRecordingType,
 }) => {
+  const { getLocalisation } = useLocalisation();
   const [vaccineOptions, setVaccineOptions] = useState([]);
   const [category, setCategory] = useState(
     currentVaccineRecordValues?.vaccineName ? VACCINE_CATEGORIES.OTHER : VACCINE_CATEGORIES.ROUTINE,
@@ -134,10 +136,13 @@ export const VaccineForm = ({
     ? BASE_VACCINE_SCHEME_VALIDATION
     : NEW_RECORD_VACCINE_SCHEME_VALIDATION;
 
+  const vaccineConsentEnabled = getLocalisation('features.enableVaccineConsent');
+
   return (
     <Form
       onSubmit={async data => onSubmit({ ...data, category })}
       showInlineErrorsOnly
+      formType={editMode ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
       initialValues={
         !editMode
           ? {
@@ -166,7 +171,7 @@ export const VaccineForm = ({
       }
       validationSchema={baseSchemeValidation.shape({
         ...(vaccineRecordingType === VACCINE_RECORDING_TYPES.GIVEN &&
-          VACCINE_GIVEN_VALIDATION_SCHEMA),
+          VACCINE_GIVEN_VALIDATION_SCHEMA(vaccineConsentEnabled)),
       })}
       render={({ submitForm, resetForm, setErrors, values, setValues }) => (
         <VaccineFormComponent
@@ -185,6 +190,7 @@ export const VaccineForm = ({
           schedules={selectedVaccine?.schedules}
           onCancel={onCancel}
           currentUser={currentUser}
+          vaccineConsentEnabled={vaccineConsentEnabled}
         />
       )}
     />

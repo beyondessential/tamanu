@@ -8,6 +8,8 @@ import styled from 'styled-components';
 
 import { IMAGING_REQUEST_STATUS_TYPES, LAB_REQUEST_STATUS_CONFIG } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+
+import { FORM_TYPES, IMAGING_REQUEST_STATUS_OPTIONS } from '../../../constants';
 import { ENCOUNTER_TAB_NAMES } from '../../../constants/encounterTabNames';
 
 import { useLocalisation } from '../../../contexts/Localisation';
@@ -33,7 +35,6 @@ import { SimpleTopBar } from '../../../components';
 import { CancelModalButton } from './CancelModalButton';
 import { PrintModalButton } from './PrintModalButton';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
-import { IMAGING_REQUEST_STATUS_OPTIONS } from '../../../constants';
 
 const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
   const { getLocalisation } = useLocalisation();
@@ -231,6 +232,7 @@ const ImagingRequestInfoPane = React.memo(({ imagingRequest, onSubmit }) => {
       }}
       enableReinitialize // Updates form to reflect changes in initialValues
       initialStatus={{}}
+      formType={FORM_TYPES.EDIT_FORM}
       initialValues={{
         ...imagingRequest,
         newResult: {
