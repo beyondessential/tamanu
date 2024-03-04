@@ -57,16 +57,21 @@ export const ServerSelector = ({ onChange, label, value, error }): ReactElement 
     async () => {
       const response = await fetch(`${selectedOption}/api/public/translation/languageOptions`);
       const data = await response.json();
-      const { languageNames = [], languagesInDb = [] } = data;
-      const languageDisplayNames = mapValues(keyBy(languageNames, 'language'), 'text');
-      const languageOptions = languagesInDb.map(({ language }) => {
-        return {
-          label: languageDisplayNames[language],
-          value: language,
-        };
-      });
-      setLanguage(languageOptions[0].value || 'en');
-      setLanguageOptions(languageOptions || []);
+      const { languageNames, languagesInDb } = data;
+      if (languageNames) {
+        const languageDisplayNames = mapValues(keyBy(languageNames, 'language'), 'text');
+        const languageOptions = languagesInDb.map(({ language }) => {
+          return {
+            label: languageDisplayNames[language],
+            value: language,
+          };
+        });
+        setLanguage(languageOptions[0].value);
+        setLanguageOptions(languageOptions);
+      } else {
+        setLanguage('en');
+        setLanguageOptions([]);
+      }
     };
   }, [selectedOption, setSelectedOption]);
 
