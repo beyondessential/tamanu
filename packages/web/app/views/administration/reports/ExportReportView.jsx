@@ -9,6 +9,7 @@ import { Colors, FORM_TYPES } from '../../../constants';
 import { saveFile } from '../../../utils/fileSystemAccess';
 import { useApi } from '../../../api/useApi';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { useTranslation } from '../../../contexts/Translation';
 
 const StyledButton = styled(OutlinedButton)`
   margin-top: 30px;
@@ -30,7 +31,7 @@ const schema = yup.object().shape({
 
 export const ExportReportView = () => {
   const api = useApi();
-
+  const { getTranslation } = useTranslation();
   const handleSubmit = async ({ reportId, versionId, format }) => {
     try {
       const { filename, data } = await api.get(
@@ -43,11 +44,11 @@ export const ExportReportView = () => {
       });
     } catch (err) {
       toast.error(
-        <TranslatedText
-          stringId="admin.report.notification.exportFailed"
-          fallback={`Failed to export: ${err.message}`}
-          replacements={{ message: err.message }}
-        />  
+        getTranslation(
+          "admin.report.notification.exportFailed",
+          `Failed to export: ${err.message}`,
+          { message: err.message }
+        )
       );
     }
   };

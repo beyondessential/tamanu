@@ -25,7 +25,7 @@ import {
 import { ageInMonths, ageInWeeks, ageInYears } from '@tamanu/shared/utils/dateTime';
 import { joinNames } from './user';
 import { notifyError } from './utils';
-import { TranslatedText } from '../components/Translation/TranslatedText';
+import { useTranslation } from '../contexts/Translation';
 
 const isNullOrUndefined = value => isNull(value) || isUndefined(value);
 
@@ -369,6 +369,9 @@ export const getGraphRangeByAge = (visualisationConfig, patientData) => {
 };
 
 export const checkMandatory = (mandatory, values) => {
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const { getTranslation } = useTranslation();
+
   try {
     if (!mandatory) {
       return false;
@@ -380,12 +383,12 @@ export const checkMandatory = (mandatory, values) => {
     return checkJSONCriteria(JSON.stringify(mandatory), [], values);
   } catch (error) {
     notifyError(
-      <TranslatedText
-        stringId="general.notification.useMandatoryFailed"
-        fallback={`Failed to use mandatory in validationCriteria: ${JSON.stringify(mandatory)}, error: ${error.message
-          }`}
-        replacements={{ mandatory: JSON.stringify(mandatory), message: error.message }}
-      />
+      getTranslation(
+        "general.notification.useMandatoryFailed",
+        `Failed to use mandatory in validationCriteria: ${JSON.stringify(mandatory)}, error: ${error.message
+          }`,
+        { mandatory: JSON.stringify(mandatory), message: error.message }
+      )
     );
     return false;
   }

@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { toast } from 'react-toastify';
 import { Avatar, CircularProgress } from '@material-ui/core';
 import { useApi } from '../api';
-import { TranslatedText } from './Translation/TranslatedText';
+import { useTranslation } from '../contexts/Translation';
 
 const StyledAvatar = styled(Avatar)`
   background: #e7b091;
@@ -48,6 +48,7 @@ function formatDuration(milliseconds) {
 export const HiddenSyncAvatar = ({ children, onClick, ...props }) => {
   const [loading, setLoading] = useState(false);
   const api = useApi();
+  const { getTranslation } = useTranslation();
 
   const handleEvent = useCallback(
     async cb => {
@@ -68,19 +69,19 @@ export const HiddenSyncAvatar = ({ children, onClick, ...props }) => {
   const handleClick = async event => {
     if (event.shiftKey) {
       handleEvent(async () => {
-        toast.info(
-          <TranslatedText
-            stringId="sidebar.avatar.notification.startingManualSync"
-            fallback="Starting manual sync..."
-          />
-        );
+        toast.info(<div>
+          {getTranslation(
+            "sidebar.avatar.notification.startingManualSync",
+            "Starting manual sync..."
+          )}
+        </div>);
         await api.post(`sync/run`);
-        toast.success(
-          <TranslatedText
-            stringId="sidebar.avatar.notification.manualSyncComplete"
-            fallback="Manual sync complete"
-          />
-        );
+        toast.success(<div>
+          {getTranslation(
+            "sidebar.avatar.notification.manualSyncComplete",
+            "Manual sync complete"
+          )}
+        </div>);
       });
       return;
     }
@@ -91,30 +92,30 @@ export const HiddenSyncAvatar = ({ children, onClick, ...props }) => {
         const parts = [];
         if (status.lastCompletedAt === 0) {
           parts.push(<div>
-            <TranslatedText
-              stringId="sidebar.avatar.notification.facilityNotSync"
-              fallback="Facility server has not synced since last restart."
-            />
+            {getTranslation(
+              "sidebar.avatar.notification.facilityNotSync",
+              "Facility server has not synced since last restart."
+            )}
           </div>);
         } else {
           const ago = formatDuration(new Date() - new Date(status.lastCompletedAt));
           const took = formatDuration(status.lastCompletedDurationMs);
           parts.push(<div>
-            <TranslatedText
-              stringId="sidebar.avatar.notification.facilityLastSync"
-              fallback={`Facility server last synced ${ago} ago (took ${took}).`}
-              replacements={{ ago, took }}
-            />
+            {getTranslation(
+              "sidebar.avatar.notification.facilityLastSync",
+              `Facility server last synced ${ago} ago (took ${took}).`,
+              { ago, took }
+            )}
           </div>);
         }
         if (status.isSyncRunning) {
           const duration = formatDuration(status.currentDuration);
           parts.push(<div>
-            <TranslatedText
-              stringId="sidebar.notification.currentSyncRunning"
-              fallback={`Current sync has been running for ${duration}.`}
-              replacements={{ duration }}
-            />
+            {getTranslation(
+              "sidebar.notification.currentSyncRunning",
+              `Current sync has been running for ${duration}.`,
+              { duration }
+            )}
           </div>);
         }
         toast.info(<div>{parts}</div>);

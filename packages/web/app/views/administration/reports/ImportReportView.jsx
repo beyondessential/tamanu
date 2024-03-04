@@ -19,6 +19,7 @@ import { FileChooserField } from '../../../components/Field/FileChooserField';
 import { ReportSelectField } from './ReportsSelectFields';
 import { Colors, FORM_TYPES } from '../../../constants';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { useTranslation } from '../../../contexts/Translation';
 
 const InnerContainer = styled.div`
   padding: 20px;
@@ -143,6 +144,7 @@ const ImportForm = ({ isSubmitting, setFieldValue, feedback, values = {} }) => {
 
 export const ImportReportView = () => {
   const api = useApi();
+  const { getTranslation } = useTranslation();
   const queryClient = useQueryClient();
   const [feedback, setFeedback] = useState(null);
 
@@ -161,11 +163,11 @@ export const ImportReportView = () => {
       }
     } catch (err) {
       toast.error(
-        <TranslatedText
-          stringId="admin.report.notification.importFailed"
-          fallback={`Failed to import: ${err.message}`}
-          replacements={{ message: err.message }}
-        />
+        getTranslation(
+          "admin.report.notification.importFailed",
+          `Failed to import: ${err.message}`,
+          { message: err.message }
+        )
       );
     }
   };

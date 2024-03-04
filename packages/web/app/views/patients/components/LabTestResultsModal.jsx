@@ -16,6 +16,7 @@ import { ConfirmCancelRow } from '../../../components/ButtonRow';
 import { useApi } from '../../../api';
 import { useAuth } from '../../../contexts/Auth';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { useTranslation } from '../../../contexts/Translation';
 
 const TableContainer = styled.div`
   overflow-y: auto;
@@ -236,6 +237,7 @@ const ResultsForm = ({
 
 export const LabTestResultsModal = ({ labRequest, refreshLabTestTable, onClose, open }) => {
   const api = useApi();
+  const { getTranslation } = useTranslation();
   const queryClient = useQueryClient();
   const { ability } = useAuth();
   const canWriteLabTestResult = ability?.can('write', 'LabTestResult');
@@ -254,11 +256,11 @@ export const LabTestResultsModal = ({ labRequest, refreshLabTestTable, onClose, 
     {
       onSuccess: labTestRes => {
         toast.success(
-          <TranslatedText
-            stringId="patient.lab.modal.notification.testsUpdatedSuccess"
-            fallback={`Successfully updated ${labTestRes.length} tests for request ${displayId}`}
-            replacements={{ length: labTestRes.length, displayId }}
-          />
+          getTranslation(
+            "patient.lab.modal.notification.testsUpdatedSuccess",
+            `Successfully updated ${labTestRes.length} tests for request ${displayId}`,
+            { length: labTestRes.length, displayId }
+          )
         );
         // Force refresh of lab test data fetching table
         queryClient.invalidateQueries(['labTestResults', labRequest.id]);
@@ -268,11 +270,11 @@ export const LabTestResultsModal = ({ labRequest, refreshLabTestTable, onClose, 
       },
       onError: err => {
         toast.error(
-          <TranslatedText
-            stringId="patient.lab.modal.notification.testsUpdatedFailed"
-            fallback={`Failed to update tests for request ${displayId}: ${err.message}`}
-            replacements={{ message: err.message, displayId }}
-          />
+          getTranslation(
+            "patient.lab.modal.notification.testsUpdatedFailed",
+            `Failed to update tests for request ${displayId}: ${err.message}`,
+            { message: err.message, displayId }
+          )
           );
       },
     },

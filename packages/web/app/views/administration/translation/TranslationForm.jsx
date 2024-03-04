@@ -21,7 +21,7 @@ import {
 import { AccessorField } from '../../patients/components/AccessorField';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
 import { Colors } from '../../../constants';
-import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { useTranslation } from '../../../contexts/Translation';
 
 const StyledTableFormFields = styled(TableFormFields)`
   thead tr th {
@@ -75,36 +75,30 @@ const useTranslationQuery = () => {
 
 const useTranslationMutation = () => {
   const api = useApi();
+  const { getTranslation } = useTranslation();
   const queryClient = useQueryClient();
   return useMutation(payload => api.put('admin/translation', payload), {
     onSuccess: response => {
       const newStringIds = response?.data?.length;
-      toast.success(
-        <span>
-          <TranslatedText
-            stringId="admin.translation.notification.translationsSaved"
-            fallback="Translations saved"
-          />
-          {newStringIds
-            ? <>
-              {", "}
-              <TranslatedText
-                stringId="admin.translation.notification.newStringIdCreated"
-                fallback={`Created ${newStringIds} new translated string entries`}
-                replacements={{ newStringIds }}
-              />
-            </>
-            : ''}
-        </span>
+      toast.success(getTranslation(
+        "admin.translation.notification.translationsSaved",
+        "Translations saved"
+      ) + newStringIds
+        ? ", " + getTranslation(
+          "admin.translation.notification.newStringIdCreated",
+          `Created ${newStringIds} new translated string entries`,
+          { newStringIds }
+        )
+        : ''
       );
       queryClient.invalidateQueries(['translation']);
     },
     onError: err => {
-      <TranslatedText
-        stringId="admin.translation.notification.savingFailed"
-        fallback={`Error saving translations: ${err.message}`}
-        replacements={{ message: err.message }}
-      />
+      getTranslation(
+        "admin.translation.notification.savingFailed",
+        `Error saving translations: ${err.message}`,
+        { message: err.message }
+      )
     },
   });
 };

@@ -9,6 +9,28 @@ export const useTranslation = () => useContext(TranslationContext);
 
 const isDev = process.env.NODE_ENV === 'development';
 
+/**
+ * @param {string} templateString
+ * @param {object} replacements
+ * @returns {string}
+ *
+ * @example replaceStringVariables("there are :count users", { count: 2 }) => "there are 2 users"
+ */
+const replaceStringVariables = (templateString, replacements) => {
+  if (!replacements) return templateString;
+  const result = templateString
+    .split(/(:[a-zA-Z]+)/g)
+    .map((part, index) => {
+      // Even indexes are the unchanged parts of the string
+      if (index % 2 === 0) return part;
+      // Return the replacement if exists
+      return replacements[part.slice(1)] || part;
+    })
+    .join('');
+
+  return result;
+};
+
 export const TranslationProvider = ({ children }) => {
   const api = useApi();
   const initialValue = localStorage.getItem(LOCAL_STORAGE_KEYS.LANGUAGE) || 'en';
@@ -16,9 +38,9 @@ export const TranslationProvider = ({ children }) => {
 
   const { data: translations } = useTranslations(storedLanguage);
 
-  const getTranslation = (stringId, fallback) => {
+  const getTranslation = (stringId, fallback, replacements) => {
     if (!translations) return fallback;
-    if (translations[stringId]) return translations[stringId];
+    if (translations[stringId]) return replaceStringVariables(translations[stringId], replacements);
     // This section here is a dev tool to help populate the db with the translation ids we have defined
     // in components. It will only populate the db with English strings, so that we can then translate them.
     if (isDev && storedLanguage === 'en') {
