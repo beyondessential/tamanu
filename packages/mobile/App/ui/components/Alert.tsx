@@ -28,7 +28,7 @@ const SEVERITY_TO_COLORS: {
     color: theme.colors.PRIMARY_MAIN,
   },
   error: {
-    background: 'rgba(247, 231, 231, 1)',
+    background: '#f7e7e7',
     color: theme.colors.ALERT,
   },
   warning: {
