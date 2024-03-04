@@ -20,8 +20,7 @@ import { Button, DeleteButton } from '../Button';
 import { EncounterModal } from '../EncounterModal';
 import { usePatientCurrentEncounter } from '../../api/queries';
 import { Modal } from '../Modal';
-import { TranslatedText } from '../Translation/TranslatedText';
-import { TranslatedReferenceData } from '../Translation/TranslatedReferenceData';
+import { TranslatedText, TranslatedReferenceData } from '../Translation';
 
 const Heading = styled.div`
   font-weight: 700;

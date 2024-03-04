@@ -1,5 +1,5 @@
 import React from 'react';
-import { TranslatedReferenceData } from "../components/Translation/TranslatedReferenceData";
+import { TranslatedReferenceData } from "../components/Translation";
 
 /**
  * @param location: { name: string, locationGroup: { name: string } }

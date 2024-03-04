@@ -4,8 +4,7 @@ import styled from 'styled-components';
 
 import { Colors } from '../constants';
 import { hexToRgba } from '../utils';
-import { TranslatedText } from './Translation/TranslatedText';
-import { TranslatedReferenceData } from './Translation/TranslatedReferenceData';
+import { TranslatedText, TranslatedReferenceData } from './Translation';
 
 const DiagnosisListContainer = styled.div`
   display: flex;
@@ -51,7 +50,7 @@ const DiagnosisItem = React.memo(({ diagnosis, isPrimary, onClick }) => (
       <TranslatedReferenceData
         fallback={diagnosis.name}
         value={diagnosis.id}
-        category="diagnosis"
+        category="icd10"
       />
     </DiagnosisName>}
   </DiagnosisChip>

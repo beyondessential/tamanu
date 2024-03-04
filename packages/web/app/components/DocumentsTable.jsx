@@ -9,8 +9,7 @@ import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { Button } from './Button';
 import { LimitedLinesCell } from './FormattedTableCell';
-import { TranslatedText } from './Translation/TranslatedText';
-import { TranslatedReferenceData } from './Translation/TranslatedReferenceData';
+import { TranslatedText, TranslatedReferenceData } from './Translation';
 
 const ActionsContainer = styled.div`
   display: flex;
@@ -52,7 +51,7 @@ const getAttachmentType = ({ type }) => {
 
 const getUploadedDate = ({ documentUploadedAt }) =>
   documentUploadedAt ? <DateDisplay date={documentUploadedAt} /> : '';
-const getDepartmentName = ({ department }) => (department?.name && department?.id)
+const getDepartmentName = ({ department }) => department
   ? <TranslatedReferenceData
     fallback={department.name}
     value={department.id}

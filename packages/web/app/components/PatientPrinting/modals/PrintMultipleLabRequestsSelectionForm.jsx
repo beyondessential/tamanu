@@ -12,8 +12,7 @@ import { Colors } from '../../../constants';
 import { MultipleLabRequestsPrintoutModal } from './MultipleLabRequestsPrintoutModal';
 import { FormDivider, PrintMultipleSelectionTable } from './PrintMultipleSelectionTable';
 import { getStatus } from '../../../utils/lab';
-import { TranslatedText } from '../../Translation/TranslatedText';
-import { TranslatedReferenceData } from '../../Translation/TranslatedReferenceData';
+import { TranslatedText, TranslatedReferenceData } from '../../Translation';
 
 const COLUMN_KEYS = {
   SELECTED: 'selected',

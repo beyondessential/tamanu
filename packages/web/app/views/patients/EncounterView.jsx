@@ -29,8 +29,7 @@ import { EncounterActions } from './components';
 import { useReferenceData } from '../../api/queries';
 import { useAuth } from '../../contexts/Auth';
 import { VitalChartDataProvider } from '../../contexts/VitalChartData';
-import { TranslatedText } from '../../components/Translation/TranslatedText';
-import { TranslatedReferenceData } from '../../components/Translation/TranslatedReferenceData';
+import { TranslatedText, TranslatedReferenceData } from '../../components/Translation';
 
 const getIsTriage = encounter => ENCOUNTER_OPTIONS_BY_VALUE[encounter.encounterType].triageFlowOnly;
 

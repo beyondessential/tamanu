@@ -15,8 +15,7 @@ import { ENCOUNTER_OPTIONS_BY_VALUE } from '../../../constants';
 
 import { ImagingRequestData } from './reusable/ImagingRequestData';
 import { LowerCase } from '../../Typography';
-import { TranslatedText } from '../../Translation/TranslatedText';
-import { TranslatedReferenceData } from '../../Translation/TranslatedReferenceData';
+import { TranslatedText, TranslatedReferenceData } from '../../Translation';
 
 // STYLES
 const CompactListTable = styled(ListTable)`
@@ -147,7 +146,7 @@ const COLUMNS = {
           <TranslatedReferenceData
             fallback={diagnosis.name}
             value={diagnosis.id}
-            category="diagnosis"
+            category="icd10"
           />
         </span>
         <span> {diagnosis.code}</span>

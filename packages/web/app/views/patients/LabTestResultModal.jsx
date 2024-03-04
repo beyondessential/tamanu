@@ -7,8 +7,7 @@ import { DateDisplay } from '../../components/DateDisplay';
 import { Modal } from '../../components/Modal';
 import { ModalActionRow } from '../../components/ModalActionRow';
 import { BodyText } from '../../components/Typography';
-import { TranslatedText } from '../../components/Translation/TranslatedText';
-import { TranslatedReferenceData } from '../../components/Translation/TranslatedReferenceData';
+import { TranslatedText, TranslatedReferenceData } from '../../components/Translation';
 
 const ModalBody = styled.div`
   display: grid;

@@ -2,8 +2,7 @@ import React from 'react';
 
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
-import { TranslatedText } from './Translation/TranslatedText';
-import { TranslatedReferenceData } from './Translation/TranslatedReferenceData';
+import { TranslatedText, TranslatedReferenceData } from './Translation';
 
 const getProcedureLabel = ({ procedureType }) => (
   <TranslatedReferenceData 

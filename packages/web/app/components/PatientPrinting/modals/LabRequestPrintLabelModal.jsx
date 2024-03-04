@@ -7,8 +7,7 @@ import { Modal } from '../../Modal';
 import { LabRequestPrintLabel } from '../printouts/LabRequestPrintLabel';
 import { useLocalisation } from '../../../contexts/Localisation';
 import { getPatientNameAsString } from '../../PatientNameDisplay';
-import { TranslatedText } from '../../Translation/TranslatedText';
-import { TranslatedReferenceData } from '../../Translation/TranslatedReferenceData';
+import { TranslatedText, TranslatedReferenceData } from '../../Translation';
 
 const Container = styled.div`
   display: flex;

@@ -33,8 +33,7 @@ import { FormConfirmCancelBackRow, FormSubmitCancelRow } from '../components/But
 import { DiagnosisList } from '../components/DiagnosisList';
 import { useEncounter } from '../contexts/Encounter';
 import { MODAL_PADDING_LEFT_AND_RIGHT, MODAL_PADDING_TOP_AND_BOTTOM } from '../components';
-import { TranslatedText } from '../components/Translation/TranslatedText';
-import { TranslatedReferenceData } from '../components/Translation/TranslatedReferenceData';
+import { TranslatedText, TranslatedReferenceData } from '../components/Translation';
 
 const Divider = styled(BaseDivider)`
   margin: 30px -${MODAL_PADDING_LEFT_AND_RIGHT}px;

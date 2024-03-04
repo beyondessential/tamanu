@@ -3,8 +3,7 @@ import styled from 'styled-components';
 import { DataFetchingTable } from '../../../components';
 
 import { getCompletedDate, getMethod } from '../../../utils/lab';
-import { TranslatedText } from '../../../components/Translation/TranslatedText';
-import { TranslatedReferenceData } from '../../../components/Translation/TranslatedReferenceData';
+import { TranslatedText, TranslatedReferenceData } from '../../../components/Translation';
 
 const StyledDataFetchingTable = styled(DataFetchingTable)`
   table tbody tr:last-child td {

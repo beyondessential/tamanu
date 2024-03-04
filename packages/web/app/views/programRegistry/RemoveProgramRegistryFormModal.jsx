@@ -6,7 +6,7 @@ import { ConfirmCancelRow, DateDisplay, FormSeparatorLine, Modal } from '../../c
 import { Colors } from '../../constants';
 import { useApi } from '../../api';
 import { PROGRAM_REGISTRY } from '../../components/PatientInfoPane/paneTitles';
-import { TranslatedReferenceData } from '../../components/Translation/TranslatedReferenceData';
+import { TranslatedReferenceData } from '../../components/Translation';
 
 const WarningDiv = styled.div`
   display: flex;

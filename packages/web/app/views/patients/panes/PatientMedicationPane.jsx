@@ -6,8 +6,7 @@ import { ContentPane } from '../../../components/ContentPane';
 import { DateDisplay } from '../../../components/DateDisplay';
 import { OuterLabelFieldWrapper } from '../../../components/Field/OuterLabelFieldWrapper';
 import { DataFetchingTable, Table } from '../../../components/Table';
-import { TranslatedText } from '../../../components/Translation/TranslatedText';
-import { TranslatedReferenceData } from '../../../components/Translation/TranslatedReferenceData';
+import { TranslatedText, TranslatedReferenceData } from '../../../components/Translation';
 
 const StyledDiv = styled.div`
   max-width: 20vw;

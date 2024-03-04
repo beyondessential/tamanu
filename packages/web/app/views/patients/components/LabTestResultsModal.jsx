@@ -15,8 +15,7 @@ import { AccessorField, LabResultAccessorField } from './AccessorField';
 import { ConfirmCancelRow } from '../../../components/ButtonRow';
 import { useApi } from '../../../api';
 import { useAuth } from '../../../contexts/Auth';
-import { TranslatedText } from '../../../components/Translation/TranslatedText';
-import { TranslatedReferenceData } from '../../../components/Translation/TranslatedReferenceData';
+import { TranslatedText, TranslatedReferenceData } from '../../../components/Translation';
 
 const TableContainer = styled.div`
   overflow-y: auto;

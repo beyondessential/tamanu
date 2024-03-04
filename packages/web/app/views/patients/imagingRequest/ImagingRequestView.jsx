@@ -34,8 +34,7 @@ import { SimpleTopBar } from '../../../components';
 
 import { CancelModalButton } from './CancelModalButton';
 import { PrintModalButton } from './PrintModalButton';
-import { TranslatedText } from '../../../components/Translation/TranslatedText';
-import { TranslatedReferenceData } from '../../../components/Translation/TranslatedReferenceData';
+import { TranslatedText, TranslatedReferenceData } from '../../../components/Translation';
 
 const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
   const { getLocalisation } = useLocalisation();

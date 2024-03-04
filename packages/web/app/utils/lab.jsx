@@ -3,7 +3,7 @@ import { LAB_REQUEST_STATUS_CONFIG } from '@tamanu/constants';
 import { DateDisplay } from '../components';
 import { PatientNameDisplay } from '../components/PatientNameDisplay';
 import { TableCellTag } from '../components/Tag';
-import { TranslatedReferenceData } from '../components/Translation/TranslatedReferenceData';
+import { TranslatedReferenceData } from '../components/Translation';
 
 export const StatusDisplay = React.memo(({ status }) => {
   const { background, color, label } = LAB_REQUEST_STATUS_CONFIG[status];

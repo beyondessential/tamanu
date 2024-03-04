@@ -18,8 +18,7 @@ import {
 import { LabRequestPrintLabelModal } from '../../../components/PatientPrinting/modals/LabRequestPrintLabelModal';
 import { useLabRequestNotes } from '../../../api/queries';
 import { InfoCard, InfoCardItem } from '../../../components/InfoCard';
-import { TranslatedText } from '../../../components/Translation/TranslatedText';
-import { TranslatedReferenceData } from '../../../components/Translation/TranslatedReferenceData';
+import { TranslatedText, TranslatedReferenceData } from '../../../components/Translation';
 
 const Container = styled.div`
   padding-top: 20px;

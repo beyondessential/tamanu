@@ -7,9 +7,7 @@ import { getFullLocationName } from '../../../../utils/location';
 import { DateDisplay } from '../../../DateDisplay';
 
 import { CertificateLabel, LocalisedCertificateLabel } from './CertificateLabels';
-import { TranslatedText } from '../../../Translation/TranslatedText';
-import { TranslatedReferenceData } from '../../../Translation/TranslatedReferenceData';
-
+import { TranslatedText, TranslatedReferenceData } from '../../../Translation';
 const RowContainer = styled.div`
   display: flex;
   justify-content: start;

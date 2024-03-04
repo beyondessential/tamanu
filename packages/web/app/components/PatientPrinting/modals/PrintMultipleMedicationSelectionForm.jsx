@@ -12,8 +12,7 @@ import { useAuth } from '../../../contexts/Auth';
 import { Colors } from '../../../constants';
 
 import { MultiplePrescriptionPrintoutModal } from './MultiplePrescriptionPrintoutModal';
-import { TranslatedText } from '../../Translation/TranslatedText';
-import { TranslatedReferenceData } from '../../Translation/TranslatedReferenceData';
+import { TranslatedText, TranslatedReferenceData } from '../../Translation';
 
 const REPEAT_OPTIONS = [0, 1, 2, 3, 4, 5].map(n => ({ label: n, value: n }));
 

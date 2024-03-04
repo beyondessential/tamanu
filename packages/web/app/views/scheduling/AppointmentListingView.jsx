@@ -11,8 +11,7 @@ import {
 } from '../../components';
 import { NewAppointmentButton } from '../../components/Appointments/NewAppointmentButton';
 import { useRefreshCount } from '../../hooks/useRefreshCount';
-import { TranslatedText } from '../../components/Translation/TranslatedText';
-import { TranslatedReferenceData } from '../../components/Translation/TranslatedReferenceData';
+import { TranslatedText, TranslatedReferenceData } from '../../components/Translation';
 
 const CapitalisedValue = styled.span`
   text-transform: capitalize;

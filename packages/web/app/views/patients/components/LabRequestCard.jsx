@@ -4,8 +4,7 @@ import { Box } from '@material-ui/core';
 import { labsIcon } from '../../../constants/images';
 import { DateDisplay, LowerCase } from '../../../components';
 import { Colors } from '../../../constants';
-import { TranslatedText } from '../../../components/Translation/TranslatedText';
-import { TranslatedReferenceData } from '../../../components/Translation/TranslatedReferenceData';
+import { TranslatedText, TranslatedReferenceData } from '../../../components/Translation';
 
 const Container = styled.div`
   display: flex;

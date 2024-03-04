@@ -1,5 +1,5 @@
 import React from "react";
-import { TranslatedReferenceData } from "../components/Translation/TranslatedReferenceData";
+import { TranslatedReferenceData } from "../components/Translation";
 
 export const getDepartmentName = ({ department }) => (
     department

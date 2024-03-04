@@ -5,7 +5,7 @@ import { SEX_VALUE_INDEX } from '@tamanu/constants';
 
 import { theme } from '../../../theme';
 import { DateDisplay } from '../../../components/DateDisplay';
-import { TranslatedReferenceData } from '../../../components/Translation/TranslatedReferenceData';
+import { TranslatedReferenceData } from '../../../components/Translation';
 
 const Label = styled.span`
   color: ${theme.palette.text.tertiary};

@@ -9,8 +9,7 @@ import { reloadPatient } from '../store';
 import { ENCOUNTER_TAB_NAMES } from '../constants/encounterTabNames';
 import { Colors } from '../constants';
 import { getFullLocationName } from '../utils/location';
-import { TranslatedText } from './Translation/TranslatedText';
-import { TranslatedReferenceData } from './Translation/TranslatedReferenceData';
+import { TranslatedText, TranslatedReferenceData } from './Translation';
 
 const getMedicationName = ({ medication }) => (
   <TranslatedReferenceData fallback={medication.name} value={medication.id} category={medication.type} />

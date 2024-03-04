@@ -1,7 +1,7 @@
 import React from 'react';
 import { InfoCard, InfoCardItem } from '../../../components/InfoCard';
 import { DateDisplay } from '../../../components';
-import { TranslatedReferenceData } from '../../../components/Translation/TranslatedReferenceData';
+import { TranslatedReferenceData } from '../../../components/Translation';
 
 export const LabRequestSampleDetailsCard = ({ labRequest }) => (
   <InfoCard>

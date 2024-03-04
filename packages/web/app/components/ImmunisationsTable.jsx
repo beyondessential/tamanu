@@ -9,8 +9,7 @@ import { DateDisplay } from './DateDisplay';
 import { StatusTag } from './Tag';
 import { CheckInput } from './Field';
 import { Colors } from '../constants';
-import { TranslatedText } from './Translation/TranslatedText';
-import { TranslatedReferenceData } from './Translation/TranslatedReferenceData';
+import { TranslatedText, TranslatedReferenceData } from './Translation';
 
 const getSchedule = record =>
   record.scheduledVaccine?.schedule || (

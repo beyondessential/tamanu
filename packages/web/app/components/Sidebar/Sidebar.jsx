@@ -15,8 +15,7 @@ import { SecondarySidebarItem } from './SecondarySidebarItem';
 import { checkAbility } from '../../utils/ability';
 import { useAuth } from '../../contexts/Auth';
 import { useApi } from '../../api';
-import { TranslatedText } from '../Translation/TranslatedText';
-import { TranslatedReferenceData } from '../Translation/TranslatedReferenceData';
+import { TranslatedText, TranslatedReferenceData } from '../Translation';
 import { useLocalisation } from '../../contexts/Localisation';
 
 const Container = styled.div`

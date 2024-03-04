@@ -22,8 +22,7 @@ import { useLocalisation } from '../../contexts/Localisation';
 import { isErrorUnknownAllow404s, useApi } from '../../api';
 import { PANE_SECTION_IDS } from './paneSections';
 import { RecordDeathSection } from '../RecordDeathSection';
-import { TranslatedText } from '../Translation/TranslatedText';
-import { TranslatedReferenceData } from '../Translation/TranslatedReferenceData';
+import { TranslatedText, TranslatedReferenceData } from '../Translation';
 
 const OngoingConditionDisplay = memo(({ patient, readonly }) => (
   <InfoPaneList

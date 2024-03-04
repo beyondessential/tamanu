@@ -19,8 +19,7 @@ import {
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { PatientSearchKeys, usePatientSearch } from '../../contexts/PatientSearch';
 import { columns } from './bedManagementColumns';
-import { TranslatedText } from '../../components/Translation/TranslatedText';
-import { TranslatedReferenceData } from '../../components/Translation/TranslatedReferenceData';
+import { TranslatedText, TranslatedReferenceData } from '../../components/Translation';
 
 const DashboardContainer = styled.div`
   display: flex;

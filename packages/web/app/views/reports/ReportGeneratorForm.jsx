@@ -29,8 +29,7 @@ import { saveExcelFile } from '../../utils/saveExcelFile';
 import { EmailField, parseEmails } from './EmailField';
 import { ParameterField } from './ParameterField';
 import { useLocalisation } from '../../contexts/Localisation';
-import { TranslatedText } from '../../components/Translation/TranslatedText';
-import { TranslatedReferenceData } from '../../components/Translation/TranslatedReferenceData';
+import { TranslatedText, TranslatedReferenceData } from '../../components/Translation';
 import { ReportAboutModal } from './ReportAboutModal';
 
 const Spacer = styled.div`

@@ -11,8 +11,7 @@ import { SearchField, SuggesterSelectField } from '../../components/Field';
 import { TextButton } from '../../components/Button';
 import { BodyText } from '../../components/Typography';
 import { SelectableTestItem, TestItem } from './TestItem';
-import { TranslatedText } from '../../components/Translation/TranslatedText';
-import { TranslatedReferenceData, getReferenceDataStringId } from '../../components/Translation/TranslatedReferenceData';
+import { TranslatedReferenceData, getReferenceDataStringId, TranslatedText } from '../../components/Translation';
 import { useTranslation } from '../../contexts/Translation';
 
 const SELECTABLE_DATA_ENDPOINTS = {
