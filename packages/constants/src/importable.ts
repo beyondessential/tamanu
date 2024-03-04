@@ -122,7 +122,6 @@ export const TRANSLATABLE_REFERENCE_TYPES = [
   ...REFERENCE_TYPE_VALUES,
   'department',
   'facility',
-  'imagingAreaExternalCode',
   'invoiceLineType',
   'invoicePriceChangeType',
   'labTestType',
