@@ -222,10 +222,12 @@ export async function importRows(
       const SHEET_NAME_TO_DATA_TYPE = {
         ['diagnosis']: 'icd10',
       };
-
       const dataType = SHEET_NAME_TO_DATA_TYPE[sheetName] || sheetName;
-
-      if (TRANSLATABLE_REFERENCE_TYPES.includes(dataType) && camelCase(model) === 'dataType') {
+      const isTranslatable = TRANSLATABLE_REFERENCE_TYPES.includes(dataType);
+      // Not sure about this. If we dont make the model === dataType comparison 
+      // we get weird behaviour where it tries to make translations out of join tables
+      const isValidTable = model === 'ReferenceData' || camelCase(model) === dataType;
+      if (isTranslatable && isValidTable) {
         const { TranslatedString } = models;
         const stringId = `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.${values.id}`;
         const existingTranslation = await TranslatedString.findOne({ where: { stringId } });
