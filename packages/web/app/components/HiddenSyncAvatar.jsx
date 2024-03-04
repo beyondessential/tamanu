@@ -69,19 +69,19 @@ export const HiddenSyncAvatar = ({ children, onClick, ...props }) => {
   const handleClick = async event => {
     if (event.shiftKey) {
       handleEvent(async () => {
-        toast.info(<div>
-          {getTranslation(
+        toast.info(
+          getTranslation(
             "sidebar.avatar.notification.startingManualSync",
             "Starting manual sync..."
-          )}
-        </div>);
+          )
+        );
         await api.post(`sync/run`);
-        toast.success(<div>
-          {getTranslation(
+        toast.success(
+          getTranslation(
             "sidebar.avatar.notification.manualSyncComplete",
             "Manual sync complete"
-          )}
-        </div>);
+          )
+        );
       });
       return;
     }
