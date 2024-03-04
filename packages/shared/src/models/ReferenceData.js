@@ -49,6 +49,19 @@ export class ReferenceData extends Model {
       as: 'area',
       foreignKey: 'areaId',
     });
+
+    this.belongsToMany(models.ReferenceData, {
+      through: models.ReferenceDataRelation,
+      as: 'child',
+      foreignKey: 'child_id',
+    });
+
+    this.belongsToMany(models.ReferenceData, {
+      through: models.ReferenceDataRelation,
+      as: 'parent',
+      foreignKey: 'parent_id',
+    });
+
     this.hasOne(models.ImagingAreaExternalCode, {
       as: 'imagingAreaExternalCode',
       foreignKey: 'areaId',
