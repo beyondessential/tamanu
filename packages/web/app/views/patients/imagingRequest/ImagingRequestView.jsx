@@ -183,12 +183,12 @@ const ImagingResultRow = ({ result }) => {
 };
 
 const ImagingResultsSection = ({ results }) => {
-  if (results.length === 0) return null;
+  if (results?.length === 0) return null;
 
   return (
     <>
       <h3>Results</h3>
-      {results.map(result => (
+      {results?.map(result => (
         <ImagingResultRow key={result.id} result={result} />
       ))}
     </>
@@ -231,7 +231,7 @@ const ImagingRequestInfoPane = React.memo(({ imagingRequest, onSubmit }) => {
           <>
             <ImagingRequestSection currentStatus={values.status} imagingRequest={imagingRequest} />
             <ImagingResultsSection results={imagingRequest.results} />
-            <h4>{imagingRequest.results.length > 0 ? 'Add additional result' : 'Add result'}</h4>
+            <h4>{imagingRequest.results?.length > 0 ? 'Add additional result' : 'Add result'}</h4>
             <NewResultSection disabled={!canAddResult} />
             <ButtonRow style={{ marginTop: 20 }}>
               {!isCancelled && <FormSubmitButton text="Save" />}
