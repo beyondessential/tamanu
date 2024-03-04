@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState } from 'react';
-import { useListOfProgramRegistryQuery } from '../api/queries/useProgramRegistryQuery';
+import { useApi } from '../api';
 
 export const ProgramRegistryContext = createContext({
   programRegistryId: null,
@@ -11,12 +11,11 @@ export const useProgramRegistryContext = () => useContext(ProgramRegistryContext
 
 export const ProgramRegistryProvider = ({ children }) => {
   const [programRegistryId, setProgramRegistryId] = useState(null);
-  const { data: programRegistries, refetch } = useListOfProgramRegistryQuery();
+  const api = useApi();
   const setProgramRegistryIdByProgramId = async programId => {
-    await refetch();
-    const programRegistry = programRegistries.data.find(pr => pr.programId === programId);
-    if (programRegistry) {
-      setProgramRegistryId(programRegistry.id);
+    const { programRegistries } = await api.get(`program/${programId}`);
+    if (programRegistries.length > 0) {
+      setProgramRegistryId(programRegistries[0].id);
       return;
     }
     setProgramRegistryId(null);
