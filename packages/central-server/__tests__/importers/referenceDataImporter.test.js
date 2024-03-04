@@ -314,7 +314,7 @@ describe('Data definition import', () => {
       raw: true,
     });
 
-    // Ensure new records in ReferenceData table have relevant translations created
+    // Ensure all records in ReferenceData table have relevant translations created
     const newRefDataRecords = await ReferenceData.findAll({ raw: true });
     newRefDataRecords.forEach(({ id, type, name }) => {
       const expectedStringId = `${REFERENCE_DATA_TRANSLATION_PREFIX}.${type}.${id}`;
