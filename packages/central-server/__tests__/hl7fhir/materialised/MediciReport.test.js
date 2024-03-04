@@ -106,7 +106,7 @@ describe(`Materialised - MediciReport`, () => {
       type: 'labTestMethod',
       code: 'RDT',
     });
-    const labTest = await LabTest.create({
+    await LabTest.create({
       ...fake(LabTest),
       labTestTypeId: labTestType.id,
       labRequestId: labRequest.id,
