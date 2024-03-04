@@ -62,6 +62,7 @@ export const DateInput = ({
   saveDateAsString = false,
   arrows = false,
   inputProps = {},
+  skipMinChecking,
   ...props
 }) => {
   delete props.placeholder;
@@ -118,7 +119,7 @@ export const DateInput = ({
       }
     }
 
-    if (min) {
+    if (min && !skipMinChecking) {
       const minDate = parse(min, format, new Date());
       if (isBefore(date, minDate)) {
         onChange({ target: { value: '', name } });
