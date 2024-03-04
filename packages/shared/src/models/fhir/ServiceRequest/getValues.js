@@ -226,7 +226,13 @@ function statusFromLabRequest(upstream) {
 
 function labCode(upstream) {
   const { labTestPanelRequest } = upstream;
-  if (!labTestPanelRequest) throw new Error('No lab test panel request specified.');
+  
+  // It is possible to have a ServiceRequest without a panel
+  // which is a series of independent panels but 
+  // ServiceRequest.code will be nonexistent
+  if (!labTestPanelRequest) {
+    return null;
+  }
   const { externalCode, name, code } = labTestPanelRequest.labTestPanel;
   const coding = [];
   if (code) {
@@ -268,12 +274,11 @@ function labContained(upstream) {
 }
 
 async function labOrderDetails(upstream) {
-  const tests = await resolveTests(upstream);
-  return tests.map(test => {
-    if (!test) throw new Exception('Received a null test');
+  const testTypes = await resolveTestTypes(upstream);
+  return testTypes.map(testType => {
+    if (!testType) throw new Exception('Received a null test');
 
-    const { externalCode, code, name } = test;
-
+    const { externalCode, code, name } = testType;
     const coding = [];
     if (code) {
       coding.push(
@@ -305,9 +310,9 @@ async function labOrderDetails(upstream) {
 }
 // The lab tests will either need to be directly associated 
 // with the lab tests or through the panels.
-async function resolveTests(upstream) {
+async function resolveTestTypes(upstream) {
   const { labTestPanelRequest, tests } = upstream;
-  const { labTestPanel } = labTestPanelRequest;
+  const { labTestPanel } = labTestPanelRequest || {};
 
   // A single request cannot have BOTH
   //  panels and individual tests together. 
@@ -316,12 +321,12 @@ async function resolveTests(upstream) {
   }
 
   if (tests.length > 0) {
-    return tests;
+    return tests.map(test => test.labTestType);
   }
   if (labTestPanel) {
     return labTestPanel.labTestTypes;
   }
-  return null;
+  return [];
 }
 
 function labAnnotations(upstream) {

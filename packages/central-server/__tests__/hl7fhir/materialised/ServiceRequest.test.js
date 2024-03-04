@@ -64,152 +64,156 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       fhirResources.fhirEncounter = fhirEncounter;
     });
 
-    // it('fetches a service request by materialised ID (imaging request)', async () => {
-    //   // arrange
-    //   const { FhirServiceRequest, ImagingRequest, Note } = ctx.store.models;
-    //   const ir = await ImagingRequest.create(
-    //     fake(ImagingRequest, {
-    //       requestedById: resources.practitioner.id,
-    //       encounterId: resources.encounter.id,
-    //       locationGroupId: resources.locationGroup.id,
-    //       status: IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
-    //       priority: 'routine',
-    //       requestedDate: '2022-03-04 15:30:00',
-    //       imagingType: 'xRay',
-    //     }),
-    //   );
-    //   await Note.bulkCreate([
-    //     fake(Note, {
-    //       date: '2022-03-05',
-    //       visibilityStatus: VISIBILITY_STATUSES.CURRENT,
-    //       noteType: NOTE_TYPES.OTHER,
-    //       recordType: ImagingRequest.name,
-    //       recordId: ir.id,
-    //       content: 'Suspected adenoma',
-    //     }),
-    //     fake(Note, {
-    //       date: '2022-03-06',
-    //       visibilityStatus: VISIBILITY_STATUSES.CURRENT,
-    //       noteType: NOTE_TYPES.OTHER,
-    //       recordType: ImagingRequest.name,
-    //       recordId: ir.id,
-    //       content: 'Patient may need mobility assistance',
-    //     }),
-    //   ]);
+    it('fetches a service request by materialised ID (imaging request)', async () => {
+      // arrange
+      const { FhirServiceRequest, ImagingRequest, Note } = ctx.store.models;
+      const ir = await ImagingRequest.create(
+        fake(ImagingRequest, {
+          requestedById: resources.practitioner.id,
+          encounterId: resources.encounter.id,
+          locationGroupId: resources.locationGroup.id,
+          status: IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
+          priority: 'routine',
+          requestedDate: '2022-03-04 15:30:00',
+          imagingType: 'xRay',
+        }),
+      );
+      await Note.bulkCreate([
+        fake(Note, {
+          date: '2022-03-05',
+          visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+          noteType: NOTE_TYPES.OTHER,
+          recordType: ImagingRequest.name,
+          recordId: ir.id,
+          content: 'Suspected adenoma',
+        }),
+        fake(Note, {
+          date: '2022-03-06',
+          visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+          noteType: NOTE_TYPES.OTHER,
+          recordType: ImagingRequest.name,
+          recordId: ir.id,
+          content: 'Patient may need mobility assistance',
+        }),
+      ]);
 
-    //   await ir.setAreas([resources.area1.id, resources.area2.id]);
-    //   await ir.reload();
-    //   const mat = await FhirServiceRequest.materialiseFromUpstream(ir.id);
-    //   await FhirServiceRequest.resolveUpstreams();
+      await ir.setAreas([resources.area1.id, resources.area2.id]);
+      await ir.reload();
+      const mat = await FhirServiceRequest.materialiseFromUpstream(ir.id);
+      await FhirServiceRequest.resolveUpstreams();
 
-    //   const path = `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest/${mat.id}`;
+      const path = `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest/${mat.id}`;
 
-    //   // act
-    //   const response = await app.get(path);
+      // act
+      const response = await app.get(path);
 
-    //   // normalise for comparison
-    //   // eslint-disable-next-line no-unused-expressions
-    //   response.body?.orderDetail?.sort((a, b) => a.text.localeCompare(b.text));
-    //   response.body?.identifier?.sort((a, b) => a.system.localeCompare(b.system));
-    //   response.body?.note?.sort((a, b) => a.time.localeCompare(b.time)); // sort notes by time
+      // normalise for comparison
+      // eslint-disable-next-line no-unused-expressions
+      response.body?.orderDetail?.sort((a, b) => a.text.localeCompare(b.text));
+      response.body?.identifier?.sort((a, b) => a.system.localeCompare(b.system));
+      response.body?.note?.sort((a, b) => a.time.localeCompare(b.time)); // sort notes by time
 
-    //   // assert
-    //   expect(response.body).toMatchObject({
-    //     resourceType: 'ServiceRequest',
-    //     id: expect.any(String),
-    //     meta: {
-    //       lastUpdated: formatFhirDate(mat.lastUpdated),
-    //     },
-    //     identifier: [
-    //       {
-    //         system: 'http://data-dictionary.tamanu-fiji.org/tamanu-id-imagingrequest.html',
-    //         value: ir.id,
-    //       },
-    //       {
-    //         system: 'http://data-dictionary.tamanu-fiji.org/tamanu-mrid-imagingrequest.html',
-    //         value: ir.displayId,
-    //       },
-    //     ],
-    //     status: 'completed',
-    //     intent: 'order',
-    //     category: [
-    //       {
-    //         coding: [
-    //           {
-    //             system: 'http://snomed.info/sct',
-    //             code: '363679005',
-    //           },
-    //         ],
-    //       },
-    //     ],
-    //     priority: 'routine',
-    //     code: {
-    //       text: 'X-Ray',
-    //     },
-    //     orderDetail: [
-    //       {
-    //         text: resources.extCode1.description,
-    //         coding: [
-    //           {
-    //             code: resources.extCode1.code,
-    //             system: 'http://data-dictionary.tamanu-fiji.org/rispacs-billing-code.html',
-    //           },
-    //         ],
-    //       },
-    //       {
-    //         text: resources.extCode2.description,
-    //         coding: [
-    //           {
-    //             code: resources.extCode2.code,
-    //             system: 'http://data-dictionary.tamanu-fiji.org/rispacs-billing-code.html',
-    //           },
-    //         ],
-    //       },
-    //     ].sort((a, b) => a.text.localeCompare(b.text)),
-    //     subject: {
-    //       reference: `Patient/${resources.fhirPatient.id}`,
-    //       type: 'Patient',
-    //       display: `${resources.patient.firstName} ${resources.patient.lastName}`,
-    //     },
-    //     encounter: {
-    //       reference: `Encounter/${fhirResources.fhirEncounter.id}`,
-    //       type: 'Encounter',
-    //     },
-    //     occurrenceDateTime: formatFhirDate('2022-03-04 15:30:00'),
-    //     requester: {
-    //       type: 'Practitioner',
-    //       reference: `Practitioner/${fhirResources.fhirPractitioner.id}`,
-    //       display: fhirResources.fhirPractitioner.name[0].text,
-    //     },
-    //     locationCode: [
-    //       {
-    //         text: resources.facility.name,
-    //       },
-    //     ],
-    //     note: [
-    //       {
-    //         time: formatFhirDate('2022-03-05'),
-    //         text: 'Suspected adenoma',
-    //       },
-    //       {
-    //         time: formatFhirDate('2022-03-06'),
-    //         text: 'Patient may need mobility assistance',
-    //       },
-    //     ],
-    //   });
-    //   expect(response.headers['last-modified']).toBe(formatRFC7231(new Date(mat.lastUpdated)));
-    //   expect(response).toHaveSucceeded();
+      // assert
+      expect(response.body).toMatchObject({
+        resourceType: 'ServiceRequest',
+        id: expect.any(String),
+        meta: {
+          lastUpdated: formatFhirDate(mat.lastUpdated),
+        },
+        identifier: [
+          {
+            system: 'http://data-dictionary.tamanu-fiji.org/tamanu-id-imagingrequest.html',
+            value: ir.id,
+          },
+          {
+            system: 'http://data-dictionary.tamanu-fiji.org/tamanu-mrid-imagingrequest.html',
+            value: ir.displayId,
+          },
+        ],
+        status: 'completed',
+        intent: 'order',
+        category: [
+          {
+            coding: [
+              {
+                system: 'http://snomed.info/sct',
+                code: '363679005',
+              },
+            ],
+          },
+        ],
+        priority: 'routine',
+        code: {
+          text: 'X-Ray',
+        },
+        orderDetail: [
+          {
+            text: resources.extCode1.description,
+            coding: [
+              {
+                code: resources.extCode1.code,
+                system: 'http://data-dictionary.tamanu-fiji.org/rispacs-billing-code.html',
+              },
+            ],
+          },
+          {
+            text: resources.extCode2.description,
+            coding: [
+              {
+                code: resources.extCode2.code,
+                system: 'http://data-dictionary.tamanu-fiji.org/rispacs-billing-code.html',
+              },
+            ],
+          },
+        ].sort((a, b) => a.text.localeCompare(b.text)),
+        subject: {
+          reference: `Patient/${resources.fhirPatient.id}`,
+          type: 'Patient',
+          display: `${resources.patient.firstName} ${resources.patient.lastName}`,
+        },
+        encounter: {
+          reference: `Encounter/${fhirResources.fhirEncounter.id}`,
+          type: 'Encounter',
+        },
+        occurrenceDateTime: formatFhirDate('2022-03-04 15:30:00'),
+        requester: {
+          type: 'Practitioner',
+          reference: `Practitioner/${fhirResources.fhirPractitioner.id}`,
+          display: fhirResources.fhirPractitioner.name[0].text,
+        },
+        locationCode: [
+          {
+            text: resources.facility.name,
+          },
+        ],
+        note: [
+          {
+            time: formatFhirDate('2022-03-05'),
+            text: 'Suspected adenoma',
+          },
+          {
+            time: formatFhirDate('2022-03-06'),
+            text: 'Patient may need mobility assistance',
+          },
+        ],
+      });
+      expect(response.headers['last-modified']).toBe(formatRFC7231(new Date(mat.lastUpdated)));
+      expect(response).toHaveSucceeded();
 
-    //   // regression EPI-403
-    //   expect(response.body.subject).not.toHaveProperty('identifier');
-    // });
-
+      // regression EPI-403
+      expect(response.body.subject).not.toHaveProperty('identifier');
+    });
+    
     it('fetches a service request by materialised ID (lab request with panel)', async () => {
       // arrange
       const { FhirServiceRequest } = ctx.store.models;
       const { labTestPanel, labRequest, panelTestTypes } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
         ctx.store.models,
         resources,
+        {
+          isWithPanels: true,
+          isWithIndependentTests: false,
+        }
       );
       const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
       await FhirServiceRequest.resolveUpstreams();
@@ -310,601 +314,646 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       expect(response.body.subject).not.toHaveProperty('identifier');
     });
 
-    test.todo('fetches a service request by materialised ID (lab request without panel)');
+    it('fetches a service request by materialised ID (lab request without panel but tests)', async () => {
+      // arrange
+      const { FhirServiceRequest } = ctx.store.models;
+      const { labRequest, testTypes } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
+        ctx.store.models,
+        resources,
+        {
+          isWithPanels: false,
+          isWithIndependentTests: true,
+        }
+      );
+      const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+      await FhirServiceRequest.resolveUpstreams();
+
+      const path = `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest/${mat.id}`;
+
+      // act
+      const response = await app.get(path);
+      // normalise for comparison
+      // eslint-disable-next-line no-unused-expressions
+      response.body?.orderDetail?.sort((a, b) => a.text.localeCompare(b.text));
+
+      // assert
+      expect(response.body.code).toBeUndefined();
+
+      response.body?.orderDetail.forEach(testType => {
+        const currentTest = testTypes.find(test => test.name === testType.text);
+        expect(testType.text).toBe(currentTest.name);
+        testType.coding?.forEach(testTypeCoding => {
+          const { system, code } = testTypeCoding;
+          expect(testTypeCoding.display).toBe(currentTest.name);
+          expect(['https://www.senaite.com/testCodes.html', 'http://loinc.org']).toContain(system);
+          if (system === 'https://www.senaite.com/testCodes.html') {
+            expect(code).toBe(currentTest.code);
+          } else if (system === 'http://loinc.org') {
+            expect(code).toBe(currentTest.externalCode);
+          }
+        });
+      });
+      expect(response.headers['last-modified']).toBe(formatRFC7231(new Date(mat.lastUpdated)));
+      expect(response).toHaveSucceeded();
+
+      // regression EPI-403
+      expect(response.body.subject).not.toHaveProperty('identifier');
+    });
+    test.todo('cannot have ServiceRequest with independent tests and panel');
     test.todo('cannot have ServiceRequest with independent tests and panel');
 
-    // it('materialises the default priority if the source data has a null priority', async () => {
-    //   // arrange
-    //   const { FhirServiceRequest, ImagingRequest } = ctx.store.models;
-    //   const ir = await ImagingRequest.create(
-    //     fake(ImagingRequest, {
-    //       requestedById: resources.practitioner.id,
-    //       encounterId: resources.encounter.id,
-    //       locationGroupId: resources.locationGroup.id,
-    //       status: IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
-    //       priority: null,
-    //       requestedDate: '2022-03-04 15:30:00',
-    //       imagingType: 'xRay',
-    //     }),
-    //   );
-    //   await ir.setAreas([resources.area1.id, resources.area2.id]);
-    //   await ir.reload();
-    //   const mat = await FhirServiceRequest.materialiseFromUpstream(ir.id);
-    //   await FhirServiceRequest.resolveUpstreams();
+    it('materialises the default priority if the source data has a null priority', async () => {
+      // arrange
+      const { FhirServiceRequest, ImagingRequest } = ctx.store.models;
+      const ir = await ImagingRequest.create(
+        fake(ImagingRequest, {
+          requestedById: resources.practitioner.id,
+          encounterId: resources.encounter.id,
+          locationGroupId: resources.locationGroup.id,
+          status: IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
+          priority: null,
+          requestedDate: '2022-03-04 15:30:00',
+          imagingType: 'xRay',
+        }),
+      );
+      await ir.setAreas([resources.area1.id, resources.area2.id]);
+      await ir.reload();
+      const mat = await FhirServiceRequest.materialiseFromUpstream(ir.id);
+      await FhirServiceRequest.resolveUpstreams();
 
-    //   const path = `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest/${mat.id}`;
+      const path = `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest/${mat.id}`;
 
-    //   // act
-    //   const response = await app.get(path);
-    //   response.body?.identifier?.sort((a, b) => a.system.localeCompare(b.system));
+      // act
+      const response = await app.get(path);
+      response.body?.identifier?.sort((a, b) => a.system.localeCompare(b.system));
 
-    //   // assert
-    //   expect(response.body).toMatchObject({
-    //     resourceType: 'ServiceRequest',
-    //     id: expect.any(String),
-    //     identifier: [
-    //       {
-    //         system: 'http://data-dictionary.tamanu-fiji.org/tamanu-id-imagingrequest.html',
-    //         value: ir.id,
-    //       },
-    //       {
-    //         system: 'http://data-dictionary.tamanu-fiji.org/tamanu-mrid-imagingrequest.html',
-    //         value: ir.displayId,
-    //       },
-    //     ],
-    //     priority: 'routine',
-    //   });
-    //   expect(response).toHaveSucceeded();
-    // });
+      // assert
+      expect(response.body).toMatchObject({
+        resourceType: 'ServiceRequest',
+        id: expect.any(String),
+        identifier: [
+          {
+            system: 'http://data-dictionary.tamanu-fiji.org/tamanu-id-imagingrequest.html',
+            value: ir.id,
+          },
+          {
+            system: 'http://data-dictionary.tamanu-fiji.org/tamanu-mrid-imagingrequest.html',
+            value: ir.displayId,
+          },
+        ],
+        priority: 'routine',
+      });
+      expect(response).toHaveSucceeded();
+    });
 
-    // it('searches a single service request by Tamanu UUID', async () => {
-    //   // arrange
-    //   const { FhirServiceRequest, ImagingRequest } = ctx.store.models;
-    //   const ir = await ImagingRequest.create(
-    //     fake(ImagingRequest, {
-    //       requestedById: resources.practitioner.id,
-    //       encounterId: resources.encounter.id,
-    //       locationGroupId: resources.locationGroup.id,
-    //       status: IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
-    //       priority: 'routine',
-    //       requestedDate: '2023-11-12 13:14:15',
-    //       imagingType: 'xRay',
-    //     }),
-    //   );
-    //   await ir.setAreas([resources.area1.id, resources.area2.id]);
-    //   await ir.reload();
-    //   await FhirServiceRequest.materialiseFromUpstream(ir.id);
-    //   await FhirServiceRequest.resolveUpstreams();
+    it('searches a single service request by Tamanu UUID', async () => {
+      // arrange
+      const { FhirServiceRequest, ImagingRequest } = ctx.store.models;
+      const ir = await ImagingRequest.create(
+        fake(ImagingRequest, {
+          requestedById: resources.practitioner.id,
+          encounterId: resources.encounter.id,
+          locationGroupId: resources.locationGroup.id,
+          status: IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
+          priority: 'routine',
+          requestedDate: '2023-11-12 13:14:15',
+          imagingType: 'xRay',
+        }),
+      );
+      await ir.setAreas([resources.area1.id, resources.area2.id]);
+      await ir.reload();
+      await FhirServiceRequest.materialiseFromUpstream(ir.id);
+      await FhirServiceRequest.resolveUpstreams();
 
-    //   const id = encodeURIComponent(
-    //     `http://data-dictionary.tamanu-fiji.org/tamanu-id-imagingrequest.html|${ir.id}`,
-    //   );
-    //   const path = `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?identifier=${id}`;
+      const id = encodeURIComponent(
+        `http://data-dictionary.tamanu-fiji.org/tamanu-id-imagingrequest.html|${ir.id}`,
+      );
+      const path = `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?identifier=${id}`;
 
-    //   // act
-    //   const response = await app.get(path);
-    //   response.body?.entry?.[0]?.orderDetail?.sort((a, b) => a.text.localeCompare(b.text));
-    //   response.body?.entry?.[0]?.identifier?.sort((a, b) => a.system.localeCompare(b.system));
+      // act
+      const response = await app.get(path);
+      response.body?.entry?.[0]?.orderDetail?.sort((a, b) => a.text.localeCompare(b.text));
+      response.body?.entry?.[0]?.identifier?.sort((a, b) => a.system.localeCompare(b.system));
 
-    //   // assert
-    //   expect(response.body).toMatchObject({
-    //     resourceType: 'Bundle',
-    //     id: expect.any(String),
-    //     timestamp: expect.any(String),
-    //     type: 'searchset',
-    //     total: 1,
-    //     link: [
-    //       {
-    //         relation: 'self',
-    //         url: expect.stringContaining(path),
-    //       },
-    //     ],
-    //     entry: [
-    //       {
-    //         resource: {
-    //           resourceType: 'ServiceRequest',
-    //           id: expect.any(String),
-    //           meta: {
-    //             lastUpdated: expect.any(String),
-    //           },
-    //           identifier: [
-    //             {
-    //               system: 'http://data-dictionary.tamanu-fiji.org/tamanu-id-imagingrequest.html',
-    //               value: ir.id,
-    //             },
-    //             {
-    //               system: 'http://data-dictionary.tamanu-fiji.org/tamanu-mrid-imagingrequest.html',
-    //               value: ir.displayId,
-    //             },
-    //           ],
-    //           status: 'completed',
-    //           intent: 'order',
-    //           category: [
-    //             {
-    //               coding: [
-    //                 {
-    //                   system: 'http://snomed.info/sct',
-    //                   code: '363679005',
-    //                 },
-    //               ],
-    //             },
-    //           ],
-    //           priority: 'routine',
-    //           code: {
-    //             text: 'X-Ray',
-    //           },
-    //           orderDetail: [
-    //             {
-    //               text: resources.extCode1.description,
-    //               coding: [
-    //                 {
-    //                   code: resources.extCode1.code,
-    //                   system: 'http://data-dictionary.tamanu-fiji.org/rispacs-billing-code.html',
-    //                 },
-    //               ],
-    //             },
-    //             {
-    //               text: resources.extCode2.description,
-    //               coding: [
-    //                 {
-    //                   code: resources.extCode2.code,
-    //                   system: 'http://data-dictionary.tamanu-fiji.org/rispacs-billing-code.html',
-    //                 },
-    //               ],
-    //             },
-    //           ],
-    //           subject: {
-    //             reference: `Patient/${resources.fhirPatient.id}`,
-    //             type: 'Patient',
-    //             display: `${resources.patient.firstName} ${resources.patient.lastName}`,
-    //           },
-    //           occurrenceDateTime: formatFhirDate('2023-11-12 13:14:15'),
-    //           requester: {
-    //             type: 'Practitioner',
-    //             reference: `Practitioner/${fhirResources.fhirPractitioner.id}`,
-    //             display: fhirResources.fhirPractitioner.name[0].text,
-    //           },
-    //           locationCode: [
-    //             {
-    //               text: resources.facility.name,
-    //             },
-    //           ],
-    //         },
-    //       },
-    //     ],
-    //   });
-    //   expect(response).toHaveSucceeded();
-    // });
+      // assert
+      expect(response.body).toMatchObject({
+        resourceType: 'Bundle',
+        id: expect.any(String),
+        timestamp: expect.any(String),
+        type: 'searchset',
+        total: 1,
+        link: [
+          {
+            relation: 'self',
+            url: expect.stringContaining(path),
+          },
+        ],
+        entry: [
+          {
+            resource: {
+              resourceType: 'ServiceRequest',
+              id: expect.any(String),
+              meta: {
+                lastUpdated: expect.any(String),
+              },
+              identifier: [
+                {
+                  system: 'http://data-dictionary.tamanu-fiji.org/tamanu-id-imagingrequest.html',
+                  value: ir.id,
+                },
+                {
+                  system: 'http://data-dictionary.tamanu-fiji.org/tamanu-mrid-imagingrequest.html',
+                  value: ir.displayId,
+                },
+              ],
+              status: 'completed',
+              intent: 'order',
+              category: [
+                {
+                  coding: [
+                    {
+                      system: 'http://snomed.info/sct',
+                      code: '363679005',
+                    },
+                  ],
+                },
+              ],
+              priority: 'routine',
+              code: {
+                text: 'X-Ray',
+              },
+              orderDetail: [
+                {
+                  text: resources.extCode1.description,
+                  coding: [
+                    {
+                      code: resources.extCode1.code,
+                      system: 'http://data-dictionary.tamanu-fiji.org/rispacs-billing-code.html',
+                    },
+                  ],
+                },
+                {
+                  text: resources.extCode2.description,
+                  coding: [
+                    {
+                      code: resources.extCode2.code,
+                      system: 'http://data-dictionary.tamanu-fiji.org/rispacs-billing-code.html',
+                    },
+                  ],
+                },
+              ],
+              subject: {
+                reference: `Patient/${resources.fhirPatient.id}`,
+                type: 'Patient',
+                display: `${resources.patient.firstName} ${resources.patient.lastName}`,
+              },
+              occurrenceDateTime: formatFhirDate('2023-11-12 13:14:15'),
+              requester: {
+                type: 'Practitioner',
+                reference: `Practitioner/${fhirResources.fhirPractitioner.id}`,
+                display: fhirResources.fhirPractitioner.name[0].text,
+              },
+              locationCode: [
+                {
+                  text: resources.facility.name,
+                },
+              ],
+            },
+          },
+        ],
+      });
+      expect(response).toHaveSucceeded();
+    });
 
-    // it('searches a single service request by Tamanu Display ID', async () => {
-    //   // arrange
-    //   const { FhirServiceRequest, ImagingRequest } = ctx.store.models;
-    //   const ir = await ImagingRequest.create(
-    //     fake(ImagingRequest, {
-    //       requestedById: resources.practitioner.id,
-    //       encounterId: resources.encounter.id,
-    //       locationGroupId: resources.locationGroup.id,
-    //       status: IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
-    //       priority: 'routine',
-    //       requestedDate: '2023-11-12 13:14:15',
-    //       imagingType: 'xRay',
-    //     }),
-    //   );
-    //   await ir.setAreas([resources.area1.id, resources.area2.id]);
-    //   await ir.reload();
-    //   await FhirServiceRequest.materialiseFromUpstream(ir.id);
-    //   await FhirServiceRequest.resolveUpstreams();
+    it('searches a single service request by Tamanu Display ID', async () => {
+      // arrange
+      const { FhirServiceRequest, ImagingRequest } = ctx.store.models;
+      const ir = await ImagingRequest.create(
+        fake(ImagingRequest, {
+          requestedById: resources.practitioner.id,
+          encounterId: resources.encounter.id,
+          locationGroupId: resources.locationGroup.id,
+          status: IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
+          priority: 'routine',
+          requestedDate: '2023-11-12 13:14:15',
+          imagingType: 'xRay',
+        }),
+      );
+      await ir.setAreas([resources.area1.id, resources.area2.id]);
+      await ir.reload();
+      await FhirServiceRequest.materialiseFromUpstream(ir.id);
+      await FhirServiceRequest.resolveUpstreams();
 
-    //   const id = encodeURIComponent(
-    //     `http://data-dictionary.tamanu-fiji.org/tamanu-mrid-imagingrequest.html|${ir.displayId}`,
-    //   );
-    //   const path = `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?identifier=${id}`;
+      const id = encodeURIComponent(
+        `http://data-dictionary.tamanu-fiji.org/tamanu-mrid-imagingrequest.html|${ir.displayId}`,
+      );
+      const path = `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?identifier=${id}`;
 
-    //   // act
-    //   const response = await app.get(path);
-    //   response.body?.entry?.[0]?.orderDetail?.sort((a, b) => a.text.localeCompare(b.text));
-    //   response.body?.entry?.[0]?.identifier?.sort((a, b) => a.system.localeCompare(b.system));
+      // act
+      const response = await app.get(path);
+      response.body?.entry?.[0]?.orderDetail?.sort((a, b) => a.text.localeCompare(b.text));
+      response.body?.entry?.[0]?.identifier?.sort((a, b) => a.system.localeCompare(b.system));
 
-    //   // assert
-    //   expect(response.body).toMatchObject({
-    //     resourceType: 'Bundle',
-    //     id: expect.any(String),
-    //     timestamp: expect.any(String),
-    //     type: 'searchset',
-    //     total: 1,
-    //     link: [
-    //       {
-    //         relation: 'self',
-    //         url: expect.stringContaining(path),
-    //       },
-    //     ],
-    //     entry: [
-    //       {
-    //         resource: {
-    //           resourceType: 'ServiceRequest',
-    //           id: expect.any(String),
-    //           meta: {
-    //             lastUpdated: expect.any(String),
-    //           },
-    //           identifier: [
-    //             {
-    //               system: 'http://data-dictionary.tamanu-fiji.org/tamanu-id-imagingrequest.html',
-    //               value: ir.id,
-    //             },
-    //             {
-    //               system: 'http://data-dictionary.tamanu-fiji.org/tamanu-mrid-imagingrequest.html',
-    //               value: ir.displayId,
-    //             },
-    //           ],
-    //           status: 'completed',
-    //           intent: 'order',
-    //           category: [
-    //             {
-    //               coding: [
-    //                 {
-    //                   system: 'http://snomed.info/sct',
-    //                   code: '363679005',
-    //                 },
-    //               ],
-    //             },
-    //           ],
-    //           priority: 'routine',
-    //           code: {
-    //             text: 'X-Ray',
-    //           },
-    //           orderDetail: [
-    //             {
-    //               text: resources.extCode1.description,
-    //               coding: [
-    //                 {
-    //                   code: resources.extCode1.code,
-    //                   system: 'http://data-dictionary.tamanu-fiji.org/rispacs-billing-code.html',
-    //                 },
-    //               ],
-    //             },
-    //             {
-    //               text: resources.extCode2.description,
-    //               coding: [
-    //                 {
-    //                   code: resources.extCode2.code,
-    //                   system: 'http://data-dictionary.tamanu-fiji.org/rispacs-billing-code.html',
-    //                 },
-    //               ],
-    //             },
-    //           ],
-    //           subject: {
-    //             reference: `Patient/${resources.fhirPatient.id}`,
-    //             type: 'Patient',
-    //             display: `${resources.patient.firstName} ${resources.patient.lastName}`,
-    //           },
-    //           occurrenceDateTime: formatFhirDate('2023-11-12 13:14:15'),
-    //           requester: {
-    //             type: 'Practitioner',
-    //             reference: `Practitioner/${fhirResources.fhirPractitioner.id}`,
-    //             display: fhirResources.fhirPractitioner.name[0].text,
-    //           },
-    //           locationCode: [
-    //             {
-    //               text: resources.facility.name,
-    //             },
-    //           ],
-    //         },
-    //       },
-    //     ],
-    //   });
-    //   expect(response).toHaveSucceeded();
-    // });
+      // assert
+      expect(response.body).toMatchObject({
+        resourceType: 'Bundle',
+        id: expect.any(String),
+        timestamp: expect.any(String),
+        type: 'searchset',
+        total: 1,
+        link: [
+          {
+            relation: 'self',
+            url: expect.stringContaining(path),
+          },
+        ],
+        entry: [
+          {
+            resource: {
+              resourceType: 'ServiceRequest',
+              id: expect.any(String),
+              meta: {
+                lastUpdated: expect.any(String),
+              },
+              identifier: [
+                {
+                  system: 'http://data-dictionary.tamanu-fiji.org/tamanu-id-imagingrequest.html',
+                  value: ir.id,
+                },
+                {
+                  system: 'http://data-dictionary.tamanu-fiji.org/tamanu-mrid-imagingrequest.html',
+                  value: ir.displayId,
+                },
+              ],
+              status: 'completed',
+              intent: 'order',
+              category: [
+                {
+                  coding: [
+                    {
+                      system: 'http://snomed.info/sct',
+                      code: '363679005',
+                    },
+                  ],
+                },
+              ],
+              priority: 'routine',
+              code: {
+                text: 'X-Ray',
+              },
+              orderDetail: [
+                {
+                  text: resources.extCode1.description,
+                  coding: [
+                    {
+                      code: resources.extCode1.code,
+                      system: 'http://data-dictionary.tamanu-fiji.org/rispacs-billing-code.html',
+                    },
+                  ],
+                },
+                {
+                  text: resources.extCode2.description,
+                  coding: [
+                    {
+                      code: resources.extCode2.code,
+                      system: 'http://data-dictionary.tamanu-fiji.org/rispacs-billing-code.html',
+                    },
+                  ],
+                },
+              ],
+              subject: {
+                reference: `Patient/${resources.fhirPatient.id}`,
+                type: 'Patient',
+                display: `${resources.patient.firstName} ${resources.patient.lastName}`,
+              },
+              occurrenceDateTime: formatFhirDate('2023-11-12 13:14:15'),
+              requester: {
+                type: 'Practitioner',
+                reference: `Practitioner/${fhirResources.fhirPractitioner.id}`,
+                display: fhirResources.fhirPractitioner.name[0].text,
+              },
+              locationCode: [
+                {
+                  text: resources.facility.name,
+                },
+              ],
+            },
+          },
+        ],
+      });
+      expect(response).toHaveSucceeded();
+    });
   });
 
-  // describe('search', () => {
-  //   let irs;
+  describe('search', () => {
+    let irs;
 
-  //   beforeAll(async () => {
-  //     const {
-  //       FhirEncounter,
-  //       FhirServiceRequest,
-  //       ImagingRequest,
-  //       ImagingRequestArea,
-  //     } = ctx.store.models;
-  //     await FhirEncounter.destroy({ where: {} });
-  //     await FhirServiceRequest.destroy({ where: {} });
-  //     await ImagingRequest.destroy({ where: {} });
-  //     await ImagingRequestArea.destroy({ where: {} });
+    beforeAll(async () => {
+      const {
+        FhirEncounter,
+        FhirServiceRequest,
+        ImagingRequest,
+        ImagingRequestArea,
+      } = ctx.store.models;
+      await FhirEncounter.destroy({ where: {} });
+      await FhirServiceRequest.destroy({ where: {} });
+      await ImagingRequest.destroy({ where: {} });
+      await ImagingRequestArea.destroy({ where: {} });
 
-  //     const fhirEncounter = await FhirEncounter.materialiseFromUpstream(resources.encounter.id);
-  //     fhirResources.fhirEncounter = fhirEncounter;
+      const fhirEncounter = await FhirEncounter.materialiseFromUpstream(resources.encounter.id);
+      fhirResources.fhirEncounter = fhirEncounter;
 
-  //     irs = await Promise.all([
-  //       (async () => {
-  //         const ir = await ImagingRequest.create(
-  //           fake(ImagingRequest, {
-  //             requestedById: resources.practitioner.id,
-  //             encounterId: resources.encounter.id,
-  //             locationId: resources.location.id,
-  //             status: IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS,
-  //             priority: 'urgent',
-  //             requestedDate: '2022-03-04 15:30:00',
-  //           }),
-  //         );
+      irs = await Promise.all([
+        (async () => {
+          const ir = await ImagingRequest.create(
+            fake(ImagingRequest, {
+              requestedById: resources.practitioner.id,
+              encounterId: resources.encounter.id,
+              locationId: resources.location.id,
+              status: IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS,
+              priority: 'urgent',
+              requestedDate: '2022-03-04 15:30:00',
+            }),
+          );
 
-  //         await ir.setAreas([resources.area1.id]);
-  //         await ir.reload();
-  //         const mat = await FhirServiceRequest.materialiseFromUpstream(ir.id);
-  //         mat.update({ lastUpdated: addDays(new Date(), 5) });
-  //         return ir;
-  //       })(),
-  //       (async () => {
-  //         const ir = await ImagingRequest.create(
-  //           fake(ImagingRequest, {
-  //             requestedById: resources.practitioner.id,
-  //             encounterId: resources.encounter.id,
-  //             locationId: resources.location.id,
-  //             status: IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
-  //             priority: 'routine',
-  //             requestedDate: '2023-11-12 13:14:15',
-  //           }),
-  //         );
+          await ir.setAreas([resources.area1.id]);
+          await ir.reload();
+          const mat = await FhirServiceRequest.materialiseFromUpstream(ir.id);
+          mat.update({ lastUpdated: addDays(new Date(), 5) });
+          return ir;
+        })(),
+        (async () => {
+          const ir = await ImagingRequest.create(
+            fake(ImagingRequest, {
+              requestedById: resources.practitioner.id,
+              encounterId: resources.encounter.id,
+              locationId: resources.location.id,
+              status: IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
+              priority: 'routine',
+              requestedDate: '2023-11-12 13:14:15',
+            }),
+          );
 
-  //         await ir.setAreas([resources.area2.id]);
-  //         await ir.reload();
-  //         const mat = await FhirServiceRequest.materialiseFromUpstream(ir.id);
-  //         mat.update({ lastUpdated: addDays(new Date(), 10) });
-  //         return ir;
-  //       })(),
-  //     ]);
-  //     await FhirServiceRequest.resolveUpstreams();
-  //   });
+          await ir.setAreas([resources.area2.id]);
+          await ir.reload();
+          const mat = await FhirServiceRequest.materialiseFromUpstream(ir.id);
+          mat.update({ lastUpdated: addDays(new Date(), 10) });
+          return ir;
+        })(),
+      ]);
+      await FhirServiceRequest.resolveUpstreams();
+    });
 
-  //   it('returns a list when passed no query params', async () => {
-  //     const response = await app.get(`/api/integration/${INTEGRATION_ROUTE}/ServiceRequest`);
+    it('returns a list when passed no query params', async () => {
+      const response = await app.get(`/api/integration/${INTEGRATION_ROUTE}/ServiceRequest`);
 
-  //     expect(response.body.total).toBe(2);
-  //     expect(response).toHaveSucceeded();
-  //   });
+      expect(response.body.total).toBe(2);
+      expect(response).toHaveSucceeded();
+    });
 
-  //   it('sorts by lastUpdated ascending', async () => {
-  //     const response = await app.get(
-  //       `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?_sort=_lastUpdated`,
-  //     );
+    it('sorts by lastUpdated ascending', async () => {
+      const response = await app.get(
+        `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?_sort=_lastUpdated`,
+      );
 
-  //     expect(response.body.total).toBe(2);
-  //     expect(response.body.entry.map(entry => entry.resource.identifier[0].value)).toEqual([
-  //       irs[0].id,
-  //       irs[1].id,
-  //     ]);
-  //     expect(response).toHaveSucceeded();
-  //   });
+      expect(response.body.total).toBe(2);
+      expect(response.body.entry.map(entry => entry.resource.identifier[0].value)).toEqual([
+        irs[0].id,
+        irs[1].id,
+      ]);
+      expect(response).toHaveSucceeded();
+    });
 
-  //   it('sorts by lastUpdated descending', async () => {
-  //     const response = await app.get(
-  //       `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?_sort=-_lastUpdated`,
-  //     );
+    it('sorts by lastUpdated descending', async () => {
+      const response = await app.get(
+        `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?_sort=-_lastUpdated`,
+      );
 
-  //     expect(response.body.total).toBe(2);
-  //     expect(response.body.entry.map(entry => entry.resource.identifier[0].value)).toEqual([
-  //       irs[1].id,
-  //       irs[0].id,
-  //     ]);
-  //     expect(response).toHaveSucceeded();
-  //   });
+      expect(response.body.total).toBe(2);
+      expect(response.body.entry.map(entry => entry.resource.identifier[0].value)).toEqual([
+        irs[1].id,
+        irs[0].id,
+      ]);
+      expect(response).toHaveSucceeded();
+    });
 
-  //   it('sorts by status', async () => {
-  //     const response = await app.get(
-  //       `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?_sort=status`,
-  //     );
+    it('sorts by status', async () => {
+      const response = await app.get(
+        `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?_sort=status`,
+      );
 
-  //     expect(response.body.total).toBe(2);
-  //     expect(response.body.entry.map(entry => entry.resource.identifier[0].value)).toEqual([
-  //       irs[0].id, // active
-  //       irs[1].id, // completed
-  //     ]);
-  //     expect(response).toHaveSucceeded();
-  //   });
+      expect(response.body.total).toBe(2);
+      expect(response.body.entry.map(entry => entry.resource.identifier[0].value)).toEqual([
+        irs[0].id, // active
+        irs[1].id, // completed
+      ]);
+      expect(response).toHaveSucceeded();
+    });
 
-  //   it('sorts by priority', async () => {
-  //     const response = await app.get(
-  //       `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?_sort=priority`,
-  //     );
+    it('sorts by priority', async () => {
+      const response = await app.get(
+        `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?_sort=priority`,
+      );
 
-  //     expect(response.body.total).toBe(2);
-  //     expect(response.body.entry.map(entry => entry.resource.identifier[0].value)).toEqual([
-  //       irs[1].id, // normal
-  //       irs[0].id, // urgent
-  //     ]);
-  //     expect(response).toHaveSucceeded();
-  //   });
+      expect(response.body.total).toBe(2);
+      expect(response.body.entry.map(entry => entry.resource.identifier[0].value)).toEqual([
+        irs[1].id, // normal
+        irs[0].id, // urgent
+      ]);
+      expect(response).toHaveSucceeded();
+    });
 
-  //   it('filters by lastUpdated=gt with a date', async () => {
-  //     const response = await app.get(
-  //       `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?_lastUpdated=gt${formatFhirDate(
-  //         addDays(new Date(), 7),
-  //         FHIR_DATETIME_PRECISION.DAYS,
-  //       )}`,
-  //     );
+    it('filters by lastUpdated=gt with a date', async () => {
+      const response = await app.get(
+        `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?_lastUpdated=gt${formatFhirDate(
+          addDays(new Date(), 7),
+          FHIR_DATETIME_PRECISION.DAYS,
+        )}`,
+      );
 
-  //     expect(response.body.total).toBe(1);
-  //     expect(response.body.entry[0].resource.identifier[0].value).toBe(irs[1].id);
-  //     expect(response).toHaveSucceeded();
-  //   });
+      expect(response.body.total).toBe(1);
+      expect(response.body.entry[0].resource.identifier[0].value).toBe(irs[1].id);
+      expect(response).toHaveSucceeded();
+    });
 
-  //   it('filters by lastUpdated=gt with a datetime', async () => {
-  //     const response = await app.get(
-  //       `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?_lastUpdated=gt${encodeURIComponent(
-  //         formatFhirDate(addDays(new Date(), 7)),
-  //       )}`,
-  //     );
+    it('filters by lastUpdated=gt with a datetime', async () => {
+      const response = await app.get(
+        `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?_lastUpdated=gt${encodeURIComponent(
+          formatFhirDate(addDays(new Date(), 7)),
+        )}`,
+      );
 
-  //     expect(response.body.total).toBe(1);
-  //     expect(response.body.entry[0].resource.identifier[0].value).toBe(irs[1].id);
-  //     expect(response).toHaveSucceeded();
-  //   });
+      expect(response.body.total).toBe(1);
+      expect(response.body.entry[0].resource.identifier[0].value).toBe(irs[1].id);
+      expect(response).toHaveSucceeded();
+    });
 
-  //   it('filters by upstream ID (identifier)', async () => {
-  //     const response = await app.get(
-  //       `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?identifier=${irs[0].id}`,
-  //     );
+    it('filters by upstream ID (identifier)', async () => {
+      const response = await app.get(
+        `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?identifier=${irs[0].id}`,
+      );
 
-  //     expect(response.body.total).toBe(1);
-  //     expect(response.body.entry[0].resource.identifier[0].value).toBe(irs[0].id);
-  //     expect(response).toHaveSucceeded();
-  //   });
+      expect(response.body.total).toBe(1);
+      expect(response.body.entry[0].resource.identifier[0].value).toBe(irs[0].id);
+      expect(response).toHaveSucceeded();
+    });
 
-  //   it('filters by status', async () => {
-  //     const response = await app.get(
-  //       `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?status=active`,
-  //     );
+    it('filters by status', async () => {
+      const response = await app.get(
+        `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?status=active`,
+      );
 
-  //     expect(response.body.total).toBe(1);
-  //     expect(response.body.entry[0].resource.identifier[0].value).toBe(irs[0].id);
-  //     expect(response).toHaveSucceeded();
-  //   });
+      expect(response.body.total).toBe(1);
+      expect(response.body.entry[0].resource.identifier[0].value).toBe(irs[0].id);
+      expect(response).toHaveSucceeded();
+    });
 
-  //   it('filters by priority', async () => {
-  //     const response = await app.get(
-  //       `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?priority=urgent`,
-  //     );
+    it('filters by priority', async () => {
+      const response = await app.get(
+        `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?priority=urgent`,
+      );
 
-  //     expect(response.body.total).toBe(1);
-  //     expect(response.body.entry[0].resource.identifier[0].value).toBe(irs[0].id);
-  //     expect(response).toHaveSucceeded();
-  //   });
+      expect(response.body.total).toBe(1);
+      expect(response.body.entry[0].resource.identifier[0].value).toBe(irs[0].id);
+      expect(response).toHaveSucceeded();
+    });
 
-  //   it('filters by category (match)', async () => {
-  //     const response = await app.get(
-  //       `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?category=363679005`,
-  //     );
+    it('filters by category (match)', async () => {
+      const response = await app.get(
+        `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?category=363679005`,
+      );
 
-  //     expect(response.body.total).toBe(2);
-  //     expect(response).toHaveSucceeded();
-  //   });
+      expect(response.body.total).toBe(2);
+      expect(response).toHaveSucceeded();
+    });
 
-  //   it('filters by category (no match)', async () => {
-  //     const response = await app.get(
-  //       `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?category=363679123`,
-  //     );
+    it('filters by category (no match)', async () => {
+      const response = await app.get(
+        `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?category=363679123`,
+      );
 
-  //     expect(response.body.total).toBe(0);
-  //     expect(response).toHaveSucceeded();
-  //   });
+      expect(response.body.total).toBe(0);
+      expect(response).toHaveSucceeded();
+    });
 
-  //   it('includes subject patient', async () => {
-  //     const response = await app.get(
-  //       `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?category=363679005&_include=Patient:subject`,
-  //     );
+    it('includes subject patient', async () => {
+      const response = await app.get(
+        `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?category=363679005&_include=Patient:subject`,
+      );
 
-  //     expect(response.body.total).toBe(2);
-  //     expect(response.body.entry.length).toBe(3);
-  //     expect(response.body.entry.filter(({ search: { mode } }) => mode === 'match').length).toBe(2);
-  //     expect(
-  //       response.body.entry.find(({ search: { mode } }) => mode === 'include')?.resource.id,
-  //     ).toBe(resources.fhirPatient.id);
-  //     expect(response).toHaveSucceeded();
-  //   });
+      expect(response.body.total).toBe(2);
+      expect(response.body.entry.length).toBe(3);
+      expect(response.body.entry.filter(({ search: { mode } }) => mode === 'match').length).toBe(2);
+      expect(
+        response.body.entry.find(({ search: { mode } }) => mode === 'include')?.resource.id,
+      ).toBe(resources.fhirPatient.id);
+      expect(response).toHaveSucceeded();
+    });
 
-  //   it('includes subject patient with targetType (match)', async () => {
-  //     const response = await app.get(
-  //       `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?category=363679005&_include=Patient:subject:Patient`,
-  //     );
+    it('includes subject patient with targetType (match)', async () => {
+      const response = await app.get(
+        `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?category=363679005&_include=Patient:subject:Patient`,
+      );
 
-  //     expect(response.body.total).toBe(2);
-  //     expect(response.body.entry.length).toBe(3);
-  //     expect(response.body.entry.filter(({ search: { mode } }) => mode === 'match').length).toBe(2);
-  //     expect(
-  //       response.body.entry.find(({ search: { mode } }) => mode === 'include')?.resource.id,
-  //     ).toBe(resources.fhirPatient.id);
-  //     expect(response).toHaveSucceeded();
-  //   });
+      expect(response.body.total).toBe(2);
+      expect(response.body.entry.length).toBe(3);
+      expect(response.body.entry.filter(({ search: { mode } }) => mode === 'match').length).toBe(2);
+      expect(
+        response.body.entry.find(({ search: { mode } }) => mode === 'include')?.resource.id,
+      ).toBe(resources.fhirPatient.id);
+      expect(response).toHaveSucceeded();
+    });
 
-  //   it('includes subject patient with targetType (no match)', async () => {
-  //     const response = await app.get(
-  //       `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?category=363679005&_include=Patient:subject:Practitioner`,
-  //     );
+    it('includes subject patient with targetType (no match)', async () => {
+      const response = await app.get(
+        `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?category=363679005&_include=Patient:subject:Practitioner`,
+      );
 
-  //     expect(response.body.total).toBe(2);
-  //     expect(response.body.entry.length).toBe(2);
-  //     expect(response.body.entry.filter(({ search: { mode } }) => mode === 'match').length).toBe(2);
-  //     expect(response).toHaveSucceeded();
-  //   });
+      expect(response.body.total).toBe(2);
+      expect(response.body.entry.length).toBe(2);
+      expect(response.body.entry.filter(({ search: { mode } }) => mode === 'match').length).toBe(2);
+      expect(response).toHaveSucceeded();
+    });
 
-  //   it('includes encounter as materialised encounter', async () => {
-  //     const response = await app.get(
-  //       `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?category=363679005&_include=Encounter:encounter`,
-  //     );
-  //     expect(response.body.total).toBe(2);
-  //     expect(response.body.entry.length).toBe(3);
-  //     expect(response.body.entry.filter(({ search: { mode } }) => mode === 'match').length).toBe(2);
-  //     expect(
-  //       response.body.entry.find(({ search: { mode } }) => mode === 'include')?.resource.id,
-  //     ).toBe(fhirResources.fhirEncounter.id);
-  //   });
+    it('includes encounter as materialised encounter', async () => {
+      const response = await app.get(
+        `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?category=363679005&_include=Encounter:encounter`,
+      );
+      expect(response.body.total).toBe(2);
+      expect(response.body.entry.length).toBe(3);
+      expect(response.body.entry.filter(({ search: { mode } }) => mode === 'match').length).toBe(2);
+      expect(
+        response.body.entry.find(({ search: { mode } }) => mode === 'include')?.resource.id,
+      ).toBe(fhirResources.fhirEncounter.id);
+    });
 
-  //   it('includes requester practitioner', async () => {
-  //     const response = await app.get(
-  //       `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?category=363679005&_include=Practitioner:requester`,
-  //     );
-  //     const practitionerRef = response.body.entry.find(
-  //       ({ search: { mode } }) => mode === 'include',
-  //     );
-  //     expect(practitionerRef).toBeDefined();
-  //     expect(practitionerRef.resource.id).toBe(fhirResources.fhirPractitioner.id);
-  //     expect(practitionerRef.resource.name.length).toBe(1);
-  //     expect(practitionerRef.resource.name[0].text).toBe(
-  //       fhirResources.fhirPractitioner.name[0].text,
-  //     );
-  //     expect(response).toHaveSucceeded();
-  //   });
-  // });
+    it('includes requester practitioner', async () => {
+      const response = await app.get(
+        `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?category=363679005&_include=Practitioner:requester`,
+      );
+      const practitionerRef = response.body.entry.find(
+        ({ search: { mode } }) => mode === 'include',
+      );
+      expect(practitionerRef).toBeDefined();
+      expect(practitionerRef.resource.id).toBe(fhirResources.fhirPractitioner.id);
+      expect(practitionerRef.resource.name.length).toBe(1);
+      expect(practitionerRef.resource.name[0].text).toBe(
+        fhirResources.fhirPractitioner.name[0].text,
+      );
+      expect(response).toHaveSucceeded();
+    });
+  });
 
-  // describe('errors', () => {
-  //   it('returns not found when fetching a non-existent service request', async () => {
-  //     // arrange
-  //     const id = fakeUUID();
-  //     const path = `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest/${id}`;
+  describe('errors', () => {
+    it('returns not found when fetching a non-existent service request', async () => {
+      // arrange
+      const id = fakeUUID();
+      const path = `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest/${id}`;
 
-  //     // act
-  //     const response = await app.get(path);
+      // act
+      const response = await app.get(path);
 
-  //     // assert
-  //     expect(response.body).toMatchObject({
-  //       resourceType: 'OperationOutcome',
-  //       id: expect.any(String),
-  //       issue: [
-  //         {
-  //           severity: 'error',
-  //           code: 'not-found',
-  //           diagnostics: expect.any(String),
-  //           details: {
-  //             text: `no ServiceRequest with id ${id}`,
-  //           },
-  //         },
-  //       ],
-  //     });
-  //     expect(response.status).toBe(404);
-  //   });
+      // assert
+      expect(response.body).toMatchObject({
+        resourceType: 'OperationOutcome',
+        id: expect.any(String),
+        issue: [
+          {
+            severity: 'error',
+            code: 'not-found',
+            diagnostics: expect.any(String),
+            details: {
+              text: `no ServiceRequest with id ${id}`,
+            },
+          },
+        ],
+      });
+      expect(response.status).toBe(404);
+    });
 
-  //   it('returns an error if there are any unknown search params', async () => {
-  //     // arrange
-  //     const path = `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?whatever=something`;
+    it('returns an error if there are any unknown search params', async () => {
+      // arrange
+      const path = `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?whatever=something`;
 
-  //     // act
-  //     const response = await app.get(path);
+      // act
+      const response = await app.get(path);
 
-  //     // assert
-  //     expect(response.body).toMatchObject({
-  //       resourceType: 'OperationOutcome',
-  //       id: expect.any(String),
-  //       issue: [
-  //         {
-  //           severity: 'error',
-  //           code: 'not-supported',
-  //           diagnostics: expect.any(String),
-  //           details: {
-  //             text: 'parameter is not supported: whatever',
-  //           },
-  //         },
-  //       ],
-  //     });
-  //     expect(response).toHaveRequestError(501);
-  //   });
-  // });
+      // assert
+      expect(response.body).toMatchObject({
+        resourceType: 'OperationOutcome',
+        id: expect.any(String),
+        issue: [
+          {
+            severity: 'error',
+            code: 'not-supported',
+            diagnostics: expect.any(String),
+            details: {
+              text: 'parameter is not supported: whatever',
+            },
+          },
+        ],
+      });
+      expect(response).toHaveRequestError(501);
+    });
+  });
 });
