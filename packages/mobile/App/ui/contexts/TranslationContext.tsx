@@ -8,10 +8,13 @@ import React, {
 } from 'react';
 import { DevSettings } from 'react-native';
 import { useBackend } from '../hooks';
-import { readConfig, writeConfig } from '~/services/config';}
+import { readConfig, writeConfig } from '~/services/config';
 
 interface TranslationContextData {
   debugMode: boolean;
+  language: string;
+  languageOptions: string[];
+  onChangeLanguage: (languageCode: string) => void;
   getTranslation: (key: string) => string;
   fetchTranslations: () => void;
 }
