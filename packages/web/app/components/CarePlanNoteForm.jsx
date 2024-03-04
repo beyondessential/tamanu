@@ -83,7 +83,7 @@ export function CarePlanNoteForm({
           <FormGrid columns={1}>
             <Field
               name="content"
-              placeholder={getTranslation("general.placeholder.writeNote", "Write a note...")}
+              placeholder={getTranslation("careplan.note.placeholder.writeNote", "Write a note...")}
               component={TextField}
               required
               multiline

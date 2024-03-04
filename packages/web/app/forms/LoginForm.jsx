@@ -136,7 +136,7 @@ const LoginFormComponent = ({
         label={<TranslatedText stringId="login.email.label" fallback="Email" />}
         required
         component={TextField}
-        placeholder={getTranslation("general.placeholder.enterYourEmailAddress", "Enter your email address")}
+        placeholder={getTranslation("login.email.placeholder", "Enter your email address")}
         onChange={() => removeValidation()}
         autoComplete="off"
       />
@@ -147,7 +147,7 @@ const LoginFormComponent = ({
           type="password"
           required
           component={TextField}
-          placeholder={getTranslation("general.placeholder.enterYourPassword", "Enter your password")}
+          placeholder={getTranslation("login.password.placeholder", "Enter your password")}
           onChange={() => removeValidation()}
           autoComplete="off"
         />

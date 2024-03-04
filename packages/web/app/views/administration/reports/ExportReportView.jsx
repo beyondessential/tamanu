@@ -65,7 +65,7 @@ export const ExportReportView = () => {
               required
               label={<TranslatedText stringId="admin.report.export.report.label" fallback="Report" />}
               name="reportId"
-              placeholder={getTranslation("general.placeholder.selectReportDefinition", "Select a report definition")}
+              placeholder={getTranslation("admin.report.export.report.placeholder", "Select a report definition")}
             />
             {values.reportId && (
               <Field
@@ -73,7 +73,7 @@ export const ExportReportView = () => {
                 required
                 label={<TranslatedText stringId="admin.report.export.version.label" fallback="Version" />}
                 name="versionId"
-                placeholder={getTranslation("general.placeholder.selectReportVersion", "Select a report version")}
+                placeholder={getTranslation("admin.report.export.version.placeholder", "Select a report version")}
             />
             )}
             {values.versionId && (

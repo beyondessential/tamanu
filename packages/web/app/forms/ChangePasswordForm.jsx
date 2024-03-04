@@ -116,7 +116,7 @@ const ChangePasswordFormComponent = ({
           label={<TranslatedText stringId="resetPassword.resetCode.label" fallback="Reset code" />}
           required
           component={TextField}
-          placeholder={getTranslation("general.placeholder.enterResetCode", "Enter reset code")}
+          placeholder={getTranslation("resetPassword.resetCode.placeholder", "Enter reset code")}
           onChange={() => {
             if (errors.token === REQUIRED_VALIDATION_MESSAGE) {
               setFieldError('token', '');
@@ -133,7 +133,7 @@ const ChangePasswordFormComponent = ({
           }
           required
           component={TextField}
-          placeholder={getTranslation("general.placeholder.newPassword", "New password")}
+          placeholder={getTranslation("resetPassword.newPassword.placeholder", "New password")}
           onChange={() => {
             if (errors.newPassword === REQUIRED_VALIDATION_MESSAGE) {
               setFieldError('newPassword', '');
@@ -152,7 +152,7 @@ const ChangePasswordFormComponent = ({
           }
           required
           component={TextField}
-          placeholder={getTranslation("general.placeholder.confirmNewPassword", "Confirm new password")}
+          placeholder={getTranslation("resetPassword.confirmNewPassword.placeholder", "Confirm new password")}
           onChange={() => {
             if (errors.confirmNewPassword === REQUIRED_VALIDATION_MESSAGE) {
               setFieldError('confirmNewPassword', '');

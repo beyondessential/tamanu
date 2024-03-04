@@ -88,7 +88,7 @@ export const FORM_TYPE_TO_FIELD_CONFIG = {
     ),
     selectableName: 'panel',
     searchFieldPlaceholder: {
-      stringId: 'general.placeholder.searchPanelOrCompany',
+      stringId: 'lab.testSelect.placeholder',
       fallback: 'Search panel or category',
     },
     fieldName: 'panelIds',

@@ -117,7 +117,7 @@ const ImportForm = ({ isSubmitting, setFieldValue, feedback, values = {} }) => {
           label={<TranslatedText stringId="admin.report.import.report.label" fallback="Report" />}
           name="reportDefinitionId"
           includeNameChangeEvent
-          placeholder={getTranslation("general.placeholder.selectReportDefinition", "Select a report definition")}
+          placeholder={getTranslation("admin.report.import.report.placeholder", "Select a report definition")}
         />
         <Field
           label={

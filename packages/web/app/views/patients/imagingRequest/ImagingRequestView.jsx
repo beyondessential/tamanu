@@ -139,7 +139,7 @@ const NewResultSection = ({ disabled = false }) => {
       <Field
         label={<TranslatedText stringId="imaging.completedBy.label" fallback="Completed by" />}
         name="newResult.completedById"
-        placeholder={getTranslation("general.placeholder.search", "Search")}
+        placeholder={getTranslation("imaging.completedBy.placeholder", "Search")}
         component={AutocompleteField}
         suggester={practitionerSuggester}
         disabled={disabled}
@@ -156,7 +156,7 @@ const NewResultSection = ({ disabled = false }) => {
           <TranslatedText stringId="imaging.description.label" fallback="Result description" />
         }
         name="newResult.description"
-        placeholder={getTranslation("general.placeholder.resultDescription", "Result description...")}
+        placeholder={getTranslation("imaging.description.placeholder", "Result description...")}
         multiline
         component={TextField}
         style={{ gridColumn: '1 / -1', minHeight: '3em' }}
