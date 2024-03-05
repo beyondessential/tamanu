@@ -150,21 +150,35 @@ imaging_info as (
   group by encounter_id
 ),
 
+encounter_notes AS (
+  SELECT 
+    *,
+    CASE WHEN revised_by_id IS NULL THEN id ELSE revised_by_id END edit_chain
+  FROM notes n
+  WHERE record_type = 'Encounter'
+),
+
 -- Note this will include non-encounter notes - but they won't join anywhere because we use uuids
-encounter_notes_info as (
+latest_encounter_notes_info as (
   select
     record_id encounter_id,
     json_agg(
       json_build_object(
+        'revisedById', edit_chain,
         'noteType', note_type,
         'content', "content",
         'noteDate', "date"::timestamp at time zone $timezone_string
       ) order by n.date desc
     ) "Notes"
-  from notes n
+  from (
+    SELECT DISTINCT ON (edit_chain)
+    *
+    FROM encounter_notes n
+    ORDER BY edit_chain, date DESC
+  ) n
   where note_type != 'system'
   and record_id = $encounter_id
-  group by record_id
+  group by n.record_id
 ),
 
 department_info as (
@@ -318,7 +332,7 @@ left join diagnosis_info di on e.id = di.encounter_id
 left join procedure_info pi on e.id = pi.encounter_id
 left join lab_request_info lri on lri.encounter_id = e.id
 left join imaging_info ii on ii.encounter_id = e.id
-left join encounter_notes_info ni on ni.encounter_id = e.id
+left join latest_encounter_notes_info ni on ni.encounter_id = e.id
 left join triages t on t.encounter_id = e.id
 left join triage_info ti on ti.encounter_id = e.id
 left join location_info li on li.encounter_id = e.id
