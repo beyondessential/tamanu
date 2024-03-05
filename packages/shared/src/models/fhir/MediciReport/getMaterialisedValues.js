@@ -150,15 +150,15 @@ imaging_info as (
   group by encounter_id
 ),
 
+-- select encounter notes and also the provide the edit chain of the notes
 encounter_notes AS (
   SELECT 
     *,
-    CASE WHEN revised_by_id IS NULL THEN id ELSE revised_by_id END edit_chain
+    CASE WHEN revised_by_id IS NULL THEN id ELSE revised_by_id END edit_chain -- assign edit_chain with the id of itself if it is the root note
   FROM notes n
   WHERE record_type = 'Encounter'
 ),
 
--- Note this will include non-encounter notes - but they won't join anywhere because we use uuids
 latest_encounter_notes_info as (
   select
     record_id encounter_id,
