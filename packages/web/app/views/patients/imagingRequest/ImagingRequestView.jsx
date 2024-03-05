@@ -263,7 +263,7 @@ export const ImagingRequestView = () => {
     IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
   ].includes(imagingRequest.status);
 
-  if (patient.loading) return <LoadingIndicator />;
+  if (patient.loading || imagingRequest.loading) return <LoadingIndicator />;
 
   return (
     <>
