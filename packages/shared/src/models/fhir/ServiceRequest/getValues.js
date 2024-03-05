@@ -130,7 +130,7 @@ async function getValuesFromLabRequest(upstream) {
     ],
     priority: validatePriority(upstream.priority),
     code: labCode(upstream),
-    orderDetail: labOrderDetails(upstream),
+    orderDetail: await labOrderDetails(upstream),
     subject: new FhirReference({
       type: 'upstream://patient',
       reference: upstream.encounter.patient.id,
@@ -236,38 +236,95 @@ function statusFromLabRequest(upstream) {
 
 function labCode(upstream) {
   const { labTestPanelRequest } = upstream;
-  if (!labTestPanelRequest) throw new Error('No lab test panel request specified.');
-  const { externalCode, name } = labTestPanelRequest.labTestPanel;
-  if (!externalCode) throw new Error('No external code specified for this lab test panel.');
-
-  return new FhirCodeableConcept({
-    coding: [
+  
+  // It is possible to have a ServiceRequest without a panel
+  // which is a series of independent panels but 
+  // ServiceRequest.code will be nonexistent
+  if (!labTestPanelRequest) {
+    return null;
+  }
+  const { externalCode, name, code } = labTestPanelRequest.labTestPanel;
+  const coding = [];
+  if (code) {
+    coding.push(
       new FhirCoding({
-        system: 'http://intersystems.com/fhir/extn/sda3/lib/code-table-translated-prior-codes',
+        system: config.hl7.dataDictionaries.serviceRequestLabPanelCodeSystem,
+        code,
+        display: name,
+      }),
+    );
+  }
+
+  if (externalCode) {
+    coding.push(
+      new FhirCoding({
+        system: config.hl7.dataDictionaries.serviceRequestLabPanelExternalCodeSystem,
         code: externalCode,
         display: name,
       }),
-    ],
-  });
+    )
+  }
+  if (coding.length > 0) {
+    return new FhirCodeableConcept({
+      coding,
+    });
+  }
+  return null;
 }
 
-function labOrderDetails(upstream) {
-  return upstream.tests.map(test => {
-    if (!test) throw new Exception('Received a null test');
-
-    const { externalCode, name } = test.labTestType;
-    if (!externalCode) throw new Error('No external code specified for this lab test type.');
-
-    return new FhirCodeableConcept({
-      coding: [
+async function labOrderDetails(upstream) {
+  const testTypes = await resolveTestTypes(upstream);
+  return testTypes.map(testType => {
+    if (!testType) throw new Exception('Received a null test');
+    const { externalCode, code, name } = testType;
+    const coding = [];
+    if (code) {
+      coding.push(
         new FhirCoding({
-          system: 'http://intersystems.com/fhir/extn/sda3/lib/code-table-translated-prior-codes',
+          system: config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+          code,
+          display: name,
+        }),
+      );
+    }
+
+    if (externalCode) {
+      coding.push(
+        new FhirCoding({
+          system: config.hl7.dataDictionaries.serviceRequestLabTestExternalCodeSystem,
           code: externalCode,
           display: name,
         }),
-      ],
-    });
+      )
+    }
+    if (coding.length > 0) {
+      return new FhirCodeableConcept({
+        coding,
+        text: name,
+      });
+    }
+    return null;
   });
+}
+// The lab tests will either need to be directly associated 
+// with the lab tests or through the panels.
+async function resolveTestTypes(upstream) {
+  const { labTestPanelRequest, tests } = upstream;
+  const { labTestPanel } = labTestPanelRequest || {};
+
+  // A single request cannot have BOTH
+  //  panels and individual tests together. 
+  if (tests.length > 0 && labTestPanel) {
+    throw new Error(`Service Request with upstream LabRequest ${upstream.id} cannot have both panels AND independent tests`);
+  }
+
+  if (tests.length > 0) {
+    return tests.map(test => test.labTestType);
+  }
+  if (labTestPanel) {
+    return labTestPanel.labTestTypes;
+  }
+  return [];
 }
 
 function labAnnotations(upstream) {

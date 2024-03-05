@@ -66,34 +66,88 @@ export const fakeResourcesOfFhirServiceRequest = async models => {
   return resources;
 };
 
-export const fakeResourcesOfFhirServiceRequestWithLabRequest = async (models, resources) => {
-  const { LabRequest, ReferenceData, LabTestPanel, LabTestPanelRequest } = models;
+export const fakeResourcesOfFhirServiceRequestWithLabRequest = async (
+  models,
+  resources,
+  options = {
+    isWithPanels: true,
+    isWithIndependentTests: false,
+  },
+) => {
+  const { isWithPanels, isWithIndependentTests } = options;
+  const {
+    LabRequest,
+    ReferenceData,
+    LabTest,
+    LabTestType,
+    LabTestPanel,
+    LabTestPanelRequest,
+    LabTestPanelLabTestTypes,
+  } = models;
   const category = await ReferenceData.create({
     ...fake(ReferenceData),
     type: 'labTestCategory',
   });
-  const labTestPanel = await LabTestPanel.create({
-    ...fake(LabTestPanel),
-    categoryId: category.id,
-  });
-  const labTestPanelRequest = await LabTestPanelRequest.create({
-    ...fake(LabTestPanelRequest),
-    labTestPanelId: labTestPanel.id,
-    encounterId: resources.encounter.id,
-  });
-  const labRequestData = await randomLabRequest(models, {
+
+  const requestValues = {
     requestedById: resources.practitioner.id,
     patientId: resources.patient.id,
     encounterId: resources.encounter.id,
     status: LAB_REQUEST_STATUSES.PUBLISHED,
-    labTestPanelRequestId: labTestPanelRequest.id, // make one of them part of a panel
     requestedDate: '2022-07-27 16:30:00',
-  });
+  };
+  const valuesToReturn = { category };
 
-  const labRequest = await LabRequest.create(labRequestData);
+  if (isWithPanels) {
+    const labTestPanel = await LabTestPanel.create({
+      ...fake(LabTestPanel),
+      categoryId: category.id,
+    });
+    const testTypes = await getTestType(10, LabTestType, category.id);
+    await Promise.all(testTypes.map(testType => LabTestPanelLabTestTypes
+      .create({
+        labTestPanelId: labTestPanel.id,
+        labTestTypeId: testType.id,
+      })));
+    const labTestPanelRequest = await LabTestPanelRequest.create({
+      ...fake(LabTestPanelRequest),
+      labTestPanelId: labTestPanel.id,
+      encounterId: resources.encounter.id,
+    });
+    requestValues.labTestPanelRequestId = labTestPanelRequest.id; // make one of them part of a panel
+    valuesToReturn.labTestPanel = labTestPanel;
+    valuesToReturn.labTestPanelRequest = labTestPanelRequest;
+    valuesToReturn.panelTestTypes = testTypes;
+  }
+  const labRequestData = await randomLabRequest(models, requestValues);
 
-  return { category, labTestPanel, labTestPanelRequest, labRequest };
+  valuesToReturn.labRequest = await LabRequest.create(labRequestData);
+
+  if (isWithIndependentTests) {
+    const testTypes = await getTestType(10, LabTestType, category.id);
+    await Promise.all(testTypes.map(testType => LabTest
+      .create({
+        labRequestId: valuesToReturn.labRequest.id,
+        labTestTypeId: testType.id,
+      })));
+    valuesToReturn.testTypes = testTypes;
+  }
+
+  return valuesToReturn;
 };
+
+async function getTestType(numberOfTests, LabTestType, categoryId) {
+  const testTypes = [];
+  for (let testTypeIndex = 0; testTypeIndex < numberOfTests; testTypeIndex++) {
+    const currentLabTest = await LabTestType.create({
+      ...fake(LabTestType),
+      labTestCategoryId: categoryId,
+    });
+    testTypes.push(currentLabTest);
+  }
+  return testTypes;
+}
+
 
 export const fakeResourcesOfFhirServiceRequestWithImagingRequest = async (models, resources) => {
   const { ImagingRequest } = models;

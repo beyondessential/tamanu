@@ -110,7 +110,6 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
     encounter,
     circumstanceIds,
   } = vaccineRecord;
-
   const routine = !vaccineName;
   const notGiven = VACCINE_STATUS.NOT_GIVEN === status;
 
@@ -214,7 +213,12 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
       value: givenBy || '-',
     },
     reason: {
-      label: <TranslatedText stringId="vaccine.reason.label" fallback="Reason" />,
+      label: (
+        <TranslatedText
+          stringId="general.localisedField.notGivenReasonId.label.short"
+          fallback="Clinician"
+        />
+      ),
       value: notGivenReason?.name || '-',
     },
     circumstance: {

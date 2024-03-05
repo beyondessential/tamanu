@@ -205,12 +205,16 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       expect(response.body.subject).not.toHaveProperty('identifier');
     });
 
-    it('fetches a service request by materialised ID (lab request)', async () => {
+    it('fetches a service request by materialised ID (lab request with panel)', async () => {
       // arrange
       const { FhirServiceRequest } = ctx.store.models;
-      const { labTestPanel, labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
+      const { labTestPanel, labRequest, panelTestTypes } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
         ctx.store.models,
         resources,
+        {
+          isWithPanels: true,
+          isWithIndependentTests: false,
+        }
       );
       const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
       await FhirServiceRequest.resolveUpstreams();
@@ -219,7 +223,6 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
 
       // act
       const response = await app.get(path);
-
       // normalise for comparison
       // eslint-disable-next-line no-unused-expressions
       response.body?.orderDetail?.sort((a, b) => a.text.localeCompare(b.text));
@@ -258,14 +261,20 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
         code: {
           coding: [
             {
+              code: labTestPanel.code,
+              display: labTestPanel.name,
+              system:
+                'https://www.senaite.com/profileCodes.html',
+            },
+            {
               code: labTestPanel.externalCode,
               display: labTestPanel.name,
               system:
-                'http://intersystems.com/fhir/extn/sda3/lib/code-table-translated-prior-codes',
+                'http://loinc.org',
             },
           ],
         },
-        orderDetail: [],
+        //orderDetail: [], // internals handled below
         subject: {
           reference: `Patient/${resources.fhirPatient.id}`,
           type: 'Patient',
@@ -284,11 +293,90 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
         locationCode: [],
         note: [],
       });
+
+      response.body?.orderDetail.forEach(testType => {
+        const currentTest = panelTestTypes.find(test => test.name === testType.text);
+        expect(testType.text).toBe(currentTest.name);
+        testType.coding?.forEach(testTypeCoding => {
+          const { system, code } = testTypeCoding;
+          expect(testTypeCoding.display).toBe(currentTest.name);
+          expect(['https://www.senaite.com/testCodes.html', 'http://loinc.org']).toContain(system);
+          if (system === 'https://www.senaite.com/testCodes.html') {
+            expect(code).toBe(currentTest.code);
+          } else if (system === 'http://loinc.org') {
+            expect(code).toBe(currentTest.externalCode);
+          }
+        });
+      });
       expect(response.headers['last-modified']).toBe(formatRFC7231(new Date(mat.lastUpdated)));
       expect(response).toHaveSucceeded();
 
       // regression EPI-403
       expect(response.body.subject).not.toHaveProperty('identifier');
+    });
+
+    it('fetches a service request by materialised ID (lab request without panel but tests)', async () => {
+      // arrange
+      const { FhirServiceRequest } = ctx.store.models;
+      const { labRequest, testTypes } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
+        ctx.store.models,
+        resources,
+        {
+          isWithPanels: false,
+          isWithIndependentTests: true,
+        }
+      );
+      const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+      await FhirServiceRequest.resolveUpstreams();
+
+      const path = `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest/${mat.id}`;
+
+      // act
+      const response = await app.get(path);
+      // normalise for comparison
+      // eslint-disable-next-line no-unused-expressions
+      response.body?.orderDetail?.sort((a, b) => a.text.localeCompare(b.text));
+
+      // assert
+      expect(response.body.code).toBeUndefined();
+
+      response.body?.orderDetail.forEach(testType => {
+        const currentTest = testTypes.find(test => test.name === testType.text);
+        expect(testType.text).toBe(currentTest.name);
+        testType.coding?.forEach(testTypeCoding => {
+          const { system, code } = testTypeCoding;
+          expect(testTypeCoding.display).toBe(currentTest.name);
+          expect(['https://www.senaite.com/testCodes.html', 'http://loinc.org']).toContain(system);
+          if (system === 'https://www.senaite.com/testCodes.html') {
+            expect(code).toBe(currentTest.code);
+          } else if (system === 'http://loinc.org') {
+            expect(code).toBe(currentTest.externalCode);
+          }
+        });
+      });
+      expect(response.headers['last-modified']).toBe(formatRFC7231(new Date(mat.lastUpdated)));
+      expect(response).toHaveSucceeded();
+
+      // regression EPI-403
+      expect(response.body.subject).not.toHaveProperty('identifier');
+    });
+    it('cannot have ServiceRequest with independent tests and panel', async () => {
+      // arrange
+      const { FhirServiceRequest } = ctx.store.models;
+      const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
+        ctx.store.models,
+        resources,
+        {
+          isWithPanels: true,
+          isWithIndependentTests: true,
+        }
+      );
+      try {
+        await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+      } catch (clashingOrderDetails) {
+        expect(clashingOrderDetails.message).toBe(`Service Request with upstream LabRequest ${labRequest.id} cannot have both panels AND independent tests`);
+      }
+
     });
 
     it('materialises the default priority if the source data has a null priority', async () => {

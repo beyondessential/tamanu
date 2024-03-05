@@ -15,7 +15,7 @@ import { referenceDataImporter } from '../admin/referenceDataImporter';
 import { getRandomBase64String } from '../auth/utils';
 import { programImporter } from '../admin/programImporter/programImporter';
 
-export async function provision({ file: provisioningFile, skipIfNotNeeded }) {
+export async function provision(provisioningFile, { skipIfNotNeeded }) {
   const store = await initDatabase({ testMode: false });
   const userCount = await store.models.User.count();
   if (userCount > 0) {
@@ -186,7 +186,7 @@ export async function provision({ file: provisioningFile, skipIfNotNeeded }) {
 
 export const provisionCommand = new Command('provision')
   .description(
-    'Set up initial data. See https://beyond-essential.slab.com/posts/tamanu-provisioning-file-h1urgi86 for details or /docs/provisioning/example.kdl for a sample file.',
+    'Set up initial data. See https://beyond-essential.slab.com/posts/tamanu-provisioning-file-h1urgi86 for details or /docs/provisioning/example.json5 for a sample file.',
   )
   .argument('<file>', 'Path to the provisioning file')
   .option(

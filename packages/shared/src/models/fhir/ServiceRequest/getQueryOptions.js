@@ -106,6 +106,12 @@ export function getQueryOptions(models) {
           {
             model: LabTestPanel,
             as: 'labTestPanel',
+            include: [
+              {
+                model: LabTestType,
+                as: 'labTestTypes',
+              },
+            ],
           },
         ],
       },
