@@ -1,12 +1,12 @@
 import React, { ReactElement } from 'react';
 
-import { FieldRowDisplay } from '../../../../../components/FieldRowDisplay';
-import { ErrorScreen } from '../../../../../components/ErrorScreen';
-import { LoadingScreen } from '../../../../../components/LoadingScreen';
-import { PatientSection } from './PatientSection';
-import { useLocalisation } from '../../../../../contexts/LocalisationContext';
+import { FieldRowDisplay } from '../../../../../../components/FieldRowDisplay';
+import { ErrorScreen } from '../../../../../../components/ErrorScreen';
+import { LoadingScreen } from '../../../../../../components/LoadingScreen';
+import { PatientSection } from '../../CustomComponents/PatientSection';
+import { useLocalisation } from '../../../../../../contexts/LocalisationContext';
 import { IPatient, IPatientAdditionalData } from '../../../../../../types';
-import { additionalDataSections } from '../../../../../helpers/additionalData';
+import { additionalDataSections } from '../../../../../../helpers/additionalData';
 import { usePatientAdditionalData } from '~/ui/hooks/usePatientAdditionalData';
 
 interface AdditionalInfoProps {
