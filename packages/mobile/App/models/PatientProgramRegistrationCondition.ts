@@ -65,14 +65,14 @@ export class PatientProgramRegistrationCondition extends BaseModel
   deletionClinicianId?: ID;
 
   static async findForRegistryAndPatient(programRegistryId: string, patientId: string) {
-    const registrationRepository = this.getRepository(PatientProgramRegistration);
-    const fullPprConditions = await registrationRepository
-      .createQueryBuilder('registration')
-      .where('registration.programRegistryId = :programRegistryId', { programRegistryId })
-      .andWhere('registration.patientId = :patientId', { patientId })
-      .leftJoinAndSelect('registration.programRegistryCondition', 'programRegistryCondition')
+    const conditionsRepository = this.getRepository();
+    const conditions = await conditionsRepository
+      .createQueryBuilder('condition')
+      .where('condition.programRegistryId = :programRegistryId', { programRegistryId })
+      .andWhere('condition.patientId = :patientId', { patientId })
+      .leftJoinAndSelect('condition.programRegistryCondition', 'programRegistryCondition')
       .getMany();
-    return fullPprConditions;
+    return conditions;
   }
   static getTableNameForSync(): string {
     return 'patient_program_registration_conditions';
