@@ -14,6 +14,7 @@ import {
 import { useApi, useSuggester } from '../../api';
 import { optionalForeignKey } from '../../utils/validation';
 import { PROGRAM_REGISTRY } from '../../components/PatientInfoPane/paneTitles';
+import { FORM_TYPES } from '../../constants';
 
 const StyledFormGrid = styled(FormGrid)`
   grid-column: 1 / -1;
@@ -76,6 +77,7 @@ export const ChangeStatusFormModal = ({ patientProgramRegistration, onClose, ope
           initialValues={{
             clinicalStatusId: patientProgramRegistration.clinicalStatus?.id,
           }}
+          formType={FORM_TYPES.EDIT_FORM}
           validationSchema={yup.object().shape({
             clinicalStatusId: optionalForeignKey(),
           })}

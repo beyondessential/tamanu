@@ -3,7 +3,7 @@ import * as yup from 'yup';
 import styled from 'styled-components';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { useApi, useSuggester } from '../api';
-import { Colors } from '../constants';
+import { Colors, FORM_TYPES } from '../constants';
 import { FormSubmitCancelRow } from './ButtonRow';
 import { AutocompleteField, DateTimeField, Field, Form, TextField } from './Field';
 import { FormGrid } from './FormGrid';
@@ -50,6 +50,7 @@ export function CarePlanNoteForm({
       validationSchema={yup.object().shape({
         content: yup.string().required('Content is required'),
       })}
+      formType={note ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
       render={() => (
         <>
           <FormGrid columns={2}>

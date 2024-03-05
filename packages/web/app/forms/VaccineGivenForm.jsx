@@ -28,7 +28,7 @@ import {
   VaccineLabelField,
   VaccineNameField,
 } from '../components/VaccineCommonFields';
-import { CheckField, Field, SuggesterSelectField } from '../components/Field';
+import { CheckField, Field, LocalisedField, SuggesterSelectField } from '../components/Field';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 
 export const VACCINE_GIVEN_INITIAL_VALUES = {
@@ -108,7 +108,7 @@ export const VaccineGivenForm = ({
       {values.givenElsewhere && (
         <>
           <FullWidthCol>
-            <Field
+            <LocalisedField
               name="circumstanceIds"
               label={
                 <TranslatedText stringId="vaccine.circumstances.label" fallback="Circumstances" />
