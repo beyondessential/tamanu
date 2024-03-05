@@ -21,14 +21,10 @@ interface GeneralInfoProps {
 
 export const CambodiaGeneralInfo = ({ onEdit, patient }: GeneralInfoProps): ReactElement => {
   const fields = [
-    ['firstName', patient.firstName],
-    ['middleName', patient.middleName || 'None'],
     ['lastName', patient.lastName],
-    ['culturalName', patient.culturalName || 'None'],
-    ['sex', getGender(patient.sex)],
+    ['firstName', patient.firstName],
     ['dateOfBirth', formatStringDate(patient.dateOfBirth, DateFormats.DDMMYY)],
-    ['email', patient.email],
-    ['villageId', patient.village?.name ?? ''],
+    ['sex', getGender(patient.sex)],
   ];
 
   // Check if patient information should be editable
@@ -38,14 +34,11 @@ export const CambodiaGeneralInfo = ({ onEdit, patient }: GeneralInfoProps): Reac
   const { patientAdditionalData, loading, error } = usePatientAdditionalData(patient.id);
 
   const patientAdditionalDataFields = allAdditionalDataFields
-    .filter(fieldName => getBool(`fields.${fieldName}.requiredPatientData`))
+    .filter(fieldName => getBool(`fields.${fieldName}.requiredPatientData`)) // TODO: Figure out how to have mother and father in here
     .map(fieldName => [fieldName, getFieldData(patientAdditionalData, fieldName)]);
   if (error) {
     return <ErrorScreen error={error} />;
   }
-
-  console.log('fields', fields)
-  console.log('patientAdditionalDataFields', patientAdditionalDataFields)
 
   return (
     <PatientSection
