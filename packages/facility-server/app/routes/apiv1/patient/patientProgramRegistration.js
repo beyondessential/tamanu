@@ -310,7 +310,7 @@ patientProgramRegistration.delete(
     if (!existingCondition) throw new NotFoundError();
     const condition = await existingCondition.update({
       deletionStatus: DELETION_STATUSES.DELETED,
-      deletionClinicianId: body.deletionClinicianId,
+      deletionClinicianId: req.user.id,
       deletionDate: body.deletionDate,
     });
     res.send(condition);
