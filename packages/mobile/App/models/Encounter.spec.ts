@@ -20,7 +20,7 @@ describe('Encounter', () => {
       await Database.models.Encounter.insert(encounter);
 
       const result = await Database.models.Encounter.getForPatient(patient.id);
-      delete encounter.examiner;
+      delete encounter.examiner; // examiner is not eager-loaded from db
       expect(result[0]).toMatchObject(encounter);
     });
   });
