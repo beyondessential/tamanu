@@ -76,7 +76,8 @@ export default [
     // mobile rule exclusions (as warnings, until we fix them)
     files: [`packages/mobile/**/*.${TS_EXTS}`],
     rules: {
-      'no-unused-vars': 'warn',
+      'no-unused-vars': 'off',
+      "@typescript-eslint/no-unused-vars": 'warn',
       'no-constructor-return': 'warn',
       'no-promise-executor-return': 'warn',
       'require-atomic-updates': 'warn',
