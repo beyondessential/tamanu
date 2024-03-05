@@ -8,7 +8,6 @@ import {
 } from '../../utils';
 import { Field } from '../Field';
 import { useEncounter } from '../../contexts/Encounter';
-import { useTranslation } from '../../contexts/Translation';
 
 const Text = styled.div`
   margin-bottom: 10px;
@@ -24,7 +23,6 @@ export const SurveyQuestion = ({ component, patient, inputRef, disabled, encount
     validationCriteria,
   } = component;
   const { encounter } = useEncounter();
-  const { getTranslation } = useTranslation();
   const { defaultText, type, defaultOptions, id } = dataElement;
   const configObject = getConfigObject(id, componentConfig);
   const text = componentText || defaultText;
@@ -34,7 +32,6 @@ export const SurveyQuestion = ({ component, patient, inputRef, disabled, encount
   const validationCriteriaObject = getConfigObject(id, validationCriteria);
   const required = checkMandatory(validationCriteriaObject?.mandatory, {
     encounterType: encounterType || encounter?.encounterType,
-    getTranslation
   });
 
   if (component.dataElement.type === 'Result') return <Text>{`${text} ${component.detail}`}</Text>;

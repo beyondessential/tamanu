@@ -12,7 +12,7 @@ import { Colors } from '../../../constants';
 import { VersionInfo } from './components/VersionInfo';
 import { ReportEditor } from './ReportEditor';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
-import { useTranslation } from '../../../contexts/Translation';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const Container = styled.div`
   padding: 20px;
@@ -42,7 +42,6 @@ const getInitialValues = (version, report) => {
 
 export const EditReportView = () => {
   const api = useApi();
-  const { getTranslation } = useTranslation();
   const queryClient = useQueryClient();
   const params = useParams();
   const dispatch = useDispatch();
@@ -77,22 +76,22 @@ export const EditReportView = () => {
     try {
       const result = await api.post(`admin/reports/${reportDefinition.id}/versions`, payload);
       toast.success(
-        getTranslation(
-          "admin.report.notification.saveReportSuccess",
-          `Saved new version: ${result.versionNumber} for report ${reportDefinition.name}`,
-          { versionNumber: result.versionNumber, name: reportDefinition.name }
-        )
+        <TranslatedText
+          stringId="admin.report.notification.saveReportSuccess"
+          fallback={`Saved new version: ${result.versionNumber} for report ${reportDefinition.name}`}
+          replacements={{ versionNumber: result.versionNumber, name: reportDefinition.name }}
+        />
       );
       queryClient.invalidateQueries(['reportVersions', reportDefinition.id]);
       queryClient.invalidateQueries(['reportList']);
       dispatch(push(`/admin/reports/${reportDefinition.id}/versions/${result.id}/edit`));
     } catch (err) {
       toast.error(
-        getTranslation(
-          "admin.report.notification.saveReportFailed",
-          `Failed to save version: ${err.message}`,
-          { message: err.message }
-        )
+        <TranslatedText
+          stringId="admin.report.notification.saveReportFailed"
+          fallback={`Failed to save version: ${err.message}`}
+          replacements={{ message: err.message }}
+        />  
       );
     }
   };

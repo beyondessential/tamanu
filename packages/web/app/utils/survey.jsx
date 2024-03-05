@@ -25,6 +25,7 @@ import {
 import { ageInMonths, ageInWeeks, ageInYears } from '@tamanu/shared/utils/dateTime';
 import { joinNames } from './user';
 import { notifyError } from './utils';
+import { TranslatedText } from '../components/Translation/TranslatedText';
 
 const isNullOrUndefined = value => isNull(value) || isUndefined(value);
 
@@ -269,7 +270,7 @@ export const getAnswersFromData = (data, survey) =>
     return acc;
   }, {});
 
-export const getValidationSchema = (surveyData, valuesToCheckMandatory = {}, getTranslation) => {
+export const getValidationSchema = (surveyData, valuesToCheckMandatory = {}) => {
   if (!surveyData) return {};
   const { components } = surveyData;
   const schema = components.reduce(
@@ -291,7 +292,7 @@ export const getValidationSchema = (surveyData, valuesToCheckMandatory = {}, get
       );
       const { type, defaultText } = dataElement;
       const text = componentText || defaultText;
-      const mandatory = checkMandatory(mandatoryConfig, valuesToCheckMandatory, getTranslation);
+      const mandatory = checkMandatory(mandatoryConfig, valuesToCheckMandatory);
       let valueSchema;
       switch (type) {
         case PROGRAM_DATA_ELEMENT_TYPES.NUMBER: {
@@ -367,7 +368,7 @@ export const getGraphRangeByAge = (visualisationConfig, patientData) => {
   return getNormalRangeByAge(mockedValidationCriteria, patientData);
 };
 
-export const checkMandatory = (mandatory, values, getTranslation) => {
+export const checkMandatory = (mandatory, values) => {
   try {
     if (!mandatory) {
       return false;
@@ -379,11 +380,12 @@ export const checkMandatory = (mandatory, values, getTranslation) => {
     return checkJSONCriteria(JSON.stringify(mandatory), [], values);
   } catch (error) {
     notifyError(
-      getTranslation(
-        "general.notification.useMandatoryFailed",
-        `Failed to use mandatory in validationCriteria: ${JSON.stringify(mandatory)}, error: ${error.message}`,
-        { mandatory: JSON.stringify(mandatory), message: error.message }
-      )
+      <TranslatedText
+        stringId="general.notification.useMandatoryFailed"
+        fallback={`Failed to use mandatory in validationCriteria: ${JSON.stringify(mandatory)}, error: ${error.message
+          }`}
+        replacements={{ mandatory: JSON.stringify(mandatory), message: error.message }}
+      />
     );
     return false;
   }

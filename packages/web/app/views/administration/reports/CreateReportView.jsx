@@ -13,7 +13,7 @@ import { push } from 'connected-react-router';
 import { useApi } from '../../../api';
 import { ReportEditor } from './ReportEditor';
 import { useAuth } from '../../../contexts/Auth';
-import { useTranslation } from '../../../contexts/Translation';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const Container = styled.div`
   padding: 20px;
@@ -21,7 +21,6 @@ const Container = styled.div`
 
 export const CreateReportView = () => {
   const api = useApi();
-  const { getTranslation } = useTranslation();
   const dispatch = useDispatch();
   const queryClient = useQueryClient();
   const { ability } = useAuth();
@@ -46,19 +45,19 @@ export const CreateReportView = () => {
       queryClient.invalidateQueries(['reportList']);
       dispatch(push(`/admin/reports/${reportDefinitionId}/versions/${id}/edit`));
       toast.success(
-        getTranslation(
-          "admin.report.notification.importedReport",
-          `Imported report: ${reportDefinitionId}`,
-          { reportDefinitionId }
-        )
+        <TranslatedText
+          stringId="admin.report.notification.importedReport"
+          fallback={`Imported report: ${reportDefinitionId}`}
+          replacements={{ reportDefinitionId }}
+        />
       );
     } catch (err) {
       toast.error(
-        getTranslation(
-          "admin.report.notification.createReportFailed",
-          `Failed to create report: ${err.message}`,
-          { message: err.message }
-        )
+        <TranslatedText
+          stringId="admin.report.notification.createReportFailed"
+          fallback={`Failed to create report: ${err.message}`}
+          replacements={{ message: err.message }}
+        />
       );
     }
   };

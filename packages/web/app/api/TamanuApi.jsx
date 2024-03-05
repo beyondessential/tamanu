@@ -1,9 +1,11 @@
+import React from 'react';
 import { TamanuApi as ApiClient, AuthExpiredError } from '@tamanu/api-client';
 import { SERVER_TYPES } from '@tamanu/constants';
 import { buildAbilityForUser } from '@tamanu/shared/permissions/buildAbility';
 
 import { LOCAL_STORAGE_KEYS } from '../constants';
 import { getDeviceId, notifyError } from '../utils';
+import { TranslatedText } from '../components/Translation/TranslatedText';
 
 const { TOKEN, LOCALISATION, SERVER, PERMISSIONS, ROLE } = LOCAL_STORAGE_KEYS;
 
@@ -107,9 +109,23 @@ export class TamanuApi extends ApiClient {
         clearLocalStorage();
       } else if (showUnknownErrorToast && isErrorUnknown(err)) {
         notifyError([
-          'Network request failed',
-          `Path: ${err.path ?? endpoint}`,
-          `Message: ${message}`,
+          <TranslatedText
+            key="general.api.notification.requestFailed"
+            stringId="general.api.notification.requestFailed"
+            fallback='Network request failed'
+          />,
+          <TranslatedText
+            key="general.api.notification.path"
+            stringId="general.api.notification.path"
+            fallback={`Path: ${err.path ?? endpoint}`}
+            replacements={{ path: err.path ?? endpoint }}
+          />,
+          <TranslatedText
+            key="general.api.notification.message"
+            stringId="general.api.notification.message"
+            fallback={`Message: ${message}`}
+            replacements={{ message }}
+          />
         ]);
       }
 
