@@ -16,7 +16,6 @@ import { Patient } from './Patient';
 import { User } from './User';
 import { DateTimeStringColumn } from './DateColumns';
 import { ProgramRegistryCondition } from './ProgramRegistryCondition';
-import { PatientProgramRegistration } from './PatientProgramRegistration';
 
 @Entity('patient_program_registration_condition')
 export class PatientProgramRegistrationCondition extends BaseModel
