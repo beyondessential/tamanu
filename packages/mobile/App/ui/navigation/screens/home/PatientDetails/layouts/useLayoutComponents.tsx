@@ -27,6 +27,5 @@ const LAYOUT_COMPONENTS = {
 export const useLayoutComponents = () => {
   const { getLocalisation } = useLocalisation();
   const layout = getLocalisation('layouts.patientDetails') || PATIENT_DETAIL_LAYOUTS.GENERIC;
-  console.log('layout', layout)
   return LAYOUT_COMPONENTS[layout];
 };

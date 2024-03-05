@@ -19,7 +19,7 @@ interface GeneralInfoProps {
   patient: IPatient;
 }
 
-export const GeneralInfo = ({ onEdit, patient }: GeneralInfoProps): ReactElement => {
+export const CambodiaGeneralInfo = ({ onEdit, patient }: GeneralInfoProps): ReactElement => {
   const fields = [
     ['firstName', patient.firstName],
     ['middleName', patient.middleName || 'None'],

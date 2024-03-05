@@ -25,7 +25,7 @@ function getFieldData(data: IPatientAdditionalData, fieldName: string): string {
   return data?.[fieldName];
 }
 
-export const AdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps): ReactElement => {
+export const CambodiaAdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps): ReactElement => {
   const {
     customPatientSections,
     customPatientFieldValues,

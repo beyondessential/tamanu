@@ -20,13 +20,11 @@ import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { ArrowLeftIcon } from '~/ui/components/Icons';
 import { UserAvatar } from '~/ui/components/UserAvatar';
 import { HealthIdentificationRow, PatientIssues } from './CustomComponents';
-import { useLocalisation } from '~/ui/contexts/LocalisationContext';
-import { Text } from 'react-native';
 import { useLayoutComponents } from './layouts/useLayoutComponents';
 
+
 const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => {
-  const { getLocalisation } = useLocalisation();
-  // console.log(getString('layout'))
+  const { GeneralInfo, AdditionalInfo } = useLayoutComponents();
   const onNavigateBack = useCallback(() => {
     navigation.goBack();
   }, [navigation]);
@@ -61,10 +59,6 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => 
   const onEditPatientIssues = useCallback(() => {
     navigation.navigate(Routes.HomeStack.PatientDetailsStack.AddPatientIssue);
   }, [navigation]);
-
-  const { GeneralInfo, AdditionalInfo } = useLayoutComponents();
-
-  console.log(GeneralInfo, AdditionalInfo)
 
   return (
     <FullView>
@@ -107,7 +101,6 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => 
       </StyledSafeAreaView>
       <FullView>
         <StyledScrollView background={theme.colors.BACKGROUND_GREY}>
-          <Text>{JSON.stringify(GeneralInfo)}</Text> 
           <GeneralInfo patient={selectedPatient} onEdit={onEditPatient} />
           <AdditionalInfo patient={selectedPatient} onEdit={editPatientAdditionalData} />
           <PatientIssues onEdit={onEditPatientIssues} patientId={selectedPatient.id} />
