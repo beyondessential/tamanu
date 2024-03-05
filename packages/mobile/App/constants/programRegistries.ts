@@ -8,3 +8,9 @@ export enum RegistrationStatus {
   Inactive = 'inactive',
   RecordedInError = 'recordedInError',
 }
+
+export const PROGRAM_REGISTRATION_STATUS_LABEL = {
+  [RegistrationStatus.Active]: 'Active',
+  [RegistrationStatus.Inactive]: 'Removed',
+  [RegistrationStatus.RecordedInError]: 'Delete',
+};
