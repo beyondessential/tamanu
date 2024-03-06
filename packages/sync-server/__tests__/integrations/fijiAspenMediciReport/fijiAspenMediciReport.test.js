@@ -252,7 +252,7 @@ const fakeAllData = async (models, ctx) => {
       areaId: rightImagingAreaId,
     }),
   );
-  await models.Note.create(
+  const imagingRequestNote = await models.Note.create(
     fake(models.Note, {
       recordId: imagingRequestId,
       noteType: NOTE_TYPES.OTHER,
@@ -266,7 +266,7 @@ const fakeAllData = async (models, ctx) => {
     fake(models.LabRequest, { encounterId }),
   );
   await models.LabTest.create(fake(models.LabTest, { labRequestId, labTestTypeId }));
-  await models.Note.create(
+  const labRequestNote = await models.Note.create(
     fake(models.Note, {
       recordId: labRequestId,
       noteType: NOTE_TYPES.OTHER,
@@ -284,7 +284,7 @@ const fakeAllData = async (models, ctx) => {
     }),
   );
 
-  await models.Note.create(
+  const encounterNote = await models.Note.create(
     fake(models.Note, {
       recordId: encounterId,
       noteType: NOTE_TYPES.NURSING,
@@ -325,7 +325,7 @@ const fakeAllData = async (models, ctx) => {
     lastUpdated: new Date(Date.UTC(2022, 6 - 1, 12, 0, 2, 54, 225)),
   });
 
-  return { patient, encounterId };
+  return { patient, encounterId, encounterNote, imagingRequestNote, labRequestNote };
 };
 
 describe('fijiAspenMediciReport', () => {
@@ -538,6 +538,7 @@ describe('fijiAspenMediciReport', () => {
                 noteType: NOTE_TYPES.OTHER,
                 content: 'Please perform this lab test very carefully',
                 noteDate: '2022-06-09T02:04:54+00:00',
+                revisedById: fakedata.labRequestNote.id,
               },
             ],
           },
@@ -551,6 +552,7 @@ describe('fijiAspenMediciReport', () => {
                 noteType: 'other',
                 content: 'Check for fractured knees please',
                 noteDate: '2022-06-10T06:04:54+00:00',
+                revisedById: fakedata.imagingRequestNote.id,
               },
             ],
           },
@@ -560,6 +562,7 @@ describe('fijiAspenMediciReport', () => {
             noteType: NOTE_TYPES.NURSING,
             content: 'A\nB\nC\nD\nE\nF\nG\n',
             noteDate: '2022-06-10T03:39:57+00:00',
+            revisedById: fakedata.encounterNote.id,
           },
         ],
       },
