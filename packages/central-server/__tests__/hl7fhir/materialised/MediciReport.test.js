@@ -1,5 +1,11 @@
+import { sub } from 'date-fns';
 import { fake, chance } from '@tamanu/shared/test-helpers';
-import { IMAGING_REQUEST_STATUS_TYPES, REFERENCE_TYPES } from '@tamanu/constants';
+import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
+import {
+  IMAGING_REQUEST_STATUS_TYPES,
+  REFERENCE_TYPES,
+  NOTE_RECORD_TYPES,
+} from '@tamanu/constants';
 
 import { createTestContext } from '../../utilities';
 
@@ -63,6 +69,7 @@ describe(`Materialised - MediciReport`, () => {
       Procedure,
       EncounterDiagnosis,
       EncounterMedication,
+      Note,
     } = ctx.store.models;
 
     const startDate = '2023-11-11 00:00:00';
@@ -160,9 +167,27 @@ describe(`Materialised - MediciReport`, () => {
       ...fake(EncounterMedication),
       encounterId: encounter.id,
       medicationId,
+      discontinued: false,
     });
 
-    return { encounter, encounterDiagnosis, encounterMedication, procedure, procedureType };
+    const rootNote = await Note.create(
+      fake(Note, {
+        recordId: encounter.id,
+        recordType: NOTE_RECORD_TYPES.ENCOUNTER,
+        content: 'Root note',
+        authorId: resources.practitioner.id,
+        date: toDateTimeString(sub(new Date(), { days: 8 })),
+      }),
+    );
+
+    return {
+      encounter,
+      encounterDiagnosis,
+      encounterMedication,
+      procedure,
+      procedureType,
+      rootNote,
+    };
   }
 
   it('materialise a Medici report', async () => {
@@ -246,6 +271,66 @@ describe(`Materialised - MediciReport`, () => {
           ],
         },
       ],
+    });
+  });
+
+  describe('materialise Notes in Medici Report', () => {
+    it('returns root encounter note if it has not been edited', async () => {
+      const { encounter, rootNote } = await makeEncounter({
+        encounterType: 'emergency',
+      });
+
+      const { MediciReport } = ctx.store.models;
+
+      await MediciReport.materialiseFromUpstream(encounter.id);
+      await MediciReport.resolveUpstreams();
+
+      const mediciReport = await MediciReport.findAll();
+
+      expect(mediciReport[0].dataValues).toMatchObject({
+        notes: [
+          {
+            content: rootNote.content,
+            noteType: rootNote.noteType,
+            revisedById: rootNote.id,
+          },
+        ],
+      });
+    });
+
+    it('returns latest encounter note if it has been edited', async () => {
+      const { Note } = ctx.store.models;
+      const { encounter, rootNote } = await makeEncounter({
+        encounterType: 'emergency',
+      });
+
+      const changelog1 = await Note.create(
+        fake(Note, {
+          recordId: encounter.id,
+          recordType: NOTE_RECORD_TYPES.ENCOUNTER,
+          content: 'Changelog1',
+          authorId: resources.practitioner.id,
+          date: toDateTimeString(sub(new Date(), { days: 6 })),
+          revisedById: rootNote.id,
+        }),
+      );
+
+      const { MediciReport } = ctx.store.models;
+
+      await MediciReport.materialiseFromUpstream(encounter.id);
+      await MediciReport.resolveUpstreams();
+
+      const mediciReport = await MediciReport.findAll();
+
+      expect(mediciReport[0].dataValues).toMatchObject({
+        notes: [
+          {
+            content: changelog1.content,
+            noteType: changelog1.noteType,
+            revisedById: changelog1.revisedById,
+          },
+        ],
+      });
     });
   });
 });
