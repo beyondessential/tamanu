@@ -156,7 +156,7 @@ encounter_notes AS (
     *,
     CASE WHEN revised_by_id IS NULL THEN id ELSE revised_by_id END edit_chain -- assign edit_chain with the id of itself if it is the root note
   FROM notes n
-  WHERE record_type = 'Encounter'
+  WHERE record_id = $encounter_id
 ),
 
 latest_encounter_notes_info as (
