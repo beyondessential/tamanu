@@ -50,7 +50,6 @@ export class FhirDiagnosticReport extends FhirResource {
   // This is beginning very modestly - can extend to handle full 
   // results soon.
   async pushUpstream() {
-    console.log('buildin12g');
     const { FhirServiceRequest, LabRequest } = this.sequelize.models;
 
     const { type, reference } = this.basedOn;
