@@ -168,8 +168,11 @@ patientProgramRegistration.get(
 
     res.send({
       ...registration,
-      registrationDate: recentRegistrationRecord.date,
-      registrationClinician: recentRegistrationRecord.clinician,
+      // Using optional chaining for these until we create the new field to track
+      // registration date in https://linear.app/bes/issue/SAV-570/add-new-column-to-patient-program-registration
+      // when that work gets done, we can decide whether we want to enforce these or keep the optional chaining
+      registrationDate: recentRegistrationRecord?.date,
+      registrationClinician: recentRegistrationRecord?.clinician,
       ...deactivationData,
     });
   }),
