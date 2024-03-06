@@ -9,6 +9,7 @@ notes_info as (
     record_id,
     json_agg(
       json_build_object(
+        'revisedById', id,
         'noteType', note_type,
         'content', "content",
         'noteDate', "date"::timestamp at time zone $timezone_string
