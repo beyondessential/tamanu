@@ -1,4 +1,4 @@
-import { Entity, ManyToOne, RelationId } from 'typeorm/browser';
+import { Column, Entity, ManyToOne, RelationId } from 'typeorm/browser';
 
 import {
   DateTimeString,
@@ -28,6 +28,7 @@ export class PatientProgramRegistrationCondition extends BaseModel
 
   // TODO: enum, see how it's implemented after this project is completed:
   // https://linear.app/bes/issue/EPI-554/deletion-data-tasks
+  @Column({ nullable: true })
   deletionStatus?: string;
   @DateTimeStringColumn()
   deletionDate?: DateTimeString;
@@ -69,6 +70,7 @@ export class PatientProgramRegistrationCondition extends BaseModel
       .createQueryBuilder('condition')
       .where('condition.programRegistryId = :programRegistryId', { programRegistryId })
       .andWhere('condition.patientId = :patientId', { patientId })
+      .andWhere('condition.deletionStatus IS NULL')
       .leftJoinAndSelect('condition.programRegistryCondition', 'programRegistryCondition')
       .getMany();
     return conditions;
