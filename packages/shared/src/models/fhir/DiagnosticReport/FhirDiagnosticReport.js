@@ -18,6 +18,10 @@ export class FhirDiagnosticReport extends FhirResource {
           type: Sequelize.TEXT,
           allowNull: false,
         },
+        category: {
+          type: DataTypes.JSONB,
+          allowNull: false,
+        },
         code: {
           type: DataTypes.JSONB,
           allowNull: false,
@@ -41,6 +45,7 @@ export class FhirDiagnosticReport extends FhirResource {
       basedOn: FhirReference.asYup(),
       status: yup.string().required(),
       code: FhirCodeableConcept.asYup().required(),
+      category: yup.array().of(FhirCodeableConcept.asYup()).required(),
     });
   }
 

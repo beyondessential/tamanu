@@ -66,7 +66,7 @@ export const fakeResourcesOfFhirServiceRequest = async models => {
   return resources;
 };
 
-export const fakeResourcesOfFhirServiceRequestWithLabRequest = async (models, resources) => {
+export const fakeResourcesOfFhirServiceRequestWithLabRequest = async (models, resources, overrides = {}) => {
   const { LabRequest, ReferenceData, LabTestPanel, LabTestPanelRequest } = models;
   const category = await ReferenceData.create({
     ...fake(ReferenceData),
@@ -88,6 +88,7 @@ export const fakeResourcesOfFhirServiceRequestWithLabRequest = async (models, re
     status: LAB_REQUEST_STATUSES.PUBLISHED,
     labTestPanelRequestId: labTestPanelRequest.id, // make one of them part of a panel
     requestedDate: '2022-07-27 16:30:00',
+    ...overrides,
   });
 
   const labRequest = await LabRequest.create(labRequestData);
