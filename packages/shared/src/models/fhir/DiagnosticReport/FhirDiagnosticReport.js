@@ -72,10 +72,12 @@ export class FhirDiagnosticReport extends FhirResource {
     });
   }
 
+
+
+
   // This is beginning very modestly - can extend to handle full 
   // results soon.
   async pushUpstream() {
-    console.log('Pushing upstream');
     const { FhirServiceRequest, LabRequest } = this.sequelize.models;
 
     const { type, reference } = this.basedOn;
@@ -89,24 +91,14 @@ export class FhirDiagnosticReport extends FhirResource {
     const serviceRequestFhirId = ref[1];
 
     const serviceRequest = await FhirServiceRequest.findByPk(serviceRequestFhirId);
-    console.log({ serviceRequestFhirId });
 
     if (!serviceRequest) {
       throw new Invalid(`ServiceRequest ${failedId} does not exist in Tamanu`, {
         code: FHIR_ISSUE_TYPE.INVALID.VALUE,
       });
     }
-    let upstreamRequest;
-    if (serviceRequestId) {
-      upstreamRequest = await ImagingRequest.findByPk(serviceRequestId);
-    } else if (serviceRequestDisplayId) {
-      upstreamRequest = await ImagingRequest.findOne({
-        where: { displayId: serviceRequestDisplayId },
-      });
-    }
-
-    if (this.status !== 'final') {
-      throw new Invalid(`ImagingStudy status must be 'final'`, {
+    if (!this.getLabRequestStatus()) {
+      throw new Invalid(`LabRequest status invalid`, {
         code: FHIR_ISSUE_TYPE.INVALID.VALUE,
       });
     }
@@ -117,26 +109,9 @@ export class FhirDiagnosticReport extends FhirResource {
       throw new Deleted(`LabRequest ${serviceRequest.upstreamId} has been deleted in Tamanu`);
     }
 
-    console.log({ newStatus: labRequest.getLabRequestStatus() });
     labRequest.set({ status: this.getLabRequestStatus() });
     await labRequest.save();
-
-    return result;
-  }
-
-  async updateMaterialisation() {
-    const upstream = await this.getUpstream(getQueryOptions(this.sequelize.models));
-    const values = await getValues(upstream, this.sequelize.models);
-    this.set(values);
-  }
-
-  static async queryToFindUpstreamIdsFromTable(upstreamTable, table, id) {
-    const { LabTest } = this.sequelize.models;
-
-    if (upstreamTable === LabTest.tableName) {
-      return fromLabTests(this.sequelize.models, table, id);
-    }
-    return null;
+    return labRequest;
   }
 
   getLabRequestStatus() {
@@ -161,4 +136,20 @@ export class FhirDiagnosticReport extends FhirResource {
         return null;
     }
   }
+
+  async updateMaterialisation() {
+    const upstream = await this.getUpstream(getQueryOptions(this.sequelize.models));
+    const values = await getValues(upstream, this.sequelize.models);
+    this.set(values);
+  }
+
+  static async queryToFindUpstreamIdsFromTable(upstreamTable, table, id) {
+    const { LabTest } = this.sequelize.models;
+
+    if (upstreamTable === LabTest.tableName) {
+      return fromLabTests(this.sequelize.models, table, id);
+    }
+    return null;
+  }
+
 }
