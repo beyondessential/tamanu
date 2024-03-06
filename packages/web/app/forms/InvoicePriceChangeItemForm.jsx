@@ -14,6 +14,8 @@ import {
 } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { FormSubmitCancelRow } from '../components/ButtonRow';
+import { FORM_TYPES } from '../constants';
+import { TranslatedText } from '../components/Translation/TranslatedText';
 
 export const InvoicePriceChangeItemForm = ({
   actionText,
@@ -28,18 +30,44 @@ export const InvoicePriceChangeItemForm = ({
       onSubmit={onSubmit}
       render={({ submitForm }) => (
         <FormGrid>
-          <Field name="date" label="Date" required component={DateField} saveDateAsString />
-          <Field name="description" label="Details" required component={TextField} />
+          <Field
+            name="date"
+            label={<TranslatedText stringId="general.date.label" fallback="Date" />}
+            required
+            component={DateField}
+            saveDateAsString
+          />
+          <Field
+            name="description"
+            label={
+              <TranslatedText
+                stringId="invoice.modal.priceChange.description.label"
+                fallback="Details"
+              />
+            }
+            required
+            component={TextField}
+          />
           <Field
             name="orderedById"
-            label="Ordered by"
+            label={
+              <TranslatedText
+                stringId="invoice.modal.priceChange.orderedBy.label"
+                fallback="Ordered by"
+              />
+            }
             required
             component={AutocompleteField}
             suggester={practitionerSuggester}
           />
           <Field
             name="percentageChange"
-            label="Discount/markup % (-/+)"
+            label={
+              <TranslatedText
+                stringId="invoice.modal.priceChange.percentageChange.label"
+                fallback="Discount/markup % (-/+)"
+              />
+            }
             required
             component={NumberField}
           />
@@ -54,6 +82,7 @@ export const InvoicePriceChangeItemForm = ({
         date: getCurrentDateTimeString(),
         ...invoicePriceChangeItem,
       }}
+      formType={invoicePriceChangeItem ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
       validationSchema={yup.object().shape({
         description: foreignKey('Details is required'),
         orderedById: foreignKey('Ordered by must be selected'),

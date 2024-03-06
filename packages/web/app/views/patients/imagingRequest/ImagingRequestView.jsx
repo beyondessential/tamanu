@@ -9,7 +9,7 @@ import styled from 'styled-components';
 import { IMAGING_REQUEST_STATUS_TYPES, LAB_REQUEST_STATUS_CONFIG } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 
-import { IMAGING_REQUEST_STATUS_OPTIONS } from '../../../constants';
+import { FORM_TYPES, IMAGING_REQUEST_STATUS_OPTIONS } from '../../../constants';
 import { ENCOUNTER_TAB_NAMES } from '../../../constants/encounterTabNames';
 
 import { useLocalisation } from '../../../contexts/Localisation';
@@ -34,6 +34,7 @@ import { SimpleTopBar } from '../../../components';
 
 import { CancelModalButton } from './CancelModalButton';
 import { PrintModalButton } from './PrintModalButton';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
   const { getLocalisation } = useLocalisation();
@@ -57,30 +58,41 @@ const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
 
   return (
     <FormGrid columns={3}>
-      <TextInput value={imagingRequest.displayId} label="Request ID" disabled />
+      <TextInput
+        value={imagingRequest.displayId}
+        label={<TranslatedText stringId="imaging.requestId.label" fallback="Request ID" />}
+        disabled
+      />
       <TextInput
         value={imagingTypes[imagingRequest.imagingType]?.label || 'Unknown'}
-        label="Request type"
+        label={<TranslatedText stringId="imaging.imagingType.label" fallback="Request type" />}
         disabled
       />
       <TextInput
         value={imagingPriorities.find(p => p.value === imagingRequest.priority)?.label || ''}
-        label="Priority"
+        label={<TranslatedText stringId="imaging.priority.label" fallback="Priority" />}
         disabled
       />
       <Field
         name="status"
-        label="Status"
+        label={<TranslatedText stringId="imaging.status.label" fallback="Status" />}
         component={SelectField}
         options={isCancelled ? cancelledOption : IMAGING_REQUEST_STATUS_OPTIONS}
         disabled={isCancelled}
         isClearable={false}
         required
+        prefix="imaging.property.status"
       />
-      <DateTimeInput value={imagingRequest.requestedDate} label="Request date and time" disabled />
+      <DateTimeInput
+        value={imagingRequest.requestedDate}
+        label={
+          <TranslatedText stringId="imaging.requestedDate.label" fallback="Request date and time" />
+        }
+        disabled
+      />
       {allowLocationChange && (
         <Field
-          label="Facility area"
+          label={<TranslatedText stringId="imaging.facilityArea.label" fallback="Facility area" />}
           name="locationGroupId"
           component={AutocompleteField}
           suggester={locationGroupSuggester}
@@ -94,14 +106,14 @@ const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
             ? imagingRequest.areas.map(area => area.name).join(', ')
             : imagingRequest.areaNote
         }
-        label="Areas to be imaged"
+        label={<TranslatedText stringId="imaging.areas.label" fallback="Areas to be imaged" />}
         style={{ gridColumn: '1 / -1', minHeight: '60px' }}
         disabled
       />
       <TextInput
         multiline
         value={imagingRequest.note}
-        label="Notes"
+        label={<TranslatedText stringId="general.notes.label" fallback="Notes" />}
         style={{ gridColumn: '1 / -1', minHeight: '60px' }}
         disabled
       />
@@ -123,7 +135,7 @@ const NewResultSection = ({ disabled = false }) => {
   return (
     <FormGrid columns={2}>
       <Field
-        label="Completed by"
+        label={<TranslatedText stringId="imaging.completedBy.label" fallback="Completed by" />}
         name="newResult.completedById"
         placeholder="Search"
         component={AutocompleteField}
@@ -131,14 +143,16 @@ const NewResultSection = ({ disabled = false }) => {
         disabled={disabled}
       />
       <Field
-        label="Completed"
+        label={<TranslatedText stringId="imaging.completedDate.label" fallback="Completed" />}
         name="newResult.completedAt"
         saveDateAsString
         component={DateTimeField}
         disabled={disabled}
       />
       <Field
-        label="Result description"
+        label={
+          <TranslatedText stringId="imaging.description.label" fallback="Result description" />
+        }
         name="newResult.description"
         placeholder="Result description..."
         multiline
@@ -150,12 +164,13 @@ const NewResultSection = ({ disabled = false }) => {
   );
 };
 
+function openUrl(url) {
+  window.open(url, '_blank');
+}
 const ImagingResultRow = ({ result }) => {
   const { externalUrl, completedAt, completedBy, description } = result;
 
-  // const { openUrl } = useElectron(); // TODO(web)
-  function openUrl(url) { window.open(url, '_blank'); }
-  const onOpenUrl = useCallback(() => openUrl(externalUrl), [openUrl, externalUrl]);
+  const onOpenUrl = useCallback(() => openUrl(externalUrl), [externalUrl]);
 
   return (
     <BottomAlignFormGrid columns={externalUrl ? 3 : 2}>
@@ -217,6 +232,7 @@ const ImagingRequestInfoPane = React.memo(({ imagingRequest, onSubmit }) => {
       }}
       enableReinitialize // Updates form to reflect changes in initialValues
       initialStatus={{}}
+      formType={FORM_TYPES.EDIT_FORM}
       initialValues={{
         ...imagingRequest,
         newResult: {
@@ -232,10 +248,23 @@ const ImagingRequestInfoPane = React.memo(({ imagingRequest, onSubmit }) => {
           <>
             <ImagingRequestSection currentStatus={values.status} imagingRequest={imagingRequest} />
             <ImagingResultsSection results={imagingRequest.results} />
-            <h4>{imagingRequest.results.length > 0 ? 'Add additional result' : 'Add result'}</h4>
+            <h4>
+              {imagingRequest.results.length > 0 ? (
+                <TranslatedText
+                  stringId="imaging.action.addAdditionalResult"
+                  fallback="Add additional result"
+                />
+              ) : (
+                <TranslatedText stringId="imaging.action.addResult" fallback="Add result" />
+              )}
+            </h4>
             <NewResultSection disabled={!canAddResult} />
             <ButtonRow style={{ marginTop: 20 }}>
-              {!isCancelled && <FormSubmitButton text="Save" />}
+              {!isCancelled && (
+                <FormSubmitButton
+                  text={<TranslatedText stringId="general.action.save" fallback="Save" />}
+                />
+              )}
             </ButtonRow>
           </>
         );
@@ -268,7 +297,9 @@ export const ImagingRequestView = () => {
 
   return (
     <>
-      <SimpleTopBar title="Imaging request">
+      <SimpleTopBar
+        title={<TranslatedText stringId="imaging.topbar.title" fallback="Imaging request" />}
+      >
         {isCancellable && (
           <CancelModalButton imagingRequest={imagingRequest} onCancel={onNavigateBackToImaging} />
         )}

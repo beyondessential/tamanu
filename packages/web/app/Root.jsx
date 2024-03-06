@@ -13,11 +13,13 @@ import { RoutingApp } from './RoutingApp';
 import { theme } from './theme';
 import { EncounterProvider } from './contexts/Encounter';
 import { LabRequestProvider } from './contexts/LabRequest';
-import { LocalisationProvider } from './contexts/Localisation';
 import { ReferralProvider } from './contexts/Referral';
 import { ImagingRequestsProvider } from './contexts/ImagingRequests';
 import { PatientSearchProvider } from './contexts/PatientSearch';
 import { EncounterNotesProvider } from './contexts/EncounterNotes';
+import { SyncStateProvider } from './contexts/SyncState';
+import { TranslationProvider } from './contexts/Translation';
+import { LocalisationProvider } from './contexts/Localisation';
 
 const StateContextProviders = ({ children, store }) => (
   <EncounterProvider store={store}>
@@ -26,7 +28,11 @@ const StateContextProviders = ({ children, store }) => (
         <EncounterNotesProvider>
           <LabRequestProvider store={store}>
             <PatientSearchProvider>
-              <LocalisationProvider store={store}>{children}</LocalisationProvider>
+              <SyncStateProvider>
+                <TranslationProvider>
+                  <LocalisationProvider store={store}>{children}</LocalisationProvider>
+                </TranslationProvider>
+              </SyncStateProvider>
             </PatientSearchProvider>
           </LabRequestProvider>
         </EncounterNotesProvider>
@@ -55,19 +61,19 @@ function Root({ api, store, history }) {
                 <ThemeProvider theme={theme}>
                   <StateContextProviders store={store}>
                     <ReactQueryDevtools initialIsOpen={false} />
-                      <ToastContainer
-                        hideProgressBar
-                        transition={Slide}
-                        closeOnClick
-                        pauseOnFocusLoss
-                        draggable
-                        pauseOnHover
-                        theme="colored"
-                        icon={false}
-                        limit={5}
-                      />
-                      <CssBaseline />
-                      <RoutingApp />
+                    <ToastContainer
+                      hideProgressBar
+                      transition={Slide}
+                      closeOnClick
+                      pauseOnFocusLoss
+                      draggable
+                      pauseOnHover
+                      theme="colored"
+                      icon={false}
+                      limit={5}
+                    />
+                    <CssBaseline />
+                    <RoutingApp />
                   </StateContextProviders>
                 </ThemeProvider>
               </MuiThemeProvider>

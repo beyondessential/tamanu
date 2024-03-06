@@ -230,6 +230,8 @@ export const practitioner = [
   { verb: 'create', noun: 'EncounterNote' },
   { verb: 'write', noun: 'EncounterNote' },
 
+  { verb: 'write', noun: 'Translation' },
+  
   { verb: 'read', noun: 'ProgramRegistry' },
   { verb: 'list', noun: 'ProgramRegistry' },
 

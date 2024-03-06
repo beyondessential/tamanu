@@ -18,7 +18,7 @@ async function createDummyDataElement(models, survey, { config, ...dataElementOv
     ...dataElementOverrides,
   });
 
-  const question = await models.SurveyScreenComponent.create({
+  await models.SurveyScreenComponent.create({
     ...fake(models.SurveyScreenComponent),
     dataElementId: dataElement.id,
     surveyId: survey.id,
@@ -162,11 +162,16 @@ describe('SurveyResponse.createWithAnswers', () => {
         },
       },
     });
+    const { id: userId } = await models.User.create({
+      displayName: 'Test clinician',
+      email: 'testclinician@test.test',
+    });
 
     await models.SurveyResponse.sequelize.transaction(() =>
       models.SurveyResponse.createWithAnswers({
         patientId,
         encounterId,
+        userId,
         surveyId: survey.id,
         answers: {
           [dataElement.id]: clinicalStatus.id,

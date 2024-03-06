@@ -6,7 +6,7 @@ import jwt from 'jsonwebtoken';
 import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
 import { VISIBILITY_STATUSES } from '@tamanu/constants/importable';
 import { disableHardcodedPermissionsForSuite, fake } from '@tamanu/shared/test-helpers';
-import { createTestContext, withDate } from '../utilities';
+import { createTestContext, withDateUnsafelyFaked } from '../utilities';
 
 const TEST_EMAIL = 'test@beyondessential.com.au';
 const TEST_ROLE_EMAIL = 'testrole@bes.au';
@@ -66,7 +66,7 @@ describe('Auth', () => {
     disableHardcodedPermissionsForSuite();
 
     it('should include role in the data returned by a successful login', async () => {
-      const result = await baseApp.post('/v1/login').send({
+      const result = await baseApp.post('/api/login').send({
         email: TEST_ROLE_EMAIL,
         password: TEST_PASSWORD,
         deviceId: TEST_DEVICE_ID,
@@ -80,7 +80,7 @@ describe('Auth', () => {
 
   describe('Logging in', () => {
     it('Should get a valid access token for correct credentials', async () => {
-      const response = await baseApp.post('/v1/login').send({
+      const response = await baseApp.post('/api/login').send({
         email: TEST_EMAIL,
         password: TEST_PASSWORD,
         deviceId: TEST_DEVICE_ID,
@@ -102,7 +102,7 @@ describe('Auth', () => {
     });
 
     it('Should issue a refresh token and save hashed refreshId to the database', async () => {
-      const response = await baseApp.post('/v1/login').send({
+      const response = await baseApp.post('/api/login').send({
         email: TEST_EMAIL,
         password: TEST_PASSWORD,
         deviceId: TEST_DEVICE_ID,
@@ -134,7 +134,7 @@ describe('Auth', () => {
 
     it('Should not issue a refresh token for external client', async () => {
       const response = await baseApp
-        .post('/v1/login')
+        .post('/api/login')
         .set({ 'X-Tamanu-Client': 'FHIR' })
         .send({
           email: TEST_EMAIL,
@@ -145,7 +145,7 @@ describe('Auth', () => {
     });
 
     it('Should respond with user details with correct credentials', async () => {
-      const response = await baseApp.post('/v1/login').send({
+      const response = await baseApp.post('/api/login').send({
         email: TEST_EMAIL,
         password: TEST_PASSWORD,
         deviceId: TEST_DEVICE_ID,
@@ -161,7 +161,7 @@ describe('Auth', () => {
     });
 
     it('Should return feature flags in the login response', async () => {
-      const response = await baseApp.post('/v1/login').send({
+      const response = await baseApp.post('/api/login').send({
         email: TEST_EMAIL,
         password: TEST_PASSWORD,
         deviceId: TEST_DEVICE_ID,
@@ -176,7 +176,7 @@ describe('Auth', () => {
     });
 
     it('Should reject an empty credential', async () => {
-      const response = await baseApp.post('/v1/login').send({
+      const response = await baseApp.post('/api/login').send({
         email: TEST_EMAIL,
         password: '',
         deviceId: TEST_DEVICE_ID,
@@ -185,7 +185,7 @@ describe('Auth', () => {
     });
 
     it('Should reject an incorrect password', async () => {
-      const response = await baseApp.post('/v1/login').send({
+      const response = await baseApp.post('/api/login').send({
         email: TEST_EMAIL,
         password: 'not the password',
         deviceId: TEST_DEVICE_ID,
@@ -194,18 +194,18 @@ describe('Auth', () => {
     });
 
     it('Should reject a deactivated user', async () => {
-      const response = await baseApp.post('/v1/login').send({
+      const response = await baseApp.post('/api/login').send({
         email: deactivatedUser.email,
         password: TEST_PASSWORD,
         deviceId: TEST_DEVICE_ID,
       });
-      expect(response).toBeForbidden();
+      expect(response).toHaveRequestError();
     });
   });
 
   describe('Refresh token', () => {
     it('Should return a new access token with expiresAt for a valid refresh token', async () => {
-      const loginResponse = await baseApp.post('/v1/login').send({
+      const loginResponse = await baseApp.post('/api/login').send({
         email: TEST_EMAIL,
         password: TEST_PASSWORD,
         deviceId: TEST_DEVICE_ID,
@@ -215,8 +215,8 @@ describe('Auth', () => {
       const { token, refreshToken } = loginResponse.body;
 
       // Make sure that Date used in signing new token is different from global mock date
-      const refreshResponse = await withDate(new Date(Date.now() + 10000), () =>
-        baseApp.post('/v1/refresh').send({
+      const refreshResponse = await withDateUnsafelyFaked(new Date(Date.now() + 10000), () =>
+        baseApp.post('/api/refresh').send({
           refreshToken,
           deviceId: TEST_DEVICE_ID,
         }),
@@ -243,7 +243,7 @@ describe('Auth', () => {
       expect(newTokenContents.exp).toBeGreaterThan(oldTokenContents.exp);
     });
     it('Should return a rotated refresh token', async () => {
-      const loginResponse = await baseApp.post('/v1/login').send({
+      const loginResponse = await baseApp.post('/api/login').send({
         email: TEST_EMAIL,
         password: TEST_PASSWORD,
         deviceId: TEST_DEVICE_ID,
@@ -253,8 +253,8 @@ describe('Auth', () => {
       const { refreshToken, user } = loginResponse.body;
 
       // Make sure that Date used in signing new token is different from global mock date
-      const refreshResponse = await withDate(new Date(Date.now() + 10000), () =>
-        baseApp.post('/v1/refresh').send({
+      const refreshResponse = await withDateUnsafelyFaked(new Date(Date.now() + 10000), () =>
+        baseApp.post('/api/refresh').send({
           refreshToken,
           deviceId: TEST_DEVICE_ID,
         }),
@@ -290,14 +290,14 @@ describe('Auth', () => {
       ).resolves.toBe(true);
     });
     it('Should reject if external client', async () => {
-      const loginResponse = await baseApp.post('/v1/login').send({
+      const loginResponse = await baseApp.post('/api/login').send({
         email: TEST_EMAIL,
         password: TEST_PASSWORD,
         deviceId: TEST_DEVICE_ID,
       });
       expect(loginResponse).toHaveSucceeded();
       const refreshResponse = await baseApp
-        .post('/v1/refresh')
+        .post('/api/refresh')
         .set('X-Tamanu-Client', 'FHIR')
         .send({
           refreshToken: loginResponse.refreshToken,
@@ -306,21 +306,21 @@ describe('Auth', () => {
       expect(refreshResponse).toHaveRequestError();
     });
     it('Should reject invalid refresh token', async () => {
-      const loginResponse = await baseApp.post('/v1/login').send({
+      const loginResponse = await baseApp.post('/api/login').send({
         email: TEST_EMAIL,
         password: TEST_PASSWORD,
         deviceId: TEST_DEVICE_ID,
       });
       expect(loginResponse).toHaveSucceeded();
 
-      const refreshResponse = await baseApp.post('/v1/refresh').send({
+      const refreshResponse = await baseApp.post('/api/refresh').send({
         refreshToken: 'invalid-token',
         deviceId: TEST_DEVICE_ID,
       });
       expect(refreshResponse).toHaveRequestError();
     });
     it('Should fail if refresh token requested with a token with aud not of refresh', async () => {
-      const loginResponse = await baseApp.post('/v1/login').send({
+      const loginResponse = await baseApp.post('/api/login').send({
         email: TEST_EMAIL,
         password: TEST_PASSWORD,
         deviceId: TEST_DEVICE_ID,
@@ -329,7 +329,7 @@ describe('Auth', () => {
 
       const { token } = loginResponse.body;
 
-      const refreshResponse = await baseApp.post('/v1/refresh').send({
+      const refreshResponse = await baseApp.post('/api/refresh').send({
         // Incorrectly send token instead
         refreshToken: token,
         deviceId: TEST_DEVICE_ID,
@@ -337,7 +337,7 @@ describe('Auth', () => {
       expect(refreshResponse).toHaveRequestError();
     });
     it('Should fail if refresh token requested from different device', async () => {
-      const loginResponse = await baseApp.post('/v1/login').send({
+      const loginResponse = await baseApp.post('/api/login').send({
         email: TEST_EMAIL,
         password: TEST_PASSWORD,
         deviceId: TEST_DEVICE_ID,
@@ -346,7 +346,7 @@ describe('Auth', () => {
 
       const { refreshToken } = loginResponse.body;
 
-      const refreshResponse = await baseApp.post('/v1/refresh').send({
+      const refreshResponse = await baseApp.post('/api/refresh').send({
         refreshToken,
         deviceId: 'different-device',
       });
@@ -359,7 +359,7 @@ describe('Auth', () => {
           password: TEST_PASSWORD,
         }),
       );
-      const loginResponse = await baseApp.post('/v1/login').send({
+      const loginResponse = await baseApp.post('/api/login').send({
         email: freshUser.email,
         password: TEST_PASSWORD,
         deviceId: TEST_DEVICE_ID,
@@ -371,7 +371,7 @@ describe('Auth', () => {
         visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
       });
 
-      const refreshResponse = await baseApp.post('/v1/refresh').send({
+      const refreshResponse = await baseApp.post('/api/refresh').send({
         refreshToken,
         deviceId: TEST_DEVICE_ID,
       });
@@ -386,7 +386,7 @@ describe('Auth', () => {
 
   it('Should answer a whoami request correctly', async () => {
     // first, log in and get token
-    const response = await baseApp.post('/v1/login').send({
+    const response = await baseApp.post('/api/login').send({
       email: TEST_EMAIL,
       password: TEST_PASSWORD,
       deviceId: TEST_DEVICE_ID,
@@ -396,7 +396,7 @@ describe('Auth', () => {
     const { token } = response.body;
 
     // then run the whoami request
-    const whoamiResponse = await baseApp.get('/v1/whoami').set('Authorization', `Bearer ${token}`);
+    const whoamiResponse = await baseApp.get('/api/whoami').set('Authorization', `Bearer ${token}`);
     expect(whoamiResponse).toHaveSucceeded();
 
     const { body } = whoamiResponse;
@@ -406,7 +406,7 @@ describe('Auth', () => {
   });
 
   it('Should send permissions alongside login information', async () => {
-    const response = await baseApp.post('/v1/login').send({
+    const response = await baseApp.post('/api/login').send({
       email: TEST_EMAIL,
       password: TEST_PASSWORD,
       deviceId: TEST_DEVICE_ID,
@@ -419,7 +419,7 @@ describe('Auth', () => {
   describe('Change password', () => {
     describe('Creating a one-time login', () => {
       it('Should create a one-time login for a password reset request', async () => {
-        const response = await baseApp.post('/v1/resetPassword').send({
+        const response = await baseApp.post('/api/resetPassword').send({
           email: TEST_EMAIL,
         });
 
@@ -438,7 +438,7 @@ describe('Auth', () => {
       });
 
       it('Should email the user a one-time login', async () => {
-        await baseApp.post('/v1/resetPassword').send({
+        await baseApp.post('/api/resetPassword').send({
           email: TEST_EMAIL,
         });
         const email = emailService.sendEmail.mock.calls[0][0].text;
@@ -462,7 +462,7 @@ describe('Auth', () => {
 
         await store.models.OneTimeLogin.create({ userId, token, expiresAt: new Date(2077, 1, 1) });
 
-        const response = await baseApp.post('/v1/changePassword').send({
+        const response = await baseApp.post('/api/changePassword').send({
           email: TEST_EMAIL,
           newPassword,
           token,
@@ -484,7 +484,7 @@ describe('Auth', () => {
       });
 
       it('Should reject a password reset if no one-time login exists', async () => {
-        const response = await baseApp.post('/v1/changePassword').send({
+        const response = await baseApp.post('/api/changePassword').send({
           email: TEST_EMAIL,
           newPassword: crypto.randomUUID(),
           token: crypto.randomUUID(),
@@ -503,7 +503,7 @@ describe('Auth', () => {
           usedAt: new Date(2000, 1, 1),
         });
 
-        const response = await baseApp.post('/v1/changePassword').send({
+        const response = await baseApp.post('/api/changePassword').send({
           email: TEST_EMAIL,
           newPassword,
           token,
@@ -522,7 +522,7 @@ describe('Auth', () => {
           expiresAt: new Date(2000, 1, 1),
         });
 
-        const response = await baseApp.post('/v1/changePassword').send({
+        const response = await baseApp.post('/api/changePassword').send({
           email: TEST_EMAIL,
           newPassword,
           token,

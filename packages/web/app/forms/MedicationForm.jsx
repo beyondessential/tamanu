@@ -21,6 +21,8 @@ import {
   SelectField,
   TextField,
 } from '../components';
+import { FORM_TYPES } from '../constants';
+import { TranslatedText } from '../components/Translation/TranslatedText';
 
 const drugRouteOptions = [
   { label: 'Dermal', value: 'dermal' },
@@ -70,13 +72,27 @@ const DiscontinuedLabel = ({ medication }) => {
   const { discontinuedDate, discontinuingClinician, discontinuingReason } = medication;
   return (
     <Box color="error.main" ml={2}>
-      <strong>Discontinued</strong>
+      <strong>
+        <TranslatedText stringId="medication.detail.discontinued.title" fallback="Discontinued" />
+      </strong>
       <br />
-      Discontinued at: <DateDisplay date={discontinuedDate} />
+      <TranslatedText
+        stringId="medication.detail.discontinued.discontinuedAt"
+        fallback="Discontinued at: :date"
+        replacements={{ date: <DateDisplay date={discontinuedDate} /> }}
+      />
       <br />
-      by: {discontinuingClinician?.displayName}
+      <TranslatedText
+        stringId="medication.detail.discontinued.discontinuedBy"
+        fallback="by: :clinician"
+        replacements={{ clinician: discontinuingClinician?.displayName }}
+      />
       <br />
-      Reason: {discontinuingReason}
+      <TranslatedText
+        stringId="medication.detail.discontinued.reason"
+        fallback="Reason: :reason"
+        replacements={{ reason: discontinuingReason }}
+      />
       <br />
     </Box>
   );
@@ -110,6 +126,12 @@ export const MedicationForm = React.memo(
       })();
     }, [awaitingPrint, submittedMedication]);
 
+    const preventNegative = value => {
+      if (!value.target.validity.valid) {
+        value.target.value = 0;
+      }
+    };
+
     return (
       <>
         <Form
@@ -133,13 +155,16 @@ export const MedicationForm = React.memo(
             quantity: medication?.quantity ?? 0,
             indication: medication?.indication ?? '',
           }}
+          formType={!readOnly && (medication ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM)}
           validationSchema={validationSchema(readOnly)}
           render={({ submitForm }) => (
             <FormGrid>
               <div style={{ gridColumn: '1 / -1' }}>
                 <Field
                   name="medicationId"
-                  label="Medication"
+                  label={
+                    <TranslatedText stringId="medication.medication.label" fallback="Medication" />
+                  }
                   component={AutocompleteField}
                   suggester={drugSuggester}
                   disabled={readOnly}
@@ -148,22 +173,32 @@ export const MedicationForm = React.memo(
               </div>
               <Field
                 name="prescription"
-                label="Instructions"
+                label={
+                  <TranslatedText
+                    stringId="medication.instructions.label"
+                    fallback="Instructions"
+                  />
+                }
                 component={TextField}
                 required={!readOnly}
                 disabled={readOnly}
               />
               <Field
                 name="route"
-                label="Route of administration"
+                label={
+                  <TranslatedText stringId="medication.route.label" fallback="Route of admission" />
+                }
                 component={SelectField}
                 options={drugRouteOptions}
                 disabled={readOnly}
                 required={!readOnly}
+                prefix="medication.property.route"
               />
               <Field
                 name="date"
-                label="Prescription date"
+                label={
+                  <TranslatedText stringId="medication.date.label" fallback="Prescription date" />
+                }
                 saveDateAsString
                 component={DateField}
                 required={!readOnly}
@@ -171,7 +206,7 @@ export const MedicationForm = React.memo(
               />
               <Field
                 name="endDate"
-                label="End date"
+                label={<TranslatedText stringId="medication.endDate.label" fallback="End date" />}
                 saveDateAsString
                 component={DateField}
                 disabled={readOnly}
@@ -179,7 +214,9 @@ export const MedicationForm = React.memo(
               />
               <Field
                 name="prescriberId"
-                label="Prescriber"
+                label={
+                  <TranslatedText stringId="medication.prescriber.label" fallback="Prescriber" />
+                }
                 component={AutocompleteField}
                 suggester={practitionerSuggester}
                 required={!readOnly}
@@ -187,7 +224,7 @@ export const MedicationForm = React.memo(
               />
               <Field
                 name="note"
-                label="Notes"
+                label={<TranslatedText stringId="general.notes.label" fallback="Notes" />}
                 component={TextField}
                 style={{ gridColumn: '1/-1' }}
                 disabled={readOnly}
@@ -196,49 +233,93 @@ export const MedicationForm = React.memo(
                 <h3 style={{ gridColumn: '1/-1' }}>Quantity</h3>
                 <Field
                   name="qtyMorning"
-                  label="Morning"
+                  label={
+                    <TranslatedText
+                      stringId="medication.quantityMorning.label"
+                      fallback="morning"
+                    />
+                  }
+                  min={0}
                   component={NumberField}
+                  onInput={preventNegative}
                   disabled={readOnly}
                 />
-                <Field name="qtyLunch" label="Lunch" component={NumberField} disabled={readOnly} />
+                <Field
+                  name="qtyLunch"
+                  min={0}
+                  label={
+                    <TranslatedText stringId="medication.quantityLunch.label" fallback="Lunch" />
+                  }
+                  component={NumberField}
+                  disabled={readOnly}
+                  onInput={preventNegative}
+                />
                 <Field
                   name="qtyEvening"
-                  label="Evening"
+                  label={
+                    <TranslatedText
+                      stringId="medication.quantityEvening.label"
+                      fallback="Evening"
+                    />
+                  }
+                  min={0}
                   component={NumberField}
                   disabled={readOnly}
+                  onInput={preventNegative}
                 />
-                <Field name="qtyNight" label="Night" component={NumberField} disabled={readOnly} />
+                <Field
+                  name="qtyNight"
+                  label={
+                    <TranslatedText stringId="medication.quantityNight.label" fallback="Night" />
+                  }
+                  min={0}
+                  component={NumberField}
+                  disabled={readOnly}
+                  onInput={preventNegative}
+                />
               </FormGrid>
               <Field
                 name="indication"
-                label="Indication"
+                label={
+                  <TranslatedText stringId="medication.indication.label" fallback="Indication" />
+                }
                 component={TextField}
                 disabled={readOnly}
               />
               <Field
                 name="quantity"
-                label="Discharge quantity"
+                label={
+                  <TranslatedText
+                    stringId="medication.dischargeQuantity.label"
+                    fallback="Discharge quantity"
+                  />
+                }
+                min={0}
                 component={NumberField}
                 disabled={readOnly}
+                onInput={preventNegative}
               />
               {shouldShowDiscontinuationButton && (
                 <>
                   <DiscontinuePrintButtonRow>
                     <Button variant="outlined" color="primary" onClick={onDiscontinue}>
-                      Discontinue
+                      <TranslatedText
+                        stringId="medication.action.discontinue"
+                        fallback="Discontinue"
+                      />
                     </Button>
                     <div />
                     {!shouldDiscontinue && (
                       <>
                         <Button variant="outlined" color="primary" onClick={onCancel}>
-                          Close
+                          <TranslatedText stringId="general.action.close" fallback="Close" />
                         </Button>
                         <Button
                           variant="contained"
                           color="primary"
                           onClick={() => setPrintModalOpen(true)}
                         >
-                          Print
+                          <TranslatedText stringId="general.action.print" fallback="Print" />
                         </Button>
                       </>
                     )}
@@ -250,14 +331,24 @@ export const MedicationForm = React.memo(
                   <>
                     <Field
                       name="discontinuingClinicianId"
-                      label="Discontinued by"
+                      label={
+                        <TranslatedText
+                          stringId="medication.discontinuedBy.label"
+                          fallback="Discontinued by"
+                        />
+                      }
                       component={AutocompleteField}
                       suggester={practitionerSuggester}
                       value={medication?.discontinuingClinicianId}
                     />
                     <Field
                       name="discontinuingReason"
-                      label="Discontinued reason"
+                      label={
+                        <TranslatedText
+                          stringId="medication.discontinuedReason.label"
+                          fallback="Discontinued reason"
+                        />
+                      }
                       component={TextField}
                     />
                   </>
@@ -266,7 +357,9 @@ export const MedicationForm = React.memo(
               </div>
               {shouldShowSubmitButton && (
                 <ButtonRow>
-                  <FormCancelButton onClick={onCancel}>Cancel</FormCancelButton>
+                  <FormCancelButton onClick={onCancel}>
+                    <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
+                  </FormCancelButton>
                   {shouldDiscontinue ? (
                     <FormSubmitButton
                       color="primary"
@@ -275,20 +368,30 @@ export const MedicationForm = React.memo(
                         submitForm(data);
                       }}
                     >
-                      Finalise
+                      <TranslatedText stringId="general.action.finalise" fallback="Finalise" />
                     </FormSubmitButton>
                   ) : (
                     <FormSubmitDropdownButton
                       actions={[
                         {
-                          label: 'Finalise',
+                          label: (
+                            <TranslatedText
+                              stringId="general.action.finalise"
+                              fallback="Finalise"
+                            />
+                          ),
                           onClick: data => {
                             setAwaitingPrint(false);
                             submitForm(data);
                           },
                         },
                         {
-                          label: 'Finalise & print',
+                          label: (
+                            <TranslatedText
+                              stringId="general.action.finaliseAndPrint"
+                              fallback="Finalise & print"
+                            />
+                          ),
                           onClick: data => {
                             setAwaitingPrint(true);
                             submitForm(data, true);

@@ -24,7 +24,8 @@ describe('PatientProgramRegistration', () => {
 
   afterAll(() => ctx.close());
 
-  const createProgramRegistry = async ({ clinicalStatuses = [], ...params } = {}) => {
+  const createProgramRegistry = async ({ ...params } = {}) => {
+    delete params.clinicalStatuses;
     const program = await models.Program.create(fake(models.Program));
     return models.ProgramRegistry.create(
       fake(models.ProgramRegistry, { programId: program.id, ...params }),
@@ -79,6 +80,7 @@ describe('PatientProgramRegistration', () => {
           registrationStatus: REGISTRATION_STATUSES.ACTIVE,
           patientId: patient.id,
           date: TEST_DATE_EARLY,
+          clinicianId: app.user.id,
         }),
       );
       await models.PatientProgramRegistration.create(
@@ -87,6 +89,7 @@ describe('PatientProgramRegistration', () => {
           registrationStatus: REGISTRATION_STATUSES.RECORDED_IN_ERROR,
           patientId: patient.id,
           date: TEST_DATE_LATE,
+          clinicianId: app.user.id,
         }),
       );
 
@@ -97,6 +100,7 @@ describe('PatientProgramRegistration', () => {
           registrationStatus: REGISTRATION_STATUSES.INACTIVE,
           patientId: patient.id,
           date: TEST_DATE_EARLY,
+          clinicianId: app.user.id,
         }),
       );
       await models.PatientProgramRegistration.create(
@@ -105,10 +109,11 @@ describe('PatientProgramRegistration', () => {
           registrationStatus: REGISTRATION_STATUSES.INACTIVE,
           patientId: patient.id,
           date: TEST_DATE_LATE,
+          clinicianId: app.user.id,
         }),
       );
 
-      const result = await app.get(`/v1/patient/${patient.id}/programRegistration`);
+      const result = await app.get(`/api/patient/${patient.id}/programRegistration`);
 
       expect(result).toHaveSucceeded();
       expect(result.body.data).toMatchObject([
@@ -147,7 +152,7 @@ describe('PatientProgramRegistration', () => {
       const programRegistryCondition = await models.ProgramRegistryCondition.create(
         fake(models.ProgramRegistryCondition, { programRegistryId: programRegistry1.id }),
       );
-      const result = await app.post(`/v1/patient/${patient.id}/programRegistration`).send({
+      const result = await app.post(`/api/patient/${patient.id}/programRegistration`).send({
         programRegistryId: programRegistry1.id,
         clinicianId: clinician.id,
         patientId: patient.id,
@@ -196,9 +201,9 @@ describe('PatientProgramRegistration', () => {
       );
 
       // Add a small delay so the registrations are definitely created at distinctly different times.
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise(resolve => { setTimeout(resolve, 100) });
 
-      const result = await app.post(`/v1/patient/${patient.id}/programRegistration`).send({
+      const result = await app.post(`/api/patient/${patient.id}/programRegistration`).send({
         // clinicianId: Should come from existing registration
         patientId: patient.id,
         programRegistryId: programRegistry1.id,
@@ -284,7 +289,7 @@ describe('PatientProgramRegistration', () => {
       ];
 
       for (const r of records) {
-        await app.post(`/v1/patient/${patient.id}/programRegistration`).send(r);
+        await app.post(`/api/patient/${patient.id}/programRegistration`).send(r);
         // await sleepAsync(1000);
       }
 
@@ -295,7 +300,7 @@ describe('PatientProgramRegistration', () => {
       const { patient, registry, records } = await populate();
 
       const result = await app.get(
-        `/v1/patient/${patient.id}/programRegistration/${registry.id}/history`,
+        `/api/patient/${patient.id}/programRegistration/${registry.id}/history`,
       );
       expect(result).toHaveSucceeded();
 
@@ -322,7 +327,7 @@ describe('PatientProgramRegistration', () => {
     it('fetches the full detail of the latest registration', async () => {
       const { patient, registry, records } = await populate();
 
-      const result = await app.get(`/v1/patient/${patient.id}/programRegistration/${registry.id}`);
+      const result = await app.get(`/api/patient/${patient.id}/programRegistration/${registry.id}`);
       expect(result).toHaveSucceeded();
 
       const record = result.body;
@@ -346,7 +351,7 @@ describe('PatientProgramRegistration', () => {
 
         // real patient, real registry, but not registered
         const result = await app.get(
-          `/v1/patient/${patient.id}/programRegistration/${registry.id}`,
+          `/api/patient/${patient.id}/programRegistration/${registry.id}`,
         );
         expect(result).toHaveStatus(404);
       });
@@ -356,7 +361,7 @@ describe('PatientProgramRegistration', () => {
 
         const newApp = await baseApp.asRole('base');
         const result = await newApp.get(
-          `/v1/patient/${patient.id}/programRegistration/${registry.id}`,
+          `/api/patient/${patient.id}/programRegistration/${registry.id}`,
         );
         expect(result).toBeForbidden();
       });
@@ -390,7 +395,7 @@ describe('PatientProgramRegistration', () => {
 
       it('creates a new condition', async () => {
         const result = await app
-          .post(`/v1/patient/${patient.id}/programRegistration/${programRegistry.id}/condition`)
+          .post(`/api/patient/${patient.id}/programRegistration/${programRegistry.id}/condition`)
           .send({
             programRegistryConditionId: programRegistryCondition.id,
             date: '2023-09-02 08:00:00',
@@ -421,7 +426,7 @@ describe('PatientProgramRegistration', () => {
           }),
         );
         const result = await app
-          .post(`/v1/patient/${patient.id}/programRegistration/${programRegistry.id}/condition`)
+          .post(`/api/patient/${patient.id}/programRegistration/${programRegistry.id}/condition`)
           .send({
             programRegistryConditionId: programRegistryCondition.id,
             date: '2023-09-02 08:00:00',
@@ -453,7 +458,7 @@ describe('PatientProgramRegistration', () => {
         );
         const result = await app
           .delete(
-            `/v1/patient/${patient.id}/programRegistration/${programRegistry1.id}/condition/${createdCondition.id}`,
+            `/api/patient/${patient.id}/programRegistration/${programRegistry1.id}/condition/${createdCondition.id}`,
           )
           .send({
             programRegistryConditionId: programRegistryCondition.id,

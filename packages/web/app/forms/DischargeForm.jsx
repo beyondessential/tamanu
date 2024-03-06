@@ -5,7 +5,7 @@ import { range } from 'lodash';
 import { isFuture, parseISO, set } from 'date-fns';
 import { format, getCurrentDateTimeString, toDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { Divider as BaseDivider } from '@material-ui/core';
-import { Colors, FORM_STATUSES } from '../constants';
+import { Colors, FORM_STATUSES, FORM_TYPES } from '../constants';
 import { useApi } from '../api';
 import { foreignKey } from '../utils/validation';
 
@@ -27,15 +27,13 @@ import { DateTimeField, DateTimeInput } from '../components/Field/DateField';
 import { TextInput } from '../components/Field/TextField';
 import { FormGrid } from '../components/FormGrid';
 import { TableFormFields } from '../components/Table';
+import { LowerCase } from '../components/Typography';
 
 import { FormConfirmCancelBackRow, FormSubmitCancelRow } from '../components/ButtonRow';
 import { DiagnosisList } from '../components/DiagnosisList';
 import { useEncounter } from '../contexts/Encounter';
-import {
-  MODAL_PADDING_LEFT_AND_RIGHT,
-  MODAL_PADDING_TOP_AND_BOTTOM,
-  useLocalisedText,
-} from '../components';
+import { MODAL_PADDING_LEFT_AND_RIGHT, MODAL_PADDING_TOP_AND_BOTTOM } from '../components';
+import { TranslatedText } from '../components/Translation/TranslatedText';
 
 const Divider = styled(BaseDivider)`
   margin: 30px -${MODAL_PADDING_LEFT_AND_RIGHT}px;
@@ -107,9 +105,11 @@ const StyledUnorderedList = styled.ul`
 
 const ProcedureList = React.memo(({ procedures }) => (
   <StyledUnorderedList>
-    {procedures.length > 0
-      ? procedures.map(({ procedureType }) => <li key={procedureType.id}>{procedureType.name}</li>)
-      : 'N/a'}
+    {procedures.length > 0 ? (
+      procedures.map(({ procedureType }) => <li key={procedureType.id}>{procedureType.name}</li>)
+    ) : (
+      <TranslatedText stringId="general.fallback.notApplicable" fallback="N/A" />
+    )}
   </StyledUnorderedList>
 ));
 
@@ -172,45 +172,96 @@ const RepeatsAccessor = ({ id }) => (
     isClearable={false}
     component={SelectField}
     options={REPEATS_OPTIONS}
+    prefix="discharge.medication.property.repeats"
   />
 );
 
 const medicationColumns = [
   {
     key: 'drug/prescription',
-    title: 'Drug / Prescription',
+    title: (
+      <TranslatedText
+        stringId="discharge.table.column.drugOrPrescription"
+        fallback="Drug / Prescription"
+      />
+    ),
     accessor: MedicationAccessor,
   },
-  { key: 'quantity', title: 'Discharge Quantity', accessor: QuantityAccessor, width: '20%' },
-  { key: 'repeats', title: 'Repeats', accessor: RepeatsAccessor, width: '20%' },
+  {
+    key: 'quantity',
+    title: (
+      <TranslatedText
+        stringId="discharge.table.column.dischargeQuantity"
+        fallback="Discharge Quantity"
+      />
+    ),
+    accessor: QuantityAccessor,
+    width: '20%',
+  },
+  {
+    key: 'repeats',
+    title: <TranslatedText stringId="discharge.table.column.repeats" fallback="Repeats" />,
+    accessor: RepeatsAccessor,
+    width: '20%',
+  },
 ];
 
 const EncounterOverview = ({
   encounter: { procedures, diagnoses, startDate, examiner, reasonForEncounter },
 }) => {
-  const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
-
   // Only display diagnoses that don't have a certainty of 'error' or 'disproven'
   const currentDiagnoses = diagnoses.filter(d => !['error', 'disproven'].includes(d.certainty));
 
   return (
     <>
-      <DateTimeInput label="Admission date" value={startDate} disabled />
+      <DateTimeInput
+        label={
+          <TranslatedText stringId="discharge.admissionDate.label" fallback="Admission date" />
+        }
+        value={startDate}
+        disabled
+      />
       <TextInput
-        label={`Supervising ${clinicianText.toLowerCase()}`}
+        label={
+          <TranslatedText
+            stringId="general.supervisingClinician.label"
+            fallback="Supervising :clinician"
+            replacements={{
+              clinician: (
+                <LowerCase>
+                  <TranslatedText
+                    stringId="general.localisedField.clinician.label.short"
+                    fallback="Clinician"
+                  />
+                </LowerCase>
+              ),
+            }}
+          />
+        }
         value={examiner ? examiner.displayName : '-'}
         disabled
       />
       <TextInput
-        label="Reason for encounter"
+        label={
+          <TranslatedText
+            stringId="discharge.encounterReason.label"
+            fallback="Reason for encounter"
+          />
+        }
         value={reasonForEncounter}
         disabled
         style={{ gridColumn: '1 / -1' }}
       />
-      <OuterLabelFieldWrapper label="Diagnoses" style={{ gridColumn: '1 / -1' }}>
+      <OuterLabelFieldWrapper
+        label={<TranslatedText stringId="discharge.diagnoses.label" fallback="Diagnoses" />}
+        style={{ gridColumn: '1 / -1' }}
+      >
         <DiagnosisList diagnoses={currentDiagnoses} />
       </OuterLabelFieldWrapper>
-      <OuterLabelFieldWrapper label="Procedures" style={{ gridColumn: '1 / -1' }}>
+      <OuterLabelFieldWrapper
+        label={<TranslatedText stringId="discharge.procedures.label" fallback="Procedures" />}
+        style={{ gridColumn: '1 / -1' }}
+      >
         <ProcedureList procedures={procedures} />
       </OuterLabelFieldWrapper>
     </>
@@ -226,7 +277,9 @@ const DischargeFormScreen = props => {
         <FormSubmitCancelRow
           onCancel={onCancel}
           onConfirm={async () => {
-            const { isCanceled, ...formErrors } = await validateForm();
+            const formErrors = await validateForm();
+            delete formErrors.isCanceled;
+
             if (Object.keys(formErrors).length > 0) {
               // Hacky, set to SUBMIT_ATTEMPTED status to view error before summary page
               // without hitting submit button, it works with one page only. Ideally we should
@@ -236,8 +289,8 @@ const DischargeFormScreen = props => {
               onStepForward();
             }
           }}
-          confirmText="Finalise"
-          cancelText="Cancel"
+          confirmText={<TranslatedText stringId="general.action.finalise" fallback="Finalise" />}
+          cancelText={<TranslatedText stringId="general.action.cancel" fallback="Cancel" />}
         />
       }
       {...props}
@@ -248,8 +301,18 @@ const DischargeFormScreen = props => {
 const DischargeSummaryScreen = ({ onStepBack, submitForm, onCancel }) => (
   <div className="ConfirmContent">
     <ConfirmContent>
-      <h3>Confirm patient discharge</h3>
-      <p>Are you sure you want to discharge the patient? This action is irreversible.</p>
+      <h3>
+        <TranslatedText
+          stringId="discharge.modal.confirm.heading"
+          fallback="Confirm patient discharge"
+        />
+      </h3>
+      <p>
+        <TranslatedText
+          stringId="discharge.modal.confirm.warningText"
+          fallback="Are you sure you want to discharge the patient? This action is irreversible."
+        />
+      </p>
     </ConfirmContent>
     <Divider />
     <FormConfirmCancelBackRow onBack={onStepBack} onConfirm={submitForm} onCancel={onCancel} />
@@ -263,7 +326,6 @@ export const DischargeForm = ({
   onSubmit,
 }) => {
   const { encounter } = useEncounter();
-  const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
   const [dischargeNotes, setDischargeNotes] = useState([]);
   const api = useApi();
   const { getLocalisedSchema } = useLocalisedSchema();
@@ -299,15 +361,14 @@ export const DischargeForm = ({
       onCancel={onCancel}
       initialValues={getDischargeInitialValues(encounter, dischargeNotes, medicationInitialValues)}
       FormScreen={DischargeFormScreen}
+      formType={FORM_TYPES.CREATE_FORM}
       SummaryScreen={DischargeSummaryScreen}
       validationSchema={yup.object().shape({
         endDate: yup.date().required(),
         discharge: yup
           .object()
           .shape({
-            dischargerId: foreignKey(
-              `Discharging ${clinicianText.toLowerCase()} is a required field'`,
-            ),
+            dischargerId: foreignKey('Required'),
           })
           .shape({
             dispositionId: getLocalisedSchema({
@@ -322,7 +383,9 @@ export const DischargeForm = ({
         <EncounterOverview encounter={encounter} />
         <Field
           name="endDate"
-          label="Discharge date"
+          label={
+            <TranslatedText stringId="discharge.dischargeDate.label" fallback="Discharge date" />
+          }
           component={DateTimeField}
           min={format(encounter.startDate, "yyyy-MM-dd'T'HH:mm")}
           required
@@ -330,31 +393,73 @@ export const DischargeForm = ({
         />
         <Field
           name="discharge.dischargerId"
-          label={`Discharging ${clinicianText.toLowerCase()}`}
+          label={
+            <TranslatedText
+              stringId="general.dischargingClinician.label"
+              fallback="Discharging :clinician"
+              replacements={{
+                clinician: (
+                  <TranslatedText
+                    stringId="general.localisedField.clinician.label"
+                    fallback="Clinician"
+                  />
+                ),
+              }}
+            />
+          }
           component={AutocompleteField}
           suggester={practitionerSuggester}
           required
         />
         <LocalisedField
           name="discharge.dispositionId"
+          label={
+            <TranslatedText
+              stringId="general.localisedField.discharge.dischargeDisposition.label"
+              fallback="Discharge disposition"
+            />
+          }
           path="fields.dischargeDisposition"
           component={AutocompleteField}
           suggester={dispositionSuggester}
         />
-        <OuterLabelFieldWrapper label="Discharge medications" style={{ gridColumn: '1 / -1' }}>
+        <OuterLabelFieldWrapper
+          label={
+            <TranslatedText
+              stringId="discharge.dischargeMedications.label"
+              fallback="Discharge medications"
+            />
+          }
+          style={{ gridColumn: '1 / -1' }}
+        >
           <TableFormFields columns={medicationColumns} data={activeMedications} />
         </OuterLabelFieldWrapper>
         <Field
           name="sendToPharmacy"
-          label="Send prescription to pharmacy"
+          label={
+            <TranslatedText
+              stringId="discharge.sendToPharmacy.label"
+              fallback="Send prescription to pharmacy"
+            />
+          }
           component={CheckField}
-          helperText="Requires mSupply"
+          helperText={
+            <TranslatedText
+              stringId="discharge.sendToPharmacy.helperText"
+              fallback="Requires mSupply"
+            />
+          }
           style={{ gridColumn: '1 / -1' }}
           disabled
         />
         <Field
           name="discharge.note"
-          label="Discharge treatment plan and follow-up notes"
+          label={
+            <TranslatedText
+              stringId="discharge.notes.label"
+              fallback="Discharge treatment plan and follow-up notes"
+            />
+          }
           component={TextField}
           multiline
           rows={4}

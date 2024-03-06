@@ -1,18 +1,11 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
 import { FormGrid } from '../components/FormGrid';
-import {
-  BodyText,
-  Button,
-  Field,
-  Form,
-  FormSubmitButton,
-  TextButton,
-  TextField,
-} from '../components';
+import { BodyText, Button, Field, Form, FormSubmitButton, TextField } from '../components';
 import { Colors } from '../constants';
+import { TranslatedText } from '../components/Translation/TranslatedText';
 
 const ResetPasswordButton = styled(FormSubmitButton)`
   font-size: 14px;
@@ -38,26 +31,40 @@ const FormSubtext = styled(BodyText)`
   padding: 10px 0;
 `;
 
-const ResetPasswordFormComponent = ({ errorMessage, onNavToLogin, setFieldError }) => {
+const ResetPasswordFormComponent = ({ errorMessage, onNavToLogin }) => {
   return (
     <FormGrid columns={1}>
       <div>
-        <FormHeading>Forgot password</FormHeading>
-        <FormSubtext>Enter your email address below and we will send you a reset code.</FormSubtext>
+        <FormHeading>
+          <TranslatedText stringId="forgotPassword.heading" fallback="Forgot password" />
+        </FormHeading>
+        <FormSubtext>
+          <TranslatedText
+            stringId="forgotPassword.message"
+            fallback="Enter your email address below and we will send you a reset code."
+          />
+        </FormSubtext>
         {!!errorMessage && <FormSubtext>{errorMessage}</FormSubtext>}
       </div>
       <Field
         name="email"
         type="email"
-        label="Email"
+        label={<TranslatedText stringId="forgotPassword.email.label" fallback="Email" />}
         required
         component={TextField}
         placeholder="Enter your email address"
         autoComplete="off"
       />
-      <ResetPasswordButton text="Send reset code" />
+      <ResetPasswordButton
+        text={
+          <TranslatedText
+            stringId="forgotPassword.sendResetCode.label"
+            fallback="Send reset code"
+          />
+        }
+      />
       <BackToLoginButton onClick={onNavToLogin} variant="outlined">
-        Back to login
+        <TranslatedText stringId="forgotPassword.backToLogin.label" fallback="Back to login" />
       </BackToLoginButton>
     </FormGrid>
   );

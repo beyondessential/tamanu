@@ -21,7 +21,7 @@ describe('Patient merge', () => {
   it('Should create a PatientLetterTemplate', async () => {
     const { PatientLetterTemplate } = models;
 
-    const result = await adminApp.post('/v1/admin/patientLetterTemplate').send({
+    const result = await adminApp.post('/api/admin/patientLetterTemplate').send({
       name: 'Sick note (1)',
     });
     expect(result).toHaveSucceeded();
@@ -37,7 +37,7 @@ describe('Patient merge', () => {
       name: 'Sick note (2)',
     });
 
-    const result = await adminApp.put(`/v1/admin/patientLetterTemplate/${patientLetterTemplate.id}`).send({
+    const result = await adminApp.put(`/api/admin/patientLetterTemplate/${patientLetterTemplate.id}`).send({
       name: 'Sick note (2)',
       body: 'Now we have some text',
     });
@@ -59,7 +59,7 @@ describe('Patient merge', () => {
       name: 'Sick note (3)',
     });
 
-    const response = await adminApp.put(`/v1/admin/patientLetterTemplate/${patientLetterTemplate.id}`).send({
+    const response = await adminApp.put(`/api/admin/patientLetterTemplate/${patientLetterTemplate.id}`).send({
       name: 'Sick note - name should conflict',
       body: 'Now we have some text',
     });
@@ -79,7 +79,7 @@ describe('Patient merge', () => {
       name: 'Sick note - name should conflict',
     });
 
-    const response = await adminApp.post('/v1/admin/patientLetterTemplate').send({
+    const response = await adminApp.post('/api/admin/patientLetterTemplate').send({
       name: 'Sick note - name should conflict',
     });
     expect(response).toHaveRequestError(422);

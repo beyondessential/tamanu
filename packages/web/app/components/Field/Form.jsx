@@ -11,6 +11,7 @@ import { Dialog } from '../Dialog';
 import { FORM_STATUSES, FORM_TYPES } from '../../constants';
 import { useFormSubmission } from '../../contexts/FormSubmission';
 import { IS_DEVELOPMENT } from '../../utils/env';
+import { TranslatedText } from '../Translation/TranslatedText';
 
 const ErrorMessage = ({ error }) => `${JSON.stringify(error)}`;
 
@@ -73,10 +74,10 @@ export class Form extends React.PureComponent {
   constructor(props) {
     super(props);
 
-    const { onSubmit, formType = FORM_TYPES.DATA_FORM } = props;
+    const { onSubmit, formType } = props;
     const hasNonAsyncSubmitHandler =
       IS_DEVELOPMENT &&
-      formType === FORM_TYPES.DATA_FORM &&
+      formType !== FORM_TYPES.SEARCH_FORM &&
       onSubmit.constructor.name !== 'AsyncFunction';
 
     this.state = {
@@ -111,7 +112,6 @@ export class Form extends React.PureComponent {
 
   createSubmissionHandler = ({
     validateForm,
-    handleSubmit,
     isSubmitting,
     setSubmitting,
     getValues,
@@ -119,6 +119,8 @@ export class Form extends React.PureComponent {
     status,
     ...rest
   }) => async (event, submissionParameters, componentsToValidate) => {
+    delete rest.handleSubmit;
+
     event.preventDefault();
     event.persist();
 
@@ -138,7 +140,8 @@ export class Form extends React.PureComponent {
     // There is a bug in formik when you have validateOnChange set to true and validate manually as
     // well where it adds { isCanceled: true } to the errors so a work around is to manually remove it.
     // @see https://github.com/jaredpalmer/formik/issues/1209
-    const { isCanceled, ...formErrors } = await validateForm(values);
+    const formErrors = await validateForm(values);
+    delete formErrors.isCanceled;
 
     const validFormErrors = componentsToValidate
       ? Object.keys(formErrors || {}).filter(problematicComponent =>
@@ -155,16 +158,16 @@ export class Form extends React.PureComponent {
     }
 
     // submission phase
-    const { onSubmit, onSuccess, formType = FORM_TYPES.DATA_FORM } = this.props;
+    const { onSubmit, onSuccess, formType } = this.props;
     const { touched } = rest;
     const newValues = { ...values };
 
-    // If it is a data form, before submission, convert all the touched undefined values
+    // If it is a data form i.e not search form, before submission, convert all the touched undefined values
     // to null because
     // 1. If it is an edit submit form, we need to be able to save the cleared values as null in the database if we are
     // trying to remove a value when editing a record
     // 2. If it is a new submit form, it does not matter if the empty value is undefined or null
-    if (formType === FORM_TYPES.DATA_FORM) {
+    if (formType !== FORM_TYPES.SEARCH_FORM) {
       for (const key of Object.keys(touched)) {
         if (newValues[key] === undefined) {
           newValues[key] = null;
@@ -191,13 +194,8 @@ export class Form extends React.PureComponent {
     }
   };
 
-  renderFormContents = ({
-    isValid,
-    isSubmitting,
-    submitForm: originalSubmitForm,
-    setValues: originalSetValues,
-    ...formProps
-  }) => {
+  renderFormContents = ({ isValid, isSubmitting, setValues: originalSetValues, ...formProps }) => {
+    delete formProps.submitForm;
     let { values } = formProps;
 
     // we need this func for nested forms
@@ -250,14 +248,16 @@ export class Form extends React.PureComponent {
   render() {
     const {
       onSubmit,
-      showInlineErrorsOnly,
       validateOnChange,
       validateOnBlur,
       initialValues,
+      formType,
       suppressErrorDialog = false,
-      render, // unused, but extracted from props so we don't pass it to formik
       ...props
     } = this.props;
+    delete props.showInlineErrorsOnly;
+    delete props.render; // we don't want to pass that to formik
+
     const { validationErrors } = this.state;
 
     // read children from additional props rather than destructuring so
@@ -277,6 +277,7 @@ export class Form extends React.PureComponent {
           initialValues={initialValues}
           initialStatus={{
             page: 1,
+            formType,
           }}
           {...props}
         >
@@ -286,7 +287,12 @@ export class Form extends React.PureComponent {
           <Dialog
             isVisible={hasErrors}
             onClose={this.hideErrorDialog}
-            headerTitle="Please fix below errors to continue"
+            headerTitle={
+              <TranslatedText
+                stringId="general.form.validationError.heading"
+                fallback="Please fix below errors to continue"
+              />
+            }
             disableDevWarning
             contentText={<FormErrors errors={validationErrors} />}
           />
@@ -301,6 +307,7 @@ Form.propTypes = {
   onSuccess: PropTypes.func,
   onSubmit: PropTypes.func.isRequired,
   render: PropTypes.func.isRequired,
+  formType: PropTypes.oneOf(Object.values(FORM_TYPES)),
   showInlineErrorsOnly: PropTypes.bool,
   initialValues: PropTypes.shape({}),
   validateOnChange: PropTypes.bool,
