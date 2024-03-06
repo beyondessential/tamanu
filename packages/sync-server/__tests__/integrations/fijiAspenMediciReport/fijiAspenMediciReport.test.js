@@ -284,7 +284,7 @@ const fakeAllData = async (models, ctx) => {
     }),
   );
 
-  await models.Note.create(
+  const encounterNote = await models.Note.create(
     fake(models.Note, {
       recordId: encounterId,
       noteType: NOTE_TYPES.NURSING,
@@ -325,7 +325,7 @@ const fakeAllData = async (models, ctx) => {
     lastUpdated: new Date(Date.UTC(2022, 6 - 1, 12, 0, 2, 54, 225)),
   });
 
-  return { patient, encounterId };
+  return { patient, encounterId, encounterNote };
 };
 
 describe('fijiAspenMediciReport', () => {
@@ -560,6 +560,7 @@ describe('fijiAspenMediciReport', () => {
             noteType: NOTE_TYPES.NURSING,
             content: 'A\nB\nC\nD\nE\nF\nG\n',
             noteDate: '2022-06-10T03:39:57+00:00',
+            revisedById: fakedata.encounterNote.id,
           },
         ],
       },
