@@ -9,6 +9,7 @@ export enum RegistrationStatus {
   RecordedInError = 'recordedInError',
 }
 
+// Please keep in sync with packages/web/app/constants/index.js
 export const PROGRAM_REGISTRATION_STATUS_LABEL = {
   [RegistrationStatus.Active]: 'Active',
   [RegistrationStatus.Inactive]: 'Removed',
