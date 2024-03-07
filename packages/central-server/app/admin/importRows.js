@@ -186,6 +186,8 @@ export async function importRows(
     return stats;
   }
 
+  // Hmmmm maybe we should check that here instead...
+
   log.debug('Upserting database rows', { rows: validRows.length });
   for (const { model, sheetRow, values } of validRows) {
     const Model = models[model];
