@@ -25,6 +25,7 @@ import {
   usePatientProgramRegistryConditionsQuery,
   useProgramRegistryConditionsQuery,
 } from '../../api/queries/usePatientProgramRegistryConditions';
+import { FORM_TYPES } from '../../constants';
 
 export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistration, open }) => {
   const api = useApi();
@@ -158,6 +159,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
                     component={MultiselectField}
                     options={conditions}
                     disabled={!conditions || conditions.length === 0}
+                    prefix="programRegistry.property.relatedCondition"
                   />
                 </FormGrid>
               </FormGrid>
@@ -184,6 +186,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
           conditionIds: registrationConditions?.data.map(x => x.programRegistryConditionId),
           clinicalStatusId: patientProgramRegistration.clinicalStatus?.id,
         }}
+        formType={FORM_TYPES.EDIT_FORM}
         validationSchema={yup.object().shape({
           clinicalStatusId: optionalForeignKey().nullable(),
           date: yup.date().required('Date of registration must be selected'),

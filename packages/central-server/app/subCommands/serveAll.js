@@ -11,7 +11,7 @@ import { tasks } from './tasks';
 
 export const serveAll = async ({ skipMigrationCheck, provisioning }) => {
   if (provisioning) {
-    await provision({ file: provisioning, skipIfNotNeeded: true });
+    await provision(provisioning, { skipIfNotNeeded: true });
   }
 
   log.info(`Starting Central server and tasks runner version ${pkg.version}`);
