@@ -31,7 +31,7 @@ export const CambodiaAdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps)
     customPatientFieldValues,
     patientAdditionalData,
     loading,
-    error
+    error,
   } = usePatientAdditionalData(patient.id);
   // Display general error
   if (error) {
@@ -54,27 +54,35 @@ export const CambodiaAdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps)
   const customSections = customPatientSections.map(([categoryId, fields]) => {
     const title = fields[0].category.name;
     const onEditCallback = (): void => onEdit(null, title, true, fields, customPatientFieldValues);
-    const mappedFields = fields.map(field => ([field.name, customPatientFieldValues[field.id]?.[0]?.value]));
+    const mappedFields = fields.map(field => [
+      field.name,
+      customPatientFieldValues[field.id]?.[0]?.value,
+    ]);
     return { title, fields: mappedFields, onEditCallback, isCustomFields: true };
   });
 
-  const sections = [
-    ...(additionalSections || []),
-    ...(customSections || []),
-  ];
+  const sections = [...(additionalSections || []), ...(customSections || [])];
+
+  // console.log(sections)
 
   return (
     <>
-      {sections.map(({ title, fields, onEditCallback, isCustomFields }) => (
-        <PatientSection
-          key={title}
-          title={title}
-          onEdit={isEditable ? onEditCallback : undefined}
-          isClosable
-        >
-          {loading ? <LoadingScreen /> : <FieldRowDisplay fields={fields} isCustomFields={isCustomFields} />}
-        </PatientSection>
-      ))}
+      {sections.map(({ title, fields, onEditCallback, isCustomFields }, i) => {
+        return (
+          <PatientSection
+            key={'additional-info-section-' + i}
+            title={title}
+            onEdit={isEditable ? onEditCallback : undefined}
+            isClosable
+          >
+            {loading ? (
+              <LoadingScreen />
+            ) : (
+              <FieldRowDisplay fields={fields} isCustomFields={isCustomFields} />
+            )}
+          </PatientSection>
+        );
+      })}
     </>
   );
 };

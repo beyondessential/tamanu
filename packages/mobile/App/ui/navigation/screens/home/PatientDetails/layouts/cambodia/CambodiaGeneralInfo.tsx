@@ -19,22 +19,42 @@ interface GeneralInfoProps {
   patient: IPatient;
 }
 
+const FIELD_DEFINITION_IDS = {
+  FATHERS_FIRST_NAME: 'fieldDefinition-fathersFirstName',
+  MOTHERS_FIRST_NAME: 'fieldDefinition-mothersFirstName',
+};
+
+const getCustomFieldValue = (customPatientFieldValues = {}, fieldDefinitionId) => {
+  return customPatientFieldValues[fieldDefinitionId][0].value;
+};
+
 export const CambodiaGeneralInfo = ({ onEdit, patient }: GeneralInfoProps): ReactElement => {
+  // Check if patient information should be editable
+  const { getBool } = useLocalisation();
+  const isEditable = getBool('features.editPatientDetailsOnMobile');
+
+  const {
+    patientAdditionalData,
+    customPatientFieldValues,
+    loading,
+    error,
+  } = usePatientAdditionalData(patient.id);
+  console.log(patient);
+
   const fields = [
     ['lastName', patient.lastName],
     ['firstName', patient.firstName],
     ['dateOfBirth', formatStringDate(patient.dateOfBirth, DateFormats.DDMMYY)],
     ['sex', getGender(patient.sex)],
+    [
+      'fathersFirstName',
+      !loading ? getCustomFieldValue(customPatientFieldValues, FIELD_DEFINITION_IDS.FATHERS_FIRST_NAME) : '',
+    ],
+    ['mothersFirstName', patient.culturalName],
   ];
 
-  // Check if patient information should be editable
-  const { getBool } = useLocalisation();
-  const isEditable = getBool('features.editPatientDetailsOnMobile');
-
-  const { patientAdditionalData, loading, error } = usePatientAdditionalData(patient.id);
-
   const patientAdditionalDataFields = allAdditionalDataFields
-    .filter(fieldName => getBool(`fields.${fieldName}.requiredPatientData`)) // TODO: Figure out how to have mother and father in here
+    .filter(fieldName => getBool(`fields.${fieldName}.requiredPatientData`))
     .map(fieldName => [fieldName, getFieldData(patientAdditionalData, fieldName)]);
   if (error) {
     return <ErrorScreen error={error} />;
