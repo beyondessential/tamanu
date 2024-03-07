@@ -324,49 +324,6 @@ describe('Create DiagnosticReport', () => {
         });
         expect(response.status).toBe(400);
       });
-
-      // it('returns invalid value if the service request cannot be found', async () => {
-      //   const srId = fakeUUID();
-
-      //   // act
-      //   const response = await app.post(`/api/integration/${INTEGRATION_ROUTE}/ImagingStudy`).send({
-      //     resourceType: 'ImagingStudy',
-      //     status: 'final',
-      //     identifier: [
-      //       {
-      //         system: 'http://data-dictionary.tamanu-fiji.org/ris-accession-number.html',
-      //         value: 'ACCESSION',
-      //       },
-      //     ],
-      //     basedOn: [
-      //       {
-      //         type: 'ServiceRequest',
-      //         identifier: {
-      //           system: 'http://data-dictionary.tamanu-fiji.org/tamanu-mrid-imagingrequest.html',
-      //           value: srId,
-      //         },
-      //       },
-      //     ],
-      //     note: [{ text: 'A note' }],
-      //   });
-
-      //   // assert
-      //   expect(response.body).toMatchObject({
-      //     resourceType: 'OperationOutcome',
-      //     id: expect.any(String),
-      //     issue: [
-      //       {
-      //         severity: 'error',
-      //         code: 'value',
-      //         diagnostics: expect.any(String),
-      //         details: {
-      //           text: `ServiceRequest ${srId} does not exist in Tamanu`,
-      //         },
-      //       },
-      //     ],
-      //   });
-      //   expect(response.status).toBe(400);
-      // });
     });
   });
 
