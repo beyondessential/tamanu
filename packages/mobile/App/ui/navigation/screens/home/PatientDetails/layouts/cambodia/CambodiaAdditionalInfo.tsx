@@ -6,8 +6,28 @@ import { LoadingScreen } from '../../../../../../components/LoadingScreen';
 import { PatientSection } from '../../CustomComponents/PatientSection';
 import { useLocalisation } from '../../../../../../contexts/LocalisationContext';
 import { IPatient, IPatientAdditionalData } from '../../../../../../types';
-import { additionalDataSections } from '../../../../../../helpers/additionalData';
 import { usePatientAdditionalData } from '~/ui/hooks/usePatientAdditionalData';
+import { allAdditionalDataFields } from '../../../../../../helpers/additionalData';
+
+export const cambodiaAdditionalDataSections = [
+  {
+    title: 'Current address',
+    fields: allAdditionalDataFields,
+  },
+  {
+    title: 'Contact information',
+    fields: [],
+  },
+  {
+    title: 'Identification information',
+    fields: ['birthCertificate'],
+  },
+  {
+    title: 'Personal information',
+    fields: [],
+  },
+];
+
 
 interface AdditionalInfoProps {
   onEdit: (additionalInfo: IPatientAdditionalData, sectionTitle: string) => void;
@@ -27,7 +47,6 @@ function getFieldData(data: IPatientAdditionalData, fieldName: string): string {
 
 export const CambodiaAdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps): ReactElement => {
   const {
-    customPatientSections,
     customPatientFieldValues,
     patientAdditionalData,
     loading,
@@ -38,32 +57,21 @@ export const CambodiaAdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps)
     return <ErrorScreen error={error} />;
   }
 
+  // console.log('customPatientFieldValues', customPatientFieldValues)
+  // console.log('patientAdditionalData', patientAdditionalData)
+
   // Check if patient additional data should be editable
   const { getBool } = useLocalisation();
   const isEditable = getBool('features.editPatientDetailsOnMobile');
 
   // Add edit callback and map the inner 'fields' array
-  const additionalSections = additionalDataSections.map(({ title, fields }) => {
+  const sections = cambodiaAdditionalDataSections.map(({ title, fields }) => {
     const onEditCallback = (): void => onEdit(patientAdditionalData, title, false);
     const mappedFields = fields
       .filter(fieldName => !getBool(`fields.${fieldName}.requiredPatientData`))
       .map(fieldName => [fieldName, getFieldData(patientAdditionalData, fieldName)]);
     return { title, fields: mappedFields, onEditCallback };
   });
-
-  const customSections = customPatientSections.map(([categoryId, fields]) => {
-    const title = fields[0].category.name;
-    const onEditCallback = (): void => onEdit(null, title, true, fields, customPatientFieldValues);
-    const mappedFields = fields.map(field => [
-      field.name,
-      customPatientFieldValues[field.id]?.[0]?.value,
-    ]);
-    return { title, fields: mappedFields, onEditCallback, isCustomFields: true };
-  });
-
-  const sections = [...(additionalSections || []), ...(customSections || [])];
-
-  // console.log(sections)
 
   return (
     <>

@@ -39,7 +39,6 @@ export const CambodiaGeneralInfo = ({ onEdit, patient }: GeneralInfoProps): Reac
     loading,
     error,
   } = usePatientAdditionalData(patient.id);
-  console.log(patient);
 
   const fields = [
     ['lastName', patient.lastName],
