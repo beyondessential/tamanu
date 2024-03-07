@@ -4,8 +4,8 @@ import { compose } from 'redux';
 import { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
 import { Routes } from '~/ui/helpers/routes';
 import { withPatient } from '~/ui/containers/Patient';
-import { getGender, joinNames } from '~/ui/helpers/user';
-import { getAgeFromDate } from '~/ui/helpers/date';
+import { joinNames, getGender } from '~/ui/helpers/user';
+import { getDisplayAge } from '~/ui/helpers/date';
 import {
   FullView,
   RowView,
@@ -25,6 +25,7 @@ import {
   HealthIdentificationRow,
   PatientIssues,
 } from './CustomComponents';
+import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 
 const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => {
   const onNavigateBack = useCallback(() => {
@@ -38,7 +39,13 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => 
   }, [navigation, selectedPatient]);
 
   const editPatientAdditionalData = useCallback(
-    (additionalData, sectionTitle, isCustomFields, customSectionFields, customPatientFieldValues) => {
+    (
+      additionalData,
+      sectionTitle,
+      isCustomFields,
+      customSectionFields,
+      customPatientFieldValues,
+    ) => {
       navigation.navigate(Routes.HomeStack.PatientDetailsStack.EditPatientAdditionalData, {
         patientId: selectedPatient.id,
         patientName: joinNames(selectedPatient),
@@ -55,6 +62,9 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => 
   const onEditPatientIssues = useCallback(() => {
     navigation.navigate(Routes.HomeStack.PatientDetailsStack.AddPatientIssue);
   }, [navigation]);
+
+  const { getLocalisation } = useLocalisation();
+  const ageDisplayFormat = getLocalisation('ageDisplayFormat');
 
   return (
     <FullView>
@@ -89,7 +99,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => 
               fontSize={screenPercentageToDP(2, Orientation.Height)}
             >
               {`${getGender(selectedPatient.sex)}, `}
-              {`${getAgeFromDate(selectedPatient.dateOfBirth)} years old`}
+              {`${getDisplayAge(selectedPatient.dateOfBirth, ageDisplayFormat)} old`}
             </StyledText>
           </StyledView>
         </RowView>

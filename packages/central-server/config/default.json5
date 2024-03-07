@@ -1121,7 +1121,11 @@
     // provide an array [] if you want to override the options, eg: ['--max-old-space-size=4096']
     "processOptions": null,
     // Provide an object {} for the env of child process
-    "childProcessEnv": null
+    "childProcessEnv": null,
+    "sleepAfterReport": {
+      "duration": "5m",
+      "ifRunAtLeast": "5m",
+    },
   },
   "hl7": {
     "nullLastNameValue": "NoLastName",
