@@ -44,6 +44,7 @@
     "date-fns": "^2.7.0",
     "deprecated-react-native-prop-types": "^5.0.0",
     "formik": "^2.1.2",
+    "jsc-android": "^250231.0.0",
     "lodash": "^4.17.20",
     "mathjs": "^12.1.0",
     "metro-minify-terser": "^0.64.0",
