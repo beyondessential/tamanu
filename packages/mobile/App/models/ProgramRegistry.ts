@@ -62,7 +62,7 @@ export class ProgramRegistry extends BaseModel implements IProgramRegistry {
       .andWhere('ppr.isMostRecent = 1')
       .getRawMany();
 
-    const programRegistryRepository = this.getRepository(ProgramRegistry);
+    const programRegistryRepository = this.getRepository();
     const filteredProgramRegistries = await programRegistryRepository
       .createQueryBuilder('pr')
       .where(`pr.id NOT IN (${activeRegistrations.map(({ id }) => `'${id}'`).join(',')})`);

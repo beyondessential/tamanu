@@ -318,7 +318,6 @@ const MultipageTableHeading = ({ title, style = textStyles().sectionTitle }) => 
         }
         return pageNumber === firstPageOccurence ? title : `${title} cont...`;
       }}
-      debug
     />
   );
 };
