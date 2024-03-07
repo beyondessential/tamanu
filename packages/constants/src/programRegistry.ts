@@ -9,6 +9,8 @@ export const REGISTRATION_STATUSES = {
   RECORDED_IN_ERROR: 'recordedInError',
 };
 
+export const REGISTRATION_STATUSES_VALUES = Object.values(REGISTRATION_STATUSES);
+
 export const STATUS_COLOR = {
   purple: {
     color: '#2C017A',
