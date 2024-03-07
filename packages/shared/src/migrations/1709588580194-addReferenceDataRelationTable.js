@@ -4,7 +4,7 @@
 import Sequelize, { DataTypes } from 'sequelize';
 
 export async function up(query) {
-  await query.createTable('reference_data_relation', {
+  await query.createTable('reference_data_relations', {
     id: {
       type: DataTypes.UUID,
       defaultValue: Sequelize.fn('uuid_generate_v4'),
@@ -27,7 +27,7 @@ export async function up(query) {
     },
     parent_id: {
       type: DataTypes.TEXT,
-      allowNull: false,
+      allowNull: true,
       references: {
         model: 'reference_data',
         key: 'id',
@@ -35,7 +35,7 @@ export async function up(query) {
     },
     child_id: {
       type: DataTypes.TEXT,
-      allowNull: false,
+      allowNull: true,
       references: {
         model: 'reference_data',
         key: 'id',
@@ -49,5 +49,5 @@ export async function up(query) {
 }
 
 export async function down(query) {
-  await query.dropTable('reference_data_relation');
+  await query.dropTable('reference_data_relations');
 }

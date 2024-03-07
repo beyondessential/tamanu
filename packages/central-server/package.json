@@ -23,7 +23,7 @@
     "start-dev": "concurrently npm:build-watch npm:start-watch",
     "start-watch": "nodemon \"dist/**/*.js\"",
     "start": "node dist",
-    "test": "yarn test-build && NODE_ENV=test jest",
+    "test": "NODE_ENV=test jest",
     "test-build": "swc --delete-dir-on-start --out-dir __disttests__ --copy-files --source-maps true __tests__",
     "test-watch": "yarn test --watch"
   },
