@@ -4,6 +4,7 @@ import * as yup from 'yup';
 import {
   FHIR_DIAGNOSTIC_REPORT_STATUS,
   FHIR_INTERACTIONS,
+  FHIR_ISSUE_TYPE,
   LAB_REQUEST_STATUSES,
 } from '@tamanu/constants';
 import { FhirCodeableConcept, FhirReference } from '../../../services/fhirTypes';
@@ -14,7 +15,10 @@ export class FhirDiagnosticReport extends FhirResource {
   static init(options, models) {
     super.init(
       {
-        basedOn: DataTypes.JSONB,
+        basedOn: {
+          type: DataTypes.JSONB,
+          allowNull: false,
+        },
         status: {
           type: Sequelize.TEXT,
           allowNull: false,
@@ -57,12 +61,16 @@ export class FhirDiagnosticReport extends FhirResource {
   // results soon.
   async pushUpstream() {
     const { FhirServiceRequest, LabRequest } = this.sequelize.models;
-
+    if (!this.basedOn) {
+      throw new Invalid('DiagnosticReport requires basedOn field to report results for ServiceRequest', {
+        code: FHIR_ISSUE_TYPE.INVALID.VALUE,
+      });
+    }
     const { type, reference } = this.basedOn;
 
     const ref = reference.split('/');
     if (type !== 'ServiceRequest' || ref.length < 2 || ref[0] !== 'ServiceRequest') {
-      throw new Invalid(`DiagnosticReport must be results for ServiceRequest'`, {
+      throw new Invalid(`DiagnosticReport requires must be results for ServiceRequest'`, {
         code: FHIR_ISSUE_TYPE.INVALID.VALUE,
       });
     }
@@ -71,7 +79,7 @@ export class FhirDiagnosticReport extends FhirResource {
     const serviceRequest = await FhirServiceRequest.findOne({ where: { id: serviceRequestFhirId } });
 
     if (!serviceRequest) {
-      throw new Invalid(`ServiceRequest ${serviceRequestFhirId} does not exist in Tamanu`, {
+      throw new Invalid(`ServiceRequest '${serviceRequestFhirId}' does not exist in Tamanu`, {
         code: FHIR_ISSUE_TYPE.INVALID.VALUE,
       });
     }
@@ -83,7 +91,7 @@ export class FhirDiagnosticReport extends FhirResource {
 
     const labRequest = await LabRequest.findByPk(serviceRequest.upstreamId);
     if (!labRequest) {
-      throw new Invalid(`No LabRequest with id: ${serviceRequest.upstreamId}, might be ImagingRequest id`);
+      throw new Invalid(`No LabRequest with id: '${serviceRequest.upstreamId}', might be ImagingRequest id`);
     }
 
     labRequest.set({ status: this.getLabRequestStatus() });
@@ -108,9 +116,9 @@ export class FhirDiagnosticReport extends FhirResource {
       case FHIR_DIAGNOSTIC_REPORT_STATUS.AMENDED.CORRECTED:
       case FHIR_DIAGNOSTIC_REPORT_STATUS.AMENDED.APPENDED:
         // no workflow for these yet
-        throw new Invalid('No workflow to amend LabRequests via DiagnosticReports');
+        throw new Invalid('Amend workflow unsupported');
       default:
-        return null;
+        throw new Invalid(`'${this.status}' is an invalid ServiceRequest status`);
     }
   }
 

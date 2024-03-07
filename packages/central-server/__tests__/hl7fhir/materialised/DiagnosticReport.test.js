@@ -95,7 +95,7 @@ describe('Create DiagnosticReport', () => {
       fhirResources.fhirEncounter = fhirEncounter;
     });
 
-    it('fetches a service request by materialised ID (lab request)', async () => {
+    it('post a DiagnosticReport to acknowledge results from ServiceRequest (Lab Request)', async () => {
       const statuses = [
         FHIR_DIAGNOSTIC_REPORT_STATUS.REGISTERED,
         FHIR_DIAGNOSTIC_REPORT_STATUS.PARTIAL._,
@@ -103,9 +103,6 @@ describe('Create DiagnosticReport', () => {
         FHIR_DIAGNOSTIC_REPORT_STATUS.FINAL,
         FHIR_DIAGNOSTIC_REPORT_STATUS.CANCELLED,
         FHIR_DIAGNOSTIC_REPORT_STATUS.ENTERED_IN_ERROR,
-        // FHIR_DIAGNOSTIC_REPORT_STATUS.AMENDED._,
-        // FHIR_DIAGNOSTIC_REPORT_STATUS.AMENDED.CORRECTED,
-        // FHIR_DIAGNOSTIC_REPORT_STATUS.AMENDED.APPENDED,
       ];
       const { FhirServiceRequest } = ctx.store.models;
       const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
@@ -179,7 +176,7 @@ describe('Create DiagnosticReport', () => {
               code: 'invalid',
               diagnostics: expect.any(String),
               details: {
-                text: `No LabRequest with id: ${imagingRequest.id}, might be ImagingRequest id`,
+                text: `No LabRequest with id: '${imagingRequest.id}', might be ImagingRequest id`,
               },
             },
           ],
@@ -220,93 +217,113 @@ describe('Create DiagnosticReport', () => {
         expect(response.status).toBe(400);
       });
 
-      // it('returns invalid value if the status is not final', async () => {
-      //   // arrange
-      //   const { FhirServiceRequest, ImagingRequest } = ctx.store.models;
-      //   const ir = await ImagingRequest.create(
-      //     fake(ImagingRequest, {
-      //       requestedById: resources.practitioner.id,
-      //       encounterId: encounter.id,
-      //       locationId: resources.location.id,
-      //       status: IMAGING_REQUEST_STATUS_TYPES.PENDING,
-      //       priority: 'routine',
-      //       requestedDate: '2022-03-04 15:30:00',
-      //     }),
-      //   );
-      //   await ir.setAreas([resources.area1.id, resources.area2.id]);
-      //   await ir.reload();
-      //   const mat = await FhirServiceRequest.materialiseFromUpstream(ir.id);
-      //   await FhirServiceRequest.resolveUpstreams();
+      it('reports invalid if using unsupported statuses', async () => {
+        const statuses = [
+          FHIR_DIAGNOSTIC_REPORT_STATUS.AMENDED._,
+          FHIR_DIAGNOSTIC_REPORT_STATUS.AMENDED.CORRECTED,
+          FHIR_DIAGNOSTIC_REPORT_STATUS.AMENDED.APPENDED,
+        ];
+        const { FhirServiceRequest } = ctx.store.models;
+        const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
+          ctx.store.models,
+          resources,
+          {
+            status: LAB_REQUEST_STATUSES.TO_BE_VERIFIED
+          }
+        );
+        const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+        const serviceRequestId = mat.id;
+        await FhirServiceRequest.resolveUpstreams();
+        const body = postBody(serviceRequestId);
 
-      //   // act
-      //   const response = await app.post(`/api/integration/${INTEGRATION_ROUTE}/ImagingStudy`).send({
-      //     resourceType: 'ImagingStudy',
-      //     status: 'pending',
-      //     identifier: [
-      //       {
-      //         system: 'http://data-dictionary.tamanu-fiji.org/ris-accession-number.html',
-      //         value: 'ACCESSION',
-      //       },
-      //     ],
-      //     basedOn: [
-      //       {
-      //         type: 'ServiceRequest',
-      //         reference: `/ServiceRequest/${mat.id}`,
-      //       },
-      //     ],
-      //     note: [{ text: 'A note' }],
-      //   });
+        for (let index = 0; index < statuses.length; index++) {
+          body.status = statuses[index];
+          const response = await app.post(endpoint).send(body);
+          await labRequest.reload();
+          expect(response.body).toMatchObject({
+            resourceType: 'OperationOutcome',
+            id: expect.any(String),
+            issue: [
+              {
+                severity: 'error',
+                code: 'invalid',
+                diagnostics: expect.any(String),
+                details: {
+                  text: "Amend workflow unsupported",
+                },
+              },
+            ],
+          });
+          expect(response.status).toBe(400);
+        }
+      });
 
-      //   // assert
-      //   expect(response.body).toMatchObject({
-      //     resourceType: 'OperationOutcome',
-      //     id: expect.any(String),
-      //     issue: [
-      //       {
-      //         severity: 'error',
-      //         code: 'value',
-      //         diagnostics: expect.any(String),
-      //         details: {
-      //           text: "ImagingStudy status must be 'final'",
-      //         },
-      //       },
-      //     ],
-      //   });
-      //   expect(response.status).toBe(400);
-      // });
+      it('reports invalid if using invalid statuses', async () => {
+        const { FhirServiceRequest } = ctx.store.models;
+        const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
+          ctx.store.models,
+          resources,
+          {
+            status: LAB_REQUEST_STATUSES.TO_BE_VERIFIED
+          }
+        );
+        const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+        const serviceRequestId = mat.id;
+        await FhirServiceRequest.resolveUpstreams();
+        const body = postBody(serviceRequestId);
 
-      // it('returns invalid structure if the service request id is missing', async () => {
-      //   // act
-      //   const response = await app.post(`/api/integration/${INTEGRATION_ROUTE}/ImagingStudy`).send({
-      //     resourceType: 'ImagingStudy',
-      //     status: 'final',
-      //     identifier: [
-      //       {
-      //         system: 'http://data-dictionary.tamanu-fiji.org/ris-accession-number.html',
-      //         value: 'ACCESSION',
-      //       },
-      //     ],
-      //     basedOn: [],
-      //     note: [{ text: 'A note' }],
-      //   });
 
-      //   // assert
-      //   expect(response.body).toMatchObject({
-      //     resourceType: 'OperationOutcome',
-      //     id: expect.any(String),
-      //     issue: [
-      //       {
-      //         severity: 'error',
-      //         code: 'structure',
-      //         diagnostics: expect.any(String),
-      //         details: {
-      //           text: 'Need to have basedOn field that includes a Tamanu identifier',
-      //         },
-      //       },
-      //     ],
-      //   });
-      //   expect(response.status).toBe(400);
-      // });
+        body.status = 'unstatus';
+        const response = await app.post(endpoint).send(body);
+
+        expect(response.body).toMatchObject({
+          resourceType: 'OperationOutcome',
+          id: expect.any(String),
+          issue: [
+            {
+              severity: 'error',
+              code: 'invalid',
+              diagnostics: expect.any(String),
+              details: {
+                text: "'unstatus' is an invalid ServiceRequest status",
+              },
+            },
+          ],
+        });
+        expect(response.status).toBe(400);
+      });
+
+      it('returns invalid structure if the service request id is missing', async () => {
+        const { FhirServiceRequest } = ctx.store.models;
+        const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
+          ctx.store.models,
+          resources,
+          {
+            status: LAB_REQUEST_STATUSES.TO_BE_VERIFIED
+          }
+        );
+        const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+        const serviceRequestId = mat.id;
+        await FhirServiceRequest.resolveUpstreams();
+        const body = postBody(serviceRequestId);
+        delete body.basedOn;
+        const response = await app.post(endpoint).send(body);
+        expect(response.body).toMatchObject({
+          resourceType: 'OperationOutcome',
+          id: expect.any(String),
+          issue: [
+            {
+              severity: 'error',
+              code: 'value',
+              diagnostics: expect.any(String),
+              details: {
+                text: 'DiagnosticReport requires basedOn field to report results for ServiceRequest',
+              },
+            },
+          ],
+        });
+        expect(response.status).toBe(400);
+      });
 
       // it('returns invalid value if the service request cannot be found', async () => {
       //   const srId = fakeUUID();
