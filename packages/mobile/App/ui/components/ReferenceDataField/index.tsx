@@ -1,10 +1,7 @@
-import React, { ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
-import { Platform, StyleSheet, TouchableWithoutFeedback } from 'react-native';
+import React, { useEffect, useState } from 'react';
 import { ReferenceDataType } from '~/types';
 import { useBackend } from '~/ui/hooks';
 import { BaseInputProps } from '~/ui/interfaces/BaseInputProps';
-import { StyledText, StyledView } from '~/ui/styled/common';
-import { Button } from '../Button';
 import { Dropdown } from '../Dropdown';
 
 interface ReferenceDataFieldProps extends BaseInputProps {

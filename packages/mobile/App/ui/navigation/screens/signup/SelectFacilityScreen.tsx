@@ -1,6 +1,6 @@
 import React, { FunctionComponent, ReactElement, useCallback, useEffect, useState } from 'react';
 import * as Yup from 'yup';
-import { KeyboardAvoidingView, StatusBar } from 'react-native';
+import { StatusBar } from 'react-native';
 import {
   FullView,
   StyledSafeAreaView,
