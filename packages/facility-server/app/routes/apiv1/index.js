@@ -6,6 +6,7 @@ import asyncHandler from 'express-async-handler';
 import { keyBy, mapValues } from 'lodash';
 
 import { allergy } from './allergy';
+import { addressHierarchy } from './addressHierarchy';
 import { appointments } from './appointments';
 import { asset } from './asset';
 import { attachment } from './attachment';
@@ -150,6 +151,7 @@ referenceDataRoutes.use('/user', user);
 referenceDataRoutes.use('/template', template);
 referenceDataRoutes.use('/vaccinationSettings', vaccinationSettings);
 referenceDataRoutes.use('/translation', translation);
+referenceDataRoutes.use('/addressHierarchy', addressHierarchy);
 
 // sync endpoints
 syncRoutes.use('/sync', sync);

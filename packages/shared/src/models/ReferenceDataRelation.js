@@ -16,14 +16,14 @@ export class ReferenceDataRelation extends Model {
           primaryKey: true,
           defaultValue: Sequelize.fn('uuid_generate_v4'),
         },
-        parentId: {
+        refDataId: {
           type: DataTypes.TEXT,
           references: {
             model: 'reference_data',
             key: 'id',
           },
         },
-        childId: {
+        refDataParentId: {
           type: DataTypes.TEXT,
           references: {
             model: 'reference_data',

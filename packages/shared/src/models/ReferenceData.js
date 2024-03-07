@@ -52,13 +52,8 @@ export class ReferenceData extends Model {
     });
 
     this.hasMany(models.ReferenceDataRelation, {
-      as: 'ChildRelations',
-      foreignKey: 'childId',
-    });
-
-    this.hasMany(models.ReferenceDataRelation, {
       as: 'ParentRelations',
-      foreignKey: 'parentId',
+      foreignKey: 'refDataId',
     });
 
     this.hasOne(models.ImagingAreaExternalCode, {
@@ -87,10 +82,10 @@ export class ReferenceData extends Model {
   static getChildrenByParentId(parentId) {
     return this.findAll({
       raw: true,
-      where: { '$ChildRelations.parent_id$': parentId },
+      where: { '$ParentRelations.ref_data_parent_id$': parentId },
       include: {
         model: ReferenceDataRelation,
-        as: 'ChildRelations',
+        as: 'ParentRelations',
         attributes: [],
       },
     });
@@ -115,7 +110,7 @@ export class ReferenceData extends Model {
   static async getParentById(id) {
     const records = await this.findAll({
       raw: true,
-      where: { '$ParentRelations.child_id$': id },
+      where: { '$ParentRelations.ref_data_id$': id },
       include: {
         model: ReferenceDataRelation,
         as: 'ParentRelations',
@@ -126,10 +121,16 @@ export class ReferenceData extends Model {
 
   static async getParentRecursive(id, ancestors) {
     const parent = await this.getParentById(id);
-    if (!parent) {
-      return ancestors;
+    const parentId = parent['ParentRelations.refDataParentId'];
+    if (!parentId) {
+      return [...ancestors, parent];
     }
-    return this.getParentRecursive(parent['ParentRelations.parentId'], [...ancestors, parent]);
+    return this.getParentRecursive(parentId, [...ancestors, parent]);
+  }
+
+  static async getAncestorsById(id) {
+    const rootNode = await this.getParentById(id);
+    return this.getParentRecursive(rootNode['ParentRelations.refDataParentId'], [rootNode]);
   }
 
   static async getDescendantsByParentId(parentId) {
@@ -137,19 +138,31 @@ export class ReferenceData extends Model {
     return this.getChildrenRecursive(parentId, rootNode);
   }
 
-  static async getAncestorsById(id) {
-    const rootNode = await this.getParentById(id);
-    return this.getParentRecursive(rootNode['ParentRelations.parentId'], [rootNode]);
+  static async getAncestorByType(type) {
+    const records = await this.findAll({
+      raw: true,
+      where: { type },
+      include: {
+        model: ReferenceDataRelation,
+        as: 'ParentRelations',
+      },
+    });
+    const rootNode = records.length > 0 ? records[0] : null;
+
+    const ancestors = await this.getParentRecursive(rootNode['ParentRelations.refDataParentId'], [
+      rootNode,
+    ]);
+    return ancestors.map(ancestor => ancestor.type);
   }
 
   static async getAddressHierarchyByType(type) {
     const entitiesOfType = await this.findAll({
       raw: true,
-      where: { type: type, '$ChildRelations.type$': 'ADDRESS_HIERARCHY' },
+      where: { type: type, '$ParentRelations.type$': 'ADDRESS_HIERARCHY' },
       include: [
         {
           model: ReferenceDataRelation,
-          as: 'ChildRelations',
+          as: 'ParentRelations',
           attributes: [],
         },
       ],
