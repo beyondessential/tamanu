@@ -42,6 +42,7 @@ export const DB_OBJECTS_MAX_DEPTH = {
   ENCOUNTER_MAIN: 7,
 };
 
+// Please keep in sync with packages/mobile/App/constants/programRegistries.ts
 export const PROGRAM_REGISTRATION_STATUS_LABEL = {
   [REGISTRATION_STATUSES.ACTIVE]: 'Active',
   [REGISTRATION_STATUSES.INACTIVE]: 'Removed',
