@@ -5,7 +5,7 @@ import { buildAbilityForUser } from '@tamanu/shared/permissions/buildAbility';
 import { LOCAL_STORAGE_KEYS } from '../constants';
 import { getDeviceId, notifyError } from '../utils';
 
-const { TOKEN, LOCALISATION, SERVER, PERMISSIONS, ROLE } = LOCAL_STORAGE_KEYS;
+const { TOKEN, LOCALISATION, SERVER, PERMISSIONS, ROLE, LANGUAGE } = LOCAL_STORAGE_KEYS;
 
 function safeGetStoredJSON(key) {
   try {
@@ -68,6 +68,12 @@ export class TamanuApi extends ApiClient {
       agentName: SERVER_TYPES.WEBAPP,
       agentVersion: appVersion,
       deviceId: getDeviceId(),
+    });
+
+    this.interceptors.request.use(config => {
+      const language = localStorage.getItem(LANGUAGE);
+      config.headers['language'] = language;
+      return config;
     });
   }
 

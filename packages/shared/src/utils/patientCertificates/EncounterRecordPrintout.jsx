@@ -1,5 +1,5 @@
 import React from 'react';
-import { Document, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
+import { Document, Page, Text, View } from '@react-pdf/renderer';
 import { CertificateHeader, Watermark } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
 import { PatientDetailsWithAddress } from './printComponents/PatientDetailsWithAddress';
@@ -15,6 +15,7 @@ import { EncounterDetailsExtended } from './printComponents/EncounterDetailsExte
 import { MultiPageHeader } from './printComponents/MultiPageHeader';
 import { getName } from '../patientAccessors';
 import { Footer } from './printComponents/Footer';
+import { CustomStyleSheet } from '../renderPdf';
 
 const borderStyle = '1 solid black';
 
@@ -22,7 +23,7 @@ const DATE_FORMAT = 'dd/MM/yyyy';
 
 const DATE_TIME_FORMAT = 'dd/MM/yyyy h:mma';
 
-const pageStyles = StyleSheet.create({
+const pageStyles = CustomStyleSheet.create({
   body: {
     paddingHorizontal: 50,
     paddingTop: 30,
@@ -30,7 +31,7 @@ const pageStyles = StyleSheet.create({
   },
 });
 
-const textStyles = StyleSheet.create({
+const textStyles = CustomStyleSheet.create({
   sectionTitle: {
     fontFamily: 'Helvetica-Bold',
     marginBottom: 3,
@@ -63,7 +64,7 @@ const textStyles = StyleSheet.create({
   },
 });
 
-const tableStyles = StyleSheet.create({
+const tableStyles = CustomStyleSheet.create({
   table: {
     flexDirection: 'column',
     marginBottom: 5,
@@ -105,26 +106,29 @@ const tableStyles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-start',
   },
+  fontBold: {
+    fontFamily: 'Helvetica-Bold',
+  },
 });
 
-const Table = props => <View style={tableStyles.table} {...props} />;
-const Row = props => <View style={tableStyles.row} {...props} />;
-const P = ({ style = {}, children }) => <Text style={[tableStyles.p, style]}>{children}</Text>;
+const Table = props => <View style={tableStyles().table} {...props} />;
+const Row = props => <View style={tableStyles().row} {...props} />;
+const P = ({ style = {}, children }) => <Text style={[tableStyles().p, style]}>{children}</Text>;
 
 const Cell = ({ children, style = {} }) => (
-  <View style={[tableStyles.baseCell, style]}>
+  <View style={[tableStyles().baseCell, style]}>
     <P>{children}</P>
   </View>
 );
 
 const HeaderCell = ({ children, style }) => (
-  <View style={[tableStyles.baseCell, style]}>
-    <P style={{ fontFamily: 'Helvetica-Bold' }}>{children}</P>
+  <View style={[tableStyles().baseCell, style]}>
+    <P style={tableStyles(undefined, true).fontBold}>{children}</P>
   </View>
 );
 
 const NotesCell = ({ children, style = {} }) => (
-  <View style={[tableStyles.notesCell, style]}>{children}</View>
+  <View style={[tableStyles().notesCell, style]}>{children}</View>
 );
 
 const SectionSpacing = () => <View style={{ paddingBottom: '10px' }} />;
@@ -302,7 +306,7 @@ const COLUMNS = {
   ],
 };
 
-const MultipageTableHeading = ({ title, style = textStyles.sectionTitle }) => {
+const MultipageTableHeading = ({ title, style = textStyles().sectionTitle }) => {
   let firstPageOccurence = Number.MAX_SAFE_INTEGER;
   return (
     <Text
@@ -360,7 +364,7 @@ const TableSection = ({ title, data, columns }) => {
 };
 
 const NoteFooter = ({ note }) => (
-  <Text style={textStyles.tableCellFooter}>
+  <Text style={textStyles().tableCellFooter}>
     {`${note.noteType === NOTE_TYPES.TREATMENT_PLAN ? 'Last updated: ' : ''}${note.author
       ?.displayName || ''}${note.onBehalfOf ? ` on behalf of ${note.onBehalfOf.displayName}` : ''}`}
     {` ${getDisplayDate(note.date)} ${getDisplayDate(note.date, 'h:mma')}`}
@@ -392,7 +396,7 @@ const NotesSection = ({ notes }) => {
           {notes.map(note => (
             <>
               <View minPresenceAhead={80} />
-              <View style={tableStyles.notesRow} key={note.id}>
+              <View style={tableStyles().notesRow} key={note.id}>
                 <View
                   style={{
                     borderTop: borderStyle,
@@ -407,9 +411,9 @@ const NotesSection = ({ notes }) => {
                   <NotesMultipageCellPadding />
                   <MultipageTableHeading
                     title={NOTE_TYPE_LABELS[note.noteType]}
-                    style={textStyles.tableColumnHeader}
+                    style={textStyles().tableColumnHeader}
                   />
-                  <Text style={textStyles.tableCellContent}>{`${note.content}\n`}</Text>
+                  <Text style={textStyles().tableCellContent}>{`${note.content}\n`}</Text>
                   <NoteFooter note={note} />
                   <View
                     style={{
@@ -451,7 +455,7 @@ export const EncounterRecordPrintout = ({
 
   return (
     <Document>
-      <Page size="A4" style={pageStyles.body} wrap>
+      <Page size="A4" style={pageStyles().body} wrap>
         {watermark && <Watermark src={watermark} />}
         <MultiPageHeader
           documentName="Patient encounter record"

@@ -31,21 +31,21 @@ const detailsSectionStyle = {
   marginBottom: 10,
 };
 
-const DetailsSection = ({ getLocalisation, data }) => {
+const DetailsSection = ({ getLocalisation, data, language }) => {
   return (
     <View style={{ marginTop: 10 }}>
-      <H3 style={{ marginBottom: 5 }}>Details</H3>
-      <Row style={detailsSectionStyle}>
-        <Col style={{ marginBottom: 5 }}>
-          <Row>
+      <H3 style={{ marginBottom: 5 }} language={language}>Details</H3>
+      <Row style={detailsSectionStyle} language={language}>
+        <Col style={{ marginBottom: 5 }} language={language}>
+          <Row language={language}>
             {DETAIL_FIELDS.map(({ key, label: defaultLabel, accessor }) => {
               const value = (accessor ? accessor(data, getLocalisation) : data[key]) || '';
               const label = getLocalisation(`fields.${key}.shortLabel`) || defaultLabel;
 
               return (
-                <Col style={{ width: '50%' }} key={key}>
-                  <P mb={6}>
-                    <P bold>{label}:</P> {value}
+                <Col style={{ width: '50%' }} key={key} language={language}>
+                  <P mb={6} language={language}>
+                    <P bold language={language}>{label}:</P> {value}
                   </P>
                 </Col>
               );
@@ -57,30 +57,32 @@ const DetailsSection = ({ getLocalisation, data }) => {
   );
 };
 
-export const PatientLetter = ({ getLocalisation, data, logoSrc, letterheadConfig }) => {
+export const PatientLetter = ({ getLocalisation, data, logoSrc, letterheadConfig, language }) => {
   const { title: certificateTitle, body, patient = {}, clinician, documentCreatedAt } = data;
 
   return (
     <Document>
-      <Page size="A4" style={styles.page}>
-        <CertificateHeader>
+      <Page size="A4" style={styles(language).page}>
+        <CertificateHeader language={language}>
           <LetterheadSection
             getLocalisation={getLocalisation}
             logoSrc={logoSrc}
             certificateTitle={certificateTitle ?? ''}
             letterheadConfig={letterheadConfig}
+            language={language}
           />
           <DetailsSection
             data={{ ...patient, clinicianName: clinician.displayName, documentCreatedAt }}
             getLocalisation={getLocalisation}
+            language={language}
           />
         </CertificateHeader>
         <View style={{ margin: '18px' }}>
-          <P mb={60} style={{ fontSize: 12 }}>
+          <P mb={60} style={{ fontSize: 12 }} language={language}>
             {/* In future, the body should accept markup */}
             {body ?? ''}
           </P>
-          <Signature text="Signed" />
+          <Signature text="Signed" language={language} />
         </View>
       </Page>
     </Document>

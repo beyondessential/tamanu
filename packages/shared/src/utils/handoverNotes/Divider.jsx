@@ -1,9 +1,10 @@
 import React from 'react';
-import { StyleSheet, View } from '@react-pdf/renderer';
+import { View } from '@react-pdf/renderer';
+import { CustomStyleSheet } from '../renderPdf';
 
-const dividerStyles = StyleSheet.create({
+const dividerStyles = CustomStyleSheet.create({
   borderTop: '1 solid #000000',
   marginTop: 10,
   marginBottom: 10,
 });
-export const Divider = props => <View {...props} style={dividerStyles} />;
+export const Divider = props => <View {...props} style={dividerStyles()} />;

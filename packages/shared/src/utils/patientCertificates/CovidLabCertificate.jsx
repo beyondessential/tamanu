@@ -90,7 +90,7 @@ export const CovidLabCertificate = ({
   certType,
 }) => (
   <Document>
-    <Page size="A4" style={styles.page}>
+    <Page size="A4" style={styles().page}>
       {watermarkSrc && <Watermark src={watermarkSrc} />}
       <CovidLetterheadSection getLocalisation={getLocalisation} logoSrc={logoSrc} />
       <Box mb={0}>

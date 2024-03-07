@@ -1,9 +1,10 @@
 import React from 'react';
-import { StyleSheet, Text, View } from '@react-pdf/renderer';
+import { Text, View } from '@react-pdf/renderer';
+import { CustomStyleSheet } from '../renderPdf';
 
 const basicBorder = '1 solid black';
 
-const tableStyles = StyleSheet.create({
+const tableStyles = CustomStyleSheet.create({
   tr: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -29,12 +30,12 @@ const tableStyles = StyleSheet.create({
   },
 });
 
-const TR = props => <View {...props} style={tableStyles.tr} />;
+const TR = props => <View {...props} style={tableStyles().tr} />;
 const TH = ({ customStyles, ...props }) => (
-  <Text {...props} style={[tableStyles.th, customStyles]} />
+  <Text {...props} style={[tableStyles().th, customStyles]} />
 );
 const TD = ({ customStyles, ...props }) => (
-  <Text wrap={false} {...props} style={[tableStyles.td, customStyles]} />
+  <Text wrap={false} {...props} style={[tableStyles().td, customStyles]} />
 );
 
 export const Table = ({ data, columns, getLocalisation, columnStyle }) => {
@@ -46,7 +47,7 @@ export const Table = ({ data, columns, getLocalisation, columnStyle }) => {
     ({ key }) => getLocalisation(`fields.${key}.hidden`) !== true,
   );
   return (
-    <View style={tableStyles.table}>
+    <View style={tableStyles().table}>
       <TR fixed>
         {visibleColumns.map(({ title, key, customStyles }, columnIndex) => (
           <TH

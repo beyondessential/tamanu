@@ -1,7 +1,8 @@
 import React from 'react';
-import { StyleSheet, Text } from '@react-pdf/renderer';
+import { Text } from '@react-pdf/renderer';
+import { CustomStyleSheet } from '../renderPdf';
 
-const styles = StyleSheet.create({
+const styles = CustomStyleSheet.create({
   h1: {
     fontFamily: 'Helvetica-Bold',
     textAlign: 'center',
@@ -41,21 +42,30 @@ const styles = StyleSheet.create({
     textAlign: 'right',
     marginBottom: 14,
   },
+  fontBold: {
+    fontFamily: 'Helvetica-Bold',
+  }
 });
 
-export const H1 = ({ style, ...props }) => <Text style={{ ...styles.h1, ...style }} {...props} />;
-export const H2 = ({ style, ...props }) => <Text style={{ ...styles.h2, ...style }} {...props} />;
-export const H3 = ({ style, ...props }) => <Text style={{ ...styles.h3, ...style }} {...props} />;
-export const P = ({ mt = 0, mb, bold = false, fontSize = 14, style = {}, ...props }) => (
+export const H1 = ({ style, ...props }) => <Text style={{ ...styles().h1, ...style }} {...props} />;
+export const H2 = ({ style, ...props }) => <Text style={{ ...styles().h2, ...style }} {...props} />;
+export const H3 = ({ style, language, ...props }) => (
+  <Text style={{ ...styles(language).h3, ...style }} {...props} />
+);
+export const P = ({ mt = 0, mb, bold = false, fontSize = 14, style = {}, language, ...props }) => (
   <Text
     {...props}
     style={[
-      styles.p,
+      styles(language).p,
       { marginTop: mt, marginBottom: mb, fontSize },
-      ...(bold ? [{ fontFamily: 'Helvetica-Bold' }] : []),
+      ...(bold ? [styles(language, true).fontBold] : []),
       style,
     ]}
   />
 );
-export const CertificateAddress = props => <Text style={styles.certificateAddress} {...props} />;
-export const CertificateTitle = props => <Text style={styles.certificateTitle} {...props} />;
+export const CertificateAddress = ({ language, ...props }) => (
+  <Text style={styles(language).certificateAddress} {...props} />
+);
+export const CertificateTitle = ({ language, ...props }) => (
+  <Text style={styles(language).certificateTitle} {...props} />
+);

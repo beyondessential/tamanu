@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { Document, Page, StyleSheet, View, Text } from '@react-pdf/renderer';
+import { Document, Page, View, Text } from '@react-pdf/renderer';
 import { PatientDetailsWithBarcode } from './printComponents/PatientDetailsWithBarcode';
 import { styles, CertificateContent, CertificateHeader, Col, Row, Signature } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
@@ -12,12 +12,13 @@ import { HorizontalRule } from './printComponents/HorizontalRule';
 import { EncounterDetails } from './printComponents/EncounterDetails';
 import { getDisplayDate } from './getDisplayDate';
 import { DoubleHorizontalRule } from './printComponents/DoubleHorizontalRule';
+import { CustomStyleSheet } from '../renderPdf';
 
 const DATE_TIME_FORMAT = 'dd/MM/yyyy h:mma';
 const headingFontSize = 11;
 const textFontSize = 9;
 
-const signingSectionStyles = StyleSheet.create({
+const signingSectionStyles = CustomStyleSheet.create({
   underlinedText: {
     textDecoration: 'underline',
   },
@@ -31,7 +32,7 @@ const signingSectionStyles = StyleSheet.create({
   },
 });
 
-const labDetailsSectionStyles = StyleSheet.create({
+const labDetailsSectionStyles = CustomStyleSheet.create({
   barcodeLabelText: {
     marginTop: 9,
   },
@@ -50,21 +51,21 @@ const labDetailsSectionStyles = StyleSheet.create({
   },
 });
 
-const generalStyles = StyleSheet.create({
+const generalStyles = CustomStyleSheet.create({
   container: {
     marginVertical: 6,
   },
 });
 
-const SectionContainer = props => <View style={generalStyles.container} {...props} />;
+const SectionContainer = props => <View style={generalStyles().container} {...props} />;
 
 const LabRequestSigningSection = () => {
   const BaseSigningSection = ({ title }) => (
     <View style={{ flexDirection: 'column' }}>
-      <P bold style={signingSectionStyles.underlinedText} fontSize={9}>
+      <P bold style={signingSectionStyles().underlinedText} fontSize={9}>
         {title}
       </P>
-      <View style={signingSectionStyles.signatureView}>
+      <View style={signingSectionStyles().signatureView}>
         <Signature text="Signed" fontSize={textFontSize} lineThickness={0.5} />
         <Signature text="Date" fontSize={textFontSize} lineThickness={0.5} />
       </View>
@@ -79,7 +80,7 @@ const LabRequestSigningSection = () => {
         </Col>
         <Col>
           <BaseSigningSection title="Patient" />
-          <Text style={signingSectionStyles.disclaimerText}>
+          <Text style={signingSectionStyles().disclaimerText}>
             Patient to sign if required, according to local regulations
           </Text>
         </Col>
@@ -108,7 +109,7 @@ const LabRequestDetailsView = ({ labRequests }) => {
       <HorizontalRule />
       {labRequests.map((request, index) => {
         return (
-          <View key={request.id} style={labDetailsSectionStyles.detailsContainer}>
+          <View key={request.id} style={labDetailsSectionStyles().detailsContainer}>
             <Row>
               <Col>
                 <DataItem label="Request ID" value={request.displayId} />
@@ -123,7 +124,7 @@ const LabRequestDetailsView = ({ labRequests }) => {
               </Col>
               <Col>
                 <Row>
-                  <P style={labDetailsSectionStyles.barcodeLabelText} fontSize={textFontSize} bold>
+                  <P style={labDetailsSectionStyles().barcodeLabelText} fontSize={textFontSize} bold>
                     Request ID barcode:
                   </P>
                   <PrintableBarcode id={request.displayId} />
@@ -147,7 +148,7 @@ const LabRequestDetailsView = ({ labRequests }) => {
                 <DataItem label="Specimen type" value={request.specimenType?.name} />
               </Col>
             </Row>
-            {index < labRequests.length - 1 && <View style={labDetailsSectionStyles.divider} />}
+            {index < labRequests.length - 1 && <View style={labDetailsSectionStyles().divider} />}
           </View>
         );
       })}
@@ -168,7 +169,7 @@ export const MultipleLabRequestsPrintout = React.memo(
 
     return (
       <Document>
-        <Page size="A4" style={styles.page}>
+        <Page size="A4" style={styles().page}>
           <CertificateHeader>
             <LetterheadSection
               getLocalisation={getLocalisation}

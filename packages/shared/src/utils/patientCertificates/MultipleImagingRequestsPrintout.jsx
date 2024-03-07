@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import { Document, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
+import { Document, Page, Text, View } from '@react-pdf/renderer';
 import { getName } from '../patientAccessors';
 import { BaseSigningSection } from './BaseSigningSection';
 import { getDisplayDate } from './getDisplayDate';
@@ -14,9 +14,10 @@ import { MultiPageHeader } from './printComponents/MultiPageHeader';
 import { PatientDetailsWithBarcode } from './printComponents/PatientDetailsWithBarcode';
 import { startCase } from 'lodash';
 import { DoubleHorizontalRule } from './printComponents/DoubleHorizontalRule';
+import { CustomStyleSheet } from '../renderPdf';
 
 const DATE_TIME_FORMAT = 'dd/MM/yyyy h:mma';
-const labDetailsSectionStyles = StyleSheet.create({
+const labDetailsSectionStyles = CustomStyleSheet.create({
   barcodeLabelText: {
     marginTop: 9,
   },
@@ -35,13 +36,13 @@ const labDetailsSectionStyles = StyleSheet.create({
   },
 });
 
-const generalStyles = StyleSheet.create({
+const generalStyles = CustomStyleSheet.create({
   container: {
     marginVertical: 6,
   },
 });
 
-const SectionContainer = props => <View style={generalStyles.container} {...props} />;
+const SectionContainer = props => <View style={generalStyles().container} {...props} />;
 
 const MultipleImagingRequestSigningSection = () => {
   return (
@@ -80,11 +81,11 @@ const ImagingRequestDetailsView = ({ imagingRequests, getLocalisation }) => {
 
   return (
     <View>
-      <Text style={labDetailsSectionStyles.heading}>Imaging request details</Text>
+      <Text style={labDetailsSectionStyles().heading}>Imaging request details</Text>
       <HorizontalRule width="0.5px" />
       {imagingRequests.map((imagingRequest, index) => {
         return (
-          <View key={imagingRequest.id} style={labDetailsSectionStyles.detailsContainer}>
+          <View key={imagingRequest.id} style={labDetailsSectionStyles().detailsContainer}>
             <Row>
               <Col>
                 <DataItem label="Request ID" value={imagingRequest.displayId} />
@@ -125,7 +126,7 @@ export const MultipleImagingRequestsPrintout = React.memo(
     const { logo } = certificateData;
     return (
       <Document>
-        <Page size="A4" style={styles.page}>
+        <Page size="A4" style={styles().page}>
           <MultiPageHeader
             documentName="Imaging request"
             patientName={getName(patient)}

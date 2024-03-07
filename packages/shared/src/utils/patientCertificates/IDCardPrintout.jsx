@@ -1,7 +1,8 @@
 import React from 'react';
-import { Document, Image, Page, StyleSheet, View, Text } from '@react-pdf/renderer';
+import { Document, Image, Page, View, Text } from '@react-pdf/renderer';
 import { getDOB, getSex } from '../patientAccessors';
 import JsBarcode from 'jsbarcode';
+import { CustomStyleSheet } from '../renderPdf';
 
 const CustomBarcode = ({ id, width, height }) => {
   // eslint-disable-next-line no-undef
@@ -22,7 +23,7 @@ const convertToPt = mm => {
   return mm * 2.835;
 };
 
-const styles = StyleSheet.create({
+const styles = CustomStyleSheet.create({
   mainContainer: {
     display: 'flex',
     flexDirection: 'row',
@@ -70,14 +71,14 @@ const styles = StyleSheet.create({
   },
 });
 
-const MainContainer = props => <View style={styles.mainContainer} {...props} />;
-const PhotoContainer = props => <View style={styles.photoContainer} {...props} />;
-const PhotoFrame = props => <View style={styles.photoFrame} {...props} />;
-const Details = props => <View style={styles.details} {...props} />;
-const InfoRow = props => <View style={styles.infoRow} {...props} />;
-const DetailsKey = props => <Text style={styles.detailsKey} {...props} />;
-const DetailsValue = props => <Text style={styles.detailsValue} {...props} />;
-const BarcodeRow = props => <View style={styles.barcodeRow} {...props} />;
+const MainContainer = props => <View style={styles().mainContainer} {...props} />;
+const PhotoContainer = props => <View style={styles().photoContainer} {...props} />;
+const PhotoFrame = props => <View style={styles().photoFrame} {...props} />;
+const Details = props => <View style={styles().details} {...props} />;
+const InfoRow = props => <View style={styles().infoRow} {...props} />;
+const DetailsKey = props => <Text style={styles().detailsKey} {...props} />;
+const DetailsValue = props => <Text style={styles().detailsValue} {...props} />;
+const BarcodeRow = props => <View style={styles().barcodeRow} {...props} />;
 
 const DetailsRow = ({ name, value, getLocalisation }) => {
   const label = getLocalisation(`fields.${name}.shortLabel`);
@@ -93,7 +94,7 @@ const PatientPhoto = ({ patientImageData }) => {
   return (
     <PhotoContainer>
       <PhotoFrame>
-        <Image src={`data:image/jpeg;base64,${patientImageData}`} style={styles.photo} />
+        <Image src={`data:image/jpeg;base64,${patientImageData}`} style={styles().photo} />
       </PhotoFrame>
     </PhotoContainer>
   );
@@ -106,7 +107,7 @@ export const IDCardPrintout = ({
   measures,
   getLocalisation,
 }) => {
-  const pageStyles = StyleSheet.create({
+  const pageStyles = CustomStyleSheet.create({
     card: {
       width: cardDimensions.width,
       height: cardDimensions.height,
@@ -117,7 +118,7 @@ export const IDCardPrintout = ({
     },
   });
 
-  const Card = props => <View style={pageStyles.card} {...props} />;
+  const Card = props => <View style={pageStyles().card} {...props} />;
 
   return (
     <Document>

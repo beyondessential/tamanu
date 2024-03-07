@@ -1,9 +1,10 @@
-import { StyleSheet, Text, View } from '@react-pdf/renderer';
+import { Text, View } from '@react-pdf/renderer';
 import { getDisplayDate } from '../getDisplayDate';
 import React from 'react';
 import { getCurrentDateString } from '../../dateTime';
+import { CustomStyleSheet } from '../../renderPdf';
 
-const styles = StyleSheet.create({
+const styles = CustomStyleSheet.create({
   footer: {
     position: 'absolute',
     flexDirection: 'row',
@@ -40,21 +41,21 @@ const styles = StyleSheet.create({
 });
 
 const LabelText = ({ children, props }) => (
-  <Text style={styles.labelText} {...props}>
+  <Text style={styles().labelText} {...props}>
     {children}
   </Text>
 );
 
 const ValueText = ({ children, props }) => (
-  <Text style={styles.valueText} {...props}>
+  <Text style={styles().valueText} {...props}>
     {children}
   </Text>
 );
 
 export const Footer = ({ printDate, printFacility, printedBy, style }) => {
   return (
-    <View style={[styles.footer, style]} fixed>
-      <View style={styles.footerLeftContent}>
+    <View style={[styles().footer, style]} fixed>
+      <View style={styles().footerLeftContent}>
         <LabelText>Print date: </LabelText>
         <ValueText>{getDisplayDate(printDate || getCurrentDateString())}</ValueText>
         {printFacility && (
@@ -72,9 +73,9 @@ export const Footer = ({ printDate, printFacility, printedBy, style }) => {
           </>
         )}
       </View>
-      <View style={styles.footerRightContent}>
+      <View style={styles().footerRightContent}>
         <Text
-          style={styles.valueText}
+          style={styles().valueText}
           render={({ pageNumber, totalPages }) => `${pageNumber} of ${totalPages}`}
         />
       </View>

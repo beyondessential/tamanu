@@ -1,4 +1,4 @@
-import { Document, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
+import { Document, Page, Text, View } from '@react-pdf/renderer';
 import React from 'react';
 import { CertificateHeader, styles } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
@@ -6,12 +6,13 @@ import { PatientDetailsWithAddress } from './printComponents/PatientDetailsWithA
 import { DIAGNOSIS_CERTAINTIES_TO_HIDE } from '@tamanu/constants';
 import { EncounterDetailsExtended } from './printComponents/EncounterDetailsExtended';
 import { P } from './Typography';
+import { CustomStyleSheet } from '../renderPdf';
 
 const borderStyle = '1 solid black';
 const tableLabelWidth = 150;
 const tablePadding = 10;
 
-const generalStyles = StyleSheet.create({
+const generalStyles = CustomStyleSheet.create({
   tableContainer: {
     marginVertical: 5,
   },
@@ -20,10 +21,10 @@ const generalStyles = StyleSheet.create({
   },
 });
 
-const TableContainer = props => <View style={generalStyles.tableContainer} {...props} />;
-const SectionContainer = props => <View style={generalStyles.sectionContainer} {...props} />;
+const TableContainer = props => <View style={generalStyles().tableContainer} {...props} />;
+const SectionContainer = props => <View style={generalStyles().sectionContainer} {...props} />;
 
-const infoBoxStyles = StyleSheet.create({
+const infoBoxStyles = CustomStyleSheet.create({
   row: {
     flexDirection: 'row',
     border: borderStyle,
@@ -49,11 +50,11 @@ const infoBoxStyles = StyleSheet.create({
   },
 });
 
-const InfoBoxRow = props => <View style={infoBoxStyles.row} {...props} />;
-const InfoBoxLabelCol = props => <View style={infoBoxStyles.labelCol} {...props} />;
-const InfoBoxDataCol = props => <View style={infoBoxStyles.dataCol} {...props} />;
+const InfoBoxRow = props => <View style={infoBoxStyles().row} {...props} />;
+const InfoBoxLabelCol = props => <View style={infoBoxStyles().labelCol} {...props} />;
+const InfoBoxDataCol = props => <View style={infoBoxStyles().dataCol} {...props} />;
 
-const medicationsTableStyles = StyleSheet.create({
+const medicationsTableStyles = CustomStyleSheet.create({
   row: {
     flexDirection: 'row',
   },
@@ -80,13 +81,13 @@ const medicationsTableStyles = StyleSheet.create({
 });
 
 const MedicationsTableBorder = props => (
-  <View style={[medicationsTableStyles.tableBorder, medicationsTableStyles.row]} {...props} />
+  <View style={[medicationsTableStyles().tableBorder, medicationsTableStyles().row]} {...props} />
 );
 const MedicationsTableTitleCol = props => (
-  <View style={medicationsTableStyles.titleCol} {...props} />
+  <View style={medicationsTableStyles().titleCol} {...props} />
 );
 
-const notesSectionStyles = StyleSheet.create({
+const notesSectionStyles = CustomStyleSheet.create({
   notesBox: {
     border: borderStyle,
     minHeight: 76,
@@ -124,12 +125,12 @@ const extractProceduresInfo = ({ procedures, getLocalisation }) => {
 const InfoBox = ({ label, info }) => (
   <InfoBoxRow>
     <InfoBoxLabelCol>
-      <Text style={infoBoxStyles.labelText}>{label}</Text>
+      <Text style={infoBoxStyles().labelText}>{label}</Text>
     </InfoBoxLabelCol>
     <InfoBoxDataCol>
       {info.map((item, index) => {
         return (
-          <Text style={infoBoxStyles.infoText} key={index}>
+          <Text style={infoBoxStyles().infoText} key={index}>
             {item}
           </Text>
         );
@@ -151,21 +152,21 @@ const NotesSection = ({ notes }) => (
     <P bold fontSize={11} mb={3}>
       Discharge planning notes
     </P>
-    <View style={notesSectionStyles.notesBox}>
-      <Text style={infoBoxStyles.infoText}>{notes}</Text>
+    <View style={notesSectionStyles().notesBox}>
+      <Text style={infoBoxStyles().infoText}>{notes}</Text>
     </View>
   </View>
 );
 
 const MedicationsTableInfoBox = ({ label, info, hasBottomBorder = false }) => (
-  <View style={{ ...medicationsTableStyles.row, borderBottom: hasBottomBorder ?? borderStyle }}>
-    <View style={medicationsTableStyles.labelCol}>
-      <Text style={infoBoxStyles.infoText}>{label}</Text>
+  <View style={{ ...medicationsTableStyles().row, borderBottom: hasBottomBorder ?? borderStyle }}>
+    <View style={medicationsTableStyles().labelCol}>
+      <Text style={infoBoxStyles().infoText}>{label}</Text>
     </View>
-    <View style={medicationsTableStyles.dataCol}>
+    <View style={medicationsTableStyles().dataCol}>
       {info.map((item, index) => {
         return (
-          <Text style={infoBoxStyles.infoText} key={index}>
+          <Text style={infoBoxStyles().infoText} key={index}>
             {item}
           </Text>
         );
@@ -181,7 +182,7 @@ const MedicationsTable = ({ medications }) => {
   return (
     <MedicationsTableBorder>
       <MedicationsTableTitleCol>
-        <Text style={infoBoxStyles.labelText}>Medications</Text>
+        <Text style={infoBoxStyles().labelText}>Medications</Text>
       </MedicationsTableTitleCol>
       <View style={{ flexDirection: 'column', flex: 1 }}>
         <MedicationsTableInfoBox
@@ -218,7 +219,7 @@ export const DischargeSummaryPrintout = ({
 
   return (
     <Document>
-      <Page size="A4" style={styles.page}>
+      <Page size="A4" style={styles().page}>
         <CertificateHeader>
           <LetterheadSection
             getLocalisation={getLocalisation}

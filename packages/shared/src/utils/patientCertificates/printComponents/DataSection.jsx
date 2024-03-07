@@ -1,9 +1,10 @@
 import React from 'react';
-import { StyleSheet, Text, View } from '@react-pdf/renderer';
+import { Text, View } from '@react-pdf/renderer';
 import { HorizontalRule } from './HorizontalRule';
 import { Row } from '../Layout';
+import { CustomStyleSheet } from '../../renderPdf';
 
-const styles = StyleSheet.create({
+const styles = CustomStyleSheet.create({
   title: {
     fontFamily: 'Helvetica-Bold',
     marginBottom: 3,
@@ -21,7 +22,7 @@ export const DataSection = ({
 }) => {
   return (
     <View {...props}>
-      <Text style={styles.title}>{title}</Text>
+      <Text style={styles().title}>{title}</Text>
       {!hideTopRule && <HorizontalRule />}
       <Row>{children}</Row>
       {!hideBottomRule && <HorizontalRule />}

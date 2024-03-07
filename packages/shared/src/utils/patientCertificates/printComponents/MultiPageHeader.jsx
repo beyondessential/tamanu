@@ -1,7 +1,8 @@
-import { StyleSheet, Text, View } from '@react-pdf/renderer';
+import {  Text, View } from '@react-pdf/renderer';
 import React from 'react';
+import { CustomStyleSheet } from '../../renderPdf';
 
-const styles = StyleSheet.create({
+const styles = CustomStyleSheet.create({
   header: {
     flexDirection: 'row',
     display: 'flex',
@@ -25,13 +26,13 @@ const styles = StyleSheet.create({
 });
 
 const LabelText = ({ children, props }) => (
-  <Text style={styles.labelText} {...props}>
+  <Text style={styles().labelText} {...props}>
     {children}
   </Text>
 );
 
 const ValueText = ({ children, props }) => (
-  <Text style={styles.valueText} {...props}>
+  <Text style={styles().valueText} {...props}>
     {children}
   </Text>
 );
@@ -51,7 +52,7 @@ export const MultiPageHeader = ({ documentName, patientName, patientId }) => {
 
   return (
     <View
-      style={styles.header}
+      style={styles().header}
       render={({ pageNumber }) => pageNumber > 1 && <HeaderContent />}
       fixed
     />

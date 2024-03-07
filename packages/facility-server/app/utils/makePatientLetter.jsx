@@ -6,7 +6,7 @@ import { PatientLetter, tmpdir } from '@tamanu/shared/utils';
 import crypto from 'crypto';
 
 export const makePatientLetter = async (req, { id, facilityId, ...data }) => {
-  const { getLocalisation, models } = req;
+  const { getLocalisation, models, language } = req;
   const localisation = await getLocalisation();
   const getLocalisationData = key => get(localisation, key);
   const letterheadConfig = await models.Setting.get('templates.letterhead', facilityId);
@@ -28,6 +28,7 @@ export const makePatientLetter = async (req, { id, facilityId, ...data }) => {
       data={data}
       logoSrc={logo?.data}
       letterheadConfig={letterheadConfig}
+      language={language}
     />,
     filePath,
   );

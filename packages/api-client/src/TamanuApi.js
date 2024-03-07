@@ -11,6 +11,7 @@ import {
   getVersionIncompatibleMessage,
 } from './errors';
 import { fetchOrThrowIfUnavailable, getResponseErrorSafely } from './fetch';
+import { InterceptorManager } from './InterceptorManager';
 
 export class TamanuApi {
   #host;
@@ -31,6 +32,10 @@ export class TamanuApi {
     this.agentName = agentName;
     this.agentVersion = agentVersion;
     this.deviceId = deviceId;
+    this.interceptors = {
+      request: new InterceptorManager(),
+      response: new InterceptorManager(),
+    };
   }
 
   getHost() {
@@ -108,12 +113,12 @@ export class TamanuApi {
     this.#authHeader = { authorization: `Bearer ${token}` };
   }
 
-  async fetch(endpoint, query = {}, config = {}) {
-    const { headers, returnResponse = false, throwResponse = false, ...otherConfig } = config;
+  async fetch(endpoint, query = {}, moreConfig = {}) {
+    const { headers, returnResponse = false, throwResponse = false, ...otherConfig } = moreConfig;
     const queryString = qs.stringify(query || {});
     const path = `${endpoint}${query ? `?${queryString}` : ''}`;
     const url = `${this.#prefix}/${path}`;
-    const response = await fetchOrThrowIfUnavailable(url, {
+    const config = {
       headers: {
         ...this.#authHeader,
         ...headers,
@@ -121,7 +126,39 @@ export class TamanuApi {
         'X-Version': this.agentVersion,
       },
       ...otherConfig,
+    };
+
+    const requestInterceptorChain = [];
+    // request: first in last out
+    this.interceptors.request.forEach(function unshiftRequestInterceptors(interceptor) {
+      requestInterceptorChain.unshift(interceptor.fulfilled, interceptor.rejected);
     });
+    let i = 0;
+    let requestPromise = Promise.resolve(config);
+    while (i < requestInterceptorChain.length) {
+      requestPromise = requestPromise.then(
+        requestInterceptorChain[i++],
+        requestInterceptorChain[i++],
+      );
+    }
+    const latestConfig = await requestPromise;
+
+    const response = await fetchOrThrowIfUnavailable(url, latestConfig);
+
+    const responseInterceptorChain = [];
+    // request: first in first out
+    this.interceptors.response.forEach(function pushResponseInterceptors(interceptor) {
+      responseInterceptorChain.push(interceptor.fulfilled, interceptor.rejected);
+    });
+    let j = 0;
+    let responsePromise = response.ok ? Promise.resolve(response) : Promise.reject(response);
+    while (j < responseInterceptorChain.length) {
+      responsePromise = responsePromise.then(
+        responseInterceptorChain[j++],
+        responseInterceptorChain[j++],
+      );
+    }
+    await responsePromise;
 
     if (response.ok) {
       if (returnResponse) {
