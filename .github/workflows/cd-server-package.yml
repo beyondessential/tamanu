@@ -93,7 +93,7 @@ jobs:
           set -ex
           sed -E \
             "s|cwd: '.',( //.*)?|cwd: 'packages/${{ matrix.package }}-server',|" \
-            packages/${{ matrix.package }}-server/pm2.config.js > ${{ env.BUILD_NAME }}/pm2.config.js
+            packages/${{ matrix.package }}-server/pm2.config.cjs > ${{ env.BUILD_NAME }}/pm2.config.cjs
 
       - name: Prepare artifact output
         run: |
