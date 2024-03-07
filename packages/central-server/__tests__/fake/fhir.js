@@ -112,6 +112,5 @@ export const fakeResourcesOfFhirServiceRequestWithImagingRequest = async (models
   );
 
   await imagingRequest.setAreas([resources.area1.id, resources.area2.id]);
-
   return imagingRequest;
 };

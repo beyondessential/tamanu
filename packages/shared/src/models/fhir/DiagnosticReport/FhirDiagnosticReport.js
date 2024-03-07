@@ -8,6 +8,7 @@ import {
 } from '@tamanu/constants';
 import { FhirCodeableConcept, FhirReference } from '../../../services/fhirTypes';
 import { FhirResource } from '../Resource';
+import { Invalid } from '../../../utils/fhir';
 
 export class FhirDiagnosticReport extends FhirResource {
   static init(options, models) {
@@ -82,8 +83,7 @@ export class FhirDiagnosticReport extends FhirResource {
 
     const labRequest = await LabRequest.findByPk(serviceRequest.upstreamId);
     if (!labRequest) {
-      // this is only a possibility when using a FHIR basedOn reference
-      throw new Deleted(`LabRequest ${serviceRequest.upstreamId} has been deleted in Tamanu`);
+      throw new Invalid(`No LabRequest with id: ${serviceRequest.upstreamId}, might be ImagingRequest id`);
     }
 
     labRequest.set({ status: this.getLabRequestStatus() });
