@@ -1,5 +1,9 @@
 import { Op } from 'sequelize';
-import { SURVEY_TYPES, VITALS_DATA_ELEMENT_IDS } from '@tamanu/constants';
+import {
+  SURVEY_TYPES,
+  VITALS_DATA_ELEMENT_IDS,
+  REGISTRATION_STATUSES_VALUES,
+} from '@tamanu/constants';
 import { ImporterMetadataError, ValidationError } from '../errors';
 
 const REQUIRED_QUESTION_IDS = {
@@ -24,6 +28,53 @@ export function ensureRequiredQuestionsPresent(surveyInfo, questionRecords) {
       `Survey missing required questions: ${missingQuestions.join(', ')}`,
     );
   }
+}
+
+export function ensureProgramRegistrationStatusOptionsAreValid(surveyInfo, questionRecords) {
+  const { sheetName } = surveyInfo;
+  const programDataElements = questionRecords.filter(
+    record => record.model === 'ProgramDataElement',
+  );
+  const surveyScreenComponents = questionRecords.filter(
+    record => record.model === 'SurveyScreenComponent',
+  );
+
+  surveyScreenComponents.forEach(ssc => {
+    const pde = programDataElements.find(
+      element => element.values.id === ssc.values.dataElementId,
+    );
+    if (pde.values.type !== 'PatientData') return;
+
+    let fieldName;
+    let fieldType;
+    let defaultOptions;
+
+    try {
+      const config = JSON.parse(ssc.values.config);
+      defaultOptions = JSON.parse(pde.values.defaultOptions);
+      fieldName = config.writeToPatient.fieldName;
+      fieldType = config.writeToPatient.fieldType;
+    } catch (_) {
+      // Malformed reference data will be caught later,
+      // here we only care about a specific scenario
+      return;
+    }
+
+    // This is the only scenario we're checking here
+    if (fieldName !== 'programRegistrationStatus' || fieldType !== 'Select') return;
+
+    // Ensure option values are correct
+    const defaultOptionsValues = Object.values(defaultOptions);
+    defaultOptionsValues.forEach(value => {
+      if (REGISTRATION_STATUSES_VALUES.includes(value) === false) {
+        throw new ValidationError(
+          sheetName,
+          -2,
+          `Invalid options for patient data question with code: ${pde.values.code}`,
+        );
+      }
+    });
+  });
 }
 
 async function ensureOnlyOneVitalsSurveyExists({ models }, surveyInfo) {
