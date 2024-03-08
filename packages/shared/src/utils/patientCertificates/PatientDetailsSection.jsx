@@ -8,29 +8,65 @@ import {
   getNationality,
   getPassportNumber,
 } from '../patientAccessors';
+import { defaultTranslationFn } from '../translation';
 
-const PATIENT_FIELDS = [
-  { key: 'firstName', label: 'First Name' },
-  { key: 'displayId', label: 'Patient ID' },
-  { key: 'lastName', label: 'Last Name' },
-  { key: 'sex', label: 'Sex', accessor: getSex },
+const patientFields = getTranslation => [
+  {
+    key: 'firstName',
+    label: getTranslation('pdf.vaccineCertificate.patientDetails.firstName', 'First Name'),
+  },
+  {
+    key: 'displayId',
+    label: getTranslation('pdf.vaccineCertificate.patientDetails.patientId', 'Patient ID'),
+  },
+  {
+    key: 'lastName',
+    label: getTranslation('pdf.vaccineCertificate.patientDetails.lastName', 'Last Name'),
+  },
+  {
+    key: 'sex',
+    label: getTranslation('pdf.vaccineCertificate.patientDetails.sex', 'Sex'),
+    accessor: getSex,
+  },
   {
     key: 'dateOfBirth',
-    label: 'DOB',
+    label: getTranslation('pdf.vaccineCertificate.patientDetails.dob', 'DOB'),
     accessor: getDOB,
   },
-  { key: 'villageName', label: 'Village', accessor: getVillageName },
-  { key: 'passport', label: 'Passport Number', accessor: getPassportNumber },
-  { key: 'nationality', label: 'Nationality', accessor: getNationality },
+  {
+    key: 'villageName',
+    label: getTranslation('pdf.vaccineCertificate.patientDetails.village', 'Village'),
+    accessor: getVillageName,
+  },
+  {
+    key: 'passport',
+    label: getTranslation(
+      'pdf.vaccineCertificate.patientDetails.passportNumber',
+      'Passport Number',
+    ),
+    accessor: getPassportNumber,
+  },
+  {
+    key: 'nationality',
+    label: getTranslation('pdf.vaccineCertificate.patientDetails.nationality', 'Nationality'),
+    accessor: getNationality,
+  },
 ];
 
-export const PatientDetailsSection = ({ patient, getLocalisation, extraFields = [] }) => {
-  const detailsToDisplay = [...PATIENT_FIELDS, ...extraFields].filter(
+export const PatientDetailsSection = ({
+  patient,
+  getLocalisation,
+  extraFields = [],
+  getTranslation = defaultTranslationFn,
+}) => {
+  const detailsToDisplay = [...patientFields(getTranslation), ...extraFields].filter(
     ({ key }) => !getLocalisation(`fields.${key}.hidden`),
   );
   return (
     <>
-      <H3 style={{ marginBottom: 0 }}>Patient Details</H3>
+      <H3 style={{ marginBottom: 0 }}>
+        {getTranslation('pdf.vaccineCertificate.patientDetails.title', 'Patient Details')}
+      </H3>
       <LightDivider />
       <Row>
         <Col style={{ marginBottom: 5 }}>
