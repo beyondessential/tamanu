@@ -45,8 +45,11 @@ const columns = [
 
   {
     key: 'countryName',
-    title: 'Country',
-    accessor: ({ countryName }) => countryName,
+    title: 'Facility/Country',
+    accessor: record => {
+      const facility = record.givenElsewhere ? record.givenBy : record.location?.facility?.name;
+      return facility || '';
+    }
   },
 ];
 
