@@ -57,7 +57,7 @@ export const SelectFacilityForm = ({ onSubmitForm }) => {
   }, []);
 
   const onSubmit = useCallback(
-    async ({ facilityId, ...extras }) => {
+    async ({ facilityId }) => {
       const selected = facilityOptions.find(x => x.value === facilityId);
       if (selected) {
         onSubmitForm({ facilityId, facilityName: selected.label });

@@ -1,7 +1,6 @@
 import React, { ReactElement, useEffect } from 'react';
 import { Platform } from 'react-native';
 import { compose } from 'redux';
-import { NavigationProp } from '@react-navigation/native';
 import { FlatList, TouchableOpacity } from 'react-native-gesture-handler';
 // Containers
 import { withPatient } from '/containers/Patient';
