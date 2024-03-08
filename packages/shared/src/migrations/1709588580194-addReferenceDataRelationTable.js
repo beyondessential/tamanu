@@ -25,7 +25,7 @@ export async function up(query) {
       type: DataTypes.DATE,
       allowNull: true,
     },
-    ref_data_id: {
+    reference_datum_id: {
       type: DataTypes.TEXT,
       allowNull: true,
       references: {
@@ -33,7 +33,7 @@ export async function up(query) {
         key: 'id',
       },
     },
-    ref_data_parent_id: {
+    parent_relation_id: {
       type: DataTypes.TEXT,
       allowNull: true,
       references: {

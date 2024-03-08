@@ -2,7 +2,6 @@ import { Sequelize, ValidationError } from 'sequelize';
 import { REFERENCE_TYPE_VALUES, SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { InvalidOperationError } from '../errors';
 import { Model } from './Model';
-import { ReferenceDataRelation } from '../models';
 
 export class ReferenceData extends Model {
   static init({ primaryKey, ...options }) {
@@ -51,9 +50,11 @@ export class ReferenceData extends Model {
       foreignKey: 'areaId',
     });
 
-    this.hasMany(models.ReferenceDataRelation, {
-      as: 'ParentRelations',
-      foreignKey: 'refDataId',
+    this.belongsToMany(models.ReferenceData, {
+      as: 'Parent',
+      through: 'reference_data_relations',
+      foreignKey: 'reference_datum_id',
+      otherKey: 'parent_relation_id',
     });
 
     this.hasOne(models.ImagingAreaExternalCode, {
@@ -79,96 +80,37 @@ export class ReferenceData extends Model {
     return super.update(values);
   }
 
-  static getChildrenByParentId(parentId) {
-    return this.findAll({
-      raw: true,
-      where: { '$ParentRelations.ref_data_parent_id$': parentId },
-      include: {
-        model: ReferenceDataRelation,
-        as: 'ParentRelations',
+  static async getParent(where = {}) {
+    const record = await this.findOne({
+      where,
+      include: 'Parent',
+      through: {
         attributes: [],
       },
-    });
-  }
-
-  static async getChildrenRecursive(id, node) {
-    const children = await this.getChildrenByParentId(id);
-
-    if (children.length === 0) {
-      // leaf node
-      return node;
-    }
-
-    node.children = await Promise.all(
-      children.map(child => this.getChildrenRecursive(child.id, child)),
-    );
-
-    // internal node
-    return node;
-  }
-
-  static async getParentById(id) {
-    const records = await this.findAll({
       raw: true,
-      where: { '$ParentRelations.ref_data_id$': id },
-      include: {
-        model: ReferenceDataRelation,
-        as: 'ParentRelations',
-      },
+      nest: true,
     });
-    return records.length > 0 ? records[0] : null;
+    const { Parent: parent, ...rootNode } = record;
+    return { rootNode, parent };
   }
 
   static async getParentRecursive(id, ancestors) {
-    const parent = await this.getParentById(id);
-    const parentId = parent['ParentRelations.refDataParentId'];
-    if (!parentId) {
-      return [...ancestors, parent];
+    const { parent } = await this.getParent({ id });
+    if (!parent.id) {
+      return ancestors;
     }
-    return this.getParentRecursive(parentId, [...ancestors, parent]);
+    return this.getParentRecursive(parent.id, [...ancestors, parent]);
   }
 
   static async getAncestorsById(id) {
-    const rootNode = await this.getParentById(id);
-    return this.getParentRecursive(rootNode['ParentRelations.refDataParentId'], [rootNode]);
-  }
-
-  static async getDescendantsByParentId(parentId) {
-    const rootNode = await this.findByPk(parentId, { raw: true });
-    return this.getChildrenRecursive(parentId, rootNode);
+    const { parent, rootNode } = await this.getParent({ id });
+    return this.getParentRecursive(parent.id, [rootNode, parent]);
   }
 
   static async getAncestorByType(type) {
-    const records = await this.findAll({
-      raw: true,
-      where: { type },
-      include: {
-        model: ReferenceDataRelation,
-        as: 'ParentRelations',
-      },
-    });
-    const rootNode = records.length > 0 ? records[0] : null;
-
-    const ancestors = await this.getParentRecursive(rootNode['ParentRelations.refDataParentId'], [
-      rootNode,
-    ]);
+    const { parent, rootNode } = await this.getParent({ type });
+    const ancestors = await this.getParentRecursive(parent.id, [rootNode, parent]);
     return ancestors.map(ancestor => ancestor.type);
-  }
-
-  static async getAddressHierarchyByType(type) {
-    const entitiesOfType = await this.findAll({
-      raw: true,
-      where: { type: type, '$ParentRelations.type$': 'ADDRESS_HIERARCHY' },
-      include: [
-        {
-          model: ReferenceDataRelation,
-          as: 'ParentRelations',
-          attributes: [],
-        },
-      ],
-    });
-
-    return Promise.all(entitiesOfType.map(child => this.getChildrenRecursive(child.id, child)));
   }
 
   static buildSyncFilter() {

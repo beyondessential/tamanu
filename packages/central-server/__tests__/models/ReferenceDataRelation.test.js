@@ -18,39 +18,39 @@ const referenceData = [
 
 const relationData = [
   {
-    refDataId: 'country1',
+    parent_relation_id: 'country1',
   },
   {
-    refDataParentId: 'country1',
-    refDataId: 'division1',
+    parent_relation_id: 'country1',
+    reference_datum_id: 'division1',
   },
   {
-    refDataParentId: 'country1',
-    refDataId: 'division2',
+    parent_relation_id: 'country1',
+    reference_datum_id: 'division2',
   },
   {
-    refDataParentId: 'division1',
-    refDataId: 'subdivision1',
+    parent_relation_id: 'division1',
+    reference_datum_id: 'subdivision1',
   },
   {
-    refDataParentId: 'division1',
-    refDataId: 'subdivision2',
+    parent_relation_id: 'division1',
+    reference_datum_id: 'subdivision2',
   },
   {
-    refDataParentId: 'subdivision1',
-    refDataId: 'village1',
+    parent_relation_id: 'subdivision1',
+    reference_datum_id: 'village1',
   },
   {
-    refDataParentId: 'subdivision1',
-    refDataId: 'village2',
+    parent_relation_id: 'subdivision1',
+    reference_datum_id: 'village2',
   },
   {
-    refDataParentId: 'subdivision2',
-    refDataId: 'village3',
+    parent_relation_id: 'subdivision2',
+    reference_datum_id: 'village3',
   },
   {
-    refDataParentId: 'subdivision2',
-    refDataId: 'village4',
+    parent_relation_id: 'subdivision2',
+    reference_datum_id: 'village4',
   },
 ];
 
@@ -84,18 +84,9 @@ describe('Reference Data Hierarchy', () => {
   });
   afterAll(() => ctx.close());
 
-  it('should get children by parent id', async () => {
-    const output = await models.ReferenceData.getChildrenByParentId('division1');
-    expect(output.length).toEqual(2);
-  });
-
-  it('should get descendants by parent id', async () => {
-    const output = await models.ReferenceData.getDescendantsByParentId('division1');
-    expect(output.id).toEqual('division1');
-    expect(output.children.length).toEqual(2);
-    expect(output.children[0].children.length).toEqual(2);
-    expect(output.children[0].id).toEqual('subdivision1');
-    expect(output.children[1].children[1].id).toEqual('village4');
+  it('should get parent by id', async () => {
+    const { parent } = await models.ReferenceData.getParent({ id: 'division1' });
+    expect(parent.id).toEqual('country1');
   });
 
   it('should get ancestors by id', async () => {
@@ -107,10 +98,5 @@ describe('Reference Data Hierarchy', () => {
     const output = await models.ReferenceData.getAncestorByType('village');
     expect(output.length).toEqual(4);
     expect(output).toEqual(['village', 'subdivision', 'division', 'country']);
-  });
-
-  it('should get hierarchy by type', async () => {
-    const output = await models.ReferenceData.getAddressHierarchyByType('country');
-    expect(output.length).toEqual(1);
   });
 });
