@@ -14,11 +14,7 @@ interface ReferenceDataFieldProps extends BaseInputProps {
 export const ReferenceDataField = React.memo(({
   value,
   onChange,
-  label,
-  error,
   referenceDataType,
-  disabled = false,
-  required = false,
 }: ReferenceDataFieldProps): JSX.Element => {
   const { models } = useBackend();
   const [dropdownItems, setDropdownItems] = useState([]);

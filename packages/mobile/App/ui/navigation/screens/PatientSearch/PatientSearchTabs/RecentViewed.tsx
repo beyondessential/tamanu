@@ -21,12 +21,6 @@ import { navigateAfterTimeout } from '~/ui/helpers/navigators';
 import { theme } from '~/ui/styled/theme';
 import { PatientFromRoute } from '~/ui/helpers/constants';
 
-interface PatientListProps {
-  list: any[];
-  setSelectedPatient: Function;
-  navigation: NavigationProp<any>;
-}
-
 const NoPatientsCard = (): ReactElement => (
   <StyledText
     color={theme.colors.TEXT_SUPER_DARK}
