@@ -77,7 +77,14 @@ export default [
     files: [`packages/mobile/**/*.${TS_EXTS}`],
     rules: {
       'no-unused-vars': 'off',
-      "@typescript-eslint/no-unused-vars": 'error',
+      "@typescript-eslint/no-unused-vars": [
+        'error',
+        {
+          "argsIgnorePattern": "^_",
+          "varsIgnorePattern": "^_",
+          "caughtErrorsIgnorePattern": "^_",
+        },
+      ],
       'no-constructor-return': 'warn',
       'no-promise-executor-return': 'warn',
       'require-atomic-updates': 'warn',
