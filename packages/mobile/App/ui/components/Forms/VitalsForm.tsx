@@ -30,7 +30,6 @@ interface VitalsFormProps {
 export const VitalsForm: React.FC<VitalsFormProps> = ({ onAfterSubmit }) => {
   const { models } = useBackend();
   const user = useSelector(authUserSelector);
-  const [note, setNote] = useState('');
   const { currentScreenIndex, setCurrentScreenIndex } = useCurrentScreen();
 
   const { selectedPatient } = useSelector(
@@ -79,7 +78,6 @@ export const VitalsForm: React.FC<VitalsFormProps> = ({ onAfterSubmit }) => {
         encounterReason: `Form response for ${name}`,
       },
       { ...values, [dateComponent.dataElement.code]: getCurrentDateTimeString() },
-      setNote,
     );
 
     if (responseRecord) {
