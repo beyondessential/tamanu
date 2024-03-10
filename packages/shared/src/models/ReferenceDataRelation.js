@@ -1,11 +1,7 @@
 import { Sequelize, DataTypes } from 'sequelize';
-import { SYNC_DIRECTIONS } from '@tamanu/constants';
+import { SYNC_DIRECTIONS, REFERENCE_DATA_RELATION_TYPES } from '@tamanu/constants';
 import { Model } from './Model';
 
-const REFERENCE_DATA_RELATION_TYPES = {
-  ADDRESS_HIERARCHY: 'ADDRESS_HIERARCHY',
-  FACILITY_CATCHMENT: 'FACILITY_CATCHMENT',
-};
 export class ReferenceDataRelation extends Model {
   static init(options) {
     super.init(

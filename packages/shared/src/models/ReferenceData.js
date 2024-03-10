@@ -1,5 +1,10 @@
 import { Sequelize, ValidationError } from 'sequelize';
-import { REFERENCE_TYPE_VALUES, SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
+import {
+  REFERENCE_TYPE_VALUES,
+  REFERENCE_DATA_RELATION_TYPES,
+  SYNC_DIRECTIONS,
+  VISIBILITY_STATUSES,
+} from '@tamanu/constants';
 import { InvalidOperationError } from '../errors';
 import { Model } from './Model';
 
@@ -50,7 +55,7 @@ export class ReferenceData extends Model {
       foreignKey: 'areaId',
     });
 
-    this.belongsToMany(models.ReferenceData, {
+    this.belongsToMany(this, {
       as: 'Parent',
       through: 'reference_data_relations',
       foreignKey: 'reference_datum_id',
@@ -80,36 +85,49 @@ export class ReferenceData extends Model {
     return super.update(values);
   }
 
-  static async getParent(where = {}) {
+  // ----------------------------------
+  // Reference data hierarchy utilities
+  // ----------------------------------
+
+  static #defaultHierarchyType = REFERENCE_DATA_RELATION_TYPES.ADDRESS_HIERARCHY;
+
+  static async getNodeWithParent(where = {}, relationType = this.#defaultHierarchyType) {
     const record = await this.findOne({
       where,
-      include: 'Parent',
-      through: {
-        attributes: [],
+      include: {
+        model: this,
+        as: 'Parent',
+        through: {
+          attributes: [],
+          // where: {
+          //   type: relationType,
+          // },
+        },
       },
       raw: true,
       nest: true,
+      logging: console.log,
     });
     const { Parent: parent, ...rootNode } = record;
     return { rootNode, parent };
   }
 
-  static async getParentRecursive(id, ancestors) {
-    const { parent } = await this.getParent({ id });
+  static async #getParentRecursive(id, ancestors) {
+    const { parent } = await this.getNodeWithParent({ id });
     if (!parent.id) {
       return ancestors;
     }
-    return this.getParentRecursive(parent.id, [...ancestors, parent]);
+    return this.#getParentRecursive(parent.id, [...ancestors, parent]);
   }
 
-  static async getAncestorsById(id) {
-    const { parent, rootNode } = await this.getParent({ id });
-    return this.getParentRecursive(parent.id, [rootNode, parent]);
+  static async getAncestorsOfId(id, relationType = this.#defaultHierarchyType) {
+    const { parent, rootNode } = await this.getNodeWithParent({ id }, relationType);
+    return this.#getParentRecursive(parent.id, [rootNode, parent]);
   }
 
-  static async getAncestorByType(type) {
-    const { parent, rootNode } = await this.getParent({ type });
-    const ancestors = await this.getParentRecursive(parent.id, [rootNode, parent]);
+  static async getAncestorsOfType(type, relationType = this.#defaultHierarchyType) {
+    const { parent, rootNode } = await this.getNodeWithParent({ type }, relationType);
+    const ancestors = await this.#getParentRecursive(parent.id, [rootNode, parent]);
     return ancestors.map(ancestor => ancestor.type);
   }
 

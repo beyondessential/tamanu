@@ -85,17 +85,19 @@ describe('Reference Data Hierarchy', () => {
   afterAll(() => ctx.close());
 
   it('should get parent by id', async () => {
-    const { parent } = await models.ReferenceData.getParent({ id: 'division1' });
+    const { parent } = await models.ReferenceData.getNodeWithParent({ id: 'division1' });
+    console.log('output', parent);
+
     expect(parent.id).toEqual('country1');
   });
 
   it('should get ancestors by id', async () => {
-    const output = await models.ReferenceData.getAncestorsById('village4');
+    const output = await models.ReferenceData.getAncestorsOfId('village4');
     expect(output.length).toEqual(4);
   });
 
   it('should get ancestors by type', async () => {
-    const output = await models.ReferenceData.getAncestorByType('village');
+    const output = await models.ReferenceData.getAncestorsOfType('village');
     expect(output.length).toEqual(4);
     expect(output).toEqual(['village', 'subdivision', 'division', 'country']);
   });
