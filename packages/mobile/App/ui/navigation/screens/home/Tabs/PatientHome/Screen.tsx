@@ -136,13 +136,6 @@ export const Screen = ({
             </StyledTouchableOpacity>
           </StyledView>
         </StyledView>
-        <StyledView flex={1} background={theme.colors.BACKGROUND_GREY}>
-          <PatientMenuButtons list={patientMenuButtons} />
-          <VisitTypeButtonList list={visitTypeButtons} />
-          <StyledView position="absolute" bottom={0} width="100%">
-            <SyncInactiveAlert />
-          </StyledView>
-        </StyledView>
         <StyledScrollView flex={1} background={theme.colors.BACKGROUND_GREY}>
           <PatientMenuButtons list={patientMenuButtons} />
           <VisitTypeButtonList list={visitTypeButtons} />
