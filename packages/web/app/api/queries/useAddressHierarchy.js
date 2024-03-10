@@ -1,8 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../useApi';
 
-export const useAddressHierarchy = (type = 'village', options) => {
+export const useAddressHierarchy = queryParams => {
   const api = useApi();
 
-  return useQuery(['addressHierarchy', type], () => api.get(`addressHierarchy/${type}`, options));
+  return useQuery(['addressHierarchy', queryParams], () =>
+    api.get(`addressHierarchy`, queryParams),
+  );
 };
