@@ -49,7 +49,7 @@ export const CambodiaGeneralInfo = ({ onEdit, patient }: GeneralInfoProps): Reac
       'fathersFirstName',
       !loading ? getCustomFieldValue(customPatientFieldValues, FIELD_DEFINITION_IDS.FATHERS_FIRST_NAME) : '',
     ],
-    ['mothersFirstName', patient.culturalName],
+    ['culturalName', patient.culturalName],
   ];
 
   const patientAdditionalDataFields = allAdditionalDataFields

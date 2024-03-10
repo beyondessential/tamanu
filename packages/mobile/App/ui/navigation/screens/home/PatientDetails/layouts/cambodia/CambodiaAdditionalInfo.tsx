@@ -7,34 +7,45 @@ import { PatientSection } from '../../CustomComponents/PatientSection';
 import { useLocalisation } from '../../../../../../contexts/LocalisationContext';
 import { IPatient, IPatientAdditionalData } from '../../../../../../types';
 import { usePatientAdditionalData } from '~/ui/hooks/usePatientAdditionalData';
-import { allAdditionalDataFields } from '../../../../../../helpers/additionalData';
 
 export const cambodiaAdditionalDataSections = [
   {
     title: 'Current address',
-    fields: allAdditionalDataFields,
+    fields: ['divisionId', 'subdivisionId', 'settlementId', 'villageId', 'streetVillage'],
   },
   {
     title: 'Contact information',
-    fields: [],
+    fields: [
+      'primaryContactNumber',
+      'secondaryContactNumber',
+      'emergencyContactName',
+      'emergencyContactNumber',
+      'medicalAreaId',
+      'nursingZoneId',
+    ],
   },
   {
     title: 'Identification information',
-    fields: ['birthCertificate'],
+    fields: [
+      'birthCertificate',
+      'fieldDefinition-nationalId',
+      'passport',
+      'fieldDefinition-idPoorCardNumber',
+      'fieldDefinition-pmrsNumber',
+    ],
   },
   {
     title: 'Personal information',
-    fields: [],
+    fields: ['countryOfBirthId', 'nationalityId'],
   },
 ];
-
 
 interface AdditionalInfoProps {
   onEdit: (additionalInfo: IPatientAdditionalData, sectionTitle: string) => void;
   patient: IPatient;
 }
 
-function getFieldData(data: IPatientAdditionalData, fieldName: string): string {
+function getPadFieldData(data: IPatientAdditionalData, fieldName: string): string {
   // Field is reference data
   if (fieldName.slice(-2) === 'Id') {
     const actualName = fieldName.slice(0, -2);
@@ -44,6 +55,11 @@ function getFieldData(data: IPatientAdditionalData, fieldName: string): string {
   // Field is a string field
   return data?.[fieldName];
 }
+
+const getCustomFieldData = (customDataValues, fieldName) => {
+  if (!customDataValues[fieldName]) return '';
+  return customDataValues[fieldName][0].value;
+};
 
 export const CambodiaAdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps): ReactElement => {
   const {
@@ -57,9 +73,6 @@ export const CambodiaAdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps)
     return <ErrorScreen error={error} />;
   }
 
-  // console.log('customPatientFieldValues', customPatientFieldValues)
-  // console.log('patientAdditionalData', patientAdditionalData)
-
   // Check if patient additional data should be editable
   const { getBool } = useLocalisation();
   const isEditable = getBool('features.editPatientDetailsOnMobile');
@@ -67,15 +80,19 @@ export const CambodiaAdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps)
   // Add edit callback and map the inner 'fields' array
   const sections = cambodiaAdditionalDataSections.map(({ title, fields }) => {
     const onEditCallback = (): void => onEdit(patientAdditionalData, title, false);
-    const mappedFields = fields
-      .filter(fieldName => !getBool(`fields.${fieldName}.requiredPatientData`))
-      .map(fieldName => [fieldName, getFieldData(patientAdditionalData, fieldName)]);
+    const mappedFields = fields.map(fieldName => {
+      // TODO: hacky just to get it working initially
+      if (fieldName === 'villageId') return [fieldName, patient.village.name];
+      if (fieldName.startsWith('fieldDefinition-'))
+        return [fieldName, getCustomFieldData(customPatientFieldValues, fieldName)];
+      return [fieldName, getPadFieldData(patientAdditionalData, fieldName)];
+    });
     return { title, fields: mappedFields, onEditCallback };
   });
 
   return (
     <>
-      {sections.map(({ title, fields, onEditCallback, isCustomFields }, i) => {
+      {sections.map(({ title, fields, onEditCallback }, i) => {
         return (
           <PatientSection
             key={'additional-info-section-' + i}
@@ -83,11 +100,7 @@ export const CambodiaAdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps)
             onEdit={isEditable ? onEditCallback : undefined}
             isClosable
           >
-            {loading ? (
-              <LoadingScreen />
-            ) : (
-              <FieldRowDisplay fields={fields} isCustomFields={isCustomFields} />
-            )}
+            {loading ? <LoadingScreen /> : <FieldRowDisplay fields={fields} />}
           </PatientSection>
         );
       })}
