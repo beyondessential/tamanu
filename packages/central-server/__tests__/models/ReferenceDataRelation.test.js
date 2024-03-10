@@ -19,39 +19,39 @@ const referenceData = [
 
 const relationData = [
   {
-    parent_relation_id: 'country1',
+    reference_data_parent_id: 'country1',
   },
   {
-    parent_relation_id: 'country1',
-    reference_datum_id: 'division1',
+    reference_data_parent_id: 'country1',
+    reference_data_id: 'division1',
   },
   {
-    parent_relation_id: 'country1',
-    reference_datum_id: 'division2',
+    reference_data_parent_id: 'country1',
+    reference_data_id: 'division2',
   },
   {
-    parent_relation_id: 'division1',
-    reference_datum_id: 'subdivision1',
+    reference_data_parent_id: 'division1',
+    reference_data_id: 'subdivision1',
   },
   {
-    parent_relation_id: 'division1',
-    reference_datum_id: 'subdivision2',
+    reference_data_parent_id: 'division1',
+    reference_data_id: 'subdivision2',
   },
   {
-    parent_relation_id: 'subdivision1',
-    reference_datum_id: 'village1',
+    reference_data_parent_id: 'subdivision1',
+    reference_data_id: 'village1',
   },
   {
-    parent_relation_id: 'subdivision1',
-    reference_datum_id: 'village2',
+    reference_data_parent_id: 'subdivision1',
+    reference_data_id: 'village2',
   },
   {
-    parent_relation_id: 'subdivision2',
-    reference_datum_id: 'village3',
+    reference_data_parent_id: 'subdivision2',
+    reference_data_id: 'village3',
   },
   {
-    parent_relation_id: 'subdivision2',
-    reference_datum_id: 'village4',
+    reference_data_parent_id: 'subdivision2',
+    reference_data_id: 'village4',
   },
 ];
 
