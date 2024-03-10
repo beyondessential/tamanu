@@ -4,8 +4,8 @@ import { compose } from 'redux';
 import { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
 import { Routes } from '~/ui/helpers/routes';
 import { withPatient } from '~/ui/containers/Patient';
-import { getGender, joinNames } from '~/ui/helpers/user';
-import { getAgeFromDate } from '~/ui/helpers/date';
+import { joinNames, getGender } from '~/ui/helpers/user';
+import { getDisplayAge } from '~/ui/helpers/date';
 import {
   FullView,
   RowView,
@@ -21,6 +21,7 @@ import { ArrowLeftIcon } from '~/ui/components/Icons';
 import { UserAvatar } from '~/ui/components/UserAvatar';
 import { HealthIdentificationRow, PatientIssues } from './CustomComponents';
 import { useLayoutComponents } from './layouts/useLayoutComponents';
+import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 
 
 const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => {
@@ -60,6 +61,9 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => 
     navigation.navigate(Routes.HomeStack.PatientDetailsStack.AddPatientIssue);
   }, [navigation]);
 
+  const { getLocalisation } = useLocalisation();
+  const ageDisplayFormat = getLocalisation('ageDisplayFormat');
+
   return (
     <FullView>
       <StyledSafeAreaView background={theme.colors.PRIMARY_MAIN}>
@@ -93,7 +97,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => 
               fontSize={screenPercentageToDP(2, Orientation.Height)}
             >
               {`${getGender(selectedPatient.sex)}, `}
-              {`${getAgeFromDate(selectedPatient.dateOfBirth)} years old`}
+              {`${getDisplayAge(selectedPatient.dateOfBirth, ageDisplayFormat)} old`}
             </StyledText>
           </StyledView>
         </RowView>

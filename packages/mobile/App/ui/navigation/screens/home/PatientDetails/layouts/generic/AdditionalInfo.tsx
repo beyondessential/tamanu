@@ -51,7 +51,7 @@ export const AdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps): ReactE
     return { title, fields: mappedFields, onEditCallback };
   });
 
-  const customSections = customPatientSections.map(([categoryId, fields]) => {
+  const customSections = customPatientSections.map(([_categoryId, fields]) => {
     const title = fields[0].category.name;
     const onEditCallback = (): void => onEdit(null, title, true, fields, customPatientFieldValues);
     const mappedFields = fields.map(field => ([field.name, customPatientFieldValues[field.id]?.[0]?.value]));

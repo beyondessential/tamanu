@@ -150,7 +150,7 @@ const Screen: FC<ViewAllScreenProps> = ({
 
   const [list] = useBackendEffect(
     ({ models }) => searchAndFilterPatients(models, searchField, activeFilters),
-    [searchField.value, activeFilters],
+    [searchField.value, activeFilters, syncEnded],
   );
 
   useEffect(() => {
