@@ -11,6 +11,7 @@ describe('EU DCC: Vaccination', () => {
     ctx = await createTestContext();
     const { ReferenceData, CertifiableVaccine } = ctx.store.models;
 
+    /* eslint-disable require-atomic-updates */
     data.vaxDrug = await ReferenceData.create({
       ...fake(ReferenceData),
       type: 'vaccine',
@@ -35,6 +36,7 @@ describe('EU DCC: Vaccination', () => {
       euProductCode: 'EU/1/20/1528',
       maximumDosage: 3,
     });
+    /* eslint-enable require-atomic-updates */
   });
 
   afterAll(async () => {

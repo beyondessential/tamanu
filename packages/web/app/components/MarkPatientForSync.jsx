@@ -1,11 +1,14 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Loop } from '@material-ui/icons';
 import styled from 'styled-components';
 import { useDispatch } from 'react-redux';
 
 import { Button } from './Button';
 import { Colors } from '../constants';
-import { syncPatient } from '../store/patient';
+import { reloadPatient } from '../store/patient';
+import { useApi } from '../api';
+import { useSyncState } from '../contexts/SyncState';
+import { TranslatedText } from './Translation/TranslatedText';
 
 const MarkPatientForSyncButton = styled(Button)`
   background: ${Colors.white};
@@ -24,11 +27,20 @@ const MarkPatientForSyncIcon = styled(Loop)`
 
 export const MarkPatientForSync = ({ patient }) => {
   const dispatch = useDispatch();
-  const onMarkPatientForSync = () => dispatch(syncPatient(patient.id));
+  const api = useApi();
+  const syncState = useSyncState();
+
+  const patientId = patient.id;
+
+  const onMarkPatientForSync = useCallback(async () => {
+    const result = await api.post(`patientFacility`, { patientId });
+    dispatch(reloadPatient(patientId));
+    syncState.addSyncingPatient(patientId, result.updatedAtSyncTick);
+  }, [patientId, dispatch, api, syncState]);
   return (
     <MarkPatientForSyncButton onClick={onMarkPatientForSync} variant="text" color="default">
       <MarkPatientForSyncIcon />
-      Sync patient records
+      <TranslatedText stringId="patient.action.markForSync" fallback="Sync patient records" />
     </MarkPatientForSyncButton>
   );
 };

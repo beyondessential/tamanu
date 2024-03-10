@@ -8,6 +8,8 @@ import { Button } from '../Button';
 import { Routes } from '~/ui/helpers/routes';
 import { TextFieldErrorMessage } from '/components/TextField/TextFieldErrorMessage';
 import { RequiredIndicator } from '../RequiredIndicator';
+import { SearchIcon } from '../Icons';
+import { ReadOnlyField } from '../ReadOnlyField/index';
 
 interface AutocompleteModalFieldProps {
   value?: string;
@@ -20,6 +22,7 @@ interface AutocompleteModalFieldProps {
   label?: string;
   required?: boolean;
   disabled?: boolean;
+  readOnly?: boolean;
 }
 
 export const AutocompleteModalField = ({
@@ -33,6 +36,7 @@ export const AutocompleteModalField = ({
   required,
   marginTop = 0,
   disabled = false,
+  readOnly = false,
 }: AutocompleteModalFieldProps): ReactElement => {
   const navigation = useNavigation();
   const [label, setLabel] = useState(null);
@@ -41,10 +45,11 @@ export const AutocompleteModalField = ({
     setLabel(selectedItem.label);
   };
 
-  const openModal = (): void => navigation.navigate(modalRoute, {
-    callback: onPress,
-    suggester,
-  });
+  const openModal = (): void =>
+    navigation.navigate(modalRoute, {
+      callback: onPress,
+      suggester,
+    });
 
   useEffect(() => {
     if (!suggester) return;
@@ -53,16 +58,22 @@ export const AutocompleteModalField = ({
       if (data) {
         setLabel(data.label);
       } else {
-        setLabel(placeholder);
+        setLabel(null);
       }
     })();
   }, [value]);
+
+  const fontSize = screenPercentageToDP(2.1, Orientation.Height);
+
+  if (readOnly) {
+    return <ReadOnlyField value={label} />;
+  }
 
   return (
     <StyledView marginBottom={screenPercentageToDP('2.24', Orientation.Height)} width="100%">
       {!!fieldLabel && (
         <StyledText
-          fontSize={14}
+          fontSize={fontSize}
           fontWeight={600}
           marginBottom={2}
           color={theme.colors.TEXT_SUPER_DARK}
@@ -83,11 +94,17 @@ export const AutocompleteModalField = ({
         borderColor={error ? theme.colors.ERROR : '#EBEBEB'}
         borderWidth={1}
         fontWeight={400}
-        fontSize={15}
+        fontSize={fontSize}
         padding={10}
         onPress={openModal}
         disabled={disabled}
-      />
+      >
+        {!label && (
+          <StyledView marginRight={5}>
+            <SearchIcon fill={theme.colors.TEXT_SOFT} />
+          </StyledView>
+        )}
+      </Button>
       {error && <TextFieldErrorMessage>{error}</TextFieldErrorMessage>}
     </StyledView>
   );

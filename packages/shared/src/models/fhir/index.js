@@ -5,6 +5,7 @@ export * from './Immunization';
 export * from './Patient';
 export * from './ServiceRequest';
 export * from './Practitioner';
+export * from './MediciReport';
 
 export * from './Job';
 export * from './JobWorker';

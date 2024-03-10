@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import { extension } from 'mime-types';
 
 import { useApi } from '../../../api';
@@ -10,8 +10,10 @@ import { DocumentModal } from '../../../components/DocumentModal';
 import { PatientLetterModal } from '../../../components/PatientLetterModal';
 import { DocumentsSearchBar } from '../../../components/DocumentsSearchBar';
 import { TabPane } from '../components';
-import { OutlinedButton, Button, ContentPane, TableButtonRow } from '../../../components';
+import { Button, ContentPane, OutlinedButton, TableButtonRow } from '../../../components';
+import { useRefreshCount } from '../../../hooks/useRefreshCount';
 import { saveFile } from '../../../utils/fileSystemAccess';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const MODAL_STATES = {
   DOCUMENT_OPEN: 'document',
@@ -27,18 +29,40 @@ const base64ToUint8Array = base64 => {
 
 export const DocumentsPane = React.memo(({ encounter, patient }) => {
   const api = useApi();
-  // const { showSaveDialog, openPath, writeFile } = useElectron();
+  const [dataUrl, setDataUrl] = useState('');
 
   const [modalStatus, setModalStatus] = useState(MODAL_STATES.CLOSED);
   const [searchParameters, setSearchParameters] = useState({});
-  const [refreshCount, setRefreshCount] = useState(0);
   const [selectedDocument, setSelectedDocument] = useState(null);
+  const [refreshCount, updateRefreshCount] = useRefreshCount();
 
   const isFromEncounter = !!encounter?.id;
 
   const baseRoute = isFromEncounter ? `encounter/${encounter.id}` : `patient/${patient.id}`;
   const documentMetadataEndpoint = `${baseRoute}/documentMetadata`;
   const createPatientLetterEndpoint = `${baseRoute}/createPatientLetter`;
+
+  // In order to make sure we cleanup any iframes we create from printing, we need to
+  // trigger it in a useEffect with a cleanup function that wil remove the iframe
+  // when unmounted.
+  useEffect(() => {
+    if (!dataUrl) return () => {};
+
+    // create iframe & print when dataurl is loaded
+    const iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    iframe.src = dataUrl;
+    document.body.appendChild(iframe);
+
+    iframe.onload = () => {
+      iframe.contentWindow.print();
+    };
+
+    return () => {
+      // cleanup iframe when leaving documents tab
+      document.body.removeChild(iframe);
+    };
+  }, [dataUrl]);
 
   const onDownload = useCallback(
     async document => {
@@ -57,9 +81,9 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
           defaultFileName: document.name,
           data: base64ToUint8Array(data),
           extensions: [fileExtension],
-        })
+        });
 
-        notifySuccess(`Successfully downloaded file`);
+        notifySuccess('Successfully downloaded file');
       } catch (error) {
         notifyError(error.message);
       }
@@ -73,17 +97,12 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
         const { data } = await api.get(`attachment/${attachmentId}`, {
           base64: true,
         });
-        const dataUri = `data:application/pdf;base64,${data}`;
-        const iframe = document.createElement('iframe');
-        iframe.style.display = 'none';
-        iframe.src = dataUri;
+        const url = URL.createObjectURL(
+          new Blob([Buffer.from(data, 'base64').buffer], { type: 'application/pdf' }),
+        );
 
-        document.body.appendChild(iframe);
-
-        iframe.onload = () => {
-          // Print the PDF after it's loaded in the iframe
-          iframe.contentWindow.print();
-        };
+        // Setting/changing the dataUrl triggers the useEffect that handles printing logic
+        setDataUrl(url);
       } catch (error) {
         notifyError(error.message);
       }
@@ -91,7 +110,6 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
     [api],
   );
 
-  const refreshTable = useCallback(() => setRefreshCount(count => count + 1), [setRefreshCount]);
   const closeModal = useCallback(() => setModalStatus(MODAL_STATES.CLOSED), [setModalStatus]);
   const downloadCurrent = useCallback(() => onDownload(selectedDocument), [
     onDownload,
@@ -112,9 +130,14 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
       <PaneWrapper>
         <TableButtonRow variant="small">
           <OutlinedButton onClick={() => setModalStatus(MODAL_STATES.PATIENT_LETTER_OPEN)}>
-            Patient letter
+            <TranslatedText
+              stringId="document.action.openPatientLetter"
+              fallback="Patient letter"
+            />
           </OutlinedButton>
-          <Button onClick={() => setModalStatus(MODAL_STATES.DOCUMENT_OPEN)}>Add document</Button>
+          <Button onClick={() => setModalStatus(MODAL_STATES.DOCUMENT_OPEN)}>
+            <TranslatedText stringId="document.action.addDocument" fallback="Add document" />
+          </Button>
         </TableButtonRow>
         <DocumentsTable
           endpoint={documentMetadataEndpoint}
@@ -128,7 +151,7 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
         open={modalStatus === MODAL_STATES.PATIENT_LETTER_OPEN}
         onClose={closeModal}
         endpoint={createPatientLetterEndpoint}
-        refreshTable={refreshTable}
+        refreshTable={updateRefreshCount}
         openDocumentPreview={openDocumentPreview}
         patient={patient}
       />
@@ -136,7 +159,7 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
         open={modalStatus === MODAL_STATES.DOCUMENT_OPEN}
         onClose={closeModal}
         endpoint={documentMetadataEndpoint}
-        refreshTable={refreshTable}
+        refreshTable={updateRefreshCount}
       />
       <DocumentPreviewModal
         open={modalStatus === MODAL_STATES.DOCUMENT_PREVIEW_OPEN}

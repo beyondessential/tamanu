@@ -14,7 +14,8 @@ import {
 import { FormGrid } from '../components/FormGrid';
 import { FormSubmitCancelRow } from '../components/ButtonRow';
 import { foreignKey } from '../utils/validation';
-import { useLocalisedText } from '../components';
+import { FORM_TYPES } from '../constants';
+import { TranslatedText } from '../components/Translation/TranslatedText';
 
 export const OngoingConditionForm = ({
   onSubmit,
@@ -23,16 +24,23 @@ export const OngoingConditionForm = ({
   practitionerSuggester,
   icd10Suggester,
 }) => {
-  const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
-
   const RenderForm = ({ submitForm, values }) => {
     const resolving = values.resolved;
-    const buttonText = editedObject ? 'Save' : 'Add';
+    const buttonText = editedObject ? (
+      <TranslatedText stringId="general.action.save" fallback="Save" />
+    ) : (
+      <TranslatedText stringId="general.action.add" fallback="Add" />
+    );
     return (
       <FormGrid columns={1}>
         <Field
           name="conditionId"
-          label="Condition name"
+          label={
+            <TranslatedText
+              stringId="conditions.conditionName.label"
+              fallback="Condition name"
+            />
+          }
           component={AutocompleteField}
           suggester={icd10Suggester}
           disabled={resolving}
@@ -40,35 +48,78 @@ export const OngoingConditionForm = ({
         />
         <Field
           name="recordedDate"
-          label="Date recorded"
+          label={
+            <TranslatedText stringId="general.recordedDate.label" fallback="Date recorded" />
+          }
           saveDateAsString
           component={DateField}
           disabled={resolving}
         />
         <Field
           name="examinerId"
-          label={clinicianText}
+          label={
+            <TranslatedText
+              stringId="general.localisedField.practitioner.label.short"
+              fallback="Practitioner"
+            />
+          }
           disabled={resolving}
           component={AutocompleteField}
           suggester={practitionerSuggester}
         />
-        <Field name="note" label="Notes" component={TextField} disabled={resolving} />
-        <Field name="resolved" label="Resolved" component={CheckField} />
+        <Field
+          name="note"
+          label={<TranslatedText stringId="general.notes.label" fallback="Notes" />}
+          component={TextField}
+          disabled={resolving}
+        />
+        <Field
+          name="resolved"
+          label={<TranslatedText stringId="conditions.resolved.label" fallback="Resolved" />}
+          component={CheckField}
+        />
         <Collapse in={resolving}>
           <FormGrid columns={1}>
             <Field
               name="resolutionDate"
               saveDateAsString
-              label="Date resolved"
+              label={
+                <TranslatedText
+                  stringId="conditions.resolutionDate.label"
+                  fallback="Date resolved"
+                />
+              }
               component={DateField}
             />
             <Field
               name="resolutionPractitionerId"
-              label={`${clinicianText} confirming resolution`}
+              label={
+                <TranslatedText
+                  stringId="patient.ongoingCondition.resolutionPractitionerId.label"
+                  fallback=":clinician confirming resolution"
+                  replacements={{
+                    clinician: (
+                      <TranslatedText
+                        stringId="general.localisedField.clinician.label.short"
+                        fallback="Clinician"
+                      />
+                    ),
+                  }}
+                />
+              }
               component={AutocompleteField}
               suggester={practitionerSuggester}
             />
-            <Field name="resolutionNote" label="Notes on resolution" component={TextField} />
+            <Field
+              name="resolutionNote"
+              label={
+                <TranslatedText
+                  stringId="conditions.resolutionNote.label"
+                  fallback="Notes on resolution"
+                />
+              }
+              component={TextField}
+            />
           </FormGrid>
         </Collapse>
         <FormSubmitCancelRow onCancel={onCancel} onConfirm={submitForm} confirmText={buttonText} />
@@ -77,14 +128,15 @@ export const OngoingConditionForm = ({
   };
 
   const onDataSubmit = async data => {
-    if (data.resolved) {
-      await onSubmit(data);
-      return;
+    const fields = { ...data };
+
+    if (!fields.resolved) {
+      delete fields.resolutionDate;
+      delete fields.resolutionNote;
+      delete fields.resolutionPractitionerId;
     }
 
-    // remove resolution-specific fields if not resolved
-    const { resolutionDate, resolutionNote, resolutionPractitionerId, ...rest } = data;
-    await onSubmit(rest);
+    await onSubmit(fields);
   };
 
   return (
@@ -97,6 +149,7 @@ export const OngoingConditionForm = ({
         resolved: false,
         ...editedObject,
       }}
+      formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
       validationSchema={yup.object().shape({
         conditionId: foreignKey('Condition is a required field'),
         recordedDate: yup.date(),

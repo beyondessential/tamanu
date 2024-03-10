@@ -10,9 +10,15 @@ const ENCOUNTER_TYPE_TO_STATUS = {
   [ENCOUNTER_TYPES.TRIAGE]: PATIENT_STATUS.EMERGENCY,
 };
 
+const STATUS_TO_LABEL = {
+  [PATIENT_STATUS.INPATIENT]: "Inpatient",
+  [PATIENT_STATUS.OUTPATIENT]: "Outpatient",
+  [PATIENT_STATUS.EMERGENCY]: "Emergency",
+};
+
 export const getPatientStatus = encounterType => {
   if (!encounterType) {
     return '';
   }
-  return ENCOUNTER_TYPE_TO_STATUS[encounterType];
+  return STATUS_TO_LABEL[ENCOUNTER_TYPE_TO_STATUS[encounterType]];
 };

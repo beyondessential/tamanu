@@ -13,7 +13,7 @@ describe('ReportRequest', () => {
 
   it('should reject reading a patient with insufficient permissions', async () => {
     const noPermsApp = await baseApp.asRole('base');
-    const result = await noPermsApp.post('/v1/reportRequest/').send({
+    const result = await noPermsApp.post('/api/reportRequest/').send({
       reportId: 'incomplete-referrals',
     });
     expect(result).toBeForbidden();
@@ -22,7 +22,7 @@ describe('ReportRequest', () => {
   describe('permissions', () => {
     testReportPermissions(
       () => ctx,
-      (reportApp, reportId) => reportApp.post('/v1/reportRequest').send({ reportId }),
+      (reportApp, reportId) => reportApp.post('/api/reportRequest').send({ reportId }),
     );
   });
 
@@ -33,7 +33,7 @@ describe('ReportRequest', () => {
     });
 
     it('should fail with 404 and message if report module is not found', async () => {
-      const res = await app.post('/v1/reportRequest').send({
+      const res = await app.post('/api/reportRequest').send({
         reportId: 'invalid-report',
         emailList: [],
       });
@@ -42,7 +42,7 @@ describe('ReportRequest', () => {
     });
 
     it('should create a new report request', async () => {
-      const result = await app.post('/v1/reportRequest').send({
+      const result = await app.post('/api/reportRequest').send({
         reportId: 'incomplete-referrals',
         emailList: ['example@gmail.com', 'other@gmail.com'],
       });

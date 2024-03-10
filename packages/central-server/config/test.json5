@@ -96,8 +96,9 @@
           "Encounter": true,
           "Immunization": true,
           "Practitioner": true,
-        },
-      },
+          "MediciReport": false
+        }
+      }
     },
     "omniLab": {
       "enabled": true,

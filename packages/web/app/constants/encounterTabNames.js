@@ -6,4 +6,6 @@ export const ENCOUNTER_TAB_NAMES = {
   IMAGING: 'imaging',
   MEDICATION: 'medication',
   FORMS: 'forms',
+  DOCUMENTS: 'documents',
+  INVOICING: 'invoicing',
 };

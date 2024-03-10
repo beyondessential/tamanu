@@ -18,9 +18,18 @@ export class Program extends Model {
     );
   }
 
+  static getListReferenceAssociations() {
+    return [{ association: 'programRegistries' }];
+  }
+
   static initRelations(models) {
     this.hasMany(models.Survey, {
       as: 'surveys',
+      foreignKey: 'programId',
+    });
+
+    this.hasMany(models.ProgramRegistry, {
+      as: 'programRegistries',
       foreignKey: 'programId',
     });
   }

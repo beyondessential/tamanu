@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/shared",
-  "version": "2.1.0",
+  "version": "2.5.0",
   "description": "Common code across Tamanu packages",
   "main": "dist/cjs/index.js",
   "module": "dist/mjs/index.js",
@@ -111,6 +111,7 @@
     "config": "^3.3.9",
     "date-fns": "^2.19.0",
     "date-fns-tz": "^1.3.6",
+    "json5": "^2.2.3",
     "libhoney": "^3.1.1",
     "lodash": "^4.17.11",
     "multiparty": "^4.2.3",

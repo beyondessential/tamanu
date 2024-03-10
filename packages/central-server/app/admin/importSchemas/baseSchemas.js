@@ -5,6 +5,7 @@ import {
   LAB_TEST_RESULT_TYPES,
   LAB_TEST_TYPE_VISIBILITY_STATUSES,
   PROGRAM_DATA_ELEMENT_TYPE_VALUES,
+  STATUS_COLOR,
   VACCINE_STATUS,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
@@ -258,6 +259,28 @@ export const Survey = Base.shape({
   isSensitive: yup.boolean().required(),
 });
 
+export const ProgramRegistry = Base.shape({
+  code: fieldTypes.code.required(),
+  name: yup.string().required(),
+  visibilityStatus,
+});
+
+export const ProgramRegistryClinicalStatus = Base.shape({
+  code: fieldTypes.code.required(),
+  name: yup.string().required(),
+  color: yup
+    .string()
+    .required()
+    .oneOf(Object.keys(STATUS_COLOR)),
+  visibilityStatus,
+});
+
+export const ProgramRegistryCondition = Base.shape({
+  code: fieldTypes.code.required(),
+  name: yup.string().required(),
+  visibilityStatus,
+});
+
 export const AdministeredVaccine = Base.shape({
   batch: yup.string(),
   consent: yup.boolean().required(),
@@ -273,7 +296,7 @@ export const AdministeredVaccine = Base.shape({
 });
 
 export const Encounter = Base.shape({
-  // contains only what's needed for administeredVaccine imports, extend as neccesary
+  // contains only what's needed for administeredVaccine imports, extend as necessary
   encounterType: yup.string().oneOf(Object.values(ENCOUNTER_TYPES)),
   startDate: yup.date().required(),
   endDate: yup.date(),
@@ -284,4 +307,8 @@ export const Encounter = Base.shape({
   departmentId: yup.string().required(),
   examinerId: yup.string().required(),
   patientId: yup.string().required(),
+});
+
+export const TranslatedString = yup.object().shape({
+  stringId: yup.string().required(),
 });

@@ -8,6 +8,7 @@ import {
   FormSubmitCancelRow,
   OutlinedButton,
 } from '../components';
+import { TranslatedText } from '../components/Translation/TranslatedText';
 
 const StyledBackButton = styled(OutlinedButton)`
   margin-right: auto;
@@ -20,7 +21,14 @@ const StyledBackButton = styled(OutlinedButton)`
 // incomplete data. A snapshot of form state is used as initialValues after each
 // transition. Each page has an optional submit handler, and the top-level
 // submit is called when the final page is submitted.
-export const MultiStepForm = ({ children, initialValues, onSubmit, onCancel, onChangeStep }) => {
+export const MultiStepForm = ({
+  children,
+  initialValues,
+  onSubmit,
+  onCancel,
+  onChangeStep,
+  formType,
+}) => {
   const [stepNumber, setStepNumber] = useState(0);
   const steps = React.Children.toArray(children);
   const [snapshot, setSnapshot] = useState(initialValues);
@@ -61,6 +69,7 @@ export const MultiStepForm = ({ children, initialValues, onSubmit, onCancel, onC
     <Form
       initialValues={snapshot}
       onSubmit={handleSubmit}
+      formType={formType}
       validationSchema={step.props.validationSchema}
       style={{ width: '100%' }}
       showInlineErrorsOnly
@@ -71,10 +80,16 @@ export const MultiStepForm = ({ children, initialValues, onSubmit, onCancel, onC
             <FormSeparatorLine />
             <ButtonRow>
               {stepNumber > 0 && (
-                <StyledBackButton onClick={() => previous(props.values)}>Back</StyledBackButton>
+                <StyledBackButton onClick={() => previous(props.values)}>
+                  <TranslatedText stringId="general.action.back" fallback="Back" />
+                </StyledBackButton>
               )}
               <FormSubmitCancelRow
-                confirmText={step.props.submitButtonText || 'Next'}
+                confirmText={
+                  step.props.submitButtonText || (
+                    <TranslatedText stringId="general.action.next" fallback="Next" />
+                  )
+                }
                 onCancel={onCancel}
               />
             </ButtonRow>
