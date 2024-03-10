@@ -67,6 +67,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
     );
 
     // Remove conditions
+    const deletionDate = getCurrentDateTimeString();
     for (const conditionToRemove of conditionsToRemoveObjects) {
       await api.delete(
         `patient/${encodeURIComponent(
@@ -74,6 +75,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
         )}/programRegistration/${encodeURIComponent(
           patientProgramRegistration.programRegistryId,
         )}/condition/${encodeURIComponent(conditionToRemove.id)}`,
+        { deletionDate },
       );
     }
 
@@ -85,6 +87,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
       `patient/${encodeURIComponent(patientProgramRegistration.patientId)}/programRegistration`,
       {
         ...rest,
+        date: getCurrentDateTimeString(),
         conditionIds: newConditionIds,
         registrationStatus: REGISTRATION_STATUSES.ACTIVE,
       },
@@ -178,7 +181,6 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
         }}
         initialValues={{
           ...patientProgramRegistration,
-          date: getCurrentDateTimeString(),
           registeringFacilityId: facility?.id,
           clinicianId: currentUser?.id,
           conditionIds: registrationConditions?.data.map(x => x.programRegistryConditionId),
