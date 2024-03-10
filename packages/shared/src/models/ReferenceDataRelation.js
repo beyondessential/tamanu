@@ -34,7 +34,20 @@ export class ReferenceDataRelation extends Model {
       {
         ...options,
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
-        indexes: [{ unique: true, fields: ['code'] }],
+        indexes: [
+          {
+            name: 'reference_data_relations_reference_datum_id_index',
+            fields: ['reference_datum_id'],
+          },
+          {
+            name: 'reference_data_relations_parent_relation_id_index',
+            fields: ['parent_relation_id'],
+          },
+          {
+            name: 'reference_data_relations_type_index',
+            fields: ['type'],
+          },
+        ],
       },
     );
   }
