@@ -1,6 +1,7 @@
 import { createTestContext } from '../utilities';
 import { fakeReferenceData } from '@tamanu/shared/test-helpers/fake';
 import { fakeUUID } from '@tamanu/shared/utils';
+import { REFERENCE_DATA_RELATION_TYPES } from '@tamanu/constants';
 
 const referenceData = [
   { id: 'country1', type: 'country' },
@@ -67,7 +68,7 @@ async function prepopulate(models) {
   for (const relRecord of relationData) {
     await ReferenceDataRelation.create({
       id: fakeUUID(),
-      type: 'ADDRESS_HIERARCHY',
+      type: REFERENCE_DATA_RELATION_TYPES.ADDRESS_HIERARCHY,
       ...relRecord,
     });
   }

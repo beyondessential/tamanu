@@ -56,7 +56,7 @@ export class ReferenceData extends Model {
     });
 
     this.belongsToMany(this, {
-      as: 'Parent',
+      as: 'parent',
       through: 'reference_data_relations',
       foreignKey: 'reference_datum_id',
       otherKey: 'parent_relation_id',
@@ -96,19 +96,19 @@ export class ReferenceData extends Model {
       where,
       include: {
         model: this,
-        as: 'Parent',
+        as: 'parent',
         through: {
           attributes: [],
-          // where: {
-          //   type: relationType,
-          // },
+          where: {
+            type: relationType,
+          },
         },
       },
       raw: true,
       nest: true,
       logging: console.log,
     });
-    const { Parent: parent, ...rootNode } = record;
+    const { parent, ...rootNode } = record;
     return { rootNode, parent };
   }
 
