@@ -36,7 +36,7 @@ const existingRecordLoaders = {
   // TranslatedString model has a composite PK that uses stringId & language
   TranslatedString: (TS, { stringId, language }) =>
     TS.findOne({ where: { stringId, language } }, { paranoid: false }),
-  ReferenceDataRelations: (RDR, { referenceDataId, type }) =>
+  ReferenceDataRelation: (RDR, { referenceDataId, type }) =>
     RDR.findOne({ where: { referenceDataId, type } }, { paranoid: false }),
 };
 

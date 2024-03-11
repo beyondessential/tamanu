@@ -64,7 +64,7 @@ const FOREIGN_KEY_SCHEMATA = {
       types: REFERENCE_TYPE_VALUES,
     },
     {
-      field: 'childReferenceDataId',
+      field: 'referenceDataParentId',
       model: 'ReferenceData',
       types: REFERENCE_TYPE_VALUES,
     },
