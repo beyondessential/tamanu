@@ -9,13 +9,10 @@ import { compose } from 'redux';
 import { withPatient } from '/containers/Patient';
 import { NewPatientScreenProps } from '/interfaces/screens/RegisterPatientStack/NewPatientScreenProps';
 import { getGender, joinNames } from '~/ui/helpers/user';
-import { getAgeFromDate } from '~/ui/helpers/date';
+import { getDisplayAge } from '~/ui/helpers/date';
+import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 
 const Screen = ({ navigation, selectedPatient }: NewPatientScreenProps): ReactElement => {
-  const patientAgeText = `${getGender(selectedPatient.sex)}, ${getAgeFromDate(
-    selectedPatient.dateOfBirth,
-  )} years old`;
-
   const onNavigateToHome = useCallback(() => {
     navigation.navigate(Routes.HomeStack.HomeTabs.Index);
   }, []);
@@ -34,6 +31,9 @@ const Screen = ({ navigation, selectedPatient }: NewPatientScreenProps): ReactEl
       screen: Routes.HomeStack.SearchPatientStack.Index,
     });
   }, []);
+
+  const { getLocalisation } = useLocalisation();
+  const ageDisplayFormat = getLocalisation('ageDisplayFormat');
 
   return (
     <FullView>
@@ -74,7 +74,8 @@ const Screen = ({ navigation, selectedPatient }: NewPatientScreenProps): ReactEl
           {joinNames(selectedPatient)}
         </StyledText>
         <StyledText color={theme.colors.TEXT_MID} marginTop={10}>
-          {patientAgeText}
+          {getGender(selectedPatient.sex)}{' '}
+          {getDisplayAge(selectedPatient.dateOfBirth, ageDisplayFormat)} old{' '}
         </StyledText>
         <StyledText
           fontSize={screenPercentageToDP(2.55, Orientation.Height)}

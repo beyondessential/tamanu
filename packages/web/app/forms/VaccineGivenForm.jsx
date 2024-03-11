@@ -149,6 +149,8 @@ export const VaccineGivenForm = ({
       <VaccineDateField
         label={<TranslatedText stringId="vaccine.dateGiven.label" fallback="Date given" />}
         required={!values.givenElsewhere}
+        min={values?.patientData?.dateOfBirth}
+        skipMinChecking
       />
 
       <InjectionSiteField />

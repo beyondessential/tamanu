@@ -1,13 +1,12 @@
 import React, { FC, useCallback, useContext, useMemo, useState } from 'react';
 import { Value } from 'react-native-reanimated';
-import { Keyboard, Platform } from 'react-native';
+import { Keyboard } from 'react-native';
 //Protocols
 import { RegisterAccountScreenProps } from '../../../../interfaces/screens/SignUpStack/RegisterAccountStep1Props';
 // contexts
 import {
   RegisterAccountContext,
   RegisterAccountFormStep2FormValues,
-  RegisterAccountFormStep2Props,
 } from '../../../../contexts/RegisterAccountContext';
 //helpers
 import {

@@ -1,4 +1,4 @@
-import { Entity, ManyToOne, RelationId } from 'typeorm/browser';
+import { Column, Entity, ManyToOne, RelationId } from 'typeorm/browser';
 
 import {
   DateTimeString,
@@ -16,7 +16,6 @@ import { Patient } from './Patient';
 import { User } from './User';
 import { DateTimeStringColumn } from './DateColumns';
 import { ProgramRegistryCondition } from './ProgramRegistryCondition';
-import { PatientProgramRegistration } from './PatientProgramRegistration';
 
 @Entity('patient_program_registration_condition')
 export class PatientProgramRegistrationCondition extends BaseModel
@@ -29,6 +28,7 @@ export class PatientProgramRegistrationCondition extends BaseModel
 
   // TODO: enum, see how it's implemented after this project is completed:
   // https://linear.app/bes/issue/EPI-554/deletion-data-tasks
+  @Column({ nullable: true })
   deletionStatus?: string;
   @DateTimeStringColumn()
   deletionDate?: DateTimeString;
@@ -65,14 +65,15 @@ export class PatientProgramRegistrationCondition extends BaseModel
   deletionClinicianId?: ID;
 
   static async findForRegistryAndPatient(programRegistryId: string, patientId: string) {
-    const registrationRepository = this.getRepository(PatientProgramRegistration);
-    const fullPprConditions = await registrationRepository
-      .createQueryBuilder('registration')
-      .where('registration.programRegistryId = :programRegistryId', { programRegistryId })
-      .andWhere('registration.patientId = :patientId', { patientId })
-      .leftJoinAndSelect('registration.programRegistryCondition', 'programRegistryCondition')
+    const conditionsRepository = this.getRepository();
+    const conditions = await conditionsRepository
+      .createQueryBuilder('condition')
+      .where('condition.programRegistryId = :programRegistryId', { programRegistryId })
+      .andWhere('condition.patientId = :patientId', { patientId })
+      .andWhere('condition.deletionStatus IS NULL')
+      .leftJoinAndSelect('condition.programRegistryCondition', 'programRegistryCondition')
       .getMany();
-    return fullPprConditions;
+    return conditions;
   }
   static getTableNameForSync(): string {
     return 'patient_program_registration_conditions';
