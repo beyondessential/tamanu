@@ -1,5 +1,9 @@
 import { Sequelize, DataTypes } from 'sequelize';
-import { SYNC_DIRECTIONS, REFERENCE_DATA_RELATION_TYPES } from '@tamanu/constants';
+import {
+  SYNC_DIRECTIONS,
+  REFERENCE_DATA_RELATION_TYPES,
+  PATIENT_ISSUE_TYPES,
+} from '@tamanu/constants';
 import { Model } from './Model';
 
 export class ReferenceDataRelation extends Model {
@@ -27,7 +31,7 @@ export class ReferenceDataRelation extends Model {
           },
         },
         type: {
-          type: DataTypes.STRING,
+          type: DataTypes.ENUM(Object.values(REFERENCE_DATA_RELATION_TYPES)),
           defaultValue: REFERENCE_DATA_RELATION_TYPES.ADDRESS_HIERARCHY,
         },
       },

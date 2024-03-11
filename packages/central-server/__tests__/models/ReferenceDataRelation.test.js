@@ -63,20 +63,20 @@ const relationData = [
 async function prepopulate(models) {
   const { ReferenceData, ReferenceDataRelation } = models;
 
-  for (const refRecord of referenceData) {
-    await ReferenceData.create({
+  await ReferenceData.bulkCreate(
+    referenceData.map(refRecord => ({
       ...fakeReferenceData(),
       ...refRecord,
-    });
-  }
+    })),
+  );
 
-  for (const relRecord of relationData) {
-    await ReferenceDataRelation.create({
+  await ReferenceDataRelation.bulkCreate(
+    relationData.map(relData => ({
       id: fakeUUID(),
       type: REFERENCE_DATA_RELATION_TYPES.ADDRESS_HIERARCHY,
-      ...relRecord,
-    });
-  }
+      ...relData,
+    })),
+  );
 }
 
 describe('Reference Data Hierarchy', () => {
