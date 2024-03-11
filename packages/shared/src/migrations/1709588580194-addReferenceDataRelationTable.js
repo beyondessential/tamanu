@@ -27,7 +27,7 @@ export async function up(query) {
         type: DataTypes.DATE,
         allowNull: true,
       },
-      reference_datum_id: {
+      reference_data_id: {
         type: DataTypes.TEXT,
         allowNull: true,
         references: {
@@ -35,7 +35,7 @@ export async function up(query) {
           key: 'id',
         },
       },
-      parent_relation_id: {
+      reference_data_parent_id: {
         type: DataTypes.TEXT,
         allowNull: true,
         references: {
@@ -49,10 +49,15 @@ export async function up(query) {
       },
     },
     {
+      uniqueKeys: {
+        reference_data_id_type: {
+          fields: ['reference_data_id', 'type'],
+        },
+      },
       indexes: [
         {
-          name: 'reference_data_relations_reference_datum_id_index',
-          fields: ['reference_datum_id'],
+          name: 'reference_data_relations_reference_data_id_index',
+          fields: ['reference_data_id'],
         },
         {
           name: 'reference_data_relations_parent_relation_id_index',

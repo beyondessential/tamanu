@@ -1,10 +1,10 @@
 import React from 'react';
-import { useAddressHierarchy } from '../../api/queries';
+import { useAddressHierarchyQuery } from '../../api/queries';
 
 // Todo: Create new component
 // @see https://linear.app/bes/issue/NASS-1151/cascading-entity-hierarchy-select-component
 export const AddressHierarchyField = () => {
-  const { data: locationTypes, isLoading } = useAddressHierarchy();
+  const { data: locationTypes, isLoading } = useAddressHierarchyQuery();
 
   if (isLoading) {
     return <div>Loading...</div>;
