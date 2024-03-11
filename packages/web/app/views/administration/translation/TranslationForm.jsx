@@ -203,6 +203,14 @@ export const FormContents = ({
     [data, additionalRows, values.search],
   );
 
+  if (data.length === 0)
+    return (
+      <Alert severity="info">
+        Please load in translations/localisations using the reference data importer to activate this
+        tab
+      </Alert>
+    );
+
   return (
     <>
       <Box display="flex" alignItems="flex-end" mb={2}>
