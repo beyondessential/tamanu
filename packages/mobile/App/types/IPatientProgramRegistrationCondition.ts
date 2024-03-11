@@ -1,6 +1,6 @@
 import { ID } from './ID';
 import { DateTimeString } from './DateString';
-import { IFacility, IPatient, IReferenceData, IUser } from '.';
+import { IPatient, IUser } from '.';
 import { IProgramRegistry } from './IProgramRegistry';
 import { IProgramRegistryCondition } from './IProgramRegistryCondition';
 
