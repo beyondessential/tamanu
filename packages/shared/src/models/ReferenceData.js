@@ -121,6 +121,7 @@ export class ReferenceData extends Model {
     const { ReferenceData } = this.sequelize.models;
     const baseNode = this.get({ plain: true });
     const parentNode = await ReferenceData.getParent(this.id, relationType);
+
     if (!parentNode) {
       return [];
     }
