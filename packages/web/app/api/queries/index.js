@@ -1,4 +1,4 @@
-export * from './useAddressHierarchy';
+export * from './useAddressHierarchyQuery.js';
 export * from './useVitalsSurveyQuery';
 export * from './useReferenceData';
 export * from './usePatientAdditionalDataQuery';

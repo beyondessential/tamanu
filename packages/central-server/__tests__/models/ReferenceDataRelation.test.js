@@ -38,6 +38,11 @@ const relationData = [
     reference_data_id: 'subdivision2',
   },
   {
+    reference_data_parent_id: 'country1',
+    reference_data_id: 'subdivision2',
+    type: REFERENCE_DATA_RELATION_TYPES.FACILITY_CATCHMENT,
+  },
+  {
     reference_data_parent_id: 'subdivision1',
     reference_data_id: 'village1',
   },
@@ -86,26 +91,19 @@ describe('Reference Data Hierarchy', () => {
   afterAll(() => ctx.close());
 
   it('should get a hierarchy node with a parent', async () => {
-    const { parent } = await models.ReferenceData.getNodeWithParent({ id: 'division1' });
+    const parent = await models.ReferenceData.getParent('division1');
     expect(parent.id).toEqual('country1');
   });
 
   it('should get ancestors of a given node id', async () => {
-    const output = await models.ReferenceData.getAncestorsOfId('village4');
-    expect(output.length).toEqual(4);
-  });
-
-  it('should get ancestors of a given node type', async () => {
-    const output = await models.ReferenceData.getAncestorsOfType('village');
-    expect(output.length).toEqual(4);
-    expect(output).toEqual(['village', 'subdivision', 'division', 'country']);
+    const entity = await models.ReferenceData.findByPk('village4');
+    const ancestors = await entity.getAncestors();
+    expect(ancestors.length).toEqual(4);
   });
 
   it('should filter ancestors by relation type', async () => {
-    const output = await models.ReferenceData.getAncestorsOfId(
-      'village4',
-      REFERENCE_DATA_RELATION_TYPES.FACILITY_CATCHMENT,
-    );
-    expect(output.length).toEqual(0);
+    const entity = await models.ReferenceData.findByPk('village4');
+    const ancestors = await entity.getAncestors(REFERENCE_DATA_RELATION_TYPES.FACILITY_CATCHMENT);
+    expect(ancestors.length).toEqual(0);
   });
 });
