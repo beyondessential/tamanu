@@ -1,6 +1,6 @@
 import { utils } from 'xlsx';
 
-import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants';
+import { PATIENT_FIELD_DEFINITION_TYPES, REFERENCE_TYPE_VALUES } from '@tamanu/constants';
 import { DataLoaderError, ValidationError, WorkSheetError } from '../errors';
 import { statkey, updateStat } from '../stats';
 import { importRows } from '../importRows';
@@ -55,6 +55,18 @@ const FOREIGN_KEY_SCHEMATA = {
       field: 'vaccine',
       model: 'ReferenceData',
       types: ['vaccine', 'drug'],
+    },
+  ],
+  ReferenceDataRelation: [
+    {
+      field: 'referenceDataId',
+      model: 'ReferenceData',
+      types: REFERENCE_TYPE_VALUES,
+    },
+    {
+      field: 'childReferenceDataId',
+      model: 'ReferenceData',
+      types: REFERENCE_TYPE_VALUES,
     },
   ],
 };
