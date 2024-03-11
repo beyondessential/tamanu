@@ -228,8 +228,7 @@ function labCode(upstream) {
   const { labTestPanelRequest } = upstream;
   
   // It is possible to have a ServiceRequest without a panel
-  // which is a series of independent panels but 
-  // ServiceRequest.code will be nonexistent
+  // which is a series of independent panels
   if (!labTestPanelRequest) {
     return null;
   }
@@ -245,6 +244,8 @@ function labCode(upstream) {
     );
   }
 
+  // Sometimes externalCode will not exists but if it does include it
+  // See: SAV-548
   if (externalCode) {
     coding.push(
       new FhirCoding({
