@@ -42,7 +42,7 @@ export const PatientCarePlanForm = ({
             label={
               <TranslatedText
                 stringId="general.localisedField.clinician.label.short"
-                label="Clinician"
+                fallback="Clinician"
               />
             }
             component={AutocompleteField}
