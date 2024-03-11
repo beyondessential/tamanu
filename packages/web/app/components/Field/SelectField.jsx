@@ -12,6 +12,7 @@ import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { StyledTextField } from './TextField';
 import { FormFieldTag } from '../Tag';
 import { getTranslatedOptions } from '../Translation/getTranslatedOptions';
+import { useTranslation } from '../../contexts/Translation';
 
 const StyledFormControl = styled(FormControl)`
   display: flex;
@@ -104,6 +105,8 @@ export const SelectInput = ({
 }) => {
   delete props.form;
   delete props.tabIndex;
+
+  const { getTranslation } = useTranslation();
 
   const handleChange = useCallback(
     changedOption => {
@@ -203,7 +206,7 @@ export const SelectInput = ({
           menuPosition="fixed"
           styles={customStyleObject || defaultStyles}
           menuShouldBlockScroll="true"
-          placeholder="Select"
+          placeholder={getTranslation("general.placeholder.select", "Select")}
           isClearable={value !== '' && isClearable && !props.required && !disabled}
           isSearchable={false}
           tabIndex={inputProps.tabIndex}
