@@ -7,6 +7,7 @@ import { FormGrid } from '../components/FormGrid';
 import { FormSubmitCancelRow } from '../components/ButtonRow';
 
 import { foreignKey, optionalForeignKey } from '../utils/validation';
+import { FORM_TYPES } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 
 export const FamilyHistoryForm = ({
@@ -81,6 +82,7 @@ export const FamilyHistoryForm = ({
       recordedDate: getCurrentDateTimeString(),
       ...editedObject,
     }}
+    formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
     validationSchema={yup.object().shape({
       diagnosisId: foreignKey('Diagnosis is required'),
       practitionerId: optionalForeignKey(),

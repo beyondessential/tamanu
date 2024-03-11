@@ -196,6 +196,7 @@ export const getPatientDetailsValidation = (patientRegistryType, sexValues, getL
     medicalAreaId: requiredWhenConfiguredMandatory(getLocalisation, 'medicalAreaId', yup.string()),
     nursingZoneId: requiredWhenConfiguredMandatory(getLocalisation, 'nursingZoneId', yup.string()),
     streetVillage: requiredWhenConfiguredMandatory(getLocalisation, 'streetVillage', yup.string()),
+    villageId: requiredWhenConfiguredMandatory(getLocalisation, 'villageId', yup.string()),
     cityTown: requiredWhenConfiguredMandatory(getLocalisation, 'cityTown', yup.string()),
     drivingLicense: yup.string().when({
       is: () => patientRegistryType === PATIENT_REGISTRY_TYPES.NEW_PATIENT,
