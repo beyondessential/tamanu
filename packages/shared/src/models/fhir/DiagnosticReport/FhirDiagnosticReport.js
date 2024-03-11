@@ -47,7 +47,7 @@ export class FhirDiagnosticReport extends FhirResource {
 
   static get INTAKE_SCHEMA() {
     return yup.object({
-      basedOn: FhirReference.asYup(),
+      basedOn: yup.array().of(FhirReference.asYup()).required(),
       status: yup.string().required(),
       code: FhirCodeableConcept.asYup().required(),
       category: yup.array().of(FhirCodeableConcept.asYup()).required(),
@@ -61,12 +61,12 @@ export class FhirDiagnosticReport extends FhirResource {
   // results soon.
   async pushUpstream() {
     const { FhirServiceRequest, LabRequest } = this.sequelize.models;
-    if (!this.basedOn) {
-      throw new Invalid('DiagnosticReport requires basedOn field to report results for ServiceRequest', {
+    if (!this.basedOn || !Array.isArray(this.basedOn)) {
+      throw new Invalid('DiagnosticReport requires basedOn to report results for ServiceRequest', {
         code: FHIR_ISSUE_TYPE.INVALID.VALUE,
       });
     }
-    const { type, reference } = this.basedOn;
+    const { type, reference } = this.basedOn[0];
 
     const ref = reference.split('/');
     if (type !== 'ServiceRequest' || ref.length < 2 || ref[0] !== 'ServiceRequest') {

@@ -35,10 +35,10 @@ describe('Create DiagnosticReport', () => {
   const endpoint = `/v1/integration/${INTEGRATION_ROUTE}/DiagnosticReport`;
   const postBody = serviceRequestId => ({
     resourceType: "DiagnosticReport",
-    basedOn: {
+    basedOn: [{
       type: "ServiceRequest",
       reference: `ServiceRequest/${serviceRequestId}`
-    },
+    }],
     status: FHIR_DIAGNOSTIC_REPORT_STATUS.FINAL,
     category: [
       {
@@ -314,10 +314,10 @@ describe('Create DiagnosticReport', () => {
           issue: [
             {
               severity: 'error',
-              code: 'value',
+              code: 'invalid',
               diagnostics: expect.any(String),
               details: {
-                text: 'DiagnosticReport requires basedOn field to report results for ServiceRequest',
+                text: 'basedOn is a required field',
               },
             },
           ],
