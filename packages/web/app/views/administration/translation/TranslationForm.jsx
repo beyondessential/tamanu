@@ -206,7 +206,7 @@ export const FormContents = ({
   if (data.length === 0)
     return (
       <Alert severity="info">
-        Please load in translations/localisations using the reference data importer to activate this
+        Please load in translations using the reference data importer to activate this
         tab
       </Alert>
     );
