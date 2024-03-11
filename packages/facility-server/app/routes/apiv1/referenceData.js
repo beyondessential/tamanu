@@ -16,6 +16,10 @@ referenceData.get(
     } = req;
 
     const entity = await ReferenceData.getNode({ where: { type: baseLevel }, raw: false });
+
+    // The Assumption is that the address hierarchy tree is a "fully normalized tree" so that each layer
+    // in the hierarchy is fully connected to the next layer across all nodes. There for the list of ancestor
+    // types is the total list of types in the hierarchy.
     const ancestors = await entity.getAncestors();
     const hierarchy = ancestors.map(entity => entity.type).reverse();
     res.send(hierarchy);

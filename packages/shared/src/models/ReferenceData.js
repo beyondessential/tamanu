@@ -130,6 +130,7 @@ export class ReferenceData extends Model {
     if (!parentNode) {
       return [];
     }
+    // Include the baseNode for convenience
     return ReferenceData.#getParentRecursive(parentNode.id, [baseNode, parentNode], relationType);
   }
 
