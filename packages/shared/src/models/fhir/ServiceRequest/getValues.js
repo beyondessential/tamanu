@@ -72,16 +72,16 @@ async function getValuesFromImagingRequest(upstream, models) {
     orderDetail: upstream.areas.flatMap(({ id }) =>
       areaExtCodes.has(id)
         ? [
-            new FhirCodeableConcept({
-              text: areaExtCodes.get(id)?.description,
-              coding: [
-                new FhirCoding({
-                  code: areaExtCodes.get(id)?.code,
-                  system: config.hl7.dataDictionaries.areaExternalCode,
-                }),
-              ],
-            }),
-          ]
+          new FhirCodeableConcept({
+            text: areaExtCodes.get(id)?.description,
+            coding: [
+              new FhirCoding({
+                code: areaExtCodes.get(id)?.code,
+                system: config.hl7.dataDictionaries.areaExternalCode,
+              }),
+            ],
+          }),
+        ]
         : [],
     ),
     subject: new FhirReference({
@@ -155,11 +155,18 @@ function imagingCode(upstream) {
   if (!imagingTypes) throw new Exception('No imaging types specified in localisation.');
 
   const { imagingType } = upstream;
+  console.log({ imagingType })
   const { label } = imagingTypes[imagingType] || {};
   if (!label) throw new Exception(`No label matching imaging type ${imagingType} in localisation.`);
 
   return new FhirCodeableConcept({
     text: label,
+    coding: [
+      new FhirCoding({
+        system: config.hl7.dataDictionaries.serviceRequestImagingModality,
+        code: imagingType,
+      }),
+    ],
   });
 }
 
@@ -186,6 +193,12 @@ function locationCode(upstream) {
   return [
     new FhirCodeableConcept({
       text: facility.name,
+      coding: [
+        new FhirCoding({
+          system: config.hl7.dataDictionaries.serviceRequestLocationCode,
+          code: facility.code,
+        }),
+      ],
     }),
   ];
 }
@@ -198,7 +211,7 @@ function statusFromImagingRequest(upstream) {
       [IMAGING_REQUEST_STATUS_TYPES.DELETED]: FHIR_REQUEST_STATUS.REVOKED,
       [IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR]: FHIR_REQUEST_STATUS.ENTERED_IN_ERROR,
       [IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS]: FHIR_REQUEST_STATUS.ACTIVE,
-      [IMAGING_REQUEST_STATUS_TYPES.PENDING]: FHIR_REQUEST_STATUS.DRAFT,
+      [IMAGING_REQUEST_STATUS_TYPES.PENDING]: FHIR_REQUEST_STATUS.ACTIVE,
     }[upstream.status] ?? FHIR_REQUEST_STATUS.UNKNOWN
   );
 }

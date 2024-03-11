@@ -72,7 +72,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
           requestedById: resources.practitioner.id,
           encounterId: resources.encounter.id,
           locationGroupId: resources.locationGroup.id,
-          status: IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
+          status: IMAGING_REQUEST_STATUS_TYPES.PENDING,
           priority: 'routine',
           requestedDate: '2022-03-04 15:30:00',
           imagingType: 'xRay',
@@ -130,7 +130,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
             value: ir.displayId,
           },
         ],
-        status: 'completed',
+        status: 'active',
         intent: 'order',
         category: [
           {
@@ -145,6 +145,12 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
         priority: 'routine',
         code: {
           text: 'X-Ray',
+          coding: [
+            {
+              code: 'xRay',
+              system: 'http://tamanu.io/data-dictionary/modalities',
+            },
+          ],
         },
         orderDetail: [
           {
@@ -184,6 +190,12 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
         locationCode: [
           {
             text: resources.facility.name,
+            coding: [
+              {
+                code: resources.facility.code,
+                system: 'http://data-dictionary.tamanu-fiji.org/location-code.html',
+              },
+            ],
           },
         ],
         note: [
@@ -409,6 +421,12 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
               priority: 'routine',
               code: {
                 text: 'X-Ray',
+                coding: [
+                  {
+                    code: 'xRay',
+                    system: 'http://tamanu.io/data-dictionary/modalities',
+                  },
+                ],
               },
               orderDetail: [
                 {
@@ -444,6 +462,12 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
               locationCode: [
                 {
                   text: resources.facility.name,
+                  coding: [
+                    {
+                      code: resources.facility.code,
+                      system: 'http://data-dictionary.tamanu-fiji.org/location-code.html',
+                    },
+                  ],
                 },
               ],
             },
@@ -464,7 +488,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
           status: IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
           priority: 'routine',
           requestedDate: '2023-11-12 13:14:15',
-          imagingType: 'xRay',
+          imagingType: 'ultrasound',
         }),
       );
       await ir.setAreas([resources.area1.id, resources.area2.id]);
@@ -527,7 +551,13 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
               ],
               priority: 'routine',
               code: {
-                text: 'X-Ray',
+                text: 'Ultrasound',
+                coding: [
+                  {
+                    code: 'ultrasound',
+                    system: 'http://tamanu.io/data-dictionary/modalities',
+                  },
+                ],
               },
               orderDetail: [
                 {
@@ -563,6 +593,12 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
               locationCode: [
                 {
                   text: resources.facility.name,
+                  coding: [
+                    {
+                      code: resources.facility.code,
+                      system: 'http://data-dictionary.tamanu-fiji.org/location-code.html',
+                    },
+                  ],
                 },
               ],
             },
