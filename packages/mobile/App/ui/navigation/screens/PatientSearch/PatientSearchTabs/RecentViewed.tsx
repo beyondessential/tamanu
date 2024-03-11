@@ -1,7 +1,6 @@
 import React, { ReactElement, useEffect } from 'react';
 import { Platform } from 'react-native';
 import { compose } from 'redux';
-import { NavigationProp } from '@react-navigation/native';
 import { FlatList, TouchableOpacity } from 'react-native-gesture-handler';
 // Containers
 import { withPatient } from '/containers/Patient';
@@ -20,12 +19,6 @@ import { useRecentlyViewedPatients } from '~/ui/hooks/localConfig';
 import { navigateAfterTimeout } from '~/ui/helpers/navigators';
 import { theme } from '~/ui/styled/theme';
 import { PatientFromRoute } from '~/ui/helpers/constants';
-
-interface PatientListProps {
-  list: any[];
-  setSelectedPatient: Function;
-  navigation: NavigationProp<any>;
-}
 
 const NoPatientsCard = (): ReactElement => (
   <StyledText
