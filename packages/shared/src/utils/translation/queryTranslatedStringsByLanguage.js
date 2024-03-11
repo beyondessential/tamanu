@@ -1,4 +1,5 @@
 import { QueryTypes } from 'sequelize';
+import { ENGLISH_LANGUAGE_CODE } from '@tamanu/constants';
 
 /**
  * Queries translated_string table and returns all translated strings grouped by stringId with a column
@@ -11,11 +12,14 @@ export const queryTranslatedStringsByLanguage = async ({ sequelize, models }) =>
     attributes: ['language'],
     group: 'language',
   });
+
+  const queryLanguages = languagesInDb.length > 0 ? languagesInDb : [{ language: ENGLISH_LANGUAGE_CODE }];
+
   const translations = await sequelize.query(
     `
       SELECT
           string_id as "stringId",
-          ${languagesInDb
+          ${queryLanguages
             .map(
               ({ language }) => `MAX(text) FILTER(WHERE language = '${language}') AS ${language}`,
             )

@@ -18,11 +18,6 @@ translationRouter.get(
       where: { stringId: 'languageName' },
     });
 
-    if (languageNames.length === 0) {
-      res.send({ translations: [], languageNames: {} });
-      return;
-    }
-
     const translations = await queryTranslatedStringsByLanguage(store);
     res.send({
       translations,
