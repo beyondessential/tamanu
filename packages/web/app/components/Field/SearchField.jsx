@@ -39,7 +39,6 @@ export const SearchField = props => {
     field: { value, name },
     form: { setFieldValue } = {},
     label,
-    keepLetterCase,
   } = props;
   const [searchValue, setSearchValue] = useState(value);
 
@@ -68,13 +67,7 @@ export const SearchField = props => {
           </StyledIconButton>
         ),
       }}
-      placeholder={
-        label
-          ? getTranslation('general.placeholder.searchWithLabel', 'Search :label', {
-              label: keepLetterCase ? label : label.toLowerCase(),
-            })
-          : ''
-      }
+      placeholder={label ? getTranslation('general.placeholder.search', 'Search') : ''}
       {...props}
       value={searchValue}
     />
