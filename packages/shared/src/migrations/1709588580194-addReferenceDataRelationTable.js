@@ -49,6 +49,11 @@ export async function up(query) {
       },
     },
     {
+      uniqueKeys: {
+        reference_data_id_type: {
+          fields: ['reference_data_id', 'type'],
+        },
+      },
       indexes: [
         {
           name: 'reference_data_relations_reference_data_id_index',
