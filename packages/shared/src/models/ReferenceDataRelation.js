@@ -1,9 +1,5 @@
 import { Sequelize, DataTypes } from 'sequelize';
-import {
-  SYNC_DIRECTIONS,
-  REFERENCE_DATA_RELATION_TYPES,
-  PATIENT_ISSUE_TYPES,
-} from '@tamanu/constants';
+import { SYNC_DIRECTIONS, REFERENCE_DATA_RELATION_TYPES } from '@tamanu/constants';
 import { Model } from './Model';
 
 export class ReferenceDataRelation extends Model {

@@ -96,9 +96,16 @@ export class ReferenceData extends Model {
     }
     return ReferenceData.#getParentRecursive(parent.id, [...ancestors, parent]);
   }
+
   static async getParent(id, relationType = DEFAULT_HIERARCHY_TYPE) {
-    const record = await this.findOne({
-      where: { id },
+    const record = await this.getNode({ where: { id }, relationType });
+    return record?.parent;
+  }
+
+  // Gets a node in the hierarchy including the parent record
+  static async getNode({ where, raw = true, relationType = DEFAULT_HIERARCHY_TYPE }) {
+    return this.findOne({
+      where,
       include: {
         model: this,
         as: 'parent',
@@ -110,11 +117,9 @@ export class ReferenceData extends Model {
           },
         },
       },
-      raw: true,
+      raw,
       nest: true,
     });
-
-    return record?.parent;
   }
 
   async getAncestors(relationType = DEFAULT_HIERARCHY_TYPE) {
