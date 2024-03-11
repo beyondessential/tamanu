@@ -68,8 +68,8 @@ export const HiddenSyncAvatar = ({ children, onClick, ...props }) => {
     if (event.shiftKey) {
       handleEvent(async () => {
         toast.info('Starting manual sync...');
-        await api.post(`sync/run`);
-        toast.success('Manual sync complete');
+        const { message } = await api.post(`sync/run`);
+        toast.success(`Manual sync: ${message}`);
       });
       return;
     }
