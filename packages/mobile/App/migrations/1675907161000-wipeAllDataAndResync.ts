@@ -103,7 +103,7 @@ export class wipeAllDataAndResync1675907161000 implements MigrationInterface {
     }
   }
 
-  async down(queryRunner: QueryRunner): Promise<void> {
+  async down(): Promise<void> {
     // Unable to revert this migration
   }
 }

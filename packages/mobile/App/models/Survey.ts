@@ -6,7 +6,6 @@ import { Database } from '~/infra/db';
 import { VitalsDataElements } from '/helpers/constants';
 import { ISurvey, ISurveyScreenComponent, IVitalsSurvey, SurveyTypes } from '~/types';
 import { SYNC_DIRECTIONS } from './types';
-import { VisibilityStatus } from '~/visibilityStatuses';
 
 @Entity('survey')
 export class Survey extends BaseModel implements ISurvey {
