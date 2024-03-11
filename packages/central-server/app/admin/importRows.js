@@ -8,6 +8,7 @@ import {
   ENGLISH_LANGUAGE_CODE,
   REFERENCE_DATA_TRANSLATION_PREFIX,
 } from '@tamanu/constants';
+import { normaliseSheetName } from './importerEndpoint';
 
 import { ForeignkeyResolutionError, UpsertionError, ValidationError } from './errors';
 import { statkey, updateStat } from './stats';
@@ -195,6 +196,7 @@ export async function importRows(
   }
 
   log.debug('Upserting database rows', { rows: validRows.length });
+  const translationRecordsForSheet = [];
   for (const { model, sheetRow, values } of validRows) {
     const Model = models[model];
     const existing = await loadExisting(Model, values);
@@ -219,31 +221,29 @@ export async function importRows(
         updateStat(stats, statkey(model, sheetName), 'created');
       }
 
-      const SHEET_NAME_TO_DATA_TYPE = {
-        ['diagnosis']: 'icd10',
-      };
-      const dataType = SHEET_NAME_TO_DATA_TYPE[sheetName] || sheetName;
-      const isTranslatable = TRANSLATABLE_REFERENCE_TYPES.includes(dataType);
-      // Not sure about this. If we dont make the model === dataType comparison 
-      // we get weird behaviour where it tries to make translations out of join tables
-      const isValidTable = model === 'ReferenceData' || camelCase(model) === dataType;
+      const dataType = normaliseSheetName(sheetName);
+      const isValidTable = model === 'ReferenceData' || // All records in the reference data table are translatable
+        camelCase(model) === dataType; // This prevents join tables from being translated - unsure about this
+      const isTranslatable =
+        TRANSLATABLE_REFERENCE_TYPES.includes(dataType) || sheetName === 'diagnosis'; // Special case for diagnosis;
       if (isTranslatable && isValidTable) {
-        const { TranslatedString } = models;
-        const stringId = `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.${values.id}`;
-        const existingTranslation = await TranslatedString.findOne({ where: { stringId } });
-        if (!existingTranslation) {
-          await TranslatedString.create({
-            stringId,
-            text: values.name,
-            language: ENGLISH_LANGUAGE_CODE,
-          });
-        }
+        translationRecordsForSheet.push({
+          stringId: `${REFERENCE_DATA_TRANSLATION_PREFIX}.${sheetName}.${values.id}`,
+          text: values.name,
+          language: ENGLISH_LANGUAGE_CODE,
+        });
       }
     } catch (err) {
       updateStat(stats, statkey(model, sheetName), 'errored');
       errors.push(new UpsertionError(sheetName, sheetRow, err));
     }
   }
+
+  // Ensure we have a translation record for each row of translatable reference data
+  await models.TranslatedString.bulkCreate(translationRecordsForSheet, {
+    fields: ['stringId', 'text', 'language'],
+    ignoreDuplicates: true,
+  });
 
   // You can't use hooks with instances. Hooks are used with models only.
   // https://sequelize.org/docs/v6/other-topics/hooks/
