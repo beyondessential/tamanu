@@ -41,8 +41,8 @@ export const PatientCarePlanForm = ({
             name="examinerId"
             label={
               <TranslatedText
-                stringId="general.localisedField.practitioner.label.short"
-                label="Practitioner"
+                stringId="general.localisedField.clinician.label.short"
+                label="Clinician"
               />
             }
             component={AutocompleteField}
@@ -51,9 +51,7 @@ export const PatientCarePlanForm = ({
         </FormGrid>
         <Field
           name="content"
-          label={
-            <TranslatedText stringId="carePlan.content.label" fallback="Main care plan" />
-          }
+          label={<TranslatedText stringId="carePlan.content.label" fallback="Main care plan" />}
           required
           component={TextField}
           multiline
