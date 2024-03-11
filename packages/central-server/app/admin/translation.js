@@ -17,7 +17,6 @@ translationRouter.get(
       attributes: ['language', 'text'],
       where: { stringId: 'languageName' },
     });
-
     const translations = await queryTranslatedStringsByLanguage(store);
     res.send({
       translations,
