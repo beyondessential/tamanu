@@ -79,6 +79,15 @@ def enableProguardInReleaseBuilds = false
 def jscFlavor = 'org.webkit:android-jsc:+'
 
 /**
+ * Whether to enable the Hermes VM.
+ *
+ * This should be set on project.ext.react and that value will be read here. If it is not set
+ * on project.ext.react, JavaScript will not be compiled to Hermes Bytecode
+ * and the benefits of using Hermes will therefore be sharply reduced.
+ */
+def enableHermes = project.ext.react.get("enableHermes", false);
+
+/**
  * Private function to get the list of Native Architectures you want to build.
  * This reads the value from reactNativeArchitectures in your gradle.properties
  * file and works together with the --active-arch-only flag of react-native run-android.
@@ -87,6 +96,16 @@ def reactNativeArchitectures() {
     def value = project.getProperties().get("reactNativeArchitectures")
     return value ? value.split(",") : ["armeabi-v7a", "x86", "x86_64", "arm64-v8a"]
 }
+
+def nativeArchitectures = project.getProperties().get("reactNativeDebugArchitectures")
+
+def getAppVersion() {
+    File inputFile = file("${rootDir}/../package.json")
+    def packageJson = new JsonSlurper().parseText(inputFile.text)
+    return packageJson["version"]
+}
+
+def (major, minor, patch) = getAppVersion().tokenize('.')
 
 android {
     ndkVersion rootProject.ext.ndkVersion
@@ -98,8 +117,9 @@ android {
         applicationId "com.tamanuapp"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0"
+        versionCode major.toInteger() * 1000000 + minor.toInteger() * 1000 + patch.toInteger()
+        versionName getAppVersion()
+        multiDexEnabled true
     }
 
     splits {
@@ -121,6 +141,11 @@ android {
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
+            if (nativeArchitectures) {
+                ndk {
+                    abiFilters nativeArchitectures.split(',')
+                }
+            }
         }
         release {
             // Caution! In production, you need to generate your own keystore file.
