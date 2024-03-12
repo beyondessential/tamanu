@@ -39,7 +39,6 @@ export const SearchField = props => {
     field: { value, name },
     form: { setFieldValue } = {},
     label,
-    keepLetterCase,
   } = props;
   const [searchValue, setSearchValue] = useState(value);
 
