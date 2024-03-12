@@ -15,9 +15,13 @@ import {
   VaccineLocationField,
 } from './VaccineCommonFields';
 import { VaccineFormProps } from './types';
+import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 
 export const VaccineFormGiven = ({ navigation }: VaccineFormProps): JSX.Element => {
   const { values } = useFormikContext();
+  const { getLocalisation } = useLocalisation();
+
+  const vaccineConsentEnabled = getLocalisation('features.enableVaccineConsent');
 
   return (
     <StyledView paddingTop={10}>
@@ -38,9 +42,12 @@ export const VaccineFormGiven = ({ navigation }: VaccineFormProps): JSX.Element 
 
       <RecordedByField />
 
-      <ConsentField />
-
-      <ConsentGivenByField />
+      {vaccineConsentEnabled && (
+        <>
+          <ConsentField />
+          <ConsentGivenByField />
+        </>
+      )}
     </StyledView>
   );
 };
