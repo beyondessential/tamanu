@@ -14,11 +14,7 @@ const Container = styled.div`
   display: grid;
   grid-template-columns: ${props => (props.hasPanels ? 'repeat(6, 1fr)' : ' 230px repeat(4, 1fr)')};
   padding-bottom: 10px;
-
-  > div:first-child {
-    padding-left: 32px;
-  }
-
+  
   > div:nth-last-child(-n + ${props => (props.hasPanels ? '6' : '5')}) {
     border-bottom: none;
   }
@@ -29,6 +25,9 @@ const HeaderCell = styled(Heading4)`
   padding: 15px 16px 15px 0px;
   border-bottom: 1px solid ${Colors.outline};
   color: ${Colors.midText};
+  &:first-of-type {
+    padding-left: 32px;
+  }
 `;
 
 const Cell = styled.div`
