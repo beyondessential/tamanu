@@ -273,7 +273,6 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
             },
           ],
         },
-        //orderDetail: [], // internals handled below
         subject: {
           reference: `Patient/${resources.fhirPatient.id}`,
           type: 'Patient',
@@ -314,7 +313,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       expect(response.body.subject).not.toHaveProperty('identifier');
     });
 
-    it('fetches a service request by materialised ID (lab request without panel but tests)', async () => {
+    it('fetches a service request by materialised ID (lab request with unpanelled tests)', async () => {
       // arrange
       const { FhirServiceRequest } = ctx.store.models;
       const { labRequest, testTypes } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
@@ -355,9 +354,6 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       });
       expect(response.headers['last-modified']).toBe(formatRFC7231(new Date(mat.lastUpdated)));
       expect(response).toHaveSucceeded();
-
-      // regression EPI-403
-      expect(response.body.subject).not.toHaveProperty('identifier');
     });
     it('cannot have ServiceRequest with independent tests and panel', async () => {
       // arrange
