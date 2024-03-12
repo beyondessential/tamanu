@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "android": "npx react-native run-android",
-    "build:android": "cd android && ./gradlew clean && ./gradlew assembleRelease && cd ..",
+    "build:android": "cd android && ./gradlew clean && ./gradlew app:assembleRelease && cd ..",
     "start": "rnstl --silent && react-native start",
     "test": "jest",
     "test:coverage": "yarn test --coverage",
@@ -55,7 +55,7 @@
     "popup-ui": "^1.2.2",
     "prop-types": "^15.7.2",
     "react": "18.1.0",
-    "react-native": "0.70.10",
+    "react-native": "0.71.10",
     "react-native-autocomplete-input": "^5.0.2",
     "react-native-bcrypt": "^2.4.0",
     "react-native-bg-thread": "^1.2.0",
