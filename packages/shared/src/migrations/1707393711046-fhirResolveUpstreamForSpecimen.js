@@ -29,7 +29,7 @@ export async function up(query) {
               jsonb_build_object(
                 'reference', 'Practitioner/' || p.id,
                 'type', 'Practitioner',
-                'display', jsonb_extract_path_text(p.name[0], 'text')
+                'display', jsonb_extract_path_text(p.name -> 0, 'text')
               )
         )
       FROM fhir.practitioners p

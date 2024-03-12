@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import styled from 'styled-components';
 import { TextButton as BaseTextButton } from '../../../../../components';
+import { TranslatedText } from '../../../../../components/Translation/TranslatedText';
 
 const TextButton = styled(BaseTextButton)`
   font-weight: 500;
@@ -21,7 +22,7 @@ export const ParameterList = ({ children, onAdd }) => {
     <div>
       <div>{children}</div>
       <TextButton color="primary" onClick={onAdd}>
-        + Add
+        + {<TranslatedText stringId="general.action.add" fallback="Add" />}
       </TextButton>
     </div>
   );

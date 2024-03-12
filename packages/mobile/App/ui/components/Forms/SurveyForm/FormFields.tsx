@@ -14,8 +14,8 @@ import { Orientation, screenPercentageToDP } from '../../../helpers/screen';
 import { SurveyQuestion } from './SurveyQuestion';
 import { FormScreenView } from '../FormScreenView';
 import { SubmitButton } from '../SubmitButton';
-import { SectionHeader } from '../../SectionHeader';
 import { Button } from '../../Button';
+import { SectionHeader } from '../../SectionHeader';
 import { ErrorBoundary } from '../../ErrorBoundary';
 import { FullView, RowView, StyledText, StyledView } from '../../../styled/common';
 import { theme } from '../../../styled/theme';
@@ -65,7 +65,7 @@ const SurveyQuestionErrorView = ({ error }): ReactElement => (
 interface FormFieldsProps {
   components: ISurveyScreenComponent[];
   patient: IPatient;
-  note: string;
+  isSubmitting: boolean;
   onCancel?: () => Promise<void>;
   onGoBack?: () => void;
   currentScreenIndex: number;
@@ -76,7 +76,7 @@ export const FormFields = ({
   components,
   currentScreenIndex,
   setCurrentScreenIndex,
-  note,
+  isSubmitting,
   patient,
   onCancel,
   onGoBack,
@@ -226,6 +226,7 @@ export const FormFields = ({
               borderColor={theme.colors.MAIN_SUPER_DARK}
               borderWidth={0.1}
               margin={5}
+              disabled={isSubmitting}
               buttonText="Cancel"
               onPress={onCancel}
             />
@@ -236,11 +237,6 @@ export const FormFields = ({
             <SubmitButton margin={5} onSubmit={onSubmit} />
           )}
         </RowView>
-        {currentScreenIndex === maxIndex && (
-          <StyledView margin={10}>
-            <StyledText color={theme.colors.TEXT_DARK}>{note}</StyledText>
-          </StyledView>
-        )}
       </FormScreenView>
     </FullView>
   );

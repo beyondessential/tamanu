@@ -3,10 +3,11 @@ import * as yup from 'yup';
 import styled from 'styled-components';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { useApi, useSuggester } from '../api';
-import { Colors } from '../constants';
+import { Colors, FORM_TYPES } from '../constants';
 import { FormSubmitCancelRow } from './ButtonRow';
 import { AutocompleteField, DateTimeField, Field, Form, TextField } from './Field';
 import { FormGrid } from './FormGrid';
+import { TranslatedText } from './Translation/TranslatedText';
 
 const SubmitError = styled.div`
   color: ${Colors.alert};
@@ -49,16 +50,32 @@ export function CarePlanNoteForm({
       validationSchema={yup.object().shape({
         content: yup.string().required('Content is required'),
       })}
+      formType={note ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
       render={() => (
         <>
           <FormGrid columns={2}>
             <Field
               name="onBehalfOfId"
-              label="On Behalf Of"
+              label={
+                <TranslatedText
+                  stringId="carePlan.noteOnBehalfOf.label"
+                  fallback="On behalf of"
+                />
+              }
               component={AutocompleteField}
               suggester={practitionerSuggester}
             />
-            <Field name="date" label="Date recorded" component={DateTimeField} saveDateAsString />
+            <Field
+              name="date"
+              label={
+                <TranslatedText
+                  stringId="carePlan.noteDateRecorded.label"
+                  fallback="Date Recorded"
+                />
+              }
+              component={DateTimeField}
+              saveDateAsString
+            />
           </FormGrid>
           <FormGrid columns={1}>
             <Field
@@ -73,7 +90,13 @@ export function CarePlanNoteForm({
           <SubmitError>{submitError}</SubmitError>
           <FormSubmitCancelRow
             onCancel={note ? onCancel : null}
-            confirmText={note ? 'Save' : 'Add Note'}
+            confirmText={
+              note ? (
+                <TranslatedText stringId="general.action.save" fallback="Save" />
+              ) : (
+                <TranslatedText stringId="general.action.addNote" fallback="Add Note" />
+              )
+            }
           />
         </>
       )}

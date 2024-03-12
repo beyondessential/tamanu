@@ -2,6 +2,7 @@ export * from './DiagnosticReport';
 export * from './Encounter';
 export * from './ImagingStudy';
 export * from './Immunization';
+export * from './MediciReport';
 export * from './Patient';
 export * from './Practitioner';
 export * from './ServiceRequest';
