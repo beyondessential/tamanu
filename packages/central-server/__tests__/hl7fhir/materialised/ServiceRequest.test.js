@@ -355,7 +355,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       expect(response.headers['last-modified']).toBe(formatRFC7231(new Date(mat.lastUpdated)));
       expect(response).toHaveSucceeded();
     });
-    it('cannot have ServiceRequest with independent tests and panel', async () => {
+    it('cannot have service request with independent tests and panel', async () => {
       // arrange
       const { FhirServiceRequest } = ctx.store.models;
       const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
