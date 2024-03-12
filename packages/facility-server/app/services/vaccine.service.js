@@ -67,9 +67,12 @@ export const getPatientScheduledVaccines = async (sequelize, patientId) => {
         select pnvd.patient_id, pnvd.scheduled_vaccine_id, pnvd.vaccine_id, extract (day from greatest(pnvd.vaccine_due, pnvd.next_due) - now()) due_date
         from patient_next_vaccine_details pnvd
         where pnvd.is_next = true
+    ),
+    vaccine_status_thresholds as (
+        select (jsonb_array_elements(s.value)->>'threshold')::float threshold, (jsonb_array_elements(s.value)->>'status') status from settings s where s."key" ='vaccine.thresholds'
     )
     select *,
-        (SELECT status FROM vaccine_status_threshold vst WHERE vst.threshold < pnx.due_date ORDER BY vst.threshold DESC LIMIT 1)
+        (SELECT status FROM vaccine_status_thresholds vst WHERE vst.threshold < pnx.due_date ORDER BY vst.threshold DESC LIMIT 1)
     from patient_next_vaccines pnx
     order by pnx.due_date ASC
     `,
