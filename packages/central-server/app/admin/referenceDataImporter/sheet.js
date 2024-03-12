@@ -59,12 +59,12 @@ const FOREIGN_KEY_SCHEMATA = {
   ],
   ReferenceDataRelation: [
     {
-      field: 'referenceDataId',
+      field: 'referenceData',
       model: 'ReferenceData',
       types: REFERENCE_TYPE_VALUES,
     },
     {
-      field: 'referenceDataParentId',
+      field: 'referenceDataParent',
       model: 'ReferenceData',
       types: REFERENCE_TYPE_VALUES,
     },
