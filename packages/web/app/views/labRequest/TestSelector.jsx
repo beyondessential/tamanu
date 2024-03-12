@@ -12,6 +12,7 @@ import { TextButton } from '../../components/Button';
 import { BodyText } from '../../components/Typography';
 import { SelectableTestItem, TestItem } from './TestItem';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
+import { useTranslation } from '../../contexts/Translation';
 
 const SELECTABLE_DATA_ENDPOINTS = {
   [LAB_REQUEST_FORM_TYPES.PANEL]: 'labTestPanel',
@@ -155,11 +156,8 @@ export const TestSelectorInput = ({
   helperText,
   error,
 }) => {
-  const {
-    selectableName,
-    label = labelConfig.subheading,
-    searchFieldPlaceholder = 'Search',
-  } = labelConfig;
+  const { selectableName, label = labelConfig.subheading, searchFieldPlaceholder } = labelConfig;
+  const { getTranslation } = useTranslation();
   const [searchQuery, setSearchQuery] = useState({
     labTestCategoryId: '',
     search: '',
@@ -198,6 +196,14 @@ export const TestSelectorInput = ({
         ? [...value, event.target.name]
         : value.filter(id => id !== event.target.name),
     );
+  };
+
+  const getSearchFieldPlaceholder = () => {
+    if (typeof searchFieldPlaceholder === 'object') {
+      return getTranslation(searchFieldPlaceholder.stringId, searchFieldPlaceholder.fallback);
+    }
+
+    return searchFieldPlaceholder ?? getTranslation('general.placeholder.search', 'Search');
   };
 
   return (
@@ -243,7 +249,7 @@ export const TestSelectorInput = ({
                 value: searchQuery.search,
                 onChange: handleChangeSearchQuery,
               }}
-              placeholder={searchFieldPlaceholder}
+              placeholder={getSearchFieldPlaceholder()}
               name="search"
             />
           </Box>

@@ -10,7 +10,6 @@ import { LocationField } from '../../LocationField';
 import { INJECTION_SITE_OPTIONS, ReferenceDataType } from '~/types';
 import { AutocompleteModalField } from '../../AutocompleteModal/AutocompleteModalField';
 import { Dropdown, SuggesterDropdown } from '../../Dropdown';
-import { Routes } from '~/ui/helpers/routes';
 import { Suggester } from '~/ui/helpers/suggester';
 import { useFacility } from '~/ui/contexts/FacilityContext';
 import { useBackend } from '~/ui/hooks';

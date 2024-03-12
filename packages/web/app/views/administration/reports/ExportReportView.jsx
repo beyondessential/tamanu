@@ -9,6 +9,7 @@ import { Colors, FORM_TYPES } from '../../../constants';
 import { saveFile } from '../../../utils/fileSystemAccess';
 import { useApi } from '../../../api/useApi';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { useTranslation } from '../../../contexts/Translation';
 
 const StyledButton = styled(OutlinedButton)`
   margin-top: 30px;
@@ -30,6 +31,7 @@ const schema = yup.object().shape({
 
 export const ExportReportView = () => {
   const api = useApi();
+  const { getTranslation } = useTranslation();
 
   const handleSubmit = async ({ reportId, versionId, format }) => {
     try {
@@ -69,7 +71,7 @@ export const ExportReportView = () => {
               required
               label={<TranslatedText stringId="admin.report.export.report.label" fallback="Report" />}
               name="reportId"
-              placeholder="Select a report definition"
+              placeholder={getTranslation("admin.report.export.report.placeholder", "Select a report definition")}
             />
             {values.reportId && (
               <Field
@@ -77,7 +79,7 @@ export const ExportReportView = () => {
                 required
                 label={<TranslatedText stringId="admin.report.export.version.label" fallback="Version" />}
                 name="versionId"
-                placeholder="Select a report version"
+                placeholder={getTranslation("admin.report.export.version.placeholder", "Select a report version")}
             />
             )}
             {values.versionId && (

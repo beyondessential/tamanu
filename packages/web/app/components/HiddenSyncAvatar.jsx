@@ -74,11 +74,12 @@ export const HiddenSyncAvatar = ({ children, onClick, ...props }) => {
             fallback="Starting manual sync..."
           />
         );
-        await api.post(`sync/run`);
+        const { message } = await api.post(`sync/run`);
         toast.success(
           <TranslatedText
-            stringId="sidebar.avatar.notification.manualSyncComplete"
-            fallback="Manual sync complete"
+            stringId="sidebar.avatar.notification.manualSync"
+            fallback={`Manual sync: ${message}`}
+            replacements={{ message }}
           />
         );
       });

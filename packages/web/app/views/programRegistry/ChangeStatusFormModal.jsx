@@ -2,6 +2,8 @@ import React from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import { useQueryClient } from '@tanstack/react-query';
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+
 import {
   AutocompleteField,
   ConfirmCancelRow,
@@ -41,7 +43,7 @@ export const ChangeStatusFormModal = ({ patientProgramRegistration, onClose, ope
 
     await api.post(
       `patient/${encodeURIComponent(patientProgramRegistration.patientId)}/programRegistration`,
-      { ...rest, ...changedStatus },
+      { ...rest, ...changedStatus, date: getCurrentDateTimeString(), },
     );
 
     queryClient.invalidateQueries([`infoPaneListItem-${PROGRAM_REGISTRY}`]);
