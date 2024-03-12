@@ -1,4 +1,3 @@
-export const NON_DETERMINISTIC = true;
 export async function up(query) {
   await query.sequelize.query(`
     CREATE OR REPLACE PROCEDURE fhir.service_request_resolve_upstream_specimen()
