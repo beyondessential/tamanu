@@ -199,12 +199,12 @@ const ImagingResultRow = ({ result }) => {
 };
 
 const ImagingResultsSection = ({ results }) => {
-  if (results.length === 0) return null;
+  if (results?.length === 0) return null;
 
   return (
     <>
       <h3>Results</h3>
-      {results.map(result => (
+      {results?.map(result => (
         <ImagingResultRow key={result.id} result={result} />
       ))}
     </>
@@ -293,7 +293,7 @@ export const ImagingRequestView = () => {
     IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
   ].includes(imagingRequest.status);
 
-  if (patient.loading) return <LoadingIndicator />;
+  if (patient.loading || imagingRequest.loading) return <LoadingIndicator />;
 
   return (
     <>

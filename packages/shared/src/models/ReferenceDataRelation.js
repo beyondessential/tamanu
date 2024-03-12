@@ -27,7 +27,7 @@ export class ReferenceDataRelation extends Model {
           },
         },
         type: {
-          type: DataTypes.STRING,
+          type: DataTypes.ENUM(Object.values(REFERENCE_DATA_RELATION_TYPES)),
           defaultValue: REFERENCE_DATA_RELATION_TYPES.ADDRESS_HIERARCHY,
         },
       },

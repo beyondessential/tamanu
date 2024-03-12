@@ -73,5 +73,5 @@ export async function up(query) {
 }
 
 export async function down(query) {
-  await query.dropTable('reference_data_relations');
+  await query.dropTable('reference_data_relations', {});
 }

@@ -301,7 +301,12 @@ export const DataFetchingTable = memo(
           orderBy={orderBy}
           rowsPerPageOptions={ROWS_PER_PAGE_OPTIONS}
           refreshTable={refreshTable}
-          rowStyle={row => (row.highlighted ? 'background-color: #F0FFF0;' : '')}
+          rowStyle={row => {
+            const rowStyle = [];
+            if (row.highlighted) rowStyle.push("background-color: #F0FFF0;");
+            if (props.isRowsDisabled) rowStyle.push("cursor: not-allowed;");
+            return rowStyle.join("");
+          }}
           lazyLoading={lazyLoading}
           ref={tableRef}
           {...props}
