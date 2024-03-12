@@ -2,13 +2,14 @@
 import { StyleSheet, Font } from '@react-pdf/renderer';
 import { cloneDeep } from 'lodash';
 import path from 'path';
+import { FONT } from '@tamanu/constants';
 
 const baseDir =
   typeof __dirname !== 'undefined' ? path.join(__dirname, '../assets/fonts') : './fonts';
 
 // body font
 Font.register({
-  family: 'Battambang',
+  family: FONT.BATTAMBANG,
   fonts: [
     {
       src: path.join(baseDir, 'Battambang-Regular.ttf'),
@@ -23,7 +24,7 @@ Font.register({
 
 // title font
 Font.register({
-  family: 'Moul',
+  family: FONT.MOUL,
   src: path.join(baseDir, 'Moul-Regular.ttf'),
 });
 
@@ -49,13 +50,13 @@ export const CustomStyleSheet = {
       if (
         language === 'km' &&
         currentFontFamily &&
-        currentFontFamily !== 'Moul' &&
-        currentFontFamily !== 'Battambang'
+        currentFontFamily !== FONT.MOUL &&
+        currentFontFamily !== FONT.BATTAMBANG
       ) {
         if (currentFontFamily === 'Helvetica-Bold' && !forceToBodyFontWithGreaterFontWeight) {
-          newStyles[key].fontFamily = 'Moul';
+          newStyles[key].fontFamily = FONT.MOUL;
         } else {
-          newStyles[key].fontFamily = 'Battambang';
+          newStyles[key].fontFamily = FONT.BATTAMBANG;
           if (forceToBodyFontWithGreaterFontWeight) {
             newStyles[key].fontWeight = 500;
           }
