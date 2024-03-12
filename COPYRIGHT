@@ -1,16 +1,15 @@
 Short version for non-lawyers:
 
 Tamanu is licensed under GPL 3.0 and later, except for the FHIR API and other
-vendor integrations which are licensed under the BSL 1.1 (source-available, not
-to be used in production). Commercial licensing is available from BES.
+vendor integrations which are licensed under the BSL 1.1 (source-available,
+cannot be freely used in production). Commercial licensing is available via BES.
 
 
 Longer version:
 
 Copyrights in this project are retained by their contributors. No copyright
-assignment is required to contribute. External contributors must sign a
-contributor license agreement <CONTRIBUTOR-LICENSE-AGREEMENT.md> to have their
-contributions accepted.
+assignment is required to contribute. External contributors must sign a license
+agreement <CONTRIBUTOR-LICENSE-AGREEMENT.md> to have contributions accepted.
 
 Some files include explicit copyright notices and/or license notices.
 For full authorship information, see the version control history.
