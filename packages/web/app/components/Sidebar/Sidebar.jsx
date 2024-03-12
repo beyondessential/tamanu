@@ -1,9 +1,10 @@
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
-import { Box, Button, Divider, IconButton, List, Typography } from '@material-ui/core';
-import { Launch, NavigateBefore, NavigateNext } from '@material-ui/icons';
+import { Box, Button, Divider, IconButton, List, Typography, Menu } from '@material-ui/core';
+import { Launch, NavigateBefore, NavigateNext, MoreVert } from '@material-ui/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
+import { keyBy, mapValues } from 'lodash';
 import { getCurrentRoute } from '../../store/router';
 
 import { LogoLight, LogoLightNoText } from '../Logo';
@@ -17,6 +18,9 @@ import { useAuth } from '../../contexts/Auth';
 import { useApi } from '../../api';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { useLocalisation } from '../../contexts/Localisation';
+import { ChangeLanguageModal } from '../ChangeLanguageModal';
+import { LanguageSelector } from '../LanguageSelector';
+import { useTranslationLanguages } from '../../api/queries';
 
 const Container = styled.div`
   display: flex;
@@ -126,7 +130,6 @@ const LogoutButton = styled(Button)`
   text-transform: none;
   text-decoration: underline;
   color: ${Colors.white};
-  margin-top: 8px;
   margin-left: 10px;
   min-height: 0;
   min-width: 0;
@@ -141,17 +144,40 @@ const SupportDesktopLink = styled.a`
   line-height: 15px;
   text-decoration: underline;
   color: ${Colors.white};
-  display: flex;
-  align-items: center;
-  justify-content: center;
+`;
 
+const KebabMenuItem = styled.div`
+  font-weight: 400;
+  font-size: 11px;
+  line-height: 15px;
+  color: ${Colors.white};
+  padding: 4px;
+  cursor: pointer;
+  border-radius: 4px;
   :hover {
-    font-weight: bold;
+    background: rgba(255, 255, 255, 0.15);
   }
+`;
+
+const StyledIconButton = styled(IconButton)`
+  color: white;
+  align-self: start;
+  padding: 12px 0 0 0;
 `;
 
 const StyledMetadataBox = styled(Box)`
   margin-bottom: 5px;
+`;
+
+const StyledMenu = styled(Menu)`
+  & .MuiPaper-root {
+    border: 1px solid ${Colors.outline};
+    background: ${Colors.primaryDark};
+    width: 124px;
+  }
+  & .MuiList-padding {
+    padding: 4px;
+  }
 `;
 
 const getInitials = string =>
@@ -179,6 +205,9 @@ const isHighlighted = (currentPath, menuItemPath, sectionIsOpen, isRetracted) =>
 };
 
 export const Sidebar = React.memo(({ items }) => {
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [isChangingLanguage, setChangingLanguage] = useState(false);
+  const open = Boolean(anchorEl);
   const [selectedParentItem, setSelectedParentItem] = useState('');
   const [isRetracted, setIsRetracted] = useState(false);
   const { agentVersion } = useApi();
@@ -187,6 +216,17 @@ export const Sidebar = React.memo(({ items }) => {
   const dispatch = useDispatch();
   const { getLocalisation } = useLocalisation();
   const extendSidebar = () => setIsRetracted(false);
+
+  const { data = {} } = useTranslationLanguages();
+  const { languageNames = [], languagesInDb = [] } = data;
+  const languageDisplayNames = mapValues(keyBy(languageNames, 'language'), 'text');
+
+  const languageOptions = languagesInDb.map(({ language }) => {
+    return {
+      label: languageDisplayNames[language],
+      value: language,
+    };
+  });
 
   const onPathChanged = newPath => dispatch(push(newPath));
 
@@ -199,6 +239,14 @@ export const Sidebar = React.memo(({ items }) => {
     } else {
       setSelectedParentItem(key);
     }
+  };
+
+  const onOpenKebabMenu = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleCloseKebabMenu = () => {
+    setAnchorEl(null);
   };
 
   const handleRetractButtonClick = useCallback(() => setIsRetracted(true), []);
@@ -299,22 +347,35 @@ export const Sidebar = React.memo(({ items }) => {
                 <ConnectedTo>
                   {roleName} <br /> {facility?.name ? facility.name : centralHost}
                 </ConnectedTo>
-                <LogoutButton
-                  type="button"
-                  onClick={onLogout}
-                  id="logout"
-                  data-test-id="siderbar-logout-item"
-                >
-                  <TranslatedText stringId="auth.action.logout" fallback="Log out" />
-                </LogoutButton>
               </Box>
             </StyledUserInfoContent>
           )}
-        </UserInfo>
-        {!isRetracted && (
-          <>
-            <StyledDivider $invisible={isRetracted} />
-            <StyledMetadataBox display="flex" justifyContent="space-between">
+          <StyledIconButton
+            onClick={onOpenKebabMenu}
+          >
+            <MoreVert />
+          </StyledIconButton>
+          <StyledMenu
+            anchorEl={anchorEl}
+            keepMounted
+            open={open}
+            onClose={handleCloseKebabMenu}
+            anchorOrigin={{
+              vertical: 'top',
+              horizontal: 'left',
+            }}
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: 'right',
+            }}
+          >
+            {/* If multiple languages not implemented, no need for the modal to show */}
+            {languageOptions.length > 1 && <KebabMenuItem
+              onClick={() => setChangingLanguage(true)}
+            >
+              <TranslatedText stringId="general.language.change" fallback="Change language" />
+            </KebabMenuItem>}
+            <KebabMenuItem>
               <SupportDesktopLink href={supportUrl} target="_blank" rel="noreferrer">
                 <TranslatedText
                   stringId="sidebar.externalLink.supportCentre"
@@ -322,9 +383,32 @@ export const Sidebar = React.memo(({ items }) => {
                 />
                 <Launch style={{ marginLeft: '5px', fontSize: '12px' }} />
               </SupportDesktopLink>
+            </KebabMenuItem>
+            <ChangeLanguageModal
+              maxWidth='lg'
+              fullWidth={false}
+              open={isChangingLanguage}
+              onClose={() => setChangingLanguage(false)}
+            />
+          </StyledMenu>
+          <LanguageSelector />
+        </UserInfo>
+        {!isRetracted && (
+          <>
+            <StyledDivider $invisible={isRetracted} />
+            <StyledMetadataBox display="flex" justifyContent="space-between">
+
               <Version>
                 <TranslatedText stringId="general.meta.version" fallback="Version" /> {agentVersion}
               </Version>
+              <LogoutButton
+                type="button"
+                onClick={onLogout}
+                id="logout"
+                data-test-id="siderbar-logout-item"
+              >
+                <TranslatedText stringId="auth.action.logout" fallback="Log out" />
+              </LogoutButton>
             </StyledMetadataBox>
           </>
         )}
