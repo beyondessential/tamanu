@@ -4,7 +4,9 @@ on:
   workflow_dispatch:
   pull_request:
   push:
-
+    branches:
+      - main
+      - release/*
 env:
   NODE_OPTIONS: "--max-old-space-size=6144"
   NODE_ENV: test
