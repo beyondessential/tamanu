@@ -50,10 +50,12 @@ export function DownloadDataButton({ exportName, columns, data }) {
 
             if (c.accessor) {
               const value = c.accessor(d);
-              // render react element and get the text value with cheerio
               if (typeof value === 'object') {
                 if (isValidElement(value)) {
-                  dx[headerValue] = cheerio.load(ReactDOMServer.renderToString(value)).text();
+                  dx[headerValue] =
+                    value.type.name === 'TranslatedText'
+                      ? value.props.fallback // Temporary until we implement translated export tables
+                      : cheerio.load(ReactDOMServer.renderToString(value)).text(); // render react element and get the text value with cheerio
                 } else {
                   dx[headerValue] = d[c.key];
                 }
