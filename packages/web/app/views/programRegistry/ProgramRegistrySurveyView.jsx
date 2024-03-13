@@ -7,7 +7,6 @@ import { usePatientProgramRegistrySurveys } from '../../api/queries/usePatientPr
 import { useAuth } from '../../contexts/Auth';
 import { usePatientAdditionalDataQuery, usePatientProgramRegistration } from '../../api/queries';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
-import { ProgramRegistryProvider } from '../../contexts/ProgramRegistry';
 import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { getAnswersFromData } from '../../utils';
@@ -54,18 +53,16 @@ export const ProgramRegistrySurveyView = () => {
   if (isError) return <p>{title || 'Unknown'}&apos; not found.</p>;
 
   return (
-    <ProgramRegistryProvider value={{ programRegistryId }}>
-      <SurveyView
-        onSubmit={submitSurveyResponse}
-        survey={survey}
-        onCancel={() => {
-          navigateToProgramRegistry();
-        }}
-        patient={patient}
-        patientAdditionalData={additionalData}
-        patientProgramRegistration={patientProgramRegistration}
-        currentUser={currentUser}
-      />
-    </ProgramRegistryProvider>
+    <SurveyView
+      onSubmit={submitSurveyResponse}
+      survey={survey}
+      onCancel={() => {
+        navigateToProgramRegistry();
+      }}
+      patient={patient}
+      patientAdditionalData={additionalData}
+      patientProgramRegistration={patientProgramRegistration}
+      currentUser={currentUser}
+    />
   );
 };

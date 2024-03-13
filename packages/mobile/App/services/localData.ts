@@ -5,7 +5,7 @@ import { readConfig, writeConfig } from './config';
  * Service to store data received from AuthService on "remoteSignIn"
  * event locally
  */
-export class LocalDataService {
+export abstract class LocalDataService {
   static CONFIG_KEY: string;
 
   auth: AuthService;
@@ -22,9 +22,7 @@ export class LocalDataService {
     });
   }
 
-  extractDataFromPayload(_payload: any): any {
-    throw new Error('Child of LocalDataService needs to implement its own extractDataFromPayload method');
-  }
+  abstract extractDataFromPayload(payload: any): any;
 
   onDataLoaded(): void {
     // do nothing on the parent class
