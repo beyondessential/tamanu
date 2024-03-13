@@ -19,7 +19,7 @@ function getHeaderValue(column) {
   if (typeof column.title === 'object') {
     if (isValidElement(column.title)) {
       const { props, type } = column.title;
-      if (type.name === 'TranslatedText') return props.fallback;
+      if (type.name === 'TranslatedText') return props.fallback; // Temporary until we implement translated export tables
       return cheerio.load(ReactDOMServer.renderToString(column.title)).text();
     }
   }
