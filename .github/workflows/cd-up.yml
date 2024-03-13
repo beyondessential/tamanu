@@ -20,13 +20,6 @@ jobs:
     runs-on: ubuntu-latest
     name: Deploy
     steps:
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-region: ap-southeast-2
-          role-to-assume: arn:aws:iam::143295493206:role/gha-deploy
-          role-session-name: GHA@Tamanu=DeployUp
-
       - name: Checkout this repo
         uses: actions/checkout@v4
 
@@ -50,17 +43,12 @@ jobs:
         run: npm ci
         working-directory: ops/pulumi
 
-      - name: Prepare database credentials
-        uses: aws-actions/aws-secretsmanager-get-secrets@v1
-        with:
-          parse-json-secrets: true
-          secret-ids: "INTERNAL_DB, ${{ vars.INTERNAL_DB_SECRET_ARN }}"
-
       - name: Connect to Tailscale
         uses: tailscale/github-action@v2
         with:
           oauth-secret: ${{ secrets.TAILSCALE_DBPROXY_ACCESS_OAUTH }}
           tags: tag:infra,tag:infra-gha-deploy
+      - run: tailscale configure kubeconfig k8s-operator-tamanu-internal-main
 
       # derive the stack name from the branch
       # changing this will create a new stack
@@ -80,36 +68,18 @@ jobs:
               .replace(/-+/g, '-')
               .replace(/^-|-$/g, ''));
 
-      # a constant secret + a variable plain text, hashed, = a new secret!
-      # importantly this needs to remain constant for the lifetime of the stack
-      - name: Prepare salt
-        id: salt
-        env:
-          KEY: ${{ secrets.TAMANU_OPS_SSH }}
-          NAME: ${{ steps.stack.outputs.result }}
-        run: |
-          salt=$(sha1sum <<< "$KEY$NAME" | cut -d' ' -f1)
-          echo "::add-mask::$salt"
-          echo "salt=$salt" >> $GITHUB_OUTPUT
-
       - name: Up!
         uses: pulumi/actions@v5
         with:
-          work-dir: ops/pulumi/stacks/tamanu/on-ecs
+          work-dir: ops/pulumi/stacks/tamanu/on-k8s
           command: up
           stack-name: bes/${{ steps.stack.outputs.result }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          comment-on-pr: ${{ github.event_name == 'pull_request' }}
+          comment-on-pr: false
           upsert: true
           config-map: >
             {
-            tamanu-internal:arm64: {value: true, secret: false},
             tamanu-internal:imageTag: {value: 'sha-${{ github.sha }}', secret: false},
-            tamanu-internal:salt: {value: '${{ steps.salt.outputs.salt }}', secret: true},
-            postgresql:host: {value: '${{ vars.INTERNAL_DB_HOST }}', secret: false},
-            postgresql:username: {value: '${{ env.INTERNAL_DB_USERNAME }}', secret: false},
-            postgresql:password: {value: '${{ env.INTERNAL_DB_PASSWORD }}', secret: true},
-            postgresql:superuser: {value: false, secret: false}
             }
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
