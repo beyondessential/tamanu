@@ -147,7 +147,7 @@ export const FACILITY_MENU_ITEMS = [
   },
   {
     key: 'immunisations',
-    label: <TranslatedText stringId="sidebar.immunisations" fallback="Immunisations" />,
+    label: <TranslatedText stringId="sidebar.immunisations" fallback="Immunisation" />,
     path: '/immunisations',
     icon: vaccineIcon,
     ability: { action: 'read' },
