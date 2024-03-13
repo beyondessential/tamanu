@@ -73,6 +73,7 @@ export const fakeResourcesOfFhirServiceRequestWithLabRequest = async (
     isWithPanels: true,
     isWithIndependentTests: false,
   },
+  overrides = {},
 ) => {
   const { isWithPanels, isWithIndependentTests } = options;
   const {
@@ -95,6 +96,7 @@ export const fakeResourcesOfFhirServiceRequestWithLabRequest = async (
     encounterId: resources.encounter.id,
     status: LAB_REQUEST_STATUSES.PUBLISHED,
     requestedDate: '2022-07-27 16:30:00',
+    ...overrides,
   };
   const valuesToReturn = { category };
 
@@ -165,7 +167,6 @@ export const fakeResourcesOfFhirServiceRequestWithImagingRequest = async (models
   );
 
   await imagingRequest.setAreas([resources.area1.id, resources.area2.id]);
-
   return imagingRequest;
 };
 
