@@ -1,17 +1,8 @@
 /* eslint-disable no-unused-expressions */
-
-import { addDays, formatRFC7231 } from 'date-fns';
-
-import { fake } from '@tamanu/shared/test-helpers';
 import {
-  FHIR_DATETIME_PRECISION,
-  IMAGING_REQUEST_STATUS_TYPES,
-  VISIBILITY_STATUSES,
   LAB_REQUEST_STATUSES,
   FHIR_DIAGNOSTIC_REPORT_STATUS,
 } from '@tamanu/constants';
-import { fakeUUID } from '@tamanu/shared/utils/generateId';
-import { formatFhirDate } from '@tamanu/shared/utils/fhir/datetime';
 
 import { createTestContext } from '../../utilities';
 import {
