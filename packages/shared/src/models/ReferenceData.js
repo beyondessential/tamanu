@@ -1,5 +1,10 @@
 import { Sequelize, ValidationError } from 'sequelize';
-import { REFERENCE_TYPE_VALUES, SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
+import {
+  REFERENCE_TYPE_VALUES,
+  DEFAULT_HIERARCHY_TYPE,
+  SYNC_DIRECTIONS,
+  VISIBILITY_STATUSES,
+} from '@tamanu/constants';
 import { InvalidOperationError } from '../errors';
 import { Model } from './Model';
 
@@ -49,6 +54,14 @@ export class ReferenceData extends Model {
       as: 'area',
       foreignKey: 'areaId',
     });
+
+    this.belongsToMany(this, {
+      as: 'parent',
+      through: 'reference_data_relations',
+      foreignKey: 'reference_data_id',
+      otherKey: 'reference_data_parent_id',
+    });
+
     this.hasOne(models.ImagingAreaExternalCode, {
       as: 'imagingAreaExternalCode',
       foreignKey: 'areaId',
@@ -70,6 +83,55 @@ export class ReferenceData extends Model {
     }
 
     return super.update(values);
+  }
+
+  // ----------------------------------
+  // Reference data hierarchy utilities
+  // ----------------------------------
+  static async #getParentRecursive(id, ancestors, relationType) {
+    const { ReferenceData } = this.sequelize.models;
+    const parent = await ReferenceData.getParent(id, relationType);
+    if (!parent?.id) {
+      return ancestors;
+    }
+    return ReferenceData.#getParentRecursive(parent.id, [...ancestors, parent]);
+  }
+
+  static async getParent(id, relationType = DEFAULT_HIERARCHY_TYPE) {
+    const record = await this.getNode({ where: { id }, relationType });
+    return record?.parent;
+  }
+
+  // Gets a node in the hierarchy including the parent record
+  static async getNode({ where, raw = true, relationType = DEFAULT_HIERARCHY_TYPE }) {
+    return this.findOne({
+      where,
+      include: {
+        model: this,
+        as: 'parent',
+        required: true,
+        through: {
+          attributes: [],
+          where: {
+            type: relationType,
+          },
+        },
+      },
+      raw,
+      nest: true,
+    });
+  }
+
+  async getAncestors(relationType = DEFAULT_HIERARCHY_TYPE) {
+    const { ReferenceData } = this.sequelize.models;
+    const baseNode = this.get({ plain: true });
+    const parentNode = await ReferenceData.getParent(this.id, relationType);
+
+    if (!parentNode) {
+      return [];
+    }
+    // Include the baseNode for convenience
+    return ReferenceData.#getParentRecursive(parentNode.id, [baseNode, parentNode], relationType);
   }
 
   static buildSyncFilter() {
