@@ -14,10 +14,12 @@ agreement <CONTRIBUTOR-LICENSE-AGREEMENT.md> to have contributions accepted.
 Some files include explicit copyright notices and/or license notices.
 For full authorship information, see the version control history.
 
+
 Except as otherwise noted (below and/or in individual files), the project is
 licensed under the GNU General Public License, Version 3.0 <LICENSE-GPL> or
 <https://www.gnu.org/licenses/gpl-3.0-standalone.html> or any later version of
 this license, at your option.
+
 
 The FHIR-compatible APIs and integrations are licensed under the Business Source
 License, Version 1.1 <LICENSE-BSL> or <https://mariadb.com/bsl11/>. These
@@ -34,3 +36,13 @@ include the following source files:
 The Change License for the BSL is the GPL 3.0 or later.
 The Change Date is four years from publication as a versioned release by BES.
 The Additional Use Grant is None.
+
+
+The following are vendored third-party dependencies and are licensed as
+indicated here and in their source files (the latter taking precedence):
+
+- The gradle build system scripts are licensed under the Apache License 2.0.
+
+- The ReactNativeFlipper plugin is licensed under the MIT license.
+
+- The react-native-multi-select plugin is licensed under the MIT license.
