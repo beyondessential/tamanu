@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import { StyledText, StyledView } from '/styled/common';
-import { IPatient, ISurveyScreenComponent } from '~/types';
+import { IPatient, ISurveyScreenComponent, SurveyScreenConfig } from '~/types';
 import { Field } from '../FormField';
 import { FieldTypes } from '~/ui/helpers/fields';
 import { FieldByType } from '~/ui/helpers/fieldComponents';
@@ -13,12 +13,23 @@ interface SurveyQuestionProps {
   zIndex: number;
 }
 
-function getField(type: string, { writeToPatient: { fieldType = '' } = {} } = {}): Element {
+function getField(
+  type: string,
+  { writeToPatient: { fieldType = '' } = {}, source }: SurveyScreenConfig = {},
+): Element {
   let field = FieldByType[type];
 
-  if (type === FieldTypes.PATIENT_DATA && fieldType) {
-    // PatientData specifically can overwrite field type if we are writing back to patient records
-    field = FieldByType[fieldType];
+  // see getComponentForQuestionType in web/app/utils/survey.jsx for source of the following logic
+  if (type === FieldTypes.PATIENT_DATA) {
+    if (fieldType) {
+      // PatientData specifically can overwrite field type if we are writing back to patient record
+      field = FieldByType[fieldType];
+    } else if (source) {
+      // we're displaying a relation, so use a disabled Autocomplete
+      // (using a standard field will just display the bare id)
+      const Autocomplete = FieldByType[FieldTypes.AUTOCOMPLETE];
+      field = props => <Autocomplete {...props} readOnly />;
+    }
   }
   if (field || field === null) return field;
   return (): Element => <StyledText>{`No field type ${type}`}</StyledText>;

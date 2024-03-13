@@ -8,6 +8,7 @@ export * from './Practitioner';
 export * from './ServiceRequest';
 export * from './Specimen';
 
+export * from './MediciReport';
 
 export * from './Job';
 export * from './JobWorker';

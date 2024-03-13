@@ -1,4 +1,4 @@
-import { BeforeInsert, BeforeUpdate, Column, Entity, ManyToOne, RelationId } from 'typeorm/browser';
+import { Column, Entity, ManyToOne, RelationId } from 'typeorm/browser';
 import { BaseModel, IdRelation } from './BaseModel';
 import { IAdministeredVaccine, InjectionSiteType } from '~/types';
 import { SYNC_DIRECTIONS } from './types';

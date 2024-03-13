@@ -1,8 +1,14 @@
-import { chunk } from 'lodash';
+import { chunk, cloneDeep } from 'lodash';
 
 import { DataToPersist } from '../types';
 import { chunkRows, SQLITE_MAX_PARAMETERS } from '../../../infra/db/helpers';
 import { BaseModel } from '../../../models/BaseModel';
+
+function strippedIsDeleted(row) {
+  const newRow = cloneDeep(row);
+  delete newRow.isDeleted;
+  return newRow;
+}
 
 export const executeInserts = async (
   model: typeof BaseModel,
@@ -13,12 +19,12 @@ export const executeInserts = async (
   // because it has a lab request attached
   const deduplicated = [];
   const idsAdded = new Set();
-  const softDeleted = rows.filter(row => row.isDeleted).map(({ isDeleted, ...row }) => row);
+  const softDeleted = rows.filter(row => row.isDeleted).map(strippedIsDeleted);
 
   for (const row of rows) {
-    const { id, isDeleted, ...data } = row;
+    const { id } = row;
     if (!idsAdded.has(id)) {
-      deduplicated.push({ ...data, id });
+      deduplicated.push({ ...strippedIsDeleted(row), id });
       idsAdded.add(id);
     }
   }

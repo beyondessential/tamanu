@@ -15,7 +15,6 @@ import { CameraOutlineIcon, LaunchIcon } from '/components/Icons';
 import { version as AppVersion } from '/root/package.json';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { useFacility } from '~/ui/contexts/FacilityContext';
-import { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
 import { authUserSelector } from '/helpers/selectors';
 import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 
@@ -91,7 +90,7 @@ const Footer = ({ version, deviceId }: FooterProps): ReactElement => (
   </StyledText>
 );
 
-export const MoreScreen = ({ navigation }: BaseAppProps): ReactElement => {
+export const MoreScreen = (): ReactElement => {
   const { getLocalisation } = useLocalisation();
   const supportDeskUrl = getLocalisation('supportDeskUrl');
   const authCtx = useAuth();

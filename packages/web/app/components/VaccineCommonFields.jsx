@@ -94,8 +94,16 @@ export const BatchField = () => (
   />
 );
 
-export const VaccineDateField = ({ label, required = true }) => (
-  <Field name="date" label={label} component={DateField} required={required} saveDateAsString />
+export const VaccineDateField = ({ label, required = true, min, skipMinChecking }) => (
+  <Field
+    name="date"
+    label={label}
+    component={DateField}
+    required={required}
+    saveDateAsString
+    min={min}
+    skipMinChecking={skipMinChecking}
+  />
 );
 
 export const InjectionSiteField = () => (
