@@ -16,6 +16,7 @@ import { createTestContext } from '../../utilities';
 import {
   fakeResourcesOfFhirServiceRequest,
   fakeResourcesOfFhirServiceRequestWithLabRequest,
+  fakeTestTypes,
 } from '../../fake/fhir';
 
 const INTEGRATION_ROUTE = 'fhir/mat';
@@ -210,10 +211,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       const { labTestPanel, labRequest, panelTestTypes } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
         ctx.store.models,
         resources,
-        {
-          isWithPanels: true,
-          isWithIndependentTests: false,
-        }
+        true,
       );
       const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
       await FhirServiceRequest.resolveUpstreams();
@@ -319,10 +317,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       const { labRequest, testTypes } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
         ctx.store.models,
         resources,
-        {
-          isWithPanels: false,
-          isWithIndependentTests: true,
-        }
+        false,
       );
       const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
       await FhirServiceRequest.resolveUpstreams();
@@ -357,17 +352,23 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
     });
     it('cannot have service request with independent tests and panel', async () => {
       // arrange
-      const { FhirServiceRequest } = ctx.store.models;
-      const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
+      const { FhirServiceRequest, LabTestType, LabTest } = ctx.store.models;
+      const { labRequest, category } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
         ctx.store.models,
         resources,
-        {
-          isWithPanels: true,
-          isWithIndependentTests: true,
-        }
+        true,
       );
+
+      const testTypes = await fakeTestTypes(10, LabTestType, category.id);
+      await Promise.all(testTypes.map(testType => LabTest
+        .create({
+          labRequestId: labRequest.id,
+          labTestTypeId: testType.id,
+        })));
+
       try {
         await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+        throw Error('Illegal!!'); // handle if no error is thrown by the materialisation
       } catch (clashingOrderDetails) {
         expect(clashingOrderDetails.message).toBe(`Service Request with upstream LabRequest ${labRequest.id} cannot have both panels AND independent tests`);
       }
