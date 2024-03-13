@@ -74,7 +74,7 @@ jobs:
       # changing this will create a new stack
       # this must be the same as in cd-up.yml
       - name: Normalise branch/ref name
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         id: stack
         env:
           GH_HEAD_REF: ${{ github.head_ref }}
