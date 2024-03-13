@@ -9,6 +9,22 @@ import { saveFile } from '../../utils/fileSystemAccess';
 import { GreyOutlinedButton } from '../Button';
 import { TranslatedText } from '../Translation/TranslatedText';
 
+// This is a temporary implementation to basically keep TranslatedText components from breaking export
+// by supplying the fallback string in place of the component. proper translation export implmentation coming in NASS-1201
+const normaliseTranslatedText = element => {
+  if (element.type.name === 'TranslatedText') return element.props.fallback;
+
+  const normalisedElement = Array.isArray(element.props.children)
+    ? React.cloneElement(element, {
+        children: element.props.children.map(child => {
+          return child.type?.name === 'TranslatedText' ? child.props.fallback : child;
+        }),
+      })
+    : element;
+
+  return normalisedElement;
+};
+
 function getHeaderValue(column) {
   if (!column.title) {
     return column.key;
@@ -18,9 +34,9 @@ function getHeaderValue(column) {
   }
   if (typeof column.title === 'object') {
     if (isValidElement(column.title)) {
-      const { props, type } = column.title;
-      if (type.name === 'TranslatedText') return props.fallback; // Temporary until we implement translated export tables
-      return cheerio.load(ReactDOMServer.renderToString(column.title)).text();
+      return cheerio
+        .load(ReactDOMServer.renderToString(normaliseTranslatedText(column.title)))
+        .text();
     }
   }
   return column.key;
@@ -52,10 +68,9 @@ export function DownloadDataButton({ exportName, columns, data }) {
               const value = c.accessor(d);
               if (typeof value === 'object') {
                 if (isValidElement(value)) {
-                  dx[headerValue] =
-                    value.type.name === 'TranslatedText'
-                      ? value.props.fallback // Temporary until we implement translated export tables
-                      : cheerio.load(ReactDOMServer.renderToString(value)).text(); // render react element and get the text value with cheerio
+                  dx[headerValue] = cheerio
+                    .load(ReactDOMServer.renderToString(normaliseTranslatedText(value)))
+                    .text(); // render react element and get the text value with cheerio
                 } else {
                   dx[headerValue] = d[c.key];
                 }
