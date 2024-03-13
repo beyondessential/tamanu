@@ -14,6 +14,7 @@ import { RegistrationStatusIndicator } from './RegistrationStatusIndicator';
 import { ClinicalStatusDisplay } from './ClinicalStatusDisplay';
 import { useRefreshCount } from '../../hooks/useRefreshCount';
 import { ActivatePatientProgramRegistry } from './ActivatePatientProgramRegistry';
+import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 export const ProgramRegistryTable = ({ searchParameters }) => {
   const params = useParams();
@@ -29,6 +30,9 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
       },
       {
         key: 'displayId',
+        title: (
+          <TranslatedText stringId="general.localisedField.displayId.label.short" fallback="NHN" />
+        ),
         accessor: ({ patient }) => patient.displayId || 'Unknown',
       },
       {
