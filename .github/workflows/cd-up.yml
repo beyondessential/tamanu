@@ -52,6 +52,9 @@ jobs:
           tags: tag:infra,tag:infra-gha-deploy
       - run: tailscale configure kubeconfig k8s-operator-${{ env.K8S_CORE }}
 
+      - name: Test kubernetes cluster for readiness
+        run: kubectl get namespace/tamanu-system
+
       # derive the stack name from the branch
       # changing this will create a new stack
       # this must be the same as in cd-down.yml
