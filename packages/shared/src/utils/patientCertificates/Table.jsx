@@ -31,14 +31,14 @@ const tableStyles = CustomStyleSheet.create({
 });
 
 const TR = props => <View {...props} style={tableStyles().tr} />;
-const TH = ({ customStyles, ...props }) => (
-  <Text {...props} style={[tableStyles().th, customStyles]} />
+const TH = ({ customStyles, language, ...props }) => (
+  <Text {...props} style={[tableStyles(language).th, customStyles]} />
 );
-const TD = ({ customStyles, ...props }) => (
-  <Text wrap={false} {...props} style={[tableStyles().td, customStyles]} />
+const TD = ({ customStyles, language, ...props }) => (
+  <Text wrap={false} {...props} style={[tableStyles(language).td, customStyles]} />
 );
 
-export const Table = ({ data, columns, getLocalisation, columnStyle }) => {
+export const Table = ({ data, columns, getLocalisation, columnStyle, language }) => {
   const leftColumnStyle = {
     ...columnStyle,
     borderLeft: basicBorder,
@@ -47,11 +47,12 @@ export const Table = ({ data, columns, getLocalisation, columnStyle }) => {
     ({ key }) => getLocalisation(`fields.${key}.hidden`) !== true,
   );
   return (
-    <View style={tableStyles().table}>
+    <View style={tableStyles(language).table}>
       <TR fixed>
         {visibleColumns.map(({ title, key, customStyles }, columnIndex) => (
           <TH
             key={key}
+            language={language}
             customStyles={[customStyles, columnIndex === 0 ? leftColumnStyle : columnStyle]}
           >
             {title}
@@ -64,6 +65,7 @@ export const Table = ({ data, columns, getLocalisation, columnStyle }) => {
           {visibleColumns.map(({ accessor, key, customStyles }, columnIndex) => (
             <TD
               key={key}
+              language={language}
               customStyles={[customStyles, columnIndex === 0 ? leftColumnStyle : columnStyle]}
             >
               {accessor ? accessor(row, getLocalisation) : row[key]}

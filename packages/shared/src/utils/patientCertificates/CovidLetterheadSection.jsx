@@ -2,7 +2,7 @@ import React from 'react';
 import { Box, Logo } from './Layout';
 import { H1, H2 } from './Typography';
 
-export const CovidLetterheadSection = ({ getLocalisation, logoSrc }) => {
+export const CovidLetterheadSection = ({ getLocalisation, logoSrc, language }) => {
   const title = getLocalisation('templates.letterhead.title');
   const subTitle = getLocalisation('templates.letterhead.subTitle');
   return (
@@ -15,8 +15,8 @@ export const CovidLetterheadSection = ({ getLocalisation, logoSrc }) => {
           marginRight: 'auto',
         }}
       >
-        <H1>{title}</H1>
-        <H2>{subTitle}</H2>
+        <H1 language={language}>{title}</H1>
+        <H2 language={language}>{subTitle}</H2>
       </Box>
     </>
   );

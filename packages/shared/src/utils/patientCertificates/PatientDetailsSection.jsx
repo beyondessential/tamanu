@@ -24,13 +24,13 @@ const PATIENT_FIELDS = [
   { key: 'nationality', label: 'Nationality', accessor: getNationality },
 ];
 
-export const PatientDetailsSection = ({ patient, getLocalisation, extraFields = [] }) => {
+export const PatientDetailsSection = ({ patient, getLocalisation, extraFields = [], language }) => {
   const detailsToDisplay = [...PATIENT_FIELDS, ...extraFields].filter(
     ({ key }) => !getLocalisation(`fields.${key}.hidden`),
   );
   return (
     <>
-      <H3 style={{ marginBottom: 0 }}>Patient Details</H3>
+      <H3 style={{ marginBottom: 0 }} language={language}>Patient Details</H3>
       <LightDivider />
       <Row>
         <Col style={{ marginBottom: 5 }}>
@@ -41,8 +41,8 @@ export const PatientDetailsSection = ({ patient, getLocalisation, extraFields = 
 
               return (
                 <Col style={{ width: '50%' }} key={key}>
-                  <P mb={6} fontSize={9}>
-                    <P bold fontSize={9}>
+                  <P language={language} mb={6} fontSize={9}>
+                    <P language={language} bold fontSize={9}>
                       {label}:
                     </P>{' '}
                     {value}

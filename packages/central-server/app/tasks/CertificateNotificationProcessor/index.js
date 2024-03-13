@@ -75,6 +75,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
         const printedBy = notification.get('createdBy');
         const printedDate = notification.get('printedDate');
         const facilityName = notification.get('facilityName');
+        const language = notification.get('language');
 
         const { country } = await getLocalisation();
         const countryCode = country['alpha-2'];
@@ -145,6 +146,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
               models,
               uvci,
               qrData,
+              language
             );
             break;
           }
@@ -170,6 +172,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
               printedBy,
               models,
               qrData,
+              language
             );
             break;
           }
@@ -184,6 +187,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
               printedBy,
               models,
               qrData,
+              language
             );
             break;
 
@@ -195,6 +199,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
               printedDate,
               facilityName,
               models,
+              language
             );
             break;
 

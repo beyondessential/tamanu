@@ -94,6 +94,7 @@ export const VaccineCertificate = ({
   logoSrc,
   getLocalisation,
   extraPatientFields,
+  language
 }) => {
   const healthFacility = getLocalisation('templates.vaccineCertificate.healthFacility');
   const countryName = getLocalisation('country.name');
@@ -102,29 +103,29 @@ export const VaccineCertificate = ({
 
   const VaccineCertificateHeader = () => (
     <View style={vaccineCertificateStyles().documentHeaderContent}>
-      <Text style={vaccineCertificateStyles().labelText}>Immunisation Certificate | </Text>
-      <Text style={vaccineCertificateStyles().labelText}>Patient name: </Text>
-      <Text style={vaccineCertificateStyles().valueText}>
+      <Text style={vaccineCertificateStyles(language).labelText}>Immunisation Certificate | </Text>
+      <Text style={vaccineCertificateStyles(language).labelText}>Patient name: </Text>
+      <Text style={vaccineCertificateStyles(language).valueText}>
         {patient.firstName} {patient.lastName} |{' '}
       </Text>
-      <Text style={vaccineCertificateStyles().labelText}>Patient ID: </Text>
-      <Text style={vaccineCertificateStyles().valueText}>{patient.displayId}</Text>
+      <Text style={vaccineCertificateStyles(language).labelText}>Patient ID: </Text>
+      <Text style={vaccineCertificateStyles(language).valueText}>{patient.displayId}</Text>
     </View>
   );
 
   const VaccineCertificateFooter = () => (
     <View style={vaccineCertificateStyles().footerContent}>
       <View style={vaccineCertificateStyles().footerLeft}>
-        <Text style={vaccineCertificateStyles().labelText}>Print date: </Text>
-        <Text style={vaccineCertificateStyles().valueText}>{getDisplayDate(printedDate)} | </Text>
-        <Text style={vaccineCertificateStyles().labelText}>Printing facility: </Text>
-        <Text style={vaccineCertificateStyles().valueText}>{facilityName || healthFacility} | </Text>
-        <Text style={vaccineCertificateStyles().labelText}>Printed by: </Text>
-        <Text style={vaccineCertificateStyles().valueText}>{printedBy}</Text>
+        <Text style={vaccineCertificateStyles(language).labelText}>Print date: </Text>
+        <Text style={vaccineCertificateStyles(language).valueText}>{getDisplayDate(printedDate)} | </Text>
+        <Text style={vaccineCertificateStyles(language).labelText}>Printing facility: </Text>
+        <Text style={vaccineCertificateStyles(language).valueText}>{facilityName || healthFacility} | </Text>
+        <Text style={vaccineCertificateStyles(language).labelText}>Printed by: </Text>
+        <Text style={vaccineCertificateStyles(language).valueText}>{printedBy}</Text>
       </View>
       <View style={vaccineCertificateStyles().footerRight}>
         <Text
-          style={vaccineCertificateStyles().valueText}
+          style={vaccineCertificateStyles(language).valueText}
           render={({ pageNumber, totalPages }) => `${pageNumber} of ${totalPages}`}
         />
       </View>
@@ -144,24 +145,27 @@ export const VaccineCertificate = ({
             getLocalisation={getLocalisation}
             logoSrc={logoSrc}
             certificateTitle="Immunisation Certificate"
+            language={language}
           />
           <PatientDetailsSection
             patient={patient}
             getLocalisation={getLocalisation}
             certificateId={certificateId}
             extraFields={extraPatientFields}
+            language={language}
           />
         </CertificateHeader>
         <Box style={{ ...styles().box, marginLeft: '18px', marginRight: '18px' }}>
-          <H3 style={{ marginBottom: 5, marginTop: 5 }}>Immunisation history</H3>
+          <H3 style={{ marginBottom: 5, marginTop: 5 }} language={language}>Immunisation history</H3>
           <Table
             data={data}
             columns={columns}
             getLocalisation={getLocalisation}
             columnStyle={{ padding: '10px 5px' }}
+            language={language}
           />
         </Box>
-        <SigningSection signingSrc={signingSrc} />
+        <SigningSection signingSrc={signingSrc} language={language} />
         <FixedFooter>
           <VaccineCertificateFooter />
         </FixedFooter>

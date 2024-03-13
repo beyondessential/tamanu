@@ -44,11 +44,15 @@ const styles = CustomStyleSheet.create({
   },
   fontBold: {
     fontFamily: 'Helvetica-Bold',
-  }
+  },
 });
 
-export const H1 = ({ style, ...props }) => <Text style={{ ...styles().h1, ...style }} {...props} />;
-export const H2 = ({ style, ...props }) => <Text style={{ ...styles().h2, ...style }} {...props} />;
+export const H1 = ({ style, language, ...props }) => (
+  <Text style={{ ...styles(language).h1, ...style }} {...props} />
+);
+export const H2 = ({ style, language, ...props }) => (
+  <Text style={{ ...styles(language).h2, ...style }} {...props} />
+);
 export const H3 = ({ style, language, ...props }) => (
   <Text style={{ ...styles(language).h3, ...style }} {...props} />
 );

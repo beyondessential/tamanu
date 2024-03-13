@@ -23,6 +23,7 @@ export const CovidPatientDetailsSection = ({
   vdsSrc,
   extraFields = [],
   uvci,
+  language
 }) => {
   const detailsToDisplay = [...PATIENT_FIELDS, ...extraFields].filter(
     ({ key }) => !getLocalisation(`fields.${key}.hidden`),
@@ -41,8 +42,8 @@ export const CovidPatientDetailsSection = ({
 
             return (
               <Col key={key}>
-                <P mb={5}>
-                  <P bold>{label}:</P> {value}
+                <P language={language} mb={5}>
+                  <P language={language} bold>{label}:</P> {value}
                 </P>
               </Col>
             );
@@ -50,8 +51,8 @@ export const CovidPatientDetailsSection = ({
         </Row>
         {uvci && (
           <Row>
-            <P>
-              <P bold>UVCI:</P> {uvci}
+            <P language={language}>
+              <P bold language={language}>UVCI:</P> {uvci}
             </P>
           </Row>
         )}

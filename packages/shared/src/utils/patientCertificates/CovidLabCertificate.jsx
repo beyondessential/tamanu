@@ -88,35 +88,46 @@ export const CovidLabCertificate = ({
   getLocalisation,
   printedBy,
   certType,
+  language,
 }) => (
   <Document>
     <Page size="A4" style={styles().page}>
       {watermarkSrc && <Watermark src={watermarkSrc} />}
-      <CovidLetterheadSection getLocalisation={getLocalisation} logoSrc={logoSrc} />
+      <CovidLetterheadSection
+        getLocalisation={getLocalisation}
+        logoSrc={logoSrc}
+        language={language}
+      />
       <Box mb={0}>
-        <H3>{CertificateTitle[certType] || ''}</H3>
+        <H3 language={language}>{CertificateTitle[certType] || ''}</H3>
         <CovidPatientDetailsSection
           patient={patient}
           vdsSrc={vdsSrc}
           getLocalisation={getLocalisation}
+          language={language}
         />
       </Box>
       <Box mb={30}>
-        <Table data={labs} columns={columns} getLocalisation={getLocalisation} />
+        <Table
+          data={labs}
+          columns={columns}
+          getLocalisation={getLocalisation}
+          language={language}
+        />
       </Box>
-      <P>{getCertificateRemark(patient, getLocalisation)[certType] || ''}</P>
+      <P language={language}>{getCertificateRemark(patient, getLocalisation)[certType] || ''}</P>
       <Box />
       <Box>
         <Row>
           <Col>
-            <P>Printed by: {printedBy}</P>
+            <P language={language}>Printed by: {printedBy}</P>
           </Col>
           <Col>
-            <P>Printing date: {getDisplayDate(undefined, undefined, getLocalisation)}</P>
+            <P language={language}>Printing date: {getDisplayDate(undefined, undefined, getLocalisation)}</P>
           </Col>
         </Row>
       </Box>
-      <SigningSection signingSrc={signingSrc} />
+      <SigningSection signingSrc={signingSrc} language={language} />
     </Page>
   </Document>
 );

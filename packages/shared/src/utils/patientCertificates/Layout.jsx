@@ -111,8 +111,8 @@ export const styles = CustomStyleSheet.create({
 
 export const Row = ({ language, ...props }) => <View style={styles(language).row} {...props} />;
 export const Col = ({ language, ...props }) => <View style={styles(language).col} {...props} />;
-export const Box = ({ mt, mb, ...props }) => (
-  <View style={[styles().box, { marginTop: mt, marginBottom: mb }]} {...props} />
+export const Box = ({ mt, mb, language, ...props }) => (
+  <View style={[styles(language).box, { marginTop: mt, marginBottom: mb }]} {...props} />
 );
 
 export const Signature = ({ text, fontSize = 12, lineThickness = 1, language }) => (
