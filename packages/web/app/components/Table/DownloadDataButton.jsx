@@ -8,9 +8,8 @@ import XLSX from 'xlsx';
 import { saveFile } from '../../utils/fileSystemAccess';
 import { GreyOutlinedButton } from '../Button';
 import { TranslatedText } from '../Translation/TranslatedText';
-import { useTranslation } from '../../contexts/Translation';
 
-function getHeaderValue(column, getTranslation) {
+function getHeaderValue(column) {
   if (!column.title) {
     return column.key;
   }
@@ -20,7 +19,7 @@ function getHeaderValue(column, getTranslation) {
   if (typeof column.title === 'object') {
     if (isValidElement(column.title)) {
       const { props, type } = column.title;
-      if (type.name === 'TranslatedText') return getTranslation(props.stringId, props.fallback);
+      if (type.name === 'TranslatedText') return props.fallback;
       return cheerio.load(ReactDOMServer.renderToString(column.title)).text();
     }
   }
@@ -28,7 +27,6 @@ function getHeaderValue(column, getTranslation) {
 }
 
 export function DownloadDataButton({ exportName, columns, data }) {
-  const { getTranslation } = useTranslation();
   const exportableColumnsWithOverrides = columns
     .filter(c => c.isExportable !== false)
     .map(c => {
@@ -37,15 +35,13 @@ export function DownloadDataButton({ exportName, columns, data }) {
     });
 
   const onDownloadData = async () => {
-    const header = exportableColumnsWithOverrides.map(column =>
-      getHeaderValue(column, getTranslation),
-    );
+    const header = exportableColumnsWithOverrides.map(getHeaderValue);
     const rows = await Promise.all(
       data.map(async d => {
         const dx = {};
         await Promise.all(
           exportableColumnsWithOverrides.map(async c => {
-            const headerValue = getHeaderValue(c, getTranslation);
+            const headerValue = getHeaderValue(c);
             if (c.asyncExportAccessor) {
               const value = await c.asyncExportAccessor(d);
               dx[headerValue] = value;
