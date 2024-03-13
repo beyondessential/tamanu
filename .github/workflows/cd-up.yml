@@ -19,6 +19,8 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     name: Deploy
+    env:
+      K8S_CORE: tamanu-internal-main
     steps:
       - name: Checkout this repo
         uses: actions/checkout@v4
@@ -48,7 +50,7 @@ jobs:
         with:
           oauth-secret: ${{ secrets.TAILSCALE_DBPROXY_ACCESS_OAUTH }}
           tags: tag:infra,tag:infra-gha-deploy
-      - run: tailscale configure kubeconfig k8s-operator-tamanu-internal-main
+      - run: tailscale configure kubeconfig k8s-operator-${{ env.K8S_CORE }}
 
       # derive the stack name from the branch
       # changing this will create a new stack
@@ -79,7 +81,8 @@ jobs:
           upsert: true
           config-map: >
             {
-            tamanu-internal:imageTag: {value: 'sha-${{ github.sha }}', secret: false},
+            tamanu-on-k8s:imageTag: {value: 'sha-${{ github.sha }}', secret: false},
+            tamanu-on-k8s:k8s-core: {value: 'tamanu-internal-main', secret: false},
             }
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
