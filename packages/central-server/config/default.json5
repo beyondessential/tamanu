@@ -281,7 +281,6 @@
         "resourceMaterialisationEnabled": {
           "Patient": true,
           "ServiceRequest": false,
-          "DiagnosticReport": false,
           "Encounter": false,
           "Immunization": false,
           "Practitioner": false,
