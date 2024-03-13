@@ -82,7 +82,7 @@ jobs:
           config-map: >
             {
             tamanu-on-k8s:imageTag: {value: 'sha-${{ github.sha }}', secret: false},
-            tamanu-on-k8s:k8s-core: {value: 'tamanu-internal-main', secret: false},
+            tamanu-on-k8s:k8s-core: {value: 'bes/k8s-core/${{ env.K8S_CORE }}', secret: false},
             }
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
