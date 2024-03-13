@@ -69,13 +69,9 @@ export const fakeResourcesOfFhirServiceRequest = async models => {
 export const fakeResourcesOfFhirServiceRequestWithLabRequest = async (
   models,
   resources,
-  options = {
-    isWithPanels: true,
-    isWithIndependentTests: false,
-  },
+  isWithPanels = true,
   overrides = {},
 ) => {
-  const { isWithPanels, isWithIndependentTests } = options;
   const {
     LabRequest,
     ReferenceData,
@@ -98,14 +94,14 @@ export const fakeResourcesOfFhirServiceRequestWithLabRequest = async (
     requestedDate: '2022-07-27 16:30:00',
     ...overrides,
   };
-  const valuesToReturn = { category };
-
+  let labRequest;
+  let labRequestData;
   if (isWithPanels) {
     const labTestPanel = await LabTestPanel.create({
       ...fake(LabTestPanel),
       categoryId: category.id,
     });
-    const testTypes = await getTestType(10, LabTestType, category.id);
+    const testTypes = await fakeTestTypes(10, LabTestType, category.id);
     await Promise.all(testTypes.map(testType => LabTestPanelLabTestTypes
       .create({
         labTestPanelId: labTestPanel.id,
@@ -117,28 +113,36 @@ export const fakeResourcesOfFhirServiceRequestWithLabRequest = async (
       encounterId: resources.encounter.id,
     });
     requestValues.labTestPanelRequestId = labTestPanelRequest.id; // make one of them part of a panel
-    valuesToReturn.labTestPanel = labTestPanel;
-    valuesToReturn.labTestPanelRequest = labTestPanelRequest;
-    valuesToReturn.panelTestTypes = testTypes;
+
+    labRequestData = await randomLabRequest(models, requestValues);
+    labRequest = await LabRequest.create(labRequestData);
+
+    return {
+      category,
+      labRequest,
+      labTestPanelRequestId: labTestPanelRequest.id,
+      labTestPanel,
+      labTestPanelRequest,
+      panelTestTypes: testTypes,
+    };
   }
-  const labRequestData = await randomLabRequest(models, requestValues);
+  labRequestData = await randomLabRequest(models, requestValues);
+  labRequest  = await LabRequest.create(labRequestData);
+  const testTypes = await fakeTestTypes(10, LabTestType, category.id);
+  await Promise.all(testTypes.map(testType => LabTest
+    .create({
+      labRequestId: labRequest.id,
+      labTestTypeId: testType.id,
+    })));
 
-  valuesToReturn.labRequest = await LabRequest.create(labRequestData);
-
-  if (isWithIndependentTests) {
-    const testTypes = await getTestType(10, LabTestType, category.id);
-    await Promise.all(testTypes.map(testType => LabTest
-      .create({
-        labRequestId: valuesToReturn.labRequest.id,
-        labTestTypeId: testType.id,
-      })));
-    valuesToReturn.testTypes = testTypes;
-  }
-
-  return valuesToReturn;
+  return {
+    category,
+    labRequest,
+    testTypes,
+  };
 };
 
-async function getTestType(numberOfTests, LabTestType, categoryId) {
+export const fakeTestTypes = async function(numberOfTests, LabTestType, categoryId) {
   const testTypes = [];
   for (let testTypeIndex = 0; testTypeIndex < numberOfTests; testTypeIndex++) {
     const currentLabTest = await LabTestType.create({

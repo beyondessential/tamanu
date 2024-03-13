@@ -284,7 +284,8 @@
           "Encounter": false,
           "Immunization": false,
           "Practitioner": false,
-          "MediciReport": false
+          "MediciReport": false,
+          "Specimen": false
         }
       },
       "parameters": {
