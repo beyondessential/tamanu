@@ -5,7 +5,6 @@ import { useApi } from '../../api/useApi';
 
 const useLinkedFieldQuery = (endpoint, name, value) => {
   const api = useApi();
-  console.log('useLinkedFieldQuery', name, value, endpoint);
   return useQuery(['linkedField', name, value], () => api.get(`${endpoint}/${value}`), {
     enabled: !!value,
   });
@@ -13,15 +12,14 @@ const useLinkedFieldQuery = (endpoint, name, value) => {
 
 export const LinkedField = ({ linkedFieldName, endpoint, ...props }) => {
   const [field] = useField(props.name);
-  const linkedFieldRes = useField(linkedFieldName);
+  const { setValue: setLinkedFieldValue } = useField(linkedFieldName)[2];
   const { data, isLoading } = useLinkedFieldQuery(endpoint, props.name, field.value);
 
   useEffect(() => {
     if (data && !isLoading) {
-      console.log('Setting linked field', linkedFieldName, data);
-      linkedFieldRes[2].setValue(data.id);
+      setLinkedFieldValue(data.id);
     }
-  }, [data, isLoading, linkedFieldName, linkedFieldRes]);
+  }, [data, isLoading, linkedFieldName, setLinkedFieldValue]);
 
   return <Field {...props} />;
 };
