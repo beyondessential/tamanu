@@ -198,7 +198,7 @@ export const GenericSecondaryDetailsLayout = ({
       />
     </PatientDetailsHeading>
     <SecondaryDetailsFormGrid>
-      <GenericPersonalFields filterByMandatory={false} />
+      <GenericPersonalFields patientRegistryType={patientRegistryType} filterByMandatory={false} />
     </SecondaryDetailsFormGrid>
 
     <PatientDetailsHeading>
