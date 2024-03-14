@@ -25,7 +25,6 @@ import { ForbiddenErrorModalContents } from '../../ForbiddenErrorModal';
 import { ModalActionRow } from '../../ModalActionRow';
 import { printPDF } from '../PDFViewer.jsx';
 import { TranslatedText } from '../../Translation/TranslatedText';
-import { LowerCase } from '../../Typography';
 import { useTranslation } from '../../../contexts/Translation';
 
 // These below functions are used to extract the history of changes made to the encounter that are stored in notes.
