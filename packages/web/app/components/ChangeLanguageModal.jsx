@@ -10,7 +10,8 @@ import { mapValues, keyBy } from 'lodash';
 import { CountryFlag } from './CountryFlag.jsx';
 
 const LanguageSelectorContainer = styled.div`
-  width: 372px;
+  margin: 10px auto 50px;
+  max-width: 300px;
   .label-field {
     font-size: 14px;
     font-weight: 500;
@@ -105,7 +106,7 @@ export const ChangeLanguageModal = ({ open, onClose, ...props }) => {
         onChange={handleLanguageChange}
       />
     </LanguageSelectorContainer>
-    <ModalActionRow confirmText="Submit" onConfirm={onConfirmLanguageChange} onCancel={onClose} cancelText="Cancel" />
+    <ModalActionRow confirmText="Confirm" onConfirm={onConfirmLanguageChange} onCancel={onClose} cancelText="Cancel" />
   </Modal>;
 
 };
