@@ -41,7 +41,7 @@ export const NotesPane = React.memo(({ encounter, readonly }) => {
           options={[
             {
               value: null,
-              label: 'All',
+              label: <TranslatedText stringId="general.select.all" fallback="All" />,
             },
             ...noteTypes,
           ]}
