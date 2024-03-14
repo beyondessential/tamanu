@@ -5,7 +5,7 @@
  */
 export async function up(query) {
   await query.insert(null, 'settings', {
-    key: 'vaccine.thresholds',
+    key: 'routineVaccine.thresholds',
     value: JSON.stringify([
       {
         threshold: 28,
@@ -37,7 +37,7 @@ export async function up(query) {
 export async function down(query) {
   await query.delete(null, 'settings', {
     comparator: {
-      key: 'vaccine.thresholds',
+      key: 'routineVaccine.thresholds',
     },
   });
 }
