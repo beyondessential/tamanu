@@ -1,10 +1,7 @@
 name: CD Down
 
 on:
-  pull_request_target:
-    types: [closed]
-  pull_request:
-    types: [unlabeled]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -13,35 +10,10 @@ permissions:
 
 jobs:
   down:
-    # only run for non-permanent branches when a PR closes or loses the auto-deploy label
-    if: >
-      (
-        !startsWith(github.ref, 'refs/heads/release')
-        && !startsWith(github.head_ref, 'release/')
-        && github.ref != 'refs/heads/main'
-        && github.ref_name != 'main'
-      ) && (
-        (
-          github.event_name == 'pull_request'
-          && github.event.action == 'unlabeled'
-          && !contains(github.event.pull_request.labels.*.name, 'auto-deploy')
-        ) || (
-          github.event_name == 'pull_request_target'
-          && github.event.action == 'closed'
-        )
-      )
-
     name: Bring down environment
     runs-on: ubuntu-latest
 
     steps:
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-region: ap-southeast-2
-          role-to-assume: arn:aws:iam::143295493206:role/gha-deploy
-          role-session-name: GHA@Tamanu=DeployDown
-
       - name: Checkout this PR
         uses: actions/checkout@v4
 
@@ -91,11 +63,11 @@ jobs:
       - name: Down!
         uses: pulumi/actions@v3
         with:
-          work-dir: ops/pulumi/tamanu-internal
+          work-dir: ops/pulumi/stacks/tamanu/on-k8s
           command: destroy
           remove: true
           stack-name: bes/${{ steps.stack.outputs.result }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          comment-on-pr: ${{ github.event_name == 'pull_request' }}
+          comment-on-pr: false
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
