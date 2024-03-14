@@ -4,7 +4,7 @@ Thank you for taking the time to consider contributing, and welcome to the Taman
 
 We require our external contributors to sign a Contributor License Agreement ("CLA") in order to ensure that our projects remain licensed under source-available licenses such as BSL 1.1 and GPL 3.0, while allowing BES to build a cohesive, sustainable, and valuable global good.
 
-BES is committed to open licensing for our non-commercial software. A CLA enables BES to safely commercialise our products while keeping source-available licenses with all the rights those licenses grant to users.
+BES is committed to open licensing for our non-commercial software. A CLA enables BES to safely share, implement and support our products while keeping source-available licenses with all the rights those licenses grant to users.
 
 This page gives a human-friendly summary of our CLA, details on why we require a CLA, how contributors can sign our CLA, and more. You may [read the full legal CLA document here](#legal-terms-and-agreement).
 
