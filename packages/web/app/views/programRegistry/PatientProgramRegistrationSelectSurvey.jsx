@@ -11,7 +11,7 @@ import { Field, Form, BaseSelectField } from '../../components/Field';
 import { FormGrid } from '../../components/FormGrid';
 import { foreignKey } from '../../utils/validation';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
-import { ConditionalTooltip, ThemedTooltip } from '../../components/Tooltip';
+import { ConditionalTooltip } from '../../components/Tooltip';
 import { useProgramRegistryContext } from '../../contexts/ProgramRegistry';
 import { useTranslation } from '../../contexts/Translation';
 
@@ -96,14 +96,15 @@ export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistrat
                   name="surveyId"
                   label="Select form"
                   component={BaseSelectField}
-                  placeholder={getTranslation("general.placeholder.select", "Select")}
+                  placeholder={getTranslation('general.placeholder.select', 'Select')}
                   options={surveys}
                   disabled={isRemoved}
                 />
               </ConditionalTooltip>
 
-              <ThemedTooltip
+              <ConditionalTooltip
                 title={isRemoved ? 'Patient must be active' : 'Select form to proceed'}
+                visible={isRemoved || !values.surveyId}
               >
                 <div>
                   <StyledButton
@@ -115,7 +116,7 @@ export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistrat
                     Begin form
                   </StyledButton>
                 </div>
-              </ThemedTooltip>
+              </ConditionalTooltip>
             </StyledFormGrid>
           );
         }}
