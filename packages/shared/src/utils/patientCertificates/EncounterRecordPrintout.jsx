@@ -326,7 +326,7 @@ const DataTableHeading = ({ columns, title }) => {
         {columns.map(({ key, title, style }) => {
           if (Array.isArray(title)) {
             return (
-              <View style={[tableStyles.baseCell, { flexDirection: 'column' }, style]}>
+              <View key={key} style={[tableStyles.baseCell, { flexDirection: 'column' }, style]}>
                 <P style={{ fontFamily: 'Helvetica-Bold' }}>{title[0]}</P>
                 <P>{title[1]}</P>
               </View>);
