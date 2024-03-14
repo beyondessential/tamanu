@@ -213,6 +213,6 @@ export const GenericSecondaryDetailsLayout = ({
   </SecondaryDetailsGroup>
 );
 
-export const GenericPatientFieldLayout = ({ fieldDefinition, fieldValues }) => (
-  <PatientFieldsGroup fieldDefinitions={fieldDefinition} fieldValues={fieldValues} />
+export const GenericPatientFieldLayout = ({ fieldDefinitions, fieldValues }) => (
+  <PatientFieldsGroup fieldDefinitions={fieldDefinitions} fieldValues={fieldValues} />
 );
