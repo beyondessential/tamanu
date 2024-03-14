@@ -4,7 +4,7 @@ import { H3, P } from './Typography';
 import {
   getDOB,
   getSex,
-  getVillageName
+  getVillageName,
 } from '../patientAccessors';
 
 const PATIENT_FIELDS = [
@@ -17,7 +17,7 @@ const PATIENT_FIELDS = [
     label: 'DOB',
     accessor: getDOB,
   },
-  { key: 'villageName', label: 'Village', accessor: getVillageName }
+  { key: 'villageName', label: 'Village', accessor: getVillageName },
 ];
 
 export const PatientDetailsSection = ({ patient, getLocalisation, extraFields = [] }) => {
