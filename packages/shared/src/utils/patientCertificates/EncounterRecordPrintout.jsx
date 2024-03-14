@@ -323,11 +323,20 @@ const DataTableHeading = ({ columns, title }) => {
     <View fixed>
       <MultipageTableHeading title={title} />
       <Row wrap={false}>
-        {columns.map(({ key, title, style }) => (
-          <HeaderCell key={key} style={style}>
-            {title}
-          </HeaderCell>
-        ))}
+        {columns.map(({ key, title, style }) => {
+          if (Array.isArray(title)) {
+            return (
+              <View style={[tableStyles.baseCell, { flexDirection: 'column' }, style]}>
+                <P style={{ fontFamily: 'Helvetica-Bold' }}>{title[0]}</P>
+                <P>{title[1]}</P>
+              </View>);
+          }
+          return (
+            <HeaderCell key={key} style={style}>
+              {title}
+            </HeaderCell>
+          );
+        })}
       </Row>
     </View>
   );
@@ -445,6 +454,9 @@ export const EncounterRecordPrintout = ({
   medications,
   getLocalisation,
   clinicianText,
+  vitalsData,
+  recordedDates,
+  getVitalsColumn
 }) => {
   const { watermark, logo } = certificateData;
 
@@ -504,6 +516,16 @@ export const EncounterRecordPrintout = ({
           <TableSection title="Medications" data={medications} columns={COLUMNS.medications} />
         )}
         {notes.length > 0 && <NotesSection notes={notes} />}
+        {vitalsData.length > 0 && recordedDates.length > 0 ? (
+          <>
+            {[0, 12, 24, 36, 48].map(start => {
+              return recordedDates.length > start ? (
+                <TableSection title="Vitals" data={vitalsData} columns={getVitalsColumn(start)} />
+              ) : null
+            }
+            )}
+          </>
+        ) : null}
         <Footer />
       </Page>
     </Document>

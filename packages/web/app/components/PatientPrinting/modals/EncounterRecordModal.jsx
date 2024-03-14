@@ -26,6 +26,8 @@ import { ModalActionRow } from '../../ModalActionRow';
 import { printPDF } from '../PDFViewer.jsx';
 import { TranslatedText } from '../../Translation/TranslatedText';
 import { LowerCase } from '../../Typography';
+import { useVitals } from '../../../api/queries/useVitals';
+import { DateDisplay, formatShortest, formatTimeWithSeconds } from '../../DateDisplay';
 
 // These below functions are used to extract the history of changes made to the encounter that are stored in notes.
 // obviously a better solution needs to be to properly implemented for storing and accessing this data, but this is an ok workaround for now.
@@ -99,6 +101,12 @@ const extractLocationHistory = (notes, encounterData) => {
   });
 };
 
+const getDateTitleArray = date => {
+  const shortestDate = DateDisplay.stringFormat(date, formatShortest);
+  const timeWithSeconds = DateDisplay.stringFormat(date, formatTimeWithSeconds);
+  return [shortestDate, timeWithSeconds];
+};
+
 export const EncounterRecordModal = ({ encounter, open, onClose }) => {
   const clinicianText = (
     <LowerCase>
@@ -108,6 +116,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
       />
     </LowerCase>
   );
+  const { data: vitalsData, recordedDates } = useVitals(encounter.id);
 
   const { getLocalisation } = useLocalisation();
   const certificateQuery = useCertificate();
@@ -285,6 +294,30 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
     ? extractEncounterTypeHistory(encounterTypeSystemNotes, encounter, encounterTypeNoteMatcher)
     : [];
 
+  const getVitalsColumn = startIndex => {
+    const dateArray = [...recordedDates].reverse().slice(startIndex, startIndex + 12);
+    const width = Math.floor(100 / (dateArray.length + 1));
+    return [
+      {
+        key: 'measure',
+        title: 'Measure',
+        accessor: ({ value }) => value,
+        style: { width: `${width}%` },
+      },
+      ...dateArray
+        .sort((a, b) => b.localeCompare(a))
+        .map(date => ({
+          title: getDateTitleArray(date),
+          key: date,
+          accessor: cells => {
+            const { value } = cells[date];
+            return value || '-';
+          },
+          style: { width: `${width}%` },
+        })),
+    ];
+  };
+
   return (
     <Modal {...modalProps} onPrint={() => printPDF('encounter-record')}>
       <PDFViewer
@@ -295,6 +328,9 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
         <EncounterRecordPrintout
           patientData={{ ...patient, additionalData, village }}
           encounter={encounter}
+          vitalsData={vitalsData}
+          recordedDates={recordedDates}
+          getVitalsColumn={getVitalsColumn}
           certificateData={certificateData}
           encounterTypeHistory={encounterTypeHistory}
           locationHistory={locationHistory}
