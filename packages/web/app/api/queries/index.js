@@ -1,3 +1,4 @@
+export * from './useAddressHierarchyQuery';
 export * from './useVitalsSurveyQuery';
 export * from './useReferenceData';
 export * from './usePatientAdditionalDataQuery';
