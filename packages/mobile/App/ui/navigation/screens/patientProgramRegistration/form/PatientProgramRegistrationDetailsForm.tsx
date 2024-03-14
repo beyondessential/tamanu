@@ -105,7 +105,7 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
         })}
         onSubmit={submitPatientProgramRegistration}
       >
-        {({ errors, handleSubmit, values }): ReactElement => {
+        {({ handleSubmit, values }): ReactElement => {
           return (
             <>
               <StyledView marginTop={20} marginLeft={20} marginRight={20}>
