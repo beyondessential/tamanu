@@ -155,9 +155,10 @@ function imagingCode(upstream) {
   if (!imagingTypes) throw new Exception('No imaging types specified in localisation.');
 
   const { imagingType } = upstream;
-  console.log({ imagingType })
   const { label } = imagingTypes[imagingType] || {};
-  if (!label) throw new Exception(`No label matching imaging type ${imagingType} in localisation.`);
+  if (!label) {
+    return null;
+  }
 
   return new FhirCodeableConcept({
     text: label,
@@ -177,7 +178,7 @@ function validatePriority(priority) {
   }
 
   if (!Object.values(FHIR_REQUEST_PRIORITY).includes(priority)) {
-    throw new Exception(`Invalid priority: ${priority}`);
+    return FHIR_REQUEST_PRIORITY.ROUTINE;
   }
 
   return priority;
