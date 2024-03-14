@@ -12,6 +12,8 @@ jobs:
   down:
     name: Bring down environment
     runs-on: ubuntu-latest
+    env:
+      K8S_CORE: tamanu-internal-main
 
     steps:
       - name: Checkout this PR
