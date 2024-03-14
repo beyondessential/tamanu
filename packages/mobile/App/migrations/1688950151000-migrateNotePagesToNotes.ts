@@ -3,9 +3,6 @@ import { MigrationInterface, QueryRunner, Table, TableColumn, TableForeignKey, T
 const ISO9075_DATE_FORMAT = 'YYYY-MM-DD';
 const ISO9075_DATE_FORMAT_LENGTH = ISO9075_DATE_FORMAT.length;
 
-const ISO9075_FORMAT = 'YYYY-MM-DD HH:mm:ss';
-const ISO9075_FORMAT_LENGTH = ISO9075_FORMAT.length;
-
 const baseIndex = new TableIndex({
   columnNames: ['updatedAtSyncTick'],
 });

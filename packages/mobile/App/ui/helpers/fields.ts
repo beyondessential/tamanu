@@ -45,6 +45,8 @@ export const getPatientDataDbLocation = fieldName => {
 };
 
 export const getStringValue = (type: string, value: any): string => {
+  if (value === null) return null;
+
   switch (type) {
     case FieldTypes.TEXT:
     case FieldTypes.MULTILINE:
