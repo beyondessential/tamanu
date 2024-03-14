@@ -19,12 +19,6 @@ import { getAgeFromDate } from '~/ui/helpers/date';
 import { useRecentlyViewedPatients } from '~/ui/hooks/localConfig';
 import { navigateAfterTimeout } from '~/ui/helpers/navigators';
 
-interface PatientListProps {
-  list: any[];
-  setSelectedPatient: Function;
-  navigation: NavigationProp<any>;
-}
-
 const Screen = ({
   navigation,
   setSelectedPatient,
