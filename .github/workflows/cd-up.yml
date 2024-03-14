@@ -73,6 +73,9 @@ jobs:
               .replace(/-+/g, '-')
               .replace(/^-|-$/g, ''));
 
+      - name: Create namespace
+        run: kubectl create namespace tamanu-${{ steps.stack.outputs.result }}
+
       - name: Up!
         uses: pulumi/actions@v5
         with:
@@ -84,6 +87,7 @@ jobs:
           upsert: true
           config-map: >
             {
+            tamanu-on-k8s:namespace: {value: 'tamanu-${{ steps.stack.outputs.result }}', secret: false},
             tamanu-on-k8s:imageTag: {value: 'sha-${{ github.sha }}', secret: false},
             tamanu-on-k8s:k8s-core: {value: 'bes/k8s-core/${{ env.K8S_CORE }}', secret: false},
             tamanu-on-k8s:architecture: {value: 'arm64', secret: false},
