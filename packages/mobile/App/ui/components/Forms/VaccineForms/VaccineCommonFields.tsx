@@ -36,8 +36,9 @@ interface NavigationFieldProps {
 export const DateGivenField = ({
   label = 'Date given',
   required = true,
+  min
 }: LabelledFieldProps): JSX.Element => (
-  <Field component={DateField} name="date" label={label} required={required} />
+  <Field component={DateField} name="date" label={label} required={required} min={min} />
 );
 
 export const BatchField = (): JSX.Element => (
