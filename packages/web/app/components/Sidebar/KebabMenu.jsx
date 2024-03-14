@@ -51,8 +51,7 @@ const StyledMenu = styled(Menu)`
   }
 `;
 
-export const KebabMenu = ({
-}) => {
+export const KebabMenu = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [isChangingLanguage, setChangingLanguage] = useState(false);
   const open = Boolean(anchorEl);

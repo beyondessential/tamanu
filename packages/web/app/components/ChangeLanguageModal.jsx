@@ -7,7 +7,7 @@ import { SelectInput } from './Field';
 import { useTranslation } from '../contexts/Translation.jsx';
 import { TranslatedText } from './Translation/TranslatedText.jsx';
 import { mapValues, keyBy } from 'lodash';
-import { CountryFlag } from './CountryFlag.jsx';
+import { LanguageFlag } from './LanguageFlag.jsx';
 
 const LanguageSelectorContainer = styled.div`
   margin: 10px auto 50px;
@@ -71,7 +71,7 @@ export const ChangeLanguageModal = ({ open, onClose, ...props }) => {
     return {
       label: (
         <LanguageOptionLabel>
-          <CountryFlag countryCode={language} />
+          <LanguageFlag languageCode={language} />
           {languageDisplayNames[language]}
         </LanguageOptionLabel>
       ),
