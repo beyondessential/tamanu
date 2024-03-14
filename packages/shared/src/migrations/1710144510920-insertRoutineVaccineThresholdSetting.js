@@ -25,7 +25,7 @@ const DEFAULT_SETTINGS = {
       status: 'MISSED',
     },
   ]),
-  'outineVaccine.ageLimit': 15,
+  'outineVaccine.ageLimit': '15',
 };
 
 /**
