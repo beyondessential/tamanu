@@ -7,7 +7,7 @@ export const PANE_SECTION_IDS = {
   FAMILY_HISTORY: 'familyHistory',
   ISSUES: 'issues',
   CARE_PLANS: 'carePlans',
-  PROGRAM_REGISTRY: 'programRegistries',
+  PROGRAM_REGISTRY: 'programRegistry',
 };
 
 export const PANE_SECTION_TITLES = {
@@ -38,7 +38,7 @@ export const PANE_SECTION_TITLES = {
   [PANE_SECTION_IDS.PROGRAM_REGISTRY]: (
     <TranslatedText
       stringId="patient.detailsSidebar.subheading.programRegistries"
-      fallback="Program registries"
+      fallback="Program registry"
     />
   ),
 };
