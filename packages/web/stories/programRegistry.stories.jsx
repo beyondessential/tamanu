@@ -7,7 +7,7 @@ import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { ChangeStatusFormModal } from '../app/views/programRegistry/ChangeStatusFormModal';
 import { ApiContext } from '../app/api';
 import { Modal } from '../app/components/Modal';
-import { PROGRAM_REGISTRY } from '../app/components/PatientInfoPane/paneTitles';
+import { PANE_SECTION_IDS } from '../../components/PatientInfoPane/paneSections';
 import { InfoPaneList } from '../app/components/PatientInfoPane/InfoPaneList';
 import { PatientProgramRegistryForm } from '../app/views/programRegistry/PatientProgramRegistryForm';
 import { ProgramRegistryListItem } from '../app/views/programRegistry/ProgramRegistryListItem';
@@ -30,6 +30,7 @@ import { RemoveConditionFormModal } from '../app/views/programRegistry/RemoveCon
 import { PatientProgramRegistrationSelectSurvey } from '../app/views/programRegistry/PatientProgramRegistrationSelectSurvey';
 import { ProgramRegistrySurveyView } from '../app/views/programRegistry/ProgramRegistrySurveyView';
 import { ProgramRegistryView } from '../app/views/programRegistry/ProgramRegistryView';
+import { PANE_SECTION_TITLES } from '../app/components/PatientInfoPane/paneSections';
 
 //#region InfoPaneList
 storiesOf('Program Registry', module).add('ProgramRegistry Info Panlist', () => {
@@ -39,7 +40,8 @@ storiesOf('Program Registry', module).add('ProgramRegistry Info Panlist', () => 
         <InfoPaneList
           patient={patient}
           readonly={false}
-          title={PROGRAM_REGISTRY}
+          id={PANE_SECTION_IDS.PROGRAM_REGISTRY}
+          title={PANE_SECTION_TITLES[PANE_SECTION_IDS.PROGRAM_REGISTRY]}
           endpoint="programRegistry"
           getEndpoint={`patient/${patient.id}/programRegistration`}
           Form={PatientProgramRegistryForm}
