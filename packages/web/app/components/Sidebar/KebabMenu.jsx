@@ -34,10 +34,8 @@ const KebabMenuItem = styled.div`
 const StyledIconButton = styled(IconButton)`
   color: white;
   align-self: start;
-  padding: 0;
   position: relative;
-  top: 12px;
-  right: -10px;
+  right: -22px;
 `;
 
 const StyledMenu = styled(Menu)`
