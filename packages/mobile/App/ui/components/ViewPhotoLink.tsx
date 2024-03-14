@@ -19,7 +19,7 @@ const MODAL_HEIGHT = Dimensions.get('window').width * 0.6;
 
 const Message = ({ color, message }): JSX.Element => (
   <StyledView background="white" justifyContent="center" height={MODAL_HEIGHT}>
-    <StyledText margin="0 auto" color={color} fontSize={15}>
+    <StyledText marginTop={0} marginLeft="auto" marginRight="auto" color={color} fontSize={15}>
       {message}
     </StyledText>
   </StyledView>
