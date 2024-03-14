@@ -81,7 +81,10 @@ export const DeathForm = React.memo(
           }),
           causeOfDeathInterval: yup.string().when('isPartialWorkflow', {
             is: undefined,
-            then: yup.string().required(),
+            then: yup
+              .string()
+              .required()
+              .label('Time between onset and death'),
           }),
           clinicianId: yup.string().required(),
           lastSurgeryDate: yup
