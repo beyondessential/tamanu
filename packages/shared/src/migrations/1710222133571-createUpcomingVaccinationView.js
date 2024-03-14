@@ -5,7 +5,8 @@
  */
 export async function up(query) {
   await query.sequelize.query(`
-WITH
+CREATE OR REPLACE VIEW upcoming_vaccinations
+AS WITH
 vaccine_thresholds AS (
 	SELECT
 		(jsonb_array_elements(s.value) ->> 'threshold'::text)::double precision AS threshold,
