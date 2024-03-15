@@ -67,7 +67,7 @@ jobs:
               .replace(/^-|-$/g, ''));
 
       - name: Down!
-        uses: pulumi/actions@v3
+        uses: pulumi/actions@v5
         with:
           work-dir: ops/pulumi/stacks/tamanu/on-k8s
           command: destroy
