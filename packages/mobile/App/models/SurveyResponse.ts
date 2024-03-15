@@ -6,7 +6,6 @@ import {
   FieldTypes,
   getResultValue,
   getStringValue,
-  isCalculated,
   getPatientDataDbLocation,
 } from '~/ui/helpers/fields';
 

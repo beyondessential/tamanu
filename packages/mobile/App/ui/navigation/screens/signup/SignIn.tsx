@@ -9,7 +9,7 @@ import {
   StyledTouchableOpacity,
   StyledView,
 } from '/styled/common';
-import { CrossIcon, HomeBottomLogoIcon, LaunchIcon } from '/components/Icons';
+import { CrossIcon, HomeBottomLogoIcon } from '/components/Icons';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { theme } from '/styled/theme';
 import { SignInForm } from '/components/Forms/SignInForm';
@@ -20,9 +20,7 @@ import { authSelector } from '/helpers/selectors';
 import { OutdatedVersionError } from '~/services/error';
 import { useFacility } from '~/ui/contexts/FacilityContext';
 import { useLocalisation } from '~/ui/contexts/LocalisationContext';
-import { marginTop } from 'styled-system';
 import { SupportCentreButton } from './SupportCentreButton';
-import { Orient } from 'react-native-svg';
 
 interface ModalContent {
   message: string;
