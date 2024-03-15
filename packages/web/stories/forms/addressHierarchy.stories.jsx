@@ -29,7 +29,7 @@ export default {
 };
 
 const BasicTemplate = args => {
-  return AddressHierarchyField(args);
+  return HierarchyFields(args);
 };
 
 export const Basic = BasicTemplate.bind({});

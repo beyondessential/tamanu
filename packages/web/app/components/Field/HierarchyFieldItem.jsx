@@ -1,8 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useApi, useSuggester } from '../../api';
 import { AutocompleteField } from './AutocompleteField';
 import { LocalisedField } from './LocalisedField';
-import { useMemo } from 'react';
 import { HierarchySuggester } from '../../utils/hierarchySuggester';
 import { useFormikContext } from 'formik';
 
@@ -14,7 +13,7 @@ const HierarchyFieldItem = ({ isFirstLevel, relationType, parentId, fieldData })
 
   const otherLevelSuggester = useMemo(() => {
     return new HierarchySuggester(api, parentId, { baseQueryParameters: { relationType } });
-  }, [parentId]);
+  }, [parentId, relationType]);
 
   useEffect(() => {
     setFieldValue(fieldData.name, undefined);

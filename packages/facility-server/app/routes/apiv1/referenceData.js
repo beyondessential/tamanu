@@ -30,6 +30,22 @@ referenceData.get(
 );
 
 referenceData.get(
+  '/:id/ancestors',
+  asyncHandler(async (req, res) => {
+    req.flagPermissionChecked();
+    const {
+      models: { ReferenceData },
+      params: { id },
+      query: { relationType = DEFAULT_HIERARCHY_TYPE }
+    } = req;
+
+    const entity = await ReferenceData.findByPk(id);
+    const ancestors = await entity.getAncestors(relationType);
+    res.send(ancestors);
+  }),
+);
+
+referenceData.get(
   '/:id/children',
   asyncHandler(async (req, res) => {
     req.flagPermissionChecked();
