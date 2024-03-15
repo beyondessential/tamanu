@@ -5,6 +5,7 @@ import { Suggester } from '../utils/suggester';
 import { FormModal } from './FormModal';
 import { MedicationForm } from '../forms/MedicationForm';
 import { getCurrentDateString } from '../utils/dateTime';
+import { TranslatedText } from './Translation/TranslatedText';
 
 export const MedicationModal = ({ open, onClose, onSaved, encounterId, medication, readOnly }) => {
   const api = useApi();
@@ -48,7 +49,16 @@ export const MedicationModal = ({ open, onClose, onSaved, encounterId, medicatio
 
   return (
     <FormModal
-      title={!readOnly ? 'Prescribe medication' : 'Medication details'}
+      title={
+        !readOnly ? (
+          <TranslatedText
+            stringId="medication.modal.prescribe.title"
+            fallback="Prescribe medication"
+          />
+        ) : (
+          <TranslatedText stringId="medication.modal.details.title" fallback="Medication details" />
+        )
+      }
       open={open}
       onClose={onClose}
     >

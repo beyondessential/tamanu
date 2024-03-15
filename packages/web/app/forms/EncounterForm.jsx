@@ -13,13 +13,13 @@ import {
   LocalisedField,
   LocalisedLocationField,
   LocationAvailabilityWarningMessage,
-  SelectField,
+  BaseSelectField,
   SuggesterSelectField,
   TextField,
-  useLocalisedText,
 } from '../components';
-import { encounterOptions } from '../constants';
+import { ENCOUNTER_OPTIONS, FORM_TYPES } from '../constants';
 import { useSuggester } from '../api';
+import { TranslatedText } from '../components/Translation/TranslatedText';
 
 export const EncounterForm = React.memo(
   ({ editedObject, onSubmit, patientBillingTypeId, encounterType }) => {
@@ -28,23 +28,39 @@ export const EncounterForm = React.memo(
       baseQueryParameters: { filterByFacility: true },
     });
     const referralSourceSuggester = useSuggester('referralSource');
-    const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
 
     const renderForm = ({ submitForm, values }) => {
-      const buttonText = editedObject ? 'Update encounter' : 'Confirm';
+      const buttonText = editedObject ? (
+        <TranslatedText
+          stringId="patient.modal.checkIn.action.update"
+          fallback="Update encounter"
+        />
+      ) : (
+        <TranslatedText stringId="general.action.confirm" fallback="Confirm" />
+      );
 
       return (
         <FormGrid>
           <Field
             name="encounterType"
-            label="Encounter type"
+            label={
+              <TranslatedText
+                stringId="patient.modal.checkIn.encounterType.label"
+                fallback="Encounter type"
+              />
+            }
             disabled
-            component={SelectField}
-            options={encounterOptions}
+            component={BaseSelectField}
+            options={ENCOUNTER_OPTIONS}
           />
           <Field
             name="startDate"
-            label="Check-in date"
+            label={
+              <TranslatedText
+                stringId="patient.modal.checkIn.checkInDate.label"
+                fallback="Check-in date"
+              />
+            }
             required
             min="1970-01-01T00:00"
             component={DateTimeField}
@@ -52,14 +68,16 @@ export const EncounterForm = React.memo(
           />
           <Field
             name="departmentId"
-            label="Department"
+            label={
+              <TranslatedText stringId="general.department.label" fallback="Department" />
+            }
             required
             component={AutocompleteField}
             suggester={departmentSuggester}
           />
           <Field
             name="examinerId"
-            label={clinicianText}
+            label={<TranslatedText stringId="general.localisedField.practitioner.label.short" fallback="Clinician" />}
             required
             component={AutocompleteField}
             suggester={practitionerSuggester}
@@ -75,17 +93,34 @@ export const EncounterForm = React.memo(
           />
           <LocalisedField
             name="referralSourceId"
+            label={
+              <TranslatedText
+                stringId="general.localisedField.referralSourceId.label"
+                fallback="Referral source"
+              />
+            }
             suggester={referralSourceSuggester}
             component={AutocompleteField}
           />
           <LocalisedField
             name="patientBillingTypeId"
+            label={
+              <TranslatedText
+                stringId="general.localisedField.patientBillingTypeId.label"
+                fallback="Patient type"
+              />
+            }
             endpoint="patientBillingType"
             component={SuggesterSelectField}
           />
           <Field
             name="reasonForEncounter"
-            label="Reason for encounter"
+            label={
+              <TranslatedText
+                stringId="modal.checkIn.reasonForEncounter.label"
+                fallback="Reason for encounter"
+              />
+            }
             component={TextField}
             multiline
             rows={2}
@@ -110,14 +145,15 @@ export const EncounterForm = React.memo(
           patientBillingTypeId,
           ...editedObject,
         }}
+        formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
         validationSchema={yup.object().shape({
-          examinerId: foreignKey(`${clinicianText} is required`),
+          examinerId: foreignKey('Required'),
           locationId: foreignKey('Location is required'),
           departmentId: foreignKey('Department is required'),
           startDate: yup.date().required(),
           encounterType: yup
             .string()
-            .oneOf(encounterOptions.map(x => x.value))
+            .oneOf(ENCOUNTER_OPTIONS.map(x => x.value))
             .required(),
         })}
       />

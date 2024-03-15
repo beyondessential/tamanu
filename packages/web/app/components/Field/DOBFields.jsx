@@ -4,6 +4,7 @@ import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
 
 import { DateField } from './DateField';
 import { Field } from './Field';
+import { TranslatedText } from '../Translation/TranslatedText';
 
 const JoinedField = styled(Field)`
   position: relative;
@@ -34,14 +35,14 @@ export const DOBFields = ({ showExactBirth = true }) => (
       name="dateOfBirthFrom"
       component={DateField}
       saveDateAsString
-      label="DOB from"
+      label={<TranslatedText stringId="general.dateOfBirthFrom.label" fallback="DOB from" />}
       max={getCurrentDateString()}
     />
     <Field
       name="dateOfBirthTo"
       component={DateField}
       saveDateAsString
-      label="DOB to"
+      label={<TranslatedText stringId="general.dateOfBirthTo.label" fallback="DOB to" />}
       max={getCurrentDateString()}
     />
   </>
