@@ -129,27 +129,6 @@ export class ReferenceData extends Model {
     return ReferenceData.#getParentRecursive(parentNode.id, [baseNode, parentNode], relationType);
   }
 
-  async getChildren(relationType, q) {
-    const { ReferenceData } = this.sequelize.models;
-    return ReferenceData.findAll({
-      where: { name: { [Op.iLike]: q } },
-      include: {
-        model: ReferenceData,
-        as: 'parent',
-        required: true,
-        through: {
-          attributes: [],
-          where: {
-            referenceDataParentId: this.id,
-            type: relationType,
-          },
-        },
-      },
-      raw: true,
-      nest: true,
-    });
-  }
-
   static buildSyncFilter() {
     return null; // syncs everywhere
   }

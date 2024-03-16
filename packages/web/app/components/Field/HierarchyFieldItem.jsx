@@ -2,17 +2,18 @@ import React, { useEffect, useMemo } from 'react';
 import { useApi, useSuggester } from '../../api';
 import { AutocompleteField } from './AutocompleteField';
 import { LocalisedField } from './LocalisedField';
-import { HierarchySuggester } from '../../utils/hierarchySuggester';
 import { useFormikContext } from 'formik';
+import { Suggester } from '../../utils/suggester';
 
 const HierarchyFieldItem = ({ isFirstLevel, relationType, parentId, fieldData }) => {
   const api = useApi();
   const { setFieldValue } = useFormikContext();
 
-  const firstLevelSuggester = useSuggester(fieldData.referenceType);
-
-  const otherLevelSuggester = useMemo(() => {
-    return new HierarchySuggester(api, parentId, { baseQueryParameters: { relationType } });
+  const suggester = useMemo(() => {
+    return new Suggester(api, fieldData.referenceType, {
+      enable: isFirstLevel || !!parentId,
+      baseQueryParameters: !isFirstLevel && { parentId, relationType },
+    });
   }, [parentId, relationType]);
 
   useEffect(() => {
@@ -22,7 +23,7 @@ const HierarchyFieldItem = ({ isFirstLevel, relationType, parentId, fieldData })
   return (
     <LocalisedField
       component={AutocompleteField}
-      suggester={isFirstLevel ? firstLevelSuggester : otherLevelSuggester}
+      suggester={suggester}
       disabled={!isFirstLevel && !parentId}
       {...fieldData}
     />
