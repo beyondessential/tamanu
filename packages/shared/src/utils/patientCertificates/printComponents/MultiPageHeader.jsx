@@ -1,6 +1,7 @@
-import {  Text, View } from '@react-pdf/renderer';
+import { Text, View } from '@react-pdf/renderer';
 import React from 'react';
 import { CustomStyleSheet } from '../../renderPdf';
+import { useLanguageContext } from '../../languageContext';
 
 const styles = CustomStyleSheet.create({
   header: {
@@ -20,16 +21,18 @@ const styles = CustomStyleSheet.create({
   valueText: {
     fontSize: 8,
     fontWeight: 400,
-    fontFamily: 'Helvetica',
     color: '#888888',
   },
 });
 
-const LabelText = ({ children, props }) => (
-  <Text style={styles().labelText} {...props}>
-    {children}
-  </Text>
-);
+const LabelText = ({ children, props }) => {
+  const { language } = useLanguageContext();
+  return (
+    <Text style={styles(language).labelText} {...props}>
+      {children}
+    </Text>
+  );
+};
 
 const ValueText = ({ children, props }) => (
   <Text style={styles().valueText} {...props}>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Text, View } from '@react-pdf/renderer';
 import { CustomStyleSheet } from '../renderPdf';
+import { useLanguageContext } from '../languageContext';
 
 const basicBorder = '1 solid black';
 
@@ -31,14 +32,15 @@ const tableStyles = CustomStyleSheet.create({
 });
 
 const TR = props => <View {...props} style={tableStyles().tr} />;
-const TH = ({ customStyles, language, ...props }) => (
-  <Text {...props} style={[tableStyles(language).th, customStyles]} />
-);
-const TD = ({ customStyles, language, ...props }) => (
-  <Text wrap={false} {...props} style={[tableStyles(language).td, customStyles]} />
+const TH = ({ customStyles, ...props }) => {
+  const { language } = useLanguageContext();
+  return <Text {...props} style={[tableStyles(language).th, customStyles]} />;
+};
+const TD = ({ customStyles, ...props }) => (
+  <Text wrap={false} {...props} style={[tableStyles().td, customStyles]} />
 );
 
-export const Table = ({ data, columns, getLocalisation, columnStyle, language }) => {
+export const Table = ({ data, columns, getLocalisation, columnStyle }) => {
   const leftColumnStyle = {
     ...columnStyle,
     borderLeft: basicBorder,
@@ -47,12 +49,11 @@ export const Table = ({ data, columns, getLocalisation, columnStyle, language })
     ({ key }) => getLocalisation(`fields.${key}.hidden`) !== true,
   );
   return (
-    <View style={tableStyles(language).table}>
+    <View style={tableStyles().table}>
       <TR fixed>
         {visibleColumns.map(({ title, key, customStyles }, columnIndex) => (
           <TH
             key={key}
-            language={language}
             customStyles={[customStyles, columnIndex === 0 ? leftColumnStyle : columnStyle]}
           >
             {title}
@@ -65,7 +66,6 @@ export const Table = ({ data, columns, getLocalisation, columnStyle, language })
           {visibleColumns.map(({ accessor, key, customStyles }, columnIndex) => (
             <TD
               key={key}
-              language={language}
               customStyles={[customStyles, columnIndex === 0 ? leftColumnStyle : columnStyle]}
             >
               {accessor ? accessor(row, getLocalisation) : row[key]}

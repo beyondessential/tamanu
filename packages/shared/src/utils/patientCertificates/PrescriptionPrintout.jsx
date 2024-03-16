@@ -13,6 +13,7 @@ import { getCurrentDateString } from '../dateTime';
 import { LetterheadSection } from './LetterheadSection';
 import { P } from './Typography';
 import { CustomStyleSheet } from '../renderPdf';
+import { useLanguageContext, withLanguageContext } from '../languageContext';
 
 const columns = [
   {
@@ -104,7 +105,7 @@ const NotesSection = () => (
   </View>
 );
 
-export const PrescriptionPrintout = ({
+const PrescriptionPrintoutComponent = ({
   patientData,
   prescriptions,
   prescriber,
@@ -112,9 +113,11 @@ export const PrescriptionPrintout = ({
   facility,
   getLocalisation,
 }) => {
+  const { language } = useLanguageContext();
+
   return (
     <Document>
-      <Page size="A4" style={styles().page}>
+      <Page size="A4" style={styles(language).page}>
         <CertificateHeader>
           <LetterheadSection
             letterheadConfig={certificateData}
@@ -146,3 +149,5 @@ export const PrescriptionPrintout = ({
     </Document>
   );
 };
+
+export const PrescriptionPrintout = withLanguageContext(PrescriptionPrintoutComponent);

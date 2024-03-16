@@ -3,6 +3,7 @@ import { getDisplayDate } from '../getDisplayDate';
 import React from 'react';
 import { getCurrentDateString } from '../../dateTime';
 import { CustomStyleSheet } from '../../renderPdf';
+import { useLanguageContext } from '../../languageContext';
 
 const styles = CustomStyleSheet.create({
   footer: {
@@ -36,15 +37,17 @@ const styles = CustomStyleSheet.create({
   valueText: {
     fontSize: 8,
     fontWeight: 400,
-    fontFamily: 'Helvetica',
   },
 });
 
-const LabelText = ({ children, props }) => (
-  <Text style={styles().labelText} {...props}>
-    {children}
-  </Text>
-);
+const LabelText = ({ children, props }) => {
+  const { language } = useLanguageContext();
+  return (
+    <Text style={styles(language).labelText} {...props}>
+      {children}
+    </Text>
+  );
+};
 
 const ValueText = ({ children, props }) => (
   <Text style={styles().valueText} {...props}>

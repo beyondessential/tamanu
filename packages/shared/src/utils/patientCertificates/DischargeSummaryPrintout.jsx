@@ -7,6 +7,7 @@ import { DIAGNOSIS_CERTAINTIES_TO_HIDE } from '@tamanu/constants';
 import { EncounterDetailsExtended } from './printComponents/EncounterDetailsExtended';
 import { P } from './Typography';
 import { CustomStyleSheet } from '../renderPdf';
+import { useLanguageContext, withLanguageContext } from '../languageContext';
 
 const borderStyle = '1 solid black';
 const tableLabelWidth = 150;
@@ -44,7 +45,6 @@ const infoBoxStyles = CustomStyleSheet.create({
     fontWeight: 500,
   },
   infoText: {
-    fontFamily: 'Helvetica',
     fontSize: 10,
     fontWeight: 400,
   },
@@ -93,12 +93,6 @@ const notesSectionStyles = CustomStyleSheet.create({
     minHeight: 76,
     padding: 10,
   },
-  title: {
-    fontFamily: 'Helvetica-Bold',
-    marginBottom: 3,
-    fontSize: 11,
-    fontWeight: 500,
-  },
 });
 
 const extractOngoingConditions = patientConditions =>
@@ -122,22 +116,25 @@ const extractProceduresInfo = ({ procedures, getLocalisation }) => {
   }
 };
 
-const InfoBox = ({ label, info }) => (
-  <InfoBoxRow>
-    <InfoBoxLabelCol>
-      <Text style={infoBoxStyles().labelText}>{label}</Text>
-    </InfoBoxLabelCol>
-    <InfoBoxDataCol>
-      {info.map((item, index) => {
-        return (
-          <Text style={infoBoxStyles().infoText} key={index}>
-            {item}
-          </Text>
-        );
-      })}
-    </InfoBoxDataCol>
-  </InfoBoxRow>
-);
+const InfoBox = ({ label, info }) => {
+  const { language } = useLanguageContext();
+  return (
+    <InfoBoxRow>
+      <InfoBoxLabelCol>
+        <Text style={infoBoxStyles(language).labelText}>{label}</Text>
+      </InfoBoxLabelCol>
+      <InfoBoxDataCol>
+        {info.map((item, index) => {
+          return (
+            <Text style={infoBoxStyles().infoText} key={index}>
+              {item}
+            </Text>
+          );
+        })}
+      </InfoBoxDataCol>
+    </InfoBoxRow>
+  );
+};
 
 const DiagnosesTable = ({ title, diagnoses, getLocalisation }) => (
   <InfoBox label={title} info={extractDiagnosesInfo({ diagnoses, getLocalisation })} />
@@ -176,13 +173,14 @@ const MedicationsTableInfoBox = ({ label, info, hasBottomBorder = false }) => (
 );
 
 const MedicationsTable = ({ medications }) => {
+  const { language } = useLanguageContext();
   const currentMedications = medications.filter(m => !m.discontinued);
   const discontinuedMedications = medications.filter(m => m.discontinued);
 
   return (
     <MedicationsTableBorder>
       <MedicationsTableTitleCol>
-        <Text style={infoBoxStyles().labelText}>Medications</Text>
+        <Text style={infoBoxStyles(language).labelText}>Medications</Text>
       </MedicationsTableTitleCol>
       <View style={{ flexDirection: 'column', flex: 1 }}>
         <MedicationsTableInfoBox
@@ -200,7 +198,7 @@ const MedicationsTable = ({ medications }) => {
   );
 };
 
-export const DischargeSummaryPrintout = ({
+const DischargeSummaryPrintoutComponent = ({
   patientData,
   encounter,
   discharge,
@@ -208,6 +206,8 @@ export const DischargeSummaryPrintout = ({
   certificateData,
   getLocalisation,
 }) => {
+  const { language } = useLanguageContext();
+
   const { logo } = certificateData;
   const clinicianText = getLocalisation('fields.clinician.shortLabel');
   const { diagnoses, procedures, medications } = encounter;
@@ -220,7 +220,7 @@ export const DischargeSummaryPrintout = ({
 
   return (
     <Document>
-      <Page size="A4" style={styles().page}>
+      <Page size="A4" style={styles(language).page}>
         <CertificateHeader>
           <LetterheadSection
             getLocalisation={getLocalisation}
@@ -284,3 +284,5 @@ export const DischargeSummaryPrintout = ({
     </Document>
   );
 };
+
+export const DischargeSummaryPrintout = withLanguageContext(DischargeSummaryPrintoutComponent);

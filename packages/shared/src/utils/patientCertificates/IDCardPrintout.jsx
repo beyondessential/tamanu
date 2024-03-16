@@ -3,6 +3,7 @@ import { Document, Image, Page, View, Text } from '@react-pdf/renderer';
 import { getDOB, getSex } from '../patientAccessors';
 import JsBarcode from 'jsbarcode';
 import { CustomStyleSheet } from '../renderPdf';
+import { useLanguageContext, withLanguageContext } from '../languageContext';
 
 const CustomBarcode = ({ id, width, height }) => {
   // eslint-disable-next-line no-undef
@@ -76,8 +77,14 @@ const PhotoContainer = props => <View style={styles().photoContainer} {...props}
 const PhotoFrame = props => <View style={styles().photoFrame} {...props} />;
 const Details = props => <View style={styles().details} {...props} />;
 const InfoRow = props => <View style={styles().infoRow} {...props} />;
-const DetailsKey = props => <Text style={styles().detailsKey} {...props} />;
-const DetailsValue = props => <Text style={styles().detailsValue} {...props} />;
+const DetailsKey = props => {
+  const { language } = useLanguageContext();
+  return <Text style={styles(language).detailsKey} {...props} />;
+};
+const DetailsValue = props => {
+  const { language } = useLanguageContext();
+  return <Text style={styles(language).detailsValue} {...props} />;
+};
 const BarcodeRow = props => <View style={styles().barcodeRow} {...props} />;
 
 const DetailsRow = ({ name, value, getLocalisation }) => {
@@ -100,7 +107,7 @@ const PatientPhoto = ({ patientImageData }) => {
   );
 };
 
-export const IDCardPrintout = ({
+const IDCardPrintoutComponent = ({
   patient,
   patientImageData,
   cardDimensions,
@@ -108,6 +115,10 @@ export const IDCardPrintout = ({
   getLocalisation,
 }) => {
   const pageStyles = CustomStyleSheet.create({
+    page: {
+      fontFamily: 'Helvetica',
+      paddingTop: convertToPt('10.6mm'),
+    },
     card: {
       width: cardDimensions.width,
       height: cardDimensions.height,
@@ -122,7 +133,7 @@ export const IDCardPrintout = ({
 
   return (
     <Document>
-      <Page size="A4" style={{ paddingTop: convertToPt('10.6mm') }}>
+      <Page size="A4" style={pageStyles().page}>
         <Card>
           <MainContainer>
             <PatientPhoto patientImageData={patientImageData} />
@@ -158,3 +169,5 @@ export const IDCardPrintout = ({
     </Document>
   );
 };
+
+export const IDCardPrintout = withLanguageContext(IDCardPrintoutComponent);

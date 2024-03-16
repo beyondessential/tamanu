@@ -7,16 +7,15 @@ export const LetterheadSection = ({
   logoSrc,
   certificateTitle,
   letterheadConfig,
-  language
 }) => {
   // Give priority to letterheadConfig which is extracted from settings
   const title = letterheadConfig?.title ?? getLocalisation('templates.letterhead.title');
   const subTitle = letterheadConfig?.subTitle ?? getLocalisation('templates.letterhead.subTitle');
   return (
     <>
-      {logoSrc && <CertificateLogo logoSrc={logoSrc} language={language} />}
-      <CertificateAddress language={language}>{`${title}\n${subTitle}`}</CertificateAddress>
-      <CertificateTitle language={language}>{certificateTitle}</CertificateTitle>
+      {logoSrc && <CertificateLogo logoSrc={logoSrc} />}
+      <CertificateAddress>{`${title}\n${subTitle}`}</CertificateAddress>
+      <CertificateTitle>{certificateTitle}</CertificateTitle>
     </>
   );
 };

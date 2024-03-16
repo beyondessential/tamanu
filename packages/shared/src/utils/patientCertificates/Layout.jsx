@@ -1,6 +1,7 @@
 import React from 'react';
 import { Image, Text, View } from '@react-pdf/renderer';
 import { CustomStyleSheet } from '../renderPdf';
+import { useLanguageContext } from '../languageContext';
 
 const certificateMargins = '0 18px';
 
@@ -109,18 +110,21 @@ export const styles = CustomStyleSheet.create({
   },
 });
 
-export const Row = ({ language, ...props }) => <View style={styles(language).row} {...props} />;
-export const Col = ({ language, ...props }) => <View style={styles(language).col} {...props} />;
-export const Box = ({ mt, mb, language, ...props }) => (
-  <View style={[styles(language).box, { marginTop: mt, marginBottom: mb }]} {...props} />
+export const Row = props => <View style={styles().row} {...props} />;
+export const Col = props => <View style={styles().col} {...props} />;
+export const Box = ({ mt, mb, ...props }) => (
+  <View style={[styles().box, { marginTop: mt, marginBottom: mb }]} {...props} />
 );
 
-export const Signature = ({ text, fontSize = 12, lineThickness = 1, language }) => (
-  <View style={styles(language).signature}>
-    <Text style={{ ...styles(language).signatureText, fontSize: fontSize }}>{text}:</Text>
-    <View style={{ ...styles(language).line, borderBottomWidth: lineThickness }} />
-  </View>
-);
+export const Signature = ({ text, fontSize = 12, lineThickness = 1 }) => {
+  const { language } = useLanguageContext();
+  return (
+    <View style={styles().signature}>
+      <Text style={{ ...styles(language).signatureText, fontSize: fontSize }}>{text}:</Text>
+      <View style={{ ...styles().line, borderBottomWidth: lineThickness }} />
+    </View>
+  );
+};
 
 export const SigningImage = ({ src }) => (
   <Image src={src} style={styles().signingImage} cache={false} />
@@ -139,12 +143,12 @@ export const Logo = ({ logoSrc }) => <Image src={logoSrc} style={styles().logo} 
 
 export const VDSImage = ({ src }) => <Image src={src} style={styles().vds} />;
 
-export const CertificateLogo = ({ logoSrc, language }) => (
-  <Image src={logoSrc} style={styles(language).certificateLogo} cache={false} />
+export const CertificateLogo = ({ logoSrc }) => (
+  <Image src={logoSrc} style={styles().certificateLogo} cache={false} />
 );
 
-export const CertificateHeader = ({ language, ...props }) => (
-  <View style={styles(language).certificateHeader} {...props} />
+export const CertificateHeader = (props) => (
+  <View style={styles().certificateHeader} {...props} />
 );
 export const CertificateFooter = props => <View style={styles().certificateFooter} {...props} />;
 export const LightDivider = props => <View style={styles().lightDivider} {...props} />;

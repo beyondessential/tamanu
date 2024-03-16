@@ -13,6 +13,7 @@ import { EncounterDetails } from './printComponents/EncounterDetails';
 import { getDisplayDate } from './getDisplayDate';
 import { DoubleHorizontalRule } from './printComponents/DoubleHorizontalRule';
 import { CustomStyleSheet } from '../renderPdf';
+import { useLanguageContext, withLanguageContext } from '../languageContext';
 
 const DATE_TIME_FORMAT = 'dd/MM/yyyy h:mma';
 const headingFontSize = 11;
@@ -43,12 +44,6 @@ const labDetailsSectionStyles = CustomStyleSheet.create({
   detailsContainer: {
     marginBottom: 5,
   },
-  heading: {
-    fontFamily: 'Helvetica-Bold',
-    fontSize: 11,
-    fontWeight: 500,
-    marginVertical: 3,
-  },
 });
 
 const generalStyles = CustomStyleSheet.create({
@@ -60,6 +55,7 @@ const generalStyles = CustomStyleSheet.create({
 const SectionContainer = props => <View style={generalStyles().container} {...props} />;
 
 const LabRequestSigningSection = () => {
+  const { language } = useLanguageContext();
   const BaseSigningSection = ({ title }) => (
     <View style={{ flexDirection: 'column' }}>
       <P bold style={signingSectionStyles().underlinedText} fontSize={9}>
@@ -80,7 +76,7 @@ const LabRequestSigningSection = () => {
         </Col>
         <Col>
           <BaseSigningSection title="Patient" />
-          <Text style={signingSectionStyles().disclaimerText}>
+          <Text style={signingSectionStyles(language).disclaimerText}>
             Patient to sign if required, according to local regulations
           </Text>
         </Col>
@@ -157,7 +153,7 @@ const LabRequestDetailsView = ({ labRequests }) => {
   );
 };
 
-export const MultipleLabRequestsPrintout = React.memo(
+const MultipleLabRequestsPrintoutComponent = React.memo(
   ({
     patientData,
     labRequests,
@@ -165,11 +161,12 @@ export const MultipleLabRequestsPrintout = React.memo(
     certificateData,
     getLocalisation,
   }) => {
+    const { language } = useLanguageContext();
     const { logo } = certificateData;
 
     return (
       <Document>
-        <Page size="A4" style={styles().page}>
+        <Page size="A4" style={styles(language).page}>
           <CertificateHeader>
             <LetterheadSection
               getLocalisation={getLocalisation}
@@ -197,6 +194,8 @@ export const MultipleLabRequestsPrintout = React.memo(
     );
   },
 );
+
+export const MultipleLabRequestsPrintout = withLanguageContext(MultipleLabRequestsPrintoutComponent);
 
 MultipleLabRequestsPrintout.propTypes = {
   patientData: PropTypes.object.isRequired,

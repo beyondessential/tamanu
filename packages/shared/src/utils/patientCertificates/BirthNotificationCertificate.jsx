@@ -14,6 +14,7 @@ import {
 import { Footer } from './printComponents/Footer';
 import { getDisplayDate } from './getDisplayDate';
 import { CustomStyleSheet } from '../renderPdf';
+import { useLanguageContext, withLanguageContext } from '../languageContext';
 
 const borderStyle = '1 solid black';
 
@@ -38,19 +39,20 @@ const topStyles = CustomStyleSheet.create({
 });
 
 const TopSection = ({ facilityName, childDisplayId }) => {
+  const { language } = useLanguageContext();
   const date = getCurrentDateString();
   return (
     <View style={topStyles().container}>
       <View style={topStyles().cell}>
-        <P style={topStyles().key}>Facility:</P>
+        <P style={topStyles(language).key}>Facility:</P>
         <P style={topStyles().value}>{facilityName}</P>
       </View>
       <View style={topStyles().cell}>
-        <P style={topStyles().key}>Notification date:</P>
+        <P style={topStyles(language).key}>Notification date:</P>
         <P style={topStyles().value}>{getDisplayDate(date)}</P>
       </View>
       <View style={topStyles().cell}>
-        <P style={topStyles().key}>Child ID:</P>
+        <P style={topStyles(language).key}>Child ID:</P>
         <P style={topStyles().value}>{childDisplayId}</P>
       </View>
     </View>
@@ -83,7 +85,6 @@ const tableStyles = CustomStyleSheet.create({
     width: '125pt',
   },
   p: {
-    fontFamily: 'Helvetica',
     fontSize: 9,
   },
   fontBold: {
@@ -93,23 +94,32 @@ const tableStyles = CustomStyleSheet.create({
 
 const Table = props => <View style={tableStyles().table} {...props} />;
 const Row = props => <View style={tableStyles().row} {...props} />;
-const P = ({ style = {}, children }) => <Text style={[tableStyles().p, style]}>{children}</Text>;
+const P = ({ style = {}, bold, children }) => {
+  const { language } = useLanguageContext();
+  return (
+    <Text
+      style={[tableStyles(language).p, style, ...(bold ? [styles(language, true).fontBold] : [])]}
+    >
+      {children}
+    </Text>
+  );
+};
 
 const FlexCell = ({ children, style = {}, bold = false }) => (
   <View style={[tableStyles().baseCell, tableStyles().flexCell, style]}>
-    <P style={{ ...(bold ? tableStyles(undefined, true).fontBold : {}) }}>{children}</P>
+    <P bold={bold}>{children}</P>
   </View>
 );
 
 const Cell = ({ children, style = {}, bold }) => (
   <View style={[tableStyles().baseCell, style]}>
-    <P style={{ ...(bold ? tableStyles(undefined, true).fontBold : {}) }}>{children}</P>
+    <P bold={bold}>{children}</P>
   </View>
 );
 
 const LeftCell = ({ children }) => (
   <View style={[tableStyles().baseCell, tableStyles().leftCell]}>
-    <P style={tableStyles(undefined, true).fontBold}>{children}</P>
+    <P bold>{children}</P>
   </View>
 );
 
@@ -274,27 +284,25 @@ const signatureStyles = CustomStyleSheet.create({
     flex: 1,
     borderBottom: '1 solid black',
   },
-  fontBold: {
-    fontFamily: 'Helvetica-Bold',
-  },
 });
 
 const SignatureSection = () => {
+  const { language } = useLanguageContext();
   return (
     <View style={signatureStyles().container}>
       <View style={{ flex: 1 }}>
         <View style={signatureStyles().leftCell}>
-          <P style={signatureStyles().leftText}>Certified correct by:</P>
+          <P style={signatureStyles(language).leftText}>Certified correct by:</P>
           <View style={signatureStyles().line} />
         </View>
         <View style={signatureStyles().leftCell}>
-          <P style={signatureStyles().leftText}>Circle applicable:</P>
-          <P style={signatureStyles(undefined, true).fontBold}>Doctor/midwife/nurse</P>
+          <P style={signatureStyles(language).leftText}>Circle applicable:</P>
+          <P bold>Doctor/midwife/nurse</P>
         </View>
       </View>
       <View style={{ flex: 1 }}>
         <View style={signatureStyles().rightCell}>
-          <P style={signatureStyles().rightText}>Signed:</P>
+          <P style={signatureStyles(language).rightText}>Signed:</P>
           <View style={signatureStyles().line} />
         </View>
         <View style={signatureStyles().rightCell}>
@@ -306,7 +314,7 @@ const SignatureSection = () => {
   );
 };
 
-export const BirthNotificationCertificate = ({
+const BirthNotificationCertificateComponent = ({
   motherData,
   fatherData,
   childData,
@@ -314,11 +322,12 @@ export const BirthNotificationCertificate = ({
   certificateData,
   getLocalisation,
 }) => {
+  const { language } = useLanguageContext();
   const { logo, watermark } = certificateData;
 
   return (
     <Document>
-      <Page size="A4" style={styles().page}>
+      <Page size="A4" style={styles(language).page}>
         {watermark && <Watermark src={watermark} />}
         <CertificateHeader>
           <LetterheadSection
@@ -337,3 +346,7 @@ export const BirthNotificationCertificate = ({
     </Document>
   );
 };
+
+export const BirthNotificationCertificate = withLanguageContext(
+  BirthNotificationCertificateComponent,
+);

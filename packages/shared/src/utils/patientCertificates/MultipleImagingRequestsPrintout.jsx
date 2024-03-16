@@ -15,6 +15,7 @@ import { PatientDetailsWithBarcode } from './printComponents/PatientDetailsWithB
 import { startCase } from 'lodash';
 import { DoubleHorizontalRule } from './printComponents/DoubleHorizontalRule';
 import { CustomStyleSheet } from '../renderPdf';
+import { useLanguageContext, withLanguageContext } from '../languageContext';
 
 const DATE_TIME_FORMAT = 'dd/MM/yyyy h:mma';
 const labDetailsSectionStyles = CustomStyleSheet.create({
@@ -70,6 +71,7 @@ const getAreaNote = ({ areas, areaNote }) => {
 };
 
 const ImagingRequestDetailsView = ({ imagingRequests, getLocalisation }) => {
+  const { language } = useLanguageContext();
   const notesAccessor = ({ notes }) => {
     return notes
       ?.filter(note => note.noteType === NOTE_TYPES.OTHER)
@@ -81,7 +83,7 @@ const ImagingRequestDetailsView = ({ imagingRequests, getLocalisation }) => {
 
   return (
     <View>
-      <Text style={labDetailsSectionStyles().heading}>Imaging request details</Text>
+      <Text style={labDetailsSectionStyles(language).heading}>Imaging request details</Text>
       <HorizontalRule width="0.5px" />
       {imagingRequests.map((imagingRequest, index) => {
         return (
@@ -121,12 +123,13 @@ const ImagingRequestDetailsView = ({ imagingRequests, getLocalisation }) => {
   );
 };
 
-export const MultipleImagingRequestsPrintout = React.memo(
+const MultipleImagingRequestsPrintoutComponent = React.memo(
   ({ patient, imagingRequests, encounter, certificateData, getLocalisation }) => {
+    const { language } = useLanguageContext();
     const { logo } = certificateData;
     return (
       <Document>
-        <Page size="A4" style={styles().page}>
+        <Page size="A4" style={styles(language).page}>
           <MultiPageHeader
             documentName="Imaging request"
             patientName={getName(patient)}
@@ -162,6 +165,8 @@ export const MultipleImagingRequestsPrintout = React.memo(
     );
   },
 );
+
+export const MultipleImagingRequestsPrintout = withLanguageContext(MultipleImagingRequestsPrintoutComponent);
 
 MultipleImagingRequestsPrintout.propTypes = {
   patient: PropTypes.object.isRequired,

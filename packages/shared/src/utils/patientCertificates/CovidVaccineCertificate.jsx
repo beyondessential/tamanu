@@ -10,6 +10,7 @@ import { H3, P } from './Typography';
 import { CovidLetterheadSection } from './CovidLetterheadSection';
 import { getDisplayDate } from './getDisplayDate';
 import { compareDateStrings } from '../dateTime';
+import { useLanguageContext, withLanguageContext } from '../languageContext';
 
 const columns = [
   {
@@ -53,7 +54,7 @@ const columns = [
   },
 ];
 
-export const CovidVaccineCertificate = ({
+const CovidVaccineCertificateComponent = ({
   patient,
   printedBy,
   vaccinations,
@@ -66,8 +67,8 @@ export const CovidVaccineCertificate = ({
   getLocalisation,
   extraPatientFields,
   printedDate,
-  language
 }) => {
+  const { language } = useLanguageContext();
   const contactEmail = getLocalisation('templates.vaccineCertificate.emailAddress');
   const contactNumber = getLocalisation('templates.vaccineCertificate.contactNumber');
   const healthFacility = getLocalisation('templates.vaccineCertificate.healthFacility');
@@ -85,8 +86,8 @@ export const CovidVaccineCertificate = ({
     <Document>
       <Page size="A4" style={styles(language).page}>
         {watermarkSrc && <Watermark src={watermarkSrc} />}
-        <CovidLetterheadSection getLocalisation={getLocalisation} logoSrc={logoSrc} language={language} />
-        <H3 language={language}>COVID-19 Vaccine Certificate</H3>
+        <CovidLetterheadSection getLocalisation={getLocalisation} logoSrc={logoSrc} />
+        <H3>COVID-19 Vaccine Certificate</H3>
         <CovidPatientDetailsSection
           patient={patient}
           vdsSrc={vdsSrc}
@@ -94,27 +95,28 @@ export const CovidVaccineCertificate = ({
           certificateId={certificateId}
           extraFields={extraPatientFields}
           uvci={actualUvci}
-          language={language}
         />
         <Box mb={20}>
-          <Table data={data} columns={columns} language={language} getLocalisation={getLocalisation} />
+          <Table data={data} columns={columns} getLocalisation={getLocalisation} />
         </Box>
         <Box>
           <Row>
             <Col>
-              <P language={language}>Printed by: {printedBy}</P>
+              <P>Printed by: {printedBy}</P>
             </Col>
             <Col>
-              <P language={language}>Printing date: {getDisplayDate(printedDate)}</P>
+              <P>Printing date: {getDisplayDate(printedDate)}</P>
             </Col>
           </Row>
         </Box>
-        <SigningSection signingSrc={signingSrc} language={language} />
+        <SigningSection signingSrc={signingSrc} />
         <Box>
-          {contactEmail ? <P language={language}>Email address: {contactEmail}</P> : null}
-          {contactNumber ? <P language={language}>Contact number: {contactNumber}</P> : null}
+          {contactEmail ? <P>Email address: {contactEmail}</P> : null}
+          {contactNumber ? <P>Contact number: {contactNumber}</P> : null}
         </Box>
       </Page>
     </Document>
   );
 };
+
+export const CovidVaccineCertificate = withLanguageContext(CovidVaccineCertificateComponent);

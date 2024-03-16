@@ -3,6 +3,7 @@ import { StyleSheet, Font } from '@react-pdf/renderer';
 import { cloneDeep } from 'lodash';
 import path from 'path';
 import { FONT } from '@tamanu/constants';
+import { getDefaultLanguage } from './languageContext';
 
 const baseDir =
   typeof __dirname !== 'undefined' ? path.join(__dirname, '../assets/fonts') : './fonts';
@@ -28,12 +29,7 @@ Font.register({
   src: path.join(baseDir, 'Moul-Regular.ttf'),
 });
 
-const getDefaultLanguage = () => {
-  // in client
-  if (typeof window === 'object' && 'localStorage' in window) {
-    return window.localStorage.getItem('language');
-  }
-};
+const boldFont = ['Helvetica-BoldOblique', 'Helvetica-Bold'];
 
 export const CustomStyleSheet = {
   create: styles => (
@@ -53,7 +49,7 @@ export const CustomStyleSheet = {
         currentFontFamily !== FONT.MOUL &&
         currentFontFamily !== FONT.BATTAMBANG
       ) {
-        if (currentFontFamily === 'Helvetica-Bold' && !forceToBodyFontWithGreaterFontWeight) {
+        if (boldFont.includes(currentFontFamily) && !forceToBodyFontWithGreaterFontWeight) {
           newStyles[key].fontFamily = FONT.MOUL;
         } else {
           newStyles[key].fontFamily = FONT.BATTAMBANG;

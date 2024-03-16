@@ -11,6 +11,7 @@ import { renderDataItems } from './printComponents/renderDataItems';
 import { P } from './Typography';
 import { getDisplayDate } from './getDisplayDate';
 import { CustomStyleSheet } from '../renderPdf';
+import { useLanguageContext, withLanguageContext } from '../languageContext';
 
 const borderStyle = '1 solid black';
 const tableLabelWidth = 250;
@@ -55,7 +56,6 @@ const infoBoxStyles = CustomStyleSheet.create({
     fontWeight: 500,
   },
   infoText: {
-    fontFamily: 'Helvetica',
     fontSize: 12,
     fontWeight: 400,
   },
@@ -124,39 +124,42 @@ const UnderlinedText = ({ text, ...props }) => (
     <Text>{text}</Text>
   </View>
 );
-const UnderlinedField = ({ text, label, helperText, ...props }) => {
+const UnderlinedField = ({ text, label, helperText, ...props }) => (
+  <View {...props}>
+    <Row>
+      {label && <Text style={infoBoxStyles().infoText}>({label}) </Text>}
+      <UnderlinedText text={text}> </UnderlinedText>
+    </Row>
+    {helperText && (
+      <Text style={[infoBoxStyles().infoText, infoBoxStyles().smallMarginTop]}>
+        {helperText}
+      </Text>
+    )}
+  </View>
+);
+const InfoBoxDataCol = props => <View style={infoBoxStyles().dataCol} {...props} />;
+
+const AuthorisedAndSignSection = () => {
+  const { language } = useLanguageContext();
   return (
-    <View {...props}>
-      <Row>
-        {label && <Text style={infoBoxStyles().infoText}>({label}) </Text>}
-        <UnderlinedText text={text}> </UnderlinedText>
-      </Row>
-      {helperText && (
-        <Text style={[infoBoxStyles().infoText, infoBoxStyles().smallMarginTop]}>{helperText}</Text>
-      )}
+    <View style={signStyles().container}>
+      <View style={signStyles().row}>
+        <P style={signStyles(language).text}>Authorised by (print name):</P>
+        <View style={signStyles().line} />
+      </View>
+      <View style={signStyles().row}>
+        <View style={signStyles().leftCol}>
+          <Text style={signStyles(language).text}>Signed: </Text>
+          <View style={signStyles().line} />
+        </View>
+        <View style={signStyles().rightCol}>
+          <Text style={signStyles(language).text}>Date:</Text>
+          <View style={signStyles().line} />
+        </View>
+      </View>
     </View>
   );
 };
-const InfoBoxDataCol = props => <View style={infoBoxStyles().dataCol} {...props} />;
-
-const AuthorisedAndSignSection = () => (
-  <View style={signStyles().container}>
-    <View style={signStyles().row}>
-      <P style={signStyles().text}>Authorised by (print name):</P>
-      <View style={signStyles().line} />
-    </View>
-    <View style={signStyles().row}>
-      <View style={signStyles().leftCol}>
-        <Text style={signStyles().text}>Signed: </Text>
-        <View style={signStyles().line} />
-      </View>
-      <View style={signStyles().rightCol}>
-        <Text style={signStyles().text}>Date:</Text>
-        <View style={signStyles().line} />
-      </View>
-    </View>
-  </View>
-);
 
 const placeOfDeathAccessor = ({ facility }) => {
   return facility?.name;
@@ -190,8 +193,9 @@ const HEADER_FIELDS = {
 
 const SectionContainer = props => <View style={generalStyles().sectionContainer} {...props} />;
 
-export const DeathCertificatePrintout = React.memo(
+const DeathCertificatePrintoutComponent = React.memo(
   ({ patientData, certificateData, getLocalisation }) => {
+    const { language } = useLanguageContext();
     const { logo, deathCertFooterImg } = certificateData;
 
     const { causes } = patientData;
@@ -200,7 +204,7 @@ export const DeathCertificatePrintout = React.memo(
     const antecedentCause2 = getCauseName(causes?.antecedent2);
     return (
       <Document>
-        <Page size="A4" style={{...styles().page, paddingBottom: 25}}>
+        <Page size="A4" style={{ ...styles(language).page, paddingBottom: 25 }}>
           <MultiPageHeader
             documentName="Cause of death certificate"
             patientName={getName(patientData)}
@@ -237,12 +241,12 @@ export const DeathCertificatePrintout = React.memo(
           <TableContainer>
             <InfoBoxRow>
               <InfoBoxLabelCol>
-                <Text style={infoBoxStyles().boldText}>
+                <Text style={infoBoxStyles(language).boldText}>
                   I {'\n'}
                   Disease or condition directly {'\n'}
                   leading to death*
                 </Text>
-                <Text style={[infoBoxStyles().italicBoldText, infoBoxStyles().marginTop]}>
+                <Text style={[infoBoxStyles(language).italicBoldText, infoBoxStyles().marginTop]}>
                   Antecedent Causes
                 </Text>
                 <Text style={infoBoxStyles().infoText}>
@@ -274,7 +278,7 @@ export const DeathCertificatePrintout = React.memo(
             </InfoBoxRow>
             <InfoBoxRow>
               <InfoBoxLabelCol>
-                <Text style={infoBoxStyles().boldText}>
+                <Text style={infoBoxStyles(language).boldText}>
                   II {'\n'}
                   Other significant conditions {'\n'}
                   contributing to the death but{'\n'}
@@ -298,18 +302,24 @@ export const DeathCertificatePrintout = React.memo(
             </InfoBoxRow>
           </TableContainer>
           <View style={generalStyles().container}>
-            <Text style={infoBoxStyles().italicText}>
+            <Text style={infoBoxStyles(language).italicText}>
               * This does not mean the mode of dying, e.g heart failure, respiratory failure. It
               means the disease, injury, or complication that caused death.
             </Text>
           </View>
-          {deathCertFooterImg ? <SigningImage src={deathCertFooterImg} /> : <AuthorisedAndSignSection />}
+          {deathCertFooterImg ? (
+            <SigningImage src={deathCertFooterImg} />
+          ) : (
+            <AuthorisedAndSignSection />
+          )}
           <Footer />
         </Page>
       </Document>
     );
   },
 );
+
+export const DeathCertificatePrintout = withLanguageContext(DeathCertificatePrintoutComponent);
 
 DeathCertificatePrintout.propTypes = {
   patientData: PropTypes.object.isRequired,

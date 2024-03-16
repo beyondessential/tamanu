@@ -17,6 +17,7 @@ import { LetterheadSection } from './LetterheadSection';
 import { getDisplayDate } from './getDisplayDate';
 import { SigningSection } from './SigningSection';
 import { CustomStyleSheet } from '../renderPdf';
+import { useLanguageContext, withLanguageContext } from '../languageContext';
 
 const columns = [
   {
@@ -74,7 +75,6 @@ const vaccineCertificateStyles = CustomStyleSheet.create({
   valueText: {
     fontSize: 8,
     fontWeight: 400,
-    fontFamily: 'Helvetica',
     color: '#888888',
   },
   documentHeaderContent: {
@@ -82,7 +82,7 @@ const vaccineCertificateStyles = CustomStyleSheet.create({
   },
 });
 
-export const VaccineCertificate = ({
+const VaccineCertificateComponent = ({
   patient,
   printedBy,
   printedDate,
@@ -94,8 +94,8 @@ export const VaccineCertificate = ({
   logoSrc,
   getLocalisation,
   extraPatientFields,
-  language
 }) => {
+  const { language } = useLanguageContext();
   const healthFacility = getLocalisation('templates.vaccineCertificate.healthFacility');
   const countryName = getLocalisation('country.name');
 
@@ -105,11 +105,11 @@ export const VaccineCertificate = ({
     <View style={vaccineCertificateStyles().documentHeaderContent}>
       <Text style={vaccineCertificateStyles(language).labelText}>Immunisation Certificate | </Text>
       <Text style={vaccineCertificateStyles(language).labelText}>Patient name: </Text>
-      <Text style={vaccineCertificateStyles(language).valueText}>
+      <Text style={vaccineCertificateStyles().valueText}>
         {patient.firstName} {patient.lastName} |{' '}
       </Text>
       <Text style={vaccineCertificateStyles(language).labelText}>Patient ID: </Text>
-      <Text style={vaccineCertificateStyles(language).valueText}>{patient.displayId}</Text>
+      <Text style={vaccineCertificateStyles().valueText}>{patient.displayId}</Text>
     </View>
   );
 
@@ -117,15 +117,15 @@ export const VaccineCertificate = ({
     <View style={vaccineCertificateStyles().footerContent}>
       <View style={vaccineCertificateStyles().footerLeft}>
         <Text style={vaccineCertificateStyles(language).labelText}>Print date: </Text>
-        <Text style={vaccineCertificateStyles(language).valueText}>{getDisplayDate(printedDate)} | </Text>
+        <Text style={vaccineCertificateStyles().valueText}>{getDisplayDate(printedDate)} | </Text>
         <Text style={vaccineCertificateStyles(language).labelText}>Printing facility: </Text>
-        <Text style={vaccineCertificateStyles(language).valueText}>{facilityName || healthFacility} | </Text>
+        <Text style={vaccineCertificateStyles().valueText}>{facilityName || healthFacility} | </Text>
         <Text style={vaccineCertificateStyles(language).labelText}>Printed by: </Text>
-        <Text style={vaccineCertificateStyles(language).valueText}>{printedBy}</Text>
+        <Text style={vaccineCertificateStyles().valueText}>{printedBy}</Text>
       </View>
       <View style={vaccineCertificateStyles().footerRight}>
         <Text
-          style={vaccineCertificateStyles(language).valueText}
+          style={vaccineCertificateStyles().valueText}
           render={({ pageNumber, totalPages }) => `${pageNumber} of ${totalPages}`}
         />
       </View>
@@ -134,7 +134,7 @@ export const VaccineCertificate = ({
 
   return (
     <Document>
-      <Page size="A4" style={{ ...styles().page, paddingBottom: 51 }}>
+      <Page size="A4" style={{ ...styles(language).page, paddingBottom: 51 }}>
         <FixedHeader>
           <View fixed render={({ pageNumber }) => pageNumber > 1 && <VaccineCertificateHeader />} />
         </FixedHeader>
@@ -145,27 +145,24 @@ export const VaccineCertificate = ({
             getLocalisation={getLocalisation}
             logoSrc={logoSrc}
             certificateTitle="Immunisation Certificate"
-            language={language}
           />
           <PatientDetailsSection
             patient={patient}
             getLocalisation={getLocalisation}
             certificateId={certificateId}
             extraFields={extraPatientFields}
-            language={language}
           />
         </CertificateHeader>
         <Box style={{ ...styles().box, marginLeft: '18px', marginRight: '18px' }}>
-          <H3 style={{ marginBottom: 5, marginTop: 5 }} language={language}>Immunisation history</H3>
+          <H3 style={{ marginBottom: 5, marginTop: 5 }}>Immunisation history</H3>
           <Table
             data={data}
             columns={columns}
             getLocalisation={getLocalisation}
             columnStyle={{ padding: '10px 5px' }}
-            language={language}
           />
         </Box>
-        <SigningSection signingSrc={signingSrc} language={language} />
+        <SigningSection signingSrc={signingSrc} />
         <FixedFooter>
           <VaccineCertificateFooter />
         </FixedFooter>
@@ -173,3 +170,5 @@ export const VaccineCertificate = ({
     </Document>
   );
 };
+
+export const VaccineCertificate = withLanguageContext(VaccineCertificateComponent)

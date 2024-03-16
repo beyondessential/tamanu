@@ -1,6 +1,7 @@
 import React from 'react';
 import { Text } from '@react-pdf/renderer';
 import { CustomStyleSheet } from '../renderPdf';
+import { useLanguageContext } from '../languageContext';
 
 const styles = CustomStyleSheet.create({
   h1: {
@@ -25,7 +26,6 @@ const styles = CustomStyleSheet.create({
     fontWeight: 500,
   },
   p: {
-    fontFamily: 'Helvetica',
     fontSize: 12,
     fontWeight: 400,
     marginBottom: 15,
@@ -47,29 +47,37 @@ const styles = CustomStyleSheet.create({
   },
 });
 
-export const H1 = ({ style, language, ...props }) => (
-  <Text style={{ ...styles(language).h1, ...style }} {...props} />
-);
-export const H2 = ({ style, language, ...props }) => (
-  <Text style={{ ...styles(language).h2, ...style }} {...props} />
-);
-export const H3 = ({ style, language, ...props }) => (
-  <Text style={{ ...styles(language).h3, ...style }} {...props} />
-);
-export const P = ({ mt = 0, mb, bold = false, fontSize = 14, style = {}, language, ...props }) => (
-  <Text
-    {...props}
-    style={[
-      styles(language).p,
-      { marginTop: mt, marginBottom: mb, fontSize },
-      ...(bold ? [styles(language, true).fontBold] : []),
-      style,
-    ]}
-  />
-);
-export const CertificateAddress = ({ language, ...props }) => (
-  <Text style={styles(language).certificateAddress} {...props} />
-);
-export const CertificateTitle = ({ language, ...props }) => (
-  <Text style={styles(language).certificateTitle} {...props} />
-);
+export const H1 = ({ style, ...props }) => {
+  const { language } = useLanguageContext();
+  return <Text style={{ ...styles(language).h1, ...style }} {...props} />;
+};
+export const H2 = ({ style, ...props }) => {
+  const { language } = useLanguageContext();
+  return <Text style={{ ...styles(language).h2, ...style }} {...props} />;
+};
+export const H3 = ({ style, ...props }) => {
+  const { language } = useLanguageContext();
+  return <Text style={{ ...styles(language).h3, ...style }} {...props} />;
+};
+export const P = ({ mt = 0, mb, bold = false, fontSize = 14, style = {}, ...props }) => {
+  const { language } = useLanguageContext();
+  return (
+    <Text
+      {...props}
+      style={[
+        styles(language).p,
+        { marginTop: mt, marginBottom: mb, fontSize },
+        ...(bold ? [styles(language, true).fontBold] : []),
+        style,
+      ]}
+    />
+  );
+};
+export const CertificateAddress = props => {
+  const { language } = useLanguageContext();
+  return <Text style={styles(language).certificateAddress} {...props} />;
+};
+export const CertificateTitle = props => {
+  const { language } = useLanguageContext();
+  return <Text style={styles(language).certificateTitle} {...props} />;
+};

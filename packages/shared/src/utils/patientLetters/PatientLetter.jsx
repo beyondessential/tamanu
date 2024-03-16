@@ -6,6 +6,7 @@ import { H3, P } from '../patientCertificates/Typography';
 import { LetterheadSection } from '../patientCertificates/LetterheadSection';
 import { getDOB, getName, getSex } from '../patientAccessors';
 import { format as formatDate } from '../dateTime';
+import { useLanguageContext, withLanguageContext } from '../languageContext';
 
 export const getCreatedAtDate = ({ documentCreatedAt }) =>
   documentCreatedAt ? formatDate(documentCreatedAt, 'dd/MM/yyyy') : 'Unknown';
@@ -31,21 +32,21 @@ const detailsSectionStyle = {
   marginBottom: 10,
 };
 
-const DetailsSection = ({ getLocalisation, data, language }) => {
+const DetailsSection = ({ getLocalisation, data }) => {
   return (
     <View style={{ marginTop: 10 }}>
-      <H3 style={{ marginBottom: 5 }} language={language}>Details</H3>
-      <Row style={detailsSectionStyle} language={language}>
-        <Col style={{ marginBottom: 5 }} language={language}>
-          <Row language={language}>
+      <H3 style={{ marginBottom: 5 }}>Details</H3>
+      <Row style={detailsSectionStyle}>
+        <Col style={{ marginBottom: 5 }}>
+          <Row>
             {DETAIL_FIELDS.map(({ key, label: defaultLabel, accessor }) => {
               const value = (accessor ? accessor(data, getLocalisation) : data[key]) || '';
               const label = getLocalisation(`fields.${key}.shortLabel`) || defaultLabel;
 
               return (
-                <Col style={{ width: '50%' }} key={key} language={language}>
-                  <P mb={6} language={language}>
-                    <P bold language={language}>{label}:</P> {value}
+                <Col style={{ width: '50%' }} key={key}>
+                  <P mb={6}>
+                    <P bold>{label}:</P> {value}
                   </P>
                 </Col>
               );
@@ -57,34 +58,35 @@ const DetailsSection = ({ getLocalisation, data, language }) => {
   );
 };
 
-export const PatientLetter = ({ getLocalisation, data, logoSrc, letterheadConfig, language }) => {
+const PatientLetterComponent = ({ getLocalisation, data, logoSrc, letterheadConfig }) => {
+  const { language} = useLanguageContext();
   const { title: certificateTitle, body, patient = {}, clinician, documentCreatedAt } = data;
 
   return (
     <Document>
       <Page size="A4" style={styles(language).page}>
-        <CertificateHeader language={language}>
+        <CertificateHeader>
           <LetterheadSection
             getLocalisation={getLocalisation}
             logoSrc={logoSrc}
             certificateTitle={certificateTitle ?? ''}
             letterheadConfig={letterheadConfig}
-            language={language}
           />
           <DetailsSection
             data={{ ...patient, clinicianName: clinician.displayName, documentCreatedAt }}
             getLocalisation={getLocalisation}
-            language={language}
           />
         </CertificateHeader>
         <View style={{ margin: '18px' }}>
-          <P mb={60} style={{ fontSize: 12 }} language={language}>
+          <P mb={60} style={{ fontSize: 12 }}>
             {/* In future, the body should accept markup */}
             {body ?? ''}
           </P>
-          <Signature text="Signed" language={language} />
+          <Signature text="Signed" />
         </View>
       </Page>
     </Document>
   );
 };
+
+export const PatientLetter = withLanguageContext(PatientLetterComponent);

@@ -4,6 +4,7 @@ import { getDOB, getName, getSex } from '../patientAccessors';
 import { PrintableBarcode } from './printComponents/PrintableBarcode';
 import { P } from './Typography';
 import { CustomStyleSheet } from '../renderPdf';
+import { useLanguageContext, withLanguageContext } from '../languageContext';
 
 const fontSize = 11;
 
@@ -85,8 +86,12 @@ const IDLabel = ({ patient }) => {
   );
 };
 
-export const IDLabelPrintout = ({ patient, measures }) => {
+const IDLabelPrintoutComponent = ({ patient, measures }) => {
+  const { language } = useLanguageContext();
   const pageStyles = CustomStyleSheet.create({
+    page: {
+      fontFamily: 'Helvetica',
+    },
     grid: {
       display: 'flex',
       flexWrap: 'wrap',
@@ -111,6 +116,7 @@ export const IDLabelPrintout = ({ patient, measures }) => {
           width: convertToPt(measures.pageWidth),
           height: convertToPt(measures.pageHeight),
         }}
+        style={pageStyles(language).page}
       >
         <View style={pageStyles().grid} wrap={false}>
           {[...Array(30)].map((_, i) => (
@@ -123,3 +129,5 @@ export const IDLabelPrintout = ({ patient, measures }) => {
     </Document>
   );
 };
+
+export const IDLabelPrintout = withLanguageContext(IDLabelPrintoutComponent);

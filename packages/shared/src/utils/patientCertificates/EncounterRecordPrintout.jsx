@@ -16,6 +16,7 @@ import { MultiPageHeader } from './printComponents/MultiPageHeader';
 import { getName } from '../patientAccessors';
 import { Footer } from './printComponents/Footer';
 import { CustomStyleSheet } from '../renderPdf';
+import { useLanguageContext, withLanguageContext } from '../languageContext';
 
 const borderStyle = '1 solid black';
 
@@ -28,6 +29,7 @@ const pageStyles = CustomStyleSheet.create({
     paddingHorizontal: 50,
     paddingTop: 30,
     paddingBottom: 50,
+    fontFamily: 'Helvetica',
   },
 });
 
@@ -43,23 +45,14 @@ const textStyles = CustomStyleSheet.create({
     fontSize: 10,
   },
   tableCellContent: {
-    fontFamily: 'Helvetica',
     fontSize: 10,
   },
   tableCellFooter: {
-    fontFamily: 'Helvetica',
     fontSize: 8,
-  },
-  headerLabel: {
-    fontSize: 8,
-    fontFamily: 'Helvetica-Bold',
-    fontWeight: 400,
-    color: '#888888',
   },
   headerValue: {
     fontSize: 8,
     fontWeight: 400,
-    fontFamily: 'Helvetica',
     color: '#888888',
   },
 });
@@ -90,7 +83,6 @@ const tableStyles = CustomStyleSheet.create({
     padding: 7,
   },
   p: {
-    fontFamily: 'Helvetica',
     fontSize: 10,
   },
   notesCell: {
@@ -113,7 +105,14 @@ const tableStyles = CustomStyleSheet.create({
 
 const Table = props => <View style={tableStyles().table} {...props} />;
 const Row = props => <View style={tableStyles().row} {...props} />;
-const P = ({ style = {}, children }) => <Text style={[tableStyles().p, style]}>{children}</Text>;
+const P = ({ style = {}, bold, children }) => {
+  const { language } = useLanguageContext();
+  return (
+    <Text style={[tableStyles().p, style, ...(bold ? [tableStyles(language, true).fontBold] : [])]}>
+      {children}
+    </Text>
+  );
+};
 
 const Cell = ({ children, style = {} }) => (
   <View style={[tableStyles().baseCell, style]}>
@@ -123,7 +122,7 @@ const Cell = ({ children, style = {} }) => (
 
 const HeaderCell = ({ children, style }) => (
   <View style={[tableStyles().baseCell, style]}>
-    <P style={tableStyles(undefined, true).fontBold}>{children}</P>
+    <P bold>{children}</P>
   </View>
 );
 
@@ -306,12 +305,13 @@ const COLUMNS = {
   ],
 };
 
-const MultipageTableHeading = ({ title, style = textStyles().sectionTitle }) => {
+const MultipageTableHeading = ({ title, style }) => {
+  const { language } = useLanguageContext();
   let firstPageOccurence = Number.MAX_SAFE_INTEGER;
   return (
     <Text
       fixed
-      style={style}
+      style={style ?? textStyles(language).sectionTitle}
       render={({ pageNumber, subPageNumber }) => {
         if (pageNumber < firstPageOccurence && subPageNumber) {
           firstPageOccurence = pageNumber;
@@ -386,6 +386,7 @@ const NotesMultipageCellPadding = () => {
 };
 
 const NotesSection = ({ notes }) => {
+  const { language } = useLanguageContext();
   return (
     <>
       <View minPresenceAhead={80} />
@@ -410,7 +411,7 @@ const NotesSection = ({ notes }) => {
                   <NotesMultipageCellPadding />
                   <MultipageTableHeading
                     title={NOTE_TYPE_LABELS[note.noteType]}
-                    style={textStyles().tableColumnHeader}
+                    style={textStyles(language).tableColumnHeader}
                   />
                   <Text style={textStyles().tableCellContent}>{`${note.content}\n`}</Text>
                   <NoteFooter note={note} />
@@ -434,7 +435,7 @@ const NotesSection = ({ notes }) => {
   );
 };
 
-export const EncounterRecordPrintout = ({
+const EncounterRecordPrintoutComponent = ({
   patientData,
   encounter,
   certificateData,
@@ -450,11 +451,12 @@ export const EncounterRecordPrintout = ({
   getLocalisation,
   clinicianText,
 }) => {
+  const { language } = useLanguageContext();
   const { watermark, logo } = certificateData;
 
   return (
     <Document>
-      <Page size="A4" style={pageStyles().body} wrap>
+      <Page size="A4" style={pageStyles(language).body} wrap>
         {watermark && <Watermark src={watermark} />}
         <MultiPageHeader
           documentName="Patient encounter record"
@@ -513,3 +515,5 @@ export const EncounterRecordPrintout = ({
     </Document>
   );
 };
+
+export const EncounterRecordPrintout = withLanguageContext(EncounterRecordPrintoutComponent);

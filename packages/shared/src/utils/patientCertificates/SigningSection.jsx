@@ -2,7 +2,7 @@ import React from 'react';
 import { View } from '@react-pdf/renderer';
 import { Box, Signature, SigningImage } from './Layout';
 
-export const SigningSection = ({ signingSrc, language }) => (
+export const SigningSection = ({ signingSrc }) => (
   <View
     style={{
       flexDirection: 'column',
@@ -17,13 +17,13 @@ export const SigningSection = ({ signingSrc, language }) => (
     ) : (
       <Box mb={0}>
         <Box>
-          <Signature text="Authorised by" language={language} />
+          <Signature text="Authorised by" />
         </Box>
         <Box mb={10}>
-          <Signature text="Signed" language={language} />
+          <Signature text="Signed" />
         </Box>
         <Box>
-          <Signature text="Date" language={language} />
+          <Signature text="Date" />
         </Box>
       </Box>
     )}

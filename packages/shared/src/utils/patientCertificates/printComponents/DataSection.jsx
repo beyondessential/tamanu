@@ -3,6 +3,7 @@ import { Text, View } from '@react-pdf/renderer';
 import { HorizontalRule } from './HorizontalRule';
 import { Row } from '../Layout';
 import { CustomStyleSheet } from '../../renderPdf';
+import { useLanguageContext } from '../../languageContext';
 
 const styles = CustomStyleSheet.create({
   title: {
@@ -20,9 +21,10 @@ export const DataSection = ({
   hideBottomRule = false,
   props,
 }) => {
+  const { language } = useLanguageContext();
   return (
     <View {...props}>
-      <Text style={styles().title}>{title}</Text>
+      <Text style={styles(language).title}>{title}</Text>
       {!hideTopRule && <HorizontalRule />}
       <Row>{children}</Row>
       {!hideBottomRule && <HorizontalRule />}
