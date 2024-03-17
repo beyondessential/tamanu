@@ -116,6 +116,7 @@ const usePatientModules = (navigation, patientModuleLocalisation) => {
     );
   }, [navigation, patientModuleLocalisation]);
 };
+
 const PatientHomeContainer = ({
   navigation,
   selectedPatient,
