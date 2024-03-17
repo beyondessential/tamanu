@@ -362,11 +362,6 @@ export const REPORT_DEFINITIONS = [
         required: true,
       },
     ],
-    permissions: [
-      {
-        verb: 'run'
-      }
-    ]
   },
   {
     name: 'Appointments - Line list',

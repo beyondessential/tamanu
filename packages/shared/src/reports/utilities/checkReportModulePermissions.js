@@ -15,6 +15,7 @@ export async function checkReportModulePermissions(req, reportModule, reportId, 
     req.flagPermissionChecked();
   }
 
+  // Special case to check if user can run survey report
   if (reportId === GENERIC_SURVEY_EXPORT_REPORT_ID) {
     if (!canRunSurveyReport(req.ability, parameters?.surveyId)) {
       throw new ForbiddenError('User does not have permission to run the report');
