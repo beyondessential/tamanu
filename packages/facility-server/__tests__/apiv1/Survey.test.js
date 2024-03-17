@@ -1,5 +1,5 @@
 import { setupSurveyFromObject } from '@tamanu/shared/demoData/surveys';
-import { disableHardcodedPermissionsForSuite, fake } from '@tamanu/shared/test-helpers';
+import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 
 import { createTestContext } from '../utilities';
 
