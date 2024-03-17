@@ -4,7 +4,7 @@ import * as yup from 'yup';
 import { useQuery } from '@tanstack/react-query';
 import { REGISTRATION_STATUSES, SURVEY_TYPES } from '@tamanu/constants';
 import { useApi } from '../../api';
-import { Colors } from '../../constants';
+import { Colors, FORM_TYPES } from '../../constants';
 import { Heading5 } from '../../components/Typography';
 import { Button } from '../../components/Button';
 import { Field, Form, BaseSelectField } from '../../components/Field';
@@ -12,6 +12,8 @@ import { FormGrid } from '../../components/FormGrid';
 import { foreignKey } from '../../utils/validation';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { ConditionalTooltip, ThemedTooltip } from '../../components/Tooltip';
+import { useProgramRegistryContext } from '../../contexts/ProgramRegistry';
+import { useTranslation } from '../../contexts/Translation';
 
 const DisplayContainer = styled.div`
   display: flex;
@@ -52,6 +54,8 @@ const StyledButton = styled(Button)`
 export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistration }) => {
   const api = useApi();
   const { navigateToProgramRegistrySurvey } = usePatientNavigation();
+  const { getTranslation } = useTranslation();
+  const { setProgramRegistryId } = useProgramRegistryContext();
 
   const { data: surveys } = useQuery(
     ['programSurveys', patientProgramRegistration.programRegistry.programId],
@@ -74,12 +78,14 @@ export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistrat
         showInlineErrorsOnly
         style={{ width: '100%', marginTop: '5px' }}
         onSubmit={async values => {
+          setProgramRegistryId(patientProgramRegistration.programRegistryId);
           navigateToProgramRegistrySurvey(
             patientProgramRegistration.programRegistryId,
             values.surveyId,
             patientProgramRegistration.programRegistry.name,
           );
         }}
+        formType={FORM_TYPES.CREATE_FORM}
         render={({ values, submitForm }) => {
           const isRemoved =
             patientProgramRegistration.registrationStatus === REGISTRATION_STATUSES.INACTIVE;
@@ -90,7 +96,7 @@ export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistrat
                   name="surveyId"
                   label="Select form"
                   component={BaseSelectField}
-                  placeholder="Select"
+                  placeholder={getTranslation("general.placeholder.select", "Select")}
                   options={surveys}
                   disabled={isRemoved}
                 />

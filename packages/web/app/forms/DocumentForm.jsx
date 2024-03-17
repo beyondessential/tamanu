@@ -13,6 +13,7 @@ import { AutocompleteField, Field, Form, TextField } from '../components/Field';
 import { FileChooserField } from '../components/Field/FileChooserField';
 import { FormGrid } from '../components/FormGrid';
 import { ConfirmCancelRow, FormSubmitCancelRow } from '../components/ButtonRow';
+import { FORM_TYPES } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 
 const MessageContainer = styled.div`
@@ -162,6 +163,7 @@ export const DocumentForm = ({ onStart, onSubmit, onError, onCancel, editedObjec
     <Form
       onSubmit={handleSubmit}
       render={renderForm}
+      formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
       initialValues={{
         date: new Date(),
         ...editedObject,

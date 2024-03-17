@@ -277,7 +277,16 @@
       "enabled": false, // the HTTP routes
       "worker": {
         "enabled": true, // the materialisation worker
-        "concurrency": 100
+        "concurrency": 100,
+        "resourceMaterialisationEnabled": {
+          "Patient": true,
+          "ServiceRequest": false,
+          "DiagnosticReport": false,
+          "Encounter": false,
+          "Immunization": false,
+          "Practitioner": false,
+          "MediciReport": false
+        }
       },
       "parameters": {
         "_count": {
@@ -704,6 +713,15 @@
           "shortLabel": "Registration number",
           "longLabel": "Registration number"
         },
+        "notGivenReasonId": {
+          "shortLabel": "Reason",
+          "longLabel": "Reason",
+          "hidden": false
+        },
+        "circumstanceIds": {
+          "shortLabel": "Circumstance",
+          "longLabel": "Circumstance"
+        },
         "date": {
           "shortLabel": "Date",
           "longLabel": "Date"
@@ -1112,7 +1130,11 @@
     // provide an array [] if you want to override the options, eg: ['--max-old-space-size=4096']
     "processOptions": null,
     // Provide an object {} for the env of child process
-    "childProcessEnv": null
+    "childProcessEnv": null,
+    "sleepAfterReport": {
+      "duration": "5m",
+      "ifRunAtLeast": "5m",
+    },
   },
   "hl7": {
     "nullLastNameValue": "NoLastName",

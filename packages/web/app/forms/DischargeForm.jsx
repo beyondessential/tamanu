@@ -5,7 +5,7 @@ import { range } from 'lodash';
 import { isFuture, parseISO, set } from 'date-fns';
 import { format, getCurrentDateTimeString, toDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { Divider as BaseDivider } from '@material-ui/core';
-import { Colors, FORM_STATUSES } from '../constants';
+import { Colors, FORM_STATUSES, FORM_TYPES } from '../constants';
 import { useApi } from '../api';
 import { foreignKey } from '../utils/validation';
 
@@ -361,6 +361,7 @@ export const DischargeForm = ({
       onCancel={onCancel}
       initialValues={getDischargeInitialValues(encounter, dischargeNotes, medicationInitialValues)}
       FormScreen={DischargeFormScreen}
+      formType={FORM_TYPES.CREATE_FORM}
       SummaryScreen={DischargeSummaryScreen}
       validationSchema={yup.object().shape({
         endDate: yup.date().required(),

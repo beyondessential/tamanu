@@ -10,6 +10,7 @@ import { FormGrid } from '../../../components/FormGrid';
 import { ButtonRow } from '../../../components/ButtonRow';
 import { FormSubmitButton } from '../../../components/Button';
 import { saveFile } from '../../../utils/fileSystemAccess';
+import { FORM_TYPES } from '../../../constants';
 
 const ExportForm = ({ dataTypes, dataTypesSelectable }) => (
   <FormGrid columns={1}>
@@ -58,6 +59,7 @@ export const ExporterView = memo(({ title, endpoint, dataTypes, dataTypesSelecta
         validationSchema={yup.object().shape({
           includedDataTypes: yup.array(),
         })}
+        formType={FORM_TYPES.CREATE_FORM}
         initialValues={{
           includedDataTypes: [...dataTypes],
         }}

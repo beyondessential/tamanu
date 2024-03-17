@@ -77,7 +77,8 @@ const Provider = ({
   const signInAs = (authenticatedUser): void => {
     // Destructure the local password out of the user object - it only needs to be in
     // the database, we don't need or want to store it in app state as well.
-    const { localPassword, ...userData } = authenticatedUser;
+    const userData = { ...authenticatedUser };
+    delete userData.localPassword;
     setUser(userData);
     setContextUserAndAbility(userData);
     setSignedInStatus(true);
@@ -179,7 +180,7 @@ const Provider = ({
   // Sign user out if an auth error was thrown
   // except if user is trying to reconnect with password from modal interface
   useEffect(() => {
-    const errHandler = (err: Error): void => {
+    const errHandler = (): void => {
       if (preventSignOutOnFailure) {
         // reset flag to prevent sign out being
         // skipped on subsequent failed authentications
