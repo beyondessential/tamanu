@@ -3,9 +3,6 @@ name: Fake DB Dump
 on:
   workflow_dispatch:
   push:
-    branches:
-      - main
-      - release/*
 
 env:
   NODE_OPTIONS: "--max-old-space-size=6144"
@@ -17,6 +14,15 @@ env:
 
 jobs:
   generate-fake:
+    if: >-
+      github.event_name == 'workflow_dispatch' || (
+        github.event_name == 'push' && (
+          github.ref == 'refs/heads/main' ||
+          startsWith(github.ref, 'refs/heads/release/') ||
+          startsWith(github.ref, 'refs/tags/') ||
+          contains(github.event.commits.*.message, '[generate-fake-db]')
+        )
+      )
     strategy:
       fail-fast: false
       matrix:
@@ -32,6 +38,33 @@ jobs:
       ARTIFACT_NAME: fake-pg${{ matrix.postgres }}
     steps:
       - uses: actions/checkout@v4
+        id: autocheckout
+        if: >-
+          github.event_name == 'workflow_dispatch' || (
+            github.event_name == 'push' && (
+              github.ref == 'refs/heads/main' ||
+              startsWith(github.ref, 'refs/heads/release/') ||
+              startsWith(github.ref, 'refs/tags/')
+            )
+          )
+
+      - uses: actions/github-script@v7
+        if: steps.autocheckout.conclusion == 'skipped'
+        id: commit
+        with:
+          result-encoding: string
+          script: |
+            for (const { message, id } of context.payload.commits) {
+              console.log(id, message);
+              if (message.includes('[generate-fake-db]')) {
+                return id;
+              }
+            }
+      - uses: actions/checkout@v4
+        if: steps.commit.conclusion == 'success'
+        with:
+          ref: ${{ steps.commit.outputs.result }}
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20.x
