@@ -14,6 +14,7 @@ import {
 } from '../../components';
 import { useApi } from '../../api';
 import { foreignKey } from '../../utils/validation';
+import { FORM_TYPES } from '../../constants';
 
 const StyledFormGrid = styled(FormGrid)`
   grid-column: 1 / -1;
@@ -50,6 +51,7 @@ export const AddConditionFormModal = ({
       <Form
         showInlineErrorsOnly
         onSubmit={submit}
+        formType={FORM_TYPES.CREATE_FORM}
         render={({ submitForm }) => {
           const handleCancel = () => onClose();
           return (

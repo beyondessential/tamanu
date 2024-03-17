@@ -2,18 +2,23 @@ import React from 'react';
 
 import { PATIENT_REGISTRY_TYPES, MARITAL_STATUS_OPTIONS } from '@tamanu/constants';
 
-import { AutocompleteField, SelectField, SuggesterSelectField, TextField } from '..';
 import {
   BLOOD_OPTIONS,
   EDUCATIONAL_ATTAINMENT_OPTIONS,
   SOCIAL_MEDIA_OPTIONS,
   TITLE_OPTIONS,
-} from '../../constants';
-import { usePatientSuggester, useSuggester } from '../../api';
-import { ConfiguredMandatoryPatientFields } from './ConfiguredMandatoryPatientFields';
-import { TranslatedText } from '../Translation/TranslatedText';
+} from '../../../../../constants';
+import {
+  SelectField,
+  TextField,
+  AutocompleteField,
+  SuggesterSelectField,
+} from '../../../../../components';
+import { ConfiguredMandatoryPatientFields } from '../../../ConfiguredMandatoryPatientFields';
+import { usePatientSuggester, useSuggester } from '../../../../../api';
+import { TranslatedText } from '../../../../../components/Translation/TranslatedText';
 
-export const PersonalInformationFields = ({ patientRegistryType, showMandatory }) => {
+export const GenericPersonalFields = ({ patientRegistryType, filterByMandatory }) => {
   const countrySuggester = useSuggester('country');
   const ethnicitySuggester = useSuggester('ethnicity');
   const nationalitySuggester = useSuggester('nationality');
@@ -21,7 +26,7 @@ export const PersonalInformationFields = ({ patientRegistryType, showMandatory }
   const religionSuggester = useSuggester('religion');
   const patientSuggester = usePatientSuggester();
 
-  const PERSONAL_INFORMATION_FIELDS = {
+  const PERSONAL_FIELDS = {
     title: {
       component: SelectField,
       options: TITLE_OPTIONS,
@@ -150,8 +155,8 @@ export const PersonalInformationFields = ({ patientRegistryType, showMandatory }
 
   return (
     <ConfiguredMandatoryPatientFields
-      fields={PERSONAL_INFORMATION_FIELDS}
-      showMandatory={showMandatory}
+      fields={PERSONAL_FIELDS}
+      filterByMandatory={filterByMandatory}
     />
   );
 };

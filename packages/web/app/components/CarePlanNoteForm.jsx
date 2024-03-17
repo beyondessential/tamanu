@@ -3,11 +3,12 @@ import * as yup from 'yup';
 import styled from 'styled-components';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { useApi, useSuggester } from '../api';
-import { Colors } from '../constants';
+import { Colors, FORM_TYPES } from '../constants';
 import { FormSubmitCancelRow } from './ButtonRow';
 import { AutocompleteField, DateTimeField, Field, Form, TextField } from './Field';
 import { FormGrid } from './FormGrid';
 import { TranslatedText } from './Translation/TranslatedText';
+import { useTranslation } from '../contexts/Translation';
 
 const SubmitError = styled.div`
   color: ${Colors.alert};
@@ -21,6 +22,8 @@ export function CarePlanNoteForm({
   onSuccessfulSubmit,
   onCancel,
 }) {
+  const { getTranslation } = useTranslation();
+
   const [submitError, setSubmitError] = useState('');
   const practitionerSuggester = useSuggester('practitioner');
   const api = useApi();
@@ -50,6 +53,7 @@ export function CarePlanNoteForm({
       validationSchema={yup.object().shape({
         content: yup.string().required('Content is required'),
       })}
+      formType={note ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
       render={() => (
         <>
           <FormGrid columns={2}>
@@ -79,7 +83,7 @@ export function CarePlanNoteForm({
           <FormGrid columns={1}>
             <Field
               name="content"
-              placeholder="Write a note..."
+              placeholder={getTranslation("careplan.note.placeholder.writeNote", "Write a note...")}
               component={TextField}
               required
               multiline
