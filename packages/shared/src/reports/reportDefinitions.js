@@ -11,6 +11,7 @@ import {
 
 const LAST_30_DAYS_DATE_LABEL = REPORT_DATE_RANGE_LABELS[REPORT_DEFAULT_DATE_RANGES.THIRTY_DAYS];
 const ALL_TIME_DATE_LABEL = REPORT_DATE_RANGE_LABELS[REPORT_DEFAULT_DATE_RANGES.ALL_TIME];
+export const GENERIC_SURVEY_EXPORT_REPORT_ID = 'generic-survey-export-line-list';
 
 export const REPORT_DEFINITIONS = [
   {
@@ -347,7 +348,7 @@ export const REPORT_DEFINITIONS = [
   },
   {
     name: 'Generic Survey Export - Line List',
-    id: 'generic-survey-export-line-list',
+    id: GENERIC_SURVEY_EXPORT_REPORT_ID,
     dateRangeLabel: LAST_30_DAYS_DATE_LABEL,
     dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
     filterDateRangeAsStrings: true,
@@ -361,6 +362,11 @@ export const REPORT_DEFINITIONS = [
         required: true,
       },
     ],
+    permissions: [
+      {
+        verb: 'run'
+      }
+    ]
   },
   {
     name: 'Appointments - Line list',

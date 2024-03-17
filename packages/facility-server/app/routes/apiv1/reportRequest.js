@@ -34,7 +34,7 @@ reportRequest.post(
     if (!reportModule) {
       throw new NotFoundError('Report module not found');
     }
-    await checkReportModulePermissions(req, reportModule, reportId);
+    await checkReportModulePermissions(req, reportModule, reportId, body.parameters);
 
     const isDatabaseDefinedReport = reportModule instanceof ReportDefinitionVersion;
 

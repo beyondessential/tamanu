@@ -5,7 +5,7 @@ import { NotFoundError } from '@tamanu/shared/errors';
 import {
   findRouteObject,
   permissionCheckingRouter,
-  simpleGetList,
+  getResourceList,
 } from '@tamanu/shared/utils/crudHelpers';
 
 export const survey = express.Router();
@@ -61,5 +61,23 @@ survey.get(
 );
 
 const surveyRelations = permissionCheckingRouter('list', 'SurveyResponse');
-surveyRelations.get('/:id/surveyResponses', simpleGetList('SurveyResponse', 'surveyId'));
+
+surveyRelations.get(
+  '/:id/surveyResponses',
+  asyncHandler(async (req, res) => {
+    const { id: surveyId, } = req.params;
+    const survey = await req.models.Survey.findByPk(surveyId);
+
+    req.checkPermission('read', survey);
+
+    const response = await getResourceList(
+      req,
+      'SurveyResponse',
+      'surveyId',
+    );
+
+    res.send(response);
+  }),
+);
+
 survey.use(surveyRelations);
