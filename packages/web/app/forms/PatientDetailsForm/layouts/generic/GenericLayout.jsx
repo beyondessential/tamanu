@@ -24,6 +24,7 @@ import { GenericBirthFields } from './patientFields/GenericBirthFields';
 import { useSuggester } from '../../../../api';
 import { PatientFieldsGroup } from '../../PatientFields';
 import { TranslatedText } from '../../../../components/Translation/TranslatedText';
+import { ReminderContactSection } from '../../../../components/ReminderContactSection';
 
 export const GenericPrimaryDetailsLayout = ({
   patientRegistryType,
@@ -39,6 +40,7 @@ export const GenericPrimaryDetailsLayout = ({
           stringId="patient.detail.subheading.general"
           fallback="General information"
         />
+        <ReminderContactSection />
       </PatientDetailsHeading>
       <FormGrid>
         <LocalisedField
