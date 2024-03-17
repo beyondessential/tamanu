@@ -29,3 +29,8 @@ export * from './TopBar';
 export * from './Typography';
 export * from './ImmunisationsTable';
 export * from './FormSectionSeparator';
+export * from './AddReminderContact';
+export * from './ReminderContactQR';
+export * from './ReminderContactModal';
+export * from './ReminderContactList';
+export * from './RemoveReminderContact';

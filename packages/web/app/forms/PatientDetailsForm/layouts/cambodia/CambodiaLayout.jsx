@@ -16,6 +16,7 @@ import { CambodiaPersonalFields } from './patientFields/CambodiaPersonalFields';
 import { GenericBirthFields } from '../generic/patientFields/GenericBirthFields';
 import { PatientField, PatientFieldsGroup } from '../../PatientFields';
 import { TranslatedText } from '../../../../components/Translation/TranslatedText';
+import { ReminderContactSection } from '../../../../components/ReminderContactSection';
 
 const FATHERS_FIRST_NAME_DEFINITION_ID = 'fieldDefinition-fathersFirstName';
 
@@ -25,6 +26,7 @@ export const CambodiaPrimaryDetailsLayout = ({ sexOptions, isRequiredPatientData
   <>
     <PatientDetailsHeading>
       <TranslatedText stringId="patient.detail.subheading.general" fallback="General information" />
+      <ReminderContactSection />
     </PatientDetailsHeading>
     <FormGrid>
       <LocalisedField
