@@ -415,7 +415,7 @@ export const DischargeForm = ({
           name="discharge.dispositionId"
           label={
             <TranslatedText
-              stringId="general.localisedField.discharge.dischargeDisposition.label"
+              stringId="general.localisedField.dischargeDisposition.label"
               fallback="Discharge disposition"
             />
           }

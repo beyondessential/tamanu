@@ -47,4 +47,5 @@ export const Heading5 = styled(Typography).attrs({ component: 'h5' })`
 
 export const LowerCase = styled.span`
   text-transform: lowercase;
+  white-space: break-spaces;
 `;
