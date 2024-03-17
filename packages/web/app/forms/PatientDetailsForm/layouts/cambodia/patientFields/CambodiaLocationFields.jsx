@@ -3,6 +3,7 @@ import { AutocompleteField, TextField } from '../../../../../components';
 import { ConfiguredMandatoryPatientFields } from '../../../ConfiguredMandatoryPatientFields';
 import { useSuggester } from '../../../../../api';
 import { TranslatedText } from '../../../../../components/Translation/TranslatedText';
+import { LinkedField } from '../../../../../components/Field/LinkedField';
 
 export const CambodiaLocationFields = ({ filterByMandatory }) => {
   const subdivisionSuggester = useSuggester('subdivision');
@@ -31,7 +32,9 @@ export const CambodiaLocationFields = ({ filterByMandatory }) => {
       label: <TranslatedText stringId="cambodiaPatientDetails.commune.label" fallback="Commune" />,
     },
     villageId: {
-      component: AutocompleteField,
+      component: LinkedField,
+      linkedFieldName: 'nursingZoneId',
+      endpoint: 'linkedField/healthCenter',
       suggester: villageSuggester,
       label: (
         <TranslatedText stringId="general.localisedField.villageId.label" fallback="Village" />
