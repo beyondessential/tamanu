@@ -244,7 +244,7 @@ describe('SurveyResponse', () => {
       // arrange
       const { Facility } = models;
       const facility = await Facility.create(fake(Facility));
-      const { answer, response } = await setupAutocompleteSurvey(
+      const { response } = await setupAutocompleteSurvey(
         JSON.stringify({
           source: 'Facility',
         }),
