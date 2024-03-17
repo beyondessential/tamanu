@@ -27,7 +27,7 @@ const REMINDER_CONTACT_MODAL_TITLE = {
   REMOVE_REMINDER: 'Remove reminder contact',
 };
 
-export const ReminderContactModal = ({ patient, onClose }) => {
+export const ReminderContactModal = ({ patient, onClose, open }) => {
   const [activeView, setActiveView] = useState(REMINDER_CONTACT_VIEWS.REMINDER_CONTACT_LIST);
 
   const handleActiveView = value => {
@@ -60,7 +60,7 @@ export const ReminderContactModal = ({ patient, onClose }) => {
     <BaseModal
       width={activeView === REMINDER_CONTACT_VIEWS.REMOVE_REMINDER ? 'sm' : 'md'}
       title={getModalTitle()}
-      open
+      open={open}
       onClose={onClose}
     >
       <ReminderModalContainer>
