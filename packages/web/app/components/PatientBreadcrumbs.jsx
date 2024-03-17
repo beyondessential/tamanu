@@ -3,7 +3,7 @@ import React from 'react';
 import { matchPath, useLocation, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { Colors } from '../constants';
-import { PATIENT_CATEGORY_TO_TITLE } from '../constants/patientPaths';
+import { PATIENT_CATEGORY_LABELS } from '../constants/patientPaths';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
 
 const StyledBreadcrumbs = styled(Breadcrumbs)`
@@ -70,7 +70,7 @@ export const PatientBreadcrumbs = ({ patientRoutes }) => {
   return (
     <StyledBreadcrumbs>
       <Breadcrumb onClick={handleCategoryClick}>
-        {PATIENT_CATEGORY_TO_TITLE[params.category]}
+        {PATIENT_CATEGORY_LABELS[params.category]}
       </Breadcrumb>
       {getPatientCrumbs(patientRoutes)}
     </StyledBreadcrumbs>

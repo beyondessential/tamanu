@@ -12,7 +12,7 @@
 
 ##-------
 ### Obtain a token
-POST {{syncserver}}/v1/login
+POST {{syncserver}}/api/login
 Content-Type: application/json
 
 {
@@ -23,7 +23,7 @@ Content-Type: application/json
 
 ##--------------------------------------------
 ### Import a survey definition
-POST {{syncserver}}/v1/admin/importProgram
+POST {{syncserver}}/api/admin/importProgram
 Content-Type: multipart/form-data; boundary={{boundary}}
 Authorization: Bearer {{token}}
 
@@ -48,7 +48,7 @@ Content-Type: application/vnd.ms-excel
 
 ##--------------------------------------------
 ### Import a data definition document
-POST {{syncserver}}/v1/admin/import/referenceData
+POST {{syncserver}}/api/admin/import/referenceData
 Content-Type: multipart/form-data; boundary={{boundary}}
 Authorization: Bearer {{token}}
 

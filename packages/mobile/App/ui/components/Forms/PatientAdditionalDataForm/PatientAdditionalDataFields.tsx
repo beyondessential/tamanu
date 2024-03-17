@@ -73,29 +73,26 @@ function getComponentForField(fieldName: string): React.FC<{ fieldName: string }
 }
 
 const getCustomFieldComponent = ({ id, name, options, fieldType }) => {
-  return <Field
-    name={id}
-    label={name}
-    component={PatientFieldDefinitionComponents[fieldType]}
-    options={options?.split(',')?.map(option => ({ label: option, value: option }))}
-  />;
-}
+  return (
+    <Field
+      name={id}
+      label={name}
+      component={PatientFieldDefinitionComponents[fieldType]}
+      options={options?.split(',')?.map(option => ({ label: option, value: option }))}
+    />
+  );
+};
 
 export const PatientAdditionalDataFields = ({
   fields,
   isCustomFields,
   showMandatory = true,
 }): ReactElement => {
-
   const { getBool } = useLocalisation();
 
   if (isCustomFields) return fields.map(getCustomFieldComponent);
 
-  const padFields = getConfiguredPatientAdditionalDataFields(
-    fields,
-    showMandatory,
-    getBool,
-  );
+  const padFields = getConfiguredPatientAdditionalDataFields(fields, showMandatory, getBool);
 
   return padFields.map(fieldName => {
     const Component = getComponentForField(fieldName);

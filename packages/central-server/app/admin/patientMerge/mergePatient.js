@@ -235,7 +235,7 @@ export async function mergePatientFieldValues(models, keepPatientId, unwantedPat
       ({ definitionId }) => definitionId === definition.id,
     );
 
-    if (keepRecord && isNullOrEmptyString(keepRecord.value)) {
+    if (keepRecord && isNullOrEmptyString(keepRecord.value) && unwantedRecord?.value) {
       const updated = await keepRecord.update({
         value: unwantedRecord.value,
       });

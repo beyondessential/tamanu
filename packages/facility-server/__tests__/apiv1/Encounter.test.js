@@ -48,7 +48,7 @@ describe('Encounter', () => {
       patientId: patient.id,
     });
 
-    const result = await noPermsApp.get(`/v1/encounter/${encounter.id}`);
+    const result = await noPermsApp.get(`/api/encounter/${encounter.id}`);
     expect(result).toBeForbidden();
   });
 
@@ -59,7 +59,7 @@ describe('Encounter', () => {
       ...(await createDummyEncounter(models)),
       patientId: patient.id,
     });
-    const result = await app.get(`/v1/encounter/${v.id}`);
+    const result = await app.get(`/api/encounter/${v.id}`);
     expect(result).toHaveSucceeded();
     expect(result.body.id).toEqual(v.id);
     expect(result.body.patientId).toEqual(patient.id);
@@ -75,7 +75,7 @@ describe('Encounter', () => {
       patientId: patient.id,
     });
 
-    const result = await app.get(`/v1/patient/${patient.id}/encounters`);
+    const result = await app.get(`/api/patient/${patient.id}/encounters`);
     expect(result).toHaveSucceeded();
     expect(result.body.count).toBeGreaterThan(0);
     expect(result.body.data.some(x => x.id === v.id)).toEqual(true);
@@ -92,7 +92,7 @@ describe('Encounter', () => {
   });
 
   it('should fail to get an encounter that does not exist', async () => {
-    const result = await app.get('/v1/encounter/nonexistent');
+    const result = await app.get('/api/encounter/nonexistent');
     expect(result).toHaveRequestError();
   });
 
@@ -106,7 +106,7 @@ describe('Encounter', () => {
       dischargerId: app.user.id,
     });
 
-    const result = await app.get(`/v1/encounter/${encounter.id}/discharge`);
+    const result = await app.get(`/api/encounter/${encounter.id}/discharge`);
 
     expect(result).toHaveSucceeded();
     expect(result.body).toMatchObject({
@@ -145,7 +145,7 @@ describe('Encounter', () => {
       ),
     ]);
 
-    const result = await app.get(`/v1/encounter/${encounter.id}/notes`);
+    const result = await app.get(`/api/encounter/${encounter.id}/notes`);
     expect(result).toHaveSucceeded();
     expect(result.body.count).toEqual(3);
     expect(result.body.data.every(x => x.content.match(/^Test \d$/))).toEqual(true);
@@ -163,7 +163,7 @@ describe('Encounter', () => {
       models.Note.createForRecord(encounter.id, 'Encounter', 'admission', 'Test 6'),
     ]);
 
-    const result = await app.get(`/v1/encounter/${encounter.id}/notes?noteType=treatmentPlan`);
+    const result = await app.get(`/api/encounter/${encounter.id}/notes?noteType=treatmentPlan`);
     expect(result).toHaveSucceeded();
     expect(result.body.count).toEqual(2);
     expect(result.body.data.every(x => x.noteType === 'treatmentPlan')).toEqual(true);
@@ -216,7 +216,7 @@ describe('Encounter', () => {
       }),
     );
 
-    const result = await app.get(`/v1/encounter/${encounter.id}/notes/${rootNote.id}/changelogs`);
+    const result = await app.get(`/api/encounter/${encounter.id}/notes/${rootNote.id}/changelogs`);
     expect(result).toHaveSucceeded();
     expect(result.body.count).toEqual(4);
     expect(result.body.data[0]).toMatchObject({
@@ -270,7 +270,7 @@ describe('Encounter', () => {
         })),
       });
 
-      const result = await app.get(`/v1/encounter/${encounter.id}/labRequests`);
+      const result = await app.get(`/api/encounter/${encounter.id}/labRequests`);
       expect(result).toHaveSucceeded();
       expect(result.body).toMatchObject({
         count: 2,
@@ -323,7 +323,7 @@ describe('Encounter', () => {
         })),
       });
 
-      const result = await app.get(`/v1/encounter/${encounter.id}/labRequests`);
+      const result = await app.get(`/api/encounter/${encounter.id}/labRequests`);
       expect(result).toHaveSucceeded();
       expect(result.body.count).toEqual(3);
       expect(result.body.data.length).toEqual(3);
@@ -362,7 +362,7 @@ describe('Encounter', () => {
         labRequestId: labRequest1.id,
       });
 
-      const result = await app.get(`/v1/encounter/${encounter.id}/labRequests`);
+      const result = await app.get(`/api/encounter/${encounter.id}/labRequests`);
       expect(result).toHaveSucceeded();
       expect(result.body.count).toEqual(2);
       expect(result.body.data.length).toEqual(2);
@@ -390,7 +390,7 @@ describe('Encounter', () => {
       });
 
       const result = await app.get(
-        `/v1/encounter/${encounter.id}/labRequests?status=reception_pending`,
+        `/api/encounter/${encounter.id}/labRequests?status=reception_pending`,
       );
       expect(result).toHaveSucceeded();
       expect(result.body).toMatchObject({
@@ -420,7 +420,7 @@ describe('Encounter', () => {
         authorId: app.user.id,
       });
 
-      const result = await app.get(`/v1/encounter/${encounter.id}/labRequests`);
+      const result = await app.get(`/api/encounter/${encounter.id}/labRequests`);
       expect(result).toHaveSucceeded();
       expect(result.body).toMatchObject({
         count: 1,
@@ -450,7 +450,7 @@ describe('Encounter', () => {
         authorId: app.user.id,
       });
 
-      const result = await app.get(`/v1/encounter/${encounter.id}/labRequests?includeNotes=true`);
+      const result = await app.get(`/api/encounter/${encounter.id}/labRequests?includeNotes=true`);
       expect(result).toHaveSucceeded();
       expect(result.body).toMatchObject({
         count: 1,
@@ -504,7 +504,7 @@ describe('Encounter', () => {
       models.DocumentMetadata.create(metadataFour),
     ]);
 
-    const result = await app.get(`/v1/encounter/${encounter.id}/documentMetadata`);
+    const result = await app.get(`/api/encounter/${encounter.id}/documentMetadata`);
     expect(result).toHaveSucceeded();
     expect(result.body).toMatchObject({
       count: 2,
@@ -532,13 +532,13 @@ describe('Encounter', () => {
 
     // Sort by name ASC/DESC (presumably sufficient to test only one field)
     const resultAsc = await app.get(
-      `/v1/encounter/${encounter.id}/documentMetadata?order=asc&orderBy=name`,
+      `/api/encounter/${encounter.id}/documentMetadata?order=asc&orderBy=name`,
     );
     expect(resultAsc).toHaveSucceeded();
     expect(resultAsc.body.data[0].id).toBe(metadataOne.id);
 
     const resultDesc = await app.get(
-      `/v1/encounter/${encounter.id}/documentMetadata?order=desc&orderBy=name`,
+      `/api/encounter/${encounter.id}/documentMetadata?order=desc&orderBy=name`,
     );
     expect(resultDesc).toHaveSucceeded();
     expect(resultDesc.body.data[0].id).toBe(metadataTwo.id);
@@ -561,7 +561,7 @@ describe('Encounter', () => {
     }
     await models.DocumentMetadata.bulkCreate(documents);
     const result = await app.get(
-      `/v1/encounter/${encounter.id}/documentMetadata?page=1&rowsPerPage=10&offset=5`,
+      `/api/encounter/${encounter.id}/documentMetadata?page=1&rowsPerPage=10&offset=5`,
     );
     expect(result).toHaveSucceeded();
     expect(result.body.data.length).toBe(7);
@@ -576,7 +576,7 @@ describe('Encounter', () => {
         reasonForEncounter: 'intact',
       });
 
-      const result = await noPermsApp.put(`/v1/encounter/${encounter.id}`).send({
+      const result = await noPermsApp.put(`/api/encounter/${encounter.id}`).send({
         reasonForEncounter: 'forbidden',
       });
       expect(result).toBeForbidden();
@@ -587,7 +587,7 @@ describe('Encounter', () => {
 
     it('should reject creating a new encounter with insufficient permissions', async () => {
       const noPermsApp = await baseApp.asRole('base');
-      const result = await noPermsApp.post('/v1/encounter').send({
+      const result = await noPermsApp.post('/api/encounter').send({
         ...(await createDummyEncounter(models)),
         patientId: patient.id,
         reasonForEncounter: 'should-not-be-created',
@@ -608,7 +608,7 @@ describe('Encounter', () => {
       // triage happens in Triage.test.js
 
       it('should create a new encounter', async () => {
-        const result = await app.post('/v1/encounter').send({
+        const result = await app.post('/api/encounter').send({
           ...(await createDummyEncounter(models)),
           patientId: patient.id,
         });
@@ -627,7 +627,7 @@ describe('Encounter', () => {
           name: 'Test referral source',
         });
 
-        const result = await app.post('/v1/encounter').send({
+        const result = await app.post('/api/encounter').send({
           ...(await createDummyEncounter(models)),
           patientId: patient.id,
           referralSourceId: referralSource.id,
@@ -646,7 +646,7 @@ describe('Encounter', () => {
           reasonForEncounter: 'before',
         });
 
-        const result = await app.put(`/v1/encounter/${v.id}`).send({
+        const result = await app.put(`/api/encounter/${v.id}`).send({
           reasonForEncounter: 'after',
         });
         expect(result).toHaveSucceeded();
@@ -662,7 +662,7 @@ describe('Encounter', () => {
           encounterType: 'triage',
         });
 
-        const result = await app.put(`/v1/encounter/${v.id}`).send({
+        const result = await app.put(`/api/encounter/${v.id}`).send({
           encounterType: 'admission',
         });
         expect(result).toHaveSucceeded();
@@ -682,7 +682,7 @@ describe('Encounter', () => {
           encounterType: 'triage',
         });
 
-        const result = await app.put(`/v1/encounter/${v.id}`).send({
+        const result = await app.put(`/api/encounter/${v.id}`).send({
           encounterType: 'not-a-real-encounter-type',
         });
         expect(result).toHaveRequestError();
@@ -700,7 +700,7 @@ describe('Encounter', () => {
           departmentId: departments[0].id,
         });
 
-        const result = await app.put(`/v1/encounter/${v.id}`).send({
+        const result = await app.put(`/api/encounter/${v.id}`).send({
           departmentId: departments[1].id,
         });
         expect(result).toHaveSucceeded();
@@ -723,7 +723,7 @@ describe('Encounter', () => {
           locationId: fromLocation.id,
         });
 
-        const result = await app.put(`/v1/encounter/${v.id}`).send({
+        const result = await app.put(`/api/encounter/${v.id}`).send({
           locationId: toLocation.id,
         });
         expect(result).toHaveSucceeded();
@@ -762,7 +762,7 @@ describe('Encounter', () => {
           patientId: patient.id,
           locationId: location.id,
         });
-        const result = await app.put(`/v1/encounter/${encounter.id}`).send({
+        const result = await app.put(`/api/encounter/${encounter.id}`).send({
           locationId: location2.id,
         });
 
@@ -784,7 +784,7 @@ describe('Encounter', () => {
           examinerId: fromClinician.id,
         });
 
-        const result = await app.put(`/v1/encounter/${existingEncounter.id}`).send({
+        const result = await app.put(`/api/encounter/${existingEncounter.id}`).send({
           examinerId: toClinician.id,
         });
         expect(result).toHaveSucceeded();
@@ -812,7 +812,7 @@ describe('Encounter', () => {
         });
         const endDate = getCurrentDateTimeString();
 
-        const result = await app.put(`/v1/encounter/${v.id}`).send({
+        const result = await app.put(`/api/encounter/${v.id}`).send({
           endDate,
           discharge: {
             encounterId: v.id,
@@ -858,7 +858,7 @@ describe('Encounter', () => {
         });
 
         // Mark only one medication for discharge
-        const result = await app.put(`/v1/encounter/${encounter.id}`).send({
+        const result = await app.put(`/api/encounter/${encounter.id}`).send({
           endDate: new Date(),
           discharge: {
             encounterId: encounter.id,
@@ -901,7 +901,7 @@ describe('Encounter', () => {
           patientId: patient.id,
         });
 
-        const result = await app.put(`/v1/encounter/${v.id}`).send({
+        const result = await app.put(`/api/encounter/${v.id}`).send({
           locationId: 'invalid-location-id',
         });
 
@@ -920,7 +920,7 @@ describe('Encounter', () => {
           locationId: fromLocation.id,
         });
 
-        const result = await app.put(`/v1/encounter/${v.id}`).send({
+        const result = await app.put(`/api/encounter/${v.id}`).send({
           locationId: toLocation.id,
           encounterType: 'not-a-real-encounter-type',
         });
@@ -957,7 +957,7 @@ describe('Encounter', () => {
       });
 
       it('should record a diagnosis', async () => {
-        const result = await app.post('/v1/diagnosis').send({
+        const result = await app.post('/api/diagnosis').send({
           encounterId: diagnosisEncounter.id,
           diagnosisId: testDiagnosis.id,
         });
@@ -966,7 +966,7 @@ describe('Encounter', () => {
       });
 
       it('should get diagnoses for an encounter', async () => {
-        const result = await app.get(`/v1/encounter/${diagnosisEncounter.id}/diagnoses`);
+        const result = await app.get(`/api/encounter/${diagnosisEncounter.id}/diagnoses`);
         expect(result).toHaveSucceeded();
         const { body } = result;
         expect(body.count).toBeGreaterThan(0);
@@ -974,7 +974,7 @@ describe('Encounter', () => {
       });
 
       it('should get diagnosis reference info when listing encounters', async () => {
-        const result = await app.get(`/v1/encounter/${diagnosisEncounter.id}/diagnoses`);
+        const result = await app.get(`/api/encounter/${diagnosisEncounter.id}/diagnoses`);
         expect(result).toHaveSucceeded();
         const { body } = result;
         expect(body.count).toBeGreaterThan(0);
@@ -1002,7 +1002,7 @@ describe('Encounter', () => {
       });
 
       it('should record a medication', async () => {
-        const result = await app.post('/v1/medication').send({
+        const result = await app.post('/api/medication').send({
           encounterId: medicationEncounter.id,
           medicationId: testMedication.id,
           prescriberId: app.user.id,
@@ -1012,7 +1012,7 @@ describe('Encounter', () => {
       });
 
       it('should get medications for an encounter', async () => {
-        const result = await app.get(`/v1/encounter/${medicationEncounter.id}/medications`);
+        const result = await app.get(`/api/encounter/${medicationEncounter.id}/medications`);
         expect(result).toHaveSucceeded();
         const { body } = result;
         expect(body.count).toBeGreaterThan(0);
@@ -1020,7 +1020,7 @@ describe('Encounter', () => {
       });
 
       it('should get medication reference info when listing encounters', async () => {
-        const result = await app.get(`/v1/encounter/${medicationEncounter.id}/medications`);
+        const result = await app.get(`/api/encounter/${medicationEncounter.id}/medications`);
         expect(result).toHaveSucceeded();
         const { body } = result;
         expect(body.count).toBeGreaterThan(0);
@@ -1083,7 +1083,7 @@ describe('Encounter', () => {
         });
         it('should record a new vitals reading', async () => {
           const submissionDate = getCurrentDateTimeString();
-          const result = await app.post('/v1/surveyResponse').send({
+          const result = await app.post('/api/surveyResponse').send({
             surveyId: 'vitals-survey',
             patientId: vitalsPatient.id,
             startTime: submissionDate,
@@ -1108,14 +1108,14 @@ describe('Encounter', () => {
             'pde-PatientVitalsHeight': 456,
             'pde-PatientVitalsWeight': 789,
           };
-          await app.post('/v1/surveyResponse').send({
+          await app.post('/api/surveyResponse').send({
             surveyId: 'vitals-survey',
             patientId: vitalsPatient.id,
             startTime: submissionDate,
             endTime: submissionDate,
             answers,
           });
-          const result = await app.get(`/v1/encounter/${vitalsEncounter.id}/vitals`);
+          const result = await app.get(`/api/encounter/${vitalsEncounter.id}/vitals`);
           expect(result).toHaveSucceeded();
           const { body } = result;
           expect(body).toHaveProperty('count');
@@ -1178,7 +1178,7 @@ describe('Encounter', () => {
               'pde-PatientVitalsDate': submissionDate,
               [patientVitalSbpKey]: value,
             };
-            await app.post('/v1/surveyResponse').send({
+            await app.post('/api/surveyResponse').send({
               id: responseId,
               surveyId: 'vitals-survey',
               patientId: vitalsPatient.id,
@@ -1223,7 +1223,7 @@ describe('Encounter', () => {
           );
 
           const result = await app.get(
-            `/v1/encounter/${vitalsEncounter.id}/vitals/${patientVitalSbpKey}?startDate=${startDateString}&endDate=${endDateString}`,
+            `/api/encounter/${vitalsEncounter.id}/vitals/${patientVitalSbpKey}?startDate=${startDateString}&endDate=${endDateString}`,
           );
           expect(result).toHaveSucceeded();
           const { body } = result;
@@ -1253,7 +1253,7 @@ describe('Encounter', () => {
           const startDateString = answers[0].submissionDate;
           const endDateString = formatISO9075(new Date());
           const result = await app.get(
-            `/v1/encounter/${vitalsEncounter.id}/vitals/${patientVitalSbpKey}?startDate=${startDateString}&endDate=${endDateString}`,
+            `/api/encounter/${vitalsEncounter.id}/vitals/${patientVitalSbpKey}?startDate=${startDateString}&endDate=${endDateString}`,
           );
           expect(result).toHaveSucceeded();
           const { body } = result;
@@ -1275,7 +1275,7 @@ describe('Encounter', () => {
 
     describe('document metadata', () => {
       it('should fail creating a document metadata if the encounter ID does not exist', async () => {
-        const result = await app.post('/v1/encounter/123456789/documentMetadata').send({
+        const result = await app.post('/api/encounter/123456789/documentMetadata').send({
           name: 'test document',
           documentOwner: 'someone',
           note: 'some note',
@@ -1296,7 +1296,7 @@ describe('Encounter', () => {
           attachmentId: '123456789',
         }));
 
-        const result = await app.post(`/v1/encounter/${encounter.id}/documentMetadata`).send({
+        const result = await app.post(`/api/encounter/${encounter.id}/documentMetadata`).send({
           name: 'test document',
           type: 'application/pdf',
           source: DOCUMENT_SOURCES.PATIENT_LETTER,
@@ -1341,7 +1341,7 @@ describe('Encounter', () => {
 
         // act
         const result = await app.get(
-          `/v1/encounter/${encodeURIComponent(encounter.id)}/imagingRequests`,
+          `/api/encounter/${encodeURIComponent(encounter.id)}/imagingRequests`,
         );
 
         // assert
@@ -1389,7 +1389,7 @@ describe('Encounter', () => {
 
         // act
         const result = await app.get(
-          `/v1/encounter/${encodeURIComponent(
+          `/api/encounter/${encodeURIComponent(
             encounter.id,
           )}/imagingRequests?orderBy=requestedBy.displayName&order=asc`,
         );
@@ -1409,7 +1409,7 @@ describe('Encounter', () => {
     describe('encounter history', () => {
       describe('single change', () => {
         it('should record an encounter history when an encounter is created', async () => {
-          const result = await app.post('/v1/encounter').send({
+          const result = await app.post('/api/encounter').send({
             ...(await createDummyEncounter(models)),
             patientId: patient.id,
           });
@@ -1438,7 +1438,7 @@ describe('Encounter', () => {
         it('should record an encounter history for a location change', async () => {
           const [oldLocation, newLocation] = await models.Location.findAll({ limit: 2 });
           const submittedTime = getCurrentDateTimeString();
-          const result = await app.post('/v1/encounter').send({
+          const result = await app.post('/api/encounter').send({
             ...(await createDummyEncounter(models)),
             patientId: patient.id,
             locationId: oldLocation.id,
@@ -1447,7 +1447,7 @@ describe('Encounter', () => {
           expect(result).toHaveSucceeded();
           const encounter = await models.Encounter.findByPk(result.body.id);
 
-          const updateResult = await app.put(`/v1/encounter/${encounter.id}`).send({
+          const updateResult = await app.put(`/api/encounter/${encounter.id}`).send({
             locationId: newLocation.id,
             submittedTime,
           });
@@ -1486,7 +1486,7 @@ describe('Encounter', () => {
         it('should record an encounter history for a department change', async () => {
           const [oldDepartment, newDepartment] = await models.Department.findAll({ limit: 2 });
           const submittedTime = getCurrentDateTimeString();
-          const result = await app.post('/v1/encounter').send({
+          const result = await app.post('/api/encounter').send({
             ...(await createDummyEncounter(models)),
             patientId: patient.id,
             departmentId: oldDepartment.id,
@@ -1495,7 +1495,7 @@ describe('Encounter', () => {
           expect(result).toHaveSucceeded();
           const encounter = await models.Encounter.findByPk(result.body.id);
 
-          const updateResult = await app.put(`/v1/encounter/${encounter.id}`).send({
+          const updateResult = await app.put(`/api/encounter/${encounter.id}`).send({
             departmentId: newDepartment.id,
             submittedTime,
           });
@@ -1534,7 +1534,7 @@ describe('Encounter', () => {
           const [oldClinician, newClinician] = await models.User.findAll({ limit: 2 });
           const submittedTime = getCurrentDateTimeString();
 
-          const result = await app.post('/v1/encounter').send({
+          const result = await app.post('/api/encounter').send({
             ...(await createDummyEncounter(models)),
             patientId: patient.id,
             examinerId: oldClinician.id,
@@ -1543,7 +1543,7 @@ describe('Encounter', () => {
           expect(result).toHaveSucceeded();
           const encounter = await models.Encounter.findByPk(result.body.id);
 
-          const updateResult = await app.put(`/v1/encounter/${encounter.id}`).send({
+          const updateResult = await app.put(`/api/encounter/${encounter.id}`).send({
             examinerId: newClinician.id,
             submittedTime,
           });
@@ -1583,7 +1583,7 @@ describe('Encounter', () => {
           const newEncounterType = 'clinic';
           const submittedTime = getCurrentDateTimeString();
 
-          const result = await app.post('/v1/encounter').send({
+          const result = await app.post('/api/encounter').send({
             ...(await createDummyEncounter(models)),
             patientId: patient.id,
             encounterType: oldEncounterType,
@@ -1592,7 +1592,7 @@ describe('Encounter', () => {
           expect(result).toHaveSucceeded();
           const encounter = await models.Encounter.findByPk(result.body.id);
 
-          const updateResult = await app.put(`/v1/encounter/${encounter.id}`).send({
+          const updateResult = await app.put(`/api/encounter/${encounter.id}`).send({
             encounterType: newEncounterType,
             submittedTime,
           });
@@ -1634,7 +1634,7 @@ describe('Encounter', () => {
           const [oldDepartment, newDepartment] = await models.Department.findAll({ limit: 2 });
           const [oldClinician, newClinician] = await models.User.findAll({ limit: 2 });
 
-          const result = await app.post('/v1/encounter').send({
+          const result = await app.post('/api/encounter').send({
             ...(await createDummyEncounter(models)),
             patientId: patient.id,
             examinerId: oldClinician.id,
@@ -1647,7 +1647,7 @@ describe('Encounter', () => {
 
           const locationChangeSubmittedTime = getCurrentDateTimeString();
 
-          const updateResult = await app.put(`/v1/encounter/${encounter.id}`).send({
+          const updateResult = await app.put(`/api/encounter/${encounter.id}`).send({
             locationId: newLocation.id,
             submittedTime: locationChangeSubmittedTime,
           });
@@ -1679,7 +1679,7 @@ describe('Encounter', () => {
           });
 
           const departmentChangeSubmittedTime = getCurrentDateTimeString();
-          const updateResult2 = await app.put(`/v1/encounter/${encounter.id}`).send({
+          const updateResult2 = await app.put(`/api/encounter/${encounter.id}`).send({
             departmentId: newDepartment.id,
             submittedTime: departmentChangeSubmittedTime,
           });
@@ -1725,7 +1725,7 @@ describe('Encounter', () => {
           });
 
           const clinicianChangeSubmittedTime = getCurrentDateTimeString();
-          const updateResult3 = await app.put(`/v1/encounter/${encounter.id}`).send({
+          const updateResult3 = await app.put(`/api/encounter/${encounter.id}`).send({
             examinerId: newClinician.id,
             submittedTime: clinicianChangeSubmittedTime,
           });
@@ -1788,7 +1788,7 @@ describe('Encounter', () => {
           const [oldDepartment, newDepartment] = await models.Department.findAll({ limit: 2 });
           const [clinician] = await models.User.findAll({ limit: 1 });
 
-          const result = await app.post('/v1/encounter').send({
+          const result = await app.post('/api/encounter').send({
             ...(await createDummyEncounter(models)),
             patientId: patient.id,
             examinerId: clinician.id,
@@ -1800,7 +1800,7 @@ describe('Encounter', () => {
           const encounter = await models.Encounter.findByPk(result.body.id);
 
           const locationChangeSubmittedTime = getCurrentDateTimeString();
-          const updateResult = await app.put(`/v1/encounter/${encounter.id}`).send({
+          const updateResult = await app.put(`/api/encounter/${encounter.id}`).send({
             locationId: newLocation.id, // update new location
             departmentId: newDepartment.id, // update new department
             examinerId: clinician.id,
@@ -1856,7 +1856,7 @@ describe('Encounter', () => {
           locationId: location.id,
         });
 
-        const result = await app.put(`/v1/encounter/${encounter.id}`).send({
+        const result = await app.put(`/api/encounter/${encounter.id}`).send({
           plannedLocationId: plannedLocation.id,
           submittedTime,
         });
@@ -1876,7 +1876,7 @@ describe('Encounter', () => {
           submittedTime: getCurrentDateTimeString(),
         });
 
-        const result = await app.put(`/v1/encounter/${encounter.id}`).send({
+        const result = await app.put(`/api/encounter/${encounter.id}`).send({
           plannedLocationId: null,
         });
         expect(result).toHaveSucceeded();
@@ -1895,7 +1895,7 @@ describe('Encounter', () => {
           submittedTime: getCurrentDateTimeString(),
         });
 
-        const result = await app.put(`/v1/encounter/${encounter.id}`).send({
+        const result = await app.put(`/api/encounter/${encounter.id}`).send({
           locationId: plannedLocation.id,
         });
         expect(result).toHaveSucceeded();

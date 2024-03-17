@@ -12,12 +12,23 @@ import {
 } from '@tamanu/constants';
 import { getDisplayDate } from './getDisplayDate';
 import { EncounterDetailsExtended } from './printComponents/EncounterDetailsExtended';
+import { MultiPageHeader } from './printComponents/MultiPageHeader';
+import { getName } from '../patientAccessors';
+import { Footer } from './printComponents/Footer';
 
 const borderStyle = '1 solid black';
 
 const DATE_FORMAT = 'dd/MM/yyyy';
 
 const DATE_TIME_FORMAT = 'dd/MM/yyyy h:mma';
+
+const pageStyles = StyleSheet.create({
+  body: {
+    paddingHorizontal: 50,
+    paddingTop: 30,
+    paddingBottom: 50,
+  },
+});
 
 const textStyles = StyleSheet.create({
   sectionTitle: {
@@ -55,7 +66,7 @@ const textStyles = StyleSheet.create({
 const tableStyles = StyleSheet.create({
   table: {
     flexDirection: 'column',
-    marginBottom: 15,
+    marginBottom: 5,
   },
   row: {
     flexDirection: 'row',
@@ -65,29 +76,40 @@ const tableStyles = StyleSheet.create({
     borderBottom: borderStyle,
     marginBottom: -1,
   },
+  notesRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    borderTop: borderStyle,
+    marginBottom: -1,
+  },
   baseCell: {
     flexDirection: 'row',
     borderLeft: borderStyle,
     alignItems: 'flex-start',
     padding: 7,
   },
-  flexCell: {
-    flex: 1,
-  },
   p: {
     fontFamily: 'Helvetica',
     fontSize: 10,
+  },
+  notesCell: {
+    width: '100%',
+    flexDirection: 'column',
+    borderLeft: borderStyle,
+    borderRight: borderStyle,
+    borderBottom: borderStyle,
+    alignItems: 'flex-start',
+    padding: 7,
+  },
+  notesFooter: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
   },
 });
 
 const Table = props => <View style={tableStyles.table} {...props} />;
 const Row = props => <View style={tableStyles.row} {...props} />;
 const P = ({ style = {}, children }) => <Text style={[tableStyles.p, style]}>{children}</Text>;
-const FlexCell = ({ children, style = {}, fontStyle = {} }) => (
-  <View style={[tableStyles.baseCell, tableStyles.flexCell, style]}>
-    <P style={fontStyle}>{children}</P>
-  </View>
-);
 
 const Cell = ({ children, style = {} }) => (
   <View style={[tableStyles.baseCell, style]}>
@@ -99,6 +121,10 @@ const HeaderCell = ({ children, style }) => (
   <View style={[tableStyles.baseCell, style]}>
     <P style={{ fontFamily: 'Helvetica-Bold' }}>{children}</P>
   </View>
+);
+
+const NotesCell = ({ children, style = {} }) => (
+  <View style={[tableStyles.notesCell, style]}>{children}</View>
 );
 
 const SectionSpacing = () => <View style={{ paddingBottom: '10px' }} />;
@@ -185,7 +211,7 @@ const COLUMNS = {
     },
     {
       key: 'requestedByName',
-      title: 'Requested By',
+      title: 'Requested by',
       style: { width: '20%' },
     },
     {
@@ -196,10 +222,10 @@ const COLUMNS = {
       style: { width: '17.5%' },
     },
     {
-      key: 'completedDate',
+      key: 'publishedDate',
       title: 'Published date',
-      accessor: ({ completedDate }) =>
-        completedDate ? getDisplayDate(completedDate, DATE_FORMAT) : '--/--/----',
+      accessor: ({ publishedDate }) =>
+        publishedDate ? getDisplayDate(publishedDate, DATE_FORMAT) : '--/--/----',
       style: { width: '17.5%' },
     },
   ],
@@ -208,7 +234,7 @@ const COLUMNS = {
       key: 'imagingType',
       title: 'Request type',
       accessor: ({ imagingName }) => imagingName?.label,
-      style: { width: '20%' },
+      style: { width: '17%' },
     },
     {
       key: 'areaToBeImaged',
@@ -217,13 +243,13 @@ const COLUMNS = {
         imagingRequest?.areas?.length
           ? imagingRequest?.areas.map(area => area.name).join(', ')
           : imagingRequest?.areaNote,
-      style: { width: '20%' },
+      style: { width: '25%' },
     },
     {
       key: 'requestedBy',
       title: 'Requested by',
       accessor: ({ requestedBy }) => requestedBy?.displayName,
-      style: { width: '20%' },
+      style: { width: '18%' },
     },
     {
       key: 'requestDate',
@@ -265,28 +291,53 @@ const COLUMNS = {
       key: 'prescriber',
       title: 'Prescriber',
       accessor: ({ prescriber }) => prescriber?.displayName,
-      style: { width: '30%' },
+      style: { width: '25%' },
     },
     {
       key: 'prescriptionDate',
       title: 'Prescription date',
       accessor: ({ date }) => (date ? getDisplayDate(date, DATE_FORMAT) : '--/--/----'),
-      style: { width: '17.5%' },
+      style: { width: '22.5%' },
     },
   ],
 };
 
-const DataTable = ({ data, columns }) => (
+const MultipageTableHeading = ({ title, style = textStyles.sectionTitle }) => {
+  let firstPageOccurence = Number.MAX_SAFE_INTEGER;
+  return (
+    <Text
+      fixed
+      style={style}
+      render={({ pageNumber, subPageNumber }) => {
+        if (pageNumber < firstPageOccurence && subPageNumber) {
+          firstPageOccurence = pageNumber;
+        }
+        return pageNumber === firstPageOccurence ? title : `${title} cont...`;
+      }}
+    />
+  );
+};
+
+const DataTableHeading = ({ columns, title }) => {
+  return (
+    <View fixed>
+      <MultipageTableHeading title={title} />
+      <Row wrap={false}>
+        {columns.map(({ key, title, style }) => (
+          <HeaderCell key={key} style={style}>
+            {title}
+          </HeaderCell>
+        ))}
+      </Row>
+    </View>
+  );
+};
+
+const DataTable = ({ data, columns, title }) => (
   <Table>
-    <Row>
-      {columns.map(({ key, title, style }) => (
-        <HeaderCell key={key} style={style}>
-          {title}
-        </HeaderCell>
-      ))}
-    </Row>
+    <DataTableHeading columns={columns} title={title} />
     {data.map(row => (
-      <Row key={row.id}>
+      <Row key={row.id} wrap={false}>
         {columns.map(({ key, accessor, style }) => (
           <Cell key={key} style={style}>
             {accessor ? accessor(row) : row[key] || ''}
@@ -300,40 +351,84 @@ const DataTable = ({ data, columns }) => (
 const TableSection = ({ title, data, columns }) => {
   return (
     <View>
-      <Text style={textStyles.sectionTitle}>{title}</Text>
-      <DataTable data={data} columns={columns} />
+      <View minPresenceAhead={70} />
+      <DataTable data={data} columns={columns} title={title} />
       <SectionSpacing />
     </View>
   );
 };
 
-const NotesSection = ({ notes }) => (
-  <View>
-    <Text style={textStyles.sectionTitle}>Notes</Text>
-    <Table>
-      {notes.map(note => (
-        <Row key={note.id}>
-          <FlexCell>
-            <Text style={textStyles.tableColumnHeader}>{NOTE_TYPE_LABELS[note.noteType]}</Text>
-            {`\n`}
-            <Text style={textStyles.tableCellContent}>{note.content}</Text>
-            {`\n`}
-            <Text style={textStyles.tableCellFooter}>
-              {note.noteType === NOTE_TYPES.TREATMENT_PLAN ? 'Last updated: ' : ''}
-            </Text>
-            <Text style={textStyles.tableCellFooter}>{note.author?.displayName || ''}</Text>
-            <Text style={textStyles.tableCellFooter}>
-              {note.onBehalfOf ? ` on behalf of ${note.onBehalfOf.displayName}` : null}
-            </Text>
-            <Text style={textStyles.tableCellFooter}>
-              {`${getDisplayDate(note.date)} ${getDisplayDate(note.date, 'h:mma')}`}
-            </Text>
-          </FlexCell>
-        </Row>
-      ))}
-    </Table>
-  </View>
+const NoteFooter = ({ note }) => (
+  <Text style={textStyles.tableCellFooter}>
+    {`${note.noteType === NOTE_TYPES.TREATMENT_PLAN ? 'Last updated: ' : ''}${note.author
+      ?.displayName || ''}${note.onBehalfOf ? ` on behalf of ${note.onBehalfOf.displayName}` : ''}`}
+    {` ${getDisplayDate(note.date)} ${getDisplayDate(note.date, 'h:mma')}`}
+  </Text>
 );
+
+const NotesMultipageCellPadding = () => {
+  let firstPageOccurence = Number.MAX_SAFE_INTEGER;
+  return (
+    <View
+      fixed
+      render={({ pageNumber, subPageNumber }) => {
+        if (pageNumber < firstPageOccurence && subPageNumber) {
+          firstPageOccurence = pageNumber;
+        }
+        return pageNumber !== firstPageOccurence && <View style={{ paddingBottom: 7 }} />;
+      }}
+    />
+  );
+};
+
+const NotesSection = ({ notes }) => {
+  return (
+    <>
+      <View minPresenceAhead={80} />
+      <View>
+        <MultipageTableHeading title="Notes" />
+        <Table>
+          {notes.map(note => (
+            <>
+              <View minPresenceAhead={80} />
+              <View style={tableStyles.notesRow} key={note.id}>
+                <View
+                  style={{
+                    borderTop: borderStyle,
+                    position: 'absolute',
+                    top: -1,
+                    right: 0,
+                    left: 0,
+                  }}
+                  fixed
+                />
+                <NotesCell>
+                  <NotesMultipageCellPadding />
+                  <MultipageTableHeading
+                    title={NOTE_TYPE_LABELS[note.noteType]}
+                    style={textStyles.tableColumnHeader}
+                  />
+                  <Text style={textStyles.tableCellContent}>{`${note.content}\n`}</Text>
+                  <NoteFooter note={note} />
+                  <View
+                    style={{
+                      borderBottom: borderStyle,
+                      position: 'absolute',
+                      bottom: -1,
+                      right: -1,
+                      left: -1,
+                    }}
+                    fixed
+                  />
+                </NotesCell>
+              </View>
+            </>
+          ))}
+        </Table>
+      </View>
+    </>
+  );
+};
 
 export const EncounterRecordPrintout = ({
   patientData,
@@ -355,8 +450,13 @@ export const EncounterRecordPrintout = ({
 
   return (
     <Document>
-      <Page size="A4" style={{ paddingHorizontal: 50, paddingVertical: 30 }}>
+      <Page size="A4" style={pageStyles.body} wrap>
         {watermark && <Watermark src={watermark} />}
+        <MultiPageHeader
+          documentName="Patient encounter record"
+          patientId={patientData.displayId}
+          patientName={getName(patientData)}
+        />
         <CertificateHeader>
           <LetterheadSection
             getLocalisation={getLocalisation}
@@ -404,6 +504,7 @@ export const EncounterRecordPrintout = ({
           <TableSection title="Medications" data={medications} columns={COLUMNS.medications} />
         )}
         {notes.length > 0 && <NotesSection notes={notes} />}
+        <Footer />
       </Page>
     </Document>
   );

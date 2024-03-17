@@ -11,10 +11,11 @@ import { Colors } from '../../../constants';
 import { PDFViewer, printPDF } from '../PDFViewer';
 import { useLocalisation } from '../../../contexts/Localisation';
 import { MultipleLabRequestsPrintout } from '@tamanu/shared/utils/patientCertificates';
+import { TranslatedText } from '../../Translation/TranslatedText';
 
 export const MultipleLabRequestsPrintoutModal = ({ encounter, labRequests, open, onClose }) => {
   const { getLocalisation } = useLocalisation();
-  const certificateData = useCertificate();
+  const { data: certificateData, isFetching: isCertificateFetching } = useCertificate();
   const api = useApi();
 
   const { data: patient, isLoading: patientLoading } = useQuery(
@@ -39,7 +40,9 @@ export const MultipleLabRequestsPrintoutModal = ({ encounter, labRequests, open,
 
   return (
     <Modal
-      title="Print lab requests"
+      title={
+        <TranslatedText stringId="lab.modal.printMultiple.title" fallback="Print lab requests" />
+      }
       width="md"
       open={open}
       onClose={onClose}
@@ -47,7 +50,7 @@ export const MultipleLabRequestsPrintoutModal = ({ encounter, labRequests, open,
       printable
       onPrint={() => printPDF('lab-request-printout')}
     >
-      {patientLoading || additionalDataLoading || villageLoading ? (
+      {patientLoading || additionalDataLoading || villageLoading || isCertificateFetching ? (
         <LoadingIndicator />
       ) : (
         <PDFViewer id="lab-request-printout">

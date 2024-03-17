@@ -14,9 +14,9 @@ import { PatientAdditionalData } from './PatientAdditionalData';
 import { PatientFacility } from './PatientFacility';
 import { NullableReferenceDataRelation, ReferenceData } from './ReferenceData';
 import { SYNC_DIRECTIONS } from './types';
-
 import { DateStringColumn } from './DateColumns';
 import { PatientContact } from './PatientContact';
+
 const TIME_OFFSET = 3;
 
 @Entity('patient')
@@ -126,11 +126,12 @@ export class Patient extends BaseModel implements IPatient {
       .addSelect('count(distinct surveyResponse.encounterId)', 'totalSurveys')
       .leftJoin('patient.encounters', 'encounter')
       .leftJoin(
-        subQuery => subQuery
-          .select('surveyResponse.id', 'id')
-          .addSelect('surveyResponse.encounterId', 'encounterId')
-          .from('survey_response', 'surveyResponse')
-          .where('surveyResponse.surveyId = :surveyId', { surveyId }),
+        subQuery =>
+          subQuery
+            .select('surveyResponse.id', 'id')
+            .addSelect('surveyResponse.encounterId', 'encounterId')
+            .from('survey_response', 'surveyResponse')
+            .where('surveyResponse.surveyId = :surveyId', { surveyId }),
         'surveyResponse',
         '"surveyResponse"."encounterId" = encounter.id',
       )
@@ -153,11 +154,12 @@ export class Patient extends BaseModel implements IPatient {
       .addSelect('count(distinct surveyResponse.encounterId)', 'totalSurveys')
       .leftJoin('patient.encounters', 'encounter')
       .leftJoin(
-        subQuery => subQuery
-          .select('surveyResponse.id', 'id')
-          .addSelect('surveyResponse.encounterId', 'encounterId')
-          .from('survey_response', 'surveyResponse')
-          .where('surveyResponse.surveyId = :surveyId', { surveyId }),
+        subQuery =>
+          subQuery
+            .select('surveyResponse.id', 'id')
+            .addSelect('surveyResponse.encounterId', 'encounterId')
+            .from('survey_response', 'surveyResponse')
+            .where('surveyResponse.surveyId = :surveyId', { surveyId }),
         'surveyResponse',
         '"surveyResponse"."encounterId" = encounter.id',
       )
@@ -174,11 +176,12 @@ export class Patient extends BaseModel implements IPatient {
       .addSelect('count(distinct surveyResponse.encounterId)', 'totalSurveys')
       .leftJoin('patient.encounters', 'encounter')
       .leftJoin(
-        subQuery => subQuery
-          .select('surveyResponse.id', 'id')
-          .addSelect('surveyResponse.encounterId', 'encounterId')
-          .from('survey_response', 'surveyResponse')
-          .where('surveyResponse.surveyId = :surveyId', { surveyId }),
+        subQuery =>
+          subQuery
+            .select('surveyResponse.id', 'id')
+            .addSelect('surveyResponse.encounterId', 'encounterId')
+            .from('survey_response', 'surveyResponse')
+            .where('surveyResponse.surveyId = :surveyId', { surveyId }),
         'surveyResponse',
         '"surveyResponse"."encounterId" = encounter.id',
       )

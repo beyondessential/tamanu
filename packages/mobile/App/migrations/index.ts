@@ -27,11 +27,20 @@ import { addSpecimenTypeAndCollectedByToLabRequest1686083400000 } from './168608
 import { addVitalLogs1690236942000 } from './1690236942000-addVitalLogs';
 import { migrateNotePagesToNotes1688950151000 } from './1688950151000-migrateNotePagesToNotes';
 import { addEncounterHistoryTable1693484817000 } from './1693484817000-addEncounterHistoryTable';
+import { addTranslatedStringTable1698353903000 } from './1698353903000-addTranslatedStringTable';
 import { addVisibilityStatusToSurveyScreenComponents1695096053000 } from './1695096053000-addVisibilityStatusToSurveyScreenComponents';
 import { addVisibilityStatusForUsers1697499690000 } from './1697499690000-addVisibilityStatusForUsers';
 import { addDeletedAtToAllTables1698626272000 } from './1698626272000-addDeletedAtToAllTables';
 import { addPatientCustomFieldsTables1694090332843 } from './1694090332843-addPatientCustomFieldsTables';
 import { addPatientContactTable1705975873000 } from './1705975873000-addPatientContactTable';
+import { addProgramRegistry1706106989000 } from './1706106989000-addProgramRegistries';
+import { addPatientProgramRegistration1706144623000 } from './1706144623000-addPatientProgramRegistration';
+import { addProgramRegistryClinicalStatuses1706506699000 } from './1706506699000-addProgramRegistryClinicalStatuses';
+import { addProgramRegistryConditions1706507296000 } from './1706507296000-addProgramRegistryConditions';
+import { addPatientProgramRegistrationConditions1706509624000 } from './1706509624000-addPatientProgramRegistrationConditions';
+import { addColumnIsMostRecentForTablePatientProgramRegistration1708557002000 } from './1708557002000-addColumnIsMostRecentForTablePatientProgramRegistration';
+import { addHideFromCertificateToScheduledVaccines1705264433000 } from './1705264433000-addHideFromCertificateToScheduledVaccines';
+import { addDeletionStatusToPatientProgramRegistrationConditions1709677995000 } from './1709677995000-addDeletionStatusToPatientProgramRegistrationConditions';
 
 export const migrationList = [
   databaseSetup1661160427226,
@@ -62,9 +71,18 @@ export const migrationList = [
   addVitalLogs1690236942000,
   migrateNotePagesToNotes1688950151000,
   addEncounterHistoryTable1693484817000,
+  addTranslatedStringTable1698353903000,
   addVisibilityStatusToSurveyScreenComponents1695096053000,
   addVisibilityStatusForUsers1697499690000,
   addDeletedAtToAllTables1698626272000,
   addPatientCustomFieldsTables1694090332843,
   addPatientContactTable1705975873000,
+  addProgramRegistry1706106989000,
+  addPatientProgramRegistration1706144623000,
+  addProgramRegistryClinicalStatuses1706506699000,
+  addProgramRegistryConditions1706507296000,
+  addPatientProgramRegistrationConditions1706509624000,
+  addColumnIsMostRecentForTablePatientProgramRegistration1708557002000,
+  addHideFromCertificateToScheduledVaccines1705264433000,
+  addDeletionStatusToPatientProgramRegistrationConditions1709677995000,
 ];

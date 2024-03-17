@@ -30,6 +30,7 @@ export * from './Discharge';
 export * from './Triage';
 
 export * from './ReferenceData';
+export * from './ReferenceDataRelation';
 
 export * from './VitalLog';
 export * from './Vitals';
@@ -108,4 +109,7 @@ export * from './SyncSession';
 export * from './SyncQueuedDevice';
 
 export * from './fhir';
+
+export * from './TranslatedString';
+
 export * from './IPSRequest';

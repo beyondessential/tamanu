@@ -4,8 +4,10 @@ import { useEncounterData } from '../../../api/queries';
 import { Button } from '../../../components/Button';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
 import { Modal } from '../../../components/Modal';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { MultipleImagingRequestsWrapper } from '../../../components/PatientPrinting/modals/MultipleImagingRequestsPrintoutModal';
 import { Colors } from '../../../constants';
+import { printPDF } from '../../../components/PatientPrinting/PDFViewer';
 
 const PrintModalInternals = ({ imagingRequest }) => {
   const encounterQuery = useEncounterData(imagingRequest.encounterId);
@@ -38,17 +40,18 @@ export const PrintModalButton = props => {
   return (
     <>
       <Modal
-        title="Imaging Request"
+        title={<TranslatedText stringId="imaging.modal.print.title" fallback="Imaging Request" />}
         open={isModalOpen}
         onClose={closeModal}
         width="md"
         color={Colors.white}
         printable
+        onPrint={() => printPDF('imaging-request-printout')}
       >
         <PrintModalInternals {...props} />
       </Modal>
       <Button variant="outlined" onClick={openModal} style={{ marginLeft: '0.5rem' }}>
-        Print request
+        <TranslatedText stringId="imaging.action.print" fallback="Print request" />
       </Button>
     </>
   );

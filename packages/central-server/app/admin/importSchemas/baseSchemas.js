@@ -296,7 +296,7 @@ export const AdministeredVaccine = Base.shape({
 });
 
 export const Encounter = Base.shape({
-  // contains only what's needed for administeredVaccine imports, extend as neccesary
+  // contains only what's needed for administeredVaccine imports, extend as necessary
   encounterType: yup.string().oneOf(Object.values(ENCOUNTER_TYPES)),
   startDate: yup.date().required(),
   endDate: yup.date(),
@@ -307,4 +307,8 @@ export const Encounter = Base.shape({
   departmentId: yup.string().required(),
   examinerId: yup.string().required(),
   patientId: yup.string().required(),
+});
+
+export const TranslatedString = yup.object().shape({
+  stringId: yup.string().required(),
 });

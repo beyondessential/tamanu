@@ -2,10 +2,10 @@ import React from 'react';
 import { LargeBodyText } from './Typography';
 import styled, { keyframes } from 'styled-components';
 import { Colors } from '../constants';
-import { TamanuLogoLeftIconBlue } from './TamanuLogo';
+import { LogoDark } from './Logo';
 import { Typography } from '@material-ui/core';
-
 import HeroImg from '../assets/images/splashscreens/screen_4.png';
+import { getBrandName } from '../utils';
 
 const FlexContainer = styled.div`
   display: flex;
@@ -38,7 +38,7 @@ const ErrorDescription = styled(LargeBodyText)`
   text-align: ${props => (props.$heroImage ? 'left' : 'center')};
 `;
 
-const Logo = styled(TamanuLogoLeftIconBlue)`
+const Logo = styled(LogoDark)`
   cursor: pointer;
 `;
 
@@ -49,7 +49,7 @@ const handleRefreshPage = () => {
 export const StatusPage = ({ message, description }) => {
   return (
     <Container>
-      <Logo onClick={handleRefreshPage} />
+      <Logo onClick={handleRefreshPage} size="140px" />
       <Content>
         <ErrorMessage>{message}</ErrorMessage>
         <ErrorDescription color="textTertiary">{description}</ErrorDescription>
@@ -58,12 +58,15 @@ export const StatusPage = ({ message, description }) => {
   );
 };
 
-export const UnavailableStatusPage = () => (
-  <StatusPage
-    message="Tamanu is currently unavailable"
-    description="Tamanu is currently unavailable. Please try again later or contact your system administrator for further information."
-  />
-);
+export const UnavailableStatusPage = () => {
+  const brandName = getBrandName();
+  return (
+    <StatusPage
+      message={`${brandName} is currently unavailable`}
+      description={`${brandName} is currently unavailable. Please try again later or contact your system administrator for further information.`}
+    />
+  );
+};
 
 const ellipsis = keyframes`
   from {
@@ -86,12 +89,15 @@ const AnimateEllipsis = styled.span`
   }
 `;
 
-export const LoadingStatusPage = () => (
-  <StatusPage
-    message={<AnimateEllipsis>Tamanu is loading</AnimateEllipsis>}
-    description="Tamanu is currently loading. Please do not navigate away from this page."
-  />
-);
+export const LoadingStatusPage = () => {
+  const brandName = getBrandName();
+  return (
+    <StatusPage
+      message={<AnimateEllipsis>{brandName} is loading</AnimateEllipsis>}
+      description={`${brandName} is currently loading. Please do not navigate away from this page.`}
+    />
+  );
+};
 
 const HeroImage = styled.div`
   background-image: url(${HeroImg});
@@ -114,7 +120,7 @@ export const StatusPageWithHeroImage = ({ message, description }) => {
   return (
     <FlexContainer>
       <Container>
-        <Logo onClick={handleRefreshPage} />
+        <Logo onClick={handleRefreshPage} size="140px" />
         <HeroContent>
           <ErrorMessage>{message}</ErrorMessage>
           <HeroErrorDescription color="textTertiary">{description}</HeroErrorDescription>
@@ -125,12 +131,15 @@ export const StatusPageWithHeroImage = ({ message, description }) => {
   );
 };
 
-export const UnsupportedBrowserStatusPage = () => (
-  <StatusPageWithHeroImage
-    message="Tamanu is only available on Chrome"
-    description="Please contact your system administrator for further information on how to access Tamanu using a Chrome browser."
-  />
-);
+export const UnsupportedBrowserStatusPage = () => {
+  const brandName = getBrandName();
+  return (
+    <StatusPageWithHeroImage
+      message={`${brandName} is only available on Chrome`}
+      description={`Please contact your system administrator for further information on how to access ${brandName} using a Chrome browser.`}
+    />
+  );
+};
 
 const MobileContainer = styled(Container)`
   display: flex;
@@ -147,12 +156,33 @@ const MobileContainer = styled(Container)`
   }
 `;
 
-export const MobileStatusPage = ({ platformType }) => (
-  <MobileContainer $platformType={platformType}>
-    <Logo onClick={handleRefreshPage} />
-    <ErrorDescription color="textTertiary">
-      Tamanu Desktop is not currently supported by mobile or tablet devices. Please access Tamanu
-      via a desktop computer or laptop.
-    </ErrorDescription>
-  </MobileContainer>
-);
+export const MobileStatusPage = ({ platformType }) => {
+  const brandName = getBrandName();
+  return (
+    <MobileContainer $platformType={platformType}>
+      <Logo onClick={handleRefreshPage} size="140px" />
+      <ErrorDescription color="textTertiary">
+        {brandName} is not currently supported by mobile or tablet devices. Please access via a
+        desktop computer or laptop.
+      </ErrorDescription>
+    </MobileContainer>
+  );
+};
+
+const SingleTabErrorMessage = styled(ErrorMessage)`
+  text-align: center;
+`;
+
+export const SingleTabStatusPage = () => {
+  const brandName = getBrandName();
+  return (
+    <StatusPage
+      message={
+        <SingleTabErrorMessage>
+          {brandName} can not be opened across <br /> multiple tabs.
+        </SingleTabErrorMessage>
+      }
+      description="Please continue working in the existing tab."
+    />
+  );
+};

@@ -281,7 +281,7 @@ describe('Data definition import', () => {
     const { baseApp } = ctx;
     const nonAdminApp = await baseApp.asRole('practitioner');
 
-    const response = await nonAdminApp.post('/v1/admin/importRefData');
+    const response = await nonAdminApp.post('/api/admin/importRefData');
     expect(response).toBeForbidden();
   });
 
@@ -476,7 +476,7 @@ describe('Import from an exported file', () => {
     await createDiagnosis(models);
     await createAllergy(models);
     const fileName = await exporter(
-      models,
+      { models },
       {
         1: 'patient',
         2: REFERENCE_TYPES.ALLERGY,

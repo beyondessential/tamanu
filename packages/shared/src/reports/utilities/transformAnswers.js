@@ -58,17 +58,17 @@ export const getAnswerBody = async (models, componentConfig, type, answer, trans
   }
 };
 
+// Logic duplicated in packages/mobile/App/ui/navigation/screens/programs/SurveyResponseDetailsScreen/index.tsx
+const isAutocomplete = ({ config, dataElement }) => dataElement.type === 'Autocomplete' ||
+ (config && JSON.parse(config).writeToPatient?.fieldType === 'Autocomplete');
+
 export const getAutocompleteComponentMap = surveyComponents => {
   const autocompleteComponents = surveyComponents
-    .filter(c => c.dataElement.type === 'Autocomplete')
+    .filter(isAutocomplete)
     .map(({ dataElementId, config: componentConfig }) => [
       dataElementId,
       componentConfig ? JSON.parse(componentConfig) : {},
-    ])
-    // We only care that components have a config.source
-    // This is at the time of writing only Autocomplete components or PatientData
-    // questions with writeToPatient.fieldType = 'Autocomplete'
-    .filter(([, config]) => config.source);
+    ]);
   return new Map(autocompleteComponents);
 };
 
