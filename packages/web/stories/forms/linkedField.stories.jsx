@@ -12,6 +12,10 @@ const Container = styled.div`
   padding: 2rem;
 `;
 
+const StyledLinkedField = styled(LinkedField)`
+  margin-bottom: 1rem;
+`;
+
 const endpoints = {
   'linkedField/healthCenter/:id': (_, query) => {
     if (['1', '2'].includes(query)) return { id: '1', name: 'Health Facility 1' };
@@ -70,12 +74,10 @@ const BasicTemplate = args => {
   return (
     <MockedApi endpoints={endpoints}>
       <Form
-        onSubmit={values => {
-          console.log(values);
-        }}
+        onSubmit={async () => {}}
         render={() => (
           <div>
-            <LinkedField
+            <StyledLinkedField
               component={AutocompleteField}
               name="villageId"
               linkedFieldName="nursingZoneId"
