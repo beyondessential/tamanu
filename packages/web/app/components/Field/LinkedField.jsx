@@ -11,15 +11,15 @@ const useLinkedFieldQuery = (endpoint, name, value) => {
 };
 
 export const LinkedField = ({ linkedFieldName, endpoint, ...props }) => {
-  const [field] = useField(props.name);
+  const [{ value }] = useField(props.name);
   const { setValue: setLinkedFieldValue } = useField(linkedFieldName)[2];
-  const { data, isLoading } = useLinkedFieldQuery(endpoint, props.name, field.value);
+  const { data, isLoading } = useLinkedFieldQuery(endpoint, props.name, value);
 
   useEffect(() => {
     if (data && !isLoading) {
       setLinkedFieldValue(data.id);
     }
-  }, [data, isLoading, linkedFieldName, setLinkedFieldValue]);
+  }, [data, isLoading, setLinkedFieldValue]);
 
   return <Field {...props} />;
 };
