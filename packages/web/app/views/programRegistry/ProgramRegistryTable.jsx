@@ -103,23 +103,46 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
           const isRemoved = row.registrationStatus === REGISTRATION_STATUSES.INACTIVE;
           const isDeleted = row.registrationStatus === REGISTRATION_STATUSES.RECORDED_IN_ERROR;
 
-          let actions = {
-            'Change status': () => setOpenModal({ action: 'ChangeStatus', data: row }),
-            Remove: () => setOpenModal({ action: 'Remove', data: row }),
-            Delete: () => setOpenModal({ action: 'Delete', data: row }),
-          };
+          let actions = [
+            {
+              label: (
+                <TranslatedText stringId="general.action.changeStatus" fallback="Change status" />
+              ),
+              action: () => setOpenModal({ action: 'ChangeStatus', data: row }),
+            },
+            {
+              label: <TranslatedText stringId="general.action.remove" fallback="Remove" />,
+              action: () => setOpenModal({ action: 'Remove', data: row }),
+            },
+            {
+              label: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
+              action: () => setOpenModal({ action: 'Delete', data: row }),
+            },
+          ];
 
           if (isRemoved)
-            actions = {
-              Activate: () => setOpenModal({ action: 'Activate', data: row }),
-              Delete: () => setOpenModal({ action: 'Delete', data: row }),
-            };
+            actions = [
+              {
+                label: <TranslatedText stringId="general.action.activate" fallback="Activate" />,
+                action: () => setOpenModal({ action: 'Activate', data: row }),
+              },
+              {
+                label: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
+                action: () => setOpenModal({ action: 'Delete', data: row }),
+              },
+            ];
 
           if (isDeleted)
-            actions = {
-              Activate: () => setOpenModal({ action: 'Activate', data: row }),
-              Remove: () => setOpenModal({ action: 'Remove', data: row }),
-            };
+            actions = [
+              {
+                label: <TranslatedText stringId="general.action.activate" fallback="Activate" />,
+                action: () => setOpenModal({ action: 'Activate', data: row }),
+              },
+              {
+                label: <TranslatedText stringId="general.action.remove" fallback="Remove" />,
+                action: () => setOpenModal({ action: 'Remove', data: row }),
+              },
+            ];
           return <MenuButton onClick={() => {}} actions={actions} />;
         },
         sortable: false,

@@ -20,7 +20,7 @@ import { useSuggester } from '../../api';
 import { useAuth } from '../../contexts/Auth';
 import { Modal } from '../../components/Modal';
 import { useApi } from '../../api/useApi';
-import { PROGRAM_REGISTRY } from '../../components/PatientInfoPane/paneTitles';
+import { PANE_SECTION_IDS } from '../../components/PatientInfoPane/paneSections';
 import {
   usePatientProgramRegistryConditionsQuery,
   useProgramRegistryConditionsQuery,
@@ -94,7 +94,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
     );
 
     // Invalidate queries and close modal
-    queryClient.invalidateQueries([`infoPaneListItem-${PROGRAM_REGISTRY}`]);
+    queryClient.invalidateQueries([`infoPaneListItem-${PANE_SECTION_IDS.PROGRAM_REGISTRY}`]);
     onClose();
   };
 
