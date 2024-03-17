@@ -38,7 +38,7 @@ export const ProgramRegistryListItem = ({ item, ListItem }) => {
           <RegistrationStatusIndicator patientProgramRegistration={item} hideText />
           <NameContainer style={{ width: '90%' }}>{programRegistry?.name}</NameContainer>
         </RowContents>
-        <NameContainer style={{ width: '38%' }}>{clinicalStatus?.name}</NameContainer>
+        <NameContainer style={{ width: '38%', textAlign: 'right', paddingRight: '8px' }}>{clinicalStatus?.name}</NameContainer>
       </Spacer>
     </ListItem>
   );
