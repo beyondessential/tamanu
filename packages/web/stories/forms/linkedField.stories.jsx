@@ -70,14 +70,14 @@ export default {
   ],
 };
 
-const BasicTemplate = args => {
+const BasicTemplate = () => {
   return (
     <MockedApi endpoints={endpoints}>
       <Form
         onSubmit={async () => {}}
         render={() => (
           <div>
-            <Heading4>Linked fields pre-populating Health center on village change</Heading4>
+            <Heading4>Linked fields pre-populating Health center on village change:</Heading4>
             <StyledLinkedField
               component={AutocompleteField}
               name="villageId"
