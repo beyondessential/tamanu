@@ -11,6 +11,9 @@ export const queryTranslatedStringsByLanguage = async ({ sequelize, models }) =>
     attributes: ['language'],
     group: 'language',
   });
+
+  if (!languagesInDb.length) return [];
+
   const translations = await sequelize.query(
     `
       SELECT

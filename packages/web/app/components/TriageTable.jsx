@@ -47,6 +47,9 @@ const useColumns = () => {
     },
     {
       key: 'displayId',
+      title: (
+        <TranslatedText stringId="general.localisedField.displayId.label.short" fallback="NHN" />
+      ),
     },
     {
       key: 'patientName',
@@ -57,10 +60,14 @@ const useColumns = () => {
     },
     {
       key: 'dateOfBirth',
+      title: (
+        <TranslatedText stringId="general.localisedField.dateOfBirth.label.short" fallback="DOB" />
+      ),
       accessor: row => <DateDisplay date={row.dateOfBirth} />,
     },
     {
       key: 'sex',
+      title: <TranslatedText stringId="general.localisedField.sex.label" fallback="Sex" />,
       accessor: row => <span style={{ textTransform: 'capitalize' }}>{row.sex || ''}</span>,
     },
     {

@@ -7,7 +7,7 @@ import { FormGrid } from '../components/FormGrid';
 import { FormSubmitCancelRow } from '../components/ButtonRow';
 
 import { foreignKey } from '../utils/validation';
-import { LocalisedText } from '../components';
+import { FORM_TYPES } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 
 export const PatientCarePlanForm = ({
@@ -23,7 +23,7 @@ export const PatientCarePlanForm = ({
       <FormGrid columns={1}>
         <Field
           name="carePlanId"
-          label={<TranslatedText stringId="carePlan.form.plan.label" fallback="Care plan" />}
+          label={<TranslatedText stringId="carePlan.plan.label" fallback="Care plan" />}
           component={AutocompleteField}
           suggester={carePlanSuggester}
           required
@@ -32,14 +32,19 @@ export const PatientCarePlanForm = ({
           <Field
             name="date"
             label={
-              <TranslatedText stringId="general.form.recordedDate.label" fallback="Date recorded" />
+              <TranslatedText stringId="general.recordedDate.label" fallback="Date recorded" />
             }
             component={DateTimeField}
             saveDateAsString
           />
           <Field
             name="examinerId"
-            label={<LocalisedText path="fields.clinician.shortLabel" />}
+            label={
+              <TranslatedText
+                stringId="general.localisedField.practitioner.label.short"
+                label="Practitioner"
+              />
+            }
             component={AutocompleteField}
             suggester={practitionerSuggester}
           />
@@ -47,7 +52,7 @@ export const PatientCarePlanForm = ({
         <Field
           name="content"
           label={
-            <TranslatedText stringId="carePlan.form.content.label" fallback="Main care plan" />
+            <TranslatedText stringId="carePlan.content.label" fallback="Main care plan" />
           }
           required
           component={TextField}
@@ -71,6 +76,7 @@ export const PatientCarePlanForm = ({
       date: getCurrentDateTimeString(),
       ...editedObject,
     }}
+    formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
     validationSchema={yup.object().shape({
       carePlanId: foreignKey('Care plan is a required field'),
       date: yup.date(),

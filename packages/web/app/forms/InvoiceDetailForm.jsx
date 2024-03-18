@@ -4,7 +4,12 @@ import * as yup from 'yup';
 import Collapse from '@material-ui/core/Collapse';
 import PrintIcon from '@material-ui/icons/Print';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
-import { Colors, ENCOUNTER_OPTIONS_BY_VALUE, INVOICE_PAYMENT_STATUS_OPTIONS } from '../constants';
+import {
+  Colors,
+  ENCOUNTER_OPTIONS_BY_VALUE,
+  FORM_TYPES,
+  INVOICE_PAYMENT_STATUS_OPTIONS,
+} from '../constants';
 import { foreignKey } from '../utils/validation';
 import { isInvoiceEditable } from '../utils';
 
@@ -148,7 +153,7 @@ export const InvoiceDetailForm = ({
               name="paymentStatus"
               label={
                 <TranslatedText
-                  stringId="invoice.modal.view.form.paymentStatus.label"
+                  stringId="invoice.modal.view.paymentStatus.label"
                   fallback="Payment status"
                 />
               }
@@ -160,7 +165,7 @@ export const InvoiceDetailForm = ({
               name="total"
               label={
                 <TranslatedText
-                  stringId="invoice.modal.view.form.total.label"
+                  stringId="invoice.modal.view.total.label"
                   fallback="Total ($)"
                 />
               }
@@ -170,7 +175,7 @@ export const InvoiceDetailForm = ({
             />
             <Field
               name="date"
-              label={<TranslatedText stringId="general.form.date.label" fallback="Date" />}
+              label={<TranslatedText stringId="general.date.label" fallback="Date" />}
               disabled
               required
               component={DateField}
@@ -180,7 +185,7 @@ export const InvoiceDetailForm = ({
               name="admissionType"
               label={
                 <TranslatedText
-                  stringId="invoice.modal.view.form.admissionType.label"
+                  stringId="invoice.modal.view.admissionType.label"
                   fallback="Admission type"
                 />
               }
@@ -191,7 +196,7 @@ export const InvoiceDetailForm = ({
               name="receiptNumber"
               label={
                 <TranslatedText
-                  stringId="invoice.modal.view.form.receiptNumber.label"
+                  stringId="invoice.modal.view.receiptNumber.label"
                   fallback="Receipt number"
                 />
               }
@@ -225,6 +230,7 @@ export const InvoiceDetailForm = ({
             ? ENCOUNTER_OPTIONS_BY_VALUE[invoice.admissionType].label
             : '',
         }}
+        formType={FORM_TYPES.EDIT_FORM}
         validationSchema={yup.object().shape({
           status: foreignKey('Status is required'),
         })}

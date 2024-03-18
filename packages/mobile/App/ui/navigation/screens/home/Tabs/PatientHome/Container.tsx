@@ -17,6 +17,8 @@ import { useBackend } from '~/ui/hooks';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { Patient } from '../../../../../../models/Patient';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
+import { useAuth } from '~/ui/contexts/AuthContext';
+import { PatientFromRoute } from '~/ui/helpers/constants';
 
 interface IPopup {
   title: string;
@@ -65,8 +67,16 @@ const showPatientWarningPopups = (issues: IPatientIssue[]): void =>
 const PatientHomeContainer = ({
   navigation,
   selectedPatient,
+  setSelectedPatient,
+  route,
 }: PatientHomeScreenProps): ReactElement => {
+  const { ability } = useAuth();
+  const canListRegistrations = ability.can('list', 'PatientProgramRegistration');
+  const canCreateRegistration = ability.can('create', 'PatientProgramRegistration');
+  const canViewProgramRegistries = canListRegistrations || canCreateRegistration;
   const [errorMessage, setErrorMessage] = useState();
+  const { from } = route.params || {};
+
   const visitTypeButtons = useMemo(
     () => [
       {
@@ -105,7 +115,7 @@ const PatientHomeContainer = ({
         onPress: (): void => navigation.navigate(Routes.HomeStack.LabRequestStack.Index),
       },
     ],
-    [],
+    [navigation],
   );
 
   const patientMenuButtons = useMemo(
@@ -120,13 +130,29 @@ const PatientHomeContainer = ({
         title: <TranslatedText stringId="patient.action.viewVitalHistory" fallback="View history" />,
         onPress: (): void => navigation.navigate(Routes.HomeStack.HistoryVitalsStack.Index),
       },
+      {
+        title: 'Program registries',
+        onPress: (): void => navigation.navigate(Routes.HomeStack.PatientSummaryStack.Index),
+        hideFromMenu: !canViewProgramRegistries,
+      },
     ],
-    [],
+    [navigation, canViewProgramRegistries],
   );
 
   const onNavigateToSearchPatients = useCallback(() => {
-    navigation.navigate(Routes.HomeStack.SearchPatientStack.Index);
-  }, []);
+    setSelectedPatient(null);
+    if (from === PatientFromRoute.ALL_PATIENT || from === PatientFromRoute.RECENTLY_VIEWED) {
+      navigation.navigate(Routes.HomeStack.SearchPatientStack.Index, {
+        screen: Routes.HomeStack.SearchPatientStack.Index,
+        params: {
+          screen: Routes.HomeStack.SearchPatientStack.SearchPatientTabs.Index,
+          from: from,
+        },
+      });
+    } else {
+      navigation.goBack();
+    }
+  }, [from, navigation, setSelectedPatient]);
 
   const { models, syncManager } = useBackend();
   const onSyncPatient = useCallback(async (): Promise<void> => {
@@ -137,7 +163,7 @@ const PatientHomeContainer = ({
     } catch (error) {
       setErrorMessage(error.message);
     }
-  }, [selectedPatient]);
+  }, [navigation, syncManager, selectedPatient]);
 
   const [patientIssues, setPatientIssues] = useState(null);
   useFocusEffect(
