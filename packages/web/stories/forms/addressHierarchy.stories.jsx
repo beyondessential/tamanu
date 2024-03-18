@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import HierarchyFields from '../../app/components/Field/HierarchyFields';
+import { HierarchyFields } from '../../app/components/Field/HierarchyFields';
 import { MockedApi } from '../utils/mockedApi';
 
 const Container = styled.div`

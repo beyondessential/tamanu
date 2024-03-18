@@ -5,7 +5,7 @@ import { LocalisedField } from './LocalisedField';
 import { useFormikContext } from 'formik';
 import { Suggester } from '../../utils/suggester';
 
-const HierarchyFieldItem = ({ isFirstLevel, relationType, parentId, fieldData }) => {
+export const HierarchyFieldItem = ({ isFirstLevel, relationType, parentId, fieldData }) => {
   const api = useApi();
   const { setFieldValue } = useFormikContext();
 
@@ -14,11 +14,11 @@ const HierarchyFieldItem = ({ isFirstLevel, relationType, parentId, fieldData })
       enable: isFirstLevel || !!parentId,
       baseQueryParameters: !isFirstLevel && { parentId, relationType },
     });
-  }, [parentId, relationType]);
+  }, [api, fieldData.referenceType, isFirstLevel, parentId, relationType]);
 
   useEffect(() => {
     setFieldValue(fieldData.name, undefined);
-  }, [parentId]);
+  }, [fieldData.name, parentId, setFieldValue]);
 
   return (
     <LocalisedField
@@ -29,5 +29,3 @@ const HierarchyFieldItem = ({ isFirstLevel, relationType, parentId, fieldData })
     />
   );
 };
-
-export default HierarchyFieldItem;

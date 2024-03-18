@@ -1,10 +1,10 @@
 import React from 'react';
 import { useHierarchyTypesQuery } from '../../api/queries';
-import HierarchyFieldItem from './HierarchyFieldItem';
+import { HierarchyFieldItem } from './HierarchyFieldItem';
 import { useFormikContext } from 'formik';
 import { get } from 'lodash';
 
-const HierarchyFields = ({ fields, baseLevel, relationType }) => {
+export const HierarchyFields = ({ fields, baseLevel, relationType }) => {
   const { values } = useFormikContext();
   const { data } = useHierarchyTypesQuery({ baseLevel, relationType });
 
@@ -32,5 +32,3 @@ const HierarchyFields = ({ fields, baseLevel, relationType }) => {
     </>
   );
 };
-
-export default HierarchyFields;

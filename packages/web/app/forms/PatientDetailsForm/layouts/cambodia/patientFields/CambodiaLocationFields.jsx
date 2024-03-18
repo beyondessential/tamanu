@@ -2,7 +2,7 @@ import React from 'react';
 import { TextField } from '../../../../../components';
 import { ConfiguredMandatoryPatientFields } from '../../../ConfiguredMandatoryPatientFields';
 import { TranslatedText } from '../../../../../components/Translation/TranslatedText';
-import HierarchyFields from '../../../../../components/Field/HierarchyFields';
+import { HierarchyFields } from '../../../../../components/Field/HierarchyFields';
 import { REFERENCE_DATA_RELATION_TYPES, REFERENCE_TYPES } from '@tamanu/constants';
 import { useFilterPatientFields } from '../../../useFilterPatientFields';
 
