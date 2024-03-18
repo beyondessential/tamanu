@@ -31,8 +31,8 @@ const replaceDataLabelsWithTranslations = ({ data, translations }) => {
     return translatedText ? { ...item, name: translatedText } : item;
   });
 };
-const ENDPOINT_TO_DATA_TYPE = {
-  ['facilityLocationGroup']: 'locationGroup', // Special case where the endpoint name doesn't match the dataType
+const ENDPOINT_TO_DATA_TYPE = { // Special cases where the endpoint name doesn't match the dataType
+  ['facilityLocationGroup']: 'locationGroup',
   ['patientLabTestCategories']: 'labTestCategory',
   ['patientLabTestPanelTypes']: 'labTestPanelType',
 };
@@ -58,8 +58,6 @@ function createSuggesterRoute(
       const isTranslatable = TRANSLATABLE_REFERENCE_TYPES.includes(getDataType(endpoint));
       let translations = [];
       let suggestedIds = [];
-
-      console.log(isTranslatable, endpoint)
 
       if (isTranslatable) {
         // Fetch all the possible translations for this dataType
