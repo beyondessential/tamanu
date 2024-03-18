@@ -11,7 +11,6 @@ const HEALTH_CENTER_DEFINITION_ID = 'fieldDefinition-healthCenter';
 
 export const CambodiaContactFields = ({ filterByMandatory }) => {
   const medicalAreaSuggester = useSuggester('medicalArea');
-  const nursingZoneSuggester = useSuggester('nursingZone');
   const facilitySuggester = useSuggester('facility');
   const CONTACT_FIELDS = {
     primaryContactNumber: {
@@ -62,16 +61,6 @@ export const CambodiaContactFields = ({ filterByMandatory }) => {
         />
       ),
       suggester: medicalAreaSuggester,
-    },
-    nursingZoneId: {
-      component: AutocompleteField,
-      label: (
-        <TranslatedText
-          stringId="cambodiaPatientDetails.healthCenter.label"
-          fallback="Health center"
-        />
-      ),
-      suggester: nursingZoneSuggester,
     },
   };
   return (
