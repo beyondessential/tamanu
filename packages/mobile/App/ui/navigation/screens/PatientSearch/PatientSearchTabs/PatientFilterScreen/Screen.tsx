@@ -17,6 +17,7 @@ import {
 } from './CustomComponents';
 import SubmitSection from './CustomComponents/SubmitSection';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { ArrowLeftIcon } from '~/ui/components/Icons';
 
 interface ScreenProps {
   onCancel: () => void;
@@ -39,12 +40,13 @@ export const Screen = ({ onSubmit, onClear, onCancel }: ScreenProps): ReactEleme
           width={screenPercentageToDP(10, Orientation.Width)}
           marginLeft={screenPercentageToDP(2.43, Orientation.Width)}
         >
-          <StyledText color={theme.colors.BOX_OUTLINE} fontSize={12}>
-            Cancel
-          </StyledText>
+          <ArrowLeftIcon
+            width={screenPercentageToDP(4.86, Orientation.Width)}
+            height={screenPercentageToDP(4.86, Orientation.Width)}
+          />
         </Button>
 
-        <StyledText fontSize={18} color={theme.colors.WHITE}>
+        <StyledText fontSize={16} color={theme.colors.WHITE}>
           Filter Search
         </StyledText>
 
@@ -54,7 +56,7 @@ export const Screen = ({ onSubmit, onClear, onCancel }: ScreenProps): ReactEleme
           width={screenPercentageToDP(20, Orientation.Width)}
           marginRight={screenPercentageToDP(2.43, Orientation.Width)}
         >
-          <StyledText color={theme.colors.BOX_OUTLINE} fontSize={12}>
+          <StyledText color={theme.colors.WHITE} fontSize={11}>
             Clear Filters
           </StyledText>
         </Button>
