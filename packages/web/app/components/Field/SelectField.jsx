@@ -182,6 +182,7 @@ export const SelectInput = ({
       <OuterLabelFieldWrapper label={label} {...props}>
         <StyledTextField
           value={valueText}
+          styles={defaultStyles}
           variant="outlined"
           classes={classes}
           disabled={disabled}
