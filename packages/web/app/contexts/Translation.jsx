@@ -19,11 +19,6 @@ export const TranslationProvider = ({ children }) => {
   const getTranslation = (stringId, fallback) => {
     if (!translations) return fallback;
     if (translations[stringId]) return translations[stringId];
-    // This section here is a dev tool to help populate the db with the translation ids we have defined
-    // in components. It will only populate the db with English strings, so that we can then translate them.
-    if (isDev && storedLanguage === 'en') {
-      api.post('translation', { stringId, fallback, text: fallback });
-    }
     return fallback;
   };
 
