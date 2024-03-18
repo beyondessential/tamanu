@@ -45,24 +45,6 @@ referenceData.get(
   }),
 );
 
-referenceData.get(
-  '/:id/children',
-  asyncHandler(async (req, res) => {
-    req.flagPermissionChecked();
-    const {
-      models: { ReferenceData },
-      params: { id },
-      query: { q = '', relationType = DEFAULT_HIERARCHY_TYPE },
-    } = req;
-
-    const searchQuery = q.trim().toLowerCase();
-
-    const entity = await ReferenceData.findByPk(id);
-    const children = await entity.getChildren(relationType, `%${searchQuery}%`);
-    res.send(children);
-  }),
-);
-
 referenceData.get('/:id', simpleGet('ReferenceData'));
 referenceData.put('/:id', simplePut('ReferenceData'));
 referenceData.post('/$', simplePost('ReferenceData'));
