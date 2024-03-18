@@ -6,10 +6,20 @@ import { TextField } from '~/ui/components/TextField/TextField';
 export const NameSection = (): ReactElement => (
   <StyledView marginTop={30}>
     <StyledView marginLeft={20} marginRight={20}>
-      <LocalisedField labelFontSize={14} component={TextField} name="firstName" />
+      <LocalisedField
+        labelFontSize={14}
+        component={TextField}
+        name="firstName"
+        placeholder="First name"
+      />
     </StyledView>
     <StyledView marginLeft={20} marginRight={20}>
-      <LocalisedField labelFontSize={14} component={TextField} name="lastName" />
+      <LocalisedField
+        labelFontSize={14}
+        component={TextField}
+        name="lastName"
+        placeholder="Last name"
+      />
     </StyledView>
   </StyledView>
 );
