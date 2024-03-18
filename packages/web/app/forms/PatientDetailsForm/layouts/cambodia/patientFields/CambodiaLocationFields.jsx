@@ -8,7 +8,8 @@ import { LinkedField } from '../../../../../components/Field/LinkedField';
 const HealthCenterLinkedVillageField = props => (
   <LinkedField
     {...props}
-    linkedFieldName="nursingZoneId"
+    linkedFieldName="healthCenterId"
+    endpoint="referenceData/facilityCatchmentHierarchy"
     name="villageId"
     component={AutocompleteField}
   />
@@ -42,8 +43,6 @@ export const CambodiaLocationFields = ({ filterByMandatory }) => {
     },
     villageId: {
       component: HealthCenterLinkedVillageField,
-      linkedFieldName: 'nursingZoneId',
-      endpoint: 'linkedField/healthCenter',
       suggester: villageSuggester,
       label: (
         <TranslatedText stringId="general.localisedField.villageId.label" fallback="Village" />
