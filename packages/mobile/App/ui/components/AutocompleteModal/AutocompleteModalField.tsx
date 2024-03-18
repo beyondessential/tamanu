@@ -10,6 +10,7 @@ import { TextFieldErrorMessage } from '/components/TextField/TextFieldErrorMessa
 import { RequiredIndicator } from '../RequiredIndicator';
 import { SearchIcon } from '../Icons';
 import { ReadOnlyField } from '../ReadOnlyField/index';
+import { TranslatedText } from '../Translations/TranslatedText';
 
 interface AutocompleteModalFieldProps {
   value?: string;
@@ -86,7 +87,10 @@ export const AutocompleteModalField = ({
         marginTop={marginTop}
         backgroundColor={theme.colors.WHITE}
         textColor={label ? theme.colors.TEXT_SUPER_DARK : theme.colors.TEXT_SOFT}
-        buttonText={label || placeholder || 'Select'}
+        buttonText={
+          label ||
+          placeholder || <TranslatedText stringId="general.action.select" fallback="Select" />
+        }
         height={screenPercentageToDP(6.68, Orientation.Height)}
         justifyContent="flex-start"
         borderRadius={3}
