@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo } from 'react';
-import { useApi, useSuggester } from '../../api';
+import { useApi } from '../../api';
 import { AutocompleteField } from './AutocompleteField';
 import { LocalisedField } from './LocalisedField';
 import { useFormikContext } from 'formik';
