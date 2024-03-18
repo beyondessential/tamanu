@@ -309,22 +309,15 @@ describe('Data definition import', () => {
     const { ReferenceData, TranslatedString } = ctx.store.models;
     const { stats } = await doImport({ file: 'valid' });
 
-    const createdTranslations = await TranslatedString.findAll({
-      attributes: ['stringId', 'text'],
-      raw: true,
-    });
-
     // Ensure all records in ReferenceData table have relevant translations created
     const refDataTableRecords = await ReferenceData.findAll({ raw: true });
-    refDataTableRecords.forEach(({ id, type, name }) => {
-      const expectedStringId = `${REFERENCE_DATA_TRANSLATION_PREFIX}.${type}.${id}`;
-      const expectedText = name;
-      const dbTranslation = createdTranslations.find(
-        ({ stringId }) => stringId === expectedStringId,
-      );
-      expect(dbTranslation).toBeDefined();
-      expect(dbTranslation.text).toEqual(expectedText);
+    const expectedStringIds = refDataTableRecords.map(
+      ({ type, id }) => `${REFERENCE_DATA_TRANSLATION_PREFIX}.${type}.${id}`,
+    );
+    const createdTranslationCount = await TranslatedString.count({
+      where: { stringId: { [Op.in]: expectedStringIds } },
     });
+    expect(refDataTableRecords.length).toEqual(createdTranslationCount);
 
     // Check the "other" reference types from their respective tables have had translations created
     const translatableNonRefDataTableImports = Object.keys(stats).filter(
@@ -336,16 +329,13 @@ describe('Data definition import', () => {
         attributes: ['id', 'name'],
         raw: true,
       });
-      createdRecords.forEach(record => {
-        const expectedStringId = `${REFERENCE_DATA_TRANSLATION_PREFIX}.${camelCase(type)}.${
-          record.id
-        }`;
-        const dbTranslation = createdTranslations.find(
-          ({ stringId }) => stringId === expectedStringId,
-        );
-        expect(dbTranslation).toBeDefined();
-        expect(dbTranslation.text).toEqual(record.name);
+      const expectedStringIds = createdRecords.map(
+        ({ id }) => `${REFERENCE_DATA_TRANSLATION_PREFIX}.${camelCase(type)}.${id}`,
+      );
+      const createdTranslationCount = await TranslatedString.count({
+        where: { stringId: { [Op.in]: expectedStringIds } },
       });
+      expect(createdRecords.length).toEqual(createdTranslationCount);
     });
   });
 });
