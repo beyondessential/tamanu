@@ -62,6 +62,7 @@ export interface DateFieldProps extends BaseInputProps {
   disabled?: boolean;
   min?: Date;
   max?: Date;
+  labelFontSize?: string;
 }
 
 export const DateField = React.memo(
@@ -76,6 +77,7 @@ export const DateField = React.memo(
     disabled = false,
     required = false,
     placeholder = 'dd/mm/yyyy',
+    labelFontSize,
   }: DateFieldProps) => {
     const [isDatePickerVisible, setDatePickerVisible] = useState(false);
     const showDatePicker = useCallback(() => setDatePickerVisible(true), []);
@@ -108,7 +110,7 @@ export const DateField = React.memo(
       <StyledView marginBottom={screenPercentageToDP(2.24, Orientation.Height)} width="100%">
         {!!label && (
           <StyledText
-            fontSize={screenPercentageToDP(2.1, Orientation.Height)}
+            fontSize={labelFontSize}
             fontWeight={600}
             marginBottom={2}
             color={theme.colors.TEXT_SUPER_DARK}

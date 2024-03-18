@@ -22,6 +22,7 @@ export const SexSection = (): ReactElement => (
       component={RadioButtonGroup}
       name="sex"
       options={options}
+      labelFontSize={14}
     />
   </StyledView>
 );

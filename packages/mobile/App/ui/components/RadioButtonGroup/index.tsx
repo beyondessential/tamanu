@@ -16,6 +16,7 @@ export interface RadioButtonGroupProps {
   label?: string;
   required?: boolean;
   CustomComponent?: FC<any>;
+  labelFontSize?: string;
 }
 
 const Label = styled(StyledText)`
@@ -34,13 +35,14 @@ export const RadioButtonGroup = ({
   label,
   required = false,
   CustomComponent,
+  labelFontSize,
 }: RadioButtonGroupProps): JSX.Element => {
   const RadioComponent = CustomComponent || RadioButton;
 
   return (
     <>
       {Boolean(label) && (
-        <Label fontSize={14} fontWeight={500}>
+        <Label fontSize={labelFontSize} fontWeight={500}>
           {label}
           {required && <RequiredIndicator />}
         </Label>
