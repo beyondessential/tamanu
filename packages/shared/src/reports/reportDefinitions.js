@@ -7,6 +7,7 @@ import {
   REPORT_DATA_SOURCES,
   REPORT_DATE_RANGE_LABELS,
   REPORT_DEFAULT_DATE_RANGES,
+  SURVEY_TYPES,
 } from '@tamanu/constants';
 
 const LAST_30_DAYS_DATE_LABEL = REPORT_DATE_RANGE_LABELS[REPORT_DEFAULT_DATE_RANGES.THIRTY_DAYS];
@@ -359,6 +360,11 @@ export const REPORT_DEFINITIONS = [
         name: 'surveyId',
         suggesterEndpoint: 'survey',
         required: true,
+        suggesterOptions: {
+          baseQueryParameters: {
+            surveyTypes: [SURVEY_TYPES.PROGRAMS, SURVEY_TYPES.REFERRAL, SURVEY_TYPES.VITALS],
+          },
+        },
       },
     ],
   },

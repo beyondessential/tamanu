@@ -217,11 +217,11 @@ createNameSuggester('facilityLocationGroup', 'LocationGroup', (search, query) =>
   filterByFacilityWhereBuilder(search, { ...query, filterByFacility: true }),
 );
 
-createNameSuggester('survey', 'Survey', (search, { programId }) => ({
+createNameSuggester('survey', 'Survey', (search, { programId, surveyTypes }) => ({
   name: { [Op.iLike]: search },
   ...(programId ? { programId } : programId),
   surveyType: {
-    [Op.notIn]: [SURVEY_TYPES.OBSOLETE, SURVEY_TYPES.VITALS],
+    [Op.in]: surveyTypes ? surveyTypes : [SURVEY_TYPES.PROGRAMS, SURVEY_TYPES.REFERRAL],
   },
 }));
 
