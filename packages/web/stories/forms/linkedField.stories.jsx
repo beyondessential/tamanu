@@ -87,7 +87,7 @@ const BasicTemplate = () => {
               label="Village"
             />
             <Field
-              name="nursingZoneId"
+              name="healthCenterId"
               component={AutocompleteField}
               label="Health center"
               suggester={mockHealthFacilitySuggester}
