@@ -119,7 +119,7 @@ export const LoginView = () => {
   const isSupportUrlLoaded = !!supportUrl;
 
   const submitLogin = async data => {
-    const { email, password, rememberMe, language } = data;
+    const { email, password, rememberMe } = data;
 
     // If a different user logs in, reset patient state and navigate to index
     if (email !== api.user?.email) {
@@ -135,8 +135,6 @@ export const LoginView = () => {
 
     await dispatch(login(email, password));
     dispatch(restartPasswordResetFlow());
-
-    localStorage.setItem(LOCAL_STORAGE_KEYS.LANGUAGE, language);
   };
 
   const brandId = getBrandId();
