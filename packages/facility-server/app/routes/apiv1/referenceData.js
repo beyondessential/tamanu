@@ -2,7 +2,7 @@ import express from 'express';
 import { simpleGet, simplePost, simplePut } from '@tamanu/shared/utils/crudHelpers';
 import asyncHandler from 'express-async-handler';
 import { REFERENCE_DATA_RELATION_TYPES, REFERENCE_TYPES } from '@tamanu/constants';
-import { NotFoundError } from '../../../../shared/src/errors';
+import { NotFoundError } from '@tamanu/shared/errors';
 
 export const referenceData = express.Router();
 
