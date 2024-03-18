@@ -30,13 +30,16 @@ const getGiver = record => {
   if (record.status === VACCINE_STATUS.NOT_GIVEN) {
     return (
       <StatusTag $background="#4444441a" $color={Colors.darkestText}>
-        <TranslatedText stringId="vaccine.table.status.notGiven" fallback="Not given" />
+        <TranslatedText stringId="vaccine.property.status.notGiven" fallback="Not given" />
       </StatusTag>
     );
   }
   if (record.givenElsewhere) {
     return (
-      <TranslatedText stringId="vaccine.table.status.givenElsewhere" fallback="Given elsewhere" />
+      <TranslatedText
+        stringId="vaccine.property.status.givenElsewhere"
+        fallback="Given elsewhere"
+      />
     );
   }
   return (

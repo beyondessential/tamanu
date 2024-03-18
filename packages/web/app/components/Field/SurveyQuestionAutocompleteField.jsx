@@ -2,7 +2,7 @@ import React from 'react';
 
 import { useSuggester } from '../../api';
 import { AutocompleteField } from './AutocompleteField';
-import { useProgramRegistry } from '../../contexts/ProgramRegistry';
+import { useProgramRegistryContext } from '../../contexts/ProgramRegistry';
 
 // Required due to web/mobile using different implementations for
 // suggesters (due to using different db's). Mobile has the more generic
@@ -25,7 +25,7 @@ const getSuggesterEndpointForConfig = config => {
 
 export const SurveyQuestionAutocompleteField = ({ config, ...props }) => {
   const endpoint = getSuggesterEndpointForConfig(config);
-  const { programRegistryId } = useProgramRegistry(); // this will be null for normal surveys
+  const { programRegistryId } = useProgramRegistryContext(); // this will be null for normal surveys
   const suggester = useSuggester(
     endpoint,
     programRegistryId ? { baseQueryParameters: { programRegistryId } } : {},

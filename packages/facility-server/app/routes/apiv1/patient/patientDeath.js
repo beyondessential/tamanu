@@ -74,74 +74,74 @@ patientDeath.get(
 
     res.send({
       patientId: patient.id,
-      patientDeathDataId: deathData.id,
-      clinician: deathData.clinician,
-      facility: deathData.facility,
-      outsideHealthFacility: deathData.outsideHealthFacility,
+      patientDeathDataId: deathData?.id,
+      clinician: deathData?.clinician,
+      facility: deathData?.facility,
+      outsideHealthFacility: deathData?.outsideHealthFacility,
 
       dateOfBirth: patient.dateOfBirth,
       dateOfDeath: patient.dateOfDeath,
 
-      isFinal: deathData.isFinal,
-      manner: deathData.manner,
+      isFinal: deathData?.isFinal,
+      manner: deathData?.manner,
       causes: {
-        primary: deathData.primaryCauseCondition
+        primary: deathData?.primaryCauseCondition
           ? exportCause({
-              condition: deathData.primaryCauseCondition,
-              timeAfterOnset: deathData.primaryCauseTimeAfterOnset,
+              condition: deathData?.primaryCauseCondition,
+              timeAfterOnset: deathData?.primaryCauseTimeAfterOnset,
             })
           : null,
-        antecedent1: deathData.antecedentCause1Condition
+        antecedent1: deathData?.antecedentCause1Condition
           ? exportCause({
-              condition: deathData.antecedentCause1Condition,
-              timeAfterOnset: deathData.antecedentCause1TimeAfterOnset,
+              condition: deathData?.antecedentCause1Condition,
+              timeAfterOnset: deathData?.antecedentCause1TimeAfterOnset,
             })
           : null,
-        antecedent2: deathData.antecedentCause2Condition
+        antecedent2: deathData?.antecedentCause2Condition
           ? exportCause({
-              condition: deathData.antecedentCause2Condition,
-              timeAfterOnset: deathData.antecedentCause2TimeAfterOnset,
+              condition: deathData?.antecedentCause2Condition,
+              timeAfterOnset: deathData?.antecedentCause2TimeAfterOnset,
             })
           : null,
-        contributing: deathData.contributingCauses.map(exportCause),
+        contributing: deathData?.contributingCauses.map(exportCause),
         external:
-          deathData.externalCauseDate ||
-          deathData.externalCauseLocation ||
-          deathData.externalCauseNotes
+          deathData?.externalCauseDate ||
+          deathData?.externalCauseLocation ||
+          deathData?.externalCauseNotes
             ? {
-                date: deathData.externalCauseDate,
-                location: deathData.externalCauseLocation,
-                notes: deathData.externalCauseNotes,
+                date: deathData?.externalCauseDate,
+                location: deathData?.externalCauseLocation,
+                notes: deathData?.externalCauseNotes,
               }
             : null,
       },
 
       recentSurgery:
-        deathData.recentSurgery === 'yes'
+        deathData?.recentSurgery === 'yes'
           ? {
-              date: deathData.lastSurgeryDate,
-              reasonId: deathData.lastSurgeryReasonId,
+              date: deathData?.lastSurgeryDate,
+              reasonId: deathData?.lastSurgeryReasonId,
             }
-          : deathData.recentSurgery,
+          : deathData?.recentSurgery,
 
       pregnancy:
-        deathData.wasPregnant === 'yes'
+        deathData?.wasPregnant === 'yes'
           ? {
-              contributed: deathData.pregnancyContributed,
+              contributed: deathData?.pregnancyContributed,
             }
-          : deathData.wasPregnant,
+          : deathData?.wasPregnant,
 
-      fetalOrInfant: deathData.fetalOrInfant
+      fetalOrInfant: deathData?.fetalOrInfant
         ? {
-            birthWeight: deathData.birthWeight,
+            birthWeight: deathData?.birthWeight,
             carrier: {
-              age: deathData.carrierAge,
-              existingConditionId: deathData.carrierExistingConditionId,
-              weeksPregnant: deathData.carrierPregnancyWeeks,
+              age: deathData?.carrierAge,
+              existingConditionId: deathData?.carrierExistingConditionId,
+              weeksPregnant: deathData?.carrierPregnancyWeeks,
             },
-            hoursSurvivedSinceBirth: deathData.hoursSurvivedSinceBirth,
-            stillborn: deathData.stillborn,
-            withinDayOfBirth: deathData.withinDayOfBirth,
+            hoursSurvivedSinceBirth: deathData?.hoursSurvivedSinceBirth,
+            stillborn: deathData?.stillborn,
+            withinDayOfBirth: deathData?.withinDayOfBirth,
           }
         : false,
     });
@@ -216,7 +216,7 @@ patientDeath.post(
       if (!isPartialWorkflow && body.otherContributingConditions) {
         for (const condition of body.otherContributingConditions) {
           await ContributingDeathCause.create({
-            patientDeathDataId: deathData.id,
+            patientDeathDataId: deathData?.id,
             conditionId: condition.cause,
             timeAfterOnset: condition.interval ?? 0,
           });
@@ -268,18 +268,18 @@ patientDeath.post(
       order: [['createdAt', 'DESC']],
     });
     if (!deathData) throw new NotFoundError('Death data not found');
-    if (deathData.isFinal)
+    if (deathData?.isFinal)
       throw new InvalidOperationError('Death data is final and cannot be reverted.');
 
     await transactionOnPostgres(db, async () => {
       await DeathRevertLog.create({
         revertTime: getCurrentDateTimeString(),
-        deathDataId: deathData.id,
+        deathDataId: deathData?.id,
         patientId,
         revertedById: req.user.id,
       });
       await patient.update({ dateOfDeath: null });
-      await deathData.update({ visibilityStatus: VISIBILITY_STATUSES.HISTORICAL });
+      await deathData?.update({ visibilityStatus: VISIBILITY_STATUSES.HISTORICAL });
     });
 
     res.send({

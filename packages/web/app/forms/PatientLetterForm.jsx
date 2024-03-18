@@ -19,6 +19,7 @@ import { ModalLoader } from '../components/BaseModal';
 import { Button, OutlinedButton } from '../components';
 import { PatientDetailsCard } from '../components/PatientDetailsCard';
 import { ModalGenericButtonRow } from '../components/ModalActionRow';
+import { FORM_TYPES } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 
 const TallMultilineTextField = props => (
@@ -67,14 +68,14 @@ const PatientLetterFormContents = ({ submitForm, onCancel, setValues }) => {
       <FormGrid columns={2} nested>
         <Field
           name="clinicianId"
-          label={<TranslatedText stringId="general.form.clinican.label" fallback="Clinician" />}
+          label={<TranslatedText stringId="general.clinican.label" fallback="Clinician" />}
           required
           component={AutocompleteField}
           suggester={practitionerSuggester}
         />
         <Field
           name="date"
-          label={<TranslatedText stringId="general.form.date.label" fallback="Date" />}
+          label={<TranslatedText stringId="general.date.label" fallback="Date" />}
           required
           component={DateField}
           saveDateAsString
@@ -84,7 +85,7 @@ const PatientLetterFormContents = ({ submitForm, onCancel, setValues }) => {
         <Field
           name="templateId"
           label={
-            <TranslatedText stringId="patientLetter.form.template.label" fallback="Template" />
+            <TranslatedText stringId="patientLetter.template.label" fallback="Template" />
           }
           suggester={patientLetterTemplateSuggester}
           component={AutocompleteField}
@@ -93,7 +94,7 @@ const PatientLetterFormContents = ({ submitForm, onCancel, setValues }) => {
         <Field
           name="title"
           label={
-            <TranslatedText stringId="patientLetter.form.title.label" fallback="Letter title" />
+            <TranslatedText stringId="patientLetter.title.label" fallback="Letter title" />
           }
           required
           component={TextField}
@@ -101,7 +102,7 @@ const PatientLetterFormContents = ({ submitForm, onCancel, setValues }) => {
         />
         <Field
           name="body"
-          label={<TranslatedText stringId="general.form.note.label" fallback="Note" />}
+          label={<TranslatedText stringId="general.note.label" fallback="Note" />}
           required
           component={TallMultilineTextField}
           disabled={templateLoading}
@@ -172,6 +173,7 @@ export const PatientLetterForm = ({ onSubmit, onCancel, editedObject, endpoint, 
         clinicianId: currentUser.id,
         ...editedObject,
       }}
+      formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
       validationSchema={yup.object().shape({
         date: yup.date().required('Date is required'),
         clinicianId: yup.string().required('Clinician is required'),

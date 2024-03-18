@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { Toolbar, Typography } from '@material-ui/core';
 import { DateDisplay } from './DateDisplay';
 import { Colors } from '../constants';
-import { useLocalisedText } from './LocalisedText';
+import { LowerCase } from './Typography';
 import { TranslatedText } from './Translation/TranslatedText';
 
 // Default height of the top bar
@@ -134,42 +134,41 @@ const StaticTopBar = styled(TopBar)`
   z-index: 1;
 `;
 
-export const EncounterTopBar = ({ title, subTitle, encounter, children }) => {
-  const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
-
-  return (
-    <StaticTopBar title={title} subTitle={subTitle}>
-      <Container>
-        <div>
-          <Cell>
-            <Label>
-              <TranslatedText
-                stringId="patient.encounter.details.topbar.arrivalDate.label"
-                fallback="Arrival Date"
-              />
-              :
-            </Label>
-            <Value>
-              <DateDisplay date={encounter.startDate} />
-            </Value>
-          </Cell>
-          <Cell>
-            <Label>
-              <TranslatedText
-                stringId="encounter.topBar.clinician.label"
-                fallback="Supervising :clinician"
-                replacements={{ clinician: clinicianText.toLowerCase() }}
-              />
-              :
-            </Label>
-            <Value>{encounter.examiner?.displayName || 'Unknown'}</Value>
-          </Cell>
-        </div>
-        {children}
-      </Container>
-    </StaticTopBar>
-  );
-};
+export const EncounterTopBar = ({ title, subTitle, encounter, children }) => (
+  <StaticTopBar title={title} subTitle={subTitle}>
+    <Container>
+      <div>
+        <Cell>
+          <Label><TranslatedText stringId="encounter.arrivalDate.label" fallback="Arrival Date" />:</Label>
+          <Value>
+            <DateDisplay date={encounter.startDate} />
+          </Value>
+        </Cell>
+        <Cell>
+          <Label>
+            <TranslatedText
+              stringId="general.supervisingClinician.label"
+              fallback="Supervising :clinician"
+              replacements={{
+                clinician: (
+                  <LowerCase>
+                    <TranslatedText
+                      stringId="general.localisedField.clinician.label.short"
+                      fallback="Clinician"
+                    />
+                    :
+                  </LowerCase>
+                ),
+              }}
+            />
+          </Label>
+          <Value>{encounter.examiner?.displayName || 'Unknown'}</Value>
+        </Cell>
+      </div>
+      {children}
+    </Container>
+  </StaticTopBar>
+);
 
 EncounterTopBar.propTypes = {
   title: PropTypes.string.isRequired,

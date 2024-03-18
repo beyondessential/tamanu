@@ -6,8 +6,8 @@ import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { AutocompleteField, DateField, Field, Form, TextField } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { FormSubmitCancelRow } from '../components/ButtonRow';
-import { useLocalisedText } from '../components/LocalisedText';
 import { foreignKey } from '../utils/validation';
+import { FORM_TYPES } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 
 export const AllergyForm = ({
@@ -17,8 +17,6 @@ export const AllergyForm = ({
   practitionerSuggester,
   allergySuggester,
 }) => {
-  const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
-
   return (
     <Form
       onSubmit={onSubmit}
@@ -27,7 +25,7 @@ export const AllergyForm = ({
           <Field
             name="allergyId"
             label={
-              <TranslatedText stringId="allergies.form.allergyName.label" fallback="Allergy name" />
+              <TranslatedText stringId="allergies.allergyName.label" fallback="Allergy name" />
             }
             component={AutocompleteField}
             suggester={allergySuggester}
@@ -36,7 +34,7 @@ export const AllergyForm = ({
           <Field
             name="recordedDate"
             label={
-              <TranslatedText stringId="general.form.recordedDate.label" fallback="Date recorded" />
+              <TranslatedText stringId="general.recordedDate.label" fallback="Date recorded" />
             }
             component={DateField}
             saveDateAsString
@@ -44,13 +42,18 @@ export const AllergyForm = ({
           />
           <Field
             name="practitionerId"
-            label={clinicianText}
+            label={
+              <TranslatedText
+                stringId="general.localisedField.clinician.label.short"
+                fallback="Clinician"
+              />
+            }
             component={AutocompleteField}
             suggester={practitionerSuggester}
           />
           <Field
             name="note"
-            label={<TranslatedText stringId="general.form.notes.label" fallback="Notes" />}
+            label={<TranslatedText stringId="general.notes.label" fallback="Notes" />}
             component={TextField}
           />
           <FormSubmitCancelRow
@@ -70,6 +73,7 @@ export const AllergyForm = ({
         recordedDate: getCurrentDateTimeString(),
         ...editedObject,
       }}
+      formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
       validationSchema={yup.object().shape({
         allergyId: foreignKey('An allergy must be selected'),
         recordedDate: yup.date().required(),

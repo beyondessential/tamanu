@@ -1,6 +1,7 @@
 import Table from 'cli-table3';
 import { log } from '@tamanu/shared/services/logging';
 import { spyOnModule } from '@tamanu/shared/test-helpers/spyOn';
+import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { initDatabase } from '../../../dist/database';
 import {
   ACTIVE_TEXT,
@@ -15,16 +16,16 @@ import {
 spyOnModule(jest, '../../../dist/subCommands/importReport/actions');
 
 const baseVersionData = {
-  query: "test-query",
+  query: 'test-query',
   queryOptions: {
     parameters: [
       {
-        parameterField: "TestField",
-        name: "test"
-      }
+        parameterField: 'TestField',
+        name: 'test',
+      },
     ],
-    defaultDateRange: "allTime"
-  }
+    defaultDateRange: 'allTime',
+  },
 };
 
 jest.mock('@tamanu/shared/services/logging', () => ({
@@ -77,13 +78,11 @@ jest.mock('../../../dist/database', () => ({
 }));
 
 describe('importReport actions', () => {
-
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
   describe('listVersions', () => {
-
     it('calls push on table for each version', async () => {
       const mockVersionsWithActive = [
         { versionNumber: 3, status: 'published', updatedAt: mockUpdatedAt },
@@ -99,7 +98,6 @@ describe('importReport actions', () => {
   });
 
   describe('createVersion', () => {
-
     let mockStore;
 
     beforeEach(async () => {
@@ -111,6 +109,7 @@ describe('importReport actions', () => {
       expect(mockStore.models.User.findOne).toHaveBeenCalledWith({
         where: {
           email: DEFAULT_USER_EMAIL,
+          visibilityStatus: VISIBILITY_STATUSES.CURRENT,
         },
       });
       expect(mockStore.models.ReportDefinitionVersion.upsert).toHaveBeenCalledWith({

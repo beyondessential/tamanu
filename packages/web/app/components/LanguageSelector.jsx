@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
-import { useQuery } from '@tanstack/react-query';
-import { ENGLISH_LANGUAGE_CODE, LANGUAGE_LOCAL_STORAGE_KEY } from '@tamanu/constants';
 import { Colors } from '../constants';
-import { useApi } from '../api';
+import { useTranslationLanguages } from '../api/queries';
 import { SelectInput } from './Field';
+import { useTranslation } from '../contexts/Translation.jsx';
+import { TranslatedText } from './Translation/TranslatedText.jsx';
+import { mapValues, keyBy } from 'lodash';
 
 const LanguageSelectorContainer = styled.div`
   position: absolute;
@@ -50,25 +51,38 @@ const customStyles = {
   }),
 };
 
-export const LanguageSelector = ({ field }) => {
-  const api = useApi();
+export const LanguageSelector = () => {
+  const { updateStoredLanguage, storedLanguage } = useTranslation();
+  const { data = {}, error } = useTranslationLanguages();
 
-  const { data: languageOptions = [], error } = useQuery(['languageList'], () =>
-    api.get('translation/preLogin'),
-  );
+  const { languageNames = [], languagesInDb = [] } = data;
+
+  const languageDisplayNames = mapValues(keyBy(languageNames, 'language'), 'text');
+  const languageOptions = languagesInDb.map(({ language }) => {
+    return {
+      label: languageDisplayNames[language],
+      value: language,
+    };
+  });
 
   // If multiple languages not implemented, no need for this component to show
   if (languageOptions.length <= 1) return null;
+
+  const handleLanguageChange = event => {
+    updateStoredLanguage(event.target.value);
+  };
 
   return (
     <LanguageSelectorContainer>
       <SelectInput
         options={languageOptions}
-        label="Language"
+        label={<TranslatedText stringId="login.languageSelector.label" fallback="Language" />}
         isClearable={false}
         error={!!error}
         customStyleObject={customStyles}
-        {...field}
+        name="Language"
+        value={storedLanguage}
+        onChange={handleLanguageChange}
       />
     </LanguageSelectorContainer>
   );

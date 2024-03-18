@@ -28,6 +28,7 @@ export const simpleUpdateModels = [
   'UserRecentlyViewedPatient',
   'PatientProgramRegistration',
   'PatientProgramRegistrationCondition',
+  'IPSRequest',
 ];
 
 // These ones need a little more attention.
@@ -233,7 +234,7 @@ export async function mergePatientFieldValues(models, keepPatientId, unwantedPat
       ({ definitionId }) => definitionId === definition.id,
     );
 
-    if (keepRecord && isNullOrEmptyString(keepRecord.value)) {
+    if (keepRecord && isNullOrEmptyString(keepRecord.value) && unwantedRecord?.value) {
       const updated = await keepRecord.update({
         value: unwantedRecord.value,
       });

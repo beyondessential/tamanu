@@ -76,6 +76,7 @@ const getItems = (isIssuesPane, response) => {
 };
 
 export const InfoPaneList = ({
+  id,
   patient,
   readonly,
   title,
@@ -93,7 +94,7 @@ export const InfoPaneList = ({
   const [addEditState, setAddEditState] = useState({ adding: false, editKey: null });
   const { adding, editKey } = addEditState;
   const api = useApi();
-  const { data, error } = useQuery([`infoPaneListItem-${title}`, patient.id], () =>
+  const { data, error } = useQuery([`infoPaneListItem-${id}`, patient.id], () =>
     api.get(getEndpoint),
   );
   const isIssuesPane = title === ISSUES_TITLE;

@@ -1,7 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
-import { lookup as lookupMimeType } from 'mime-types';
 import { Typography } from '@material-ui/core';
 
 import { ForbiddenError } from '@tamanu/shared/errors';
@@ -14,6 +13,7 @@ import { AutocompleteField, Field, Form, TextField } from '../components/Field';
 import { FileChooserField } from '../components/Field/FileChooserField';
 import { FormGrid } from '../components/FormGrid';
 import { ConfirmCancelRow, FormSubmitCancelRow } from '../components/ButtonRow';
+import { FORM_TYPES } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 
 const MessageContainer = styled.div`
@@ -69,14 +69,14 @@ const DocumentFormContents = ({ submitForm, departmentSuggester, onCancel }) => 
       <Field
         component={FileChooserField}
         filters={FILE_FILTERS}
-        label={<TranslatedText stringId="general.form.selectFile.label" fallback="Select file" />}
+        label={<TranslatedText stringId="general.selectFile.label" fallback="Select file" />}
         name="file"
         required
         style={{ gridColumn: '1 / -1' }}
       />
       <Field
         name="name"
-        label={<TranslatedText stringId="general.form.fileName.label" fallback="File name" />}
+        label={<TranslatedText stringId="general.fileName.label" fallback="File name" />}
         required
         component={TextField}
         style={{ gridColumn: '1 / -1' }}
@@ -84,19 +84,19 @@ const DocumentFormContents = ({ submitForm, departmentSuggester, onCancel }) => 
       <Field
         name="documentOwner"
         label={
-          <TranslatedText stringId="document.form.documentOwner.label" fallback="Document owner" />
+          <TranslatedText stringId="document.documentOwner.label" fallback="Document owner" />
         }
         component={TextField}
       />
       <Field
         name="departmentId"
-        label={<TranslatedText stringId="general.form.department.label" fallback="Department" />}
+        label={<TranslatedText stringId="general.department.label" fallback="Department" />}
         component={AutocompleteField}
         suggester={departmentSuggester}
       />
       <Field
         name="note"
-        label={<TranslatedText stringId="general.form.note.label" fallback="Note" />}
+        label={<TranslatedText stringId="general.note.label" fallback="Note" />}
         component={TextField}
         style={{ gridColumn: '1 / -1' }}
       />
@@ -163,6 +163,7 @@ export const DocumentForm = ({ onStart, onSubmit, onError, onCancel, editedObjec
     <Form
       onSubmit={handleSubmit}
       render={renderForm}
+      formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
       initialValues={{
         date: new Date(),
         ...editedObject,

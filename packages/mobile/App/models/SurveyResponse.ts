@@ -2,15 +2,20 @@ import { Column, Entity, ManyToOne, OneToMany, RelationId } from 'typeorm/browse
 
 import { EncounterType, ICreateSurveyResponse, ISurveyResponse } from '~/types';
 
-import { FieldTypes, getResultValue, getStringValue, isCalculated } from '~/ui/helpers/fields';
+import {
+  FieldTypes,
+  getResultValue,
+  getStringValue,
+  getPatientDataDbLocation,
+} from '~/ui/helpers/fields';
 
-import { PATIENT_DATA_FIELD_LOCATIONS } from '~/constants';
 import { runCalculations } from '~/ui/helpers/calculations';
 import { getCurrentDateTimeString } from '~/ui/helpers/date';
 
 import { BaseModel } from './BaseModel';
 import { Survey } from './Survey';
 import { Encounter } from './Encounter';
+import { ProgramRegistry } from './ProgramRegistry';
 import { SurveyResponseAnswer } from './SurveyResponseAnswer';
 import { Referral } from './Referral';
 import { Patient } from './Patient';
@@ -18,24 +23,14 @@ import { PatientAdditionalData } from './PatientAdditionalData';
 import { VitalLog } from './VitalLog';
 import { SYNC_DIRECTIONS } from './types';
 import { DateTimeStringColumn } from './DateColumns';
-
-
-const getDbLocation = fieldName => {
-  if (PATIENT_DATA_FIELD_LOCATIONS[fieldName]) {
-    const [modelName, columnName] = PATIENT_DATA_FIELD_LOCATIONS[fieldName];
-    return {
-      modelName,
-      fieldName: columnName,
-    };
-  }
-  throw new Error(`Unknown fieldName: ${fieldName}`);
-};
+import { PatientProgramRegistration } from './PatientProgramRegistration';
+import { VisibilityStatus } from '../visibilityStatuses';
 
 type RecordValuesByModel = {
-  Patient?: Record<string, string>,
-  PatientAdditionalData?: Record<string, string>,
-  PatientProgramRegistration?: Record<string, string>,
-}
+  Patient?: Record<string, string>;
+  PatientAdditionalData?: Record<string, string>;
+  PatientProgramRegistration?: Record<string, string>;
+};
 
 const getFieldsToWrite = (questions, answers): RecordValuesByModel => {
   const recordValuesByModel = {};
@@ -58,7 +53,10 @@ const getFieldsToWrite = (questions, answers): RecordValuesByModel => {
     }
 
     const value = answers[dataElement.code];
-    const { modelName, fieldName } = getDbLocation(configFieldName);
+    const { modelName, fieldName } = getPatientDataDbLocation(configFieldName);
+    if (!modelName) {
+      throw new Error(`Unknown fieldName: ${configFieldName}`);
+    }
     if (!recordValuesByModel[modelName]) recordValuesByModel[modelName] = {};
     recordValuesByModel[modelName][fieldName] = value;
   }
@@ -69,7 +67,7 @@ const getFieldsToWrite = (questions, answers): RecordValuesByModel => {
  * DUPLICATED IN shared/models/SurveyResponse.js
  * Please keep in sync
  */
-async function writeToPatientFields(questions, answers, patientId) {
+async function writeToPatientFields(questions, answers, patientId, surveyId, userId, submittedTime) {
   const valuesByModel = getFieldsToWrite(questions, answers);
 
   if (valuesByModel.Patient) {
@@ -81,7 +79,22 @@ async function writeToPatientFields(questions, answers, patientId) {
   }
 
   if (valuesByModel.PatientProgramRegistration) {
-    throw new Error('Program registrations not yet implemented on mobile');
+    const { programId } = await Survey.findOne({ id: surveyId });
+    const { id: programRegistryId } = await ProgramRegistry.findOne({
+      where: { program: { id: programId }, visibilityStatus: VisibilityStatus.Current },
+    });
+    if (!programRegistryId) {
+      throw new Error('No program registry configured for the current form');
+    }
+    await PatientProgramRegistration.appendRegistration(
+      patientId,
+      programRegistryId,
+      {
+        date: submittedTime,
+        ...valuesByModel.PatientProgramRegistration,
+        clinicianId: valuesByModel.PatientProgramRegistration.clinicianId || userId,
+      },
+    );
   }
 }
 
@@ -209,13 +222,11 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
         }
         const { dataElement } = component;
 
-        if (isCalculated(dataElement.type) && value !== 0 && !value) {
-          // calculated values will always be in the answer object - but we
-          // shouldn't save null answers
+        const body = getStringValue(dataElement.type, value);
+        // Don't create null answers
+        if (body === null) {
           continue;
         }
-
-        const body = getStringValue(dataElement.type, value);
 
         setNote(`Attaching answer for ${dataElement.id}...`);
         const answerRecord = await SurveyResponseAnswer.createAndSaveOne({
@@ -235,7 +246,15 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
       }
       setNote('Writing patient data');
 
-      await writeToPatientFields(components, finalValues, patientId)
+      await writeToPatientFields(
+        components,
+        finalValues,
+        patientId,
+        surveyId,
+        userId,
+        responseRecord.endTime,
+      );
+
       setNote('Done');
 
       return responseRecord;

@@ -1,4 +1,5 @@
 import React from 'react';
+import { PDFViewer } from '@react-pdf/renderer';
 
 import { NOTE_TYPES } from '@tamanu/constants/notes';
 import { LAB_REQUEST_STATUSES } from '@tamanu/constants/labs';
@@ -6,7 +7,7 @@ import { IMAGING_REQUEST_STATUS_TYPES } from '@tamanu/constants/statuses';
 import { DIAGNOSIS_CERTAINTIES_TO_HIDE } from '@tamanu/constants/diagnoses';
 import { ForbiddenError, NotFoundError } from '@tamanu/shared/errors';
 
-import { EncounterRecordPrintout } from '@tamanu/shared/utils/patientCertificates/EncounterRecordPrintout';
+import { EncounterRecordPrintout } from '@tamanu/shared/utils/patientCertificates';
 import { Modal } from '../../Modal';
 import { useCertificate } from '../../../utils/useCertificate';
 import { usePatientData } from '../../../api/queries/usePatientData';
@@ -22,10 +23,9 @@ import { LoadingIndicator } from '../../LoadingIndicator';
 import { Colors } from '../../../constants';
 import { ForbiddenErrorModalContents } from '../../ForbiddenErrorModal';
 import { ModalActionRow } from '../../ModalActionRow';
-import { PDFViewer } from '@react-pdf/renderer';
 import { printPDF } from '../PDFViewer.jsx';
-import { useLocalisedText } from '../../LocalisedText.jsx';
 import { TranslatedText } from '../../Translation/TranslatedText';
+import { useTranslation } from '../../../contexts/Translation';
 
 // These below functions are used to extract the history of changes made to the encounter that are stored in notes.
 // obviously a better solution needs to be to properly implemented for storing and accessing this data, but this is an ok workaround for now.
@@ -100,16 +100,21 @@ const extractLocationHistory = (notes, encounterData) => {
 };
 
 export const EncounterRecordModal = ({ encounter, open, onClose }) => {
-  const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
+  const { getTranslation } = useTranslation();
+  const clinicianText = getTranslation(
+    'general.localisedField.clinician.label.short',
+    'Clinician',
+  ).toLowerCase();
 
   const { getLocalisation } = useLocalisation();
-  const certificateData = useCertificate();
+  const certificateQuery = useCertificate();
+  const { data: certificateData } = certificateQuery;
 
   const patientQuery = usePatientData(encounter.patientId);
   const patient = patientQuery.data;
 
   const padDataQuery = usePatientAdditionalDataQuery(patient?.id);
-  const padData = padDataQuery.data;
+  const { data: additionalData } = padDataQuery;
 
   const labRequestsQuery = useLabRequests(encounter.id, {
     order: 'asc',
@@ -143,6 +148,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
     dischargeQuery,
     villageQuery,
     notesQuery,
+    certificateQuery,
   ]);
 
   const modalProps = {
@@ -225,6 +231,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
             testCategory: labRequest.category?.name,
             requestedByName: labRequest.requestedBy?.displayName,
             requestDate: labRequest.requestedDate,
+            publishedDate: labRequest.publishedDate,
             completedDate: test.completedDate,
           });
         });
@@ -283,7 +290,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
         showToolbar={false}
       >
         <EncounterRecordPrintout
-          patientData={{ ...patient, padData, village }}
+          patientData={{ ...patient, additionalData, village }}
           encounter={encounter}
           certificateData={certificateData}
           encounterTypeHistory={encounterTypeHistory}

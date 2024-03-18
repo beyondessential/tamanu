@@ -27,7 +27,7 @@ export const PANE_SECTION_TITLES = {
   ),
   [PANE_SECTION_IDS.ISSUES]: (
     <TranslatedText
-      stringId="patient.detailsSidebar.subheading.issues"
+      stringId="patient.detailsSidebar.subheading.otherPatientIssues"
       fallback="Other patient issues"
     />
   ),

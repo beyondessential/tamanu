@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useFormikContext } from 'formik';
 import { NavigationProp } from '@react-navigation/native';
 

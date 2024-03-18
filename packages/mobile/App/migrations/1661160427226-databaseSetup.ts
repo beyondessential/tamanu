@@ -22,6 +22,7 @@ export class databaseSetup1661160427226 implements MigrationInterface {
     }
   }
 
-  async down(queryRunner: QueryRunner): Promise<void> {
+  async down(): Promise<void> {
+    // No down migration as this is the initial setup
   }
 }

@@ -11,6 +11,7 @@ export class CertificateNotification extends Model {
         id: primaryKey,
         createdBy: Sequelize.STRING,
         type: Sequelize.STRING,
+        facilityName: Sequelize.STRING,
         forwardAddress: Sequelize.STRING,
         requireSigning: Sequelize.BOOLEAN,
         status: Sequelize.STRING,
