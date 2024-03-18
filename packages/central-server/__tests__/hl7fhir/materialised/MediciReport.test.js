@@ -205,9 +205,9 @@ describe(`Materialised - MediciReport`, () => {
     await MediciReport.materialiseFromUpstream(encounter.id);
     await MediciReport.resolveUpstreams();
 
-    const mediciReport = await MediciReport.findAll();
+    const mediciReport = await MediciReport.findOne();
 
-    expect(mediciReport[0].dataValues).toMatchObject({
+    expect(mediciReport.dataValues).toMatchObject({
       patientId: resources.patient.displayId,
       firstName: resources.patient.firstName,
       lastName: resources.patient.lastName,
@@ -285,9 +285,9 @@ describe(`Materialised - MediciReport`, () => {
       await MediciReport.materialiseFromUpstream(encounter.id);
       await MediciReport.resolveUpstreams();
 
-      const mediciReport = await MediciReport.findAll();
+      const mediciReport = await MediciReport.findOne();
 
-      expect(mediciReport[0].dataValues).toMatchObject({
+      expect(mediciReport.dataValues).toMatchObject({
         notes: [
           {
             content: rootNote.content,
@@ -320,9 +320,9 @@ describe(`Materialised - MediciReport`, () => {
       await MediciReport.materialiseFromUpstream(encounter.id);
       await MediciReport.resolveUpstreams();
 
-      const mediciReport = await MediciReport.findAll();
+      const mediciReport = await MediciReport.findOne();
 
-      expect(mediciReport[0].dataValues).toMatchObject({
+      expect(mediciReport.dataValues).toMatchObject({
         notes: [
           {
             content: changelog1.content,
