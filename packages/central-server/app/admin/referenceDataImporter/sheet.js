@@ -24,6 +24,13 @@ const FOREIGN_KEY_SCHEMATA = {
       model: 'Facility',
     },
   ],
+  Facility: [
+    {
+      field: 'catchment',
+      model: 'ReferenceData',
+      types: ['catchment'],
+    },
+  ],
   LabTestType: [
     {
       field: 'labTestCategory',
