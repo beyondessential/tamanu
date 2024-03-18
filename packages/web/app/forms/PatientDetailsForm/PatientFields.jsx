@@ -4,6 +4,7 @@ import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants';
 import { groupBy } from 'lodash';
 import styled from 'styled-components';
 import { Colors } from '../../constants';
+import { Autocomplete } from '@material-ui/lab';
 
 const StyledHeading = styled.div`
   font-weight: 500;
@@ -16,7 +17,9 @@ const StyledFormGrid = styled(FormGrid)`
   margin-bottom: 70px;
 `;
 
-export const PatientField = ({ definition: { definitionId, name, fieldType, options } }) => {
+export const PatientField = ({
+  definition: { definitionId, name, fieldType, options, suggester },
+}) => {
   // TODO: temporary placeholder component
   // the plan is to reuse the survey question components for these fields
   const fieldName = `patientFields.${definitionId}`;
@@ -29,6 +32,9 @@ export const PatientField = ({ definition: { definitionId, name, fieldType, opti
   }
   if (fieldType === PATIENT_FIELD_DEFINITION_TYPES.NUMBER) {
     return <Field name={fieldName} component={NumberField} label={name} />;
+  }
+  if (fieldType === PATIENT_FIELD_DEFINITION_TYPES.AUTO_COMPLETE) {
+    return <Field name={fieldName} component={Autocomplete} suggester={suggester} label={name} />;
   }
   return <p>Unknown field type: {fieldType}</p>;
 };
