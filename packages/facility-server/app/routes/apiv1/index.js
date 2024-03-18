@@ -48,7 +48,6 @@ import { vitals } from './vitals';
 import { template } from './template';
 import { translation } from './translation';
 import { vaccinationSettings } from './vaccinationSettings';
-import { village } from './village';
 
 export const apiv1 = express.Router();
 const patientDataRoutes = express.Router();
@@ -137,7 +136,6 @@ referenceDataRoutes.use('/invoiceLineTypes', invoiceLineTypes);
 referenceDataRoutes.use('/labRequestLog', labRequestLog);
 referenceDataRoutes.use('/location', location);
 referenceDataRoutes.use('/locationGroup', locationGroup);
-referenceDataRoutes.use('/village', village);
 referenceDataRoutes.use('/patientFieldDefinition', patientFieldDefinition);
 referenceDataRoutes.use('/patientLetterTemplate', patientLetterTemplate);
 referenceDataRoutes.use('/program', program);

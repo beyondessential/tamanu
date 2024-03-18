@@ -1,7 +1,8 @@
 import express from 'express';
 import { simpleGet, simplePost, simplePut } from '@tamanu/shared/utils/crudHelpers';
 import asyncHandler from 'express-async-handler';
-import { REFERENCE_TYPES } from '@tamanu/constants';
+import { REFERENCE_DATA_RELATION_TYPES, REFERENCE_TYPES } from '@tamanu/constants';
+import { NotFoundError } from '../../../../shared/src/errors';
 
 export const referenceData = express.Router();
 
@@ -38,6 +39,22 @@ referenceData.get(
     const entity = await ReferenceData.findByPk(id);
     const ancestors = await entity.getAncestors();
     res.send(ancestors);
+  }),
+);
+
+referenceData.get(
+  '/facilityCatchmentHierarchy/:id',
+  asyncHandler(async (req, res) => {
+    req.flagPermissionChecked();
+    const {
+      models: { ReferenceData, Facility },
+      params: { id },
+    } = req;
+    const catchment = ReferenceData.getParent(id, REFERENCE_DATA_RELATION_TYPES.FACILITY_CATCHMENT);
+    if (!catchment) throw new NotFoundError();
+    const facility = Facility.findOne({ where: { catchmentId: catchment.id } });
+    if (!facility) throw new NotFoundError();
+    res.send(facility);
   }),
 );
 
