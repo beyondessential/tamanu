@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, isValidElement } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import Select, { components } from 'react-select';
@@ -173,7 +173,11 @@ export const SelectInput = ({
 
   const isReadonly = (readonly && !disabled) || (value && !onChange);
   if (disabled || isReadonly || !options || options.length === 0) {
-    const valueText = ((options || []).find(o => o.value === value) || {}).label || '';
+    const selectedOptionLabel = ((options || []).find(o => o.value === value) || {}).label || '';
+    const valueText =
+      isValidElement(selectedOptionLabel) && selectedOptionLabel.type.name === 'TranslatedText'
+        ? selectedOptionLabel.props.fallback // temporary workaround to stop [object Object] from being displayed
+        : selectedOptionLabel;
     return (
       <OuterLabelFieldWrapper label={label} {...props}>
         <StyledTextField
