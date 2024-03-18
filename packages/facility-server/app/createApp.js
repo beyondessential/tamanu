@@ -36,6 +36,7 @@ export function createApp({ sequelize, reportSchemaStores, models, syncManager, 
     req.reportSchemaStores = reportSchemaStores;
     req.syncManager = syncManager;
     req.deviceId = deviceId;
+    req.language = req.headers['language'];
 
     next();
   });
