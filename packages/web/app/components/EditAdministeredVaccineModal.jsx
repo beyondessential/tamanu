@@ -45,7 +45,6 @@ export const EditAdministeredVaccineModal = ({ open, onClose, patientId, vaccine
       title={<TranslatedText stringId="vaccine.modal.edit.title" fallback="Edit vaccine record" />}
       open={open}
       onClose={onClose}
-      cornerExitButton={false}
     >
       <ViewAdministeredVaccineContent vaccineRecord={vaccineRecord} editMode />
       <VaccineForm

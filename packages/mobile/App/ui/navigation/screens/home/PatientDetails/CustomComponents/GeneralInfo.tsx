@@ -7,11 +7,12 @@ import { PatientSection } from './PatientSection';
 import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 import { getGender } from '~/ui/helpers/user';
 import { IPatient } from '~/types';
-import { allAdditionalDataFields } from '~/ui/helpers/additionalData';
+import { allAdditionalDataFields } from '/helpers/additionalData';
 import { getFieldData } from '~/ui/helpers/patient';
 import { usePatientAdditionalData } from '~/ui/hooks/usePatientAdditionalData';
 import { ErrorScreen } from '../../../../../components/ErrorScreen';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
+import { TranslatedText } from '/components/Translations/TranslatedText';
 
 interface GeneralInfoProps {
   onEdit: () => void;
@@ -44,7 +45,15 @@ export const GeneralInfo = ({ onEdit, patient }: GeneralInfoProps): ReactElement
   }
 
   return (
-    <PatientSection title="General Information" onEdit={isEditable ? onEdit : undefined}>
+    <PatientSection
+      title={
+        <TranslatedText
+          stringId="patient.details.subheading.generalInformation"
+          fallback="General Information"
+        />
+      }
+      onEdit={isEditable ? onEdit : undefined}
+    >
       {loading ? (
         <LoadingScreen />
       ) : (

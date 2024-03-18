@@ -24,6 +24,12 @@ export const VisitTypes = {
   VISIT: 'Visit',
 };
 
+export const PatientFromRoute = {
+  HOME: 'home',
+  RECENTLY_VIEWED: 'recentlyViewed',
+  ALL_PATIENT: 'allPatient',
+};
+
 export const HeaderIcons = {
   //TODO: find correct icons for each EncounterType
   [EncounterType.Clinic]: Icons.ClipboardIcon,

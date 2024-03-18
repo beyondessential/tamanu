@@ -9,25 +9,36 @@ import { useApi } from '../../../api';
 import { EmailButton } from '../../Email/EmailButton';
 import { useCertificate } from '../../../utils/useCertificate';
 import { useLocalisation } from '../../../contexts/Localisation';
-import { useAdministeredVaccines, usePatientAdditionalDataQuery } from '../../../api/queries';
+import {
+  usePatientAdditionalDataQuery,
+  useAdministeredVaccines,
+  useReferenceData,
+} from '../../../api/queries';
 
 import { PDFViewer, printPDF } from '../PDFViewer';
+import { useAuth } from '../../../contexts/Auth';
 
 export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) => {
   const api = useApi();
+  const { facility } = useAuth();
   const { getLocalisation } = useLocalisation();
-  const { watermark, logo, footerImg, printedBy } = useCertificate({
+  const { data: certificateData, isFetching: isCertificateFetching } = useCertificate({
     footerAssetName: ASSET_NAMES.VACCINATION_CERTIFICATE_FOOTER,
   });
-  const { data: additionalData } = usePatientAdditionalDataQuery(patient.id);
+  const { logo, watermark, footerImg, printedBy } = certificateData;
+  const {
+    data: additionalData,
+    isFetching: isAdditionalDataFetching,
+  } = usePatientAdditionalDataQuery(patient.id);
 
-  const { data: vaccineData, isFetching } = useAdministeredVaccines(patient.id, {
+  const { data: vaccineData, isFetching: isVaccineFetching } = useAdministeredVaccines(patient.id, {
     orderBy: 'date',
     order: 'ASC',
     invertNullDateOrdering: true,
     includeNotGiven: false,
   });
-  const vaccinations = vaccineData?.data || [];
+  const vaccinations =
+    vaccineData?.data.filter(vaccine => !vaccine.scheduledVaccine.hideFromCertificate) || [];
 
   const createVaccineCertificateNotification = useCallback(
     data =>
@@ -36,19 +47,21 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
         requireSigning: false,
         patientId: patient.id,
         forwardAddress: data.email,
+        facilityName: facility.name,
         createdBy: printedBy,
         createdAt: getCurrentDateString(),
       }),
-    [api, patient.id, printedBy],
+    [api, patient.id, printedBy, facility.name],
   );
 
-  const patientData = { ...patient, additionalData };
+  const village = useReferenceData(patient.villageId).data;
+  const patientData = { ...patient, village, additionalData };
 
-  if (isFetching) return null;
+  if (isAdditionalDataFetching || isVaccineFetching || isCertificateFetching) return null;
 
   return (
     <Modal
-      title="Vaccine Certificate"
+      title="Immunisation Certificate"
       open={open}
       onClose={onClose}
       width="md"
@@ -63,6 +76,7 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
           vaccinations={vaccinations}
           watermarkSrc={watermark}
           logoSrc={logo}
+          facilityName={facility.name}
           signingSrc={footerImg}
           printedBy={printedBy}
           printedDate={getCurrentDateString()}

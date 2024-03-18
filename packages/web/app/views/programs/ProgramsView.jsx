@@ -19,7 +19,9 @@ import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { useEncounter } from '../../contexts/Encounter';
 import { PATIENT_TABS } from '../../constants/patientPaths';
 import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
+import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { useApi } from '../../api';
+import { useProgramRegistryContext } from '../../contexts/ProgramRegistry';
 
 const SurveyFlow = ({ patient, currentUser }) => {
   const api = useApi();
@@ -32,6 +34,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
   const [selectedSurveyId, setSelectedSurveyId] = useState(null);
   const [startTime, setStartTime] = useState(null);
   const [surveys, setSurveys] = useState(null);
+  const { setProgramRegistryIdByProgramId } = useProgramRegistryContext();
 
   useEffect(() => {
     if (params.encounterId) {
@@ -71,6 +74,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
         return;
       }
       setSelectedProgramId(programId);
+      setProgramRegistryIdByProgramId(programId);
 
       if (!programId) {
         clearProgram();
@@ -84,7 +88,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
           .map(x => ({ value: x.id, label: x.name })),
       );
     },
-    [api, selectedProgramId, clearProgram],
+    [api, selectedProgramId, clearProgram, setProgramRegistryIdByProgramId],
   );
 
   const submitSurveyResponse = async data => {
@@ -111,28 +115,47 @@ const SurveyFlow = ({ patient, currentUser }) => {
   }
 
   if (isError) {
-    return <ErrorMessage title="Error" error={error} />;
+    return (
+      <ErrorMessage
+        title={
+          <TranslatedText stringId="program.modal.selectSurvey.error.title" fallback="Error" />
+        }
+        error={error}
+      />
+    );
   }
 
   if (!survey) {
     return (
       <ProgramsPane>
         <ProgramsPaneHeader>
-          <ProgramsPaneHeading variant="h6">Select form</ProgramsPaneHeading>
+          <ProgramsPaneHeading variant="h6">
+            <TranslatedText stringId="program.modal.selectSurvey.title" fallback="Select survey" />
+          </ProgramsPaneHeading>
         </ProgramsPaneHeader>
         <FormGrid columns={1}>
           <SelectInput
             options={programs.map(p => ({ value: p.id, label: p.name }))}
             value={selectedProgramId}
             onChange={selectProgram}
-            label="Select program"
+            label={
+              <TranslatedText
+                stringId="program.modal.selectSurvey.selectProgram.label"
+                fallback="Select program"
+              />
+            }
           />
           <SurveySelector
             onSubmit={setSelectedSurvey}
             onChange={setSelectedSurveyId}
             value={selectedSurveyId}
             surveys={surveys}
-            buttonText="Begin form"
+            buttonText={
+              <TranslatedText
+                stringId="program.modal.selectSurvey.action.begin"
+                fallback="Begin survey"
+              />
+            }
           />
         </FormGrid>
       </ProgramsPane>

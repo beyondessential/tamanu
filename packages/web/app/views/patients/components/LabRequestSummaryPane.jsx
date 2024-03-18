@@ -10,9 +10,9 @@ import {
   DateDisplay,
   FormSeparatorLine,
   Heading3,
+  LowerCase,
   OutlinedButton,
   Table,
-  useLocalisedText,
   useSelectableColumn,
 } from '../../../components';
 import { LabRequestPrintLabelModal } from '../../../components/PatientPrinting/modals/LabRequestPrintLabelModal';
@@ -121,7 +121,6 @@ export const LabRequestSummaryPane = React.memo(
     const { selectedRows, selectableColumn } = useSelectableColumn(labRequests, {
       columnKey: 'selected',
     });
-    const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
     const noRowSelected = useMemo(() => !selectedRows?.length, [selectedRows]);
     // All the lab requests were made in a batch and have the same details
     const { id, requestedDate, requestedBy, department, priority } = labRequests[0];
@@ -131,11 +130,11 @@ export const LabRequestSummaryPane = React.memo(
     return (
       <Container>
         <Heading3 mb="12px">
-          <TranslatedText stringId="lab.form.requestSummary.heading" fallback="Request finalised" />
+          <TranslatedText stringId="lab.requestSummary.heading" fallback="Request finalised" />
         </Heading3>
         <BodyText mb="28px" color="textTertiary">
           <TranslatedText
-            stringId="lab.form.requestSummary.instruction"
+            stringId="lab.requestSummary.instruction"
             fallback="Your lab request has been finalised. Please select items from the list below to print
           requests or sample labels."
           />
@@ -145,9 +144,18 @@ export const LabRequestSummaryPane = React.memo(
             <InfoCardItem
               label={
                 <TranslatedText
-                  stringId="lab.form.requestingClinician.label"
-                  fallback="Requesting :clinicianText"
-                  replacements={{ clinicianText: clinicianText.toLowerCase() }}
+                  stringId="general.requestingClinician.label"
+                  fallback="Requesting :clinician"
+                  replacements={{
+                    clinician: (
+                      <LowerCase>
+                        <TranslatedText
+                          stringId="general.localisedField.clinician.label.short"
+                          fallback="Clinician"
+                        />
+                      </LowerCase>
+                    ),
+                  }}
                 />
               }
               value={requestedBy?.displayName}
@@ -155,7 +163,7 @@ export const LabRequestSummaryPane = React.memo(
             <InfoCardItem
               label={
                 <TranslatedText
-                  stringId="general.form.requestDateTime.label"
+                  stringId="general.requestDateTime.label"
                   fallback="Request date & time"
                 />
               }
@@ -163,12 +171,12 @@ export const LabRequestSummaryPane = React.memo(
             />
             <InfoCardItem
               label={
-                <TranslatedText stringId="general.form.department.label" fallback="Department" />
+                <TranslatedText stringId="general.department.label" fallback="Department" />
               }
               value={department?.name}
             />
             <InfoCardItem
-              label={<TranslatedText stringId="lab.form.priority.label" fallback="Priority" />}
+              label={<TranslatedText stringId="lab.priority.label" fallback="Priority" />}
               value={priority ? priority.name : '-'}
             />
           </StyledInfoCard>

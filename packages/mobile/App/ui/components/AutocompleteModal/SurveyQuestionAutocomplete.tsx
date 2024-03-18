@@ -4,10 +4,10 @@ import { useFacility } from '~/ui/contexts/FacilityContext';
 import { useBackend } from '~/ui/hooks';
 import { AutocompleteModalField } from './AutocompleteModalField';
 import { SurveyScreenConfig } from '~/types';
-import { getDisplayNameForModel } from '~/ui/helpers/fields';
 import { AutocompleteSourceToColumnMap } from '~/ui/helpers/constants';
 import { theme } from '~/ui/styled/theme';
 import { StyledText } from '~/ui/styled/common';
+import { getNameColumnForModel, getDisplayNameForModel } from '~/ui/helpers/fields';
 
 const useFilterByResource = ({ source, scope }: SurveyScreenConfig): object => {
   const { facilityId } = useFacility();
@@ -38,7 +38,7 @@ export const SurveyQuestionAutocomplete = (props): JSX.Element => {
     models[source],
     {
       where: { ...where, ...filter },
-      column: columnName,
+      column: getNameColumnForModel(source),
     },
     val => ({
       label: getDisplayNameForModel(source, val),

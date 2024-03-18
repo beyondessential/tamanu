@@ -8,6 +8,7 @@ import { FormModal } from './FormModal';
 import { AutocompleteField, DateField, Field, Form, NumberField } from './Field';
 import { FormGrid } from './FormGrid';
 import { FormSubmitCancelRow } from './ButtonRow';
+import { FORM_TYPES } from '../constants';
 import { TranslatedText } from './Translation/TranslatedText';
 
 export const InvoiceLineItemModal = ({
@@ -59,7 +60,7 @@ export const InvoiceLineItemModal = ({
           <FormGrid>
             <Field
               name="dateGenerated"
-              label={<TranslatedText stringId="general.form.date.label" fallback="Date" />}
+              label={<TranslatedText stringId="general.date.label" fallback="Date" />}
               required
               component={DateField}
               saveDateAsString
@@ -68,7 +69,7 @@ export const InvoiceLineItemModal = ({
               name="invoiceLineTypeId"
               label={
                 <TranslatedText
-                  stringId="invoice.modal.addInvoice.form.details.label"
+                  stringId="invoice.modal.addInvoice.details.label"
                   fallback="Details"
                 />
               }
@@ -80,7 +81,7 @@ export const InvoiceLineItemModal = ({
               name="orderedById"
               label={
                 <TranslatedText
-                  stringId="invoice.modal.addInvoice.form.orderedBy.label"
+                  stringId="invoice.modal.addInvoice.orderedBy.label"
                   fallback="Ordered by"
                 />
               }
@@ -92,7 +93,7 @@ export const InvoiceLineItemModal = ({
               name="price"
               label={
                 <TranslatedText
-                  stringId="invoice.modal.addInvoice.form.price.label"
+                  stringId="invoice.modal.addInvoice.price.label"
                   fallback="Price ($)"
                 />
               }
@@ -104,7 +105,7 @@ export const InvoiceLineItemModal = ({
               name="percentageChange"
               label={
                 <TranslatedText
-                  stringId="invoice.modal.addInvoice.form.percentageChange.label"
+                  stringId="invoice.modal.addInvoice.percentageChange.label"
                   fallback="Discount/markup % (-/+)"
                 />
               }
@@ -118,6 +119,7 @@ export const InvoiceLineItemModal = ({
           </FormGrid>
         )}
         initialValues={initialValues}
+        formType={invoiceLineItem ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
         validationSchema={yup.object().shape({
           invoiceLineTypeId: foreignKey('Details is required'),
           orderedById: foreignKey('Ordered by must be selected'),

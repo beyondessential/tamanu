@@ -65,7 +65,6 @@ export const LabTestResultModal = React.memo(({ open, onClose, labTestId }) => {
       }
       open={open}
       onClose={onClose}
-      cornerExitButton={false}
     >
       <ModalBody>
         <div>
