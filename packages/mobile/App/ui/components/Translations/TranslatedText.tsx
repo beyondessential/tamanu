@@ -8,7 +8,6 @@ interface TranslatedTextProps {
   stringId: string;
   fallback: string;
   replacements?: Replacements;
-  uppercase?: boolean;
 }
 
 const TextWrapper = styled(StyledText)<{
@@ -23,37 +22,34 @@ const TextWrapper = styled(StyledText)<{
 `;
 
 // Duplicated from TranslatedText.js on desktop
-const replaceStringVariables = (
-  templateString: string,
-  replacements: Replacements,
-  uppercase: boolean,
-) => {
+const replaceStringVariables = (templateString: string, replacements: Replacements) => {
   const jsxElements = templateString.split(/(:[a-zA-Z]+)/g).map((part, index) => {
     // Even indexes are the unchanged parts of the string
     if (index % 2 === 0) return part;
-
     return replacements[part.slice(1)] || part;
   });
 
-  return uppercase
-    ? jsxElements.map(element => (typeof element === 'string' ? element.toUpperCase() : element))
-    : jsxElements;
+  return jsxElements;
 };
+
+export type TranslatedTextElement = ReactElement<TranslatedTextProps> | string;
 
 export const TranslatedText = ({
   stringId,
   fallback,
   replacements,
-  uppercase = false,
 }: TranslatedTextProps): ReactElement => {
   const { debugMode, getTranslation } = useTranslation();
   const translation = getTranslation(stringId) || fallback;
 
   const displayElements = useMemo(() => {
-    return replaceStringVariables(translation, replacements, uppercase);
+    if (!replacements) {
+      return translation;
+    }
+    return replaceStringVariables(translation, replacements);
   }, [translation, replacements]);
 
   const isDebugMode = __DEV__ && debugMode;
 
-  return <TextWrapper $isDebugMode={true}>{displayElements}</TextWrapper>;
+  return <TextWrapper $isDebugMode={isDebugMode}>{displayElements}</TextWrapper>;
 };

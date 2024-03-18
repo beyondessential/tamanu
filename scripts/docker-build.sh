@@ -34,6 +34,7 @@ remove_irrelevant_packages() {
     package.json.working > package.json.new
   # erase from the filesystem
   rm -rf $(jq -r '.[]' /tmp/unwanted.json)
+  rm -rf packages/.new-package
 
   mv package.json.new package.json
   rm package.json.working

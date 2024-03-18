@@ -9,6 +9,7 @@ import { FormGrid } from '../../components/FormGrid';
 import { ButtonRow } from '../../components/ButtonRow';
 import { LargeSubmitButton } from '../../components/Button';
 import { AdminViewContainer } from './components/AdminViewContainer';
+import { FORM_TYPES } from '../../constants';
 
 const ResultDisplay = ({ result }) => {
   if (!result) return null;
@@ -72,6 +73,7 @@ export const AssetUploaderView = memo(() => {
   return (
     <Form
       key={resetKey}
+      formType={FORM_TYPES.CREATE_FORM}
       onSubmit={onSubmitUpload}
       validationSchema={yup.object().shape({
         name: yup.string().required(),
@@ -87,6 +89,7 @@ export const AssetUploaderView = memo(() => {
                 label="Select asset"
                 name="name"
                 required
+                prefix="asset.property.type"
               />
               <Field
                 component={FileChooserField}

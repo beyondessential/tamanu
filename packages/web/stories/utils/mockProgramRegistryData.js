@@ -103,7 +103,7 @@ const mockSurvey = {
       validationCriteria: '',
       detail: '',
       config:
-        '{"column": "educationalLevel", "writeToPatient": { "fieldName": "educationalLevel","isAdditionalDataField": true }}',
+        '{"column": "educationalLevel", "writeToPatient": { "fieldName": "educationalLevel" }}',
       calculation: '',
       updatedAtSyncTick: '-999',
       createdAt: '2023-09-27T22:21:03.178Z',

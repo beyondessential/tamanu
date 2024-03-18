@@ -72,19 +72,16 @@ export class TranslatedString extends Model {
     return null; // syncs everywhere
   }
 
-  static etagForLanguage = async language => {
-    return (
-      await this.max('updated_at_sync_tick', {
-        where: { language },
-      })
-    ).toString();
-  };
+  static getPossibleLanguages = async () => {
+    const languagesInDb = await TranslatedString.findAll({
+      attributes: ['language'],
+      group: 'language',
+    });
 
-  static etagForLanguageOptions = async () => {
-    return (
-      await this.max('updated_at_sync_tick', {
-        where: { stringId: 'languageName' },
-      })
-    ).toString();
+    const languageNames = await TranslatedString.findAll({
+      where: { stringId: 'languageName' },
+    });
+
+    return { languagesInDb, languageNames };
   };
 }

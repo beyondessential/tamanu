@@ -12,7 +12,8 @@ import { TranslatedText } from '../Translation/TranslatedText';
 export const HandoverNotesModal = React.memo(({ area: areaId, ...props }) => {
   const { getLocalisation } = useLocalisation();
   const api = useApi();
-  const { title, subTitle, logo } = useCertificate();
+  const { data: certificateData, isFetching: isFetchingCertificate } = useCertificate();
+  const { logo, title, subTitle } = certificateData;
   const letterheadConfig = { title, subTitle };
   const modalTitle = (
     <TranslatedText
@@ -25,7 +26,7 @@ export const HandoverNotesModal = React.memo(({ area: areaId, ...props }) => {
   const {
     data: { data: handoverNotes = [], locationGroup = {} } = {},
     refetch: refetchHandoverNotes,
-    isFetching,
+    isFetching: isFetchingHandoverNotes,
   } = useQuery(
     ['locationGroupHandoverNotes'],
     () => areaId && api.get(`locationGroup/${areaId}/handoverNotes`),
@@ -37,7 +38,7 @@ export const HandoverNotesModal = React.memo(({ area: areaId, ...props }) => {
     }
   }, [refetchHandoverNotes, areaId]);
 
-  if (isFetching) return null;
+  if (isFetchingCertificate || isFetchingHandoverNotes) return null;
 
   return (
     <Modal {...props} title={modalTitle} onPrint={() => printPDF('handover-notes')}>

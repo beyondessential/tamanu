@@ -55,7 +55,7 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterTyp
     return (
       <ErrorMessage
         title="Error: Cannot load vitals form"
-        errorMessage="Please contact a Tamanu Administrator to ensure the Vitals form is configured correctly."
+        errorMessage="Please contact an administrator to ensure the Vitals form is configured correctly."
         error={error}
       />
     );
@@ -74,13 +74,16 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterTyp
         [VITALS_DATA_ELEMENT_IDS.dateRecorded]: getCurrentDateTimeString(),
         ...getFormInitialValues(currentComponents, patient, patientAdditionalData),
       }}
-      validate={({ [VITALS_DATA_ELEMENT_IDS.dateRecorded]: date, ...values }) => {
-        const errors = {};
-        if (Object.values(values).every(x => x === '' || x === null || x === undefined)) {
-          errors.form = 'At least one recording must be entered.';
+      validate={values => {
+        if (
+          Object.entries(values)
+            .filter(([name]) => name !== VITALS_DATA_ELEMENT_IDS.dateRecorded)
+            .every(([, value]) => value === '' || value === null || value === undefined)
+        ) {
+          return { form: 'At least one recording must be entered.' };
         }
 
-        return errors;
+        return {};
       }}
       render={({ submitForm, values, setFieldValue }) => (
         <SurveyScreen

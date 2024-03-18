@@ -13,7 +13,7 @@ import { formatFhirDate } from '../../utils/fhir';
 import { Model } from '../Model';
 
 export class FhirResource extends Model {
-  static init(attributes, { primaryKey, ...options }) {
+  static init(attributes, options) {
     super.init(
       {
         id: {
@@ -48,10 +48,10 @@ export class FhirResource extends Model {
         ...attributes,
       },
       {
+        tableName: snakeCase(Utils.pluralize(this.fhirName)),
         ...options,
         syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC,
         schema: 'fhir',
-        tableName: snakeCase(Utils.pluralize(this.fhirName)),
         timestamps: false,
       },
     );

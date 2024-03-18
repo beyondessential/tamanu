@@ -1,0 +1,200 @@
+name: CD
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - labeled
+  push:
+    branches:
+      - main
+      - release/*
+      - uat-release/*
+    tags:
+      - 'v*.*.*'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  id-token: write # OIDC token for AWS
+  pull-requests: write # for deploy workflow
+
+jobs:
+  images:
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - arch: amd64
+            runs-on: ubuntu-latest
+          - arch: arm64
+            runs-on: Linux-ARM64
+        package:
+          - name: central
+            path: central-server
+            target: server
+          - name: facility
+            path: facility-server
+            target: server
+          - name: frontend
+            path: web
+            target: frontend
+          - name: meta
+            path: meta-server
+            target: server
+
+    name: Image for ${{ matrix.package.name }} on ${{ matrix.platform.arch }}
+    runs-on: ${{ matrix.platform.runs-on }}
+
+    steps:
+      - name: Install docker (arm64 beta)
+        if: matrix.platform.arch == 'arm64'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ca-certificates curl acl
+          sudo install -m 0755 -d /etc/apt/keyrings
+          sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+          sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+          echo \
+            "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+            $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+            sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+          sudo apt-get update
+
+          sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+          sudo usermod -aG docker $USER
+          sudo setfacl --modify user:$USER:rw /var/run/docker.sock
+
+      - name: Verify docker works
+        run: docker run hello-world
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ap-southeast-2
+          role-to-assume: arn:aws:iam::143295493206:role/gha-image-push
+          role-session-name: GHA@Tamanu=BuildImage
+
+      - name: Login to ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - uses: actions/checkout@v4
+      - name: Extract version
+        id: version
+        run: echo "version=$(jq -r .version package.json)" >> "$GITHUB_OUTPUT"
+
+      - name: Setup buildkit
+        uses: docker/setup-buildx-action@v3
+
+      - uses: docker/metadata-action@v5
+        id: meta
+        with:
+          labels: |
+            org.opencontainers.image.vendor=BES
+            org.opencontainers.image.title=Tamanu ${{ matrix.package.name }}
+            org.opencontainers.image.url=https://www.bes.au/products/tamanu/
+            org.opencontainers.image.source=https://github.com/beyondessential/tamanu/
+            org.opencontainers.image.version=${{ steps.version.outputs.version }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          platforms: linux/${{ matrix.platform.arch }}
+          cache-from: type=gha,scope=${{ matrix.platform.arch }}-${{ github.ref }}-${{ matrix.package.name }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.platform.arch }}-${{ github.ref }}-${{ matrix.package.name }}
+          build-args: PACKAGE_PATH=${{ matrix.package.path }}
+          target: ${{ matrix.package.target }}
+          push: true
+          labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ steps.login-ecr.outputs.registry }}/tamanu/${{ matrix.package.name }}:sha-${{ github.sha }}.${{ matrix.platform.arch }}
+
+  multi-arch:
+    needs: images
+    strategy:
+      fail-fast: false
+      matrix:
+        repo:
+          - central
+          - facility
+          - frontend
+          - meta
+
+    runs-on: ubuntu-latest
+    name: Multi-arch for ${{ matrix.repo }}
+    steps:
+      - name: Install manifest-tool
+        run: |
+          curl -sLo manifest-tool.tar.gz https://github.com/estesp/manifest-tool/releases/download/v2.1.5/binaries-manifest-tool-2.1.5.tar.gz
+          tar -xvf manifest-tool.tar.gz manifest-tool-linux-amd64
+          mv manifest-tool-linux-amd64 manifest-tool
+          chmod +x manifest-tool
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ap-southeast-2
+          role-to-assume: arn:aws:iam::143295493206:role/gha-image-push
+          role-session-name: GHA@Tamanu=CombineImage
+
+      - name: Login to ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Combine images
+        run: |
+          ./manifest-tool push from-args \
+            --platforms linux/amd64,linux/arm64 \
+            --template ${{ steps.login-ecr.outputs.registry }}/tamanu/${{ matrix.repo }}:sha-${{ github.sha }}.ARCH \
+            --target ${{ steps.login-ecr.outputs.registry }}/tamanu/${{ matrix.repo }}:sha-${{ github.sha }}
+
+  all-built:
+    if: always() # always run even if dependencies fail
+    name: All images built
+    needs:
+      - images
+      - multi-arch
+    runs-on: ubuntu-latest
+    steps:
+      - uses: re-actors/alls-green@release/v1
+        with:
+          jobs: ${{ toJSON(needs) }}
+
+  deploy-branch:
+    needs: all-built
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/release/'))
+    name: Deploy branch ${{ github.ref_name }}
+    uses: ./.github/workflows/cd-up.yml
+    secrets:
+      PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+      TAILSCALE_DBPROXY_ACCESS_OAUTH: ${{ secrets.TAILSCALE_DBPROXY_ACCESS_OAUTH }}
+      TAMANU_OPS_SSH: ${{ secrets.TAMANU_OPS_SSH }}
+
+  deploy-pr:
+    needs: all-built
+    if: github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'auto-deploy')
+    name: Deploy PR ${{ github.event.pull_request.number }}
+    uses: ./.github/workflows/cd-up.yml
+    secrets:
+      PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+      TAILSCALE_DBPROXY_ACCESS_OAUTH: ${{ secrets.TAILSCALE_DBPROXY_ACCESS_OAUTH }}
+      TAMANU_OPS_SSH: ${{ secrets.TAMANU_OPS_SSH }}
+
+  package-frontend:
+    needs: images
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    name: Package Frontend v${{ github.ref_name }}
+    uses: ./.github/workflows/cd-package-frontend.yml
+
+  package-servers:
+    needs: images
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    name: Package Servers v${{ github.ref_name }}
+    uses: ./.github/workflows/cd-package-servers.yml

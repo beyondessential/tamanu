@@ -3,6 +3,7 @@ import express from 'express';
 import { constructPermission } from '@tamanu/shared/permissions/middleware';
 import { authMiddleware, loginHandler, refreshHandler } from '../../middleware/auth';
 import asyncHandler from 'express-async-handler';
+import { keyBy, mapValues } from 'lodash';
 
 import { allergy } from './allergy';
 import { appointments } from './appointments';
@@ -63,6 +64,33 @@ apiv1.get(
   asyncHandler((req, res) => {
     req.flagPermissionChecked();
     return res.send({ ok: 'ok' });
+  }),
+);
+
+apiv1.get('/public/translation/languageOptions', async (req, res) => {
+  req.flagPermissionChecked();
+  const { TranslatedString } = req.models;
+  const response = await TranslatedString.getPossibleLanguages();
+  res.send(response);
+});
+
+apiv1.get(
+  '/public/translation/:language',
+  asyncHandler(async (req, res) => {
+    // Everyone can access translations
+    req.flagPermissionChecked();
+
+    const {
+      models: { TranslatedString },
+      params: { language },
+    } = req;
+
+    const translatedStringRecords = await TranslatedString.findAll({
+      where: { language },
+      attributes: ['stringId', 'text'],
+    });
+
+    res.send(mapValues(keyBy(translatedStringRecords, 'stringId'), 'text'));
   }),
 );
 

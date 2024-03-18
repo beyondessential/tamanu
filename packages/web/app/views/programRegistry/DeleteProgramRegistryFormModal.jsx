@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { useQueryClient } from '@tanstack/react-query';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { ConfirmCancelRow, FormSeparatorLine, Modal } from '../../components';
 import { useApi } from '../../api';
 import { Colors } from '../../constants';
@@ -31,10 +32,17 @@ export const DeleteProgramRegistryFormModal = ({ patientProgramRegistration, onC
   if (!patientProgramRegistration) return <></>;
 
   const deleteProgramRegistry = async () => {
-    const { id, date, ...rest } = patientProgramRegistration;
+    const { ...rest } = patientProgramRegistration;
+    delete rest.id;
+    delete rest.date;
+
     await api.post(
       `patient/${encodeURIComponent(patientProgramRegistration.patientId)}/programRegistration`,
-      { ...rest, registrationStatus: REGISTRATION_STATUSES.RECORDED_IN_ERROR },
+      {
+        ...rest,
+        registrationStatus: REGISTRATION_STATUSES.RECORDED_IN_ERROR,
+        date: getCurrentDateTimeString(),
+      },
     );
 
     queryClient.invalidateQueries([`infoPaneListItem-${PROGRAM_REGISTRY}`]);
