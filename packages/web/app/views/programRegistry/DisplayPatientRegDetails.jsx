@@ -14,6 +14,7 @@ import { RemoveProgramRegistryFormModal } from './RemoveProgramRegistryFormModal
 import { OutlinedButton } from '../../components';
 import { ClinicalStatusDisplay } from './ClinicalStatusDisplay';
 import { ConditionalTooltip } from '../../components/Tooltip';
+import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 const DisplayContainer = styled.div`
   display: flex;
@@ -88,22 +89,40 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
   const isDeleted =
     patientProgramRegistration.registrationStatus === REGISTRATION_STATUSES.RECORDED_IN_ERROR;
 
-  let actions = {
-    Remove: () => setOpenRemoveProgramRegistryFormModal(true),
-    Delete: () => setOpenDeleteProgramRegistryFormModal(true),
-  };
+  let actions = [
+    {
+      label: <TranslatedText stringId="general.action.remove" fallback="Remove" />,
+      action: () => setOpenRemoveProgramRegistryFormModal(true),
+    },
+    {
+      label: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
+      action: () => setOpenDeleteProgramRegistryFormModal(true),
+    },
+  ];
 
   if (isRemoved)
-    actions = {
-      Activate: () => setOpenActivateProgramRegistryFormModal(true),
-      Delete: () => setOpenDeleteProgramRegistryFormModal(true),
-    };
+    actions = [
+      {
+        label: <TranslatedText stringId="general.action.activate" fallback="Activate" />,
+        action: () => setOpenActivateProgramRegistryFormModal(true),
+      },
+      {
+        label: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
+        action: () => setOpenDeleteProgramRegistryFormModal(true),
+      },
+    ];
 
   if (isDeleted)
-    actions = {
-      Activate: () => setOpenActivateProgramRegistryFormModal(true),
-      Remove: () => setOpenRemoveProgramRegistryFormModal(true),
-    };
+    actions = [
+      {
+        label: <TranslatedText stringId="general.action.activate" fallback="Activate" />,
+        action: () => setOpenActivateProgramRegistryFormModal(true),
+      },
+      {
+        label: <TranslatedText stringId="general.action.remove" fallback="Remove" />,
+        action: () => setOpenRemoveProgramRegistryFormModal(true),
+      },
+    ];
 
   return (
     <DisplayContainer>
