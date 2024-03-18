@@ -5,6 +5,15 @@ import { useSuggester } from '../../../../../api';
 import { TranslatedText } from '../../../../../components/Translation/TranslatedText';
 import { LinkedField } from '../../../../../components/Field/LinkedField';
 
+const HealthCenterLinkedVillageField = props => (
+  <LinkedField
+    {...props}
+    linkedFieldName="nursingZoneId"
+    name="villageId"
+    component={AutocompleteField}
+  />
+);
+
 export const CambodiaLocationFields = ({ filterByMandatory }) => {
   const subdivisionSuggester = useSuggester('subdivision');
   const divisionSuggester = useSuggester('division');
@@ -32,9 +41,7 @@ export const CambodiaLocationFields = ({ filterByMandatory }) => {
       label: <TranslatedText stringId="cambodiaPatientDetails.commune.label" fallback="Commune" />,
     },
     villageId: {
-      component: props => (
-        <LinkedField {...props} linkedFieldName="nursingZoneId" component={AutocompleteField} />
-      ),
+      component: HealthCenterLinkedVillageField,
       linkedFieldName: 'nursingZoneId',
       endpoint: 'linkedField/healthCenter',
       suggester: villageSuggester,
