@@ -113,6 +113,7 @@ export const REFERENCE_TYPES = {
   VACCINE_CIRCUMSTANCE: 'vaccineCircumstance',
   ADDITIONAL_INVOICE_LINE: 'additionalInvoiceLine',
   SPECIMEN_TYPE: 'specimenType',
+  CATCHMENT: 'catchment',
   ...IMAGING_AREA_TYPES,
 };
 
