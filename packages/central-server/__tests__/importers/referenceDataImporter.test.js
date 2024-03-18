@@ -305,7 +305,7 @@ describe('Data definition import', () => {
     });
   });
 
-  it.only('should create translations records for the translatable reference data types', async () => {
+  it('should create translations records for the translatable reference data types', async () => {
     const { models } = ctx.store;
     const { ReferenceData, TranslatedString } = models;
     const { stats } = await doImport({ file: 'valid' });
