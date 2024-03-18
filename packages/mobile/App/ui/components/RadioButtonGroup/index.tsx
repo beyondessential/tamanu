@@ -38,14 +38,20 @@ export const RadioButtonGroup = ({
   labelFontSize,
 }: RadioButtonGroupProps): JSX.Element => {
   const RadioComponent = CustomComponent || RadioButton;
+  console.log(label)
 
   return (
     <>
-      {Boolean(label) && (
-        <Label fontSize={labelFontSize} fontWeight={500}>
+      {!!label && (
+        <StyledText
+          fontSize={labelFontSize}
+          fontWeight={600}
+          marginBottom={2}
+          color={theme.colors.TEXT_SUPER_DARK}
+        >
           {label}
           {required && <RequiredIndicator />}
-        </Label>
+        </StyledText>
       )}
       <RowView marginBottom={10}>
         {options.map((option, index) => (
@@ -57,6 +63,7 @@ export const RadioButtonGroup = ({
             selected={option.value === value}
             error={error}
             onPress={onChange}
+            labelFontSize={labelFontSize}
           />
         ))}
       </RowView>
