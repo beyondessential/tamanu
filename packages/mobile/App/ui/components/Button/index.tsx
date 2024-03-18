@@ -34,7 +34,6 @@ export interface StyledButtonProps extends ButtonContainerProps {
 
 const ButtonContainer = styled(RowView)<ButtonContainerProps>`
   ${styledSystem.flexbox};
-  width: ${(props): any => (props.width ? props.width : '100%')};
   height: ${(props): StrNumType =>
     props.height ? props.height : screenPercentageToDP(6.07, Orientation.Height)};
   width: ${(props): StrNumType => (props.width ? props.width : '100%')};
@@ -99,9 +98,6 @@ export const Button = ({
   ...rest
 }: StyledButtonProps): FunctionComponentElement<{}> => (
   <StyledTouchableOpacity
-    testID={id || buttonText?.props?.fallback || buttonText}
-    accessibilityLabel={buttonText?.props?.fallback || buttonText}
-    // TODO: testID and accessibilityLabel for translated buttons require strings
     testID={id || buttonText?.props?.fallback || buttonText}
     accessibilityLabel={buttonText?.props?.fallback || buttonText}
     flex={flex}

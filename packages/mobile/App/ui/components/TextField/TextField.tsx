@@ -8,7 +8,7 @@ import { BaseInputProps } from '../../interfaces/BaseInputProps';
 import { TextFieldErrorMessage } from './TextFieldErrorMessage';
 import { theme } from '~/ui/styled/theme';
 import { RequiredIndicator } from '../RequiredIndicator';
-import { TranslatedTextElement } from '/components/Translations/TranslatedText';
+import { TranslatedTextElement } from '../Translations/TranslatedText';
 
 export interface RefObject<T> {
   readonly current: T | null;
@@ -118,7 +118,6 @@ export const TextField = React.memo(
             focused={focused}
             hasValue={value?.length > 0}
             error={error}
-            // TODO: testID and accessibilityLabel for translated field labels require strings
             testID={label?.props?.fallback || label}
             value={!hideValue && value}
             height={inputHeight}

@@ -8,6 +8,7 @@ import { VaccineDataProps } from '.';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { formatStringDate } from '../../helpers/date';
 import { DateFormats } from '../../helpers/constants';
+import { TranslatedText } from '../Translations/TranslatedText';
 
 const GivenOnTimeFields: FC<VaccineDataProps> = ({ administeredVaccine }) => (
   <StyledView
@@ -17,29 +18,60 @@ const GivenOnTimeFields: FC<VaccineDataProps> = ({ administeredVaccine }) => (
     background={theme.colors.WHITE}
   >
     <RowField
-      label="Date given"
+      label={<TranslatedText stringId="vaccine.form.dateGiven.label" fallback="Date given" />}
       value={
         administeredVaccine.date
           ? formatStringDate(administeredVaccine.date, DateFormats.DDMMYY)
           : null
       }
     />
-    <RowField label="Schedule" value={administeredVaccine.scheduledVaccine?.schedule} />
-    <RowField label="Batch No." value={administeredVaccine.batch} />
-    <RowField label="Injection site" value={administeredVaccine.injectionSite} />
+    <RowField
+      label={<TranslatedText stringId="vaccine.form.schedule.label" fallback="Schedule" />}
+      value={administeredVaccine.scheduledVaccine?.schedule}
+    />
+    <RowField
+      label={
+        <TranslatedText stringId="vaccine.form.batchNumberShorthand.label" fallback="Batch No." />
+      }
+      value={administeredVaccine.batch}
+    />
+    <RowField
+      label={
+        <TranslatedText stringId="vaccine.form.injectionSite.label" fallback="Injection site" />
+      }
+      value={administeredVaccine.injectionSite}
+    />
     {!administeredVaccine.givenElsewhere ? (
       <View>
-        <RowField label="Area" value={administeredVaccine.location?.locationGroup?.name} />
-        <RowField label="Location" value={administeredVaccine.location?.name} />
-        <RowField label="Department" value={administeredVaccine.department?.name} />
+        <RowField
+          label={<TranslatedText stringId="general.form.area.label" fallback="Area" />}
+          value={administeredVaccine.location?.locationGroup?.name}
+        />
+        <RowField
+          label={<TranslatedText stringId="general.form.location.label" fallback="Location" />}
+          value={administeredVaccine.location?.name}
+        />
+        <RowField
+          label={<TranslatedText stringId="general.form.department.label" fallback="Department" />}
+          value={administeredVaccine.department?.name}
+        />
       </View>
     ) : null}
 
     <RowField
-      label={administeredVaccine.givenElsewhere ? 'Country' : 'Given by'}
+      label={
+        administeredVaccine.givenElsewhere ? (
+          <TranslatedText stringId="vaccine.form.country.label" fallback="Country" />
+        ) : (
+          <TranslatedText stringId="vaccine.form.givenBy.label" fallback="Given by" />
+        )
+      }
       value={administeredVaccine.givenBy}
     />
-    <RowField label="Recorded by" value={administeredVaccine.encounter?.examiner.displayName} />
+    <RowField
+      label={<TranslatedText stringId="vaccine.form.recordedBy.label" fallback="Recorded by" />}
+      value={administeredVaccine.encounter?.examiner.displayName}
+    />
   </StyledView>
 );
 
