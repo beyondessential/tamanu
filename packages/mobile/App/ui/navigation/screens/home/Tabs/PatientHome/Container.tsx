@@ -18,6 +18,7 @@ import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { Patient } from '../../../../../../models/Patient';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { PatientFromRoute } from '~/ui/helpers/constants';
+import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 
 interface IPopup {
   title: string;
@@ -63,6 +64,59 @@ const showPatientWarningPopups = (issues: IPatientIssue[]): void =>
       .map(({ note }) => formatNoteToPopup(note)),
   );
 
+const moduleCompare = ({ firstModule, secondModule, patientModuleLocalisation }) => {
+  const firstModuleSortPriority = patientModuleLocalisation?.[firstModule.key]?.sortPriority || 0;
+  const secondModuleSortPriorty = patientModuleLocalisation?.[secondModule.key]?.sortPriority || 0;
+  return firstModuleSortPriority - secondModuleSortPriorty;
+};
+
+const usePatientModules = (navigation, patientModuleLocalisation) => {
+  return useMemo(() => {
+    const filteredModules = [
+      {
+        key: 'diagnosisAndTreatment',
+        title: 'Diagnosis &\nTreatment',
+        Icon: Icons.DiagnosisAndTreatmentIcon,
+        onPress: (): void => navigation.navigate(Routes.HomeStack.DiagnosisAndTreatmentTabs.Index),
+      },
+      {
+        key: 'vitals',
+        title: 'Vitals',
+        Icon: Icons.VitalsIcon,
+        onPress: (): void => navigation.navigate(Routes.HomeStack.VitalsStack.Index),
+      },
+      {
+        key: 'programs',
+        title: 'Programs',
+        Icon: Icons.PregnancyIcon,
+        onPress: (): void => navigation.navigate(Routes.HomeStack.ProgramStack.Index),
+      },
+      {
+        key: 'referral',
+        title: 'Referral',
+        Icon: Icons.FamilyPlanningIcon,
+        onPress: (): void => navigation.navigate(Routes.HomeStack.ReferralStack.Index),
+      },
+      {
+        key: 'vaccine',
+        title: 'Vaccine',
+        Icon: Icons.VaccineIcon,
+        onPress: (): void => navigation.navigate(Routes.HomeStack.VaccineStack.Index),
+      },
+      {
+        key: 'tests',
+        title: 'Tests',
+        Icon: Icons.LabRequestIcon,
+        onPress: (): void => navigation.navigate(Routes.HomeStack.LabRequestStack.Index),
+      },
+    ].filter(module => patientModuleLocalisation?.[module.key]?.hidden === false);
+
+    return filteredModules.sort((firstModule, secondModule) =>
+      moduleCompare({ firstModule, secondModule, patientModuleLocalisation }),
+    );
+  }, [navigation, patientModuleLocalisation]);
+};
+
 const PatientHomeContainer = ({
   navigation,
   selectedPatient,
@@ -75,42 +129,8 @@ const PatientHomeContainer = ({
   const canViewProgramRegistries = canListRegistrations || canCreateRegistration;
   const [errorMessage, setErrorMessage] = useState();
   const { from } = route.params || {};
-
-  const visitTypeButtons = useMemo(
-    () => [
-      {
-        title: 'Diagnosis &\nTreatment',
-        Icon: Icons.DiagnosisAndTreatmentIcon,
-        onPress: (): void => navigation.navigate(Routes.HomeStack.DiagnosisAndTreatmentTabs.Index),
-      },
-      {
-        title: 'Vitals',
-        Icon: Icons.VitalsIcon,
-        onPress: (): void => navigation.navigate(Routes.HomeStack.VitalsStack.Index),
-      },
-      {
-        title: 'Programs',
-        Icon: Icons.PregnancyIcon,
-        onPress: (): void => navigation.navigate(Routes.HomeStack.ProgramStack.Index),
-      },
-      {
-        title: 'Referral',
-        Icon: Icons.FamilyPlanningIcon,
-        onPress: (): void => navigation.navigate(Routes.HomeStack.ReferralStack.Index),
-      },
-      {
-        title: 'Vaccine',
-        Icon: Icons.VaccineIcon,
-        onPress: (): void => navigation.navigate(Routes.HomeStack.VaccineStack.Index),
-      },
-      {
-        title: 'Tests',
-        Icon: Icons.LabRequestIcon,
-        onPress: (): void => navigation.navigate(Routes.HomeStack.LabRequestStack.Index),
-      },
-    ],
-    [navigation],
-  );
+  const { getLocalisation } = useLocalisation();
+  const patientModuleLocalisation = getLocalisation('layouts.mobilePatientModules');
 
   const patientMenuButtons = useMemo(
     () => [
@@ -190,13 +210,15 @@ const PatientHomeContainer = ({
     showPatientWarningPopups(patientIssues || []);
   }, [patientIssues]);
 
+  const patientModules = usePatientModules(navigation, patientModuleLocalisation);
+
   if (errorMessage) return <ErrorScreen error={errorMessage} />;
 
   return (
     <Screen
       selectedPatient={selectedPatient}
       navigateToSearchPatients={onNavigateToSearchPatients}
-      visitTypeButtons={visitTypeButtons}
+      visitTypeButtons={patientModules}
       patientMenuButtons={patientMenuButtons}
       markPatientForSync={onSyncPatient}
     />
