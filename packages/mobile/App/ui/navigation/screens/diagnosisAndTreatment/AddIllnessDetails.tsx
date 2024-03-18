@@ -1,4 +1,4 @@
-import React, { ReactElement, useCallback } from 'react';
+import React, { ReactElement, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { compose } from 'redux';
 import { useSelector } from 'react-redux';
 import { Formik } from 'formik';
@@ -25,6 +25,7 @@ import { authUserSelector } from '~/ui/helpers/selectors';
 import { CurrentUserField } from '~/ui/components/CurrentUserField/CurrentUserField';
 import { getCurrentDateTimeString } from '~/ui/helpers/date';
 import { NOTE_RECORD_TYPES, NOTE_TYPES } from '~/ui/helpers/constants';
+import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 
 const IllnessFormSchema = Yup.object().shape({
   diagnosis: Yup.string(),
@@ -55,38 +56,37 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
 
   const user = useSelector(authUserSelector);
 
-  const onRecordIllness = useCallback(
-    async ({ diagnosis, certainty, clinicalNote }: any): Promise<any> => {
-      const encounter = await models.Encounter.getOrCreateCurrentEncounter(
-        selectedPatient.id,
-        user.id,
-      );
+  const onRecordIllness = useCallback(async ({ diagnosis, certainty, clinicalNote }: any): Promise<
+    any
+  > => {
+    const encounter = await models.Encounter.getOrCreateCurrentEncounter(
+      selectedPatient.id,
+      user.id,
+    );
 
-      if (diagnosis) {
-        await models.Diagnosis.createAndSaveOne({
-          // TODO: support selecting multiple diagnoses and flagging as primary/non primary
-          isPrimary: true,
-          encounter: encounter.id,
-          date: getCurrentDateTimeString(),
-          diagnosis,
-          certainty,
-        });
-      }
+    if (diagnosis) {
+      await models.Diagnosis.createAndSaveOne({
+        // TODO: support selecting multiple diagnoses and flagging as primary/non primary
+        isPrimary: true,
+        encounter: encounter.id,
+        date: getCurrentDateTimeString(),
+        diagnosis,
+        certainty,
+      });
+    }
 
-      if (clinicalNote) {
-        await models.Note.createForRecord({
-          recordId: encounter.id,
-          recordType: NOTE_RECORD_TYPES.ENCOUNTER,
-          noteType: NOTE_TYPES.CLINICAL_MOBILE,
-          content: clinicalNote,
-          author: user.id,
-        });
-      }
+    if (clinicalNote) {
+      await models.Note.createForRecord({
+        recordId: encounter.id,
+        recordType: NOTE_RECORD_TYPES.ENCOUNTER,
+        noteType: NOTE_TYPES.CLINICAL_MOBILE,
+        content: clinicalNote,
+        author: user.id,
+      });
+    }
 
-      navigateToHistory();
-    },
-    [],
-  );
+    navigateToHistory();
+  }, []);
 
   const icd10Suggester = new Suggester(models.ReferenceData, {
     where: {
@@ -118,8 +118,13 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
                 <StyledView justifyContent="space-between">
                   <Field
                     component={AutocompleteModalField}
-                    label="Select"
-                    placeholder="Diagnosis"
+                    label={<TranslatedText stringId="general.action.select" fallback="Select" />}
+                    placeholder={
+                      <TranslatedText
+                        stringId="general.form.diagnosis.label"
+                        fallback="Diagnosis"
+                      />
+                    }
                     navigation={navigation}
                     suggester={icd10Suggester}
                     name="diagnosis"
@@ -129,17 +134,44 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
                     component={Dropdown}
                     options={CERTAINTY_OPTIONS}
                     name="certainty"
-                    label="Certainty"
+                    label={
+                      <TranslatedText
+                        stringId="diagnosis.form.certainty.label"
+                        fallback="Certainty"
+                      />
+                    }
                     disabled={!values?.diagnosis}
                   />
                   <Spacer height="24px" />
-                  <Field component={TextField} name="clinicalNote" multiline placeholder="Clinical Note" />
+                  <Field
+                    component={TextField}
+                    name="clinicalNote"
+                    multiline
+                    placeholder={
+                      <TranslatedText
+                        stringId="diagnosis.form.clinicalNote.label"
+                        fallback="Clinical Note"
+                      />
+                    }
+                  />
                   <Spacer height="24px" />
-                  <CurrentUserField name="examiner" label="Recorded By" />
-                  <SubmitButton
+                  <CurrentUserField
+                    name="examiner"
+                    label={
+                      <TranslatedText
+                        stringId="diagnosis.form.examiner.label"
+                        fallback="Recorded By"
+                      />
+                    }
+                  />
+                  <Button
                     marginTop={screenPercentageToDP(1.22, Orientation.Height)}
                     marginBottom={screenPercentageToDP(1.22, Orientation.Height)}
-                    onSubmit={handleSubmit}
+                    backgroundColor={theme.colors.PRIMARY_MAIN}
+                    onPress={handleSubmit}
+                    buttonText={
+                      <TranslatedText stringId="general.action.submit" fallback="Submit" />
+                    }
                   />
                 </StyledView>
               </ScrollView>

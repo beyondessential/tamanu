@@ -19,7 +19,7 @@ export interface TextFieldProps extends BaseInputProps {
   onChange: (text: string) => void;
   isOpen?: boolean;
   keyboardType?: KeyboardType;
-  placeholder?: '' | string;
+  placeholder?: TranslatedTextElement;
   multiline?: boolean;
   disabled?: boolean;
   secure?: boolean;
@@ -34,7 +34,7 @@ export interface TextFieldProps extends BaseInputProps {
   blurOnSubmit?: boolean;
   inputRef?: RefObject<TextInput>;
   onSubmitEditing?: () => void;
-  label?: TranslatedTextElement;
+  label?: TranslatedTextElement
   labelColor?: string;
   labelFontWeight?: string;
   labelFontSize?: string;
@@ -135,7 +135,7 @@ export const TextField = React.memo(
             editable={!disabled}
             style={multiline ? styles.multiLineText : styles.singleLineText}
             secureTextEntry={secure}
-            placeholder={placeholder}
+            placeholder={placeholder?.props?.fallback || placeholder}
             blurOnSubmit={blurOnSubmit !== undefined ? blurOnSubmit : !multiline}
             maxLength={charLimit}
             onSubmitEditing={onSubmitEditing}
