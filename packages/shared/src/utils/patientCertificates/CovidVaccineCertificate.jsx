@@ -10,7 +10,7 @@ import { H3, P } from './Typography';
 import { CovidLetterheadSection } from './CovidLetterheadSection';
 import { getDisplayDate } from './getDisplayDate';
 import { compareDateStrings } from '../dateTime';
-import { useLanguageContext, withLanguageContext } from '../languageContext';
+import { withLanguageContext } from '../pdf/languageContext';
 
 const columns = [
   {
@@ -68,7 +68,6 @@ const CovidVaccineCertificateComponent = ({
   extraPatientFields,
   printedDate,
 }) => {
-  const { language } = useLanguageContext();
   const contactEmail = getLocalisation('templates.vaccineCertificate.emailAddress');
   const contactNumber = getLocalisation('templates.vaccineCertificate.contactNumber');
   const healthFacility = getLocalisation('templates.vaccineCertificate.healthFacility');
@@ -84,7 +83,7 @@ const CovidVaccineCertificateComponent = ({
 
   return (
     <Document>
-      <Page size="A4" style={styles(language).page}>
+      <Page size="A4" style={styles.page}>
         {watermarkSrc && <Watermark src={watermarkSrc} />}
         <CovidLetterheadSection getLocalisation={getLocalisation} logoSrc={logoSrc} />
         <H3>COVID-19 Vaccine Certificate</H3>

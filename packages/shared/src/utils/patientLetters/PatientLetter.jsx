@@ -6,7 +6,7 @@ import { H3, P } from '../patientCertificates/Typography';
 import { LetterheadSection } from '../patientCertificates/LetterheadSection';
 import { getDOB, getName, getSex } from '../patientAccessors';
 import { format as formatDate } from '../dateTime';
-import { useLanguageContext, withLanguageContext } from '../languageContext';
+import { withLanguageContext } from '../pdf/languageContext';
 
 export const getCreatedAtDate = ({ documentCreatedAt }) =>
   documentCreatedAt ? formatDate(documentCreatedAt, 'dd/MM/yyyy') : 'Unknown';
@@ -59,12 +59,11 @@ const DetailsSection = ({ getLocalisation, data }) => {
 };
 
 const PatientLetterComponent = ({ getLocalisation, data, logoSrc, letterheadConfig }) => {
-  const { language} = useLanguageContext();
   const { title: certificateTitle, body, patient = {}, clinician, documentCreatedAt } = data;
 
   return (
     <Document>
-      <Page size="A4" style={styles(language).page}>
+      <Page size="A4" style={styles.page}>
         <CertificateHeader>
           <LetterheadSection
             getLocalisation={getLocalisation}

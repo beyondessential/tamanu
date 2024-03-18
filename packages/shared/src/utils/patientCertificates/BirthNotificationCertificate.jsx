@@ -1,5 +1,5 @@
 import React from 'react';
-import { Document, Page, Text, View } from '@react-pdf/renderer';
+import { Document, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
 import { CertificateHeader, styles, Watermark } from './Layout';
 import { ageInYears, getCurrentDateString } from '../dateTime';
 import { LetterheadSection } from './LetterheadSection';
@@ -13,12 +13,11 @@ import {
 } from '@tamanu/constants';
 import { Footer } from './printComponents/Footer';
 import { getDisplayDate } from './getDisplayDate';
-import { CustomStyleSheet } from '../renderPdf';
-import { useLanguageContext, withLanguageContext } from '../languageContext';
+import { withLanguageContext } from '../pdf/languageContext';
 
 const borderStyle = '1 solid black';
 
-const topStyles = CustomStyleSheet.create({
+const topStyles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -39,27 +38,26 @@ const topStyles = CustomStyleSheet.create({
 });
 
 const TopSection = ({ facilityName, childDisplayId }) => {
-  const { language } = useLanguageContext();
   const date = getCurrentDateString();
   return (
-    <View style={topStyles().container}>
-      <View style={topStyles().cell}>
-        <P style={topStyles(language).key}>Facility:</P>
-        <P style={topStyles().value}>{facilityName}</P>
+    <View style={topStyles.container}>
+      <View style={topStyles.cell}>
+        <P style={topStyles.key}>Facility:</P>
+        <P style={topStyles.value}>{facilityName}</P>
       </View>
-      <View style={topStyles().cell}>
-        <P style={topStyles(language).key}>Notification date:</P>
-        <P style={topStyles().value}>{getDisplayDate(date)}</P>
+      <View style={topStyles.cell}>
+        <P style={topStyles.key}>Notification date:</P>
+        <P style={topStyles.value}>{getDisplayDate(date)}</P>
       </View>
-      <View style={topStyles().cell}>
-        <P style={topStyles(language).key}>Child ID:</P>
-        <P style={topStyles().value}>{childDisplayId}</P>
+      <View style={topStyles.cell}>
+        <P style={topStyles.key}>Child ID:</P>
+        <P style={topStyles.value}>{childDisplayId}</P>
       </View>
     </View>
   );
 };
 
-const tableStyles = CustomStyleSheet.create({
+const tableStyles = StyleSheet.create({
   table: {
     flexDirection: 'column',
     marginBottom: 15,
@@ -87,38 +85,30 @@ const tableStyles = CustomStyleSheet.create({
   p: {
     fontSize: 9,
   },
-  fontBold: {
-    fontFamily: 'Helvetica-Bold',
-  },
 });
 
-const Table = props => <View style={tableStyles().table} {...props} />;
-const Row = props => <View style={tableStyles().row} {...props} />;
-const P = ({ style = {}, bold, children }) => {
-  const { language } = useLanguageContext();
-  return (
-    <Text
-      style={[tableStyles(language).p, style, ...(bold ? [styles(language, true).fontBold] : [])]}
-    >
-      {children}
-    </Text>
-  );
-};
+const Table = props => <View style={tableStyles.table} {...props} />;
+const Row = props => <View style={tableStyles.row} {...props} />;
+const P = ({ style = {}, bold, children }) => (
+  <Text bold={bold} style={[tableStyles.p, style]}>
+    {children}
+  </Text>
+);
 
 const FlexCell = ({ children, style = {}, bold = false }) => (
-  <View style={[tableStyles().baseCell, tableStyles().flexCell, style]}>
+  <View style={[tableStyles.baseCell, tableStyles.flexCell, style]}>
     <P bold={bold}>{children}</P>
   </View>
 );
 
 const Cell = ({ children, style = {}, bold }) => (
-  <View style={[tableStyles().baseCell, style]}>
+  <View style={[tableStyles.baseCell, style]}>
     <P bold={bold}>{children}</P>
   </View>
 );
 
 const LeftCell = ({ children }) => (
-  <View style={[tableStyles().baseCell, tableStyles().leftCell]}>
+  <View style={[tableStyles.baseCell, tableStyles.leftCell]}>
     <P bold>{children}</P>
   </View>
 );
@@ -255,7 +245,7 @@ const ParentSection = ({ parentType, data = {} }) => {
   );
 };
 
-const signatureStyles = CustomStyleSheet.create({
+const signatureStyles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     marginTop: 10,
@@ -287,27 +277,26 @@ const signatureStyles = CustomStyleSheet.create({
 });
 
 const SignatureSection = () => {
-  const { language } = useLanguageContext();
   return (
-    <View style={signatureStyles().container}>
+    <View style={signatureStyles.container}>
       <View style={{ flex: 1 }}>
-        <View style={signatureStyles().leftCell}>
-          <P style={signatureStyles(language).leftText}>Certified correct by:</P>
-          <View style={signatureStyles().line} />
+        <View style={signatureStyles.leftCell}>
+          <P style={signatureStyles.leftText}>Certified correct by:</P>
+          <View style={signatureStyles.line} />
         </View>
-        <View style={signatureStyles().leftCell}>
-          <P style={signatureStyles(language).leftText}>Circle applicable:</P>
+        <View style={signatureStyles.leftCell}>
+          <P style={signatureStyles.leftText}>Circle applicable:</P>
           <P bold>Doctor/midwife/nurse</P>
         </View>
       </View>
       <View style={{ flex: 1 }}>
-        <View style={signatureStyles().rightCell}>
-          <P style={signatureStyles(language).rightText}>Signed:</P>
-          <View style={signatureStyles().line} />
+        <View style={signatureStyles.rightCell}>
+          <P style={signatureStyles.rightText}>Signed:</P>
+          <View style={signatureStyles.line} />
         </View>
-        <View style={signatureStyles().rightCell}>
-          <P style={signatureStyles().rightText}>Date:</P>
-          <View style={signatureStyles().line} />
+        <View style={signatureStyles.rightCell}>
+          <P style={signatureStyles.rightText}>Date:</P>
+          <View style={signatureStyles.line} />
         </View>
       </View>
     </View>
@@ -322,12 +311,11 @@ const BirthNotificationCertificateComponent = ({
   certificateData,
   getLocalisation,
 }) => {
-  const { language } = useLanguageContext();
   const { logo, watermark } = certificateData;
 
   return (
     <Document>
-      <Page size="A4" style={styles(language).page}>
+      <Page size="A4" style={styles.page}>
         {watermark && <Watermark src={watermark} />}
         <CertificateHeader>
           <LetterheadSection

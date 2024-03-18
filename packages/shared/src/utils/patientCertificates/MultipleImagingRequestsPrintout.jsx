@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import { Document, Page, Text, View } from '@react-pdf/renderer';
+import { Document, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
 import { getName } from '../patientAccessors';
 import { BaseSigningSection } from './BaseSigningSection';
 import { getDisplayDate } from './getDisplayDate';
@@ -14,11 +14,10 @@ import { MultiPageHeader } from './printComponents/MultiPageHeader';
 import { PatientDetailsWithBarcode } from './printComponents/PatientDetailsWithBarcode';
 import { startCase } from 'lodash';
 import { DoubleHorizontalRule } from './printComponents/DoubleHorizontalRule';
-import { CustomStyleSheet } from '../renderPdf';
-import { useLanguageContext, withLanguageContext } from '../languageContext';
+import { withLanguageContext } from '../pdf/languageContext';
 
 const DATE_TIME_FORMAT = 'dd/MM/yyyy h:mma';
-const labDetailsSectionStyles = CustomStyleSheet.create({
+const labDetailsSectionStyles = StyleSheet.create({
   barcodeLabelText: {
     marginTop: 9,
   },
@@ -37,13 +36,13 @@ const labDetailsSectionStyles = CustomStyleSheet.create({
   },
 });
 
-const generalStyles = CustomStyleSheet.create({
+const generalStyles = StyleSheet.create({
   container: {
     marginVertical: 6,
   },
 });
 
-const SectionContainer = props => <View style={generalStyles().container} {...props} />;
+const SectionContainer = props => <View style={generalStyles.container} {...props} />;
 
 const MultipleImagingRequestSigningSection = () => {
   return (
@@ -71,7 +70,6 @@ const getAreaNote = ({ areas, areaNote }) => {
 };
 
 const ImagingRequestDetailsView = ({ imagingRequests, getLocalisation }) => {
-  const { language } = useLanguageContext();
   const notesAccessor = ({ notes }) => {
     return notes
       ?.filter(note => note.noteType === NOTE_TYPES.OTHER)
@@ -83,11 +81,11 @@ const ImagingRequestDetailsView = ({ imagingRequests, getLocalisation }) => {
 
   return (
     <View>
-      <Text style={labDetailsSectionStyles(language).heading}>Imaging request details</Text>
+      <Text style={labDetailsSectionStyles.heading}>Imaging request details</Text>
       <HorizontalRule width="0.5px" />
       {imagingRequests.map((imagingRequest, index) => {
         return (
-          <View key={imagingRequest.id} style={labDetailsSectionStyles().detailsContainer}>
+          <View key={imagingRequest.id} style={labDetailsSectionStyles.detailsContainer}>
             <Row>
               <Col>
                 <DataItem label="Request ID" value={imagingRequest.displayId} />
@@ -125,11 +123,10 @@ const ImagingRequestDetailsView = ({ imagingRequests, getLocalisation }) => {
 
 const MultipleImagingRequestsPrintoutComponent = React.memo(
   ({ patient, imagingRequests, encounter, certificateData, getLocalisation }) => {
-    const { language } = useLanguageContext();
     const { logo } = certificateData;
     return (
       <Document>
-        <Page size="A4" style={styles(language).page}>
+        <Page size="A4" style={styles.page}>
           <MultiPageHeader
             documentName="Imaging request"
             patientName={getName(patient)}
@@ -166,7 +163,9 @@ const MultipleImagingRequestsPrintoutComponent = React.memo(
   },
 );
 
-export const MultipleImagingRequestsPrintout = withLanguageContext(MultipleImagingRequestsPrintoutComponent);
+export const MultipleImagingRequestsPrintout = withLanguageContext(
+  MultipleImagingRequestsPrintoutComponent,
+);
 
 MultipleImagingRequestsPrintout.propTypes = {
   patient: PropTypes.object.isRequired,

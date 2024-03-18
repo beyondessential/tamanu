@@ -1,5 +1,5 @@
 import React from 'react';
-import { Document, Page, Text, View } from '@react-pdf/renderer';
+import { Document, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
 import { CertificateHeader, Watermark } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
 import { PatientDetailsWithAddress } from './printComponents/PatientDetailsWithAddress';
@@ -15,8 +15,7 @@ import { EncounterDetailsExtended } from './printComponents/EncounterDetailsExte
 import { MultiPageHeader } from './printComponents/MultiPageHeader';
 import { getName } from '../patientAccessors';
 import { Footer } from './printComponents/Footer';
-import { CustomStyleSheet } from '../renderPdf';
-import { useLanguageContext, withLanguageContext } from '../languageContext';
+import { withLanguageContext } from '../pdf/languageContext';
 
 const borderStyle = '1 solid black';
 
@@ -24,16 +23,15 @@ const DATE_FORMAT = 'dd/MM/yyyy';
 
 const DATE_TIME_FORMAT = 'dd/MM/yyyy h:mma';
 
-const pageStyles = CustomStyleSheet.create({
+const pageStyles = StyleSheet.create({
   body: {
     paddingHorizontal: 50,
     paddingTop: 30,
     paddingBottom: 50,
-    fontFamily: 'Helvetica',
   },
 });
 
-const textStyles = CustomStyleSheet.create({
+const textStyles = StyleSheet.create({
   sectionTitle: {
     fontFamily: 'Helvetica-Bold',
     marginBottom: 3,
@@ -45,19 +43,28 @@ const textStyles = CustomStyleSheet.create({
     fontSize: 10,
   },
   tableCellContent: {
+    fontFamily: 'Helvetica',
     fontSize: 10,
   },
   tableCellFooter: {
+    fontFamily: 'Helvetica',
     fontSize: 8,
+  },
+  headerLabel: {
+    fontSize: 8,
+    fontFamily: 'Helvetica-Bold',
+    fontWeight: 400,
+    color: '#888888',
   },
   headerValue: {
     fontSize: 8,
     fontWeight: 400,
+    fontFamily: 'Helvetica',
     color: '#888888',
   },
 });
 
-const tableStyles = CustomStyleSheet.create({
+const tableStyles = StyleSheet.create({
   table: {
     flexDirection: 'column',
     marginBottom: 5,
@@ -83,6 +90,7 @@ const tableStyles = CustomStyleSheet.create({
     padding: 7,
   },
   p: {
+    fontFamily: 'Helvetica',
     fontSize: 10,
   },
   notesCell: {
@@ -98,36 +106,30 @@ const tableStyles = CustomStyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-start',
   },
-  fontBold: {
-    fontFamily: 'Helvetica-Bold',
-  },
 });
 
-const Table = props => <View style={tableStyles().table} {...props} />;
-const Row = props => <View style={tableStyles().row} {...props} />;
-const P = ({ style = {}, bold, children }) => {
-  const { language } = useLanguageContext();
-  return (
-    <Text style={[tableStyles().p, style, ...(bold ? [tableStyles(language, true).fontBold] : [])]}>
-      {children}
-    </Text>
-  );
-};
+const Table = props => <View style={tableStyles.table} {...props} />;
+const Row = props => <View style={tableStyles.row} {...props} />;
+const P = ({ style = {}, bold, children }) => (
+  <Text bold={bold} style={[tableStyles.p, style]}>
+    {children}
+  </Text>
+);
 
 const Cell = ({ children, style = {} }) => (
-  <View style={[tableStyles().baseCell, style]}>
+  <View style={[tableStyles.baseCell, style]}>
     <P>{children}</P>
   </View>
 );
 
 const HeaderCell = ({ children, style }) => (
-  <View style={[tableStyles().baseCell, style]}>
+  <View style={[tableStyles.baseCell, style]}>
     <P bold>{children}</P>
   </View>
 );
 
 const NotesCell = ({ children, style = {} }) => (
-  <View style={[tableStyles().notesCell, style]}>{children}</View>
+  <View style={[tableStyles.notesCell, style]}>{children}</View>
 );
 
 const SectionSpacing = () => <View style={{ paddingBottom: '10px' }} />;
@@ -305,13 +307,12 @@ const COLUMNS = {
   ],
 };
 
-const MultipageTableHeading = ({ title, style }) => {
-  const { language } = useLanguageContext();
+const MultipageTableHeading = ({ title, style = textStyles.sectionTitle }) => {
   let firstPageOccurence = Number.MAX_SAFE_INTEGER;
   return (
     <Text
       fixed
-      style={style ?? textStyles(language).sectionTitle}
+      style={style}
       render={({ pageNumber, subPageNumber }) => {
         if (pageNumber < firstPageOccurence && subPageNumber) {
           firstPageOccurence = pageNumber;
@@ -363,7 +364,7 @@ const TableSection = ({ title, data, columns }) => {
 };
 
 const NoteFooter = ({ note }) => (
-  <Text style={textStyles().tableCellFooter}>
+  <Text style={textStyles.tableCellFooter}>
     {`${note.noteType === NOTE_TYPES.TREATMENT_PLAN ? 'Last updated: ' : ''}${note.author
       ?.displayName || ''}${note.onBehalfOf ? ` on behalf of ${note.onBehalfOf.displayName}` : ''}`}
     {` ${getDisplayDate(note.date)} ${getDisplayDate(note.date, 'h:mma')}`}
@@ -386,7 +387,6 @@ const NotesMultipageCellPadding = () => {
 };
 
 const NotesSection = ({ notes }) => {
-  const { language } = useLanguageContext();
   return (
     <>
       <View minPresenceAhead={80} />
@@ -396,7 +396,7 @@ const NotesSection = ({ notes }) => {
           {notes.map(note => (
             <>
               <View minPresenceAhead={80} />
-              <View style={tableStyles().notesRow} key={note.id}>
+              <View style={tableStyles.notesRow} key={note.id}>
                 <View
                   style={{
                     borderTop: borderStyle,
@@ -411,9 +411,9 @@ const NotesSection = ({ notes }) => {
                   <NotesMultipageCellPadding />
                   <MultipageTableHeading
                     title={NOTE_TYPE_LABELS[note.noteType]}
-                    style={textStyles(language).tableColumnHeader}
+                    style={textStyles.tableColumnHeader}
                   />
-                  <Text style={textStyles().tableCellContent}>{`${note.content}\n`}</Text>
+                  <Text style={textStyles.tableCellContent}>{`${note.content}\n`}</Text>
                   <NoteFooter note={note} />
                   <View
                     style={{
@@ -451,12 +451,11 @@ const EncounterRecordPrintoutComponent = ({
   getLocalisation,
   clinicianText,
 }) => {
-  const { language } = useLanguageContext();
   const { watermark, logo } = certificateData;
 
   return (
     <Document>
-      <Page size="A4" style={pageStyles(language).body} wrap>
+      <Page size="A4" style={pageStyles.body} wrap>
         {watermark && <Watermark src={watermark} />}
         <MultiPageHeader
           documentName="Patient encounter record"

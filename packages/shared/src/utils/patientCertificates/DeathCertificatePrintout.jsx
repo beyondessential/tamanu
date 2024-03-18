@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 
-import { Document, Page, Text, View } from '@react-pdf/renderer';
+import { Document, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
 import { getName, getTimeOfDeath, getDateOfDeath, getSex } from '../patientAccessors';
 import { CertificateHeader, Col, Row, styles, SigningImage } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
@@ -10,15 +10,14 @@ import { MultiPageHeader } from './printComponents/MultiPageHeader';
 import { renderDataItems } from './printComponents/renderDataItems';
 import { P } from './Typography';
 import { getDisplayDate } from './getDisplayDate';
-import { CustomStyleSheet } from '../renderPdf';
-import { useLanguageContext, withLanguageContext } from '../languageContext';
+import { withLanguageContext } from '../pdf/languageContext';
 
 const borderStyle = '1 solid black';
 const tableLabelWidth = 250;
 const tablePadding = 10;
 const dataColPadding = 10;
 
-const generalStyles = CustomStyleSheet.create({
+const generalStyles = StyleSheet.create({
   container: {
     marginHorizontal: 16,
     marginVertical: 8,
@@ -32,10 +31,10 @@ const generalStyles = CustomStyleSheet.create({
 });
 
 const TableContainer = props => (
-  <View style={[generalStyles().container, generalStyles().tableContainer]} {...props} />
+  <View style={[generalStyles.container, generalStyles.tableContainer]} {...props} />
 );
 
-const infoBoxStyles = CustomStyleSheet.create({
+const infoBoxStyles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     border: borderStyle,
@@ -56,6 +55,7 @@ const infoBoxStyles = CustomStyleSheet.create({
     fontWeight: 500,
   },
   infoText: {
+    fontFamily: 'Helvetica',
     fontSize: 12,
     fontWeight: 400,
   },
@@ -84,7 +84,7 @@ const infoBoxStyles = CustomStyleSheet.create({
   },
 });
 
-const signStyles = CustomStyleSheet.create({
+const signStyles = StyleSheet.create({
   container: {
     paddingBottom: 20,
     marginVertical: 30,
@@ -117,49 +117,46 @@ const signStyles = CustomStyleSheet.create({
   },
 });
 
-const InfoBoxRow = props => <View style={infoBoxStyles().row} {...props} />;
-const InfoBoxLabelCol = props => <View style={infoBoxStyles().labelCol} {...props} />;
+const InfoBoxRow = props => <View style={infoBoxStyles.row} {...props} />;
+const InfoBoxLabelCol = props => <View style={infoBoxStyles.labelCol} {...props} />;
 const UnderlinedText = ({ text, ...props }) => (
-  <View style={[infoBoxStyles().infoText, infoBoxStyles().underlinedText]} {...props}>
+  <View style={[infoBoxStyles.infoText, infoBoxStyles.underlinedText]} {...props}>
     <Text>{text}</Text>
   </View>
 );
-const UnderlinedField = ({ text, label, helperText, ...props }) => (
-  <View {...props}>
-    <Row>
-      {label && <Text style={infoBoxStyles().infoText}>({label}) </Text>}
-      <UnderlinedText text={text}> </UnderlinedText>
-    </Row>
-    {helperText && (
-      <Text style={[infoBoxStyles().infoText, infoBoxStyles().smallMarginTop]}>
-        {helperText}
-      </Text>
-    )}
-  </View>
-);
-const InfoBoxDataCol = props => <View style={infoBoxStyles().dataCol} {...props} />;
-
-const AuthorisedAndSignSection = () => {
-  const { language } = useLanguageContext();
+const UnderlinedField = ({ text, label, helperText, ...props }) => {
   return (
-    <View style={signStyles().container}>
-      <View style={signStyles().row}>
-        <P style={signStyles(language).text}>Authorised by (print name):</P>
-        <View style={signStyles().line} />
-      </View>
-      <View style={signStyles().row}>
-        <View style={signStyles().leftCol}>
-          <Text style={signStyles(language).text}>Signed: </Text>
-          <View style={signStyles().line} />
-        </View>
-        <View style={signStyles().rightCol}>
-          <Text style={signStyles(language).text}>Date:</Text>
-          <View style={signStyles().line} />
-        </View>
-      </View>
+    <View {...props}>
+      <Row>
+        {label && <Text style={infoBoxStyles.infoText}>({label}) </Text>}
+        <UnderlinedText text={text}> </UnderlinedText>
+      </Row>
+      {helperText && (
+        <Text style={[infoBoxStyles.infoText, infoBoxStyles.smallMarginTop]}>{helperText}</Text>
+      )}
     </View>
   );
 };
+const InfoBoxDataCol = props => <View style={infoBoxStyles.dataCol} {...props} />;
+
+const AuthorisedAndSignSection = () => (
+  <View style={signStyles.container}>
+    <View style={signStyles.row}>
+      <P style={signStyles.text}>Authorised by (print name):</P>
+      <View style={signStyles.line} />
+    </View>
+    <View style={signStyles.row}>
+      <View style={signStyles.leftCol}>
+        <Text style={signStyles.text}>Signed: </Text>
+        <View style={signStyles.line} />
+      </View>
+      <View style={signStyles.rightCol}>
+        <Text style={signStyles.text}>Date:</Text>
+        <View style={signStyles.line} />
+      </View>
+    </View>
+  </View>
+);
 
 const placeOfDeathAccessor = ({ facility }) => {
   return facility?.name;
@@ -191,11 +188,10 @@ const HEADER_FIELDS = {
   ],
 };
 
-const SectionContainer = props => <View style={generalStyles().sectionContainer} {...props} />;
+const SectionContainer = props => <View style={generalStyles.sectionContainer} {...props} />;
 
 const DeathCertificatePrintoutComponent = React.memo(
   ({ patientData, certificateData, getLocalisation }) => {
-    const { language } = useLanguageContext();
     const { logo, deathCertFooterImg } = certificateData;
 
     const { causes } = patientData;
@@ -204,7 +200,7 @@ const DeathCertificatePrintoutComponent = React.memo(
     const antecedentCause2 = getCauseName(causes?.antecedent2);
     return (
       <Document>
-        <Page size="A4" style={{ ...styles(language).page, paddingBottom: 25 }}>
+        <Page size="A4" style={{ ...styles.page, paddingBottom: 25 }}>
           <MultiPageHeader
             documentName="Cause of death certificate"
             patientName={getName(patientData)}
@@ -241,15 +237,15 @@ const DeathCertificatePrintoutComponent = React.memo(
           <TableContainer>
             <InfoBoxRow>
               <InfoBoxLabelCol>
-                <Text style={infoBoxStyles(language).boldText}>
+                <Text style={infoBoxStyles.boldText}>
                   I {'\n'}
                   Disease or condition directly {'\n'}
                   leading to death*
                 </Text>
-                <Text style={[infoBoxStyles(language).italicBoldText, infoBoxStyles().marginTop]}>
+                <Text style={[infoBoxStyles.italicBoldText, infoBoxStyles.marginTop]}>
                   Antecedent Causes
                 </Text>
-                <Text style={infoBoxStyles().infoText}>
+                <Text style={infoBoxStyles.infoText}>
                   Morbid conditions, if any,{'\n'}
                   giving rise to the above cause,{'\n'}
                   stating the underlying{'\n'}
@@ -258,19 +254,19 @@ const DeathCertificatePrintoutComponent = React.memo(
               </InfoBoxLabelCol>
               <InfoBoxDataCol>
                 <UnderlinedField
-                  style={infoBoxStyles().mediumMarginTop}
+                  style={infoBoxStyles.mediumMarginTop}
                   label="a"
                   helperText="due to (or as a consequence of)"
                   text={causeOfDeath}
                 ></UnderlinedField>
                 <UnderlinedField
-                  style={infoBoxStyles().mediumMarginTop}
+                  style={infoBoxStyles.mediumMarginTop}
                   label="b"
                   helperText="due to (or as a consequence of)"
                   text={antecedentCause1}
                 ></UnderlinedField>
                 <UnderlinedField
-                  style={infoBoxStyles().mediumMarginTop}
+                  style={infoBoxStyles.mediumMarginTop}
                   label="c"
                   text={antecedentCause2}
                 ></UnderlinedField>
@@ -278,7 +274,7 @@ const DeathCertificatePrintoutComponent = React.memo(
             </InfoBoxRow>
             <InfoBoxRow>
               <InfoBoxLabelCol>
-                <Text style={infoBoxStyles(language).boldText}>
+                <Text style={infoBoxStyles.boldText}>
                   II {'\n'}
                   Other significant conditions {'\n'}
                   contributing to the death but{'\n'}
@@ -291,8 +287,8 @@ const DeathCertificatePrintoutComponent = React.memo(
                   <UnderlinedField
                     style={
                       causes?.contributing.length < 3
-                        ? infoBoxStyles().mediumMarginTop
-                        : infoBoxStyles().smallMarginTop
+                        ? infoBoxStyles.mediumMarginTop
+                        : infoBoxStyles.smallMarginTop
                     }
                     key={index}
                     text={getCauseName(cause)}
@@ -301,8 +297,8 @@ const DeathCertificatePrintoutComponent = React.memo(
               </InfoBoxDataCol>
             </InfoBoxRow>
           </TableContainer>
-          <View style={generalStyles().container}>
-            <Text style={infoBoxStyles(language).italicText}>
+          <View style={generalStyles.container}>
+            <Text style={infoBoxStyles.italicText}>
               * This does not mean the mode of dying, e.g heart failure, respiratory failure. It
               means the disease, injury, or complication that caused death.
             </Text>

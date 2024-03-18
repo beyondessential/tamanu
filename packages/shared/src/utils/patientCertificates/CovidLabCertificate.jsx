@@ -16,7 +16,7 @@ import {
   getTimeOfSwab,
 } from './labRequestAccessors';
 import { getDisplayDate } from './getDisplayDate';
-import { useLanguageContext, withLanguageContext } from '../languageContext';
+import { withLanguageContext } from '../pdf/languageContext';
 
 const columns = [
   {
@@ -89,41 +89,37 @@ const CovidLabCertificateComponent = ({
   getLocalisation,
   printedBy,
   certType,
-}) => {
-  const { language } = useLanguageContext();
-
-  return (
-    <Document>
-      <Page size="A4" style={styles(language).page}>
-        {watermarkSrc && <Watermark src={watermarkSrc} />}
-        <CovidLetterheadSection getLocalisation={getLocalisation} logoSrc={logoSrc} />
-        <Box mb={0}>
-          <H3>{CertificateTitle[certType] || ''}</H3>
-          <CovidPatientDetailsSection
-            patient={patient}
-            vdsSrc={vdsSrc}
-            getLocalisation={getLocalisation}
-          />
-        </Box>
-        <Box mb={30}>
-          <Table data={labs} columns={columns} getLocalisation={getLocalisation} />
-        </Box>
-        <P>{getCertificateRemark(patient, getLocalisation)[certType] || ''}</P>
-        <Box />
-        <Box>
-          <Row>
-            <Col>
-              <P>Printed by: {printedBy}</P>
-            </Col>
-            <Col>
-              <P>Printing date: {getDisplayDate(undefined, undefined, getLocalisation)}</P>
-            </Col>
-          </Row>
-        </Box>
-        <SigningSection signingSrc={signingSrc} />
-      </Page>
-    </Document>
-  );
-};
+}) => (
+  <Document>
+    <Page size="A4" style={styles.page}>
+      {watermarkSrc && <Watermark src={watermarkSrc} />}
+      <CovidLetterheadSection getLocalisation={getLocalisation} logoSrc={logoSrc} />
+      <Box mb={0}>
+        <H3>{CertificateTitle[certType] || ''}</H3>
+        <CovidPatientDetailsSection
+          patient={patient}
+          vdsSrc={vdsSrc}
+          getLocalisation={getLocalisation}
+        />
+      </Box>
+      <Box mb={30}>
+        <Table data={labs} columns={columns} getLocalisation={getLocalisation} />
+      </Box>
+      <P>{getCertificateRemark(patient, getLocalisation)[certType] || ''}</P>
+      <Box />
+      <Box>
+        <Row>
+          <Col>
+            <P>Printed by: {printedBy}</P>
+          </Col>
+          <Col>
+            <P>Printing date: {getDisplayDate(undefined, undefined, getLocalisation)}</P>
+          </Col>
+        </Row>
+      </Box>
+      <SigningSection signingSrc={signingSrc} />
+    </Page>
+  </Document>
+);
 
 export const CovidLabCertificate = withLanguageContext(CovidLabCertificateComponent);

@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { Document, Page, View, Text } from '@react-pdf/renderer';
+import { Document, Page, StyleSheet, View, Text } from '@react-pdf/renderer';
 import { PatientDetailsWithBarcode } from './printComponents/PatientDetailsWithBarcode';
 import { styles, CertificateContent, CertificateHeader, Col, Row, Signature } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
@@ -12,14 +12,13 @@ import { HorizontalRule } from './printComponents/HorizontalRule';
 import { EncounterDetails } from './printComponents/EncounterDetails';
 import { getDisplayDate } from './getDisplayDate';
 import { DoubleHorizontalRule } from './printComponents/DoubleHorizontalRule';
-import { CustomStyleSheet } from '../renderPdf';
-import { useLanguageContext, withLanguageContext } from '../languageContext';
+import { withLanguageContext } from '../pdf/languageContext';
 
 const DATE_TIME_FORMAT = 'dd/MM/yyyy h:mma';
 const headingFontSize = 11;
 const textFontSize = 9;
 
-const signingSectionStyles = CustomStyleSheet.create({
+const signingSectionStyles = StyleSheet.create({
   underlinedText: {
     textDecoration: 'underline',
   },
@@ -33,7 +32,7 @@ const signingSectionStyles = CustomStyleSheet.create({
   },
 });
 
-const labDetailsSectionStyles = CustomStyleSheet.create({
+const labDetailsSectionStyles = StyleSheet.create({
   barcodeLabelText: {
     marginTop: 9,
   },
@@ -44,24 +43,29 @@ const labDetailsSectionStyles = CustomStyleSheet.create({
   detailsContainer: {
     marginBottom: 5,
   },
+  heading: {
+    fontFamily: 'Helvetica-Bold',
+    fontSize: 11,
+    fontWeight: 500,
+    marginVertical: 3,
+  },
 });
 
-const generalStyles = CustomStyleSheet.create({
+const generalStyles = StyleSheet.create({
   container: {
     marginVertical: 6,
   },
 });
 
-const SectionContainer = props => <View style={generalStyles().container} {...props} />;
+const SectionContainer = props => <View style={generalStyles.container} {...props} />;
 
 const LabRequestSigningSection = () => {
-  const { language } = useLanguageContext();
   const BaseSigningSection = ({ title }) => (
     <View style={{ flexDirection: 'column' }}>
-      <P bold style={signingSectionStyles().underlinedText} fontSize={9}>
+      <P bold style={signingSectionStyles.underlinedText} fontSize={9}>
         {title}
       </P>
-      <View style={signingSectionStyles().signatureView}>
+      <View style={signingSectionStyles.signatureView}>
         <Signature text="Signed" fontSize={textFontSize} lineThickness={0.5} />
         <Signature text="Date" fontSize={textFontSize} lineThickness={0.5} />
       </View>
@@ -76,7 +80,7 @@ const LabRequestSigningSection = () => {
         </Col>
         <Col>
           <BaseSigningSection title="Patient" />
-          <Text style={signingSectionStyles(language).disclaimerText}>
+          <Text style={signingSectionStyles.disclaimerText}>
             Patient to sign if required, according to local regulations
           </Text>
         </Col>
@@ -105,7 +109,7 @@ const LabRequestDetailsView = ({ labRequests }) => {
       <HorizontalRule />
       {labRequests.map((request, index) => {
         return (
-          <View key={request.id} style={labDetailsSectionStyles().detailsContainer}>
+          <View key={request.id} style={labDetailsSectionStyles.detailsContainer}>
             <Row>
               <Col>
                 <DataItem label="Request ID" value={request.displayId} />
@@ -120,7 +124,7 @@ const LabRequestDetailsView = ({ labRequests }) => {
               </Col>
               <Col>
                 <Row>
-                  <P style={labDetailsSectionStyles().barcodeLabelText} fontSize={textFontSize} bold>
+                  <P style={labDetailsSectionStyles.barcodeLabelText} fontSize={textFontSize} bold>
                     Request ID barcode:
                   </P>
                   <PrintableBarcode id={request.displayId} />
@@ -144,7 +148,7 @@ const LabRequestDetailsView = ({ labRequests }) => {
                 <DataItem label="Specimen type" value={request.specimenType?.name} />
               </Col>
             </Row>
-            {index < labRequests.length - 1 && <View style={labDetailsSectionStyles().divider} />}
+            {index < labRequests.length - 1 && <View style={labDetailsSectionStyles.divider} />}
           </View>
         );
       })}
@@ -154,19 +158,12 @@ const LabRequestDetailsView = ({ labRequests }) => {
 };
 
 const MultipleLabRequestsPrintoutComponent = React.memo(
-  ({
-    patientData,
-    labRequests,
-    encounter,
-    certificateData,
-    getLocalisation,
-  }) => {
-    const { language } = useLanguageContext();
+  ({ patientData, labRequests, encounter, certificateData, getLocalisation }) => {
     const { logo } = certificateData;
 
     return (
       <Document>
-        <Page size="A4" style={styles(language).page}>
+        <Page size="A4" style={styles.page}>
           <CertificateHeader>
             <LetterheadSection
               getLocalisation={getLocalisation}
@@ -195,7 +192,9 @@ const MultipleLabRequestsPrintoutComponent = React.memo(
   },
 );
 
-export const MultipleLabRequestsPrintout = withLanguageContext(MultipleLabRequestsPrintoutComponent);
+export const MultipleLabRequestsPrintout = withLanguageContext(
+  MultipleLabRequestsPrintoutComponent,
+);
 
 MultipleLabRequestsPrintout.propTypes = {
   patientData: PropTypes.object.isRequired,

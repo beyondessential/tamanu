@@ -1,4 +1,4 @@
-import { Document, Page, View } from '@react-pdf/renderer';
+import { Document, Page, StyleSheet, View } from '@react-pdf/renderer';
 import React from 'react';
 
 import { DRUG_ROUTE_VALUE_TO_LABEL } from '@tamanu/constants';
@@ -12,8 +12,7 @@ import { getDisplayDate } from './getDisplayDate';
 import { getCurrentDateString } from '../dateTime';
 import { LetterheadSection } from './LetterheadSection';
 import { P } from './Typography';
-import { CustomStyleSheet } from '../renderPdf';
-import { useLanguageContext, withLanguageContext } from '../languageContext';
+import { withLanguageContext } from '../pdf/languageContext';
 
 const columns = [
   {
@@ -42,32 +41,32 @@ const columns = [
   },
 ];
 
-const prescriptonSectionStyles = CustomStyleSheet.create({
+const prescriptonSectionStyles = StyleSheet.create({
   tableContainer: {
     marginTop: 12,
   },
 });
 
-const notesSectionStyles = CustomStyleSheet.create({
+const notesSectionStyles = StyleSheet.create({
   notesContainer: {
     border: '1px solid black',
     height: 69,
   },
 });
 
-const signingSectionStyles = CustomStyleSheet.create({
+const signingSectionStyles = StyleSheet.create({
   container: {
     marginTop: 22,
   },
 });
 
-const generalStyles = CustomStyleSheet.create({
+const generalStyles = StyleSheet.create({
   container: {
     marginVertical: 8,
   },
 });
 
-const SectionContainer = props => <View style={generalStyles().container} {...props} />;
+const SectionContainer = props => <View style={generalStyles.container} {...props} />;
 
 const PrescriptionsSection = ({ prescriptions, prescriber, facility, getLocalisation }) => {
   return (
@@ -82,7 +81,7 @@ const PrescriptionsSection = ({ prescriptions, prescriber, facility, getLocalisa
           <DataItem label="Facility" value={facility?.name} />
         </Col>
       </DataSection>
-      <View style={prescriptonSectionStyles().tableContainer}>
+      <View style={prescriptonSectionStyles.tableContainer}>
         <Table columns={columns} data={prescriptions} getLocalisation={getLocalisation} />
       </View>
     </View>
@@ -90,7 +89,7 @@ const PrescriptionsSection = ({ prescriptions, prescriber, facility, getLocalisa
 };
 
 const PrescriptionSigningSection = () => (
-  <View style={signingSectionStyles().container}>
+  <View style={signingSectionStyles.container}>
     <Signature fontSize={9} lineThickness={0.5} text="Signed" />
     <Signature fontSize={9} lineThickness={0.5} text="Date" />
   </View>
@@ -101,7 +100,7 @@ const NotesSection = () => (
     <P bold fontSize={11} mb={3}>
       Notes
     </P>
-    <View style={notesSectionStyles().notesContainer} />
+    <View style={notesSectionStyles.notesContainer} />
   </View>
 );
 
@@ -113,11 +112,9 @@ const PrescriptionPrintoutComponent = ({
   facility,
   getLocalisation,
 }) => {
-  const { language } = useLanguageContext();
-
   return (
     <Document>
-      <Page size="A4" style={styles(language).page}>
+      <Page size="A4" style={styles.page}>
         <CertificateHeader>
           <LetterheadSection
             letterheadConfig={certificateData}

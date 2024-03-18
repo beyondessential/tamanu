@@ -1,11 +1,9 @@
 import React from 'react';
-import { Text, View } from '@react-pdf/renderer';
+import { StyleSheet, Text, View } from '@react-pdf/renderer';
 import { HorizontalRule } from './HorizontalRule';
 import { Row } from '../Layout';
-import { CustomStyleSheet } from '../../renderPdf';
-import { useLanguageContext } from '../../languageContext';
 
-const styles = CustomStyleSheet.create({
+const styles = StyleSheet.create({
   title: {
     fontFamily: 'Helvetica-Bold',
     marginBottom: 3,
@@ -21,10 +19,9 @@ export const DataSection = ({
   hideBottomRule = false,
   props,
 }) => {
-  const { language } = useLanguageContext();
   return (
     <View {...props}>
-      <Text style={styles(language).title}>{title}</Text>
+      <Text style={styles.title}>{title}</Text>
       {!hideTopRule && <HorizontalRule />}
       <Row>{children}</Row>
       {!hideBottomRule && <HorizontalRule />}

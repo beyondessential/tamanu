@@ -3,10 +3,10 @@ import { StyleSheet, Font } from '@react-pdf/renderer';
 import { cloneDeep } from 'lodash';
 import path from 'path';
 import { FONT } from '@tamanu/constants';
-import { getDefaultLanguage } from './pdf/languageContext';
+import { getDefaultLanguage } from './languageContext';
 
 const baseDir =
-  typeof __dirname !== 'undefined' ? path.join(__dirname, '../assets/fonts') : './fonts';
+  typeof __dirname !== 'undefined' ? path.join(__dirname, '../../assets/fonts') : '../fonts';
 
 // body font
 Font.register({
