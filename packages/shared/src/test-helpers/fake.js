@@ -1,6 +1,6 @@
 import { isFunction, snakeCase } from 'lodash';
 import Chance from 'chance';
-import { DataTypes } from 'sequelize';
+import Sequelize, { DataTypes } from 'sequelize';
 import { inspect } from 'util';
 import { formatISO9075 } from 'date-fns';
 
@@ -527,7 +527,12 @@ export const fake = (model, passedOverrides = {}) => {
         .map(() => fakeField(name, { ...attribute, type: type.type }));
     }
 
-    if (defaultValue) return isFunction(defaultValue) ? defaultValue() : defaultValue;
+    if (defaultValue) {
+      if (defaultValue instanceof Sequelize.NOW || defaultValue instanceof Sequelize.UUIDV4) {
+        return undefined;
+      }
+      return isFunction(defaultValue) ? defaultValue() : defaultValue;
+    }
 
     if (FIELD_HANDLERS[type]) {
       return FIELD_HANDLERS[type](model, attribute, id);
