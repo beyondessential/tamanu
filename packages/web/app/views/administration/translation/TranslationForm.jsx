@@ -1,6 +1,6 @@
 import { useQueryClient, useMutation, useQuery } from '@tanstack/react-query';
 import * as yup from 'yup';
-import { has, omit } from 'lodash';
+import { has, omit, sortBy } from 'lodash';
 import React, { useCallback, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { Box, IconButton, Tooltip } from '@material-ui/core';
@@ -41,7 +41,7 @@ const ReservedText = styled.p`
   font-size: 14px;
 `;
 
-const validationSchema = yup.lazy(({ search, ...values }) => {
+const validationSchema = yup.lazy(values => {
   const newEntrySchema = {
     stringId: yup
       .string()
@@ -203,6 +203,14 @@ export const FormContents = ({
     [data, additionalRows, values.search],
   );
 
+  if (data.length === 0)
+    return (
+      <Alert severity="info">
+        Please load in translations using the reference data importer to activate this
+        tab
+      </Alert>
+    );
+
   return (
     <>
       <Box display="flex" alignItems="flex-end" mb={2}>
@@ -236,7 +244,7 @@ export const TranslationForm = () => {
     [translations],
   );
 
-  const handleSubmit = async ({ search, ...payload }) => {
+  const handleSubmit = async payload => {
     // Swap temporary id out for stringId
     const submitData = Object.fromEntries(
       Object.entries(payload).map(([key, { stringId, ...rest }]) => [stringId || key, rest]),
@@ -248,6 +256,8 @@ export const TranslationForm = () => {
   if (isLoading) return <LoadingIndicator />;
   if (error) return <ErrorMessage error={error} />;
 
+  const sortedTranslations = sortBy(translations, obj => obj.stringId !== 'languageName'); // Ensure languageName key stays on top
+
   return (
     <Form
       initialValues={initialValues}
@@ -258,7 +268,7 @@ export const TranslationForm = () => {
       render={props => (
         <FormContents
           {...props}
-          data={translations}
+          data={sortedTranslations}
           languageNames={languageNames}
           isSaving={isSaving}
           setAdditionalRows={setAdditionalRows}

@@ -24,7 +24,7 @@ export const ConfirmModal = ({
   cancelButtonText = <TranslatedText stringId="general.action.cancel" fallback="Cancel" />,
   customContent,
 }) => (
-  <Modal width={width} title={title} open={open} onClose={onCancel} cornerExitButton={false}>
+  <Modal width={width} title={title} open={open} onClose={onCancel}>
     {customContent || (
       <Content>
         <h3>{text}</h3>

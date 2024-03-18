@@ -1,13 +1,9 @@
 import React, { ReactElement } from 'react';
 import { theme } from '/styled/theme';
-import {
-  RowView,
-  StyledSafeAreaView,
-  StyledText,
-  StyledTouchableOpacity,
-} from '/styled/common';
+import { RowView, StyledSafeAreaView, StyledText, StyledTouchableOpacity } from '/styled/common';
 import { ArrowLeftIcon } from '/components/Icons';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 
 type HeaderProps = {
   onGoBack: () => void;
@@ -35,7 +31,7 @@ export const Header = ({ onGoBack }: HeaderProps): ReactElement => (
         height={50}
       >
         <StyledText color={theme.colors.WHITE} fontSize={16}>
-          Register New Patient
+          <TranslatedText stringId="patient.register.title" fallback="Register New Patient" />
         </StyledText>
       </RowView>
     </RowView>

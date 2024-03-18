@@ -67,92 +67,70 @@
 
   <meta charset="UTF-8" />
   <link rel="icon" href="/resources/icon.ico" />
-  <link rel="manifest" href="/manifest.json" />
+  <link rel="manifest" id="manifest" href="/manifest.json"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Tamanu</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap');
-
-    body {
-      /* match body styles after preload to avoid content jumping around as app is loaded on top */
-      color: #444444;
-      margin: 0;
-      font-size: 0.9375rem;
-      line-height: 1.43;
-      letter-spacing: 0.01071em;
+    @keyframes spinner {
+      to {
+        transform: rotate(360deg);
+      }
     }
-
     #temp-loading-container {
-      position: absolute;
+      position: fixed;
       top: 0;
       left: 0;
-      width: -webkit-fill-available;
-      padding: 25px 35px;
+      height: 100vh;
+      width: 100vw;
+      z-index: 99;
     }
-
-    #temp-loading-container .content-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      height: 100%;
-      font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
-      -webkit-font-smoothing: antialiased;
-    }
-
-    #temp-loading-container .title {
-      font-weight: 500;
-      font-size: 38px;
-      line-height: 32px;
-      width: 352px;
-      letter-spacing: 0.35644px;
-      margin-top: 50px;
-      margin-bottom: 0;
-      color: #444444;
-    }
-
-    #temp-loading-container .title::after {
-      overflow: hidden;
-      display: inline-block;
-      vertical-align: bottom;
-      animation: ellipsis steps(4, end) 900ms infinite;
-      content: '...';
-    }
-
-    #temp-loading-container .description {
-      color: #888888;
-      margin-top: 20px;
-      max-width: 450px;
-      text-align: center;
-      font-size: 16px;
-      line-height: 21px;
-      letter-spacing: 0.16065px;
-    }
-
-    @keyframes ellipsis {
-      from {
-        width: 0;
-      }
-
-      to {
-        width: 1.22em;
-      }
+    #temp-loading-container:before {
+      content: '';
+      box-sizing: border-box;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 100px;
+      height: 100px;
+      margin-top: -100px;
+      margin-left: -30px;
+      border-radius: 50%;
+      border: 8px solid #326699;
+      border-bottom-color: white;
+      animation: spinner 0.8s linear infinite;
     }
   </style>
 </head>
-
 <body>
+  <script type="module">
+    const CAMBODIA_CONFIG = {
+      brandName: 'KhmEIR',
+    };
+
+    function checkIsURLCambodia() {
+      const URL_WHITELIST = ["khmer", "cambodia", "khmeir"];
+      const currentURL = window.location.hostname;
+      const regex = new RegExp(URL_WHITELIST.join("|"), "i");
+      return regex.test(currentURL);
+    }
+
+    function cambodiaMode() {
+      if (checkIsURLCambodia()) {
+        const { brandName } = CAMBODIA_CONFIG;
+        document.title = brandName;
+        // Remove manifest link on cambodia mode to disable the PWA
+        const manifest = document.querySelector('#manifest');
+        if (manifest) {
+          manifest.remove();
+        }
+      }
+    }
+
+    cambodiaMode();
+  </script>
   <div id="root">
-    <div id="temp-loading-container">
-      <img src="/app/assets/images/tamanu_logo_left_icon_blue.svg" />
-      <div class="content-container">
-        <p class="title">Tamanu is loading</p>
-        <p class="description">
-          Tamanu is currently loading. Please do not navigate away from this page.
-        </p>
-      </div>
-    </div>
+    <div id="temp-loading-container"></div>
   </div>
   <script type="module" src="/app/index.js"></script>
 </body>
-
 </html>

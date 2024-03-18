@@ -5,7 +5,7 @@ import shortid from 'shortid';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { useDispatch } from 'react-redux';
 import { foreignKey } from '../utils/validation';
-import { encounterOptions } from '../constants';
+import { ENCOUNTER_OPTIONS, FORM_TYPES } from '../constants';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
 import { useEncounter } from '../contexts/Encounter';
 import { reloadImagingRequest } from '../store';
@@ -18,10 +18,10 @@ import {
   Field,
   Form,
   ImagingPriorityField,
-  MultiselectField,
   SelectField,
   TextField,
   TextInput,
+  MultiselectField,
 } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { FormCancelButton } from '../components/Button';
@@ -29,11 +29,11 @@ import { ButtonRow } from '../components/ButtonRow';
 import { DateDisplay } from '../components/DateDisplay';
 import { FormSeparatorLine } from '../components/FormSeparatorLine';
 import { FormSubmitDropdownButton } from '../components/DropdownButton';
-import { useLocalisedText } from '../components';
+import { LowerCase } from '../components/Typography';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 
 function getEncounterTypeLabel(type) {
-  return encounterOptions.find(x => x.value === type).label;
+  return ENCOUNTER_OPTIONS.find(x => x.value === type).label;
 }
 
 function getEncounterLabel(encounter) {
@@ -94,7 +94,6 @@ export const ImagingRequestForm = React.memo(
     editedObject,
     generateId = shortid.generate,
   }) => {
-    const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
     const { getLocalisation } = useLocalisation();
     const imagingTypes = getLocalisation('imagingTypes') || {};
     const imagingTypeOptions = Object.entries(imagingTypes).map(([key, val]) => ({
@@ -114,10 +113,13 @@ export const ImagingRequestForm = React.memo(
           requestedDate: getCurrentDateTimeString(),
           ...editedObject,
         }}
+        formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
         validationSchema={yup.object().shape({
-          requestedById: foreignKey(`Requesting ${clinicianText.toLowerCase()} is required`),
+          requestedById: foreignKey(`*Required`),
           requestedDate: yup.date().required(),
+          imagingType: foreignKey(`*Required`),
         })}
+        suppressErrorDialog
         render={({ submitForm, values }) => {
           const imagingAreas = getAreasForImagingType(values.imagingType);
           return (
@@ -126,7 +128,7 @@ export const ImagingRequestForm = React.memo(
                 name="displayId"
                 label={
                   <TranslatedText
-                    stringId="imaging.form.requestCode.label"
+                    stringId="imaging.requestCode.label"
                     fallback="Imaging request code"
                   />
                 }
@@ -137,7 +139,7 @@ export const ImagingRequestForm = React.memo(
                 name="requestedDate"
                 label={
                   <TranslatedText
-                    stringId="imaging.form.requestedDate.label"
+                    stringId="imaging.requestedDate.label"
                     fallback="Order date and time"
                   />
                 }
@@ -146,13 +148,43 @@ export const ImagingRequestForm = React.memo(
                 saveDateAsString
               />
               <TextInput
-                label={`Supervising ${clinicianText.toLowerCase()}`}
+                label={
+                  <TranslatedText
+                    stringId="general.supervisingClinician.label"
+                    fallback="Supervising :clinician"
+                    replacements={{
+                      clinician: (
+                        <LowerCase>
+                          <TranslatedText
+                            stringId="general.localisedField.clinician.label.short"
+                            fallback="Clinician"
+                          />
+                        </LowerCase>
+                      ),
+                    }}
+                  />
+                }
                 disabled
                 value={examinerLabel}
               />
               <Field
                 name="requestedById"
-                label={`Requesting ${clinicianText.toLowerCase()}`}
+                label={
+                  <TranslatedText
+                    stringId="general.requestingClinician.label"
+                    fallback="Requesting :clinician"
+                    replacements={{
+                      clinician: (
+                        <LowerCase>
+                          <TranslatedText
+                            stringId="general.localisedField.clinician.label.short"
+                            fallback="Clinician"
+                          />
+                        </LowerCase>
+                      ),
+                    }}
+                  />
+                }
                 required
                 component={AutocompleteField}
                 suggester={practitionerSuggester}
@@ -162,9 +194,7 @@ export const ImagingRequestForm = React.memo(
               </div>
               <FormSeparatorLine />
               <TextInput
-                label={
-                  <TranslatedText stringId="imaging.form.encounter.label" fallback="Encounter" />
-                }
+                label={<TranslatedText stringId="imaging.encounter.label" fallback="Encounter" />}
                 disabled
                 value={encounterLabel}
               />
@@ -172,13 +202,14 @@ export const ImagingRequestForm = React.memo(
                 name="imagingType"
                 label={
                   <TranslatedText
-                    stringId="imaging.form.imagingType.label"
+                    stringId="imaging.imagingType.label"
                     fallback="Imaging request type"
                   />
                 }
                 required
                 component={SelectField}
                 options={imagingTypeOptions}
+                prefix="imaging.property.type"
               />
               {imagingAreas.length ? (
                 <Field
@@ -188,19 +219,17 @@ export const ImagingRequestForm = React.memo(
                   }))}
                   name="areas"
                   label={
-                    <TranslatedText
-                      stringId="imaging.form.areas.label"
-                      fallback="Areas to be imaged"
-                    />
+                    <TranslatedText stringId="imaging.areas.label" fallback="Areas to be imaged" />
                   }
                   component={MultiselectField}
+                  prefix="imaging.property.area"
                 />
               ) : (
                 <Field
                   name="areaNote"
                   label={
                     <TranslatedText
-                      stringId="imaging.form.imagingNote.label"
+                      stringId="imaging.imagingNote.label"
                       fallback="Areas to be imaged"
                     />
                   }
@@ -212,7 +241,7 @@ export const ImagingRequestForm = React.memo(
               )}
               <Field
                 name="note"
-                label={<TranslatedText stringId="general.form.notes.label" fallback="Notes" />}
+                label={<TranslatedText stringId="general.notes.label" fallback="Notes" />}
                 component={TextField}
                 multiline
                 style={{ gridColumn: '1 / -1' }}

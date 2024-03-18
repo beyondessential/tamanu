@@ -16,6 +16,7 @@ import { CustomisableSearchBar } from './CustomisableSearchBar';
 import { LabRequestSearchParamKeys, useLabRequest } from '../../contexts/LabRequest';
 import { useSuggester } from '../../api';
 import { useAdvancedFields } from './useAdvancedFields';
+import { TranslatedText } from '../Translation/TranslatedText';
 
 const BASE_ADVANCED_FIELDS = ['locationGroupId', 'departmentId', 'allFacilities'];
 const PUBLISHED_ADVANCED_FIELDS = [...BASE_ADVANCED_FIELDS, 'publishedDate'];
@@ -74,14 +75,24 @@ export const LabRequestsSearchBar = ({ status = '' }) => {
             <>
               <LocalisedField
                 name="laboratory"
-                defaultLabel="Laboratory"
+                label={
+                  <TranslatedText
+                    stringId="general.localisedField.laboratory.label"
+                    fallback="Laboratory"
+                  />
+                }
                 component={SuggesterSelectField}
                 endpoint="labTestLaboratory"
                 size="small"
               />
               <LocalisedField
                 name="priority"
-                defaultLabel="Priority"
+                label={
+                  <TranslatedText
+                    stringId="general.localisedField.priority.label"
+                    fallback="Priority"
+                  />
+                }
                 component={SuggesterSelectField}
                 endpoint="labTestPriority"
                 size="small"
@@ -95,9 +106,34 @@ export const LabRequestsSearchBar = ({ status = '' }) => {
       }
     >
       <>
-        <LocalisedField useShortLabel keepLetterCase name="displayId" component={SearchField} />
-        <LocalisedField name="firstName" component={SearchField} />
-        <LocalisedField name="lastName" component={SearchField} />
+        <LocalisedField
+          keepLetterCase
+          name="displayId"
+          label={
+            <TranslatedText
+              stringId="general.localisedField.displayId.label.short"
+              fallback="NHN"
+            />
+          }
+          component={SearchField}
+        />
+        <LocalisedField
+          name="firstName"
+          label={
+            <TranslatedText
+              stringId="general.localisedField.firstName.label"
+              fallback="First name"
+            />
+          }
+          component={SearchField}
+        />
+        <LocalisedField
+          name="lastName"
+          label={
+            <TranslatedText stringId="general.localisedField.lastName.label" fallback="Last name" />
+          }
+          component={SearchField}
+        />
         <Field name="requestId" label="Test ID" component={SearchField} />
         <Field
           name="category"
@@ -115,21 +151,36 @@ export const LabRequestsSearchBar = ({ status = '' }) => {
         />
         <LocalisedField
           name="requestedDateFrom"
-          label="Requested from"
+          label={
+            <TranslatedText
+              stringId="general.localisedField.requestedDateFrom.label"
+              fallback="Requested from"
+            />
+          }
           saveDateAsString
           component={DateField}
           $joined
         />
         <LocalisedField
           name="requestedDateTo"
-          defaultLabel="Requested to"
+          label={
+            <TranslatedText
+              stringId="general.localisedField.requestedDateTo.label"
+              fallback="Requested to"
+            />
+          }
           saveDateAsString
           component={DateField}
         />
         {publishedStatus ? (
           <LocalisedField
             name="laboratory"
-            defaultLabel="Laboratory"
+            label={
+              <TranslatedText
+                stringId="general.localisedField.laboratory.label"
+                fallback="Laboratory"
+              />
+            }
             component={SuggesterSelectField}
             endpoint="labTestLaboratory"
             size="small"
@@ -137,12 +188,15 @@ export const LabRequestsSearchBar = ({ status = '' }) => {
         ) : (
           <LocalisedField
             name="status"
-            defaultLabel="Status"
+            label={
+              <TranslatedText stringId="general.localisedField.status.label" fallback="Status" />
+            }
             component={SelectField}
             options={LAB_REQUEST_STATUS_OPTIONS.filter(
               option => option.value !== LAB_REQUEST_STATUSES.PUBLISHED,
             )}
             size="small"
+            prefix="labs.property.status"
           />
         )}
       </>

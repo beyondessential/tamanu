@@ -25,6 +25,8 @@ import {
   usePatientProgramRegistryConditionsQuery,
   useProgramRegistryConditionsQuery,
 } from '../../api/queries/usePatientProgramRegistryConditions';
+import { useTranslation } from '../../contexts/Translation';
+import { FORM_TYPES } from '../../constants';
 
 export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistration, open }) => {
   const api = useApi();
@@ -33,19 +35,25 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
   const programRegistryStatusSuggester = useSuggester('programRegistryClinicalStatus', {
     baseQueryParameters: { programRegistryId: patientProgramRegistration.programRegistryId },
   });
-  const { data: registrationConditions } = usePatientProgramRegistryConditionsQuery(
+  const {
+    data: registrationConditions,
+    isLoading: isPatientConditionsLoading,
+  } = usePatientProgramRegistryConditionsQuery(
     patientProgramRegistration.patientId,
     patientProgramRegistration.programRegistryId,
   );
-  const { data: conditions } = useProgramRegistryConditionsQuery(
+  const { data: conditions, isLoading: isConditionsLoading } = useProgramRegistryConditionsQuery(
     patientProgramRegistration.programRegistryId,
   );
+  const { getTranslation } = useTranslation();
 
   const registeredBySuggester = useSuggester('practitioner');
   const registeringFacilitySuggester = useSuggester('facility');
 
   const activate = async data => {
-    const { id, date, ...rest } = data;
+    const { ...rest } = data;
+    delete rest.id;
+    delete rest.date;
 
     // Extract condition IDs from registrationConditions.data and data
     const existingConditionIds = registrationConditions.data.map(
@@ -61,6 +69,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
     );
 
     // Remove conditions
+    const deletionDate = getCurrentDateTimeString();
     for (const conditionToRemove of conditionsToRemoveObjects) {
       await api.delete(
         `patient/${encodeURIComponent(
@@ -68,6 +77,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
         )}/programRegistration/${encodeURIComponent(
           patientProgramRegistration.programRegistryId,
         )}/condition/${encodeURIComponent(conditionToRemove.id)}`,
+        { deletionDate },
       );
     }
 
@@ -79,6 +89,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
       `patient/${encodeURIComponent(patientProgramRegistration.patientId)}/programRegistration`,
       {
         ...rest,
+        date: getCurrentDateTimeString(),
         conditionIds: newConditionIds,
         registrationStatus: REGISTRATION_STATUSES.ACTIVE,
       },
@@ -88,6 +99,8 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
     queryClient.invalidateQueries([`infoPaneListItem-${PROGRAM_REGISTRY}`]);
     onClose();
   };
+
+  if (isPatientConditionsLoading || isConditionsLoading) return null;
 
   return (
     <Modal
@@ -144,10 +157,11 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
                     }
                     name="conditionIds"
                     label="Related conditions"
-                    placeholder="Select"
+                    placeholder={getTranslation("general.placeholder.select", "Select")}
                     component={MultiselectField}
                     options={conditions}
                     disabled={!conditions || conditions.length === 0}
+                    prefix="programRegistry.property.relatedCondition"
                   />
                 </FormGrid>
               </FormGrid>
@@ -169,12 +183,12 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
         }}
         initialValues={{
           ...patientProgramRegistration,
-          date: getCurrentDateTimeString(),
           registeringFacilityId: facility?.id,
           clinicianId: currentUser?.id,
           conditionIds: registrationConditions?.data.map(x => x.programRegistryConditionId),
           clinicalStatusId: patientProgramRegistration.clinicalStatus?.id,
         }}
+        formType={FORM_TYPES.EDIT_FORM}
         validationSchema={yup.object().shape({
           clinicalStatusId: optionalForeignKey().nullable(),
           date: yup.date().required('Date of registration must be selected'),

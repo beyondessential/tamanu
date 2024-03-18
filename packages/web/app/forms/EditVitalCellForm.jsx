@@ -6,13 +6,13 @@ import { useQueryClient } from '@tanstack/react-query';
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { FormSubmitCancelRow } from '../components/ButtonRow';
-import { Field, Form, OuterLabelFieldWrapper, SelectField } from '../components/Field';
+import { Field, Form, OuterLabelFieldWrapper, BaseSelectField } from '../components/Field';
 import { useLocalisation } from '../contexts/Localisation';
 import { FormGrid } from '../components/FormGrid';
 import { FormSeparatorLine } from '../components/FormSeparatorLine';
 import { SurveyQuestion } from '../components/Surveys';
 import { getValidationSchema } from '../utils';
-import { Colors } from '../constants';
+import { Colors, FORM_TYPES } from '../constants';
 import { useApi } from '../api';
 import { useEncounter } from '../contexts/Encounter';
 import { DateDisplay } from '../components/DateDisplay';
@@ -77,7 +77,7 @@ const HistoryLog = ({ logData, vitalLabel, vitalEditReasons }) => {
       {reasonForChange && (
         <LogText>
           <TranslatedText
-            stringId="encounter.vitals.form.editReason.label"
+            stringId="encounter.vitals.editReason.label"
             fallback="Reason for change to record"
           />
           : {reasonForChangeLabel}
@@ -149,6 +149,7 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose }) => {
       onSubmit={handleSubmit}
       validationSchema={validationSchema}
       initialValues={{ [valueName]: initialValue }}
+      formType={FORM_TYPES.EDIT_FORM}
       validate={validateFn}
       render={({ setFieldValue, submitForm }) => (
         <FormGrid columns={4}>
@@ -161,10 +162,10 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose }) => {
           )}
           <Field
             required={mandatoryVitalEditReason}
-            component={SelectField}
+            component={BaseSelectField}
             label={
               <TranslatedText
-                stringId="encounter.vitals.form.editReason.label"
+                stringId="encounter.vitals.editReason.label"
                 fallback="Reason for change to record"
               />
             }
@@ -175,7 +176,7 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose }) => {
           <FormSeparatorLine />
           <OuterLabelFieldWrapper
             label={
-              <TranslatedText stringId="encounter.vitals.form.history.label" fallback="History" />
+              <TranslatedText stringId="encounter.vitals.history.label" fallback="History" />
             }
             style={{ gridColumn: '1 / -1' }}
           >

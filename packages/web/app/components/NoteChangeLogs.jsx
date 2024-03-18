@@ -36,7 +36,7 @@ export const NoteChangeLogs = ({ note = {} }) => {
 
   return (
     <OuterLabelFieldWrapper
-      label={<TranslatedText stringId="note.form.changeLog.label" fallback="Change log" />}
+      label={<TranslatedText stringId="note.changeLog.label" fallback="Change log" />}
     >
       <StyledBox
         sx={{ width: '100%', maxHeight: 300, overflowY: 'auto', bgcolor: 'background.paper' }}

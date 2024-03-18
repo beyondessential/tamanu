@@ -1,6 +1,7 @@
 import React from 'react';
 
-import { Field, SuggesterSelectField } from '../../components';
+import { SuggesterSelectField, Field } from '../../components';
+import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 export const LabTestCategoryField = ({
   name = 'labTestCategoryId',
@@ -10,7 +11,12 @@ export const LabTestCategoryField = ({
   <Field
     name={name}
     includeAllOption={includeAllOption}
-    label="Test category"
+    label={
+      <TranslatedText
+        stringId="report.generate.parameter.labTestCategory.label"
+        fallback="Test category"
+      />
+    }
     component={SuggesterSelectField}
     endpoint="labTestCategory"
     required={required}

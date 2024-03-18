@@ -14,6 +14,7 @@ import {
 } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { FormSubmitCancelRow } from '../components/ButtonRow';
+import { FORM_TYPES } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 
 export const InvoicePriceChangeItemForm = ({
@@ -31,7 +32,7 @@ export const InvoicePriceChangeItemForm = ({
         <FormGrid>
           <Field
             name="date"
-            label={<TranslatedText stringId="general.form.date.label" fallback="Date" />}
+            label={<TranslatedText stringId="general.date.label" fallback="Date" />}
             required
             component={DateField}
             saveDateAsString
@@ -40,7 +41,7 @@ export const InvoicePriceChangeItemForm = ({
             name="description"
             label={
               <TranslatedText
-                stringId="invoice.modal.priceChange.form.description.label"
+                stringId="invoice.modal.priceChange.description.label"
                 fallback="Details"
               />
             }
@@ -51,7 +52,7 @@ export const InvoicePriceChangeItemForm = ({
             name="orderedById"
             label={
               <TranslatedText
-                stringId="invoice.modal.priceChange.form.orderedBy.label"
+                stringId="invoice.modal.priceChange.orderedBy.label"
                 fallback="Ordered by"
               />
             }
@@ -63,7 +64,7 @@ export const InvoicePriceChangeItemForm = ({
             name="percentageChange"
             label={
               <TranslatedText
-                stringId="invoice.modal.priceChange.form.percentageChange.label"
+                stringId="invoice.modal.priceChange.percentageChange.label"
                 fallback="Discount/markup % (-/+)"
               />
             }
@@ -81,6 +82,7 @@ export const InvoicePriceChangeItemForm = ({
         date: getCurrentDateTimeString(),
         ...invoicePriceChangeItem,
       }}
+      formType={invoicePriceChangeItem ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
       validationSchema={yup.object().shape({
         description: foreignKey('Details is required'),
         orderedById: foreignKey('Ordered by must be selected'),

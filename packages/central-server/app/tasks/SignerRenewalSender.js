@@ -11,7 +11,8 @@ import { getLocalisation } from '../localisation';
 export class SignerRenewalSender extends ScheduledTask {
   constructor(context) {
     const conf = config.schedules.signerRenewalSender;
-    super(conf.schedule, log);
+    const { schedule, jitterTime } = conf;
+    super(schedule, log, jitterTime);
     this.config = conf;
     this.context = context;
   }

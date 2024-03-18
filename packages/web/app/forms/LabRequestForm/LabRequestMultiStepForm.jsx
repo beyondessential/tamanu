@@ -10,8 +10,8 @@ import { FormStep, MultiStepForm } from '../MultiStepForm';
 import { LabRequestFormScreen1 } from './LabRequestFormScreen1';
 import { LabRequestFormScreen2, screen2ValidationSchema } from './LabRequestFormScreen2';
 import { LabRequestFormScreen3 } from './LabRequestFormScreen3';
-import { useLocalisedText } from '../../components';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
+import { LowerCase } from '../../components';
 
 export const LabRequestMultiStepForm = ({
   isSubmitting,
@@ -27,22 +27,30 @@ export const LabRequestMultiStepForm = ({
 }) => {
   const { currentUser } = useAuth();
   const [initialSamples, setInitialSamples] = useState([]);
-  const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
 
   // For fields please see LabRequestFormScreen1.js
   const screen1ValidationSchema = yup.object().shape({
     requestedById: foreignKey(
       <TranslatedText
-        stringId="lab.form.requestedBy.validation"
+        stringId="lab.requestedBy.validation"
         fallback="Requesting :clinicianText is required"
-        replacements={{ clinicianText: clinicianText.toLowerCase() }}
+        replacements={{
+          clinician: (
+            <LowerCase>
+              <TranslatedText
+                stringId="general.localisedField.clinician.label.short"
+                fallback="Clinician"
+              />
+            </LowerCase>
+          ),
+        }}
       />,
     ),
     requestedDate: yup
       .date()
       .required(
         <TranslatedText
-          stringId="lab.form.requestedDate.validation"
+          stringId="lab.requestedDate.validation"
           fallback="Request date is required"
         />,
       ),
@@ -51,7 +59,7 @@ export const LabRequestMultiStepForm = ({
       .oneOf(Object.values(LAB_REQUEST_FORM_TYPES))
       .required(
         <TranslatedText
-          stringId="lab.form.requestFormType.validation"
+          stringId="lab.requestFormType.validation"
           fallback="Request type must be selected"
         />,
       ),
