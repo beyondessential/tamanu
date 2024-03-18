@@ -20,6 +20,7 @@ async function generateData(models) {
     Note,
     PatientBirthData,
     SurveyScreenComponent,
+    ReferenceData,
     ReferenceDataRelation,
     ReportDefinition,
     ReportDefinitionVersion,
@@ -147,6 +148,7 @@ async function generateData(models) {
       programRegistryId: programRegistry.id,
     }),
   );
+  await ReferenceData.create(fake(ReferenceData));
   await ReferenceDataRelation.create(fake(ReferenceDataRelation));
 }
 
