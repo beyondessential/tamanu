@@ -7,6 +7,7 @@ export const GENERAL_IMPORTABLE_DATA_TYPES = [
   'angiogramImagingArea',
   'arrivalMode',
   'carePlan',
+  'catchment',
   'certifiableVaccine',
   'colonoscopyImagingArea',
   'country',
