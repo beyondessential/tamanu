@@ -305,38 +305,38 @@ describe('Data definition import', () => {
     });
   });
 
-  it('should create translations records for the translatable reference data types', async () => {
-    const { ReferenceData, TranslatedString } = ctx.store.models;
+  it.only('should create translations records for the translatable reference data types', async () => {
+    const { models } = ctx.store;
+    const { ReferenceData, TranslatedString } = models;
     const { stats } = await doImport({ file: 'valid' });
 
-    // Ensure all records in ReferenceData table have relevant translations created
+    // It should create a translation for each record in the reference data table
     const refDataTableRecords = await ReferenceData.findAll({ raw: true });
     const expectedStringIds = refDataTableRecords.map(
       ({ type, id }) => `${REFERENCE_DATA_TRANSLATION_PREFIX}.${type}.${id}`,
     );
-    const createdTranslationCount = await TranslatedString.count({
-      where: { stringId: { [Op.in]: expectedStringIds } },
-    });
-    expect(refDataTableRecords.length).toEqual(createdTranslationCount);
 
-    // Check the "other" reference types from their respective tables have had translations created
+    // Filter out the clinical/patient record types as they dont get translated
     const translatableNonRefDataTableImports = Object.keys(stats).filter(
       key =>
         !key.startsWith('ReferenceData') && TRANSLATABLE_REFERENCE_TYPES.includes(camelCase(key)),
     );
     translatableNonRefDataTableImports.forEach(async type => {
-      const createdRecords = await ctx.store.models[type].findAll({
+      const recordsForDataType = await models[type].findAll({
         attributes: ['id', 'name'],
         raw: true,
       });
-      const expectedStringIds = createdRecords.map(
+      const nonRefDataTableStringIds = recordsForDataType.map(
         ({ id }) => `${REFERENCE_DATA_TRANSLATION_PREFIX}.${camelCase(type)}.${id}`,
       );
-      const createdTranslationCount = await TranslatedString.count({
-        where: { stringId: { [Op.in]: expectedStringIds } },
-      });
-      expect(createdRecords.length).toEqual(createdTranslationCount);
+      expectedStringIds.push(...nonRefDataTableStringIds)
     });
+
+    const createdTranslationCount = await TranslatedString.count({
+      where: { stringId: { [Op.in]: expectedStringIds } },
+    });
+    expect(expectedStringIds.length).toEqual(createdTranslationCount);
+
   });
 });
 
