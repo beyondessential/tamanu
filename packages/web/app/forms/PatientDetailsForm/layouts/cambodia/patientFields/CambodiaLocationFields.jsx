@@ -32,7 +32,9 @@ export const CambodiaLocationFields = ({ filterByMandatory }) => {
       label: <TranslatedText stringId="cambodiaPatientDetails.commune.label" fallback="Commune" />,
     },
     villageId: {
-      component: LinkedField,
+      component: props => (
+        <LinkedField {...props} linkedFieldName="nursingZoneId" component={AutocompleteField} />
+      ),
       linkedFieldName: 'nursingZoneId',
       endpoint: 'linkedField/healthCenter',
       suggester: villageSuggester,
