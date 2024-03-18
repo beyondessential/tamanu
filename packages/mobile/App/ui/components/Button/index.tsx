@@ -5,7 +5,7 @@ import * as styledSystem from 'styled-system';
 import { theme } from '/styled/theme';
 import { RowView, StyledTouchableOpacity, StyledViewProps } from '/styled/common';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
-import { TranslatedTextElement } from '../Translations/TranslatedText';
+import { TranslatedTextElement } from '/components/Translations/TranslatedText';
 
 type StrNumType = number | string;
 
@@ -34,9 +34,9 @@ export interface StyledButtonProps extends ButtonContainerProps {
 
 const ButtonContainer = styled(RowView)<ButtonContainerProps>`
   ${styledSystem.flexbox};
-  height: ${(props): any =>
+  height: ${(props): StrNumType =>
     props.height ? props.height : screenPercentageToDP(6.07, Orientation.Height)};
-  width: ${(props): any => (props.width ? props.width : '100%')};
+  width: ${(props): StrNumType => (props.width ? props.width : '100%')};
   border-width: ${(props): any => (props.outline ? '1px' : props.borderWidth)};
   border-color: ${(props): string => props.borderColor || 'transparent'};
   border-radius: ${(props): any => {

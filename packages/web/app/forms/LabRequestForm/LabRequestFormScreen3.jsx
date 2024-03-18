@@ -44,11 +44,11 @@ export const LabRequestFormScreen3 = props => {
   return (
     <div style={{ gridColumn: '1 / -1' }}>
       <Heading3 mb="12px">
-        <TranslatedText stringId="lab.form.sampleDetails.heading" fallback="Sample details" />
+        <TranslatedText stringId="lab.sampleDetails.heading" fallback="Sample details" />
       </Heading3>
       <StyledBodyText mb="28px" color="textTertiary">
         <TranslatedText
-          stringId="lab.form.sampleDetails.instruction"
+          stringId="lab.sampleDetails.instruction"
           fallback="Please record details for the samples that have been collected. Otherwise leave blank and
         click ‘Finalise’."
         />

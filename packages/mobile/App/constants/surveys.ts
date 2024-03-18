@@ -57,3 +57,12 @@ export const PATIENT_DATA_FIELD_LOCATIONS = {
     'countryOfBirthId',
   ]),
 };
+
+// The 'location' for the following fields is defined on the frontend
+// Please keep in sync with:
+// - @tamanu/constants/surveys.js
+export const READONLY_DATA_FIELDS = {
+  AGE: 'age',
+  AGE_WITH_MONTHS: 'ageWithMonths',
+  FULL_NAME: 'fullName',
+};

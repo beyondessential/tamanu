@@ -1,11 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
 import Typography from '@material-ui/core/Typography';
-import Box from '@material-ui/core/Box';
-
-import { DynamicSelectField, Field, Form, SearchField } from './Field';
+import { DynamicSelectField, Form, Field, SearchField } from './Field';
 import { FormGrid } from './FormGrid';
-import { LargeOutlinedSubmitButton, LargeSubmitButton } from './Button';
+import { FormSubmitButton, TextButton } from './Button';
 import { Colors } from '../constants';
 import { TranslatedText } from './Translation/TranslatedText';
 
@@ -35,36 +33,74 @@ const HeaderBar = styled.div`
   }
 `;
 
-const renderSearchBar = ({ submitForm, clearForm }) => (
-  <>
-    <FormGrid columns={3}>
-      <Field
-        name="type"
-        label="Type"
-        component={DynamicSelectField}
-        options={DOCUMENT_TYPE_OPTIONS}
-      />
-      <Field name="documentOwner" label="Owner" component={SearchField} />
-      <Field name="departmentName" label="Department" component={SearchField} />
-    </FormGrid>
-    <Box display="flex" alignItems="center" justifyContent="flex-end" mt={2}>
-      <LargeOutlinedSubmitButton onClick={clearForm} style={{ marginRight: 12 }}>
-        <TranslatedText stringId="general.action.clearSearch" fallback="Clear search" />
-      </LargeOutlinedSubmitButton>
-      <LargeSubmitButton onClick={submitForm} type="submit">
-        <TranslatedText stringId="general.action.search" fallback="Search" />
-      </LargeSubmitButton>
-    </Box>
-  </>
-);
+const CustomFormGrid = styled(FormGrid)`
+  grid-template-columns: repeat(3, 1fr) auto auto;
+  align-items: end;
+`;
 
-export const DocumentsSearchBar = ({ setSearchParameters }) => (
-  <Container>
-    <HeaderBar>
-      <Typography variant="h3">
-        <TranslatedText stringId="patient.document.search.title" fallback="Documents search" />
-      </Typography>
-    </HeaderBar>
-    <Form onSubmit={values => setSearchParameters(values)} render={renderSearchBar} />
-  </Container>
-);
+const ClearButton = styled(TextButton)`
+  text-decoration: underline;
+  width: auto;
+  margin-bottom: 10px;
+`;
+
+const SubmitButton = styled(FormSubmitButton)`
+  width: auto;
+`;
+
+export const DocumentsSearchBar = ({ setSearchParameters }) => {
+  const handleSubmit = values => {
+    setSearchParameters(values);
+  };
+
+  return (
+    <Container>
+      <HeaderBar>
+        <Typography variant="h3">
+          <TranslatedText stringId="patient.document.search.title" fallback="Documents search" />
+        </Typography>
+      </HeaderBar>
+      <Form
+        onSubmit={handleSubmit}
+        render={({ clearForm, values }) => (
+          <CustomFormGrid columns={5}>
+            <Field
+              name="type"
+              label="Type"
+              component={DynamicSelectField}
+              options={DOCUMENT_TYPE_OPTIONS}
+              size="small"
+            />
+            <Field
+              name="documentOwner"
+              label={<TranslatedText stringId="document.owner.label" fallback="Owner" />}
+              component={SearchField}
+              size="small"
+            />
+            <Field
+              name="departmentName"
+              label={<TranslatedText stringId="general.department.label" fallback="Department" />}
+              component={SearchField}
+              size="small"
+            />
+            <SubmitButton type="submit" size="small">
+              <TranslatedText stringId="general.action.search" fallback="Search" />
+            </SubmitButton>
+            <ClearButton
+              onClick={() => {
+                if (Object.keys(values).length === 0) return;
+                setSearchParameters({});
+                setTimeout(() => {
+                  clearForm();
+                }, 0);
+              }}
+              size="small"
+            >
+              <TranslatedText stringId="general.action.clearSearch" fallback="Clear" />
+            </ClearButton>
+          </CustomFormGrid>
+        )}
+      />
+    </Container>
+  );
+};

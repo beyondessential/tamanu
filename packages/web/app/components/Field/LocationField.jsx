@@ -7,7 +7,6 @@ import { LOCATION_AVAILABILITY_STATUS, LOCATION_AVAILABILITY_TAG_CONFIG } from '
 import { AutocompleteInput } from './AutocompleteField';
 import { useApi, useSuggester } from '../../api';
 import { Suggester } from '../../utils/suggester';
-import { useLocalisation } from '../../contexts/Localisation';
 import { BodyText } from '../Typography';
 import { useAuth } from '../../contexts/Auth';
 import { TranslatedText } from '../Translation/TranslatedText';
@@ -149,30 +148,31 @@ LocationInput.defaultProps = {
   className: '',
 };
 
-export const LocationField = React.memo(({ field, error, ...props }) => (
-  <LocationInput name={field.name} value={field.value || ''} onChange={field.onChange} {...props} />
-));
+export const LocationField = React.memo(({ field, ...props }) => {
+  delete props.error;
+  return (
+    <LocationInput
+      name={field.name}
+      value={field.value || ''}
+      onChange={field.onChange}
+      {...props}
+    />
+  );
+});
 
-export const LocalisedLocationField = React.memo(
-  ({
-    defaultGroupLabel = <TranslatedText stringId="general.form.area.label" fallback="Area" />,
-    defaultLabel = <TranslatedText stringId="general.form.location.label" fallback="Location" />,
-    ...props
-  }) => {
-    const { getLocalisation } = useLocalisation();
-
-    const locationGroupIdPath = 'fields.locationGroupId';
-    const locationGroupLabel =
-      getLocalisation(`${locationGroupIdPath}.longLabel`) || defaultGroupLabel;
-
-    const locationIdPath = 'fields.locationId';
-    const locationLabel = getLocalisation(`${locationIdPath}.longLabel`) || defaultLabel;
-
-    return (
-      <LocationField label={locationLabel} locationGroupLabel={locationGroupLabel} {...props} />
-    );
-  },
-);
+export const LocalisedLocationField = React.memo(props => {
+  return (
+    <LocationField
+      label={
+        <TranslatedText stringId="general.localisedField.locationId.label" fallback="Location" />
+      }
+      locationGroupLabel={
+        <TranslatedText stringId="general.localisedField.locationGroupId.label" fallback="Area" />
+      }
+      {...props}
+    />
+  );
+});
 
 const Text = styled(BodyText)`
   margin-top: -5px;

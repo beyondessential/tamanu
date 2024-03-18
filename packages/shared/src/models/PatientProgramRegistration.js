@@ -3,19 +3,7 @@ import { REGISTRATION_STATUSES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
 import { Model } from './Model';
-
-const GET_MOST_RECENT_REGISTRATIONS_QUERY = `
-  (
-    SELECT id
-    FROM (
-      SELECT 
-        id,
-        ROW_NUMBER() OVER (PARTITION BY patient_id, program_registry_id ORDER BY date DESC, id DESC) AS row_num
-      FROM patient_program_registrations
-    ) n
-    WHERE n.row_num = 1
-  )
-`;
+import { onSaveMarkPatientForSync } from './onSaveMarkPatientForSync';
 
 export class PatientProgramRegistration extends Model {
   static init({ primaryKey, ...options }) {
@@ -31,12 +19,18 @@ export class PatientProgramRegistration extends Model {
           type: Sequelize.TEXT,
           defaultValue: REGISTRATION_STATUSES.ACTIVE,
         },
+        isMostRecent: {
+          type: Sequelize.BOOLEAN,
+          allowNull: false,
+          defaultValue: false,
+        },
       },
       {
         ...options,
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
       },
     );
+    onSaveMarkPatientForSync(this);
   }
 
   static getFullReferenceAssociations() {
@@ -71,7 +65,7 @@ export class PatientProgramRegistration extends Model {
     });
 
     this.belongsTo(models.User, {
-      foreignKey: 'clinicianId',
+      foreignKey: { name: 'clinicianId', allowNull: false },
       as: 'clinician',
     });
 
@@ -96,34 +90,39 @@ export class PatientProgramRegistration extends Model {
   static async create(values) {
     const { programRegistryId, patientId, ...restOfUpdates } = values;
     const existingRegistration = await this.sequelize.models.PatientProgramRegistration.findOne({
-      attributes: {
-        // We don't want to override the defaults for the new record.
-        exclude: ['id', 'updatedAt', 'updatedAtSyncTick'],
-      },
       where: {
+        isMostRecent: true,
         programRegistryId,
         patientId,
       },
-      order: [['date', 'DESC']],
-      limit: 1,
-      raw: true,
     });
 
-    return super.create({
+    // Most recent registration will now be the new one
+    if (existingRegistration) {
+      await existingRegistration.update({ isMostRecent: false });
+    }
+
+    const newRegistrationValues = {
       patientId,
       programRegistryId,
-      ...(existingRegistration ?? {}),
+      ...(existingRegistration?.dataValues ?? {}),
       // today's date should absolutely override the date of the previous registration record,
       // but if a date was provided in the function params, we should go with that.
       date: getCurrentDateTimeString(),
       ...restOfUpdates,
-    });
+      isMostRecent: true,
+    };
+
+    // Ensure a new id is generated, rather than using the one from existingRegistration
+    delete newRegistrationValues.id;
+
+    return super.create(newRegistrationValues);
   }
 
   static async getMostRecentRegistrationsForPatient(patientId) {
     return this.sequelize.models.PatientProgramRegistration.findAll({
       where: {
-        id: { [Op.in]: Sequelize.literal(GET_MOST_RECENT_REGISTRATIONS_QUERY) },
+        isMostRecent: true,
         registrationStatus: { [Op.ne]: REGISTRATION_STATUSES.RECORDED_IN_ERROR },
         patientId,
       },

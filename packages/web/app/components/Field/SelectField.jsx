@@ -11,6 +11,8 @@ import { Colors } from '../../constants';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { StyledTextField } from './TextField';
 import { FormFieldTag } from '../Tag';
+import { getTranslatedOptions } from '../Translation/getTranslatedOptions';
+import { useTranslation } from '../../contexts/Translation';
 
 const StyledFormControl = styled(FormControl)`
   display: flex;
@@ -96,13 +98,16 @@ export const SelectInput = ({
   name,
   helperText,
   inputRef,
-  form,
-  tabIndex,
   inputProps = {},
   isClearable = true,
   customStyleObject,
   ...props
 }) => {
+  delete props.form;
+  delete props.tabIndex;
+
+  const { getTranslation } = useTranslation();
+
   const handleChange = useCallback(
     changedOption => {
       const userClickedClear = !changedOption;
@@ -201,7 +206,7 @@ export const SelectInput = ({
           menuPosition="fixed"
           styles={customStyleObject || defaultStyles}
           menuShouldBlockScroll="true"
-          placeholder="Select"
+          placeholder={getTranslation("general.placeholder.select", "Select")}
           isClearable={value !== '' && isClearable && !props.required && !disabled}
           isSearchable={false}
           tabIndex={inputProps.tabIndex}
@@ -221,9 +226,26 @@ export const SelectInput = ({
   );
 };
 
-export const SelectField = ({ field, ...props }) => (
+export const BaseSelectField = ({ field, ...props }) => (
   <SelectInput name={field.name} onChange={field.onChange} value={field.value} {...props} />
 );
+
+// NOTE: not compatible with disabled SelectFields
+export const SelectField = ({ field, options, prefix, value, name, ...props }) => (
+  <SelectInput
+    options={getTranslatedOptions(options, prefix)}
+    value={field ? field.value : value}
+    name={field ? field.name : name}
+    {...props}
+  />
+);
+
+SelectField.propTypes = {
+  options: PropTypes.object.isRequired,
+  prefix: PropTypes.string.isRequired,
+  name: PropTypes.string.isRequired,
+  value: PropTypes.string.isRequired,
+};
 
 /*
   To be able to actually apply the styles, the component
@@ -236,7 +258,7 @@ export const SelectField = ({ field, ...props }) => (
   The reason is because it's inheriting from the Select
   component from react-select.
 */
-const StyledField = styled(SelectField)`
+const StyledField = styled(BaseSelectField)`
   .styled-select-container {
     padding: 8px 8px 2px 8px;
     border: 1px solid #dedede;

@@ -191,6 +191,7 @@ describe('Certificate', () => {
       patientRecord,
       printedBy,
       printedAt,
+      'test facility',
       models,
       'TEST UVCI',
       [{ foo: 'bar' }],

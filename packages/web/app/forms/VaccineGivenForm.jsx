@@ -28,7 +28,7 @@ import {
   VaccineLabelField,
   VaccineNameField,
 } from '../components/VaccineCommonFields';
-import { CheckField, Field, SuggesterSelectField } from '../components/Field';
+import { CheckField, Field, LocalisedField, SuggesterSelectField } from '../components/Field';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 
 export const VACCINE_GIVEN_INITIAL_VALUES = {
@@ -36,8 +36,10 @@ export const VACCINE_GIVEN_INITIAL_VALUES = {
   consent: false,
 };
 
-export const VACCINE_GIVEN_VALIDATION_SCHEMA = {
-  consent: yup.bool().oneOf([true], REQUIRED_INLINE_ERROR_MESSAGE),
+export const VACCINE_GIVEN_VALIDATION_SCHEMA = vaccineConsentEnabled => ({
+  consent: vaccineConsentEnabled
+    ? yup.bool().oneOf([true], REQUIRED_INLINE_ERROR_MESSAGE)
+    : yup.bool(),
   givenBy: yup.string().when('givenElsewhere', {
     is: true,
     then: yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
@@ -49,7 +51,7 @@ export const VACCINE_GIVEN_VALIDATION_SCHEMA = {
     then: yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
     otherwise: yup.string().nullable(),
   }),
-};
+});
 
 export const VaccineGivenForm = ({
   vaccineLabel,
@@ -65,6 +67,7 @@ export const VaccineGivenForm = ({
   setVaccineLabel,
   values,
   setValues,
+  vaccineConsentEnabled,
 }) => {
   return (
     <TwoTwoGrid>
@@ -81,7 +84,7 @@ export const VaccineGivenForm = ({
               name="givenElsewhere"
               label={
                 <TranslatedText
-                  stringId="vaccine.form.givenElsewhereCheckbox.label"
+                  stringId="vaccine.givenElsewhereCheckbox.label"
                   fallback="Given elsewhere (e.g overseas)"
                 />
               }
@@ -105,13 +108,10 @@ export const VaccineGivenForm = ({
       {values.givenElsewhere && (
         <>
           <FullWidthCol>
-            <Field
+            <LocalisedField
               name="circumstanceIds"
               label={
-                <TranslatedText
-                  stringId="vaccine.form.circumstances.label"
-                  fallback="Circumstances"
-                />
+                <TranslatedText stringId="vaccine.circumstances.label" fallback="Circumstances" />
               }
               component={SuggesterSelectField}
               endpoint="vaccineCircumstance"
@@ -147,8 +147,10 @@ export const VaccineGivenForm = ({
       ) : null}
 
       <VaccineDateField
-        label={<TranslatedText stringId="vaccine.form.dateGiven.label" fallback="Date given" />}
+        label={<TranslatedText stringId="vaccine.dateGiven.label" fallback="Date given" />}
         required={!values.givenElsewhere}
+        min={values?.patientData?.dateOfBirth}
+        skipMinChecking
       />
 
       <InjectionSiteField />
@@ -170,28 +172,20 @@ export const VaccineGivenForm = ({
 
       {!editMode && <RecordedByField />}
 
+      {vaccineConsentEnabled && (
+        <>
+          <StyledDivider />
+          <ConsentField
+            label={
+              values.givenElsewhere
+                ? 'Do you have consent to record this vaccine?'
+                : 'Do you have consent from the recipient/parent/guardian to give and record this vaccine?'
+            }
+          />
+          <ConsentGivenByField />
+        </>
+      )}
       <StyledDivider />
-
-      <ConsentField
-        label={
-          values.givenElsewhere ? (
-            <TranslatedText
-              stringId="vaccine.form.consentGivenElsewhere.label"
-              fallback="Do you have consent to record in Tamanu?"
-            />
-          ) : (
-            <TranslatedText
-              stringId="vaccine.form.consent.label"
-              fallback="Do you have consent from the recipient/parent/guardian to give this vaccine and record in Tamanu?"
-            />
-          )
-        }
-      />
-
-      <ConsentGivenByField />
-
-      <StyledDivider />
-
       <ConfirmCancelRowField onConfirm={submitForm} editMode={editMode} onCancel={onCancel} />
     </TwoTwoGrid>
   );

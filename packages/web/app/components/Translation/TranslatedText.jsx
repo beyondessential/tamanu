@@ -1,47 +1,31 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
+import { useTranslation } from '../../contexts/Translation';
 import { DebugTooltip } from './DebugTooltip';
 
+// Set DEBUG_TRANSLATION to true in localstorage if you want to highlight all translated strings in red
+const DEBUG_TRANSLATION_KEY = 'DEBUG_TRANSLATION';
 const safeGetIsDebugMode = () => {
   try {
-    return JSON.parse(localStorage.getItem('debugTranslation'));
+    return JSON.parse(localStorage.getItem(DEBUG_TRANSLATION_KEY));
   } catch (e) {
     return false;
   }
 };
 
-const replaceStringVariables = (templateString, replacements) => {
-  const jsxElements = templateString.split(/(:[a-zA-Z]+)/g).map((part, index) => {
-    // Even indexes are the unchanged parts of the string
-    if (index % 2 === 0) return part;
-    // Return the replacement if exists
-    return replacements[part.slice(1)] || part;
-  });
-
-  return jsxElements;
-};
-
-// "stringId" is used in future functionality
-// eslint-disable-next-line no-unused-vars
 export const TranslatedText = ({ stringId, fallback, replacements }) => {
-  // "setTranslation" is used in future functionality
-  // eslint-disable-next-line no-unused-vars
-  const [translation, setTranslation] = useState(fallback?.split('\\n').join('\n'));
-  const [displayElements, setDisplayElements] = useState(fallback);
+  const { getTranslation } = useTranslation();
 
-  useEffect(() => {
-    if (!replacements) setDisplayElements(translation);
-    setDisplayElements(replaceStringVariables(translation, replacements));
-  }, [translation, replacements]);
+  const translation = getTranslation(stringId, fallback?.split('\\n').join('\n'), replacements);
 
   const isDebugMode = safeGetIsDebugMode();
   if (isDebugMode)
     return (
       <DebugTooltip stringId={stringId} replacements={replacements} fallback={fallback}>
-        {displayElements}
+        {translation}
       </DebugTooltip>
     );
-  return displayElements;
+  return translation;
 };
 
 TranslatedText.propTypes = {

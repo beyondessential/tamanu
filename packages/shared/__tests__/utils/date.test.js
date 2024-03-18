@@ -48,7 +48,7 @@ describe('date', () => {
     const testCases = [
       {
         dateOfBirth: '2023-07-11',
-        expectedDisplayAge: '0 day',
+        expectedDisplayAge: '0 days',
       },
       {
         dateOfBirth: '2023-07-10',

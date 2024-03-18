@@ -1,4 +1,4 @@
-import { Document, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
+import { Document, Page, StyleSheet, View } from '@react-pdf/renderer';
 import React from 'react';
 
 import { DRUG_ROUTE_VALUE_TO_LABEL } from '@tamanu/constants';
@@ -11,9 +11,6 @@ import { DataItem } from './printComponents/DataItem';
 import { getDisplayDate } from './getDisplayDate';
 import { getCurrentDateString } from '../dateTime';
 import { LetterheadSection } from './LetterheadSection';
-import { Footer } from './printComponents/Footer';
-import { MultiPageHeader } from './printComponents/MultiPageHeader';
-import { getName } from '../patientAccessors';
 import { P } from './Typography';
 
 const columns = [
@@ -117,13 +114,9 @@ export const PrescriptionPrintout = ({
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        <MultiPageHeader
-          documentName="Prescription"
-          patientName={getName(patientData)}
-          patiendId={patientData?.displayId}
-        />
         <CertificateHeader>
           <LetterheadSection
+            letterheadConfig={certificateData}
             getLocalisation={getLocalisation}
             logoSrc={certificateData.logo}
             certificateTitle="Prescription"
@@ -148,7 +141,6 @@ export const PrescriptionPrintout = ({
             <PrescriptionSigningSection />
           </SectionContainer>
         </CertificateContent>
-        <Footer />
       </Page>
     </Document>
   );
