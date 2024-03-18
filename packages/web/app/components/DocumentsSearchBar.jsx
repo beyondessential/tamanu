@@ -64,9 +64,25 @@ export const DocumentsSearchBar = ({ setSearchParameters }) => {
         onSubmit={handleSubmit}
         render={({ clearForm, values }) => (
           <CustomFormGrid columns={5}>
-            <Field name="type" label="Type" component={DynamicSelectField} options={DOCUMENT_TYPE_OPTIONS} size="small" />
-            <Field name="documentOwner" label={<TranslatedText stringId="document.owner.label" fallback="Owner" />} component={SearchField} size="small" />
-            <Field name="departmentName" label={<TranslatedText stringId="general.department.label" fallback="Department" />} component={SearchField} size="small" />
+            <Field
+              name="type"
+              label="Type"
+              component={DynamicSelectField}
+              options={DOCUMENT_TYPE_OPTIONS}
+              size="small"
+            />
+            <Field
+              name="documentOwner"
+              label={<TranslatedText stringId="document.owner.label" fallback="Owner" />}
+              component={SearchField}
+              size="small"
+            />
+            <Field
+              name="departmentName"
+              label={<TranslatedText stringId="general.department.label" fallback="Department" />}
+              component={SearchField}
+              size="small"
+            />
             <SubmitButton type="submit" size="small">
               <TranslatedText stringId="general.action.search" fallback="Search" />
             </SubmitButton>
@@ -80,7 +96,7 @@ export const DocumentsSearchBar = ({ setSearchParameters }) => {
               }}
               size="small"
             >
-              <TranslatedText stringId="general.action.clearSearch" fallback="Clear search" />
+              <TranslatedText stringId="general.action.clearSearch" fallback="Clear" />
             </ClearButton>
           </CustomFormGrid>
         )}
