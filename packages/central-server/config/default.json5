@@ -739,8 +739,8 @@
           "longLabel": "Conditions"
         },
         "programRegistry": {
-          "shortLabel": "Program Registry",
-          "longLabel": "Program Registry"
+          "shortLabel": "Program registry",
+          "longLabel": "Program registry"
         }
       },
       "features": {
