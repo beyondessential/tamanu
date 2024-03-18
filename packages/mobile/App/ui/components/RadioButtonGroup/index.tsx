@@ -18,12 +18,6 @@ export interface RadioButtonGroupProps {
   CustomComponent?: FC<any>;
 }
 
-const getTitleColor = (value?: string, error?: boolean): string => {
-  if (value) return theme.colors.TEXT_MID;
-  if (error) return theme.colors.ALERT;
-  return theme.colors.TEXT_SOFT;
-};
-
 const Label = styled(StyledText)`
   color: ${theme.colors.TEXT_SUPER_DARK};
   font-size: ${screenPercentageToDP(2.1, Orientation.Height)};

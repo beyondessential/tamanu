@@ -1,4 +1,4 @@
-import React, { ReactElement, ReactNode, useMemo } from 'react';
+import React, { ReactElement, ReactNode } from 'react';
 import { StyledView } from '/styled/common';
 import { SectionHeader } from '../../SectionHeader';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
