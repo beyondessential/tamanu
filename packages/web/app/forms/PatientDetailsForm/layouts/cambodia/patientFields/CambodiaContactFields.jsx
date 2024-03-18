@@ -7,7 +7,7 @@ import { TranslatedText } from '../../../../../components/Translation/Translated
 import { PatientField } from '../../../PatientFields';
 import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants';
 
-const HEALTH_CENTER_DEFINITION_ID = 'fieldDefinition-healthCenterId';
+export const HEALTH_CENTER_DEFINITION_ID = 'fieldDefinition-healthCenterId';
 
 export const CambodiaContactFields = ({ filterByMandatory }) => {
   const medicalAreaSuggester = useSuggester('medicalArea');

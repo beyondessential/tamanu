@@ -4,11 +4,12 @@ import { ConfiguredMandatoryPatientFields } from '../../../ConfiguredMandatoryPa
 import { useSuggester } from '../../../../../api';
 import { TranslatedText } from '../../../../../components/Translation/TranslatedText';
 import { LinkedField } from '../../../../../components/Field/LinkedField';
+import { HEALTH_CENTER_DEFINITION_ID } from './CambodiaContactFields';
 
 const HealthCenterLinkedVillageField = props => (
   <LinkedField
     {...props}
-    linkedFieldName="healthCenterId"
+    linkedFieldName={`patientFields.fieldDefinition-${HEALTH_CENTER_DEFINITION_ID}`}
     endpoint="referenceData/facilityCatchmentHierarchy"
     name="villageId"
     component={AutocompleteField}
