@@ -12,15 +12,12 @@ import { TranslatedText } from '../Translation/TranslatedText';
 // This is a temporary implementation to basically keep TranslatedText components from breaking export
 // by supplying the fallback string in place of the component. proper translation export implmentation coming in NASS-1201
 const normaliseTranslatedText = element => {
+  if (!isValidElement(element)) return element;
   if (element.type?.name === 'TranslatedText') return element.props.fallback;
   if (!Array.isArray(element.props?.children)) return element;
 
   return React.cloneElement(element, {
-    children: element.props.children.map(child => {
-      return child.type?.name === 'TranslatedText'
-        ? child.props.fallback
-        : normaliseTranslatedText(child);
-    }),
+    children: element.props.children.map(normaliseTranslatedText),
   });
 };
 
