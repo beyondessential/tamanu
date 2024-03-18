@@ -1,5 +1,6 @@
 import React from 'react';
-import { StyleSheet, Text } from '@react-pdf/renderer';
+import { StyleSheet } from '@react-pdf/renderer';
+import { Text } from '../pdf/Text';
 
 const styles = StyleSheet.create({
   h1: {

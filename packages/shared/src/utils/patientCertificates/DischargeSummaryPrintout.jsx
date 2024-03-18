@@ -1,4 +1,4 @@
-import { Document, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
+import { Document, StyleSheet, View } from '@react-pdf/renderer';
 import React from 'react';
 import { CertificateHeader, styles } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
@@ -7,6 +7,8 @@ import { DIAGNOSIS_CERTAINTIES_TO_HIDE } from '@tamanu/constants';
 import { EncounterDetailsExtended } from './printComponents/EncounterDetailsExtended';
 import { P } from './Typography';
 import { withLanguageContext } from '../pdf/languageContext';
+import { Page } from '../pdf/Page';
+import { Text } from '../pdf/Text';
 
 const borderStyle = '1 solid black';
 const tableLabelWidth = 150;

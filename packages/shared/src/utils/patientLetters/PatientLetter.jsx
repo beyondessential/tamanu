@@ -1,5 +1,5 @@
 import React from 'react';
-import { Document, Page, View } from '@react-pdf/renderer';
+import { Document, View } from '@react-pdf/renderer';
 
 import { CertificateHeader, Col, Row, Signature, styles } from '../patientCertificates/Layout';
 import { H3, P } from '../patientCertificates/Typography';
@@ -7,6 +7,7 @@ import { LetterheadSection } from '../patientCertificates/LetterheadSection';
 import { getDOB, getName, getSex } from '../patientAccessors';
 import { format as formatDate } from '../dateTime';
 import { withLanguageContext } from '../pdf/languageContext';
+import { Page } from '../pdf/Page';
 
 export const getCreatedAtDate = ({ documentCreatedAt }) =>
   documentCreatedAt ? formatDate(documentCreatedAt, 'dd/MM/yyyy') : 'Unknown';

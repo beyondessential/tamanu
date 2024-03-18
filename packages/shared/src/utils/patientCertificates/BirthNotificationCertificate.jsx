@@ -1,5 +1,5 @@
 import React from 'react';
-import { Document, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
+import { Document, StyleSheet, View } from '@react-pdf/renderer';
 import { CertificateHeader, styles, Watermark } from './Layout';
 import { ageInYears, getCurrentDateString } from '../dateTime';
 import { LetterheadSection } from './LetterheadSection';
@@ -14,6 +14,8 @@ import {
 import { Footer } from './printComponents/Footer';
 import { getDisplayDate } from './getDisplayDate';
 import { withLanguageContext } from '../pdf/languageContext';
+import { Page } from '../pdf/Page';
+import { Text } from '../pdf/Text';
 
 const borderStyle = '1 solid black';
 

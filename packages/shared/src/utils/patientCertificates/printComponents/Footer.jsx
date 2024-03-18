@@ -1,7 +1,8 @@
-import { StyleSheet, Text, View } from '@react-pdf/renderer';
+import { StyleSheet, View } from '@react-pdf/renderer';
 import { getDisplayDate } from '../getDisplayDate';
 import React from 'react';
 import { getCurrentDateString } from '../../dateTime';
+import { Text } from '../../pdf/Text';
 
 const styles = StyleSheet.create({
   footer: {

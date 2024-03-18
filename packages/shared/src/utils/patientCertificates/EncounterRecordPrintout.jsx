@@ -1,5 +1,5 @@
 import React from 'react';
-import { Document, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
+import { Document, StyleSheet, View } from '@react-pdf/renderer';
 import { CertificateHeader, Watermark } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
 import { PatientDetailsWithAddress } from './printComponents/PatientDetailsWithAddress';
@@ -16,6 +16,8 @@ import { MultiPageHeader } from './printComponents/MultiPageHeader';
 import { getName } from '../patientAccessors';
 import { Footer } from './printComponents/Footer';
 import { withLanguageContext } from '../pdf/languageContext';
+import { Page } from '../pdf/Page';
+import { Text } from '../pdf/Text';
 
 const borderStyle = '1 solid black';
 

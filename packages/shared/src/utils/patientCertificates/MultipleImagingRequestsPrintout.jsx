@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import { Document, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
+import { Document, StyleSheet, View } from '@react-pdf/renderer';
 import { getName } from '../patientAccessors';
 import { BaseSigningSection } from './BaseSigningSection';
 import { getDisplayDate } from './getDisplayDate';
@@ -15,6 +15,8 @@ import { PatientDetailsWithBarcode } from './printComponents/PatientDetailsWithB
 import { startCase } from 'lodash';
 import { DoubleHorizontalRule } from './printComponents/DoubleHorizontalRule';
 import { withLanguageContext } from '../pdf/languageContext';
+import { Page } from '../pdf/Page';
+import { Text } from '../pdf/Text';
 
 const DATE_TIME_FORMAT = 'dd/MM/yyyy h:mma';
 const labDetailsSectionStyles = StyleSheet.create({

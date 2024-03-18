@@ -1,5 +1,5 @@
 import React from 'react';
-import { Document, Page } from '@react-pdf/renderer';
+import { Document } from '@react-pdf/renderer';
 import { replaceInTemplate } from '../replaceInTemplate';
 import { Table } from './Table';
 import { Box, Col, Row, styles, Watermark } from './Layout';
@@ -17,6 +17,7 @@ import {
 } from './labRequestAccessors';
 import { getDisplayDate } from './getDisplayDate';
 import { withLanguageContext } from '../pdf/languageContext';
+import { Page } from '../pdf/Page';
 
 const columns = [
   {

@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 
-import { Document, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
+import { Document, StyleSheet, View } from '@react-pdf/renderer';
 import { getName, getTimeOfDeath, getDateOfDeath, getSex } from '../patientAccessors';
 import { CertificateHeader, Col, Row, styles, SigningImage } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
@@ -11,6 +11,8 @@ import { renderDataItems } from './printComponents/renderDataItems';
 import { P } from './Typography';
 import { getDisplayDate } from './getDisplayDate';
 import { withLanguageContext } from '../pdf/languageContext';
+import { Page } from '../pdf/Page';
+import { Text } from '../pdf/Text';
 
 const borderStyle = '1 solid black';
 const tableLabelWidth = 250;

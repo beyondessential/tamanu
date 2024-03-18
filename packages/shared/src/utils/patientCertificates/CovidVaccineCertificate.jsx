@@ -1,5 +1,5 @@
 import React from 'react';
-import { Document, Page } from '@react-pdf/renderer';
+import { Document } from '@react-pdf/renderer';
 
 import { generateUVCI } from '../uvci';
 import { Table } from './Table';
@@ -11,6 +11,7 @@ import { CovidLetterheadSection } from './CovidLetterheadSection';
 import { getDisplayDate } from './getDisplayDate';
 import { compareDateStrings } from '../dateTime';
 import { withLanguageContext } from '../pdf/languageContext';
+import { Page } from '../pdf/Page';
 
 const columns = [
   {

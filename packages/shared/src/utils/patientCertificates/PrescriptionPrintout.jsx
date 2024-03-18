@@ -1,4 +1,4 @@
-import { Document, Page, StyleSheet, View } from '@react-pdf/renderer';
+import { Document, StyleSheet, View } from '@react-pdf/renderer';
 import React from 'react';
 
 import { DRUG_ROUTE_VALUE_TO_LABEL } from '@tamanu/constants';
@@ -13,6 +13,7 @@ import { getCurrentDateString } from '../dateTime';
 import { LetterheadSection } from './LetterheadSection';
 import { P } from './Typography';
 import { withLanguageContext } from '../pdf/languageContext';
+import { Page } from '../pdf/Page';
 
 const columns = [
   {

@@ -1,9 +1,10 @@
 import React from 'react';
-import { Page, StyleSheet, View, Document } from '@react-pdf/renderer';
+import { StyleSheet, View, Document } from '@react-pdf/renderer';
 import { getDOB, getName, getSex } from '../patientAccessors';
 import { PrintableBarcode } from './printComponents/PrintableBarcode';
 import { P } from './Typography';
 import { withLanguageContext } from '../pdf/languageContext';
+import { Page } from '../pdf/Page';
 
 const fontSize = 11;
 

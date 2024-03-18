@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { Document, Page, StyleSheet, View, Text } from '@react-pdf/renderer';
+import { Document, StyleSheet, View } from '@react-pdf/renderer';
 import { PatientDetailsWithBarcode } from './printComponents/PatientDetailsWithBarcode';
 import { styles, CertificateContent, CertificateHeader, Col, Row, Signature } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
@@ -13,6 +13,8 @@ import { EncounterDetails } from './printComponents/EncounterDetails';
 import { getDisplayDate } from './getDisplayDate';
 import { DoubleHorizontalRule } from './printComponents/DoubleHorizontalRule';
 import { withLanguageContext } from '../pdf/languageContext';
+import { Page } from '../pdf/Page';
+import { Text } from '../pdf/Text';
 
 const DATE_TIME_FORMAT = 'dd/MM/yyyy h:mma';
 const headingFontSize = 11;
