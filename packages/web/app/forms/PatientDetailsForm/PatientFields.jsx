@@ -1,10 +1,16 @@
 import React, { Fragment } from 'react';
-import { Field, FormGrid, NumberField, SelectField, TextField } from '../../components';
+import {
+  AutocompleteField,
+  Field,
+  FormGrid,
+  NumberField,
+  SelectField,
+  TextField,
+} from '../../components';
 import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants';
 import { groupBy } from 'lodash';
 import styled from 'styled-components';
 import { Colors } from '../../constants';
-import { Autocomplete } from '@material-ui/lab';
 
 const StyledHeading = styled.div`
   font-weight: 500;
@@ -34,7 +40,9 @@ export const PatientField = ({
     return <Field name={fieldName} component={NumberField} label={name} />;
   }
   if (fieldType === PATIENT_FIELD_DEFINITION_TYPES.AUTO_COMPLETE) {
-    return <Field name={fieldName} component={Autocomplete} suggester={suggester} label={name} />;
+    return (
+      <Field name={fieldName} component={AutocompleteField} suggester={suggester} label={name} />
+    );
   }
   return <p>Unknown field type: {fieldType}</p>;
 };
