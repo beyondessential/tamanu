@@ -98,6 +98,7 @@ const Form = ({
           <SubmitButton
             flex={1}
             buttonText="Create Account"
+            backgroundColor={theme.colors.SECONDARY_MAIN}
             textColor={theme.colors.TEXT_SUPER_DARK}
           />
         </RowView>

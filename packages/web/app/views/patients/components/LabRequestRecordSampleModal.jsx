@@ -11,7 +11,7 @@ import {
   FormModal,
   SuggesterSelectField,
 } from '../../../components';
-import { Colors } from '../../../constants';
+import { Colors, FORM_TYPES } from '../../../constants';
 import { useSuggester } from '../../../api';
 import { ModalFormActionRow } from '../../../components/ModalActionRow';
 
@@ -133,6 +133,7 @@ export const LabRequestRecordSampleModal = React.memo(
           onSubmit={updateSample}
           validationSchema={validationSchema}
           showInlineErrorsOnly
+          formType={FORM_TYPES.EDIT_FORM}
           initialValues={{
             sampleTime: labRequest.sampleTime,
             labSampleSiteId: labRequest.labSampleSiteId,

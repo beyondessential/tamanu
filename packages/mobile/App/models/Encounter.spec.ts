@@ -1,5 +1,5 @@
 import { Database } from '~/infra/db';
-import { createWithRelations, fake, fakeEncounter, fakePatient, fakeUser } from '/root/tests/helpers/fake';
+import { fakeEncounter, fakePatient, fakeUser } from '/root/tests/helpers/fake';
 
 beforeAll(async () => {
   await Database.connect();
@@ -20,8 +20,8 @@ describe('Encounter', () => {
       await Database.models.Encounter.insert(encounter);
 
       const result = await Database.models.Encounter.getForPatient(patient.id);
-      const { examiner, ...expectedResult } = encounter; // examiner is not eager-loaded from db
-      expect(result[0]).toMatchObject(expectedResult);
+      delete encounter.examiner; // examiner is not eager-loaded from db
+      expect(result[0]).toMatchObject(encounter);
     });
   });
 });

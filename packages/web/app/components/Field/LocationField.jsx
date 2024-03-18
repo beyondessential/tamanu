@@ -7,9 +7,9 @@ import { LOCATION_AVAILABILITY_STATUS, LOCATION_AVAILABILITY_TAG_CONFIG } from '
 import { AutocompleteInput } from './AutocompleteField';
 import { useApi, useSuggester } from '../../api';
 import { Suggester } from '../../utils/suggester';
-import { useLocalisation } from '../../contexts/Localisation';
 import { BodyText } from '../Typography';
 import { useAuth } from '../../contexts/Auth';
+import { TranslatedText } from '../Translation/TranslatedText';
 
 const locationSuggester = (api, groupValue, enableLocationStatus) => {
   return new Suggester(api, 'location', {
@@ -160,22 +160,19 @@ export const LocationField = React.memo(({ field, ...props }) => {
   );
 });
 
-export const LocalisedLocationField = React.memo(
-  ({ defaultGroupLabel = 'Area', defaultLabel = 'Location', ...props }) => {
-    const { getLocalisation } = useLocalisation();
-
-    const locationGroupIdPath = 'fields.locationGroupId';
-    const locationGroupLabel =
-      getLocalisation(`${locationGroupIdPath}.longLabel`) || defaultGroupLabel;
-
-    const locationIdPath = 'fields.locationId';
-    const locationLabel = getLocalisation(`${locationIdPath}.longLabel`) || defaultLabel;
-
-    return (
-      <LocationField label={locationLabel} locationGroupLabel={locationGroupLabel} {...props} />
-    );
-  },
-);
+export const LocalisedLocationField = React.memo(props => {
+  return (
+    <LocationField
+      label={
+        <TranslatedText stringId="general.localisedField.locationId.label" fallback="Location" />
+      }
+      locationGroupLabel={
+        <TranslatedText stringId="general.localisedField.locationGroupId.label" fallback="Area" />
+      }
+      {...props}
+    />
+  );
+});
 
 const Text = styled(BodyText)`
   margin-top: -5px;

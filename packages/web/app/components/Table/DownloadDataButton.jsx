@@ -7,6 +7,7 @@ import XLSX from 'xlsx';
 
 import { saveFile } from '../../utils/fileSystemAccess';
 import { GreyOutlinedButton } from '../Button';
+import { TranslatedText } from '../Translation/TranslatedText';
 
 function getHeaderValue(column) {
   if (!column.title) {
@@ -93,7 +94,7 @@ export function DownloadDataButton({ exportName, columns, data }) {
       data-test-class="download-data-button"
       startIcon={<GetAppIcon />}
     >
-      Export
+      <TranslatedText stringId="general.table.action.export" fallback="Export" />
     </GreyOutlinedButton>
   );
 }

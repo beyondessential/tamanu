@@ -7,7 +7,6 @@ on:
     branches:
       - main
       - release/*
-
 env:
   NODE_OPTIONS: "--max-old-space-size=6144"
   NODE_ENV: test
@@ -69,3 +68,14 @@ jobs:
       - run: aws s3 cp s3://bes-tamanu-test-data-snapshots/${{ steps.commit-finder.outputs.commit }}/fake-pg${{ matrix.postgres }}.dump ./ --no-progress
 
       - run: yarn workspace scripts run test-determinism --dump-path $(realpath fake-pg${{ matrix.postgres }}.dump)
+
+  # Dummy job to have a stable name for PR requirements
+  tests-pass:
+    if: always() # always run even if dependencies fail
+    name: Non-determinism pass
+    needs: [test-for-non-determinism]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: re-actors/alls-green@release/v1
+        with:
+          jobs: ${{ toJSON(needs) }}
