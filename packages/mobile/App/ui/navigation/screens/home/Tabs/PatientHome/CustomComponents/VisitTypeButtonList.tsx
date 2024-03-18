@@ -3,41 +3,37 @@ import { RowView, StyledView } from '/styled/common';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { PatientMenuButton } from '/components/PatientMenuButton';
 import { MenuOptionButtonProps } from '~/types/MenuOptionButtonProps';
-import styled from 'styled-components';
 
 interface VisitTypeButtonsProps {
   list: MenuOptionButtonProps[];
 }
 
-const StyledRowView = styled(RowView)`
-  width: 100%;
-  flex-wrap: wrap;
-`;
-
-const MenuButtonContainer = styled(StyledView)`
-  width: 33%;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: ${screenPercentageToDP(2.64, Orientation.Width)};
-`;
-
-export const VisitTypeButtonList = ({ list }: VisitTypeButtonsProps): ReactElement => {
-  console.log(list);
-  return (
-    <StyledView
+export const VisitTypeButtonList = ({ list }: VisitTypeButtonsProps): ReactElement => (
+  <StyledView
+    width="100%"
+    marginTop={screenPercentageToDP(3, Orientation.Height)}
+    marginBottom={screenPercentageToDP(3, Orientation.Height)}
+  >
+    <RowView
       width="100%"
-      marginTop={screenPercentageToDP(3, Orientation.Height)}
-      marginBottom={screenPercentageToDP(3, Orientation.Height)}
+      paddingLeft={screenPercentageToDP(3.64, Orientation.Width)}
+      paddingRight={screenPercentageToDP(3.64, Orientation.Width)}
+      justifyContent="space-between"
     >
-      {
-        <StyledRowView>
-          {list.map(buttonProps => (
-            <MenuButtonContainer key={buttonProps.title}>
-              <PatientMenuButton {...buttonProps} />
-            </MenuButtonContainer>
-          ))}
-        </StyledRowView>
-      }
-    </StyledView>
-  );
-};
+      {list.slice(0, list.length / 2).map(buttonProps => (
+        <PatientMenuButton key={buttonProps.title} {...buttonProps} />
+      ))}
+    </RowView>
+    <RowView
+      width="100%"
+      marginTop={screenPercentageToDP(2.64, Orientation.Width)}
+      paddingLeft={screenPercentageToDP(3.64, Orientation.Width)}
+      paddingRight={screenPercentageToDP(3.64, Orientation.Width)}
+      justifyContent="space-between"
+    >
+      {list.slice(list.length / 2, list.length).map(buttonProps => (
+        <PatientMenuButton key={buttonProps.title} {...buttonProps} />
+      ))}
+    </RowView>
+  </StyledView>
+);
