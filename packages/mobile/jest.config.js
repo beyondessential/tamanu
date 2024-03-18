@@ -8,6 +8,7 @@ module.exports = {
     '^.+\\.(js)$': '<rootDir>/node_modules/babel-jest',
     '\\.(ts|tsx)$': 'ts-jest',
   },
+  testEnvironment: 'node',
   testPathIgnorePatterns: ['\\.snap$', '<rootDir>/node_modules/', 'e2e'],
   cacheDirectory: '.jest/cache',
   setupFiles: ['./jest.setup.ts'],
