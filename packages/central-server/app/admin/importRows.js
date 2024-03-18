@@ -221,14 +221,16 @@ export async function importRows(
         updateStat(stats, statkey(model, sheetName), 'created');
       }
 
-      const dataType = normaliseSheetName(sheetName);
+      const dataType =
+        sheetName === 'diagnosis'
+          ? 'icd10' // diagnosis is a special case where the datatype isnt the same as sheet name
+          : normaliseSheetName(sheetName);
       const isValidTable = model === 'ReferenceData' || // All records in the reference data table are translatable
-        camelCase(model) === dataType; // This prevents join tables from being translated - unsure about this
-      const isTranslatable =
-        TRANSLATABLE_REFERENCE_TYPES.includes(dataType) || sheetName === 'diagnosis'; // Special case for diagnosis;
+          camelCase(model) === dataType; // This prevents join tables from being translated - unsure about this
+      const isTranslatable = TRANSLATABLE_REFERENCE_TYPES.includes(dataType);
       if (isTranslatable && isValidTable) {
         translationRecordsForSheet.push({
-          stringId: `${REFERENCE_DATA_TRANSLATION_PREFIX}.${sheetName}.${values.id}`,
+          stringId: `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.${values.id}`,
           text: values.name,
           language: ENGLISH_LANGUAGE_CODE,
         });
