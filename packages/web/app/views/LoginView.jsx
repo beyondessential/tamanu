@@ -3,9 +3,11 @@ import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { push } from 'connected-react-router';
 import { Launch } from '@material-ui/icons';
+
 import { Colors, LOCAL_STORAGE_KEYS } from '../constants';
-import { LogoDark } from '../components';
+import { TamanuLogoBlue } from '../components';
 import { splashImages } from '../constants/images';
+
 import { LoginForm } from '../forms/LoginForm';
 import { ResetPasswordForm } from '../forms/ResetPasswordForm';
 import { ChangePasswordForm } from '../forms/ChangePasswordForm';
@@ -18,10 +20,10 @@ import {
   validateResetCode,
 } from '../store';
 import { useApi } from '../api';
-import { SyncHealthNotificationComponent } from '../components/SyncHealthNotification';
-import { Typography } from '@material-ui/core';
-import { getBrandId } from '../utils';
 
+import { SyncHealthNotificationComponent } from '../components/SyncHealthNotification';
+
+import { Typography } from '@material-ui/core';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 const { REMEMBER_EMAIL } = LOCAL_STORAGE_KEYS;
 
@@ -36,7 +38,7 @@ const LoginSplashImage = styled.div`
   max-width: 50vw;
   width: 50vw;
   height: inherit;
-  background-image: url(${props => splashImages[props.brandId]});
+  background-image: url(${splashImages[3]});
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center right;
@@ -119,7 +121,7 @@ export const LoginView = () => {
   const isSupportUrlLoaded = !!supportUrl;
 
   const submitLogin = async data => {
-    const { email, password, rememberMe, language } = data;
+    const { email, password, rememberMe } = data;
 
     // If a different user logs in, reset patient state and navigate to index
     if (email !== api.user?.email) {
@@ -135,11 +137,7 @@ export const LoginView = () => {
 
     await dispatch(login(email, password));
     dispatch(restartPasswordResetFlow());
-
-    localStorage.setItem(LOCAL_STORAGE_KEYS.LANGUAGE, language);
   };
-
-  const brandId = getBrandId();
 
   return (
     <Container>
@@ -151,7 +149,7 @@ export const LoginView = () => {
             dispatch(restartPasswordResetFlow());
           }}
         >
-          <LogoDark size="140px" />
+          <TamanuLogoBlue size="140px" />
         </LogoContainer>
         <LoginFormContainer>
           {screen === 'login' && (
@@ -204,7 +202,7 @@ export const LoginView = () => {
           <TranslatedText stringId="login.version" fallback="Version" /> {agentVersion}
         </DesktopVersionText>
       </LoginContainer>
-      <LoginSplashImage brandId={brandId} />
+      <LoginSplashImage />
     </Container>
   );
 };
