@@ -187,6 +187,7 @@ describe(`Materialised - MediciReport`, () => {
       procedure,
       procedureType,
       rootNote,
+      labTestType,
     };
   }
 
@@ -196,6 +197,7 @@ describe(`Materialised - MediciReport`, () => {
       encounterDiagnosis,
       encounterMedication,
       procedureType,
+      labTestType,
     } = await makeEncounter({
       encounterType: 'emergency',
     });
@@ -266,7 +268,7 @@ describe(`Materialised - MediciReport`, () => {
         {
           tests: [
             {
-              name: 'AgRDT Negative, no further testing needed',
+              name: labTestType.name,
             },
           ],
         },
