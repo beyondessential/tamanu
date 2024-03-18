@@ -9,7 +9,7 @@ import { HEALTH_CENTER_DEFINITION_ID } from './CambodiaContactFields';
 const HealthCenterLinkedVillageField = props => (
   <LinkedField
     {...props}
-    linkedFieldName={`patientFields.fieldDefinition-${HEALTH_CENTER_DEFINITION_ID}`}
+    linkedFieldName={`patientFields.${HEALTH_CENTER_DEFINITION_ID}`}
     endpoint="referenceData/facilityCatchmentHierarchy"
     name="villageId"
     component={AutocompleteField}
