@@ -32,4 +32,5 @@ const CAMBODIA_REPORT_NAMES = [
   'Upcoming Vaccinations Line List Report',
 ];
 
-export const cambodiaReportsFiler = report => CAMBODIA_REPORT_NAMES.includes(report.name);
+export const cambodiaReportsFiler = report =>
+  !report.legacyReport || CAMBODIA_REPORT_NAMES.includes(report.name);
