@@ -1,5 +1,74 @@
 import { IMAGING_AREA_TYPES } from './imaging';
 
+export const REFERENCE_TYPES = {
+  ICD10: 'icd10',
+  ALLERGY: 'allergy',
+  CONDITION: 'condition',
+  DRUG: 'drug',
+  TRIAGE_REASON: 'triageReason',
+  PROCEDURE_TYPE: 'procedureType',
+  IMAGING_TYPE: 'imagingType',
+  LAB_SAMPLE_SITE: 'labSampleSite',
+  LAB_TEST_CATEGORY: 'labTestCategory',
+  LAB_TEST_PRIORITY: 'labTestPriority',
+  LAB_TEST_LABORATORY: 'labTestLaboratory',
+  LAB_TEST_METHOD: 'labTestMethod',
+  VACCINE: 'vaccine',
+  VILLAGE: 'village',
+  CARE_PLAN: 'carePlan',
+  ETHNICITY: 'ethnicity',
+  NATIONALITY: 'nationality',
+  COUNTRY: 'country',
+  DIVISION: 'division',
+  SUBDIVISION: 'subdivision',
+  MEDICAL_AREA: 'medicalArea',
+  NURSING_ZONE: 'nursingZone',
+  SETTLEMENT: 'settlement',
+  OCCUPATION: 'occupation',
+  SEX: 'sex',
+  PLACE_OF_BIRTH: 'placeOfBirth',
+  MARITAL_STATUS: 'maritalStatus',
+  RELIGION: 'religion',
+  FAMILY_RELATION: 'familyRelation',
+  PATIENT_TYPE: 'patientType',
+  BLOOD_TYPE: 'bloodType',
+  SOCIAL_MEDIA_PLATFORM: 'socialMediaPlatform',
+  PATIENT_BILLING_TYPE: 'patientBillingType',
+  MANUFACTURER: 'manufacturer',
+  SECONDARY_ID_TYPE: 'secondaryIdType',
+  DISCHARGE_DISPOSITION: 'dischargeDisposition',
+  REFERRAL_SOURCE: 'referralSource',
+  ARRIVAL_MODE: 'arrivalMode',
+  VACCINE_NOT_GIVEN_REASON: 'vaccineNotGivenReason',
+  VACCINE_CIRCUMSTANCE: 'vaccineCircumstance',
+  ADDITIONAL_INVOICE_LINE: 'additionalInvoiceLine',
+  SPECIMEN_TYPE: 'specimenType',
+  ...IMAGING_AREA_TYPES,
+};
+
+export const REFERENCE_TYPE_VALUES = Object.values(REFERENCE_TYPES);
+
+// Reference data stored in its own table (not in 'reference_data' table)
+const OTHER_REFERENCE_TYPES = {
+  DEPARTMENT: 'department',
+  FACILITY: 'facility',
+  INVOICE_LINE_TYPE: 'invoiceLineType',
+  INVOICE_PRICE_CHANGE_TYPE: 'invoicePriceChangeType',
+  LAB_TEST_TYPE: 'labTestType',
+  LAB_TEST_PANEL: 'labTestPanel',
+  LOCATION: 'location',
+  LOCATION_GROUP: 'locationGroup',
+  PATIENT_FIELD_DEFINITION: 'patientFieldDefinition',
+  PATIENT_FIELD_DEFININION_CATEGORY: 'patientFieldDefinitionCategory',
+};
+
+export const OTHER_REFERENCE_TYPE_VALUES = Object.values(OTHER_REFERENCE_TYPES);
+
+export const TRANSLATABLE_REFERENCE_TYPES = [
+  ...REFERENCE_TYPE_VALUES,
+  ...OTHER_REFERENCE_TYPE_VALUES,
+];
+
 export const GENERAL_IMPORTABLE_DATA_TYPES = [
   'additionalInvoiceLine',
   'administeredVaccine',
@@ -69,68 +138,6 @@ export const GENERAL_IMPORTABLE_DATA_TYPES = [
 ].sort();
 
 export const PERMISSION_IMPORTABLE_DATA_TYPES = ['permission', 'role'];
-
-export const REFERENCE_TYPES = {
-  ICD10: 'icd10',
-  ALLERGY: 'allergy',
-  CONDITION: 'condition',
-  DRUG: 'drug',
-  TRIAGE_REASON: 'triageReason',
-  PROCEDURE_TYPE: 'procedureType',
-  IMAGING_TYPE: 'imagingType',
-  LAB_SAMPLE_SITE: 'labSampleSite',
-  LAB_TEST_CATEGORY: 'labTestCategory',
-  LAB_TEST_PRIORITY: 'labTestPriority',
-  LAB_TEST_LABORATORY: 'labTestLaboratory',
-  LAB_TEST_METHOD: 'labTestMethod',
-  VACCINE: 'vaccine',
-  VILLAGE: 'village',
-  CARE_PLAN: 'carePlan',
-  ETHNICITY: 'ethnicity',
-  NATIONALITY: 'nationality',
-  COUNTRY: 'country',
-  DIVISION: 'division',
-  SUBDIVISION: 'subdivision',
-  MEDICAL_AREA: 'medicalArea',
-  NURSING_ZONE: 'nursingZone',
-  SETTLEMENT: 'settlement',
-  OCCUPATION: 'occupation',
-  SEX: 'sex',
-  PLACE_OF_BIRTH: 'placeOfBirth',
-  MARITAL_STATUS: 'maritalStatus',
-  RELIGION: 'religion',
-  FAMILY_RELATION: 'familyRelation',
-  PATIENT_TYPE: 'patientType',
-  BLOOD_TYPE: 'bloodType',
-  SOCIAL_MEDIA_PLATFORM: 'socialMediaPlatform',
-  PATIENT_BILLING_TYPE: 'patientBillingType',
-  MANUFACTURER: 'manufacturer',
-  SECONDARY_ID_TYPE: 'secondaryIdType',
-  DISCHARGE_DISPOSITION: 'dischargeDisposition',
-  REFERRAL_SOURCE: 'referralSource',
-  ARRIVAL_MODE: 'arrivalMode',
-  VACCINE_NOT_GIVEN_REASON: 'vaccineNotGivenReason',
-  VACCINE_CIRCUMSTANCE: 'vaccineCircumstance',
-  ADDITIONAL_INVOICE_LINE: 'additionalInvoiceLine',
-  SPECIMEN_TYPE: 'specimenType',
-  ...IMAGING_AREA_TYPES,
-};
-
-export const REFERENCE_TYPE_VALUES = Object.values(REFERENCE_TYPES);
-
-export const TRANSLATABLE_REFERENCE_TYPES = [
-  ...REFERENCE_TYPE_VALUES,
-  'department',
-  'facility',
-  'invoiceLineType',
-  'invoicePriceChangeType',
-  'labTestType',
-  'labTestPanel',
-  'location',
-  'locationGroup',
-  'patientFieldDefinition',
-  'patientFieldDefinitionCategory',
-];
 
 export const VISIBILITY_STATUSES = {
   CURRENT: 'current',
