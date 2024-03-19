@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { useTranslation } from '../../contexts/Translation';
 import { DebugTooltip } from './DebugTooltip';
@@ -13,35 +13,19 @@ const safeGetIsDebugMode = () => {
   }
 };
 
-const replaceStringVariables = (templateString, replacements) => {
-  const jsxElements = templateString.split(/(:[a-zA-Z]+)/g).map((part, index) => {
-    // Even indexes are the unchanged parts of the string
-    if (index % 2 === 0) return part;
-    // Return the replacement if exists
-    return replacements[part.slice(1)] || part;
-  });
-
-  return jsxElements;
-};
-
 export const TranslatedText = ({ stringId, fallback, replacements }) => {
   const { getTranslation } = useTranslation();
 
-  const translation = getTranslation(stringId, fallback?.split('\\n').join('\n'));
-
-  const displayElements = useMemo(() => {
-    if (!replacements) return translation;
-    return replaceStringVariables(translation, replacements);
-  }, [translation, replacements]);
+  const translation = getTranslation(stringId, fallback?.split('\\n').join('\n'), replacements);
 
   const isDebugMode = safeGetIsDebugMode();
   if (isDebugMode)
     return (
       <DebugTooltip stringId={stringId} replacements={replacements} fallback={fallback}>
-        {displayElements}
+        {translation}
       </DebugTooltip>
     );
-  return displayElements;
+  return translation;
 };
 
 TranslatedText.propTypes = {
