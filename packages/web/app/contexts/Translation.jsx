@@ -2,6 +2,7 @@ import React, { useContext, useState } from 'react';
 import { useApi } from '../api/useApi';
 import { LOCAL_STORAGE_KEYS } from '../constants';
 import { useTranslations } from '../api/queries/useTranslations';
+import { getCurrentLanguageCode } from '../utils/translation';
 
 export const TranslationContext = React.createContext();
 
@@ -33,8 +34,7 @@ const replaceStringVariables = (templateString, replacements) => {
 
 export const TranslationProvider = ({ children }) => {
   const api = useApi();
-  const initialValue = localStorage.getItem(LOCAL_STORAGE_KEYS.LANGUAGE) || 'en';
-  const [storedLanguage, setStoredLanguage] = useState(initialValue);
+  const [storedLanguage, setStoredLanguage] = useState(getCurrentLanguageCode());
 
   const { data: translations } = useTranslations(storedLanguage);
 
