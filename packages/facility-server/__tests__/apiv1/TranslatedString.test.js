@@ -108,7 +108,7 @@ describe('TranslatedString', () => {
     });
   });
 
-  describe('getReferenceDataTranslationsByEndpoint method', () => {
+  describe('getReferenceDataTranslationsByDataType method', () => {
     it('should return all translations for a given reference data endpoint in a given language', async () => {
       const { TranslatedString } = models;
 
@@ -134,7 +134,7 @@ describe('TranslatedString', () => {
         language: LANGUAGE_CODES.ENGLISH,
       });
 
-      const translations = await TranslatedString.getReferenceDataTranslationsByEndpoint({
+      const translations = await TranslatedString.getReferenceDataTranslationsByDataType({
         language: LANGUAGE_CODES.ENGLISH,
         refDataType: EXPECTED_REFDATA_TYPE,
       });

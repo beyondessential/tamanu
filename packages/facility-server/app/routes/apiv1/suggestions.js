@@ -13,6 +13,7 @@ import {
   SUGGESTER_ENDPOINTS,
   SURVEY_TYPES,
   VISIBILITY_STATUSES,
+  REFERENCE_DATA_TRANSLATION_PREFIX,
 } from '@tamanu/constants';
 import { keyBy } from 'lodash';
 
@@ -58,16 +59,15 @@ function createSuggesterRoute(
       let suggestedIds = [];
 
       if (isTranslatable) {
-        translations = await models.TranslatedString.getReferenceDataTranslationsByEndpoint({
+        translations = await models.TranslatedString.getReferenceDataTranslationsByDataType({
           language,
           refDataType: getDataType(endpoint),
+          queryString: searchQuery,
         });
 
-        // Check if any of the translated strings match the search query and generate an array of actual
-        // data ids to be supplied to the search query since they wont be matched through the usual name.
-        suggestedIds = translations
-          .filter(({ text }) => text.toLowerCase()?.includes(searchQuery))
-          .map(extractDataId);
+        // Generate an array of actual data ids to be supplied to the search query since
+        // they wont be matched through the usual name.
+        suggestedIds = translations.map(extractDataId);
 
         // Special case for location which is filtered by facility and its parent location group
         // So we refine the suggestions as per these parameters.
@@ -103,6 +103,7 @@ function createSuggesterRoute(
 
       // Allow for async mapping functions (currently only used by location suggester)
       const data = await Promise.all(results.map(mapper));
+
       res.send(isTranslatable ? replaceDataLabelsWithTranslations({ data, translations }) : data);
     }),
   );
@@ -128,16 +129,16 @@ function createSuggesterLookupRoute(endpoint, modelName, { mapper }) {
         return;
       }
 
-      const translatedStrings = await models.TranslatedString.getReferenceDataTranslationsByEndpoint(
-        {
+      const translation = await models.TranslatedString.findOne({
+        where: {
+          stringId: `${REFERENCE_DATA_TRANSLATION_PREFIX}.${getDataType(endpoint)}.${record.id}`,
           language: query.language,
-          refDataType: getDataType(endpoint),
         },
-      );
+      });
 
       const translatedRecord = replaceDataLabelsWithTranslations({
         data: [mappedRecord],
-        translations: translatedStrings,
+        translations: [translation],
       })[0];
 
       res.send(translatedRecord);
@@ -172,7 +173,7 @@ function createAllRecordsRoute(
         return;
       }
 
-      const translatedStrings = await models.TranslatedString.getReferenceDataTranslationsByEndpoint(
+      const translatedStrings = await models.TranslatedString.getReferenceDataTranslationsByDataType(
         {
           language: query.language,
           refDataType: getDataType(endpoint),
