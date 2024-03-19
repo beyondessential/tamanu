@@ -64,15 +64,12 @@ const showPatientWarningPopups = (issues: IPatientIssue[]): void =>
       .map(({ note }) => formatNoteToPopup(note)),
   );
 
-const moduleCompare = ({ firstModule, secondModule, patientModuleLocalisation }) => {
-  const firstModuleSortPriority = patientModuleLocalisation?.[firstModule.key]?.sortPriority || 0;
-  const secondModuleSortPriorty = patientModuleLocalisation?.[secondModule.key]?.sortPriority || 0;
-  return firstModuleSortPriority - secondModuleSortPriorty;
-};
+const usePatientModules = navigation => {
+  const { getLocalisation } = useLocalisation();
+  const config = getLocalisation('layouts.mobilePatientModules');
 
-const usePatientModules = (navigation, patientModuleLocalisation) => {
   return useMemo(() => {
-    const filteredModules = [
+    return [
       {
         key: 'diagnosisAndTreatment',
         title: 'Diagnosis &\nTreatment',
@@ -109,12 +106,10 @@ const usePatientModules = (navigation, patientModuleLocalisation) => {
         Icon: Icons.LabRequestIcon,
         onPress: (): void => navigation.navigate(Routes.HomeStack.LabRequestStack.Index),
       },
-    ].filter(module => patientModuleLocalisation?.[module.key]?.hidden === false);
-
-    return filteredModules.sort((firstModule, secondModule) =>
-      moduleCompare({ firstModule, secondModule, patientModuleLocalisation }),
-    );
-  }, [navigation, patientModuleLocalisation]);
+    ]
+      .filter(module => config?.[module.key]?.hidden === false)
+      .sort((a, b) => config[a.key].sortPriority - config[b.key].sortPriority);
+  }, [navigation, config]);
 };
 
 const PatientHomeContainer = ({
@@ -129,8 +124,6 @@ const PatientHomeContainer = ({
   const canViewProgramRegistries = canListRegistrations || canCreateRegistration;
   const [errorMessage, setErrorMessage] = useState();
   const { from } = route.params || {};
-  const { getLocalisation } = useLocalisation();
-  const patientModuleLocalisation = getLocalisation('layouts.mobilePatientModules');
 
   const patientMenuButtons = useMemo(
     () => [
@@ -210,7 +203,7 @@ const PatientHomeContainer = ({
     showPatientWarningPopups(patientIssues || []);
   }, [patientIssues]);
 
-  const patientModules = usePatientModules(navigation, patientModuleLocalisation);
+  const patientModules = usePatientModules(navigation);
 
   if (errorMessage) return <ErrorScreen error={errorMessage} />;
 

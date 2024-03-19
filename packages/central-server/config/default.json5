@@ -889,28 +889,31 @@
       "layouts": {
         "patientDetails": "generic",
         "mobilePatientModules": {
+          "programRegistries": {
+            "hidden": false
+          },
           "diagnosisAndTreatment": {
-            "sortPriority": -10,
+            "sortPriority": 0,
             "hidden": false
           },
           "vitals": {
-            "sortPriority": -10,
+            "sortPriority": 0,
             "hidden": false
           },
           "programs": {
-            "sortPriority": -10,
+            "sortPriority": 0,
             "hidden": false
           },
           "referral": {
-            "sortPriority": -10,
+            "sortPriority": 0,
             "hidden": false
           },
           "vaccine": {
-            "sortPriority": -10,
+            "sortPriority": 0,
             "hidden": false
           },
           "tests": {
-            "sortPriority": -10,
+            "sortPriority": 0,
             "hidden": false
           }
         },

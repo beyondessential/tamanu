@@ -324,6 +324,7 @@ const fieldsSchema = yup
   .noUnknown();
 
 const mobilePatientModulesSchema = yup.object({
+  programRegistries: yup.object({ hidden: yup.boolean() }),
   ...MOBILE_PATIENT_MODULES.reduce(
     (modules, module) => ({
       ...modules,
