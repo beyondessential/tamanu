@@ -38,7 +38,6 @@ export const RadioButtonGroup = ({
   labelFontSize,
 }: RadioButtonGroupProps): JSX.Element => {
   const RadioComponent = CustomComponent || RadioButton;
-  console.log(label)
 
   return (
     <>
@@ -63,7 +62,7 @@ export const RadioButtonGroup = ({
             selected={option.value === value}
             error={error}
             onPress={onChange}
-            labelFontSize={labelFontSize}
+            width={option.width}
           />
         ))}
       </RowView>
