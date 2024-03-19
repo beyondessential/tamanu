@@ -58,7 +58,6 @@ function createSuggesterRoute(
       let suggestedIds = [];
 
       if (isTranslatable) {
-        // Fetch all the possible translations for this dataType
         translations = await models.TranslatedString.getReferenceDataTranslationsByEndpoint({
           language,
           refDataType: getDataType(endpoint),
