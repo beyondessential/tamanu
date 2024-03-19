@@ -82,7 +82,7 @@ export function DownloadDataButton({ exportName, columns, data }) {
     await saveFile({
       defaultFileName: `${exportName}-${getCurrentDateString()}`,
       data: xlsxDataArray,
-      extensions: ['xlsx'],
+      extension: 'xlsx',
     });
 
   };
