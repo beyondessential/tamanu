@@ -127,7 +127,7 @@ describe('TranslatedString', () => {
         language: LANGUAGE_CODES.KHMER,
       });
 
-      // Response shouldnt include this record as the wrong data type
+      // Response shouldn't include this record as the wrong data type
       await TranslatedString.create({
         stringId: `${REFERENCE_DATA_TRANSLATION_PREFIX}.village.testVillage`,
         text: 'Test Village',
