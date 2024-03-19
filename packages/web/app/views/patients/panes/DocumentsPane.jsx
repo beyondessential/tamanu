@@ -42,7 +42,7 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
   const documentMetadataEndpoint = `${baseRoute}/documentMetadata`;
   const createPatientLetterEndpoint = `${baseRoute}/createPatientLetter`;
 
-  // In order to make sure we cleanup any iframes we create from printing, we need to 
+  // In order to make sure we cleanup any iframes we create from printing, we need to
   // trigger it in a useEffect with a cleanup function that wil remove the iframe
   // when unmounted.
   useEffect(() => {
@@ -80,8 +80,8 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
         await saveFile({
           defaultFileName: document.name,
           data: base64ToUint8Array(data),
-          extensions: [fileExtension],
-        })
+          extensions: fileExtension,
+        });
 
         notifySuccess(`Successfully downloaded file`);
       } catch (error) {
