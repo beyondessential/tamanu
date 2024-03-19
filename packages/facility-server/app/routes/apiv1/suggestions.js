@@ -103,19 +103,8 @@ function createSuggesterRoute(
       });
 
       // Allow for async mapping functions (currently only used by location suggester)
-      const mappedResults = await Promise.all(results.map(mapper));
-
-      if (!isTranslatable) {
-        res.send(mappedResults);
-        return;
-      }
-
-      res.send(
-        replaceDataLabelsWithTranslations({
-          data: mappedResults,
-          translations,
-        }),
-      );
+      const data = await Promise.all(results.map(mapper));
+      res.send(isTranslatable ? replaceDataLabelsWithTranslations({ data, translations }) : data);
     }),
   );
 }
