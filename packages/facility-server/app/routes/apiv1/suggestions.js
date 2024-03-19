@@ -26,12 +26,10 @@ const defaultMapper = ({ name, code, id }) => ({ name, code, id });
 const extractDataId = ({ stringId }) => stringId.split('.').pop();
 const replaceDataLabelsWithTranslations = ({ data, translations }) => {
   const translationsByDataId = keyBy(translations, extractDataId);
-  return data.map(item => {
-    const translatedText = translationsByDataId[item.id]?.text;
-    return translatedText ? { ...item, name: translatedText } : item;
-  });
+  return data.map(item => ({ ...item, name: translationsByDataId[item.id]?.text || item.name }));
 };
-const ENDPOINT_TO_DATA_TYPE = { // Special cases where the endpoint name doesn't match the dataType
+const ENDPOINT_TO_DATA_TYPE = {
+  // Special cases where the endpoint name doesn't match the dataType
   ['facilityLocationGroup']: 'locationGroup',
   ['patientLabTestCategories']: 'labTestCategory',
   ['patientLabTestPanelTypes']: 'labTestPanelType',
