@@ -17,7 +17,7 @@ vaccine_thresholds AS (
 ),
 vaccine_agelimit as (
 	select
-		(CURRENT_DATE - concat(s.value::text::integer, ' year')::INTERVAL)::date date
+		CURRENT_DATE - s.value::text::integer * 365 date
 	from settings s
 	where s.deleted_at is null
 	and s.key = 'routineVaccine.ageLimit'
@@ -29,7 +29,7 @@ patient_filtered as (
 	from patients p
 	where p.deleted_at is null
 	and p.visibility_status = 'current'
-	and p.date_of_birth::date <= (select "date" from vaccine_agelimit)
+	and p.date_of_birth::date > (select "date" from vaccine_agelimit)
 ),
 scheduled_vaccine_filtered as (
 	select
@@ -52,9 +52,12 @@ patient_scheduled_vaccines as (
 		svf.dose_order,
 		case
 			when svf.weeks_from_birth_due is null then null
-			else (pf.date_of_birth + concat(svf.weeks_from_birth_due, ' week')::interval)::date
-		end vaccine_due,
-		svf.weeks_from_last_vaccination_due
+			else pf.date_of_birth + svf.weeks_from_birth_due * 7
+		end fixed_due,
+		case
+			when svf.weeks_from_birth_due is not null then null
+			else svf.weeks_from_last_vaccination_due
+		end weeks_from_last_vaccination_due
 	from patient_filtered pf
 	cross join scheduled_vaccine_filtered svf
 ),
@@ -71,24 +74,37 @@ patient_administered_vaccines AS (
 	WHERE av.deleted_at IS NULL
 	AND av.status = 'GIVEN'
 ),
+patient_last_administered_vaccines as (
+	select pav.patient_id, svf.vaccine_id, max(pav.administered_date) last_administered_date
+	from patient_administered_vaccines pav
+	join scheduled_vaccine_filtered svf on svf.scheduled_vaccine_id = pav.scheduled_vaccine_id
+	group by pav.patient_id, svf.vaccine_id
+)
+,
 patient_next_vaccine_details AS (
     SELECT
     	psv.patient_id,
 		psv.scheduled_vaccine_id,
 		psv.vaccine_id,
 		psv.dose_order,
-		pav.administered_date,
-		case when pav.scheduled_vaccine_id is null then false else true end is_administered,
-		CASE
-			WHEN psv.vaccine_due IS NOT NULL THEN psv.vaccine_due
-			else ((max(pav.administered_date) over (partition by psv.patient_id, psv.vaccine_id)) + concat(psv.weeks_from_last_vaccination_due, ' week')::interval)::date
-		END AS due_date,
-       rank() OVER (PARTITION BY psv.patient_id, psv.vaccine_id, pav.scheduled_vaccine_id ORDER BY psv.dose_order) = 1 AS is_next
-      FROM patient_scheduled_vaccines psv
-      LEFT JOIN patient_administered_vaccines pav
+		coalesce (
+			psv.fixed_due,
+			case
+				when psv.weeks_from_last_vaccination_due is null or plav.last_administered_date is null then null
+				else psv.weeks_from_last_vaccination_due * 7 + plav.last_administered_date
+				end
+		) due_date,
+		rank(*) OVER (PARTITION BY psv.patient_id, psv.vaccine_id, pav.scheduled_vaccine_id ORDER BY psv.dose_order) = 1 AS is_next
+	FROM patient_scheduled_vaccines psv
+	LEFT JOIN patient_administered_vaccines pav
         	ON pav.patient_id = psv.patient_id
     		AND pav.scheduled_vaccine_id = psv.scheduled_vaccine_id
-),
+	left join patient_last_administered_vaccines plav
+		on plav.patient_id = psv.patient_id
+		and plav.vaccine_id = psv.vaccine_id
+	where pav.scheduled_vaccine_id is null
+)
+,
 patient_next_vaccines AS (
     SELECT
     	pnvd.patient_id,
@@ -96,10 +112,9 @@ patient_next_vaccines AS (
     	pnvd.vaccine_id,
     	pnvd.dose_order,
     	pnvd.due_date,
-    	extract(day from (pnvd.due_date - now())) days_till_due
+    	pnvd.due_date - CURRENT_DATE days_till_due
       FROM patient_next_vaccine_details pnvd
-     WHERE pnvd.is_administered = false
-     and pnvd.due_date is not null
+     where pnvd.due_date is not null
      and pnvd.is_next = true
 )
 SELECT
