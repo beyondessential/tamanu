@@ -1,7 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { useApi } from '../api/useApi';
 import { LOCAL_STORAGE_KEYS } from '../constants';
-import * as yup from 'yup';
 import { useTranslations } from '../api/queries/useTranslations';
 
 export const TranslationContext = React.createContext();
@@ -53,8 +52,6 @@ export const TranslationProvider = ({ children }) => {
   const updateStoredLanguage = newLanguage => {
     // Save the language in local state so that it updates the react component tree on change
     setStoredLanguage(newLanguage);
-    // Set yup locale
-    yup.setLocale(newLanguage);
     // Save the language in local storage so that it persists between sessions
     localStorage.setItem(LOCAL_STORAGE_KEYS.LANGUAGE, newLanguage);
   };
