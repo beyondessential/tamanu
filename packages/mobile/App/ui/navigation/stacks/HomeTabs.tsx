@@ -29,6 +29,8 @@ import { ReportsIcon } from '~/ui/components/Icons/Reports';
 import { PatientIcon } from '~/ui/components/Icons/Patient';
 import { SyncCloudIcon } from '~/ui/components/Icons/SyncCloud';
 import { MoreLogoIcon } from '~/ui/components/Icons/MoreLogo';
+import { TranslatedText } from '/components/Translations/TranslatedText';
+import { useTranslation } from '/contexts/TranslationContext';
 
 const Tabs = createBottomTabNavigator();
 
@@ -53,33 +55,6 @@ const TabScreenIcon = (Icon: FC<SvgProps>) => (props: {
   strokeColor: string;
   color: string;
 }): ReactElement => <TabIcon Icon={Icon} {...props} />;
-
-const HomeScreenOptions: BottomTabNavigationOptions = {
-  tabBarIcon: TabScreenIcon(HomeLogoIcon),
-  tabBarLabel: 'Home',
-  tabBarTestID: 'HOME',
-  unmountOnBlur: true,
-};
-const ReportScreenOptions: BottomTabNavigationOptions = {
-  tabBarIcon: TabScreenIcon(ReportsIcon),
-  tabBarLabel: 'Reports',
-  tabBarTestID: 'REPORTS',
-};
-const PatientScreenOptions: BottomTabNavigationOptions = {
-  tabBarIcon: TabScreenIcon(PatientIcon),
-  tabBarLabel: 'Patient',
-  tabBarTestID: 'PATIENT',
-};
-const SyncDataScreenOptions: BottomTabNavigationOptions = {
-  tabBarIcon: TabScreenIcon(SyncCloudIcon),
-  tabBarLabel: 'Sync',
-  tabBarTestID: 'Sync Data',
-};
-const MoreScreenOptions: BottomTabNavigationOptions = {
-  tabBarIcon: TabScreenIcon(MoreLogoIcon),
-  tabBarLabel: 'More',
-  tabBarTestID: 'MORE',
-};
 
 const tabLabelFontSize = screenPercentageToDP(1.47, Orientation.Height);
 
@@ -154,36 +129,67 @@ function MyTabBar({ state, descriptors, navigation }: BottomTabBarProps): ReactE
   );
 }
 
-const TabNavigator = ({ selectedPatient }: BaseAppProps): ReactElement => (
-  <ErrorBoundary>
-    <Tabs.Navigator tabBar={MyTabBar}>
-      <Tabs.Screen
-        options={HomeScreenOptions}
-        name={Routes.HomeStack.HomeTabs.Home}
-        component={HomeScreen}
-      />
-      <Tabs.Screen
-        options={SyncDataScreenOptions}
-        name={Routes.HomeStack.HomeTabs.SyncData}
-        component={SyncDataScreen}
-      />
-      <Tabs.Screen
-        options={PatientScreenOptions}
-        name={Routes.HomeStack.SearchPatientStack.Index}
-        component={selectedPatient ? PatientHome : SearchPatientStack}
-      />
-      <Tabs.Screen
-        options={ReportScreenOptions}
-        name={Routes.HomeStack.HomeTabs.Reports}
-        component={ReportScreen}
-      />
-      <Tabs.Screen
-        options={MoreScreenOptions}
-        name={Routes.HomeStack.HomeTabs.More}
-        component={MoreScreen}
-      />
-    </Tabs.Navigator>
-  </ErrorBoundary>
-);
+const TabNavigator = ({ selectedPatient }: BaseAppProps): ReactElement => {
+  const { getTranslation } = useTranslation();
+
+  const HomeScreenOptions: BottomTabNavigationOptions = {
+    tabBarIcon: TabScreenIcon(HomeLogoIcon),
+    tabBarLabel: getTranslation('general.home') || 'Home',
+    tabBarTestID: 'HOME',
+    unmountOnBlur: true,
+  };
+  const ReportScreenOptions: BottomTabNavigationOptions = {
+    tabBarIcon: TabScreenIcon(ReportsIcon),
+    tabBarLabel: getTranslation('general.reports') || 'Reports',
+    tabBarTestID: 'REPORTS',
+  };
+  const PatientScreenOptions: BottomTabNavigationOptions = {
+    tabBarIcon: TabScreenIcon(PatientIcon),
+    tabBarLabel: getTranslation('general.patient') || 'Patient',
+    tabBarTestID: 'PATIENT',
+  };
+  const SyncDataScreenOptions: BottomTabNavigationOptions = {
+    tabBarIcon: TabScreenIcon(SyncCloudIcon),
+    tabBarLabel: getTranslation('general.sync') || 'Sync',
+    tabBarTestID: 'Sync Data',
+  };
+  const MoreScreenOptions: BottomTabNavigationOptions = {
+    tabBarIcon: TabScreenIcon(MoreLogoIcon),
+    tabBarLabel: getTranslation('general.more') || 'More',
+    tabBarTestID: 'MORE',
+  };
+
+  return (
+    <ErrorBoundary>
+      <Tabs.Navigator tabBar={MyTabBar}>
+        <Tabs.Screen
+          options={HomeScreenOptions}
+          name={Routes.HomeStack.HomeTabs.Home}
+          component={HomeScreen}
+        />
+        <Tabs.Screen
+          options={SyncDataScreenOptions}
+          name={Routes.HomeStack.HomeTabs.SyncData}
+          component={SyncDataScreen}
+        />
+        <Tabs.Screen
+          options={PatientScreenOptions}
+          name={Routes.HomeStack.SearchPatientStack.Index}
+          component={selectedPatient ? PatientHome : SearchPatientStack}
+        />
+        <Tabs.Screen
+          options={ReportScreenOptions}
+          name={Routes.HomeStack.HomeTabs.Reports}
+          component={ReportScreen}
+        />
+        <Tabs.Screen
+          options={MoreScreenOptions}
+          name={Routes.HomeStack.HomeTabs.More}
+          component={MoreScreen}
+        />
+      </Tabs.Navigator>
+    </ErrorBoundary>
+  );
+};
 
 export const HomeTabsStack = compose(withPatient)(TabNavigator);
