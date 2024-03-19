@@ -53,7 +53,6 @@ function createSuggesterRoute(
       const model = models[modelName];
 
       const searchQuery = (query.q || '').trim().toLowerCase();
-      const where = whereBuilder(`%${searchQuery}%`, query);
       const positionQuery = literal(
         `POSITION(LOWER(:positionMatch) in LOWER(${searchColumn})) > 1`,
       );
@@ -68,24 +67,15 @@ function createSuggesterRoute(
           })
         : [];
       const suggestedIds = translations.map(extractDataId);
-      
+
+      const where = { [Op.or]: [whereBuilder(`%${searchQuery}%`, query), { id: suggestedIds }] };
+
+      if (endpoint === 'location' && query.locationGroupId) {
+        where.locationGroupId = query.locationGroupId;
+      }
+
       const results = await model.findAll({
-        where: isTranslatable
-          ? {
-              [Op.or]: [
-                where,
-                {
-                  id: suggestedIds,
-                  ...(query.locationGroupId
-                    ? {
-                        locationGroupId: query.locationGroupId,
-                        facilityId: config.serverFacilityId,
-                      }
-                    : {}),
-                },
-              ],
-            }
-          : where,
+        where,
         order: [positionQuery, [Sequelize.literal(searchColumn), 'ASC']],
         replacements: {
           positionMatch: searchQuery,
