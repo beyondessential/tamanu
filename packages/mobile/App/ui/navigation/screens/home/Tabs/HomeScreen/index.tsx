@@ -24,6 +24,7 @@ import { theme } from '/styled/theme';
 
 import { ConditionalRegisterPatientButton } from './RegisterPatientButton';
 import { SyncInactiveAlert } from '~/ui/components/SyncInactiveAlert';
+import { TranslatedText } from '/components/Translations/TranslatedText';
 
 const SearchPatientsButton = ({ onPress }: { onPress: () => void }): ReactElement => (
   <StyledTouchableOpacity testID="search-patients-button" onPress={onPress}>
@@ -58,7 +59,7 @@ const BaseHomeScreen = ({ navigation, user, setSelectedPatient }: BaseAppProps):
   }, []);
 
   const onNavigateToSearchPatient = useCallback(() => {
-    setSelectedPatient(null)
+    setSelectedPatient(null);
     navigation.navigate(Routes.HomeStack.SearchPatientStack.Index);
   }, []);
 
@@ -100,7 +101,7 @@ const BaseHomeScreen = ({ navigation, user, setSelectedPatient }: BaseAppProps):
               fontWeight="bold"
               color={theme.colors.WHITE}
             >
-              Hi {user.displayName}
+              <TranslatedText stringId="general.hi" fallback="Hi" /> {user.displayName}
             </StyledText>
             <StyledText
               fontSize={screenPercentageToDP(2.18, Orientation.Height)}
