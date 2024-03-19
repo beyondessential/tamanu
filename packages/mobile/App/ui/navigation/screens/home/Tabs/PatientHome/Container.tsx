@@ -107,9 +107,44 @@ const usePatientModules = navigation => {
         onPress: (): void => navigation.navigate(Routes.HomeStack.LabRequestStack.Index),
       },
     ]
-      .filter(module => config?.[module.key]?.hidden === false)
+      .filter(module => config[module.key].hidden === false)
       .sort((a, b) => config[a.key].sortPriority - config[b.key].sortPriority);
   }, [navigation, config]);
+};
+
+const usePatientMenuButtons = navigation => {
+  const { ability } = useAuth();
+  const { getLocalisation } = useLocalisation();
+  const canListRegistrations = ability.can('list', 'PatientProgramRegistration');
+  const canCreateRegistration = ability.can('create', 'PatientProgramRegistration');
+  const canViewProgramRegistries = canListRegistrations || canCreateRegistration;
+  const config = getLocalisation('layouts.mobilePatientModules');
+
+  return useMemo(
+    () =>
+      [
+        {
+          key: 'patientDetails',
+          title: 'View patient details',
+          onPress: (): void => navigation.navigate(Routes.HomeStack.PatientDetailsStack.Index),
+        },
+        {
+          key: 'history',
+          title: 'View history',
+          onPress: (): void => navigation.navigate(Routes.HomeStack.HistoryVitalsStack.Index),
+        },
+        {
+          key: 'programRegistries',
+          title: 'Program registries',
+          onPress: (): void => navigation.navigate(Routes.HomeStack.PatientSummaryStack.Index),
+          hideFromMenu: !canViewProgramRegistries,
+        },
+      ].filter(module => {
+        // patientDetails and history are always visible
+        return module.key !== 'programRegistries' || config[module.key]?.hidden === false;
+      }),
+    [navigation, config, canViewProgramRegistries],
+  );
 };
 
 const PatientHomeContainer = ({
@@ -118,31 +153,10 @@ const PatientHomeContainer = ({
   setSelectedPatient,
   route,
 }: PatientHomeScreenProps): ReactElement => {
-  const { ability } = useAuth();
-  const canListRegistrations = ability.can('list', 'PatientProgramRegistration');
-  const canCreateRegistration = ability.can('create', 'PatientProgramRegistration');
-  const canViewProgramRegistries = canListRegistrations || canCreateRegistration;
   const [errorMessage, setErrorMessage] = useState();
   const { from } = route.params || {};
 
-  const patientMenuButtons = useMemo(
-    () => [
-      {
-        title: 'View patient details',
-        onPress: (): void => navigation.navigate(Routes.HomeStack.PatientDetailsStack.Index),
-      },
-      {
-        title: 'View history',
-        onPress: (): void => navigation.navigate(Routes.HomeStack.HistoryVitalsStack.Index),
-      },
-      {
-        title: 'Program registries',
-        onPress: (): void => navigation.navigate(Routes.HomeStack.PatientSummaryStack.Index),
-        hideFromMenu: !canViewProgramRegistries,
-      },
-    ],
-    [navigation, canViewProgramRegistries],
-  );
+  const patientMenuButtons = usePatientMenuButtons(navigation);
 
   const onNavigateToSearchPatients = useCallback(() => {
     setSelectedPatient(null);
