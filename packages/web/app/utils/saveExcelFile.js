@@ -21,6 +21,6 @@ export async function saveExcelFile({ data, metadata, defaultFileName = '', book
   await saveFile({
     defaultFileName,
     data: xlsxDataArray,
-    extensions: [bookType],
+    extension: bookType,
   });
 }
