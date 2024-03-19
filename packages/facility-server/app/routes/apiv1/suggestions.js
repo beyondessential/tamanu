@@ -53,46 +53,39 @@ function createSuggesterRoute(
       const model = models[modelName];
 
       const searchQuery = (query.q || '').trim().toLowerCase();
-
-      const isTranslatable = TRANSLATABLE_REFERENCE_TYPES.includes(getDataType(endpoint));
-      let translations = [];
-      let suggestedIds = [];
-
-      if (isTranslatable) {
-        translations = await models.TranslatedString.getReferenceDataTranslationsByDataType({
-          language,
-          refDataType: getDataType(endpoint),
-          queryString: searchQuery,
-        });
-
-        // Generate an array of actual data ids to be supplied to the search query since
-        // they wont be matched through the usual name.
-        suggestedIds = translations.map(extractDataId);
-
-        // Special case for location which is filtered by facility and its parent location group
-        // So we refine the suggestions as per these parameters.
-        if (endpoint === 'location' && query.locationGroupId) {
-          suggestedIds = (
-            await models.Location.findAll({
-              where: {
-                locationGroupId: query.locationGroupId,
-                id: suggestedIds,
-                facilityId: config.serverFacilityId,
-              },
-              attributes: ['id'],
-              raw: true,
-            })
-          ).map(({ id }) => id);
-        }
-      }
-
       const where = whereBuilder(`%${searchQuery}%`, query);
       const positionQuery = literal(
         `POSITION(LOWER(:positionMatch) in LOWER(${searchColumn})) > 1`,
       );
 
+      const isTranslatable = TRANSLATABLE_REFERENCE_TYPES.includes(getDataType(endpoint));
+
+      const translations = isTranslatable
+        ? await models.TranslatedString.getReferenceDataTranslationsByDataType({
+            language,
+            refDataType: getDataType(endpoint),
+            queryString: searchQuery,
+          })
+        : [];
+      const suggestedIds = translations.map(extractDataId);
+      
       const results = await model.findAll({
-        where: isTranslatable ? { [Op.or]: [where, { id: suggestedIds }] } : where,
+        where: isTranslatable
+          ? {
+              [Op.or]: [
+                where,
+                {
+                  id: suggestedIds,
+                  ...(query.locationGroupId
+                    ? {
+                        locationGroupId: query.locationGroupId,
+                        facilityId: config.serverFacilityId,
+                      }
+                    : {}),
+                },
+              ],
+            }
+          : where,
         order: [positionQuery, [Sequelize.literal(searchColumn), 'ASC']],
         replacements: {
           positionMatch: searchQuery,
