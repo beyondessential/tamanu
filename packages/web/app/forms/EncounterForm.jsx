@@ -77,7 +77,7 @@ export const EncounterForm = React.memo(
           />
           <Field
             name="examinerId"
-            label={<TranslatedText stringId="general.localisedField.practitioner.label.short" />}
+            label={<TranslatedText stringId="general.localisedField.practitioner.label.short" fallback="Clinician" />}
             required
             component={AutocompleteField}
             suggester={practitionerSuggester}
