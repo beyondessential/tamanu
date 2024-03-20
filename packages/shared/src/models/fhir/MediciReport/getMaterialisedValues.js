@@ -206,7 +206,9 @@ location_info as (
     distinct on(eh.encounter_id)
     eh.encounter_id,
     json_build_array(
-      json_build_object('location', coalesce(lg.name || ', ', '' ) || l.name, 
+      json_build_object('location', l.name, 
+                        'locationGroup', lg.name,
+                        'facility', f.name,
                         'assignedTime', ((case when eh.change_type is null 
                                             then e.start_date::timestamp at time zone $timezone_string 
                                             else eh.date::timestamp at time zone $timezone_string end)))) 
@@ -216,6 +218,7 @@ location_info as (
   and eh.deleted_at is null
   left join locations l on eh.location_id = l.id
   left join location_groups lg on l.location_group_id = lg.id
+  left join facilities f on l.facility_id = f.id
   where change_type isnull or change_type = 'location'
   and e.id = $encounter_id
   order by eh.encounter_id, eh.change_type nulls last, eh.date desc
