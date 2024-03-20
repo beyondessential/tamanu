@@ -5,33 +5,35 @@ import { createTestContext } from '../utilities';
 describe('ProgramRegistry', () => {
   let models;
   let app;
-  let testProgram;
   let ctx;
 
   beforeAll(async () => {
     ctx = await createTestContext();
     models = ctx.models;
     app = await ctx.baseApp.asRole('practitioner');
-
-    testProgram = await models.Program.create(fake(models.Program));
   });
   afterAll(() => ctx.close());
   afterEach(async () => {
     await models.PatientProgramRegistration.truncate();
     await models.ProgramRegistry.truncate();
+    await models.Program.truncate();
     await models.Patient.truncate({ cascade: true });
   });
+
+  const createProgramRegistry = async ({ ...params } = {}) => {
+    const program = await models.Program.create(fake(models.Program));
+    return models.ProgramRegistry.create(
+      fake(models.ProgramRegistry, { programId: program.id, ...params }),
+    );
+  };
 
   describe('Getting (GET /api/programRegistry/:id)', () => {
     let programRegistry;
 
     beforeAll(async () => {
-      programRegistry = await models.ProgramRegistry.create(
-        fake(models.ProgramRegistry, {
-          name: 'Hepatitis Registry',
-          programId: testProgram.id,
-        }),
-      );
+      programRegistry = await createProgramRegistry({
+        name: 'Hepatitis Registry',
+      });
     });
 
     it('should fetch a program registry', async () => {
@@ -44,18 +46,11 @@ describe('ProgramRegistry', () => {
 
   describe('Listing (GET /api/programRegistry)', () => {
     it('should list available program registries', async () => {
-      await models.ProgramRegistry.create(
-        fake(models.ProgramRegistry, { programId: testProgram.id }),
-      );
-      await models.ProgramRegistry.create(
-        fake(models.ProgramRegistry, {
-          programId: testProgram.id,
-          visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
-        }),
-      );
-      await models.ProgramRegistry.create(
-        fake(models.ProgramRegistry, { programId: testProgram.id }),
-      );
+      await createProgramRegistry();
+      await createProgramRegistry({
+        visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+      });
+      await createProgramRegistry();
 
       const result = await app.get('/api/programRegistry');
       expect(result).toHaveSucceeded();
@@ -69,24 +64,16 @@ describe('ProgramRegistry', () => {
       const testPatient = await models.Patient.create(fake(models.Patient));
 
       // Should show:
-      await models.ProgramRegistry.create(
-        fake(models.ProgramRegistry, { programId: testProgram.id }),
-      );
-      await models.ProgramRegistry.create(
-        fake(models.ProgramRegistry, { programId: testProgram.id }),
-      );
+      await createProgramRegistry();
+      await createProgramRegistry();
 
       // Should not show (historical):
-      await models.ProgramRegistry.create(
-        fake(models.ProgramRegistry, {
-          programId: testProgram.id,
-          visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
-        }),
-      );
+      await createProgramRegistry({
+        visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+      });
+
       // Should not show (patient already has registration):
-      const { id: registryId1 } = await models.ProgramRegistry.create(
-        fake(models.ProgramRegistry, { programId: testProgram.id }),
-      );
+      const { id: registryId1 } = await createProgramRegistry();
       await models.PatientProgramRegistration.create(
         fake(models.PatientProgramRegistration, {
           patientId: testPatient.id,
@@ -96,9 +83,7 @@ describe('ProgramRegistry', () => {
       );
 
       // Should show (patient already has registration but it's deleted):
-      const { id: registryId2 } = await models.ProgramRegistry.create(
-        fake(models.ProgramRegistry, { programId: testProgram.id }),
-      );
+      const { id: registryId2 } = await createProgramRegistry();
       await models.PatientProgramRegistration.create(
         fake(models.PatientProgramRegistration, {
           date: '2023-09-04 08:00:00',
@@ -119,9 +104,7 @@ describe('ProgramRegistry', () => {
       );
 
       // Shouldn't show (patient has a registration but it's been deleted before):
-      const { id: registryId3 } = await models.ProgramRegistry.create(
-        fake(models.ProgramRegistry, { programId: testProgram.id }),
-      );
+      const { id: registryId3 } = await createProgramRegistry();
       await models.PatientProgramRegistration.create(
         fake(models.PatientProgramRegistration, {
           date: '2023-09-04 08:00:00',
@@ -166,9 +149,7 @@ describe('ProgramRegistry', () => {
 
   describe('Listing conditions (GET /api/programRegistry/:id/conditions)', () => {
     it('should list available conditions', async () => {
-      const { id: programRegistryId } = await models.ProgramRegistry.create(
-        fake(models.ProgramRegistry, { programId: testProgram.id }),
-      );
+      const { id: programRegistryId } = await createProgramRegistry();
       await models.ProgramRegistryCondition.create(
         fake(models.ProgramRegistryCondition, { programRegistryId }),
       );
@@ -187,9 +168,7 @@ describe('ProgramRegistry', () => {
 
   describe('Listing registrations (GET /api/programRegistry/:id/registrations)', () => {
     it('should list registrations', async () => {
-      const { id: programRegistryId } = await models.ProgramRegistry.create(
-        fake(models.ProgramRegistry, { programId: testProgram.id }),
-      );
+      const { id: programRegistryId } = await createProgramRegistry();
       const CLINICAL_STATUS_DATA = {
         name: 'aa',
         color: 'blue',
@@ -276,9 +255,7 @@ describe('ProgramRegistry', () => {
 
     it('should filter by associated condition', async () => {
       // Config models
-      const { id: programRegistryId } = await models.ProgramRegistry.create(
-        fake(models.ProgramRegistry, { programId: testProgram.id }),
-      );
+      const { id: programRegistryId } = await createProgramRegistry();
       const programRegistryClinicalStatus = await models.ProgramRegistryClinicalStatus.create(
         fake(models.ProgramRegistryClinicalStatus, {
           programRegistryId,
@@ -372,9 +349,7 @@ describe('ProgramRegistry', () => {
       let registryId = null;
 
       beforeAll(async () => {
-        const { id: programRegistryId } = await models.ProgramRegistry.create(
-          fake(models.ProgramRegistry, { programId: testProgram.id }),
-        );
+        const { id: programRegistryId } = await createProgramRegistry();
         registryId = programRegistryId;
         await Promise.all(
           patientFilters.map(async ({ filter, value }) => {
