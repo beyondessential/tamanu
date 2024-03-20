@@ -57,16 +57,17 @@ const getFieldsToWrite = (models, questions, answers) => {
       throw new Error('No fieldName defined for writeToPatient config');
     }
 
-    const value = answers[dataElement.id];
-    let modelName = null;
-    let fieldName = null;
+    let modelName, fieldName;
+
     if (isCustomPatientField) {
       modelName = 'PatientFieldValue';
       fieldName = configFieldName;
     } else {
-      const data = getPatientDataDbLocation(configFieldName);
-      modelName = data.modelName;
-      fieldName = data.fieldName;
+      const { modelName: dbModelName, fieldName: dbFieldName } = getPatientDataDbLocation(
+        configFieldName,
+      );
+      modelName = dbModelName;
+      fieldName = dbFieldName;
     }
     if (!modelName) {
       throw new Error(`Unknown fieldName: ${configFieldName}`);
