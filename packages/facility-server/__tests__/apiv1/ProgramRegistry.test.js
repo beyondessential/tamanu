@@ -166,8 +166,10 @@ describe('ProgramRegistry', () => {
     });
 
     describe('Permissions', () => {
-      let appWithPermissions;
-      beforeAll(async () => {
+      disableHardcodedPermissionsForSuite();
+
+      // Skipped because this hasn't been implemented just yet!!
+      it.skip('should only list permitted registries', async () => {
         await createProgramRegistry({
           name: 'Forbidden Registry 1',
         });
@@ -180,18 +182,12 @@ describe('ProgramRegistry', () => {
         const allowedRegistryTwo = await createProgramRegistry({
           name: 'Allowed Registry 2',
         });
-
         const permissions = [
           ['list', 'ProgramRegistry', allowedRegistryOne.id],
           ['list', 'ProgramRegistry', allowedRegistryTwo.id],
         ];
-        appWithPermissions = await ctx.baseApp.asNewRole(permissions);
-      });
+        const appWithPermissions = await ctx.baseApp.asNewRole(permissions);
 
-      disableHardcodedPermissionsForSuite();
-
-      // Skipped because this hasn't been implemented just yet!!
-      it.skip('should only list permitted registries', async () => {
         const result = await appWithPermissions.get('/api/programRegistry');
         expect(result).toHaveSucceeded();
 
