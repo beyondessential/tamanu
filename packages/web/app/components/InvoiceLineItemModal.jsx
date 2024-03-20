@@ -125,9 +125,7 @@ export const InvoiceLineItemModal = ({
         validationSchema={yup.object().shape({
           // YUP-TRANSLATION TODO: is required vs are required
           invoiceLineTypeId: foreignKey().label('details'),
-          orderedById: foreignKey(
-            getTranslation('validation.rule.mustSelectOrderedBy', 'Ordered by must be selected'),
-          ),
+          orderedById: foreignKey().label('orderedBy'),
           dateGenerated: yup.date().required(),
           percentageChange: yup.number(),
         })}
