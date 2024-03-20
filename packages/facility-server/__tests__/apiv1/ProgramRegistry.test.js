@@ -44,7 +44,8 @@ describe('ProgramRegistry', () => {
         const forbiddenRegistry = await createProgramRegistry({
           name: 'Forbidden Registry',
         });
-        const appWithPermissions = await ctx.baseApp.asNewRole();
+        const permissions = [['read', 'ProgramRegistry', 'different-object-id']];
+        const appWithPermissions = await ctx.baseApp.asNewRole(permissions);
         const result = await appWithPermissions.get(`/api/programRegistry/${forbiddenRegistry.id}`);
         expect(result).toBeForbidden();
       });
