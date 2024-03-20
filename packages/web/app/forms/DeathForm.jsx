@@ -27,6 +27,7 @@ import { DeathFormScreen } from './DeathFormScreen';
 import { SummaryScreenThree, SummaryScreenTwo } from './DeathFormSummaryScreens';
 import { BINARY_OPTIONS, BINARY_UNKNOWN_OPTIONS, FORM_TYPES } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
+import { useTranslation } from '../contexts/Translation';
 
 const StyledFormGrid = styled(FormGrid)`
   min-height: 200px;
@@ -64,6 +65,7 @@ export const DeathForm = React.memo(
     icd10Suggester,
     facilitySuggester,
   }) => {
+    const { getTranslation } = useTranslation();
     const { currentUser } = useAuth();
     const canBePregnant = patient.sex === 'female' && ageInYears(patient.dateOfBirth) >= 12;
     const isInfant = ageInMonths(patient.dateOfBirth) <= 2;
@@ -86,13 +88,31 @@ export const DeathForm = React.memo(
           clinicianId: yup.string().required(),
           lastSurgeryDate: yup
             .date()
-            .max(yup.ref('timeOfDeath'), "Date of last surgery can't be after time of death"),
+            .max(
+              yup.ref('timeOfDeath'),
+              getTranslation(
+                'validation.rule.dateOfSurgeryNotAfterTimeOfDeath',
+                "Date of last surgery can't be after time of death",
+              ),
+            ),
           mannerOfDeathDate: yup
             .date()
-            .max(yup.ref('timeOfDeath'), "Manner of death date can't be after time of death"),
+            .max(
+              yup.ref('timeOfDeath'),
+              getTranslation(
+                'validation.rule.mannerOfDeathDateNotAfterTimeOfDeath',
+                "Manner of death date can't be after time of death",
+              ),
+            ),
           timeOfDeath: yup
             .date()
-            .min(patient.dateOfBirth, "Time of death can't be before date of birth")
+            .min(
+              patient.dateOfBirth,
+              getTranslation(
+                'validation.rule.timeOfDeathNotBeforeDateOfBirth',
+                "Time of death can't be before date of birth",
+              ),
+            )
             .required(),
         })}
         initialValues={{
