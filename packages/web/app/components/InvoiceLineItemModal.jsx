@@ -10,6 +10,7 @@ import { FormGrid } from './FormGrid';
 import { FormSubmitCancelRow } from './ButtonRow';
 import { FORM_TYPES } from '../constants';
 import { TranslatedText } from './Translation/TranslatedText';
+import { useTranslation } from '../contexts/Translation';
 
 export const InvoiceLineItemModal = ({
   title,
@@ -20,6 +21,7 @@ export const InvoiceLineItemModal = ({
   invoiceId,
   invoiceLineItem,
 }) => {
+  const { getTranslation } = useTranslation();
   const api = useApi();
   const invoiceLineTypeSuggester = new Suggester(api, 'invoiceLineTypes');
   const practitionerSuggester = new Suggester(api, 'practitioner');
@@ -121,9 +123,11 @@ export const InvoiceLineItemModal = ({
         initialValues={initialValues}
         formType={invoiceLineItem ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
         validationSchema={yup.object().shape({
-          // YUP-TRANSLATION TODO: foreignKey to use fallback and .label mabye
-          invoiceLineTypeId: foreignKey('Details is required'),
-          orderedById: foreignKey('Ordered by must be selected'),
+          // YUP-TRANSLATION TODO: is required vs are required
+          invoiceLineTypeId: foreignKey().label('details'),
+          orderedById: foreignKey(
+            getTranslation('validation.rule.mustSelectOrderedBy', 'Ordered by must be selected'),
+          ),
           dateGenerated: yup.date().required(),
           percentageChange: yup.number(),
         })}
