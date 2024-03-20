@@ -18,11 +18,8 @@ outputs:
     description: K8S core name (same as input)
     value: ${{ inputs.k8s-core }}
 runs:
-  using: "composite"
+  using: composite
   steps:
-    - name: Checkout this repo
-      uses: actions/checkout@v4
-
     - name: Checkout ops
       uses: actions/checkout@v4
       with:

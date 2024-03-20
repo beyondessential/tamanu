@@ -30,6 +30,7 @@ jobs:
     name: Check if image was already built
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-manifest-tool
 
       - name: Configure AWS Credentials
