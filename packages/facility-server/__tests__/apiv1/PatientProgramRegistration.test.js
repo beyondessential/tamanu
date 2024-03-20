@@ -1,4 +1,4 @@
-import { fake } from '@tamanu/shared/test-helpers';
+import { disableHardcodedPermissionsForSuite, fake } from '@tamanu/shared/test-helpers';
 import { DELETION_STATUSES, REGISTRATION_STATUSES } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
 
@@ -480,6 +480,423 @@ describe('PatientProgramRegistration', () => {
           deletionDate: '2023-09-02 08:00:00',
           deletionStatus: DELETION_STATUSES.DELETED,
         });
+      });
+    });
+  });
+
+  describe('Permissions', () => {
+    disableHardcodedPermissionsForSuite();
+
+    describe('GET /:patientId/programRegistration', () => {
+      it('should only list registrations with a permitted registry', async () => {
+        const patient = await models.Patient.create(fake(models.Patient));
+        const forbiddenRegistry = await createProgramRegistry({ name: 'Forbidden Registry' });
+        const allowedRegistry = await createProgramRegistry({ name: 'Allowed Registry' });
+
+        await models.PatientProgramRegistration.create(
+          fake(models.PatientProgramRegistration, {
+            programRegistryId: forbiddenRegistry.id,
+            clinicianId: app.user.id,
+            patientId: patient.id,
+            date: TEST_DATE_EARLY,
+          }),
+        );
+        await models.PatientProgramRegistration.create(
+          fake(models.PatientProgramRegistration, {
+            programRegistryId: allowedRegistry.id,
+            clinicianId: app.user.id,
+            patientId: patient.id,
+            date: TEST_DATE_EARLY,
+          }),
+        );
+
+        const permissions = [
+          ['read', 'ProgramRegistry', allowedRegistry.id],
+          ['read', 'Patient'],
+          ['read', 'PatientProgramRegistration'],
+          ['list', 'PatientProgramRegistration'],
+        ];
+        const appWithPermissions = await ctx.baseApp.asNewRole(permissions);
+        const result = await appWithPermissions.get(
+          `/api/patient/${patient.id}/programRegistration`,
+        );
+        expect(result).toHaveSucceeded();
+        expect(result.body.data.length).toBe(1);
+      });
+    });
+
+    describe('POST /:patientId/programRegistration', () => {
+      it('should error if program registry is forbidden', async () => {
+        const patient = await models.Patient.create(fake(models.Patient));
+        const programRegistry = await createProgramRegistry({ name: 'Forbidden Registry' });
+
+        const permissions = [
+          ['read', 'ProgramRegistry', 'different-object-id'],
+          ['read', 'Patient'],
+          ['write', 'PatientProgramRegistration'],
+          ['create', 'PatientProgramRegistration'],
+          ['create', 'PatientProgramRegistrationCondition'],
+        ];
+        const appWithPermissions = await ctx.baseApp.asNewRole(permissions);
+        const result = await appWithPermissions.post(
+          `/api/patient/${patient.id}/programRegistration`,
+        ).send({
+          programRegistryId: programRegistry.id,
+          clinicianId: app.user.id,
+          patientId: patient.id,
+          date: TEST_DATE_EARLY,
+        });
+
+        expect(result).toBeForbidden();
+      });
+
+      it('should create new registration on allowed program registry', async () => {
+        const patient = await models.Patient.create(fake(models.Patient));
+        const programRegistry = await createProgramRegistry({ name: 'Allowed Registry' });
+
+        const permissions = [
+          ['read', 'ProgramRegistry', programRegistry.id],
+          ['read', 'Patient'],
+          ['write', 'PatientProgramRegistration'],
+          ['create', 'PatientProgramRegistration'],
+          ['create', 'PatientProgramRegistrationCondition'],
+        ];
+        const appWithPermissions = await ctx.baseApp.asNewRole(permissions);
+        const result = await appWithPermissions.post(
+          `/api/patient/${patient.id}/programRegistration`,
+        ).send({
+          programRegistryId: programRegistry.id,
+          clinicianId: app.user.id,
+          patientId: patient.id,
+          date: TEST_DATE_EARLY,
+        });
+
+        expect(result).toHaveSucceeded();
+        expect(result.body.programRegistryId).toBe(programRegistry.id);
+      });
+    });
+
+    describe('GET /:patientId/programRegistration/:programRegistryId', () => {
+      it('should error if program registry is forbidden', async () => {
+        const patient = await models.Patient.create(fake(models.Patient));
+        const programRegistry = await createProgramRegistry();
+        await models.PatientProgramRegistration.create(
+          fake(models.PatientProgramRegistration, {
+            programRegistryId: programRegistry.id,
+            clinicianId: app.user.id,
+            patientId: patient.id,
+            date: TEST_DATE_EARLY,
+          }),
+        );
+
+        const permissions = [
+          ['read', 'ProgramRegistry', 'different-object-id'],
+          ['read', 'Patient'],
+          ['read', 'PatientProgramRegistration'],
+        ];
+        const appWithPermissions = await ctx.baseApp.asNewRole(permissions);
+        const result = await appWithPermissions.get(
+          `/api/patient/${patient.id}/programRegistration/${programRegistry.id}`,
+        );
+        expect(result).toBeForbidden();
+      });
+
+      it('should get latest registration on allowed program registry', async () => {
+        const patient = await models.Patient.create(fake(models.Patient));
+        const programRegistry = await createProgramRegistry();
+        await models.PatientProgramRegistration.create(
+          fake(models.PatientProgramRegistration, {
+            programRegistryId: programRegistry.id,
+            clinicianId: app.user.id,
+            patientId: patient.id,
+            date: TEST_DATE_EARLY,
+          }),
+        );
+
+        const permissions = [
+          ['read', 'ProgramRegistry', programRegistry.id],
+          ['read', 'Patient'],
+          ['read', 'PatientProgramRegistration'],
+        ];
+        const appWithPermissions = await ctx.baseApp.asNewRole(permissions);
+        const result = await appWithPermissions.get(
+          `/api/patient/${patient.id}/programRegistration/${programRegistry.id}`,
+        );
+        expect(result).toHaveSucceeded();
+      });
+    });
+
+    describe('GET /:patientId/programRegistration/:programRegistryId/history', () => {
+      it('should error if program registry is forbidden', async () => {
+        const patient = await models.Patient.create(fake(models.Patient));
+        const programRegistry = await createProgramRegistry();
+        await models.PatientProgramRegistration.create(
+          fake(models.PatientProgramRegistration, {
+            programRegistryId: programRegistry.id,
+            clinicianId: app.user.id,
+            patientId: patient.id,
+            date: TEST_DATE_EARLY,
+          }),
+        );
+
+        const permissions = [
+          ['read', 'ProgramRegistry', 'different-object-id'],
+          ['read', 'Patient'],
+          ['list', 'PatientProgramRegistration'],
+        ];
+        const appWithPermissions = await ctx.baseApp.asNewRole(permissions);
+        const result = await appWithPermissions.get(
+          `/api/patient/${patient.id}/programRegistration/${programRegistry.id}/history`,
+        );
+        expect(result).toBeForbidden();
+      });
+
+      it('should return history with permitted program registry', async () => {
+        const patient = await models.Patient.create(fake(models.Patient));
+        const programRegistry = await createProgramRegistry();
+        await models.PatientProgramRegistration.create(
+          fake(models.PatientProgramRegistration, {
+            programRegistryId: programRegistry.id,
+            clinicianId: app.user.id,
+            patientId: patient.id,
+            date: TEST_DATE_EARLY,
+          }),
+        );
+
+        const permissions = [
+          ['read', 'ProgramRegistry', programRegistry.id],
+          ['read', 'Patient'],
+          ['list', 'PatientProgramRegistration'],
+        ];
+        const appWithPermissions = await ctx.baseApp.asNewRole(permissions);
+        const result = await appWithPermissions.get(
+          `/api/patient/${patient.id}/programRegistration/${programRegistry.id}/history`,
+        );
+        expect(result).toHaveSucceeded();
+      });
+    });
+
+    describe('POST /:patientId/programRegistration/:programRegistryId/condition', () => {
+      it('should error if program registry is forbidden', async () => {
+        const patient = await models.Patient.create(fake(models.Patient));
+        const programRegistry = await createProgramRegistry();
+        await models.PatientProgramRegistration.create(
+          fake(models.PatientProgramRegistration, {
+            programRegistryId: programRegistry.id,
+            clinicianId: app.user.id,
+            patientId: patient.id,
+            date: TEST_DATE_EARLY,
+          }),
+        );
+        const programRegistryCondition = await models.ProgramRegistryCondition.create(
+          fake(models.ProgramRegistryCondition, { programRegistryId: programRegistry.id }),
+        );
+
+        const permissions = [
+          ['read', 'ProgramRegistry', 'different-object-id'],
+          ['read', 'Patient'],
+          ['read', 'PatientProgramRegistrationCondition'],
+          ['create', 'PatientProgramRegistrationCondition'],
+        ];
+        const appWithPermissions = await ctx.baseApp.asNewRole(permissions);
+        const result = await appWithPermissions
+          .post(`/api/patient/${patient.id}/programRegistration/${programRegistry.id}/condition`)
+          .send({
+            programRegistryConditionId: programRegistryCondition.id,
+            date: TEST_DATE_EARLY,
+          });
+
+        expect(result).toBeForbidden();
+      });
+
+      it('should add new condition with permitted registry', async () => {
+        const patient = await models.Patient.create(fake(models.Patient));
+        const programRegistry = await createProgramRegistry();
+        await models.PatientProgramRegistration.create(
+          fake(models.PatientProgramRegistration, {
+            programRegistryId: programRegistry.id,
+            clinicianId: app.user.id,
+            patientId: patient.id,
+            date: TEST_DATE_EARLY,
+          }),
+        );
+        const programRegistryCondition = await models.ProgramRegistryCondition.create(
+          fake(models.ProgramRegistryCondition, { programRegistryId: programRegistry.id }),
+        );
+
+        const permissions = [
+          ['read', 'ProgramRegistry', programRegistry.id],
+          ['read', 'Patient'],
+          ['read', 'PatientProgramRegistrationCondition'],
+          ['create', 'PatientProgramRegistrationCondition'],
+        ];
+        const appWithPermissions = await ctx.baseApp.asNewRole(permissions);
+        const result = await appWithPermissions
+          .post(`/api/patient/${patient.id}/programRegistration/${programRegistry.id}/condition`)
+          .send({
+            programRegistryConditionId: programRegistryCondition.id,
+            date: TEST_DATE_EARLY,
+          });
+
+        expect(result).toHaveSucceeded();
+      });
+    });
+
+    describe('GET /:patientId/programRegistration/:programRegistryId/condition', () => {
+      it('should error if program registry is forbidden', async () => {
+        const patient = await models.Patient.create(fake(models.Patient));
+        const programRegistry = await createProgramRegistry();
+        await models.PatientProgramRegistration.create(
+          fake(models.PatientProgramRegistration, {
+            programRegistryId: programRegistry.id,
+            clinicianId: app.user.id,
+            patientId: patient.id,
+            date: TEST_DATE_EARLY,
+          }),
+        );
+        const programRegistryCondition = await models.ProgramRegistryCondition.create(
+          fake(models.ProgramRegistryCondition, { programRegistryId: programRegistry.id }),
+        );
+        await models.PatientProgramRegistrationCondition.create(
+          fake(models.PatientProgramRegistrationCondition, {
+            patientId: patient.id,
+            programRegistryId: programRegistry.id,
+            programRegistryConditionId: programRegistryCondition.id,
+            deletionStatus: null,
+          }),
+        );
+
+        const permissions = [
+          ['read', 'ProgramRegistry', 'different-object-id'],
+          ['read', 'Patient'],
+          ['list', 'PatientProgramRegistrationCondition'],
+        ];
+        const appWithPermissions = await ctx.baseApp.asNewRole(permissions);
+        const result = await appWithPermissions.get(
+          `/api/patient/${patient.id}/programRegistration/${programRegistry.id}/condition`,
+        );
+        expect(result).toHaveSucceeded();
+      });
+
+      it('should get patient conditions with permitted registry', async () => {
+        const patient = await models.Patient.create(fake(models.Patient));
+        const programRegistry = await createProgramRegistry();
+        await models.PatientProgramRegistration.create(
+          fake(models.PatientProgramRegistration, {
+            programRegistryId: programRegistry.id,
+            clinicianId: app.user.id,
+            patientId: patient.id,
+            date: TEST_DATE_EARLY,
+          }),
+        );
+        const programRegistryCondition = await models.ProgramRegistryCondition.create(
+          fake(models.ProgramRegistryCondition, { programRegistryId: programRegistry.id }),
+        );
+        await models.PatientProgramRegistrationCondition.create(
+          fake(models.PatientProgramRegistrationCondition, {
+            patientId: patient.id,
+            programRegistryId: programRegistry.id,
+            programRegistryConditionId: programRegistryCondition.id,
+            deletionStatus: null,
+          }),
+        );
+
+        const permissions = [
+          ['read', 'ProgramRegistry', programRegistry.id],
+          ['read', 'Patient'],
+          ['list', 'PatientProgramRegistrationCondition'],
+        ];
+        const appWithPermissions = await ctx.baseApp.asNewRole(permissions);
+        const result = await appWithPermissions.get(
+          `/api/patient/${patient.id}/programRegistration/${programRegistry.id}/condition`,
+        );
+        expect(result).toHaveSucceeded();
+      });
+    });
+
+    describe('DELETE /:patientId/programRegistration/:programRegistryId/condition/:conditionId', () => {
+      it('should error if program registry is forbidden', async () => {
+        const patient = await models.Patient.create(fake(models.Patient));
+        const programRegistry = await createProgramRegistry();
+        await models.PatientProgramRegistration.create(
+          fake(models.PatientProgramRegistration, {
+            programRegistryId: programRegistry.id,
+            clinicianId: app.user.id,
+            patientId: patient.id,
+            date: TEST_DATE_EARLY,
+          }),
+        );
+        const programRegistryCondition = await models.ProgramRegistryCondition.create(
+          fake(models.ProgramRegistryCondition, { programRegistryId: programRegistry.id }),
+        );
+        const condition = await models.PatientProgramRegistrationCondition.create(
+          fake(models.PatientProgramRegistrationCondition, {
+            patientId: patient.id,
+            programRegistryId: programRegistry.id,
+            programRegistryConditionId: programRegistryCondition.id,
+            deletionStatus: null,
+          }),
+        );
+
+        const permissions = [
+          ['read', 'ProgramRegistry', 'different-object-id'],
+          ['read', 'Patient'],
+          ['delete', 'PatientProgramRegistrationCondition'],
+        ];
+        const appWithPermissions = await ctx.baseApp.asNewRole(permissions);
+        const result = await appWithPermissions
+          .delete(
+            `/api/patient/${patient.id}/programRegistration/${programRegistry.id}/condition/${condition.id}`,
+          )
+          .send({
+            programRegistryConditionId: programRegistryCondition.id,
+            deletionClinicianId: app.user.id,
+            deletionDate: TEST_DATE_EARLY,
+          });
+
+        expect(result).toBeForbidden();
+      });
+
+      it('should delete condition with permitted program registry', async () => {
+        const patient = await models.Patient.create(fake(models.Patient));
+        const programRegistry = await createProgramRegistry();
+        await models.PatientProgramRegistration.create(
+          fake(models.PatientProgramRegistration, {
+            programRegistryId: programRegistry.id,
+            clinicianId: app.user.id,
+            patientId: patient.id,
+            date: TEST_DATE_EARLY,
+          }),
+        );
+        const programRegistryCondition = await models.ProgramRegistryCondition.create(
+          fake(models.ProgramRegistryCondition, { programRegistryId: programRegistry.id }),
+        );
+        const condition = await models.PatientProgramRegistrationCondition.create(
+          fake(models.PatientProgramRegistrationCondition, {
+            patientId: patient.id,
+            programRegistryId: programRegistry.id,
+            programRegistryConditionId: programRegistryCondition.id,
+            deletionStatus: null,
+          }),
+        );
+
+        const permissions = [
+          ['read', 'ProgramRegistry', programRegistry.id],
+          ['read', 'Patient'],
+          ['delete', 'PatientProgramRegistrationCondition'],
+        ];
+        const appWithPermissions = await ctx.baseApp.asNewRole(permissions);
+        const result = await appWithPermissions
+          .delete(
+            `/api/patient/${patient.id}/programRegistration/${programRegistry.id}/condition/${condition.id}`,
+          )
+          .send({
+            programRegistryConditionId: programRegistryCondition.id,
+            deletionClinicianId: app.user.id,
+            deletionDate: TEST_DATE_EARLY,
+          });
+
+        expect(result).toHaveSucceeded();
       });
     });
   });
