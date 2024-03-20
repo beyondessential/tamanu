@@ -437,6 +437,10 @@ describe('PatientProgramRegistration', () => {
       });
     });
 
+    describe('GET patient/:patientId/programRegistration/:programRegistryId/condition', () => {
+      it.todo('should retrieve current patient program registration conditions');
+    });
+
     describe('DELETE patient/:patientId/programRegistration/:programRegistryId/condition', () => {
       it('Deletes a condition', async () => {
         const clinician = await models.User.create(fake(models.User));
