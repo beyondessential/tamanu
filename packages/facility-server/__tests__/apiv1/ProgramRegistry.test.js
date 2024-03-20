@@ -28,16 +28,10 @@ describe('ProgramRegistry', () => {
   };
 
   describe('Getting (GET /api/programRegistry/:id)', () => {
-    let programRegistry;
-
-    beforeAll(async () => {
-      programRegistry = await createProgramRegistry({
+    it('should fetch a program registry', async () => {
+      const { id } = await createProgramRegistry({
         name: 'Hepatitis Registry',
       });
-    });
-
-    it('should fetch a program registry', async () => {
-      const { id } = programRegistry;
       const result = await app.get(`/api/programRegistry/${id}`);
       expect(result).toHaveSucceeded();
       expect(result.body).toHaveProperty('name', 'Hepatitis Registry');
