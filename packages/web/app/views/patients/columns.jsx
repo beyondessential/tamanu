@@ -77,7 +77,7 @@ export const dateOfDeath = {
 
 export const village = {
   key: 'villageName',
-  title: <TranslatedText stringId="general.localisedField.villageName.label" fallback="Village" />,
+  title: <TranslatedText stringId="general.localisedField.villageId.label" fallback="Village" />,
   minWidth: 100,
   accessor: row => row?.villageName || null,
 };

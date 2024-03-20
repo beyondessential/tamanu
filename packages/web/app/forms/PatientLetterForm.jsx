@@ -68,7 +68,7 @@ const PatientLetterFormContents = ({ submitForm, onCancel, setValues }) => {
       <FormGrid columns={2} nested>
         <Field
           name="clinicianId"
-          label={<TranslatedText stringId="general.clinican.label" fallback="Clinician" />}
+          label={<TranslatedText stringId="general.clinician.label" fallback="Clinician" />}
           required
           component={AutocompleteField}
           suggester={practitionerSuggester}
@@ -84,18 +84,14 @@ const PatientLetterFormContents = ({ submitForm, onCancel, setValues }) => {
       <StyledFormGrid columns={1}>
         <Field
           name="templateId"
-          label={
-            <TranslatedText stringId="patientLetter.template.label" fallback="Template" />
-          }
+          label={<TranslatedText stringId="patientLetter.template.label" fallback="Template" />}
           suggester={patientLetterTemplateSuggester}
           component={AutocompleteField}
           onChange={e => onChangeTemplate(e.target.value)}
         />
         <Field
           name="title"
-          label={
-            <TranslatedText stringId="patientLetter.title.label" fallback="Letter title" />
-          }
+          label={<TranslatedText stringId="patientLetter.title.label" fallback="Letter title" />}
           required
           component={TextField}
           disabled={templateLoading}
