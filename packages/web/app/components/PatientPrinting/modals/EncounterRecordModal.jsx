@@ -25,7 +25,6 @@ import { ForbiddenErrorModalContents } from '../../ForbiddenErrorModal';
 import { ModalActionRow } from '../../ModalActionRow';
 import { printPDF } from '../PDFViewer.jsx';
 import { TranslatedText } from '../../Translation/TranslatedText';
-import { LowerCase } from '../../Typography';
 import { useVitals } from '../../../api/queries/useVitals';
 import { DateDisplay, formatShortest, formatTime } from '../../DateDisplay';
 import { useTranslation } from '../../../contexts/Translation';
