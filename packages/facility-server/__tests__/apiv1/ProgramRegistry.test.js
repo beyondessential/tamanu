@@ -68,6 +68,13 @@ describe('ProgramRegistry', () => {
   });
 
   describe('Listing (GET /api/programRegistry)', () => {
+    beforeEach(async () => {
+      await models.PatientProgramRegistration.truncate();
+      await models.ProgramRegistry.truncate();
+      await models.Program.truncate();
+      await models.Patient.truncate({ cascade: true });
+    });
+
     it('should list available program registries', async () => {
       await createProgramRegistry();
       await createProgramRegistry({
@@ -190,6 +197,13 @@ describe('ProgramRegistry', () => {
   });
 
   describe('Listing registrations (GET /api/programRegistry/:id/registrations)', () => {
+    beforeEach(async () => {
+      await models.PatientProgramRegistration.truncate();
+      await models.ProgramRegistry.truncate();
+      await models.Program.truncate();
+      await models.Patient.truncate({ cascade: true });
+    });
+
     it('should list registrations', async () => {
       const { id: programRegistryId } = await createProgramRegistry();
       const CLINICAL_STATUS_DATA = {
