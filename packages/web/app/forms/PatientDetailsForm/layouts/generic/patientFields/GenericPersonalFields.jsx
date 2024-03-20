@@ -18,7 +18,7 @@ import { ConfiguredMandatoryPatientFields } from '../../../ConfiguredMandatoryPa
 import { usePatientSuggester, useSuggester } from '../../../../../api';
 import { TranslatedText } from '../../../../../components/Translation/TranslatedText';
 
-export const GenericPersonalFields = ({ patientRegistryType, filterByMandatory }) => {
+export const GenericPersonalFields = ({ patientRegistryType, filterByMandatory, isExistedPatient = false }) => {
   const countrySuggester = useSuggester('country');
   const ethnicitySuggester = useSuggester('ethnicity');
   const nationalitySuggester = useSuggester('nationality');
@@ -36,7 +36,7 @@ export const GenericPersonalFields = ({ patientRegistryType, filterByMandatory }
     maritalStatus: {
       component: SelectField,
       options: MARITAL_STATUS_OPTIONS,
-      condition: () => patientRegistryType === PATIENT_REGISTRY_TYPES.NEW_PATIENT,
+      condition: () => patientRegistryType === PATIENT_REGISTRY_TYPES.NEW_PATIENT || isExistedPatient,
       label: (
         <TranslatedText
           stringId="general.localisedField.maritalStatus.label"
@@ -99,7 +99,7 @@ export const GenericPersonalFields = ({ patientRegistryType, filterByMandatory }
     educationalLevel: {
       component: SelectField,
       options: EDUCATIONAL_ATTAINMENT_OPTIONS,
-      condition: () => patientRegistryType === PATIENT_REGISTRY_TYPES.NEW_PATIENT,
+      condition: () => patientRegistryType === PATIENT_REGISTRY_TYPES.NEW_PATIENT || isExistedPatient,
       label: (
         <TranslatedText
           stringId="general.localisedField.educationalLevel.label"
@@ -111,7 +111,7 @@ export const GenericPersonalFields = ({ patientRegistryType, filterByMandatory }
     occupationId: {
       component: AutocompleteField,
       suggester: occupationSuggester,
-      condition: () => patientRegistryType === PATIENT_REGISTRY_TYPES.NEW_PATIENT,
+      condition: () => patientRegistryType === PATIENT_REGISTRY_TYPES.NEW_PATIENT || isExistedPatient,
       label: (
         <TranslatedText
           stringId="general.localisedField.occupationId.label"
@@ -122,7 +122,7 @@ export const GenericPersonalFields = ({ patientRegistryType, filterByMandatory }
     socialMedia: {
       component: SelectField,
       options: SOCIAL_MEDIA_OPTIONS,
-      condition: () => patientRegistryType === PATIENT_REGISTRY_TYPES.NEW_PATIENT,
+      condition: () => patientRegistryType === PATIENT_REGISTRY_TYPES.NEW_PATIENT || isExistedPatient,
       label: (
         <TranslatedText
           stringId="general.localisedField.socialMedia.label"
