@@ -1,5 +1,5 @@
 import { REGISTRATION_STATUSES, VISIBILITY_STATUSES } from '@tamanu/constants';
-import { fake } from '@tamanu/shared/test-helpers';
+import { disableHardcodedPermissionsForSuite, fake } from '@tamanu/shared/test-helpers';
 import { createTestContext } from '../utilities';
 
 describe('ProgramRegistry', () => {
@@ -35,6 +35,35 @@ describe('ProgramRegistry', () => {
       const result = await app.get(`/api/programRegistry/${id}`);
       expect(result).toHaveSucceeded();
       expect(result.body).toHaveProperty('name', 'Hepatitis Registry');
+    });
+
+    describe('Permissions', () => {
+      let forbiddenRegistry;
+      let allowedRegistry;
+      let appWithPermissions;
+      beforeAll(async () => {
+        forbiddenRegistry = await createProgramRegistry({
+          name: 'Forbidden Registry',
+        });
+        allowedRegistry = await createProgramRegistry({
+          name: 'Allowed Registry',
+        });
+        appWithPermissions = await ctx.baseApp.asNewRole([['read', 'programRegistry', allowedRegistry.id]]);
+      });
+
+      disableHardcodedPermissionsForSuite();
+
+      it('should error on forbidden registries', async () => {
+        const result = await appWithPermissions.get(`/api/programRegistry/${forbiddenRegistry.id}`);
+        expect(result).toBeForbidden();
+      });
+
+      // Skipped because this hasn't been implemented just yet!!
+      it.skip('should only return permitted registries', async () => {
+        const result = await appWithPermissions.get(`/api/programRegistry/${allowedRegistry.id}`);
+        expect(result).toHaveSucceeded();
+        expect(result.body).toHaveProperty('name', allowedRegistry.name);
+      });
     });
   });
 
