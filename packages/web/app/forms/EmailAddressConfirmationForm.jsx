@@ -1,12 +1,14 @@
 import React from 'react';
 import * as Yup from 'yup';
 import { useSelector } from 'react-redux';
+import { useTranslation } from '../contexts/Translation';
 
 import { FormSubmitCancelRow } from '../components/ButtonRow';
 import { Field, Form, TextField } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 
 export const EmailAddressConfirmationForm = React.memo(({ onCancel, onSubmit }) => {
+  const { getTranslation } = useTranslation();
   const patient = useSelector(state => state.patient);
 
   return (
@@ -15,10 +17,13 @@ export const EmailAddressConfirmationForm = React.memo(({ onCancel, onSubmit }) 
       initialValues={{ email: patient.email }}
       validationSchema={Yup.object().shape({
         email: Yup.string()
-          .email('Must be a valid email address')
-          .required('Email is required'),
+          .email(getTranslation('validation.rule.validEmail', 'Must be a valid email address'))
+          .required(),
         confirmEmail: Yup.string()
-          .oneOf([Yup.ref('email'), null], 'Emails must match')
+          .oneOf(
+            [Yup.ref('email'), null],
+            getTranslation('validation.rule.emailMatch', 'Emails must match'),
+          )
           .required(),
       })}
       render={({ submitForm }) => (
