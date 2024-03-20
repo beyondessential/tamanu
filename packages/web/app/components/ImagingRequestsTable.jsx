@@ -20,7 +20,7 @@ const StatusDisplay = React.memo(({ status }) => {
   const {
     background = '#EDEDED',
     color = '#444444;',
-    label = <TranslatedText stringId="general.unkown" fallback="Unknown" />,
+    label = <TranslatedText stringId="general.fallback.unknown" fallback="Unknown" />,
   } = IMAGING_REQUEST_STATUS_CONFIG[status];
 
   return (
