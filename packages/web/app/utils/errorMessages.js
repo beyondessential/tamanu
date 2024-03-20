@@ -9,10 +9,10 @@ function splitFieldName(name) {
   return joined;
 }
 
-export function registerYup() {
+export function registerYup(defaultMessage = ':path is required') {
   setLocale({
     mixed: {
-      required: ({ path }) => `${splitFieldName(path)} is required`,
+      required: ({ path }) => defaultMessage.replace(':path', splitFieldName(path)),
     },
   });
 }

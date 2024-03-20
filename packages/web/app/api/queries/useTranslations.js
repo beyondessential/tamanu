@@ -1,6 +1,8 @@
 import { useApi } from '../useApi.js';
 import { useQuery } from '@tanstack/react-query';
 
+import { registerYup } from '../../utils/errorMessages.js';
+
 export const useTranslations = (language = 'en') => {
   const api = useApi();
   return useQuery(
@@ -12,6 +14,11 @@ export const useTranslations = (language = 'en') => {
       staleTime: 1000 * 60 * 60, // 1 hour
       cacheTime: 1000 * 60 * 60, // 1 hour
       refetchOnWindowFocus: false,
+      onSettled: data => {
+        const validationTranslation = data['general.validation.required'];
+        if (!validationTranslation) return;
+        registerYup(validationTranslation);
+      },
     },
   );
 };
