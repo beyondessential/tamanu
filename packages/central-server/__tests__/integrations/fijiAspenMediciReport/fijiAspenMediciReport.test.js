@@ -43,7 +43,7 @@ const createLocalDateTimeStringFromUTC = (
 const fakeAllData = async (models, ctx) => {
   const { id: userId } = await models.User.create(fake(models.User));
   const { id: examinerId } = await models.User.create(fake(models.User));
-  const { id: facilityId } = await models.Facility.create(fake(models.Facility));
+  const { id: facilityId } = await models.Facility.create(fake(models.Facility, { name: 'Ba Hospital' }));
   const { id: departmentId } = await models.Department.create(
     fake(models.Department, { facilityId, name: 'Emergency dept.' }),
   );
@@ -472,6 +472,7 @@ describe('fijiAspenMediciReport', () => {
         // Location/Department
         locations: [
           {
+            facility: 'Ba Hospital',
             location: 'Emergency room 2',
             locationGroup: 'Emergency Department',
             assignedTime: '2022-06-09T08:04:54+00:00',
