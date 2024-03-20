@@ -9,9 +9,9 @@
     "logs": "firebase functions:log"
   },
   "dependencies": {
-    "firebase-admin": "^8.10.0",
+    "firebase-admin": "^12.0.0",
     "firebase-functions": "^3.6.1",
-    "json-server": "^0.16.1"
+    "json-server": "^1.0.0-alpha.23"
   },
   "devDependencies": {
     "firebase-functions-test": "^0.2.0"
