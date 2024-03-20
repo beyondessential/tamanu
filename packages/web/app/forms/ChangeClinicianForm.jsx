@@ -48,7 +48,10 @@ export const ChangeClinicianForm = ({ clinicianSuggester, onCancel, onSubmit }) 
       }}
       validationSchema={yup.object().shape({
         // Yup TODO: Add a label for examinerId
-        examinerId: yup.string().required('Required'),
+        examinerId: yup
+          .string()
+          .required()
+          .label('clinician'),
       })}
       formType={FORM_TYPES.EDIT_FORM}
       render={renderForm}
