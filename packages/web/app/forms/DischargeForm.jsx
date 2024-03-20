@@ -368,7 +368,8 @@ export const DischargeForm = ({
         discharge: yup
           .object()
           .shape({
-            dischargerId: foreignKey('Required'),
+            // YUP TODO: localised clinician
+            dischargerId: foreignKey().label('clinician'),
           })
           .shape({
             dispositionId: getLocalisedSchema({

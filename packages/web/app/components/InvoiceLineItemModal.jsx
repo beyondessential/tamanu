@@ -10,7 +10,6 @@ import { FormGrid } from './FormGrid';
 import { FormSubmitCancelRow } from './ButtonRow';
 import { FORM_TYPES } from '../constants';
 import { TranslatedText } from './Translation/TranslatedText';
-import { useTranslation } from '../contexts/Translation';
 
 export const InvoiceLineItemModal = ({
   title,
@@ -21,7 +20,6 @@ export const InvoiceLineItemModal = ({
   invoiceId,
   invoiceLineItem,
 }) => {
-  const { getTranslation } = useTranslation();
   const api = useApi();
   const invoiceLineTypeSuggester = new Suggester(api, 'invoiceLineTypes');
   const practitionerSuggester = new Suggester(api, 'practitioner');

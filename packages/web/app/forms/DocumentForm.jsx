@@ -83,9 +83,7 @@ const DocumentFormContents = ({ submitForm, departmentSuggester, onCancel }) => 
       />
       <Field
         name="documentOwner"
-        label={
-          <TranslatedText stringId="document.documentOwner.label" fallback="Document owner" />
-        }
+        label={<TranslatedText stringId="document.documentOwner.label" fallback="Document owner" />}
         component={TextField}
       />
       <Field
@@ -169,8 +167,8 @@ export const DocumentForm = ({ onStart, onSubmit, onError, onCancel, editedObjec
         ...editedObject,
       }}
       validationSchema={yup.object().shape({
-        file: yup.string().required('Please select a file to complete this request'),
-        name: foreignKey('File name is required'),
+        file: yup.string().required(),
+        name: foreignKey().label('fileName'),
       })}
     />
   );
