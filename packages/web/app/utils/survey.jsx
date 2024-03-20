@@ -207,14 +207,12 @@ function transformPatientData(patient, additionalData, patientProgramRegistratio
         case 'PatientProgramRegistration':
           return patientProgramRegistration ? patientProgramRegistration[fieldName] : undefined;
         default: {
-          // Look up custom patient fields
+          // Check for custom patient fields
           const { fieldValues } = patient;
           const fieldValue = fieldValues.find(x => x.definitionId === column);
-          if (fieldValue) {
-            return fieldValue.value;
-          } else {
-            return undefined;
-          }
+          if (fieldValue) return fieldValue.value;
+
+          return undefined;
         }
       }
     }
