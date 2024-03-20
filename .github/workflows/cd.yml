@@ -30,9 +30,6 @@ jobs:
     name: Check if image was already built
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/actions/setup-manifest-tool
-
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -40,20 +37,20 @@ jobs:
           role-to-assume: arn:aws:iam::143295493206:role/gha-image-push
           role-session-name: GHA@Tamanu=CheckImages
 
-      - name: Login to ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
-
       - id: check
         run: |
           for repo in central facility frontend meta; do
-            if manifest-tool inspect --raw ${{ steps.login-ecr.outputs.registry }}/tamanu/$repo:sha-${{ github.sha }} 2>&1 >/dev/null; then
-              echo Image found for $repo, assuming existence
-              echo exists=true >> $GITHUB_OUTPUT
+            desc=$(aws ecr describe-images --repository-name=tamanu/$repo --image-ids=imageTag=sha-${{ github.sha }} 2>/dev/null || true)
+            if [[ -z "$desc" ]]; then
+              echo $repo image not found
+            else
+              jq -c . <<< "$desc"
+              echo $repo image found, assuming existence
+              echo exists=true | tee -a $GITHUB_OUTPUT
               exit
             fi
           done
-          echo exists=false >> $GITHUB_OUTPUT
+          echo exists=false | tee -a $GITHUB_OUTPUT
     outputs:
       exists: ${{ steps.check.outputs.exists }}
 
