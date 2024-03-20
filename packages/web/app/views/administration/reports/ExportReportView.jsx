@@ -38,7 +38,7 @@ export const ExportReportView = () => {
       await saveFile({
         defaultFileName: filename,
         data,
-        extensions: [format],
+        extension: format,
       });
     } catch (err) {
       toast.error(`Failed to export: ${err.message}`);
