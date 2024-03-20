@@ -63,6 +63,7 @@ export const AppointmentForm = props => {
           .required()
           .label('appointmentType'),
         startTime: yup.string().required(),
+        // YUP TODO: Add a label for clinicianId
         clinicianId: yup
           .string()
           .required()
