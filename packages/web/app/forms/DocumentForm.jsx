@@ -15,6 +15,7 @@ import { FormGrid } from '../components/FormGrid';
 import { ConfirmCancelRow, FormSubmitCancelRow } from '../components/ButtonRow';
 import { FORM_TYPES } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
+import { useTranslation } from '../contexts/Translation';
 
 const MessageContainer = styled.div`
   margin: 0 auto;
@@ -109,6 +110,7 @@ const DocumentFormContents = ({ submitForm, departmentSuggester, onCancel }) => 
 
 export const DocumentForm = ({ onStart, onSubmit, onError, onCancel, editedObject, endpoint }) => {
   const api = useApi();
+  const { getTranslation } = useTranslation();
   const [error, setError] = useState(false);
 
   const departmentSuggester = new Suggester(api, 'department', {
@@ -167,7 +169,14 @@ export const DocumentForm = ({ onStart, onSubmit, onError, onCancel, editedObjec
         ...editedObject,
       }}
       validationSchema={yup.object().shape({
-        file: yup.string().required(),
+        file: yup
+          .string()
+          .required(
+            getTranslation(
+              'validation.required.file',
+              'Please select a file to complete this request',
+            ),
+          ),
         name: foreignKey().label('fileName'),
       })}
     />
