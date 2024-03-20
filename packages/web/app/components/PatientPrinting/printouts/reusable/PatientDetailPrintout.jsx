@@ -88,7 +88,7 @@ export const PatientDetailPrintout = React.memo(
           <LocalisedLabel
             label={
               <TranslatedText
-                stringId="general.localisedField.villageName.label"
+                stringId="general.localisedField.villageId.label"
                 fallback="Village"
               />
             }
