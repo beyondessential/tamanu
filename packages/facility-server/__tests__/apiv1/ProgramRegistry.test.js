@@ -168,7 +168,7 @@ describe('ProgramRegistry', () => {
     describe('Permissions', () => {
       disableHardcodedPermissionsForSuite();
 
-      it.skip('should only list permitted registries', async () => {
+      it('should only list permitted registries', async () => {
         await createProgramRegistry({
           name: 'Forbidden Registry 1',
         });
@@ -218,7 +218,7 @@ describe('ProgramRegistry', () => {
     describe('Permissions', () => {
       disableHardcodedPermissionsForSuite();
 
-      it.skip('should error if program registry is forbidden', async () => {
+      it('should error if program registry is forbidden', async () => {
         const { id: programRegistryId } = await createProgramRegistry();
         await models.ProgramRegistryCondition.create(
           fake(models.ProgramRegistryCondition, { programRegistryId }),
@@ -234,7 +234,7 @@ describe('ProgramRegistry', () => {
         expect(result).toBeForbidden();
       });
 
-      it.skip('should show conditions if program registry is permitted', async () => {
+      it('should show conditions if program registry is permitted', async () => {
         const { id: programRegistryId } = await createProgramRegistry();
         await models.ProgramRegistryCondition.create(
           fake(models.ProgramRegistryCondition, { programRegistryId }),
@@ -476,7 +476,7 @@ describe('ProgramRegistry', () => {
     describe('Permissions', () => {
       disableHardcodedPermissionsForSuite();
 
-      it.skip('should error if program registry is forbidden', async () => {
+      it('should error if program registry is forbidden', async () => {
         const { id: programRegistryId } = await createProgramRegistry();
         const { id: patientId } = await models.Patient.create(fake(models.Patient));
         const { id: clinicalStatusId } = await models.ProgramRegistryClinicalStatus.create(
@@ -510,7 +510,7 @@ describe('ProgramRegistry', () => {
         expect(body.data.length).toEqual(2);
       });
 
-      it.skip('should show registrations if program registry is permitted', async () => {
+      it('should show registrations if program registry is permitted', async () => {
         const { id: programRegistryId } = await createProgramRegistry();
         const { id: patientId } = await models.Patient.create(fake(models.Patient));
         const { id: clinicalStatusId } = await models.ProgramRegistryClinicalStatus.create(
