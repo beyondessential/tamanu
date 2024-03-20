@@ -1,0 +1,12 @@
+name: Setup manifest-tool
+description: Set up manifest-tool
+runs:
+  using: composite
+  steps:
+    - name: Install manifest-tool
+      shell: bash
+      run: |
+        curl -sLo manifest-tool.tar.gz https://github.com/estesp/manifest-tool/releases/download/v2.1.5/binaries-manifest-tool-2.1.5.tar.gz
+        tar -xvf manifest-tool.tar.gz manifest-tool-linux-amd64
+        mv manifest-tool-linux-amd64 manifest-tool
+        sudo install -m755 manifest-tool /usr/local/bin/manifest-tool

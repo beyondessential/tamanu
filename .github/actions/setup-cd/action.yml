@@ -1,0 +1,80 @@
+name: CD Setup
+description: Set up Pulumi, Tailscale, and K8S
+inputs:
+  ops-ssh-key:
+    description: SSH key for ops repo
+    required: true
+  tailscale-oauth:
+    description: Tailscale OAuth key
+    required: true
+  k8s-core:
+    description: K8S core name
+    required: true
+outputs:
+  stack-name:
+    description: Normalised stack name
+    value: ${{ steps.stack.outputs.result }}
+  k8s-core:
+    description: K8S core name (same as input)
+    value: ${{ inputs.k8s-core }}
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout this repo
+      uses: actions/checkout@v4
+
+    - name: Checkout ops
+      uses: actions/checkout@v4
+      with:
+        repository: beyondessential/ops
+        ssh-key: ${{ inputs.ops-ssh-key }}
+        path: ops
+        ref: main
+    - name: Remove ops/.git so pulumi doesn't get confused
+      shell: bash
+      run: rm -rf ops/.git
+
+    - name: Install Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20.x
+        cache: npm
+
+    - name: Prepare pulumi
+      shell: bash
+      working-directory: ops/pulumi
+      run: npm ci
+
+    - name: Connect to Tailscale
+      uses: tailscale/github-action@v2
+      with:
+        oauth-secret: ${{ inputs.tailscale-oauth }}
+        tags: tag:infra,tag:infra-gha-deploy
+
+    - name: Configure kubeconfig
+      shell: bash
+      run: tailscale configure kubeconfig k8s-operator-${{ inputs.k8s-core }}
+
+    - name: Test kubernetes cluster for readiness
+      shell: bash
+      run: kubectl get namespace/tamanu-system
+
+    # derive the stack name from the branch
+    # changing this will create a new stack
+    - name: Normalise branch/ref name
+      uses: actions/github-script@v7
+      id: stack
+      env:
+        GH_HEAD_REF: ${{ github.head_ref }}
+        GH_REF_NAME: ${{ github.ref_name }}
+      with:
+        result-encoding: string
+        script: |
+          return ((process.env.GH_HEAD_REF || process.env.GH_REF_NAME)
+            .toLowerCase()
+            .replace(/[^a-z0-9-]/g, '-')
+            .replace(/-+/g, '-')
+            .replace(/^-|-$/g, ''));
+
+    - name: Pre-install pulumi
+      uses: pulumi/actions@v5
