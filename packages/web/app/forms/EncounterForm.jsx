@@ -68,16 +68,19 @@ export const EncounterForm = React.memo(
           />
           <Field
             name="departmentId"
-            label={
-              <TranslatedText stringId="general.department.label" fallback="Department" />
-            }
+            label={<TranslatedText stringId="general.department.label" fallback="Department" />}
             required
             component={AutocompleteField}
             suggester={departmentSuggester}
           />
           <Field
             name="examinerId"
-            label={<TranslatedText stringId="general.localisedField.practitioner.label.short" fallback="Clinician" />}
+            label={
+              <TranslatedText
+                stringId="general.localisedField.practitioner.label.short"
+                fallback="Clinician"
+              />
+            }
             required
             component={AutocompleteField}
             suggester={practitionerSuggester}
@@ -147,9 +150,10 @@ export const EncounterForm = React.memo(
         }}
         formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
         validationSchema={yup.object().shape({
-          examinerId: foreignKey('Required'),
-          locationId: foreignKey('Location is required'),
-          departmentId: foreignKey('Department is required'),
+          // YUp TODO: localised clinician
+          examinerId: foreignKey().label('clinician'),
+          locationId: foreignKey().label('location'),
+          departmentId: foreignKey().label('department'),
           startDate: yup.date().required(),
           encounterType: yup
             .string()
