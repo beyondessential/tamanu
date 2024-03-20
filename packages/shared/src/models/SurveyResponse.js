@@ -8,11 +8,7 @@ import { InvalidOperationError } from '../errors';
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 import { runCalculations } from '../utils/calculations';
-import {
-  getActiveActionComponents,
-  getResultValue,
-  getStringValue,
-} from '../utils/fields';
+import { getActiveActionComponents, getResultValue, getStringValue } from '../utils/fields';
 import { getPatientDataDbLocation } from '../utils/getPatientDataDbLocation';
 import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
@@ -56,13 +52,22 @@ const getFieldsToWrite = (models, questions, answers) => {
       continue;
     }
 
-    const { fieldName: configFieldName } = config.writeToPatient || {};
+    const { fieldName: configFieldName, isCustomPatientField } = config.writeToPatient || {};
     if (!configFieldName) {
       throw new Error('No fieldName defined for writeToPatient config');
     }
 
     const value = answers[dataElement.id];
-    const { modelName, fieldName } = getPatientDataDbLocation(configFieldName);
+    let modelName = null;
+    let fieldName = null;
+    if (isCustomPatientField) {
+      modelName = 'PatientFieldValue';
+      fieldName = configFieldName;
+    } else {
+      const data = getPatientDataDbLocation(configFieldName);
+      modelName = data.modelName;
+      fieldName = data.fieldName;
+    }
     if (!modelName) {
       throw new Error(`Unknown fieldName: ${configFieldName}`);
     }
@@ -90,6 +95,11 @@ async function writeToPatientFields(
   if (valuesByModel.Patient) {
     const patient = await models.Patient.findByPk(patientId);
     await patient.update(valuesByModel.Patient);
+  }
+
+  if (valuesByModel.PatientFieldValue) {
+    const patient = await models.Patient.findByPk(patientId);
+    await patient.writeFieldValues(valuesByModel.PatientFieldValue);
   }
 
   if (valuesByModel.PatientAdditionalData) {
@@ -253,14 +263,7 @@ export class SurveyResponse extends Model {
       throw new Error('SurveyResponse.createWithAnswers must always run inside a transaction!');
     }
     const { models } = this.sequelize;
-    const {
-      answers,
-      surveyId,
-      patientId,
-      encounterId,
-      forceNewEncounter,
-      ...responseData
-    } = data;
+    const { answers, surveyId, patientId, encounterId, forceNewEncounter, ...responseData } = data;
 
     // ensure survey exists
     const survey = await models.Survey.findByPk(surveyId);
