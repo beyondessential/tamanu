@@ -175,6 +175,42 @@ describe('ProgramRegistry', () => {
       expect(result).toHaveSucceeded();
       expect(result.body.data.length).toBe(0);
     });
+
+    describe('Permissions', () => {
+      let appWithPermissions;
+      beforeAll(async () => {
+        await createProgramRegistry({
+          name: 'Forbidden Registry 1',
+        });
+        await createProgramRegistry({
+          name: 'Forbidden Registry 2',
+        });
+        const allowedRegistryOne = await createProgramRegistry({
+          name: 'Allowed Registry 1',
+        });
+        const allowedRegistryTwo = await createProgramRegistry({
+          name: 'Allowed Registry 2',
+        });
+
+        const permissions = [
+          ['list', 'programRegistry', allowedRegistryOne.id],
+          ['list', 'programRegistry', allowedRegistryTwo.id],
+        ];
+        appWithPermissions = await ctx.baseApp.asNewRole(permissions);
+      });
+
+      disableHardcodedPermissionsForSuite();
+
+      // Skipped because this hasn't been implemented just yet!!
+      it.skip('should only list permitted registries', async () => {
+        const result = await appWithPermissions.get('/api/programRegistry');
+        expect(result).toHaveSucceeded();
+
+        const { body } = result;
+        expect(body.count).toEqual(2);
+        expect(body.data.length).toEqual(2);
+      });
+    });
   });
 
   describe('Listing conditions (GET /api/programRegistry/:id/conditions)', () => {
