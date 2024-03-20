@@ -46,17 +46,17 @@ jobs:
             else
               jq -c . <<< "$desc"
               echo $repo image found, assuming existence
-              echo exists=true | tee -a $GITHUB_OUTPUT
+              echo exists=yes | tee -a $GITHUB_OUTPUT
               exit
             fi
           done
-          echo exists=false | tee -a $GITHUB_OUTPUT
+          echo exists=no | tee -a $GITHUB_OUTPUT
     outputs:
-      exists: ${{ fromJson(steps.check.outputs.exists) }}
+      exists: ${{ steps.check.outputs.exists }}
 
   images:
     needs: check-images-exist
-    if: "!needs.check-images-exist.outputs.exists"
+    if: needs.check-images-exist.outputs.exists != 'yes'
     strategy:
       fail-fast: false
       matrix:
@@ -190,7 +190,7 @@ jobs:
       - multi-arch
     runs-on: ubuntu-latest
     steps:
-      - if: "!needs.check-images-exist.outputs.exists"
+      - if: needs.check-images-exist.outputs.exists != 'yes'
         uses: re-actors/alls-green@release/v1
         with:
           jobs: ${{ toJSON(needs) }}
