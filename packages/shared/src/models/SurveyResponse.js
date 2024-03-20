@@ -56,6 +56,7 @@ const getFieldsToWrite = (models, questions, answers) => {
     if (!configFieldName) {
       throw new Error('No fieldName defined for writeToPatient config');
     }
+    const value = answers[dataElement.id];
 
     let modelName, fieldName;
 
