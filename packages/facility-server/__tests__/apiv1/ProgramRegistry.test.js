@@ -48,7 +48,7 @@ describe('ProgramRegistry', () => {
         allowedRegistry = await createProgramRegistry({
           name: 'Allowed Registry',
         });
-        appWithPermissions = await ctx.baseApp.asNewRole([['read', 'programRegistry', allowedRegistry.id]]);
+        appWithPermissions = await ctx.baseApp.asNewRole([['read', 'ProgramRegistry', allowedRegistry.id]]);
       });
 
       disableHardcodedPermissionsForSuite();
@@ -193,8 +193,8 @@ describe('ProgramRegistry', () => {
         });
 
         const permissions = [
-          ['list', 'programRegistry', allowedRegistryOne.id],
-          ['list', 'programRegistry', allowedRegistryTwo.id],
+          ['list', 'ProgramRegistry', allowedRegistryOne.id],
+          ['list', 'ProgramRegistry', allowedRegistryTwo.id],
         ];
         appWithPermissions = await ctx.baseApp.asNewRole(permissions);
       });
