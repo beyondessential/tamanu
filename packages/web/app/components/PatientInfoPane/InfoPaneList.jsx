@@ -76,7 +76,7 @@ const getItems = (isIssuesPane, response) => {
 };
 
 export const InfoPaneList = ({
-  id,
+  id: paneId,
   patient,
   readonly,
   title,
@@ -94,11 +94,11 @@ export const InfoPaneList = ({
   const [addEditState, setAddEditState] = useState({ adding: false, editKey: null });
   const { adding, editKey } = addEditState;
   const api = useApi();
-  const { data, error } = useQuery([`infoPaneListItem-${id}`, patient.id], () =>
+  const { data, error } = useQuery([`infoPaneListItem-${paneId}`, patient.id], () =>
     api.get(getEndpoint),
   );
 
-  const isIssuesPane = id === PANE_SECTION_IDS.ISSUES;
+  const isIssuesPane = paneId === PANE_SECTION_IDS.ISSUES;
   const { items, warnings } = getItems(isIssuesPane, data);
 
   const handleAddButtonClick = useCallback(
@@ -128,7 +128,7 @@ export const InfoPaneList = ({
         Form={Form}
         endpoint={endpoint}
         onClose={handleCloseForm}
-        id={id}
+        id={paneId}
         items={items}
       />
     </Wrapper>
@@ -176,7 +176,7 @@ export const InfoPaneList = ({
                       endpoint={endpoint}
                       item={item}
                       onClose={handleCloseForm}
-                      title={title}
+                      id={paneId}
                       items={items}
                     />
                   </Collapse>
