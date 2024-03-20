@@ -47,11 +47,15 @@ const fakeAllData = async (models, ctx) => {
   const { id: departmentId } = await models.Department.create(
     fake(models.Department, { facilityId, name: 'Emergency dept.' }),
   );
+  const { id: locationGroupId } = await models.LocationGroup.create(
+    fake(models.LocationGroup, { facilityId, name: 'Emergency Department' }),
+  );
+  console.log({ locationGroupId })
   const { id: location1Id } = await models.Location.create(
-    fake(models.Location, { facilityId, name: 'Emergency room 1' }),
+    fake(models.Location, { facilityId, name: 'Emergency room 1', locationGroupId }),
   );
   const { id: location2Id } = await models.Location.create(
-    fake(models.Location, { facilityId, name: 'Emergency room 2' }),
+    fake(models.Location, { facilityId, name: 'Emergency room 2', locationGroupId }),
   );
   const { id: patientBillingTypeId } = await models.ReferenceData.create(
     fake(models.ReferenceData, {
@@ -469,6 +473,7 @@ describe('fijiAspenMediciReport', () => {
         locations: [
           {
             location: 'Emergency room 2',
+            locationGroup: 'Emergency Department',
             assignedTime: '2022-06-09T08:04:54+00:00',
           },
         ],
