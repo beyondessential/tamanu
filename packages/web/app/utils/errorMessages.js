@@ -1,7 +1,7 @@
 import { setLocale } from 'yup';
 import { capitaliseFirstLetter } from './capitalise';
 
-const REQUIRED_MESSAGE_STRING_ID = 'general.validation.required';
+const REQUIRED_MESSAGE_STRING_ID = 'validation.required';
 
 const camelCaseTest = /(?=[A-Z])/;
 function splitFieldName(name) {
@@ -15,11 +15,11 @@ export function registerYup(translations = {}) {
   const defaultMessage = translations[REQUIRED_MESSAGE_STRING_ID] || 'The :path field is required';
   setLocale({
     mixed: {
-      required: ({ path }) => {
-        const translatedPath =
-          translations[`general.validation.path.${path}`] || splitFieldName(path);
-        return defaultMessage.replace(':path', translatedPath);
-      },
+      required: ({ path }) =>
+        defaultMessage.replace(
+          ':path',
+          translations[`validation.path.${path}`] || splitFieldName(path),
+        ),
     },
   });
 }
