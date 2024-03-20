@@ -200,7 +200,9 @@ jobs:
   parse-deploy:
     name: Parse PR deploy config
     runs-on: ubuntu-latest
-    steps: []
+    steps:
+      - name: WIP
+        run: true
 
   deploy-branch:
     needs: all-built
