@@ -121,6 +121,7 @@ export const InvoiceLineItemModal = ({
         initialValues={initialValues}
         formType={invoiceLineItem ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
         validationSchema={yup.object().shape({
+          // YUP-TRANSLATION TODO: foreignKey to use fallback and .label mabye
           invoiceLineTypeId: foreignKey('Details is required'),
           orderedById: foreignKey('Ordered by must be selected'),
           dateGenerated: yup.date().required(),
