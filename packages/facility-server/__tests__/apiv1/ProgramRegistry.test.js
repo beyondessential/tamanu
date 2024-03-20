@@ -38,28 +38,24 @@ describe('ProgramRegistry', () => {
     });
 
     describe('Permissions', () => {
-      let forbiddenRegistry;
-      let allowedRegistry;
-      let appWithPermissions;
-      beforeAll(async () => {
-        forbiddenRegistry = await createProgramRegistry({
-          name: 'Forbidden Registry',
-        });
-        allowedRegistry = await createProgramRegistry({
-          name: 'Allowed Registry',
-        });
-        appWithPermissions = await ctx.baseApp.asNewRole([['read', 'ProgramRegistry', allowedRegistry.id]]);
-      });
-
       disableHardcodedPermissionsForSuite();
 
       it('should error on forbidden registry', async () => {
+        const forbiddenRegistry = await createProgramRegistry({
+          name: 'Forbidden Registry',
+        });
+        const appWithPermissions = await ctx.baseApp.asNewRole();
         const result = await appWithPermissions.get(`/api/programRegistry/${forbiddenRegistry.id}`);
         expect(result).toBeForbidden();
       });
 
       // Skipped because this hasn't been implemented just yet!!
       it.skip('should succeed on allowed registry', async () => {
+        const allowedRegistry = await createProgramRegistry({
+          name: 'Allowed Registry',
+        });
+        const permissions = [['read', 'ProgramRegistry', allowedRegistry.id]];
+        const appWithPermissions = await ctx.baseApp.asNewRole(permissions);
         const result = await appWithPermissions.get(`/api/programRegistry/${allowedRegistry.id}`);
         expect(result).toHaveSucceeded();
         expect(result.body).toHaveProperty('name', allowedRegistry.name);
@@ -68,13 +64,6 @@ describe('ProgramRegistry', () => {
   });
 
   describe('Listing (GET /api/programRegistry)', () => {
-    beforeEach(async () => {
-      await models.PatientProgramRegistration.truncate();
-      await models.ProgramRegistry.truncate();
-      await models.Program.truncate();
-      await models.Patient.truncate({ cascade: true });
-    });
-
     it('should list available program registries', async () => {
       await createProgramRegistry();
       await createProgramRegistry({
@@ -233,13 +222,6 @@ describe('ProgramRegistry', () => {
   });
 
   describe('Listing registrations (GET /api/programRegistry/:id/registrations)', () => {
-    beforeEach(async () => {
-      await models.PatientProgramRegistration.truncate();
-      await models.ProgramRegistry.truncate();
-      await models.Program.truncate();
-      await models.Patient.truncate({ cascade: true });
-    });
-
     it('should list registrations', async () => {
       const { id: programRegistryId } = await createProgramRegistry();
       const CLINICAL_STATUS_DATA = {
