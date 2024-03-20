@@ -33,7 +33,10 @@ export const ChangeDepartmentForm = ({ onCancel, departmentSuggester, onSubmit }
       }}
       formType={FORM_TYPES.EDIT_FORM}
       validationSchema={yup.object().shape({
-        departmentId: yup.string().required('Department is required'),
+        departmentId: yup
+          .string()
+          .required()
+          .label('department'),
       })}
       render={renderForm}
       onSubmit={onSubmit}
