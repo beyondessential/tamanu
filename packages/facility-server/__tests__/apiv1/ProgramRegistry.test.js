@@ -53,13 +53,13 @@ describe('ProgramRegistry', () => {
 
       disableHardcodedPermissionsForSuite();
 
-      it('should error on forbidden registries', async () => {
+      it('should error on forbidden registry', async () => {
         const result = await appWithPermissions.get(`/api/programRegistry/${forbiddenRegistry.id}`);
         expect(result).toBeForbidden();
       });
 
       // Skipped because this hasn't been implemented just yet!!
-      it.skip('should only return permitted registries', async () => {
+      it.skip('should succeed on allowed registry', async () => {
         const result = await appWithPermissions.get(`/api/programRegistry/${allowedRegistry.id}`);
         expect(result).toHaveSucceeded();
         expect(result.body).toHaveProperty('name', allowedRegistry.name);
