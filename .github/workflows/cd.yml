@@ -161,6 +161,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Multi-arch for ${{ matrix.repo }}
     steps:
+      - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-manifest-tool
 
       - name: Configure AWS Credentials
