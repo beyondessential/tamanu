@@ -230,7 +230,9 @@ describe(`Materialised - MediciReport`, () => {
       ],
       locations: [
         {
-          location: `${resources.locationGroup.name}, ${resources.location.name}`,
+          location: resources.location.name,
+          locationGroup: resources.locationGroup.name,
+          facility: resources.facility.name,
         },
       ],
       reasonForEncounter: encounter.reasonForEncounter,
