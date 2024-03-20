@@ -49,8 +49,7 @@ describe('ProgramRegistry', () => {
         expect(result).toBeForbidden();
       });
 
-      // Skipped because this hasn't been implemented just yet!!
-      it.skip('should succeed on allowed registry', async () => {
+      it('should succeed on allowed registry', async () => {
         const allowedRegistry = await createProgramRegistry({
           name: 'Allowed Registry',
         });
