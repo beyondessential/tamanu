@@ -14,11 +14,7 @@ export const useTranslations = (language = 'en') => {
       staleTime: 1000 * 60 * 60, // 1 hour
       cacheTime: 1000 * 60 * 60, // 1 hour
       refetchOnWindowFocus: false,
-      onSettled: data => {
-        const validationTranslation = data['general.validation.required'];
-        if (!validationTranslation) return;
-        registerYup(validationTranslation);
-      },
+      onSettled: registerYup,
     },
   );
 };
