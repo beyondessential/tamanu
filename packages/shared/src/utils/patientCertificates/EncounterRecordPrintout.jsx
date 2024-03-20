@@ -108,7 +108,7 @@ const tableStyles = StyleSheet.create({
 });
 
 const Table = props => <View style={tableStyles.table} {...props} />;
-const Row = props => <View style={tableStyles.row} {...props} />;
+const Row = props => <View style={[tableStyles.row, props.width && { width: props.width, justifyContent: 'start' }]} {...props} />;
 const P = ({ style = {}, children }) => <Text style={[tableStyles.p, style]}>{children}</Text>;
 
 const Cell = ({ children, style = {} }) => (
@@ -318,15 +318,15 @@ const MultipageTableHeading = ({ title, style = textStyles.sectionTitle }) => {
   );
 };
 
-const DataTableHeading = ({ columns, title }) => {
+const DataTableHeading = ({ columns, title, width }) => {
   return (
     <View fixed>
       <MultipageTableHeading title={title} />
-      <Row wrap={false}>
+      <Row wrap={false} width={width}>
         {columns.map(({ key, title, style }) => {
           if (Array.isArray(title)) {
             return (
-              <View key={key} style={[tableStyles.baseCell, { flexDirection: 'column' }, style]}>
+              <View key={key} style={[tableStyles.baseCell, { flexDirection: 'column', padding: 4 }, style]}>
                 <P style={{ fontFamily: 'Helvetica-Bold' }}>{title[0]}</P>
                 <P>{title[1]}</P>
               </View>);
@@ -342,26 +342,33 @@ const DataTableHeading = ({ columns, title }) => {
   );
 };
 
-const DataTable = ({ data, columns, title }) => (
-  <Table>
-    <DataTableHeading columns={columns} title={title} />
-    {data.map(row => (
-      <Row key={row.id} wrap={false}>
-        {columns.map(({ key, accessor, style }) => (
-          <Cell key={key} style={style}>
-            {accessor ? accessor(row) : row[key] || ''}
-          </Cell>
-        ))}
-      </Row>
-    ))}
-  </Table>
-);
+const DataTable = ({ data, columns, title, type }) => {
+  let width = null;
+  if (type === "vitals" && columns.length <= 12) {
+    width = 138 + ((columns.length - 1) * 50) + 'px';
+  }
 
-const TableSection = ({ title, data, columns }) => {
+  return (
+    <Table>
+      <DataTableHeading columns={columns} title={title} width={width} />
+      {data.map(row => (
+        <Row key={row.id} wrap={false} width={width}>
+          {columns.map(({ key, accessor, style }) => (
+            <Cell key={key} style={style}>
+              {accessor ? accessor(row) : row[key] || ''}
+            </Cell>
+          ))}
+        </Row>
+      ))}
+    </Table>
+  )
+};
+
+const TableSection = ({ title, data, columns, type }) => {
   return (
     <View>
       <View minPresenceAhead={70} />
-      <DataTable data={data} columns={columns} title={title} />
+      <DataTable data={data} columns={columns} title={title} type={type} />
       <SectionSpacing />
     </View>
   );
@@ -516,18 +523,21 @@ export const EncounterRecordPrintout = ({
           <TableSection title="Medications" data={medications} columns={COLUMNS.medications} />
         )}
         {notes.length > 0 && <NotesSection notes={notes} />}
-        {vitalsData.length > 0 && recordedDates.length > 0 ? (
-          <>
-            {[0, 12, 24, 36, 48].map(start => {
-              return recordedDates.length > start ? (
-                <TableSection title="Vitals" data={vitalsData} columns={getVitalsColumn(start)} />
-              ) : null
-            }
-            )}
-          </>
-        ) : null}
         <Footer />
       </Page>
+      {vitalsData.length > 0 && recordedDates.length > 0 ? (
+        <>
+          {[0, 12, 24, 36, 48].map(start => {
+            return recordedDates.length > start ? (
+              <Page size="A4" orientation="landscape" style={pageStyles.body}>
+                <TableSection title="Vitals" data={vitalsData} columns={getVitalsColumn(start)} type="vitals" />
+                <Footer />
+              </Page>
+            ) : null
+          }
+          )}
+        </>
+      ) : null}
     </Document>
   );
 };

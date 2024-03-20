@@ -27,7 +27,7 @@ import { printPDF } from '../PDFViewer.jsx';
 import { TranslatedText } from '../../Translation/TranslatedText';
 import { LowerCase } from '../../Typography';
 import { useVitals } from '../../../api/queries/useVitals';
-import { DateDisplay, formatShortest, formatTimeWithSeconds } from '../../DateDisplay';
+import { DateDisplay, formatShortest, formatTime } from '../../DateDisplay';
 import { useTranslation } from '../../../contexts/Translation';
 
 // These below functions are used to extract the history of changes made to the encounter that are stored in notes.
@@ -104,8 +104,9 @@ const extractLocationHistory = (notes, encounterData) => {
 
 const getDateTitleArray = date => {
   const shortestDate = DateDisplay.stringFormat(date, formatShortest);
-  const timeWithSeconds = DateDisplay.stringFormat(date, formatTimeWithSeconds);
-  return [shortestDate, timeWithSeconds];
+  const timeWithSeconds = DateDisplay.stringFormat(date, formatTime);
+
+  return [shortestDate, timeWithSeconds.toLowerCase()];
 };
 
 export const EncounterRecordModal = ({ encounter, open, onClose }) => {
@@ -294,13 +295,12 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
 
   const getVitalsColumn = startIndex => {
     const dateArray = [...recordedDates].reverse().slice(startIndex, startIndex + 12);
-    const width = Math.floor(100 / (dateArray.length + 1));
     return [
       {
         key: 'measure',
         title: 'Measure',
         accessor: ({ value }) => value,
-        style: { width: `${width}%` },
+        style: { width: 140 },
       },
       ...dateArray
         .sort((a, b) => b.localeCompare(a))
@@ -311,7 +311,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
             const { value } = cells[date];
             return value || '-';
           },
-          style: { width: `${width}%` },
+          style: { width: 60 },
         })),
     ];
   };
