@@ -23,17 +23,21 @@ describe('ProgramRegistry', () => {
   });
 
   describe('Getting (GET /api/programRegistry/:id)', () => {
-    it('should fetch a program registry', async () => {
-      const { id } = await models.ProgramRegistry.create(
+    let programRegistry;
+
+    beforeAll(async () => {
+      programRegistry = await models.ProgramRegistry.create(
         fake(models.ProgramRegistry, {
           name: 'Hepatitis Registry',
           programId: testProgram.id,
         }),
       );
+    });
 
+    it('should fetch a program registry', async () => {
+      const { id } = programRegistry;
       const result = await app.get(`/api/programRegistry/${id}`);
       expect(result).toHaveSucceeded();
-
       expect(result.body).toHaveProperty('name', 'Hepatitis Registry');
     });
   });
