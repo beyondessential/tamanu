@@ -52,7 +52,7 @@ jobs:
           done
           echo exists=false | tee -a $GITHUB_OUTPUT
     outputs:
-      exists: ${{ steps.check.outputs.exists }}
+      exists: ${{ fromJson(steps.check.outputs.exists) }}
 
   images:
     needs: check-images-exist
