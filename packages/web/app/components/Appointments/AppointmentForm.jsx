@@ -54,13 +54,23 @@ export const AppointmentForm = props => {
       formType={isUpdating ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
       onSubmit={createAppointment}
       validationSchema={yup.object().shape({
-        patientId: yup.string().required('Please select a patient'),
-        type: yup.string().required('Please choose an appointment type'),
-        startTime: yup.string().required('Please select a start time'),
-        clinicianId: yup.string().required('Required'),
+        patientId: yup
+          .string()
+          .required()
+          .label('patient'),
+        type: yup
+          .string()
+          .required()
+          .label('appointmentType'),
+        startTime: yup.string().required(),
+        clinicianId: yup
+          .string()
+          .required()
+          .label('clinician'),
         locationGroupId: yup
           .string()
-          .required('Please select an area')
+          .required()
+          .label('area')
           .nullable(),
       })}
       render={({ submitForm }) => (
