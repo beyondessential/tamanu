@@ -23,7 +23,7 @@ describe('ProgramRegistry', () => {
   });
 
   describe('Getting (GET /api/programRegistry/:id)', () => {
-    it('should fetch a survey', async () => {
+    it('should fetch a program registry', async () => {
       const { id } = await models.ProgramRegistry.create(
         fake(models.ProgramRegistry, {
           name: 'Hepatitis Registry',
