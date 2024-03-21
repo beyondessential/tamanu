@@ -26,7 +26,6 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     name: Deploy
-    env:
     steps:
       - uses: actions/checkout@v4
       - id: setup
