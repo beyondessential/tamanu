@@ -1,4 +1,4 @@
-import { Brackets, Column, Like, RelationId } from 'typeorm';
+import { Brackets, Column, RelationId } from 'typeorm';
 import { Entity, ManyToOne } from 'typeorm/browser';
 import { get as getAtPath, set as setAtPath } from 'lodash';
 

@@ -20,11 +20,12 @@ import { useSuggester } from '../../api';
 import { useAuth } from '../../contexts/Auth';
 import { Modal } from '../../components/Modal';
 import { useApi } from '../../api/useApi';
-import { PROGRAM_REGISTRY } from '../../components/PatientInfoPane/paneTitles';
+import { PANE_SECTION_IDS } from '../../components/PatientInfoPane/paneSections';
 import {
   usePatientProgramRegistryConditionsQuery,
   useProgramRegistryConditionsQuery,
 } from '../../api/queries/usePatientProgramRegistryConditions';
+import { useTranslation } from '../../contexts/Translation';
 import { FORM_TYPES } from '../../constants';
 
 export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistration, open }) => {
@@ -44,6 +45,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
   const { data: conditions, isLoading: isConditionsLoading } = useProgramRegistryConditionsQuery(
     patientProgramRegistration.programRegistryId,
   );
+  const { getTranslation } = useTranslation();
 
   const registeredBySuggester = useSuggester('practitioner');
   const registeringFacilitySuggester = useSuggester('facility');
@@ -67,6 +69,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
     );
 
     // Remove conditions
+    const deletionDate = getCurrentDateTimeString();
     for (const conditionToRemove of conditionsToRemoveObjects) {
       await api.delete(
         `patient/${encodeURIComponent(
@@ -74,6 +77,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
         )}/programRegistration/${encodeURIComponent(
           patientProgramRegistration.programRegistryId,
         )}/condition/${encodeURIComponent(conditionToRemove.id)}`,
+        { deletionDate },
       );
     }
 
@@ -85,13 +89,14 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
       `patient/${encodeURIComponent(patientProgramRegistration.patientId)}/programRegistration`,
       {
         ...rest,
+        date: getCurrentDateTimeString(),
         conditionIds: newConditionIds,
         registrationStatus: REGISTRATION_STATUSES.ACTIVE,
       },
     );
 
     // Invalidate queries and close modal
-    queryClient.invalidateQueries([`infoPaneListItem-${PROGRAM_REGISTRY}`]);
+    queryClient.invalidateQueries([`infoPaneListItem-${PANE_SECTION_IDS.PROGRAM_REGISTRY}`]);
     onClose();
   };
 
@@ -152,7 +157,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
                     }
                     name="conditionIds"
                     label="Related conditions"
-                    placeholder="Select"
+                    placeholder={getTranslation("general.placeholder.select", "Select")}
                     component={MultiselectField}
                     options={conditions}
                     disabled={!conditions || conditions.length === 0}
@@ -178,7 +183,6 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
         }}
         initialValues={{
           ...patientProgramRegistration,
-          date: getCurrentDateTimeString(),
           registeringFacilityId: facility?.id,
           clinicianId: currentUser?.id,
           conditionIds: registrationConditions?.data.map(x => x.programRegistryConditionId),

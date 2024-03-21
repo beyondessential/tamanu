@@ -216,7 +216,7 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
       label: (
         <TranslatedText
           stringId="general.localisedField.notGivenReasonId.label.short"
-          fallback="Clinician"
+          fallback="Reason"
         />
       ),
       value: notGivenReason?.name || '-',
