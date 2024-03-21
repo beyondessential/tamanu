@@ -102,6 +102,39 @@ patientVaccineRoutes.get(
   }),
 );
 
+patientVaccineRoutes.get(
+  '/:id/upcomingVaccination',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('list', 'PatientVaccine');
+
+    const results = await req.db.query(
+      `
+    SELECT
+      sv.id scheduledVaccineId,
+      sv.category,
+      sv.label,
+      sv.schedule,
+      sv.vaccine_id vaccineId,
+      uv.due_date dueDate,
+      uv.status
+    FROM upcoming_vaccinations uv
+    JOIN scheduled_vaccines sv ON sv.id = uv.scheduled_vaccine_id
+    WHERE uv.patient_id = :patientId
+    AND uv.status <> 'MISSED'
+    ORDER BY uv.due_date, sv.label;
+    `,
+      {
+        replacements: {
+          patientId: req.params.id,
+        },
+        type: QueryTypes.SELECT,
+      },
+    );
+
+    return res.send(results);
+  }),
+);
+
 patientVaccineRoutes.put(
   '/:id/administeredVaccine/:vaccineId',
   asyncHandler(async (req, res) => {
