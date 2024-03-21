@@ -51,6 +51,7 @@ export const TriageForm = ({
   const { getLocalisation } = useLocalisation();
   const { getTranslation } = useTranslation();
   const triageCategories = getLocalisation('triageCategories');
+  // const clinicianText = getTranslation('general.localisedField.clinician.label.short', 'Clinician');
   const practitionerSuggester = useSuggester('practitioner');
   const triageReasonSuggester = useSuggester('triageReason');
 
@@ -242,7 +243,8 @@ export const TriageForm = ({
             ),
           ),
         chiefComplaintId: foreignKey().label('chiefComplaint'),
-        practitionerId: foreignKey().label('clinician'),
+        // yp TODO: localised clinician
+        practitionerId: foreignKey().label('triageClinician'),
         locationId: foreignKey().label('location'),
         score: yup.string().required(),
       })}

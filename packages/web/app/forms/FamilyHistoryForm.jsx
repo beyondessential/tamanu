@@ -39,8 +39,8 @@ export const FamilyHistoryForm = ({
           name="relationship"
           label={
             <TranslatedText
-              stringId="familyHistory.relationship.label"
-              fallback="Relationship to patient"
+              stringId="familyHistory.relations.label"
+              fallback="Relation to patient"
             />
           }
           component={TextField}

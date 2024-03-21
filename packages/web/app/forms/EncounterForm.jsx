@@ -77,7 +77,7 @@ export const EncounterForm = React.memo(
             name="examinerId"
             label={
               <TranslatedText
-                stringId="general.localisedField.practitioner.label.short"
+                stringId="general.localisedField.clinician.label.short"
                 fallback="Clinician"
               />
             }

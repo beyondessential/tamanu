@@ -54,8 +54,8 @@ export const OngoingConditionForm = ({
           name="examinerId"
           label={
             <TranslatedText
-              stringId="general.localisedField.practitioner.label.short"
-              fallback="Practitioner"
+              stringId="general.localisedField.clinician.label.short"
+              fallback="Clinician"
             />
           }
           disabled={resolving}

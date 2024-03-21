@@ -68,7 +68,7 @@ const PatientLetterFormContents = ({ submitForm, onCancel, setValues }) => {
       <FormGrid columns={2} nested>
         <Field
           name="clinicianId"
-          label={<TranslatedText stringId="general.clinican.label" fallback="Clinician" />}
+          label={<TranslatedText stringId="general.clinician.label" fallback="Clinician" />}
           required
           component={AutocompleteField}
           suggester={practitionerSuggester}

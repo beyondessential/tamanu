@@ -41,8 +41,8 @@ export const PatientCarePlanForm = ({
             name="examinerId"
             label={
               <TranslatedText
-                stringId="general.localisedField.practitioner.label.short"
-                label="Practitioner"
+                stringId="general.localisedField.clinician.label.short"
+                fallback="Clinician"
               />
             }
             component={AutocompleteField}
