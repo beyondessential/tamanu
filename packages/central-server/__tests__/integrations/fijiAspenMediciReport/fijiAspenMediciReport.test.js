@@ -50,7 +50,6 @@ const fakeAllData = async (models, ctx) => {
   const { id: locationGroupId } = await models.LocationGroup.create(
     fake(models.LocationGroup, { facilityId, name: 'Emergency Department' }),
   );
-  console.log({ locationGroupId })
   const { id: location1Id } = await models.Location.create(
     fake(models.Location, { facilityId, name: 'Emergency room 1', locationGroupId }),
   );
@@ -428,6 +427,7 @@ describe('fijiAspenMediciReport', () => {
         patientId: 'BTIO864386',
         firstName: patient.firstName,
         lastName: patient.lastName,
+        lastUpdated: '2022-06-12T01:02:54+00:00',
         dateOfBirth: '1952-10-12',
         age: expect.any(Number), // TODO
         sex: upperFirst(patient.sex),
