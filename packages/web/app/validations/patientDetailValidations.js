@@ -11,6 +11,7 @@ import {
 const requiredWhenConfiguredMandatory = (getLocalisation, name, baseType) => {
   return baseType.when([], {
     is: () => !!getLocalisation(`fields.${name}.requiredPatientData`),
+    // Yup todo: add translated message here
     then: baseType.required('Required'),
     otherwise: baseType,
   });
