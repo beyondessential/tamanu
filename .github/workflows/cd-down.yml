@@ -43,11 +43,14 @@ jobs:
         run: |
           if kubectl get namespace tamanu-${{ inputs.deploy-name }} 2>/dev/null; then
             echo "Namespace exists, checking it's matched to this branch"
-            kubectl -n tamanu-${{ inputs.deploy-name }} \
+            if kubectl -n tamanu-${{ inputs.deploy-name }} \
               get configmap auto-deploy -o json \
               | tee -a /dev/stderr \
-              | jq -e '.data | [.repo == "${{ github.repository }}", .ref == "${{ github.ref }}"] | all | not' \
-            || { echo "Namespace doesn't belong to this branch, not downing"; exit 1 }
+              | jq -e '.data | [.repo == "${{ github.repository }}", .ref == "${{ github.ref }}"] | all | not'
+            then
+              echo "Namespace doesn't belong to this branch, not downing"
+              exit 1
+            fi
           else
             echo "Namespace doesn't exist, no need to delete"
             exit 1
