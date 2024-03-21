@@ -58,6 +58,7 @@ jobs:
 
       - # outcome is from before continue-on-error, so will skip if check fails
         if: steps.check.outcome == 'success'
+        id: down
         name: Down!
         uses: pulumi/actions@v5
         with:
@@ -69,3 +70,12 @@ jobs:
           comment-on-pr: false
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+
+      - # if down fails but namespace existed, try to hard-delete the namespace
+        if: failure() && steps.down.outcome != 'success'
+        name: Delete namespace outright
+        run: |
+          if kubectl get namespace tamanu-${{ inputs.deploy-name }} 2>/dev/null; then
+            echo "Deleting namespace hard"
+            kubectl delete namespace tamanu-${{ inputs.deploy-name }}
+          fi
