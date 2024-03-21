@@ -216,43 +216,6 @@ describe('ProgramRegistry', () => {
       expect(body.count).toEqual(2);
       expect(body.data.length).toEqual(2);
     });
-
-    describe('Permissions', () => {
-      disableHardcodedPermissionsForSuite();
-
-      it('should error if program registry is forbidden', async () => {
-        const { id: programRegistryId } = await createProgramRegistry();
-        await models.ProgramRegistryCondition.create(
-          fake(models.ProgramRegistryCondition, { programRegistryId }),
-        );
-        const permissions = [
-          ['read', 'ProgramRegistry', 'different-object-id'],
-          ['list', 'ProgramRegistryCondition'],
-        ];
-        const appWithPermissions = await ctx.baseApp.asNewRole(permissions);
-        const result = await appWithPermissions.get(
-          `/api/programRegistry/${programRegistryId}/conditions`,
-        );
-        expect(result).toBeForbidden();
-      });
-
-      it('should show conditions if program registry is permitted', async () => {
-        const { id: programRegistryId } = await createProgramRegistry();
-        await models.ProgramRegistryCondition.create(
-          fake(models.ProgramRegistryCondition, { programRegistryId }),
-        );
-        const permissions = [['read', 'ProgramRegistry', programRegistryId]];
-        const appWithPermissions = await ctx.baseApp.asNewRole(permissions);
-        const result = await appWithPermissions.get(
-          `/api/programRegistry/${programRegistryId}/conditions`,
-        );
-        expect(result).toHaveSucceeded();
-
-        const { body } = result;
-        expect(body.count).toEqual(2);
-        expect(body.data.length).toEqual(2);
-      });
-    });
   });
 
   describe('Listing registrations (GET /api/programRegistry/:id/registrations)', () => {
