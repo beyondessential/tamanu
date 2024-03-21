@@ -92,20 +92,18 @@ export class TranslatedString extends Model {
   static getReferenceDataTranslationsByDataType = async ({
     language = ENGLISH_LANGUAGE_CODE,
     refDataType,
-    queryString = '',
+    queryString,
   }) => {
     return this.findAll({
       where: {
-        language: language,
+        language,
         stringId: {
           [Op.startsWith]: `${REFERENCE_DATA_TRANSLATION_PREFIX}.${refDataType}`,
         },
-        text: {
-          [Op.iLike]: `%${queryString}%`,
-        },
+        ...(queryString ? { text: { [Op.iLike]: `%${queryString}%` } } : {}),
       },
       attributes: ['stringId', 'text'],
-      raw: true
+      raw: true,
     });
   };
 }
