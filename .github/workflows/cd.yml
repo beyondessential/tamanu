@@ -206,7 +206,7 @@ jobs:
         with:
           script: |
             const cwd = '${{ github.workspace }}';
-            const { parseDeployConfig } = await import(`${cwd}/.github/scripts/pr-cd.mjs`);
+            const { parseDeployConfig } = await import(`${cwd}/packages/scripts/src/pr-cd.mjs`);
             return parseDeployConfig(context.payload.pull_request);
 
   deploy-branch:

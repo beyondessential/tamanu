@@ -8,28 +8,27 @@ const RX_DEPLOY_LINE = /^\s*-\s+\[(?<enabled>[\sx])\]\s+.+<!--\s*#deploy(?:=(?<n
 export function stackName(head_ref, ref_name = null) {
   return (head_ref || ref_name)
     .toLowerCase()
+    .replace(/^refs\/(heads|tags)\//, '')
     .replace(/[^a-z0-9-]/g, '-')
     .replace(/-+/g, '-')
     .replace(/^-|-$/g, '');
 }
 
 export function parseDeployConfig({ body, head }) {
-  console.log(body);
   const defaultDeployName = stackName(head.ref);
 
   const deploys = [];
-  for (const line in body.split(/\r?\n/)) {
+  for (const line of body.split(/\r?\n/)) {
     let deployLine = RX_DEPLOY_LINE.exec(line);
     if (deployLine) {
       deploys.push({
-        enabled: deployLine.enabled,
-        name: deployLine.name ?? defaultDeployName,
-        options: parseOptions(deployLine.options),
+        enabled: deployLine.groups.enabled === 'x',
+        name: deployLine.groups.name ?? defaultDeployName,
+        options: parseOptions(deployLine.groups.options ?? ''),
       });
     }
   }
 
-  console.log(deploys);
   return deploys;
 }
 
@@ -41,27 +40,54 @@ function intBounds(input, [low, high]) {
 }
 
 const OPTIONS = [
-  { key: 'facilities', defaultValue: 2, parse: (input) => intBounds(input, [0, 5]) },
+  { key: 'facilities', defaultValue: 2, parse: input => intBounds(input, [0, 5]) },
   { key: 'config', defaultValue: (options, context) => 'pr' },
   { key: 'timezone', defaultValue: 'Pacific/Auckland' },
-  { key: 'ip', defaultValue: false, parse: (input) => input.split(',').map(s => s.trim()) },
-  { key: 'dbstorage', defaultValue: 5, parse: (input) => intBounds(input, [1, 500]) },
+  { key: 'ip', defaultValue: false, parse: input => input.split(',').map(s => s.trim()) },
+  { key: 'dbstorage', defaultValue: 5, parse: input => intBounds(input, [1, 500]) },
   { key: 'arch', defaultValue: 'arm64' },
   { key: 'opsref', defaultValue: 'main' },
   { key: 'opsstack', defaultValue: 'tamanu/on-k8s' },
   { key: 'pause', defaultValue: false, presence: true },
 
-  { key: 'apis', defaultValue: 2, parse: (input) => intBounds(input, [0, 8]) },
-  { key: 'centralapis', defaultValue: options => options.apis, parse: (input) => intBounds(input, [0, 8]) },
-  { key: 'facilityapis', defaultValue: options => options.apis, parse: (input) => intBounds(input, [0, 8]) },
+  { key: 'apis', defaultValue: 2, parse: input => intBounds(input, [0, 8]) },
+  {
+    key: 'centralapis',
+    defaultValue: options => options.apis,
+    parse: input => intBounds(input, [0, 8]),
+  },
+  {
+    key: 'facilityapis',
+    defaultValue: options => options.apis,
+    parse: input => intBounds(input, [0, 8]),
+  },
 
-  { key: 'tasks', defaultValue: 1, parse: (input) => intBounds(input, [0, 1]) },
-  { key: 'centraltasks', defaultValue: options => options.tasks, parse: (input) => intBounds(input, [0, 1]) },
-  { key: 'facilitytasks', defaultValue: options => options.tasks, parse: (input) => intBounds(input, [0, 1]) },
+  { key: 'tasks', defaultValue: 1, parse: input => intBounds(input, [0, 1]) },
+  {
+    key: 'centraltasks',
+    defaultValue: options => options.tasks,
+    parse: input => intBounds(input, [0, 1]),
+  },
+  {
+    key: 'facilitytasks',
+    defaultValue: options => options.tasks,
+    parse: input => intBounds(input, [0, 1]),
+  },
 ];
 
+function stripPercent(str) {
+  if (str.startsWith('%')) return str.slice(1);
+  return str;
+}
+
 function parseOptions(str, context) {
-  const inputs = new Map(str.split(/\s+/).map(opt => opt.split('=')).map(([key, value]) => [key.toLowerCase(), value]));
+  const inputs = new Map(
+    str
+      .split(/\s+/)
+      .map(opt => opt.trim().split('='))
+      .map(([key, value]) => [stripPercent(key.toLowerCase()), value])
+      .filter(([key]) => !!key),
+  );
 
   const options = {};
   for (const { key, defaultValue, parse = null, presence = false } of OPTIONS) {

@@ -4,7 +4,7 @@
   "main": "index.js",
   "license": "SEE LICENSE IN license",
   "scripts": {
-    "test": "echo 'No tests on scripts'",
+    "test": "tape 'tests/**/*.test.*js'",
     "download-translations": "node src/downloadTranslations.js ../web/resources/strings",
     "generate-fake-db": "node src/fake.js",
     "test-determinism": "node src/testDeterminism.js"
@@ -14,5 +14,8 @@
     "commander": "^9.0.0",
     "object-hash": "^3.0.0",
     "pgsql-ast-parser": "^11.1.0"
+  },
+  "devDependencies": {
+    "tape": "^5.7.5"
   }
 }

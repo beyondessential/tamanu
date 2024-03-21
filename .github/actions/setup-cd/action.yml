@@ -66,7 +66,7 @@ runs:
         result-encoding: string
         script: |
           const cwd = '${{ github.workspace }}';
-          const { stackName } = await import(`${cwd}/.github/scripts/pr-cd.mjs`);
+          const { stackName } = await import(`${cwd}/packages/scripts/src/pr-cd.mjs`);
           return stackName(process.env.GH_HEAD_REF, process.env.GH_REF_NAME);
 
     - name: Pre-install pulumi
