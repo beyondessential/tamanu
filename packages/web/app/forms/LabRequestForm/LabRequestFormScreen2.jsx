@@ -1,5 +1,4 @@
 import React, { useMemo } from 'react';
-import * as yup from 'yup';
 import { LAB_REQUEST_FORM_TYPES } from '@tamanu/constants/labs';
 import { uniqBy } from 'lodash';
 import styled from 'styled-components';
