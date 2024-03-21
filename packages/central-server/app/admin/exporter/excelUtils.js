@@ -1,4 +1,4 @@
-import xlsx from 'xlsx';
+import * as xlsx from 'xlsx';
 
 export function writeExcelFile(sheets, fileName) {
   const workbook = xlsx.utils.book_new();
