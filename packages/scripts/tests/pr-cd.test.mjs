@@ -36,15 +36,15 @@ _Add a brief description of the changes in this PR to help give the reviewer con
     },
     {
       enabled: false,
-      name: 'klaus',
+      name: 'ci-k8s-deploy-klaus',
     },
     {
       enabled: false,
-      name: 'sima',
+      name: 'ci-k8s-deploy-sima',
     },
   ]);
-  t.equal(parsed.find(d => d.name === 'klaus').options.facilities, 0);
-  t.equal(parsed.find(d => d.name === 'sima').options.facilities, 3);
-  t.equal(parsed.find(d => d.name === 'klaus').options.arch, 'amd64');
+  t.equal(parsed.find(d => d.name === 'ci-k8s-deploy-klaus').options.facilities, 0);
+  t.equal(parsed.find(d => d.name === 'ci-k8s-deploy-sima').options.facilities, 3);
+  t.equal(parsed.find(d => d.name === 'ci-k8s-deploy-klaus').options.arch, 'amd64');
   t.equal(parsed.find(d => d.name === 'ci-k8s-deploy').options.facilities, 2, 'option should default');
 });

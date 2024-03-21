@@ -15,7 +15,7 @@ export function stackName(head_ref, ref_name = null) {
 }
 
 export function parseDeployConfig({ body, head }) {
-  const defaultDeployName = stackName(head.ref);
+  const deployName = stackName(head.ref);
 
   const deploys = [];
   for (const line of body.split(/\r?\n/)) {
@@ -23,7 +23,7 @@ export function parseDeployConfig({ body, head }) {
     if (deployLine) {
       deploys.push({
         enabled: deployLine.groups.enabled === 'x',
-        name: deployLine.groups.name ?? defaultDeployName,
+        name: [deployName, deployLine.groups.name].filter(Boolean).join('-'),
         options: parseOptions(deployLine.groups.options ?? ''),
       });
     }
