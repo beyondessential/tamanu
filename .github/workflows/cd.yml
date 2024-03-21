@@ -213,6 +213,7 @@ jobs:
           script: |
             const cwd = '${{ github.workspace }}';
             const { parseDeployConfig } = await import(`${cwd}/packages/scripts/src/pr-cd.mjs`);
+
             const allDeploys = parseDeployConfig(context.payload.pull_request);
             console.log(allDeploys);
 

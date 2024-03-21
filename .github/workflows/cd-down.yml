@@ -48,7 +48,7 @@ jobs:
               | tee -a /dev/stderr \
               | jq -e '.data | [.repo == "${{ github.repository }}", .ref == "${{ github.ref }}"] | all | not'
             then
-              echo "Namespace doesn't belong to this branch, not downing"
+              echo "Namespace doesn't belong to this branch, not deleting"
               exit 1
             fi
           else

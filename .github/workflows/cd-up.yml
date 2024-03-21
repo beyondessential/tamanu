@@ -72,6 +72,21 @@ jobs:
             tamanu-on-k8s:dbStorage: {value: '${{ fromJson(inputs.options).dbstorage }}', secret: false},
             tamanu-on-k8s:facilities: {value: '${{ fromJson(inputs.options).facilities }}', secret: false},
             tamanu-on-k8s:timezone: {value: '${{ fromJson(inputs.options).timezone }}', secret: false},
+
+            tamanu-on-k8s:apiReplicas: {value: '${{ fromJson(inputs.options).apis }}', secret: false},
+            tamanu-on-k8s:dbReplicas: {value: '${{ fromJson(inputs.options).dbs }}', secret: false},
+            tamanu-on-k8s:tasksReplicas: {value: '${{ fromJson(inputs.options).tasks }}', secret: false},
+            tamanu-on-k8s:webReplicas: {value: '${{ fromJson(inputs.options).webs }}', secret: false},
+
+            tamanu-on-k8s:centralApiReplicas: {value: '${{ fromJson(inputs.options).centralapis }}', secret: false},
+            tamanu-on-k8s:centralDbReplicas: {value: '${{ fromJson(inputs.options).centraldbs }}', secret: false},
+            tamanu-on-k8s:centralTaskReplicas: {value: '${{ fromJson(inputs.options).centraltasks }}', secret: false},
+            tamanu-on-k8s:centralWebReplicas: {value: '${{ fromJson(inputs.options).centraldbs }}', secret: false},
+
+            tamanu-on-k8s:facilityApiReplicas: {value: '${{ fromJson(inputs.options).facilityapis }}', secret: false},
+            tamanu-on-k8s:facilityDbReplicas: {value: '${{ fromJson(inputs.options).facilitydbs }}', secret: false},
+            tamanu-on-k8s:facilityTaskReplicas: {value: '${{ fromJson(inputs.options).facilitytasks }}', secret: false},
+            tamanu-on-k8s:facilityWebReplicas: {value: '${{ fromJson(inputs.options).facilitydbs }}', secret: false},
             }
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}

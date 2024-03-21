@@ -44,23 +44,23 @@ const OPTIONS = [
   { key: 'config', defaultValue: (options, context) => 'pr' },
   { key: 'timezone', defaultValue: 'Pacific/Auckland' },
   { key: 'ip', defaultValue: null, parse: input => input.split(',').map(s => s.trim()) },
-  { key: 'dbstorage', defaultValue: 5, parse: input => intBounds(input, [1, 500]) },
+  { key: 'dbstorage', defaultValue: 5, parse: input => intBounds(input, [1, 100]) },
   { key: 'arch', defaultValue: 'arm64' },
   { key: 'opsref', defaultValue: 'main' },
   { key: 'opsstack', defaultValue: 'tamanu/on-k8s' },
   { key: 'k8score', defaultValue: 'tamanu-internal-main' },
   { key: 'pause', defaultValue: false, presence: true },
 
-  { key: 'apis', defaultValue: 2, parse: input => intBounds(input, [0, 8]) },
+  { key: 'apis', defaultValue: 2, parse: input => intBounds(input, [0, 5]) },
   {
     key: 'centralapis',
     defaultValue: options => options.apis,
-    parse: input => intBounds(input, [0, 8]),
+    parse: input => intBounds(input, [0, 5]),
   },
   {
     key: 'facilityapis',
     defaultValue: options => options.apis,
-    parse: input => intBounds(input, [0, 8]),
+    parse: input => intBounds(input, [0, 1]), // max:5 when split
   },
 
   { key: 'tasks', defaultValue: 1, parse: input => intBounds(input, [0, 1]) },
@@ -71,8 +71,32 @@ const OPTIONS = [
   },
   {
     key: 'facilitytasks',
-    defaultValue: options => options.tasks,
-    parse: input => intBounds(input, [0, 1]),
+    defaultValue: 0, // until facility is split
+    parse: input => intBounds(input, [0, 0]), // max:1 when split
+  },
+
+  { key: 'webs', defaultValue: 2, parse: input => intBounds(input, [0, 5]) },
+  {
+    key: 'centralwebs',
+    defaultValue: options => options.webs,
+    parse: input => intBounds(input, [0, 5]),
+  },
+  {
+    key: 'facilitywebs',
+    defaultValue: options => options.webs,
+    parse: input => intBounds(input, [0, 5]),
+  },
+
+  { key: 'dbs', defaultValue: 2, parse: input => intBounds(input, [2, 3]) },
+  {
+    key: 'centraldbs',
+    defaultValue: options => options.dbs,
+    parse: input => intBounds(input, [2, 3]),
+  },
+  {
+    key: 'facilitydbs',
+    defaultValue: options => options.dbs,
+    parse: input => intBounds(input, [2, 3]),
   },
 ];
 
