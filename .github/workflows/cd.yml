@@ -7,6 +7,13 @@ on:
       - synchronize
       - reopened
       - edited
+  push:
+    branches:
+      - main
+      - release/*
+      - uat-release/*
+    tags:
+      - 'v*.*.*'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
