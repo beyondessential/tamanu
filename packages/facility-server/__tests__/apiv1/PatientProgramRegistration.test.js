@@ -779,7 +779,7 @@ describe('PatientProgramRegistration', () => {
         const result = await appWithPermissions.get(
           `/api/patient/${patient.id}/programRegistration/${programRegistry.id}/condition`,
         );
-        expect(result).toHaveSucceeded();
+        expect(result).toBeForbidden();
       });
 
       it('should get patient conditions with permitted registry', async () => {
