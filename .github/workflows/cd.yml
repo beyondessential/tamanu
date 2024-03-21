@@ -244,6 +244,7 @@ jobs:
     with:
       deploy-name: ${{ matrix.name }}
       options: ${{ matrix.options }}
+      image-tag: sha-${{ github.sha }}
     secrets:
       PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
       TAILSCALE_DBPROXY_ACCESS_OAUTH: ${{ secrets.TAILSCALE_DBPROXY_ACCESS_OAUTH }}

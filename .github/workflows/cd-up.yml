@@ -9,6 +9,9 @@ on:
       options:
         type: string
         required: true
+      image-tag:
+        type: string
+        required: true
     secrets:
       PULUMI_ACCESS_TOKEN:
         required: true
@@ -53,6 +56,15 @@ jobs:
               --from-literal=ref=${{ github.ref }}
           fi
 
+      - name: Generate pulumi config
+        id: config
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const cwd = '${{ github.workspace }}';
+            const { configMap } = await import(`${cwd}/packages/scripts/src/pr-cd.mjs`);
+            core.setOutput('pulumi', configMap('${{ inputs.deploy-name }}', '${{ inputs.image-tag }}', ${{ inputs.options }}));
+
       - name: Up!
         uses: pulumi/actions@v5
         with:
@@ -62,31 +74,6 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           comment-on-pr: false
           upsert: true
-          config-map: >
-            {
-            tamanu-on-k8s:namespace: {value: 'tamanu-${{ inputs.deploy-name }}', secret: false},
-            tamanu-on-k8s:imageTag: {value: 'sha-${{ github.sha }}', secret: false},
-            tamanu-on-k8s:k8s-core: {value: 'bes/k8s-core/${{ fromJson(inputs.options).k8score }}', secret: false},
-            tamanu-on-k8s:architecture: {value: '${{ fromJson(inputs.options).arch }}', secret: false},
-            tamanu-on-k8s:configTemplate: {value: '${{ fromJson(inputs.options).config }}', secret: false},
-            tamanu-on-k8s:dbStorage: {value: '${{ fromJson(inputs.options).dbstorage }}', secret: false},
-            tamanu-on-k8s:facilities: {value: '${{ fromJson(inputs.options).facilities }}', secret: false},
-            tamanu-on-k8s:timezone: {value: '${{ fromJson(inputs.options).timezone }}', secret: false},
-
-            tamanu-on-k8s:apiReplicas: {value: '${{ fromJson(inputs.options).apis }}', secret: false},
-            tamanu-on-k8s:dbReplicas: {value: '${{ fromJson(inputs.options).dbs }}', secret: false},
-            tamanu-on-k8s:tasksReplicas: {value: '${{ fromJson(inputs.options).tasks }}', secret: false},
-            tamanu-on-k8s:webReplicas: {value: '${{ fromJson(inputs.options).webs }}', secret: false},
-
-            tamanu-on-k8s:centralApiReplicas: {value: '${{ fromJson(inputs.options).centralapis }}', secret: false},
-            tamanu-on-k8s:centralDbReplicas: {value: '${{ fromJson(inputs.options).centraldbs }}', secret: false},
-            tamanu-on-k8s:centralTaskReplicas: {value: '${{ fromJson(inputs.options).centraltasks }}', secret: false},
-            tamanu-on-k8s:centralWebReplicas: {value: '${{ fromJson(inputs.options).centraldbs }}', secret: false},
-
-            tamanu-on-k8s:facilityApiReplicas: {value: '${{ fromJson(inputs.options).facilityapis }}', secret: false},
-            tamanu-on-k8s:facilityDbReplicas: {value: '${{ fromJson(inputs.options).facilitydbs }}', secret: false},
-            tamanu-on-k8s:facilityTaskReplicas: {value: '${{ fromJson(inputs.options).facilitytasks }}', secret: false},
-            tamanu-on-k8s:facilityWebReplicas: {value: '${{ fromJson(inputs.options).facilitydbs }}', secret: false},
-            }
+          config-map: ${{ steps.config.outputs.pulumi }}
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}

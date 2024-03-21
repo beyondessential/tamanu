@@ -139,3 +139,34 @@ function parseOptions(str, context) {
 
   return options;
 }
+
+export function configMap(deployName, imageTag, options) {
+  return Object.fromEntries(
+    Object.entries({
+      'k8s-core': `bes/k8s-core/${options.k8score}`,
+      namespace: `tamanu-${deployName}`,
+      imageTag,
+
+      architecture: options.arch,
+      configTemplate: options.config,
+      dbStorage: options.dbstorage,
+      facilities: options.facilities,
+      timezone: options.timezone,
+
+      apiReplicas: options.apis,
+      dbReplicas: options.dbs,
+      tasksReplicas: options.tasks,
+      webReplicas: options.webs,
+
+      centralApiReplicas: options.centralapis,
+      centralDbReplicas: options.centraldbs,
+      centralTaskReplicas: options.centraltasks,
+      centralWebReplicas: options.centraldbs,
+
+      facilityApiReplicas: options.facilityapis,
+      facilityDbReplicas: options.facilitydbs,
+      facilityTaskReplicas: options.facilitytasks,
+      facilityWebReplicas: options.facilitydbs,
+    }).map(([key, value]) => [`tamanu-on-k8s:${key}`, { value, secret: false }]),
+  );
+}
