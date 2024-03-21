@@ -214,6 +214,8 @@ jobs:
             const matrix = ({ name, options }) => ({ name, options: JSON.stringify(options) });
             const up = allDeploys.filter(deploy => deploy.enabled && !deploy.options.pause).map(matrix);
             const down = allDeploys.filter(deploy => !deploy.enabled && !deploy.options.pause).map(matrix);
+            console.log('Going UP', up.length);
+            console.log('Going DOWN', down.length);
             return {
               all: allDeploys,
               up: up.length ? up : false,
