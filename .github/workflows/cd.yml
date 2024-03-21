@@ -191,6 +191,8 @@ jobs:
       # - multi-arch
     runs-on: ubuntu-latest
     steps:
+      - if: needs.check-images-exist.outputs.exists == 'yes'
+        run: true
       - if: needs.check-images-exist.outputs.exists != 'yes'
         uses: re-actors/alls-green@release/v1
         with:
