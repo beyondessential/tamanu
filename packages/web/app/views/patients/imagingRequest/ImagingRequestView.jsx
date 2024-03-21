@@ -139,7 +139,7 @@ const NewResultSection = ({ disabled = false }) => {
       <Field
         label={<TranslatedText stringId="imaging.completedBy.label" fallback="Completed by" />}
         name="newResult.completedById"
-        placeholder={getTranslation("imaging.completedBy.placeholder", "Search")}
+        placeholder={getTranslation('imaging.completedBy.placeholder', 'Search')}
         component={AutocompleteField}
         suggester={practitionerSuggester}
         disabled={disabled}
@@ -156,7 +156,7 @@ const NewResultSection = ({ disabled = false }) => {
           <TranslatedText stringId="imaging.description.label" fallback="Result description" />
         }
         name="newResult.description"
-        placeholder={getTranslation("imaging.description.placeholder", "Result description...")}
+        placeholder={getTranslation('imaging.description.placeholder', 'Result description...')}
         multiline
         component={TextField}
         style={{ gridColumn: '1 / -1', minHeight: '3em' }}
@@ -242,7 +242,7 @@ const ImagingRequestInfoPane = React.memo(({ imagingRequest, onSubmit }) => {
         },
       }}
       validationSchema={yup.object().shape({
-        status: yup.string().required('Status is required'),
+        status: yup.string().required(),
       })}
       render={({ values }) => {
         const canAddResult = getCanAddResult(values);

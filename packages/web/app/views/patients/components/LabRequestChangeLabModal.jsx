@@ -13,7 +13,10 @@ import {
 import { FORM_TYPES } from '../../../constants';
 
 const validationSchema = yup.object().shape({
-  labTestLaboratoryId: yup.string().required('Laboratory is required'),
+  labTestLaboratoryId: yup
+    .string()
+    .required()
+    .label('laboratory'),
 });
 
 export const LabRequestChangeLabModal = React.memo(
