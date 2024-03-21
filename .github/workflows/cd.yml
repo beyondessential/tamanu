@@ -211,10 +211,13 @@ jobs:
             const allDeploys = parseDeployConfig(context.payload.pull_request);
 
             console.log(allDeploys);
+            const matrix = ({ name, options }) => ({ name, options: JSON.stringify(options) });
+            const up = allDeploys.filter(deploy => deploy.enabled && !deploy.options.pause).map(matrix);
+            const down = allDeploys.filter(deploy => !deploy.enabled && !deploy.options.pause).map(matrix);
             return {
               all: allDeploys,
-              up: allDeploys.filter(deploy => deploy.enabled && !deploy.options.pause),
-              down: allDeploys.filter(deploy => !deploy.enabled && !deploy.options.pause),
+              up: up.length ? up : false,
+              down: down.length ? down : false,
             };
     outputs:
       all: ${{ steps.config.outputs.result.all }}
@@ -225,15 +228,16 @@ jobs:
     needs:
       - all-built
       - deploy-config
-    if: needs.deploy-config.outputs.up.*.enabled
+    if: needs.deploy-config.outputs.up
     strategy:
+      fail-fast: false
       matrix:
-        deploy: ${{ needs.deploy-config.outputs.up }}
+        include: ${{ needs.deploy-config.outputs.up }}
     name: Deploy ${{ matrix.deploy.name }}
     uses: ./.github/workflows/cd-up.yml
     with:
       deploy-name: ${{ matrix.deploy.name }}
-      options: ${{ toJson(matrix.deploy.options) }}
+      options: ${{ matrix.deploy.options }}
     secrets:
       PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
       TAILSCALE_DBPROXY_ACCESS_OAUTH: ${{ secrets.TAILSCALE_DBPROXY_ACCESS_OAUTH }}
@@ -243,15 +247,16 @@ jobs:
     needs:
       - all-built
       - deploy-config
-    if: needs.deploy-config.outputs.down.*.enabled
+    if: needs.deploy-config.outputs.down
     strategy:
+      fail-fast: false
       matrix:
-        deploy: ${{ needs.deploy-config.outputs.down }}
+        include: ${{ needs.deploy-config.outputs.down }}
     name: Undeploy ${{ matrix.deploy.name }}
     uses: ./.github/workflows/cd-down.yml
     with:
       deploy-name: ${{ matrix.deploy.name }}
-      options: ${{ toJson(matrix.deploy.options) }}
+      options: ${{ matrix.deploy.options }}
     secrets:
       PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
       TAILSCALE_DBPROXY_ACCESS_OAUTH: ${{ secrets.TAILSCALE_DBPROXY_ACCESS_OAUTH }}
