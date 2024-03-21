@@ -84,8 +84,8 @@ export const InvoicePriceChangeItemForm = ({
       }}
       formType={invoicePriceChangeItem ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
       validationSchema={yup.object().shape({
-        description: foreignKey('Details is required'),
-        orderedById: foreignKey('Ordered by must be selected'),
+        description: foreignKey().label('details'),
+        orderedById: foreignKey().label('orderedBy'),
         date: yup.date().required(),
         percentageChange: yup.number().required(),
       })}

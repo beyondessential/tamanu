@@ -22,7 +22,7 @@ export const EmailAddressConfirmationForm = React.memo(({ onCancel, onSubmit }) 
         confirmEmail: Yup.string()
           .oneOf(
             [Yup.ref('email'), null],
-            getTranslation('validation.rule.emailMatch', 'Emails must match'),
+            getTranslation('validation.rule.emailsMatch', 'Emails must match'),
           )
           .required(),
       })}
