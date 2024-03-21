@@ -10,6 +10,7 @@ import {
   AutocompleteField,
   RadioField,
   FormGrid,
+  DisplayIdField,
 } from '../../../../components';
 import {
   PatientDetailsHeading,
@@ -24,14 +25,18 @@ import { GenericBirthFields } from './patientFields/GenericBirthFields';
 import { useSuggester } from '../../../../api';
 import { PatientFieldsGroup } from '../../PatientFields';
 import { TranslatedText } from '../../../../components/Translation/TranslatedText';
+import { useLocalisation } from '../../../../contexts/Localisation';
 
 export const GenericPrimaryDetailsLayout = ({
   patientRegistryType,
   registeredBirthPlace,
   sexOptions,
   isRequiredPatientData,
+  isEdit
 }) => {
   const villageSuggester = useSuggester('village');
+  const { getLocalisation } = useLocalisation();
+  const canEditDisplayId = isEdit && getLocalisation('features.editPatientDisplayId');
   return (
     <>
       <PatientDetailsHeading>
@@ -123,6 +128,7 @@ export const GenericPrimaryDetailsLayout = ({
           type="email"
           required={isRequiredPatientData('email')}
         />
+        {canEditDisplayId && <DisplayIdField required />}
         <RequiredSecondaryDetails
           patientRegistryType={patientRegistryType}
           registeredBirthPlace={registeredBirthPlace}

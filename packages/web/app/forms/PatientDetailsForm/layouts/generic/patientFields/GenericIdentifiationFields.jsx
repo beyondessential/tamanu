@@ -2,20 +2,12 @@ import React from 'react';
 
 import { PATIENT_REGISTRY_TYPES } from '@tamanu/constants';
 
-import { useLocalisation } from '../../../../../contexts/Localisation';
-import { DisplayIdField, TextField } from '../../../../../components';
+import { TextField } from '../../../../../components';
 import { ConfiguredMandatoryPatientFields } from '../../../ConfiguredMandatoryPatientFields';
 import { TranslatedText } from '../../../../../components/Translation/TranslatedText';
 
-export const GenericIdentificationFields = ({ isEdit, patientRegistryType, filterByMandatory }) => {
-  const { getLocalisation } = useLocalisation();
-  const canEditDisplayId = isEdit && getLocalisation('features.editPatientDisplayId');
-
+export const GenericIdentificationFields = ({ patientRegistryType, filterByMandatory }) => {
   const IDENTIFICATION_FIELDS = {
-    displayId: {
-      component: DisplayIdField,
-      condition: () => !!canEditDisplayId,
-    },
     birthCertificate: {
       component: TextField,
       label: (
