@@ -187,16 +187,14 @@ jobs:
     name: All images built
     needs:
       - check-images-exist
-      # - images
-      # - multi-arch
+      - images
+      - multi-arch
     runs-on: ubuntu-latest
     steps:
       - if: needs.check-images-exist.outputs.exists != 'yes'
         uses: re-actors/alls-green@release/v1
         with:
           jobs: ${{ toJSON(needs) }}
-      - if: needs.check-images-exist.outputs.exists == 'yes'
-        run: true
 
   deploy-config:
     name: PR deploy config
@@ -234,7 +232,7 @@ jobs:
 
   deploy-up:
     needs:
-      - all-built
+      # - all-built
       - deploy-config
     if: needs.deploy-config.outputs.go-up
     strategy:
@@ -253,7 +251,7 @@ jobs:
 
   deploy-down:
     needs:
-      - all-built
+      # - all-built
       - deploy-config
     if: needs.deploy-config.outputs.go-down
     strategy:
