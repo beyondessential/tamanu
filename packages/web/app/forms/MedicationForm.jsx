@@ -43,9 +43,12 @@ const drugRouteOptions = [
 const validationSchema = readOnly =>
   !readOnly
     ? yup.object().shape({
-        medicationId: foreignKey('Medication must be selected'),
-        prescriberId: foreignKey('Prescriber must be selected'),
-        prescription: yup.string().required('Instructions are required'),
+        medicationId: foreignKey().label('medication'),
+        prescriberId: foreignKey().label('prescriber'),
+        prescription: yup
+          .string()
+          .required()
+          .label('instructions'),
         route: yup
           .string()
           .oneOf(drugRouteOptions.map(x => x.value))
@@ -57,7 +60,7 @@ const validationSchema = readOnly =>
       })
     : yup.object().shape({
         discontinuingReason: yup.string(),
-        discontinuingClinicianId: foreignKey('Clinician must be selected'),
+        discontinuingClinicianId: foreignKey().label('clinician'),
       });
 
 const DiscontinuePrintButtonRow = styled.div`
