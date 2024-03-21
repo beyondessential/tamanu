@@ -202,8 +202,8 @@ jobs:
     outputs:
       up: ${{ steps.config.outputs.up }}
       down: ${{ steps.config.outputs.down }}
-      go-up: ${{ fromJson(steps.config.outputs.go-up) }}
-      go-down: ${{ fromJson(steps.config.outputs.go-down) }}
+      go-up: ${{ steps.config.outputs.go-up }}
+      go-down: ${{ steps.config.outputs.go-down }}
     steps:
       - uses: actions/checkout@v4
       - name: Parse deploy config
@@ -232,14 +232,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: echo '${{ toJson(needs.deploy-config.outputs) }}'
+      - run: echo '${{ needs.deploy-config.outputs }}'
       - run: echo '${{ toJson(needs.deploy-config.outputs.up) }}'
+      - run: echo '${{ needs.deploy-config.outputs.up }}'
       - run: echo '${{ toJson(needs.deploy-config.outputs.go-up) }}'
+      - run: echo '${{ needs.deploy-config.outputs.go-up }}'
 
   deploy-up:
     needs:
       # - all-built
       - deploy-config
-    # if: needs.deploy-config.outputs.go-up
+    if: needs.deploy-config.outputs.go-up
     strategy:
       fail-fast: false
       matrix:
