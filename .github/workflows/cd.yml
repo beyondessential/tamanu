@@ -226,7 +226,7 @@ jobs:
     needs:
       - all-built
       - deploy-config
-    if: fromJson(needs.deploy-config.outputs.go-up)
+    if: always() && needs.all-built.result == 'success' && fromJson(needs.deploy-config.outputs.go-up)
     strategy:
       fail-fast: false
       matrix:
