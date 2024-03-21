@@ -216,13 +216,16 @@ jobs:
             const down = allDeploys.filter(deploy => !deploy.enabled && !deploy.options.pause).map(matrix);
             console.log('Going UP', up.length);
             console.log('Going DOWN', down.length);
-            return {
+
+            const outputs = {
               all: allDeploys,
               up,
               down,
               goUp: !!up.length,
               goDown: !!down.length,
             };
+            console.log(outputs);
+            return outputs;
     outputs:
       all: ${{ steps.config.outputs.result.all }}
       up: ${{ steps.config.outputs.result.up }}
