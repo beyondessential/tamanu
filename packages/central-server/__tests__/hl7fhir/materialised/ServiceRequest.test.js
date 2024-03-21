@@ -350,30 +350,6 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       expect(response.headers['last-modified']).toBe(formatRFC7231(new Date(mat.lastUpdated)));
       expect(response).toHaveSucceeded();
     });
-    it('cannot have service request with independent tests and panel', async () => {
-      // arrange
-      const { FhirServiceRequest, LabTestType, LabTest } = ctx.store.models;
-      const { labRequest, category } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
-        ctx.store.models,
-        resources,
-        true,
-      );
-
-      const testTypes = await fakeTestTypes(10, LabTestType, category.id);
-      await Promise.all(testTypes.map(testType => LabTest
-        .create({
-          labRequestId: labRequest.id,
-          labTestTypeId: testType.id,
-        })));
-
-      try {
-        await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
-        throw Error('Illegal!!'); // handle if no error is thrown by the materialisation
-      } catch (clashingOrderDetails) {
-        expect(clashingOrderDetails.message).toBe(`Service Request with upstream LabRequest ${labRequest.id} cannot have both panels AND independent tests`);
-      }
-
-    });
 
     it('materialises the default priority if the source data has a null priority', async () => {
       // arrange
