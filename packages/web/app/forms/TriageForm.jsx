@@ -27,14 +27,12 @@ import { getAnswersFromData } from '../utils';
 import { FORM_TYPES } from '../constants';
 import { LowerCase } from '../components';
 import { TranslatedText } from '../components/Translation/TranslatedText';
+import { useTranslation } from '../contexts/Translation';
 
 const InfoPopupLabel = React.memo(() => (
   <span>
     <span>
-      <TranslatedText
-        stringId="patient.modal.triage.triageScore.label"
-        fallback="Triage score"
-      />
+      <TranslatedText stringId="patient.modal.triage.triageScore.label" fallback="Triage score" />
     </span>
     {/* Todo: convert triage flow chart to a configurable asset */}
     {/* <ImageInfoModal src={triageFlowchart} /> */}
@@ -51,6 +49,7 @@ export const TriageForm = ({
   const api = useApi();
   const dispatch = useDispatch();
   const { getLocalisation } = useLocalisation();
+  const { getTranslation } = useTranslation();
   const triageCategories = getLocalisation('triageCategories');
   const practitionerSuggester = useSuggester('practitioner');
   const triageReasonSuggester = useSuggester('triageReason');
@@ -223,14 +222,28 @@ export const TriageForm = ({
       }}
       formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
       validationSchema={yup.object().shape({
-        arrivalTime: yup.date().max(new Date(), 'Arrival time cannot be in the future'),
+        arrivalTime: yup
+          .date()
+          .max(
+            new Date(),
+            getTranslation(
+              'validation.rule.arrivalTimeNotInFuture',
+              'Arrival time cannot be in the future',
+            ),
+          ),
         triageTime: yup
           .date()
           .required()
-          .max(new Date(), 'Triage time cannot be in the future'),
-        chiefComplaintId: foreignKey('Chief complaint must be selected'),
-        practitionerId: foreignKey('Required'),
-        locationId: foreignKey('Location must be selected'),
+          .max(
+            new Date(),
+            getTranslation(
+              'validation.rule.triageTimeNotInFuture',
+              'Triage time cannot be in the future',
+            ),
+          ),
+        chiefComplaintId: foreignKey().label('chiefComplaint'),
+        practitionerId: foreignKey().label('clinician'),
+        locationId: foreignKey().label('location'),
         score: yup.string().required(),
       })}
     />
