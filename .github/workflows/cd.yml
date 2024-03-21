@@ -191,12 +191,12 @@ jobs:
       # - multi-arch
     runs-on: ubuntu-latest
     steps:
-      - if: needs.check-images-exist.outputs.exists == 'yes'
-        run: true
       - if: needs.check-images-exist.outputs.exists != 'yes'
         uses: re-actors/alls-green@release/v1
         with:
           jobs: ${{ toJSON(needs) }}
+      - if: needs.check-images-exist.outputs.exists == 'yes'
+        run: true
 
   deploy-config:
     name: PR deploy config
@@ -211,8 +211,8 @@ jobs:
             const cwd = '${{ github.workspace }}';
             const { parseDeployConfig } = await import(`${cwd}/packages/scripts/src/pr-cd.mjs`);
             const allDeploys = parseDeployConfig(context.payload.pull_request);
-
             console.log(allDeploys);
+
             const matrix = ({ name, options }) => ({ name, options: JSON.stringify(options) });
             const up = allDeploys.filter(deploy => deploy.enabled && !deploy.options.pause).map(matrix);
             const down = allDeploys.filter(deploy => !deploy.enabled && !deploy.options.pause).map(matrix);
