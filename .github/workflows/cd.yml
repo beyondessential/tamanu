@@ -200,17 +200,16 @@ jobs:
     name: PR deploy config
     runs-on: ubuntu-latest
     outputs:
-      up: ${{ fromJson(steps.config.outputs.result).up }}
-      down: ${{ fromJson(steps.config.outputs.result).down }}
-      go-up: ${{ fromJson(steps.config.outputs.result).goUp }}
-      go-down: ${{ fromJson(steps.config.outputs.result).goDown }}
+      up: ${{ steps.config.outputs.up }}
+      down: ${{ steps.config.outputs.down }}
+      go-up: ${{ steps.config.outputs.go-up }}
+      go-down: ${{ steps.config.outputs.go-down }}
     steps:
       - uses: actions/checkout@v4
       - name: Parse deploy config
         id: config
         uses: actions/github-script@v7
         with:
-          result-encoding: string
           script: |
             const cwd = '${{ github.workspace }}';
             const { parseDeployConfig } = await import(`${cwd}/packages/scripts/src/pr-cd.mjs`);
@@ -223,14 +222,10 @@ jobs:
             console.log('Going UP', up.length);
             console.log('Going DOWN', down.length);
 
-            const outputs = {
-              up,
-              down,
-              goUp: !!up.length,
-              goDown: !!down.length,
-            };
-            console.log(outputs);
-            return JSON.stringify(outputs);
+            core.setOutput('up', JSON.stringify(up));
+            core.setOutput('down', JSON.stringify(down));
+            core.setOutput('go-up', !!up.length);
+            core.setOutput('go-down', !!down.length);
 
   test-this-shit:
     needs: deploy-config
@@ -238,6 +233,7 @@ jobs:
     steps:
       - run: echo '${{ toJson(needs.deploy-config.outputs) }}'
       - run: echo '${{ toJson(needs.deploy-config.outputs.up) }}'
+      - run: echo '${{ toJson(needs.deploy-config.outputs.go-up) }}'
 
   deploy-up:
     needs:
