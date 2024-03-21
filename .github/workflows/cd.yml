@@ -239,8 +239,8 @@ jobs:
     name: Deploy ${{ matrix.deploy.name }}
     uses: ./.github/workflows/cd-up.yml
     with:
-      deploy-name: ${{ matrix.deploy.name }}
-      options: ${{ matrix.deploy.options }}
+      deploy-name: ${{ toJson(matrix.deploy.name) }}
+      options: ${{ toJson(matrix.deploy.options) }}
     secrets:
       PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
       TAILSCALE_DBPROXY_ACCESS_OAUTH: ${{ secrets.TAILSCALE_DBPROXY_ACCESS_OAUTH }}
@@ -258,8 +258,8 @@ jobs:
     name: Undeploy ${{ matrix.deploy.name }}
     uses: ./.github/workflows/cd-down.yml
     with:
-      deploy-name: ${{ matrix.deploy.name }}
-      options: ${{ matrix.deploy.options }}
+      deploy-name: ${{ toJson(matrix.deploy.name) }}
+      options: ${{ toJson(matrix.deploy.options) }}
     secrets:
       PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
       TAILSCALE_DBPROXY_ACCESS_OAUTH: ${{ secrets.TAILSCALE_DBPROXY_ACCESS_OAUTH }}
