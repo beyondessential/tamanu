@@ -43,7 +43,7 @@ const OPTIONS = [
   { key: 'facilities', defaultValue: 2, parse: input => intBounds(input, [0, 5]) },
   { key: 'config', defaultValue: (options, context) => 'pr' },
   { key: 'timezone', defaultValue: 'Pacific/Auckland' },
-  { key: 'ip', defaultValue: false, parse: input => input.split(',').map(s => s.trim()) },
+  { key: 'ip', defaultValue: null, parse: input => input.split(',').map(s => s.trim()) },
   { key: 'dbstorage', defaultValue: 5, parse: input => intBounds(input, [1, 500]) },
   { key: 'arch', defaultValue: 'arm64' },
   { key: 'opsref', defaultValue: 'main' },

@@ -1,7 +1,21 @@
 name: CD Down
 
 on:
-  workflow_dispatch:
+  workflow_call:
+    inputs:
+      deploy-name:
+        type: string
+        required: true
+      options:
+        type: string
+        required: true
+    secrets:
+      PULUMI_ACCESS_TOKEN:
+        required: true
+      TAILSCALE_DBPROXY_ACCESS_OAUTH:
+        required: true
+      TAMANU_OPS_SSH:
+        required: true
 
 permissions:
   contents: read
@@ -18,16 +32,17 @@ jobs:
         uses: ./.github/actions/setup-cd
         with:
           ops-ssh-key: ${{ secrets.TAMANU_OPS_SSH }}
+          ops-ref: ${{ fromJson(inputs.options).opsref }}
           tailscale-oauth: ${{ secrets.TAILSCALE_DBPROXY_ACCESS_OAUTH }}
-          k8s-core: tamanu-internal-main
+          k8s-core: ${{ fromJson(inputs.options).k8score }}
 
       - name: Down!
         uses: pulumi/actions@v5
         with:
-          work-dir: ops/pulumi/stacks/tamanu/on-k8s
+          work-dir: ops/pulumi/stacks/${{ inputs.options.opsstack }}
           command: destroy
           remove: true
-          stack-name: bes/${{ steps.setup.outputs.stack-name }}
+          stack-name: bes/${{ inputs.deploy-name }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           comment-on-pr: false
         env:
