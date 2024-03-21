@@ -117,7 +117,7 @@ export const ImagingRequestForm = React.memo(
         }}
         formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
         validationSchema={yup.object().shape({
-          // YUp TODO: What to call this
+          // YUp TODO: Do we need this as it is? What about showInlineErrorsOnly
           requestedById: foreignKey(`*${getTranslation('validation.required.short', 'Required')}`),
           requestedDate: yup.date().required(),
           imagingType: foreignKey(`*${getTranslation('validation.required.short', 'Required')}`),
