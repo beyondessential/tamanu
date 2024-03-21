@@ -7,6 +7,7 @@ import { checkVisibility, getFormInitialValues, getValidationSchema } from '../.
 import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from './ProgramsPane';
 import { Colors } from '../../constants';
 import { SurveyScreenPaginator } from '../../components/Surveys';
+import { useTranslation } from '../../contexts/Translation';
 
 export const SurveyPaneHeader = styled(ProgramsPaneHeader)`
   background: ${props => props.theme.palette.primary.main};
@@ -28,6 +29,7 @@ export const SurveyView = ({
   currentUser,
   patientProgramRegistration,
 }) => {
+  const { getTranslation } = useTranslation();
   const { components } = survey;
   const currentComponents = components.filter(
     c => c.visibilityStatus === VISIBILITY_STATUSES.CURRENT,
@@ -39,7 +41,10 @@ export const SurveyView = ({
     currentUser,
     patientProgramRegistration,
   );
-  const validationSchema = useMemo(() => getValidationSchema(survey), [survey]);
+  const validationSchema = useMemo(() => getValidationSchema(survey, getTranslation), [
+    survey,
+    getTranslation,
+  ]);
 
   const renderSurvey = props => {
     const {

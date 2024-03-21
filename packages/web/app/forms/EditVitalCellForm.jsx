@@ -17,6 +17,7 @@ import { useApi } from '../api';
 import { useEncounter } from '../contexts/Encounter';
 import { DateDisplay } from '../components/DateDisplay';
 import { TranslatedText } from '../components/Translation/TranslatedText';
+import { useTranslation } from '../contexts/Translation';
 
 const Text = styled(Typography)`
   font-size: 14px;
@@ -91,6 +92,7 @@ const HistoryLog = ({ logData, vitalLabel, vitalEditReasons }) => {
 };
 
 export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose }) => {
+  const { getTranslation } = useTranslation();
   const [isDeleted, setIsDeleted] = useState(false);
   const api = useApi();
   const queryClient = useQueryClient();
@@ -102,7 +104,7 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose }) => {
   const showDeleteEntryButton = ['', undefined].includes(initialValue) === false;
   const valueName = dataPoint.component.dataElement.id;
   const editVitalData = getEditVitalData(dataPoint.component, mandatoryVitalEditReason);
-  const validationSchema = getValidationSchema(editVitalData, {
+  const validationSchema = getValidationSchema(editVitalData, getTranslation, {
     encounterType: encounter.encounterType,
   });
   const handleDeleteEntry = useCallback(
@@ -175,9 +177,7 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose }) => {
           />
           <FormSeparatorLine />
           <OuterLabelFieldWrapper
-            label={
-              <TranslatedText stringId="encounter.vitals.history.label" fallback="History" />
-            }
+            label={<TranslatedText stringId="encounter.vitals.history.label" fallback="History" />}
             style={{ gridColumn: '1 / -1' }}
           >
             <Box

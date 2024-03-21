@@ -13,8 +13,10 @@ import { ErrorMessage } from '../components/ErrorMessage';
 import { useAuth } from '../contexts/Auth';
 import { useEncounter } from '../contexts/Encounter';
 import { TranslatedText } from '../components/Translation/TranslatedText';
+import { useTranslation } from '../contexts/Translation';
 
 export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterType }) => {
+  const { getTranslation } = useTranslation();
   const {
     data: [vitalsSurvey, patientAdditionalData],
     isLoading,
@@ -28,13 +30,10 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterTyp
   );
   const validationSchema = useMemo(
     () =>
-      getValidationSchema(
-        { components: currentComponents },
-        {
-          encounterType: encounterType || encounter?.encounterType,
-        },
-      ),
-    [currentComponents, encounter?.encounterType, encounterType],
+      getValidationSchema({ components: currentComponents }, getTranslation, {
+        encounterType: encounterType || encounter?.encounterType,
+      }),
+    [currentComponents, encounter?.encounterType, encounterType, getTranslation],
   );
   const { ability } = useAuth();
   const canCreateVitals = ability.can('create', 'Vitals');
