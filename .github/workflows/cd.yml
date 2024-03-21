@@ -200,10 +200,10 @@ jobs:
     name: PR deploy config
     runs-on: ubuntu-latest
     outputs:
-      up: ${{ steps.config.outputs.up }}
-      down: ${{ steps.config.outputs.down }}
-      go-up: ${{ steps.config.outputs.go-up }}
-      go-down: ${{ steps.config.outputs.go-down }}
+      up: ${{ fromJson(steps.config.outputs.up) }}
+      down: ${{ fromJson(steps.config.outputs.down) }}
+      go-up: ${{ fromJson(steps.config.outputs.go-up) }}
+      go-down: ${{ fromJson(steps.config.outputs.go-down) }}
     steps:
       - uses: actions/checkout@v4
       - name: Parse deploy config
