@@ -31,6 +31,7 @@ import { FormSeparatorLine } from '../components/FormSeparatorLine';
 import { FormSubmitDropdownButton } from '../components/DropdownButton';
 import { LowerCase } from '../components/Typography';
 import { TranslatedText } from '../components/Translation/TranslatedText';
+import { useTranslation } from '../contexts/Translation';
 
 function getEncounterTypeLabel(type) {
   return ENCOUNTER_OPTIONS.find(x => x.value === type).label;
@@ -94,6 +95,7 @@ export const ImagingRequestForm = React.memo(
     editedObject,
     generateId = shortid.generate,
   }) => {
+    const { getTranslation } = useTranslation();
     const { getLocalisation } = useLocalisation();
     const imagingTypes = getLocalisation('imagingTypes') || {};
     const imagingTypeOptions = Object.entries(imagingTypes).map(([key, val]) => ({
@@ -116,9 +118,9 @@ export const ImagingRequestForm = React.memo(
         formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
         validationSchema={yup.object().shape({
           // YUp TODO: What to call this
-          requestedById: foreignKey(`*Required`),
+          requestedById: foreignKey(`*${getTranslation('validation.required.short', 'Required')}`),
           requestedDate: yup.date().required(),
-          imagingType: foreignKey(`*Required`),
+          imagingType: foreignKey(`*${getTranslation('validation.required.short', 'Required')}`),
         })}
         suppressErrorDialog
         render={({ submitForm, values }) => {
