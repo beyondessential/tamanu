@@ -218,19 +218,23 @@ jobs:
             console.log('Going DOWN', down.length);
             return {
               all: allDeploys,
-              up: up.length ? up : false,
-              down: down.length ? down : false,
+              up,
+              down,
+              goUp: !!up.length,
+              goDown: !!down.length,
             };
     outputs:
       all: ${{ steps.config.outputs.result.all }}
       up: ${{ steps.config.outputs.result.up }}
       down: ${{ steps.config.outputs.result.down }}
+      go-up: ${{ steps.config.outputs.result.goUp }}
+      go-down: ${{ steps.config.outputs.result.goDown }}
 
   deploy-up:
     needs:
       - all-built
       - deploy-config
-    if: needs.deploy-config.outputs.up
+    if: needs.deploy-config.outputs.go-up
     strategy:
       fail-fast: false
       matrix:
@@ -249,7 +253,7 @@ jobs:
     needs:
       - all-built
       - deploy-config
-    if: needs.deploy-config.outputs.down
+    if: needs.deploy-config.outputs.go-down
     strategy:
       fail-fast: false
       matrix:
