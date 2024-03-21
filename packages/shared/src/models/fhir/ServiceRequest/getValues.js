@@ -237,8 +237,7 @@ function statusFromLabRequest(upstream) {
 function labCode(upstream) {
   const { labTestPanelRequest } = upstream;
 
-  // ServiceRequests may have tests through panels or 
-  // independent tests associated - but not both. 
+  // ServiceRequests may not have a panel
   if (!labTestPanelRequest) {
     return null;
   }
@@ -252,38 +251,21 @@ function labCode(upstream) {
   );
 }
 
-async function labOrderDetails(upstream) {
-  const testTypes = await resolveTestTypes(upstream);
-  return testTypes.map(testType => {
-    if (!testType) throw new Exception('Received a null test');
-    const { externalCode, code, name } = testType;
+function labOrderDetails({ tests }) {
+  if (tests.length) {
+    return tests.map(({ labTestType }) => {
+      if (!labTestType) throw new Exception('Received a null test');
 
-    return generateCodings(
-      code,
-      externalCode,
-      name,
-      config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
-      config.hl7.dataDictionaries.serviceRequestLabTestExternalCodeSystem
-    );
-  });
-}
-// The lab tests will either need to be directly associated 
-// with the lab tests or through the panels.
-function resolveTestTypes(upstream) {
-  const { labTestPanelRequest, tests } = upstream;
-  const { labTestPanel } = labTestPanelRequest || {};
+      const { externalCode, code, name } = labTestType;
 
-  // A single request cannot have BOTH
-  //  panels and individual tests together. 
-  if (tests.length > 0 && labTestPanel) {
-    throw new Error(`Service Request with upstream LabRequest ${upstream.id} cannot have both panels AND independent tests`);
-  }
-
-  if (tests.length > 0) {
-    return tests.map(test => test.labTestType);
-  }
-  if (labTestPanel) {
-    return labTestPanel.labTestTypes;
+      return generateCodings(
+        code,
+        externalCode,
+        name,
+        config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+        config.hl7.dataDictionaries.serviceRequestLabTestExternalCodeSystem
+      );
+    });
   }
   return [];
 }
