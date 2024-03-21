@@ -33,9 +33,9 @@ export function parseDeployConfig({ body, head }) {
 }
 
 function intBounds(input, [low, high]) {
-  const value = parseInt(input, 10);
-  if (value < low) throw new Error(`value is too low: expected [${low}, ${high}], got ${value}`);
-  if (value > high) throw new Error(`value is too high: expected [${low}, ${high}], got ${value}`);
+  const value = typeof input === 'number' ? input : parseInt(input, 10);
+  if (value < low) return low;
+  if (value > high) return high;
   return value;
 }
 
