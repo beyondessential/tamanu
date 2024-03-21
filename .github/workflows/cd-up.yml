@@ -2,6 +2,13 @@ name: CD Up
 
 on:
   workflow_call:
+    inputs:
+      deploy-name:
+        type: string
+        required: true
+      options:
+        type: string
+        required: true
     secrets:
       PULUMI_ACCESS_TOKEN:
         required: true
@@ -20,27 +27,27 @@ jobs:
     runs-on: ubuntu-latest
     name: Deploy
     env:
-      K8S_CORE: tamanu-internal-main
     steps:
       - uses: actions/checkout@v4
       - id: setup
         uses: ./.github/actions/setup-cd
         with:
           ops-ssh-key: ${{ secrets.TAMANU_OPS_SSH }}
+          ops-ref: ${{ fromJson(inputs.options).opsref }}
           tailscale-oauth: ${{ secrets.TAILSCALE_DBPROXY_ACCESS_OAUTH }}
-          k8s-core: tamanu-internal-main
+          k8s-core: ${{ fromJson(inputs.options).k8score }}
 
       - name: Create or check namespace
         run: |
-          if kubectl get namespace tamanu-${{ steps.setup.outputs.stack-name }} 2>/dev/null; then
+          if kubectl get namespace tamanu-${{ inputs.deploy-name }} 2>/dev/null; then
             echo "Namespace exists, checking it's matched to this branch"
-            kubectl -n tamanu-${{ steps.setup.outputs.stack-name }} \
+            kubectl -n tamanu-${{ inputs.deploy-name }} \
               get configmap auto-deploy -o json \
               | tee -a /dev/stderr \
               | jq -e '.data | [.repo == "${{ github.repository }}", .ref == "${{ github.ref }}"] | all'
           else
-            kubectl create namespace tamanu-${{ steps.setup.outputs.stack-name }}
-            kubectl -n tamanu-${{ steps.setup.outputs.stack-name }} \
+            kubectl create namespace tamanu-${{ inputs.deploy-name }}
+            kubectl -n tamanu-${{ inputs.deploy-name }} \
               create configmap auto-deploy \
               --from-literal=repo=${{ github.repository }} \
               --from-literal=ref=${{ github.ref }}
@@ -49,18 +56,22 @@ jobs:
       - name: Up!
         uses: pulumi/actions@v5
         with:
-          work-dir: ops/pulumi/stacks/tamanu/on-k8s
+          work-dir: ops/pulumi/stacks/${{ fromJson(inputs.options).opsstack }}
           command: up
-          stack-name: bes/${{ steps.setup.outputs.stack-name }}
+          stack-name: bes/${{ inputs.deploy-name }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           comment-on-pr: false
           upsert: true
           config-map: >
             {
-            tamanu-on-k8s:namespace: {value: 'tamanu-${{ steps.setup.outputs.stack-name }}', secret: false},
+            tamanu-on-k8s:namespace: {value: 'tamanu-${{ inputs.deploy-name }}', secret: false},
             tamanu-on-k8s:imageTag: {value: 'sha-${{ github.sha }}', secret: false},
-            tamanu-on-k8s:k8s-core: {value: 'bes/k8s-core/${{ steps.setup.outputs.k8s-core }}', secret: false},
-            tamanu-on-k8s:architecture: {value: 'arm64', secret: false},
+            tamanu-on-k8s:k8s-core: {value: 'bes/k8s-core/${{ fromJson(inputs.options).k8score }}', secret: false},
+            tamanu-on-k8s:architecture: {value: '${{ fromJson(inputs.options).arch }}', secret: false},
+            tamanu-on-k8s:configTemplate: {value: '${{ fromJson(inputs.options).config }}', secret: false},
+            tamanu-on-k8s:dbStorage: {value: '${{ fromJson(inputs.options).dbstorage }}', secret: false},
+            tamanu-on-k8s:facilities: {value: '${{ fromJson(inputs.options).facilities }}', secret: false},
+            tamanu-on-k8s:timezone: {value: '${{ fromJson(inputs.options).timezone }}', secret: false},
             }
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}

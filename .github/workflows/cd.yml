@@ -202,28 +202,38 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Parse deploy config
+        id: config
         uses: actions/github-script@v7
         with:
           script: |
             const cwd = '${{ github.workspace }}';
             const { parseDeployConfig } = await import(`${cwd}/packages/scripts/src/pr-cd.mjs`);
-            return parseDeployConfig(context.payload.pull_request);
+            const allDeploys = parseDeployConfig(context.payload.pull_request);
 
-  deploy-branch:
-    needs: all-built
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/release/'))
-    name: Deploy branch ${{ github.ref_name }}
-    uses: ./.github/workflows/cd-up.yml
-    secrets:
-      PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
-      TAILSCALE_DBPROXY_ACCESS_OAUTH: ${{ secrets.TAILSCALE_DBPROXY_ACCESS_OAUTH }}
-      TAMANU_OPS_SSH: ${{ secrets.TAMANU_OPS_SSH }}
+            console.log(allDeploys);
+            return {
+              all: allDeploys,
+              up: allDeploys.filter(deploy => deploy.enabled && !deploy.pause),
+              down: allDeploys.filter(deploy => !deploy.enabled && !deploy.pause),
+            };
+    outputs:
+      all: ${{ fromJson(steps.config.outputs.result).all }}
+      up: ${{ fromJson(steps.config.outputs.result).up }}
+      down: ${{ fromJson(steps.config.outputs.result).down }}
 
-  deploy-pr:
-    needs: all-built
-    if: github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'auto-deploy')
-    name: Deploy PR ${{ github.event.pull_request.number }}
+  deploy-up:
+    needs:
+      - all-built
+      - deploy-config
+    if: needs.deploy-config.outputs.up.*.enabled
+    strategy:
+      matrix:
+        include: ${{ needs.deploy-config.outputs.up }}
+    name: Deploy ${{ matrix.name }}
     uses: ./.github/workflows/cd-up.yml
+    with:
+      deploy-name: ${{ matrix.name }}
+      options: ${{ toJson(matrix.options) }}
     secrets:
       PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
       TAILSCALE_DBPROXY_ACCESS_OAUTH: ${{ secrets.TAILSCALE_DBPROXY_ACCESS_OAUTH }}

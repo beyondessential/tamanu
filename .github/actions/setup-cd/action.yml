@@ -4,6 +4,10 @@ inputs:
   ops-ssh-key:
     description: SSH key for ops repo
     required: true
+  ops-ref:
+    description: Ref to checkout in ops repo
+    required: true
+    default: main
   tailscale-oauth:
     description: Tailscale OAuth key
     required: true
@@ -26,7 +30,7 @@ runs:
         repository: beyondessential/ops
         ssh-key: ${{ inputs.ops-ssh-key }}
         path: ops
-        ref: main
+        ref: ${{ inputs.ops-ref }}
     - name: Remove ops/.git so pulumi doesn't get confused
       shell: bash
       run: rm -rf ops/.git
