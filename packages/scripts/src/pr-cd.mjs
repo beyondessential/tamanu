@@ -54,19 +54,19 @@ const OPTIONS = [
   { key: 'apis', defaultValue: 2, parse: input => intBounds(input, [0, 5]) },
   {
     key: 'centralapis',
-    defaultValue: options => options.apis,
+    defaultValue: options => intBounds(options.apis, [0, 5]),
     parse: input => intBounds(input, [0, 5]),
   },
   {
     key: 'facilityapis',
-    defaultValue: options => options.apis,
+    defaultValue: options => intBounds(options.apis, [0, 1]),
     parse: input => intBounds(input, [0, 1]), // max:5 when split
   },
 
   { key: 'tasks', defaultValue: 1, parse: input => intBounds(input, [0, 1]) },
   {
     key: 'centraltasks',
-    defaultValue: options => options.tasks,
+    defaultValue: options => intBounds(options.tasks, [0, 1]),
     parse: input => intBounds(input, [0, 1]),
   },
   {
@@ -78,24 +78,24 @@ const OPTIONS = [
   { key: 'webs', defaultValue: 2, parse: input => intBounds(input, [0, 5]) },
   {
     key: 'centralwebs',
-    defaultValue: options => options.webs,
+    defaultValue: options => intBounds(options.webs, [0, 5]),
     parse: input => intBounds(input, [0, 5]),
   },
   {
     key: 'facilitywebs',
-    defaultValue: options => options.webs,
+    defaultValue: options => intBounds(options.webs, [0, 5]),
     parse: input => intBounds(input, [0, 5]),
   },
 
   { key: 'dbs', defaultValue: 2, parse: input => intBounds(input, [2, 3]) },
   {
     key: 'centraldbs',
-    defaultValue: options => options.dbs,
+    defaultValue: options => intBounds(options.dbs, [2, 3]),
     parse: input => intBounds(input, [2, 3]),
   },
   {
     key: 'facilitydbs',
-    defaultValue: options => options.dbs,
+    defaultValue: options => intBounds(options.dbs, [2, 3]),
     parse: input => intBounds(input, [2, 3]),
   },
 ];
