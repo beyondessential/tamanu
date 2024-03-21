@@ -31,6 +31,7 @@ import { ParameterField } from './ParameterField';
 import { useLocalisation } from '../../contexts/Localisation';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { ReportAboutModal } from './ReportAboutModal';
+import { useTranslation } from '../../contexts/Translation';
 
 const Spacer = styled.div`
   padding-top: 30px;
@@ -112,6 +113,7 @@ const isJsonString = str => {
 
 export const ReportGeneratorForm = () => {
   const api = useApi();
+  const { getTranslation } = useTranslation();
   const getFileName = useFileName();
   const { currentUser } = useAuth();
   const [successMessage, setSuccessMessage] = useState(null);
@@ -259,10 +261,10 @@ export const ReportGeneratorForm = () => {
       onSubmit={submitRequestReport}
       validationSchema={Yup.object().shape({
         reportId: Yup.string().required(
-          <TranslatedText
-            stringId="report.generate.validation.reportId.required"
-            fallback="Report id is required. A report must be selected from the dropdown; just entering a report name will not work. If you can't see a specific report, please contact your system administrator."
-          />,
+          getTranslation(
+            'validation.rule.mustSelectReport',
+            "Report id is required. A report must be selected from the dropdown; just entering a report name will not work. If you can't see a specific report, please contact your system administrator.",
+          ),
         ),
         ...parameters.reduce(
           (schema, field) => ({
@@ -277,9 +279,7 @@ export const ReportGeneratorForm = () => {
           <FormGrid columns={2}>
             <Field
               name="reportId"
-              label={
-                <TranslatedText stringId="report.generate.report.label" fallback="Report" />
-              }
+              label={<TranslatedText stringId="report.generate.report.label" fallback="Report" />}
               component={ReportIdField}
               options={reportOptions}
               required
@@ -359,19 +359,14 @@ export const ReportGeneratorForm = () => {
             <Field
               name="fromDate"
               label={
-                <TranslatedText
-                  stringId="report.generate.fromDate.label"
-                  fallback="From date"
-                />
+                <TranslatedText stringId="report.generate.fromDate.label" fallback="From date" />
               }
               component={DateField}
               saveDateAsString={filterDateRangeAsStrings}
             />
             <Field
               name="toDate"
-              label={
-                <TranslatedText stringId="report.generate.toDate.label" fallback="To date" />
-              }
+              label={<TranslatedText stringId="report.generate.toDate.label" fallback="To date" />}
               component={DateField}
               saveDateAsString={filterDateRangeAsStrings}
             />

@@ -74,7 +74,9 @@ export const AddConditionFormModal = ({
           );
         }}
         validationSchema={yup.object().shape({
-          programRegistryConditionId: foreignKey().required('Condition must be selected'),
+          programRegistryConditionId: foreignKey()
+            .required()
+            .label('condition'),
         })}
       />
     </Modal>

@@ -25,7 +25,7 @@ export const LabRequestMultiStepForm = ({
   onSubmit,
   editedObject,
 }) => {
-  const { getTranslation } = useTranslation;
+  const { getTranslation } = useTranslation();
   const { currentUser } = useAuth();
   const [initialSamples, setInitialSamples] = useState([]);
 

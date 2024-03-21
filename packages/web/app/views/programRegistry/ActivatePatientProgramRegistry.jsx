@@ -157,7 +157,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
                     }
                     name="conditionIds"
                     label="Related conditions"
-                    placeholder={getTranslation("general.placeholder.select", "Select")}
+                    placeholder={getTranslation('general.placeholder.select', 'Select')}
                     component={MultiselectField}
                     options={conditions}
                     disabled={!conditions || conditions.length === 0}
@@ -191,9 +191,16 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
         formType={FORM_TYPES.EDIT_FORM}
         validationSchema={yup.object().shape({
           clinicalStatusId: optionalForeignKey().nullable(),
-          date: yup.date().required('Date of registration must be selected'),
-          clinicianId: foreignKey().required('Registered by must be selected'),
-          registeringFacilityId: foreignKey().required('Registering facility must be selected'),
+          date: yup
+            .date()
+            .required()
+            .label('dateOfRegistration'),
+          clinicianId: foreignKey()
+            .required()
+            .label('registeredBy'),
+          registeringFacilityId: foreignKey()
+            .required()
+            .label('registeringFacility'),
         })}
       />
     </Modal>

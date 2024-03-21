@@ -83,7 +83,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                 <Field
                   name="programRegistryId"
                   label="Program registry"
-                  placeholder={getTranslation("general.placeholder.select", "Select")}
+                  placeholder={getTranslation('general.placeholder.select', 'Select')}
                   required
                   component={AutocompleteField}
                   suggester={programRegistrySuggester}
@@ -107,7 +107,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                 <Field
                   name="clinicianId"
                   label="Registered by"
-                  placeholder={getTranslation("general.placeholder.select", "Select")}
+                  placeholder={getTranslation('general.placeholder.select', 'Select')}
                   required
                   component={AutocompleteField}
                   suggester={registeredBySuggester}
@@ -115,7 +115,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                 <Field
                   name="registeringFacilityId"
                   label="Registering facility"
-                  placeholder={getTranslation("general.placeholder.select", "Select")}
+                  placeholder={getTranslation('general.placeholder.select', 'Select')}
                   required
                   component={AutocompleteField}
                   suggester={registeringFacilitySuggester}
@@ -126,7 +126,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                   disabledTooltipText="Select a program registry to set the status"
                   name="clinicalStatusId"
                   label="Status"
-                  placeholder={getTranslation("general.placeholder.select", "Select")}
+                  placeholder={getTranslation('general.placeholder.select', 'Select')}
                   component={AutocompleteField}
                   suggester={programRegistryStatusSuggester}
                   disabled={!program}
@@ -139,7 +139,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                   }
                   name="conditionIds"
                   label="Related conditions"
-                  placeholder={getTranslation("general.placeholder.select", "Select")}
+                  placeholder={getTranslation('general.placeholder.select', 'Select')}
                   component={MultiselectField}
                   options={conditions}
                   disabled={!conditions || conditions.length === 0}
@@ -171,11 +171,11 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
       }}
       formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
       validationSchema={yup.object().shape({
-        programRegistryId: foreignKey('Program registry must be selected'),
+        programRegistryId: foreignKey().label('programRegistry'),
         clinicalStatusId: optionalForeignKey().nullable(),
         date: yup.date(),
-        clinicianId: foreignKey('Registered by must be selected'),
-        registeringFacilityId: foreignKey('Registering facility must be selected'),
+        clinicianId: foreignKey().label('registeredBy'),
+        registeringFacilityId: foreignKey().label('registeringFacility'),
       })}
     />
   );
