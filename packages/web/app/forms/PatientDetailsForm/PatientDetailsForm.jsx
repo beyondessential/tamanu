@@ -126,7 +126,6 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
             patientRegistryType={patientRegistryType}
             isRequiredPatientData={isRequiredPatientData}
             sexOptions={sexOptions}
-            isEdit
           />
           <StyledPatientDetailSecondaryDetailsGroupWrapper>
             <SecondaryDetails
