@@ -278,7 +278,7 @@ export const ChangePasswordForm = React.memo(
               [yup.ref('confirmNewPassword'), null],
               getTranslation('validation.rule.passwordMatch', `Passwords don't match`),
             )
-            .required(REQUIRED_VALIDATION_MESSAGE),
+            .required(getTranslation('validation.required.inline', '*Required')),
           confirmNewPassword: yup
             .string()
             .min(
@@ -289,7 +289,7 @@ export const ChangePasswordForm = React.memo(
               [yup.ref('newPassword'), null],
               getTranslation('validation.rule.passwordMatch', `Passwords don't match`),
             )
-            .required(REQUIRED_VALIDATION_MESSAGE),
+            .required(getTranslation('validation.required.inline', '*Required')),
         })}
         suppressErrorDialog
       />

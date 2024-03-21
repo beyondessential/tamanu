@@ -99,9 +99,9 @@ export const ResetPasswordForm = React.memo(
           email: yup
             .string()
             .email(getTranslation('validation.rule.validEmail', 'Must enter a valid email'))
-            .required(`*${getTranslation('validation.required.short', 'Required')}`),
+            .required(getTranslation('validation.required.inline', '*Required')),
         })}
-        suppressErrorDialog
+        showInlineErrorsOnly
       />
     );
   },
