@@ -232,7 +232,7 @@ jobs:
     needs:
       - all-built
       - deploy-config
-    if: needs.deploy-config.outputs.go-up
+    if: fromJson(needs.deploy-config.outputs.go-up)
     strategy:
       fail-fast: false
       matrix:
@@ -248,10 +248,8 @@ jobs:
       TAMANU_OPS_SSH: ${{ secrets.TAMANU_OPS_SSH }}
 
   deploy-down:
-    needs:
-      # - all-built
-      - deploy-config
-    if: needs.deploy-config.outputs.go-down
+    needs: deploy-config
+    if: fromJson(needs.deploy-config.outputs.go-down)
     strategy:
       fail-fast: false
       matrix:
