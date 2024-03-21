@@ -36,10 +36,7 @@ export const OngoingConditionForm = ({
         <Field
           name="conditionId"
           label={
-            <TranslatedText
-              stringId="conditions.conditionName.label"
-              fallback="Condition name"
-            />
+            <TranslatedText stringId="conditions.conditionName.label" fallback="Condition name" />
           }
           component={AutocompleteField}
           suggester={icd10Suggester}
@@ -48,9 +45,7 @@ export const OngoingConditionForm = ({
         />
         <Field
           name="recordedDate"
-          label={
-            <TranslatedText stringId="general.recordedDate.label" fallback="Date recorded" />
-          }
+          label={<TranslatedText stringId="general.recordedDate.label" fallback="Date recorded" />}
           saveDateAsString
           component={DateField}
           disabled={resolving}
@@ -151,7 +146,7 @@ export const OngoingConditionForm = ({
       }}
       formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
       validationSchema={yup.object().shape({
-        conditionId: foreignKey('Condition is a required field'),
+        conditionId: foreignKey().label('condition'),
         recordedDate: yup.date(),
         examinerId: yup.string(),
         note: yup.string(),

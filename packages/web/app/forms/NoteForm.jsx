@@ -78,17 +78,16 @@ export const NoteForm = ({
         content: note?.content,
       }}
       formType={
-        noteFormMode === NOTE_FORM_MODES.EDIT_NOTE
-          ? FORM_TYPES.EDIT_FORM
-          : FORM_TYPES.CREATE_FORM
+        noteFormMode === NOTE_FORM_MODES.EDIT_NOTE ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM
       }
       validationSchema={yup.object().shape({
         noteType: yup
           .string()
           .oneOf(Object.values(NOTE_TYPES))
-          .required('Note type is required'),
-        date: yup.date().required('Date is required'),
-        content: yup.string().required('Content is required'),
+          .required(),
+        date: yup.date().required(),
+        content: yup.string().required(),
+        // YUP TODO: This should be a foreign key validation
         writtenById: foreignKey(
           `${
             noteFormMode === NOTE_FORM_MODES.EDIT_NOTE &&

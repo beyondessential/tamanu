@@ -51,9 +51,7 @@ export const PatientCarePlanForm = ({
         </FormGrid>
         <Field
           name="content"
-          label={
-            <TranslatedText stringId="carePlan.content.label" fallback="Main care plan" />
-          }
+          label={<TranslatedText stringId="carePlan.content.label" fallback="Main care plan" />}
           required
           component={TextField}
           multiline
@@ -78,7 +76,7 @@ export const PatientCarePlanForm = ({
     }}
     formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
     validationSchema={yup.object().shape({
-      carePlanId: foreignKey('Care plan is a required field'),
+      carePlanId: foreignKey().label('carePlan'),
       date: yup.date(),
       examinerId: yup.string(),
       content: yup.string(),
