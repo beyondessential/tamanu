@@ -234,7 +234,7 @@ jobs:
     needs:
       # - all-built
       - deploy-config
-    if: needs.deploy-config.outputs.go-up
+    # if: needs.deploy-config.outputs.go-up
     strategy:
       fail-fast: false
       matrix:
