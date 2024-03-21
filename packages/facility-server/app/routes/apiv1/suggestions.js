@@ -115,6 +115,7 @@ function createSuggesterLookupRoute(endpoint, modelName, { mapper }) {
       const translation = await models.TranslatedString.findOne({
         where: {
           stringId: `${REFERENCE_DATA_TRANSLATION_PREFIX}.${getDataType(endpoint)}.${record.id}`,
+          // TODO: querying an undefined language here :thinking:
           language: query.language,
         },
       });
