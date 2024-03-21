@@ -8,44 +8,73 @@ import {
   PLACE_OF_BIRTH_TYPES,
 } from '@tamanu/constants';
 
-const requiredWhenConfiguredMandatory = (getLocalisation, name, baseType) => {
+const requiredWhenConfiguredMandatory = (getLocalisation, getTranslation, name, baseType) => {
+  console.log(baseType);
   return baseType.when([], {
     is: () => !!getLocalisation(`fields.${name}.requiredPatientData`),
-    then: baseType.required('Required'),
+    then: baseType.required(
+      // TODO: this is terrible but not sure what alternative is
+      `${getTranslation(
+        `general.localisedField.${name}.label.short`,
+        getLocalisation(`fields.${name}.shortLabel`),
+      )} is required `,
+    ),
     otherwise: baseType,
   });
 };
 
 const requiredBirthFieldWhenConfiguredMandatory = (
   getLocalisation,
+  getTranslation,
   patientRegistryType,
   name,
   baseType,
 ) =>
   baseType.when([], {
     is: () => patientRegistryType === PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY,
-    then: requiredWhenConfiguredMandatory(getLocalisation, name, baseType),
+    then: requiredWhenConfiguredMandatory(getLocalisation, getTranslation, name, baseType),
     otherwise: baseType,
   });
 
-export const getPatientDetailsValidation = (patientRegistryType, sexValues, getLocalisation) => {
+export const getPatientDetailsValidation = (
+  patientRegistryType,
+  sexValues,
+  getLocalisation,
+  getTranslation,
+) => {
   const patientDetailsValidationSchema = yup.object().shape({
     firstName: yup.string().required(),
-    middleName: requiredWhenConfiguredMandatory(getLocalisation, 'middleName', yup.string()),
+    middleName: requiredWhenConfiguredMandatory(
+      getLocalisation,
+      getTranslation,
+      'middleName',
+      yup.string(),
+    ),
     lastName: yup.string().required(),
-    culturalName: requiredWhenConfiguredMandatory(getLocalisation, 'culturalName', yup.string()),
+    culturalName: requiredWhenConfiguredMandatory(
+      getLocalisation,
+      getTranslation,
+      'culturalName',
+      yup.string(),
+    ),
     dateOfBirth: yup.date().required(),
     sex: yup
       .string()
       .oneOf(sexValues)
       .required(),
-    email: requiredWhenConfiguredMandatory(getLocalisation, 'email', yup.string().email()),
+    email: requiredWhenConfiguredMandatory(
+      getLocalisation,
+      getTranslation,
+      'email',
+      yup.string().email(),
+    ),
 
     /* --- PATIENT BIRTH FIELDS START --- */
     birthFacilityId: yup.string().when('registeredBirthPlace', {
       is: value => value === PLACE_OF_BIRTH_TYPES.HEALTH_FACILITY,
       then: requiredBirthFieldWhenConfiguredMandatory(
         getLocalisation,
+        getTranslation,
         patientRegistryType,
         'birthFacilityId',
         yup.string(),
@@ -55,18 +84,21 @@ export const getPatientDetailsValidation = (patientRegistryType, sexValues, getL
 
     attendantAtBirth: requiredBirthFieldWhenConfiguredMandatory(
       getLocalisation,
+      getTranslation,
       patientRegistryType,
       'attendantAtBirth',
       yup.string(),
     ),
     nameOfAttendantAtBirth: requiredBirthFieldWhenConfiguredMandatory(
       getLocalisation,
+      getTranslation,
       patientRegistryType,
       'nameOfAttendantAtBirth',
       yup.string(),
     ),
     birthWeight: requiredBirthFieldWhenConfiguredMandatory(
       getLocalisation,
+      getTranslation,
       patientRegistryType,
       'birthWeight',
       yup
@@ -76,6 +108,7 @@ export const getPatientDetailsValidation = (patientRegistryType, sexValues, getL
     ),
     birthLength: requiredBirthFieldWhenConfiguredMandatory(
       getLocalisation,
+      getTranslation,
       patientRegistryType,
       'birthLength',
       yup
@@ -85,12 +118,14 @@ export const getPatientDetailsValidation = (patientRegistryType, sexValues, getL
     ),
     birthDeliveryType: requiredBirthFieldWhenConfiguredMandatory(
       getLocalisation,
+      getTranslation,
       patientRegistryType,
       'birthDeliveryType',
       yup.string().oneOf(Object.values(BIRTH_DELIVERY_TYPES)),
     ),
     gestationalAgeEstimate: requiredBirthFieldWhenConfiguredMandatory(
       getLocalisation,
+      getTranslation,
       patientRegistryType,
       'gestationalAgeEstimate',
       yup
@@ -100,6 +135,7 @@ export const getPatientDetailsValidation = (patientRegistryType, sexValues, getL
     ),
     apgarScoreOneMinute: requiredBirthFieldWhenConfiguredMandatory(
       getLocalisation,
+      getTranslation,
       patientRegistryType,
       'apgarScoreOneMinute',
       yup
@@ -109,6 +145,7 @@ export const getPatientDetailsValidation = (patientRegistryType, sexValues, getL
     ),
     apgarScoreFiveMinutes: requiredBirthFieldWhenConfiguredMandatory(
       getLocalisation,
+      getTranslation,
       patientRegistryType,
       'apgarScoreFiveMinutes',
       yup
@@ -118,6 +155,7 @@ export const getPatientDetailsValidation = (patientRegistryType, sexValues, getL
     ),
     apgarScoreTenMinutes: requiredBirthFieldWhenConfiguredMandatory(
       getLocalisation,
+      getTranslation,
       patientRegistryType,
       'apgarScoreTenMinutes',
       yup
@@ -127,100 +165,220 @@ export const getPatientDetailsValidation = (patientRegistryType, sexValues, getL
     ),
     birthType: requiredBirthFieldWhenConfiguredMandatory(
       getLocalisation,
+      getTranslation,
       patientRegistryType,
       'birthType',
       yup.string().oneOf(Object.values(BIRTH_TYPES)),
     ),
     timeOfBirth: requiredBirthFieldWhenConfiguredMandatory(
       getLocalisation,
+      getTranslation,
       patientRegistryType,
       'timeOfBirth',
       yup.string(),
     ),
     registeredBirthPlace: requiredBirthFieldWhenConfiguredMandatory(
       getLocalisation,
+      getTranslation,
       patientRegistryType,
       'registeredBirthPlace',
       yup.string().oneOf(Object.values(PLACE_OF_BIRTH_TYPES)),
     ),
     /* --- PATIENT BIRTH FIELDS END--- */
 
-    religionId: requiredWhenConfiguredMandatory(getLocalisation, 'religionId', yup.string()),
+    religionId: requiredWhenConfiguredMandatory(
+      getLocalisation,
+      getTranslation,
+      'religionId',
+      yup.string(),
+    ),
     birthCertificate: requiredWhenConfiguredMandatory(
       getLocalisation,
+      getTranslation,
       'birthCertificate',
       yup.string(),
     ),
-    passport: requiredWhenConfiguredMandatory(getLocalisation, 'passport', yup.string()),
+    passport: requiredWhenConfiguredMandatory(
+      getLocalisation,
+      getTranslation,
+      'passport',
+      yup.string(),
+    ),
     primaryContactNumber: requiredWhenConfiguredMandatory(
       getLocalisation,
+      getTranslation,
       'primaryContactNumber',
       yup.number(),
     ),
     secondaryContactNumber: requiredWhenConfiguredMandatory(
       getLocalisation,
+      getTranslation,
       'secondaryContactNumber',
       yup.number(),
     ),
     emergencyContactName: requiredWhenConfiguredMandatory(
       getLocalisation,
+      getTranslation,
       'emergencyContactName',
       yup.string(),
     ),
     emergencyContactNumber: requiredWhenConfiguredMandatory(
       getLocalisation,
+      getTranslation,
       'emergencyContactNumber',
       yup.number(),
     ),
-    title: requiredWhenConfiguredMandatory(getLocalisation, 'title', yup.string()),
-    bloodType: requiredWhenConfiguredMandatory(getLocalisation, 'bloodType', yup.string()),
-    placeOfBirth: requiredWhenConfiguredMandatory(getLocalisation, 'placeOfBirth', yup.string()),
+    title: requiredWhenConfiguredMandatory(getLocalisation, getTranslation, 'title', yup.string()),
+    bloodType: requiredWhenConfiguredMandatory(
+      getLocalisation,
+      getTranslation,
+      'bloodType',
+      yup.string(),
+    ),
+    placeOfBirth: requiredWhenConfiguredMandatory(
+      getLocalisation,
+      getTranslation,
+      'placeOfBirth',
+      yup.string(),
+    ),
     countryOfBirthId: requiredWhenConfiguredMandatory(
       getLocalisation,
+      getTranslation,
       'countryOfBirthId',
       yup.string(),
     ),
-    nationalityId: requiredWhenConfiguredMandatory(getLocalisation, 'nationalityId', yup.string()),
-    ethnicityId: requiredWhenConfiguredMandatory(getLocalisation, 'ethnicityId', yup.string()),
+    nationalityId: requiredWhenConfiguredMandatory(
+      getLocalisation,
+      getTranslation,
+      'nationalityId',
+      yup.string(),
+    ),
+    ethnicityId: requiredWhenConfiguredMandatory(
+      getLocalisation,
+      getTranslation,
+      'ethnicityId',
+      yup.string(),
+    ),
     patientBillingTypeId: requiredWhenConfiguredMandatory(
       getLocalisation,
+      getTranslation,
       'patientBillingTypeId',
       yup.string(),
     ),
-    motherId: requiredWhenConfiguredMandatory(getLocalisation, 'motherId', yup.string()),
-    fatherId: requiredWhenConfiguredMandatory(getLocalisation, 'fatherId', yup.string()),
-    subdivisionId: requiredWhenConfiguredMandatory(getLocalisation, 'subdivisionId', yup.string()),
-    divisionId: requiredWhenConfiguredMandatory(getLocalisation, 'divisionId', yup.string()),
-    countryId: requiredWhenConfiguredMandatory(getLocalisation, 'countryId', yup.string()),
-    settlementId: requiredWhenConfiguredMandatory(getLocalisation, 'settlementId', yup.string()),
-    medicalAreaId: requiredWhenConfiguredMandatory(getLocalisation, 'medicalAreaId', yup.string()),
-    nursingZoneId: requiredWhenConfiguredMandatory(getLocalisation, 'nursingZoneId', yup.string()),
-    streetVillage: requiredWhenConfiguredMandatory(getLocalisation, 'streetVillage', yup.string()),
-    villageId: requiredWhenConfiguredMandatory(getLocalisation, 'villageId', yup.string()),
-    cityTown: requiredWhenConfiguredMandatory(getLocalisation, 'cityTown', yup.string()),
+    motherId: requiredWhenConfiguredMandatory(
+      getLocalisation,
+      getTranslation,
+      'motherId',
+      yup.string(),
+    ),
+    fatherId: requiredWhenConfiguredMandatory(
+      getLocalisation,
+      getTranslation,
+      'fatherId',
+      yup.string(),
+    ),
+    subdivisionId: requiredWhenConfiguredMandatory(
+      getLocalisation,
+      getTranslation,
+      'subdivisionId',
+      yup.string(),
+    ),
+    divisionId: requiredWhenConfiguredMandatory(
+      getLocalisation,
+      getTranslation,
+      'divisionId',
+      yup.string(),
+    ),
+    countryId: requiredWhenConfiguredMandatory(
+      getLocalisation,
+      getTranslation,
+      'countryId',
+      yup.string(),
+    ),
+    settlementId: requiredWhenConfiguredMandatory(
+      getLocalisation,
+      getTranslation,
+      'settlementId',
+      yup.string(),
+    ),
+    medicalAreaId: requiredWhenConfiguredMandatory(
+      getLocalisation,
+      getTranslation,
+      'medicalAreaId',
+      yup.string(),
+    ),
+    nursingZoneId: requiredWhenConfiguredMandatory(
+      getLocalisation,
+      getTranslation,
+      'nursingZoneId',
+      yup.string(),
+    ),
+    streetVillage: requiredWhenConfiguredMandatory(
+      getLocalisation,
+      getTranslation,
+      'streetVillage',
+      yup.string(),
+    ),
+    villageId: requiredWhenConfiguredMandatory(
+      getLocalisation,
+      getTranslation,
+      'villageId',
+      yup.string(),
+    ),
+    cityTown: requiredWhenConfiguredMandatory(
+      getLocalisation,
+      getTranslation,
+      'cityTown',
+      yup.string(),
+    ),
     drivingLicense: yup.string().when({
       is: () => patientRegistryType === PATIENT_REGISTRY_TYPES.NEW_PATIENT,
-      then: requiredWhenConfiguredMandatory(getLocalisation, 'drivingLicense', yup.string()),
+      then: requiredWhenConfiguredMandatory(
+        getLocalisation,
+        getTranslation,
+        'drivingLicense',
+        yup.string(),
+      ),
       otherwise: yup.string(),
     }),
     maritalStatus: yup.string().when({
       is: () => patientRegistryType === PATIENT_REGISTRY_TYPES.NEW_PATIENT,
-      then: requiredWhenConfiguredMandatory(getLocalisation, 'maritalStatus', yup.string()),
+      then: requiredWhenConfiguredMandatory(
+        getLocalisation,
+        getTranslation,
+        'maritalStatus',
+        yup.string(),
+      ),
       otherwise: yup.string(),
     }),
     occupationId: yup.string().when({
       is: () => patientRegistryType === PATIENT_REGISTRY_TYPES.NEW_PATIENT,
-      then: requiredWhenConfiguredMandatory(getLocalisation, 'occupationId', yup.string()),
+      then: requiredWhenConfiguredMandatory(
+        getLocalisation,
+        getTranslation,
+        'occupationId',
+        yup.string(),
+      ),
       otherwise: yup.string(),
     }),
     educationalLevel: yup.string().when({
       is: () => patientRegistryType === PATIENT_REGISTRY_TYPES.NEW_PATIENT,
-      then: requiredWhenConfiguredMandatory(getLocalisation, 'educationalLevel', yup.string()),
+      then: requiredWhenConfiguredMandatory(
+        getLocalisation,
+        getTranslation,
+        'educationalLevel',
+        yup.string(),
+      ),
       otherwise: yup.string(),
     }),
     socialMedia: yup.string().when({
       is: () => patientRegistryType === PATIENT_REGISTRY_TYPES.NEW_PATIENT,
-      then: requiredWhenConfiguredMandatory(getLocalisation, 'socialMedia', yup.string()),
+      then: requiredWhenConfiguredMandatory(
+        getLocalisation,
+        getTranslation,
+        'socialMedia',
+        yup.string(),
+      ),
       otherwise: yup.string(),
     }),
   });
