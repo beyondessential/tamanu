@@ -11,3 +11,4 @@ export { FhirJobStatsView } from './FhirJobStatsView';
 export { ReportsAdminView } from './reports/ReportsAdminView';
 export { TranslationAdminView } from './translation/TranslationAdminView';
 export { TemplateView } from './templates';
+export { SettingsView } from './settings/SettingsView';
