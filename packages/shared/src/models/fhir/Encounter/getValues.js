@@ -150,9 +150,14 @@ function locationRef(encounter) {
 }
 
 async function serviceProviderRef(encounter) {
+  const { facility } =  encounter.location;
+  if (!facility) {
+    return null;
+  }
+
   return new FhirReference({
     type: 'upstream://organization',
-    reference: encounter.location.facility.id,
-    display: encounter.location.facility.name,
+    reference: facility.id,
+    display: facility.name,
   });
 }

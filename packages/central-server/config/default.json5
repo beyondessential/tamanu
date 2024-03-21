@@ -280,11 +280,13 @@
         "concurrency": 100,
         "resourceMaterialisationEnabled": {
           "Patient": true,
-          "ServiceRequest": false,
+
           "Encounter": false,
           "Immunization": false,
-          "Practitioner": false,
           "MediciReport": false,
+          "Organization": false,
+          "Practitioner": false,
+          "ServiceRequest": false,
           "Specimen": false
         }
       },
