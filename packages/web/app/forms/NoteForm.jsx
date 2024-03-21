@@ -87,7 +87,7 @@ export const NoteForm = ({
           .required(),
         date: yup.date().required(),
         content: yup.string().required(),
-        // YUP TODO: This should be a foreign key validation
+        // YUP TODO: resolve this
         writtenById: foreignKey(
           `${
             noteFormMode === NOTE_FORM_MODES.EDIT_NOTE &&

@@ -47,7 +47,7 @@ export const ChangeClinicianForm = ({ clinicianSuggester, onCancel, onSubmit }) 
         submittedTime: getCurrentDateTimeString(),
       }}
       validationSchema={yup.object().shape({
-        // Yup TODO: Add a label for examinerId
+        // Yup TODO: localised clinician
         examinerId: yup
           .string()
           .required()

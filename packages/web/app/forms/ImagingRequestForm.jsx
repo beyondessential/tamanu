@@ -117,12 +117,13 @@ export const ImagingRequestForm = React.memo(
         }}
         formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
         validationSchema={yup.object().shape({
-          // YUp TODO: Do we need this as it is? What about showInlineErrorsOnly
           requestedById: foreignKey(getTranslation('validation.required.inline', '*Required')),
-          requestedDate: yup.date().required(),
+          requestedDate: yup
+            .date()
+            .required(getTranslation('validation.required.inline', '*Required')),
           imagingType: foreignKey(getTranslation('validation.required.inline', '*Required')),
         })}
-        suppressErrorDialog
+        showInlineErrorsOnly
         render={({ submitForm, values }) => {
           const imagingAreas = getAreasForImagingType(values.imagingType);
           return (
