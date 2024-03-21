@@ -55,7 +55,7 @@ const ResetPasswordFormComponent = ({ errorMessage, onNavToLogin }) => {
         label={<TranslatedText stringId="forgotPassword.email.label" fallback="Email" />}
         required
         component={TextField}
-        placeholder={getTranslation("forgotPassword.email.placeholder", "Enter your email address")}
+        placeholder={getTranslation('forgotPassword.email.placeholder', 'Enter your email address')}
         autoComplete="off"
       />
       <ResetPasswordButton
@@ -75,6 +75,7 @@ const ResetPasswordFormComponent = ({ errorMessage, onNavToLogin }) => {
 
 export const ResetPasswordForm = React.memo(
   ({ onSubmit, errorMessage, success, initialEmail, onNavToChangePassword, onNavToLogin }) => {
+    const { getTranslation } = useTranslation();
     const renderForm = ({ setFieldError }) => (
       <ResetPasswordFormComponent
         errorMessage={errorMessage}
@@ -97,8 +98,8 @@ export const ResetPasswordForm = React.memo(
         validationSchema={yup.object().shape({
           email: yup
             .string()
-            .email('Must enter a valid email')
-            .required('*Required'),
+            .email(getTranslation('validation.rule.validEmail', 'Must enter a valid email'))
+            .required(`*${getTranslation('validation.required.short', 'Required')}`),
         })}
         suppressErrorDialog
       />

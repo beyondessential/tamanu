@@ -154,12 +154,13 @@ export const ProcedureForm = React.memo(
       }}
       formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
       validationSchema={yup.object().shape({
-        procedureTypeId: foreignKey('Procedure must be selected'),
-        locationId: foreignKey('Location must be selected'),
+        procedureTypeId: foreignKey().label('procedure'),
+        locationId: foreignKey().label('location'),
         date: yup.date().required(),
         startTime: yup.date(),
         endTime: yup.date(),
-        physicianId: foreignKey('Required'),
+        // Yup TODO: localised clinician
+        physicianId: foreignKey().label('clinician'),
         assistantId: optionalForeignKey(),
         anaesthetistId: optionalForeignKey(),
         anaestheticId: optionalForeignKey(),
