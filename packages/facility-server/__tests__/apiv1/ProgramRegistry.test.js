@@ -464,15 +464,12 @@ describe('ProgramRegistry', () => {
 
         const permissions = [
           ['read', 'ProgramRegistry', 'different-object-id'],
+          ['read', 'Patient'],
           ['list', 'PatientProgramRegistration'],
         ];
         const appWithPermissions = await ctx.baseApp.asNewRole(permissions);
         const result = await appWithPermissions.get(`/api/programRegistry/${programRegistryId}/registrations`);
-        expect(result).toHaveSucceeded();
-
-        const { body } = result;
-        expect(body.count).toEqual(2);
-        expect(body.data.length).toEqual(2);
+        expect(result).toBeForbidden();
       });
 
       it('should show registrations if program registry is permitted', async () => {
@@ -498,6 +495,7 @@ describe('ProgramRegistry', () => {
 
         const permissions = [
           ['read', 'ProgramRegistry', programRegistryId],
+          ['read', 'Patient'],
           ['list', 'PatientProgramRegistration'],
         ];
         const appWithPermissions = await ctx.baseApp.asNewRole(permissions);
