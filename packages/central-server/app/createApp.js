@@ -18,6 +18,8 @@ import { versionCompatibility } from './middleware/versionCompatibility';
 import { version } from './serverInfo';
 import { translationRoutes } from './translation';
 
+import { buildSettingsReader } from '@tamanu/shared/settings/middleware';
+
 function api(ctx) {
   const apiRoutes = express.Router();
   apiRoutes.use('/public', publicRoutes);
@@ -48,6 +50,7 @@ export function createApp(ctx) {
     next();
   });
 
+  app.use(buildSettingsReader);
   app.use(versionCompatibility);
 
   app.use((req, res, next) => {
