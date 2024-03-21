@@ -130,7 +130,6 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
               registeredBirthPlace={values.registeredBirthPlace}
               patientRegistryType={patientRegistryType}
               isEdit
-              isExistedPatient
             />
           </StyledPatientDetailSecondaryDetailsGroupWrapper>
           <PatientFields
