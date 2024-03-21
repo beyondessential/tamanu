@@ -196,11 +196,12 @@ jobs:
         with:
           jobs: ${{ toJSON(needs) }}
 
-  parse-deploy:
-    name: Parse PR deploy config
+  deploy-config:
+    name: PR deploy config
     runs-on: ubuntu-latest
     steps:
-      - name: WIP
+      - uses: actions/checkout@v4
+      - name: Parse deploy config
         uses: actions/github-script@v7
         with:
           script: |
