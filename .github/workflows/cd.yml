@@ -56,7 +56,7 @@ jobs:
 
   images:
     needs: check-images-exist
-    if: needs.check-images-exist.outputs.exists != 'yes'
+    if: false && needs.check-images-exist.outputs.exists != 'yes'
     strategy:
       fail-fast: false
       matrix:
@@ -187,8 +187,8 @@ jobs:
     name: All images built
     needs:
       - check-images-exist
-      - images
-      - multi-arch
+      # - images
+      # - multi-arch
     runs-on: ubuntu-latest
     steps:
       - if: needs.check-images-exist.outputs.exists != 'yes'
