@@ -64,7 +64,7 @@ jobs:
           work-dir: ops/pulumi/stacks/${{ inputs.options.opsstack }}
           command: destroy
           remove: true
-          stack-name: bes/${{ inputs.deploy-name }}
+          stack-name: bes/tamanu-on-k8s/${{ inputs.deploy-name }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           comment-on-pr: false
         env:
