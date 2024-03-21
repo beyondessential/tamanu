@@ -200,8 +200,8 @@ jobs:
     name: PR deploy config
     runs-on: ubuntu-latest
     outputs:
-      up: ${{ fromJson(steps.config.outputs.up) }}
-      down: ${{ fromJson(steps.config.outputs.down) }}
+      up: ${{ steps.config.outputs.up }}
+      down: ${{ steps.config.outputs.down }}
       go-up: ${{ fromJson(steps.config.outputs.go-up) }}
       go-down: ${{ fromJson(steps.config.outputs.go-down) }}
     steps:
