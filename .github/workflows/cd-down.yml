@@ -65,6 +65,7 @@ jobs:
           work-dir: ops/pulumi/stacks/${{ inputs.options.opsstack }}
           command: destroy
           remove: true
+          refresh: true
           stack-name: bes/${{ inputs.deploy-name }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           comment-on-pr: false
