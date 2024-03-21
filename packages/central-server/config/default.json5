@@ -277,7 +277,18 @@
       "enabled": false, // the HTTP routes
       "worker": {
         "enabled": true, // the materialisation worker
-        "concurrency": 100
+        "concurrency": 100,
+        "resourceMaterialisationEnabled": {
+          "Patient": true,
+
+          "Encounter": false,
+          "Immunization": false,
+          "Practitioner": false,
+          "MediciReport": false,
+          "Organization": false,
+          "ServiceRequest": false,
+          "Specimen": false
+        }
       },
       "parameters": {
         "_count": {
