@@ -140,9 +140,7 @@ describe('TranslatedString', () => {
       });
 
       expect(translations).toHaveLength(1);
-      expect(expectedTranslation.get({ plain: true })).toMatchObject(
-        translations[0].get({ plain: true }),
-      );
+      expect(expectedTranslation).toMatchObject(translations[0]);
     });
   });
 });
