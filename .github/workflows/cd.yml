@@ -265,7 +265,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ needs.deploy-config.outputs.down }}
+        include: ${{ fromJson(needs.deploy-config.outputs.down) }}
     name: Undeploy ${{ matrix.deploy.name }}
     uses: ./.github/workflows/cd-down.yml
     with:
