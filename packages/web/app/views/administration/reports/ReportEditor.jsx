@@ -29,6 +29,7 @@ import { useAuth } from '../../../contexts/Auth';
 import { useApi } from '../../../api';
 import { FORM_TYPES } from '../../../constants';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { useTranslation } from '../../../contexts/Translation';
 
 const StyledField = styled(Field)`
   flex-grow: 1;
@@ -60,51 +61,6 @@ const DB_SCHEMA_OPTIONS = Object.values(REPORT_DB_SCHEMAS).map(value => ({
 
 const generateDefaultParameter = () => ({
   id: Math.random(),
-});
-
-const schema = yup.object().shape({
-  name: yup.string().required('Report name is a required field'),
-  dataSources: yup
-    .array()
-    .test('test-data-sources', 'Select at least one data source', val => {
-      const values = val || [];
-      return values.length && values.every(v => REPORT_DATA_SOURCE_VALUES.includes(v));
-    })
-    .required('Data sources is a required field'),
-  defaultDateRange: yup
-    .string()
-    .oneOf(DATE_RANGE_OPTIONS.map(o => o.value))
-    .required('Default date range is a required field'),
-  dbSchema: yup
-    .string()
-    .nullable()
-    .oneOf([...DB_SCHEMA_OPTIONS.map(o => o.value), null]),
-  parameters: yup.array().of(
-    yup.object().shape({
-      name: yup.string().required('Parameter name is a required field'),
-      label: yup.string().required('Parameter label is a required field'),
-      parameterField: yup.string().required('Parameter field type is a required field'),
-      suggesterEndpoint: yup.string().when('parameterField', {
-        is: parameterField => FIELD_TYPES_WITH_SUGGESTERS.includes(parameterField),
-        then: yup.string().required('Suggester endpoint is a required field'),
-        otherwise: yup.string(),
-      }),
-      options: yup.array().when('parameterField', {
-        is: parameterField => FIELD_TYPES_WITH_PREDEFINED_OPTIONS.includes(parameterField),
-        then: yup
-          .array()
-          .test('test-options', 'Each option must contain a label and value', val =>
-            val.every(o => o.label && o.value),
-          ),
-        otherwise: yup.array(),
-      }),
-    }),
-  ),
-  query: yup.string().required('Query is a required field'),
-  status: yup
-    .string()
-    .oneOf(STATUS_OPTIONS.map(s => s.value))
-    .required('Status is a required field'),
 });
 
 const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) => {
@@ -277,11 +233,77 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
 };
 
 export const ReportEditor = ({ initialValues, onSubmit, isEdit }) => {
+  const { getTranslation } = useTranslation();
   return (
     <Form
       onSubmit={onSubmit}
       enableReinitialize
-      validationSchema={schema}
+      validationSchema={yup.object().shape({
+        name: yup
+          .string()
+          .required()
+          .label('reportName'),
+        dataSources: yup
+          .array()
+          // yup Todo: its global scope waaa
+          .test(
+            'test-data-sources',
+            getTranslation('validation.rule.atLeast1DataSource', 'Select at least one data source'),
+            val => {
+              const values = val || [];
+              return values.length && values.every(v => REPORT_DATA_SOURCE_VALUES.includes(v));
+            },
+          )
+          .required(),
+        defaultDateRange: yup
+          .string()
+          .oneOf(DATE_RANGE_OPTIONS.map(o => o.value))
+          .required(),
+        dbSchema: yup
+          .string()
+          .nullable()
+          .oneOf([...DB_SCHEMA_OPTIONS.map(o => o.value), null]),
+        parameters: yup.array().of(
+          yup.object().shape({
+            name: yup
+              .string()
+              .required()
+              .label('parameterName'),
+            label: yup
+              .string()
+              .required()
+              .label('parameterLabel'),
+            parameterField: yup
+              .string()
+              .required()
+              .label('parameterFieldType'),
+            suggesterEndpoint: yup.string().when('parameterField', {
+              is: parameterField => FIELD_TYPES_WITH_SUGGESTERS.includes(parameterField),
+              then: yup.string().required(),
+              otherwise: yup.string(),
+            }),
+            options: yup.array().when('parameterField', {
+              is: parameterField => FIELD_TYPES_WITH_PREDEFINED_OPTIONS.includes(parameterField),
+              then: yup
+                .array()
+                .test(
+                  'test-options',
+                  getTranslation(
+                    'validation.rule.optionMustContainLabelAndValue',
+                    'Each option must contain a label and value',
+                  ),
+                  val => val.every(o => o.label && o.value),
+                ),
+              otherwise: yup.array(),
+            }),
+          }),
+        ),
+        query: yup.string().required(),
+        status: yup
+          .string()
+          .oneOf(STATUS_OPTIONS.map(s => s.value))
+          .required(),
+      })}
       formType={isEdit ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
       initialValues={initialValues}
       render={formikContext => <ReportEditorForm {...formikContext} isEdit={isEdit} />}
