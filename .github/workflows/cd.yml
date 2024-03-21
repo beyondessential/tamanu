@@ -217,9 +217,9 @@ jobs:
               down: allDeploys.filter(deploy => !deploy.enabled && !deploy.pause),
             };
     outputs:
-      all: ${{ fromJson(steps.config.outputs.result).all }}
-      up: ${{ fromJson(steps.config.outputs.result).up }}
-      down: ${{ fromJson(steps.config.outputs.result).down }}
+      all: ${{ steps.config.outputs.result.all }}
+      up: ${{ steps.config.outputs.result.up }}
+      down: ${{ steps.config.outputs.result.down }}
 
   deploy-up:
     needs:
