@@ -153,7 +153,6 @@ export const RequiredSecondaryDetails = ({ patientRegistryType, registeredBirthP
 export const GenericSecondaryDetailsLayout = ({
   registeredBirthPlace,
   patientRegistryType,
-  isEdit = false,
 }) => (
   <SecondaryDetailsGroup>
     {patientRegistryType === PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY && (
@@ -181,7 +180,6 @@ export const GenericSecondaryDetailsLayout = ({
     </PatientDetailsHeading>
     <SecondaryDetailsFormGrid>
       <GenericIdentificationFields
-        isEdit={isEdit}
         patientRegistryType={patientRegistryType}
         filterByMandatory={false}
       />
