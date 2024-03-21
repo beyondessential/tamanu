@@ -1,6 +1,7 @@
-import { Op, Sequelize } from 'sequelize';
-import { get as getAtPath, isPlainObject, set as setAtPath } from 'lodash';
-import { SYNC_DIRECTIONS } from '@tamanu/constants';
+import { Sequelize, Op } from 'sequelize';
+import { isPlainObject, get as getAtPath, set as setAtPath } from 'lodash';
+import { settingsCache } from '@tamanu/settings/cache';
+import { SYNC_DIRECTIONS, SETTINGS_SCOPES } from '@tamanu/constants';
 import { Model } from './Model';
 
 /**
@@ -34,10 +35,25 @@ export class Setting extends Model {
           allowNull: false,
         },
         value: Sequelize.JSONB,
+        scope: Sequelize.STRING,
       },
       {
         ...options,
         syncDirection: SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
+        hooks: {
+          afterSave() {
+            settingsCache.reset();
+          },
+          afterBulkCreate() {
+            settingsCache.reset();
+          },
+          afterBulkUpdate() {
+            settingsCache.reset();
+          },
+          afterBulkDestroy() {
+            settingsCache.reset();
+          },
+        },
         indexes: [
           {
             // settings_alive_key_unique_cnt
@@ -54,7 +70,7 @@ export class Setting extends Model {
           {
             // settings_alive_key_unique_without_facility_idx
             unique: true,
-            fields: ['key'],
+            fields: ['key', 'scope'],
             where: { deleted_at: null, facility_id: null },
           },
         ],
@@ -69,15 +85,11 @@ export class Setting extends Model {
     });
   }
 
-  static buildSyncFilter() {
-    return `WHERE (facility_id = :facilityId OR :facilityId IS NULL) AND ${this.tableName}.updated_at_sync_tick > :since`;
-  }
-
   /**
    * IMPORTANT: Duplicated from mobile/models/Setting.ts
    * Please update both places when modify
    */
-  static async get(key = '', facilityId = null) {
+  static async get(key = '', facilityId = null, scope = null) {
     const settings = await Setting.findAll({
       where: {
         ...(key
@@ -90,11 +102,13 @@ export class Setting extends Model {
               },
             }
           : {}),
+        ...(scope
+          ? {
+              scope,
+            }
+          : {}),
         facilityId: {
-          [Op.or]: {
-            [Op.eq]: facilityId,
-            [Op.is]: null,
-          },
+          ...(facilityId ? { [Op.eq]: facilityId } : { [Op.is]: null }),
         },
       },
 
@@ -122,7 +136,7 @@ export class Setting extends Model {
     return getAtPath(settingsObject, key);
   }
 
-  static async set(key, value, facilityId = null) {
+  static async set(key, value, scope, facilityId = null) {
     const records = buildSettingsRecords(key, value, facilityId);
 
     // create or update records
@@ -130,16 +144,25 @@ export class Setting extends Model {
       records.map(async record => {
         // can't use upsert as sequelize can't parse our triple-index unique constraint
         const existing = await this.findOne({
-          where: { key: record.key, facilityId: record.facilityId },
+          where: { key: record.key, facilityId: record.facilityId, scope },
         });
 
         if (existing) {
           await this.update({ value: record.value }, { where: { id: existing.id } });
         } else {
-          await this.create(record);
+          await this.create({ ...record, scope });
         }
       }),
     );
+
+    const keyWhere = key
+      ? {
+          [Op.or]: {
+            [Op.eq]: key,
+            [Op.like]: `${key}.%`,
+          },
+        }
+      : {};
 
     // delete any records that are no longer needed
     await this.update(
@@ -150,25 +173,27 @@ export class Setting extends Model {
         where: {
           key: {
             [Op.and]: {
-              [Op.or]: {
-                [Op.eq]: key,
-                [Op.like]: `${key}.%`,
-              },
+              ...keyWhere,
               [Op.notIn]: records.map(r => r.key),
             },
           },
+          scope,
           facilityId,
         },
       },
     );
   }
+
+  static buildSyncFilter() {
+    return `WHERE (facility_id = :facilityId OR scope = '${SETTINGS_SCOPES.GLOBAL}') AND ${this.tableName}.updated_at_sync_tick > :since`;
+  }
 }
 
-export function buildSettingsRecords(keyPrefix, value, facilityId) {
+export function buildSettingsRecords(keyPrefix, value, facilityId, scope) {
   if (isPlainObject(value)) {
     return Object.entries(value).flatMap(([k, v]) =>
-      buildSettingsRecords([keyPrefix, k].filter(Boolean).join('.'), v, facilityId),
+      buildSettingsRecords([keyPrefix, k].filter(Boolean).join('.'), v, facilityId, scope),
     );
   }
-  return [{ key: keyPrefix, value, facilityId }];
+  return [{ key: keyPrefix, value, facilityId, scope }];
 }
