@@ -56,7 +56,7 @@ jobs:
 
   images:
     needs: check-images-exist
-    if: false && needs.check-images-exist.outputs.exists != 'yes'
+    if: needs.check-images-exist.outputs.exists != 'yes'
     strategy:
       fail-fast: false
       matrix:
@@ -227,26 +227,15 @@ jobs:
             core.setOutput('go-up', !!up.length);
             core.setOutput('go-down', !!down.length);
 
-  test-this-shit:
-    needs: deploy-config
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo '${{ toJson(needs.deploy-config.outputs) }}'
-      - run: echo '${{ needs.deploy-config.outputs }}'
-      - run: echo '${{ toJson(needs.deploy-config.outputs.up) }}'
-      - run: echo '${{ needs.deploy-config.outputs.up }}'
-      - run: echo '${{ toJson(needs.deploy-config.outputs.go-up) }}'
-      - run: echo '${{ needs.deploy-config.outputs.go-up }}'
-
   deploy-up:
     needs:
-      # - all-built
+      - all-built
       - deploy-config
     if: needs.deploy-config.outputs.go-up
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ needs.deploy-config.outputs.up }}
+        include: ${{ fromJson(needs.deploy-config.outputs.up) }}
     name: Deploy ${{ matrix.deploy.name }}
     uses: ./.github/workflows/cd-up.yml
     with:

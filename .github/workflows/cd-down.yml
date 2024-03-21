@@ -24,10 +24,11 @@ permissions:
 
 jobs:
   down:
-    name: Bring down environment
+    name: Bring down ${{ inputs.deploy-name }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - run: echo '${{ inputs.options }}'
       - id: setup
         uses: ./.github/actions/setup-cd
         with:
@@ -36,7 +37,25 @@ jobs:
           tailscale-oauth: ${{ secrets.TAILSCALE_DBPROXY_ACCESS_OAUTH }}
           k8s-core: ${{ fromJson(inputs.options).k8score }}
 
-      - name: Down!
+      - name: Check namespace
+        id: check
+        continue-on-error: true # so a false check doesn't make the workflow fail
+        run: |
+          if kubectl get namespace tamanu-${{ inputs.deploy-name }} 2>/dev/null; then
+            echo "Namespace exists, checking it's matched to this branch"
+            kubectl -n tamanu-${{ inputs.deploy-name }} \
+              get configmap auto-deploy -o json \
+              | tee -a /dev/stderr \
+              | jq -e '.data | [.repo == "${{ github.repository }}", .ref == "${{ github.ref }}"] | all | not' \
+            || { echo "Namespace doesn't belong to this branch, not downing"; exit 1 }
+          else
+            echo "Namespace doesn't exist, no need to delete"
+            exit 1
+          fi
+
+      - # outcome is from before continue-on-error, so will skip if check fails
+        if: steps.check.outcome == 'success'
+        name: Down!
         uses: pulumi/actions@v5
         with:
           work-dir: ops/pulumi/stacks/${{ inputs.options.opsstack }}
