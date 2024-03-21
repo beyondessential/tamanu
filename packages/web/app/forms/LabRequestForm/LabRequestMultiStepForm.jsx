@@ -48,21 +48,13 @@ export const LabRequestMultiStepForm = ({
     ),
     requestedDate: yup
       .date()
-      .required(
-        <TranslatedText
-          stringId="lab.requestedDate.validation"
-          fallback="Request date is required"
-        />,
-      ),
+      .required()
+      .label('requestDate'),
     requestFormType: yup
       .string()
       .oneOf(Object.values(LAB_REQUEST_FORM_TYPES))
-      .required(
-        <TranslatedText
-          stringId="lab.requestFormType.validation"
-          fallback="Request type must be selected"
-        />,
-      ),
+      .required()
+      .label('requestType'),
   });
   const combinedValidationSchema = screen1ValidationSchema.concat(screen2ValidationSchema);
 
