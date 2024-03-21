@@ -3,6 +3,7 @@ import { useApi } from '../api/useApi';
 import { LOCAL_STORAGE_KEYS } from '../constants';
 import { useTranslations } from '../api/queries/useTranslations';
 import { getCurrentLanguageCode } from '../utils/translation';
+import { ENGLISH_LANGUAGE_CODE } from '@tamanu/constants';
 
 export const TranslationContext = React.createContext();
 
@@ -43,7 +44,7 @@ export const TranslationProvider = ({ children }) => {
     if (translations[stringId]) return replaceStringVariables(translations[stringId], replacements);
     // This section here is a dev tool to help populate the db with the translation ids we have defined
     // in components. It will only populate the db with English strings, so that we can then translate them.
-    if (isDev && storedLanguage === 'en') {
+    if (isDev && storedLanguage === ENGLISH_LANGUAGE_CODE) {
       api.post('translation', { stringId, fallback, text: fallback });
     }
     return replaceStringVariables(fallback, replacements);

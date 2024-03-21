@@ -22,7 +22,7 @@ export const EncounterProgramsPane = React.memo(() => {
     <TabPane>
       <TableButtonRow variant="small">
         <Button onClick={handleNewSurvey}>
-          <TranslatedText stringId="program.action.newSurvey" fallback="New survey" />
+          <TranslatedText stringId="program.action.newSurvey" fallback="New form" />
         </Button>
       </TableButtonRow>
       <DataFetchingProgramsTable endpoint={`encounter/${params.encounterId}/programResponses`} />

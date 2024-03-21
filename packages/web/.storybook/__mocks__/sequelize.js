@@ -5,3 +5,10 @@ export const DataTypes = {
 };
 
 export const QueryTypes = {};
+
+const Sequelize = {
+  NOW: {},
+  UUIDV4: {},
+};
+
+export default Sequelize;
