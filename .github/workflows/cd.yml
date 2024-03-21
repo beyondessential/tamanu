@@ -236,11 +236,11 @@ jobs:
       fail-fast: false
       matrix:
         include: ${{ fromJson(needs.deploy-config.outputs.up) }}
-    name: Deploy ${{ matrix.deploy.name }}
+    name: Deploy ${{ matrix.name }}
     uses: ./.github/workflows/cd-up.yml
     with:
-      deploy-name: ${{ toJson(matrix.deploy.name) }}
-      options: ${{ toJson(matrix.deploy.options) }}
+      deploy-name: ${{ matrix.name }}
+      options: ${{ matrix.options }}
     secrets:
       PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
       TAILSCALE_DBPROXY_ACCESS_OAUTH: ${{ secrets.TAILSCALE_DBPROXY_ACCESS_OAUTH }}
@@ -255,11 +255,11 @@ jobs:
       fail-fast: false
       matrix:
         include: ${{ fromJson(needs.deploy-config.outputs.down) }}
-    name: Undeploy ${{ matrix.deploy.name }}
+    name: Undeploy ${{ matrix.name }}
     uses: ./.github/workflows/cd-down.yml
     with:
-      deploy-name: ${{ toJson(matrix.deploy.name) }}
-      options: ${{ toJson(matrix.deploy.options) }}
+      deploy-name: ${{ matrix.name }}
+      options: ${{ matrix.options }}
     secrets:
       PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
       TAILSCALE_DBPROXY_ACCESS_OAUTH: ${{ secrets.TAILSCALE_DBPROXY_ACCESS_OAUTH }}
