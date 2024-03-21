@@ -19,13 +19,11 @@ programRegistry.get(
   '/$',
   asyncHandler(async (req, res) => {
     const { models, query } = req;
-
     req.checkPermission('list', 'ProgramRegistry');
 
     if (query.excludePatientId) {
-      req.checkPermission('read', 'PatientProgramRegistration', {
-        patientId: query.excludePatientId,
-      });
+      req.checkPermission('read', 'Patient');
+      req.checkPermission('read', 'PatientProgramRegistration');
     }
 
     const { ProgramRegistry } = models;
@@ -73,9 +71,11 @@ programRegistry.get(
       offset: page && rowsPerPage ? page * rowsPerPage : undefined,
     });
 
-    const data = objects.map(x => x.forResponse());
+    const filteredObjects = objects.filter(programRegistry => req.ability.can('list', programRegistry));
+    const filteredData = filteredObjects.map(x => x.forResponse());
+    const filteredCount = objects.length !== filteredObjects.length ? filteredObjects.length : count;
 
-    res.send({ count, data });
+    res.send({ count: filteredCount, data: filteredData });
   }),
 );
 

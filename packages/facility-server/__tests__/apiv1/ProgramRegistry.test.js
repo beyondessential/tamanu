@@ -184,6 +184,8 @@ describe('ProgramRegistry', () => {
         const permissions = [
           ['list', 'ProgramRegistry', allowedRegistryOne.id],
           ['list', 'ProgramRegistry', allowedRegistryTwo.id],
+          ['read', 'Patient'],
+          ['read', 'PatientProgramRegistration'],
         ];
         const appWithPermissions = await ctx.baseApp.asNewRole(permissions);
 
