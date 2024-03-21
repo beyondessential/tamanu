@@ -191,8 +191,6 @@ jobs:
       - multi-arch
     runs-on: ubuntu-latest
     steps:
-      - if: needs.check-images-exist.outputs.exists == 'yes'
-        run: "true"
       - if: needs.check-images-exist.outputs.exists != 'yes'
         uses: re-actors/alls-green@release/v1
         with:
@@ -203,7 +201,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: WIP
-        run: true
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const cwd = '${{ github.workspace }}';
+            const { parseDeployConfig } = await import(`${cwd}/.github/scripts/pr-cd.mjs`);
+            return parseDeployConfig(context.payload.pull_request);
 
   deploy-branch:
     needs: all-built
