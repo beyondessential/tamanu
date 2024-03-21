@@ -4,14 +4,14 @@ import { LAB_REQUEST_FORM_TYPES } from '@tamanu/constants/labs';
 import PropTypes from 'prop-types';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { useAuth } from '../../contexts/Auth';
+import { useTranslation } from '../../contexts/Translation';
 import { foreignKey } from '../../utils/validation';
 
 import { FormStep, MultiStepForm } from '../MultiStepForm';
 import { LabRequestFormScreen1 } from './LabRequestFormScreen1';
-import { LabRequestFormScreen2, screen2ValidationSchema } from './LabRequestFormScreen2';
+import { LabRequestFormScreen2 } from './LabRequestFormScreen2';
 import { LabRequestFormScreen3 } from './LabRequestFormScreen3';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
-import { LowerCase } from '../../components';
 
 export const LabRequestMultiStepForm = ({
   isSubmitting,
@@ -25,27 +25,14 @@ export const LabRequestMultiStepForm = ({
   onSubmit,
   editedObject,
 }) => {
+  const { getTranslation } = useTranslation;
   const { currentUser } = useAuth();
   const [initialSamples, setInitialSamples] = useState([]);
 
   // For fields please see LabRequestFormScreen1.js
   const screen1ValidationSchema = yup.object().shape({
-    requestedById: foreignKey(
-      <TranslatedText
-        stringId="lab.requestedBy.validation"
-        fallback="Requesting :clinicianText is required"
-        replacements={{
-          clinician: (
-            <LowerCase>
-              <TranslatedText
-                stringId="general.localisedField.clinician.label.short"
-                fallback="Clinician"
-              />
-            </LowerCase>
-          ),
-        }}
-      />,
-    ),
+    // Yup todo: localised clinician based label
+    requestedById: foreignKey().label('requestingClinician'),
     requestedDate: yup
       .date()
       .required()
@@ -55,6 +42,39 @@ export const LabRequestMultiStepForm = ({
       .oneOf(Object.values(LAB_REQUEST_FORM_TYPES))
       .required()
       .label('requestType'),
+  });
+
+  const screen2ValidationSchema = yup.object().shape({
+    labTestTypeIds: yup
+      .array()
+      .nullable()
+      .when('requestFormType', {
+        is: val => val === LAB_REQUEST_FORM_TYPES.INDIVIDUAL,
+        then: yup
+          .array()
+          .of(yup.string())
+          .min(
+            1,
+            getTranslation(
+              'validation.rule.atLeast1TestType',
+              'Please select at least one test type',
+            ),
+          ),
+      }),
+    panelIds: yup
+      .array()
+      .nullable()
+      .when('requestFormType', {
+        is: val => val === LAB_REQUEST_FORM_TYPES.PANEL,
+        then: yup
+          .array()
+          .of(yup.string())
+          .min(
+            1,
+            getTranslation('validation.rule.atLeast1Panel', 'Please select at least one panel'),
+          ),
+      }),
+    notes: yup.string(),
   });
   const combinedValidationSchema = screen1ValidationSchema.concat(screen2ValidationSchema);
 

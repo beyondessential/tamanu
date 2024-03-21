@@ -13,42 +13,6 @@ const StyledBodyText = styled(BodyText)`
   white-space: pre-line;
 `;
 
-export const screen2ValidationSchema = yup.object().shape({
-  labTestTypeIds: yup
-    .array()
-    .nullable()
-    .when('requestFormType', {
-      is: val => val === LAB_REQUEST_FORM_TYPES.INDIVIDUAL,
-      then: yup
-        .array()
-        .of(yup.string())
-        .min(
-          1,
-          <TranslatedText
-            stringId="lab.testSelect.individual.testTypes.validation"
-            fallback="Please select at least one test type"
-          />,
-        ),
-    }),
-  panelIds: yup
-    .array()
-    .nullable()
-    .when('requestFormType', {
-      is: val => val === LAB_REQUEST_FORM_TYPES.PANEL,
-      then: yup
-        .array()
-        .of(yup.string())
-        .min(
-          1,
-          <TranslatedText
-            stringId="lab.testSelect.panel.testTypes.validation"
-            fallback="Please select at least one panel"
-          />,
-        ),
-    }),
-  notes: yup.string(),
-});
-
 export const FORM_TYPE_TO_FIELD_CONFIG = {
   [LAB_REQUEST_FORM_TYPES.INDIVIDUAL]: {
     subheading: (
