@@ -149,7 +149,7 @@ export function configMap(deployName, imageTag, options) {
 
       architecture: options.arch,
       configTemplate: options.config,
-      dbStorage: options.dbstorage,
+      dbStorage: `${options.dbstorage}Gi`,
       facilities: options.facilities,
       timezone: options.timezone,
 
