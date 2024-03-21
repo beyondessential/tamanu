@@ -198,6 +198,7 @@ jobs:
           jobs: ${{ toJSON(needs) }}
 
   deploy-config:
+    if: github.event_name == 'pull_request'
     name: PR deploy config
     runs-on: ubuntu-latest
     outputs:
