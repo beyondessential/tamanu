@@ -10,7 +10,7 @@ import { TranslatedText } from '../../../../../components/Translation/Translated
 export const GenericIdentificationFields = ({ isEdit, patientRegistryType, filterByMandatory }) => {
   const { getLocalisation } = useLocalisation();
   const canEditDisplayId = isEdit && getLocalisation('features.editPatientDisplayId');
-  
+
   const IDENTIFICATION_FIELDS = {
     displayId: {
       component: DisplayIdField,
