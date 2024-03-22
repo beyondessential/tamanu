@@ -1,9 +1,10 @@
 import { join } from 'path';
-import { mkdtemp, rmdir, writeFile } from 'fs/promises';
+import { mkdtemp, writeFile, rmdir } from 'fs/promises';
 import { tmpdir } from 'os';
 import { fake } from '@tamanu/shared/test-helpers/fake';
 import { Op } from 'sequelize';
-import { getSetting, listSettings, loadSettings, setSetting } from '../../dist/subCommands/settings';
+import { SETTINGS_SCOPES } from '@tamanu/constants';
+import { getSetting, setSetting, loadSettings } from '../../app/subCommands/settings';
 import { createTestContext } from '../utilities';
 
 describe('settings', () => {
@@ -16,125 +17,263 @@ describe('settings', () => {
   });
   afterAll(() => ctx.close());
 
-  beforeEach(async () => {
+  afterEach(async () => {
     const { Setting } = ctx.store.models;
-
     await Setting.destroy({
       where: {
         key: {
           [Op.like]: 'test%',
         },
       },
+      force: true,
     });
+  });
 
-    await Setting.set('test', {
-      value: 'test',
-      tree: {
-        flower: ['flower', 'girl'],
-        branch: {
-          leaf: 'leaf',
+  beforeEach(async () => {
+    const { Setting } = ctx.store.models;
+
+    try {
+      await Setting.set(
+        'test',
+        {
+          value: 'test',
+          tree: {
+            flower: ['flower', 'girl'],
+            branch: {
+              leaf: 'leaf',
+            },
+          },
         },
-      },
-    });
+        SETTINGS_SCOPES.GLOBAL,
+      );
 
-    await Setting.set(
-      'test.tree.branch',
-      {
-        leaf: 'weed',
-        root: 'root',
-      },
-      facility,
-    );
-  });
+      await Setting.set(
+        'test',
+        {
+          house: {
+            door: 'wooden',
+            window: 'glass',
+          },
+          beings: ['person', 'dog', 'cat'],
+        },
+        SETTINGS_SCOPES.CENTRAL,
+      );
 
-  describe('list (global)', () => {
-    it('shows all settings', () => expect(listSettings()).resolves.toMatchSnapshot());
-
-    it('shows some settings with a filter', () =>
-      expect(listSettings('test.tree')).resolves.toMatchSnapshot());
-
-    it('shows no settings with a non-matching filter', () =>
-      expect(listSettings('nothinghere')).resolves.toMatchSnapshot());
-  });
-
-  describe('list (facility)', () => {
-    it('shows all settings', () =>
-      expect(listSettings('', { facility })).resolves.toMatchSnapshot());
-
-    it('shows some settings with a filter', () =>
-      expect(listSettings('test.tree', { facility })).resolves.toMatchSnapshot());
-
-    it('shows no settings with a non-matching filter', () =>
-      expect(listSettings('nothinghere', { facility })).resolves.toMatchSnapshot());
+      await Setting.set(
+        'test',
+        {
+          tree: {
+            squirrels: ['bunny', 'muffin'],
+            branch: {
+              leaf: 'weed',
+              root: 'root',
+            },
+          },
+        },
+        SETTINGS_SCOPES.FACILITY,
+        facility,
+      );
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
   });
 
   describe('get (global)', () => {
-    it('retrieves a scalar', () => expect(getSetting('test.value')).resolves.toMatchSnapshot());
+    it('retrieves a scalar', () =>
+      expect(
+        getSetting(ctx, 'test.value', { scope: SETTINGS_SCOPES.GLOBAL }),
+      ).resolves.toMatchSnapshot());
 
     it('retrieves an array', () =>
-      expect(getSetting('test.tree.flower')).resolves.toMatchSnapshot());
+      expect(
+        getSetting(ctx, 'test.tree.flower', { scope: SETTINGS_SCOPES.GLOBAL }),
+      ).resolves.toMatchSnapshot());
 
     it('retrieves an object', () =>
-      expect(getSetting('test.tree.branch')).resolves.toMatchSnapshot());
+      expect(
+        getSetting(ctx, 'test.tree.branch', { scope: SETTINGS_SCOPES.GLOBAL }),
+      ).resolves.toMatchSnapshot());
 
     it('retrieves a non-existent key', () =>
-      expect(getSetting('nothinghere')).resolves.toMatchSnapshot());
+      expect(
+        getSetting(ctx, 'nothinghere', { scope: SETTINGS_SCOPES.GLOBAL }),
+      ).resolves.toMatchSnapshot());
   });
 
   describe('get (facility)', () => {
     it('retrieves a scalar', () =>
-      expect(getSetting('test.value', { facility })).resolves.toMatchSnapshot());
+      expect(
+        getSetting(ctx, 'test.tree.branch.root', { facility, scope: SETTINGS_SCOPES.FACILITY }),
+      ).resolves.toMatchSnapshot());
 
     it('retrieves an array', () =>
-      expect(getSetting('test.tree.flower', { facility })).resolves.toMatchSnapshot());
+      expect(
+        getSetting(ctx, 'test.tree.squirrels', { facility, scope: SETTINGS_SCOPES.FACILITY }),
+      ).resolves.toMatchSnapshot());
 
     it('retrieves an object', () =>
-      expect(getSetting('test.tree.branch', { facility })).resolves.toMatchSnapshot());
+      expect(
+        getSetting(ctx, 'test.tree.branch', { facility, scope: SETTINGS_SCOPES.FACILITY }),
+      ).resolves.toMatchSnapshot());
 
     it('retrieves a non-existent key', () =>
-      expect(getSetting('nothinghere', { facility })).resolves.toMatchSnapshot());
+      expect(
+        getSetting(ctx, 'nothinghere', { facility, scope: SETTINGS_SCOPES.FACILITY }),
+      ).resolves.toMatchSnapshot());
+  });
+
+  describe('get (central)', () => {
+    it('retrieves a scalar', () =>
+      expect(
+        getSetting(ctx, 'test.house.door', { facility, scope: SETTINGS_SCOPES.CENTRAL }),
+      ).resolves.toMatchSnapshot());
+
+    it('retrieves an array', () =>
+      expect(
+        getSetting(ctx, 'test.beings', { facility, scope: SETTINGS_SCOPES.CENTRAL }),
+      ).resolves.toMatchSnapshot());
+
+    it('retrieves an object', () =>
+      expect(
+        getSetting(ctx, 'test.house', { facility, scope: SETTINGS_SCOPES.CENTRAL }),
+      ).resolves.toMatchSnapshot());
+
+    it('retrieves a non-existent key', () =>
+      expect(
+        getSetting(ctx, 'nothinghere', { facility, scope: SETTINGS_SCOPES.CENTRAL }),
+      ).resolves.toMatchSnapshot());
   });
 
   describe('set (global)', () => {
     it('sets a new scalar', async () => {
       const { Setting } = ctx.store.models;
-      await expect(setSetting('test.enabled', 'true')).resolves.toMatchSnapshot();
-      await expect(Setting.get('test.enabled')).resolves.toBe(true);
+      await expect(
+        setSetting(ctx, 'test.enabled', 'true', { scope: SETTINGS_SCOPES.GLOBAL }),
+      ).resolves.toMatchSnapshot();
+      await expect(Setting.get('test.enabled', null, SETTINGS_SCOPES.GLOBAL)).resolves.toBe(true);
     });
 
     it('overwrites a scalar', async () => {
       const { Setting } = ctx.store.models;
-      await expect(setSetting('test.value', '"test2"')).resolves.toMatchSnapshot();
-      await expect(Setting.get('test.value')).resolves.toBe('test2');
+      await expect(
+        setSetting(ctx, 'test.value', '"test2"', { scope: SETTINGS_SCOPES.GLOBAL }),
+      ).resolves.toMatchSnapshot();
+      await expect(Setting.get('test.value', null, SETTINGS_SCOPES.GLOBAL)).resolves.toBe('test2');
     });
 
     it('sets a new array', async () => {
       const { Setting } = ctx.store.models;
-      await expect(setSetting('test.list', '["groceries", "antiques"]')).resolves.toMatchSnapshot();
-      await expect(Setting.get('test.list')).resolves.toStrictEqual(['groceries', 'antiques']);
+      await expect(
+        setSetting(ctx, 'test.list', '["groceries", "antiques"]', {
+          scope: SETTINGS_SCOPES.GLOBAL,
+        }),
+      ).resolves.toMatchSnapshot();
+      await expect(Setting.get('test.list', null, SETTINGS_SCOPES.GLOBAL)).resolves.toStrictEqual([
+        'groceries',
+        'antiques',
+      ]);
     });
 
     it('overwrites an array', async () => {
       const { Setting } = ctx.store.models;
-      await expect(setSetting('test.tree.flower', '["tulips"]')).resolves.toMatchSnapshot();
-      await expect(Setting.get('test.tree.flower')).resolves.toStrictEqual(['tulips']);
+      await expect(
+        setSetting(ctx, 'test.tree.flower', '["tulips"]', { scope: SETTINGS_SCOPES.GLOBAL }),
+      ).resolves.toMatchSnapshot();
+      await expect(
+        Setting.get('test.tree.flower', null, SETTINGS_SCOPES.GLOBAL),
+      ).resolves.toStrictEqual(['tulips']);
     });
 
     it('sets a new object', async () => {
       const { Setting } = ctx.store.models;
-      await expect(setSetting('test.dict', '{"broken": "eggs"}')).resolves.toMatchSnapshot();
-      await expect(Setting.get('test.dict')).resolves.toStrictEqual({ broken: 'eggs' });
+      await expect(
+        setSetting(ctx, 'test.dict', '{"broken": "eggs"}', { scope: SETTINGS_SCOPES.GLOBAL }),
+      ).resolves.toMatchSnapshot();
+      await expect(Setting.get('test.dict', null, SETTINGS_SCOPES.GLOBAL)).resolves.toStrictEqual({
+        broken: 'eggs',
+      });
     });
 
     it('overwrites an object', async () => {
       const { Setting } = ctx.store.models;
-      await expect(setSetting('test.tree.branch', '{ "leaf": "bug" }')).resolves.toMatchSnapshot();
-      await expect(Setting.get('test.tree.branch')).resolves.toStrictEqual({ leaf: 'bug' });
-      await expect(Setting.get('test.tree')).resolves.toStrictEqual({
+      await expect(
+        setSetting(ctx, 'test.tree.branch', '{ "leaf": "bug" }', { scope: SETTINGS_SCOPES.GLOBAL }),
+      ).resolves.toMatchSnapshot();
+      await expect(
+        Setting.get('test.tree.branch', null, SETTINGS_SCOPES.GLOBAL),
+      ).resolves.toStrictEqual({
+        leaf: 'bug',
+      });
+      await expect(Setting.get('test.tree', null, SETTINGS_SCOPES.GLOBAL)).resolves.toStrictEqual({
         flower: ['flower', 'girl'],
         branch: {
           leaf: 'bug',
         },
+      });
+    });
+  });
+
+  describe('set (central)', () => {
+    it('sets a new scalar', async () => {
+      const { Setting } = ctx.store.models;
+      await expect(
+        setSetting(ctx, 'test.kennel', 'true', { scope: SETTINGS_SCOPES.CENTRAL }),
+      ).resolves.toMatchSnapshot();
+      await expect(Setting.get('test.kennel', null, SETTINGS_SCOPES.CENTRAL)).resolves.toBe(true);
+    });
+
+    it('overwrites a scalar', async () => {
+      const { Setting } = ctx.store.models;
+      await expect(
+        setSetting(ctx, 'test.house.door', '"metal"', { scope: SETTINGS_SCOPES.CENTRAL }),
+      ).resolves.toMatchSnapshot();
+      await expect(Setting.get('test.house.door', null, SETTINGS_SCOPES.CENTRAL)).resolves.toBe(
+        'metal',
+      );
+    });
+
+    it('sets a new array', async () => {
+      const { Setting } = ctx.store.models;
+      await expect(
+        setSetting(ctx, 'test.house.features', '["kitchen", "pool"]', {
+          scope: SETTINGS_SCOPES.CENTRAL,
+        }),
+      ).resolves.toMatchSnapshot();
+      await expect(
+        Setting.get('test.house.features', null, SETTINGS_SCOPES.CENTRAL),
+      ).resolves.toStrictEqual(['kitchen', 'pool']);
+    });
+
+    it('overwrites an array', async () => {
+      const { Setting } = ctx.store.models;
+      await expect(
+        setSetting(ctx, 'test.house.beings', '["monkey", "horse"]', {
+          scope: SETTINGS_SCOPES.CENTRAL,
+        }),
+      ).resolves.toMatchSnapshot();
+      await expect(
+        Setting.get('test.house.beings', null, SETTINGS_SCOPES.CENTRAL),
+      ).resolves.toStrictEqual(['monkey', 'horse']);
+    });
+
+    it('sets a new object', async () => {
+      const { Setting } = ctx.store.models;
+      await expect(
+        setSetting(ctx, 'test.dict', '{"home": "line"}', { scope: SETTINGS_SCOPES.CENTRAL }),
+      ).resolves.toMatchSnapshot();
+      await expect(Setting.get('test.dict', null, SETTINGS_SCOPES.CENTRAL)).resolves.toStrictEqual({
+        home: 'line',
+      });
+    });
+
+    it('overwrites an object', async () => {
+      const { Setting } = ctx.store.models;
+      await expect(
+        setSetting(ctx, 'test.house', '{ "pool": "water" }', { scope: SETTINGS_SCOPES.GLOBAL }),
+      ).resolves.toMatchSnapshot();
+      await expect(Setting.get('test.house', null, SETTINGS_SCOPES.GLOBAL)).resolves.toStrictEqual({
+        pool: 'water',
       });
     });
   });
@@ -142,68 +281,38 @@ describe('settings', () => {
   describe('set (facility)', () => {
     it('sets a new scalar', async () => {
       const { Setting } = ctx.store.models;
-      await expect(setSetting('test.enabled', 'true', { facility })).resolves.toMatchSnapshot();
-      await expect(Setting.get('test.enabled', facility)).resolves.toBe(true);
-    });
-
-    it('sets a new scalar over a global one', async () => {
-      const { Setting } = ctx.store.models;
-      await expect(setSetting('test.value', '"test2"', { facility })).resolves.toMatchSnapshot();
-      await expect(Setting.get('test.value')).resolves.toBe('test');
-      await expect(Setting.get('test.value', facility)).resolves.toBe('test2');
+      await expect(
+        setSetting(ctx, 'test.enabled', 'true', { facility, scope: SETTINGS_SCOPES.FACILITY }),
+      ).resolves.toMatchSnapshot();
+      await expect(Setting.get('test.enabled', facility, SETTINGS_SCOPES.FACILITY)).resolves.toBe(
+        true,
+      );
     });
 
     it('sets a new array', async () => {
       const { Setting } = ctx.store.models;
       await expect(
-        setSetting('test.list', '["groceries", "antiques"]', { facility }),
+        setSetting(ctx, 'test.list', '["groceries", "antiques"]', {
+          facility,
+          scope: SETTINGS_SCOPES.FACILITY,
+        }),
       ).resolves.toMatchSnapshot();
-      await expect(Setting.get('test.list', facility)).resolves.toStrictEqual([
-        'groceries',
-        'antiques',
-      ]);
-    });
-
-    it('sets a new array over a global one', async () => {
-      const { Setting } = ctx.store.models;
       await expect(
-        setSetting('test.tree.flower', '["tulips"]', { facility }),
-      ).resolves.toMatchSnapshot();
-      await expect(Setting.get('test.tree.flower')).resolves.toStrictEqual(['flower', 'girl']);
-      await expect(Setting.get('test.tree.flower', facility)).resolves.toStrictEqual(['tulips']);
+        Setting.get('test.list', facility, SETTINGS_SCOPES.FACILITY),
+      ).resolves.toStrictEqual(['groceries', 'antiques']);
     });
 
     it('sets a new object', async () => {
       const { Setting } = ctx.store.models;
       await expect(
-        setSetting('test.dict', '{"broken": "eggs"}', { facility }),
+        setSetting(ctx, 'test.dict', '{"broken": "eggs"}', {
+          facility,
+          scope: SETTINGS_SCOPES.FACILITY,
+        }),
       ).resolves.toMatchSnapshot();
-      await expect(Setting.get('test.dict', facility)).resolves.toStrictEqual({ broken: 'eggs' });
-    });
-
-    it('sets a new object over a global one', async () => {
-      const { Setting } = ctx.store.models;
       await expect(
-        setSetting('test.tree.branch', '{ "leaf": "bug" }', { facility }),
-      ).resolves.toMatchSnapshot();
-
-      await expect(Setting.get('test.tree.branch', facility)).resolves.toStrictEqual({
-        leaf: 'bug',
-      });
-      await expect(Setting.get('test.tree.branch')).resolves.toStrictEqual({ leaf: 'leaf' });
-
-      await expect(Setting.get('test.tree', facility)).resolves.toStrictEqual({
-        flower: ['flower', 'girl'],
-        branch: {
-          leaf: 'bug',
-        },
-      });
-      await expect(Setting.get('test.tree')).resolves.toStrictEqual({
-        flower: ['flower', 'girl'],
-        branch: {
-          leaf: 'leaf',
-        },
-      });
+        Setting.get('test.dict', facility, SETTINGS_SCOPES.FACILITY),
+      ).resolves.toStrictEqual({ broken: 'eggs' });
     });
   });
 
@@ -222,9 +331,15 @@ describe('settings', () => {
         const file = join(tempdir, 'test.json');
         await writeFile(file, JSON.stringify({ really: { nice: 'eyes' } }));
 
-        await expect(loadSettings('test.json', file)).resolves.toMatchSnapshot();
+        await expect(
+          loadSettings(ctx, 'test.json', file, { scope: SETTINGS_SCOPES.GLOBAL }),
+        ).resolves.toMatchSnapshot();
 
-        await expect(Setting.get('test.json')).resolves.toStrictEqual({ really: { nice: 'eyes' } });
+        await expect(Setting.get('test.json', null, SETTINGS_SCOPES.GLOBAL)).resolves.toStrictEqual(
+          {
+            really: { nice: 'eyes' },
+          },
+        );
       });
 
       it('to a facility', async () => {
@@ -232,11 +347,42 @@ describe('settings', () => {
         const file = join(tempdir, 'test.json');
         await writeFile(file, JSON.stringify({ really: { blue: 'eyes' } }));
 
-        await expect(loadSettings('test.json', file, { facility })).resolves.toMatchSnapshot();
+        await expect(
+          loadSettings(ctx, 'test.json', file, { facility, scope: SETTINGS_SCOPES.FACILITY }),
+        ).resolves.toMatchSnapshot();
 
-        await expect(Setting.get('test.json')).resolves.toBe(undefined);
-        await expect(Setting.get('test.json', facility)).resolves.toStrictEqual({
+        await expect(Setting.get('test.json', null, SETTINGS_SCOPES.GLOBAL)).resolves.toBe(
+          undefined,
+        );
+        await expect(Setting.get('test.json', null, SETTINGS_SCOPES.CENTRAL)).resolves.toBe(
+          undefined,
+        );
+        await expect(
+          Setting.get('test.json', facility, SETTINGS_SCOPES.FACILITY),
+        ).resolves.toStrictEqual({
           really: { blue: 'eyes' },
+        });
+      });
+
+      it('to central', async () => {
+        const { Setting } = ctx.store.models;
+        const file = join(tempdir, 'test.json');
+        await writeFile(file, JSON.stringify({ really: { purple: 'hat' } }));
+
+        await expect(
+          loadSettings(ctx, 'test.json', file, { scope: SETTINGS_SCOPES.CENTRAL }),
+        ).resolves.toMatchSnapshot();
+
+        await expect(Setting.get('test.json', null, SETTINGS_SCOPES.GLOBAL)).resolves.toBe(
+          undefined,
+        );
+        await expect(Setting.get('test.json', facility, SETTINGS_SCOPES.FACILITY)).resolves.toBe(
+          undefined,
+        );
+        await expect(
+          Setting.get('test.json', null, SETTINGS_SCOPES.CENTRAL),
+        ).resolves.toStrictEqual({
+          really: { purple: 'hat' },
         });
       });
 
@@ -245,77 +391,13 @@ describe('settings', () => {
         const file = join(tempdir, 'test.json');
         await writeFile(file, JSON.stringify({ really: { dull: 'eyes' } }));
 
-        await expect(loadSettings('test.json', file, { preview: true })).resolves.toMatchSnapshot();
+        await expect(
+          loadSettings(ctx, 'test.json', file, { preview: true, scope: SETTINGS_SCOPES.GLOBAL }),
+        ).resolves.toMatchSnapshot();
 
-        await expect(Setting.get('test.json')).resolves.toBe(undefined);
-      });
-    });
-
-    describe('a JSON5 file', () => {
-      it('to global namespace', async () => {
-        const { Setting } = ctx.store.models;
-        const file = join(tempdir, 'test.json5');
-        await writeFile(
-          file,
-          `
-          {
-            character: "Marten Reed",
-            firstAppearance: 1,
-            human: true,
-          }
-          `,
+        await expect(Setting.get('test.json', null, SETTINGS_SCOPES.GLOBAL)).resolves.toBe(
+          undefined,
         );
-
-        await expect(loadSettings('test.json5', file)).resolves.toMatchSnapshot();
-
-        await expect(Setting.get('test.json5')).resolves.toStrictEqual({
-          character: 'Marten Reed',
-          firstAppearance: 1,
-          human: true,
-        });
-      });
-
-      it('to a facility', async () => {
-        const { Setting } = ctx.store.models;
-        const file = join(tempdir, 'test.json5');
-        await writeFile(
-          file,
-          `
-          {
-            character: "Pintsize",
-            firstAppearance: 1,
-            human: false,
-          }
-          `,
-        );
-
-        await expect(loadSettings('test.json5', file, { facility })).resolves.toMatchSnapshot();
-
-        await expect(Setting.get('test.json5')).resolves.toBe(undefined);
-        await expect(Setting.get('test.json5', facility)).resolves.toStrictEqual({
-          character: 'Pintsize',
-          firstAppearance: 1,
-          human: false,
-        });
-      });
-
-      it('preview only', async () => {
-        const { Setting } = ctx.store.models;
-        const file = join(tempdir, 'test.json5');
-        await writeFile(
-          file,
-          `
-          {
-            character: "Claire Augustus",
-            firstAppearance: 2203,
-            human: true,
-          }
-          `,
-        );
-
-        await expect(loadSettings('test.json5', file, { preview: true })).resolves.toMatchSnapshot();
-
-        await expect(Setting.get('test.json5')).resolves.toBe(undefined);
       });
     });
 
@@ -334,13 +416,42 @@ describe('settings', () => {
           `,
         );
 
-        await expect(loadSettings('test.kdl', file)).resolves.toMatchSnapshot();
+        await expect(
+          loadSettings(ctx, 'test.kdl', file, { scope: SETTINGS_SCOPES.GLOBAL }),
+        ).resolves.toMatchSnapshot();
 
-        await expect(Setting.get('test.kdl')).resolves.toStrictEqual({
+        await expect(Setting.get('test.kdl', null, SETTINGS_SCOPES.GLOBAL)).resolves.toStrictEqual({
           character: 'Marten Reed',
           firstAppearance: 1,
           human: true,
         });
+      });
+
+      it('to central', async () => {
+        const { Setting } = ctx.store.models;
+        const file = join(tempdir, 'test.kdl');
+        await writeFile(
+          file,
+          `
+          test.kdl {
+            character "Donkey Man"
+            firstAppearance 2
+            human "partly"
+          }
+          `,
+        );
+
+        await expect(
+          loadSettings(ctx, 'test.kdl', file, { scope: SETTINGS_SCOPES.CENTRAL }),
+        ).resolves.toMatchSnapshot();
+
+        await expect(Setting.get('test.kdl', null, SETTINGS_SCOPES.CENTRAL)).resolves.toStrictEqual(
+          {
+            character: 'Donkey Man',
+            firstAppearance: 2,
+            human: 'partly',
+          },
+        );
       });
 
       it('to a facility', async () => {
@@ -357,10 +468,16 @@ describe('settings', () => {
           `,
         );
 
-        await expect(loadSettings('test.kdl', file, { facility })).resolves.toMatchSnapshot();
+        await expect(
+          loadSettings(ctx, 'test.kdl', file, { facility, scope: SETTINGS_SCOPES.FACILITY }),
+        ).resolves.toMatchSnapshot();
 
-        await expect(Setting.get('test.kdl')).resolves.toBe(undefined);
-        await expect(Setting.get('test.kdl', facility)).resolves.toStrictEqual({
+        await expect(Setting.get('test.kdl', null, SETTINGS_SCOPES.GLOBAL)).resolves.toBe(
+          undefined,
+        );
+        await expect(
+          Setting.get('test.kdl', facility, SETTINGS_SCOPES.FACILITY),
+        ).resolves.toStrictEqual({
           character: 'Pintsize',
           firstAppearance: 1,
           human: false,
@@ -381,9 +498,13 @@ describe('settings', () => {
           `,
         );
 
-        await expect(loadSettings('test.kdl', file, { preview: true })).resolves.toMatchSnapshot();
+        await expect(
+          loadSettings(ctx, 'test.kdl', file, { preview: true, scope: SETTINGS_SCOPES.GLOBAL }),
+        ).resolves.toMatchSnapshot();
 
-        await expect(Setting.get('test.kdl')).resolves.toBe(undefined);
+        await expect(Setting.get('test.kdl', null, SETTINGS_SCOPES.GLOBAL)).resolves.toBe(
+          undefined,
+        );
       });
     });
   });
