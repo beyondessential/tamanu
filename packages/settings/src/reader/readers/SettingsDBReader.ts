@@ -1,5 +1,6 @@
 import { Reader, ReaderSettingResult } from './Reader';
 
+/* eslint-disable no-unused-vars */
 interface SettingModel {
   get: (
     key: string,
