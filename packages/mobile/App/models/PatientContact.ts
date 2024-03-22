@@ -1,9 +1,4 @@
-import {
-  Column,
-  Entity,
-  ManyToOne,
-  RelationId,
-} from 'typeorm/browser';
+import { Column, Entity, ManyToOne, RelationId } from 'typeorm/browser';
 
 import { IPatientContact } from '~/types';
 import { Patient } from './Patient';
@@ -11,7 +6,7 @@ import { SYNC_DIRECTIONS } from './types';
 import { BaseModel } from './BaseModel';
 import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
 
-@Entity('patient_field_value')
+@Entity('patient_contact')
 export class PatientContact extends BaseModel implements IPatientContact {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 
@@ -33,11 +28,13 @@ export class PatientContact extends BaseModel implements IPatientContact {
     patient => patient.contacts,
   )
   patient: Patient;
+
   @RelationId(({ patient }) => patient)
   patientId: string;
 
   @ReferenceDataRelation()
   relationship: ReferenceData;
+
   @RelationId(({ relationship }) => relationship)
   relationshipId: string;
 

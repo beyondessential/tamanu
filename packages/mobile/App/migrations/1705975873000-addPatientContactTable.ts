@@ -19,6 +19,11 @@ const BaseColumns = [
     default: "datetime('now')",
   }),
   new TableColumn({
+    name: 'deletedAt',
+    type: 'datetime',
+    default: "datetime('now')",
+  }),
+  new TableColumn({
     name: 'updatedAtSyncTick',
     type: 'bigint',
     isNullable: false,
@@ -49,6 +54,16 @@ const PatientContact = new Table({
       name: 'deletionStatus',
       type: 'varchar',
       isNullable: true,
+    }),
+    new TableColumn({
+      name: 'patientId',
+      type: 'varchar',
+      isNullable: false,
+    }),
+    new TableColumn({
+      name: 'relationshipId',
+      type: 'varchar',
+      isNullable: false,
     }),
   ],
   foreignKeys: [

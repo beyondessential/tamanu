@@ -22,7 +22,7 @@ const fetchServers = async (): Promise<SelectOption[]> => {
   // allows overriding the central server list or meta server in builds
   const { metaServer: metaServerOverride, centralServers: centralServerOverrides } = overrides;
   if (centralServerOverrides) {
-    return centralServerOverrides;
+    return [centralServerOverrides];
   }
 
   const defaultMetaServer = __DEV__ ? 'https://meta-dev.tamanu.io' : 'https://meta.tamanu.io';
