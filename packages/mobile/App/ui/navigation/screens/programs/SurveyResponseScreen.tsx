@@ -3,6 +3,8 @@ import { useSelector } from 'react-redux';
 import { Dimensions, Text } from 'react-native';
 import Modal from 'react-native-modal';
 import { useNavigation } from '@react-navigation/native';
+import { subject } from '@casl/ability';
+
 import { CenterView, FullView, RowView } from '~/ui/styled/common';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
@@ -59,9 +61,18 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
   );
 
   const [patientProgramRegistration, pprError, isPprLoading] = useBackendEffect(
-    ({ models }) => {
+    async ({ models }) => {
       if (canReadRegistration === false) return null;
-      return models.PatientProgramRegistration.getRecentOne(survey?.programId, selectedPatient.id);
+      const patientProgramRegistry = await models.PatientProgramRegistration.getRecentOne(
+        survey?.programId,
+        selectedPatient.id,
+      );
+      const canReadProgramRegistry = ability.can(
+        'read',
+        subject('ProgramRegistry', { id: patientProgramRegistry.programRegistryId }),
+      );
+
+      return canReadProgramRegistry ? patientProgramRegistry : null;
     },
     [survey],
   );

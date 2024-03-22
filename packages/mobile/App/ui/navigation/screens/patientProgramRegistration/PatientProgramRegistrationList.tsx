@@ -2,6 +2,8 @@ import React, { ReactElement } from 'react';
 import { FlatList, TouchableOpacity, View } from 'react-native';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
 import styled from 'styled-components/native';
+import { subject } from '@casl/ability';
+
 import { theme } from '~/ui/styled/theme';
 import { Routes } from '~/ui/helpers/routes';
 import { useBackendEffect } from '~/ui/hooks/index';
@@ -77,7 +79,8 @@ export const PatientProgramRegistrationList = ({ selectedPatient }): ReactElemen
 
   if (registrationError) return <ErrorScreen error={registrationError} />;
 
-  if (registrations.length === 0) {
+  const accessibleRegistries = registrations.filter(r => ability.can('read', subject('ProgramRegistry', { id: r.programRegistryId })));
+  if (accessibleRegistries.length === 0) {
     return (
       <NoRegistriesRow>
         <RowText>No program registries to display</RowText>
@@ -95,7 +98,7 @@ export const PatientProgramRegistrationList = ({ selectedPatient }): ReactElemen
   return (
     <StyledFlatList
       ItemSeparatorComponent={Separator}
-      data={registrations}
+      data={accessibleRegistries}
       renderItem={({ item }) => (
         <ItemWrapper onPress={() => onNavigateToPatientProgramRegistrationDetails(item)}>
           <Row>

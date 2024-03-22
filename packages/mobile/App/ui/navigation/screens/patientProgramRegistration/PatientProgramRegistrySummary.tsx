@@ -1,6 +1,8 @@
 import React, { ReactElement } from 'react';
 import { compose } from 'redux';
 import styled from 'styled-components/native';
+import { subject } from '@casl/ability';
+
 import { StyledView } from '/styled/common';
 import { SectionHeader } from '/components/SectionHeader';
 import { theme } from '/styled/theme';
@@ -42,6 +44,8 @@ const PatientProgramRegistrySummary_ = ({ selectedPatient }): ReactElement => {
   if (isProgramRegistryLoading) return <LoadingScreen />;
   if (programRegistryError) return <ErrorScreen error={programRegistryError} />;
 
+  const accessibleRegistries = programRegistries.filter(r => ability.can('read', subject('ProgramRegistry', { id: r.id })));
+
   return (
     <StyledView margin={20} borderRadius={5}>
       <Row>
@@ -51,7 +55,7 @@ const PatientProgramRegistrySummary_ = ({ selectedPatient }): ReactElement => {
         {canCreateRegistration && (
           <Button
             backgroundColor={
-              programRegistries?.length === 0
+              accessibleRegistries?.length === 0
                 ? theme.colors.DISABLED_GREY
                 : theme.colors.PRIMARY_MAIN
             }
@@ -59,7 +63,7 @@ const PatientProgramRegistrySummary_ = ({ selectedPatient }): ReactElement => {
             width={32}
             height={32}
             loadingAction={isProgramRegistryLoading}
-            disabled={programRegistries?.length === 0}
+            disabled={accessibleRegistries?.length === 0}
             onPress={() => {
               navigation.navigate(Routes.HomeStack.PatientProgramRegistryFormStack.Index);
             }}

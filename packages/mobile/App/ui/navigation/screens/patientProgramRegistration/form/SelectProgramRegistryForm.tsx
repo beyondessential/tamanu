@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
+import { subject } from '@casl/ability';
+
 import { Routes } from '~/ui/helpers/routes';
 import { FullView, StyledText, StyledTouchableOpacity, StyledView } from '~/ui/styled/common';
 import { theme } from '~/ui/styled/theme';
@@ -51,6 +53,8 @@ export const SelectProgramRegistryForm = ({ navigation, route }: BaseAppProps) =
 
   if (programRegistryError) return <ErrorScreen error={programRegistryError} />;
 
+  const accessibleRegistries = programRegistries.filter(r => ability.can('read', subject('ProgramRegistry', { id: r.id })));
+
   return (
     <FullView background={theme.colors.WHITE}>
       <EmptyStackHeader
@@ -77,7 +81,7 @@ export const SelectProgramRegistryForm = ({ navigation, route }: BaseAppProps) =
       </StyledView>
       <StyledView marginRight={20} marginLeft={20}>
         <FlatList
-          data={programRegistries?.filter(x => {
+          data={accessibleRegistries?.filter(x => {
             if (!searchValue) return true;
             return x.name.toLowerCase().includes(searchValue.toLowerCase());
           })}
