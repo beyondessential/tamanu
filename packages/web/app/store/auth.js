@@ -18,8 +18,16 @@ const VALIDATE_RESET_CODE_COMPLETE = 'VALIDATE_RESET_CODE_COMPLETE';
 
 export const restoreSession = () => async (dispatch, getState, { api }) => {
   try {
-    const { user, token, localisation, server, ability, role } = await api.restoreSession();
-    dispatch({ type: LOGIN_SUCCESS, user, token, localisation, server, ability, role });
+    const {
+      user,
+      token,
+      localisation,
+      server,
+      ability,
+      role,
+      settings,
+    } = await api.restoreSession();
+    dispatch({ type: LOGIN_SUCCESS, user, token, localisation, server, ability, role, settings });
   } catch (e) {
     // no action required -- this just means we haven't logged in
   }
@@ -29,8 +37,11 @@ export const login = (email, password) => async (dispatch, getState, { api }) =>
   dispatch({ type: LOGIN_START });
 
   try {
-    const { user, token, localisation, server, ability, role } = await api.login(email, password);
-    dispatch({ type: LOGIN_SUCCESS, user, token, localisation, server, ability, role });
+    const { user, token, localisation, server, ability, role, settings } = await api.login(
+      email,
+      password,
+    );
+    dispatch({ type: LOGIN_SUCCESS, user, token, localisation, server, ability, role, settings });
   } catch (error) {
     dispatch({ type: LOGIN_FAILURE, error: error.message });
   }
@@ -140,6 +151,7 @@ const actionHandlers = {
     localisation: action.localisation,
     server: action.server,
     role: action.role,
+    settings: action.settings,
     resetPassword: defaultState.resetPassword,
     changePassword: defaultState.changePassword,
   }),
