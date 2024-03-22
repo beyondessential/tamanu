@@ -10,15 +10,9 @@ export const ConfiguredMandatoryPatientFields = ({ fields, filterByMandatory }) 
   const fieldsToShow = useMemo(() => {
     const checkCondition = fieldName =>
       !fields[fieldName].condition || fields[fieldName].condition();
-    const checkMandatory = fieldName => {
-      // If this is undefined, its not configurable and should always show
-      const isRequiredPatientData = getLocalisation(`fields.${fieldName}.requiredPatientData`);
-      return (
-        !isBoolean(filterByMandatory) ||
-        !isBoolean(isRequiredPatientData) ||
-        isRequiredPatientData === filterByMandatory
-      );
-    };
+    const checkMandatory = fieldName =>
+      !isBoolean(filterByMandatory) ||
+      !!getLocalisation(`fields.${fieldName}.requiredPatientData`) === filterByMandatory;
 
     return Object.keys(fields)
       .filter(fieldName => checkMandatory(fieldName) && checkCondition(fieldName))
