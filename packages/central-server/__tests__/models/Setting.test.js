@@ -192,7 +192,11 @@ describe('Setting', () => {
     ];
 
     const runTest = async ([key, facilityId, value]) => {
-      const output = await Setting.get(key, facilityId, SETTINGS_SCOPES.FACILITY);
+      const output = await Setting.get(
+        key,
+        facilityId,
+        facilityId ? SETTINGS_SCOPES.FACILITY : SETTINGS_SCOPES.GLOBAL,
+      );
       expect(output).toEqual(value);
     };
 
