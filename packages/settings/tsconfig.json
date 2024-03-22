@@ -4,6 +4,16 @@
     "src/**/*.ts",
   ],
   "compilerOptions": {
-    "baseUrl": "./src"
+    "baseUrl": "./src",
+    "strict": false,
+    "esModuleInterop": true,
+    "experimentalDecorators": true,
+    "isolatedModules": false,
+    "noEmit": true,
+    "resolveJsonModule": true,
+    "moduleResolution": "NodeNext",
+    "module": "NodeNext",
+    "skipLibCheck": true,
+    "target": "es2020"
   }
 }
