@@ -3,6 +3,7 @@ import config from 'config';
 import { Setting } from '@tamanu/shared/models/Setting';
 import { fake } from '@tamanu/shared/test-helpers/fake';
 import { createTestContext } from '../utilities';
+import { SETTINGS_SCOPES } from '@tamanu/constants';
 
 describe('Vaccination Settings', () => {
   let ctx = null;
@@ -35,7 +36,7 @@ describe('Vaccination Settings', () => {
       const TEST_KEY = 'vaccinations.test.key';
       const TEST_VALUE = 'test-value';
 
-      await Setting.set(TEST_KEY, TEST_VALUE, config.serverFacilityId);
+      await Setting.set(TEST_KEY, TEST_VALUE, SETTINGS_SCOPES.FACILITY, config.serverFacilityId);
 
       const result = await app.get(`/api/vaccinationSettings/${TEST_KEY}`).send({});
 

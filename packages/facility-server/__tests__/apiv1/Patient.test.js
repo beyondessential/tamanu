@@ -10,7 +10,7 @@ import {
 import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants/patientFields';
 import { fake } from '@tamanu/shared/test-helpers/fake';
 import { randomLabRequest } from '@tamanu/shared/demoData/labRequests';
-import { LAB_REQUEST_STATUSES, REFERENCE_TYPES } from '@tamanu/constants';
+import { LAB_REQUEST_STATUSES, REFERENCE_TYPES, SETTINGS_SCOPES } from '@tamanu/constants';
 import { getCurrentDateString, toDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { CertificateTypes } from '@tamanu/shared/utils/patientCertificates';
 
@@ -393,10 +393,14 @@ describe('Patient', () => {
     });
 
     it('includes lab requests after {daysSinceSampleTime} days', async () => {
-      await models.Setting.set('certifications.covidClearanceCertificate', {
-        labTestResults: ['Positive'],
-        daysSinceSampleTime: 10,
-      });
+      await models.Setting.set(
+        'certifications.covidClearanceCertificate',
+        {
+          labTestResults: ['Positive'],
+          daysSinceSampleTime: 10,
+        },
+        SETTINGS_SCOPES.GLOBAL,
+      );
 
       const patient1 = await models.Patient.create(await createDummyPatient(models));
 
@@ -439,10 +443,14 @@ describe('Patient', () => {
     });
 
     it('excludes lab requests before {daysSinceSampleTime} days', async () => {
-      await models.Setting.set('certifications.covidClearanceCertificate', {
-        labTestResults: ['Positive'],
-        daysSinceSampleTime: 10,
-      });
+      await models.Setting.set(
+        'certifications.covidClearanceCertificate',
+        {
+          labTestResults: ['Positive'],
+          daysSinceSampleTime: 10,
+        },
+        SETTINGS_SCOPES.GLOBAL,
+      );
 
       const patient2 = await models.Patient.create(await createDummyPatient(models));
 
@@ -484,10 +492,14 @@ describe('Patient', () => {
     });
 
     it('includes lab requests that is in configured "labTestResults"', async () => {
-      await models.Setting.set('certifications.covidClearanceCertificate', {
-        labTestResults: ['Positive'],
-        daysSinceSampleTime: 10,
-      });
+      await models.Setting.set(
+        'certifications.covidClearanceCertificate',
+        {
+          labTestResults: ['Positive'],
+          daysSinceSampleTime: 10,
+        },
+        SETTINGS_SCOPES.GLOBAL,
+      );
 
       const patient1 = await models.Patient.create(await createDummyPatient(models));
 

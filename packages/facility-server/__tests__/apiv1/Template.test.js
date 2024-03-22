@@ -1,6 +1,7 @@
 import { Setting } from '@tamanu/shared/models/Setting';
 import { fake } from '@tamanu/shared/test-helpers/fake';
 import { createTestContext } from '../utilities';
+import { SETTINGS_SCOPES } from '@tamanu/constants';
 
 describe('Template', () => {
   let ctx = null;
@@ -28,7 +29,7 @@ describe('Template', () => {
 
     it('fetches a template record within a facility', async () => {
       const facility = await models.Facility.create(fake(models.Facility));
-      await Setting.set(TEST_KEY, TEST_VALUE, facility.id);
+      await Setting.set(TEST_KEY, TEST_VALUE, SETTINGS_SCOPES.FACILITY, facility.id);
 
       const result = await app.get(`/api/template/${TEST_KEY}?facilityId=${facility.id}`).send({});
 
@@ -39,7 +40,7 @@ describe('Template', () => {
     it('does not fetch a template record within a different facility', async () => {
       const facility1 = await models.Facility.create(fake(models.Facility));
       const facility2 = await models.Facility.create(fake(models.Facility));
-      await Setting.set(TEST_KEY, TEST_VALUE, facility1.id);
+      await Setting.set(TEST_KEY, TEST_VALUE, SETTINGS_SCOPES.FACILITY, facility1.id);
 
       const result = await app.get(`/api/template/${TEST_KEY}?facilityId=${facility2.id}`).send({});
 
