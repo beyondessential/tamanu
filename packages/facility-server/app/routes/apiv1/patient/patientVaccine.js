@@ -5,6 +5,7 @@ import config from 'config';
 
 import {
   ENCOUNTER_TYPES,
+  SETTINGS_SCOPES,
   SETTING_KEYS,
   VACCINE_CATEGORIES,
   VACCINE_STATUS,
@@ -191,6 +192,7 @@ patientVaccineRoutes.post(
             ? SETTING_KEYS.VACCINATION_GIVEN_ELSEWHERE_DEFAULTS
             : SETTING_KEYS.VACCINATION_DEFAULTS,
           config.serverFacilityId,
+          SETTINGS_SCOPES.FACILITY,
         )) || {};
       departmentId = departmentId || vaccinationDefaults.departmentId;
       locationId = locationId || vaccinationDefaults.locationId;

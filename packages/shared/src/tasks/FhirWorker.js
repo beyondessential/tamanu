@@ -5,6 +5,7 @@ import ms from 'ms';
 import { hostname } from 'os';
 
 import { getTracer, spanWrapFn } from '../services/logging';
+import { SETTINGS_SCOPES } from '@tamanu/constants';
 
 export class FhirWorker {
   handlers = new Map();
@@ -37,7 +38,11 @@ export class FhirWorker {
       return;
     }
 
-    const heartbeatInterval = await Setting.get('fhir.worker.heartbeat');
+    const heartbeatInterval = await Setting.get(
+      'fhir.worker.heartbeat',
+      null,
+      SETTINGS_SCOPES.GLOBAL,
+    );
     this.log.debug('FhirWorker: got raw heartbeat interval', { heartbeatInterval });
     const heartbeat = Math.round(ms(heartbeatInterval) * (1 + Math.random() * 0.2 - 0.1)); // +/- 10%
     this.log.debug('FhirWorker: added some jitter to the heartbeat', { heartbeat });

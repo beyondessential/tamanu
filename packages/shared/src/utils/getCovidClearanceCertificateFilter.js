@@ -1,7 +1,7 @@
 import { startOfDay, subDays } from 'date-fns';
 import { Op } from 'sequelize';
 
-import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
+import { LAB_REQUEST_STATUSES, SETTINGS_SCOPES } from '@tamanu/constants';
 
 import { toDateTimeString } from './dateTime';
 
@@ -12,7 +12,12 @@ export const getCovidClearanceCertificateFilter = async models => {
     labTestCategories = [],
     labTestTypes = [],
     labTestResults = ['Positive'],
-  } = (await models.Setting.get('certifications.covidClearanceCertificate')) || {};
+  } =
+    (await models.Setting.get(
+      'certifications.covidClearanceCertificate',
+      null,
+      SETTINGS_SCOPES.GLOBAL,
+    )) || {};
 
   // mandatory filters
   const labRequestsWhere = {
