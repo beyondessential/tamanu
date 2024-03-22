@@ -8,16 +8,17 @@ import {
   PLACE_OF_BIRTH_TYPES,
 } from '@tamanu/constants';
 
-const requiredWhenConfiguredMandatory = (getLocalisation, getTranslation, name, baseType) => {
-  console.log(baseType);
+const requiredWhenConfiguredMandatory = (
+  getLocalisation,
+  getTranslation,
+  name,
+  baseType,
+  fallbackLabel, // this fallback label is a bit of a temporary workaround for now. Once the yup validation card is merged, validation text will all be handled through that work
+) => {
   return baseType.when([], {
     is: () => !!getLocalisation(`fields.${name}.requiredPatientData`),
     then: baseType.required(
-      // TODO: this is terrible but not sure what alternative is
-      `${getTranslation(
-        `general.localisedField.${name}.label.short`,
-        getLocalisation(`fields.${name}.shortLabel`),
-      )} is required `,
+      `${getTranslation(`general.localisedField.${name}.label.short`, fallbackLabel)} is required `,
     ),
     otherwise: baseType,
   });
@@ -29,10 +30,17 @@ const requiredBirthFieldWhenConfiguredMandatory = (
   patientRegistryType,
   name,
   baseType,
+  fallbackLabel,
 ) =>
   baseType.when([], {
     is: () => patientRegistryType === PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY,
-    then: requiredWhenConfiguredMandatory(getLocalisation, getTranslation, name, baseType),
+    then: requiredWhenConfiguredMandatory(
+      getLocalisation,
+      getTranslation,
+      name,
+      baseType,
+      fallbackLabel,
+    ),
     otherwise: baseType,
   });
 
@@ -49,6 +57,7 @@ export const getPatientDetailsValidation = (
       getTranslation,
       'middleName',
       yup.string(),
+      'Middle name',
     ),
     lastName: yup.string().required(),
     culturalName: requiredWhenConfiguredMandatory(
@@ -56,6 +65,7 @@ export const getPatientDetailsValidation = (
       getTranslation,
       'culturalName',
       yup.string(),
+      'Cultural name',
     ),
     dateOfBirth: yup.date().required(),
     sex: yup
@@ -67,6 +77,7 @@ export const getPatientDetailsValidation = (
       getTranslation,
       'email',
       yup.string().email(),
+      'Email',
     ),
 
     /* --- PATIENT BIRTH FIELDS START --- */
@@ -78,6 +89,7 @@ export const getPatientDetailsValidation = (
         patientRegistryType,
         'birthFacilityId',
         yup.string(),
+        'Name of health facility (if applicable)',
       ),
       otherwise: yup.string(),
     }),
@@ -88,6 +100,7 @@ export const getPatientDetailsValidation = (
       patientRegistryType,
       'attendantAtBirth',
       yup.string(),
+      'Attendant at birth',
     ),
     nameOfAttendantAtBirth: requiredBirthFieldWhenConfiguredMandatory(
       getLocalisation,
@@ -95,6 +108,7 @@ export const getPatientDetailsValidation = (
       patientRegistryType,
       'nameOfAttendantAtBirth',
       yup.string(),
+      'Name of attendant',
     ),
     birthWeight: requiredBirthFieldWhenConfiguredMandatory(
       getLocalisation,
@@ -105,6 +119,7 @@ export const getPatientDetailsValidation = (
         .number()
         .min(0)
         .max(6),
+      'Birth weight (kg)',
     ),
     birthLength: requiredBirthFieldWhenConfiguredMandatory(
       getLocalisation,
@@ -115,6 +130,7 @@ export const getPatientDetailsValidation = (
         .number()
         .min(0)
         .max(100),
+      'Birth length (cm)',
     ),
     birthDeliveryType: requiredBirthFieldWhenConfiguredMandatory(
       getLocalisation,
@@ -122,6 +138,7 @@ export const getPatientDetailsValidation = (
       patientRegistryType,
       'birthDeliveryType',
       yup.string().oneOf(Object.values(BIRTH_DELIVERY_TYPES)),
+      'Delivery type',
     ),
     gestationalAgeEstimate: requiredBirthFieldWhenConfiguredMandatory(
       getLocalisation,
@@ -132,6 +149,7 @@ export const getPatientDetailsValidation = (
         .number()
         .min(1)
         .max(45),
+      'Gestational age (weeks)',
     ),
     apgarScoreOneMinute: requiredBirthFieldWhenConfiguredMandatory(
       getLocalisation,
@@ -142,6 +160,7 @@ export const getPatientDetailsValidation = (
         .number()
         .min(1)
         .max(10),
+      'Apgar score at 1 min',
     ),
     apgarScoreFiveMinutes: requiredBirthFieldWhenConfiguredMandatory(
       getLocalisation,
@@ -152,6 +171,7 @@ export const getPatientDetailsValidation = (
         .number()
         .min(1)
         .max(10),
+      'Apgar score at 5 min',
     ),
     apgarScoreTenMinutes: requiredBirthFieldWhenConfiguredMandatory(
       getLocalisation,
@@ -162,6 +182,7 @@ export const getPatientDetailsValidation = (
         .number()
         .min(1)
         .max(10),
+      'Apgar score at 10 min',
     ),
     birthType: requiredBirthFieldWhenConfiguredMandatory(
       getLocalisation,
@@ -169,6 +190,7 @@ export const getPatientDetailsValidation = (
       patientRegistryType,
       'birthType',
       yup.string().oneOf(Object.values(BIRTH_TYPES)),
+      'Single/Plural birth',
     ),
     timeOfBirth: requiredBirthFieldWhenConfiguredMandatory(
       getLocalisation,
@@ -176,6 +198,7 @@ export const getPatientDetailsValidation = (
       patientRegistryType,
       'timeOfBirth',
       yup.string(),
+      'Time of birth',
     ),
     registeredBirthPlace: requiredBirthFieldWhenConfiguredMandatory(
       getLocalisation,
@@ -183,6 +206,7 @@ export const getPatientDetailsValidation = (
       patientRegistryType,
       'registeredBirthPlace',
       yup.string().oneOf(Object.values(PLACE_OF_BIRTH_TYPES)),
+      'Place of birth',
     ),
     /* --- PATIENT BIRTH FIELDS END--- */
 
@@ -191,42 +215,49 @@ export const getPatientDetailsValidation = (
       getTranslation,
       'religionId',
       yup.string(),
+      'Religion',
     ),
     birthCertificate: requiredWhenConfiguredMandatory(
       getLocalisation,
       getTranslation,
       'birthCertificate',
       yup.string(),
+      'Birth certificate',
     ),
     passport: requiredWhenConfiguredMandatory(
       getLocalisation,
       getTranslation,
       'passport',
       yup.string(),
+      'Passport',
     ),
     primaryContactNumber: requiredWhenConfiguredMandatory(
       getLocalisation,
       getTranslation,
       'primaryContactNumber',
       yup.number(),
+      'Primary contact number',
     ),
     secondaryContactNumber: requiredWhenConfiguredMandatory(
       getLocalisation,
       getTranslation,
       'secondaryContactNumber',
       yup.number(),
+      'Secondary contact number',
     ),
     emergencyContactName: requiredWhenConfiguredMandatory(
       getLocalisation,
       getTranslation,
       'emergencyContactName',
       yup.string(),
+      'Emergency contact name',
     ),
     emergencyContactNumber: requiredWhenConfiguredMandatory(
       getLocalisation,
       getTranslation,
       'emergencyContactNumber',
       yup.number(),
+      'Emergency contact number',
     ),
     title: requiredWhenConfiguredMandatory(getLocalisation, getTranslation, 'title', yup.string()),
     bloodType: requiredWhenConfiguredMandatory(
@@ -234,102 +265,119 @@ export const getPatientDetailsValidation = (
       getTranslation,
       'bloodType',
       yup.string(),
+      'Blood type',
     ),
     placeOfBirth: requiredWhenConfiguredMandatory(
       getLocalisation,
       getTranslation,
       'placeOfBirth',
       yup.string(),
+      'Birth location',
     ),
     countryOfBirthId: requiredWhenConfiguredMandatory(
       getLocalisation,
       getTranslation,
       'countryOfBirthId',
       yup.string(),
+      'Country of birth',
     ),
     nationalityId: requiredWhenConfiguredMandatory(
       getLocalisation,
       getTranslation,
       'nationalityId',
       yup.string(),
+      'Nationality',
     ),
     ethnicityId: requiredWhenConfiguredMandatory(
       getLocalisation,
       getTranslation,
       'ethnicityId',
       yup.string(),
+      'Ethnicity',
     ),
     patientBillingTypeId: requiredWhenConfiguredMandatory(
       getLocalisation,
       getTranslation,
       'patientBillingTypeId',
       yup.string(),
+      'Type',
     ),
     motherId: requiredWhenConfiguredMandatory(
       getLocalisation,
       getTranslation,
       'motherId',
       yup.string(),
+      'Mother',
     ),
     fatherId: requiredWhenConfiguredMandatory(
       getLocalisation,
       getTranslation,
       'fatherId',
       yup.string(),
+      'Father',
     ),
     subdivisionId: requiredWhenConfiguredMandatory(
       getLocalisation,
       getTranslation,
       'subdivisionId',
       yup.string(),
+      'Sub division',
     ),
     divisionId: requiredWhenConfiguredMandatory(
       getLocalisation,
       getTranslation,
       'divisionId',
       yup.string(),
+      'Division',
     ),
     countryId: requiredWhenConfiguredMandatory(
       getLocalisation,
       getTranslation,
       'countryId',
       yup.string(),
+      'Country',
     ),
     settlementId: requiredWhenConfiguredMandatory(
       getLocalisation,
       getTranslation,
       'settlementId',
       yup.string(),
+      'Settlement',
     ),
     medicalAreaId: requiredWhenConfiguredMandatory(
       getLocalisation,
       getTranslation,
       'medicalAreaId',
       yup.string(),
+      'Medical area',
     ),
     nursingZoneId: requiredWhenConfiguredMandatory(
       getLocalisation,
       getTranslation,
       'nursingZoneId',
       yup.string(),
+      'Nursing zone',
     ),
     streetVillage: requiredWhenConfiguredMandatory(
       getLocalisation,
       getTranslation,
       'streetVillage',
       yup.string(),
+      'Residential landmark',
     ),
     villageId: requiredWhenConfiguredMandatory(
       getLocalisation,
       getTranslation,
       'villageId',
       yup.string(),
+      'Village',
     ),
     cityTown: requiredWhenConfiguredMandatory(
       getLocalisation,
       getTranslation,
       'cityTown',
       yup.string(),
+      'City/town',
     ),
     drivingLicense: yup.string().when({
       is: () => patientRegistryType === PATIENT_REGISTRY_TYPES.NEW_PATIENT,
@@ -338,6 +386,7 @@ export const getPatientDetailsValidation = (
         getTranslation,
         'drivingLicense',
         yup.string(),
+        'Driving license',
       ),
       otherwise: yup.string(),
     }),
@@ -348,6 +397,7 @@ export const getPatientDetailsValidation = (
         getTranslation,
         'maritalStatus',
         yup.string(),
+        'Marital status',
       ),
       otherwise: yup.string(),
     }),
@@ -358,6 +408,7 @@ export const getPatientDetailsValidation = (
         getTranslation,
         'occupationId',
         yup.string(),
+        'Occupation',
       ),
       otherwise: yup.string(),
     }),
@@ -368,6 +419,7 @@ export const getPatientDetailsValidation = (
         getTranslation,
         'educationalLevel',
         yup.string(),
+        'Educational attainment',
       ),
       otherwise: yup.string(),
     }),
@@ -378,6 +430,7 @@ export const getPatientDetailsValidation = (
         getTranslation,
         'socialMedia',
         yup.string(),
+        'Social media',
       ),
       otherwise: yup.string(),
     }),
