@@ -1,3 +1,4 @@
+import { SETTINGS_SCOPES } from '@tamanu/constants';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 
@@ -18,7 +19,11 @@ template.get(
       throw new Error('Invalid template key');
     }
 
-    const templateValue = await Setting.get(key, facilityId);
+    const templateValue = await Setting.get(
+      key,
+      facilityId,
+      facilityId ? SETTINGS_SCOPES.FACILITY : SETTINGS_SCOPES.GLOBAL,
+    );
 
     res.send({ data: templateValue || null });
   }),

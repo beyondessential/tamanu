@@ -360,6 +360,7 @@ describe('PatientVaccine', () => {
       const vaccinationDefaults = await models.Setting.get(
         SETTING_KEYS.VACCINATION_GIVEN_ELSEWHERE_DEFAULTS,
         facility.id,
+        SETTINGS_SCOPES.FACILITY,
       );
 
       const result = await app.post(`/api/patient/${patient.id}/administeredVaccine`).send({

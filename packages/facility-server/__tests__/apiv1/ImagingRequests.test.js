@@ -378,7 +378,7 @@ describe('Imaging requests', () => {
       completedById: app.user.dataValues.id,
     });
 
-    const settings = await models.Setting.get('integrations.imaging');
+    const settings = await models.Setting.get('integrations.imaging', null, SETTINGS_SCOPES.GLOBAL);
     await models.Setting.set(
       'integrations.imaging',
       {
