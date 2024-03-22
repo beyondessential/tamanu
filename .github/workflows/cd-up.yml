@@ -72,7 +72,7 @@ jobs:
           command: up
           stack-name: bes/${{ inputs.deploy-name }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          comment-on-pr: false
+          comment-on-pr: true
           upsert: true
           config-map: ${{ steps.config.outputs.pulumi }}
         env:
