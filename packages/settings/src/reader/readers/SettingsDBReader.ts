@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import { Reader, ReaderSettingResult } from './Reader';
 
 interface SettingModel {
