@@ -175,9 +175,9 @@ export const GenericSecondaryDetailsLayout = ({
     </PatientDetailsHeading>
     <SecondaryDetailsFormGrid>
       <GenericIdentificationFields
+        isEdit={isEdit}
         patientRegistryType={patientRegistryType}
         filterByMandatory={false}
-        isEdit={isEdit}
       />
     </SecondaryDetailsFormGrid>
 

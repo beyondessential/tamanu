@@ -131,6 +131,7 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
             <SecondaryDetails
               registeredBirthPlace={values.registeredBirthPlace}
               patientRegistryType={patientRegistryType}
+              isEdit
             />
           </StyledPatientDetailSecondaryDetailsGroupWrapper>
           <PatientFields
