@@ -21,19 +21,19 @@ export const AppointmentListingView = () => {
   const COLUMNS = [
     {
       key: 'startTime',
-      title: <TranslatedText stringId='general.date.label' fallback="Date" />,
+      title: <TranslatedText stringId="general.date.label" fallback="Date" />,
       accessor: row => <DateDisplay date={row.startTime} showTime />,
     },
     {
       key: 'displayId',
       title: (
-        <TranslatedText stringId="general.localisedField.displayId.label.short" fallback="DOB" />
+        <TranslatedText stringId="general.localisedField.displayId.label.short" fallback="NHN" />
       ),
       accessor: row => row.patient.displayId,
     },
     {
       key: 'patientName',
-      title: <TranslatedText stringId='general.patient.label' fallback="Patient" />,
+      title: <TranslatedText stringId="general.patient.label" fallback="Patient" />,
       accessor: row => `${row.patient.firstName} ${row.patient.lastName}`,
     },
     {
