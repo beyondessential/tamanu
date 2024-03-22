@@ -290,7 +290,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       expect(response.body.subject).not.toHaveProperty('identifier');
     });
 
-    it('materialises the default priority if the source data has a null priority', async () => {
+    it('does not have a default priority if the source data has a null priority', async () => {
       // arrange
       const { FhirServiceRequest, ImagingRequest } = ctx.store.models;
       const ir = await ImagingRequest.create(
@@ -329,8 +329,8 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
             value: ir.displayId,
           },
         ],
-        priority: 'routine',
       });
+      expect(Object.keys(response.body).includes('priority')).toBe(false);
       expect(response).toHaveSucceeded();
     });
 
