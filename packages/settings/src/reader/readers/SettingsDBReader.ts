@@ -1,8 +1,12 @@
+/* eslint-disable no-unused-vars */
 import { Reader, ReaderSettingResult } from './Reader';
 
 interface SettingModel {
-  get: (key: string, facilityId?: string, scope?: string) =>
-  Promise<undefined | ReaderSettingResult>
+  get: (
+    key: string,
+    facilityId?: string,
+    scope?: string,
+  ) => Promise<undefined | ReaderSettingResult>;
 }
 export interface Models {
   Setting: SettingModel;
