@@ -91,6 +91,7 @@ export const fakeResourcesOfFhirServiceRequestWithLabRequest = async (
     patientId: resources.patient.id,
     encounterId: resources.encounter.id,
     status: LAB_REQUEST_STATUSES.PUBLISHED,
+    priority: 'urgent',
     requestedDate: '2022-07-27 16:30:00',
     ...overrides,
   };

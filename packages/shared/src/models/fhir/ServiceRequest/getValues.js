@@ -128,7 +128,7 @@ async function getValuesFromLabRequest(upstream) {
         ],
       }),
     ],
-    priority: validatePriority(upstream.priority),
+    priority: validatePriority(upstream.priority, upstream.urgent),
     code: labCode(upstream),
     orderDetail: await labOrderDetails(upstream),
     subject: new FhirReference({
@@ -173,16 +173,15 @@ function imagingCode(upstream) {
   });
 }
 
-function validatePriority(priority) {
-  if (!priority) {
-    // default to routine when we don't have a priority in Tamanu
-    return FHIR_REQUEST_PRIORITY.ROUTINE;
+function validatePriority(priority, urgent) {
+  if (urgent === true) {
+    return FHIR_REQUEST_PRIORITY.STAT;
   }
-
+  console.log({ priority, urgent })
   if (!Object.values(FHIR_REQUEST_PRIORITY).includes(priority)) {
-    throw new Exception(`Invalid priority: ${priority}`);
+    return null;
   }
-
+  console.log({ returning:priority })
   return priority;
 }
 
