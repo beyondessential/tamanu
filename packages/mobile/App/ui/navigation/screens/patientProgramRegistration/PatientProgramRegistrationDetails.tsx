@@ -63,13 +63,13 @@ export const PatientProgramRegistrationDetails = ({ route }) => {
       const canReadProgramRegistry = ability.can(
         'read',
         subject('ProgramRegistry', {
-          id: patientProgramRegistration.programRegistryId.programRegistryId,
+          id: patientProgramRegistration.programRegistryId,
         }),
       );
       if (canReadProgramRegistry) {
         return null;
       }
-      
+
       return models.PatientProgramRegistrationCondition.findForRegistryAndPatient(
         patientProgramRegistration.programRegistryId,
         patientProgramRegistration.patientId,

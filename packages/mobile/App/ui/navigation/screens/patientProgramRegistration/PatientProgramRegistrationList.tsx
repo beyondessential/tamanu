@@ -79,7 +79,9 @@ export const PatientProgramRegistrationList = ({ selectedPatient }): ReactElemen
 
   if (registrationError) return <ErrorScreen error={registrationError} />;
 
-  const accessibleRegistries = registrations.filter(r => ability.can('read', subject('ProgramRegistry', { id: r.programRegistryId })));
+  const accessibleRegistries = registrations.filter(r =>
+    ability.can('read', subject('ProgramRegistry', { id: r.programRegistryId })),
+  );
   if (accessibleRegistries.length === 0) {
     return (
       <NoRegistriesRow>

@@ -44,7 +44,7 @@ export const SelectProgramRegistryForm = ({ navigation, route }: BaseAppProps) =
   const [programRegistries, programRegistryError, isProgramRegistryLoading] = useBackendEffect(
     async ({ models }) => {
       if (canListRegistrations === false) return [];
-      return await models.ProgramRegistry.getProgramRegistriesForPatient(selectedPatient.id)
+      return await models.ProgramRegistry.getProgramRegistriesForPatient(selectedPatient.id);
     },
     [canListRegistrations, selectedPatient.id],
   );
@@ -53,7 +53,9 @@ export const SelectProgramRegistryForm = ({ navigation, route }: BaseAppProps) =
 
   if (programRegistryError) return <ErrorScreen error={programRegistryError} />;
 
-  const accessibleRegistries = programRegistries.filter(r => ability.can('read', subject('ProgramRegistry', { id: r.id })));
+  const accessibleRegistries = programRegistries.filter(r =>
+    ability.can('read', subject('ProgramRegistry', { id: r.id })),
+  );
 
   return (
     <FullView background={theme.colors.WHITE}>

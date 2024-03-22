@@ -44,7 +44,9 @@ const PatientProgramRegistrySummary_ = ({ selectedPatient }): ReactElement => {
   if (isProgramRegistryLoading) return <LoadingScreen />;
   if (programRegistryError) return <ErrorScreen error={programRegistryError} />;
 
-  const accessibleRegistries = programRegistries.filter(r => ability.can('read', subject('ProgramRegistry', { id: r.id })));
+  const accessibleRegistries = programRegistries.filter(r =>
+    ability.can('read', subject('ProgramRegistry', { id: r.id })),
+  );
 
   return (
     <StyledView margin={20} borderRadius={5}>
