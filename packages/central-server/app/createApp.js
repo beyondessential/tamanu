@@ -50,18 +50,18 @@ export function createApp(ctx) {
     next();
   });
 
-  app.use(buildSettingsReader);
   app.use(versionCompatibility);
 
   app.use((req, res, next) => {
     req.models = store.models; // cross-compatibility with facility for shared middleware
     req.store = store;
-    req.models = store.models;
     req.emailService = emailService;
     req.reportSchemaStores = reportSchemaStores;
     req.ctx = ctx;
     next();
   });
+
+  app.use(buildSettingsReader);
 
   app.get('/$', (req, res) => {
     res.send({
