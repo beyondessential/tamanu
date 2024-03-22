@@ -17,3 +17,7 @@ _Upon merging:_
   - [ ] any db schema or other changes that could impact downstream data analysis
 - [ ] Update the [config reference](https://beyond-essential.slab.com/posts/reference-config-file-0c70ukly) or [settings reference](https://beyond-essential.slab.com/posts/reference-settings-0blw1x2q) as needed
 - [ ] Update the [relevant runbook(s)](https://beyond-essential.slab.com/topics/runbooks-bs04ml6c) as needed
+
+### Deploys
+
+- [ ] **Deploy to Tamanu Internal** <!-- #deploy -->
