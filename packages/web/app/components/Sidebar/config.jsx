@@ -248,6 +248,12 @@ export const SYNC_MENU_ITEMS = [
     path: '/admin/sync',
   },
   {
+    key: 'settings',
+    label: <TranslatedText stringId="adminSidebar.settings" fallback="Settings" />,
+    path: '/admin/settings',
+    ability: { action: 'write', subject: 'settings' },
+  },
+  {
     key: 'fhirJobStats',
     label: <TranslatedText stringId="adminSidebar.fhirJobStats" fallback="FHIR job stats" />,
     path: '/admin/fhir/jobStats',

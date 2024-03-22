@@ -6,6 +6,7 @@ export const LOCAL_STORAGE_KEYS = {
   PERMISSIONS: 'permissions',
   ROLE: 'role',
   LANGUAGE: 'language',
+  SETTINGS: 'settings',
 };
 
 export const ALPHABET_FOR_ID =
