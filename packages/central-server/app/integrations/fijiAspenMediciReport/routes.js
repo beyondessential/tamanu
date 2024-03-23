@@ -85,6 +85,13 @@ const parseDateParam = date => {
   return parsedDate || null;
 };
 
+const checkTimePeriod = (fromDate, toDate) => {
+  const fromParsed = new Date(parseDateParam(fromDate));
+  const toParsed = new Date(parseDateParam(toDate));
+  // Check if start & end time are within 1 hour
+  return Math.abs(toParsed - fromParsed) <= 60 * 60 * 1000;
+};
+
 routes.use(requireClientHeaders);
 routes.get(
   '/',
@@ -99,6 +106,14 @@ routes.get(
     } = req.query;
     if (!COUNTRY_TIMEZONE) {
       throw new Error('A countryTimeZone must be configured in local.json5 for this report to run');
+    }
+
+    if (!fromDate || !toDate) {
+      throw new Error('Both period.start and period.end are required query parameters');
+    }
+
+    if (!checkTimePeriod(fromDate, toDate)) {
+      throw new Error('The time period must be within 1 hour');
     }
 
     const data = await sequelize.query(reportQuery, {
