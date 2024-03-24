@@ -14,22 +14,23 @@
       user: 'facility-a@tamanu.io',
       password: 'facility-a',
     },
-
-    'facility-b': {
-      name: 'Facility B',
-      code: 'b',
-      user: 'facility-b@tamanu.io',
-      password: 'facility-b',
-    },
   },
 
   referenceData: [
-    { url: 'https://bes-tamanu-dev-referencedata.s3.ap-southeast-2.amazonaws.com/referencedata/default.xlsx' }
+    {
+      url: 'https://bes-tamanu-dev-referencedata.s3.ap-southeast-2.amazonaws.com/referencedata/default.xlsx',
+    },
   ],
 
   programs: [
-    { url: 'https://bes-tamanu-dev-referencedata.s3.ap-southeast-2.amazonaws.com/programs/vitals.xlsx' },
-    { url: 'https://bes-tamanu-dev-referencedata.s3.ap-southeast-2.amazonaws.com/programs/ncd-primary-screening.xlsx' },
-    { url: 'https://bes-tamanu-dev-referencedata.s3.ap-southeast-2.amazonaws.com/programs/immunisation.xlsx' },
+    {
+      url: 'https://bes-tamanu-dev-referencedata.s3.ap-southeast-2.amazonaws.com/programs/vitals.xlsx',
+    },
+    {
+      url: 'https://bes-tamanu-dev-referencedata.s3.ap-southeast-2.amazonaws.com/programs/ncd-primary-screening.xlsx',
+    },
+    {
+      url: 'https://bes-tamanu-dev-referencedata.s3.ap-southeast-2.amazonaws.com/programs/immunisation.xlsx',
+    },
   ],
 }
