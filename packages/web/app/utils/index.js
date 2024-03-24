@@ -5,4 +5,4 @@ export { flattenObject } from './flattenObject';
 export * from './invoice';
 export * from './getVisibleQuestions';
 export * from './invalidatePatientDataQueries';
-export { getBrandName, getBrandId, checkIsURLCambodia, cambodiaReportsFiler } from './cambodiaMode';
+export { getBrandName, getBrandId } from './cambodiaMode.js';
