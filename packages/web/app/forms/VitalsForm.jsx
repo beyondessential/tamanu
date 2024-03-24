@@ -15,9 +15,9 @@ import { useAuth } from '../contexts/Auth';
 import { useEncounter } from '../contexts/Encounter';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 
-const genericVitalSchema = yup.object().shape({
-  [VITALS_DATA_ELEMENT_IDS.value]: yup
-    .string()
+const baseVitalsSchema = yup.object().shape({
+  [VITALS_DATA_ELEMENT_IDS.dateRecorded]: yup
+    .date()
     .required()
     .label('dateRecorded'),
 });
@@ -41,7 +41,7 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterTyp
         {
           encounterType: encounterType || encounter?.encounterType,
         },
-      ).concat(genericVitalSchema),
+      ).concat(baseVitalsSchema),
     [currentComponents, encounter?.encounterType, encounterType],
   );
   const { ability } = useAuth();
