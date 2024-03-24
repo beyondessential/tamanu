@@ -18,7 +18,6 @@ import { Field } from './FormField';
 import { TextField } from '../TextField/TextField';
 import { SubmitButton } from './SubmitButton';
 import { ServerSelector } from '../ServerSelectorField/ServerSelector';
-import { useTranslation } from '~/ui/contexts/TranslationContext';
 
 interface SignInFormModelValues {
   email: string;
