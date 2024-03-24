@@ -17,7 +17,7 @@ export const MenuOptionButton: FC<MenuOptionButtonProps> = ({
          <TouchableHighlight underlayColor={theme.colors.DEFAULT_OFF} onPress={onPress}>
            <RowView
              width="100%"
-             height={screenPercentageToDP('9', Orientation.Height)}
+             height={screenPercentageToDP('6.5', Orientation.Height)}
              paddingLeft={screenPercentageToDP('4.86', Orientation.Width)}
              alignItems="center"
            >

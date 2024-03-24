@@ -111,7 +111,10 @@ export const VaccineGivenForm = ({
             <LocalisedField
               name="circumstanceIds"
               label={
-                <TranslatedText stringId="vaccine.circumstances.label" fallback="Circumstances" />
+                <TranslatedText
+                  stringId="general.localisedField.circumstanceIds.label"
+                  fallback="Circumstances"
+                />
               }
               component={SuggesterSelectField}
               endpoint="vaccineCircumstance"
@@ -149,6 +152,8 @@ export const VaccineGivenForm = ({
       <VaccineDateField
         label={<TranslatedText stringId="vaccine.dateGiven.label" fallback="Date given" />}
         required={!values.givenElsewhere}
+        min={values?.patientData?.dateOfBirth}
+        skipMinChecking
       />
 
       <InjectionSiteField />

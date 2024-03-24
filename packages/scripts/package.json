@@ -1,8 +1,8 @@
 {
   "name": "scripts",
-  "version": "2.4.0",
+  "version": "2.5.0",
   "main": "index.js",
-  "license": "SEE LICENSE IN license",
+  "license": "GPL-3.0-or-later",
   "scripts": {
     "test": "echo 'No tests on scripts'",
     "download-translations": "node src/downloadTranslations.js ../web/resources/strings",

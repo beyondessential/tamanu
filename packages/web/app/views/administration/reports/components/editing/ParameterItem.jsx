@@ -21,6 +21,7 @@ import {
   PARAMETER_FIELD_COMPONENTS,
 } from '../../../../reports/ParameterField';
 import { TranslatedText } from '../../../../../components/Translation/TranslatedText';
+import { useTranslation } from '../../../../../contexts/Translation';
 
 const Divider = styled(BaseDivider)`
   margin-top: 20px;
@@ -58,6 +59,8 @@ export const ParameterItem = props => {
     options = [],
   } = props;
 
+  const { getTranslation } = useTranslation();
+
   const onChangeOptions = (index, type, event) => {
     if (options[index] === undefined) {
       options[index] = {};
@@ -82,7 +85,7 @@ export const ParameterItem = props => {
               onChange(id, 'name', event.target.value);
             },
           }}
-          placeholder="Text"
+          placeholder={getTranslation("general.placeholder.text", "Text")}
           label={<TranslatedText stringId="general.name.label" fallback="Name" />}
         />
       </Grid>
@@ -95,7 +98,7 @@ export const ParameterItem = props => {
               onChange(id, 'label', event.target.value);
             },
           }}
-          placeholder="Text"
+          placeholder={getTranslation("general.placeholder.text", "Text")}
           label={<TranslatedText stringId="report.editor.label.label" fallback="Label" />}
         />
       </Grid>
@@ -113,7 +116,7 @@ export const ParameterItem = props => {
               onChange(id, 'parameterField', event.target.value);
             },
           }}
-          placeholder="Text"
+          placeholder={getTranslation("general.placeholder.text", "Text")}
           label={<TranslatedText stringId="report.editor.fieldType.label" fallback="Field type" />}
           options={Object.keys(PARAMETER_FIELD_COMPONENTS).map(key => ({
             label: key,
@@ -131,7 +134,7 @@ export const ParameterItem = props => {
                 onChange(id, 'suggesterEndpoint', event.target.value);
               },
             }}
-            placeholder="Text"
+            placeholder={getTranslation("general.placeholder.text", "Text")}
             label="Suggester endpoint"
             options={FIELD_TYPES_TO_SUGGESTER_OPTIONS[parameterField]
               .sort((a, b) => a.localeCompare(b))

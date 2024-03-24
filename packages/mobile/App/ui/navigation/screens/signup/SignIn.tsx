@@ -9,7 +9,7 @@ import {
   StyledTouchableOpacity,
   StyledView,
 } from '/styled/common';
-import { CrossIcon, HomeBottomLogoIcon, LaunchIcon } from '/components/Icons';
+import { CrossIcon, HomeBottomLogoIcon } from '/components/Icons';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { theme } from '/styled/theme';
 import { SignInForm } from '/components/Forms/SignInForm';
