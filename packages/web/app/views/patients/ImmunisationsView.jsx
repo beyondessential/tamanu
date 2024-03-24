@@ -43,7 +43,7 @@ export const ImmunisationsView = () => {
             fallback="Patient immunisation search"
           />
         </SearchTableTitle>
-        <PatientSearchBar onSearch={setSearchParameters} suggestByFacility={false} />
+        <PatientSearchBar onSearch={setSearchParameters} />
         <SearchTable
           endpoint="patient"
           columns={COLUMNS}
