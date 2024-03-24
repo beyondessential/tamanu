@@ -1,6 +1,7 @@
 import React, { ReactElement } from 'react';
 import { theme } from '/styled/theme';
 import { FlatList } from 'react-native';
+import { subject } from '@casl/ability';
 
 import { SurveyResponseScreenProps } from '../../../interfaces/Screens/ProgramsStack/SurveyResponseScreen';
 import { Routes } from '../../../helpers/routes';
@@ -12,12 +13,15 @@ import { SurveyResponseLink } from '../../../components/SurveyResponseLink';
 import { useBackendEffect } from '../../../hooks';
 import { StyledText } from '~/ui/styled/common';
 import { SurveyTypes } from '~/types';
+import { useAuth } from '~/ui/contexts/AuthContext';
 
 export const ProgramViewHistoryScreen = ({
   route,
   navigation,
 }: SurveyResponseScreenProps): ReactElement => {
   const { selectedPatient, latestResponseId } = route.params;
+
+  const { ability } = useAuth();
 
   // use latestResponseId to ensure that we refresh when
   // a new survey is submitted (as this tab can be mounted while
@@ -41,7 +45,11 @@ export const ProgramViewHistoryScreen = ({
 
       const surveyIds = surveys.map(survey => survey.id);
 
-      return surveyResponses.filter(response => surveyIds.includes(response.surveyId));
+      return surveyResponses.filter(
+        response =>
+          ability.can('read', subject('Survey', { id: response.surveyId })) &&
+          surveyIds.includes(response.surveyId),
+      );
     },
     [navigation.isFocused, latestResponseId],
   );
