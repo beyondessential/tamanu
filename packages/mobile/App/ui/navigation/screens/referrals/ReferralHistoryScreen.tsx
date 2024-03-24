@@ -2,6 +2,7 @@ import React, { ReactElement, ReactNode } from 'react';
 import { useSelector } from 'react-redux';
 import { useIsFocused } from '@react-navigation/native';
 import { List } from 'react-native-paper';
+import { subject } from '@casl/ability';
 
 import { FieldTypes } from '../../../helpers/fields';
 import { formatStringDate } from '../../../helpers/date';
@@ -16,14 +17,22 @@ import { ReduxStoreProps } from '../../../interfaces/ReduxStoreProps';
 import { PatientStateProps } from '../../../store/ducks/patient';
 import { theme } from '../../../styled/theme';
 import { getAutocompleteDisplayAnswer } from '../../../helpers/getAutocompleteDisplayAnswer';
+import { useAuth } from '~/ui/contexts/AuthContext';
 
 export const ReferralHistoryScreen = (): ReactElement => {
   const { selectedPatient } = useSelector(
     (state: ReduxStoreProps): PatientStateProps => state.patient,
   );
   const isFocused = useIsFocused();
+  const { ability } = useAuth();
+
   const [referrals, error] = useBackendEffect(
-    ({ models }) => models.Referral.getForPatient(selectedPatient.id),
+    async ({ models }) => {
+      const referrals = (await models.Referral.getForPatient(selectedPatient.id)) || [];
+      return referrals.filter(referral =>
+        ability.can('read', subject('Survey', { id: referral.surveyResponse.surveyId })),
+      );
+    },
     [isFocused],
   );
 
@@ -78,7 +87,11 @@ export const ReferralHistoryScreen = (): ReactElement => {
                       [body],
                     );
                     if (dataElement.type === FieldTypes.MULTI_SELECT) {
-                      return <StyledText color={theme.colors.TEXT_DARK}>{JSON.parse(body).join(', ')}</StyledText>;
+                      return (
+                        <StyledText color={theme.colors.TEXT_DARK}>
+                          {JSON.parse(body).join(', ')}
+                        </StyledText>
+                      );
                     }
                     if (dataElement.type !== FieldTypes.SURVEY_LINK) {
                       return <StyledText color={theme.colors.TEXT_DARK}>{body}</StyledText>;
