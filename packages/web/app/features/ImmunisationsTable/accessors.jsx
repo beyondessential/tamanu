@@ -116,9 +116,9 @@ const VACCINE_STATUS_COLORS = {
   [VACCINE_STATUS.MISSED]: '#F76853',
 };
 
-export const getStatusTag = ({ vaccineScheduleStatus }) => {
-  const label = VACCINE_STATUS_LABELS[vaccineScheduleStatus] || vaccineScheduleStatus;
-  const color = VACCINE_STATUS_COLORS[vaccineScheduleStatus];
+export const getStatusTag = ({ status }) => {
+  const label = VACCINE_STATUS_LABELS[status] || status;
+  const color = VACCINE_STATUS_COLORS[status];
   return (
     <TableCellTag $color={color} noWrap>
       {label}

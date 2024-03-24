@@ -68,7 +68,7 @@ export const ImmunisationScheduleTable = React.memo(({ patient, onItemEdit }) =>
 
   return (
     <DataFetchingTable
-      endpoint={`patient/${patient.id}/vaccineSchedule`}
+      endpoint={`patient/${patient.id}/upcomingVaccination`}
       initialSort={{ orderBy: 'date', order: 'desc' }}
       columns={COLUMNS}
       noDataMessage={

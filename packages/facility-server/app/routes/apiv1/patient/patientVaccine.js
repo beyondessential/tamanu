@@ -131,7 +131,7 @@ patientVaccineRoutes.get(
       },
     );
 
-    return res.send(results);
+    return res.send({ data: results, count: results.length });
   }),
 );
 
