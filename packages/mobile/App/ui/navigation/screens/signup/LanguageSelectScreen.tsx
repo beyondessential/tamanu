@@ -45,6 +45,17 @@ export const LanguageSelectScreen: FunctionComponent<any> = ({ navigation }) => 
               Choose language
             </StyledText>
           </StyledView>
+          <StyledTouchableOpacity onPress={onNavigateToSignIn}>
+            <StyledText
+              width="100%"
+              textAlign="center"
+              marginBottom={screenPercentageToDP(4.86, Orientation.Height)}
+              fontSize={screenPercentageToDP(1.57, Orientation.Height)}
+              color={theme.colors.SECONDARY_MAIN}
+            >
+              Back
+            </StyledText>
+          </StyledTouchableOpacity>
           <StyledView
             marginLeft={screenPercentageToDP(3, Orientation.Width)}
             marginRight={screenPercentageToDP(3, Orientation.Width)}
@@ -61,17 +72,6 @@ export const LanguageSelectScreen: FunctionComponent<any> = ({ navigation }) => 
               clearable={false}
             />
           </StyledView>
-          <StyledTouchableOpacity onPress={onNavigateToSignIn}>
-            <StyledText
-              width="100%"
-              textAlign="center"
-              marginBottom={screenPercentageToDP(4.86, Orientation.Height)}
-              fontSize={screenPercentageToDP(1.57, Orientation.Height)}
-              color={theme.colors.SECONDARY_MAIN}
-            >
-              Back
-            </StyledText>
-          </StyledTouchableOpacity>
         </KeyboardAvoidingView>
       </StyledSafeAreaView>
     </FullView>
