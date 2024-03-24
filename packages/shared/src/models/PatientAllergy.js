@@ -29,10 +29,11 @@ export class PatientAllergy extends Model {
     this.belongsTo(models.Patient, { foreignKey: 'patientId' });
     this.belongsTo(models.User, { foreignKey: 'practitionerId' });
     this.belongsTo(models.ReferenceData, { foreignKey: 'allergyId', as: 'allergy' });
+    this.belongsTo(models.ReferenceData, { foreignKey: 'reactionId', as: 'reaction' });
   }
 
   static getListReferenceAssociations() {
-    return ['allergy'];
+    return ['allergy', 'reaction'];
   }
 
   static buildPatientSyncFilter = buildPatientSyncFilterViaPatientId;
