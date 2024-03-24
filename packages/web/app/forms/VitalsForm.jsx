@@ -15,6 +15,13 @@ import { useAuth } from '../contexts/Auth';
 import { useEncounter } from '../contexts/Encounter';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 
+const genericVitalSchema = yup.object().shape({
+  [VITALS_DATA_ELEMENT_IDS.value]: yup
+    .string()
+    .required()
+    .label('dateRecorded'),
+});
+
 export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterType }) => {
   const {
     data: [vitalsSurvey, patientAdditionalData],
@@ -28,15 +35,13 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterTyp
     c => c.visibilityStatus === VISIBILITY_STATUSES.CURRENT,
   );
   const validationSchema = useMemo(
-    () => ({
-      ...getValidationSchema(
+    () =>
+      getValidationSchema(
         { components: currentComponents },
         {
           encounterType: encounterType || encounter?.encounterType,
         },
-      ),
-      [VITALS_DATA_ELEMENT_IDS.dateRecorded]: yup.date().required(),
-    }),
+      ).concat(genericVitalSchema),
     [currentComponents, encounter?.encounterType, encounterType],
   );
   const { ability } = useAuth();
