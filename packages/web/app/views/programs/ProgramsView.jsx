@@ -130,7 +130,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
       <ProgramsPane>
         <ProgramsPaneHeader>
           <ProgramsPaneHeading variant="h6">
-            <TranslatedText stringId="program.modal.selectSurvey.title" fallback="Select survey" />
+            <TranslatedText stringId="program.modal.selectSurvey.title" fallback="Select form" />
           </ProgramsPaneHeading>
         </ProgramsPaneHeader>
         <FormGrid columns={1}>
