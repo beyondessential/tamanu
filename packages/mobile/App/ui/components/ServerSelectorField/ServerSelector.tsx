@@ -7,7 +7,6 @@ import { StyledText, StyledView } from '../../styled/common';
 import { theme } from '../../styled/theme';
 import { Orientation, screenPercentageToDP } from '../../helpers/screen';
 import * as overrides from '/root/serverOverrides.json';
-import { useBackend } from '~/ui/hooks';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 
 type Server = {
@@ -42,23 +41,23 @@ const fetchServers = async (): Promise<SelectOption[]> => {
 export const ServerSelector = ({ onChange, label, value, error }): ReactElement => {
   const [options, setOptions] = useState([]);
   const netInfo = useNetInfo();
-  const { setLanguageOptions, setLanguage } = useTranslation();
-  const [selectedOption, setSelectedOption] = useState(null);
+  const { setLanguageOptions, setLanguage, host, setHost } = useTranslation();
 
-  const updateSelectedOption = value => {
+  const updateHost = value => {
     onChange(value);
-    setSelectedOption(value);
+    setHost(value);
     if (!value) {
-      setLanguageOptions([]);
+      setLanguage('en');
+      setLanguageOptions(null);
     }
   };
 
   useEffect(() => {
-    async () => {
-      const response = await fetch(`${selectedOption}/api/public/translation/languageOptions`);
+    const getOptions = async () => {
+      const response = await fetch(`${host}/api/public/translation/languageOptions`);
       const data = await response.json();
-      const { languageNames, languagesInDb } = data;
-      if (languageNames) {
+      if (data) {
+        const { languageNames, languagesInDb } = data;
         const languageDisplayNames = mapValues(keyBy(languageNames, 'language'), 'text');
         const languageOptions = languagesInDb.map(({ language }) => {
           return {
@@ -68,12 +67,10 @@ export const ServerSelector = ({ onChange, label, value, error }): ReactElement 
         });
         setLanguage(languageOptions[0].value);
         setLanguageOptions(languageOptions);
-      } else {
-        setLanguage('en');
-        setLanguageOptions([]);
       }
     };
-  }, [selectedOption, setSelectedOption]);
+    if (host) getOptions();
+  }, [host]);
 
   useEffect(() => {
     (async (): Promise<void> => {
@@ -97,7 +94,7 @@ export const ServerSelector = ({ onChange, label, value, error }): ReactElement 
       <Dropdown
         value={value}
         options={options}
-        onChange={updateSelectedOption}
+        onChange={updateHost}
         label={label}
         fixedHeight
         selectPlaceholderText="Select"
