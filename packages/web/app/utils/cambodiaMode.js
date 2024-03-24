@@ -28,7 +28,6 @@ export const getBrandId = () => getBrandConfig().id;
 const CAMBODIA_REPORT_NAMES = [
   'Generic Survey Export - Line List',
   'Patient Vaccination Summary',
-  'Vaccine - Line list',
   'Upcoming Vaccinations Line List Report',
 ];
 
