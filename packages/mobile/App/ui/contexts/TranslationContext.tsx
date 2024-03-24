@@ -8,7 +8,7 @@ import React, {
 } from 'react';
 import { DevSettings } from 'react-native';
 import { useBackend } from '../hooks';
-import { readConfig, writeConfig } from '~/services/config';
+import { isEmpty } from 'lodash';
 
 interface TranslationContextData {
   debugMode: boolean;
@@ -18,6 +18,8 @@ interface TranslationContextData {
   onChangeLanguage: (languageCode: string) => void;
   getTranslation: (key: string) => string;
   setLanguage: (language: string) => void;
+  host: string;
+  setHost: (host: string) => void;
 }
 
 const TranslationContext = createContext<TranslationContextData>({} as TranslationContextData);
@@ -29,6 +31,7 @@ export const TranslationProvider = ({ children }: PropsWithChildren<object>): Re
   const [translations, setTranslations] = useState({});
   const [languageOptions, setLanguageOptions] = useState(null);
   const [language, setLanguage] = useState(null);
+  const [host, setHost] = useState(null);
 
   const getLanguageOptions = async () => {
     const languageOptionArray = await models.TranslatedString.getLanguageOptions();
@@ -36,11 +39,15 @@ export const TranslationProvider = ({ children }: PropsWithChildren<object>): Re
   };
 
   const setLanguageState = async (languageCode: string = DEFAULT_LANGUAGE) => {
-    // Get language options from DB, only set options if there are any present
     if (!languageOptions) getLanguageOptions();
     const translations = await models.TranslatedString.getForLanguage(languageCode);
-    setLanguage(languageCode);
-    setTranslations(translations);
+    if (isEmpty(translations)) { // If we dont have translations synced down, fetch from the public server endpoint directly
+      const response = await fetch(`${host}/api/public/translation/${languageCode}`);
+      const data = await response.json();
+      setTranslations(data);
+    } else {
+      setTranslations(translations);
+    }
   };
 
   useEffect(() => {
@@ -61,6 +68,8 @@ export const TranslationProvider = ({ children }: PropsWithChildren<object>): Re
         setLanguageOptions,
         getTranslation: key => translations[key],
         setLanguage,
+        host,
+        setHost,
       }}
     >
       {children}
