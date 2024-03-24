@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { AddressHierarchyField } from '../../app/components';
+import { HierarchyFields } from '../../app/components/Field/HierarchyFields';
 import { MockedApi } from '../utils/mockedApi';
 
 const Container = styled.div`
@@ -15,8 +15,8 @@ const endpoints = {
 };
 
 export default {
-  title: 'Forms/AddressHierarchyField',
-  component: AddressHierarchyField,
+  title: 'Forms/HierarchyFields',
+  component: HierarchyFields,
   decorators: [
     Story => (
       <MockedApi endpoints={endpoints}>
@@ -29,7 +29,7 @@ export default {
 };
 
 const BasicTemplate = args => {
-  return AddressHierarchyField(args);
+  return HierarchyFields(args);
 };
 
 export const Basic = BasicTemplate.bind({});
