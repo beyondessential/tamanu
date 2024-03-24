@@ -51,23 +51,34 @@ export class ProgramRegistry extends BaseModel implements IProgramRegistry {
   @RelationId(({ program }) => program)
   programId: ID;
 
-  static async getProgramRegistriesForPatient(patientId: string) {
-    const activeRegistrations = await PatientProgramRegistration.getRepository()
+  private static async getFilteredProgramRegistries({ patientId }: { patientId?: string } = {}) {
+    const activeRegistrationsQuery = PatientProgramRegistration.getRepository()
       .createQueryBuilder('ppr')
       .leftJoinAndSelect('ppr.programRegistry', 'program_registry')
       .select(['ppr.programRegistryId as id'])
       .distinct(true)
-      .where(`ppr.patientId = :patientId`, { patientId })
-      .andWhere('ppr.registrationStatus = :active', { active: RegistrationStatus.Active })
-      .andWhere('ppr.isMostRecent = 1')
-      .getRawMany();
+      .where('ppr.registrationStatus = :active', { active: RegistrationStatus.Active })
+      .andWhere('ppr.isMostRecent = 1');
+
+    if (patientId) activeRegistrationsQuery.andWhere(`ppr.patientId = :patientId`, { patientId });
+
+    const activeRegistrations = await activeRegistrationsQuery.getRawMany();
 
     const programRegistryRepository = this.getRepository();
     const filteredProgramRegistries = await programRegistryRepository
       .createQueryBuilder('pr')
-      .where(`pr.id NOT IN (${activeRegistrations.map(({ id }) => `'${id}'`).join(',')})`);
+      .where(`pr.id NOT IN (${activeRegistrations.map(({ id }) => `'${id}'`).join(',')})`)
+      .getMany();
 
-    return filteredProgramRegistries.getMany();
+    return filteredProgramRegistries;
+  }
+
+  static async getProgramRegistriesForPatient(patientId: string) {
+    return this.getFilteredProgramRegistries({ patientId });
+  }
+
+  static async getAllProgramRegistries() {
+    return this.getFilteredProgramRegistries();
   }
 
   static getTableNameForSync(): string {
