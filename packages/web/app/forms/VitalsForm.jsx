@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
+import * as yup from 'yup';
 import { VISIBILITY_STATUSES, VITALS_DATA_ELEMENT_IDS } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { Form, FormSubmitCancelRow, ModalLoader } from '../components';
@@ -27,13 +28,15 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterTyp
     c => c.visibilityStatus === VISIBILITY_STATUSES.CURRENT,
   );
   const validationSchema = useMemo(
-    () =>
-      getValidationSchema(
+    () => ({
+      ...getValidationSchema(
         { components: currentComponents },
         {
           encounterType: encounterType || encounter?.encounterType,
         },
       ),
+      [VITALS_DATA_ELEMENT_IDS.dateRecorded]: yup.date().required(),
+    }),
     [currentComponents, encounter?.encounterType, encounterType],
   );
   const { ability } = useAuth();
