@@ -30,7 +30,7 @@ export const LanguageSelectButton = ({ navigation }: LanguageSelectButtonProps):
   const getLabel = (language: string) =>
     languageOptions.find(({ value }) => value === language)?.label;
 
-  if (!languageOptions) {
+  if (!languageOptions || languageOptions.length <= 1) {
     return null
   }
 

@@ -65,12 +65,14 @@ export const LanguageSelector = () => {
     };
   });
 
-  // If multiple languages not implemented, no need for this component to show
-  if (languageOptions.length <= 1) return null;
-
   const handleLanguageChange = event => {
     updateStoredLanguage(event.target.value);
   };
+
+  console.log(languageOptions)
+
+  // If multiple languages not implemented, no need for this component to show
+  if (languageOptions.length <= 1) return null;
 
   return (
     <LanguageSelectorContainer>
