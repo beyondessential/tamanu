@@ -23,6 +23,13 @@
     },
   },
 
-  referenceData: [{ file: '2023-07-03-demo-like.xlsx' }],
-  programs: [{ file: 'vitals.xlsx' }],
+  referenceData: [
+    { url: 'https://bes-tamanu-dev-referencedata.s3.ap-southeast-2.amazonaws.com/referencedata/default.xlsx' }
+  ],
+
+  programs: [
+    { url: 'https://bes-tamanu-dev-referencedata.s3.ap-southeast-2.amazonaws.com/programs/vitals.xlsx' },
+    { url: 'https://bes-tamanu-dev-referencedata.s3.ap-southeast-2.amazonaws.com/programs/ncd-primary-screening.xlsx' },
+    { url: 'https://bes-tamanu-dev-referencedata.s3.ap-southeast-2.amazonaws.com/programs/immunisation.xlsx' },
+  ],
 }
