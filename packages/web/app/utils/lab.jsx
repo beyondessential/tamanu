@@ -46,6 +46,13 @@ export const getRequestedBy = ({ requestedBy }) =>
 export const getPatientName = row => <PatientNameDisplay patient={row} />;
 export const getPatientDisplayId = ({ patientDisplayId }) => patientDisplayId || 'Unknown';
 export const getStatus = ({ status }) => <StatusDisplay status={status} />;
+export const getPanelType = ({ labTestPanelId, labTestPanelName }) => (
+  <TranslatedReferenceData
+    value={labTestPanelId}
+    fallback={labTestPanelName}
+    category="labTestPanel"
+  />
+);
 export const getRequestType = ({ categoryName, categoryId, category }) => {
   if (category) {
     return (
