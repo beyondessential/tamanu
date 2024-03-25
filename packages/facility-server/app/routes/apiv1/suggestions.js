@@ -14,6 +14,7 @@ import {
   SURVEY_TYPES,
   VISIBILITY_STATUSES,
   REFERENCE_DATA_TRANSLATION_PREFIX,
+  ENGLISH_LANGUAGE_CODE,
 } from '@tamanu/constants';
 import { keyBy } from 'lodash';
 
@@ -100,6 +101,7 @@ function createSuggesterLookupRoute(endpoint, modelName, { mapper }) {
     `/${endpoint}/:id`,
     asyncHandler(async (req, res) => {
       const { models, params, query } = req;
+      const { language = ENGLISH_LANGUAGE_CODE } = query;
       req.checkPermission('list', modelName);
       const record = await models[modelName].findByPk(params.id);
       if (!record) throw new NotFoundError();
@@ -115,8 +117,7 @@ function createSuggesterLookupRoute(endpoint, modelName, { mapper }) {
       const translation = await models.TranslatedString.findOne({
         where: {
           stringId: `${REFERENCE_DATA_TRANSLATION_PREFIX}.${getDataType(endpoint)}.${record.id}`,
-          // TODO: querying an undefined language here :thinking:
-          language: query.language,
+          language,
         },
       });
 
