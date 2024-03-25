@@ -3,6 +3,7 @@ import { REGISTRATION_STATUSES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
 import { Model } from './Model';
+import { onSaveMarkPatientForSync } from './onSaveMarkPatientForSync';
 
 export class PatientProgramRegistration extends Model {
   static init({ primaryKey, ...options }) {
@@ -29,6 +30,7 @@ export class PatientProgramRegistration extends Model {
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
       },
     );
+    onSaveMarkPatientForSync(this);
   }
 
   static getFullReferenceAssociations() {

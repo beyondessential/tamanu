@@ -1,16 +1,65 @@
 import React, { ReactElement } from 'react';
-import { RowView, StyledView } from '/styled/common';
-import { Subheading } from 'react-native-paper';
 import { FlatList, TouchableOpacity, View } from 'react-native';
-import { Separator } from '~/ui/components/Separator';
+import { useNavigation, useIsFocused } from '@react-navigation/native';
+import styled from 'styled-components/native';
 import { theme } from '~/ui/styled/theme';
 import { Routes } from '~/ui/helpers/routes';
-import { useNavigation, useIsFocused } from '@react-navigation/native';
 import { useBackendEffect } from '~/ui/hooks/index';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
-import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { useAuth } from '~/ui/contexts/AuthContext';
+import { Separator } from '~/ui/components/Separator/index';
+
+const StyledFlatList = styled(FlatList)`
+  border-bottom-left-radius: 5px;
+  border-bottom-right-radius: 5px;
+  background-color: white;
+  padding: 10px;
+`;
+
+const Row = styled.View`
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  height: 38px;
+`;
+
+const NoRegistriesRow = styled(Row)`
+  border-bottom-left-radius: 5px;
+  border-bottom-right-radius: 5px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  padding-left: 15px;
+  background-color: white;
+`;
+
+const StatusDot = styled.View<{ $registrationStatus: string }>`
+  border-radius: 100px;
+  height: 7px;
+  width: 7px;
+  background-color: ${props =>
+    props.$registrationStatus === 'active' ? theme.colors.SAFE : theme.colors.DISABLED_GREY};
+`;
+
+const RowTextContainer = styled.View`
+  flex-direction: row;
+  justify-content: space-between;
+`;
+
+const RowText = styled.Text`
+  flex: 1;
+  font-size: 14px;
+`;
+
+const LeftRowText = styled(RowText)`
+  max-width: 60%;
+  text-align: left;
+`;
+
+const RightRowText = styled(RowText)`
+  max-width: 30%;
+  text-align: right;
+`;
 
 export const PatientProgramRegistrationList = ({ selectedPatient }): ReactElement => {
   const navigation = useNavigation();
@@ -30,9 +79,9 @@ export const PatientProgramRegistrationList = ({ selectedPatient }): ReactElemen
 
   if (registrations.length === 0) {
     return (
-      <RowView paddingTop={10} paddingBottom={10}>
-        <Subheading>No program registries to display</Subheading>
-      </RowView>
+      <NoRegistriesRow>
+        <RowText>No program registries to display</RowText>
+      </NoRegistriesRow>
     );
   }
 
@@ -44,35 +93,20 @@ export const PatientProgramRegistrationList = ({ selectedPatient }): ReactElemen
 
   const ItemWrapper = canReadRegistrations ? TouchableOpacity : View;
   return (
-    <FlatList
-      data={registrations}
+    <StyledFlatList
       ItemSeparatorComponent={Separator}
+      data={registrations}
       renderItem={({ item }) => (
         <ItemWrapper onPress={() => onNavigateToPatientProgramRegistrationDetails(item)}>
-          <StyledView paddingTop={10} paddingBottom={10}>
-            <RowView justifyContent="space-between">
-              <RowView>
-                <StyledView
-                  borderRadius={100}
-                  height={7}
-                  width={7}
-                  background={
-                    item.registrationStatus === 'active'
-                      ? theme.colors.SAFE
-                      : theme.colors.DISABLED_GREY
-                  }
-                  marginTop={10}
-                  marginRight={10}
-                />
-                <StyledView maxWidth={screenPercentageToDP(60, Orientation.Width)}>
-                  <Subheading>{item.programRegistry.name}</Subheading>
-                </StyledView>
-              </RowView>
-              <Subheading>{item.clinicalStatus?.name}</Subheading>
-            </RowView>
-          </StyledView>
+          <Row>
+            <StatusDot $registrationStatus={item.registrationStatus} />
+            <RowTextContainer>
+              <LeftRowText numberOfLines={1}>{item.programRegistry.name}</LeftRowText>
+              <RightRowText numberOfLines={1}>{item.clinicalStatus?.name}</RightRowText>
+            </RowTextContainer>
+          </Row>
         </ItemWrapper>
       )}
-    ></FlatList>
+    ></StyledFlatList>
   );
 };

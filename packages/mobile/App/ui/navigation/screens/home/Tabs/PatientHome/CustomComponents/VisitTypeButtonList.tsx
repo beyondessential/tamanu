@@ -9,7 +9,11 @@ interface VisitTypeButtonsProps {
 }
 
 export const VisitTypeButtonList = ({ list }: VisitTypeButtonsProps): ReactElement => (
-  <StyledView width="100%" marginTop={20}>
+  <StyledView
+    width="100%"
+    marginTop={screenPercentageToDP(3, Orientation.Height)}
+    marginBottom={screenPercentageToDP(3, Orientation.Height)}
+  >
     <RowView
       width="100%"
       paddingLeft={screenPercentageToDP(3.64, Orientation.Width)}

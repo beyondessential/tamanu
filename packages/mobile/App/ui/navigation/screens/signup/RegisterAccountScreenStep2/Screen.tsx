@@ -1,4 +1,4 @@
-import React, { FunctionComponent } from 'react';
+import React from 'react';
 import { KeyboardAvoidingView } from 'react-native';
 import Animated, { Value } from 'react-native-reanimated';
 //Components

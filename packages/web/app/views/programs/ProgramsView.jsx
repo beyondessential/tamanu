@@ -21,6 +21,7 @@ import { PATIENT_TABS } from '../../constants/patientPaths';
 import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { useApi } from '../../api';
+import { useProgramRegistryContext } from '../../contexts/ProgramRegistry';
 
 const SurveyFlow = ({ patient, currentUser }) => {
   const api = useApi();
@@ -33,6 +34,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
   const [selectedSurveyId, setSelectedSurveyId] = useState(null);
   const [startTime, setStartTime] = useState(null);
   const [surveys, setSurveys] = useState(null);
+  const { setProgramRegistryIdByProgramId } = useProgramRegistryContext();
 
   useEffect(() => {
     if (params.encounterId) {
@@ -72,6 +74,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
         return;
       }
       setSelectedProgramId(programId);
+      setProgramRegistryIdByProgramId(programId);
 
       if (!programId) {
         clearProgram();
@@ -85,7 +88,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
           .map(x => ({ value: x.id, label: x.name })),
       );
     },
-    [api, selectedProgramId, clearProgram],
+    [api, selectedProgramId, clearProgram, setProgramRegistryIdByProgramId],
   );
 
   const submitSurveyResponse = async data => {
@@ -127,7 +130,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
       <ProgramsPane>
         <ProgramsPaneHeader>
           <ProgramsPaneHeading variant="h6">
-            <TranslatedText stringId="program.modal.selectSurvey.title" fallback="Select survey" />
+            <TranslatedText stringId="program.modal.selectSurvey.title" fallback="Select form" />
           </ProgramsPaneHeading>
         </ProgramsPaneHeader>
         <FormGrid columns={1}>

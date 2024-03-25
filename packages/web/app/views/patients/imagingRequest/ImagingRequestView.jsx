@@ -35,6 +35,7 @@ import { SimpleTopBar } from '../../../components';
 import { CancelModalButton } from './CancelModalButton';
 import { PrintModalButton } from './PrintModalButton';
 import { TranslatedText, TranslatedReferenceData } from '../../../components/Translation';
+import { useTranslation } from '../../../contexts/Translation';
 
 const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
   const { getLocalisation } = useLocalisation();
@@ -135,13 +136,14 @@ const BottomAlignFormGrid = styled(FormGrid)`
 
 const NewResultSection = ({ disabled = false }) => {
   const practitionerSuggester = useSuggester('practitioner');
+  const { getTranslation } = useTranslation();
 
   return (
     <FormGrid columns={2}>
       <Field
         label={<TranslatedText stringId="imaging.completedBy.label" fallback="Completed by" />}
         name="newResult.completedById"
-        placeholder="Search"
+        placeholder={getTranslation("imaging.completedBy.placeholder", "Search")}
         component={AutocompleteField}
         suggester={practitionerSuggester}
         disabled={disabled}
@@ -158,7 +160,7 @@ const NewResultSection = ({ disabled = false }) => {
           <TranslatedText stringId="imaging.description.label" fallback="Result description" />
         }
         name="newResult.description"
-        placeholder="Result description..."
+        placeholder={getTranslation("imaging.description.placeholder", "Result description...")}
         multiline
         component={TextField}
         style={{ gridColumn: '1 / -1', minHeight: '3em' }}
@@ -203,12 +205,12 @@ const ImagingResultRow = ({ result }) => {
 };
 
 const ImagingResultsSection = ({ results }) => {
-  if (results.length === 0) return null;
+  if (results?.length === 0) return null;
 
   return (
     <>
       <h3>Results</h3>
-      {results.map(result => (
+      {results?.map(result => (
         <ImagingResultRow key={result.id} result={result} />
       ))}
     </>
@@ -297,7 +299,7 @@ export const ImagingRequestView = () => {
     IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
   ].includes(imagingRequest.status);
 
-  if (patient.loading) return <LoadingIndicator />;
+  if (patient.loading || imagingRequest.loading) return <LoadingIndicator />;
 
   return (
     <>

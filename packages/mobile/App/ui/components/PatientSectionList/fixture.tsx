@@ -1,5 +1,4 @@
 import React from 'react';
-import { groupEntriesByLetter } from '/helpers/list';
 import { StyledView } from '/styled/common';
 import { PatientSectionList } from './index';
 import { IPatient } from '~/types';

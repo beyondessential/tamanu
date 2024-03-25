@@ -5,8 +5,6 @@ import {
   getDOB,
   getSex,
   getVillageName,
-  getNationality,
-  getPassportNumber,
 } from '../patientAccessors';
 
 const PATIENT_FIELDS = [
@@ -20,8 +18,6 @@ const PATIENT_FIELDS = [
     accessor: getDOB,
   },
   { key: 'villageName', label: 'Village', accessor: getVillageName },
-  { key: 'passport', label: 'Passport Number', accessor: getPassportNumber },
-  { key: 'nationality', label: 'Nationality', accessor: getNationality },
 ];
 
 export const PatientDetailsSection = ({ patient, getLocalisation, extraFields = [] }) => {

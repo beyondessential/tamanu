@@ -1,12 +1,12 @@
 {
   "name": "csca",
-  "version": "2.4.0",
+  "version": "2.5.0",
   "private": true,
   "description": "CSCA tooling for Tamanu",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
   "repository": "git@github.com:beyondessential/tamanu.git",
   "author": "Beyond Essential Systems Pty. Ltd.",
-  "license": "SEE LICENSE IN license",
+  "license": "GPL-3.0-or-later",
   "main": "src/index.js",
   "scripts": {
     "build": "swc --delete-dir-on-start --out-dir build --copy-files --source-maps true src",

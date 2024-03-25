@@ -1,6 +1,6 @@
 import React, { FunctionComponent, ReactElement, useCallback, useEffect, useState } from 'react';
 import * as Yup from 'yup';
-import { KeyboardAvoidingView, StatusBar } from 'react-native';
+import { StatusBar } from 'react-native';
 import {
   FullView,
   StyledSafeAreaView,
@@ -57,7 +57,7 @@ export const SelectFacilityForm = ({ onSubmitForm }) => {
   }, []);
 
   const onSubmit = useCallback(
-    async ({ facilityId, ...extras }) => {
+    async ({ facilityId }) => {
       const selected = facilityOptions.find(x => x.value === facilityId);
       if (selected) {
         onSubmitForm({ facilityId, facilityName: selected.label });

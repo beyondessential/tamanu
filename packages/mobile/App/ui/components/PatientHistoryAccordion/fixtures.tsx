@@ -1,5 +1,3 @@
-import * as Icons from '../Icons';
-
 export const data = [
   {
     id: '0',
