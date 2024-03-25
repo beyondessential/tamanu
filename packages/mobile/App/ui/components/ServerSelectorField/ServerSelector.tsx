@@ -55,9 +55,8 @@ export const ServerSelector = ({ onChange, label, value, error }): ReactElement 
   useEffect(() => {
     const getOptions = async () => {
       const response = await fetch(`${host}/api/public/translation/languageOptions`);
-      const data = await response.json();
-      if (data) {
-        const { languageNames, languagesInDb } = data;
+      const { languageNames, languagesInDb } = await response.json();
+      if (languageNames.length > 0) {
         const languageDisplayNames = mapValues(keyBy(languageNames, 'language'), 'text');
         const languageOptions = languagesInDb.map(({ language }) => {
           return {
