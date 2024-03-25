@@ -18,6 +18,7 @@ export * from './ImagingPriorityField';
 export * from './SearchField';
 
 // fancy fields
+export * from './AddressHierarchyField';
 export * from './ArrayField';
 export * from './AutocompleteField';
 export * from './DisplayIdField';
