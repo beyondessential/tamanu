@@ -101,7 +101,6 @@ function createSuggesterLookupRoute(endpoint, modelName, { mapper }) {
     `/${endpoint}/:id`,
     asyncHandler(async (req, res) => {
       const { models, params, query } = req;
-      const { language = ENGLISH_LANGUAGE_CODE } = query;
       req.checkPermission('list', modelName);
       const record = await models[modelName].findByPk(params.id);
       if (!record) throw new NotFoundError();
@@ -113,6 +112,8 @@ function createSuggesterLookupRoute(endpoint, modelName, { mapper }) {
         res.send(mappedRecord);
         return;
       }
+
+      const { language = ENGLISH_LANGUAGE_CODE } = query;
 
       const translation = await models.TranslatedString.findOne({
         where: {
