@@ -11,7 +11,7 @@ import { BeginPatientMoveModal } from './BeginPatientMoveModal';
 import { FinalisePatientMoveModal } from './FinalisePatientMoveModal';
 import { CancelPatientMoveModal } from './CancelPatientMoveModal';
 import { usePatientNavigation } from '../../../utils/usePatientNavigation';
-import { Button } from '../../../components';
+import { Button, LowerCase } from '../../../components';
 import { DropdownButton } from '../../../components/DropdownButton';
 import { MoveModal } from './MoveModal';
 import { EncounterRecordModal } from '../../../components/PatientPrinting/modals/EncounterRecordModal';
@@ -200,10 +200,13 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
           fallback="Change :clinician"
           replacements={{
             clinician: (
-              <TranslatedText
-                stringId="general.localisedField.clinician.label"
-                fallback="Clinician"
-              />
+              <LowerCase>
+                {' '}
+                <TranslatedText
+                  stringId="general.localisedField.clinician.label"
+                  fallback="Clinician"
+                />
+              </LowerCase>
             ),
           }}
         />

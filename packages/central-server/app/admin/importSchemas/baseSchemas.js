@@ -8,6 +8,7 @@ import {
   STATUS_COLOR,
   VACCINE_STATUS,
   VISIBILITY_STATUSES,
+  REFERENCE_DATA_RELATION_TYPES,
 } from '@tamanu/constants';
 import config from 'config';
 import {
@@ -311,4 +312,10 @@ export const Encounter = Base.shape({
 
 export const TranslatedString = yup.object().shape({
   stringId: yup.string().required(),
+});
+
+export const ReferenceDataRelation = yup.object().shape({
+  referenceDataParentId: yup.string().required(),
+  referenceDataId: yup.string().required(),
+  type: yup.string().oneOf(Object.values(REFERENCE_DATA_RELATION_TYPES)),
 });
