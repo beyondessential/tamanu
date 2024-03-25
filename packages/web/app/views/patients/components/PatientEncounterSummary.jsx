@@ -10,7 +10,7 @@ import { getFullLocationName } from '../../../utils/location';
 import { getPatientStatus } from '../../../utils/getPatientStatus';
 import { useLocalisation } from '../../../contexts/Localisation';
 import { usePatientCurrentEncounter } from '../../../api/queries';
-import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { TranslatedText, TranslatedReferenceData } from '../../../components/Translation';
 
 const PATIENT_STATUS_COLORS = {
   [PATIENT_STATUS.INPATIENT]: Colors.safe, // Green
@@ -136,8 +136,11 @@ const PatientDeathSummary = React.memo(({ patient }) => {
           <ContentLabel>Place of death:</ContentLabel>
           <ContentText>
             {(deathData?.outsideHealthFacility && 'Died outside health facility') ||
-              deathData?.facility?.name ||
-              'Unknown'}
+              (deathData?.facility?.name && <TranslatedReferenceData
+                fallback={deathData.facility.name}
+                value={deathData?.facility.id}
+                category="facility"
+              />) || 'Unknown'}
           </ContentText>
         </ContentItem>
         <ContentItem>
@@ -152,7 +155,15 @@ const PatientDeathSummary = React.memo(({ patient }) => {
         </ContentItem>
         <ContentItem style={{ gridColumn: '1/-1' }}>
           <ContentLabel>Underlying condition causing death:</ContentLabel>
-          <ContentText>{deathData?.causes?.primary?.condition.name}</ContentText>
+          <ContentText>
+            {deathData?.causes?.primary?.condition.id
+              ? <TranslatedReferenceData
+                fallback={deathData?.causes?.primary?.condition.name}
+                value={deathData?.causes?.primary?.condition.id}
+                category={deathData?.causes?.primary?.condition.type}
+              />
+              : <TranslatedText stringId="general.fallback.notApplicable" fallback="N/A" />}
+          </ContentText>
         </ContentItem>
         <ContentItem>
           <ContentLabel>Date of death:</ContentLabel>
@@ -226,7 +237,14 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
         </BoldTitle>
         <Title variant="h3">
           {ENCOUNTER_OPTIONS_BY_VALUE[encounterType].label}
-          {location?.facility?.name ? ` | ${location?.facility?.name}` : ''}
+          {location?.facility?.name
+            ? (
+              <>
+                {' | '}
+                <TranslatedReferenceData fallback={location?.facility.name} value={location?.facility.id} category="facility" />
+              </>
+            )
+            : ''}
         </Title>
         <div style={{ flexGrow: 1 }} />
         <Button onClick={() => viewEncounter(id)} size="small">
