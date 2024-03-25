@@ -11,7 +11,12 @@ upcomingVaccinations.get(
 
     const results = await req.db.query(
       `
-    SELECT
+      WITH upcoming_vaccinations_with_row_number AS (
+        SELECT *,
+        ROW_NUMBER() OVER(PARTITION BY patient_id ORDER BY due_date ASC) AS row_number
+        FROM upcoming_vaccinations uv
+      )
+      SELECT
       p.id id,
       p.display_id "displayId",
       p.first_name "firstName",
@@ -26,13 +31,13 @@ upcomingVaccinations.get(
       uv.due_date "dueDate",
       uv.status,
       village.name "villageName"
-    FROM upcoming_vaccinations uv
-    JOIN scheduled_vaccines sv ON sv.id = uv.scheduled_vaccine_id
-    JOIN patients p ON p.id = uv.patient_id
-    JOIN reference_data village ON village.id = p.village_id
-    AND uv.status <> 'MISSED'
-    ORDER BY uv.due_date, sv.label;
-    `,
+      FROM upcoming_vaccinations_with_row_number uv
+      JOIN scheduled_vaccines sv ON sv.id = uv.scheduled_vaccine_id
+      JOIN patients p ON p.id = uv.patient_id
+      JOIN reference_data village ON village.id = p.village_id
+      WHERE uv.status <> 'MISSED'
+      AND row_number = 1
+      ORDER BY uv.due_date, sv.label;`,
       {
         type: QueryTypes.SELECT,
       },
