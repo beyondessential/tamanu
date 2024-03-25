@@ -108,7 +108,7 @@ describe('TranslatedString', () => {
     });
   });
 
-  describe('getReferenceDataTranslationsByEndpoint method', () => {
+  describe('getReferenceDataTranslationsByDataType method', () => {
     it('should return all translations for a given reference data endpoint in a given language', async () => {
       const { TranslatedString } = models;
 
@@ -127,22 +127,20 @@ describe('TranslatedString', () => {
         language: LANGUAGE_CODES.KHMER,
       });
 
-      // Response shouldnt include this record as the wrong data type
+      // Response shouldn't include this record as the wrong data type
       await TranslatedString.create({
         stringId: `${REFERENCE_DATA_TRANSLATION_PREFIX}.village.testVillage`,
         text: 'Test Village',
         language: LANGUAGE_CODES.ENGLISH,
       });
 
-      const translations = await TranslatedString.getReferenceDataTranslationsByEndpoint({
+      const translations = await TranslatedString.getReferenceDataTranslationsByDataType({
         language: LANGUAGE_CODES.ENGLISH,
         refDataType: EXPECTED_REFDATA_TYPE,
       });
 
       expect(translations).toHaveLength(1);
-      expect(expectedTranslation.get({ plain: true })).toMatchObject(
-        translations[0].get({ plain: true }),
-      );
+      expect(expectedTranslation).toMatchObject(translations[0]);
     });
   });
 });

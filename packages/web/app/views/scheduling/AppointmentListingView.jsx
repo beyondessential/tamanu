@@ -11,7 +11,7 @@ import {
 } from '../../components';
 import { NewAppointmentButton } from '../../components/Appointments/NewAppointmentButton';
 import { useRefreshCount } from '../../hooks/useRefreshCount';
-import { TranslatedText } from '../../components/Translation/TranslatedText';
+import { TranslatedText, TranslatedReferenceData } from '../../components/Translation';
 
 const CapitalisedValue = styled.span`
   text-transform: capitalize;
@@ -21,19 +21,19 @@ export const AppointmentListingView = () => {
   const COLUMNS = [
     {
       key: 'startTime',
-      title: <TranslatedText stringId='general.date.label' fallback="Date" />,
+      title: <TranslatedText stringId="general.date.label" fallback="Date" />,
       accessor: row => <DateDisplay date={row.startTime} showTime />,
     },
     {
       key: 'displayId',
       title: (
-        <TranslatedText stringId="general.localisedField.displayId.label.short" fallback="DOB" />
+        <TranslatedText stringId="general.localisedField.displayId.label.short" fallback="NHN" />
       ),
       accessor: row => row.patient.displayId,
     },
     {
       key: 'patientName',
-      title: <TranslatedText stringId='general.patient.label' fallback="Patient" />,
+      title: <TranslatedText stringId="general.patient.label" fallback="Patient" />,
       accessor: row => `${row.patient.firstName} ${row.patient.lastName}`,
     },
     {
@@ -58,7 +58,7 @@ export const AppointmentListingView = () => {
     {
       key: 'locationGroupId',
       title: <TranslatedText stringId="general.area.label" fallback="Area" />,
-      accessor: row => row.locationGroup.name,
+      accessor: row => <TranslatedReferenceData fallback={row.locationGroup.name} value={row.locationGroup.id} category="locationGroup"/>
     },
     { key: 'type', title: <TranslatedText stringId="general.type.label" fallback="Type" /> },
     { key: 'status', title: <TranslatedText stringId="general.status.label" fallback="Status" /> },

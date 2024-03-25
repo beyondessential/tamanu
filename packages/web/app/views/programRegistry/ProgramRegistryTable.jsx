@@ -14,7 +14,7 @@ import { RegistrationStatusIndicator } from './RegistrationStatusIndicator';
 import { ClinicalStatusDisplay } from './ClinicalStatusDisplay';
 import { useRefreshCount } from '../../hooks/useRefreshCount';
 import { ActivatePatientProgramRegistry } from './ActivatePatientProgramRegistry';
-import { TranslatedText } from '../../components/Translation/TranslatedText';
+import { TranslatedReferenceData, TranslatedText } from '../../components/Translation';
 
 export const ProgramRegistryTable = ({ searchParameters }) => {
   const params = useParams();
@@ -30,6 +30,9 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
       },
       {
         key: 'displayId',
+        title: (
+          <TranslatedText stringId="general.localisedField.displayId.label.short" fallback="NHN" />
+        ),
         accessor: ({ patient }) => patient.displayId || 'Unknown',
       },
       {
@@ -58,7 +61,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
       {
         key: 'homeVillage',
         title: 'Home village',
-        accessor: ({ patient }) => patient.village.name,
+        accessor: ({ patient }) => <TranslatedReferenceData fallback={patient.village.name} value={patient.village.id} category="village"/>,
       },
       {
         key: 'registeringFacility',
@@ -69,8 +72,12 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
         key: 'currentlyIn',
         title: 'Currently in',
         accessor: row => {
-          if (row.programRegistry.currentlyAtType === 'village') return row.village.name;
-          if (row.programRegistry.currentlyAtType === 'facility') return row.facility.name;
+          if (row.programRegistry.currentlyAtType === 'village') {
+            return <TranslatedReferenceData fallback={row.village.name} value={row.village.id} category="village"/>;
+          }
+          if (row.programRegistry.currentlyAtType === 'facility') {
+            return <TranslatedReferenceData fallback={row.facility.name} value={row.facility.id} category="facility"/>;
+          }
           return '';
         },
       },
