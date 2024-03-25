@@ -80,10 +80,9 @@ describe('Generic survey export line list report', () => {
 
     const surveyDetails = await setupSurvey();
     survey = surveyDetails.survey;
+    disableHardcodedPermissionsForSuite();
   });
   afterAll(() => ctx.close());
-
-  disableHardcodedPermissionsForSuite();
 
   describe('Permissions', () => {
     it('does not throw forbidden error when there is sufficient permissions', async () => {
@@ -100,15 +99,13 @@ describe('Generic survey export line list report', () => {
     });
 
     it('throws forbidden error when there is insufficient permissions', async () => {
-        const permissions = [
-          ['run', 'StaticReport', GENERIC_SURVEY_EXPORT_REPORT_ID],
-        ];
-  
-        app = await baseApp.asNewRole(permissions);
-        const result = await app.post(`/api/reports/${GENERIC_SURVEY_EXPORT_REPORT_ID}`).send({
-          parameters: { surveyId: survey.id },
-        });
-        expect(result).toHaveStatus(403);
+      const permissions = [['run', 'StaticReport', GENERIC_SURVEY_EXPORT_REPORT_ID]];
+
+      app = await baseApp.asNewRole(permissions);
+      const result = await app.post(`/api/reports/${GENERIC_SURVEY_EXPORT_REPORT_ID}`).send({
+        parameters: { surveyId: survey.id },
       });
+      expect(result).toHaveStatus(403);
+    });
   });
 });

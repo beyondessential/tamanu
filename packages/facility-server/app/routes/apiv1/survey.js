@@ -65,16 +65,12 @@ const surveyRelations = permissionCheckingRouter('list', 'SurveyResponse');
 surveyRelations.get(
   '/:id/surveyResponses',
   asyncHandler(async (req, res) => {
-    const { id: surveyId, } = req.params;
+    const { id: surveyId } = req.params;
     const survey = await req.models.Survey.findByPk(surveyId);
 
     req.checkPermission('read', survey);
 
-    const response = await getResourceList(
-      req,
-      'SurveyResponse',
-      'surveyId',
-    );
+    const response = await getResourceList(req, 'SurveyResponse', 'surveyId');
 
     res.send(response);
   }),

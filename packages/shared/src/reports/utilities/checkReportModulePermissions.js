@@ -12,7 +12,6 @@ export async function checkReportModulePermissions(req, reportModule, reportId, 
     if (!canRunStaticReport(req.ability, reportId)) {
       throw new ForbiddenError('User does not have permission to run the report');
     }
-    req.flagPermissionChecked();
   }
 
   // Special case to check if user can run survey report
@@ -21,4 +20,6 @@ export async function checkReportModulePermissions(req, reportModule, reportId, 
       throw new ForbiddenError('User does not have permission to run the report');
     }
   }
+
+  req.flagPermissionChecked();
 }
