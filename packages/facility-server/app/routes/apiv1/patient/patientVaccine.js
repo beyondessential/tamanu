@@ -115,7 +115,7 @@ patientVaccineRoutes.get(
       sv.label,
       sv.schedule,
       sv.vaccine_id vaccineId,
-      uv.due_date dueDate,
+      uv.due_date "dueDate",
       uv.status
     FROM upcoming_vaccinations uv
     JOIN scheduled_vaccines sv ON sv.id = uv.scheduled_vaccine_id
