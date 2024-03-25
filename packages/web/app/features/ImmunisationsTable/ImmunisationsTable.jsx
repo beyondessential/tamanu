@@ -113,7 +113,7 @@ export const ImmunisationsTable = React.memo(
 
     return (
       <DataFetchingTable
-        endpoint={`patient/${patient.id}/administeredVaccines`}
+        endpoint={`patient/${patient.id}/z`}
         initialSort={{ orderBy: 'date', order: 'desc' }}
         fetchOptions={{ includeNotGiven }}
         columns={COLUMNS}

@@ -7,11 +7,52 @@ import {
   SearchTableTitle,
   TopBar,
 } from '../../components';
-import { culturalName, dateOfBirth, displayId, firstName, lastName, sex, village } from './columns';
+import { dateOfBirth, displayId, sex, village } from './columns';
 import { PatientImmunisationsModal } from './components';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
+import {
+  getDueDate,
+  getStatusTag,
+  getVaccineName,
+  getSchedule,
+} from '../../features/ImmunisationsTable/accessors';
 
-const COLUMNS = [displayId, firstName, lastName, culturalName, village, sex, dateOfBirth];
+const COLUMNS = [
+  displayId,
+  {
+    key: 'fullName',
+    title: <TranslatedText stringId="vaccine.table.column.patientName" fallback="Patient name" />,
+    accessor: row => `${row.firstName} ${row.lastName}`,
+    sortable: false,
+  },
+  dateOfBirth,
+  sex,
+  village,
+  {
+    key: 'vaccineDisplayName',
+    title: <TranslatedText stringId="vaccine.table.column.vaccine" fallback="Vaccine" />,
+    accessor: getVaccineName,
+    sortable: false,
+  },
+  {
+    key: 'schedule',
+    title: <TranslatedText stringId="vaccine.table.column.schedule" fallback="Schedule" />,
+    accessor: getSchedule,
+    sortable: false,
+  },
+  {
+    key: 'dueDate',
+    title: <TranslatedText stringId="vaccine.table.column.dueDate" fallback="Due date" />,
+    accessor: getDueDate,
+    sortable: false,
+  },
+  {
+    key: 'status',
+    title: <TranslatedText stringId="vaccine.table.column.status" fallback="Status" />,
+    accessor: getStatusTag,
+    sortable: false,
+  },
+];
 
 export const ImmunisationsView = () => {
   const [searchParameters, setSearchParameters] = useState({});
@@ -45,7 +86,7 @@ export const ImmunisationsView = () => {
         </SearchTableTitle>
         <PatientSearchBar onSearch={setSearchParameters} suggestByFacility={false} />
         <SearchTable
-          endpoint="patient"
+          endpoint="upcomingVaccinations"
           columns={COLUMNS}
           noDataMessage="No patients found"
           onRowClick={onRowClick}

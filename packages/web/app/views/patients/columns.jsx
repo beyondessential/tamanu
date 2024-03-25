@@ -23,7 +23,10 @@ export const displayId = {
   key: 'displayId',
   title: <TranslatedText stringId="general.localisedField.displayId.label.short" fallback="NHN" />,
   minWidth: 80,
-  accessor: row => row.displayId || `(${row.id})`,
+  accessor: row => {
+    console.log('row', row);
+    return row.displayId || `(${row.id})`;
+  },
 };
 
 export const firstName = {
@@ -103,11 +106,4 @@ export const clinician = {
     <TranslatedText stringId="general.localisedField.clinician.label.short" fallback="Clinician" />
   ),
   sortable: false,
-};
-
-export const vaccinationStatus = {
-  key: 'vaccinationStatus',
-  title: <TranslatedText stringId="vaccine.status.label" fallback="Vaccine status" />,
-  minWidth: 100,
-  accessor: row => row.vaccinationStatus || 'Unknown',
 };
