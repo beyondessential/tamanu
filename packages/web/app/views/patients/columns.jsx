@@ -81,11 +81,7 @@ export const village = {
   title: <TranslatedText stringId="general.localisedField.villageId.label" fallback="Village" />,
   minWidth: 100,
   accessor: row => (
-    <TranslatedReferenceData
-      fallback={row.villageName}
-      value={row.villageId}
-      category="village"
-    />
+    <TranslatedReferenceData fallback={row.villageName} value={row.villageId} category="village" />
   ),
 };
 
@@ -93,6 +89,13 @@ export const department = {
   key: 'departmentName',
   title: <TranslatedText stringId="general.department.label" fallback="Department" />,
   minWidth: 100,
+  accessor: row => (
+    <TranslatedReferenceData
+      fallback={row.departmentName}
+      value={row.departmentId}
+      category="department"
+    />
+  ),
 };
 
 export const status = {
