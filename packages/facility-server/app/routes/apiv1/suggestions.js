@@ -13,6 +13,7 @@ import {
   SUGGESTER_ENDPOINTS,
   SURVEY_TYPES,
   VISIBILITY_STATUSES,
+  REFERENCE_DATA_TRANSLATION_PREFIX,
 } from '@tamanu/constants';
 import { keyBy } from 'lodash';
 
@@ -26,13 +27,11 @@ const defaultMapper = ({ name, code, id }) => ({ name, code, id });
 const extractDataId = ({ stringId }) => stringId.split('.').pop();
 const replaceDataLabelsWithTranslations = ({ data, translations }) => {
   const translationsByDataId = keyBy(translations, extractDataId);
-  return data.map(item => {
-    const translatedText = translationsByDataId[item.id]?.text;
-    return translatedText ? { ...item, name: translatedText } : item;
-  });
+  return data.map(item => ({ ...item, name: translationsByDataId[item.id]?.text || item.name }));
 };
 const ENDPOINT_TO_DATA_TYPE = {
-  ['facilityLocationGroup']: 'locationGroup', // Special case where the endpoint name doesn't match the dataType
+  // Special cases where the endpoint name doesn't match the dataType
+  ['facilityLocationGroup']: 'locationGroup',
   ['patientLabTestCategories']: 'labTestCategory',
   ['patientLabTestPanelTypes']: 'labTestPanelType',
 };
@@ -54,50 +53,29 @@ function createSuggesterRoute(
       const model = models[modelName];
 
       const searchQuery = (query.q || '').trim().toLowerCase();
-
-      const isTranslatable = TRANSLATABLE_REFERENCE_TYPES.includes(getDataType(endpoint));
-      let translations = [];
-      let suggestedIds = [];
-
-      console.log(isTranslatable, endpoint)
-
-      if (isTranslatable) {
-        // Fetch all the possible translations for this dataType
-        translations = await models.TranslatedString.getReferenceDataTranslationsByEndpoint({
-          language,
-          refDataType: getDataType(endpoint),
-        });
-
-        // Check if any of the translated strings match the search query and generate an array of actual
-        // data ids to be supplied to the search query since they wont be matched through the usual name.
-        suggestedIds = translations
-          .filter(({ text }) => text.toLowerCase()?.includes(searchQuery))
-          .map(extractDataId);
-
-        // Special case for location which is filtered by facility and its parent location group
-        // So we refine the suggestions as per these parameters.
-        if (endpoint === 'location' && query.locationGroupId) {
-          suggestedIds = (
-            await models.Location.findAll({
-              where: {
-                locationGroupId: query.locationGroupId,
-                id: suggestedIds,
-                facilityId: config.serverFacilityId,
-              },
-              attributes: ['id'],
-              raw: true,
-            })
-          ).map(({ id }) => id);
-        }
-      }
-
-      const where = whereBuilder(`%${searchQuery}%`, query);
       const positionQuery = literal(
         `POSITION(LOWER(:positionMatch) in LOWER(${searchColumn})) > 1`,
       );
 
+      const isTranslatable = TRANSLATABLE_REFERENCE_TYPES.includes(getDataType(endpoint));
+
+      const translations = isTranslatable
+        ? await models.TranslatedString.getReferenceDataTranslationsByDataType({
+            language,
+            refDataType: getDataType(endpoint),
+            queryString: searchQuery,
+          })
+        : [];
+      const suggestedIds = translations.map(extractDataId);
+
+      const where = { [Op.or]: [whereBuilder(`%${searchQuery}%`, query), { id: suggestedIds }] };
+
+      if (endpoint === 'location' && query.locationGroupId) {
+        where.locationGroupId = query.locationGroupId;
+      }
+
       const results = await model.findAll({
-        where: isTranslatable ? { [Op.or]: [where, { id: suggestedIds }] } : where,
+        where,
         order: [positionQuery, [Sequelize.literal(searchColumn), 'ASC']],
         replacements: {
           positionMatch: searchQuery,
@@ -107,19 +85,9 @@ function createSuggesterRoute(
       });
 
       // Allow for async mapping functions (currently only used by location suggester)
-      const mappedResults = await Promise.all(results.map(mapper));
+      const data = await Promise.all(results.map(mapper));
 
-      if (!isTranslatable) {
-        res.send(mappedResults);
-        return;
-      }
-
-      res.send(
-        replaceDataLabelsWithTranslations({
-          data: mappedResults,
-          translations,
-        }),
-      );
+      res.send(isTranslatable ? replaceDataLabelsWithTranslations({ data, translations }) : data);
     }),
   );
 }
@@ -144,16 +112,17 @@ function createSuggesterLookupRoute(endpoint, modelName, { mapper }) {
         return;
       }
 
-      const translatedStrings = await models.TranslatedString.getReferenceDataTranslationsByEndpoint(
-        {
+      const translation = await models.TranslatedString.findOne({
+        where: {
+          stringId: `${REFERENCE_DATA_TRANSLATION_PREFIX}.${getDataType(endpoint)}.${record.id}`,
+          // TODO: querying an undefined language here :thinking:
           language: query.language,
-          refDataType: getDataType(endpoint),
         },
-      );
+      });
 
       const translatedRecord = replaceDataLabelsWithTranslations({
         data: [mappedRecord],
-        translations: translatedStrings,
+        translations: [translation],
       })[0];
 
       res.send(translatedRecord);
@@ -188,7 +157,7 @@ function createAllRecordsRoute(
         return;
       }
 
-      const translatedStrings = await models.TranslatedString.getReferenceDataTranslationsByEndpoint(
+      const translatedStrings = await models.TranslatedString.getReferenceDataTranslationsByDataType(
         {
           language: query.language,
           refDataType: getDataType(endpoint),

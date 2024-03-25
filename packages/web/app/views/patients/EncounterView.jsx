@@ -29,7 +29,7 @@ import { EncounterActions } from './components';
 import { useReferenceData } from '../../api/queries';
 import { useAuth } from '../../contexts/Auth';
 import { VitalChartDataProvider } from '../../contexts/VitalChartData';
-import { TranslatedText } from '../../components/Translation/TranslatedText';
+import { TranslatedText, TranslatedReferenceData } from '../../components/Translation';
 
 const getIsTriage = encounter => ENCOUNTER_OPTIONS_BY_VALUE[encounter.encounterType].triageFlowOnly;
 
@@ -149,7 +149,12 @@ export const EncounterView = () => {
     <GridColumnContainer>
       <EncounterTopBar
         title={getHeaderText(encounter)}
-        subTitle={encounter.location?.facility?.name}
+        subTitle={encounter.location?.facility
+          && <TranslatedReferenceData
+            fallback={encounter.location.facility.name}
+            value={encounter.location.facility.id}
+            category="facility"
+          />}
         encounter={encounter}
       >
         {(facility.id === encounter.location.facilityId || encounter.endDate) &&
@@ -164,7 +169,12 @@ export const EncounterView = () => {
         <EncounterInfoPane
           encounter={encounter}
           getLocalisation={getLocalisation}
-          patientBillingType={patientBillingTypeData?.name}
+          patientBillingType={patientBillingTypeData
+            && <TranslatedReferenceData
+              fallback={patientBillingTypeData.name}
+              value={patientBillingTypeData.id}
+              category="patientBillingType"
+            />}
         />
         <Box mt={4} mb={4}>
           <Divider />
