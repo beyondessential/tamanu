@@ -169,7 +169,6 @@ export const TestSelectorInput = ({
   });
 
   const { data, isFetching } = useSelectable(requestFormType);
-  const { getTranslation } = useTranslation();
   const queriedData = queryBySearch(requestFormType, data, searchQuery, getTranslation).sort(sortByCategoryAndName);
 
   const showLoadingText = isLoading || isFetching;
