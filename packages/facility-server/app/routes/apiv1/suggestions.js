@@ -100,7 +100,11 @@ function createSuggesterLookupRoute(endpoint, modelName, { mapper }) {
   suggestions.get(
     `/${endpoint}/:id`,
     asyncHandler(async (req, res) => {
-      const { models, params, query } = req;
+      const {
+        models,
+        params,
+        query: { language = ENGLISH_LANGUAGE_CODE },
+      } = req;
       req.checkPermission('list', modelName);
       const record = await models[modelName].findByPk(params.id);
       if (!record) throw new NotFoundError();
@@ -113,14 +117,19 @@ function createSuggesterLookupRoute(endpoint, modelName, { mapper }) {
         return;
       }
 
-      const { language = ENGLISH_LANGUAGE_CODE } = query;
-
       const translation = await models.TranslatedString.findOne({
         where: {
           stringId: `${REFERENCE_DATA_TRANSLATION_PREFIX}.${getDataType(endpoint)}.${record.id}`,
           language,
         },
+        attributes: ['stringId', 'text'],
+        raw: true,
       });
+
+      if (!translation) {
+        res.send(mappedRecord);
+        return;
+      }
 
       const translatedRecord = replaceDataLabelsWithTranslations({
         data: [mappedRecord],
