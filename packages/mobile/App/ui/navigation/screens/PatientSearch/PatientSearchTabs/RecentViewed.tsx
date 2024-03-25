@@ -24,7 +24,10 @@ const NoPatientsCard = (): ReactElement => (
   <StyledText
     color={theme.colors.TEXT_SUPER_DARK}
     fontWeight={'500'}
-    margin="58px auto 0"
+    marginLeft="auto"
+    marginRight="auto"
+    marginTop={50}
+    marginBottom={0}
     fontSize={14}
   >
     No recently viewed patients to display.
