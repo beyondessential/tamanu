@@ -69,7 +69,7 @@ export const ServerSelector = ({ onChange, label, value, error }): ReactElement 
       }
     };
     if (host) getOptions();
-  }, [host]);
+  }, [host, setLanguage, setLanguageOptions]);
 
   useEffect(() => {
     (async (): Promise<void> => {
