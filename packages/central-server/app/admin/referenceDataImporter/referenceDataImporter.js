@@ -23,7 +23,7 @@ export async function referenceDataImporter({
   log.info('Importing data definitions from file', { file });
 
   log.debug('Parse XLSX workbook');
-  const workbook = data ? read(data) : readFile(file);
+  const workbook = data ? read(data, { type: 'buffer' }) : readFile(file);
 
   log.debug('Normalise all sheet names for lookup');
   const sheets = new Map();

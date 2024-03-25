@@ -57,7 +57,7 @@ export async function provision(provisioningFile, { skipIfNotNeeded }) {
     url: referenceDataUrl = null,
     ...rest
   } of referenceData ?? []) {
-    if (!referenceDataFile || !referenceDataUrl) {
+    if (!referenceDataFile && !referenceDataUrl) {
       throw new Error(`Unknown reference data import with keys ${Object.keys(rest).join(', ')}`);
     }
 
@@ -71,8 +71,8 @@ export async function provision(provisioningFile, { skipIfNotNeeded }) {
     } else if (referenceDataUrl) {
       log.info('Downloading reference data file', { url: referenceDataUrl });
       const file = await fetch(referenceDataUrl);
-      const data = await file.blob();
-      log.info('Importing reference data', { size: data.size });
+      const data = Buffer.from(await (await file.blob()).arrayBuffer());
+      log.info('Importing reference data', { size: data.byteLength });
       await referenceDataImporter({
         data,
         file: referenceDataUrl,
@@ -181,7 +181,7 @@ export async function provision(provisioningFile, { skipIfNotNeeded }) {
   const programOptions = { errors, models: store.models, stats };
 
   for (const { file: programFile = null, url: programUrl = null, ...rest } of programs) {
-    if (!programFile || !programUrl) {
+    if (!programFile && !programUrl) {
       throw new Error(`Unknown program import with keys ${Object.keys(rest).join(', ')}`);
     }
 
@@ -195,8 +195,8 @@ export async function provision(provisioningFile, { skipIfNotNeeded }) {
     } else if (programUrl) {
       log.info('Downloading program file', { url: programUrl });
       const file = await fetch(programUrl);
-      const data = await file.blob();
-      log.info('Importing program', { size: data.size });
+      const data = Buffer.from(await (await file.blob()).arrayBuffer());
+      log.info('Importing program', { size: data.byteLength });
       await programImporter({
         data,
         file: programUrl,
