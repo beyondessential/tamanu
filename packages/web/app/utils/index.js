@@ -6,3 +6,4 @@ export * from './invoice';
 export * from './getVisibleQuestions';
 export * from './invalidatePatientDataQueries';
 export { getBrandName, getBrandId, checkIsURLCambodia, cambodiaReportsFiler } from './cambodiaMode';
+export { useDidUpdateEffect } from './useDidUpdateEffect';
