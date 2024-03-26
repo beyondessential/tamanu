@@ -78,6 +78,7 @@ export const NewPatientForm = memo(
     const { data: fieldDefinitions, error, isLoading } = usePatientFieldDefinitionQuery();
 
     const { getLocalisation } = useLocalisation();
+    const { getTranslation } = useTranslation();
     const { PrimaryDetails, SecondaryDetails, PatientFields } = useLayoutComponents();
 
     const sexValues = useSexValues();
@@ -198,6 +199,7 @@ export const NewPatientForm = memo(
           patientRegistryType,
           sexValues,
           getLocalisation,
+          getTranslation,
         )}
       />
     );
