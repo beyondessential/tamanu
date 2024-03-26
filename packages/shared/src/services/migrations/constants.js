@@ -7,6 +7,7 @@ export const NON_SYNCING_TABLES = [
   'SequelizeMeta',
   'signers',
   'sync_sessions',
+  'sync_queued_devices',
   'user_localisation_caches',
   'fhir_materialise_jobs',
   'jobs',

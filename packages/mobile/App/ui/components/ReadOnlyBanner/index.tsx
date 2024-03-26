@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Text } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { BaseInputProps } from '/interfaces/BaseInputProps';

@@ -1,12 +1,12 @@
-import React, { useCallback, ReactElement } from 'react';
+import React, { ReactElement, useCallback } from 'react';
 import {
-  FullView,
-  StyledView,
-  StyledTouchableOpacity,
-  RowView,
-  StyledText,
-  StyledSafeAreaView,
   CenterView,
+  FullView,
+  RowView,
+  StyledSafeAreaView,
+  StyledText,
+  StyledTouchableOpacity,
+  StyledView,
 } from '/styled/common';
 import { ArrowLeftIcon } from '/components/Icons';
 import { theme } from '/styled/theme';
@@ -15,6 +15,7 @@ import { Formik } from 'formik';
 import { TextField } from '/components/TextField/TextField';
 import { Checkbox } from '/components/Checkbox';
 import { Field } from '/components/Forms/FormField';
+import { SubmitButton } from '/components/Forms/SubmitButton';
 import { Button } from '/components/Button';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { ExportDataScreenProps } from '/interfaces/Screens/HomeStack/ExportDataScreenProps';
@@ -81,7 +82,7 @@ export const ExportDataScreen = ({
           height={screenPercentageToDP(10.93, Orientation.Height)}
           background={theme.colors.WHITE}
         >
-          <Button
+          <SubmitButton
             backgroundColor={theme.colors.PRIMARY_MAIN}
             buttonText="Export"
             width={screenPercentageToDP(90.02, Orientation.Width)}

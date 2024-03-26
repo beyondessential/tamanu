@@ -1,22 +1,20 @@
 import mitt from 'mitt';
-
 import { getUniqueId } from 'react-native-device-info';
 import { readConfig } from '../config';
-import { LoginResponse, SyncRecord, FetchOptions } from './types';
+import { FetchOptions, LoginResponse, SyncRecord } from './types';
 import {
   AuthenticationError,
+  generalErrorMessage,
+  invalidTokenMessage,
+  invalidUserCredentialsMessage,
   OutdatedVersionError,
   RemoteError,
-  invalidUserCredentialsMessage,
-  invalidTokenMessage,
-  generalErrorMessage,
 } from '../error';
 import { version } from '/root/package.json';
-
-import { callWithBackoff, getResponseJsonSafely, fetchWithTimeout, sleepAsync } from './utils';
+import { callWithBackoff, fetchWithTimeout, getResponseJsonSafely, sleepAsync } from './utils';
 import { CentralConnectionStatus } from '~/types';
 
-const API_VERSION = 1;
+const API_PREFIX = 'api';
 
 const fetchAndParse = async (
   url: string,
@@ -77,7 +75,7 @@ export class CentralServerConnection {
     const queryString = Object.entries(query)
       .map(([k, v]) => `${k}=${v}`)
       .join('&');
-    const url = `${this.host}/v${API_VERSION}/${path}${queryString && `?${queryString}`}`;
+    const url = `${this.host}/${API_PREFIX}/${path}${queryString && `?${queryString}`}`;
     const extraHeaders = config?.headers || {};
     const headers = {
       Authorization: `Bearer ${this.token}`,
@@ -91,24 +89,29 @@ export class CentralServerConnection {
       const response = await callWithBackoff(
         async () => fetchAndParse(url, { ...config, headers }, isLogin),
         backoff,
-        );
-        return response;
-      } catch(err) {
-          // Handle sync disconnection and attempt refresh if possible
-          if (err instanceof AuthenticationError && !isLogin) {
-            this.emitter.emit('statusChange', CentralConnectionStatus.Disconnected);
-            if (this.refreshToken && !skipAttemptRefresh) {
-              await this.refresh();
-              // Ensure that we don't get stuck in a loop of refreshes if the refresh token is invalid
-              const updatedConfig = { ...config, skipAttemptRefresh: true };
-              return this.fetch(path, query, updatedConfig);
-            }
-          }
-        throw err;
+      );
+      return response;
+    } catch (err) {
+      // Handle sync disconnection and attempt refresh if possible
+
+      if (err instanceof AuthenticationError && !isLogin) {
+        this.emitter.emit('statusChange', CentralConnectionStatus.Disconnected);
+        if (this.refreshToken && !skipAttemptRefresh) {
+          await this.refresh();
+          // Ensure that we don't get stuck in a loop of refreshes if the refresh token is invalid
+          const updatedConfig = { ...config, skipAttemptRefresh: true };
+          return this.fetch(path, query, updatedConfig);
+        }
       }
+      throw err;
+    }
   }
 
-  async get(path: string, query: Record<string, string | number | boolean>, options?: FetchOptions) {
+  async get(
+    path: string,
+    query: Record<string, string | number | boolean>,
+    options?: FetchOptions,
+  ) {
     return this.fetch(path, query, { ...options, method: 'GET' });
   }
 
@@ -141,9 +144,25 @@ export class CentralServerConnection {
     throw new Error(`Did not get a truthy response after ${maxAttempts} attempts for ${endpoint}`);
   }
 
-  async startSyncSession() {
+  async startSyncSession({ urgent, lastSyncedTick }) {
     const facilityId = await readConfig('facilityId', '');
-    const { sessionId } = await this.post('sync', {}, { facilityId });
+
+    // start a sync session (or refresh our position in the queue)
+    const { sessionId, status } = await this.post(
+      'sync',
+      {},
+      {
+        urgent,
+        lastSyncedTick,
+        facilityId,
+        deviceId: this.deviceId,
+      },
+    );
+
+    if (!sessionId) {
+      // we're waiting in a queue
+      return { status };
+    }
 
     // then, poll the sync/:sessionId/ready endpoint until we get a valid response
     // this is because POST /sync (especially the tickTockGlobalClock action) might get blocked
@@ -192,7 +211,7 @@ export class CentralServerConnection {
     return this.get(`sync/${sessionId}/pull`, query, {
       // allow 5 minutes for the sync pull as it can take a while
       // (the full 5 minutes would be pretty unusual! but just to be safe)
-      timeout: 5 * 60 * 1000, 
+      timeout: 5 * 60 * 1000,
     });
   }
 

@@ -1,4 +1,4 @@
-import { STRING, DATE, NOW, INTEGER, UUIDV4 } from 'sequelize';
+import { DATE, INTEGER, NOW, STRING, UUIDV4 } from 'sequelize';
 
 export async function up(query) {
   await query.createTable('certifiable_vaccines', {

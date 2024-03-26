@@ -1,9 +1,9 @@
 import { Sequelize } from 'sequelize';
 import {
-  SYNC_DIRECTIONS,
   IMAGING_REQUEST_STATUS_TYPES,
   IMAGING_TYPES_VALUES,
   NOTE_TYPES,
+  SYNC_DIRECTIONS,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import { getNoteWithType } from '../utils/notes';

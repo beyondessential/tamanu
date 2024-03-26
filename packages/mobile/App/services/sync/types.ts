@@ -49,6 +49,7 @@ export type FetchOptions = {
 };
 
 export enum SYNC_EVENT_ACTIONS {
+  SYNC_IN_QUEUE = 'syncInQueue',
   SYNC_STARTED = 'syncStarted',
   SYNC_STATE_CHANGED = 'syncStateChanged',
   SYNC_ENDED = 'syncEnded',

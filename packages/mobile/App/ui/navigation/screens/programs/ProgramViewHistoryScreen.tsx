@@ -78,7 +78,7 @@ export const ProgramViewHistoryScreen = ({
         if (responses.length === 80) {
           return (
             <StyledText paddingLeft={10}>
-              Please view Tamanu Desktop for complete history of program form submissions.
+              Please view Tamanu Web for complete history of program form submissions.
             </StyledText>
           );
         }

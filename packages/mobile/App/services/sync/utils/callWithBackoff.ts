@@ -38,6 +38,7 @@ export const callWithBackoff = async <T>(
   let secondLastN = 0;
   let attempt = 0;
 
+  // eslint-disable-next-line no-constant-condition
   while (true) {
     attempt += 1;
     try {

@@ -5,9 +5,9 @@ import { uniq } from 'lodash';
 
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 
-import { Model } from '../../src/models/Model';
-import { sortInDependencyOrder } from '../../src/models/sortInDependencyOrder';
-import { chance } from '../../src/test-helpers';
+import { Model } from '../../dist/cjs/models/Model';
+import { sortInDependencyOrder } from '../../dist/cjs/models/sortInDependencyOrder';
+import { chance } from '../../dist/cjs/test-helpers';
 
 function modelTrees() {
   // `tie` is literally the word "tie", as in tying a knot. We're creating a recursive
@@ -168,13 +168,13 @@ describe('sortInDependencyOrder', () => {
      \ /
      / \
     2 -> 4
-    
+
     this is a bit weird, but conceptually it's both of these trees merged:
-    
+
         3          3
     1 ->|      2 ->|
         4          4
-    
+
     so there's two roots, and two common dependencies
     */
     const models = pairsToModels([

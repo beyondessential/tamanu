@@ -24,7 +24,7 @@ jobs:
       with:
         token: ${{ secrets.TAMANU_RELEASE_PAT }}
 
-    - uses: actions/setup-node@v3
+    - uses: actions/setup-node@v4
       with:
         node-version: 20.x
 
@@ -35,9 +35,9 @@ jobs:
         git config user.name github-actions
         git config user.email github-actions@github.com
         version=$(jq -r .version package.json)
-        git commit --allow-empty -am "Release v$version"
+        git commit --allow-empty -am "release: v$version"
         echo "current_version=$version" >> $GITHUB_OUTPUT
-        git tag -a "v$version" -m "Release $version"
+        git tag -a "v$version" -m "release: v$version"
         git push --follow-tags
 
     - name: Bump version on branch
@@ -48,7 +48,7 @@ jobs:
       run: |
         set -euxo pipefail
         version=$(jq -r .version package.json)
-        git commit -am "Bump version to $version"
+        git commit -am "release: Bump version to $version"
         echo "next_version=$version" >> $GITHUB_OUTPUT
         git push
 

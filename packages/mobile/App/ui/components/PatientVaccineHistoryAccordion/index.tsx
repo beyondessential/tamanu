@@ -1,4 +1,4 @@
-import React, { useState, ReactElement } from 'react';
+import React, { ReactElement, useState } from 'react';
 import Accordion from 'react-native-collapsible/Accordion';
 import { StyledScrollView } from '/styled/common';
 import { Header } from './Header';

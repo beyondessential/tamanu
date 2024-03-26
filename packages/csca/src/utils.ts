@@ -18,7 +18,7 @@ export function enumValues<T>(enm: { [s: string]: T }): T[] {
 
 // https://www.rfc-editor.org/rfc/rfc7518#section-6.2
 export async function keyPairFromPrivate(privateKey: CryptoKey): Promise<CryptoKeyPair> {
-  /* eslint-disable camelcase, @typescript-eslint/camelcase */
+  /* eslint-disable camelcase */
   const { alg, crv, ext, key_ops, kty, x, y } = await crypto.subtle.exportKey('jwk', privateKey);
   const publicKey = await crypto.subtle.importKey(
     'jwk',
@@ -27,7 +27,7 @@ export async function keyPairFromPrivate(privateKey: CryptoKey): Promise<CryptoK
     true,
     ['sign', 'verify'],
   );
-  /* eslint-enable camelcase, @typescript-eslint/camelcase */
+  /* eslint-enable camelcase */
 
   return { publicKey, privateKey };
 }

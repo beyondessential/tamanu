@@ -1,4 +1,4 @@
-import { getResultValue, FieldTypes } from '~/ui/helpers/fields';
+import { FieldTypes, getResultValue } from '~/ui/helpers/fields';
 import { runCalculations } from '~/ui/helpers/calculations';
 import { makeDummySurvey } from '/root/tests/helpers/mock';
 

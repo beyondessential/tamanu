@@ -1,14 +1,12 @@
 import { QueryTypes } from 'sequelize';
 
 export const expectDeepSyncRecordMatch = (dbRecord, syncRecord, options = {}) => {
-  const {
-    updatedAt: _updatedAt,
-    createdAt: _createdAt,
-    deletedAt: _deletedAt,
-    updatedAtSyncTick: _updatedAtSyncTick,
-    password: _password,
-    ...syncableData
-  } = dbRecord;
+  const syncableData = { ...dbRecord };
+  delete syncableData.updatedAt;
+  delete syncableData.createdAt;
+  delete syncableData.deletedAt;
+  delete syncableData.updatedAtSyncTick;
+  delete syncableData.password;
 
   const { nullableDateFields = [] } = options;
 

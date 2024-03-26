@@ -5,41 +5,52 @@ export const IMAGING_REQUEST_STATUS_TYPES = {
   CANCELLED: 'cancelled',
   DELETED: 'deleted',
   ENTERED_IN_ERROR: 'entered_in_error',
+  UNKNOWN: 'unknown',
+};
+
+export const IMAGING_REQUEST_STATUS_LABELS = {
+  [IMAGING_REQUEST_STATUS_TYPES.PENDING]: 'Pending',
+  [IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS]: 'In progress',
+  [IMAGING_REQUEST_STATUS_TYPES.COMPLETED]: 'Completed',
+  [IMAGING_REQUEST_STATUS_TYPES.CANCELLED]: 'Cancelled',
+  [IMAGING_REQUEST_STATUS_TYPES.DELETED]: 'Deleted',
+  [IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR]: 'Entered in error',
+  [IMAGING_REQUEST_STATUS_TYPES.UNKNOWN]: 'Unknown',
 };
 
 export const IMAGING_REQUEST_STATUS_CONFIG = {
   [IMAGING_REQUEST_STATUS_TYPES.PENDING]: {
-    label: 'Pending',
+    label: IMAGING_REQUEST_STATUS_LABELS[IMAGING_REQUEST_STATUS_TYPES.PENDING],
     color: '#CB6100',
     background: '#FAF0E6',
   },
   [IMAGING_REQUEST_STATUS_TYPES.COMPLETED]: {
-    label: 'Completed',
+    label: IMAGING_REQUEST_STATUS_LABELS[IMAGING_REQUEST_STATUS_TYPES.COMPLETED],
     color: '#19934E',
     background: '#DEF0EE',
   },
   [IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS]: {
-    label: 'In progress',
+    label: IMAGING_REQUEST_STATUS_LABELS[IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS],
     color: '#4101C9;',
     background: '#ECE6FA',
   },
   [IMAGING_REQUEST_STATUS_TYPES.CANCELLED]: {
-    label: 'Cancelled',
+    label: IMAGING_REQUEST_STATUS_LABELS[IMAGING_REQUEST_STATUS_TYPES.CANCELLED],
     color: '#444444;',
     background: '#EDEDED',
   },
   [IMAGING_REQUEST_STATUS_TYPES.DELETED]: {
-    label: 'Deleted',
+    label: IMAGING_REQUEST_STATUS_LABELS[IMAGING_REQUEST_STATUS_TYPES.DELETED],
     color: '#444444;',
     background: '#EDEDED',
   },
   [IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR]: {
-    label: 'Entered in error',
+    label: IMAGING_REQUEST_STATUS_LABELS[IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR],
     color: '#444444;',
     background: '#EDEDED',
   },
   unknown: {
-    label: 'Unknown',
+    label: IMAGING_REQUEST_STATUS_LABELS[IMAGING_REQUEST_STATUS_TYPES.UNKNOWN],
     color: '#444444;',
     background: '#EDEDED',
   },
@@ -81,12 +92,16 @@ export const JOB_QUEUE_STATUSES = {
   ERRORED: 'Errored',
 };
 
-export const COMMUNICATION_STATUSES_VALUES = Object.values(
-  COMMUNICATION_STATUSES,
-);
+export const COMMUNICATION_STATUSES_VALUES = Object.values(COMMUNICATION_STATUSES);
 
 export const PATIENT_MERGE_DELETION_ACTIONS = {
   RENAME: 'RENAME',
   DESTROY: 'DESTROY',
   NONE: 'NONE',
+};
+
+// TODO: This will be merged with the statuses created as part of
+// https://linear.app/bes/issue/EPI-565/data-deletion-tasks-clinical-features
+export const DELETION_STATUSES = {
+  DELETED: 'deleted',
 };

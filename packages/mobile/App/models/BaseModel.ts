@@ -1,12 +1,9 @@
-import { PrimaryColumn, Generated, Column } from 'typeorm/browser';
+import { Column, Generated, PrimaryColumn } from 'typeorm/browser';
 import { BaseModelWithoutId } from './BaseModelWithoutId';
 
 export type ModelPojo = {
   id: string;
 };
-
-// https://stackoverflow.com/questions/54281631/is-it-possible-to-get-instancetypet-to-work-on-an-abstract-class
-type AbstractInstanceType<T> = T extends { prototype: infer U } ? U : never;
 
 // This is used instead of @RelationId provided by typeorm, because
 // typeorm's @RelationId causes a O(n^2) operation for every query to that model.
