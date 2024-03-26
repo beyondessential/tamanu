@@ -16,6 +16,7 @@ import {
 import { useProgramRegistryQuery } from '../../api/queries/useProgramRegistryQuery';
 import { useProgramRegistryConditions } from '../../api/queries/useProgramRegistryConditions';
 import { useSexOptions } from '../../hooks';
+import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 const FacilityCheckbox = styled.div`
   display: flex;
@@ -55,13 +56,14 @@ export const ProgramRegistrySearchBar = ({ searchParameters, setSearchParameters
           <LocalisedField
             name="sex"
             defaultLabel="Sex"
+            label={<TranslatedText stringId="general.localisedField.sex.label" fallback="Sex" />}
             component={BaseSelectField}
             options={sexOptions}
             size="small"
           />
-          <LocalisedField
+          <Field
             name="registeringFacilityId"
-            defaultLabel="Registering Facility"
+            label="Registering Facility"
             component={AutocompleteField}
             suggester={facilitySuggester}
           />
@@ -84,26 +86,50 @@ export const ProgramRegistrySearchBar = ({ searchParameters, setSearchParameters
         </>
       }
     >
-      <LocalisedField useShortLabel keepLetterCase name="displayId" component={SearchField} />
-      <LocalisedField useShortLabel name="firstName" component={SearchField} />
-      <LocalisedField useShortLabel name="lastName" component={SearchField} />
       <LocalisedField
-        useShortLabel
+        keepLetterCase
+        name="displayId"
+        label={
+          <TranslatedText stringId="general.localisedField.displayId.label.short" fallback="NHN" />
+        }
+        component={SearchField}
+      />
+      <LocalisedField
+        name="firstName"
+        label={
+          <TranslatedText stringId="general.localisedField.firstName.label" fallback="First name" />
+        }
+        component={SearchField}
+      />
+      <LocalisedField
+        name="lastName"
+        label={
+          <TranslatedText stringId="general.localisedField.lastName.label" fallback="Last name" />
+        }
+        component={SearchField}
+      />
+      <LocalisedField
         name="dateOfBirth"
+        label={
+          <TranslatedText
+            stringId="general.localisedField.dateOfBirth.label.short"
+            fallback="DOB"
+          />
+        }
         saveDateAsString
         component={DateField}
         max={getCurrentDateString()}
       />
       <Spacer />
 
-      <LocalisedField
-        defaultLabel="Home village"
+      <Field
+        label="Home village"
         name="homeVillage"
         component={AutocompleteField}
         suggester={villageSuggester}
       />
-      <LocalisedField
-        defaultLabel="Currently in"
+      <Field
+        label="Currently in"
         name="currentlyIn"
         component={AutocompleteField}
         suggester={
@@ -112,15 +138,15 @@ export const ProgramRegistrySearchBar = ({ searchParameters, setSearchParameters
             : facilitySuggester
         }
       />
-      <LocalisedField
-        defaultLabel="Related condition"
+      <Field
+        label="Related condition"
         name="programRegistryCondition"
         component={BaseSelectField}
         options={programRegistryConditions?.data.map(x => ({ label: x.name, value: x.id }))}
         size="small"
       />
-      <LocalisedField
-        defaultLabel="Status"
+      <Field
+        label="Status"
         name="clinicalStatus"
         component={AutocompleteField}
         suggester={programRegistryStatusSuggester}
