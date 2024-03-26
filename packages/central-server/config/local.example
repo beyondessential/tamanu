@@ -1,4 +1,5 @@
 {
+  "canonicalHostName": "",
   "db": {
     "name": "",
     "verbose": false,
@@ -13,5 +14,9 @@
         "xRay": { "label": "X-Ray" }
       }
     }
+  },
+  "telegramBot": {
+    apiToken: "",
+    secretToken: "",
   }
 }
