@@ -27,7 +27,7 @@ export const DisplayIdField = ({ required }) => {
       label={
         <TranslatedText
           stringId="general.localisedField.displayId.label"
-          label="National Health Number"
+          fallback="National Health Number"
         />
       }
       component={TextField}
