@@ -1,9 +1,10 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { useApi } from '../../api';
 import { AutocompleteField } from './AutocompleteField';
 import { LocalisedField } from './LocalisedField';
 import { useFormikContext } from 'formik';
 import { Suggester } from '../../utils/suggester';
+import { useDidUpdateEffect } from '../../utils';
 
 export const HierarchyFieldItem = ({ isFirstLevel, relationType, parentId, fieldData }) => {
   const api = useApi();
@@ -16,7 +17,9 @@ export const HierarchyFieldItem = ({ isFirstLevel, relationType, parentId, field
     });
   }, [api, fieldData.referenceType, isFirstLevel, parentId, relationType]);
 
-  useEffect(() => {
+  // Clear the value of the field when the parent field changes
+  useDidUpdateEffect(() => {
+    // Don't clear the value on first mount
     setFieldValue(fieldData.name, undefined);
   }, [fieldData.name, parentId, setFieldValue]);
 
