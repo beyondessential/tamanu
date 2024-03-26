@@ -10,6 +10,7 @@ import { TriageWaitTimeCell } from './TriageWaitTimeCell';
 import { useLocalisation } from '../contexts/Localisation';
 import { reloadPatient } from '../store';
 import { TranslatedText } from './Translation/TranslatedText';
+import { TranslatedReferenceData } from './Translation';
 
 const ADMITTED_PRIORITY_COLOR = '#bdbdbd';
 
@@ -42,6 +43,13 @@ const useColumns = () => {
         <TranslatedText
           stringId="patientList.triage.table.column.chiefComplaint"
           fallback="Chief complaint"
+        />
+      ),
+      accessor: row => (
+        <TranslatedReferenceData
+          value={row.chiefComplaintId}
+          fallback={row.chiefCompaint}
+          category="triageReason"
         />
       ),
     },
