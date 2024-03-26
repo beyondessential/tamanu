@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
@@ -8,8 +9,11 @@ import { ENCOUNTER_OPTIONS_BY_VALUE } from '../constants';
 import { LocationGroupCell } from './LocationCell';
 import { LimitedLinesCell } from './FormattedTableCell';
 import { TranslatedText } from './Translation/TranslatedText';
+import { DeleteEncounterModal } from '../views/patients/components/DeleteEncounterModal';
+import { MenuButton } from './MenuButton';
 import { useSyncState } from '../contexts/SyncState';
 import { useRefreshCount } from '../hooks/useRefreshCount';
+import { useAuth } from '../contexts/Auth';
 
 const DateWrapper = styled.div`
   min-width: 90px;
@@ -62,9 +66,9 @@ const SyncWarningBanner = ({ patient, onRefresh }) => {
 };
 
 export const PatientHistory = ({ patient, onItemClick }) => {
+  const [refreshCount, updateRefreshCount] = useRefreshCount();
   const queryClient = useQueryClient();
   const { ability } = useAuth();
-  const [refreshCount, setRefreshCount] = useState(0);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedEncounterData, setSelectedEncounterData] = useState(null);
 

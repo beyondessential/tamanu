@@ -5,12 +5,21 @@ import { DateDisplay } from './DateDisplay';
 import { SurveyResultBadge } from './SurveyResultBadge';
 import { SurveyResponseDetailsModal } from './SurveyResponseDetailsModal';
 import { TranslatedText } from './Translation/TranslatedText';
+import { useAuth } from '../contexts/Auth';
 
 const getDate = ({ endTime }) => <DateDisplay date={endTime} />;
 const getSubmittedBy = ({ submittedBy }) => submittedBy;
 const getProgramName = ({ programName }) => programName;
 const getSurveyName = ({ surveyName }) => surveyName;
 const getResults = ({ resultText }) => <SurveyResultBadge resultText={resultText} />;
+
+const MODAL_IDS = {
+  DELETE: 'delete',
+};
+
+const MODALS = {
+  [MODAL_IDS.DELETE]: DeleteProgramResponseModal,
+};
 
 export const DataFetchingProgramsTable = ({ endpoint }) => {
   const { ability } = useAuth();
