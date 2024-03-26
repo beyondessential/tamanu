@@ -111,7 +111,8 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
   const { ability } = useAuth();
   const api = useApi();
   const setQuery = query => setValues({ ...values, query });
-  const params = values.parameters || [];
+  const params =
+    values.parameters.map(param => ({ ...generateDefaultParameter(), ...param })) || [];
   const setParams = newParams => setValues({ ...values, parameters: newParams });
   const onParamsAdd = () => setParams([...params, generateDefaultParameter()]);
   const onParamsChange = (paramId, field, newValue) => {
