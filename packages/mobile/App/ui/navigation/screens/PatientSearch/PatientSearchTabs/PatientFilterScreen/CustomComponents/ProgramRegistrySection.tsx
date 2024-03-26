@@ -15,7 +15,7 @@ const REGISTRY_COUNT_THRESHOLD = 10;
 
 export const ProgramRegistrySection = (): ReactElement => {
   const navigation = useNavigation();
-  const models = useBackend();
+  const { models } = useBackend();
 
   const ProgramRegistrySuggester = new Suggester(models.ProgramRegistry, {
     where: {
