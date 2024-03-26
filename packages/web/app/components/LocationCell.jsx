@@ -7,10 +7,10 @@ export const LocationCell = ({
   locationName,
   locationId,
   plannedLocationName,
+  plannedLocationId,
   style,
   category = 'location',
 }) => {
-  // TODO: get this working with location group and location. maybe just duplicate logic
   return (
     <div style={{ minWidth: 100, ...style }}>
       {locationId ? (
@@ -20,17 +20,35 @@ export const LocationCell = ({
       )}
       {plannedLocationName && (
         <Typography style={{ fontSize: 12, color: Colors.darkText }}>
-          (Planned - {plannedLocationName})
+          (Planned -{' '}
+          {
+            <TranslatedReferenceData
+              value={plannedLocationId}
+              fallback={plannedLocationName}
+              category={category}
+            />
+          }
+          )
         </Typography>
       )}
     </div>
   );
 };
 
-export const LocationGroupCell = ({ locationGroupName, plannedLocationGroupName }) => (
-  <LocationCell
-    locationName={locationGroupName}
-    plannedLocationName={plannedLocationGroupName}
-    style={{ minWidth: 100 }}
-  />
-);
+export const LocationGroupCell = ({
+  locationGroupName,
+  locationGroupId,
+  plannedLocationGroupName,
+  plannedLocationGroupId,
+}) => {
+  return (
+    <LocationCell
+      locationName={locationGroupName}
+      locationId={locationGroupId}
+      plannedLocationName={plannedLocationGroupName}
+      plannedLocationId={plannedLocationGroupId}
+      style={{ minWidth: 100 }}
+      category="locationGroup"
+    />
+  );
+};
