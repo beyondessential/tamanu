@@ -2,12 +2,13 @@
 
 import { addDays, formatRFC7231 } from 'date-fns';
 
-import { fake } from '@tamanu/shared/test-helpers';
+import { fake, fakeReferenceData } from '@tamanu/shared/test-helpers';
 import {
   FHIR_DATETIME_PRECISION,
   IMAGING_REQUEST_STATUS_TYPES,
   NOTE_TYPES,
   VISIBILITY_STATUSES,
+  FHIR_REQUEST_PRIORITY,
 } from '@tamanu/constants';
 import { fakeUUID } from '@tamanu/shared/utils/generateId';
 import { formatFhirDate } from '@tamanu/shared/utils/fhir/datetime';
@@ -253,7 +254,6 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
             ],
           },
         ],
-        priority: 'routine',
         code: {
           coding: [
             {
@@ -288,6 +288,50 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
 
       // regression EPI-403
       expect(response.body.subject).not.toHaveProperty('identifier');
+    });
+
+
+    // Noting here that LabRequests have a priority in reference data 
+    // while ImageRequests have a priority that is a string
+    it('will materialise LabRequests into ServiceRequest with correct priority', async () => {
+      // arrange
+      const { FhirServiceRequest, ReferenceData } = ctx.store.models;
+      const priorityKeys = Object.keys(FHIR_REQUEST_PRIORITY);
+      let allPriorities = {};
+
+      for (let priorityIndex = 0; priorityIndex < priorityKeys.length; priorityIndex++) {
+        let currentKey = priorityKeys[priorityIndex];
+        allPriorities[currentKey] = await ReferenceData.create({
+          ...fakeReferenceData(currentKey),
+          type: 'labTestPriority',
+          name: FHIR_REQUEST_PRIORITY[currentKey],
+          code: currentKey,
+        });
+
+        const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
+          ctx.store.models,
+          resources,
+          true,
+          {
+            labTestPriorityId: allPriorities[currentKey].id
+          }
+        );
+        const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+        await FhirServiceRequest.resolveUpstreams();
+        const path = `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest/${mat.id}`;
+
+        // act
+        const response = await app.get(path);
+        response.body?.identifier?.sort((a, b) => a.system.localeCompare(b.system));
+
+        // assert
+        expect(response.body).toMatchObject({
+          resourceType: 'ServiceRequest',
+          id: expect.any(String),
+          priority: allPriorities[currentKey].name
+        });
+        expect(response).toHaveSucceeded();
+      }
     });
 
     it('does not have a default priority if the source data has a null priority', async () => {
