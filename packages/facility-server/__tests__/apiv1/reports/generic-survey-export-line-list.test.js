@@ -80,9 +80,9 @@ describe('Generic survey export line list report', () => {
 
     const surveyDetails = await setupSurvey();
     survey = surveyDetails.survey;
-    disableHardcodedPermissionsForSuite();
   });
   afterAll(() => ctx.close());
+  disableHardcodedPermissionsForSuite();
 
   describe('Permissions', () => {
     it('does not throw forbidden error when there is sufficient permissions', async () => {
