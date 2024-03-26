@@ -19,14 +19,6 @@ export interface RadioButtonGroupProps {
   labelFontSize?: string;
 }
 
-const Label = styled(StyledText)`
-  color: ${theme.colors.TEXT_SUPER_DARK};
-  font-size: ${screenPercentageToDP(2.1, Orientation.Height)};
-  font-weight: 500;
-  padding-left: ${screenPercentageToDP(1, Orientation.Width)};
-  margin-bottom: ${screenPercentageToDP(0.5, Orientation.Width)};
-`;
-
 export const RadioButtonGroup = ({
   options,
   onChange,
