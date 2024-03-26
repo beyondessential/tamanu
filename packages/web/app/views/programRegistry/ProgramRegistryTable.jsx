@@ -72,7 +72,9 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
       {
         key: 'registeringFacility',
         title: 'Registering facility',
-        accessor: ({ registeringFacility }) => registeringFacility.name,
+        accessor: ({ registeringFacility: { id, name } }) => (
+          <TranslatedReferenceData value={id} fallback={name} category="facility" />
+        ),
       },
       {
         key: 'currentlyIn',
