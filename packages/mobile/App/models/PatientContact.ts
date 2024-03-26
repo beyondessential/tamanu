@@ -6,7 +6,7 @@ import { SYNC_DIRECTIONS } from './types';
 import { BaseModel } from './BaseModel';
 import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
 
-@Entity('patient_contact')
+@Entity('patient_field_value')
 export class PatientContact extends BaseModel implements IPatientContact {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 
@@ -28,13 +28,11 @@ export class PatientContact extends BaseModel implements IPatientContact {
     patient => patient.contacts,
   )
   patient: Patient;
-
   @RelationId(({ patient }) => patient)
   patientId: string;
 
   @ReferenceDataRelation()
   relationship: ReferenceData;
-
   @RelationId(({ relationship }) => relationship)
   relationshipId: string;
 
