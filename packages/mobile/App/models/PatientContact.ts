@@ -1,4 +1,9 @@
-import { Column, Entity, ManyToOne, RelationId } from 'typeorm/browser';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  RelationId,
+} from 'typeorm/browser';
 
 import { IPatientContact } from '~/types';
 import { Patient } from './Patient';
