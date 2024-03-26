@@ -16,9 +16,11 @@ import {
 } from '../../../api/queries';
 
 import { PDFViewer, printPDF } from '../PDFViewer';
+import { useAuth } from '../../../contexts/Auth';
 
 export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) => {
   const api = useApi();
+  const { facility } = useAuth();
   const { getLocalisation } = useLocalisation();
   const { data: certificateData, isFetching: isCertificateFetching } = useCertificate({
     footerAssetName: ASSET_NAMES.VACCINATION_CERTIFICATE_FOOTER,
@@ -45,10 +47,11 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
         requireSigning: false,
         patientId: patient.id,
         forwardAddress: data.email,
+        facilityName: facility.name,
         createdBy: printedBy,
         createdAt: getCurrentDateString(),
       }),
-    [api, patient.id, printedBy],
+    [api, patient.id, printedBy, facility.name],
   );
 
   const village = useReferenceData(patient.villageId).data;
@@ -73,6 +76,7 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
           vaccinations={vaccinations}
           watermarkSrc={watermark}
           logoSrc={logo}
+          facilityName={facility.name}
           signingSrc={footerImg}
           printedBy={printedBy}
           printedDate={getCurrentDateString()}

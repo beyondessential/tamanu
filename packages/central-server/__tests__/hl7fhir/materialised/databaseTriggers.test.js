@@ -42,7 +42,7 @@ expect.extend({
 
 // If for some reason we don't want to add triggers to a specific table
 // this would be the place to add them.
-const versioningTablesToIgnore = [];
+const versioningTablesToIgnore = ['non_fhir_medici_report'];
 const refreshTablesToIgnore = [];
 
 describe('databaseTriggers', () => {

@@ -5,6 +5,8 @@ import { FormModal } from './FormModal';
 import { FormSubmitCancelRow } from './ButtonRow';
 import { Field, Form, SelectField } from './Field';
 import { BodyText } from './Typography';
+import { FORM_TYPES } from '../constants';
+import { TranslatedText } from './Translation/TranslatedText';
 
 const ModalBody = styled.div`
   margin-top: 30px;
@@ -26,6 +28,7 @@ export const CancelModal = React.memo(
     <FormModal width="sm" title={title} onClose={onClose} open={open}>
       <Form
         onSubmit={onConfirm}
+        formType={FORM_TYPES.EDIT_FORM}
         validationSchema={yup.object().shape({
           reasonForCancellation: yup.string().required(),
         })}
@@ -36,13 +39,23 @@ export const CancelModal = React.memo(
               <Field
                 required
                 component={SelectField}
-                label="Reason for cancellation"
+                label={
+                  <TranslatedText
+                    stringId="imaging.modal.cancel.reason.label"
+                    fallback="Reason for cancellation"
+                  />
+                }
                 name="reasonForCancellation"
                 options={options}
                 helperText={isReasonForDelete(values.reasonForCancellation) ? helperText : null}
+                prefix="imaging.cancel.property.reason"
               />
             </Wrapper>
-            <FormSubmitCancelRow onCancel={onClose} onConfirm={submitForm} cancelText="Close" />
+            <FormSubmitCancelRow
+              onCancel={onClose}
+              onConfirm={submitForm}
+              cancelText={<TranslatedText stringId="general.action.close" fallback="Close" />}
+            />
           </ModalBody>
         )}
       />

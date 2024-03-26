@@ -87,6 +87,7 @@ describe('ProgramRegistry', () => {
         fake(models.PatientProgramRegistration, {
           patientId: testPatient.id,
           programRegistryId: registryId1,
+          clinicianId: app.user.id,
         }),
       );
 
@@ -100,6 +101,7 @@ describe('ProgramRegistry', () => {
           patientId: testPatient.id,
           registrationStatus: REGISTRATION_STATUSES.ACTIVE,
           programRegistryId: registryId2,
+          clinicianId: app.user.id,
         }),
       );
       await models.PatientProgramRegistration.create(
@@ -108,6 +110,7 @@ describe('ProgramRegistry', () => {
           patientId: testPatient.id,
           registrationStatus: REGISTRATION_STATUSES.RECORDED_IN_ERROR,
           programRegistryId: registryId2,
+          clinicianId: app.user.id,
         }),
       );
 
@@ -121,6 +124,7 @@ describe('ProgramRegistry', () => {
           patientId: testPatient.id,
           registrationStatus: REGISTRATION_STATUSES.RECORDED_IN_ERROR,
           programRegistryId: registryId3,
+          clinicianId: app.user.id,
         }),
       );
       await models.PatientProgramRegistration.create(
@@ -129,6 +133,7 @@ describe('ProgramRegistry', () => {
           patientId: testPatient.id,
           registrationStatus: REGISTRATION_STATUSES.ACTIVE,
           programRegistryId: registryId3,
+          clinicianId: app.user.id,
         }),
       );
 
@@ -198,6 +203,7 @@ describe('ProgramRegistry', () => {
         programRegistryId,
         registrationStatus: REGISTRATION_STATUSES.ACTIVE,
         date: '2023-09-04 08:00:00',
+        clinicianId: app.user.id,
       };
 
       // Patient 1: Should pull all required data
@@ -287,6 +293,7 @@ describe('ProgramRegistry', () => {
         programRegistryId,
         registrationStatus: REGISTRATION_STATUSES.ACTIVE,
         date: '2023-09-04 08:00:00',
+        clinicianId: app.user.id,
       };
 
       // Patient 1: Should show
@@ -376,6 +383,7 @@ describe('ProgramRegistry', () => {
               fake(models.PatientProgramRegistration, {
                 programRegistryId,
                 patientId: patient.id,
+                clinicianId: app.user.id,
               }),
             );
           }),

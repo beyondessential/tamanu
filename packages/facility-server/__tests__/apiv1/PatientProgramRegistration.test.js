@@ -80,6 +80,7 @@ describe('PatientProgramRegistration', () => {
           registrationStatus: REGISTRATION_STATUSES.ACTIVE,
           patientId: patient.id,
           date: TEST_DATE_EARLY,
+          clinicianId: app.user.id,
         }),
       );
       await models.PatientProgramRegistration.create(
@@ -88,6 +89,7 @@ describe('PatientProgramRegistration', () => {
           registrationStatus: REGISTRATION_STATUSES.RECORDED_IN_ERROR,
           patientId: patient.id,
           date: TEST_DATE_LATE,
+          clinicianId: app.user.id,
         }),
       );
 
@@ -98,6 +100,7 @@ describe('PatientProgramRegistration', () => {
           registrationStatus: REGISTRATION_STATUSES.INACTIVE,
           patientId: patient.id,
           date: TEST_DATE_EARLY,
+          clinicianId: app.user.id,
         }),
       );
       await models.PatientProgramRegistration.create(
@@ -106,6 +109,7 @@ describe('PatientProgramRegistration', () => {
           registrationStatus: REGISTRATION_STATUSES.INACTIVE,
           patientId: patient.id,
           date: TEST_DATE_LATE,
+          clinicianId: app.user.id,
         }),
       );
 

@@ -156,12 +156,14 @@ const createNameSuggester = (
   endpoint,
   modelName = pascal(endpoint),
   whereBuilderFn = DEFAULT_WHERE_BUILDER,
+  options,
 ) =>
   createSuggester(endpoint, modelName, whereBuilderFn, {
     mapper: ({ id, name }) => ({
       id,
       name,
     }),
+    ...options,
   });
 
 createNameSuggester('department', 'Department', filterByFacilityWhereBuilder);
@@ -384,6 +386,41 @@ createSuggester(
     }),
   },
 );
+
+createNameSuggester(
+  'programRegistryClinicalStatus',
+  'ProgramRegistryClinicalStatus',
+  (search, { programRegistryId }) => ({
+    ...DEFAULT_WHERE_BUILDER(search),
+    ...(programRegistryId ? { programRegistryId } : {}),
+  }),
+);
+
+createNameSuggester('programRegistry', 'ProgramRegistry', (search, query) => {
+  const baseWhere = DEFAULT_WHERE_BUILDER(search);
+  if (!query.patientId) {
+    return baseWhere;
+  }
+
+  return {
+    ...baseWhere,
+    // Only suggest program registries this patient isn't already part of
+    id: {
+      [Op.notIn]: Sequelize.literal(
+        `(
+          SELECT DISTINCT(pr.id)
+          FROM program_registries pr
+          INNER JOIN patient_program_registrations ppr
+          ON ppr.program_registry_id = pr.id
+          WHERE
+            ppr.patient_id = '${query.patientId}'
+          AND
+            ppr.registration_status = '${REGISTRATION_STATUSES.ACTIVE}'
+        )`,
+      ),
+    },
+  };
+});
 
 // TODO: Use generic LabTest permissions for this suggester
 createNameSuggester('labTestPanel', 'LabTestPanel');

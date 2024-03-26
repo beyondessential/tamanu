@@ -24,8 +24,10 @@ import { PATIENT_TABS } from '../../constants/patientPaths';
 import { NAVIGATION_CONTAINER_HEIGHT } from '../../components/PatientNavigation';
 import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
 import { PatientSearchParametersProvider } from '../../contexts/PatientViewSearchParameters';
+import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { invalidatePatientDataQueries } from '../../utils';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
+import { useSyncState } from '../../contexts/SyncState';
 
 const StyledDisplayTabs = styled(TabDisplay)`
   overflow: initial;
@@ -39,31 +41,31 @@ const StyledDisplayTabs = styled(TabDisplay)`
 
 const TABS = [
   {
-    label: 'History',
+    label: <TranslatedText stringId="patient.tab.history" fallback="History" />,
     key: PATIENT_TABS.HISTORY,
     icon: 'fa fa-calendar-day',
     render: props => <HistoryPane {...props} />,
   },
   {
-    label: 'Details',
+    label: <TranslatedText stringId="patient.tab.details" fallback="Details" />,
     key: PATIENT_TABS.DETAILS,
     icon: 'fa fa-info-circle',
     render: props => <PatientDetailsPane {...props} />,
   },
   {
-    label: 'Results',
+    label: <TranslatedText stringId="patient.tab.results" fallback="Results" />,
     key: PATIENT_TABS.RESULTS,
     icon: 'fa fa-file-alt',
     render: props => <PatientResultsPane {...props} />,
   },
   {
-    label: 'Referrals',
+    label: <TranslatedText stringId="patient.tab.referrals" fallback="Referrals" />,
     key: PATIENT_TABS.REFERRALS,
     icon: 'fa fa-hospital',
     render: props => <ReferralPane {...props} />,
   },
   {
-    label: 'Forms',
+    label: <TranslatedText stringId="patient.tab.forms" fallback="Forms" />,
     key: PATIENT_TABS.PROGRAMS,
     icon: 'fa fa-hospital',
     render: ({ patient, ...props }) => (
@@ -71,25 +73,25 @@ const TABS = [
     ),
   },
   {
-    label: 'Documents',
+    label: <TranslatedText stringId="patient.tab.documents" fallback="Documents" />,
     key: PATIENT_TABS.DOCUMENTS,
     icon: 'fa fa-file-medical-alt',
     render: props => <DocumentsPane {...props} />,
   },
   {
-    label: 'Vaccines',
+    label: <TranslatedText stringId="patient.tab.vaccines" fallback="Vaccines" />,
     key: PATIENT_TABS.VACCINES,
     icon: 'fa fa-syringe',
     render: props => <VaccinesPane {...props} />,
   },
   {
-    label: 'Medication',
+    label: <TranslatedText stringId="patient.tab.medication" fallback="Medication" />,
     key: PATIENT_TABS.MEDICATION,
     icon: 'fa fa-medkit',
     render: props => <PatientMedicationPane {...props} />,
   },
   {
-    label: 'Invoices',
+    label: <TranslatedText stringId="patient.tab.invoices" fallback="Invoices" />,
     key: PATIENT_TABS.INVOICES,
     icon: 'fa fa-cash-register',
     render: props => <InvoicesPane {...props} />,
@@ -104,7 +106,7 @@ const tabCompare = ({ firstTab, secondTab, patientTabLocalisation }) => {
 
 const usePatientTabs = () => {
   const { getLocalisation } = useLocalisation();
-  const patientTabLocalisation = getLocalisation('patientTabs');
+  const patientTabLocalisation = getLocalisation('layouts.patientTabs');
   return TABS.filter(
     tab => patientTabLocalisation?.[tab.key]?.hidden === false,
   ).sort((firstTab, secondTab) => tabCompare({ firstTab, secondTab, patientTabLocalisation }));
@@ -119,6 +121,8 @@ export const PatientView = () => {
   const [currentTab, setCurrentTab] = useState(queryTab || PATIENT_TABS.HISTORY);
   const disabled = !!patient.death;
   const api = useApi();
+  const syncState = useSyncState();
+  const isSyncing = syncState.isPatientSyncing(patient.id);
   const { data: additionalData, isLoading: isLoadingAdditionalData } = useQuery(
     ['additionalData', patient.id],
     () => api.get(`patient/${patient.id}/additionalData`),
@@ -144,14 +148,14 @@ export const PatientView = () => {
   }, [api, patient.id]);
 
   useEffect(() => {
-    if (!patient.syncing) {
+    if (!isSyncing) {
       // invalidate the cache of patient data queries to reload the patient data
       invalidatePatientDataQueries(queryClient, patient.id);
     }
 
     // invalidate queries only when syncing is done (changed from true to false)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [patient.syncing]);
+  }, [isSyncing]);
 
   const visibleTabs = usePatientTabs();
 

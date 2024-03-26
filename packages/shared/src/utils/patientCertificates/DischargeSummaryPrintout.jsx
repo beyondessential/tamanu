@@ -208,6 +208,7 @@ export const DischargeSummaryPrintout = ({
   getLocalisation,
 }) => {
   const { logo } = certificateData;
+  const clinicianText = getLocalisation('fields.clinician.shortLabel');
   const { diagnoses, procedures, medications } = encounter;
   const visibleDiagnoses = diagnoses.filter(
     ({ certainty }) => !DIAGNOSIS_CERTAINTIES_TO_HIDE.includes(certainty),
@@ -231,7 +232,11 @@ export const DischargeSummaryPrintout = ({
           <PatientDetailsWithAddress patient={patientData} getLocalisation={getLocalisation} />
         </SectionContainer>
         <SectionContainer>
-          <EncounterDetailsExtended encounter={encounter} discharge={discharge} />
+          <EncounterDetailsExtended
+            encounter={encounter}
+            discharge={discharge}
+            clinicianText={clinicianText}
+          />
         </SectionContainer>
         <SectionContainer>
           {patientConditions.length > 0 && (

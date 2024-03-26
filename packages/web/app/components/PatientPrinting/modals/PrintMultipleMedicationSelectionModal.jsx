@@ -3,10 +3,21 @@ import PropTypes from 'prop-types';
 
 import { FormModal } from '../../FormModal';
 import { PrintMultipleMedicationSelectionForm } from './PrintMultipleMedicationSelectionForm';
+import { TranslatedText } from '../../Translation/TranslatedText';
 
 export const PrintMultipleMedicationSelectionModal = ({ encounter, open, onClose }) => {
   return (
-    <FormModal title="Print prescriptions" width="md" open={open} onClose={onClose}>
+    <FormModal
+      title={
+        <TranslatedText
+          stringId="medication.modal.printMultiple.title"
+          fallback="Print prescriptions"
+        />
+      }
+      width="md"
+      open={open}
+      onClose={onClose}
+    >
       <PrintMultipleMedicationSelectionForm encounter={encounter} onClose={onClose} />
     </FormModal>
   );

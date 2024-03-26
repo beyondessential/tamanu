@@ -85,6 +85,7 @@ export const VaccineCertificate = ({
   patient,
   printedBy,
   printedDate,
+  facilityName,
   vaccinations,
   certificateId,
   watermarkSrc,
@@ -116,7 +117,7 @@ export const VaccineCertificate = ({
         <Text style={vaccineCertificateStyles.labelText}>Print date: </Text>
         <Text style={vaccineCertificateStyles.valueText}>{getDisplayDate(printedDate)} | </Text>
         <Text style={vaccineCertificateStyles.labelText}>Printing facility: </Text>
-        <Text style={vaccineCertificateStyles.valueText}>{healthFacility} | </Text>
+        <Text style={vaccineCertificateStyles.valueText}>{facilityName || healthFacility} | </Text>
         <Text style={vaccineCertificateStyles.labelText}>Printed by: </Text>
         <Text style={vaccineCertificateStyles.valueText}>{printedBy}</Text>
       </View>

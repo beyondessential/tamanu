@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { Modal } from './Modal';
 import { OutlinedButton } from './Button';
 import { ButtonRow } from './ButtonRow';
+import { TranslatedText } from './Translation/TranslatedText';
 
 const Content = styled.div`
   text-align: center;
@@ -19,11 +20,11 @@ export const ConfirmModal = ({
   subText,
   width = 'sm',
   ConfirmButton = OutlinedButton,
-  confirmButtonText = 'Confirm',
-  cancelButtonText = 'Cancel',
+  confirmButtonText = <TranslatedText stringId="general.action.confirm" fallback="Confirm" />,
+  cancelButtonText = <TranslatedText stringId="general.action.cancel" fallback="Cancel" />,
   customContent,
 }) => (
-  <Modal width={width} title={title} open={open} onClose={onCancel} cornerExitButton={false}>
+  <Modal width={width} title={title} open={open} onClose={onCancel}>
     {customContent || (
       <Content>
         <h3>{text}</h3>

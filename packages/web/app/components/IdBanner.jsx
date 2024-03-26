@@ -1,8 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { LocalisedText } from './LocalisedText';
 import { Colors } from '../constants';
+import { TranslatedText } from './Translation/TranslatedText';
 
 const IdFieldContainer = styled.div`
   background: ${Colors.primary};
@@ -24,7 +24,11 @@ const IdFieldTitle = styled.div`
 export const IdBanner = ({ children }) => (
   <IdFieldContainer>
     <IdFieldTitle>
-      <LocalisedText path="fields.displayId.longLabel" />
+      <TranslatedText
+        stringId="general.localisedField.displayId.label"
+        fallback="National Health Number"
+      />
+      :
     </IdFieldTitle>
 
     {children}

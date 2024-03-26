@@ -9,23 +9,26 @@ import { Form } from './Form';
 import { ButtonRow } from '../ButtonRow';
 import { getInvisibleQuestions, getVisibleQuestions } from '../../utils';
 import { FormStepper } from './FormStepper';
-
-const COMPLETE_MESSAGE = `
-  Press "Complete" to submit your response,
-  or use the Back button to review answers.
-`;
+import { TranslatedText } from '../Translation/TranslatedText';
 
 const DefaultSummaryScreen = ({ onStepBack, submitForm }) => (
   <div>
     <Typography variant="h6" gutterBottom>
-      Form complete
+      <TranslatedText stringId="paginatedForm.summary.heading" fallback="Form complete" />
     </Typography>
-    <Typography>{COMPLETE_MESSAGE}</Typography>
+    <Typography>
+      <TranslatedText
+        stringId="paginatedForm.summary.completeMessage"
+        fallback='Press "Complete" to submit your response, or use the Back button to review answers.'
+      />
+    </Typography>
     <div>
       <ButtonRow>
-        <OutlinedButton onClick={onStepBack}>Prev</OutlinedButton>
+        <OutlinedButton onClick={onStepBack}>
+          <TranslatedText stringId="general.action.previous" fallback="Prev" />
+        </OutlinedButton>
         <Button color="primary" variant="contained" onClick={submitForm}>
-          Complete
+          <TranslatedText stringId="general.action.complete" fallback="Complete" />
         </Button>
       </ButtonRow>
     </div>
@@ -38,10 +41,12 @@ const StyledAlert = styled(Alert)`
 
 const DefaultSuccessScreen = ({ onClose }) => (
   <div>
-    <StyledAlert severity="success">Your response has been successfully submitted.</StyledAlert>
+    <StyledAlert severity="success">
+      <TranslatedText stringId="paginatedForm.success.heading" fallback="Your response has been successfully submitted." />
+    </StyledAlert>
     <ButtonRow>
       <Button variant="contained" color="primary" onClick={onClose}>
-        Ok
+        <TranslatedText stringId="general.action.ok" fallback="Ok" />
       </Button>
     </ButtonRow>
   </div>
@@ -77,10 +82,14 @@ export const DefaultFormScreen = ({
       {customBottomRow || (
         <Box mt={4} display="flex" justifyContent="space-between">
           <OutlinedButton onClick={hasStepBack ? onStepBack : undefined} disabled={!hasStepBack}>
-            Back
+            <TranslatedText stringId="general.action.back" fallback="Back" />
           </OutlinedButton>
           <Button color="primary" variant="contained" onClick={onStepForward}>
-            {isLast ? 'Submit' : 'Continue'}
+            {isLast ? (
+              <TranslatedText stringId="general.action.submit" fallback="Submit" />
+            ) : (
+              <TranslatedText stringId="general.action.continue" fallback="Continue" />
+            )}
           </Button>
         </Box>
       )}
@@ -126,6 +135,7 @@ export const PaginatedForm = ({
   SuccessScreen = DefaultSuccessScreen,
   validationSchema,
   initialValues,
+  formType,
   formProps,
 }) => {
   const [formState, setFormState] = useState(FORM_STATES.IDLE);
@@ -153,6 +163,7 @@ export const PaginatedForm = ({
       onSubmit={onSubmitForm}
       validationSchema={validationSchema}
       initialValues={initialValues}
+      formType={formType}
       render={({ submitForm, validateForm, values, setValues, setStatus }) => {
         if (screenIndex <= maxIndex) {
           const screenReactElement = formScreenReactElements.find((screen, i) =>

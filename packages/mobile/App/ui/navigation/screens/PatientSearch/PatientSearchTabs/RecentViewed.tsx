@@ -1,7 +1,6 @@
 import React, { ReactElement, useEffect } from 'react';
 import { Platform } from 'react-native';
 import { compose } from 'redux';
-import { NavigationProp } from '@react-navigation/native';
 import { FlatList, TouchableOpacity } from 'react-native-gesture-handler';
 // Containers
 import { withPatient } from '/containers/Patient';
@@ -19,18 +18,16 @@ import { getAgeFromDate } from '~/ui/helpers/date';
 import { useRecentlyViewedPatients } from '~/ui/hooks/localConfig';
 import { navigateAfterTimeout } from '~/ui/helpers/navigators';
 import { theme } from '~/ui/styled/theme';
-
-interface PatientListProps {
-  list: any[];
-  setSelectedPatient: Function;
-  navigation: NavigationProp<any>;
-}
+import { PatientFromRoute } from '~/ui/helpers/constants';
 
 const NoPatientsCard = (): ReactElement => (
   <StyledText
     color={theme.colors.TEXT_SUPER_DARK}
     fontWeight={'500'}
-    margin="58px auto 0"
+    marginLeft="auto"
+    marginRight="auto"
+    marginTop={50}
+    marginBottom={0}
     fontSize={14}
   >
     No recently viewed patients to display.
@@ -73,6 +70,7 @@ const Screen = ({ navigation, setSelectedPatient }: RecentViewedScreenProps): Re
             setSelectedPatient(item);
             navigation.navigate(Routes.HomeStack.SearchPatientStack.Index, {
               screen: Routes.HomeStack.SearchPatientStack.Index,
+              from: PatientFromRoute.RECENTLY_VIEWED,
             });
           };
           return (

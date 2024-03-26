@@ -5,9 +5,11 @@ import { toast } from 'react-toastify';
 import { REPORT_VERSION_EXPORT_FORMATS } from '@tamanu/constants/reports';
 import { Field, Form, FormGrid, OutlinedButton, RadioField } from '../../../components';
 import { ReportSelectField, VersionSelectField } from './ReportsSelectFields';
-import { Colors } from '../../../constants';
+import { Colors, FORM_TYPES } from '../../../constants';
 import { saveFile } from '../../../utils/fileSystemAccess';
 import { useApi } from '../../../api/useApi';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { useTranslation } from '../../../contexts/Translation';
 
 const StyledButton = styled(OutlinedButton)`
   margin-top: 30px;
@@ -29,6 +31,7 @@ const schema = yup.object().shape({
 
 export const ExportReportView = () => {
   const api = useApi();
+  const { getTranslation } = useTranslation();
 
   const handleSubmit = async ({ reportId, versionId, format }) => {
     try {
@@ -52,6 +55,7 @@ export const ExportReportView = () => {
       initialValues={{
         format: REPORT_VERSION_EXPORT_FORMATS.JSON,
       }}
+      formType={FORM_TYPES.CREATE_FORM}
       showInlineErrorsOnly
       render={({ values, isSubmitting }) => (
         <InnerContainer>
@@ -59,23 +63,23 @@ export const ExportReportView = () => {
             <Field
               component={ReportSelectField}
               required
-              label="Report"
+              label={<TranslatedText stringId="admin.report.export.report.label" fallback="Report" />}
               name="reportId"
-              placeholder="Select a report definition"
+              placeholder={getTranslation("admin.report.export.report.placeholder", "Select a report definition")}
             />
             {values.reportId && (
               <Field
                 component={VersionSelectField}
                 required
-                label="Version"
+                label={<TranslatedText stringId="admin.report.export.version.label" fallback="Version" />}
                 name="versionId"
-                placeholder="Select a report version"
-              />
+                placeholder={getTranslation("admin.report.export.version.placeholder", "Select a report version")}
+            />
             )}
             {values.versionId && (
               <Field
                 component={RadioField}
-                label="Format"
+                label={<TranslatedText stringId="admin.report.export.format.label" fallback="Format" />}
                 name="format"
                 options={Object.entries(REPORT_VERSION_EXPORT_FORMATS).map(([label, value]) => ({
                   label,
@@ -85,7 +89,7 @@ export const ExportReportView = () => {
             )}
           </FormGrid>
           <StyledButton type="submit" isSubmitting={isSubmitting}>
-            Export
+            <TranslatedText stringId="general.action.export" fallback="Export" />
           </StyledButton>
         </InnerContainer>
       )}

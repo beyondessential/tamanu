@@ -26,14 +26,14 @@ describe('Programs import', () => {
       ProgramDataElement,
       SurveyScreenComponent,
     } = ctx.store.models;
-    await SurveyScreenComponent.destroy({ where: {}, force: true });
-    await ProgramDataElement.destroy({ where: {}, force: true });
-    await Survey.destroy({ where: {}, force: true });
-    await Program.destroy({ where: {}, force: true });
     await PatientProgramRegistration.destroy({ where: {}, force: true });
     await ProgramRegistryClinicalStatus.destroy({ where: {}, force: true });
     await ProgramRegistryCondition.destroy({ where: {}, force: true });
     await ProgramRegistry.destroy({ where: {}, force: true });
+    await SurveyScreenComponent.destroy({ where: {}, force: true });
+    await ProgramDataElement.destroy({ where: {}, force: true });
+    await Survey.destroy({ where: {}, force: true });
+    await Program.destroy({ where: {}, force: true });
   };
 
   beforeEach(async () => {

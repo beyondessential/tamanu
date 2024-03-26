@@ -57,6 +57,7 @@ export const ServerSelector = ({ onChange, label, value, error }): ReactElement 
     <StyledView
       marginBottom={screenPercentageToDP(7, Orientation.Height)}
       height={screenPercentageToDP(5.46, Orientation.Height)}
+      style={{ zIndex: 9999 }}
     >
       <Dropdown
         value={value}

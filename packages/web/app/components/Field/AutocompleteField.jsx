@@ -11,6 +11,7 @@ import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { Colors } from '../../constants';
 import { StyledTextField } from './TextField';
 import { FormFieldTag } from '../Tag';
+import { TranslationContext } from '../../contexts/Translation';
 
 const SuggestionsContainer = styled(Popper)`
   z-index: 9999;
@@ -101,6 +102,8 @@ const StyledClearIcon = styled(ClearIcon)`
 `;
 
 export class AutocompleteInput extends Component {
+  static contextType = TranslationContext;
+
   constructor() {
     super();
     this.anchorEl = React.createRef();
@@ -359,7 +362,7 @@ export class AutocompleteInput extends Component {
       className,
       error,
       helperText,
-      placeholder = 'Search...',
+      placeholder = this.context.getTranslation('general.placeholder.search...', 'Search...'),
       inputRef,
     } = this.props;
 

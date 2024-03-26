@@ -11,7 +11,7 @@ export class addHideFromCertificateToScheduledVaccines1705264433000 implements M
         name: 'hideFromCertificate',
         isNullable: false,
         type: 'boolean',
-        default: false,
+        default: 0,
       }),
     );
   }

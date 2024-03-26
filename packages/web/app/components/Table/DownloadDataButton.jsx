@@ -7,6 +7,19 @@ import XLSX from 'xlsx';
 
 import { saveFile } from '../../utils/fileSystemAccess';
 import { GreyOutlinedButton } from '../Button';
+import { TranslatedText } from '../Translation/TranslatedText';
+
+// This is a temporary implementation to basically keep TranslatedText components from breaking export
+// by supplying the fallback string in place of the component. proper translation export implmentation coming in NASS-1201
+const normaliseTranslatedText = element => {
+  if (!isValidElement(element)) return element;
+  if (element.type?.name === 'TranslatedText') return element.props.fallback;
+  if (!Array.isArray(element.props?.children)) return element;
+
+  return React.cloneElement(element, {
+    children: element.props.children.map(normaliseTranslatedText),
+  });
+};
 
 function getHeaderValue(column) {
   if (!column.title) {
@@ -17,7 +30,9 @@ function getHeaderValue(column) {
   }
   if (typeof column.title === 'object') {
     if (isValidElement(column.title)) {
-      return cheerio.load(ReactDOMServer.renderToString(column.title)).text();
+      return cheerio
+        .load(ReactDOMServer.renderToString(normaliseTranslatedText(column.title)))
+        .text();
     }
   }
   return column.key;
@@ -30,6 +45,7 @@ export function DownloadDataButton({ exportName, columns, data }) {
       const { exportOverrides = {}, ...rest } = c;
       return { ...rest, ...exportOverrides };
     });
+
   const onDownloadData = async () => {
     const header = exportableColumnsWithOverrides.map(getHeaderValue);
     const rows = await Promise.all(
@@ -46,10 +62,11 @@ export function DownloadDataButton({ exportName, columns, data }) {
 
             if (c.accessor) {
               const value = c.accessor(d);
-              // render react element and get the text value with cheerio
               if (typeof value === 'object') {
                 if (isValidElement(value)) {
-                  dx[headerValue] = cheerio.load(ReactDOMServer.renderToString(value)).text();
+                  dx[headerValue] = cheerio
+                    .load(ReactDOMServer.renderToString(normaliseTranslatedText(value)))
+                    .text(); // render react element and get the text value with cheerio
                 } else {
                   dx[headerValue] = d[c.key];
                 }
@@ -84,7 +101,6 @@ export function DownloadDataButton({ exportName, columns, data }) {
       data: xlsxDataArray,
       extensions: ['xlsx'],
     });
-
   };
 
   return (
@@ -93,7 +109,7 @@ export function DownloadDataButton({ exportName, columns, data }) {
       data-test-class="download-data-button"
       startIcon={<GetAppIcon />}
     >
-      Export
+      <TranslatedText stringId="general.table.action.export" fallback="Export" />
     </GreyOutlinedButton>
   );
 }
