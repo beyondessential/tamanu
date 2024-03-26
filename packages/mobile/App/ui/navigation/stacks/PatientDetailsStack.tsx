@@ -6,7 +6,7 @@ import { AddPatientIssueScreen } from '~/ui/navigation/screens/home/PatientDetai
 import { EditPatientScreen } from '~/ui/navigation/screens/home/PatientDetails/EditPatient';
 import { EditPatientAdditionalDataScreen } from '~/ui/navigation/screens/home/PatientDetails/EditPatientAdditionalData';
 import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
-import { ReminderContactScreen } from '../screens/home/PatientDetails/ReminderContact';
+import { ReminderContactScreen } from '../screens/home/PatientDetails/ReminderContacts';
 
 const Stack = createStackNavigator();
 
