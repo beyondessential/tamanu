@@ -67,6 +67,11 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
         survey?.programId,
         selectedPatient.id,
       );
+
+      if (!patientProgramRegistry) {
+        return null;
+      }
+
       const canReadProgramRegistry = ability.can(
         'read',
         subject('ProgramRegistry', { id: patientProgramRegistry.programRegistryId }),

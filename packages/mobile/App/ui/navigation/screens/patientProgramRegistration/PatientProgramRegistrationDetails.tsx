@@ -1,7 +1,5 @@
 import React from 'react';
-import { subject } from '@casl/ability';
 
-import { useAuth } from '~/ui/contexts/AuthContext';
 import { DateFormats } from '~/ui/helpers/constants';
 import { formatStringDate } from '~/ui/helpers/date';
 import { useBackendEffect } from '~/ui/hooks/index';
@@ -57,24 +55,12 @@ const DataRow = (props: { label: string; value: string | string[] }) => {
 
 export const PatientProgramRegistrationDetails = ({ route }) => {
   const { patientProgramRegistration } = route.params;
-  const { ability } = useAuth();
   const [pprCondition] = useBackendEffect(
-    async ({ models }) => {
-      const canReadProgramRegistry = ability.can(
-        'read',
-        subject('ProgramRegistry', {
-          id: patientProgramRegistration.programRegistryId,
-        }),
-      );
-      if (canReadProgramRegistry) {
-        return null;
-      }
-
-      return models.PatientProgramRegistrationCondition.findForRegistryAndPatient(
+    async ({ models }) =>
+      models.PatientProgramRegistrationCondition.findForRegistryAndPatient(
         patientProgramRegistration.programRegistryId,
         patientProgramRegistration.patientId,
-      );
-    },
+      ),
     [patientProgramRegistration],
   );
   return (
