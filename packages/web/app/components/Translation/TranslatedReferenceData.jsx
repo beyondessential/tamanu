@@ -1,14 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { TranslatedText } from './TranslatedText';
+import { REFERENCE_DATA_TRANSLATION_PREFIX } from '@tamanu/constants';
 
 export const getReferenceDataStringId = (value, category) => {
-  return `refData.${category}.${value}`;
+  return `${REFERENCE_DATA_TRANSLATION_PREFIX}.${category}.${value}`;
 };
 
 export const TranslatedReferenceData = ({ category, value, fallback, placeholder }) => {
   return value ? (
-    <TranslatedText stringId={`refData.${category}.${value}`} fallback={`${fallback}`} />
+    <TranslatedText stringId={getReferenceDataStringId(value, category)} fallback={`${fallback}`} />
   ) : (
     { placeholder }
   );
