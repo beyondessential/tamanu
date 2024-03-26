@@ -46,6 +46,7 @@ export const ProgramRegistrySection = (): ReactElement => {
         component={isRegistryCountExceedsThreshold ? AutocompleteModalField : Dropdown}
         options={isRegistryCountExceedsThreshold ? null : programRegistries}
         placeholder={isRegistryCountExceedsThreshold ? `Search` : null}
+        selectPlaceholderText={isRegistryCountExceedsThreshold ? null : `Select`}
         suggester={isRegistryCountExceedsThreshold ? ProgramRegistrySuggester : null}
         navigation={navigation}
         name="programRegistryId"

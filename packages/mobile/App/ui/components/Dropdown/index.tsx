@@ -22,6 +22,7 @@ export interface DropdownProps extends BaseInputProps {
   multiselect?: boolean;
   label?: string;
   labelColor?: string;
+  labelFontSize?: string;
   fixedHeight: boolean;
   searchPlaceholderText?: string;
   selectPlaceholderText?: string;
@@ -79,6 +80,7 @@ export const Dropdown = React.memo(
     multiselect = false,
     label = 'Select',
     labelColor,
+    labelFontSize,
     fixedHeight = false,
     searchPlaceholderText = 'Search Items...',
     selectPlaceholderText,
@@ -108,7 +110,7 @@ export const Dropdown = React.memo(
       <StyledView width="100%" marginBottom={screenPercentageToDP(2.24, Orientation.Height)}>
         {!!label && (
           <StyledText
-            fontSize={fontSize}
+            fontSize={labelFontSize ?? fontSize}
             fontWeight={600}
             marginBottom={2}
             color={labelColor || theme.colors.TEXT_SUPER_DARK}
