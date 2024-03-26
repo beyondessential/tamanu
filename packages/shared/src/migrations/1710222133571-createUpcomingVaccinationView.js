@@ -67,10 +67,10 @@ patient_vaccine_schedule as (
 )
 SELECT
 	*,
-	CURRENT_DATE - pvs.due_date days_till_due,
+	 pvs.due_date - CURRENT_DATE days_till_due,
 	(SELECT vst.status
 	FROM vaccine_thresholds vst
-	WHERE CURRENT_DATE - pvs.due_date > vst.threshold
+	WHERE pvs.due_date - CURRENT_DATE > vst.threshold
 	ORDER BY vst.threshold DESC
 	LIMIT 1) AS status
 FROM patient_vaccine_schedule pvs;
