@@ -15,12 +15,9 @@ import { EncounterDetailsExtended } from './printComponents/EncounterDetailsExte
 import { MultiPageHeader } from './printComponents/MultiPageHeader';
 import { getName } from '../patientAccessors';
 import { Footer } from './printComponents/Footer';
+import { formatShort } from '../dateTime';
 
 const borderStyle = '1 solid black';
-
-const DATE_FORMAT = 'dd/MM/yyyy';
-
-const DATE_TIME_FORMAT = 'dd/MM/yyyy h:mma';
 
 const pageStyles = StyleSheet.create({
   body: {
@@ -140,7 +137,7 @@ const COLUMNS = {
     {
       key: 'dateMoved',
       title: 'Date & time moved',
-      accessor: ({ date }) => (date ? getDisplayDate(date, DATE_TIME_FORMAT) : '--/--/----'),
+      accessor: ({ date }) => (date ? formatShort(date) : '--/--/----'),
       style: { width: '35%' },
     },
   ],
@@ -160,7 +157,7 @@ const COLUMNS = {
     {
       key: 'dateMoved',
       title: 'Date & time moved',
-      accessor: ({ date }) => (date ? getDisplayDate(date, DATE_TIME_FORMAT) : '--/--/----'),
+      accessor: ({ date }) => (date ? formatShort(date) : '--/--/----'),
       style: { width: '35%' },
     },
   ],
@@ -180,7 +177,7 @@ const COLUMNS = {
     {
       key: 'date',
       title: 'Date',
-      accessor: ({ date }) => (date ? getDisplayDate(date, DATE_FORMAT) : '--/--/----'),
+      accessor: ({ date }) => (date ? formatShort(date) : '--/--/----'),
       style: { width: '25%' },
     },
   ],
@@ -194,7 +191,7 @@ const COLUMNS = {
     {
       key: 'procedureDate',
       title: 'Procedure date',
-      accessor: ({ date }) => (date ? getDisplayDate(date, DATE_FORMAT) : '--/--/----'),
+      accessor: ({ date }) => (date ? formatShort(date) : '--/--/----'),
       style: { width: '25%' },
     },
   ],
@@ -218,14 +215,14 @@ const COLUMNS = {
       key: 'requestDate',
       title: 'Request date',
       accessor: ({ requestDate }) =>
-        requestDate ? getDisplayDate(requestDate, DATE_FORMAT) : '--/--/----',
+        requestDate ? formatShort(requestDate) : '--/--/----',
       style: { width: '17.5%' },
     },
     {
       key: 'publishedDate',
       title: 'Published date',
       accessor: ({ publishedDate }) =>
-        publishedDate ? getDisplayDate(publishedDate, DATE_FORMAT) : '--/--/----',
+        publishedDate ? formatShort(publishedDate) : '--/--/----',
       style: { width: '17.5%' },
     },
   ],
@@ -255,7 +252,7 @@ const COLUMNS = {
       key: 'requestDate',
       title: 'Request date',
       accessor: ({ requestedDate }) =>
-        requestedDate ? getDisplayDate(requestedDate, DATE_FORMAT) : '--/--/----',
+        requestedDate ? formatShort(requestedDate) : '--/--/----',
       style: { width: '20%' },
     },
     {
@@ -263,7 +260,7 @@ const COLUMNS = {
       title: 'Completed date',
       accessor: imagingRequest =>
         imagingRequest?.results[0]?.completedAt
-          ? getDisplayDate(imagingRequest?.results[0]?.completedAt, DATE_FORMAT)
+          ? formatShort(imagingRequest?.results[0]?.completedAt)
           : '--/--/----',
       style: { width: '20%' },
     },
@@ -296,7 +293,7 @@ const COLUMNS = {
     {
       key: 'prescriptionDate',
       title: 'Prescription date',
-      accessor: ({ date }) => (date ? getDisplayDate(date, DATE_FORMAT) : '--/--/----'),
+      accessor: ({ date }) => (date ? formatShort(date) : '--/--/----'),
       style: { width: '22.5%' },
     },
   ],
@@ -378,7 +375,7 @@ const NoteFooter = ({ note }) => (
   <Text style={textStyles.tableCellFooter}>
     {`${note.noteType === NOTE_TYPES.TREATMENT_PLAN ? 'Last updated: ' : ''}${note.author
       ?.displayName || ''}${note.onBehalfOf ? ` on behalf of ${note.onBehalfOf.displayName}` : ''}`}
-    {` ${getDisplayDate(note.date)} ${getDisplayDate(note.date, 'h:mma')}`}
+    {` ${formatShort(note.date)} ${getDisplayDate(note.date, 'h:mma')}`}
   </Text>
 );
 
