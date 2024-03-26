@@ -4,7 +4,7 @@
   "private": true,
   "description": "BES QR Code Tester App / Website",
   "author": "",
-  "license": "UNLICENSED",
+  "license": "GPL-3.0-or-later",
   "scripts": {
     "build": "mkdir -p www/vendor && npm run build:jsonc && npm run build:jsrsasign && npm run build:schema",
     "build:jsonc": "cp ../../node_modules/json-canonicalize/bundles/index.esm.min.js www/vendor/ && mv www/vendor/index.esm.min.js www/vendor/jsonc.min.js",
