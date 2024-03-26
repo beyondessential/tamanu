@@ -1,6 +1,10 @@
 import { fake, fakeReferenceData } from '@tamanu/shared/test-helpers';
 import { randomLabRequest } from '@tamanu/shared/demoData';
-import { IMAGING_REQUEST_STATUS_TYPES, LAB_REQUEST_STATUSES } from '@tamanu/constants';
+import {
+  IMAGING_REQUEST_STATUS_TYPES,
+  LAB_REQUEST_STATUSES,
+  FHIR_REQUEST_PRIORITY,
+} from '@tamanu/constants';
 
 export const fakeResourcesOfFhirServiceRequest = async models => {
   const {
@@ -85,13 +89,19 @@ export const fakeResourcesOfFhirServiceRequestWithLabRequest = async (
     ...fake(ReferenceData),
     type: 'labTestCategory',
   });
+  const validFhirPriority = await ReferenceData.create({
+    ...fakeReferenceData('URGENT'), type: 'labTestPriority', name: FHIR_REQUEST_PRIORITY.URGENT, code: 'URGENT',
+  });
+  const invalidFhirPriority = await ReferenceData.create({
+    ...fakeReferenceData('NONSENSE'), type: 'labTestPriority', name: 'nonsense', code: 'NONSENSE',
+  });
 
   const requestValues = {
     requestedById: resources.practitioner.id,
     patientId: resources.patient.id,
     encounterId: resources.encounter.id,
     status: LAB_REQUEST_STATUSES.PUBLISHED,
-    priority: 'urgent',
+    labTestPriorityId: validFhirPriority.id,
     requestedDate: '2022-07-27 16:30:00',
     ...overrides,
   };
@@ -125,10 +135,14 @@ export const fakeResourcesOfFhirServiceRequestWithLabRequest = async (
       labTestPanel,
       labTestPanelRequest,
       panelTestTypes: testTypes,
+      priorities: {
+        validFhirPriority,
+        invalidFhirPriority,
+      },
     };
   }
   labRequestData = await randomLabRequest(models, requestValues);
-  labRequest  = await LabRequest.create(labRequestData);
+  labRequest = await LabRequest.create(labRequestData);
   const testTypes = await fakeTestTypes(10, LabTestType, category.id);
   await Promise.all(testTypes.map(testType => LabTest
     .create({
@@ -143,7 +157,7 @@ export const fakeResourcesOfFhirServiceRequestWithLabRequest = async (
   };
 };
 
-export const fakeTestTypes = async function(numberOfTests, LabTestType, categoryId) {
+export const fakeTestTypes = async function (numberOfTests, LabTestType, categoryId) {
   const testTypes = [];
   for (let testTypeIndex = 0; testTypeIndex < numberOfTests; testTypeIndex++) {
     const currentLabTest = await LabTestType.create({

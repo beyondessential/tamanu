@@ -80,6 +80,10 @@ export function getQueryOptions(models) {
         as: 'requestedBy',
       },
       {
+        model: ReferenceData,
+        as: 'priority',
+      },
+      {
         model: Encounter,
         as: 'encounter',
         include: [
