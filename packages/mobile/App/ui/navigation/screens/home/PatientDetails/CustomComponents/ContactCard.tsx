@@ -1,3 +1,4 @@
+import { capitalize } from 'lodash';
 import React from 'react';
 import styled from 'styled-components';
 import { IPatientContact } from '~/types';
@@ -14,7 +15,7 @@ export const StyledViewWithBorder = styled(StyledView)`
   color: ${theme.colors.MAIN_SUPER_DARK};
 `;
 
-export const ContactCard = ({ name, relationship, method }: IPatientContact) => (
+export const ContactCard = ({ name, relationship, method, connectionDetails }: IPatientContact) => (
   <StyledViewWithBorder>
     <RowView justifyContent="space-between" paddingTop={10} paddingBottom={10}>
       <StyledText
@@ -42,7 +43,7 @@ export const ContactCard = ({ name, relationship, method }: IPatientContact) => 
       >
         <TranslatedText
           stringId="patient.details.reminderContacts.field.relationShip"
-          fallback="RelationShip"
+          fallback="Relationship"
         />
       </StyledText>
       <StyledText
@@ -67,7 +68,17 @@ export const ContactCard = ({ name, relationship, method }: IPatientContact) => 
         color={theme.colors.MAIN_SUPER_DARK}
         fontSize={screenPercentageToDP(2, Orientation.Height)}
       >
-        {method}
+        {connectionDetails ? (
+          <TranslatedText
+            stringId={`patient.details.reminderContacts.method.${method}`}
+            fallback={capitalize(method)}
+          />
+        ) : (
+          <TranslatedText
+            stringId={`patient.details.reminderContacts.method.${method}Pending`}
+            fallback={`${capitalize(method)} pending`}
+          />
+        )}
       </StyledText>
     </RowView>
   </StyledViewWithBorder>
