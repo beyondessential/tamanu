@@ -1,12 +1,12 @@
-import * as xlsx from 'xlsx';
+import * as XLSX from 'XLSX';
 
 export function writeExcelFile(sheets, fileName) {
-  const workbook = xlsx.utils.book_new();
+  const workbook = XLSX.utils.book_new();
   sheets.forEach(sheet => {
-    const worksheet = xlsx.utils.aoa_to_sheet(sheet.data);
-    xlsx.utils.book_append_sheet(workbook, worksheet, sheet.name);
+    const worksheet = XLSX.utils.aoa_to_sheet(sheet.data);
+    XLSX.utils.book_append_sheet(workbook, worksheet, sheet.name);
   });
-  const excelFileName = fileName || `./export-${Date.now()}.xlsx`;
-  xlsx.writeFile(workbook, excelFileName);
+  const excelFileName = fileName || `./export-${Date.now()}.XLSX`;
+  XLSX.writeFile(workbook, excelFileName);
   return excelFileName;
 }
