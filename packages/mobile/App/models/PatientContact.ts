@@ -10,7 +10,7 @@ import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
 export class PatientContact extends BaseModel implements IPatientContact {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 
-  @Column({ nullable: true })
+  @Column({ nullable: false })
   name: string;
 
   @Column({ nullable: false })
@@ -40,5 +40,19 @@ export class PatientContact extends BaseModel implements IPatientContact {
 
   static getTableNameForSync(): string {
     return 'patient_contacts';
+  }
+
+  static sanitizePulledRecordData(rows) {
+    return rows.map(row => {
+      const sanitizedRow = {
+        ...row,
+      };
+      // Convert options to string because Sqlite does not support JSON type
+      if (row.data.connectionDetails) {
+        sanitizedRow.data.connectionDetails = JSON.stringify(sanitizedRow.data.connectionDetails);
+      }
+
+      return sanitizedRow;
+    });
   }
 }

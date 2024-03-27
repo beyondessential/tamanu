@@ -8,7 +8,10 @@ export class PatientContact extends Model {
     super.init(
       {
         id: primaryKey,
-        name: Sequelize.TEXT,
+        name: {
+          type: Sequelize.TEXT,
+          allowNull: false,
+        },
         method: {
           type: Sequelize.TEXT,
           allowNull: false,

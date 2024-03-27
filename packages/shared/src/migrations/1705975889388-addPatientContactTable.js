@@ -25,7 +25,7 @@ export async function up(query) {
 
     name: {
       type: DataTypes.TEXT,
-      allowNull: true,
+      allowNull: false,
     },
     method: {
       type: DataTypes.TEXT,

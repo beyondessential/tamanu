@@ -38,7 +38,7 @@ const PatientContact = new Table({
     new TableColumn({
       name: 'name',
       type: 'varchar',
-      isNullable: true,
+      isNullable: false,
     }),
     new TableColumn({
       name: 'method',
