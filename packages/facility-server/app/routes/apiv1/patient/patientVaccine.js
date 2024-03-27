@@ -110,12 +110,12 @@ patientVaccineRoutes.get(
     const results = await req.db.query(
       `
     SELECT
-      sv.id scheduledVaccineId,
+      sv.id "scheduledVaccineId",
       sv.category,
       sv.label,
       sv.schedule,
-      sv.vaccine_id vaccineId,
-      uv.due_date dueDate,
+      sv.vaccine_id "vaccineId",
+      uv.due_date "dueDate",
       uv.status
     FROM upcoming_vaccinations uv
     JOIN scheduled_vaccines sv ON sv.id = uv.scheduled_vaccine_id
@@ -131,7 +131,7 @@ patientVaccineRoutes.get(
       },
     );
 
-    return res.send(results);
+    return res.send({ data: results, count: results.length });
   }),
 );
 
