@@ -20,6 +20,7 @@ import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { useBackendEffect } from '~/ui/hooks';
 import { IPatientContact } from '~/types';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
+import { useTranslation } from '~/ui/contexts/TranslationContext';
 
 const getAllContacts = async (models, patientId): Promise<IPatientContact[]> => {
   return models.PatientContact.find({
@@ -35,6 +36,7 @@ const getAllContacts = async (models, patientId): Promise<IPatientContact[]> => 
 };
 
 const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
+  const { getTranslation } = useTranslation();
   const [list] = useBackendEffect(({ models }) => getAllContacts(models, selectedPatient.id), [
     selectedPatient,
   ]);
@@ -42,6 +44,21 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
   const onNavigateBack = useCallback(() => {
     navigation.goBack();
   }, [navigation]);
+
+  const patientName = joinNames(selectedPatient);
+
+  const description = getTranslation({
+    stringId: 'patient.details.reminderContacts.description',
+    fallback: 'The below contact list is registered to receive reminders for :patientName.',
+    replacements: { patientName },
+  });
+
+  const emptyDescription = getTranslation({
+    stringId: 'patient.details.reminderContacts.emptyDescription',
+    fallback:
+      "There are no contacts registered to receive reminders for :patientName. Please select 'Add contact' to register a contact.",
+    replacements: { patientName },
+  });
 
   return (
     <FullView background={theme.colors.WHITE}>
@@ -74,19 +91,16 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
                   fontSize={screenPercentageToDP(2, Orientation.Height)}
                   fontWeight={400}
                 >
-                  {list.length > 0 ? (
-                    <TranslatedText
-                      stringId="patient.details.reminderContacts.description"
-                      fallback="The below contact list is registered to receive reminders for :patientName."
-                      replacements={{ patientName: joinNames(selectedPatient) }}
-                    />
+                  {list.length ? (
+                    <>
+                      <StyledText>{description.split(`${patientName}.`)[0]}</StyledText>
+                      <StyledText fontWeight={500}>{patientName}.</StyledText>
+                    </>
                   ) : (
                     <>
-                      <TranslatedText
-                        stringId="patient.details.reminderContacts.empty"
-                        fallback="There are no contacts registered to receive reminders for :patientName. Please select 'Add contact' to register a contact."
-                        replacements={{ patientName: joinNames(selectedPatient) }}
-                      />
+                      <StyledText>{emptyDescription.split(`${patientName}.`)[0]}</StyledText>
+                      <StyledText fontWeight={500}>{patientName}.</StyledText>
+                      <StyledText>{emptyDescription.split(`${patientName}.`)[1]}</StyledText>
                     </>
                   )}
                 </StyledText>
