@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { Modal, ModalActionRow } from '.';
 import styled from 'styled-components';
 import { Colors } from '../constants';
 import { useTranslationLanguages } from '../api/queries';
@@ -9,15 +10,12 @@ import { mapValues, keyBy } from 'lodash';
 import { LanguageFlag } from './LanguageFlag.jsx';
 
 const LanguageSelectorContainer = styled.div`
-  position: absolute;
-  bottom: 35px;
-  right: 17px;
-  border-bottom: 0.1px solid ${Colors.primary};
-  width: 143px;
+  margin: 10px auto 50px;
+  max-width: 300px;
   .label-field {
-    font-size: 11px;
-    font-weight: 400;
-    line-height: 15px;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 18px;
     color: ${Colors.midText}};
   }
 `;
@@ -26,19 +24,21 @@ const LanguageOptionLabel = styled.div`
   display: flex;
   align-items: center;
   gap: 4px;
+
 `;
 
 const customStyles = {
-  control: provided => ({
+  control: (provided, state) => ({
     ...provided,
     '&:hover': {
-      borderColor: 'transparent',
+      borderColor: Colors.primary,
     },
-    borderColor: 'transparent',
-    borderRadius: 0,
+    border: `1px solid ${Colors.outline}`,
+    borderRadius: '4px',
     boxShadow: 'none',
     cursor: 'pointer',
-    fontSize: '11px',
+    fontSize: '14px',
+    ...(state.isSelected && { borderColor: Colors.primary })
   }),
   indicatorSeparator: () => ({ display: 'none' }),
   menu: provided => ({
@@ -58,13 +58,15 @@ const customStyles = {
   }),
 };
 
-export const LanguageSelector = () => {
+export const ChangeLanguageModal = ({ open, onClose, ...props }) => {
   const { updateStoredLanguage, storedLanguage } = useTranslation();
+  const [language, setLanguage] = useState(storedLanguage);
   const { data = {}, error } = useTranslationLanguages();
 
   const { languageNames = [], languagesInDb = [] } = data;
 
   const languageDisplayNames = mapValues(keyBy(languageNames, 'language'), 'text');
+
   const languageOptions = languagesInDb.map(({ language }) => {
     return {
       label: (
@@ -77,14 +79,21 @@ export const LanguageSelector = () => {
     };
   });
 
-  // If multiple languages not implemented, no need for this component to show
-  if (languageOptions.length <= 1) return null;
-
   const handleLanguageChange = event => {
-    updateStoredLanguage(event.target.value);
+    setLanguage(event.target.value);
   };
 
-  return (
+  const onConfirmLanguageChange = () => {
+    updateStoredLanguage(language);
+    onClose();
+  };
+
+  return <Modal
+    title={<TranslatedText stringId="general.language.change" fallback="Change language" />}
+    open={open}
+    onClose={onClose}
+    {...props}
+  >
     <LanguageSelectorContainer>
       <SelectInput
         options={languageOptions}
@@ -93,9 +102,11 @@ export const LanguageSelector = () => {
         error={!!error}
         customStyleObject={customStyles}
         name="Language"
-        value={storedLanguage}
+        value={language}
         onChange={handleLanguageChange}
       />
     </LanguageSelectorContainer>
-  );
+    <ModalActionRow confirmText="Confirm" onConfirm={onConfirmLanguageChange} onCancel={onClose} cancelText="Cancel" />
+  </Modal>;
+
 };
