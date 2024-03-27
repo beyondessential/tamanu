@@ -92,6 +92,19 @@ export function administeredVaccineLoader(item) {
   ];
 }
 
+export function translatedStringLoader({ stringId, ...languages }) {
+  return Object.entries(languages)
+    .filter(([, text]) => text.trim())
+    .map(([language, text]) => ({
+      model: 'TranslatedString',
+      values: {
+        stringId,
+        language,
+        text,
+      },
+    }));
+}
+
 export function patientDataLoader(item, models, foreignKeySchemata) {
   const { dateOfBirth, id: patientId, patientAdditionalData, ...otherFields } = item;
 

@@ -4,7 +4,6 @@ import { ThemeProvider } from 'styled-components/native';
 import {
   CenterView,
   FullView,
-  StyledSafeAreaView,
   themeSystem,
 } from '/styled/common';
 import { theme } from '/styled/theme';

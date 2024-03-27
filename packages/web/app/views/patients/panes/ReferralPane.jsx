@@ -6,6 +6,7 @@ import { useParams } from 'react-router-dom';
 
 import { Button, ContentPane, TableButtonRow } from '../../../components';
 import { ReferralTable } from '../../../components/ReferralTable';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 export const ReferralPane = React.memo(({ patient }) => {
   const dispatch = useDispatch();
@@ -15,7 +16,9 @@ export const ReferralPane = React.memo(({ patient }) => {
   return (
     <ContentPane>
       <TableButtonRow variant="small">
-        <Button onClick={handleNewReferral}>New referral</Button>
+        <Button onClick={handleNewReferral}>
+          <TranslatedText stringId="patient.referral.action.create" fallback="New referral" />
+        </Button>
       </TableButtonRow>
       <ReferralTable patientId={patient.id} />
     </ContentPane>

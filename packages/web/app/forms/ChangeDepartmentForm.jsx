@@ -7,6 +7,7 @@ import { AutocompleteField, Field, Form } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { FormSubmitCancelRow } from '../components/ButtonRow';
 import { useEncounter } from '../contexts/Encounter';
+import { FORM_TYPES } from '../constants';
 
 export const ChangeDepartmentForm = ({ onCancel, departmentSuggester, onSubmit }) => {
   const { encounter } = useEncounter();
@@ -30,6 +31,7 @@ export const ChangeDepartmentForm = ({ onCancel, departmentSuggester, onSubmit }
         // Used in creation of associated notes
         submittedTime: getCurrentDateTimeString(),
       }}
+      formType={FORM_TYPES.EDIT_FORM}
       validationSchema={yup.object().shape({
         departmentId: yup.string().required('Department is required'),
       })}

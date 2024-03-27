@@ -2,7 +2,7 @@ import React from 'react';
 import { capitalize } from 'lodash';
 import { LAB_TEST_RESULT_TYPES } from '@tamanu/constants';
 import styled from 'styled-components';
-import { Field, NumberField, SelectField, TextField } from '../../../components/Field';
+import { Field, NumberField, BaseSelectField, TextField } from '../../../components/Field';
 import { Colors } from '../../../constants';
 
 const StyledField = styled(Field)`
@@ -15,7 +15,7 @@ const StyledField = styled(Field)`
 `;
 
 function getResultComponent(resultType, options) {
-  if (options && options.length) return SelectField;
+  if (options && options.length) return BaseSelectField;
   if (resultType === LAB_TEST_RESULT_TYPES.FREE_TEXT) return TextField;
   return NumberField;
 }

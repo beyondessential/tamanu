@@ -4,23 +4,35 @@ import { useFormikContext } from 'formik';
 import { useLocalisation } from '../../contexts/Localisation';
 import { TextField } from './TextField';
 import { LocalisedField } from './LocalisedField';
+import { TranslatedText } from '../Translation/TranslatedText';
 
-export const DisplayIdField = ({ name = 'displayId', required }) => {
+export const DisplayIdField = ({ required }) => {
   const { initialValues } = useFormikContext();
   const { getLocalisation } = useLocalisation();
-  const longLabel = getLocalisation('fields.displayId.longLabel');
   const pattern = getLocalisation('fields.displayId.pattern') || null;
   const regex = pattern ? new RegExp(pattern) : null;
 
   const validateFn = value => {
     let errorMessage;
     if (value !== initialValues[name] && regex && !regex.test(value)) {
-      errorMessage = `Invalid ${longLabel}`;
+      // #TODO translation
+      errorMessage = `Invalid`;
     }
     return errorMessage;
   };
 
   return (
-    <LocalisedField name={name} component={TextField} required={required} validate={validateFn} />
+    <LocalisedField
+      name="displayId"
+      label={
+        <TranslatedText
+          stringId="general.localisedField.displayId.label"
+          label="National Health Number"
+        />
+      }
+      component={TextField}
+      required={required}
+      validate={validateFn}
+    />
   );
 };

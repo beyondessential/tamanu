@@ -4,8 +4,9 @@ import * as yup from 'yup';
 import { Field, Form, TextField } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { ModalFormActionRow } from '../components/ModalActionRow';
+import { FORM_TYPES } from '../constants';
 
-export const NewUserForm = memo(({ editedObject, onSubmit, onCancel }) => {
+export const NewUserForm = memo(({ onSubmit, onCancel }) => {
   const renderForm = ({ submitForm }) => (
     <FormGrid>
       <Field name="name" label="Name" component={TextField} required />
@@ -20,7 +21,7 @@ export const NewUserForm = memo(({ editedObject, onSubmit, onCancel }) => {
     <Form
       onSubmit={onSubmit}
       render={renderForm}
-      initialValues={editedObject}
+      formType={FORM_TYPES.CREATE_FORM}
       validationSchema={yup.object().shape({
         name: yup.string().required(),
         displayName: yup.string().required(),

@@ -9,11 +9,11 @@ import {
   FormGrid,
   FormModal,
   FormSubmitCancelRow,
-  SelectField,
   SuggesterSelectField,
+  SelectField,
 } from '../../../components';
 
-import { LAB_REQUEST_STATUS_OPTIONS } from '../../../constants';
+import { FORM_TYPES, LAB_REQUEST_STATUS_OPTIONS } from '../../../constants';
 
 const validationSchema = yup.object().shape({
   status: yup
@@ -42,6 +42,7 @@ export const LabRequestChangeStatusModal = React.memo(
           initialValues={labRequest}
           validationSchema={validationSchema}
           showInlineErrorsOnly
+          formType={FORM_TYPES.EDIT_FORM}
           render={({ values, submitForm }) => (
             <FormGrid columns={1}>
               <Field
@@ -50,6 +51,7 @@ export const LabRequestChangeStatusModal = React.memo(
                 options={LAB_REQUEST_STATUS_OPTIONS}
                 component={SelectField}
                 required
+                prefix="lab.property.status"
               />
               {labRequest.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED &&
                 values.status !== LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED && (

@@ -1,6 +1,7 @@
 import express from 'express';
 import config from 'config';
 import { log } from '@tamanu/shared/services/logging';
+import { keyBy, mapValues } from 'lodash';
 
 import { labResultWidgetRoutes } from './labResultWidget';
 import { publicIntegrationRoutes } from '../integrations';
@@ -22,6 +23,26 @@ if (cors.allowedOrigin) {
 
 publicRoutes.get('/ping', (_req, res) => {
   res.send({ ok: true });
+});
+
+publicRoutes.get('/translation/languageOptions', async (req, res) => {
+  const { TranslatedString } = req.models;
+  const response = await TranslatedString.getPossibleLanguages();
+  res.send(response);
+});
+
+publicRoutes.get('/translation/:language', async (req, res) => {
+  const {
+    models: { TranslatedString },
+    params: { language },
+  } = req;
+
+  const translatedStringRecords = await TranslatedString.findAll({
+    where: { language },
+    attributes: ['stringId', 'text'],
+  });
+
+  res.send(mapValues(keyBy(translatedStringRecords, 'stringId'), 'text'));
 });
 
 publicRoutes.use('/labResultWidget', labResultWidgetRoutes);

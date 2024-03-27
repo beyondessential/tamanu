@@ -6,10 +6,6 @@ const sortTopLevelItems = (a, b) => {
   if (a.key === 'patients') {
     return -1;
   }
-  // Always show facilityAdmin last
-  if (a.key === 'facilityAdmin') {
-    return 1;
-  }
   return a.sortPriority - b.sortPriority;
 };
 
@@ -25,7 +21,7 @@ const sortChildItems = (a, b) => {
 // sortPriority values from  sidebar config and merges them with the FACILITY_MENU_ITEMS constant
 export const useFacilitySidebar = () => {
   const { getLocalisation } = useLocalisation();
-  const sidebarConfig = getLocalisation('sidebar');
+  const sidebarConfig = getLocalisation('layouts.sidebar');
 
   if (!sidebarConfig) {
     return FACILITY_MENU_ITEMS;

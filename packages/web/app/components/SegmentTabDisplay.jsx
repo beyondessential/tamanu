@@ -40,7 +40,7 @@ const TabContainer = styled(Tabs)`
 `;
 
 const StyledTab = styled(Tab)`
-  min-width: 263px;
+  min-width: 379px;
 
   span {
     flex-direction: row;

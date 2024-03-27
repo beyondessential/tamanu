@@ -1,6 +1,7 @@
 import React from 'react';
 import * as Yup from 'yup';
 import { Field, TextField } from '../../components';
+import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 export const parseEmails = commaSeparatedEmails =>
   commaSeparatedEmails
@@ -12,18 +13,35 @@ const emailSchema = Yup.string().email();
 
 const validateCommaSeparatedEmails = async emails => {
   if (!emails) {
-    return 'At least 1 email address is required';
+    return (
+      <TranslatedText
+        stringId="report.generate.email.validation.atLeastOneRequired"
+        fallback="At least 1 email address is required"
+      />
+    );
   }
   const emailList = parseEmails(emails);
 
   if (emailList.length === 0) {
-    return `${emails} is invalid.`;
+    return (
+      <TranslatedText
+        stringId="report.generate.email.validation.invalid"
+        fallback=":emails is invalid."
+        replacements={{ emails }}
+      />
+    );
   }
 
   for (let i = 0; i < emailList.length; i++) {
     const isEmailValid = await emailSchema.isValid(emailList[i]);
     if (!isEmailValid) {
-      return `${emailList[i]} is invalid.`;
+      return (
+        <TranslatedText
+          stringId="report.generate.email.validation.invalid"
+          fallback=":email is invalid."
+          replacements={{ email: emailList[i] }}
+        />
+      );
     }
   }
 
@@ -33,7 +51,12 @@ const validateCommaSeparatedEmails = async emails => {
 export const EmailField = () => (
   <Field
     name="emails"
-    label="Email to (separate emails with a comma)"
+    label={
+      <TranslatedText
+        stringId="report.generate.emailList.label"
+        fallback="Email to (seperate emails with a comma)"
+      />
+    }
     component={TextField}
     placeholder="example@example.com"
     multiline

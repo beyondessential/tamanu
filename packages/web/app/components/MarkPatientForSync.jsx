@@ -8,6 +8,7 @@ import { Colors } from '../constants';
 import { reloadPatient } from '../store/patient';
 import { useApi } from '../api';
 import { useSyncState } from '../contexts/SyncState';
+import { TranslatedText } from './Translation/TranslatedText';
 
 const MarkPatientForSyncButton = styled(Button)`
   background: ${Colors.white};
@@ -39,7 +40,7 @@ export const MarkPatientForSync = ({ patient }) => {
   return (
     <MarkPatientForSyncButton onClick={onMarkPatientForSync} variant="text" color="default">
       <MarkPatientForSyncIcon />
-      Sync patient records
+      <TranslatedText stringId="patient.action.markForSync" fallback="Sync patient records" />
     </MarkPatientForSyncButton>
   );
 };

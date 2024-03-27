@@ -7,6 +7,7 @@ import { useSuggester } from '../api';
 import { DischargeForm } from '../forms/DischargeForm';
 import { useEncounter } from '../contexts/Encounter';
 import { reloadPatient } from '../store/patient';
+import { TranslatedText } from './Translation/TranslatedText';
 
 export const DischargeModal = React.memo(({ open, onClose }) => {
   const dispatch = useDispatch();
@@ -27,7 +28,11 @@ export const DischargeModal = React.memo(({ open, onClose }) => {
   );
 
   return (
-    <FormModal title="Discharge patient" open={open} onClose={onClose}>
+    <FormModal
+      title={<TranslatedText stringId="discharge.modal.title" fallback="Discharge patient" />}
+      open={open}
+      onClose={onClose}
+    >
       <DischargeForm
         onSubmit={handleDischarge}
         onCancel={onClose}

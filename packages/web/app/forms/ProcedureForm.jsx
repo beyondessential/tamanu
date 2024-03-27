@@ -18,7 +18,9 @@ import { FormGrid } from '../components/FormGrid';
 import { FormSubmitCancelRow } from '../components/ButtonRow';
 
 import { foreignKey, optionalForeignKey } from '../utils/validation';
-import { useLocalisedText } from '../components';
+import { FORM_TYPES } from '../constants';
+import { TranslatedText } from '../components/Translation/TranslatedText';
+import { useTranslation } from '../contexts/Translation';
 
 const suggesterType = PropTypes.shape({
   fetchSuggestions: PropTypes.func,
@@ -34,17 +36,22 @@ export const ProcedureForm = React.memo(
     procedureSuggester,
     practitionerSuggester,
   }) => {
-    const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
-
+    const { getTranslation } = useTranslation();
+    const clinicianText = getTranslation(
+      'general.localisedField.clinician.label.short',
+      'Clinician',
+    );
     return (
       <Form
         onSubmit={onSubmit}
         render={({ submitForm, values }) => {
           const handleCancel = () => onCancel && onCancel();
           const getButtonText = isCompleted => {
-            if (isCompleted) return 'Finalise';
-            if (editedObject?.id) return 'Update';
-            return 'Submit';
+            if (isCompleted)
+              return <TranslatedText stringId="general.action.finalise" fallback="Finalise" />;
+            if (editedObject?.id)
+              return <TranslatedText stringId="general.action.update" fallback="Update" />;
+            return <TranslatedText stringId="general.action.submit" fallback="Submit" />;
           };
 
           const isCompleted = !!values.completed;
@@ -64,7 +71,12 @@ export const ProcedureForm = React.memo(
                 <FormGrid style={{ gridColumn: 'span 2' }}>
                   <Field
                     name="physicianId"
-                    label={clinicianText}
+                    label={
+                      <TranslatedText
+                        stringId="general.localisedField.clinician.label.short"
+                        fallback="Clinician"
+                      />
+                    }
                     required
                     component={AutocompleteField}
                     suggester={practitionerSuggester}
@@ -147,6 +159,7 @@ export const ProcedureForm = React.memo(
           startTime: getCurrentDateTimeString(),
           ...editedObject,
         }}
+        formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
         validationSchema={yup.object().shape({
           procedureTypeId: foreignKey('Procedure must be selected'),
           locationId: foreignKey('Location must be selected'),

@@ -21,6 +21,7 @@ import {
 import { Colors } from '../constants';
 import { withPermissionCheck } from './withPermissionCheck';
 import { withPermissionTooltip } from './withPermissionTooltip';
+import { TranslatedText } from './Translation/TranslatedText';
 import { useFormButtonSubmitting } from '../hooks/useFormButtonSubmitting';
 
 export const ButtonBase = props => {
@@ -212,7 +213,12 @@ const StyledNavButton = styled(TextButton)`
 export const BackButton = ({ to, text = true, ...props }) => (
   <StyledNavButton to={to} {...props}>
     <ChevronLeft />
-    {text && ' Back'}
+    {text && (
+      <>
+        {' '}
+        <TranslatedText stringId="general.action.back" fallback="Back" />
+      </>
+    )}
   </StyledNavButton>
 );
 

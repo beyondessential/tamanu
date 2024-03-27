@@ -1,11 +1,12 @@
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { Box, Button, Divider, IconButton, List, Typography } from '@material-ui/core';
-import { Launch, NavigateBefore, NavigateNext } from '@material-ui/icons';
+import { NavigateBefore, NavigateNext } from '@material-ui/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
-import { TamanuLogoWhite, TamanuLogoWhiteNoText } from '../TamanuLogo';
 import { getCurrentRoute } from '../../store/router';
+
+import { LogoLight, LogoLightNoText } from '../Logo';
 import { Colors } from '../../constants';
 import { HiddenSyncAvatar } from '../HiddenSyncAvatar';
 import { TopLevelSidebarItem } from './TopLevelSidebarItem';
@@ -14,7 +15,8 @@ import { SecondarySidebarItem } from './SecondarySidebarItem';
 import { checkAbility } from '../../utils/ability';
 import { useAuth } from '../../contexts/Auth';
 import { useApi } from '../../api';
-import { useLocalisation } from '../../contexts/Localisation';
+import { TranslatedText } from '../Translation/TranslatedText';
+import { KebabMenu } from './KebabMenu';
 
 const Container = styled.div`
   display: flex;
@@ -61,9 +63,9 @@ const ExtendButton = styled(RetractExtendButton)`
   transform: translate(100%);
 `;
 
-const ExtendedLogo = styled(TamanuLogoWhite)``;
+const ExtendedLogo = styled(LogoLight)``;
 
-const RetractedLogo = styled(TamanuLogoWhiteNoText)``;
+const RetractedLogo = styled(LogoLightNoText)``;
 
 const Footer = styled.div`
   margin-top: auto;
@@ -124,28 +126,11 @@ const LogoutButton = styled(Button)`
   text-transform: none;
   text-decoration: underline;
   color: ${Colors.white};
-  margin-top: 8px;
   margin-left: 10px;
   min-height: 0;
   min-width: 0;
   padding-left: 0;
   padding-right: 0;
-`;
-
-const SupportDesktopLink = styled.a`
-  margin-top: 4px;
-  font-weight: 400;
-  font-size: 11px;
-  line-height: 15px;
-  text-decoration: underline;
-  color: ${Colors.white};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  :hover {
-    font-weight: bold;
-  }
 `;
 
 const StyledMetadataBox = styled(Box)`
@@ -183,7 +168,6 @@ export const Sidebar = React.memo(({ items }) => {
   const { facility, centralHost, currentUser, onLogout, currentRole } = useAuth();
   const currentPath = useSelector(getCurrentRoute);
   const dispatch = useDispatch();
-  const { getLocalisation } = useLocalisation();
   const extendSidebar = () => setIsRetracted(false);
 
   const onPathChanged = newPath => dispatch(push(newPath));
@@ -205,7 +189,6 @@ export const Sidebar = React.memo(({ items }) => {
 
   const initials = getInitials(currentUser.displayName);
   const roleName = currentRole?.name ?? currentUser?.role;
-  const supportUrl = getLocalisation('supportDeskUrl');
 
   return (
     <Container $retracted={isRetracted}>
@@ -227,12 +210,12 @@ export const Sidebar = React.memo(({ items }) => {
         )}
       </HeaderContainer>
       <List component="nav">
-        {items.map(item => {
+        {items.map((item, i) => {
           const commonProps = {
             retracted: isRetracted,
             icon: item.icon,
             label: item.label,
-            divider: item.divider,
+            divider: i === items.length - 1 && item.divider, // Only the bottom item can have a divider
             path: item.path,
             highlighted: isHighlighted(
               currentPath,
@@ -297,27 +280,27 @@ export const Sidebar = React.memo(({ items }) => {
                 <ConnectedTo>
                   {roleName} <br /> {facility?.name ? facility.name : centralHost}
                 </ConnectedTo>
-                <LogoutButton
-                  type="button"
-                  onClick={onLogout}
-                  id="logout"
-                  data-test-id="siderbar-logout-item"
-                >
-                  Logout
-                </LogoutButton>
               </Box>
             </StyledUserInfoContent>
           )}
+          <KebabMenu />
         </UserInfo>
         {!isRetracted && (
           <>
             <StyledDivider $invisible={isRetracted} />
             <StyledMetadataBox display="flex" justifyContent="space-between">
-              <SupportDesktopLink href={supportUrl} target="_blank" rel="noreferrer">
-                Support centre
-                <Launch style={{ marginLeft: '5px', fontSize: '12px' }} />
-              </SupportDesktopLink>
-              <Version>Version {agentVersion}</Version>
+
+              <Version>
+                <TranslatedText stringId="general.meta.version" fallback="Version" /> {agentVersion}
+              </Version>
+              <LogoutButton
+                type="button"
+                onClick={onLogout}
+                id="logout"
+                data-test-id="siderbar-logout-item"
+              >
+                <TranslatedText stringId="auth.action.logout" fallback="Log out" />
+              </LogoutButton>
             </StyledMetadataBox>
           </>
         )}

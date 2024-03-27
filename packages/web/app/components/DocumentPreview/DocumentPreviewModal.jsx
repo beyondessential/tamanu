@@ -9,14 +9,19 @@ import PhotoPreview from './PhotoPreview';
 import { Button } from '../Button';
 import { SUPPORTED_DOCUMENT_TYPES } from '../../constants';
 import { Modal } from '../Modal';
+import { TranslatedText } from '../Translation/TranslatedText';
 
 const getTitle = ({ source, name }) =>
-  source === DOCUMENT_SOURCES.PATIENT_LETTER ? 'Patient letter' : name;
+  source === DOCUMENT_SOURCES.PATIENT_LETTER ? (
+    <TranslatedText stringId="patient.modal.patientLetter.title" fallback="Patient letter" />
+  ) : (
+    name
+  );
 
 const DownloadButton = ({ onClick }) => {
   return (
     <Button variant="outlined" size="small" startIcon={<GetAppIcon />} onClick={onClick}>
-      Download
+      <TranslatedText stringId="general.action.download" fallback="Download" />
     </Button>
   );
 };
@@ -33,7 +38,15 @@ const Preview = ({ documentType, attachmentId, ...props }) => {
   if (documentType === SUPPORTED_DOCUMENT_TYPES.JPEG) {
     return <PhotoPreview attachmentId={attachmentId} />;
   }
-  return `Preview is not supported for document type ${documentType}`;
+  return (
+    <TranslatedText
+      stringId="document.modal.preview.unsupported"
+      fallback="Preview is not supported for document type :documentType"
+      replacements={{
+        documentType,
+      }}
+    />
+  );
 };
 
 export const DocumentPreviewModal = ({ open, onClose, onDownload, document, onPrintPDF }) => {
@@ -48,9 +61,16 @@ export const DocumentPreviewModal = ({ open, onClose, onDownload, document, onPr
         <div>
           {getTitle(document)}
           <Subtitle>
-            {documentType === SUPPORTED_DOCUMENT_TYPES.PDF
-              ? `Page ${scrollPage} of ${pageCount ?? 'Unknown'}`
-              : null}
+            {documentType === SUPPORTED_DOCUMENT_TYPES.PDF ? (
+              <TranslatedText
+                stringId="document.modal.preview.pageCount"
+                fallback="Page :scrollPage of :pageCount"
+                replacements={{
+                  scrollPage,
+                  pageCount,
+                }}
+              />
+            ) : null}
           </Subtitle>
         </div>
       }

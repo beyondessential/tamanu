@@ -5,7 +5,7 @@ export const PATIENT_CATEGORIES = {
   OUTPATIENT: 'outpatient',
 };
 
-export const PATIENT_CATEGORY_TO_TITLE = {
+export const PATIENT_CATEGORY_LABELS = {
   [PATIENT_CATEGORIES.ALL]: 'All Patients',
   [PATIENT_CATEGORIES.EMERGENCY]: 'Emergency Patients',
   [PATIENT_CATEGORIES.OUTPATIENT]: 'Outpatients',

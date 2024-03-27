@@ -13,6 +13,7 @@ import { PatientFieldValue } from '~/models/PatientFieldValue';
 import { Routes } from '~/ui/helpers/routes';
 import { additionalDataSections } from '~/ui/helpers/additionalData';
 import { SubmitButton } from '../SubmitButton';
+import { TranslatedText } from '/components/Translations/TranslatedText';
 
 export const PatientAdditionalDataForm = ({
   patientId,
@@ -78,7 +79,7 @@ export const PatientAdditionalDataForm = ({
               isCustomFields={isCustomFields}
               showMandatory={false}
             />
-            <SubmitButton buttonText="Save" marginTop={10} />
+            <SubmitButton buttonText={<TranslatedText stringId="general.action.save" fallback="Save" />} marginTop={10} />
           </StyledView>
         </FormScreenView>
       )}

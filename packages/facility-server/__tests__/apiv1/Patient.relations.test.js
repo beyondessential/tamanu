@@ -488,9 +488,11 @@ describe('Patient relations', () => {
         patientId: patient.id,
       });
       const newVisibilityStatus = 'historical';
-      const result = await app.put(`/api/patient/${patient.id}/secondaryId/${secondaryId.id}`).send({
-        visibilityStatus: newVisibilityStatus,
-      });
+      const result = await app
+        .put(`/api/patient/${patient.id}/secondaryId/${secondaryId.id}`)
+        .send({
+          visibilityStatus: newVisibilityStatus,
+        });
       expect(result).toHaveSucceeded();
       expect(result.body.visibilityStatus).toBe(newVisibilityStatus);
     });
@@ -572,6 +574,7 @@ describe('Patient relations', () => {
       expect(result.body.data[0]).toEqual({
         definitionId: definition1.id,
         name: 'Test Field 1',
+        categoryId: category1.id,
         category: 'Test Category 1',
         fieldType: 'string',
         options: ['a', 'b', 'c'],

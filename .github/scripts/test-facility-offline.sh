@@ -7,69 +7,69 @@
 set -euxmo pipefail
 
 # Create tamanu database and user for testing the facility server working offline
-test_facility_offline_setup_postgre() {
-	createuser --superuser "admin"
-	createdb -O "admin" "central-server"
-	psql -c "ALTER USER \"admin\" PASSWORD 'central-server';" central-server
+test_facility_offline_setup_postgres() {
+    createuser --superuser tamanu
+    psql -c "ALTER USER tamanu PASSWORD 'tamanu';" postgres
 
-	createdb -O "admin" "facility-server"
-	psql -c "ALTER USER \"admin\" PASSWORD 'facility-server';" facility-server
+    createdb -O tamanu central
+    createdb -O tamanu facility
 }
 
 # Build both the facility and central servers.
 test_facility_offline_build() {
-	yarn
-	yarn build-shared
-	yarn workspace @tamanu/central-server build
-	yarn workspace @tamanu/facility-server build
+    yarn
+    yarn build-shared
+    yarn workspace @tamanu/central-server build
+    yarn workspace @tamanu/facility-server build
 }
 
 # Start the central server.
 test_facility_offline_central_start() {
-	cat <<- EOF > packages/central-server/config/local.json
-	{
-	    "port": "3000",
-	    "db": {
-	        "host": "localhost",
-	        "name": "central-server",
-	        "verbose": true,
-	        "username": "admin",
-	        "password": "central-server"
-	    }
-	}
-	EOF
+    cat <<- EOF > packages/central-server/config/local.json5
+    {
+        "port": "3000",
+        "db": {
+            "host": "localhost",
+            "name": "central",
+            "verbose": true,
+            "username": "tamanu",
+            "password": "tamanu"
+        }
+    }
+EOF
 
-	cat <<- EOF > packages/central-server/provisioning.kdl
-	provisioning {
-	  users {
-	    "admin@tamanu.io" {
-	        role "admin"
-	        password "admin"
-	        displayName "Initial Admin"
-	    }
-	  }
+    cat <<- EOF > packages/central-server/provisioning.json5
+    {
+        users: {
+            "admin@tamanu.io": {
+                role: "admin",
+                password: "admin",
+                displayName: "Initial Admin",
+            },
+        },
 
-	  facilities {
-	    facility-test {
-	        name "Facility Test"
-	        code "test"
-	        user "facility-test@tamanu.io"
-	        password "facility-test"
-	    }
-	  }
-	}
-	EOF
-	# specify ports for consistency
-	yarn workspace @tamanu/central-server start migrate
-	nohup yarn workspace @tamanu/central-server start --provisioning provisioning.kdl > central-server.out &
-	echo "CENTRAL_SERVER_PID=$!" >> $GITHUB_ENV
-	curl --retry 8 --retry-connrefused localhost:3000
+        facilities: {
+            "facility-test": {
+                name: "Facility Test",
+                code: "test",
+                user: "facility-test@tamanu.io",
+                password: "facility-test",
+            },
+        },
+    }
+EOF
+
+    # specify ports for consistency
+    yarn workspace @tamanu/central-server start migrate
+    nohup yarn workspace @tamanu/central-server start --provisioning provisioning.json5 > central-server.out &
+    echo "CENTRAL_SERVER_PID=$!" >> $GITHUB_ENV
+    curl --retry 8 --retry-connrefused localhost:3000
 }
 
 # Start the facility server, to initialise it.
 test_facility_offline_facility_start() {
 
-	cat <<- EOF > packages/facility-server/config/local.json
+	cat <<- EOF > packages/facility-server/config/local.json5
 	{
 	    "port": "4000",
 	    "serverFacilityId": "facility-test",
@@ -81,10 +81,10 @@ test_facility_offline_facility_start() {
 	    },
 	    "db": {
 	        "host": "localhost",
-	        "name": "facility-server",
+	        "name": "facility",
 	        "verbose": true,
-	        "username": "admin",
-	        "password": "facility-server",
+	        "username": "tamanu",
+	        "password": "tamanu",
 	        "migrateOnStartup": true
 	    }
 	}

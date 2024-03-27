@@ -6,6 +6,7 @@ import Divider from '@material-ui/core/Divider';
 
 import { DateDisplay } from './DateDisplay';
 import { Colors } from '../constants';
+import { TranslatedText } from './Translation/TranslatedText';
 
 const StyledDivider = styled(Divider)`
   margin-top: 10px;
@@ -33,7 +34,15 @@ const NoteChangeLogInfo = ({ note }) => (
   <StyledNoteChangeLogInfoWrapper>
     <>
       <span>{note.author?.displayName || ''} </span>
-      {note.onBehalfOf ? <span>on behalf of {note.onBehalfOf.displayName} </span> : null}
+      {note.onBehalfOf ? (
+        <span>
+          <TranslatedText
+            stringId="note.table.header.onBehalfOf"
+            fallback="on behalf of :changeOnBehalfOfName"
+            replacements={{ changeOnBehalfOfName: note.onBehalfOf.displayName }}
+          />{' '}
+        </span>
+      ) : null}
       <DateDisplay date={note.date} showTime />
     </>
   </StyledNoteChangeLogInfoWrapper>

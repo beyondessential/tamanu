@@ -66,6 +66,30 @@ exports[`settings list (global) shows some settings with a filter 1`] = `
 test.tree.flower"
 `;
 
+exports[`settings load a JSON5 file preview only 1`] = `
+"{
+  "character": "Claire Augustus",
+  "firstAppearance": 2203,
+  "human": true
+}"
+`;
+
+exports[`settings load a JSON5 file to a facility 1`] = `
+"{
+  "character": "Pintsize",
+  "firstAppearance": 1,
+  "human": false
+}"
+`;
+
+exports[`settings load a JSON5 file to global namespace 1`] = `
+"{
+  "character": "Marten Reed",
+  "firstAppearance": 1,
+  "human": true
+}"
+`;
+
 exports[`settings load a KDL file preview only 1`] = `
 "{
   "character": "Claire Augustus",

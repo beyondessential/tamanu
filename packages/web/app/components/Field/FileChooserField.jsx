@@ -4,6 +4,7 @@ import MuiTextField from '@material-ui/core/TextField';
 import PublishIcon from '@material-ui/icons/Publish';
 import { Button } from '../Button';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
+import { TranslatedText } from '../Translation/TranslatedText';
 
 // this import means that file chooser can't be previewed in storybook
 
@@ -64,12 +65,16 @@ export const FileChooserInput = ({ value = '', label, name, filters, onChange, .
           ) : (
             <>
               <Button onClick={showFileDialog} variant="outlined" color="primary">
-                Choose file
+                <TranslatedText stringId="chooseFile.button.label" fallback="Choose file" />
               </Button>
               <HintText>
-                Max 10 MB
+                <TranslatedText stringId="chooseFile.hint.max10Mb.label" fallback="Max 10 MB" />
                 <br />
-                Supported file types: {filters.map(filter => filter.name).join(', ')}
+                <TranslatedText
+                  stringId="chooseFile.hint.supportedFileTypes.label"
+                  fallback="Supported file types"
+                />
+                : {filters.map(filter => filter.name).join(', ')}
               </HintText>
             </>
           )}

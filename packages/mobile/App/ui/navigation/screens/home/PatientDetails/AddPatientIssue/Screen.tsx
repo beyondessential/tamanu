@@ -8,9 +8,10 @@ import { SubmitButton } from '/components/Forms/SubmitButton';
 import { Field } from '~/ui/components/Forms/FormField';
 import { TextField } from '~/ui/components/TextField/TextField';
 import { IPatient } from '~/types';
-import { StackHeader } from '~/ui/components/StackHeader'
+import { StackHeader } from '~/ui/components/StackHeader';
 import { FullView } from '~/ui/styled/common';
 import { joinNames } from '~/ui/helpers/user';
+import { TranslatedText } from '/components/Translations/TranslatedText';
 
 export type AddPatientIssueScreenProps = {
   onNavigateBack: () => void;
@@ -36,7 +37,12 @@ export const Screen = ({
   return (
     <FullView>
       <StackHeader
-        title="Add patient issue"
+        title={
+          <TranslatedText
+            stringId="patient.details.action.addPatientIssue"
+            fallback="Add patient issue"
+          />
+        }
         subtitle={joinNames(selectedPatient)}
         onGoBack={onNavigateBack}
       />
@@ -46,10 +52,7 @@ export const Screen = ({
         validationSchema={PatientIssueFormSchema}
       >
         {({ handleSubmit }): ReactElement => (
-          <KeyboardAvoidingView
-            style={styles.KeyboardAvoidingView}
-            behavior="padding"
-          >
+          <KeyboardAvoidingView style={styles.KeyboardAvoidingView} behavior="padding">
             <ScrollView
               style={styles.ScrollView}
               contentContainerStyle={styles.ScrollViewContentContainer}
@@ -59,12 +62,13 @@ export const Screen = ({
                 multiline
                 autoCapitalize="sentences"
                 autoFocus={true}
-                label="Note"
+                label={<TranslatedText stringId="general.form.note.label" fallback="Note" />}
                 name="note"
               />
               <SubmitButton
                 marginTop={10}
                 onPress={handleSubmit}
+                buttonText={<TranslatedText stringId="general.action.submit" fallback="Submit" />}
               />
             </ScrollView>
           </KeyboardAvoidingView>

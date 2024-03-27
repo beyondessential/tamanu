@@ -7,6 +7,7 @@ import { useApi } from '../../api';
 import { useLocalisation } from '../../contexts/Localisation';
 import { useCertificate } from '../../utils/useCertificate';
 import { PDFViewer, printPDF } from '../PatientPrinting/PDFViewer';
+import { TranslatedText } from '../Translation/TranslatedText';
 
 export const HandoverNotesModal = React.memo(({ area: areaId, ...props }) => {
   const { getLocalisation } = useLocalisation();
@@ -14,7 +15,13 @@ export const HandoverNotesModal = React.memo(({ area: areaId, ...props }) => {
   const { data: certificateData, isFetching: isFetchingCertificate } = useCertificate();
   const { logo, title, subTitle } = certificateData;
   const letterheadConfig = { title, subTitle };
-  const modalTitle = `Handover notes ${getDisplayDate(new Date(), 'dd/MM/yy')}`;
+  const modalTitle = (
+    <TranslatedText
+      stringId="bedManagement.modal.handoverNotes.title"
+      fallback="Handover notes :date"
+      replacements={{ date: getDisplayDate(new Date(), 'dd/MM/yy') }}
+    />
+  );
 
   const {
     data: { data: handoverNotes = [], locationGroup = {} } = {},

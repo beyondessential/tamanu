@@ -10,6 +10,7 @@ import {
   OutlinedButton,
   RedOutlinedButton,
 } from '../../../components';
+import { FORM_TYPES } from '../../../constants';
 
 const DeleteButton = styled(RedOutlinedButton)`
   margin-left: 0px !important;
@@ -60,6 +61,7 @@ export const EditPatientLetterTemplateForm = memo(
       <Form
         onSubmit={onSubmit}
         render={renderForm}
+        formType={FORM_TYPES.EDIT_FORM}
         initialValues={editedObject}
         validationSchema={yup.object().shape({
           name: yup.string().required(),
