@@ -57,8 +57,9 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
 
   const onRemoveReminderContact = async () => {
     if (selectedContact) {
-      const contact = await PatientContact.findOne(selectedContact.id);
-      await PatientContact.softRemove([contact]);
+      await PatientContact.updateValues(selectedContact.id, {
+        deletedAt: new Date(),
+      });
       await refetch();
     }
   };
