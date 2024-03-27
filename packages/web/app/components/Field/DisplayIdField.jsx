@@ -16,7 +16,7 @@ export const DisplayIdField = ({ required }) => {
     let errorMessage;
     if (value !== initialValues[name] && regex && !regex.test(value)) {
       // #TODO translation
-      errorMessage = `Invalid`;
+      errorMessage = `Invalid National Health Number`;
     }
     return errorMessage;
   };
