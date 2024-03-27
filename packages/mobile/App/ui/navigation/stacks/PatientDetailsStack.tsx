@@ -30,7 +30,7 @@ export const PatientDetailsStack = (): ReactElement => (
         component={EditPatientAdditionalDataScreen}
       />
       <Stack.Screen
-        name={Routes.HomeStack.PatientDetailsStack.Reminder}
+        name={Routes.HomeStack.PatientDetailsStack.ReminderContacts}
         component={ReminderContactScreen}
       />
     </Stack.Navigator>

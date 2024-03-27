@@ -74,7 +74,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => 
   const ageDisplayFormat = getLocalisation('ageDisplayFormat');
 
   const onNavigateReminder = useCallback(() => {
-    navigation.navigate(Routes.HomeStack.PatientDetailsStack.Reminder);
+    navigation.navigate(Routes.HomeStack.PatientDetailsStack.ReminderContacts);
   }, [navigation]);
 
   return (
