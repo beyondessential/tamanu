@@ -303,7 +303,7 @@ patientProgramRegistration.delete(
     const programRegistry = await models.ProgramRegistry.findByPk(programRegistryId);
     if (!programRegistry) throw new NotFoundError();
 
-    req.checkPermission('delete', 'PatientProgramRegistrationCondition');
+    req.checkPermission('write', 'PatientProgramRegistrationCondition');
     const existingCondition = await models.PatientProgramRegistrationCondition.findOne({
       where: {
         id: conditionId,
