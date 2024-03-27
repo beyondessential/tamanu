@@ -11,16 +11,13 @@ export async function up(query) {
     created_at: {
       type: DataTypes.DATE,
       defaultValue: Sequelize.NOW,
-      allowNull: false,
     },
     updated_at: {
       type: DataTypes.DATE,
       defaultValue: Sequelize.NOW,
-      allowNull: false,
     },
     deleted_at: {
       type: DataTypes.DATE,
-      allowNull: true,
     },
 
     name: {
@@ -49,7 +46,7 @@ export async function up(query) {
     },
     relationship_id: {
       type: DataTypes.STRING,
-      allowNull: true,
+      allowNull: false,
       references: {
         model: 'reference_data',
         key: 'id',
