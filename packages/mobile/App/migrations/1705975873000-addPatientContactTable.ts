@@ -20,8 +20,9 @@ const BaseColumns = [
   }),
   new TableColumn({
     name: 'deletedAt',
-    type: 'datetime',
-    default: "datetime('now')",
+    isNullable: true,
+    type: 'date',
+    default: null,
   }),
   new TableColumn({
     name: 'updatedAtSyncTick',
