@@ -235,7 +235,10 @@ describe('FacilitySyncManager edge cases', () => {
         }),
       }));
 
-      const encounter = await initializeSyncManager();
+      const configToOverride = {
+        sync: { enabled: true, assertIfPulledRecordsUpdatedAfterPushSnapshot: true },
+      };
+      const encounter = await initializeSyncManager(configToOverride);
 
       // start the sync
       const syncPromise = syncManager.runSync();

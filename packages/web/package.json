@@ -7,7 +7,7 @@
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
   "repository": "git@github.com:beyondessential/tamanu.git",
   "author": "Beyond Essential Systems Pty. Ltd. <tamanu@bes.au>",
-  "license": "SEE LICENSE IN license",
+  "license": "GPL-3.0-or-later",
   "type": "module",
   "scripts": {
     "build": "vite build",
