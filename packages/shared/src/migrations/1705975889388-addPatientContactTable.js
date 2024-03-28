@@ -11,18 +11,17 @@ export async function up(query) {
     created_at: {
       type: DataTypes.DATE,
       defaultValue: Sequelize.NOW,
-      allowNull: true,
+      allowNull: false,
     },
     updated_at: {
       type: DataTypes.DATE,
       defaultValue: Sequelize.NOW,
-      allowNull: true,
+      allowNull: false,
     },
     deleted_at: {
       type: DataTypes.DATE,
       allowNull: true,
     },
-
     name: {
       type: DataTypes.TEXT,
       allowNull: false,

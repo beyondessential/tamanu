@@ -12,17 +12,15 @@ const BaseColumns = [
     name: 'createdAt',
     type: 'datetime',
     default: "datetime('now')",
-    isNullable: true,
   }),
   new TableColumn({
     name: 'updatedAt',
     type: 'datetime',
     default: "datetime('now')",
-    isNullable: true,
   }),
   new TableColumn({
     name: 'deletedAt',
-    type: 'date',
+    type: 'datetime',
     default: null,
     isNullable: true,
   }),
