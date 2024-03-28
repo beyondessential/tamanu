@@ -37,9 +37,10 @@ const getAllContacts = async (models, patientId): Promise<IPatientContact[]> => 
 
 const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
   const { getTranslation } = useTranslation();
-  const [list] = useBackendEffect(({ models }) => getAllContacts(models, selectedPatient.id), [
-    selectedPatient,
-  ]);
+  const [patientContacts] = useBackendEffect(
+    ({ models }) => getAllContacts(models, selectedPatient.id),
+    [selectedPatient],
+  );
 
   const onNavigateBack = useCallback(() => {
     navigation.goBack();
@@ -84,37 +85,39 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
                 />
               </StyledText>
             </StyledView>
-            {list ? (
-              <StyledView paddingTop={15}>
-                <StyledText
-                  color={theme.colors.MAIN_SUPER_DARK}
-                  fontSize={screenPercentageToDP(2, Orientation.Height)}
-                  fontWeight={400}
-                >
-                  {list.length ? (
-                    <>
-                      <StyledText>{description.split(`${patientName}.`)[0]}</StyledText>
-                      <StyledText fontWeight={500}>{patientName}.</StyledText>
-                    </>
-                  ) : (
-                    <>
-                      <StyledText>{emptyDescription.split(`${patientName}.`)[0]}</StyledText>
-                      <StyledText fontWeight={500}>{patientName}.</StyledText>
-                      <StyledText>{emptyDescription.split(`${patientName}.`)[1]}</StyledText>
-                    </>
-                  )}
-                </StyledText>
-              </StyledView>
+            {patientContacts ? (
+              <>
+                <StyledView paddingTop={15}>
+                  <StyledText
+                    color={theme.colors.MAIN_SUPER_DARK}
+                    fontSize={screenPercentageToDP(2, Orientation.Height)}
+                    fontWeight={400}
+                  >
+                    {patientContacts.length ? (
+                      <>
+                        <StyledText>{description.split(`${patientName}.`)[0]}</StyledText>
+                        <StyledText fontWeight={500}>{patientName}.</StyledText>
+                      </>
+                    ) : (
+                      <>
+                        <StyledText>{emptyDescription.split(`${patientName}.`)[0]}</StyledText>
+                        <StyledText fontWeight={500}>{patientName}.</StyledText>
+                        <StyledText>{emptyDescription.split(`${patientName}.`)[1]}</StyledText>
+                      </>
+                    )}
+                  </StyledText>
+                </StyledView>
+                {patientContacts?.map(x => (
+                  <StyledView key={x.id} marginTop={15} marginBottom={10}>
+                    <ContactCard {...x} />
+                  </StyledView>
+                ))}
+              </>
             ) : (
               <CenterView paddingTop={100}>
                 <LoadingScreen />
               </CenterView>
             )}
-            {list?.map(x => (
-              <StyledView key={x.id} marginTop={15} marginBottom={10}>
-                <ContactCard {...x} />
-              </StyledView>
-            ))}
           </StyledView>
         </StyledSafeAreaView>
       </ScrollView>
