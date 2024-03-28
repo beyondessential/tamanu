@@ -21,12 +21,9 @@ export class TelegramBotService {
   }
 
   startWebhook() {
-    TelegramBotService.#bot.setWebHook(
-      `${canonicalHostName}/api/public/telegram-webhook/bot${apiToken}`,
-      {
-        secret_token: secretToken,
-      },
-    );
+    TelegramBotService.#bot.setWebHook(`${canonicalHostName}/api/public/telegram-webhook`, {
+      secret_token: secretToken,
+    });
   }
 
   processUpdate(body) {

@@ -8,10 +8,10 @@ export const telegramWebhookRoutes = express.Router();
 const tgBot = new TelegramBotService({ autoStartWebhook: true });
 
 telegramWebhookRoutes.post(
-  `/bot${config.telegramBot?.apiToken}`,
+  `/`,
   asyncHandler(async (req, res) => {
     const secretToken = config.telegramBot?.secretToken;
-    if (req.headers['x-telegram-bot-api-secret-token'] !== secretToken) {
+    if (req.header('X-Telegram-Bot-Api-Secret-Token') !== secretToken) {
       return res.status(401).send('Invalid token');
     }
     tgBot.processUpdate(req.body);
