@@ -41,7 +41,7 @@ const getAllContacts = async (models, patientId): Promise<IPatientContact[]> => 
 
 const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
   const { getTranslation } = useTranslation();
-  const [list, _, isLoading, refetch] = useBackendEffect(
+  const [patientContacts, _, isLoading, refetch] = useBackendEffect(
     ({ models }) => getAllContacts(models, selectedPatient.id),
     [],
   );
@@ -108,53 +108,55 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
                 <LoadingScreen />
               </CenterView>
             ) : (
-              <StyledView paddingTop={15}>
-                <StyledText
-                  color={theme.colors.MAIN_SUPER_DARK}
-                  fontSize={screenPercentageToDP(2, Orientation.Height)}
-                  fontWeight={400}
-                >
-                  {list?.length ? (
-                    <>
-                      <StyledText>{description.split(`${patientName}.`)[0]}</StyledText>
-                      <StyledText fontWeight={500}>{patientName}.</StyledText>
-                    </>
-                  ) : (
-                    <>
-                      <StyledText>{emptyDescription.split(`${patientName}.`)[0]}</StyledText>
-                      <StyledText fontWeight={500}>{patientName}.</StyledText>
-                      <StyledText>{emptyDescription.split(`${patientName}.`)[1]}</StyledText>
-                    </>
-                  )}
-                </StyledText>
-              </StyledView>
-            )}
-            {list?.map(x => (
-              <StyledView key={x.id} marginTop={15} marginBottom={10}>
-                <ContactCard {...x} />
-                {canWriteReminderContacts && (
-                  <Button
-                    onPress={() => setSelectedContact(x)}
-                    height={24}
-                    marginRight={8}
-                    paddingTop={4}
-                    alignSelf="flex-end"
-                    backgroundColor={theme.colors.WHITE}
+              <>
+                <StyledView paddingTop={15}>
+                  <StyledText
+                    color={theme.colors.MAIN_SUPER_DARK}
+                    fontSize={screenPercentageToDP(2, Orientation.Height)}
+                    fontWeight={400}
                   >
-                    <StyledText
-                      color={theme.colors.PRIMARY_MAIN}
-                      textDecorationLine="underline"
-                      fontWeight={500}
-                    >
-                      <TranslatedText
-                        stringId="patient.details.reminderContacts.removeBtn"
-                        fallback="Remove"
-                      />
-                    </StyledText>
-                  </Button>
-                )}
-              </StyledView>
-            ))}
+                    {patientContacts?.length ? (
+                      <>
+                        <StyledText>{description.split(`${patientName}.`)[0]}</StyledText>
+                        <StyledText fontWeight={500}>{patientName}.</StyledText>
+                      </>
+                    ) : (
+                      <>
+                        <StyledText>{emptyDescription.split(`${patientName}.`)[0]}</StyledText>
+                        <StyledText fontWeight={500}>{patientName}.</StyledText>
+                        <StyledText>{emptyDescription.split(`${patientName}.`)[1]}</StyledText>
+                      </>
+                    )}
+                  </StyledText>
+                </StyledView>
+                {patientContacts?.map(x => (
+                  <StyledView key={x.id} marginTop={15} marginBottom={10}>
+                    <ContactCard {...x} />
+                    {canWriteReminderContacts && (
+                      <Button
+                        onPress={() => setSelectedContact(x)}
+                        height={24}
+                        marginRight={8}
+                        paddingTop={4}
+                        alignSelf="flex-end"
+                        backgroundColor={theme.colors.WHITE}
+                      >
+                        <StyledText
+                          color={theme.colors.PRIMARY_MAIN}
+                          textDecorationLine="underline"
+                          fontWeight={500}
+                        >
+                          <TranslatedText
+                            stringId="patient.details.reminderContacts.removeBtn"
+                            fallback="Remove"
+                          />
+                        </StyledText>
+                      </Button>
+                    )}
+                  </StyledView>
+                ))}
+              </>
+            )}
             {selectedContact && (
               <RemoveReminderContactModal
                 open
