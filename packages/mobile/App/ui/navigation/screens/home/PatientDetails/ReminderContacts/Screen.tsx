@@ -30,7 +30,7 @@ const getAllContacts = async (models, patientId): Promise<IPatientContact[]> => 
       },
     },
     order: {
-      createdAt: 'ASC',
+      name: 'ASC',
     },
   });
 };
