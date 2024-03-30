@@ -14,12 +14,7 @@ import {
   MaterialTopTabNavigationConfig,
 } from '@react-navigation/material-top-tabs/lib/typescript/src/types';
 import { compose } from 'redux';
-import {
-  FullView,
-  RowView,
-  StyledSafeAreaView,
-  StyledView,
-} from '/styled/common';
+import { FullView, RowView, StyledSafeAreaView, StyledView } from '/styled/common';
 import { ArrowLeftIcon } from '/components/Icons';
 import { SearchInput } from '/components/SearchInput';
 import { Field } from '/components/Forms/FormField';
@@ -29,6 +24,8 @@ import { theme } from '/styled/theme';
 import { withPatient } from '/containers/Patient';
 import { WithPatientStoreProps } from '/store/ducks/patient';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
+import { useTranslation } from '~/ui/contexts/TranslationContext';
 
 type TabNavigationConfig = {
   tabBarStyle: StyleProp<ViewStyle>;
@@ -64,6 +61,8 @@ function BottomTabNavigator({
     navigation.navigate(Routes.HomeStack.HomeTabs.Home);
   }, []);
 
+  const { getTranslation } = useTranslation();
+
   return (
     <FullView>
       <FullView>
@@ -76,12 +75,7 @@ function BottomTabNavigator({
             paddingRight={20}
           >
             <TouchableOpacity onPress={onNavigateToHome}>
-              <StyledView
-                paddingLeft={20}
-                paddingTop={20}
-                paddingBottom={20}
-                paddingRight={20}
-              >
+              <StyledView paddingLeft={20} paddingTop={20} paddingBottom={20} paddingRight={20}>
                 <ArrowLeftIcon
                   height={screenPercentageToDP(2.43, Orientation.Height)}
                   width={screenPercentageToDP(2.43, Orientation.Height)}
@@ -92,7 +86,7 @@ function BottomTabNavigator({
               <Field
                 component={SearchInput}
                 name="search"
-                placeholder="Search for patients"
+                placeholder={getTranslation('patient.action.search') || 'Search for patients'}
               />
             </StyledView>
           </RowView>

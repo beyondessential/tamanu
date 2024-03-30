@@ -8,6 +8,7 @@ import { Routes } from '/helpers/routes';
 // Navigator
 import { createSearchPatientNavigator } from '../navigators/SearchPatientTabs';
 import { PatientFromRoute } from '~/ui/helpers/constants';
+import { useTranslation } from '~/ui/contexts/TranslationContext';
 
 const Tabs = createSearchPatientNavigator();
 
@@ -28,6 +29,8 @@ const SearchPatientTabOptions: MaterialTopTabBarOptions = {
 };
 
 export const SearchPatientTabs = ({ routingFrom }): ReactElement => {
+  const { getTranslation } = useTranslation();
+
   return (
     <Tabs.Navigator
       tabBarOptions={SearchPatientTabOptions}
@@ -39,14 +42,14 @@ export const SearchPatientTabs = ({ routingFrom }): ReactElement => {
     >
       <Tabs.Screen
         options={{
-          tabBarLabel: 'Recently viewed',
+          tabBarLabel: getTranslation('patient.recentlyViewed.title') || 'Recently viewed',
         }}
         name={Routes.HomeStack.SearchPatientStack.SearchPatientTabs.RecentViewed}
         component={RecentViewedScreen}
       />
       <Tabs.Screen
         options={{
-          tabBarLabel: 'All patients',
+          tabBarLabel: getTranslation('patient.allPatient.title') || 'All patients',
         }}
         name={Routes.HomeStack.SearchPatientStack.SearchPatientTabs.ViewAll}
         component={ViewAllScreen}
