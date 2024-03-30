@@ -9,7 +9,7 @@ const getValueToDisplay = value => {
   return value;
 };
 
-export const ReadOnlyField = ({ name, value }: { name: string; value: any }) => {
+export const ReadOnlyField = ({ value }: { value: any }) => {
   const styleProps = {
     color: value ? '#000' : '#aaa',
     fontSize: screenPercentageToDP('2.2', Orientation.Height),

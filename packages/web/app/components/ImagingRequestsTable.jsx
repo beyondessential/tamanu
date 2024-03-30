@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { push } from 'connected-react-router';
@@ -17,7 +17,12 @@ import { capitaliseFirstLetter } from '../utils/capitalise';
 import { TranslatedText } from './Translation/TranslatedText';
 
 const StatusDisplay = React.memo(({ status }) => {
-  const { background, color, label } = IMAGING_REQUEST_STATUS_CONFIG[status];
+  const {
+    background = '#EDEDED',
+    color = '#444444;',
+    label = <TranslatedText stringId="general.fallback.unknown" fallback="Unknown" />,
+  } = IMAGING_REQUEST_STATUS_CONFIG[status];
+
   return (
     <TableCellTag $background={background} $color={color}>
       {label}
@@ -41,6 +46,7 @@ export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, status
   const imagingTypes = getLocalisation('imagingTypes') || {};
   const { searchParameters } = useImagingRequests(memoryKey);
   const isCompletedTable = memoryKey === IMAGING_TABLE_VERSIONS.COMPLETED.memoryKey;
+  const [isRowsDisabled, setIsRowsDisabled] = useState(false);
 
   const statusFilter = statuses.length > 0 ? { status: statuses } : {};
 
@@ -86,6 +92,8 @@ export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, status
 
   const selectImagingRequest = useCallback(
     async imagingRequest => {
+      if (isRowsDisabled) return;
+      setIsRowsDisabled(true);
       const { encounter } = imagingRequest;
       const patientId = params.patientId || encounter.patient.id;
       if (encounter) {
@@ -100,8 +108,9 @@ export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, status
             encounter.id}/imaging-request/${imagingRequest.id}`,
         ),
       );
+      setIsRowsDisabled(false);
     },
-    [loadEncounter, dispatch, params.patientId, params.category, encounterId],
+    [loadEncounter, dispatch, params.patientId, params.category, encounterId, isRowsDisabled],
   );
 
   const globalImagingRequestsFetchOptions = { ...statusFilter, ...searchParameters };
@@ -119,6 +128,7 @@ export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, status
         order: 'desc',
         orderBy: isCompletedTable ? 'completedAt' : 'requestedDate',
       }}
+      isRowsDisabled={isRowsDisabled}
     />
   );
 });

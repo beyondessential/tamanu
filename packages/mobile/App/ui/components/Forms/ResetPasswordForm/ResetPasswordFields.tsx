@@ -1,4 +1,4 @@
-import React, { ReactElement, useEffect, useState } from 'react';
+import React, { ReactElement } from 'react';
 import { StyledText, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { Field } from '../FormField';
@@ -34,6 +34,7 @@ export const ResetPasswordFields = (): ReactElement => (
     </StyledView>
     <SubmitButton
       marginTop={20}
+      backgroundColor={theme.colors.SECONDARY_MAIN}
       textColor={theme.colors.TEXT_SUPER_DARK}
       fontSize={screenPercentageToDP('1.94', Orientation.Height)}
       fontWeight={500}

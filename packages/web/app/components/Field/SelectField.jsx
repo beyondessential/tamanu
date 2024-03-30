@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, isValidElement } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import Select, { components } from 'react-select';
@@ -12,6 +12,7 @@ import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { StyledTextField } from './TextField';
 import { FormFieldTag } from '../Tag';
 import { getTranslatedOptions } from '../Translation/getTranslatedOptions';
+import { useTranslation } from '../../contexts/Translation';
 
 const StyledFormControl = styled(FormControl)`
   display: flex;
@@ -105,6 +106,8 @@ export const SelectInput = ({
   delete props.form;
   delete props.tabIndex;
 
+  const { getTranslation } = useTranslation();
+
   const handleChange = useCallback(
     changedOption => {
       const userClickedClear = !changedOption;
@@ -173,7 +176,11 @@ export const SelectInput = ({
 
   const isReadonly = (readonly && !disabled) || (value && !onChange);
   if (disabled || isReadonly || !options || options.length === 0) {
-    const valueText = ((options || []).find(o => o.value === value) || {}).label || '';
+    const selectedOptionLabel = ((options || []).find(o => o.value === value) || {}).label || '';
+    const valueText =
+      isValidElement(selectedOptionLabel) && selectedOptionLabel.type.name === 'TranslatedText'
+        ? selectedOptionLabel.props.fallback // temporary workaround to stop [object Object] from being displayed
+        : selectedOptionLabel;
     return (
       <OuterLabelFieldWrapper label={label} {...props}>
         <StyledTextField
@@ -203,7 +210,7 @@ export const SelectInput = ({
           menuPosition="fixed"
           styles={customStyleObject || defaultStyles}
           menuShouldBlockScroll="true"
-          placeholder="Select"
+          placeholder={getTranslation("general.placeholder.select", "Select")}
           isClearable={value !== '' && isClearable && !props.required && !disabled}
           isSearchable={false}
           tabIndex={inputProps.tabIndex}

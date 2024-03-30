@@ -15,10 +15,10 @@ interface FacilityContextData {
   assignFacility: (id: string, name: string) => Promise<void>;
 }
 
-const FacilityContext = createContext({
+const FacilityContext = createContext<FacilityContextData>({
   facilityId: null,
   facilityName: "Unmounted context",
-  assignFacility: (id: string, name: string) => Promise.resolve(null),
+  assignFacility: () => Promise.resolve(null),
 });
 
 export const useFacility = () => useContext(FacilityContext);

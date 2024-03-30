@@ -2,37 +2,31 @@ import React from 'react';
 import { TouchableWithoutFeedback } from 'react-native';
 import { ColumnView, RowView, StyledText, StyledView } from '/styled/common';
 import { DateFormats } from '/helpers/constants';
-import { formatDate, getAgeFromDate } from '/helpers/date';
+import { formatDate, getDisplayAge } from '/helpers/date';
 import { UserAvatar } from '../UserAvatar';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import * as styles from './styles';
 import { theme } from '/styled/theme';
 import { getGender, joinNames } from '../../helpers/user';
 import { IPatient } from '~/types';
+import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 
 export interface PatientCardProps {
   patient: IPatient;
   onPress: Function;
 }
 
-export const PatientCard = ({
-  patient,
-  onPress,
-}: PatientCardProps): JSX.Element => {
-  const {
-    firstName,
-    lastName,
-    dateOfBirth,
-    sex,
-    village,
-  } = patient;
+export const PatientCard = ({ patient, onPress }: PatientCardProps): JSX.Element => {
+  const { firstName, lastName, dateOfBirth, sex, village } = patient;
 
   // TODO: These fields aren't on the patient model yet.
   const image = null;
   const lastViewed = new Date();
 
   const name = joinNames({ firstName, lastName });
-  const age = getAgeFromDate(dateOfBirth);
+
+  const { getLocalisation } = useLocalisation();
+  const ageDisplayFormat = getLocalisation('ageDisplayFormat');
 
   return (
     <TouchableWithoutFeedback onPress={(): void => onPress()}>
@@ -56,10 +50,7 @@ export const PatientCard = ({
             {`Last viewed \n${formatDate(lastViewed, DateFormats.short)}`}
           </StyledText>
         </RowView>
-        <ColumnView
-          width="100%"
-          marginTop={screenPercentageToDP(1.82, Orientation.Height)}
-        >
+        <ColumnView width="100%" marginTop={screenPercentageToDP(1.82, Orientation.Height)}>
           <StyledView width="75%" marginBottom={10}>
             <StyledText
               fontSize={screenPercentageToDP(1.82, Orientation.Height)}
@@ -75,7 +66,7 @@ export const PatientCard = ({
               fontWeight={500}
               color={theme.colors.TEXT_MID}
             >
-              {`${getGender(sex)}, ${age}yrs`}
+              {`${getGender(sex)}, ${getDisplayAge(dateOfBirth, ageDisplayFormat)}`}
             </StyledText>
             <StyledText
               fontSize={screenPercentageToDP(1.45, Orientation.Height)}
