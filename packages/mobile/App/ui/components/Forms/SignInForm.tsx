@@ -19,6 +19,7 @@ import { TextField } from '../TextField/TextField';
 import { SubmitButton } from './SubmitButton';
 import { ServerSelector } from '../ServerSelectorField/ServerSelector';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
+import { TranslatedText } from '../Translations/TranslatedText';
 
 interface SignInFormModelValues {
   email: string;
@@ -33,8 +34,12 @@ const ServerInfo = __DEV__
       const { facilityName } = useFacility();
       return (
         <StyledView marginBottom={10}>
-          <StyledText color={theme.colors.WHITE}>Server: {host}</StyledText>
-          <StyledText color={theme.colors.WHITE}>Facility: {facilityName}</StyledText>
+          <StyledText color={theme.colors.WHITE}>
+            <TranslatedText stringId="login.server.label" fallback="Server" />: {host}
+          </StyledText>
+          <StyledText color={theme.colors.WHITE}>
+            <TranslatedText stringId="login.facility.label" fallback="Facility" />: {facilityName}
+          </StyledText>
         </StyledView>
       );
     }
@@ -107,8 +112,13 @@ export const SignInForm: FunctionComponent<any> = ({ onError, onSuccess }) => {
               name="email"
               keyboardType="email-address"
               component={TextField}
-              label="Email"
-              placeholder="Enter your email address"
+              label={<TranslatedText stringId="login.email.label" fallback="Email" />}
+              placeholder={
+                <TranslatedText
+                  stringId="login.email.placeholder"
+                  fallback="Enter your email address"
+                />
+              }
               blurOnSubmit={false}
               returnKeyType="next"
               labelFontSize="14"
@@ -122,9 +132,14 @@ export const SignInForm: FunctionComponent<any> = ({ onError, onSuccess }) => {
               inputRef={passwordRef}
               autoCapitalize="none"
               component={TextField}
-              label="Password"
+              label={<TranslatedText stringId="login.password.label" fallback="Password" />}
               labelFontSize="14"
-              placeholder="Enter your password"
+              placeholder={
+                <TranslatedText
+                  stringId="login.password.placeholder"
+                  fallback="Enter your password"
+                />
+              }
               labelColor={theme.colors.WHITE}
               secure
               onSubmitEditing={handleSubmit}
@@ -136,7 +151,7 @@ export const SignInForm: FunctionComponent<any> = ({ onError, onSuccess }) => {
             textColor={theme.colors.TEXT_SUPER_DARK}
             fontSize={screenPercentageToDP('1.94', Orientation.Height)}
             fontWeight={500}
-            buttonText="Log in"
+            buttonText={<TranslatedText stringId="login.action.login" fallback="Log in" />}
           />
         </StyledView>
       )}
