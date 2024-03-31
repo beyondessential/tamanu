@@ -36,4 +36,5 @@ export const ChangeReasonForm = ({ onCancel, onSubmit, reasonForEncounter }) => 
 ChangeReasonForm.propTypes = {
   onCancel: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
+  reasonForEncounter: PropTypes.string.isRequired,
 };
