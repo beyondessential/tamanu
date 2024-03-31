@@ -5,6 +5,7 @@ import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 import { theme } from '~/ui/styled/theme';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { TextField } from '~/ui/components/TextField/TextField';
+import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 
 const FacilityItem = ({ label, selected, onPress }): ReactElement => (
   <TouchableOpacity onPress={onPress}>
@@ -22,13 +23,20 @@ const FacilityItem = ({ label, selected, onPress }): ReactElement => (
 
 const LoadingIndicator = (): ReactElement => (
   <StyledView padding={10}>
-    <StyledText color={theme.colors.TEXT_DARK}>Loading facilities...</StyledText>
+    <StyledText color={theme.colors.TEXT_DARK}>
+      <TranslatedText stringId="login.facility.table.loading" fallback="Loading facilities..." />
+    </StyledText>
   </StyledView>
 );
 
 const NoFacilitiesIndicator = (): ReactElement => (
   <StyledView padding={10}>
-    <StyledText color={theme.colors.TEXT_DARK}>No facilities found.</StyledText>
+    <StyledText color={theme.colors.TEXT_DARK}>
+      <TranslatedText
+        stringId="login.facility.table.error.noneFound"
+        fallback="No facilities found."
+      />
+    </StyledText>
   </StyledView>
 );
 
@@ -36,11 +44,11 @@ export const FacilitySelectField = ({ options, onChange, value }): ReactElement 
   const [currentFilter, setCurrentFilter] = useState('');
 
   const items = options
-    .filter((o) => {
+    .filter(o => {
       const lowercase = (o.label || '').toLowerCase();
       return lowercase.includes((currentFilter || '').toLowerCase());
     })
-    .map((o) => (
+    .map(o => (
       <FacilityItem
         key={o.value}
         label={o.label}
@@ -59,7 +67,9 @@ export const FacilitySelectField = ({ options, onChange, value }): ReactElement 
     <StyledView height={screenPercentageToDP(34.7, Orientation.Height)}>
       <StyledView marginBottom={screenPercentageToDP(1, Orientation.Height)}>
         <TextField
-          label="Filter facilities"
+          label={
+            <TranslatedText stringId="login.facility.filter.label" fallback="Filter facilities" />
+          }
           value={currentFilter}
           onChange={setCurrentFilter}
           labelColor={theme.colors.WHITE}

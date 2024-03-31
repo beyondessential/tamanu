@@ -106,7 +106,11 @@ export const SignInForm: FunctionComponent<any> = ({ onError, onSuccess }) => {
             {existingHost ? (
               <ServerInfo host={existingHost} />
             ) : (
-              <Field name="server" component={ServerSelector} label="Country" />
+              <Field
+                name="server"
+                component={ServerSelector}
+                label={<TranslatedText stringId="general.country.label" fallback="Country" />}
+              />
             )}
             <Field
               name="email"

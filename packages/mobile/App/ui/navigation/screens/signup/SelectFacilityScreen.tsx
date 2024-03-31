@@ -22,6 +22,7 @@ import { Field } from '~/ui/components/Forms/FormField';
 import { useFacility } from '~/ui/contexts/FacilityContext';
 import { useBackend } from '~/ui/hooks';
 import { FacilitySelectField } from './FacilitySelectField';
+import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 
 const selectFacilitySchema = Yup.object().shape({
   facilityId: Yup.string().required(),
@@ -78,7 +79,12 @@ export const SelectFacilityForm = ({ onSubmitForm }) => {
               component={FacilitySelectField}
               label="Facility"
               options={facilityOptions || []}
-              placeholder="Select facility"
+              placeholder={
+                <TranslatedText
+                  stringId="login.facility.facility.placeholder"
+                  fallback="Select facility"
+                />
+              }
             />
           </StyledView>
           <Button
@@ -89,7 +95,7 @@ export const SelectFacilityForm = ({ onSubmitForm }) => {
             textColor={theme.colors.TEXT_SUPER_DARK}
             fontSize={screenPercentageToDP('1.94', Orientation.Height)}
             fontWeight={500}
-            buttonText="Save"
+            buttonText={<TranslatedText stringId="general.action.save" fallback="Save" />}
           />
         </StyledView>
       )}
@@ -139,7 +145,10 @@ export const SelectFacilityScreen: FunctionComponent<any> = ({ navigation }: Sig
             color={theme.colors.WHITE}
             fontWeight="bold"
           >
-            Please link this device to a facility.
+            <TranslatedText
+              stringId="login.facility.heading"
+              fallback="Please link this device to a facility."
+            />
           </StyledText>
           <SelectFacilityForm onSubmitForm={onSubmitForm} />
           <StyledTouchableOpacity onPress={signOut}>
@@ -151,7 +160,10 @@ export const SelectFacilityScreen: FunctionComponent<any> = ({ navigation }: Sig
               fontSize={screenPercentageToDP('1.57', Orientation.Height)}
               color={theme.colors.SECONDARY_MAIN}
             >
-              Return to sign-in screen
+              <TranslatedText
+                stringId="login.facility.action.return"
+                fallback="Return to sign-in screen"
+              />
             </StyledText>
           </StyledTouchableOpacity>
         </StyledView>
