@@ -845,7 +845,7 @@ describe('PatientProgramRegistration', () => {
         const permissions = [
           ['read', 'ProgramRegistry', 'different-object-id'],
           ['read', 'Patient'],
-          ['delete', 'PatientProgramRegistrationCondition'],
+          ['write', 'PatientProgramRegistrationCondition'],
         ];
         const appWithPermissions = await ctx.baseApp.asNewRole(permissions);
         const result = await appWithPermissions
@@ -887,7 +887,7 @@ describe('PatientProgramRegistration', () => {
         const permissions = [
           ['read', 'ProgramRegistry', programRegistry.id],
           ['read', 'Patient'],
-          ['delete', 'PatientProgramRegistrationCondition'],
+          ['write', 'PatientProgramRegistrationCondition'],
         ];
         const appWithPermissions = await ctx.baseApp.asNewRole(permissions);
         const result = await appWithPermissions
