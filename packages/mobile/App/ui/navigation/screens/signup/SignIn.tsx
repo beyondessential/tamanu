@@ -146,7 +146,7 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
               color={theme.colors.WHITE}
               textDecorationLine="underline"
             >
-              Forgot password?
+              <TranslatedText stringId="login.action.forgotPassword" fallback="Forgot password?" />
             </StyledText>
           </StyledTouchableOpacity>
         </KeyboardAvoidingView>
