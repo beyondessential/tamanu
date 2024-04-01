@@ -3,6 +3,7 @@ import { useApi } from '../api/useApi';
 import { LOCAL_STORAGE_KEYS } from '../constants';
 import { useTranslations } from '../api/queries/useTranslations';
 import { ENGLISH_LANGUAGE_CODE } from '@tamanu/constants';
+import { lowerCase } from 'lodash';
 
 export const TranslationContext = React.createContext();
 
@@ -17,7 +18,7 @@ const isDev = process.env.NODE_ENV === 'development';
  *
  * @example replaceStringVariables("there are :count users", { count: 2 }) => "there are 2 users"
  */
-const replaceStringVariables = (templateString, replacements, translations) => {
+const replaceStringVariables = (templateString, replacements, translations,) => {
   if (!replacements) return templateString;
   console.log(replacements);
   const result = templateString
@@ -30,10 +31,13 @@ const replaceStringVariables = (templateString, replacements, translations) => {
       if (typeof replacement !== 'object') return replacement;
       // is react node
       const child = replacement.props.children;
-      if (child.props.stringId) {
+      if (child?.props?.stringId) {
         replacement = child;
       }
-      return translations?.[replacement.props.stringId] || replacement.props.fallback;
+      const translation = translations?.[replacement.props.stringId] || replacement.props.fallback;
+      if (replacement.props.lowercase) return lowerCase(translation);
+      else return translation
+      // return translations?.[replacement.props.stringId] || replacement.props.fallback;
     })
     .join('');
 
