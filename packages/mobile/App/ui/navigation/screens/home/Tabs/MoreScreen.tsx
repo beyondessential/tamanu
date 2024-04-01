@@ -86,9 +86,9 @@ const Footer = ({ version, deviceId }: FooterProps): ReactElement => (
     color={theme.colors.TEXT_MID}
     fontSize={screenPercentageToDP(1.45, Orientation.Height)}
   >
-    <TranslatedText stringId="more.footer.version" fallback="Tamanu Version" /> {version}
+    <TranslatedText stringId="expandedMeta.version" fallback="Tamanu Version" /> {version}
     {'\n'}
-    <TranslatedText stringId="more.footer.deviceId" fallback="Device ID mobile" />-{deviceId}
+    <TranslatedText stringId="expandedMeta.deviceId" fallback="Device ID mobile" />-{deviceId}
   </StyledText>
 );
 
@@ -146,7 +146,7 @@ export const MoreScreen = (): ReactElement => {
           marginTop={screenPercentageToDP(1.21, Orientation.Height)}
           width={screenPercentageToDP(29.19, Orientation.Width)}
           height={screenPercentageToDP(6.07, Orientation.Height)}
-          buttonText={<TranslatedText stringId="more.action.signOut" fallback="Sign out" />}
+          buttonText={<TranslatedText stringId="auth.action.signOut" fallback="Sign out" />}
           onPress={signOut}
           outline
           borderColor={theme.colors.PRIMARY_MAIN}
