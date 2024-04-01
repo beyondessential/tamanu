@@ -6,8 +6,8 @@ import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { hl7ParameterTypes, stringTypeModifiers } from './hl7Parameters';
 
 // Import directly from file instead of index to avoid dependency cycle
-import { decodeIdentifier, isValidIdentifier } from './utils/identifier';
-import { parseHL7Date } from './utils/search';
+import { isValidIdentifier, decodeIdentifier } from './utils/identifier';
+import { isValidHl7Date } from './utils/search';
 
 // HL7 Patient resource mapping to Tamanu.
 // (only supported params are in)
@@ -63,7 +63,7 @@ export const hl7PatientFields = {
       // eslint-disable-next-line no-template-curly-in-string
       .test('is-valid-date', 'Invalid date/time format: ${value}', value => {
         if (!value) return true;
-        return parseHL7Date(value).isValid();
+        return isValidHl7Date(value);
       }),
     sortable: true,
   },
