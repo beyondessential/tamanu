@@ -1,6 +1,6 @@
 {
   "name": "tamanuapp",
-  "version": "2.5.0",
+  "version": "2.6.0",
   "private": true,
   "scripts": {
     "android": "npx react-native run-android",
@@ -49,7 +49,6 @@
     "mathjs": "^12.1.0",
     "metro-minify-terser": "^0.64.0",
     "mitt": "^2.1.0",
-    "moment": "^2.29.1",
     "nanoid": "^3.1.23",
     "patch-package": "^8.0.0",
     "popup-ui": "^1.2.2",
