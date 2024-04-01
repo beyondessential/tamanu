@@ -19,6 +19,7 @@ import { useRecentlyViewedPatients } from '~/ui/hooks/localConfig';
 import { navigateAfterTimeout } from '~/ui/helpers/navigators';
 import { theme } from '~/ui/styled/theme';
 import { PatientFromRoute } from '~/ui/helpers/constants';
+import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 
 const NoPatientsCard = (): ReactElement => (
   <StyledText
@@ -30,7 +31,10 @@ const NoPatientsCard = (): ReactElement => (
     marginBottom={0}
     fontSize={14}
   >
-    No recently viewed patients to display.
+    <TranslatedText
+      stringId="patient.search.recentlyViewed.message.noneFound"
+      fallback="No recently viewed patients to display."
+    />
   </StyledText>
 );
 

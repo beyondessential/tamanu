@@ -41,7 +41,7 @@ const SearchPatientsButton = ({ onPress }: { onPress: () => void }): ReactElemen
         marginLeft={10}
         color={theme.colors.TEXT_MID}
       >
-        Search for patients
+        <TranslatedText stringId="patient.search.placeholder" fallback="Search for patients" />
       </StyledText>
     </RowView>
   </StyledTouchableOpacity>
