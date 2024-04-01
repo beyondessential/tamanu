@@ -167,7 +167,7 @@ export const ProcedureForm = React.memo(
           startTime: yup.date(),
           endTime: yup.date(),
           // Yup TODO: localised clinician
-          physicianId: foreignKey().label('clinician'),
+          physicianId: foreignKey().label(':localisedField.clinician'),
           assistantId: optionalForeignKey(),
           anaesthetistId: optionalForeignKey(),
           anaestheticId: optionalForeignKey(),

@@ -51,7 +51,7 @@ export const ChangeClinicianForm = ({ clinicianSuggester, onCancel, onSubmit }) 
         examinerId: yup
           .string()
           .required()
-          .label('clinician'),
+          .label(':localisedField.clinician'),
       })}
       formType={FORM_TYPES.EDIT_FORM}
       render={renderForm}

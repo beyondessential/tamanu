@@ -67,7 +67,7 @@ export const AppointmentForm = props => {
         clinicianId: yup
           .string()
           .required()
-          .label('clinician'),
+          .label(':localisedField.clinician'),
         locationGroupId: yup
           .string()
           .required()
