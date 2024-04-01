@@ -13,6 +13,7 @@ import { foreignKey } from '../../utils/validation';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { ConditionalTooltip, ThemedTooltip } from '../../components/Tooltip';
 import { useProgramRegistryContext } from '../../contexts/ProgramRegistry';
+import { useTranslation } from '../../contexts/Translation';
 
 const DisplayContainer = styled.div`
   display: flex;
@@ -53,6 +54,7 @@ const StyledButton = styled(Button)`
 export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistration }) => {
   const api = useApi();
   const { navigateToProgramRegistrySurvey } = usePatientNavigation();
+  const { getTranslation } = useTranslation();
   const { setProgramRegistryId } = useProgramRegistryContext();
 
   const { data: surveys } = useQuery(
@@ -94,7 +96,7 @@ export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistrat
                   name="surveyId"
                   label="Select form"
                   component={BaseSelectField}
-                  placeholder="Select"
+                  placeholder={getTranslation("general.placeholder.select", "Select")}
                   options={surveys}
                   disabled={isRemoved}
                 />
