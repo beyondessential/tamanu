@@ -5,7 +5,11 @@ import { ImporterMetadataError } from '../errors';
 import { importRows } from '../importRows';
 
 import { readSurveyQuestions } from './readSurveyQuestions';
-import { ensureRequiredQuestionsPresent, validateVitalsSurvey } from './validation';
+import {
+  ensureRequiredQuestionsPresent,
+  validateVitalsSurvey,
+  ensurePatientFieldsExist,
+} from './validation';
 import { validateProgramDataElementRecords } from './vitalsValidation';
 
 function readSurveyInfo(workbook, surveyInfo) {
@@ -50,6 +54,9 @@ export async function importSurvey(context, workbook, surveyInfo) {
 
   const records = readSurveyInfo(workbook, surveyInfo);
   const stats = validateProgramDataElementRecords(records, { context, sheetName });
+
+  console.log('VALIDATE');
+  ensurePatientFieldsExist(records, { context, sheetName });
 
   return importRows(
     context,
