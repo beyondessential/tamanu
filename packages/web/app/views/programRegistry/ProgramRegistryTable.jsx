@@ -30,6 +30,9 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
       },
       {
         key: 'displayId',
+        title: (
+          <TranslatedText stringId="general.localisedField.displayId.label.short" fallback="NHN" />
+        ),
         accessor: ({ patient }) => patient.displayId || 'Unknown',
       },
       {
