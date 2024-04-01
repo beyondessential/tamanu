@@ -101,7 +101,7 @@ export const MoreScreen = (): ReactElement => {
   const settings = useMemo(
     () => [
       {
-        title: <TranslatedText stringId="more.option.supportCentre" fallback="Support centre" />,
+        title: <TranslatedText stringId="externalLink.supportCentre" fallback="Support centre" />,
         Icon: LaunchIcon,
         onPress: (): Promise<void> => Linking.openURL(supportDeskUrl),
       },
