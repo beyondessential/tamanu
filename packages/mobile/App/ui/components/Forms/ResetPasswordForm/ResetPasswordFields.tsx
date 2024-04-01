@@ -17,7 +17,7 @@ export const ResetPasswordFields = (): ReactElement => (
     <StyledView justifyContent="space-around">
       <StyledText fontSize={13} marginBottom={5} color={theme.colors.SECONDARY_MAIN}>
         <TranslatedText
-          stringId="login.resetPassword.email.subText"
+          stringId="auth.resetPassword.enterAccountEmail"
           fallback="Enter your account email"
         />
       </StyledText>
@@ -32,7 +32,7 @@ export const ResetPasswordFields = (): ReactElement => (
         name="server"
         component={ServerSelector}
         label={
-          <TranslatedText stringId="login.resetPassword.server.label" fallback="Select a country" />
+          <TranslatedText stringId="auth.resetPassword.selectCountry" fallback="Select a country" />
         }
       />
     </StyledView>

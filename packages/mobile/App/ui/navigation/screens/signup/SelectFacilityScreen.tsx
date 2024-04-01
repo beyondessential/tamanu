@@ -81,7 +81,7 @@ export const SelectFacilityForm = ({ onSubmitForm }) => {
               options={facilityOptions || []}
               placeholder={
                 <TranslatedText
-                  stringId="login.facility.facility.placeholder"
+                  stringId="login.facility.placeholder"
                   fallback="Select facility"
                 />
               }
@@ -161,7 +161,7 @@ export const SelectFacilityScreen: FunctionComponent<any> = ({ navigation }: Sig
               color={theme.colors.SECONDARY_MAIN}
             >
               <TranslatedText
-                stringId="login.facility.action.return"
+                stringId="login.facility.action.returnToSignIn"
                 fallback="Return to sign-in screen"
               />
             </StyledText>

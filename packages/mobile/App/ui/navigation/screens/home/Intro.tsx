@@ -57,7 +57,7 @@ export const Intro = (props: IntroScreenProps): ReactElement => {
         color={theme.colors.WHITE}
       >
         <TranslatedText
-          stringId="intro.welcome.title"
+          stringId="welcome.title"
           fallback="Welcome, :displayName!"
           replacements={{ displayName: user.displayName }}
         />

@@ -107,7 +107,7 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
             </StyledText>
             <StyledText fontSize={14} color={theme.colors.WHITE}>
               <TranslatedText
-                stringId="login.subtext"
+                stringId="login.subTitle"
                 fallback="Enter your details below to log in"
               />
             </StyledText>

@@ -38,7 +38,7 @@ const ServerInfo = __DEV__
             <TranslatedText stringId="login.server.label" fallback="Server" />: {host}
           </StyledText>
           <StyledText color={theme.colors.WHITE}>
-            <TranslatedText stringId="login.facility.label" fallback="Facility" />: {facilityName}
+            <TranslatedText stringId="general.facility.label" fallback="Facility" />: {facilityName}
           </StyledText>
         </StyledView>
       );
@@ -155,7 +155,7 @@ export const SignInForm: FunctionComponent<any> = ({ onError, onSuccess }) => {
             textColor={theme.colors.TEXT_SUPER_DARK}
             fontSize={screenPercentageToDP('1.94', Orientation.Height)}
             fontWeight={500}
-            buttonText={<TranslatedText stringId="login.action.login" fallback="Log in" />}
+            buttonText={<TranslatedText stringId="auth.action.login" fallback="Log in" />}
           />
         </StyledView>
       )}

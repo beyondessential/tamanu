@@ -19,7 +19,7 @@ export const SupportCentreButton = ({ supportCentreUrl }: SupportCentreButtonPro
           color={theme.colors.WHITE}
           textDecorationLine="underline"
         >
-          <TranslatedText stringId="login.supportCentreLink" fallback="Support centre" />
+          <TranslatedText stringId="externalLink.supportCentre" fallback="Support centre" />
         </StyledText>
         <LaunchIcon
           size={screenPercentageToDP('1.57', Orientation.Height)}

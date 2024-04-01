@@ -24,7 +24,7 @@ const FacilityItem = ({ label, selected, onPress }): ReactElement => (
 const LoadingIndicator = (): ReactElement => (
   <StyledView padding={10}>
     <StyledText color={theme.colors.TEXT_DARK}>
-      <TranslatedText stringId="login.facility.table.loading" fallback="Loading facilities..." />
+      <TranslatedText stringId="login.facilitySelect.loading" fallback="Loading facilities..." />
     </StyledText>
   </StyledView>
 );
@@ -33,7 +33,7 @@ const NoFacilitiesIndicator = (): ReactElement => (
   <StyledView padding={10}>
     <StyledText color={theme.colors.TEXT_DARK}>
       <TranslatedText
-        stringId="login.facility.table.error.noneFound"
+        stringId="login.facilitySelect.error.noneFound"
         fallback="No facilities found."
       />
     </StyledText>
@@ -68,7 +68,7 @@ export const FacilitySelectField = ({ options, onChange, value }): ReactElement 
       <StyledView marginBottom={screenPercentageToDP(1, Orientation.Height)}>
         <TextField
           label={
-            <TranslatedText stringId="login.facility.filter.label" fallback="Filter facilities" />
+            <TranslatedText stringId="login.filterFacility.label" fallback="Filter facilities" />
           }
           value={currentFilter}
           onChange={setCurrentFilter}

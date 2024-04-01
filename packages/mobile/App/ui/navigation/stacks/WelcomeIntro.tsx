@@ -24,13 +24,13 @@ export const WelcomeIntroTabs = (): ReactElement => (
           nextRoute: 'step2',
           title: (
             <TranslatedText
-              stringId="intro.welcome.heading.searchForPatients"
+              stringId="welcome.heading.searchForPatients"
               fallback="Search for patients"
             />
           ),
           message: (
             <TranslatedText
-              stringId="intro.welcome.message.searchForPatients"
+              stringId="welcome.message.searchForPatients"
               fallback="All patients in the system are searchable, no internet is required after the first login. Start working immediately."
             />
           ),
@@ -44,13 +44,13 @@ export const WelcomeIntroTabs = (): ReactElement => (
           nextRoute: 'step3',
           title: (
             <TranslatedText
-              stringId="intro.welcome.heading.recordPatientVisits"
+              stringId="welcome.heading.recordPatientVisits"
               fallback="Record patient visits"
             />
           ),
           message: (
             <TranslatedText
-              stringId="intro.welcome.message.recordPatientVisits"
+              stringId="welcome.message.recordPatientVisits"
               fallback="Record details from each patient visit, including diagnoses, vitals, medications, immunizations, births, deaths and program information."
             />
           ),
@@ -64,13 +64,13 @@ export const WelcomeIntroTabs = (): ReactElement => (
           nextRoute: Routes.HomeStack.HomeTabs.Index,
           title: (
             <TranslatedText
-              stringId="intro.welcome.heading.syncData"
+              stringId="welcome.heading.syncData"
               fallback="Sync data to the central system"
             />
           ),
           message: (
             <TranslatedText
-              stringId="intro.welcome.message.syncData"
+              stringId="welcome.message.syncData"
               fallback="Entered data will sync to the main system automatically whenever internet is available. You can download existing patient visit data if internet is available."
             />
           ),
