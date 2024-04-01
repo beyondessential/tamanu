@@ -32,7 +32,7 @@ const NoPatientsCard = (): ReactElement => (
     fontSize={14}
   >
     <TranslatedText
-      stringId="patient.search.recentlyViewed.message.noneFound"
+      stringId="patient.search.recentlyViewed.message.noPatientsFound"
       fallback="No recently viewed patients to display."
     />
   </StyledText>
