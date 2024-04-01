@@ -24,7 +24,6 @@ import { theme } from '/styled/theme';
 import { withPatient } from '/containers/Patient';
 import { WithPatientStoreProps } from '/store/ducks/patient';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
-import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 
 type TabNavigationConfig = {
