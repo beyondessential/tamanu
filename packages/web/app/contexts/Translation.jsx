@@ -32,6 +32,7 @@ const replaceStringVariables = (templateString, replacements, translations) => {
 
       // is react node
       const child = replacement.props.children;
+      console.log(child);
       if (child?.props?.stringId) {
         replacement = child;
       }

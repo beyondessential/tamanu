@@ -229,12 +229,11 @@ const EncounterOverview = ({
             fallback="Supervising :clinician"
             replacements={{
               clinician: (
-                <LowerCase>
-                  <TranslatedText
-                    stringId="general.localisedField.clinician.label.short"
-                    fallback="Clinician"
-                  />
-                </LowerCase>
+                <TranslatedText
+                  stringId="general.localisedField.clinician.label.short"
+                  fallback="Clinician"
+                  lowercase
+                />
               ),
             }}
           />

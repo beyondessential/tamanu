@@ -11,7 +11,6 @@ import { useApi } from '../api';
 import { DateDisplay } from './DateDisplay';
 import { Modal } from './Modal';
 import { TranslatedText } from './Translation/TranslatedText';
-import { LowerCase } from './Typography';
 
 const Container = styled.div`
   display: flex;
@@ -176,12 +175,11 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
           fallback="Supervising :clinician"
           replacements={{
             clinician: (
-              <LowerCase>
-                <TranslatedText
-                  stringId="general.localisedField.clinician.label.short"
-                  fallback="Clinician"
-                />
-              </LowerCase>
+              <TranslatedText
+                stringId="general.localisedField.clinician.label.short"
+                fallback="Clinician"
+                lowercase
+              />
             ),
           }}
         />

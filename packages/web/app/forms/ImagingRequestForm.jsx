@@ -29,7 +29,6 @@ import { ButtonRow } from '../components/ButtonRow';
 import { DateDisplay } from '../components/DateDisplay';
 import { FormSeparatorLine } from '../components/FormSeparatorLine';
 import { FormSubmitDropdownButton } from '../components/DropdownButton';
-import { LowerCase } from '../components/Typography';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';
 
@@ -158,12 +157,11 @@ export const ImagingRequestForm = React.memo(
                     fallback="Supervising :clinician"
                     replacements={{
                       clinician: (
-                        <LowerCase>
-                          <TranslatedText
-                            stringId="general.localisedField.clinician.label.short"
-                            fallback="Clinician"
-                          />
-                        </LowerCase>
+                        <TranslatedText
+                          stringId="general.localisedField.clinician.label.short"
+                          fallback="Clinician"
+                          lowercase
+                        />
                       ),
                     }}
                   />
@@ -179,12 +177,11 @@ export const ImagingRequestForm = React.memo(
                     fallback="Requesting :clinician"
                     replacements={{
                       clinician: (
-                        <LowerCase>
-                          <TranslatedText
-                            stringId="general.localisedField.clinician.label.short"
-                            fallback="Clinician"
-                          />
-                        </LowerCase>
+                        <TranslatedText
+                          stringId="general.localisedField.clinician.label.short"
+                          fallback="Clinician"
+                          lowercase
+                        />
                       ),
                     }}
                   />

@@ -25,7 +25,6 @@ import { useApi, useSuggester } from '../api';
 import { useLocalisation } from '../contexts/Localisation';
 import { getAnswersFromData } from '../utils';
 import { FORM_TYPES } from '../constants';
-import { LowerCase } from '../components';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';
 
@@ -154,12 +153,11 @@ export const TriageForm = ({
               fallback="Triage :clinician"
               replacements={{
                 clinician: (
-                  <LowerCase>
-                    <TranslatedText
-                      stringId="general.localisedField.clinician.label.short"
-                      fallback="Clinician"
-                    />
-                  </LowerCase>
+                  <TranslatedText
+                    stringId="general.localisedField.clinician.label.short"
+                    fallback="Clinician"
+                    lowercase
+                  />
                 ),
               }}
             />
