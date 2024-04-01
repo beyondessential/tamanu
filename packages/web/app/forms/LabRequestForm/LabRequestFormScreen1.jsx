@@ -1,5 +1,5 @@
 import React from 'react';
-import { Heading3, BodyText, LowerCase } from '../../components/Typography';
+import { Heading3, BodyText } from '../../components/Typography';
 import {
   AutocompleteField,
   DateTimeField,

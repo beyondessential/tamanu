@@ -3,13 +3,18 @@ import { useApi } from '../api/useApi';
 import { LOCAL_STORAGE_KEYS } from '../constants';
 import { useTranslations } from '../api/queries/useTranslations';
 import { ENGLISH_LANGUAGE_CODE } from '@tamanu/constants';
-import { lowerCase } from 'lodash';
 
 export const TranslationContext = React.createContext();
 
 export const useTranslation = () => useContext(TranslationContext);
 
 const isDev = process.env.NODE_ENV === 'development';
+
+const applyCasing = (text, lowercase, uppercase) => {
+  if (lowercase) return text.toLowerCase();
+  if (uppercase) return text.toUpperCase();
+  return text;
+};
 
 /**
  * @param {string} templateString
@@ -19,7 +24,7 @@ const isDev = process.env.NODE_ENV === 'development';
  * @example replaceStringVariables("there are :count users", { count: 2 }) => "there are 2 users"
  */
 const replaceStringVariables = (templateString, replacements, translations) => {
-  if (!replacements) return templateString;
+if (!replacements) return templateString;
   console.log(replacements);
   const result = templateString
     .split(/(:[a-zA-Z]+)/g)
@@ -30,15 +35,8 @@ const replaceStringVariables = (templateString, replacements, translations) => {
       let replacement = replacements[part.slice(1)] || part;
       if (typeof replacement !== 'object') return replacement;
 
-      // is react node
-      const child = replacement.props.children;
-      console.log(child);
-      if (child?.props?.stringId) {
-        replacement = child;
-      }
       const translation = translations?.[replacement.props.stringId] || replacement.props.fallback;
-      if (replacement.props.lowercase) return lowerCase(translation);
-      else return translation;
+      return applyCasing(translation, replacement.props.lowercase, replacement.props.uppercase);
     })
     .join('');
 
