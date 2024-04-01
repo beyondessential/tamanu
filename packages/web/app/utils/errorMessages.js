@@ -3,7 +3,9 @@ import { capitaliseFirstLetter } from './capitalise';
 import { startCase } from 'lodash';
 
 const REQUIRED_MESSAGE_STRING_ID = 'validation.required';
-const LOCALISATION_TEMPLATE_STRING = ':localisedField';
+const LOCALISATION_TEMPLATE_STRING = ':localisedField=';
+
+export const localisedErrorLabel = path => `:${LOCALISATION_TEMPLATE_STRING}.${path}`;
 
 const camelCaseTest = /(?=[A-Z])/;
 function splitFieldName(name) {
@@ -19,7 +21,7 @@ export function registerYup(translations = {}) {
     mixed: {
       required: ({ path }) => {
         if (path.includes(LOCALISATION_TEMPLATE_STRING)) {
-          const [prefix, suffix] = path.split(`${LOCALISATION_TEMPLATE_STRING}.`);
+          const [prefix, suffix] = path.split(LOCALISATION_TEMPLATE_STRING);
           const start = startCase(prefix);
           const translatedLocalisation = translations[`general.localisedField.${suffix}`] || suffix;
           return defaultMessage.replace(

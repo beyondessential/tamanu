@@ -34,6 +34,7 @@ import { useEncounter } from '../contexts/Encounter';
 import { MODAL_PADDING_LEFT_AND_RIGHT, MODAL_PADDING_TOP_AND_BOTTOM } from '../components';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';
+import { localisedErrorLabel } from '../utils/errorMessages';
 
 const Divider = styled(BaseDivider)`
   margin: 30px -${MODAL_PADDING_LEFT_AND_RIGHT}px;
@@ -374,7 +375,7 @@ export const DischargeForm = ({
           .object()
           .shape({
             // YUP TODO: localised clinician
-            dischargerId: foreignKey().label('discharging:localisedField.clinician'),
+            dischargerId: foreignKey().label(`discharging${localisedErrorLabel('clinician')}`),
           })
           .shape({
             dispositionId: getLocalisedSchema({

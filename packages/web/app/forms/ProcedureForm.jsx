@@ -20,6 +20,7 @@ import { FormSubmitCancelRow } from '../components/ButtonRow';
 import { foreignKey, optionalForeignKey } from '../utils/validation';
 import { FORM_TYPES } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
+import { localisedErrorLabel } from '../utils/errorMessages';
 // import { useTranslation } from '../contexts/Translation';
 
 const suggesterType = PropTypes.shape({
@@ -167,7 +168,7 @@ export const ProcedureForm = React.memo(
           startTime: yup.date(),
           endTime: yup.date(),
           // Yup TODO: localised clinician
-          physicianId: foreignKey().label(':localisedField.clinician'),
+          physicianId: foreignKey().label(localisedErrorLabel('clinician')),
           assistantId: optionalForeignKey(),
           anaesthetistId: optionalForeignKey(),
           anaestheticId: optionalForeignKey(),

@@ -9,6 +9,7 @@ import { FormGrid } from '../components/FormGrid';
 import { FormSubmitCancelRow } from '../components/ButtonRow';
 import { FORM_TYPES } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
+import { localisedErrorLabel } from '../utils/errorMessages';
 
 export const ChangeClinicianForm = ({ clinicianSuggester, onCancel, onSubmit }) => {
   const renderForm = ({ submitForm }) => (
@@ -49,7 +50,7 @@ export const ChangeClinicianForm = ({ clinicianSuggester, onCancel, onSubmit }) 
         examinerId: yup
           .string()
           .required()
-          .label(':localisedField.clinician'),
+          .label(localisedErrorLabel('clinician')),
       })}
       formType={FORM_TYPES.EDIT_FORM}
       render={renderForm}

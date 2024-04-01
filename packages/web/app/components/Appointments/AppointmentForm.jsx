@@ -8,6 +8,7 @@ import { FormSeparatorLine } from '../FormSeparatorLine';
 import { useApi, usePatientSuggester, useSuggester } from '../../api';
 import { APPOINTMENT_TYPE_OPTIONS, FORM_TYPES } from '../../constants';
 import { TranslatedText } from '../Translation/TranslatedText';
+import { localisedErrorLabel } from '../../utils/errorMessages';
 
 export const AppointmentForm = props => {
   const { onSuccess = () => {}, onCancel, appointment } = props;
@@ -67,7 +68,7 @@ export const AppointmentForm = props => {
         clinicianId: yup
           .string()
           .required()
-          .label(':localisedField.clinician'),
+          .label(localisedErrorLabel('clinician')),
         locationGroupId: yup
           .string()
           .required()
