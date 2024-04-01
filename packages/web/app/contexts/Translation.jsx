@@ -17,15 +17,23 @@ const isDev = process.env.NODE_ENV === 'development';
  *
  * @example replaceStringVariables("there are :count users", { count: 2 }) => "there are 2 users"
  */
-const replaceStringVariables = (templateString, replacements) => {
+const replaceStringVariables = (templateString, replacements, translations) => {
   if (!replacements) return templateString;
+  console.log(replacements);
   const result = templateString
     .split(/(:[a-zA-Z]+)/g)
     .map((part, index) => {
       // Even indexes are the unchanged parts of the string
       if (index % 2 === 0) return part;
       // Return the replacement if exists
-      return replacements[part.slice(1)] || part;
+      let replacement = replacements[part.slice(1)] || part;
+      if (typeof replacement !== 'object') return replacement;
+      // is react node
+      const child = replacement.props.children;
+      if (child.props.stringId) {
+        replacement = child;
+      }
+      return translations?.[replacement.props.stringId] || replacement.props.fallback;
     })
     .join('');
 
@@ -40,14 +48,15 @@ export const TranslationProvider = ({ children }) => {
   const { data: translations } = useTranslations(storedLanguage);
 
   const getTranslation = (stringId, fallback, replacements) => {
-    if (!translations) return replaceStringVariables(fallback, replacements);
-    if (translations[stringId]) return replaceStringVariables(translations[stringId], replacements);
+    if (!translations) return replaceStringVariables(fallback, replacements, translations);
+    if (translations[stringId])
+      return replaceStringVariables(translations[stringId], replacements, translations);
     // This section here is a dev tool to help populate the db with the translation ids we have defined
     // in components. It will only populate the db with English strings, so that we can then translate them.
     if (isDev && storedLanguage === ENGLISH_LANGUAGE_CODE) {
       api.post('translation', { stringId, fallback, text: fallback });
     }
-    return replaceStringVariables(fallback, replacements);
+    return replaceStringVariables(fallback, replacements, translations);
   };
 
   const updateStoredLanguage = newLanguage => {
