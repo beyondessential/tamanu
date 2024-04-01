@@ -18,7 +18,7 @@ const isDev = process.env.NODE_ENV === 'development';
  *
  * @example replaceStringVariables("there are :count users", { count: 2 }) => "there are 2 users"
  */
-const replaceStringVariables = (templateString, replacements, translations,) => {
+const replaceStringVariables = (templateString, replacements, translations) => {
   if (!replacements) return templateString;
   console.log(replacements);
   const result = templateString
@@ -29,6 +29,7 @@ const replaceStringVariables = (templateString, replacements, translations,) => 
       // Return the replacement if exists
       let replacement = replacements[part.slice(1)] || part;
       if (typeof replacement !== 'object') return replacement;
+
       // is react node
       const child = replacement.props.children;
       if (child?.props?.stringId) {
@@ -36,8 +37,7 @@ const replaceStringVariables = (templateString, replacements, translations,) => 
       }
       const translation = translations?.[replacement.props.stringId] || replacement.props.fallback;
       if (replacement.props.lowercase) return lowerCase(translation);
-      else return translation
-      // return translations?.[replacement.props.stringId] || replacement.props.fallback;
+      else return translation;
     })
     .join('');
 
