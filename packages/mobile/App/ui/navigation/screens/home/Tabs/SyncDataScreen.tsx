@@ -118,6 +118,9 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
 
   const syncFinishedSuccessfully = syncStarted && !isSyncing && !isQueuing && !hasError;
 
+  const changeTranslation = <TranslatedText stringId='sync.message.syncSummary.change' fallback='change' />
+  const changePluralTranslation = <TranslatedText stringId='sync.message.syncSummary.changePlural' fallback='changes' />
+
   return (
     <CenterView background={theme.colors.MAIN_SUPER_DARK} flex={1}>
       <StyledView alignItems="center">
@@ -230,12 +233,12 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
               >
                 <TranslatedText
                   stringId="sync.message.syncSummary"
-                  fallback="pulled :pulledCount change:pulledPlural, pushed :pushCount change:pushedPlural"
+                  fallback="pulled :pullCount :pullChange, pushed :pushCount :pushChange"
                   replacements={{
-                    pulledCount: lastSyncPulledRecordsCount,
-                    pulledPlural: lastSyncPulledRecordsCount === 1 ? '' : 's',
+                    pullCount: lastSyncPulledRecordsCount,
+                    pullChange: lastSyncPulledRecordsCount === 1 ? changeTranslation : changePluralTranslation,
                     pushCount: lastSyncPushedRecordsCount,
-                    pushedPlural: lastSyncPushedRecordsCount === 1 ? '' : 's',
+                    pushChange: lastSyncPushedRecordsCount === 1 ? changeTranslation : changePluralTranslation,
                   }}
                 />
               </StyledText>
