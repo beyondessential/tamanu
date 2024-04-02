@@ -92,9 +92,9 @@ triage.get(
       `
         SELECT
           triages.*,
-          encounters.*,
+          encounters.encounter_type,
           encounters.id as encounter_id,
-          patients.*,
+          patients.id as patient_id,
           location.name AS location_name,
           location_group.name AS location_group_name,
           complaint.name AS chief_complaint,
