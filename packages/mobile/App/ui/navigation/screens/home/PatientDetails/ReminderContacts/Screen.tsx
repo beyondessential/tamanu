@@ -147,7 +147,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
                           fontWeight={500}
                         >
                           <TranslatedText
-                            stringId="patient.details.reminderContacts.removeBtn"
+                            stringId="patient.details.reminderContacts.action.remove"
                             fallback="Remove"
                           />
                         </StyledText>
