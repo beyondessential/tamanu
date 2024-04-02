@@ -4,7 +4,7 @@
  * @param {QueryInterface} query
  */
 export async function up(query) {
-	await query.sequelize.query(`
+  await query.sequelize.query(`
   CREATE OR REPLACE VIEW upcoming_vaccinations
   AS with vaccine_thresholds AS (
 	  SELECT
@@ -78,11 +78,11 @@ export async function up(query) {
 	  LIMIT 1) AS status
   FROM patient_vaccine_schedule pvs;
 	`);
-  }
+}
 
-  /**
-   * @param {QueryInterface} query
-   */
-  export async function down(query) {
-	await query.sequelize.query(`DROP VIEW upcoming_vaccinations;`);
-  }
+/**
+ * @param {QueryInterface} query
+ */
+export async function down(query) {
+  await query.sequelize.query(`DROP VIEW upcoming_vaccinations;`);
+}

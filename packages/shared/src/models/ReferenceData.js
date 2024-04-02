@@ -1,5 +1,10 @@
 import { Sequelize, ValidationError } from 'sequelize';
-import { REFERENCE_TYPE_VALUES, SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
+import {
+  REFERENCE_TYPE_VALUES,
+  DEFAULT_HIERARCHY_TYPE,
+  SYNC_DIRECTIONS,
+  VISIBILITY_STATUSES,
+} from '@tamanu/constants';
 import { InvalidOperationError } from '../errors';
 import { Model } from './Model';
 
@@ -89,16 +94,16 @@ export class ReferenceData extends Model {
     if (!parent?.id) {
       return ancestors;
     }
-    return ReferenceData.#getParentRecursive(parent.id, [...ancestors, parent], relationType);
+    return ReferenceData.#getParentRecursive(parent.id, [...ancestors, parent]);
   }
 
-  static async getParent(id, relationType) {
+  static async getParent(id, relationType = DEFAULT_HIERARCHY_TYPE) {
     const record = await this.getNode({ where: { id }, relationType });
     return record?.parent;
   }
 
   // Gets a node in the hierarchy including the parent record
-  static async getNode({ where, raw = true, relationType }) {
+  static async getNode({ where, raw = true, relationType = DEFAULT_HIERARCHY_TYPE }) {
     return this.findOne({
       where,
       include: {
@@ -117,7 +122,7 @@ export class ReferenceData extends Model {
     });
   }
 
-  async getAncestors(relationType) {
+  async getAncestors(relationType = DEFAULT_HIERARCHY_TYPE) {
     const { ReferenceData } = this.sequelize.models;
     const baseNode = this.get({ plain: true });
     const parentNode = await ReferenceData.getParent(this.id, relationType);

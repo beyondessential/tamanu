@@ -12,7 +12,6 @@ import {
   SUGGESTER_ENDPOINTS,
   SURVEY_TYPES,
   VISIBILITY_STATUSES,
-  DEFAULT_HIERARCHY_TYPE,
 } from '@tamanu/constants';
 
 export const suggestions = express.Router();
@@ -25,7 +24,7 @@ function createSuggesterRoute(
   endpoint,
   modelName,
   whereBuilder,
-  { mapper, searchColumn, extraReplacementsBuilder, includeBuilder },
+  { mapper, searchColumn, extraReplacementsBuilder },
 ) {
   suggestions.get(
     `/${endpoint}$`,
@@ -36,17 +35,14 @@ function createSuggesterRoute(
       const model = models[modelName];
 
       const positionQuery = literal(
-        `POSITION(LOWER(:positionMatch) in LOWER(${`"${modelName}"."${searchColumn}"`})) > 1`,
+        `POSITION(LOWER(:positionMatch) in LOWER(${searchColumn})) > 1`,
       );
 
       const searchQuery = (query.q || '').trim().toLowerCase();
       const where = whereBuilder(`%${searchQuery}%`, query);
-      const include = includeBuilder?.(req);
-
       const results = await model.findAll({
         where,
-        include,
-        order: [positionQuery, [Sequelize.literal(`"${modelName}"."${searchColumn}"`), 'ASC']],
+        order: [positionQuery, [Sequelize.literal(searchColumn), 'ASC']],
         replacements: {
           positionMatch: searchQuery,
           ...extraReplacementsBuilder(query),
@@ -128,38 +124,11 @@ const VISIBILITY_CRITERIA = {
 };
 
 REFERENCE_TYPE_VALUES.forEach(typeName => {
-  createSuggester(
-    typeName,
-    'ReferenceData',
-    search => ({
-      name: { [Op.iLike]: search },
-      type: typeName,
-      ...VISIBILITY_CRITERIA,
-    }),
-    {
-      includeBuilder: req => {
-        const {
-          models: { ReferenceData },
-          query: { parentId, relationType = DEFAULT_HIERARCHY_TYPE },
-        } = req;
-
-        if (!parentId) return undefined;
-
-        return {
-          model: ReferenceData,
-          as: 'parent',
-          required: true,
-          through: {
-            attributes: [],
-            where: {
-              referenceDataParentId: parentId,
-              type: relationType,
-            },
-          },
-        };
-      },
-    },
-  );
+  createSuggester(typeName, 'ReferenceData', search => ({
+    name: { [Op.iLike]: search },
+    type: typeName,
+    ...VISIBILITY_CRITERIA,
+  }));
 });
 
 createSuggester('labTestType', 'LabTestType', () => VISIBILITY_CRITERIA, {
