@@ -427,7 +427,7 @@ describe('fijiAspenMediciReport', () => {
         patientId: 'BTIO864386',
         firstName: patient.firstName,
         lastName: patient.lastName,
-        lastUpdated: '2022-06-12T01:02:54+00:00',
+        lastUpdated: '2022-06-12T00:02:54+00:00',
         dateOfBirth: '1952-10-12',
         age: expect.any(Number), // TODO
         sex: upperFirst(patient.sex),
