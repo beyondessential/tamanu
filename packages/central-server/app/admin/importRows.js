@@ -3,6 +3,12 @@ import { Op } from 'sequelize';
 import { permissionCache } from '@tamanu/shared/permissions/cache';
 import { ValidationError as YupValidationError } from 'yup';
 import config from 'config';
+import {
+  TRANSLATABLE_REFERENCE_TYPES,
+  ENGLISH_LANGUAGE_CODE,
+  REFERENCE_DATA_TRANSLATION_PREFIX,
+} from '@tamanu/constants';
+import { normaliseSheetName } from './importerEndpoint';
 
 import { ForeignkeyResolutionError, UpsertionError, ValidationError } from './errors';
 import { statkey, updateStat } from './stats';
@@ -192,6 +198,7 @@ export async function importRows(
   }
 
   log.debug('Upserting database rows', { rows: validRows.length });
+  const translationRecordsForSheet = [];
   for (const { model, sheetRow, values } of validRows) {
     const Model = models[model];
     const existing = await loadExisting(Model, values);
@@ -215,11 +222,32 @@ export async function importRows(
         await Model.create(values);
         updateStat(stats, statkey(model, sheetName), 'created');
       }
+
+      const dataType =
+        sheetName === 'diagnosis'
+          ? 'icd10' // diagnosis is a special case where the datatype isnt the same as sheet name
+          : normaliseSheetName(sheetName);
+      const isValidTable = model === 'ReferenceData' || // All records in the reference data table are translatable
+          camelCase(model) === dataType; // This prevents join tables from being translated - unsure about this
+      const isTranslatable = TRANSLATABLE_REFERENCE_TYPES.includes(dataType);
+      if (isTranslatable && isValidTable) {
+        translationRecordsForSheet.push({
+          stringId: `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.${values.id}`,
+          text: values.name,
+          language: ENGLISH_LANGUAGE_CODE,
+        });
+      }
     } catch (err) {
       updateStat(stats, statkey(model, sheetName), 'errored');
       errors.push(new UpsertionError(sheetName, sheetRow, err));
     }
   }
+
+  // Ensure we have a translation record for each row of translatable reference data
+  await models.TranslatedString.bulkCreate(translationRecordsForSheet, {
+    fields: ['stringId', 'text', 'language'],
+    ignoreDuplicates: true,
+  });
 
   // You can't use hooks with instances. Hooks are used with models only.
   // https://sequelize.org/docs/v6/other-topics/hooks/

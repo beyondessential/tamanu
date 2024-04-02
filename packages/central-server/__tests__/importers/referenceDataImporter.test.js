@@ -3,15 +3,17 @@ import { fake } from '@tamanu/shared/test-helpers/fake';
 import {
   GENERAL_IMPORTABLE_DATA_TYPES,
   PERMISSION_IMPORTABLE_DATA_TYPES,
+  TRANSLATABLE_REFERENCE_TYPES,
 } from '@tamanu/constants/importable';
 import { createDummyPatient } from '@tamanu/shared/demoData/patients';
-import { REFERENCE_TYPES } from '@tamanu/constants';
+import { REFERENCE_TYPES, REFERENCE_DATA_TRANSLATION_PREFIX } from '@tamanu/constants';
 import { importerTransaction } from '../../dist/admin/importerEndpoint';
 import { referenceDataImporter } from '../../dist/admin/referenceDataImporter';
 import { createTestContext } from '../utilities';
 import './matchers';
 import { exporter } from '../../dist/admin/exporter/exporter';
 import { createAllergy, createDiagnosis } from '../exporters/referenceDataUtils';
+import { camelCase } from 'lodash';
 
 // the importer can take a little while
 jest.setTimeout(30000);
@@ -69,13 +71,20 @@ describe('Data definition import', () => {
   });
 
   it('should not write anything for a dry run', async () => {
-    const { ReferenceData } = ctx.store.models;
-    const beforeCount = await ReferenceData.count();
+    const { ReferenceData, TranslatedString } = ctx.store.models;
+    const beforeCount = {
+      referenceData: await ReferenceData.count(),
+      translatedString: await TranslatedString.count(),
+    };
 
     await doImport({ file: 'valid', dryRun: true });
 
-    const afterCount = await ReferenceData.count();
-    expect(afterCount).toEqual(beforeCount);
+    const afterCount = {
+      referenceData: await ReferenceData.count(),
+      translatedString: await TranslatedString.count(),
+    };
+
+    expect(beforeCount).toEqual(afterCount);
   });
 
   it('should error on missing file', async () => {
@@ -294,6 +303,40 @@ describe('Data definition import', () => {
         deleted: 0,
       },
     });
+  });
+
+  it('should create translations records for the translatable reference data types', async () => {
+    const { models } = ctx.store;
+    const { ReferenceData, TranslatedString } = models;
+    const { stats } = await doImport({ file: 'valid' });
+
+    // It should create a translation for each record in the reference data table
+    const refDataTableRecords = await ReferenceData.findAll({ raw: true });
+    const expectedStringIds = refDataTableRecords.map(
+      ({ type, id }) => `${REFERENCE_DATA_TRANSLATION_PREFIX}.${type}.${id}`,
+    );
+
+    // Filter out the clinical/patient record types as they dont get translated
+    const translatableNonRefDataTableImports = Object.keys(stats).filter(
+      key =>
+        !key.startsWith('ReferenceData') && TRANSLATABLE_REFERENCE_TYPES.includes(camelCase(key)),
+    );
+    translatableNonRefDataTableImports.forEach(async type => {
+      const recordsForDataType = await models[type].findAll({
+        attributes: ['id', 'name'],
+        raw: true,
+      });
+      const nonRefDataTableStringIds = recordsForDataType.map(
+        ({ id }) => `${REFERENCE_DATA_TRANSLATION_PREFIX}.${camelCase(type)}.${id}`,
+      );
+      expectedStringIds.push(...nonRefDataTableStringIds)
+    });
+
+    const createdTranslationCount = await TranslatedString.count({
+      where: { stringId: { [Op.in]: expectedStringIds } },
+    });
+    expect(expectedStringIds.length).toEqual(createdTranslationCount);
+
   });
 });
 

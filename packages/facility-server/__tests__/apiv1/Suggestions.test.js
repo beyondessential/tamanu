@@ -3,7 +3,7 @@ import {
   LOCATION_AVAILABILITY_STATUS,
   SURVEY_TYPES,
   VISIBILITY_STATUSES,
-  REFERENCE_DATA_TRANSLATION_PREFIX
+  REFERENCE_DATA_TRANSLATION_PREFIX,
 } from '@tamanu/constants';
 import {
   buildDiagnosis,
@@ -337,7 +337,7 @@ describe('Suggestions', () => {
 
     it('should look up a specific suggestion', async () => {
       const record = await models.ReferenceData.findOne();
-      const result = await userApp.get(`/api/suggestions/icd10/${record.id}`);
+      const result = await userApp.get(`/api/suggestions/icd10/${record.id}`, { language: 'en' });
       expect(result).toHaveSucceeded();
       const { body } = result;
       expect(body).toHaveProperty('name', record.name);
