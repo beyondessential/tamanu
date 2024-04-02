@@ -90,11 +90,12 @@ export const VaccineForm = ({
   vaccineRecordingType,
 }) => {
   const { getLocalisation } = useLocalisation();
+  const defaultVaccineLabel = currentVaccineRecordValues?.label;
+  const [vaccineLabel, setVaccineLabel] = useState(defaultVaccineLabel);
   const [vaccineOptions, setVaccineOptions] = useState([]);
   const [category, setCategory] = useState(
     currentVaccineRecordValues?.vaccineName ? VACCINE_CATEGORIES.OTHER : VACCINE_CATEGORIES.ROUTINE,
   );
-  const [vaccineLabel, setVaccineLabel] = useState();
 
   const { data: patientData } = usePatientData(patientId);
   const {
@@ -157,6 +158,7 @@ export const VaccineForm = ({
 
   const initialValues = !editMode
     ? {
+        vaccineLabel: vaccineLabel,
         status: vaccineRecordingType,
         category,
         date: getCurrentDateTimeString(),
@@ -228,15 +230,13 @@ const VaccineFormComponent = ({
   initialValues,
   ...props
 }) => {
-  const { setCategory, setVaccineLabel, editMode } = props;
+  const { setCategory, editMode } = props;
   useEffect(() => {
     // Reset the entire form values when switching between GIVEN and NOT_GIVEN tab
     resetForm({ values: initialValues });
     if (!editMode) {
       setCategory(VACCINE_CATEGORIES.ROUTINE);
-    }
-    setVaccineLabel(null);
-    // we strictly only want to reset the form values when vaccineRecordingType is changed
+    } // we strictly only want to reset the form values when vaccineRecordingType is changed
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [vaccineRecordingType]);
 
