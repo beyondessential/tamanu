@@ -11,7 +11,7 @@ import { useBackend } from '../hooks';
 
 interface TranslationContextData {
   debugMode: boolean;
-  getTranslation: (key: string) => string;
+  getTranslation: (key: string, fallback?: string) => string;
   fetchTranslations: () => void;
 }
 
@@ -31,6 +31,12 @@ export const TranslationProvider = ({ children }: PropsWithChildren<object>): Re
     setTranslations(translations);
   };
 
+  const getTranslation = (key: string, fallback?: string) => {
+    if (!translations) return fallback;
+
+    return translations[key] ?? fallback;
+  };
+
   useEffect(() => {
     if (!__DEV__) return;
     DevSettings.addMenuItem('Toggle translation highlighting', () => setIsDebugMode(!isDebugMode));
@@ -40,7 +46,7 @@ export const TranslationProvider = ({ children }: PropsWithChildren<object>): Re
     <TranslationContext.Provider
       value={{
         debugMode: isDebugMode,
-        getTranslation: key => translations[key],
+        getTranslation,
         fetchTranslations,
       }}
     >

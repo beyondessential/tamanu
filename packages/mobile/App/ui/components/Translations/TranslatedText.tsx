@@ -47,11 +47,11 @@ export const TranslatedText = ({
   uppercase = false,
 }: TranslatedTextProps): ReactElement => {
   const { debugMode, getTranslation } = useTranslation();
-  const translation = getTranslation(stringId) || fallback;
+  const translation = getTranslation(stringId, fallback);
 
   const displayElements = useMemo(() => {
     return replaceStringVariables(translation, replacements, uppercase);
-  }, [translation, replacements]);
+  }, [translation, replacements, uppercase]);
 
   const isDebugMode = __DEV__ && debugMode;
 

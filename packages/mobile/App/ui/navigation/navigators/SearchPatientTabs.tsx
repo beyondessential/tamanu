@@ -85,7 +85,7 @@ function BottomTabNavigator({
               <Field
                 component={SearchInput}
                 name="search"
-                placeholder={getTranslation('patient.search.placeholder') || 'Search for patients'}
+                placeholder={getTranslation('patient.search.placeholder', 'Search for patients')}
               />
             </StyledView>
           </RowView>

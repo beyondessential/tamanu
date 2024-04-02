@@ -42,14 +42,14 @@ export const SearchPatientTabs = ({ routingFrom }): ReactElement => {
     >
       <Tabs.Screen
         options={{
-          tabBarLabel: getTranslation('patient.recentlyViewed.title') || 'Recently viewed',
+          tabBarLabel: getTranslation('patient.recentlyViewed.title', 'Recently viewed'),
         }}
         name={Routes.HomeStack.SearchPatientStack.SearchPatientTabs.RecentViewed}
         component={RecentViewedScreen}
       />
       <Tabs.Screen
         options={{
-          tabBarLabel: getTranslation('patient.allPatient.title') || 'All patients',
+          tabBarLabel: getTranslation('patient.allPatient.title', 'All patients'),
         }}
         name={Routes.HomeStack.SearchPatientStack.SearchPatientTabs.ViewAll}
         component={ViewAllScreen}

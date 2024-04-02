@@ -134,28 +134,28 @@ const TabNavigator = ({ selectedPatient }: BaseAppProps): ReactElement => {
 
   const HomeScreenOptions: BottomTabNavigationOptions = {
     tabBarIcon: TabScreenIcon(HomeLogoIcon),
-    tabBarLabel: getTranslation('general.home') || 'Home',
+    tabBarLabel: getTranslation('general.home', 'Home'),
     tabBarTestID: 'HOME',
     unmountOnBlur: true,
   };
   const ReportScreenOptions: BottomTabNavigationOptions = {
     tabBarIcon: TabScreenIcon(ReportsIcon),
-    tabBarLabel: getTranslation('general.reports') || 'Reports',
+    tabBarLabel: getTranslation('general.reports', 'Reports'),
     tabBarTestID: 'REPORTS',
   };
   const PatientScreenOptions: BottomTabNavigationOptions = {
     tabBarIcon: TabScreenIcon(PatientIcon),
-    tabBarLabel: getTranslation('general.patient') || 'Patient',
+    tabBarLabel: getTranslation('general.patient', 'Patient'),
     tabBarTestID: 'PATIENT',
   };
   const SyncDataScreenOptions: BottomTabNavigationOptions = {
     tabBarIcon: TabScreenIcon(SyncCloudIcon),
-    tabBarLabel: getTranslation('general.sync') || 'Sync',
+    tabBarLabel: getTranslation('general.sync', 'Sync'),
     tabBarTestID: 'Sync Data',
   };
   const MoreScreenOptions: BottomTabNavigationOptions = {
     tabBarIcon: TabScreenIcon(MoreLogoIcon),
-    tabBarLabel: getTranslation('general.more') || 'More',
+    tabBarLabel: getTranslation('general.more', 'More'),
     tabBarTestID: 'MORE',
   };
 
