@@ -22,6 +22,7 @@ import { useFacility } from '~/ui/contexts/FacilityContext';
 import { LanguageSelectButton } from './LanguageSelectButton';
 import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 import { SupportCentreButton } from './SupportCentreButton';
+import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 
 interface ModalContent {
   message: string;
@@ -103,10 +104,13 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
           </StyledView>
           <StyledView marginLeft={screenPercentageToDP(2.43, Orientation.Width)}>
             <StyledText fontSize={30} fontWeight="bold" marginBottom={5} color={theme.colors.WHITE}>
-              Log In
+              <TranslatedText stringId="login.heading.login" fallback="Log in" />
             </StyledText>
             <StyledText fontSize={14} color={theme.colors.WHITE}>
-              Enter your details below to log in
+              <TranslatedText
+                stringId="login.subTitle"
+                fallback="Enter your details below to log in"
+              />
             </StyledText>
           </StyledView>
           <SignInForm
@@ -142,23 +146,23 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
               color={theme.colors.WHITE}
               textDecorationLine="underline"
             >
-              Forgot password?
+              <TranslatedText stringId="login.action.forgotPassword" fallback="Forgot password?" />
             </StyledText>
           </StyledTouchableOpacity>
         </KeyboardAvoidingView>
         <LanguageSelectButton navigation={navigation} />
       </StyledSafeAreaView>
       <StyledView
-          flexDirection="row"
-          justifyContent="flex-end"
-          position='absolute'
-          bottom={screenPercentageToDP(2.43, Orientation.Height)}
-          right={screenPercentageToDP(2.43, Orientation.Width)}
-          paddingLeft={screenPercentageToDP(2.43, Orientation.Width)}
-          paddingRight={screenPercentageToDP(2.43, Orientation.Width)}
-        >
-          {isSupportUrlLoaded && <SupportCentreButton supportCentreUrl={supportCentreUrl} />}
-        </StyledView>
+        flexDirection="row"
+        justifyContent="flex-end"
+        position="absolute"
+        bottom={screenPercentageToDP(2.43, Orientation.Height)}
+        right={screenPercentageToDP(2.43, Orientation.Width)}
+        paddingLeft={screenPercentageToDP(2.43, Orientation.Width)}
+        paddingRight={screenPercentageToDP(2.43, Orientation.Width)}
+      >
+        {isSupportUrlLoaded && <SupportCentreButton supportCentreUrl={supportCentreUrl} />}
+      </StyledView>
     </FullView>
   );
 };

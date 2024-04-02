@@ -277,9 +277,7 @@ export const ReportGeneratorForm = () => {
           <FormGrid columns={2}>
             <Field
               name="reportId"
-              label={
-                <TranslatedText stringId="report.generate.report.label" fallback="Report" />
-              }
+              label={<TranslatedText stringId="report.generate.report.label" fallback="Report" />}
               component={ReportIdField}
               options={reportOptions}
               required
@@ -359,19 +357,14 @@ export const ReportGeneratorForm = () => {
             <Field
               name="fromDate"
               label={
-                <TranslatedText
-                  stringId="report.generate.fromDate.label"
-                  fallback="From date"
-                />
+                <TranslatedText stringId="report.generate.fromDate.label" fallback="From date" />
               }
               component={DateField}
               saveDateAsString={filterDateRangeAsStrings}
             />
             <Field
               name="toDate"
-              label={
-                <TranslatedText stringId="report.generate.toDate.label" fallback="To date" />
-              }
+              label={<TranslatedText stringId="report.generate.toDate.label" fallback="To date" />}
               component={DateField}
               saveDateAsString={filterDateRangeAsStrings}
             />
