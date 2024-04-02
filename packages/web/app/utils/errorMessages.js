@@ -3,7 +3,7 @@ import { capitaliseFirstLetter } from './capitalise';
 import { startCase } from 'lodash';
 
 const REQUIRED_MESSAGE_STRING_ID = 'validation.required';
-const LOCALISATION_TEMPLATE_STRING = ':localisedField=';
+const LOCALISATION_TEMPLATE_STRING = '@localisedField=';
 
 export const localisedErrorLabel = path => `:${LOCALISATION_TEMPLATE_STRING}${path}`;
 
