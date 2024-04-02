@@ -32,7 +32,6 @@ export const LabRequestMultiStepForm = ({
 
   // For fields please see LabRequestFormScreen1.js
   const screen1ValidationSchema = yup.object().shape({
-    // Yup todo: localised clinician based label
     requestedById: foreignKey().label(`requesting${localisedErrorLabel('clinician')}`),
     requestedDate: yup
       .date()

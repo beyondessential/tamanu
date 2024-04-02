@@ -176,7 +176,6 @@ export const PatientLetterForm = ({ onSubmit, onCancel, editedObject, endpoint, 
         clinicianId: yup
           .string()
           .required()
-          // yup TODO: localised clinician
           .label(localisedErrorLabel('clinician')),
         title: yup
           .string()
