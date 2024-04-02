@@ -27,6 +27,10 @@ surveyResponse.get(
     req.checkPermission('read', 'SurveyResponse');
 
     const surveyResponseRecord = await models.SurveyResponse.findByPk(params.id);
+    const survey = await surveyResponseRecord.getSurvey();
+
+    req.checkPermission('read', survey);
+
     const components = await models.SurveyScreenComponent.getComponentsForSurvey(
       surveyResponseRecord.surveyId,
       { includeAllVitals: true },
