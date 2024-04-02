@@ -20,17 +20,15 @@ export function registerYup(translations = {}) {
   setLocale({
     mixed: {
       required: ({ path }) => {
-        if (path.includes(LOCALISATION_TEMPLATE_STRING)) {
-          const [prefix, suffix] = path.split(LOCALISATION_TEMPLATE_STRING);
-          const translatedLocalisation = translations[`general.localisedField.${suffix}`] || suffix;
-          return defaultMessage.replace(
-            ':path',
-            `${prefix ? `${startCase(prefix)} ` : ''}${translatedLocalisation}`,
-          );
+        if (!path.includes(LOCALISATION_TEMPLATE_STRING)) {
+          return defaultMessage.replace(':path', splitFieldName(path));
         }
+        // If the path is a localised field, we need to extract the localisation key and translate it
+        const [prefix, suffix] = path.split(LOCALISATION_TEMPLATE_STRING);
+        const translatedLocalisation = translations[`general.localisedField.${suffix}`] || suffix;
         return defaultMessage.replace(
           ':path',
-          translations[`validation.path.${path}`] || splitFieldName(path),
+          `${prefix ? `${startCase(prefix)} ` : ''}${translatedLocalisation}`,
         );
       },
     },
