@@ -1,6 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import { Dimensions, Text } from 'react-native';
 import RNFS from 'react-native-fs';
+import { Popup } from 'popup-ui';
 import { useBackend } from '~/ui/hooks';
 import { StyledImage, StyledView, StyledText } from '/styled/common';
 import {
