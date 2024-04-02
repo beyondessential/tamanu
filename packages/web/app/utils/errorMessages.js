@@ -22,11 +22,10 @@ export function registerYup(translations = {}) {
       required: ({ path }) => {
         if (path.includes(LOCALISATION_TEMPLATE_STRING)) {
           const [prefix, suffix] = path.split(LOCALISATION_TEMPLATE_STRING);
-          const start = startCase(prefix);
           const translatedLocalisation = translations[`general.localisedField.${suffix}`] || suffix;
           return defaultMessage.replace(
             ':path',
-            `${start ? `${start} ` : ''}${translatedLocalisation}`,
+            `${prefix ? `${startCase(prefix)} ` : ''}${translatedLocalisation}`,
           );
         }
         return defaultMessage.replace(
