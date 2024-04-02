@@ -6,6 +6,7 @@ import { TelegramBotService } from '../services/TelegramBotService';
 export const telegramWebhookRoutes = express.Router();
 
 const tgBot = new TelegramBotService({ autoStartWebhook: true });
+tgBot.initListener();
 
 telegramWebhookRoutes.post(
   `/`,

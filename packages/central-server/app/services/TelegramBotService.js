@@ -1,5 +1,6 @@
 import TelegramBot from 'node-telegram-bot-api';
 import config from 'config';
+import { log } from '@tamanu/shared/services/logging';
 
 const { telegramBot, canonicalHostName } = config;
 const apiToken = telegramBot?.apiToken;
@@ -9,21 +10,31 @@ export class TelegramBotService {
   static #bot = new TelegramBot(apiToken);
 
   constructor(options) {
-    TelegramBotService.#bot.on('message', async (msg, meta) => this.handleMessage(msg, meta));
     if (options?.autoStartWebhook) {
       this.startWebhook();
     }
   }
 
+  initListener() {
+    TelegramBotService.#bot.on('message', async (msg, meta) => this.handleMessage(msg, meta));
+  }
+
   handleMessage(msg) {
     const chatId = msg.chat.id;
-    TelegramBotService.#bot.sendMessage(chatId, `You just say: ${msg.text}`);
+    TelegramBotService.#bot.sendMessage(chatId, `You just say: \n${msg.text}`);
   }
 
   startWebhook() {
-    TelegramBotService.#bot.setWebHook(`${canonicalHostName}/api/public/telegram-webhook`, {
-      secret_token: secretToken,
-    });
+    TelegramBotService.#bot
+      .setWebHook(`${canonicalHostName}/api/public/telegram-webhook`, {
+        secret_token: secretToken,
+      })
+      .catch(e => {
+        log.error('Start telegram webhook failed', {
+          canonicalHostName,
+          error: e.message,
+        });
+      });
   }
 
   processUpdate(body) {
