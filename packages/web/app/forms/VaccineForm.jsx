@@ -158,8 +158,8 @@ export const VaccineForm = ({
 
   const initialValues = !editMode
     ? {
-      vaccineLabel: vaccineLabel,
-      status: vaccineRecordingType,
+        vaccineLabel: vaccineLabel,
+        status: vaccineRecordingType,
         category,
         date: getCurrentDateTimeString(),
         locationGroupId: !currentEncounter

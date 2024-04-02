@@ -12,7 +12,6 @@ import {
 import { Colors } from '../../constants';
 
 export const getSchedule = record =>
-  record.scheduleName ||
   record.scheduledVaccine?.schedule || (
     <TranslatedText stringId="general.fallback.notApplicable" fallback="N/A" />
   );
@@ -118,7 +117,6 @@ const VACCINE_STATUS_COLORS = {
 };
 
 export const getStatusTag = ({ status }) => {
-  console.log('status', status);
   const label = VACCINE_STATUS_LABELS[status] || status;
   const color = VACCINE_STATUS_COLORS[status];
   return (

@@ -225,6 +225,13 @@ describe('PatientVaccine', () => {
     });
   });
 
+  describe('Upcoming vaccination', () => {
+    it('should return all upcoming vaccinations of patient', async () => {
+      const result = await app.get(`/api/patient/${patient.id}/upcomingVaccination`);
+      expect(result).toHaveSucceeded();
+    });
+  });
+
   describe('Administered vaccines', () => {
     let location2;
     let department2;
