@@ -13,10 +13,16 @@ const safeGetIsDebugMode = () => {
   }
 };
 
-export const TranslatedText = ({ stringId, fallback, replacements }) => {
+export const TranslatedText = ({ stringId, fallback, replacements, uppercase, lowercase }) => {
   const { getTranslation } = useTranslation();
 
-  const translation = getTranslation(stringId, fallback?.split('\\n').join('\n'), replacements);
+  const translation = getTranslation(
+    stringId,
+    fallback?.split('\\n').join('\n'),
+    replacements,
+    uppercase,
+    lowercase,
+  );
 
   const isDebugMode = safeGetIsDebugMode();
   if (isDebugMode)

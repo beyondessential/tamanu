@@ -23,8 +23,14 @@ const applyCasing = (text, lowercase, uppercase) => {
  *
  * @example replaceStringVariables("there are :count users", { count: 2 }) => "there are 2 users"
  */
-const replaceStringVariables = (templateString, replacements, translations) => {
-if (!replacements) return templateString;
+const replaceStringVariables = (
+  templateString,
+  replacements,
+  translations,
+  uppercase,
+  lowercase,
+) => {
+  if (!replacements) return applyCasing(templateString, uppercase, lowercase);
   console.log(replacements);
   const result = templateString
     .split(/(:[a-zA-Z]+)/g)
@@ -40,7 +46,7 @@ if (!replacements) return templateString;
     })
     .join('');
 
-  return result;
+  return applyCasing(result, uppercase, lowercase);
 };
 
 export const TranslationProvider = ({ children }) => {
@@ -50,16 +56,23 @@ export const TranslationProvider = ({ children }) => {
 
   const { data: translations } = useTranslations(storedLanguage);
 
-  const getTranslation = (stringId, fallback, replacements) => {
-    if (!translations) return replaceStringVariables(fallback, replacements, translations);
+  const getTranslation = (stringId, fallback, replacements, uppercase, lowercase) => {
+    if (!translations)
+      return replaceStringVariables(fallback, replacements, translations, uppercase, lowercase);
     if (translations[stringId])
-      return replaceStringVariables(translations[stringId], replacements, translations);
+      return replaceStringVariables(
+        translations[stringId],
+        replacements,
+        translations,
+        uppercase,
+        lowercase,
+      );
     // This section here is a dev tool to help populate the db with the translation ids we have defined
     // in components. It will only populate the db with English strings, so that we can then translate them.
     if (isDev && storedLanguage === ENGLISH_LANGUAGE_CODE) {
       api.post('translation', { stringId, fallback, text: fallback });
     }
-    return replaceStringVariables(fallback, replacements, translations);
+    return replaceStringVariables(fallback, replacements, translations, uppercase, lowercase);
   };
 
   const updateStoredLanguage = newLanguage => {
