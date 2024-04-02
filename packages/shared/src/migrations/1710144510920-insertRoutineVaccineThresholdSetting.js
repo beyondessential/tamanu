@@ -48,7 +48,7 @@ export async function up(query) {
 export async function down(query) {
   await query.bulkDelete('settings', {
     key: {
-      [Op.in]: Object.entries(DEFAULT_SETTINGS).map(([key]) => key),
+      [Op.in]: Object.keys(DEFAULT_SETTINGS),
     },
   });
 }
