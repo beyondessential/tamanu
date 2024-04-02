@@ -12,7 +12,7 @@ export const ConfiguredMandatoryPatientFields = ({ fields, filterByMandatory }) 
       !fields[fieldName].condition || fields[fieldName].condition();
     const checkMandatory = fieldName =>
       !isBoolean(filterByMandatory) ||
-      getLocalisation(`fields.${fieldName}.requiredPatientData`) === filterByMandatory;
+      !!getLocalisation(`fields.${fieldName}.requiredPatientData`) === filterByMandatory;
 
     return Object.keys(fields)
       .filter(fieldName => checkMandatory(fieldName) && checkCondition(fieldName))
