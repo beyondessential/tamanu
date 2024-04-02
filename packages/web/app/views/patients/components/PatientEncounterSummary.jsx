@@ -281,6 +281,7 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
                 ),
               }}
             />
+            :
           </ContentLabel>
           <ContentText>{examiner?.displayName || '-'}</ContentText>
         </ContentItem>
