@@ -246,7 +246,6 @@ export const ReportEditor = ({ initialValues, onSubmit, isEdit }) => {
           .label('reportName'),
         dataSources: yup
           .array()
-          // yup Todo: its global scope waaa
           .test(
             'test-data-sources',
             getTranslation('validation.rule.atLeast1DataSource', 'Select at least one data source'),
