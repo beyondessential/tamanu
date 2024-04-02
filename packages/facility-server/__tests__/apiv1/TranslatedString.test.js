@@ -1,6 +1,7 @@
 import { fake } from '@tamanu/shared/test-helpers/fake';
 import Chance from 'chance';
 import { createTestContext } from '../utilities';
+import { REFERENCE_DATA_TRANSLATION_PREFIX } from '@tamanu/constants'
 
 const chance = new Chance();
 
@@ -104,6 +105,42 @@ describe('TranslatedString', () => {
           language: LANGUAGE_CODES.ENGLISH,
         }),
       );
+    });
+  });
+
+  describe('getReferenceDataTranslationsByDataType method', () => {
+    it('should return all translations for a given reference data endpoint in a given language', async () => {
+      const { TranslatedString } = models;
+
+      const EXPECTED_REFDATA_TYPE = 'icd10';
+
+      const expectedTranslation = await TranslatedString.create({
+        stringId: `${REFERENCE_DATA_TRANSLATION_PREFIX}.${EXPECTED_REFDATA_TYPE}.testDisease`,
+        text: 'Test disease',
+        language: LANGUAGE_CODES.ENGLISH,
+      });
+
+      // Response shouldnt include this record as its not english
+      await TranslatedString.create({
+        stringId: `${REFERENCE_DATA_TRANSLATION_PREFIX}.${EXPECTED_REFDATA_TYPE}.testDisease`,
+        text: '១២៣',
+        language: LANGUAGE_CODES.KHMER,
+      });
+
+      // Response shouldn't include this record as the wrong data type
+      await TranslatedString.create({
+        stringId: `${REFERENCE_DATA_TRANSLATION_PREFIX}.village.testVillage`,
+        text: 'Test Village',
+        language: LANGUAGE_CODES.ENGLISH,
+      });
+
+      const translations = await TranslatedString.getReferenceDataTranslationsByDataType({
+        language: LANGUAGE_CODES.ENGLISH,
+        refDataType: EXPECTED_REFDATA_TYPE,
+      });
+
+      expect(translations).toHaveLength(1);
+      expect(expectedTranslation).toMatchObject(translations[0]);
     });
   });
 });
