@@ -23,7 +23,7 @@ const applyCasing = (text, lowercase, uppercase) => {
  *
  * @example replaceStringVariables("there are :count users", { count: 2 }) => "there are 2 users"
  */
-const replaceStringVariables = (
+export const replaceStringVariables = (
   templateString,
   replacements,
   translations,

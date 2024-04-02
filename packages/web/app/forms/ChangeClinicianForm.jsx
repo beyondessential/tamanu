@@ -49,7 +49,21 @@ export const ChangeClinicianForm = ({ clinicianSuggester, onCancel, onSubmit }) 
         examinerId: yup
           .string()
           .required()
-          .label(localisedErrorLabel('clinician')),
+          .translatedLabel(
+            <TranslatedText
+              stringId="patient.changeClinician.examinerId.label"
+              fallback="Search new :clinician"
+              replacements={{
+                clinician: (
+                  <TranslatedText
+                    stringId="general.localisedField.clinician.label.short"
+                    fallback="Clinician"
+                    lowercase
+                  />
+                ),
+              }}
+            />,
+          ),
       })}
       formType={FORM_TYPES.EDIT_FORM}
       render={renderForm}

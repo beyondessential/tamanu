@@ -1,6 +1,7 @@
 import * as yup from 'yup';
 import { capitaliseFirstLetter } from './capitalise';
 import { startCase } from 'lodash';
+import { replaceStringVariables } from '../contexts/Translation';
 
 const REQUIRED_MESSAGE_STRING_ID = 'validation.required';
 const LOCALISATION_TEMPLATE_STRING = '@localisedField=';
@@ -16,16 +17,23 @@ function splitFieldName(name) {
 }
 
 export function registerYup(translations = {}) {
-  yup.addMethod(yup.mixed, 'localisedLabel', function(path, fieldName) {
-    const translated = translations[`general.localisedField.${fieldName}`];
-    if (!translated) {
-      return this.label(path);
-    }
-    const defaultMessage = path.replace(
-      new RegExp(fieldName, 'i'),
-      translations[`general.localisedField.${fieldName}`],
+  function generateLabel2(tt) {
+    const { stringId, fallback, replacements, lowercase, uppercase } = tt.props;
+    const label = translations[stringId] || fallback;
+    const replaced = replaceStringVariables(
+      label,
+      replacements,
+      translations,
+      uppercase,
+      lowercase,
     );
-    return this.label(defaultMessage);
+    return label(replaced);
+  }
+  yup.addMethod(yup.mixed, 'translatedLabel', generateLabel2);
+  yup.addMethod(yup.mixed, 'localisedLabel', function(fieldName, fallback) {
+    const translated = translations[`general.localisedField.${fieldName}`];
+    const label = translated ? path.replace(new RegExp(fieldName, 'i'), translated) : path;
+    return this.label(label);
   });
   const defaultMessage = translations[REQUIRED_MESSAGE_STRING_ID] || 'The :path field is required';
   yup.setLocale({
