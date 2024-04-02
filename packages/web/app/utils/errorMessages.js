@@ -25,10 +25,11 @@ export function registerYup(translations = {}) {
         }
         // If the path is a localised field, we need to extract the localisation key and translate it
         const [prefix, suffix] = path.split(LOCALISATION_TEMPLATE_STRING);
-        const translatedLocalisation = translations[`general.localisedField.${suffix}`] || suffix;
         return defaultMessage.replace(
           ':path',
-          `${prefix ? `${startCase(prefix)} ` : ''}${translatedLocalisation}`,
+          `${prefix ? `${startCase(prefix)} ` : ''}${translations[
+            `general.localisedField.${suffix}`
+          ] || suffix}`,
         );
       },
     },
