@@ -1,4 +1,4 @@
-import { setLocale } from 'yup';
+import * as yup from 'yup';
 import { capitaliseFirstLetter } from './capitalise';
 import { startCase } from 'lodash';
 
@@ -16,21 +16,22 @@ function splitFieldName(name) {
 }
 
 export function registerYup(translations = {}) {
+  yup.addMethod(yup.mixed, 'localisedLabel', function(path, fieldName) {
+    const translated = translations[`general.localisedField.${fieldName}`];
+    if (!translated) {
+      return this.label(path);
+    }
+    const defaultMessage = path.replace(
+      new RegExp(fieldName, 'i'),
+      translations[`general.localisedField.${fieldName}`],
+    );
+    return this.label(defaultMessage);
+  });
   const defaultMessage = translations[REQUIRED_MESSAGE_STRING_ID] || 'The :path field is required';
-  setLocale({
+  yup.setLocale({
     mixed: {
-      required: ({ path }) => {
-        if (!path.includes(LOCALISATION_TEMPLATE_STRING)) {
-          return defaultMessage.replace(':path', splitFieldName(path));
-        }
-        // If the path is a localised field, we need to extract the localisation key and translate it
-        const [prefix, suffix] = path.split(LOCALISATION_TEMPLATE_STRING);
-        return defaultMessage.replace(
-          ':path',
-          `${prefix ? `${startCase(prefix)} ` : ''}${translations[
-            `general.localisedField.${suffix}`
-          ] || suffix}`,
-        );
+      required: function({ path }) {
+        return defaultMessage.replace(':path', splitFieldName(path));
       },
     },
   });
