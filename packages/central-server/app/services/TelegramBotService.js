@@ -20,7 +20,7 @@ export class TelegramBotService {
     TelegramBotService.#bot.on('message', async (msg, meta) => this.handleMessage(msg, meta));
   }
 
-  async handleMessage(msg) {
+  handleMessage(msg) {
     const chatId = msg.chat.id;
     TelegramBotService.#bot.sendMessage(chatId, `You just say: \n${msg.text}`);
   }
