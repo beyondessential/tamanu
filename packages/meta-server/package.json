@@ -37,7 +37,7 @@
     "config": "^3.3.6",
     "connect-flash": "^0.1.1",
     "core-js": "^3.23.1",
-    "express": "^4.16.2",
+    "express": "^4.19.2",
     "express-async-handler": "^1.1.4",
     "express-session": "^1.15.6",
     "express-validator": "^6.5.0",
@@ -48,7 +48,7 @@
     "prompts": "^2.0.0",
     "request": "^2.88.0",
     "request-promise": "^4.2.2",
-    "sanitize-html": "^2.12.1",
+    "sanitize-html": "^2.13.0",
     "sequelize": "^6.23.2",
     "winston": "^3.2.1"
   }
