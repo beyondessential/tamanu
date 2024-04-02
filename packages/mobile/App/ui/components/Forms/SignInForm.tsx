@@ -18,7 +18,6 @@ import { Field } from './FormField';
 import { TextField } from '../TextField/TextField';
 import { SubmitButton } from './SubmitButton';
 import { ServerSelector } from '../ServerSelectorField/ServerSelector';
-import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { TranslatedText } from '../Translations/TranslatedText';
 
 interface SignInFormModelValues {
@@ -49,7 +48,6 @@ export const SignInForm: FunctionComponent<any> = ({ onError, onSuccess }) => {
   const [existingHost, setExistingHost] = useState('');
   const passwordRef = useRef(null);
   const { signIn } = useAuth();
-  const { fetchTranslations } = useTranslation();
 
   const handleSignIn = useCallback(
     async (values: SignInFormModelValues) => {
@@ -60,7 +58,6 @@ export const SignInForm: FunctionComponent<any> = ({ onError, onSuccess }) => {
           return;
         }
         await signIn(values);
-        await fetchTranslations();
 
         onSuccess();
       } catch (error) {

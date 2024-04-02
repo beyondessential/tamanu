@@ -8,28 +8,51 @@ import React, {
 } from 'react';
 import { DevSettings } from 'react-native';
 import { useBackend } from '../hooks';
+import { isEmpty } from 'lodash';
 
 interface TranslationContextData {
   debugMode: boolean;
+  language: string;
+  languageOptions: [];
+  setLanguageOptions: (languageOptions: []) => void;
+  onChangeLanguage: (languageCode: string) => void;
   getTranslation: (key: string) => string;
-  fetchTranslations: () => void;
+  setLanguage: (language: string) => void;
+  host: string;
+  setHost: (host: string) => void;
 }
 
 const TranslationContext = createContext<TranslationContextData>({} as TranslationContextData);
 
 export const TranslationProvider = ({ children }: PropsWithChildren<object>): ReactElement => {
+  const DEFAULT_LANGUAGE = 'en';
   const { models } = useBackend();
   const [isDebugMode, setIsDebugMode] = useState(false);
   const [translations, setTranslations] = useState({});
+  const [languageOptions, setLanguageOptions] = useState(null);
+  const [language, setLanguage] = useState(null);
+  const [host, setHost] = useState(null);
 
-  if (__DEV__) {
-    DevSettings.addMenuItem('Toggle translation highlighting', () => setIsDebugMode(!isDebugMode));
-  }
-
-  const fetchTranslations = async (language: string = 'en') => {
-    const translations = await models.TranslatedString.getForLanguage(language);
-    setTranslations(translations);
+  const getLanguageOptions = async () => {
+    const languageOptionArray = await models.TranslatedString.getLanguageOptions();
+    if (languageOptionArray.length > 0) setLanguageOptions(languageOptionArray);
   };
+
+  const setLanguageState = async (languageCode: string = DEFAULT_LANGUAGE) => {
+    if (!languageOptions) getLanguageOptions();
+    const translations = await models.TranslatedString.getForLanguage(languageCode);
+    if (isEmpty(translations)) { // If we dont have translations synced down, fetch from the public server endpoint directly
+      const response = await fetch(`${host}/api/public/translation/${languageCode}`);
+      const data = await response.json();
+      setTranslations(data);
+    } else {
+      setTranslations(translations);
+    }
+  };
+
+  useEffect(() => {
+    setLanguageState(language);
+  }, [language]);
 
   useEffect(() => {
     if (!__DEV__) return;
@@ -40,8 +63,13 @@ export const TranslationProvider = ({ children }: PropsWithChildren<object>): Re
     <TranslationContext.Provider
       value={{
         debugMode: isDebugMode,
+        language,
+        languageOptions,
+        setLanguageOptions,
         getTranslation: key => translations[key],
-        fetchTranslations,
+        setLanguage,
+        host,
+        setHost,
       }}
     >
       {children}

@@ -1,4 +1,4 @@
-import React, { ReactElement, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { ReactElement, useCallback } from 'react';
 import { compose } from 'redux';
 import { useSelector } from 'react-redux';
 import { Formik } from 'formik';
@@ -7,7 +7,6 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { Field } from '/components/Forms/FormField';
 import { Spacer } from '/components/Spacer';
 import { FullView, StyledView } from '/styled/common';
-import { SubmitButton } from '/components/Forms/SubmitButton';
 import { TextField } from '/components/TextField/TextField';
 import { theme } from '/styled/theme';
 import { KeyboardAvoidingView, StyleSheet } from 'react-native';
@@ -26,6 +25,7 @@ import { CurrentUserField } from '~/ui/components/CurrentUserField/CurrentUserFi
 import { getCurrentDateTimeString } from '~/ui/helpers/date';
 import { NOTE_RECORD_TYPES, NOTE_TYPES } from '~/ui/helpers/constants';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
+import { Button } from '~/ui/components/Button';
 
 const IllnessFormSchema = Yup.object().shape({
   diagnosis: Yup.string(),
