@@ -1,5 +1,6 @@
 import TelegramBot from 'node-telegram-bot-api';
 import config from 'config';
+import { COMMUNICATION_STATUSES } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
 
 const { telegramBot, canonicalHostName } = config;
@@ -39,5 +40,14 @@ export class TelegramBotService {
 
   processUpdate(body) {
     TelegramBotService.#bot.processUpdate(body);
+  }
+
+  async sendMessage(chatId, text) {
+    try {
+      const message = await TelegramBotService.#bot.sendMessage(chatId, text);
+      return { status: COMMUNICATION_STATUSES.SENT, result: message };
+    } catch (e) {
+      return { status: COMMUNICATION_STATUSES.ERROR, error: e.message };
+    }
   }
 }
