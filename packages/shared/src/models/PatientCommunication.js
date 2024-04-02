@@ -2,6 +2,8 @@ import { Sequelize } from 'sequelize';
 import {
   COMMUNICATION_STATUSES,
   COMMUNICATION_STATUSES_VALUES,
+  PATIENT_COMMUNICATION_CHANNELS_VALUES,
+  PATIENT_COMMUNICATION_TYPES_VALUES,
   SYNC_DIRECTIONS,
 } from '@tamanu/constants';
 
@@ -12,8 +14,8 @@ export class PatientCommunication extends Model {
     super.init(
       {
         id: primaryKey,
-        type: Sequelize.TEXT,
-        channel: Sequelize.TEXT,
+        type: { type: Sequelize.ENUM(PATIENT_COMMUNICATION_TYPES_VALUES), allowNull: false },
+        channel: { type: Sequelize.ENUM(PATIENT_COMMUNICATION_CHANNELS_VALUES), allowNull: false },
         subject: Sequelize.TEXT,
         content: Sequelize.TEXT,
         status: {
