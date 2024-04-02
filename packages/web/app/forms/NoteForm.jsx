@@ -13,6 +13,7 @@ import { NoteChangelogForm } from './NoteChangelogForm';
 import { CreateNoteForm } from './CreateNoteForm';
 import { TreatmentPlanNoteChangelogForm } from './TreatmentPlanNoteChangelogForm';
 import { FORM_TYPES, NOTE_FORM_MODES } from '../constants';
+import { useTranslation } from '../contexts/Translation';
 
 export const NoteForm = ({
   onCancel,
@@ -23,6 +24,7 @@ export const NoteForm = ({
   setNoteContent,
 }) => {
   const { currentUser } = useAuth();
+  const { getTranslation } = useTranslation();
 
   const handleNoteContentChange = useCallback(e => setNoteContent(e.target.value), [
     setNoteContent,
@@ -87,14 +89,16 @@ export const NoteForm = ({
           .required(),
         date: yup.date().required(),
         content: yup.string().required(),
-        // YUP TODO: resolve this
         writtenById: foreignKey(
-          `${
-            noteFormMode === NOTE_FORM_MODES.EDIT_NOTE &&
-            note?.noteType === NOTE_TYPES.TREATMENT_PLAN
-              ? 'Updated'
-              : 'Created'
-          } by (or on behalf of) is required`,
+          noteFormMode === NOTE_FORM_MODES.EDIT_NOTE && note?.noteType === NOTE_TYPES.TREATMENT_PLAN
+            ? getTranslation(
+                'validation.rule.updatedByOnBehalfOfRequired',
+                'Updated by (or on behalf of) is required',
+              )
+            : getTranslation(
+                'validation.rule.createdByOnBehalfOfRequired',
+                'Created by (or on behalf of) is required',
+              ),
         ),
       })}
     />
