@@ -74,7 +74,7 @@ export const RemoveReminderContactModal = ({
         >
           <StyledText color={theme.colors.WHITE} fontSize={16} fontWeight={500}>
             <TranslatedText
-              stringId="patient.details.reminderContacts.removeContactBtn"
+              stringId="patient.details.removeReminderContacts.action.remove"
               fallback="Remove contact"
             />
           </StyledText>
