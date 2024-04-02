@@ -56,12 +56,11 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
   }, [navigation]);
 
   const onRemoveReminderContact = async () => {
-    if (selectedContact) {
-      await PatientContact.updateValues(selectedContact.id, {
-        deletedAt: new Date(),
-      });
-      await refetch();
-    }
+    if (!selectedContact) return
+    await PatientContact.updateValues(selectedContact.id, {
+      deletedAt: new Date(),
+    });
+    await refetch();
   };
 
   const patientName = joinNames(selectedPatient);
