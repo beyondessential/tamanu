@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { ReactNode, useState } from 'react';
 import Modal from 'react-native-modal';
 import { Button } from '~/ui/components/Button';
 import { CrossIcon } from '~/ui/components/Icons';
@@ -7,12 +7,19 @@ import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { StyledText, StyledTouchableOpacity, StyledView } from '~/ui/styled/common';
 import { theme } from '~/ui/styled/theme';
 
+interface IRemoveReminderContactModal {
+  open: boolean;
+  onClose: () => void;
+  onRemoveReminderContact: () => void;
+  children?: ReactNode;
+}
+
 export const RemoveReminderContactModal = ({
   open,
   onClose,
   onRemoveReminderContact,
   children,
-}) => {
+}: IRemoveReminderContactModal) => {
   const [isRemoving, setIsRemoving] = useState(false);
 
   const onRemove = async () => {
@@ -55,13 +62,13 @@ export const RemoveReminderContactModal = ({
           textAlign="center"
         >
           <TranslatedText
-            stringId="patient.details.reminderContacts.removeTitle"
+            stringId="patient.details.removeReminderContacts.title"
             fallback="Would you like to remove the below contact?"
           />
         </StyledText>
         <StyledText color={theme.colors.MAIN_SUPER_DARK} marginBottom={20} textAlign="center">
           <TranslatedText
-            stringId="patient.details.reminderContacts.removeDescription"
+            stringId="patient.details.removeReminderContacts.description"
             fallback="You can add the contact again at any time."
           />
         </StyledText>
@@ -88,7 +95,7 @@ export const RemoveReminderContactModal = ({
         >
           <StyledText color={theme.colors.PRIMARY_MAIN} fontSize={16} fontWeight={500}>
             <TranslatedText
-              stringId="patient.details.reminderContacts.cancelBtn"
+              stringId="patient.details.removeReminderContacts.action.cancel"
               fallback="Cancel"
             />
           </StyledText>
