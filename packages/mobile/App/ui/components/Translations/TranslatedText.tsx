@@ -57,5 +57,5 @@ export const TranslatedText = ({
 
   const isDebugMode = __DEV__ && debugMode;
 
-  return <TextWrapper $isDebugMode={true}>{displayElements}</TextWrapper>;
+  return <TextWrapper $isDebugMode={isDebugMode}>{displayElements}</TextWrapper>;
 };
