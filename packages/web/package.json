@@ -30,7 +30,7 @@
     "enzyme": "^3.3.0",
     "enzyme-adapter-react-16": "^1.1.1",
     "enzyme-to-json": "^3.3.4",
-    "express": "^4.16.3",
+    "express": "^4.19.2",
     "prettier": "^1.14.0",
     "react-test-renderer": "^16.4.1",
     "rimraf": "^2.6.2",
