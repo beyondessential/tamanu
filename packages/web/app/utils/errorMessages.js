@@ -17,7 +17,7 @@ function splitFieldName(name) {
 }
 
 export function registerYup(translations = {}) {
-  function generateLabel2(tt) {
+  function generateLabel(tt) {
     const { stringId, fallback, replacements, lowercase, uppercase } = tt.props;
     const label = translations[stringId] || fallback;
     const replaced = replaceStringVariables(
@@ -29,7 +29,7 @@ export function registerYup(translations = {}) {
     );
     return label(replaced);
   }
-  yup.addMethod(yup.mixed, 'translatedLabel', generateLabel2);
+  yup.addMethod(yup.mixed, 'translatedLabel', generateLabel);
   yup.addMethod(yup.mixed, 'localisedLabel', function(fieldName, fallback) {
     const translated = translations[`general.localisedField.${fieldName}`];
     const label = translated ? path.replace(new RegExp(fieldName, 'i'), translated) : path;

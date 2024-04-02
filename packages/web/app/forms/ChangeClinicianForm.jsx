@@ -11,27 +11,29 @@ import { FORM_TYPES } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { localisedErrorLabel } from '../utils/errorMessages';
 
+const changeClinicianLabel = (
+  <TranslatedText
+    stringId="patient.changeClinician.examinerId.label"
+    fallback="Search new :clinician"
+    replacements={{
+      clinician: (
+        <TranslatedText
+          stringId="general.localisedField.clinician.label.short"
+          fallback="Clinician"
+          lowercase
+        />
+      ),
+    }}
+  />
+);
+
 export const ChangeClinicianForm = ({ clinicianSuggester, onCancel, onSubmit }) => {
   const renderForm = ({ submitForm }) => (
     <FormGrid columns={1}>
       <Field
         name="examinerId"
         component={AutocompleteField}
-        label={
-          <TranslatedText
-            stringId="patient.changeClinician.examinerId.label"
-            fallback="Search new :clinician"
-            replacements={{
-              clinician: (
-                <TranslatedText
-                  stringId="general.localisedField.clinician.label.short"
-                  fallback="Clinician"
-                  lowercase
-                />
-              ),
-            }}
-          />
-        }
+        label={changeClinicianLabel}
         required
         suggester={clinicianSuggester}
       />
@@ -49,21 +51,7 @@ export const ChangeClinicianForm = ({ clinicianSuggester, onCancel, onSubmit }) 
         examinerId: yup
           .string()
           .required()
-          .translatedLabel(
-            <TranslatedText
-              stringId="patient.changeClinician.examinerId.label"
-              fallback="Search new :clinician"
-              replacements={{
-                clinician: (
-                  <TranslatedText
-                    stringId="general.localisedField.clinician.label.short"
-                    fallback="Clinician"
-                    lowercase
-                  />
-                ),
-              }}
-            />,
-          ),
+          .translatedLabel(changeClinicianLabel),
       })}
       formType={FORM_TYPES.EDIT_FORM}
       render={renderForm}
