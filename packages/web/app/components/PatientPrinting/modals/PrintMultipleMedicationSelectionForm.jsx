@@ -12,7 +12,7 @@ import { useAuth } from '../../../contexts/Auth';
 import { Colors } from '../../../constants';
 
 import { MultiplePrescriptionPrintoutModal } from './MultiplePrescriptionPrintoutModal';
-import { TranslatedText } from '../../Translation/TranslatedText';
+import { TranslatedText, TranslatedReferenceData } from '../../Translation';
 
 const REPEAT_OPTIONS = [0, 1, 2, 3, 4, 5].map(n => ({ label: n, value: n }));
 
@@ -41,7 +41,11 @@ const COLUMNS = [
     ),
     sortable: false,
     maxWidth: 300,
-    accessor: ({ medication }) => medication.name,
+    accessor: ({ medication }) => <TranslatedReferenceData
+      fallback={medication.name}
+      value={medication.id}
+      category={medication.type}
+    />,
   },
   {
     key: COLUMN_KEYS.QUANTITY,

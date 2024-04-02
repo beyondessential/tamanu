@@ -6,7 +6,7 @@ import styled from 'styled-components';
 import { Field, TextField } from '../../components';
 import { TestSelectorField } from '../../views/labRequest/TestSelector';
 import { BodyText, Heading3 } from '../../components/Typography';
-import { TranslatedText } from '../../components/Translation/TranslatedText';
+import { TranslatedText, TranslatedReferenceData } from '../../components/Translation';
 
 const StyledBodyText = styled(BodyText)`
   margin-bottom: 28px;
@@ -128,7 +128,7 @@ export const LabRequestFormScreen2 = props => {
     const getKey = ({ category = {}, id }) => (isPanelRequest ? id : category.id);
     const grouped = uniqBy(selectedObjects, getKey).map(({ category = {}, id, name }) => ({
       categoryId: category.id,
-      categoryName: category.name,
+      categoryName: <TranslatedReferenceData fallback={category.name} value={category.id} category={category.type} />,
       ...(isPanelRequest ? { panelId: id, panelName: name } : {}),
     }));
     onSelectionChange(grouped);
