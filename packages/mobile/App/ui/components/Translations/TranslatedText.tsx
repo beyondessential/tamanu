@@ -40,6 +40,8 @@ const replaceStringVariables = (
     : jsxElements;
 };
 
+export type TranslatedTextElement = ReactElement<TranslatedTextProps> | string;
+
 export const TranslatedText = ({
   stringId,
   fallback,
