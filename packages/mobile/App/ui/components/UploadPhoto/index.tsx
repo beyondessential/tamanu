@@ -1,9 +1,8 @@
 import React, { useCallback, useState } from 'react';
 import { Dimensions, Text } from 'react-native';
 import RNFS from 'react-native-fs';
-import { Popup } from 'popup-ui';
 import { useBackend } from '~/ui/hooks';
-import { StyledImage, StyledView } from '/styled/common';
+import { StyledImage, StyledView, ColumnView, StyledText } from '/styled/common';
 import {
   getImageFromPhotoLibrary,
   getImageFromCamera,
@@ -13,6 +12,7 @@ import {
 import { deleteFileInDocuments } from '/helpers/file';
 import { BaseInputProps } from '../../interfaces/BaseInputProps';
 import { Button } from '~/ui/components/Button';
+import { theme } from '~/ui/styled/theme';
 
 const IMAGE_RESIZE_OPTIONS = {
   maxWidth: 1920,
@@ -45,8 +45,18 @@ interface UploadPhotoComponentProps {
 
 const IMAGE_WIDTH = Dimensions.get('window').width * 0.6;
 
-const ImageActionButton = ({ onPress, label, marginTop }) => (
-  <Button buttonText={label} onPress={onPress} margin={5} marginTop={marginTop} />
+const ImageActionButton = ({ onPress, label, marginTop = 5, border = true }) => (
+  <Button
+    buttonText={label}
+    onPress={onPress}
+    textColor={theme.colors.PRIMARY_MAIN}
+    borderColor={theme.colors.PRIMARY_MAIN}
+    backgroundColor="transparent"
+    margin={5}
+    marginTop={marginTop}
+    marginBottom={0}
+    borderWidth={border ? 1 : 0}
+  />
 );
 
 const UploadedImage = ({ imageData }: UploadedImageProps) => (
@@ -78,15 +88,19 @@ const UploadPhotoComponent = ({
     {loading && <LoadingPlaceholder />}
     {imageData && <UploadedImage imageData={imageData} />}
     {!imageData && errorMessage && <Text>{`Error loading image: ${errorMessage}`}</Text>}
+    <StyledText fontWeight="500" color={theme.colors.TEXT_SUPER_DARK} marginTop={10}>
+      {imageData ? 'Change photo' : 'Upload photo'}
+    </StyledText>
     <StyledView justifyContent="space-between" marginLeft={-10}>
-      <ImageActionButton
-        onPress={onPressChoosePhoto}
-        label="Choose photo from library"
-        marginTop={5}
-      />
-      <ImageActionButton onPress={onPressTakePhoto} label="Take photo with camera" marginTop={-3} />
+      <ImageActionButton onPress={onPressChoosePhoto} label="Choose photo from library" />
+      <ImageActionButton onPress={onPressTakePhoto} label="Take photo with camera" />
       {imageData && (
-        <ImageActionButton onPress={onPressRemovePhoto} label="Remove photo" marginTop={0} />
+        <ImageActionButton
+          onPress={onPressRemovePhoto}
+          label="Remove photo"
+          border={false}
+          marginTop={-3}
+        />
       )}
     </StyledView>
   </StyledView>
