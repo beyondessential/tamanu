@@ -12,20 +12,28 @@ import { Routes } from '~/ui/helpers/routes';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 
-const Screen = ({ navigation, route, selectedPatient }: BaseAppProps) => {
+interface IReminderContactQR extends BaseAppProps {
+  route: {
+    params: {
+      contactId: string;
+    };
+  };
+}
+
+const Screen = ({ navigation, route, selectedPatient }: IReminderContactQR) => {
   const { getTranslation } = useTranslation();
+
+  const patientName = joinNames(selectedPatient);
 
   const data = {
     patientContactId: route.params.contactId,
-    contactName: joinNames(selectedPatient),
+    contactName: patientName,
     patientDisplayId: selectedPatient.displayId,
   };
 
   const onNavigateBack = useCallback(() => {
     navigation.navigate(Routes.HomeStack.PatientDetailsStack.Index);
   }, [navigation]);
-
-  const patientName = joinNames(selectedPatient);
 
   const description = getTranslation({
     stringId: 'patient.details.reminderContactQr.description',

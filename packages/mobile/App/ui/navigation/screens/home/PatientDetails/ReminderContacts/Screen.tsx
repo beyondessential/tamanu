@@ -143,7 +143,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
                 fontWeight={500}
                 buttonText={
                   <TranslatedText
-                    stringId="patient.details.reminderContacts.addContact"
+                    stringId="patient.details.reminderContacts.action.add"
                     fallback="Add contact"
                   />
                 }

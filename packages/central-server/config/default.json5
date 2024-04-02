@@ -742,11 +742,11 @@
           "shortLabel": "Program Registry",
           "longLabel": "Program Registry"
         },
-        "contactName":{
+        "reminderContactName":{
           "shortLabel": "Contact name",
           "longLabel": "Contact name"
         },
-        "relationship":{
+        "reminderContactRelationship":{
           "shortLabel": "Relationship",
           "longLabel": "Relationship"
         },

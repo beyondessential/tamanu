@@ -79,8 +79,8 @@ const UNHIDEABLE_FIELDS = [
   'conditions',
   'programRegistry',
   'circumstanceIds',
-  'contactName',
-  'relationship',
+  'reminderContactName',
+  'reminderContactRelationship',
 ];
 
 const HIDEABLE_FIELDS = [
