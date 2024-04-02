@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import {
   ContentPane,
+  ImmunisationSearchBar,
   PageContainer,
-  PatientSearchBar,
   SearchTable,
   SearchTableTitle,
   TopBar,
@@ -84,7 +84,7 @@ export const ImmunisationsView = () => {
             fallback="Patient immunisation search"
           />
         </SearchTableTitle>
-        <PatientSearchBar onSearch={setSearchParameters} suggestByFacility={false} />
+        <ImmunisationSearchBar onSearch={setSearchParameters} />
         <SearchTable
           endpoint="upcomingVaccinations"
           columns={COLUMNS}
