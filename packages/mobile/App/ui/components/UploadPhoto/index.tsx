@@ -2,7 +2,7 @@ import React, { useCallback, useState } from 'react';
 import { Dimensions, Text } from 'react-native';
 import RNFS from 'react-native-fs';
 import { useBackend } from '~/ui/hooks';
-import { StyledImage, StyledView, ColumnView, StyledText } from '/styled/common';
+import { StyledImage, StyledView, StyledText } from '/styled/common';
 import {
   getImageFromPhotoLibrary,
   getImageFromCamera,
