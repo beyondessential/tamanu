@@ -4,6 +4,7 @@ import { EmailService } from './services/EmailService';
 import { closeDatabase, initDatabase, initReporting } from './database';
 import { initIntegrations } from './integrations';
 import { log } from '@tamanu/shared/services/logging';
+import { TelegramBotService } from './services/TelegramBotService';
 
 export class ApplicationContext {
   store = null;
@@ -12,12 +13,15 @@ export class ApplicationContext {
 
   emailService = null;
 
+  telegramBotService = null;
+
   integrations = null;
 
   closeHooks = [];
 
   async init({ testMode } = {}) {
     this.emailService = new EmailService();
+    this.telegramBotService = new TelegramBotService();
     this.store = await initDatabase({ testMode });
     if (config.db.reportSchemas?.enabled) {
       this.reportSchemaStores = await initReporting();
