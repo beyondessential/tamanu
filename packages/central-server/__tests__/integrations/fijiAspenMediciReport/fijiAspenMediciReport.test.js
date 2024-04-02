@@ -397,6 +397,22 @@ describe('fijiAspenMediciReport', () => {
     });
   });
 
+  it('should fail if period.start and period.end are not provided', async () => {
+    const response = await app
+      .get('/api/integration/fijiAspenMediciReport')
+      .set({ 'X-Tamanu-Client': 'medici', 'X-Version': '0.0.1' });
+
+    expect(response.status).toBe(400);
+  });
+
+  it('should fail if period.start and period.end are not within 1 hour', async () => {
+    const response = await app
+      .get('/api/integration/fijiAspenMediciReport?period.start=2022-05-09&period.end=2022-10-09')
+      .set({ 'X-Tamanu-Client': 'medici', 'X-Version': '0.0.1' });
+
+    expect(response.status).toBe(400);
+  });
+
   it('should produce reports without any params', async () => {
     const response = await app
       .get('/api/integration/fijiAspenMediciReport')

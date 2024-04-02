@@ -109,11 +109,13 @@ routes.get(
     }
 
     if (!fromDate || !toDate) {
-      throw new Error('Both period.start and period.end are required query parameters');
+      res.status(400).send('Both period.start and period.end are required query parameters');
+      return;
     }
 
     if (!checkTimePeriod(fromDate, toDate)) {
-      throw new Error('The time period must be within 1 hour');
+      res.status(400).send('The time period must be within 1 hour');
+      return;
     }
 
     const data = await sequelize.query(reportQuery, {
