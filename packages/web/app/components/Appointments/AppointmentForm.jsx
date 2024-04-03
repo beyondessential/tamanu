@@ -73,7 +73,7 @@ export const AppointmentForm = props => {
         clinicianId: yup
           .string()
           .required()
-          .label(
+          .translatedLabel(
             <TranslatedText
               stringId="general.localisedField.clinician.label.short"
               fallback="Clinician"
@@ -82,7 +82,7 @@ export const AppointmentForm = props => {
         locationGroupId: yup
           .string()
           .required()
-          .label(<TranslatedText stringId="general.area.label" fallback="Area" />)
+          .translatedLabel(<TranslatedText stringId="general.area.label" fallback="Area" />)
           .nullable(),
       })}
       render={({ submitForm }) => (
