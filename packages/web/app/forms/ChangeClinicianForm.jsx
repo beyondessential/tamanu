@@ -33,8 +33,8 @@ export const ChangeClinicianForm = ({ clinicianSuggester, onCancel, onSubmit }) 
         name="examinerId"
         component={AutocompleteField}
         label={changeClinicianLabel}
-        required
         suggester={clinicianSuggester}
+        required
       />
       <FormSubmitCancelRow onConfirm={submitForm} confirmText="Save" onCancel={onCancel} />
     </FormGrid>

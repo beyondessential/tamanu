@@ -66,7 +66,7 @@ const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
       />
       <TextInput
         value={imagingTypes[imagingRequest.imagingType]?.label || 'Unknown'}
-        label={<TranslatedText stringId="imaging.imagingType.label" fallback="Request type" />}
+        label={<TranslatedText stringId="general.requestType.label" fallback="Request type" />}
         disabled
       />
       <TextInput

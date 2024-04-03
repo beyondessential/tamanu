@@ -57,7 +57,7 @@ const FULL_LISTING_COLUMNS = [
   },
   {
     key: 'department',
-    title: <TranslatedText stringId="general.table.column.department" fallback="Department" />,
+    title: <TranslatedText stringId="general.department.label" fallback="Department" />,
     accessor: ({ encounter }) => encounter.department.name,
     sortable: false,
   },

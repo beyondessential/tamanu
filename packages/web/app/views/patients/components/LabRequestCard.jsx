@@ -63,11 +63,7 @@ export const LabRequestCard = ({ labRequest, actions }) => {
           </CardLabel>
           <CardValue>{labRequest.displayId}</CardValue>
           <CardLabel>
-            <TranslatedText
-              stringId="lab.details.card.item.requestDate.label"
-              fallback="Request date"
-            />
-            :
+            <TranslatedText stringId="general.requestDate.label" fallback="Request date" />:
           </CardLabel>
           <CardValue>
             <DateDisplay date={labRequest.requestedDate} />
@@ -92,7 +88,7 @@ export const LabRequestCard = ({ labRequest, actions }) => {
           </CardLabel>
           <CardValue>{labRequest.requestedBy?.displayName}</CardValue>
           <CardLabel>
-            <TranslatedText stringId="general.card.item.department.label" fallback="Department" />:
+            <TranslatedText stringId="general.department.label" fallback="Department" />:
           </CardLabel>
           <CardValue>{labRequest.department?.name}</CardValue>
         </BorderSection>

@@ -8,6 +8,7 @@ import { FormGrid } from '../components/FormGrid';
 import { FormSubmitCancelRow } from '../components/ButtonRow';
 import { useEncounter } from '../contexts/Encounter';
 import { FORM_TYPES } from '../constants';
+import { TranslatedText } from '../components/Translation/TranslatedText';
 
 export const ChangeDepartmentForm = ({ onCancel, departmentSuggester, onSubmit }) => {
   const { encounter } = useEncounter();
@@ -36,7 +37,9 @@ export const ChangeDepartmentForm = ({ onCancel, departmentSuggester, onSubmit }
         departmentId: yup
           .string()
           .required()
-          .label('department'),
+          .translatedLabel(
+            <TranslatedText stringId="general.department.label" fallback="Department" />,
+          ),
       })}
       render={renderForm}
       onSubmit={onSubmit}

@@ -12,7 +12,6 @@ import { LabRequestFormScreen1 } from './LabRequestFormScreen1';
 import { LabRequestFormScreen2 } from './LabRequestFormScreen2';
 import { LabRequestFormScreen3 } from './LabRequestFormScreen3';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
-import { localisedErrorLabel } from '../../utils/errorMessages';
 
 export const LabRequestMultiStepForm = ({
   isSubmitting,
@@ -32,16 +31,20 @@ export const LabRequestMultiStepForm = ({
 
   // For fields please see LabRequestFormScreen1.js
   const screen1ValidationSchema = yup.object().shape({
-    requestedById: foreignKey().localisedLabel('requestingClinician', 'clinician'),
+    requestedById: foreignKey().translatedLabel(
+      <TranslatedText stringId="general.localisedField.clinician.label" fallback="Clinician" />,
+    ),
     requestedDate: yup
       .date()
       .required()
-      .label('requestDate'),
+      .translatedLabel(
+        <TranslatedText stringId="general.requestDate.label" fallback="Request date" />,
+      ),
     requestFormType: yup
       .string()
       .oneOf(Object.values(LAB_REQUEST_FORM_TYPES))
       .required()
-      .label('requestType'),
+      .label(<TranslatedText stringId="general.requestType.label" fallback="Request type" />),
   });
 
   const screen2ValidationSchema = yup.object().shape({
