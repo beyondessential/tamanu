@@ -9,7 +9,6 @@ import { FormGrid } from '../components/FormGrid';
 import { FormSubmitCancelRow } from '../components/ButtonRow';
 import { FORM_TYPES } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
-import { localisedErrorLabel } from '../utils/errorMessages';
 
 const changeClinicianLabel = (
   <TranslatedText
