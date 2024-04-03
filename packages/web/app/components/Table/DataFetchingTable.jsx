@@ -33,6 +33,7 @@ export const DataFetchingTable = memo(
     autoRefresh,
     lazyLoading = false,
     overrideLocalisationForStorybook = false,
+    hasPermission = true,
     ...props
   }) => {
     const [page, setPage] = useState(0);
@@ -271,6 +272,16 @@ export const DataFetchingTable = memo(
     const notificationMessage = `${newRowCount} new record${
       newRowCount > 1 ? 's' : ''
     } available to view`;
+
+    if (!hasPermission) {
+      return (
+        <Table
+          columns={[]}
+          errorMessage="You do not have permission to view this table. If you require access, please contact your administrator."
+        />
+      );
+    }
+
     return (
       <>
         {!isNotificationMuted && showNotification && (
@@ -303,9 +314,9 @@ export const DataFetchingTable = memo(
           refreshTable={refreshTable}
           rowStyle={row => {
             const rowStyle = [];
-            if (row.highlighted) rowStyle.push("background-color: #F0FFF0;");
-            if (props.isRowsDisabled) rowStyle.push("cursor: not-allowed;");
-            return rowStyle.join("");
+            if (row.highlighted) rowStyle.push('background-color: #F0FFF0;');
+            if (props.isRowsDisabled) rowStyle.push('cursor: not-allowed;');
+            return rowStyle.join('');
           }}
           lazyLoading={lazyLoading}
           ref={tableRef}

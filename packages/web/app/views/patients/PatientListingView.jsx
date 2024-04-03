@@ -10,6 +10,7 @@ import {
   PatientSearchBar,
   SearchTable,
   SearchTableTitle,
+  SearchTableWithPermissionCheck,
   TopBar,
 } from '../../components';
 import { RecentlyViewedPatientsList } from '../../components/RecentlyViewedPatientsList';
@@ -76,7 +77,9 @@ const PatientTable = ({ columns, fetchOptions, searchParameters }) => {
   };
 
   return (
-    <SearchTable
+    <SearchTableWithPermissionCheck
+      verb={'list'}
+      noun={'Patient'}
       columns={columns}
       noDataMessage="No patients found"
       onRowClick={handleViewPatient}

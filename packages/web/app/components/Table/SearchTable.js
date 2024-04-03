@@ -1,6 +1,7 @@
 import { Typography } from '@material-ui/core';
 import styled from 'styled-components';
 import { DataFetchingTable } from './DataFetchingTable';
+import { withPermissionCheck } from '../withPermissionCheck';
 
 export const SearchTableTitle = styled(Typography)`
   font-size: 14px;
@@ -15,3 +16,5 @@ export const SearchTable = styled(DataFetchingTable)`
   border-top-right-radius: 0;
   box-shadow: none;
 `;
+
+export const SearchTableWithPermissionCheck = withPermissionCheck(SearchTable);
