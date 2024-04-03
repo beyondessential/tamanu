@@ -10,6 +10,7 @@ import { TriageWaitTimeCell } from './TriageWaitTimeCell';
 import { useLocalisation } from '../contexts/Localisation';
 import { reloadPatient } from '../store';
 import { TranslatedText } from './Translation/TranslatedText';
+import { DataFetchingTableWithPermissionCheck } from './Table/DataFetchingTable';
 
 const ADMITTED_PRIORITY_COLOR = '#bdbdbd';
 
@@ -96,7 +97,9 @@ export const TriageTable = React.memo(() => {
   };
 
   return (
-    <DataFetchingTable
+    <DataFetchingTableWithPermissionCheck
+      verb={'list'}
+      noun={'Triage'}
       endpoint="triage"
       columns={columns}
       noDataMessage={

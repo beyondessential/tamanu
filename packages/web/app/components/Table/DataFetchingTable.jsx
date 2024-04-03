@@ -8,6 +8,8 @@ import { useLocalisation } from '../../contexts/Localisation';
 import { Table } from './Table';
 import { TableNotification } from './TableNotification';
 import { TableRefreshButton } from './TableRefreshButton';
+import { TranslatedText } from '../Translation/TranslatedText';
+import { withPermissionCheck } from '../withPermissionCheck';
 
 const ROWS_PER_PAGE_OPTIONS = [10, 25, 50];
 const DEFAULT_SORT = { order: 'asc', orderBy: undefined };
@@ -277,7 +279,12 @@ export const DataFetchingTable = memo(
       return (
         <Table
           columns={[]}
-          errorMessage="You do not have permission to view this table. If you require access, please contact your administrator."
+          errorMessage={
+            <TranslatedText
+              stringId="general.table.error.noPermission"
+              fallback="You do not have permission to view this table. If you require access, please contact your administrator."
+            />
+          }
         />
       );
     }
@@ -326,3 +333,5 @@ export const DataFetchingTable = memo(
     );
   },
 );
+
+export const DataFetchingTableWithPermissionCheck = withPermissionCheck(DataFetchingTable);

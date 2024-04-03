@@ -1,7 +1,13 @@
 import { Typography } from '@material-ui/core';
 import styled from 'styled-components';
-import { DataFetchingTable } from './DataFetchingTable';
-import { withPermissionCheck } from '../withPermissionCheck';
+import { DataFetchingTable, DataFetchingTableWithPermissionCheck } from './DataFetchingTable';
+
+const BaseSearchTableStyle = `
+  border-top: none;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  box-shadow: none;
+`;
 
 export const SearchTableTitle = styled(Typography)`
   font-size: 14px;
@@ -11,10 +17,9 @@ export const SearchTableTitle = styled(Typography)`
 `;
 
 export const SearchTable = styled(DataFetchingTable)`
-  border-top: none;
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
-  box-shadow: none;
+  ${BaseSearchTableStyle}
 `;
 
-export const SearchTableWithPermissionCheck = withPermissionCheck(SearchTable);
+export const SearchTableWithPermissionCheck = styled(DataFetchingTableWithPermissionCheck)`
+  ${BaseSearchTableStyle}
+`;

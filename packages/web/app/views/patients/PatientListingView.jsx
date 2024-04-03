@@ -8,7 +8,6 @@ import {
   ContentPane,
   PageContainer,
   PatientSearchBar,
-  SearchTable,
   SearchTableTitle,
   SearchTableWithPermissionCheck,
   TopBar,
