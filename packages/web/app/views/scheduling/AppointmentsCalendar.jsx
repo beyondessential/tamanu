@@ -16,6 +16,8 @@ import { Suggester } from '../../utils/suggester';
 import { APPOINTMENT_TYPE_OPTIONS, Colors } from '../../constants';
 import { useApi, useSuggester } from '../../api';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
+import { useAuth } from '../../contexts/Auth';
+import { ErrorMessage } from '../../components/ErrorMessage';
 
 const LeftContainer = styled.div`
   min-height: 100%;
@@ -83,6 +85,7 @@ const TodayButton = styled(Button)`
 export const AppointmentsCalendar = () => {
   const api = useApi();
   const locationGroupSuggester = useSuggester('facilityLocationGroup');
+  const { ability } = useAuth();
 
   const [date, setDate] = useState(new Date());
   const [filterValue, setFilterValue] = useState('');
@@ -90,6 +93,8 @@ export const AppointmentsCalendar = () => {
   const [appointments, setAppointments] = useState([]);
   const [refreshCount, setRefreshCount] = useState(0);
   const [activeFilter, setActiveFilter] = useState('locationGroup');
+
+  const hasPermission = typeof ability.can === 'function' && ability.can('list', 'Appointment');
 
   const updateCalendar = () => {
     setRefreshCount(refreshCount + 1);
@@ -228,13 +233,24 @@ export const AppointmentsCalendar = () => {
             <NewAppointmentButton onSuccess={updateCalendar} />
           </TopBar>
           <CalendarContainer>
-            <DailySchedule
-              appointments={appointments}
-              activeFilter={activeFilter}
-              filterValue={filterValue}
-              appointmentType={appointmentType}
-              onAppointmentUpdated={updateCalendar}
-            />
+            {!hasPermission ? (
+              <ErrorMessage
+                title={
+                  <TranslatedText
+                    stringId="schedule.appointmentCalendar.error.noPermission"
+                    fallback="You do not have permission to view the appointments calendar. If you require access, please contact your administrator."
+                  />
+                }
+              />
+            ) : (
+              <DailySchedule
+                appointments={appointments}
+                activeFilter={activeFilter}
+                filterValue={filterValue}
+                appointmentType={appointmentType}
+                onAppointmentUpdated={updateCalendar}
+              />
+            )}
           </CalendarContainer>
         </RightContainer>
       </TwoColumnDisplay>
