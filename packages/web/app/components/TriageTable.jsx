@@ -53,9 +53,7 @@ const useColumns = () => {
     },
     {
       key: 'patientName',
-      title: (
-        <TranslatedText stringId="patientList.triage.table.column.patient" fallback="Patient" />
-      ),
+      title: <TranslatedText stringId="general.patient.label" fallback="Patient" />,
       accessor: row => `${row.firstName} ${row.lastName}`,
     },
     {

@@ -51,7 +51,7 @@ const MEDICATION_COLUMNS = [
 const FULL_LISTING_COLUMNS = [
   {
     key: 'name',
-    title: <TranslatedText stringId="general.table.column.patient" fallback="Patient" />,
+    title: <TranslatedText stringId="general.patient.label" fallback="Patient" />,
     accessor: ({ encounter }) => `${encounter.patient.firstName} ${encounter.patient.lastName}`,
     sortable: false,
   },

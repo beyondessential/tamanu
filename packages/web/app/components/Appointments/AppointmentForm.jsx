@@ -8,7 +8,6 @@ import { FormSeparatorLine } from '../FormSeparatorLine';
 import { useApi, usePatientSuggester, useSuggester } from '../../api';
 import { APPOINTMENT_TYPE_OPTIONS, FORM_TYPES } from '../../constants';
 import { TranslatedText } from '../Translation/TranslatedText';
-import { localisedErrorLabel } from '../../utils/errorMessages';
 
 export const AppointmentForm = props => {
   const { onSuccess = () => {}, onCancel, appointment } = props;
@@ -58,20 +57,32 @@ export const AppointmentForm = props => {
         patientId: yup
           .string()
           .required()
-          .label('patient'),
+          .translatedLabel(<TranslatedText stringId="general.patient.label" fallback="Patient" />),
         type: yup
           .string()
           .required()
-          .label('appointmentType'),
-        startTime: yup.string().required(),
+          .translatedLabel(
+            <TranslatedText stringId="appointment.type.label" fallback="Appointment type" />,
+          ),
+        startTime: yup
+          .string()
+          .required()
+          .translatedLabel(
+            <TranslatedText stringId="general.startTime.label" fallback="Start time" />,
+          ),
         clinicianId: yup
           .string()
           .required()
-          .label(localisedErrorLabel('clinician')),
+          .label(
+            <TranslatedText
+              stringId="general.localisedField.clinician.label.short"
+              fallback="Clinician"
+            />,
+          ),
         locationGroupId: yup
           .string()
           .required()
-          .label('area')
+          .label(<TranslatedText stringId="general.area.label" fallback="Area" />)
           .nullable(),
       })}
       render={({ submitForm }) => (
@@ -87,10 +98,7 @@ export const AppointmentForm = props => {
             <FormSeparatorLine />
             <Field
               label={
-                <TranslatedText
-                  stringId="scheduling.newAppointment.type.label"
-                  fallback="Appointment type"
-                />
+                <TranslatedText stringId="appointment.type.label" fallback="Appointment type" />
               }
               name="type"
               component={SelectField}

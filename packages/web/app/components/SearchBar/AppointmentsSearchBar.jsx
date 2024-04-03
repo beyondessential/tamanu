@@ -4,6 +4,7 @@ import { CustomisableSearchBar } from './CustomisableSearchBar';
 import {
   AutocompleteField,
   DateTimeField,
+  Field,
   LocalisedField,
   SearchField,
   SelectField,
@@ -63,14 +64,9 @@ export const AppointmentsSearchBar = ({ onSearch }) => {
         component={AutocompleteField}
         suggester={locationGroupSuggester}
       />
-      <LocalisedField
+      <Field
         name="type"
-        label={
-          <TranslatedText
-            stringId="general.localisedField.type.label"
-            fallback="Appointment Type"
-          />
-        }
+        label={<TranslatedText stringId="appointment.type.label" fallback="Appointment type" />}
         component={SelectField}
         options={APPOINTMENT_TYPE_OPTIONS}
         size="small"
