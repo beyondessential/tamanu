@@ -40,6 +40,8 @@ const replaceStringVariables = (
     : jsxElements;
 };
 
+export type TranslatedTextElement = ReactElement<TranslatedTextProps> | string;
+
 export const TranslatedText = ({
   stringId,
   fallback,
@@ -55,5 +57,5 @@ export const TranslatedText = ({
 
   const isDebugMode = __DEV__ && debugMode;
 
-  return <TextWrapper $isDebugMode={true}>{displayElements}</TextWrapper>;
+  return <TextWrapper $isDebugMode={isDebugMode}>{displayElements}</TextWrapper>;
 };

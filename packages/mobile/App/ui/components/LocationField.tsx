@@ -8,7 +8,6 @@ import { AutocompleteModalField } from './AutocompleteModal/AutocompleteModalFie
 import { Suggester } from '~/ui/helpers/suggester';
 import { useFacility } from '~/ui/contexts/FacilityContext';
 import { useBackend } from '~/ui/hooks';
-import { Routes } from '~/ui/helpers/routes';
 import { TranslatedText } from './Translations/TranslatedText';
 
 interface LocationFieldProps {

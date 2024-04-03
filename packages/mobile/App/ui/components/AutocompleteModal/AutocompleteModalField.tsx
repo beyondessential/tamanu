@@ -8,10 +8,9 @@ import { Button } from '../Button';
 import { Routes } from '~/ui/helpers/routes';
 import { TextFieldErrorMessage } from '/components/TextField/TextFieldErrorMessage';
 import { RequiredIndicator } from '../RequiredIndicator';
-import { TranslatedTextElement } from '../Translations/TranslatedText';
+import { TranslatedTextElement, TranslatedText } from '../Translations/TranslatedText';
 import { SearchIcon } from '../Icons';
 import { ReadOnlyField } from '../ReadOnlyField/index';
-import { TranslatedText } from '../Translations/TranslatedText';
 
 interface AutocompleteModalFieldProps {
   value?: string;
