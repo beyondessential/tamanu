@@ -23,13 +23,11 @@ const applyCasing = (text, lowercase, uppercase) => {
  *
  * @example replaceStringVariables("there are :count users", { count: 2 }) => "there are 2 users"
  */
-export const replaceStringVariables = ({
+export const replaceStringVariables = (
   templateString,
-  replacements,
+  { replacements, uppercase, lowercase },
   translations,
-  uppercase,
-  lowercase,
-}) => {
+) => {
   if (!replacements) return applyCasing(templateString, uppercase, lowercase);
   const result = templateString
     .split(/(:[a-zA-Z]+)/g)
@@ -56,23 +54,16 @@ export const TranslationProvider = ({ children }) => {
   const { data: translations } = useTranslations(storedLanguage);
 
   const getTranslation = (stringId, fallback, replacements, uppercase, lowercase) => {
-    if (!translations)
-      return replaceStringVariables({
-        templateString: fallback,
-        replacements,
-        translations,
-        uppercase,
-        lowercase,
-      });
+    const replacementConfig = {
+      replacements,
+      uppercase,
+      lowercase,
+    };
+    if (!translations) return replaceStringVariables(fallback, replacementConfig, translations);
     if (translations[stringId])
       return replaceStringVariables(
-        {
-          templatedString: translations[stringId],
-          replacements,
-          translations,
-          uppercase,
-          lowercase,
-        },
+        translations[stringId],
+replacementConfig,
         translations,
       );
     // This section here is a dev tool to help populate the db with the translation ids we have defined
@@ -81,10 +72,9 @@ export const TranslationProvider = ({ children }) => {
       api.post('translation', { stringId, fallback, text: fallback });
     }
     return replaceStringVariables(
+      fallback,
       {
-        templateString: fallback,
         replacements,
-        translations,
         uppercase,
         lowercase,
       },
