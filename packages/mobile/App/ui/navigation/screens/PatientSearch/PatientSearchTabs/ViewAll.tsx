@@ -32,6 +32,7 @@ import { SYNC_EVENT_ACTIONS } from '~/services/sync/types';
 import { BackendContext } from '~/ui/contexts/BackendContext';
 import { MobileSyncManager } from '~/services/sync/MobileSyncManager';
 import { RegistrationStatus } from '~/constants/programRegistries';
+import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 
 type FieldProp = [FieldInputProps<any>, FieldMetaProps<any>, FieldHelperProps<any>];
 
@@ -192,7 +193,13 @@ const Screen: FC<ViewAllScreenProps> = ({
           bordered
           textColor={theme.colors.WHITE}
           onPress={onNavigateToFilters}
-          buttonText={`Filters ${activeFilterCount > 0 ? `${activeFilterCount}` : ''}`}
+          buttonText={
+            <TranslatedText
+              stringId="patient.search.filterCount"
+              fallback="Filters :filterCount"
+              replacements={{ filterCount: activeFilterCount > 0 ? activeFilterCount : '' }}
+            />
+          }
         >
           <StyledView marginRight={screenPercentageToDP(2.43, Orientation.Width)}>
             <FilterIcon

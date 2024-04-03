@@ -16,7 +16,7 @@ interface TranslationContextData {
   languageOptions: [];
   setLanguageOptions: (languageOptions: []) => void;
   onChangeLanguage: (languageCode: string) => void;
-  getTranslation: (key: string) => string;
+  getTranslation: (key: string, fallback?: string) => string;
   setLanguage: (language: string) => void;
   host: string;
   setHost: (host: string) => void;
@@ -50,6 +50,12 @@ export const TranslationProvider = ({ children }: PropsWithChildren<object>): Re
     }
   };
 
+  const getTranslation = (key: string, fallback?: string) => {
+    if (!translations) return fallback;
+
+    return translations[key] ?? fallback;
+  };
+
   useEffect(() => {
     setLanguageState(language);
   }, [language]);
@@ -66,7 +72,7 @@ export const TranslationProvider = ({ children }: PropsWithChildren<object>): Re
         language,
         languageOptions,
         setLanguageOptions,
-        getTranslation: key => translations[key],
+        getTranslation,
         setLanguage,
         host,
         setHost,
