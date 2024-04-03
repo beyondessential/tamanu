@@ -21,7 +21,7 @@
     "setup-dev": "node dist setup",
     "shell": "yarn build && node dist shell",
     "start-dev": "concurrently npm:build-watch npm:start-watch",
-    "start-watch": "nodemon \"dist/**/*.js\"",
+    "start-watch": "sleep 1 && nodemon --delay 1 \"dist/**/*.js\"",
     "start": "node dist",
     "test": "yarn test-build && NODE_ENV=test jest",
     "test-build": "swc --delete-dir-on-start --out-dir __disttests__ --copy-files --source-maps true __tests__",
