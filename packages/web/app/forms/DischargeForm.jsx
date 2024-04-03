@@ -33,7 +33,6 @@ import { DiagnosisList } from '../components/DiagnosisList';
 import { useEncounter } from '../contexts/Encounter';
 import { MODAL_PADDING_LEFT_AND_RIGHT, MODAL_PADDING_TOP_AND_BOTTOM } from '../components';
 import { TranslatedText } from '../components/Translation/TranslatedText';
-import { localisedErrorLabel } from '../utils/errorMessages';
 
 const Divider = styled(BaseDivider)`
   margin: 30px -${MODAL_PADDING_LEFT_AND_RIGHT}px;
@@ -52,6 +51,18 @@ const ConfirmContent = styled.div`
     font-weight: 400;
   }
 `;
+
+const dischargingClinicianLabel = (
+  <TranslatedText
+    stringId="general.dischargingClinician.label"
+    fallback="Discharging :clinician"
+    replacements={{
+      clinician: (
+        <TranslatedText stringId="general.localisedField.clinician.label" fallback="Clinician" />
+      ),
+    }}
+  />
+);
 
 const MAX_REPEATS = 12;
 const REPEATS_OPTIONS = range(MAX_REPEATS + 1).map(value => ({ label: value, value }));
@@ -367,7 +378,7 @@ export const DischargeForm = ({
         discharge: yup
           .object()
           .shape({
-            dischargerId: foreignKey().label(`discharging${localisedErrorLabel('clinician')}`),
+            dischargerId: foreignKey().translatedLabel(dischargingClinicianLabel),
           })
           .shape({
             dispositionId: getLocalisedSchema({
@@ -392,20 +403,7 @@ export const DischargeForm = ({
         />
         <Field
           name="discharge.dischargerId"
-          label={
-            <TranslatedText
-              stringId="general.dischargingClinician.label"
-              fallback="Discharging :clinician"
-              replacements={{
-                clinician: (
-                  <TranslatedText
-                    stringId="general.localisedField.clinician.label"
-                    fallback="Clinician"
-                  />
-                ),
-              }}
-            />
-          }
+          label={dischargingClinicianLabel}
           component={AutocompleteField}
           suggester={practitionerSuggester}
           required

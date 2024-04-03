@@ -21,7 +21,6 @@ import { PatientDetailsCard } from '../components/PatientDetailsCard';
 import { ModalGenericButtonRow } from '../components/ModalActionRow';
 import { FORM_TYPES } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
-import { localisedErrorLabel } from '../utils/errorMessages';
 
 const TallMultilineTextField = props => (
   <MultilineTextField style={{ minHeight: '156px' }} {...props} />
@@ -176,15 +175,22 @@ export const PatientLetterForm = ({ onSubmit, onCancel, editedObject, endpoint, 
         clinicianId: yup
           .string()
           .required()
-          .label(localisedErrorLabel('clinician')),
+          .translatedLabel(
+            <TranslatedText
+              stringId="general.localisedField.clinician.label"
+              fallback="Clinician"
+            />,
+          ),
         title: yup
           .string()
           .required()
-          .label('letterTitle'),
+          .translatedLabel(
+            <TranslatedText stringId="patientLetter.title.label" fallback="Letter title" />,
+          ),
         body: yup
           .string()
           .required()
-          .label('note'),
+          .translatedLabel(<TranslatedText stringId="general.note.label" fallback="Note" />),
       })}
     />
   );

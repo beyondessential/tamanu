@@ -3,9 +3,7 @@ import { capitaliseFirstLetter } from './capitalise';
 import { replaceStringVariables } from '../contexts/Translation';
 
 const REQUIRED_MESSAGE_STRING_ID = 'validation.required';
-const LOCALISATION_TEMPLATE_STRING = '@localisedField=';
-
-export const localisedErrorLabel = path => `:${LOCALISATION_TEMPLATE_STRING}${path}`;
+const REQUIRED_MESSAGE_FALLBACK = 'The :path field is required';
 
 const camelCaseTest = /(?=[A-Z])/;
 function splitFieldName(name) {
@@ -25,7 +23,7 @@ export function registerYup(translations = {}) {
     );
     return this.label(replaced);
   });
-  const defaultMessage = translations[REQUIRED_MESSAGE_STRING_ID] || 'The :path field is required';
+  const defaultMessage = translations[REQUIRED_MESSAGE_STRING_ID] || REQUIRED_MESSAGE_FALLBACK;
   yup.setLocale({
     mixed: {
       required: function({ path }) {

@@ -20,8 +20,6 @@ import { FormSubmitCancelRow } from '../components/ButtonRow';
 import { foreignKey, optionalForeignKey } from '../utils/validation';
 import { FORM_TYPES } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
-import { localisedErrorLabel } from '../utils/errorMessages';
-// import { useTranslation } from '../contexts/Translation';
 
 const suggesterType = PropTypes.shape({
   fetchSuggestions: PropTypes.func,
@@ -164,10 +162,22 @@ export const ProcedureForm = React.memo(
         validationSchema={yup.object().shape({
           procedureTypeId: foreignKey().label('procedure'),
           locationId: foreignKey().label('location'),
-          date: yup.date().required(),
-          startTime: yup.date(),
+          date: yup
+            .date()
+            .required()
+            .translatedLabel(<TranslatedText stringId="general.date.label" fallback="Date" />),
+          startTime: yup
+            .date()
+            .translatedLabel(
+              <TranslatedText stringId="general.startTime.label" fallback="Start time" />,
+            ),
           endTime: yup.date(),
-          physicianId: foreignKey().label(localisedErrorLabel('clinician')),
+          physicianId: foreignKey().translatedLabel(
+            <TranslatedText
+              stringId="general.localisedField.clinician.label"
+              fallback="Clinician"
+            />,
+          ),
           assistantId: optionalForeignKey(),
           anaesthetistId: optionalForeignKey(),
           anaestheticId: optionalForeignKey(),

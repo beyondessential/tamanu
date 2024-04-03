@@ -20,7 +20,6 @@ import {
 import { ENCOUNTER_OPTIONS, FORM_TYPES } from '../constants';
 import { useSuggester } from '../api';
 import { TranslatedText } from '../components/Translation/TranslatedText';
-import { localisedErrorLabel } from '../utils/errorMessages';
 
 export const EncounterForm = React.memo(
   ({ editedObject, onSubmit, patientBillingTypeId, encounterType }) => {
@@ -151,7 +150,12 @@ export const EncounterForm = React.memo(
         }}
         formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
         validationSchema={yup.object().shape({
-          examinerId: foreignKey().label(localisedErrorLabel('clinician')),
+          examinerId: foreignKey().translatedLabel(
+            <TranslatedText
+              stringId="general.localisedField.clinician.label"
+              fallback="Clinician"
+            />,
+          ),
           locationId: foreignKey().label('location'),
           departmentId: foreignKey().label('department'),
           startDate: yup.date().required(),
