@@ -45,7 +45,7 @@ export function isErrorUnknownDefault(error) {
   if (!error || typeof error.status !== 'number') {
     return true;
   }
-  return error.status >= 400;
+  return error.status >= 400 && error.status != 403;
 }
 
 export function isErrorUnknownAllow404s(error) {
