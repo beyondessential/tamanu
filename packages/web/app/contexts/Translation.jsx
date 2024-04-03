@@ -31,7 +31,6 @@ export const replaceStringVariables = ({
   lowercase,
 }) => {
   if (!replacements) return applyCasing(templateString, uppercase, lowercase);
-  console.log(replacements);
   const result = templateString
     .split(/(:[a-zA-Z]+)/g)
     .map((part, index) => {
@@ -58,21 +57,39 @@ export const TranslationProvider = ({ children }) => {
 
   const getTranslation = (stringId, fallback, replacements, uppercase, lowercase) => {
     if (!translations)
-      return replaceStringVariables(fallback, replacements, translations, uppercase, lowercase);
-    if (translations[stringId])
-      return replaceStringVariables(
-        translations[stringId],
+      return replaceStringVariables({
+        templateString: fallback,
         replacements,
         translations,
         uppercase,
         lowercase,
+      });
+    if (translations[stringId])
+      return replaceStringVariables(
+        {
+          templatedString: translations[stringId],
+          replacements,
+          translations,
+          uppercase,
+          lowercase,
+        },
+        translations,
       );
     // This section here is a dev tool to help populate the db with the translation ids we have defined
     // in components. It will only populate the db with English strings, so that we can then translate them.
     if (isDev && storedLanguage === ENGLISH_LANGUAGE_CODE) {
       api.post('translation', { stringId, fallback, text: fallback });
     }
-    return replaceStringVariables(fallback, replacements, translations, uppercase, lowercase);
+    return replaceStringVariables(
+      {
+        templateString: fallback,
+        replacements,
+        translations,
+        uppercase,
+        lowercase,
+      },
+      translations,
+    );
   };
 
   const updateStoredLanguage = newLanguage => {
