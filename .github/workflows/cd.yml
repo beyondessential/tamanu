@@ -77,10 +77,10 @@ jobs:
           script: |
             const cwd = '${{ github.workspace }}';
             const { findControlText } = await import(`${cwd}/packages/scripts/src/pr-cd.mjs`);
-            const issue = await findControlText(context, github);
-            console.log(issue);
-            if (issue != '') core.setOutput('build', 'true');
-            return JSON.stringify(issue);
+            const text = await findControlText(context, github);
+            console.log('Control text length:', text.length);
+            if (text.length > 0) core.setOutput('build', 'true');
+            return JSON.stringify(text);
 
       - name: Parse deploy config
         if: steps.ref.outputs.result != ''
