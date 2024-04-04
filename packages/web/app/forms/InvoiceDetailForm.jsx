@@ -229,7 +229,9 @@ export const InvoiceDetailForm = ({
         }}
         formType={FORM_TYPES.EDIT_FORM}
         validationSchema={yup.object().shape({
-          status: foreignKey(),
+          status: foreignKey().translatedLabel(
+            <TranslatedText stringId="invoice.validation.paymentStatus.path" fallback="Status" />,
+          ),
         })}
       />
       <InvoiceDetailExpandRow>

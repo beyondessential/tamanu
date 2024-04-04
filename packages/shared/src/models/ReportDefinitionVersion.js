@@ -129,7 +129,6 @@ export class ReportDefinitionVersion extends Model {
       parameters,
       queryOptions.defaultDateRange,
     );
-    console.log(queryOptions, replacements);
 
     const definition = await this.getReportDefinition();
 
