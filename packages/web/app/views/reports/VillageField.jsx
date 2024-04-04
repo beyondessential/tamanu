@@ -9,7 +9,7 @@ export const VillageField = ({ name = 'villageName', required }) => {
     <LocalisedField
       name={name}
       label={
-        <TranslatedText stringId="general.localisedField.villageName.label" fallback="Village" />
+        <TranslatedText stringId="general.localisedField.villageId.label" fallback="Village" />
       }
       path="fields.villageId"
       component={AutocompleteField}

@@ -27,6 +27,7 @@ function formatDate(date) {
 
 const reportQuery = `
 SELECT 
+  last_updated,
   patient_id,
   first_name,
   last_name,
@@ -119,7 +120,6 @@ routes.get(
         ...note,
         noteDate: formatDate(note.noteDate),
       }));
-
     const mappedData = data.map(encounterData => {
       const encounter = mapKeys(encounterData, (_v, k) => camelCase(k));
       return {
@@ -156,6 +156,7 @@ routes.get(
         })),
         hoursOfVentilation: 0,
         leaveDays: 0,
+        lastUpdated: formatDate(encounter.lastUpdated),
       };
     });
 

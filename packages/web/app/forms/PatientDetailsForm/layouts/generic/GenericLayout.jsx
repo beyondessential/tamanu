@@ -198,7 +198,7 @@ export const GenericSecondaryDetailsLayout = ({
       />
     </PatientDetailsHeading>
     <SecondaryDetailsFormGrid>
-      <GenericPersonalFields filterByMandatory={false} />
+      <GenericPersonalFields patientRegistryType={patientRegistryType} filterByMandatory={false} />
     </SecondaryDetailsFormGrid>
 
     <PatientDetailsHeading>
@@ -213,6 +213,6 @@ export const GenericSecondaryDetailsLayout = ({
   </SecondaryDetailsGroup>
 );
 
-export const GenericPatientFieldLayout = ({ fieldDefinition, fieldValues }) => (
-  <PatientFieldsGroup fieldDefinitions={fieldDefinition} fieldValues={fieldValues} />
+export const GenericPatientFieldLayout = ({ fieldDefinitions, fieldValues }) => (
+  <PatientFieldsGroup fieldDefinitions={fieldDefinitions} fieldValues={fieldValues} />
 );

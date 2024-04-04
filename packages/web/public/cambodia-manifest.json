@@ -1,0 +1,35 @@
+{
+  "background_color": "#FFFFFF",
+  "description": "KHMEIR is a free and open-source EHR for low resource and remote settings.",
+  "display": "minimal-ui",
+  "icons": [
+    {
+      "purpose": "any",
+      "sizes": "192x192",
+      "src": "/cambodia-icons/manifest-icon-192.png",
+      "type": "image/png"
+    },
+    {
+      "purpose": "maskable",
+      "sizes": "192x192",
+      "src": "/cambodia-icons/manifest-icon-192.png",
+      "type": "image/png"
+    },
+    {
+      "purpose": "any",
+      "sizes": "512x512",
+      "src": "/cambodia-icons/manifest-icon-512.png",
+      "type": "image/png"
+    },
+    {
+      "purpose": "maskable",
+      "sizes": "512x512",
+      "src": "/cambodia-icons/manifest-icon-512.png",
+      "type": "image/png"
+    }
+  ],
+  "name": "Cambodia",
+  "scope": "/",
+  "start_url": "/",
+  "theme_color": "#f7f9fb"
+}
