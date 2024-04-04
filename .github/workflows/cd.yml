@@ -71,6 +71,7 @@ jobs:
     steps:
       - id: check
         run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
           for repo in central facility frontend meta; do
             if skopeo inspect docker://ghcr.io/beyondessential/tamanu-$repo:sha-${{ needs.branch-config.outputs.sha }} 2>&1 >/dev/null; then
               jq -c . <<< "$desc"
@@ -136,6 +137,9 @@ jobs:
       - name: Verify docker works
         run: docker run hello-world
 
+      - name: Login to ghcr.io
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
+
       - uses: actions/checkout@v4
         with:
           ref: ${{ needs.branch-config.outputs.ref }}
@@ -190,6 +194,7 @@ jobs:
 
       - name: Combine images
         run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
           manifest-tool push from-args \
             --platforms linux/amd64,linux/arm64 \
             --template ghcr.io/beyondessential/tamanu-${{ matrix.repo }}:sha-${{ needs.branch-config.outputs.sha }}.ARCH \
