@@ -406,7 +406,7 @@ describe('fijiAspenMediciReport', () => {
   it('should fail if period.start and period.end are not within 1 hour', async () => {
     const response = await app
       .get(
-        '/api/integration/fijiAspenMediciReport?period.start=2022-05-09T00:00:00&period.end=2022-05-09T01:00:01',
+        '/api/integration/fijiAspenMediciReport?period.start=2022-05-09T00:00:00Z&period.end=2022-05-09T01:00:01Z',
       )
       .set({ 'X-Tamanu-Client': 'medici', 'X-Version': '0.0.1' });
 
