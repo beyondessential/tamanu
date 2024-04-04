@@ -3,7 +3,7 @@ import { IReferenceData } from './IReferenceData';
 
 export interface IPatientContact {
   id: string;
-  name?: string;
+  name: string;
   method: string;
   connectionDetails?: string;
   deletionStatus?: string;

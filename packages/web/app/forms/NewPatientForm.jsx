@@ -24,6 +24,7 @@ import { RandomPatientButton } from '../views/patients/components/RandomPatientB
 import { useLayoutComponents } from './PatientDetailsForm';
 import { usePatientFieldDefinitionQuery } from '../api/queries/usePatientFieldDefinitionQuery';
 import { TranslatedText } from '../components/Translation/TranslatedText';
+import { useTranslation } from '../contexts/Translation';
 
 const StyledImageButton = styled(Button)`
   min-width: 30px;
@@ -78,6 +79,7 @@ export const NewPatientForm = memo(
     const { data: fieldDefinitions, error, isLoading } = usePatientFieldDefinitionQuery();
 
     const { getLocalisation } = useLocalisation();
+    const { getTranslation } = useTranslation();
     const { PrimaryDetails, SecondaryDetails, PatientFields } = useLayoutComponents();
 
     const sexValues = useSexValues();
@@ -198,6 +200,7 @@ export const NewPatientForm = memo(
           patientRegistryType,
           sexValues,
           getLocalisation,
+          getTranslation,
         )}
       />
     );
