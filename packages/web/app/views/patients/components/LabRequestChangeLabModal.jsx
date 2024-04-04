@@ -17,7 +17,7 @@ const validationSchema = yup.object().shape({
   labTestLaboratoryId: yup
     .string()
     .required()
-    .label(
+    .translatedLabel(
       <TranslatedText
         stringId="labRequest.modal.changeLab.laboratory.label"
         fallback="Laboratory"
