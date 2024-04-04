@@ -44,6 +44,9 @@ export class TelegramBotService {
   }
 
   async sendMessage(chatId, text) {
+    if (!TelegramBotService.#bot) {
+      return { status: COMMUNICATION_STATUSES.ERROR, error: 'Telegram bot service not found' };
+    }
     try {
       const message = await TelegramBotService.#bot.sendMessage(chatId, text);
       return { status: COMMUNICATION_STATUSES.SENT, result: message };
