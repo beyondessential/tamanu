@@ -28,7 +28,7 @@ concurrency:
 permissions:
   contents: read # to checkout the repo
   id-token: write # to get an OIDC token for AWS
-  pull-requests: read # to parse PRs for config
+  pull-requests: write # to parse PRs for config and update status
   issues: read # to parse special deploy issues
 
 jobs:
