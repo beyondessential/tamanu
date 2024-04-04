@@ -549,63 +549,114 @@ export const getPatientDetailsValidation = (
       getLocalisation,
       getTranslation,
       'subdivisionId',
-      yup.string(),
+      yup
+        .string()
+        .translatedLabel(
+          <TranslatedText
+            stringId="general.localisedField.subdivisionId.label"
+            fallback="Sub division"
+          />,
+        ),
       'Sub division',
     ),
     divisionId: requiredWhenConfiguredMandatory(
       getLocalisation,
       getTranslation,
       'divisionId',
-      yup.string(),
+      yup
+        .string()
+        .translatedLabel(
+          <TranslatedText stringId="general.localisedField.divisionId.label" fallback="Division" />,
+        ),
       'Division',
     ),
     countryId: requiredWhenConfiguredMandatory(
       getLocalisation,
       getTranslation,
       'countryId',
-      yup.string(),
+      yup
+        .string()
+        .translatedLabel(
+          <TranslatedText stringId="general.localisedField.countryId.label" fallback="Country" />,
+        ),
       'Country',
     ),
     settlementId: requiredWhenConfiguredMandatory(
       getLocalisation,
       getTranslation,
       'settlementId',
-      yup.string(),
+      yup
+        .string()
+        .translatedLabel(
+          <TranslatedText
+            stringId="general.localisedField.settlementId.label"
+            fallback="Settlement"
+          />,
+        ),
       'Settlement',
     ),
     medicalAreaId: requiredWhenConfiguredMandatory(
       getLocalisation,
       getTranslation,
       'medicalAreaId',
-      yup.string(),
+      yup
+        .string()
+        .translatedLabel(
+          <TranslatedText
+            stringId="general.localisedField.medicalAreaId.label"
+            fallback="Medical area"
+          />,
+        ),
       'Medical area',
     ),
     nursingZoneId: requiredWhenConfiguredMandatory(
       getLocalisation,
       getTranslation,
       'nursingZoneId',
-      yup.string(),
+      yup
+        .string()
+        .translatedLabel(
+          <TranslatedText
+            stringId="general.localisedField.nursingZoneId.label"
+            fallback="Nursing zone"
+          />,
+        ),
       'Nursing zone',
     ),
     streetVillage: requiredWhenConfiguredMandatory(
       getLocalisation,
       getTranslation,
       'streetVillage',
-      yup.string(),
+      yup
+        .string()
+        .translatedLabel(
+          <TranslatedText
+            stringId="general.localisedField.streetVillage.label"
+            fallback="Residential landmark"
+          />,
+        ),
       'Residential landmark',
     ),
     villageId: requiredWhenConfiguredMandatory(
       getLocalisation,
       getTranslation,
       'villageId',
-      yup.string(),
+      yup
+        .string()
+        .translatedLabel(
+          <TranslatedText stringId="general.localisedField.villageId.label" fallback="Village" />,
+        ),
       'Village',
     ),
     cityTown: requiredWhenConfiguredMandatory(
       getLocalisation,
       getTranslation,
       'cityTown',
-      yup.string(),
+      yup
+        .string()
+        .translatedLabel(
+          <TranslatedText stringId="general.localisedField.cityTown.label" fallback="City/town" />,
+        ),
       'City/town',
     ),
     drivingLicense: yup.string().when({
@@ -614,7 +665,14 @@ export const getPatientDetailsValidation = (
         getLocalisation,
         getTranslation,
         'drivingLicense',
-        yup.string(),
+        yup
+          .string()
+          .translatedLabel(
+            <TranslatedText
+              stringId="general.localisedField.drivingLicense.label"
+              fallback="Driving license"
+            />,
+          ),
         'Driving license',
       ),
       otherwise: yup.string(),
@@ -625,7 +683,14 @@ export const getPatientDetailsValidation = (
         getLocalisation,
         getTranslation,
         'maritalStatus',
-        yup.string(),
+        yup
+          .string()
+          .translatedLabel(
+            <TranslatedText
+              stringId="general.localisedField.maritalStatus.label"
+              fallback="Marital status"
+            />,
+          ),
         'Marital status',
       ),
       otherwise: yup.string(),
@@ -636,7 +701,14 @@ export const getPatientDetailsValidation = (
         getLocalisation,
         getTranslation,
         'occupationId',
-        yup.string(),
+        yup
+          .string()
+          .translatedLabel(
+            <TranslatedText
+              stringId="general.localisedField.occupationId.label"
+              fallback="Occupation"
+            />,
+          ),
         'Occupation',
       ),
       otherwise: yup.string(),
@@ -647,7 +719,14 @@ export const getPatientDetailsValidation = (
         getLocalisation,
         getTranslation,
         'educationalLevel',
-        yup.string(),
+        yup
+          .string()
+          .translatedLabel(
+            <TranslatedText
+              stringId="general.localisedField.educationalLevel.label"
+              fallback="Educational attainment"
+            />,
+          ),
         'Educational attainment',
       ),
       otherwise: yup.string(),
@@ -658,7 +737,14 @@ export const getPatientDetailsValidation = (
         getLocalisation,
         getTranslation,
         'socialMedia',
-        yup.string(),
+        yup
+          .string()
+          .translatedLabel(
+            <TranslatedText
+              stringId="general.localisedField.socialMedia.label"
+              fallback="Social media"
+            />,
+          ),
         'Social media',
       ),
       otherwise: yup.string(),
