@@ -4,8 +4,7 @@ import { DataItem } from './DataItem';
 import React from 'react';
 import { formatShort } from '../../dateTime';
 
-export const EncounterDetailsExtended = ({ encounter, discharge, clinicianText = 'clinician' }) => {
-  // const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
+export const EncounterDetailsExtended = ({ encounter, discharge, clinicianText }) => {
   const { location, examiner, department, startDate, endDate, reasonForEncounter } = encounter;
 
   return (
