@@ -97,10 +97,7 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
             disabled={isEdit}
             required
             label={
-              <TranslatedText
-                stringId="admin.report.editor.reportName.label"
-                fallback="Report name"
-              />
+              <TranslatedText stringId="admin.report.reportName.label" fallback="Report name" />
             }
             name="name"
             component={TextField}
@@ -110,7 +107,7 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
           <StyledField
             label={
               <TranslatedText
-                stringId="admin.report.editor.defaultDateRange.label"
+                stringId="admin.report.defaultDateRange.label"
                 fallback="Default date range"
               />
             }
@@ -124,12 +121,7 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
         {canWriteRawReportUser && schemaOptions?.length > 0 && (
           <Grid item xs={4}>
             <StyledField
-              label={
-                <TranslatedText
-                  stringId="admin.report.editor.dbSchema.label"
-                  fallback="DB Schema"
-                />
-              }
+              label={<TranslatedText stringId="admin.report.dbSchema.label" fallback="DB Schema" />}
               name="dbSchema"
               prefix="report.property.canWrite"
               component={SelectField}
@@ -143,10 +135,7 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
           <Grid item xs={4}>
             <StyledField
               label={
-                <TranslatedText
-                  stringId="admin.report.editor.canBeRunOn.label"
-                  fallback="Can be run on"
-                />
+                <TranslatedText stringId="admin.report.canBeRunOn.label" fallback="Can be run on" />
               }
               name="dataSources"
               component={MultiselectField}
@@ -167,13 +156,10 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
         <AccordionSummary>
           <Grid container spacing={1}>
             <Grid item xs={8}>
-              <TranslatedText stringId="admin.report.editor.query.label" fallback="Query" />
+              <TranslatedText stringId="admin.report.query.label" fallback="Query" />
             </Grid>
             <Grid item xs={4}>
-              <TranslatedText
-                stringId="admin.report.editor.parameters.label"
-                fallback="Parameters"
-              />
+              <TranslatedText stringId="admin.report.parameters.label" fallback="Parameters" />
             </Grid>
           </Grid>
         </AccordionSummary>
@@ -221,7 +207,7 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
         >
           {isEdit ? (
             <TranslatedText
-              stringId="admin.report.editor.action.createNewVersion"
+              stringId="admin.report.action.createNewVersion"
               fallback="Create new version"
             />
           ) : (
@@ -243,12 +229,17 @@ export const ReportEditor = ({ initialValues, onSubmit, isEdit }) => {
         name: yup
           .string()
           .required()
-          .label('reportName'),
+          .translatedLabel(
+            <TranslatedText stringId="admin.report.reportName.label" fallback="Report name" />,
+          ),
         dataSources: yup
           .array()
           .test(
             'test-data-sources',
-            getTranslation('validation.rule.atLeast1DataSource', 'Select at least one data source'),
+            getTranslation(
+              'admin.report.validation.rule.atLeast1DataSource',
+              'Select at least one data source',
+            ),
             val => {
               const values = val || [];
               return values.length && values.every(v => REPORT_DATA_SOURCE_VALUES.includes(v));
@@ -268,18 +259,38 @@ export const ReportEditor = ({ initialValues, onSubmit, isEdit }) => {
             name: yup
               .string()
               .required()
-              .label('parameterName'),
+              .translatedLabel(
+                <TranslatedText
+                  stringId="admin.report.validation.name.path"
+                  fallback="Parameter name"
+                />,
+              ),
             label: yup
               .string()
               .required()
-              .label('parameterLabel'),
+              .translatedLabel(
+                <TranslatedText
+                  stringId="admin.report.validation.label.path"
+                  fallback="Parameter label"
+                />,
+              ),
             parameterField: yup
               .string()
               .required()
-              .label('parameterFieldType'),
+              .translatedLabel(
+                <TranslatedText stringId="admin.report.fieldType.label" fallback="Field type" />,
+              ),
             suggesterEndpoint: yup.string().when('parameterField', {
               is: parameterField => FIELD_TYPES_WITH_SUGGESTERS.includes(parameterField),
-              then: yup.string().required(),
+              then: yup
+                .string()
+                .required()
+                .translatedLabel(
+                  <TranslatedText
+                    stringId="admin.report.suggesterEndpoint.label"
+                    fallback="Parameter label"
+                  />,
+                ),
               otherwise: yup.string(),
             }),
             options: yup.array().when('parameterField', {
@@ -289,7 +300,7 @@ export const ReportEditor = ({ initialValues, onSubmit, isEdit }) => {
                 .test(
                   'test-options',
                   getTranslation(
-                    'validation.rule.optionMustContainLabelAndValue',
+                    'admin.report.validation.rule.optionMustContainLabelAndValue',
                     'Each option must contain a label and value',
                   ),
                   val => val.every(o => o.label && o.value),
@@ -298,7 +309,10 @@ export const ReportEditor = ({ initialValues, onSubmit, isEdit }) => {
             }),
           }),
         ),
-        query: yup.string().required(),
+        query: yup
+          .string()
+          .required()
+          .translatedLabel(<TranslatedText stringId="admin.report.query.label" fallback="Query" />),
         status: yup
           .string()
           .oneOf(STATUS_OPTIONS.map(s => s.value))
