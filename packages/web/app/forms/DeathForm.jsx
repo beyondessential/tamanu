@@ -94,7 +94,12 @@ export const DeathForm = React.memo(
         validationSchema={yup.object().shape({
           causeOfDeath: yup.string().when('isPartialWorkflow', {
             is: undefined,
-            then: yup.string().required(),
+            then: yup
+              .string()
+              .required()
+              .translatedLabel(
+                <TranslatedText stringId="death.causeOfDeath.label" fallback="Cause Of Death" />,
+              ),
           }),
           causeOfDeathInterval: yup.string().when('isPartialWorkflow', {
             is: undefined,
@@ -187,7 +192,7 @@ export const DeathForm = React.memo(
         <StyledFormGrid columns={2}>
           <FieldWithTooltip
             name="causeOfDeath"
-            label="Cause Of Death"
+            label={<TranslatedText stringId="death.causeOfDeath.label" fallback="Cause Of Death" />}
             component={AutocompleteField}
             suggester={icd10Suggester}
             tooltipText="This does not mean the mode of dying (e.g heart failure, respiratory failure). It means the disease, injury or complication that caused the death."

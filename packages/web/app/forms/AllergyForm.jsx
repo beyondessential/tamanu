@@ -80,7 +80,12 @@ export const AllergyForm = ({
         allergyId: foreignKey(
           getTranslation('validation.rule.mustSelectAllergy', 'An allergy must be selected'),
         ),
-        recordedDate: yup.date().required(),
+        recordedDate: yup
+          .date()
+          .required()
+          .translatedLabel(
+            <TranslatedText stringId="general.recordedDate.label" fallback="Date recorded" />,
+          ),
       })}
     />
   );
