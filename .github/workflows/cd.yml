@@ -27,6 +27,7 @@ concurrency:
 
 permissions:
   contents: read # to checkout the repo
+  packages: write # to pull and push images
   pull-requests: write # to parse PRs for config and update status
   issues: read # to parse special deploy issues
   id-token: write # OIDC token for AWS (only for release tags)
