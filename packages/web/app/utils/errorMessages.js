@@ -2,9 +2,6 @@ import * as yup from 'yup';
 import { capitaliseFirstLetter } from './capitalise';
 import { replaceStringVariables } from '../contexts/Translation';
 
-const REQUIRED_MESSAGE_STRING_ID = 'validation.required';
-const REQUIRED_MESSAGE_FALLBACK = 'The :path field is required';
-
 const camelCaseTest = /(?=[A-Z])/;
 function splitFieldName(name) {
   const splitField = name.split(camelCaseTest);
@@ -12,6 +9,10 @@ function splitFieldName(name) {
   const joined = capitaliseFirstLetter(fieldNameAsWords.toLowerCase());
   return joined;
 }
+
+yup.addMethod(yup.mixed, 'translatedLabel', function(translatedTextComponent) {
+  return this.label(translatedTextComponent.props.fallback);
+});
 
 export function registerYup(translations = {}) {
   yup.addMethod(yup.mixed, 'translatedLabel', function(translatedTextComponent) {
@@ -23,7 +24,7 @@ export function registerYup(translations = {}) {
     );
     return this.label(replaced);
   });
-  const defaultMessage = translations[REQUIRED_MESSAGE_STRING_ID] || REQUIRED_MESSAGE_FALLBACK;
+  const defaultMessage = translations['validation.required'] || 'The :path field is required';
   yup.setLocale({
     mixed: {
       required: function({ path }) {

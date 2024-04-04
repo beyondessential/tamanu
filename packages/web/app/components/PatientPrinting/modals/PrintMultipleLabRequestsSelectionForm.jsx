@@ -34,7 +34,7 @@ const COLUMNS = [
   },
   {
     key: COLUMN_KEYS.DATE,
-    title: <TranslatedText tringId="general.requestDate.label" fallback="Request date" />,
+    title: <TranslatedText stringId="general.requestDate.label" fallback="Request date" />,
     sortable: false,
     accessor: ({ requestedDate }) => <DateDisplay date={requestedDate} />,
   },

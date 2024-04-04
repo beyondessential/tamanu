@@ -129,6 +129,7 @@ export class ReportDefinitionVersion extends Model {
       parameters,
       queryOptions.defaultDateRange,
     );
+    console.log(queryOptions, replacements);
 
     const definition = await this.getReportDefinition();
 
@@ -138,11 +139,15 @@ export class ReportDefinitionVersion extends Model {
     if (!instance) {
       throw new Error(`No reporting instance found for ${definition.dbSchema}`);
     }
-    const queryResults = await instance.query(reportQuery, {
-      type: QueryTypes.SELECT,
-      replacements,
-    });
-    return generateReportFromQueryData(queryResults);
+    try {
+      const queryResults = await instance.query(reportQuery, {
+        type: QueryTypes.SELECT,
+        replacements,
+      });
+      return generateReportFromQueryData(queryResults);
+    } catch (err) {
+      console.log(err);
+    }
   }
 
   forResponse(includeRelationIds = false) {
