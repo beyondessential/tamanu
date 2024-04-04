@@ -22,10 +22,9 @@ export async function up(query) {
       type: DataTypes.DATE,
       allowNull: true,
     },
-
     name: {
       type: DataTypes.TEXT,
-      allowNull: true,
+      allowNull: false,
     },
     method: {
       type: DataTypes.TEXT,
@@ -49,7 +48,7 @@ export async function up(query) {
     },
     relationship_id: {
       type: DataTypes.STRING,
-      allowNull: true,
+      allowNull: false,
       references: {
         model: 'reference_data',
         key: 'id',

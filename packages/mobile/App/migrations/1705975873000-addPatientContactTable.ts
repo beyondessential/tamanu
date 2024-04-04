@@ -21,7 +21,8 @@ const BaseColumns = [
   new TableColumn({
     name: 'deletedAt',
     type: 'datetime',
-    default: "datetime('now')",
+    default: null,
+    isNullable: true,
   }),
   new TableColumn({
     name: 'updatedAtSyncTick',
@@ -38,7 +39,7 @@ const PatientContact = new Table({
     new TableColumn({
       name: 'name',
       type: 'varchar',
-      isNullable: true,
+      isNullable: false,
     }),
     new TableColumn({
       name: 'method',
