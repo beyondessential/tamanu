@@ -44,7 +44,7 @@ jobs:
       down: ${{ steps.config.outputs.down }}
       go-up: ${{ steps.config.outputs.go-up }}
       go-down: ${{ steps.config.outputs.go-down }}
-      build-images: ${{ (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')) || fromJson(steps.control.outputs.build) }}
+      build-images: ${{ (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')) || steps.control.outputs.build == 'true' || false }}
     steps:
       - uses: actions/checkout@v4
       - name: Figure branch ref and sha
@@ -79,7 +79,7 @@ jobs:
             const { findControlText } = await import(`${cwd}/packages/scripts/src/pr-cd.mjs`);
             const issue = await findControlText(context, github);
             console.log(issue);
-            if (issue != '') core.setOutput('build', true);
+            if (issue != '') core.setOutput('build', 'true');
             return JSON.stringify(issue);
 
       - name: Parse deploy config
