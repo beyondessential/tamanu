@@ -1,31 +1,69 @@
 name: CD
 
 on:
+  # PRs build all the time, and deploy on demand
   pull_request:
     types:
       - opened
       - synchronize
       - reopened
       - edited
+
+  # Special issues can opt-in PR-less branches to build and deploy
+  issues:
+    types:
+      - opened
+      - edited
+      - labeled
+
+  # Release tags build the server/web packages only
   push:
-    branches:
-      - main
-      - release/*
-      - uat-release/*
     tags:
       - 'v*.*.*'
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.event.issue.id || github.ref }}
   cancel-in-progress: false
 
 permissions:
-  contents: read
-  id-token: write # OIDC token for AWS
-  pull-requests: write # for deploy workflow
+  contents: read # to checkout the repo
+  id-token: write # to get an OIDC token for AWS
+  pull-requests: read # to parse PRs for config
+  issues: read # to parse special deploy issues
 
 jobs:
+  branch-config:
+    name: Branch config
+    runs-on: ubuntu-latest
+    outputs:
+      ref: ${{ steps.ref.outputs.result }}
+      sha: ${{ steps.sha.outputs.sha }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Figure branch ref and sha
+        id: ref
+        uses: actions/github-script@v7
+        with:
+          result-encoding: string
+          script: |
+            const cwd = '${{ github.workspace }}';
+            const { parseBranchConfig } = await import(`${cwd}/packages/scripts/src/pr-cd.mjs`);
+            const ref = parseBranchConfig(context);
+            console.log(ref);
+            return ref;
+
+      - name: Checkout the real ref
+        if: steps.ref.outputs.result != ''
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.ref.outputs.result }}
+      - name: Find the real sha
+        if: steps.ref.outputs.result != ''
+        id: sha
+        run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
   check-images-exist:
+    needs: branch-config
     name: Check if image was already built
     runs-on: ubuntu-latest
     steps:
@@ -39,7 +77,7 @@ jobs:
       - id: check
         run: |
           for repo in central facility frontend meta; do
-            desc=$(aws ecr describe-images --repository-name=tamanu/$repo --image-ids=imageTag=sha-${{ github.sha }} 2>/dev/null || true)
+            desc=$(aws ecr describe-images --repository-name=tamanu/$repo --image-ids=imageTag=sha-${{ needs.branch-config.outputs.sha }} 2>/dev/null || true)
             if [[ -z "$desc" ]]; then
               echo $repo image not found
             else
@@ -54,7 +92,7 @@ jobs:
       exists: ${{ steps.check.outputs.exists }}
 
   images:
-    needs: check-images-exist
+    needs: [branch-config, check-images-exist]
     if: needs.check-images-exist.outputs.exists != 'yes'
     strategy:
       fail-fast: false
@@ -116,6 +154,9 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2
 
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.branch-config.outputs.ref }}
+
       - name: Extract version
         id: version
         run: echo "version=$(jq -r .version package.json)" >> "$GITHUB_OUTPUT"
@@ -138,16 +179,16 @@ jobs:
         with:
           context: .
           platforms: linux/${{ matrix.platform.arch }}
-          cache-from: type=gha,scope=${{ matrix.platform.arch }}-${{ github.ref }}-${{ matrix.package.name }}
-          cache-to: type=gha,mode=max,scope=${{ matrix.platform.arch }}-${{ github.ref }}-${{ matrix.package.name }}
+          cache-from: type=gha,scope=${{ matrix.platform.arch }}-${{ needs.branch-config.outputs.ref }}-${{ matrix.package.name }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.platform.arch }}-${{ needs.branch-config.outputs.ref }}-${{ matrix.package.name }}
           build-args: PACKAGE_PATH=${{ matrix.package.path }}
           target: ${{ matrix.package.target }}
           push: true
           labels: ${{ steps.meta.outputs.labels }}
-          tags: ${{ steps.login-ecr.outputs.registry }}/tamanu/${{ matrix.package.name }}:sha-${{ github.sha }}.${{ matrix.platform.arch }}
+          tags: ${{ steps.login-ecr.outputs.registry }}/tamanu/${{ matrix.package.name }}:sha-${{ needs.branch-config.outputs.sha }}.${{ matrix.platform.arch }}
 
   multi-arch:
-    needs: images
+    needs: [branch-config, images]
     strategy:
       fail-fast: false
       matrix:
@@ -178,8 +219,8 @@ jobs:
         run: |
           manifest-tool push from-args \
             --platforms linux/amd64,linux/arm64 \
-            --template ${{ steps.login-ecr.outputs.registry }}/tamanu/${{ matrix.repo }}:sha-${{ github.sha }}.ARCH \
-            --target ${{ steps.login-ecr.outputs.registry }}/tamanu/${{ matrix.repo }}:sha-${{ github.sha }}
+            --template ${{ steps.login-ecr.outputs.registry }}/tamanu/${{ matrix.repo }}:sha-${{ needs.branch-config.outputs.sha }}.ARCH \
+            --target ${{ steps.login-ecr.outputs.registry }}/tamanu/${{ matrix.repo }}:sha-${{ needs.branch-config.outputs.sha }}
 
   all-built:
     if: always() # always run even if dependencies fail
@@ -199,7 +240,7 @@ jobs:
 
   deploy-config:
     if: github.event_name == 'pull_request'
-    name: PR deploy config
+    name: Deploy config
     runs-on: ubuntu-latest
     outputs:
       up: ${{ steps.config.outputs.up }}
@@ -216,7 +257,7 @@ jobs:
             const cwd = '${{ github.workspace }}';
             const { parseDeployConfig } = await import(`${cwd}/packages/scripts/src/pr-cd.mjs`);
 
-            const allDeploys = parseDeployConfig(context.payload.pull_request);
+            const allDeploys = parseDeployConfig(context.payload.pull_request ?? context.payload.issue);
             console.log(allDeploys);
 
             const matrix = ({ name, options }) => ({ name, options: JSON.stringify(options) });
@@ -232,6 +273,7 @@ jobs:
 
   deploy-up:
     needs:
+      - branch-config
       - all-built
       - deploy-config
     if: always() && needs.all-built.result == 'success' && fromJson(needs.deploy-config.outputs.go-up)
@@ -244,7 +286,7 @@ jobs:
     with:
       deploy-name: ${{ matrix.name }}
       options: ${{ matrix.options }}
-      image-tag: sha-${{ github.sha }}
+      image-tag: sha-${{ needs.branch-config.outputs.sha }}
     secrets:
       PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
       TAILSCALE_DBPROXY_ACCESS_OAUTH: ${{ secrets.TAILSCALE_DBPROXY_ACCESS_OAUTH }}
@@ -266,6 +308,9 @@ jobs:
       PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
       TAILSCALE_DBPROXY_ACCESS_OAUTH: ${{ secrets.TAILSCALE_DBPROXY_ACCESS_OAUTH }}
       TAMANU_OPS_SSH: ${{ secrets.TAMANU_OPS_SSH }}
+
+  # The package-* jobs below are only triggered by tags, so we can assume that
+  # github.ref and github.ref_name are set and correct.
 
   package-frontend:
     needs: images

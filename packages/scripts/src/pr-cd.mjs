@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 
 const RX_DEPLOY_LINE = /^\s*-\s+\[(?<enabled>[\sx])\]\s+.+<!--\s*#deploy(?:=(?<name>[\w-]+))?\s*(?:%(?<options>.+))?-->/;
+const RX_BRANCH_LINE = /<!--\s*#branch=(?<ref>[^\s]+)\s*-->/;
 
 // It's important this remains stable or doesn't change: doing so will create
 // new deploys for everything that uses the default deploy name, and we may lose
@@ -169,4 +170,24 @@ export function configMap(deployName, imageTag, options) {
       facilityWebReplicas: options.facilitydbs,
     }).map(([key, value]) => [`tamanu-on-k8s:${key}`, { value, secret: false }]),
   );
+}
+
+export function parseBranchConfig(context) {
+  if (context.payload.pull_request || context.payload.push) {
+    console.log('Using PR/push context');
+    return context.ref;
+  }
+
+  if (
+    context.payload.issue?.labels?.some(label => label.name === 'auto-deploy') &&
+    context.payload.issue?.title.startsWith('Auto-deploy:')
+  ) {
+    console.log('Using auto-deploy issue body');
+    let deployLine = RX_BRANCH_LINE.exec(context.payload.issue.body);
+    if (deployLine) {
+      return deployLine.groups.ref;
+    }
+  }
+
+  return '';
 }
