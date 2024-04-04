@@ -51,7 +51,7 @@ export class TelegramBotService {
       const message = await TelegramBotService.#bot.sendMessage(chatId, text);
       return { status: COMMUNICATION_STATUSES.SENT, result: message };
     } catch (e) {
-      return { status: COMMUNICATION_STATUSES.ERROR, error: e.message };
+      return { status: COMMUNICATION_STATUSES.ERROR, error: e.message, shouldRetry: true };
     }
   }
 }
