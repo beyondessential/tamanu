@@ -3,7 +3,7 @@
 FROM node:20-alpine AS base
 WORKDIR /app
 ENV NODE_ENV=production
-COPY package.json yarn.lock license ./
+COPY package.json yarn.lock COPYRIGHT LICENSE-GPL LICENSE-BSL ./
 
 FROM base AS build-base
 RUN apk add --no-cache \
@@ -26,18 +26,6 @@ ENTRYPOINT ["/entrypoint"]
 CMD ["serve"]
 
 
-## Get some build metadata information
-FROM build-base as metadata
-COPY .git/ .git/
-RUN mkdir /meta
-RUN git rev-parse --abbrev-ref HEAD | tee /meta/SOURCE_BRANCH
-RUN git log -1 --pretty=%H          | tee /meta/SOURCE_COMMIT_HASH
-RUN git log -1 --pretty=%s          | tee /meta/SOURCE_COMMIT_SUBJECT
-RUN git log -1 --pretty=%cs         | tee /meta/SOURCE_DATE
-RUN git log -1 --pretty=%ct         | tee /meta/SOURCE_DATE_EPOCH
-RUN git log -1 --pretty=%cI         | tee /meta/SOURCE_DATE_ISO
-
-
 ## Build the target server
 FROM build-base as build-server
 ARG PACKAGE_PATH
@@ -58,7 +46,6 @@ ARG PACKAGE_PATH
 # copy the built packages and their deps
 COPY --from=build-server /app/packages/ packages/
 COPY --from=build-server /app/node_modules/ node_modules/
-COPY --from=metadata /meta/ /meta/
 
 # set the working directory, which is where the entrypoint will run
 WORKDIR /app/packages/${PACKAGE_PATH}
@@ -83,4 +70,3 @@ CMD ["run", "--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile"]
 COPY --from=caddy:2-alpine /usr/bin/caddy /usr/bin/caddy
 COPY packages/web/Caddyfile.docker /etc/caddy/Caddyfile
 COPY --from=build-frontend /app/packages/web/dist/ .
-COPY --from=metadata /meta/ /meta/

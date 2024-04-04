@@ -1,13 +1,13 @@
 {
   "name": "@tamanu/web-frontend",
   "productName": "Tamanu",
-  "version": "2.5.0",
+  "version": "2.6.0",
   "description": "Tamanu Web application",
   "private": true,
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
   "repository": "git@github.com:beyondessential/tamanu.git",
   "author": "Beyond Essential Systems Pty. Ltd. <tamanu@bes.au>",
-  "license": "SEE LICENSE IN license",
+  "license": "GPL-3.0-or-later",
   "type": "module",
   "scripts": {
     "build": "vite build",
@@ -106,10 +106,10 @@
     "shortid": "^2.2.8",
     "styled-components": "^5.3.3",
     "typeface-roboto": "^0.0.54",
-    "vite": "^5.0.2",
+    "vite": "^5.0.12",
     "vite-plugin-json5": "^1.1.0",
     "vite-plugin-node-polyfills": "^0.19.0",
-    "xlsx": "^0.14.0",
+    "xlsx": "^0.18.5",
     "yup": "^0.32.9"
   }
 }

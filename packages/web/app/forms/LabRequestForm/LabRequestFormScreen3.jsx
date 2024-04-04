@@ -49,8 +49,7 @@ export const LabRequestFormScreen3 = props => {
       <StyledBodyText mb="28px" color="textTertiary">
         <TranslatedText
           stringId="lab.sampleDetails.instruction"
-          fallback="Please record details for the samples that have been collected. Otherwise leave blank and
-        click ‘Finalise’."
+          fallback="Please record details for the samples that have been collected. Otherwise leave blank and click ‘Finalise’."
         />
       </StyledBodyText>
       <Field

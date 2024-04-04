@@ -1,4 +1,4 @@
-import XLSX from 'xlsx';
+import * as XLSX from 'xlsx';
 import { saveFile } from './fileSystemAccess';
 
 const stringifyIfNonDateObject = val =>
@@ -21,6 +21,6 @@ export async function saveExcelFile({ data, metadata, defaultFileName = '', book
   await saveFile({
     defaultFileName,
     data: xlsxDataArray,
-    extensions: [bookType],
+    extension: bookType,
   });
 }

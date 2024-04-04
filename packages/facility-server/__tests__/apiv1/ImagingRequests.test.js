@@ -10,6 +10,7 @@ import {
 import { createDummyEncounter, createDummyPatient } from '@tamanu/shared/demoData/patients';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { fake } from '@tamanu/shared/test-helpers/fake';
+import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
 
 import { createTestContext } from '../utilities';
 
@@ -494,6 +495,11 @@ describe('Imaging requests', () => {
         await models.ImagingRequest.truncate({ cascade: true });
 
         for (let i = 0; i < completedCount; ++i) {
+          // Some tests expect that the imaging results completedAt field
+          // is not duplicated, otherwise we cannot guarantee ordering.
+          // Given this field is a date time string, the precision is up to seconds
+          // which means we need to wait for one whole second between requests
+          await sleepAsync(1000);
           const resultCount = i % 4; // get a few different result counts in, including 0
           await makeRequestAtFacility(
             config.serverFacilityId,

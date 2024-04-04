@@ -19,44 +19,44 @@ const referenceData = [
 
 const relationData = [
   {
-    reference_data_parent_id: 'country1',
+    referenceDataParentId: 'country1',
   },
   {
-    reference_data_parent_id: 'country1',
-    reference_data_id: 'division1',
+    referenceDataParentId: 'country1',
+    referenceDataId: 'division1',
   },
   {
-    reference_data_parent_id: 'country1',
-    reference_data_id: 'division2',
+    referenceDataParentId: 'country1',
+    referenceDataId: 'division2',
   },
   {
-    reference_data_parent_id: 'division1',
-    reference_data_id: 'subdivision1',
+    referenceDataParentId: 'division1',
+    referenceDataId: 'subdivision1',
   },
   {
-    reference_data_parent_id: 'division1',
-    reference_data_id: 'subdivision2',
+    referenceDataParentId: 'division1',
+    referenceDataId: 'subdivision2',
   },
   {
-    reference_data_parent_id: 'country1',
-    reference_data_id: 'subdivision2',
+    referenceDataParentId: 'country1',
+    referenceDataId: 'subdivision2',
     type: REFERENCE_DATA_RELATION_TYPES.FACILITY_CATCHMENT,
   },
   {
-    reference_data_parent_id: 'subdivision1',
-    reference_data_id: 'village1',
+    referenceDataParentId: 'subdivision1',
+    referenceDataId: 'village1',
   },
   {
-    reference_data_parent_id: 'subdivision1',
-    reference_data_id: 'village2',
+    referenceDataParentId: 'subdivision1',
+    referenceDataId: 'village2',
   },
   {
-    reference_data_parent_id: 'subdivision2',
-    reference_data_id: 'village3',
+    referenceDataParentId: 'subdivision2',
+    referenceDataId: 'village3',
   },
   {
-    reference_data_parent_id: 'subdivision2',
-    reference_data_id: 'village4',
+    referenceDataParentId: 'subdivision2',
+    referenceDataId: 'village4',
   },
 ];
 
