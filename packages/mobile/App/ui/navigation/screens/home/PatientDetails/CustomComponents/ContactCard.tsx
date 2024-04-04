@@ -10,7 +10,7 @@ import { theme } from '~/ui/styled/theme';
 export const StyledViewWithBorder = styled(StyledView)`
   border: 1px solid ${theme.colors.BOX_OUTLINE};
   padding: 6px 18px;
-  margin-top: 10px;
+  margin-top: 8px;
   border-radius: 5px;
   color: ${theme.colors.MAIN_SUPER_DARK};
 `;
@@ -21,7 +21,7 @@ export const ContactCard = ({ name, relationship, method, connectionDetails }: I
       <StyledText
         color={theme.colors.MAIN_SUPER_DARK}
         fontSize={screenPercentageToDP(2, Orientation.Height)}
-        fontWeight={600}
+        fontWeight={500}
       >
         <TranslatedText
           stringId="patient.details.reminderContacts.field.contact"
@@ -39,7 +39,7 @@ export const ContactCard = ({ name, relationship, method, connectionDetails }: I
       <StyledText
         color={theme.colors.MAIN_SUPER_DARK}
         fontSize={screenPercentageToDP(2, Orientation.Height)}
-        fontWeight={600}
+        fontWeight={500}
       >
         <TranslatedText
           stringId="patient.details.reminderContacts.field.relationShip"
@@ -57,7 +57,7 @@ export const ContactCard = ({ name, relationship, method, connectionDetails }: I
       <StyledText
         color={theme.colors.MAIN_SUPER_DARK}
         fontSize={screenPercentageToDP(2, Orientation.Height)}
-        fontWeight={600}
+        fontWeight={500}
       >
         <TranslatedText
           stringId="patient.details.reminderContacts.field.contactMethod"
