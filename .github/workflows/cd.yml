@@ -34,12 +34,17 @@ permissions:
   id-token: write # OIDC token for AWS (only for release tags)
 
 jobs:
-  branch-config:
-    name: Branch config
+  config:
+    name: Workflow config
     runs-on: ubuntu-latest
     outputs:
       ref: ${{ steps.ref.outputs.result }}
       sha: ${{ steps.sha.outputs.sha }}
+      up: ${{ steps.config.outputs.up }}
+      down: ${{ steps.config.outputs.down }}
+      go-up: ${{ steps.config.outputs.go-up }}
+      go-down: ${{ steps.config.outputs.go-down }}
+      build-images: ${{ (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')) || fromJson(steps.control.outputs.build) }}
     steps:
       - uses: actions/checkout@v4
       - name: Figure branch ref and sha
@@ -64,9 +69,50 @@ jobs:
         id: sha
         run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
+      - name: Find the control PR/issue body text
+        id: control
+        uses: actions/github-script@v7
+        with:
+          result-encoding: string
+          script: |
+            const cwd = '${{ github.workspace }}';
+            const { findControlText } = await import(`${cwd}/packages/scripts/src/pr-cd.mjs`);
+            const issue = await findControlText(context, github);
+            console.log(issue);
+            if (issue != '') core.setOutput('build', true);
+            return JSON.stringify(issue);
+
+      - name: Parse deploy config
+        if: steps.ref.outputs.result != ''
+        id: config
+        uses: actions/github-script@v7
+        env:
+          REF: ${{ steps.ref.outputs.result }}
+        with:
+          script: |
+            const cwd = '${{ github.workspace }}';
+            const { parseDeployConfig } = await import(`${cwd}/packages/scripts/src/pr-cd.mjs`);
+
+            const allDeploys = parseDeployConfig({
+              body: ${{ steps.control.outputs.result }},
+              ref: process.env.REF,
+            });
+            console.log(allDeploys);
+
+            const matrix = ({ name, options }) => ({ name, options: JSON.stringify(options) });
+            const up = allDeploys.filter(deploy => deploy.enabled && !deploy.options.pause).map(matrix);
+            const down = allDeploys.filter(deploy => !deploy.enabled && !deploy.options.pause).map(matrix);
+            console.log('Going UP', up.length);
+            console.log('Going DOWN', down.length);
+
+            core.setOutput('up', JSON.stringify(up));
+            core.setOutput('down', JSON.stringify(down));
+            core.setOutput('go-up', !!up.length);
+            core.setOutput('go-down', !!down.length);
+
   check-images-exist:
-    needs: branch-config
-    if: needs.branch-config.outputs.ref != ''
+    needs: config
+    if: needs.config.outputs.build-images
     name: Check if image was already built
     runs-on: ubuntu-latest
     steps:
@@ -88,7 +134,7 @@ jobs:
       exists: ${{ steps.check.outputs.exists }}
 
   images:
-    needs: [branch-config, check-images-exist]
+    needs: [config, check-images-exist]
     if: needs.check-images-exist.outputs.exists != 'yes'
     strategy:
       fail-fast: false
@@ -143,7 +189,7 @@ jobs:
 
       - uses: actions/checkout@v4
         with:
-          ref: ${{ needs.branch-config.outputs.ref }}
+          ref: ${{ needs.config.outputs.ref }}
 
       - name: Extract version
         id: version
@@ -168,16 +214,16 @@ jobs:
         with:
           context: .
           platforms: linux/${{ matrix.platform.arch }}
-          cache-from: type=gha,scope=${{ matrix.platform.arch }}-${{ needs.branch-config.outputs.ref }}-${{ matrix.package.name }}
-          cache-to: type=gha,mode=max,scope=${{ matrix.platform.arch }}-${{ needs.branch-config.outputs.ref }}-${{ matrix.package.name }}
+          cache-from: type=gha,scope=${{ matrix.platform.arch }}-${{ needs.config.outputs.ref }}-${{ matrix.package.name }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.platform.arch }}-${{ needs.config.outputs.ref }}-${{ matrix.package.name }}
           build-args: PACKAGE_PATH=${{ matrix.package.path }}
           target: ${{ matrix.package.target }}
           push: true
           labels: ${{ steps.meta.outputs.labels }}
-          tags: ghcr.io/beyondessential/tamanu-${{ matrix.package.name }}:sha-${{ needs.branch-config.outputs.sha }}.${{ matrix.platform.arch }}
+          tags: ghcr.io/beyondessential/tamanu-${{ matrix.package.name }}:sha-${{ needs.config.outputs.sha }}.${{ matrix.platform.arch }}
 
   multi-arch:
-    needs: [branch-config, images]
+    needs: [config, images]
     strategy:
       fail-fast: false
       matrix:
@@ -198,20 +244,20 @@ jobs:
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
           manifest-tool push from-args \
             --platforms linux/amd64,linux/arm64 \
-            --template ghcr.io/beyondessential/tamanu-${{ matrix.repo }}:sha-${{ needs.branch-config.outputs.sha }}.ARCH \
-            --target ghcr.io/beyondessential/tamanu-${{ matrix.repo }}:sha-${{ needs.branch-config.outputs.sha }}
+            --template ghcr.io/beyondessential/tamanu-${{ matrix.repo }}:sha-${{ needs.config.outputs.sha }}.ARCH \
+            --target ghcr.io/beyondessential/tamanu-${{ matrix.repo }}:sha-${{ needs.config.outputs.sha }}
 
   all-built:
     if: always() # always run even if dependencies fail
     name: All images built
     needs:
-      - branch-config
+      - config
       - check-images-exist
       - images
       - multi-arch
     runs-on: ubuntu-latest
     steps:
-      - if: needs.branch-config.outputs.ref == ''
+      - if: !needs.config.outputs.build-images
         run: "true" # workflow shouldn't run, fail fast silently
       - if: needs.check-images-exist.outputs.exists == 'yes'
         run: "true" # images exist, nothing to check
@@ -220,84 +266,33 @@ jobs:
         with:
           jobs: ${{ toJSON(needs) }}
 
-  deploy-config:
-    needs: branch-config
-    if: (github.event_name == 'pull_request' || github.event_name == 'issues') && needs.branch-config.outputs.ref != ''
-    name: Deploy config
-    runs-on: ubuntu-latest
-    outputs:
-      up: ${{ steps.config.outputs.up }}
-      down: ${{ steps.config.outputs.down }}
-      go-up: ${{ steps.config.outputs.go-up }}
-      go-down: ${{ steps.config.outputs.go-down }}
-    steps:
-      - uses: actions/checkout@v4
-      - name: Find the control PR/issue body text
-        id: control
-        uses: actions/github-script@v7
-        with:
-          result-encoding: string
-          script: |
-            const cwd = '${{ github.workspace }}';
-            const { findControlText } = await import(`${cwd}/packages/scripts/src/pr-cd.mjs`);
-            const issue = await findControlText(context, github);
-            console.log(issue);
-            return JSON.stringify(issue);
-      - name: Parse deploy config
-        id: config
-        uses: actions/github-script@v7
-        env:
-          REF: ${{ needs.branch-config.outputs.ref }}
-        with:
-          script: |
-            const cwd = '${{ github.workspace }}';
-            const { parseDeployConfig } = await import(`${cwd}/packages/scripts/src/pr-cd.mjs`);
-
-            const allDeploys = parseDeployConfig({
-              body: ${{ steps.control.outputs.result }},
-              ref: process.env.REF,
-            });
-            console.log(allDeploys);
-
-            const matrix = ({ name, options }) => ({ name, options: JSON.stringify(options) });
-            const up = allDeploys.filter(deploy => deploy.enabled && !deploy.options.pause).map(matrix);
-            const down = allDeploys.filter(deploy => !deploy.enabled && !deploy.options.pause).map(matrix);
-            console.log('Going UP', up.length);
-            console.log('Going DOWN', down.length);
-
-            core.setOutput('up', JSON.stringify(up));
-            core.setOutput('down', JSON.stringify(down));
-            core.setOutput('go-up', !!up.length);
-            core.setOutput('go-down', !!down.length);
-
   deploy-up:
     needs:
-      - branch-config
+      - config
       - all-built
-      - deploy-config
-    if: always() && needs.all-built.result == 'success' && fromJson(needs.deploy-config.outputs.go-up)
+    if: always() && needs.all-built.result == 'success' && fromJson(needs.config.outputs.go-up)
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJson(needs.deploy-config.outputs.up) }}
+        include: ${{ fromJson(needs.config.outputs.up) }}
     name: Deploy ${{ matrix.name }}
     uses: ./.github/workflows/cd-up.yml
     with:
       deploy-name: ${{ matrix.name }}
       options: ${{ matrix.options }}
-      image-tag: sha-${{ needs.branch-config.outputs.sha }}
+      image-tag: sha-${{ needs.config.outputs.sha }}
     secrets:
       PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
       TAILSCALE_DBPROXY_ACCESS_OAUTH: ${{ secrets.TAILSCALE_DBPROXY_ACCESS_OAUTH }}
       TAMANU_OPS_SSH: ${{ secrets.TAMANU_OPS_SSH }}
 
   deploy-down:
-    needs: deploy-config
-    if: fromJson(needs.deploy-config.outputs.go-down)
+    needs: config
+    if: fromJson(needs.config.outputs.go-down)
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJson(needs.deploy-config.outputs.down) }}
+        include: ${{ fromJson(needs.config.outputs.down) }}
     name: Undeploy ${{ matrix.name }}
     uses: ./.github/workflows/cd-down.yml
     with:
