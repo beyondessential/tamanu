@@ -7,7 +7,7 @@ const apiToken = telegramBot?.apiToken;
 const secretToken = telegramBot?.secretToken;
 
 export class TelegramBotService {
-  static #bot = new TelegramBot(apiToken);
+  static #bot = apiToken ? new TelegramBot(apiToken) : null;
 
   constructor(options) {
     if (options?.autoStartWebhook) {
@@ -16,15 +16,16 @@ export class TelegramBotService {
   }
 
   initListener() {
-    TelegramBotService.#bot.on('message', async (msg, meta) => this.handleMessage(msg, meta));
+    TelegramBotService.#bot?.on('message', async (msg, meta) => this.handleMessage(msg, meta));
   }
 
   handleMessage(msg) {
     const chatId = msg.chat.id;
-    TelegramBotService.#bot.sendMessage(chatId, `You just say: \n${msg.text}`);
+    TelegramBotService.#bot?.sendMessage(chatId, `You just say: \n${msg.text}`);
   }
 
   startWebhook() {
+    if (!TelegramBotService.#bot) return;
     TelegramBotService.#bot
       .setWebHook(`${canonicalHostName}/api/public/telegram-webhook`, {
         secret_token: secretToken,
@@ -38,6 +39,6 @@ export class TelegramBotService {
   }
 
   processUpdate(body) {
-    TelegramBotService.#bot.processUpdate(body);
+    TelegramBotService.#bot?.processUpdate(body);
   }
 }
