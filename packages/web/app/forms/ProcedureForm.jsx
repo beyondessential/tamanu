@@ -61,7 +61,12 @@ export const ProcedureForm = React.memo(
                 <div style={{ gridColumn: 'span 2' }}>
                   <Field
                     name="procedureTypeId"
-                    label="Procedure"
+                    label={
+                      <TranslatedText
+                        stringId="procedure.procedureType.label"
+                        fallback="Procedure"
+                      />
+                    }
                     required
                     component={AutocompleteField}
                     suggester={procedureSuggester}
@@ -160,8 +165,12 @@ export const ProcedureForm = React.memo(
         }}
         formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
         validationSchema={yup.object().shape({
-          procedureTypeId: foreignKey().label('procedure'),
-          locationId: foreignKey().label('location'),
+          procedureTypeId: foreignKey().translatedLabel(
+            <TranslatedText stringId="procedure.procedureType.label" fallback="Procedure" />,
+          ),
+          locationId: foreignKey().translatedLabel(
+            <TranslatedText stringId="general.location.label" fallback="Location" />,
+          ),
           date: yup
             .date()
             .required()

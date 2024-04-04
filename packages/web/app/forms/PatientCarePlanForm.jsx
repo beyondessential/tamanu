@@ -76,7 +76,9 @@ export const PatientCarePlanForm = ({
     }}
     formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
     validationSchema={yup.object().shape({
-      carePlanId: foreignKey().label('carePlan'),
+      carePlanId: foreignKey().translatedLabel(
+        <TranslatedText stringId="carePlan.plan.label" fallback="Care plan" />,
+      ),
       date: yup.date(),
       examinerId: yup.string(),
       content: yup.string(),
