@@ -14,6 +14,7 @@ import { CreateNoteForm } from './CreateNoteForm';
 import { TreatmentPlanNoteChangelogForm } from './TreatmentPlanNoteChangelogForm';
 import { FORM_TYPES, NOTE_FORM_MODES } from '../constants';
 import { useTranslation } from '../contexts/Translation';
+import { TranslatedString } from '../../../shared/src/models';
 
 export const NoteForm = ({
   onCancel,
@@ -86,9 +87,20 @@ export const NoteForm = ({
         noteType: yup
           .string()
           .oneOf(Object.values(NOTE_TYPES))
-          .required(),
-        date: yup.date().required(),
-        content: yup.string().required(),
+          .required()
+          .translatedLabel(
+            <TranslatedString stringId="note.noteType.label" fallback="Note type" />,
+          ),
+        date: yup
+          .date()
+          .required()
+          .translatedLabel(<TranslatedString stringId="general.date.label" fallback="Date" />),
+        content: yup
+          .string()
+          .required()
+          .translatedLabel(
+            <TranslatedString stringId="note.validation.content.path" fallback="Content" />,
+          ),
         writtenById: foreignKey(
           noteFormMode === NOTE_FORM_MODES.EDIT_NOTE && note?.noteType === NOTE_TYPES.TREATMENT_PLAN
             ? getTranslation(

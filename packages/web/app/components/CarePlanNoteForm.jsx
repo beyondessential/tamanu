@@ -55,7 +55,7 @@ export function CarePlanNoteForm({
           .string()
           .required()
           .translatedLabel(
-            <TranslatedText stringId="carePlan.validation.content.path" fallback="Content" />,
+            <TranslatedText stringId="note.validation.content.path" fallback="Content" />,
           ),
       })}
       formType={note ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
