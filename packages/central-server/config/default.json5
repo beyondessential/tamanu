@@ -1225,6 +1225,6 @@
   "allowMismatchedTimeZones": false,
   "telegramBot": {
     apiToken: "",
-    secretToken: "",
+    secretToken: ""
   }
 }
