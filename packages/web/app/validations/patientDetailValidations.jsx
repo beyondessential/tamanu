@@ -130,7 +130,14 @@ export const getPatientDetailsValidation = (
         getTranslation,
         patientRegistryType,
         'birthFacilityId',
-        yup.string(),
+        yup
+          .string()
+          .translatedLabel(
+            <TranslatedText
+              stringId="general.localisedField.birthFacilityId.label"
+              fallback="Name of health facility (if applicable)"
+            />,
+          ),
         'Name of health facility (if applicable)',
       ),
       otherwise: yup.string(),
