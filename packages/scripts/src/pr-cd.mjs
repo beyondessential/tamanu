@@ -15,8 +15,8 @@ export function stackName(head_ref, ref_name = null) {
     .replace(/^-|-$/g, '');
 }
 
-export function parseDeployConfig({ body, head }) {
-  const deployName = stackName(head.ref);
+export function parseDeployConfig({ body, ref }) {
+  const deployName = stackName(ref);
 
   const deploys = [];
   for (const line of body.split(/\r?\n/)) {

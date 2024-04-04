@@ -27,7 +27,7 @@ _Add a brief description of the changes in this PR to help give the reviewer con
 - [ ] **Deploy (Sima)** <!-- #deploy=sima %facilities=3 -->
 `;
 
-  const parsed = parseDeployConfig({ body, head: { ref: 'refs/heads/ci/k8s-deploy' } });
+  const parsed = parseDeployConfig({ body, ref: 'refs/heads/ci/k8s-deploy' });
   t.equal(parsed.length, 3);
   t.deepEqual(parsed.map(withoutOptions), [
     {
@@ -47,4 +47,19 @@ _Add a brief description of the changes in this PR to help give the reviewer con
   t.equal(parsed.find(d => d.name === 'ci-k8s-deploy-sima').options.facilities, 3);
   t.equal(parsed.find(d => d.name === 'ci-k8s-deploy-klaus').options.arch, 'amd64');
   t.equal(parsed.find(d => d.name === 'ci-k8s-deploy').options.facilities, 2, 'option should default');
+});
+
+test('parse a short ref name', t => {
+  t.plan(3);
+
+  const body = '- [x] **Deploy to Tamanu Internal** <!-- #deploy -->';
+  const parsed = parseDeployConfig({ body, ref: 'main' });
+  t.equal(parsed.length, 1);
+  t.deepEqual(parsed.map(withoutOptions), [
+    {
+      enabled: true,
+      name: 'main',
+    },
+  ]);
+  t.equal(parsed.find(d => d.name === 'main').options.facilities, 2, 'option should default');
 });
