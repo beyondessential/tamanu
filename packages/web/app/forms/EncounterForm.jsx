@@ -156,13 +156,31 @@ export const EncounterForm = React.memo(
               fallback="Clinician"
             />,
           ),
-          locationId: foreignKey().label('location'),
-          departmentId: foreignKey().label('department'),
-          startDate: yup.date().required(),
+          locationId: foreignKey().translatedLabel(
+            <TranslatedText stringId="general.location.label" fallback="Location" />,
+          ),
+          departmentId: foreignKey().translatedLabel(
+            <TranslatedText stringId="general.department.label" fallback="Department" />,
+          ),
+          startDate: yup
+            .date()
+            .required()
+            .translatedLabel(
+              <TranslatedText
+                stringId="patient.modal.checkIn.checkInDate.label"
+                fallback="Check-in date"
+              />,
+            ),
           encounterType: yup
             .string()
             .oneOf(ENCOUNTER_OPTIONS.map(x => x.value))
-            .required(),
+            .required()
+            .translatedLabel(
+              <TranslatedText
+                stringId="patient.modal.checkIn.encounterType.label"
+                fallback="Encounter type"
+              />,
+            ),
         })}
       />
     );

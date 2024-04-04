@@ -75,7 +75,7 @@ const useColumns = () => {
     },
     {
       key: 'locationName',
-      title: <TranslatedText stringId="general.table.column.location" fallback="Location" />,
+      title: <TranslatedText stringId="general.location.label" fallback="Location" />,
       accessor: LocationCell,
     },
   ];

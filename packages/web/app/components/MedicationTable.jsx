@@ -63,7 +63,7 @@ const FULL_LISTING_COLUMNS = [
   },
   {
     key: 'location',
-    title: <TranslatedText stringId="general.table.column.location" fallback="Location" />,
+    title: <TranslatedText stringId="general.location.label" fallback="Location" />,
     accessor: ({ encounter }) => getFullLocationName(encounter.location),
     sortable: false,
   },

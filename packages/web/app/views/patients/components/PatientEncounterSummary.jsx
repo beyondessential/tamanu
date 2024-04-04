@@ -268,7 +268,7 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
         </ContentItem>
         <ContentItem>
           <ContentLabel>
-            <TranslatedText stringId="patient.encounterSummary.location" fallback="Location" />:
+            <TranslatedText stringId="general.location.label" fallback="Location" />:
           </ContentLabel>
           <ContentText>{getFullLocationName(location)}</ContentText>
         </ContentItem>

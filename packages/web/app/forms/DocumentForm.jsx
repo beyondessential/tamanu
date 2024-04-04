@@ -177,7 +177,9 @@ export const DocumentForm = ({ onStart, onSubmit, onError, onCancel, editedObjec
               'Please select a file to complete this request',
             ),
           ),
-        name: foreignKey().label('fileName'),
+        name: foreignKey().translatedLabel(
+          <TranslatedText stringId="document.validation.fileName.path" fallback="File name" />,
+        ),
       })}
     />
   );

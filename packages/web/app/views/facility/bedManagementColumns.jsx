@@ -44,7 +44,7 @@ export const columns = [
   },
   {
     key: 'location',
-    title: <TranslatedText stringId="general.table.column.location" fallback="Location" />,
+    title: <TranslatedText stringId="general.location.label" fallback="Location" />,
     minWidth: 100,
   },
   {
