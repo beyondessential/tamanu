@@ -257,7 +257,7 @@ jobs:
       - multi-arch
     runs-on: ubuntu-latest
     steps:
-      - if: !needs.config.outputs.build-images
+      - if: needs.config.outputs.build-images != true
         run: "true" # workflow shouldn't run, fail fast silently
       - if: needs.check-images-exist.outputs.exists == 'yes'
         run: "true" # images exist, nothing to check
