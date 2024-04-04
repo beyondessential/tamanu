@@ -146,7 +146,12 @@ export const OngoingConditionForm = ({
       }}
       formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
       validationSchema={yup.object().shape({
-        conditionId: foreignKey().label('condition'),
+        conditionId: foreignKey().translatedLabel(
+          <TranslatedText
+            stringId="conditions.validation.conditionName.path"
+            fallback="Condition"
+          />,
+        ),
         recordedDate: yup.date(),
         examinerId: yup.string(),
         note: yup.string(),

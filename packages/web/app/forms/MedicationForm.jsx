@@ -72,7 +72,7 @@ const validationSchema = readOnly =>
       })
     : yup.object().shape({
         discontinuingReason: yup.string(),
-        discontinuingClinicianId: foreignKey().label(
+        discontinuingClinicianId: foreignKey().translatedLabel(
           <TranslatedText stringId="general.clinician.label" fallback="Clinician" />,
         ),
       });
