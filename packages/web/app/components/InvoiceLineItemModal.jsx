@@ -138,8 +138,8 @@ export const InvoiceLineItemModal = ({
             .number()
             .translatedLabel(
               <TranslatedText
-                stringId="invoice.modal.addInvoice.percentageChange.label"
-                fallback="Discount/markup % (-/+)"
+                stringId="invoice.modal.addInvoice.validation.percentageChange.path"
+                fallback="Percentage change"
               />,
             ),
         })}

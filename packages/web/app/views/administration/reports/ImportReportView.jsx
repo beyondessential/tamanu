@@ -45,11 +45,15 @@ const schema = yup.object().shape({
   name: yup
     .string()
     .required()
-    .label('reportName'),
+    .translatedLabel(
+      <TranslatedText stringId="admin.report.import.reportName.label" fallback="Report name" />,
+    ),
   file: yup
     .string()
     .required()
-    .label('reportJSON'),
+    .translatedLabel(
+      <TranslatedText stringId="admin.report.import.reportJson.label" fallback="Report JSON" />,
+    ),
 });
 
 const ImportFeedback = ({ feedback }) => (
