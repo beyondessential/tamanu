@@ -72,7 +72,7 @@ jobs:
       - id: check
         run: |
           for repo in central facility frontend meta; do
-            if skopeo inspect docker://ghcr.io/beyondessential/tamanu-$repo:sha-${{ needs.branch-config.outputs.sha }} 2>&1 >/dev/null; then
+            if skopeo inspect docker://ghcr.io/beyondessential/tamanu-experimental-$repo:sha-${{ needs.branch-config.outputs.sha }} 2>&1 >/dev/null; then
               jq -c . <<< "$desc"
               echo $repo image found, assuming existence
               echo exists=yes | tee -a $GITHUB_OUTPUT
@@ -154,7 +154,7 @@ jobs:
             org.opencontainers.image.vendor=BES
             org.opencontainers.image.title=Tamanu ${{ matrix.package.name }}
             org.opencontainers.image.url=https://www.bes.au/products/tamanu/
-            org.opencontainers.image.source=https://github.com/beyondessential/tamanu/
+            org.opencontainers.image.source=https://github.com/beyondessential/tamanu-repo-experiments
             org.opencontainers.image.version=${{ steps.version.outputs.version }}
             org.opencontainers.image.licenses=GPL-3.0-or-later AND BUSL-1.1
 
@@ -169,7 +169,7 @@ jobs:
           target: ${{ matrix.package.target }}
           push: true
           labels: ${{ steps.meta.outputs.labels }}
-          tags: ghcr.io/beyondessential/tamanu-${{ matrix.package.name }}:sha-${{ needs.branch-config.outputs.sha }}.${{ matrix.platform.arch }}
+          tags: ghcr.io/beyondessential/tamanu-experimental-${{ matrix.package.name }}:sha-${{ needs.branch-config.outputs.sha }}.${{ matrix.platform.arch }}
 
   multi-arch:
     needs: [branch-config, images]
@@ -192,8 +192,8 @@ jobs:
         run: |
           manifest-tool push from-args \
             --platforms linux/amd64,linux/arm64 \
-            --template ghcr.io/beyondessential/tamanu-${{ matrix.repo }}:sha-${{ needs.branch-config.outputs.sha }}.ARCH \
-            --target ghcr.io/beyondessential/tamanu-${{ matrix.repo }}:sha-${{ needs.branch-config.outputs.sha }}
+            --template ghcr.io/beyondessential/tamanu-experimental-${{ matrix.repo }}:sha-${{ needs.branch-config.outputs.sha }}.ARCH \
+            --target ghcr.io/beyondessential/tamanu-experimental-${{ matrix.repo }}:sha-${{ needs.branch-config.outputs.sha }}
 
   all-built:
     if: always() # always run even if dependencies fail
