@@ -76,7 +76,7 @@ const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
       />
       <Field
         name="status"
-        label={<TranslatedText stringId="imaging.status.label" fallback="Status" />}
+        label={<TranslatedText stringId="general.status.label" fallback="Status" />}
         component={SelectField}
         options={isCancelled ? cancelledOption : IMAGING_REQUEST_STATUS_OPTIONS}
         disabled={isCancelled}
@@ -242,7 +242,10 @@ const ImagingRequestInfoPane = React.memo(({ imagingRequest, onSubmit }) => {
         },
       }}
       validationSchema={yup.object().shape({
-        status: yup.string().required(),
+        status: yup
+          .string()
+          .required()
+          .translatedLabel(<TranslatedText stringId="general.status.label" fallback="Status" />),
       })}
       render={({ values }) => {
         const canAddResult = getCanAddResult(values);
