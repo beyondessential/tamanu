@@ -148,7 +148,14 @@ export const getPatientDetailsValidation = (
       getTranslation,
       patientRegistryType,
       'attendantAtBirth',
-      yup.string(),
+      yup
+        .string()
+        .translatedLabel(
+          <TranslatedText
+            stringId="general.localisedField.attendantAtBirth.label"
+            fallback="Attendant at birth"
+          />,
+        ),
       'Attendant at birth',
     ),
     nameOfAttendantAtBirth: requiredBirthFieldWhenConfiguredMandatory(
@@ -156,7 +163,14 @@ export const getPatientDetailsValidation = (
       getTranslation,
       patientRegistryType,
       'nameOfAttendantAtBirth',
-      yup.string(),
+      yup
+        .string()
+        .translatedLabel(
+          <TranslatedText
+            stringId="general.localisedField.nameOfAttendantAtBirth.label"
+            fallback="Name of attendant"
+          />,
+        ),
       'Name of attendant',
     ),
     birthWeight: requiredBirthFieldWhenConfiguredMandatory(
@@ -167,7 +181,13 @@ export const getPatientDetailsValidation = (
       yup
         .number()
         .min(0)
-        .max(6),
+        .max(6)
+        .translatedLabel(
+          <TranslatedText
+            stringId="general.localisedField.birthWeight.label"
+            fallback="Birth weight (kg)"
+          />,
+        ),
       'Birth weight (kg)',
     ),
     birthLength: requiredBirthFieldWhenConfiguredMandatory(
@@ -178,7 +198,13 @@ export const getPatientDetailsValidation = (
       yup
         .number()
         .min(0)
-        .max(100),
+        .max(100)
+        .translatedLabel(
+          <TranslatedText
+            stringId="general.localisedField.birthLength.label"
+            fallback="Birth length (cm)"
+          />,
+        ),
       'Birth length (cm)',
     ),
     birthDeliveryType: requiredBirthFieldWhenConfiguredMandatory(
@@ -186,7 +212,15 @@ export const getPatientDetailsValidation = (
       getTranslation,
       patientRegistryType,
       'birthDeliveryType',
-      yup.string().oneOf(Object.values(BIRTH_DELIVERY_TYPES)),
+      yup
+        .string()
+        .oneOf(Object.values(BIRTH_DELIVERY_TYPES))
+        .translatedLabel(
+          <TranslatedText
+            stringId="general.localisedField.birthDeliveryType.label"
+            fallback="Delivery type"
+          />,
+        ),
       'Delivery type',
     ),
     gestationalAgeEstimate: requiredBirthFieldWhenConfiguredMandatory(
@@ -197,7 +231,13 @@ export const getPatientDetailsValidation = (
       yup
         .number()
         .min(1)
-        .max(45),
+        .max(45)
+        .translatedLabel(
+          <TranslatedText
+            stringId="general.localisedField.gestationalAgeEstimate.label"
+            fallback="Gestational age (weeks)"
+          />,
+        ),
       'Gestational age (weeks)',
     ),
     apgarScoreOneMinute: requiredBirthFieldWhenConfiguredMandatory(
