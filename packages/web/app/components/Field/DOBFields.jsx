@@ -27,7 +27,12 @@ export const DOBFields = ({ showExactBirth = true }) => (
         name="dateOfBirthExact"
         component={DateField}
         saveDateAsString
-        label="DOB"
+        label={
+          <TranslatedText
+            stringId="general.localisedField.dateOfBirth.label.short"
+            fallback="DOB"
+          />
+        }
         max={getCurrentDateString()}
       />
     )}
@@ -35,14 +40,24 @@ export const DOBFields = ({ showExactBirth = true }) => (
       name="dateOfBirthFrom"
       component={DateField}
       saveDateAsString
-      label={<TranslatedText stringId="general.dateOfBirthFrom.label" fallback="DOB from" />}
+      label={
+        <TranslatedText
+          stringId="general.localisedField.dateOfBirthFrom.label.short"
+          fallback="DOB from"
+        />
+      }
       max={getCurrentDateString()}
     />
     <Field
       name="dateOfBirthTo"
       component={DateField}
       saveDateAsString
-      label={<TranslatedText stringId="general.dateOfBirthTo.label" fallback="DOB to" />}
+      label={
+        <TranslatedText
+          stringId="general.localisedField.dateOfBirthTo.label.short"
+          fallback="DOB to"
+        />
+      }
       max={getCurrentDateString()}
     />
   </>

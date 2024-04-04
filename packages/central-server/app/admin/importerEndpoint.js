@@ -20,6 +20,9 @@ export function normaliseSheetName(name) {
       .join(' '),
   );
 
+  // singularize transforms 'reference data' to 'reference datum', which is not what we want
+  if (norm === 'referenceDatumRelation') return 'referenceDataRelation';
+
   if (norm === 'vaccineSchedule') return 'scheduledVaccine';
   if (norm === 'procedure') return 'procedureType';
 

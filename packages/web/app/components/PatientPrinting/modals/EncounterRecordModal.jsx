@@ -25,7 +25,7 @@ import { ForbiddenErrorModalContents } from '../../ForbiddenErrorModal';
 import { ModalActionRow } from '../../ModalActionRow';
 import { printPDF } from '../PDFViewer.jsx';
 import { TranslatedText } from '../../Translation/TranslatedText';
-import { LowerCase } from '../../Typography';
+import { useTranslation } from '../../../contexts/Translation';
 
 // These below functions are used to extract the history of changes made to the encounter that are stored in notes.
 // obviously a better solution needs to be to properly implemented for storing and accessing this data, but this is an ok workaround for now.
@@ -100,14 +100,11 @@ const extractLocationHistory = (notes, encounterData) => {
 };
 
 export const EncounterRecordModal = ({ encounter, open, onClose }) => {
-  const clinicianText = (
-    <LowerCase>
-      <TranslatedText
-        stringId="general.localisedField.clinician.label.short"
-        fallback="Clinician"
-      />
-    </LowerCase>
-  );
+  const { getTranslation } = useTranslation();
+  const clinicianText = getTranslation(
+    'general.localisedField.clinician.label.short',
+    'Clinician',
+  ).toLowerCase();
 
   const { getLocalisation } = useLocalisation();
   const certificateQuery = useCertificate();
