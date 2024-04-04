@@ -374,7 +374,12 @@ export const DischargeForm = ({
       formType={FORM_TYPES.CREATE_FORM}
       SummaryScreen={DischargeSummaryScreen}
       validationSchema={yup.object().shape({
-        endDate: yup.date().required(),
+        endDate: yup
+          .date()
+          .required()
+          .translatedLabel(
+            <TranslatedText stringId="discharge.dischargeDate.label" fallback="Discharge date" />,
+          ),
         discharge: yup
           .object()
           .shape({

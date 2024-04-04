@@ -144,13 +144,13 @@ export const DeathForm = React.memo(
                 "Time of death can't be before date of birth",
               ),
             )
+            .required()
             .translatedLabel(
               <TranslatedText
                 stringId="death.validation.timeOfDeath.path"
                 fallback="Time of death"
               />,
-            )
-            .required(),
+            ),
         })}
         initialValues={{
           outsideHealthFacility: false,
