@@ -51,7 +51,12 @@ export function CarePlanNoteForm({
       }}
       initialValues={note || { date: getCurrentDateTimeString() }}
       validationSchema={yup.object().shape({
-        content: yup.string().required(),
+        content: yup
+          .string()
+          .required()
+          .translatedLabel(
+            <TranslatedText stringId="carePlan.validation.content.path" fallback="Content" />,
+          ),
       })}
       formType={note ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
       render={() => (
@@ -80,7 +85,7 @@ export function CarePlanNoteForm({
           <FormGrid columns={1}>
             <Field
               name="content"
-              placeholder={getTranslation('careplan.note.placeholder.writeNote', 'Write a note...')}
+              placeholder={getTranslation('carePlan.note.placeholder.writeNote', 'Write a note...')}
               component={TextField}
               required
               multiline
