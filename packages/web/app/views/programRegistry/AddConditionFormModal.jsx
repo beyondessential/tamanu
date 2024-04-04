@@ -15,6 +15,7 @@ import {
 import { useApi } from '../../api';
 import { foreignKey } from '../../utils/validation';
 import { FORM_TYPES } from '../../constants';
+import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 const StyledFormGrid = styled(FormGrid)`
   grid-column: 1 / -1;
@@ -76,7 +77,12 @@ export const AddConditionFormModal = ({
         validationSchema={yup.object().shape({
           programRegistryConditionId: foreignKey()
             .required()
-            .label('condition'),
+            .translatedLabel(
+              <TranslatedText
+                stringId="conditions.validation.conditionName.path"
+                fallback="Condition"
+              />,
+            ),
         })}
       />
     </Modal>

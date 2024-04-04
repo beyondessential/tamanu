@@ -226,7 +226,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
             ),
           registeringFacilityId: foreignKey()
             .required()
-            .label(
+            .translatedLabel(
               <TranslatedText
                 stringId="patientProgramRegistry.registeredBy.label"
                 fallback="Registering facility"
