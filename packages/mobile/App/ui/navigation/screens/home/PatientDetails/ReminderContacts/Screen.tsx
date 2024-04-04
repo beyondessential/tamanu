@@ -21,8 +21,10 @@ import { useBackendEffect } from '~/ui/hooks';
 import { IPatientContact } from '~/types';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
-import { useAuth } from '~/ui/contexts/AuthContext';
 import { Button } from '~/ui/components/Button';
+import { Routes } from '~/ui/helpers/routes';
+import { PlusIcon } from '~/ui/components/Icons/PlusIcon';
+import { useAuth } from '~/ui/contexts/AuthContext';
 import { RemoveReminderContactModal } from './RemoveReminderContactModal';
 import { PatientContact } from '~/models/PatientContact';
 
@@ -53,6 +55,10 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
 
   const onNavigateBack = useCallback(() => {
     navigation.goBack();
+  }, [navigation]);
+
+  const onNavigateAddReminderContact = useCallback(() => {
+    navigation.navigate(Routes.HomeStack.PatientDetailsStack.AddReminderContact);
   }, [navigation]);
 
   const onRemoveReminderContact = async () => {
@@ -164,6 +170,30 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
               >
                 <ContactCard {...selectedContact} />
               </RemoveReminderContactModal>
+            )}
+            {canWriteReminderContacts && (
+              <Button
+                onPress={onNavigateAddReminderContact}
+                backgroundColor={theme.colors.WHITE}
+                borderColor={theme.colors.PRIMARY_MAIN}
+                borderWidth={1}
+                marginTop={15}
+                width={screenPercentageToDP(36, Orientation.Width)}
+                height={screenPercentageToDP(5, Orientation.Height)}
+                textColor={theme.colors.PRIMARY_MAIN}
+                fontSize={16}
+                fontWeight={500}
+                buttonText={
+                  <TranslatedText
+                    stringId="patient.details.reminderContacts.action.add"
+                    fallback="Add contact"
+                  />
+                }
+              >
+                <StyledView marginRight={6}>
+                  <PlusIcon />
+                </StyledView>
+              </Button>
             )}
           </StyledView>
         </StyledSafeAreaView>

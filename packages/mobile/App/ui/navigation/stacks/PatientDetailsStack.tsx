@@ -7,6 +7,8 @@ import { EditPatientScreen } from '~/ui/navigation/screens/home/PatientDetails/E
 import { EditPatientAdditionalDataScreen } from '~/ui/navigation/screens/home/PatientDetails/EditPatientAdditionalData';
 import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
 import { ReminderContactScreen } from '../screens/home/PatientDetails/ReminderContacts';
+import { AddReminderContactScreen } from '../screens/home/PatientDetails/AddReminderContact';
+import { ReminderContactQRScreen } from '../screens/home/PatientDetails/ReminderContactQR';
 
 const Stack = createStackNavigator();
 
@@ -32,6 +34,14 @@ export const PatientDetailsStack = (): ReactElement => (
       <Stack.Screen
         name={Routes.HomeStack.PatientDetailsStack.ReminderContacts}
         component={ReminderContactScreen}
+      />
+      <Stack.Screen
+        name={Routes.HomeStack.PatientDetailsStack.AddReminderContact}
+        component={AddReminderContactScreen}
+      />
+      <Stack.Screen
+        name={Routes.HomeStack.PatientDetailsStack.ReminderContactQR}
+        component={ReminderContactQRScreen}
       />
     </Stack.Navigator>
   </ErrorBoundary>

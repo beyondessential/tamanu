@@ -741,7 +741,15 @@
         "programRegistry": {
           "shortLabel": "Program Registry",
           "longLabel": "Program Registry"
-        }
+        },
+        "reminderContactName":{
+          "shortLabel": "Contact name",
+          "longLabel": "Contact name"
+        },
+        "reminderContactRelationship":{
+          "shortLabel": "Relationship",
+          "longLabel": "Relationship"
+        },
       },
       "features": {
         "enableVaccineConsent": true,

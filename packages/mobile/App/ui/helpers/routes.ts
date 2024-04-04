@@ -133,6 +133,8 @@ export const Routes = {
       EditPatient: '',
       EditPatientAdditionalData: '',
       ReminderContacts: '',
+      AddReminderContact: '',
+      ReminderContactQR: '',
     },
     PatientActions: '',
     ExportDataScreen: '',
