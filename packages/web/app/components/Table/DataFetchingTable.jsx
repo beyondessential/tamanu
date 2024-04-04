@@ -213,6 +213,8 @@ export const DataFetchingTable = memo(
     };
 
     useEffect(() => {
+      if (!hasPermission) return;
+
       const shouldLoadMoreData = fetchState.data?.length > 0 && lazyLoading;
       if (shouldLoadMoreData) setIsLoadingMoreData(true);
       const loadingDelay = !shouldLoadMoreData && loadingIndicatorDelay();
@@ -261,6 +263,7 @@ export const DataFetchingTable = memo(
       transformRow,
       onDataFetched,
       disablePagination,
+      hasPermission,
     ]);
 
     useEffect(() => {
