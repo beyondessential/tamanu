@@ -38,6 +38,22 @@ const InfoPopupLabel = React.memo(() => (
   </span>
 ));
 
+const triageClinicianLabel = (
+  <TranslatedText
+    stringId="triage.practitionerId.label"
+    fallback="Triage :clinician"
+    replacements={{
+      clinician: (
+        <TranslatedText
+          stringId="general.localisedField.clinician.label.short"
+          fallback="Clinician"
+          lowercase
+        />
+      ),
+    }}
+  />
+);
+
 export const TriageForm = ({
   onCancel,
   onSubmitEncounter,
@@ -147,21 +163,7 @@ export const TriageForm = ({
         </FormGrid>
         <Field
           name="practitionerId"
-          label={
-            <TranslatedText
-              stringId="triage.practitionerId.label"
-              fallback="Triage :clinician"
-              replacements={{
-                clinician: (
-                  <TranslatedText
-                    stringId="general.localisedField.clinician.label.short"
-                    fallback="Clinician"
-                    lowercase
-                  />
-                ),
-              }}
-            />
-          }
+          label={triageClinicianLabel}
           required
           component={AutocompleteField}
           suggester={practitionerSuggester}
@@ -240,11 +242,25 @@ export const TriageForm = ({
               'Triage time cannot be in the future',
             ),
           ),
-        chiefComplaintId: foreignKey().label('chiefComplaint'),
-        // yp TODO: localised clinician
-        practitionerId: foreignKey().label('triageClinician'),
-        locationId: foreignKey().label('location'),
-        score: yup.string().required(),
+        chiefComplaintId: foreignKey().translatedLabel(
+          <TranslatedText
+            stringId="patient.modal.triage.chiefComplaint.label"
+            fallback="Chief complaint"
+          />,
+        ),
+        practitionerId: foreignKey().translatedLabel(triageClinicianLabel),
+        locationId: foreignKey().translatedLabel(
+          <TranslatedText stringId="general.localisedField.location.label" fallback="Location" />,
+        ),
+        score: yup
+          .string()
+          .required()
+          .translatedLabel(
+            <TranslatedText
+              stringId="patient.modal.triage.validation.triageScore.path"
+              fallback="Path"
+            />,
+          ),
       })}
     />
   );

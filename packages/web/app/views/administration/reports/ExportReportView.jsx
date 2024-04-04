@@ -24,15 +24,22 @@ const schema = yup.object().shape({
   reportId: yup
     .string()
     .required()
-    .label('report'),
+    .translatedLabel(
+      <TranslatedText stringId="admin.report.export.report.label" fallback="Report" />,
+    ),
   versionId: yup
     .string()
     .required()
-    .label('version'),
+    .translatedLabel(
+      <TranslatedText stringId="admin.report.export.version.label" fallback="Version" />,
+    ),
   format: yup
     .string()
     .oneOf(Object.values(REPORT_VERSION_EXPORT_FORMATS))
-    .required(),
+    .required()
+    .translatedLabel(
+      <TranslatedText stringId="admin.report.export.format.label" fallback="Format" />,
+    ),
 });
 
 export const ExportReportView = () => {
