@@ -1,3 +1,4 @@
+import React from 'react';
 import * as yup from 'yup';
 import { isEqual } from 'lodash';
 
@@ -7,6 +8,7 @@ import {
   PATIENT_REGISTRY_TYPES,
   PLACE_OF_BIRTH_TYPES,
 } from '@tamanu/constants';
+import { TranslatedText } from '../components/Translation/TranslatedText';
 
 const requiredWhenConfiguredMandatory = (
   getLocalisation,
@@ -51,32 +53,72 @@ export const getPatientDetailsValidation = (
   getTranslation,
 ) => {
   const patientDetailsValidationSchema = yup.object().shape({
-    firstName: yup.string().required(),
+    firstName: yup
+      .string()
+      .required()
+      .translatedLabel(
+        <TranslatedText stringId="general.localisedField.firstName.label" fallback="First name" />,
+      ),
     middleName: requiredWhenConfiguredMandatory(
       getLocalisation,
       getTranslation,
       'middleName',
-      yup.string(),
+      yup
+        .string()
+        .translatedLabel(
+          <TranslatedText
+            stringId="general.localisedField.middleName.label"
+            fallback="Middle name"
+          />,
+        ),
       'Middle name',
     ),
-    lastName: yup.string().required(),
+    lastName: yup
+      .string()
+      .required()
+      .translatedLabel(
+        <TranslatedText stringId="general.localisedField.lastName.label" fallback="Last name" />,
+      ),
     culturalName: requiredWhenConfiguredMandatory(
       getLocalisation,
       getTranslation,
       'culturalName',
-      yup.string(),
+      yup
+        .string()
+        .translatedLabel(
+          <TranslatedText
+            stringId="general.localisedField.culturalName.label"
+            fallback="Cultural name"
+          />,
+        ),
       'Cultural name',
     ),
-    dateOfBirth: yup.date().required(),
+    dateOfBirth: yup
+      .date()
+      .required()
+      .translatedLabel(
+        <TranslatedText
+          stringId="general.localisedField.dateOfBirth.label"
+          fallback="Date of birth"
+        />,
+      ),
     sex: yup
       .string()
       .oneOf(sexValues)
-      .required(),
+      .required()
+      .translatedLabel(
+        <TranslatedText stringId="general.localisedField.sex.label" fallback="Sex" />,
+      ),
     email: requiredWhenConfiguredMandatory(
       getLocalisation,
       getTranslation,
       'email',
-      yup.string().email(),
+      yup
+        .string()
+        .email()
+        .translatedLabel(
+          <TranslatedText stringId="general.localisedField.email.label" fallback="Email address" />,
+        ),
       'Email',
     ),
 
