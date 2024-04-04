@@ -27,6 +27,7 @@ import {
 } from '../../api/queries/usePatientProgramRegistryConditions';
 import { useTranslation } from '../../contexts/Translation';
 import { FORM_TYPES } from '../../constants';
+import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistration, open }) => {
   const api = useApi();
@@ -120,14 +121,24 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
                 <FormGrid style={{ gridColumn: 'span 2' }}>
                   <Field
                     name="date"
-                    label="Date of registration"
+                    label={
+                      <TranslatedText
+                        stringId="patientProgramRegistry.date.label"
+                        fallback="Date of registration"
+                      />
+                    }
                     saveDateAsString
                     component={DateField}
                     required
                   />
                   <Field
                     name="clinicianId"
-                    label="Registered by"
+                    label={
+                      <TranslatedText
+                        stringId="patientProgramRegistry.registeredBy.label"
+                        fallback="Registered by"
+                      />
+                    }
                     component={AutocompleteField}
                     suggester={registeredBySuggester}
                     required
@@ -136,7 +147,12 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
                 <FormGrid style={{ gridColumn: 'span 2' }}>
                   <Field
                     name="registeringFacilityId"
-                    label="Registering facility"
+                    label={
+                      <TranslatedText
+                        stringId="patientProgramRegistry.registeredBy.label"
+                        fallback="Registering facility"
+                      />
+                    }
                     component={AutocompleteField}
                     suggester={registeringFacilitySuggester}
                     required
@@ -194,13 +210,28 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
           date: yup
             .date()
             .required()
-            .label('dateOfRegistration'),
+            .translatedLabel(
+              <TranslatedText
+                stringId="patientProgramRegistry.date.label"
+                fallback="Date of registration"
+              />,
+            ),
           clinicianId: foreignKey()
             .required()
-            .label('registeredBy'),
+            .translatedLabel(
+              <TranslatedText
+                stringId="patientProgramRegistry.registeredBy.label"
+                fallback="Registered by"
+              />,
+            ),
           registeringFacilityId: foreignKey()
             .required()
-            .label('registeringFacility'),
+            .label(
+              <TranslatedText
+                stringId="patientProgramRegistry.registeredBy.label"
+                fallback="Registering facility"
+              />,
+            ),
         })}
       />
     </Modal>
