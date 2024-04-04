@@ -129,7 +129,7 @@ describe('Auth', () => {
       });
       expect(refreshTokenRecord).not.toBeNull();
       expect(refreshTokenRecord).toHaveProperty('refreshId');
-      expect(bcrypt.compare(contents.refreshId, refreshTokenRecord.refreshId)).resolves.toBe(true);
+      await expect(bcrypt.compare(contents.refreshId, refreshTokenRecord.refreshId)).resolves.toBe(true);
     });
 
     it('Should not issue a refresh token for external client', async () => {
@@ -285,7 +285,7 @@ describe('Auth', () => {
       });
       expect(refreshTokenRecord).not.toBeNull();
       expect(refreshTokenRecord).toHaveProperty('refreshId');
-      expect(
+      await expect(
         bcrypt.compare(newRefreshTokenContents.refreshId, refreshTokenRecord.refreshId),
       ).resolves.toBe(true);
     });
