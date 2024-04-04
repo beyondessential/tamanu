@@ -5,8 +5,8 @@ import { Notification } from '../../components/Notification';
 import { Button } from '../../components/Button';
 import { AppointmentForm } from '../../components/Appointments/AppointmentForm';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
-import { useAuth } from '../../contexts/Auth';
 import { ErrorMessage } from '../../components/ErrorMessage';
+import { usePermission } from '../../hooks/usePermission';
 
 const ButtonRow = styled.div`
   display: flex;
@@ -36,9 +36,8 @@ const SubmissionSuccess = ({ onReset }) => (
 
 export const NewAppointmentView = () => {
   const [success, setSuccess] = useState(false);
-  const { ability } = useAuth();
 
-  const hasPermission = typeof ability.can === 'function' && ability.can('write', 'Appointment');
+  const hasPermission = usePermission('write', 'Appointment');
 
   return (
     <PageContainer>

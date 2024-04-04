@@ -1,13 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { useAuth } from '../contexts/Auth';
+import { usePermission } from '../hooks/usePermission';
 
 export const withPermissionCheck = Component => {
   const PermissionCheckedComponent = ({ verb, noun, ...props }) => {
-    const { ability } = useAuth();
-    // When auth is reloading ability.can can be temporarily undefined
-    const hasPermission = typeof ability.can === 'function' && ability.can(verb, noun);
+    const hasPermission = usePermission(verb, noun);
     return <Component {...props} hasPermission={hasPermission} />;
   };
 

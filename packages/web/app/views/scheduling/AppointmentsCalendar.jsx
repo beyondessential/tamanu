@@ -16,8 +16,8 @@ import { Suggester } from '../../utils/suggester';
 import { APPOINTMENT_TYPE_OPTIONS, Colors } from '../../constants';
 import { useApi, useSuggester } from '../../api';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
-import { useAuth } from '../../contexts/Auth';
 import { ErrorMessage } from '../../components/ErrorMessage';
+import { usePermission } from '../../hooks/usePermission';
 
 const LeftContainer = styled.div`
   min-height: 100%;
@@ -85,7 +85,6 @@ const TodayButton = styled(Button)`
 export const AppointmentsCalendar = () => {
   const api = useApi();
   const locationGroupSuggester = useSuggester('facilityLocationGroup');
-  const { ability } = useAuth();
 
   const [date, setDate] = useState(new Date());
   const [filterValue, setFilterValue] = useState('');
@@ -94,7 +93,7 @@ export const AppointmentsCalendar = () => {
   const [refreshCount, setRefreshCount] = useState(0);
   const [activeFilter, setActiveFilter] = useState('locationGroup');
 
-  const hasPermission = typeof ability.can === 'function' && ability.can('list', 'Appointment');
+  const hasPermission = usePermission('list', 'Appointment');
 
   const updateCalendar = () => {
     setRefreshCount(refreshCount + 1);
