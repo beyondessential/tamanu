@@ -171,7 +171,10 @@ export const PatientLetterForm = ({ onSubmit, onCancel, editedObject, endpoint, 
       }}
       formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
       validationSchema={yup.object().shape({
-        date: yup.date().required(),
+        date: yup
+          .date()
+          .required()
+          .translatedLabel(<TranslatedText stringId="general.date.label" fallback="Date" />),
         clinicianId: yup
           .string()
           .required()
