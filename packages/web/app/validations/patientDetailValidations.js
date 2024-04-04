@@ -18,7 +18,7 @@ const requiredWhenConfiguredMandatory = (
   return baseType.when([], {
     is: () => !!getLocalisation(`fields.${name}.requiredPatientData`),
     then: baseType.required(
-      `${getTranslation(`general.localisedField.${name}.label.short`, fallbackLabel)} is required `,
+      `${getTranslation(`general.localisedField.${name}.label.short`, fallbackLabel)} is required`,
     ),
     otherwise: baseType,
   });
