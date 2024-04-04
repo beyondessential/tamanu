@@ -14,6 +14,7 @@ import {
 } from '../../../components';
 
 import { FORM_TYPES, LAB_REQUEST_STATUS_OPTIONS } from '../../../constants';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const validationSchema = yup.object().shape({
   status: yup
@@ -22,7 +23,14 @@ const validationSchema = yup.object().shape({
     .required(),
   sampleTime: yup.string().when('status', {
     is: status => status !== LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED,
-    then: yup.string().label('sampleDate&Time'),
+    then: yup
+      .string()
+      .translatedLabel(
+        <TranslatedText
+          stringId="lab.modal.changeStatus.sampleDateTime.label"
+          label="Sample date & time"
+        />,
+      ),
     otherwise: yup.string().nullable(),
   }),
   labSampleSiteId: yup.string(),
@@ -58,14 +66,19 @@ export const LabRequestChangeStatusModal = React.memo(
                   <>
                     <Field
                       name="sampleTime"
-                      label="Sample date & time"
+                      label={
+                        <TranslatedText
+                          stringId="lab.modal.changeStatus.sampleDateTime.label"
+                          label="Sample date & time"
+                        />
+                      }
                       required
                       component={DateTimeField}
                       saveDateAsString
                     />
                     <Field
                       name="labSampleSiteId"
-                      label="Site"
+                      label={<TranslatedText stringId="lab.site.label" label="Site" />}
                       component={SuggesterSelectField}
                       endpoint="labSampleSite"
                     />

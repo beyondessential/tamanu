@@ -18,10 +18,7 @@ const validationSchema = yup.object().shape({
     .string()
     .required()
     .translatedLabel(
-      <TranslatedText
-        stringId="labRequest.modal.changeLab.laboratory.label"
-        fallback="Laboratory"
-      />,
+      <TranslatedText stringId="lab.modal.changeLab.laboratory.label" fallback="Laboratory" />,
     ),
 });
 
@@ -51,7 +48,7 @@ export const LabRequestChangeLabModal = React.memo(
                 component={AutocompleteField}
                 label={
                   <TranslatedText
-                    stringId="labRequest.modal.changeLab.laboratory.label"
+                    stringId="lab.modal.changeLab.laboratory.label"
                     fallback="Laboratory"
                   />
                 }
