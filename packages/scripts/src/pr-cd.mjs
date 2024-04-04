@@ -185,7 +185,12 @@ export function parseBranchConfig(context) {
     console.log('Using auto-deploy issue body');
     let deployLine = RX_BRANCH_LINE.exec(context.payload.issue.body);
     if (deployLine) {
-      return deployLine.groups.ref;
+      const ref = deployLine.groups.ref;
+      if (context.payload.issue.title.startsWith(`Auto-deploy: ${ref}`)) {
+        return ref;
+      } else {
+        console.log(`Ignoring branch config for ${ref} as title doesn't match`);
+      }
     }
   }
 
