@@ -344,32 +344,38 @@ describe('fijiAspenMediciReport', () => {
   afterAll(() => ctx.close());
 
   describe('should filter encounters correctly', () => {
-    // it.each([
-    //   // [ expectedResults, period.start, period.end ]
-    //   [1, '2022-06-09', '2022-10-09'],
-    //   [0, '2022-06-15', '2022-10-09'],
-    //   [0, '2022-06-12T00:02:53-02:00', '2022-10-09'],
-    //   [1, '2022-06-12T00:02:53Z', '2022-10-09'],
-    //   [0, '2022-06-12T00:02:55Z', '2022-10-09'],
-    //   [1, '2022-06-12T00:02:55+01:00', '2022-10-09'],
-    //   [0, '2022-06-12T00:02:53-01:00', '2022-10-09'],
-    //   // Dates/times input without timezone will be server timezone
-    //   [0, createLocalDateTimeStringFromUTC(2022, 6 - 1, 12, 0, 2, 55).replace(' ', 'T'), '2023'],
-    //   [1, createLocalDateTimeStringFromUTC(2022, 6 - 1, 12, 0, 2, 53).replace(' ', 'T'), '2023'],
-    // ])(
-    //   'Date filtering: Should return %p result(s) between %p and %s',
-    //   async (expectedResults, start, end) => {
-    //     const query = `period.start=${encodeURIComponent(start)}&period.end=${encodeURIComponent(
-    //       end,
-    //     )}`;
-    //     const response = await app
-    //       .get(`/api/integration/fijiAspenMediciReport?${query}`)
-    //       .set({ 'X-Tamanu-Client': 'medici', 'X-Version': '0.0.1' });
+    it.each([
+      // [ expectedResults, period.start, period.end ]
+      [0, '2022-06-12T00:02:53-02:00', '2022-06-12T00:03:53-02:00'],
+      [1, '2022-06-12T00:02:53Z', '2022-06-12T00:59:00Z'],
+      [0, '2022-06-12T00:02:55Z', '2022-06-12T00:59:00Z'],
+      [1, '2022-06-12T00:02:55+01:00', '2022-06-12T00:03:55+01:00'],
+      [0, '2022-06-12T00:02:53-01:00', '2022-06-12T00:02:52-01:00'],
+      // Dates/times input without timezone will be server timezone
+      [
+        0,
+        createLocalDateTimeStringFromUTC(2022, 6 - 1, 12, 0, 2, 55).replace(' ', 'T'),
+        createLocalDateTimeStringFromUTC(2022, 6 - 1, 12, 0, 59, 0).replace(' ', 'T'),
+      ],
+      [
+        1,
+        createLocalDateTimeStringFromUTC(2022, 6 - 1, 12, 0, 2, 53).replace(' ', 'T'),
+        createLocalDateTimeStringFromUTC(2022, 6 - 1, 12, 0, 59, 0).replace(' ', 'T'),
+      ],
+    ])(
+      'Date filtering: Should return %p result(s) between %p and %s',
+      async (expectedResults, start, end) => {
+        const query = `period.start=${encodeURIComponent(start)}&period.end=${encodeURIComponent(
+          end,
+        )}`;
+        const response = await app
+          .get(`/api/integration/fijiAspenMediciReport?${query}`)
+          .set({ 'X-Tamanu-Client': 'medici', 'X-Version': '0.0.1' });
 
-    //     expect(response).toHaveSucceeded();
-    //     expect(response.body.data.length).toEqual(expectedResults);
-    //   },
-    // );
+        expect(response).toHaveSucceeded();
+        expect(response.body.data.length).toEqual(expectedResults);
+      },
+    );
 
     it('should filter by encounter id - 0 results', async () => {
       const query = `period.start=2022-06-12T00:00:00Z&period.end=2022-06-12T00:59:00Z&encounters=${encodeURIComponent(
