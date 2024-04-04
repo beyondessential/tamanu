@@ -11,12 +11,18 @@ import {
   ModalFormActionRow,
 } from '../../../components';
 import { FORM_TYPES } from '../../../constants';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const validationSchema = yup.object().shape({
   labTestLaboratoryId: yup
     .string()
     .required()
-    .label('laboratory'),
+    .label(
+      <TranslatedText
+        stringId="labRequest.modal.changeLab.laboratory.label"
+        fallback="Laboratory"
+      />,
+    ),
 });
 
 export const LabRequestChangeLabModal = React.memo(
@@ -43,7 +49,12 @@ export const LabRequestChangeLabModal = React.memo(
             <FormGrid columns={1}>
               <Field
                 component={AutocompleteField}
-                label="Laboratory"
+                label={
+                  <TranslatedText
+                    stringId="labRequest.modal.changeLab.laboratory.label"
+                    fallback="Laboratory"
+                  />
+                }
                 name="labTestLaboratoryId"
                 suggester={laboratorySuggester}
                 required

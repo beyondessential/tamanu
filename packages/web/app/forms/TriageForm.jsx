@@ -250,7 +250,7 @@ export const TriageForm = ({
         ),
         practitionerId: foreignKey().translatedLabel(triageClinicianLabel),
         locationId: foreignKey().translatedLabel(
-          <TranslatedText stringId="general.localisedField.location.label" fallback="Location" />,
+          <TranslatedText stringId="general.localisedField.locationId.label" fallback="Location" />,
         ),
         score: yup
           .string()
