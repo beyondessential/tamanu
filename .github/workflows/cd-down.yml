@@ -27,7 +27,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: echo '${{ inputs.options }}'
       - id: setup
         uses: ./.github/actions/setup-cd
         with:

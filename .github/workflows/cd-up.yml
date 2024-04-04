@@ -30,7 +30,6 @@ jobs:
     name: ${{ inputs.deploy-name }}
     steps:
       - uses: actions/checkout@v4
-      - run: echo '${{ inputs.options }}'
       - id: setup
         uses: ./.github/actions/setup-cd
         with:
