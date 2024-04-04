@@ -12,7 +12,9 @@ import {
   SelectField,
   SuggesterSelectField,
 } from '../Field';
-import { CustomisableSearchBar } from './CustomisableSearchBar';
+import {
+  CustomisableSearchBarWithPermissionCheck,
+} from './CustomisableSearchBar';
 import { LabRequestSearchParamKeys, useLabRequest } from '../../contexts/LabRequest';
 import { useSuggester } from '../../api';
 import { useAdvancedFields } from './useAdvancedFields';
@@ -47,7 +49,9 @@ export const LabRequestsSearchBar = ({ status = '' }) => {
   });
 
   return (
-    <CustomisableSearchBar
+    <CustomisableSearchBarWithPermissionCheck
+      verb="list"
+      noun="LabRequest"
       initialValues={searchParameters}
       onSearch={setSearchParameters}
       isExpanded={showAdvancedFields}
@@ -200,6 +204,6 @@ export const LabRequestsSearchBar = ({ status = '' }) => {
           />
         )}
       </>
-    </CustomisableSearchBar>
+    </CustomisableSearchBarWithPermissionCheck>
   );
 };

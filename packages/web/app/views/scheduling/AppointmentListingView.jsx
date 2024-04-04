@@ -5,7 +5,6 @@ import {
   ContentPane,
   DateDisplay,
   PageContainer,
-  SearchTable,
   SearchTableTitle,
   SearchTableWithPermissionCheck,
   TopBar,

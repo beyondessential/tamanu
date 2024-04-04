@@ -11,7 +11,9 @@ import {
   SearchField,
   SelectField,
 } from '../Field';
-import { CustomisableSearchBar } from './CustomisableSearchBar';
+import {
+  CustomisableSearchBarWithPermissionCheck,
+} from './CustomisableSearchBar';
 import { useLocalisation } from '../../contexts/Localisation';
 import { useSuggester } from '../../api';
 import { useImagingRequests } from '../../contexts/ImagingRequests';
@@ -51,7 +53,9 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFie
   }));
 
   return (
-    <CustomisableSearchBar
+    <CustomisableSearchBarWithPermissionCheck
+      verb="list"
+      noun="ImagingRequest"
       showExpandButton
       isExpanded={showAdvancedFields}
       setIsExpanded={setShowAdvancedFields}
@@ -224,6 +228,6 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFie
           size="small"
         />
       )}
-    </CustomisableSearchBar>
+    </CustomisableSearchBarWithPermissionCheck>
   );
 };

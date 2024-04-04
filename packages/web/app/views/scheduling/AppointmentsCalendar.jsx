@@ -236,6 +236,9 @@ export const AppointmentsCalendar = () => {
             {!hasPermission ? (
               <ErrorMessage
                 title={
+                  <TranslatedText stringId="general.error.noPermission" fallback="No permission" />
+                }
+                errorMessage={
                   <TranslatedText
                     stringId="schedule.appointmentCalendar.error.noPermission"
                     fallback="You do not have permission to view the appointments calendar. If you require access, please contact your administrator."
