@@ -16,10 +16,11 @@ on:
       - edited
       - labeled
 
-  # Release tags build the server/web packages only
   push:
-    tags:
-      - 'v*.*.*'
+    # Release tags build the server/web packages only
+    tags: ['v*.*.*']
+    # All branches can potentially be controlled by special issues
+    branches: ['*']
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.event.issue.id || github.ref }}
@@ -160,7 +161,7 @@ jobs:
             org.opencontainers.image.url=https://www.bes.au/products/tamanu/
             org.opencontainers.image.source=https://github.com/beyondessential/tamanu/
             org.opencontainers.image.version=${{ steps.version.outputs.version }}
-            org.opencontainers.image.licenses=GPL-3.0-or-later AND BUSL-1.1
+            org.opencontainers.image.licenses=GPL-3.0-or-later
 
       - name: Build and push
         uses: docker/build-push-action@v5
@@ -231,6 +232,17 @@ jobs:
       go-down: ${{ steps.config.outputs.go-down }}
     steps:
       - uses: actions/checkout@v4
+      - name: Find the control PR/issue body text
+        id: control
+        uses: actions/github-script@v7
+        with:
+          result-encoding: string
+          script: |
+            const cwd = '${{ github.workspace }}';
+            const { findControlText } = await import(`${cwd}/packages/scripts/src/pr-cd.mjs`);
+            const issue = await findControlText(context, github);
+            console.log(issue);
+            return JSON.stringify(issue);
       - name: Parse deploy config
         id: config
         uses: actions/github-script@v7
@@ -242,7 +254,7 @@ jobs:
             const { parseDeployConfig } = await import(`${cwd}/packages/scripts/src/pr-cd.mjs`);
 
             const allDeploys = parseDeployConfig({
-              body: (context.payload.pull_request ?? context.payload.issue).body,
+              body: ${{ steps.control.outputs.result }},
               ref: process.env.REF,
             });
             console.log(allDeploys);

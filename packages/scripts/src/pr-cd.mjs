@@ -42,7 +42,7 @@ function intBounds(input, [low, high]) {
 
 const OPTIONS = [
   { key: 'facilities', defaultValue: 2, parse: input => intBounds(input, [0, 5]) },
-  { key: 'config', defaultValue: (options, context) => 'pr' },
+  { key: 'config', defaultValue: (options, context) => 'pr' }, // TODO: vary by context
   { key: 'timezone', defaultValue: 'Pacific/Auckland' },
   { key: 'ip', defaultValue: null, parse: input => input.split(',').map(s => s.trim()) },
   { key: 'dbstorage', defaultValue: 5, parse: input => intBounds(input, [1, 100]) },
@@ -194,5 +194,46 @@ export function parseBranchConfig(context) {
     }
   }
 
+  return '';
+}
+
+export async function findControlText(context, github) {
+  // for pushes to pull requests, use the PR body
+  if (context.payload.pull_request) {
+    return context.payload.pull_request.body;
+  }
+
+  // for edits to control issues, use the issue body from payload
+  if (context.payload.issue) {
+    return context.payload.issue.body;
+  }
+
+  if (context.payload.push) {
+    const branch = context.ref.replace(/^refs\/heads\//, '');
+
+    // for pushes to branches, first check if there's an open PR for the branch
+    const prs = await github.pulls.list({
+      ...context.repo,
+      state: 'open',
+      head: `${context.repo.owner}:${branch}`,
+    });
+    // ...and ignore if that's the case (as the PR event will take care of it)
+    if (prs.data.length) {
+      return '';
+    }
+
+    // then check if there's an open control issue with the branch name
+    const issues = await github.issues.listForRepo({
+      ...context.repo,
+      state: 'open',
+      labels: 'auto-deploy',
+    });
+    const issue = issues.data.find(issue => issue.title === `Auto-deploy: ${branch}`);
+    if (issue) {
+      return issue.body;
+    }
+  }
+
+  // if nothing is available, no control text == no deploys
   return '';
 }
