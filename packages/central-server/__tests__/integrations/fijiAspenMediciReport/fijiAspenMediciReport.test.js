@@ -50,7 +50,6 @@ const fakeAllData = async (models, ctx) => {
   const { id: locationGroupId } = await models.LocationGroup.create(
     fake(models.LocationGroup, { facilityId, name: 'Emergency Department' }),
   );
-  console.log({ locationGroupId })
   const { id: location1Id } = await models.Location.create(
     fake(models.Location, { facilityId, name: 'Emergency room 1', locationGroupId }),
   );
