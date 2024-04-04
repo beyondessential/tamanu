@@ -20,7 +20,8 @@ const validationSchema = yup.object().shape({
   status: yup
     .string()
     .oneOf(Object.values(LAB_REQUEST_STATUSES))
-    .required(),
+    .required()
+    .translatedLabel(<TranslatedText stringId="general.status.label" fallback="Status" />),
   sampleTime: yup.string().when('status', {
     is: status => status !== LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED,
     then: yup

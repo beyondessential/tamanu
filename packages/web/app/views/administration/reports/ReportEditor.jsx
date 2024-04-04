@@ -316,7 +316,8 @@ export const ReportEditor = ({ initialValues, onSubmit, isEdit }) => {
         status: yup
           .string()
           .oneOf(STATUS_OPTIONS.map(s => s.value))
-          .required(),
+          .required()
+          .translatedLabel(<TranslatedText stringId="general.status.label" fallback="Status" />),
       })}
       formType={isEdit ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
       initialValues={initialValues}
