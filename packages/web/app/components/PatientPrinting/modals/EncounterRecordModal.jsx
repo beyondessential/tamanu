@@ -25,6 +25,8 @@ import { ForbiddenErrorModalContents } from '../../ForbiddenErrorModal';
 import { ModalActionRow } from '../../ModalActionRow';
 import { printPDF } from '../PDFViewer.jsx';
 import { TranslatedText } from '../../Translation/TranslatedText';
+import { useVitals } from '../../../api/queries/useVitals';
+import { DateDisplay, formatShortest, formatTime } from '../../DateDisplay';
 import { useTranslation } from '../../../contexts/Translation';
 
 // These below functions are used to extract the history of changes made to the encounter that are stored in notes.
@@ -99,12 +101,20 @@ const extractLocationHistory = (notes, encounterData) => {
   });
 };
 
+const getDateTitleArray = date => {
+  const shortestDate = DateDisplay.stringFormat(date, formatShortest);
+  const timeWithSeconds = DateDisplay.stringFormat(date, formatTime);
+
+  return [shortestDate, timeWithSeconds.toLowerCase()];
+};
+
 export const EncounterRecordModal = ({ encounter, open, onClose }) => {
   const { getTranslation } = useTranslation();
   const clinicianText = getTranslation(
     'general.localisedField.clinician.label.short',
     'Clinician',
   ).toLowerCase();
+  const { data: vitalsData, recordedDates } = useVitals(encounter.id);
 
   const { getLocalisation } = useLocalisation();
   const certificateQuery = useCertificate();
@@ -282,6 +292,29 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
     ? extractEncounterTypeHistory(encounterTypeSystemNotes, encounter, encounterTypeNoteMatcher)
     : [];
 
+  const getVitalsColumn = startIndex => {
+    const dateArray = [...recordedDates].reverse().slice(startIndex, startIndex + 12);
+    return [
+      {
+        key: 'measure',
+        title: 'Measure',
+        accessor: ({ value }) => value,
+        style: { width: 140 },
+      },
+      ...dateArray
+        .sort((a, b) => b.localeCompare(a))
+        .map(date => ({
+          title: getDateTitleArray(date),
+          key: date,
+          accessor: cells => {
+            const { value } = cells[date];
+            return value || '-';
+          },
+          style: { width: 60 },
+        })),
+    ];
+  };
+
   return (
     <Modal {...modalProps} onPrint={() => printPDF('encounter-record')}>
       <PDFViewer
@@ -292,6 +325,9 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
         <EncounterRecordPrintout
           patientData={{ ...patient, additionalData, village }}
           encounter={encounter}
+          vitalsData={vitalsData}
+          recordedDates={recordedDates}
+          getVitalsColumn={getVitalsColumn}
           certificateData={certificateData}
           encounterTypeHistory={encounterTypeHistory}
           locationHistory={locationHistory}
