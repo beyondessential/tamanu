@@ -94,7 +94,7 @@ export const AppointmentsCalendar = () => {
   const [refreshCount, setRefreshCount] = useState(0);
   const [activeFilter, setActiveFilter] = useState('locationGroup');
 
-  const hasPermission = typeof ability.can === 'function' && ability.can('list', 'Appointment');
+  const hasPermission = ability.can('list', 'Appointment');
 
   const updateCalendar = () => {
     setRefreshCount(refreshCount + 1);

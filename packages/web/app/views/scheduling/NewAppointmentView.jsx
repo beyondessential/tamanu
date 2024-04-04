@@ -38,7 +38,7 @@ export const NewAppointmentView = () => {
   const [success, setSuccess] = useState(false);
   const { ability } = useAuth();
 
-  const hasPermission = typeof ability.can === 'function' && ability.can('write', 'Appointment');
+  const hasPermission = ability.can('write', 'Appointment');
 
   return (
     <PageContainer>
