@@ -263,7 +263,7 @@ const EncounterOverview = ({
         style={{ gridColumn: '1 / -1' }}
       />
       <OuterLabelFieldWrapper
-        label={<TranslatedText stringId="discharge.diagnoses.label" fallback="Diagnoses" />}
+        label={<TranslatedText stringId="general.diagnosis.label" fallback="Diagnosis" />}
         style={{ gridColumn: '1 / -1' }}
       >
         <DiagnosisList diagnoses={currentDiagnoses} />
