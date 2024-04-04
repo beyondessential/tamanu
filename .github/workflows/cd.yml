@@ -239,7 +239,7 @@ jobs:
           jobs: ${{ toJSON(needs) }}
 
   deploy-config:
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request' || github.event_name == 'issues'
     name: Deploy config
     runs-on: ubuntu-latest
     outputs:
