@@ -45,6 +45,22 @@ const PLACES = [
   'Other',
 ];
 
+const attendingClinicianLabel = (
+  <TranslatedText
+    stringId="general.attendingClinician.label"
+    fallback="Attending :clinician"
+    replacements={{
+      clinician: (
+        <TranslatedText
+          stringId="general.localisedField.clinician.label.short"
+          fallback="Clinician"
+          lowercase
+        />
+      ),
+    }}
+  />
+);
+
 const placeOptions = Object.values(PLACES).map(type => ({
   label: type,
   value: type,
@@ -85,9 +101,17 @@ export const DeathForm = React.memo(
             then: yup
               .string()
               .required()
-              .label('Time between onset and death'),
+              .translatedLabel(
+                <TranslatedText
+                  stringId="death.timeBetweenOnsetAndDeath.label"
+                  fallback="Time between onset and death"
+                />,
+              ),
           }),
-          clinicianId: yup.string().required(),
+          clinicianId: yup
+            .string()
+            .required()
+            .translatedLabel(attendingClinicianLabel),
           lastSurgeryDate: yup
             .date()
             .max(
@@ -102,7 +126,7 @@ export const DeathForm = React.memo(
             .max(
               yup.ref('timeOfDeath'),
               getTranslation(
-                'validation.rule.mannerOfDeathDateNotAfterTimeOfDeath',
+                'death.validation.rule.mannerOfDeathDateNotAfterTimeOfDeath',
                 "Manner of death date can't be after time of death",
               ),
             ),
@@ -111,9 +135,15 @@ export const DeathForm = React.memo(
             .min(
               patient.dateOfBirth,
               getTranslation(
-                'validation.rule.timeOfDeathNotBeforeDateOfBirth',
+                'death.validation.rule.timeOfDeathNotBeforeDateOfBirth',
                 "Time of death can't be before date of birth",
               ),
+            )
+            .translatedLabel(
+              <TranslatedText
+                stringId="death.validation.timeOfDeath.path"
+                fallback="Time of death"
+              />,
             )
             .required(),
         })}
@@ -127,7 +157,7 @@ export const DeathForm = React.memo(
         <StyledFormGrid columns={1}>
           <Field
             name="timeOfDeath"
-            label="Date/Time"
+            label={<TranslatedText stringId="death.timeOfDeath.label" fallback="Date/Time" />}
             component={props => <DateTimeField {...props} InputProps={{}} />}
             saveDateAsString
             required
@@ -165,7 +195,12 @@ export const DeathForm = React.memo(
           />
           <Field
             name="causeOfDeathInterval"
-            label="Time between onset and death"
+            label={
+              <TranslatedText
+                stringId="death.timeBetweenOnsetAndDeath.label"
+                fallback="Time between onset and death"
+              />
+            }
             component={TimeWithUnitField}
             required
           />

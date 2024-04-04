@@ -44,7 +44,9 @@ export const LabRequestMultiStepForm = ({
       .string()
       .oneOf(Object.values(LAB_REQUEST_FORM_TYPES))
       .required()
-      .label(<TranslatedText stringId="general.requestType.label" fallback="Request type" />),
+      .translatedLabel(
+        <TranslatedText stringId="general.requestType.label" fallback="Request type" />,
+      ),
   });
 
   const screen2ValidationSchema = yup.object().shape({
