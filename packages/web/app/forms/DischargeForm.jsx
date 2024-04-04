@@ -390,7 +390,13 @@ export const DischargeForm = ({
               name: 'dischargeDisposition',
             }),
           })
-          .required(),
+          .required()
+          .translatedLabel(
+            <TranslatedText
+              stringId="general.localisedField.dischargeDisposition.label"
+              fallback="Discharge disposition"
+            />,
+          ),
       })}
       formProps={{ enableReinitialize: true, showInlineErrorsOnly: true, validateOnChange: true }}
     >

@@ -206,7 +206,12 @@ export const LoginForm = React.memo(
             .email(getTranslation('validation.rule.validEmail', 'Must enter a valid email'))
             .nullable()
             .required(),
-          password: yup.string().required(),
+          password: yup
+            .string()
+            .required()
+            .translatedLabel(
+              <TranslatedText stringId="login.password.label" fallback="Password" />,
+            ),
         })}
       />
     );
