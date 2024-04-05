@@ -1,4 +1,6 @@
+import { REFERENCE_DATA_RELATION_TYPES } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
+import { fake } from '@tamanu/shared/test-helpers/fake';
 
 describe('Reference data', () => {
   let userApp = null;
@@ -78,5 +80,36 @@ describe('Reference data', () => {
     expect(result).toHaveRequestError();
   });
 
-  describe('/facilityCatchmentHierarchy/:id', () => {});
+  describe('/facilityCatchmentHierarchy/:id', () => {
+    let villageId;
+    let facilityId;
+    beforeAll(async () => {
+      const { Facility, ReferenceData, ReferenceDataRelation } = models;
+      const { id: catchmentId } = await ReferenceData.create({
+        type: 'catchment',
+        name: 'test-catchment',
+        code: 'tc',
+      });
+      const { id: facId } = await models.Facility.create(fake(Facility, { catchmentId }));
+      facilityId = facId;
+      const { id: vilId } = await ReferenceData.create({
+        type: 'village',
+        name: 'test-village',
+        code: 'tv',
+      });
+      villageId = vilId;
+      await ReferenceDataRelation.create({
+        referenceDataParentId: catchmentId,
+        referenceDataId: villageId,
+        type: REFERENCE_DATA_RELATION_TYPES.FACILITY_CATCHMENT,
+      });
+    });
+    it('should return the facility for a village', async () => {
+      const result = await adminApp.get(
+        `/api/referenceData/facilityCatchmentHierarchy/${villageId}`,
+      );
+      expect(result).toHaveSucceeded();
+      expect(result.body.id).toBe(facilityId);
+    });
+  });
 });
