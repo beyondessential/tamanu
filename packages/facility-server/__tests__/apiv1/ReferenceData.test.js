@@ -1,6 +1,7 @@
 import { REFERENCE_DATA_RELATION_TYPES } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
 import { fake } from '@tamanu/shared/test-helpers/fake';
+import { NotFoundError } from '../../../shared/src/errors';
 
 describe('Reference data', () => {
   let userApp = null;
@@ -82,6 +83,7 @@ describe('Reference data', () => {
 
   describe('/facilityCatchmentHierarchy/:id', () => {
     let villageId;
+    let villageIdNoFacility;
     let facilityId;
     beforeAll(async () => {
       const { Facility, ReferenceData, ReferenceDataRelation } = models;
@@ -90,17 +92,33 @@ describe('Reference data', () => {
         name: 'test-catchment',
         code: 'tc',
       });
-      const { id: facId } = await models.Facility.create(fake(Facility, { catchmentId }));
-      facilityId = facId;
-      const { id: vilId } = await ReferenceData.create({
+      const { id: catchmentId2 } = await ReferenceData.create({
+        type: 'catchment',
+        name: 'test-catchment-no-facility',
+        code: 'tcnf',
+      });
+      const { id: facilityId1 } = await models.Facility.create(fake(Facility, { catchmentId }));
+      facilityId = facilityId1;
+      const { id: villageId1 } = await ReferenceData.create({
         type: 'village',
         name: 'test-village',
         code: 'tv',
       });
-      villageId = vilId;
+      villageId = villageId1;
+      const { id: villageId2 } = await ReferenceData.create({
+        type: 'village',
+        name: 'test-village-no-facility',
+        code: 'tvnc',
+      });
+      villageIdNoFacility = villageId2;
       await ReferenceDataRelation.create({
         referenceDataParentId: catchmentId,
         referenceDataId: villageId,
+        type: REFERENCE_DATA_RELATION_TYPES.FACILITY_CATCHMENT,
+      });
+      await ReferenceDataRelation.create({
+        referenceDataParentId: catchmentId2,
+        referenceDataId: villageIdNoFacility,
         type: REFERENCE_DATA_RELATION_TYPES.FACILITY_CATCHMENT,
       });
     });
@@ -110,6 +128,18 @@ describe('Reference data', () => {
       );
       expect(result).toHaveSucceeded();
       expect(result.body.id).toBe(facilityId);
+    });
+    it('should throw 404 for a village with no catchment', async () => {
+      const result = await adminApp.get(
+        `/api/referenceData/facilityCatchmentHierarchy/not-existing`,
+      );
+      expect(result).toHaveRequestError(NotFoundError);
+    });
+    it('should throw 404 for catchment not related to facility', async () => {
+      const result = await adminApp.get(
+        `/api/referenceData/facilityCatchmentHierarchy/${villageIdNoFacility}`,
+      );
+      expect(result).toHaveRequestError(NotFoundError);
     });
   });
 });
