@@ -134,7 +134,9 @@ jobs:
       exists: ${{ steps.check.outputs.exists }}
 
   images:
-    needs: [config, check-images-exist]
+    needs:
+      - config
+      - check-images-exist
     if: needs.check-images-exist.outputs.exists != 'yes'
     strategy:
       fail-fast: false
@@ -223,7 +225,9 @@ jobs:
           tags: ghcr.io/beyondessential/tamanu-${{ matrix.package.name }}:sha-${{ needs.config.outputs.sha }}.${{ matrix.platform.arch }}
 
   multi-arch:
-    needs: [config, images]
+    needs:
+      - config
+      - images
     strategy:
       fail-fast: false
       matrix:
