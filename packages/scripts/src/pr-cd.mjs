@@ -229,10 +229,11 @@ export async function findControlText(context, github) {
     console.log('Push context: on branch', branch);
 
     // for pushes to branches, first check if there's an open PR for the branch
-    const prs = await github.pulls.list({
-      ...context.repo,
+    const prs = await github.rest.pulls.list({
+      owner: context.payload.repository.organization,
+      repo: context.payload.repository.name,
       state: 'open',
-      head: `${context.repo.owner}:${branch}`,
+      head: `${context.payload.repository.organization}:${branch}`,
     });
     console.log(
       'PRs for branch:',
@@ -246,8 +247,9 @@ export async function findControlText(context, github) {
     }
 
     // then check if there's an open control issue with the branch name
-    const issues = await github.issues.listForRepo({
-      ...context.repo,
+    const issues = await github.rest.issues.listForRepo({
+      owner: context.payload.repository.organization,
+      repo: context.payload.repository.name,
       state: 'open',
       labels: 'auto-deploy',
     });
