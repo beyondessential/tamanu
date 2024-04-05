@@ -111,7 +111,7 @@ jobs:
 
   check-images-exist:
     needs: config
-    if: needs.config.outputs.build-images
+    if: needs.config.outputs.build-images == true
     name: Check if image was already built
     runs-on: ubuntu-latest
     steps:
@@ -251,7 +251,7 @@ jobs:
             --target ghcr.io/beyondessential/tamanu-${{ matrix.repo }}:sha-${{ needs.config.outputs.sha }}
 
   all-built:
-    if: always() && needs.config.outputs.build-images
+    if: always() && needs.config.outputs.build-images == true
     name: All images built
     needs:
       - config
