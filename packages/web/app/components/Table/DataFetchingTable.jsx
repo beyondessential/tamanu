@@ -149,7 +149,9 @@ export const DataFetchingTable = memo(
 
     const transformData = (data, count) => {
       const transformedData = transformRow ? data.map(transformRow) : data;
-      const hasSearchChanged = !isEqual(fetchOptions, fetchState?.fetchOptions);
+      const hasSearchChanged =
+        !isEqual(fetchOptions, fetchState?.fetchOptions) ||
+        !isEqual(fetchOptions, fetchState?.sorting);
 
       if (lazyLoading && hasSearchChanged) {
         // eslint-disable-next-line no-unused-expressions
@@ -271,6 +273,7 @@ export const DataFetchingTable = memo(
     const notificationMessage = `${newRowCount} new record${
       newRowCount > 1 ? 's' : ''
     } available to view`;
+
     return (
       <>
         {!isNotificationMuted && showNotification && (
@@ -303,9 +306,9 @@ export const DataFetchingTable = memo(
           refreshTable={refreshTable}
           rowStyle={row => {
             const rowStyle = [];
-            if (row.highlighted) rowStyle.push("background-color: #F0FFF0;");
-            if (props.isRowsDisabled) rowStyle.push("cursor: not-allowed;");
-            return rowStyle.join("");
+            if (row.highlighted) rowStyle.push('background-color: #F0FFF0;');
+            if (props.isRowsDisabled) rowStyle.push('cursor: not-allowed;');
+            return rowStyle.join('');
           }}
           lazyLoading={lazyLoading}
           ref={tableRef}

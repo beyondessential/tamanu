@@ -102,10 +102,20 @@ patientVaccineRoutes.get(
   }),
 );
 
+const UPCOMING_VACC_SORT_KEYS = {
+  vaccine: 'label',
+  dueDate: 'due_date',
+  date: 'due_date',
+};
+
 patientVaccineRoutes.get(
   '/:id/upcomingVaccination',
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'PatientVaccine');
+
+    const { orderBy, order = 'ASC' } = req.query;
+    let sortKey = orderBy ? UPCOMING_VACC_SORT_KEYS[orderBy] : UPCOMING_VACC_SORT_KEYS.dueDate;
+    const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
 
     const results = await req.db.query(
       `
@@ -121,7 +131,7 @@ patientVaccineRoutes.get(
     JOIN scheduled_vaccines sv ON sv.id = uv.scheduled_vaccine_id
     WHERE uv.patient_id = :patientId
     AND uv.status <> 'MISSED'
-    ORDER BY uv.due_date, sv.label;
+    ORDER BY ${sortKey} ${sortDirection}, sv.label;
     `,
       {
         replacements: {
