@@ -288,6 +288,7 @@ class TableComponent extends React.Component {
         LAZY_LOADING_BOTTOM_SENSITIVITY <=
       event.target.clientHeight;
     const isNotLastPage = page + 1 < Math.ceil(count / rowsPerPage);
+    console.log('isNotLastPage', isNotLastPage);
     if (bottom && isNotLastPage) onChangePage(page + 1);
   };
 

@@ -113,7 +113,7 @@ patientVaccineRoutes.get(
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'PatientVaccine');
 
-    const { orderBy, order = 'ASC' } = req.query;
+    const { orderBy, order = 'ASC', rowsPerPage = 10, page = 0 } = req.query;
     let sortKey = orderBy ? UPCOMING_VACC_SORT_KEYS[orderBy] : UPCOMING_VACC_SORT_KEYS.dueDate;
     const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
 
@@ -131,17 +131,33 @@ patientVaccineRoutes.get(
     JOIN scheduled_vaccines sv ON sv.id = uv.scheduled_vaccine_id
     WHERE uv.patient_id = :patientId
     AND uv.status <> 'MISSED'
-    ORDER BY ${sortKey} ${sortDirection}, sv.label;
+    ORDER BY ${sortKey} ${sortDirection}, sv.label
+    LIMIT :limit
+    OFFSET :offset;
     `,
       {
         replacements: {
           patientId: req.params.id,
+          limit: rowsPerPage,
+          offset: page * rowsPerPage,
         },
         type: QueryTypes.SELECT,
       },
     );
 
-    return res.send({ data: results, count: results.length });
+    const countResult = await req.db.query(
+      `SELECT COUNT(1) AS count FROM upcoming_vaccinations uv
+    JOIN scheduled_vaccines sv ON sv.id = uv.scheduled_vaccine_id
+    WHERE uv.patient_id = :patientId
+    AND uv.status <> 'MISSED';`,
+      {
+        replacements: { patientId: req.params.id },
+        type: QueryTypes.SELECT,
+      },
+    );
+
+    const count = parseInt(countResult[0].count, 10);
+    return res.send({ data: results, count });
   }),
 );
 

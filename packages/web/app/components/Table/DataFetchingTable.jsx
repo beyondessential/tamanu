@@ -73,6 +73,7 @@ export const DataFetchingTable = memo(
         const isDesc = orderBy === columnKey && order === 'desc';
         const newSorting = { order: isDesc ? 'asc' : 'desc', orderBy: columnKey };
         setSorting(newSorting);
+        setPage(0);
       },
       [sorting],
     );
@@ -149,9 +150,8 @@ export const DataFetchingTable = memo(
 
     const transformData = (data, count) => {
       const transformedData = transformRow ? data.map(transformRow) : data;
-      const hasSearchChanged =
-        !isEqual(fetchOptions, fetchState?.fetchOptions) ||
-        !isEqual(fetchOptions, fetchState?.sorting);
+      const hasSearchChanged = !isEqual(fetchOptions, fetchState?.fetchOptions);
+      const hasSortingChanged = !isEqual(sorting, fetchState?.sorting);
 
       if (lazyLoading && hasSearchChanged) {
         // eslint-disable-next-line no-unused-expressions
@@ -160,7 +160,7 @@ export const DataFetchingTable = memo(
 
       // When fetch option is no longer the same (eg: filter changed), it should reload the entire table
       // instead of keep adding data for lazy loading
-      if (lazyLoading && !hasSearchChanged) {
+      if (lazyLoading && !hasSearchChanged && !hasSortingChanged) {
         return [...(fetchState.data || []), ...(transformedData || [])];
       }
 
@@ -174,7 +174,6 @@ export const DataFetchingTable = memo(
       if (count > fetchState.count) setIsNotificationMuted(false);
 
       const isInitialSort = isEqual(sorting, initialSort);
-      const hasSortingChanged = !isEqual(sorting, fetchState?.sorting);
 
       const getShouldResetRowHighlighting = () => {
         if (fetchState.count === 0) return true; // first fetch never needs a highlight
@@ -213,6 +212,7 @@ export const DataFetchingTable = memo(
 
     useEffect(() => {
       const shouldLoadMoreData = fetchState.data?.length > 0 && lazyLoading;
+
       if (shouldLoadMoreData) setIsLoadingMoreData(true);
       const loadingDelay = !shouldLoadMoreData && loadingIndicatorDelay();
 
