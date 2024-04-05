@@ -261,7 +261,7 @@ jobs:
         run: "true" # workflow shouldn't run, fail fast silently
       - if: needs.check-images-exist.outputs.exists == 'yes'
         run: "true" # images exist, nothing to check
-      - if: needs.check-images-exist.outputs.exists != 'yes'
+      - if: needs.config.outputs.build-images == true && needs.check-images-exist.outputs.exists != 'yes'
         uses: re-actors/alls-green@release/v1
         with:
           jobs: ${{ toJSON(needs) }}
