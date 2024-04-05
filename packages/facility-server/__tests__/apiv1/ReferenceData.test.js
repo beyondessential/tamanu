@@ -77,4 +77,6 @@ describe('Reference data', () => {
     });
     expect(result).toHaveRequestError();
   });
+
+  describe('/facilityCatchmentHierarchy/:id', () => {});
 });
