@@ -44,7 +44,7 @@ jobs:
       down: ${{ steps.config.outputs.down }}
       go-up: ${{ steps.config.outputs.go-up }}
       go-down: ${{ steps.config.outputs.go-down }}
-      build-images: ${{ (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')) || steps.control.outputs.build == 'true' || false }}
+      build-images: ${{ (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')) || steps.config.outputs.go-up }}
     steps:
       - uses: actions/checkout@v4
       - name: Figure branch ref and sha
@@ -82,7 +82,7 @@ jobs:
             if (text.length > 0) core.setOutput('build', 'true');
             return JSON.stringify(text);
 
-      - name: Parse deploy config
+      - name: Parse deploy control config
         if: steps.ref.outputs.result != ''
         id: config
         uses: actions/github-script@v7
