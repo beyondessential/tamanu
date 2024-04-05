@@ -251,7 +251,7 @@ jobs:
             --target ghcr.io/beyondessential/tamanu-${{ matrix.repo }}:sha-${{ needs.config.outputs.sha }}
 
   all-built:
-    if: always() && needs.config.outputs.build-images == true
+    if: ${{ always() && needs.config.outputs.build-images == true }}
     name: All images built
     needs:
       - config
