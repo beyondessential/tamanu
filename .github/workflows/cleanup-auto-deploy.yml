@@ -60,7 +60,7 @@ jobs:
             const { findDeploysToCleanUp } = await import(`${cwd}/packages/scripts/src/pr-cd.mjs`);
 
             const controls = ${{ toJson(steps.list.outputs.list) }};
-            const down = findDeploysToCleanUp(controls, ${{ github.event.inputs.ttl || 24 }}, context, github);
+            const down = await findDeploysToCleanUp(controls, ${{ github.event.inputs.ttl || 24 }}, context, github);
             console.log(down);
 
             core.setOutput('down', JSON.stringify(down));

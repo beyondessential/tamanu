@@ -301,6 +301,7 @@ export async function findDeploysToCleanUp(controlList, ttl = 24, context, githu
   const ttlAgo = new Date(now - ttl * 60 * 60 * 1000);
   const controls = controlList
     .split(/\s+/)
+    .filter(Boolean)
     .map(control => control.split('='))
     .map(([core, ns, type, number]) => ({ core, ns, type, number }));
 
@@ -352,7 +353,7 @@ export async function findDeploysToCleanUp(controlList, ttl = 24, context, githu
         todo.push({ core, ns });
       }
     } catch (err) {
-      console.error(err);
+      console.error('Error while handling control:', err);
     }
   }
 
