@@ -102,24 +102,28 @@ patientVaccineRoutes.get(
   }),
 );
 
-const UPCOMING_VACC_SORT_KEYS = {
-  vaccine: 'label',
-  dueDate: 'due_date',
-  date: 'due_date',
-};
-
 patientVaccineRoutes.get(
   '/:id/upcomingVaccination',
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'PatientVaccine');
 
+    const sortKeys = {
+      vaccine: 'label',
+      dueDate: 'due_date',
+      date: 'due_date',
+    };
+
     const { orderBy, order = 'ASC', rowsPerPage = 10, page = 0 } = req.query;
-    let sortKey = orderBy ? UPCOMING_VACC_SORT_KEYS[orderBy] : UPCOMING_VACC_SORT_KEYS.dueDate;
+    let sortKey = orderBy ? sortKeys[orderBy] : sortKeys.dueDate;
     const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
 
+    const fromUpcomingVaccinations = `FROM upcoming_vaccinations uv
+    JOIN scheduled_vaccines sv ON sv.id = uv.scheduled_vaccine_id
+    WHERE uv.patient_id = :patientId
+    AND uv.status <> 'MISSED'`;
+
     const results = await req.db.query(
-      `
-    SELECT
+      `SELECT
       sv.id scheduledVaccineId,
       sv.category,
       sv.label,
@@ -127,13 +131,10 @@ patientVaccineRoutes.get(
       sv.vaccine_id vaccineId,
       uv.due_date "dueDate",
       uv.status
-    FROM upcoming_vaccinations uv
-    JOIN scheduled_vaccines sv ON sv.id = uv.scheduled_vaccine_id
-    WHERE uv.patient_id = :patientId
-    AND uv.status <> 'MISSED'
-    ORDER BY ${sortKey} ${sortDirection}, sv.label
-    LIMIT :limit
-    OFFSET :offset;
+      ${fromUpcomingVaccinations}
+      ORDER BY ${sortKey} ${sortDirection}, sv.label
+      LIMIT :limit
+      OFFSET :offset;
     `,
       {
         replacements: {
@@ -146,18 +147,14 @@ patientVaccineRoutes.get(
     );
 
     const countResult = await req.db.query(
-      `SELECT COUNT(1) AS count FROM upcoming_vaccinations uv
-    JOIN scheduled_vaccines sv ON sv.id = uv.scheduled_vaccine_id
-    WHERE uv.patient_id = :patientId
-    AND uv.status <> 'MISSED';`,
+      `SELECT COUNT(1) AS count ${fromUpcomingVaccinations};`,
       {
         replacements: { patientId: req.params.id },
         type: QueryTypes.SELECT,
       },
     );
 
-    const count = parseInt(countResult[0].count, 10);
-    return res.send({ data: results, count });
+    return res.send({ data: results, count: parseInt(countResult[0].count, 10) });
   }),
 );
 
