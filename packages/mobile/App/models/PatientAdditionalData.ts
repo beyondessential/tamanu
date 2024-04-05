@@ -147,7 +147,7 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
 
   @ManyToOne(() => Facility)
   healthCenter: Facility;
-  @RelationId(({ facility }) => facility)
+  @RelationId(({ healthCenter }) => healthCenter)
   healthCenterId?: string;
 
   @Column({ nullable: true })
