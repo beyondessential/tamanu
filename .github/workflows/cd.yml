@@ -79,7 +79,6 @@ jobs:
             const { findControlText } = await import(`${cwd}/packages/scripts/src/pr-cd.mjs`);
             const text = await findControlText(context, github);
             console.log('Control text length:', text.length);
-            if (text.length > 0) core.setOutput('build', 'true');
             return JSON.stringify(text);
 
       - name: Parse deploy control config
@@ -112,7 +111,7 @@ jobs:
 
   check-images-exist:
     needs: config
-    if: needs.config.outputs.build-images == true
+    if: ${{ needs.config.outputs.build-images }}
     name: Check if image was already built
     runs-on: ubuntu-latest
     steps:
