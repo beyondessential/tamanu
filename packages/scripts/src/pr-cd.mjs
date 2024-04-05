@@ -172,6 +172,13 @@ export function configMap(deployName, imageTag, options) {
   );
 }
 
+function extractBranchDirective(issue) {
+  const directive = RX_BRANCH_LINE.exec(issue.body);
+  if (directive) {
+    return directive.groups.ref;
+  }
+}
+
 export function parseBranchConfig(context) {
   if (context.payload.pull_request || context.payload.push) {
     console.log('Using PR/push context');
@@ -183,13 +190,12 @@ export function parseBranchConfig(context) {
     context.payload.issue?.title.startsWith('Auto-deploy:')
   ) {
     console.log('Using auto-deploy issue body');
-    let deployLine = RX_BRANCH_LINE.exec(context.payload.issue.body);
-    if (deployLine) {
-      const ref = deployLine.groups.ref;
-      if (context.payload.issue.title.startsWith(`Auto-deploy: ${ref}`)) {
-        return ref;
+    const directive = extractBranchDirective(context.payload.issue);
+    if (directive) {
+      if (context.payload.issue.title.startsWith(`Auto-deploy: ${directive}`)) {
+        return directive;
       } else {
-        console.log(`Ignoring branch config for ${ref} as title doesn't match`);
+        console.log(`Ignoring branch config for ${directive} as title doesn't match`);
       }
     }
   }
@@ -200,16 +206,24 @@ export function parseBranchConfig(context) {
 export async function findControlText(context, github) {
   // for pushes to pull requests, use the PR body
   if (context.payload.pull_request) {
+    console.log('PR context: using PR body');
     return context.payload.pull_request.body;
   }
 
   // for edits to control issues, use the issue body from payload
   if (context.payload.issue) {
+    console.log('Issue context: using issue body');
     return context.payload.issue.body;
   }
 
   if (context.payload.push) {
+    if (context.ref.startsWith('refs/tags/')) {
+      console.log('Push context: ignoring tag push');
+      return '';
+    }
+
     const branch = context.ref.replace(/^refs\/heads\//, '');
+    console.log('Push context: on branch', branch);
 
     // for pushes to branches, first check if there's an open PR for the branch
     const prs = await github.pulls.list({
@@ -217,8 +231,14 @@ export async function findControlText(context, github) {
       state: 'open',
       head: `${context.repo.owner}:${branch}`,
     });
+    console.log(
+      'PRs for branch:',
+      prs.data.length,
+      prs.data.map(pr => pr.number),
+    );
     // ...and ignore if that's the case (as the PR event will take care of it)
     if (prs.data.length) {
+      console.log('Ignoring push to branch with open PR');
       return '';
     }
 
@@ -228,8 +248,24 @@ export async function findControlText(context, github) {
       state: 'open',
       labels: 'auto-deploy',
     });
+    console.log(
+      'Control issues:',
+      issues.data.length,
+      issues.data.map(issue => issue.title),
+    );
     const issue = issues.data.find(issue => issue.title === `Auto-deploy: ${branch}`);
     if (issue) {
+      console.log('Found control issue matching branch:', issue.number);
+
+      const directive = extractBranchDirective(issue);
+      if (directive !== branch) {
+        console.log('Ignoring control issue as title does not match directive', {
+          title: issue.title,
+          directive,
+        });
+        return '';
+      }
+
       return issue.body;
     }
   }
