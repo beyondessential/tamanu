@@ -42,9 +42,9 @@ jobs:
       sha: ${{ steps.sha.outputs.sha }}
       up: ${{ steps.config.outputs.up }}
       down: ${{ steps.config.outputs.down }}
-      go-up: ${{ steps.config.outputs.go-up }}
-      go-down: ${{ steps.config.outputs.go-down }}
-      build-images: ${{ (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')) || steps.config.outputs.go-up }}
+      go-up: ${{ steps.config.outputs.go-up == 'true' }}
+      go-down: ${{ steps.config.outputs.go-down == 'true' }}
+      build-images: ${{ (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')) || steps.config.outputs.go-up == 'true' }}
     steps:
       - uses: actions/checkout@v4
       - name: Figure branch ref and sha
@@ -268,7 +268,7 @@ jobs:
     needs:
       - config
       - all-built
-    if: always() && needs.all-built.result == 'success' && fromJson(needs.config.outputs.go-up)
+    if: always() && needs.all-built.result == 'success' && needs.config.outputs.go-up
     strategy:
       fail-fast: false
       matrix:
@@ -286,7 +286,7 @@ jobs:
 
   deploy-down:
     needs: config
-    if: fromJson(needs.config.outputs.go-down)
+    if: needs.config.outputs.go-down
     strategy:
       fail-fast: false
       matrix:
