@@ -657,6 +657,12 @@
           "hidden": false,
           "requiredPatientData": false
         },
+        "healthCenterId": {
+          "shortLabel": "Health center",
+          "longLabel": "Health center",
+          "hidden": false,
+          "requiredPatientData": false
+        },
         "registeredBirthPlace": {
           "shortLabel": "Place of birth",
           "longLabel": "Place of birth",
