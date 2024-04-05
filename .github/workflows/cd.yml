@@ -78,7 +78,7 @@ jobs:
             const cwd = '${{ github.workspace }}';
             const { findControlText } = await import(`${cwd}/packages/scripts/src/pr-cd.mjs`);
             const control = await findControlText(context, github);
-            console.log('Control text length:', control?.text?.length);
+            console.log('Control text length:', control?.body?.length);
             return JSON.stringify(control ?? {});
 
       - name: Parse deploy control config
