@@ -204,6 +204,8 @@ export function parseBranchConfig(context) {
 }
 
 export async function findControlText(context, github) {
+  console.log(context);
+
   // for pushes to pull requests, use the PR body
   if (context.payload.pull_request) {
     console.log('PR context: using PR body');
