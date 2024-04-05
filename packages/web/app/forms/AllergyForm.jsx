@@ -32,6 +32,12 @@ export const AllergyForm = ({
             required
           />
           <Field
+            name="reactionId"
+            label={<TranslatedText stringId="general.reaction.label" fallback="Reaction" />}
+            component={SuggesterSelectField}
+            endpoint="reaction"
+          />
+          <Field
             name="recordedDate"
             label={
               <TranslatedText stringId="general.recordedDate.label" fallback="Date recorded" />
@@ -50,12 +56,6 @@ export const AllergyForm = ({
             }
             component={AutocompleteField}
             suggester={practitionerSuggester}
-          />
-          <Field
-            name="reactionId"
-            label={<TranslatedText stringId="general.reaction.label" fallback="Reaction" />}
-            component={SuggesterSelectField}
-            endpoint="reaction"
           />
           <Field
             name="note"
