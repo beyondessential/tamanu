@@ -268,7 +268,7 @@ jobs:
     needs:
       - config
       - all-built
-    if: always() && needs.all-built.result == 'success' && needs.config.outputs.go-up
+    if: needs.config.outputs.go-up == true
     strategy:
       fail-fast: false
       matrix:
@@ -286,7 +286,7 @@ jobs:
 
   deploy-down:
     needs: config
-    if: needs.config.outputs.go-down
+    if: needs.config.outputs.go-down == true
     strategy:
       fail-fast: false
       matrix:
