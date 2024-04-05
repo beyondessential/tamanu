@@ -136,6 +136,7 @@ const HIDEABLE_FIELDS = [
   'facility',
   'dischargeDisposition',
   'notGivenReasonId',
+  'healthCenterId',
 ];
 
 const UNHIDEABLE_PATIENT_TABS = ['history', 'details'];
