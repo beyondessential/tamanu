@@ -4,10 +4,6 @@ import { AutocompleteField, TextField } from '../../../../../components';
 import { ConfiguredMandatoryPatientFields } from '../../../ConfiguredMandatoryPatientFields';
 import { useSuggester } from '../../../../../api';
 import { TranslatedText } from '../../../../../components/Translation/TranslatedText';
-import { PatientField } from '../../../PatientFields';
-import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants';
-
-export const HEALTH_CENTER_DEFINITION_ID = 'fieldDefinition-healthCenterId';
 
 export const CambodiaContactFields = ({ filterByMandatory }) => {
   const medicalAreaSuggester = useSuggester('medicalArea');
@@ -62,26 +58,21 @@ export const CambodiaContactFields = ({ filterByMandatory }) => {
       ),
       suggester: medicalAreaSuggester,
     },
+    healthCenterId: {
+      component: AutocompleteField,
+      label: (
+        <TranslatedText
+          stringId="cambodiaPatientDetails.healthCenter.label"
+          fallback="Health center"
+        />
+      ),
+      suggester: facilitySuggester,
+    },
   };
   return (
-    <>
-      <ConfiguredMandatoryPatientFields
-        fields={CONTACT_FIELDS}
-        filterByMandatory={filterByMandatory}
-      />
-      <PatientField
-        definition={{
-          name: (
-            <TranslatedText
-              stringId="cambodiaPatientDetails.healthCenter.label"
-              fallback="Health center"
-            />
-          ),
-          suggester: facilitySuggester,
-          definitionId: HEALTH_CENTER_DEFINITION_ID,
-          fieldType: PATIENT_FIELD_DEFINITION_TYPES.AUTO_COMPLETE,
-        }}
-      />
-    </>
+    <ConfiguredMandatoryPatientFields
+      fields={CONTACT_FIELDS}
+      filterByMandatory={filterByMandatory}
+    />
   );
 };
