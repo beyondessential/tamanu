@@ -5,7 +5,7 @@
  *
  * @example replaceStringVariables("there are :count users", { count: 2 }) => "there are 2 users"
  */
-const replaceStringVariables = (templateString, replacements) => {
+export const replaceStringVariables = (templateString, replacements) => {
   if (!replacements) return templateString;
   const result = templateString
     .split(/(:[a-zA-Z]+)/g)
