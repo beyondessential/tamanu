@@ -180,12 +180,13 @@ function extractBranchDirective(issue) {
 }
 
 export function parseBranchConfig(context) {
-  if (context.payload.pull_request || context.payload.push) {
+  if (['pull_request', 'push'].includes(context.eventName)) {
     console.log('Using PR/push context');
     return context.ref;
   }
 
   if (
+    context.eventName === 'issues' &&
     context.payload.issue?.labels?.some(label => label.name === 'auto-deploy') &&
     context.payload.issue?.title.startsWith('Auto-deploy:')
   ) {
@@ -207,18 +208,18 @@ export async function findControlText(context, github) {
   console.log(context);
 
   // for pushes to pull requests, use the PR body
-  if (context.payload.pull_request) {
+  if (context.eventName === 'pull_request') {
     console.log('PR context: using PR body');
     return context.payload.pull_request.body;
   }
 
   // for edits to control issues, use the issue body from payload
-  if (context.payload.issue) {
+  if (context.eventName === 'issues') {
     console.log('Issue context: using issue body');
     return context.payload.issue.body;
   }
 
-  if (context.payload.push) {
+  if (context.eventName === 'push') {
     if (context.ref.startsWith('refs/tags/')) {
       console.log('Push context: ignoring tag push');
       return '';
