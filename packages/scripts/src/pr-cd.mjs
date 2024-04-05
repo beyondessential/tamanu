@@ -15,7 +15,7 @@ export function stackName(head_ref, ref_name = null) {
     .replace(/^-|-$/g, '');
 }
 
-export function parseDeployConfig({ body, control, ref }) {
+export function parseDeployConfig({ body, control, ref }, context) {
   const deployName = stackName(ref);
 
   const deploys = [];
@@ -25,7 +25,7 @@ export function parseDeployConfig({ body, control, ref }) {
       deploys.push({
         enabled: deployLine.groups.enabled === 'x',
         name: [deployName, deployLine.groups.name].filter(Boolean).join('-'),
-        options: parseOptions(deployLine.groups.options ?? ''),
+        options: parseOptions(deployLine.groups.options ?? '', { ...context, ref }),
         control,
       });
     }
@@ -43,7 +43,14 @@ function intBounds(input, [low, high]) {
 
 const OPTIONS = [
   { key: 'facilities', defaultValue: 2, parse: input => intBounds(input, [0, 5]) },
-  { key: 'config', defaultValue: (options, context) => 'pr' }, // TODO: vary by context
+  {
+    key: 'config',
+    defaultValue: (_options, { ref, eventName }) => {
+      if (eventName === 'pull_request') return 'pr';
+      if (ref.startsWith('release/')) return 'rc';
+      return 'basic';
+    },
+  },
   { key: 'timezone', defaultValue: 'Pacific/Auckland' },
   { key: 'ip', defaultValue: null, parse: input => input.split(',').map(s => s.trim()) },
   { key: 'dbstorage', defaultValue: 5, parse: input => intBounds(input, [1, 100]) },
