@@ -13,7 +13,6 @@ inputs:
     required: true
   k8s-core:
     description: K8S core name
-    required: true
 runs:
   using: composite
   steps:
@@ -39,6 +38,9 @@ runs:
       working-directory: ops/pulumi
       run: npm ci
 
+    - name: Pre-install pulumi
+      uses: pulumi/actions@v5
+
     - name: Connect to Tailscale
       uses: tailscale/github-action@v2
       with:
@@ -46,12 +48,11 @@ runs:
         tags: tag:infra,tag:infra-gha-deploy
 
     - name: Configure kubeconfig
+      if: inputs.k8s-core
       shell: bash
       run: tailscale configure kubeconfig k8s-operator-${{ inputs.k8s-core }}
 
     - name: Test kubernetes cluster for readiness
+      if: inputs.k8s-core
       shell: bash
       run: kubectl get namespace/tamanu-system
-
-    - name: Pre-install pulumi
-      uses: pulumi/actions@v5

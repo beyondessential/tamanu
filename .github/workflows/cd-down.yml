@@ -9,6 +9,9 @@ on:
       options:
         type: string
         required: true
+      check-branch:
+        type: boolean
+        default: true
     secrets:
       PULUMI_ACCESS_TOKEN:
         required: true
@@ -39,14 +42,17 @@ jobs:
         continue-on-error: true # so a false check doesn't make the workflow fail
         run: |
           if kubectl get namespace tamanu-${{ inputs.deploy-name }} 2>/dev/null; then
-            echo "Namespace exists, checking it's matched to this branch"
-            if kubectl -n tamanu-${{ inputs.deploy-name }} \
-              get configmap auto-deploy -o json \
-              | tee -a /dev/stderr \
-              | jq -e '.data | [.repo == "${{ github.repository }}", .ref == "${{ github.ref }}"] | all | not'
-            then
-              echo "Namespace doesn't belong to this branch, not deleting"
-              exit 1
+            echo "Namespace exists"
+            if ${{ inputs.check-branch }}; then
+              echo "Checking it's matched to this branch"
+              if kubectl -n tamanu-${{ inputs.deploy-name }} \
+                get configmap auto-deploy -o json \
+                | tee -a /dev/stderr \
+                | jq -e '.data | [.repo == "${{ github.repository }}", .ref == "${{ github.ref }}"] | all | not'
+              then
+                echo "Namespace doesn't belong to this branch, not deleting"
+                exit 1
+              fi
             fi
           else
             echo "Namespace doesn't exist, no need to delete"

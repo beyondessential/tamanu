@@ -288,3 +288,72 @@ export async function findControlText(context, github) {
   // if nothing is available, no control text == no deploys
   return;
 }
+
+export async function findDeploysToCleanUp(controlList, ttl = 24, context, github) {
+  const now = new Date();
+  const ttlAgo = new Date(now - ttl * 60 * 60 * 1000);
+  const controls = controlList
+    .split(/\s+/)
+    .map(control => control.split('='))
+    .map(([core, ns, type, number]) => ({ core, ns, type, number }));
+
+  const todo = [];
+
+  for (const { core, ns, type, number } of controls) {
+    console.log('Checking control:', { core, ns, type, number });
+
+    try {
+      if (type === 'pr') {
+        const pr = await github.rest.pulls.get({
+          owner: context.payload.repository.organization,
+          repo: context.payload.repository.name,
+          pull_number: number,
+        });
+        if (!pr) continue;
+
+        if (pr.state !== 'closed') {
+          console.log('PR is still open');
+          continue;
+        }
+
+        const closedAt = new Date(pr.closed_at);
+        if (closedAt > ttlAgo) {
+          console.log('PR is too recent; closed at:', closedAt);
+          continue;
+        }
+
+        todo.push({ core, ns });
+      } else if (type === 'issue') {
+        const issue = await github.rest.issues.get({
+          owner: context.payload.repository.organization,
+          repo: context.payload.repository.name,
+          issue_number: number,
+        });
+        if (!issue) continue;
+
+        if (issue.state !== 'closed') {
+          console.log('Issue is still open');
+          continue;
+        }
+
+        const closedAt = new Date(issue.closed_at);
+        if (closedAt > ttlAgo) {
+          console.log('Issue is too recent; closed at:', closedAt);
+          continue;
+        }
+
+        todo.push({ core, ns });
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  return todo.map(({ core, ns }) => ({
+    name: ns.replace(/^tamanu-/, ''),
+    options: {
+      k8score: core.replace(/^k8s-operator-/, ''),
+      opsstack: OPTIONS.find(({ name }) => name === 'opsstack').defaultValue,
+    },
+  }));
+}
