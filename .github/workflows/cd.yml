@@ -112,7 +112,7 @@ jobs:
 
   check-images-exist:
     needs: config
-    if: needs.config.outputs.build-images
+    if: needs.config.outputs.build-images == true
     name: Check if image was already built
     runs-on: ubuntu-latest
     steps:
