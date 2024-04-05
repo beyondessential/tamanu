@@ -15,7 +15,7 @@ export function stackName(head_ref, ref_name = null) {
     .replace(/^-|-$/g, '');
 }
 
-export function parseDeployConfig({ body, ref }) {
+export function parseDeployConfig({ body, control, ref }) {
   const deployName = stackName(ref);
 
   const deploys = [];
@@ -26,6 +26,7 @@ export function parseDeployConfig({ body, ref }) {
         enabled: deployLine.groups.enabled === 'x',
         name: [deployName, deployLine.groups.name].filter(Boolean).join('-'),
         options: parseOptions(deployLine.groups.options ?? ''),
+        control,
       });
     }
   }
@@ -210,19 +211,25 @@ export async function findControlText(context, github) {
   // for pushes to pull requests, use the PR body
   if (context.eventName === 'pull_request') {
     console.log('PR context: using PR body');
-    return context.payload.pull_request.body;
+    return {
+      control: `pr=${context.payload.pull_request.number}`,
+      body: context.payload.pull_request.body,
+    };
   }
 
   // for edits to control issues, use the issue body from payload
   if (context.eventName === 'issues') {
     console.log('Issue context: using issue body');
-    return context.payload.issue.body;
+    return {
+      control: `issue=${context.payload.issue.number}`,
+      body: context.payload.issue.body,
+    };
   }
 
   if (context.eventName === 'push') {
     if (context.ref.startsWith('refs/tags/')) {
       console.log('Push context: ignoring tag push');
-      return '';
+      return;
     }
 
     const branch = context.ref.replace(/^refs\/heads\//, '');
@@ -243,7 +250,7 @@ export async function findControlText(context, github) {
     // ...and ignore if that's the case (as the PR event will take care of it)
     if (prs.data.length) {
       console.log('Ignoring push to branch with open PR');
-      return '';
+      return;
     }
 
     // then check if there's an open control issue with the branch name
@@ -268,13 +275,16 @@ export async function findControlText(context, github) {
           title: issue.title,
           directive,
         });
-        return '';
+        return;
       }
 
-      return issue.body;
+      return {
+        body: issue.body,
+        control: `issue=${issue.number}`,
+      };
     }
   }
 
   // if nothing is available, no control text == no deploys
-  return '';
+  return;
 }

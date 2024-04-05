@@ -12,7 +12,7 @@ on:
     secrets:
       PULUMI_ACCESS_TOKEN:
         required: true
-      TAILSCALE_DBPROXY_ACCESS_OAUTH:
+      TAILSCALE_OAUTH:
         required: true
       TAMANU_OPS_SSH:
         required: true
@@ -31,8 +31,7 @@ jobs:
         uses: ./.github/actions/setup-cd
         with:
           ops-ssh-key: ${{ secrets.TAMANU_OPS_SSH }}
-          ops-ref: ${{ fromJson(inputs.options).opsref }}
-          tailscale-oauth: ${{ secrets.TAILSCALE_DBPROXY_ACCESS_OAUTH }}
+          tailscale-oauth: ${{ secrets.TAILSCALE_OAUTH }}
           k8s-core: ${{ fromJson(inputs.options).k8score }}
 
       - name: Check namespace
