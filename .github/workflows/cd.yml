@@ -121,7 +121,7 @@ jobs:
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
           for repo in central facility frontend meta; do
             if skopeo inspect docker://ghcr.io/beyondessential/tamanu-$repo:sha-${{ needs.config.outputs.sha }} 2>&1 >/dev/null; then
-              jq -c . <<< "$desc"
+              jq -c . <<< "$desc" # check that it's valid JSON
               echo $repo image found, assuming existence
               echo exists=yes | tee -a $GITHUB_OUTPUT
               exit
