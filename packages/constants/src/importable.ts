@@ -49,6 +49,7 @@ export const GENERAL_IMPORTABLE_DATA_TYPES = [
   'patientFieldDefinitionCategory',
   'procedureType',
   'referralSource',
+  'referenceDataRelation',
   'religion',
   'scheduledVaccine',
   'secondaryIdType',

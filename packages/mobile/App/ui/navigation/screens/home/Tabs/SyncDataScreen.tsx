@@ -19,9 +19,9 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
   const backend = useContext(BackendContext);
   const syncManager: MobileSyncManager = backend.syncManager;
 
-  const formatLastSuccessfulSyncTick = (lastSuccessfulSyncTick: string): string =>
+  const formatLastSuccessfulSyncTick = (lastSuccessfulSyncTick: Date): string =>
     lastSuccessfulSyncTick
-      ? formatDistance(new Date(lastSuccessfulSyncTick), new Date(), { addSuffix: true })
+      ? formatDistance(lastSuccessfulSyncTick, new Date(), { addSuffix: true })
       : '';
 
   const [syncStarted, setSyncStarted] = useState(syncManager.isSyncing);

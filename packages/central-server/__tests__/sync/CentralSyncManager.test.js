@@ -131,7 +131,7 @@ describe('CentralSyncManager', () => {
         'Snapshot processing incomplete, likely because the central server restarted during the snapshot';
       await session.save();
 
-      expect(centralSyncManager.connectToSession(sessionId)).rejects.toThrow(
+      await expect(centralSyncManager.connectToSession(sessionId)).rejects.toThrow(
         `Sync session '${sessionId}' encountered an error: Snapshot processing incomplete, likely because the central server restarted during the snapshot`,
       );
     });

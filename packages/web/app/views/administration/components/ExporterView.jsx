@@ -39,7 +39,7 @@ export const ExporterView = memo(({ title, endpoint, dataTypes, dataTypesSelecta
       await saveFile({
         defaultFileName: `${title} export ${getCurrentDateTimeString()}`,
         data: blob,
-        extensions: ['xlsx'],
+        extension: 'xlsx',
       });
     },
     [api, title, endpoint],

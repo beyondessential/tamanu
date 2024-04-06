@@ -6,6 +6,7 @@ import { SelectInput } from './Field';
 import { useTranslation } from '../contexts/Translation.jsx';
 import { TranslatedText } from './Translation/TranslatedText.jsx';
 import { mapValues, keyBy } from 'lodash';
+import { LanguageFlag } from './LanguageFlag.jsx';
 
 const LanguageSelectorContainer = styled.div`
   position: absolute;
@@ -19,6 +20,12 @@ const LanguageSelectorContainer = styled.div`
     line-height: 15px;
     color: ${Colors.midText}};
   }
+`;
+
+const LanguageOptionLabel = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
 `;
 
 const customStyles = {
@@ -60,7 +67,12 @@ export const LanguageSelector = () => {
   const languageDisplayNames = mapValues(keyBy(languageNames, 'language'), 'text');
   const languageOptions = languagesInDb.map(({ language }) => {
     return {
-      label: languageDisplayNames[language],
+      label: (
+        <LanguageOptionLabel>
+          <LanguageFlag languageCode={language} />
+          {languageDisplayNames[language]}
+        </LanguageOptionLabel>
+      ),
       value: language,
     };
   });
