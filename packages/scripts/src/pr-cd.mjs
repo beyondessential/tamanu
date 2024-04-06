@@ -170,12 +170,12 @@ export function configMap(deployName, imageTag, options) {
 
       centralApiReplicas: options.centralapis,
       centralDbReplicas: options.centraldbs,
-      centralTaskReplicas: options.centraltasks,
+      centralTasksReplicas: options.centraltasks,
       centralWebReplicas: options.centraldbs,
 
       facilityApiReplicas: options.facilityapis,
       facilityDbReplicas: options.facilitydbs,
-      facilityTaskReplicas: options.facilitytasks,
+      facilityTasksReplicas: options.facilitytasks,
       facilityWebReplicas: options.facilitydbs,
     }).map(([key, value]) => [`tamanu-on-k8s:${key}`, { value, secret: false }]),
   );
