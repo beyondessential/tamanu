@@ -161,6 +161,7 @@ export function configMap(deployName, imageTag, options) {
       dbStorage: `${options.dbstorage}Gi`,
       facilities: options.facilities,
       timezone: options.timezone,
+      ipAllowList: options.ip,
 
       apiReplicas: options.apis,
       dbReplicas: options.dbs,
