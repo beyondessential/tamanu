@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 
-const RX_DEPLOY_LINE = /^\s*-\s+\[(?<enabled>[\sx])\]\s+.+<!--\s*#deploy(?:=(?<name>[\w-]+))?\s*(?:%(?<options>.+))?-->/;
-const RX_BRANCH_LINE = /<!--\s*#branch=(?<ref>[^\s]+)\s*-->/;
+const RX_DEPLOY_LINE = /^\s*-\s+\[(?<enabled>[\sx])\]\s+.+(?:<!--)?\s*#deploy(?:=(?<name>[\w-]+))?\s*(?:-->)?\s*(?:%(?<options>.+))?(?:-->)?/;
+const RX_BRANCH_LINE = /(?:<!--)?\s*#branch=(?<ref>[^\s]+)\s*(?:-->)?/;
 
 // It's important this remains stable or doesn't change: doing so will create
 // new deploys for everything that uses the default deploy name, and we may lose
