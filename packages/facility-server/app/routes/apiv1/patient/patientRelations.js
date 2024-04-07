@@ -13,6 +13,7 @@ import {
 import { patientSecondaryIdRoutes } from './patientSecondaryId';
 import { patientDeath } from './patientDeath';
 import { patientProfilePicture } from './patientProfilePicture';
+import { deleteReferral } from '../../../routeHandlers/deleteReferral';
 import { deleteProgramForm } from '../../../routeHandlers/deleteProgramForm';
 
 export const patientRelations = permissionCheckingRouter('read', 'Patient');
@@ -229,6 +230,8 @@ patientRelations.get(
     res.send({ count: patientReferrals.length, data: patientReferrals });
   }),
 );
+
+patientRelations.delete('/:id/referrals/:referralId', deleteReferral);
 
 const PROGRAM_RESPONSE_SORT_KEYS = {
   endTime: 'end_time',
