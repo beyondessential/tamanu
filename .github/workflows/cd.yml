@@ -253,7 +253,7 @@ jobs:
       - config
       - multi-arch
     # If we're deploying (go-up):
-    # - and we're building images (build-images), we need them to succeed
+    # - and we're building images (build-images), we need them (multi-arch) to succeed
     # - or if we're not building images, we need to ignore that multi-arch was skipped
     if: always() && needs.config.outputs.go-up == 'true' && (needs.config.outputs.build-images == 'false' || needs.multi-arch.result == 'success')
 
