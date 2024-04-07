@@ -29,7 +29,6 @@ import { ReportsIcon } from '~/ui/components/Icons/Reports';
 import { PatientIcon } from '~/ui/components/Icons/Patient';
 import { SyncCloudIcon } from '~/ui/components/Icons/SyncCloud';
 import { MoreLogoIcon } from '~/ui/components/Icons/MoreLogo';
-import { TranslatedText } from '/components/Translations/TranslatedText';
 import { useTranslation } from '/contexts/TranslationContext';
 
 const Tabs = createBottomTabNavigator();
