@@ -9,7 +9,7 @@ export const deleteReferral = asyncHandler(async (req, res) => {
   const object = await model.findByPk(params.referralId);
 
   if (!object) {
-    throw new Error(`Cannot find referral with id ${params.referralId}`)
+    throw new Error(`Cannot find referral with id ${params.referralId}`);
   }
 
   await object.destroy();
