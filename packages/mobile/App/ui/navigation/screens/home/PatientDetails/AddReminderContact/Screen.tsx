@@ -130,7 +130,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
                     <LocalisedField
                       name="reminderContactRelationship"
                       component={SuggesterDropdown}
-                      referenceDataType="relationship"
+                      referenceDataType="contactRelationship"
                       selectPlaceholderText={getTranslation({
                         stringId: 'patient.details.addReminderContacts.placeholder.select',
                         fallback: 'Select',
