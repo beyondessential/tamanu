@@ -1,9 +1,9 @@
 import { Sequelize } from 'sequelize';
 import {
   PATIENT_FIELD_DEFINITION_TYPE_VALUES,
-  VISIBILITY_STATUSES,
-  VISIBILITY_STATUS_VALUES,
   SYNC_DIRECTIONS,
+  VISIBILITY_STATUS_VALUES,
+  VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import { Model } from './Model';
 

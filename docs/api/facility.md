@@ -1,39 +1,38 @@
 # Facility server API Endpoint Docs
 
-Route implementations can be found in: `packages/lan/app/routes`
+Route implementations can be found in: `packages/facility-server/app/routes`
 
-TODO: 
-  - Add explanation of how route permissions work.
+TODO: Add explanation of how route permissions work.
 
 ### Suggestions
 
-route: `/v1/suggestions`
+route: `/api/suggestions`
 
-Used by the desktop app `Suggester` class to add auto completing search functionality to form fields.
+Used by the web app `Suggester` class to add auto completing search functionality to form fields.
 
 ### User
 
-route: `/v1/user`
+route: `/api/user`
 
 Query user data
 
 ### Patient
 
-route: `/v1/patient`
+route: `/api/patient`
 
 Query patient data, including all models with patient relations
 i.e. GET all patient referrals
 
 ### Encounter
 
-route: `/v1/encounter`
+route: `/api/encounter`
 
 Query encounter data, including all models with encounter relations.
 i.e. GET all encounter diagnoses
 
 ### Survey
 
-route: `/v1/survey`
+route: `/api/survey`
 
 Query and save survey data, this includes referrals.
 
@@ -42,50 +41,50 @@ Query and save survey data, this includes referrals.
 The following endpoints all have basic create, read and update endpoints through the
 handlers found in `packages/shared-src/src/utils/crudHelpers.js`
 
-`/v1/procedure`
+`/api/procedure`
 
-`/v1/triage`
+`/api/triage`
 
-`/v1/referenceData`
+`/api/referenceData`
 
-`/v1/diagnosis`
+`/api/diagnosis`
 
-`/v1/patientIssue`
+`/api/patientIssue`
 
-`/v1/familyHistory`
+`/api/familyHistory`
 
-`/v1/additionalData`
+`/api/additionalData`
 
-`/v1/allergy`
+`/api/allergy`
 
-`/v1/ongoingCondition`
+`/api/ongoingCondition`
 
-`/v1/medication`
+`/api/medication`
 
-`/v1/note`
+`/api/note`
 
-`/v1/labRequest`
+`/api/labRequest`
 
-`/v1/labTest`
+`/api/labTest`
 
-`/v1/referral`
+`/api/referral`
 
-`/v1/imagingRequest`
+`/api/imagingRequest`
 
-`/v1/program`
+`/api/program`
 
-`/v1/surveyResponse`
+`/api/surveyResponse`
 
-`/v1/reports`
+`/api/reports`
 
-`/v1/reportRequest`
+`/api/reportRequest`
 
-`/v1/patientCarePlan`
+`/api/patientCarePlan`
 
-`/v1/admin`
+`/api/admin`
 
-`/v1/setting`
+`/api/setting`
 
-`/v1/location`
+`/api/location`
 
-`/v1/attachment`
+`/api/attachment`

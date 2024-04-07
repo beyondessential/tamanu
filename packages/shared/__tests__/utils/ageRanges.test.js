@@ -1,4 +1,4 @@
-import { doAgeRangesHaveGaps, doAgeRangesOverlap } from '../../src/utils/dateTime';
+import { doAgeRangesHaveGaps, doAgeRangesOverlap } from '../../dist/cjs/utils/dateTime';
 
 describe('doAgeRangesHaveGaps', () => {
   it('should return true for ranges with gaps', () => {

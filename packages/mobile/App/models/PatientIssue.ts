@@ -1,4 +1,4 @@
-import { Entity, Column, ManyToOne, RelationId, BeforeInsert, BeforeUpdate } from 'typeorm/browser';
+import { BeforeInsert, Column, Entity, ManyToOne, RelationId } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
 import { Patient } from './Patient';
 import { IPatientIssue, PatientIssueType } from '~/types';

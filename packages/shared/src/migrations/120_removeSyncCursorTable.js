@@ -1,4 +1,4 @@
-import { STRING, DATE, NOW, UUIDV4 } from 'sequelize';
+import { DATE, NOW, STRING, UUIDV4 } from 'sequelize';
 
 export async function up(query) {
   await query.dropTable('channel_sync_pull_cursors');

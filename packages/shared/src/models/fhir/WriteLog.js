@@ -4,7 +4,7 @@ import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from '../Model';
 
 export class FhirWriteLog extends Model {
-  static init({ primaryKey, ...options }) {
+  static init(options) {
     super.init(
       {
         id: {

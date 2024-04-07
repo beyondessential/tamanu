@@ -1,0 +1,5 @@
+/data/*.realm*
+/data/*.db
+/data/.*
+/realm-object-server
+__disttests__

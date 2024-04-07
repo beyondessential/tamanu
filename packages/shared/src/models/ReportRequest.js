@@ -1,8 +1,8 @@
 import { Sequelize } from 'sequelize';
 import {
+  REPORT_EXPORT_FORMATS,
   REPORT_REQUEST_STATUS_VALUES,
   SYNC_DIRECTIONS,
-  REPORT_EXPORT_FORMATS,
 } from '@tamanu/constants';
 import { log } from '../services/logging';
 import { InvalidOperationError } from '../errors';

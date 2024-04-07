@@ -7,6 +7,11 @@ const firstLetterLowercase = s => (s[0] || '').toLowerCase() + s.slice(1);
 
 export class Model extends sequelize.Model {
   static init(modelAttributes, { syncDirection, timestamps = true, schema, ...options }) {
+    // this is used in our database init code to make it easier to create models,
+    // but shouldn't be passed down to sequelize. instead of forcing every model
+    // to erase it even if they don't use it, we delete it here
+    delete options.primaryKey;
+
     const attributes = {
       ...modelAttributes,
     };

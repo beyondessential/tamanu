@@ -2,8 +2,8 @@ import CA from '../ca';
 import { ConfigFile, period } from '../ca/Config';
 import { CRL_URL_BASE, CSCA_PKUP, CSCA_VALIDITY } from '../ca/constants';
 import {
-  Profile,
   addLeaps,
+  Profile,
   signerDefaultValidityDays,
   signerExtensions,
   signerWorkingDays,
@@ -12,6 +12,7 @@ import { confirm, enumFromStringValue, enumValues } from '../utils';
 import { Command } from 'commander';
 import prompts from 'prompts';
 import COUNTRIES from 'world-countries';
+// eslint-disable-next-line no-duplicate-imports
 import type { Country } from 'world-countries';
 
 const DEFAULT_SERIAL = 'CC000001';

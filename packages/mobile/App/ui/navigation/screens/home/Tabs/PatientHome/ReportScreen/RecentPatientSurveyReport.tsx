@@ -1,10 +1,10 @@
 import { differenceInYears, format, parseISO } from 'date-fns';
 import React, { FC } from 'react';
-import { screenPercentageToDP, Orientation } from '~/ui/helpers/screen';
+import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { useBackendEffect } from '~/ui/hooks';
-import { StyledView, RowView, StyledText } from '~/ui/styled/common';
+import { RowView, StyledText, StyledView } from '~/ui/styled/common';
 import { theme } from '~/ui/styled/theme';
-import { Table, Row, ColumnCategory, Cell, BorderRow, HeaderRow, DataCell, DataText } from './RecentPatientSurveyReportStyled';
+import { BorderRow, Cell, ColumnCategory, DataCell, DataText, HeaderRow, Row, Table } from './RecentPatientSurveyReportStyled';
 import { DateFormats } from '/helpers/constants';
 
 interface IOwnProps {

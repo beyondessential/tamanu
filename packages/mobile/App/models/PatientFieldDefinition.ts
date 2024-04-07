@@ -1,8 +1,7 @@
-import { Entity, Column, ManyToOne, OneToMany, RelationId } from 'typeorm/browser';
+import { Column, Entity, ManyToOne, RelationId } from 'typeorm/browser';
 
 import { IPatientFieldDefinition } from '~/types';
 import { BaseModel } from './BaseModel';
-import { ReferenceDataRelation } from './ReferenceData';
 import { PatientFieldDefinitionCategory } from './PatientFieldDefinitionCategory';
 import { SYNC_DIRECTIONS } from './types';
 

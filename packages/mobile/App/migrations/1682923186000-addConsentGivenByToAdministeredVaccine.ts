@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner, TableColumn, TableForeignKey } from 'typeorm';
+import { MigrationInterface, QueryRunner, TableColumn } from 'typeorm';
 import { getTable } from './utils/queryRunner';
 
 const tableName = 'administered_vaccine';

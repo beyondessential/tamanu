@@ -4,7 +4,7 @@ import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import { RowView, StyledText } from '/styled/common';
 // Helpers
 import { theme } from '/styled/theme';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
 
 export const SelectButton = (props: any): JSX.Element => {
   const onPressCallback = useCallback(() => props.onPress(props.value), [

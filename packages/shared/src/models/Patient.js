@@ -1,8 +1,8 @@
-import { Sequelize, Op } from 'sequelize';
-import { SYNC_DIRECTIONS, LAB_REQUEST_STATUSES, VACCINE_STATUS } from '@tamanu/constants';
+import { Op, Sequelize } from 'sequelize';
+import { LAB_REQUEST_STATUSES, SYNC_DIRECTIONS, VACCINE_STATUS } from '@tamanu/constants';
 import { getCovidClearanceCertificateFilter, getLabTestsFromLabRequests } from '../utils';
 import { Model } from './Model';
-import { dateType, dateTimeType } from './dateTimeTypes';
+import { dateTimeType, dateType } from './dateTimeTypes';
 import { onSaveMarkPatientForSync } from './onSaveMarkPatientForSync';
 
 export class Patient extends Model {
@@ -94,6 +94,16 @@ export class Patient extends Model {
     this.hasMany(models.PatientFieldValue, {
       foreignKey: 'patientId',
       as: 'fieldValues',
+    });
+
+    this.hasMany(models.PatientProgramRegistration, {
+      foreignKey: 'patientId',
+      as: 'patientProgramRegistrations',
+    });
+
+    this.hasMany(models.PatientProgramRegistrationCondition, {
+      foreignKey: 'patientId',
+      as: 'patientProgramRegistrationConditions',
     });
   }
 

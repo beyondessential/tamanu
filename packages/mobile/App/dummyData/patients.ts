@@ -10,7 +10,7 @@ const nameOptionsForGender = (gender: string): {} | { gender: 'male' | 'female' 
   // the library we're using doesn't have a list of names for other genders
   if (gender === 'male' || gender === 'female') {
     return { gender };
-  };
+  }
   return {};
 };
 
