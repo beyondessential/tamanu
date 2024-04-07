@@ -176,7 +176,7 @@ export const PatientHistory = ({ patient, onItemClick }) => {
         onClose={() => {
           setModalOpen(false);
           queryClient.invalidateQueries(['patientCurrentEncounter', patient.id]);
-          setRefreshCount(refreshCount + 1);
+          updateRefreshCount();
         }}
       />
     </>

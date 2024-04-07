@@ -4,6 +4,8 @@ import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { SurveyResultBadge } from './SurveyResultBadge';
 import { SurveyResponseDetailsModal } from './SurveyResponseDetailsModal';
+import { DeleteProgramResponseModal } from '../views/patients/components/DeleteProgramResponseModal';
+import { MenuButton } from './MenuButton';
 import { TranslatedText } from './Translation/TranslatedText';
 import { useAuth } from '../contexts/Auth';
 
