@@ -27,6 +27,9 @@ export class FhirDiagnosticReport extends FhirResource {
           type: DataTypes.JSONB,
           allowNull: false,
         },
+        presentedForm: {
+          type: DataTypes.JSONB,
+        }
       },
       options,
     );
@@ -46,6 +49,13 @@ export class FhirDiagnosticReport extends FhirResource {
       basedOn: yup.array().of(FhirReference.asYup()).required(),
       status: yup.string().required(),
       code: FhirCodeableConcept.asYup().required(),
+      presentedForm: yup.array().of(
+        yup.object({
+          data: yup.string.required(),
+          title: yup.string.required(),
+          contentType: yup.string.required(),
+        }),
+      ),
     });
   }
 

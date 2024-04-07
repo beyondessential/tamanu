@@ -7,6 +7,7 @@ export class Attachment extends Model {
     super.init(
       {
         id: primaryKey,
+        title: Sequelize.TEXT,
         type: Sequelize.TEXT,
         size: Sequelize.INTEGER,
         data: Sequelize.BLOB,

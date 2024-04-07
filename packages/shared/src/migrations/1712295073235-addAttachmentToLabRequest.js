@@ -1,16 +1,17 @@
 export async function up(query) {
 
   await query.sequelize.query(`
-    ALTER TABLE fhir.patients
-    ADD COLUMN link fhir.patient_link[] DEFAULT '{}'
+    ALTER TABLE attachments
+      ADD COLUMN title VARCHAR(255);
   `);
+
 }
 
 export async function down(query) {
 
   await query.sequelize.query(`
-    ALTER TABLE fhir.patients
-    DROP COLUMN link
+    ALTER TABLE attachments
+      DROP COLUMN title
   `);
 
 }
