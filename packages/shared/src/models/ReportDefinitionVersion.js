@@ -138,15 +138,11 @@ export class ReportDefinitionVersion extends Model {
     if (!instance) {
       throw new Error(`No reporting instance found for ${definition.dbSchema}`);
     }
-    try {
-      const queryResults = await instance.query(reportQuery, {
-        type: QueryTypes.SELECT,
-        replacements,
-      });
-      return generateReportFromQueryData(queryResults);
-    } catch (err) {
-      console.log(err);
-    }
+    const queryResults = await instance.query(reportQuery, {
+      type: QueryTypes.SELECT,
+      replacements,
+    });
+    return generateReportFromQueryData(queryResults);
   }
 
   forResponse(includeRelationIds = false) {
