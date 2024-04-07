@@ -113,14 +113,14 @@ patientVaccineRoutes.get(
       date: 'due_date',
     };
 
-    const { orderBy = 'due_date', order = 'ASC', rowsPerPage = 10, page = 0 } = req.query;
+    const { orderBy = 'dueDate', order = 'ASC', rowsPerPage = 10, page = 0 } = req.query;
     let sortKey = sortKeys[orderBy];
     const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
 
     const fromUpcomingVaccinations = `FROM upcoming_vaccinations uv
     JOIN scheduled_vaccines sv ON sv.id = uv.scheduled_vaccine_id
     WHERE uv.patient_id = :patientId
-    AND uv.status <> 'MISSED'`;
+    AND uv.status <> ${VACCINE_STATUS.MISSED}`;
 
     const results = await req.db.query(
       `SELECT
