@@ -22,6 +22,7 @@ import { ErrorScreen } from '/components/ErrorScreen';
 import { useBackendEffect } from '~/ui/hooks';
 import { readConfig } from '~/services/config';
 import { SETTING_KEYS } from '../../../../constants';
+import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 
 const getFormType = (status: VaccineStatus): { Form: FC<any> } => {
   switch (status) {
@@ -45,6 +46,7 @@ export type VaccineFormValues = {
   givenBy?: string;
   recorderId?: string;
   status: string | VaccineStatus;
+  consent: boolean;
 };
 
 interface VaccineFormProps {
@@ -77,6 +79,9 @@ export const VaccineForm = ({
 }: VaccineFormProps): JSX.Element => {
   const { Form: StatusForm } = useMemo(() => getFormType(status), [status]);
   const user = useSelector(authUserSelector);
+  const { getLocalisation } = useLocalisation();
+
+  const vaccineConsentEnabled = getLocalisation('features.enableVaccineConsent');
 
   const [locationAndDepartment, error, isLoading] = useBackendEffect(
     async ({ models }) => {
@@ -121,13 +126,16 @@ export const VaccineForm = ({
     recorderId: user.id,
     locationId,
     departmentId,
+    consent: false,
   });
 
   const consentSchema =
     status === VaccineStatus.GIVEN
-      ? Yup.boolean()
-          .oneOf([true], REQUIRED_INLINE_ERROR_MESSAGE)
-          .required(REQUIRED_INLINE_ERROR_MESSAGE)
+      ? Yup.boolean().when([], {
+          is: () => vaccineConsentEnabled,
+          then: Yup.boolean().oneOf([true], REQUIRED_INLINE_ERROR_MESSAGE),
+          otherwise: Yup.boolean(),
+        })
       : undefined;
   return (
     <Form
