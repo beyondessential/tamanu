@@ -26,6 +26,7 @@ import { noteChangelogsHandler, noteListHandler } from '../../routeHandlers';
 import { createPatientLetter } from '../../routeHandlers/createPatientLetter';
 
 import { getLabRequestList } from '../../routeHandlers/labs';
+import { deleteDocumentMetadata } from '../../routeHandlers/deleteDocumentMetadata';
 import { deleteProgramForm } from '../../routeHandlers/deleteProgramForm';
 
 export const encounter = recordIsSoftDeletedCheckingRouter('Encounter');
@@ -140,6 +141,8 @@ encounter.post(
 );
 
 encounter.post('/:id/createPatientLetter', createPatientLetter('Encounter', 'encounterId'));
+
+encounter.delete('/:id/documentMetadata/:documentMetadataId', deleteDocumentMetadata);
 
 encounter.delete(
   '/:id',
