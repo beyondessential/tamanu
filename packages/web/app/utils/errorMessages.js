@@ -19,7 +19,8 @@ export function registerYup(translations = {}) {
     const { stringId, fallback } = translatedTextComponent.props;
     const templateString = translations[stringId] || fallback;
     const replaced = replaceStringVariables(
-      { ...translatedTextComponent.props, templateString },
+      templateString,
+      translatedTextComponent.props,
       translations,
     );
     return this.label(replaced);

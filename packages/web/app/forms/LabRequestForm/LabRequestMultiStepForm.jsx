@@ -32,7 +32,19 @@ export const LabRequestMultiStepForm = ({
   // For fields please see LabRequestFormScreen1.js
   const screen1ValidationSchema = yup.object().shape({
     requestedById: foreignKey().translatedLabel(
-      <TranslatedText stringId="general.localisedField.clinician.label" fallback="Clinician" />,
+      <TranslatedText
+        stringId="lab.requestingClinician.label"
+        fallback="Requesting :clinician"
+        replacements={{
+          clinician: (
+            <TranslatedText
+              stringId="general.localisedField.clinician.label.short"
+              fallback="Clinician"
+              lowercase
+            />
+          ),
+        }}
+      />,
     ),
     requestedDate: yup
       .date()
