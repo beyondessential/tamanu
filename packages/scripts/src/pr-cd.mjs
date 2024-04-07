@@ -370,7 +370,7 @@ export async function findDeploysToCleanUp(controlList, ttl = 24, context, githu
     name: ns.replace(/^tamanu-/, ''),
     options: {
       k8score: core.replace(/^k8s-operator-/, ''),
-      opsstack: OPTIONS.find(({ name }) => name === 'opsstack').defaultValue,
+      opsstack: OPTIONS.find(({ key }) => key === 'opsstack').defaultValue,
     },
   }));
 }
