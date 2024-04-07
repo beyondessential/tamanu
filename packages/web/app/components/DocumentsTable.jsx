@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { extension } from 'mime-types';
 
@@ -7,38 +7,36 @@ import { IconButton } from '@material-ui/core';
 
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
-import { Button } from './Button';
 import { LimitedLinesCell } from './FormattedTableCell';
 import { TranslatedText } from './Translation/TranslatedText';
 
-const ActionsContainer = styled.div`
-  display: flex;
-`;
+import { DeleteDocumentModal } from '../views/patients/components/DeleteDocumentModal';
+import { MenuButton } from './MenuButton';
+import { useAuth } from '../contexts/Auth';
 
-const Action = styled(Button)`
-  margin-right: 0.5rem;
-  height: auto;
+const ActionWrapper = styled.div`
+  width: 0; // This is needed to move content to the right side of the table
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 `;
 
 const StyledIconButton = styled(IconButton)`
   border: 1px solid;
-  border-color: ${props => props.theme.palette.primary.main};
+  border-color: transparent;
   color: ${props => props.theme.palette.primary.main};
   border-radius: 3px;
   padding-left: 10px;
   padding-right: 10px;
 `;
 
-const ActionButtons = React.memo(({ row, onDownload, onClickView }) => (
-  <ActionsContainer>
-    <Action variant="outlined" size="small" onClick={() => onClickView(row)} key="view">
-      <TranslatedText stringId="general.action.view" fallback="View" />
-    </Action>
-    <StyledIconButton color="primary" onClick={() => onDownload(row)} key="download">
-      <GetAppIcon fontSize="small" />
-    </StyledIconButton>
-  </ActionsContainer>
-));
+const MODAL_IDS = {
+  DELETE: 'delete',
+};
+
+const MODALS = {
+  [MODAL_IDS.DELETE]: DeleteDocumentModal,
+};
 
 const getAttachmentType = ({ type }) => {
   // Note that this may not be the actual extension of the file uploaded.
@@ -54,70 +52,131 @@ const getUploadedDate = ({ documentUploadedAt }) =>
 const getDepartmentName = ({ department }) => department?.name || '';
 
 export const DocumentsTable = React.memo(
-  ({ endpoint, searchParameters, refreshCount, onDownload, openDocumentPreview }) => {
+  ({
+    endpoint,
+    searchParameters,
+    refreshCount,
+    refreshTable,
+    onDownload,
+    openDocumentPreview
+  }) => {
+    const { ability } = useAuth();
+    const [modalId, setModalId] = useState(null);
+    const [modalOpen, setModalOpen] = useState(false);
+    const [selectedDocument, setSelectedDocument] = useState(null);
+
+    const handleChangeModalId = id => {
+      setModalId(id);
+      setModalOpen(true);
+    };
+
+    const menuActions = [
+      {
+        label: 'Delete',
+        action: () => handleChangeModalId(MODAL_IDS.DELETE),
+        permissionCheck: () => {
+          return ability?.can('delete', 'DocumentMetadata');
+        },
+      },
+    ];
+
+    const ActiveModal = MODALS[modalId] || null;
+
+    const actions = menuActions
+      .filter(({ permissionCheck }) => {
+        return permissionCheck ? permissionCheck() : true;
+      })
+      .reduce((acc, { label, action }) => {
+        acc[label] = action;
+        return acc;
+      }, {});
+
+    const isAllActionsDeniedDueToPerm = Object.keys(actions).length === 0;
+
     // Define columns inside component to pass callbacks to getActions
-    const COLUMNS = useMemo(
-      () => [
-        {
-          key: 'name',
-          title: <TranslatedText stringId="general.table.column.name" fallback="Name" />,
-          CellComponent: LimitedLinesCell,
+    const COLUMNS = [
+      {
+        key: 'name',
+        title: <TranslatedText stringId="general.table.column.name" fallback="Name" />,
+        CellComponent: LimitedLinesCell,
+      },
+      {
+        key: 'type',
+        title: <TranslatedText stringId="document.table.column.type" fallback="Type" />,
+        accessor: getAttachmentType,
+      },
+      {
+        key: 'documentUploadedAt',
+        title: <TranslatedText stringId="document.table.column.uploadedDate" fallback="Upload" />,
+        accessor: getUploadedDate,
+      },
+      {
+        key: 'documentOwner',
+        title: <TranslatedText stringId="document.table.column.owner" fallback="Owner" />,
+        CellComponent: LimitedLinesCell,
+      },
+      {
+        key: 'department.name',
+        title: (
+          <TranslatedText stringId="document.table.column.department" fallback="Department" />
+        ),
+        accessor: getDepartmentName,
+        CellComponent: LimitedLinesCell,
+        sortable: false,
+      },
+      {
+        key: 'note',
+        title: <TranslatedText stringId="document.table.column.comments" fallback="Comments" />,
+        sortable: false,
+        CellComponent: LimitedLinesCell,
+      },
+      {
+        key: 'actions',
+        title: <TranslatedText stringId="document.table.column.actions" fallback="Actions" />,
+        dontCallRowInput: true,
+        sortable: false,
+        CellComponent: ({ data }) => {
+          if (!isAllActionsDeniedDueToPerm) {
+            return (
+              <ActionWrapper onMouseEnter={() => setSelectedDocument(data)}>
+                <StyledIconButton color="primary" onClick={() => onDownload(data)} key="download">
+                  <GetAppIcon fontSize="small" />
+                </StyledIconButton>
+                <MenuButton actions={actions} />
+              </ActionWrapper>
+            );
+          }
+          return <></>;
         },
-        {
-          key: 'type',
-          title: <TranslatedText stringId="document.table.column.type" fallback="Type" />,
-          accessor: getAttachmentType,
-        },
-        {
-          key: 'documentUploadedAt',
-          title: <TranslatedText stringId="document.table.column.uploadedDate" fallback="Upload" />,
-          accessor: getUploadedDate,
-        },
-        {
-          key: 'documentOwner',
-          title: <TranslatedText stringId="document.table.column.owner" fallback="Owner" />,
-          CellComponent: LimitedLinesCell,
-        },
-        {
-          key: 'department.name',
-          title: (
-            <TranslatedText stringId="document.table.column.department" fallback="Department" />
-          ),
-          accessor: getDepartmentName,
-          CellComponent: LimitedLinesCell,
-          sortable: false,
-        },
-        {
-          key: 'note',
-          title: <TranslatedText stringId="document.table.column.comments" fallback="Comments" />,
-          sortable: false,
-          CellComponent: LimitedLinesCell,
-        },
-        {
-          key: 'actions',
-          title: <TranslatedText stringId="document.table.column.actions" fallback="Actions" />,
-          accessor: row => (
-            <ActionButtons row={row} onDownload={onDownload} onClickView={openDocumentPreview} />
-          ),
-          dontCallRowInput: true,
-          sortable: false,
-        },
-      ],
-      [onDownload, openDocumentPreview],
-    );
+      },
+    ];
 
     return (
-      <DataFetchingTable
-        endpoint={endpoint}
-        columns={COLUMNS}
-        noDataMessage={
-          <TranslatedText stringId="documents.table.noData" fallback="No documents found" />
-        }
-        fetchOptions={searchParameters}
-        refreshCount={refreshCount}
-        allowExport={false}
-        elevated={false}
-      />
+      <>
+        <DataFetchingTable
+          endpoint={endpoint}
+          columns={COLUMNS}
+          noDataMessage={
+            <TranslatedText stringId="documents.table.noData" fallback="No documents found" />
+          }
+          fetchOptions={searchParameters}
+          refreshCount={refreshCount}
+          allowExport={false}
+          elevated={false}
+          onRowClick={row => openDocumentPreview(row)}
+        />
+        {ActiveModal && (
+          <ActiveModal
+            open={modalOpen}
+            documentToDelete={selectedDocument}
+            endpoint={endpoint}
+            onClose={() => {
+              setModalOpen(false);
+              refreshTable();
+            }}
+          />
+        )}
+      </>
     );
   },
 );
