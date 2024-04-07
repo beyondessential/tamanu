@@ -68,7 +68,7 @@ jobs:
 
   deploy-down:
     needs: config
-    if: needs.config.outputs.go-down == true
+    if: needs.config.outputs.go-down == 'true'
     strategy:
       fail-fast: false
       matrix:
