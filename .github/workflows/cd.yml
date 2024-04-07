@@ -98,7 +98,7 @@ jobs:
             });
             console.log(allDeploys);
 
-            const matrix = ({ name, options }) => ({ name, options: JSON.stringify(options) });
+            const matrix = ({ name, control, options }) => ({ name, control, options: JSON.stringify(options) });
             const up = allDeploys.filter(deploy => deploy.enabled && !deploy.options.pause).map(matrix);
             const down = allDeploys.filter(deploy => !deploy.enabled && !deploy.options.pause).map(matrix);
             console.log('Going UP', up.length);
