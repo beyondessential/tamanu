@@ -88,7 +88,7 @@ export const simplePut = modelName =>
       throw new InvalidOperationError(
         `Cannot update deleted object with id (${params.id}), you need to restore it first`,
       );
-    if (req.body.hasOwnProperty('deletedAt'))
+    if (Object.prototype.hasOwnProperty.call(req.body, 'deletedAt'))
       throw new InvalidOperationError('Cannot update deletedAt field');
     req.checkPermission('write', object);
     await object.update(req.body);
