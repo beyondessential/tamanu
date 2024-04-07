@@ -1,6 +1,6 @@
 import { expect } from 'chai';
-import { generateICAOFormatUVCI } from '../../src/utils/uvci/icao';
-import { generateEUDCCFormatUVCI } from '../../src/utils/uvci/eudcc';
+import { generateICAOFormatUVCI } from '../../dist/cjs/utils/uvci/icao';
+import { generateEUDCCFormatUVCI } from '../../dist/cjs/utils/uvci/eudcc';
 
 describe('UVCI generation', () => {
   describe('Generate ICAO UVCI', () => {

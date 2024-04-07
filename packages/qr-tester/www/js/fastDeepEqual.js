@@ -33,6 +33,5 @@ export default function equal(a, b) {
     return true;
   }
 
-  // true if both NaN, false otherwise
-  return a !== a && b !== b;
+  return isNaN(a) && isNaN(b);
 }

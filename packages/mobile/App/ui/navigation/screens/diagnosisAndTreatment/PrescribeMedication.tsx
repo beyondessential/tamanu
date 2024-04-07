@@ -3,15 +3,16 @@ import { compose } from 'redux';
 import { useSelector } from 'react-redux';
 import { Formik } from 'formik';
 import { ScrollView } from 'react-native-gesture-handler';
+import * as Yup from 'yup';
 
 import { Field } from '/components/Forms/FormField';
 import { SectionHeader } from '/components/SectionHeader';
 import { FullView, StyledView } from '/styled/common';
 import { TextField } from '/components/TextField/TextField';
-import { Button } from '/components/Button';
+import { SubmitButton } from '/components/Forms/SubmitButton';
 import { theme } from '/styled/theme';
 import { KeyboardAvoidingView, StyleSheet } from 'react-native';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { useBackend } from '~/ui/hooks';
 import { withPatient } from '~/ui/containers/Patient';
 import { Routes } from '~/ui/helpers/routes';
@@ -64,7 +65,13 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
 
   return (
     <FullView background={theme.colors.BACKGROUND_GREY}>
-      <Formik onSubmit={onPrescribeMedication} initialValues={{}}>
+      <Formik
+        onSubmit={onPrescribeMedication}
+        validationSchema={Yup.object().shape({
+          quantity: Yup.number().required('Quantity is required'),
+        })}
+        initialValues={{}}
+      >
         {({ handleSubmit }): ReactElement => (
           <FullView
             background={theme.colors.BACKGROUND_GREY}
@@ -105,20 +112,17 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
                     component={NumberField}
                     name="quantity"
                     label="Quantity (in single units)"
+                    required
                   />
                 </StyledView>
-                <StyledView
-                  marginBottom={screenPercentageToDP(0.605, Orientation.Height)}
-                >
+                <StyledView marginBottom={screenPercentageToDP(0.605, Orientation.Height)}>
                   <SectionHeader h3>Prescription notes</SectionHeader>
                 </StyledView>
                 <Field component={TextField} name="note" multiline />
-                <Button
+                <SubmitButton
                   marginTop={screenPercentageToDP(1.22, Orientation.Height)}
                   marginBottom={screenPercentageToDP(1.22, Orientation.Height)}
-                  backgroundColor={theme.colors.PRIMARY_MAIN}
-                  onPress={handleSubmit}
-                  buttonText="Submit"
+                  onSubmit={handleSubmit}
                 />
               </ScrollView>
             </KeyboardAvoidingView>

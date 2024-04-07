@@ -2,9 +2,11 @@ import Umzug from 'umzug';
 import { readdirSync } from 'fs';
 import path from 'path';
 import { runPostMigration } from './runPostMigration';
+import { wrap, chain } from 'lodash';
 
 // before this, we just cut our losses and accept irreversible migrations
 const LAST_REVERSIBLE_MIGRATION = '048_changeNoteRecordTypeColumn.js';
+const NO_SYNC_MIGRATION_TIMESTAMP = '1692710205000';
 
 export function createMigrationInterface(log, sequelize) {
   // ie, shared/src/migrations
@@ -24,7 +26,25 @@ export function createMigrationInterface(log, sequelize) {
     migrations: {
       path: migrationsDir,
       params: [sequelize.getQueryInterface()],
-      wrap: updown => (...args) => sequelize.transaction(() => updown(...args)),
+      customResolver: sqlPath => {
+        const migration = require(sqlPath);
+        const transaction = (updown, ...args) => sequelize.transaction(() => updown(...args));
+        const disableSyncTrigger = async (updown, query, ...args) => {
+          const { LocalSystemFact } = query.sequelize.models;
+          await LocalSystemFact.set('syncTrigger', 'disabled');
+          await updown(query, ...args);
+          await LocalSystemFact.set('syncTrigger', 'enabled');
+        };
+
+        const timestamp = path.basename(sqlPath).split(/[-_]/, 1);
+        const is_no_sync = !migration.NON_DETERMINISTIC && timestamp > NO_SYNC_MIGRATION_TIMESTAMP;
+
+        return chain(migration)
+          .pick(['up', 'down'])
+          .mapValues(updown => is_no_sync ? wrap(updown, disableSyncTrigger) : updown)
+          .mapValues(updown => wrap(updown, transaction))
+          .value();
+      }
     },
     storage: 'sequelize',
     storageOptions: {

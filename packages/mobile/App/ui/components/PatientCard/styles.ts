@@ -1,6 +1,6 @@
 import styled from 'styled-components/native';
 import { theme } from '/styled/theme';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
 
 export const StyledCardContainer = styled.View`
   background: ${theme.colors.WHITE};

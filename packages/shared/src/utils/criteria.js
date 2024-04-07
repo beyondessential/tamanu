@@ -6,13 +6,15 @@ export function checkJSONCriteria(criteria, allComponents, values) {
   if (!criteria) return true;
 
   const criteriaObject = JSON.parse(criteria);
-
   if (!criteriaObject) {
     return true;
   }
 
-  const { _conjunction: conjunction, hidden: _, ...restOfCriteria } = criteriaObject;
-  if (Object.keys(restOfCriteria).length === 0) {
+  const conjunction = criteriaObject._conjunction;
+  delete criteriaObject._conjunction;
+  delete criteriaObject.hidden;
+
+  if (Object.keys(criteriaObject).length === 0) {
     return true;
   }
 
@@ -46,6 +48,6 @@ export function checkJSONCriteria(criteria, allComponents, values) {
   };
 
   return conjunction === 'and'
-    ? Object.entries(restOfCriteria).every(checkIfQuestionMeetsCriteria)
-    : Object.entries(restOfCriteria).some(checkIfQuestionMeetsCriteria);
+    ? Object.entries(criteriaObject).every(checkIfQuestionMeetsCriteria)
+    : Object.entries(criteriaObject).some(checkIfQuestionMeetsCriteria);
 }

@@ -1,6 +1,6 @@
 import { parseISO } from 'date-fns';
-import { keyBy, groupBy } from 'lodash';
-import { format, differenceInMilliseconds, isISOString } from '../../utils/dateTime';
+import { groupBy, keyBy } from 'lodash';
+import { differenceInMilliseconds, format, isISOString } from '../../utils/dateTime';
 
 const MODEL_COLUMN_TO_ANSWER_DISPLAY_VALUE = {
   User: 'displayName',
@@ -58,9 +58,13 @@ export const getAnswerBody = async (models, componentConfig, type, answer, trans
   }
 };
 
+// Logic duplicated in packages/mobile/App/ui/navigation/screens/programs/SurveyResponseDetailsScreen/index.tsx
+const isAutocomplete = ({ config, dataElement }) => dataElement.type === 'Autocomplete' ||
+ (config && JSON.parse(config).writeToPatient?.fieldType === 'Autocomplete');
+
 export const getAutocompleteComponentMap = surveyComponents => {
   const autocompleteComponents = surveyComponents
-    .filter(c => c.dataElement.dataValues.type === 'Autocomplete')
+    .filter(isAutocomplete)
     .map(({ dataElementId, config: componentConfig }) => [
       dataElementId,
       componentConfig ? JSON.parse(componentConfig) : {},

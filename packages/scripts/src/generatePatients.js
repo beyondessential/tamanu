@@ -41,15 +41,15 @@ async function run() {
   const details = await getDetails();
   const users = JSON.parse(details).results;
 
-  users.map(async r => {
-    const user = {
-      sex: r.gender,
-      firstName: titleCase(r.name.first),
-      lastName: titleCase(r.name.last),
-      dateOfBirth: r.dob.date.split('T')[0],
-    };
-    const result = await createPatient(user);
-  });
+  users.map(
+    async r =>
+      await createPatient({
+        sex: r.gender,
+        firstName: titleCase(r.name.first),
+        lastName: titleCase(r.name.last),
+        dateOfBirth: r.dob.date.split('T')[0],
+      }),
+  );
 }
 
 run();

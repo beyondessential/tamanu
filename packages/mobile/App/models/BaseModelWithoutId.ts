@@ -1,22 +1,23 @@
 import {
   BaseEntity,
-  UpdateDateColumn,
-  CreateDateColumn,
-  DeleteDateColumn,
-  Column,
   BeforeInsert,
   BeforeUpdate,
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
   Repository,
+  UpdateDateColumn,
 } from 'typeorm/browser';
 import { getSyncTick } from '../services/sync/utils';
 import { ObjectType } from 'typeorm/browser/common/ObjectType';
 import { FindManyOptions } from 'typeorm/browser/find-options/FindManyOptions';
 import { VisibilityStatus } from '../visibilityStatuses';
+import { BaseModel } from './BaseModel';
 
 function sanitiseForImport<T>(repo: Repository<T>, data: { [key: string]: any }) {
   // TypeORM will complain when importing an object that has fields that don't
   // exist on the table in the database. We need to accommodate receiving records
-  // from the sync server that don't match up 100% (to allow for changes over time)
+  // from the central server that don't match up 100% (to allow for changes over time)
   // so we just strip those extraneous fields out here.
   //
   // Note that fields that are necessary-but-not-in-the-sync-record need to be

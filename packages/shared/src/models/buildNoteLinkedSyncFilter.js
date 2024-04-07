@@ -1,6 +1,6 @@
 import { snake } from 'case';
 import { Utils } from 'sequelize';
-import { NOTE_RECORD_TYPES, NOTE_RECORD_TYPE_VALUES } from '@tamanu/constants';
+import { NOTE_RECORD_TYPE_VALUES, NOTE_RECORD_TYPES } from '@tamanu/constants';
 
 const recordTypesWithPatientViaEncounter = ['Triage', 'LabRequest', 'ImagingRequest'];
 
@@ -55,5 +55,6 @@ export function buildNoteLinkedSyncFilter(patientIds, sessionConfig) {
       ${whereOrs.join('\nOR ')}
     )
     AND notes.updated_at_sync_tick > :since
+    AND notes.deleted_at isnull
   `;
 }
