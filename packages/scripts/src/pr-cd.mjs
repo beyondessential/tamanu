@@ -368,9 +368,9 @@ export async function findDeploysToCleanUp(controlList, ttl = 24, context, githu
 
   return todo.map(({ core, ns }) => ({
     name: ns.replace(/^tamanu-/, ''),
-    options: {
+    options: JSON.stringify({
       k8score: core.replace(/^k8s-operator-/, ''),
       opsstack: OPTIONS.find(({ key }) => key === 'opsstack').defaultValue,
-    },
+    }),
   }));
 }
