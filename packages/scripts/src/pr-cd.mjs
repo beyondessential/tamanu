@@ -253,10 +253,10 @@ export async function findControlText(context, github) {
 
     // for pushes to branches, first check if there's an open PR for the branch
     const prs = await github.rest.pulls.list({
-      owner: context.payload.repository.organization,
+      owner: process.env.GITHUB_REPOSITORY_OWNER,
       repo: context.payload.repository.name,
       state: 'open',
-      head: `${context.payload.repository.organization}:${branch}`,
+      head: `${process.env.GITHUB_REPOSITORY_OWNER}:${branch}`,
     });
     console.log(
       'PRs for branch:',
@@ -271,7 +271,7 @@ export async function findControlText(context, github) {
 
     // then check if there's an open control issue with the branch name
     const issues = await github.rest.issues.listForRepo({
-      owner: context.payload.repository.organization,
+      owner: process.env.GITHUB_REPOSITORY_OWNER,
       repo: context.payload.repository.name,
       state: 'open',
       labels: 'auto-deploy',
@@ -322,7 +322,7 @@ export async function findDeploysToCleanUp(controlList, ttl = 24, context, githu
     try {
       if (type === 'pr') {
         const pr = await github.rest.pulls.get({
-          owner: context.payload.repository.organization,
+          owner: process.env.GITHUB_REPOSITORY_OWNER,
           repo: context.payload.repository.name,
           pull_number: number,
         });
@@ -342,7 +342,7 @@ export async function findDeploysToCleanUp(controlList, ttl = 24, context, githu
         todo.push({ core, ns });
       } else if (type === 'issue') {
         const issue = await github.rest.issues.get({
-          owner: context.payload.repository.organization,
+          owner: process.env.GITHUB_REPOSITORY_OWNER,
           repo: context.payload.repository.name,
           issue_number: number,
         });
