@@ -264,6 +264,8 @@ describe('Triage', () => {
 
     beforeAll(async () => {
       await models.Triage.truncate({ cascade: true });
+      await models.Encounter.truncate({ cascade: true });
+      await models.Patient.truncate({ cascade: true });
 
       // create a few test triages
       const { id: locationId } = await models.Location.create({
