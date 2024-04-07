@@ -189,9 +189,17 @@ function extractBranchDirective(issue) {
 }
 
 export function parseBranchConfig(context) {
-  if (['pull_request', 'push'].includes(context.eventName)) {
-    console.log('Using PR/push context');
-    return context.ref;
+  if (context.eventName === 'pull_request') {
+    console.log('Using PR context');
+    return (process.env.GITHUB_HEAD_REF ?? process.env.GITHUB_REF_NAME ?? context.ref).replace(
+      /^\/refs\/(heads|pull)\//,
+      '',
+    );
+  }
+
+  if (context.eventName === 'push') {
+    console.log('Using push context');
+    return (process.env.GITHUB_REF_NAME ?? context.ref).replace(/^\/refs\/heads\//, '');
   }
 
   if (
