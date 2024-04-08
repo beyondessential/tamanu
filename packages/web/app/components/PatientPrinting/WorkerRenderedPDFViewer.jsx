@@ -8,7 +8,7 @@ const FullIframe = styled.iframe`
   height: 100%;
   min-height: 50vh;
 `;
-export const RenderedPDFViewer = props => {
+export const WorkerRenderedPDFViewer = props => {
   const { url, loading, error } = useRenderPDF(props);
 
   const src = url ? `${url}#toolbar=0` : null;
