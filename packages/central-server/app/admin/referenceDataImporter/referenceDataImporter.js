@@ -1,5 +1,5 @@
 import { upperFirst } from 'lodash';
-import { readFile } from 'xlsx';
+import { read, readFile } from 'xlsx';
 
 import { log } from '@tamanu/shared/services/logging';
 import { REFERENCE_TYPE_VALUES } from '@tamanu/constants';
@@ -17,12 +17,13 @@ export async function referenceDataImporter({
   models,
   stats,
   file,
+  data = null,
   includedDataTypes = [],
 }) {
   log.info('Importing data definitions from file', { file });
 
   log.debug('Parse XLSX workbook');
-  const workbook = readFile(file);
+  const workbook = data ? read(data, { type: 'buffer' }) : readFile(file);
 
   log.debug('Normalise all sheet names for lookup');
   const sheets = new Map();
