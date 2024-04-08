@@ -1,4 +1,4 @@
-import React, { PropsWithChildren, FunctionComponent, useMemo, FC } from 'react';
+import React, { FC, FunctionComponent, PropsWithChildren, useMemo } from 'react';
 import { StyledView } from '/styled/common';
 import { VaccineCardHeader } from './VaccineCardHeader';
 import { IAdministeredVaccine } from '~/types';

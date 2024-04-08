@@ -21,6 +21,7 @@ export * from './ArrowLeft';
 export * from './ArrowUp';
 export * from './Vitals';
 export * from './Pencil';
+export * from './CircleAdd';
 
 // Logos
 export * from './CLR';
@@ -39,6 +40,7 @@ export * from './User';
 export * from './CheckboxMark';
 export * from './FilterIcon';
 export * from './Kebab';
+export * from './Launch';
 
 //Visit Types
 export * from './FirstAidKit';
@@ -63,9 +65,15 @@ export * from './DiagnosisAndTreatment';
 export * from './History';
 export * from './PatientDetails';
 export * from './LabRequest';
+export * from './PatientSync';
 
 // Home Tab Icons
 export * from './SyncData';
 export * from './HomeBottomLogo';
 export * from './BarChart';
 export * from './More';
+export * from './HomeLogo';
+export * from './SyncCloud';
+export * from './Patient';
+export * from './Reports';
+export * from './MoreLogo';

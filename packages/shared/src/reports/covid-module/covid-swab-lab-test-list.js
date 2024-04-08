@@ -1,19 +1,20 @@
 import {
-  isWithinInterval,
-  isBefore,
-  isAfter,
-  startOfDay,
   endOfDay,
+  isAfter,
+  isBefore,
   isSameDay,
+  isWithinInterval,
   parseISO,
+  startOfDay,
   subDays,
 } from 'date-fns';
 import { groupBy } from 'lodash';
 import { Op } from 'sequelize';
-import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_CONFIG } from '@tamanu/constants';
+import { LAB_REQUEST_STATUS_CONFIG, LAB_REQUEST_STATUSES } from '@tamanu/constants';
 import { differenceInMilliseconds, format } from '../../utils/dateTime';
 import { generateReportFromQueryData } from '../utilities';
 import { transformAnswers } from '../utilities/transformAnswers';
+import { sleepAsync } from '../../utils/sleepAsync';
 
 const WILLIAM_HOROTO_IDS = [
   'f4a0e3f0-54da-4fc9-a73e-1b72c9ca92a5', // Kiribati
@@ -26,7 +27,7 @@ const WILLIAM_HOROTO_IDS = [
 
 const YIELD_EVERY_N_LOOPS = 100;
 
-const yieldControl = () => new Promise(resolve => setTimeout(resolve, 20));
+const yieldControl = () => sleepAsync(20);
 
 const parametersToLabTestSqlWhere = parameters => {
   const defaultWhereClause = {

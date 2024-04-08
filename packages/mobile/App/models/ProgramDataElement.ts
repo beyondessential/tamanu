@@ -1,7 +1,7 @@
-import { Entity, Column, OneToMany, OneToOne } from 'typeorm/browser';
+import { Column, Entity, OneToMany, OneToOne } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
 import { SurveyResponseAnswer } from './SurveyResponseAnswer';
-import { IProgramDataElement, DataElementType } from '~/types';
+import { DataElementType, IProgramDataElement } from '~/types';
 import { SYNC_DIRECTIONS } from './types';
 import { SurveyScreenComponent } from './SurveyScreenComponent';
 

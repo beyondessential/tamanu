@@ -1,10 +1,10 @@
-import React, { useState, useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Dimensions, Text } from 'react-native';
 import RNFS from 'react-native-fs';
 import { Popup } from 'popup-ui';
 import { useBackend } from '~/ui/hooks';
-import { StyledView, StyledImage } from '/styled/common';
-import { getImageFromPhotoLibrary, resizeImage, imageToBase64URI } from '/helpers/image';
+import { StyledImage, StyledView } from '/styled/common';
+import { getImageFromPhotoLibrary, imageToBase64URI, resizeImage } from '/helpers/image';
 import { deleteFileInDocuments } from '/helpers/file';
 import { BaseInputProps } from '../../interfaces/BaseInputProps';
 import { Button } from '~/ui/components/Button';
@@ -24,7 +24,7 @@ interface UploadedImageProps {
   imageData: string;
 }
 
-interface UploadPhotoComponent {
+interface UploadPhotoComponentProps {
   onPressChoosePhoto: Function;
   onPressRemovePhoto: Function;
   imageData: string;
@@ -61,7 +61,7 @@ const UploadPhotoComponent = ({
   imageData,
   errorMessage,
   loading,
-}: UploadPhotoComponent) => (
+}: UploadPhotoComponentProps) => (
   <StyledView marginTop={5}>
     {loading && <LoadingPlaceholder />}
     {imageData && <UploadedImage imageData={imageData} />}
@@ -132,7 +132,7 @@ export const UploadPhoto = React.memo(({ onChange, value }: PhotoProps) => {
       ...IMAGE_RESIZE_OPTIONS,
     });
 
-    // Make sure the sync server has enough space to store a new attachment
+    // Make sure the central server has enough space to store a new attachment
     const { canUploadAttachment } = await centralServer.get('health/canUploadAttachment', {});
 
     if (!canUploadAttachment) {

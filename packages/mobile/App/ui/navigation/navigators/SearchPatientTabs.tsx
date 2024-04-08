@@ -1,26 +1,24 @@
 import React, { useCallback } from 'react';
 import { StyleProp, ViewStyle } from 'react-native';
 import {
-  useNavigationBuilder,
   createNavigatorFactory,
+  DefaultNavigatorOptions,
   TabRouter,
   TabRouterOptions,
-  DefaultNavigatorOptions,
+  useNavigationBuilder,
 } from '@react-navigation/native';
 import { MaterialTopTabView } from '@react-navigation/material-top-tabs';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-/*eslint-disable import/no-unresolved */
 import {
-  MaterialTopTabNavigationConfig,
   MaterialTopTabBarOptions,
+  MaterialTopTabNavigationConfig,
 } from '@react-navigation/material-top-tabs/lib/typescript/src/types';
-/*eslint-enable import/no-unresolved */
 import { compose } from 'redux';
 import {
-  StyledSafeAreaView,
-  RowView,
-  StyledView,
   FullView,
+  RowView,
+  StyledSafeAreaView,
+  StyledView,
 } from '/styled/common';
 import { ArrowLeftIcon } from '/components/Icons';
 import { SearchInput } from '/components/SearchInput';
@@ -30,7 +28,7 @@ import { Routes } from '/helpers/routes';
 import { theme } from '/styled/theme';
 import { withPatient } from '/containers/Patient';
 import { WithPatientStoreProps } from '/store/ducks/patient';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
 
 type TabNavigationConfig = {
   tabBarStyle: StyleProp<ViewStyle>;

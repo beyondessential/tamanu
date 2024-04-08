@@ -1,4 +1,4 @@
-// File is mirrored on the facility server (lan); if you change this, change the facility server too
+// File is mirrored on the facility server; if you change this, change the facility server too
 const INITIAL_LIMIT = 100;
 const MIN_LIMIT = 1;
 const MAX_LIMIT = 10000000;

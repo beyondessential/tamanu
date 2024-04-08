@@ -1,12 +1,12 @@
 import { debounce } from 'lodash';
-import React, { ReactElement, ReactNode, useCallback, useRef, useEffect, useState } from 'react';
+import React, { ReactElement, ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import {
-  Keyboard,
-  PanResponder,
-  EmitterSubscription,
   AppState,
-  NativeEventSubscription,
   AppStateStatus,
+  EmitterSubscription,
+  Keyboard,
+  NativeEventSubscription,
+  PanResponder,
 } from 'react-native';
 import { StyledView } from '~/ui/styled/common';
 import { useAuth } from '../../contexts/AuthContext';

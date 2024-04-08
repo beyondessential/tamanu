@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-var-requires*/
 const { device, expect, element, by, waitFor } = require('detox');
 const { signIn, signOut } = require('./helpers/auth');
 const {

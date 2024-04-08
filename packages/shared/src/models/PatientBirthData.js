@@ -9,7 +9,7 @@ import { buildPatientSyncFilterViaPatientId } from './buildPatientSyncFilterViaP
 import { onSaveMarkPatientForSync } from './onSaveMarkPatientForSync';
 
 export class PatientBirthData extends Model {
-  static init({ primaryKey, ...options }) {
+  static init(options) {
     super.init(
       {
         id: {

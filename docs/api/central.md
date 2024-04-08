@@ -5,7 +5,7 @@
 ### Login
 
 ```
-POST /v1/login
+POST /api/login
 ```
 
 Expects a JSON-formatted body containing `email` and `password` fields. 
@@ -28,7 +28,7 @@ Will respond with a payload containing an authentication token to be attached to
 ```
 
 ```
-GET /v1/whoami
+GET /api/whoami
 ```
 
 This is a utility route to verify a token. If the token is valid, this will respond with information about the currently logged-in user.
@@ -36,20 +36,20 @@ This is a utility route to verify a token. If the token is valid, this will resp
 ### Attachment
 
 ```
-GET /v1/attachment
+GET /api/attachment
 ```
 
 ## Sync routes
 
 ```
-POST /v1/sync/channels
+POST /api/sync/channels
 ```
 
 ```
-GET /v1/sync/:channelId
-POST /v1/sync/:channelId
+GET /api/sync/:channelId
+POST /api/sync/:channelId
 ```
 
 ```
-DELETE /v1/sync/:channelId/:recordId
+DELETE /api/sync/:channelId/:recordId
 ```

@@ -1,8 +1,8 @@
 import { Sequelize } from 'sequelize';
 import {
+  LOCATION_AVAILABILITY_STATUS,
   SYNC_DIRECTIONS,
   VISIBILITY_STATUSES,
-  LOCATION_AVAILABILITY_STATUS,
 } from '@tamanu/constants';
 import { InvalidOperationError } from '../errors';
 import { Model } from './Model';
@@ -113,7 +113,10 @@ export class Location extends Model {
     }
 
     const plannedEncounters = await Encounter.count({
-      where: { plannedLocationId: this.id, endDate: null },
+      where: {
+        plannedLocationId: this.id,
+        endDate: null,
+      },
     });
     if (plannedEncounters > 0) {
       return LOCATION_AVAILABILITY_STATUS.RESERVED;

@@ -1,4 +1,4 @@
-import { parse } from '../../src/utils/pgComposite/parse';
+import { parse } from '../../dist/cjs/utils/pgComposite/parse';
 
 describe('Composite parser', () => {
   it('should parse empty records', () => {

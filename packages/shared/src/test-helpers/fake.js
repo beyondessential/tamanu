@@ -1,33 +1,35 @@
-import { snakeCase } from 'lodash';
+import { isFunction, snakeCase } from 'lodash';
 import Chance from 'chance';
-import { DataTypes } from 'sequelize';
+import Sequelize, { DataTypes } from 'sequelize';
 import { inspect } from 'util';
 import { formatISO9075 } from 'date-fns';
 
 import {
+  CURRENTLY_AT_TYPES,
   DIAGNOSIS_CERTAINTY_VALUES,
   ENCOUNTER_TYPE_VALUES,
   IMAGING_REQUEST_STATUS_TYPES,
+  LAB_REQUEST_STATUSES,
   NOTE_TYPE_VALUES,
   PROGRAM_DATA_ELEMENT_TYPE_VALUES,
   REFERENCE_TYPE_VALUES,
+  REGISTRATION_STATUSES,
   VISIBILITY_STATUSES,
-  LAB_REQUEST_STATUSES,
 } from '@tamanu/constants';
-import { toDateTimeString, toDateString } from '../utils/dateTime';
+import { toDateString, toDateTimeString } from '../utils/dateTime';
 import { fakeUUID } from '../utils/generateId';
 import {
   FhirAddress,
   FhirAnnotation,
   FhirCodeableConcept,
   FhirContactPoint,
+  FhirExtension,
   FhirHumanName,
   FhirIdentifier,
-  FhirPatientLink,
-  FhirReference,
-  FhirExtension,
   FhirImmunizationPerformer,
   FhirImmunizationProtocolApplied,
+  FhirPatientLink,
+  FhirReference,
 } from '../services/fhirTypes';
 
 // this file is most commonly used within tests, but also outside them
@@ -341,17 +343,29 @@ const MODEL_SPECIFIC_OVERRIDES = {
       stillborn: chance.pickone(options),
     };
   },
+  PatientProgramRegistration: () => ({
+    registrationStatus: REGISTRATION_STATUSES.ACTIVE,
+  }),
   User: () => ({
     email: chance.email(),
     displayId: chance.hash({ length: 5 }),
     displayName: chance.name(),
     role: 'practitioner',
   }),
+  ReferenceData: () => ({
+    type: chance.pickone(REFERENCE_TYPE_VALUES),
+  }),
   Role: () => ({
     name: `${snakeCase(chance.profession())}_${chance.hash({ length: 8 })}`,
   }),
   Survey: () => ({
     isSensitive: false,
+  }),
+  SurveyScreenComponent: () => ({
+    calculation: null,
+    visibilityCriteria: null,
+    config: null,
+    options: null,
   }),
   Encounter: () => ({
     encounterType: chance.pickone(ENCOUNTER_TYPE_VALUES),
@@ -363,9 +377,13 @@ const MODEL_SPECIFIC_OVERRIDES = {
     // It will be fixed properly as part of EPI-160
     id: undefined,
     noteType: chance.pickone(NOTE_TYPE_VALUES),
+    revisedById: undefined,
   }),
   Location: () => ({
     maxOccupancy: 1,
+  }),
+  ProgramRegistry: () => ({
+    currentlyAtType: chance.pickone(Object.values(CURRENTLY_AT_TYPES)),
   }),
 };
 
@@ -479,7 +497,7 @@ export const fake = (model, passedOverrides = {}) => {
   const overrideFields = Object.keys(overrides);
 
   function fakeField(name, attribute) {
-    const { type, fieldName } = attribute;
+    const { type, fieldName, defaultValue } = attribute;
 
     if (overrideFields.includes(fieldName)) {
       return overrides[fieldName];
@@ -507,6 +525,13 @@ export const fake = (model, passedOverrides = {}) => {
       return Array(chance.integer({ min: 0, max: 3 }))
         .fill(0)
         .map(() => fakeField(name, { ...attribute, type: type.type }));
+    }
+
+    if (defaultValue) {
+      if (defaultValue instanceof Sequelize.NOW || defaultValue instanceof Sequelize.UUIDV4) {
+        return undefined;
+      }
+      return isFunction(defaultValue) ? defaultValue() : defaultValue;
     }
 
     if (FIELD_HANDLERS[type]) {

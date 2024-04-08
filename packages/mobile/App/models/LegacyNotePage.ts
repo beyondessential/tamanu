@@ -1,10 +1,10 @@
-import { Entity, Column, OneToMany } from 'typeorm/browser';
+import { Column, Entity, OneToMany } from 'typeorm/browser';
 
 import { getCurrentDateTimeString } from '~/ui/helpers/date';
 import { DateStringColumn } from './DateColumns';
 import { ISO9075_DATE_SQLITE_DEFAULT } from './columnDefaults';
 
-import { ID, ILegacyNoteItem, ILegacyNotePage, NoteRecordType, NoteType, DateString } from '~/types';
+import { DateString, ID, ILegacyNoteItem, ILegacyNotePage, NoteRecordType, NoteType } from '~/types';
 import { SYNC_DIRECTIONS } from './types';
 
 import { BaseModel } from './BaseModel';

@@ -24,6 +24,12 @@ export const VisitTypes = {
   VISIT: 'Visit',
 };
 
+export const PatientFromRoute = {
+  HOME: 'home',
+  RECENTLY_VIEWED: 'recentlyViewed',
+  ALL_PATIENT: 'allPatient',
+};
+
 export const HeaderIcons = {
   //TODO: find correct icons for each EncounterType
   [EncounterType.Clinic]: Icons.ClipboardIcon,
@@ -202,16 +208,6 @@ export const LabRequestStatus = {
   to_be_verified: 'To be verified',
   verified: 'Verified',
   published: 'published',
-};
-
-// also update /packages/lan/app/routes/apiv1/surveyResponse.js when this changes
-export const AutocompleteSourceToColumnMap = {
-  Department: 'name',
-  Facility: 'name',
-  Location: 'name',
-  LocationGroup: 'name',
-  ReferenceData: 'name',
-  User: 'displayName',
 };
 
 export const VitalsDataElements = {

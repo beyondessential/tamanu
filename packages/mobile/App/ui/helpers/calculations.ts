@@ -1,4 +1,4 @@
-import { create, all as allMath } from 'mathjs';
+import { all as allMath, create } from 'mathjs';
 import { ISurveyScreenComponent } from '~/types/ISurvey';
 
 // set up math context

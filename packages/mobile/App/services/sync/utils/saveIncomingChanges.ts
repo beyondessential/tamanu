@@ -5,7 +5,7 @@ import { SyncRecord } from '../types';
 import { sortInDependencyOrder } from './sortInDependencyOrder';
 import { SQLITE_MAX_PARAMETERS } from '../../../infra/db/helpers';
 import { buildFromSyncRecord } from './buildFromSyncRecord';
-import { executeInserts, executeUpdates, executeDeletes, executeRestores } from './executeCrud';
+import { executeDeletes, executeInserts, executeRestores, executeUpdates } from './executeCrud';
 import { MODELS_MAP } from '../../../models/modelsMap';
 import { BaseModel } from '../../../models/BaseModel';
 import { readFileInDocuments } from '../../../ui/helpers/file';
@@ -22,46 +22,39 @@ export const saveChangesForModel = async (
   model: typeof BaseModel,
   changes: SyncRecord[],
 ): Promise<void> => {
+  const idToIncomingRecord = Object.fromEntries(
+    changes.filter(c => c.data).map(e => [e.data.id, e]),
+  );
+
   // split changes into create, update, delete
   const recordsForUpsert = changes.filter(c => c.data).map(c => c.data);
   const idsForUpdate = new Set();
   const idsForRestore = new Set();
   const idsForDelete = new Set();
-  const idsToSkip = new Set();
 
   for (const incomingRecords of chunk(recordsForUpsert, SQLITE_MAX_PARAMETERS)) {
     const batchOfIds = incomingRecords.map(r => r.id);
+    // add all records that already exist in the db to the list to be updated
+    // even if they are being deleted or restored, we should also run an update query to keep the data in sync
     const batchOfExisting = await model.findByIds(batchOfIds, {
       select: ['id', 'deletedAt'],
       withDeleted: true,
     });
     batchOfExisting.forEach(existing => {
       // compares incoming and existing records by id
-      const incoming = changes.find(c => c.recordId === existing.id);
-      // don't do anything if incoming record is deleted and existing record is already deleted
+      const incoming = idToIncomingRecord[existing.id];
+      idsForUpdate.add(existing.id);
       if (existing.deletedAt && !incoming.isDeleted) {
         idsForRestore.add(existing.id);
       }
-      if (!existing.deletedAt && !incoming.isDeleted) {
-        idsForUpdate.add(existing.id);
-      }
       if (!existing.deletedAt && incoming.isDeleted) {
         idsForDelete.add(existing.id);
-      }
-      if (existing.deletedAt && incoming.isDeleted) {
-        idsToSkip.add(existing.id);
       }
     });
   }
 
   const recordsForCreate = changes
-    .filter(
-      c =>
-        !idsForUpdate.has(c.recordId) &&
-        !idsForRestore.has(c.recordId) &&
-        !idsForDelete.has(c.recordId) &&
-        !idsToSkip.has(c.recordId),
-    ) // not existing in db
+    .filter(c => !idsForUpdate.has(c.recordId)) // not existing in db
     .map(({ isDeleted, data }) => ({ ...buildFromSyncRecord(model, data), isDeleted }));
 
   const recordsForUpdate = changes

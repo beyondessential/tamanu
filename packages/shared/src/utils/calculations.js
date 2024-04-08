@@ -1,4 +1,4 @@
-import { create, all as allMath } from 'mathjs';
+import { all as allMath, create } from 'mathjs';
 
 // set up math context
 const math = create(allMath);

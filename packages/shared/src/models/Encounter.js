@@ -2,11 +2,11 @@ import { Sequelize } from 'sequelize';
 import { endOfDay, isBefore, parseISO, startOfToday } from 'date-fns';
 
 import {
-  ENCOUNTER_TYPES,
   ENCOUNTER_TYPE_VALUES,
+  ENCOUNTER_TYPES,
+  EncounterChangeType,
   NOTE_TYPES,
   SYNC_DIRECTIONS,
-  EncounterChangeType,
 } from '@tamanu/constants';
 import { InvalidOperationError } from '../errors';
 import { dateTimeType } from './dateTimeTypes';
@@ -63,6 +63,60 @@ export class Encounter extends Model {
         ...options,
         validate,
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
+        hooks: {
+          async beforeDestroy(encounter) {
+            // Sequelize is going to work on cascade for paranoid table in the future.
+            // There is an open issue for this: https://github.com/sequelize/sequelize/issues/2586
+            const [
+              vitals,
+              notes,
+              procedures,
+              labRequests,
+              imagingRequests,
+              medications,
+              surveyResponses,
+              documents,
+              invoices,
+              initiatedReferrals,
+              completedReferrals,
+              encounterHistories,
+            ] = await Promise.all([
+              encounter.getVitals(),
+              encounter.getNotes(),
+              encounter.getProcedures(),
+              encounter.getLabRequests(),
+              encounter.getImagingRequests(),
+              encounter.getMedications(),
+              encounter.getSurveyResponses(),
+              encounter.getDocuments(),
+              encounter.getInvoice(),
+              encounter.getInitiatedReferrals(),
+              encounter.getCompletedReferrals(),
+              encounter.getEncounterHistories(),
+            ]);
+
+            await Promise.all(
+              [
+                vitals,
+                notes,
+                procedures,
+                labRequests,
+                imagingRequests,
+                medications,
+                surveyResponses,
+                documents,
+                invoices,
+                initiatedReferrals,
+                completedReferrals,
+                encounterHistories,
+              ].map(async records => {
+                if (records && Array.isArray(records)) {
+                  await Promise.all(records.map(record => record.destroy()));
+                }
+              }),
+            );
+          },
+        },
       },
     );
     onSaveMarkPatientForSync(this);
@@ -167,6 +221,7 @@ export class Encounter extends Model {
     this.hasMany(models.Vitals, {
       foreignKey: 'encounterId',
       as: 'vitals',
+      onDelete: 'CASCADE',
     });
 
     this.hasMany(models.Triage, {
@@ -182,6 +237,11 @@ export class Encounter extends Model {
     this.hasMany(models.DocumentMetadata, {
       foreignKey: 'encounterId',
       as: 'documents',
+    });
+
+    this.hasMany(models.EncounterHistory, {
+      foreignKey: 'encounterId',
+      as: 'encounterHistories',
     });
 
     this.belongsTo(models.ReferenceData, {
@@ -201,6 +261,11 @@ export class Encounter extends Model {
       scope: {
         recordType: this.name,
       },
+    });
+
+    this.hasMany(models.EncounterHistory, {
+      foreignKey: 'encounterId',
+      as: 'encounterHistory',
     });
 
     // this.hasMany(models.Procedure);
@@ -224,8 +289,9 @@ export class Encounter extends Model {
           SELECT e.id, max(lr.updated_at_sync_tick) as lr_updated_at_sync_tick
           FROM encounters e
           INNER JOIN lab_requests lr ON lr.encounter_id = e.id
-          WHERE e.updated_at_sync_tick > :since
-          OR lr.updated_at_sync_tick > :since
+          WHERE (e.updated_at_sync_tick > :since OR lr.updated_at_sync_tick > :since)
+          AND lr.deleted_at IS NULL
+          AND e.deleted_at IS NULL
           ${
             patientIds.length > 0
               ? 'AND e.patient_id NOT IN (:patientIds) -- no need to sync if it would be synced anyway'
@@ -529,7 +595,7 @@ export class Encounter extends Model {
         await EncounterHistory.createSnapshot(updatedEncounter, {
           actorId: user?.id,
           changeType,
-          submittedTime: data.submittedTime,
+          submittedTime,
         });
       }
 

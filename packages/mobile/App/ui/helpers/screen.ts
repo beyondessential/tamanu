@@ -2,7 +2,7 @@ import {
   heightPercentageToDP,
   widthPercentageToDP,
 } from 'react-native-responsive-screen';
-import { Dimensions, StatusBar, Platform } from 'react-native';
+import { Dimensions, Platform, StatusBar } from 'react-native';
 import { VerticalPosition } from '/interfaces/VerticalPosition';
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback } from 'react';
@@ -18,7 +18,7 @@ export const dropdownSize = {
 export enum SCREEN_ORIENTATION {
   PORTRAIT = 'portrait',
   LANDSCAPE = 'landscape',
-};
+}
 
 export enum Orientation {
   Width = 'width',
@@ -63,7 +63,7 @@ export const calculateVerticalPositions = (
   ).pos;
 
 export const calculateDropdownPosition = (
-  placeholderPosition: number, 
+  placeholderPosition: number,
   dataLength: number
 ): number => {
   const dropdownHeight = dataLength * dropdownSize.itemHeight + dropdownSize.padding

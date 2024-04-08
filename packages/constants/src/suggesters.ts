@@ -19,5 +19,7 @@ export const SUGGESTER_ENDPOINTS = [
   'patientLabTestPanelTypes',
   'patientLetterTemplate',
   'practitioner',
+  'programRegistry',
+  'programRegistryClinicalStatus',
   'survey',
 ];

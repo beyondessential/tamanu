@@ -1,12 +1,12 @@
-import React, { FunctionComponent, useCallback, useState, ReactElement, useEffect } from 'react';
+import React, { FunctionComponent, ReactElement, useCallback, useEffect, useState } from 'react';
 import * as Yup from 'yup';
-import { KeyboardAvoidingView, StatusBar } from 'react-native';
+import { StatusBar } from 'react-native';
 import {
-  StyledView,
-  StyledSafeAreaView,
   FullView,
-  StyledTouchableOpacity,
+  StyledSafeAreaView,
   StyledText,
+  StyledTouchableOpacity,
+  StyledView,
 } from '/styled/common';
 import { HomeBottomLogoIcon } from '/components/Icons';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
@@ -57,7 +57,7 @@ export const SelectFacilityForm = ({ onSubmitForm }) => {
   }, []);
 
   const onSubmit = useCallback(
-    async ({ facilityId, ...extras }) => {
+    async ({ facilityId }) => {
       const selected = facilityOptions.find(x => x.value === facilityId);
       if (selected) {
         onSubmitForm({ facilityId, facilityName: selected.label });
