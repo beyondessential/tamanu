@@ -1,5 +1,5 @@
 import config, { IConfig } from 'config';
-import { ReadSettings } from 'reader';
+import { ReadSettings } from '../reader';
 
 export async function buildSettingsReader(req, _res, next) {
   try {
