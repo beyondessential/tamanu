@@ -60,7 +60,7 @@ describe('Audit log', () => {
       objectId: undefined,
     });
     expect(log.annotations).toMatchObject({
-      forbiddenReason: 'No permission to perform action "create" on PatientAllergy.',
+      forbiddenReason: 'No permission to perform action "create" on "PatientAllergy".',
     });
   });
 
