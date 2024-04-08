@@ -35,7 +35,11 @@ export class Setting extends Model {
           allowNull: false,
         },
         value: Sequelize.JSONB,
-        scope: Sequelize.STRING,
+        scope: {
+          type: Sequelize.TEXT,
+          allowNull: false,
+          defaultValue: SETTINGS_SCOPES.GLOBAL,
+        },
       },
       {
         ...options,

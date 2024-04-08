@@ -3,7 +3,7 @@ import { SETTINGS_SCOPES } from '@tamanu/constants/settings';
 
 export async function up(query) {
   await query.addColumn('settings', 'scope', {
-    type: DataTypes.STRING,
+    type: DataTypes.TEXT,
     allowNull: false,
     defaultValue: SETTINGS_SCOPES.GLOBAL,
   });
