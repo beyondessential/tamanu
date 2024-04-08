@@ -194,7 +194,7 @@ export const LoginView = () => {
         </LoginFormContainer>
         {isSupportUrlLoaded && (
           <SupportDesktopLink href={supportUrl} target="_blank" rel="noreferrer">
-            <TranslatedText stringId="login.supportCentreLink" fallback="Support centre" />
+            <TranslatedText stringId="externalLink.supportCentre" fallback="Support centre" />
             <Launch style={{ marginLeft: '3px', fontSize: '12px' }} />
           </SupportDesktopLink>
         )}
