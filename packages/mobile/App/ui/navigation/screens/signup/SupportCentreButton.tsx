@@ -1,6 +1,7 @@
 import React from 'react';
 import { Linking } from 'react-native';
 import { LaunchIcon } from '~/ui/components/Icons';
+import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { RowView, StyledText, StyledTouchableOpacity } from '~/ui/styled/common';
 import { theme } from '~/ui/styled/theme';
@@ -18,7 +19,7 @@ export const SupportCentreButton = ({ supportCentreUrl }: SupportCentreButtonPro
           color={theme.colors.WHITE}
           textDecorationLine="underline"
         >
-          Support centre
+          <TranslatedText stringId="externalLink.supportCentre" fallback="Support centre" />
         </StyledText>
         <LaunchIcon
           size={screenPercentageToDP('1.57', Orientation.Height)}
