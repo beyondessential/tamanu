@@ -1,13 +1,7 @@
 import { hash } from 'bcrypt';
 import { Sequelize } from 'sequelize';
 
-import {
-  SYNC_DIRECTIONS,
-  SYSTEM_USER_UUID,
-  VISIBILITY_STATUSES,
-  USER_DEACTIVATED_ERROR_MESSAGE,
-} from '@tamanu/constants';
-import { ForbiddenError } from '@tamanu/shared/errors';
+import { SYNC_DIRECTIONS, SYSTEM_USER_UUID, VISIBILITY_STATUSES } from '@tamanu/constants';
 
 import { Model } from './Model';
 
@@ -64,11 +58,14 @@ export class User extends Model {
   static async getForAuthByEmail(email) {
     // gets the user, as a plain object, with password hash, for use in auth
     const user = await this.scope('withPassword').findOne({
-      // email addresses are case insensitive so compare them as such
-      where: Sequelize.where(
-        Sequelize.fn('lower', Sequelize.col('email')),
-        Sequelize.fn('lower', email),
-      ),
+      where: {
+        // email addresses are case insensitive so compare them as such
+        email: Sequelize.where(
+          Sequelize.fn('lower', Sequelize.col('email')),
+          Sequelize.fn('lower', email),
+        ),
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+      },
     });
 
     if (!user) {
