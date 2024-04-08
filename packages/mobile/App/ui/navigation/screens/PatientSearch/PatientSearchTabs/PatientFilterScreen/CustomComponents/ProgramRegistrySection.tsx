@@ -25,10 +25,10 @@ export const ProgramRegistrySection = (): ReactElement => {
 
   const [programRegistries, programRegistryError, isProgramRegistryLoading] = useBackendEffect(
     async ({ models }) => {
-      const rawData = models.ProgramRegistry.getAllProgramRegistries();
-      return (await rawData).map(programRegistry => ({
-        label: programRegistry.name,
-        value: programRegistry.id,
+      const rawData = await models.ProgramRegistry.getAllProgramRegistries();
+      return rawData.map(({ name, id }) => ({
+        label: name,
+        value: id,
       }));
     },
     [],
@@ -36,21 +36,31 @@ export const ProgramRegistrySection = (): ReactElement => {
 
   if (isProgramRegistryLoading || programRegistryError) return;
 
-  const isRegistryCountExceedsThreshold = programRegistries.length > REGISTRY_COUNT_THRESHOLD;
+  const doesRegistryCountExceedThreshold = programRegistries.length > REGISTRY_COUNT_THRESHOLD;
 
   return (
     <StyledView marginLeft={20} marginRight={20}>
-      <LocalisedField
-        localisationPath="fields.programRegistry"
-        labelFontSize={14}
-        component={isRegistryCountExceedsThreshold ? AutocompleteModalField : Dropdown}
-        options={isRegistryCountExceedsThreshold ? null : programRegistries}
-        placeholder={isRegistryCountExceedsThreshold ? `Search` : null}
-        selectPlaceholderText={isRegistryCountExceedsThreshold ? null : `Select`}
-        suggester={isRegistryCountExceedsThreshold ? ProgramRegistrySuggester : null}
-        navigation={navigation}
-        name="programRegistryId"
-      />
+      {doesRegistryCountExceedThreshold ? (
+        <LocalisedField
+          localisationPath="fields.programRegistry"
+          labelFontSize={14}
+          component={AutocompleteModalField}
+          placeholder={`Search`}
+          suggester={ProgramRegistrySuggester}
+          navigation={navigation}
+          name="programRegistryId"
+        />
+      ) : (
+        <LocalisedField
+          localisationPath="fields.programRegistry"
+          labelFontSize={14}
+          component={Dropdown}
+          options={programRegistries}
+          selectPlaceholderText={`Select`}
+          navigation={navigation}
+          name="programRegistryId"
+        />
+      )}
     </StyledView>
   );
 };

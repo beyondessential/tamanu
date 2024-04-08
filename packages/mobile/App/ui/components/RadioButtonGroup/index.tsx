@@ -14,7 +14,8 @@ export interface RadioButtonGroupProps {
   label?: string;
   required?: boolean;
   CustomComponent?: FC<any>;
-  labelFontSize?: string;
+  labelFontSize?: string | number;
+  componentWidth?: string;
 }
 
 export const RadioButtonGroup = ({
@@ -26,6 +27,7 @@ export const RadioButtonGroup = ({
   required = false,
   CustomComponent,
   labelFontSize,
+  componentWidth,
 }: RadioButtonGroupProps): JSX.Element => {
   const RadioComponent = CustomComponent || RadioButton;
 
@@ -52,7 +54,7 @@ export const RadioButtonGroup = ({
             selected={option.value === value}
             error={error}
             onPress={onChange}
-            width={option.width}
+            width={componentWidth}
           />
         ))}
       </RowView>

@@ -10,12 +10,11 @@ import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 const buttonWidth = screenPercentageToDP(26, Orientation.Width);
 
 const options = [
-  { ...MaleGender, width: buttonWidth },
-  { ...FemaleGender, width: buttonWidth },
+  MaleGender,
+  FemaleGender,
   {
     label: 'All',
     value: 'all',
-    width: buttonWidth,
   },
 ];
 
@@ -27,6 +26,7 @@ export const SexSection = (): ReactElement => (
       name="sex"
       options={options}
       labelFontSize={14}
+      componentWidth={buttonWidth}
     />
   </StyledView>
 );
