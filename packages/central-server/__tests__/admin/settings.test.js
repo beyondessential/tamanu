@@ -1,6 +1,7 @@
 import { SETTINGS_SCOPES } from '@tamanu/constants';
 import { fake, chance } from '@tamanu/shared/test-helpers/fake';
 import { createTestContext } from '../utilities';
+import { settingsCache } from '@tamanu/settings';
 
 function generateRandomObject(depth = 1, maxDepth = 3) {
   // Settings values can be either booleans, integers, strings, objects or arrays
@@ -25,7 +26,7 @@ function generateRandomObject(depth = 1, maxDepth = 3) {
   return object;
 }
 
-describe('Settings Editor', () => {
+describe('Settings Admin', () => {
   let ctx;
   let models;
   let baseApp;
@@ -190,5 +191,19 @@ describe('Settings Editor', () => {
     });
 
     expect(endpointResponse.body).toEqual(plainFacilityList);
+  });
+  it('Calling delete cache should reset the cache', async () => {
+    settingsCache.setAllSettings({ dog: 'woof' });
+    settingsCache.setFrontEndSettings({ cat: 'meow' });
+    const res = await adminApp.delete('/v1/admin/settings/cache');
+    expect(res).toHaveSucceeded();
+    expect(res.status).toEqual(204);
+    expect(settingsCache).toEqual(
+      expect.objectContaining({
+        allSettingsCache: null,
+        frontEndSettingsCache: null,
+        expirationTimestamp: null,
+      }),
+    );
   });
 });
