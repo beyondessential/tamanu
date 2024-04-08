@@ -5,7 +5,7 @@ import express from 'express';
 
 import { SERVER_TYPES } from '@tamanu/constants';
 import { getLoggingMiddleware } from '@tamanu/shared/services/logging';
-import { buildSettingsReader } from '@tamanu/shared/settings/middleware';
+import { buildSettingsReader } from '@tamanu/settings/middleware';
 import { getAuditMiddleware } from './middleware/auditLog';
 
 import routes from './routes';

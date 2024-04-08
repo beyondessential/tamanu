@@ -18,7 +18,7 @@ import { versionCompatibility } from './middleware/versionCompatibility';
 import { version } from './serverInfo';
 import { translationRoutes } from './translation';
 
-import { buildSettingsReader } from '@tamanu/shared/settings/middleware';
+import { buildSettingsReader } from '@tamanu/settings/middleware';
 
 function api(ctx) {
   const apiRoutes = express.Router();
