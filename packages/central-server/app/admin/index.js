@@ -3,6 +3,7 @@ import asyncHandler from 'express-async-handler';
 
 import { ForbiddenError, NotFoundError } from '@tamanu/shared/errors';
 import { constructPermission } from '@tamanu/shared/permissions/middleware';
+import { settingsCache } from '@tamanu/settings';
 import { createDataImporterEndpoint } from './importerEndpoint';
 
 import { programImporter } from './programImporter';
@@ -105,6 +106,14 @@ adminRoutes.put(
     const { Setting } = req.store.models;
     await Setting.set('', req.body.settings, req.body.scope, req.body.facilityId);
     res.json({ code: 200 });
+  }),
+);
+
+adminRoutes.delete(
+  '/settings/cache',
+  asyncHandler(async (_req, res) => {
+    settingsCache.reset();
+    res.status(204).send();
   }),
 );
 
