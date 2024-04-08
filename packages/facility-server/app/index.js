@@ -9,7 +9,9 @@ import {
   migrateAppointmentsToLocationGroupsCommand,
   migrateCommand,
   reportCommand,
-  serveCommand,
+  startAllCommand,
+  startApiCommand,
+  startTasksCommand,
   syncCommand,
 } from './subCommands';
 
@@ -19,7 +21,9 @@ async function run() {
     .description('Tamanu Facility server')
     .name('node dist');
 
-  program.addCommand(serveCommand, { isDefault: true });
+  program.addCommand(startAllCommand, { isDefault: true });
+  program.addCommand(startApiCommand);
+  program.addCommand(startTasksCommand);
   program.addCommand(reportCommand);
   program.addCommand(syncCommand);
   program.addCommand(migrateCommand);

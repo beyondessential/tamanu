@@ -12,6 +12,7 @@ import {
   IUser,
   SurveyScreenValidationCriteria,
 } from '~/types';
+import { IPatientProgramRegistration } from '~/types/IPatientProgramRegistration';
 
 function getInitialValue(dataElement): string {
   switch (dataElement.type) {
@@ -28,6 +29,7 @@ function getInitialValue(dataElement): string {
 function transformPatientData(
   patient: IPatient,
   additionalData: IPatientAdditionalData | null,
+  patientProgramRegistration: IPatientProgramRegistration | null,
   config,
 ): string | undefined | null {
   const { column = 'fullName' } = config;
@@ -48,8 +50,7 @@ function transformPatientData(
         case 'PatientAdditionalData':
           return additionalData ? additionalData[fieldName] : undefined;
         case 'PatientProgramRegistration':
-          // PatientProgramRegistrations are not implemented on mobile yet
-          return undefined;
+          return patientProgramRegistration ? patientProgramRegistration[fieldName] : undefined;
         default:
           return undefined;
       }
@@ -62,6 +63,7 @@ export function getFormInitialValues(
   currentUser: IUser,
   patient: IPatient,
   patientAdditionalData: IPatientAdditionalData,
+  patientProgramRegistration: IPatientProgramRegistration,
 ): { [key: string]: any } {
   const initialValues = components.reduce<{ [key: string]: any }>((acc, { dataElement }) => {
     const initialValue = getInitialValue(dataElement);
@@ -87,7 +89,12 @@ export function getFormInitialValues(
 
     // patient data
     if (component.dataElement.type === 'PatientData') {
-      const patientValue = transformPatientData(patient, patientAdditionalData, config);
+      const patientValue = transformPatientData(
+        patient,
+        patientAdditionalData,
+        patientProgramRegistration,
+        config,
+      );
       if (patientValue !== undefined) initialValues[component.dataElement.code] = patientValue;
     }
   }

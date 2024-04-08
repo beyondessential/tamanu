@@ -3,8 +3,6 @@ import QRCode from 'qrcode';
 import { createDummyPatient, createDummyPatientAdditionalData } from '@tamanu/shared/demoData';
 import { CovidLabCertificate as Component } from '@tamanu/shared/utils/patientCertificates';
 import { PDFViewer } from '@react-pdf/renderer';
-import { PatientLetter } from '@tamanu/shared/utils/patientLetters/PatientLetter';
-import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import SigningImage from '../assets/signing-image.png';
 import Watermark from '../assets/watermark.png';
 import Logo from '../assets/tamanu-logo.png';
@@ -74,8 +72,6 @@ const vdsData = {
       'MEUCID6xG4DJpb3wQyHSRwTCVBdUP5YA4noGkTtinl4sSDO6AiEAhQfb36wrFDhVh6uFLph2siKJtothMIz0DebzZIR7nZU',
   },
 };
-
-const vds = () => QRCode.toDataURL(vdsData);
 
 const getLocalisation = key => {
   const config = {

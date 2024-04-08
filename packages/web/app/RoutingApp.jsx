@@ -17,7 +17,7 @@ import {
   PatientsRoutes,
   ProgramRegistryRoutes,
 } from './routes';
-import { FACILITY_MENU_ITEMS, Sidebar, SYNC_MENU_ITEMS } from './components/Sidebar';
+import { Sidebar, SYNC_MENU_ITEMS, useFacilitySidebar } from './components/Sidebar';
 import { UserActivityMonitor } from './components/UserActivityMonitor';
 
 export const RoutingApp = () => {
@@ -25,23 +25,26 @@ export const RoutingApp = () => {
   return isSyncServer ? <RoutingAdminApp /> : <RoutingFacilityApp />;
 };
 
-export const RoutingFacilityApp = React.memo(() => (
-  <App sidebar={<Sidebar items={FACILITY_MENU_ITEMS} />}>
-    <UserActivityMonitor />
-    <Switch>
-      <Redirect exact path="/" to="/patients/all" />
-      <Route path="/patients" component={PatientsRoutes} />
-      <Route path="/appointments" component={AppointmentRoutes} />
-      <Route path="/imaging-requests" component={ImagingRoutes} />
-      <Route path="/lab-requests" component={LabsRoutes} />
-      <Route path="/medication-requests" component={MedicationRoutes} />
-      <Route path="/invoices" component={BillingRoutes} />
-      <Route path="/program-registry" component={ProgramRegistryRoutes} />
-      <Route path="/immunisations" component={ImmunisationRoutes} />
-      <Route path="/facility-admin" component={FacilityAdminRoutes} />
-    </Switch>
-  </App>
-));
+export const RoutingFacilityApp = React.memo(() => {
+  const sidebarMenuItems = useFacilitySidebar();
+  return (
+    <App sidebar={<Sidebar items={sidebarMenuItems} />}>
+      <UserActivityMonitor />
+      <Switch>
+        <Redirect exact path="/" to="/patients/all" />
+        <Route path="/patients" component={PatientsRoutes} />
+        <Route path="/appointments" component={AppointmentRoutes} />
+        <Route path="/imaging-requests" component={ImagingRoutes} />
+        <Route path="/lab-requests" component={LabsRoutes} />
+        <Route path="/medication-requests" component={MedicationRoutes} />
+        <Route path="/invoices" component={BillingRoutes} />
+        <Route path="/program-registry" component={ProgramRegistryRoutes} />
+        <Route path="/immunisations" component={ImmunisationRoutes} />
+        <Route path="/facility-admin" component={FacilityAdminRoutes} />
+      </Switch>
+    </App>
+  );
+});
 
 export const RoutingAdminApp = React.memo(() => (
   <App sidebar={<Sidebar items={SYNC_MENU_ITEMS} />}>

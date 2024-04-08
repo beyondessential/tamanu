@@ -9,10 +9,11 @@ import { PrescriptionPrintout } from '@tamanu/shared/utils/patientCertificates';
 import { useLocalisation } from '../../../contexts/Localisation';
 import { PDFViewer, printPDF } from '../PDFViewer';
 import { useAuth } from '../../../contexts/Auth';
+import { TranslatedText } from '../../Translation/TranslatedText';
 
 export const PrintPrescriptionModal = ({ medication, open, onClose }) => {
   const { getLocalisation } = useLocalisation();
-  const certificateData = useCertificate();
+  const { data: certificateData, isFetching: isFetchingCertificate } = useCertificate();
   const api = useApi();
   const [encounter, setEncounter] = useState({});
   const [patient, setPatient] = useState({});
@@ -81,21 +82,25 @@ export const PrintPrescriptionModal = ({ medication, open, onClose }) => {
     })();
   }, [api, medication.prescriberId]);
 
+  const isLoading =
+    encounterLoading ||
+    patientLoading ||
+    additionalDataLoading ||
+    villageLoading ||
+    prescriberLoading ||
+    isFetchingCertificate;
+
   return (
     <>
       <Modal
-        title="Prescription"
+        title={<TranslatedText stringId="medication.modal.print.title" fallback="Prescription" />}
         open={open}
         onClose={onClose}
         width="md"
         printable
         onPrint={() => printPDF('prescription-printout')}
       >
-        {encounterLoading ||
-        patientLoading ||
-        additionalDataLoading ||
-        villageLoading ||
-        prescriberLoading ? (
+        {isLoading ? (
           <LoadingIndicator />
         ) : (
           <PDFViewer id="prescription-printout">

@@ -1,7 +1,7 @@
 import { Op } from 'sequelize';
 import { format } from '@tamanu/shared/utils/dateTime';
 
-import { INJECTION_SITE_OPTIONS, VACCINE_STATUS } from '@tamanu/constants';
+import { INJECTION_SITE_VALUES, VACCINE_STATUS } from '@tamanu/constants';
 import { parseHL7Reference } from './utils';
 
 // These are the only ones that we support at the moment,
@@ -10,7 +10,7 @@ const HL7_INJECTION_SITE_URL = 'http://terminology.hl7.org/CodeSystem/v3-ActSite
 const AIRV_TERMINOLOGY_URL =
   'https://www.healthterminologies.gov.au/integration/R4/fhir/ValueSet/australian-immunisation-register-vaccine-1';
 
-function administeredVaccineStatusToHL7Status(status) {
+export function administeredVaccineStatusToHL7Status(status) {
   switch (status) {
     case VACCINE_STATUS.GIVEN:
       return 'completed';
@@ -60,10 +60,10 @@ function vaccineIdToAIRVCode(scheduledVaccine) {
 
 // Dictionary that maps Tamanu injection site to HL7 code
 const INJECTION_SITE_TO_HL7_CODE = {
-  [INJECTION_SITE_OPTIONS.RIGHT_ARM]: 'RA',
-  [INJECTION_SITE_OPTIONS.LEFT_ARM]: 'LA',
-  [INJECTION_SITE_OPTIONS.RIGHT_THIGH]: 'RT',
-  [INJECTION_SITE_OPTIONS.LEFT_THIGH]: 'LT',
+  [INJECTION_SITE_VALUES.RIGHT_ARM]: 'RA',
+  [INJECTION_SITE_VALUES.LEFT_ARM]: 'LA',
+  [INJECTION_SITE_VALUES.RIGHT_THIGH]: 'RT',
+  [INJECTION_SITE_VALUES.LEFT_THIGH]: 'LT',
 };
 
 // Returns a reference data ID or an unmatchable string

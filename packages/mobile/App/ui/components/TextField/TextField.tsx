@@ -8,6 +8,7 @@ import { BaseInputProps } from '../../interfaces/BaseInputProps';
 import { TextFieldErrorMessage } from './TextFieldErrorMessage';
 import { theme } from '~/ui/styled/theme';
 import { RequiredIndicator } from '../RequiredIndicator';
+import { TranslatedTextElement } from '../Translations/TranslatedText';
 
 export interface RefObject<T> {
   readonly current: T | null;
@@ -18,7 +19,7 @@ export interface TextFieldProps extends BaseInputProps {
   onChange: (text: string) => void;
   isOpen?: boolean;
   keyboardType?: KeyboardType;
-  placeholder?: '' | string;
+  placeholder?: TranslatedTextElement;
   multiline?: boolean;
   disabled?: boolean;
   secure?: boolean;
@@ -33,6 +34,7 @@ export interface TextFieldProps extends BaseInputProps {
   blurOnSubmit?: boolean;
   inputRef?: RefObject<TextInput>;
   onSubmitEditing?: () => void;
+  label?: TranslatedTextElement
   labelColor?: string;
   labelFontWeight?: string;
   labelFontSize?: string;
@@ -116,7 +118,7 @@ export const TextField = React.memo(
             focused={focused}
             hasValue={value?.length > 0}
             error={error}
-            testID={label}
+            testID={label?.props?.fallback || label}
             value={!hideValue && value}
             height={inputHeight}
             ref={ref}
@@ -124,7 +126,7 @@ export const TextField = React.memo(
             autoFocus={autoFocus}
             returnKeyType={returnKeyType}
             autoCorrect={hints}
-            accessibilityLabel={label}
+            accessibilityLabel={label?.props?.fallback || label}
             keyboardType={keyboardType}
             onChangeText={onChange}
             onFocus={onFocusInput}
@@ -133,7 +135,7 @@ export const TextField = React.memo(
             editable={!disabled}
             style={multiline ? styles.multiLineText : styles.singleLineText}
             secureTextEntry={secure}
-            placeholder={placeholder}
+            placeholder={placeholder?.props?.fallback || placeholder}
             blurOnSubmit={blurOnSubmit !== undefined ? blurOnSubmit : !multiline}
             maxLength={charLimit}
             onSubmitEditing={onSubmitEditing}

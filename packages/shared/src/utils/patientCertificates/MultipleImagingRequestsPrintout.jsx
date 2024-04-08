@@ -61,6 +61,8 @@ const getAreaNote = ({ areas, areaNote }) => {
     return areas.map(area => area.name).join(',');
   }
   if (areaNote) {
+    // there's no sensible way to key this except by array index
+    // eslint-disable-next-line react/no-array-index-key
     return areaNote;
   }
   return '';
@@ -127,7 +129,7 @@ export const MultipleImagingRequestsPrintout = React.memo(
           <MultiPageHeader
             documentName="Imaging request"
             patientName={getName(patient)}
-            patiendId={patient.displayId}
+            patientId={patient.displayId}
           />
           <CertificateHeader>
             <LetterheadSection

@@ -18,6 +18,7 @@ asset.get(
         name,
       },
     });
-    res.send(assetRecord);
+
+    res.send(assetRecord || {});
   }),
 );

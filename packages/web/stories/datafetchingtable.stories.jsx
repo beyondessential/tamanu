@@ -34,12 +34,6 @@ const dummyColumns = [
   { key: 'age', title: 'Age' },
 ];
 
-function sleep(milliseconds) {
-  return new Promise(resolve => {
-    setTimeout(resolve, milliseconds);
-  });
-}
-
 const dummyApi = {
   get: async (endpoint, { order, orderBy, page, rowsPerPage }) => {
     const sortedData = dummyData.sort(({ [orderBy]: a }, { [orderBy]: b }) => {

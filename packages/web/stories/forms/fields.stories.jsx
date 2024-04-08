@@ -66,7 +66,10 @@ class StoryControlWrapper extends React.PureComponent {
       <Container>
         <Component {...props} value={value} onChange={this.onChange} />
         {clearButton && (
-          <Button onClick={() => this.setState({ value: '' })}> Clear Field (value = &ldquo;&rdquo;) </Button>
+          <Button onClick={() => this.setState({ value: '' })}>
+            {' '}
+            Clear Field (value = &ldquo;&rdquo;){' '}
+          </Button>
         )}
       </Container>
     );
@@ -135,11 +138,15 @@ const TAGGED_FRUITS = [
 
 const dummyTaggedSuggester = {
   fetchSuggestions: async search => {
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise(resolve => {
+      setTimeout(resolve, 1000);
+    });
     return TAGGED_FRUITS.filter(x => x.label.toLowerCase().includes(search.toLowerCase()));
   },
   fetchCurrentOption: async value => {
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise(resolve => {
+      setTimeout(resolve, 1000);
+    });
     return TAGGED_FRUITS.find(x => x.value === value);
   },
 };
@@ -236,11 +243,15 @@ addStories('MultiselectInput', props => (
 
 const dummySuggester = {
   fetchSuggestions: async search => {
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise(resolve => {
+      setTimeout(resolve, 1000);
+    });
     return FRUITS.filter(x => x.label.toLowerCase().includes(search.toLowerCase()));
   },
   fetchCurrentOption: async value => {
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise(resolve => {
+      setTimeout(resolve, 1000);
+    });
     return FRUITS.find(x => x.value === value);
   },
 };

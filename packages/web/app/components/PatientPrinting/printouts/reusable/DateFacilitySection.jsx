@@ -7,6 +7,7 @@ import { getFullLocationName } from '../../../../utils/location';
 import { DateDisplay } from '../../../DateDisplay';
 
 import { CertificateLabel, LocalisedCertificateLabel } from './CertificateLabels';
+import { TranslatedText } from '../../../Translation/TranslatedText';
 
 const RowContainer = styled.div`
   display: flex;
@@ -38,10 +39,23 @@ export const DateFacilitySection = ({ encounter }) => {
         </Label>
       </Item>
       <Item>
-        <LocalisedLabel name="facility">{encounter?.location?.facility?.name}</LocalisedLabel>
+        <LocalisedLabel
+          label={
+            <TranslatedText stringId="general.localisedField.facility.label" fallback="Facility" />
+          }
+        >
+          {encounter?.location?.facility?.name}
+        </LocalisedLabel>
       </Item>
       <Item>
-        <LocalisedLabel name="locationId">
+        <LocalisedLabel
+          label={
+            <TranslatedText
+              stringId="general.localisedField.locationId.label"
+              fallback="Location"
+            />
+          }
+        >
           {getFullLocationName(encounter?.location)}
         </LocalisedLabel>
       </Item>

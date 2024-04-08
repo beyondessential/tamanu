@@ -258,6 +258,16 @@ describe('Patient', () => {
       ]);
     });
 
+    it('should prevent IPS generation from user with insufficient permissions', async () => {
+      const noPermsApp = await baseApp.asRole('base');
+
+      const result = await noPermsApp.post(`/v1/patient/${patient.id}/ipsRequest`).send({
+        email: 'test@test.com',
+      });
+
+      expect(result).toBeForbidden();
+    });
+
     test.todo('should create a new patient as a new birth');
 
     test.todo('should add a new condition');

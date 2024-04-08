@@ -8,6 +8,7 @@ import { useEncounter } from '../../contexts/Encounter';
 import { Colors } from '../../constants';
 import { useCertificate } from '../../utils/useCertificate';
 import { useLocalisation } from '../../contexts/Localisation';
+import { useTranslation } from '../../contexts/Translation';
 import {
   usePatientAdditionalDataQuery,
   useReferenceData,
@@ -32,8 +33,9 @@ const NavContainer = styled.div`
 `;
 
 export const DischargeSummaryView = React.memo(() => {
-  const certiciateData = useCertificate();
+  const { data: certiciateData, isFetching: isCertificateFetching } = useCertificate();
   const { getLocalisation } = useLocalisation();
+  const { getTranslation } = useTranslation();
   const { encounter } = useEncounter();
   const patient = useSelector(state => state.patient);
   const { data: additionalData, isFetching: isPADLoading } = usePatientAdditionalDataQuery(
@@ -50,7 +52,8 @@ export const DischargeSummaryView = React.memo(() => {
     return <Redirect to="/patients/all" />;
   }
 
-  if (isPADLoading || isDischargeLoading || isLoadingPatientConditions) return <LoadingIndicator />;
+  if (isPADLoading || isDischargeLoading || isLoadingPatientConditions || isCertificateFetching)
+    return <LoadingIndicator />;
 
   return (
     <Container>
@@ -73,6 +76,7 @@ export const DischargeSummaryView = React.memo(() => {
           patientConditions={patientConditions}
           certificateData={certiciateData}
           getLocalisation={getLocalisation}
+          getTranslation={getTranslation}
         />
       </PDFViewer>
     </Container>

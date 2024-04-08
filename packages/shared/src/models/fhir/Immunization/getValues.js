@@ -1,4 +1,4 @@
-import { INJECTION_SITE_OPTIONS, VACCINE_STATUS } from '@tamanu/constants';
+import { INJECTION_SITE_VALUES, VACCINE_STATUS } from '@tamanu/constants';
 import {
   FhirCodeableConcept,
   FhirCoding,
@@ -113,10 +113,10 @@ function site(injectionSite) {
 
   // Dictionary that maps Tamanu injection site to HL7 code
   const INJECTION_SITE_TO_HL7_CODE = {
-    [INJECTION_SITE_OPTIONS.RIGHT_ARM]: 'RA',
-    [INJECTION_SITE_OPTIONS.LEFT_ARM]: 'LA',
-    [INJECTION_SITE_OPTIONS.RIGHT_THIGH]: 'RT',
-    [INJECTION_SITE_OPTIONS.LEFT_THIGH]: 'LT',
+    [INJECTION_SITE_VALUES.RIGHT_ARM]: 'RA',
+    [INJECTION_SITE_VALUES.LEFT_ARM]: 'LA',
+    [INJECTION_SITE_VALUES.RIGHT_THIGH]: 'RT',
+    [INJECTION_SITE_VALUES.LEFT_THIGH]: 'LT',
   };
 
   return [

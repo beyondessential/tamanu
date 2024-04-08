@@ -9,6 +9,7 @@ import { SegmentTabDisplay } from './SegmentTabDisplay';
 import { useApi, useSuggester } from '../api';
 import { reloadPatient } from '../store/patient';
 import { getCurrentUser } from '../store/auth';
+import { TranslatedText } from './Translation/TranslatedText';
 
 export const VaccineModal = ({ open, onClose, patientId }) => {
   const [currentTabKey, setCurrentTabKey] = useState(VACCINE_RECORDING_TYPES.GIVEN);
@@ -55,7 +56,7 @@ export const VaccineModal = ({ open, onClose, patientId }) => {
 
   const TABS = [
     {
-      label: 'Given',
+      label: <TranslatedText stringId="vaccine.property.status.given" fallback="Given" />,
       key: VACCINE_RECORDING_TYPES.GIVEN,
       render: () => (
         <VaccineForm
@@ -68,7 +69,7 @@ export const VaccineModal = ({ open, onClose, patientId }) => {
       ),
     },
     {
-      label: 'Not given',
+      label: <TranslatedText stringId="vaccine.property.status.notGiven" fallback="Not given" />,
       key: VACCINE_RECORDING_TYPES.NOT_GIVEN,
       render: () => (
         <VaccineForm
@@ -83,7 +84,12 @@ export const VaccineModal = ({ open, onClose, patientId }) => {
   ];
 
   return (
-    <FormModal title="Record vaccine" open={open} onClose={onClose}>
+    <FormModal
+      title={<TranslatedText stringId="vaccine.modal.create.title" fallback="Record vaccine" />}
+      open={open}
+      onClose={onClose}
+      width="md"
+    >
       <SegmentTabDisplay tabs={TABS} currentTabKey={currentTabKey} onTabSelect={setCurrentTabKey} />
     </FormModal>
   );

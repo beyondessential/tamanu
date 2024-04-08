@@ -76,7 +76,15 @@ const getFieldsToWrite = (models, questions, answers) => {
  * DUPLICATED IN mobile/App/models/SurveyResponse.ts
  * Please keep in sync
  */
-async function writeToPatientFields(models, questions, answers, patientId, surveyId) {
+async function writeToPatientFields(
+  models,
+  questions,
+  answers,
+  patientId,
+  surveyId,
+  userId,
+  submittedTime,
+) {
   const valuesByModel = getFieldsToWrite(models, questions, answers);
 
   if (valuesByModel.Patient) {
@@ -100,15 +108,33 @@ async function writeToPatientFields(models, questions, answers, patientId, surve
     await models.PatientProgramRegistration.create({
       patientId,
       programRegistryId,
+      date: submittedTime,
       ...valuesByModel.PatientProgramRegistration,
+      clinicianId: valuesByModel.PatientProgramRegistration.clinicianId || userId,
     });
   }
 }
 
-async function handleSurveyResponseActions(models, questions, answers, patientId, surveyId) {
+async function handleSurveyResponseActions(
+  models,
+  questions,
+  answers,
+  patientId,
+  surveyId,
+  userId,
+  submittedTime,
+) {
   const activeQuestions = getActiveActionComponents(questions, answers);
   await createPatientIssues(models, activeQuestions, patientId);
-  await writeToPatientFields(models, activeQuestions, answers, patientId, surveyId);
+  await writeToPatientFields(
+    models,
+    activeQuestions,
+    answers,
+    patientId,
+    surveyId,
+    userId,
+    submittedTime,
+  );
 }
 
 export class SurveyResponse extends Model {
@@ -161,7 +187,13 @@ export class SurveyResponse extends Model {
     return buildEncounterLinkedSyncFilter([this.tableName, 'encounters']);
   }
 
-  static async getSurveyEncounter({ encounterId, patientId, reasonForEncounter, ...responseData }) {
+  static async getSurveyEncounter({
+    encounterId,
+    patientId,
+    forceNewEncounter,
+    reasonForEncounter,
+    ...responseData
+  }) {
     if (!this.sequelize.isInsideTransaction()) {
       throw new Error('SurveyResponse.getSurveyEncounter must always run inside a transaction!');
     }
@@ -178,19 +210,20 @@ export class SurveyResponse extends Model {
       );
     }
 
-    // find open encounter
-    const openEncounter = await Encounter.findOne({
-      where: {
-        patientId,
-        endDate: null,
-      },
-    });
-
-    if (openEncounter) {
-      return openEncounter;
+    if (!forceNewEncounter) {
+      // find open encounter
+      const openEncounter = await Encounter.findOne({
+        where: {
+          patientId,
+          endDate: null,
+        },
+      });
+      if (openEncounter) {
+        return openEncounter;
+      }
     }
 
-    const { departmentId, userId, locationId } = responseData;
+    const { departmentId, examinerId, userId, locationId } = responseData;
 
     // need to create a new encounter with examiner set as the user who submitted the survey.
     const newEncounter = await Encounter.create({
@@ -198,7 +231,7 @@ export class SurveyResponse extends Model {
       encounterType: 'surveyResponse',
       reasonForEncounter,
       departmentId,
-      examinerId: userId,
+      examinerId: examinerId || userId,
       locationId,
       // Survey responses will usually have a startTime and endTime and we prefer to use that
       // for the encounter to ensure the times are set in the browser timezone
@@ -220,7 +253,14 @@ export class SurveyResponse extends Model {
       throw new Error('SurveyResponse.createWithAnswers must always run inside a transaction!');
     }
     const { models } = this.sequelize;
-    const { answers, surveyId, patientId, encounterId, ...responseData } = data;
+    const {
+      answers,
+      surveyId,
+      patientId,
+      encounterId,
+      forceNewEncounter,
+      ...responseData
+    } = data;
 
     // ensure survey exists
     const survey = await models.Survey.findByPk(surveyId);
@@ -244,6 +284,7 @@ export class SurveyResponse extends Model {
     const encounter = await this.getSurveyEncounter({
       encounterId,
       patientId,
+      forceNewEncounter,
       reasonForEncounter: `Form response for ${survey.name}`,
       ...responseData,
     });
@@ -281,6 +322,7 @@ export class SurveyResponse extends Model {
       if (body === null) {
         continue;
       }
+
       const answer = await models.SurveyResponseAnswer.create({
         dataElementId: dataElement.id,
         body,
@@ -302,6 +344,8 @@ export class SurveyResponse extends Model {
       finalAnswers,
       encounter.patientId,
       surveyId,
+      responseData.userId,
+      responseData.endTime,
     );
 
     return record;

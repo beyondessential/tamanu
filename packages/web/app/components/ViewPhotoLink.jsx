@@ -4,6 +4,7 @@ import { useApi } from '../api';
 import { getImageSourceFromData } from '../utils';
 import { Modal } from './Modal';
 import { TextButton } from './Button';
+import { TranslatedText } from './Translation/TranslatedText';
 
 const Image = styled.img`
   display: block;
@@ -41,7 +42,7 @@ export const ViewPhotoLink = ({ imageId }) => {
   return (
     <>
       <TextButton color="blue" onClick={openModalCallback}>
-        View Image
+        <TranslatedText stringId="program.modal.view.action.viewImage" fallback="View Image" />
       </TextButton>
       <Modal title="Image" open={showModal} onClose={() => setShowModal(false)}>
         {imageData && !errorMessage ? (

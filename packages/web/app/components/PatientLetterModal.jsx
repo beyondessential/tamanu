@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 
 import { FormModal } from './FormModal';
 import { PatientLetterForm } from '../forms/PatientLetterForm';
+import { TranslatedText } from './Translation/TranslatedText';
 
 export const PatientLetterModal = React.memo(
   ({ open, onClose, endpoint, refreshTable, patient, openDocumentPreview }) => {
@@ -18,7 +19,14 @@ export const PatientLetterModal = React.memo(
     );
 
     return (
-      <FormModal width="sm" title="Patient letter" open={open} onClose={onClose}>
+      <FormModal
+        width="sm"
+        title={
+          <TranslatedText stringId="patient.modal.patientLetter.title" fallback="Patient letter" />
+        }
+        open={open}
+        onClose={onClose}
+      >
         <PatientLetterForm
           patient={patient}
           onSubmit={onSubmit}

@@ -78,7 +78,7 @@ export const DailySchedule = ({
   return (
     <Container>
       {columns.map(props => (
-        <Column onAppointmentUpdated={onAppointmentUpdated} {...props} />
+        <Column key={props.key} onAppointmentUpdated={onAppointmentUpdated} {...props} />
       ))}
     </Container>
   );

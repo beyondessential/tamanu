@@ -1,9 +1,8 @@
 import config from 'config';
 import * as yup from 'yup';
-import { defaultsDeep } from 'lodash';
-
+import { defaultsDeep, mapValues } from 'lodash';
 import { log } from '@tamanu/shared/services/logging';
-import { IMAGING_TYPES } from '@tamanu/constants';
+import { IMAGING_TYPES, PATIENT_DETAIL_LAYOUTS } from '@tamanu/constants';
 
 const fieldSchema = yup
   .object({
@@ -17,6 +16,7 @@ const fieldSchema = yup
     }),
     hidden: yup.boolean().required(),
     required: yup.boolean(),
+    defaultValue: yup.mixed(),
     requiredPatientData: yup.boolean(),
     pattern: yup.string(),
   })
@@ -29,11 +29,30 @@ const unhideableFieldSchema = yup
     shortLabel: yup.string().required(),
     longLabel: yup.string().required(),
     required: yup.boolean(),
+    defaultValue: yup.mixed(),
     requiredPatientData: yup.boolean(),
     pattern: yup.string(),
   })
   .required()
   .noUnknown();
+
+const patientTabSchema = yup
+  .object({
+    sortPriority: yup.number().required(),
+    hidden: yup.boolean(),
+  })
+  .required()
+  .noUnknown();
+
+const unhideablePatientTabSchema = yup
+  .object({
+    sortPriority: yup.number().required(),
+    hidden: yup
+      .boolean()
+      .oneOf([false], 'unhideable tabs must not be hidden')
+      .required(),
+  })
+  .required();
 
 const UNHIDEABLE_FIELDS = [
   'markedForSync',
@@ -54,6 +73,12 @@ const UNHIDEABLE_FIELDS = [
   'clinician',
   'diagnosis',
   'userDisplayId',
+  'date',
+  'registeredBy',
+  'status',
+  'conditions',
+  'programRegistry',
+  'circumstanceIds',
 ];
 
 const HIDEABLE_FIELDS = [
@@ -110,6 +135,19 @@ const HIDEABLE_FIELDS = [
   'prescriberId',
   'facility',
   'dischargeDisposition',
+  'notGivenReasonId',
+];
+
+const UNHIDEABLE_PATIENT_TABS = ['history', 'details'];
+
+const HIDEABLE_PATIENT_TABS = [
+  'results',
+  'referrals',
+  'programs',
+  'documents',
+  'vaccines',
+  'medication',
+  'invoices',
 ];
 
 const ageDurationSchema = yup
@@ -268,6 +306,63 @@ const fieldsSchema = yup
   .required()
   .noUnknown();
 
+const patientTabsSchema = yup.object({
+  ...UNHIDEABLE_PATIENT_TABS.reduce(
+    (tabs, tab) => ({
+      ...tabs,
+      [tab]: unhideablePatientTabSchema,
+    }),
+    {},
+  ),
+  ...HIDEABLE_PATIENT_TABS.reduce(
+    (tabs, tab) => ({
+      ...tabs,
+      [tab]: patientTabSchema,
+    }),
+    {},
+  ),
+});
+
+const SIDEBAR_ITEMS = {
+  patients: ['patientsAll', 'patientsInpatients', 'patientsEmergency', 'patientsOutpatients'],
+  scheduling: ['schedulingAppointments', 'schedulingCalendar', 'schedulingNew'],
+  medication: ['medicationAll'],
+  imaging: ['imagingActive', 'imagingCompleted'],
+  labs: ['labsAll', 'labsPublished'],
+  immunisations: ['immunisationsAll'],
+  programRegistry: [],
+  facilityAdmin: ['reports', 'bedManagement'],
+};
+
+const sidebarItemSchema = yup
+  .object({
+    sortPriority: yup.number().required(),
+    hidden: yup.boolean(),
+  })
+  .required()
+  .noUnknown();
+
+// patients and patientsAll are intentionally not configurable
+const sidebarSchema = yup
+  .object(
+    mapValues(SIDEBAR_ITEMS, (children, topItem) => {
+      const childSchema = yup
+        .object(
+          children.reduce(
+            (obj, childItem) =>
+              childItem === 'patientsAll' ? obj : { ...obj, [childItem]: sidebarItemSchema },
+            {},
+          ),
+        )
+        .required()
+        .noUnknown();
+
+      return topItem === 'patients' ? childSchema : sidebarItemSchema.concat(childSchema);
+    }),
+  )
+  .required()
+  .noUnknown();
+
 const imagingTypeSchema = yup
   .object({
     label: yup.string().required(),
@@ -285,6 +380,15 @@ const imagingTypesSchema = yup
     ),
   })
   .required();
+
+const layoutsSchema = yup.object({
+  patientDetails: yup
+    .string()
+    .required()
+    .oneOf(Object.values(PATIENT_DETAIL_LAYOUTS)),
+  patientTabs: patientTabsSchema,
+  sidebar: sidebarSchema,
+});
 
 const validCssAbsoluteLength = yup
   .string()
@@ -433,12 +537,14 @@ const rootLocalisationSchema = yup
       )
       .min(3)
       .max(5),
+    layouts: layoutsSchema,
     previewUvciFormat: yup
       .string()
       .required()
       .oneOf(['tamanu', 'eudcc', 'icao']),
     features: yup
       .object({
+        enableVaccineConsent: yup.boolean().required(),
         editPatientDetailsOnMobile: yup.boolean().required(),
         quickPatientGenerator: yup.boolean().required(),
         enableInvoicing: yup.boolean().required(),
@@ -531,6 +637,7 @@ const localisationPromise = rootLocalisationSchema
     log.error(
       `Error(s) validating localisation (check localisation.data in your config):${errors}`,
     );
+
     if (!config.localisation.allowInvalid) {
       process.exit(1);
     }

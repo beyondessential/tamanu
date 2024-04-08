@@ -16,6 +16,7 @@ patientFieldDefinition.get(
           d.name,
           d.field_type AS "fieldType",
           d.options,
+          c.id As "categoryId",
           c.name AS category
         FROM patient_field_definitions d
         LEFT JOIN patient_field_definition_categories c

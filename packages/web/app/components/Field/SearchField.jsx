@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import { ClearIcon } from '../Icons/ClearIcon';
 import { TextField } from './TextField';
 import { Colors } from '../../constants';
+import { useTranslation } from '../../contexts/Translation';
 
 const Icon = styled(InputAdornment)`
   .MuiSvgIcon-root {
@@ -31,7 +32,9 @@ const StyledClearIcon = styled(ClearIcon)`
   color: ${Colors.darkText};
 `;
 
-export const SearchField = ({ keepLetterCase = false, ...props }) => {
+export const SearchField = props => {
+  const { getTranslation } = useTranslation();
+
   const {
     field: { value, name },
     form: { setFieldValue } = {},
@@ -64,7 +67,7 @@ export const SearchField = ({ keepLetterCase = false, ...props }) => {
           </StyledIconButton>
         ),
       }}
-      placeholder={label ? `Search ${keepLetterCase ? label : label.toLowerCase()}` : ''}
+      placeholder={label ? getTranslation('general.placeholder.search', 'Search') : ''}
       {...props}
       value={searchValue}
     />

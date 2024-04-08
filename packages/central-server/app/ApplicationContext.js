@@ -1,7 +1,9 @@
 import config from 'config';
+import { isSyncTriggerDisabled } from '@tamanu/shared/dataMigrations';
 import { EmailService } from './services/EmailService';
 import { closeDatabase, initDatabase, initReporting } from './database';
 import { initIntegrations } from './integrations';
+import { log } from '@tamanu/shared/services/logging';
 
 export class ApplicationContext {
   store = null;
@@ -19,6 +21,11 @@ export class ApplicationContext {
     this.store = await initDatabase({ testMode });
     if (config.db.reportSchemas?.enabled) {
       this.reportSchemaStores = await initReporting();
+    }
+
+    if (await isSyncTriggerDisabled(this.store.sequelize)) {
+      log.warn("Sync Trigger is disabled in the database.");
+      return null;
     }
 
     this.closePromise = new Promise(resolve => {

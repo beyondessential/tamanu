@@ -8,16 +8,18 @@ import { Colors } from '../../../constants';
 import { useLocalisation } from '../../../contexts/Localisation';
 import { useCertificate } from '../../../utils/useCertificate';
 import { Modal } from '../../Modal';
+import { TranslatedText } from '../../Translation/TranslatedText';
 
 export const MultipleImagingRequestsWrapper = ({ encounter, imagingRequests }) => {
   const { getLocalisation } = useLocalisation();
-  const certificateData = useCertificate();
+  const { data: certificateData, isFetching: isCertificateFetching } = useCertificate();
   const { data: patient, isLoading: isPatientLoading } = usePatientData(encounter.patientId);
   const isVillageEnabled = patient?.villageId;
   const { data: village, isLoading: isVillageLoading } = useReferenceData(patient?.villageId);
-  const isLoading = isPatientLoading || (isVillageEnabled && isVillageLoading);
+  const isLoading =
+    isPatientLoading || (isVillageEnabled && isVillageLoading) || isCertificateFetching;
 
-  if (isLoading || !certificateData.logo) {
+  if (isLoading) {
     return <LoadingIndicator />;
   }
 
@@ -41,7 +43,12 @@ export const MultipleImagingRequestsPrintoutModal = ({
 }) => {
   return (
     <Modal
-      title="Print imaging requests"
+      title={
+        <TranslatedText
+          stringId="imaging.modal.printMultiple.title"
+          fallback="Print imaging requests"
+        />
+      }
       width="md"
       open={open}
       onClose={onClose}

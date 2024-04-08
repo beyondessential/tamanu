@@ -62,12 +62,36 @@ const READ_DATA_FIELDS = [
 ];
 const WRITE_DATA_FIELDS = Object.keys(PATIENT_DATA_FIELD_LOCATIONS);
 
+// Note this config needs "source" as a sibling
+const whereConfig = () =>
+  yup
+    .object()
+    .when('source', {
+      is: 'ReferenceData',
+      then: yup
+        .object()
+        .shape({
+          type: yup.string().required(),
+        })
+        .required(),
+    })
+    .default(null)
+    .test(
+      'only-where-on-referenceData',
+      "where field only used for when source='ReferenceData'",
+      (where, context) => {
+        if (where) {
+          return context.options.parent.source === 'ReferenceData';
+        }
+        return true;
+      },
+    );
+
 export const SSCPatientData = SurveyScreenComponent.shape({
   config: configString(
     columnReferenceConfig.shape({
       source: yup.string(),
-      // Note that it would be nice to validate the where parameter here
-      where: yup.string(),
+      where: whereConfig(),
       column: patientDataColumnString(READ_DATA_FIELDS),
       writeToPatient: yup
         .object()
@@ -104,32 +128,10 @@ export const SSCSurveyAnswer = SurveyScreenComponent.shape({
 });
 export const SSCAutocomplete = SurveyScreenComponent.shape({
   config: configString(
-    sourceReferenceConfig
-      .shape({
-        scope: yup.string(),
-        where: yup
-          .object()
-          .when('source', {
-            is: 'ReferenceData',
-            then: yup
-              .object()
-              .shape({
-                type: yup.string().required(),
-              })
-              .required(),
-          })
-          .default(null),
-      })
-      .test(
-        'only-where-on-referenceData',
-        "where field only used for when source='ReferenceData'",
-        ({ source, where }) => {
-          if (where) {
-            return source === 'ReferenceData';
-          }
-          return true;
-        },
-      ),
+    sourceReferenceConfig.shape({
+      scope: yup.string(),
+      where: whereConfig(),
+    }),
   ),
 });
 

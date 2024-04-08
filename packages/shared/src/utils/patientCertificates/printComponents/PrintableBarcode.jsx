@@ -21,5 +21,5 @@ export const PrintableBarcode = ({
   });
   const barcode = canvas.toDataURL();
 
-  return <Image source={barcode} style={{ width: width, margin: margin }} />;
+  return <Image source={barcode} style={{ width, margin }} />;
 };

@@ -1,7 +1,11 @@
 import React from 'react';
 import { Col, LightDivider, Row } from './Layout';
 import { H3, P } from './Typography';
-import { getDOB, getSex, getVillageName } from '../patientAccessors';
+import {
+  getDOB,
+  getSex,
+  getVillageName,
+} from '../patientAccessors';
 
 const PATIENT_FIELDS = [
   { key: 'firstName', label: 'First Name' },
@@ -25,7 +29,7 @@ export const PatientDetailsSection = ({ patient, getLocalisation, extraFields = 
       <H3 style={{ marginBottom: 0 }}>Patient Details</H3>
       <LightDivider />
       <Row>
-        <Col>
+        <Col style={{ marginBottom: 5 }}>
           <Row>
             {detailsToDisplay.map(({ key, label: defaultLabel, accessor }) => {
               const value = (accessor ? accessor(patient, getLocalisation) : patient[key]) || '';

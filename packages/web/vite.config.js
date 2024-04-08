@@ -55,7 +55,6 @@ export default defineConfig({
         // you can also specify other servers to use as backend, e.g.
         // target: 'https://central.main.internal.tamanu.io',
         // target: 'https://facility-1.main.internal.tamanu.io',
-
         changeOrigin: true,
       },
     },

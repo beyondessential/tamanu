@@ -1,4 +1,5 @@
 import React from 'react';
+import { PDFViewer } from '@react-pdf/renderer';
 
 import { NOTE_TYPES } from '@tamanu/constants/notes';
 import { LAB_REQUEST_STATUSES } from '@tamanu/constants/labs';
@@ -22,9 +23,11 @@ import { LoadingIndicator } from '../../LoadingIndicator';
 import { Colors } from '../../../constants';
 import { ForbiddenErrorModalContents } from '../../ForbiddenErrorModal';
 import { ModalActionRow } from '../../ModalActionRow';
-import { PDFViewer } from '@react-pdf/renderer';
 import { printPDF } from '../PDFViewer.jsx';
-import { useLocalisedText } from '../../LocalisedText.jsx';
+import { TranslatedText } from '../../Translation/TranslatedText';
+import { useVitals } from '../../../api/queries/useVitals';
+import { DateDisplay, formatShortest, formatTime } from '../../DateDisplay';
+import { useTranslation } from '../../../contexts/Translation';
 
 // These below functions are used to extract the history of changes made to the encounter that are stored in notes.
 // obviously a better solution needs to be to properly implemented for storing and accessing this data, but this is an ok workaround for now.
@@ -98,17 +101,30 @@ const extractLocationHistory = (notes, encounterData) => {
   });
 };
 
+const getDateTitleArray = date => {
+  const shortestDate = DateDisplay.stringFormat(date, formatShortest);
+  const timeWithSeconds = DateDisplay.stringFormat(date, formatTime);
+
+  return [shortestDate, timeWithSeconds.toLowerCase()];
+};
+
 export const EncounterRecordModal = ({ encounter, open, onClose }) => {
-  const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
+  const { getTranslation } = useTranslation();
+  const clinicianText = getTranslation(
+    'general.localisedField.clinician.label.short',
+    'Clinician',
+  ).toLowerCase();
+  const { data: vitalsData, recordedDates } = useVitals(encounter.id);
 
   const { getLocalisation } = useLocalisation();
-  const certificateData = useCertificate();
+  const certificateQuery = useCertificate();
+  const { data: certificateData } = certificateQuery;
 
   const patientQuery = usePatientData(encounter.patientId);
   const patient = patientQuery.data;
 
   const padDataQuery = usePatientAdditionalDataQuery(patient?.id);
-  const { data: additionalData, isLoading: isPADLoading } = padDataQuery;
+  const { data: additionalData } = padDataQuery;
 
   const labRequestsQuery = useLabRequests(encounter.id, {
     order: 'asc',
@@ -142,10 +158,16 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
     dischargeQuery,
     villageQuery,
     notesQuery,
+    certificateQuery,
   ]);
 
   const modalProps = {
-    title: 'Encounter Record',
+    title: (
+      <TranslatedText
+        stringId="patient.modal.print.encounterRecord.title"
+        fallback="Encounter Record"
+      />
+    ),
     color: Colors.white,
     open,
     onClose,
@@ -270,6 +292,29 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
     ? extractEncounterTypeHistory(encounterTypeSystemNotes, encounter, encounterTypeNoteMatcher)
     : [];
 
+  const getVitalsColumn = startIndex => {
+    const dateArray = [...recordedDates].reverse().slice(startIndex, startIndex + 12);
+    return [
+      {
+        key: 'measure',
+        title: 'Measure',
+        accessor: ({ value }) => value,
+        style: { width: 140 },
+      },
+      ...dateArray
+        .sort((a, b) => b.localeCompare(a))
+        .map(date => ({
+          title: getDateTitleArray(date),
+          key: date,
+          accessor: cells => {
+            const { value } = cells[date];
+            return value || '-';
+          },
+          style: { width: 60 },
+        })),
+    ];
+  };
+
   return (
     <Modal {...modalProps} onPrint={() => printPDF('encounter-record')}>
       <PDFViewer
@@ -280,6 +325,9 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
         <EncounterRecordPrintout
           patientData={{ ...patient, additionalData, village }}
           encounter={encounter}
+          vitalsData={vitalsData}
+          recordedDates={recordedDates}
+          getVitalsColumn={getVitalsColumn}
           certificateData={certificateData}
           encounterTypeHistory={encounterTypeHistory}
           locationHistory={locationHistory}

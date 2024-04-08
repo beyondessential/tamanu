@@ -1,5 +1,5 @@
 import { inRange, isNil } from 'lodash';
-import { formatISO9075, isDate } from 'date-fns';
+import { formatISO9075 } from 'date-fns';
 import { DataElementType, ISurveyScreenComponent } from '~/types/ISurvey';
 import { PATIENT_DATA_FIELD_LOCATIONS } from '~/constants';
 
@@ -45,6 +45,8 @@ export const getPatientDataDbLocation = fieldName => {
 };
 
 export const getStringValue = (type: string, value: any): string => {
+  if (value === null) return null;
+
   switch (type) {
     case FieldTypes.TEXT:
     case FieldTypes.MULTILINE:

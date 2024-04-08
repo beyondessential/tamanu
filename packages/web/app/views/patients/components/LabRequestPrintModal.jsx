@@ -13,12 +13,14 @@ import { LoadingIndicator } from '../../../components/LoadingIndicator';
 import { Colors } from '../../../constants';
 import { PDFViewer, printPDF } from '../../../components/PatientPrinting/PDFViewer';
 import { useLocalisation } from '../../../contexts/Localisation';
+import { useTranslation } from '../../../contexts/Translation';
 import { MultipleLabRequestsPrintout } from '@tamanu/shared/utils/patientCertificates';
 
 export const LabRequestPrintModal = React.memo(({ labRequest, patient, open, onClose }) => {
   const { getLocalisation } = useLocalisation();
+  const { getTranslation } = useTranslation();
   const api = useApi();
-  const certificate = useCertificate();
+  const { data: certificateData, isFetching: isCertificateFetching } = useCertificate();
 
   const { data: encounter, isLoading: isEncounterLoading } = useEncounterData(
     labRequest.encounterId,
@@ -48,7 +50,8 @@ export const LabRequestPrintModal = React.memo(({ labRequest, patient, open, onC
     areTestsLoading ||
     areNotesLoading ||
     isAdditionalDataLoading ||
-    (isVillageEnabled && isVillageLoading);
+    (isVillageEnabled && isVillageLoading) ||
+    isCertificateFetching;
 
   return (
     <Modal
@@ -68,8 +71,9 @@ export const LabRequestPrintModal = React.memo(({ labRequest, patient, open, onC
             labRequests={[{ ...labRequest, tests: testsData.data, notes: notes?.data || [] }]}
             patientData={{ ...patient, additionalData, village }}
             encounter={encounter}
-            certificateData={certificate}
+            certificateData={certificateData}
             getLocalisation={getLocalisation}
+            getTranslation={getTranslation}
           />
         </PDFViewer>
       )}

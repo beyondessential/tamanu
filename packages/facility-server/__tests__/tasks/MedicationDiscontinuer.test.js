@@ -208,7 +208,9 @@ describe('Encounter', () => {
     // SQLite which seems to remove milliseconds from timestamps, thus,
     // the update_at column becomes smaller than the initial one).
     const initialUpdatedAt = medication.updatedAt.getTime();
-    await new Promise(resolve => setTimeout(() => resolve(), 1001));
+    await new Promise(resolve => {
+      setTimeout(() => resolve(), 1001);
+    });
 
     await discontinuer.run();
     const discontinuedMedications = await models.EncounterMedication.findAndCountAll({

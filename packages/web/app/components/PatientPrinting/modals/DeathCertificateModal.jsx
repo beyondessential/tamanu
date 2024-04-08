@@ -10,7 +10,9 @@ export const DeathCertificateModal = ({ patient, deathData }) => {
   const [isOpen, setIsOpen] = useState();
   const patientData = { ...patient, ...deathData };
   const { getLocalisation } = useLocalisation();
-  const certificateData = useCertificate();
+  const { data: certificateData, isFetching: isCertificateFetching } = useCertificate();
+
+  if (isCertificateFetching) return null;
 
   return (
     <>

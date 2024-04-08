@@ -2,6 +2,8 @@ import React from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import { useQueryClient } from '@tanstack/react-query';
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+
 import {
   AutocompleteField,
   ConfirmCancelRow,
@@ -13,7 +15,8 @@ import {
 } from '../../components';
 import { useApi, useSuggester } from '../../api';
 import { optionalForeignKey } from '../../utils/validation';
-import { PROGRAM_REGISTRY } from '../../components/PatientInfoPane/paneTitles';
+import { PANE_SECTION_IDS } from '../../components/PatientInfoPane/paneSections';
+import { FORM_TYPES } from '../../constants';
 
 const StyledFormGrid = styled(FormGrid)`
   grid-column: 1 / -1;
@@ -34,13 +37,16 @@ export const ChangeStatusFormModal = ({ patientProgramRegistration, onClose, ope
   if (!patientProgramRegistration) return <></>;
 
   const changeStatus = async changedStatus => {
-    const { id, date, ...rest } = patientProgramRegistration;
+    const { ...rest } = patientProgramRegistration;
+    delete rest.id;
+    delete rest.date;
+
     await api.post(
       `patient/${encodeURIComponent(patientProgramRegistration.patientId)}/programRegistration`,
-      { ...rest, ...changedStatus },
+      { ...rest, ...changedStatus, date: getCurrentDateTimeString(), },
     );
 
-    queryClient.invalidateQueries([`infoPaneListItem-${PROGRAM_REGISTRY}`]);
+    queryClient.invalidateQueries([`infoPaneListItem-${PANE_SECTION_IDS.PROGRAM_REGISTRY}`]);
     onClose();
   };
 
@@ -73,6 +79,7 @@ export const ChangeStatusFormModal = ({ patientProgramRegistration, onClose, ope
           initialValues={{
             clinicalStatusId: patientProgramRegistration.clinicalStatus?.id,
           }}
+          formType={FORM_TYPES.EDIT_FORM}
           validationSchema={yup.object().shape({
             clinicalStatusId: optionalForeignKey(),
           })}

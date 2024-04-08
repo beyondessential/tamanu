@@ -1,7 +1,6 @@
 import React, { useCallback } from 'react';
 
 import { ASSET_NAMES, VACCINATION_CERTIFICATE } from '@tamanu/constants';
-import { VaccineCertificate } from '@tamanu/shared/utils/patientCertificates';
 import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
 
 import { Modal } from '../../Modal';
@@ -15,24 +14,31 @@ import {
   useReferenceData,
 } from '../../../api/queries';
 
-import { PDFViewer, printPDF } from '../PDFViewer';
-import { RenderedPDFViewer } from '../RenderedPDFViewer';
+import { printPDF } from '../PDFViewer';
+import { useAuth } from '../../../contexts/Auth';
+import { WorkerRenderedPDFViewer } from '../WorkerRenderedPDFViewer';
 
 export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) => {
   const api = useApi();
+  const { facility } = useAuth();
   const { localisation } = useLocalisation();
-  const { watermark, logo, footerImg, printedBy } = useCertificate({
+  const { data: certificateData, isFetching: isCertificateFetching } = useCertificate({
     footerAssetName: ASSET_NAMES.VACCINATION_CERTIFICATE_FOOTER,
   });
-  const { data: additionalData } = usePatientAdditionalDataQuery(patient.id);
+  const { logo, watermark, footerImg, printedBy } = certificateData;
+  const {
+    data: additionalData,
+    isFetching: isAdditionalDataFetching,
+  } = usePatientAdditionalDataQuery(patient.id);
 
-  const { data: vaccineData, isFetching } = useAdministeredVaccines(patient.id, {
+  const { data: vaccineData, isFetching: isVaccineFetching } = useAdministeredVaccines(patient.id, {
     orderBy: 'date',
     order: 'ASC',
     invertNullDateOrdering: true,
     includeNotGiven: false,
   });
-  const vaccinations = vaccineData?.data || [];
+  const vaccinations =
+    vaccineData?.data.filter(vaccine => !vaccine.scheduledVaccine.hideFromCertificate) || [];
 
   const createVaccineCertificateNotification = useCallback(
     data =>
@@ -41,16 +47,17 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
         requireSigning: false,
         patientId: patient.id,
         forwardAddress: data.email,
+        facilityName: facility.name,
         createdBy: printedBy,
         createdAt: getCurrentDateString(),
       }),
-    [api, patient.id, printedBy],
+    [api, patient.id, printedBy, facility.name],
   );
 
   const village = useReferenceData(patient.villageId).data;
   const patientData = { ...patient, village, additionalData };
 
-  if (isFetching) return null;
+  if (isAdditionalDataFetching || isVaccineFetching || isCertificateFetching) return null;
 
   return (
     <Modal
@@ -63,12 +70,13 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
       onPrint={() => printPDF('vaccine-certificate')}
       additionalActions={<EmailButton onEmail={createVaccineCertificateNotification} />}
     >
-      <RenderedPDFViewer
+      <WorkerRenderedPDFViewer
         id="vaccine-certificate"
         vaccinations={vaccinations}
         patient={patientData}
         watermarkSrc={watermark}
         logoSrc={logo}
+        facilityName={facility.name}
         signingSrc={footerImg}
         printedBy={printedBy}
         printedDate={getCurrentDateString()}

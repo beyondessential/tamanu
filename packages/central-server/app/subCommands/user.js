@@ -1,6 +1,7 @@
 import { Command } from 'commander';
 import { promisify } from 'util';
 import readSync from 'read';
+import { VISIBILITY_STATUSES } from '@tamanu/constants/importable';
 
 import { initDatabase } from '../database';
 
@@ -13,7 +14,9 @@ export const changePassword = async ({ email }) => {
   const { User } = store.models;
 
   // check user exists
-  const user = await User.findOne({ where: { email } });
+  const user = await User.findOne({
+    where: { email, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
+  });
   if (!user) {
     throw new Error('Could not find a user with specified email');
   }

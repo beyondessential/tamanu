@@ -41,9 +41,7 @@ export const ProgramRegistrySidebarItem = ({
             disabled={false}
             onClick={() => onPathChanged(secondaryPath)}
           />
-        ) : (
-          <></>
-        );
+        ) : null;
       })}
     </PrimarySidebarItem>
   );

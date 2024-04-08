@@ -57,14 +57,16 @@ export const DateInput = ({
   format = 'yyyy-MM-dd',
   onChange,
   name,
-  placeholder,
   max = '9999-12-31',
   min,
   saveDateAsString = false,
   arrows = false,
   inputProps = {},
+  skipMinChecking,
   ...props
 }) => {
+  delete props.placeholder;
+
   const [currentText, setCurrentText] = useState(fromRFC3339(value, format));
   const [isPlaceholder, setIsPlaceholder] = useState(!value);
 
@@ -76,22 +78,6 @@ export const DateInput = ({
         return;
       }
       const date = parse(formattedValue, format, new Date());
-
-      if (max) {
-        const maxDate = parse(max, format, new Date());
-        if (isAfter(date, maxDate)) {
-          onChange({ target: { value: '', name } });
-          return;
-        }
-      }
-
-      if (min) {
-        const minDate = parse(min, format, new Date());
-        if (isBefore(date, minDate)) {
-          onChange({ target: { value: '', name } });
-          return;
-        }
-      }
 
       let outputValue;
       if (saveDateAsString) {
@@ -122,6 +108,26 @@ export const DateInput = ({
     onValueChange({ target: { value: newDate } });
   };
 
+  const handleBlur = () => {
+    const date = parse(currentText, format, new Date());
+
+    if (max) {
+      const maxDate = parse(max, format, new Date());
+      if (isAfter(date, maxDate)) {
+        onChange({ target: { value: '', name } });
+        return;
+      }
+    }
+
+    if (min && !skipMinChecking) {
+      const minDate = parse(min, format, new Date());
+      if (isBefore(date, minDate)) {
+        onChange({ target: { value: '', name } });
+        return;
+      }
+    }
+  }
+
   useEffect(() => {
     const formattedValue = fromRFC3339(value, format);
     if (value && formattedValue) {
@@ -139,6 +145,7 @@ export const DateInput = ({
       type={type}
       value={currentText}
       onChange={onValueChange}
+      onBlur={handleBlur}
       InputProps={{
         // Set max property on HTML input element to force 4-digit year value (max year being 9999)
         inputProps: { max, min, ...inputProps },

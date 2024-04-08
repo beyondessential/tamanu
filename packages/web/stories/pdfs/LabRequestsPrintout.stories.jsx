@@ -9,6 +9,7 @@ export default {
   component: Component,
 };
 
+// eslint-disable-next-line no-unused-vars
 const getLocalisation = () => {};
 
 const encounter = {

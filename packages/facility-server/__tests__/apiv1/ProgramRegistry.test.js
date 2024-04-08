@@ -1,57 +1,75 @@
 import { REGISTRATION_STATUSES, VISIBILITY_STATUSES } from '@tamanu/constants';
-import { fake } from '@tamanu/shared/test-helpers';
+import { disableHardcodedPermissionsForSuite, fake } from '@tamanu/shared/test-helpers';
 import { createTestContext } from '../utilities';
 
 describe('ProgramRegistry', () => {
   let models;
   let app;
-  let testProgram;
   let ctx;
 
   beforeAll(async () => {
     ctx = await createTestContext();
     models = ctx.models;
     app = await ctx.baseApp.asRole('practitioner');
-
-    testProgram = await models.Program.create(fake(models.Program));
   });
   afterAll(() => ctx.close());
   afterEach(async () => {
     await models.PatientProgramRegistration.truncate();
     await models.ProgramRegistry.truncate();
+    await models.Program.truncate();
     await models.Patient.truncate({ cascade: true });
   });
 
-  describe('Getting (GET /api/programRegistry/:id)', () => {
-    it('should fetch a survey', async () => {
-      const { id } = await models.ProgramRegistry.create(
-        fake(models.ProgramRegistry, {
-          name: 'Hepatitis Registry',
-          programId: testProgram.id,
-        }),
-      );
+  const createProgramRegistry = async ({ ...params } = {}) => {
+    const program = await models.Program.create(fake(models.Program));
+    return models.ProgramRegistry.create(
+      fake(models.ProgramRegistry, { programId: program.id, ...params }),
+    );
+  };
 
+  describe('Getting (GET /api/programRegistry/:id)', () => {
+    it('should fetch a program registry', async () => {
+      const { id } = await createProgramRegistry({
+        name: 'Hepatitis Registry',
+      });
       const result = await app.get(`/api/programRegistry/${id}`);
       expect(result).toHaveSucceeded();
-
       expect(result.body).toHaveProperty('name', 'Hepatitis Registry');
+    });
+
+    describe('Permissions', () => {
+      disableHardcodedPermissionsForSuite();
+
+      it('should error on forbidden registry', async () => {
+        const forbiddenRegistry = await createProgramRegistry({
+          name: 'Forbidden Registry',
+        });
+        const permissions = [['read', 'ProgramRegistry', 'different-object-id']];
+        const appWithPermissions = await ctx.baseApp.asNewRole(permissions);
+        const result = await appWithPermissions.get(`/api/programRegistry/${forbiddenRegistry.id}`);
+        expect(result).toBeForbidden();
+      });
+
+      it('should succeed on allowed registry', async () => {
+        const allowedRegistry = await createProgramRegistry({
+          name: 'Allowed Registry',
+        });
+        const permissions = [['read', 'ProgramRegistry', allowedRegistry.id]];
+        const appWithPermissions = await ctx.baseApp.asNewRole(permissions);
+        const result = await appWithPermissions.get(`/api/programRegistry/${allowedRegistry.id}`);
+        expect(result).toHaveSucceeded();
+        expect(result.body).toHaveProperty('name', allowedRegistry.name);
+      });
     });
   });
 
   describe('Listing (GET /api/programRegistry)', () => {
     it('should list available program registries', async () => {
-      await models.ProgramRegistry.create(
-        fake(models.ProgramRegistry, { programId: testProgram.id }),
-      );
-      await models.ProgramRegistry.create(
-        fake(models.ProgramRegistry, {
-          programId: testProgram.id,
-          visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
-        }),
-      );
-      await models.ProgramRegistry.create(
-        fake(models.ProgramRegistry, { programId: testProgram.id }),
-      );
+      await createProgramRegistry();
+      await createProgramRegistry({
+        visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+      });
+      await createProgramRegistry();
 
       const result = await app.get('/api/programRegistry');
       expect(result).toHaveSucceeded();
@@ -65,41 +83,33 @@ describe('ProgramRegistry', () => {
       const testPatient = await models.Patient.create(fake(models.Patient));
 
       // Should show:
-      await models.ProgramRegistry.create(
-        fake(models.ProgramRegistry, { programId: testProgram.id }),
-      );
-      await models.ProgramRegistry.create(
-        fake(models.ProgramRegistry, { programId: testProgram.id }),
-      );
+      await createProgramRegistry();
+      await createProgramRegistry();
 
       // Should not show (historical):
-      await models.ProgramRegistry.create(
-        fake(models.ProgramRegistry, {
-          programId: testProgram.id,
-          visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
-        }),
-      );
+      await createProgramRegistry({
+        visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+      });
+
       // Should not show (patient already has registration):
-      const { id: registryId1 } = await models.ProgramRegistry.create(
-        fake(models.ProgramRegistry, { programId: testProgram.id }),
-      );
+      const { id: registryId1 } = await createProgramRegistry();
       await models.PatientProgramRegistration.create(
         fake(models.PatientProgramRegistration, {
           patientId: testPatient.id,
           programRegistryId: registryId1,
+          clinicianId: app.user.id,
         }),
       );
 
       // Should show (patient already has registration but it's deleted):
-      const { id: registryId2 } = await models.ProgramRegistry.create(
-        fake(models.ProgramRegistry, { programId: testProgram.id }),
-      );
+      const { id: registryId2 } = await createProgramRegistry();
       await models.PatientProgramRegistration.create(
         fake(models.PatientProgramRegistration, {
           date: '2023-09-04 08:00:00',
           patientId: testPatient.id,
           registrationStatus: REGISTRATION_STATUSES.ACTIVE,
           programRegistryId: registryId2,
+          clinicianId: app.user.id,
         }),
       );
       await models.PatientProgramRegistration.create(
@@ -108,19 +118,19 @@ describe('ProgramRegistry', () => {
           patientId: testPatient.id,
           registrationStatus: REGISTRATION_STATUSES.RECORDED_IN_ERROR,
           programRegistryId: registryId2,
+          clinicianId: app.user.id,
         }),
       );
 
       // Shouldn't show (patient has a registration but it's been deleted before):
-      const { id: registryId3 } = await models.ProgramRegistry.create(
-        fake(models.ProgramRegistry, { programId: testProgram.id }),
-      );
+      const { id: registryId3 } = await createProgramRegistry();
       await models.PatientProgramRegistration.create(
         fake(models.PatientProgramRegistration, {
           date: '2023-09-04 08:00:00',
           patientId: testPatient.id,
           registrationStatus: REGISTRATION_STATUSES.RECORDED_IN_ERROR,
           programRegistryId: registryId3,
+          clinicianId: app.user.id,
         }),
       );
       await models.PatientProgramRegistration.create(
@@ -129,6 +139,7 @@ describe('ProgramRegistry', () => {
           patientId: testPatient.id,
           registrationStatus: REGISTRATION_STATUSES.ACTIVE,
           programRegistryId: registryId3,
+          clinicianId: app.user.id,
         }),
       );
 
@@ -153,13 +164,44 @@ describe('ProgramRegistry', () => {
       expect(result).toHaveSucceeded();
       expect(result.body.data.length).toBe(0);
     });
+
+    describe('Permissions', () => {
+      disableHardcodedPermissionsForSuite();
+
+      it('should only list permitted registries', async () => {
+        await createProgramRegistry({
+          name: 'Forbidden Registry 1',
+        });
+        await createProgramRegistry({
+          name: 'Forbidden Registry 2',
+        });
+        const allowedRegistryOne = await createProgramRegistry({
+          name: 'Allowed Registry 1',
+        });
+        const allowedRegistryTwo = await createProgramRegistry({
+          name: 'Allowed Registry 2',
+        });
+        const permissions = [
+          ['list', 'ProgramRegistry', allowedRegistryOne.id],
+          ['list', 'ProgramRegistry', allowedRegistryTwo.id],
+          ['read', 'Patient'],
+          ['read', 'PatientProgramRegistration'],
+        ];
+        const appWithPermissions = await ctx.baseApp.asNewRole(permissions);
+
+        const result = await appWithPermissions.get('/api/programRegistry');
+        expect(result).toHaveSucceeded();
+
+        const { body } = result;
+        expect(body.count).toEqual(2);
+        expect(body.data.length).toEqual(2);
+      });
+    });
   });
 
   describe('Listing conditions (GET /api/programRegistry/:id/conditions)', () => {
     it('should list available conditions', async () => {
-      const { id: programRegistryId } = await models.ProgramRegistry.create(
-        fake(models.ProgramRegistry, { programId: testProgram.id }),
-      );
+      const { id: programRegistryId } = await createProgramRegistry();
       await models.ProgramRegistryCondition.create(
         fake(models.ProgramRegistryCondition, { programRegistryId }),
       );
@@ -178,9 +220,7 @@ describe('ProgramRegistry', () => {
 
   describe('Listing registrations (GET /api/programRegistry/:id/registrations)', () => {
     it('should list registrations', async () => {
-      const { id: programRegistryId } = await models.ProgramRegistry.create(
-        fake(models.ProgramRegistry, { programId: testProgram.id }),
-      );
+      const { id: programRegistryId } = await createProgramRegistry();
       const CLINICAL_STATUS_DATA = {
         name: 'aa',
         color: 'blue',
@@ -198,6 +238,7 @@ describe('ProgramRegistry', () => {
         programRegistryId,
         registrationStatus: REGISTRATION_STATUSES.ACTIVE,
         date: '2023-09-04 08:00:00',
+        clinicianId: app.user.id,
       };
 
       // Patient 1: Should pull all required data
@@ -266,9 +307,7 @@ describe('ProgramRegistry', () => {
 
     it('should filter by associated condition', async () => {
       // Config models
-      const { id: programRegistryId } = await models.ProgramRegistry.create(
-        fake(models.ProgramRegistry, { programId: testProgram.id }),
-      );
+      const { id: programRegistryId } = await createProgramRegistry();
       const programRegistryClinicalStatus = await models.ProgramRegistryClinicalStatus.create(
         fake(models.ProgramRegistryClinicalStatus, {
           programRegistryId,
@@ -287,6 +326,7 @@ describe('ProgramRegistry', () => {
         programRegistryId,
         registrationStatus: REGISTRATION_STATUSES.ACTIVE,
         date: '2023-09-04 08:00:00',
+        clinicianId: app.user.id,
       };
 
       // Patient 1: Should show
@@ -305,6 +345,7 @@ describe('ProgramRegistry', () => {
           patientId: patient1.id,
           programRegistryId,
           programRegistryConditionId: decoyCondition.id,
+          deletionStatus: null
         }),
       );
       await models.PatientProgramRegistrationCondition.create(
@@ -312,6 +353,7 @@ describe('ProgramRegistry', () => {
           patientId: patient1.id,
           programRegistryId,
           programRegistryConditionId: relevantCondition.id,
+          deletionStatus: null
         }),
       );
 
@@ -329,6 +371,7 @@ describe('ProgramRegistry', () => {
           patientId: patient2.id,
           programRegistryId,
           programRegistryConditionId: decoyCondition.id,
+          deletionStatus: null
         }),
       );
 
@@ -358,9 +401,7 @@ describe('ProgramRegistry', () => {
       let registryId = null;
 
       beforeAll(async () => {
-        const { id: programRegistryId } = await models.ProgramRegistry.create(
-          fake(models.ProgramRegistry, { programId: testProgram.id }),
-        );
+        const { id: programRegistryId } = await createProgramRegistry();
         registryId = programRegistryId;
         await Promise.all(
           patientFilters.map(async ({ filter, value }) => {
@@ -373,6 +414,7 @@ describe('ProgramRegistry', () => {
               fake(models.PatientProgramRegistration, {
                 programRegistryId,
                 patientId: patient.id,
+                clinicianId: app.user.id,
               }),
             );
           }),
@@ -394,6 +436,76 @@ describe('ProgramRegistry', () => {
           });
         },
       );
+    });
+
+    describe('Permissions', () => {
+      disableHardcodedPermissionsForSuite();
+
+      it('should error if program registry is forbidden', async () => {
+        const { id: programRegistryId } = await createProgramRegistry();
+        const { id: patientId } = await models.Patient.create(fake(models.Patient));
+        const { id: clinicalStatusId } = await models.ProgramRegistryClinicalStatus.create(
+          fake(models.ProgramRegistryClinicalStatus, {
+            programRegistryId,
+            name: 'Clinical Status A',
+            color: 'blue',
+          }),
+        );
+        await models.PatientProgramRegistration.create(
+          fake(models.PatientProgramRegistration, {
+            programRegistryId,
+            patientId,
+            clinicalStatusId,
+            registrationStatus: REGISTRATION_STATUSES.ACTIVE,
+            date: '2023-09-04 08:00:00',
+            clinicianId: app.user.id,
+          }),
+        );
+
+        const permissions = [
+          ['read', 'ProgramRegistry', 'different-object-id'],
+          ['read', 'Patient'],
+          ['list', 'PatientProgramRegistration'],
+        ];
+        const appWithPermissions = await ctx.baseApp.asNewRole(permissions);
+        const result = await appWithPermissions.get(`/api/programRegistry/${programRegistryId}/registrations`);
+        expect(result).toBeForbidden();
+      });
+
+      it('should show registrations if program registry is permitted', async () => {
+        const { id: programRegistryId } = await createProgramRegistry();
+        const { id: patientId } = await models.Patient.create(fake(models.Patient));
+        const { id: clinicalStatusId } = await models.ProgramRegistryClinicalStatus.create(
+          fake(models.ProgramRegistryClinicalStatus, {
+            programRegistryId,
+            name: 'Clinical Status A',
+            color: 'blue',
+          }),
+        );
+        await models.PatientProgramRegistration.create(
+          fake(models.PatientProgramRegistration, {
+            programRegistryId,
+            patientId,
+            clinicalStatusId,
+            registrationStatus: REGISTRATION_STATUSES.ACTIVE,
+            date: '2023-09-04 08:00:00',
+            clinicianId: app.user.id,
+          }),
+        );
+
+        const permissions = [
+          ['read', 'ProgramRegistry', programRegistryId],
+          ['read', 'Patient'],
+          ['list', 'PatientProgramRegistration'],
+        ];
+        const appWithPermissions = await ctx.baseApp.asNewRole(permissions);
+        const result = await appWithPermissions.get(`/api/programRegistry/${programRegistryId}/registrations`);
+        expect(result).toHaveSucceeded();
+
+        const { body } = result;
+        expect(body.count).toEqual(1);
+        expect(body.data.length).toEqual(1);
+      });
     });
   });
 });
