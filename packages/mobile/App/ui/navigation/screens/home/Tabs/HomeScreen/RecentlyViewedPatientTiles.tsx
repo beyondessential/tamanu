@@ -11,6 +11,7 @@ import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { RowView, StyledText, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { PatientFromRoute } from '~/ui/helpers/constants';
+import { TranslatedText } from '/components/Translations/TranslatedText';
 
 const PatientCardContainer = compose<React.FC<{ displayedPatient: Patient }>>(withPatient)(
   ({ displayedPatient, setSelectedPatient }: any): ReactElement => {
@@ -61,7 +62,11 @@ export const RecentlyViewedPatientTiles = (): ReactElement | null => {
         color={theme.colors.TEXT_DARK}
         marginBottom={screenPercentageToDP(1.21, Orientation.Height)}
       >
-        RECENTLY VIEWED PATIENTS
+        <TranslatedText
+          stringId="patient.recentlyViewed.title"
+          fallback="RECENTLY VIEWED PATIENTS"
+          uppercase
+        />
       </StyledText>
       <ScrollView horizontal>
         <RowView flex={1}>{recentPatients}</RowView>

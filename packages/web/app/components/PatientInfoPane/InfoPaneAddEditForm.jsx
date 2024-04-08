@@ -15,7 +15,7 @@ const getSuggesters = (id, items) => {
     case PANE_SECTION_IDS.CONDITIONS:
       return { practitioner: {}, icd10: {} };
     case PANE_SECTION_IDS.ALLERGIES:
-      return { practitioner: {}, allergy: {} };
+      return { practitioner: {}, allergy: {}, reaction: {} };
     case PANE_SECTION_IDS.FAMILY_HISTORY:
       return { practitioner: {}, icd10: {} };
     case PANE_SECTION_IDS.ISSUES:
