@@ -75,10 +75,6 @@ export class User extends Model {
       return null;
     }
 
-    if (user.visibilityStatus !== VISIBILITY_STATUSES.CURRENT) {
-      throw new ForbiddenError(USER_DEACTIVATED_ERROR_MESSAGE);
-    }
-
     return user.get({ plain: true });
   }
 
