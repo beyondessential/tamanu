@@ -120,7 +120,7 @@ patientVaccineRoutes.get(
     const fromUpcomingVaccinations = `FROM upcoming_vaccinations uv
     JOIN scheduled_vaccines sv ON sv.id = uv.scheduled_vaccine_id
     WHERE uv.patient_id = :patientId
-    AND uv.status <> ${VACCINE_STATUS.MISSED}`;
+    AND uv.status <> '${VACCINE_STATUS.MISSED}'`;
 
     const results = await req.db.query(
       `SELECT
