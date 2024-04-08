@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useFormikContext } from 'formik';
 import { NavigationProp } from '@react-navigation/native';
 
@@ -8,7 +8,6 @@ import { AutocompleteModalField } from './AutocompleteModal/AutocompleteModalFie
 import { Suggester } from '~/ui/helpers/suggester';
 import { useFacility } from '~/ui/contexts/FacilityContext';
 import { useBackend } from '~/ui/hooks';
-import { Routes } from '~/ui/helpers/routes';
 
 interface LocationFieldProps {
   navigation: NavigationProp<any>;

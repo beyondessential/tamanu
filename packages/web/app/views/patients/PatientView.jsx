@@ -27,6 +27,7 @@ import { PatientSearchParametersProvider } from '../../contexts/PatientViewSearc
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { invalidatePatientDataQueries } from '../../utils';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
+import { useSyncState } from '../../contexts/SyncState';
 
 const StyledDisplayTabs = styled(TabDisplay)`
   overflow: initial;
@@ -120,6 +121,8 @@ export const PatientView = () => {
   const [currentTab, setCurrentTab] = useState(queryTab || PATIENT_TABS.HISTORY);
   const disabled = !!patient.death;
   const api = useApi();
+  const syncState = useSyncState();
+  const isSyncing = syncState.isPatientSyncing(patient.id);
   const { data: additionalData, isLoading: isLoadingAdditionalData } = useQuery(
     ['additionalData', patient.id],
     () => api.get(`patient/${patient.id}/additionalData`),
@@ -145,14 +148,14 @@ export const PatientView = () => {
   }, [api, patient.id]);
 
   useEffect(() => {
-    if (!patient.syncing) {
+    if (!isSyncing) {
       // invalidate the cache of patient data queries to reload the patient data
       invalidatePatientDataQueries(queryClient, patient.id);
     }
 
     // invalidate queries only when syncing is done (changed from true to false)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [patient.syncing]);
+  }, [isSyncing]);
 
   const visibleTabs = usePatientTabs();
 

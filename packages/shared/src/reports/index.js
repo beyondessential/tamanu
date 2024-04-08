@@ -126,5 +126,5 @@ export async function getReportModule(reportId, models) {
   }
 }
 
-export { REPORT_DEFINITIONS } from './reportDefinitions';
+export { REPORT_DEFINITIONS, GENERIC_SURVEY_EXPORT_REPORT_ID } from './reportDefinitions';
 export { REPORT_OBJECTS } from './reportObjects';

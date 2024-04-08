@@ -52,10 +52,7 @@ export const screen2ValidationSchema = yup.object().shape({
 export const FORM_TYPE_TO_FIELD_CONFIG = {
   [LAB_REQUEST_FORM_TYPES.INDIVIDUAL]: {
     subheading: (
-      <TranslatedText
-        stringId="lab.testSelect.individual.subheading"
-        fallback="Select tests"
-      />
+      <TranslatedText stringId="lab.testSelect.individual.subheading" fallback="Select tests" />
     ),
     instructions: (
       <>
@@ -90,15 +87,15 @@ export const FORM_TYPE_TO_FIELD_CONFIG = {
       />
     ),
     selectableName: 'panel',
-    searchFieldPlaceholder: 'Search panel or category',
+    searchFieldPlaceholder: {
+      stringId: 'lab.testSelect.placeholder',
+      fallback: 'Search panel or category',
+    },
     fieldName: 'panelIds',
   },
   [LAB_REQUEST_FORM_TYPES.SUPERSET]: {
     subheading: (
-      <TranslatedText
-        stringId="lab.testSelect.superSet.subheading"
-        fallback="Select superset"
-      />
+      <TranslatedText stringId="lab.testSelect.superSet.subheading" fallback="Select superset" />
     ),
     instructions: (
       <>

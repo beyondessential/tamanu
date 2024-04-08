@@ -66,7 +66,6 @@ interface FormFieldsProps {
   components: ISurveyScreenComponent[];
   patient: IPatient;
   isSubmitting: boolean;
-  note: string;
   onCancel?: () => Promise<void>;
   onGoBack?: () => void;
   currentScreenIndex: number;
@@ -78,7 +77,6 @@ export const FormFields = ({
   currentScreenIndex,
   setCurrentScreenIndex,
   isSubmitting,
-  note,
   patient,
   onCancel,
   onGoBack,

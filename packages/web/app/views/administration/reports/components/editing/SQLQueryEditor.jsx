@@ -10,6 +10,8 @@ import 'ace-builds/src-noconflict/mode-pgsql';
 import 'ace-builds/src-noconflict/theme-xcode';
 import 'ace-builds/src-noconflict/ext-language_tools';
 
+import { useTranslation } from '../../../../../contexts/Translation';
+
 const AceEditor = styled(BaseAceEditor)`
   .error-marker {
     z-index: 20;
@@ -24,6 +26,8 @@ const AceEditor = styled(BaseAceEditor)`
 
 const IGNORED_MESSAGES = ['$01 is not defined'];
 export const SQLQueryEditor = props => {
+  const { getTranslation } = useTranslation();
+
   const [originalHighlightList, setOriginalHighlightList] = useState([]);
   const [annotations, setAnnotations] = useState({});
   const shouldIgnoreErrorMesssage = errorMessage => {
@@ -77,7 +81,7 @@ export const SQLQueryEditor = props => {
   return (
     <AceEditor
       name={editorName}
-      placeholder="Example: SELECT * FROM tablename"
+      placeholder={getTranslation("general.placeholder.sqlExample", "Example: SELECT * FROM tablename")}
       mode={mode}
       theme="xcode"
       showPrintMargin={false}

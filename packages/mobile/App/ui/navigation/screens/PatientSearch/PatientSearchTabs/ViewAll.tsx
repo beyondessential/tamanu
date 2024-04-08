@@ -93,6 +93,8 @@ const searchAndFilterPatients = async (
 
   const queryBuilder = models.Patient.getRepository().createQueryBuilder('patient');
 
+  queryBuilder.leftJoinAndSelect('patient.village', 'referenceData');
+
   // Add the search term, which can match across any of 5 key fields
   queryBuilder.where(
     `(
@@ -150,7 +152,7 @@ const Screen: FC<ViewAllScreenProps> = ({
 
   const [list] = useBackendEffect(
     ({ models }) => searchAndFilterPatients(models, searchField, activeFilters),
-    [searchField.value, activeFilters],
+    [searchField.value, activeFilters, syncEnded],
   );
 
   useEffect(() => {

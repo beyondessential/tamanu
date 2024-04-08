@@ -1,6 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { isAfter } from 'date-fns';
+import { subject } from '@casl/ability';
 import { NotFoundError, ValidationError } from '@tamanu/shared/errors';
 import { DELETION_STATUSES, REGISTRATION_STATUSES } from '@tamanu/constants';
 
@@ -19,7 +20,8 @@ patientProgramRegistration.get(
       params.patientId,
     );
 
-    res.send({ data: registrationData });
+    const filteredData = registrationData.filter(x => req.ability.can('read', x.programRegistry));
+    res.send({ data: filteredData });
   }),
 );
 
@@ -34,7 +36,7 @@ patientProgramRegistration.post(
     const patient = await models.Patient.findByPk(patientId);
     if (!patient) throw new NotFoundError();
 
-    req.checkPermission('read', 'ProgramRegistry', { id: programRegistryId });
+    req.checkPermission('read', subject('ProgramRegistry', { id: programRegistryId }));
     const programRegistry = await models.ProgramRegistry.findByPk(programRegistryId);
     if (!programRegistry) throw new NotFoundError();
 
@@ -46,15 +48,15 @@ patientProgramRegistration.post(
     });
 
     if (existingRegistration) {
-      req.checkPermission('write', 'PatientProgramRegistration', { programRegistryId });
+      req.checkPermission('write', 'PatientProgramRegistration');
     } else {
-      req.checkPermission('create', 'PatientProgramRegistration', { programRegistryId });
+      req.checkPermission('create', 'PatientProgramRegistration');
     }
 
     const { conditionIds = [], ...registrationData } = body;
 
     if (conditionIds.length > 0) {
-      req.checkPermission('create', 'PatientProgramRegistrationCondition', { programRegistryId });
+      req.checkPermission('create', 'PatientProgramRegistrationCondition');
     }
 
     // Run in a transaction so it either fails or succeeds together
@@ -115,7 +117,8 @@ patientProgramRegistration.get(
     const { patientId, programRegistryId } = params;
     const { PatientProgramRegistration } = models;
 
-    req.checkPermission('read', 'PatientProgramRegistration', { patientId, programRegistryId });
+    req.checkPermission('read', subject('ProgramRegistry', { id: programRegistryId }));
+    req.checkPermission('read', 'PatientProgramRegistration');
 
     const registration = await PatientProgramRegistration.findOne({
       where: {
@@ -168,8 +171,11 @@ patientProgramRegistration.get(
 
     res.send({
       ...registration,
-      registrationDate: recentRegistrationRecord.date,
-      registrationClinician: recentRegistrationRecord.clinician,
+      // Using optional chaining for these until we create the new field to track
+      // registration date in https://linear.app/bes/issue/SAV-570/add-new-column-to-patient-program-registration
+      // when that work gets done, we can decide whether we want to enforce these or keep the optional chaining
+      registrationDate: recentRegistrationRecord?.date,
+      registrationClinician: recentRegistrationRecord?.clinician,
       ...deactivationData,
     });
   }),
@@ -181,7 +187,8 @@ patientProgramRegistration.get(
     const { patientId, programRegistryId } = params;
     const { PatientProgramRegistration } = models;
 
-    req.checkPermission('list', 'PatientProgramRegistration', { patientId, programRegistryId });
+    req.checkPermission('read', subject('ProgramRegistry', { id: programRegistryId }));
+    req.checkPermission('list', 'PatientProgramRegistration');
 
     const fullHistory = await PatientProgramRegistration.findAll({
       where: {
@@ -228,11 +235,11 @@ patientProgramRegistration.post(
     const patient = await models.Patient.findByPk(patientId);
     if (!patient) throw new NotFoundError();
 
-    req.checkPermission('read', 'ProgramRegistry', { id: programRegistryId });
+    req.checkPermission('read', subject('ProgramRegistry', { id: programRegistryId }));
     const programRegistry = await models.ProgramRegistry.findByPk(programRegistryId);
     if (!programRegistry) throw new NotFoundError();
 
-    req.checkPermission('read', 'PatientProgramRegistrationCondition', { programRegistryId });
+    req.checkPermission('read', 'PatientProgramRegistrationCondition');
     const conditionExists = await models.PatientProgramRegistrationCondition.count({
       where: {
         programRegistryId,
@@ -245,7 +252,7 @@ patientProgramRegistration.post(
       throw new ValidationError("Can't create a duplicate condition for the same patient");
     }
 
-    req.checkPermission('create', 'PatientProgramRegistrationCondition', { programRegistryId });
+    req.checkPermission('create', 'PatientProgramRegistrationCondition');
     const condition = await models.PatientProgramRegistrationCondition.create({
       patientId,
       programRegistryId,
@@ -263,10 +270,8 @@ patientProgramRegistration.get(
     const { patientId, programRegistryId } = params;
     const { PatientProgramRegistrationCondition } = models;
 
-    req.checkPermission('list', 'PatientProgramRegistrationCondition', {
-      patientId,
-      programRegistryId,
-    });
+    req.checkPermission('read', subject('ProgramRegistry', { id: programRegistryId }));
+    req.checkPermission('list', 'PatientProgramRegistrationCondition');
 
     const history = await PatientProgramRegistrationCondition.findAll({
       where: {
@@ -294,11 +299,11 @@ patientProgramRegistration.delete(
     req.checkPermission('read', 'Patient');
     const patient = await models.Patient.findByPk(patientId);
     if (!patient) throw new NotFoundError();
-    req.checkPermission('read', 'ProgramRegistry', { id: programRegistryId });
+    req.checkPermission('read', subject('ProgramRegistry', { id: programRegistryId }));
     const programRegistry = await models.ProgramRegistry.findByPk(programRegistryId);
     if (!programRegistry) throw new NotFoundError();
 
-    req.checkPermission('delete', 'PatientProgramRegistrationCondition', { programRegistryId });
+    req.checkPermission('write', 'PatientProgramRegistrationCondition');
     const existingCondition = await models.PatientProgramRegistrationCondition.findOne({
       where: {
         id: conditionId,
@@ -307,7 +312,7 @@ patientProgramRegistration.delete(
     if (!existingCondition) throw new NotFoundError();
     const condition = await existingCondition.update({
       deletionStatus: DELETION_STATUSES.DELETED,
-      deletionClinicianId: body.deletionClinicianId,
+      deletionClinicianId: req.user.id,
       deletionDate: body.deletionDate,
     });
     res.send(condition);

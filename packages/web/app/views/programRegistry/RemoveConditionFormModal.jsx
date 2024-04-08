@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { useQueryClient } from '@tanstack/react-query';
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { ConfirmCancelRow, FormSeparatorLine, Modal } from '../../components';
 import { useApi } from '../../api';
 
@@ -30,6 +31,7 @@ export const RemoveConditionFormModal = ({
       )}/programRegistration/${encodeURIComponent(
         patientProgramRegistration.programRegistryId,
       )}/condition/${encodeURIComponent(conditionToRemove.id)}`,
+      { deletionDate: getCurrentDateTimeString() },
     );
     queryClient.invalidateQueries(['PatientProgramRegistryConditions']);
     onSubmit();

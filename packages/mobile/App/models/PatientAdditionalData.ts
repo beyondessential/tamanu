@@ -1,5 +1,4 @@
 import {
-  AfterLoad,
   BeforeInsert,
   BeforeUpdate,
   Column,
@@ -8,7 +7,7 @@ import {
   PrimaryColumn,
   RelationId,
 } from 'typeorm/browser';
-import { isEmpty, isEqual, snakeCase } from 'lodash';
+import { isEmpty, snakeCase } from 'lodash';
 import { BaseModel, IdRelation } from './BaseModel';
 import { IPatientAdditionalData } from '~/types';
 import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
