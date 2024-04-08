@@ -1,5 +1,6 @@
 import { Op } from 'sequelize';
 
+import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
 import { showError } from '@tamanu/shared/test-helpers';
 
 import { createTestContext } from '../../utilities';
@@ -44,6 +45,7 @@ describe(`Materialised FHIR - WriteLog`, () => {
         ],
       };
       const response = await app.post(`/api/integration/${INTEGRATION_ROUTE}/FooBarBaz`).send(body);
+      await sleepAsync(1);
 
       expect(response.status).not.toBe(201);
       const flog = await FhirWriteLog.findOne({
@@ -76,6 +78,7 @@ describe(`Materialised FHIR - WriteLog`, () => {
         ],
       };
       const response = await app.post(`/api/integration/${INTEGRATION_ROUTE}/FooBarBaz`).send(body);
+      await sleepAsync(1);
 
       expect(response.status).not.toBe(201);
       const flog = await FhirWriteLog.findOne({
@@ -102,6 +105,7 @@ describe(`Materialised FHIR - WriteLog`, () => {
         .set('Content-Type', 'application/json')
         .set('Accept', 'application/fhir+json; fhirVersion=4.0')
         .send(body);
+      await sleepAsync(1);
 
       expect(response.status).not.toBe(201);
       const flog = await FhirWriteLog.findOne({

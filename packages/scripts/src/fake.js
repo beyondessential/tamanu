@@ -34,6 +34,7 @@ async function generateData(models) {
     ProgramRegistryClinicalStatus,
     PatientProgramRegistration,
     PatientProgramRegistrationCondition,
+    PatientAllergy,
   } = models;
 
   const examiner = await User.create(fake(User));
@@ -147,6 +148,12 @@ async function generateData(models) {
       patientId: patient.id,
       programRegistryId: programRegistry.id,
     }),
+  );
+
+  await PatientAllergy.create(
+    fake(PatientAllergy, {
+      patientId: patient.id,
+    })
   );
   await ReferenceData.create(fake(ReferenceData));
   await ReferenceDataRelation.create(fake(ReferenceDataRelation));
