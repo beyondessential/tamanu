@@ -22,7 +22,6 @@ const MenuButtonContainer = styled(StyledView)`
 `;
 
 export const VisitTypeButtonList = ({ list }: VisitTypeButtonsProps): ReactElement => {
-  console.log(list);
   return (
     <StyledView
       width="100%"
