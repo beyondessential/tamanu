@@ -3,6 +3,7 @@ import { CenterView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { Button } from '/components/Button';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 
 const SubmitSection = ({ onSubmit }: { onSubmit: () => void }): ReactElement => (
   <CenterView
@@ -16,7 +17,7 @@ const SubmitSection = ({ onSubmit }: { onSubmit: () => void }): ReactElement => 
       width={370}
       fontSize={16}
       fontWeight={500}
-      buttonText="Search"
+      buttonText={<TranslatedText stringId="general.action.search" fallback="Search" />}
       onPress={onSubmit}
     />
   </CenterView>
