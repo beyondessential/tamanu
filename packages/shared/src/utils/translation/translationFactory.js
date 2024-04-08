@@ -21,8 +21,6 @@ export const replaceStringVariables = (templateString, replacements) => {
 };
 
 export const translationFactory = translations => (stringId, fallback, replacements) => {
-  if (!translations) return { value: replaceStringVariables(fallback, replacements) };
-  if (translations[stringId])
-    return { value: replaceStringVariables(translations[stringId], replacements) };
-  return { value: replaceStringVariables(fallback, replacements), notExisting: true };
+  if (translations?.[stringId]) return replaceStringVariables(translations[stringId], replacements);
+  return replaceStringVariables(fallback, replacements);
 };

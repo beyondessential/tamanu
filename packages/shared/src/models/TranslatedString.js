@@ -97,15 +97,7 @@ export class TranslatedString extends Model {
 
     return (stringId, fallback, replacements) => {
       const translationFunc = translationFactory(translations);
-      const { value, notExisting } = translationFunc(stringId, fallback, replacements);
-      const isDev = process.env.NODE_ENV === 'dev';
-      if (isDev && language === 'en' && notExisting) {
-        TranslatedString.create({
-          stringId,
-          text: fallback,
-          language,
-        }).catch(() => null);
-      }
+      const value = translationFunc(stringId, fallback, replacements);
       return value;
     };
   };
