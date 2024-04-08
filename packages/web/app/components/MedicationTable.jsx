@@ -26,7 +26,7 @@ const MEDICATION_COLUMNS = [
     sortable: false,
   },
   {
-    key: 'instructions',
+    key: 'prescription',
     title: (
       <TranslatedText stringId="medication.table.column.instructions" fallback="Instructions" />
     ),
