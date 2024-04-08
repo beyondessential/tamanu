@@ -10,6 +10,7 @@ import { theme } from '/styled/theme';
 import { getGender, joinNames } from '../../helpers/user';
 import { IPatient } from '~/types';
 import { useLocalisation } from '~/ui/contexts/LocalisationContext';
+import { TranslatedText } from '/components/Translations/TranslatedText';
 
 export interface PatientCardProps {
   patient: IPatient;
@@ -47,7 +48,8 @@ export const PatientCard = ({ patient, onPress }: PatientCardProps): JSX.Element
             fontSize={screenPercentageToDP(1.09, Orientation.Height)}
             fontWeight={500}
           >
-            {`Last viewed \n${formatDate(lastViewed, DateFormats.short)}`}
+            <TranslatedText stringId="patient.lastViewed.title" fallback="Last viewed" />
+            {` \n${formatDate(lastViewed, DateFormats.short)}`}
           </StyledText>
         </RowView>
         <ColumnView width="100%" marginTop={screenPercentageToDP(1.82, Orientation.Height)}>

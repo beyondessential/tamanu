@@ -4,10 +4,11 @@ import { useSelector } from 'react-redux';
 import { authUserSelector } from '~/ui/helpers/selectors';
 import { Field } from '../Forms/FormField';
 import { TextField } from '../TextField/TextField';
+import { TranslatedTextElement } from '../Translations/TranslatedText';
 
 interface CurrentUserFieldProps {
   name: string,
-  label: string,
+  label: TranslatedTextElement,
   labelFontSize: string,
   valueKey?: string,
 }
