@@ -10,6 +10,7 @@ import { ReduxStoreProps } from '~/ui/interfaces/ReduxStoreProps';
 import { PatientStateProps } from '~/ui/store/ducks/patient';
 import { ReferralHistoryScreen } from '~/ui/navigation/screens/referrals/ReferralHistoryScreen';
 import { ReferralFormListScreen } from '../screens/referrals/ReferralFormListScreen';
+import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 
 const Tabs = createTopTabNavigator();
 
@@ -23,21 +24,35 @@ export const ReferralScreen = ({ navigation }: BaseAppProps): ReactElement => {
 
   return (
     <ErrorBoundary>
-      <StackHeader title="Referrals" subtitle={joinNames(selectedPatient)} onGoBack={goBack} />
+      <StackHeader
+        title={<TranslatedText stringId="patient.referral.title" fallback="Referrals" />}
+        subtitle={joinNames(selectedPatient)}
+        onGoBack={goBack}
+      />
       <Tabs.Navigator swipeEnabled={false}>
         <Tabs.Screen
           initialParams={{
             selectedPatient,
           }}
           options={{
-            title: 'Refer patient',
+            title: () => (
+              <TranslatedText
+                stringId="patient.referral.heading.referPatient"
+                fallback="Refer patient"
+              />
+            ),
           }}
           name={Routes.HomeStack.ReferralStack.ReferralList.Index}
           component={ReferralFormListScreen}
         />
         <Tabs.Screen
           options={{
-            title: 'View referrals',
+            title: () => (
+              <TranslatedText
+                stringId="patient.referral.heading.viewReferral"
+                fallback="View referrals"
+              />
+            ),
           }}
           name={Routes.HomeStack.ReferralStack.ViewHistory.Index}
           component={ReferralHistoryScreen}

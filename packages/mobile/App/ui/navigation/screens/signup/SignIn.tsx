@@ -19,8 +19,10 @@ import { ModalInfo } from '/components/ModalInfo';
 import { authSelector } from '/helpers/selectors';
 import { OutdatedVersionError } from '~/services/error';
 import { useFacility } from '~/ui/contexts/FacilityContext';
+import { LanguageSelectButton } from './LanguageSelectButton';
 import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 import { SupportCentreButton } from './SupportCentreButton';
+import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 
 interface ModalContent {
   message: string;
@@ -83,8 +85,8 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
           </RowView>
           <StyledView
             style={{ flexDirection: 'row', justifyContent: 'center' }}
-            marginTop={screenPercentageToDP(7.29, Orientation.Height)}
-            marginBottom={screenPercentageToDP(14.7, Orientation.Height)}
+            marginTop={screenPercentageToDP(5.29, Orientation.Height)}
+            marginBottom={screenPercentageToDP(10.7, Orientation.Height)}
           >
             <HomeBottomLogoIcon
               size={screenPercentageToDP(7.29, Orientation.Height)}
@@ -102,10 +104,13 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
           </StyledView>
           <StyledView marginLeft={screenPercentageToDP(2.43, Orientation.Width)}>
             <StyledText fontSize={30} fontWeight="bold" marginBottom={5} color={theme.colors.WHITE}>
-              Log In
+              <TranslatedText stringId="login.heading.login" fallback="Log in" />
             </StyledText>
             <StyledText fontSize={14} color={theme.colors.WHITE}>
-              Enter your details below to log in
+              <TranslatedText
+                stringId="login.subTitle"
+                fallback="Enter your details below to log in"
+              />
             </StyledText>
           </StyledView>
           <SignInForm
@@ -137,27 +142,27 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
               width="100%"
               textAlign="center"
               marginTop={screenPercentageToDP('2.43', Orientation.Height)}
-              marginBottom={screenPercentageToDP('4.86', Orientation.Height)}
               fontSize={screenPercentageToDP('1.57', Orientation.Height)}
               color={theme.colors.WHITE}
               textDecorationLine="underline"
             >
-              Forgot password?
+              <TranslatedText stringId="login.action.forgotPassword" fallback="Forgot password?" />
             </StyledText>
           </StyledTouchableOpacity>
         </KeyboardAvoidingView>
+        <LanguageSelectButton navigation={navigation} />
       </StyledSafeAreaView>
       <StyledView
-          flexDirection="row"
-          justifyContent="flex-end"
-          position='absolute'
-          bottom={screenPercentageToDP(2.43, Orientation.Height)}
-          right={screenPercentageToDP(2.43, Orientation.Width)}
-          paddingLeft={screenPercentageToDP(2.43, Orientation.Width)}
-          paddingRight={screenPercentageToDP(2.43, Orientation.Width)}
-        >
-          {isSupportUrlLoaded && <SupportCentreButton supportCentreUrl={supportCentreUrl} />}
-        </StyledView>
+        flexDirection="row"
+        justifyContent="flex-end"
+        position="absolute"
+        bottom={screenPercentageToDP(2.43, Orientation.Height)}
+        right={screenPercentageToDP(2.43, Orientation.Width)}
+        paddingLeft={screenPercentageToDP(2.43, Orientation.Width)}
+        paddingRight={screenPercentageToDP(2.43, Orientation.Width)}
+      >
+        {isSupportUrlLoaded && <SupportCentreButton supportCentreUrl={supportCentreUrl} />}
+      </StyledView>
     </FullView>
   );
 };
