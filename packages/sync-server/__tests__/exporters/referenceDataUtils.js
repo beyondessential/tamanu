@@ -96,14 +96,13 @@ export async function createAllergy(models) {
 
 export async function createPermission(
   models,
-  { verb, noun, objectId, roleId, deletionStatus = null },
+  { verb, noun, objectId, roleId },
 ) {
   await models.Permission.create({
     verb,
     noun,
     objectId,
     roleId,
-    deletionStatus,
   });
 }
 
