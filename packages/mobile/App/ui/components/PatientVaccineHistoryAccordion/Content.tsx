@@ -3,6 +3,7 @@ import { formatStringDate } from '/helpers/date';
 import { StyleSheet, Text, View } from 'react-native';
 import { ColumnView, RowView, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
+import { TranslatedText } from '../Translations/TranslatedText';
 
 const styles = StyleSheet.create({
   container: {
@@ -32,42 +33,38 @@ const VaccinationDetailsList = ({ status, date, scheduledVaccine }): ReactElemen
   <RowView width="100%">
     <View style={styles.section}>
       <View style={styles.row}>
-        <Text style={styles.item}>Schedule:</Text>
+        <Text style={styles.item}>
+          <TranslatedText stringId="general.schedule.label" fallback="Schedule" />:
+        </Text>
         <Text style={styles.item}>{scheduledVaccine.schedule}</Text>
       </View>
       <View style={styles.row}>
         <Text style={styles.item}>
-          Status:
+          <TranslatedText stringId="general.status.label" fallback="Status" />:
         </Text>
-        <Text style={styles.item}>
-          {status.toLowerCase()}
-        </Text>
+        <Text style={styles.item}>{status.toLowerCase()}</Text>
       </View>
       <View style={styles.row}>
         <Text style={styles.item}>
-          Date:
+          <TranslatedText stringId="general.date.label" fallback="Date" />:
         </Text>
-        <Text style={styles.item}>
-          {formatStringDate(date, 'do MMM yyyy h:mmaa')}
-        </Text>
+        <Text style={styles.item}>{formatStringDate(date, 'do MMM yyyy h:mmaa')}</Text>
       </View>
     </View>
   </RowView>
 );
 
-export const Content = (
-  section: any,
-): ReactElement => (
+export const Content = (section: any): ReactElement => (
   <StyledView>
     <ColumnView
       width="100%"
-      background={
-        theme.colors.BACKGROUND_GREY
-      }
+      background={theme.colors.BACKGROUND_GREY}
       paddingLeft={20}
       paddingRight={20}
     >
-      {section.data.map((d) => <VaccinationDetailsList key={d.id} {...d} />)}
+      {section.data.map(d => (
+        <VaccinationDetailsList key={d.id} {...d} />
+      ))}
     </ColumnView>
   </StyledView>
 );
