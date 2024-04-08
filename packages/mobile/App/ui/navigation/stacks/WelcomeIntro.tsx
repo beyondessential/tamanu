@@ -1,12 +1,10 @@
 import React, { ReactElement } from 'react';
-import {
-  createStackNavigator,
-  TransitionPresets,
-} from '@react-navigation/stack';
+import { createStackNavigator, TransitionPresets } from '@react-navigation/stack';
 // Screens
 import { Intro } from '../screens/home/Intro';
 import { Routes } from '/helpers/routes';
 import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
+import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 
 const Stack = createStackNavigator();
 
@@ -24,9 +22,18 @@ export const WelcomeIntroTabs = (): ReactElement => (
         initialParams={{
           step: 1,
           nextRoute: 'step2',
-          title: 'Search for patients',
-          message:
-            'All patients in the system are searchable, no internet is required after the first login. Start working immediately.',
+          title: (
+            <TranslatedText
+              stringId="welcome.heading.searchForPatients"
+              fallback="Search for patients"
+            />
+          ),
+          message: (
+            <TranslatedText
+              stringId="welcome.message.searchForPatients"
+              fallback="All patients in the system are searchable, no internet is required after the first login. Start working immediately."
+            />
+          ),
         }}
       />
       <Stack.Screen
@@ -35,9 +42,18 @@ export const WelcomeIntroTabs = (): ReactElement => (
         initialParams={{
           step: 2,
           nextRoute: 'step3',
-          title: 'Record patient visits ',
-          message:
-            'Record details from each patient visit, including diagnoses, vitals, medications, immunizations, births, deaths and program information.',
+          title: (
+            <TranslatedText
+              stringId="welcome.heading.recordPatientVisits"
+              fallback="Record patient visits"
+            />
+          ),
+          message: (
+            <TranslatedText
+              stringId="welcome.message.recordPatientVisits"
+              fallback="Record details from each patient visit, including diagnoses, vitals, medications, immunizations, births, deaths and program information."
+            />
+          ),
         }}
       />
       <Stack.Screen
@@ -46,9 +62,18 @@ export const WelcomeIntroTabs = (): ReactElement => (
         initialParams={{
           step: 3,
           nextRoute: Routes.HomeStack.HomeTabs.Index,
-          title: 'Sync data to the central system ',
-          message:
-            'Entered data will sync to the main system automatically whenever internet is available. You can download existing patient visit data if internet is available.',
+          title: (
+            <TranslatedText
+              stringId="welcome.heading.syncData"
+              fallback="Sync data to the central system"
+            />
+          ),
+          message: (
+            <TranslatedText
+              stringId="welcome.message.syncData"
+              fallback="Entered data will sync to the main system automatically whenever internet is available. You can download existing patient visit data if internet is available."
+            />
+          ),
         }}
       />
     </Stack.Navigator>

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { isValidElement, useEffect } from 'react';
 import { Formik, useFormikContext } from 'formik';
 import PropTypes from 'prop-types';
 import { ValidationError } from 'yup';
@@ -13,7 +13,10 @@ import { useFormSubmission } from '../../contexts/FormSubmission';
 import { IS_DEVELOPMENT } from '../../utils/env';
 import { TranslatedText } from '../Translation/TranslatedText';
 
-const ErrorMessage = ({ error }) => `${JSON.stringify(error)}`;
+const ErrorMessage = ({ error }) => {
+  if (isValidElement(error)) return error
+  return `${JSON.stringify(error)}`;
+};
 
 const FormErrors = ({ errors }) => {
   const allErrors = flattenObject(errors);
