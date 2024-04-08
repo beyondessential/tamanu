@@ -29,7 +29,7 @@ export class MerlinProvider extends Provider {
     const url = new URL(urlgen);
     url.username = username;
     url.password = password;
-    url.searchParams.set('accesion', externalCode);
+    url.searchParams.set('accession', externalCode);
 
     url.searchParams.set('patIdType', type);
     url.searchParams.set('patId', patient[field]);

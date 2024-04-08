@@ -48,15 +48,15 @@ patientProgramRegistration.post(
     });
 
     if (existingRegistration) {
-      req.checkPermission('write', 'PatientProgramRegistration', { programRegistryId });
+      req.checkPermission('write', 'PatientProgramRegistration');
     } else {
-      req.checkPermission('create', 'PatientProgramRegistration', { programRegistryId });
+      req.checkPermission('create', 'PatientProgramRegistration');
     }
 
     const { conditionIds = [], ...registrationData } = body;
 
     if (conditionIds.length > 0) {
-      req.checkPermission('create', 'PatientProgramRegistrationCondition', { programRegistryId });
+      req.checkPermission('create', 'PatientProgramRegistrationCondition');
     }
 
     // Run in a transaction so it either fails or succeeds together
@@ -303,7 +303,7 @@ patientProgramRegistration.delete(
     const programRegistry = await models.ProgramRegistry.findByPk(programRegistryId);
     if (!programRegistry) throw new NotFoundError();
 
-    req.checkPermission('delete', 'PatientProgramRegistrationCondition');
+    req.checkPermission('write', 'PatientProgramRegistrationCondition');
     const existingCondition = await models.PatientProgramRegistrationCondition.findOne({
       where: {
         id: conditionId,

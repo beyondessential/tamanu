@@ -8,11 +8,12 @@ import { theme } from '~/ui/styled/theme';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { TextFieldErrorMessage } from '../TextField/TextFieldErrorMessage';
 import { useBackend } from '~/ui/hooks';
+import { TranslatedTextElement } from '../Translations/TranslatedText';
 
 const MIN_COUNT_FILTERABLE_BY_DEFAULT = 8;
 
 export interface SelectOption {
-  label: string;
+  label?: TranslatedTextElement;
   value: string;
 }
 
@@ -31,6 +32,7 @@ export interface DropdownProps extends BaseInputProps {
   // - single
   // - non-filterable
   disabled?: boolean;
+  clearable?: boolean;
 }
 
 const baseStyleDropdownMenuSubsection = {
@@ -88,6 +90,7 @@ export const Dropdown = React.memo(
     error,
     disabled,
     required = false,
+    clearable = true,
   }: DropdownProps) => {
     const [selectedItems, setSelectedItems] = useState(() => {
       if (!value) {
@@ -127,8 +130,10 @@ export const Dropdown = React.memo(
           ref={componentRef}
           onSelectedItemsChange={onSelectedItemsChange}
           selectedItems={selectedItems}
-          selectText={selectPlaceholderText || label}
-          searchInputPlaceholderText={filterable ? searchPlaceholderText : label}
+          selectText={selectPlaceholderText || label?.props?.fallback || label}
+          searchInputPlaceholderText={
+            filterable ? searchPlaceholderText : label?.props?.fallback || label
+          }
           altFontFamily="ProximaNova-Light"
           tagRemoveIconColor={theme.colors.PRIMARY_MAIN}
           tagBorderColor={theme.colors.PRIMARY_MAIN}
@@ -172,6 +177,7 @@ export const Dropdown = React.memo(
           textInputProps={filterable ? {} : { editable: false, autoFocus: false }}
           searchIcon={filterable ? undefined : null}
           disabled={disabled}
+          clearable={clearable}
           fontSize={fontSize}
           {...getStyleProps(error, disabled)}
         />
