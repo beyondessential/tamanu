@@ -15,7 +15,7 @@
     "test": "NODE_ENV=test vitest run",
     "test-watch": "NODE_ENV=test vitest watch",
     "test-storybook": "yarn build-storybook --test",
-    "build-storybook": "NODE_ENV=development storybook build"
+    "build-storybook": "NODE_ENV=development STORYBOOK=true storybook build"
   },
   "devDependencies": {
     "@emotion/core": "^10.0.9",
