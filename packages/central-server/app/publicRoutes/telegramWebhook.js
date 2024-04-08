@@ -5,12 +5,11 @@ import { TelegramBotService } from '../services/TelegramBotService';
 
 export const telegramWebhookRoutes = express.Router();
 
-const tgBot = new TelegramBotService({ autoStartWebhook: true });
-tgBot.initListener();
-
 telegramWebhookRoutes.post(
   `/`,
   asyncHandler(async (req, res) => {
+    const tgBot = new TelegramBotService(req.ctx, { autoStartWebhook: true });
+    tgBot.initListener();
     const secretToken = config.telegramBot?.secretToken;
     if (req.header('X-Telegram-Bot-Api-Secret-Token') !== secretToken) {
       return res.status(401).send('Invalid token');

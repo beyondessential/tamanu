@@ -3,26 +3,48 @@ import config from 'config';
 import { COMMUNICATION_STATUSES } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
 
-const { telegramBot, canonicalHostName } = config;
+const { telegramBot, canonicalHostName, language = 'en' } = config;
 const apiToken = telegramBot?.apiToken;
 const secretToken = telegramBot?.secretToken;
 
 export class TelegramBotService {
   static #bot = apiToken ? new TelegramBot(apiToken) : null;
 
-  constructor(options) {
+  constructor(context, options) {
+    this.context = context;
     if (options?.autoStartWebhook) {
       this.startWebhook();
     }
   }
 
   initListener() {
-    TelegramBotService.#bot?.on('message', async (msg, meta) => this.handleMessage(msg, meta));
+    TelegramBotService.#bot?.once('message', this.handleMessage.bind(this));
   }
 
   handleMessage(msg) {
+    if (!TelegramBotService.#bot || !msg?.text) return;
+    if (msg.text.startsWith('/start ')) {
+      this.registerNewContact(msg);
+    }
+  }
+
+  async registerNewContact(msg) {
+    const { models } = this.context.store;
+    const getTranslation = await models.TranslatedString.getTranslationFunction(language);
+
+    const botInfo = await TelegramBotService.#bot.getMe();
     const chatId = msg.chat.id;
-    TelegramBotService.#bot?.sendMessage(chatId, `You just say: \n${msg.text}`);
+    const contactName = msg.from.first_name + (msg.from.last_name ? ` ${msg.from.last_name}` : '');
+
+    // TODO: Check added contact successfully then send message and add patientName to translation text
+    this.sendMessage(
+      chatId,
+      getTranslation(
+        'telegramRegistration.successMessage',
+        `Dear :contactName, you have successfully registered to receive messages for <patientName> from :botName. Thank you.`,
+        { contactName, botName: botInfo.first_name },
+      ),
+    );
   }
 
   startWebhook() {

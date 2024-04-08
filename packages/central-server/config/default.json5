@@ -1240,5 +1240,6 @@
   "telegramBot": {
     apiToken: "",
     secretToken: ""
-  }
+  },
+  "language": "en"
 }

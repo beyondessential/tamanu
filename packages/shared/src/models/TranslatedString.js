@@ -1,6 +1,8 @@
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { DataTypes } from 'sequelize';
 import { Model } from './Model';
+import { keyBy, mapValues } from 'lodash';
+import { translationFactory } from '../utils/translation/translationFactory';
 
 export class TranslatedString extends Model {
   static init(options) {
@@ -83,5 +85,20 @@ export class TranslatedString extends Model {
     });
 
     return { languagesInDb, languageNames };
+  };
+
+  static getTranslationFunction = async language => {
+    const translatedStringRecords = await TranslatedString.findAll({
+      where: { language },
+      attributes: ['stringId', 'text'],
+    });
+
+    const translations = mapValues(keyBy(translatedStringRecords, 'stringId'), 'text');
+
+    return (stringId, fallback, replacements) => {
+      const translationFunc = translationFactory(translations);
+      const value = translationFunc(stringId, fallback, replacements);
+      return value;
+    };
   };
 }
