@@ -5,14 +5,14 @@ value your expertise, insights, and commitment to making Tamanu a global good. T
 guide on how to contribute to Tamanu effectively, ensuring it remains a cohesive, maintainable, and
 globally valuable product.
 
-[bes open source code of conduct]: ./CODE_OF_CONDUCT.md
-[contributor license agreement]: ./CONTRIBUTOR-LICENSE-AGREEMENT.md
+[BES Open Source Code of Conduct]: ./CODE_OF_CONDUCT.md
+[Contributor License Agreement]: ./CONTRIBUTOR-LICENSE-AGREEMENT.md
 [product roadmap]: https://www.bes.au/tamanu-roadmap/
-[bes slab wiki]: https://beyond-essential.slab.com/posts/bes-dev-culture-best-practices-4745nkso
-[conventional commit]: https://www.conventionalcommits.org/en/v1.0.0/
-[gnu general public license 3.0]: ./LICENSE-GPL
-[business source license]: ./LICENSE-BSL
-[copyright]: ./COPYRIGHT
+[BES Slab Wiki]: https://beyond-essential.slab.com/posts/bes-dev-culture-best-practices-4745nkso
+[Conventional Commit]: https://www.conventionalcommits.org/en/v1.0.0/
+[GNU General Public License 3.0]: ./LICENSE-GPL
+[Business Source License]: ./LICENSE-BSL
+[COPYRIGHT]: ./COPYRIGHT
 
 ## Code of Conduct
 
@@ -22,7 +22,8 @@ By participating, you are expected to uphold this code. Please report unacceptab
 
 ## Contributor License Agreement
 
-All open-source contributors to Tamanu will be required to sign this [Contributor License Agreement](CLA) before BES can accept your contribution into the project code. Instructions on how to sign are
+All open-source contributors to Tamanu will be required to sign this [Contributor License Agreement]
+(CLA) before BES can accept your contribution into the project code. Instructions on how to sign are
 provided in the CLA document linked above.
 
 ## Our Philosophy
@@ -60,12 +61,10 @@ To assess whether or not your contribution will be meaningful to the development
 making your contribution, assess your contribution idea against the following criteria:
 
 **Documentation:**
-
 - If there is no documentation for a specific aspect of Tamanu
 - If a specific area in the project's documentation is either: lacking detail, outdated or unclear.
 
 **Features:**
-
 - If the feature aligns with the Tamanu roadmap
 - If your feature has been co-designed with a BES developer
 
@@ -129,7 +128,6 @@ The following types are conventional:
 - `fix` for bug fixes
 - `fmt` for automatic formatting changes (ignored in changelogs)
 - `merge` for merging between branches (generally between `main` and `release/*`)
-- `perf` for code changes that improve performance
 - `refactor` for code refactoring
 - `release` for changes that are part of the release process (generally automated commits, not manual use)
 - `repo` for changes to the repository structure, or for config/dotfiles (e.g. `.gitignore`, `.editorconfig`, etc)
