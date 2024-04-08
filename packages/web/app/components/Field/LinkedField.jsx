@@ -21,9 +21,8 @@ export const LinkedField = ({ linkedFieldName, endpoint, ...props }) => {
   const { data } = useLinkedFieldQuery(endpoint, props.name, value);
 
   useEffect(() => {
-    if (data?.id) {
-      setLinkedFieldValue(data.id);
-    }
+    if (!data?.id) return;
+    setLinkedFieldValue(data.id);
   }, [data?.id, setLinkedFieldValue]);
 
   return <Field {...props} />;
