@@ -1,10 +1,9 @@
-import { SETTINGS_SCOPES } from '@tamanu/constants';
 import { MerlinProvider } from './MerlinProvider';
 import { TestProvider } from './TestProvider';
 
 export async function getImagingProvider(models) {
   const { Setting } = models;
-  const config = await Setting.get('integrations.imaging', null, SETTINGS_SCOPES.GLOBAL);
+  const config = await Setting.get('integrations.imaging');
   if (!config || !config.enabled) return false;
 
   switch (config.provider) {

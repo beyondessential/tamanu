@@ -1,7 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import config from 'config';
-import { SETTINGS_SCOPES } from '@tamanu/constants';
 
 export const vaccinationSettings = express.Router();
 
@@ -19,7 +18,7 @@ vaccinationSettings.get(
       throw new Error('Invalid vaccinations key');
     }
 
-    const defaults = await Setting.get(key, config.serverFacilityId, SETTINGS_SCOPES.FACILITY);
+    const defaults = await Setting.get(key, config.serverFacilityId);
 
     res.send({ data: defaults || null });
   }),

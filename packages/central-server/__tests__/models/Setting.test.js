@@ -35,7 +35,7 @@ describe('Setting', () => {
 
     const testSetThenGet = async ([key, value]) => {
       await Setting.set(key, value, SETTINGS_SCOPES.GLOBAL);
-      const output = await Setting.get(key, null, SETTINGS_SCOPES.GLOBAL);
+      const output = await Setting.get(key);
       expect(output).toEqual(value);
     };
 
@@ -53,7 +53,7 @@ describe('Setting', () => {
 
     const testSetThenGet = async ([key, value]) => {
       await Setting.set(key, value, SETTINGS_SCOPES.GLOBAL);
-      const output = await Setting.get(key, null, SETTINGS_SCOPES.GLOBAL);
+      const output = await Setting.get(key);
       expect(output).toEqual(value);
     };
 
@@ -110,7 +110,7 @@ describe('Setting', () => {
     ];
 
     const runTest = async ([key, value]) => {
-      const output = await Setting.get(key, null, SETTINGS_SCOPES.GLOBAL);
+      const output = await Setting.get(key);
       expect(output).toEqual(value);
     };
 
@@ -255,7 +255,7 @@ describe('Setting', () => {
 
     // Assert
 
-    expect(await Setting.get('cats', null, SETTINGS_SCOPES.GLOBAL)).toEqual({
+    expect(await Setting.get('cats')).toEqual({
       breeds: {
         persian: {
           include: true,
@@ -266,7 +266,7 @@ describe('Setting', () => {
       },
     });
 
-    expect(await Setting.get('timezone', facilityA, SETTINGS_SCOPES.FACILITY)).toEqual({
+    expect(await Setting.get('timezone', facilityA)).toEqual({
       name: 'Pacific/Tongatapu',
       offset: {
         hours: 10,
@@ -274,7 +274,7 @@ describe('Setting', () => {
       daylightSavingsBounds: ['02/04', '25/09'],
     });
 
-    expect(await Setting.get('timezone', null, SETTINGS_SCOPES.GLOBAL)).toEqual({
+    expect(await Setting.get('timezone')).toEqual({
       name: 'Australia/Sydney',
       offset: {
         hours: 14,
@@ -306,7 +306,7 @@ describe('Setting', () => {
     );
 
     // Assert
-    expect(await Setting.get('testing.key', null, SETTINGS_SCOPES.GLOBAL)).toEqual({
+    expect(await Setting.get('testing.key')).toEqual({
       a: 'stays identical',
       b: 'gets updated here',
       d: 'gets added',

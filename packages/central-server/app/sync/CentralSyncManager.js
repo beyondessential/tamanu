@@ -2,7 +2,7 @@ import { trace } from '@opentelemetry/api';
 import { Op, Transaction } from 'sequelize';
 import _config from 'config';
 
-import { SETTINGS_SCOPES, SYNC_DIRECTIONS } from '@tamanu/constants';
+import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { CURRENT_SYNC_TIME_KEY } from '@tamanu/shared/sync/constants';
 import { log } from '@tamanu/shared/services/logging';
 import {
@@ -266,15 +266,10 @@ export class CentralSyncManager {
       });
       const patientIdsForFullSync = newPatientFacilities.map(n => n.patientId);
 
-      const syncAllLabRequests = await models.Setting.get(
-        'syncAllLabRequests',
-        facilityId,
-        SETTINGS_SCOPES.FACILITY,
-      );
+      const syncAllLabRequests = await models.Setting.get('syncAllLabRequests', facilityId);
       const syncTheseProgramRegistries = await models.Setting.get(
         'syncTheseProgramRegistries',
         facilityId,
-        SETTINGS_SCOPES.FACILITY,
       );
       const sessionConfig = {
         // for facilities with a lab, need ongoing lab requests
