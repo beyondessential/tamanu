@@ -97,8 +97,8 @@ export const TriageTable = React.memo(() => {
 
   return (
     <DataFetchingTableWithPermissionCheck
-      verb={'list'}
-      noun={'Triage'}
+      verb="list"
+      noun="Triage"
       endpoint="triage"
       columns={columns}
       noDataMessage={

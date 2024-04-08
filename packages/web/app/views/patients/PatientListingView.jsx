@@ -77,8 +77,8 @@ const PatientTable = ({ columns, fetchOptions, searchParameters }) => {
 
   return (
     <SearchTableWithPermissionCheck
-      verb={'list'}
-      noun={'Patient'}
+      verb="list"
+      noun="Patient"
       columns={columns}
       noDataMessage="No patients found"
       onRowClick={handleViewPatient}
