@@ -155,12 +155,14 @@ export const VaccineForm = ({
     : NEW_RECORD_VACCINE_SCHEME_VALIDATION;
 
   const vaccineConsentEnabled = getLocalisation('features.enableVaccineConsent');
+  const scheduledVaccineId = currentVaccineRecordValues?.scheduledvaccineid;
 
   const initialValues = !editMode
     ? {
         vaccineLabel: vaccineLabel,
         status: vaccineRecordingType,
         category,
+        scheduledVaccineId,
         date: getCurrentDateTimeString(),
         locationGroupId: !currentEncounter
           ? vaccinationDefaults.data?.locationGroupId
