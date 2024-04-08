@@ -119,12 +119,6 @@ export const REFERENCE_TYPES = {
 
 export const REFERENCE_TYPE_VALUES = Object.values(REFERENCE_TYPES);
 
-// unlike visibilityStatus, all values in this constant represent a different reason for deletion.
-// (records that aren't deleted will just have a deletionStatus of null)
-export const DELETION_STATUSES = {
-  REVOKED: 'revoked',
-};
-
 export const VISIBILITY_STATUSES = {
   CURRENT: 'current',
   HISTORICAL: 'historical',
