@@ -22,6 +22,7 @@ import { getDisplayAge } from '/helpers/date';
 import { setDotsOnMaxLength } from '/helpers/text';
 import { SyncInactiveAlert } from '~/ui/components/SyncInactiveAlert';
 import { MenuOptionButtonProps } from '~/types/MenuOptionButtonProps';
+import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 import { PatientSyncIcon } from '~/ui/components/Icons';
 
@@ -130,7 +131,7 @@ export const Screen = ({
                   color="white"
                   marginTop={screenPercentageToDP(-0.6, Orientation.Height)}
                 >
-                  Sync data
+                  <TranslatedText stringId="general.action.syncData" fallback="Sync Data" />
                 </StyledText>
               </ColumnView>
             </StyledTouchableOpacity>
