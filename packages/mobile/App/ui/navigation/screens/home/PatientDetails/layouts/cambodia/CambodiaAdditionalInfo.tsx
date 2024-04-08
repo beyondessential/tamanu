@@ -82,7 +82,7 @@ export const CambodiaAdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps)
     const onEditCallback = (): void => onEdit(patientAdditionalData, title, false);
     const mappedFields = fields.map(fieldName => {
       // TODO: hacky just to get it working initially
-      if (fieldName === 'villageId') return [fieldName, patient.village.name];
+      if (fieldName === 'villageId') return [fieldName, patient.village?.name];
       if (fieldName.startsWith('fieldDefinition-'))
         return [fieldName, getCustomFieldData(customPatientFieldValues, fieldName)];
       return [fieldName, getPadFieldData(patientAdditionalData, fieldName)];
