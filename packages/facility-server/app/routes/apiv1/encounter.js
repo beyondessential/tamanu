@@ -305,11 +305,9 @@ encounterRelations.get(
         AND
           surveys.survey_type = 'programs'
         AND
-          encounters.deleted_at is null
+          encounters.deleted_at IS NULL
         AND
           survey_responses.deleted_at IS NULL
-        AND
-          encounters.deleted_at IS NULL
       `,
       `
         SELECT
