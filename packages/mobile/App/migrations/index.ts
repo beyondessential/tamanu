@@ -29,7 +29,6 @@ import { migrateNotePagesToNotes1688950151000 } from './1688950151000-migrateNot
 import { addEncounterHistoryTable1693484817000 } from './1693484817000-addEncounterHistoryTable';
 import { addTranslatedStringTable1698353903000 } from './1698353903000-addTranslatedStringTable';
 import { addVisibilityStatusToSurveyScreenComponents1695096053000 } from './1695096053000-addVisibilityStatusToSurveyScreenComponents';
-import { addDeletionStatusToClinicalFeatures1698040379000 } from './1698040379000-addDeletionStatusToClinicalFeatures';
 import { addVisibilityStatusForUsers1697499690000 } from './1697499690000-addVisibilityStatusForUsers';
 import { addDeletedAtToAllTables1698626272000 } from './1698626272000-addDeletedAtToAllTables';
 import { addPatientCustomFieldsTables1694090332843 } from './1694090332843-addPatientCustomFieldsTables';
@@ -73,7 +72,6 @@ export const migrationList = [
   addEncounterHistoryTable1693484817000,
   addTranslatedStringTable1698353903000,
   addVisibilityStatusToSurveyScreenComponents1695096053000,
-  addDeletionStatusToClinicalFeatures1698040379000,
   addVisibilityStatusForUsers1697499690000,
   addDeletedAtToAllTables1698626272000,
   addPatientCustomFieldsTables1694090332843,

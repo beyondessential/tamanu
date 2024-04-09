@@ -40,7 +40,7 @@ describe('Permissions', () => {
           verb: 'run',
           noun: 'Report',
           objectId: 'report-allowed-but-revoked',
-          deletionStatus: DELETION_STATUSES.REVOKED,
+          deletedAt: new Date(),
         },
       ]),
       makeRoleWithPermissions('writer', [{ verb: 'write', noun: 'Patient' }]),
