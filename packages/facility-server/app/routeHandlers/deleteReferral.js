@@ -2,7 +2,6 @@ import asyncHandler from 'express-async-handler';
 
 export const deleteReferral = asyncHandler(async (req, res) => {
   const { models, params } = req;
-
   req.checkPermission('delete', 'Referral');
 
   const model = models.Referral;
