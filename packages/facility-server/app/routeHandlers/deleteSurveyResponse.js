@@ -1,9 +1,9 @@
 import asyncHandler from 'express-async-handler';
 
-export const deleteProgramForm = asyncHandler(async (req, res) => {
+export const deleteSurveyResponse = asyncHandler(async (req, res) => {
   const { models, params } = req;
 
-  req.checkPermission('delete', 'ProgramForm');
+  req.checkPermission('delete', 'SurveyResponse');
 
   const model = models.SurveyResponse;
   const object = await model.findByPk(params.programResponseId);

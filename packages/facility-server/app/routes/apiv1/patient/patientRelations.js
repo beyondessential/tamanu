@@ -14,7 +14,7 @@ import { patientSecondaryIdRoutes } from './patientSecondaryId';
 import { patientDeath } from './patientDeath';
 import { patientProfilePicture } from './patientProfilePicture';
 import { deleteReferral } from '../../../routeHandlers/deleteReferral';
-import { deleteProgramForm } from '../../../routeHandlers/deleteProgramForm';
+import { deleteSurveyResponse } from '../../../routeHandlers/deleteSurveyResponse';
 
 export const patientRelations = permissionCheckingRouter('read', 'Patient');
 
@@ -404,7 +404,7 @@ patientRelations.get(
   }),
 );
 
-patientRelations.delete('/:id/programResponses/:programResponseId', deleteProgramForm);
+patientRelations.delete('/:id/programResponses/:programResponseId', deleteSurveyResponse);
 
 patientRelations.use(patientProfilePicture);
 patientRelations.use(patientDeath);

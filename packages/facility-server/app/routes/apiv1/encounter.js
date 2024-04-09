@@ -27,7 +27,7 @@ import { createPatientLetter } from '../../routeHandlers/createPatientLetter';
 
 import { getLabRequestList } from '../../routeHandlers/labs';
 import { deleteDocumentMetadata } from '../../routeHandlers/deleteDocumentMetadata';
-import { deleteProgramForm } from '../../routeHandlers/deleteProgramForm';
+import { deleteSurveyResponse } from '../../routeHandlers/deleteSurveyResponse';
 
 export const encounter = softDeletionCheckingRouter('Encounter');
 
@@ -346,7 +346,7 @@ encounterRelations.get(
   }),
 );
 
-encounterRelations.delete('/:id/programResponses/:programResponseId', deleteProgramForm);
+encounterRelations.delete('/:id/programResponses/:programResponseId', deleteSurveyResponse);
 
 encounterRelations.get(
   '/:id/vitals',
