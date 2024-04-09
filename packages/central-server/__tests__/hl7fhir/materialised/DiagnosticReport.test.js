@@ -371,7 +371,7 @@ describe('Create DiagnosticReport', () => {
         expect(response.status).toBe(400);
       });
 
-      it('post a DiagnosticReport with PDF report in presentedForm (Lab Request)', async () => {
+      it('report in presentedForm in invalid type', async () => {
         const { FhirServiceRequest } = ctx.store.models;
         const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
           ctx.store.models,
