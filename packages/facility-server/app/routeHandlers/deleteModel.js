@@ -24,7 +24,7 @@ export const deleteEncounter = deleteModel('Encounter', 'id');
 export const deleteReferral = deleteModel('Referral', 'referralId');
 export const deleteSurveyResponse = deleteModel(
   'SurveyResponse',
-  'programResponseId',
+  'surveyResponseId',
   'Survey response',
 );
 export const deleteDocumentMetadata = deleteModel(

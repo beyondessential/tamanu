@@ -403,7 +403,7 @@ patientRelations.get(
   }),
 );
 
-patientRelations.delete('/:id/programResponses/:programResponseId', deleteSurveyResponse);
+patientRelations.delete('/:id/programResponses/:surveyResponseId', deleteSurveyResponse);
 
 patientRelations.use(patientProfilePicture);
 patientRelations.use(patientDeath);

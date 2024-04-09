@@ -331,7 +331,7 @@ encounterRelations.get(
   }),
 );
 
-encounterRelations.delete('/:id/programResponses/:programResponseId', deleteSurveyResponse);
+encounterRelations.delete('/:id/programResponses/:surveyResponseId', deleteSurveyResponse);
 
 encounterRelations.get(
   '/:id/vitals',
