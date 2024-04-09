@@ -1,6 +1,6 @@
 import { endOfDay, startOfDay } from 'date-fns';
 import { getJsDateFromExcel } from 'excel-date-to-js';
-import { ENCOUNTER_TYPES } from '@tamanu/constants';
+import { ENCOUNTER_TYPES, DELETION_STATUSES } from '@tamanu/constants';
 
 function stripNotes(fields) {
   const values = { ...fields };
@@ -166,8 +166,9 @@ export function permissionLoader(item) {
     .map(([role, yCell]) => {
       const id = `${role}-${verb}-${noun}-${objectId || 'any'}`.toLowerCase();
 
-      // set deletedAt if the cell is marked N
-      const deletedAt = yCell === 'n' ? new Date() : null;
+      const isDeleted = yCell === 'n';
+      const deletionStatus = isDeleted ? DELETION_STATUSES.REVOKED : null;
+      const deletedAt = isDeleted ? new Date() : null;
 
       return {
         model: 'Permission',
@@ -178,6 +179,7 @@ export function permissionLoader(item) {
           noun,
           objectId,
           role,
+          deletionStatus,
           deletedAt,
         },
       };

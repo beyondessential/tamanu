@@ -17,6 +17,7 @@ export class Permission extends Model {
           allowNull: false,
         },
         objectId: Sequelize.STRING,
+        deletionStatus: Sequelize.STRING,
       },
       {
         ...options,

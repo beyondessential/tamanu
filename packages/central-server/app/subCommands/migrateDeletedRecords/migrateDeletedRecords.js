@@ -27,6 +27,24 @@ const fromSurveyScreenComponent = async () => {
   );
 };
 
+const fromPermission = async () => {
+  const store = await initDatabase({ testMode: false });
+
+  const response = await store.sequelize.query(
+    `UPDATE "permissions" 
+      SET "deletion_status" = :revoked
+      WHERE "deleted_at" IS NOT NULL
+        AND deletion_status IS NULL`,
+    {
+      replacements: {
+        revoked: DELETION_STATUSES.REVOKED,
+      },
+    },
+  );
+
+  log.info(`${response[1].rowCount} soft deleted records updated at permissions table`);
+};
+
 const fromClinicalFeatures = async table => {
   const store = await initDatabase({ testMode: false });
 
@@ -52,6 +70,7 @@ const fromClinicalFeatures = async table => {
 
 const TABLE_TO_MIGRATION_MAPPING = {
   survey_screen_components: fromSurveyScreenComponent,
+  permissions: fromPermission,
   encounters: fromClinicalFeatures,
   document_metadata: fromClinicalFeatures,
   referrals: fromClinicalFeatures,

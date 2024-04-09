@@ -4,6 +4,7 @@ import {
   GENERAL_IMPORTABLE_DATA_TYPES,
   PERMISSION_IMPORTABLE_DATA_TYPES,
 } from '@tamanu/constants/importable';
+import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermissions';
 import { createDummyPatient } from '@tamanu/shared/demoData/patients';
 import { REFERENCE_TYPES } from '@tamanu/constants';
 import { importerTransaction } from '../../dist/admin/importerEndpoint';
@@ -398,30 +399,37 @@ describe('Permissions import', () => {
   it('should revoke (and reinstate) a permission', async () => {
     const { Permission } = ctx.store.models;
 
-    const where = {
-      noun: 'RevokeTest',
-    };
-
-    const beforeImport = await Permission.findOne({ where });
+    const beforeImport = await Permission.findOne({ where: { noun: 'RevokeTest' } });
     expect(beforeImport).toBeFalsy();
 
     await doImport({ file: 'revoke-a' });
 
-    const afterImport = await Permission.findOne({ where });
-    expect(afterImport).toBeTruthy();
-    expect(afterImport.deletedAt).toEqual(null);
+    const initialPermissions = await getPermissionsForRoles(ctx.store.models, 'reception');
+    expect(initialPermissions).toEqual(
+      expect.arrayContaining([{ noun: 'RevokeTest', verb: 'read' }]),
+    );
+    expect(initialPermissions.length).toBe(1);
 
     await doImport({ file: 'revoke-b' });
 
-    const afterRevoke = await Permission.findOne({ where, paranoid: false });
-    expect(afterRevoke).toBeTruthy();
-    expect(afterRevoke.deletedAt).toBeTruthy();
+    const afterImport = await Permission.findOne({
+      where: { noun: 'RevokeTest' },
+      paranoid: false,
+    });
+    expect(afterImport).toBeTruthy();
+    const revokedPermissions = await getPermissionsForRoles(ctx.store.models, 'reception');
+    expect(revokedPermissions).toEqual(
+      expect.not.arrayContaining([{ noun: 'RevokeTest', verb: 'read' }]),
+    );
+    expect(revokedPermissions.length).toBe(0);
 
     await doImport({ file: 'revoke-a' });
 
-    const afterReinstate = await Permission.findOne({ where, paranoid: false });
-    expect(afterReinstate).toBeTruthy();
-    expect(afterReinstate.deletedAt).toEqual(null);
+    const reinstatedPermissions = await getPermissionsForRoles(ctx.store.models, 'reception');
+    expect(reinstatedPermissions).toEqual(
+      expect.arrayContaining([{ noun: 'RevokeTest', verb: 'read' }]),
+    );
+    expect(reinstatedPermissions.length).toBe(1);
   });
 
   it('should not import rows specified in pages other than "Permissions"', async () => {
