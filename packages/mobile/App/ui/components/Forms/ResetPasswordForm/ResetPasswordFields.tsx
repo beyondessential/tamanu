@@ -12,15 +12,10 @@ export const ResetPasswordFields = (): ReactElement => (
     marginTop={screenPercentageToDP(14.7, Orientation.Height)}
     marginRight={screenPercentageToDP(2.43, Orientation.Width)}
     marginLeft={screenPercentageToDP(2.43, Orientation.Width)}
+    zIndex={1}
   >
-    <StyledView
-      justifyContent="space-around"
-    >
-      <StyledText
-        fontSize={13}
-        marginBottom={5}
-        color={theme.colors.SECONDARY_MAIN}
-      >
+    <StyledView justifyContent="space-around" zIndex={1}>
+      <StyledText fontSize={13} marginBottom={5} color={theme.colors.SECONDARY_MAIN}>
         Enter your account email
       </StyledText>
       <Field
@@ -39,6 +34,7 @@ export const ResetPasswordFields = (): ReactElement => (
       fontSize={screenPercentageToDP('1.94', Orientation.Height)}
       fontWeight={500}
       buttonText="Reset Password"
+      zIndex={-1}
     />
   </StyledView>
 );
