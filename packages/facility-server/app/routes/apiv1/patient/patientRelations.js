@@ -13,8 +13,7 @@ import {
 import { patientSecondaryIdRoutes } from './patientSecondaryId';
 import { patientDeath } from './patientDeath';
 import { patientProfilePicture } from './patientProfilePicture';
-import { deleteReferral } from '../../../routeHandlers/deleteReferral';
-import { deleteSurveyResponse } from '../../../routeHandlers/deleteSurveyResponse';
+import { deleteReferral, deleteSurveyResponse } from '../../../routeHandlers/deleteModel';
 
 export const patientRelations = permissionCheckingRouter('read', 'Patient');
 

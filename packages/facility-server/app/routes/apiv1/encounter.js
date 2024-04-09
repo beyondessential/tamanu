@@ -26,8 +26,7 @@ import { noteChangelogsHandler, noteListHandler } from '../../routeHandlers';
 import { createPatientLetter } from '../../routeHandlers/createPatientLetter';
 
 import { getLabRequestList } from '../../routeHandlers/labs';
-import { deleteDocumentMetadata } from '../../routeHandlers/deleteDocumentMetadata';
-import { deleteSurveyResponse } from '../../routeHandlers/deleteSurveyResponse';
+import { deleteDocumentMetadata, deleteSurveyResponse } from '../../routeHandlers/deleteModel';
 
 export const encounter = softDeletionCheckingRouter('Encounter');
 
