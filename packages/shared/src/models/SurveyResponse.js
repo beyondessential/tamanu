@@ -52,24 +52,14 @@ const getFieldsToWrite = (models, questions, answers) => {
       continue;
     }
 
-    const { fieldName: configFieldName, isCustomPatientField } = config.writeToPatient || {};
+    const { fieldName: configFieldName } = config.writeToPatient || {};
     if (!configFieldName) {
       throw new Error('No fieldName defined for writeToPatient config');
     }
     const value = answers[dataElement.id];
 
-    let modelName, fieldName;
+    const { modelName, fieldName } = getPatientDataDbLocation(configFieldName, models);
 
-    if (isCustomPatientField) {
-      modelName = 'PatientFieldValue';
-      fieldName = configFieldName;
-    } else {
-      const { modelName: dbModelName, fieldName: dbFieldName } = getPatientDataDbLocation(
-        configFieldName,
-      );
-      modelName = dbModelName;
-      fieldName = dbFieldName;
-    }
     if (!modelName) {
       throw new Error(`Unknown fieldName: ${configFieldName}`);
     }
