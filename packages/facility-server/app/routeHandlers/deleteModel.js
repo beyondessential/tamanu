@@ -1,4 +1,5 @@
 import asyncHandler from 'express-async-handler';
+import { NotFoundError } from '@tamanu/shared/errors';
 
 const deleteModel = (modelName, paramName, displayName = modelName) => {
   return asyncHandler(async (req, res) => {
@@ -10,7 +11,7 @@ const deleteModel = (modelName, paramName, displayName = modelName) => {
     const object = await model.findByPk(primaryKey);
 
     if (!object) {
-      throw new Error(`Cannot find ${displayName.toLowerCase()} with id ${primaryKey}`);
+      throw new NotFoundError(`Cannot find ${displayName.toLowerCase()} with id ${primaryKey}`);
     }
 
     req.checkPermission('delete', object);
