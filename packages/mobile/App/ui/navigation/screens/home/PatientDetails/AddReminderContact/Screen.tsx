@@ -50,12 +50,11 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
 
   const patientName = joinNames(selectedPatient);
 
-  const note = getTranslation({
-    stringId: 'patient.details.addReminderContacts.note',
-    fallback:
-      'By providing their details, the individual consents to receiving automated reminder messages for :patientName.',
-    replacements: { patientName },
-  });
+  const note = getTranslation(
+    'patient.details.addReminderContacts.note',
+    'By providing their details, the individual consents to receiving automated reminder messages for :patientName.',
+    { patientName },
+  );
 
   return (
     <ScrollView>
@@ -104,7 +103,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
           <Form
             initialValues={{
               reminderContactName: '',
-              reminderContactRelationship: ''
+              reminderContactRelationship: '',
             }}
             validationSchema={yup.object().shape({
               reminderContactName: yup.string().required('Contact name is required'),
@@ -119,10 +118,10 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
                     <LocalisedField
                       name="reminderContactName"
                       component={TextField}
-                      placeholder={getTranslation({
-                        stringId: 'patient.details.addReminderContacts.placeholder.contactName',
-                        fallback: 'Contact Name',
-                      })}
+                      placeholder={getTranslation(
+                        'patient.details.addReminderContacts.placeholder.contactName',
+                        'Contact Name',
+                      )}
                       required
                     />
                   </StyledView>
@@ -131,10 +130,10 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
                       name="reminderContactRelationship"
                       component={SuggesterDropdown}
                       referenceDataType="contactRelationship"
-                      selectPlaceholderText={getTranslation({
-                        stringId: 'patient.details.addReminderContacts.placeholder.select',
-                        fallback: 'Select',
-                      })}
+                      selectPlaceholderText={getTranslation(
+                        'patient.details.addReminderContacts.placeholder.select',
+                        'Select',
+                      )}
                       required
                     />
                   </StyledView>
