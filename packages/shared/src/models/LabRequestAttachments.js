@@ -12,6 +12,10 @@ export class LabRequestAttachments extends Model {
                     type: Sequelize.STRING,
                     allowNull: false,
                 },
+                title: {
+                    type: Sequelize.STRING,
+                    allowNull: false,
+                },
                 isVisible: {
                     type: Sequelize.BOOLEAN,
                     defaultValue: false,
