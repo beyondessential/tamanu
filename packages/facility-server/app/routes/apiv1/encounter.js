@@ -26,7 +26,7 @@ import { noteChangelogsHandler, noteListHandler } from '../../routeHandlers';
 import { createPatientLetter } from '../../routeHandlers/createPatientLetter';
 
 import { getLabRequestList } from '../../routeHandlers/labs';
-import { deleteDocumentMetadata, deleteSurveyResponse } from '../../routeHandlers/deleteModel';
+import { deleteDocumentMetadata, deleteEncounter, deleteSurveyResponse } from '../../routeHandlers/deleteModel';
 
 export const encounter = softDeletionCheckingRouter('Encounter');
 
@@ -143,21 +143,7 @@ encounter.post('/:id/createPatientLetter', createPatientLetter('Encounter', 'enc
 
 encounter.delete('/:id/documentMetadata/:documentMetadataId', deleteDocumentMetadata);
 
-encounter.delete(
-  '/:id',
-  asyncHandler(async (req, res) => {
-    const { models, params } = req;
-    req.checkPermission('delete', 'Encounter');
-
-    const model = models.Encounter;
-    const object = await model.findByPk(params.id);
-    if (object) {
-      await object.destroy();
-    }
-
-    res.send({ message: 'Encounter deleted successfully' });
-  }),
-);
+encounter.delete('/:id', deleteEncounter);
 
 const encounterRelations = permissionCheckingRouter('read', 'Encounter');
 encounterRelations.get('/:id/discharge', simpleGetHasOne('Discharge', 'encounterId'));
