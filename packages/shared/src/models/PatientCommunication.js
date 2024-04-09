@@ -8,6 +8,7 @@ import {
 } from '@tamanu/constants';
 
 import { Model } from './Model';
+import config from 'config';
 
 export class PatientCommunication extends Model {
   static init({ primaryKey, ...options }) {
@@ -37,5 +38,36 @@ export class PatientCommunication extends Model {
       foreignKey: 'patientId',
       as: 'patient',
     });
+  }
+
+  static getBaseQueryPendingMessage(channel) {
+    const threshold = config.patientCommunication?.retryThreshold;
+
+    return {
+      where: {
+        status: COMMUNICATION_STATUSES.QUEUED,
+        channel,
+        [Sequelize.Op.or]: [
+          { retryCount: { [Sequelize.Op.lte]: threshold } },
+          { retryCount: null },
+        ],
+      },
+    };
+  }
+
+  static getPendingMessages(channel, queryOptions) {
+    return this.findAll({
+      ...this.getBaseQueryPendingMessage(channel),
+      order: [
+        [this.sequelize.literal('retry_count IS NULL'), 'DESC'],
+        ['retryCount', 'ASC'],
+        ['createdAt', 'ASC'],
+      ],
+      ...queryOptions,
+    });
+  }
+
+  static countPendingMessages(channel) {
+    return this.count(this.getBaseQueryPendingMessage(channel));
   }
 }
