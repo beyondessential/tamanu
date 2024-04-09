@@ -108,7 +108,7 @@ export const KebabMenu = () => {
       <KebabMenuItem onClick={handleCloseKebabMenu}>
         <SupportDesktopLink href={supportUrl} target="_blank" rel="noreferrer">
           <TranslatedText
-            stringId="sidebar.externalLink.supportCentre"
+            stringId="externalLink.supportCentre"
             fallback="Support centre"
           />
           <Launch style={{ marginLeft: '5px', fontSize: '12px' }} />
