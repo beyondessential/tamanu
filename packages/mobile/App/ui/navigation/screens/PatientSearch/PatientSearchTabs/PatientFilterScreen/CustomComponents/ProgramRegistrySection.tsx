@@ -45,7 +45,7 @@ export const ProgramRegistrySection = (): ReactElement => {
           localisationPath="fields.programRegistry"
           labelFontSize={14}
           component={AutocompleteModalField}
-          placeholder={`Search`}
+          placeholder="Search"
           suggester={ProgramRegistrySuggester}
           navigation={navigation}
           name="programRegistryId"
@@ -56,7 +56,7 @@ export const ProgramRegistrySection = (): ReactElement => {
           labelFontSize={14}
           component={Dropdown}
           options={programRegistries}
-          selectPlaceholderText={`Select`}
+          selectPlaceholderText="Select"
           navigation={navigation}
           name="programRegistryId"
         />
