@@ -19,7 +19,7 @@ export const permissionCheckingRouter = (action, subject) => {
   return router;
 };
 
-export const recordIsSoftDeletedCheckingRouter = tableName => {
+export const softDeletionCheckingRouter = tableName => {
   const router = express.Router();
 
   router.use(async (req, res, next) => {

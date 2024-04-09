@@ -19,7 +19,7 @@ import {
   permissionCheckingRouter,
   runPaginatedQuery,
   paginatedGetList,
-  recordIsSoftDeletedCheckingRouter,
+  softDeletionCheckingRouter,
 } from '@tamanu/shared/utils/crudHelpers';
 import { uploadAttachment } from '../../utils/uploadAttachment';
 import { noteChangelogsHandler, noteListHandler } from '../../routeHandlers';
@@ -29,7 +29,7 @@ import { getLabRequestList } from '../../routeHandlers/labs';
 import { deleteDocumentMetadata } from '../../routeHandlers/deleteDocumentMetadata';
 import { deleteProgramForm } from '../../routeHandlers/deleteProgramForm';
 
-export const encounter = recordIsSoftDeletedCheckingRouter('Encounter');
+export const encounter = softDeletionCheckingRouter('Encounter');
 
 encounter.get('/:id', simpleGet('Encounter'));
 encounter.post(
