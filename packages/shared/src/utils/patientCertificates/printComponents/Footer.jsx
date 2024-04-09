@@ -1,5 +1,4 @@
 import { StyleSheet, View } from '@react-pdf/renderer';
-import { getDisplayDate } from '../getDisplayDate';
 import React from 'react';
 import { formatShort, getCurrentDateString } from '../../dateTime';
 import { Text } from '../../pdf/Text';
