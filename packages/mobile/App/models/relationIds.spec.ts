@@ -1,6 +1,6 @@
 import { Database } from '~/infra/db';
 import { BaseModel } from '~/models/BaseModel';
-import { MODELS_ARRAY, MODELS_MAP } from '~/models/modelsMap';
+import { MODELS_ARRAY } from '~/models/modelsMap';
 
 const verifyModelHasIdsForRelations = (model: typeof BaseModel): string[] => {
   const { relationIds, columns, manyToOneRelations, oneToOneRelations } = model.getRepository().metadata;

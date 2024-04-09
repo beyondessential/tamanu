@@ -1,7 +1,7 @@
 import { StyleSheet, View } from '@react-pdf/renderer';
 import { getDisplayDate } from '../getDisplayDate';
 import React from 'react';
-import { getCurrentDateString } from '../../dateTime';
+import { formatShort, getCurrentDateString } from '../../dateTime';
 import { Text } from '../../pdf/Text';
 
 const styles = StyleSheet.create({
@@ -57,7 +57,7 @@ export const Footer = ({ printDate, printFacility, printedBy, style }) => {
     <View style={[styles.footer, style]} fixed>
       <View style={styles.footerLeftContent}>
         <LabelText>Print date: </LabelText>
-        <ValueText>{getDisplayDate(printDate || getCurrentDateString())}</ValueText>
+        <ValueText>{formatShort(printDate || getCurrentDateString())}</ValueText>
         {printFacility && (
           <>
             <ValueText> | </ValueText>

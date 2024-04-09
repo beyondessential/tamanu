@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 // This file is the typeORM equivalent to the same utility in shared-src/migrations
 //
 // THESE FUNCTIONS ARE TEMPLATES, COPY PASTE THEM TO YOUR MIGRATION

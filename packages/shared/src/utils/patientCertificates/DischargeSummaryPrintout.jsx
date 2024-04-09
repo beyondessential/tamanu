@@ -209,9 +209,10 @@ const DischargeSummaryPrintoutComponent = ({
   patientConditions,
   certificateData,
   getLocalisation,
+  getTranslation,
 }) => {
   const { logo } = certificateData;
-  const clinicianText = getLocalisation('fields.clinician.shortLabel');
+  const clinicianText = getTranslation('general.localisedField.clinician.label.short', 'Clinician');
   const { diagnoses, procedures, medications } = encounter;
   const visibleDiagnoses = diagnoses.filter(
     ({ certainty }) => !DIAGNOSIS_CERTAINTIES_TO_HIDE.includes(certainty),

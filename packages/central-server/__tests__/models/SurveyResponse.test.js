@@ -63,7 +63,7 @@ describe('SurveyResponse.createWithAnswers', () => {
       type: PROGRAM_DATA_ELEMENT_TYPES.NUMBER,
     });
 
-    expect(() =>
+    await expect(() =>
       models.SurveyResponse.createWithAnswers({
         patientId,
         encounterId,

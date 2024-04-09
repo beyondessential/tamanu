@@ -1,9 +1,8 @@
-import Sequelize from 'sequelize';
 import { sign as signCallback, verify as verifyCallback } from 'jsonwebtoken';
 import { randomBytes, randomInt } from 'crypto';
 import { promisify } from 'util';
 
-import { SERVER_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { SERVER_TYPES } from '@tamanu/constants';
 
 const sign = promisify(signCallback);
 const verify = promisify(verifyCallback);
@@ -32,25 +31,6 @@ export const getRandomU32 = () => {
 };
 
 export const verifyToken = async (token, secret, options) => verify(token, secret, options);
-
-export const findUser = async (models, email) => {
-  const user = await models.User.scope('withPassword').findOne({
-    where: {
-      // email addresses are case insensitive so compare them as such
-      email: Sequelize.where(
-        Sequelize.fn('lower', Sequelize.col('email')),
-        Sequelize.fn('lower', email),
-      ),
-      visibilityStatus: VISIBILITY_STATUSES.CURRENT,
-    },
-  });
-
-  if (!user) {
-    return null;
-  }
-
-  return user.get({ plain: true });
-};
 
 export const findUserById = async (models, id) => {
   const user = await models.User.findByPk(id);

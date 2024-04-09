@@ -11,12 +11,13 @@ import { BeginPatientMoveModal } from './BeginPatientMoveModal';
 import { FinalisePatientMoveModal } from './FinalisePatientMoveModal';
 import { CancelPatientMoveModal } from './CancelPatientMoveModal';
 import { usePatientNavigation } from '../../../utils/usePatientNavigation';
-import { Button } from '../../../components';
+import { Button, LowerCase } from '../../../components';
 import { DropdownButton } from '../../../components/DropdownButton';
 import { MoveModal } from './MoveModal';
 import { EncounterRecordModal } from '../../../components/PatientPrinting/modals/EncounterRecordModal';
 import { Colors } from '../../../constants';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { ChangeReasonModal } from '../../../components/ChangeReasonModal';
 
 const TypographyLink = styled(Typography)`
   color: ${Colors.primary};
@@ -41,6 +42,7 @@ const ENCOUNTER_MODALS = {
   CHANGE_DEPARTMENT: 'changeDepartment',
   CHANGE_LOCATION: 'changeLocation',
   CHANGE_TYPE: 'changeType',
+  CHANGE_REASON: 'changeReason',
 
   DISCHARGE: 'discharge',
 
@@ -68,6 +70,7 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
   const onChangeLocation = () => setOpenModal(ENCOUNTER_MODALS.CHANGE_LOCATION);
   const onViewSummary = () => navigateToSummary();
   const onViewEncounterRecord = () => setOpenModal(ENCOUNTER_MODALS.ENCOUNTER_RECORD);
+  const onChangeReason = () => setOpenModal(ENCOUNTER_MODALS.CHANGE_REASON);
 
   if (encounter.endDate) {
     return (
@@ -200,10 +203,13 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
           fallback="Change :clinician"
           replacements={{
             clinician: (
-              <TranslatedText
-                stringId="general.localisedField.clinician.label"
-                fallback="Clinician"
-              />
+              <LowerCase>
+                {' '}
+                <TranslatedText
+                  stringId="general.localisedField.clinician.label"
+                  fallback="Clinician"
+                />
+              </LowerCase>
             ),
           }}
         />
@@ -219,6 +225,15 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
       ),
       condition: () => !enablePatientMoveActions && !encounter.plannedLocation,
       onClick: onChangeLocation,
+    },
+    {
+      label: (
+        <TranslatedText
+          stringId="patient.encounter.action.changeReason"
+          fallback="Change reason"
+        />
+      ),
+      onClick: onChangeReason,
     },
   ].filter(action => !action.condition || action.condition());
 
@@ -279,6 +294,11 @@ export const EncounterActions = React.memo(({ encounter }) => {
       <EncounterRecordModal
         encounter={encounter}
         open={openModal === ENCOUNTER_MODALS.ENCOUNTER_RECORD}
+        onClose={onClose}
+      />
+      <ChangeReasonModal
+        encounter={encounter}
+        open={openModal === ENCOUNTER_MODALS.CHANGE_REASON}
         onClose={onClose}
       />
     </>

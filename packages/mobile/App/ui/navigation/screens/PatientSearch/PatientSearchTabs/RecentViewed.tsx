@@ -1,7 +1,6 @@
 import React, { ReactElement, useEffect } from 'react';
 import { Platform } from 'react-native';
 import { compose } from 'redux';
-import { NavigationProp } from '@react-navigation/native';
 import { FlatList, TouchableOpacity } from 'react-native-gesture-handler';
 // Containers
 import { withPatient } from '/containers/Patient';
@@ -20,21 +19,22 @@ import { useRecentlyViewedPatients } from '~/ui/hooks/localConfig';
 import { navigateAfterTimeout } from '~/ui/helpers/navigators';
 import { theme } from '~/ui/styled/theme';
 import { PatientFromRoute } from '~/ui/helpers/constants';
-
-interface PatientListProps {
-  list: any[];
-  setSelectedPatient: Function;
-  navigation: NavigationProp<any>;
-}
+import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 
 const NoPatientsCard = (): ReactElement => (
   <StyledText
     color={theme.colors.TEXT_SUPER_DARK}
     fontWeight={'500'}
-    margin="58px auto 0"
+    marginLeft="auto"
+    marginRight="auto"
+    marginTop={50}
+    marginBottom={0}
     fontSize={14}
   >
-    No recently viewed patients to display.
+    <TranslatedText
+      stringId="patient.search.recentlyViewed.message.noPatientsFound"
+      fallback="No recently viewed patients to display."
+    />
   </StyledText>
 );
 

@@ -6,6 +6,7 @@ import { FormGrid } from '../components/FormGrid';
 import { BodyText, Button, Field, Form, FormSubmitButton, TextField } from '../components';
 import { Colors } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
+import { useTranslation } from '../contexts/Translation';
 
 const ResetPasswordButton = styled(FormSubmitButton)`
   font-size: 14px;
@@ -32,6 +33,8 @@ const FormSubtext = styled(BodyText)`
 `;
 
 const ResetPasswordFormComponent = ({ errorMessage, onNavToLogin }) => {
+  const { getTranslation } = useTranslation();
+
   return (
     <FormGrid columns={1}>
       <div>
@@ -52,7 +55,7 @@ const ResetPasswordFormComponent = ({ errorMessage, onNavToLogin }) => {
         label={<TranslatedText stringId="forgotPassword.email.label" fallback="Email" />}
         required
         component={TextField}
-        placeholder="Enter your email address"
+        placeholder={getTranslation("forgotPassword.email.placeholder", "Enter your email address")}
         autoComplete="off"
       />
       <ResetPasswordButton

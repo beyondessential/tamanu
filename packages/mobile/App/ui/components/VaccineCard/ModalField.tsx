@@ -1,4 +1,4 @@
-import React, { FC, ReactElement } from 'react';
+import React, { FC } from 'react';
 import { RowView, StyledText, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';

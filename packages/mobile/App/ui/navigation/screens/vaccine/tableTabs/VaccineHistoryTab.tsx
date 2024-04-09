@@ -1,4 +1,4 @@
-import React, { ReactElement, useCallback, useState } from 'react';
+import React, { ReactElement, useCallback } from 'react';
 import { StatusBar } from 'react-native';
 import { NavigationProp } from '@react-navigation/native';
 import { FullView, StyledSafeAreaView } from '/styled/common';
