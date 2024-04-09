@@ -29,7 +29,7 @@ export const PatientProgramRegistrationDetailsStack = ({ navigation, route }: Ba
   if (isRegistrationLoading) return <LoadingScreen />;
   if (registrationError) return <ErrorScreen error={registrationError} />;
 
-  const canReadProgramRegistry = ability.can('read', subject('ProgramRegistry', { id: registration.id }));
+  const canReadProgramRegistry = ability.can('read', subject('ProgramRegistry', { id: registration.programRegistryId }));
   if (!canReadProgramRegistry) return <PermissionErrorScreen errorMessage="You do not have access to this program registry" />;
 
   return (
