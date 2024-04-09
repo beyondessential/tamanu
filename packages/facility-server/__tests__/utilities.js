@@ -10,7 +10,9 @@ import {
   seedLabTests,
   seedLocationGroups,
   seedLocations,
+  seedSettings,
 } from '@tamanu/shared/demoData';
+import { ReadSettings } from '@tamanu/settings';
 import { chance, fake, showError } from '@tamanu/shared/test-helpers';
 
 import { createApp } from '../dist/createApp';
@@ -131,6 +133,7 @@ export async function createTestContext({ enableReportInstances } = {}) {
   await seedDepartments(models);
   await seedLocations(models);
   await seedLocationGroups(models);
+  await seedSettings(models);
 
   // Create the facility for the current config if it doesn't exist
   const [facility] = await models.Facility.findOrCreate({
@@ -190,14 +193,18 @@ export async function createTestContext({ enableReportInstances } = {}) {
 
   jest.setTimeout(30 * 1000); // more generous than the default 5s but not crazy
 
+  const settings = new ReadSettings(models, config.serverFacilityId);
   const centralServer = new CentralServerConnection({ deviceId: 'test' });
 
   context.onClose(async () => {
-    await new Promise(resolve => { appServer.close(resolve); });
+    await new Promise(resolve => {
+      appServer.close(resolve);
+    });
   });
 
   context.centralServer = centralServer;
   context.baseApp = baseApp;
+  context.settings = settings;
 
   return context;
 }
