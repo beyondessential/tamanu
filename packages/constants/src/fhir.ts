@@ -297,3 +297,8 @@ export const IPS_REQUEST_STATUSES = {
   ERROR: 'Error',
   IGNORE: 'Ignore',
 };
+
+export const SUPPORTED_CONTENT_TYPES = {
+  PDF: 'application/pdf',
+};
+

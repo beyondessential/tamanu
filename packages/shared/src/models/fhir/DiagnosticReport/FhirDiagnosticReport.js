@@ -6,6 +6,7 @@ import {
   FHIR_INTERACTIONS,
   FHIR_ISSUE_TYPE,
   LAB_REQUEST_STATUSES,
+  SUPPORTED_CONTENT_TYPES,
 } from '@tamanu/constants';
 import { FhirCodeableConcept, FhirReference } from '../../../services/fhirTypes';
 import { FhirResource } from '../Resource';
@@ -139,7 +140,9 @@ export class FhirDiagnosticReport extends FhirResource {
     }
 
     const form = this.presentedForm[0];
-
+    if (!Object.values(SUPPORTED_CONTENT_TYPES).includes(form.contentType)) {
+      throw new Invalid(`presentedForm must be one of the supported values: ${Object.values(SUPPORTED_CONTENT_TYPES)}`);
+    }
     const { Attachment, LabRequestAttachment } = this.sequelize.models;
     const attachment = await Attachment.create({
       data: form.data,
