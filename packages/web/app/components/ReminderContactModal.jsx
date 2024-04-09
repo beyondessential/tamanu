@@ -16,7 +16,7 @@ const ReminderModalContainer = styled(Box)`
 
 const StyledBaseModal = styled(BaseModal)`
   .MuiPaper-root {
-    max-width: 673px;
+    max-width: 750px;
   }
   .MuiDialogTitle-root {
     padding-left: 40px;
