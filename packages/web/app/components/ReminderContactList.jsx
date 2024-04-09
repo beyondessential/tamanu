@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 
 import { Typography } from '@material-ui/core';
@@ -9,9 +10,13 @@ import { useAuth } from '../contexts/Auth';
 import { Button } from './Button';
 import { ModalCancelRow } from './ModalActionRow';
 import { DataFetchingTable } from './Table';
+import { joinNames } from '../utils/user';
+import { useTranslation } from '../contexts/Translation';
+import { TranslatedText } from './Translation/TranslatedText';
+import { capitalize } from 'lodash';
 
 const StyledText = styled(Typography)`
-  margin: 14px 0 33px;
+  margin: 14px 40px 30px 0;
   font-size: 14px;
   line-height: 18px;
 
@@ -21,6 +26,7 @@ const StyledText = styled(Typography)`
 `;
 
 const StyledContactListTable = styled(DataFetchingTable)`
+  display: ${props => (props.isEmpty ? 'none' : 'block')};
   margin-bottom: 28px;
   border-radius: 5px;
   border: 1px solid ${Colors.outline};
@@ -30,6 +36,7 @@ const StyledContactListTable = styled(DataFetchingTable)`
   table {
     padding-left: 21px;
     padding-right: 25px;
+    padding-bottom: 16px;
   }
 
   table thead th {
@@ -44,6 +51,13 @@ const StyledContactListTable = styled(DataFetchingTable)`
     font-style: normal;
     line-height: 18px;
   }
+
+  table tbody td {
+    padding-left: 3px !important;
+    padding-top: 14px !important;
+    padding-bottom: 0 !important;
+    border-bottom: none;
+  }
 `;
 
 const StyledAddContactButton = styled(Button)`
@@ -52,69 +66,104 @@ const StyledAddContactButton = styled(Button)`
   border-radius: 3px;
   border: 1px solid ${Colors.primary};
   line-height: 18px;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 
   svg {
     margin-right: 5px !important;
   }
 `;
 
-const columns = [
-  { key: 'contactName', title: 'Contact', sortable: false },
-  { key: 'relationshipType', title: 'Relationship', sortable: false },
-  { key: 'contactMethod', title: 'Contact method', sortable: false },
-  { key: '', title: '', sortable: false },
-];
+const ContactDetails = () => {
+  const { getTranslation } = useTranslation();
+  const patient = useSelector(state => state.patient);
+  const patientName = joinNames(patient);
+  const [isEmpty, setIsEmpty] = useState(false);
 
-const NoContactInfo = ({ name }) => {
-  return (
-    <StyledText>
-      {`There are no contacts registered to receive reminders for `}
-      <span>{name}</span>
-      {`. Please select 'Add contact' to register a contact.`}
-    </StyledText>
-  );
-};
-
-const ContactDetails = ({ name }) => {
-  const [contactsCount, setContactsCount] = useState(null);
-
-  // Helper Methods
   const onDataFetched = ({ count }) => {
-    setContactsCount(count);
+    setIsEmpty(!count);
   };
 
-  if (contactsCount === 0) {
-    return <NoContactInfo name={name} />;
-  }
+  const columns = [
+    {
+      key: 'name',
+      title: getTranslation('patient.details.reminderContacts.field.contact', 'Contact'),
+      sortable: false,
+    },
+    {
+      key: 'relationship.name',
+      title: getTranslation('patient.details.reminderContacts.field.relationShip', 'Relationship'),
+      sortable: false,
+    },
+    {
+      key: 'method',
+      title: getTranslation(
+        'patient.details.reminderContacts.field.contactMethod',
+        'Contact method',
+      ),
+      sortable: false,
+      accessor: data => {
+        return data.connectionDetails ? (
+          <TranslatedText
+            stringId={`patient.details.reminderContacts.method.${data.method}`}
+            fallback={capitalize(data.method)}
+          />
+        ) : (
+          <TranslatedText
+            stringId={`patient.details.reminderContacts.method.${data.method}Pending`}
+            fallback={`${capitalize(data.method)} pending`}
+          />
+        );
+      },
+    },
+    { key: '', title: '', sortable: false },
+  ];
+
+  const description = getTranslation(
+    'patient.details.reminderContacts.description',
+    'The below contact list is registered to receive reminders for :patientName.',
+    { patientName },
+  );
+
+  const emptyDescription = getTranslation(
+    'patient.details.reminderContacts.emptyDescription',
+    "There are no contacts registered to receive reminders for :patientName. Please select 'Add contact' to register a contact.",
+    { patientName },
+  );
 
   return (
     <>
-      <StyledText>
-        The below contact list is registered to receive reminders for <span>{name}</span>.
-      </StyledText>
+      {isEmpty ? (
+        <StyledText>
+          {emptyDescription.split(`${patientName}.`)[0]}
+          <span>{patientName}.</span>
+          {emptyDescription.split(`${patientName}.`)[1]}
+        </StyledText>
+      ) : (
+        <StyledText>
+          {description.split(`${patientName}.`)[0]}
+          <span>{patientName}.</span>
+        </StyledText>
+      )}
       <StyledContactListTable
         columns={columns}
-        noDataMessage="No contacts registered for this patient."
-        // endpoint={`patient/19324abf-b485-4184-8537-0a7fe4be1d0b/encounters`}
+        endpoint={`/patient/${patient.id}/reminderContacts`}
         disablePagination
-        // onRowClick={row => onItemClick(row.id)}
-        // initialSort={{ orderBy: 'startDate', order: 'desc' }}
-        // refreshCount={refreshCount}
+        initialSort={{ orderBy: 'name', order: 'asc' }}
         allowExport={false}
         onDataFetched={onDataFetched}
+        isEmpty={isEmpty}
       />
     </>
   );
 };
 
-export const ReminderContactList = ({ patient, onClose, onAddContact }) => {
+export const ReminderContactList = ({ onClose, onAddContact }) => {
   const { ability } = useAuth();
   const canAddReminderContacts = ability.can('write', 'Patient');
 
   return (
     <>
-      <ContactDetails name={`${patient?.firstName} ${patient?.lastName}`} />
+      <ContactDetails />
 
       {canAddReminderContacts && (
         <StyledAddContactButton
@@ -127,7 +176,11 @@ export const ReminderContactList = ({ patient, onClose, onAddContact }) => {
           Add contact
         </StyledAddContactButton>
       )}
-      <ModalCancelRow confirmText="Close" confirmColor="primary" onConfirm={onClose} />
+      <ModalCancelRow
+        confirmText={<TranslatedText stringId="general.action.close" fallback="Close" />}
+        confirmColor="primary"
+        onConfirm={onClose}
+      />
     </>
   );
 };

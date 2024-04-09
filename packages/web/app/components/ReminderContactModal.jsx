@@ -8,10 +8,22 @@ import { BaseModal } from './BaseModal';
 import { ReminderContactList } from './ReminderContactList';
 import { ReminderContactQR } from './ReminderContactQR';
 import { RemoveReminderContact } from './RemoveReminderContact';
+import { useTranslation } from '../contexts/Translation';
 
 const ReminderModalContainer = styled(Box)`
-  margin: 0 8px;
+  padding: 0px 8px
 `;
+
+const StyledBaseModal = styled(BaseModal)`
+  .MuiPaper-root {
+    max-width: 673px;
+  }
+  .MuiDialogTitle-root {
+    padding-left: 40px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+`
 
 const REMINDER_CONTACT_VIEWS = {
   REMINDER_CONTACT_LIST: 'ReminderContactList',
@@ -20,14 +32,8 @@ const REMINDER_CONTACT_VIEWS = {
   REMOVE_REMINDER: 'RemoveReminder',
 };
 
-const REMINDER_CONTACT_MODAL_TITLE = {
-  REMINDER_CONTACT_LIST: 'Reminder contacts',
-  ADD_REMINDER_FORM: 'Add reminder contact',
-  ADD_REMINDER_QR_CODE: 'Add reminder contact',
-  REMOVE_REMINDER: 'Remove reminder contact',
-};
-
-export const ReminderContactModal = ({ patient, onClose, open }) => {
+export const ReminderContactModal = ({ onClose, open }) => {
+  const { getTranslation } = useTranslation();
   const [activeView, setActiveView] = useState(REMINDER_CONTACT_VIEWS.REMINDER_CONTACT_LIST);
 
   const handleActiveView = value => {
@@ -37,13 +43,16 @@ export const ReminderContactModal = ({ patient, onClose, open }) => {
   const getModalTitle = () => {
     switch (activeView) {
       case REMINDER_CONTACT_VIEWS.REMINDER_CONTACT_LIST:
-        return REMINDER_CONTACT_MODAL_TITLE.REMINDER_CONTACT_LIST;
+        return getTranslation('patient.details.reminderContacts.title', 'Reminder contacts');
       case REMINDER_CONTACT_VIEWS.ADD_REMINDER_FORM:
-        return REMINDER_CONTACT_MODAL_TITLE.ADD_REMINDER_FORM;
+        return getTranslation('patient.details.addReminderContacts.title', 'Add reminder contact');
       case REMINDER_CONTACT_VIEWS.ADD_REMINDER_QR_CODE:
-        return REMINDER_CONTACT_MODAL_TITLE.ADD_REMINDER_QR_CODE;
+        return getTranslation('patient.details.addReminderContacts.title', 'Add reminder contact');
       case REMINDER_CONTACT_VIEWS.REMOVE_REMINDER:
-        return REMINDER_CONTACT_MODAL_TITLE.REMOVE_REMINDER;
+        return getTranslation(
+          'patient.details.removeReminderContacts.title',
+          'Remove reminder contact',
+        );
     }
   };
 
@@ -57,7 +66,7 @@ export const ReminderContactModal = ({ patient, onClose, open }) => {
   };
 
   return (
-    <BaseModal
+    <StyledBaseModal
       width={activeView === REMINDER_CONTACT_VIEWS.REMOVE_REMINDER ? 'sm' : 'md'}
       title={getModalTitle()}
       open={open}
@@ -66,26 +75,24 @@ export const ReminderContactModal = ({ patient, onClose, open }) => {
       <ReminderModalContainer>
         {activeView === REMINDER_CONTACT_VIEWS.REMINDER_CONTACT_LIST && (
           <ReminderContactList
-            patient={patient}
             onAddContact={() => handleActiveView(REMINDER_CONTACT_VIEWS.ADD_REMINDER_FORM)}
             onClose={onClose}
           />
         )}
         {activeView === REMINDER_CONTACT_VIEWS.ADD_REMINDER_FORM && (
           <AddReminderContact
-            patient={patient}
             onContinue={onContinue}
             onBack={onBack}
             onClose={onClose}
           />
         )}
         {activeView === REMINDER_CONTACT_VIEWS.ADD_REMINDER_QR_CODE && (
-          <ReminderContactQR patient={patient} onClose={onClose} />
+          <ReminderContactQR onClose={onClose} />
         )}
         {activeView === REMINDER_CONTACT_VIEWS.REMOVE_REMINDER && (
           <RemoveReminderContact onClose={onClose} onBack={onBack} />
         )}
       </ReminderModalContainer>
-    </BaseModal>
+    </StyledBaseModal>
   );
 };

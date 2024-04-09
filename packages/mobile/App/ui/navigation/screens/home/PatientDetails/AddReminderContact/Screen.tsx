@@ -75,7 +75,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
             >
               <TranslatedText
                 stringId="patient.details.addReminderContacts.title"
-                fallback="Add reminder contacts"
+                fallback="Add reminder contact"
               />
             </StyledText>
           </StyledView>

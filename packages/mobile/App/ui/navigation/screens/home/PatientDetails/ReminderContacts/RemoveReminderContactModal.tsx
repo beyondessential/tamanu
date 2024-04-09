@@ -62,7 +62,7 @@ export const RemoveReminderContactModal = ({
           textAlign="center"
         >
           <TranslatedText
-            stringId="patient.details.removeReminderContacts.title"
+            stringId="patient.details.removeReminderContacts.confirmation"
             fallback="Would you like to remove the below contact?"
           />
         </StyledText>
