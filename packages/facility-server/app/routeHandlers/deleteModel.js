@@ -18,7 +18,15 @@ const deleteModel = (modelName, paramName, displayName = modelName) => {
   });
 }
 
-export const deleteReferral = deleteModel('Referral', 'referralId');
-export const deleteSurveyResponse =  deleteModel('SurveyResponse', 'programResponseId', 'Survey response');
-export const deleteDocumentMetadata = deleteModel('DocumentMetadata', 'documentMetadataId', 'Document');
 export const deleteEncounter = deleteModel('Encounter', 'id');
+export const deleteReferral = deleteModel('Referral', 'referralId');
+export const deleteSurveyResponse = deleteModel(
+  'SurveyResponse',
+  'programResponseId',
+  'Survey response',
+);
+export const deleteDocumentMetadata = deleteModel(
+  'DocumentMetadata',
+  'documentMetadataId',
+  'Document',
+);
