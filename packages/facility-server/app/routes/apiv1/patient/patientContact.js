@@ -5,4 +5,4 @@ export const patientContact = express.Router();
 
 patientContact.get('/:id/reminderContacts', simpleGetList('PatientContact', 'patientId'));
 
-patientContact.post('/:id/reminderContact', simplePost('PatientContact'));
+patientContact.post('/reminderContact', simplePost('PatientContact'));

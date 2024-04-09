@@ -86,7 +86,7 @@ export const ReminderContactModal = ({ onClose, open }) => {
         {activeView === REMINDER_CONTACT_VIEWS.ADD_REMINDER_QR_CODE && (
           <ReminderContactQR
             contact={newContact}
-            onClose={() => handleActiveView(REMINDER_CONTACT_VIEWS.REMINDER_CONTACT_LIST)}
+            onClose={onBack}
           />
         )}
         {activeView === REMINDER_CONTACT_VIEWS.REMOVE_REMINDER && (
