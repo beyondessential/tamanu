@@ -108,6 +108,7 @@ jobs:
             core.setOutput('down', JSON.stringify(down));
             core.setOutput('go-up', !!up.length);
             core.setOutput('go-down', !!down.length);
+      - name: Check the image exist
       - id: check-images-exist
         if: (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')) || steps.config.outputs.go-up == 'true'
         run: |
