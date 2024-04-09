@@ -11,7 +11,7 @@ import { RemoveReminderContact } from './RemoveReminderContact';
 import { useTranslation } from '../contexts/Translation';
 
 const ReminderModalContainer = styled(Box)`
-  padding: 0px 8px
+  padding: 0px 8px;
 `;
 
 const StyledBaseModal = styled(BaseModal)`
@@ -23,7 +23,7 @@ const StyledBaseModal = styled(BaseModal)`
     padding-top: 8px;
     padding-bottom: 8px;
   }
-`
+`;
 
 const REMINDER_CONTACT_VIEWS = {
   REMINDER_CONTACT_LIST: 'ReminderContactList',
@@ -35,6 +35,7 @@ const REMINDER_CONTACT_VIEWS = {
 export const ReminderContactModal = ({ onClose, open }) => {
   const { getTranslation } = useTranslation();
   const [activeView, setActiveView] = useState(REMINDER_CONTACT_VIEWS.REMINDER_CONTACT_LIST);
+  const [selectedContact, setSelectedContact] = useState();
 
   const handleActiveView = value => {
     setActiveView(value);
@@ -65,6 +66,11 @@ export const ReminderContactModal = ({ onClose, open }) => {
     handleActiveView(REMINDER_CONTACT_VIEWS.REMINDER_CONTACT_LIST);
   };
 
+  const handleRemoveContact = contact => {
+    setSelectedContact(contact);
+    handleActiveView(REMINDER_CONTACT_VIEWS.REMOVE_REMINDER);
+  };
+
   return (
     <StyledBaseModal
       width={activeView === REMINDER_CONTACT_VIEWS.REMOVE_REMINDER ? 'sm' : 'md'}
@@ -76,21 +82,22 @@ export const ReminderContactModal = ({ onClose, open }) => {
         {activeView === REMINDER_CONTACT_VIEWS.REMINDER_CONTACT_LIST && (
           <ReminderContactList
             onAddContact={() => handleActiveView(REMINDER_CONTACT_VIEWS.ADD_REMINDER_FORM)}
+            onRemoveContact={handleRemoveContact}
             onClose={onClose}
           />
         )}
         {activeView === REMINDER_CONTACT_VIEWS.ADD_REMINDER_FORM && (
-          <AddReminderContact
-            onContinue={onContinue}
-            onBack={onBack}
-            onClose={onClose}
-          />
+          <AddReminderContact onContinue={onContinue} onBack={onBack} onClose={onClose} />
         )}
         {activeView === REMINDER_CONTACT_VIEWS.ADD_REMINDER_QR_CODE && (
           <ReminderContactQR onClose={onClose} />
         )}
         {activeView === REMINDER_CONTACT_VIEWS.REMOVE_REMINDER && (
-          <RemoveReminderContact onClose={onClose} onBack={onBack} />
+          <RemoveReminderContact
+            selectedContact={selectedContact}
+            onClose={onClose}
+            onBack={onBack}
+          />
         )}
       </ReminderModalContainer>
     </StyledBaseModal>

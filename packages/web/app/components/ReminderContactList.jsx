@@ -7,7 +7,7 @@ import { Typography } from '@material-ui/core';
 import { PlusIcon } from '../assets/icons/PlusIcon';
 import { Colors } from '../constants';
 import { useAuth } from '../contexts/Auth';
-import { Button } from './Button';
+import { Button, TextButton } from './Button';
 import { ModalCancelRow } from './ModalActionRow';
 import { DataFetchingTable } from './Table';
 import { joinNames } from '../utils/user';
@@ -23,6 +23,14 @@ const StyledText = styled(Typography)`
   span {
     font-weight: 500;
   }
+`;
+
+const StyledTextButton = styled(TextButton)`
+  font-size: 14px;
+  line-height: 18px;
+  font-weight: 400 !important;
+  text-decoration: underline;
+  color: ${Colors.darkestText};
 `;
 
 const StyledContactListTable = styled(DataFetchingTable)`
@@ -44,6 +52,10 @@ const StyledContactListTable = styled(DataFetchingTable)`
     border-bottom: 1px solid ${Colors.outline};
     padding: 13px 0 12px 2px;
     padding-left: 2px !important;
+    width: 30%;
+    &: 4th-child {
+      width: 10%;
+    }
   }
 
   table thead th tr {
@@ -73,11 +85,14 @@ const StyledAddContactButton = styled(Button)`
   }
 `;
 
-const ContactDetails = () => {
+const ContactDetails = ({ onRemoveContact }) => {
   const { getTranslation } = useTranslation();
   const patient = useSelector(state => state.patient);
   const patientName = joinNames(patient);
   const [isEmpty, setIsEmpty] = useState(false);
+
+  const { ability } = useAuth();
+  const canRemoveReminderContacts = ability.can('write', 'Patient');
 
   const onDataFetched = ({ count }) => {
     setIsEmpty(!count);
@@ -115,7 +130,25 @@ const ContactDetails = () => {
         );
       },
     },
-    { key: '', title: '', sortable: false },
+    ...(canRemoveReminderContacts
+      ? [
+          {
+            key: '',
+            title: '',
+            sortable: false,
+            accessor: (data) => {
+              return (
+                <StyledTextButton onClick={() => onRemoveContact(data)}>
+                  <TranslatedText
+                    stringId={'patient.details.reminderContacts.label.remove'}
+                    fallback={'Remove'}
+                  />
+                </StyledTextButton>
+              );
+            },
+          },
+        ]
+      : []),
   ];
 
   const description = getTranslation(
@@ -157,13 +190,13 @@ const ContactDetails = () => {
   );
 };
 
-export const ReminderContactList = ({ onClose, onAddContact }) => {
+export const ReminderContactList = ({ onClose, onAddContact, onRemoveContact }) => {
   const { ability } = useAuth();
   const canAddReminderContacts = ability.can('write', 'Patient');
 
   return (
     <>
-      <ContactDetails />
+      <ContactDetails onRemoveContact={onRemoveContact} />
 
       {canAddReminderContacts && (
         <StyledAddContactButton
