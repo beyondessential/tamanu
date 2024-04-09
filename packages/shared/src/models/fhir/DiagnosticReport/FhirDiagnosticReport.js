@@ -39,6 +39,7 @@ export class FhirDiagnosticReport extends FhirResource {
       models.LabTest,
       models.LabRequest,
       models.LabTestType,
+      models.LabRequestAttachment,
     ];
   }
 
@@ -101,6 +102,11 @@ export class FhirDiagnosticReport extends FhirResource {
 
     labRequest.set({ status: this.getLabRequestStatus() });
     await labRequest.save();
+
+    if (this.presentedForm) {
+      this.labRequest = labRequest;
+      await this.saveAttachment();
+    }
     return labRequest;
   }
 
@@ -126,5 +132,10 @@ export class FhirDiagnosticReport extends FhirResource {
         throw new Invalid(`'${this.status}' is an invalid ServiceRequest status`);
     }
   }
+
+  async saveAttachment() {
+    console.log(this.labRequest);
+  }
+
 
 }

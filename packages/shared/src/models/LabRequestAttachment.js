@@ -1,7 +1,7 @@
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 
-export class LabRequestAttachments extends Model {
+export class LabRequestAttachment extends Model {
     static init({ primaryKey, ...options }) {
         super.init(
             {
