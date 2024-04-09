@@ -3,12 +3,20 @@ import { StyleSheet } from 'react-native';
 import { StyledSafeAreaView, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { SubmitButton } from '../../SubmitButton';
+import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 
 export const SubmitSection = ({
   onPress,
   isEdit,
 }: { onPress: () => void; isEdit: boolean }): ReactElement => {
-  const submitText = isEdit ? 'Save' : 'Create New Patient';
+  const submitText = isEdit ? (
+    <TranslatedText stringId="general.action.save" fallback="Save" />
+  ) : (
+    <TranslatedText
+      stringId="patient.register.action.createNewPatient"
+      fallback="Create New Patient"
+    />
+  );
   return (
     <StyledView
       flex={1}

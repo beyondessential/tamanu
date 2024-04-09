@@ -16,6 +16,7 @@ import { withPatient } from '/containers/Patient';
 import { useBackend } from '~/ui/hooks';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { Patient } from '../../../../../../models/Patient';
+import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { PatientFromRoute } from '~/ui/helpers/constants';
 import { useLocalisation } from '~/ui/contexts/LocalisationContext';
@@ -72,37 +73,40 @@ const usePatientModules = navigation => {
     return [
       {
         key: 'diagnosisAndTreatment',
-        title: 'Diagnosis &\nTreatment',
+        title:   <TranslatedText
+        stringId="patient.diagnosisAndTreatment.title"
+        fallback="Diagnosis & Treatment"
+      />,
         Icon: Icons.DiagnosisAndTreatmentIcon,
         onPress: (): void => navigation.navigate(Routes.HomeStack.DiagnosisAndTreatmentTabs.Index),
       },
       {
         key: 'vitals',
-        title: 'Vitals',
+        title: <TranslatedText stringId="patient.vitals.title" fallback="Vitals" />,
         Icon: Icons.VitalsIcon,
         onPress: (): void => navigation.navigate(Routes.HomeStack.VitalsStack.Index),
       },
       {
         key: 'programs',
-        title: 'Programs',
+        title: <TranslatedText stringId="patient.programs.title" fallback="Programs" />,
         Icon: Icons.PregnancyIcon,
         onPress: (): void => navigation.navigate(Routes.HomeStack.ProgramStack.Index),
       },
       {
         key: 'referral',
-        title: 'Referral',
+        title: <TranslatedText stringId="patient.referral.title" fallback="Referral" />,
         Icon: Icons.FamilyPlanningIcon,
         onPress: (): void => navigation.navigate(Routes.HomeStack.ReferralStack.Index),
       },
       {
         key: 'vaccine',
-        title: 'Vaccine',
+        title: <TranslatedText stringId="patient.vaccine.title" fallback="Vaccine" />,
         Icon: Icons.VaccineIcon,
         onPress: (): void => navigation.navigate(Routes.HomeStack.VaccineStack.Index),
       },
       {
         key: 'tests',
-        title: 'Tests',
+        title: <TranslatedText stringId="patient.tests.title" fallback="Tests" />,
         Icon: Icons.LabRequestIcon,
         onPress: (): void => navigation.navigate(Routes.HomeStack.LabRequestStack.Index),
       },
@@ -125,17 +129,17 @@ const usePatientMenuButtons = navigation => {
       [
         {
           key: 'patientDetails',
-          title: 'View patient details',
+          title:   <TranslatedText stringId="patient.action.viewPatientDetails" fallback="View patient details" />,
           onPress: (): void => navigation.navigate(Routes.HomeStack.PatientDetailsStack.Index),
         },
         {
           key: 'history',
-          title: 'View history',
+          title: <TranslatedText stringId="patient.action.viewVitalHistory" fallback="View history" />,
           onPress: (): void => navigation.navigate(Routes.HomeStack.HistoryVitalsStack.Index),
         },
         {
           key: 'programRegistries',
-          title: 'Program registries',
+   title: <TranslatedText stringId="patient.action.viewProgramRegistries" fallback="Program registries" />,
           onPress: (): void => navigation.navigate(Routes.HomeStack.PatientSummaryStack.Index),
           hideFromMenu: !canViewProgramRegistries,
         },
