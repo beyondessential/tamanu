@@ -1,5 +1,6 @@
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
+import { Sequelize } from 'sequelize';
 
 export class LabRequestAttachment extends Model {
     static init({ primaryKey, ...options }) {
@@ -16,13 +17,11 @@ export class LabRequestAttachment extends Model {
                     type: Sequelize.STRING,
                     allowNull: false,
                 },
-                isVisible: {
-                    type: Sequelize.BOOLEAN,
-                    defaultValue: false,
-                    allowNull: false,
-                },
             },
-            { ...options, syncDirection: SYNC_DIRECTIONS.PULL_FROM_CENTRAL },
+            {
+                ...options,
+                syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
+            },
         );
     }
 
@@ -30,6 +29,9 @@ export class LabRequestAttachment extends Model {
         this.belongsTo(models.LabRequest, {
             foreignKey: 'labRequestId',
             as: 'labRequest',
+        });
+        this.belongsTo(models.LabRequestAttachment, {
+            foreignKey: 'replacedBy'
         });
     }
 

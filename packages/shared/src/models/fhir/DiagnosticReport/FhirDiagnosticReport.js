@@ -52,9 +52,9 @@ export class FhirDiagnosticReport extends FhirResource {
       code: FhirCodeableConcept.asYup().required(),
       presentedForm: yup.array().of(
         yup.object({
-          data: yup.string.required(),
-          title: yup.string.required(),
-          contentType: yup.string.required(),
+          data: yup.string().required(),
+          title: yup.string().required(),
+          contentType: yup.string().required(),
         }),
       ),
     });
@@ -134,8 +134,28 @@ export class FhirDiagnosticReport extends FhirResource {
   }
 
   async saveAttachment() {
-    console.log(this.labRequest);
+    if (!Array.isArray(this.presentedForm) || this.presentedForm.length > 1) {
+      throw new Invalid('presentedForm must be an array on length 1');
+    }
+
+    const form = this.presentedForm[0];
+
+    const { Attachment, LabRequestAttachment } = this.sequelize.models;
+    const attachment = await Attachment.create({
+      data: form.data,
+      type: form.contentType,
+    });
+    const lastAttachment = await this.labRequest.getLatestAttachment();
+    const labRequestAttachment = await LabRequestAttachment.create({
+      attachmentId: attachment.id,
+      title: form.title,
+      labRequestId: this.labRequest.id,
+      isVisible: true,
+    });
+
+    if (lastAttachment) {
+      lastAttachment.set({ replacedBy: labRequestAttachment.id });
+      await lastAttachment.save();
+    }
   }
-
-
 }
