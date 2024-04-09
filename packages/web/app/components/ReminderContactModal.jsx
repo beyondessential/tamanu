@@ -11,7 +11,7 @@ import { RemoveReminderContact } from './RemoveReminderContact';
 import { useTranslation } from '../contexts/Translation';
 
 const ReminderModalContainer = styled(Box)`
-  padding: 0px 8px
+  padding: 0px 8px;
 `;
 
 const StyledBaseModal = styled(BaseModal)`
@@ -23,7 +23,7 @@ const StyledBaseModal = styled(BaseModal)`
     padding-top: 8px;
     padding-bottom: 8px;
   }
-`
+`;
 
 const REMINDER_CONTACT_VIEWS = {
   REMINDER_CONTACT_LIST: 'ReminderContactList',
@@ -35,6 +35,7 @@ const REMINDER_CONTACT_VIEWS = {
 export const ReminderContactModal = ({ onClose, open }) => {
   const { getTranslation } = useTranslation();
   const [activeView, setActiveView] = useState(REMINDER_CONTACT_VIEWS.REMINDER_CONTACT_LIST);
+  const [newContact, setNewContact] = useState();
 
   const handleActiveView = value => {
     setActiveView(value);
@@ -56,9 +57,9 @@ export const ReminderContactModal = ({ onClose, open }) => {
     }
   };
 
-  const onContinue = async data => {
+  const onContinue = newContact => {
+    setNewContact(newContact);
     handleActiveView(REMINDER_CONTACT_VIEWS.ADD_REMINDER_QR_CODE);
-    await console.log(data);
   };
 
   const onBack = () => {
@@ -80,14 +81,13 @@ export const ReminderContactModal = ({ onClose, open }) => {
           />
         )}
         {activeView === REMINDER_CONTACT_VIEWS.ADD_REMINDER_FORM && (
-          <AddReminderContact
-            onContinue={onContinue}
-            onBack={onBack}
-            onClose={onClose}
-          />
+          <AddReminderContact onContinue={onContinue} onBack={onBack} onClose={onClose} />
         )}
         {activeView === REMINDER_CONTACT_VIEWS.ADD_REMINDER_QR_CODE && (
-          <ReminderContactQR onClose={onClose} />
+          <ReminderContactQR
+            contact={newContact}
+            onClose={() => handleActiveView(REMINDER_CONTACT_VIEWS.REMINDER_CONTACT_LIST)}
+          />
         )}
         {activeView === REMINDER_CONTACT_VIEWS.REMOVE_REMINDER && (
           <RemoveReminderContact onClose={onClose} onBack={onBack} />

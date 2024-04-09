@@ -16,7 +16,7 @@ import { TranslatedText } from './Translation/TranslatedText';
 import { capitalize } from 'lodash';
 
 const StyledText = styled(Typography)`
-  margin: 14px 40px 30px 0;
+  margin: 14px 0px 30px 0;
   font-size: 14px;
   line-height: 18px;
 
@@ -173,7 +173,10 @@ export const ReminderContactList = ({ onClose, onAddContact }) => {
           onClick={onAddContact}
         >
           <PlusIcon fill={Colors.primary} />
-          Add contact
+          <TranslatedText
+            stringId="patient.details.reminderContacts.action.add"
+            fallback="Add contact"
+          />
         </StyledAddContactButton>
       )}
       <ModalCancelRow
