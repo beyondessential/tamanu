@@ -13,6 +13,7 @@ const deleteModel = (modelName, paramName, displayName = modelName) => {
       throw new Error(`Cannot find ${displayName.toLowerCase()} with id ${primaryKey}`);
     }
 
+    req.checkPermission('delete', object);
     await object.destroy();
     res.send({ message: `${displayName} deleted successfully` });
   });
