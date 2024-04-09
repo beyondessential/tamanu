@@ -41,7 +41,7 @@ export class PatientCommunication extends Model {
   }
 
   static getBaseQueryPendingMessage(channel) {
-    const threshold = config.patientCommunication?.retryThreshold || 20;
+    const threshold = config.patientCommunication?.retryThreshold;
 
     return {
       where: {
