@@ -1,6 +1,6 @@
 import asyncHandler from 'express-async-handler';
 
-const deleteModel = (modelName, paramName, displayName) => {
+const deleteModel = (modelName, paramName, displayName = modelName) => {
   return asyncHandler(async (req, res) => {
     const { models, params } = req;
     req.checkPermission('delete', modelName);
@@ -18,7 +18,7 @@ const deleteModel = (modelName, paramName, displayName) => {
   });
 }
 
-export const deleteReferral = deleteModel('Referral', 'referralId', 'Referral');
+export const deleteReferral = deleteModel('Referral', 'referralId');
 export const deleteSurveyResponse =  deleteModel('SurveyResponse', 'programResponseId', 'Survey response');
 export const deleteDocumentMetadata = deleteModel('DocumentMetadata', 'documentMetadataId', 'Document');
-export const deleteEncounter = deleteModel('Encounter', 'id', 'Encounter');
+export const deleteEncounter = deleteModel('Encounter', 'id');
