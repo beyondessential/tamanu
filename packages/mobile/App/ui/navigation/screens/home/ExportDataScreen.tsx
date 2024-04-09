@@ -20,15 +20,14 @@ import { Button } from '/components/Button';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { ExportDataScreenProps } from '/interfaces/Screens/HomeStack/ExportDataScreenProps';
 import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
+import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 
 const formInitialValues = {
   email: '',
   dataTypeName: null,
 };
 
-export const ExportDataScreen = ({
-  navigation,
-}: ExportDataScreenProps): ReactElement => {
+export const ExportDataScreen = ({ navigation }: ExportDataScreenProps): ReactElement => {
   const navigationBack = useCallback(() => {
     navigation.goBack();
   }, []);
@@ -45,12 +44,20 @@ export const ExportDataScreen = ({
           paddingLeft={screenPercentageToDP(4.86, Orientation.Width)}
           paddingRight={screenPercentageToDP(4.86, Orientation.Width)}
         >
-          <StyledView
-            marginBottom={screenPercentageToDP(1.21, Orientation.Height)}
-          >
-            <SectionHeader h3>EMAIL ADDRESS</SectionHeader>
+          <StyledView marginBottom={screenPercentageToDP(1.21, Orientation.Height)}>
+            <SectionHeader h3>
+              <TranslatedText
+                stringId="report.export.form.heading.emailAddress"
+                fallback="EMAIL ADDRESS"
+                uppercase
+              />
+            </SectionHeader>
           </StyledView>
-          <Field name="email" component={TextField} label="Email" />
+          <Field
+            name="email"
+            component={TextField}
+            label={<TranslatedText stringId="report.export.form.email.label" fallback="Email" />}
+          />
           <Button
             marginTop={screenPercentageToDP(1.21, Orientation.Height)}
             outline
@@ -62,7 +69,10 @@ export const ExportDataScreen = ({
               fontSize={screenPercentageToDP(1.94, Orientation.Height)}
               fontWeight={500}
             >
-              Add another Email
+              <TranslatedText
+                stringId="report.export.action.addAnotherEmail"
+                fallback="Add another Email"
+              />
             </StyledText>
           </Button>
         </StyledView>
@@ -75,7 +85,12 @@ export const ExportDataScreen = ({
           <Field
             component={Checkbox}
             name="dataTypeName"
-            text="Data Type name one"
+            text={
+              <TranslatedText
+                stringId="report.export.form.dataTypeName.label"
+                fallback="Data Type name one"
+              />
+            }
           />
         </StyledView>
         <CenterView
@@ -118,7 +133,7 @@ export const ExportDataScreen = ({
                 fontSize={screenPercentageToDP(1.94, Orientation.Height)}
                 color={theme.colors.WHITE}
               >
-                Export Data
+                <TranslatedText stringId="report.action.exportData" fallback="Export Data" />
               </StyledText>
             </StyledView>
           </RowView>
