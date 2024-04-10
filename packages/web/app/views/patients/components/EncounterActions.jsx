@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Typography } from '@material-ui/core';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import { useLocalisation } from '../../../contexts/Localisation';
 import { DischargeModal } from '../../../components/DischargeModal';

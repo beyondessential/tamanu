@@ -15,7 +15,6 @@ import {
   reasonForEncounterIcon,
   referralSourceIcon,
   supervisingClinicianIcon,
-  triageScoreIcon,
 } from '../../../constants/images';
 
 const CardLabel = styled.span`
