@@ -224,6 +224,10 @@ const PrintOptionButton = styled(Button)`
   border-radius: 5px;
   color: ${Colors.primary};
 
+  &:hover {
+    background: ${Colors.veryLightBlue};
+  }
+
   justify-content: center;
   text-align: -webkit-center;
 
