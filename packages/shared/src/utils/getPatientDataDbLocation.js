@@ -14,7 +14,7 @@ export const getPatientDataDbLocation = async (fieldName, models) => {
   const isCustomPatientField = await models.PatientFieldDefinition.findByPk(fieldName);
   if (isCustomPatientField) {
     return {
-      modelName: 'PatientData',
+      modelName: 'PatientFieldValue',
       fieldName,
     };
   }

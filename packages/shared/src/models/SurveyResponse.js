@@ -37,7 +37,7 @@ async function createPatientIssues(models, questions, patientId) {
  *  PatientAdditionalData: { key1: 'value1' },
  * }
  */
-const getFieldsToWrite = (models, questions, answers) => {
+const getFieldsToWrite = async (models, questions, answers) => {
   const recordValuesByModel = {};
 
   const patientDataQuestions = questions.filter(
@@ -58,7 +58,7 @@ const getFieldsToWrite = (models, questions, answers) => {
     }
     const value = answers[dataElement.id];
 
-    const { modelName, fieldName } = getPatientDataDbLocation(configFieldName, models);
+    const { modelName, fieldName } = await getPatientDataDbLocation(configFieldName, models);
 
     if (!modelName) {
       throw new Error(`Unknown fieldName: ${configFieldName}`);
@@ -82,7 +82,7 @@ async function writeToPatientFields(
   userId,
   submittedTime,
 ) {
-  const valuesByModel = getFieldsToWrite(models, questions, answers);
+  const valuesByModel = await getFieldsToWrite(models, questions, answers);
 
   if (valuesByModel.Patient) {
     const patient = await models.Patient.findByPk(patientId);
