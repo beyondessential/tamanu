@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { Colors } from '../constants';
 
-const GRID_ROW_GAP = 18;
+const GRID_ROW_GAP = 10;
 
 const CardHeader = styled.div`
   border-bottom: 1px solid ${Colors.softOutline};
@@ -23,33 +23,32 @@ const CardBody = styled.div`
 
 const CardCell = styled.div`
   font-size: ${props => props.$fontSize}px;
-  line-height: 21px;
+  line-height: 18px;
   position: relative;
   color: ${props => props.theme.palette.text.tertiary};
-  &:not(:first-child)::before {
-    content: '';
-    position: absolute;
-    left: -20px;
-    top: -${({ $numberOfColumns, $borderHeight = 0 }) => GRID_ROW_GAP / $numberOfColumns - $borderHeight}px;
-    bottom: -${({ $numberOfColumns, $borderHeight = 0 }) => GRID_ROW_GAP / $numberOfColumns - $borderHeight}px;
-    border-left: 1px solid ${Colors.softOutline};
-    ${props => (props.$borderHeight ? `height: ${props.$borderHeight}px` : '')};
-  }
 `;
 
-const CardLabel = styled.span``;
+const CardIcon = styled.img`
+  position: relative;
+  top: 2px;
+  margin-right: 10px;
+`;
+
+const CardLabel = styled.span`
+  color: ${props => props.theme.palette.text.secondary};
+`;
 
 const CardValue = styled(CardLabel)`
   font-weight: 500;
-  color: ${props => props.theme.palette.text.secondary};
+  color: ${props => props.theme.palette.text.primary};
 `;
 
 const Card = styled.div`
   background: white;
   box-shadow: ${({ $elevated }) => ($elevated ? '2px 2px 25px rgba(0, 0, 0, 0.1)' : 'none')};
   border-radius: 5px;
-  padding: ${props => `${props.$contentPadding || 32}px`};
-  border: 1px solid ${Colors.outline};
+  padding: ${props => `${props.$contentPadding ?? 32}px`};
+  padding-top: ${props => `${props.$paddingTop ?? props.$contentPadding}px`};
 
   ${CardLabel} {
     ${({ $inlineValues }) => ($inlineValues ? 'margin-right: 5px' : 'margin-bottom: 8px')};
@@ -79,8 +78,9 @@ export const InfoCardItem = ({
   label,
   value,
   numberOfColumns = 2,
-  fontSize = 16,
+  fontSize = 14,
   borderHeight,
+  icon,
   ...props
 }) => (
   <CardCell
@@ -89,7 +89,8 @@ export const InfoCardItem = ({
     $borderHeight={borderHeight}
     {...props}
   >
-    <InfoCardEntry label={label} value={value} />
+    <CardIcon src={icon}/>
+    <InfoCardEntry label={label} value={value} icon={icon} />
   </CardCell>
 );
 
@@ -97,11 +98,12 @@ export const InfoCard = ({
   children,
   elevated,
   contentPadding,
+  paddingTop,
   inlineValues,
   headerContent = null,
   numberOfColumns = 2,
 }) => (
-  <Card $elevated={elevated} $inlineValues={inlineValues} $contentPadding={contentPadding}>
+  <Card $elevated={elevated} $inlineValues={inlineValues} $contentPadding={contentPadding} $paddingTop={paddingTop}>
     {headerContent}
     <CardBody $numberOfColumns={numberOfColumns}>{children}</CardBody>
   </Card>

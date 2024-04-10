@@ -15,24 +15,12 @@ import { Button, LowerCase } from '../../../components';
 import { DropdownButton } from '../../../components/DropdownButton';
 import { MoveModal } from './MoveModal';
 import { EncounterRecordModal } from '../../../components/PatientPrinting/modals/EncounterRecordModal';
-import { Colors } from '../../../constants';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { ChangeReasonModal } from '../../../components/ChangeReasonModal';
 
-const TypographyLink = styled(Typography)`
-  color: ${Colors.primary};
-  font-weight: 500;
-  font-size: 14px;
-  line-height: 18px;
-  text-decoration: underline;
-  text-align: right;
-  cursor: pointer;
-  padding-top: 10px;
-  margin-top: auto;
-  transition: 0.5s;
-  &:hover {
-    color: ${Colors.primaryDark};
-  }
+const ActionsContainer = styled.div`
+  display: flex;
+  gap: 10px;
 `;
 
 const ENCOUNTER_MODALS = {
@@ -52,6 +40,11 @@ const ENCOUNTER_MODALS = {
 
   ENCOUNTER_RECORD: 'encounterRecord',
 };
+
+const StyledButton = styled(Button)`
+  white-space: nowrap;
+  max-height: 40px;
+`;
 
 const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType }) => {
   const { navigateToSummary } = usePatientNavigation();
@@ -74,21 +67,21 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
 
   if (encounter.endDate) {
     return (
-      <div>
-        <Button variant="outlined" color="primary" onClick={onViewSummary}>
+      <ActionsContainer>
+        <StyledButton size="small" variant="outlined" color="primary" onClick={onViewSummary}>
           <TranslatedText
-            stringId="patient.encounter.action.viewDischargeSummary"
-            fallback="View discharge summary"
+            stringId="patient.encounter.action.dischargeSummary"
+            fallback="Discharge summary"
           />
-        </Button>
+        </StyledButton>
         <br />
-        <TypographyLink onClick={onViewEncounterRecord}>
+        <StyledButton size="small" onClick={onViewEncounterRecord}>
           <TranslatedText
-            stringId="patient.encounter.action.viewEncounterRecord"
-            fallback="Encounter record"
+            stringId="patient.encounter.action.encounterSummary"
+            fallback="Encounter summary"
           />
-        </TypographyLink>
-      </div>
+        </StyledButton>
+      </ActionsContainer>
     );
   }
 

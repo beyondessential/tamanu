@@ -160,21 +160,19 @@ export const EncounterView = () => {
             encounter.encounterType,
           ) && <EncounterActions encounter={encounter} />}
       </EncounterTopBar>
-      <ContentPane>
-        <EncounterInfoPane
-          encounter={encounter}
-          getLocalisation={getLocalisation}
-          patientBillingType={patientBillingTypeData?.name}
-        />
-        <Box mt={4} mb={4}>
-          <Divider />
-        </Box>
-        <DiagnosisView
-          encounter={encounter}
-          isTriage={getIsTriage(encounter)}
-          disabled={disabled}
-        />
-      </ContentPane>
+      <EncounterInfoPane
+        encounter={encounter}
+        getLocalisation={getLocalisation}
+        patientBillingType={patientBillingTypeData?.name}
+      />
+      <Box mt={4} mb={4}>
+        <Divider />
+      </Box>
+      <DiagnosisView
+        encounter={encounter}
+        isTriage={getIsTriage(encounter)}
+        disabled={disabled}
+      />
       <ContentPane>
         <StyledTabDisplay
           tabs={visibleTabs}

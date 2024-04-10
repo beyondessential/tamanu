@@ -1,10 +1,33 @@
 import React from 'react';
+import styled from 'styled-components';
 import { DateDisplay } from '../../../components';
 import { ENCOUNTER_OPTIONS_BY_VALUE } from '../../../constants';
 import { getFullLocationName } from '../../../utils/location';
 import { InfoCard, InfoCardHeader, InfoCardItem } from '../../../components/InfoCard';
 import { getDepartmentName } from '../../../utils/department';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import {
+  arrivalDateIcon,
+  departmentIcon,
+  encounterTypeIcon,
+  locationIcon,
+  patientTypeIcon,
+  reasonForEncounterIcon,
+  referralSourceIcon,
+  supervisingClinicianIcon,
+  triageScoreIcon,
+} from '../../../constants/images';
+
+const CardLabel = styled.span`
+  margin-right: 5px;
+  font-weight: 400;
+  color: ${props => props.theme.palette.text.secondary};
+`;
+
+const CardValue = styled(CardLabel)`
+  font-weight: 500;
+  color: ${props => props.theme.palette.text.primary};
+`;
 
 const getReferralSource = ({ referralSource }) =>
   referralSource ? referralSource.name : 'Unknown';
@@ -18,6 +41,8 @@ export const EncounterInfoPane = React.memo(
   ({ encounter, getLocalisation, patientBillingType }) => (
     <InfoCard
       inlineValues
+      contentPadding={25}
+      paddingTop={0}
       headerContent={
         encounter.plannedLocation && (
           <InfoCardHeader
@@ -33,18 +58,57 @@ export const EncounterInfoPane = React.memo(
       }
     >
       <InfoCardItem
+        label={
+          <TranslatedText
+            stringId="encounter.summary.encounterType.label"
+            fallback="Encounter type"
+          />
+        }
+        value={getEncounterType(encounter)}
+        icon={encounterTypeIcon}
+      />
+      <InfoCardItem
+        label={<TranslatedText stringId="encounter.arrivalDate.label" fallback="Arrival Date" />}
+        value={<>
+          <DateDisplay date={encounter.startDate} />
+          {encounter.endDate && (
+            <>
+              <CardLabel>
+                {" - "}
+                <TranslatedText
+                  stringId="encounter.summary.dischargeDate.label"
+                  fallback="Discharge date"
+                />
+              </CardLabel>
+              <CardValue>
+                {DateDisplay.stringFormat(encounter.endDate)}
+              </CardValue>
+            </>
+          )}
+        </>}
+        icon={arrivalDateIcon}
+      />
+      <InfoCardItem
         label={<TranslatedText stringId="general.department.label" fallback="Department" />}
         value={getDepartmentName(encounter)}
+        icon={departmentIcon}
+      />
+      <InfoCardItem
+        label={
+          <TranslatedText
+            stringId="general.supervisingClinician.label"
+            fallback="Supervising Clinician"
+          />
+        }
+        value={encounter.examiner?.displayName || 'Unknown'}
+        icon={supervisingClinicianIcon}
       />
       <InfoCardItem
         label={
           <TranslatedText stringId="encounter.summary.patientType.label" fallback="Patient type" />
         }
         value={patientBillingType}
-      />
-      <InfoCardItem
-        label={<TranslatedText stringId="general.location.label" fallback="Location" />}
-        value={getFullLocationName(encounter?.location)}
+        icon={patientTypeIcon}
       />
       {!getLocalisation(`${referralSourcePath}.hidden`) && (
         <InfoCardItem
@@ -55,28 +119,14 @@ export const EncounterInfoPane = React.memo(
             />
           }
           value={getReferralSource(encounter)}
+          icon={referralSourceIcon}
         />
       )}
       <InfoCardItem
-        label={
-          <TranslatedText
-            stringId="encounter.summary.encounterType.label"
-            fallback="Encounter type"
-          />
-        }
-        value={getEncounterType(encounter)}
+        label={<TranslatedText stringId="general.location.label" fallback="Location" />}
+        value={getFullLocationName(encounter?.location)}
+        icon={locationIcon}
       />
-      {encounter.endDate && (
-        <InfoCardItem
-          label={
-            <TranslatedText
-              stringId="encounter.summary.dischargeDate.label"
-              fallback="Discharge date"
-            />
-          }
-          value={DateDisplay.stringFormat(encounter.endDate)}
-        />
-      )}
       <InfoCardItem
         label={
           <TranslatedText
@@ -85,6 +135,7 @@ export const EncounterInfoPane = React.memo(
           />
         }
         value={encounter.reasonForEncounter}
+        icon={reasonForEncounterIcon}
       />
     </InfoCard>
   ),
