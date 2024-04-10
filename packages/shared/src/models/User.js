@@ -55,6 +55,26 @@ export class User extends Model {
     return super.upsert(sanitizedValues, ...args);
   }
 
+  static async getForAuthByEmail(email) {
+    // gets the user, as a plain object, with password hash, for use in auth
+    const user = await this.scope('withPassword').findOne({
+      where: {
+        // email addresses are case insensitive so compare them as such
+        email: Sequelize.where(
+          Sequelize.fn('lower', Sequelize.col('email')),
+          Sequelize.fn('lower', email),
+        ),
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+      },
+    });
+
+    if (!user) {
+      return null;
+    }
+
+    return user.get({ plain: true });
+  }
+
   static init({ primaryKey, ...options }) {
     super.init(
       {
