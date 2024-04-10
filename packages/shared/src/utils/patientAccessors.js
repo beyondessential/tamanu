@@ -1,6 +1,6 @@
 import { capitalize } from 'lodash';
 import { getDisplayDate } from './patientCertificates/getDisplayDate';
-import { ageInYears } from './dateTime';
+import { ageInYears, formatShort } from './dateTime';
 
 export const getName = ({ firstName, lastName }) => `${firstName} ${lastName}`;
 export const getSex = ({ sex }) => `${capitalize(sex)}`;
@@ -8,10 +8,10 @@ export const getSex = ({ sex }) => `${capitalize(sex)}`;
 export const getDOB = ({ dateOfBirth }, getLocalisation) =>
   dateOfBirth ? getDisplayDate(dateOfBirth, 'dd/MM/yyyy', getLocalisation) : 'Unknown';
 
-export const getDOBWithAge = ({ dateOfBirth }, getLocalisation) => {
+export const getDOBWithAge = ({ dateOfBirth }) => {
   if (!dateOfBirth) return 'Unknown';
 
-  const dob = getDisplayDate(dateOfBirth, 'dd/MM/yyyy', getLocalisation);
+  const dob = formatShort(dateOfBirth);
   const age = ageInYears(dateOfBirth);
   return `${dob} (${age} years)`;
 };

@@ -11,9 +11,9 @@ const ENCOUNTER_TYPE_TO_STATUS = {
 };
 
 const STATUS_TO_LABEL = {
-  [PATIENT_STATUS.INPATIENT]: "Inpatient",
-  [PATIENT_STATUS.OUTPATIENT]: "Outpatient",
-  [PATIENT_STATUS.EMERGENCY]: "Emergency",
+  [PATIENT_STATUS.INPATIENT]: 'Inpatient',
+  [PATIENT_STATUS.OUTPATIENT]: 'Outpatient',
+  [PATIENT_STATUS.EMERGENCY]: 'Emergency',
 };
 
 export const getPatientStatus = encounterType => {
