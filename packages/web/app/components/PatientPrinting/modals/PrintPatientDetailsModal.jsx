@@ -33,7 +33,7 @@ const PRINT_OPTIONS = {
     caption: (
       <TranslatedText
         stringId="patientDetails.print.action.idLabels.caption"
-        fallback="A4 sheet of multipele patient identification labels"
+        fallback="A4 sheet of multiple patient identification labels"
       />
     ),
     icon: MultilabelIdIcon,
@@ -145,7 +145,7 @@ const PrintOptionList = ({ className, setCurrentlyPrinting }) => {
           />
         )}
       </StyledPrintOptionsRow>
-      <div></div>
+      <StyledDivider />
       <Header>Certificates</Header>
       <StyledPrintOptionsRow>
         {isVisible(PRINT_OPTIONS.birthNotification.condition) && (
@@ -186,6 +186,14 @@ const PrintOptionList = ({ className, setCurrentlyPrinting }) => {
     </div>
   );
 };
+
+const StyledDivider = styled.div`
+  height: 1px;
+  background-color: ${Colors.outline};
+  margin-top: 16px;
+  margin-bottom: 22px;
+`;
+
 const StyledPrintOptionContainer = styled(PrintOptionList)`
   padding: 20px 50px;
   display: flex;
