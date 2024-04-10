@@ -7,6 +7,7 @@ import {
   FHIR_ISSUE_TYPE,
   LAB_REQUEST_STATUSES,
   SUPPORTED_CONTENT_TYPES,
+  MAX_ATTACHMENT_SIZE_BYTES,
 } from '@tamanu/constants';
 import { FhirCodeableConcept, FhirReference } from '../../../services/fhirTypes';
 import { FhirResource } from '../Resource';
@@ -142,6 +143,9 @@ export class FhirDiagnosticReport extends FhirResource {
     const form = this.presentedForm[0];
     if (!Object.values(SUPPORTED_CONTENT_TYPES).includes(form.contentType)) {
       throw new Invalid(`presentedForm must be one of the supported values: ${Object.values(SUPPORTED_CONTENT_TYPES)}`);
+    }
+    if (form.data.length > MAX_ATTACHMENT_SIZE_BYTES) {
+      throw new Invalid(`Maximum length of for attachment is ${MAX_ATTACHMENT_SIZE_BYTES / 1024}k characters`);
     }
     const { Attachment, LabRequestAttachment } = this.sequelize.models;
     const attachment = await Attachment.create({
