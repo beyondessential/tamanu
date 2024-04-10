@@ -40,6 +40,7 @@ import { addPatientProgramRegistrationConditions1706509624000 } from './17065096
 import { addColumnIsMostRecentForTablePatientProgramRegistration1708557002000 } from './1708557002000-addColumnIsMostRecentForTablePatientProgramRegistration';
 import { addHideFromCertificateToScheduledVaccines1705264433000 } from './1705264433000-addHideFromCertificateToScheduledVaccines';
 import { addDeletionStatusToPatientProgramRegistrationConditions1709677995000 } from './1709677995000-addDeletionStatusToPatientProgramRegistrationConditions';
+import { removeDeletionStatusColumn1712707744000 } from './1712707744000-removeDeletionStatusColumn';
 
 export const migrationList = [
   databaseSetup1661160427226,
@@ -83,4 +84,5 @@ export const migrationList = [
   addColumnIsMostRecentForTablePatientProgramRegistration1708557002000,
   addHideFromCertificateToScheduledVaccines1705264433000,
   addDeletionStatusToPatientProgramRegistrationConditions1709677995000,
+  removeDeletionStatusColumn1712707744000,
 ];
