@@ -23,9 +23,8 @@ import { HealthIdentificationRow, PatientIssues } from './CustomComponents';
 import { useLayoutComponents } from './layouts/useLayoutComponents';
 import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 
-
 const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => {
-  const { GeneralInfo, AdditionalInfo } = useLayoutComponents();
+  const { GeneralInfo, AdditionalInfo, fields } = useLayoutComponents();
   const onNavigateBack = useCallback(() => {
     navigation.goBack();
   }, [navigation]);
@@ -33,6 +32,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => 
   const onEditPatient = useCallback(() => {
     navigation.navigate(Routes.HomeStack.PatientDetailsStack.EditPatient, {
       patientName: joinNames(selectedPatient),
+      fields,
     });
   }, [navigation, selectedPatient]);
 
@@ -105,8 +105,8 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => 
       </StyledSafeAreaView>
       <FullView>
         <StyledScrollView background={theme.colors.BACKGROUND_GREY}>
-          <GeneralInfo patient={selectedPatient} onEdit={onEditPatient} />
-          <AdditionalInfo patient={selectedPatient} onEdit={editPatientAdditionalData} />
+          <GeneralInfo patient={selectedPatient} fields={fields.GENERAL.fields} onEdit={onEditPatient} />
+          {/* <AdditionalInfo patient={selectedPatient} onEdit={editPatientAdditionalData} /> */}
           <PatientIssues onEdit={onEditPatientIssues} patientId={selectedPatient.id} />
         </StyledScrollView>
       </FullView>

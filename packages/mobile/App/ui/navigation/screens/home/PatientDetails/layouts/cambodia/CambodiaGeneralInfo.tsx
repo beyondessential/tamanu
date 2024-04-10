@@ -28,7 +28,11 @@ const getCustomFieldValue = (customPatientFieldValues = {}, fieldDefinitionId) =
   return customPatientFieldValues[fieldDefinitionId][0].value;
 };
 
-export const CambodiaGeneralInfo = ({ onEdit, patient }: GeneralInfoProps): ReactElement => {
+export const CambodiaGeneralInfo = ({
+  onEdit,
+  patient,
+  fields,
+}: GeneralInfoProps): ReactElement => {
   // Check if patient information should be editable
   const { getBool } = useLocalisation();
   const isEditable = getBool('features.editPatientDetailsOnMobile');
@@ -40,24 +44,19 @@ export const CambodiaGeneralInfo = ({ onEdit, patient }: GeneralInfoProps): Reac
     error,
   } = usePatientAdditionalData(patient.id);
 
-  const fields = [
-    ['lastName', patient.lastName],
-    ['firstName', patient.firstName],
-    ['dateOfBirth', formatStringDate(patient.dateOfBirth, DateFormats.DDMMYY)],
-    ['sex', getGender(patient.sex)],
-    [
-      'fathersFirstName',
-      !loading ? getCustomFieldValue(customPatientFieldValues, FIELD_DEFINITION_IDS.FATHERS_FIRST_NAME) : '',
-    ],
-    ['culturalName', patient.culturalName],
-  ];
+  const processedFields = fields.map(({ name, accessor }) => [
+    name,
+    accessor
+      ? accessor({ patient, patientAdditionalData, customPatientFieldValues, loading })
+      : patient[name],
+  ]);
 
-  const patientAdditionalDataFields = allAdditionalDataFields
-    .filter(fieldName => getBool(`fields.${fieldName}.requiredPatientData`))
-    .map(fieldName => [fieldName, getFieldData(patientAdditionalData, fieldName)]);
-  if (error) {
-    return <ErrorScreen error={error} />;
-  }
+  // const patientAdditionalDataFields = allAdditionalDataFields
+  //   .filter(fieldName => getBool(`fields.${fieldName}.requiredPatientData`))
+  //   .map(fieldName => [fieldName, getFieldData(patientAdditionalData, fieldName)]);
+  // if (error) {
+  //   return <ErrorScreen error={error} />;
+  // }
 
   return (
     <PatientSection
@@ -69,11 +68,7 @@ export const CambodiaGeneralInfo = ({ onEdit, patient }: GeneralInfoProps): Reac
       }
       onEdit={isEditable ? onEdit : undefined}
     >
-      {loading ? (
-        <LoadingScreen />
-      ) : (
-        <FieldRowDisplay fields={[...fields, ...patientAdditionalDataFields]} />
-      )}
+      {loading ? <LoadingScreen /> : <FieldRowDisplay fields={processedFields} />}
     </PatientSection>
   );
 };

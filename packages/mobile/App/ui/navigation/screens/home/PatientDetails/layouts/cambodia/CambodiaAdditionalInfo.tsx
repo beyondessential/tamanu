@@ -6,39 +6,8 @@ import { LoadingScreen } from '../../../../../../components/LoadingScreen';
 import { PatientSection } from '../../CustomComponents/PatientSection';
 import { useLocalisation } from '../../../../../../contexts/LocalisationContext';
 import { IPatient, IPatientAdditionalData } from '../../../../../../types';
+import { allAdditionalDataFields } from '~/ui/helpers/additionalData';
 import { usePatientAdditionalData } from '~/ui/hooks/usePatientAdditionalData';
-
-export const cambodiaAdditionalDataSections = [
-  {
-    title: 'Current address',
-    fields: ['divisionId', 'subdivisionId', 'settlementId', 'villageId', 'streetVillage'],
-  },
-  {
-    title: 'Contact information',
-    fields: [
-      'primaryContactNumber',
-      'secondaryContactNumber',
-      'emergencyContactName',
-      'emergencyContactNumber',
-      'medicalAreaId',
-      'nursingZoneId',
-    ],
-  },
-  {
-    title: 'Identification information',
-    fields: [
-      'birthCertificate',
-      'fieldDefinition-nationalId',
-      'passport',
-      'fieldDefinition-idPoorCardNumber',
-      'fieldDefinition-pmrsNumber',
-    ],
-  },
-  {
-    title: 'Personal information',
-    fields: ['countryOfBirthId', 'nationalityId'],
-  },
-];
 
 interface AdditionalInfoProps {
   onEdit: (additionalInfo: IPatientAdditionalData, sectionTitle: string) => void;
@@ -78,7 +47,7 @@ export const CambodiaAdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps)
   const isEditable = getBool('features.editPatientDetailsOnMobile');
 
   // Add edit callback and map the inner 'fields' array
-  const sections = cambodiaAdditionalDataSections.map(({ title, fields }) => {
+  const sections = allAdditionalDataFields.map(({ title, fields }) => {
     const onEditCallback = (): void => onEdit(patientAdditionalData, title, false);
     const mappedFields = fields.map(fieldName => {
       // TODO: hacky just to get it working initially

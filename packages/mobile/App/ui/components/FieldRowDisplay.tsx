@@ -17,6 +17,8 @@ export const FieldRowDisplay = ({ fields, isCustomFields }: FieldRowDisplayProps
   const fieldsPerRow = isTablet() ? 2 : 1;
   const rows = chunk(visibleFields, fieldsPerRow);
 
+  console.log('fieldrowsidplay', fields, rows)
+
   return (
     <StyledView width="100%" margin={20} marginTop={0}>
       {rows.map((row) => (
