@@ -127,7 +127,7 @@ describe('SurveyResponse.createWithAnswers Patient Fields', () => {
   it('edits patient custom fields from actions', async () => {
     const { SurveyResponse, PatientFieldValue } = models;
 
-    await PatientFieldValue.create({
+    await PatientFieldValue.findOrCreate({
       patientId: patientId,
       definitionId: patientFieldDefinitionId,
       value: 'john',
