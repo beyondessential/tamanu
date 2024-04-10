@@ -34,7 +34,7 @@ export const REPORT_DEFAULT_DATE_RANGES = {
   THIRTY_DAYS: '30days',
   SEVEN_DAYS: '7days',
   TWENTY_FOUR_HOURS: '24hours',
-  NEXT_THIRTY_DAYS: 'future30days',
+  NEXT_THIRTY_DAYS: 'next30days',
 };
 export const REPORT_DATE_RANGE_LABELS = {
   [REPORT_DEFAULT_DATE_RANGES.ALL_TIME]: 'Date range (or leave blank for all data)',
@@ -47,7 +47,7 @@ export const REPORT_DATE_RANGE_LABELS = {
   [REPORT_DEFAULT_DATE_RANGES.TWENTY_FOUR_HOURS]:
     'Date range (or leave blank for the past 24 hours of data)',
   [REPORT_DEFAULT_DATE_RANGES.NEXT_THIRTY_DAYS]:
-    'Date range (or leave blank for the future 30 days of data)',
+    'Date range (or leave blank for the next 30 days of data)',
 };
 
 export const REPORT_DEFAULT_DATE_RANGES_VALUES = Object.values(REPORT_DEFAULT_DATE_RANGES);
