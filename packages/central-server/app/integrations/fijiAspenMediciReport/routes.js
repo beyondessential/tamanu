@@ -10,6 +10,7 @@ import { FHIR_DATETIME_PRECISION } from '@tamanu/constants/fhir';
 import { parseDateTime, formatFhirDate } from '@tamanu/shared/utils/fhir/datetime';
 
 import { requireClientHeaders } from '../../middleware/requireClientHeaders';
+import { InvalidOperationError } from '@tamanu/shared/errors';
 
 export const routes = express.Router();
 
@@ -109,13 +110,11 @@ routes.get(
     }
 
     if (!fromDate || !toDate) {
-      res.status(400).send('Both period.start and period.end are required query parameters');
-      return;
+      throw new InvalidOperationError('Both period.start and period.end are required query parameters');
     }
 
     if (!checkTimePeriod(fromDate, toDate)) {
-      res.status(400).send('The time period must be within 1 hour');
-      return;
+      throw new InvalidOperationError('The time period must be within 1 hour');
     }
 
     const data = await sequelize.query(reportQuery, {
