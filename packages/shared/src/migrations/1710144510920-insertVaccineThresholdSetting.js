@@ -3,7 +3,7 @@ import config from 'config';
 import { Op } from 'sequelize';
 
 const DEFAULT_SETTINGS = {
-  'routineVaccine.thresholds': JSON.stringify([
+  'vaccine.thresholds': JSON.stringify([
     {
       threshold: 28,
       status: 'SCHEDULED',
@@ -25,7 +25,7 @@ const DEFAULT_SETTINGS = {
       status: 'MISSED',
     },
   ]),
-  'routineVaccine.ageLimit': '15',
+  'vaccine.ageLimit': '15',
 };
 
 /**

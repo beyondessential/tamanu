@@ -12,14 +12,14 @@ export async function up(query) {
 		  jsonb_array_elements(s.value) ->> 'status'::text AS status
 	  FROM settings s
 	  WHERE s.deleted_at is null
-	  and s.key = 'routineVaccine.thresholds'::text
+	  and s.key = 'vaccine.thresholds'::text
   ),
   vaccine_agelimit as (
 	  select
 		  CURRENT_DATE - s.value::text::integer * 365 date
 	  from settings s
 	  where s.deleted_at is null
-	  and s.key = 'routineVaccine.ageLimit'
+	  and s.key = 'vaccine.ageLimit'
   ),
   filtered_patients as (
 	  select p.id patient_id, p.date_of_birth::date 
@@ -27,7 +27,7 @@ export async function up(query) {
   ),
   filtered_scheduled_vaccines as (
 	  select sv.id scheduled_vaccine_id, sv.vaccine_id, sv.index, sv.weeks_from_birth_due, sv.weeks_from_last_vaccination_due from scheduled_vaccines sv 
-	  where sv.deleted_at is null and sv.visibility_status = 'current' and sv.category = 'Routine'
+	  where sv.deleted_at is null and sv.visibility_status = 'current'
   ),
   filtered_administered_vaccines as (
 	  select e.patient_id, av.scheduled_vaccine_id, av."date"::date administered_date from administered_vaccines av 
