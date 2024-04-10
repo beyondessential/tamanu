@@ -10,7 +10,7 @@ export async function up(query) {
   await query.sequelize.query(`
     UPDATE patient_program_registration_conditions
     SET deleted_at = now()
-    WHERE deletion_status = ${DELETION_STATUSES.DELETED};
+    WHERE deletion_status = '${DELETION_STATUSES.DELETED}';
   `);
   await query.removeColumn('patient_program_registration_conditions', 'deletion_status');
 }
@@ -22,7 +22,7 @@ export async function down(query) {
   });
   await query.sequelize.query(`
     UPDATE patient_program_registration_conditions
-    SET deletion_status = ${DELETION_STATUSES.DELETED}
+    SET deletion_status = '${DELETION_STATUSES.DELETED}'
     WHERE deleted_at IS NOT NULL;
   `);
   await query.sequelize.query(`
