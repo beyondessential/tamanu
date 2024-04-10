@@ -123,8 +123,6 @@ export function getDisplayAge(dateOfBirth, ageDisplayFormat) {
     return '';
   }
 
-  console.log(dateOfBirth, ageDisplayFormat)
-
   const ageDuration = getAgeDurationFromDate(dateOfBirth);
   const birthDate = parseDate(dateOfBirth);
   for (const displayFormat of ageDisplayFormat) {

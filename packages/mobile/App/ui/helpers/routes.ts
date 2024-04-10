@@ -23,6 +23,7 @@ export const Routes = {
     SelectFacility: '',
     ResetPassword: '',
     ChangePassword: '',
+    LanguageSelect: '',
   },
   HomeStack: {
     Index: '',
