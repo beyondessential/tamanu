@@ -32,8 +32,9 @@ export const REPORT_DEFAULT_DATE_RANGES = {
   ALL_TIME: 'allTime',
   EIGHTEEN_YEARS: '18years',
   THIRTY_DAYS: '30days',
+  SEVEN_DAYS: '7days',
   TWENTY_FOUR_HOURS: '24hours',
-  FUTURE_THIRTY_DAYS: 'future30days',
+  NEXT_THIRTY_DAYS: 'future30days',
 };
 export const REPORT_DATE_RANGE_LABELS = {
   [REPORT_DEFAULT_DATE_RANGES.ALL_TIME]: 'Date range (or leave blank for all data)',
@@ -41,9 +42,11 @@ export const REPORT_DATE_RANGE_LABELS = {
     'Date range (or leave blank for the past 18 years of data)',
   [REPORT_DEFAULT_DATE_RANGES.THIRTY_DAYS]:
     'Date range (or leave blank for the past 30 days of data)',
+  [REPORT_DEFAULT_DATE_RANGES.SEVEN_DAYS]:
+    'Date range (or leave blank for the past 7 days of data)',
   [REPORT_DEFAULT_DATE_RANGES.TWENTY_FOUR_HOURS]:
     'Date range (or leave blank for the past 24 hours of data)',
-  [REPORT_DEFAULT_DATE_RANGES.FUTURE_THIRTY_DAYS]:
+  [REPORT_DEFAULT_DATE_RANGES.NEXT_THIRTY_DAYS]:
     'Date range (or leave blank for the future 30 days of data)',
 };
 
