@@ -67,7 +67,7 @@ jobs:
         with:
           script: |
             const cwd = '${{ github.workspace }}';
-            const { configMap } = await import(`${cwd}/packages/scripts/src/pr-cd.mjs`);
+            const { configMap } = await import(`${cwd}/packages/scripts/src/gha-pr-helpers.mjs`);
             core.setOutput('pulumi', configMap('${{ inputs.deploy-name }}', '${{ inputs.image-tag }}', ${{ inputs.options }}));
 
       - name: Up!
