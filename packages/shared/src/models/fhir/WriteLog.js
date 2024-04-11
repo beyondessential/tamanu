@@ -1,6 +1,11 @@
 import { Sequelize } from 'sequelize';
+import jp from 'jsonpath';
 
-import { SYNC_DIRECTIONS } from '@tamanu/constants';
+import {
+  HTTP_BODY_DATA_PATHS,
+  SCRUBBED_DATA_MESSAGE,
+  SYNC_DIRECTIONS,
+} from '@tamanu/constants';
 import { Model } from '../Model';
 
 export class FhirWriteLog extends Model {
@@ -62,7 +67,7 @@ export class FhirWriteLog extends Model {
     return this.create({
       verb: req.method,
       url: req.originalUrl,
-      body: req.body,
+      body: scrubber(req.body),
       headers: filterHeaders(req.headers),
       userId: req.user?.id,
     });
@@ -80,5 +85,19 @@ function filterHeaders(headers) {
         key.startsWith('x-') ||
         ['accept', 'client-timezone', 'content-type', 'prefer', 'user-agent'].includes(key),
     ),
+  );
+}
+
+/**
+ * @param {import('express').Request['body']} body
+*/
+function scrubber(body) {
+  console.log({ HTTP_BODY_DATA_PATHS });
+  return Object.values(HTTP_BODY_DATA_PATHS).reduce(
+    (currentBody, path) => {
+      jp.value(currentBody, path, SCRUBBED_DATA_MESSAGE);
+      return currentBody;
+    },
+    body,
   );
 }
