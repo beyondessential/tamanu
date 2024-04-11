@@ -13,7 +13,6 @@ import { NoteChangelogForm } from './NoteChangelogForm';
 import { CreateNoteForm } from './CreateNoteForm';
 import { TreatmentPlanNoteChangelogForm } from './TreatmentPlanNoteChangelogForm';
 import { FORM_TYPES, NOTE_FORM_MODES } from '../constants';
-import { useTranslation } from '../contexts/Translation';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 
 export const NoteForm = ({
@@ -25,7 +24,6 @@ export const NoteForm = ({
   setNoteContent,
 }) => {
   const { currentUser } = useAuth();
-  const { getTranslation } = useTranslation();
 
   const handleNoteContentChange = useCallback(e => setNoteContent(e.target.value), [
     setNoteContent,

@@ -157,7 +157,7 @@ export const EncounterForm = React.memo(
             />,
           ),
           locationId: foreignKey().translatedLabel(
-            <TranslatedText stringId="general.location.label" fallback="Location" />,
+            <TranslatedText stringId="general.localisedField.locationId.label" fallback="Location" />,
           ),
           departmentId: foreignKey().translatedLabel(
             <TranslatedText stringId="general.department.label" fallback="Department" />,
