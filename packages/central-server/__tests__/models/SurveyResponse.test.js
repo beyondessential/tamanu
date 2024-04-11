@@ -128,9 +128,8 @@ describe('SurveyResponse.createWithAnswers Patient Fields', () => {
     const { SurveyResponse, PatientFieldValue } = models;
 
     await PatientFieldValue.findOrCreate({
-      patientId: patientId,
-      definitionId: patientFieldDefinitionId,
-      value: 'john',
+      where: { patientId: patientId, definitionId: patientFieldDefinitionId },
+      defaults: { value: 'john' },
     });
 
     await SurveyResponse.sequelize.transaction(() =>
