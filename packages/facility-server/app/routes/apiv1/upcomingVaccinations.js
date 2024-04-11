@@ -2,7 +2,6 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
 import { makeFilter } from '../../utils/query';
-import { mapQueryFilters } from '../../database/utils';
 
 export const upcomingVaccinations = express.Router();
 
@@ -25,8 +24,9 @@ const createUpcomingVaccinationFilters = filterParams => {
     ),
     makeFilter(filterParams.sex, `p.sex = :sex`),
     makeFilter(filterParams.villageId, `p.village_id = :villageId`),
+    makeFilter(filterParams.status, `uv.status = :status`),
   ];
-  // facilityId
+  // add facilityId filter
 
   return filters.filter(f => f);
 };
@@ -37,9 +37,14 @@ upcomingVaccinations.get(
     req.checkPermission('read', 'PatientVaccine');
 
     const sortKeys = {
-      vaccine: 'label',
+      displayId: 'display_id',
+      fullName: 'last_name',
+      dateOfBirth: 'date_of_birth',
+      sex: 'sex',
+      villageName: 'village.name',
+      vaccineDisplayName: 'sv.label',
+      schedule: 'sv.schedule',
       dueDate: 'due_date',
-      date: 'due_date',
     };
 
     const {
@@ -65,7 +70,6 @@ upcomingVaccinations.get(
         }),
         filterParams,
       );
-    console.log('whereClauses', whereClauses);
 
     const results = await req.db.query(
       `
@@ -73,6 +77,7 @@ upcomingVaccinations.get(
         SELECT *,
         ROW_NUMBER() OVER(PARTITION BY patient_id ORDER BY due_date ASC) AS row_number
         FROM upcoming_vaccinations uv
+        WHERE uv.status <> 'MISSED'
       )
       SELECT
       p.id id,
@@ -92,10 +97,10 @@ upcomingVaccinations.get(
       FROM upcoming_vaccinations_with_row_number uv
       JOIN scheduled_vaccines sv ON sv.id = uv.scheduled_vaccine_id
       JOIN patients p ON p.id = uv.patient_id
-      JOIN reference_data village ON village.id = p.village_id
+      LEFT JOIN reference_data village ON village.id = p.village_id
       WHERE ${whereClauses}
       AND row_number = 1
-      ORDER BY uv.due_date, sv.label;`,
+      ORDER BY ${sortKey} ${sortDirection}, sv.label;`,
       {
         replacements: {
           limit: rowsPerPage,

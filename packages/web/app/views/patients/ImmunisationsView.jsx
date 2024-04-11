@@ -23,7 +23,6 @@ const COLUMNS = [
     key: 'fullName',
     title: <TranslatedText stringId="vaccine.table.column.patientName" fallback="Patient name" />,
     accessor: row => `${row.firstName} ${row.lastName}`,
-    sortable: false,
   },
   dateOfBirth,
   sex,
@@ -32,19 +31,16 @@ const COLUMNS = [
     key: 'vaccineDisplayName',
     title: <TranslatedText stringId="vaccine.table.column.vaccine" fallback="Vaccine" />,
     accessor: getVaccineName,
-    sortable: false,
   },
   {
     key: 'schedule',
     title: <TranslatedText stringId="vaccine.table.column.schedule" fallback="Schedule" />,
     accessor: getSchedule,
-    sortable: false,
   },
   {
     key: 'dueDate',
     title: <TranslatedText stringId="vaccine.table.column.dueDate" fallback="Due date" />,
     accessor: getDueDate,
-    sortable: false,
   },
   {
     key: 'status',

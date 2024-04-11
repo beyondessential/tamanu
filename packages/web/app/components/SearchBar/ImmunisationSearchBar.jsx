@@ -15,7 +15,11 @@ import { TranslatedText } from '../Translation';
 import { useSexOptions } from '../../hooks';
 
 const Spacer = styled.div`
-  width: 100%;
+  flex: 1;
+
+  @media (max-width: 1200px) {
+    display: none;
+  }
 `;
 
 const FacilityCheckbox = styled.div`
