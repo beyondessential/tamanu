@@ -88,6 +88,9 @@ export const DataFetchingProgramsTable = ({ endpoint }) => {
       dontCallRowInput: true,
       sortable: false,
       CellComponent: ({ data }) => {
+        if (actions.length === 0) {
+          return <></>;
+        }
         return (
           <div onMouseEnter={() => setSelectedResponse(data)}>
             <MenuButton actions={actions} />

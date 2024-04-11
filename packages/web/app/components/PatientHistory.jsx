@@ -128,14 +128,14 @@ export const PatientHistory = ({ patient, onItemClick }) => {
       sortable: false,
       dontCallRowInput: true,
       CellComponent: ({ data }) => {
-        if (actions.length > 0) {
-          return (
-            <div onMouseEnter={() => setSelectedEncounterData(data)}>
-              <MenuButton actions={actions} />
-            </div>
-          );
+        if (actions.length === 0) {
+          return <></>;
         }
-        return <></>;
+        return (
+          <div onMouseEnter={() => setSelectedEncounterData(data)}>
+            <MenuButton actions={actions} />
+          </div>
+        );
       },
     }
   ];

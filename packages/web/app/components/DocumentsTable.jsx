@@ -127,17 +127,17 @@ export const DocumentsTable = React.memo(
         dontCallRowInput: true,
         sortable: false,
         CellComponent: ({ data }) => {
-          if (actions.length > 0) {
-            return (
-              <ActionWrapper onMouseEnter={() => setSelectedDocument(data)}>
-                <StyledIconButton color="primary" onClick={() => onDownload(data)} key="download">
-                  <GetAppIcon fontSize="small" />
-                </StyledIconButton>
-                <MenuButton actions={actions} />
-              </ActionWrapper>
-            );
+          if (actions.length === 0) {
+            return <></>;
           }
-          return <></>;
+          return (
+            <ActionWrapper onMouseEnter={() => setSelectedDocument(data)}>
+              <StyledIconButton color="primary" onClick={() => onDownload(data)} key="download">
+                <GetAppIcon fontSize="small" />
+              </StyledIconButton>
+              <MenuButton actions={actions} />
+            </ActionWrapper>
+          );
         },
       },
     ];
