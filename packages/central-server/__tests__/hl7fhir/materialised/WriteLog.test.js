@@ -2,7 +2,7 @@ import { Op } from 'sequelize';
 
 import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
 import { showError } from '@tamanu/shared/test-helpers';
-import * as constants from '@tamanu/constants';
+import { SCRUBBED_DATA_MESSAGE } from '@tamanu/constants';
 
 import { createTestContext } from '../../utilities';
 
@@ -16,7 +16,7 @@ jest.mock('@tamanu/constants', () => {
     ...constants,
     HTTP_BODY_DATA_PATHS: {
       DATA_LOCATION: '$.presentedForm[*].data',
-      STATUS: '$.status',
+      STATUS: '$.staples',
       CODE_DISPLAY: '$.code.coding[*].display',
     },
   };
@@ -146,7 +146,7 @@ describe(`Materialised FHIR - WriteLog`, () => {
     showError(async () => {
       const body = {
         resourceType: 'FuchBaz',
-        status: 'replace this',
+        staples: 'replace this',
         nope: [
           {
             system: 'http://example.com',
@@ -195,9 +195,51 @@ describe(`Materialised FHIR - WriteLog`, () => {
       const flog = await FhirWriteLog.findOne({
         where: { url: { [Op.like]: '%FuchBaz%' } },
       });
-      expect(flog).toBeTruthy();
       expect(flog.verb).toEqual('POST');
-      expect(flog.body).toMatchObject(body);
+      expect(flog.body).toMatchObject({
+        resourceType: 'FuchBaz',
+        staples: SCRUBBED_DATA_MESSAGE,
+        nope: [
+          {
+            system: 'http://example.com',
+            value: 'ACCESSION',
+          },
+        ],
+        presentedForm: [{
+          presentedForm: [{
+            language: 'en',
+            data: 'do not replace this',
+          }],
+          language: 'en',
+          data: SCRUBBED_DATA_MESSAGE,
+        },
+        {
+          baz: 'angu',
+          language: 'en',
+          data: SCRUBBED_DATA_MESSAGE,
+        }],
+        code: {
+          coding: [
+            {
+              system: 'http://encoding.org',
+              code: 'COD-123',
+              display: SCRUBBED_DATA_MESSAGE,
+            }
+          ]
+        },
+        burger: [
+          {
+            presentedForm: [{
+              language: 'en',
+              data: 'do not replace this',
+            }],
+            identifier: {
+              system: 'http://example.com',
+              value: '123',
+            },
+          },
+        ],
+      });
     }));
 
 });

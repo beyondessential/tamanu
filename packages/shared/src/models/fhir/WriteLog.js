@@ -92,7 +92,6 @@ function filterHeaders(headers) {
  * @param {import('express').Request['body']} body
 */
 function scrubber(body) {
-  console.log({ HTTP_BODY_DATA_PATHS });
   return Object.values(HTTP_BODY_DATA_PATHS).reduce(
     (currentBody, path) => {
       jp.value(currentBody, path, SCRUBBED_DATA_MESSAGE);
