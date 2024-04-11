@@ -19,8 +19,7 @@ export class ApplicationContext {
 
   async init({ testMode } = {}) {
     this.emailService = new EmailService();
-    this.telegramBotService = new TelegramBotService(this, { autoStartWebhook: true });
-    this.telegramBotService.initListener();
+    this.telegramBotService = new TelegramBotService(this);
     this.store = await initDatabase({ testMode });
     if (config.db.reportSchemas?.enabled) {
       this.reportSchemaStores = await initReporting();

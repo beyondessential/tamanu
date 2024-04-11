@@ -23,9 +23,11 @@ export const serve = async ({ skipMigrationCheck, provisioning }) => {
   });
 
   const context = await new ApplicationContext().init();
-  const { store } = context;
+  const { store, telegramBotService } = context;
 
   await store.sequelize.assertUpToDate({ skipMigrationCheck });
+  await telegramBotService.startWebhook();
+  telegramBotService.initListener();
 
   const app = createApp(context);
 

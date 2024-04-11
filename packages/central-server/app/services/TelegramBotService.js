@@ -22,7 +22,7 @@ export class TelegramBotService {
   }
 
   initListener() {
-    TelegramBotService.#bot?.once('message', this.handleMessage.bind(this));
+    TelegramBotService.#bot?.on('message', this.handleMessage.bind(this));
   }
 
   handleMessage(msg) {
