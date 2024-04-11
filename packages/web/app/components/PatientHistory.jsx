@@ -123,6 +123,7 @@ export const PatientHistory = ({ patient, onItemClick }) => {
       CellComponent: LimitedLinesCell,
     },
     {
+      // key and title are empty strings to display a blank column name
       key: '',
       title: '',
       sortable: false,
