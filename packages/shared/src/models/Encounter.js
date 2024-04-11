@@ -302,18 +302,6 @@ export class Encounter extends Model {
     `;
   }
 
-  static checkNeedsAutoDischarge({ encounterType, startDate, endDate }) {
-    return (
-      encounterType === ENCOUNTER_TYPES.CLINIC &&
-      isBefore(parseISO(startDate), startOfToday()) &&
-      !endDate
-    );
-  }
-
-  static getAutoDischargeEndDate({ startDate }) {
-    return endOfDay(parseISO(startDate));
-  }
-
   static async adjustDataPostSyncPush(recordIds) {
     await dischargeOutpatientEncounters(this.sequelize.models, recordIds);
   }
