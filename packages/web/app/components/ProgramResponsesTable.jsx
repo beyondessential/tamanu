@@ -83,7 +83,8 @@ export const DataFetchingProgramsTable = ({ endpoint }) => {
       accessor: getResults,
     },
     {
-      key: 'actions',
+      // key and title are empty strings to display a blank column name
+      key: '',
       title: '',
       dontCallRowInput: true,
       sortable: false,
