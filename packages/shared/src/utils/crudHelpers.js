@@ -85,6 +85,7 @@ export const simplePut = modelName =>
     const object = await models[modelName].findByPk(params.id);
     if (!object) throw new NotFoundError();
     if (object.deletedAt)
+      // TODO SAV-558: Kinda weird message if we are not going to allow restores
       throw new InvalidOperationError(
         `Cannot update deleted object with id (${params.id}), you need to restore it first`,
       );
@@ -104,10 +105,7 @@ export const simplePost = modelName =>
     object = await models[modelName].findByPk(req.body.id, {
       paranoid: false,
     });
-    if (object && object.deletedAt) {
-      await object.restore();
-      await object.update(req.body);
-    } else if (object && !object.deletedAt) {
+    if (object) {
       throw new InvalidOperationError(
         `Cannot create object with id (${req.body.id}), it already exists`,
       );
