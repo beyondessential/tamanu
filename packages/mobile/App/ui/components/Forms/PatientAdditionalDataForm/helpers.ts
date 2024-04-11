@@ -145,16 +145,16 @@ export const patientAdditionalDataValidationSchema = Yup.object().shape({
   passport: Yup.string().nullable(),
   patientBillingTypeId: Yup.string().nullable(),
   placeOfBirth: Yup.string().nullable(),
-  primaryContactNumber: Yup.number().transform(yupAttemptTransformToNumber),
+  primaryContactNumber: Yup.number().transform(yupAttemptTransformToNumber).nullable(),
   religionId: Yup.string().nullable(),
-  secondaryContactNumber: Yup.number().transform(yupAttemptTransformToNumber),
+  secondaryContactNumber: Yup.number().transform(yupAttemptTransformToNumber).nullable(),
   settlementId: Yup.string().nullable(),
   socialMedia: Yup.string().nullable(),
   streetVillage: Yup.string().nullable(),
   subdivisionId: Yup.string().nullable(),
   title: Yup.string().nullable(),
   emergencyContactName: Yup.string().nullable(),
-  emergencyContactNumber: Yup.number().transform(yupAttemptTransformToNumber),
+  emergencyContactNumber: Yup.number().transform(yupAttemptTransformToNumber).nullable(),
 });
 
 // Strip off unwanted fields from additional data and only keep specified ones

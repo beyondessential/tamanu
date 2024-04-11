@@ -15,6 +15,7 @@ const numeralTranslation = (numeral: any) => {
 };
 
 export const yupAttemptTransformToNumber = (value: any, originalValue: any) => {
+  if (originalValue === null || originalValue === undefined) return value;
   const translationValue = numeralTranslation(originalValue);
   return isNumeric(translationValue) ? Number(translationValue) : value;
 };

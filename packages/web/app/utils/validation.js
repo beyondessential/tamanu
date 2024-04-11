@@ -11,6 +11,7 @@ export const foreignKey = message => yup.string().required(message);
 export const optionalForeignKey = () => yup.string();
 
 export const yupAttemptTransformToNumber = (value, originalValue) => {
+  if (originalValue === null || originalValue === undefined) return value;
   const translationValue = numeralTranslation(originalValue);
   return isNaN(value) ? translationValue : value;
 };
