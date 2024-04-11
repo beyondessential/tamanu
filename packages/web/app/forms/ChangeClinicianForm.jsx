@@ -10,29 +10,27 @@ import { FormSubmitCancelRow } from '../components/ButtonRow';
 import { FORM_TYPES } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 
-const changeClinicianLabel = (
-  <TranslatedText
-    stringId="patient.changeClinician.examinerId.label"
-    fallback="Search new :clinician"
-    replacements={{
-      clinician: (
-        <TranslatedText
-          stringId="general.localisedField.clinician.label.short"
-          fallback="Clinician"
-          lowercase
-        />
-      ),
-    }}
-  />
-);
-
 export const ChangeClinicianForm = ({ clinicianSuggester, onCancel, onSubmit }) => {
   const renderForm = ({ submitForm }) => (
     <FormGrid columns={1}>
       <Field
         name="examinerId"
         component={AutocompleteField}
-        label={changeClinicianLabel}
+        label={
+          <TranslatedText
+            stringId="patient.changeClinician.examinerId.label"
+            fallback="Search new :clinician"
+            replacements={{
+              clinician: (
+                <TranslatedText
+                  stringId="general.localisedField.clinician.label.short"
+                  fallback="Clinician"
+                  lowercase
+                />
+              ),
+            }}
+          />
+        }
         suggester={clinicianSuggester}
         required
       />
@@ -50,7 +48,12 @@ export const ChangeClinicianForm = ({ clinicianSuggester, onCancel, onSubmit }) 
         examinerId: yup
           .string()
           .required()
-          .translatedLabel(changeClinicianLabel),
+          .translatedLabel(
+            <TranslatedText
+              stringId="general.localisedField.clinician.label"
+              fallback="clinician"
+            />,
+          ),
       })}
       formType={FORM_TYPES.EDIT_FORM}
       render={renderForm}
