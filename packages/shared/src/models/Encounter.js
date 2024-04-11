@@ -1,9 +1,7 @@
 import { Sequelize } from 'sequelize';
-import { endOfDay, isBefore, parseISO, startOfToday } from 'date-fns';
 
 import {
   ENCOUNTER_TYPE_VALUES,
-  ENCOUNTER_TYPES,
   EncounterChangeType,
   NOTE_TYPES,
   SYNC_DIRECTIONS,
