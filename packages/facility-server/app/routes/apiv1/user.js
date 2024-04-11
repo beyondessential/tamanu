@@ -71,12 +71,7 @@ user.get(
       })),
     ];
 
-    const { whereClauses, filterReplacements } = getWhereClausesAndReplacementsFromFilters(
-      filters,
-      {
-        deletionStatus: null,
-      },
-    );
+    const { whereClauses, filterReplacements } = getWhereClausesAndReplacementsFromFilters(filters);
 
     const recentlyViewedPatients = await req.db.query(
       `

@@ -40,5 +40,4 @@ export interface IEncounter {
   examinerId?: string;
 
   deviceId?: string;
-  deletionStatus?: string;
 }

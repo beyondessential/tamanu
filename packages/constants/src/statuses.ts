@@ -92,9 +92,3 @@ export const PATIENT_MERGE_DELETION_ACTIONS = {
   DESTROY: 'DESTROY',
   NONE: 'NONE',
 };
-
-export const DELETION_STATUSES = {
-  DELETED: 'deleted',
-  REVOKED: 'revoked',
-  RECORDED_IN_ERROR: 'recorded-in-error',
-};

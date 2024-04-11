@@ -19,17 +19,16 @@ import {
   permissionCheckingRouter,
   runPaginatedQuery,
   paginatedGetList,
-  recordIsSoftDeletedCheckingRouter,
+  softDeletionCheckingRouter,
 } from '@tamanu/shared/utils/crudHelpers';
 import { uploadAttachment } from '../../utils/uploadAttachment';
 import { noteChangelogsHandler, noteListHandler } from '../../routeHandlers';
 import { createPatientLetter } from '../../routeHandlers/createPatientLetter';
 
 import { getLabRequestList } from '../../routeHandlers/labs';
-import { deleteDocumentMetadata } from '../../routeHandlers/deleteDocumentMetadata';
-import { deleteProgramForm } from '../../routeHandlers/deleteProgramForm';
+import { deleteDocumentMetadata, deleteEncounter, deleteSurveyResponse } from '../../routeHandlers/deleteModel';
 
-export const encounter = recordIsSoftDeletedCheckingRouter('Encounter');
+export const encounter = softDeletionCheckingRouter('Encounter');
 
 encounter.get('/:id', simpleGet('Encounter'));
 encounter.post(
@@ -124,7 +123,7 @@ encounter.post(
       throw new NotFoundError();
     }
 
-    // Create file on the sync server
+    // Create file on the central server
     const { attachmentId, type, metadata } = await uploadAttachment(req, DOCUMENT_SIZE_LIMIT);
 
     const documentMetadataObject = await models.DocumentMetadata.create({
@@ -144,21 +143,7 @@ encounter.post('/:id/createPatientLetter', createPatientLetter('Encounter', 'enc
 
 encounter.delete('/:id/documentMetadata/:documentMetadataId', deleteDocumentMetadata);
 
-encounter.delete(
-  '/:id',
-  asyncHandler(async (req, res) => {
-    const { models, params } = req;
-    req.checkPermission('delete', 'Encounter');
-
-    const model = models.Encounter;
-    const object = await model.findByPk(params.id);
-    if (object) {
-      await object.destroy();
-    }
-
-    res.send({ message: 'Encounter deleted successfully' });
-  }),
-);
+encounter.delete('/:id', deleteEncounter);
 
 const encounterRelations = permissionCheckingRouter('read', 'Encounter');
 encounterRelations.get('/:id/discharge', simpleGetHasOne('Discharge', 'encounterId'));
@@ -305,11 +290,9 @@ encounterRelations.get(
         AND
           surveys.survey_type = 'programs'
         AND
-          encounters.deleted_at is null
+          encounters.deleted_at IS NULL
         AND
           survey_responses.deleted_at IS NULL
-        AND
-          encounters.deleted_at IS NULL
       `,
       `
         SELECT
@@ -348,7 +331,7 @@ encounterRelations.get(
   }),
 );
 
-encounterRelations.delete('/:id/programResponses/:programResponseId', deleteProgramForm);
+encounterRelations.delete('/:id/programResponses/:surveyResponseId', deleteSurveyResponse);
 
 encounterRelations.get(
   '/:id/vitals',

@@ -1,5 +1,5 @@
 import { Command } from 'commander';
-import { VISIBILITY_STATUSES, DELETION_STATUSES } from '@tamanu/constants';
+import { VISIBILITY_STATUSES } from '@tamanu/constants';
 
 import { log } from '@tamanu/shared/services/logging';
 import { initDatabase } from '../../database';
@@ -27,62 +27,8 @@ const fromSurveyScreenComponent = async () => {
   );
 };
 
-const fromPermission = async () => {
-  const store = await initDatabase({ testMode: false });
-
-  const response = await store.sequelize.query(
-    `UPDATE "permissions" 
-      SET "deletion_status" = :revoked
-      WHERE "deleted_at" IS NOT NULL
-        AND deletion_status IS NULL`,
-    {
-      replacements: {
-        revoked: DELETION_STATUSES.REVOKED,
-      },
-    },
-  );
-
-  log.info(`${response[1].rowCount} soft deleted records updated at permissions table`);
-};
-
-const fromClinicalFeatures = async table => {
-  const store = await initDatabase({ testMode: false });
-
-  // If deleted_at column does not exist
-  if (!store.models[table].rawAttributes.deleted_at) {
-    log.info(`Table '${table}' does not have 'deleted_at' column`);
-    return;
-  }
-
-  const response = await store.sequelize.query(
-    `UPDATE "${table}" 
-      SET "deletion_status" = :historical
-      WHERE "deleted_at" IS NOT NULL`,
-    {
-      replacements: {
-        historical: DELETION_STATUSES.RECORDED_IN_ERROR,
-      },
-    },
-  );
-
-  log.info(`${response[1].rowCount} soft deleted records updated at ${table} table`);
-};
-
 const TABLE_TO_MIGRATION_MAPPING = {
   survey_screen_components: fromSurveyScreenComponent,
-  permissions: fromPermission,
-  encounters: fromClinicalFeatures,
-  document_metadata: fromClinicalFeatures,
-  referrals: fromClinicalFeatures,
-  notes: fromClinicalFeatures,
-  encounter_medications: fromClinicalFeatures,
-  invoices: fromClinicalFeatures,
-  vitals: fromClinicalFeatures,
-  procedures: fromClinicalFeatures,
-  lab_requests: fromClinicalFeatures,
-  imaging_requests: fromClinicalFeatures,
-  medications: fromClinicalFeatures,
-  survey_responses: fromClinicalFeatures,
 };
 
 export const runMigrate = async (migration, Resource) => {

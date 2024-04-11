@@ -1,6 +1,6 @@
 import { endOfDay, startOfDay } from 'date-fns';
 import { getJsDateFromExcel } from 'excel-date-to-js';
-import { ENCOUNTER_TYPES, DELETION_STATUSES } from '@tamanu/constants';
+import { ENCOUNTER_TYPES } from '@tamanu/constants';
 
 function stripNotes(fields) {
   const values = { ...fields };
@@ -167,7 +167,6 @@ export function permissionLoader(item) {
       const id = `${role}-${verb}-${noun}-${objectId || 'any'}`.toLowerCase();
 
       const isDeleted = yCell === 'n';
-      const deletionStatus = isDeleted ? DELETION_STATUSES.REVOKED : null;
       const deletedAt = isDeleted ? new Date() : null;
 
       return {
@@ -179,7 +178,6 @@ export function permissionLoader(item) {
           noun,
           objectId,
           role,
-          deletionStatus,
           deletedAt,
         },
       };

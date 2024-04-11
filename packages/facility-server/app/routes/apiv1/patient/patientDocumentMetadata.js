@@ -7,7 +7,7 @@ import { NotFoundError } from '@tamanu/shared/errors';
 import { uploadAttachment } from '../../../utils/uploadAttachment';
 import { getCaseInsensitiveFilter, getOrderClause, mapQueryFilters } from '../../../database/utils';
 import { createPatientLetter } from '../../../routeHandlers/createPatientLetter';
-import { deleteDocumentMetadata } from '../../../routeHandlers/deleteDocumentMetadata';
+import { deleteDocumentMetadata } from '../../../routeHandlers/deleteModel';
 
 // Object used to map field names to database column names
 const SNAKE_CASE_COLUMN_NAMES = {

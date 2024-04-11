@@ -5,7 +5,6 @@ import {
   queryPermissionsForRoles,
 } from '@tamanu/shared/permissions/rolesToPermissions';
 import { permissionCache } from '@tamanu/shared/permissions/cache';
-import { DELETION_STATUSES } from '@tamanu/constants';
 import { fake } from '@tamanu/shared/test-helpers/fake';
 import { createTestContext } from '../utilities';
 
@@ -40,7 +39,7 @@ describe('Permissions', () => {
           verb: 'run',
           noun: 'Report',
           objectId: 'report-allowed-but-revoked',
-          deletionStatus: DELETION_STATUSES.REVOKED,
+          deletedAt: new Date(),
         },
       ]),
       makeRoleWithPermissions('writer', [{ verb: 'write', noun: 'Patient' }]),
