@@ -7,6 +7,10 @@ const { telegramBot, canonicalHostName, language = 'en' } = config;
 const apiToken = telegramBot?.apiToken;
 const secretToken = telegramBot?.secretToken;
 
+const TELEGRAM_MESSAGE_TYPES = {
+  START: '/start',
+};
+
 export class TelegramBotService {
   static #bot = apiToken ? new TelegramBot(apiToken) : null;
 
@@ -23,7 +27,7 @@ export class TelegramBotService {
 
   handleMessage(msg) {
     if (!TelegramBotService.#bot || !msg?.text) return;
-    if (msg.text.startsWith('/start ')) {
+    if (msg.text.startsWith(TELEGRAM_MESSAGE_TYPES.START)) {
       this.registerNewContact(msg);
     }
   }

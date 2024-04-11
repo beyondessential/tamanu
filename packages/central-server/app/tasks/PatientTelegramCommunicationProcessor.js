@@ -4,7 +4,6 @@ import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import { InvalidConfigError } from '@tamanu/shared/errors';
 import { sleepAsync } from '@tamanu/shared/utils';
-import { TelegramBotService } from '../services/TelegramBotService';
 
 export class PatientTelegramCommunicationProcessor extends ScheduledTask {
   constructor(context) {
@@ -13,7 +12,6 @@ export class PatientTelegramCommunicationProcessor extends ScheduledTask {
     super(schedule, log, jitterTime);
     this.config = conf;
     this.context = context;
-    this.telegramBotService = new TelegramBotService(context);
   }
 
   getName() {
@@ -70,7 +68,7 @@ export class PatientTelegramCommunicationProcessor extends ScheduledTask {
       for (const communication of communications) {
         const plainCommunication = communication.get({ plain: true });
         try {
-          const result = await this.telegramBotService.sendMessage(
+          const result = await this.context.telegramBotService.sendMessage(
             plainCommunication.destination,
             communication.content,
           );
