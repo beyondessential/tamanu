@@ -268,9 +268,7 @@ export const LabRequestView = () => {
           />
           <Tile
             Icon={Business}
-            text={
-              <TranslatedText stringId="lab.view.tile.laboratory.label" fallback="Laboratory" />
-            }
+            text={<TranslatedText stringId="lab.laboratory.label" fallback="Laboratory" />}
             main={labRequest.laboratory?.name || '-'}
             isReadOnly={areLabRequestsReadOnly}
             actions={[

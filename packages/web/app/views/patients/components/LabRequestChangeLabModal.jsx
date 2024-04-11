@@ -17,9 +17,7 @@ const validationSchema = yup.object().shape({
   labTestLaboratoryId: yup
     .string()
     .required()
-    .translatedLabel(
-      <TranslatedText stringId="lab.modal.changeLab.laboratory.label" fallback="Laboratory" />,
-    ),
+    .translatedLabel(<TranslatedText stringId="lab.laboratory.label" fallback="Laboratory" />),
 });
 
 export const LabRequestChangeLabModal = React.memo(
