@@ -1239,7 +1239,10 @@
   "allowMismatchedTimeZones": false,
   "telegramBot": {
     apiToken: "",
-    secretToken: ""
+    secretToken: "",
+  },
+  "patientCommunication": {
+    "retryThreshold": 20
   },
   "language": "en"
 }

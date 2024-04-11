@@ -5,22 +5,28 @@ import React, {
   PropsWithChildren,
   ReactElement,
   useEffect,
-  ReactNode,
 } from 'react';
 import { DevSettings } from 'react-native';
 import { useBackend } from '../hooks';
+import { isEmpty } from 'lodash';
 
-type Replacements = { [key: string]: ReactNode };
+type Replacements = { [key: string]: any };
 export interface TranslatedTextProps {
   stringId: string;
   fallback: string;
   replacements?: Replacements;
+  uppercase?: boolean;
 }
 
 interface TranslationContextData {
   debugMode: boolean;
-  getTranslation: (props: TranslatedTextProps) => string;
-  fetchTranslations: () => void;
+  language: string;
+  languageOptions: [];
+  setLanguageOptions: (languageOptions: []) => void;
+  getTranslation: (stringId: string, fallback?: string, replacements?: Replacements) => string;
+  setLanguage: (language: string) => void;
+  host: string;
+  setHost: (host: string) => void;
 }
 
 // Duplicated from TranslatedText.js on desktop
@@ -41,23 +47,40 @@ const replaceStringVariables = (templateString: string, replacements?: Replaceme
 const TranslationContext = createContext<TranslationContextData>({} as TranslationContextData);
 
 export const TranslationProvider = ({ children }: PropsWithChildren<object>): ReactElement => {
+  const DEFAULT_LANGUAGE = 'en';
   const { models } = useBackend();
   const [isDebugMode, setIsDebugMode] = useState(false);
   const [translations, setTranslations] = useState({});
+  const [languageOptions, setLanguageOptions] = useState(null);
+  const [language, setLanguage] = useState(null);
+  const [host, setHost] = useState(null);
 
-  if (__DEV__) {
-    DevSettings.addMenuItem('Toggle translation highlighting', () => setIsDebugMode(!isDebugMode));
-  }
-
-  const fetchTranslations = async (language: string = 'en') => {
-    const translations = await models.TranslatedString.getForLanguage(language);
-    setTranslations(translations);
+  const getLanguageOptions = async () => {
+    const languageOptionArray = await models.TranslatedString.getLanguageOptions();
+    if (languageOptionArray.length > 0) setLanguageOptions(languageOptionArray);
   };
 
-  const getTranslation = ({ stringId, fallback, replacements }: TranslatedTextProps) => {
-    const translation = translations[stringId] || fallback;
+  const setLanguageState = async (languageCode: string = DEFAULT_LANGUAGE) => {
+    if (!languageOptions) getLanguageOptions();
+    const translations = await models.TranslatedString.getForLanguage(languageCode);
+    if (isEmpty(translations)) {
+      // If we dont have translations synced down, fetch from the public server endpoint directly
+      const response = await fetch(`${host}/api/public/translation/${languageCode}`);
+      const data = await response.json();
+      setTranslations(data);
+    } else {
+      setTranslations(translations);
+    }
+  };
+
+  const getTranslation = (stringId: string, fallback?: string, replacements?: Replacements) => {
+    const translation = translations?.[stringId] || fallback;
     return replaceStringVariables(translation, replacements);
   };
+
+  useEffect(() => {
+    setLanguageState(language);
+  }, [language]);
 
   useEffect(() => {
     if (!__DEV__) return;
@@ -68,8 +91,13 @@ export const TranslationProvider = ({ children }: PropsWithChildren<object>): Re
     <TranslationContext.Provider
       value={{
         debugMode: isDebugMode,
+        language,
+        languageOptions,
+        setLanguageOptions,
         getTranslation,
-        fetchTranslations,
+        setLanguage,
+        host,
+        setHost,
       }}
     >
       {children}

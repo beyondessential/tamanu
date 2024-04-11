@@ -35,12 +35,11 @@ const Screen = ({ navigation, route, selectedPatient }: IReminderContactQR) => {
     navigation.navigate(Routes.HomeStack.PatientDetailsStack.Index);
   }, [navigation]);
 
-  const description = getTranslation({
-    stringId: 'patient.details.reminderContactQr.description',
-    fallback:
-      'Please ask the contact to scan the QR code to register their Telegram account to received automated reminder messages for :patientName.',
-    replacements: { patientName },
-  });
+  const description = getTranslation(
+    'patient.details.reminderContactQr.description',
+    'Please ask the contact to scan the QR code to register their Telegram account to received automated reminder messages for :patientName.',
+    { patientName },
+  );
 
   return (
     <FullView

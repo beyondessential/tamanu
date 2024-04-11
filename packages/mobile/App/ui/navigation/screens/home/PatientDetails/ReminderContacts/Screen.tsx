@@ -62,7 +62,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
   }, [navigation]);
 
   const onRemoveReminderContact = async () => {
-    if (!selectedContact) return
+    if (!selectedContact) return;
     await PatientContact.updateValues(selectedContact.id, {
       deletedAt: new Date(),
     });
@@ -71,18 +71,18 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
 
   const patientName = joinNames(selectedPatient);
 
-  const description = getTranslation({
-    stringId: 'patient.details.reminderContacts.description',
-    fallback: 'The below contact list is registered to receive reminders for :patientName.',
-    replacements: { patientName },
-  });
+  const description = getTranslation(
+    'patient.details.reminderContacts.description',
+    'The below contact list is registered to receive reminders for :patientName.',
+    { patientName },
+  );
 
-  const emptyDescription = getTranslation({
-    stringId: 'patient.details.reminderContacts.emptyDescription',
-    fallback:
-      "There are no contacts registered to receive reminders for :patientName. Please select 'Add contact' to register a contact.",
-    replacements: { patientName },
-  });
+  const emptyDescription = getTranslation(
+    'patient.details.reminderContacts.emptyDescription',
+
+    "There are no contacts registered to receive reminders for :patientName. Please select 'Add contact' to register a contact.",
+    { patientName },
+  );
 
   return (
     <FullView background={theme.colors.WHITE}>
