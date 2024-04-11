@@ -15,7 +15,8 @@ export class removeDeletionStatusColumn1712707744000 implements MigrationInterfa
     await queryRunner.query(`
       UPDATE ${TABLE_NAME}
       SET deleted_at = date('now')
-      WHERE ${COLUMN_NAME} = '${DELETION_STATUSES.DELETED}';
+      WHERE ${COLUMN_NAME} = '${DELETION_STATUSES.DELETED}'
+      AND deleted_at IS NULL;
     `);
     const table = await getTable(queryRunner, TABLE_NAME);
     await queryRunner.dropColumn(table, COLUMN_NAME);
