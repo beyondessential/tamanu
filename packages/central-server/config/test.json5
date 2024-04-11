@@ -22,6 +22,9 @@
       }
     }
   },
+  "mailgun": {
+    "from": "Tamanu test"
+  },
   "auth": {
     "secret": "secret",
     "refreshToken": {
