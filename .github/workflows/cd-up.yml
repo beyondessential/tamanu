@@ -15,6 +15,9 @@ on:
       control:
         type: string
         required: true
+      ref:
+        type: string
+        required: true
     secrets:
       PULUMI_ACCESS_TOKEN:
         required: true
@@ -48,18 +51,22 @@ jobs:
             kubectl -n tamanu-${{ inputs.deploy-name }} \
               get configmap auto-deploy -o json \
               | tee -a /dev/stderr \
-              | jq -e '.data | [.repo == "${{ github.repository }}", .ref == "${{ github.ref }}"] | all'
+              | jq -e '.data | [.repo == "${{ github.repository }}", .ref == "${{ inputs.ref }}"] | all'
           else
             kubectl create namespace tamanu-${{ inputs.deploy-name }}
             kubectl -n tamanu-${{ inputs.deploy-name }} \
               create configmap auto-deploy \
               --from-literal=repo=${{ github.repository }} \
-              --from-literal=ref=${{ github.ref }}
+              --from-literal=ref=${{ inputs.ref }}
           fi
 
           kubectl -n tamanu-${{ inputs.deploy-name }} \
             patch configmap auto-deploy \
             -p '{"data":{"control":"${{ inputs.control }}"}}'
+
+          kubectl -n tamanu-${{ inputs.deploy-name }} \
+            patch configmap auto-deploy \
+            -p '{"data":{"imageTag":"${{ inputs.image-tag }}"}}'
 
       - name: Generate pulumi config
         id: config

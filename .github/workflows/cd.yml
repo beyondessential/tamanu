@@ -284,6 +284,7 @@ jobs:
       options: ${{ matrix.options }}
       control: ${{ matrix.control }}
       image-tag: sha-${{ needs.config.outputs.sha }}
+      ref: ${{ needs.config.outputs.ref }}
     secrets:
       PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
       TAILSCALE_OAUTH: ${{ secrets.TAILSCALE_DBPROXY_ACCESS_OAUTH }}
