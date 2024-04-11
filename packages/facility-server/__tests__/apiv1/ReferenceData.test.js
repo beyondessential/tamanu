@@ -131,7 +131,7 @@ describe('Reference data', () => {
     });
     it('should throw 404 for a village with no catchment', async () => {
       const result = await adminApp.get(
-        `/api/referenceData/facilityCatchment/not-existing/facility`,
+        '/api/referenceData/facilityCatchment/not-existing/facility',
       );
       expect(result).toHaveRequestError(NotFoundError);
     });
