@@ -99,16 +99,19 @@ export const NoteForm = ({
           .translatedLabel(
             <TranslatedText stringId="note.validation.content.path" fallback="Content" />,
           ),
-        writtenById: foreignKey(
-          noteFormMode === NOTE_FORM_MODES.EDIT_NOTE && note?.noteType === NOTE_TYPES.TREATMENT_PLAN
-            ? getTranslation(
-                'validation.rule.updatedByOnBehalfOfRequired',
-                'Updated by (or on behalf of) is required',
-              )
-            : getTranslation(
-                'validation.rule.createdByOnBehalfOfRequired',
-                'Created by (or on behalf of) is required',
-              ),
+        writtenById: foreignKey().translatedLabel(
+          noteFormMode === NOTE_FORM_MODES.EDIT_NOTE &&
+            note?.noteType === NOTE_TYPES.TREATMENT_PLAN ? (
+            <TranslatedText
+              stringId="validation.rule.updatedByOnBehalfOf"
+              fallback="Updated by (or on behalf of)"
+            />
+          ) : (
+            <TranslatedText
+              stringId="validation.rule.createdByOnBehalfOf"
+              fallback="Created by (or on behalf of)"
+            />
+          ),
         ),
       })}
     />
