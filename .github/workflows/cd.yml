@@ -22,6 +22,10 @@ on:
     # All branches can potentially be controlled by special issues
     branches: ['*']
 
+# makes jobs for the same thing queue behind each other, and if there is already one job pending
+# (not currently running) then that job is cancelled and the newer one remains in queue.
+# Pulumi ups and downs can't be safely cancelled[1] so we can't do cancel-in-progress: true
+# [1]: https://github.com/pulumi/actions/issues/928
 concurrency:
   group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.event.issue.id || github.ref }}
   cancel-in-progress: false
@@ -34,6 +38,10 @@ permissions:
   id-token: write # OIDC token for AWS (only for release tags)
 
 jobs:
+  # This job sets everything up. It parses the run metadata, event payload, PR or issue bodies,
+  # and figures out git commit hashes and refs from the actual git content, not the pseudo commit
+  # github makes up for merges. Then it prepares job outputs that orchestrate the jobs that need to
+  # run or not run, which can range from doing nothing to multiple deploys and undeploys at once.
   config:
     name: Workflow config
     runs-on: ubuntu-latest
@@ -44,6 +52,10 @@ jobs:
       down: ${{ steps.config.outputs.down }}
       go-up: ${{ steps.config.outputs.go-up == 'true' }}
       go-down: ${{ steps.config.outputs.go-down == 'true' }}
+
+      # we need to build images when:
+      # - we want to bring deploys up, AND the images for this commit don't yet exist, or
+      # - we're doing a release, because images are both a product and how we make other artifacts.
       build-images: ${{ ((github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')) || steps.config.outputs.go-up == 'true') && steps.check-images-exist.outputs.exist != 'yes' }}
     steps:
       - uses: actions/checkout@v4
@@ -256,6 +268,8 @@ jobs:
     # If we're deploying (go-up):
     # - and we're building images (build-images), we need them (multi-arch) to succeed
     # - or if we're not building images, we need to ignore that multi-arch was skipped
+    #
+    # always() is how github actions knows to run this job even if a `needs` job failed/didn't run
     if: always() && needs.config.outputs.go-up == 'true' && (needs.config.outputs.build-images == 'false' || needs.multi-arch.result == 'success')
 
     strategy:
