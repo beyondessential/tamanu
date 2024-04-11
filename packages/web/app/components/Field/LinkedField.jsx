@@ -8,7 +8,8 @@ const useLinkedFieldQuery = (endpoint, name, value) => {
   const api = useApi();
   return useQuery(
     ['linkedField', name, value],
-    () => api.get(`${endpoint}/${value}`, {}, { isErrorUnknown: isErrorUnknownAllow404s }),
+    () =>
+      api.get(`${endpoint.replace(':id', value)}`, {}, { isErrorUnknown: isErrorUnknownAllow404s }),
     {
       enabled: !!value,
     },

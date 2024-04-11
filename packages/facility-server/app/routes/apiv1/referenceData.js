@@ -51,7 +51,7 @@ referenceData.get(
 );
 
 referenceData.get(
-  '/facilityCatchmentHierarchy/:id',
+  '/referenceData/facilityCatchment/:id/facility',
   asyncHandler(async (req, res) => {
     req.flagPermissionChecked();
     const {

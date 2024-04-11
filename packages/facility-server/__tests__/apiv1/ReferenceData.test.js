@@ -81,7 +81,7 @@ describe('Reference data', () => {
     expect(result).toHaveRequestError();
   });
 
-  describe('/facilityCatchmentHierarchy/:id', () => {
+  describe('/facilityCatchment/:id/facility', () => {
     let villageId;
     let villageIdNoFacility;
     let facilityId;
@@ -124,20 +124,20 @@ describe('Reference data', () => {
     });
     it('should return the facility for a village', async () => {
       const result = await adminApp.get(
-        `/api/referenceData/facilityCatchmentHierarchy/${villageId}`,
+        `/api/referenceData/facilityCatchment/${villageId}/facility`,
       );
       expect(result).toHaveSucceeded();
       expect(result.body.id).toBe(facilityId);
     });
     it('should throw 404 for a village with no catchment', async () => {
       const result = await adminApp.get(
-        `/api/referenceData/facilityCatchmentHierarchy/not-existing`,
+        `/api/referenceData/facilityCatchment/not-existing/facility`,
       );
       expect(result).toHaveRequestError(NotFoundError);
     });
     it('should throw 404 for catchment not related to facility', async () => {
       const result = await adminApp.get(
-        `/api/referenceData/facilityCatchmentHierarchy/${villageIdNoFacility}`,
+        `/api/referenceData/facilityCatchment/${villageIdNoFacility}/facility`,
       );
       expect(result).toHaveRequestError(NotFoundError);
     });

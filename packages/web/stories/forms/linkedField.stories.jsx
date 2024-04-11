@@ -82,7 +82,7 @@ const BasicTemplate = () => {
               component={AutocompleteField}
               name="villageId"
               linkedFieldName="nursingZoneId"
-              endpoint="linkedField/healthCenter"
+              endpoint="linkedField/healthCenter/:id"
               suggester={mockVillageSuggester}
               label="Village"
             />

@@ -11,7 +11,7 @@ const HealthCenterLinkedVillageField = props => (
   <LinkedField
     {...props}
     linkedFieldName="healthCenterId"
-    endpoint="referenceData/facilityCatchmentHierarchy"
+    endpoint="referenceData/facilityCatchment/:id/facility"
     name="villageId"
     component={AutocompleteField}
   />
