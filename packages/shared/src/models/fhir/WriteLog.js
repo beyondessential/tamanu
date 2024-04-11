@@ -94,7 +94,7 @@ function filterHeaders(headers) {
 function scrubber(body) {
   return Object.values(HTTP_BODY_DATA_PATHS).reduce(
     (currentBody, path) => {
-      jp.value(currentBody, path, SCRUBBED_DATA_MESSAGE);
+      jp.apply(currentBody, path, () => SCRUBBED_DATA_MESSAGE);
       return currentBody;
     },
     body,
