@@ -1,5 +1,5 @@
 import test from 'tape';
-import { parseDeployConfig } from '../src/gha-pr-helpers.mjs';
+import { parseDeployConfig } from '../src/gha-cd-helpers.mjs';
 
 function withoutOptions({ ...deploy }) {
   delete deploy.options;
