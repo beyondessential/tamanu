@@ -21,7 +21,7 @@
     "setup-dev": "node dist setup",
     "shell": "yarn build && node dist shell",
     "start-dev": "concurrently npm:build-watch npm:start-watch",
-    "start-watch": "nodemon \"dist/**/*.js\"",
+    "start-watch": "sleep 1 && nodemon --delay 1 \"dist/**/*.js\"",
     "start": "node dist",
     "test": "yarn test-build && NODE_ENV=test jest",
     "test-build": "swc --delete-dir-on-start --out-dir __disttests__ --copy-files --source-maps true __tests__",
@@ -75,7 +75,7 @@
     "inflection": "^1.13.2",
     "jose": "^5.1.1",
     "json-canonicalize": "^1.0.4",
-    "jsonwebtoken": "^8.4.0",
+    "jsonwebtoken": "^9.0.0",
     "jszip": "^3.7.1",
     "lodash": "^4.17.5",
     "mailgun.js": "^8.0.2",
@@ -100,7 +100,7 @@
     "umzug": "^2.3.0",
     "winston": "^3.2.1",
     "winston-transport": "^4.5.0",
-    "xlsx": "^0.16.9",
+    "xlsx": "^0.18.5",
     "yup": "^0.32.9"
   }
 }
