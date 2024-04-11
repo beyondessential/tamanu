@@ -66,7 +66,6 @@ export const TriageForm = ({
   const { getLocalisation } = useLocalisation();
   const { getTranslation } = useTranslation();
   const triageCategories = getLocalisation('triageCategories');
-  // const clinicianText = getTranslation('general.localisedField.clinician.label.short', 'Clinician');
   const practitionerSuggester = useSuggester('practitioner');
   const triageReasonSuggester = useSuggester('triageReason');
 
