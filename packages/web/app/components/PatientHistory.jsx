@@ -74,7 +74,7 @@ export const PatientHistory = ({ patient, onItemClick }) => {
 
   const actions = [
     {
-      label: 'Delete',
+      label: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
       action: () => setModalOpen(true),
       permissionCheck: () => {
         return ability?.can('delete', 'Encounter');

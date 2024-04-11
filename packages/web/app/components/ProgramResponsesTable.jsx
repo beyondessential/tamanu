@@ -42,7 +42,7 @@ export const DataFetchingProgramsTable = ({ endpoint }) => {
 
   const actions = [
     {
-      label: 'Delete',
+      label: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
       action: () => handleChangeModalId(MODAL_IDS.DELETE),
       permissionCheck: () => {
         return ability?.can('delete', 'SurveyResponse');
