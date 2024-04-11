@@ -70,7 +70,7 @@ export const DocumentsTable = React.memo(
       setModalOpen(true);
     };
 
-    const menuActions = [
+    const actions = [
       {
         label: 'Delete',
         action: () => handleChangeModalId(MODAL_IDS.DELETE),
@@ -78,20 +78,11 @@ export const DocumentsTable = React.memo(
           return ability?.can('delete', 'DocumentMetadata');
         },
       },
-    ];
+    ].filter(({ permissionCheck }) => {
+      return permissionCheck ? permissionCheck() : true;
+    });
 
     const ActiveModal = MODALS[modalId] || null;
-
-    const actions = menuActions
-      .filter(({ permissionCheck }) => {
-        return permissionCheck ? permissionCheck() : true;
-      })
-      .reduce((acc, { label, action }) => {
-        acc[label] = action;
-        return acc;
-      }, {});
-
-    const isAllActionsDeniedDueToPerm = Object.keys(actions).length === 0;
 
     // Define columns inside component to pass callbacks to getActions
     const COLUMNS = [
@@ -136,7 +127,7 @@ export const DocumentsTable = React.memo(
         dontCallRowInput: true,
         sortable: false,
         CellComponent: ({ data }) => {
-          if (!isAllActionsDeniedDueToPerm) {
+          if (actions.length > 0) {
             return (
               <ActionWrapper onMouseEnter={() => setSelectedDocument(data)}>
                 <StyledIconButton color="primary" onClick={() => onDownload(data)} key="download">

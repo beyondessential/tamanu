@@ -40,7 +40,7 @@ export const DataFetchingProgramsTable = ({ endpoint }) => {
     setModalOpen(true);
   };
 
-  const menuActions = [
+  const actions = [
     {
       label: 'Delete',
       action: () => handleChangeModalId(MODAL_IDS.DELETE),
@@ -48,16 +48,9 @@ export const DataFetchingProgramsTable = ({ endpoint }) => {
         return ability?.can('delete', 'SurveyResponse');
       },
     },
-  ];
-
-  const actions = menuActions
-    .filter(({ permissionCheck }) => {
-      return permissionCheck ? permissionCheck() : true;
-    })
-    .reduce((acc, { label, action }) => {
-      acc[label] = action;
-      return acc;
-    }, {});
+  ].filter(({ permissionCheck }) => {
+    return permissionCheck ? permissionCheck() : true;
+  });
 
   const ActiveModal = MODALS[modalId] || null;
 
