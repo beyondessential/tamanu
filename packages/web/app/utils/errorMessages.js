@@ -10,12 +10,9 @@ function splitFieldName(name) {
   return joined;
 }
 
-yup.addMethod(yup.mixed, 'translatedLabel', function(translatedTextComponent) {
-  return this.label(translatedTextComponent.props.fallback);
-});
-
-export function registerYup(translations = {}) {
+const registerTranslatedLabelMethod = (translations = {}) => {
   yup.addMethod(yup.mixed, 'translatedLabel', function(translatedTextComponent) {
+    if (!translations) return this.label(translatedTextComponent.props.fallback);
     const { stringId, fallback } = translatedTextComponent.props;
     const templateString = translations[stringId] || fallback;
     const replaced = replaceStringVariables(
@@ -25,6 +22,14 @@ export function registerYup(translations = {}) {
     );
     return this.label(replaced);
   });
+};
+
+// Register a placeholder method in upper scope to be replaced with
+// translated version, this is required at boot
+registerTranslatedLabelMethod();
+
+export function registerYup(translations) {
+  registerTranslatedLabelMethod(translations);
   const defaultMessage = translations['validation.required'] || 'The :path field is required';
   yup.setLocale({
     mixed: {
