@@ -56,7 +56,7 @@ export async function up(query) {
 	  distinct on (fp.patient_id, fsv2.vaccine_category, fsv2.vaccine_id)
 	  fp.patient_id,
 	  fsv2.scheduled_vaccine_id,
-	  fsv2.vaccine_category
+	  fsv2.vaccine_category,
 	  fsv2.vaccine_id,
 	  fsv2.weeks_from_last_vaccination_due * 7 + fav.administered_date due_date
   from filtered_administered_vaccines fav 
