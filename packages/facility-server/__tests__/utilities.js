@@ -133,7 +133,7 @@ export async function createTestContext({ enableReportInstances } = {}) {
   await seedDepartments(models);
   await seedLocations(models);
   await seedLocationGroups(models);
-  await seedSettings(models);
+  await seedSettings(models, config.serverFacilityId);
 
   // Create the facility for the current config if it doesn't exist
   const [facility] = await models.Facility.findOrCreate({

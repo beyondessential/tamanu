@@ -1,4 +1,3 @@
-import config from 'config';
 import { SETTINGS_SCOPES } from '@tamanu/constants';
 import { facilityTestSettings, centralTestSettings, globalTestSettings } from '@tamanu/settings';
 import _ from 'lodash';
@@ -15,9 +14,7 @@ const seedForScope = async (models, settings, serverFacilityId, scopeOverride) =
   return Setting.set('', combined, scope, serverFacilityId);
 };
 
-export async function seedSettings(models) {
-  const { serverFacilityId } = config;
-
+export async function seedSettings(models, serverFacilityId) {
   await seedForScope(models, globalTestSettings);
   if (serverFacilityId) {
     await seedForScope(models, facilityTestSettings, serverFacilityId);
