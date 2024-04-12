@@ -3,17 +3,10 @@ import { useNavigation } from '@react-navigation/native';
 import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 import { theme } from '/styled/theme';
 import { ProfileIcon } from '/components/Icons';
-import {
-  Orientation,
-  screenPercentageToDP,
-} from '/helpers/screen';
-import {
-  RowView,
-  StyledText,
-  StyledTouchableOpacity,
-  StyledView,
-} from '/styled/common';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { RowView, StyledText, StyledTouchableOpacity, StyledView } from '/styled/common';
 import { Routes } from '/helpers/routes';
+import { TranslatedText } from '/components/Translations/TranslatedText';
 
 const RegisterPatientButton = (): ReactElement => {
   const navigation = useNavigation();
@@ -52,7 +45,10 @@ const RegisterPatientButton = (): ReactElement => {
               fontWeight="bold"
               color={theme.colors.TEXT_DARK}
             >
-              {'Register\nNew Patient'}
+              <TranslatedText
+                stringId="patient.register.button"
+                fallback={`Register\nNew Patient`}
+              />
             </StyledText>
           </StyledView>
         </StyledTouchableOpacity>

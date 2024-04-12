@@ -9,6 +9,7 @@ export const PatientDetailsHeading = styled.div`
   margin-bottom: 30px;
   display: flex;
   justify-content: space-between;
+  align-items: center;
 `;
 
 export const SecondaryDetailsGroup = styled.div`

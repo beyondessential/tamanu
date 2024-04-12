@@ -36,6 +36,14 @@ export class TranslatedString extends BaseModel {
     }
   }
 
+  static async getLanguageOptions() {
+    const languageNameKeys = await this.getRepository().find({
+      where: { stringId: 'languageName' },
+      select: ['language', 'text'],
+    });
+    return languageNameKeys.map(({ language, text }) => ({ label: text, value: language }));
+  }
+
   static async getForLanguage(language: string): Promise<{ [key: string]: string }> {
     const translatedStrings = await this.getRepository().find({
       where: {
