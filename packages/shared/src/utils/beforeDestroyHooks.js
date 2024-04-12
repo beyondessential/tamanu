@@ -1,6 +1,9 @@
+import { Op } from 'sequelize';
+
 export async function beforeDestroyEncounter(encounter) {
   // Sequelize is going to work on cascade for paranoid table in the future.
   // There is an open issue for this: https://github.com/sequelize/sequelize/issues/2586
+  // TODO: update this list as its incomplete
   const [
     vitals,
     notes,
@@ -49,4 +52,45 @@ export async function beforeDestroyEncounter(encounter) {
       }
     }),
   );
+}
+
+export async function beforeBulkDestroyEncounter(options) {
+  const ids = options.where.id[Op.in];
+  // Bulk delete all other models - Should we actually apply this to individual delete, too?
+  const {
+    Discharge,
+    Invoice,
+    SurveyResponse,
+    Referral,
+    AdministeredVaccine,
+    EncounterDiagnosis,
+    EncounterMedication,
+    LabRequest,
+    ImagingRequest,
+    Procedure,
+    Vitals,
+    Triage,
+    LabTestPanelRequest,
+    DocumentMetadata,
+    EncounterHistory,
+    Note,
+  } = options.model.models;
+
+  await Discharge.destroy({ where: { encounterId: { [Op.in]: ids } } });
+  await Invoice.destroy({ where: { encounterId: { [Op.in]: ids } } });
+  await SurveyResponse.destroy({ where: { encounterId: { [Op.in]: ids } } });
+  await Referral.destroy({ where: { initiatingEncounterId: { [Op.in]: ids } } });
+  await Referral.destroy({ where: { completingEncounterId: { [Op.in]: ids } } });
+  await AdministeredVaccine.destroy({ where: { encounterId: { [Op.in]: ids } } });
+  await EncounterDiagnosis.destroy({ where: { encounterId: { [Op.in]: ids } } });
+  await EncounterMedication.destroy({ where: { encounterId: { [Op.in]: ids } } });
+  await LabRequest.destroy({ where: { encounterId: { [Op.in]: ids } } });
+  await ImagingRequest.destroy({ where: { encounterId: { [Op.in]: ids } } });
+  await Procedure.destroy({ where: { encounterId: { [Op.in]: ids } } });
+  await Vitals.destroy({ where: { encounterId: { [Op.in]: ids } } });
+  await Triage.destroy({ where: { encounterId: { [Op.in]: ids } } });
+  await LabTestPanelRequest.destroy({ where: { encounterId: { [Op.in]: ids } } });
+  await DocumentMetadata.destroy({ where: { encounterId: { [Op.in]: ids } } });
+  await EncounterHistory.destroy({ where: { encounterId: { [Op.in]: ids } } });
+  await Note.destroy({ where: { recordType: options.model.name, recordId: { [Op.in]: ids } } });
 }

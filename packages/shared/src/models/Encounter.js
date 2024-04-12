@@ -14,7 +14,7 @@ import { dateTimeType } from './dateTimeTypes';
 import { Model } from './Model';
 import { onSaveMarkPatientForSync } from './onSaveMarkPatientForSync';
 import { dischargeOutpatientEncounters } from '../utils/dischargeOutpatientEncounters';
-import { beforeDestroyEncounter } from '../utils/beforeDestroyHooks';
+import { beforeDestroyEncounter, beforeBulkDestroyEncounter } from '../utils/beforeDestroyHooks';
 
 export class Encounter extends Model {
   static init({ primaryKey, hackToSkipEncounterValidation, ...options }) {
@@ -66,6 +66,7 @@ export class Encounter extends Model {
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
         hooks: {
           beforeDestroy: beforeDestroyEncounter,
+          beforeBulkDestroy: beforeBulkDestroyEncounter,
         },
       },
     );
