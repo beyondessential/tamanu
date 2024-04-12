@@ -30,7 +30,7 @@ jobs:
         node-version: 20.x
 
     - name: Compute new release branch name
-      uses: actions/github-script@v6
+      uses: actions/github-script@v7
       id: branchname
       with:
         github-token: ${{ secrets.TAMANU_RELEASE_PAT }}
@@ -41,7 +41,7 @@ jobs:
           return currentVersion(await import('fs'), cwd).branch;
 
     - name: Check new release branch doesn't already exist
-      uses: actions/github-script@v6
+      uses: actions/github-script@v7
       env:
         NEW_BRANCH_NAME: ${{ steps.branchname.outputs.result }}
       with:
@@ -62,7 +62,7 @@ jobs:
         git switch main
 
     - name: Create next release draft
-      uses: actions/github-script@v6
+      uses: actions/github-script@v7
       with:
         github-token: ${{ secrets.TAMANU_RELEASE_PAT }}
         script: |
