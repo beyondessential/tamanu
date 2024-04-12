@@ -6,6 +6,10 @@ import { Box, Divider, Typography } from '@material-ui/core';
 import { Colors } from '../constants';
 import { FormConfirmCancelBackRow } from './ButtonRow';
 import { Table } from './Table';
+import { TranslatedText } from './Translation/TranslatedText';
+import { useApi } from '../api';
+import { useTranslation } from '../contexts/Translation';
+import { capitalize } from 'lodash';
 
 const StyledHeading = styled(Typography)`
   margin: 6px 0 9px 0;
@@ -41,12 +45,13 @@ const ContactDetailTable = styled(Table)`
         font-size: 14px;
         line-height: 18px;
         font-weight: 500;
+        width: 30%;
       }
     }
 
     tbody tr td {
       border-bottom: none;
-      padding: 10px 0 25px 2px !important;
+      padding: 10px 0 16px 2px !important;
     }
   }
 `;
@@ -60,52 +65,79 @@ const StyledDivider = styled(Divider)`
   border-top: 1px solid ${Colors.outline};
 `;
 
-const columns = [
-  {
-    key: 'contactName',
-    title: 'Contact',
-    sortable: false,
-  },
-  {
-    key: 'relationshipType',
-    title: 'Relationship',
-    sortable: false,
-  },
-  {
-    key: 'contactMethod',
-    title: 'Contact method',
-    sortable: false,
-  },
-];
+export const ContactDetails = ({ selectedContact }) => {
+  const { getTranslation } = useTranslation();
 
-export const ContactDetails = () => {
-  const contactDetail = [
+  const columns = [
     {
-      contactName: 'Jessie Ugyen',
-      relationshipType: 'Grandmother',
-      contactMethod: 'Telegram',
+      key: 'name',
+      title: getTranslation('patient.details.reminderContacts.field.contact', 'Contact'),
+      sortable: false,
+    },
+    {
+      key: 'relationship.name',
+      title: getTranslation('patient.details.reminderContacts.field.relationship', 'Relationship'),
+      sortable: false,
+    },
+    {
+      key: 'method',
+      title: getTranslation(
+        'patient.details.reminderContacts.field.contactMethod',
+        'Contact method',
+      ),
+      sortable: false,
+      accessor: data => {
+        return data.connectionDetails ? (
+          <TranslatedText
+            stringId={`patient.details.reminderContacts.method.${data.method}`}
+            fallback={capitalize(data.method)}
+          />
+        ) : (
+          <TranslatedText
+            stringId={`patient.details.reminderContacts.method.${data.method}Pending`}
+            fallback={`${capitalize(data.method)} pending`}
+          />
+        );
+      },
     },
   ];
 
-  return <ContactDetailTable columns={columns} allowExport={false} data={contactDetail} />;
+  return <ContactDetailTable columns={columns} allowExport={false} data={[selectedContact]} />;
 };
 
-export const RemoveReminderContact = ({ onBack, onClose }) => {
+export const RemoveReminderContact = ({ selectedContact, onBack, onClose }) => {
+  const api = useApi();
+
+  const handleDeleteContact = async () => {
+    await api.delete(`patient/reminderContact/${selectedContact.id}`);
+    onBack();
+  };
+
   return (
     <>
-      <StyledHeading>Would you like to remove the below contact?</StyledHeading>
-      <StyledSubHeading>You can add the contact again at any time.</StyledSubHeading>
+      <StyledHeading>
+        <TranslatedText
+          stringId="patient.details.removeReminderContact.confirmation"
+          fallback="Would you like to remove the below contact?"
+        />
+      </StyledHeading>
+      <StyledSubHeading>
+        <TranslatedText
+          stringId="patient.details.removeReminderContact.description"
+          fallback="You can add the contact again at any time."
+        />
+      </StyledSubHeading>
 
-      <ContactDetails />
+      <ContactDetails selectedContact={selectedContact} />
 
       <StyledFullWidthContainer>
         <StyledDivider />
       </StyledFullWidthContainer>
       <FormConfirmCancelBackRow
         onBack={onBack}
-        onConfirm={onBack}
+        onConfirm={handleDeleteContact}
         onCancel={onClose}
-        confirmText="Remove"
+        confirmText={<TranslatedText stringId="general.action.remove" fallback="Remove" />}
       />
     </>
   );

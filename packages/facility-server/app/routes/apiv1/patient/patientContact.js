@@ -19,3 +19,22 @@ patientContact.post(
     return simplePost('PatientContact')(req, res);
   }),
 );
+
+patientContact.delete(
+  '/reminderContact/:id',
+  asyncHandler(async (req, res) => {
+    const { models, params } = req;
+    req.checkPermission('write', 'Patient');
+
+    const { id } = params;
+    await models.PatientContact.update(
+      { deletedAt: new Date() },
+      {
+        where: {
+          id,
+        },
+      },
+    );
+    res.send({ message: 'Contact deleted successfully' });
+  }),
+);

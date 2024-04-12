@@ -36,6 +36,7 @@ export const ReminderContactModal = ({ onClose, open }) => {
   const { getTranslation } = useTranslation();
   const [activeView, setActiveView] = useState(REMINDER_CONTACT_VIEWS.REMINDER_CONTACT_LIST);
   const [newContact, setNewContact] = useState();
+  const [selectedContact, setSelectedContact] = useState();
 
   const handleActiveView = value => {
     setActiveView(value);
@@ -66,6 +67,11 @@ export const ReminderContactModal = ({ onClose, open }) => {
     handleActiveView(REMINDER_CONTACT_VIEWS.REMINDER_CONTACT_LIST);
   };
 
+  const handleRemoveContact = contact => {
+    setSelectedContact(contact);
+    handleActiveView(REMINDER_CONTACT_VIEWS.REMOVE_REMINDER);
+  };
+
   return (
     <StyledBaseModal
       width={activeView === REMINDER_CONTACT_VIEWS.REMOVE_REMINDER ? 'sm' : 'md'}
@@ -77,6 +83,7 @@ export const ReminderContactModal = ({ onClose, open }) => {
         {activeView === REMINDER_CONTACT_VIEWS.REMINDER_CONTACT_LIST && (
           <ReminderContactList
             onAddContact={() => handleActiveView(REMINDER_CONTACT_VIEWS.ADD_REMINDER_FORM)}
+            onRemoveContact={handleRemoveContact}
             onClose={onClose}
           />
         )}
@@ -90,7 +97,11 @@ export const ReminderContactModal = ({ onClose, open }) => {
           />
         )}
         {activeView === REMINDER_CONTACT_VIEWS.REMOVE_REMINDER && (
-          <RemoveReminderContact onClose={onClose} onBack={onBack} />
+          <RemoveReminderContact
+            selectedContact={selectedContact}
+            onClose={onClose}
+            onBack={onBack}
+          />
         )}
       </ReminderModalContainer>
     </StyledBaseModal>
