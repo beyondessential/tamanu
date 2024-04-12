@@ -1,6 +1,7 @@
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { DataTypes } from 'sequelize';
 import { Model } from './Model';
+import { translate } from '../utils/translation/translationFactory';
 
 export class TranslatedString extends Model {
   static init(options) {
@@ -83,5 +84,27 @@ export class TranslatedString extends Model {
     });
 
     return { languagesInDb, languageNames };
+  };
+
+  /**
+   *
+   * @param {string} language
+   * @param {string} stringId
+   */
+  static getTranslationFunction = language => {
+    /**
+     * @param {string} stringId
+     * @param {string} fallback
+     * @param {Record<string, unknown} replacements
+     */
+    return async (stringId, fallback, replacements) => {
+      const text = await TranslatedString.findOne({
+        where: { language, stringId },
+        attributes: ['text'],
+      }).then(record => record?.text);
+
+      const value = translate(text, fallback, replacements);
+      return value;
+    };
   };
 }

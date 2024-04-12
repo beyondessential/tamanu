@@ -28,6 +28,9 @@ function api(ctx) {
   return apiRoutes;
 }
 
+/**
+ * @param {import('./ApplicationContext').ApplicationContext} ctx
+ */
 export function createApp(ctx) {
   const { store, emailService, reportSchemaStores } = ctx;
 
