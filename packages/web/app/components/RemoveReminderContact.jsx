@@ -8,7 +8,6 @@ import { FormConfirmCancelBackRow } from './ButtonRow';
 import { Table } from './Table';
 import { TranslatedText } from './Translation/TranslatedText';
 import { useApi } from '../api';
-import { useTranslation } from '../contexts/Translation';
 import { capitalize } from 'lodash';
 
 const StyledHeading = styled(Typography)`
@@ -51,7 +50,7 @@ const ContactDetailTable = styled(Table)`
 
     tbody tr td {
       border-bottom: none;
-      padding: 10px 0 16px 2px !important;
+      padding: 10px 0 16px 1px !important;
     }
   }
 `;
@@ -66,25 +65,20 @@ const StyledDivider = styled(Divider)`
 `;
 
 export const ContactDetails = ({ selectedContact }) => {
-  const { getTranslation } = useTranslation();
-
   const columns = [
     {
       key: 'name',
-      title: getTranslation('patient.details.reminderContacts.field.contact', 'Contact'),
+      title: <TranslatedText stringId='patient.details.reminderContacts.field.contact' fallback='Contact' />,
       sortable: false,
     },
     {
       key: 'relationship.name',
-      title: getTranslation('patient.details.reminderContacts.field.relationship', 'Relationship'),
+      title: <TranslatedText stringId='patient.details.reminderContacts.field.relationship' fallback='Relationship' />,
       sortable: false,
     },
     {
       key: 'method',
-      title: getTranslation(
-        'patient.details.reminderContacts.field.contactMethod',
-        'Contact method',
-      ),
+      title: <TranslatedText stringId='patient.details.reminderContacts.field.contactMethod' fallback='Contact method' />,
       sortable: false,
       accessor: data => {
         return data.connectionDetails ? (

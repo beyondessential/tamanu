@@ -47,12 +47,12 @@ export const ReminderContactModal = ({ onClose, open }) => {
       case REMINDER_CONTACT_VIEWS.REMINDER_CONTACT_LIST:
         return getTranslation('patient.details.reminderContacts.title', 'Reminder contacts');
       case REMINDER_CONTACT_VIEWS.ADD_REMINDER_FORM:
-        return getTranslation('patient.details.addReminderContacts.title', 'Add reminder contact');
+        return getTranslation('patient.details.addReminderContact.title', 'Add reminder contact');
       case REMINDER_CONTACT_VIEWS.ADD_REMINDER_QR_CODE:
-        return getTranslation('patient.details.addReminderContacts.title', 'Add reminder contact');
+        return getTranslation('patient.details.addReminderContact.title', 'Add reminder contact');
       case REMINDER_CONTACT_VIEWS.REMOVE_REMINDER:
         return getTranslation(
-          'patient.details.removeReminderContacts.title',
+          'patient.details.removeReminderContact.title',
           'Remove reminder contact',
         );
     }

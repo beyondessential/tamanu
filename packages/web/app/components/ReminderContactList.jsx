@@ -67,7 +67,7 @@ const StyledContactListTable = styled(DataFetchingTable)`
   }
 
   table tbody td {
-    padding-left: 3px !important;
+    padding-left: 2px !important;
     padding-top: 14px !important;
     padding-bottom: 0 !important;
     border-bottom: none;
@@ -103,20 +103,17 @@ const ContactDetails = ({ onRemoveContact }) => {
   const columns = [
     {
       key: 'name',
-      title: getTranslation('patient.details.reminderContacts.field.contact', 'Contact'),
+      title: <TranslatedText stringId='patient.details.reminderContacts.field.contact' fallback='Contact' />,
       sortable: false,
     },
     {
       key: 'relationship.name',
-      title: getTranslation('patient.details.reminderContacts.field.relationship', 'Relationship'),
+      title: <TranslatedText stringId='patient.details.reminderContacts.field.relationship' fallback='Relationship' />,
       sortable: false,
     },
     {
       key: 'method',
-      title: getTranslation(
-        'patient.details.reminderContacts.field.contactMethod',
-        'Contact method',
-      ),
+      title: <TranslatedText stringId='patient.details.reminderContacts.field.contactMethod' fallback='Contact method' />,
       sortable: false,
       accessor: data => {
         return data.connectionDetails ? (
@@ -153,31 +150,28 @@ const ContactDetails = ({ onRemoveContact }) => {
       : []),
   ];
 
-  const description = getTranslation(
-    'patient.details.reminderContacts.description',
-    'The below contact list is registered to receive reminders for :patientName.',
-    { patientName },
-  );
-
-  const emptyDescription = getTranslation(
-    'patient.details.reminderContacts.emptyDescription',
-    "There are no contacts registered to receive reminders for :patientName. Please select 'Add contact' to register a contact.",
-    { patientName },
-  );
-
   return (
     <>
       {isEmpty ? (
-        <StyledText>
-          {emptyDescription.split(`${patientName}.`)[0]}
-          <span>{patientName}.</span>
-          {emptyDescription.split(`${patientName}.`)[1]}
-        </StyledText>
+        <StyledText
+          dangerouslySetInnerHTML={{
+            __html: getTranslation(
+              'patient.details.reminderContacts.emptyDescription',
+              "There are no contacts registered to receive reminders for :patientName. Please select 'Add contact' to register a contact.",
+              { patientName: `<span>${patientName}</span>` },
+            ),
+          }}
+        ></StyledText>
       ) : (
-        <StyledText>
-          {description.split(`${patientName}.`)[0]}
-          <span>{patientName}.</span>
-        </StyledText>
+        <StyledText
+          dangerouslySetInnerHTML={{
+            __html: getTranslation(
+              'patient.details.reminderContacts.description',
+              'The below contact list is registered to receive reminders for :patientName.',
+              { patientName: `<span>${patientName}</span>` },
+            ),
+          }}
+        ></StyledText>
       )}
       <StyledContactListTable
         columns={columns}

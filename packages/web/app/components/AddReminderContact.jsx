@@ -65,12 +65,6 @@ export const AddReminderContact = ({ onContinue, onClose, onBack }) => {
 
   const patientName = joinNames(patient);
 
-  const description = getTranslation(
-    'patient.details.reminderContacts.description',
-    'By providing their details, the individual consents to receiving automated reminder messages for :patientName.',
-    { patientName },
-  );
-
   const onSubmit = async values => {
     const body = {
       name: values.reminderContactName,
@@ -99,10 +93,15 @@ export const AddReminderContact = ({ onContinue, onClose, onBack }) => {
                 fallback="Please provide details below to add a new contact."
               />
             </FormHeading>
-            <FormSubHeading>
-              {description.split(`${patientName}.`)[0]}
-              <span>{patientName}.</span>
-            </FormSubHeading>
+            <FormSubHeading
+              dangerouslySetInnerHTML={{
+                __html: getTranslation(
+                  'patient.details.reminderContacts.description',
+                  'By providing their details, the individual consents to receiving automated reminder messages for :patientName.',
+                  { patientName: `<span>${patientName}</span>` },
+                ),
+              }}
+            ></FormSubHeading>
             <StyledFormContainer>
               <LocalisedField
                 name="reminderContactName"
