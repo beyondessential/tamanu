@@ -108,7 +108,7 @@ const ContactDetails = ({ onRemoveContact }) => {
     },
     {
       key: 'relationship.name',
-      title: getTranslation('patient.details.reminderContacts.field.relationShip', 'Relationship'),
+      title: getTranslation('patient.details.reminderContacts.field.relationship', 'Relationship'),
       sortable: false,
     },
     {

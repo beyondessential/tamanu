@@ -76,7 +76,7 @@ export const ContactDetails = ({ selectedContact }) => {
     },
     {
       key: 'relationship.name',
-      title: getTranslation('patient.details.reminderContacts.field.relationShip', 'Relationship'),
+      title: getTranslation('patient.details.reminderContacts.field.relationship', 'Relationship'),
       sortable: false,
     },
     {
@@ -117,13 +117,13 @@ export const RemoveReminderContact = ({ selectedContact, onBack, onClose }) => {
     <>
       <StyledHeading>
         <TranslatedText
-          stringId="patient.details.removeReminderContacts.confirmation"
+          stringId="patient.details.removeReminderContact.confirmation"
           fallback="Would you like to remove the below contact?"
         />
       </StyledHeading>
       <StyledSubHeading>
         <TranslatedText
-          stringId="patient.details.removeReminderContacts.description"
+          stringId="patient.details.removeReminderContact.description"
           fallback="You can add the contact again at any time."
         />
       </StyledSubHeading>
