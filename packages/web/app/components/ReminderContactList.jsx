@@ -28,9 +28,11 @@ const StyledText = styled(Typography)`
 const StyledTextButton = styled(TextButton)`
   font-size: 14px;
   line-height: 18px;
-  font-weight: 400 !important;
   text-decoration: underline;
   color: ${Colors.darkestText};
+  .MuiButton-label {
+    font-weight: 400;
+  }
 `;
 
 const StyledContactListTable = styled(DataFetchingTable)`
