@@ -35,6 +35,7 @@ const REMINDER_CONTACT_VIEWS = {
 export const ReminderContactModal = ({ onClose, open }) => {
   const { getTranslation } = useTranslation();
   const [activeView, setActiveView] = useState(REMINDER_CONTACT_VIEWS.REMINDER_CONTACT_LIST);
+  const [newContact, setNewContact] = useState();
   const [selectedContact, setSelectedContact] = useState();
 
   const handleActiveView = value => {
@@ -57,9 +58,9 @@ export const ReminderContactModal = ({ onClose, open }) => {
     }
   };
 
-  const onContinue = async data => {
+  const onContinue = newContact => {
+    setNewContact(newContact);
     handleActiveView(REMINDER_CONTACT_VIEWS.ADD_REMINDER_QR_CODE);
-    await console.log(data);
   };
 
   const onBack = () => {
@@ -90,7 +91,10 @@ export const ReminderContactModal = ({ onClose, open }) => {
           <AddReminderContact onContinue={onContinue} onBack={onBack} onClose={onClose} />
         )}
         {activeView === REMINDER_CONTACT_VIEWS.ADD_REMINDER_QR_CODE && (
-          <ReminderContactQR onClose={onClose} />
+          <ReminderContactQR
+            contact={newContact}
+            onClose={onBack}
+          />
         )}
         {activeView === REMINDER_CONTACT_VIEWS.REMOVE_REMINDER && (
           <RemoveReminderContact

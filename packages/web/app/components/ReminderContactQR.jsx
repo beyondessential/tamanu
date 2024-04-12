@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 
 import QRCode from 'qrcode';
@@ -6,18 +7,22 @@ import { toast } from 'react-toastify';
 import { Typography } from '@material-ui/core';
 
 import { ModalCancelRow } from './ModalActionRow';
+import { TranslatedText } from './Translation/TranslatedText';
+import { joinNames } from '../utils/user';
+import { useTranslation } from '../contexts/Translation';
 
 const StyledHeaderText = styled(Typography)`
   font-size: 14px;
   font-weight: 500;
   line-height: 18px;
-  margin: 15px 0 9px 0;
+  margin-top: 15px;
 `;
 
 const StyledText = styled(Typography)`
   font-size: 14px;
   line-height: 18px;
   font-weight: 400;
+  margin-top: 10px;
 
   span {
     font-weight: 500;
@@ -35,17 +40,19 @@ const StyledQrContainer = styled.div`
   }
 `;
 
-export const ReminderContactQR = ({ patient, onClose }) => {
+export const ReminderContactQR = ({ contact, onClose }) => {
+  const { getTranslation } = useTranslation();
+  const patient = useSelector(state => state.patient);
+
   const [qrCodeURL, setQRCodeURL] = useState('');
+
   const data = {
-    patientContactId: 'ff306f40-5068-49eb-b9f6-93bb4d2539d8',
-    contactName: 'Joe Smith',
-    patientDisplayId: 'ABC123',
+    id: contact?.id,
   };
 
   useEffect(() => {
     generateQRCode(data);
-  }, [data]);
+  }, []);
 
   const generateQRCode = async data => {
     try {
@@ -60,26 +67,38 @@ export const ReminderContactQR = ({ patient, onClose }) => {
     }
   };
 
-  const handleSubmitQrCode = () => {
-    onClose();
-  };
+  const patientName = joinNames(patient);
+
+  const description = getTranslation(
+    'patient.details.reminderContactQr.description',
+    'Please ask the contact to scan the QR code using their camera app to register their Telegram account to receive automated reminder messages for :patientName.',
+    { patientName },
+  );
 
   return (
     <>
-      <StyledHeaderText>Scan QR code below</StyledHeaderText>
+      <StyledHeaderText>
+        <TranslatedText
+          stringId="patient.details.reminderContactQr.title"
+          fallback="Scan QR code below"
+        />
+      </StyledHeaderText>
       <StyledText>
-        Please ask the contact to scan the QR code to register their Telegram account to received
-        automated reminder messages for{' '}
-        <span>
-          {patient.firstName} {patient.lastName}.
-        </span>
+        {description.split(`${patientName}.`)[0]}
+        <span>{patientName}.</span>
       </StyledText>
       <StyledText>
-        They will receive a confirmation message from Telegram once their account is successfully
-        registered.
+        <TranslatedText
+          stringId="patient.details.reminderContactQr.subDescription"
+          fallback="They will receive a confirmation message from Telegram once their account is successfully registered."
+        />
       </StyledText>
       <StyledQrContainer>{qrCodeURL && <img src={qrCodeURL} alt="QR Code" />}</StyledQrContainer>
-      <ModalCancelRow confirmText="Close" confirmColor="primary" onConfirm={handleSubmitQrCode} />
+      <ModalCancelRow
+        confirmText={<TranslatedText stringId="general.action.close" fallback="Close" />}
+        confirmColor="primary"
+        onConfirm={onClose}
+      />
     </>
   );
 };

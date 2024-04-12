@@ -1,4 +1,5 @@
 import React from 'react';
+import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import * as yup from 'yup';
 
@@ -6,7 +7,11 @@ import { Box, Divider, Typography } from '@material-ui/core';
 
 import { Colors } from '../constants';
 import { FormConfirmCancelBackRow } from './ButtonRow';
-import { Field, Form, SelectField } from './Field';
+import { Form, LocalisedField, SuggesterSelectField, TextField } from './Field';
+import { TranslatedText } from './Translation/TranslatedText';
+import { joinNames } from '../utils/user';
+import { useTranslation } from '../contexts/Translation';
+import { useApi } from '../api';
 
 const FormHeading = styled(Typography)`
   margin: 7px 0 9px 0;
@@ -52,60 +57,93 @@ const StyledDivider = styled(Divider)`
   border-top: 1px solid ${Colors.outline};
 `;
 
-const REQUIRED_VALIDATION_MESSAGE = '*Required';
+export const AddReminderContact = ({ onContinue, onClose, onBack }) => {
+  const { getTranslation } = useTranslation();
+  const api = useApi();
 
-export const AddReminderContact = ({ patient, onContinue, onClose, onBack }) => {
-  const relationshipArray = [
-    {
-      label: 'Son',
-      value: 'son',
-    },
-    {
-      label: 'Father',
-      value: 'father',
-    },
-  ];
+  const patient = useSelector(state => state.patient);
+
+  const patientName = joinNames(patient);
+
+  const description = getTranslation(
+    'patient.details.reminderContacts.description',
+    'By providing their details, the individual consents to receiving automated reminder messages for :patientName.',
+    { patientName },
+  );
+
+  const onSubmit = async values => {
+    const body = {
+      name: values.reminderContactName,
+      relationshipId: values.reminderContactRelationship,
+      method: 'telegram',
+      patientId: patient.id,
+    };
+
+    const newContact = await api.post(`/patient/reminderContact`, body);
+    onContinue(newContact);
+  };
 
   return (
     <Form
-      onSubmit={onContinue}
-      initialValues={{ contactName: 'test', relationship: 'son' }}
+      onSubmit={onSubmit}
       validationSchema={yup.object().shape({
-        contactName: yup.string().required(REQUIRED_VALIDATION_MESSAGE),
-        relationship: yup.string().required(REQUIRED_VALIDATION_MESSAGE),
+        reminderContactName: yup.string().required(),
+        reminderContactRelationship: yup.string().required(),
       })}
       render={({ submitForm }) => {
         return (
           <>
-            <FormHeading>Please provide details below to add a new contact.</FormHeading>
+            <FormHeading>
+              <TranslatedText
+                stringId="patient.details.addReminderContact.heading"
+                fallback="Please provide details below to add a new contact."
+              />
+            </FormHeading>
             <FormSubHeading>
-              By providing their details, the individual consents to receiving automated reminder
-              messages for{' '}
-              <span>
-                {patient.firstName} {patient.lastName}
-              </span>
+              {description.split(`${patientName}.`)[0]}
+              <span>{patientName}.</span>
             </FormSubHeading>
             <StyledFormContainer>
-              <Field
-                name="contactName"
-                label="Contact name"
-                type="text"
-                placeholder="Enter contact name"
-                autoComplete="off"
+              <LocalisedField
+                name="reminderContactName"
+                component={TextField}
+                label={
+                  <TranslatedText
+                    stringId="patient.details.addReminderContact.label.contactName"
+                    fallback="Contact name"
+                  />
+                }
+                placeholder={getTranslation(
+                  'patient.details.addReminderContact.placeholder.contactName',
+                  'Contact Name',
+                )}
                 required
               />
 
-              <Field
-                name="relationship"
-                label="Relationship"
-                component={SelectField}
-                placeholder="Select relationship"
-                options={relationshipArray}
+              <LocalisedField
+                name="reminderContactRelationship"
+                component={SuggesterSelectField}
+                endpoint="contactRelationship"
+                label={
+                  <TranslatedText
+                    stringId="patient.details.addReminderContact.label.relationship"
+                    fallback="Relationship"
+                  />
+                }
+                placeholder={getTranslation(
+                  'patient.details.addReminderContact.placeholder.select',
+                  'Select',
+                )}
                 required
               />
             </StyledFormContainer>
 
-            <FormFooterText>Connect using the QR code on the following screen.</FormFooterText>
+            <FormFooterText>
+              <TranslatedText
+                stringId="patient.details.addReminderContact.qrCodeInstruction"
+                fallback="Connect using the QR code on the following screen."
+              />
+            </FormFooterText>
             <StyledFullWidthContainer>
               <StyledDivider />
             </StyledFullWidthContainer>
@@ -113,7 +151,12 @@ export const AddReminderContact = ({ patient, onContinue, onClose, onBack }) => 
               onBack={onBack}
               onConfirm={submitForm}
               onCancel={onClose}
-              confirmText="Confirm & connect"
+              confirmText={
+                <TranslatedText
+                  stringId="patient.details.addReminderContact.action.confirm"
+                  fallback="Confirm & connect"
+                />
+              }
             />
           </>
         );
