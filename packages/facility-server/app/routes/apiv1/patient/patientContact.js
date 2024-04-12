@@ -8,7 +8,7 @@ patientContact.get(
   '/:id/reminderContacts',
   asyncHandler(async (req, res) => {
     req.checkPermission('read', 'Patient');
-    return simpleGetList('PatientContact', 'patientId')(req, res);
+    return simpleGetList('PatientContact', 'patientId', { skipPermissionCheck: true })(req, res);
   }),
 );
 
@@ -16,7 +16,7 @@ patientContact.post(
   '/reminderContact',
   asyncHandler(async (req, res) => {
     req.checkPermission('write', 'Patient');
-    return simplePost('PatientContact')(req, res);
+    return simplePost('PatientContact', { skipPermissionCheck: true })(req, res);
   }),
 );
 
