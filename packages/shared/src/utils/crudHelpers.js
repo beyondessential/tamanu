@@ -85,7 +85,6 @@ export const simplePut = modelName =>
     const object = await models[modelName].findByPk(params.id);
     if (!object) throw new NotFoundError();
     if (object.deletedAt)
-      // TODO SAV-558: Kinda weird message if we are not going to allow restores
       throw new InvalidOperationError(
         `Cannot update deleted object with id (${params.id}), you need to restore it first`,
       );
