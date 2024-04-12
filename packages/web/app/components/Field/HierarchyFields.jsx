@@ -8,11 +8,9 @@ import { get } from 'lodash';
 import { FormGrid } from '../FormGrid';
 
 const Container = styled(FormGrid)`
-  grid-row-start: 2;
   grid-column: 1 / 3;
-  border-top: 1px solid ${Colors.outline};
-  padding-top: 1rem;
-  margin-bottom: -1rem;
+  border-bottom: 1px solid ${Colors.outline};
+  padding-bottom: 1.2rem;
 `;
 
 export const HierarchyFields = ({ fields, baseLevel, relationType }) => {

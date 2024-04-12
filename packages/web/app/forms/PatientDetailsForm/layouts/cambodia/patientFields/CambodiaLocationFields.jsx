@@ -63,14 +63,14 @@ export const CambodiaLocationFields = ({ filterByMandatory }) => {
 
   return (
     <>
-      <ConfiguredMandatoryPatientFields
-        fields={LOCATION_FIELDS}
-        filterByMandatory={filterByMandatory}
-      />
       <HierarchyFields
         relationType={REFERENCE_DATA_RELATION_TYPES.ADDRESS_HIERARCHY}
         baseLevel={REFERENCE_TYPES.VILLAGE}
         fields={locationHierarchyFieldsToShow}
+      />
+      <ConfiguredMandatoryPatientFields
+        fields={LOCATION_FIELDS}
+        filterByMandatory={filterByMandatory}
       />
     </>
   );

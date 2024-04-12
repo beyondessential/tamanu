@@ -93,7 +93,7 @@ export const CambodiaPrimaryDetailsLayout = ({ sexOptions, isRequiredPatientData
 const BorderFormGrid = styled(SecondaryDetailsFormGrid)`
   border: 1px solid ${Colors.outline};
   border-radius: 3px;
-  padding: 1rem 1.5rem 3.8rem;
+  padding: 1rem 1.5rem 2rem;
   margin-top: -1rem;
 `;
 
