@@ -18,7 +18,7 @@ import { versionCompatibility } from './middleware/versionCompatibility';
 import { version } from './serverInfo';
 import { translationRoutes } from './translation';
 
-import { buildSettingsReader } from '@tamanu/settings/middleware';
+import { buildSettingsReaderMiddleware } from '@tamanu/settings/middleware';
 
 function api(ctx) {
   const apiRoutes = express.Router();
@@ -61,7 +61,7 @@ export function createApp(ctx) {
     next();
   });
 
-  app.use(buildSettingsReader);
+  app.use(buildSettingsReaderMiddleware());
 
   app.get('/$', (req, res) => {
     res.send({
