@@ -18,6 +18,8 @@ import { printPDF } from '../PDFViewer';
 import { useAuth } from '../../../contexts/Auth';
 import { WorkerRenderedPDFViewer } from '../WorkerRenderedPDFViewer';
 
+const VACCINE_CERTIFICATE_PDF_ID = 'vaccine-certificate';
+
 export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) => {
   const api = useApi();
   const { facility } = useAuth();
@@ -71,7 +73,8 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
       additionalActions={<EmailButton onEmail={createVaccineCertificateNotification} />}
     >
       <WorkerRenderedPDFViewer
-        id="vaccine-certificate"
+        id={VACCINE_CERTIFICATE_PDF_ID}
+        queryDeps={[patient.id]}
         vaccinations={vaccinations}
         patient={patientData}
         watermarkSrc={watermark}

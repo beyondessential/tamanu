@@ -8,7 +8,7 @@ pdfWorker.onProgress(proxy(info => console.log(info)));
 
 export const useRenderPDF = props => {
   const { data: url, isLoading, error } = useQuery(
-    ['renderPDF', props.id],
+    ['renderPDF', props.id, ...(props.queryDeps || [])],
     () => pdfWorker.renderPDFInWorker(props),
     {
       enabled: !!props.id,
