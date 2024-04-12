@@ -17,6 +17,7 @@ import {
 } from './CustomComponents';
 import SubmitSection from './CustomComponents/SubmitSection';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 
 interface ScreenProps {
   onCancel: () => void;
@@ -40,12 +41,12 @@ export const Screen = ({ onSubmit, onClear, onCancel }: ScreenProps): ReactEleme
           marginLeft={screenPercentageToDP(2.43, Orientation.Width)}
         >
           <StyledText color={theme.colors.BOX_OUTLINE} fontSize={12}>
-            Cancel
+            {<TranslatedText stringId="general.action.cancel" fallback="Cancel" />}
           </StyledText>
         </Button>
 
         <StyledText fontSize={18} color={theme.colors.WHITE}>
-          Filter Search
+          <TranslatedText stringId="patient.search.filter.title" fallback="Filter Search" />
         </StyledText>
 
         <Button
@@ -55,7 +56,10 @@ export const Screen = ({ onSubmit, onClear, onCancel }: ScreenProps): ReactEleme
           marginRight={screenPercentageToDP(2.43, Orientation.Width)}
         >
           <StyledText color={theme.colors.BOX_OUTLINE} fontSize={12}>
-            Clear Filters
+            <TranslatedText
+              stringId="patient.search.filter.action.clearFilters"
+              fallback="Clear filters"
+            />
           </StyledText>
         </Button>
       </RowView>
