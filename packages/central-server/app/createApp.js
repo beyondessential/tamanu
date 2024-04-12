@@ -1,7 +1,7 @@
 import bodyParser from 'body-parser';
 import compression from 'compression';
 import config from 'config';
-import express from 'express';
+import defineExpress from 'express';
 
 import { getLoggingMiddleware } from '@tamanu/shared/services/logging';
 import { constructPermission } from '@tamanu/shared/permissions/middleware';
@@ -17,9 +17,12 @@ import { versionCompatibility } from './middleware/versionCompatibility';
 
 import { version } from './serverInfo';
 import { translationRoutes } from './translation';
+import { createServer } from 'http';
+import { defineWebsocketService } from './services/websocketService';
+import { registerWebsocketEvents } from './wsEvents';
 
 function api(ctx) {
-  const apiRoutes = express.Router();
+  const apiRoutes = defineExpress.Router();
   apiRoutes.use('/public', publicRoutes);
   apiRoutes.use(authModule);
   apiRoutes.use('/translation', translationRoutes);
@@ -35,25 +38,30 @@ export function createApp(ctx) {
   const { store, emailService, reportSchemaStores } = ctx;
 
   // Init our app
-  const app = express();
-  app.use(loadshedder());
-  app.use(compression());
-  app.use(bodyParser.json({ limit: '50mb' }));
-  app.use(bodyParser.urlencoded({ extended: true }));
+  const express = defineExpress();
+  const server = createServer(express);
+  const websocketService = defineWebsocketService({ httpServer: server });
+  ctx.telegramBotService?.registerWebsocketService(websocketService);
+  registerWebsocketEvents({ websocketService, telegramBotService: ctx.telegramBotService });
+
+  express.use(loadshedder());
+  express.use(compression());
+  express.use(bodyParser.json({ limit: '50mb' }));
+  express.use(bodyParser.urlencoded({ extended: true }));
 
   // trust the x-forwarded-for header from addresses in `config.proxy.trusted`
-  app.set('trust proxy', config.proxy.trusted);
-  app.use(getLoggingMiddleware());
+  express.set('trust proxy', config.proxy.trusted);
+  express.use(getLoggingMiddleware());
 
-  app.use((req, res, next) => {
+  express.use((req, res, next) => {
     res.setHeader('X-Tamanu-Server', SERVER_TYPES.CENTRAL);
     res.setHeader('X-Version', version);
     next();
   });
 
-  app.use(versionCompatibility);
+  express.use(versionCompatibility);
 
-  app.use((req, res, next) => {
+  express.use((req, res, next) => {
     req.models = store.models; // cross-compatibility with facility for shared middleware
     req.store = store;
     req.models = store.models;
@@ -63,24 +71,24 @@ export function createApp(ctx) {
     next();
   });
 
-  app.get('/$', (req, res) => {
+  express.get('/$', (req, res) => {
     res.send({
       index: true,
     });
   });
 
   // API
-  app.use('/api', api(ctx));
+  express.use('/api', api(ctx));
 
   // Legacy API endpoint
-  app.use('/v1', api(ctx));
+  express.use('/v1', api(ctx));
 
   // Dis-allow all other routes
-  app.use('*', (req, res) => {
+  express.use('*', (req, res) => {
     res.status(404).end();
   });
 
-  app.use(defaultErrorHandler);
+  express.use(defaultErrorHandler);
 
-  return app;
+  return { express, server };
 }

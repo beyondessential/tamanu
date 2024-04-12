@@ -47,8 +47,7 @@ class MockApplicationContext {
 export async function createTestContext() {
   const ctx = await new MockApplicationContext().init();
   const { models } = ctx.store;
-  const expressApp = createApp(ctx);
-  const appServer = http.createServer(expressApp);
+  const { express: expressApp, server: appServer } = createApp(ctx);
   const baseApp = supertest.agent(appServer);
   baseApp.set('X-Tamanu-Client', SERVER_TYPES.WEBAPP);
 
@@ -71,7 +70,12 @@ export async function createTestContext() {
     return baseApp.asUser(newUser);
   };
 
-  ctx.onClose(() => new Promise(resolve => { appServer.close(resolve); }));
+  ctx.onClose(
+    () =>
+      new Promise(resolve => {
+        appServer.close(resolve);
+      }),
+  );
   ctx.baseApp = baseApp;
 
   return ctx;

@@ -10,7 +10,7 @@ telegramWebhookRoutes.get(
     if (req.header('X-Telegram-Bot-Api-Secret-Token') !== config.telegramBot?.webhook.secret)
       return res.status(401).send('Invalid token');
 
-    req.ctx.telegramBotService?.update(req.body);
+    req.telegramBotService?.update(req.body);
     res.sendStatus(200);
   }),
 );

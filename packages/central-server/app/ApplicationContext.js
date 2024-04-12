@@ -13,6 +13,7 @@ export class ApplicationContext {
 
   emailService = null;
 
+  /** @type {Awaited<ReturnType<typeof defineSingletonTelegramBotService>>|null} */
   telegramBotService = null;
 
   integrations = null;
@@ -27,12 +28,7 @@ export class ApplicationContext {
       this.reportSchemaStores = await initReporting();
     }
 
-    this.telegramBotService = await defineSingletonTelegramBotService({
-      apiToken: config.telegramBot.apiToken,
-      language: config.language,
-      models: this.store.models,
-      webhook: config.telegramBot.webhook,
-    });
+    this.telegramBotService = await defineSingletonTelegramBotService({ config });
 
     if (await isSyncTriggerDisabled(this.store.sequelize)) {
       log.warn('Sync Trigger is disabled in the database.');
