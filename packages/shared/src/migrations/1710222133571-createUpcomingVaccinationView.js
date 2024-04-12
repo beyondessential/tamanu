@@ -62,7 +62,7 @@ export async function up(query) {
   from filtered_administered_vaccines fav 
   join filtered_patients fp on fp.patient_id = fav.patient_id
   join filtered_scheduled_vaccines fsv on fsv.scheduled_vaccine_id  = fav.scheduled_vaccine_id 
-  join filtered_scheduled_vaccines fsv2 on fsv.vaccine_id = fsv2.vaccine_id and fsv2.weeks_from_birth_due is null and fsv2.weeks_from_last_vaccination_due is not null and fsv2.index > fsv.index
+  join filtered_scheduled_vaccines fsv2 on fsv.vaccine_id = fsv2.vaccine_id and fsv.vaccine_category = fsv2.vaccine_category and fsv2.weeks_from_birth_due is null and fsv2.weeks_from_last_vaccination_due is not null and fsv2.index > fsv.index
   order by fp.patient_id, fsv2.vaccine_category, fsv2.vaccine_id, fsv2.index
   ),
   patient_vaccine_schedule as (
