@@ -1,8 +1,8 @@
 import React from 'react';
-
+import styled from 'styled-components';
 import { PATIENT_FIELD_DEFINITION_TYPES, PATIENT_REGISTRY_TYPES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
-
+import { Colors } from '../../../../constants';
 import { LocalisedField, TextField, DateField, RadioField, FormGrid } from '../../../../components';
 import {
   PatientDetailsHeading,
@@ -90,6 +90,13 @@ export const CambodiaPrimaryDetailsLayout = ({ sexOptions, isRequiredPatientData
   </>
 );
 
+const BorderFormGrid = styled(SecondaryDetailsFormGrid)`
+  border: 1px solid ${Colors.outline};
+  border-radius: 3px;
+  padding: 1rem 1.5rem 3.8rem;
+  margin-top: -1rem;
+`;
+
 export const CambodiaSecondaryDetailsLayout = ({ values = {}, patientRegistryType, className }) => {
   return (
     <div className={className}>
@@ -107,17 +114,15 @@ export const CambodiaSecondaryDetailsLayout = ({ values = {}, patientRegistryTyp
             </SecondaryDetailsFormGrid>
           </>
         )}
-
         <PatientDetailsHeading>
           <TranslatedText
             stringId="patient.detail.subheading.currentAddress"
             fallback="Current address"
           />
         </PatientDetailsHeading>
-        <SecondaryDetailsFormGrid>
+        <BorderFormGrid>
           <CambodiaLocationFields />
-        </SecondaryDetailsFormGrid>
-
+        </BorderFormGrid>
         <PatientDetailsHeading>
           <TranslatedText
             stringId="patient.detail.subheading.contactInformation"
