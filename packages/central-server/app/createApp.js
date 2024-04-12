@@ -55,6 +55,7 @@ export function createApp(ctx) {
   app.use((req, res, next) => {
     req.models = store.models; // cross-compatibility with facility for shared middleware
     req.store = store;
+    req.models = store.models;
     req.emailService = emailService;
     req.reportSchemaStores = reportSchemaStores;
     req.ctx = ctx;
