@@ -96,17 +96,16 @@ async function connectToDatabase(dbOptions) {
     logging = null;
   }
 
-  const options = {
-    dialect: 'postgres',
-    dialectOptions: { application_name: serviceName(serviceContext()) ?? 'tamanu' },
-  };
-
   const sequelize = new Sequelize(name, username, password, {
-    ...options,
     host,
     port,
     logging,
     pool,
+    dialect: 'postgres',
+    dialectOptions: {
+      application_name: serviceName(serviceContext()) ?? 'tamanu',
+      ...dbOptions.pgOptions ?? {},
+    },
   });
   setupQuote(sequelize);
   await sequelize.authenticate();
