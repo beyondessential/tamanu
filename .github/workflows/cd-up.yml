@@ -2,10 +2,26 @@ name: CD Up
 
 on:
   workflow_call:
+    inputs:
+      deploy-name:
+        type: string
+        required: true
+      options:
+        type: string
+        required: true
+      image-tag:
+        type: string
+        required: true
+      control:
+        type: string
+        required: true
+      ref:
+        type: string
+        required: true
     secrets:
       PULUMI_ACCESS_TOKEN:
         required: true
-      TAILSCALE_DBPROXY_ACCESS_OAUTH:
+      TAILSCALE_OAUTH:
         required: true
       TAMANU_OPS_SSH:
         required: true
@@ -13,103 +29,63 @@ on:
 permissions:
   contents: read
   pull-requests: write
-  id-token: write # OIDC token for AWS
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    name: Deploy
+    name: ${{ inputs.deploy-name }}
     steps:
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
+      - uses: actions/checkout@v4
+      - id: setup
+        uses: ./.github/actions/setup-cd
         with:
-          aws-region: ap-southeast-2
-          role-to-assume: arn:aws:iam::143295493206:role/gha-deploy
-          role-session-name: GHA@Tamanu=DeployUp
+          ops-ssh-key: ${{ secrets.TAMANU_OPS_SSH }}
+          ops-ref: ${{ fromJson(inputs.options).opsref }}
+          tailscale-oauth: ${{ secrets.TAILSCALE_OAUTH }}
+          k8s-core: ${{ fromJson(inputs.options).k8score }}
 
-      - name: Checkout this repo
-        uses: actions/checkout@v4
-
-      - name: Checkout ops
-        uses: actions/checkout@v4
-        with:
-          repository: beyondessential/ops
-          ssh-key: ${{ secrets.TAMANU_OPS_SSH }}
-          path: ops
-          ref: main
-      - name: Remove ops/.git so pulumi doesn't get confused
-        run: rm -rf ops/.git
-
-      - name: Install Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20.x
-          cache: npm
-
-      - name: Prepare pulumi
-        run: npm ci
-        working-directory: ops/pulumi
-
-      - name: Prepare database credentials
-        uses: aws-actions/aws-secretsmanager-get-secrets@v1
-        with:
-          parse-json-secrets: true
-          secret-ids: "INTERNAL_DB, ${{ vars.INTERNAL_DB_SECRET_ARN }}"
-
-      - name: Connect to Tailscale
-        uses: tailscale/github-action@v2
-        with:
-          oauth-secret: ${{ secrets.TAILSCALE_DBPROXY_ACCESS_OAUTH }}
-          tags: tag:infra,tag:infra-gha-deploy
-
-      # derive the stack name from the branch
-      # changing this will create a new stack
-      # this must be the same as in cd-down.yml
-      - name: Normalise branch/ref name
-        uses: actions/github-script@v6
-        id: stack
-        env:
-          GH_HEAD_REF: ${{ github.head_ref }}
-          GH_REF_NAME: ${{ github.ref_name }}
-        with:
-          result-encoding: string
-          script: |
-            return ((process.env.GH_HEAD_REF || process.env.GH_REF_NAME)
-              .toLowerCase()
-              .replace(/[^a-z0-9-]/g, '-')
-              .replace(/-+/g, '-')
-              .replace(/^-|-$/g, ''));
-
-      # a constant secret + a variable plain text, hashed, = a new secret!
-      # importantly this needs to remain constant for the lifetime of the stack
-      - name: Prepare salt
-        id: salt
-        env:
-          KEY: ${{ secrets.TAMANU_OPS_SSH }}
-          NAME: ${{ steps.stack.outputs.result }}
+      - name: Create or check namespace
         run: |
-          salt=$(sha1sum <<< "$KEY$NAME" | cut -d' ' -f1)
-          echo "::add-mask::$salt"
-          echo "salt=$salt" >> $GITHUB_OUTPUT
+          if kubectl get namespace tamanu-${{ inputs.deploy-name }} 2>/dev/null; then
+            echo "Namespace exists, checking it's matched to this branch"
+            kubectl -n tamanu-${{ inputs.deploy-name }} \
+              get configmap auto-deploy -o json \
+              | tee -a /dev/stderr \
+              | jq -e '.data | [.repo == "${{ github.repository }}", .ref == "${{ inputs.ref }}"] | all'
+          else
+            kubectl create namespace tamanu-${{ inputs.deploy-name }}
+            kubectl -n tamanu-${{ inputs.deploy-name }} \
+              create configmap auto-deploy \
+              --from-literal=repo=${{ github.repository }} \
+              --from-literal=ref=${{ inputs.ref }}
+          fi
+
+          kubectl -n tamanu-${{ inputs.deploy-name }} \
+            patch configmap auto-deploy \
+            -p '{"data":{"control":"${{ inputs.control }}"}}'
+
+          kubectl -n tamanu-${{ inputs.deploy-name }} \
+            patch configmap auto-deploy \
+            -p '{"data":{"imageTag":"${{ inputs.image-tag }}"}}'
+
+      - name: Generate pulumi config
+        id: config
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const cwd = '${{ github.workspace }}';
+            const { configMap } = await import(`${cwd}/packages/scripts/src/gha-cd-helpers.mjs`);
+            core.setOutput('pulumi', configMap('${{ inputs.deploy-name }}', '${{ inputs.image-tag }}', ${{ inputs.options }}));
 
       - name: Up!
         uses: pulumi/actions@v5
         with:
-          work-dir: ops/pulumi/stacks/tamanu/on-ecs
+          work-dir: ops/pulumi/stacks/${{ fromJson(inputs.options).opsstack }}
           command: up
-          stack-name: bes/${{ steps.stack.outputs.result }}
+          stack-name: bes/${{ inputs.deploy-name }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          comment-on-pr: ${{ github.event_name == 'pull_request' }}
+          comment-on-pr: true
           upsert: true
-          config-map: >
-            {
-            tamanu-internal:arm64: {value: true, secret: false},
-            tamanu-internal:imageTag: {value: 'sha-${{ github.sha }}', secret: false},
-            tamanu-internal:salt: {value: '${{ steps.salt.outputs.salt }}', secret: true},
-            postgresql:host: {value: '${{ vars.INTERNAL_DB_HOST }}', secret: false},
-            postgresql:username: {value: '${{ env.INTERNAL_DB_USERNAME }}', secret: false},
-            postgresql:password: {value: '${{ env.INTERNAL_DB_PASSWORD }}', secret: true},
-            postgresql:superuser: {value: false, secret: false}
-            }
+          config-map: ${{ steps.config.outputs.pulumi }}
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
