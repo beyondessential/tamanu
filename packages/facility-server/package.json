@@ -71,6 +71,9 @@
     "umzug": "^2.3.0",
     "winston": "^3.2.1",
     "winston-transport": "^4.5.0",
+    "socket.io": "^4.7.5",
+    "socket.io-client": "^4.7.5",
+    "xlsx": "^0.16.9",
     "yup": "^0.32.9"
   }
 }
