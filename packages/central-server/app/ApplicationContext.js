@@ -7,6 +7,7 @@ import { log } from '@tamanu/shared/services/logging';
 import { TelegramBotService } from './services/TelegramBotService';
 
 export class ApplicationContext {
+  /** @type {Awaited<ReturnType<typeof initDatabase>>|null} */
   store = null;
 
   reportSchemaStores = null;
