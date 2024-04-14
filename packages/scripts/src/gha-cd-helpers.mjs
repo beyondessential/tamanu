@@ -12,6 +12,7 @@ export function stackName(head_ref, ref_name = null) {
     .replace(/^refs\/(heads|tags)\//, '')
     .replace(/[^a-z0-9-]/g, '-')
     .replace(/-+/g, '-')
+    .slice(0, 63 - 'tamanu-'.length) // max length of namespace, excl prefix
     .replace(/^-|-$/g, '');
 }
 
