@@ -148,7 +148,7 @@ export async function createTestContext({ enableReportInstances } = {}) {
 
   context.syncManager = new FacilitySyncManager(context);
 
-  const expressApp = createApp(context);
+  const expressApp = await createApp(context);
   const appServer = http.createServer(expressApp);
   const baseApp = supertest(appServer);
 

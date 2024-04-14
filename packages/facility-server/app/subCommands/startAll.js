@@ -23,7 +23,7 @@ async function startAll({ skipMigrationCheck }) {
     execArgs: process.execArgs || '<empty>',
   });
 
-  const context = await new ApplicationContext().init();
+  const context = await new ApplicationContext().init({ appType: 'api' });
 
   if (config.db.migrateOnStartup) {
     await context.sequelize.migrate('up');
@@ -44,7 +44,7 @@ async function startAll({ skipMigrationCheck }) {
     config,
   });
 
-  const app = createApp(context);
+  const app = await createApp(context);
 
   const { port } = config;
   const server = app.listen(port, () => {
