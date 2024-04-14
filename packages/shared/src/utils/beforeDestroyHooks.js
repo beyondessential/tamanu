@@ -54,8 +54,21 @@ export async function beforeDestroyEncounter(encounter) {
   );
 }
 
+async function getEncounterIds(options) {
+  let ids = options.where?.id?.[Op.in];
+
+  // options.where.attribute.val.col
+  // .logic[Op.LIKE]
+  if (ids) {
+    return ids;
+  }
+
+  const encounters = await options.model.findAll(options);
+  return encounters.map(x => x.id);
+}
+
 export async function beforeBulkDestroyEncounter(options) {
-  const ids = options.where.id[Op.in];
+  const ids = await getEncounterIds(options);
   // Bulk delete all other models - Should we actually apply this to individual delete, too?
   const {
     Discharge,
@@ -74,7 +87,7 @@ export async function beforeBulkDestroyEncounter(options) {
     DocumentMetadata,
     EncounterHistory,
     Note,
-  } = options.model.models;
+  } = options.model.sequelize.models;
 
   await Discharge.destroy({ where: { encounterId: { [Op.in]: ids } } });
   await Invoice.destroy({ where: { encounterId: { [Op.in]: ids } } });
