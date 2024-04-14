@@ -41,9 +41,12 @@ export const ReminderContactModal = ({ onClose, open }) => {
   const [successContactIds, setSuccessContactIds] = useState([]);
 
   useEffect(() => {
+    socket.connect();
     socket.on('telegram:subscribe:success', data => {
       setSuccessContactIds(prev => [...prev, data?.contactId]);
     });
+
+    return () => socket.disconnect();
   }, []);
 
   useEffect(() => {
