@@ -65,17 +65,11 @@ export const AddReminderContact = ({ onContinue, onClose, onBack }) => {
 
   const patientName = joinNames(patient);
 
-  const description = getTranslation(
-    'patient.details.reminderContacts.description',
-    'By providing their details, the individual consents to receiving automated reminder messages for :patientName.',
-    { patientName },
-  );
-
   const onSubmit = async values => {
     const body = {
       name: values.reminderContactName,
       relationshipId: values.reminderContactRelationship,
-      method: 'telegram',
+      method: 'Telegram',
       patientId: patient.id,
     };
 
@@ -95,26 +89,31 @@ export const AddReminderContact = ({ onContinue, onClose, onBack }) => {
           <>
             <FormHeading>
               <TranslatedText
-                stringId="patient.details.addReminderContacts.heading"
+                stringId="patient.details.addReminderContact.heading"
                 fallback="Please provide details below to add a new contact."
               />
             </FormHeading>
-            <FormSubHeading>
-              {description.split(`${patientName}.`)[0]}
-              <span>{patientName}.</span>
-            </FormSubHeading>
+            <FormSubHeading
+              dangerouslySetInnerHTML={{
+                __html: getTranslation(
+                  'patient.details.reminderContacts.description',
+                  'By providing their details, the individual consents to receiving automated reminder messages for :patientName.',
+                  { patientName: `<span>${patientName}</span>` },
+                ),
+              }}
+            ></FormSubHeading>
             <StyledFormContainer>
               <LocalisedField
                 name="reminderContactName"
                 component={TextField}
                 label={
                   <TranslatedText
-                    stringId="patient.details.addReminderContacts.label.contactName"
+                    stringId="patient.details.addReminderContact.label.contactName"
                     fallback="Contact name"
                   />
                 }
                 placeholder={getTranslation(
-                  'patient.details.addReminderContacts.placeholder.contactName',
+                  'patient.details.addReminderContact.placeholder.contactName',
                   'Contact Name',
                 )}
                 required
@@ -126,12 +125,12 @@ export const AddReminderContact = ({ onContinue, onClose, onBack }) => {
                 endpoint="contactRelationship"
                 label={
                   <TranslatedText
-                    stringId="patient.details.addReminderContacts.label.relationship"
+                    stringId="patient.details.addReminderContact.label.relationship"
                     fallback="Relationship"
                   />
                 }
                 placeholder={getTranslation(
-                  'patient.details.addReminderContacts.placeholder.select',
+                  'patient.details.addReminderContact.placeholder.select',
                   'Select',
                 )}
                 required
@@ -140,7 +139,7 @@ export const AddReminderContact = ({ onContinue, onClose, onBack }) => {
 
             <FormFooterText>
               <TranslatedText
-                stringId="patient.details.addReminderContacts.qrCodeInstruction"
+                stringId="patient.details.addReminderContact.qrCodeInstruction"
                 fallback="Connect using the QR code on the following screen."
               />
             </FormFooterText>
@@ -153,7 +152,7 @@ export const AddReminderContact = ({ onContinue, onClose, onBack }) => {
               onCancel={onClose}
               confirmText={
                 <TranslatedText
-                  stringId="patient.details.addReminderContacts.action.confirm"
+                  stringId="patient.details.addReminderContact.action.confirm"
                   fallback="Confirm & connect"
                 />
               }

@@ -7,7 +7,7 @@ import { Typography } from '@material-ui/core';
 import { PlusIcon } from '../assets/icons/PlusIcon';
 import { Colors } from '../constants';
 import { useAuth } from '../contexts/Auth';
-import { Button } from './Button';
+import { Button, TextButton } from './Button';
 import { ModalCancelRow } from './ModalActionRow';
 import { DataFetchingTable } from './Table';
 import { joinNames } from '../utils/user';
@@ -22,6 +22,16 @@ const StyledText = styled(Typography)`
 
   span {
     font-weight: 500;
+  }
+`;
+
+const StyledTextButton = styled(TextButton)`
+  font-size: 14px;
+  line-height: 18px;
+  text-decoration: underline;
+  color: ${Colors.darkestText};
+  .MuiButton-label {
+    font-weight: 400;
   }
 `;
 
@@ -44,6 +54,10 @@ const StyledContactListTable = styled(DataFetchingTable)`
     border-bottom: 1px solid ${Colors.outline};
     padding: 13px 0 12px 2px;
     padding-left: 2px !important;
+    width: 30%;
+    &: 4th-child {
+      width: 10%;
+    }
   }
 
   table thead th tr {
@@ -53,7 +67,7 @@ const StyledContactListTable = styled(DataFetchingTable)`
   }
 
   table tbody td {
-    padding-left: 3px !important;
+    padding-left: 2px !important;
     padding-top: 14px !important;
     padding-bottom: 0 !important;
     border-bottom: none;
@@ -93,11 +107,14 @@ const ColoredCellText = ({ children, status }) => {
   }
 }
 
-const ContactDetails = ({ pendingContacts, onRetry, successContactIds }) => {
+const ContactDetails = ({ pendingContacts, onRetry, successContactIds, onRemoveContact }) => {
   const { getTranslation } = useTranslation();
   const patient = useSelector(state => state.patient);
   const patientName = joinNames(patient);
   const [isEmpty, setIsEmpty] = useState(false);
+
+  const { ability } = useAuth();
+  const canRemoveReminderContacts = ability.can('write', 'Patient');
 
   const onDataFetched = ({ count }) => {
     setIsEmpty(!count);
@@ -141,7 +158,7 @@ const ContactDetails = ({ pendingContacts, onRetry, successContactIds }) => {
   const columns = [
     {
       key: 'name',
-      title: getTranslation('patient.details.reminderContacts.field.contact', 'Contact'),
+      title: <TranslatedText stringId='patient.details.reminderContacts.field.contact' fallback='Contact' />,
       sortable: false,
       accessor: row => (
         <ColoredCellText status={getStatus(pendingContacts[row.id]?.isTimerStarted, row.id)}>
@@ -151,7 +168,7 @@ const ContactDetails = ({ pendingContacts, onRetry, successContactIds }) => {
     },
     {
       key: 'relationship.name',
-      title: getTranslation('patient.details.reminderContacts.field.relationShip', 'Relationship'),
+      title: <TranslatedText stringId='patient.details.reminderContacts.field.relationship' fallback='Relationship' />,
       sortable: false,
       accessor: row => (
         <ColoredCellText status={getStatus(pendingContacts[row.id]?.isTimerStarted, row.id)}>
@@ -161,16 +178,32 @@ const ContactDetails = ({ pendingContacts, onRetry, successContactIds }) => {
     },
     {
       key: 'method',
-      title: getTranslation(
-        'patient.details.reminderContacts.field.contactMethod',
-        'Contact method',
-      ),
+      title: <TranslatedText stringId='patient.details.reminderContacts.field.contactMethod' fallback='Contact method' />,
       sortable: false,
       accessor: row => getMethod(
         getStatus(pendingContacts[row.id]?.isTimerStarted, row.id),
         row.method,
       ),
     },
+    ...(canRemoveReminderContacts
+      ? [
+          {
+            key: '',
+            title: '',
+            sortable: false,
+            accessor: (data) => {
+              return (
+                <StyledTextButton onClick={() => onRemoveContact(data)}>
+                  <TranslatedText
+                    stringId={'patient.details.reminderContacts.label.remove'}
+                    fallback={'Remove'}
+                  />
+                </StyledTextButton>
+              );
+            },
+          },
+        ]
+      : []),
     { 
       key: '', 
       title: '', 
@@ -185,31 +218,28 @@ const ContactDetails = ({ pendingContacts, onRetry, successContactIds }) => {
     },
   ];
 
-  const description = getTranslation(
-    'patient.details.reminderContacts.description',
-    'The below contact list is registered to receive reminders for :patientName.',
-    { patientName },
-  );
-
-  const emptyDescription = getTranslation(
-    'patient.details.reminderContacts.emptyDescription',
-    "There are no contacts registered to receive reminders for :patientName. Please select 'Add contact' to register a contact.",
-    { patientName },
-  );
-
   return (
     <>
       {isEmpty ? (
-        <StyledText>
-          {emptyDescription.split(`${patientName}.`)[0]}
-          <span>{patientName}.</span>
-          {emptyDescription.split(`${patientName}.`)[1]}
-        </StyledText>
+        <StyledText
+          dangerouslySetInnerHTML={{
+            __html: getTranslation(
+              'patient.details.reminderContacts.emptyDescription',
+              "There are no contacts registered to receive reminders for :patientName. Please select 'Add contact' to register a contact.",
+              { patientName: `<span>${patientName}</span>` },
+            ),
+          }}
+        ></StyledText>
       ) : (
-        <StyledText>
-          {description.split(`${patientName}.`)[0]}
-          <span>{patientName}.</span>
-        </StyledText>
+        <StyledText
+          dangerouslySetInnerHTML={{
+            __html: getTranslation(
+              'patient.details.reminderContacts.description',
+              'The below contact list is registered to receive reminders for :patientName.',
+              { patientName: `<span>${patientName}</span>` },
+            ),
+          }}
+        ></StyledText>
       )}
       <StyledContactListTable
         columns={columns}
@@ -224,7 +254,7 @@ const ContactDetails = ({ pendingContacts, onRetry, successContactIds }) => {
   );
 };
 
-export const ReminderContactList = ({ onClose, onAddContact, pendingContacts, onRetry, successContactIds }) => {
+export const ReminderContactList = ({ onClose, onAddContact, pendingContacts, onRetry, successContactIds, onRemoveContact }) => {
   const { ability } = useAuth();
   const canAddReminderContacts = ability.can('write', 'Patient');
 
@@ -234,6 +264,7 @@ export const ReminderContactList = ({ onClose, onAddContact, pendingContacts, on
         pendingContacts={pendingContacts}
         onRetry={onRetry}
         successContactIds={successContactIds}
+        onRemoveContact={onRemoveContact}
       />
 
       {canAddReminderContacts && (

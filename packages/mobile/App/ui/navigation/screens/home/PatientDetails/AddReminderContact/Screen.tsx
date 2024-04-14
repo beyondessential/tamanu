@@ -23,6 +23,7 @@ import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { PatientContact } from '~/models/PatientContact';
 import { SuggesterDropdown } from '~/ui/components/Dropdown';
+import { PATIENT_CONTACT_METHODS } from '~/constants';
 
 interface IFormValues {
   reminderContactName: string;
@@ -40,7 +41,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
     const newContact = await PatientContact.createAndSaveOne<PatientContact>({
       name: values.reminderContactName,
       relationship: values.reminderContactRelationship,
-      method: 'telegram',
+      method: PATIENT_CONTACT_METHODS.TELEGRAM,
       patient: selectedPatient.id,
     });
     navigation.navigate(Routes.HomeStack.PatientDetailsStack.ReminderContactQR, {
@@ -50,12 +51,11 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
 
   const patientName = joinNames(selectedPatient);
 
-  const note = getTranslation({
-    stringId: 'patient.details.addReminderContacts.note',
-    fallback:
-      'By providing their details, the individual consents to receiving automated reminder messages for :patientName.',
-    replacements: { patientName },
-  });
+  const note = getTranslation(
+    'patient.details.addReminderContact.note',
+    'By providing their details, the individual consents to receiving automated reminder messages for :patientName.',
+    { patientName },
+  );
 
   return (
     <ScrollView>
@@ -74,7 +74,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
               fontWeight={500}
             >
               <TranslatedText
-                stringId="patient.details.addReminderContacts.title"
+                stringId="patient.details.addReminderContact.title"
                 fallback="Add reminder contact"
               />
             </StyledText>
@@ -86,7 +86,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
               fontWeight={500}
             >
               <TranslatedText
-                stringId="patient.details.addReminderContacts.description"
+                stringId="patient.details.addReminderContact.description"
                 fallback="Please provide details below to add a new contact."
               />
             </StyledText>
@@ -104,7 +104,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
           <Form
             initialValues={{
               reminderContactName: '',
-              reminderContactRelationship: ''
+              reminderContactRelationship: '',
             }}
             validationSchema={yup.object().shape({
               reminderContactName: yup.string().required('Contact name is required'),
@@ -119,10 +119,10 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
                     <LocalisedField
                       name="reminderContactName"
                       component={TextField}
-                      placeholder={getTranslation({
-                        stringId: 'patient.details.addReminderContacts.placeholder.contactName',
-                        fallback: 'Contact Name',
-                      })}
+                      placeholder={getTranslation(
+                        'patient.details.addReminderContact.placeholder.contactName',
+                        'Contact Name',
+                      )}
                       required
                     />
                   </StyledView>
@@ -131,10 +131,10 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
                       name="reminderContactRelationship"
                       component={SuggesterDropdown}
                       referenceDataType="contactRelationship"
-                      selectPlaceholderText={getTranslation({
-                        stringId: 'patient.details.addReminderContacts.placeholder.select',
-                        fallback: 'Select',
-                      })}
+                      selectPlaceholderText={getTranslation(
+                        'patient.details.addReminderContact.placeholder.select',
+                        'Select',
+                      )}
                       required
                     />
                   </StyledView>
@@ -147,7 +147,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
                   >
                     <StyledText color={theme.colors.WHITE} fontSize={16} fontWeight={500}>
                       <TranslatedText
-                        stringId="patient.details.addReminderContacts.action.confirm"
+                        stringId="patient.details.addReminderContact.action.confirm"
                         fallback="Confirm & connect"
                       />
                     </StyledText>
@@ -161,7 +161,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
                   >
                     <StyledText color={theme.colors.PRIMARY_MAIN} fontSize={16} fontWeight={500}>
                       <TranslatedText
-                        stringId="patient.details.addReminderContacts.action.cancel"
+                        stringId="patient.details.addReminderContact.action.cancel"
                         fallback="Cancel"
                       />
                     </StyledText>

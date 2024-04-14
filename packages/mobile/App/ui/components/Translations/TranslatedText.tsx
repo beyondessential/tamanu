@@ -16,11 +16,16 @@ const TextWrapper = styled(StyledText)<{
 
 export type TranslatedTextElement = ReactElement<TranslatedTextProps> | string;
 
-export const TranslatedText = (props: TranslatedTextProps): ReactElement => {
+export const TranslatedText = ({
+  stringId,
+  fallback,
+  replacements,
+  uppercase = false,
+}: TranslatedTextProps): ReactElement => {
   const { debugMode, getTranslation } = useTranslation();
-  const translation = getTranslation(props);
+  const translation = getTranslation(stringId, fallback, replacements);
 
   const isDebugMode = __DEV__ && debugMode;
 
-  return <TextWrapper $isDebugMode={isDebugMode}>{translation}</TextWrapper>;
+  return <TextWrapper $isDebugMode={isDebugMode}>{uppercase ? translation.toUpperCase() : translation}</TextWrapper>;
 };

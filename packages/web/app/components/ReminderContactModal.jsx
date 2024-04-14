@@ -39,6 +39,7 @@ export const ReminderContactModal = ({ onClose, open }) => {
   const [newContact, setNewContact] = useState({});
   const [pendingContacts, setPendingContacts] = useState({});
   const [successContactIds, setSuccessContactIds] = useState([]);
+  const [selectedContact, setSelectedContact] = useState();
 
   useEffect(() => {
     socket.connect();
@@ -81,12 +82,12 @@ export const ReminderContactModal = ({ onClose, open }) => {
       case REMINDER_CONTACT_VIEWS.REMINDER_CONTACT_LIST:
         return getTranslation('patient.details.reminderContacts.title', 'Reminder contacts');
       case REMINDER_CONTACT_VIEWS.ADD_REMINDER_FORM:
-        return getTranslation('patient.details.addReminderContacts.title', 'Add reminder contact');
+        return getTranslation('patient.details.addReminderContact.title', 'Add reminder contact');
       case REMINDER_CONTACT_VIEWS.ADD_REMINDER_QR_CODE:
-        return getTranslation('patient.details.addReminderContacts.title', 'Add reminder contact');
+        return getTranslation('patient.details.addReminderContact.title', 'Add reminder contact');
       case REMINDER_CONTACT_VIEWS.REMOVE_REMINDER:
         return getTranslation(
-          'patient.details.removeReminderContacts.title',
+          'patient.details.removeReminderContact.title',
           'Remove reminder contact',
         );
     }
@@ -101,6 +102,11 @@ export const ReminderContactModal = ({ onClose, open }) => {
     handleActiveView(REMINDER_CONTACT_VIEWS.REMINDER_CONTACT_LIST);
   };
 
+  const handleRemoveContact = contact => {
+    setSelectedContact(contact);
+    handleActiveView(REMINDER_CONTACT_VIEWS.REMOVE_REMINDER);
+  };
+
   return (
     <StyledBaseModal
       width={activeView === REMINDER_CONTACT_VIEWS.REMOVE_REMINDER ? 'sm' : 'md'}
@@ -113,6 +119,7 @@ export const ReminderContactModal = ({ onClose, open }) => {
           <ReminderContactList
             onAddContact={() => handleActiveView(REMINDER_CONTACT_VIEWS.ADD_REMINDER_FORM)}
             onRetry={onContinue}
+            onRemoveContact={handleRemoveContact}
             onClose={onClose}
             pendingContacts={pendingContacts}
             successContactIds={successContactIds}
@@ -128,7 +135,11 @@ export const ReminderContactModal = ({ onClose, open }) => {
           />
         )}
         {activeView === REMINDER_CONTACT_VIEWS.REMOVE_REMINDER && (
-          <RemoveReminderContact onClose={onClose} onBack={onBack} />
+          <RemoveReminderContact
+            selectedContact={selectedContact}
+            onClose={onClose}
+            onBack={onBack}
+          />
         )}
       </ReminderModalContainer>
     </StyledBaseModal>

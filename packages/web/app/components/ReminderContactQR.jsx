@@ -65,12 +65,6 @@ export const ReminderContactQR = ({ contact, onClose }) => {
 
   const patientName = joinNames(patient);
 
-  const description = getTranslation(
-    'patient.details.reminderContactQr.description',
-    'Please ask the contact to scan the QR code using their camera app to register their Telegram account to receive automated reminder messages for :patientName.',
-    { patientName },
-  );
-
   return (
     <>
       <StyledHeaderText>
@@ -79,10 +73,15 @@ export const ReminderContactQR = ({ contact, onClose }) => {
           fallback="Scan QR code below"
         />
       </StyledHeaderText>
-      <StyledText>
-        {description.split(`${patientName}.`)[0]}
-        <span>{patientName}.</span>
-      </StyledText>
+      <StyledText
+        dangerouslySetInnerHTML={{
+          __html: getTranslation(
+            'patient.details.reminderContactQr.description',
+            'Please ask the contact to scan the QR code using their camera app to register their Telegram account to receive automated reminder messages for :patientName.',
+            { patientName: `<span>${patientName}</span>` },
+          ),
+        }}
+      ></StyledText>
       <StyledText>
         <TranslatedText
           stringId="patient.details.reminderContactQr.subDescription"
