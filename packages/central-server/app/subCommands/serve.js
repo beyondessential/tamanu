@@ -22,12 +22,12 @@ export const serve = async ({ skipMigrationCheck, provisioning }) => {
     execArgs: process.execArgs || '<empty>',
   });
 
-  const context = await new ApplicationContext().init();
+  const context = await new ApplicationContext().init({ appType: 'api' });
   const { store } = context;
 
   await store.sequelize.assertUpToDate({ skipMigrationCheck });
 
-  const app = createApp(context);
+  const app = await createApp(context);
 
   await performTimeZoneChecks({
     sequelize: store.sequelize,
