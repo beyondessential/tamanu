@@ -84,7 +84,7 @@ jobs:
             kubectl delete namespace tamanu-${{ inputs.deploy-name }}
           fi
       - # run pulumi destroy again to clean up any resources that might have been left behind
-        if: steps.hard-delete.outcome == 'success'
+        if: always() && steps.hard-delete.outcome == 'success'
         name: Down again!
         uses: pulumi/actions@v5
         with:
