@@ -4,13 +4,13 @@ import config from 'config';
 
 export const telegramWebhookRoutes = express.Router();
 
-telegramWebhookRoutes.get(
+telegramWebhookRoutes.post(
   `/`,
   asyncHandler(async (req, res) => {
     if (req.header('X-Telegram-Bot-Api-Secret-Token') !== config.telegramBot?.webhook.secret)
       return res.status(401).send('Invalid token');
 
-    req.telegramBotService?.update(req.body);
+    req.ctx.telegramBotService?.update(req.body);
     res.sendStatus(200);
   }),
 );
