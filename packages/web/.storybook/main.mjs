@@ -20,8 +20,19 @@ export default {
   async viteFinal(config) {
     // Merge custom configuration into the default config
     return mergeConfig(config, {
+      define: {
+        process: JSON.stringify({
+          env: {
+            NODE_ENV: process.env.NODE_ENV,
+            STORYBOOK: true,
+          },
+          arch: 'wasm',
+          platform: 'web',
+        }),
+      },
       resolve: {
         alias: {
+          '/@react-refresh': path.resolve(__dirname, './__mocks__/react-refresh.js'),
           buffer: path.resolve(__dirname, './__mocks__/buffer.js'),
           sequelize: path.resolve(__dirname, './__mocks__/sequelize.js'),
           config: path.resolve(__dirname, './__mocks__/config.js'),

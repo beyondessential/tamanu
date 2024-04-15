@@ -61,11 +61,7 @@ export const TranslationProvider = ({ children }) => {
     };
     if (!translations) return replaceStringVariables(fallback, replacementConfig, translations);
     if (translations[stringId])
-      return replaceStringVariables(
-        translations[stringId],
-replacementConfig,
-        translations,
-      );
+      return replaceStringVariables(translations[stringId], replacementConfig, translations);
     // This section here is a dev tool to help populate the db with the translation ids we have defined
     // in components. It will only populate the db with English strings, so that we can then translate them.
     if (isDev && storedLanguage === ENGLISH_LANGUAGE_CODE) {

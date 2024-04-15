@@ -126,7 +126,7 @@ const LoginFormComponent = ({
           )}
         </LoginHeading>
         <LoginSubtext>
-          <TranslatedText stringId="login.subtext" fallback="Enter your details below to log in" />
+          <TranslatedText stringId="login.subTitle" fallback="Enter your details below to log in" />
         </LoginSubtext>
         {!!genericMessage && <FormSubtext>{genericMessage}</FormSubtext>}
       </div>

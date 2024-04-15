@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 
-import { AutocompleteField, DateField, Field, Form, TextField } from '../components/Field';
+import { AutocompleteField, DateField, Field, Form, TextField, SuggesterSelectField } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { FormSubmitCancelRow } from '../components/ButtonRow';
 import { foreignKey } from '../utils/validation';
@@ -32,6 +32,12 @@ export const AllergyForm = ({
             component={AutocompleteField}
             suggester={allergySuggester}
             required
+          />
+          <Field
+            name="reactionId"
+            label={<TranslatedText stringId="general.reaction.label" fallback="Reaction" />}
+            component={SuggesterSelectField}
+            endpoint="reaction"
           />
           <Field
             name="recordedDate"
