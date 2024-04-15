@@ -10,6 +10,7 @@ import { ModalCancelRow } from './ModalActionRow';
 import { TranslatedText } from './Translation/TranslatedText';
 import { joinNames } from '../utils/user';
 import { useTranslation } from '../contexts/Translation';
+import { useTelegramBotInfoQuery } from '../api/queries';
 
 const StyledHeaderText = styled(Typography)`
   font-size: 14px;
@@ -43,17 +44,19 @@ const StyledQrContainer = styled.div`
 export const ReminderContactQR = ({ contact, onClose }) => {
   const { getTranslation } = useTranslation();
   const patient = useSelector(state => state.patient);
+  const { data: botInfo, isLoading } = useTelegramBotInfoQuery();
 
   const [qrCodeURL, setQRCodeURL] = useState('');
 
   useEffect(() => {
-    generateQRCode();
-  }, []);
+    if (!isLoading) {
+      generateQRCode();
+    }
+  }, [isLoading]);
 
   const generateQRCode = async () => {
     try {
-      //TODO: Get the bot name from the API
-      const urlString = `https://t.me/reminder_messages_bot?start=${contact.id}`;
+      const urlString = `https://t.me/${botInfo?.username}?start=${contact.id}`;
 
       // Generate QR code from the URL string
       const url = await QRCode.toDataURL(urlString);
