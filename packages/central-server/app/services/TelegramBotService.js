@@ -78,7 +78,8 @@ export const defineTelegramBotService = async injector => {
    * @param {string} contactId
    */
   const subscribeCommandHandler = async (message, contactId) => {
-    websocketService?.emit('telegram:subscribe', { contactId, chatId: message.chat.id });
+    const botInfo = await getBotInfo();
+    websocketService?.emit('telegram:subscribe', { contactId, chatId: message.chat.id, botInfo });
   };
 
   /**

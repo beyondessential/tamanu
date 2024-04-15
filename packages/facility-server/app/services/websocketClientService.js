@@ -15,7 +15,7 @@ export const defineWebsocketClientService = injector => {
      *
      * @param {{ contactId: string, chatId: string }} payload
      */
-    async ({ chatId, contactId }) => {
+    async ({ chatId, contactId, botInfo }) => {
       const getTranslation = await injector.models?.TranslatedString.getTranslationFunction(
         injector.config.language,
         ['telegramRegistration'],
@@ -36,8 +36,9 @@ export const defineWebsocketClientService = injector => {
 
       const successMessage = getTranslation(
         'telegramRegistration.successMessage',
-        `Dear :contactName, you have successfully registered to receive messages for :patientName. Thank you.`,
-        { contactName, patientName },
+        `Dear :contactName, you have successfully registered to receive messages for :patientName from :botName. Thank you.
+        \nIf you would prefer to not receive future messages from :botName, please select :command`,
+        { contactName, patientName, botName: botInfo.first_name, command: '/unsubscribe' },
       );
 
       client.emit('telegram:send-message', { chatId, message: successMessage });
