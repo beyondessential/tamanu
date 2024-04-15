@@ -85,6 +85,7 @@ export const NewVaccineTabComponent = ({
       const scheduledVaccineRecord = await models.ScheduledVaccine.findOne({
         where: { id: scheduledVaccineId },
       });
+
       const vaccineEncounter = await models.Encounter.getOrCreateCurrentEncounter(
         selectedPatient.id,
         user.id,
@@ -93,7 +94,10 @@ export const NewVaccineTabComponent = ({
           location: locationId,
           encounterType: EncounterType.Vaccination,
           endDate: getCurrentDateTimeString(),
-          reasonForEncounter: getVaccinationDescription(vaccineData, scheduledVaccineRecord),
+          reasonForEncounter: getVaccinationDescription(
+            vaccineData,
+            scheduledVaccineRecord ?? scheduledVaccine,
+          ),
         },
       );
 
@@ -124,6 +128,8 @@ export const NewVaccineTabComponent = ({
       const notGivenReason = await models.ReferenceData.findOne({ id: notGivenReasonId });
       const location = await models.Location.findOne(locationId, { relations: ['locationGroup'] });
       const department = await models.Department.findOne(departmentId);
+
+      console.log('updated vaccine', updatedVaccine);
 
       if (values.administeredVaccine) {
         navigation.navigate(Routes.HomeStack.VaccineStack.VaccineModalScreen, {
