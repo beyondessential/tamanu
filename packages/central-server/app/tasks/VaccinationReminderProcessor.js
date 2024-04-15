@@ -1,5 +1,9 @@
 import config from 'config';
-import { COMMUNICATION_STATUSES, PATIENT_COMMUNICATION_TYPES } from '@tamanu/constants';
+import {
+  COMMUNICATION_STATUSES,
+  PATIENT_COMMUNICATION_CHANNELS,
+  PATIENT_COMMUNICATION_TYPES,
+} from '@tamanu/constants';
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import { QueryTypes } from 'sequelize';
@@ -46,7 +50,7 @@ export class VaccinationReminderProcessor extends ScheduledTask {
         'dueDate', uv.due_date
       ) vars
       FROM upcoming_vaccinations uv 
-      join patient_contacts pc on pc.patient_id = uv.patient_id and pc.method = 'telegram'
+      join patient_contacts pc on pc.patient_id = uv.patient_id and pc.method = :communicationChannel
       join scheduled_vaccines sv on sv.id = uv.scheduled_vaccine_id
       join reference_data rd on rd.id = sv.vaccine_id and rd."type" = 'drug'
       join patients p on p.id = uv.patient_id 
@@ -70,6 +74,7 @@ export class VaccinationReminderProcessor extends ScheduledTask {
     `,
       {
         replacements: {
+          communicationChannel: PATIENT_COMMUNICATION_CHANNELS.TELEGRAM,
           communicationStatus: COMMUNICATION_STATUSES.QUEUED,
           communicationType: PATIENT_COMMUNICATION_TYPES.VACCINATION_REMINDER,
           language: config.language,
