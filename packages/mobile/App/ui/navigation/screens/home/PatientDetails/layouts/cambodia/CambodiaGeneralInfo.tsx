@@ -46,7 +46,7 @@ export const CambodiaGeneralInfo = ({ onEdit, patient }: GeneralInfoProps): Reac
     ['dateOfBirth', formatStringDate(patient.dateOfBirth, DateFormats.DDMMYY)],
     ['sex', getGender(patient.sex)],
     [
-      'fathersFirstName',
+      'fathersFirstName', // TODO: need to get from db
       !loading
         ? getCustomFieldValue(customPatientFieldValues, FIELD_DEFINITION_IDS.FATHERS_FIRST_NAME)
         : '',

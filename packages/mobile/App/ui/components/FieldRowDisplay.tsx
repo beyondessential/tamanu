@@ -12,20 +12,29 @@ interface FieldRowDisplayProps {
 }
 
 export const FieldRowDisplay = ({ fields, isCustomFields }: FieldRowDisplayProps): ReactElement => {
-  const { getString, getBool } = useLocalisation();
-  const visibleFields = isCustomFields ? fields : fields.filter(([name]) => getBool(`fields.${name}.hidden`) !== true);
+  const { getString, getBool, getLocalisation } = useLocalisation();
+  const localisedFields = getLocalisation('fields');
+  const visibleFields = isCustomFields
+    ? fields
+    : fields.filter(([name]) => getBool(`fields.${name}.hidden`) !== true);
   const fieldsPerRow = isTablet() ? 2 : 1;
   const rows = chunk(visibleFields, fieldsPerRow);
 
+  console.log(Object.keys(localisedFields));
+
   return (
     <StyledView width="100%" margin={20} marginTop={0}>
-      {rows.map((row) => (
+      {rows.map(row => (
         <RowView key={row.map(([name]) => name).join(',')} marginTop={20}>
           {row.map(([name, info]) => (
             <InformationBox
               key={name}
               flex={1}
-              title={isCustomFields ? name : getString(`fields.${name}.longLabel`)}
+              title={
+                Object.keys(localisedFields).includes(name)
+                  ? getString(`fields.${name}.longLabel`)
+                  : name
+              }
               info={info}
             />
           ))}
