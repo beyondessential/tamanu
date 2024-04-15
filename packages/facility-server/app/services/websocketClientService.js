@@ -35,7 +35,37 @@ export const defineWebsocketClientService = injector => {
       const successMessage = `Dear ${contactName}, you have successfully registered to receive messages for ${patientName}. Thank you.`; //TODO: translate this
 
       client.emit('telegram:send-message', { chatId, message: successMessage });
-      injector.websocketService.emit('telegram:subscribe:success', { contactId, chatId });
+      injector.websocketService.emit('telegram:subscribe:success', { contactId });
+    },
+  );
+
+  client.on(
+    'telegram:unsubscribe',
+    /**
+     *
+     * @param {{ contactId: string, chatId: string  }} payload
+     */
+    async ({ chatId, contactId }) => {
+      const contact = await injector.models?.PatientContact.findByPk(contactId, {
+        include: [{ model: injector.models?.Patient, as: 'patient' }],
+      });
+
+      if (!contact) return;
+
+      contact.deletedAt = new Date();
+      await contact.save();
+
+      const contactName = contact.name;
+      const patientName = [
+        contact.patient.firstName,
+        contact.patient.middleName,
+        contact.patient.lastName,
+      ].join(' ');
+
+      const successMessage = `Dear ${contactName}, you have successfully deregistered from receiving messages for ${patientName}. Thank you`; //TODO: translate this
+
+      client.emit('telegram:send-message', { chatId, message: successMessage });
+      injector.websocketService.emit('telegram:unsubscribe:success', { contactId });
     },
   );
 

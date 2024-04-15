@@ -80,9 +80,19 @@ export const defineTelegramBotService = async injector => {
     websocketService.emit('telegram:subscribe:success', { contactId, chatId: message.chat.id });
   };
 
+  /**
+   * Register a new contact and send a success message.
+   *
+   * @param {TelegramBot.Message} message - the message object containing contact information
+   * @param {string} contactId
+   */
+  const unsubscribeCommandHandler = async (message, contactId) => {
+    websocketService.emit('telegram:unsubscribe', { contactId, chatId: message.chat.id });
+  };
+
   await setWebhook(injector.config.telegramBot.webhook);
   setCommand('start', subscribeCommandHandler);
-  //setCommand('unsubscribe', sendMessage);
+  setCommand('stop', unsubscribeCommandHandler);
 
   return {
     update,
