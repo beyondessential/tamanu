@@ -1,5 +1,4 @@
 import config from 'config';
-import http from 'http';
 import supertest from 'supertest';
 
 import { COMMUNICATION_STATUSES, JWT_TOKEN_TYPES, SERVER_TYPES } from '@tamanu/constants';
