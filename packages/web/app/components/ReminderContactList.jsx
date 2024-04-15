@@ -121,8 +121,8 @@ const ContactDetails = ({ pendingContacts, onRetry, successContactIds, onRemoveC
     setIsEmpty(!count);
   };
 
-  const getStatus = (isTimerStarted = false, contactId) => {
-    if (successContactIds.includes(contactId)) {
+  const getStatus = (isTimerStarted = false, contactId, connectionDetails) => {
+    if (successContactIds.includes(contactId) || !!connectionDetails) {
       return 'success';
     }
     if (isTimerStarted) {
@@ -162,7 +162,7 @@ const ContactDetails = ({ pendingContacts, onRetry, successContactIds, onRemoveC
       title: <TranslatedText stringId='patient.details.reminderContacts.field.contact' fallback='Contact' />,
       sortable: false,
       accessor: row => (
-        <ColoredCellText status={getStatus(pendingContacts[row.id]?.isTimerStarted, row.id)}>
+        <ColoredCellText status={getStatus(pendingContacts[row.id]?.isTimerStarted, row.id, row.connectionDetails)}>
           {row.name}
         </ColoredCellText>
       ),
@@ -172,7 +172,7 @@ const ContactDetails = ({ pendingContacts, onRetry, successContactIds, onRemoveC
       title: <TranslatedText stringId='patient.details.reminderContacts.field.relationship' fallback='Relationship' />,
       sortable: false,
       accessor: row => (
-        <ColoredCellText status={getStatus(pendingContacts[row.id]?.isTimerStarted, row.id)}>
+        <ColoredCellText status={getStatus(pendingContacts[row.id]?.isTimerStarted, row.id, row.connectionDetails)}>
           {row.relationship.name}
         </ColoredCellText>
       ),
@@ -182,7 +182,7 @@ const ContactDetails = ({ pendingContacts, onRetry, successContactIds, onRemoveC
       title: <TranslatedText stringId='patient.details.reminderContacts.field.contactMethod' fallback='Contact method' />,
       sortable: false,
       accessor: row => getMethod(
-        getStatus(pendingContacts[row.id]?.isTimerStarted, row.id),
+        getStatus(pendingContacts[row.id]?.isTimerStarted, row.id, row.connectionDetails),
         row.method,
       ),
     },
@@ -209,7 +209,7 @@ const ContactDetails = ({ pendingContacts, onRetry, successContactIds, onRemoveC
       key: '', 
       title: '', 
       sortable: false,
-      accessor: row => getStatus(pendingContacts[row.id]?.isTimerStarted, row.id) === 'failed'
+      accessor: row => getStatus(pendingContacts[row.id]?.isTimerStarted, row.id, row.connectionDetails) === 'failed'
       ? (
         <RowActionLink onClick={() => onRetry(row)}>
           <TranslatedText stringId="general.action.retry" fallback="Retry" />
