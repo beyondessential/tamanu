@@ -23,6 +23,7 @@ import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { PatientContact } from '~/models/PatientContact';
 import { SuggesterDropdown } from '~/ui/components/Dropdown';
+import { PATIENT_COMMUNICATION_CHANNELS } from '~/constants/comms';
 
 interface IFormValues {
   reminderContactName: string;
@@ -40,7 +41,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
     const newContact = await PatientContact.createAndSaveOne<PatientContact>({
       name: values.reminderContactName,
       relationship: values.reminderContactRelationship,
-      method: 'telegram',
+      method: PATIENT_COMMUNICATION_CHANNELS.TELEGRAM,
       patient: selectedPatient.id,
     });
     navigation.navigate(Routes.HomeStack.PatientDetailsStack.ReminderContactQR, {

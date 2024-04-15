@@ -12,6 +12,7 @@ import { TranslatedText } from './Translation/TranslatedText';
 import { joinNames } from '../utils/user';
 import { useTranslation } from '../contexts/Translation';
 import { useApi } from '../api';
+import { PATIENT_COMMUNICATION_CHANNELS } from '@tamanu/constants';
 
 const FormHeading = styled(Typography)`
   margin: 7px 0 9px 0;
@@ -69,7 +70,7 @@ export const AddReminderContact = ({ onContinue, onClose, onBack }) => {
     const body = {
       name: values.reminderContactName,
       relationshipId: values.reminderContactRelationship,
-      method: 'telegram',
+      method: PATIENT_COMMUNICATION_CHANNELS.TELEGRAM,
       patientId: patient.id,
     };
 
