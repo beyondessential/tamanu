@@ -22,6 +22,7 @@ export class ApplicationContext {
 
   async init({ testMode } = {}) {
     this.emailService = new EmailService();
+
     this.store = await initDatabase({ testMode });
     if (config.db.reportSchemas?.enabled) {
       this.reportSchemaStores = await initReporting();
