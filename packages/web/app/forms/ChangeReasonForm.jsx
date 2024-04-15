@@ -14,8 +14,6 @@ export const ChangeReasonForm = ({ onCancel, onSubmit, reasonForEncounter }) => 
         name="reasonForEncounter"
         label={<TranslatedText stringId="general.localisedField.reasonForEncounter.label" fallback="Reason for encounter" />}
         component={TextField}
-        multiline
-        rows={3}
       />
       <ModalActionRow confirmText="Confirm" onConfirm={submitForm} onCancel={onCancel} />
     </FormGrid>
