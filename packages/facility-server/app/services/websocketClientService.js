@@ -10,7 +10,7 @@ export const defineWebsocketClientService = injector => {
 
   //forward event to facility client
   client.on(
-    'telegram:subscribe:success',
+    'telegram:subscribe',
     /**
      *
      * @param {{ contactId: string, chatId: string }} payload
