@@ -3,8 +3,6 @@ import { Op } from 'sequelize';
 async function getIds(options) {
   let ids = options.where?.id?.[Op.in];
 
-  // options.where.attribute.val.col
-  // .logic[Op.LIKE]
   if (ids) {
     return ids;
   }
