@@ -22,6 +22,7 @@ import { PatientAdditionalData } from '~/models/PatientAdditionalData';
 import { usePatientAdditionalData } from '~/ui/hooks/usePatientAdditionalData';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { getInitialAdditionalValues } from '../../PatientAdditionalDataForm/helpers';
+import { PatientFieldValue } from '~/models/PatientFieldValue';
 
 export type FormSection = {
   scrollToField: (fieldName: string) => () => void;
@@ -81,9 +82,16 @@ const getPatientInitialValues = (isEdit: boolean, patient, patientAdditionalData
 const containsAdditionalData = values =>
   allAdditionalDataFields.some(fieldName => Object.keys(values).includes(fieldName));
 
-export const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit }): ReactElement => {
+export const FormComponent = ({
+  selectedPatient,
+  setSelectedPatient,
+  isEdit,
+  fields,
+}): ReactElement => {
   const navigation = useNavigation();
-  const { patientAdditionalData, loading } = usePatientAdditionalData(selectedPatient?.id);
+  const { customPatientFieldValues, patientAdditionalData, loading } = usePatientAdditionalData(
+    selectedPatient?.id,
+  );
   const onCreateNewPatient = useCallback(async (values, { resetForm }) => {
     // submit form to server for new patient
     const { dateOfBirth, ...otherValues } = values;
@@ -97,6 +105,20 @@ export const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit }): 
       await PatientAdditionalData.updateForPatient(newPatient.id, values);
     }
 
+    // Update any custom field definitions contained in this form
+    const customValuesToUpdate = Object.keys(values).filter(key =>
+      Object.keys(customPatientFieldValues).includes(key),
+    );
+    await Promise.all(
+      customValuesToUpdate.map(definitionId =>
+        PatientFieldValue.updateOrCreateForPatientAndDefinition(
+          selectedPatient.id,
+          definitionId,
+          values[definitionId],
+        ),
+      ),
+    );
+
     await Patient.markForSync(newPatient.id);
 
     // Reload instance to get the complete village fields
@@ -105,7 +127,7 @@ export const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit }): 
     setSelectedPatient(reloadedPatient);
     resetForm();
     navigation.navigate(Routes.HomeStack.RegisterPatientStack.NewPatient);
-  }, []);
+  }, [navigation, loading]);
 
   const onEditPatient = useCallback(
     async values => {
@@ -121,6 +143,20 @@ export const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit }): 
         await PatientAdditionalData.updateForPatient(selectedPatient.id, values);
       }
 
+      // Update any custom field definitions contained in this form
+      const customValuesToUpdate = Object.keys(values).filter(key =>
+        Object.keys(customPatientFieldValues).includes(key),
+      );
+      await Promise.all(
+        customValuesToUpdate.map(definitionId =>
+          PatientFieldValue.updateOrCreateForPatientAndDefinition(
+            selectedPatient.id,
+            definitionId,
+            values[definitionId],
+          ),
+        ),
+      );
+
       // Loading the instance is necessary to get all of the fields
       // from the relations that were updated, not just their IDs.
       const editedPatient = await Patient.findOne(selectedPatient.id);
@@ -133,7 +169,7 @@ export const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit }): 
       // Navigate back to patient details
       navigation.navigate(Routes.HomeStack.PatientDetailsStack.Index);
     },
-    [navigation],
+    [navigation, loading],
   );
 
   const { getBool, getString } = useLocalisation();
@@ -158,10 +194,7 @@ export const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit }): 
               style={styles.ScrollView}
               contentContainerStyle={styles.ScrollViewContentContainer}
             >
-              <NameSection />
-              <KeyInformationSection />
-              <LocationDetailsSection />
-              <PatientAdditionalDataFields fields={allAdditionalDataFields} showMandatory />
+              {fields}
               <SubmitSection onPress={handleSubmit} isEdit={isEdit} />
             </ScrollView>
           </KeyboardAvoidingView>

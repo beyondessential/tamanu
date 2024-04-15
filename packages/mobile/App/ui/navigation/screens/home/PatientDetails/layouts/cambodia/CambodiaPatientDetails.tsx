@@ -1,11 +1,8 @@
 import React, { ReactElement, useCallback } from 'react';
-import { FullView, StyledScrollView } from '~/ui/styled/common';
 import { CambodiaGeneralInfo } from './CambodiaGeneralInfo';
 import { CambodiaAdditionalInfo } from './CambodiaAdditionalInfo';
-import { theme } from '~/ui/styled/theme';
 import { Routes } from '~/ui/helpers/routes';
 import { joinNames } from '~/ui/helpers/user';
-import { PatientIssues } from '../../CustomComponents';
 
 // TODO: declare navigation to cambodia specific forms
 
@@ -36,10 +33,6 @@ export const CambodiaPatientDetails = ({ patient, navigation }): ReactElement =>
     },
     [navigation, patient],
   );
-
-  const onEditPatientIssues = useCallback(() => {
-    navigation.navigate(Routes.HomeStack.PatientDetailsStack.Cambodia.AddPatientIssue);
-  }, [navigation]);
 
   return (
     <>
