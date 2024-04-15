@@ -1,6 +1,6 @@
 /**
  *
- * @param {{ websocketService: ReturnType<import('../services/websocketService').defineWebsocketService>, telegramBotService: ReturnType<import('../services/TelegramBotService').defineTelegramBotService>}} injector
+ * @param {{ websocketService: ReturnType<import('../services/websocketService').defineWebsocketService>, telegramBotService: Awaited<ReturnType<import('../services/TelegramBotService').defineTelegramBotService>>}} injector
  */
 export const registerTelegramSendMessageEvent = injector => {
   injector.websocketService.registerEvent(

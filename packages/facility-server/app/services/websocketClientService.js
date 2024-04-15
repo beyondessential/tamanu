@@ -22,7 +22,7 @@ export const defineWebsocketClientService = injector => {
 
       if (!contact) return;
 
-      contact.connectionDetails = { chatId };
+      contact.connectionDetails = { chatId, status: 'success' };
       await contact.save();
 
       const contactName = contact.name;
@@ -39,7 +39,12 @@ export const defineWebsocketClientService = injector => {
     },
   );
 
+  const emit = (eventName, ...args) => client.emit(eventName, ...args);
+
+  const listenOnce = (eventName, callback) => client.once(eventName, callback);
   return {
     getClient,
+    emit,
+    listenOnce,
   };
 };

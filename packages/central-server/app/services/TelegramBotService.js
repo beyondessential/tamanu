@@ -66,6 +66,10 @@ export const defineTelegramBotService = async injector => {
     }
   };
 
+  const getBotInfo = async () => {
+    return await bot.getMe();
+  };
+
   /**
    * Register a new contact and send a success message.
    *
@@ -84,6 +88,7 @@ export const defineTelegramBotService = async injector => {
     update,
     sendMessage,
     registerWebsocketService, //TODO: This is just a hack to make it work. will have to restructure the codebase for a better workflow
+    getBotInfo,
   };
 };
 
