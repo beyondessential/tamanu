@@ -16,28 +16,29 @@ export const defineWebsocketClientService = injector => {
      * @param {{ contactId: string, chatId: string }} payload
      */
     async ({ chatId, contactId }) => {
+      const getTranslation = await injector.models?.TranslatedString.getTranslationFunction(
+        injector.config.language,
+        ['telegramRegistration'],
+      );
+
       const contact = await injector.models?.PatientContact.findOne({
         where: { id: contactId },
         include: [{ model: injector.models?.Patient, as: 'patient' }],
       });
 
-      if (!contact) {
-        const sendMessage = `No patient found`; //TODO: translate this
-        client.emit('telegram:send-message', { chatId, message: sendMessage });
-        return;
-      }
+      if (!contact) return;
 
       contact.connectionDetails = { chatId, status: 'success' };
       await contact.save();
 
       const contactName = contact.name;
-      const patientName = [
-        contact.patient.firstName,
-        contact.patient.middleName,
-        contact.patient.lastName,
-      ].join(' ');
+      const patientName = [contact.patient.firstName, contact.patient.lastName].join(' ').trim();
 
-      const successMessage = `Dear ${contactName}, you have successfully registered to receive messages for ${patientName}. Thank you.`; //TODO: translate this
+      const successMessage = getTranslation(
+        'telegramRegistration.successMessage',
+        `Dear :contactName, you have successfully registered to receive messages for :patientName. Thank you.`,
+        { contactName, patientName },
+      );
 
       client.emit('telegram:send-message', { chatId, message: successMessage });
       injector.websocketService.emit('telegram:subscribe:success', { contactId });
