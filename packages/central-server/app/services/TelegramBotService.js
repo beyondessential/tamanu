@@ -56,14 +56,19 @@ export const defineTelegramBotService = async injector => {
   /**
    * @param {string} chatId
    * @param {string} message
+   * @param {options?: TelegramBot.SendMessageOptions} options
    *  */
-  const sendMessage = async (chatId, textMsg) => {
+  const sendMessage = async (chatId, textMsg, options) => {
     try {
-      const message = await bot.sendMessage(chatId, textMsg);
+      const message = await bot.sendMessage(chatId, textMsg, options);
       return { status: COMMUNICATION_STATUSES.SENT, result: message };
     } catch (e) {
       return { status: COMMUNICATION_STATUSES.ERROR, error: e.message, shouldRetry: true };
     }
+  };
+
+  const getBotInfo = async () => {
+    return await bot.getMe();
   };
 
   /**
@@ -73,17 +78,32 @@ export const defineTelegramBotService = async injector => {
    * @param {string} contactId
    */
   const subscribeCommandHandler = async (message, contactId) => {
-    websocketService.emit('telegram:subscribe:success', { contactId, chatId: message.chat.id });
+    websocketService.emit('telegram:subscribe', { contactId, chatId: message.chat.id });
   };
 
   await setWebhook(injector.config.telegramBot.webhook);
   setCommand('start', subscribeCommandHandler);
   //setCommand('unsubscribe', sendMessage);
 
+  bot.setMyCommands(
+    [
+      {
+        command: 'start',
+        description: 'Subscribe to receive notification for a patient',
+      },
+      {
+        command: 'stop',
+        description: 'Unsubscribe to stop receive notification for a patient',
+      },
+    ],
+    { language_code: 'en' },
+  );
+
   return {
     update,
     sendMessage,
     registerWebsocketService, //TODO: This is just a hack to make it work. will have to restructure the codebase for a better workflow
+    getBotInfo,
   };
 };
 

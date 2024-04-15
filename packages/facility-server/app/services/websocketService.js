@@ -7,6 +7,10 @@ import { Server } from 'socket.io';
 export const defineWebsocketService = injector => {
   const server = new Server(injector.httpServer, {
     connectionStateRecovery: { skipMiddlewares: true, maxDisconnectionDuration: 120000 },
+    cors: {
+      origin: '*',
+      methods: ['GET', 'POST'],
+    },
   });
 
   const getServer = () => server;

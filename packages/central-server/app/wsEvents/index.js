@@ -1,3 +1,4 @@
+import { registerTelegramGetBotInfoEvent } from './telegramGetBotInfo';
 import { registerTelegramSendMessageEvent } from './telegramSendMessage';
 
 /**
@@ -6,4 +7,5 @@ import { registerTelegramSendMessageEvent } from './telegramSendMessage';
  */
 export const registerWebsocketEvents = injector => {
   registerTelegramSendMessageEvent(injector);
+  registerTelegramGetBotInfoEvent(injector);
 };
