@@ -11,7 +11,6 @@ import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 import { GenderOptions, Gender } from '~/ui/helpers/constants';
 import { RadioButtonGroup } from '~/ui/components/RadioButtonGroup';
 import { DateField } from '~/ui/components/DateField/DateField';
-import { Field } from '~/ui/components/Forms/FormField';
 import { PatientAdditionalDataFields } from '~/ui/components/Forms/PatientAdditionalDataForm/PatientAdditionalDataFields';
 import { allAdditionalDataFields } from '~/ui/helpers/additionalData';
 import { PatientFieldDefinitionTypes } from '~/ui/helpers/fields';

@@ -3,7 +3,6 @@ import { useNavigation } from '@react-navigation/native';
 import { StatusBar } from 'react-native';
 import { FullView } from '/styled/common';
 import { StackHeader } from '~/ui/components/StackHeader';
-// TODO: import cambodia specific version of PatientPersonalInfoForm
 import { PatientPersonalInfoForm } from '/components/Forms/NewPatientForm/PatientPersonalInfoForm';
 import { theme } from '/styled/theme';
 
