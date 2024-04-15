@@ -1245,7 +1245,6 @@
       secret: "9sNtjx7oDCRiqQzWR3UuEQK00BM6nxz73PDXMYEq12xgPGIK6R"
     }
   },
-  "language": "en",
   "patientCommunication": {
     "retryThreshold": 20
   }
