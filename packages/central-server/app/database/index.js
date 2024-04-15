@@ -5,11 +5,7 @@ import { closeAllDatabases, openDatabase } from '@tamanu/shared/services/databas
 import { log } from '@tamanu/shared/services/logging';
 import { REPORT_DB_SCHEMAS } from '@tamanu/constants';
 
-/**
- * @typedef {Awaited<ReturnType<import("../../../shared/src/services/database").openDatabase>>} OpenDatabase
- */
 const getOrCreateConnection = async ({ testMode, ...configOverrides }, key = 'main') => {
-  /** @type {OpenDatabase} */
   const store = await openDatabase(key, {
     ...config.db,
     ...configOverrides,
