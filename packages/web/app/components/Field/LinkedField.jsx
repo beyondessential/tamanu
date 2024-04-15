@@ -26,9 +26,11 @@ export const LinkedField = ({ linkedFieldName, endpoint, ...props }) => {
   const { data } = useLinkedFieldQuery(endpoint, props.name, value);
 
   useEffect(() => {
-    if (!data?.id) return;
+    if (!data?.id || !props.form.dirty) return;
     setLinkedFieldValue(data.id);
-  }, [data?.id, setLinkedFieldValue]);
+    // Important to only run this effect when the linkField query changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data?.id]);
 
   return <Field {...props} />;
 };
