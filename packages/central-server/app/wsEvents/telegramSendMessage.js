@@ -7,10 +7,10 @@ export const registerTelegramSendMessageEvent = injector => {
     'telegram:send-message',
     /**
      *
-     * @param {{chatId: string, message: string}} payload
+     * @param {{chatId: string, message: string, options?: TelegramBot.SendMessageOptions }} payload
      */
-    async ({ chatId, message }) => {
-      await injector.telegramBotService.sendMessage(chatId, message);
+    async ({ chatId, message, options }) => {
+      await injector.telegramBotService.sendMessage(chatId, message, options);
     },
   );
 };

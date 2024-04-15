@@ -56,10 +56,11 @@ export const defineTelegramBotService = async injector => {
   /**
    * @param {string} chatId
    * @param {string} message
+   * @param {options?: TelegramBot.SendMessageOptions} options
    *  */
-  const sendMessage = async (chatId, textMsg) => {
+  const sendMessage = async (chatId, textMsg, options) => {
     try {
-      const message = await bot.sendMessage(chatId, textMsg);
+      const message = await bot.sendMessage(chatId, textMsg, options);
       return { status: COMMUNICATION_STATUSES.SENT, result: message };
     } catch (e) {
       return { status: COMMUNICATION_STATUSES.ERROR, error: e.message, shouldRetry: true };
@@ -83,6 +84,20 @@ export const defineTelegramBotService = async injector => {
   await setWebhook(injector.config.telegramBot.webhook);
   setCommand('start', subscribeCommandHandler);
   //setCommand('unsubscribe', sendMessage);
+
+  bot.setMyCommands(
+    [
+      {
+        command: 'start',
+        description: 'Subscribe to receive notification for a patient',
+      },
+      {
+        command: 'stop',
+        description: 'Unsubscribe to stop receive notification for a patient',
+      },
+    ],
+    { language_code: 'en' },
+  );
 
   return {
     update,
