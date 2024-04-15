@@ -158,19 +158,19 @@ describe('Patient merge', () => {
   it('Should throw if the keep patient and merge patient are the same', async () => {
     const { Patient } = models;
     const keep = await Patient.create(fake(Patient));
-    expect(() => mergePatient(models, keep.id, keep.id)).rejects.toThrow(InvalidParameterError);
+    await expect(() => mergePatient(models, keep.id, keep.id)).rejects.toThrow(InvalidParameterError);
   });
 
   it("Should throw if the keep patient doesn't exist", async () => {
     const { Patient } = models;
     const keep = await Patient.create(fake(Patient));
-    expect(() => mergePatient(models, keep.id, 'not real')).rejects.toThrow(InvalidParameterError);
+    await expect(() => mergePatient(models, keep.id, 'not real')).rejects.toThrow(InvalidParameterError);
   });
 
   it("Should throw if the merge patient doesn't exist", async () => {
     const { Patient } = models;
     const merge = await Patient.create(fake(Patient));
-    expect(() => mergePatient(models, 'not real', merge.id)).rejects.toThrow(InvalidParameterError);
+    await expect(() => mergePatient(models, 'not real', merge.id)).rejects.toThrow(InvalidParameterError);
   });
 
   it('Should merge a page of notes across', async () => {
@@ -743,7 +743,7 @@ describe('Patient merge', () => {
     it('Should call the function from the endpoint', async () => {
       const [keep, merge] = await makeTwoPatients();
 
-      const response = await adminApp.post('/v1/admin/mergePatient').send({
+      const response = await adminApp.post('/api/admin/mergePatient').send({
         keepPatientId: keep.id,
         unwantedPatientId: merge.id,
       });
@@ -768,7 +768,7 @@ describe('Patient merge', () => {
       const [keep, merge] = await makeTwoPatients();
       const app = await baseApp.asRole('reception');
 
-      const response = await app.post('/v1/admin/mergePatient').send({
+      const response = await app.post('/api/admin/mergePatient').send({
         keepPatientId: keep.id,
         unwantedPatientId: merge.id,
       });
@@ -779,7 +779,7 @@ describe('Patient merge', () => {
       const { Patient } = models;
       const patient = await Patient.create(fake(Patient));
 
-      const response = await adminApp.post('/v1/admin/mergePatient').send({
+      const response = await adminApp.post('/api/admin/mergePatient').send({
         keepPatientId: patient.id,
         unwantedPatientId: 'doesnt exist',
       });

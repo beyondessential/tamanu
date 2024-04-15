@@ -90,7 +90,7 @@ describe('Referrals', () => {
 
   it('should record a referral request', async () => {
     const { departmentId, locationId } = encounter;
-    const result = await app.post('/v1/referral').send({
+    const result = await app.post('/api/referral').send({
       answers,
       startTime: Date.now(),
       endTime: Date.now(),
@@ -105,7 +105,7 @@ describe('Referrals', () => {
   it('should get all referrals for a patient', async () => {
     const { departmentId, locationId } = encounter;
     // create a second referral
-    await app.post('/v1/referral').send({
+    await app.post('/api/referral').send({
       answers,
       startTime: Date.now(),
       endTime: Date.now(),
@@ -115,7 +115,7 @@ describe('Referrals', () => {
       locationId,
     });
 
-    const result = await app.get(`/v1/patient/${patient.id}/referrals`);
+    const result = await app.get(`/api/patient/${patient.id}/referrals`);
     expect(result).toHaveSucceeded();
     expect(result.body.count).toEqual(2);
   });
@@ -125,7 +125,7 @@ describe('Referrals', () => {
     const department = await findOneOrCreate(ctx.models, ctx.models.Department, { code: departmentCode });
 
     const { locationId } = encounter;
-    const result = await app.post('/v1/referral').send({
+    const result = await app.post('/api/referral').send({
       answers,
       startTime: Date.now(),
       endTime: Date.now(),
@@ -146,7 +146,7 @@ describe('Referrals', () => {
     const location = await findOneOrCreate(ctx.models, ctx.models.Location, { code: locationCode });
 
     const { departmentId } = encounter;
-    const result = await app.post('/v1/referral').send({
+    const result = await app.post('/api/referral').send({
       answers,
       startTime: Date.now(),
       endTime: Date.now(),

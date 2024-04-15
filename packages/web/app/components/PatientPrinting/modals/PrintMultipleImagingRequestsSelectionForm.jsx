@@ -11,6 +11,7 @@ import { Colors } from '../../../constants';
 import { MultipleImagingRequestsPrintoutModal } from './MultipleImagingRequestsPrintoutModal';
 import { COLUMN_KEYS, FORM_COLUMNS } from './multipleImagingRequestsColumns';
 import { FormDivider, PrintMultipleSelectionTable } from './PrintMultipleSelectionTable';
+import { TranslatedText } from '../../Translation/TranslatedText';
 
 export const PrintMultipleImagingRequestsSelectionForm = React.memo(({ encounter, onClose }) => {
   const [openPrintoutModal, setOpenPrintoutModal] = useState(false);
@@ -52,20 +53,30 @@ export const PrintMultipleImagingRequestsSelectionForm = React.memo(({ encounter
         onClose={() => setOpenPrintoutModal(false)}
       />
       <PrintMultipleSelectionTable
-        label="Select the imaging requests you would like to print"
+        label={
+          <TranslatedText
+            stringId="imaging.modal.printMultiple.selectText"
+            fallback="Select the imaging requests you would like to print"
+          />
+        }
         headerColor={Colors.white}
         columns={columns}
         data={imagingRequestsData || []}
         elevated={false}
         isLoading={isLoading}
         errorMessage={error?.message}
-        noDataMessage="No imaging requests found"
+        noDataMessage={
+          <TranslatedText
+            stringId="imaging.modal.printMultiple.table.noData"
+            fallback="No imaging requests found"
+          />
+        }
         allowExport={false}
       />
       <FormDivider />
       <ConfirmCancelRow
-        cancelText="Close"
-        confirmText="Print"
+        cancelText={<TranslatedText stringId="general.action.close" fallback="Close" />}
+        confirmText={<TranslatedText stringId="general.action.print" fallback="Print" />}
         confirmDisabled={selectedRows.length === 0}
         onConfirm={handlePrintConfirm}
         onCancel={onClose}

@@ -27,18 +27,18 @@ describe('Attachment (central-server)', () => {
   afterAll(async () => ctx.close());
 
   it('should send an error if attachment does not exist', async () => {
-    const result = await app.get('/v1/attachment/1');
+    const result = await app.get('/api/attachment/1');
     expect(result).toBeForbidden();
   });
 
   it('should read an attachment as a buffer', async () => {
-    const result = await app.get(`/v1/attachment/${attachment.id}`);
+    const result = await app.get(`/api/attachment/${attachment.id}`);
     expect(result).toHaveSucceeded();
     expect(Buffer.isBuffer(result.body)).toBeTruthy();
   });
 
   it('should read an attachment as a base64 string', async () => {
-    const result = await app.get(`/v1/attachment/${attachment.id}?base64=true`);
+    const result = await app.get(`/api/attachment/${attachment.id}?base64=true`);
     expect(result).toHaveSucceeded();
     const receivedStr = result.body.data;
     expect(typeof receivedStr).toBe('string');
@@ -51,7 +51,7 @@ describe('Attachment (central-server)', () => {
 
   it('should send error if there is no enough disk space', async () => {
     canUploadAttachment.mockImplementationOnce(async () => false);
-    const result = await app.post('/v1/attachment').send({
+    const result = await app.post('/api/attachment').send({
       type: 'image/jpeg',
       size: 1002,
       data: FILEDATA,
@@ -65,7 +65,7 @@ describe('Attachment (central-server)', () => {
 
   it('should create an attachment and receive its ID back', async () => {
     canUploadAttachment.mockImplementationOnce(async () => true);
-    const result = await app.post('/v1/attachment').send({
+    const result = await app.post('/api/attachment').send({
       type: 'image/jpeg',
       size: 1002,
       data: FILEDATA,

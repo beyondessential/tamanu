@@ -104,7 +104,7 @@ describe('Permissions', () => {
 
     it('should send the list of permissions for a user', async () => {
       const userApp = await ctx.baseApp.asRole('practitioner');
-      const response = await userApp.get('/v1/permissions');
+      const response = await userApp.get('/api/permissions');
       const { permissions } = response.body;
       expect(permissions.some(x => x.verb === 'write' && x.noun === 'EncounterDiagnosis'));
     });

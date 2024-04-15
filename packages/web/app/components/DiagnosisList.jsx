@@ -4,6 +4,7 @@ import styled from 'styled-components';
 
 import { Colors } from '../constants';
 import { hexToRgba } from '../utils';
+import { TranslatedText } from './Translation/TranslatedText';
 
 const DiagnosisListContainer = styled.div`
   display: flex;
@@ -38,7 +39,13 @@ const DiagnosisName = styled.span`
 
 const DiagnosisItem = React.memo(({ diagnosis, isPrimary, onClick }) => (
   <DiagnosisChip onClick={onClick}>
-    <Category isPrimary={isPrimary}>{isPrimary ? 'P' : 'S'}</Category>
+    <Category isPrimary={isPrimary}>
+      {isPrimary ? (
+        <TranslatedText stringId="encounter.diagnosis.type.primary" fallback="P" />
+      ) : (
+        <TranslatedText stringId="encounter.diagnosis.type.secondary" fallback="S" />
+      )}
+    </Category>
     {diagnosis?.name && <DiagnosisName isPrimary={isPrimary}>{diagnosis.name}</DiagnosisName>}
   </DiagnosisChip>
 ));

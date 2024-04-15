@@ -2,7 +2,6 @@ import bodyParser from 'body-parser';
 import compression from 'compression';
 import config from 'config';
 import express from 'express';
-import path from 'path';
 
 import { getLoggingMiddleware } from '@tamanu/shared/services/logging';
 import { constructPermission } from '@tamanu/shared/permissions/middleware';
@@ -17,12 +16,33 @@ import { loadshedder } from './middleware/loadshedder';
 import { versionCompatibility } from './middleware/versionCompatibility';
 
 import { version } from './serverInfo';
+import { translationRoutes } from './translation';
 
-export function createApp(ctx) {
+function api(ctx) {
+  const apiRoutes = express.Router();
+  apiRoutes.use('/public', publicRoutes);
+  apiRoutes.use(authModule);
+  apiRoutes.use('/translation', translationRoutes);
+  apiRoutes.use(constructPermission);
+  apiRoutes.use(buildRoutes(ctx));
+  return apiRoutes;
+}
+
+export async function createApp(ctx) {
   const { store, emailService, reportSchemaStores } = ctx;
 
-  // Init our app
   const app = express();
+
+  let errorMiddleware = null;
+  if (config.errors?.enabled) {
+    if (config.errors?.type === 'bugsnag') {
+      const Bugsnag = await import('@bugsnag/js');
+      const middleware = Bugsnag.getPlugin('express');
+      app.use(middleware.requestHandler);
+      errorMiddleware = middleware.errorHandler;
+    }
+  }
+
   app.use(loadshedder());
   app.use(compression());
   app.use(bodyParser.json({ limit: '50mb' }));
@@ -50,23 +70,26 @@ export function createApp(ctx) {
     next();
   });
 
-  // TODO: serve index page
   app.get('/$', (req, res) => {
     res.send({
       index: true,
     });
   });
 
-  // API v1
-  app.use('/v1/public', publicRoutes);
-  app.use('/v1', authModule);
-  app.use('/v1', constructPermission);
-  app.use('/v1', buildRoutes(ctx));
+  // API
+  app.use('/api', api(ctx));
+
+  // Legacy API endpoint
+  app.use('/v1', api(ctx));
 
   // Dis-allow all other routes
   app.use('*', (req, res) => {
     res.status(404).end();
   });
+
+  if (errorMiddleware) {
+    app.use(errorMiddleware);
+  }
 
   app.use(defaultErrorHandler);
 

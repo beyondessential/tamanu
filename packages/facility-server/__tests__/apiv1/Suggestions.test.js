@@ -1,12 +1,18 @@
-import { LOCATION_AVAILABILITY_STATUS, SURVEY_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import {
+  LAB_REQUEST_STATUSES,
+  LOCATION_AVAILABILITY_STATUS,
+  SURVEY_TYPES,
+  VISIBILITY_STATUSES,
+} from '@tamanu/constants';
 import {
   buildDiagnosis,
   createDummyEncounter,
   createDummyPatient,
   randomRecords,
+  randomLabRequest,
   splitIds,
 } from '@tamanu/shared/demoData';
-import { findOneOrCreate } from '@tamanu/shared/test-helpers';
+import { fake, findOneOrCreate } from '@tamanu/shared/test-helpers';
 import { createTestContext } from '../utilities';
 import { testDiagnoses } from '../seed';
 
@@ -45,7 +51,7 @@ describe('Suggestions', () => {
     });
 
     it('should get a patient by first name', async () => {
-      const result = await userApp.get('/v1/suggestions/patient').query({ q: 'Test' });
+      const result = await userApp.get('/api/suggestions/patient').query({ q: 'Test' });
       expect(result).toHaveSucceeded();
 
       const { body } = result;
@@ -54,7 +60,7 @@ describe('Suggestions', () => {
     });
 
     it('should get a patient by last name', async () => {
-      const result = await userApp.get('/v1/suggestions/patient').query({ q: 'Appear' });
+      const result = await userApp.get('/api/suggestions/patient').query({ q: 'Appear' });
       expect(result).toHaveSucceeded();
 
       const { body } = result;
@@ -63,7 +69,7 @@ describe('Suggestions', () => {
     });
 
     it('should get a patient by combined first and last name', async () => {
-      const result = await userApp.get('/v1/suggestions/patient').query({ q: 'Test Appear' });
+      const result = await userApp.get('/api/suggestions/patient').query({ q: 'Test Appear' });
       expect(result).toHaveSucceeded();
 
       const { body } = result;
@@ -72,7 +78,7 @@ describe('Suggestions', () => {
     });
 
     it('should get a patient by displayId', async () => {
-      const result = await userApp.get('/v1/suggestions/patient').query({ q: 'abcabc123123' });
+      const result = await userApp.get('/api/suggestions/patient').query({ q: 'abcabc123123' });
       expect(result).toHaveSucceeded();
 
       const { body } = result;
@@ -81,7 +87,7 @@ describe('Suggestions', () => {
     });
 
     it('should not get patients without permission', async () => {
-      const result = await baseApp.get('/v1/suggestions/patient').query({ q: 'anything' });
+      const result = await baseApp.get('/api/suggestions/patient').query({ q: 'anything' });
       expect(result).toBeForbidden();
     });
   });
@@ -134,7 +140,7 @@ describe('Suggestions', () => {
     });
 
     it('should calculate location availability and return it with suggestion list', async () => {
-      const result = await userApp.get('/v1/suggestions/location');
+      const result = await userApp.get('/api/suggestions/location');
       expect(result).toHaveSucceeded();
 
       const { body } = result;
@@ -180,12 +186,12 @@ describe('Suggestions', () => {
         name: 'Bed 3',
         visibilityStatus: 'current',
       });
-      const result = await userApp.get('/v1/suggestions/location');
+      const result = await userApp.get('/api/suggestions/location');
       expect(result).toHaveSucceeded();
       expect(result?.body?.length).toEqual(3);
 
       const filteredResult = await userApp.get(
-        '/v1/suggestions/location?locationGroupId=test-area',
+        '/api/suggestions/location?locationGroupId=test-area',
       );
       expect(filteredResult).toHaveSucceeded();
       expect(filteredResult?.body?.length).toEqual(2);
@@ -208,10 +214,86 @@ describe('Suggestions', () => {
         visibilityStatus: 'current',
         facilityId: facility.id,
       });
-      const result = await userApp.get('/v1/suggestions/location');
+      const result = await userApp.get('/api/suggestions/location');
       expect(result).toHaveSucceeded();
       expect(result?.body?.length).toEqual(1);
       expect(result.body[0].facilityId).toEqual(facility.id);
+    });
+  });
+
+  // Labs has functionality for only returning categories that have results for a particular patient
+  describe('patientLabTestCategories', () => {
+    let patientId;
+
+    beforeAll(async () => {
+      await models.ReferenceData.destroy({ where: { type: 'labTestCategory' } });
+      await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        name: 'AA-decoy1',
+        type: 'labTestCategory',
+      });
+      await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        name: 'BB-decoy2',
+        type: 'labTestCategory',
+      });
+      const { id: unpublishedCategoryId } = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        name: 'AA-unpublished',
+        type: 'labTestCategory',
+      });
+      const { id: usedCategoryId } = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        name: 'AA-used',
+        type: 'labTestCategory',
+      });
+      patientId = (await models.Patient.create(await createDummyPatient(models))).id;
+
+      const { id: encounterId } = await models.Encounter.create(
+        await createDummyEncounter(models, { patientId }),
+      );
+
+      await models.LabRequest.createWithTests(
+        await randomLabRequest(models, {
+          labTestCategoryId: unpublishedCategoryId,
+          status: LAB_REQUEST_STATUSES.RESULTS_PENDING,
+          encounterId,
+        }),
+      );
+      await models.LabRequest.createWithTests(
+        await randomLabRequest(models, {
+          labTestCategoryId: usedCategoryId,
+          status: LAB_REQUEST_STATUSES.PUBLISHED,
+          encounterId,
+        }),
+      );
+    });
+
+    it('should not filter if there is no patient id', async () => {
+      const result = await userApp
+        .get('/v1/suggestions/patientLabTestCategories')
+        .query({ q: 'AA' });
+      expect(result).toHaveSucceeded();
+      expect(result?.body?.length).toEqual(3);
+    });
+
+    it('should filter lab test categories by use', async () => {
+      const result = await userApp.get('/v1/suggestions/patientLabTestCategories').query({
+        patientId,
+        status: LAB_REQUEST_STATUSES.PUBLISHED,
+      });
+      expect(result).toHaveSucceeded();
+      expect(result?.body?.length).toEqual(1);
+      expect(result.body[0].name).toEqual('AA-used');
+    });
+
+    it('should escape the query params', async () => {
+      const result = await userApp.get('/v1/suggestions/patientLabTestCategories').query({
+        q: `bobby tables'; drop all '' $$ \\';`,
+        patientId: `bobby tables'; drop all '' $$ \\';`,
+      });
+      expect(result).toHaveSucceeded();
+      expect(result?.body?.length).toEqual(0);
     });
   });
 
@@ -219,7 +301,7 @@ describe('Suggestions', () => {
     const limit = 25;
 
     it('should get a default list of suggestions with an empty query', async () => {
-      const result = await userApp.get('/v1/suggestions/icd10');
+      const result = await userApp.get('/api/suggestions/icd10');
       expect(result).toHaveSucceeded();
       const { body } = result;
       expect(body).toBeInstanceOf(Array);
@@ -227,7 +309,7 @@ describe('Suggestions', () => {
     });
 
     it('should get a full list of diagnoses with a general query', async () => {
-      const result = await userApp.get('/v1/suggestions/icd10?q=A');
+      const result = await userApp.get('/api/suggestions/icd10?q=A');
       expect(result).toHaveSucceeded();
       const { body } = result;
       expect(body).toBeInstanceOf(Array);
@@ -237,7 +319,7 @@ describe('Suggestions', () => {
     it('should get a partial list of diagnoses with a specific query', async () => {
       const count = testDiagnoses.filter(td => td.name.toLowerCase().includes('bacterial')).length;
       expect(count).toBeLessThan(limit); // ensure we're actually testing filtering!
-      const result = await userApp.get('/v1/suggestions/icd10?q=bacterial');
+      const result = await userApp.get('/api/suggestions/icd10?q=bacterial');
       expect(result).toHaveSucceeded();
       const { body } = result;
       expect(body).toBeInstanceOf(Array);
@@ -245,7 +327,7 @@ describe('Suggestions', () => {
     });
 
     it('should not be case sensitive', async () => {
-      const result = await userApp.get('/v1/suggestions/icd10?q=pNeUmOnIa');
+      const result = await userApp.get('/api/suggestions/icd10?q=pNeUmOnIa');
       expect(result).toHaveSucceeded();
       const { body } = result;
       expect(body).toBeInstanceOf(Array);
@@ -254,15 +336,17 @@ describe('Suggestions', () => {
 
     it('should look up a specific suggestion', async () => {
       const record = await models.ReferenceData.findOne();
-      const result = await userApp.get(`/v1/suggestions/icd10/${record.id}`);
+      const result = await userApp.get(`/api/suggestions/icd10/${record.id}`);
       expect(result).toHaveSucceeded();
       const { body } = result;
       expect(body).toHaveProperty('name', record.name);
       expect(body).toHaveProperty('id', record.id);
     });
+  });
 
+  describe('Other suggesters', () => {
     it('should get suggestions for a medication', async () => {
-      const result = await userApp.get('/v1/suggestions/drug?q=a');
+      const result = await userApp.get('/api/suggestions/drug?q=a');
       expect(result).toHaveSucceeded();
       const { body } = result;
       expect(body).toBeInstanceOf(Array);
@@ -270,38 +354,50 @@ describe('Suggestions', () => {
     });
 
     it('should get suggestions for a survey', async () => {
-      const programId = 'all-survey-program-id';
+      const programId1 = 'all-survey-program-id';
+      const programId2 = 'alternative-program-id';
       const obsoleteSurveyId = 'obsolete-survey-id';
       await models.Program.create({
-        id: programId,
+        id: programId1,
+        name: 'Program',
+      });
+      await models.Program.create({
+        id: programId2,
         name: 'Program',
       });
 
       await models.Survey.bulkCreate([
         {
           id: obsoleteSurveyId,
-          programId,
+          programId: programId1,
           name: 'XX - Obsolete Survey',
           surveyType: SURVEY_TYPES.OBSOLETE,
         },
         {
           id: 'referral-survey-id',
-          programId,
+          programId: programId1,
           name: 'XX - Referral Survey',
         },
         {
           id: 'program-survey-id',
-          programId,
+          programId: programId1,
           name: 'XX - Program Survey',
         },
         {
           id: 'program-survey-id-2',
-          programId,
+          programId: programId1,
           name: 'ZZ - Program Survey',
+        },
+        {
+          id: 'program2-survey-id-2',
+          programId: programId2,
+          name: 'AA - Program Survey',
         },
       ]);
 
-      const result = await userApp.get('/v1/suggestions/survey?q=X');
+      const result = await userApp
+        .get('/api/suggestions/survey')
+        .query({ q: 'X', programId: 'all-survey-program-id' });
       expect(result).toHaveSucceeded();
       const { body } = result;
       expect(body).toBeInstanceOf(Array);
@@ -328,7 +424,7 @@ describe('Suggestions', () => {
 
       await models.ReferenceData.bulkCreate(testData);
 
-      const result = await userApp.get('/v1/suggestions/icd10?q=cons');
+      const result = await userApp.get('/api/suggestions/icd10?q=cons');
       expect(result).toHaveSucceeded();
       const { body } = result;
       const firstResult = body[0];
@@ -357,7 +453,7 @@ describe('Suggestions', () => {
 
       await models.ReferenceData.bulkCreate(testData);
 
-      const result = await userApp.get('/v1/suggestions/icd10?q=acute');
+      const result = await userApp.get('/api/suggestions/icd10?q=acute');
       expect(result).toHaveSucceeded();
       const { body } = result;
 
@@ -379,7 +475,7 @@ describe('Suggestions', () => {
       visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
     });
 
-    const result = await userApp.get('/v1/suggestions/allergy?q=visibility');
+    const result = await userApp.get('/api/suggestions/allergy?q=visibility');
     expect(result).toHaveSucceeded();
     const { body } = result;
 
@@ -398,7 +494,7 @@ describe('Suggestions', () => {
     }));
 
     await models.ReferenceData.bulkCreate(dummyRecords);
-    const result = await userApp.get('/v1/suggestions/icd10/all');
+    const result = await userApp.get('/api/suggestions/icd10/all');
     expect(result).toHaveSucceeded();
     expect(result.body).toHaveLength(30);
   });

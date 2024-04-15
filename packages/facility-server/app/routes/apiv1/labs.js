@@ -466,13 +466,13 @@ async function createPanelLabRequests(models, body, note, user) {
         labTestPanelId: panelId,
         encounterId: labRequestBody.encounterId,
       });
-      labRequestBody.labTestPanelRequestId = testPanelRequest.id;
+      const innerLabRequestBody = { ...labRequestBody, labTestPanelRequestId: testPanelRequest.id };
 
       const requestSampleDetails = sampleDetails[panelId] || {};
       const labTestTypeIds = panel.labTestTypes?.map(testType => testType.id) || [];
       const labTestCategoryId = panel.categoryId;
       const newLabRequest = await createLabRequest(
-        labRequestBody,
+        innerLabRequestBody,
         requestSampleDetails,
         labTestTypeIds,
         labTestCategoryId,

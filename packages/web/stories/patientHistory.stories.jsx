@@ -3,7 +3,7 @@ import { storiesOf } from '@storybook/react';
 import styled from 'styled-components';
 
 import { createDummyPatient, createDummyPatientAdditionalData } from '@tamanu/shared/demoData';
-import { fakeEncounter } from '@tamanu/shared/test-helpers';
+import { fakeEncounter } from '../.storybook/__mocks__/defaultEndpoints.js';
 
 import { PatientHistory } from '../app/components/PatientHistory';
 import { MockedApi } from './utils/mockedApi';

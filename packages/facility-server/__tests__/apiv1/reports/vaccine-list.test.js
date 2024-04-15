@@ -1,12 +1,14 @@
-import moment from 'moment';
 import {
   createDummyEncounter,
   createDummyPatient,
   randomReferenceId,
 } from '@tamanu/shared/demoData/patients';
-import { createAdministeredVaccine, createScheduledVaccine } from '@tamanu/shared/demoData/vaccines';
+import {
+  createAdministeredVaccine,
+  createScheduledVaccine,
+} from '@tamanu/shared/demoData/vaccines';
+import { parseISO, format } from 'date-fns';
 import { createTestContext } from '../../utilities';
-import { parseISO } from 'date-fns';
 
 describe('Vaccine list report', () => {
   let baseApp = null;
@@ -72,14 +74,14 @@ describe('Vaccine list report', () => {
   describe('permission check', () => {
     it('should reject creating an vaccine line list report with insufficient permissions', async () => {
       const noPermsApp = await baseApp.asRole('base');
-      const result = await noPermsApp.post(`/v1/reports/vaccine-list`, {});
+      const result = await noPermsApp.post(`/api/reports/vaccine-list`, {});
       expect(result).toBeForbidden();
     });
   });
 
   describe('returns data based on parameters', () => {
     it('should return data for patients of the right village', async () => {
-      const result = await app.post('/v1/reports/vaccine-list').send({
+      const result = await app.post('/api/reports/vaccine-list').send({
         parameters: { village, fromDate: '2021-03-15' },
       });
 
@@ -87,7 +89,7 @@ describe('Vaccine list report', () => {
       expect(result.body).toHaveLength(2);
       expect(result.body[1][0]).toBe(`${expectedPatient.firstName} ${expectedPatient.lastName}`);
       expect(result.body[1][1]).toBe(expectedPatient.displayId);
-      expect(result.body[1][2]).toBe(moment(expectedPatient.dateOfBirth).format('DD-MM-YYYY'));
+      expect(result.body[1][2]).toBe(format(parseISO(expectedPatient.dateOfBirth), 'dd-MM-yyyy'));
       expect(result.body[1][3]).toBe(expectedPatient.sex);
       expect(result.body[1][5]).toBe(scheduledVaccine2.label);
       expect(result.body[1][6]).toBe('Yes');
@@ -96,7 +98,7 @@ describe('Vaccine list report', () => {
     });
 
     it('should return no data for patients with random village', async () => {
-      const result = await app.post('/v1/reports/vaccine-list').send({
+      const result = await app.post('/api/reports/vaccine-list').send({
         parameters: { village: 'RANDOM_VILLAGE', fromDate: '2021-03-15' },
       });
 
@@ -105,7 +107,7 @@ describe('Vaccine list report', () => {
     });
 
     it('should return data for patients with the right vaccine category and vaccine type', async () => {
-      const result = await app.post('/v1/reports/vaccine-list').send({
+      const result = await app.post('/api/reports/vaccine-list').send({
         parameters: { category: 'Campaign', vaccine: 'COVID-19', fromDate: '2021-03-01' },
       });
 
@@ -113,7 +115,7 @@ describe('Vaccine list report', () => {
       expect(result.body).toHaveLength(2);
       expect(result.body[1][0]).toBe(`${expectedPatient.firstName} ${expectedPatient.lastName}`);
       expect(result.body[1][1]).toBe(expectedPatient.displayId);
-      expect(result.body[1][2]).toBe(moment(expectedPatient.dateOfBirth).format('DD-MM-YYYY'));
+      expect(result.body[1][2]).toBe(format(parseISO(expectedPatient.dateOfBirth), 'dd-MM-yyyy'));
       expect(result.body[1][3]).toBe(expectedPatient.sex);
       expect(result.body[1][5]).toBe(scheduledVaccine1.label);
       expect(result.body[1][6]).toBe('Yes');
@@ -122,7 +124,7 @@ describe('Vaccine list report', () => {
     });
 
     it('should return no data for patients with random vaccine type', async () => {
-      const result = await app.post('/v1/reports/vaccine-list').send({
+      const result = await app.post('/api/reports/vaccine-list').send({
         parameters: { category: 'Campaign', vaccine: 'RANDOM_VACCINE', fromDate: '2021-03-01' },
       });
 

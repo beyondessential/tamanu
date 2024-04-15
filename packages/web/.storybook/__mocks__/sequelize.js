@@ -1,5 +1,14 @@
 export const DataTypes = {
   ABSTRACT: {
-    prototype: {}
-  }
-}
+    prototype: {},
+  },
+};
+
+export const QueryTypes = {};
+
+const Sequelize = {
+  NOW: {},
+  UUIDV4: {},
+};
+
+export default Sequelize;

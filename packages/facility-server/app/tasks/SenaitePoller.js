@@ -50,7 +50,7 @@ export class SenaitePoller extends ScheduledTask {
   }
 
   async apiRequest(endpoint) {
-    const url = `${BASE_URL}/@@API/senaite/v1/${endpoint}`;
+    const url = `${BASE_URL}/@@API/senaite/api/${endpoint}`;
     return this.request(url);
   }
 

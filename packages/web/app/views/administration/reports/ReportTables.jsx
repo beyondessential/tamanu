@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
-import { isNil } from 'lodash';
 import { REPORT_STATUSES } from '@tamanu/constants';
 import { DateDisplay, formatTime } from '../../../components';
 import { Table } from '../../../components/Table';
 import { Colors } from '../../../constants';
 import { StatusTag } from '../../../components/Tag';
+import { useTableSorting } from '../../../components/Table/useTableSorting';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const STATUS_CONFIG = {
   [REPORT_STATUSES.DRAFT]: {
@@ -45,35 +46,6 @@ const ReportStatusTag = ({ status }) => {
   );
 };
 
-const useTableSorting = ({ initialSortKey, initialSortDirection }) => {
-  const [orderBy, setOrderBy] = useState(initialSortKey);
-  const [order, setOrder] = useState(initialSortDirection);
-
-  const customSort = (data = []) => {
-    const ascComparator = (aReport, bReport) => {
-      const a = aReport[orderBy];
-      const b = bReport[orderBy];
-      if (isNil(a) || isNil(b)) {
-        return (isNil(a) ? -1 : 1) - (isNil(b) ? -1 : 1);
-      }
-      if (typeof a === 'number' && typeof b === 'number') {
-        return a - b;
-      }
-      return `${a}`.localeCompare(`${b}`);
-    };
-    const descComparator = (a, b) => ascComparator(b, a);
-    return data.sort(order === 'asc' ? ascComparator : descComparator);
-  };
-
-  const onChangeOrderBy = sortKey => {
-    setOrderBy(sortKey);
-    const isDesc = orderBy === sortKey && order === 'desc';
-    setOrder(isDesc ? 'asc' : 'desc');
-  };
-
-  return { orderBy, order, onChangeOrderBy, customSort };
-};
-
 const getDateTime = value => {
   if (!value) return '-';
 
@@ -96,16 +68,16 @@ export const ReportTable = React.memo(({ data, selected, onRowClick, loading, er
       })}
       columns={[
         {
-          title: 'Name',
+          title: <TranslatedText stringId="admin.report.list.table.column.name" fallback="Name" />,
           key: 'name',
         },
         {
-          title: 'Last updated',
+          title: <TranslatedText stringId="admin.report.list.table.column.lastUpdated" fallback="Last updated" />,
           key: 'lastUpdated',
           accessor: ({ lastUpdated }) => getDateTime(lastUpdated),
         },
         {
-          title: 'Version count',
+          title: <TranslatedText stringId="admin.report.list.table.column.versionCount" fallback="Version count" />,
           key: 'versionCount',
           numeric: true,
         },
@@ -135,16 +107,16 @@ export const VersionTable = React.memo(({ data, onRowClick, loading, error }) =>
       onRowClick={onRowClick}
       columns={[
         {
-          title: 'Version',
+          title: <TranslatedText stringId="admin.report.list.table.column.versionNumber" fallback="Version" />,
           key: 'versionNumber',
         },
         {
-          title: 'Created time',
+          title: <TranslatedText stringId="admin.report.list.table.column.createdAt" fallback="Created time" />,
           key: 'createdAt',
           accessor: ({ updatedAt }) => getDateTime(updatedAt),
         },
         {
-          title: 'Status',
+          title: <TranslatedText stringId="admin.report.list.table.column.status" fallback="Status" />,
           key: 'status',
           sortable: false,
           accessor: ({ status, active }) => <ReportStatusTag status={active ? 'active' : status} />,

@@ -16,12 +16,13 @@ import { PDFViewer, printPDF } from '../PDFViewer';
 export const CovidVaccineCertificateModal = React.memo(({ open, onClose, patient }) => {
   const api = useApi();
   const { getLocalisation } = useLocalisation();
-  const { watermark, logo, footerImg, printedBy } = useCertificate({
+  const { data: certificateData, isFetching: isCertificateFetching } = useCertificate({
     footerAssetName: ASSET_NAMES.COVID_VACCINATION_CERTIFICATE_FOOTER,
   });
+  const { watermark, logo, footerImg, printedBy } = certificateData;
   const { data: additionalData } = usePatientAdditionalDataQuery(patient.id);
 
-  const { data: vaccineData, isFetching } = useAdministeredVaccines(patient.id, {
+  const { data: vaccineData, isFetching: isVaccineFetching } = useAdministeredVaccines(patient.id, {
     orderBy: 'date',
     order: 'ASC',
     invertNullDateOrdering: true,
@@ -44,7 +45,7 @@ export const CovidVaccineCertificateModal = React.memo(({ open, onClose, patient
 
   const patientData = { ...patient, additionalData };
 
-  if (isFetching) return null;
+  if (isVaccineFetching || isCertificateFetching) return null;
 
   return (
     <Modal

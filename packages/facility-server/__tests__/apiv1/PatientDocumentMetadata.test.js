@@ -64,7 +64,7 @@ describe('PatientDocumentMetadata', () => {
       models.DocumentMetadata.create(metadataFive),
     ]);
 
-    const result = await app.get(`/v1/patient/${patient.id}/documentMetadata`);
+    const result = await app.get(`/api/patient/${patient.id}/documentMetadata`);
     expect(result).toHaveSucceeded();
     expect(result.body).toMatchObject({
       count: 4,
@@ -96,13 +96,13 @@ describe('PatientDocumentMetadata', () => {
 
     // Sort by name ASC/DESC (presumably sufficient to test only one field)
     const resultAsc = await app.get(
-      `/v1/patient/${patient.id}/documentMetadata?order=asc&orderBy=name`,
+      `/api/patient/${patient.id}/documentMetadata?order=asc&orderBy=name`,
     );
     expect(resultAsc).toHaveSucceeded();
     expect(resultAsc.body.data[0].id).toBe(metadataOne.id);
 
     const resultDesc = await app.get(
-      `/v1/patient/${patient.id}/documentMetadata?order=desc&orderBy=name`,
+      `/api/patient/${patient.id}/documentMetadata?order=desc&orderBy=name`,
     );
     expect(resultDesc).toHaveSucceeded();
     expect(resultDesc.body.count).toBe(2);
@@ -122,7 +122,7 @@ describe('PatientDocumentMetadata', () => {
     }
     await models.DocumentMetadata.bulkCreate(documents);
     const result = await app.get(
-      `/v1/patient/${patient.id}/documentMetadata?page=1&rowsPerPage=10&offset=5`,
+      `/api/patient/${patient.id}/documentMetadata?page=1&rowsPerPage=10&offset=5`,
     );
     expect(result).toHaveSucceeded();
     expect(result.body.count).toBe(12);
@@ -138,7 +138,7 @@ describe('PatientDocumentMetadata', () => {
       { name: 'C', type: 'image/jpeg', attachmentId: 'fake-id-3', patientId: patient.id },
     ]);
 
-    const result = await app.get(`/v1/patient/${patient.id}/documentMetadata?type=pdf`);
+    const result = await app.get(`/api/patient/${patient.id}/documentMetadata?type=pdf`);
     expect(result).toHaveSucceeded();
     expect(result.body.count).toBe(2);
   });
@@ -173,7 +173,7 @@ describe('PatientDocumentMetadata', () => {
       },
     ]);
 
-    const result = await app.get(`/v1/patient/${patient.id}/documentMetadata?documentOwner=ownerA`);
+    const result = await app.get(`/api/patient/${patient.id}/documentMetadata?documentOwner=ownerA`);
     expect(result).toHaveSucceeded();
     expect(result.body.count).toBe(2);
   });
@@ -207,7 +207,7 @@ describe('PatientDocumentMetadata', () => {
     ]);
 
     const result = await app.get(
-      `/v1/patient/${patient.id}/documentMetadata?departmentName=${slicedDepartmentName}`,
+      `/api/patient/${patient.id}/documentMetadata?departmentName=${slicedDepartmentName}`,
     );
     expect(result).toHaveSucceeded();
     expect(result.body.count).toBe(2);
@@ -252,14 +252,14 @@ describe('PatientDocumentMetadata', () => {
     ]);
 
     const result = await app.get(
-      `/v1/patient/${patient.id}/documentMetadata?departmentName=${slicedDepartmentName}&type=pdf&documentOwner=ownerB`,
+      `/api/patient/${patient.id}/documentMetadata?departmentName=${slicedDepartmentName}&type=pdf&documentOwner=ownerB`,
     );
     expect(result).toHaveSucceeded();
     expect(result.body.count).toBe(1);
   });
 
   it('should fail creating a document metadata if the patient ID does not exist', async () => {
-    const result = await app.post('/v1/patient/123456789/documentMetadata').send({
+    const result = await app.post('/api/patient/123456789/documentMetadata').send({
       name: 'test document',
       documentOwner: 'someone',
       note: 'some note',
@@ -277,7 +277,7 @@ describe('PatientDocumentMetadata', () => {
       attachmentId: '123456789',
     }));
 
-    const result = await app.post(`/v1/patient/${patient.id}/documentMetadata`).send({
+    const result = await app.post(`/api/patient/${patient.id}/documentMetadata`).send({
       name: 'test document',
       type: 'application/pdf',
       documentOwner: 'someone',

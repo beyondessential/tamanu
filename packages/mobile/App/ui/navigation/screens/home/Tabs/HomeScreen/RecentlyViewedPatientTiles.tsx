@@ -7,56 +7,49 @@ import { withPatient } from '~/ui/containers/Patient';
 import { useRecentlyViewedPatients } from '~/ui/hooks/localConfig';
 import { PatientCard } from '/components/PatientCard';
 import { Routes } from '/helpers/routes';
-import {
-  Orientation,
-  screenPercentageToDP,
-} from '/helpers/screen';
-import {
-  RowView,
-  StyledText,
-  StyledView,
-} from '/styled/common';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { RowView, StyledText, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
+import { PatientFromRoute } from '~/ui/helpers/constants';
+import { TranslatedText } from '/components/Translations/TranslatedText';
 
-const PatientCardContainer = compose<React.FC<{displayedPatient: Patient}>>(
-  withPatient,
-)(({ displayedPatient, setSelectedPatient }: any): ReactElement => {
-  const navigation = useNavigation();
+const PatientCardContainer = compose<React.FC<{ displayedPatient: Patient }>>(withPatient)(
+  ({ displayedPatient, setSelectedPatient }: any): ReactElement => {
+    const navigation = useNavigation();
 
-  return (
-    <StyledView marginRight={10}>
-      <PatientCard
-        onPress={(): void => {
-          setSelectedPatient(displayedPatient);
-          navigation.navigate(Routes.HomeStack.HomeTabs.Index, {
-            screen: Routes.HomeStack.HomeTabs.Home,
-          });
-        }}
-        patient={displayedPatient}
-      />
-    </StyledView>
-  );
-});
-
-const NoPatientsCard = (): ReactElement => (
-  <StyledText>No recent patients</StyledText>
+    return (
+      <StyledView marginRight={10}>
+        <PatientCard
+          onPress={(): void => {
+            setSelectedPatient(displayedPatient);
+            navigation.navigate(Routes.HomeStack.SearchPatientStack.Index, {
+              screen: Routes.HomeStack.SearchPatientStack.Index,
+              from: PatientFromRoute.HOME,
+            });
+          }}
+          patient={displayedPatient}
+        />
+      </StyledView>
+    );
+  },
 );
+
+const NoPatientsCard = (): ReactElement => <StyledText>No recent patients</StyledText>;
 
 export const RecentlyViewedPatientTiles = (): ReactElement | null => {
   const [recentlyViewedPatients] = useRecentlyViewedPatients();
 
-  if (!recentlyViewedPatients) return (
-    <StyledView
-      flex={1}
-      background={theme.colors.BACKGROUND_GREY}
-    />
-  );
+  if (!recentlyViewedPatients)
+    return <StyledView flex={1} background={theme.colors.BACKGROUND_GREY} />;
 
-  const recentPatients = recentlyViewedPatients.length > 0
-    ? recentlyViewedPatients.map(
-      patient => <PatientCardContainer key={patient.id} displayedPatient={patient} />,
-    )
-    : <NoPatientsCard />;
+  const recentPatients =
+    recentlyViewedPatients.length > 0 ? (
+      recentlyViewedPatients.map(patient => (
+        <PatientCardContainer key={patient.id} displayedPatient={patient} />
+      ))
+    ) : (
+      <NoPatientsCard />
+    );
 
   return (
     <StyledView
@@ -69,12 +62,14 @@ export const RecentlyViewedPatientTiles = (): ReactElement | null => {
         color={theme.colors.TEXT_DARK}
         marginBottom={screenPercentageToDP(1.21, Orientation.Height)}
       >
-        RECENTLY VIEWED PATIENTS
+        <TranslatedText
+          stringId="patient.recentlyViewed.title"
+          fallback="RECENTLY VIEWED PATIENTS"
+          uppercase
+        />
       </StyledText>
       <ScrollView horizontal>
-        <RowView flex={1}>
-          {recentPatients}
-        </RowView>
+        <RowView flex={1}>{recentPatients}</RowView>
       </ScrollView>
     </StyledView>
   );

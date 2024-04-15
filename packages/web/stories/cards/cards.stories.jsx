@@ -20,11 +20,7 @@ LabRequest.args = {
       <OutlinedButton>Print request</OutlinedButton>
       <MenuButton
         status="Pending Approval"
-        actions={{
-          'Action 1': () => {
-            console.log('action 1');
-          },
-        }}
+        actions={[{ label: 'Action 1', action: () => console.log('Action 1') }]}
       />
     </Box>
   ),

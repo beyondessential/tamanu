@@ -29,48 +29,49 @@ const animalTypeOptions = [
 
 export const AnimalForm = (
 
-  const renderForm = ({ onSubmit }) => (
+const renderForm = ({ onSubmit }) => (
+  <FormGrid>
+    <Field
+      name="name"
+      component={TextField}
+    />
+    <Field
+      name="animalType"
+      component={BaseSelectField}
+      options={animalTypeOptions}
+    />
     <FormGrid>
       <Field
-        name="name"
-        component={TextField}
+        name="legCount"
+        component={NumberField}
       />
       <Field
-        name="animalType"
-        component={SelectField}
-        options={animalTypeOptions}
+        name="wingCount"
+        component={NumberField}
       />
-      <FormGrid>
-        <Field
-          name="legCount"
-          component={NumberField}
-        />
-        <Field
-          name="wingCount"
-          component={NumberField}
-        />
-      </FormGrid>
-      <Button onClick={onSubmit}>Submit</Button>
     </FormGrid>
-  );
-
-  return (
-    <Form
-      renderForm={renderForm}
-      onSubmit={async data => {
-        // send data to an api and wait for a response
-      }}
-      validate={data => {
-        // set errors on the form state if any are encountered
-      }}
-      initialValues={{
-        name: "Horse",
-        animalType: "mammal",
-        legs: 4,
-      }}
-    />
-  );
+    <Button onClick={onSubmit}>Submit</Button>
+  </FormGrid>
 );
+
+return (
+  <Form
+    renderForm={renderForm}
+    onSubmit={async data => {
+      // send data to an api and wait for a response
+    }}
+    validate={data => {
+      // set errors on the form state if any are encountered
+    }}
+    initialValues={{
+      name: "Horse",
+      animalType: "mammal",
+      legs: 4,
+    }}
+  />
+);
+)
+;
 ```
 
 ### Options

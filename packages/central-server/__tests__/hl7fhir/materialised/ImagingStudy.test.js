@@ -64,7 +64,7 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
   afterAll(() => ctx.close());
 
   describe('create', () => {
-    const PATH = `/v1/integration/${INTEGRATION_ROUTE}/ImagingStudy`;
+    const PATH = `/api/integration/${INTEGRATION_ROUTE}/ImagingStudy`;
 
     let encounter;
     beforeEach(async () => {
@@ -351,7 +351,7 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
     describe('errors', () => {
       it('returns invalid if the resourceType does not match', async () => {
         // act
-        const response = await app.post(`/v1/integration/${INTEGRATION_ROUTE}/ImagingStudy`).send({
+        const response = await app.post(`/api/integration/${INTEGRATION_ROUTE}/ImagingStudy`).send({
           resourceType: 'Patient',
         });
 
@@ -392,7 +392,7 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
         await FhirServiceRequest.resolveUpstreams();
 
         // act
-        const response = await app.post(`/v1/integration/${INTEGRATION_ROUTE}/ImagingStudy`).send({
+        const response = await app.post(`/api/integration/${INTEGRATION_ROUTE}/ImagingStudy`).send({
           resourceType: 'ImagingStudy',
           status: 'pending',
           identifier: [
@@ -430,7 +430,7 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
 
       it('returns invalid structure if the service request id is missing', async () => {
         // act
-        const response = await app.post(`/v1/integration/${INTEGRATION_ROUTE}/ImagingStudy`).send({
+        const response = await app.post(`/api/integration/${INTEGRATION_ROUTE}/ImagingStudy`).send({
           resourceType: 'ImagingStudy',
           status: 'final',
           identifier: [
@@ -465,7 +465,7 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
         const srId = fakeUUID();
 
         // act
-        const response = await app.post(`/v1/integration/${INTEGRATION_ROUTE}/ImagingStudy`).send({
+        const response = await app.post(`/api/integration/${INTEGRATION_ROUTE}/ImagingStudy`).send({
           resourceType: 'ImagingStudy',
           status: 'final',
           identifier: [

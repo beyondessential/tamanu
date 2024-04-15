@@ -51,14 +51,14 @@ describe('Reports', () => {
     });
 
     it('should run a simple database defined report', async () => {
-      const response = await adminApp.post(`/v1/reports/${reportDefinitionVersion.id}`);
+      const response = await adminApp.post(`/api/reports/${reportDefinitionVersion.id}`);
       expect(response).toHaveSucceeded();
       // There will be more than one user because of the app context
       expect(response.body.length).toBeGreaterThan(1);
     });
 
     it('should apply filters on a database defined report', async () => {
-      const response = await adminApp.post(`/v1/reports/${reportDefinitionVersion.id}`).send({
+      const response = await adminApp.post(`/api/reports/${reportDefinitionVersion.id}`).send({
         parameters: {
           email: user.email,
         },
@@ -96,7 +96,7 @@ describe('Reports', () => {
       const { app, permittedReports } = await setupReportPermissionsTest(baseApp, ctx.models);
 
       // Act
-      const res = await app.get('/v1/reports');
+      const res = await app.get('/api/reports');
 
       // Assert
       expect(res).toHaveSucceeded();
@@ -110,7 +110,7 @@ describe('Reports', () => {
   describe('post permissions', () => {
     testReportPermissions(
       () => ctx,
-      (reportApp, reportId) => reportApp.post(`/v1/reports/${reportId}`),
+      (reportApp, reportId) => reportApp.post(`/api/reports/${reportId}`),
     );
   });
 
@@ -118,21 +118,21 @@ describe('Reports', () => {
     disableHardcodedPermissionsForSuite();
     it('should reject reading a report with insufficient permissions', async () => {
       const app = await baseApp.asRole('base');
-      const result = await app.post('/v1/reports/incomplete-referrals', {});
+      const result = await app.post('/api/reports/incomplete-referrals', {});
       expect(result).toBeForbidden();
     });
 
     it('should fail with 404 and message if report module is not found', async () => {
       jest.spyOn(reportsUtils, 'getReportModule').mockResolvedValue(null);
       const app = await baseApp.asRole('practitioner');
-      const res = await app.post('/v1/reports/invalid-report', {});
+      const res = await app.post('/api/reports/invalid-report', {});
       expect(res).toHaveStatus(404);
       expect(res.body).toMatchObject({ error: { message: 'Report module not found' } });
     });
 
     it('should fail with 400 and error message if dataGenerator encounters error', async () => {
       const app = await baseApp.asNewRole([['run', 'StaticReport', 'incomplete-referrals']]);
-      const res = await app.post('/v1/reports/incomplete-referrals').send({
+      const res = await app.post('/api/reports/incomplete-referrals').send({
         parameters: {
           fromDate: '2020-01-01',
           toDate: 'invalid-date',

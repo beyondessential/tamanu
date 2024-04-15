@@ -16,8 +16,6 @@ import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
 import { version } from '../serverInfo';
 import { callWithBackoff } from './callWithBackoff';
 
-const API_VERSION = 'v1';
-
 const getVersionIncompatibleMessage = (error, response) => {
   if (error.message === VERSION_COMPATIBILITY_ERRORS.LOW) {
     const minVersion = response.headers.get('X-Min-Client-Version');
@@ -78,7 +76,7 @@ export class CentralServerConnection {
       }
     }
 
-    const url = `${this.host}/${API_VERSION}/${endpoint}`;
+    const url = `${this.host}/api/${endpoint}`;
     log.debug(`[sync] ${method} ${url}`);
 
     return callWithBackoff(async () => {

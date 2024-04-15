@@ -30,7 +30,7 @@ describe('Labs', () => {
     const labRequest = await randomLabRequest(models, {
       patientId,
     });
-    const response = await app.post('/v1/labRequest').send(labRequest);
+    const response = await app.post('/api/labRequest').send(labRequest);
     expect(response).toHaveSucceeded();
 
     const createdRequest = await models.LabRequest.findByPk(response.body[0].id);
@@ -67,7 +67,7 @@ describe('Labs', () => {
       categoryId: category2,
     });
 
-    const response = await app.post('/v1/labRequest').send({
+    const response = await app.post('/api/labRequest').send({
       ...labRequest,
       labTestTypeIds: [...labRequest.labTestTypeIds, ...labRequest2.labTestTypeIds],
     });
@@ -109,7 +109,7 @@ describe('Labs', () => {
       categoryId: category1,
     });
     const labTestTypeIds = [...labRequest.labTestTypeIds, ...labRequest2.labTestTypeIds];
-    const response = await app.post('/v1/labRequest').send({
+    const response = await app.post('/api/labRequest').send({
       ...labRequest,
       labTestTypeIds,
     });
@@ -130,7 +130,7 @@ describe('Labs', () => {
     });
     const content = chance.string();
 
-    const response = await app.post('/v1/labRequest').send({
+    const response = await app.post('/api/labRequest').send({
       ...data,
       note: {
         date: chance.date(),
@@ -154,7 +154,7 @@ describe('Labs', () => {
     });
     const content = chance.string();
 
-    const response = await app.post('/v1/labRequest').send({
+    const response = await app.post('/api/labRequest').send({
       ...data,
       note: {
         date: chance.date(),
@@ -186,7 +186,7 @@ describe('Labs', () => {
     });
 
     const response = await app
-      .post('/v1/labRequest')
+      .post('/api/labRequest')
       .send({ panelIds: [labTestPanel.id], encounterId: encounter.id });
 
     expect(response).toHaveSucceeded();
@@ -226,7 +226,7 @@ describe('Labs', () => {
         sampleTime,
       },
     };
-    const response = await app.post('/v1/labRequest').send({
+    const response = await app.post('/api/labRequest').send({
       panelIds: [labTestPanel.id],
       encounterId: encounter.id,
       sampleDetails,
@@ -256,7 +256,7 @@ describe('Labs', () => {
 
   it('should not record a lab request with an invalid testTypeId', async () => {
     const labTestTypeIds = ['invalid-test-type-id', 'another-invalid-test-type-id'];
-    const response = await app.post('/v1/labRequest').send({
+    const response = await app.post('/api/labRequest').send({
       patientId,
       labTestTypeIds,
     });
@@ -273,9 +273,9 @@ describe('Labs', () => {
       await randomLabRequest(models, { patientId }),
     );
     const status = LAB_REQUEST_STATUSES.TO_BE_VERIFIED;
-    const user = await app.get('/v1/user/me');
+    const user = await app.get('/api/user/me');
     const response = await app
-      .put(`/v1/labRequest/${requestId}`)
+      .put(`/api/labRequest/${requestId}`)
       .send({ status, userId: user.body.id });
     expect(response).toHaveSucceeded();
 
@@ -288,9 +288,9 @@ describe('Labs', () => {
       await randomLabRequest(models, { patientId }),
     );
     const status = LAB_REQUEST_STATUSES.PUBLISHED;
-    const user = await app.get('/v1/user/me');
+    const user = await app.get('/api/user/me');
     const response = await app
-      .put(`/v1/labRequest/${requestId}`)
+      .put(`/api/labRequest/${requestId}`)
       .send({ status, userId: user.body.id });
     expect(response).toHaveSucceeded();
 
@@ -324,7 +324,7 @@ describe('Labs', () => {
     await makeLabTestType(LAB_TEST_TYPE_VISIBILITY_STATUSES.HISTORICAL);
     await makeLabTestType(LAB_TEST_TYPE_VISIBILITY_STATUSES.HISTORICAL);
 
-    const result = await app.get('/v1/labTestType');
+    const result = await app.get('/api/labTestType');
     expect(result).toHaveSucceeded();
     const { body } = result;
     expect(body.length).toBe(3);
@@ -339,7 +339,7 @@ describe('Labs', () => {
       code: 'historical-test-panel',
       visibilityStatus: 'historical',
     });
-    const result = await app.get('/v1/labTestPanel');
+    const result = await app.get('/api/labTestPanel');
     expect(result).toHaveSucceeded();
     const { body } = result;
 
@@ -363,7 +363,7 @@ describe('Labs', () => {
         const [test1, test2] = await labRequest.getTests();
         const mockResult = 'Mock result';
         const mockVerification = 'verified';
-        const response = await app.put(`/v1/labRequest/${labRequest.id}/tests`).send({
+        const response = await app.put(`/api/labRequest/${labRequest.id}/tests`).send({
           [test1.id]: {
             result: mockResult,
             verification: mockVerification,
@@ -389,7 +389,7 @@ describe('Labs', () => {
         const mockVerification = 'verified';
         const mockResult2 = 'Mock result2';
         const mockVerification2 = 'also verified';
-        const response = await app.put(`/v1/labRequest/${labRequest.id}/tests`).send({
+        const response = await app.put(`/api/labRequest/${labRequest.id}/tests`).send({
           [test1.id]: {
             result: mockResult,
             verification: mockVerification,
@@ -413,7 +413,7 @@ describe('Labs', () => {
         const [test1] = await labRequest.getTests();
         const mockResult = 'Mock result';
         const mockVerification = 'verified';
-        const response = await app.put(`/v1/labRequest/${labRequest.id}/tests`).send({
+        const response = await app.put(`/api/labRequest/${labRequest.id}/tests`).send({
           [test1.id]: {
             result: mockResult,
             verification: mockVerification,
@@ -470,7 +470,7 @@ describe('Labs', () => {
     });
 
     it('should omit external requests when allFacilities is false', async () => {
-      const result = await app.get(`/v1/labRequest?allFacilities=false`);
+      const result = await app.get(`/api/labRequest?allFacilities=false`);
       expect(result).toHaveSucceeded();
       result.body.data.forEach(lr => {
         expect(lr.facilityId).toBe(config.serverFacilityId);
@@ -478,7 +478,7 @@ describe('Labs', () => {
     });
 
     it('should include all requests when allFacilities  is true', async () => {
-      const result = await app.get(`/v1/labRequest?allFacilities=true`);
+      const result = await app.get(`/api/labRequest?allFacilities=true`);
       expect(result).toHaveSucceeded();
 
       const hasConfigFacility = result.body.data.some(

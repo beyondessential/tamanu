@@ -1,15 +1,16 @@
-import React, { useCallback, useEffect, useMemo, useState, useRef } from 'react';
+import React, { useCallback, useMemo, useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
 import EditIcon from '@material-ui/icons/Edit';
 
-import { NOTE_PERMISSION_TYPES, NOTE_TYPES } from '@tamanu/constants';
+import { NOTE_PERMISSION_TYPES, NOTE_TYPES, NOTE_TYPE_LABELS } from '@tamanu/constants';
 
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
-import { Colors, NOTE_FORM_MODES, NOTE_TYPE_LABELS } from '../constants';
+import { Colors, NOTE_FORM_MODES } from '../constants';
 import { useAuth } from '../contexts/Auth';
 import { NoteModal } from './NoteModal';
 import { withPermissionCheck } from './withPermissionCheck';
+import { TranslatedText } from './Translation/TranslatedText';
 
 const StyledEditIcon = styled(EditIcon)`
   cursor: pointer;
@@ -194,13 +195,17 @@ const NoteContent = ({
                   {line}
                   {contentIsClipped && !contentIsExpanded && isVisible && hiddenHeight >= -1 && (
                     <ReadMoreSpan $bottom={hiddenHeight} onClick={handleReadMore}>
-                      ...read more
+                      ...
+                      <TranslatedText stringId="note.table.item.readMore" fallback="read more" />
                     </ReadMoreSpan>
                   )}
                   {'\n'}
                 </span>
                 {contentIsExpanded && i === length - 1 && (
-                  <ShowLessSpan onClick={handleReadLess}> Show less</ShowLessSpan>
+                  <ShowLessSpan onClick={handleReadLess}>
+                    {' '}
+                    <TranslatedText stringId="note.table.item.showLess" fallback="Show less" />
+                  </ShowLessSpan>
                 )}
               </>
             );
@@ -213,11 +218,21 @@ const NoteContent = ({
           )}
       </NoteBodyContainer>
       <NoteFooterContainer>
-        {showNoteMetaPrefix && <NoteFooterTextElement>Last updated:</NoteFooterTextElement>}
+        {showNoteMetaPrefix && (
+          <NoteFooterTextElement>
+            <TranslatedText stringId="note.table.footer.lastUpdated" fallback="Last updated" />:
+          </NoteFooterTextElement>
+        )}
         {noteAuthorName ? <NoteFooterTextElement>{noteAuthorName}</NoteFooterTextElement> : null}
-        {noteOnBehalfOfName ? (
-          <NoteFooterTextElement>on behalf of {noteOnBehalfOfName}</NoteFooterTextElement>
-        ) : null}
+        {noteOnBehalfOfName && (
+          <NoteFooterTextElement>
+            <TranslatedText
+              stringId="note.table.footer.onBehalfOf"
+              fallback="on behalf of :noteOnBehalfOfName"
+              replacements={{ noteOnBehalfOfName }}
+            />
+          </NoteFooterTextElement>
+        )}
         <DateDisplay
           date={(note.noteType !== NOTE_TYPES.TREATMENT_PLAN && note.revisedBy?.date) || note.date}
           showTime
@@ -225,7 +240,9 @@ const NoteContent = ({
         {note.revisedById && (
           <EditedButtonContainer onClick={() => handleViewNoteChangeLog(note)}>
             <span>(</span>
-            <EditedButton>edited</EditedButton>
+            <EditedButton>
+              <TranslatedText stringId="note.table.footer.edited" fallback="edited" />
+            </EditedButton>
             <span>)</span>
           </EditedButtonContainer>
         )}
@@ -250,9 +267,16 @@ const NoteTable = ({
   const handleEditNote = useCallback(
     note => {
       setModalTitle(
-        note.noteType === NOTE_TYPES.TREATMENT_PLAN ? 'Update treatment plan' : 'Edit note',
+        note.noteType === NOTE_TYPES.TREATMENT_PLAN ? (
+          <TranslatedText
+            stringId="note.modal.updateTreatmentPlan.title"
+            fallback="Update treatment plan"
+          />
+        ) : (
+          <TranslatedText stringId="note.modal.edit.title" fallback="Edit note" />
+        ),
       );
-      setModalCancelText('Cancel');
+      setModalCancelText(<TranslatedText stringId="general.action.cancel" fallback="Cancel" />);
       setModalNoteFormMode(NOTE_FORM_MODES.EDIT_NOTE);
       setIsNoteModalOpen(true);
       setModalNote(note);
@@ -262,7 +286,7 @@ const NoteTable = ({
 
   const handleViewNoteChangeLog = useCallback(
     note => {
-      setModalTitle('Change log');
+      setModalTitle(<TranslatedText stringId="note.modal.changeLog.title" fallback="Change Log" />);
       setModalNoteFormMode(NOTE_FORM_MODES.VIEW_NOTE);
       setIsNoteModalOpen(true);
       setModalNote(note);
@@ -309,7 +333,13 @@ const NoteTable = ({
           title={modalTitle}
           cancelText={modalCancelText}
           noteFormMode={modalNoteFormMode}
-          confirmText={modalNoteFormMode === NOTE_FORM_MODES.VIEW_NOTE ? 'Close' : 'Save'}
+          confirmText={
+            modalNoteFormMode === NOTE_FORM_MODES.VIEW_NOTE ? (
+              <TranslatedText stringId="general.action.close" fallback="Close" />
+            ) : (
+              <TranslatedText stringId="general.action.save" fallback="Save" />
+            )
+          }
         />
       )}
       <DataFetchingTable
@@ -324,9 +354,17 @@ const NoteTable = ({
         noDataBackgroundColor={Colors.background}
         noDataMessage={
           <NoDataMessage>
-            {`This patient has no notes ${
-              noteType ? 'of this type ' : ''
-            }to display. Click ‘New note’ to add a note.`}
+            {noteType ? (
+              <TranslatedText
+                stringId="note.table.noDataOfType"
+                fallback="This patient has no notes of this type to display. Click ‘New note’ to add a note."
+              />
+            ) : (
+              <TranslatedText
+                stringId="note.table.noData"
+                fallback="This patient has no notes to display. Click ‘New note’ to add a note."
+              />
+            )}
           </NoDataMessage>
         }
         rowStyle={rowStyle}

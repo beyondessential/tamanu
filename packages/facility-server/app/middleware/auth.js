@@ -5,7 +5,7 @@ import config from 'config';
 import { promisify } from 'util';
 import crypto from 'crypto';
 
-import { USER_DEACTIVATED_ERROR_MESSAGE, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { BadAuthenticationError } from '@tamanu/shared/errors';
 import { log } from '@tamanu/shared/services/logging';
 import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermissions';
@@ -30,7 +30,7 @@ export async function getToken(user, expiresIn = tokenDuration) {
   );
 }
 
-async function comparePassword(user, password) {
+export async function comparePassword(user, password) {
   try {
     const passwordHash = user && user.password;
 
@@ -84,13 +84,7 @@ export async function centralServerLogin(models, email, password, deviceId) {
 
 async function localLogin(models, email, password) {
   // some other error in communicating with central server, revert to local login
-  const user = await models.User.scope('withPassword').findOne({
-    where: { email },
-  });
-
-  if (user && user.visibilityStatus !== VISIBILITY_STATUSES.CURRENT) {
-    throw new BadAuthenticationError(USER_DEACTIVATED_ERROR_MESSAGE);
-  }
+  const user = await models.User.getForAuthByEmail(email);
 
   const passwordMatch = await comparePassword(user, password);
 
@@ -207,6 +201,7 @@ async function getUserFromToken(request) {
 
 export const authMiddleware = async (req, res, next) => {
   try {
+    // eslint-disable-next-line require-atomic-updates
     req.user = await getUserFromToken(req);
     req.getLocalisation = async () =>
       req.models.UserLocalisationCache.getLocalisation({

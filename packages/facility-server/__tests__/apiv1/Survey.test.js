@@ -1,4 +1,6 @@
 import { setupSurveyFromObject } from '@tamanu/shared/demoData/surveys';
+import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
+
 import { createTestContext } from '../utilities';
 
 describe('Survey', () => {
@@ -41,7 +43,7 @@ describe('Survey', () => {
       });
     });
     it('should return the vitals survey', async () => {
-      const result = await app.get(`/v1/survey/vitals`);
+      const result = await app.get(`/api/survey/vitals`);
       expect(result).toHaveSucceeded();
       expect(result.body).toMatchObject({
         id: 'vitals-survey',
@@ -63,6 +65,58 @@ describe('Survey', () => {
           }),
         ],
       });
+    });
+  });
+
+  describe('permissions', () => {
+    beforeAll(async () => {
+      await setupSurveyFromObject(models, {
+        program: {
+          id: 'survey-program',
+        },
+        survey: {
+          id: 'program-survey',
+          surveyType: 'programs',
+        },
+        questions: [
+          {
+            name: 'PatientSPO2',
+            type: 'Number',
+            validationCriteria: JSON.stringify({
+              min: 0,
+              max: 999,
+            }),
+            config: JSON.stringify({
+              unit: 'mm Hg',
+            }),
+          },
+        ],
+      });
+    });
+
+    disableHardcodedPermissionsForSuite();
+
+    it('does not throw forbidden error when role has sufficient permission', async () => {
+      const permissions = [
+        ['list', 'SurveyResponse'],
+        ['read', 'Survey', 'program-survey']
+      ]
+
+      app = await baseApp.asNewRole(permissions);
+
+      const result = await app.get(`/api/survey/program-survey/surveyResponses`);
+      expect(result).toHaveSucceeded();
+    });
+
+    it('throws forbidden error when role does not have sufficient permission', async () => {
+      const permissions = [
+        ['list', 'SurveyResponse'],
+      ]
+
+      app = await baseApp.asNewRole(permissions);
+
+      const result = await app.get(`/api/survey/program-survey/surveyResponses`);
+      expect(result).toHaveStatus(403);
     });
   });
 });

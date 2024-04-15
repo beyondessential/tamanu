@@ -1,6 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
 
+import { NOTE_TYPE_LABELS } from '@tamanu/constants';
+
 import { FormGrid } from '../components/FormGrid';
 import { FormSubmitCancelRow } from '../components/ButtonRow';
 import {
@@ -11,7 +13,7 @@ import {
   WrittenByField,
   WrittenByText,
 } from '../components/NoteCommonFields';
-import { NOTE_TYPE_LABELS } from '../constants';
+import { TranslatedText } from '../components/Translation/TranslatedText';
 
 const StyledFormGrid = styled(FormGrid)`
   width: 700px;
@@ -31,22 +33,40 @@ export const EditTreatmentPlanNoteForm = ({ note, onNoteContentChange, onSubmit,
       <NoteInfoSection
         numberOfColumns={3}
         noteType={NOTE_TYPE_LABELS[note.noteType]}
-        writtenByLabel="Last updated by (or on behalf of)"
+        writtenByLabel={<TranslatedText
+          stringId="treatmentPlan.note.lastUpdatedBy.label"
+          fallback="Last updated by (or on behalf of)"
+        />}
         writtenBy={writtenBy}
-        dateLabel="Last updated at date & time"
+        dateLabel={<TranslatedText
+          stringId="treatmentPlan.note.lastUpdatedAt.label"
+          fallback="Last updated at date & time"
+        />}
         date={note.date}
       />
       <StyledFormGrid columns={2}>
-        <WrittenByField label="Updated by (or on behalf of)" required />
+        <WrittenByField
+          label={<TranslatedText
+            stringId="treatmentPlan.note.updatedBy.label"
+            fallback="Updated by (or on behalf of)"
+          />}
+          required
+        />
         <NoteDateTimeField required />
       </StyledFormGrid>
 
-      <NoteContentField label="Update treatment plan" onChange={onNoteContentChange} />
+      <NoteContentField
+        label={<TranslatedText
+          stringId="treatmentPlan.note.updateTreatmentPlan.label"
+          fallback="Update treatment plan"
+        />}
+        onChange={onNoteContentChange}
+      />
       <StyledDivider />
       <FormSubmitCancelRow
         onConfirm={onSubmit}
-        confirmText="Save"
-        cancelText="Cancel"
+        confirmText={<TranslatedText stringId="general.action.save" fallback="Save" />}
+        cancelText={<TranslatedText stringId="general.action.cancel" fallback="Cancel" />}
         onCancel={onCancel}
       />
     </>

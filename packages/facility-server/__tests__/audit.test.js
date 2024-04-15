@@ -35,7 +35,7 @@ describe('Audit log', () => {
   });
 
   it('should leave an access record', async () => {
-    const result = await app.post('/v1/allergy').send(fake(models.PatientAllergy));
+    const result = await app.post('/api/allergy').send(fake(models.PatientAllergy));
     expect(result).toHaveSucceeded();
     expect(result.body.recordedDate).toBeTruthy();
 
@@ -49,7 +49,7 @@ describe('Audit log', () => {
   });
 
   it('should leave an access record with permission failure details', async () => {
-    const result = await baseApp.post('/v1/allergy').send(fake(models.PatientAllergy));
+    const result = await baseApp.post('/api/allergy').send(fake(models.PatientAllergy));
     expect(result).toBeForbidden();
 
     const [log] = getRecentEntries();
@@ -67,7 +67,7 @@ describe('Audit log', () => {
   it('should track multiple permission checks in a single request', async () => {
     const patient = await models.Patient.create(await createDummyPatient());
 
-    const result = await app.put(`/v1/patient/${patient.id}`).send({
+    const result = await app.put(`/api/patient/${patient.id}`).send({
       firstName: 'test',
     });
     expect(result).toHaveSucceeded();
@@ -88,7 +88,7 @@ describe('Audit log', () => {
   it('should discard an audit log when appropriate', async () => {
     // we don't care about the result of this, we just need any endpoint that doesn't
     // perform any permission checks - login is one of these
-    await app.post('/v1/login').send({});
+    await app.post('/api/login').send({});
 
     const logs = getRecentEntries();
     expect(logs).toHaveLength(0);

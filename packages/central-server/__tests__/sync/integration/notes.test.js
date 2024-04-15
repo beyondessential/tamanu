@@ -25,7 +25,6 @@ describe('CentralSyncManager', () => {
   let models;
   let centralSyncManager;
   let patient;
-  let location;
   let department;
   let facility;
   let user;
@@ -104,7 +103,7 @@ describe('CentralSyncManager', () => {
       ...fake(models.Department),
       facilityId: facility.id,
     });
-    location = await models.Location.create({
+    await models.Location.create({
       ...fake(models.Location),
       facilityId: facility.id,
     });

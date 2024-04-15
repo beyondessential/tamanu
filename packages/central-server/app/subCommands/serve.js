@@ -13,7 +13,7 @@ const { port } = config;
 
 export const serve = async ({ skipMigrationCheck, provisioning }) => {
   if (provisioning) {
-    await provision({ file: provisioning, skipIfNotNeeded: true });
+    await provision(provisioning, { skipIfNotNeeded: true });
   }
 
   log.info(`Starting central server version ${version}`);
@@ -22,12 +22,12 @@ export const serve = async ({ skipMigrationCheck, provisioning }) => {
     execArgs: process.execArgs || '<empty>',
   });
 
-  const context = await new ApplicationContext().init();
+  const context = await new ApplicationContext().init({ appType: 'api' });
   const { store } = context;
 
   await store.sequelize.assertUpToDate({ skipMigrationCheck });
 
-  const app = createApp(context);
+  const app = await createApp(context);
 
   await performTimeZoneChecks({
     sequelize: store.sequelize,

@@ -9,12 +9,12 @@ import pkg from '../../package.json';
 
 export const tasks = async ({ skipMigrationCheck, provisioning }) => {
   if (provisioning) {
-    await provision({ file: provisioning, skipIfNotNeeded: true });
+    await provision(provisioning, { skipIfNotNeeded: true });
   }
 
   log.info(`Starting Central tasks runner version ${pkg.version}`);
 
-  const context = await new ApplicationContext().init();
+  const context = await new ApplicationContext().init({ appType: 'tasks' });
   await context.store.sequelize.assertUpToDate({ skipMigrationCheck });
 
   const stopScheduledTasks = await startScheduledTasks(context);

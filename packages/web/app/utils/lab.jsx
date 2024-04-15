@@ -4,7 +4,7 @@ import { DateDisplay } from '../components';
 import { PatientNameDisplay } from '../components/PatientNameDisplay';
 import { TableCellTag } from '../components/Tag';
 
-const StatusDisplay = React.memo(({ status }) => {
+export const StatusDisplay = React.memo(({ status }) => {
   const { background, color, label } = LAB_REQUEST_STATUS_CONFIG[status];
   return (
     <TableCellTag $background={background} $color={color} noWrap>

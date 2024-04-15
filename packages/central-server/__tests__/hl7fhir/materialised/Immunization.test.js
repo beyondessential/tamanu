@@ -117,7 +117,7 @@ describe(`Materialised FHIR - Immunization`, () => {
       } = await createAdministeredVaccineHierarchy(ctx.store.models);
       const mat = await FhirImmunization.materialiseFromUpstream(administeredVaccine.id);
 
-      const path = `/v1/integration/${INTEGRATION_ROUTE}/Immunization/${mat.id}`;
+      const path = `/api/integration/${INTEGRATION_ROUTE}/Immunization/${mat.id}`;
       const response = await app.get(path);
 
       expect(response).toHaveSucceeded();
@@ -173,7 +173,7 @@ describe(`Materialised FHIR - Immunization`, () => {
       await administeredVaccine.save();
       const mat = await FhirImmunization.materialiseFromUpstream(administeredVaccine.id);
 
-      const path = `/v1/integration/${INTEGRATION_ROUTE}/Immunization/${mat.id}`;
+      const path = `/api/integration/${INTEGRATION_ROUTE}/Immunization/${mat.id}`;
       const response = await app.get(path);
 
       expect(response).toHaveSucceeded();
@@ -196,7 +196,7 @@ describe(`Materialised FHIR - Immunization`, () => {
         await FhirImmunization.materialiseFromUpstream(administeredVaccine.id);
       }
 
-      const path = `/v1/integration/${INTEGRATION_ROUTE}/Immunization`;
+      const path = `/api/integration/${INTEGRATION_ROUTE}/Immunization`;
       const response = await app.get(path);
 
       expect(response).toHaveSucceeded();
@@ -224,7 +224,7 @@ describe(`Materialised FHIR - Immunization`, () => {
         }
       }
 
-      const path = `/v1/integration/${INTEGRATION_ROUTE}/Immunization?patient=Patient/${patientId}`;
+      const path = `/api/integration/${INTEGRATION_ROUTE}/Immunization?patient=Patient/${patientId}`;
       const response = await app.get(path);
 
       expect(response).toHaveSucceeded();
@@ -246,7 +246,7 @@ describe(`Materialised FHIR - Immunization`, () => {
       );
       await FhirImmunization.materialiseFromUpstream(otherAdmVx.id);
 
-      const path = `/v1/integration/${INTEGRATION_ROUTE}/Immunization?vaccine-code=${vaccineCode}`;
+      const path = `/api/integration/${INTEGRATION_ROUTE}/Immunization?vaccine-code=${vaccineCode}`;
       const response = await app.get(path);
 
       expect(response).toHaveSucceeded();
@@ -258,7 +258,7 @@ describe(`Materialised FHIR - Immunization`, () => {
     it('returns not found when fetching a non-existent immunization', async () => {
       const id = fakeUUID();
 
-      const path = `/v1/integration/${INTEGRATION_ROUTE}/Immunization/${id}`;
+      const path = `/api/integration/${INTEGRATION_ROUTE}/Immunization/${id}`;
       const response = await app.get(path);
 
       expect(response.status).toBe(404);
@@ -283,7 +283,7 @@ describe(`Materialised FHIR - Immunization`, () => {
       const { administeredVaccine } = await createAdministeredVaccineHierarchy(ctx.store.models);
       await FhirImmunization.materialiseFromUpstream(administeredVaccine.id);
 
-      const path = `/v1/integration/${INTEGRATION_ROUTE}/Immunization?_sort=id&_page=z&_count=x`;
+      const path = `/api/integration/${INTEGRATION_ROUTE}/Immunization?_sort=id&_page=z&_count=x`;
       const response = await app.get(path);
 
       expect(response).toHaveRequestError(500);
@@ -329,7 +329,7 @@ describe(`Materialised FHIR - Immunization`, () => {
       const { administeredVaccine } = await createAdministeredVaccineHierarchy(ctx.store.models);
       await FhirImmunization.materialiseFromUpstream(administeredVaccine.id);
 
-      const path = `/v1/integration/${INTEGRATION_ROUTE}/Immunization?whatever=something`;
+      const path = `/api/integration/${INTEGRATION_ROUTE}/Immunization?whatever=something`;
       const response = await app.get(path);
 
       expect(response).toHaveRequestError(501);

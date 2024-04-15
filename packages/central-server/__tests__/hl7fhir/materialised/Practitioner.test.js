@@ -26,7 +26,7 @@ describe(`Materialised FHIR - Practitioner`, () => {
       const [user, mat] = await makePractitioner();
 
       // act
-      const path = `/v1/integration/${INTEGRATION_ROUTE}/Practitioner/${mat.id}`;
+      const path = `/api/integration/${INTEGRATION_ROUTE}/Practitioner/${mat.id}`;
       const response = await app.get(path);
 
       // assert
@@ -78,7 +78,7 @@ describe(`Materialised FHIR - Practitioner`, () => {
     });
 
     it('should return a list when passed no query params', async () => {
-      const response = await app.get(`/v1/integration/${INTEGRATION_ROUTE}/Practitioner`);
+      const response = await app.get(`/api/integration/${INTEGRATION_ROUTE}/Practitioner`);
 
       expect(response.body.total).toBe(6);
       expect(response.body.entry).toHaveLength(6);
@@ -88,7 +88,7 @@ describe(`Materialised FHIR - Practitioner`, () => {
     describe('sorts', () => {
       it('should sort by lastUpdated ascending', async () => {
         const response = await app.get(
-          `/v1/integration/${INTEGRATION_ROUTE}/Practitioner?_sort=_lastUpdated`,
+          `/api/integration/${INTEGRATION_ROUTE}/Practitioner?_sort=_lastUpdated`,
         );
 
         expect(response.body.total).toBe(6);
@@ -100,7 +100,7 @@ describe(`Materialised FHIR - Practitioner`, () => {
 
       it('should sort by lastUpdated descending', async () => {
         const response = await app.get(
-          `/v1/integration/${INTEGRATION_ROUTE}/Practitioner?_sort=-_lastUpdated`,
+          `/api/integration/${INTEGRATION_ROUTE}/Practitioner?_sort=-_lastUpdated`,
         );
 
         expect(response.body.total).toBe(6);
@@ -114,7 +114,7 @@ describe(`Materialised FHIR - Practitioner`, () => {
     describe('filters', () => {
       it('should filter by identifier', async () => {
         const response = await app.get(
-          `/v1/integration/${INTEGRATION_ROUTE}/Practitioner?identifier=${practitioners[0][0].id}`,
+          `/api/integration/${INTEGRATION_ROUTE}/Practitioner?identifier=${practitioners[0][0].id}`,
         );
 
         expect(response.body.total).toBe(1);
@@ -126,7 +126,7 @@ describe(`Materialised FHIR - Practitioner`, () => {
 
       it('should filter by email (telecom)', async () => {
         const response = await app.get(
-          `/v1/integration/${INTEGRATION_ROUTE}/Practitioner?telecom=${testEmail}`,
+          `/api/integration/${INTEGRATION_ROUTE}/Practitioner?telecom=${testEmail}`,
         );
 
         expect(response.body.total).toBe(1);
@@ -142,7 +142,7 @@ describe(`Materialised FHIR - Practitioner`, () => {
     it('returns not found when fetching a non-existent practitioner', async () => {
       // arrange
       const id = fakeUUID();
-      const path = `/v1/integration/${INTEGRATION_ROUTE}/Practitioner/${id}`;
+      const path = `/api/integration/${INTEGRATION_ROUTE}/Practitioner/${id}`;
 
       // act
       const response = await app.get(path);
@@ -167,7 +167,7 @@ describe(`Materialised FHIR - Practitioner`, () => {
 
     it('returns an error if there are any unknown search params', async () => {
       // arrange
-      const path = `/v1/integration/${INTEGRATION_ROUTE}/Practitioner?whatever=something`;
+      const path = `/api/integration/${INTEGRATION_ROUTE}/Practitioner?whatever=something`;
 
       // act
       const response = await app.get(path);

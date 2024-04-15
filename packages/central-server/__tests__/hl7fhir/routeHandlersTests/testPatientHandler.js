@@ -29,7 +29,7 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
         });
         await patient.reload(); // saving PatientAdditionalData updates the patient too
         const id = encodeURIComponent(`${IDENTIFIER_NAMESPACE}|${patient.displayId}`);
-        const path = `/v1/integration/${integrationName}/Patient?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}`;
+        const path = `/api/integration/${integrationName}/Patient?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}`;
 
         // act
         const response = await app.get(path).set(requestHeaders);
@@ -111,7 +111,7 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
       it("returns no error but no results when subject:identifier doesn't match a patient", async () => {
         // arrange
         const id = encodeURIComponent(`${IDENTIFIER_NAMESPACE}|abc123-not-real`);
-        const path = `/v1/integration/${integrationName}/Patient?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}`;
+        const path = `/api/integration/${integrationName}/Patient?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}`;
 
         // act
         const response = await app.get(path).set(requestHeaders);
@@ -145,7 +145,7 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
           ...fake(PatientAdditionalData),
           patientId: patient.id,
         });
-        const path = `/v1/integration/${integrationName}/Patient`;
+        const path = `/api/integration/${integrationName}/Patient`;
 
         // act
         const response = await app.get(path).set(requestHeaders);
@@ -171,7 +171,7 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
           Patient.create(fake(Patient, { firstName: 'Charlie' })),
         ]);
 
-        const path = `/v1/integration/${integrationName}/Patient?_sort=given`;
+        const path = `/api/integration/${integrationName}/Patient?_sort=given`;
         const response = await app.get(path).set(requestHeaders);
 
         expect(response).toHaveSucceeded();
@@ -189,7 +189,7 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
           Patient.create(fake(Patient, { firstName: 'Charlie' })),
         ]);
 
-        const path = `/v1/integration/${integrationName}/Patient?_sort=-given`;
+        const path = `/api/integration/${integrationName}/Patient?_sort=-given`;
         const response = await app.get(path).set(requestHeaders);
 
         expect(response).toHaveSucceeded();
@@ -207,7 +207,7 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
           Patient.create(fake(Patient, { lastName: 'Carter' })),
         ]);
 
-        const path = `/v1/integration/${integrationName}/Patient?_sort=family`;
+        const path = `/api/integration/${integrationName}/Patient?_sort=family`;
         const response = await app.get(path).set(requestHeaders);
 
         expect(response).toHaveSucceeded();
@@ -225,7 +225,7 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
           Patient.create(fake(Patient, { lastName: 'Carter' })),
         ]);
 
-        const path = `/v1/integration/${integrationName}/Patient?_sort=-family`;
+        const path = `/api/integration/${integrationName}/Patient?_sort=-family`;
         const response = await app.get(path).set(requestHeaders);
 
         expect(response).toHaveSucceeded();
@@ -244,7 +244,7 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
           Patient.create(fake(Patient, { dateOfBirth: '1985-03-21' })),
         ]);
 
-        const path = `/v1/integration/${integrationName}/Patient?_sort=birthdate`;
+        const path = `/api/integration/${integrationName}/Patient?_sort=birthdate`;
         const response = await app.get(path).set(requestHeaders);
 
         expect(response).toHaveSucceeded();
@@ -264,7 +264,7 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
           Patient.create(fake(Patient, { dateOfBirth: '1985-03-21' })),
         ]);
 
-        const path = `/v1/integration/${integrationName}/Patient?_sort=-birthdate`;
+        const path = `/api/integration/${integrationName}/Patient?_sort=-birthdate`;
         const response = await app.get(path).set(requestHeaders);
 
         expect(response).toHaveSucceeded();
@@ -298,7 +298,7 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
           }),
         ]);
 
-        const path = `/v1/integration/${integrationName}/Patient?_sort=address`;
+        const path = `/api/integration/${integrationName}/Patient?_sort=address`;
         const response = await app.get(path).set(requestHeaders);
 
         expect(response).toHaveSucceeded();
@@ -331,7 +331,7 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
           }),
         ]);
 
-        const path = `/v1/integration/${integrationName}/Patient?_sort=-address`;
+        const path = `/api/integration/${integrationName}/Patient?_sort=-address`;
         const response = await app.get(path).set(requestHeaders);
 
         expect(response).toHaveSucceeded();
@@ -364,7 +364,7 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
           }),
         ]);
 
-        const path = `/v1/integration/${integrationName}/Patient?_sort=address-city`;
+        const path = `/api/integration/${integrationName}/Patient?_sort=address-city`;
         const response = await app.get(path).set(requestHeaders);
 
         expect(response).toHaveSucceeded();
@@ -397,7 +397,7 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
           }),
         ]);
 
-        const path = `/v1/integration/${integrationName}/Patient?_sort=-address-city`;
+        const path = `/api/integration/${integrationName}/Patient?_sort=-address-city`;
         const response = await app.get(path).set(requestHeaders);
 
         expect(response).toHaveSucceeded();
@@ -430,7 +430,7 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
           }),
         ]);
 
-        const path = `/v1/integration/${integrationName}/Patient?_sort=telecom`;
+        const path = `/api/integration/${integrationName}/Patient?_sort=telecom`;
         const response = await app.get(path).set(requestHeaders);
 
         expect(response).toHaveSucceeded();
@@ -463,7 +463,7 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
           }),
         ]);
 
-        const path = `/v1/integration/${integrationName}/Patient?_sort=-telecom`;
+        const path = `/api/integration/${integrationName}/Patient?_sort=-telecom`;
         const response = await app.get(path).set(requestHeaders);
 
         expect(response).toHaveSucceeded();
@@ -507,7 +507,7 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
         ]);
 
         // Sort by firstName ascending, lastName descending, primaryContactNumber ascending
-        const path = `/v1/integration/${integrationName}/Patient?_sort=given,-family,telecom`;
+        const path = `/api/integration/${integrationName}/Patient?_sort=given,-family,telecom`;
         const response = await app.get(path).set(requestHeaders);
 
         expect(response).toHaveSucceeded();
@@ -536,7 +536,7 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
         ]);
 
         const identifier = encodeURIComponent(`${IDENTIFIER_NAMESPACE}|${patientOne.displayId}`);
-        const path = `/v1/integration/${integrationName}/Patient?identifier=${identifier}`;
+        const path = `/api/integration/${integrationName}/Patient?identifier=${identifier}`;
         const response = await app.get(path).set(requestHeaders);
 
         expect(response).toHaveSucceeded();
@@ -552,7 +552,7 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
           Patient.create(fake(Patient, { firstName: 'Bob' })),
         ]);
 
-        const path = `/v1/integration/${integrationName}/Patient?given=${firstName}`;
+        const path = `/api/integration/${integrationName}/Patient?given=${firstName}`;
         const response = await app.get(path).set(requestHeaders);
 
         expect(response).toHaveSucceeded();
@@ -568,7 +568,7 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
           Patient.create(fake(Patient, { lastName: 'Gray' })),
         ]);
 
-        const path = `/v1/integration/${integrationName}/Patient?family=${lastName}`;
+        const path = `/api/integration/${integrationName}/Patient?family=${lastName}`;
         const response = await app.get(path).set(requestHeaders);
 
         expect(response).toHaveSucceeded();
@@ -584,7 +584,7 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
           Patient.create(fake(Patient, { sex: 'female' })),
         ]);
 
-        const path = `/v1/integration/${integrationName}/Patient?gender=${sex}`;
+        const path = `/api/integration/${integrationName}/Patient?gender=${sex}`;
         const response = await app.get(path).set(requestHeaders);
 
         expect(response).toHaveSucceeded();
@@ -600,7 +600,7 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
           Patient.create(fake(Patient, { dateOfBirth: '1985-10-20' })),
         ]);
 
-        const path = `/v1/integration/${integrationName}/Patient?birthdate=${dateOfBirth}`;
+        const path = `/api/integration/${integrationName}/Patient?birthdate=${dateOfBirth}`;
         const response = await app.get(path).set(requestHeaders);
 
         expect(response).toHaveSucceeded();
@@ -616,14 +616,14 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
         ]);
 
         // Query deceased=true
-        const pathTrue = `/v1/integration/${integrationName}/Patient?deceased=true`;
+        const pathTrue = `/api/integration/${integrationName}/Patient?deceased=true`;
         const responseTrue = await app.get(pathTrue).set(requestHeaders);
 
         expect(responseTrue).toHaveSucceeded();
         expect(responseTrue.body.total).toBe(1);
 
         // Query deceased=false
-        const pathFalse = `/v1/integration/${integrationName}/Patient?deceased=false`;
+        const pathFalse = `/api/integration/${integrationName}/Patient?deceased=false`;
         const responseFalse = await app.get(pathFalse).set(requestHeaders);
 
         expect(responseFalse).toHaveSucceeded();
@@ -654,7 +654,7 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
           }),
         ]);
 
-        const path = `/v1/integration/${integrationName}/Patient?address-city=${cityTown}`;
+        const path = `/api/integration/${integrationName}/Patient?address-city=${cityTown}`;
         const response = await app.get(path).set(requestHeaders);
 
         expect(response).toHaveSucceeded();
@@ -689,7 +689,7 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
           }),
         ]);
 
-        const path = `/v1/integration/${integrationName}/Patient?address=${cityTown}`;
+        const path = `/api/integration/${integrationName}/Patient?address=${cityTown}`;
         const response = await app.get(path).set(requestHeaders);
 
         expect(response).toHaveSucceeded();
@@ -721,7 +721,7 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
           }),
         ]);
 
-        const path = `/v1/integration/${integrationName}/Patient?telecom=${primaryContactNumber}`;
+        const path = `/api/integration/${integrationName}/Patient?telecom=${primaryContactNumber}`;
         const response = await app.get(path).set(requestHeaders);
 
         expect(response).toHaveSucceeded();
@@ -735,7 +735,7 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
           Patient.create(fake(Patient, { visibilityStatus: 'whatever' })),
         ]);
 
-        const path = `/v1/integration/${integrationName}/Patient?active=true`;
+        const path = `/api/integration/${integrationName}/Patient?active=true`;
         const response = await app.get(path).set(requestHeaders);
 
         expect(response).toHaveSucceeded();
@@ -751,7 +751,7 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
           Patient.create(fake(Patient, { firstName: 'Alice' })),
         ]);
 
-        const path = `/v1/integration/${integrationName}/Patient?given:contains=${firstName.slice(
+        const path = `/api/integration/${integrationName}/Patient?given:contains=${firstName.slice(
           1,
           3,
         )}`;
@@ -773,7 +773,7 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
         ]);
 
         const slicedName = firstName.slice(1, 3);
-        const path = `/v1/integration/${integrationName}/Patient?given:contains=${slicedName}&family=${lastName}&birthdate=${dateOfBirth}`;
+        const path = `/api/integration/${integrationName}/Patient?given:contains=${slicedName}&family=${lastName}&birthdate=${dateOfBirth}`;
         const response = await app.get(path).set(requestHeaders);
 
         expect(response).toHaveSucceeded();
@@ -791,7 +791,7 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
           patientId: patient.id,
         });
         const id = encodeURIComponent(`not-the-right-identifier|${patient.displayId}`);
-        const path = `/v1/integration/${integrationName}/Patient?_sort=id&_page=z&_count=x&subject%3Aidentifier=${id}`;
+        const path = `/api/integration/${integrationName}/Patient?_sort=id&_page=z&_count=x&subject%3Aidentifier=${id}`;
 
         // act
         const response = await app.get(path).set(requestHeaders);
@@ -818,7 +818,7 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
           ...fake(PatientAdditionalData),
           patientId: patient.id,
         });
-        const path = `/v1/integration/${integrationName}/Patient?whatever=something`;
+        const path = `/api/integration/${integrationName}/Patient?whatever=something`;
 
         // act
         const response = await app.get(path).set(requestHeaders);

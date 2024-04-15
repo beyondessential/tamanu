@@ -40,7 +40,7 @@ const TabContainer = styled(Tabs)`
 `;
 
 const StyledTab = styled(Tab)`
-  min-width: 263px;
+  min-width: 379px;
 
   span {
     flex-direction: row;
@@ -54,7 +54,8 @@ const StyledTab = styled(Tab)`
 `;
 
 export const SegmentTabDisplay = React.memo(
-  ({ tabs, currentTabKey, onTabSelect, className, scrollable, singleTabStyle, ...tabProps }) => {
+  ({ tabs, currentTabKey, onTabSelect, className, scrollable, ...tabProps }) => {
+    delete tabProps.singleTabStyle;
     const currentTabData = tabs.find(t => t.key === currentTabKey);
     const buttons = tabs.map(({ key, label, render }) => (
       <StyledTab

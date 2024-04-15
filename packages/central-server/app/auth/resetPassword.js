@@ -6,7 +6,7 @@ import { addMinutes } from 'date-fns';
 
 import { COMMUNICATION_STATUSES } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
-import { findUser, getRandomBase64String } from './utils';
+import { getRandomBase64String } from './utils';
 
 export const resetPassword = express.Router();
 
@@ -28,12 +28,16 @@ resetPassword.post(
 
     const { email } = body;
 
-    const user = await findUser(models, email);
+    const user = await models.User.getForAuthByEmail(email);
 
     if (!user) {
       log.info(`Password reset request: No user found with email ${email}`);
-      // An attacker could use this to get a list of user accounts
-      // so we return the same ok result
+      // ⚠️ SECURITY INFO:
+      // This logic is available to anonymous users, so it's important it doesn't give out
+      // any information about the system. In this case, a hacker can use a "not found"
+      // error message to figure out which emails are really in use.
+      // So, we just return an "OK" response no matter what information is provided,
+      // regardless of whether it's valid or not.
     } else {
       const token = await createOneTimeLogin(models, user);
       await sendResetEmail(req.emailService, user, token);

@@ -4,8 +4,12 @@ import config from 'config';
 import { Op, QueryTypes } from 'sequelize';
 import { snakeCase } from 'lodash';
 
-import { NotFoundError } from '@tamanu/shared/errors';
-import { PATIENT_REGISTRY_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { NotFoundError, InvalidParameterError } from '@tamanu/shared/errors';
+import {
+  PATIENT_REGISTRY_TYPES,
+  VISIBILITY_STATUSES,
+  IPS_REQUEST_STATUSES,
+} from '@tamanu/constants';
 import { isGeneratedDisplayId } from '@tamanu/shared/utils/generateId';
 
 import { renameObjectKeys } from '@tamanu/shared/utils';
@@ -16,7 +20,7 @@ import { patientInvoiceRoutes } from './patientInvoice';
 import { patientRelations } from './patientRelations';
 import { patientBirthData } from './patientBirthData';
 import { patientLocations } from './patientLocations';
-import { activeCovid19PatientsHandler } from '../../../routeHandlers';
+import { patientProgramRegistration } from './patientProgramRegistration';
 import { getOrderClause } from '../../../database/utils';
 import { dbRecordToResponse, pickPatientBirthData, requestBodyToRecord } from './utils';
 import { PATIENT_SORT_KEYS } from './constants';
@@ -336,8 +340,8 @@ patientRoute.get(
             WHERE end_date IS NULL
           ) encounters
           ON (patients.id = encounters.patient_id AND encounters.row_num = 1)
-        LEFT JOIN users AS clinician 
-          ON clinician.id = encounters.examiner_id  
+        LEFT JOIN users AS clinician
+          ON clinician.id = encounters.examiner_id
         LEFT JOIN departments AS department
           ON (department.id = encounters.department_id)
         LEFT JOIN locations AS location
@@ -468,7 +472,29 @@ patientRoute.get(
   }),
 );
 
-patientRoute.get('/program/activeCovid19Patients', asyncHandler(activeCovid19PatientsHandler));
+patientRoute.post(
+  '/:id/ipsRequest',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('read', 'Patient');
+    req.checkPermission('create', 'IPSRequest');
+
+    const { models, params } = req;
+    const { IPSRequest } = models;
+
+    if (!req.body.email) {
+      throw new InvalidParameterError('Missing email');
+    }
+
+    const ipsRequest = await IPSRequest.create({
+      createdBy: req.user?.id,
+      patientId: params.id,
+      email: req.body.email,
+      status: IPS_REQUEST_STATUSES.QUEUED,
+    });
+
+    res.send(dbRecordToResponse(ipsRequest));
+  }),
+);
 
 patientRoute.use(patientRelations);
 patientRoute.use(patientVaccineRoutes);
@@ -476,5 +502,6 @@ patientRoute.use(patientDocumentMetadataRoutes);
 patientRoute.use(patientInvoiceRoutes);
 patientRoute.use(patientBirthData);
 patientRoute.use(patientLocations);
+patientRoute.use(patientProgramRegistration);
 
 export { patientRoute as patient };

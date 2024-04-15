@@ -10,6 +10,7 @@ import {
 import { createDummyEncounter, createDummyPatient } from '@tamanu/shared/demoData/patients';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { fake } from '@tamanu/shared/test-helpers/fake';
+import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
 
 import { createTestContext } from '../utilities';
 
@@ -36,7 +37,7 @@ describe('Imaging requests', () => {
 
   describe('Creating an imaging request', () => {
     it('should record an imaging request', async () => {
-      const result = await app.post('/v1/imagingRequest').send({
+      const result = await app.post('/api/imagingRequest').send({
         encounterId: encounter.id,
         imagingType: IMAGING_TYPES.CT_SCAN,
         requestedById: app.user.id,
@@ -46,7 +47,7 @@ describe('Imaging requests', () => {
     });
 
     it('should require a valid status', async () => {
-      const result = await app.post('/v1/imagingRequest').send({
+      const result = await app.post('/api/imagingRequest').send({
         encounterId: encounter.id,
         status: 'invalid',
         imagingType: IMAGING_TYPES.CT_SCAN,
@@ -56,7 +57,7 @@ describe('Imaging requests', () => {
     });
 
     it('should require a valid status', async () => {
-      const result = await app.post('/v1/imagingRequest').send({
+      const result = await app.post('/api/imagingRequest').send({
         encounterId: encounter.id,
         status: 'invalid',
         imagingType: IMAGING_TYPES.CT_SCAN,
@@ -72,7 +73,7 @@ describe('Imaging requests', () => {
       imagingType: IMAGING_TYPES.CT_SCAN,
       requestedById: app.user.id,
     });
-    const result = await app.get(`/v1/encounter/${encounter.id}/imagingRequests`);
+    const result = await app.get(`/api/encounter/${encounter.id}/imagingRequests`);
     expect(result).toHaveSucceeded();
 
     const { body } = result;
@@ -107,7 +108,7 @@ describe('Imaging requests', () => {
         app.user.id,
       );
 
-      const result = await app.get(`/v1/imagingRequest/${createdImagingRequest.id}`);
+      const result = await app.get(`/api/imagingRequest/${createdImagingRequest.id}`);
 
       expect(result).toHaveSucceeded();
 
@@ -140,7 +141,7 @@ describe('Imaging requests', () => {
 
       // Act
       const result = await app.get(
-        `/v1/encounter/${encounter.id}/imagingRequests?includeNotes=true`,
+        `/api/encounter/${encounter.id}/imagingRequests?includeNotes=true`,
       );
 
       // Assert
@@ -166,7 +167,7 @@ describe('Imaging requests', () => {
         requestedById: app.user.id,
         imagingType: IMAGING_TYPES.CT_SCAN,
       });
-      const result = await app.get(`/v1/encounter/${encounter.id}/imagingRequests`);
+      const result = await app.get(`/api/encounter/${encounter.id}/imagingRequests`);
       expect(result).toHaveSucceeded();
       const { body } = result;
       expect(body.count).toBeGreaterThan(0);
@@ -176,7 +177,7 @@ describe('Imaging requests', () => {
     });
 
     it('should return note content when providing note or areaNote', async () => {
-      const result = await app.post('/v1/imagingRequest').send({
+      const result = await app.post('/api/imagingRequest').send({
         encounterId: encounter.id,
         imagingType: IMAGING_TYPES.CT_SCAN,
         requestedById: app.user.id,
@@ -191,7 +192,7 @@ describe('Imaging requests', () => {
 
   describe('Area listing', () => {
     it('should return areas to be imaged', async () => {
-      const result = await app.get('/v1/imagingRequest/areas');
+      const result = await app.get('/api/imagingRequest/areas');
       expect(result).toHaveSucceeded();
       const { body } = result;
       const expectedAreas = expect.arrayContaining([
@@ -216,7 +217,7 @@ describe('Imaging requests', () => {
         }),
       );
 
-      const result = await app.get('/v1/imagingRequest/areas');
+      const result = await app.get('/api/imagingRequest/areas');
       expect(result).toHaveSucceeded();
       const { body } = result;
 
@@ -248,7 +249,7 @@ describe('Imaging requests', () => {
     });
 
     // act
-    const result = await app.get(`/v1/imagingRequest/${ir.id}`);
+    const result = await app.get(`/api/imagingRequest/${ir.id}`);
 
     // assert
     expect(result).toHaveSucceeded();
@@ -272,7 +273,7 @@ describe('Imaging requests', () => {
     });
 
     // act
-    const result = await app.put(`/v1/imagingRequest/${ir.id}`).send({
+    const result = await app.put(`/api/imagingRequest/${ir.id}`).send({
       status: 'completed',
       newResult: {
         description: 'new result description',
@@ -300,7 +301,7 @@ describe('Imaging requests', () => {
     });
 
     // act
-    const result1 = await app.put(`/v1/imagingRequest/${ir.id}`).send({
+    const result1 = await app.put(`/api/imagingRequest/${ir.id}`).send({
       status: 'completed',
       newResult: {
         description: 'new result description 1',
@@ -308,7 +309,7 @@ describe('Imaging requests', () => {
         completedById: app.user.dataValues.id,
       },
     });
-    const result2 = await app.put(`/v1/imagingRequest/${ir.id}`).send({
+    const result2 = await app.put(`/api/imagingRequest/${ir.id}`).send({
       status: 'completed',
       newResult: {
         description: 'new result description 2',
@@ -339,7 +340,7 @@ describe('Imaging requests', () => {
 
     const newResultDate = getCurrentDateTimeString();
     // act
-    const result1 = await app.put(`/v1/imagingRequest/${ir.id}`).send({
+    const result1 = await app.put(`/api/imagingRequest/${ir.id}`).send({
       status: 'completed',
       newResult: {
         completedAt: newResultDate,
@@ -383,7 +384,7 @@ describe('Imaging requests', () => {
     });
 
     // act
-    const result = await app.get(`/v1/imagingRequest/${ir.id}`);
+    const result = await app.get(`/api/imagingRequest/${ir.id}`);
 
     // reset settings
     await models.Setting.set('integrations.imaging', settings);
@@ -450,7 +451,7 @@ describe('Imaging requests', () => {
       });
 
       it('should omit external requests when allFacilities is false', async () => {
-        const result = await app.get(`/v1/imagingRequest?allFacilities=false`);
+        const result = await app.get(`/api/imagingRequest?allFacilities=false`);
         expect(result).toHaveSucceeded();
         result.body.data.forEach(ir => {
           expect(ir.encounter.location.facilityId).toBe(config.serverFacilityId);
@@ -458,7 +459,7 @@ describe('Imaging requests', () => {
       });
 
       it('should include all requests when allFacilities is true', async () => {
-        const result = await app.get(`/v1/imagingRequest?allFacilities=true`);
+        const result = await app.get(`/api/imagingRequest?allFacilities=true`);
         expect(result).toHaveSucceeded();
 
         const hasConfigFacility = result.body.data.some(
@@ -474,7 +475,7 @@ describe('Imaging requests', () => {
 
       it('Completed tab should only show completed imaging requests', async () => {
         const result = await app.get(
-          `/v1/imagingRequest?status=${IMAGING_REQUEST_STATUS_TYPES.COMPLETED}`,
+          `/api/imagingRequest?status=${IMAGING_REQUEST_STATUS_TYPES.COMPLETED}`,
         );
         expect(result).toHaveSucceeded();
         result.body.data.forEach(ir => {
@@ -494,6 +495,11 @@ describe('Imaging requests', () => {
         await models.ImagingRequest.truncate({ cascade: true });
 
         for (let i = 0; i < completedCount; ++i) {
+          // Some tests expect that the imaging results completedAt field
+          // is not duplicated, otherwise we cannot guarantee ordering.
+          // Given this field is a date time string, the precision is up to seconds
+          // which means we need to wait for one whole second between requests
+          await sleepAsync(1000);
           const resultCount = i % 4; // get a few different result counts in, including 0
           await makeRequestAtFacility(
             config.serverFacilityId,
@@ -508,7 +514,7 @@ describe('Imaging requests', () => {
 
       it('Should paginate correctly', async () => {
         const getPage = async page => {
-          const result = await app.get(`/v1/imagingRequest?page=${page}`);
+          const result = await app.get(`/api/imagingRequest?page=${page}`);
           expect(result).toHaveSucceeded();
           return result;
         };
@@ -531,7 +537,7 @@ describe('Imaging requests', () => {
       it('Should paginate correctly when sorting by completedAt', async () => {
         const getPage = async page => {
           const result = await app.get(
-            `/v1/imagingRequest?orderBy=completedAt&page=${page}&order=DESC`,
+            `/api/imagingRequest?orderBy=completedAt&page=${page}&order=DESC`,
           );
           expect(result).toHaveSucceeded();
           return result;
@@ -568,7 +574,7 @@ describe('Imaging requests', () => {
       it('Should paginate correctly when sorting by completedAt and filtering by status', async () => {
         const getPage = async page => {
           const result = await app.get(
-            `/v1/imagingRequest?status=${IMAGING_REQUEST_STATUS_TYPES.COMPLETED}&orderBy=completedAt&page=${page}&order=ASC`,
+            `/api/imagingRequest?status=${IMAGING_REQUEST_STATUS_TYPES.COMPLETED}&orderBy=completedAt&page=${page}&order=ASC`,
           );
           expect(result).toHaveSucceeded();
           return result;

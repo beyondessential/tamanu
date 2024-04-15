@@ -1,24 +1,17 @@
 import config from 'config';
 
+import { closeAllDatabases, openDatabase } from '@tamanu/shared/services/database';
 import { fakeUUID } from '@tamanu/shared/utils/generateId';
-import { REPORT_DB_SCHEMAS } from '@tamanu/constants';
-import { initDatabase as sharedInitDatabase } from '@tamanu/shared/services/database';
-
 import { log } from '@tamanu/shared/services/logging';
-
-let existingConnections = {};
+import { REPORT_DB_SCHEMAS } from '@tamanu/constants';
 
 const getOrCreateConnection = async (configOverrides, key = 'main') => {
   const testMode = process.env.NODE_ENV === 'test';
-  if (existingConnections[key]) {
-    return existingConnections[key];
-  }
-  existingConnections[key] = await sharedInitDatabase({
+  return await openDatabase(key, {
     ...config.db,
     ...configOverrides,
     testMode,
   });
-  return existingConnections[key];
 };
 
 export async function initDatabase() {
@@ -70,8 +63,5 @@ export async function initReporting() {
 }
 
 export async function closeDatabase() {
-  await Promise.all(
-    Object.keys(existingConnections).map(k => existingConnections[k].sequelize.close()),
-  );
-  existingConnections = {};
+  return closeAllDatabases();
 }

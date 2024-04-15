@@ -5,6 +5,7 @@ import { ConfirmCancelRow } from './ButtonRow';
 import { DateDisplay } from './DateDisplay';
 import { DataFetchingTable } from './Table';
 import { Modal } from './Modal';
+import { TranslatedText } from './Translation/TranslatedText';
 
 const COLUMNS = [
   { key: 'date', title: 'Date', accessor: ({ date }) => <DateDisplay date={date} /> },
@@ -23,15 +24,30 @@ export const PotentialInvoiceLineItemsModal = ({ open, onClose, invoiceId, onSav
   const addPotentialLineItems = () => api.post(`invoices/${invoiceId}/potentialLineItems`);
 
   return (
-    <Modal width="md" title="Potential invoice line items" open={open} onClose={onClose}>
+    <Modal
+      width="md"
+      title={
+        <TranslatedText
+          stringId="invoice.modal.potentialInvoices.title"
+          fallback="Potential invoice line items"
+        />
+      }
+      open={open}
+      onClose={onClose}
+    >
       <DataFetchingTable
         endpoint={`invoices/${invoiceId}/potentialLineItems`}
         columns={COLUMNS}
-        noDataMessage="No potential invoice line items found"
+        noDataMessage={
+          <TranslatedText
+            stringId="invoice.modal.potentialInvoices.table.noData"
+            fallback="No potential invoice line items found"
+          />
+        }
         allowExport={false}
       />
       <ConfirmCancelRow
-        confirmText="Add"
+        confirmText={<TranslatedText stringId="general.action.add" fallback="Add" />}
         onConfirm={async () => {
           await addPotentialLineItems();
           onSaved();

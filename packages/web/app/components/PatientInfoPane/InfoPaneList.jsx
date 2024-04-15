@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { useQuery } from '@tanstack/react-query';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
@@ -9,7 +9,7 @@ import { Colors } from '../../constants';
 import { FormModal } from '../FormModal';
 import { PatientAlert } from '../PatientAlert';
 import { InfoPaneAddEditForm } from './InfoPaneAddEditForm';
-import { ISSUES_TITLE } from './paneTitles';
+import { PANE_SECTION_IDS } from './paneSections';
 import { useApi } from '../../api';
 
 const TitleContainer = styled.div`
@@ -75,133 +75,146 @@ const getItems = (isIssuesPane, response) => {
   return { items: sortedIssues, warnings };
 };
 
-export const InfoPaneList = memo(
-  ({
-    patient,
-    readonly,
-    title,
-    Form,
-    endpoint,
-    getEndpoint,
-    getName = () => '???',
-    behavior = 'collapse',
-    itemTitle = '',
-    CustomEditForm,
-    getEditFormName = () => '???',
-  }) => {
-    const [addEditState, setAddEditState] = useState({ adding: false, editKey: null });
-    const { adding, editKey } = addEditState;
-    const api = useApi();
-    const { data, error } = useQuery([`infoPaneListItem-${title}`, patient.id], () =>
-      api.get(getEndpoint),
-    );
-    const isIssuesPane = title === ISSUES_TITLE;
-    const { items, warnings } = getItems(isIssuesPane, data);
+export const InfoPaneList = ({
+  id: paneId,
+  patient,
+  readonly,
+  title,
+  Form,
+  endpoint,
+  getEndpoint,
+  getName = () => '???',
+  behavior = 'collapse',
+  itemTitle = '',
+  CustomEditForm,
+  getEditFormName = () => '???',
+  ListItemComponent,
+  overrideContentPadding,
+}) => {
+  const [addEditState, setAddEditState] = useState({ adding: false, editKey: null });
+  const { adding, editKey } = addEditState;
+  const api = useApi();
+  const { data, error } = useQuery([`infoPaneListItem-${paneId}`, patient.id], () =>
+    api.get(getEndpoint),
+  );
 
-    const handleAddButtonClick = useCallback(
-      () => setAddEditState({ adding: !adding, editKey: null }),
-      [adding],
-    );
-    const handleRowClick = useCallback(id => setAddEditState({ adding: false, editKey: id }), []);
-    const handleCloseForm = useCallback(
-      () => setAddEditState({ adding: false, editKey: null }),
-      [],
-    );
+  const isIssuesPane = paneId === PANE_SECTION_IDS.ISSUES;
+  const { items, warnings } = getItems(isIssuesPane, data);
 
-    const Wrapper = props =>
-      behavior === 'collapse' ? (
-        <Collapse in={adding} {...props} />
-      ) : (
-        <FormModal
-          width="md"
-          title={itemTitle}
-          open={adding}
-          onClose={handleCloseForm}
-          {...props}
-        />
-      );
+  const handleAddButtonClick = useCallback(
+    () => setAddEditState({ adding: !adding, editKey: null }),
+    [adding],
+  );
+  const handleRowClick = useCallback(id => setAddEditState({ adding: false, editKey: id }), []);
+  const handleCloseForm = useCallback(() => setAddEditState({ adding: false, editKey: null }), []);
 
-    const addForm = (
-      <Wrapper>
-        <InfoPaneAddEditForm
-          patient={patient}
-          Form={Form}
-          endpoint={endpoint}
-          onClose={handleCloseForm}
-          title={title}
-          items={items}
-        />
-      </Wrapper>
+  const Wrapper = props =>
+    behavior === 'collapse' ? (
+      <Collapse in={adding} {...props} />
+    ) : (
+      <FormModal
+        width="md"
+        title={itemTitle}
+        open={adding}
+        onClose={handleCloseForm}
+        {...props}
+        overrideContentPadding={overrideContentPadding}
+      />
     );
 
-    const EditForm = CustomEditForm || InfoPaneAddEditForm;
-    return (
-      <>
-        {isIssuesPane && <PatientAlert alerts={warnings} />}
-        <TitleContainer data-test-id={`info-pane-${kebabCase(title)}`}>
-          <TitleText>{title}</TitleText>
-          {!readonly && (
-            <AddButton
-              onClick={handleAddButtonClick}
-              endIcon={<AddCircleIcon />}
-              data-test-class="add-button-section"
-            >
-              Add
-            </AddButton>
-          )}
-        </TitleContainer>
-        <DataList>
-          {error && error.message}
-          {!error &&
-            items.map(item => {
-              const { id } = item;
-              const name = getName(item);
-              if (behavior === 'collapse') {
-                return (
-                  <React.Fragment key={id}>
-                    <Collapse in={editKey !== id}>
-                      <ListItem onClick={() => handleRowClick(id)}>{name}</ListItem>
-                    </Collapse>
-                    <Collapse in={editKey === id}>
-                      <EditForm
-                        patient={patient}
-                        Form={Form}
-                        endpoint={endpoint}
-                        item={item}
-                        onClose={handleCloseForm}
-                        title={title}
-                        items={items}
-                      />
-                    </Collapse>
-                  </React.Fragment>
-                );
-              }
+  const addForm = (
+    <Wrapper>
+      <InfoPaneAddEditForm
+        Form={Form}
+        endpoint={endpoint}
+        onClose={handleCloseForm}
+        id={paneId}
+        items={items}
+      />
+    </Wrapper>
+  );
 
+  const EditForm = CustomEditForm || InfoPaneAddEditForm;
+  return (
+    <>
+      {isIssuesPane && <PatientAlert alerts={warnings} />}
+      <TitleContainer data-test-id={`info-pane-${kebabCase(title)}`}>
+        <TitleText>{title}</TitleText>
+        {!readonly && (
+          <AddButton
+            onClick={handleAddButtonClick}
+            endIcon={<AddCircleIcon />}
+            data-test-class="add-button-section"
+          >
+            Add
+          </AddButton>
+        )}
+      </TitleContainer>
+      <DataList>
+        {error && error.message}
+        {!error &&
+          items.map(item => {
+            const { id } = item;
+            const name = getName(item);
+            if (behavior === 'collapse') {
               return (
                 <React.Fragment key={id}>
-                  <ListItem onClick={() => handleRowClick(id)}>{name}</ListItem>
-                  <FormModal
-                    width="md"
-                    title={getEditFormName(item)}
-                    open={editKey === id}
-                    onClose={handleCloseForm}
-                  >
+                  <Collapse in={editKey !== id}>
+                    {ListItemComponent ? (
+                      <ListItemComponent
+                        item={item}
+                        handleRowClick={handleRowClick}
+                        ListItem={ListItem}
+                      />
+                    ) : (
+                      <ListItem onClick={() => handleRowClick(id)}>{name}</ListItem>
+                    )}
+                  </Collapse>
+                  <Collapse in={editKey === id}>
                     <EditForm
-                      patient={patient}
                       Form={Form}
                       endpoint={endpoint}
                       item={item}
                       onClose={handleCloseForm}
-                      title={title}
+                      id={paneId}
                       items={items}
                     />
-                  </FormModal>
+                  </Collapse>
                 </React.Fragment>
               );
-            })}
-          {addForm}
-        </DataList>
-      </>
-    );
-  },
-);
+            }
+
+            return (
+              <React.Fragment key={id}>
+                {ListItemComponent ? (
+                  <ListItemComponent
+                    item={item}
+                    handleRowClick={handleRowClick}
+                    ListItem={ListItem}
+                  />
+                ) : (
+                  <ListItem onClick={() => handleRowClick(id)}>{name}</ListItem>
+                )}
+                <FormModal
+                  width="md"
+                  title={getEditFormName(item)}
+                  open={editKey === id}
+                  onClose={handleCloseForm}
+                  overrideContentPadding={overrideContentPadding}
+                >
+                  <EditForm
+                    Form={Form}
+                    endpoint={endpoint}
+                    item={item}
+                    handleRowClick={handleRowClick}
+                    ListItem={ListItem}
+                  />
+                </FormModal>
+              </React.Fragment>
+            );
+          })}
+        {addForm}
+      </DataList>
+    </>
+  );
+};

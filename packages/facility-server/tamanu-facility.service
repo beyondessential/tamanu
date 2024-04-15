@@ -1,0 +1,13 @@
+[Unit]
+Description=Tamanu Facility Server v%I
+After=network.target
+After=postgresql.service
+
+[Service]
+ExecStart=/usr/bin/node dist
+WorkingDirectory=/var/lib/tamanu/release-v%I/packages/facility-server
+User=tamanu
+Group=tamanu
+
+[Install]
+WantedBy=multi-user.target

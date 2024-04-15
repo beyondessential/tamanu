@@ -5,13 +5,13 @@ export const useEncounterDischarge = encounter => {
   const api = useApi();
 
   return useQuery(
-    ['encounterDischarge', encounter.id],
+    ['encounterDischarge', encounter?.id],
     () =>
       api.get(
-        `encounter/${encodeURIComponent(encounter.id)}/discharge`,
+        `encounter/${encodeURIComponent(encounter?.id)}/discharge`,
         {},
         { isErrorUnknown: isErrorUnknownAllow404s },
       ),
-    { enabled: !!encounter.endDate },
+    { enabled: !!encounter?.endDate && !!encounter?.id },
   );
 };

@@ -27,7 +27,7 @@ describe('VRS integration - hook - DELETE', () => {
 
     // act
     const response = await app
-      .post(`/v1/integration/fijiVrs/hooks/patientCreated`)
+      .post(`/api/integration/fijiVrs/hooks/patientCreated`)
       .send({
         fetch_id: fetchId,
         operation: 'DELETE',
@@ -76,7 +76,7 @@ describe('VRS integration - hook - DELETE', () => {
 
     // act
     const response = await app
-      .post(`/v1/integration/fijiVrs/hooks/patientCreated`)
+      .post(`/api/integration/fijiVrs/hooks/patientCreated`)
       .send({
         fetch_id: fetchId,
         operation: 'DELETE',

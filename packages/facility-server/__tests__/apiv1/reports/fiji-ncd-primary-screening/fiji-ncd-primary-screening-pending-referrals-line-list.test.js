@@ -148,7 +148,7 @@ describe('Fiji NCD Primary Screening Pending Referrals line list', () => {
     it('should reject creating a report request with insufficient permissions', async () => {
       const noPermsApp = await baseApp.asRole('base');
       const result = await noPermsApp.post(
-        `/v1/reports/fiji-ncd-primary-screening-pending-referrals-line-list`,
+        `/api/reports/fiji-ncd-primary-screening-pending-referrals-line-list`,
         {},
       );
       expect(result).toBeForbidden();
@@ -158,7 +158,7 @@ describe('Fiji NCD Primary Screening Pending Referrals line list', () => {
   describe('returns the correct data', () => {
     it('should generate a row for latest pending referrals per date', async () => {
       const result = await app
-        .post('/v1/reports/fiji-ncd-primary-screening-pending-referrals-line-list')
+        .post('/api/reports/fiji-ncd-primary-screening-pending-referrals-line-list')
         .send({});
 
       expect(result).toHaveSucceeded();

@@ -39,7 +39,7 @@ describe(`Materialised FHIR - Patient`, () => {
       await patient.reload(); // saving PatientAdditionalData updates the patient too
       const mat = await FhirPatient.materialiseFromUpstream(patient.id);
 
-      const path = `/v1/integration/${INTEGRATION_ROUTE}/Patient/${mat.id}`;
+      const path = `/api/integration/${INTEGRATION_ROUTE}/Patient/${mat.id}`;
 
       // act
       const response = await app.get(path);
@@ -121,7 +121,7 @@ describe(`Materialised FHIR - Patient`, () => {
       const mat = await FhirPatient.materialiseFromUpstream(patient.id);
 
       const id = encodeURIComponent(`${IDENTIFIER_NAMESPACE}|${patient.displayId}`);
-      const path = `/v1/integration/${INTEGRATION_ROUTE}/Patient?_sort=-issued&_page=0&_count=2&status=final&identifier=${id}`;
+      const path = `/api/integration/${INTEGRATION_ROUTE}/Patient?_sort=-issued&_page=0&_count=2&status=final&identifier=${id}`;
 
       // act
       const response = await app.get(path);
@@ -216,7 +216,7 @@ describe(`Materialised FHIR - Patient`, () => {
         Patient.create(fake(Patient)),
       ]);
       await Promise.all(patients.map(({ id }) => FhirPatient.materialiseFromUpstream(id)));
-      const path = `/v1/integration/${INTEGRATION_ROUTE}/Patient`;
+      const path = `/api/integration/${INTEGRATION_ROUTE}/Patient`;
 
       // act
       const response = await app.get(path);
@@ -246,7 +246,7 @@ describe(`Materialised FHIR - Patient`, () => {
       ]);
       await Promise.all(patients.map(({ id }) => FhirPatient.materialiseFromUpstream(id)));
 
-      const path = `/v1/integration/${INTEGRATION_ROUTE}/Patient?_sort=birthdate`;
+      const path = `/api/integration/${INTEGRATION_ROUTE}/Patient?_sort=birthdate`;
       const response = await app.get(path);
 
       expect(response).toHaveSucceeded();
@@ -268,7 +268,7 @@ describe(`Materialised FHIR - Patient`, () => {
       ]);
       await Promise.all(patients.map(({ id }) => FhirPatient.materialiseFromUpstream(id)));
 
-      const path = `/v1/integration/${INTEGRATION_ROUTE}/Patient?_sort=-birthdate`;
+      const path = `/api/integration/${INTEGRATION_ROUTE}/Patient?_sort=-birthdate`;
       const response = await app.get(path);
 
       expect(response).toHaveSucceeded();
@@ -297,7 +297,7 @@ describe(`Materialised FHIR - Patient`, () => {
         ]);
         await Promise.all(patients.map(({ id }) => FhirPatient.materialiseFromUpstream(id)));
 
-        const path = `/v1/integration/${INTEGRATION_ROUTE}/Patient?_sort=given`;
+        const path = `/api/integration/${INTEGRATION_ROUTE}/Patient?_sort=given`;
         const response = await app.get(path);
 
         expect(response).toHaveSucceeded();
@@ -319,7 +319,7 @@ describe(`Materialised FHIR - Patient`, () => {
         ]);
         await Promise.all(patients.map(({ id }) => FhirPatient.materialiseFromUpstream(id)));
 
-        const path = `/v1/integration/${INTEGRATION_ROUTE}/Patient?_sort=-given`;
+        const path = `/api/integration/${INTEGRATION_ROUTE}/Patient?_sort=-given`;
         const response = await app.get(path);
 
         expect(response).toHaveSucceeded();
@@ -341,7 +341,7 @@ describe(`Materialised FHIR - Patient`, () => {
         ]);
         await Promise.all(patients.map(({ id }) => FhirPatient.materialiseFromUpstream(id)));
 
-        const path = `/v1/integration/${INTEGRATION_ROUTE}/Patient?_sort=family`;
+        const path = `/api/integration/${INTEGRATION_ROUTE}/Patient?_sort=family`;
         const response = await app.get(path);
 
         expect(response).toHaveSucceeded();
@@ -363,7 +363,7 @@ describe(`Materialised FHIR - Patient`, () => {
         ]);
         await Promise.all(patients.map(({ id }) => FhirPatient.materialiseFromUpstream(id)));
 
-        const path = `/v1/integration/${INTEGRATION_ROUTE}/Patient?_sort=-family`;
+        const path = `/api/integration/${INTEGRATION_ROUTE}/Patient?_sort=-family`;
         const response = await app.get(path);
 
         expect(response).toHaveSucceeded();
@@ -404,7 +404,7 @@ describe(`Materialised FHIR - Patient`, () => {
           ),
         );
 
-        const path = `/v1/integration/${INTEGRATION_ROUTE}/Patient?_sort=address`;
+        const path = `/api/integration/${INTEGRATION_ROUTE}/Patient?_sort=address`;
         const response = await app.get(path);
 
         expect(response).toHaveSucceeded();
@@ -447,7 +447,7 @@ describe(`Materialised FHIR - Patient`, () => {
           ),
         );
 
-        const path = `/v1/integration/${INTEGRATION_ROUTE}/Patient?_sort=-address`;
+        const path = `/api/integration/${INTEGRATION_ROUTE}/Patient?_sort=-address`;
         const response = await app.get(path);
 
         expect(response).toHaveSucceeded();
@@ -487,7 +487,7 @@ describe(`Materialised FHIR - Patient`, () => {
           ),
         );
 
-        const path = `/v1/integration/${INTEGRATION_ROUTE}/Patient?_sort=address-city`;
+        const path = `/api/integration/${INTEGRATION_ROUTE}/Patient?_sort=address-city`;
         const response = await app.get(path);
 
         expect(response).toHaveSucceeded();
@@ -527,7 +527,7 @@ describe(`Materialised FHIR - Patient`, () => {
           ),
         );
 
-        const path = `/v1/integration/${INTEGRATION_ROUTE}/Patient?_sort=-address-city`;
+        const path = `/api/integration/${INTEGRATION_ROUTE}/Patient?_sort=-address-city`;
         const response = await app.get(path);
 
         expect(response).toHaveSucceeded();
@@ -576,7 +576,7 @@ describe(`Materialised FHIR - Patient`, () => {
           ),
         );
 
-        const path = `/v1/integration/${INTEGRATION_ROUTE}/Patient?_sort=telecom`;
+        const path = `/api/integration/${INTEGRATION_ROUTE}/Patient?_sort=telecom`;
         const response = await app.get(path);
 
         expect(response).toHaveSucceeded();
@@ -626,7 +626,7 @@ describe(`Materialised FHIR - Patient`, () => {
           ),
         );
 
-        const path = `/v1/integration/${INTEGRATION_ROUTE}/Patient?_sort=-telecom`;
+        const path = `/api/integration/${INTEGRATION_ROUTE}/Patient?_sort=-telecom`;
         const response = await app.get(path);
 
         expect(response).toHaveSucceeded();
@@ -693,7 +693,7 @@ describe(`Materialised FHIR - Patient`, () => {
         );
 
         // Sort by firstName ascending, lastName descending, primaryContactNumber ascending
-        const path = `/v1/integration/${INTEGRATION_ROUTE}/Patient?_sort=given,-family,telecom`;
+        const path = `/api/integration/${INTEGRATION_ROUTE}/Patient?_sort=given,-family,telecom`;
         const response = await app.get(path);
 
         expect(response).toHaveSucceeded();
@@ -731,7 +731,7 @@ describe(`Materialised FHIR - Patient`, () => {
       );
 
       const identifier = encodeURIComponent(`${IDENTIFIER_NAMESPACE}|${patientOne.displayId}`);
-      const path = `/v1/integration/${INTEGRATION_ROUTE}/Patient?identifier=${identifier}`;
+      const path = `/api/integration/${INTEGRATION_ROUTE}/Patient?identifier=${identifier}`;
       const response = await app.get(path);
 
       expect(response).toHaveSucceeded();
@@ -749,7 +749,7 @@ describe(`Materialised FHIR - Patient`, () => {
       ]);
       await Promise.all(patients.map(({ id }) => FhirPatient.materialiseFromUpstream(id)));
 
-      const path = `/v1/integration/${INTEGRATION_ROUTE}/Patient?given=${firstName}`;
+      const path = `/api/integration/${INTEGRATION_ROUTE}/Patient?given=${firstName}`;
       const response = await app.get(path);
 
       expect(response).toHaveSucceeded();
@@ -762,7 +762,7 @@ describe(`Materialised FHIR - Patient`, () => {
       const patient = await Patient.create(fake(Patient, { firstName: 'Bob' }));
       await FhirPatient.materialiseFromUpstream(patient.id);
 
-      const path = `/v1/integration/${INTEGRATION_ROUTE}/Patient?given=bob`;
+      const path = `/api/integration/${INTEGRATION_ROUTE}/Patient?given=bob`;
       const response = await app.get(path);
 
       expect(response).toHaveSucceeded();
@@ -775,7 +775,7 @@ describe(`Materialised FHIR - Patient`, () => {
       const patient = await Patient.create(fake(Patient, { firstName: 'Bob' }));
       await FhirPatient.materialiseFromUpstream(patient.id);
 
-      const path = `/v1/integration/${INTEGRATION_ROUTE}/Patient?given:starts-with=bo`;
+      const path = `/api/integration/${INTEGRATION_ROUTE}/Patient?given:starts-with=bo`;
       const response = await app.get(path);
 
       expect(response).toHaveSucceeded();
@@ -788,7 +788,7 @@ describe(`Materialised FHIR - Patient`, () => {
       const patient = await Patient.create(fake(Patient, { firstName: 'Bob' }));
       await FhirPatient.materialiseFromUpstream(patient.id);
 
-      const path = `/v1/integration/${INTEGRATION_ROUTE}/Patient?given:ends-with=ob`;
+      const path = `/api/integration/${INTEGRATION_ROUTE}/Patient?given:ends-with=ob`;
       const response = await app.get(path);
 
       expect(response).toHaveSucceeded();
@@ -801,7 +801,7 @@ describe(`Materialised FHIR - Patient`, () => {
       const patient = await Patient.create(fake(Patient, { firstName: 'Bob' }));
       await FhirPatient.materialiseFromUpstream(patient.id);
 
-      const path = `/v1/integration/${INTEGRATION_ROUTE}/Patient?given:contains=o`;
+      const path = `/api/integration/${INTEGRATION_ROUTE}/Patient?given:contains=o`;
       const response = await app.get(path);
 
       expect(response).toHaveSucceeded();
@@ -819,7 +819,7 @@ describe(`Materialised FHIR - Patient`, () => {
       ]);
       await Promise.all(patients.map(({ id }) => FhirPatient.materialiseFromUpstream(id)));
 
-      const path = `/v1/integration/${INTEGRATION_ROUTE}/Patient?family=${lastName}`;
+      const path = `/api/integration/${INTEGRATION_ROUTE}/Patient?family=${lastName}`;
       const response = await app.get(path);
 
       expect(response).toHaveSucceeded();
@@ -837,7 +837,7 @@ describe(`Materialised FHIR - Patient`, () => {
       ]);
       await Promise.all(patients.map(({ id }) => FhirPatient.materialiseFromUpstream(id)));
 
-      const path = `/v1/integration/${INTEGRATION_ROUTE}/Patient?gender=${sex}`;
+      const path = `/api/integration/${INTEGRATION_ROUTE}/Patient?gender=${sex}`;
       const response = await app.get(path);
 
       expect(response).toHaveSucceeded();
@@ -855,7 +855,7 @@ describe(`Materialised FHIR - Patient`, () => {
       ]);
       await Promise.all(patients.map(({ id }) => FhirPatient.materialiseFromUpstream(id)));
 
-      const path = `/v1/integration/${INTEGRATION_ROUTE}/Patient?birthdate=${dateOfBirth}`;
+      const path = `/api/integration/${INTEGRATION_ROUTE}/Patient?birthdate=${dateOfBirth}`;
       const response = await app.get(path);
 
       expect(response).toHaveSucceeded();
@@ -873,7 +873,7 @@ describe(`Materialised FHIR - Patient`, () => {
       await Promise.all(patients.map(({ id }) => FhirPatient.materialiseFromUpstream(id)));
 
       // Query deceased=true
-      const pathTrue = `/v1/integration/${INTEGRATION_ROUTE}/Patient?deceased=true`;
+      const pathTrue = `/api/integration/${INTEGRATION_ROUTE}/Patient?deceased=true`;
       const responseTrue = await app.get(pathTrue);
 
       expect(responseTrue).toHaveSucceeded();
@@ -881,7 +881,7 @@ describe(`Materialised FHIR - Patient`, () => {
       expect(responseTrue.body.entry.length).toBe(1);
 
       // Query deceased=false
-      const pathFalse = `/v1/integration/${INTEGRATION_ROUTE}/Patient?deceased=false`;
+      const pathFalse = `/api/integration/${INTEGRATION_ROUTE}/Patient?deceased=false`;
       const responseFalse = await app.get(pathFalse);
 
       expect(responseFalse).toHaveSucceeded();
@@ -918,7 +918,7 @@ describe(`Materialised FHIR - Patient`, () => {
         ),
       );
 
-      const path = `/v1/integration/${INTEGRATION_ROUTE}/Patient?address-city=${cityTown}`;
+      const path = `/api/integration/${INTEGRATION_ROUTE}/Patient?address-city=${cityTown}`;
       const response = await app.get(path);
 
       expect(response).toHaveSucceeded();
@@ -954,7 +954,7 @@ describe(`Materialised FHIR - Patient`, () => {
         ),
       );
 
-      const path = `/v1/integration/${INTEGRATION_ROUTE}/Patient?address=luxembourg`;
+      const path = `/api/integration/${INTEGRATION_ROUTE}/Patient?address=luxembourg`;
       const response = await app.get(path);
 
       expect(response).toHaveSucceeded();
@@ -996,7 +996,7 @@ describe(`Materialised FHIR - Patient`, () => {
         ),
       );
 
-      const path = `/v1/integration/${INTEGRATION_ROUTE}/Patient?telecom=${phone}`;
+      const path = `/api/integration/${INTEGRATION_ROUTE}/Patient?telecom=${phone}`;
       const response = await app.get(path);
 
       expect(response).toHaveSucceeded();
@@ -1023,7 +1023,7 @@ describe(`Materialised FHIR - Patient`, () => {
       ]);
       await Promise.all(patients.map(({ id }) => FhirPatient.materialiseFromUpstream(id)));
 
-      const path = `/v1/integration/${INTEGRATION_ROUTE}/Patient?active=true`;
+      const path = `/api/integration/${INTEGRATION_ROUTE}/Patient?active=true`;
       const response = await app.get(path);
 
       expect(response).toHaveSucceeded();
@@ -1041,7 +1041,7 @@ describe(`Materialised FHIR - Patient`, () => {
     it('returns not found when fetching a non-existent patient', async () => {
       // arrange
       const id = fakeUUID();
-      const path = `/v1/integration/${INTEGRATION_ROUTE}/Patient/${id}`;
+      const path = `/api/integration/${INTEGRATION_ROUTE}/Patient/${id}`;
 
       // act
       const response = await app.get(path);
@@ -1072,7 +1072,7 @@ describe(`Materialised FHIR - Patient`, () => {
         ...fake(PatientAdditionalData),
         patientId: patient.id,
       });
-      const path = `/v1/integration/${INTEGRATION_ROUTE}/Patient?_sort=id&_page=z&_count=x`;
+      const path = `/api/integration/${INTEGRATION_ROUTE}/Patient?_sort=id&_page=z&_count=x`;
 
       // act
       const response = await app.get(path);
@@ -1124,7 +1124,7 @@ describe(`Materialised FHIR - Patient`, () => {
         ...fake(PatientAdditionalData),
         patientId: patient.id,
       });
-      const path = `/v1/integration/${INTEGRATION_ROUTE}/Patient?whatever=something`;
+      const path = `/api/integration/${INTEGRATION_ROUTE}/Patient?whatever=something`;
 
       // act
       const response = await app.get(path);

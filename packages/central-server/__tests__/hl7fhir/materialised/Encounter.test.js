@@ -132,7 +132,7 @@ describe(`Materialised FHIR - Encounter`, () => {
       });
 
       // act
-      const path = `/v1/integration/${INTEGRATION_ROUTE}/Encounter/${mat.id}`;
+      const path = `/api/integration/${INTEGRATION_ROUTE}/Encounter/${mat.id}`;
       const response = await app.get(path);
 
       // assert
@@ -204,7 +204,7 @@ describe(`Materialised FHIR - Encounter`, () => {
       });
 
       // act
-      const path = `/v1/integration/${INTEGRATION_ROUTE}/Encounter/${mat.id}`;
+      const path = `/api/integration/${INTEGRATION_ROUTE}/Encounter/${mat.id}`;
       const response = await app.get(path);
 
       // assert
@@ -262,7 +262,7 @@ describe(`Materialised FHIR - Encounter`, () => {
     });
 
     it('returns a list when passed no query params', async () => {
-      const response = await app.get(`/v1/integration/${INTEGRATION_ROUTE}/Encounter`);
+      const response = await app.get(`/api/integration/${INTEGRATION_ROUTE}/Encounter`);
 
       expect(response.body.total).toBe(12);
       expect(response.body.entry).toHaveLength(12);
@@ -272,7 +272,7 @@ describe(`Materialised FHIR - Encounter`, () => {
     describe('sorts', () => {
       it('by lastUpdated ascending', async () => {
         const response = await app.get(
-          `/v1/integration/${INTEGRATION_ROUTE}/Encounter?_sort=_lastUpdated`,
+          `/api/integration/${INTEGRATION_ROUTE}/Encounter?_sort=_lastUpdated`,
         );
 
         expect(response.body.total).toBe(12);
@@ -284,7 +284,7 @@ describe(`Materialised FHIR - Encounter`, () => {
 
       it('by lastUpdated descending', async () => {
         const response = await app.get(
-          `/v1/integration/${INTEGRATION_ROUTE}/Encounter?_sort=-_lastUpdated`,
+          `/api/integration/${INTEGRATION_ROUTE}/Encounter?_sort=-_lastUpdated`,
         );
 
         expect(response.body.total).toBe(12);
@@ -296,7 +296,7 @@ describe(`Materialised FHIR - Encounter`, () => {
 
       it('by status', async () => {
         const response = await app.get(
-          `/v1/integration/${INTEGRATION_ROUTE}/Encounter?_sort=status`,
+          `/api/integration/${INTEGRATION_ROUTE}/Encounter?_sort=status`,
         );
 
         expect(response.body.total).toBe(12);
@@ -331,7 +331,7 @@ describe(`Materialised FHIR - Encounter`, () => {
         const [newEncounter, newMat] = await makeEncounter({ encounterType: 'emergency' });
         newMat.update({ lastUpdated: addDays(new Date(), 5) });
         const response = await app.get(
-          `/v1/integration/${INTEGRATION_ROUTE}/Encounter?_lastUpdated=gt${encodeURIComponent(
+          `/api/integration/${INTEGRATION_ROUTE}/Encounter?_lastUpdated=gt${encodeURIComponent(
             formatFhirDate(addDays(new Date(), 4)),
           )}`,
         );
@@ -345,7 +345,7 @@ describe(`Materialised FHIR - Encounter`, () => {
 
       it('by status', async () => {
         const response = await app.get(
-          `/v1/integration/${INTEGRATION_ROUTE}/Encounter?status=discharged`,
+          `/api/integration/${INTEGRATION_ROUTE}/Encounter?status=discharged`,
         );
 
         expect(response.body.total).toBe(6);
@@ -356,7 +356,7 @@ describe(`Materialised FHIR - Encounter`, () => {
       });
 
       it('by class', async () => {
-        const response = await app.get(`/v1/integration/${INTEGRATION_ROUTE}/Encounter?class=|IMP`);
+        const response = await app.get(`/api/integration/${INTEGRATION_ROUTE}/Encounter?class=|IMP`);
 
         expect(response.body.total).toBe(6);
         expect(response.body.entry).toHaveLength(6);
@@ -369,7 +369,7 @@ describe(`Materialised FHIR - Encounter`, () => {
     it('returns not found when fetching a non-existent encounter', async () => {
       // arrange
       const id = fakeUUID();
-      const path = `/v1/integration/${INTEGRATION_ROUTE}/Encounter/${id}`;
+      const path = `/api/integration/${INTEGRATION_ROUTE}/Encounter/${id}`;
 
       // act
       const response = await app.get(path);
@@ -394,7 +394,7 @@ describe(`Materialised FHIR - Encounter`, () => {
 
     it('returns an error if there are any unknown search params', async () => {
       // arrange
-      const path = `/v1/integration/${INTEGRATION_ROUTE}/Encounter?whatever=something`;
+      const path = `/api/integration/${INTEGRATION_ROUTE}/Encounter?whatever=something`;
 
       // act
       const response = await app.get(path);

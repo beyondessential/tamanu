@@ -148,7 +148,7 @@ export async function createTestContext({ enableReportInstances } = {}) {
 
   context.syncManager = new FacilitySyncManager(context);
 
-  const expressApp = createApp(context);
+  const expressApp = await createApp(context);
   const appServer = http.createServer(expressApp);
   const baseApp = supertest(appServer);
 
@@ -193,7 +193,7 @@ export async function createTestContext({ enableReportInstances } = {}) {
   const centralServer = new CentralServerConnection({ deviceId: 'test' });
 
   context.onClose(async () => {
-    await new Promise(resolve => appServer.close(resolve));
+    await new Promise(resolve => { appServer.close(resolve); });
   });
 
   context.centralServer = centralServer;

@@ -7,6 +7,7 @@ import FormHelperText from '@material-ui/core/FormHelperText';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { StyledTextField } from './TextField';
 import { Colors } from '../../constants';
+import { getTranslatedOptions } from '../Translation/getTranslatedOptions';
 
 const StyledFormControl = styled(FormControl)`
   display: flex;
@@ -15,7 +16,7 @@ const StyledFormControl = styled(FormControl)`
   // helper text
   .MuiFormHelperText-root {
     font-weight: 500;
-    font-size: 12px;
+    font-size: 11px;
     line-height: 15px;
     margin: 4px 2px 2px;
   }
@@ -24,6 +25,7 @@ const StyledFormControl = styled(FormControl)`
 const StyledSelect = styled(props => <Select classNamePrefix="react-select" {...props} />)`
   .react-select__control {
     padding-right: 8px;
+    min-height: 44px;
     ${props => (props.$borderColor ? `border: 1px solid ${props.$borderColor};` : '')}
     &:hover {
       border: 1px solid ${Colors.primary};
@@ -66,6 +68,7 @@ const StyledSelect = styled(props => <Select classNamePrefix="react-select" {...
     background-color: transparent;
     border-radius: 50px;
     border: 1px solid ${Colors.primary};
+    max-width: 150px;
   }
   .react-select__multi-value-label {
     color: ${Colors.darkestText};
@@ -130,7 +133,7 @@ const DropdownIndicator = props => (
     >
       <path
         d="M5.00008 0.144765C5.15633 0.144765 5.30602 0.207578 5.41633 0.320077L9.8282 4.79445C10.0573 5.02758 10.0573 5.40477 9.8282 5.63758C9.59852 5.87039 9.22477 5.87039 8.99633 5.63758L5.00008 1.58445L1.00477 5.63789C0.774766 5.8707 0.401641 5.8707 0.172266 5.63789C-0.0571088 5.40539 -0.0571088 5.02758 0.172266 4.79445L4.58383 0.319452C4.69477 0.207577 4.84445 0.144765 5.00008 0.144765Z"
-        fill={Colors.midText}
+        fill={Colors.darkText}
       />
     </StyledIndicator>
   </components.DropdownIndicator>
@@ -213,7 +216,10 @@ export const MultiselectInput = ({
         <StyledSelect
           value={selected}
           isMulti
+          disabled
           $borderColor={props.error ? Colors.alert : null}
+          $minHeight="43px"
+          $borderRadius="3px"
           onChange={handleChange}
           options={options}
           menuPlacement="auto"
@@ -230,7 +236,7 @@ export const MultiselectInput = ({
   );
 };
 
-export const MultiselectField = ({ field, ...props }) => (
+export const BaseMultiselectField = ({ field, ...props }) => (
   <MultiselectInput name={field.name} onChange={field.onChange} value={field.value} {...props} />
 );
 
@@ -252,4 +258,20 @@ MultiselectInput.defaultProps = {
   form: {
     initialValues: {},
   },
+};
+
+export const MultiselectField = ({ field, options, prefix, value, name, ...props }) => (
+  <MultiselectInput
+    options={getTranslatedOptions(options, prefix)}
+    value={field ? field.value : value}
+    name={field ? field.name : name}
+    {...props}
+  />
+);
+
+MultiselectField.propTypes = {
+  options: PropTypes.array.isRequired,
+  prefix: PropTypes.string.isRequired,
+  name: PropTypes.string.isRequired,
+  value: PropTypes.any.isRequired,
 };

@@ -149,7 +149,7 @@ describe(`Materialised FHIR - DiagnosticReport`, () => {
       } = await createLabTestHierarchy(ctx.store.models, patient);
       const mat = await FhirDiagnosticReport.materialiseFromUpstream(labTest.id);
 
-      const path = `/v1/integration/${INTEGRATION_ROUTE}/DiagnosticReport/${mat.id}`;
+      const path = `/api/integration/${INTEGRATION_ROUTE}/DiagnosticReport/${mat.id}`;
       const response = await app.get(path);
 
       expect(response).toHaveSucceeded();
@@ -226,7 +226,7 @@ describe(`Materialised FHIR - DiagnosticReport`, () => {
         await FhirDiagnosticReport.materialiseFromUpstream(labTest.id);
       }
 
-      const path = `/v1/integration/${INTEGRATION_ROUTE}/DiagnosticReport`;
+      const path = `/api/integration/${INTEGRATION_ROUTE}/DiagnosticReport`;
       const response = await app.get(path);
 
       expect(response).toHaveSucceeded();
@@ -249,7 +249,7 @@ describe(`Materialised FHIR - DiagnosticReport`, () => {
       await Promise.all([laboratory.destroy(), labTestMethod.destroy()]);
       const mat = await FhirDiagnosticReport.materialiseFromUpstream(labTest.id);
 
-      const path = `/v1/integration/${INTEGRATION_ROUTE}/DiagnosticReport/${mat.id}`;
+      const path = `/api/integration/${INTEGRATION_ROUTE}/DiagnosticReport/${mat.id}`;
       const response = await app.get(path);
 
       expect(response).toHaveSucceeded();
@@ -281,7 +281,7 @@ describe(`Materialised FHIR - DiagnosticReport`, () => {
       const mat = await FhirDiagnosticReport.materialiseFromUpstream(labTest.id);
 
       const id = encodeURIComponent(`${IDENTIFIER_NAMESPACE}|${patient.displayId}`);
-      const path = `/v1/integration/${INTEGRATION_ROUTE}/DiagnosticReport?subject%3Aidentifier=${id}`;
+      const path = `/api/integration/${INTEGRATION_ROUTE}/DiagnosticReport?subject%3Aidentifier=${id}`;
       const response = await app.get(path);
 
       expect(response).toHaveSucceeded();
@@ -369,7 +369,7 @@ describe(`Materialised FHIR - DiagnosticReport`, () => {
     it('returns not found when fetching a non-existent diagnostic report', async () => {
       const id = fakeUUID();
 
-      const path = `/v1/integration/${INTEGRATION_ROUTE}/DiagnosticReport/${id}`;
+      const path = `/api/integration/${INTEGRATION_ROUTE}/DiagnosticReport/${id}`;
       const response = await app.get(path);
 
       expect(response.status).toBe(404);
@@ -395,7 +395,7 @@ describe(`Materialised FHIR - DiagnosticReport`, () => {
       const { labTest } = await createLabTestHierarchy(ctx.store.models, patient);
       await FhirDiagnosticReport.materialiseFromUpstream(labTest.id);
 
-      const path = `/v1/integration/${INTEGRATION_ROUTE}/DiagnosticReport?_sort=id&_page=z&_count=x`;
+      const path = `/api/integration/${INTEGRATION_ROUTE}/DiagnosticReport?_sort=id&_page=z&_count=x`;
       const response = await app.get(path);
 
       expect(response).toHaveRequestError(500);
@@ -442,7 +442,7 @@ describe(`Materialised FHIR - DiagnosticReport`, () => {
       const { labTest } = await createLabTestHierarchy(ctx.store.models, patient);
       await FhirDiagnosticReport.materialiseFromUpstream(labTest.id);
 
-      const path = `/v1/integration/${INTEGRATION_ROUTE}/DiagnosticReport?whatever=something`;
+      const path = `/api/integration/${INTEGRATION_ROUTE}/DiagnosticReport?whatever=something`;
       const response = await app.get(path);
 
       expect(response).toHaveRequestError(501);

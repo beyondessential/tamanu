@@ -5,6 +5,11 @@ import { apiv1 } from './apiv1';
 const router = express.Router();
 
 router.use(ensurePermissionCheck);
+
+// API
+router.use('/api', apiv1);
+
+// Legacy API endpoint
 router.use('/v1', apiv1);
 
 export default router;

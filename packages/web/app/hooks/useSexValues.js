@@ -1,9 +1,9 @@
 import { useLocalisation } from '../contexts/Localisation';
-import { sexOptions } from '../constants';
+import { SEX_OPTIONS } from '@tamanu/constants';
 
 export const useSexValues = () => {
   const { getLocalisation } = useLocalisation();
-  const sexValues = sexOptions.map(o => o.value);
+  const sexValues = SEX_OPTIONS.map(o => o.value);
 
   if (getLocalisation('features.hideOtherSex') === true) {
     return sexValues.filter(s => s !== 'other');
@@ -16,8 +16,8 @@ export const useSexOptions = (includeAll = false) => {
   const { getLocalisation } = useLocalisation();
   const options =
     getLocalisation('features.hideOtherSex') === true
-      ? sexOptions.filter(s => s.value !== 'other')
-      : sexOptions;
+      ? SEX_OPTIONS.filter(s => s.value !== 'other')
+      : SEX_OPTIONS;
 
   return [...(includeAll ? [{ value: '', label: 'All' }] : []), ...options];
 };

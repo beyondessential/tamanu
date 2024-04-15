@@ -2,26 +2,31 @@
 import React from 'react';
 import * as yup from 'yup';
 import { intervalToDuration, parseISO } from 'date-fns';
+import { isNull, isUndefined } from 'lodash';
+import { getPatientDataDbLocation } from '@tamanu/shared/utils/getPatientDataDbLocation';
 import { checkJSONCriteria } from '@tamanu/shared/utils/criteria';
-import { ageInMonths, ageInWeeks, ageInYears } from '@tamanu/shared/utils/dateTime';
-import { ACTION_DATA_ELEMENT_TYPES, PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
+import { PROGRAM_DATA_ELEMENT_TYPES, READONLY_DATA_FIELDS } from '@tamanu/constants';
 
 import {
   DateField,
   DateTimeField,
   LimitedTextField,
   MultilineTextField,
-  MultiselectField,
+  BaseMultiselectField,
   NullableBooleanField,
   NumberField,
+  PatientDataDisplayField,
   ReadOnlyTextField,
-  SelectField,
+  BaseSelectField,
   SurveyQuestionAutocompleteField,
   SurveyResponseSelectField,
   UnsupportedPhotoField,
 } from '../components/Field';
+import { ageInMonths, ageInWeeks, ageInYears } from '@tamanu/shared/utils/dateTime';
 import { joinNames } from './user';
 import { notifyError } from './utils';
+
+const isNullOrUndefined = value => isNull(value) || isUndefined(value);
 
 const InstructionField = ({ label, helperText }) => (
   <p>
@@ -32,9 +37,9 @@ const InstructionField = ({ label, helperText }) => (
 const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.TEXT]: LimitedTextField,
   [PROGRAM_DATA_ELEMENT_TYPES.MULTILINE]: MultilineTextField,
-  [PROGRAM_DATA_ELEMENT_TYPES.RADIO]: SelectField, // TODO: Implement proper radio field?
-  [PROGRAM_DATA_ELEMENT_TYPES.SELECT]: SelectField,
-  [PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT]: MultiselectField,
+  [PROGRAM_DATA_ELEMENT_TYPES.RADIO]: BaseSelectField, // TODO: Implement proper radio field?
+  [PROGRAM_DATA_ELEMENT_TYPES.SELECT]: BaseSelectField,
+  [PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT]: BaseMultiselectField,
   [PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE]: SurveyQuestionAutocompleteField,
   [PROGRAM_DATA_ELEMENT_TYPES.DATE]: props => <DateField {...props} saveDateAsString />,
   [PROGRAM_DATA_ELEMENT_TYPES.DATE_TIME]: props => <DateTimeField {...props} saveDateAsString />,
@@ -54,11 +59,17 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE]: InstructionField,
 };
 
-export function getComponentForQuestionType(type, { writeToPatient: { fieldType } = {} }) {
+export function getComponentForQuestionType(type, { source, writeToPatient: { fieldType } = {} }) {
   let component = QUESTION_COMPONENTS[type];
-  if (type === PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA && fieldType) {
-    // PatientData specifically can overwrite field type if we are writing back to patient record
-    component = QUESTION_COMPONENTS[fieldType];
+  if (type === PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA) {
+    if (fieldType) {
+      // PatientData specifically can overwrite field type if we are writing back to patient record
+      component = QUESTION_COMPONENTS[fieldType];
+    } else if (source) {
+      // we're displaying a relation, so use PatientDataDisplayField
+      // (using a LimitedTextField will just display the bare id)
+      component = PatientDataDisplayField;
+    }
   }
   if (component === undefined) {
     return LimitedTextField;
@@ -164,9 +175,8 @@ export function getConfigObject(componentId, config) {
   }
 }
 
-function transformPatientData(patient, additionalData, config) {
-  const { writeToPatient = {}, column = 'fullName' } = config;
-  const { isAdditionalDataField = false } = writeToPatient;
+function transformPatientData(patient, additionalData, patientProgramRegistration, config) {
+  const { column = 'fullName' } = config;
   const { dateOfBirth, firstName, lastName } = patient;
 
   const { months, years } = intervalToDuration({
@@ -178,28 +188,41 @@ function transformPatientData(patient, additionalData, config) {
   const monthPlural = months !== 1 ? 's' : '';
 
   switch (column) {
-    case 'age':
+    case READONLY_DATA_FIELDS.AGE:
       return years.toString();
-    case 'ageWithMonths':
+    case READONLY_DATA_FIELDS.AGE_WITH_MONTHS:
       if (!years) {
         return `${months} month${monthPlural}`;
       }
       return `${years} year${yearPlural}, ${months} month${monthPlural}`;
-    case 'fullName':
+    case READONLY_DATA_FIELDS.FULL_NAME:
       return joinNames({ firstName, lastName });
-    default:
-      if (isAdditionalDataField) {
-        return additionalData ? additionalData[column] : undefined;
+    default: {
+      const { modelName, fieldName } = getPatientDataDbLocation(column);
+      switch (modelName) {
+        case 'Patient':
+          return patient[fieldName];
+        case 'PatientAdditionalData':
+          return additionalData ? additionalData[fieldName] : undefined;
+        case 'PatientProgramRegistration':
+          return patientProgramRegistration ? patientProgramRegistration[fieldName] : undefined;
+        default:
+          return undefined;
       }
-      return patient[column];
+    }
   }
 }
-
-export function getFormInitialValues(components, patient, additionalData, currentUser = {}) {
+export function getFormInitialValues(
+  components,
+  patient,
+  additionalData,
+  currentUser = {},
+  patientProgramRegistration,
+) {
   const initialValues = components.reduce((acc, { dataElement }) => {
     const initialValue = getInitialValue(dataElement);
     const propName = dataElement.id;
-    if (initialValue === undefined) {
+    if (isNullOrUndefined(initialValue)) {
       return acc;
     }
     acc[propName] = initialValue;
@@ -215,13 +238,21 @@ export function getFormInitialValues(components, patient, additionalData, curren
     if (component.dataElement.type === 'UserData') {
       const { column = 'displayName' } = config;
       const userValue = currentUser[column];
-      if (userValue !== undefined) initialValues[component.dataElement.id] = userValue;
+      if (userValue !== undefined) {
+        initialValues[component.dataElement.id] = userValue;
+      }
     }
-
     // patient data
     if (component.dataElement.type === 'PatientData') {
-      const patientValue = transformPatientData(patient, additionalData, config);
-      if (patientValue !== undefined) initialValues[component.dataElement.id] = patientValue;
+      let patientValue = transformPatientData(
+        patient,
+        additionalData,
+        patientProgramRegistration,
+        config,
+      );
+
+      // Let the initial value be null of undefined rather than an empty string so that it doesn't save an empty answer record.
+      initialValues[component.dataElement.id] = patientValue;
     }
   }
   return initialValues;
@@ -234,17 +265,6 @@ export const getAnswersFromData = (data, survey) =>
       'PatientIssue'
     ) {
       acc[key] = val;
-    }
-    return acc;
-  }, {});
-
-export const getActionsFromData = (data, survey) =>
-  Object.entries(data).reduce((acc, [key]) => {
-    const component = survey.components.find(({ dataElement }) => dataElement.id === key);
-    if (ACTION_DATA_ELEMENT_TYPES.includes(component?.dataElement?.type)) {
-      if (checkVisibility(component, data, survey.components)) {
-        acc[key] = true;
-      }
     }
     return acc;
   }, {});

@@ -10,7 +10,7 @@ const SNAP_FORM_SURVEY_ID = 'program-fijincdprimaryscreening-fijisnapassessform'
 
 export const createCVDFormSurveyResponse = async (app, patient, surveyDate, overrides = {}) => {
   const { answerOverrides = {} } = overrides;
-  await app.post('/v1/surveyResponse').send({
+  await app.post('/api/surveyResponse').send({
     surveyId: CVD_PRIMARY_FORM_SURVEY_ID,
     startTime: surveyDate,
     patientId: patient.id,
@@ -28,7 +28,7 @@ export const createCVDFormSurveyResponse = async (app, patient, surveyDate, over
 };
 
 export const createCVDReferral = async (app, patient, referralDate) => {
-  await app.post('/v1/referral').send({
+  await app.post('/api/referral').send({
     surveyId: CVD_PRIMARY_REFERRAL_SURVEY_ID,
     startTime: referralDate,
     patientId: patient.id,
@@ -50,7 +50,7 @@ export const createBreastCancerFormSurveyResponse = async (
   overrides = {},
 ) => {
   const { answerOverrides = {}, ...otherOverrides } = overrides;
-  await app.post('/v1/surveyResponse').send({
+  await app.post('/api/surveyResponse').send({
     surveyId: BREAST_CANCER_FORM_SURVEY_ID,
     startTime: surveyDate,
     patientId: patient.id,
@@ -69,7 +69,7 @@ export const createBreastCancerFormSurveyResponse = async (
 };
 
 export const createBreastCancerReferral = async (app, patient, referralDate) => {
-  await app.post('/v1/referral').send({
+  await app.post('/api/referral').send({
     surveyId: BREAST_CANCER_REFERRAL_SURVEY_ID,
     startTime: referralDate,
     patientId: patient.id,
@@ -86,7 +86,7 @@ export const createBreastCancerReferral = async (app, patient, referralDate) => 
 
 export const createSNAPFormSurveyResponse = async (app, patient, surveyDate, overrides = {}) => {
   const { answerOverrides = {}, ...otherOverrides } = overrides;
-  await app.post('/v1/surveyResponse').send({
+  await app.post('/api/surveyResponse').send({
     surveyId: SNAP_FORM_SURVEY_ID,
     startTime: surveyDate,
     patientId: patient.id,

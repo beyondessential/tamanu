@@ -4,10 +4,12 @@ import path from 'path';
 import { format as formatDate } from 'date-fns';
 import * as AWS from '@aws-sdk/client-s3';
 import mkdirp from 'mkdirp';
+import ms from 'ms';
 
 import { COMMUNICATION_STATUSES } from '@tamanu/constants';
 import { getReportModule } from '@tamanu/shared/reports';
 import { createNamedLogger } from '@tamanu/shared/services/logging/createNamedLogger';
+import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
 
 import { createZippedSpreadsheet, removeFile, writeToSpreadsheet } from '../utils/files';
 import { getLocalisation } from '../localisation';
@@ -93,8 +95,18 @@ export class ReportRunner {
 
     let reportData = null;
     let metadata = [];
+    let reportDuration = 0;
+
+    const {
+      duration,
+      ifRunAtLeast,
+    } = config.reportProcess.sleepAfterReport;
+
+    const startTime = Date.now();
+
     try {
       this.log.info('Running report', { parameters: this.parameters });
+
       reportData = await reportModule.dataGenerator(
         { ...this.store, reportSchemaStores: this.reportSchemaStores },
         this.parameters,
@@ -114,12 +126,24 @@ export class ReportRunner {
         await this.sendErrorToEmail(e);
       }
       throw new Error(`${e.stack}\nReportRunner - Failed to generate report`);
+    } finally {
+      reportDuration = Date.now() - startTime;
     }
 
     try {
       await this.sendReport({ data: reportData, metadata });
     } catch (e) {
       throw new Error(`${e.stack}\nReportRunner - Failed to send`);
+    } finally {
+      // if report took longer than X ms, sleep for Y ms
+      if (reportDuration > ms(ifRunAtLeast)) {
+        this.log.info('Sleep after report run', {
+          reportDuration,
+          duration,
+          ifRunAtLeast,
+        });
+        await sleepAsync(ms(duration));
+      }
     }
   }
 
@@ -197,7 +221,7 @@ export class ReportRunner {
       .replace(/\s+/g, '-')
       .replace(/-+/g, '-')
       .toLowerCase();
-    return `tamanu-report-${date}-${dashedName}`;
+    return `report-${date}-${dashedName}`;
   }
 
   /**

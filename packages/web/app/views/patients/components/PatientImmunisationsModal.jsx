@@ -7,7 +7,6 @@ export const PatientImmunisationsModal = React.memo(({ open, patient, onClose, .
     title={`${patient.firstName} ${patient.lastName} | Immunisation history`}
     open={open}
     onClose={onClose}
-    cornerExitButton={false}
     {...props}
   >
     <ImmunisationsTable patient={patient} viewOnly disablePagination />

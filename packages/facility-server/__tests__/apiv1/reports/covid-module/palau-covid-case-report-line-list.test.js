@@ -3,7 +3,7 @@ import { createTestContext } from '../../../utilities';
 import { MATCH_ANY } from '../../../toMatchTabularReport';
 import { createPatient } from './covid-swab-lab-test-report-utils';
 
-const REPORT_URL = '/v1/reports/palau-covid-case-report-line-list';
+const REPORT_URL = '/api/reports/palau-covid-case-report-line-list';
 const PROGRAM_ID = 'program-palaucovid19';
 const INITIAL_SURVEY_ID = 'program-palaucovid19-palaucovidinitialcasereportform';
 const FOLLOW_UP_SURVEY_ID = 'program-palaucovid19-palaucovidfollowupcasereport';
@@ -108,7 +108,7 @@ async function submitInitialFormForPatient(app, models, patient, formData) {
   const encounter = await models.Encounter.create(
     await createDummyEncounter(models, { patientId: patient.id }),
   );
-  return await app.post('/v1/surveyResponse').send({
+  return await app.post('/api/surveyResponse').send({
     surveyId: INITIAL_SURVEY_ID,
     startTime: formData.interviewDate,
     patientId: patient.id,
@@ -133,7 +133,7 @@ async function submitFollowUpFormForPatient(app, models, patient, formData) {
   const encounter = await models.Encounter.create(
     await createDummyEncounter(models, { patientId: patient.id }),
   );
-  return await app.post('/v1/surveyResponse').send({
+  return await app.post('/api/surveyResponse').send({
     surveyId: FOLLOW_UP_SURVEY_ID,
     startTime: formData.sampleDate,
     patientId: patient.id,

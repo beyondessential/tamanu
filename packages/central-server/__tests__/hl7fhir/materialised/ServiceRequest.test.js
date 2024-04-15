@@ -102,7 +102,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       const mat = await FhirServiceRequest.materialiseFromUpstream(ir.id);
       await FhirServiceRequest.resolveUpstreams();
 
-      const path = `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest/${mat.id}`;
+      const path = `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest/${mat.id}`;
 
       // act
       const response = await app.get(path);
@@ -214,7 +214,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
       await FhirServiceRequest.resolveUpstreams();
 
-      const path = `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest/${mat.id}`;
+      const path = `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest/${mat.id}`;
 
       // act
       const response = await app.get(path);
@@ -309,7 +309,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       const mat = await FhirServiceRequest.materialiseFromUpstream(ir.id);
       await FhirServiceRequest.resolveUpstreams();
 
-      const path = `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest/${mat.id}`;
+      const path = `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest/${mat.id}`;
 
       // act
       const response = await app.get(path);
@@ -356,7 +356,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       const id = encodeURIComponent(
         `http://data-dictionary.tamanu-fiji.org/tamanu-id-imagingrequest.html|${ir.id}`,
       );
-      const path = `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest?identifier=${id}`;
+      const path = `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?identifier=${id}`;
 
       // act
       const response = await app.get(path);
@@ -475,7 +475,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       const id = encodeURIComponent(
         `http://data-dictionary.tamanu-fiji.org/tamanu-mrid-imagingrequest.html|${ir.displayId}`,
       );
-      const path = `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest?identifier=${id}`;
+      const path = `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?identifier=${id}`;
 
       // act
       const response = await app.get(path);
@@ -633,7 +633,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
     });
 
     it('returns a list when passed no query params', async () => {
-      const response = await app.get(`/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest`);
+      const response = await app.get(`/api/integration/${INTEGRATION_ROUTE}/ServiceRequest`);
 
       expect(response.body.total).toBe(2);
       expect(response).toHaveSucceeded();
@@ -641,7 +641,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
 
     it('sorts by lastUpdated ascending', async () => {
       const response = await app.get(
-        `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest?_sort=_lastUpdated`,
+        `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?_sort=_lastUpdated`,
       );
 
       expect(response.body.total).toBe(2);
@@ -654,7 +654,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
 
     it('sorts by lastUpdated descending', async () => {
       const response = await app.get(
-        `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest?_sort=-_lastUpdated`,
+        `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?_sort=-_lastUpdated`,
       );
 
       expect(response.body.total).toBe(2);
@@ -667,7 +667,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
 
     it('sorts by status', async () => {
       const response = await app.get(
-        `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest?_sort=status`,
+        `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?_sort=status`,
       );
 
       expect(response.body.total).toBe(2);
@@ -680,7 +680,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
 
     it('sorts by priority', async () => {
       const response = await app.get(
-        `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest?_sort=priority`,
+        `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?_sort=priority`,
       );
 
       expect(response.body.total).toBe(2);
@@ -693,7 +693,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
 
     it('filters by lastUpdated=gt with a date', async () => {
       const response = await app.get(
-        `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest?_lastUpdated=gt${formatFhirDate(
+        `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?_lastUpdated=gt${formatFhirDate(
           addDays(new Date(), 7),
           FHIR_DATETIME_PRECISION.DAYS,
         )}`,
@@ -706,7 +706,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
 
     it('filters by lastUpdated=gt with a datetime', async () => {
       const response = await app.get(
-        `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest?_lastUpdated=gt${encodeURIComponent(
+        `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?_lastUpdated=gt${encodeURIComponent(
           formatFhirDate(addDays(new Date(), 7)),
         )}`,
       );
@@ -718,7 +718,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
 
     it('filters by upstream ID (identifier)', async () => {
       const response = await app.get(
-        `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest?identifier=${irs[0].id}`,
+        `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?identifier=${irs[0].id}`,
       );
 
       expect(response.body.total).toBe(1);
@@ -728,7 +728,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
 
     it('filters by status', async () => {
       const response = await app.get(
-        `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest?status=active`,
+        `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?status=active`,
       );
 
       expect(response.body.total).toBe(1);
@@ -738,7 +738,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
 
     it('filters by priority', async () => {
       const response = await app.get(
-        `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest?priority=urgent`,
+        `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?priority=urgent`,
       );
 
       expect(response.body.total).toBe(1);
@@ -748,7 +748,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
 
     it('filters by category (match)', async () => {
       const response = await app.get(
-        `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest?category=363679005`,
+        `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?category=363679005`,
       );
 
       expect(response.body.total).toBe(2);
@@ -757,7 +757,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
 
     it('filters by category (no match)', async () => {
       const response = await app.get(
-        `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest?category=363679123`,
+        `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?category=363679123`,
       );
 
       expect(response.body.total).toBe(0);
@@ -766,7 +766,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
 
     it('includes subject patient', async () => {
       const response = await app.get(
-        `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest?category=363679005&_include=Patient:subject`,
+        `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?category=363679005&_include=Patient:subject`,
       );
 
       expect(response.body.total).toBe(2);
@@ -780,7 +780,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
 
     it('includes subject patient with targetType (match)', async () => {
       const response = await app.get(
-        `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest?category=363679005&_include=Patient:subject:Patient`,
+        `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?category=363679005&_include=Patient:subject:Patient`,
       );
 
       expect(response.body.total).toBe(2);
@@ -794,7 +794,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
 
     it('includes subject patient with targetType (no match)', async () => {
       const response = await app.get(
-        `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest?category=363679005&_include=Patient:subject:Practitioner`,
+        `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?category=363679005&_include=Patient:subject:Practitioner`,
       );
 
       expect(response.body.total).toBe(2);
@@ -805,7 +805,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
 
     it('includes encounter as materialised encounter', async () => {
       const response = await app.get(
-        `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest?category=363679005&_include=Encounter:encounter`,
+        `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?category=363679005&_include=Encounter:encounter`,
       );
       expect(response.body.total).toBe(2);
       expect(response.body.entry.length).toBe(3);
@@ -817,7 +817,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
 
     it('includes requester practitioner', async () => {
       const response = await app.get(
-        `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest?category=363679005&_include=Practitioner:requester`,
+        `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?category=363679005&_include=Practitioner:requester`,
       );
       const practitionerRef = response.body.entry.find(
         ({ search: { mode } }) => mode === 'include',
@@ -836,7 +836,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
     it('returns not found when fetching a non-existent service request', async () => {
       // arrange
       const id = fakeUUID();
-      const path = `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest/${id}`;
+      const path = `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest/${id}`;
 
       // act
       const response = await app.get(path);
@@ -861,7 +861,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
 
     it('returns an error if there are any unknown search params', async () => {
       // arrange
-      const path = `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest?whatever=something`;
+      const path = `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest?whatever=something`;
 
       // act
       const response = await app.get(path);

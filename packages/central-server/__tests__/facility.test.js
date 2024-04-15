@@ -31,12 +31,12 @@ describe('facility routes', () => {
   afterAll(async () => ctx.close());
 
   it('should receive the correct count of facilities', async () => {
-    const { body: result } = await app.get('/v1/facility');
+    const { body: result } = await app.get('/api/facility');
     expect(result.count).toBe(3);
   });
 
   it('should receive the correct facilities', async () => {
-    const { body: result } = await app.get('/v1/facility');
+    const { body: result } = await app.get('/api/facility');
 
     expect(result.data[0].code).toBe(facilities[0].code);
     expect(result.data[0].name).toBe(facilities[0].name);

@@ -4,6 +4,7 @@ import * as yup from 'yup';
 import { Field, Form, TextField } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { ModalFormActionRow } from '../components/ModalActionRow';
+import { FORM_TYPES } from '../constants';
 
 export const NewLocationForm = memo(({ editedObject, onSubmit, onCancel }) => {
   const renderForm = useCallback(
@@ -20,6 +21,7 @@ export const NewLocationForm = memo(({ editedObject, onSubmit, onCancel }) => {
     <Form
       onSubmit={onSubmit}
       render={renderForm}
+      formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
       initialValues={editedObject}
       validationSchema={yup.object().shape({
         name: yup.string().required(),

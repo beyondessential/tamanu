@@ -36,6 +36,7 @@ import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
 import { LabRequestPrintLabelModal } from '../../components/PatientPrinting/modals/LabRequestPrintLabelModal';
 import { LabRequestSampleDetailsModal } from './components/LabRequestSampleDetailsModal';
 import { Colors } from '../../constants';
+import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 const Container = styled.div`
   display: flex;
@@ -97,16 +98,20 @@ const MODALS = {
 };
 
 const Menu = ({ setModal, status, disabled }) => {
-  const menuActions = {
-    'Print label': () => {
-      setModal(MODAL_IDS.LABEL_PRINT);
+  const menuActions = [
+    {
+      label: <TranslatedText stringId="labRequest.action.printLabel" fallback="Print label" />,
+      action: () => setModal(MODAL_IDS.LABEL_PRINT),
     },
-  };
+  ];
 
   if (status !== LAB_REQUEST_STATUSES.PUBLISHED) {
-    menuActions['Cancel request'] = () => {
-      setModal(MODAL_IDS.CANCEL);
-    };
+    menuActions.push({
+      label: (
+        <TranslatedText stringId="labRequest.action.cancelRequest" fallback="Cancel request" />
+      ),
+      action: () => setModal(MODAL_IDS.CANCEL),
+    });
   }
   return <MenuButton disabled={disabled} status={status} actions={menuActions} />;
 };
@@ -164,18 +169,32 @@ export const LabRequestView = () => {
   const displayStatus = areLabRequestsReadOnly ? LAB_REQUEST_STATUSES.CANCELLED : labRequest.status;
 
   const ActiveModal = MODALS[modalId] || null;
+
   const actions =
     labRequest.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED
-      ? { 'Record sample': () => handleChangeModalId(MODAL_IDS.RECORD_SAMPLE) }
-      : {
-          Edit: () => handleChangeModalId(MODAL_IDS.RECORD_SAMPLE),
-          'View Details': () => handleChangeModalId(MODAL_IDS.SAMPLE_DETAILS),
-        };
+      ? [
+          {
+            label: <TranslatedText stringId="lab.action.recordSample" fallback="Record sample" />,
+            action: () => handleChangeModalId(MODAL_IDS.RECORD_SAMPLE),
+          },
+        ]
+      : [
+          {
+            label: <TranslatedText stringId="general.action.edit" fallback="Edit" />,
+            action: () => handleChangeModalId(MODAL_IDS.RECORD_SAMPLE),
+          },
+          {
+            label: <TranslatedText stringId="lab.action.viewDetails" fallback="View details" />,
+            action: () => handleChangeModalId(MODAL_IDS.SAMPLE_DETAILS),
+          },
+        ];
 
   return (
     <Container>
       <TopContainer>
-        <Heading2>Labs</Heading2>
+        <Heading2>
+          <TranslatedText stringId="lab.view.title" fallback="Labs" />
+        </Heading2>
         <LabRequestCard
           labRequest={labRequest}
           isReadOnly={areLabRequestsReadOnly}
@@ -187,7 +206,7 @@ export const LabRequestView = () => {
                   handleChangeModalId(MODAL_IDS.PRINT);
                 }}
               >
-                Print request
+                <TranslatedText stringId="lab.action.printRequest" fallback="Print request" />
               </OutlinedButton>
               <Menu setModal={handleChangeModalId} status={labRequest.status} disabled={isHidden} />
             </Box>
@@ -197,32 +216,46 @@ export const LabRequestView = () => {
         <FixedTileRow>
           <Tile
             Icon={() => <img src={TestCategoryIcon} alt="test category" />}
-            text="Test Category"
+            text={
+              <TranslatedText
+                stringId="lab.view.tile.testCategory.label"
+                fallback="Test Category"
+              />
+            }
             main={labRequest.category?.name || '-'}
           />
           <Tile
             Icon={Timelapse}
-            text="Status"
+            text={<TranslatedText stringId="lab.view.tile.status.label" fallback="Status" />}
             main={
               <TileTag $color={LAB_REQUEST_STATUS_CONFIG[labRequest.status]?.color}>
                 {LAB_REQUEST_STATUS_CONFIG[displayStatus]?.label || 'Unknown'}
               </TileTag>
             }
-            actions={{
-              ...(!areLabRequestsReadOnly &&
+            actions={[
+              !areLabRequestsReadOnly &&
                 canWriteLabRequestStatus && {
-                  'Change status': () => {
-                    handleChangeModalId(MODAL_IDS.CHANGE_STATUS);
-                  },
-                }),
-              'View status log': () => {
-                handleChangeModalId(MODAL_IDS.VIEW_STATUS_LOG);
+                  label: (
+                    <TranslatedText stringId="lab.action.changeStatus" fallback="Change status" />
+                  ),
+                  action: () => handleChangeModalId(MODAL_IDS.CHANGE_STATUS),
+                },
+              {
+                label: (
+                  <TranslatedText stringId="lab.action.viewStatusLog" fallback="View status log" />
+                ),
+                action: () => handleChangeModalId(MODAL_IDS.VIEW_STATUS_LOG),
               },
-            }}
+            ]}
           />
           <Tile
             Icon={() => <img src={BeakerIcon} alt="beaker" />}
-            text="Sample collected"
+            text={
+              <TranslatedText
+                stringId="lab.view.tile.sampleTime.label"
+                fallback="Sample collected"
+              />
+            }
             isReadOnly={areLabRequestsReadOnly}
             main={
               <>
@@ -237,25 +270,36 @@ export const LabRequestView = () => {
           />
           <Tile
             Icon={Business}
-            text="Laboratory"
+            text={
+              <TranslatedText stringId="lab.view.tile.laboratory.label" fallback="Laboratory" />
+            }
             main={labRequest.laboratory?.name || '-'}
             isReadOnly={areLabRequestsReadOnly}
-            actions={{
-              'Change laboratory': () => {
-                handleChangeModalId(MODAL_IDS.CHANGE_LABORATORY);
+            actions={[
+              {
+                label: (
+                  <TranslatedText
+                    stringId="lab.action.changeLaboratory"
+                    fallback="Change laboratory"
+                  />
+                ),
+                action: () => handleChangeModalId(MODAL_IDS.CHANGE_LABORATORY),
               },
-            }}
+            ]}
           />
           <Tile
             Icon={AssignmentLate}
-            text="Priority"
+            text={<TranslatedText stringId="lab.view.tile.priority.label" fallback="Priority" />}
             main={labRequest.priority?.name || '-'}
             isReadOnly={areLabRequestsReadOnly}
-            actions={{
-              'Change priority': () => {
-                handleChangeModalId(MODAL_IDS.CHANGE_PRIORITY);
+            actions={[
+              {
+                label: (
+                  <TranslatedText stringId="lab.action.changePriority" fallback="Change priority" />
+                ),
+                action: () => handleChangeModalId(MODAL_IDS.CHANGE_PRIORITY),
               },
-            }}
+            ]}
           />
         </FixedTileRow>
       </TopContainer>
@@ -263,7 +307,7 @@ export const LabRequestView = () => {
         {!isPublished && !areLabTestsReadOnly && (
           <Box display="flex" justifyContent="flex-end" marginBottom="20px">
             <Button onClick={() => handleChangeModalId(MODAL_IDS.ENTER_RESULTS)}>
-              Enter results
+              <TranslatedText stringId="lab.action.enterResults" fallback="Enter results" />
             </Button>
           </Box>
         )}

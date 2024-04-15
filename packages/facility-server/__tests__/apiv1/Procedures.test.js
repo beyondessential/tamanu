@@ -33,7 +33,7 @@ describe('Procedures', () => {
   afterAll(() => ctx.close());
 
   it('should record a procedure', async () => {
-    const result = await app.post('/v1/procedure').send({
+    const result = await app.post('/api/procedure').send({
       encounterId: encounter.id,
       note: 'test',
       date: new Date(),
@@ -51,7 +51,7 @@ describe('Procedures', () => {
       encounterId: encounter.id,
     });
 
-    const result = await app.put(`/v1/procedure/${record.id}`).send({
+    const result = await app.put(`/api/procedure/${record.id}`).send({
       note: 'after',
     });
     expect(result).toHaveSucceeded();
@@ -67,7 +67,7 @@ describe('Procedures', () => {
     });
     expect(record.endTime).toBeFalsy();
 
-    const result = await app.put(`/v1/procedure/${record.id}`).send({
+    const result = await app.put(`/api/procedure/${record.id}`).send({
       endTime: new Date(),
     });
     expect(result).toHaveSucceeded();

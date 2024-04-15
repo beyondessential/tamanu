@@ -19,7 +19,7 @@ describe('sync', () => {
       ['Sync completed', { enabled: true, ran: true, queued: false }],
     ])('triggers a sync and returns %s', async (message, info) => {
       ctx.syncManager.triggerSync = jest.fn().mockResolvedValueOnce(info);
-      const result = await app.post('/v1/sync/run');
+      const result = await app.post('/api/sync/run');
       expect(result).toHaveProperty('body.message', message);
     });
   });

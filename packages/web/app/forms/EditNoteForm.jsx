@@ -1,5 +1,7 @@
 import React from 'react';
 
+import { NOTE_TYPE_LABELS } from '@tamanu/constants';
+
 import { FormSubmitCancelRow } from '../components/ButtonRow';
 import {
   NoteContentField,
@@ -7,7 +9,7 @@ import {
   StyledDivider,
   WrittenByText,
 } from '../components/NoteCommonFields';
-import { NOTE_TYPE_LABELS } from '../constants';
+import { TranslatedText } from '../components/Translation/TranslatedText';
 
 export const EditNoteForm = ({ note, onNoteContentChange, onSubmit, onCancel }) => {
   const noteAuthorName = note.revisedBy
@@ -26,17 +28,20 @@ export const EditNoteForm = ({ note, onNoteContentChange, onSubmit, onCancel }) 
         numberOfColumns={3}
         noteType={NOTE_TYPE_LABELS[note.noteType]}
         date={note.revisedBy ? note.revisedBy.date : note.date}
-        writtenByLabel="Written by (or on behalf of)"
+        writtenByLabel={<TranslatedText
+          stringId="note.writtenBy.label"
+          fallback="Written by (or on behalf of)"
+        />}
         writtenBy={writtenBy}
-        dateLabel="Date & time"
+        dateLabel={<TranslatedText stringId="note.dateTime.label" fallback="Date & time" />}
       />
       <br />
       <NoteContentField onChange={onNoteContentChange} />
       <StyledDivider />
       <FormSubmitCancelRow
         onConfirm={onSubmit}
-        confirmText="Save"
-        cancelText="Cancel"
+        confirmText={<TranslatedText stringId="general.action.save" fallback="Save" />}
+        cancelText={<TranslatedText stringId="general.action.cancel" fallback="Cancel" />}
         onCancel={onCancel}
       />
     </>

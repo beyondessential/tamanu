@@ -11,7 +11,7 @@ describe('omniLab auth', () => {
 
   it('does not allow default API keys', async () => {
     const app = await ctx.baseApp.asRole('admin');
-    const request = await app.get('/v1/public/integration/omniLab');
+    const request = await app.get('/api/public/integration/omniLab');
     expect(request).not.toHaveSucceeded();
   });
 
@@ -24,7 +24,7 @@ describe('omniLab auth', () => {
 
     // act
     const request = await app
-      .get('/v1/public/integration/omniLab')
+      .get('/api/public/integration/omniLab')
       .set('Authorization', `Bearer ${token}`);
 
     // assert

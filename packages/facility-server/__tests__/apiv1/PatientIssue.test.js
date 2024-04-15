@@ -18,7 +18,7 @@ describe('PatientIssue', () => {
   afterAll(() => ctx.close());
 
   it('should record an issue', async () => {
-    const result = await app.post('/v1/patientIssue').send({
+    const result = await app.post('/api/patientIssue').send({
       patientId: patient.id,
       note: 'A patient issue',
     });
@@ -27,7 +27,7 @@ describe('PatientIssue', () => {
   });
 
   it('should require a valid patient', async () => {
-    const result = await app.post('/v1/patientIssue').send({
+    const result = await app.post('/api/patientIssue').send({
       patientId: 'not a patient',
       note: 'A patient issue',
     });

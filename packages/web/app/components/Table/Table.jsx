@@ -24,6 +24,7 @@ import { Colors } from '../../constants';
 import { ThemedTooltip } from '../Tooltip';
 import { ErrorBoundary } from '../ErrorBoundary';
 import { Paginator } from './Paginator';
+import { TranslatedText } from '../Translation/TranslatedText';
 
 const preventInputCallback = e => {
   e.stopPropagation();
@@ -97,8 +98,10 @@ const StyledTableContainer = styled.div`
   overflow: auto;
   border-radius: 5px;
   background: white;
-  border: 1px solid ${props => props.$borderColor};
+  width: 100%;
+  border: 1px solid ${props => (props.$borderColor ? props.$borderColor : Colors.outline)};
   ${props => (props.$elevated ? PaperStyles : null)};
+  ${props => (props.containerStyle ? props.containerStyle : null)}
 `;
 
 const StyledTableBody = styled(TableBody)`
@@ -158,6 +161,13 @@ const StyledTableHead = styled(TableHead)`
       width: 100%;
     `
       : ''}
+  ${props =>
+    props.$isBodyScrollable
+      ? `
+      position: sticky;
+      top: 0;
+  `
+      : ``}
   background: ${props => (props.$headerColor ? props.$headerColor : Colors.background)};
   white-space: nowrap;
   .MuiTableCell-head {
@@ -212,9 +222,9 @@ const Row = React.memo(
         const backgroundColor = typeof cellColor === 'function' ? cellColor(data) : cellColor;
         return (
           <StyledTableCell
+            key={key}
             onClick={dontCallRowInput ? preventInputCallback : undefined}
             background={backgroundColor}
-            key={key}
             align={numeric ? 'right' : 'left'}
             data-test-class={`table-column-${key}`}
           >
@@ -267,7 +277,7 @@ const StatusRow = React.memo(({ colSpan, children, textColor }) => (
 class TableComponent extends React.Component {
   getStatusMessage() {
     const { isLoading, errorMessage, data, noDataMessage } = this.props;
-    if (isLoading) return 'Loading...';
+    if (isLoading) return <TranslatedText stringId="general.table.loading" fallback="Loading..." />;
     if (errorMessage) return errorMessage;
     if (!data.length) return noDataMessage;
     return null;
@@ -298,15 +308,7 @@ class TableComponent extends React.Component {
   };
 
   renderHeaders() {
-    const {
-      columns,
-      order,
-      orderBy,
-      onChangeOrderBy,
-      getLocalisation,
-      titleData,
-      headerOnChange,
-    } = this.props;
+    const { columns, order, orderBy, onChangeOrderBy, titleData, headerOnChange } = this.props;
     const getContent = ({ key, sortable, title, titleAccessor, tooltip, TitleCellComponent }) => {
       const onChange = headerOnChange ? event => headerOnChange(event, key) : null;
       const displayTitle = titleAccessor
@@ -324,10 +326,10 @@ class TableComponent extends React.Component {
           onClick={() => onChangeOrderBy(key)}
           IconComponent={orderBy === key ? ActiveSortIcon : InactiveSortIcon}
         >
-          {title || getLocalisation(`fields.${key}.shortLabel`) || key}
+          {title || key}
         </TableSortLabel>
       ) : (
-        <span>{displayTitle || getLocalisation(`fields.${key}.shortLabel`) || key}</span>
+        <span>{displayTitle || key}</span>
       );
 
       const headerElement = titleCellComponent || defaultHeaderElement;
@@ -458,12 +460,16 @@ class TableComponent extends React.Component {
       isLoading,
       noDataBackgroundColor,
       tableRef,
+      containerStyle,
+      isBodyScrollable,
     } = this.props;
 
     return (
       <StyledTableContainer
         className={className}
         $elevated={elevated}
+        isBodyScrollable
+        containerStyle={containerStyle}
         $borderColor={
           noDataBackgroundColor !== Colors.white && !(data?.length || isLoading)
             ? noDataBackgroundColor
@@ -479,6 +485,7 @@ class TableComponent extends React.Component {
               $headerColor={headerColor}
               $fixedHeader={fixedHeader}
               $lazyLoading={lazyLoading}
+              $isBodyScrollable={isBodyScrollable}
             >
               <StyledTableRow $lazyLoading={lazyLoading}>{this.renderHeaders()}</StyledTableRow>
             </StyledTableHead>
@@ -528,16 +535,18 @@ TableComponent.propTypes = {
   exportName: PropTypes.string,
   refreshTable: PropTypes.func,
   rowStyle: PropTypes.func,
+  containerStyle: PropTypes.string,
   allowExport: PropTypes.bool,
   elevated: PropTypes.bool,
   lazyLoading: PropTypes.bool,
   isLoadingMore: PropTypes.bool,
   noDataBackgroundColor: PropTypes.string,
+  isBodyScrollable: PropTypes.bool,
 };
 
 TableComponent.defaultProps = {
   errorMessage: '',
-  noDataMessage: 'No data found',
+  noDataMessage: <TranslatedText stringId="general.table.noDataMessage" fallback="No data found" />,
   count: 0,
   hideHeader: false,
   isLoading: false,
@@ -555,13 +564,15 @@ TableComponent.defaultProps = {
   rowsPerPageOptions: DEFAULT_ROWS_PER_PAGE_OPTIONS,
   rowIdKey: 'id', // specific to data expected for tamanu REST api fetches
   className: null,
-  exportName: 'TamanuExport',
+  exportName: 'Export',
   refreshTable: null,
   rowStyle: null,
+  containerStyle: null,
   allowExport: true,
   lazyLoading: false,
   isLoadingMore: false,
   noDataBackgroundColor: Colors.white,
+  isBodyScrollable: false,
 };
 
 export const Table = React.forwardRef(
@@ -576,7 +587,6 @@ export const Table = React.forwardRef(
         columns={columns}
         data={data}
         exportname={exportName}
-        getLocalisation={getLocalisation}
         tableRef={ref}
         {...props}
       />

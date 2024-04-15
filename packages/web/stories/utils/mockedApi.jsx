@@ -2,7 +2,10 @@ import React from 'react';
 import { parse, tokensToRegExp } from 'path-to-regexp';
 import { ApiContext } from '../../app/api';
 
-const wait = duration => new Promise(resolve => setTimeout(resolve, duration));
+const wait = duration =>
+  new Promise(resolve => {
+    setTimeout(resolve, duration);
+  });
 
 function createMockedApi(endpoints) {
   const matchers = Object.entries(endpoints).map(([endpoint, callback]) => {

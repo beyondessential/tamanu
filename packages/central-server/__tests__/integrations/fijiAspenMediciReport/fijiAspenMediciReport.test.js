@@ -2,18 +2,28 @@ import config from 'config';
 import { upperFirst } from 'lodash';
 import { utcToZonedTime } from 'date-fns-tz';
 import {
-  DIAGNOSIS_CERTAINTY,
-  ENCOUNTER_TYPES,
-  IMAGING_TYPES,
+  REFERENCE_TYPES,
   NOTE_RECORD_TYPES,
   NOTE_TYPES,
-  REFERENCE_TYPES,
+  ENCOUNTER_TYPES,
+  IMAGING_TYPES,
+  DIAGNOSIS_CERTAINTY,
 } from '@tamanu/constants';
 import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { fake } from '@tamanu/shared/test-helpers/fake';
+import { log } from '@tamanu/shared/services/logging';
+
 import { createTestContext } from '@tamanu/central-server/__tests__/utilities';
+import { allFromUpstream } from '../../../dist/tasks/fhir/refresh/allFromUpstream';
 
 const COUNTRY_TIMEZONE = config?.countryTimeZone;
+
+const createLocalDateTimeFromUTC = (year, month, day, hour, minute, second, millisecond = 0) => {
+  // Interprets inputs AS utc, and "utcTime" is the **local** version of that time
+  // ie. 2022-02-03 2:30 -> 2022-02-03 4:30 (+02:00 (implied by local timezone))
+  const utcTime = Date.UTC(year, month, day, hour, minute, second, millisecond);
+  return utcToZonedTime(utcTime, COUNTRY_TIMEZONE);
+};
 
 const createLocalDateTimeStringFromUTC = (
   year,
@@ -24,14 +34,13 @@ const createLocalDateTimeStringFromUTC = (
   second,
   millisecond = 0,
 ) => {
-  // Interprets inputs AS utc, and "utcTime" is the **local** version of that time
-  // ie. 2022-02-03 2:30 -> 2022-02-03 4:30 (+02:00 (implied by local timezone))
-  const utcTime = Date.UTC(year, month, day, hour, minute, second, millisecond);
-  const localTimeWithoutTimezone = toDateTimeString(utcToZonedTime(utcTime, COUNTRY_TIMEZONE));
+  const localTimeWithoutTimezone = toDateTimeString(
+    createLocalDateTimeFromUTC(year, month, day, hour, minute, second, millisecond),
+  );
   return localTimeWithoutTimezone;
 };
 
-const fakeAllData = async models => {
+const fakeAllData = async (models, ctx) => {
   const { id: userId } = await models.User.create(fake(models.User));
   const { id: examinerId } = await models.User.create(fake(models.User));
   const { id: facilityId } = await models.Facility.create(fake(models.Facility));
@@ -126,7 +135,7 @@ const fakeAllData = async models => {
     }),
   );
   // open encounter
-  await models.Encounter.create(
+  const { id: openEncounterId } = await models.Encounter.create(
     fake(models.Encounter, {
       patientId: patient.id,
       startDate: createLocalDateTimeStringFromUTC(2022, 6 - 1, 15, 0, 2, 54, 225),
@@ -243,7 +252,7 @@ const fakeAllData = async models => {
       areaId: rightImagingAreaId,
     }),
   );
-  await models.Note.create(
+  const imagingRequestNote = await models.Note.create(
     fake(models.Note, {
       recordId: imagingRequestId,
       noteType: NOTE_TYPES.OTHER,
@@ -257,7 +266,7 @@ const fakeAllData = async models => {
     fake(models.LabRequest, { encounterId }),
   );
   await models.LabTest.create(fake(models.LabTest, { labRequestId, labTestTypeId }));
-  await models.Note.create(
+  const labRequestNote = await models.Note.create(
     fake(models.Note, {
       recordId: labRequestId,
       noteType: NOTE_TYPES.OTHER,
@@ -275,7 +284,7 @@ const fakeAllData = async models => {
     }),
   );
 
-  await models.Note.create(
+  const encounterNote = await models.Note.create(
     fake(models.Note, {
       recordId: encounterId,
       noteType: NOTE_TYPES.NURSING,
@@ -289,18 +298,34 @@ const fakeAllData = async models => {
   const encounter = await models.Encounter.findByPk(encounterId);
   await encounter.update({
     locationId: location2Id,
+    submittedTime: createLocalDateTimeStringFromUTC(2022, 6 - 1, 9, 8, 4, 54),
   });
 
-  const systemNote = await models.Note.findOne({
-    where: {
-      noteType: NOTE_TYPES.SYSTEM,
+  await allFromUpstream(
+    {
+      payload: {
+        op: 'UPDATE',
+        table: 'public.encounters',
+        id: encounterId,
+      },
     },
+    {
+      log,
+      sequelize: ctx.store.sequelize,
+      models: ctx.store.models,
+    },
+  );
+
+  await models.MediciReport.materialiseFromUpstream(encounterId);
+  await models.MediciReport.materialiseFromUpstream(openEncounterId);
+
+  const medici = await models.MediciReport.findOne();
+
+  await medici.update({
+    lastUpdated: new Date(Date.UTC(2022, 6 - 1, 12, 0, 2, 54, 225)),
   });
 
-  systemNote.date = createLocalDateTimeStringFromUTC(2022, 6 - 1, 9, 8, 4, 54);
-  await systemNote.save();
-
-  return { patient, encounterId };
+  return { patient, encounterId, encounterNote, imagingRequestNote, labRequestNote };
 };
 
 describe('fijiAspenMediciReport', () => {
@@ -313,7 +338,7 @@ describe('fijiAspenMediciReport', () => {
     ctx = await createTestContext();
     models = ctx.store.models;
     app = await ctx.baseApp.asRole('practitioner');
-    fakedata = await fakeAllData(models);
+    fakedata = await fakeAllData(models, ctx);
   });
 
   afterAll(() => ctx.close());
@@ -338,7 +363,7 @@ describe('fijiAspenMediciReport', () => {
           end,
         )}`;
         const response = await app
-          .get(`/v1/integration/fijiAspenMediciReport?${query}`)
+          .get(`/api/integration/fijiAspenMediciReport?${query}`)
           .set({ 'X-Tamanu-Client': 'medici', 'X-Version': '0.0.1' });
 
         expect(response).toHaveSucceeded();
@@ -351,7 +376,7 @@ describe('fijiAspenMediciReport', () => {
         'nonexistant-id',
       ])}`;
       const response = await app
-        .get(`/v1/integration/fijiAspenMediciReport?${query}`)
+        .get(`/api/integration/fijiAspenMediciReport?${query}`)
         .set({ 'X-Tamanu-Client': 'medici', 'X-Version': '0.0.1' });
 
       expect(response).toHaveSucceeded();
@@ -364,7 +389,7 @@ describe('fijiAspenMediciReport', () => {
         'nonexistant-id',
       ])}`;
       const response = await app
-        .get(`/v1/integration/fijiAspenMediciReport?${query}`)
+        .get(`/api/integration/fijiAspenMediciReport?${query}`)
         .set({ 'X-Tamanu-Client': 'medici', 'X-Version': '0.0.1' });
 
       expect(response).toHaveSucceeded();
@@ -374,7 +399,7 @@ describe('fijiAspenMediciReport', () => {
 
   it('should produce reports without any params', async () => {
     const response = await app
-      .get('/v1/integration/fijiAspenMediciReport')
+      .get('/api/integration/fijiAspenMediciReport')
       .set({ 'X-Tamanu-Client': 'medici', 'X-Version': '0.0.1' });
 
     expect(response).toHaveSucceeded();
@@ -388,7 +413,7 @@ describe('fijiAspenMediciReport', () => {
     const isoStringRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\+00:00$/;
     // act
     const response = await app
-      .get('/v1/integration/fijiAspenMediciReport?period.start=2022-05-09&period.end=2022-10-09')
+      .get('/api/integration/fijiAspenMediciReport?period.start=2022-05-09&period.end=2022-10-09')
       .set({ 'X-Tamanu-Client': 'medici', 'X-Version': '0.0.1' });
 
     // assert
@@ -397,8 +422,8 @@ describe('fijiAspenMediciReport', () => {
       {
         // Patient Details
         patientId: 'BTIO864386',
-        firstname: patient.firstName,
-        lastname: patient.lastName,
+        firstName: patient.firstName,
+        lastName: patient.lastName,
         dateOfBirth: '1952-10-12',
         age: expect.any(Number), // TODO
         sex: upperFirst(patient.sex),
@@ -513,6 +538,7 @@ describe('fijiAspenMediciReport', () => {
                 noteType: NOTE_TYPES.OTHER,
                 content: 'Please perform this lab test very carefully',
                 noteDate: '2022-06-09T02:04:54+00:00',
+                revisedById: fakedata.labRequestNote.id,
               },
             ],
           },
@@ -526,6 +552,7 @@ describe('fijiAspenMediciReport', () => {
                 noteType: 'other',
                 content: 'Check for fractured knees please',
                 noteDate: '2022-06-10T06:04:54+00:00',
+                revisedById: fakedata.imagingRequestNote.id,
               },
             ],
           },
@@ -535,6 +562,7 @@ describe('fijiAspenMediciReport', () => {
             noteType: NOTE_TYPES.NURSING,
             content: 'A\nB\nC\nD\nE\nF\nG\n',
             noteDate: '2022-06-10T03:39:57+00:00',
+            revisedById: fakedata.encounterNote.id,
           },
         ],
       },

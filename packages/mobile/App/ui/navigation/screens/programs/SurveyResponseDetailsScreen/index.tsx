@@ -7,16 +7,15 @@ import { theme } from '../../../../styled/theme';
 
 import { StackHeader } from '../../../../components/StackHeader';
 import { formatStringDate } from '../../../../helpers/date';
-import { AutocompleteSourceToColumnMap, DateFormats } from '../../../../helpers/constants';
-import { FieldTypes } from '../../../../helpers/fields';
+import { DateFormats } from '../../../../helpers/constants';
+import { FieldTypes, getDisplayNameForModel } from '../../../../helpers/fields';
 import { SurveyResultBadge } from '../../../../components/SurveyResultBadge';
 import { ViewPhotoLink } from '../../../../components/ViewPhotoLink';
 import { LoadingScreen } from '../../../../components/LoadingScreen';
 import { useBackendEffect } from '../../../../hooks';
 
-const AutocompleteAnswer = ({ question, answer }): ReactElement => {
+const BackendAnswer = ({ question, answer }): ReactElement => {
   const config = JSON.parse(question.config);
-  const columnName = AutocompleteSourceToColumnMap[config.source];
   const [refData, error] = useBackendEffect(
     ({ models }) => models[config.source].getRepository().findOne(answer),
     [question],
@@ -30,7 +29,7 @@ const AutocompleteAnswer = ({ question, answer }): ReactElement => {
   }
   return (
     <StyledText textAlign="right" color={theme.colors.TEXT_DARK}>
-      {refData[columnName]}
+      {getDisplayNameForModel(config.source, refData)}
     </StyledText>
   );
 };
@@ -68,14 +67,42 @@ function getAnswerText(question, answer): string | number {
   }
 }
 
+const isFromBackend = ({ config, dataElement }): Boolean => {
+  // all autocompletes have answers connected to the backend
+  if (dataElement.type === FieldTypes.AUTOCOMPLETE) {
+    return true;
+  }
+
+  // PatientData has some special cases
+  // see getComponentForQuestionType in web/app/utils/survey.jsx for source of the following logic
+  if (dataElement.type === FieldTypes.PATIENT_DATA) {
+    const configObject = config && JSON.parse(config);
+
+    // PatientData specifically can overwrite field type if we are writing back to patient record
+    if (configObject?.writeToPatient?.fieldType === 'Autocomplete') {
+      return true;
+    }
+
+    // if config has a "source", we're displaying a relation, so need to fetch the data from the
+    // backend (otherwise the bare id will be displayed)
+    if (configObject?.source) {
+      return true;
+    }
+  }
+
+  return false;
+};
+
 const renderAnswer = (question, answer): ReactElement => {
+  if (isFromBackend(question)) {
+    return <BackendAnswer question={question} answer={answer} />;
+  }
+
   switch (question.dataElement.type) {
     case FieldTypes.RESULT:
       return <SurveyResultBadge resultText={answer} />;
     case FieldTypes.PHOTO:
       return <ViewPhotoLink imageId={answer} />;
-    case FieldTypes.AUTOCOMPLETE:
-      return <AutocompleteAnswer question={question} answer={answer} />;
     default:
       return (
         <StyledText textAlign="right" color={theme.colors.TEXT_DARK}>

@@ -26,6 +26,7 @@ export const SurveyView = ({
   patient,
   patientAdditionalData,
   currentUser,
+  patientProgramRegistration,
 }) => {
   const { components } = survey;
   const currentComponents = components.filter(
@@ -36,6 +37,7 @@ export const SurveyView = ({
     patient,
     patientAdditionalData,
     currentUser,
+    patientProgramRegistration,
   );
   const validationSchema = useMemo(() => getValidationSchema(survey), [survey]);
 

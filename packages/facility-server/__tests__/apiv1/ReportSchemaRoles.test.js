@@ -115,7 +115,7 @@ describe('ReportSchemaRoles', () => {
         versionNumber: 1,
         userId: user.id,
       });
-      const response = await adminApp.post(`/v1/reports/${reportDefinitionVersion.id}`);
+      const response = await adminApp.post(`/api/reports/${reportDefinitionVersion.id}`);
       expect(response).toHaveSucceeded();
       expect(response.body).toEqual([
         ['id', 'name'],
@@ -132,7 +132,7 @@ describe('ReportSchemaRoles', () => {
         versionNumber: 1,
         userId: user.id,
       });
-      const response = await adminApp.post(`/v1/reports/${reportDefinitionVersion.id}`);
+      const response = await adminApp.post(`/api/reports/${reportDefinitionVersion.id}`);
       expect(response).toHaveRequestError();
       expect(response.body.error.message).toEqual('permission denied for table raw_test_table');
     });
@@ -147,7 +147,7 @@ describe('ReportSchemaRoles', () => {
         versionNumber: 1,
         userId: user.id,
       });
-      const response = await adminApp.post(`/v1/reports/${reportDefinitionVersion.id}`);
+      const response = await adminApp.post(`/api/reports/${reportDefinitionVersion.id}`);
       expect(response).toHaveSucceeded();
       expect(response.body).toEqual([
         ['id', 'name'],
@@ -164,7 +164,7 @@ describe('ReportSchemaRoles', () => {
         versionNumber: 1,
         userId: user.id,
       });
-      const response = await adminApp.post(`/v1/reports/${reportDefinitionVersion.id}`);
+      const response = await adminApp.post(`/api/reports/${reportDefinitionVersion.id}`);
       expect(response).toHaveSucceeded();
       expect(response.body).toEqual([
         ['id', 'name'],
@@ -184,7 +184,7 @@ describe('ReportSchemaRoles', () => {
       versionNumber: 1,
       userId: user.id,
     });
-    const response = await adminApp.post(`/v1/reports/${reportDefinitionVersion.id}`);
+    const response = await adminApp.post(`/api/reports/${reportDefinitionVersion.id}`);
     expect(response).toHaveRequestError();
     expect(response.body.error.message).toEqual('permission denied for table reporting_test_table');
   });
