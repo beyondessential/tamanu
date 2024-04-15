@@ -55,7 +55,7 @@ jobs:
     # do release management after the critical bits above as we care less if those fail
 
     - name: Create draft for next release
-      uses: actions/github-script@v6
+      uses: actions/github-script@v7
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
@@ -64,7 +64,7 @@ jobs:
           await createDraftRelease(await import('fs'), github, context, cwd, '${{ steps.nextv.outputs.next_version }}');
 
     - name: Publish the draft release if one exists
-      uses: actions/github-script@v6
+      uses: actions/github-script@v7
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
