@@ -133,14 +133,14 @@ export class MobileSyncManager {
 
     const urgentSyncIntervalInSeconds = parseInt(urgentSyncIntervalInSecondsStr, 10);
 
-    // start the sync now, and schedule one later
-    await this.triggerSync({ urgent: true });
-
     // Schedule regular urgent sync
     this.urgentSyncInterval = setInterval(
       () => this.triggerSync({ urgent: true }),
       urgentSyncIntervalInSeconds * 1000,
     );
+
+    // start the sync now
+    await this.triggerSync({ urgent: true });
   }
 
   /**
