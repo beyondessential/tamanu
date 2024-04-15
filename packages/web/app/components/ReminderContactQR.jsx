@@ -46,21 +46,17 @@ export const ReminderContactQR = ({ contact, onClose }) => {
 
   const [qrCodeURL, setQRCodeURL] = useState('');
 
-  const data = {
-    id: contact?.id,
-  };
-
   useEffect(() => {
-    generateQRCode(data);
+    generateQRCode();
   }, []);
 
-  const generateQRCode = async data => {
+  const generateQRCode = async () => {
     try {
-      // Convert the object to a JSON string
-      const jsonString = JSON.stringify(data);
+      //TODO: Get the bot name from the API
+      const urlString = `https://t.me/reminder_messages_bot?start=${contact.id}`;
 
-      // Generate QR code from the JSON string
-      const url = await QRCode.toDataURL(jsonString);
+      // Generate QR code from the URL string
+      const url = await QRCode.toDataURL(urlString);
       setQRCodeURL(url);
     } catch (error) {
       toast.error(`Error generating QR code: ${error}`);

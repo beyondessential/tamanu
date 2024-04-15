@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
@@ -87,7 +88,27 @@ const StyledAddContactButton = styled(Button)`
   }
 `;
 
-const ContactDetails = ({ onRemoveContact }) => {
+const RowActionLink = styled.a`
+  text-decoration: underline;
+  cursor: pointer;
+`;
+
+const ColoredText = styled.span`
+  color: ${props => props.color};
+`;
+
+const ColoredCellText = ({ children, status }) => {
+  switch (status) {
+    case 'failed':
+      return <ColoredText color={Colors.alert}>{children}</ColoredText>
+    case 'pending':
+      return <ColoredText color={Colors.softText}>{children}</ColoredText>
+    default:
+      return <span>{children}</span>
+  }
+}
+
+const ContactDetails = ({ pendingContacts, onRetry, successContactIds, onRemoveContact }) => {
   const { getTranslation } = useTranslation();
   const patient = useSelector(state => state.patient);
   const patientName = joinNames(patient);
@@ -100,34 +121,70 @@ const ContactDetails = ({ onRemoveContact }) => {
     setIsEmpty(!count);
   };
 
+  const getStatus = (isTimerStarted = false, contactId) => {
+    if (successContactIds.includes(contactId)) {
+      return 'success';
+    }
+    if (isTimerStarted) {
+      return 'pending';
+    }
+    return 'failed';
+  };
+
+  const getMethod = (status, method) => {
+    let methodText;
+    switch (status) {
+      case 'failed':
+        methodText = <TranslatedText
+          stringId='patient.details.reminderContacts.method.failed'
+          fallback='Failed'
+        />;
+        break;
+      case 'pending':
+        methodText = <TranslatedText
+          stringId={`patient.details.reminderContacts.method.${method}Pending`}
+          fallback={capitalize(method) + ' pending'}
+        />;
+        break;
+      case 'success':
+        methodText = <TranslatedText
+          stringId={`patient.details.reminderContacts.method.${method}`}
+          fallback={capitalize(method)}
+        />;
+        break;
+    }
+    return <ColoredCellText status={status}>{methodText}</ColoredCellText>
+  };
+
   const columns = [
     {
       key: 'name',
       title: <TranslatedText stringId='patient.details.reminderContacts.field.contact' fallback='Contact' />,
       sortable: false,
+      accessor: row => (
+        <ColoredCellText status={getStatus(pendingContacts[row.id]?.isTimerStarted, row.id)}>
+          {row.name}
+        </ColoredCellText>
+      ),
     },
     {
       key: 'relationship.name',
       title: <TranslatedText stringId='patient.details.reminderContacts.field.relationship' fallback='Relationship' />,
       sortable: false,
+      accessor: row => (
+        <ColoredCellText status={getStatus(pendingContacts[row.id]?.isTimerStarted, row.id)}>
+          {row.relationship.name}
+        </ColoredCellText>
+      ),
     },
     {
       key: 'method',
       title: <TranslatedText stringId='patient.details.reminderContacts.field.contactMethod' fallback='Contact method' />,
       sortable: false,
-      accessor: data => {
-        return data.connectionDetails ? (
-          <TranslatedText
-            stringId={`patient.details.reminderContacts.method.${data.method}`}
-            fallback={capitalize(data.method)}
-          />
-        ) : (
-          <TranslatedText
-            stringId={`patient.details.reminderContacts.method.${data.method}Pending`}
-            fallback={`${capitalize(data.method)} pending`}
-          />
-        );
-      },
+      accessor: row => getMethod(
+        getStatus(pendingContacts[row.id]?.isTimerStarted, row.id),
+        row.method,
+      ),
     },
     ...(canRemoveReminderContacts
       ? [
@@ -148,6 +205,18 @@ const ContactDetails = ({ onRemoveContact }) => {
           },
         ]
       : []),
+    { 
+      key: '', 
+      title: '', 
+      sortable: false,
+      accessor: row => getStatus(pendingContacts[row.id]?.isTimerStarted, row.id) === 'failed'
+      ? (
+        <RowActionLink onClick={() => onRetry(row)}>
+          <TranslatedText stringId="general.action.retry" fallback="Retry" />
+        </RowActionLink>
+      )
+      : ''
+    },
   ];
 
   return (
@@ -186,13 +255,18 @@ const ContactDetails = ({ onRemoveContact }) => {
   );
 };
 
-export const ReminderContactList = ({ onClose, onAddContact, onRemoveContact }) => {
+export const ReminderContactList = ({ onClose, onAddContact, pendingContacts, onRetry, successContactIds, onRemoveContact }) => {
   const { ability } = useAuth();
   const canAddReminderContacts = ability.can('write', 'Patient');
 
   return (
     <>
-      <ContactDetails onRemoveContact={onRemoveContact} />
+      <ContactDetails 
+        pendingContacts={pendingContacts}
+        onRetry={onRetry}
+        successContactIds={successContactIds}
+        onRemoveContact={onRemoveContact}
+      />
 
       {canAddReminderContacts && (
         <StyledAddContactButton

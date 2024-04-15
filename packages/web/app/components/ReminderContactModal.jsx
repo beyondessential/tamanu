@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import { Box } from '@material-ui/core';
@@ -9,6 +9,7 @@ import { ReminderContactList } from './ReminderContactList';
 import { ReminderContactQR } from './ReminderContactQR';
 import { RemoveReminderContact } from './RemoveReminderContact';
 import { useTranslation } from '../contexts/Translation';
+import { socket } from '../utils/socket';
 
 const ReminderModalContainer = styled(Box)`
   padding: 0px 8px;
@@ -35,8 +36,42 @@ const REMINDER_CONTACT_VIEWS = {
 export const ReminderContactModal = ({ onClose, open }) => {
   const { getTranslation } = useTranslation();
   const [activeView, setActiveView] = useState(REMINDER_CONTACT_VIEWS.REMINDER_CONTACT_LIST);
-  const [newContact, setNewContact] = useState();
+  const [newContact, setNewContact] = useState({});
+  const [pendingContacts, setPendingContacts] = useState({});
+  const [successContactIds, setSuccessContactIds] = useState([]);
   const [selectedContact, setSelectedContact] = useState();
+
+  useEffect(() => {
+    socket.connect();
+    socket.on('telegram:subscribe:success', data => {
+      setSuccessContactIds(prev => [...prev, data?.contactId]);
+    });
+
+    return () => socket.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (newContact.id) {
+      const timer = setTimeout(() => {
+        setPendingContacts(previousPendingContacts => ({
+          ...previousPendingContacts,
+          [newContact.id]: {
+            ...previousPendingContacts[newContact.id],
+            isTimerStarted: false
+          }
+        }));
+      }, 2*60*1000); //2 minutes
+      setPendingContacts(previousPendingContacts => ({
+        ...previousPendingContacts,
+        [newContact.id]: {
+          ...previousPendingContacts[newContact.id],
+          isTimerStarted: true,
+          timer: timer
+        }
+      }));
+    }
+
+  }, [newContact.id]);
 
   const handleActiveView = value => {
     setActiveView(value);
@@ -83,8 +118,11 @@ export const ReminderContactModal = ({ onClose, open }) => {
         {activeView === REMINDER_CONTACT_VIEWS.REMINDER_CONTACT_LIST && (
           <ReminderContactList
             onAddContact={() => handleActiveView(REMINDER_CONTACT_VIEWS.ADD_REMINDER_FORM)}
+            onRetry={onContinue}
             onRemoveContact={handleRemoveContact}
             onClose={onClose}
+            pendingContacts={pendingContacts}
+            successContactIds={successContactIds}
           />
         )}
         {activeView === REMINDER_CONTACT_VIEWS.ADD_REMINDER_FORM && (
