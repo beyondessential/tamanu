@@ -20,42 +20,13 @@ import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { ArrowLeftIcon } from '~/ui/components/Icons';
 import { UserAvatar } from '~/ui/components/UserAvatar';
 import { HealthIdentificationRow, PatientIssues } from './CustomComponents';
-import { useLayoutComponents } from './layouts/useLayoutComponents';
 import { useLocalisation } from '~/ui/contexts/LocalisationContext';
+import { PatientDetails } from './layouts/useLayoutComponents';
 
 const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => {
-  const { GeneralInfo, AdditionalInfo, fields } = useLayoutComponents();
   const onNavigateBack = useCallback(() => {
     navigation.goBack();
   }, [navigation]);
-
-  const onEditPatient = useCallback(() => {
-    navigation.navigate(Routes.HomeStack.PatientDetailsStack.EditPatient, {
-      patientName: joinNames(selectedPatient),
-      fields,
-    });
-  }, [navigation, selectedPatient]);
-
-  const editPatientAdditionalData = useCallback(
-    (
-      additionalData,
-      sectionTitle,
-      isCustomFields,
-      customSectionFields,
-      customPatientFieldValues,
-    ) => {
-      navigation.navigate(Routes.HomeStack.PatientDetailsStack.EditPatientAdditionalData, {
-        patientId: selectedPatient.id,
-        patientName: joinNames(selectedPatient),
-        additionalDataJSON: JSON.stringify(additionalData),
-        sectionTitle,
-        isCustomFields,
-        customSectionFields,
-        customPatientFieldValues,
-      });
-    },
-    [navigation, selectedPatient],
-  );
 
   const onEditPatientIssues = useCallback(() => {
     navigation.navigate(Routes.HomeStack.PatientDetailsStack.AddPatientIssue);
@@ -105,8 +76,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => 
       </StyledSafeAreaView>
       <FullView>
         <StyledScrollView background={theme.colors.BACKGROUND_GREY}>
-          <GeneralInfo patient={selectedPatient} fields={fields.GENERAL.fields} onEdit={onEditPatient} />
-          {/* <AdditionalInfo patient={selectedPatient} onEdit={editPatientAdditionalData} /> */}
+          <PatientDetails navigation={navigation} patient={selectedPatient} />
           <PatientIssues onEdit={onEditPatientIssues} patientId={selectedPatient.id} />
         </StyledScrollView>
       </FullView>

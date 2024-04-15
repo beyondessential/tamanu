@@ -6,6 +6,7 @@ import { AddPatientIssueScreen } from '~/ui/navigation/screens/home/PatientDetai
 import { EditPatientScreen } from '~/ui/navigation/screens/home/PatientDetails/EditPatient';
 import { EditPatientAdditionalDataScreen } from '~/ui/navigation/screens/home/PatientDetails/EditPatientAdditionalData';
 import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
+import { CambodiaEditPatientScreen } from '../screens/home/PatientDetails/layouts/cambodia/CambodiaEditGeneralInfo';
 
 const Stack = createStackNavigator();
 
@@ -20,12 +21,24 @@ export const PatientDetailsStack = (): ReactElement => (
         name={Routes.HomeStack.PatientDetailsStack.AddPatientIssue}
         component={AddPatientIssueScreen}
       />
+
+      {/* Generic patient details components */}
       <Stack.Screen
-        name={Routes.HomeStack.PatientDetailsStack.EditPatient}
+        name={Routes.HomeStack.PatientDetailsStack.Generic.EditPatient}
         component={EditPatientScreen}
       />
       <Stack.Screen
-        name={Routes.HomeStack.PatientDetailsStack.EditPatientAdditionalData}
+        name={Routes.HomeStack.PatientDetailsStack.Generic.EditPatientAdditionalData}
+        component={EditPatientAdditionalDataScreen}
+      />
+
+      {/* Cambodia specific patient details components */}
+      <Stack.Screen
+        name={Routes.HomeStack.PatientDetailsStack.Cambodia.EditPatient}
+        component={CambodiaEditPatientScreen}
+      />
+      <Stack.Screen
+        name={Routes.HomeStack.PatientDetailsStack.Cambodia.EditPatientAdditionalData}
         component={EditPatientAdditionalDataScreen}
       />
     </Stack.Navigator>

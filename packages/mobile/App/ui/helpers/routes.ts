@@ -131,8 +131,14 @@ export const Routes = {
     PatientDetailsStack: {
       Index: '',
       AddPatientIssue: '',
-      EditPatient: '',
-      EditPatientAdditionalData: '',
+      Generic: {
+        EditPatient: '',
+        EditPatientAdditionalData: '',
+      },
+      Cambodia: {
+        EditPatient: '',
+        EditPatientAdditionalData: '',
+      },
     },
     PatientActions: '',
     ExportDataScreen: '',

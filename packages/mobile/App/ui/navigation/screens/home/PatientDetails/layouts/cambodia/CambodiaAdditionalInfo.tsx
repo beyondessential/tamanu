@@ -6,7 +6,6 @@ import { LoadingScreen } from '../../../../../../components/LoadingScreen';
 import { PatientSection } from '../../CustomComponents/PatientSection';
 import { useLocalisation } from '../../../../../../contexts/LocalisationContext';
 import { IPatient, IPatientAdditionalData } from '../../../../../../types';
-import { allAdditionalDataFields } from '~/ui/helpers/additionalData';
 import { usePatientAdditionalData } from '~/ui/hooks/usePatientAdditionalData';
 
 interface AdditionalInfoProps {
@@ -30,6 +29,38 @@ const getCustomFieldData = (customDataValues, fieldName) => {
   return customDataValues[fieldName][0].value;
 };
 
+export const CAMBODIA_ADDITIONAL_DATA_SECTIONS = [
+  {
+    title: 'Current address',
+    fields: ['divisionId', 'subdivisionId', 'settlementId', 'villageId', 'streetVillage'],
+  },
+  {
+    title: 'Contact information',
+    fields: [
+      'primaryContactNumber',
+      'secondaryContactNumber',
+      'emergencyContactName',
+      'emergencyContactNumber',
+      'medicalAreaId',
+      'nursingZoneId',
+    ],
+  },
+  {
+    title: 'Identification information',
+    fields: [
+      'birthCertificate',
+      'fieldDefinition-nationalId',
+      'passport',
+      'fieldDefinition-idPoorCardNumber',
+      'fieldDefinition-pmrsNumber',
+    ],
+  },
+  {
+    title: 'Personal information',
+    fields: ['countryOfBirthId', 'nationalityId'],
+  },
+];
+
 export const CambodiaAdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps): ReactElement => {
   const {
     customPatientFieldValues,
@@ -47,7 +78,7 @@ export const CambodiaAdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps)
   const isEditable = getBool('features.editPatientDetailsOnMobile');
 
   // Add edit callback and map the inner 'fields' array
-  const sections = allAdditionalDataFields.map(({ title, fields }) => {
+  const sections = CAMBODIA_ADDITIONAL_DATA_SECTIONS.map(({ title, fields }) => {
     const onEditCallback = (): void => onEdit(patientAdditionalData, title, false);
     const mappedFields = fields.map(fieldName => {
       // TODO: hacky just to get it working initially

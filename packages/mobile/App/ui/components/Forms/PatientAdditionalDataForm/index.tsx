@@ -27,7 +27,6 @@ export const PatientAdditionalDataForm = ({
   const scrollViewRef = useRef();
   // After save/update, the model will mark itself for upload and the
   // patient for sync (see beforeInsert and beforeUpdate decorators).
-  console.log(sectionTitle, isCustomFields)
   const onCreateOrEditAdditionalData = useCallback(
     async values => {
       if (isCustomFields) {
