@@ -52,7 +52,7 @@ class MockApplicationContext {
 export async function createTestContext() {
   const ctx = await new MockApplicationContext().init();
   const { models } = ctx.store;
-  const expressApp = createApp(ctx);
+  const expressApp = await createApp(ctx);
   const appServer = http.createServer(expressApp);
   const baseApp = supertest.agent(appServer);
   baseApp.set('X-Tamanu-Client', SERVER_TYPES.WEBAPP);
