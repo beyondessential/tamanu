@@ -78,7 +78,7 @@ export const defineTelegramBotService = async injector => {
    * @param {string} contactId
    */
   const subscribeCommandHandler = async (message, contactId) => {
-    websocketService.emit('telegram:subscribe', { contactId, chatId: message.chat.id });
+    websocketService?.emit('telegram:subscribe', { contactId, chatId: message.chat.id });
   };
 
   /**
@@ -88,12 +88,23 @@ export const defineTelegramBotService = async injector => {
    * @param {string} contactId
    */
   const unsubscribeCommandHandler = async (message, contactId) => {
-    websocketService.emit('telegram:unsubscribe', { contactId, chatId: message.chat.id });
+    websocketService?.emit('telegram:unsubscribe', { contactId, chatId: message.chat.id });
   };
 
   await setWebhook(injector.config.telegramBot.webhook);
   setCommand('start', subscribeCommandHandler);
   setCommand('stop', unsubscribeCommandHandler);
+
+  //TODO: rewrite this callback to a composable function
+  bot.on('callback_query', async query => {
+    try {
+      const data = JSON.parse(query.data);
+      if (data.type === 'unsubscribe-contact') {
+        await unsubscribeCommandHandler(query.message, data.contactId);
+      }
+      // eslint-disable-next-line no-empty
+    } catch {}
+  });
 
   bot.setMyCommands(
     [
