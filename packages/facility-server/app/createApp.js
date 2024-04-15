@@ -1,7 +1,7 @@
 import bodyParser from 'body-parser';
 import compression from 'compression';
 import config from 'config';
-import express from 'express';
+import defineExpress from 'express';
 
 import { SERVER_TYPES } from '@tamanu/constants';
 import { getLoggingMiddleware } from '@tamanu/shared/services/logging';
@@ -12,53 +12,63 @@ import errorHandler from './middleware/errorHandler';
 import { versionCompatibility } from './middleware/versionCompatibility';
 
 import { version } from './serverInfo';
+import { createServer } from 'http';
+import { defineWebsocketService } from './services/websocketService';
+import { defineWebsocketClientService } from './services/websocketClientService';
 
-export function createApp({ sequelize, reportSchemaStores, models, syncManager, deviceId }) {
+export async function createApp({ sequelize, reportSchemaStores, models, syncManager, deviceId }) {
   // Init our app
-  const app = express();
-  app.use(compression());
-  app.use(bodyParser.json({ limit: '50mb' }));
-  app.use(bodyParser.urlencoded({ extended: true }));
+  const express = defineExpress();
+  const server = createServer(express);
 
-  app.use((req, res, next) => {
+  const websocketService = defineWebsocketService({ httpServer: server });
+  const websocketClientService = defineWebsocketClientService({ config, websocketService, models });
+
+  express.use(compression());
+  express.use(bodyParser.json({ limit: '50mb' }));
+  express.use(bodyParser.urlencoded({ extended: true }));
+
+  express.use((req, res, next) => {
     res.setHeader('X-Tamanu-Server', SERVER_TYPES.FACILITY);
     res.setHeader('X-Version', version);
     next();
   });
 
   // trust the x-forwarded-for header from addresses in `config.proxy.trusted`
-  app.set('trust proxy', config.proxy.trusted);
-  app.use(getLoggingMiddleware());
+  express.set('trust proxy', config.proxy.trusted);
+  express.use(getLoggingMiddleware());
 
-  app.use((req, res, next) => {
+  express.use((req, res, next) => {
     req.models = models;
     req.db = sequelize;
     req.reportSchemaStores = reportSchemaStores;
     req.syncManager = syncManager;
     req.deviceId = deviceId;
+    req.websocketService = websocketService;
+    req.websocketClientService = websocketClientService;
 
     next();
   });
 
-  app.use(versionCompatibility);
+  express.use(versionCompatibility);
 
-  app.use(getAuditMiddleware());
+  express.use(getAuditMiddleware());
 
   // index route for debugging connectivity
-  app.get('/$', (req, res) => {
+  express.get('/$', (req, res) => {
     res.send({
       index: true,
     });
   });
 
-  app.use('/', routes);
+  express.use('/', routes);
 
   // Dis-allow all other routes
-  app.get('*', (req, res) => {
+  express.get('*', (req, res) => {
     res.status(404).end();
   });
 
-  app.use(errorHandler);
+  express.use(errorHandler);
 
-  return app;
+  return { express, server };
 }

@@ -23,13 +23,11 @@ export const serve = async ({ skipMigrationCheck, provisioning }) => {
   });
 
   const context = await new ApplicationContext().init();
-  const { store, telegramBotService } = context;
+  const { store } = context;
 
   await store.sequelize.assertUpToDate({ skipMigrationCheck });
-  await telegramBotService.startWebhook();
-  telegramBotService.initListener();
 
-  const app = createApp(context);
+  const { server } = createApp(context);
 
   await performTimeZoneChecks({
     sequelize: store.sequelize,
@@ -50,7 +48,7 @@ export const serve = async ({ skipMigrationCheck, provisioning }) => {
     );
   }
 
-  const server = app.listen(port, () => {
+  server.listen(port, () => {
     log.info(`Server is running on port ${port}!`);
   });
 

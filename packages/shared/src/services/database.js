@@ -20,7 +20,7 @@ createDateTypes();
 const asyncLocalStorage = new AsyncLocalStorage();
 // eslint-disable-next-line react-hooks/rules-of-hooks
 Sequelize.useCLS({
-  bind: () => { }, // compatibility with cls-hooked, not used by sequelize
+  bind: () => {}, // compatibility with cls-hooked, not used by sequelize
   get: id => asyncLocalStorage.getStore()?.get(id),
   set: (id, value) => asyncLocalStorage.getStore()?.set(id, value),
   run: callback => asyncLocalStorage.run(new Map(), callback),
@@ -204,7 +204,12 @@ export async function initDatabase(dbOptions) {
 // Object.entries(...) will iterate only the state of the object at the time of the call
 // we take advantage of that in closeAllDatabases to ensure we _do_ close everything
 export const databaseCollection = new Map();
-
+/**
+ *
+ * @param {string} key
+ * @param {unknown} dbOptions
+ * @returns {Promise<{ sequelize: Sequelize; models?: typeof models;}>}
+ */
 export async function openDatabase(key, dbOptions) {
   if (databaseCollection.has(key)) {
     return databaseCollection.get(key);

@@ -26,7 +26,7 @@ const getOrCreateConnection = async ({ testMode, ...configOverrides }, key = 'ma
 
 export async function initDatabase({ testMode = false }) {
   // connect to database
-  return getOrCreateConnection({
+  return await getOrCreateConnection({
     testMode,
     saltRounds: config.auth.saltRounds,
   });
