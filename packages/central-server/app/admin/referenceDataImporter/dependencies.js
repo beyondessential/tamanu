@@ -71,4 +71,6 @@ export default {
   translatedString: {
     loader: translatedStringLoader,
   },
+
+  referenceDataRelation: {},
 };

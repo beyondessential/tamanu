@@ -35,7 +35,7 @@ export const LabRequestMultiStepForm = ({
         stringId="lab.requestedBy.validation"
         fallback="Requesting :clinicianText is required"
         replacements={{
-          clinician: (
+          clinicianText: (
             <LowerCase>
               <TranslatedText
                 stringId="general.localisedField.clinician.label.short"
