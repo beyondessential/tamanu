@@ -34,7 +34,13 @@ const styles = StyleSheet.create({
   ScrollViewContentContainer: { padding: 20 },
 });
 
-const getPatientInitialValues = (isEdit: boolean, patient, patientAdditionalData, getBool): {} => {
+const getPatientInitialValues = (
+  isEdit: boolean,
+  patient,
+  patientAdditionalData,
+  customPatientFieldValues,
+  getBool,
+): {} => {
   if (!isEdit || !patient) {
     return {};
   }
@@ -62,6 +68,13 @@ const getPatientInitialValues = (isEdit: boolean, patient, patientAdditionalData
     requiredPADFields,
   );
 
+  const initialPatientCustomDataValues = Object.fromEntries(
+    Object.entries(customPatientFieldValues).map(([key, nestedObject]) => [
+      key,
+      nestedObject[0].value,
+    ]),
+  );
+
   const initialPatientValues = {
     firstName,
     middleName,
@@ -72,6 +85,7 @@ const getPatientInitialValues = (isEdit: boolean, patient, patientAdditionalData
     sex,
     villageId,
     ...initialPatientAdditionalDataValues,
+    ...initialPatientCustomDataValues,
   };
 
   return Object.fromEntries(
@@ -92,42 +106,45 @@ export const FormComponent = ({
   const { customPatientFieldValues, patientAdditionalData, loading } = usePatientAdditionalData(
     selectedPatient?.id,
   );
-  const onCreateNewPatient = useCallback(async (values, { resetForm }) => {
-    // submit form to server for new patient
-    const { dateOfBirth, ...otherValues } = values;
-    const newPatient = await Patient.createAndSaveOne({
-      ...otherValues,
-      dateOfBirth: formatISO9075(dateOfBirth),
-      displayId: generateId(),
-    });
+  const onCreateNewPatient = useCallback(
+    async (values, { resetForm }) => {
+      // submit form to server for new patient
+      const { dateOfBirth, ...otherValues } = values;
+      const newPatient = await Patient.createAndSaveOne({
+        ...otherValues,
+        dateOfBirth: formatISO9075(dateOfBirth),
+        displayId: generateId(),
+      });
 
-    if (containsAdditionalData(values)) {
-      await PatientAdditionalData.updateForPatient(newPatient.id, values);
-    }
+      if (containsAdditionalData(values)) {
+        await PatientAdditionalData.updateForPatient(newPatient.id, values);
+      }
 
-    // Update any custom field definitions contained in this form
-    const customValuesToUpdate = Object.keys(values).filter(key =>
-      Object.keys(customPatientFieldValues).includes(key),
-    );
-    await Promise.all(
-      customValuesToUpdate.map(definitionId =>
-        PatientFieldValue.updateOrCreateForPatientAndDefinition(
-          selectedPatient.id,
-          definitionId,
-          values[definitionId],
+      // Update any custom field definitions contained in this form
+      const customValuesToUpdate = Object.keys(values).filter(key =>
+        Object.keys(customPatientFieldValues).includes(key),
+      );
+      await Promise.all(
+        customValuesToUpdate.map(definitionId =>
+          PatientFieldValue.updateOrCreateForPatientAndDefinition(
+            selectedPatient.id,
+            definitionId,
+            values[definitionId],
+          ),
         ),
-      ),
-    );
+      );
 
-    await Patient.markForSync(newPatient.id);
+      await Patient.markForSync(newPatient.id);
 
-    // Reload instance to get the complete village fields
-    // (related fields won't display all info otherwise)
-    const reloadedPatient = await Patient.findOne(newPatient.id);
-    setSelectedPatient(reloadedPatient);
-    resetForm();
-    navigation.navigate(Routes.HomeStack.RegisterPatientStack.NewPatient);
-  }, [navigation, loading]);
+      // Reload instance to get the complete village fields
+      // (related fields won't display all info otherwise)
+      const reloadedPatient = await Patient.findOne(newPatient.id);
+      setSelectedPatient(reloadedPatient);
+      resetForm();
+      navigation.navigate(Routes.HomeStack.RegisterPatientStack.NewPatient);
+    },
+    [navigation, loading],
+  );
 
   const onEditPatient = useCallback(
     async values => {
@@ -185,6 +202,7 @@ export const FormComponent = ({
           isEdit,
           selectedPatient,
           patientAdditionalData,
+          customPatientFieldValues,
           getBool,
         )}
       >
