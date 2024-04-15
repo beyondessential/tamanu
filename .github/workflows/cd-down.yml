@@ -59,16 +59,23 @@ jobs:
             exit 1
           fi
 
+      - name: Get full stack name
+        id: stack
+        working-directory: ops/pulumi/stacks/${{ fromJson(inputs.options).opsstack }}
+        run: |
+          project=$(ruby -e 'require "yaml"; puts YAML.load(open "Pulumi.yaml")["name"]')
+          echo "stackname=bes/$project/${{ inputs.deploy-name }}" >> $GITHUB_OUTPUT
+
       - # outcome is from before continue-on-error, so will skip if check fails
         if: steps.check.outcome == 'success'
         id: down
         name: Down!
         uses: pulumi/actions@v5
         with:
-          work-dir: ops/pulumi/stacks/${{ inputs.options.opsstack }}
+          work-dir: ops/pulumi/stacks/${{ fromJson(inputs.options).opsstack }}
           command: destroy
           remove: true
-          stack-name: bes/${{ inputs.deploy-name }}
+          stack-name: ${{ steps.stack.outputs.stackname }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           comment-on-pr: true
         env:
@@ -88,10 +95,10 @@ jobs:
         name: Down again!
         uses: pulumi/actions@v5
         with:
-          work-dir: ops/pulumi/stacks/${{ inputs.options.opsstack }}
+          work-dir: ops/pulumi/stacks/${{ fromJson(inputs.options).opsstack }}
           command: destroy
           remove: true
-          stack-name: bes/${{ inputs.deploy-name }}
+          stack-name: ${{ steps.stack.outputs.stackname }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           comment-on-pr: true
         env:
