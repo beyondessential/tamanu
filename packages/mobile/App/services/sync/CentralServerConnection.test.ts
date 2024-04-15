@@ -167,7 +167,7 @@ describe('CentralServerConnection', () => {
       const mockEmail = 'test@testemail.com';
       const mockPassword = 'test-password';
 
-      expect(centralServerConnection.login(mockEmail, mockPassword)).rejects.toThrowError(
+      await expect(centralServerConnection.login(mockEmail, mockPassword)).rejects.toThrowError(
         new AuthenticationError(generalErrorMessage),
       );
     });
@@ -213,7 +213,7 @@ describe('CentralServerConnection', () => {
         refreshToken: mockRefreshToken,
       });
 
-      expect(centralServerConnection.refresh()).rejects.toThrowError(
+      await expect(centralServerConnection.refresh()).rejects.toThrowError(
         new AuthenticationError(generalErrorMessage),
       );
     });
@@ -337,7 +337,7 @@ describe('CentralServerConnection', () => {
         status: 401,
       });
       const refreshSpy = jest.spyOn(centralServerConnection, 'refresh');
-      expect(
+      await expect(
         centralServerConnection.fetch('test-path', {}, { skipAttemptRefresh: true }),
       ).rejects.toThrowError(new AuthenticationError(invalidTokenMessage));
       expect(refreshSpy).not.toHaveBeenCalled();
@@ -353,7 +353,7 @@ describe('CentralServerConnection', () => {
           },
         }),
       });
-      expect(centralServerConnection.fetch('test-path', {}, {})).rejects.toThrowError(
+      await expect(centralServerConnection.fetch('test-path', {}, {})).rejects.toThrowError(
         new OutdatedVersionError(mockUpdateUrl),
       );
     });

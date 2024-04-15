@@ -4,7 +4,7 @@ import { log } from '@tamanu/shared/services/logging';
 import { ApplicationContext } from '../ApplicationContext';
 
 async function report({ reportId }) {
-  const context = await new ApplicationContext().init();
+  const context = await new ApplicationContext().init({ appType: 'report' });
   // going via inline import rather than top-level just to keep diff footprint small during a hotfix
   // should be fine to pull to the top level
   const { getReportModule } = await import('@tamanu/shared/reports');

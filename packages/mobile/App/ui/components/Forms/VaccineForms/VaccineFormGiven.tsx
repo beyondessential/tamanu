@@ -15,13 +15,27 @@ import {
   VaccineLocationField,
 } from './VaccineCommonFields';
 import { VaccineFormProps } from './types';
+import { useLocalisation } from '~/ui/contexts/LocalisationContext';
+import { useSelector } from 'react-redux';
+import { ReduxStoreProps } from '~/ui/interfaces/ReduxStoreProps';
+import { PatientStateProps } from '~/ui/store/ducks/patient';
 
 export const VaccineFormGiven = ({ navigation }: VaccineFormProps): JSX.Element => {
   const { values } = useFormikContext();
+  const { getLocalisation } = useLocalisation();
+
+  const vaccineConsentEnabled = getLocalisation('features.enableVaccineConsent');
+
+  const { selectedPatient } = useSelector(
+    (state: ReduxStoreProps): PatientStateProps => state.patient,
+  );
 
   return (
     <StyledView paddingTop={10}>
-      <DateGivenField required={!values.givenElsewhere} />
+      <DateGivenField
+        required={!values.givenElsewhere}
+        min={selectedPatient?.dateOfBirth ? new Date(selectedPatient.dateOfBirth) : undefined}
+      />
 
       <BatchField />
 
@@ -38,9 +52,12 @@ export const VaccineFormGiven = ({ navigation }: VaccineFormProps): JSX.Element 
 
       <RecordedByField />
 
-      <ConsentField />
-
-      <ConsentGivenByField />
+      {vaccineConsentEnabled && (
+        <>
+          <ConsentField />
+          <ConsentGivenByField />
+        </>
+      )}
     </StyledView>
   );
 };

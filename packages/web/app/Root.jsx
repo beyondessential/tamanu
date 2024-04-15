@@ -64,19 +64,19 @@ function Root({ api, store, history }) {
                 <ThemeProvider theme={theme}>
                   <StateContextProviders store={store}>
                     <ReactQueryDevtools initialIsOpen={false} />
-                    <ToastContainer
-                      hideProgressBar
-                      transition={Slide}
-                      closeOnClick
-                      pauseOnFocusLoss
-                      draggable
-                      pauseOnHover
-                      theme="colored"
-                      icon={false}
-                      limit={5}
-                    />
-                    <CssBaseline />
-                    <RoutingApp />
+                      <ToastContainer
+                        hideProgressBar
+                        transition={Slide}
+                        closeOnClick
+                        pauseOnFocusLoss
+                        draggable
+                        pauseOnHover
+                        theme="colored"
+                        icon={false}
+                        limit={5}
+                      />
+                      <CssBaseline />
+                      <RoutingApp />
                   </StateContextProviders>
                 </ThemeProvider>
               </MuiThemeProvider>

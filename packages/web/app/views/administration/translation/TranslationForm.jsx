@@ -43,6 +43,7 @@ const ReservedText = styled.p`
 `;
 
 const validationSchema = yup.lazy(values => {
+  delete values.search;
   const newEntrySchema = {
     stringId: yup
       .string()
@@ -221,6 +222,13 @@ export const FormContents = ({
     [data, additionalRows, values.search],
   );
 
+  if (data.length === 0)
+    return (
+      <Alert severity="info">
+        Please load in translations using the reference data importer to activate this tab
+      </Alert>
+    );
+
   return (
     <>
       <Box display="flex" alignItems="flex-end" mb={2}>
@@ -256,6 +264,7 @@ export const TranslationForm = () => {
 
   const handleSubmit = async payload => {
     // Swap temporary id out for stringId
+    delete payload.search;
     const submitData = Object.fromEntries(
       Object.entries(payload).map(([key, { stringId, ...rest }]) => [stringId || key, rest]),
     );
