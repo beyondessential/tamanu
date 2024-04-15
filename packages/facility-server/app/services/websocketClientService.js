@@ -5,10 +5,6 @@ const { io } = require('socket.io-client');
  * @param {{config: { sync: { host: string}, language: string}, websocketService: ReturnType<import('./websocketService').defineWebsocketService>, models: import('../../../shared/src/models')}} injector
  */
 export const defineWebsocketClientService = injector => {
-  const translate = injector.models?.TranslatedString.getTranslationFunction(
-    injector.config.language,
-  );
-
   const client = io(injector.config.sync.host);
   const getClient = () => client;
 
@@ -36,11 +32,8 @@ export const defineWebsocketClientService = injector => {
         contact.patient.lastName,
       ].join(' ');
 
-      const successMessage = await translate(
-        'telegramRegistration.successMessage',
-        `Dear :contactName, you have successfully registered to receive messages for :patientName. Thank you.`,
-        { contactName, patientName },
-      );
+      const successMessage = `Dear ${contactName}, you have successfully registered to receive messages for ${patientName}. Thank you.`; //TODO: translate this
+
       client.emit('telegram:send-message', { chatId, message: successMessage });
       injector.websocketService.emit('telegram:subscribe:success', { contactId, chatId });
     },
