@@ -26,7 +26,6 @@ const createUpcomingVaccinationFilters = filterParams => {
     makeFilter(filterParams.villageId, `p.village_id = :villageId`),
     makeFilter(filterParams.status, `uv.status = :status`),
   ];
-  // add facilityId filter
 
   return filters.filter(f => f);
 };

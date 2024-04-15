@@ -3,14 +3,7 @@ import { VACCINE_STATUS } from '@tamanu/constants';
 import styled from 'styled-components';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
 import { useSuggester } from '../../api';
-import {
-  AutocompleteField,
-  CheckField,
-  Field,
-  LocalisedField,
-  SearchField,
-  SelectField,
-} from '../Field';
+import { AutocompleteField, LocalisedField, SearchField, SelectField } from '../Field';
 import { TranslatedText } from '../Translation';
 import { useSexOptions } from '../../hooks';
 
@@ -20,12 +13,6 @@ const Spacer = styled.div`
   @media (max-width: 1200px) {
     display: none;
   }
-`;
-
-const FacilityCheckbox = styled.div`
-  display: flex;
-  align-items: center;
-  margin-top: 20px;
 `;
 
 // Only some of the statuses are used in the search bar
@@ -95,9 +82,7 @@ export const ImmunisationSearchBar = ({ onSearch }) => {
         options={statusOptions}
         size="small"
       />
-      <FacilityCheckbox>
-        <Field name="allFacilities" label="Include all facilities" component={CheckField} />
-      </FacilityCheckbox>
+      <Spacer />
       <Spacer />
     </CustomisableSearchBar>
   );
