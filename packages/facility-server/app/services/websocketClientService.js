@@ -27,7 +27,7 @@ export const defineWebsocketClientService = injector => {
 
       if (!contact) return;
 
-      contact.connectionDetails = { chatId, status: 'success' };
+      contact.connectionDetails = { chatId };
       await contact.save();
 
       const contactName = contact.name;

@@ -24,12 +24,12 @@ const getOrCreateConnection = async ({ testMode, ...configOverrides }, key = 'ma
   return store;
 };
 
-export async function initDatabase({ testMode = false }) {
+export async function initDatabase({ testMode = false, dbKey = 'main' }) {
   // connect to database
   return await getOrCreateConnection({
     testMode,
     saltRounds: config.auth.saltRounds,
-  });
+  }, dbKey);
 }
 
 async function initReportStore(schemaName, credentials) {
