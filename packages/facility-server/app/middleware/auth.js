@@ -30,7 +30,7 @@ export async function getToken(user, expiresIn = tokenDuration) {
   );
 }
 
-async function comparePassword(user, password) {
+export async function comparePassword(user, password) {
   try {
     const passwordHash = user && user.password;
 
@@ -84,9 +84,7 @@ export async function centralServerLogin(models, email, password, deviceId) {
 
 async function localLogin(models, email, password) {
   // some other error in communicating with central server, revert to local login
-  const user = await models.User.scope('withPassword').findOne({
-    where: { email, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
-  });
+  const user = await models.User.getForAuthByEmail(email);
 
   const passwordMatch = await comparePassword(user, password);
 

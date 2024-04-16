@@ -14,7 +14,7 @@ export const tasks = async ({ skipMigrationCheck, provisioning }) => {
 
   log.info(`Starting Central tasks runner version ${pkg.version}`);
 
-  const context = await new ApplicationContext().init();
+  const context = await new ApplicationContext().init({ appType: 'tasks' });
   await context.store.sequelize.assertUpToDate({ skipMigrationCheck });
 
   const stopScheduledTasks = await startScheduledTasks(context);
