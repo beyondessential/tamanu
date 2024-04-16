@@ -72,26 +72,17 @@ export const PatientHistory = ({ patient, onItemClick }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedEncounterData, setSelectedEncounterData] = useState(null);
 
-  const allMenuActions = [
+  const actions = [
     {
-      label: 'Delete',
+      label: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
       action: () => setModalOpen(true),
       permissionCheck: () => {
         return ability?.can('delete', 'Encounter');
       },
     },
-  ];
-
-  const actions = allMenuActions
-    .filter(({ permissionCheck }) => {
-      return permissionCheck ? permissionCheck() : true;
-    })
-    .reduce((acc, { label, action }) => {
-      acc[label] = action;
-      return acc;
-    }, {});
-
-  const isAllActionsDeniedDueToPerm = Object.keys(actions).length === 0;
+  ].filter(({ permissionCheck }) => {
+    return permissionCheck ? permissionCheck() : true;
+  });
 
   const columns = [
     {
@@ -132,19 +123,20 @@ export const PatientHistory = ({ patient, onItemClick }) => {
       CellComponent: LimitedLinesCell,
     },
     {
+      // key and title are empty strings to display a blank column name
       key: '',
       title: '',
       sortable: false,
       dontCallRowInput: true,
       CellComponent: ({ data }) => {
-        if (!isAllActionsDeniedDueToPerm) {
-          return (
-            <div onMouseEnter={() => setSelectedEncounterData(data)}>
-              <MenuButton actions={actions} />
-            </div>
-          );
+        if (actions.length === 0) {
+          return <></>;
         }
-        return <></>;
+        return (
+          <div onMouseEnter={() => setSelectedEncounterData(data)}>
+            <MenuButton actions={actions} />
+          </div>
+        );
       },
     }
   ];

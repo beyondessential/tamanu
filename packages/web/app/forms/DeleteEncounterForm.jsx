@@ -92,7 +92,7 @@ export const DeleteEncounterForm = ({ onSubmit, onCancel, encounterToDelete, pat
                 This action is irreversible - to make sure you have selected the correct encounter,
                 please enter the NHN for this patient to confirm deletion.
               </Paragraph>
-              <NHNField required label="NHN" name="patientDisplayId" />
+              <NHNField required label="NHN" name="patientDisplayId" autoComplete="off" />
             </WarningWrapper>
             <ConfirmCancelRow onCancel={onCancel} onConfirm={submitForm} />
           </div>

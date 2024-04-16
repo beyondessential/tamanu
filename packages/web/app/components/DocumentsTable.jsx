@@ -70,28 +70,19 @@ export const DocumentsTable = React.memo(
       setModalOpen(true);
     };
 
-    const menuActions = [
+    const actions = [
       {
-        label: 'Delete',
+        label: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
         action: () => handleChangeModalId(MODAL_IDS.DELETE),
         permissionCheck: () => {
           return ability?.can('delete', 'DocumentMetadata');
         },
       },
-    ];
+    ].filter(({ permissionCheck }) => {
+      return permissionCheck ? permissionCheck() : true;
+    });
 
     const ActiveModal = MODALS[modalId] || null;
-
-    const actions = menuActions
-      .filter(({ permissionCheck }) => {
-        return permissionCheck ? permissionCheck() : true;
-      })
-      .reduce((acc, { label, action }) => {
-        acc[label] = action;
-        return acc;
-      }, {});
-
-    const isAllActionsDeniedDueToPerm = Object.keys(actions).length === 0;
 
     // Define columns inside component to pass callbacks to getActions
     const COLUMNS = [
@@ -136,17 +127,17 @@ export const DocumentsTable = React.memo(
         dontCallRowInput: true,
         sortable: false,
         CellComponent: ({ data }) => {
-          if (!isAllActionsDeniedDueToPerm) {
-            return (
-              <ActionWrapper onMouseEnter={() => setSelectedDocument(data)}>
-                <StyledIconButton color="primary" onClick={() => onDownload(data)} key="download">
-                  <GetAppIcon fontSize="small" />
-                </StyledIconButton>
-                <MenuButton actions={actions} />
-              </ActionWrapper>
-            );
+          if (actions.length === 0) {
+            return <></>;
           }
-          return <></>;
+          return (
+            <ActionWrapper onMouseEnter={() => setSelectedDocument(data)}>
+              <StyledIconButton color="primary" onClick={() => onDownload(data)} key="download">
+                <GetAppIcon fontSize="small" />
+              </StyledIconButton>
+              <MenuButton actions={actions} />
+            </ActionWrapper>
+          );
         },
       },
     ];

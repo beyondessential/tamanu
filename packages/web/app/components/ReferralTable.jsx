@@ -135,7 +135,7 @@ export const ReferralTable = React.memo(({ patientId }) => {
     [MODAL_IDS.DELETE]: DeleteReferralModal,
   };
 
-  const menuActions = [
+  const actions = [
     {
       label: <TranslatedText stringId="patient.referral.action.admit" fallback="Admit" />,
       action: () => handleChangeModalId(MODAL_IDS.ADMIT),
@@ -161,16 +161,9 @@ export const ReferralTable = React.memo(({ patientId }) => {
       permissionCheck: () => false, // always false, field no longer exists.
       action: onViewEncounter,
     },
-  ];
-
-  const actions = menuActions
-    .filter(({ permissionCheck }) => {
-      return permissionCheck ? permissionCheck() : true;
-    })
-    .reduce((acc, { label, action }) => {
-      acc[label] = action;
-      return acc;
-    }, {});
+  ].filter(({ permissionCheck }) => {
+    return permissionCheck ? permissionCheck() : true;
+  });
 
   const columns = [
     {
@@ -208,6 +201,9 @@ export const ReferralTable = React.memo(({ patientId }) => {
       dontCallRowInput: true,
       sortable: false,
       CellComponent: ({ data }) => {
+        if (actions.length === 0) {
+          return <></>;
+        }
         return (
           <div onMouseEnter={() => setSelectedReferral(data)}>
             <MenuButton actions={actions} />

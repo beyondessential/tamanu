@@ -221,7 +221,6 @@ export class Encounter extends Model {
     this.hasMany(models.Vitals, {
       foreignKey: 'encounterId',
       as: 'vitals',
-      onDelete: 'CASCADE',
     });
 
     this.hasMany(models.Triage, {
