@@ -85,20 +85,6 @@ export const defineTelegramBotService = async injector => {
   setCommand('start', subscribeCommandHandler);
   //setCommand('unsubscribe', sendMessage);
 
-  bot.setMyCommands(
-    [
-      {
-        command: 'start',
-        description: 'Subscribe to receive notification for a patient',
-      },
-      {
-        command: 'stop',
-        description: 'Unsubscribe to stop receive notification for a patient',
-      },
-    ],
-    { language_code: 'en' },
-  );
-
   return {
     update,
     sendMessage,

@@ -29,7 +29,7 @@ async function printRoutes() {
 
   setupEnv();
 
-  const { express: app } = createApp(context);
+  const { express: app } = await createApp(context);
 
   // console instead of log.info is fine here because the aim is to output the
   // routes without wrapping, supressing, or transporting the output
