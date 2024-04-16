@@ -38,4 +38,8 @@ export class PatientContact extends Model {
   }
 
   static buildPatientSyncFilter = buildPatientSyncFilterViaPatientId;
+
+  static getListReferenceAssociations() {
+    return ['relationship'];
+  }
 }
