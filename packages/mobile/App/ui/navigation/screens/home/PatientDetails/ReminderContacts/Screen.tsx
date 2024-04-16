@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { compose } from 'redux';
 import { ArrowLeftIcon } from '~/ui/components/Icons';
 import { withPatient } from '~/ui/containers/Patient';
@@ -8,6 +8,7 @@ import { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
 import {
   CenterView,
   FullView,
+  RowView,
   StyledSafeAreaView,
   StyledText,
   StyledTouchableOpacity,
@@ -17,7 +18,6 @@ import { theme } from '~/ui/styled/theme';
 import { ContactCard } from '../CustomComponents/ContactCard';
 import { ScrollView } from 'react-native-gesture-handler';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
-import { useBackendEffect } from '~/ui/hooks';
 import { IPatientContact } from '~/types';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
@@ -27,31 +27,26 @@ import { PlusIcon } from '~/ui/components/Icons/PlusIcon';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { RemoveReminderContactModal } from './RemoveReminderContactModal';
 import { PatientContact } from '~/models/PatientContact';
-
-const getAllContacts = async (models, patientId): Promise<IPatientContact[]> => {
-  return models.PatientContact.find({
-    where: {
-      patient: {
-        id: patientId,
-      },
-    },
-    order: {
-      name: 'ASC',
-    },
-  });
-};
+import { useReminderContact } from '~/ui/contexts/ReminderContactProvider';
 
 const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
   const { getTranslation } = useTranslation();
-  const [patientContacts, _, isLoading, refetch] = useBackendEffect(
-    ({ models }) => getAllContacts(models, selectedPatient.id),
-    [],
-  );
+  const {
+    reminderContactList,
+    isLoadingReminderContactList,
+    fetchReminderContactList,
+    afterAddContact,
+    isFailedContact,
+  } = useReminderContact();
 
   const { ability } = useAuth();
   const canWriteReminderContacts = ability.can('write', 'Patient');
 
   const [selectedContact, setSelectedContact] = useState<IPatientContact>();
+
+  useEffect(() => {
+    fetchReminderContactList();
+  }, []);
 
   const onNavigateBack = useCallback(() => {
     navigation.goBack();
@@ -66,7 +61,14 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
     await PatientContact.updateValues(selectedContact.id, {
       deletedAt: new Date(),
     });
-    await refetch();
+    await fetchReminderContactList();
+  };
+
+  const onRetryConnect = (contact: IPatientContact) => {
+    afterAddContact(contact.id);
+    navigation.navigate(Routes.HomeStack.PatientDetailsStack.ReminderContactQR, {
+      contactId: contact.id,
+    });
   };
 
   const patientName = joinNames(selectedPatient);
@@ -108,7 +110,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
                 />
               </StyledText>
             </StyledView>
-            {isLoading ? (
+            {isLoadingReminderContactList ? (
               <CenterView paddingTop={100}>
                 <LoadingScreen />
               </CenterView>
@@ -120,7 +122,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
                     fontSize={screenPercentageToDP(2, Orientation.Height)}
                     fontWeight={400}
                   >
-                    {patientContacts?.length ? (
+                    {reminderContactList?.length ? (
                       <>
                         <StyledText>{description.split(`${patientName}.`)[0]}</StyledText>
                         <StyledText fontWeight={500}>{patientName}.</StyledText>
@@ -134,30 +136,54 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
                     )}
                   </StyledText>
                 </StyledView>
-                {patientContacts?.map(x => (
+                {reminderContactList?.map(x => (
                   <StyledView key={x.id} marginTop={15} marginBottom={10}>
                     <ContactCard {...x} />
-                    {canWriteReminderContacts && (
-                      <Button
-                        onPress={() => setSelectedContact(x)}
-                        height={24}
-                        marginRight={8}
-                        paddingTop={4}
-                        alignSelf="flex-end"
-                        backgroundColor={theme.colors.WHITE}
-                      >
-                        <StyledText
-                          color={theme.colors.PRIMARY_MAIN}
-                          textDecorationLine="underline"
-                          fontWeight={500}
+                    <RowView justifyContent="flex-end">
+                      {isFailedContact(x) && (
+                        <Button
+                          onPress={() => onRetryConnect(x)}
+                          height={24}
+                          marginRight={32}
+                          paddingTop={4}
+                          alignSelf="flex-end"
+                          backgroundColor={theme.colors.WHITE}
                         >
-                          <TranslatedText
-                            stringId="patient.details.reminderContacts.action.remove"
-                            fallback="Remove"
-                          />
-                        </StyledText>
-                      </Button>
-                    )}
+                          <StyledText
+                            color={theme.colors.PRIMARY_MAIN}
+                            textDecorationLine="underline"
+                            fontWeight={500}
+                          >
+                            <TranslatedText
+                              stringId="patient.details.reminderContacts.action.retry"
+                              fallback="Retry"
+                            />
+                          </StyledText>
+                        </Button>
+                      )}
+                      {canWriteReminderContacts && (
+                        <Button
+                          onPress={() => setSelectedContact(x)}
+                          height={24}
+                          // width={'auto'}
+                          marginRight={8}
+                          paddingTop={4}
+                          alignSelf="flex-end"
+                          backgroundColor={theme.colors.WHITE}
+                        >
+                          <StyledText
+                            color={theme.colors.PRIMARY_MAIN}
+                            textDecorationLine="underline"
+                            fontWeight={500}
+                          >
+                            <TranslatedText
+                              stringId="patient.details.reminderContacts.action.remove"
+                              fallback="Remove"
+                            />
+                          </StyledText>
+                        </Button>
+                      )}
+                    </RowView>
                   </StyledView>
                 ))}
               </>
@@ -171,7 +197,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
                 <ContactCard {...selectedContact} />
               </RemoveReminderContactModal>
             )}
-            {canWriteReminderContacts && (
+            {canWriteReminderContacts && !isLoadingReminderContactList && (
               <Button
                 onPress={onNavigateAddReminderContact}
                 backgroundColor={theme.colors.WHITE}
