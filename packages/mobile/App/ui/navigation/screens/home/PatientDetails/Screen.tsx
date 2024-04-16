@@ -70,7 +70,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => 
     navigation.navigate(Routes.HomeStack.PatientDetailsStack.AddPatientIssue);
   }, [navigation]);
 
-  const { getLocalisation, getBool } = useLocalisation();
+  const { getLocalisation } = useLocalisation();
   const ageDisplayFormat = getLocalisation('ageDisplayFormat');
 
   const onNavigateReminder = useCallback(() => {
@@ -113,7 +113,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => 
               {`${getDisplayAge(selectedPatient.dateOfBirth, ageDisplayFormat)} old`}
             </StyledText>
           </StyledView>
-          {canReadReminderContacts && getBool('features.enableReminderContacts') && (
+          {canReadReminderContacts && (
             <StyledView alignSelf="flex-end" alignItems="flex-end" marginRight={15}>
               <Button
                 marginTop={screenPercentageToDP(1.21, Orientation.Height)}
