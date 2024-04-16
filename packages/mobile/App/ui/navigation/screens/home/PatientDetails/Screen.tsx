@@ -30,23 +30,10 @@ import { Button } from '~/ui/components/Button';
 import { ReminderBellIcon } from '~/ui/components/Icons/ReminderBellIcon';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
-import { useBackendEffect } from '~/ui/hooks';
-import { SETTING_KEYS } from '~/constants';
-import { readConfig } from '~/services/config';
 
 const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => {
   const { ability } = useAuth();
   const canReadReminderContacts = ability.can('read', 'Patient');
-
-  const [isReminderContactEnabled] = useBackendEffect(
-    async ({ models }) => {
-      const facilityId = await readConfig('facilityId', '');
-      const isReminderContactEnabled =
-        (await models.Setting.get(SETTING_KEYS.FEATURES_REMINDER_CONTACT_ENABLED, facilityId)) || false;
-      return isReminderContactEnabled;
-    },
-    [],
-  );
 
   const onNavigateBack = useCallback(() => {
     navigation.goBack();
@@ -126,7 +113,8 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => 
               {`${getDisplayAge(selectedPatient.dateOfBirth, ageDisplayFormat)} old`}
             </StyledText>
           </StyledView>
-          {canReadReminderContacts && isReminderContactEnabled && (
+          {/* TODO: Enable show/hide based on config on mobile */}
+          {canReadReminderContacts && (
             <StyledView alignSelf="flex-end" alignItems="flex-end" marginRight={15}>
               <Button
                 marginTop={screenPercentageToDP(1.21, Orientation.Height)}
