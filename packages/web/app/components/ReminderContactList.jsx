@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 
 import { Typography } from '@material-ui/core';
@@ -6,12 +7,16 @@ import { Typography } from '@material-ui/core';
 import { PlusIcon } from '../assets/icons/PlusIcon';
 import { Colors } from '../constants';
 import { useAuth } from '../contexts/Auth';
-import { Button } from './Button';
+import { Button, TextButton } from './Button';
 import { ModalCancelRow } from './ModalActionRow';
 import { DataFetchingTable } from './Table';
+import { joinNames } from '../utils/user';
+import { useTranslation } from '../contexts/Translation';
+import { TranslatedText } from './Translation/TranslatedText';
+import { capitalize } from 'lodash';
 
 const StyledText = styled(Typography)`
-  margin: 14px 0 33px;
+  margin: 14px 0px 30px 0;
   font-size: 14px;
   line-height: 18px;
 
@@ -20,7 +25,18 @@ const StyledText = styled(Typography)`
   }
 `;
 
+const StyledTextButton = styled(TextButton)`
+  font-size: 14px;
+  line-height: 18px;
+  text-decoration: underline;
+  color: ${Colors.darkestText};
+  .MuiButton-label {
+    font-weight: 400;
+  }
+`;
+
 const StyledContactListTable = styled(DataFetchingTable)`
+  display: ${props => (props.isEmpty ? 'none' : 'block')};
   margin-bottom: 28px;
   border-radius: 5px;
   border: 1px solid ${Colors.outline};
@@ -30,6 +46,7 @@ const StyledContactListTable = styled(DataFetchingTable)`
   table {
     padding-left: 21px;
     padding-right: 25px;
+    padding-bottom: 16px;
   }
 
   table thead th {
@@ -37,12 +54,23 @@ const StyledContactListTable = styled(DataFetchingTable)`
     border-bottom: 1px solid ${Colors.outline};
     padding: 13px 0 12px 2px;
     padding-left: 2px !important;
+    width: 30%;
+    &: 4th-child {
+      width: 10%;
+    }
   }
 
   table thead th tr {
     font-size: 14px;
     font-style: normal;
     line-height: 18px;
+  }
+
+  table tbody td {
+    padding-left: 2px !important;
+    padding-top: 14px !important;
+    padding-bottom: 0 !important;
+    border-bottom: none;
   }
 `;
 
@@ -52,69 +80,119 @@ const StyledAddContactButton = styled(Button)`
   border-radius: 3px;
   border: 1px solid ${Colors.primary};
   line-height: 18px;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 
   svg {
     margin-right: 5px !important;
   }
 `;
 
-const columns = [
-  { key: 'contactName', title: 'Contact', sortable: false },
-  { key: 'relationshipType', title: 'Relationship', sortable: false },
-  { key: 'contactMethod', title: 'Contact method', sortable: false },
-  { key: '', title: '', sortable: false },
-];
+const ContactDetails = ({ onRemoveContact }) => {
+  const { getTranslation } = useTranslation();
+  const patient = useSelector(state => state.patient);
+  const patientName = joinNames(patient);
+  const [isEmpty, setIsEmpty] = useState(false);
 
-const NoContactInfo = ({ name }) => {
-  return (
-    <StyledText>
-      {`There are no contacts registered to receive reminders for `}
-      <span>{name}</span>
-      {`. Please select 'Add contact' to register a contact.`}
-    </StyledText>
-  );
-};
+  const { ability } = useAuth();
+  const canRemoveReminderContacts = ability.can('write', 'Patient');
 
-const ContactDetails = ({ name }) => {
-  const [contactsCount, setContactsCount] = useState(null);
-
-  // Helper Methods
   const onDataFetched = ({ count }) => {
-    setContactsCount(count);
+    setIsEmpty(!count);
   };
 
-  if (contactsCount === 0) {
-    return <NoContactInfo name={name} />;
-  }
+  const columns = [
+    {
+      key: 'name',
+      title: <TranslatedText stringId='patient.details.reminderContacts.field.contact' fallback='Contact' />,
+      sortable: false,
+    },
+    {
+      key: 'relationship.name',
+      title: <TranslatedText stringId='patient.details.reminderContacts.field.relationship' fallback='Relationship' />,
+      sortable: false,
+    },
+    {
+      key: 'method',
+      title: <TranslatedText stringId='patient.details.reminderContacts.field.contactMethod' fallback='Contact method' />,
+      sortable: false,
+      accessor: data => {
+        return data.connectionDetails ? (
+          <TranslatedText
+            stringId={`patient.details.reminderContacts.method.${data.method}`}
+            fallback={capitalize(data.method)}
+          />
+        ) : (
+          <TranslatedText
+            stringId={`patient.details.reminderContacts.method.${data.method}Pending`}
+            fallback={`${capitalize(data.method)} pending`}
+          />
+        );
+      },
+    },
+    ...(canRemoveReminderContacts
+      ? [
+          {
+            key: '',
+            title: '',
+            sortable: false,
+            accessor: (data) => {
+              return (
+                <StyledTextButton onClick={() => onRemoveContact(data)}>
+                  <TranslatedText
+                    stringId={'patient.details.reminderContacts.label.remove'}
+                    fallback={'Remove'}
+                  />
+                </StyledTextButton>
+              );
+            },
+          },
+        ]
+      : []),
+  ];
 
   return (
     <>
-      <StyledText>
-        The below contact list is registered to receive reminders for <span>{name}</span>.
-      </StyledText>
+      {isEmpty ? (
+        <StyledText
+          dangerouslySetInnerHTML={{
+            __html: getTranslation(
+              'patient.details.reminderContacts.emptyDescription',
+              "There are no contacts registered to receive reminders for :patientName. Please select 'Add contact' to register a contact.",
+              { patientName: `<span>${patientName}</span>` },
+            ),
+          }}
+        ></StyledText>
+      ) : (
+        <StyledText
+          dangerouslySetInnerHTML={{
+            __html: getTranslation(
+              'patient.details.reminderContacts.description',
+              'The below contact list is registered to receive reminders for :patientName.',
+              { patientName: `<span>${patientName}</span>` },
+            ),
+          }}
+        ></StyledText>
+      )}
       <StyledContactListTable
         columns={columns}
-        noDataMessage="No contacts registered for this patient."
-        // endpoint={`patient/19324abf-b485-4184-8537-0a7fe4be1d0b/encounters`}
+        endpoint={`/patient/${patient.id}/reminderContacts`}
         disablePagination
-        // onRowClick={row => onItemClick(row.id)}
-        // initialSort={{ orderBy: 'startDate', order: 'desc' }}
-        // refreshCount={refreshCount}
+        initialSort={{ orderBy: 'name', order: 'asc' }}
         allowExport={false}
         onDataFetched={onDataFetched}
+        isEmpty={isEmpty}
       />
     </>
   );
 };
 
-export const ReminderContactList = ({ patient, onClose, onAddContact }) => {
+export const ReminderContactList = ({ onClose, onAddContact, onRemoveContact }) => {
   const { ability } = useAuth();
   const canAddReminderContacts = ability.can('write', 'Patient');
 
   return (
     <>
-      <ContactDetails name={`${patient?.firstName} ${patient?.lastName}`} />
+      <ContactDetails onRemoveContact={onRemoveContact} />
 
       {canAddReminderContacts && (
         <StyledAddContactButton
@@ -124,10 +202,17 @@ export const ReminderContactList = ({ patient, onClose, onAddContact }) => {
           onClick={onAddContact}
         >
           <PlusIcon fill={Colors.primary} />
-          Add contact
+          <TranslatedText
+            stringId="patient.details.reminderContacts.action.add"
+            fallback="Add contact"
+          />
         </StyledAddContactButton>
       )}
-      <ModalCancelRow confirmText="Close" confirmColor="primary" onConfirm={onClose} />
+      <ModalCancelRow
+        confirmText={<TranslatedText stringId="general.action.close" fallback="Close" />}
+        confirmColor="primary"
+        onConfirm={onClose}
+      />
     </>
   );
 };

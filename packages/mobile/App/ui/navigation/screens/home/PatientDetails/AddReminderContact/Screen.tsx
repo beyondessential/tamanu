@@ -23,6 +23,7 @@ import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { PatientContact } from '~/models/PatientContact';
 import { SuggesterDropdown } from '~/ui/components/Dropdown';
+import { PATIENT_COMMUNICATION_CHANNELS } from '~/constants/comms';
 
 interface IFormValues {
   reminderContactName: string;
@@ -40,7 +41,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
     const newContact = await PatientContact.createAndSaveOne<PatientContact>({
       name: values.reminderContactName,
       relationship: values.reminderContactRelationship,
-      method: 'telegram',
+      method: PATIENT_COMMUNICATION_CHANNELS.TELEGRAM,
       patient: selectedPatient.id,
     });
     navigation.navigate(Routes.HomeStack.PatientDetailsStack.ReminderContactQR, {
@@ -51,7 +52,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
   const patientName = joinNames(selectedPatient);
 
   const note = getTranslation(
-    'patient.details.addReminderContacts.note',
+    'patient.details.addReminderContact.note',
     'By providing their details, the individual consents to receiving automated reminder messages for :patientName.',
     { patientName },
   );
@@ -73,8 +74,8 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
               fontWeight={500}
             >
               <TranslatedText
-                stringId="patient.details.addReminderContacts.title"
-                fallback="Add reminder contacts"
+                stringId="patient.details.addReminderContact.title"
+                fallback="Add reminder contact"
               />
             </StyledText>
           </StyledView>
@@ -85,7 +86,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
               fontWeight={500}
             >
               <TranslatedText
-                stringId="patient.details.addReminderContacts.description"
+                stringId="patient.details.addReminderContact.description"
                 fallback="Please provide details below to add a new contact."
               />
             </StyledText>
@@ -119,7 +120,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
                       name="reminderContactName"
                       component={TextField}
                       placeholder={getTranslation(
-                        'patient.details.addReminderContacts.placeholder.contactName',
+                        'patient.details.addReminderContact.placeholder.contactName',
                         'Contact Name',
                       )}
                       required
@@ -131,7 +132,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
                       component={SuggesterDropdown}
                       referenceDataType="contactRelationship"
                       selectPlaceholderText={getTranslation(
-                        'patient.details.addReminderContacts.placeholder.select',
+                        'patient.details.addReminderContact.placeholder.select',
                         'Select',
                       )}
                       required
@@ -146,7 +147,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
                   >
                     <StyledText color={theme.colors.WHITE} fontSize={16} fontWeight={500}>
                       <TranslatedText
-                        stringId="patient.details.addReminderContacts.action.confirm"
+                        stringId="patient.details.addReminderContact.action.confirm"
                         fallback="Confirm & connect"
                       />
                     </StyledText>
@@ -160,7 +161,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
                   >
                     <StyledText color={theme.colors.PRIMARY_MAIN} fontSize={16} fontWeight={500}>
                       <TranslatedText
-                        stringId="patient.details.addReminderContacts.action.cancel"
+                        stringId="patient.details.addReminderContact.action.cancel"
                         fallback="Cancel"
                       />
                     </StyledText>

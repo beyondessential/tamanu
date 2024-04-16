@@ -17,12 +17,21 @@ import { defineWebsocketService } from './services/websocketService';
 import { defineWebsocketClientService } from './services/websocketClientService';
 
 export async function createApp({ sequelize, reportSchemaStores, models, syncManager, deviceId }) {
-  // Init our app
   const express = defineExpress();
   const server = createServer(express);
 
   const websocketService = defineWebsocketService({ httpServer: server });
   const websocketClientService = defineWebsocketClientService({ config, websocketService, models });
+
+  let errorMiddleware = null;
+  if (config.errors?.enabled) {
+    if (config.errors?.type === 'bugsnag') {
+      const Bugsnag = await import('@bugsnag/js');
+      const middleware = Bugsnag.getPlugin('express');
+      express.use(middleware.requestHandler);
+      errorMiddleware = middleware.errorHandler;
+    }
+  }
 
   express.use(compression());
   express.use(bodyParser.json({ limit: '50mb' }));
@@ -68,6 +77,9 @@ export async function createApp({ sequelize, reportSchemaStores, models, syncMan
     res.status(404).end();
   });
 
+  if (errorMiddleware) {
+    express.use(errorMiddleware);
+  }
   express.use(errorHandler);
 
   return { express, server };

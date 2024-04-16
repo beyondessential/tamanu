@@ -34,15 +34,24 @@ function api(ctx) {
 /**
  * @param {import('./ApplicationContext').ApplicationContext} ctx
  */
-export function createApp(ctx) {
+export async function createApp(ctx) {
   const { store, emailService, reportSchemaStores } = ctx;
 
-  // Init our app
   const express = defineExpress();
   const server = createServer(express);
   const websocketService = defineWebsocketService({ httpServer: server });
   ctx.telegramBotService?.registerWebsocketService(websocketService);
   registerWebsocketEvents({ websocketService, telegramBotService: ctx.telegramBotService });
+
+  let errorMiddleware = null;
+  if (config.errors?.enabled) {
+    if (config.errors?.type === 'bugsnag') {
+      const Bugsnag = await import('@bugsnag/js');
+      const middleware = Bugsnag.getPlugin('express');
+      express.use(middleware.requestHandler);
+      errorMiddleware = middleware.errorHandler;
+    }
+  }
 
   express.use(loadshedder());
   express.use(compression());
@@ -87,6 +96,10 @@ export function createApp(ctx) {
   express.use('*', (req, res) => {
     res.status(404).end();
   });
+
+  if (errorMiddleware) {
+    express.use(errorMiddleware);
+  }
 
   express.use(defaultErrorHandler);
 
