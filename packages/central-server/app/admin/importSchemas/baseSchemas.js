@@ -10,7 +10,7 @@ import {
   VISIBILITY_STATUSES,
   REFERENCE_DATA_RELATION_TYPES,
 } from '@tamanu/constants';
-import config from 'config';
+import config, { get } from 'config';
 import {
   configString,
   jsonString,
@@ -212,8 +212,33 @@ export const ScheduledVaccine = Base.shape({
   category: yup.string().required(),
   label: yup.string().required(),
   schedule: yup.string().required(),
-  weeksFromBirthDue: yup.number(),
-  weeksFromLastVaccinationDue: yup.number(),
+  weeksFromBirthDue: yup.number().when(['schedule'], {
+    is: schedule => {
+      if (!schedule.startsWith('Dose')) return false;
+      return getDoseNumber(schedule) > 1;
+    },
+    then: yup
+      .number()
+      .test('is-null', 'Weeks from birth due should be undefined for non-first doses', value => {
+        console.log(value);
+        return value == null;
+      }),
+    otherwise: yup.number(),
+  }),
+  weeksFromLastVaccinationDue: yup.number().when(['schedule'], {
+    is: schedule => {
+      if (!schedule.startsWith('Dose')) return false;
+      return getDoseNumber(schedule) == 1;
+    },
+    then: yup
+      .number()
+      .test(
+        'is-null',
+        'Weeks from last vaccination due should be undefined for first doses',
+        value => value == null,
+      ),
+    otherwise: yup.number(),
+  }),
   index: yup.number().required(),
   vaccineId: yup.string().required(),
   visibilityStatus,
@@ -319,3 +344,9 @@ export const ReferenceDataRelation = yup.object().shape({
   referenceDataId: yup.string().required(),
   type: yup.string().oneOf(Object.values(REFERENCE_DATA_RELATION_TYPES)),
 });
+
+const getDoseNumber = schedule => {
+  const match = schedule.match(/Dose (\d+)/);
+  console.log(match);
+  return match ? parseInt(match[1]) : null;
+};
