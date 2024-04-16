@@ -21,8 +21,7 @@ export const defineWebsocketClientService = injector => {
         ['telegramRegistration'],
       );
 
-      const contact = await injector.models?.PatientContact.findOne({
-        where: { id: contactId },
+      const contact = await injector.models?.PatientContact.findByPk(contactId, {
         include: [{ model: injector.models?.Patient, as: 'patient' }],
       });
 
