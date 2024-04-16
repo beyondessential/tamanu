@@ -54,7 +54,7 @@ export const EmailField = () => (
     label={
       <TranslatedText
         stringId="report.generate.emailList.label"
-        fallback="Email to (seperate emails with a comma)"
+        fallback="Email to (separate emails with a comma)"
       />
     }
     component={TextField}

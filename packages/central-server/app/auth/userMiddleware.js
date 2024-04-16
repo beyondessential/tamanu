@@ -31,7 +31,7 @@ export const userMiddleware = ({ secret }) =>
         audience: JWT_TOKEN_TYPES.ACCESS,
       });
     } catch (e) {
-      throw new BadAuthenticationError('Invalid token');
+      throw new BadAuthenticationError('Invalid token (hG7c)');
     }
 
     const { userId, deviceId } = contents;
