@@ -51,6 +51,14 @@
     "enabled": true,
     "level": "info"
   },
+  errors: {
+    // enable to send errors to a bug tracking service
+    enabled: false,
+    // right now the only supported service is bugsnag
+    type: 'bugsnag',
+    // paste your bugsnag API key here
+    apiKey: '',
+  },
   "sync": {
     "maxConcurrentSessions": 4,
     "persistedCacheBatchSize": 20000,

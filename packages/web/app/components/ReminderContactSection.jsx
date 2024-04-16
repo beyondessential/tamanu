@@ -1,17 +1,20 @@
 import React, { useCallback, useState } from 'react';
-import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import NotificationsNoneIcon from '@material-ui/icons/NotificationsNone';
 import { Button } from '../components';
 import { ReminderContactModal } from '../components/ReminderContactModal';
 import { useAuth } from '../contexts/Auth';
+import { TranslatedText } from './Translation/TranslatedText';
 
 const StyledButton = styled(Button)`
-  padding: 11px 10px !important;
+  padding: 6px 8px !important;
+`;
+
+const StyledNotificationsNoneIcon = styled(NotificationsNoneIcon)`
+  margin-right: 5px !important;
 `;
 
 export const ReminderContactSection = () => {
-  const patient = useSelector(state => state.patient);
   const [openReminderModal, setOpenReminderModal] = useState(false);
   const { ability } = useAuth();
   const canReadReminderContacts = ability.can('read', 'Patient');
@@ -24,7 +27,7 @@ export const ReminderContactSection = () => {
     setOpenReminderModal(false);
   }, []);
 
-  if (canReadReminderContacts === false) {
+  if (!canReadReminderContacts) {
     return null;
   }
 
@@ -36,15 +39,19 @@ export const ReminderContactSection = () => {
         size="small"
         onClick={handleOpenRemindersModal}
       >
-        <NotificationsNoneIcon />
-        Reminder contacts
+        <StyledNotificationsNoneIcon />
+        <TranslatedText
+          stringId="patient.details.reminderContacts.title"
+          fallback="Reminder contacts"
+        />
       </StyledButton>
-      <ReminderContactModal
-        open={openReminderModal}
-        onClose={onClose}
-        handleOpenRemindersModal={handleOpenRemindersModal}
-        patient={patient}
-      />
+      {openReminderModal && (
+        <ReminderContactModal
+          open
+          onClose={onClose}
+          handleOpenRemindersModal={handleOpenRemindersModal}
+        />
+      )}
     </>
   );
 };

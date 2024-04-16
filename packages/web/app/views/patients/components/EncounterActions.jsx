@@ -233,6 +233,7 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
           fallback="Change reason"
         />
       ),
+      condition: () => [ENCOUNTER_TYPES.CLINIC, ENCOUNTER_TYPES.ADMISSION].includes(encounter.encounterType),
       onClick: onChangeReason,
     },
   ].filter(action => !action.condition || action.condition());

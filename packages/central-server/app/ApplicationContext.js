@@ -1,10 +1,12 @@
 import config from 'config';
+import { omit } from 'lodash';
 import { isSyncTriggerDisabled } from '@tamanu/shared/dataMigrations';
 import { EmailService } from './services/EmailService';
 import { closeDatabase, initDatabase, initReporting } from './database';
 import { initIntegrations } from './integrations';
-import { log } from '@tamanu/shared/services/logging';
 import { TelegramBotService } from './services/TelegramBotService';
+import { log, initBugsnag } from '@tamanu/shared/services/logging';
+import { VERSION } from './middleware/versionCompatibility';
 
 export class ApplicationContext {
   store = null;
@@ -19,10 +21,20 @@ export class ApplicationContext {
 
   closeHooks = [];
 
-  async init({ testMode } = {}) {
+  async init({ testMode, appType } = {}) {
+    if (config.errors?.enabled) {
+      if (config.errors.type === 'bugsnag') {
+        await initBugsnag({
+          ...omit(config.errors, ['enabled', 'type']),
+          appVersion: VERSION,
+          appType,
+        });
+      }
+    }
+
     this.emailService = new EmailService();
     this.telegramBotService = new TelegramBotService();
-    this.store = await initDatabase({ testMode });
+    this.store = await initDatabase({ testMode, dbKey: appType ?? 'main' });
     if (config.db.reportSchemas?.enabled) {
       this.reportSchemaStores = await initReporting();
     }
