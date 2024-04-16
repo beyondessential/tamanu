@@ -73,7 +73,7 @@ export class VaccinationReminderProcessor extends ScheduledTask {
     where r.hash not in (select hash from patient_communications where hash is not null)
     `,
       {
-        replacements: {
+        bind: {
           communicationChannel: PATIENT_COMMUNICATION_CHANNELS.TELEGRAM,
           communicationStatus: COMMUNICATION_STATUSES.QUEUED,
           communicationType: PATIENT_COMMUNICATION_TYPES.VACCINATION_REMINDER,
