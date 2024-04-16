@@ -83,20 +83,19 @@ export const defineTelegramBotService = async injector => {
   };
 
   /**
-   * Register a new contact and send a success message.
    *
    * @param {TelegramBot.Message} message - the message object containing contact information
    * @param {string} contactId
    */
   const unsubscribeCommandHandler = async (message, contactId) => {
-    websocketService?.emit('telegram:unsubscribe', { contactId, chatId: message.chat.id });
+    const botInfo = await getBotInfo();
+    websocketService?.emit('telegram:unsubscribe', { contactId, chatId: message.chat.id, botInfo });
   };
 
   await setWebhook(injector.config.telegramBot.webhook);
   setCommand('start', subscribeCommandHandler);
-  setCommand('stop', unsubscribeCommandHandler);
+  setCommand('unsubscribe', unsubscribeCommandHandler);
 
-  //TODO: rewrite this callback to a composable function
   bot.on('callback_query', async query => {
     try {
       const data = JSON.parse(query.data);
@@ -104,22 +103,11 @@ export const defineTelegramBotService = async injector => {
         await unsubscribeCommandHandler(query.message, data.contactId);
       }
       // eslint-disable-next-line no-empty
-    } catch {}
+    } catch {
+    } finally {
+      bot.answerCallbackQuery({ callback_query_id: query.id });
+    }
   });
-
-  bot.setMyCommands(
-    [
-      {
-        command: 'start',
-        description: 'Subscribe to receive notification for a patient',
-      },
-      {
-        command: 'stop',
-        description: 'Unsubscribe to stop receive notification for a patient',
-      },
-    ],
-    { language_code: 'en' },
-  );
 
   return {
     update,
