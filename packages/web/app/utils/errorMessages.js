@@ -28,7 +28,7 @@ const registerTranslatedLabelMethod = (translations = {}) => {
 // translated version, this is required at boot
 registerTranslatedLabelMethod();
 
-export function registerYup(translations) {
+export function registerYup(translations = {}) {
   registerTranslatedLabelMethod(translations);
   const defaultMessage = translations['validation.required'] || 'The :path field is required';
   yup.setLocale({
