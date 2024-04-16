@@ -1,23 +1,24 @@
 import React, {
   FunctionComponent,
   ReactElement,
-  useRef,
   useCallback,
   useEffect,
+  useRef,
   useState,
 } from 'react';
 import * as Yup from 'yup';
-import { StyledView, StyledText } from '/styled/common';
+import { StyledText, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { readConfig } from '~/services/config';
 import { useFacility } from '~/ui/contexts/FacilityContext';
 import { Form } from './Form';
 import { Field } from './FormField';
 import { TextField } from '../TextField/TextField';
-import { Button } from '../Button';
+import { SubmitButton } from './SubmitButton';
 import { ServerSelector } from '../ServerSelectorField/ServerSelector';
+import { TranslatedText } from '../Translations/TranslatedText';
 
 interface SignInFormModelValues {
   email: string;
@@ -32,8 +33,12 @@ const ServerInfo = __DEV__
       const { facilityName } = useFacility();
       return (
         <StyledView marginBottom={10}>
-          <StyledText color={theme.colors.WHITE}>Server: {host}</StyledText>
-          <StyledText color={theme.colors.WHITE}>Facility: {facilityName}</StyledText>
+          <StyledText color={theme.colors.WHITE}>
+            <TranslatedText stringId="login.server.label" fallback="Server" />: {host}
+          </StyledText>
+          <StyledText color={theme.colors.WHITE}>
+            <TranslatedText stringId="general.facility.label" fallback="Facility" />: {facilityName}
+          </StyledText>
         </StyledView>
       );
     }
@@ -42,8 +47,9 @@ const ServerInfo = __DEV__
 export const SignInForm: FunctionComponent<any> = ({ onError, onSuccess }) => {
   const [existingHost, setExistingHost] = useState('');
   const passwordRef = useRef(null);
-  const authCtx = useAuth();
-  const signIn = useCallback(
+  const { signIn } = useAuth();
+
+  const handleSignIn = useCallback(
     async (values: SignInFormModelValues) => {
       try {
         if (!existingHost && !values.server) {
@@ -51,7 +57,7 @@ export const SignInForm: FunctionComponent<any> = ({ onError, onSuccess }) => {
           onError(new Error('Please select a server to connect to'));
           return;
         }
-        await authCtx.signIn(values);
+        await signIn(values);
 
         onSuccess();
       } catch (error) {
@@ -85,9 +91,9 @@ export const SignInForm: FunctionComponent<any> = ({ onError, onSuccess }) => {
         password: Yup.string().required(REQUIRED_VALIDATION_MESSAGE),
         server: existingHost ? Yup.string() : Yup.string().required(REQUIRED_VALIDATION_MESSAGE),
       })}
-      onSubmit={signIn}
+      onSubmit={handleSignIn}
     >
-      {({ handleSubmit, isSubmitting }): ReactElement => (
+      {({ handleSubmit }): ReactElement => (
         <StyledView
           marginTop={screenPercentageToDP(3.7, Orientation.Height)}
           marginRight={screenPercentageToDP(2.43, Orientation.Width)}
@@ -97,14 +103,23 @@ export const SignInForm: FunctionComponent<any> = ({ onError, onSuccess }) => {
             {existingHost ? (
               <ServerInfo host={existingHost} />
             ) : (
-              <Field name="server" component={ServerSelector} label="Country" />
+              <Field
+                name="server"
+                component={ServerSelector}
+                label={<TranslatedText stringId="general.country.label" fallback="Country" />}
+              />
             )}
             <Field
               name="email"
               keyboardType="email-address"
               component={TextField}
-              label="Email"
-              placeholder="Enter your email address"
+              label={<TranslatedText stringId="login.email.label" fallback="Email" />}
+              placeholder={
+                <TranslatedText
+                  stringId="login.email.placeholder"
+                  fallback="Enter your email address"
+                />
+              }
               blurOnSubmit={false}
               returnKeyType="next"
               labelFontSize="14"
@@ -118,23 +133,26 @@ export const SignInForm: FunctionComponent<any> = ({ onError, onSuccess }) => {
               inputRef={passwordRef}
               autoCapitalize="none"
               component={TextField}
-              label="Password"
+              label={<TranslatedText stringId="login.password.label" fallback="Password" />}
               labelFontSize="14"
-              placeholder="Enter your password"
+              placeholder={
+                <TranslatedText
+                  stringId="login.password.placeholder"
+                  fallback="Enter your password"
+                />
+              }
               labelColor={theme.colors.WHITE}
               secure
               onSubmitEditing={handleSubmit}
             />
           </StyledView>
-          <Button
+          <SubmitButton
             marginTop={20}
             backgroundColor={theme.colors.SECONDARY_MAIN}
-            onPress={handleSubmit}
-            loadingAction={isSubmitting}
             textColor={theme.colors.TEXT_SUPER_DARK}
             fontSize={screenPercentageToDP('1.94', Orientation.Height)}
             fontWeight={500}
-            buttonText="Log in"
+            buttonText={<TranslatedText stringId="auth.action.login" fallback="Log in" />}
           />
         </StyledView>
       )}

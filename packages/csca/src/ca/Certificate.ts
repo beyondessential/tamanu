@@ -1,9 +1,9 @@
-/* eslint-disable camelcase, @typescript-eslint/camelcase */
+/* eslint-disable camelcase */
 
 import { promises as fs } from 'fs';
 
 import { AsnConvert } from '@peculiar/asn1-schema';
-import { PrivateKeyUsagePeriod, id_ce_privateKeyUsagePeriod } from '@peculiar/asn1-x509';
+import { id_ce_privateKeyUsagePeriod, PrivateKeyUsagePeriod } from '@peculiar/asn1-x509';
 import {
   JsonAttributeAndValue,
   JsonName,
@@ -180,9 +180,11 @@ export default class Certificate {
     return new Certificate(crt);
   }
 
+  /* eslint-disable no-unused-vars */
   public async check(ca: CA): Promise<void>;
   public async check(key: CryptoKey): Promise<void>;
   public async check(arg: CryptoKey | CA): Promise<void> {
+  /* eslint-enable no-unused-vars */
     let key: CryptoKey;
     if (arg instanceof CA) {
       key = await arg.publicKey();

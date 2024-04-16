@@ -1,5 +1,5 @@
 import React, { memo, useState } from 'react';
-import { differenceInYears, differenceInMonths, differenceInWeeks, parseISO } from 'date-fns';
+import { differenceInMonths, differenceInWeeks, differenceInYears, parseISO } from 'date-fns';
 import { PatientVitalsProps } from '../../interfaces/PatientVitalsProps';
 import { ReduxStoreProps } from '../../interfaces/ReduxStoreProps';
 import { PatientStateProps } from '../../store/ducks/patient';
@@ -10,7 +10,7 @@ import { LoadingScreen } from '/components/LoadingScreen';
 import { useBackendEffect } from '~/ui/hooks';
 import { ErrorScreen } from '/components/ErrorScreen';
 import { VitalsDataElements } from '/helpers/constants';
-import { StyledText, StyledView, StyledScrollView } from '~/ui/styled/common';
+import { StyledScrollView, StyledText, StyledView } from '~/ui/styled/common';
 import { theme } from '~/ui/styled/theme';
 import { VitalsTableRowHeader } from './VitalsTableRowHeader';
 import { VitalsTableCell } from './VitalsTableCell';
@@ -18,6 +18,7 @@ import { SurveyScreenValidationCriteria } from '~/types';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { ValidationCriteriaNormalRange } from '../../../types/ISurvey';
 import { useSelector } from 'react-redux';
+import { VisibilityStatus } from '~/visibilityStatuses';
 
 interface VitalsTableProps {
   data: TableCells<PatientVitalsProps>;
@@ -28,7 +29,7 @@ interface VitalsTableProps {
   Only applies to vitals survey components:
   Validation criteria normal range can be different by age but we also need
   to support the previous format where only one is specified.
-  This will also be on desktop in file /app/utils/survey.js
+  This will also be on web in file /app/utils/survey.js
   both should be changed together. Though note that the functions might not
   be exactly the same because of different APIs.
 */
@@ -74,7 +75,9 @@ export const VitalsTable = memo(
     const { selectedPatient } = useSelector(
       (state: ReduxStoreProps): PatientStateProps => state.patient,
     );
-    const [vitalsSurvey, error] = useBackendEffect(({ models }) => models.Survey.getVitalsSurvey());
+    const [vitalsSurvey, error] = useBackendEffect(({ models }) =>
+      models.Survey.getVitalsSurvey({ includeAllVitals: true }),
+    );
     const [showNeedsAttentionInfo, setShowNeedsAttentionInfo] = useState(false);
 
     if (!vitalsSurvey) {
@@ -85,10 +88,24 @@ export const VitalsTable = memo(
       return <ErrorScreen error={error} />;
     }
 
+    // Create object that checks if a question has historical answers
+    const hasHistoricalAnswer = Object.values(data).reduce((dict, entries) => {
+      const mapped = { ...dict };
+      entries.forEach(entry => {
+        const { dataElementId, body } = entry;
+        mapped[dataElementId] = mapped[dataElementId] || Boolean(body);
+      });
+      return mapped;
+    }, {});
+
     // Date is the column so remove it from rows
-    const components = vitalsSurvey.components.filter(
-      c => c.dataElementId !== VitalsDataElements.dateRecorded,
-    );
+    const components = vitalsSurvey.components
+      .filter(c => c.dataElementId !== VitalsDataElements.dateRecorded) // Show current components or ones that have historical data in them
+      .filter(
+        component =>
+          component.visibilityStatus === VisibilityStatus.Current ||
+          hasHistoricalAnswer[component.dataElementId],
+      );
 
     return (
       <StyledView height="100%" background={theme.colors.BACKGROUND_GREY}>

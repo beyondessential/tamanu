@@ -1,4 +1,4 @@
-import { replaceInTemplate } from '../../src/utils/replaceInTemplate';
+import { replaceInTemplate } from '../../dist/cjs/utils/replaceInTemplate';
 
 describe('replaceInTemplate', () => {
   it('should replace correctly', () => {

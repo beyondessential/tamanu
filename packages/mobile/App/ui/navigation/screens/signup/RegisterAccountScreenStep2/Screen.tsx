@@ -1,14 +1,14 @@
-import React, { FunctionComponent } from 'react';
+import React from 'react';
 import { KeyboardAvoidingView } from 'react-native';
 import Animated, { Value } from 'react-native-reanimated';
 //Components
 import {
-  FullView,
-  StyledSafeAreaView,
-  StyledTouchableOpacity,
   CenterView,
-  StyledText,
+  FullView,
   RowView,
+  StyledSafeAreaView,
+  StyledText,
+  StyledTouchableOpacity,
 } from '/styled/common';
 import { CrossIcon } from '/components/Icons';
 import { RegisterAccountFormStep02 } from '/components/Forms/RegisterAccountForms/RegisterAccountFormStep02';

@@ -1,7 +1,7 @@
 import React, { FC } from 'react';
 import { RowField } from './RowField';
 import { VaccineDataProps } from '.';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { theme } from '/styled/theme';
 import { StyledView } from '/styled/common';
 import { formatStringDate } from '../../helpers/date';

@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import { Sequelize, Op } from 'sequelize';
+import { Op, Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 

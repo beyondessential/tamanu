@@ -1,17 +1,18 @@
 import React, { useCallback } from 'react';
 import { TouchableHighlight } from 'react-native';
-import { StyledView, StyledText, RowView } from '/styled/common';
+import { RowView, StyledText, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { BaseInputProps } from '/interfaces/BaseInputProps';
 import { CheckboxMarkIcon } from '../Icons';
 import { TextFieldErrorMessage } from '/components/TextField/TextFieldErrorMessage';
 import { RequiredIndicator } from '../RequiredIndicator';
+import { TranslatedTextElement } from '../Translations/TranslatedText';
 
 interface CheckboxProps extends BaseInputProps {
   onChange: Function;
   id: string;
-  text: string;
+  text: TranslatedTextElement;
   value: boolean;
   background?: string;
   color?: string;
@@ -79,7 +80,7 @@ export const Checkbox = ({
             fontSize={screenPercentageToDP('1.70', Orientation.Height)}
             color={theme.colors.TEXT_MID}
           >
-            {`${text}${required && !label ? '*' : ''}`}
+            {`${text?.props?.fallback || text}${required && !label ? '*' : ''}`}
           </StyledText>
         )}
       </RowView>

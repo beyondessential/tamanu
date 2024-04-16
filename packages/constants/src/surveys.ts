@@ -26,9 +26,7 @@ export const PROGRAM_DATA_ELEMENT_TYPES = {
   USER_DATA: 'UserData',
   PATIENT_ISSUE: 'PatientIssue',
 };
-export const PROGRAM_DATA_ELEMENT_TYPE_VALUES = Object.values(
-  PROGRAM_DATA_ELEMENT_TYPES,
-);
+export const PROGRAM_DATA_ELEMENT_TYPE_VALUES = Object.values(PROGRAM_DATA_ELEMENT_TYPES);
 
 export const NON_ANSWERABLE_DATA_ELEMENT_TYPES = [
   PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION,
@@ -84,3 +82,80 @@ export const VITAL_CHARTS = {
   [PDE_SPO2]: LINE,
   [PDE_AVPU]: LINE,
 };
+
+// utility function for when a model's fields are all a direct match for their survey configs
+const makeLookupFields = (model: string, fields: string[]) =>
+  Object.fromEntries(fields.map(f => [f, [model, f]]));
+
+type PatientDataFieldLocationsType = {
+  [key: string]: Array<string>;
+};
+
+// Please keep in sync with:
+// - mobile/App/constants/surveys
+export const PATIENT_DATA_FIELD_LOCATIONS: PatientDataFieldLocationsType = {
+  registrationClinicalStatus: ['PatientProgramRegistration', 'clinicalStatusId'],
+  programRegistrationStatus: ['PatientProgramRegistration', 'registrationStatus'],
+  registrationClinician: ['PatientProgramRegistration', 'clinicianId'],
+  registeringFacility: ['PatientProgramRegistration', 'registeringFacilityId'],
+  registrationCurrentlyAtVillage: ['PatientProgramRegistration', 'villageId'],
+  registrationCurrentlyAtFacility: ['PatientProgramRegistration', 'facilityId'],
+  ...makeLookupFields('Patient', [
+    'firstName',
+    'middleName',
+    'lastName',
+    'culturalName',
+    'dateOfBirth',
+    'dateOfDeath',
+    'sex',
+    'email',
+
+    'villageId',
+  ]),
+  ...makeLookupFields('PatientAdditionalData', [
+    'placeOfBirth',
+    'bloodType',
+    'primaryContactNumber',
+    'secondaryContactNumber',
+    'maritalStatus',
+    'cityTown',
+    'streetVillage',
+    'educationalLevel',
+    'socialMedia',
+    'title',
+    'birthCertificate',
+    'drivingLicense',
+    'passport',
+    'emergencyContactName',
+    'emergencyContactNumber',
+
+    'registeredById',
+    'motherId',
+    'fatherId',
+    'nationalityId',
+    'countryId',
+    'divisionId',
+    'subdivisionId',
+    'medicalAreaId',
+    'nursingZoneId',
+    'settlementId',
+    'ethnicityId',
+    'occupationId',
+    'religionId',
+    'patientBillingTypeId',
+    'countryOfBirthId',
+  ]),
+};
+
+// The 'location' for the following fields is defined on the frontend
+// Please keep in sync with:
+// - mobile/App/constants/surveys
+export const READONLY_DATA_FIELDS = {
+  AGE: 'age',
+  AGE_WITH_MONTHS: 'ageWithMonths',
+  FULL_NAME: 'fullName',
+};
+
+export const PROGRAM_REGISTRY_FIELD_LOCATIONS = Object.keys(PATIENT_DATA_FIELD_LOCATIONS).filter(
+  key => PATIENT_DATA_FIELD_LOCATIONS[key][0] === 'PatientProgramRegistration',
+);

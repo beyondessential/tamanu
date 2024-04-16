@@ -5,7 +5,7 @@ import { NavigationProp } from '@react-navigation/native';
 // Components
 import { TextField } from '../../TextField/TextField';
 import { Field } from '../FormField';
-import { StyledView, StyledText, FullView, RowView } from '/styled/common';
+import { FullView, RowView, StyledText, StyledView } from '/styled/common';
 import { MaskedTextField } from '../../TextField/MaskedTextField';
 import { Button } from '../../Button';
 import { RadioButtonGroup } from '../../RadioButtonGroup';
@@ -29,11 +29,7 @@ export const RegisterAccountStep01: FunctionComponent<any> = (props: {
   </FullView>
 );
 
-interface FormProps {
-  navigation: NavigationProp<any>;
-}
-
-const Form: FunctionComponent<any> = ({ navigation }: FormProps) => (
+const Form: FunctionComponent<any> = () => (
   <Formik
     initialValues={{
       firstName: '',

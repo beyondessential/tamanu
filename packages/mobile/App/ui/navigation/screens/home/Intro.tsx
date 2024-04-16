@@ -1,23 +1,19 @@
-import React, { useCallback, useMemo, ReactElement } from 'react';
+import React, { ReactElement, useCallback, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 
 //Components
-import {
-  StyledSafeAreaView,
-  StyledText,
-  StyledView,
-  CenterView,
-} from '../../../styled/common';
+import { CenterView, StyledSafeAreaView, StyledText, StyledView } from '../../../styled/common';
 import { theme } from '../../../styled/theme';
 import { AppIntro1Icon, AppIntro2Icon, AppIntro3Icon } from '../../../components/Icons';
 import { StepMarker } from '../../../components/StepMarker';
 import { Button } from '../../../components/Button';
 //helpers
 import { authUserSelector } from '../../../helpers/selectors';
-import { screenPercentageToDP, Orientation } from '../../../helpers/screen';
+import { Orientation, screenPercentageToDP } from '../../../helpers/screen';
 import { disableAndroidBackButton } from '../../../helpers/android';
 // Props
 import { IntroScreenProps } from '../../../interfaces/Screens/HomeStack/IntroProps';
+import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 
 export interface IntroRouteProps {
   message: string;
@@ -53,18 +49,18 @@ export const Intro = (props: IntroScreenProps): ReactElement => {
   }, []);
 
   return (
-    <StyledSafeAreaView
-      flex={1}
-      background={theme.colors.PRIMARY_MAIN}
-      alignItems="center"
-    >
+    <StyledSafeAreaView flex={1} background={theme.colors.PRIMARY_MAIN} alignItems="center">
       <StyledText
         marginTop={screenPercentageToDP('10.9', Orientation.Height)}
         fontSize={screenPercentageToDP(2.55, Orientation.Height)}
         fontWeight="bold"
         color={theme.colors.WHITE}
       >
-        Welcome, {user.displayName}!
+        <TranslatedText
+          stringId="welcome.title"
+          fallback="Welcome, :displayName!"
+          replacements={{ displayName: user.displayName }}
+        />
       </StyledText>
       <StyledView marginTop={screenPercentageToDP('7.17', Orientation.Height)}>
         <Icon
@@ -99,7 +95,7 @@ export const Intro = (props: IntroScreenProps): ReactElement => {
           width={screenPercentageToDP(43.79, Orientation.Width)}
           outline
           borderColor={theme.colors.WHITE}
-          buttonText="Next"
+          buttonText={<TranslatedText stringId="general.action.next" fallback="Next" />}
           onPress={onPressButton}
         />
       </CenterView>

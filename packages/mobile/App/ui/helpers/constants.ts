@@ -24,6 +24,12 @@ export const VisitTypes = {
   VISIT: 'Visit',
 };
 
+export const PatientFromRoute = {
+  HOME: 'home',
+  RECENTLY_VIEWED: 'recentlyViewed',
+  ALL_PATIENT: 'allPatient',
+};
+
 export const HeaderIcons = {
   //TODO: find correct icons for each EncounterType
   [EncounterType.Clinic]: Icons.ClipboardIcon,
@@ -192,7 +198,7 @@ export const EncounterTypeNames = {
   emergency: 'Emergency',
   observation: 'Observation',
   triage: 'Triage',
-  surveyResponse: 'Survey response',
+  surveyResponse: 'Form response',
   vaccination: 'Vaccination record',
 };
 
@@ -202,16 +208,6 @@ export const LabRequestStatus = {
   to_be_verified: 'To be verified',
   verified: 'Verified',
   published: 'published',
-};
-
-// also update /packages/lan/app/routes/apiv1/surveyResponse.js when this changes
-export const AutocompleteSourceToColumnMap = {
-  Department: 'name',
-  Facility: 'name',
-  Location: 'name',
-  LocationGroup: 'name',
-  ReferenceData: 'name',
-  User: 'displayName',
 };
 
 export const VitalsDataElements = {
@@ -248,4 +244,14 @@ export const NOTE_TYPES = {
 
 export const FORM_STATUSES = {
   SUBMIT_SCREEN_ATTEMPTED: 'SUBMIT_SCREEN_ATTEMPTED',
+};
+
+// also update /packages/lan/app/routes/apiv1/surveyResponse.js when this changes
+export const AutocompleteSourceToColumnMap = {
+  Department: 'name',
+  Facility: 'name',
+  Location: 'name',
+  LocationGroup: 'name',
+  ReferenceData: 'name',
+  User: 'displayName',
 };

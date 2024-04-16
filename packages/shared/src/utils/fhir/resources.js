@@ -1,3 +1,7 @@
+import config from 'config';
+
+import { FHIR_INTERACTIONS } from '@tamanu/constants';
+
 /**
  * @param {Model[]} models
  * @param  {...string} interactions
@@ -5,6 +9,16 @@
  */
 export function resourcesThatCanDo(models, ...interactions) {
   return Object.values(models).filter(Resource =>
-    interactions.every(interaction => Resource.CAN_DO?.has(interaction)),
+    interactions.every(interaction => {
+      // Check if materialisation of resource is enabled
+      if (
+        interaction === FHIR_INTERACTIONS.INTERNAL.MATERIALISE &&
+        !config.integrations.fhir.worker.resourceMaterialisationEnabled[Resource.fhirName]
+      ) {
+        return false;
+      }
+
+      return Resource.CAN_DO?.has(interaction);
+    }),
   );
 }

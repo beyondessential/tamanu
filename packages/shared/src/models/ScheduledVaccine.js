@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { SYNC_DIRECTIONS, VISIBILITY_STATUSES, VACCINE_CATEGORIES } from '@tamanu/constants';
+import { SYNC_DIRECTIONS, VACCINE_CATEGORIES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { Model } from './Model';
 
 export class ScheduledVaccine extends Model {
@@ -13,6 +13,10 @@ export class ScheduledVaccine extends Model {
         weeksFromBirthDue: Sequelize.INTEGER,
         weeksFromLastVaccinationDue: Sequelize.INTEGER,
         index: Sequelize.INTEGER,
+        hideFromCertificate: {
+          type: Sequelize.BOOLEAN,
+          defaultValue: false,
+        },
         visibilityStatus: {
           type: Sequelize.TEXT,
           defaultValue: VISIBILITY_STATUSES.CURRENT,

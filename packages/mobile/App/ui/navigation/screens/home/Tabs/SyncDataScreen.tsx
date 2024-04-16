@@ -8,25 +8,27 @@ import { Orientation, screenPercentageToDP, setStatusBar } from '../../../../hel
 import { BackendContext } from '../../../../contexts/BackendContext';
 import {
   MobileSyncManager,
-  SYNC_STAGES_TOTAL,
   SYNC_EVENT_ACTIONS,
+  SYNC_STAGES_TOTAL,
 } from '../../../../../services/sync';
 import { Button } from '../../../../components/Button';
 import { SyncErrorDisplay } from '../../../../components/SyncErrorDisplay';
-import { GreenTickIcon, ErrorIcon } from '../../../../components/Icons';
+import { ErrorIcon, GreenTickIcon } from '../../../../components/Icons';
+import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 
 export const SyncDataScreen = ({ navigation }): ReactElement => {
   const backend = useContext(BackendContext);
   const syncManager: MobileSyncManager = backend.syncManager;
 
-  const formatLastSuccessfulSyncTick = (lastSuccessfulSyncTick: string): string =>
+  const formatLastSuccessfulSyncTick = (lastSuccessfulSyncTick: Date): string =>
     lastSuccessfulSyncTick
-      ? formatDistance(new Date(lastSuccessfulSyncTick), new Date(), { addSuffix: true })
+      ? formatDistance(lastSuccessfulSyncTick, new Date(), { addSuffix: true })
       : '';
 
   const [syncStarted, setSyncStarted] = useState(syncManager.isSyncing);
   const [hasError, setHasError] = useState(false);
   const [isSyncing, setIsSyncing] = useState(syncManager.isSyncing);
+  const [isQueuing, setIsQueuing] = useState(syncManager.isQueuing);
   const [syncStage, setSyncStage] = useState(syncManager.syncStage);
   const [progress, setProgress] = useState(syncManager.progress);
   const [progressMessage, setProgressMessage] = useState(syncManager.progressMessage);
@@ -39,7 +41,7 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
   setStatusBar('light-content', theme.colors.MAIN_SUPER_DARK);
 
   const manualSync = useCallback(() => {
-    syncManager.triggerSync();
+    syncManager.triggerSync({ urgent: true });
   }, []);
 
   useEffect(() => {
@@ -56,7 +58,15 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
   useEffect(() => {
     const handler = (action: string): void => {
       switch (action) {
+        case SYNC_EVENT_ACTIONS.SYNC_IN_QUEUE:
+          setProgress(0);
+          setIsQueuing(true);
+          setIsSyncing(false);
+          setHasError(false);
+          setProgressMessage(syncManager.progressMessage);
+          break;
         case SYNC_EVENT_ACTIONS.SYNC_STARTED:
+          setIsQueuing(false);
           setSyncStarted(true);
           setIsSyncing(true);
           setProgress(0);
@@ -65,6 +75,7 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
           activateKeepAwake(); // don't let the device sleep while syncing
           break;
         case SYNC_EVENT_ACTIONS.SYNC_ENDED:
+          setIsQueuing(false);
           setIsSyncing(false);
           setProgress(0);
           setProgressMessage('');
@@ -81,6 +92,7 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
           setLastSyncPulledRecordsCount(syncManager.lastSyncPulledRecordsCount);
           break;
         case SYNC_EVENT_ACTIONS.SYNC_ERROR:
+          setIsQueuing(false);
           setHasError(true);
           break;
         default:
@@ -104,17 +116,31 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
     };
   }, []);
 
-  const syncFinishedSuccessfully = syncStarted && !isSyncing && !hasError;
+  const syncFinishedSuccessfully = syncStarted && !isSyncing && !isQueuing && !hasError;
+
+  const changeTranslation = <TranslatedText stringId='sync.message.syncSummary.change' fallback='change' />
+  const changePluralTranslation = <TranslatedText stringId='sync.message.syncSummary.changePlural' fallback='changes' />
 
   return (
     <CenterView background={theme.colors.MAIN_SUPER_DARK} flex={1}>
       <StyledView alignItems="center">
-        {isSyncing ? (
+        {/* Circular progress */}
+        {(isSyncing || isQueuing) && !hasError ? (
           <ActivityIndicator
             size="large"
             color={theme.colors.SECONDARY_MAIN}
             style={{ transform: [{ scaleX: 2 }, { scaleY: 2 }] }}
           />
+        ) : null}
+        {/* Queuing message */}
+        {isQueuing ? (
+          <StyledText
+            marginTop={screenPercentageToDP(5, Orientation.Height)}
+            fontSize={screenPercentageToDP(1.7, Orientation.Height)}
+            color={theme.colors.WHITE}
+          >
+            {progressMessage}
+          </StyledText>
         ) : null}
         {syncFinishedSuccessfully ? (
           <GreenTickIcon size={screenPercentageToDP('8', Orientation.Height)} />
@@ -128,7 +154,7 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
             fontSize={screenPercentageToDP(2.55, Orientation.Height)}
             textAlign="center"
           >
-            Sync failed
+            <TranslatedText stringId="sync.error.syncFailed" fallback="Sync failed" />
           </StyledText>
         ) : null}
         {isSyncing || syncFinishedSuccessfully ? (
@@ -150,7 +176,7 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
             outline
             textColor={theme.colors.SECONDARY_MAIN}
             borderColor={theme.colors.SECONDARY_MAIN}
-            buttonText="Manual sync"
+            buttonText={<TranslatedText stringId="sync.action.manualSync" fallback="Manual sync" />}
             marginTop={20}
           />
         )}
@@ -161,7 +187,13 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
             fontWeight={500}
             color={theme.colors.WHITE}
           >
-            {`${syncStage} of ${SYNC_STAGES_TOTAL} syncing`}
+            {
+              <TranslatedText
+                stringId="sync.message.syncStatus"
+                fallback=":currentSyncStage of :totalSyncStages syncing"
+                replacements={{ currentSyncStage: syncStage, totalSyncStages: SYNC_STAGES_TOTAL }}
+              />
+            }
           </StyledText>
         ) : null}
         {isSyncing ? (
@@ -181,7 +213,10 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
               fontWeight={500}
               color={theme.colors.WHITE}
             >
-              Last successful sync
+              <TranslatedText
+                stringId="sync.subHeading.lastSuccessfulSync"
+                fallback="Last successful sync"
+              />
             </StyledText>
             <StyledText
               fontSize={screenPercentageToDP(1.7, Orientation.Height)}
@@ -196,11 +231,16 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
                 fontSize={screenPercentageToDP(1.7, Orientation.Height)}
                 color={theme.colors.WHITE}
               >
-                {`pulled ${lastSyncPulledRecordsCount} change${
-                  lastSyncPulledRecordsCount === 1 ? '' : 's'
-                }, pushed ${lastSyncPushedRecordsCount} change${
-                  lastSyncPushedRecordsCount === 1 ? '' : 's'
-                }`}
+                <TranslatedText
+                  stringId="sync.message.syncSummary"
+                  fallback="pulled :pullCount :pullChange, pushed :pushCount :pushChange"
+                  replacements={{
+                    pullCount: lastSyncPulledRecordsCount,
+                    pullChange: lastSyncPulledRecordsCount === 1 ? changeTranslation : changePluralTranslation,
+                    pushCount: lastSyncPushedRecordsCount,
+                    pushChange: lastSyncPushedRecordsCount === 1 ? changeTranslation : changePluralTranslation,
+                  }}
+                />
               </StyledText>
             ) : null}
           </>

@@ -1,4 +1,4 @@
-/* eslint-disable camelcase, @typescript-eslint/camelcase, no-bitwise */
+/* eslint-disable camelcase, no-bitwise */
 
 import { AsnConvert } from '@peculiar/asn1-schema';
 import {
@@ -7,23 +7,23 @@ import {
   DistributionPoint,
   DistributionPointName,
   GeneralName,
-  IssueAlternativeName,
-  Name,
-  PrivateKeyUsagePeriod,
-  RelativeDistinguishedName,
   id_ce_cRLDistributionPoints,
   id_ce_issuerAltName,
   id_ce_privateKeyUsagePeriod,
   id_ce_subjectAltName,
+  IssueAlternativeName,
+  Name,
+  PrivateKeyUsagePeriod,
+  RelativeDistinguishedName,
 } from '@peculiar/asn1-x509';
 import {
   AuthorityKeyIdentifierExtension,
   BasicConstraintsExtension,
   ExtendedKeyUsageExtension,
-  Extension as X509Extension,
   KeyUsageFlags,
   KeyUsagesExtension,
   SubjectKeyIdentifierExtension,
+  Extension as X509Extension,
 } from '@peculiar/x509';
 
 import crypto from '../crypto';
@@ -56,6 +56,7 @@ export interface Extension {
 // cannot be interpreted is a fatal error. In other words, non-critical
 // extensions can be ignored. The criticality of an extension is specified by
 // 9303-12, generally in the tables in §7.1.
+/* eslint-disable no-unused-vars */
 export enum ExtensionName {
   AuthorityKeyIdentifier = 'AuthorityKeyIdentifier',
   BasicConstraints = 'BasicConstraints',
@@ -68,6 +69,7 @@ export enum ExtensionName {
   SubjectAltName = 'SubjectAltName',
   SubjectKeyIdentifier = 'SubjectKeyIdentifier',
 }
+/* eslint-enable no-unused-vars */
 
 export const ComputedExtension = 'computed';
 
@@ -177,10 +179,12 @@ const NAME_OIDS = new Map(
   }),
 );
 
+/* eslint-disable no-unused-vars */
 enum AltVariant {
   Subject = 0,
   Issuer = 1,
 }
+/* eslint-enable no-unused-vars */
 
 // SubjectAltName (SAN) and IssuerAltName (IAN): two standard (X.509) extensions
 // that contain a list of alternative names for the subject or issuer of a

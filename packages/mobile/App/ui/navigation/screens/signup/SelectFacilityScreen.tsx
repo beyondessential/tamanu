@@ -1,12 +1,12 @@
-import React, { FunctionComponent, useCallback, useState, ReactElement, useEffect } from 'react';
+import React, { FunctionComponent, ReactElement, useCallback, useEffect, useState } from 'react';
 import * as Yup from 'yup';
-import { KeyboardAvoidingView, StatusBar } from 'react-native';
+import { StatusBar } from 'react-native';
 import {
-  StyledView,
-  StyledSafeAreaView,
   FullView,
-  StyledTouchableOpacity,
+  StyledSafeAreaView,
   StyledText,
+  StyledTouchableOpacity,
+  StyledView,
 } from '/styled/common';
 import { HomeBottomLogoIcon } from '/components/Icons';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
@@ -22,6 +22,7 @@ import { Field } from '~/ui/components/Forms/FormField';
 import { useFacility } from '~/ui/contexts/FacilityContext';
 import { useBackend } from '~/ui/hooks';
 import { FacilitySelectField } from './FacilitySelectField';
+import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 
 const selectFacilitySchema = Yup.object().shape({
   facilityId: Yup.string().required(),
@@ -57,7 +58,7 @@ export const SelectFacilityForm = ({ onSubmitForm }) => {
   }, []);
 
   const onSubmit = useCallback(
-    async ({ facilityId, ...extras }) => {
+    async ({ facilityId }) => {
       const selected = facilityOptions.find(x => x.value === facilityId);
       if (selected) {
         onSubmitForm({ facilityId, facilityName: selected.label });
@@ -78,7 +79,12 @@ export const SelectFacilityForm = ({ onSubmitForm }) => {
               component={FacilitySelectField}
               label="Facility"
               options={facilityOptions || []}
-              placeholder="Select facility"
+              placeholder={
+                <TranslatedText
+                  stringId="login.facility.placeholder"
+                  fallback="Select facility"
+                />
+              }
             />
           </StyledView>
           <Button
@@ -89,7 +95,7 @@ export const SelectFacilityForm = ({ onSubmitForm }) => {
             textColor={theme.colors.TEXT_SUPER_DARK}
             fontSize={screenPercentageToDP('1.94', Orientation.Height)}
             fontWeight={500}
-            buttonText="Save"
+            buttonText={<TranslatedText stringId="general.action.save" fallback="Save" />}
           />
         </StyledView>
       )}
@@ -139,7 +145,10 @@ export const SelectFacilityScreen: FunctionComponent<any> = ({ navigation }: Sig
             color={theme.colors.WHITE}
             fontWeight="bold"
           >
-            Please link this device to a facility.
+            <TranslatedText
+              stringId="login.facility.heading"
+              fallback="Please link this device to a facility."
+            />
           </StyledText>
           <SelectFacilityForm onSubmitForm={onSubmitForm} />
           <StyledTouchableOpacity onPress={signOut}>
@@ -151,7 +160,10 @@ export const SelectFacilityScreen: FunctionComponent<any> = ({ navigation }: Sig
               fontSize={screenPercentageToDP('1.57', Orientation.Height)}
               color={theme.colors.SECONDARY_MAIN}
             >
-              Return to sign-in screen
+              <TranslatedText
+                stringId="login.facility.action.returnToSignIn"
+                fallback="Return to sign-in screen"
+              />
             </StyledText>
           </StyledTouchableOpacity>
         </StyledView>

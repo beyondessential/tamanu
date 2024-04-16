@@ -43,13 +43,7 @@ export function depem(pemString, expectedBanner) {
  * @returns {string}
  */
 export function base64UrlEncode(input) {
-  // TODO: deprecate once we upgrade to Node v14!
-  // see https://nodejs.org/dist/latest-v14.x/docs/api/buffer.html#buffer_buffers_and_character_encodings
-  return Buffer.from(input)
-    .toString('base64')
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/=/g, '');
+  return Buffer.from(input).toString('base64url');
 }
 
 /**
@@ -58,9 +52,7 @@ export function base64UrlEncode(input) {
  * @returns {Buffer}
  */
 export function base64UrlDecode(input) {
-  // TODO: deprecate once we upgrade to Node v14!
-  // see https://nodejs.org/dist/latest-v14.x/docs/api/buffer.html#buffer_buffers_and_character_encodings
-  return Buffer.from(input.replace(/-/g, '+').replace(/_/g, '/'), 'base64');
+  return Buffer.from(input, 'base64url');
 }
 
 /**

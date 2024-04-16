@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { DateField } from './DateField';
 
-interface BaseDateTextFieldStory {
+interface BaseDateTextFieldStoryProps {
   label: string;
   error: string;
   mode: 'date' | 'time';
@@ -11,7 +11,7 @@ export function BaseDateTextFieldStory({
   label,
   error,
   mode,
-}: BaseDateTextFieldStory): JSX.Element {
+}: BaseDateTextFieldStoryProps): JSX.Element {
   const [date, setDate] = useState<Date | null>(null);
   const onChangeDate = (newDate: Date): void => {
     setDate(newDate);
