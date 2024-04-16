@@ -55,6 +55,8 @@ labRequest.put(
         });
       }
 
+      labRequestData.specimenAttached = labRequest.specimenTypeId !== null;
+
       await labRequestRecord.update(labRequestData);
     });
 
