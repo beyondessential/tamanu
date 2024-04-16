@@ -15,6 +15,7 @@ import { log } from '@tamanu/shared/services/logging';
 
 import { createTestContext } from '@tamanu/central-server/__tests__/utilities';
 import { allFromUpstream } from '../../../dist/tasks/fhir/refresh/allFromUpstream';
+import { InvalidOperationError } from '@tamanu/shared/errors';
 
 const COUNTRY_TIMEZONE = config?.countryTimeZone;
 
@@ -406,7 +407,8 @@ describe('fijiAspenMediciReport', () => {
       .get('/api/integration/fijiAspenMediciReport')
       .set({ 'X-Tamanu-Client': 'medici', 'X-Version': '0.0.1' });
 
-    expect(response.status).toBe(400);
+    expect(response.status).toBe(422);
+    expect(response.body.error.name).toBe('InvalidOperationError');
   });
 
   it('should fail if period.start and period.end are not within 1 hour', async () => {
@@ -416,7 +418,8 @@ describe('fijiAspenMediciReport', () => {
       )
       .set({ 'X-Tamanu-Client': 'medici', 'X-Version': '0.0.1' });
 
-    expect(response.status).toBe(400);
+    expect(response.status).toBe(422);
+    expect(response.body.error.name).toBe('InvalidOperationError');
   });
 
   it(`Should produce a simple report`, async () => {
