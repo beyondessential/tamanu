@@ -22,7 +22,7 @@ async function startTasks({ skipMigrationCheck }) {
     execArgs: process.execArgs || '<empty>',
   });
 
-  const context = await new ApplicationContext().init();
+  const context = await new ApplicationContext().init({ appType: 'tasks' });
 
   if (config.db.migrateOnStartup) {
     await context.sequelize.migrate('up');

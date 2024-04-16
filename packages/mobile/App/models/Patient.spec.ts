@@ -1,4 +1,4 @@
-import { mocked } from 'ts-jest/utils';
+import { mocked } from 'jest-mock';
 
 import { IPatient } from '~/types';
 import { Database } from '~/infra/db';
