@@ -236,7 +236,7 @@ export const MedicationForm = React.memo(
                   label={
                     <TranslatedText
                       stringId="medication.quantityMorning.label"
-                      fallback="morning"
+                      fallback="Morning"
                     />
                   }
                   min={0}

@@ -48,7 +48,9 @@ export const GENERAL_IMPORTABLE_DATA_TYPES = [
   'patientFieldDefinition',
   'patientFieldDefinitionCategory',
   'procedureType',
+  'reaction',
   'referralSource',
+  'referenceDataRelation',
   'religion',
   'scheduledVaccine',
   'secondaryIdType',
@@ -113,6 +115,7 @@ export const REFERENCE_TYPES = {
   VACCINE_CIRCUMSTANCE: 'vaccineCircumstance',
   ADDITIONAL_INVOICE_LINE: 'additionalInvoiceLine',
   SPECIMEN_TYPE: 'specimenType',
+  REACTION: 'reaction',
   ...IMAGING_AREA_TYPES,
 };
 

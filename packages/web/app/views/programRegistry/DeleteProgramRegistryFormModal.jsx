@@ -6,7 +6,7 @@ import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { ConfirmCancelRow, FormSeparatorLine, Modal } from '../../components';
 import { useApi } from '../../api';
 import { Colors } from '../../constants';
-import { PROGRAM_REGISTRY } from '../../components/PatientInfoPane/paneTitles';
+import { PANE_SECTION_IDS } from '../../components/PatientInfoPane/paneSections';
 
 const Text = styled.div`
   display: flex;
@@ -45,7 +45,7 @@ export const DeleteProgramRegistryFormModal = ({ patientProgramRegistration, onC
       },
     );
 
-    queryClient.invalidateQueries([`infoPaneListItem-${PROGRAM_REGISTRY}`]);
+    queryClient.invalidateQueries([`infoPaneListItem-${PANE_SECTION_IDS.PROGRAM_REGISTRY}`]);
     onClose({ success: true });
   };
 
