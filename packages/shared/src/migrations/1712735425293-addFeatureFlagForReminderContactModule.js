@@ -3,7 +3,7 @@ import { Op } from 'sequelize';
 import config from 'config';
 
 const DEFAULT_SETTINGS = {
-  'reminderContactModule.enabled': 'false',
+  'features.reminderContactModule.enabled': 'false',
 };
 
 /**
