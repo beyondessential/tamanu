@@ -1,13 +1,7 @@
 import React from 'react';
 import { Col, LightDivider, Row } from './Layout';
 import { H3, P } from './Typography';
-import {
-  getDOB,
-  getSex,
-  getVillageName,
-  getNationality,
-  getPassportNumber,
-} from '../patientAccessors';
+import { getDOB, getSex, getVillageName } from '../patientAccessors';
 import { defaultTranslationFn } from '../translation';
 
 const patientFields = getTranslation => [
@@ -37,19 +31,6 @@ const patientFields = getTranslation => [
     key: 'villageName',
     label: getTranslation('pdf.vaccineCertificate.patientDetails.village', 'Village'),
     accessor: getVillageName,
-  },
-  {
-    key: 'passport',
-    label: getTranslation(
-      'pdf.vaccineCertificate.patientDetails.passportNumber',
-      'Passport Number',
-    ),
-    accessor: getPassportNumber,
-  },
-  {
-    key: 'nationality',
-    label: getTranslation('pdf.vaccineCertificate.patientDetails.nationality', 'Nationality'),
-    accessor: getNationality,
   },
 ];
 

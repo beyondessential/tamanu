@@ -91,13 +91,16 @@ describe('Reference Data Hierarchy', () => {
   afterAll(() => ctx.close());
 
   it('should get a hierarchy node with a parent', async () => {
-    const parent = await models.ReferenceData.getParent('division1');
+    const parent = await models.ReferenceData.getParent(
+      'division1',
+      REFERENCE_DATA_RELATION_TYPES.ADDRESS_HIERARCHY,
+    );
     expect(parent.id).toEqual('country1');
   });
 
   it('should get ancestors of a given node id', async () => {
     const entity = await models.ReferenceData.findByPk('village4');
-    const ancestors = await entity.getAncestors();
+    const ancestors = await entity.getAncestors(REFERENCE_DATA_RELATION_TYPES.ADDRESS_HIERARCHY);
     expect(ancestors.length).toEqual(4);
   });
 

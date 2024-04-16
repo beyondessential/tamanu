@@ -1,7 +1,6 @@
 import React, { useCallback } from 'react';
 
 import { ASSET_NAMES, VACCINATION_CERTIFICATE } from '@tamanu/constants';
-import { VaccineCertificate } from '@tamanu/shared/utils/patientCertificates';
 import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
 
 import { Modal } from '../../Modal';
@@ -15,14 +14,17 @@ import {
   useReferenceData,
 } from '../../../api/queries';
 
-import { PDFViewer, printPDF } from '../PDFViewer';
+import { printPDF } from '../PDFViewer';
 import { useAuth } from '../../../contexts/Auth';
 import { useTranslation } from '../../../contexts/Translation';
+import { WorkerRenderedPDFViewer } from '../WorkerRenderedPDFViewer';
+
+const VACCINE_CERTIFICATE_PDF_ID = 'vaccine-certificate';
 
 export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) => {
   const api = useApi();
   const { facility } = useAuth();
-  const { getLocalisation } = useLocalisation();
+  const { localisation } = useLocalisation();
   const { getTranslation } = useTranslation();
   const { data: certificateData, isFetching: isCertificateFetching } = useCertificate({
     footerAssetName: ASSET_NAMES.VACCINATION_CERTIFICATE_FOOTER,
@@ -72,20 +74,20 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
       onPrint={() => printPDF('vaccine-certificate')}
       additionalActions={<EmailButton onEmail={createVaccineCertificateNotification} />}
     >
-      <PDFViewer id="vaccine-certificate">
-        <VaccineCertificate
-          patient={patientData}
-          vaccinations={vaccinations}
-          watermarkSrc={watermark}
-          logoSrc={logo}
-          facilityName={facility.name}
-          signingSrc={footerImg}
-          printedBy={printedBy}
-          printedDate={getCurrentDateString()}
-          getLocalisation={getLocalisation}
-          getTranslation={getTranslation}
-        />
-      </PDFViewer>
+      <WorkerRenderedPDFViewer
+        id={VACCINE_CERTIFICATE_PDF_ID}
+        queryDeps={[patient.id]}
+        vaccinations={vaccinations}
+        patient={patientData}
+        watermarkSrc={watermark}
+        logoSrc={logo}
+        facilityName={facility.name}
+        signingSrc={footerImg}
+        printedBy={printedBy}
+        printedDate={getCurrentDateString()}
+        localisation={localisation}
+        getTranslation={getTranslation}
+      />
     </Modal>
   );
 });

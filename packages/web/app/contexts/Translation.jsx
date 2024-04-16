@@ -3,6 +3,7 @@ import { useApi } from '../api/useApi';
 import { LOCAL_STORAGE_KEYS } from '../constants';
 import { useTranslations } from '../api/queries/useTranslations';
 import { translationFactory } from '@tamanu/shared/utils/translation/translationFactory';
+import { ENGLISH_LANGUAGE_CODE } from '@tamanu/constants';
 
 export const TranslationContext = React.createContext();
 
@@ -12,10 +13,10 @@ const isDev = process.env.NODE_ENV === 'development';
 
 export const TranslationProvider = ({ children }) => {
   const api = useApi();
-  const initialValue = localStorage.getItem(LOCAL_STORAGE_KEYS.LANGUAGE) || 'en';
+  const initialValue = localStorage.getItem(LOCAL_STORAGE_KEYS.LANGUAGE) || ENGLISH_LANGUAGE_CODE;
   const [storedLanguage, setStoredLanguage] = useState(initialValue);
 
-  const { data: translations } = useTranslations(storedLanguage); 
+  const { data: translations } = useTranslations(storedLanguage);
 
   const translationFunc = translationFactory(translations);
 
@@ -23,7 +24,7 @@ export const TranslationProvider = ({ children }) => {
     const { value, notExisting } = translationFunc(stringId, fallback, replacements);
     // This section here is a dev tool to help populate the db with the translation ids we have defined
     // in components. It will only populate the db with English strings, so that we can then translate them.
-    if (isDev && storedLanguage === 'en' && notExisting) {
+    if (isDev && storedLanguage === ENGLISH_LANGUAGE_CODE && notExisting) {
       api.post('translation', { stringId, fallback, text: fallback });
     }
     return value;

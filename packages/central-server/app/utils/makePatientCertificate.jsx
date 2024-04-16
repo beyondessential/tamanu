@@ -110,7 +110,6 @@ export const makeVaccineCertificate = async (
   getTranslation,
 ) => {
   const localisation = await getLocalisation();
-  const getLocalisationData = key => get(localisation, key);
 
   const fileName = `vaccine-certificate-${patient.id}.pdf`;
   const { logo, signingImage, watermark } = await getCertificateAssets(
@@ -129,8 +128,8 @@ export const makeVaccineCertificate = async (
       signingSrc={signingImage}
       watermarkSrc={watermark}
       logoSrc={logo}
-      getLocalisation={getLocalisationData}
       getTranslation={getTranslation}
+      localisation={localisation}
     />,
     fileName,
   );
