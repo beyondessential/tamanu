@@ -42,7 +42,7 @@ export const ContactCard = ({ name, relationship, method, connectionDetails }: I
         fontWeight={500}
       >
         <TranslatedText
-          stringId="patient.details.reminderContacts.field.relationShip"
+          stringId="patient.details.reminderContacts.field.relationship"
           fallback="Relationship"
         />
       </StyledText>

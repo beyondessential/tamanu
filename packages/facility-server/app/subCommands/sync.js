@@ -11,7 +11,7 @@ async function sync({ delay: delaySecondsStr }) {
   if (!Number.isFinite(delaySeconds) || delaySeconds < 0) {
     throw new Error('invalid option for delay');
   }
-  const context = await new ApplicationContext().init();
+  const context = await new ApplicationContext().init({ appType: 'cmd:sync' });
 
   await initDeviceId(context);
 
