@@ -42,7 +42,7 @@ export const GenericPrimaryDetailsLayout = ({
           stringId="patient.detail.subheading.general"
           fallback="General information"
         />
-        {getLocalisation('features.enableReminderContacts') ? <ReminderContactSection /> : null}
+        {getLocalisation('features.reminderContactModule.enabled') ? <ReminderContactSection /> : null}
       </PatientDetailsHeading>
       <FormGrid>
         <LocalisedField
