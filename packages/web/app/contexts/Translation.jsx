@@ -2,6 +2,7 @@ import React, { useContext, useState } from 'react';
 import { useApi } from '../api/useApi';
 import { LOCAL_STORAGE_KEYS } from '../constants';
 import { useTranslations } from '../api/queries/useTranslations';
+import { translationFactory } from '@tamanu/shared/utils/translation/translationFactory';
 import { ENGLISH_LANGUAGE_CODE } from '@tamanu/constants';
 
 export const TranslationContext = React.createContext();
@@ -10,28 +11,6 @@ export const useTranslation = () => useContext(TranslationContext);
 
 const isDev = process.env.NODE_ENV === 'development';
 
-/**
- * @param {string} templateString
- * @param {object} replacements
- * @returns {string}
- *
- * @example replaceStringVariables("there are :count users", { count: 2 }) => "there are 2 users"
- */
-export const replaceStringVariables = (templateString, replacements) => {
-  if (!replacements) return templateString;
-  const result = templateString
-    .split(/(:[a-zA-Z]+)/g)
-    .map((part, index) => {
-      // Even indexes are the unchanged parts of the string
-      if (index % 2 === 0) return part;
-      // Return the replacement if exists
-      return replacements[part.slice(1)] || part;
-    })
-    .join('');
-
-  return result;
-};
-
 export const TranslationProvider = ({ children }) => {
   const api = useApi();
   const initialValue = localStorage.getItem(LOCAL_STORAGE_KEYS.LANGUAGE) || ENGLISH_LANGUAGE_CODE;
@@ -39,15 +18,16 @@ export const TranslationProvider = ({ children }) => {
 
   const { data: translations } = useTranslations(storedLanguage);
 
+  const translationFunc = translationFactory(translations);
+
   const getTranslation = (stringId, fallback, replacements) => {
-    if (!translations) return replaceStringVariables(fallback, replacements);
-    if (translations[stringId]) return replaceStringVariables(translations[stringId], replacements);
+    const { value, notExisting } = translationFunc(stringId, fallback, replacements);
     // This section here is a dev tool to help populate the db with the translation ids we have defined
     // in components. It will only populate the db with English strings, so that we can then translate them.
-    if (isDev && storedLanguage === ENGLISH_LANGUAGE_CODE) {
+    if (isDev && storedLanguage === ENGLISH_LANGUAGE_CODE && notExisting) {
       api.post('translation', { stringId, fallback, text: fallback });
     }
-    return replaceStringVariables(fallback, replacements);
+    return value;
   };
 
   const updateStoredLanguage = newLanguage => {

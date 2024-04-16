@@ -67,6 +67,8 @@ export async function createApp(ctx) {
     req.emailService = emailService;
     req.reportSchemaStores = reportSchemaStores;
     req.ctx = ctx;
+    req.language = req.headers['language'];
+
     next();
   });
 

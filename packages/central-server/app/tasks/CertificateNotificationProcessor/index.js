@@ -49,7 +49,13 @@ export class CertificateNotificationProcessor extends ScheduledTask {
 
   async run() {
     const { models, sequelize } = this.context.store;
-    const { CertificateNotification, CertifiableVaccine, PatientCommunication, Patient } = models;
+    const {
+      CertificateNotification,
+      CertifiableVaccine,
+      PatientCommunication,
+      Patient,
+      TranslatedString,
+    } = models;
     const vdsEnabled = config.integrations.vdsNc.enabled;
     const euDccEnabled = config.integrations.euDcc.enabled;
     const localisation = await getLocalisation();
@@ -76,6 +82,8 @@ export class CertificateNotificationProcessor extends ScheduledTask {
         const printedDate = notification.get('printedDate');
         const facilityName = notification.get('facilityName');
         const language = notification.get('language');
+
+        const getTranslation = await TranslatedString.getTranslationFunction(language, ['pdf']);
 
         const { country } = await getLocalisation();
         const countryCode = country['alpha-2'];
@@ -199,7 +207,8 @@ export class CertificateNotificationProcessor extends ScheduledTask {
               printedDate,
               facilityName,
               models,
-              language
+              language,
+              getTranslation,
             );
             break;
 

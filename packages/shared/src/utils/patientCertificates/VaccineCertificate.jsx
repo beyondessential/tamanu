@@ -19,28 +19,29 @@ import { SigningSection } from './SigningSection';
 import { withLanguageContext } from '../pdf/languageContext';
 import { Page } from '../pdf/Page';
 import { Text } from '../pdf/Text';
+import { defaultTranslationFn } from '../translation';
 
-const columns = [
+const columns = getTranslation => [
   {
     key: 'date',
-    title: 'Date given',
+    title: getTranslation('pdf.table.column.dateGiven', 'Date given'),
     accessor: ({ date }, getLocalisation) =>
       date ? getDisplayDate(date, undefined, getLocalisation) : 'Unknown',
   },
   {
     key: 'schedule',
-    title: 'Schedule',
+    title: getTranslation('pdf.table.column.schedule', 'Schedule'),
     accessor: ({ scheduledVaccine }) => (scheduledVaccine || {}).schedule,
   },
   {
     key: 'vaccine',
-    title: 'Vaccine',
+    title: getTranslation('pdf.table.column.vaccine', 'Vaccine'),
     customStyles: { minWidth: 30 },
     accessor: ({ scheduledVaccine, vaccineName }) => vaccineName || (scheduledVaccine || {}).label,
   },
   {
     key: 'vaccineBrand',
-    title: 'Vaccine brand',
+    title: getTranslation('pdf.table.column.vaccineBrand', 'Vaccine brand'),
     customStyles: { minWidth: 30 },
     accessor: ({ scheduledVaccine, vaccineBrand }) =>
       vaccineBrand || ((scheduledVaccine || {}).vaccine || {}).name,
@@ -48,7 +49,7 @@ const columns = [
 
   {
     key: 'countryName',
-    title: 'Country',
+    title: getTranslation('pdf.table.column.country', 'Country'),
     accessor: ({ countryName }) => countryName,
   },
 ];
@@ -95,6 +96,7 @@ const VaccineCertificateComponent = ({
   signingSrc,
   logoSrc,
   localisation,
+  getTranslation = defaultTranslationFn,
   extraPatientFields,
 }) => {
   const getLocalisation = key => localisation[key];
@@ -105,12 +107,22 @@ const VaccineCertificateComponent = ({
 
   const VaccineCertificateHeader = () => (
     <View style={vaccineCertificateStyles.documentHeaderContent}>
-      <Text style={vaccineCertificateStyles.labelText}>Immunisation Certificate | </Text>
-      <Text style={vaccineCertificateStyles.labelText}>Patient name: </Text>
+      <Text style={vaccineCertificateStyles.labelText}>
+        {getTranslation(
+          'pdf.vaccineCertificate.immunisationCertificate',
+          'Immunisation Certificate',
+        )}{' '}
+        |{' '}
+      </Text>
+      <Text style={vaccineCertificateStyles.labelText}>
+        {getTranslation('pdf.vaccineCertificate.patientName', 'Patient name')}:{' '}
+      </Text>
       <Text style={vaccineCertificateStyles.valueText}>
         {patient.firstName} {patient.lastName} |{' '}
       </Text>
-      <Text style={vaccineCertificateStyles.labelText}>Patient ID: </Text>
+      <Text style={vaccineCertificateStyles.labelText}>
+        {getTranslation('pdf.vaccineCertificate.patientId', 'Patient ID')}:{' '}
+      </Text>
       <Text style={vaccineCertificateStyles.valueText}>{patient.displayId}</Text>
     </View>
   );
@@ -118,17 +130,28 @@ const VaccineCertificateComponent = ({
   const VaccineCertificateFooter = () => (
     <View style={vaccineCertificateStyles.footerContent}>
       <View style={vaccineCertificateStyles.footerLeft}>
-        <Text style={vaccineCertificateStyles.labelText}>Print date: </Text>
+        <Text style={vaccineCertificateStyles.labelText}>
+          {getTranslation('pdf.vaccineCertificate.printDate', 'Print date')}:{' '}
+        </Text>
         <Text style={vaccineCertificateStyles.valueText}>{getDisplayDate(printedDate)} | </Text>
-        <Text style={vaccineCertificateStyles.labelText}>Printing facility: </Text>
+        <Text style={vaccineCertificateStyles.labelText}>
+          {getTranslation('pdf.vaccineCertificate.printingFacility', 'Printing facility')}:{' '}
+        </Text>
         <Text style={vaccineCertificateStyles.valueText}>{facilityName || healthFacility} | </Text>
-        <Text style={vaccineCertificateStyles.labelText}>Printed by: </Text>
+        <Text style={vaccineCertificateStyles.labelText}>
+          {getTranslation('pdf.vaccineCertificate.printedBy', 'Printed by')}:{' '}
+        </Text>
         <Text style={vaccineCertificateStyles.valueText}>{printedBy}</Text>
       </View>
       <View style={vaccineCertificateStyles.footerRight}>
         <Text
           style={vaccineCertificateStyles.valueText}
-          render={({ pageNumber, totalPages }) => `${pageNumber} of ${totalPages}`}
+          render={({ pageNumber, totalPages }) =>
+            getTranslation('pdf.vaccineCertificate.pagination', ':currentPage of :totalPages', {
+              currentPage: pageNumber,
+              totalPages,
+            })
+          }
         />
       </View>
     </View>
@@ -146,25 +169,31 @@ const VaccineCertificateComponent = ({
           <LetterheadSection
             getLocalisation={getLocalisation}
             logoSrc={logoSrc}
-            certificateTitle="Immunisation Certificate"
+            certificateTitle={getTranslation(
+              'pdf.vaccineCertificate.title',
+              'Immunisation Certificate',
+            )}
           />
           <PatientDetailsSection
             patient={patient}
             getLocalisation={getLocalisation}
             certificateId={certificateId}
             extraFields={extraPatientFields}
+            getTranslation={getTranslation}
           />
         </CertificateHeader>
         <Box style={{ ...styles.box, marginLeft: '18px', marginRight: '18px' }}>
-          <H3 style={{ marginBottom: 5, marginTop: 5 }}>Immunisation history</H3>
+          <H3 style={{ marginBottom: 5, marginTop: 5 }}>
+            {getTranslation('pdf.vaccineCertificate.immunisationHistory', 'Immunisation history')}
+          </H3>
           <Table
             data={data}
-            columns={columns}
+            columns={columns(getTranslation)}
             getLocalisation={getLocalisation}
             columnStyle={{ padding: '10px 5px' }}
           />
         </Box>
-        <SigningSection signingSrc={signingSrc} />
+        <SigningSection signingSrc={signingSrc} getTranslation={getTranslation} />
         <FixedFooter>
           <VaccineCertificateFooter />
         </FixedFooter>

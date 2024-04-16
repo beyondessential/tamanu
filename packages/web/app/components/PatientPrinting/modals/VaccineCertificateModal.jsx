@@ -16,6 +16,7 @@ import {
 
 import { printPDF } from '../PDFViewer';
 import { useAuth } from '../../../contexts/Auth';
+import { useTranslation } from '../../../contexts/Translation';
 import { WorkerRenderedPDFViewer } from '../WorkerRenderedPDFViewer';
 
 const VACCINE_CERTIFICATE_PDF_ID = 'vaccine-certificate';
@@ -24,6 +25,7 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
   const api = useApi();
   const { facility } = useAuth();
   const { localisation } = useLocalisation();
+  const { getTranslation } = useTranslation();
   const { data: certificateData, isFetching: isCertificateFetching } = useCertificate({
     footerAssetName: ASSET_NAMES.VACCINATION_CERTIFICATE_FOOTER,
   });
@@ -84,6 +86,7 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
         printedBy={printedBy}
         printedDate={getCurrentDateString()}
         localisation={localisation}
+        getTranslation={getTranslation}
       />
     </Modal>
   );
