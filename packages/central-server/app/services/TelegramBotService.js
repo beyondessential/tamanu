@@ -98,9 +98,9 @@ export const defineTelegramBotService = async injector => {
 
   bot.on('callback_query', async query => {
     try {
-      const data = JSON.parse(query.data);
-      if (data.type === 'unsubscribe-contact') {
-        await unsubscribeCommandHandler(query.message, data.contactId);
+      const data = query.data?.split('|') || [];
+      if (data[0] === 'unsubscribe-contact') {
+        await unsubscribeCommandHandler(query.message, data[1]);
       }
       // eslint-disable-next-line no-empty
     } catch {

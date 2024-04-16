@@ -100,7 +100,7 @@ export const defineWebsocketClientService = injector => {
         const patientList = contacts.map(contact => [
           {
             text: [contact.patient.firstName, contact.patient.lastName].join(' ').trim(),
-            callback_data: JSON.stringify({ contactId: contact.id }),
+            callback_data: `unsubscribe-contact|${contact.id}`,
           },
         ]);
 
