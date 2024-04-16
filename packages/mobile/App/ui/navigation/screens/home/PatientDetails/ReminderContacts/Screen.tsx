@@ -144,10 +144,11 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
                         <Button
                           onPress={() => onRetryConnect(x)}
                           height={24}
-                          marginRight={32}
+                          marginRight={canWriteReminderContacts ? 12 : 7}
                           paddingTop={4}
                           alignSelf="flex-end"
                           backgroundColor={theme.colors.WHITE}
+                          maxWidth={200}
                         >
                           <StyledText
                             color={theme.colors.PRIMARY_MAIN}
@@ -165,11 +166,11 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
                         <Button
                           onPress={() => setSelectedContact(x)}
                           height={24}
-                          // width={'auto'}
-                          marginRight={8}
+                          marginRight={7}
                           paddingTop={4}
                           alignSelf="flex-end"
                           backgroundColor={theme.colors.WHITE}
+                          maxWidth={200}
                         >
                           <StyledText
                             color={theme.colors.PRIMARY_MAIN}

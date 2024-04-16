@@ -57,8 +57,12 @@ const Provider = ({ children, selectedPatient }: BaseAppProps & { children: Reac
   }, [data]);
 
   useEffect(() => {
+    if (!socket) return;
     socket.on('telegram:subscribe', async data => {
-      const contact = await PatientContact.findOne({ where: { id: data.contactId } });
+      const contact = await PatientContact.findOne({
+        where: { id: data.contactId },
+        relations: ['patient'],
+      });
       if (!contact) return;
 
       const connectionDetails = JSON.stringify({ chatId: data.chatId });
@@ -81,7 +85,7 @@ const Provider = ({ children, selectedPatient }: BaseAppProps & { children: Reac
       const successMessage = `Dear ${contactName}, you have successfully registered to receive messages for ${patientName}. Thank you.`;
       socket.emit('telegram:send-message', { chatId: data.chatId, message: successMessage });
     });
-  }, []);
+  }, [socket]);
 
   const afterAddContact = (contactId: string) => {
     const timer = setTimeout(() => {

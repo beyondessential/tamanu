@@ -8,7 +8,7 @@ interface Props extends Partial<ManagerOptions & SocketOptions> {
 
 export const useSocket = (props: Props = {}) => {
   const { uri, ...others } = props;
-  const [socket] = useState(io(others));
+  const [socket, setSocket] = useState(null);
 
   useEffect(() => {
     initSocket();
@@ -19,9 +19,8 @@ export const useSocket = (props: Props = {}) => {
 
   const initSocket = async () => {
     const syncServerLocation = await readConfig('syncServerLocation');
-    socket.disconnect();
-    (socket.io as any).uri = uri || syncServerLocation;
-    socket.connect();
+    const newSocket = io(uri || syncServerLocation, others)
+    setSocket(newSocket);
   };
 
   return {

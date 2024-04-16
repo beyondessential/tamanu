@@ -30,13 +30,14 @@ const Screen = ({ navigation, route, selectedPatient }: IReminderContactQR) => {
   const patientName = joinNames(selectedPatient);
 
   useEffect(() => {
+    if (!socket) return;
     socket.emit('telegram:get-bot-info');
     socket.once('telegram:bot-info', botInfo => {
       if (botInfo?.username && contactId) {
         setEmbedUrl(`https://t.me/${botInfo.username}?start=${contactId}`);
       }
     });
-  }, []);
+  }, [socket]);
 
   const onNavigateBack = useCallback(() => {
     navigation.navigate(Routes.HomeStack.PatientDetailsStack.Index);
