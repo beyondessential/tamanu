@@ -43,9 +43,7 @@ const getAllContacts = async (models, patientId): Promise<IPatientContact[]> => 
 
 const Provider = ({ children, selectedPatient }: BaseAppProps & { children: ReactNode }) => {
   const { socket } = useSocket();
-  const [contactTimers, setContactTimers] = useState<
-    { timerId: NodeJS.Timeout; contactId: string }[]
-  >([]);
+  const [pendingContactList, setPendingContactList] = useState<string[]>([]);
   const [patientContacts, setPatientContacts] = useState<IPatientContact[]>([]);
   const [data, _, isLoading, refetch] = useBackendEffect(
     ({ models }) => getAllContacts(models, selectedPatient.id),
@@ -88,16 +86,14 @@ const Provider = ({ children, selectedPatient }: BaseAppProps & { children: Reac
   }, [socket]);
 
   const afterAddContact = (contactId: string) => {
-    const timer = setTimeout(() => {
-      setContactTimers(prev => prev.filter(({ contactId: id }) => id !== contactId));
+    setTimeout(() => {
+      setPendingContactList(prev => prev.filter(id => id !== contactId));
     }, DEFAULT_CONTACT_TIMEOUT);
-    setContactTimers([...contactTimers, { timerId: timer, contactId }]);
+    setPendingContactList([...pendingContactList, contactId]);
   };
 
   const isFailedContact = (contact: IPatientContact) => {
-    return (
-      !contact.connectionDetails && contactTimers.every(({ contactId }) => contactId !== contact.id)
-    );
+    return !contact.connectionDetails && !pendingContactList.includes(contact.id);
   };
 
   return (
