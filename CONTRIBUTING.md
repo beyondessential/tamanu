@@ -128,6 +128,7 @@ The following types are conventional:
 - `fix` for bug fixes
 - `fmt` for automatic formatting changes (ignored in changelogs)
 - `merge` for merging between branches (generally between `main` and `release/*`)
+- `perf` for code changes that improve performance
 - `refactor` for code refactoring
 - `release` for changes that are part of the release process (generally automated commits, not manual use)
 - `repo` for changes to the repository structure, or for config/dotfiles (e.g. `.gitignore`, `.editorconfig`, etc)

@@ -13,9 +13,19 @@ import { versionCompatibility } from './middleware/versionCompatibility';
 
 import { version } from './serverInfo';
 
-export function createApp({ sequelize, reportSchemaStores, models, syncManager, deviceId }) {
-  // Init our app
+export async function createApp({ sequelize, reportSchemaStores, models, syncManager, deviceId }) {
   const app = express();
+
+  let errorMiddleware = null;
+  if (config.errors?.enabled) {
+    if (config.errors?.type === 'bugsnag') {
+      const Bugsnag = await import('@bugsnag/js');
+      const middleware = Bugsnag.getPlugin('express');
+      app.use(middleware.requestHandler);
+      errorMiddleware = middleware.errorHandler;
+    }
+  }
+
   app.use(compression());
   app.use(bodyParser.json({ limit: '50mb' }));
   app.use(bodyParser.urlencoded({ extended: true }));
@@ -58,6 +68,10 @@ export function createApp({ sequelize, reportSchemaStores, models, syncManager, 
   app.get('*', (req, res) => {
     res.status(404).end();
   });
+
+  if (errorMiddleware) {
+    app.use(errorMiddleware);
+  }
 
   app.use(errorHandler);
 
