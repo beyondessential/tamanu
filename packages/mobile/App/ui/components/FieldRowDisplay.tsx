@@ -11,31 +11,28 @@ interface FieldRowDisplayProps {
   isCustomFields?: boolean;
 }
 
-export const FieldRowDisplay = ({ fields, isCustomFields }: FieldRowDisplayProps): ReactElement => {
+export const FieldRowDisplay = ({ fields }: FieldRowDisplayProps): ReactElement => {
   const { getString, getBool, getLocalisation } = useLocalisation();
   const localisedFields = getLocalisation('fields');
-  const visibleFields = isCustomFields
-    ? fields
-    : fields.filter(([name]) => getBool(`fields.${name}.hidden`) !== true);
   const fieldsPerRow = isTablet() ? 2 : 1;
-  const rows = chunk(visibleFields, fieldsPerRow);
+  const rows = chunk(fields, fieldsPerRow);
 
   return (
     <StyledView width="100%" margin={20} marginTop={0}>
       {rows.map(row => (
         <RowView key={row.map(([name]) => name).join(',')} marginTop={20}>
-          {row.map(([name, info]) => (
-            <InformationBox
-              key={name}
-              flex={1}
-              title={
-                Object.keys(localisedFields).includes(name)
-                  ? getString(`fields.${name}.longLabel`)
-                  : name
-              }
-              info={info}
-            />
-          ))}
+          {row.map(([name, info]) => {
+            const isLocalised = Object.keys(localisedFields).includes(name);
+            if (isLocalised && getBool(`fields.${name}.hidden`)) return null;
+            return (
+              <InformationBox
+                key={name}
+                flex={1}
+                title={isLocalised ? getString(`fields.${name}.longLabel`) : name}
+                info={info}
+              />
+            );
+          })}
         </RowView>
       ))}
     </StyledView>
