@@ -9,8 +9,9 @@ settingRoutes.get(
     // TODO: not sure what permission to check here
     //req.checkPermission();
     req.flagPermissionChecked();
+    const facilityId = req.query.facilityId || null;
 
-    const setting = await req.models.Setting.get(req.params.key, null);
+    const setting = await req.models.Setting.get(req.params.key, facilityId);
     res.send(setting);
   }),
 );

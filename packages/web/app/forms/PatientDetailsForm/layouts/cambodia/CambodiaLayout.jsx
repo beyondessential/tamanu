@@ -17,19 +17,21 @@ import { GenericBirthFields } from '../generic/patientFields/GenericBirthFields'
 import { PatientField, PatientFieldsGroup } from '../../PatientFields';
 import { TranslatedText } from '../../../../components/Translation/TranslatedText';
 import { ReminderContactSection } from '../../../../components/ReminderContactSection';
-import { useLocalisation } from '../../../../contexts/Localisation';
+import { useSettingsQuery } from '../../../../api/queries/useSettingsQuery';
+import { useAuth } from '../../../../contexts/Auth';
 
 const FATHERS_FIRST_NAME_DEFINITION_ID = 'fieldDefinition-fathersFirstName';
 
 const CAMBODIA_CORE_FIELD_CATEGORY_ID = 'fieldCategory-cambodiaCorePatientFields';
 
 export const CambodiaPrimaryDetailsLayout = ({ sexOptions, isRequiredPatientData }) => {
-  const { getLocalisation } = useLocalisation();
+  const { facility } = useAuth();
+  const { data: isReminderContactEnabled } = useSettingsQuery('features.reminderContactModule.enabled', { facilityId: facility?.id});
   return (
     <>
       <PatientDetailsHeading>
         <TranslatedText stringId="patient.detail.subheading.general" fallback="General information" />
-        {getLocalisation('features.reminderContactModule.enabled') ? <ReminderContactSection /> : null}
+        {isReminderContactEnabled ? <ReminderContactSection /> : null}
       </PatientDetailsHeading>
       <FormGrid>
         <LocalisedField
