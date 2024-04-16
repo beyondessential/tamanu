@@ -28,7 +28,7 @@ const getCustomFieldValue = (customPatientFieldValues = {}, fieldDefinitionId) =
   return customPatientFieldValues[fieldDefinitionId][0].value;
 };
 
-export const CambodiaGeneralInfo = ({ onEdit, patient }: GeneralInfoProps): ReactElement => {
+export const GeneralInfo = ({ onEdit, patient }: GeneralInfoProps): ReactElement => {
   // Check if patient information should be editable
   const { getBool } = useLocalisation();
   const isEditable = getBool('features.editPatientDetailsOnMobile');

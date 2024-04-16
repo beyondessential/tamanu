@@ -61,7 +61,7 @@ export const CAMBODIA_ADDITIONAL_DATA_SECTIONS = [
   },
 ];
 
-export const CambodiaAdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps): ReactElement => {
+export const AdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps): ReactElement => {
   const {
     customPatientFieldValues,
     patientAdditionalData,

@@ -57,7 +57,7 @@ export const Fields = (): ReactElement => {
   );
 };
 
-export const CambodiaEditPatientScreen = ({ route }): ReactElement => {
+export const EditPatientScreen = ({ route }): ReactElement => {
   const navigation = useNavigation();
   const { patientName } = route.params;
   const onGoBack = useCallback(() => {

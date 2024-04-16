@@ -6,7 +6,7 @@ import { AddPatientIssueScreen } from '~/ui/navigation/screens/home/PatientDetai
 import { EditPatientScreen } from '~/ui/navigation/screens/home/PatientDetails/EditPatient';
 import { EditPatientAdditionalDataScreen } from '~/ui/navigation/screens/home/PatientDetails/EditPatientAdditionalData';
 import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
-import { CambodiaEditPatientScreen } from '../screens/home/PatientDetails/layouts/cambodia/CambodiaEditGeneralInfo';
+import { EditPatientScreen as CambodiaEditPatientScreen } from '../screens/home/PatientDetails/layouts/cambodia/EditGeneralInfo';
 
 const Stack = createStackNavigator();
 

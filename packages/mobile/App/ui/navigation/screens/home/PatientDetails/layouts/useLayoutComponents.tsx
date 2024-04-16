@@ -1,5 +1,5 @@
 import React from 'react';
-import { CambodiaPatientDetails } from './cambodia/CambodiaPatientDetails';
+import { PatientDetails as CambodiaPatientDetails } from './cambodia/PatientDetails';
 
 import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 

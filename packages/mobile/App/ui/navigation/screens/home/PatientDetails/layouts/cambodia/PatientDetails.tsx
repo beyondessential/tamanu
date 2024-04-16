@@ -1,12 +1,12 @@
 import React, { ReactElement, useCallback } from 'react';
-import { CambodiaGeneralInfo } from './CambodiaGeneralInfo';
-import { CambodiaAdditionalInfo } from './CambodiaAdditionalInfo';
+import { GeneralInfo } from './GeneralInfo';
+import { AdditionalInfo } from './AdditionalInfo';
 import { Routes } from '~/ui/helpers/routes';
 import { joinNames } from '~/ui/helpers/user';
 
 // TODO: declare navigation to cambodia specific forms
 
-export const CambodiaPatientDetails = ({ patient, navigation }): ReactElement => {
+export const PatientDetails = ({ patient, navigation }): ReactElement => {
   const onEditGeneralInfo = useCallback(() => {
     navigation.navigate(Routes.HomeStack.PatientDetailsStack.Cambodia.EditPatient, {
       patientName: joinNames(patient),
@@ -36,8 +36,8 @@ export const CambodiaPatientDetails = ({ patient, navigation }): ReactElement =>
 
   return (
     <>
-      <CambodiaGeneralInfo patient={patient} onEdit={onEditGeneralInfo} />
-      <CambodiaAdditionalInfo patient={patient} onEdit={editPatientAdditionalData} />
+      <GeneralInfo patient={patient} onEdit={onEditGeneralInfo} />
+      <AdditionalInfo patient={patient} onEdit={editPatientAdditionalData} />
     </>
   );
 };
