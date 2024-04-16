@@ -129,8 +129,6 @@ export const NewVaccineTabComponent = ({
       const location = await models.Location.findOne(locationId, { relations: ['locationGroup'] });
       const department = await models.Department.findOne(departmentId);
 
-      console.log('updated vaccine', updatedVaccine);
-
       if (values.administeredVaccine) {
         navigation.navigate(Routes.HomeStack.VaccineStack.VaccineModalScreen, {
           vaccine: {
