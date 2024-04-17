@@ -74,7 +74,7 @@ export const DocumentPreviewModal = ({ open, onClose, onDownload, document, onPr
           </Subtitle>
         </div>
       }
-      printable={document.source === DOCUMENT_SOURCES.PATIENT_LETTER}
+      printable={document.source !== DOCUMENT_SOURCES.UPLOADED}
       onPrint={() => onPrintPDF(attachmentId)}
       additionalActions={[<DownloadButton onClick={onDownload} key="Download" />]}
       width="md"
