@@ -945,12 +945,6 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       test.todo('Need to complete rigorous testing for aspects of Lab Requests searching here');
 
       describe('including', () => {
-        const resolveUpstreams = async (sequelize) => {
-          const result = await sequelize.query(`
-            CALL fhir.resolve_upstreams();      
-          `);
-          return result;
-        };
 
         beforeEach(async () => {
           const { models } = ctx.store;
