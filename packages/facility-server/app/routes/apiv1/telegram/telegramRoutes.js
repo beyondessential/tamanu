@@ -11,7 +11,7 @@ export const telegramRoutes = express.Router();
 const getTelegramBotInfo = async ws => {
   return await new Promise((resolve, reject) => {
     try {
-      ws.emit('telegram:bot-info');
+      ws.emit('telegram:get-bot-info');
       ws.listenOnce('telegram:bot-info', botInfo => resolve(botInfo));
     } catch (e) {
       reject(e);
