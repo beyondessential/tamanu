@@ -6,11 +6,11 @@ import QRCode from 'qrcode';
 import { toast } from 'react-toastify';
 import { Typography, CircularProgress } from '@material-ui/core';
 
-import { ModalCancelRow } from './ModalActionRow';
-import { TranslatedText } from './Translation/TranslatedText';
-import { joinNames } from '../utils/user';
-import { useTranslation } from '../contexts/Translation';
-import { useTelegramBotInfoQuery } from '../api/queries';
+import { ModalCancelRow } from '../ModalActionRow';
+import { TranslatedText } from '../Translation/TranslatedText';
+import { joinNames } from '../../utils/user';
+import { useTranslation } from '../../contexts/Translation';
+import { useTelegramBotInfoQuery } from '../../api/queries';
 
 const StyledHeaderText = styled(Typography)`
   font-size: 14px;

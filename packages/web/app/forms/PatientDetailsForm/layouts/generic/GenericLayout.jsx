@@ -24,7 +24,7 @@ import { GenericBirthFields } from './patientFields/GenericBirthFields';
 import { useSuggester } from '../../../../api';
 import { PatientFieldsGroup } from '../../PatientFields';
 import { TranslatedText } from '../../../../components/Translation/TranslatedText';
-import { ReminderContactSection } from '../../../../components/ReminderContactSection';
+import { ReminderContactSection } from '../../../../components/ReminderContact/ReminderContactSection';
 import { useLocalisation } from '../../../../contexts/Localisation';
 
 export const GenericPrimaryDetailsLayout = ({

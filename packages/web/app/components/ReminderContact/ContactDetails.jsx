@@ -3,13 +3,13 @@ import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
 import { capitalize } from 'lodash';
-import { Colors } from '../constants';
-import { useAuth } from '../contexts/Auth';
-import { TextButton } from './Button';
-import { DataFetchingTable, Table } from './Table';
-import { joinNames } from '../utils/user';
-import { useTranslation } from '../contexts/Translation';
-import { TranslatedText } from './Translation/TranslatedText';
+import { Colors } from '../../constants';
+import { useAuth } from '../../contexts/Auth';
+import { TextButton } from '../Button';
+import { DataFetchingTable, Table } from '../Table';
+import { joinNames } from '../../utils/user';
+import { useTranslation } from '../../contexts/Translation';
+import { TranslatedText } from '../Translation/TranslatedText';
 
 const StyledText = styled(Typography)`
   margin: 14px 0px 30px 0;

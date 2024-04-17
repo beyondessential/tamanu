@@ -3,10 +3,10 @@ import styled from 'styled-components';
 
 import { Box, Divider, Typography } from '@material-ui/core';
 
-import { Colors } from '../constants';
-import { FormConfirmCancelBackRow } from './ButtonRow';
-import { TranslatedText } from './Translation/TranslatedText';
-import { useApi } from '../api';
+import { Colors } from '../../constants';
+import { FormConfirmCancelBackRow } from '../ButtonRow';
+import { TranslatedText } from '../Translation/TranslatedText';
+import { useApi } from '../../api';
 import { ContactDetails } from './ContactDetails';
 
 const StyledHeading = styled(Typography)`

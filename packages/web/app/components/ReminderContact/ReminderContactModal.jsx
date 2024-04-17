@@ -3,13 +3,13 @@ import styled from 'styled-components';
 
 import { Box } from '@material-ui/core';
 
-import { AddReminderContact } from './AddReminderContact';
-import { BaseModal } from './BaseModal';
+import { AddReminderContact } from '../AddReminderContact';
+import { BaseModal } from '../BaseModal';
 import { ReminderContactList } from './ReminderContactList';
 import { ReminderContactQR } from './ReminderContactQR';
 import { RemoveReminderContact } from './RemoveReminderContact';
-import { useTranslation } from '../contexts/Translation';
-import { useSocket } from '../utils/useSocket';
+import { useTranslation } from '../../contexts/Translation';
+import { useSocket } from '../../utils/useSocket';
 
 const ReminderModalContainer = styled(Box)`
   padding: 0px 8px;
