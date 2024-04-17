@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { IPatientContact } from '~/types';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
-import { useReminderContact } from '~/ui/contexts/ReminderContactProvider';
+import { useReminderContact } from '~/ui/contexts/ReminderContactContext';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { RowView, StyledText, StyledView } from '~/ui/styled/common';
 import { theme } from '~/ui/styled/theme';
