@@ -34,14 +34,7 @@ export const Fields = (): ReactElement => {
         required
       />
       <PatientAdditionalDataFields
-        fields={[
-          {
-            id: 'fieldDefinition-fathersFirstName',
-            name: 'Fathers first name',
-            fieldType: PatientFieldDefinitionTypes.STRING,
-          },
-        ]}
-        isCustomFields={true}
+        fields={['fieldDefinition-fathersFirstName']}
       />
       <LocalisedField
         name="culturalName"
@@ -51,7 +44,6 @@ export const Fields = (): ReactElement => {
       <PatientAdditionalDataFields
         fields={allAdditionalDataFields}
         showMandatory
-        isCustomFields={false}
       />
     </>
   );
