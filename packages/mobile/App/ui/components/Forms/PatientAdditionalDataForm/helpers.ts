@@ -47,6 +47,7 @@ export const relationIdFields = [
   'religionId',
   'settlementId',
   'subdivisionId',
+  'villageId',
 ];
 
 // Maps selectFields with the expected options needed for the field
@@ -110,6 +111,10 @@ export const relationIdFieldsProperties = {
   subdivisionId: {
     type: 'subdivision',
     placeholder: 'Subdivision',
+  },
+  villageId: {
+    type: 'village',
+    placeholder: 'Village',
   },
 };
 

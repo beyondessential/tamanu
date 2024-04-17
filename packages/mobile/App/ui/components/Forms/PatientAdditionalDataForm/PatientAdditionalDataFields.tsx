@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useState, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { StyledView } from '/styled/common';
 import { TextField } from '../../TextField/TextField';
@@ -19,6 +19,7 @@ import {
   selectFieldsOptions,
 } from './helpers';
 import { getConfiguredPatientAdditionalDataFields } from '~/ui/helpers/patient';
+import { Text } from 'react-native-paper';
 
 const PlainField = ({ fieldName, required }): ReactElement => (
   // Outter styled view to momentarily add distance between fields
@@ -58,6 +59,36 @@ const RelationField = ({ fieldName, required }): ReactElement => {
   );
 };
 
+const CustomField = ({ fieldName, required }): ReactElement => {
+  const { models } = useBackend();
+  const [fieldDefinition, setFieldDefinition] = useState(null);
+
+  useEffect(() => {
+    const fetchFieldDefinition = async () => {
+      const definition = await models.PatientFieldDefinition.findOne({
+        where: { id: fieldName },
+      });
+      setFieldDefinition(definition);
+    };
+
+    fetchFieldDefinition();
+  }, [fieldName, models]);
+
+  if (!fieldDefinition) return <Text>Loading...</Text>;
+
+  return (
+    <Field
+      name={fieldDefinition.id}
+      label={fieldDefinition.name}
+      component={PatientFieldDefinitionComponents[fieldDefinition.fieldType]}
+      options={fieldDefinition.options
+        ?.split(',')
+        ?.map(option => ({ label: option, value: option }))}
+      required={required}
+    />
+  );
+};
+
 function getComponentForField(fieldName: string): React.FC<{ fieldName: string }> {
   if (plainFields.includes(fieldName)) {
     return PlainField;
@@ -68,32 +99,17 @@ function getComponentForField(fieldName: string): React.FC<{ fieldName: string }
   if (relationIdFields.includes(fieldName)) {
     return RelationField;
   }
+  if (fieldName.startsWith('fieldDefinition')) {
+    return CustomField;
+  }
   // Shouldn't happen
   throw new Error(`Unexpected field ${fieldName} for patient additional data.`);
 }
 
-const getCustomFieldComponent = ({ id, name, options, fieldType }) => {
-  return (
-    <Field
-      name={id}
-      label={name}
-      component={PatientFieldDefinitionComponents[fieldType]}
-      options={options?.split(',')?.map(option => ({ label: option, value: option }))}
-    />
-  );
-};
-
-export const PatientAdditionalDataFields = ({
-  fields,
-  isCustomFields,
-  showMandatory = true,
-}): ReactElement => {
+export const PatientAdditionalDataFields = ({ fields, showMandatory = true }): ReactElement => {
   const { getBool } = useLocalisation();
 
-  if (isCustomFields) return fields.map(getCustomFieldComponent);
-
   const padFields = getConfiguredPatientAdditionalDataFields(fields, showMandatory, getBool);
-
   return padFields.map(fieldName => {
     const Component = getComponentForField(fieldName);
     return <Component fieldName={fieldName} key={fieldName} required={showMandatory} />;

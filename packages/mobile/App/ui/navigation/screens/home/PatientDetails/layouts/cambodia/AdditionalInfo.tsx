@@ -7,6 +7,7 @@ import { PatientSection } from '../../CustomComponents/PatientSection';
 import { useLocalisation } from '../../../../../../contexts/LocalisationContext';
 import { IPatient, IPatientAdditionalData } from '../../../../../../types';
 import { usePatientAdditionalData } from '~/ui/hooks/usePatientAdditionalData';
+import { CAMBODIA_ADDITIONAL_DATA_SECTIONS } from '~/ui/helpers/additionalData';
 
 interface AdditionalInfoProps {
   onEdit: (additionalInfo: IPatientAdditionalData, sectionTitle: string) => void;
@@ -28,38 +29,6 @@ const getCustomFieldData = (customDataValues, fieldName) => {
   if (!customDataValues[fieldName]) return '';
   return customDataValues[fieldName][0].value;
 };
-
-export const CAMBODIA_ADDITIONAL_DATA_SECTIONS = [
-  {
-    title: 'Current address',
-    fields: ['divisionId', 'subdivisionId', 'settlementId', 'villageId', 'streetVillage'],
-  },
-  {
-    title: 'Contact information',
-    fields: [
-      'primaryContactNumber',
-      'secondaryContactNumber',
-      'emergencyContactName',
-      'emergencyContactNumber',
-      'medicalAreaId',
-      'nursingZoneId',
-    ],
-  },
-  {
-    title: 'Identification information',
-    fields: [
-      'birthCertificate',
-      'fieldDefinition-nationalId',
-      'passport',
-      'fieldDefinition-idPoorCardNumber',
-      'fieldDefinition-pmrsNumber',
-    ],
-  },
-  {
-    title: 'Personal information',
-    fields: ['countryOfBirthId', 'nationalityId'],
-  },
-];
 
 export const AdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps): ReactElement => {
   const {

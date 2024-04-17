@@ -46,7 +46,7 @@ export const GeneralInfo = ({ onEdit, patient }: GeneralInfoProps): ReactElement
     ['dateOfBirth', formatStringDate(patient.dateOfBirth, DateFormats.DDMMYY)],
     ['sex', getGender(patient.sex)],
     [
-      'fathersFirstName', // TODO: need to get label from db
+      'TODO: fathersFirstName', // TODO: need to get label from db
       !loading
         ? getCustomFieldValue(customPatientFieldValues, FIELD_DEFINITION_IDS.FATHERS_FIRST_NAME)
         : '',

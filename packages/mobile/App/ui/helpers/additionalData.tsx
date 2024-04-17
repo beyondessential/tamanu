@@ -51,6 +51,7 @@ export const educationalAttainmentOptions = [
   { value: 'Post grad completed', label: 'Post grad completed' },
 ];
 
+// Generic data layout
 const additionalDataFields = {
   identification: ['birthCertificate', 'drivingLicense', 'passport'],
   contact: [
@@ -125,3 +126,66 @@ export const additionalDataSections = [
 ];
 
 export const allAdditionalDataFields = Object.values(additionalDataFields).flat();
+
+// Cambodia data layout
+const CAMBODIA_ADDITIONAL_DATA_FIELDS = {
+  address: ['divisionId', 'subdivisionId', 'settlementId', 'villageId', 'streetVillage'],
+  contact: [
+    'primaryContactNumber',
+    'secondaryContactNumber',
+    'emergencyContactName',
+    'emergencyContactNumber',
+    'medicalAreaId',
+    'nursingZoneId',
+  ],
+  identification: [
+    'birthCertificate',
+    'fieldDefinition-nationalId',
+    'passport',
+    'fieldDefinition-idPoorCardNumber',
+    'fieldDefinition-pmrsNumber',
+  ],
+  personal: ['countryOfBirthId', 'nationalityId'],
+};
+
+
+export const CAMBODIA_ADDITIONAL_DATA_SECTIONS = [
+  {
+    title: (
+      <TranslatedText
+        stringId="patient.details.subheading.currentAddress"
+        fallback="Current address"
+      />
+    ),
+    fields: CAMBODIA_ADDITIONAL_DATA_FIELDS.address,
+  },
+  {
+    title: (
+      <TranslatedText
+        stringId="patient.details.subheading.contactInformation"
+        fallback="Contact information"
+      />
+    ),
+    fields: CAMBODIA_ADDITIONAL_DATA_FIELDS.contact,
+  },
+  {
+    title: (
+      <TranslatedText
+        stringId="patient.details.subheading.identificationInformation"
+        fallback="Identification information"
+      />
+    ),
+    fields: CAMBODIA_ADDITIONAL_DATA_FIELDS.identification,
+  },
+  {
+    title: (
+      <TranslatedText
+        stringId="patient.details.subheading.personalInformation"
+        fallback="Personal information"
+      />
+    ),
+    fields: CAMBODIA_ADDITIONAL_DATA_FIELDS.personal,
+  },
+];
+
+export const ALL_CAMBODIA_ADDITIONAL_DATA_FIELDS = Object.values(CAMBODIA_ADDITIONAL_DATA_FIELDS).flat();

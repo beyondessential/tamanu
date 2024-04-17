@@ -11,13 +11,13 @@ import {
 import { PatientAdditionalData } from '~/models/PatientAdditionalData';
 import { PatientFieldValue } from '~/models/PatientFieldValue';
 import { Routes } from '~/ui/helpers/routes';
-import { additionalDataSections } from '~/ui/helpers/additionalData';
 import { SubmitButton } from '../SubmitButton';
 import { TranslatedText } from '/components/Translations/TranslatedText';
 
 export const PatientAdditionalDataForm = ({
   patientId,
   additionalData,
+  additionalDataSections,
   navigation,
   sectionTitle,
   isCustomFields,
@@ -59,6 +59,7 @@ export const PatientAdditionalDataForm = ({
         })),
       }
     : additionalDataSections.find(({ title }) => title === sectionTitle);
+
   const { fields } = section;
 
   return (
@@ -68,11 +69,11 @@ export const PatientAdditionalDataForm = ({
           ? getInitialCustomValues(customPatientFieldValues, fields)
           : getInitialAdditionalValues(additionalData, fields)
       }
-      validationSchema={patientAdditionalDataValidationSchema}
+      validationSchema={patientAdditionalDataValidationSchema} // TODO: handle the new validation
       onSubmit={onCreateOrEditAdditionalData}
     >
       {(): ReactElement => (
-        <FormScreenView scrollViewRef={scrollViewRef}>
+        // <FormScreenView scrollViewRef={scrollViewRef}> TODO: why is this bugging out on "interpolate"
           <StyledView justifyContent="space-between">
             <PatientAdditionalDataFields
               fields={fields}
@@ -81,7 +82,7 @@ export const PatientAdditionalDataForm = ({
             />
             <SubmitButton buttonText={<TranslatedText stringId="general.action.save" fallback="Save" />} marginTop={10} />
           </StyledView>
-        </FormScreenView>
+        // </FormScreenView>
       )}
     </Form>
   );

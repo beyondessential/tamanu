@@ -7,6 +7,7 @@ import { EditPatientScreen } from '~/ui/navigation/screens/home/PatientDetails/E
 import { EditPatientAdditionalDataScreen } from '~/ui/navigation/screens/home/PatientDetails/EditPatientAdditionalData';
 import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
 import { EditPatientScreen as CambodiaEditPatientScreen } from '../screens/home/PatientDetails/layouts/cambodia/EditGeneralInfo';
+import { EditPatientAdditionalDataScreen as CambodiaEditPatientAdditionalDataScreen } from '../screens/home/PatientDetails/layouts/cambodia/EditAdditionalInfo';
 
 const Stack = createStackNavigator();
 
@@ -39,7 +40,7 @@ export const PatientDetailsStack = (): ReactElement => (
       />
       <Stack.Screen
         name={Routes.HomeStack.PatientDetailsStack.Cambodia.EditPatientAdditionalData}
-        component={EditPatientAdditionalDataScreen}
+        component={CambodiaEditPatientAdditionalDataScreen}
       />
     </Stack.Navigator>
   </ErrorBoundary>
