@@ -44,14 +44,14 @@ const getAllContacts = async (models, patientId): Promise<IPatientContact[]> => 
 const Provider = ({ children, selectedPatient }: BaseAppProps & { children: ReactNode }) => {
   const { socket } = useSocket();
   const [pendingContactList, setPendingContactList] = useState<string[]>([]);
-  const [patientContacts, setPatientContacts] = useState<IPatientContact[]>([]);
+  const [reminderContactList, setReminderContactList] = useState<IPatientContact[]>([]);
   const [data, _, isLoading, refetch] = useBackendEffect(
     ({ models }) => getAllContacts(models, selectedPatient.id),
     [],
   );
 
   useEffect(() => {
-    setPatientContacts(data || []);
+    setReminderContactList(data || []);
   }, [data]);
 
   useEffect(() => {
@@ -68,7 +68,7 @@ const Provider = ({ children, selectedPatient }: BaseAppProps & { children: Reac
         connectionDetails,
       });
 
-      setPatientContacts(prev =>
+      setReminderContactList(prev =>
         prev.map(c => {
           if (c.id === contact.id) {
             return { ...c, connectionDetails };
@@ -99,7 +99,7 @@ const Provider = ({ children, selectedPatient }: BaseAppProps & { children: Reac
   return (
     <ReminderContactContext.Provider
       value={{
-        reminderContactList: patientContacts,
+        reminderContactList,
         isLoadingReminderContactList: isLoading,
         fetchReminderContactList: refetch,
         afterAddContact,
