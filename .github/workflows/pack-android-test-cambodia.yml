@@ -1,11 +1,6 @@
 name: 'Build Android app'
 
-env:
-  BRANDING: cambodia
-
 on:
-  pull_request:
-  # can add push and pull_request here
   workflow_call:
     inputs:
       branding:
@@ -57,6 +52,12 @@ jobs:
         run: |
           cd ./packages/mobile/android/app/src/main/res
           mv ${{inputs.branding}}/* .
+
+      - name: Set server ovveride
+        if: ${{ inputs.server }}
+        run: |
+          cd ./packages/mobile/
+          echo \{\"centralServers\":[\{\"value\":\"${{inputs.server}}\", \"label\": \"Central Server\"\}]\} > serverOverrides.json
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
