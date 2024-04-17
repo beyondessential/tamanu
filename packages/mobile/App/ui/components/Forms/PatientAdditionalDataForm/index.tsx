@@ -52,6 +52,8 @@ export const PatientAdditionalDataForm = ({
   // Get the actual additional data section object
   const { fields } = additionalDataSections.find(({ title }) => title === sectionTitle);
 
+  // console.log(customPatientFieldValues) // TODO: missing?
+
   return (
     <Form
       initialValues={{
