@@ -28,6 +28,7 @@ export class FhirEncounter extends FhirResource {
     this.UpstreamModels = [models.Encounter];
     this.upstreams = [
       models.Encounter,
+      models.Department,
       models.Discharge,
       models.Patient,
       models.Location,

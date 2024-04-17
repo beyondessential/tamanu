@@ -9,6 +9,7 @@ import { formatFhirDate } from '@tamanu/shared/utils/fhir/datetime';
 import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 import { createTestContext } from '../../utilities';
+import { FhirEncounter } from '@tamanu/shared/models/index';
 
 const INTEGRATION_ROUTE = 'fhir/mat';
 
@@ -341,6 +342,7 @@ describe(`Materialised FHIR - Encounter`, () => {
             upstreamId: facilityId
           }
         });
+        await FhirEncounter.resolveUpstreams();
         const response = await app.get(
           `/api/integration/${INTEGRATION_ROUTE}/Encounter?_include=Organization:serviceProvider`,
         );
