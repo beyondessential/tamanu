@@ -973,7 +973,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
           const path = `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest?_include=Specimen:specimen`;
           const response = await app.get(path);
           const { entry } = response.body;
-          console.log({ body: response.body });
+          console.log({ body: JSON.stringify(response.body) });
           const fetchedServiceRequest = entry.find(
             ({ search: { mode } }) => mode === 'match',
           );
