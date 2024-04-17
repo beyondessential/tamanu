@@ -2,9 +2,13 @@ import * as yup from 'yup';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 
+import { ensurePermissionCheck } from '@tamanu/shared/permissions/middleware';
 import { ASSET_MIME_TYPES, ASSET_NAMES } from '@tamanu/constants/importable';
 
 export const assetRoutes = express.Router();
+
+//TODO: Remove when permission check are implemented in all central server routes
+assetRoutes.use(ensurePermissionCheck);
 
 const assetSchema = yup.object().shape({
   name: yup

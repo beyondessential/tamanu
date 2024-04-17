@@ -1,12 +1,9 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { queryTranslatedStringsByLanguage } from '@tamanu/shared/utils/translation/queryTranslatedStringsByLanguage';
-import { ensurePermissionCheck } from '@tamanu/shared/permissions/middleware';
 import { isNull } from 'lodash';
 
 export const translationRouter = express.Router();
-
-translationRouter.use(ensurePermissionCheck);
 
 translationRouter.get(
   '/',
