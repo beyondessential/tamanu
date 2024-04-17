@@ -42,19 +42,19 @@ const setupBaseDate = async models => {
   await models.Setting.set('routineVaccine.thresholds', [
     {
       threshold: 28,
-      status: 'SCHEDULED',
+      status: VACCINE_STATUS.SCHEDULED,
     },
     {
       threshold: 7,
-      status: 'UPCOMING',
+      status: VACCINE_STATUS.UPCOMING,
     },
     {
       threshold: -7,
-      status: 'DUE',
+      status: VACCINE_STATUS.DUE,
     },
     {
       threshold: -55,
-      status: 'OVERDUE',
+      status: VACCINE_STATUS.OVERDUE,
     },
     {
       threshold: '-Infinity',
@@ -87,7 +87,7 @@ const PATIENTS = [
   },
   {
     displayId: 'brecord',
-    dateOfBirth: toDateString(subDays(new Date(), 14)),
+    dateOfBirth: toDateString(subDays(new Date(), 3)),
   },
   {
     displayId: 'crecord',
@@ -99,7 +99,7 @@ const PATIENTS = [
   },
   {
     displayId: 'erecord',
-    dateOfBirth: toDateString(subDays(new Date(), 14)),
+    dateOfBirth: toDateString(subDays(new Date(), 3)),
   },
   {
     displayId: 'frecord',
@@ -160,9 +160,6 @@ describe('Upcoming vaccinations', () => {
   });
 
   it('should filter', async () => {
-    await createPatient(models, {
-      dateOfBirth: toDateString(subDays(new Date(), 100)),
-    });
     const overDueResult = await app.get(
       `/api/upcomingVaccinations?status=${VACCINE_STATUS.OVERDUE}`,
     );
