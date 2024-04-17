@@ -1,0 +1,44 @@
+name: 'Build Android app'
+
+on:
+  pull_request:
+    # can add push and pull_request here
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Install Java
+        uses: actions/setup-java@v2
+        with:
+          java-version: '11'
+          distribution: 'adopt'
+          cache: 'gradle'
+
+      - name: Validate Gradle wrapper
+        uses: gradle/wrapper-validation-action@v1
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: yarn
+
+      - name: Run Yarn Install
+        run: |
+          cd ./packages/mobile/
+          npm i -g corepack
+          yarn install
+      - name: Build application
+        run: |
+          cd ./packages/mobile/android
+          ./gradlew assembleDebug
+      - name: Upload application
+        uses: actions/upload-artifact@v2
+        with:
+          name: app
+          path: ./packages/mobile/android/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 3
