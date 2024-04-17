@@ -24,7 +24,7 @@ import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { PatientContact } from '~/models/PatientContact';
 import { SuggesterDropdown } from '~/ui/components/Dropdown';
 import { PATIENT_COMMUNICATION_CHANNELS } from '~/constants/comms';
-import { useReminderContact } from '~/ui/contexts/ReminderContactProvider';
+import { useReminderContact } from '~/ui/contexts/ReminderContactContext';
 
 interface IFormValues {
   reminderContactName: string;

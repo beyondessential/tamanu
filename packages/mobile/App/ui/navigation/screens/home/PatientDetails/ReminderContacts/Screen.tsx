@@ -27,7 +27,7 @@ import { PlusIcon } from '~/ui/components/Icons/PlusIcon';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { RemoveReminderContactModal } from './RemoveReminderContactModal';
 import { PatientContact } from '~/models/PatientContact';
-import { useReminderContact } from '~/ui/contexts/ReminderContactProvider';
+import { useReminderContact } from '~/ui/contexts/ReminderContactContext';
 
 const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
   const { getTranslation } = useTranslation();
