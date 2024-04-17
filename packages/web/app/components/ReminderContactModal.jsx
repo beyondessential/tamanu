@@ -33,6 +33,8 @@ const REMINDER_CONTACT_VIEWS = {
   REMOVE_REMINDER: 'RemoveReminder',
 };
 
+const DEFAULT_CONTACT_TIMEOUT = 2*60*1000; // 2 minutes
+
 export const ReminderContactModal = ({ onClose, open }) => {
   const { getTranslation } = useTranslation();
   const [activeView, setActiveView] = useState(REMINDER_CONTACT_VIEWS.REMINDER_CONTACT_LIST);
@@ -52,7 +54,7 @@ export const ReminderContactModal = ({ onClose, open }) => {
 
   useEffect(() => {
     if (newContact.id) {
-      const timer = setTimeout(() => {
+      setTimeout(() => {
         setPendingContacts(previousPendingContacts => ({
           ...previousPendingContacts,
           [newContact.id]: {
@@ -60,13 +62,12 @@ export const ReminderContactModal = ({ onClose, open }) => {
             isTimerStarted: false
           }
         }));
-      }, 2*60*1000); //2 minutes
+      }, DEFAULT_CONTACT_TIMEOUT);
       setPendingContacts(previousPendingContacts => ({
         ...previousPendingContacts,
         [newContact.id]: {
           ...previousPendingContacts[newContact.id],
           isTimerStarted: true,
-          timer: timer
         }
       }));
     }
@@ -107,6 +108,11 @@ export const ReminderContactModal = ({ onClose, open }) => {
     handleActiveView(REMINDER_CONTACT_VIEWS.REMOVE_REMINDER);
   };
 
+  const handleQrModalClose = () => {
+    handleActiveView(REMINDER_CONTACT_VIEWS.REMINDER_CONTACT_LIST);
+    onClose();
+  };
+
   return (
     <StyledBaseModal
       width={activeView === REMINDER_CONTACT_VIEWS.REMOVE_REMINDER ? 'sm' : 'md'}
@@ -131,7 +137,7 @@ export const ReminderContactModal = ({ onClose, open }) => {
         {activeView === REMINDER_CONTACT_VIEWS.ADD_REMINDER_QR_CODE && (
           <ReminderContactQR
             contact={newContact}
-            onClose={onBack}
+            onClose={handleQrModalClose}
           />
         )}
         {activeView === REMINDER_CONTACT_VIEWS.REMOVE_REMINDER && (

@@ -45,13 +45,11 @@ export const ReminderContactSection = () => {
           fallback="Reminder contacts"
         />
       </StyledButton>
-      {openReminderModal && (
-        <ReminderContactModal
-          open
-          onClose={onClose}
-          handleOpenRemindersModal={handleOpenRemindersModal}
-        />
-      )}
+      <ReminderContactModal
+        open={openReminderModal}
+        onClose={onClose}
+        handleOpenRemindersModal={handleOpenRemindersModal}
+      />
     </>
   );
 };

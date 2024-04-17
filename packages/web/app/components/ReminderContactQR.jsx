@@ -44,19 +44,19 @@ const StyledQrContainer = styled.div`
 export const ReminderContactQR = ({ contact, onClose }) => {
   const { getTranslation } = useTranslation();
   const patient = useSelector(state => state.patient);
-  const { data: botInfo, isLoading } = useTelegramBotInfoQuery();
+  const { data: botInfo } = useTelegramBotInfoQuery();
 
   const [qrCodeURL, setQRCodeURL] = useState('');
 
   useEffect(() => {
-    if (!isLoading) {
+    if (botInfo && botInfo.username) {
       generateQRCode();
     }
-  }, [isLoading]);
+  }, [botInfo?.username]);
 
   const generateQRCode = async () => {
     try {
-      const urlString = `https://t.me/${botInfo?.username}?start=${contact.id}`;
+      const urlString = `https://t.me/${botInfo.username}?start=${contact.id}`;
 
       // Generate QR code from the URL string
       const url = await QRCode.toDataURL(urlString);
