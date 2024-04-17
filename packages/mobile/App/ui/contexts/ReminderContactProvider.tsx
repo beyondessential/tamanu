@@ -7,6 +7,7 @@ import { BaseAppProps } from '../interfaces/BaseAppProps';
 import { useSocket } from '../hooks/useSocket';
 import { PatientContact } from '~/models/PatientContact';
 import { joinNames } from '../helpers/user';
+import { useTranslation } from './TranslationContext';
 
 interface ReminderContactData {
   reminderContactList: IPatientContact[];
@@ -42,6 +43,7 @@ const getAllContacts = async (models, patientId): Promise<IPatientContact[]> => 
 };
 
 const Provider = ({ children, selectedPatient }: BaseAppProps & { children: ReactNode }) => {
+  const { getTranslation } = useTranslation();
   const { socket } = useSocket();
   const [pendingContactList, setPendingContactList] = useState<string[]>([]);
   const [reminderContactList, setReminderContactList] = useState<IPatientContact[]>([]);
@@ -56,14 +58,14 @@ const Provider = ({ children, selectedPatient }: BaseAppProps & { children: Reac
 
   useEffect(() => {
     if (!socket) return;
-    socket.on('telegram:subscribe', async data => {
+    socket.on('telegram:subscribe', async ({ chatId, contactId, botInfo }) => {
       const contact = await PatientContact.findOne({
-        where: { id: data.contactId },
+        where: { id: contactId },
         relations: ['patient'],
       });
       if (!contact) return;
 
-      const connectionDetails = JSON.stringify({ chatId: data.chatId });
+      const connectionDetails = JSON.stringify({ chatId });
       await PatientContact.updateValues(contact.id, {
         connectionDetails,
       });
@@ -80,8 +82,13 @@ const Provider = ({ children, selectedPatient }: BaseAppProps & { children: Reac
       const contactName = contact.name;
       const patientName = joinNames(contact.patient);
 
-      const successMessage = `Dear ${contactName}, you have successfully registered to receive messages for ${patientName}. Thank you.`;
-      socket.emit('telegram:send-message', { chatId: data.chatId, message: successMessage });
+      const successMessage = getTranslation(
+        'telegramRegistration.successMessage',
+        `Dear :contactName, you have successfully registered to receive messages for :patientName from :botName. Thank you.
+        \nIf you would prefer to not receive future messages from :botName, please select :command`,
+        { contactName, patientName, botName: botInfo.first_name, command: '/unsubscribe' },
+      );
+      socket.emit('telegram:send-message', { chatId, message: successMessage });
     });
   }, [socket]);
 
