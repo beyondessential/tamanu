@@ -1,6 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
+import { VACCINE_STATUS } from '@tamanu/constants';
 import { makeFilter } from '../../utils/query';
 
 export const upcomingVaccinations = express.Router();
@@ -76,7 +77,7 @@ upcomingVaccinations.get(
         SELECT *,
         ROW_NUMBER() OVER(PARTITION BY patient_id ORDER BY due_date ASC) AS row_number
         FROM upcoming_vaccinations uv
-        WHERE uv.status <> 'MISSED'
+        WHERE uv.status <> '${VACCINE_STATUS.MISSED}'
       )
       SELECT
       p.id id,
@@ -85,11 +86,11 @@ upcomingVaccinations.get(
       p.last_name "lastName",
       p.date_of_birth "dateOfBirth",
       p.sex,
-      sv.id scheduledVaccineId,
+      sv.id "scheduledVaccineId",
       sv.category,
       sv.label "vaccineName",
       sv.schedule "scheduleName",
-      sv.vaccine_id vaccineId,
+      sv.vaccine_id "vaccineId",
       uv.due_date "dueDate",
       uv.status,
       village.name "villageName"

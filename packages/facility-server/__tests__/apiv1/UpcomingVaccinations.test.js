@@ -1,9 +1,5 @@
 import { createTestContext } from '../utilities';
-import { createDummyEncounter } from '@tamanu/shared/demoData/patients';
-import {
-  createAdministeredVaccine,
-  createScheduledVaccine,
-} from '@tamanu/shared/demoData/vaccines';
+import { createScheduledVaccine } from '@tamanu/shared/demoData/vaccines';
 import { toDateString } from '@tamanu/shared/utils/dateTime';
 import { fake } from '@tamanu/shared/test-helpers/fake';
 import config from 'config';
@@ -13,20 +9,11 @@ import { subDays } from 'date-fns';
 let facility = null;
 let drug = null;
 
-const recordAdministeredVaccine = async (models, patientDOB, overrides) => {
-  const patient = await models.Patient.create({
+const createPatient = async (models, overrides) => {
+  return models.Patient.create({
     ...fake(models.Patient),
-    dateOfBirth: patientDOB,
+    ...overrides,
   });
-  const encounter = await models.Encounter.create(
-    await createDummyEncounter(models, { patientId: patient.id }),
-  );
-  return models.AdministeredVaccine.create(
-    await createAdministeredVaccine(models, {
-      encounterId: encounter.id,
-      ...overrides,
-    }),
-  );
 };
 
 const createNewScheduledVaccine = async (models, overrides) => {
@@ -71,7 +58,7 @@ const setupBaseDate = async models => {
     },
     {
       threshold: '-Infinity',
-      status: 'MISSED',
+      status: VACCINE_STATUS.MISSED,
     },
   ]);
   drug = await models.ReferenceData.create(
@@ -93,33 +80,34 @@ const SCHEDULED_VACCINES = [
   },
 ];
 
-const ADMINISTERED_VACCINES = [
+const PATIENTS = [
   {
-    scheduledVaccineId: 'vaccine1',
-    patientDOB: toDateString(subDays(new Date(), 1)),
+    displayId: 'arecord',
+    dateOfBirth: toDateString(subDays(new Date(), 1)),
   },
   {
-    scheduledVaccineId: 'vaccine1',
-    patientDOB: toDateString(subDays(new Date(), 14)),
+    displayId: 'brecord',
+    dateOfBirth: toDateString(subDays(new Date(), 14)),
   },
   {
-    scheduledVaccineId: 'vaccine1',
-    patientDOB: toDateString(subDays(new Date(), 28)),
+    displayId: 'crecord',
+    dateOfBirth: toDateString(subDays(new Date(), 28)),
   },
   {
-    scheduledVaccineId: 'vaccine2',
-    patientDOB: toDateString(subDays(new Date(), 1)),
+    displayId: 'dhrecord',
+    dateOfBirth: toDateString(subDays(new Date(), 1)),
   },
   {
-    scheduledVaccineId: 'vaccine2',
-    patientDOB: toDateString(subDays(new Date(), 14)),
+    displayId: 'erecord',
+    dateOfBirth: toDateString(subDays(new Date(), 14)),
   },
   {
-    scheduledVaccineId: 'vaccine2',
-    patientDOB: toDateString(subDays(new Date(), 28)),
+    displayId: 'frecord',
+    dateOfBirth: toDateString(subDays(new Date(), 28)),
   },
 ];
 
+// Note that these tests are to cover the upcoming vaccinations endpoint. The vaccine logic is tested elsewhere
 describe('Upcoming vaccinations', () => {
   let ctx;
   let models = null;
@@ -147,11 +135,8 @@ describe('Upcoming vaccinations', () => {
       }
 
       // set up clinical data
-      for (const av of ADMINISTERED_VACCINES) {
-        await recordAdministeredVaccine(models, av.patientDOB, {
-          scheduledVaccineId: av.scheduledVaccineId,
-          status: VACCINE_STATUS.GIVEN,
-        });
+      for (const patientData of PATIENTS) {
+        await createPatient(models, patientData);
       }
     } catch (error) {
       console.log('ERROR', error);
@@ -160,15 +145,48 @@ describe('Upcoming vaccinations', () => {
 
   afterAll(() => ctx.close());
 
-  it('should return all upcoming vaccinations of patient', async () => {
+  it('should successfully return upcoming patient vaccinations', async () => {
     const result = await app.get(`/api/upcomingVaccinations`);
-
-    console.log('RESULT', result.body.data);
     expect(result).toHaveSucceeded();
+    expect(result.body.data.length).toBe(6);
   });
 
-  it.todo('should return the correct number of upcoming vaccinations records');
-  it.todo('should exclude missed vaccination records');
-  it.todo('should filter');
-  it.todo('should sort');
+  it('should exclude missed vaccination records', async () => {
+    await createPatient(models, {
+      dateOfBirth: toDateString(subDays(new Date(), 500)),
+    });
+    const result = await app.get(`/api/upcomingVaccinations`);
+    expect(result.body.data.length).toBe(6);
+  });
+
+  it('should filter', async () => {
+    await createPatient(models, {
+      dateOfBirth: toDateString(subDays(new Date(), 100)),
+    });
+    const overDueResult = await app.get(
+      `/api/upcomingVaccinations?status=${VACCINE_STATUS.OVERDUE}`,
+    );
+    expect(overDueResult.body.data.length).toBe(2);
+    const dueResult = await app.get(`/api/upcomingVaccinations?status=${VACCINE_STATUS.DUE}`);
+    expect(dueResult.body.data.length).toBe(4);
+  });
+
+  it('should sort by due date by default', async () => {
+    const result = await app.get(`/api/upcomingVaccinations`);
+    result.body.data.forEach((v, i) => {
+      if (i > 0) {
+        const previousDueDate = result.body.data[i - 1].dueDate;
+        expect(v.dueDate >= previousDueDate).toBeTruthy();
+      }
+    });
+  });
+
+  it('should sort by params', async () => {
+    const ascResult = await app.get(`/api/upcomingVaccinations?orderBy=displayId&order=asc`);
+    const ascData = ascResult.body.data;
+    expect(ascData[0].displayId).toBe('arecord');
+    const descResult = await app.get(`/api/upcomingVaccinations?orderBy=displayId&order=desc`);
+    const descData = descResult.body.data;
+    expect(descData[0].displayId).toBe('frecord');
+  });
 });
