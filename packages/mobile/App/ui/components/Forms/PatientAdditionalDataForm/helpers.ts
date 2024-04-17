@@ -7,7 +7,7 @@ import {
   educationalAttainmentOptions,
   maritalStatusOptions,
   socialMediaOptions,
-  titleOptions
+  titleOptions,
 } from '~/ui/helpers/additionalData';
 
 // All PatientAdditionalData plain fields sorted alphabetically
@@ -122,13 +122,12 @@ export const relationIdFieldsProperties = {
 export const getSuggester = (
   models: typeof MODELS_MAP,
   type: string,
-): Suggester<typeof ReferenceData> => (
+): Suggester<typeof ReferenceData> =>
   new Suggester(models.ReferenceData, {
     where: {
       type,
     },
-  })
-);
+  });
 
 // Plain and ID fields in alphabetical order
 export const patientAdditionalDataValidationSchema = Yup.object().shape({
@@ -161,6 +160,8 @@ export const patientAdditionalDataValidationSchema = Yup.object().shape({
   emergencyContactNumber: Yup.string().nullable(),
 });
 
+// TODO: should probablty be combined
+
 // Strip off unwanted fields from additional data and only keep specified ones
 export const getInitialCustomValues = (data, fields): {} => {
   if (!data) {
@@ -168,11 +169,11 @@ export const getInitialCustomValues = (data, fields): {} => {
   }
   // Copy values from data only in the specified fields
   const values = {};
-  fields.map(({ id }) => id).forEach(fieldName => {
-    values[fieldName] = data[fieldName]?.[0]?.value;
+  fields.forEach(fieldName => {
+    if (data[fieldName]) values[fieldName] = data[fieldName]?.[0]?.value;
   });
   return values;
-}
+};
 
 // Strip off unwanted fields from additional data and only keep specified ones
 export const getInitialAdditionalValues = (data, fields): {} => {
@@ -182,7 +183,7 @@ export const getInitialAdditionalValues = (data, fields): {} => {
   // Copy values from data only in the specified fields
   const values = {};
   fields.forEach(fieldName => {
-    values[fieldName] = data[fieldName];
+    if (data[fieldName]) values[fieldName] = data[fieldName];
   });
   return values;
 };

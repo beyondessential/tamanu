@@ -15,32 +15,32 @@ import { SubmitButton } from '../SubmitButton';
 import { TranslatedText } from '/components/Translations/TranslatedText';
 
 export const PatientAdditionalDataForm = ({
-  patientId,
+  patient,
   additionalData,
   additionalDataSections,
   navigation,
   sectionTitle,
   isCustomFields,
-  customSectionFields,
   customPatientFieldValues,
 }): ReactElement => {
   const scrollViewRef = useRef();
   // After save/update, the model will mark itself for upload and the
   // patient for sync (see beforeInsert and beforeUpdate decorators).
+  // TODO: implement this, update by field instead of by section
   const onCreateOrEditAdditionalData = useCallback(
     async values => {
       if (isCustomFields) {
         await Promise.all(
           Object.keys(values || {}).map(definitionId =>
             PatientFieldValue.updateOrCreateForPatientAndDefinition(
-              patientId,
+              patient.id,
               definitionId,
               values[definitionId],
             ),
           ),
         );
       } else {
-        await PatientAdditionalData.updateForPatient(patientId, values);
+        await PatientAdditionalData.updateForPatient(patient.id, values);
       }
       // Navigate back to patient details
       navigation.navigate(Routes.HomeStack.PatientDetailsStack.Index);
@@ -49,39 +49,30 @@ export const PatientAdditionalDataForm = ({
   );
 
   // Get the actual additional data section object
-  const section = isCustomFields
-    ? {
-        fields: customSectionFields.map(({ id, name, fieldType, options }) => ({
-          id,
-          name,
-          fieldType,
-          options,
-        })),
-      }
-    : additionalDataSections.find(({ title }) => title === sectionTitle);
-
-  const { fields } = section;
+  const { fields } = additionalDataSections.find(({ title }) => title === sectionTitle);
 
   return (
     <Form
-      initialValues={
-        isCustomFields
-          ? getInitialCustomValues(customPatientFieldValues, fields)
-          : getInitialAdditionalValues(additionalData, fields)
-      }
+      initialValues={{
+        ...patient,
+        ...getInitialAdditionalValues(additionalData, fields),
+        ...getInitialCustomValues(customPatientFieldValues, fields),
+      }}
       validationSchema={patientAdditionalDataValidationSchema} // TODO: handle the new validation
       onSubmit={onCreateOrEditAdditionalData}
     >
       {(): ReactElement => (
         // <FormScreenView scrollViewRef={scrollViewRef}> TODO: why is this bugging out on "interpolate"
-          <StyledView justifyContent="space-between">
-            <PatientAdditionalDataFields
-              fields={fields}
-              isCustomFields={isCustomFields}
-              showMandatory={false}
-            />
-            <SubmitButton buttonText={<TranslatedText stringId="general.action.save" fallback="Save" />} marginTop={10} />
-          </StyledView>
+        <StyledView justifyContent="space-between">
+          <PatientAdditionalDataFields
+            fields={fields}
+            showMandatory={false}
+          />
+          <SubmitButton
+            buttonText={<TranslatedText stringId="general.action.save" fallback="Save" />}
+            marginTop={10}
+          />
+        </StyledView>
         // </FormScreenView>
       )}
     </Form>

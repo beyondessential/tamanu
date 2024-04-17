@@ -49,7 +49,7 @@ export const AdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps): ReactE
 
   // Add edit callback and map the inner 'fields' array
   const sections = CAMBODIA_ADDITIONAL_DATA_SECTIONS.map(({ title, fields }) => {
-    const onEditCallback = (): void => onEdit(patientAdditionalData, title, false);
+    const onEditCallback = (): void => onEdit(patientAdditionalData, title, false, fields, customPatientFieldValues);
     const mappedFields = fields.map(fieldName => {
       // TODO: hacky just to get it working initially
       if (fieldName === 'villageId') return [fieldName, patient.village?.name];

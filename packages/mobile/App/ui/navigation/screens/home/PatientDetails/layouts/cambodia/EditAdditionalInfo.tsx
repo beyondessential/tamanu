@@ -12,6 +12,7 @@ export const EditPatientAdditionalDataScreen = ({ navigation, route }): ReactEle
   const {
     patientId,
     patientName,
+    patient,
     additionalDataJSON,
     sectionTitle,
     isCustomFields,
@@ -42,6 +43,7 @@ export const EditPatientAdditionalDataScreen = ({ navigation, route }): ReactEle
       <PatientSectionHeader name={sectionTitle} />
       <PatientAdditionalDataForm
         patientId={patientId}
+        patient={patient}
         additionalData={additionalData}
         additionalDataSections={CAMBODIA_ADDITIONAL_DATA_SECTIONS}
         navigation={navigation}
