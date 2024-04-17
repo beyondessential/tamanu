@@ -24,4 +24,3 @@ export async function down(query) {
     );
   `);
 }
-All-the-l3aves
