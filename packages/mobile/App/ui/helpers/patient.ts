@@ -144,6 +144,7 @@ export const getFieldData = (data: IPatientAdditionalData, fieldName: string): s
 
 export const getConfiguredPatientAdditionalDataFields = (fields, showMandatory, getBool) => {
   return fields.filter(fieldName => {
+    if (fieldName.startsWith('fieldDefinition')) return true; // exclude custom field definitions as they should always show
     const requiredPatientData = getBool(`fields.${fieldName}.requiredPatientData`);
     return !!requiredPatientData === showMandatory;
   });
