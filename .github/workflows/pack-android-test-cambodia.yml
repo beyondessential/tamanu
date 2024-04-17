@@ -26,6 +26,11 @@ jobs:
           cd ./packages/mobile/android/app/src/main/res/values
           sed -i "s/Tamanu Mobile/KhmEIR/g" strings.xml
 
+      - name: Update mipmap
+        run: |
+          cd ./packages/mobile/android/app/src/main/res
+          mv cambodia/* .
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
@@ -37,10 +42,12 @@ jobs:
           cd ./packages/mobile/
           npm i -g corepack
           yarn install
+
       - name: Build application
         run: |
           cd ./packages/mobile/android
           ./gradlew assembleDebug
+
       - name: Upload application
         uses: actions/upload-artifact@v2
         with:
