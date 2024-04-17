@@ -417,7 +417,7 @@ describe('VDS: Proof of Test', () => {
     });
     await patient.reload();
 
-    const facility = await await Facility.create({
+    const facility = await Facility.create({
       ...fake(Facility),
       name: 'Utopia GP',
       streetAddress: 'Utopia pastoral lease No. 637',

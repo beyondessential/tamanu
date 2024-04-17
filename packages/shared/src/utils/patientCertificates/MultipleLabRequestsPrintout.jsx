@@ -58,7 +58,7 @@ const generalStyles = StyleSheet.create({
 
 const SectionContainer = props => <View style={generalStyles.container} {...props} />;
 
-const LabRequestSigningSection = () => {
+const LabRequestSigningSection = ({ getTranslation }) => {
   const BaseSigningSection = ({ title }) => (
     <View style={{ flexDirection: 'column' }}>
       <P bold style={signingSectionStyles.underlinedText} fontSize={9}>
@@ -75,7 +75,9 @@ const LabRequestSigningSection = () => {
     <View>
       <Row>
         <Col>
-          <BaseSigningSection title="Clinician" />
+          <BaseSigningSection
+            title={getTranslation('general.localisedField.clinician.label', 'Clinician')}
+          />
         </Col>
         <Col>
           <BaseSigningSection title="Patient" />
@@ -157,13 +159,7 @@ const LabRequestDetailsView = ({ labRequests }) => {
 };
 
 export const MultipleLabRequestsPrintout = React.memo(
-  ({
-    patientData,
-    labRequests,
-    encounter,
-    certificateData,
-    getLocalisation,
-  }) => {
+  ({ patientData, labRequests, encounter, certificateData, getLocalisation, getTranslation }) => {
     const { logo } = certificateData;
 
     return (
@@ -188,7 +184,7 @@ export const MultipleLabRequestsPrintout = React.memo(
               <LabRequestDetailsView labRequests={labRequests} />
             </SectionContainer>
             <SectionContainer>
-              <LabRequestSigningSection labRequests={labRequests} />
+              <LabRequestSigningSection getTranslation={getTranslation} labRequests={labRequests} />
             </SectionContainer>
           </CertificateContent>
         </Page>

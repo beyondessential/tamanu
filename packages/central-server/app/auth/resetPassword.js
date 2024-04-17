@@ -6,7 +6,7 @@ import { addMinutes } from 'date-fns';
 
 import { COMMUNICATION_STATUSES } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
-import { findUser, getRandomBase64String } from './utils';
+import { getRandomBase64String } from './utils';
 
 export const resetPassword = express.Router();
 
@@ -28,7 +28,7 @@ resetPassword.post(
 
     const { email } = body;
 
-    const user = await findUser(models, email);
+    const user = await models.User.getForAuthByEmail(email);
 
     if (!user) {
       log.info(`Password reset request: No user found with email ${email}`);
