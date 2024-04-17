@@ -1,4 +1,5 @@
 import { DataTypes, Sequelize } from 'sequelize';
+export const NON_DETERMINISTIC = true;
 
 const TABLE = { schema: 'fhir', tableName: 'organizations' };
 
