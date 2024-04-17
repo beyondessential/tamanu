@@ -113,7 +113,8 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => 
               {`${getDisplayAge(selectedPatient.dateOfBirth, ageDisplayFormat)} old`}
             </StyledText>
           </StyledView>
-          {canReadReminderContacts && getBool('features.enableReminderContacts') && (
+          {/* TODO: Enable show/hide based on config on mobile */}
+          {canReadReminderContacts && (
             <StyledView alignSelf="flex-end" alignItems="flex-end" marginRight={15}>
               <Button
                 marginTop={screenPercentageToDP(1.21, Orientation.Height)}

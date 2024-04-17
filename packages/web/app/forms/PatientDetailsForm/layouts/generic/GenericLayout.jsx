@@ -25,7 +25,8 @@ import { useSuggester } from '../../../../api';
 import { PatientFieldsGroup } from '../../PatientFields';
 import { TranslatedText } from '../../../../components/Translation/TranslatedText';
 import { ReminderContactSection } from '../../../../components/ReminderContactSection';
-import { useLocalisation } from '../../../../contexts/Localisation';
+import { useSettingsQuery } from '../../../../api/queries/useSettingsQuery';
+import { useAuth } from '../../../../contexts/Auth';
 
 export const GenericPrimaryDetailsLayout = ({
   patientRegistryType,
@@ -34,7 +35,8 @@ export const GenericPrimaryDetailsLayout = ({
   isRequiredPatientData,
 }) => {
   const villageSuggester = useSuggester('village');
-  const { getLocalisation } = useLocalisation();
+  const { facility } = useAuth();
+  const { data: isReminderContactEnabled } = useSettingsQuery('features.reminderContactModule.enabled', { facilityId: facility?.id});
   return (
     <>
       <PatientDetailsHeading>
@@ -42,7 +44,7 @@ export const GenericPrimaryDetailsLayout = ({
           stringId="patient.detail.subheading.general"
           fallback="General information"
         />
-        {getLocalisation('features.enableReminderContacts') ? <ReminderContactSection /> : null}
+        {isReminderContactEnabled ? <ReminderContactSection /> : null}
       </PatientDetailsHeading>
       <FormGrid>
         <LocalisedField
