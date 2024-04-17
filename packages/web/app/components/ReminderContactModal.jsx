@@ -9,7 +9,7 @@ import { ReminderContactList } from './ReminderContactList';
 import { ReminderContactQR } from './ReminderContactQR';
 import { RemoveReminderContact } from './RemoveReminderContact';
 import { useTranslation } from '../contexts/Translation';
-import { socket } from '../utils/socket';
+import { useSocket } from '../utils/useSocket';
 
 const ReminderModalContainer = styled(Box)`
   padding: 0px 8px;
@@ -42,15 +42,14 @@ export const ReminderContactModal = ({ onClose, open }) => {
   const [pendingContacts, setPendingContacts] = useState({});
   const [successContactIds, setSuccessContactIds] = useState([]);
   const [selectedContact, setSelectedContact] = useState();
+  const { socket } = useSocket();
 
   useEffect(() => {
-    socket.connect();
+    if (!socket) return;
     socket.on('telegram:subscribe:success', data => {
       setSuccessContactIds(prev => [...prev, data?.contactId]);
     });
-
-    return () => socket.disconnect();
-  }, []);
+  }, [socket]);
 
   useEffect(() => {
     if (newContact.id) {
