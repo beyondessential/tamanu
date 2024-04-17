@@ -343,6 +343,8 @@ describe(`Materialised FHIR - Encounter`, () => {
           }
         });
         await FhirEncounter.resolveUpstreams();
+        await FhirOrganization.resolveUpstreams();
+
         const response = await app.get(
           `/api/integration/${INTEGRATION_ROUTE}/Encounter?_include=Organization:serviceProvider`,
         );
