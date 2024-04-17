@@ -4,7 +4,7 @@ import styled from 'styled-components';
 
 import QRCode from 'qrcode';
 import { toast } from 'react-toastify';
-import { Typography } from '@material-ui/core';
+import { Typography, CircularProgress } from '@material-ui/core';
 
 import { ModalCancelRow } from './ModalActionRow';
 import { TranslatedText } from './Translation/TranslatedText';
@@ -91,7 +91,9 @@ export const ReminderContactQR = ({ contact, onClose }) => {
           fallback="They will receive a confirmation message from Telegram once their account is successfully registered."
         />
       </StyledText>
-      <StyledQrContainer>{qrCodeURL && <img src={qrCodeURL} alt="QR Code" />}</StyledQrContainer>
+      <StyledQrContainer>
+        {qrCodeURL ? <img src={qrCodeURL} alt="QR Code" /> : <CircularProgress />}
+      </StyledQrContainer>
       <ModalCancelRow
         confirmText={<TranslatedText stringId="general.action.close" fallback="Close" />}
         confirmColor="primary"

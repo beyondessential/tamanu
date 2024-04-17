@@ -13,8 +13,7 @@ export const useSocket = (props) => {
   }, [uri]);
 
   const initSocket = () => {
-    //TODO: Use config to specify a URL to connect to the Websocket
-    const serverLocation = "http://localhost:4000";
+    const serverLocation = window.location.origin;
     const newSocket = io(uri || serverLocation, otherSettings)
     setSocket(newSocket);
   };

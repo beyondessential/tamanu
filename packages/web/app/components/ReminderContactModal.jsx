@@ -108,8 +108,8 @@ export const ReminderContactModal = ({ onClose, open }) => {
   };
 
   const handleQrModalClose = () => {
-    handleActiveView(REMINDER_CONTACT_VIEWS.REMINDER_CONTACT_LIST);
     onClose();
+    handleActiveView(REMINDER_CONTACT_VIEWS.REMINDER_CONTACT_LIST);
   };
 
   return (
@@ -142,6 +142,8 @@ export const ReminderContactModal = ({ onClose, open }) => {
         {activeView === REMINDER_CONTACT_VIEWS.REMOVE_REMINDER && (
           <RemoveReminderContact
             selectedContact={selectedContact}
+            successContactIds={successContactIds}
+            pendingContacts={pendingContacts}
             onClose={onClose}
             onBack={onBack}
           />
