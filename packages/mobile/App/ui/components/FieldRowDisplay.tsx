@@ -29,8 +29,6 @@ export const FieldRowDisplay = ({ fields, customFields }: FieldRowDisplayProps):
 
             const isCustom = name.startsWith('fieldDefinition');
 
-            console.log(name)
-
             let title = name;
             if (isLocalised) {
               title = getString(`fields.${name}.longLabel`);
