@@ -2,6 +2,8 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { upperCase } from 'lodash';
 
+import { assignPermissionCheck } from '@tamanu/shared/permissions/middleware';
+
 import { NotFoundError } from '@tamanu/shared/errors';
 import { createDataImporterEndpoint } from './importerEndpoint';
 
@@ -19,7 +21,7 @@ import { assetRoutes } from './asset';
 import { translationRouter } from './translation';
 
 export const adminRoutes = express.Router();
-
+adminRoutes.use(assignPermissionCheck);
 adminRoutes.use('/reports', reportsRouter);
 adminRoutes.use('/translation', translationRouter);
 adminRoutes.post('/mergePatient', mergePatientHandler);
