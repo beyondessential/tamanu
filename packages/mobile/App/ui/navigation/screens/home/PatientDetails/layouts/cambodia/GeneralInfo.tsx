@@ -35,6 +35,7 @@ export const GeneralInfo = ({ onEdit, patient }: GeneralInfoProps): ReactElement
 
   const {
     patientAdditionalData,
+    customPatientFieldDefinitions,
     customPatientFieldValues,
     loading,
     error,
@@ -46,7 +47,7 @@ export const GeneralInfo = ({ onEdit, patient }: GeneralInfoProps): ReactElement
     ['dateOfBirth', formatStringDate(patient.dateOfBirth, DateFormats.DDMMYY)],
     ['sex', getGender(patient.sex)],
     [
-      'TODO: fathersFirstName', // TODO: need to get label from db
+      FIELD_DEFINITION_IDS.FATHERS_FIRST_NAME,
       !loading
         ? getCustomFieldValue(customPatientFieldValues, FIELD_DEFINITION_IDS.FATHERS_FIRST_NAME)
         : '',
@@ -74,7 +75,7 @@ export const GeneralInfo = ({ onEdit, patient }: GeneralInfoProps): ReactElement
       {loading ? (
         <LoadingScreen />
       ) : (
-        <FieldRowDisplay fields={[...fields, ...patientAdditionalDataFields]} />
+        <FieldRowDisplay fields={[...fields, ...patientAdditionalDataFields]} customFields={customPatientFieldDefinitions} />
       )}
     </PatientSection>
   );

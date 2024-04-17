@@ -33,6 +33,7 @@ const getCustomFieldData = (customDataValues, fieldName) => {
 export const AdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps): ReactElement => {
   const {
     customPatientFieldValues,
+    customPatientFieldDefinitions,
     patientAdditionalData,
     loading,
     error,
@@ -69,7 +70,7 @@ export const AdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps): ReactE
             onEdit={isEditable ? onEditCallback : undefined}
             isClosable
           >
-            {loading ? <LoadingScreen /> : <FieldRowDisplay fields={fields} />}
+            {loading ? <LoadingScreen /> : <FieldRowDisplay fields={fields} customFields={customPatientFieldDefinitions} />}
           </PatientSection>
         );
       })}

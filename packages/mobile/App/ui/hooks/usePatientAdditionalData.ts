@@ -7,6 +7,7 @@ import { useBackend } from '.';
 export const usePatientAdditionalData = patientId => {
   const backend = useBackend();
   const [customPatientSections, setCustomPatientSections] = useState([]);
+  const [customPatientFieldDefinitions, setCustomPatientFieldDefinitions] = useState([]);
   const [customPatientFieldValues, setCustomPatientFieldValues] = useState([]);
   const [patientAdditionalData, setPatientAdditionalData] = useState(null);
   const [error, setError] = useState(null);
@@ -49,6 +50,7 @@ export const usePatientAdditionalData = patientId => {
                 )
               )
             );
+            setCustomPatientFieldDefinitions(fieldDefinitions);
             setCustomPatientFieldValues(groupBy(fieldValues, 'definitionId'));
             setPatientAdditionalData(result);
           }
@@ -69,6 +71,7 @@ export const usePatientAdditionalData = patientId => {
 
   return {
     customPatientSections,
+    customPatientFieldDefinitions,
     customPatientFieldValues,
     patientAdditionalData,
     loading,
