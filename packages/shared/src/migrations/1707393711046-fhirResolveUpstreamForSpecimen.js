@@ -1,3 +1,4 @@
+export const NON_DETERMINISTIC = true;
 export async function up(query) {
   await query.sequelize.query(`
     CREATE OR REPLACE PROCEDURE fhir.specimen_resolve_upstream_service_request()
@@ -29,7 +30,7 @@ export async function up(query) {
               jsonb_build_object(
                 'reference', 'Practitioner/' || p.id,
                 'type', 'Practitioner',
-                'display', jsonb_extract_path_text(p.name[0], 'text')
+                'display', jsonb_extract_path_text(p.name -> 0, 'text')
               )
         )
       FROM fhir.practitioners p
