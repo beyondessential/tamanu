@@ -29,6 +29,7 @@ export interface StyledButtonProps extends ButtonContainerProps {
   fontSize?: string | number;
   textColor?: string;
   fontWeight?: StrNumType;
+  fullWidth?: boolean;
   children?: ReactNode;
 }
 
@@ -36,7 +37,6 @@ const ButtonContainer = styled(RowView)<ButtonContainerProps>`
   ${styledSystem.flexbox};
   height: ${(props): StrNumType =>
     props.height ? props.height : screenPercentageToDP(6.07, Orientation.Height)};
-  width: ${(props): StrNumType => (props.width ? props.width : '100%')};
   border-width: ${(props): any => (props.outline ? '1px' : props.borderWidth)};
   border-color: ${(props): string => props.borderColor || 'transparent'};
   border-radius: ${(props): any => {
@@ -95,6 +95,7 @@ export const Button = ({
   justifyContent = 'center',
   padding,
   disabled,
+  fullWidth = true,
   ...rest
 }: StyledButtonProps): FunctionComponentElement<{}> => (
   <StyledTouchableOpacity
@@ -108,6 +109,7 @@ export const Button = ({
   >
     <ButtonContainer
       {...rest}
+      width={rest.width ?? (fullWidth ? '100%' : undefined)}
       flex={flex}
       flexDirection={flexDirection}
       alignItems={alignItems}
