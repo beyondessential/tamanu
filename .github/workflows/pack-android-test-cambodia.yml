@@ -1,5 +1,8 @@
 name: 'Build Android app'
 
+env:
+  BRANDING: cambodia
+
 on:
   pull_request:
     # can add push and pull_request here
@@ -21,15 +24,16 @@ jobs:
       - name: Validate Gradle wrapper
         uses: gradle/wrapper-validation-action@v1
 
-      - name: Update file contents strings.xml
+      - name: Update branding app title
+        if: ${{ env.BRANDING == 'cambodia' }}
         run: |
           cd ./packages/mobile/android/app/src/main/res/values
           sed -i "s/Tamanu Mobile/KhmEIR/g" strings.xml
 
-      - name: Update mipmap
+      - name: Set branding mipmap app icons
         run: |
           cd ./packages/mobile/android/app/src/main/res
-          mv cambodia/* .
+          mv ${{env.BRANDING}}/* .
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
