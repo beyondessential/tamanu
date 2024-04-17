@@ -65,8 +65,7 @@ const checkPermission = (req, action, subject, field = '') => {
   }
 };
 
-// this middleware goes at the top of the middleware stack
-export function ensurePermissionCheck(req, res, next) {
+const assignPermissionCheckToRequest = (req, res) => {
   const originalResSend = res.send;
 
   req.checkPermission = (action, subject) => {
@@ -76,6 +75,19 @@ export function ensurePermissionCheck(req, res, next) {
   req.flagPermissionChecked = () => {
     res.send = originalResSend;
   };
+}
+
+export function assignPermissionCheck(req, res, next) {
+  assignPermissionCheckToRequest(req, res);
+
+  next();
+}
+
+// this middleware goes at the top of the middleware stack
+export function ensurePermissionCheck(req, res, next) {
+  const originalResSend = res.send;
+
+  assignPermissionCheckToRequest(req, res);
 
   res.send = () => {
     res.send = originalResSend;
