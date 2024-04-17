@@ -1,3 +1,6 @@
+/* eslint-disable no-unused-vars */
+// remove the above line
+
 import { DataTypes } from 'sequelize';
 
 export async function up(query) {

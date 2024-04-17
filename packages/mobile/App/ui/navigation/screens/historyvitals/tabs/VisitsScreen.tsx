@@ -1,38 +1,34 @@
-import React, { ReactElement, useCallback } from 'react';
+import React, { ReactElement } from 'react';
 import { compose } from 'redux';
-import { FullView, StyledSafeAreaView, StyledView } from '/styled/common';
+import { FullView, StyledSafeAreaView } from '/styled/common';
 import { PatientHistoryAccordion } from '~/ui/components/PatientHistoryAccordion';
 import { theme } from '/styled/theme';
-import { Button } from '/components/Button';
-import { FilterIcon } from '/components/Icons';
 import { NOTE_TYPES } from '~/ui/helpers/constants';
-import { screenPercentageToDP, Orientation } from '~/ui/helpers/screen';
 import { useBackendEffect } from '~/ui/hooks';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { withPatient } from '~/ui/containers/Patient';
-import { IDiagnosis } from '~/types';
+import { IDiagnosis, INote } from '~/types';
+import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 
-const DEFAULT_FIELD_VAL = 'N/A';
+const DEFAULT_FIELD_VAL = (
+  <TranslatedText stringId="general.fallback.notApplicable" fallback="N/A" uppercase />
+);
 
-const displayNotes = (notes): string => notes
-  .filter(note => note.noteType === NOTE_TYPES.CLINICAL_MOBILE)
-  .map(note => note.content)
-  .join('\n\n')
-  || DEFAULT_FIELD_VAL;
+const displayNotes = (notes: INote[]): string =>
+  notes
+    .filter(note => note.noteType === NOTE_TYPES.CLINICAL_MOBILE)
+    .map(note => note.content)
+    .join('\n\n') || DEFAULT_FIELD_VAL;
 
 const visitsHistoryRows = {
-  labRequest: {
-    name: 'Test results',
-    accessor: (): string => DEFAULT_FIELD_VAL,
-  },
   diagnoses: {
-    name: 'Diagnosis',
-    accessor: (diagnoses: IDiagnosis[]): string => diagnoses.map((d) => `${d.diagnosis?.name} (${d.certainty})`).join('\n\n')
-      || DEFAULT_FIELD_VAL,
+    name: <TranslatedText stringId="general.form.diagnosis.label" fallback="Diagnosis" />,
+    accessor: (diagnoses: IDiagnosis[]): string =>
+      diagnoses.map(d => `${d.diagnosis?.name} (${d.certainty})`).join('\n\n') || DEFAULT_FIELD_VAL,
   },
   notes: {
-    name: 'Clinical Note',
+    name: <TranslatedText stringId="note.property.type.clinicalNote" fallback="Clinical Note" />,
     accessor: displayNotes,
   },
 };

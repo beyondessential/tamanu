@@ -1,13 +1,13 @@
 import React from 'react';
-import { Routes } from '~/ui/helpers/routes';
 import { Suggester } from '~/ui/helpers/suggester';
-import { AutocompleteSourceToColumnMap } from '~/ui/helpers/constants';
 import { useFacility } from '~/ui/contexts/FacilityContext';
 import { useBackend } from '~/ui/hooks';
-import { StyledText } from '~/ui/styled/common';
-import { theme } from '~/ui/styled/theme';
 import { AutocompleteModalField } from './AutocompleteModalField';
 import { SurveyScreenConfig } from '~/types';
+import { AutocompleteSourceToColumnMap } from '~/ui/helpers/constants';
+import { theme } from '~/ui/styled/theme';
+import { StyledText } from '~/ui/styled/common';
+import { getNameColumnForModel, getDisplayNameForModel } from '~/ui/helpers/fields';
 
 const useFilterByResource = ({ source, scope }: SurveyScreenConfig): object => {
   const { facilityId } = useFacility();
@@ -38,10 +38,10 @@ export const SurveyQuestionAutocomplete = (props): JSX.Element => {
     models[source],
     {
       where: { ...where, ...filter },
-      column: columnName,
+      column: getNameColumnForModel(source),
     },
     val => ({
-      label: val[columnName],
+      label: getDisplayNameForModel(source, val),
       value: val.id,
     }),
   );

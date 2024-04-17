@@ -1,10 +1,10 @@
 import { MobileSyncManager } from './MobileSyncManager';
 import { CentralServerConnection } from './CentralServerConnection';
 import {
-  getSyncTick,
   getModelsForDirection,
-  snapshotOutgoingChanges,
+  getSyncTick,
   pushOutgoingChanges,
+  snapshotOutgoingChanges,
 } from './utils';
 
 jest.mock('./utils', () => ({
@@ -123,8 +123,6 @@ describe('MobileSyncManager', () => {
         );
       jest.spyOn(centralServerConnection, 'endSyncSession').mockImplementationOnce(jest.fn());
 
-      getSyncTick.mockReturnValueOnce(new Promise(resolve => resolve(1)));
-
       await mobileSyncManager.runSync();
 
       expect(mobileSyncManager.syncOutgoingChanges).toBeCalledTimes(1);
@@ -156,7 +154,7 @@ describe('MobileSyncManager', () => {
       const since = 2;
       const currentSyncTick = 3;
       getModelsForDirection.mockReturnValueOnce(modelsToPush);
-      getSyncTick.mockReturnValueOnce(since);
+      getSyncTick.mockReturnValue(since);
       snapshotOutgoingChanges.mockReturnValueOnce(new Promise(resolve => resolve([])));
 
       await mobileSyncManager.syncOutgoingChanges(currentSyncTick, since);

@@ -1,7 +1,8 @@
 import React, { FC } from 'react';
-import { screenPercentageToDP, Orientation } from '../../../../../../helpers/screen';
-import { RowView, FullView, StyledText } from '../../../../../../styled/common';
+import { Orientation, screenPercentageToDP } from '../../../../../../helpers/screen';
+import { FullView, RowView, StyledText } from '../../../../../../styled/common';
 import { theme } from '../../../../../../styled/theme';
+import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 
 export type SummaryInfo = {
   encounterDate: string;
@@ -31,7 +32,10 @@ export const SummaryBoard: FC<Props> = ({ todayData }) => (
         color={theme.colors.TEXT_MID}
         fontSize={screenPercentageToDP(1.7, Orientation.Height)}
       >
-        People attended today
+        <TranslatedText
+          stringId="report.summary.poepleAttended.text"
+          fallback="People attended today"
+        />
       </StyledText>
     </FullView>
     <FullView justifyContent="center" alignItems="center">
@@ -46,7 +50,10 @@ export const SummaryBoard: FC<Props> = ({ todayData }) => (
         color={theme.colors.TEXT_MID}
         fontSize={screenPercentageToDP(1.7, Orientation.Height)}
       >
-        Screenings completed today
+        <TranslatedText
+          stringId="report.summary.screeningsCompleted.text"
+          fallback="Screenings completed today"
+        />
       </StyledText>
     </FullView>
   </RowView>

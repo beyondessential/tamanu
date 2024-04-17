@@ -5,16 +5,18 @@ import { TextField } from '../../TextField/TextField';
 import { Dropdown } from '~/ui/components/Dropdown';
 import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 import { LocalisedField } from '~/ui/components/Forms/LocalisedField';
+import { Field } from '~/ui/components/Forms/FormField';
 import { AutocompleteModalField } from '~/ui/components/AutocompleteModal/AutocompleteModalField';
+import { PatientFieldDefinitionComponents } from '~/ui/helpers/fieldComponents';
 import { useBackend } from '~/ui/hooks';
 
 import {
+  getSuggester,
   plainFields,
-  selectFields,
-  selectFieldsOptions,
   relationIdFields,
   relationIdFieldsProperties,
-  getSuggester,
+  selectFields,
+  selectFieldsOptions,
 } from './helpers';
 import { getConfiguredPatientAdditionalDataFields } from '~/ui/helpers/patient';
 
@@ -70,16 +72,29 @@ function getComponentForField(fieldName: string): React.FC<{ fieldName: string }
   throw new Error(`Unexpected field ${fieldName} for patient additional data.`);
 }
 
-export const PatientAdditionalDataFields = ({ fields, showMandatory = true }): ReactElement => {
+const getCustomFieldComponent = ({ id, name, options, fieldType }) => {
+  return (
+    <Field
+      name={id}
+      label={name}
+      component={PatientFieldDefinitionComponents[fieldType]}
+      options={options?.split(',')?.map(option => ({ label: option, value: option }))}
+    />
+  );
+};
+
+export const PatientAdditionalDataFields = ({
+  fields,
+  isCustomFields,
+  showMandatory = true,
+}): ReactElement => {
   const { getBool } = useLocalisation();
 
-  const nonRequiredPADFields = getConfiguredPatientAdditionalDataFields(
-    fields,
-    showMandatory,
-    getBool,
-  );
+  if (isCustomFields) return fields.map(getCustomFieldComponent);
 
-  return nonRequiredPADFields.map(fieldName => {
+  const padFields = getConfiguredPatientAdditionalDataFields(fields, showMandatory, getBool);
+
+  return padFields.map(fieldName => {
     const Component = getComponentForField(fieldName);
     return <Component fieldName={fieldName} key={fieldName} required={showMandatory} />;
   });

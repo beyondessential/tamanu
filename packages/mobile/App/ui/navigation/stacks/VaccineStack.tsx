@@ -1,26 +1,23 @@
 import React, { ReactElement, useCallback } from 'react';
 import { compose } from 'redux';
-import {
-  TransitionPresets,
-  createStackNavigator,
-  StackHeaderProps,
-} from '@react-navigation/stack';
+import { createStackNavigator, StackHeaderProps, TransitionPresets } from '@react-navigation/stack';
 import { VaccineTableTabs } from './VaccineTableTabs';
 import { NewVaccineTabs } from './NewVaccineTabs';
 import {
-  StyledText,
   CenterView,
-  StyledTouchableOpacity,
   RowView,
   StyledSafeAreaView,
+  StyledText,
+  StyledTouchableOpacity,
 } from '/styled/common';
 import { theme } from '/styled/theme';
 import { ArrowLeftIcon } from '/components/Icons';
 import { Routes } from '/helpers/routes';
 import { VaccineModalScreen } from '../screens/vaccine/VaccineModalScreen';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { withPatient } from '~/ui/containers/Patient';
 import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
+import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 
 const Stack = createStackNavigator();
 
@@ -36,12 +33,12 @@ const HeaderTitleComponent = ({ selectedPatient }): ReactElement => (
       color={theme.colors.WHITE}
       fontSize={screenPercentageToDP(1.94, Orientation.Height)}
     >
-      Vaccine
+      <TranslatedText stringId="patient.vaccine.title" fallback="Vaccine" />
     </StyledText>
   </CenterView>
 );
 
-const HeaderTitle = compose(withPatient)(HeaderTitleComponent)
+const HeaderTitle = compose(withPatient)(HeaderTitleComponent);
 
 const Header = ({ navigation }: StackHeaderProps): ReactElement => {
   const goBack = useCallback(() => {
@@ -58,9 +55,7 @@ const Header = ({ navigation }: StackHeaderProps): ReactElement => {
           padding={screenPercentageToDP(2.43, Orientation.Height)}
           onPress={goBack}
         >
-          <ArrowLeftIcon
-            size={screenPercentageToDP(2.43, Orientation.Height)}
-          />
+          <ArrowLeftIcon size={screenPercentageToDP(2.43, Orientation.Height)} />
         </StyledTouchableOpacity>
         <HeaderTitle />
       </RowView>

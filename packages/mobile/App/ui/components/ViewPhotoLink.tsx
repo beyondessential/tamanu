@@ -1,14 +1,14 @@
 import React, { useCallback, useState } from 'react';
-import { Dimensions, View, Alert, TouchableOpacity } from 'react-native';
+import { Alert, Dimensions, TouchableOpacity, View } from 'react-native';
 import { useNetInfo } from '@react-native-community/netinfo';
 import CameraRoll from '@react-native-community/cameraroll';
 import Modal from 'react-native-modal';
 import FlashMessage, { showMessage } from 'react-native-flash-message';
 import { useBackend } from '~/ui/hooks';
 import { theme } from '/styled/theme';
-import { StyledView, StyledText, StyledImage } from '/styled/common';
+import { StyledImage, StyledText, StyledView } from '/styled/common';
 import { imageToBase64URI } from '/helpers/image';
-import { saveFileInDocuments, deleteFileInDocuments } from '/helpers/file';
+import { deleteFileInDocuments, saveFileInDocuments } from '/helpers/file';
 import { BaseInputProps } from '../interfaces/BaseInputProps';
 
 export interface ViewPhotoLinkProps extends BaseInputProps {
@@ -19,7 +19,7 @@ const MODAL_HEIGHT = Dimensions.get('window').width * 0.6;
 
 const Message = ({ color, message }): JSX.Element => (
   <StyledView background="white" justifyContent="center" height={MODAL_HEIGHT}>
-    <StyledText margin="0 auto" color={color} fontSize={15}>
+    <StyledText marginTop={0} marginBottom={0} marginLeft="auto" marginRight="auto" color={color} fontSize={15}>
       {message}
     </StyledText>
   </StyledView>

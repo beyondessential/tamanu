@@ -61,7 +61,7 @@ export class EncounterHistory extends BaseModel {
   @Column({ type: 'varchar' })
   changeType: EncounterChangeType;
 
-  static async createSnapshot(encounter) {
+  static async createSnapshot(encounter, { date }) {
     return EncounterHistory.createAndSaveOne({
       encounter: encounter.id,
       encounterType: encounter.encounterType,
@@ -69,7 +69,7 @@ export class EncounterHistory extends BaseModel {
       department: encounter.department,
       examiner: encounter.examiner,
       actor: encounter.examiner,
-      date: getCurrentDateTimeString(),
+      date: date || getCurrentDateTimeString(),
     });
   }
 

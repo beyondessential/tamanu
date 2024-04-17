@@ -7,6 +7,7 @@ import { PatientSection } from './PatientSection';
 import { useBackend } from '~/ui/hooks';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
+import { TranslatedText } from '/components/Translations/TranslatedText';
 
 interface PatientIssuesProps {
   onEdit: () => void;
@@ -64,7 +65,15 @@ export const PatientIssues = ({ onEdit, patientId }: PatientIssuesProps): ReactE
   }
   return (
     <StyledView marginBottom={40}>
-      <PatientSection title="Other patient issues" onEdit={onEdit}>
+      <PatientSection
+        title={
+          <TranslatedText
+            stringId="patient.detailsSidebar.subheading.otherPatientIssues"
+            fallback="Other patient issues"
+          />
+        }
+        onEdit={onEdit}
+      >
         {patientIssuesContent}
       </PatientSection>
     </StyledView>

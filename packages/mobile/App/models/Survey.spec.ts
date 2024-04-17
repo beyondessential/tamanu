@@ -7,7 +7,9 @@ beforeAll(async () => {
 describe('Survey', () => {
   describe('getVitalsSurvey', () => {
     it("returns null if there's no vitals survey", async () => {
-      await expect(Database.models.Survey.getVitalsSurvey()).resolves.toEqual(null);
+      await expect(
+        Database.models.Survey.getVitalsSurvey({ includeAllVitals: true }),
+      ).resolves.toEqual(null);
     });
   });
 });

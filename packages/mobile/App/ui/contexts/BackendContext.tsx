@@ -1,4 +1,4 @@
-import React, { useState, useEffect, ReactElement } from 'react';
+import React, { ReactElement, useEffect, useState } from 'react';
 import RnBgTask from 'react-native-bg-thread';
 import { BackendManager } from '../../services/BackendManager';
 

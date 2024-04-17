@@ -1,7 +1,7 @@
 import React from 'react';
 import { theme } from '/styled/theme';
 import * as Icons from '../Icons';
-import { StyledView, RowView, StyledTouchableOpacity, StyledText } from '/styled/common';
+import { RowView, StyledText, StyledTouchableOpacity, StyledView } from '/styled/common';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { VaccineStatus } from '~/ui/helpers/patient';
 

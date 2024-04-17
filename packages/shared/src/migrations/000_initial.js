@@ -83,7 +83,7 @@ const models = [
   'syncMetadata',
   'note',
 ].map(k => {
-  // eslint-disable-next-line global-require, import/no-dynamic-require
+  // eslint-disable-next-line global-require
   const module = require(`./000_initial/${k}`);
   const { fields, options } = module({ Sequelize, foreignKey });
   return {

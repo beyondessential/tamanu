@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useSelector } from 'react-redux';
 import { ReduxStoreProps } from '/interfaces/ReduxStoreProps';
 import { PatientStateProps } from '/store/ducks/patient';
 import { useBackend, useBackendEffect } from '~/ui/hooks';
 import { ErrorScreen } from '/components/ErrorScreen';
+import { FullView, StyledText } from '~/ui/styled/common';
+import { theme } from '/styled/theme';
 import { LoadingScreen } from '/components/LoadingScreen';
 import { authUserSelector } from '/helpers/selectors';
 import { SurveyTypes } from '~/types';
@@ -28,19 +30,19 @@ interface VitalsFormProps {
 export const VitalsForm: React.FC<VitalsFormProps> = ({ onAfterSubmit }) => {
   const { models } = useBackend();
   const user = useSelector(authUserSelector);
-  const [note, setNote] = useState('');
   const { currentScreenIndex, setCurrentScreenIndex } = useCurrentScreen();
 
   const { selectedPatient } = useSelector(
     (state: ReduxStoreProps): PatientStateProps => state.patient,
   );
-  const [vitalsSurvey, vitalsError, isVitalsLoading] = useBackendEffect(
-    ({ models: m }) => m.Survey.getVitalsSurvey(),
+  const [vitalsSurvey, vitalsError, isVitalsLoading] = useBackendEffect(({ models: m }) =>
+    m.Survey.getVitalsSurvey({ includeAllVitals: false }),
   );
   const [patientAdditionalData, padError, isPadLoading] = useBackendEffect(
-    ({ models: m }) => m.PatientAdditionalData.getRepository().findOne({
-      patient: selectedPatient.id,
-    }),
+    ({ models: m }) =>
+      m.PatientAdditionalData.getRepository().findOne({
+        patient: selectedPatient.id,
+      }),
     [selectedPatient.id],
   );
 
@@ -51,6 +53,16 @@ export const VitalsForm: React.FC<VitalsFormProps> = ({ onAfterSubmit }) => {
   }
   if (isLoading) {
     return <LoadingScreen />;
+  }
+  if (!vitalsSurvey) {
+    return (
+      <FullView>
+        <StyledText fontWeight="bold">Error:</StyledText>
+        <StyledText paddingLeft="12px" color={theme.colors.ALERT}>
+          Vitals survey could not be found
+        </StyledText>
+      </FullView>
+    );
   }
 
   const { id, name, components, dateComponent } = vitalsSurvey;
@@ -63,10 +75,9 @@ export const VitalsForm: React.FC<VitalsFormProps> = ({ onAfterSubmit }) => {
         surveyId: id,
         components,
         surveyType: SurveyTypes.Vitals,
-        encounterReason: `Survey response for ${name}`,
+        encounterReason: `Form response for ${name}`,
       },
       { ...values, [dateComponent.dataElement.code]: getCurrentDateTimeString() },
-      setNote,
     );
 
     if (responseRecord) {
@@ -83,7 +94,6 @@ export const VitalsForm: React.FC<VitalsFormProps> = ({ onAfterSubmit }) => {
     <SurveyForm
       patient={selectedPatient}
       patientAdditionalData={patientAdditionalData}
-      note={note}
       components={visibleComponents}
       onSubmit={onSubmit}
       validate={validate}

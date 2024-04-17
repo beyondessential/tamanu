@@ -1,13 +1,14 @@
-import React, { memo, useMemo, ReactElement } from 'react';
+import React, { memo, ReactElement, useMemo } from 'react';
 import { StyleSheet } from 'react-native';
 import { BarChart, YAxis } from 'react-native-svg-charts';
 import { G, Line } from 'react-native-svg';
 import { format, parseISO } from 'date-fns';
 import { DateFormats } from '../../helpers/constants';
 import { Orientation, screenPercentageToDP } from '../../helpers/screen';
-import { StyledView, StyledText, RowView } from '../../styled/common';
+import { RowView, StyledText, StyledView } from '../../styled/common';
 import { theme } from '../../styled/theme';
 import { BarChartData } from '../../interfaces/BarChartProps';
+import { TranslatedText } from '../Translations/TranslatedText';
 
 interface CustomGridProps {
   x: (value: number) => number;
@@ -16,19 +17,20 @@ interface CustomGridProps {
 
 const CustomGrid = ({ x, data }: CustomGridProps): ReactElement => (
   <G>
-    {data
-      && data.map(
-        (_, index: number) => index % 7 === 0 && (
-          <Line
-            strokeDasharray="4, 4"
-            key={data[index].date.toString()}
-            y1="0%"
-            y2="100%"
-            x1={x && x(index) - 2}
-            x2={x && x(index) - 2}
-            stroke={theme.colors.TEXT_DARK}
-          />
-        ),
+    {data &&
+      data.map(
+        (_, index: number) =>
+          index % 7 === 0 && (
+            <Line
+              strokeDasharray="4, 4"
+              key={data[index].date.toString()}
+              y1="0%"
+              y2="100%"
+              x1={x && x(index) - 2}
+              x2={x && x(index) - 2}
+              stroke={theme.colors.TEXT_DARK}
+            />
+          ),
       )}
   </G>
 );
@@ -58,11 +60,12 @@ interface DateRangeLabelsProps {
 
 const DateRangeLabels = memo(({ data }: DateRangeLabelsProps) => {
   const dateIntervalArray = useMemo(
-    () => DateRangeIndexes.map((dateRange, index) => ({
-      start: data[dateRange.startDate].date,
-      end: data[dateRange.endDate].date,
-      key: index,
-    })),
+    () =>
+      DateRangeIndexes.map((dateRange, index) => ({
+        start: data[dateRange.startDate].date,
+        end: data[dateRange.endDate].date,
+        key: index,
+      })),
     [data],
   );
 
@@ -76,7 +79,7 @@ const DateRangeLabels = memo(({ data }: DateRangeLabelsProps) => {
       justifyContent="space-around"
       bottom="-15%"
     >
-      {dateIntervalArray.map((dateInterval) => (
+      {dateIntervalArray.map(dateInterval => (
         <StyledText
           color={theme.colors.TEXT_DARK}
           key={dateInterval.key}
@@ -123,9 +126,10 @@ export const VisitChart = ({ visitData }: BarChartProps): JSX.Element => {
   const lastData = visitData.data[visitData.data.length - 1];
   const firstData = visitData.data[0];
 
-  const oneMonthAgoFormatted = parseISO(lastData.date).getFullYear() === parseISO(firstData.date).getFullYear()
-    ? format(parseISO(firstData.date), DateFormats.DAY_MONTH)
-    : format(parseISO(firstData.date), DateFormats.DAY_MONTH_YEAR_SHORT);
+  const oneMonthAgoFormatted =
+    parseISO(lastData.date).getFullYear() === parseISO(firstData.date).getFullYear()
+      ? format(parseISO(firstData.date), DateFormats.DAY_MONTH)
+      : format(parseISO(firstData.date), DateFormats.DAY_MONTH_YEAR_SHORT);
   const todayFormatted = format(parseISO(lastData.date), DateFormats.DAY_MONTH_YEAR_SHORT);
 
   const { max, min } = visitData.data.reduce(
@@ -152,7 +156,7 @@ export const VisitChart = ({ visitData }: BarChartProps): JSX.Element => {
             color={theme.colors.TEXT_MID}
             fontSize={screenPercentageToDP(1.45, Orientation.Height)}
           >
-            TOTAL
+            <TranslatedText stringId="report.subHeading.total" fallback="TOTAL" uppercase />
           </StyledText>
 
           <StyledText
@@ -166,7 +170,7 @@ export const VisitChart = ({ visitData }: BarChartProps): JSX.Element => {
               color={theme.colors.TEXT_MID}
             >
               {' '}
-              Visits
+              <TranslatedText stringId="report.totalVisits.text" fallback="Visits" />
             </StyledText>
           </StyledText>
         </StyledView>

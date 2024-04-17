@@ -19,8 +19,9 @@ export class User extends Model {
   }
 
   forResponse() {
-    const { password, ...otherValues } = this.dataValues;
-    return otherValues;
+    const values = Object.assign({}, this.dataValues);
+    delete values.password;
+    return values;
   }
 
   async setPassword(pw) {
@@ -52,6 +53,26 @@ export class User extends Model {
   static async upsert(values, ...args) {
     const sanitizedValues = await this.sanitizeForInsert(values);
     return super.upsert(sanitizedValues, ...args);
+  }
+
+  static async getForAuthByEmail(email) {
+    // gets the user, as a plain object, with password hash, for use in auth
+    const user = await this.scope('withPassword').findOne({
+      where: {
+        // email addresses are case insensitive so compare them as such
+        email: Sequelize.where(
+          Sequelize.fn('lower', Sequelize.col('email')),
+          Sequelize.fn('lower', email),
+        ),
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+      },
+    });
+
+    if (!user) {
+      return null;
+    }
+
+    return user.get({ plain: true });
   }
 
   static init({ primaryKey, ...options }) {
@@ -94,7 +115,7 @@ export class User extends Model {
         hooks: {
           async beforeUpdate(user) {
             if (user.changed('password')) {
-              // eslint-disable-next-line no-param-reassign
+              // eslint-disable-next-line require-atomic-updates
               user.password = await User.hashPassword(user.password);
             }
           },
@@ -111,6 +132,18 @@ export class User extends Model {
 
     this.hasMany(models.ImagingRequest, {
       foreignKey: 'completedById',
+    });
+
+    this.hasMany(models.PatientProgramRegistration, {
+      foreignKey: 'clinicianId',
+    });
+
+    this.hasMany(models.PatientProgramRegistrationCondition, {
+      foreignKey: 'clinicianId',
+    });
+
+    this.hasMany(models.PatientProgramRegistrationCondition, {
+      foreignKey: 'deletionClinicianId',
     });
 
     this.hasMany(models.UserPreference, {

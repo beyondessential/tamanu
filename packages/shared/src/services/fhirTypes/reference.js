@@ -1,7 +1,6 @@
 import * as yup from 'yup';
 
 import { FhirBaseType } from './baseType';
-// eslint-disable-next-line import/no-cycle
 import { FhirIdentifier } from './identifier';
 
 export class FhirReference extends FhirBaseType {

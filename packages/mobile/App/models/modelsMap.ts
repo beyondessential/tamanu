@@ -1,12 +1,21 @@
+import { TranslatedString } from './TranslatedString';
 import { ReferenceData } from './ReferenceData';
 import { Patient } from './Patient';
 import { PatientAdditionalData } from './PatientAdditionalData';
+import { PatientFieldValue } from './PatientFieldValue';
+import { PatientFieldDefinition } from './PatientFieldDefinition';
+import { PatientFieldDefinitionCategory } from './PatientFieldDefinitionCategory';
 import { PatientIssue } from './PatientIssue';
 import { PatientSecondaryId } from './PatientSecondaryId';
 import { User } from './User';
 import { Encounter } from './Encounter';
 import { EncounterHistory } from './EncounterHistory';
 import { Program } from './Program';
+import { ProgramRegistry } from './ProgramRegistry';
+import { ProgramRegistryCondition } from './ProgramRegistryCondition';
+import { PatientProgramRegistration } from './PatientProgramRegistration';
+import { PatientProgramRegistrationCondition } from './PatientProgramRegistrationCondition';
+import { ProgramRegistryClinicalStatus } from './ProgramRegistryClinicalStatus';
 import { ProgramDataElement } from './ProgramDataElement';
 import { Survey } from './Survey';
 import { SurveyScreenComponent } from './SurveyScreenComponent';
@@ -39,14 +48,23 @@ import { VitalLog } from './VitalLog';
 
 export const MODELS_MAP = {
   ReferenceData,
+  TranslatedString,
   Patient,
   PatientAdditionalData,
+  PatientFieldDefinitionCategory,
+  PatientFieldDefinition,
+  PatientFieldValue,
   PatientIssue,
   PatientSecondaryId,
   User,
   Encounter,
   EncounterHistory,
   Program,
+  ProgramRegistry,
+  ProgramRegistryCondition,
+  PatientProgramRegistration,
+  PatientProgramRegistrationCondition,
+  ProgramRegistryClinicalStatus,
   ProgramDataElement,
   Survey,
   SurveyScreenComponent,

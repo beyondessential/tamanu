@@ -1,27 +1,20 @@
 import React, { useCallback } from 'react';
 import { StyleProp, ViewStyle } from 'react-native';
 import {
-  useNavigationBuilder,
   createNavigatorFactory,
+  DefaultNavigatorOptions,
   TabRouter,
   TabRouterOptions,
-  DefaultNavigatorOptions,
+  useNavigationBuilder,
 } from '@react-navigation/native';
 import { MaterialTopTabView } from '@react-navigation/material-top-tabs';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-/*eslint-disable import/no-unresolved */
 import {
-  MaterialTopTabNavigationConfig,
   MaterialTopTabBarOptions,
+  MaterialTopTabNavigationConfig,
 } from '@react-navigation/material-top-tabs/lib/typescript/src/types';
-/*eslint-enable import/no-unresolved */
 import { compose } from 'redux';
-import {
-  StyledSafeAreaView,
-  RowView,
-  StyledView,
-  FullView,
-} from '/styled/common';
+import { FullView, RowView, StyledSafeAreaView, StyledView } from '/styled/common';
 import { ArrowLeftIcon } from '/components/Icons';
 import { SearchInput } from '/components/SearchInput';
 import { Field } from '/components/Forms/FormField';
@@ -30,7 +23,8 @@ import { Routes } from '/helpers/routes';
 import { theme } from '/styled/theme';
 import { withPatient } from '/containers/Patient';
 import { WithPatientStoreProps } from '/store/ducks/patient';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { useTranslation } from '~/ui/contexts/TranslationContext';
 
 type TabNavigationConfig = {
   tabBarStyle: StyleProp<ViewStyle>;
@@ -66,6 +60,8 @@ function BottomTabNavigator({
     navigation.navigate(Routes.HomeStack.HomeTabs.Home);
   }, []);
 
+  const { getTranslation } = useTranslation();
+
   return (
     <FullView>
       <FullView>
@@ -78,12 +74,7 @@ function BottomTabNavigator({
             paddingRight={20}
           >
             <TouchableOpacity onPress={onNavigateToHome}>
-              <StyledView
-                paddingLeft={20}
-                paddingTop={20}
-                paddingBottom={20}
-                paddingRight={20}
-              >
+              <StyledView paddingLeft={20} paddingTop={20} paddingBottom={20} paddingRight={20}>
                 <ArrowLeftIcon
                   height={screenPercentageToDP(2.43, Orientation.Height)}
                   width={screenPercentageToDP(2.43, Orientation.Height)}
@@ -94,7 +85,7 @@ function BottomTabNavigator({
               <Field
                 component={SearchInput}
                 name="search"
-                placeholder="Search for patients"
+                placeholder={getTranslation('patient.search.placeholder', 'Search for patients')}
               />
             </StyledView>
           </RowView>
