@@ -55,7 +55,7 @@ export const AdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps): ReactE
     const title = fields[0].category.name;
     const onEditCallback = (): void => onEdit(null, title, true, fields, customPatientFieldValues);
     const mappedFields = fields.map(field => ([field.name, customPatientFieldValues[field.id]?.[0]?.value]));
-    return { title, fields: mappedFields, onEditCallback, isCustomFields: true };
+    return { title, fields: mappedFields, onEditCallback };
   });
 
   const sections = [
@@ -65,14 +65,14 @@ export const AdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps): ReactE
 
   return (
     <>
-      {sections.map(({ title, fields, onEditCallback, isCustomFields }) => (
+      {sections.map(({ title, fields, onEditCallback }) => (
         <PatientSection
           key={title}
           title={title}
           onEdit={isEditable ? onEditCallback : undefined}
           isClosable
         >
-          {loading ? <LoadingScreen /> : <FieldRowDisplay fields={fields} isCustomFields={isCustomFields} />}
+          {loading ? <LoadingScreen /> : <FieldRowDisplay fields={fields} />}
         </PatientSection>
       ))}
     </>

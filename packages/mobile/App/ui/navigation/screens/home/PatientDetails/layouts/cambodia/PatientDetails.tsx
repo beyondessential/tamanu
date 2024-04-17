@@ -17,18 +17,13 @@ export const PatientDetails = ({ patient, navigation }): ReactElement => {
     (
       additionalData,
       sectionTitle,
-      isCustomFields,
-      customSectionFields,
       customPatientFieldValues,
     ) => {
       navigation.navigate(Routes.HomeStack.PatientDetailsStack.Cambodia.EditPatientAdditionalData, {
-        patientId: patient.id,
         patientName: joinNames(patient),
         patient,
         additionalDataJSON: JSON.stringify(additionalData),
         sectionTitle,
-        isCustomFields,
-        customSectionFields,
         customPatientFieldValues,
       });
     },

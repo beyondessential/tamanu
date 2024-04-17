@@ -10,11 +10,9 @@ import { additionalDataSections } from '~/ui/helpers/additionalData';
 
 export const EditPatientAdditionalDataScreen = ({ navigation, route }): ReactElement => {
   const {
-    patientId,
     patientName,
     additionalDataJSON,
     sectionTitle,
-    isCustomFields,
     customSectionFields,
     customPatientFieldValues,
   } = route.params;
@@ -41,12 +39,10 @@ export const EditPatientAdditionalDataScreen = ({ navigation, route }): ReactEle
       />
       <PatientSectionHeader name={sectionTitle} />
       <PatientAdditionalDataForm
-        patientId={patientId}
         additionalData={additionalData}
         additionalDataSections={additionalDataSections}
         navigation={navigation}
         sectionTitle={sectionTitle}
-        isCustomFields={isCustomFields}
         customSectionFields={customSectionFields}
         customPatientFieldValues={customPatientFieldValues}
       />
