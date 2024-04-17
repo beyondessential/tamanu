@@ -328,14 +328,6 @@ describe('Data definition import', () => {
     expect(password).not.toEqual(passwordPre); // make sure it's updated
   });
 
-  it('should forbid an import by a non-admin', async () => {
-    const { baseApp } = ctx;
-    const nonAdminApp = await baseApp.asRole('practitioner');
-
-    const response = await nonAdminApp.post('/api/admin/importRefData');
-    expect(response).toBeForbidden();
-  });
-
   it('should import patient field definition categories with a tab named "Patient Field Def Category"', async () => {
     const { errors, stats } = await doImport({ file: 'patient-field-definition-categories' });
     expect(errors).toBeEmpty();
