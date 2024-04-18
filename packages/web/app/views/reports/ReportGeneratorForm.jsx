@@ -244,7 +244,6 @@ export const ReportGeneratorForm = () => {
   };
 
   const resetDownload = () => {
-    console.log('reset');
     setRequestError(null);
     setSuccessMessage(null);
     setDownloadedReport(null);
