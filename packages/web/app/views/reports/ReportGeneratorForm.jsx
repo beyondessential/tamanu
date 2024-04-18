@@ -125,7 +125,7 @@ export const ReportGeneratorForm = () => {
   const [selectedReportId, setSelectedReportId] = useState(null);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [downloadedReport, setDownloadedReport] = useState(null);
+  const [dataReadyForSaving, setDataReadyForSaving] = useState(null);
 
   const reportsById = useMemo(() => keyBy(availableReports, 'id'), [availableReports]);
   const reportOptions = useMemo(
@@ -207,7 +207,7 @@ export const ReportGeneratorForm = () => {
           ['Filters:', filterString],
         ];
 
-        setDownloadedReport(
+        setDataReadyForSaving(
           prepareExcelFile({
             data: excelData,
             metadata,
@@ -246,12 +246,12 @@ export const ReportGeneratorForm = () => {
   const resetDownload = () => {
     setRequestError(null);
     setSuccessMessage(null);
-    setDownloadedReport(null);
+    setDataReadyForSaving(null);
   };
 
   const onDownload = async () => {
     try {
-      await saveFile(downloadedReport);
+      await saveFile(dataReadyForSaving);
       resetDownload();
       setSuccessMessage(
         <TranslatedText
@@ -425,11 +425,11 @@ export const ReportGeneratorForm = () => {
             </Alert>
           )}
           <Box display="flex" justifyContent="flex-end" gridGap="1em">
-            {downloadedReport ? (
+            {dataReadyForSaving ? (
               <Button onClick={onDownload} startIcon={<GetAppIcon />}>
                 <TranslatedText stringId="report.generate.action.download" fallback="Download" /> (
                 {(
-                  (downloadedReport.data.byteLength ?? downloadedReport.data.length) / 1024
+                  (dataReadyForSaving.data.byteLength ?? dataReadyForSaving.data.length) / 1024
                 ).toFixed(0)}{' '}
                 KB)
               </Button>
