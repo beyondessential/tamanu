@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { keyBy, orderBy } from 'lodash';
 import { format } from 'date-fns';
-import { Box, CircularProgress, Typography } from '@material-ui/core';
+import { Box, Typography } from '@material-ui/core';
 import { Alert, AlertTitle } from '@material-ui/lab';
 import GetAppIcon from '@material-ui/icons/GetApp';
 import styled from 'styled-components';
@@ -124,7 +124,6 @@ export const ReportGeneratorForm = () => {
   const [dataSource, setDataSource] = useState(REPORT_DATA_SOURCES.THIS_FACILITY);
   const [selectedReportId, setSelectedReportId] = useState(null);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
-  const [isGenerating, setIsGenerating] = useState(false);
   const [dataReadyForSaving, setDataReadyForSaving] = useState(null);
 
   const reportsById = useMemo(() => keyBy(availableReports, 'id'), [availableReports]);
@@ -186,7 +185,6 @@ export const ReportGeneratorForm = () => {
     );
 
     try {
-      setIsGenerating(true);
       if (dataSource === REPORT_DATA_SOURCES.THIS_FACILITY) {
         const excelData = await api.post(`reports/${reportId}`, {
           parameters: updatedFilters,
@@ -215,7 +213,6 @@ export const ReportGeneratorForm = () => {
             bookType,
           }),
         );
-        setIsGenerating(false);
       } else {
         await api.post(`reportRequest`, {
           reportId,
@@ -229,7 +226,6 @@ export const ReportGeneratorForm = () => {
             fallback="Report successfully requested. You will receive an email soon."
           />,
         );
-        setIsGenerating(false);
       }
     } catch (e) {
       setRequestError(
@@ -239,7 +235,6 @@ export const ReportGeneratorForm = () => {
           replacements={{ errorMessage: e.message }}
         />,
       );
-      setIsGenerating(false);
     }
   };
 
@@ -433,8 +428,6 @@ export const ReportGeneratorForm = () => {
                 ).toFixed(0)}{' '}
                 KB)
               </Button>
-            ) : isGenerating ? (
-              <CircularProgress />
             ) : (
               <FormSubmitDropdownButton
                 size="large"
