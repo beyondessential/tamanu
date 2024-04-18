@@ -81,7 +81,7 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
           defaultFileName: document.name,
           data: base64ToUint8Array(data),
           extensions: [fileExtension],
-        });
+        })
 
         notifySuccess('Successfully downloaded file');
       } catch (error) {
