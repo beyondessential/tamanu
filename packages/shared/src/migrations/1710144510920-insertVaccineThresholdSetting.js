@@ -3,7 +3,7 @@ import config from 'config';
 import { Op } from 'sequelize';
 
 const DEFAULT_SETTINGS = {
-  'routineVaccine.thresholds': JSON.stringify([
+  'vaccine.thresholds': JSON.stringify([
     {
       threshold: 28,
       status: 'SCHEDULED',
@@ -25,7 +25,7 @@ const DEFAULT_SETTINGS = {
       status: 'MISSED',
     },
   ]),
-  'routineVaccine.ageLimit': '15',
+  'vaccine.ageLimit': '15',
 };
 
 /**
@@ -48,7 +48,7 @@ export async function up(query) {
 export async function down(query) {
   await query.bulkDelete('settings', {
     key: {
-      [Op.in]: Object.entries(DEFAULT_SETTINGS).map(([key]) => key),
+      [Op.in]: Object.keys(DEFAULT_SETTINGS),
     },
   });
 }
