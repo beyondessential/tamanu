@@ -49,19 +49,17 @@ jobs:
 
       - name: Update branding app title
         if: ${{ env.BRANDING == 'cambodia' }}
-        run: |
-          cd ./packages/mobile/android/app/src/main/res/values
-          sed -i "s/Tamanu Mobile/KhmEIR/g" strings.xml
+        working-directory: packages/mobile/android/app/src/main/res/values
+        run: sed -i "s/Tamanu Mobile/KhmEIR/g" strings.xml
 
       - name: Set branding mipmap app icons
-        run: |
-          cd ./packages/mobile/android/app/src/main/res
-          mv ${{env.BRANDING}}/* .
+        working-directory: packages/mobile/android/app/src/main/res
+        run: mv ${{env.BRANDING}}/* .
 
-      - name: Set server ovveride
+      - name: Set server overrides
         if: ${{ inputs.server }}
+        working-directory: packages/mobile
         run: |
-          cd ./packages/mobile/
           echo \{\"centralServers\":[\{\"value\":\"${{inputs.server}}\", \"label\": \"Central Server\"\}]\} > serverOverrides.json
 
       - name: Set up Node.js
@@ -71,15 +69,14 @@ jobs:
           cache: yarn
 
       - name: Run Yarn Install
+        working-directory: packages/mobile
         run: |
-          cd ./packages/mobile/
           npm i -g corepack
           yarn install
 
       - name: Build application
-        run: |
-          cd ./packages/mobile/android
-          ./gradlew assembleDebug
+        working-directory: packages/mobile/android
+        run: ./gradlew assembleDebug
 
       - name: Upload application
         uses: actions/upload-artifact@v2
