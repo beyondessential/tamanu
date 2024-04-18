@@ -71,14 +71,27 @@ upcomingVaccinations.get(
         filterParams,
       );
 
-    const results = await req.db.query(
-      `
+    const withRowNumber = `
       WITH upcoming_vaccinations_with_row_number AS (
         SELECT *,
         ROW_NUMBER() OVER(PARTITION BY patient_id ORDER BY due_date ASC) AS row_number
         FROM upcoming_vaccinations uv
         WHERE uv.status <> '${VACCINE_STATUS.MISSED}'
       )
+    `;
+
+    const fromUpcomingVaccinations = `
+      FROM upcoming_vaccinations_with_row_number uv
+      JOIN scheduled_vaccines sv ON sv.id = uv.scheduled_vaccine_id
+      JOIN patients p ON p.id = uv.patient_id
+      LEFT JOIN reference_data village ON village.id = p.village_id
+      WHERE ${whereClauses}
+      AND row_number = 1
+    `;
+
+    const results = await req.db.query(
+      `
+      ${withRowNumber}
       SELECT
       p.id id,
       p.display_id "displayId",
@@ -94,13 +107,10 @@ upcomingVaccinations.get(
       uv.due_date "dueDate",
       uv.status,
       village.name "villageName"
-      FROM upcoming_vaccinations_with_row_number uv
-      JOIN scheduled_vaccines sv ON sv.id = uv.scheduled_vaccine_id
-      JOIN patients p ON p.id = uv.patient_id
-      LEFT JOIN reference_data village ON village.id = p.village_id
-      WHERE ${whereClauses}
-      AND row_number = 1
-      ORDER BY ${sortKey} ${sortDirection}, sv.label;`,
+      ${fromUpcomingVaccinations}
+      ORDER BY ${sortKey} ${sortDirection}, sv.label
+      LIMIT :limit
+      OFFSET :offset;`,
       {
         replacements: {
           limit: rowsPerPage,
@@ -111,6 +121,16 @@ upcomingVaccinations.get(
       },
     );
 
-    return res.send({ data: results, count: results.length });
+    const countResult = await req.db.query(
+      `
+      ${withRowNumber}
+      SELECT COUNT(1) AS count ${fromUpcomingVaccinations};`,
+      {
+        replacements: filterReplacements,
+        type: QueryTypes.SELECT,
+      },
+    );
+
+    return res.send({ data: results, count: parseInt(countResult[0].count, 10) });
   }),
 );

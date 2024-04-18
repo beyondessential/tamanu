@@ -6,9 +6,6 @@ import config from 'config';
 import { VACCINE_STATUS, REFERENCE_TYPES, VACCINE_CATEGORIES } from '@tamanu/constants';
 import { subDays } from 'date-fns';
 
-let facility = null;
-let drug = null;
-
 const createPatient = async (models, overrides) => {
   return models.Patient.create({
     ...fake(models.Patient),
@@ -17,15 +14,11 @@ const createPatient = async (models, overrides) => {
 };
 
 const createNewScheduledVaccine = async (models, overrides) => {
-  return models.ScheduledVaccine.create(
-    await createScheduledVaccine(models, {
-      vaccineId: drug.id,
-      ...overrides,
-    }),
-  );
+  return models.ScheduledVaccine.create(await createScheduledVaccine(models, overrides));
 };
 
 const setupBaseDate = async models => {
+  let facility;
   await models.ScheduledVaccine.truncate({ cascade: true });
   await models.AdministeredVaccine.truncate({ cascade: true });
 
@@ -61,10 +54,11 @@ const setupBaseDate = async models => {
       status: VACCINE_STATUS.MISSED,
     },
   ]);
-  drug = await models.ReferenceData.create(
+  const drug = await models.ReferenceData.create(
     fake(models.ReferenceData, { type: REFERENCE_TYPES.DRUG }),
   );
   await models.Setting.set('routineVaccine.ageLimit', 15);
+  return { facility, drug };
 };
 
 const SCHEDULED_VACCINES = [
@@ -120,26 +114,21 @@ describe('Upcoming vaccinations', () => {
     models = ctx.models;
     app = await baseApp.asRole('practitioner');
 
-    try {
-      // set up base data
-      await setupBaseDate(models);
+    // set up base data
+    const { drug } = await setupBaseDate(models);
 
-      // set up reference data
-      for (const sv of SCHEDULED_VACCINES) {
-        await createNewScheduledVaccine(models, {
-          id: sv.id,
-          category: VACCINE_CATEGORIES.ROUTINE,
-          label: sv.label,
-          weeksFromBirthDue: sv.weeksFromBirthDue,
-        });
-      }
+    // set up reference data
+    for (const vax of SCHEDULED_VACCINES) {
+      await createNewScheduledVaccine(models, {
+        ...vax,
+        category: VACCINE_CATEGORIES.ROUTINE,
+        vaccineId: drug.id,
+      });
+    }
 
-      // set up clinical data
-      for (const patientData of PATIENTS) {
-        await createPatient(models, patientData);
-      }
-    } catch (error) {
-      console.log('ERROR', error);
+    // set up clinical data
+    for (const patientData of PATIENTS) {
+      await createPatient(models, patientData);
     }
   });
 
@@ -170,12 +159,9 @@ describe('Upcoming vaccinations', () => {
 
   it('should sort by due date by default', async () => {
     const result = await app.get(`/api/upcomingVaccinations`);
-    result.body.data.forEach((v, i) => {
-      if (i > 0) {
-        const previousDueDate = result.body.data[i - 1].dueDate;
-        expect(v.dueDate >= previousDueDate).toBeTruthy();
-      }
-    });
+    expect(
+      result.body.data.every((vax, i) => !i || vax.dueDate >= result.body.data[i - 1].dueDate),
+    ).toBeTruthy();
   });
 
   it('should sort by params', async () => {
