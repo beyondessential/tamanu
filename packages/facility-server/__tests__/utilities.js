@@ -11,7 +11,7 @@ import {
   seedLocationGroups,
   seedLocations,
 } from '@tamanu/shared/demoData';
-import { chance, asNewRole, fake, showError } from '@tamanu/shared/test-helpers';
+import { chance, asNewRole, showError } from '@tamanu/shared/test-helpers';
 
 import { createApp } from '../dist/createApp';
 import { initReporting } from '../dist/database';

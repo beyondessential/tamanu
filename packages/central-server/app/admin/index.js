@@ -1,7 +1,10 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import { upperCase } from 'lodash';
 
-import { ForbiddenError, NotFoundError } from '@tamanu/shared/errors';
+import { ensurePermissionCheck } from '@tamanu/shared/permissions/middleware';
+
+import { NotFoundError } from '@tamanu/shared/errors';
 import { createDataImporterEndpoint } from './importerEndpoint';
 
 import { programImporter } from './programImporter';
@@ -18,18 +21,7 @@ import { assetRoutes } from './asset';
 import { translationRouter } from './translation';
 
 export const adminRoutes = express.Router();
-
-adminRoutes.use(
-  asyncHandler((req, res, next) => {
-    if (!req.ability.can('write', 'ReferenceData') || !req.ability.can('write', 'User')) {
-      throw new ForbiddenError(
-        'You do not have permission to access the central server admin panel.',
-      );
-    }
-    next();
-  }),
-);
-
+adminRoutes.use(ensurePermissionCheck);
 adminRoutes.use('/reports', reportsRouter);
 adminRoutes.use('/translation', translationRouter);
 adminRoutes.post('/mergePatient', mergePatientHandler);
@@ -43,8 +35,8 @@ adminRoutes.post('/mergePatient', mergePatientHandler);
 adminRoutes.get(
   '/lookup/patient/:displayId',
   asyncHandler(async (req, res) => {
-    // Note there is no permission check for this endpoint as it's mounted under the
-    // admin routes
+    req.checkPermission('read', 'Patient');
+
     const { Patient } = req.store.models;
     const { displayId } = req.params;
     const patient = await Patient.findOne({
@@ -68,6 +60,11 @@ adminRoutes.get(
   '/export/referenceData',
   asyncHandler(async (req, res) => {
     const { store, query } = req;
+
+    Object.values(query.includedDataTypes).map(async dataType => {
+      req.checkPermission('list', upperCase(dataType));
+    });
+
     const filename = await exporter(store, query.includedDataTypes);
     res.download(filename);
   }),

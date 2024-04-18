@@ -4,7 +4,7 @@ import config from 'config';
 import express from 'express';
 
 import { getLoggingMiddleware } from '@tamanu/shared/services/logging';
-import { constructPermission, ensurePermissionCheck } from '@tamanu/shared/permissions/middleware';
+import { constructPermission } from '@tamanu/shared/permissions/middleware';
 import { SERVER_TYPES } from '@tamanu/constants';
 
 import { buildRoutes } from './buildRoutes';
@@ -24,7 +24,6 @@ function api(ctx) {
   apiRoutes.use(authModule);
   apiRoutes.use('/translation', translationRoutes);
   apiRoutes.use(constructPermission);
-  apiRoutes.use(ensurePermissionCheck);
   apiRoutes.use(buildRoutes(ctx));
   return apiRoutes;
 }
