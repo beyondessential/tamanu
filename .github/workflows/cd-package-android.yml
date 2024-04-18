@@ -1,4 +1,4 @@
-name: 'Build Android app'
+name: CD Package Android
 
 permissions:
   contents: read
