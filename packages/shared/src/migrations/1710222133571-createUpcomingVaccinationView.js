@@ -12,22 +12,22 @@ export async function up(query) {
 		  jsonb_array_elements(s.value) ->> 'status'::text AS status
 	  FROM settings s
 	  WHERE s.deleted_at is null
-	  and s.key = 'routineVaccine.thresholds'::text
+	  and s.key = 'vaccine.thresholds'::text
   ),
   vaccine_agelimit as (
 	  select
 		  CURRENT_DATE - s.value::text::integer * 365 date
 	  from settings s
 	  where s.deleted_at is null
-	  and s.key = 'routineVaccine.ageLimit'
+	  and s.key = 'vaccine.ageLimit'
   ),
   filtered_patients as (
 	  select p.id patient_id, p.date_of_birth::date
 	  from patients p where p.deleted_at is null and p.visibility_status = 'current' and p.date_of_birth::date > (select "date" from vaccine_agelimit)
   ),
   filtered_scheduled_vaccines as (
-	  select sv.id scheduled_vaccine_id, sv.vaccine_id, sv.index, sv.weeks_from_birth_due, sv.weeks_from_last_vaccination_due from scheduled_vaccines sv
-	  where sv.deleted_at is null and sv.visibility_status = 'current' and sv.category = 'Routine'
+	  select sv.id scheduled_vaccine_id, sv.category vaccine_category, sv.vaccine_id, sv.index, sv.weeks_from_birth_due, sv.weeks_from_last_vaccination_due from scheduled_vaccines sv
+	  where sv.deleted_at is null and sv.visibility_status = 'current'
   ),
   filtered_administered_vaccines as (
 	  select e.patient_id, av.scheduled_vaccine_id, av."date"::date administered_date from administered_vaccines av
@@ -37,9 +37,10 @@ export async function up(query) {
   ),
   patient_vaccine_fixed_schedule as (
   select
-	  --distinct on (fp.patient_id, fsv.vaccine_id)
+	  --distinct on (fp.patient_id, fsv.vaccine_category, fsv.vaccine_id)
 	  fp.patient_id,
 	  fsv.scheduled_vaccine_id,
+	  fsv.vaccine_category,
 	  fsv.vaccine_id,
 	  fp.date_of_birth + fsv.weeks_from_birth_due * 7 due_date
   from filtered_patients fp
@@ -52,16 +53,17 @@ export async function up(query) {
   ),
   patient_vaccine_dynamic_schedule as (
   select
-	  distinct on (fp.patient_id, fsv2.vaccine_id)
+	  distinct on (fp.patient_id, fsv2.vaccine_category, fsv2.vaccine_id)
 	  fp.patient_id,
 	  fsv2.scheduled_vaccine_id,
+	  fsv2.vaccine_category,
 	  fsv2.vaccine_id,
 	  fsv2.weeks_from_last_vaccination_due * 7 + fav.administered_date due_date
   from filtered_administered_vaccines fav
   join filtered_patients fp on fp.patient_id = fav.patient_id
   join filtered_scheduled_vaccines fsv on fsv.scheduled_vaccine_id  = fav.scheduled_vaccine_id
-  join filtered_scheduled_vaccines fsv2 on fsv.vaccine_id = fsv2.vaccine_id and fsv2.weeks_from_birth_due is null and fsv2.weeks_from_last_vaccination_due is not null and fsv2.index > fsv.index
-  order by fp.patient_id, fsv2.vaccine_id, fsv2.index
+  join filtered_scheduled_vaccines fsv2 on fsv.vaccine_id = fsv2.vaccine_id and fsv.vaccine_category = fsv2.vaccine_category and fsv2.weeks_from_birth_due is null and fsv2.weeks_from_last_vaccination_due is not null and fsv2.index > fsv.index
+  order by fp.patient_id, fsv2.vaccine_category, fsv2.vaccine_id, fsv2.index
   ),
   patient_vaccine_schedule as (
 	  select * from patient_vaccine_fixed_schedule

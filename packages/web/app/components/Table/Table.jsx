@@ -150,6 +150,7 @@ const StyledTableHead = styled(TableHead)`
       display: table;
       table-layout: fixed;
       width: 100%;
+      padding-right: 15px;
     `
       : ''}
   ${props =>
