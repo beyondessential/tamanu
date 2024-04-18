@@ -1,6 +1,6 @@
 import React from 'react';
-
-import { ImmunisationsTable, Modal, ModalActionRow } from '../../../components';
+import { Modal, ModalActionRow } from '../../../components';
+import { ImmunisationsTable } from '../../../features';
 
 export const PatientImmunisationsModal = React.memo(({ open, patient, onClose, ...props }) => (
   <Modal

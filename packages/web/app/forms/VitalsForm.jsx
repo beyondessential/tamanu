@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
+import * as yup from 'yup';
 import { VISIBILITY_STATUSES, VITALS_DATA_ELEMENT_IDS } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { Form, FormSubmitCancelRow, ModalLoader } from '../components';
@@ -13,6 +14,13 @@ import { ErrorMessage } from '../components/ErrorMessage';
 import { useAuth } from '../contexts/Auth';
 import { useEncounter } from '../contexts/Encounter';
 import { TranslatedText } from '../components/Translation/TranslatedText';
+
+const baseVitalsSchema = yup.object().shape({
+  [VITALS_DATA_ELEMENT_IDS.dateRecorded]: yup
+    .date()
+    .required()
+    .label('dateRecorded'),
+});
 
 export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterType }) => {
   const {
@@ -33,7 +41,7 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterTyp
         {
           encounterType: encounterType || encounter?.encounterType,
         },
-      ),
+      ).concat(baseVitalsSchema),
     [currentComponents, encounter?.encounterType, encounterType],
   );
   const { ability } = useAuth();
