@@ -17,6 +17,8 @@ import {
 } from '../../features/ImmunisationsTable/accessors';
 import { usePatientNavigation } from '../../utils/usePatientNavigation.js';
 import { PATIENT_TABS } from '../../constants/patientPaths.js';
+import { reloadPatient } from '../../store/index.js';
+import { useDispatch } from 'react-redux';
 
 const COLUMNS = [
   displayId,
@@ -52,10 +54,12 @@ const COLUMNS = [
 ];
 
 export const ImmunisationsView = () => {
+  const dispatch = useDispatch();
   const [searchParameters, setSearchParameters] = useState({});
   const { navigateToPatient } = usePatientNavigation();
-  const onRowClick = row => {
-    navigateToPatient(row.id, { tab: PATIENT_TABS.VACCINES });
+  const onRowClick = async patient => {
+    await dispatch(reloadPatient(patient.id));
+    navigateToPatient(patient.id, { tab: PATIENT_TABS.VACCINES });
   };
 
   return (
