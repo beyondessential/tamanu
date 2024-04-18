@@ -156,7 +156,7 @@ export const ContactDetails = ({ pendingContacts, onRetry, successContactIds, on
 				break;
 			case 'pending':
 				methodText = <TranslatedText
-					stringId={`patient.details.reminderContacts.method.${method}Pending`}
+					stringId={`patient.details.reminderContacts.method.${method}.pending`}
 					fallback={capitalize(method) + ' pending'}
 				/>;
 				break;
