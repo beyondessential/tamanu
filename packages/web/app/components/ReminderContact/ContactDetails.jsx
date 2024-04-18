@@ -210,8 +210,8 @@ export const ContactDetails = ({ pendingContacts, onRetry, successContactIds, on
 						return (
 							<StyledTextButton onClick={() => onRemoveContact(data)}>
 								<TranslatedText
-									stringId={'patient.details.reminderContacts.label.remove'}
-									fallback={'Remove'}
+									stringId="patient.details.reminderContacts.action.remove'"
+									fallback="Remove"
 								/>
 							</StyledTextButton>
 						);
