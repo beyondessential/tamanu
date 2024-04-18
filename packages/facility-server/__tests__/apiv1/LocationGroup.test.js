@@ -37,7 +37,7 @@ describe('Location groups', () => {
     const facility = await findOneOrCreate(models, models.Facility, {
       name: 'Test Facility',
     });
-    expect(
+    await expect(
       models.LocationGroup.create({
         name: 'Test, Location Group',
         code: 'test-location-group',
