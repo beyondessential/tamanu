@@ -61,9 +61,9 @@ adminRoutes.get(
   '/export/referenceData',
   asyncHandler(async (req, res) => {
     const { store, query } = req;
-    const { includedDataTypes = [] } = query;
+    const { includedDataTypes = {} } = query;
 
-    for (const dataType of includedDataTypes) {
+    for (const dataType of Object.values(includedDataTypes)) {
       // When it is ReferenceData, check if user has permission to list ReferenceData
       if (REFERENCE_TYPE_VALUES.includes(dataType)) {
         req.checkPermission('list', 'ReferenceData');
