@@ -42,35 +42,34 @@ export const ReminderContactModal = ({ onClose, open }) => {
   const [pendingContacts, setPendingContacts] = useState({});
   const [successContactIds, setSuccessContactIds] = useState([]);
   const [selectedContact, setSelectedContact] = useState();
-  const { socket } = useSocket();
+  const { socket } = useSocket({ settings: { autoConnect: false } });
+
+  const subscribersListener = (data) => {
+    setSuccessContactIds(prev => [...prev, data?.contactId]);
+  };
+
+  const handleUpdatePendingContacts = (isTimerStarted) => {
+    setPendingContacts(previousPendingContacts => ({
+      ...previousPendingContacts,
+      [newContact.id]: {
+        ...previousPendingContacts[newContact.id],
+        isTimerStarted
+      }
+    }));
+  };
 
   useEffect(() => {
     if (!socket) return;
-    socket.on('telegram:subscribe:success', data => {
-      setSuccessContactIds(prev => [...prev, data?.contactId]);
-    });
+    socket.on('telegram:subscribe:success', subscribersListener);
+    return () => socket.off('telegram:subscribe:success', subscribersListener);
   }, [socket]);
 
   useEffect(() => {
-    if (newContact.id) {
-      setTimeout(() => {
-        setPendingContacts(previousPendingContacts => ({
-          ...previousPendingContacts,
-          [newContact.id]: {
-            ...previousPendingContacts[newContact.id],
-            isTimerStarted: false
-          }
-        }));
-      }, DEFAULT_CONTACT_TIMEOUT);
-      setPendingContacts(previousPendingContacts => ({
-        ...previousPendingContacts,
-        [newContact.id]: {
-          ...previousPendingContacts[newContact.id],
-          isTimerStarted: true,
-        }
-      }));
-    }
-
+    if (!newContact.id) return;
+    setTimeout(() => {
+      handleUpdatePendingContacts(false);
+    }, DEFAULT_CONTACT_TIMEOUT);
+    handleUpdatePendingContacts(true);
   }, [newContact.id]);
 
   const handleActiveView = value => {

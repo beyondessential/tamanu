@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 
-import { Box, Divider, Typography } from '@material-ui/core';
+import { Box, CircularProgress, Divider, Typography } from '@material-ui/core';
 
 import { Colors } from '../../constants';
 import { FormConfirmCancelBackRow } from '../ButtonRow';
@@ -33,10 +33,14 @@ const StyledDivider = styled(Divider)`
 
 export const RemoveReminderContact = ({ selectedContact, onBack, onClose, pendingContacts, successContactIds }) => {
   const api = useApi();
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleDeleteContact = async () => {
+    if (isDeleting) return;
+    setIsDeleting(true);
     await api.delete(`patient/reminderContact/${selectedContact.id}`);
     onBack();
+    setIsDeleting(false);
   };
 
   return (
@@ -68,7 +72,11 @@ export const RemoveReminderContact = ({ selectedContact, onBack, onClose, pendin
         onBack={onBack}
         onConfirm={handleDeleteContact}
         onCancel={onClose}
-        confirmText={<TranslatedText stringId="general.action.remove" fallback="Remove" />}
+        confirmText={
+          !isDeleting
+          ? <TranslatedText stringId="general.action.remove" fallback="Remove" />
+          : <CircularProgress size={16} color="#fff" />
+        }
       />
     </>
   );

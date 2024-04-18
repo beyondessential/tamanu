@@ -11,6 +11,7 @@ import { TranslatedText } from '../Translation/TranslatedText';
 import { joinNames } from '../../utils/user';
 import { useTranslation } from '../../contexts/Translation';
 import { useTelegramBotInfoQuery } from '../../api/queries';
+import { Colors } from '../../constants';
 
 const StyledHeaderText = styled(Typography)`
   font-size: 14px;
@@ -41,10 +42,14 @@ const StyledQrContainer = styled.div`
   }
 `;
 
+const ErrorMessege = styled.div`
+  color: ${Colors.alert};
+`;
+
 export const ReminderContactQR = ({ contact, onClose }) => {
   const { getTranslation } = useTranslation();
   const patient = useSelector(state => state.patient);
-  const { data: botInfo } = useTelegramBotInfoQuery();
+  const { data: botInfo, isLoading, isError, error } = useTelegramBotInfoQuery();
 
   const [qrCodeURL, setQRCodeURL] = useState('');
 
@@ -92,7 +97,9 @@ export const ReminderContactQR = ({ contact, onClose }) => {
         />
       </StyledText>
       <StyledQrContainer>
-        {qrCodeURL ? <img src={qrCodeURL} alt="QR Code" /> : <CircularProgress />}
+        {qrCodeURL && <img src={qrCodeURL} alt="QR Code" />}
+        {isLoading && <CircularProgress />}
+        {isError && <ErrorMessege>{error.message}</ErrorMessege>}
       </StyledQrContainer>
       <ModalCancelRow
         confirmText={<TranslatedText stringId="general.action.close" fallback="Close" />}

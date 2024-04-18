@@ -111,168 +111,173 @@ const ContactDetailTable = styled(Table)`
   }
 `;
 
+const CONNECTION_STATUS = {
+  SUCCESS: 'success',
+  PENDING: 'pending',
+  FAILED: 'failed'
+};
+
 const ColoredCellText = ({ children, status }) => {
-	switch (status) {
-		case 'failed':
-			return <ColoredText color={Colors.alert}>{children}</ColoredText>
-		case 'pending':
-			return <ColoredText color={Colors.softText}>{children}</ColoredText>
-		default:
-			return <span>{children}</span>
-	}
+  switch (status) {
+    case CONNECTION_STATUS.FAILED:
+      return <ColoredText color={Colors.alert}>{children}</ColoredText>
+    case CONNECTION_STATUS.PENDING:
+      return <ColoredText color={Colors.softText}>{children}</ColoredText>
+    default:
+      return <span>{children}</span>
+  }
 };
 
 export const ContactDetails = ({ pendingContacts, onRetry, successContactIds, onRemoveContact, selectedContact, isRemoveModal = false }) => {
-	const { getTranslation } = useTranslation();
-	const patient = useSelector(state => state.patient);
-	const patientName = joinNames(patient);
-	const [isEmpty, setIsEmpty] = useState(false);
+  const { getTranslation } = useTranslation();
+  const patient = useSelector(state => state.patient);
+  const patientName = joinNames(patient);
+  const [isEmpty, setIsEmpty] = useState(false);
 
-	const { ability } = useAuth();
-	const canRemoveReminderContacts = ability.can('write', 'Patient');
+  const { ability } = useAuth();
+  const canRemoveReminderContacts = ability.can('write', 'Patient');
 
-	const onDataFetched = ({ count }) => {
-		setIsEmpty(!count);
-	};
+  const onDataFetched = ({ count }) => {
+    setIsEmpty(!count);
+  };
 
-	const getStatus = (isTimerStarted = false, contactId, connectionDetails) => {
-		if (successContactIds.includes(contactId) || !!connectionDetails) {
-			return 'success';
-		}
-		if (isTimerStarted) {
-			return 'pending';
-		}
-		return 'failed';
-	};
+  const getStatus = (isTimerStarted = false, contactId, connectionDetails) => {
+    if (successContactIds.includes(contactId) || !!connectionDetails) {
+      return CONNECTION_STATUS.SUCCESS;
+    }
+    if (isTimerStarted) {
+      return CONNECTION_STATUS.PENDING;
+    }
+    return CONNECTION_STATUS.FAILED;
+  };
 
-	const getMethod = (status, method) => {
-		let methodText;
-		switch (status) {
-			case 'failed':
-				methodText = <TranslatedText
-					stringId='patient.details.reminderContacts.method.failed'
-					fallback='Failed'
-				/>;
-				break;
-			case 'pending':
-				methodText = <TranslatedText
-					stringId={`patient.details.reminderContacts.method.${method}.pending`}
-					fallback={capitalize(method) + ' pending'}
-				/>;
-				break;
-			case 'success':
-				methodText = <TranslatedText
-					stringId={`patient.details.reminderContacts.method.${method}`}
-					fallback={capitalize(method)}
-				/>;
-				break;
-		}
-		return <ColoredCellText status={status}>{methodText}</ColoredCellText>
-	};
+  const getMethod = (status, method) => {
+    let methodText;
+    switch (status) {
+      case CONNECTION_STATUS.FAILED:
+        methodText = <TranslatedText
+          stringId='patient.details.reminderContacts.method.failed'
+          fallback='Failed'
+        />;
+        break;
+      case CONNECTION_STATUS.PENDING:
+        methodText = <TranslatedText
+          stringId={`patient.details.reminderContacts.method.${method}.pending`}
+          fallback={capitalize(method) + ' pending'}
+        />;
+        break;
+      case CONNECTION_STATUS.SUCCESS:
+        methodText = <TranslatedText
+          stringId={`patient.details.reminderContacts.method.${method}`}
+          fallback={capitalize(method)}
+        />;
+        break;
+    }
+    return <ColoredCellText status={status}>{methodText}</ColoredCellText>
+  };
 
-	const columns = [
-		{
-			key: 'name',
-			title: <TranslatedText stringId='patient.details.reminderContacts.field.contact' fallback='Contact' />,
-			sortable: false,
-			accessor: ({id, connectionDetails, name}) => (
-				<ColoredCellText status={getStatus(pendingContacts[id]?.isTimerStarted, id, connectionDetails)}>
-					{name}
-				</ColoredCellText>
-			),
-		},
-		{
-			key: 'relationship.name',
-			title: <TranslatedText stringId='patient.details.reminderContacts.field.relationship' fallback='Relationship' />,
-			sortable: false,
-			accessor: row => (
-				<ColoredCellText status={getStatus(pendingContacts[row.id]?.isTimerStarted, row.id, row.connectionDetails)}>
-					{row.relationship.name}
-				</ColoredCellText>
-			),
-		},
-		{
-			key: 'method',
-			title: <TranslatedText stringId='patient.details.reminderContacts.field.contactMethod' fallback='Contact method' />,
-			sortable: false,
-			accessor: row => getMethod(
-				getStatus(pendingContacts[row.id]?.isTimerStarted, row.id, row.connectionDetails),
-				row.method,
-			),
-		},
-		...(canRemoveReminderContacts && !isRemoveModal
-			? [
-				{
-					key: '',
-					title: '',
-					sortable: false,
-					accessor: (data) => {
-						return (
-							<StyledTextButton onClick={() => onRemoveContact(data)}>
-								<TranslatedText
-									stringId="patient.details.reminderContacts.action.remove'"
-									fallback="Remove"
-								/>
-							</StyledTextButton>
-						);
-					},
-				},
-			]
-			: []),
-		...(!isRemoveModal
-			? [
-				{
-					key: '',
-					title: '',
-					sortable: false,
-					accessor: row => getStatus(pendingContacts[row.id]?.isTimerStarted, row.id, row.connectionDetails) === 'failed'
-						? (
-							<RowActionLink onClick={() => onRetry(row)}>
-								<TranslatedText stringId="general.action.retry" fallback="Retry" />
-							</RowActionLink>
-						)
-						: ''
-				},
-			]
-			: []),
-	];
+  const columns = [
+    {
+      key: 'name',
+      title: <TranslatedText stringId='patient.details.reminderContacts.field.contact' fallback='Contact' />,
+      sortable: false,
+      accessor: ({ id, connectionDetails, name }) => (
+        <ColoredCellText status={getStatus(pendingContacts[id]?.isTimerStarted, id, connectionDetails)}>
+          {name}
+        </ColoredCellText>
+      ),
+    },
+    {
+      key: 'relationship.name',
+      title: <TranslatedText stringId='patient.details.reminderContacts.field.relationship' fallback='Relationship' />,
+      sortable: false,
+      accessor: ({ id, connectionDetails, relationship }) => (
+        <ColoredCellText status={getStatus(pendingContacts[id]?.isTimerStarted, id, connectionDetails)}>
+          {relationship.name}
+        </ColoredCellText>
+      ),
+    },
+    {
+      key: 'method',
+      title: <TranslatedText stringId='patient.details.reminderContacts.field.contactMethod' fallback='Contact method' />,
+      sortable: false,
+      accessor: ({ id, connectionDetails, method }) => getMethod(
+        getStatus(pendingContacts[id]?.isTimerStarted, id, connectionDetails),
+        method,
+      ),
+    },
+    ...(canRemoveReminderContacts && !isRemoveModal
+      ? [
+        {
+          key: '',
+          title: '',
+          sortable: false,
+          accessor: (data) => {
+            return (
+              <StyledTextButton onClick={() => onRemoveContact(data)}>
+                <TranslatedText
+                  stringId="patient.details.reminderContacts.action.remove'"
+                  fallback="Remove"
+                />
+              </StyledTextButton>
+            );
+          },
+        },
+      ]
+      : []),
+    ...(!isRemoveModal
+      ? [
+        {
+          key: '',
+          title: '',
+          sortable: false,
+          accessor: row => getStatus(pendingContacts[row.id]?.isTimerStarted, row.id, row.connectionDetails) === CONNECTION_STATUS.FAILED
+            ? (
+              <RowActionLink onClick={() => onRetry(row)}>
+                <TranslatedText stringId="general.action.retry" fallback="Retry" />
+              </RowActionLink>
+            )
+            : ''
+        },
+      ]
+      : []),
+  ];
 
-	if (isRemoveModal) {
-		return <ContactDetailTable columns={columns} allowExport={false} data={[selectedContact]} />;
-	}
+  if (isRemoveModal) {
+    return <ContactDetailTable columns={columns} allowExport={false} data={[selectedContact]} />;
+  }
 
-	return (
-		<>
-			{isEmpty ? (
-				<StyledText
-					dangerouslySetInnerHTML={{
-						__html: getTranslation(
-							'patient.details.reminderContacts.emptyDescription',
-							"There are no contacts registered to receive reminders for :patientName. Please select 'Add contact' to register a contact.",
-							{ patientName: `<span>${patientName}</span>` },
-						),
-					}}
-				></StyledText>
-			) : (
-				<StyledText
-					dangerouslySetInnerHTML={{
-						__html: getTranslation(
-							'patient.details.reminderContacts.description',
-							'The below contact list is registered to receive reminders for :patientName.',
-							{ patientName: `<span>${patientName}</span>` },
-						),
-					}}
-				></StyledText>
-			)}
-			<StyledContactListTable
-				columns={columns}
-				endpoint={`/patient/${patient.id}/reminderContacts`}
-				disablePagination
-				initialSort={{ orderBy: 'name', order: 'asc' }}
-				allowExport={false}
-				onDataFetched={onDataFetched}
-				isEmpty={isEmpty}
-			/>
-		</>
-	);
+  return (
+    <>
+      {isEmpty ? (
+        <StyledText
+          dangerouslySetInnerHTML={{
+            __html: getTranslation(
+              'patient.details.reminderContacts.emptyDescription',
+              "There are no contacts registered to receive reminders for :patientName. Please select 'Add contact' to register a contact.",
+              { patientName: `<span>${patientName}</span>` },
+            ),
+          }}
+        ></StyledText>
+      ) : (
+        <StyledText
+          dangerouslySetInnerHTML={{
+            __html: getTranslation(
+              'patient.details.reminderContacts.description',
+              'The below contact list is registered to receive reminders for :patientName.',
+              { patientName: `<span>${patientName}</span>` },
+            ),
+          }}
+        ></StyledText>
+      )}
+      <StyledContactListTable
+        columns={columns}
+        endpoint={`/patient/${patient.id}/reminderContacts`}
+        disablePagination
+        initialSort={{ orderBy: 'name', order: 'asc' }}
+        allowExport={false}
+        onDataFetched={onDataFetched}
+      />
+    </>
+  );
 };
