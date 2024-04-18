@@ -6,6 +6,7 @@ import { SubmitButton } from '../SubmitButton';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { TextField } from '../../TextField/TextField';
 import { ServerSelector } from '../../ServerSelectorField/ServerSelector';
+import { TranslatedText } from '../../Translations/TranslatedText';
 
 export const ResetPasswordFields = (): ReactElement => (
   <StyledView
@@ -16,16 +17,25 @@ export const ResetPasswordFields = (): ReactElement => (
   >
     <StyledView justifyContent="space-around" zIndex={1}>
       <StyledText fontSize={13} marginBottom={5} color={theme.colors.SECONDARY_MAIN}>
-        Enter your account email
+        <TranslatedText
+          stringId="auth.resetPassword.enterAccountEmail"
+          fallback="Enter your account email"
+        />
       </StyledText>
       <Field
         name="email"
         keyboardType="email-address"
         component={TextField}
         labelColor={theme.colors.WHITE}
-        label="Email"
+        label={<TranslatedText stringId="login.email.label" fallback="Email" />}
       />
-      <Field name="server" component={ServerSelector} label="Select a country" />
+      <Field
+        name="server"
+        component={ServerSelector}
+        label={
+          <TranslatedText stringId="auth.resetPassword.selectCountry" fallback="Select a country" />
+        }
+      />
     </StyledView>
     <SubmitButton
       marginTop={20}
@@ -33,8 +43,10 @@ export const ResetPasswordFields = (): ReactElement => (
       textColor={theme.colors.TEXT_SUPER_DARK}
       fontSize={screenPercentageToDP('1.94', Orientation.Height)}
       fontWeight={500}
-      buttonText="Reset Password"
       zIndex={-1}
+      buttonText={
+        <TranslatedText stringId="login.resetPassword.heading" fallback="Reset password" />
+      }
     />
   </StyledView>
 );
