@@ -34,14 +34,13 @@ export const saveFile = async ({
 }) => {
   const filetype = FILE_TYPES[(extension ?? '').toLowerCase()] ?? FILE_TYPES.DEFAULT;
 
-  try {
+  if ('showSaveFilePicker' in window) {
     const fileHandle = await createFileSystemHandle({ defaultFileName, filetype });
     const writable = await fileHandle.createWritable();
     await writable.write(data);
     await writable.close();
-  } catch (_) {
+  } else {
     // fallback to non-file-picker download if it's not available
-    // or if the Transient User Activation window has closed
     const blob = new Blob([data], {
       type: Object.keys(filetype.accept)?.[0] ?? 'application/binary',
     });
