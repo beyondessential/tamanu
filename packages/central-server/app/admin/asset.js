@@ -25,6 +25,8 @@ const assetSchema = yup.object().shape({
 assetRoutes.put(
   '/:name',
   asyncHandler(async (req, res) => {
+    req.checkPermission('write', 'Asset');
+
     const { params, body } = req;
     const { name } = params;
 
