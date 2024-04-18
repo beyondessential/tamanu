@@ -1,10 +1,11 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { upperCase } from 'lodash';
+import { upperFirst } from 'lodash';
 
 import { ensurePermissionCheck } from '@tamanu/shared/permissions/middleware';
-
 import { NotFoundError } from '@tamanu/shared/errors';
+import { REFERENCE_TYPE_VALUES } from '@tamanu/constants';
+
 import { createDataImporterEndpoint } from './importerEndpoint';
 
 import { programImporter } from './programImporter';
@@ -60,10 +61,17 @@ adminRoutes.get(
   '/export/referenceData',
   asyncHandler(async (req, res) => {
     const { store, query } = req;
+    const { includedDataTypes = [] } = query;
 
-    Object.values(query.includedDataTypes).map(async dataType => {
-      req.checkPermission('list', upperCase(dataType));
-    });
+    for (const dataType of includedDataTypes) {
+      if (REFERENCE_TYPE_VALUES.includes(dataType)) {
+        req.checkPermission('list', 'ReferenceData');
+        continue;
+      }
+  
+      const nonReferenceDataModelName = upperFirst(dataType);
+      req.checkPermission('list', nonReferenceDataModelName);
+    }
 
     const filename = await exporter(store, query.includedDataTypes);
     res.download(filename);
