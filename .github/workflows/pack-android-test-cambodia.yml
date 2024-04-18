@@ -29,6 +29,7 @@ on:
 
 env:
   BRANDING: ${{ inputs.branding || 'tamanu' }}
+  SERVER: ${{ inputs.server || 'testing testing' }}
 
 jobs:
   build:
@@ -57,11 +58,14 @@ jobs:
         run: mv ${{env.BRANDING}}/* .
 
       - name: Set server overrides
-        if: ${{ inputs.server }}
+        if: ${{ env.SERVER }}
         working-directory: packages/mobile
         run: |
-          echo \{\"centralServers\":[\{\"value\":\"${{inputs.server}}\", \"label\": \"Central Server\"\}]\} > serverOverrides.json
-
+          cat <<EOF > serverOverrides.json
+          {
+            "centralServers": [{"label": "Central Server", "value": "${{env.SERVER}}" }]
+          }
+          EOF
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
