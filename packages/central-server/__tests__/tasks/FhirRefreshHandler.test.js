@@ -54,6 +54,11 @@ describe('FHIR refresh handler', () => {
       const { count, rows } = await ctx.store.models.FhirJob.findAndCountAll({
         where: {
           topic: 'fhir.refresh.fromUpstream',
+          payload: {
+            resource: {
+              [Op.ne]: 'MediciReport',
+            },
+          },
         },
       });
 
