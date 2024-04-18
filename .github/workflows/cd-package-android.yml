@@ -122,4 +122,4 @@ jobs:
         if: steps.destination.outputs.result != 'nowhere'
         env:
           target: ${{ steps.destination.outputs.result }}
-        run: aws s3 cp ${{APK_PATH}} $target/mobile/${{inputs.branding}}/${{env.APP_NAME}} --no-progress
+        run: aws s3 cp ${{APK_PATH}} $target/android/${{inputs.branding}}/${{env.APP_NAME}} --no-progress
