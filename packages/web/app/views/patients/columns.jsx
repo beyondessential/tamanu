@@ -104,10 +104,3 @@ export const clinician = {
   ),
   sortable: false,
 };
-
-export const vaccinationStatus = {
-  key: 'vaccinationStatus',
-  title: <TranslatedText stringId="vaccine.status.label" fallback="Vaccine status" />,
-  minWidth: 100,
-  accessor: row => row.vaccinationStatus || 'Unknown',
-};

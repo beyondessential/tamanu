@@ -289,7 +289,6 @@ export const Sidebar = React.memo(({ items }) => {
           <>
             <StyledDivider $invisible={isRetracted} />
             <StyledMetadataBox display="flex" justifyContent="space-between">
-
               <Version>
                 <TranslatedText stringId="general.meta.version" fallback="Version" /> {agentVersion}
               </Version>

@@ -1,36 +1,65 @@
 import React, { useState } from 'react';
 import {
   ContentPane,
+  ImmunisationSearchBar,
   PageContainer,
-  PatientSearchBar,
   SearchTable,
   SearchTableTitle,
   TopBar,
+  TranslatedText,
 } from '../../components';
-import { culturalName, dateOfBirth, displayId, firstName, lastName, sex, village } from './columns';
-import { PatientImmunisationsModal } from './components';
-import { TranslatedText } from '../../components/Translation/TranslatedText';
+import { dateOfBirth, displayId, sex, village } from './columns';
+import {
+  getDueDate,
+  getStatusTag,
+  getVaccineName,
+  getSchedule,
+} from '../../features/ImmunisationsTable/accessors';
+import { usePatientNavigation } from '../../utils/usePatientNavigation.js';
+import { PATIENT_TABS } from '../../constants/patientPaths.js';
 
-const COLUMNS = [displayId, firstName, lastName, culturalName, village, sex, dateOfBirth];
+const COLUMNS = [
+  displayId,
+  {
+    key: 'fullName',
+    title: <TranslatedText stringId="vaccine.table.column.patientName" fallback="Patient name" />,
+    accessor: row => `${row.firstName} ${row.lastName}`,
+  },
+  dateOfBirth,
+  sex,
+  village,
+  {
+    key: 'vaccineDisplayName',
+    title: <TranslatedText stringId="vaccine.table.column.vaccine" fallback="Vaccine" />,
+    accessor: getVaccineName,
+  },
+  {
+    key: 'schedule',
+    title: <TranslatedText stringId="vaccine.table.column.schedule" fallback="Schedule" />,
+    accessor: getSchedule,
+  },
+  {
+    key: 'dueDate',
+    title: <TranslatedText stringId="vaccine.table.column.dueDate" fallback="Due date" />,
+    accessor: getDueDate,
+  },
+  {
+    key: 'status',
+    title: <TranslatedText stringId="vaccine.table.column.status" fallback="Status" />,
+    accessor: getStatusTag,
+    sortable: false,
+  },
+];
 
 export const ImmunisationsView = () => {
   const [searchParameters, setSearchParameters] = useState({});
-  const [modalOpen, setModalOpen] = useState(false);
-  const [patient, setPatient] = useState({});
+  const { navigateToPatient } = usePatientNavigation();
   const onRowClick = row => {
-    setPatient(row);
-    setModalOpen(true);
+    navigateToPatient(row.id, { tab: PATIENT_TABS.VACCINES });
   };
 
   return (
     <PageContainer>
-      <PatientImmunisationsModal
-        maxWidth="lg"
-        fullWidth={false}
-        open={modalOpen}
-        patient={patient}
-        onClose={() => setModalOpen(false)}
-      />
       <TopBar
         title={
           <TranslatedText stringId="immunisation.register.title" fallback="Immunisation register" />
@@ -43,9 +72,9 @@ export const ImmunisationsView = () => {
             fallback="Patient immunisation search"
           />
         </SearchTableTitle>
-        <PatientSearchBar onSearch={setSearchParameters} suggestByFacility={false} />
+        <ImmunisationSearchBar onSearch={setSearchParameters} />
         <SearchTable
-          endpoint="patient"
+          endpoint="upcomingVaccinations"
           columns={COLUMNS}
           noDataMessage="No patients found"
           onRowClick={onRowClick}
