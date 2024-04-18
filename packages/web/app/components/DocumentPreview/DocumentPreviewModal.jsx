@@ -10,6 +10,7 @@ import { Button } from '../Button';
 import { SUPPORTED_DOCUMENT_TYPES } from '../../constants';
 import { Modal } from '../Modal';
 import { TranslatedText } from '../Translation/TranslatedText';
+import { useDocumentActions } from '../../hooks/useDocumentActions';
 
 const getTitle = ({ source, name }) =>
   source === DOCUMENT_SOURCES.PATIENT_LETTER ? (
@@ -49,10 +50,14 @@ const Preview = ({ documentType, attachmentId, ...props }) => {
   );
 };
 
-export const DocumentPreviewModal = ({ open, onClose, onDownload, document, onPrintPDF }) => {
+export const DocumentPreviewModal = ({ open, onClose, document = {} }) => {
   const [scrollPage, setScrollPage] = useState(1);
   const [pageCount, setPageCount] = useState();
+  const { onDownload, onPrintPDF } = useDocumentActions();
+
   const { type: documentType, attachmentId } = document;
+  const onHandleDownload = () => onDownload(document);
+  const onHandlePrint = () => onPrintPDF(attachmentId);
 
   return (
     <Modal
@@ -75,8 +80,8 @@ export const DocumentPreviewModal = ({ open, onClose, onDownload, document, onPr
         </div>
       }
       printable={document.source !== DOCUMENT_SOURCES.UPLOADED}
-      onPrint={() => onPrintPDF(attachmentId)}
-      additionalActions={[<DownloadButton onClick={onDownload} key="Download" />]}
+      onPrint={onHandlePrint}
+      additionalActions={[<DownloadButton onClick={onHandleDownload} key="Download" />]}
       width="md"
       overrideContentPadding
       onClose={() => {
