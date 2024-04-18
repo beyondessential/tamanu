@@ -93,14 +93,6 @@ jobs:
           path: ${{ env.APK_PATH }}
           retention-days: 1
 
-      - name: Configure AWS Credentials (upload)
-        if: github.event_name != 'workflow_dispatch'
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-region: ap-southeast-2
-          role-to-assume: arn:aws:iam::143295493206:role/gha-server-s3
-          role-session-name: GHA@Tamanu=ServerPackage
-
       - name: Set S3 destination
         id: destination
         uses: actions/github-script@v7
@@ -124,7 +116,7 @@ jobs:
         with:
           aws-region: ap-southeast-2
           role-to-assume: arn:aws:iam::143295493206:role/gha-server-s3
-          role-session-name: GHA@Tamanu=WebPackage
+          role-session-name: GHA@Tamanu=AndroidPackage
 
       - name: Push to S3
         if: steps.destination.outputs.result != 'nowhere'
