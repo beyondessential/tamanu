@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { useTranslation } from '../../contexts/Translation';
 import { DebugTooltip } from './DebugTooltip';
@@ -16,12 +16,16 @@ const safeGetIsDebugMode = () => {
 export const TranslatedText = ({ stringId, fallback, replacements, uppercase, lowercase }) => {
   const { getTranslation } = useTranslation();
 
-  const translation = getTranslation(
-    stringId,
-    fallback?.split('\\n').join('\n'),
-    replacements,
-    uppercase,
-    lowercase,
+  const translation = useMemo(
+    () =>
+      getTranslation(
+        stringId,
+        fallback?.split('\\n').join('\n'),
+        replacements,
+        uppercase,
+        lowercase,
+      ),
+    [getTranslation, stringId, fallback, replacements, uppercase, lowercase],
   );
 
   const isDebugMode = safeGetIsDebugMode();
