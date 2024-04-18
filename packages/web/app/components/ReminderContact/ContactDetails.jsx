@@ -175,9 +175,9 @@ export const ContactDetails = ({ pendingContacts, onRetry, successContactIds, on
 			key: 'name',
 			title: <TranslatedText stringId='patient.details.reminderContacts.field.contact' fallback='Contact' />,
 			sortable: false,
-			accessor: row => (
-				<ColoredCellText status={getStatus(pendingContacts[row.id]?.isTimerStarted, row.id, row.connectionDetails)}>
-					{row.name}
+			accessor: ({id, connectionDetails, name}) => (
+				<ColoredCellText status={getStatus(pendingContacts[id]?.isTimerStarted, id, connectionDetails)}>
+					{name}
 				</ColoredCellText>
 			),
 		},
