@@ -2,13 +2,9 @@ import * as yup from 'yup';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 
-import { ensurePermissionCheck } from '@tamanu/shared/permissions/middleware';
 import { ASSET_MIME_TYPES, ASSET_NAMES } from '@tamanu/constants/importable';
 
 export const assetRoutes = express.Router();
-
-//TODO: Remove when permission check are implemented in all central server routes
-assetRoutes.use(ensurePermissionCheck);
 
 const assetSchema = yup.object().shape({
   name: yup
@@ -25,7 +21,9 @@ const assetSchema = yup.object().shape({
 assetRoutes.put(
   '/:name',
   asyncHandler(async (req, res) => {
-    req.checkPermission('write', 'Asset');
+    // Flagging permission check in case the request fails validation
+    // Then we have further permission check for assets afterwards.
+    req.flagPermissionChecked();
 
     const { params, body } = req;
     const { name } = params;
