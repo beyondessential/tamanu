@@ -8,14 +8,14 @@ const testTitle = 'HGU59KRC';
 
 export const LabAttachmentModal = ({ open, onClose, labRequest = {} }) => {
   const { latestAttachment = {} } = labRequest;
-  const { id, title } = latestAttachment;
+  const { attachmentId, title } = latestAttachment;
   // Lab attachments do not use the document metadata model, so we
   // create the needed information to reuse the functionality
   const document = {
     // TODO SAV-587: this is fraught as we only store the type in the attachment,
     // which we cannot check in the facility server
     type: SUPPORTED_CONTENT_TYPES.PDF,
-    attachmentId: id || testId,
+    attachmentId: attachmentId || testId,
     name: title || testTitle,
   };
 
