@@ -38,14 +38,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Cache dependencies
-        uses: actions/cache@v2
-        with:
-          path: ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
-
       - name: Install Java
         uses: actions/setup-java@v2
         with:
