@@ -30,7 +30,7 @@ const validateCommaSeparatedEmails = async emails => {
   return '';
 };
 
-export const EmailField = () => (
+export const EmailField = (props = {}) => (
   <Field
     name="emails"
     label="Email to (separate emails with a comma)"
@@ -40,5 +40,6 @@ export const EmailField = () => (
     rows={3}
     validate={validateCommaSeparatedEmails}
     required
+    {...props}
   />
 );

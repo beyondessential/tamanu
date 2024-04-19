@@ -62,6 +62,6 @@ export const DocumentsSearchBar = ({ setSearchParameters }) => (
     <HeaderBar>
       <Typography variant="h3">Documents search</Typography>
     </HeaderBar>
-    <Form onSubmit={values => setSearchParameters(values)} render={renderSearchBar} />
+    <Form onSubmit={async values => setSearchParameters(values)} render={renderSearchBar} />
   </Container>
 );
