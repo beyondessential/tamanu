@@ -78,20 +78,18 @@ export const defineTelegramBotService = async injector => {
    * @param {string} contactId
    */
   const subscribeCommandHandler = async (message, contactId) => {
-    const contact = await injector.models?.PatientContact.findByPk(contactId);
+    const contact = await injector.models?.PatientContact?.findByPk(contactId, {
+      include: [{ model: injector.models?.Patient, as: 'patient' }],
+    });
     if (!contact) return;
 
     contact.connectionDetails = { chatId: message.chat.id };
     await contact.save();
 
     const contactName = contact.name;
-    const patientName = [
-      contact.patient.firstName,
-      contact.patient.middleName,
-      contact.patient.lastName,
-    ].join(' ');
+    const patientName = [contact.patient.firstName, contact.patient.lastName].join(' ').trim();
 
-    const successMessage = `Dear ${contactName}, you have successfully registered to receive messages for ${patientName}. Thank you.`; //TODO: translate this
+    const successMessage = `Dear ${contactName}, you have successfully registered to receive messages for ${patientName}. Thank you.`;
 
     await sendMessage(message.chat.id, successMessage);
     websocketService.emit('telegram:subscribe', { contactId, chatId: message.chat.id });

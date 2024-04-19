@@ -40,7 +40,7 @@ export class ApplicationContext {
       this.reportSchemaStores = await initReporting();
     }
 
-    this.telegramBotService = await defineSingletonTelegramBotService({ config });
+    this.telegramBotService = await defineSingletonTelegramBotService({ config, models: this.store.models });
 
     if (await isSyncTriggerDisabled(this.store.sequelize)) {
       log.warn('Sync Trigger is disabled in the database.');
