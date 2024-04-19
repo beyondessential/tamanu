@@ -150,17 +150,16 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
             </StyledText>
           </StyledTouchableOpacity>
         </KeyboardAvoidingView>
-        <LanguageSelectButton navigation={navigation} />
       </StyledSafeAreaView>
       <StyledView
         flexDirection="row"
-        justifyContent="flex-end"
-        position="absolute"
+        justifyContent="space-between"
+        display="flex"
         bottom={screenPercentageToDP(2.43, Orientation.Height)}
-        right={screenPercentageToDP(2.43, Orientation.Width)}
         paddingLeft={screenPercentageToDP(2.43, Orientation.Width)}
         paddingRight={screenPercentageToDP(2.43, Orientation.Width)}
       >
+        <LanguageSelectButton navigation={navigation} />
         {isSupportUrlLoaded && <SupportCentreButton supportCentreUrl={supportCentreUrl} />}
       </StyledView>
     </FullView>
