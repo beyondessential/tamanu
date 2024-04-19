@@ -1,6 +1,6 @@
-import TelegramBot from 'node-telegram-bot-api';
 import { COMMUNICATION_STATUSES } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
+import TelegramBot from 'node-telegram-bot-api';
 
 /**
  *
@@ -78,6 +78,22 @@ export const defineTelegramBotService = async injector => {
    * @param {string} contactId
    */
   const subscribeCommandHandler = async (message, contactId) => {
+    const contact = await injector.models?.PatientContact.findByPk(contactId);
+    if (!contact) return;
+
+    contact.connectionDetails = { chatId: message.chat.id };
+    await contact.save();
+
+    const contactName = contact.name;
+    const patientName = [
+      contact.patient.firstName,
+      contact.patient.middleName,
+      contact.patient.lastName,
+    ].join(' ');
+
+    const successMessage = `Dear ${contactName}, you have successfully registered to receive messages for ${patientName}. Thank you.`; //TODO: translate this
+
+    await sendMessage(message.chat.id, successMessage);
     websocketService.emit('telegram:subscribe', { contactId, chatId: message.chat.id });
   };
 
