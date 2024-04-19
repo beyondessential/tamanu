@@ -27,6 +27,7 @@ describe('User import', () => {
       file: `./__tests__/importers/user/${file}.xlsx`,
       models,
       includedDataTypes: ['user'],
+      checkPermission: () => true,
       ...opts,
     });
   }
