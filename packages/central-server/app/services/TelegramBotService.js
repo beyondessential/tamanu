@@ -86,12 +86,22 @@ export const defineTelegramBotService = async injector => {
     contact.connectionDetails = { chatId: message.chat.id };
     await contact.save();
 
+    const getTranslation = await injector.models?.TranslatedString?.getTranslationFunction(
+      injector.config.language,
+      ['telegramRegistration'],
+    );
+    const botInfo = await getBotInfo();
     const contactName = contact.name;
     const patientName = [contact.patient.firstName, contact.patient.lastName].join(' ').trim();
 
-    const successMessage = `Dear ${contactName}, you have successfully registered to receive messages for ${patientName}. Thank you.`;
+    const successMessage = getTranslation(
+      'telegramRegistration.successMessage',
+      `Dear <strong>:contactName</strong>, you have successfully registered to receive messages for <strong>:patientName</strong> from <strong>:botName</strong>. Thank you.
+      \nIf you would prefer to not receive future messages from <strong>:botName</strong>, please select :command`,
+      { contactName, patientName, botName: botInfo.first_name, command: '/unsubscribe' },
+    );
 
-    await sendMessage(message.chat.id, successMessage);
+    await sendMessage(message.chat.id, successMessage, { parse_mode: 'HTML' });
     websocketService?.emit('telegram:subscribe', { contactId, chatId: message.chat.id });
   };
 

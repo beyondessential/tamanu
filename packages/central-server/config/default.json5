@@ -1255,5 +1255,6 @@
   },
   "patientCommunication": {
     "retryThreshold": 20
-  }
+  },
+  "language": "en"
 }
