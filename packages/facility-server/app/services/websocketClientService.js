@@ -1,4 +1,4 @@
-const { io } = require('socket.io-client');
+import { io } from 'socket.io-client';
 
 /**
  *
@@ -23,6 +23,21 @@ export const defineWebsocketClientService = injector => {
       await contact.save();
 
       injector.websocketService.emit('telegram:subscribe:success', { contactId, chatId });
+    },
+  );
+
+  client.on(
+    'telegram:unsubscribe',
+    /**
+     *
+     * @param {{ contactId: string }} payload
+     */
+    async ({ contactId }) => {
+      const contact = await injector.models?.PatientContact.findByPk(contactId);
+      if (!contact) return;
+
+      await contact.destroy();
+      injector.websocketService.emit('telegram:unsubscribe:success', { contactId });
     },
   );
 

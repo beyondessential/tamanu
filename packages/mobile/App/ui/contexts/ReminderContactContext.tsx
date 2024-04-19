@@ -63,8 +63,10 @@ const Provider = ({ children, selectedPatient }: BaseAppProps & { children: Reac
   useEffect(() => {
     if (!socket) return;
     socket.on('telegram:subscribe', handleTelegramSubscribe);
+    socket.on('telegram:unsubscribe', handleTelegramUnsubscribe);
     return () => {
       socket.off('telegram:subscribe', handleTelegramSubscribe);
+      socket.off('telegram:unsubscribe', handleTelegramUnsubscribe);
     };
   }, [socket]);
 
@@ -87,6 +89,21 @@ const Provider = ({ children, selectedPatient }: BaseAppProps & { children: Reac
         }
         return c;
       }),
+    );
+  }, []);
+
+  const handleTelegramUnsubscribe = useCallback(async data => {
+    const contact = await PatientContact.findOne({
+      where: { id: data.contactId },
+    });
+    if (!contact) return;
+
+    await PatientContact.updateValues(contact.id, {
+      deletedAt: new Date(),
+    });
+
+    setReminderContactList(prev =>
+      prev.filter(c => c.id !== contact.id),
     );
   }, []);
 
