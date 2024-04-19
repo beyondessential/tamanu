@@ -42,7 +42,7 @@ export const ReminderContactModal = ({ onClose, open }) => {
   const [pendingContacts, setPendingContacts] = useState({});
   const [successContactIds, setSuccessContactIds] = useState([]);
   const [selectedContact, setSelectedContact] = useState();
-  const { socket } = useSocket({ settings: { autoConnect: false } });
+  const { socket } = useSocket();
 
   const subscribersListener = (data) => {
     setSuccessContactIds(prev => [...prev, data?.contactId]);
