@@ -154,8 +154,9 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
       <StyledView
         flexDirection="row"
         justifyContent="space-between"
+        alignItems="flex-end"
         display="flex"
-        bottom={screenPercentageToDP(2.43, Orientation.Height)}
+        bottom={screenPercentageToDP(1.62, Orientation.Height)}
         paddingLeft={screenPercentageToDP(2.43, Orientation.Width)}
         paddingRight={screenPercentageToDP(2.43, Orientation.Width)}
       >
