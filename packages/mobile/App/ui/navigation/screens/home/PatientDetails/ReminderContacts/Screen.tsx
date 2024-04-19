@@ -65,7 +65,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
   };
 
   const onRetryConnect = (contact: IPatientContact) => {
-    afterAddContact(contact.id);
+    afterAddContact(contact);
     navigation.navigate(Routes.HomeStack.PatientDetailsStack.ReminderContactQR, {
       contactId: contact.id,
     });
