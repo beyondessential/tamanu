@@ -1,4 +1,4 @@
-import io, { ManagerOptions, SocketOptions } from 'socket.io-client';
+import io, { ManagerOptions, Socket, SocketOptions } from 'socket.io-client';
 import { useEffect, useState } from 'react';
 import { readConfig } from '~/services/config';
 
@@ -8,7 +8,7 @@ interface Props extends Partial<ManagerOptions & SocketOptions> {
 
 export const useSocket = (props: Props = {}) => {
   const { uri, ...others } = props;
-  const [socket, setSocket] = useState(null);
+  const [socket, setSocket] = useState<Socket | null>(null);
 
   useEffect(() => {
     initSocket();
