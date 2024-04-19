@@ -26,6 +26,7 @@ import { useProgramRegistryContext } from '../../contexts/ProgramRegistry';
 const SurveyFlow = ({ patient, currentUser }) => {
   const api = useApi();
   const params = useParams();
+  const dispatch = useDispatch();
   const { encounter, loadEncounter } = useEncounter();
   const { navigateToEncounter, navigateToPatient } = usePatientNavigation();
   const [survey, setSurvey] = useState(null);
@@ -102,6 +103,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
     if (params?.encounterId && encounter && !encounter.endDate) {
       navigateToEncounter(params.encounterId, { tab: ENCOUNTER_TAB_NAMES.FORMS });
     } else {
+      await dispatch(reloadPatient(patient.id));
       navigateToPatient(patient.id, { tab: PATIENT_TABS.PROGRAMS });
     }
   };
