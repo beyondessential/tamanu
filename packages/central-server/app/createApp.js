@@ -41,7 +41,7 @@ export async function createApp(ctx) {
   const server = createServer(express);
   const websocketService = defineWebsocketService({ httpServer: server });
   ctx.telegramBotService?.registerWebsocketService(websocketService);
-  registerWebsocketEvents({ websocketService, telegramBotService: ctx.telegramBotService });
+  registerWebsocketEvents({ websocketService, telegramBotService: ctx.telegramBotService, models: store.models });
 
   let errorMiddleware = null;
   if (config.errors?.enabled) {

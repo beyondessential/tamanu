@@ -18,11 +18,11 @@ export const StyledViewWithBorder = styled(StyledView)`
 export const ContactCard = (contact: IPatientContact) => {
   const { name, relationship, method, connectionDetails } = contact;
   const { isFailedContact } = useReminderContact();
-  const textColor = connectionDetails
-    ? theme.colors.MAIN_SUPER_DARK
-    : isFailedContact(contact)
-    ? theme.colors.ALERT
-    : theme.colors.TEXT_SOFT;
+
+  const getColor = () => {
+    if (connectionDetails) return theme.colors.MAIN_SUPER_DARK;
+    return isFailedContact(contact) ? theme.colors.ALERT : theme.colors.TEXT_SOFT;
+  };
 
   return (
     <StyledViewWithBorder>
@@ -37,7 +37,7 @@ export const ContactCard = (contact: IPatientContact) => {
             fallback="Contact"
           />
         </StyledText>
-        <StyledText color={textColor} fontSize={screenPercentageToDP(2, Orientation.Height)}>
+        <StyledText color={getColor()} fontSize={screenPercentageToDP(2, Orientation.Height)}>
           {name}
         </StyledText>
       </RowView>
@@ -52,7 +52,7 @@ export const ContactCard = (contact: IPatientContact) => {
             fallback="Relationship"
           />
         </StyledText>
-        <StyledText color={textColor} fontSize={screenPercentageToDP(2, Orientation.Height)}>
+        <StyledText color={getColor()} fontSize={screenPercentageToDP(2, Orientation.Height)}>
           {relationship?.name}
         </StyledText>
       </RowView>
@@ -67,7 +67,7 @@ export const ContactCard = (contact: IPatientContact) => {
             fallback="Contact Method"
           />
         </StyledText>
-        <StyledText color={textColor} fontSize={screenPercentageToDP(2, Orientation.Height)}>
+        <StyledText color={getColor()} fontSize={screenPercentageToDP(2, Orientation.Height)}>
           {connectionDetails ? (
             <TranslatedText
               stringId={`patient.details.reminderContacts.method.${method}`}
@@ -75,13 +75,13 @@ export const ContactCard = (contact: IPatientContact) => {
             />
           ) : isFailedContact(contact) ? (
             <TranslatedText
-              stringId={'patient.details.reminderContacts.status.failed'}
-              fallback={'Failed'}
+              stringId="patient.details.reminderContacts.status.failed"
+              fallback="Failed"
             />
           ) : (
             <TranslatedText
-              stringId={'patient.details.reminderContacts.status.pending'}
-              fallback={':method pending'}
+              stringId="patient.details.reminderContacts.status.pending"
+              fallback=":method pending"
               replacements={{ method }}
             />
           )}

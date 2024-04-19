@@ -46,7 +46,16 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
       method: PATIENT_COMMUNICATION_CHANNELS.TELEGRAM,
       patient: selectedPatient.id,
     });
-    afterAddContact(newContact.id);
+    afterAddContact(
+      {
+        ...newContact,
+        relationshipId: values.reminderContactRelationship,
+        patientId: selectedPatient.id,
+        patient: newContact.patient as any,
+        relationship: newContact.relationship as any,
+      },
+      true,
+    );
     navigation.navigate(Routes.HomeStack.PatientDetailsStack.ReminderContactQR, {
       contactId: newContact.id,
     });

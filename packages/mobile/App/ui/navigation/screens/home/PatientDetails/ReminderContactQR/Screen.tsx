@@ -32,12 +32,20 @@ const Screen = ({ navigation, route, selectedPatient }: IReminderContactQR) => {
   useEffect(() => {
     if (!socket) return;
     socket.emit('telegram:get-bot-info');
-    socket.once('telegram:bot-info', botInfo => {
+    socket.once('telegram:bot-info', handleBotInfo);
+    return () => {
+      socket.off('telegram:bot-info', handleBotInfo);
+    };
+  }, [socket]);
+
+  const handleBotInfo = useCallback(
+    botInfo => {
       if (botInfo?.username && contactId) {
         setEmbedUrl(`https://t.me/${botInfo.username}?start=${contactId}`);
       }
-    });
-  }, [socket]);
+    },
+    [contactId],
+  );
 
   const onNavigateBack = useCallback(() => {
     navigation.navigate(Routes.HomeStack.PatientDetailsStack.Index);
