@@ -16,10 +16,7 @@ import { useEncounter } from '../contexts/Encounter';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 
 const baseVitalsSchema = yup.object().shape({
-  [VITALS_DATA_ELEMENT_IDS.dateRecorded]: yup
-    .date()
-    .required()
-    .label('dateRecorded'),
+  [VITALS_DATA_ELEMENT_IDS.dateRecorded]: yup.date().required('Required'),
 });
 
 export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterType }) => {
@@ -31,9 +28,13 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterTyp
   } = combineQueries([useVitalsSurveyQuery(), usePatientAdditionalDataQuery(patient.id)]);
   const { encounter } = useEncounter();
   const { components = [] } = vitalsSurvey || {};
-  const currentComponents = components.filter(
-    c => c.visibilityStatus === VISIBILITY_STATUSES.CURRENT,
-  );
+  const currentComponents = components
+    .filter(c => c.visibilityStatus === VISIBILITY_STATUSES.CURRENT)
+    .map(c =>
+      c.dataElementId === VITALS_DATA_ELEMENT_IDS.dateRecorded
+        ? { ...c, validationCriteria: JSON.stringify({ mandatory: true }) }
+        : c,
+    );
   const validationSchema = useMemo(
     () =>
       getValidationSchema(
