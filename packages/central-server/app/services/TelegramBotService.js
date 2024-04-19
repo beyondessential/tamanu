@@ -103,7 +103,8 @@ export const defineTelegramBotService = async injector => {
         await unsubscribeCommandHandler(query.message, data[1]);
       }
       // eslint-disable-next-line no-empty
-    } catch {
+    } catch (e) {
+      log.error('telegram callback query failed', { error: e.message });
     } finally {
       bot.answerCallbackQuery({ callback_query_id: query.id });
     }
