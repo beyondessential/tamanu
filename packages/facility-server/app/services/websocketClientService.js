@@ -26,6 +26,21 @@ export const defineWebsocketClientService = injector => {
     },
   );
 
+  client.on(
+    'telegram:unsubscribe',
+    /**
+     *
+     * @param {{ contactId: string }} payload
+     */
+    async ({ contactId }) => {
+      const contact = await injector.models?.PatientContact.findByPk(contactId);
+      if (!contact) return;
+
+      await contact.destroy();
+      injector.websocketService.emit('telegram:unsubscribe:success', { contactId });
+    },
+  );
+
   const emit = (eventName, ...args) => client.emit(eventName, ...args);
 
   const listenOnce = (eventName, callback) => client.once(eventName, callback);

@@ -111,8 +111,85 @@ export const defineTelegramBotService = async injector => {
    * @param {string} contactId
    */
   const unsubscribeCommandHandler = async (message, contactId) => {
-    const botInfo = await getBotInfo();
-    websocketService?.emit('telegram:unsubscribe', { contactId, chatId: message.chat.id, botInfo });
+    const chatId = message.chat.id;
+
+    const getTranslation = await injector.models?.TranslatedString.getTranslationFunction(
+      injector.config.language,
+      ['telegramDeregistration'],
+    );
+
+    const handleNoResults = () => {
+      const message = getTranslation(
+        'telegramDeregistration.alreadyUnsubscribed',
+        'You are already unsubscribed',
+      );
+      sendMessage.emit(chatId, message);
+    };
+
+    const handleRemoveContact = async contact => {
+      await contact.destroy();
+      const botInfo = await getBotInfo();
+
+      const contactName = contact.name;
+      const patientName = [contact.patient.firstName, contact.patient.lastName].join(' ').trim();
+
+      const successMessage = getTranslation(
+        'telegramDeregistration.successMessage',
+        `Dear <strong>:contactName</strong>, you have successfully deregistered from receiving messages for <strong>:patientName</strong> from <strong>:botName</strong>. Thank you.`,
+        { contactName, patientName, botName: botInfo.first_name },
+      );
+
+      sendMessage(chatId, successMessage, { parse_mode: 'HTML' });
+      websocketService.emit('telegram:unsubscribe', { contactId: contact.id });
+    };
+
+    if (!contactId) {
+      const contacts = await injector.models?.PatientContact?.findAll({
+        where: { 'connectionDetails.chatId': chatId },
+        include: [{ model: injector.models?.Patient, as: 'patient' }],
+      });
+
+      if (!contacts?.length) {
+        handleNoResults();
+        return;
+      }
+
+      if (contacts.length === 1) {
+        await handleRemoveContact(contacts[0]);
+        return;
+      }
+
+      const patientList = contacts.map(contact => [
+        {
+          text: [contact.patient.firstName, contact.patient.lastName].join(' ').trim(),
+          callback_data: `unsubscribe-contact|${contact.id}`,
+        },
+      ]);
+
+      const message = getTranslation(
+        'telegramDeregistration.selectPatientToDeregister',
+        'Please select the patient you would like to deregister from receiving messages.',
+      );
+
+      sendMessage(chatId, message, {
+        reply_markup: {
+          inline_keyboard: patientList,
+        },
+      });
+
+      return;
+    }
+
+    const contact = await injector.models?.PatientContact?.findByPk(contactId, {
+      include: [{ model: injector.models?.Patient, as: 'patient' }],
+    });
+
+    if (!contact) {
+      handleNoResults();
+      return;
+    }
+
+    await handleRemoveContact(contact);
   };
 
   await setWebhook(injector.config.telegramBot.webhook);
