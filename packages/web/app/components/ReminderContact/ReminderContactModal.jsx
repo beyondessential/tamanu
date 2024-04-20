@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 import { Box } from '@material-ui/core';
 
-import { AddReminderContact } from '../AddReminderContact';
+import { AddReminderContact } from './AddReminderContact';
 import { BaseModal } from '../BaseModal';
 import { ReminderContactList } from './ReminderContactList';
 import { ReminderContactQR } from './ReminderContactQR';
@@ -35,7 +35,7 @@ const REMINDER_CONTACT_VIEWS = {
 
 const DEFAULT_CONTACT_TIMEOUT = 2*60*1000; // 2 minutes
 
-export const ReminderContactModal = ({ onClose, open }) => {
+export const ReminderContactModal = ({ onClose: onCloseDefault, open }) => {
   const { getTranslation } = useTranslation();
   const [activeView, setActiveView] = useState(REMINDER_CONTACT_VIEWS.REMINDER_CONTACT_LIST);
   const [newContact, setNewContact] = useState({});
@@ -43,6 +43,10 @@ export const ReminderContactModal = ({ onClose, open }) => {
   const [successContactIds, setSuccessContactIds] = useState([]);
   const [selectedContact, setSelectedContact] = useState();
   const { socket } = useSocket();
+  const onClose = () => {
+    setActiveView(REMINDER_CONTACT_VIEWS.REMINDER_CONTACT_LIST);
+    onCloseDefault();
+  };
 
   const subscribersListener = (data) => {
     setSuccessContactIds(prev => [...prev, data?.contactId]);
@@ -106,11 +110,6 @@ export const ReminderContactModal = ({ onClose, open }) => {
     handleActiveView(REMINDER_CONTACT_VIEWS.REMOVE_REMINDER);
   };
 
-  const handleQrModalClose = () => {
-    onClose();
-    handleActiveView(REMINDER_CONTACT_VIEWS.REMINDER_CONTACT_LIST);
-  };
-
   return (
     <StyledBaseModal
       width={activeView === REMINDER_CONTACT_VIEWS.REMOVE_REMINDER ? 'sm' : 'md'}
@@ -135,7 +134,7 @@ export const ReminderContactModal = ({ onClose, open }) => {
         {activeView === REMINDER_CONTACT_VIEWS.ADD_REMINDER_QR_CODE && (
           <ReminderContactQR
             contact={newContact}
-            onClose={handleQrModalClose}
+            onClose={onBack}
           />
         )}
         {activeView === REMINDER_CONTACT_VIEWS.REMOVE_REMINDER && (
