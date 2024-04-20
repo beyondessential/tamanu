@@ -20,6 +20,7 @@ import {
 import { ENCOUNTER_OPTIONS, FORM_TYPES } from '../constants';
 import { useSuggester } from '../api';
 import { TranslatedText } from '../components/Translation/TranslatedText';
+import { ENCOUNTER_TYPES } from '@tamanu/constants';
 
 export const EncounterForm = React.memo(
   ({ editedObject, onSubmit, patientBillingTypeId, encounterType }) => {
@@ -116,6 +117,17 @@ export const EncounterForm = React.memo(
             endpoint="patientBillingType"
             component={SuggesterSelectField}
           />
+          {encounterType === ENCOUNTER_TYPES.ADMISSION && <LocalisedField
+            name="dietId"
+            label={
+              <TranslatedText
+                stringId="general.localisedField.dietId.label"
+                fallback="Diet"
+              />
+            }
+            endpoint="diet"
+            component={SuggesterSelectField}
+          />}
           <Field
             name="reasonForEncounter"
             label={
