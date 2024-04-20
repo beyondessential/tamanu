@@ -16,7 +16,7 @@ import { CambodiaPersonalFields } from './patientFields/CambodiaPersonalFields';
 import { GenericBirthFields } from '../generic/patientFields/GenericBirthFields';
 import { PatientField, PatientFieldsGroup } from '../../PatientFields';
 import { TranslatedText } from '../../../../components/Translation/TranslatedText';
-import { ReminderContactSection } from '../../../../components/ReminderContactSection';
+import { ReminderContactSection } from '../../../../components/ReminderContact/ReminderContactSection';
 import { useLocalisation } from '../../../../contexts/Localisation';
 
 const FATHERS_FIRST_NAME_DEFINITION_ID = 'fieldDefinition-fathersFirstName';
