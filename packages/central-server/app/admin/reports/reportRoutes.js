@@ -21,6 +21,8 @@ reportsRouter.get(
   '/',
   asyncHandler(async (req, res) => {
     const { store } = req;
+    req.checkPermission('read', 'ReportDefinition');
+    req.checkPermission('read', 'ReportDefinitionVersion');
 
     const canEditSchema = req.ability.can('write', 'ReportDbSchema');
     const isReportingSchemaEnabled = config.db.reportSchemas.enabled;
@@ -54,6 +56,9 @@ reportsRouter.get(
 reportsRouter.get(
   '/:reportId/versions',
   asyncHandler(async (req, res) => {
+    req.checkPermission('read', 'ReportDefinition');
+    req.checkPermission('read', 'ReportDefinitionVersion');
+
     const { store, params } = req;
     const {
       models: { ReportDefinitionVersion },
@@ -96,6 +101,9 @@ reportsRouter.get(
 reportsRouter.post(
   '/',
   asyncHandler(async (req, res) => {
+    req.checkPermission('create', 'ReportDefinition');
+    req.checkPermission('create', 'ReportDefinitionVersion');
+
     const { store, body, user, reportSchemaStores } = req;
     const isReportingSchemaEnabled = config.db.reportSchemas.enabled;
     const defaultReportingSchema = isReportingSchemaEnabled
@@ -117,6 +125,9 @@ reportsRouter.post(
 reportsRouter.post(
   '/:reportId/versions',
   asyncHandler(async (req, res) => {
+    req.checkPermission('create', 'ReportDefinition');
+    req.checkPermission('create', 'ReportDefinitionVersion');
+
     const { store, params, body, user, reportSchemaStores } = req;
     const { reportId } = params;
     const version = await createReportDefinitionVersion(
@@ -132,6 +143,9 @@ reportsRouter.post(
 reportsRouter.get(
   '/:reportId/versions/:versionId/export/:format',
   asyncHandler(async (req, res) => {
+    req.checkPermission('read', 'ReportDefinition');
+    req.checkPermission('read', 'ReportDefinitionVersion');
+
     const { store, params } = req;
     const { ReportDefinition, ReportDefinitionVersion } = store.models;
     const { reportId, versionId, format } = params;
@@ -178,6 +192,9 @@ reportsRouter.get(
 reportsRouter.post(
   '/import',
   asyncHandler(async (req, res) => {
+    req.checkPermission('create', 'ReportDefinition');
+    req.checkPermission('create', 'ReportDefinitionVersion');
+
     const { store, user, reportSchemaStores } = req;
     const {
       models: { ReportDefinition, ReportDefinitionVersion },
@@ -273,6 +290,9 @@ reportsRouter.post(
 reportsRouter.get(
   '/:reportId/versions/:versionId',
   asyncHandler(async (req, res) => {
+    req.checkPermission('read', 'ReportDefinition');
+    req.checkPermission('read', 'ReportDefinitionVersion');
+
     const {
       store,
       params,
@@ -301,6 +321,8 @@ reportsRouter.get(
 reportsRouter.get(
   '/dbSchemaOptions',
   asyncHandler(async (req, res) => {
+    req.flagPermissionChecked();
+
     if (!config.db.reportSchemas.enabled) return res.send([]);
     const DB_SCHEMA_OPTIONS = Object.values(REPORT_DB_SCHEMAS).map(value => ({
       label: capitalize(value),
