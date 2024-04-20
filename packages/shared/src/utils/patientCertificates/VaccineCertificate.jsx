@@ -46,8 +46,11 @@ const columns = getTranslation => [
 
   {
     key: 'countryName',
-    title: getTranslation('pdf.table.column.country', 'Country'),
-    accessor: ({ countryName }) => countryName,
+    title: getTranslation('pdf.table.column.country', 'Facility/Country'),
+    accessor: record => {
+      const facility = record.givenElsewhere ? record.givenBy : record.location?.facility?.name;
+      return facility || '';
+    },
   },
 ];
 

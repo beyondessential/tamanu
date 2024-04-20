@@ -26,6 +26,18 @@ describe('Attachment (central-server)', () => {
 
   afterAll(async () => ctx.close());
 
+  beforeEach(async () => {
+    await models.Permission.truncate({ force: true });
+
+    app = await baseApp.asNewRole(
+      [
+        ['read', 'Attachment'],
+        ['create', 'Attachment'],
+      ],
+      { id: 'practitioner' },
+    );
+  });
+
   it('should send an error if attachment does not exist', async () => {
     const result = await app.get('/api/attachment/1');
     expect(result).toBeForbidden();
@@ -74,5 +86,54 @@ describe('Attachment (central-server)', () => {
     expect(result.body.attachmentId).toBeTruthy();
     const createdAttachment = await models.Attachment.findByPk(result.body.id);
     expect(createdAttachment).toBeDefined();
+  });
+
+  describe('Permissions', () => {
+    beforeEach(async () => {
+      await models.Permission.truncate({ force: true });
+    });
+
+    it('gets an attachment if there is sufficient read Attachment permission', async () => {
+      app = await baseApp.asNewRole([['read', 'Attachment']], { id: 'practitioner' });
+
+      const result = await app.get(`/v1/attachment/${attachment.id}?base64=true`);
+      expect(result).toHaveSucceeded();
+    });
+
+    it('creates an attachment if there is sufficient create Attachment permission', async () => {
+      app = await baseApp.asNewRole([['create', 'Attachment']], {
+        id: 'practitioner',
+      });
+
+      canUploadAttachment.mockImplementationOnce(async () => true);
+      const result = await app.post('/v1/attachment').send({
+        type: 'image/jpeg',
+        size: 1002,
+        data: FILEDATA,
+      });
+      expect(result).toHaveSucceeded();
+    });
+
+    it('rejects getting an attachment if there is no read Attachment permission', async () => {
+      app = await baseApp.asNewRole([['create', 'Attachment']], {
+        id: 'practitioner',
+      });
+
+      const result = await app.get(`/v1/attachment/${attachment.id}?base64=true`);
+      expect(result).toBeForbidden();
+    });
+
+    it('rejects getting an attachment if there is no create Attachment permission', async () => {
+      app = await baseApp.asNewRole([['read', 'Attachment']], { id: 'practitioner' });
+
+      canUploadAttachment.mockImplementationOnce(async () => true);
+      const result = await app.post('/v1/attachment').send({
+        type: 'image/jpeg',
+        size: 1002,
+        data: FILEDATA,
+      });
+
+      expect(result).toBeForbidden();
+    });
   });
 });
