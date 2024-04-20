@@ -1,16 +1,13 @@
-import io from 'socket.io-client';
 import { useEffect } from 'react';
+import io from 'socket.io-client';
+
+const socket = io({
+  autoConnect: false
+});
 
 export const useSocket = () => {
-  const initSocket = () => {
-    return io(undefined, {
-      transports: ['websocket'],
-    });
-  };
-  
-  const socket = initSocket();
-
   useEffect(() => {
+    socket.connect();
     return () => {
       socket.disconnect();
     };

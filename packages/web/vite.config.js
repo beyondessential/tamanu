@@ -57,6 +57,11 @@ export default defineConfig({
         // target: 'https://facility-1.main.internal.tamanu.io',
         changeOrigin: true,
       },
+      // Proxying websockets or socket.io
+      '/socket.io': {
+        target: 'ws://localhost:4000',
+        ws: true,
+      },
     },
   },
 });
