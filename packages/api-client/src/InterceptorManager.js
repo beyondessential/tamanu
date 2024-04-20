@@ -63,5 +63,3 @@ export class InterceptorManager {
     });
   }
 }
-
-export default InterceptorManager;
