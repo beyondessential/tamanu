@@ -3,7 +3,7 @@ import http from 'http';
 import supertest from 'supertest';
 
 import { COMMUNICATION_STATUSES, JWT_TOKEN_TYPES, SERVER_TYPES } from '@tamanu/constants';
-import { fake } from '@tamanu/shared/test-helpers';
+import { fake, asNewRole } from '@tamanu/shared/test-helpers';
 import { createMockReportingSchemaAndRoles } from '@tamanu/shared/demoData';
 import { DEFAULT_JWT_SECRET } from '../dist/auth';
 import { getToken } from '../dist/auth/utils';
@@ -47,7 +47,7 @@ class MockApplicationContext {
 export async function createTestContext() {
   const ctx = await new MockApplicationContext().init();
   const { models } = ctx.store;
-  const expressApp = createApp(ctx);
+  const expressApp = await createApp(ctx);
   const appServer = http.createServer(expressApp);
   const baseApp = supertest.agent(appServer);
   baseApp.set('X-Tamanu-Client', SERVER_TYPES.WEBAPP);
@@ -71,7 +71,16 @@ export async function createTestContext() {
     return baseApp.asUser(newUser);
   };
 
-  ctx.onClose(() => new Promise(resolve => { appServer.close(resolve); }));
+  baseApp.asNewRole = async (permissions = [], roleOverrides = {}) => {
+    return asNewRole(baseApp, models, permissions, roleOverrides);
+  };
+
+  ctx.onClose(
+    () =>
+      new Promise(resolve => {
+        appServer.close(resolve);
+      }),
+  );
   ctx.baseApp = baseApp;
 
   return ctx;
