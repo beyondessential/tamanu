@@ -1,3 +1,4 @@
+export const NON_DETERMINISTIC = true;
 export async function up(query) {
   await query.sequelize.query(`
     ALTER TABLE fhir.service_requests

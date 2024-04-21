@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { DateFormats } from '~/ui/helpers/constants';
 import { formatStringDate } from '~/ui/helpers/date';
 import { useBackendEffect } from '~/ui/hooks/index';
@@ -56,7 +57,7 @@ export const PatientProgramRegistrationDetails = ({ route }) => {
   const { patientProgramRegistration } = route.params;
   const [pprCondition] = useBackendEffect(
     async ({ models }) =>
-      await models.PatientProgramRegistrationCondition.findForRegistryAndPatient(
+      models.PatientProgramRegistrationCondition.findForRegistryAndPatient(
         patientProgramRegistration.programRegistryId,
         patientProgramRegistration.patientId,
       ),

@@ -20,6 +20,8 @@ async function generateData(models) {
     Note,
     PatientBirthData,
     SurveyScreenComponent,
+    ReferenceData,
+    ReferenceDataRelation,
     ReportDefinition,
     ReportDefinitionVersion,
     LabRequestLog,
@@ -32,6 +34,7 @@ async function generateData(models) {
     ProgramRegistryClinicalStatus,
     PatientProgramRegistration,
     PatientProgramRegistrationCondition,
+    PatientAllergy,
   } = models;
 
   const examiner = await User.create(fake(User));
@@ -146,6 +149,14 @@ async function generateData(models) {
       programRegistryId: programRegistry.id,
     }),
   );
+
+  await PatientAllergy.create(
+    fake(PatientAllergy, {
+      patientId: patient.id,
+    })
+  );
+  await ReferenceData.create(fake(ReferenceData));
+  await ReferenceDataRelation.create(fake(ReferenceDataRelation));
 }
 
 async function generateFake() {

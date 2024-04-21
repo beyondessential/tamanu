@@ -17,7 +17,7 @@ export const PatientProgramsPane = React.memo(({ endpoint }) => {
     <ContentPane>
       <TableButtonRow variant="small">
         <Button onClick={handleNewSurvey}>
-          <TranslatedText stringId="program.action.newSurvey" fallback="New survey" />
+          <TranslatedText stringId="program.action.newSurvey" fallback="New form" />
         </Button>
       </TableButtonRow>
       <DataFetchingProgramsTable endpoint={endpoint} />

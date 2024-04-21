@@ -341,6 +341,7 @@ describe(`Materialised FHIR - Encounter`, () => {
             upstreamId: facilityId
           }
         });
+
         const response = await app.get(
           `/api/integration/${INTEGRATION_ROUTE}/Encounter?_include=Organization:serviceProvider`,
         );

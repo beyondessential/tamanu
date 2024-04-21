@@ -51,6 +51,14 @@
     "enabled": true,
     "level": "info"
   },
+  errors: {
+    // enable to send errors to a bug tracking service
+    enabled: false,
+    // right now the only supported service is bugsnag
+    type: 'bugsnag',
+    // paste your bugsnag API key here
+    apiKey: '',
+  },
   "sync": {
     "maxConcurrentSessions": 4,
     "persistedCacheBatchSize": 20000,
@@ -890,6 +898,35 @@
       ],
       "layouts": {
         "patientDetails": "generic",
+        "mobilePatientModules": {
+          "programRegistries": {
+            "hidden": false
+          },
+          "diagnosisAndTreatment": {
+            "sortPriority": 0,
+            "hidden": false
+          },
+          "vitals": {
+            "sortPriority": 0,
+            "hidden": false
+          },
+          "programs": {
+            "sortPriority": 0,
+            "hidden": false
+          },
+          "referral": {
+            "sortPriority": 0,
+            "hidden": false
+          },
+          "vaccine": {
+            "sortPriority": 0,
+            "hidden": false
+          },
+          "tests": {
+            "sortPriority": 0,
+            "hidden": false
+          }
+        },
         "patientTabs": {
           "history": {
             "sortPriority": -100,
@@ -1097,7 +1134,7 @@
         {
           "as": "days",
           "range": {
-            "min": { "duration": { "days": 0 } },
+            "min": { "duration": { "days": 0 },  "exclusive": false  },
             "max": { "duration": { "days": 8 }, "exclusive": true }
           }
         },

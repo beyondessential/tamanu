@@ -945,12 +945,6 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       test.todo('Need to complete rigorous testing for aspects of Lab Requests searching here');
 
       describe('including', () => {
-        const resolveUpstreams = async (sequelize) => {
-          const result = await sequelize.query(`
-            CALL fhir.resolve_upstreams();      
-          `);
-          return result;
-        };
 
         beforeEach(async () => {
           const { models } = ctx.store;
@@ -961,18 +955,18 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
         });
 
         it('correctly includes a ServiceRequest', async () => {
-          const { models, sequelize } = ctx.store;
+          const { models } = ctx.store;
           const { FhirSpecimen, FhirServiceRequest } = models;
           const { labRequest } = await fakeResourcesOfFhirSpecimen(models, resources);
           const materialisedServiceRequest = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
           const materialiseSpecimen = await FhirSpecimen.materialiseFromUpstream(labRequest.id);
 
-          await resolveUpstreams(sequelize);
+          await FhirServiceRequest.resolveUpstreams();
+          await FhirSpecimen.resolveUpstreams();
 
           const path = `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest?_include=Specimen:specimen`;
           const response = await app.get(path);
           const { entry } = response.body;
-
           const fetchedServiceRequest = entry.find(
             ({ search: { mode } }) => mode === 'match',
           );

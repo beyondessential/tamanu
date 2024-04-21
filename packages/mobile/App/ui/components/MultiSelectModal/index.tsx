@@ -65,7 +65,7 @@ export const MultiSelectModalScreen = (props: IMultiSelectModalScreen) => {
           placeholder={searchPlaceholder}
         />
       </StyledView>
-      <StyledView marginRight={20} marginLeft={20} marginBottom={20}>
+      <StyledView maxHeight={300} marginRight={20} marginLeft={20} marginBottom={20}>
         <FlatList
           data={options.filter(x => {
             if (!searchValue) return true;
