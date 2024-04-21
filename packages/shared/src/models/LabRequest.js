@@ -161,7 +161,7 @@ export class LabRequest extends Model {
 
     this.hasMany(models.LabRequestAttachment, {
       foreignKey: 'labRequestId',
-      as: 'labRequestAttachment',
+      as: 'labRequestAttachments',
     });
 
     this.hasMany(models.Note, {
