@@ -30,9 +30,6 @@ export class LabRequestAttachment extends Model {
       foreignKey: 'labRequestId',
       as: 'labRequest',
     });
-    this.belongsTo(models.LabRequestAttachment, {
-      foreignKey: 'replacedBy',
-    });
   }
 
   static buildSyncFilter() {
