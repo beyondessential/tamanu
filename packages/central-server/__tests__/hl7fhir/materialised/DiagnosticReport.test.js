@@ -182,7 +182,7 @@ describe('Create DiagnosticReport', () => {
       expect(labRequest.status).toBe(LAB_REQUEST_STATUSES.PUBLISHED);
       expect(requestAttachment).toMatchObject({
         labRequestId: labRequest.id,
-        replacedBy: null,
+        replacedById: null,
         title: testAttachment.title,
       });
       expect(response).toHaveSucceeded();

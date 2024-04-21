@@ -209,7 +209,7 @@ export class LabRequest extends Model {
     return this.sequelize.models.LabRequestAttachment.findOne({
       where: {
         labRequestId: this.id,
-        replacedBy: null,
+        replacedById: null,
       },
     });
   }

@@ -160,7 +160,7 @@ export class FhirDiagnosticReport extends FhirResource {
     });
 
     if (lastAttachment) {
-      lastAttachment.set({ replacedBy: labRequestAttachment.id });
+      lastAttachment.set({ replacedById: labRequestAttachment.id });
       await lastAttachment.save();
     }
   }
