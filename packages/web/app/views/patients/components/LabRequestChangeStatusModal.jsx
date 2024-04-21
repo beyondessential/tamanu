@@ -29,7 +29,7 @@ const validationSchema = yup.object().shape({
       .translatedLabel(
         <TranslatedText
           stringId="lab.modal.changeStatus.sampleDateTime.label"
-          label="Sample date & time"
+          fallback="Sample date & time"
         />,
       ),
     otherwise: yup.string().nullable(),
@@ -70,7 +70,7 @@ export const LabRequestChangeStatusModal = React.memo(
                       label={
                         <TranslatedText
                           stringId="lab.modal.changeStatus.sampleDateTime.label"
-                          label="Sample date & time"
+                          fallback="Sample date & time"
                         />
                       }
                       required
@@ -79,7 +79,7 @@ export const LabRequestChangeStatusModal = React.memo(
                     />
                     <Field
                       name="labSampleSiteId"
-                      label={<TranslatedText stringId="lab.site.label" label="Site" />}
+                      label={<TranslatedText stringId="lab.site.label" fallback="Site" />}
                       component={SuggesterSelectField}
                       endpoint="labSampleSite"
                     />
