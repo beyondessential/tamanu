@@ -77,12 +77,19 @@ jobs:
             const { configMap } = await import(`${cwd}/packages/scripts/src/gha-cd-helpers.mjs`);
             core.setOutput('pulumi', configMap('${{ inputs.deploy-name }}', '${{ inputs.image-tag }}', ${{ inputs.options }}));
 
+      - name: Get full stack name
+        id: stack
+        working-directory: ops/pulumi/stacks/${{ fromJson(inputs.options).opsstack }}
+        run: |
+          project=$(ruby -e 'require "yaml"; puts YAML.load(open "Pulumi.yaml")["name"]')
+          echo "stackname=bes/$project/${{ inputs.deploy-name }}" >> $GITHUB_OUTPUT
+
       - name: Up!
         uses: pulumi/actions@v5
         with:
           work-dir: ops/pulumi/stacks/${{ fromJson(inputs.options).opsstack }}
           command: up
-          stack-name: bes/${{ inputs.deploy-name }}
+          stack-name: ${{ steps.stack.outputs.stackname }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           comment-on-pr: true
           upsert: true
