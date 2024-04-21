@@ -45,10 +45,6 @@ export async function up(query) {
     replaced_by: {
       type: Sequelize.STRING,
       allowNull: true,
-      references: {
-        model: 'lab_request_attachments',
-        key: 'id',
-      },
     },
   });
 }
