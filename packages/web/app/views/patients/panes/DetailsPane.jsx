@@ -5,7 +5,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useApi } from '../../../api';
 import { useAuth } from '../../../contexts/Auth';
 import { ContentPane } from '../../../components';
-import { PatientDetailsForm } from '../../../forms/PatientDetailsForm';
+import { PatientDetailsForm } from '../../../forms/PatientDetailsForm/PatientDetailsForm';
 import { reloadPatient } from '../../../store/patient';
 import { invalidatePatientDataQueries, notifyError } from '../../../utils';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';

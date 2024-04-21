@@ -5,6 +5,7 @@ import { FormModal } from './FormModal';
 import { FormSubmitCancelRow } from './ButtonRow';
 import { Field, Form, SelectField } from './Field';
 import { BodyText } from './Typography';
+import { FORM_TYPES } from '../constants';
 import { TranslatedText } from './Translation/TranslatedText';
 
 const ModalBody = styled.div`
@@ -27,6 +28,7 @@ export const CancelModal = React.memo(
     <FormModal width="sm" title={title} onClose={onClose} open={open}>
       <Form
         onSubmit={onConfirm}
+        formType={FORM_TYPES.EDIT_FORM}
         validationSchema={yup.object().shape({
           reasonForCancellation: yup.string().required(),
         })}

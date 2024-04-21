@@ -15,7 +15,7 @@ import { referenceDataImporter } from '../admin/referenceDataImporter';
 import { getRandomBase64String } from '../auth/utils';
 import { programImporter } from '../admin/programImporter/programImporter';
 
-export async function provision({ file: provisioningFile, skipIfNotNeeded }) {
+export async function provision(provisioningFile, { skipIfNotNeeded }) {
   const store = await initDatabase({ testMode: false });
   const userCount = await store.models.User.count();
   if (userCount > 0) {
@@ -44,20 +44,41 @@ export async function provision({ file: provisioningFile, skipIfNotNeeded }) {
 
   const errors = [];
   const stats = [];
-  for (const { file: referenceDataFile, ...rest } of referenceData ?? []) {
-    if (!referenceDataFile) {
+
+  const importerOptions = {
+    errors,
+    models: store.models,
+    stats,
+    includedDataTypes: [...GENERAL_IMPORTABLE_DATA_TYPES, ...PERMISSION_IMPORTABLE_DATA_TYPES],
+  };
+
+  for (const {
+    file: referenceDataFile = null,
+    url: referenceDataUrl = null,
+    ...rest
+  } of referenceData ?? []) {
+    if (!referenceDataFile && !referenceDataUrl) {
       throw new Error(`Unknown reference data import with keys ${Object.keys(rest).join(', ')}`);
     }
 
-    const realpath = resolve(provisioningFile, referenceDataFile);
-    log.info('Importing reference data file', { file: realpath });
-    await referenceDataImporter({
-      errors,
-      models: store.models,
-      stats,
-      file: realpath,
-      includedDataTypes: [...GENERAL_IMPORTABLE_DATA_TYPES, ...PERMISSION_IMPORTABLE_DATA_TYPES],
-    });
+    if (referenceDataFile) {
+      const realpath = resolve(provisioningFile, referenceDataFile);
+      log.info('Importing reference data file', { file: realpath });
+      await referenceDataImporter({
+        file: realpath,
+        ...importerOptions,
+      });
+    } else if (referenceDataUrl) {
+      log.info('Downloading reference data file', { url: referenceDataUrl });
+      const file = await fetch(referenceDataUrl);
+      const data = Buffer.from(await (await file.blob()).arrayBuffer());
+      log.info('Importing reference data', { size: data.byteLength });
+      await referenceDataImporter({
+        data,
+        file: referenceDataUrl,
+        ...importerOptions,
+      });
+    }
   }
 
   if (errors.length) {
@@ -157,19 +178,31 @@ export async function provision({ file: provisioningFile, skipIfNotNeeded }) {
   /// ////////
   /// PROGRAMS
 
-  for (const { file: programFile, ...rest } of programs) {
-    if (!programFile) {
+  const programOptions = { errors, models: store.models, stats };
+
+  for (const { file: programFile = null, url: programUrl = null, ...rest } of programs) {
+    if (!programFile && !programUrl) {
       throw new Error(`Unknown program import with keys ${Object.keys(rest).join(', ')}`);
     }
 
-    const realpath = resolve(provisioningFile, programFile);
-    log.info('Importing program from file', { file: realpath });
-    await programImporter({
-      errors,
-      models: store.models,
-      stats,
-      file: realpath,
-    });
+    if (programFile) {
+      const realpath = resolve(provisioningFile, programFile);
+      log.info('Importing program file', { file: realpath });
+      await programImporter({
+        file: realpath,
+        ...programOptions,
+      });
+    } else if (programUrl) {
+      log.info('Downloading program file', { url: programUrl });
+      const file = await fetch(programUrl);
+      const data = Buffer.from(await (await file.blob()).arrayBuffer());
+      log.info('Importing program', { size: data.byteLength });
+      await programImporter({
+        data,
+        file: programUrl,
+        ...programOptions,
+      });
+    }
   }
 
   if (errors.length) {
@@ -186,7 +219,7 @@ export async function provision({ file: provisioningFile, skipIfNotNeeded }) {
 
 export const provisionCommand = new Command('provision')
   .description(
-    'Set up initial data. See https://beyond-essential.slab.com/posts/tamanu-provisioning-file-h1urgi86 for details or /docs/provisioning/example.kdl for a sample file.',
+    'Set up initial data. See https://beyond-essential.slab.com/posts/tamanu-provisioning-file-h1urgi86 for details or /docs/provisioning/example.json5 for a sample file.',
   )
   .argument('<file>', 'Path to the provisioning file')
   .option(

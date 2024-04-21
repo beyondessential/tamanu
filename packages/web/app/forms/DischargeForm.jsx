@@ -5,7 +5,7 @@ import { range } from 'lodash';
 import { isFuture, parseISO, set } from 'date-fns';
 import { format, getCurrentDateTimeString, toDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { Divider as BaseDivider } from '@material-ui/core';
-import { Colors, FORM_STATUSES } from '../constants';
+import { Colors, FORM_STATUSES, FORM_TYPES } from '../constants';
 import { useApi } from '../api';
 import { foreignKey } from '../utils/validation';
 
@@ -34,6 +34,7 @@ import { DiagnosisList } from '../components/DiagnosisList';
 import { useEncounter } from '../contexts/Encounter';
 import { MODAL_PADDING_LEFT_AND_RIGHT, MODAL_PADDING_TOP_AND_BOTTOM } from '../components';
 import { TranslatedText } from '../components/Translation/TranslatedText';
+import { useTranslation } from '../contexts/Translation';
 
 const Divider = styled(BaseDivider)`
   margin: 30px -${MODAL_PADDING_LEFT_AND_RIGHT}px;
@@ -329,6 +330,12 @@ export const DischargeForm = ({
   const [dischargeNotes, setDischargeNotes] = useState([]);
   const api = useApi();
   const { getLocalisedSchema } = useLocalisedSchema();
+  const { getTranslation } = useTranslation()
+
+  const clinicianText = getTranslation(
+    'general.localisedField.clinician.label.short',
+    'Clinician',
+  ).toLowerCase();
 
   // Only display medications that are not discontinued
   // Might need to update condition to compare by end date (decision pending)
@@ -361,13 +368,16 @@ export const DischargeForm = ({
       onCancel={onCancel}
       initialValues={getDischargeInitialValues(encounter, dischargeNotes, medicationInitialValues)}
       FormScreen={DischargeFormScreen}
+      formType={FORM_TYPES.CREATE_FORM}
       SummaryScreen={DischargeSummaryScreen}
       validationSchema={yup.object().shape({
         endDate: yup.date().required(),
         discharge: yup
           .object()
           .shape({
-            dischargerId: foreignKey('Required'),
+            dischargerId: foreignKey(
+              `Discharging ${clinicianText.toLowerCase()} is a required field`,
+            ),
           })
           .shape({
             dispositionId: getLocalisedSchema({
@@ -414,7 +424,7 @@ export const DischargeForm = ({
           name="discharge.dispositionId"
           label={
             <TranslatedText
-              stringId="general.localisedField.discharge.dischargeDisposition.label"
+              stringId="general.localisedField.dischargeDisposition.label"
               fallback="Discharge disposition"
             />
           }

@@ -13,7 +13,7 @@ import {
   TextField,
 } from '../../../components/Field';
 import { FormGrid, SmallGridSpacer } from '../../../components/FormGrid';
-import { TEMPLATE_TYPE_OPTIONS } from '../../../constants';
+import { FORM_TYPES, TEMPLATE_TYPE_OPTIONS } from '../../../constants';
 
 import { Button } from '../../../components/Button';
 import { ButtonRow } from '../../../components/ButtonRow';
@@ -62,6 +62,7 @@ export const NewTemplateForm = memo(({ onSubmit }) => {
     <Form
       onSubmit={onSubmit}
       render={renderForm}
+      formType={FORM_TYPES.CREATE_FORM}
       initialValues={{ type: TEMPLATE_TYPES.PATIENT_LETTER }}
       validationSchema={yup.object().shape({
         type: yup.string().required(),

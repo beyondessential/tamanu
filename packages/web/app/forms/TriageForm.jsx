@@ -24,16 +24,15 @@ import { NestedVitalsModal } from '../components/NestedVitalsModal';
 import { useApi, useSuggester } from '../api';
 import { useLocalisation } from '../contexts/Localisation';
 import { getAnswersFromData } from '../utils';
+import { FORM_TYPES } from '../constants';
 import { LowerCase } from '../components';
 import { TranslatedText } from '../components/Translation/TranslatedText';
+import { useTranslation } from '../contexts/Translation';
 
 const InfoPopupLabel = React.memo(() => (
   <span>
     <span>
-      <TranslatedText
-        stringId="patient.modal.triage.triageScore.label"
-        fallback="Triage score"
-      />
+      <TranslatedText stringId="patient.modal.triage.triageScore.label" fallback="Triage score" />
     </span>
     {/* Todo: convert triage flow chart to a configurable asset */}
     {/* <ImageInfoModal src={triageFlowchart} /> */}
@@ -51,6 +50,8 @@ export const TriageForm = ({
   const dispatch = useDispatch();
   const { getLocalisation } = useLocalisation();
   const triageCategories = getLocalisation('triageCategories');
+  const { getTranslation } = useTranslation();
+  const clinicianText = getTranslation('general.localisedField.clinician.label.short', 'Clinician');
   const practitionerSuggester = useSuggester('practitioner');
   const triageReasonSuggester = useSuggester('triageReason');
 
@@ -220,6 +221,7 @@ export const TriageForm = ({
         triageTime: getCurrentDateTimeString(),
         ...editedObject,
       }}
+      formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
       validationSchema={yup.object().shape({
         arrivalTime: yup.date().max(new Date(), 'Arrival time cannot be in the future'),
         triageTime: yup
@@ -227,7 +229,7 @@ export const TriageForm = ({
           .required()
           .max(new Date(), 'Triage time cannot be in the future'),
         chiefComplaintId: foreignKey('Chief complaint must be selected'),
-        practitionerId: foreignKey('Required'),
+        practitionerId: foreignKey(`Triage ${clinicianText.toLowerCase()} must be selected`),
         locationId: foreignKey('Location must be selected'),
         score: yup.string().required(),
       })}

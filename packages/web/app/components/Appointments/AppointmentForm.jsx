@@ -6,7 +6,7 @@ import { AutocompleteField, DateTimeField, Field, Form, SelectField } from '../F
 import { FormSubmitCancelRow } from '../ButtonRow';
 import { FormSeparatorLine } from '../FormSeparatorLine';
 import { useApi, usePatientSuggester, useSuggester } from '../../api';
-import { APPOINTMENT_TYPE_OPTIONS } from '../../constants';
+import { APPOINTMENT_TYPE_OPTIONS, FORM_TYPES } from '../../constants';
 import { TranslatedText } from '../Translation/TranslatedText';
 
 export const AppointmentForm = props => {
@@ -51,12 +51,13 @@ export const AppointmentForm = props => {
   return (
     <Form
       initialValues={initialValues}
+      formType={isUpdating ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
       onSubmit={createAppointment}
       validationSchema={yup.object().shape({
         patientId: yup.string().required('Please select a patient'),
         type: yup.string().required('Please choose an appointment type'),
         startTime: yup.string().required('Please select a start time'),
-        clinicianId: yup.string().required('Required'),
+        clinicianId: yup.string().required('Please select a clinician'),
         locationGroupId: yup
           .string()
           .required('Please select an area')

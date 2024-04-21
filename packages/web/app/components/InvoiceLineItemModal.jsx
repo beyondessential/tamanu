@@ -8,6 +8,7 @@ import { FormModal } from './FormModal';
 import { AutocompleteField, DateField, Field, Form, NumberField } from './Field';
 import { FormGrid } from './FormGrid';
 import { FormSubmitCancelRow } from './ButtonRow';
+import { FORM_TYPES } from '../constants';
 import { TranslatedText } from './Translation/TranslatedText';
 
 export const InvoiceLineItemModal = ({
@@ -118,6 +119,7 @@ export const InvoiceLineItemModal = ({
           </FormGrid>
         )}
         initialValues={initialValues}
+        formType={invoiceLineItem ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
         validationSchema={yup.object().shape({
           invoiceLineTypeId: foreignKey('Details is required'),
           orderedById: foreignKey('Ordered by must be selected'),

@@ -32,6 +32,7 @@ import { SYNC_EVENT_ACTIONS } from '~/services/sync/types';
 import { BackendContext } from '~/ui/contexts/BackendContext';
 import { MobileSyncManager } from '~/services/sync/MobileSyncManager';
 import { RegistrationStatus } from '~/constants/programRegistries';
+import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 
 type FieldProp = [FieldInputProps<any>, FieldMetaProps<any>, FieldHelperProps<any>];
 
@@ -93,6 +94,8 @@ const searchAndFilterPatients = async (
 
   const queryBuilder = models.Patient.getRepository().createQueryBuilder('patient');
 
+  queryBuilder.leftJoinAndSelect('patient.village', 'referenceData');
+
   // Add the search term, which can match across any of 5 key fields
   queryBuilder.where(
     `(
@@ -150,7 +153,7 @@ const Screen: FC<ViewAllScreenProps> = ({
 
   const [list] = useBackendEffect(
     ({ models }) => searchAndFilterPatients(models, searchField, activeFilters),
-    [searchField.value, activeFilters],
+    [searchField.value, activeFilters, syncEnded],
   );
 
   useEffect(() => {
@@ -192,7 +195,13 @@ const Screen: FC<ViewAllScreenProps> = ({
           bordered
           textColor={theme.colors.WHITE}
           onPress={onNavigateToFilters}
-          buttonText={`Filters ${activeFilterCount > 0 ? `${activeFilterCount}` : ''}`}
+          buttonText={
+            <TranslatedText
+              stringId="patient.search.filterCount"
+              fallback="Filters :filterCount"
+              replacements={{ filterCount: activeFilterCount > 0 ? activeFilterCount : '' }}
+            />
+          }
         >
           <StyledView marginRight={screenPercentageToDP(2.43, Orientation.Width)}>
             <FilterIcon

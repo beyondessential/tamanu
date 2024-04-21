@@ -251,6 +251,74 @@ describe('settings', () => {
       });
     });
 
+    describe('a JSON5 file', () => {
+      it('to global namespace', async () => {
+        const { Setting } = ctx.store.models;
+        const file = join(tempdir, 'test.json5');
+        await writeFile(
+          file,
+          `
+          {
+            character: "Marten Reed",
+            firstAppearance: 1,
+            human: true,
+          }
+          `,
+        );
+
+        await expect(loadSettings('test.json5', file)).resolves.toMatchSnapshot();
+
+        await expect(Setting.get('test.json5')).resolves.toStrictEqual({
+          character: 'Marten Reed',
+          firstAppearance: 1,
+          human: true,
+        });
+      });
+
+      it('to a facility', async () => {
+        const { Setting } = ctx.store.models;
+        const file = join(tempdir, 'test.json5');
+        await writeFile(
+          file,
+          `
+          {
+            character: "Pintsize",
+            firstAppearance: 1,
+            human: false,
+          }
+          `,
+        );
+
+        await expect(loadSettings('test.json5', file, { facility })).resolves.toMatchSnapshot();
+
+        await expect(Setting.get('test.json5')).resolves.toBe(undefined);
+        await expect(Setting.get('test.json5', facility)).resolves.toStrictEqual({
+          character: 'Pintsize',
+          firstAppearance: 1,
+          human: false,
+        });
+      });
+
+      it('preview only', async () => {
+        const { Setting } = ctx.store.models;
+        const file = join(tempdir, 'test.json5');
+        await writeFile(
+          file,
+          `
+          {
+            character: "Claire Augustus",
+            firstAppearance: 2203,
+            human: true,
+          }
+          `,
+        );
+
+        await expect(loadSettings('test.json5', file, { preview: true })).resolves.toMatchSnapshot();
+
+        await expect(Setting.get('test.json5')).resolves.toBe(undefined);
+      });
+    });
+
     describe('a KDL file', () => {
       it('to global namespace', async () => {
         const { Setting } = ctx.store.models;

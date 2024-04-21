@@ -19,6 +19,7 @@ import { ModalLoader } from '../components/BaseModal';
 import { Button, OutlinedButton } from '../components';
 import { PatientDetailsCard } from '../components/PatientDetailsCard';
 import { ModalGenericButtonRow } from '../components/ModalActionRow';
+import { FORM_TYPES } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 
 const TallMultilineTextField = props => (
@@ -67,7 +68,7 @@ const PatientLetterFormContents = ({ submitForm, onCancel, setValues }) => {
       <FormGrid columns={2} nested>
         <Field
           name="clinicianId"
-          label={<TranslatedText stringId="general.clinican.label" fallback="Clinician" />}
+          label={<TranslatedText stringId="general.clinician.label" fallback="Clinician" />}
           required
           component={AutocompleteField}
           suggester={practitionerSuggester}
@@ -83,18 +84,14 @@ const PatientLetterFormContents = ({ submitForm, onCancel, setValues }) => {
       <StyledFormGrid columns={1}>
         <Field
           name="templateId"
-          label={
-            <TranslatedText stringId="patientLetter.template.label" fallback="Template" />
-          }
+          label={<TranslatedText stringId="patientLetter.template.label" fallback="Template" />}
           suggester={patientLetterTemplateSuggester}
           component={AutocompleteField}
           onChange={e => onChangeTemplate(e.target.value)}
         />
         <Field
           name="title"
-          label={
-            <TranslatedText stringId="patientLetter.title.label" fallback="Letter title" />
-          }
+          label={<TranslatedText stringId="patientLetter.title.label" fallback="Letter title" />}
           required
           component={TextField}
           disabled={templateLoading}
@@ -172,6 +169,7 @@ export const PatientLetterForm = ({ onSubmit, onCancel, editedObject, endpoint, 
         clinicianId: currentUser.id,
         ...editedObject,
       }}
+      formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
       validationSchema={yup.object().shape({
         date: yup.date().required('Date is required'),
         clinicianId: yup.string().required('Clinician is required'),

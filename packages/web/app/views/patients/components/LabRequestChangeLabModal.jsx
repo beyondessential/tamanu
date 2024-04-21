@@ -10,6 +10,7 @@ import {
   FormModal,
   ModalFormActionRow,
 } from '../../../components';
+import { FORM_TYPES } from '../../../constants';
 
 const validationSchema = yup.object().shape({
   labTestLaboratoryId: yup.string().required('Laboratory is required'),
@@ -34,6 +35,7 @@ export const LabRequestChangeLabModal = React.memo(
           initialValues={{
             labTestLaboratoryId: labRequest?.labTestLaboratoryId,
           }}
+          formType={FORM_TYPES.EDIT_FORM}
           render={({ submitForm }) => (
             <FormGrid columns={1}>
               <Field

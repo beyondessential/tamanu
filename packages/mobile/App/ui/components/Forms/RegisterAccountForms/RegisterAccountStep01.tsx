@@ -29,11 +29,7 @@ export const RegisterAccountStep01: FunctionComponent<any> = (props: {
   </FullView>
 );
 
-interface FormProps {
-  navigation: NavigationProp<any>;
-}
-
-const Form: FunctionComponent<any> = ({ navigation }: FormProps) => (
+const Form: FunctionComponent<any> = () => (
   <Formik
     initialValues={{
       firstName: '',

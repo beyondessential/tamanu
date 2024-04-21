@@ -27,6 +27,7 @@ import {
 } from '../../reports/ParameterField';
 import { useAuth } from '../../../contexts/Auth';
 import { useApi } from '../../../api';
+import { FORM_TYPES } from '../../../constants';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const StyledField = styled(Field)`
@@ -110,7 +111,8 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
   const { ability } = useAuth();
   const api = useApi();
   const setQuery = query => setValues({ ...values, query });
-  const params = values.parameters || [];
+  const params =
+    values.parameters.map(param => ({ ...generateDefaultParameter(), ...param })) || [];
   const setParams = newParams => setValues({ ...values, parameters: newParams });
   const onParamsAdd = () => setParams([...params, generateDefaultParameter()]);
   const onParamsChange = (paramId, field, newValue) => {
@@ -281,6 +283,7 @@ export const ReportEditor = ({ initialValues, onSubmit, isEdit }) => {
       onSubmit={onSubmit}
       enableReinitialize
       validationSchema={schema}
+      formType={isEdit ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
       initialValues={initialValues}
       render={formikContext => <ReportEditorForm {...formikContext} isEdit={isEdit} />}
     />

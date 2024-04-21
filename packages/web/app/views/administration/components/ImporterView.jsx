@@ -11,6 +11,7 @@ import { FormGrid } from '../../../components/FormGrid';
 import { ButtonRow } from '../../../components/ButtonRow';
 import { Table } from '../../../components/Table';
 import { LargeOutlinedSubmitButton, LargeSubmitButton } from '../../../components/Button';
+import { FORM_TYPES } from '../../../constants';
 
 const ColorText = styled.span`
   color: ${props => props.color};
@@ -182,6 +183,7 @@ export const ImporterView = memo(({ endpoint, dataTypes, dataTypesSelectable, se
       <Form
         key={resetKey}
         onSubmit={onSubmitUpload}
+        formType={FORM_TYPES.CREATE_FORM}
         validationSchema={yup.object().shape({
           includedDataTypes: dataTypesSelectable
             ? yup

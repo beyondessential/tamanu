@@ -7,6 +7,7 @@ import { FormGrid } from '../components/FormGrid';
 import { FormSubmitCancelRow } from '../components/ButtonRow';
 
 import { foreignKey, optionalForeignKey } from '../utils/validation';
+import { FORM_TYPES } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 
 export const FamilyHistoryForm = ({
@@ -29,9 +30,7 @@ export const FamilyHistoryForm = ({
         />
         <Field
           name="recordedDate"
-          label={
-            <TranslatedText stringId="general.recordedDate.label" fallback="Date recorded" />
-          }
+          label={<TranslatedText stringId="general.recordedDate.label" fallback="Date recorded" />}
           required
           component={DateField}
           saveDateAsString
@@ -40,8 +39,8 @@ export const FamilyHistoryForm = ({
           name="relationship"
           label={
             <TranslatedText
-              stringId="familyHistory.relationship.label"
-              fallback="Relationship to patient"
+              stringId="familyHistory.relations.label"
+              fallback="Relation to patient"
             />
           }
           component={TextField}
@@ -81,6 +80,7 @@ export const FamilyHistoryForm = ({
       recordedDate: getCurrentDateTimeString(),
       ...editedObject,
     }}
+    formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
     validationSchema={yup.object().shape({
       diagnosisId: foreignKey('Diagnosis is required'),
       practitionerId: optionalForeignKey(),

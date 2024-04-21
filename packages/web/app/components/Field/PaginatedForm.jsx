@@ -135,6 +135,7 @@ export const PaginatedForm = ({
   SuccessScreen = DefaultSuccessScreen,
   validationSchema,
   initialValues,
+  formType,
   formProps,
 }) => {
   const [formState, setFormState] = useState(FORM_STATES.IDLE);
@@ -162,6 +163,7 @@ export const PaginatedForm = ({
       onSubmit={onSubmitForm}
       validationSchema={validationSchema}
       initialValues={initialValues}
+      formType={formType}
       render={({ submitForm, validateForm, values, setValues, setStatus }) => {
         if (screenIndex <= maxIndex) {
           const screenReactElement = formScreenReactElements.find((screen, i) =>

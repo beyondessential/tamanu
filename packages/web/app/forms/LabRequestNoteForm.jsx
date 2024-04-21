@@ -16,6 +16,7 @@ import {
   FormSubmitButton,
   TextField,
 } from '../components';
+import { FORM_TYPES } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 
 const Container = styled.div`
@@ -134,6 +135,7 @@ export const LabRequestNoteForm = React.memo(({ labRequestId, isReadOnly }) => {
             onSubmit={async (values, formProps) => {
               await saveNote({ values, formProps });
             }}
+            formType={FORM_TYPES.CREATE_FORM}
             render={({ values }) => {
               const formSubmitIsDisabled = !values.content?.trim();
               return active ? (

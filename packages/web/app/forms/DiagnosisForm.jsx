@@ -2,7 +2,7 @@ import React from 'react';
 import * as yup from 'yup';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { foreignKey } from '../utils/validation';
-import { DIAGNOSIS_CERTAINTY_OPTIONS } from '../constants';
+import { DIAGNOSIS_CERTAINTY_OPTIONS, FORM_TYPES } from '../constants';
 
 import { FormSubmitCancelRow } from '../components/ButtonRow';
 import { FormGrid } from '../components/FormGrid';
@@ -44,6 +44,7 @@ export const DiagnosisForm = React.memo(
           certainty: defaultCertainty,
           ...diagnosis,
         }}
+        formType={diagnosis ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
         validationSchema={yup.object().shape({
           diagnosisId: foreignKey('Diagnosis must be selected'),
           certainty: yup

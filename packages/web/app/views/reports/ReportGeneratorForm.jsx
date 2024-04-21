@@ -3,6 +3,7 @@ import { keyBy, orderBy } from 'lodash';
 import { format } from 'date-fns';
 import { Box, Typography } from '@material-ui/core';
 import { Alert, AlertTitle } from '@material-ui/lab';
+import GetAppIcon from '@material-ui/icons/GetApp';
 import styled from 'styled-components';
 import * as Yup from 'yup';
 import {
@@ -15,6 +16,7 @@ import { useApi } from '../../api';
 import { useAuth } from '../../contexts/Auth';
 import {
   AutocompleteField,
+  Button,
   DateDisplay,
   DateField,
   Field,
@@ -24,8 +26,9 @@ import {
   TextButton,
 } from '../../components';
 import { FormSubmitDropdownButton } from '../../components/DropdownButton';
-import { Colors } from '../../constants';
-import { saveExcelFile } from '../../utils/saveExcelFile';
+import { Colors, FORM_TYPES } from '../../constants';
+import { prepareExcelFile } from '../../utils/saveExcelFile';
+import { saveFile } from '../../utils/fileSystemAccess';
 import { EmailField, parseEmails } from './EmailField';
 import { ParameterField } from './ParameterField';
 import { useLocalisation } from '../../contexts/Localisation';
@@ -121,6 +124,7 @@ export const ReportGeneratorForm = () => {
   const [dataSource, setDataSource] = useState(REPORT_DATA_SOURCES.THIS_FACILITY);
   const [selectedReportId, setSelectedReportId] = useState(null);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [dataReadyForSaving, setDataReadyForSaving] = useState(null);
 
   const reportsById = useMemo(() => keyBy(availableReports, 'id'), [availableReports]);
   const reportOptions = useMemo(
@@ -201,22 +205,14 @@ export const ReportGeneratorForm = () => {
           ['Filters:', filterString],
         ];
 
-        try {
-          await saveExcelFile({
+        setDataReadyForSaving(
+          prepareExcelFile({
             data: excelData,
             metadata,
             defaultFileName: getFileName(reportName),
             bookType,
-          });
-          setSuccessMessage(
-            <TranslatedText
-              stringId="report.generate.message.export.success"
-              fallback="Report successfully exported"
-            />,
-          );
-        } catch (error) {
-          setRequestError(`Unable to export report - ${error.message}`);
-        }
+          }),
+        );
       } else {
         await api.post(`reportRequest`, {
           reportId,
@@ -242,6 +238,27 @@ export const ReportGeneratorForm = () => {
     }
   };
 
+  const resetDownload = () => {
+    setRequestError(null);
+    setSuccessMessage(null);
+    setDataReadyForSaving(null);
+  };
+
+  const onDownload = async () => {
+    try {
+      await saveFile(dataReadyForSaving);
+      resetDownload();
+      setSuccessMessage(
+        <TranslatedText
+          stringId="report.generate.message.export.success"
+          fallback="Report successfully exported"
+        />,
+      );
+    } catch (error) {
+      setRequestError(`Unable to export report - ${error.message}`);
+    }
+  };
+
   // Wait until available reports are loaded to render.
   // This is a workaround because of an issue that the onChange callback (when selecting a report)
   // inside render method of Formik doesn't update its dependency when the available reports list is already loaded
@@ -255,6 +272,7 @@ export const ReportGeneratorForm = () => {
         reportId: '',
         emails: currentUser.email,
       }}
+      formType={FORM_TYPES.CREATE_FORM}
       onSubmit={submitRequestReport}
       validationSchema={Yup.object().shape({
         reportId: Yup.string().required(
@@ -276,15 +294,14 @@ export const ReportGeneratorForm = () => {
           <FormGrid columns={2}>
             <Field
               name="reportId"
-              label={
-                <TranslatedText stringId="report.generate.report.label" fallback="Report" />
-              }
+              label={<TranslatedText stringId="report.generate.report.label" fallback="Report" />}
               component={ReportIdField}
               options={reportOptions}
               required
               onValueChange={reportId => {
                 setSelectedReportId(reportId);
                 clearForm();
+                resetDownload();
               }}
             />
             <Field
@@ -293,6 +310,7 @@ export const ReportGeneratorForm = () => {
               value={dataSource}
               onChange={e => {
                 setDataSource(e.target.value);
+                resetDownload();
               }}
               options={[
                 {
@@ -337,17 +355,20 @@ export const ReportGeneratorForm = () => {
             <>
               <Spacer />
               <FormGrid columns={3}>
-                {parameters.map(({ parameterField, required, name, label, ...restOfProps }) => (
-                  <ParameterField
-                    key={name || parameterField}
-                    required={required}
-                    name={name}
-                    label={label}
-                    parameterValues={values}
-                    parameterField={parameterField}
-                    {...restOfProps}
-                  />
-                ))}
+                {parameters.map(({ parameterField, required, name, label, ...restOfProps }) => {
+                  return (
+                    <ParameterField
+                      key={name || parameterField}
+                      required={required}
+                      name={name}
+                      label={label}
+                      parameterValues={values}
+                      parameterField={parameterField}
+                      onChange={() => resetDownload()}
+                      {...restOfProps}
+                    />
+                  );
+                })}
               </FormGrid>
             </>
           ) : null}
@@ -356,26 +377,23 @@ export const ReportGeneratorForm = () => {
             <Field
               name="fromDate"
               label={
-                <TranslatedText
-                  stringId="report.generate.fromDate.label"
-                  fallback="From date"
-                />
+                <TranslatedText stringId="report.generate.fromDate.label" fallback="From date" />
               }
+              onChange={() => resetDownload()}
               component={DateField}
               saveDateAsString={filterDateRangeAsStrings}
             />
             <Field
               name="toDate"
-              label={
-                <TranslatedText stringId="report.generate.toDate.label" fallback="To date" />
-              }
+              label={<TranslatedText stringId="report.generate.toDate.label" fallback="To date" />}
+              onChange={() => resetDownload()}
               component={DateField}
               saveDateAsString={filterDateRangeAsStrings}
             />
           </FormGrid>
           {dataSource === REPORT_DATA_SOURCES.ALL_FACILITIES && (
             <EmailInputContainer>
-              <EmailField />
+              <EmailField onChange={() => resetDownload()} />
             </EmailInputContainer>
           )}
           {requestError && (
@@ -401,36 +419,47 @@ export const ReportGeneratorForm = () => {
               {successMessage}
             </Alert>
           )}
-          <Box display="flex" justifyContent="flex-end">
-            <FormSubmitDropdownButton
-              size="large"
-              actions={[
-                {
-                  label: (
-                    <TranslatedText
-                      stringId="report.generate.action.generateXLSX"
-                      fallback="Generate XLSX"
-                    />
-                  ),
-                  onClick: event => {
-                    setBookFormat(REPORT_EXPORT_FORMATS.XLSX);
-                    submitForm(event);
+          <Box display="flex" justifyContent="flex-end" gridGap="1em">
+            {dataReadyForSaving ? (
+              <Button onClick={onDownload} startIcon={<GetAppIcon />}>
+                <TranslatedText stringId="report.generate.action.download" fallback="Download" /> (
+                {(
+                  (dataReadyForSaving.data.byteLength ?? dataReadyForSaving.data.length) / 1024
+                ).toFixed(0)}{' '}
+                KB)
+              </Button>
+            ) : (
+              <FormSubmitDropdownButton
+                size="large"
+                disabled={!values.reportId}
+                actions={[
+                  {
+                    label: (
+                      <TranslatedText
+                        stringId="report.generate.action.generateXLSX"
+                        fallback="Generate as .XLSX"
+                      />
+                    ),
+                    onClick: event => {
+                      setBookFormat(REPORT_EXPORT_FORMATS.XLSX);
+                      submitForm(event);
+                    },
                   },
-                },
-                {
-                  label: (
-                    <TranslatedText
-                      stringId="report.generate.action.generateCSV"
-                      fallback="Generate CSV"
-                    />
-                  ),
-                  onClick: event => {
-                    setBookFormat(REPORT_EXPORT_FORMATS.CSV);
-                    submitForm(event);
+                  {
+                    label: (
+                      <TranslatedText
+                        stringId="report.generate.action.generateCSV"
+                        fallback="Generate as .CSV"
+                      />
+                    ),
+                    onClick: event => {
+                      setBookFormat(REPORT_EXPORT_FORMATS.CSV);
+                      submitForm(event);
+                    },
                   },
-                },
-              ]}
-            />
+                ]}
+              />
+            )}
           </Box>
         </>
       )}

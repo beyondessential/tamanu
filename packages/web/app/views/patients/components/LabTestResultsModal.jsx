@@ -9,7 +9,7 @@ import { FormModal } from '../../../components/FormModal';
 import { BodyText, Heading4, SmallBodyText } from '../../../components/Typography';
 import { DateTimeField, Form, SuggesterSelectField, TextField } from '../../../components/Field';
 import { TableFormFields } from '../../../components/Table';
-import { Colors } from '../../../constants';
+import { Colors, FORM_TYPES } from '../../../constants';
 import { useLabTestResultsQuery } from '../../../api/queries/useLabTestResultsQuery';
 import { AccessorField, LabResultAccessorField } from './AccessorField';
 import { ConfirmCancelRow } from '../../../components/ButtonRow';
@@ -292,6 +292,7 @@ export const LabTestResultsModal = ({ labRequest, refreshLabTestTable, onClose, 
     >
       <Form
         initialValues={initialData}
+        formType={labTestResults ? FORM_TYPES.EDIT : FORM_TYPES.CREATE}
         enableReinitialize
         onSubmit={updateTests}
         render={({ submitForm, isSubmitting, dirty, ...props }) => {

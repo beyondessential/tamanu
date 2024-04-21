@@ -1,0 +1,323 @@
+name: CD
+
+on:
+  # PRs build all the time, and deploy on demand
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - edited
+
+  # Special issues can opt-in PR-less branches to build and deploy
+  issues:
+    types:
+      - opened
+      - edited
+      - labeled
+
+  push:
+    # Release tags build the server/web packages only
+    tags: ['v*.*.*']
+    # All branches can potentially be controlled by special issues
+    branches: ['**']
+
+# makes jobs for the same thing queue behind each other, and if there is already one job pending
+# (not currently running) then that job is cancelled and the newer one remains in queue.
+# Pulumi ups and downs can't be safely cancelled[1] so we can't do cancel-in-progress: true
+# [1]: https://github.com/pulumi/actions/issues/928
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.event.issue.id || github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read # to checkout the repo
+  packages: write # to pull and push images
+  pull-requests: write # to parse PRs for config and update status
+  issues: read # to parse special deploy issues
+  id-token: write # OIDC token for AWS (only for release tags)
+
+jobs:
+  # This job sets everything up. It parses the run metadata, event payload, PR or issue bodies,
+  # and figures out git commit hashes and refs from the actual git content, not the pseudo commit
+  # github makes up for merges. Then it prepares job outputs that orchestrate the jobs that need to
+  # run or not run, which can range from doing nothing to multiple deploys and undeploys at once.
+  config:
+    name: Workflow config
+    runs-on: ubuntu-latest
+    outputs:
+      ref: ${{ steps.ref.outputs.result }}
+      sha: ${{ steps.sha.outputs.sha }}
+      up: ${{ steps.config.outputs.up }}
+      down: ${{ steps.config.outputs.down }}
+      go-up: ${{ steps.config.outputs.go-up == 'true' }}
+      go-down: ${{ steps.config.outputs.go-down == 'true' }}
+
+      # we need to build images when:
+      # - we want to bring deploys up, AND the images for this commit don't yet exist, or
+      # - we're doing a release, because images are both a product and how we make other artifacts.
+      build-images: ${{ ((github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')) || steps.config.outputs.go-up == 'true') && steps.check-images-exist.outputs.exist != 'yes' }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Figure branch ref and sha
+        id: ref
+        uses: actions/github-script@v7
+        with:
+          result-encoding: string
+          script: |
+            const cwd = '${{ github.workspace }}';
+            const { parseBranchConfig } = await import(`${cwd}/packages/scripts/src/gha-cd-helpers.mjs`);
+            const ref = parseBranchConfig(context);
+            console.log(ref);
+            return ref;
+
+      - name: Checkout the real ref
+        if: steps.ref.outputs.result != ''
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.ref.outputs.result }}
+      - name: Find the real sha
+        if: steps.ref.outputs.result != ''
+        id: sha
+        run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Find the control PR/issue body text
+        id: control
+        uses: actions/github-script@v7
+        with:
+          result-encoding: string
+          script: |
+            const cwd = '${{ github.workspace }}';
+            const { findControlText } = await import(`${cwd}/packages/scripts/src/gha-cd-helpers.mjs`);
+            const control = await findControlText(context, github);
+            console.log('Control text length:', control?.body?.length);
+            return JSON.stringify(control ?? {});
+
+      - name: Parse deploy control config
+        if: steps.ref.outputs.result != ''
+        id: config
+        uses: actions/github-script@v7
+        env:
+          REF: ${{ steps.ref.outputs.result }}
+        with:
+          script: |
+            const cwd = '${{ github.workspace }}';
+            const { parseDeployConfig } = await import(`${cwd}/packages/scripts/src/gha-cd-helpers.mjs`);
+
+            const allDeploys = parseDeployConfig({
+              ...${{ steps.control.outputs.result }},
+              ref: process.env.REF,
+            });
+            console.log(allDeploys);
+
+            const matrix = ({ name, control, options }) => ({ name, control, options: JSON.stringify(options) });
+            const up = allDeploys.filter(deploy => deploy.enabled && !deploy.options.pause).map(matrix);
+            const down = allDeploys.filter(deploy => !deploy.enabled && !deploy.options.pause).map(matrix);
+            console.log('Going UP', up.length);
+            console.log('Going DOWN', down.length);
+
+            core.setOutput('up', JSON.stringify(up));
+            core.setOutput('down', JSON.stringify(down));
+            core.setOutput('go-up', !!up.length);
+            core.setOutput('go-down', !!down.length);
+
+      - name: Check the images exist
+        id: check-images-exist
+        if: (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')) || steps.config.outputs.go-up == 'true'
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
+          for repo in central facility frontend meta; do
+            if skopeo inspect docker://ghcr.io/beyondessential/tamanu-$repo:sha-${{ steps.sha.outputs.sha }} 2>&1 >/dev/null; then
+              jq -c . <<< "$desc" # check that it's valid JSON
+              echo $repo image found, assuming existence
+              echo exist=yes | tee -a $GITHUB_OUTPUT
+              exit
+            else
+              echo $repo image not found
+            fi
+          done
+          echo exist=no | tee -a $GITHUB_OUTPUT
+
+  images:
+    needs: config
+    if: needs.config.outputs.build-images == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - arch: amd64
+            runs-on: ubuntu-latest
+          - arch: arm64
+            runs-on: Linux-ARM64
+        package:
+          - name: central
+            path: central-server
+            target: server
+          - name: facility
+            path: facility-server
+            target: server
+          - name: frontend
+            path: web
+            target: frontend
+          - name: meta
+            path: meta-server
+            target: server
+
+    name: Image for ${{ matrix.package.name }} on ${{ matrix.platform.arch }}
+    runs-on: ${{ matrix.platform.runs-on }}
+
+    steps:
+      - name: Install docker (arm64 beta)
+        if: matrix.platform.arch == 'arm64'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ca-certificates curl acl
+          sudo install -m 0755 -d /etc/apt/keyrings
+          sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+          sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+          echo \
+            "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+            $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+            sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+          sudo apt-get update
+
+          sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+          sudo usermod -aG docker $USER
+          sudo setfacl --modify user:$USER:rw /var/run/docker.sock
+
+      - name: Verify docker works
+        run: docker run hello-world
+
+      - name: Login to ghcr.io
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.config.outputs.ref }}
+
+      - name: Extract version
+        id: version
+        run: echo "version=$(jq -r .version package.json)" >> "$GITHUB_OUTPUT"
+
+      - name: Setup buildkit
+        uses: docker/setup-buildx-action@v3
+
+      - uses: docker/metadata-action@v5
+        id: meta
+        with:
+          labels: |
+            org.opencontainers.image.vendor=BES
+            org.opencontainers.image.title=Tamanu ${{ matrix.package.name }}
+            org.opencontainers.image.url=https://www.bes.au/products/tamanu/
+            org.opencontainers.image.source=https://github.com/beyondessential/tamanu/
+            org.opencontainers.image.version=${{ steps.version.outputs.version }}
+            org.opencontainers.image.licenses=GPL-3.0-or-later
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          platforms: linux/${{ matrix.platform.arch }}
+          cache-from: type=gha,scope=${{ matrix.platform.arch }}-${{ needs.config.outputs.ref }}-${{ matrix.package.name }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.platform.arch }}-${{ needs.config.outputs.ref }}-${{ matrix.package.name }}
+          build-args: PACKAGE_PATH=${{ matrix.package.path }}
+          target: ${{ matrix.package.target }}
+          push: true
+          labels: ${{ steps.meta.outputs.labels }}
+          tags: ghcr.io/beyondessential/tamanu-${{ matrix.package.name }}:sha-${{ needs.config.outputs.sha }}.${{ matrix.platform.arch }}
+
+  multi-arch:
+    needs:
+      - config
+      - images
+    strategy:
+      fail-fast: false
+      matrix:
+        repo:
+          - central
+          - facility
+          - frontend
+          - meta
+
+    runs-on: ubuntu-latest
+    name: Multi-arch for ${{ matrix.repo }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-manifest-tool
+
+      - name: Combine images
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
+          manifest-tool push from-args \
+            --platforms linux/amd64,linux/arm64 \
+            --template ghcr.io/beyondessential/tamanu-${{ matrix.repo }}:sha-${{ needs.config.outputs.sha }}.ARCH \
+            --target ghcr.io/beyondessential/tamanu-${{ matrix.repo }}:sha-${{ needs.config.outputs.sha }}
+
+      - name: Combine images (release)
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+        run: |
+          manifest-tool push from-args \
+            --platforms linux/amd64,linux/arm64 \
+            --template ghcr.io/beyondessential/tamanu-${{ matrix.repo }}:sha-${{ needs.config.outputs.sha }}.ARCH \
+            --target ghcr.io/beyondessential/tamanu-${{ matrix.repo }}:v${{ github.ref_name }}
+
+  deploy-up:
+    needs:
+      - config
+      - multi-arch
+    # If we're deploying (go-up):
+    # - and we're building images (build-images), we need them (multi-arch) to succeed
+    # - or if we're not building images, we need to ignore that multi-arch was skipped
+    #
+    # always() is how github actions knows to run this job even if a `needs` job failed/didn't run
+    if: always() && needs.config.outputs.go-up == 'true' && (needs.config.outputs.build-images == 'false' || needs.multi-arch.result == 'success')
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.config.outputs.up) }}
+    name: Deploy ${{ matrix.name }}
+    uses: ./.github/workflows/cd-up.yml
+    with:
+      deploy-name: ${{ matrix.name }}
+      options: ${{ matrix.options }}
+      control: ${{ matrix.control }}
+      image-tag: sha-${{ needs.config.outputs.sha }}
+      ref: ${{ needs.config.outputs.ref }}
+    secrets:
+      PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+      TAILSCALE_OAUTH: ${{ secrets.TAILSCALE_DBPROXY_ACCESS_OAUTH }}
+      TAMANU_OPS_SSH: ${{ secrets.TAMANU_OPS_SSH }}
+
+  deploy-down:
+    needs: config
+    if: needs.config.outputs.go-down == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.config.outputs.down) }}
+    name: Undeploy ${{ matrix.name }}
+    uses: ./.github/workflows/cd-down.yml
+    with:
+      deploy-name: ${{ matrix.name }}
+      options: ${{ matrix.options }}
+    secrets:
+      PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+      TAILSCALE_OAUTH: ${{ secrets.TAILSCALE_DBPROXY_ACCESS_OAUTH }}
+      TAMANU_OPS_SSH: ${{ secrets.TAMANU_OPS_SSH }}
+
+  # The package-* jobs below are only triggered by tags, so we can assume that
+  # github.ref and github.ref_name are set and correct.
+
+  package-frontend:
+    needs: images
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    name: Package Frontend v${{ github.ref_name }}
+    uses: ./.github/workflows/cd-package-frontend.yml
+
+  package-servers:
+    needs: images
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    name: Package Servers v${{ github.ref_name }}
+    uses: ./.github/workflows/cd-package-servers.yml

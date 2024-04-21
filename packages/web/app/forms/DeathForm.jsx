@@ -25,7 +25,7 @@ import {
 import { useAuth } from '../contexts/Auth';
 import { DeathFormScreen } from './DeathFormScreen';
 import { SummaryScreenThree, SummaryScreenTwo } from './DeathFormSummaryScreens';
-import { BINARY_OPTIONS, BINARY_UNKNOWN_OPTIONS } from '../constants';
+import { BINARY_OPTIONS, BINARY_UNKNOWN_OPTIONS, FORM_TYPES } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 
 const StyledFormGrid = styled(FormGrid)`
@@ -81,7 +81,10 @@ export const DeathForm = React.memo(
           }),
           causeOfDeathInterval: yup.string().when('isPartialWorkflow', {
             is: undefined,
-            then: yup.string().required(),
+            then: yup
+              .string()
+              .required()
+              .label('Time between onset and death'),
           }),
           clinicianId: yup.string().required(),
           lastSurgeryDate: yup
@@ -100,6 +103,7 @@ export const DeathForm = React.memo(
           timeOfDeath: patient?.dateOfDeath || getCurrentDateTimeString(),
           clinicianId: deathData?.clinicianId || currentUser.id,
         }}
+        formType={FORM_TYPES.CREATE_FORM}
       >
         <StyledFormGrid columns={1}>
           <Field

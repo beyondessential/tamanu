@@ -1,4 +1,4 @@
-import React, { ReactElement, useCallback, useMemo } from 'react';
+import React, { ReactElement, useCallback } from 'react';
 import { compose } from 'redux';
 import { NavigationProp } from '@react-navigation/native';
 import { Routes } from '/helpers/routes';

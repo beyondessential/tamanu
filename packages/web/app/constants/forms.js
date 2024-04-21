@@ -4,5 +4,6 @@ export const FORM_STATUSES = {
 
 export const FORM_TYPES = {
   SEARCH_FORM: 'searchForm',
-  DATA_FORM: 'dataForm',
+  CREATE_FORM: 'createForm',
+  EDIT_FORM: 'editForm',
 };

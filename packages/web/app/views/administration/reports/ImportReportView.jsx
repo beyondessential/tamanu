@@ -17,8 +17,9 @@ import {
 } from '../../../components';
 import { FileChooserField } from '../../../components/Field/FileChooserField';
 import { ReportSelectField } from './ReportsSelectFields';
-import { Colors } from '../../../constants';
+import { Colors, FORM_TYPES } from '../../../constants';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { useTranslation } from '../../../contexts/Translation';
 
 const InnerContainer = styled.div`
   padding: 20px;
@@ -86,6 +87,8 @@ const ImportFeedback = ({ feedback }) => (
 );
 
 const ImportForm = ({ isSubmitting, setFieldValue, feedback, values = {} }) => {
+  const { getTranslation } = useTranslation();
+
   const handleNameChange = event => {
     if (values.reportDefinitionId) {
       setFieldValue('reportDefinitionId', null);
@@ -114,7 +117,7 @@ const ImportForm = ({ isSubmitting, setFieldValue, feedback, values = {} }) => {
           label={<TranslatedText stringId="admin.report.import.report.label" fallback="Report" />}
           name="reportDefinitionId"
           includeNameChangeEvent
-          placeholder="Select a report definition"
+          placeholder={getTranslation("admin.report.import.report.placeholder", "Select a report definition")}
         />
         <Field
           label={
@@ -169,6 +172,7 @@ export const ImportReportView = () => {
       <Form
         onSubmit={handleSubmit}
         validationSchema={schema}
+        formType={FORM_TYPES.CREATE_FORM}
         initialValues={{
           dryRun: true,
         }}
