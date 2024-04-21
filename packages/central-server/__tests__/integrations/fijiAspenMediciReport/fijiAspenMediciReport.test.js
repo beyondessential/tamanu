@@ -15,7 +15,6 @@ import { log } from '@tamanu/shared/services/logging';
 
 import { createTestContext } from '@tamanu/central-server/__tests__/utilities';
 import { allFromUpstream } from '../../../dist/tasks/fhir/refresh/allFromUpstream';
-import { InvalidOperationError } from '@tamanu/shared/errors';
 
 const COUNTRY_TIMEZONE = config?.countryTimeZone;
 
