@@ -25,10 +25,6 @@ export async function up(query) {
     attachment_id: {
       type: Sequelize.STRING,
       allowNull: false,
-      references: {
-        model: 'attachments',
-        key: 'id',
-      },
     },
     lab_request_id: {
       type: Sequelize.STRING,
