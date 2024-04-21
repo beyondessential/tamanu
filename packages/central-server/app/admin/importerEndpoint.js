@@ -39,6 +39,7 @@ export async function importerTransaction({
   file,
   dryRun = false,
   includedDataTypes = [],
+  checkPermission,
 }) {
   const errors = [];
   const stats = [];
@@ -64,7 +65,7 @@ export async function importerTransaction({
         });
 
         try {
-          await importer({ errors, models, stats, file, includedDataTypes });
+          await importer({ errors, models, stats, file, includedDataTypes, checkPermission });
         } catch (err) {
           errors.push(err);
         }
@@ -103,7 +104,7 @@ export async function importerTransaction({
 export function createDataImporterEndpoint(importer) {
   return asyncHandler(async (req, res) => {
     const start = Date.now();
-    const { store } = req;
+    const { store, checkPermission } = req;
 
     // read uploaded data
     const {
@@ -119,6 +120,7 @@ export function createDataImporterEndpoint(importer) {
       models: store.models,
       dryRun,
       includedDataTypes,
+      checkPermission,
     });
 
     // we don't need the file any more
