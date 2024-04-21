@@ -55,7 +55,7 @@ export async function beforeDestroyEncounter(encounter) {
 }
 
 async function getEncounterIds(options) {
-  let ids = options.where?.id?.[Op.in];
+  const ids = options.where?.id?.[Op.in];
 
   // options.where.attribute.val.col
   // .logic[Op.LIKE]
