@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { PATIENT_FIELD_DEFINITION_TYPES, PATIENT_REGISTRY_TYPES } from '@tamanu/constants';
-import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
 
 import { LocalisedField, TextField, DateField, RadioField, FormGrid } from '../../../../components';
 import {
@@ -51,7 +51,7 @@ export const CambodiaPrimaryDetailsLayout = ({ sexOptions, isRequiredPatientData
             fallback="Date of birth"
           />
         }
-        max={getCurrentDateTimeString()}
+        max={getCurrentDateString()}
         component={DateField}
         required
         saveDateAsString
