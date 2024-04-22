@@ -19,7 +19,7 @@ export const ContactCard = ({ name, relationship, method, connectionDetails }: I
   <StyledViewWithBorder>
     <RowView justifyContent="space-between" paddingTop={10} paddingBottom={10}>
       <StyledText
-        color={theme.colors.MAIN_SUPER_DARK}
+        color={theme.colors.TEXT_SUPER_DARK}
         fontSize={screenPercentageToDP(2, Orientation.Height)}
         fontWeight={500}
       >
@@ -29,7 +29,7 @@ export const ContactCard = ({ name, relationship, method, connectionDetails }: I
         />
       </StyledText>
       <StyledText
-        color={theme.colors.MAIN_SUPER_DARK}
+        color={theme.colors.TEXT_SUPER_DARK}
         fontSize={screenPercentageToDP(2, Orientation.Height)}
       >
         {name}
@@ -37,7 +37,7 @@ export const ContactCard = ({ name, relationship, method, connectionDetails }: I
     </RowView>
     <RowView justifyContent="space-between" paddingTop={10} paddingBottom={10}>
       <StyledText
-        color={theme.colors.MAIN_SUPER_DARK}
+        color={theme.colors.TEXT_SUPER_DARK}
         fontSize={screenPercentageToDP(2, Orientation.Height)}
         fontWeight={500}
       >
@@ -47,7 +47,7 @@ export const ContactCard = ({ name, relationship, method, connectionDetails }: I
         />
       </StyledText>
       <StyledText
-        color={theme.colors.MAIN_SUPER_DARK}
+        color={theme.colors.TEXT_SUPER_DARK}
         fontSize={screenPercentageToDP(2, Orientation.Height)}
       >
         {relationship?.name}
@@ -55,7 +55,7 @@ export const ContactCard = ({ name, relationship, method, connectionDetails }: I
     </RowView>
     <RowView justifyContent="space-between" paddingTop={10} paddingBottom={10}>
       <StyledText
-        color={theme.colors.MAIN_SUPER_DARK}
+        color={theme.colors.TEXT_SUPER_DARK}
         fontSize={screenPercentageToDP(2, Orientation.Height)}
         fontWeight={500}
       >
@@ -65,7 +65,7 @@ export const ContactCard = ({ name, relationship, method, connectionDetails }: I
         />
       </StyledText>
       <StyledText
-        color={theme.colors.MAIN_SUPER_DARK}
+        color={theme.colors.TEXT_SUPER_DARK}
         fontSize={screenPercentageToDP(2, Orientation.Height)}
       >
         {connectionDetails ? (
