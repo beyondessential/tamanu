@@ -144,6 +144,7 @@ const HIDEABLE_FIELDS = [
   'facility',
   'dischargeDisposition',
   'notGivenReasonId',
+  'healthCenterId',
 ];
 
 const MOBILE_PATIENT_MODULES = [
