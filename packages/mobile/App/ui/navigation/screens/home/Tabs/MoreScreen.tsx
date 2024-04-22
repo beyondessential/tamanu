@@ -1,24 +1,23 @@
-import React, { ReactElement, useMemo, useCallback } from 'react';
+import React, { ReactElement, useCallback, useMemo } from 'react';
 import { useSelector } from 'react-redux';
+import { Linking, TouchableHighlight } from 'react-native';
 import { getUniqueId } from 'react-native-device-info';
+import { FlatList } from 'react-native-gesture-handler';
 import styled from 'styled-components';
 
-import { RowView, StyledView, StyledText, FullView, CenterView } from '/styled/common';
-import { screenPercentageToDP, Orientation, setStatusBar } from '/helpers/screen';
+import { CenterView, FullView, RowView, StyledText, StyledView } from '/styled/common';
+import { Orientation, screenPercentageToDP, setStatusBar } from '/helpers/screen';
 import { theme } from '/styled/theme';
 import { UserAvatar } from '/components/UserAvatar';
 import { Button } from '/components/Button';
 import { Separator } from '/components/Separator';
-import { FlatList } from 'react-native-gesture-handler';
 import { CameraOutlineIcon, LaunchIcon } from '/components/Icons';
 import { version as AppVersion } from '/root/package.json';
-import { Linking } from 'react-native';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { useFacility } from '~/ui/contexts/FacilityContext';
-import { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
 import { authUserSelector } from '/helpers/selectors';
 import { useLocalisation } from '~/ui/contexts/LocalisationContext';
-import { TouchableHighlight } from 'react-native';
+import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 
 const StyledSeparator = styled(Separator)`
   padding-left: ${screenPercentageToDP(4.86, Orientation.Width)}px;
@@ -87,12 +86,13 @@ const Footer = ({ version, deviceId }: FooterProps): ReactElement => (
     color={theme.colors.TEXT_MID}
     fontSize={screenPercentageToDP(1.45, Orientation.Height)}
   >
-    Tamanu Version {version}
-    {'\n'}Device ID mobile-{deviceId}
+    <TranslatedText stringId="expandedMeta.version" fallback="Tamanu Version" /> {version}
+    {'\n'}
+    <TranslatedText stringId="expandedMeta.deviceId" fallback="Device ID mobile" />-{deviceId}
   </StyledText>
 );
 
-export const MoreScreen = ({ navigation }: BaseAppProps): ReactElement => {
+export const MoreScreen = (): ReactElement => {
   const { getLocalisation } = useLocalisation();
   const supportDeskUrl = getLocalisation('supportDeskUrl');
   const authCtx = useAuth();
@@ -101,7 +101,7 @@ export const MoreScreen = ({ navigation }: BaseAppProps): ReactElement => {
   const settings = useMemo(
     () => [
       {
-        title: 'Support centre',
+        title: <TranslatedText stringId="externalLink.supportCentre" fallback="Support centre" />,
         Icon: LaunchIcon,
         onPress: (): Promise<void> => Linking.openURL(supportDeskUrl),
       },
@@ -146,7 +146,7 @@ export const MoreScreen = ({ navigation }: BaseAppProps): ReactElement => {
           marginTop={screenPercentageToDP(1.21, Orientation.Height)}
           width={screenPercentageToDP(29.19, Orientation.Width)}
           height={screenPercentageToDP(6.07, Orientation.Height)}
-          buttonText="Sign out"
+          buttonText={<TranslatedText stringId="auth.action.signOut" fallback="Sign out" />}
           onPress={signOut}
           outline
           borderColor={theme.colors.PRIMARY_MAIN}

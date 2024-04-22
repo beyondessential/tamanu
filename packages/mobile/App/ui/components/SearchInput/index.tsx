@@ -1,6 +1,6 @@
-import React, { FC, useState, useCallback } from 'react';
+import React, { FC, useCallback, useState } from 'react';
 import styled from 'styled-components/native';
-import { StyledView, RowView } from '/styled/common';
+import { RowView, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
 import * as Icons from '../Icons';
 import { BaseInputProps } from '../../interfaces/BaseInputProps';

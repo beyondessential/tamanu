@@ -1,8 +1,8 @@
-import { Sequelize, Op } from 'sequelize';
-import { SYNC_DIRECTIONS, LAB_REQUEST_STATUSES, VACCINE_STATUS } from '@tamanu/constants';
+import { Op, Sequelize } from 'sequelize';
+import { LAB_REQUEST_STATUSES, SYNC_DIRECTIONS, VACCINE_STATUS } from '@tamanu/constants';
 import { getCovidClearanceCertificateFilter, getLabTestsFromLabRequests } from '../utils';
 import { Model } from './Model';
-import { dateType, dateTimeType } from './dateTimeTypes';
+import { dateTimeType, dateType } from './dateTimeTypes';
 import { onSaveMarkPatientForSync } from './onSaveMarkPatientForSync';
 
 export class Patient extends Model {
@@ -95,10 +95,20 @@ export class Patient extends Model {
       foreignKey: 'patientId',
       as: 'fieldValues',
     });
+
+    this.hasMany(models.PatientProgramRegistration, {
+      foreignKey: 'patientId',
+      as: 'patientProgramRegistrations',
+    });
+
+    this.hasMany(models.PatientProgramRegistrationCondition, {
+      foreignKey: 'patientId',
+      as: 'patientProgramRegistrationConditions',
+    });
   }
 
   static getFullReferenceAssociations() {
-    return ['markedForSyncFacilities'];
+    return ['markedForSyncFacilities', 'fieldValues'];
   }
 
   async getAdministeredVaccines(queryOptions = {}) {
@@ -261,9 +271,15 @@ export class Patient extends Model {
   }
 
   async writeFieldValues(patientFields = {}) {
-    const { PatientFieldValue } = this.constructor.sequelize.models;
+    const { PatientFieldValue, PatientFieldDefinition } = this.constructor.sequelize.models;
     for (const [definitionId, value] of Object.entries(patientFields)) {
       // race condition doesn't matter because we take the last value anyway
+      const fieldDefinition = await PatientFieldDefinition.findByPk(definitionId);
+      if (!fieldDefinition) {
+        throw new Error(
+          `Custom patient field ${definitionId} not found. Please contact your administrator.`,
+        );
+      }
       const field = await PatientFieldValue.findOne({
         where: {
           definitionId,

@@ -1,0 +1,89 @@
+name: CD Package Frontend
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+  id-token: write # OIDC token for AWS
+
+jobs:
+  pack:
+    runs-on: ubuntu-latest
+    name: Pack frontend
+    steps:
+      - name: Configure AWS Credentials (image)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ap-southeast-2
+          role-to-assume: arn:aws:iam::143295493206:role/gha-image-pull
+          role-session-name: GHA@Tamanu=WebPackage
+
+      - name: Login to ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Pull image
+        run: docker pull ${{ steps.login-ecr.outputs.registry }}/tamanu/frontend:sha-${{ github.sha }}.amd64
+
+      - name: Extract version from image
+        id: version
+        run: |
+          set -x
+          docker image inspect ${{ steps.login-ecr.outputs.registry }}/tamanu/frontend:sha-${{ github.sha }}.amd64 \
+            | jq '"version=\(.[0] | .Config.Labels["org.opencontainers.image.version"])"' -r | tee -a "$GITHUB_OUTPUT"
+
+      - name: Extract build from image and pack it
+        run: |
+          set -x
+
+          docker create --name web ${{ steps.login-ecr.outputs.registry }}/tamanu/frontend:sha-${{ github.sha }}.amd64
+          docker cp web:/app tamanu-web-${{ steps.version.outputs.version }}
+          docker rm web
+
+          zip -r -0 tamanu-web-${{ steps.version.outputs.version }}.zip tamanu-web-${{ steps.version.outputs.version }}
+          tar -cf web-${{ steps.version.outputs.version }}.tar tamanu-web-${{ steps.version.outputs.version }}
+          zstd --rm --adapt -T0 -10 web-${{ steps.version.outputs.version }}.tar
+
+      - name: Upload to artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-package
+          path: web*.tar.zst*
+          retention-days: 15
+          if-no-files-found: error
+
+      - name: Set S3 destination
+        id: destination
+        uses: actions/github-script@v7
+        with:
+          result-encoding: string
+          script: |
+            const base = 's3://bes-tamanu-release-servers';
+            if (context.ref == 'refs/heads/main') {
+              return `${base}/main/${(new Date).toISOString().replaceAll(':','-').split('.')[0]}.${context.sha.slice(0, 10)}`;
+            } else if (context.ref.startsWith('refs/tags/v')) {
+              return `${base}/${context.ref.replace('refs/tags/v', '')}`;
+            } else if (context.ref.startsWith('refs/heads/release/')) {
+              return `${base}/${context.ref.replace('refs/tags/', '')}-rc`;
+            } else {
+              return 'nowhere';
+            }
+
+      - name: Configure AWS Credentials (upload)
+        if: steps.destination.outputs.result != 'nowhere'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ap-southeast-2
+          role-to-assume: arn:aws:iam::143295493206:role/gha-server-s3
+          role-session-name: GHA@Tamanu=WebPackage
+
+      - name: Push to S3
+        if: steps.destination.outputs.result != 'nowhere'
+        env:
+          target: ${{ steps.destination.outputs.result }}
+        run: |
+          set -x
+          for file in *.tar.zst*; do
+            aws s3 cp $file $target/$file --no-progress
+          done

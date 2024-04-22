@@ -177,13 +177,11 @@ export class LabRequest extends Model {
       'priority',
       'laboratory',
       'site',
+      'collectedBy',
+      'specimenType',
       { association: 'labTestPanelRequest', include: ['labTestPanel'] },
       { association: 'tests', include: ['labTestType'] },
     ];
-  }
-
-  static getFullReferenceAssociations() {
-    return [...LabRequest.getListReferenceAssociations(), 'collectedBy', 'specimenType'];
   }
 
   static buildPatientSyncFilter(patientIds, sessionConfig) {

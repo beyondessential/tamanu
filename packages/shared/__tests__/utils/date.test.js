@@ -1,5 +1,5 @@
 import { format } from 'date-fns';
-import { getDisplayAge } from '../../src/utils/date';
+import { getDisplayAge } from '../../dist/cjs/utils/date';
 
 describe('date', () => {
   describe('getDisplayAge', () => {
@@ -48,7 +48,7 @@ describe('date', () => {
     const testCases = [
       {
         dateOfBirth: '2023-07-11',
-        expectedDisplayAge: '0 day',
+        expectedDisplayAge: '0 days',
       },
       {
         dateOfBirth: '2023-07-10',

@@ -1,4 +1,4 @@
-import { Sequelize, DataTypes } from 'sequelize';
+import { DataTypes, Sequelize } from 'sequelize';
 
 import { FHIR_INTERACTIONS } from '@tamanu/constants';
 import { FhirResource } from '../Resource';
@@ -20,6 +20,7 @@ export class FhirEncounter extends FhirResource {
         subject: DataTypes.JSONB,
         actualPeriod: DataTypes.JSONB,
         location: DataTypes.JSONB,
+        serviceProvider: DataTypes.JSONB,
       },
       options,
     );

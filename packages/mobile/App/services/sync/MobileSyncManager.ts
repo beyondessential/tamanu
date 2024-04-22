@@ -4,19 +4,17 @@ import { Database } from '../../infra/db';
 import { MODELS_MAP } from '../../models/modelsMap';
 import { CentralServerConnection } from './CentralServerConnection';
 import {
-  snapshotOutgoingChanges,
-  pushOutgoingChanges,
-  pullIncomingChanges,
-  saveIncomingChanges,
+  clearPersistedSyncSessionRecords,
   getModelsForDirection,
   getSyncTick,
+  pullIncomingChanges,
+  pushOutgoingChanges,
+  saveIncomingChanges,
   setSyncTick,
-  clearPersistedSyncSessionRecords,
+  snapshotOutgoingChanges,
 } from './utils';
 import { SYNC_DIRECTIONS } from '../../models/types';
 import { SYNC_EVENT_ACTIONS } from './types';
-import { formatDate } from '../../ui/helpers/date';
-import { DateFormats } from '../../ui/helpers/constants';
 import { CURRENT_SYNC_TIME, LAST_SUCCESSFUL_PULL, LAST_SUCCESSFUL_PUSH } from './constants';
 
 /**
@@ -45,7 +43,7 @@ export class MobileSyncManager {
 
   syncStage = null;
 
-  lastSuccessfulSyncTick = '';
+  lastSuccessfulSyncTick = null;
 
   lastSyncPushedRecordsCount: number = null;
 
@@ -195,7 +193,7 @@ export class MobileSyncManager {
     // clear persisted cache from last session
     await clearPersistedSyncSessionRecords();
 
-    this.lastSuccessfulSyncTick = formatDate(new Date(), DateFormats.DATE_AND_TIME_HHMMSS);
+    this.lastSuccessfulSyncTick = new Date();
     this.setProgress(0, '');
   }
 

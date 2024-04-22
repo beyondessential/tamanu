@@ -1,11 +1,11 @@
 import {
   add as addDuration,
-  formatDuration,
+  differenceInDays,
+  differenceInMonths,
   differenceInWeeks,
   differenceInYears,
+  formatDuration,
   intervalToDuration,
-  differenceInMonths,
-  differenceInDays,
   startOfDay,
 } from 'date-fns';
 import { isISOString, parseDate } from './dateTime';
@@ -52,8 +52,8 @@ function ageIsWithinRange(birthDate, range) {
   const { min = {}, max = {} } = range;
   const { duration: minDuration, exclusive: minExclusive } = min;
   const { duration: maxDuration, exclusive: maxExclusive } = max;
-  const minDate = minDuration ? addDuration(birthDate, minDuration) : -Infinity;
-  const maxDate = maxDuration ? addDuration(birthDate, maxDuration) : Infinity;
+  const minDate = minDuration ? startOfDay(addDuration(birthDate, minDuration)) : -Infinity;
+  const maxDate = maxDuration ? startOfDay(addDuration(birthDate, maxDuration)) : Infinity;
   const now = startOfDay(new Date());
   return (
     (!minDate || compareDate(minDate, '<', now, minExclusive)) &&
@@ -82,7 +82,7 @@ export function getDisplayAge(dateOfBirth, ageDisplayFormat) {
       const value = differenceFn(new Date(), birthDate);
 
       const unit = as.slice(0, -1); // slice off the s
-      return `${value} ${unit}${value <= 1 ? '' : 's'}`;
+      return `${value} ${unit}${value === 1 ? '' : 's'}`;
     }
   }
 

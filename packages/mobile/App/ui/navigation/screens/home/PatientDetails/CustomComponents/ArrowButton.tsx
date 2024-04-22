@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import { StyledTouchableOpacity } from '/styled/common';
 import { kebabCase } from 'lodash';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { ArrowDownIcon, ArrowUpIcon } from '/components/Icons';
 import { theme } from '/styled/theme';
 

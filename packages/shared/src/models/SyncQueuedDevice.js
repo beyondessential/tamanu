@@ -1,7 +1,7 @@
 import { DataTypes, Op } from 'sequelize';
 import { subMinutes } from 'date-fns';
 
-import { toDateTimeString, getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
@@ -9,7 +9,7 @@ import { Model } from './Model';
 const SYNC_READY_WINDOW_MINUTES = 5;
 
 export class SyncQueuedDevice extends Model {
-  static init({ primaryKey, ...options }) {
+  static init(options) {
     super.init(
       {
         // this represents the deviceId of the queued device (ie it's not randomly generated)

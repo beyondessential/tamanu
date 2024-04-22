@@ -1,5 +1,5 @@
 import React, { PropsWithChildren, ReactElement, useState } from 'react';
-import { StyledView, RowView } from '/styled/common';
+import { RowView, StyledView } from '/styled/common';
 import { SectionHeader } from '/components/SectionHeader';
 import { EditButton } from './EditButton';
 import { theme } from '/styled/theme';
@@ -25,7 +25,7 @@ export const PatientSection = ({
   };
 
   const overlappedButton = onEdit ? (
-    <StyledView alignItems="flex-end">
+    <StyledView zIndex={1} alignItems="flex-end">
       <StyledView position="absolute" paddingTop={10} paddingRight={20}>
         <EditButton sectionTitle={title} onPress={onEdit} />
       </StyledView>

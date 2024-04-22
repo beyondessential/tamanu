@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-var-requires*/
 const detox = require('detox');
 const adapter = require('detox/runners/jest/adapter');
 const specReporter = require('detox/runners/jest/specReporter');

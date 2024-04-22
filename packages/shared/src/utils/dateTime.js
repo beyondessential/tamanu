@@ -1,23 +1,21 @@
 import {
-  isValid,
-  formatISO9075,
+  differenceInMilliseconds as dateFnsDifferenceInMilliseconds,
+  format as dateFnsFormat,
   differenceInMonths,
   differenceInWeeks,
   differenceInYears,
-  format as dateFnsFormat,
-  differenceInMilliseconds as dateFnsDifferenceInMilliseconds,
-  parseISO,
+  formatISO9075,
   isMatch,
-  sub,
+  isValid,
+  parseISO,
   startOfDay,
+  sub,
 } from 'date-fns';
-import { formatInTimeZone } from 'date-fns-tz';
-import config from 'config';
 import { TIME_UNIT_OPTIONS } from '@tamanu/constants';
 
-const ISO9075_DATE_FORMAT = 'yyyy-MM-dd';
-const ISO9075_DATETIME_FORMAT = 'yyyy-MM-dd HH:mm:ss';
-const ISO8061_WITH_TIMEZONE = "yyyy-MM-dd'T'HH:mm:ssXXX";
+export const ISO9075_DATE_FORMAT = 'yyyy-MM-dd';
+export const ISO9075_DATETIME_FORMAT = 'yyyy-MM-dd HH:mm:ss';
+export const ISO8061_WITH_TIMEZONE = "yyyy-MM-dd'T'HH:mm:ssXXX";
 
 export const isISOString = dateString =>
   isMatch(dateString, ISO9075_DATETIME_FORMAT) || isMatch(dateString, ISO9075_DATE_FORMAT);
@@ -64,48 +62,6 @@ export function toDateString(date) {
   }
   const dateObj = parseDate(date);
   return formatISO9075(dateObj, { representation: 'date' });
-}
-
-// CountryDateTime functions are server only
-// Servers require a specific reference to timeZone since most of our servers are in UTC
-export function toCountryDateTimeString(date) {
-  if (date === null || date === undefined) {
-    return null;
-  }
-
-  return formatInTimeZone(date, config?.countryTimeZone, ISO9075_DATETIME_FORMAT);
-}
-
-export function toCountryDateString(date) {
-  if (date === null || date === undefined) {
-    return null;
-  }
-
-  return formatInTimeZone(date, config?.countryTimeZone, ISO9075_DATE_FORMAT);
-}
-
-export function dateTimeStringIntoCountryTimezone(date) {
-  if (date === null || date === undefined) {
-    return null;
-  }
-
-  return parseISO(formatInTimeZone(date, config?.countryTimeZone, ISO8061_WITH_TIMEZONE));
-}
-
-export function getCurrentCountryTimeZoneDateTimeString() {
-  // Use the countryTimeZone if set, other wise fallback to the server time zone
-  if (config?.countryTimeZone) {
-    return formatInTimeZone(new Date(), config.countryTimeZone, ISO9075_DATETIME_FORMAT);
-  }
-  return formatISO9075(new Date());
-}
-
-export function getCurrentCountryTimeZoneDateString() {
-  // Use the countryTimeZone if set, other wise fallback to the server time zone
-  if (config?.countryTimeZone) {
-    return formatInTimeZone(new Date(), config.countryTimeZone, ISO9075_DATE_FORMAT);
-  }
-  return formatISO9075(new Date(), { representation: 'date' });
 }
 
 export function getCurrentDateTimeString() {
@@ -242,3 +198,48 @@ export const format = (date, f) => {
 
 export const differenceInMilliseconds = (a, b) =>
   dateFnsDifferenceInMilliseconds(new Date(a), new Date(b));
+
+const locale = globalThis.navigator?.language ?? 'default';
+
+const intlFormatDate = (date, formatOptions, fallback = 'Unknown') => {
+  if (!date) return fallback;
+  return new Date(date).toLocaleString(locale, formatOptions);
+};
+
+export const formatShortest = date =>
+  intlFormatDate(date, { month: '2-digit', day: '2-digit', year: '2-digit' }, '--/--'); // 12/04/20
+
+export const formatShort = date =>
+  intlFormatDate(date, { day: '2-digit', month: '2-digit', year: 'numeric' }, '--/--/----'); // 12/04/2020
+
+export const formatTime = date =>
+  intlFormatDate(
+    date,
+    {
+      timeStyle: 'short',
+      hour12: true,
+    },
+    '__:__',
+  ); // 12:30 am
+
+export const formatTimeWithSeconds = date =>
+  intlFormatDate(
+    date,
+    {
+      timeStyle: 'medium',
+      hour12: true,
+    },
+    '__:__:__',
+  ); // 12:30:00 am
+
+// long format date is displayed on hover
+export const formatLong = date =>
+  intlFormatDate(
+    date,
+    {
+      timeStyle: 'short',
+      dateStyle: 'full',
+      hour12: true,
+    },
+    'Date information not available',
+  ); // "Thursday, 14 July 2022, 03:44 pm"

@@ -1,4 +1,4 @@
-import React, { ReactElement, useState, useCallback, useMemo, useEffect } from 'react';
+import React, { ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NavigationProp, RouteProp } from '@react-navigation/native';
 
@@ -8,11 +8,11 @@ import * as Icons from '/components/Icons';
 import { theme } from '/styled/theme';
 import { NewVaccineTab } from '../screens/vaccine/newVaccineTabs/NewVaccineTab';
 import { VaccineTabNavigator } from '/components/TopTabNavigator/VaccineTabNavigator';
-import { FullView, RowView, StyledView, StyledText, StyledTouchableOpacity } from '/styled/common';
+import { FullView, RowView, StyledText, StyledTouchableOpacity, StyledView } from '/styled/common';
 import { ArrowLeftIcon } from '/components/Icons';
 import { Routes } from '/helpers/routes';
 import { VaccineDataProps } from '/components/VaccineCard';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { VaccineStatus } from '~/ui/helpers/patient';
 import { CenterView } from '../../styled/common';
 
@@ -38,7 +38,7 @@ const Header = ({ navigation, vaccine, patient }: NewVaccineHeaderProps): ReactE
         justifyContent="space-between"
         marginTop={screenPercentageToDP(1, Orientation.Height)}
       >
-        <StyledView position="absolute" width="100%" top="10%">
+        <StyledView position="absolute" width="100%" top="10%" zIndex={1}>
           <StyledTouchableOpacity onPress={onPress}>
             <StyledView paddingLeft={20} paddingTop={20} paddingBottom={20} paddingRight={20}>
               <ArrowLeftIcon
@@ -63,13 +63,13 @@ const Header = ({ navigation, vaccine, patient }: NewVaccineHeaderProps): ReactE
 };
 
 type NewVaccineTabsRouteProps = RouteProp<
-{
-  NewVaccineTabs: {
-    vaccine: VaccineDataProps;
-    patient: IPatient;
-  };
-},
-'NewVaccineTabs'
+  {
+    NewVaccineTabs: {
+      vaccine: VaccineDataProps;
+      patient: IPatient;
+    };
+  },
+  'NewVaccineTabs'
 >;
 
 interface NewVaccineTabsProps {

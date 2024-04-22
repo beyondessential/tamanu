@@ -1,12 +1,10 @@
 import { Sequelize } from 'sequelize';
-import { endOfDay, isBefore, parseISO, startOfToday } from 'date-fns';
 
 import {
-  ENCOUNTER_TYPES,
   ENCOUNTER_TYPE_VALUES,
+  EncounterChangeType,
   NOTE_TYPES,
   SYNC_DIRECTIONS,
-  EncounterChangeType,
 } from '@tamanu/constants';
 import { InvalidOperationError } from '../errors';
 import { dateTimeType } from './dateTimeTypes';
@@ -203,6 +201,11 @@ export class Encounter extends Model {
       },
     });
 
+    this.hasMany(models.EncounterHistory, {
+      foreignKey: 'encounterId',
+      as: 'encounterHistory',
+    });
+
     // this.hasMany(models.Procedure);
     // this.hasMany(models.Report);
   }
@@ -295,18 +298,6 @@ export class Encounter extends Model {
         ${updatedAtSyncTickClauses.join('\nOR')}
       )
     `;
-  }
-
-  static checkNeedsAutoDischarge({ encounterType, startDate, endDate }) {
-    return (
-      encounterType === ENCOUNTER_TYPES.CLINIC &&
-      isBefore(parseISO(startDate), startOfToday()) &&
-      !endDate
-    );
-  }
-
-  static getAutoDischargeEndDate({ startDate }) {
-    return endOfDay(parseISO(startDate));
   }
 
   static async adjustDataPostSyncPush(recordIds) {
@@ -529,7 +520,7 @@ export class Encounter extends Model {
         await EncounterHistory.createSnapshot(updatedEncounter, {
           actorId: user?.id,
           changeType,
-          submittedTime: data.submittedTime,
+          submittedTime,
         });
       }
 

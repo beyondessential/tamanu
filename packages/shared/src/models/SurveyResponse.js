@@ -1,10 +1,15 @@
 import { Sequelize } from 'sequelize';
-import { PROGRAM_DATA_ELEMENT_TYPES, SYNC_DIRECTIONS } from '@tamanu/constants';
+import {
+  PROGRAM_DATA_ELEMENT_TYPES,
+  SYNC_DIRECTIONS,
+  VISIBILITY_STATUSES,
+} from '@tamanu/constants';
 import { InvalidOperationError } from '../errors';
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 import { runCalculations } from '../utils/calculations';
-import { getStringValue, getResultValue } from '../utils/fields';
+import { getActiveActionComponents, getResultValue, getStringValue } from '../utils/fields';
+import { getPatientDataDbLocation } from '../utils/getPatientDataDbLocation';
 import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
 
@@ -26,10 +31,14 @@ async function createPatientIssues(models, questions, patientId) {
   }
 }
 
-async function writeToPatientFields(models, questions, answers, patientId) {
-  // these will store values to write to patient records following submission
-  const patientRecordValues = {};
-  const patientAdditionalDataValues = {};
+/** Returns in the format:
+ * {
+ *  Patient: { key1: 'value1' },
+ *  PatientAdditionalData: { key1: 'value1' },
+ * }
+ */
+const getFieldsToWrite = async (models, questions, answers) => {
+  const recordValuesByModel = {};
 
   const patientDataQuestions = questions.filter(
     q => q.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA,
@@ -43,35 +52,91 @@ async function writeToPatientFields(models, questions, answers, patientId) {
       continue;
     }
 
-    const { fieldName, isAdditionalDataField } = config.writeToPatient || {};
-    if (!fieldName) {
+    const { fieldName: configFieldName } = config.writeToPatient || {};
+    if (!configFieldName) {
       throw new Error('No fieldName defined for writeToPatient config');
     }
-
     const value = answers[dataElement.id];
-    if (isAdditionalDataField) {
-      patientAdditionalDataValues[fieldName] = value;
-    } else {
-      patientRecordValues[fieldName] = value;
+
+    const { modelName, fieldName } = await getPatientDataDbLocation(configFieldName, models);
+
+    if (!modelName) {
+      throw new Error(`Unknown fieldName: ${configFieldName}`);
     }
+    if (!recordValuesByModel[modelName]) recordValuesByModel[modelName] = {};
+    recordValuesByModel[modelName][fieldName] = value;
+  }
+  return recordValuesByModel;
+};
+
+/**
+ * DUPLICATED IN mobile/App/models/SurveyResponse.ts
+ * Please keep in sync
+ */
+async function writeToPatientFields(
+  models,
+  questions,
+  answers,
+  patientId,
+  surveyId,
+  userId,
+  submittedTime,
+) {
+  const valuesByModel = await getFieldsToWrite(models, questions, answers);
+
+  if (valuesByModel.Patient) {
+    const patient = await models.Patient.findByPk(patientId);
+    await patient.update(valuesByModel.Patient);
   }
 
-  // Save values to database records
-  const { Patient, PatientAdditionalData } = models;
-  if (Object.keys(patientRecordValues).length) {
-    const patient = await Patient.findByPk(patientId);
-    await patient.update(patientRecordValues);
+  if (valuesByModel.PatientFieldValue) {
+    const patient = await models.Patient.findByPk(patientId);
+    await patient.writeFieldValues(valuesByModel.PatientFieldValue);
   }
-  if (Object.keys(patientAdditionalDataValues).length) {
-    const pad = await PatientAdditionalData.getOrCreateForPatient(patientId);
-    await pad.update(patientAdditionalDataValues);
+
+  if (valuesByModel.PatientAdditionalData) {
+    const pad = await models.PatientAdditionalData.getOrCreateForPatient(patientId);
+    await pad.update(valuesByModel.PatientAdditionalData);
+  }
+
+  if (valuesByModel.PatientProgramRegistration) {
+    const { programId } = await models.Survey.findByPk(surveyId);
+    const { id: programRegistryId } = await models.ProgramRegistry.findOne({
+      where: { programId, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
+    });
+    if (!programRegistryId) {
+      throw new Error('No program registry configured for the current form');
+    }
+    await models.PatientProgramRegistration.create({
+      patientId,
+      programRegistryId,
+      date: submittedTime,
+      ...valuesByModel.PatientProgramRegistration,
+      clinicianId: valuesByModel.PatientProgramRegistration.clinicianId || userId,
+    });
   }
 }
 
-async function handleSurveyResponseActions(models, questions, actions, answers, patientId) {
-  const activeQuestions = questions.filter(q => actions[q.dataElementId]);
+async function handleSurveyResponseActions(
+  models,
+  questions,
+  answers,
+  patientId,
+  surveyId,
+  userId,
+  submittedTime,
+) {
+  const activeQuestions = getActiveActionComponents(questions, answers);
   await createPatientIssues(models, activeQuestions, patientId);
-  await writeToPatientFields(models, activeQuestions, answers, patientId);
+  await writeToPatientFields(
+    models,
+    activeQuestions,
+    answers,
+    patientId,
+    surveyId,
+    userId,
+    submittedTime,
+  );
 }
 
 export class SurveyResponse extends Model {
@@ -124,7 +189,13 @@ export class SurveyResponse extends Model {
     return buildEncounterLinkedSyncFilter([this.tableName, 'encounters']);
   }
 
-  static async getSurveyEncounter({ encounterId, patientId, reasonForEncounter, ...responseData }) {
+  static async getSurveyEncounter({
+    encounterId,
+    patientId,
+    forceNewEncounter,
+    reasonForEncounter,
+    ...responseData
+  }) {
     if (!this.sequelize.isInsideTransaction()) {
       throw new Error('SurveyResponse.getSurveyEncounter must always run inside a transaction!');
     }
@@ -141,19 +212,20 @@ export class SurveyResponse extends Model {
       );
     }
 
-    // find open encounter
-    const openEncounter = await Encounter.findOne({
-      where: {
-        patientId,
-        endDate: null,
-      },
-    });
-
-    if (openEncounter) {
-      return openEncounter;
+    if (!forceNewEncounter) {
+      // find open encounter
+      const openEncounter = await Encounter.findOne({
+        where: {
+          patientId,
+          endDate: null,
+        },
+      });
+      if (openEncounter) {
+        return openEncounter;
+      }
     }
 
-    const { departmentId, userId, locationId } = responseData;
+    const { departmentId, examinerId, userId, locationId } = responseData;
 
     // need to create a new encounter with examiner set as the user who submitted the survey.
     const newEncounter = await Encounter.create({
@@ -161,7 +233,7 @@ export class SurveyResponse extends Model {
       encounterType: 'surveyResponse',
       reasonForEncounter,
       departmentId,
-      examinerId: userId,
+      examinerId: examinerId || userId,
       locationId,
       // Survey responses will usually have a startTime and endTime and we prefer to use that
       // for the encounter to ensure the times are set in the browser timezone
@@ -183,7 +255,7 @@ export class SurveyResponse extends Model {
       throw new Error('SurveyResponse.createWithAnswers must always run inside a transaction!');
     }
     const { models } = this.sequelize;
-    const { answers, actions = {}, surveyId, patientId, encounterId, ...responseData } = data;
+    const { answers, surveyId, patientId, encounterId, forceNewEncounter, ...responseData } = data;
 
     // ensure survey exists
     const survey = await models.Survey.findByPk(surveyId);
@@ -207,6 +279,7 @@ export class SurveyResponse extends Model {
     const encounter = await this.getSurveyEncounter({
       encounterId,
       patientId,
+      forceNewEncounter,
       reasonForEncounter: `Form response for ${survey.name}`,
       ...responseData,
     });
@@ -244,6 +317,7 @@ export class SurveyResponse extends Model {
       if (body === null) {
         continue;
       }
+
       const answer = await models.SurveyResponseAnswer.create({
         dataElementId: dataElement.id,
         body,
@@ -262,9 +336,11 @@ export class SurveyResponse extends Model {
     await handleSurveyResponseActions(
       models,
       questions,
-      actions,
       finalAnswers,
       encounter.patientId,
+      surveyId,
+      responseData.userId,
+      responseData.endTime,
     );
 
     return record;

@@ -5,7 +5,7 @@
 
 if [[ -d /config ]]; then
   # copy the config file(s) from the configurator into the expected place
-  cp -v /config/*.json ./config/
+  cp -v /config/*.json* ./config/
 fi
 
 if [[ -d /meta ]]; then

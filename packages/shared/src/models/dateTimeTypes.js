@@ -1,5 +1,5 @@
 import { DataTypes } from 'sequelize';
-import { toDateTimeString, toDateString } from '../utils/dateTime';
+import { toDateString, toDateTimeString } from '../utils/dateTime';
 
 // Used for storing date time strings in database
 export function dateTimeType(fieldName, config = {}) {

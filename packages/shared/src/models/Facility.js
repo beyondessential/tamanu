@@ -50,6 +50,17 @@ export class Facility extends Model {
     this.hasMany(models.PatientBirthData, {
       foreignKey: 'birthFacilityId',
     });
+    this.hasMany(models.PatientProgramRegistration, {
+      foreignKey: 'registeringFacilityId',
+    });
+    this.hasMany(models.PatientProgramRegistration, {
+      foreignKey: 'facilityId',
+    });
+
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'catchmentId',
+      as: 'catchment',
+    });
 
     this.belongsToMany(models.User, {
       through: 'UserFacility',

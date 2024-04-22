@@ -1,12 +1,12 @@
 import React, { FunctionComponent, ReactElement, useCallback, useState } from 'react';
 import { KeyboardAvoidingView, StatusBar } from 'react-native';
 import {
-  StyledView,
-  StyledSafeAreaView,
-  FullView,
   ColumnView,
-  StyledTouchableOpacity,
+  FullView,
+  StyledSafeAreaView,
   StyledText,
+  StyledTouchableOpacity,
+  StyledView,
 } from '/styled/common';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { theme } from '/styled/theme';
@@ -17,6 +17,7 @@ import { ModalInfo } from '/components/ModalInfo';
 import { ResetPasswordFormModel } from '~/ui/interfaces/forms/ResetPasswordFormProps';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { Button } from '/components/Button';
+import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 
 export const ResetPassword: FunctionComponent<any> = ({ navigation }: ResetPasswordProps) => {
   const authCtx = useAuth();
@@ -79,7 +80,7 @@ export const ResetPassword: FunctionComponent<any> = ({ navigation }: ResetPassw
           fontSize={screenPercentageToDP('1.57', Orientation.Height)}
           color={theme.colors.SECONDARY_MAIN}
         >
-          Back
+          <TranslatedText stringId="general.action.back" fallback="Back" />
         </StyledText>
       </StyledTouchableOpacity>
     </>
@@ -169,7 +170,7 @@ export const ResetPassword: FunctionComponent<any> = ({ navigation }: ResetPassw
               color={theme.colors.WHITE}
               fontWeight="bold"
             >
-              Reset Password
+              <TranslatedText stringId="resetPassword.heading" fallback="Reset password" />
             </StyledText>
           </StyledView>
           {success && renderSuccess()}
