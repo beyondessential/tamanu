@@ -6,6 +6,7 @@ import { useLocalisation } from '../contexts/LocalisationContext';
 import { RowView, StyledView } from '../styled/common';
 import { InformationBox } from '../navigation/screens/home/PatientDetails/CustomComponents';
 import { IPatientFieldDefinition } from '~/types';
+import { isCustomField } from '../helpers/fields';
 
 interface FieldRowDisplayProps {
   fields: string[][];
@@ -32,8 +33,7 @@ export const FieldRowDisplay = ({ fields, customFieldDefinitions }: FieldRowDisp
               title = getString(`fields.${name}.longLabel`);
             }
 
-            const isCustom = name.startsWith('fieldDefinition');
-            if (isCustom) {
+            if (isCustomField(name)) {
               title = customFieldsById[name]?.name
             }
 
