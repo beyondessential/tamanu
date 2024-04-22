@@ -1,4 +1,5 @@
 import React from 'react';
+import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import { DateDisplay } from '../../../components';
 import { ENCOUNTER_OPTIONS_BY_VALUE } from '../../../constants';
 import { getFullLocationName } from '../../../utils/location';
@@ -8,6 +9,9 @@ import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const getReferralSource = ({ referralSource }) =>
   referralSource ? referralSource.name : 'Unknown';
+
+const getDiet = ({ diet }) =>
+  diet ? diet.name : '-';
 
 export const getEncounterType = ({ encounterType }) =>
   encounterType ? ENCOUNTER_OPTIONS_BY_VALUE[encounterType]?.label : 'Unknown';
@@ -77,6 +81,16 @@ export const EncounterInfoPane = React.memo(
           value={DateDisplay.stringFormat(encounter.endDate)}
         />
       )}
+      {/* TODO: Integrate with the new UI design */}
+      {encounter?.encounterType === ENCOUNTER_TYPES.ADMISSION && <InfoCardItem
+        label={
+          <TranslatedText
+            stringId="encounter.summary.diet.label"
+            fallback="Diet"
+          />
+        }
+        value={getDiet(encounter)}
+      />}
       <InfoCardItem
         label={
           <TranslatedText
