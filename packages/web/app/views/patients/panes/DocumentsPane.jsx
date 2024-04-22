@@ -1,8 +1,4 @@
-import React, { useCallback, useState, useEffect } from 'react';
-import { extension } from 'mime-types';
-
-import { useApi } from '../../../api';
-import { notify, notifyError, notifySuccess } from '../../../utils';
+import React, { useCallback, useState } from 'react';
 
 import { DocumentPreviewModal } from '../../../components/DocumentPreview';
 import { DocumentsTable } from '../../../components/DocumentsTable';
@@ -12,8 +8,8 @@ import { DocumentsSearchBar } from '../../../components/DocumentsSearchBar';
 import { TabPane } from '../components';
 import { Button, ContentPane, OutlinedButton, TableButtonRow } from '../../../components';
 import { useRefreshCount } from '../../../hooks/useRefreshCount';
-import { saveFile } from '../../../utils/fileSystemAccess';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { useDocumentActions } from '../../../hooks/useDocumentActions';
 
 const MODAL_STATES = {
   DOCUMENT_OPEN: 'document',
@@ -22,19 +18,12 @@ const MODAL_STATES = {
   CLOSED: 'closed',
 };
 
-const base64ToUint8Array = base64 => {
-  const binString = atob(base64);
-  return Uint8Array.from(binString, m => m.codePointAt(0));
-};
-
 export const DocumentsPane = React.memo(({ encounter, patient }) => {
-  const api = useApi();
-  const [dataUrl, setDataUrl] = useState('');
-
   const [modalStatus, setModalStatus] = useState(MODAL_STATES.CLOSED);
   const [searchParameters, setSearchParameters] = useState({});
-  const [selectedDocument, setSelectedDocument] = useState(null);
+  const [selectedDocument, setSelectedDocument] = useState(undefined);
   const [refreshCount, updateRefreshCount] = useRefreshCount();
+  const { onDownload } = useDocumentActions();
 
   const isFromEncounter = !!encounter?.id;
 
@@ -64,32 +53,6 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
     };
   }, [dataUrl]);
 
-  const onDownload = useCallback(
-    async document => {
-      try {
-        // Give feedback to user that download is starting
-        notify('Your download has started, please wait.', { type: 'info' });
-
-        // Download attachment (*currently the API only supports base64 responses)
-        const { data } = await api.get(`attachment/${document.attachmentId}`, {
-          base64: true,
-        });
-
-        await saveFile({
-          defaultFileName: document.name,
-          data: base64ToUint8Array(data),
-          extension: extension(document.type),
-          mimetype: document.type,
-        });
-
-        notifySuccess('Successfully downloaded file');
-      } catch (error) {
-        notifyError(error.message);
-      }
-    },
-    [api],
-  );
-
   const onPrintPDF = useCallback(
     async attachmentId => {
       try {
@@ -110,10 +73,6 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
   );
 
   const closeModal = useCallback(() => setModalStatus(MODAL_STATES.CLOSED), [setModalStatus]);
-  const downloadCurrent = useCallback(() => onDownload(selectedDocument), [
-    onDownload,
-    selectedDocument,
-  ]);
   const openDocumentPreview = useCallback(
     document => {
       setSelectedDocument(document);
@@ -163,9 +122,7 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
       <DocumentPreviewModal
         open={modalStatus === MODAL_STATES.DOCUMENT_PREVIEW_OPEN}
         onClose={closeModal}
-        document={selectedDocument ?? {}}
-        onDownload={downloadCurrent}
-        onPrintPDF={onPrintPDF}
+        document={selectedDocument}
       />
     </>
   );

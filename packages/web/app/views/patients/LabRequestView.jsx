@@ -37,6 +37,7 @@ import { LabRequestPrintLabelModal } from '../../components/PatientPrinting/moda
 import { LabRequestSampleDetailsModal } from './components/LabRequestSampleDetailsModal';
 import { Colors } from '../../constants';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
+import { LabAttachmentModal } from '../../components/LabAttachmentModal';
 
 const Container = styled.div`
   display: flex;
@@ -80,6 +81,7 @@ const MODAL_IDS = {
   RECORD_SAMPLE: 'recordSample',
   SAMPLE_DETAILS: 'sampleDetails',
   VIEW_STATUS_LOG: 'viewStatusLog',
+  VIEW_REPORT: 'viewReport',
 };
 
 const MODALS = {
@@ -95,6 +97,7 @@ const MODALS = {
   [MODAL_IDS.RECORD_SAMPLE]: LabRequestRecordSampleModal,
   [MODAL_IDS.SAMPLE_DETAILS]: LabRequestSampleDetailsModal,
   [MODAL_IDS.VIEW_STATUS_LOG]: LabRequestLogModal,
+  [MODAL_IDS.VIEW_REPORT]: LabAttachmentModal,
 };
 
 const Menu = ({ setModal, status, disabled }) => {
@@ -164,6 +167,10 @@ export const LabRequestView = () => {
   const isHidden = HIDDEN_STATUSES.includes(labRequest.status);
   const areLabRequestsReadOnly = !canWriteLabRequest || isHidden;
   const areLabTestsReadOnly = !canWriteLabTest || isHidden || isPublished;
+  // TODO SAV-587: check if we should also use a feature flag
+  // TODO SAV-587: remove "|| true" which is just used to showcase
+  const hasAttachment = Boolean(labRequest.latestAttachment) || true;
+  const canEnterResults = !isPublished && !areLabTestsReadOnly && !hasAttachment;
 
   // If the value of status is enteredInError or deleted, it should display to the user as Cancelled
   const displayStatus = areLabRequestsReadOnly ? LAB_REQUEST_STATUSES.CANCELLED : labRequest.status;
@@ -304,10 +311,17 @@ export const LabRequestView = () => {
         </FixedTileRow>
       </TopContainer>
       <BottomContainer>
-        {!isPublished && !areLabTestsReadOnly && (
+        {canEnterResults && (
           <Box display="flex" justifyContent="flex-end" marginBottom="20px">
             <Button onClick={() => handleChangeModalId(MODAL_IDS.ENTER_RESULTS)}>
               <TranslatedText stringId="lab.action.enterResults" fallback="Enter results" />
+            </Button>
+          </Box>
+        )}
+        {hasAttachment && (
+          <Box display="flex" justifyContent="flex-end" marginBottom="20px">
+            <Button onClick={() => handleChangeModalId(MODAL_IDS.VIEW_REPORT)}>
+              <TranslatedText stringId="lab.action.viewReport" fallback="View report" />
             </Button>
           </Box>
         )}
