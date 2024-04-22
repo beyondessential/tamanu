@@ -93,6 +93,7 @@ adminRoutes.use('/asset', assetRoutes);
 adminRoutes.get(
   '/settings',
   asyncHandler(async (req, res) => {
+    req.checkPermission('read', 'Setting');
     const { Setting } = req.store.models;
     const data = await Setting.get('', req.query.facilityId, req.query.scope);
     res.send(data);
@@ -102,6 +103,7 @@ adminRoutes.get(
 adminRoutes.put(
   '/settings',
   asyncHandler(async (req, res) => {
+    req.checkPermission('write', 'Setting');
     const { Setting } = req.store.models;
     await Setting.set('', req.body.settings, req.body.scope, req.body.facilityId);
     res.json({ code: 200 });
@@ -110,7 +112,8 @@ adminRoutes.put(
 
 adminRoutes.delete(
   '/settings/cache',
-  asyncHandler(async (_req, res) => {
+  asyncHandler(async (req, res) => {
+    req.checkPermission('manage', 'all');
     settingsCache.reset();
     res.status(204).send();
   }),
@@ -119,6 +122,7 @@ adminRoutes.delete(
 adminRoutes.get(
   '/facilities',
   asyncHandler(async (req, res) => {
+    req.checkPermission('list', 'Facility');
     const { Facility } = req.store.models;
     const data = await Facility.findAll({ attributes: ['id', 'name'] });
     res.send(data);
