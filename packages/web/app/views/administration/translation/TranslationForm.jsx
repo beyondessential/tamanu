@@ -114,7 +114,12 @@ const ErrorMessage = ({ error }) => {
   return (
     <Box p={5}>
       <Alert severity="error">
-        <AlertTitle>Error: Could not load translations:</AlertTitle>
+        <AlertTitle>
+          <TranslatedText
+            stringId="admin.translation.error.loadTranslations"
+            fallback="Error: Could not load translations:"
+          />
+        </AlertTitle>
         {error}
       </Alert>
     </Box>
