@@ -530,6 +530,7 @@ describe('PatientVaccine', () => {
 
   describe('Upcoming vaccination', async () => {
     await models.ScheduledVaccine.truncate({ cascade: true });
+    await models.AdministeredVaccine.truncate({ cascade: true });
 
     const scheduledVax1 = await models.ScheduledVaccine.create(
       createScheduledVaccine(models, {
@@ -541,7 +542,7 @@ describe('PatientVaccine', () => {
       }),
     );
 
-    await models.ScheduledVaccine.create(
+    const scheduledVax2 = await models.ScheduledVaccine.create(
       createScheduledVaccine(models, {
         category: VACCINE_CATEGORIES.ROUTINE,
         schedule: 'Dose 2',
@@ -555,11 +556,33 @@ describe('PatientVaccine', () => {
       createDummyPatient(models, { dateOfBirth: new Date() }),
     );
 
-    it('should return all upcoming vaccinations of patient', async () => {
+    const patient2 = await models.Patient.create(
+      createDummyPatient(models, {
+        dateOfBirth: moment()
+          .subtract(9, 'day')
+          .toDate(),
+      }),
+    );
+
+    await recordAdministeredVaccine(patient2, scheduledVax1, {
+      status: VACCINE_STATUS.GIVEN,
+      date: moment()
+        .subtract(1, 'day')
+        .toDate(),
+    });
+
+    it('should return 1 upcoming vaccinations of patient 1', async () => {
       const result = await app.get(`/api/patient/${patient1.id}/upcomingVaccination`);
       expect(result).toHaveSucceeded();
       expect(result.body.data).toHaveLength(1);
       expect(result.body.data.at(0)?.scheduledVaccineId).toEqual(scheduledVax1.id);
+    });
+
+    it('should return 1 upcoming vaccinations of patient 2', async () => {
+      const result = await app.get(`/api/patient/${patient2.id}/upcomingVaccination`);
+      expect(result).toHaveSucceeded();
+      expect(result.body.data).toHaveLength(1);
+      expect(result.body.data.at(0)?.scheduledVaccineId).toEqual(scheduledVax2.id);
     });
   });
 });
