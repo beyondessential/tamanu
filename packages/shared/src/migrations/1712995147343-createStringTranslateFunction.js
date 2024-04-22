@@ -4,7 +4,6 @@
  * @param {QueryInterface} query
  */
 export async function up(query) {
-  await query.sequelize.query(`ALTER TABLE public.patient_communications ADD hash int NULL;`);
   await query.sequelize.query(`CREATE OR REPLACE FUNCTION public.string_translate(
       i_language text,
       i_string_id text,
