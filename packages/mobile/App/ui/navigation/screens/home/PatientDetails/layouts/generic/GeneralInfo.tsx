@@ -44,9 +44,6 @@ export const GeneralInfo = ({ onEdit, patient }: GeneralInfoProps): ReactElement
     return <ErrorScreen error={error} />;
   }
 
-  console.log('fields', fields)
-  console.log('patientAdditionalDataFields', patientAdditionalDataFields)
-
   return (
     <PatientSection
       title={
