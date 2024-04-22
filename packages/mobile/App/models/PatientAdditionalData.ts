@@ -16,6 +16,7 @@ import { SYNC_DIRECTIONS } from './types';
 import { CURRENT_SYNC_TIME, getSyncTick } from '~/services/sync';
 import { Database } from '~/infra/db';
 import { extractIncludedColumns } from '~/services/sync/utils/extractIncludedColumns';
+import { Facility } from './Facility';
 
 const METADATA_FIELDS = [
   'createdAt',
@@ -143,6 +144,11 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
   countryOfBirth?: ReferenceData;
   @IdRelation()
   countryOfBirthId?: string | null;
+
+  @ManyToOne(() => Facility)
+  healthCenter: Facility;
+  @RelationId(({ healthCenter }) => healthCenter)
+  healthCenterId?: string;
 
   @Column({ nullable: true })
   updatedAtByField: string;

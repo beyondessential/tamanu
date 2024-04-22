@@ -2,6 +2,7 @@
 import {
   LAB_REQUEST_STATUSES,
   FHIR_DIAGNOSTIC_REPORT_STATUS,
+  SUPPORTED_CONTENT_TYPES,
 } from '@tamanu/constants';
 
 import { createTestContext } from '../../utilities';
@@ -181,7 +182,7 @@ describe('Create DiagnosticReport', () => {
       expect(labRequest.status).toBe(LAB_REQUEST_STATUSES.PUBLISHED);
       expect(requestAttachment).toMatchObject({
         labRequestId: labRequest.id,
-        replacedBy: null,
+        replacedById: null,
         title: testAttachment.title,
       });
       expect(response).toHaveSucceeded();
