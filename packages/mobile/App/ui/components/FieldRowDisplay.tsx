@@ -1,4 +1,4 @@
-import React, { ReactElement, } from 'react';
+import React, { ReactElement } from 'react';
 import { chunk, keyBy } from 'lodash';
 import { isTablet } from 'react-native-device-info';
 
@@ -13,12 +13,15 @@ interface FieldRowDisplayProps {
   customFieldDefinitions?: IPatientFieldDefinition[];
 }
 
-export const FieldRowDisplay = ({ fields, customFieldDefinitions }: FieldRowDisplayProps): ReactElement => {
+export const FieldRowDisplay = ({
+  fields,
+  customFieldDefinitions,
+}: FieldRowDisplayProps): ReactElement => {
   const { getString, getBool, getLocalisation } = useLocalisation();
-  const localisedFields = getLocalisation('fields');
+  const localisedFields = Object.keys(getLocalisation('fields'));
   const fieldsPerRow = isTablet() ? 2 : 1;
   const rows = chunk(fields, fieldsPerRow);
-  const customFieldsById = keyBy(customFieldDefinitions, 'id')
+  const customFieldsById = keyBy(customFieldDefinitions, 'id');
 
   return (
     <StyledView width="100%" margin={20} marginTop={0}>
@@ -27,24 +30,16 @@ export const FieldRowDisplay = ({ fields, customFieldDefinitions }: FieldRowDisp
           {row.map(([name, info]) => {
             let title = name;
 
-            const isLocalised = Object.keys(localisedFields).includes(name);
-            if (isLocalised) {
+            if (localisedFields.includes(name)) {
               if (getBool(`fields.${name}.hidden`)) return null;
               title = getString(`fields.${name}.longLabel`);
             }
 
             if (isCustomField(name)) {
-              title = customFieldsById[name]?.name
+              title = customFieldsById[name]?.name;
             }
 
-            return (
-              <InformationBox
-                key={name}
-                flex={1}
-                title={title}
-                info={info}
-              />
-            );
+            return <InformationBox key={name} flex={1} title={title} info={info} />;
           })}
         </RowView>
       ))}
