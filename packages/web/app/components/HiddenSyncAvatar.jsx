@@ -25,7 +25,12 @@ const CustomCircularProgress = styled(CircularProgress)`
 
 const Error = ({ errorMessage }) => (
   <div>
-    <b>Manual sync failed</b>
+    <b>
+      <TranslatedText
+        stringId="sidebar.avatar.notification.manualSyncFailed"
+        fallback="Manual sync failed"
+      />
+    </b>
     <ErrorMessage>{errorMessage}</ErrorMessage>
   </div>
 );
