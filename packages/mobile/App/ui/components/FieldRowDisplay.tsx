@@ -9,15 +9,15 @@ import { IPatientFieldDefinition } from '~/types';
 
 interface FieldRowDisplayProps {
   fields: string[][];
-  customFields?: IPatientFieldDefinition[];
+  customFieldDefinitions?: IPatientFieldDefinition[];
 }
 
-export const FieldRowDisplay = ({ fields, customFields }: FieldRowDisplayProps): ReactElement => {
+export const FieldRowDisplay = ({ fields, customFieldDefinitions }: FieldRowDisplayProps): ReactElement => {
   const { getString, getBool, getLocalisation } = useLocalisation();
   const localisedFields = getLocalisation('fields');
   const fieldsPerRow = isTablet() ? 2 : 1;
   const rows = chunk(fields, fieldsPerRow);
-  const customFieldsById = keyBy(customFields, 'id')
+  const customFieldsById = keyBy(customFieldDefinitions, 'id')
 
   return (
     <StyledView width="100%" margin={20} marginTop={0}>

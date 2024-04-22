@@ -75,7 +75,7 @@ export const GeneralInfo = ({ onEdit, patient }: GeneralInfoProps): ReactElement
       {loading ? (
         <LoadingScreen />
       ) : (
-        <FieldRowDisplay fields={[...fields, ...patientAdditionalDataFields]} customFields={customPatientFieldDefinitions} />
+        <FieldRowDisplay fields={[...fields, ...patientAdditionalDataFields]} customFieldDefinitions={customPatientFieldDefinitions} />
       )}
     </PatientSection>
   );
