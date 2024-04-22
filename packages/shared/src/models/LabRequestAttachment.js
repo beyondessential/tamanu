@@ -19,7 +19,7 @@ export class LabRequestAttachment extends Model {
         },
         replacedBy: {
           type: Sequelize.STRING,
-          allowNull: false,
+          allowNull: true,
         },
       },
       {
@@ -33,9 +33,6 @@ export class LabRequestAttachment extends Model {
     this.belongsTo(models.LabRequest, {
       foreignKey: 'labRequestId',
       as: 'labRequest',
-    });
-    this.belongsTo(models.LabRequestAttachment, {
-      foreignKey: 'replacedBy'
     });
   }
 

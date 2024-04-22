@@ -29,6 +29,10 @@ export async function up(query) {
     lab_request_id: {
       type: Sequelize.STRING,
       allowNull: false,
+      references: {
+        model: 'lab_requests',
+        key: 'id',
+      },
     },
     title: {
       type: Sequelize.STRING,
@@ -37,10 +41,6 @@ export async function up(query) {
     replaced_by: {
       type: Sequelize.STRING,
       allowNull: true,
-      references: {
-        model: 'lab_request_attachments',
-        key: 'id',
-      },
     },
   });
 }

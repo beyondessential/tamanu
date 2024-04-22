@@ -159,11 +159,6 @@ export class LabRequest extends Model {
       as: 'certificateNotification',
     });
 
-    this.hasMany(models.LabRequestAttachment, {
-      foreignKey: 'labRequestId',
-      as: 'labRequestAttachment',
-    });
-
     this.hasMany(models.Note, {
       foreignKey: 'recordId',
       as: 'notes',
