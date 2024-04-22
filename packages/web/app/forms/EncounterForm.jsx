@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import { foreignKey } from '../utils/validation';
 import {
   AutocompleteField,
@@ -20,7 +21,6 @@ import {
 import { ENCOUNTER_OPTIONS, FORM_TYPES } from '../constants';
 import { useSuggester } from '../api';
 import { TranslatedText } from '../components/Translation/TranslatedText';
-import { ENCOUNTER_TYPES } from '@tamanu/constants';
 
 export const EncounterForm = React.memo(
   ({ editedObject, onSubmit, patientBillingTypeId, encounterType }) => {
