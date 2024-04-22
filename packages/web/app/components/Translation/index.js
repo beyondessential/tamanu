@@ -1,1 +1,2 @@
-export { TranslatedText } from './TranslatedText';
+export * from './TranslatedEnum';
+export * from './TranslatedText';

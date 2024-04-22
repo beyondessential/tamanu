@@ -274,16 +274,18 @@ export const Sidebar = React.memo(({ items }) => {
             {initials}
           </StyledHiddenSyncAvatar>
           {!isRetracted && (
-            <StyledUserInfoContent flex={1}>
-              <UserName>{currentUser?.displayName}</UserName>
-              <Box display="flex" justifyContent="space-between">
-                <ConnectedTo>
-                  {roleName} <br /> {facility?.name ? facility.name : centralHost}
-                </ConnectedTo>
-              </Box>
-            </StyledUserInfoContent>
+            <>
+              <StyledUserInfoContent flex={1}>
+                <UserName>{currentUser?.displayName}</UserName>
+                <Box display="flex" justifyContent="space-between">
+                  <ConnectedTo>
+                    {roleName} <br /> {facility?.name ? facility.name : centralHost}
+                  </ConnectedTo>
+                </Box>
+              </StyledUserInfoContent>
+              <KebabMenu />
+            </>
           )}
-          <KebabMenu />
         </UserInfo>
         {!isRetracted && (
           <>
