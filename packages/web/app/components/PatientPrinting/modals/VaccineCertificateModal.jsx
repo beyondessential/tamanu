@@ -14,7 +14,7 @@ import {
   useReferenceData,
 } from '../../../api/queries';
 
-import { printPDF } from '../PDFViewer';
+import { printPDF } from '../PDFLoader';
 import { useAuth } from '../../../contexts/Auth';
 import { WorkerRenderedPDFViewer } from '../WorkerRenderedPDFViewer';
 import { LoadingIndicator } from '../../LoadingIndicator';
