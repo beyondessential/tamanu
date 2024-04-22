@@ -6,9 +6,6 @@ import { KeyboardAvoidingView, StyleSheet } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { FullView } from '/styled/common';
 import { formatISO9075, parseISO } from 'date-fns';
-import { NameSection } from './NameSection';
-import { KeyInformationSection } from './KeyInformationSection';
-import { LocationDetailsSection } from './LocationDetailsSection';
 import { SubmitSection } from './SubmitSection';
 import { generateId, getConfiguredPatientAdditionalDataFields } from '~/ui/helpers/patient';
 import { Patient } from '~/models/Patient';
@@ -68,12 +65,10 @@ const getPatientInitialValues = (
     requiredPADFields,
   );
 
-  const initialPatientCustomDataValues = Object.fromEntries(
-    Object.entries(customPatientFieldValues).map(([key, nestedObject]) => [
-      key,
-      nestedObject[0].value,
-    ]),
-  );
+  const initialPatientCustomDataValues = {};
+  for (const key in customPatientFieldValues) {
+    initialPatientCustomDataValues[key] = customPatientFieldValues[key][0].value;
+  }
 
   const initialPatientValues = {
     firstName,
