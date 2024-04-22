@@ -49,7 +49,7 @@ const SubmitButton = styled(FormSubmitButton)`
 `;
 
 export const DocumentsSearchBar = ({ setSearchParameters }) => {
-  const handleSubmit = values => {
+  const handleSubmit = async values => {
     setSearchParameters(values);
   };
 
