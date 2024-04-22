@@ -12,6 +12,7 @@ export function stackName(head_ref, ref_name = null) {
     .replace(/^refs\/(heads|tags)\//, '')
     .replace(/[^a-z0-9-]/g, '-')
     .replace(/-+/g, '-')
+    .slice(0, 63 - 'tamanu-'.length) // max length of namespace, excl prefix
     .replace(/^-|-$/g, '');
 }
 
@@ -19,7 +20,7 @@ export function parseDeployConfig({ body, control, ref }, context) {
   const deployName = stackName(ref);
 
   const deploys = [];
-  for (const line of body.split(/\r?\n/)) {
+  for (const line of body?.split(/\r?\n/) ?? []) {
     let deployLine = RX_DEPLOY_LINE.exec(line);
     if (deployLine) {
       deploys.push({

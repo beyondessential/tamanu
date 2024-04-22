@@ -10,7 +10,7 @@ interface NameProps {
 }
 
 export const joinNames = (data: NameProps): string =>
-  [data.firstName ?? '', data.lastName ?? ''].join(' ');
+  [data.firstName ?? '', data.lastName ?? ''].join(' ').trim();
 
 export const Genders = {
   FEMALE: 'female',

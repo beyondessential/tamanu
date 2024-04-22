@@ -62,13 +62,13 @@ export const RemoveReminderContactModal = ({
           textAlign="center"
         >
           <TranslatedText
-            stringId="patient.details.removeReminderContacts.title"
+            stringId="patient.details.removeReminderContact.confirmation"
             fallback="Would you like to remove the below contact?"
           />
         </StyledText>
         <StyledText color={theme.colors.MAIN_SUPER_DARK} marginBottom={20} textAlign="center">
           <TranslatedText
-            stringId="patient.details.removeReminderContacts.description"
+            stringId="patient.details.removeReminderContact.description"
             fallback="You can add the contact again at any time."
           />
         </StyledText>
@@ -81,7 +81,7 @@ export const RemoveReminderContactModal = ({
         >
           <StyledText color={theme.colors.WHITE} fontSize={16} fontWeight={500}>
             <TranslatedText
-              stringId="patient.details.removeReminderContacts.action.remove"
+              stringId="patient.details.removeReminderContact.action.remove"
               fallback="Remove contact"
             />
           </StyledText>
@@ -95,7 +95,7 @@ export const RemoveReminderContactModal = ({
         >
           <StyledText color={theme.colors.PRIMARY_MAIN} fontSize={16} fontWeight={500}>
             <TranslatedText
-              stringId="patient.details.removeReminderContacts.action.cancel"
+              stringId="patient.details.removeReminderContact.action.cancel"
               fallback="Cancel"
             />
           </StyledText>
