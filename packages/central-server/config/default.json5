@@ -1132,7 +1132,7 @@
         {
           "as": "days",
           "range": {
-            "min": { "duration": { "days": 0 } },
+            "min": { "duration": { "days": 0 },  "exclusive": false  },
             "max": { "duration": { "days": 8 }, "exclusive": true }
           }
         },
