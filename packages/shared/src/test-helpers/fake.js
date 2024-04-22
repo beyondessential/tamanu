@@ -265,6 +265,14 @@ const MODEL_SPECIFIC_OVERRIDES = {
       reasonForCancellation: isCancelled ? chance.pickone(['duplicate', 'entered-in-error']) : null,
     };
   },
+  LabTestType: () => {
+    return {
+      code: chance.word(),
+      name: chance.word(),
+      unit: chance.pickone(['mmol/L', 'umol/L', 'IU']),
+      externalCode: chance.pickone([ chance.word(), null]), // sometimes external code not mapped
+    };
+  },
   LabRequest: () => {
     const status = chance.pickone(Object.values(LAB_REQUEST_STATUSES));
     const isCancelled = status === LAB_REQUEST_STATUSES.CANCELLED;
