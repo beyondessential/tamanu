@@ -46,7 +46,7 @@ const RelationField = ({ fieldName, required }): ReactElement => {
   const { type, placeholder } = relationIdFieldsProperties[fieldName];
   const localisedPlaceholder = getString(`fields.${fieldName}.longLabel`, placeholder);
   const suggester = getSuggester(models, type);
-
+  
   return (
     <LocalisedField
       key={fieldName}

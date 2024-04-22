@@ -6,7 +6,7 @@ import { theme } from '/styled/theme';
 import { ArrowButton } from './ArrowButton';
 
 interface PatientDetailSectionProps {
-  title: string;
+  title: Element;
   onEdit?: () => void;
   isClosable?: boolean;
 }

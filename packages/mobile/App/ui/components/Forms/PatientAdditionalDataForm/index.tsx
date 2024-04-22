@@ -47,13 +47,11 @@ export const PatientAdditionalDataForm = ({
       // Navigate back to patient details
       navigation.navigate(Routes.HomeStack.PatientDetailsStack.Index);
     },
-    [navigation],
+    [navigation, patient.id],
   );
 
-  // Get the actual additional data section object
+  // Get the field group for this section of the additional data template
   const { fields } = additionalDataSections.find(({ title }) => title === sectionTitle);
-
-  // console.log(customPatientFieldValues) // TODO: missing?
 
   return (
     <Form
