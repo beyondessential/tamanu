@@ -1,1 +1,5 @@
-export const facilityDefaults = {};
+export const facilityDefaults = {
+  templates: {
+    letterhead: {},
+  },
+};
