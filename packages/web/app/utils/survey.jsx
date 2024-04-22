@@ -3,9 +3,12 @@ import React from 'react';
 import * as yup from 'yup';
 import { intervalToDuration, parseISO } from 'date-fns';
 import { isNull, isUndefined } from 'lodash';
-import { getPatientDataDbLocation } from '@tamanu/shared/utils/getPatientDataDbLocation';
 import { checkJSONCriteria } from '@tamanu/shared/utils/criteria';
-import { PROGRAM_DATA_ELEMENT_TYPES, READONLY_DATA_FIELDS } from '@tamanu/constants';
+import {
+  PATIENT_DATA_FIELD_LOCATIONS,
+  PROGRAM_DATA_ELEMENT_TYPES,
+  READONLY_DATA_FIELDS,
+} from '@tamanu/constants';
 
 import {
   DateField,
@@ -176,6 +179,14 @@ export function getConfigObject(componentId, config) {
   }
 }
 
+export const getPatientDataDbLocation = columnName => {
+  const [modelName, fieldName] = PATIENT_DATA_FIELD_LOCATIONS[columnName] ?? [null, null];
+  return {
+    modelName,
+    fieldName,
+  };
+};
+
 function transformPatientData(patient, additionalData, patientProgramRegistration, config) {
   const { column = 'fullName' } = config;
   const { dateOfBirth, firstName, lastName } = patient;
@@ -207,8 +218,14 @@ function transformPatientData(patient, additionalData, patientProgramRegistratio
           return additionalData ? additionalData[fieldName] : undefined;
         case 'PatientProgramRegistration':
           return patientProgramRegistration ? patientProgramRegistration[fieldName] : undefined;
-        default:
+        default: {
+          // Check for custom patient fields
+          const { fieldValues } = patient;
+          const fieldValue = fieldValues.find(x => x.definitionId === column);
+          if (fieldValue) return fieldValue.value;
+
           return undefined;
+        }
       }
     }
   }
