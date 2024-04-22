@@ -9,6 +9,7 @@ import {
   PLACE_OF_BIRTH_TYPES,
 } from '@tamanu/constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
+import { yupAttemptTransformToNumber } from '../utils';
 
 const requiredWhenConfiguredMandatory = (
   getLocalisation,
@@ -387,7 +388,8 @@ export const getPatientDetailsValidation = (
             stringId="general.localisedField.primaryContactNumber.label"
             fallback="Primary contact number"
           />,
-        ),
+        )
+        .transform(yupAttemptTransformToNumber),
       'Primary contact number',
     ),
     secondaryContactNumber: requiredWhenConfiguredMandatory(
@@ -401,7 +403,8 @@ export const getPatientDetailsValidation = (
             stringId="general.localisedField.secondaryContactNumber.label"
             fallback="Secondary contact number"
           />,
-        ),
+        )
+        .transform(yupAttemptTransformToNumber),
       'Secondary contact number',
     ),
     emergencyContactName: requiredWhenConfiguredMandatory(
@@ -429,7 +432,8 @@ export const getPatientDetailsValidation = (
             stringId="general.localisedField.emergencyContactNumber.label"
             fallback="Emergency contact number"
           />,
-        ),
+        )
+        .transform(yupAttemptTransformToNumber),
       'Emergency contact number',
     ),
     title: requiredWhenConfiguredMandatory(
