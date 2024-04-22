@@ -13,8 +13,9 @@ export const ResetPasswordFields = (): ReactElement => (
     marginTop={screenPercentageToDP(14.7, Orientation.Height)}
     marginRight={screenPercentageToDP(2.43, Orientation.Width)}
     marginLeft={screenPercentageToDP(2.43, Orientation.Width)}
+    zIndex={1}
   >
-    <StyledView justifyContent="space-around">
+    <StyledView justifyContent="space-around" zIndex={1}>
       <StyledText fontSize={13} marginBottom={5} color={theme.colors.SECONDARY_MAIN}>
         <TranslatedText
           stringId="auth.resetPassword.enterAccountEmail"
@@ -42,6 +43,7 @@ export const ResetPasswordFields = (): ReactElement => (
       textColor={theme.colors.TEXT_SUPER_DARK}
       fontSize={screenPercentageToDP('1.94', Orientation.Height)}
       fontWeight={500}
+      zIndex={-1}
       buttonText={
         <TranslatedText stringId="login.resetPassword.heading" fallback="Reset password" />
       }
