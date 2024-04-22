@@ -21,6 +21,11 @@ export const LanguageSelectScreen: FunctionComponent<any> = ({ navigation }) => 
     navigation.navigate(Routes.SignUpStack.SignIn);
   }, []);
 
+  const handleChangeLanguage = value => {
+    setLanguage(value);
+    onNavigateToSignIn();
+  };
+
   if (!languageOptions) {
     return <ErrorScreen error={{ message: 'Problem loading language list' }} />;
   }
@@ -65,7 +70,7 @@ export const LanguageSelectScreen: FunctionComponent<any> = ({ navigation }) => 
             <Dropdown
               value={language}
               options={languageOptions}
-              onChange={setLanguage}
+              onChange={handleChangeLanguage}
               label=""
               selectPlaceholderText="Select"
               labelColor="white"
