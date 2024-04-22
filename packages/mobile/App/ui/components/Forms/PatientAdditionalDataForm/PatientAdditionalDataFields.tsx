@@ -19,7 +19,7 @@ import {
   selectFieldsOptions,
 } from './helpers';
 import { getConfiguredPatientAdditionalDataFields } from '~/ui/helpers/patient';
-import { Text } from 'react-native-paper';
+import { ActivityIndicator } from 'react-native';
 
 const PlainField = ({ fieldName, required }): ReactElement => (
   // Outter styled view to momentarily add distance between fields
@@ -74,7 +74,7 @@ const CustomField = ({ fieldName, required }): ReactElement => {
     fetchFieldDefinition();
   }, [fieldName, models]);
 
-  if (!fieldDefinition) return <Text>Loading...</Text>;
+  if (!fieldDefinition) return <ActivityIndicator />;
 
   return (
     <Field

@@ -37,7 +37,6 @@ export const FieldRowDisplay = ({ fields, customFieldDefinitions }: FieldRowDisp
               title = customFieldsById[name]?.name
             }
 
-
             return (
               <InformationBox
                 key={name}

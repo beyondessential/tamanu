@@ -70,7 +70,7 @@ export const AdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps): ReactE
             onEdit={isEditable ? onEditCallback : undefined}
             isClosable
           >
-            {loading ? <LoadingScreen /> : <FieldRowDisplay fields={fields} customFields={customPatientFieldDefinitions} />}
+            {loading ? <LoadingScreen /> : <FieldRowDisplay fields={fields} customFieldDefinitions={customPatientFieldDefinitions} />}
           </PatientSection>
         );
       })}
