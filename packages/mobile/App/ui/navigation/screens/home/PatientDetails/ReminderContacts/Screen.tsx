@@ -143,7 +143,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
                       {isFailedContact(x) && (
                         <Button
                           onPress={() => onRetryConnect(x)}
-                          height={24}
+                          height={screenPercentageToDP(4, Orientation.Height)}
                           marginRight={canWriteReminderContacts ? 16 : 8}
                           paddingTop={4}
                           alignSelf="flex-end"
@@ -154,6 +154,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
                             color={theme.colors.PRIMARY_MAIN}
                             textDecorationLine="underline"
                             fontWeight={500}
+                            fontSize={screenPercentageToDP(2, Orientation.Height)}
                           >
                             <TranslatedText
                               stringId="patient.details.reminderContacts.action.retry"
@@ -165,7 +166,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
                       {canWriteReminderContacts && (
                         <Button
                           onPress={() => setSelectedContact(x)}
-                          height={24}
+                          height={screenPercentageToDP(4, Orientation.Height)}
                           marginRight={8}
                           paddingTop={4}
                           alignSelf="flex-end"
@@ -176,6 +177,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
                             color={theme.colors.PRIMARY_MAIN}
                             textDecorationLine="underline"
                             fontWeight={500}
+                            fontSize={screenPercentageToDP(2, Orientation.Height)}
                           >
                             <TranslatedText
                               stringId="patient.details.reminderContacts.action.remove"
