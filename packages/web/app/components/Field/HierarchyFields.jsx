@@ -14,7 +14,6 @@ export const HierarchyFields = ({ fields, baseLevel, relationType }) => {
     <>
       {hierarchyToShow.map((type, index) => {
         const fieldData = fields.find(f => f.referenceType === type);
-        console.log('fieldData', fieldData);
         const parentFieldData = fields.find(f => f.referenceType === hierarchyToShow[index - 1]);
         const parentId = get(values, parentFieldData?.name);
 

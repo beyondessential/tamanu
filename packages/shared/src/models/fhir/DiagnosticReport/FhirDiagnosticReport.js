@@ -164,4 +164,28 @@ export class FhirDiagnosticReport extends FhirResource {
       await lastAttachment.save();
     }
   }
+
+  getLabRequestStatus() {
+    switch (this.status) {
+      case FHIR_DIAGNOSTIC_REPORT_STATUS.REGISTERED:
+      case FHIR_DIAGNOSTIC_REPORT_STATUS.PARTIAL._:
+        return LAB_REQUEST_STATUSES.TO_BE_VERIFIED;
+      case FHIR_DIAGNOSTIC_REPORT_STATUS.PARTIAL.PRELIMINARY:
+        return LAB_REQUEST_STATUSES.VERIFIED;
+      case FHIR_DIAGNOSTIC_REPORT_STATUS.FINAL:
+        return LAB_REQUEST_STATUSES.PUBLISHED;
+      case FHIR_DIAGNOSTIC_REPORT_STATUS.CANCELLED:
+        return LAB_REQUEST_STATUSES.CANCELLED;
+      case FHIR_DIAGNOSTIC_REPORT_STATUS.ENTERED_IN_ERROR:
+        return LAB_REQUEST_STATUSES.ENTERED_IN_ERROR;
+      case FHIR_DIAGNOSTIC_REPORT_STATUS.AMENDED._:
+      case FHIR_DIAGNOSTIC_REPORT_STATUS.AMENDED.CORRECTED:
+      case FHIR_DIAGNOSTIC_REPORT_STATUS.AMENDED.APPENDED:
+        // no workflow for these yet
+        throw new Invalid('Amend workflow unsupported');
+      default:
+        throw new Invalid(`'${this.status}' is an invalid ServiceRequest status`);
+    }
+  }
+
 }

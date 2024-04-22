@@ -20,7 +20,7 @@ on:
     # Release tags build the server/web packages only
     tags: ['v*.*.*']
     # All branches can potentially be controlled by special issues
-    branches: ['*']
+    branches: ['**']
 
 # makes jobs for the same thing queue behind each other, and if there is already one job pending
 # (not currently running) then that job is cancelled and the newer one remains in queue.
