@@ -10,7 +10,7 @@ import {
   VISIBILITY_STATUSES,
   REFERENCE_DATA_RELATION_TYPES,
 } from '@tamanu/constants';
-import config, { get } from 'config';
+import config from 'config';
 import {
   configString,
   jsonString,
@@ -212,30 +212,29 @@ export const ScheduledVaccine = Base.shape({
   category: yup.string().required(),
   label: yup.string().required(),
   schedule: yup.string().required(),
-  weeksFromBirthDue: yup.number().when(['schedule'], {
-    is: schedule => {
+  weeksFromBirthDue: yup.number().when(['schedule', 'index'], {
+    is: (schedule, index) => {
       if (!schedule.startsWith('Dose')) return false;
-      return getDoseNumber(schedule) > 1;
+      return index > 1;
     },
     then: yup
       .number()
-      .test('is-null', 'Weeks from birth due should be undefined for non-first doses', value => {
-        console.log(value);
-        return value == null;
+      .test('is-null', 'Weeks from birth due should not be set for non-first doses', value => {
+        return value === undefined;
       }),
     otherwise: yup.number(),
   }),
-  weeksFromLastVaccinationDue: yup.number().when(['schedule'], {
-    is: schedule => {
+  weeksFromLastVaccinationDue: yup.number().when(['schedule', 'index'], {
+    is: (schedule, index) => {
       if (!schedule.startsWith('Dose')) return false;
-      return getDoseNumber(schedule) == 1;
+      return index === 1;
     },
     then: yup
       .number()
       .test(
         'is-null',
-        'Weeks from last vaccination due should be undefined for first doses',
-        value => value == null,
+        'Weeks from last vaccination due should not be set for first doses',
+        value => value === undefined,
       ),
     otherwise: yup.number(),
   }),
@@ -344,9 +343,3 @@ export const ReferenceDataRelation = yup.object().shape({
   referenceDataId: yup.string().required(),
   type: yup.string().oneOf(Object.values(REFERENCE_DATA_RELATION_TYPES)),
 });
-
-const getDoseNumber = schedule => {
-  const match = schedule.match(/Dose (\d+)/);
-  console.log(match);
-  return match ? parseInt(match[1]) : null;
-};
