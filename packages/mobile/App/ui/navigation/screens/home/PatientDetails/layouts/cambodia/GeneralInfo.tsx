@@ -13,20 +13,12 @@ import { usePatientAdditionalData } from '~/ui/hooks/usePatientAdditionalData';
 import { ErrorScreen } from '../../../../../../components/ErrorScreen';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { TranslatedText } from '/components/Translations/TranslatedText';
+import { mapValues } from 'lodash';
 
 interface GeneralInfoProps {
   onEdit: () => void;
   patient: IPatient;
 }
-
-const FIELD_DEFINITION_IDS = {
-  FATHERS_FIRST_NAME: 'fieldDefinition-fathersFirstName',
-  MOTHERS_FIRST_NAME: 'fieldDefinition-mothersFirstName',
-};
-
-const getCustomFieldValue = (customPatientFieldValues = {}, fieldDefinitionId) => {
-  return customPatientFieldValues[fieldDefinitionId][0].value;
-};
 
 export const GeneralInfo = ({ onEdit, patient }: GeneralInfoProps): ReactElement => {
   // Check if patient information should be editable
@@ -41,17 +33,14 @@ export const GeneralInfo = ({ onEdit, patient }: GeneralInfoProps): ReactElement
     error,
   } = usePatientAdditionalData(patient.id);
 
+  const customData = mapValues(customPatientFieldValues, nestedObject => nestedObject[0].value);
+
   const fields = [
     ['lastName', patient.lastName],
     ['firstName', patient.firstName],
     ['dateOfBirth', formatStringDate(patient.dateOfBirth, DateFormats.DDMMYY)],
     ['sex', getGender(patient.sex)],
-    [
-      FIELD_DEFINITION_IDS.FATHERS_FIRST_NAME,
-      !loading
-        ? getCustomFieldValue(customPatientFieldValues, FIELD_DEFINITION_IDS.FATHERS_FIRST_NAME)
-        : '',
-    ],
+    ['fieldDefinition-fathersFirstName', customData['fieldDefinition-fathersFirstName']],
     ['culturalName', patient.culturalName],
   ];
 
@@ -75,7 +64,10 @@ export const GeneralInfo = ({ onEdit, patient }: GeneralInfoProps): ReactElement
       {loading ? (
         <LoadingScreen />
       ) : (
-        <FieldRowDisplay fields={[...fields, ...patientAdditionalDataFields]} customFieldDefinitions={customPatientFieldDefinitions} />
+        <FieldRowDisplay
+          fields={[...fields, ...patientAdditionalDataFields]}
+          customFieldDefinitions={customPatientFieldDefinitions}
+        />
       )}
     </PatientSection>
   );
