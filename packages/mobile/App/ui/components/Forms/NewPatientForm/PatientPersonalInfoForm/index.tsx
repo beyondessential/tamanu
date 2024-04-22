@@ -19,6 +19,7 @@ import { usePatientAdditionalData } from '~/ui/hooks/usePatientAdditionalData';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { getInitialAdditionalValues } from '../../PatientAdditionalDataForm/helpers';
 import { PatientFieldValue } from '~/models/PatientFieldValue';
+import { IPatient, IPatientAdditionalData } from '~/types';
 
 export type FormSection = {
   scrollToField: (fieldName: string) => () => void;
@@ -32,10 +33,10 @@ const styles = StyleSheet.create({
 
 const getPatientInitialValues = (
   isEdit: boolean,
-  patient,
-  patientAdditionalData,
+  patient: IPatient,
+  patientAdditionalData: IPatientAdditionalData,
   customPatientFieldValues,
-  getBool,
+  getBool: (key: string) => boolean,
 ): {} => {
   if (!isEdit || !patient) {
     return {};

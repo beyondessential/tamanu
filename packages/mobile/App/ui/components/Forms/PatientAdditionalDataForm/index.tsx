@@ -56,7 +56,7 @@ export const PatientAdditionalDataForm = ({
   return (
     <Form
       initialValues={{
-        ...patient, // TODO: filter out time columns?
+        ...patient,
         ...getInitialAdditionalValues(additionalData, fields),
         ...getInitialCustomValues(customPatientFieldValues, fields),
       }}
