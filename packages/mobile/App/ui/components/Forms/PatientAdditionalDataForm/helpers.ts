@@ -160,8 +160,6 @@ export const patientAdditionalDataValidationSchema = Yup.object().shape({
   emergencyContactNumber: Yup.string().nullable(),
 });
 
-// TODO: should probablty be combined
-
 // Strip off unwanted fields from additional data and only keep specified ones
 export const getInitialCustomValues = (data, fields): {} => {
   if (!data) {

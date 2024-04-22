@@ -9,6 +9,7 @@ import { IPatient, IPatientAdditionalData, IPatientFieldValue } from '../../../.
 import { usePatientAdditionalData } from '~/ui/hooks/usePatientAdditionalData';
 import { CAMBODIA_ADDITIONAL_DATA_SECTIONS } from '~/ui/helpers/additionalData';
 import { isCustomField } from '~/ui/helpers/fields';
+import { mapValues } from 'lodash';
 
 interface AdditionalInfoProps {
   onEdit: (
@@ -30,11 +31,6 @@ function getPadFieldData(data: IPatientAdditionalData, fieldName: string): strin
   return data?.[fieldName];
 }
 
-const getCustomFieldData = (customDataValues: IPatientFieldValue[], fieldName: string) => {
-  if (!customDataValues[fieldName]) return '';
-  return customDataValues[fieldName][0].value;
-};
-
 export const AdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps): ReactElement => {
   const { getBool } = useLocalisation();
   const {
@@ -44,6 +40,8 @@ export const AdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps): ReactE
     loading,
     error,
   } = usePatientAdditionalData(patient.id);
+
+  const customDataById = mapValues(customPatientFieldValues, nestedObject => nestedObject[0].value);
 
   // Display general error
   if (error) {
@@ -59,16 +57,11 @@ export const AdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps): ReactE
       onEdit(patientAdditionalData, title, customPatientFieldValues);
 
     const fieldsWithData = fields.map(fieldName => {
-
       let data = null;
-      if (fieldName === 'villageId') {
-        data = patient.village?.name;
-      } else if (isCustomField(fieldName)) {
-        data = getCustomFieldData(customPatientFieldValues, fieldName);
-      } else {
-        data = getPadFieldData(patientAdditionalData, fieldName);
-      }
-
+      if (fieldName === 'villageId') data = patient.village?.name;
+      else if (isCustomField(fieldName)) data = customDataById[fieldName];
+      else data = getPadFieldData(patientAdditionalData, fieldName);
+      
       return [fieldName, data];
     });
 

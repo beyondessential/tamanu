@@ -33,14 +33,14 @@ export const GeneralInfo = ({ onEdit, patient }: GeneralInfoProps): ReactElement
     error,
   } = usePatientAdditionalData(patient.id);
 
-  const customData = mapValues(customPatientFieldValues, nestedObject => nestedObject[0].value);
+  const customDataById = mapValues(customPatientFieldValues, nestedObject => nestedObject[0].value);
 
   const fields = [
     ['lastName', patient.lastName],
     ['firstName', patient.firstName],
     ['dateOfBirth', formatStringDate(patient.dateOfBirth, DateFormats.DDMMYY)],
     ['sex', getGender(patient.sex)],
-    ['fieldDefinition-fathersFirstName', customData['fieldDefinition-fathersFirstName']],
+    ['fieldDefinition-fathersFirstName', customDataById['fieldDefinition-fathersFirstName']],
     ['culturalName', patient.culturalName],
   ];
 
