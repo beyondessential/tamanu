@@ -7,6 +7,7 @@ export const GENERAL_IMPORTABLE_DATA_TYPES = [
   'angiogramImagingArea',
   'arrivalMode',
   'carePlan',
+  'catchment',
   'certifiableVaccine',
   'colonoscopyImagingArea',
   'contactRelationship',
@@ -117,6 +118,7 @@ export const REFERENCE_TYPES = {
   VACCINE_CIRCUMSTANCE: 'vaccineCircumstance',
   ADDITIONAL_INVOICE_LINE: 'additionalInvoiceLine',
   SPECIMEN_TYPE: 'specimenType',
+  CATCHMENT: 'catchment',
   REACTION: 'reaction',
   ...IMAGING_AREA_TYPES,
 };
