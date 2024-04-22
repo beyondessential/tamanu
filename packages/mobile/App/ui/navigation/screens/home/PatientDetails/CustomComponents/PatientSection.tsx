@@ -25,7 +25,7 @@ export const PatientSection = ({
   };
 
   const overlappedButton = onEdit ? (
-    <StyledView alignItems="flex-end">
+    <StyledView zIndex={1} alignItems="flex-end">
       <StyledView position="absolute" paddingTop={10} paddingRight={20}>
         <EditButton sectionTitle={title} onPress={onEdit} />
       </StyledView>

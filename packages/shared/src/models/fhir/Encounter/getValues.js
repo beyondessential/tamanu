@@ -22,7 +22,7 @@ import { formatFhirDate } from '../../../utils/fhir';
 export async function getValues(upstream, models) {
   const { Encounter } = models;
 
-  if (upstream instanceof Encounter) return getValuesFromEncounter(upstream);
+  if (upstream instanceof Encounter) return getValuesFromEncounter(upstream, models);
   throw new Error(`Invalid upstream type for encounter ${upstream.constructor.name}`);
 }
 
@@ -34,6 +34,7 @@ async function getValuesFromEncounter(upstream) {
     actualPeriod: period(upstream),
     subject: subjectRef(upstream),
     location: locationRef(upstream),
+    serviceProvider: await serviceProviderRef(upstream),
   };
 }
 
@@ -146,4 +147,17 @@ function locationRef(encounter) {
       }),
     }),
   ];
+}
+
+async function serviceProviderRef(encounter) {
+  const { facility } =  encounter.location;
+  if (!facility) {
+    return null;
+  }
+
+  return new FhirReference({
+    type: 'upstream://organization',
+    reference: facility.id,
+    display: facility.name,
+  });
 }
