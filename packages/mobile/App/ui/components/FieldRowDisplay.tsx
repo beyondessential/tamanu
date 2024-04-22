@@ -24,15 +24,15 @@ export const FieldRowDisplay = ({ fields, customFields }: FieldRowDisplayProps):
       {rows.map(row => (
         <RowView key={row.map(([name]) => name).join(',')} marginTop={20}>
           {row.map(([name, info]) => {
-            const isLocalised = Object.keys(localisedFields).includes(name);
-            if (isLocalised && getBool(`fields.${name}.hidden`)) return null;
-
-            const isCustom = name.startsWith('fieldDefinition');
-
             let title = name;
+            
+            const isLocalised = Object.keys(localisedFields).includes(name);
             if (isLocalised) {
+              if (getBool(`fields.${name}.hidden`)) return null;
               title = getString(`fields.${name}.longLabel`);
             }
+
+            const isCustom = name.startsWith('fieldDefinition');
             if (isCustom) {
               title = customFieldsById[name]?.name
             }

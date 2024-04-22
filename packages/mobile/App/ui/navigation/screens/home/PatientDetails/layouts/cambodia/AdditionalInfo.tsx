@@ -43,8 +43,6 @@ export const AdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps): ReactE
     return <ErrorScreen error={error} />;
   }
 
-  console.log(customPatientFieldValues)
-
   // Check if patient additional data should be editable
   const { getBool } = useLocalisation();
   const isEditable = getBool('features.editPatientDetailsOnMobile');
