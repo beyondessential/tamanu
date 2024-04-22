@@ -288,12 +288,14 @@
         "concurrency": 100,
         "resourceMaterialisationEnabled": {
           "Patient": true,
-          "ServiceRequest": false,
-          "DiagnosticReport": false,
+
           "Encounter": false,
           "Immunization": false,
+          "MediciReport": false,
+          "Organization": false,
           "Practitioner": false,
-          "MediciReport": false
+          "ServiceRequest": false,
+          "Specimen": false
         }
       },
       "parameters": {
@@ -1196,6 +1198,10 @@
       "serviceRequestImagingId": "http://data-dictionary.tamanu-fiji.org/tamanu-id-imagingrequest.html",
       "serviceRequestLabDisplayId": "http://data-dictionary.tamanu-fiji.org/tamanu-mrid-labrequest.html",
       "serviceRequestLabId": "http://data-dictionary.tamanu-fiji.org/tamanu-id-labrequest.html",
+      "serviceRequestLabPanelCodeSystem": "https://www.senaite.com/profileCodes.html",
+      "serviceRequestLabPanelExternalCodeSystem": "http://loinc.org",
+      "serviceRequestLabTestCodeSystem": "https://www.senaite.com/testCodes.html",
+      "serviceRequestLabTestExternalCodeSystem": "http://loinc.org",
       "imagingStudyAccessionId": "http://data-dictionary.tamanu-fiji.org/ris-accession-number.html",
       "ethnicityId": "http://data-dictionary.tamanu-fiji.org/extensions/ethnic-group-code.html",
       "locationPhysicalType": "http://terminology.hl7.org/CodeSystem/location-physical-type",
@@ -1205,7 +1211,9 @@
         "conditionEncoding": "http://snomed.info/sct",
         "immunizationEncoding": "http://nzmt.org.nz",
         "absentUnknown": "http://hl7.org/fhir/uv/ips/CodeSystem/absent-unknown-uv-ips",
-      }
+      },
+      "specimenType": "http://www.senaite.com/data/sample_types",
+      "sampleBodySite": "http://bodySITE.NEW"
     }
   },
   "s3": {
