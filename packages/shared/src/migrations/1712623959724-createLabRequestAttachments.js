@@ -15,7 +15,7 @@ export async function up(query) {
     },
     updated_at: {
       type: Sequelize.DATE,
-      defaultValue: Sequelize.NOW,
+      defaultValue: Sequelize.fn('current_timestamp', 3),
       allowNull: false,
     },
     deleted_at: {
@@ -25,10 +25,6 @@ export async function up(query) {
     attachment_id: {
       type: Sequelize.STRING,
       allowNull: false,
-      references: {
-        model: 'attachments',
-        key: 'id',
-      },
     },
     lab_request_id: {
       type: Sequelize.STRING,
@@ -42,13 +38,9 @@ export async function up(query) {
       type: Sequelize.STRING,
       allowNull: true,
     },
-    replaced_by: {
+    replaced_by_id: {
       type: Sequelize.STRING,
       allowNull: true,
-      references: {
-        model: 'lab_request_attachments',
-        key: 'id',
-      },
     },
   });
 }

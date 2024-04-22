@@ -17,7 +17,7 @@ export const serveAll = async ({ skipMigrationCheck, provisioning }) => {
   log.info(`Starting Central server and tasks runner version ${pkg.version}`);
 
   if (config.db.migrateOnStartup) {
-    const { store } = await new ApplicationContext().init();
+    const { store } = await new ApplicationContext().init({ appType: 'migrate' });
     await store.sequelize.migrate('up');
   }
 

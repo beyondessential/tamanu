@@ -1,3 +1,4 @@
+export const NON_DETERMINISTIC = true;
 export async function up(query) {
   await query.sequelize.query(`
     DROP TABLE "fhir"."diagnostic_reports";

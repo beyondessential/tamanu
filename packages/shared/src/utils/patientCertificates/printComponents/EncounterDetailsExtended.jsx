@@ -2,12 +2,10 @@ import { DataSection } from './DataSection';
 import { Col } from '../Layout';
 import { DataItem } from './DataItem';
 import React from 'react';
-import { getDisplayDate } from '../getDisplayDate';
+import { formatShort } from '../../dateTime';
 
-export const EncounterDetailsExtended = ({ encounter, discharge, clinicianText = 'clinician' }) => {
-  // const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
+export const EncounterDetailsExtended = ({ encounter, discharge, clinicianText }) => {
   const { location, examiner, department, startDate, endDate, reasonForEncounter } = encounter;
-
   return (
     <DataSection title="Encounter details" hideBottomRule={true}>
       <Col>
@@ -22,15 +20,22 @@ export const EncounterDetailsExtended = ({ encounter, discharge, clinicianText =
           value={discharge?.discharger?.displayName}
           key="dischargingClinician"
         />
+        {discharge?.disposition?.name && (
+          <DataItem
+            label="Discharge disposition"
+            value={discharge?.disposition?.name}
+            key="dischargeDisposition"
+          />
+        )}
       </Col>
       <Col>
         <DataItem label="Department" value={department.name} key="department" />
         <DataItem
           label="Date of admission"
-          value={getDisplayDate(startDate)}
+          value={formatShort(startDate)}
           key="dateOfAdmission"
         />
-        <DataItem label="Date of discharge" value={getDisplayDate(endDate)} key="dateOfDischarge" />
+        <DataItem label="Date of discharge" value={formatShort(endDate)} key="dateOfDischarge" />
       </Col>
       <DataItem label="Reason for encounter" value={reasonForEncounter} key="reasonForEncounter" />
     </DataSection>

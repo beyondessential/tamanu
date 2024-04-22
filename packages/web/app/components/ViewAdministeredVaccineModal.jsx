@@ -7,10 +7,9 @@ import { VACCINE_STATUS, VACCINE_STATUS_LABELS } from '@tamanu/constants';
 import { ModalActionRow } from './ModalActionRow';
 import { Colors } from '../constants';
 import { useApi } from '../api';
-
 import { DateDisplay } from './DateDisplay';
 import { Modal } from './Modal';
-import { TranslatedText } from './Translation/TranslatedText';
+import { TranslatedText, TranslatedEnum } from './Translation';
 import { LowerCase } from './Typography';
 
 const Container = styled.div`
@@ -206,7 +205,16 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
     },
     status: {
       label: <TranslatedText stringId="vaccine.status.label" fallback="Status" />,
-      value: givenElsewhere ? 'Given elsewhere' : VACCINE_STATUS_LABELS[status] || '-',
+      value: givenElsewhere ? (
+        'Given elsewhere'
+      ) : (
+        <TranslatedEnum
+          prefix="vaccine.property.status"
+          value={status}
+          enumValues={VACCINE_STATUS_LABELS}
+          enumFallback="-"
+        />
+      ),
     },
     country: {
       label: <TranslatedText stringId="vaccine.country.label" fallback="Country" />,
@@ -216,7 +224,7 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
       label: (
         <TranslatedText
           stringId="general.localisedField.notGivenReasonId.label.short"
-          fallback="Clinician"
+          fallback="Reason"
         />
       ),
       value: notGivenReason?.name || '-',

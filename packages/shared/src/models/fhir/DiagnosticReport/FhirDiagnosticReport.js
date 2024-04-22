@@ -106,8 +106,7 @@ export class FhirDiagnosticReport extends FhirResource {
     await labRequest.save();
 
     if (this.presentedForm) {
-      this.labRequest = labRequest;
-      await this.saveAttachment();
+      await this.saveAttachment(labRequest);
     }
     return labRequest;
   }
@@ -135,7 +134,7 @@ export class FhirDiagnosticReport extends FhirResource {
     }
   }
 
-  async saveAttachment() {
+  async saveAttachment(labRequest) {
     if (!Array.isArray(this.presentedForm) || this.presentedForm.length > 1) {
       throw new Invalid('presentedForm must be an array on length 1');
     }
@@ -152,16 +151,16 @@ export class FhirDiagnosticReport extends FhirResource {
       data: form.data,
       type: form.contentType,
     });
-    const lastAttachment = await this.labRequest.getLatestAttachment();
+    const lastAttachment = await labRequest.getLatestAttachment();
     const labRequestAttachment = await LabRequestAttachment.create({
       attachmentId: attachment.id,
       title: form.title,
-      labRequestId: this.labRequest.id,
+      labRequestId: labRequest.id,
       isVisible: true,
     });
 
     if (lastAttachment) {
-      lastAttachment.set({ replacedBy: labRequestAttachment.id });
+      lastAttachment.set({ replacedById: labRequestAttachment.id });
       await lastAttachment.save();
     }
   }

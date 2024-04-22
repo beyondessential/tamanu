@@ -1,10 +1,8 @@
-import XLSX from 'xlsx';
-import { saveFile } from './fileSystemAccess';
-
+import * as XLSX from 'xlsx';
 const stringifyIfNonDateObject = val =>
   typeof val === 'object' && !(val instanceof Date) && val !== null ? JSON.stringify(val) : val;
 
-export async function saveExcelFile({ data, metadata, defaultFileName = '', bookType }) {
+export function prepareExcelFile({ data, metadata, defaultFileName = '', bookType }) {
   const stringifiedData = data.map(row => row.map(stringifyIfNonDateObject));
 
   const book = XLSX.utils.book_new();
@@ -18,9 +16,9 @@ export async function saveExcelFile({ data, metadata, defaultFileName = '', book
   XLSX.utils.book_append_sheet(book, metadataSheet, 'metadata');
 
   const xlsxDataArray = XLSX.write(book, { bookType, type: 'array' });
-  await saveFile({
+  return {
     defaultFileName,
     data: xlsxDataArray,
-    extensions: [bookType],
-  });
+    extension: bookType,
+  };
 }
