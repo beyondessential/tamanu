@@ -11,7 +11,7 @@ import {
   seedLocationGroups,
   seedLocations,
 } from '@tamanu/shared/demoData';
-import { chance, fake, showError } from '@tamanu/shared/test-helpers';
+import { chance, asNewRole, showError } from '@tamanu/shared/test-helpers';
 
 import { createApp } from '../dist/createApp';
 import { initReporting } from '../dist/database';
@@ -171,20 +171,7 @@ export async function createTestContext({ enableReportInstances } = {}) {
   };
 
   baseApp.asNewRole = async (permissions = [], roleOverrides = {}) => {
-    const { Role, Permission } = models;
-    const role = await Role.create(fake(Role), roleOverrides);
-    const app = await baseApp.asRole(role.id);
-    app.role = role;
-    await Permission.bulkCreate(
-      permissions.map(([verb, noun, objectId]) => ({
-        roleId: role.id,
-        userId: app.user.id,
-        verb,
-        noun,
-        objectId,
-      })),
-    );
-    return app;
+    return asNewRole(baseApp, models, permissions, roleOverrides);
   };
 
   jest.setTimeout(30 * 1000); // more generous than the default 5s but not crazy
