@@ -14,6 +14,7 @@ import { Routes } from '~/ui/helpers/routes';
 import { SubmitButton } from '../SubmitButton';
 import { TranslatedText } from '/components/Translations/TranslatedText';
 import { FormScreenView } from '../FormScreenView';
+import { isCustomField } from '~/ui/helpers/fields';
 
 export const PatientAdditionalDataForm = ({
   patient,
@@ -32,7 +33,7 @@ export const PatientAdditionalDataForm = ({
 
       await PatientAdditionalData.updateForPatient(patient.id, values);
 
-      const customFields = Object.keys(values).filter(field => field.startsWith('fieldDefinition'));
+      const customFields = Object.keys(values).filter(isCustomField);
       await Promise.all(
         customFields.map(definitionId =>
           PatientFieldValue.updateOrCreateForPatientAndDefinition(

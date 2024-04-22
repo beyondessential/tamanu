@@ -8,9 +8,14 @@ import { useLocalisation } from '../../../../../../contexts/LocalisationContext'
 import { IPatient, IPatientAdditionalData, IPatientFieldValue } from '../../../../../../types';
 import { usePatientAdditionalData } from '~/ui/hooks/usePatientAdditionalData';
 import { CAMBODIA_ADDITIONAL_DATA_SECTIONS } from '~/ui/helpers/additionalData';
+import { isCustomField } from '~/ui/helpers/fields';
 
 interface AdditionalInfoProps {
-  onEdit: (additionalInfo: IPatientAdditionalData, sectionTitle: Element, customPatientFieldValues: IPatientFieldValue[]) => void;
+  onEdit: (
+    additionalInfo: IPatientAdditionalData,
+    sectionTitle: Element,
+    customPatientFieldValues: IPatientFieldValue[],
+  ) => void;
   patient: IPatient;
 }
 
@@ -49,11 +54,12 @@ export const AdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps): ReactE
 
   // Add edit callback and map the inner 'fields' array
   const sections = CAMBODIA_ADDITIONAL_DATA_SECTIONS.map(({ title, fields }) => {
-    const onEditCallback = (): void => onEdit(patientAdditionalData, title, customPatientFieldValues);
+    const onEditCallback = (): void =>
+      onEdit(patientAdditionalData, title, customPatientFieldValues);
     const mappedFields = fields.map(fieldName => {
       // TODO: hacky just to get it working initially
       if (fieldName === 'villageId') return [fieldName, patient.village?.name];
-      if (fieldName.startsWith('fieldDefinition-'))
+      if (isCustomField(fieldName))
         return [fieldName, getCustomFieldData(customPatientFieldValues, fieldName)];
       return [fieldName, getPadFieldData(patientAdditionalData, fieldName)];
     });
@@ -70,7 +76,14 @@ export const AdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps): ReactE
             onEdit={isEditable ? onEditCallback : undefined}
             isClosable
           >
-            {loading ? <LoadingScreen /> : <FieldRowDisplay fields={fields} customFieldDefinitions={customPatientFieldDefinitions} />}
+            {loading ? (
+              <LoadingScreen />
+            ) : (
+              <FieldRowDisplay
+                fields={fields}
+                customFieldDefinitions={customPatientFieldDefinitions}
+              />
+            )}
           </PatientSection>
         );
       })}

@@ -20,6 +20,7 @@ import {
 } from './helpers';
 import { getConfiguredPatientAdditionalDataFields } from '~/ui/helpers/patient';
 import { ActivityIndicator } from 'react-native';
+import { isCustomField } from '~/ui/helpers/fields';
 
 const PlainField = ({ fieldName, required }): ReactElement => (
   // Outter styled view to momentarily add distance between fields
@@ -99,7 +100,7 @@ function getComponentForField(fieldName: string): React.FC<{ fieldName: string }
   if (relationIdFields.includes(fieldName)) {
     return RelationField;
   }
-  if (fieldName.startsWith('fieldDefinition')) {
+  if (isCustomField(fieldName)) {
     return CustomField;
   }
   // Shouldn't happen

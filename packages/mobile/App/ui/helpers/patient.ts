@@ -1,5 +1,6 @@
 import { differenceInWeeks, parseISO } from 'date-fns';
 import { IPatientAdditionalData } from '~/types';
+import { isCustomField } from './fields';
 
 export enum VaccineStatus {
   UNKNOWN = 'UNKNOWN',
@@ -144,7 +145,7 @@ export const getFieldData = (data: IPatientAdditionalData, fieldName: string): s
 
 export const getConfiguredPatientAdditionalDataFields = (fields, showMandatory, getBool) => {
   return fields.filter(fieldName => {
-    if (fieldName.startsWith('fieldDefinition')) return true; // exclude custom field definitions as they should always show
+    if (isCustomField(fieldName)) return true; // exclude custom field definitions as they should always show
     const requiredPatientData = getBool(`fields.${fieldName}.requiredPatientData`);
     return !!requiredPatientData === showMandatory;
   });

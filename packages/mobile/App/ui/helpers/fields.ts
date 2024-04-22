@@ -298,3 +298,7 @@ export function getDisplayNameForModel(modelName: string, record: any): string {
   const columnName = getNameColumnForModel(modelName);
   return record[columnName] || record.id;
 }
+
+export function isCustomField(id: string) {
+  return id.startsWith('fieldDefinition-');
+}
