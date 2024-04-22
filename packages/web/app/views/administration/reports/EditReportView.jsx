@@ -64,10 +64,6 @@ export const EditReportView = () => {
       queryOptions: {
         ...queryOptions,
         dataSources,
-        parameters: queryOptions.parameters.map(param => {
-          delete param.id;
-          return param;
-        }),
       },
       query,
       status,

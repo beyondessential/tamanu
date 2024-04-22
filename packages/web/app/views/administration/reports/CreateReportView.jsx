@@ -36,10 +36,6 @@ export const CreateReportView = () => {
         notes,
         queryOptions: {
           ...queryOptions,
-          parameters: queryOptions.parameters.map(param => {
-            delete param.id;
-            return param;
-          }),
           dataSources: isRawReport ? dataSources : [REPORT_DATA_SOURCES.ALL_FACILITIES],
         },
       });
