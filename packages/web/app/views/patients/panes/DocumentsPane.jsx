@@ -53,25 +53,6 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
     };
   }, [dataUrl]);
 
-  const onPrintPDF = useCallback(
-    async attachmentId => {
-      try {
-        const { data } = await api.get(`attachment/${attachmentId}`, {
-          base64: true,
-        });
-        const url = URL.createObjectURL(
-          new Blob([Buffer.from(data, 'base64').buffer], { type: 'application/pdf' }),
-        );
-
-        // Setting/changing the dataUrl triggers the useEffect that handles printing logic
-        setDataUrl(url);
-      } catch (error) {
-        notifyError(error.message);
-      }
-    },
-    [api],
-  );
-
   const closeModal = useCallback(() => setModalStatus(MODAL_STATES.CLOSED), [setModalStatus]);
   const openDocumentPreview = useCallback(
     document => {
