@@ -49,7 +49,7 @@ const DeleteContainer = styled.div`
 
 export const ParameterItem = props => {
   const { getTranslation } = useTranslation();
-  const { id, parameterIndex, parameterField, setFieldValue, onDelete, options = [] } = props;
+  const { id, parameterIndex, parameterField, setFieldValue, onDelete, options } = props;
   const baseName = `parameters.${parameterIndex}`;
 
   const onOptionDelete = index => {
