@@ -30,12 +30,13 @@ function getPadFieldData(data: IPatientAdditionalData, fieldName: string): strin
   return data?.[fieldName];
 }
 
-const getCustomFieldData = (customDataValues, fieldName) => {
+const getCustomFieldData = (customDataValues: IPatientFieldValue[], fieldName: string) => {
   if (!customDataValues[fieldName]) return '';
   return customDataValues[fieldName][0].value;
 };
 
 export const AdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps): ReactElement => {
+  const { getBool } = useLocalisation();
   const {
     customPatientFieldValues,
     customPatientFieldDefinitions,
@@ -43,26 +44,34 @@ export const AdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps): ReactE
     loading,
     error,
   } = usePatientAdditionalData(patient.id);
+
   // Display general error
   if (error) {
     return <ErrorScreen error={error} />;
   }
 
   // Check if patient additional data should be editable
-  const { getBool } = useLocalisation();
   const isEditable = getBool('features.editPatientDetailsOnMobile');
 
   // Add edit callback and map the inner 'fields' array
   const sections = CAMBODIA_ADDITIONAL_DATA_SECTIONS.map(({ title, fields }) => {
     const onEditCallback = (): void =>
       onEdit(patientAdditionalData, title, customPatientFieldValues);
+
     const mappedFields = fields.map(fieldName => {
-      // TODO: hacky just to get it working initially
-      if (fieldName === 'villageId') return [fieldName, patient.village?.name];
-      if (isCustomField(fieldName))
-        return [fieldName, getCustomFieldData(customPatientFieldValues, fieldName)];
-      return [fieldName, getPadFieldData(patientAdditionalData, fieldName)];
+
+      let data = null;
+      if (fieldName === 'villageId') {
+        data = patient.village?.name;
+      } else if (isCustomField(fieldName)) {
+        data = getCustomFieldData(customPatientFieldValues, fieldName);
+      } else {
+        data = getPadFieldData(patientAdditionalData, fieldName);
+      }
+
+      return [fieldName, data];
     });
+
     return { title, fields: mappedFields, onEditCallback };
   });
 
