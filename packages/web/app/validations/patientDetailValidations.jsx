@@ -663,6 +663,13 @@ export const getPatientDetailsValidation = (
         ),
       'City/town',
     ),
+    healthCenterId: requiredWhenConfiguredMandatory(
+      getLocalisation,
+      getTranslation,
+      'healthCenterId',
+      yup.string(),
+      'Health center',
+    ),
     drivingLicense: yup.string().when({
       is: () => patientRegistryType === PATIENT_REGISTRY_TYPES.NEW_PATIENT,
       then: requiredWhenConfiguredMandatory(
