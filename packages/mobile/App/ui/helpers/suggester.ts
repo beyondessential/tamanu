@@ -63,7 +63,11 @@ export class Suggester<ModelType extends BaseModelSubclass> {
         },
       });
 
-      return data.filter(this.filter).map(this.formatter);
+      if (this.filter) {
+        return data.filter(this.filter).map(this.formatter);
+      }
+      return data.map(this.formatter);
+
     } catch (e) {
       return [];
     }
