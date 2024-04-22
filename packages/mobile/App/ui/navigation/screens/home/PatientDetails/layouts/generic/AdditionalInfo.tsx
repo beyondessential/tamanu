@@ -5,12 +5,12 @@ import { ErrorScreen } from '../../../../../../components/ErrorScreen';
 import { LoadingScreen } from '../../../../../../components/LoadingScreen';
 import { PatientSection } from '../../CustomComponents/PatientSection';
 import { useLocalisation } from '../../../../../../contexts/LocalisationContext';
-import { IPatient, IPatientAdditionalData } from '../../../../../../types';
 import { ADDITIONAL_DATA_SECTIONS } from '../../../../../../helpers/additionalData';
 import { usePatientAdditionalData } from '~/ui/hooks/usePatientAdditionalData';
+import { IPatientFieldValue, IPatient, IPatientAdditionalData } from '~/types';
 
 interface AdditionalInfoProps {
-  onEdit: (additionalInfo: IPatientAdditionalData, sectionTitle: string) => void;
+  onEdit: (additionalInfo: IPatientAdditionalData, sectionTitle: Element, customPatientFieldValues: IPatientFieldValue[]) => void;
   patient: IPatient;
 }
 
