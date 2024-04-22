@@ -12,8 +12,7 @@ import { Patient } from '~/models/Patient';
 import { withPatient } from '~/ui/containers/Patient';
 import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 import { Routes } from '~/ui/helpers/routes';
-import { PatientAdditionalDataFields } from '../../PatientAdditionalDataForm/PatientAdditionalDataFields';
-import { allAdditionalDataFields } from '~/ui/helpers/additionalData';
+import { ALL_ADDITIONAL_DATA_FIELDS } from '~/ui/helpers/additionalData';
 import { getPatientDetailsValidation } from './patientDetailsValidationSchema';
 import { PatientAdditionalData } from '~/models/PatientAdditionalData';
 import { usePatientAdditionalData } from '~/ui/hooks/usePatientAdditionalData';
@@ -55,7 +54,7 @@ const getPatientInitialValues = (
   } = patient;
 
   const requiredPADFields = getConfiguredPatientAdditionalDataFields(
-    allAdditionalDataFields,
+    ALL_ADDITIONAL_DATA_FIELDS,
     true,
     getBool,
   );
@@ -89,7 +88,7 @@ const getPatientInitialValues = (
 };
 
 const containsAdditionalData = values =>
-  allAdditionalDataFields.some(fieldName => Object.keys(values).includes(fieldName));
+  ALL_ADDITIONAL_DATA_FIELDS.some(fieldName => Object.keys(values).includes(fieldName));
 
 export const FormComponent = ({
   selectedPatient,

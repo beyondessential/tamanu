@@ -52,15 +52,15 @@ export const educationalAttainmentOptions = [
 ];
 
 // Generic data layout
-const additionalDataFields = {
-  identification: ['birthCertificate', 'drivingLicense', 'passport'],
-  contact: [
+const ADDITIONAL_DATA_FIELDS = {
+  IDENTIFICATION: ['birthCertificate', 'drivingLicense', 'passport'],
+  CONTACT: [
     'primaryContactNumber',
     'secondaryContactNumber',
     'emergencyContactName',
     'emergencyContactNumber',
   ],
-  personal: [
+  PERSONAL: [
     'title',
     'maritalStatus',
     'bloodType',
@@ -74,7 +74,7 @@ const additionalDataFields = {
     'socialMedia',
     'patientBillingTypeId',
   ],
-  other: [
+  OTHER: [
     'streetVillage',
     'cityTown',
     'subdivisionId',
@@ -86,7 +86,7 @@ const additionalDataFields = {
   ],
 };
 
-export const additionalDataSections = [
+export const ADDITIONAL_DATA_SECTIONS = [
   {
     title: (
       <TranslatedText
@@ -94,7 +94,7 @@ export const additionalDataSections = [
         fallback="Identification information"
       />
     ),
-    fields: additionalDataFields.identification,
+    fields: ADDITIONAL_DATA_FIELDS.IDENTIFICATION,
   },
   {
     title: (
@@ -103,7 +103,7 @@ export const additionalDataSections = [
         fallback="Contact information"
       />
     ),
-    fields: additionalDataFields.contact,
+    fields: ADDITIONAL_DATA_FIELDS.CONTACT,
   },
   {
     title: (
@@ -112,7 +112,7 @@ export const additionalDataSections = [
         fallback="Personal information"
       />
     ),
-    fields: additionalDataFields.personal,
+    fields: ADDITIONAL_DATA_FIELDS.PERSONAL,
   },
   {
     title: (
@@ -121,16 +121,16 @@ export const additionalDataSections = [
         fallback="Other information"
       />
     ),
-    fields: additionalDataFields.other,
+    fields: ADDITIONAL_DATA_FIELDS.OTHER,
   },
 ];
 
-export const allAdditionalDataFields = Object.values(additionalDataFields).flat();
+export const ALL_ADDITIONAL_DATA_FIELDS = Object.values(ADDITIONAL_DATA_FIELDS).flat();
 
 // Cambodia data layout
 const CAMBODIA_ADDITIONAL_DATA_FIELDS = {
-  address: ['divisionId', 'subdivisionId', 'settlementId', 'villageId', 'streetVillage'],
-  contact: [
+  ADDRESS: ['divisionId', 'subdivisionId', 'settlementId', 'villageId', 'streetVillage'],
+  CONTACT: [
     'primaryContactNumber',
     'secondaryContactNumber',
     'emergencyContactName',
@@ -138,14 +138,14 @@ const CAMBODIA_ADDITIONAL_DATA_FIELDS = {
     'medicalAreaId',
     'nursingZoneId',
   ],
-  identification: [
+  IDENTIFICATION: [
     'birthCertificate',
     'fieldDefinition-nationalId',
     'passport',
     'fieldDefinition-idPoorCardNumber',
     'fieldDefinition-pmrsNumber',
   ],
-  personal: ['countryOfBirthId', 'nationalityId'],
+  PERSONAL: ['countryOfBirthId', 'nationalityId'],
 };
 
 
@@ -157,7 +157,7 @@ export const CAMBODIA_ADDITIONAL_DATA_SECTIONS = [
         fallback="Current address"
       />
     ),
-    fields: CAMBODIA_ADDITIONAL_DATA_FIELDS.address,
+    fields: CAMBODIA_ADDITIONAL_DATA_FIELDS.ADDRESS,
   },
   {
     title: (
@@ -166,7 +166,7 @@ export const CAMBODIA_ADDITIONAL_DATA_SECTIONS = [
         fallback="Contact information"
       />
     ),
-    fields: CAMBODIA_ADDITIONAL_DATA_FIELDS.contact,
+    fields: CAMBODIA_ADDITIONAL_DATA_FIELDS.CONTACT,
   },
   {
     title: (
@@ -175,7 +175,7 @@ export const CAMBODIA_ADDITIONAL_DATA_SECTIONS = [
         fallback="Identification information"
       />
     ),
-    fields: CAMBODIA_ADDITIONAL_DATA_FIELDS.identification,
+    fields: CAMBODIA_ADDITIONAL_DATA_FIELDS.IDENTIFICATION,
   },
   {
     title: (
@@ -184,7 +184,7 @@ export const CAMBODIA_ADDITIONAL_DATA_SECTIONS = [
         fallback="Personal information"
       />
     ),
-    fields: CAMBODIA_ADDITIONAL_DATA_FIELDS.personal,
+    fields: CAMBODIA_ADDITIONAL_DATA_FIELDS.PERSONAL,
   },
 ];
 

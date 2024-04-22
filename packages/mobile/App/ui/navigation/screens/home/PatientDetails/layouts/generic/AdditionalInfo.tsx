@@ -6,7 +6,7 @@ import { LoadingScreen } from '../../../../../../components/LoadingScreen';
 import { PatientSection } from '../../CustomComponents/PatientSection';
 import { useLocalisation } from '../../../../../../contexts/LocalisationContext';
 import { IPatient, IPatientAdditionalData } from '../../../../../../types';
-import { additionalDataSections } from '../../../../../../helpers/additionalData';
+import { ADDITIONAL_DATA_SECTIONS } from '../../../../../../helpers/additionalData';
 import { usePatientAdditionalData } from '~/ui/hooks/usePatientAdditionalData';
 
 interface AdditionalInfoProps {
@@ -43,7 +43,7 @@ export const AdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps): ReactE
   const isEditable = getBool('features.editPatientDetailsOnMobile');
 
   // Add edit callback and map the inner 'fields' array
-  const additionalSections = additionalDataSections.map(({ title, fields }) => {
+  const additionalSections = ADDITIONAL_DATA_SECTIONS.map(({ title, fields }) => {
     const onEditCallback = (): void => onEdit(patientAdditionalData, title, false);
     const mappedFields = fields
       .filter(fieldName => !getBool(`fields.${fieldName}.requiredPatientData`))

@@ -12,7 +12,7 @@ import { GenderOptions, Gender } from '~/ui/helpers/constants';
 import { RadioButtonGroup } from '~/ui/components/RadioButtonGroup';
 import { DateField } from '~/ui/components/DateField/DateField';
 import { PatientAdditionalDataFields } from '~/ui/components/Forms/PatientAdditionalDataForm/PatientAdditionalDataFields';
-import { allAdditionalDataFields } from '~/ui/helpers/additionalData';
+import { ALL_ADDITIONAL_DATA_FIELDS } from '~/ui/helpers/additionalData';
 import { PatientFieldDefinitionTypes } from '~/ui/helpers/fields';
 
 export const Fields = (): ReactElement => {
@@ -42,7 +42,7 @@ export const Fields = (): ReactElement => {
         required={getBool('fields.culturalName.requiredPatientData')}
       />
       <PatientAdditionalDataFields
-        fields={allAdditionalDataFields}
+        fields={ALL_ADDITIONAL_DATA_FIELDS}
         showMandatory
       />
     </>

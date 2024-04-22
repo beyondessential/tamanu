@@ -7,7 +7,7 @@ import { PatientSection } from '../../CustomComponents/PatientSection';
 import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 import { getGender } from '~/ui/helpers/user';
 import { IPatient } from '~/types';
-import { allAdditionalDataFields } from '/helpers/additionalData';
+import { ALL_ADDITIONAL_DATA_FIELDS } from '/helpers/additionalData';
 import { getFieldData } from '~/ui/helpers/patient';
 import { usePatientAdditionalData } from '~/ui/hooks/usePatientAdditionalData';
 import { ErrorScreen } from '../../../../../../components/ErrorScreen';
@@ -44,7 +44,7 @@ export const GeneralInfo = ({ onEdit, patient }: GeneralInfoProps): ReactElement
     ['culturalName', patient.culturalName],
   ];
 
-  const patientAdditionalDataFields = allAdditionalDataFields
+  const patientAdditionalDataFields = ALL_ADDITIONAL_DATA_FIELDS
     .filter(fieldName => getBool(`fields.${fieldName}.requiredPatientData`))
     .map(fieldName => [fieldName, getFieldData(patientAdditionalData, fieldName)]);
   if (error) {

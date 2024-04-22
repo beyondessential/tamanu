@@ -58,7 +58,7 @@ export const AdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps): ReactE
     const onEditCallback = (): void =>
       onEdit(patientAdditionalData, title, customPatientFieldValues);
 
-    const mappedFields = fields.map(fieldName => {
+    const fieldsWithData = fields.map(fieldName => {
 
       let data = null;
       if (fieldName === 'villageId') {
@@ -72,7 +72,7 @@ export const AdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps): ReactE
       return [fieldName, data];
     });
 
-    return { title, fields: mappedFields, onEditCallback };
+    return { title, fields: fieldsWithData, onEditCallback };
   });
 
   return (
