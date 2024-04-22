@@ -7,6 +7,7 @@ export async function up(query) {
   });
 
   await query.addConstraint('encounters', {
+    name: 'encounters_diet_id_fkey',
     fields: ['diet_id'],
     type: 'foreign key',
     references: {
@@ -17,5 +18,6 @@ export async function up(query) {
 }
 
 export async function down(query) {
+  await query.removeConstraint('encounters', 'encounters_diet_id_fkey');
   await query.removeColumn('encounters', 'diet_id');
 }
