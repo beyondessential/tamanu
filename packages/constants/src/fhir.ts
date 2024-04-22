@@ -303,3 +303,6 @@ export const HTTP_BODY_DATA_PATHS = {
 };
 
 export const SCRUBBED_DATA_MESSAGE = 'Raw data removed from logs';
+export const SUPPORTED_CONTENT_TYPES = {
+  PDF: 'application/pdf',
+};

@@ -10,9 +10,7 @@ import {
   fakeResourcesOfFhirServiceRequestWithLabRequest,
   fakeResourcesOfFhirServiceRequestWithImagingRequest,
 } from '../../fake/fhir';
-
-
-
+import { base64pdf } from '@tamanu/shared/test-helpers';
 
 describe('Create DiagnosticReport', () => {
   let ctx;
@@ -146,6 +144,47 @@ describe('Create DiagnosticReport', () => {
         expect(labRequest.status).toBe(expectedLabRequestStatus);
         expect(response).toHaveSucceeded();
       }
+    });
+
+    it('post a DiagnosticReport with PDF report in presentedForm (Lab Request)', async () => {
+      const { FhirServiceRequest } = ctx.store.models;
+      const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
+        ctx.store.models,
+        resources,
+        {
+          isWithPanels: true,
+        },
+        {
+          status: LAB_REQUEST_STATUSES.PUBLISHED,
+        }
+      );
+      const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+      const serviceRequestId = mat.id;
+      await FhirServiceRequest.resolveUpstreams();
+
+      let requestAttachment = await labRequest.getLatestAttachment();
+      expect(requestAttachment).toBeNull();
+      const testAttachment = {
+        contentType: 'application/pdf',
+        data: base64pdf,
+        title: 'LAB ID: P73456090 MAX JONES Biopsy without Microscopic Description (1 Site/Lesion)-Standard'
+      };
+      const body = {
+        ...postBody(serviceRequestId),
+        presentedForm: [{
+          ...testAttachment,
+        }],
+      };
+      const response = await app.post(endpoint).send(body);
+      await labRequest.reload();
+      requestAttachment = await labRequest.getLatestAttachment();
+      expect(labRequest.status).toBe(LAB_REQUEST_STATUSES.PUBLISHED);
+      expect(requestAttachment).toMatchObject({
+        labRequestId: labRequest.id,
+        replacedBy: null,
+        title: testAttachment.title,
+      });
+      expect(response).toHaveSucceeded();
     });
 
     describe('errors', () => {
@@ -324,6 +363,50 @@ describe('Create DiagnosticReport', () => {
               diagnostics: expect.any(String),
               details: {
                 text: 'basedOn is a required field',
+              },
+            },
+          ],
+        });
+        expect(response.status).toBe(400);
+      });
+
+      it('report in presentedForm in invalid type', async () => {
+        const { FhirServiceRequest } = ctx.store.models;
+        const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
+          ctx.store.models,
+          resources,
+          {
+            isWithPanels: true,
+          },
+          {
+            status: LAB_REQUEST_STATUSES.PUBLISHED,
+          }
+        );
+        const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+        const serviceRequestId = mat.id;
+        await FhirServiceRequest.resolveUpstreams();
+        const testAttachment = {
+          contentType: 'application/jpeg',
+          data: base64pdf,
+          title: 'LAB ID: P73456090 MAX JONES Biopsy without Microscopic Description (1 Site/Lesion)-Standard'
+        };
+        const body = {
+          ...postBody(serviceRequestId),
+          presentedForm: [{
+            ...testAttachment,
+          }],
+        };
+        const response = await app.post(endpoint).send(body);
+        expect(response.body).toMatchObject({
+          resourceType: 'OperationOutcome',
+          id: expect.any(String),
+          issue: [
+            {
+              severity: 'error',
+              code: 'invalid',
+              diagnostics: expect.any(String),
+              details: {
+                text: `presentedForm must be one of the supported values: ${Object.values(SUPPORTED_CONTENT_TYPES)}`,
               },
             },
           ],

@@ -37,6 +37,7 @@ export * from './Procedure';
 export * from './EncounterDiagnosis';
 export * from './EncounterMedication';
 export * from './LabRequest';
+export * from './LabRequestAttachment';
 export * from './LabTest';
 export * from './LabRequestLog';
 export * from './LabTestType';

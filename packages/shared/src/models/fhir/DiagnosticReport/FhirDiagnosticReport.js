@@ -6,6 +6,8 @@ import {
   FHIR_INTERACTIONS,
   FHIR_ISSUE_TYPE,
   LAB_REQUEST_STATUSES,
+  SUPPORTED_CONTENT_TYPES,
+  MAX_ATTACHMENT_SIZE_BYTES,
 } from '@tamanu/constants';
 import { FhirCodeableConcept, FhirReference } from '../../../services/fhirTypes';
 import { FhirResource } from '../Resource';
@@ -27,6 +29,9 @@ export class FhirDiagnosticReport extends FhirResource {
           type: DataTypes.JSONB,
           allowNull: false,
         },
+        presentedForm: {
+          type: DataTypes.JSONB,
+        }
       },
       options,
     );
@@ -36,6 +41,7 @@ export class FhirDiagnosticReport extends FhirResource {
       models.LabTest,
       models.LabRequest,
       models.LabTestType,
+      models.LabRequestAttachment,
     ];
   }
 
@@ -46,8 +52,18 @@ export class FhirDiagnosticReport extends FhirResource {
       basedOn: yup.array().of(FhirReference.asYup()).required(),
       status: yup.string().required(),
       code: FhirCodeableConcept.asYup().required(),
+      presentedForm: yup.array().of(
+        yup.object({
+          data: yup.string().required(),
+          title: yup.string().required(),
+          contentType: yup.string().required(),
+        }),
+      ),
     });
   }
+
+
+
 
   // This is beginning very modestly - can extend to handle full 
   // results soon.
@@ -88,7 +104,66 @@ export class FhirDiagnosticReport extends FhirResource {
 
     labRequest.set({ status: this.getLabRequestStatus() });
     await labRequest.save();
+
+    if (this.presentedForm) {
+      this.labRequest = labRequest;
+      await this.saveAttachment();
+    }
     return labRequest;
+  }
+
+  getLabRequestStatus() {
+    switch (this.status) {
+      case FHIR_DIAGNOSTIC_REPORT_STATUS.REGISTERED:
+      case FHIR_DIAGNOSTIC_REPORT_STATUS.PARTIAL._:
+        return LAB_REQUEST_STATUSES.TO_BE_VERIFIED;
+      case FHIR_DIAGNOSTIC_REPORT_STATUS.PARTIAL.PRELIMINARY:
+        return LAB_REQUEST_STATUSES.VERIFIED;
+      case FHIR_DIAGNOSTIC_REPORT_STATUS.FINAL:
+        return LAB_REQUEST_STATUSES.PUBLISHED;
+      case FHIR_DIAGNOSTIC_REPORT_STATUS.CANCELLED:
+        return LAB_REQUEST_STATUSES.CANCELLED;
+      case FHIR_DIAGNOSTIC_REPORT_STATUS.ENTERED_IN_ERROR:
+        return LAB_REQUEST_STATUSES.ENTERED_IN_ERROR;
+      case FHIR_DIAGNOSTIC_REPORT_STATUS.AMENDED._:
+      case FHIR_DIAGNOSTIC_REPORT_STATUS.AMENDED.CORRECTED:
+      case FHIR_DIAGNOSTIC_REPORT_STATUS.AMENDED.APPENDED:
+        // no workflow for these yet
+        throw new Invalid('Amend workflow unsupported');
+      default:
+        throw new Invalid(`'${this.status}' is an invalid ServiceRequest status`);
+    }
+  }
+
+  async saveAttachment() {
+    if (!Array.isArray(this.presentedForm) || this.presentedForm.length > 1) {
+      throw new Invalid('presentedForm must be an array on length 1');
+    }
+
+    const form = this.presentedForm[0];
+    if (!Object.values(SUPPORTED_CONTENT_TYPES).includes(form.contentType)) {
+      throw new Invalid(`presentedForm must be one of the supported values: ${Object.values(SUPPORTED_CONTENT_TYPES)}`);
+    }
+    if (form.data.length > MAX_ATTACHMENT_SIZE_BYTES) {
+      throw new Invalid(`Maximum length of for attachment is ${MAX_ATTACHMENT_SIZE_BYTES / 1024}k characters`);
+    }
+    const { Attachment, LabRequestAttachment } = this.sequelize.models;
+    const attachment = await Attachment.create({
+      data: form.data,
+      type: form.contentType,
+    });
+    const lastAttachment = await this.labRequest.getLatestAttachment();
+    const labRequestAttachment = await LabRequestAttachment.create({
+      attachmentId: attachment.id,
+      title: form.title,
+      labRequestId: this.labRequest.id,
+      isVisible: true,
+    });
+
+    if (lastAttachment) {
+      lastAttachment.set({ replacedBy: labRequestAttachment.id });
+      await lastAttachment.save();
+    }
   }
 
   getLabRequestStatus() {

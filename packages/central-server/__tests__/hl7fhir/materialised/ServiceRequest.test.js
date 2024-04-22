@@ -955,7 +955,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
         });
 
         it('correctly includes a ServiceRequest', async () => {
-          const { models } = ctx.store;
+          const { models, sequelize } = ctx.store;
           const { FhirSpecimen, FhirServiceRequest } = models;
           const { labRequest } = await fakeResourcesOfFhirSpecimen(models, resources);
           const materialisedServiceRequest = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
