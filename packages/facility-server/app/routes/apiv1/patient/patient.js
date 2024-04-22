@@ -354,6 +354,8 @@ patientRoute.get(
           ON (planned_location.location_group_id = planned_location_group.id)
         LEFT JOIN reference_data AS village
           ON (village.type = 'village' AND village.id = patients.village_id)
+        LEFT JOIN reference_data AS diet
+          ON (diet.type = 'diet' AND diet.id = patients.diet_id)
         LEFT JOIN (
           SELECT
             patient_id,
@@ -397,6 +399,8 @@ patientRoute.get(
         patients.*,
         encounters.id AS encounter_id,
         encounters.encounter_type,
+        diet.id AS diet_id,
+        diet.name AS diet_name,
         village.id AS village_id,
         village.name AS village_name,
         patient_facilities.patient_id IS NOT NULL as marked_for_sync
@@ -406,6 +410,8 @@ patientRoute.get(
         patients.*,
         encounters.id AS encounter_id,
         encounters.encounter_type,
+        diet.id AS diet_id,
+        diet.name AS diet_name,
         clinician.display_name as clinician,
         department.id AS department_id,
         department.name AS department_name,
