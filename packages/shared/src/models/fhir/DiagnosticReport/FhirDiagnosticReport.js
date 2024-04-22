@@ -106,8 +106,7 @@ export class FhirDiagnosticReport extends FhirResource {
     await labRequest.save();
 
     if (this.presentedForm) {
-      this.labRequest = labRequest;
-      await this.saveAttachment();
+      await this.saveAttachment(labRequest);
     }
     return labRequest;
   }

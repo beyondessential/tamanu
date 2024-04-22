@@ -156,12 +156,12 @@ export class LabRequest extends Model {
 
     this.hasMany(models.CertificateNotification, {
       foreignKey: 'labRequestId',
-      as: 'certificate_notification',
+      as: 'certificateNotification',
     });
 
     this.hasMany(models.LabRequestAttachment, {
       foreignKey: 'labRequestId',
-      as: 'lab_request_attachment',
+      as: 'labRequestAttachment',
     });
 
     this.hasMany(models.Note, {
@@ -209,7 +209,7 @@ export class LabRequest extends Model {
     return this.sequelize.models.LabRequestAttachment.findOne({
       where: {
         labRequestId: this.id,
-        replaced_by: null,
+        replacedBy: null,
       },
     });
   }
