@@ -7,6 +7,7 @@ import {
   PATIENT_REGISTRY_TYPES,
   PLACE_OF_BIRTH_TYPES,
 } from '@tamanu/constants';
+import { yupAttemptTransformToNumber } from '../utils';
 
 const requiredWhenConfiguredMandatory = (
   getLocalisation,
@@ -235,14 +236,14 @@ export const getPatientDetailsValidation = (
       getLocalisation,
       getTranslation,
       'primaryContactNumber',
-      yup.number(),
+      yup.number().transform(yupAttemptTransformToNumber),
       'Primary contact number',
     ),
     secondaryContactNumber: requiredWhenConfiguredMandatory(
       getLocalisation,
       getTranslation,
       'secondaryContactNumber',
-      yup.number(),
+      yup.number().transform(yupAttemptTransformToNumber),
       'Secondary contact number',
     ),
     emergencyContactName: requiredWhenConfiguredMandatory(
@@ -256,7 +257,7 @@ export const getPatientDetailsValidation = (
       getLocalisation,
       getTranslation,
       'emergencyContactNumber',
-      yup.number(),
+      yup.number().transform(yupAttemptTransformToNumber),
       'Emergency contact number',
     ),
     title: requiredWhenConfiguredMandatory(getLocalisation, getTranslation, 'title', yup.string()),

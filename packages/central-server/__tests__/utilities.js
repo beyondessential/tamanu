@@ -3,10 +3,9 @@ import http from 'http';
 import supertest from 'supertest';
 
 import { COMMUNICATION_STATUSES, JWT_TOKEN_TYPES, SERVER_TYPES } from '@tamanu/constants';
-import { fake } from '@tamanu/shared/test-helpers';
 import { createMockReportingSchemaAndRoles, seedSettings } from '@tamanu/shared/demoData';
 import { ReadSettings } from '@tamanu/settings';
-
+import { fake, asNewRole } from '@tamanu/shared/test-helpers';
 import { DEFAULT_JWT_SECRET } from '../dist/auth';
 import { getToken } from '../dist/auth/utils';
 import { createApp } from '../dist/createApp';
@@ -74,6 +73,10 @@ export async function createTestContext() {
     const newUser = await models.User.create(fake(models.User, { role }));
 
     return baseApp.asUser(newUser);
+  };
+
+  baseApp.asNewRole = async (permissions = [], roleOverrides = {}) => {
+    return asNewRole(baseApp, models, permissions, roleOverrides);
   };
 
   ctx.onClose(
