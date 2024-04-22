@@ -17,7 +17,7 @@ export class LabRequestAttachment extends Model {
           type: Sequelize.STRING,
           allowNull: false,
         },
-        replacedBy: {
+        replacedById: {
           type: Sequelize.STRING,
           allowNull: true,
         },

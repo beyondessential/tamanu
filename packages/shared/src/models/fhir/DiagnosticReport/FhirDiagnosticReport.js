@@ -111,36 +111,6 @@ export class FhirDiagnosticReport extends FhirResource {
     return labRequest;
   }
 
-  async saveAttachment(labRequest) {
-    if (!Array.isArray(this.presentedForm) || this.presentedForm.length > 1) {
-      throw new Invalid('presentedForm must be an array on length 1');
-    }
-
-    const form = this.presentedForm[0];
-    if (!Object.values(SUPPORTED_CONTENT_TYPES).includes(form.contentType)) {
-      throw new Invalid(`presentedForm must be one of the supported values: ${Object.values(SUPPORTED_CONTENT_TYPES)}`);
-    }
-    if (form.data.length > MAX_ATTACHMENT_SIZE_BYTES) {
-      throw new Invalid(`Maximum length of for attachment is ${MAX_ATTACHMENT_SIZE_BYTES / 1024}k characters`);
-    }
-    const { Attachment, LabRequestAttachment } = this.sequelize.models;
-    const attachment = await Attachment.create({
-      data: form.data,
-      type: form.contentType,
-    });
-    const lastAttachment = await labRequest.getLatestAttachment();
-    const labRequestAttachment = await LabRequestAttachment.create({
-      attachmentId: attachment.id,
-      title: form.title,
-      labRequestId: labRequest.id,
-    });
-
-    if (lastAttachment) {
-      lastAttachment.set({ replacedBy: labRequestAttachment.id });
-      await lastAttachment.save();
-    }
-  }
-
   getLabRequestStatus() {
     switch (this.status) {
       case FHIR_DIAGNOSTIC_REPORT_STATUS.REGISTERED:
@@ -164,4 +134,34 @@ export class FhirDiagnosticReport extends FhirResource {
     }
   }
 
+  async saveAttachment(labRequest) {
+    if (!Array.isArray(this.presentedForm) || this.presentedForm.length > 1) {
+      throw new Invalid('presentedForm must be an array on length 1');
+    }
+
+    const form = this.presentedForm[0];
+    if (!Object.values(SUPPORTED_CONTENT_TYPES).includes(form.contentType)) {
+      throw new Invalid(`presentedForm must be one of the supported values: ${Object.values(SUPPORTED_CONTENT_TYPES)}`);
+    }
+    if (form.data.length > MAX_ATTACHMENT_SIZE_BYTES) {
+      throw new Invalid(`Maximum length of for attachment is ${MAX_ATTACHMENT_SIZE_BYTES / 1024}k characters`);
+    }
+    const { Attachment, LabRequestAttachment } = this.sequelize.models;
+    const attachment = await Attachment.create({
+      data: form.data,
+      type: form.contentType,
+    });
+    const lastAttachment = await labRequest.getLatestAttachment();
+    const labRequestAttachment = await LabRequestAttachment.create({
+      attachmentId: attachment.id,
+      title: form.title,
+      labRequestId: labRequest.id,
+      isVisible: true,
+    });
+
+    if (lastAttachment) {
+      lastAttachment.set({ replacedById: labRequestAttachment.id });
+      await lastAttachment.save();
+    }
+  }
 }

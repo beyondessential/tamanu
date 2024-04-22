@@ -38,7 +38,7 @@ export async function up(query) {
       type: Sequelize.STRING,
       allowNull: true,
     },
-    replaced_by: {
+    replaced_by_id: {
       type: Sequelize.STRING,
       allowNull: true,
     },
