@@ -31,7 +31,7 @@ export const AdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps): ReactE
     customPatientFieldValues,
     patientAdditionalData,
     loading,
-    error
+    error,
   } = usePatientAdditionalData(patient.id);
   // Display general error
   if (error) {
@@ -44,7 +44,7 @@ export const AdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps): ReactE
 
   // Add edit callback and map the inner 'fields' array
   const additionalSections = ADDITIONAL_DATA_SECTIONS.map(({ title, fields }) => {
-    const onEditCallback = (): void => onEdit(patientAdditionalData, title, false);
+    const onEditCallback = (): void => onEdit(patientAdditionalData, title, null);
     const mappedFields = fields
       .filter(fieldName => !getBool(`fields.${fieldName}.requiredPatientData`))
       .map(fieldName => [fieldName, getFieldData(patientAdditionalData, fieldName)]);
@@ -53,15 +53,15 @@ export const AdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps): ReactE
 
   const customSections = customPatientSections.map(([_categoryId, fields]) => {
     const title = fields[0].category.name;
-    const onEditCallback = (): void => onEdit(null, title, true, fields, customPatientFieldValues);
-    const mappedFields = fields.map(field => ([field.name, customPatientFieldValues[field.id]?.[0]?.value]));
+    const onEditCallback = (): void => onEdit(null, title, customPatientFieldValues);
+    const mappedFields = fields.map(field => [
+      field.name,
+      customPatientFieldValues[field.id]?.[0]?.value,
+    ]);
     return { title, fields: mappedFields, onEditCallback };
   });
 
-  const sections = [
-    ...(additionalSections || []),
-    ...(customSections || []),
-  ];
+  const sections = [...(additionalSections || []), ...(customSections || [])];
 
   return (
     <>

@@ -11,9 +11,9 @@ import { ADDITIONAL_DATA_SECTIONS } from '~/ui/helpers/additionalData';
 export const EditPatientAdditionalDataScreen = ({ navigation, route }): ReactElement => {
   const {
     patientName,
+    patient,
     additionalDataJSON,
     sectionTitle,
-    customSectionFields,
     customPatientFieldValues,
   } = route.params;
   // additionalDataJSON might be undefined if record doesn't exist,
@@ -39,11 +39,11 @@ export const EditPatientAdditionalDataScreen = ({ navigation, route }): ReactEle
       />
       <PatientSectionHeader name={sectionTitle} />
       <PatientAdditionalDataForm
+        patient={patient}
         additionalData={additionalData}
         additionalDataSections={ADDITIONAL_DATA_SECTIONS}
         navigation={navigation}
         sectionTitle={sectionTitle}
-        customSectionFields={customSectionFields}
         customPatientFieldValues={customPatientFieldValues}
       />
     </FullView>

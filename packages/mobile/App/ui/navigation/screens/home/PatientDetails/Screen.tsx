@@ -21,7 +21,7 @@ import { ArrowLeftIcon } from '~/ui/components/Icons';
 import { UserAvatar } from '~/ui/components/UserAvatar';
 import { HealthIdentificationRow, PatientIssues } from './CustomComponents';
 import { useLocalisation } from '~/ui/contexts/LocalisationContext';
-import { PatientDetails } from './layouts/useLayoutComponents';
+import { LocalisedPatientDetailsLayout } from './layouts/LocalisedPatientDetailsLayout';
 
 const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => {
   const onNavigateBack = useCallback(() => {
@@ -76,7 +76,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => 
       </StyledSafeAreaView>
       <FullView>
         <StyledScrollView background={theme.colors.BACKGROUND_GREY}>
-          <PatientDetails navigation={navigation} patient={selectedPatient} />
+          <LocalisedPatientDetailsLayout navigation={navigation} patient={selectedPatient} />
           <PatientIssues onEdit={onEditPatientIssues} patientId={selectedPatient.id} />
         </StyledScrollView>
       </FullView>

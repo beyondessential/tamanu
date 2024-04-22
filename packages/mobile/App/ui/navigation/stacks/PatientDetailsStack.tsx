@@ -3,11 +3,11 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { Routes } from '~/ui/helpers/routes';
 import { PatientDetailsScreen } from '~/ui/navigation/screens/home/PatientDetails/Screen';
 import { AddPatientIssueScreen } from '~/ui/navigation/screens/home/PatientDetails/AddPatientIssue';
-import { EditPatientScreen } from '~/ui/navigation/screens/home/PatientDetails/EditPatient';
-import { EditPatientAdditionalDataScreen } from '~/ui/navigation/screens/home/PatientDetails/EditPatientAdditionalData';
-import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
+import { EditPatientScreen as GenericEditPatientScreen } from '../screens/home/PatientDetails/layouts/generic/EditGeneralInfo';
+import { EditPatientAdditionalDataScreen as GenericEditPatientAdditionalDataScreen } from '../screens/home/PatientDetails/layouts/generic/EditAdditionalInfo';
 import { EditPatientScreen as CambodiaEditPatientScreen } from '../screens/home/PatientDetails/layouts/cambodia/EditGeneralInfo';
 import { EditPatientAdditionalDataScreen as CambodiaEditPatientAdditionalDataScreen } from '../screens/home/PatientDetails/layouts/cambodia/EditAdditionalInfo';
+import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
 
 const Stack = createStackNavigator();
 
@@ -26,11 +26,11 @@ export const PatientDetailsStack = (): ReactElement => (
       {/* Generic patient details components */}
       <Stack.Screen
         name={Routes.HomeStack.PatientDetailsStack.Generic.EditPatient}
-        component={EditPatientScreen}
+        component={GenericEditPatientScreen}
       />
       <Stack.Screen
         name={Routes.HomeStack.PatientDetailsStack.Generic.EditPatientAdditionalData}
-        component={EditPatientAdditionalDataScreen}
+        component={GenericEditPatientAdditionalDataScreen}
       />
 
       {/* Cambodia specific patient details components */}
