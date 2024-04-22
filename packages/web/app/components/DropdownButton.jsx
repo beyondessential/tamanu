@@ -131,6 +131,7 @@ export const DropdownButton = React.memo(
     actions,
     style,
     className,
+    disabled = false,
     hasPermission = true,
     MainButtonComponent = MainButton,
   }) => {
@@ -159,6 +160,7 @@ export const DropdownButton = React.memo(
           size={size}
           color="primary"
           disableElevation
+          disabled={disabled}
           style={{ borderColor: Colors.primary }}
           onClick={event => handleClick(event, 0)}
         >
@@ -168,7 +170,7 @@ export const DropdownButton = React.memo(
       );
     }
 
-    const isOpen = Boolean(anchorEl);
+    const isOpen = anchorEl && !disabled && hasPermission;
 
     return (
       <Container style={style} className={className} ref={anchorRef}>
@@ -178,7 +180,7 @@ export const DropdownButton = React.memo(
           color="primary"
           disableElevation
           style={{ width: '100%' }}
-          disabled={!hasPermission}
+          disabled={disabled || !hasPermission}
         >
           <MainButtonComponent onClick={event => handleClick(event, 0)}>
             {!hasPermission && <LockIcon />}
