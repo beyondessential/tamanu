@@ -49,9 +49,6 @@ export class FhirDiagnosticReport extends FhirResource {
     });
   }
 
-
-
-
   // This is beginning very modestly - can extend to handle full 
   // results soon.
   async pushUpstream() {

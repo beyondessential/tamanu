@@ -116,7 +116,7 @@ describe('FHIR refresh handler', () => {
           topic: 'fhir.refresh.fromUpstream',
           payload: {
             resource: {
-              [Op.ne]: 'MediciReport',
+              [Op.ne]: 'MediciReport', // ignoring created MediciReport job as it doesn't ignore SurveyResponses
             },
           },
         },
