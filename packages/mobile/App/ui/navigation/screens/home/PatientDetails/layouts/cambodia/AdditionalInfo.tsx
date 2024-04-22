@@ -5,12 +5,12 @@ import { ErrorScreen } from '../../../../../../components/ErrorScreen';
 import { LoadingScreen } from '../../../../../../components/LoadingScreen';
 import { PatientSection } from '../../CustomComponents/PatientSection';
 import { useLocalisation } from '../../../../../../contexts/LocalisationContext';
-import { IPatient, IPatientAdditionalData } from '../../../../../../types';
+import { IPatient, IPatientAdditionalData, IPatientFieldValue } from '../../../../../../types';
 import { usePatientAdditionalData } from '~/ui/hooks/usePatientAdditionalData';
 import { CAMBODIA_ADDITIONAL_DATA_SECTIONS } from '~/ui/helpers/additionalData';
 
 interface AdditionalInfoProps {
-  onEdit: (additionalInfo: IPatientAdditionalData, sectionTitle: string) => void;
+  onEdit: (additionalInfo: IPatientAdditionalData, sectionTitle: Element, customPatientFieldValues: IPatientFieldValue[]) => void;
   patient: IPatient;
 }
 
@@ -43,13 +43,15 @@ export const AdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps): ReactE
     return <ErrorScreen error={error} />;
   }
 
+  console.log(customPatientFieldValues)
+
   // Check if patient additional data should be editable
   const { getBool } = useLocalisation();
   const isEditable = getBool('features.editPatientDetailsOnMobile');
 
   // Add edit callback and map the inner 'fields' array
   const sections = CAMBODIA_ADDITIONAL_DATA_SECTIONS.map(({ title, fields }) => {
-    const onEditCallback = (): void => onEdit(patientAdditionalData, title, false, fields, customPatientFieldValues);
+    const onEditCallback = (): void => onEdit(patientAdditionalData, title, customPatientFieldValues);
     const mappedFields = fields.map(fieldName => {
       // TODO: hacky just to get it working initially
       if (fieldName === 'villageId') return [fieldName, patient.village?.name];
