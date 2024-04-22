@@ -32,7 +32,7 @@ const setupBaseDate = async models => {
     ...fake(models.Department),
     facilityId: facility.id,
   });
-  await models.Setting.set('routineVaccine.thresholds', [
+  await models.Setting.set('vaccine.thresholds', [
     {
       threshold: 28,
       status: VACCINE_STATUS.SCHEDULED,
@@ -57,7 +57,7 @@ const setupBaseDate = async models => {
   const drug = await models.ReferenceData.create(
     fake(models.ReferenceData, { type: REFERENCE_TYPES.DRUG }),
   );
-  await models.Setting.set('routineVaccine.ageLimit', 15);
+  await models.Setting.set('vaccine.ageLimit', 15);
   return { facility, drug };
 };
 
