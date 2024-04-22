@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { SURVEY_TYPES } from '@tamanu/constants';
 import { reloadPatient } from '../../store/patient';
@@ -26,6 +27,8 @@ import { useProgramRegistryContext } from '../../contexts/ProgramRegistry';
 const SurveyFlow = ({ patient, currentUser }) => {
   const api = useApi();
   const params = useParams();
+  const queryClient = useQueryClient();
+  const dispatch = useDispatch();
   const { encounter, loadEncounter } = useEncounter();
   const { navigateToEncounter, navigateToPatient } = usePatientNavigation();
   const [survey, setSurvey] = useState(null);
@@ -102,6 +105,8 @@ const SurveyFlow = ({ patient, currentUser }) => {
     if (params?.encounterId && encounter && !encounter.endDate) {
       navigateToEncounter(params.encounterId, { tab: ENCOUNTER_TAB_NAMES.FORMS });
     } else {
+      queryClient.resetQueries(['patientFields', patient.id]);
+      await dispatch(reloadPatient(patient.id));
       navigateToPatient(patient.id, { tab: PATIENT_TABS.PROGRAMS });
     }
   };

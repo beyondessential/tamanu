@@ -28,6 +28,7 @@ describe('Patients import', () => {
       file: `./__tests__/importers/patient/${file}.xlsx`,
       models: ctx.store.models,
       includedDataTypes: ['patient', 'patientFieldDefinition', 'patientFieldDefinitionCategory'],
+      checkPermission: () => true,
       ...opts,
     });
   }
