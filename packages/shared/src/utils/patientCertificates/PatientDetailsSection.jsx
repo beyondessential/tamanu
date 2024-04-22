@@ -2,7 +2,7 @@ import React from 'react';
 import { Col, LightDivider, Row } from './Layout';
 import { H3, P } from './Typography';
 import { getDOB, getSex, getVillageName } from '../patientAccessors';
-import { defaultTranslationFn } from '../translation';
+import { useLanguageContext } from '../pdf/languageContext';
 
 const patientFields = getTranslation => [
   {
@@ -38,8 +38,9 @@ export const PatientDetailsSection = ({
   patient,
   getLocalisation,
   extraFields = [],
-  getTranslation = defaultTranslationFn,
 }) => {
+  const { getTranslation } = useLanguageContext();
+
   const detailsToDisplay = [...patientFields(getTranslation), ...extraFields].filter(
     ({ key }) => !getLocalisation(`fields.${key}.hidden`),
   );

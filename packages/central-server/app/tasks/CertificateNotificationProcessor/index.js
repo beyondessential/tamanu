@@ -83,7 +83,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
         const facilityName = notification.get('facilityName');
         const language = notification.get('language');
 
-        const getTranslation = await TranslatedString.getTranslationFunction(language, ['pdf']);
+        const translations = await TranslatedString.getTranslations(language, ['pdf']);
 
         const { country } = await getLocalisation();
         const countryCode = country['alpha-2'];
@@ -208,7 +208,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
               facilityName,
               models,
               language,
-              getTranslation,
+              translations,
             );
             break;
 

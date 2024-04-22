@@ -110,7 +110,7 @@ export const makeVaccineCertificate = async (
   facilityName,
   models,
   language,
-  getTranslation,
+  translations,
 ) => {
   const localisation = await getLocalisation();
 
@@ -131,7 +131,7 @@ export const makeVaccineCertificate = async (
       signingSrc={signingImage}
       watermarkSrc={watermark}
       logoSrc={logo}
-      getTranslation={getTranslation}
+      translations={translations}
       localisation={localisation}
       language={language}
     />,

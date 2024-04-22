@@ -87,7 +87,7 @@ export class TranslatedString extends Model {
     return { languagesInDb, languageNames };
   };
 
-  static getTranslationFunction = async (language, prefixIds = []) => {
+  static getTranslations = async (language, prefixIds) => {
     const translatedStringRecords = await TranslatedString.findAll({
       where: {
         language,
@@ -102,6 +102,11 @@ export class TranslatedString extends Model {
     });
 
     const translations = mapValues(keyBy(translatedStringRecords, 'stringId'), 'text');
+    return translations;
+  };
+
+  static getTranslationFunction = async (language, prefixIds = []) => {
+    const translations = await TranslatedString.getTranslation(language, prefixIds);
 
     return (stringId, fallback, replacements) => {
       const translationFunc = translationFactory(translations);

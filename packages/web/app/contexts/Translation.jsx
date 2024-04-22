@@ -43,6 +43,7 @@ export const TranslationProvider = ({ children }) => {
         getTranslation,
         updateStoredLanguage,
         storedLanguage,
+        translations
       }}
     >
       {children}

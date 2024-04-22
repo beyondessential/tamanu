@@ -8,8 +8,13 @@ const FullIframe = styled.iframe`
   height: 100%;
   min-height: 50vh;
 `;
+
 export const WorkerRenderedPDFViewer = props => {
-  const { url, loading, error } = useRenderPDF(props);
+  const { url, loading, error } = useRenderPDF({
+    // need to pass language because in webworker, we can read window.localStorage
+    language: window.localStorage.getItem('language'),
+    ...props,
+  });
 
   const src = url ? `${url}#toolbar=0` : null;
   if (loading) return <LoadingIndicator />;

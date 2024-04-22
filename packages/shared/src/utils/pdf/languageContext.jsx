@@ -4,9 +4,10 @@ import { cloneDeep } from 'lodash';
 import path from 'path';
 import { FONT } from '@tamanu/constants';
 import { Font } from '@react-pdf/renderer';
+import { translationFactory } from '../translation/translationFactory';
 
 const baseDir =
-  typeof __dirname !== 'undefined' ? path.join(__dirname, '../../assets/fonts') : '../fonts';
+  typeof __dirname !== 'undefined' ? path.join(__dirname, '../../assets/fonts') : '/fonts';
 
 // body font
 Font.register({
@@ -33,7 +34,7 @@ const boldFont = ['Helvetica-BoldOblique', 'Helvetica-Bold'];
 
 const LanguageContext = createContext({});
 
-export const getDefaultLanguage = () => {
+const getDefaultLanguage = () => {
   // in client
   if (typeof window === 'object' && 'localStorage' in window) {
     return window.localStorage.getItem('language');
@@ -47,7 +48,7 @@ export const useLanguageContext = () => {
 
 export const withLanguageContext = Component => props => {
   const context = useLanguageContext();
-  const { language, ...other } = props;
+  const { language, translations, ...other } = props;
 
   const contextValue = useMemo(() => {
     return {
@@ -75,8 +76,13 @@ export const withLanguageContext = Component => props => {
         }
         return newStyles;
       },
+      getTranslation(stringId, fallback, replacements) {
+        const translationFunc = translationFactory(translations);
+        const { value } = translationFunc(stringId, fallback, replacements);
+        return value;
+      },
     };
-  }, [language]);
+  }, [language, translations]);
 
   // unsure that we are using only one provider for the component tree
   return 'makeIntlStyleSheet' in context ? (

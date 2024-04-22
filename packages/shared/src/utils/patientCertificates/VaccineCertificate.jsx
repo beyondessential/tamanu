@@ -16,10 +16,9 @@ import { H3 } from './Typography';
 import { LetterheadSection } from './LetterheadSection';
 import { getDisplayDate } from './getDisplayDate';
 import { SigningSection } from './SigningSection';
-import { withLanguageContext } from '../pdf/languageContext';
+import { useLanguageContext, withLanguageContext } from '../pdf/languageContext';
 import { Page } from '../pdf/Page';
 import { Text } from '../pdf/Text';
-import { defaultTranslationFn } from '../translation';
 
 const columns = getTranslation => [
   {
@@ -99,9 +98,9 @@ const VaccineCertificateComponent = ({
   signingSrc,
   logoSrc,
   localisation,
-  getTranslation = defaultTranslationFn,
   extraPatientFields,
 }) => {
+  const { getTranslation } = useLanguageContext();
   const getLocalisation = key => localisation[key];
   const healthFacility = getLocalisation('templates.vaccineCertificate.healthFacility');
   const countryName = getLocalisation('country.name');
