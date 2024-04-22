@@ -106,7 +106,12 @@ export const ParameterItem = props => {
             name={`${baseName}.suggesterEndpoint`}
             component={SelectField}
             placeholder={getTranslation('general.placeholder.text', 'Text')}
-            label="Suggester endpoint"
+            label={
+              <TranslatedText
+                stringId="report.editor.suggesterEndpoint.label"
+                fallback="Suggester endpoint"
+              />
+            }
             options={FIELD_TYPES_TO_SUGGESTER_OPTIONS[parameterField]
               .sort((a, b) => a.localeCompare(b))
               .map(key => ({
@@ -119,7 +124,9 @@ export const ParameterItem = props => {
       {FIELD_TYPES_WITH_PREDEFINED_OPTIONS.includes(parameterField) && (
         <>
           <Grid item xs={12}>
-            <OuterLabelFieldWrapper label="Options" />
+            <OuterLabelFieldWrapper
+              label={<TranslatedText stringId="report.editor.options.label" fallback="Options" />}
+            />
           </Grid>
           <Field
             name={`${baseName}.options`}
@@ -130,14 +137,14 @@ export const ParameterItem = props => {
                 <Grid item xs={6}>
                   <Field
                     name={`${baseName}.options.${index}.label`}
-                    label="Label"
+                    label={<TranslatedText stringId="general.label.label" fallback="Label" />}
                     component={TextField}
                   />
                 </Grid>
                 <Grid item xs={5}>
                   <Field
                     name={`${baseName}.options.${index}.value`}
-                    label="Value"
+                    label={<TranslatedText stringId="general.value.label" fallback="Value" />}
                     component={TextField}
                   />
                 </Grid>
