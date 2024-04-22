@@ -245,6 +245,7 @@ labRequest.get(
           priority.id AS priority_id,
           priority.name AS priority_name,
           lab_test_panel.name as lab_test_panel_name,
+          lab_test_panel.id as lab_test_panel_id,
           laboratory.id AS laboratory_id,
           laboratory.name AS laboratory_name,
           location.facility_id AS facility_id

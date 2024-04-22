@@ -4,6 +4,7 @@ import { DateDisplay } from '../../components';
 import { getPatientStatus } from '../../utils/getPatientStatus';
 import { SexDisplay } from '../../components/Translation/SexDisplay';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
+import { TranslatedReferenceData } from '../../components/Translation';
 
 const DateCell = React.memo(({ value }) => <DateDisplay date={value} />);
 const SexCell = React.memo(({ value }) => <SexDisplay sex={value} />);
@@ -79,13 +80,22 @@ export const village = {
   key: 'villageName',
   title: <TranslatedText stringId="general.localisedField.villageId.label" fallback="Village" />,
   minWidth: 100,
-  accessor: row => row?.villageName || null,
+  accessor: row => (
+    <TranslatedReferenceData fallback={row.villageName} value={row.villageId} category="village" />
+  ),
 };
 
 export const department = {
   key: 'departmentName',
   title: <TranslatedText stringId="general.department.label" fallback="Department" />,
   minWidth: 100,
+  accessor: row => (
+    <TranslatedReferenceData
+      fallback={row.departmentName}
+      value={row.departmentId}
+      category="department"
+    />
+  ),
 };
 
 export const status = {

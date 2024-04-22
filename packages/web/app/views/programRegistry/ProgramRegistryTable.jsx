@@ -61,22 +61,42 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
       {
         key: 'homeVillage',
         title: 'Home village',
-        accessor: ({ patient }) => <TranslatedReferenceData fallback={patient.village.name} value={patient.village.id} category="village"/>,
+        accessor: ({ patient }) => (
+          <TranslatedReferenceData
+            fallback={patient.village.name}
+            value={patient.village.id}
+            category="village"
+          />
+        ),
       },
       {
         key: 'registeringFacility',
         title: 'Registering facility',
-        accessor: ({ registeringFacility }) => registeringFacility.name,
+        accessor: ({ registeringFacility: { id, name } }) => (
+          <TranslatedReferenceData value={id} fallback={name} category="facility" />
+        ),
       },
       {
         key: 'currentlyIn',
         title: 'Currently in',
         accessor: row => {
           if (row.programRegistry.currentlyAtType === 'village') {
-            return <TranslatedReferenceData fallback={row.village.name} value={row.village.id} category="village"/>;
+            return (
+              <TranslatedReferenceData
+                fallback={row.village.name}
+                value={row.village.id}
+                category="village"
+              />
+            );
           }
           if (row.programRegistry.currentlyAtType === 'facility') {
-            return <TranslatedReferenceData fallback={row.facility.name} value={row.facility.id} category="facility"/>;
+            return (
+              <TranslatedReferenceData
+                fallback={row.facility.name}
+                value={row.facility.id}
+                category="facility"
+              />
+            );
           }
           return '';
         },
@@ -86,10 +106,20 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
         title: 'Related conditions',
         sortable: false,
         accessor: ({ conditions }) => {
-          const conditionsText = Array.isArray(conditions)
-            ? conditions.map(x => ` ${x}`).toString()
+          const conditionList = Array.isArray(conditions)
+            ? conditions.map(({ id, name }, i) => (
+                <>
+                  <TranslatedReferenceData
+                    key={id + i}
+                    value={id}
+                    fallback={name}
+                    category="prCondition"
+                  />
+                  {i < conditions.length - 1 && ', '}
+                </>
+              ))
             : '';
-          return conditionsText;
+          return conditionList;
         },
         CellComponent: LimitedLinesCell,
         maxWidth: 200,
