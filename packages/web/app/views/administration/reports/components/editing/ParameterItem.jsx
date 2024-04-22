@@ -60,10 +60,20 @@ export const ParameterItem = props => {
   return (
     <Grid container spacing={2} key={id}>
       <Grid item xs={6}>
-        <Field name={`${baseName}.name`} component={TextField} placeholder="Text" label="Name" />
+        <Field
+          name={`${baseName}.name`}
+          component={TextField}
+          placeholder={getTranslation('general.placeholder.text', 'Text')}
+          label={<TranslatedText stringId="general.name.label" fallback="Name" />}
+        />
       </Grid>
       <Grid item xs={5}>
-        <Field name={`${baseName}.label`} component={TextField} placeholder="Text" label="Label" />
+        <Field
+          name={`${baseName}.label`}
+          component={TextField}
+          placeholder={getTranslation('general.placeholder.text', 'Text')}
+          label={<TranslatedText stringId="report.editor.label.label" fallback="Label" />}
+        />
       </Grid>
       <Grid item xs={1}>
         <IconButton variant="text" onClick={() => onDelete(id)}>
