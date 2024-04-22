@@ -177,9 +177,7 @@ describe('Create DiagnosticReport', () => {
         }],
       };
       const response = await app.post(endpoint).send(body);
-      //  console.log({ response });
       await labRequest.reload();
-      console.log({ labRequest });
       requestAttachment = await labRequest.getLatestAttachment();
       expect(labRequest.status).toBe(LAB_REQUEST_STATUSES.PUBLISHED);
       expect(requestAttachment).toMatchObject({
