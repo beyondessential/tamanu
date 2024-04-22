@@ -51,7 +51,7 @@ export const getReportQueryReplacements = async (
   if (params.toDate) {
     toDate = new Date(params.toDate);
   } else {
-    toDate = getStartDate(dateRange, params.fromDate ? new Date(params.fromDate) : new Date());
+    toDate = getEndDate(dateRange, params.fromDate ? new Date(params.fromDate) : new Date());
   }
 
   const fromDate = params.fromDate ? new Date(params.fromDate) : getStartDate(dateRange, toDate);
