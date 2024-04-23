@@ -1,7 +1,6 @@
 import 'jest-expect-message';
 import supertest from 'supertest';
 import config from 'config';
-import http from 'http';
 
 import {
   createMockReportingSchemaAndRoles,
@@ -148,8 +147,7 @@ export async function createTestContext({ enableReportInstances } = {}) {
 
   context.syncManager = new FacilitySyncManager(context);
 
-  const expressApp = await createApp(context);
-  const appServer = http.createServer(expressApp);
+  const { express: expressApp, server: appServer } = await createApp(context);
   const baseApp = supertest(appServer);
 
   baseApp.asUser = async user => {
@@ -180,7 +178,9 @@ export async function createTestContext({ enableReportInstances } = {}) {
   const centralServer = new CentralServerConnection({ deviceId: 'test' });
 
   context.onClose(async () => {
-    await new Promise(resolve => { appServer.close(resolve); });
+    await new Promise(resolve => {
+      appServer.close(resolve);
+    });
   });
 
   context.centralServer = centralServer;
