@@ -40,6 +40,10 @@ export class Setting extends Model {
           allowNull: false,
           defaultValue: SETTINGS_SCOPES.GLOBAL,
         },
+        deletedAt: {
+          type: Sequelize.DATE,
+          allowNull: true,
+        },
       },
       {
         ...options,
@@ -124,6 +128,7 @@ export class Setting extends Model {
         facilityId: {
           ...(facilityId ? { [Op.eq]: facilityId } : { [Op.is]: null }),
         },
+        deletedAt: null,
       },
 
       // we want facility keys to come last so they override global keys
