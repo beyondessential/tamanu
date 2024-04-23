@@ -19,7 +19,7 @@ patientContact.post(
     req.checkPermission('write', 'Patient');
     const { models, websocketClientService } = req;
     const patientContact = await models.PatientContact.create(req.body);
-    websocketClientService.emit(WS_EVENTS.PATIENT_CONTACT_INSERT, patientContact.dataValues);
+    websocketClientService?.emit(WS_EVENTS.PATIENT_CONTACT_INSERT, patientContact.dataValues);
     res.send(patientContact);
   }),
 );

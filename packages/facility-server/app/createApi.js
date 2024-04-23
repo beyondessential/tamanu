@@ -63,20 +63,6 @@ import { version } from './serverInfo';
 
   express.use(getAuditMiddleware());
 
-  // index route for debugging connectivity
-  express.get('/$', (req, res) => {
-    res.send({
-      index: true,
-    });
-  });
-
-  express.use('/', routes);
-
-  // Dis-allow all other routes
-  express.get('*', (req, res) => {
-    res.status(404).end();
-  });
-
   if (errorMiddleware) {
     express.use(errorMiddleware);
   }
