@@ -13,6 +13,7 @@ import { withPatient } from '../containers/Patient';
 import { BaseAppProps } from '../interfaces/BaseAppProps';
 import { useSocket } from '../hooks/useSocket';
 import { PatientContact } from '~/models/PatientContact';
+import { WS_EVENTS } from '~/constants/webSocket';
 
 interface ReminderContactData {
   reminderContactList: IPatientContact[];
@@ -62,11 +63,11 @@ const Provider = ({ children, selectedPatient }: BaseAppProps & { children: Reac
 
   useEffect(() => {
     if (!socket) return;
-    socket.on('telegram:subscribe', handleTelegramSubscribe);
-    socket.on('telegram:unsubscribe', handleTelegramUnsubscribe);
+    socket.on(WS_EVENTS.TELEGRAM_SUBSCRIBE, handleTelegramSubscribe);
+    socket.on(WS_EVENTS.TELEGRAM_UNSUBSCRIBE, handleTelegramUnsubscribe);
     return () => {
-      socket.off('telegram:subscribe', handleTelegramSubscribe);
-      socket.off('telegram:unsubscribe', handleTelegramUnsubscribe);
+      socket.off(WS_EVENTS.TELEGRAM_SUBSCRIBE, handleTelegramSubscribe);
+      socket.off(WS_EVENTS.TELEGRAM_UNSUBSCRIBE, handleTelegramUnsubscribe);
     };
   }, [socket]);
 
