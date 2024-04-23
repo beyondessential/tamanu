@@ -141,8 +141,8 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
             <StyledText
               width="100%"
               textAlign="center"
-              marginTop={screenPercentageToDP('2.43', Orientation.Height)}
-              fontSize={screenPercentageToDP('1.57', Orientation.Height)}
+              marginTop={screenPercentageToDP(2.43, Orientation.Height)}
+              fontSize={screenPercentageToDP(1.57, Orientation.Height)}
               color={theme.colors.WHITE}
               textDecorationLine="underline"
             >
@@ -150,17 +150,17 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
             </StyledText>
           </StyledTouchableOpacity>
         </KeyboardAvoidingView>
-        <LanguageSelectButton navigation={navigation} />
       </StyledSafeAreaView>
       <StyledView
         flexDirection="row"
-        justifyContent="flex-end"
-        position="absolute"
-        bottom={screenPercentageToDP(2.43, Orientation.Height)}
-        right={screenPercentageToDP(2.43, Orientation.Width)}
+        justifyContent="space-between"
+        alignItems="flex-end"
+        display="flex"
+        bottom={screenPercentageToDP(1, Orientation.Height)}
         paddingLeft={screenPercentageToDP(2.43, Orientation.Width)}
         paddingRight={screenPercentageToDP(2.43, Orientation.Width)}
       >
+        <LanguageSelectButton navigation={navigation} />
         {isSupportUrlLoaded && <SupportCentreButton supportCentreUrl={supportCentreUrl} />}
       </StyledView>
     </FullView>

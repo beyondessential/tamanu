@@ -99,7 +99,9 @@
           "Encounter": true,
           "Immunization": true,
           "Practitioner": true,
-          "MediciReport": false
+          "MediciReport": false,
+          "Specimen": true,
+          "Organization": true
         }
       }
     },
