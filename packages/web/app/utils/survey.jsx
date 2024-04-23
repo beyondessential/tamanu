@@ -339,7 +339,7 @@ export const getValidationSchema = (surveyData, getTranslation, valuesToCheckMan
       return {
         ...acc,
         [dataElementId]: valueSchema[mandatory ? 'required' : 'notRequired'](
-          mandatory ? getTranslation('validation.required.short', 'Required') : null,
+          mandatory ? getTranslation('validation.required.inline', '*Required') : null,
         ),
       };
     },
