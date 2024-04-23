@@ -13,7 +13,7 @@ async function getIds(options) {
 
 function getDependantAssociations(model) {
   return Object.values(model.associations).filter(
-    ({ associationType }) => associationType === 'HasMany' || associationType === 'HasOne',
+    ({ associationType }) => ['HasMany', 'HasOne'].includes(associationType),
   );
 }
 
