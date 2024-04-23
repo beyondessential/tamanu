@@ -7,8 +7,8 @@ async function getIds(options) {
     return ids;
   }
 
-  const encounters = await options.model.findAll(options);
-  return encounters.map(x => x.id);
+  const instances = await options.model.findAll(options);
+  return instances.map(x => x.id);
 }
 
 function getDependantAssociations(model) {
