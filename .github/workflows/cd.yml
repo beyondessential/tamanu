@@ -334,7 +334,7 @@ jobs:
         with:
           append_body: true
           body: |
-            ## Container Images 🚢
+            ## Container images 🚢
 
             | Repository | Tag |
             |:-----------|:---:|
