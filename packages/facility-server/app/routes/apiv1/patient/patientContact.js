@@ -1,6 +1,7 @@
+import { simpleGetList } from '@tamanu/shared/utils/crudHelpers';
 import express from 'express';
-import { simpleGetList, simplePost } from '@tamanu/shared/utils/crudHelpers';
 import asyncHandler from 'express-async-handler';
+import { WS_EVENTS } from '@tamanu/constants';
 
 export const patientContact = express.Router();
 
@@ -16,7 +17,10 @@ patientContact.post(
   '/reminderContact',
   asyncHandler(async (req, res) => {
     req.checkPermission('write', 'Patient');
-    return simplePost('PatientContact', { skipPermissionCheck: true })(req, res);
+    const { models, websocketClientService } = req;
+    const patientContact = await models.PatientContact.create(req.body);
+    websocketClientService.emit(WS_EVENTS.PATIENT_CONTACT_INSERT, patientContact.dataValues);
+    res.send(patientContact);
   }),
 );
 

@@ -1,57 +1,120 @@
-import TelegramBot from 'node-telegram-bot-api';
-import config from 'config';
-import { COMMUNICATION_STATUSES } from '@tamanu/constants';
+import { COMMUNICATION_STATUSES, WS_EVENTS } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
+import TelegramBot from 'node-telegram-bot-api';
 
-const { telegramBot, canonicalHostName } = config;
-const apiToken = telegramBot?.apiToken;
-const secretToken = telegramBot?.secretToken;
+/**
+ *
+ * @param {{ config: { telegramBot: { apiToken: string, webhook: { url: string, secret: string} }, language: string, }}} injector
+ */
+export const defineTelegramBotService = async injector => {
+  //fallback to polling if webhook url is not set
+  const bot = new TelegramBot(injector.config.telegramBot.apiToken, {
+    polling: !injector.config.telegramBot.webhook.url,
+  });
 
-export class TelegramBotService {
-  static #bot = apiToken ? new TelegramBot(apiToken) : null;
+  /** @type {ReturnType<import('./websocketService.js').defineWebsocketService>|null} */
+  let websocketService = null;
+  /**
+   *
+   * @param {ReturnType<import('./websocketService.js').defineWebsocketService>} service
+   */
+  const registerWebsocketService = service => {
+    if (!websocketService) websocketService = service;
+  };
 
-  constructor(options) {
-    if (options?.autoStartWebhook) {
-      this.startWebhook();
-    }
-  }
-
-  initListener() {
-    TelegramBotService.#bot?.on('message', async (msg, meta) => this.handleMessage(msg, meta));
-  }
-
-  handleMessage(msg) {
-    const chatId = msg.chat.id;
-    TelegramBotService.#bot?.sendMessage(chatId, `You just say: \n${msg.text}`);
-  }
-
-  startWebhook() {
-    if (!TelegramBotService.#bot) return;
-    TelegramBotService.#bot
-      .setWebHook(`${canonicalHostName}/api/public/telegram-webhook`, {
-        secret_token: secretToken,
-      })
-      .catch(e => {
-        log.error('Start telegram webhook failed', {
-          canonicalHostName,
-          error: e.message,
-        });
-      });
-  }
-
-  processUpdate(body) {
-    TelegramBotService.#bot?.processUpdate(body);
-  }
-
-  async sendMessage(chatId, text) {
-    if (!TelegramBotService.#bot) {
-      return { status: COMMUNICATION_STATUSES.ERROR, error: 'Telegram bot service not found' };
-    }
+  /**
+   *
+   * @param {TelegramBot.Update} update
+   */
+  const update = update => {
+    bot.processUpdate(update);
+  };
+  /**
+   *
+   * @param {{url: string, secret: string}} hook
+   * @returns
+   */
+  const setWebhook = async hook => {
     try {
-      const message = await TelegramBotService.#bot.sendMessage(chatId, text);
+      await bot.setWebHook(hook.url, { secret_token: hook.secret });
+    } catch (e) {
+      log.error('set telegram webhook failed', { url: hook.url, error: e.message });
+    }
+  };
+
+  /**
+   *
+   * @param {string} command
+   * @param {(msg: TelegramBot.Message, match?: string) => void } handler
+   */
+  const setCommand = (command, handler) => {
+    bot.onText(new RegExp(`^\\/${command}\\s*([A-z0-9\\-]*)$`), (message, match) =>
+      handler(message, match.at(1)),
+    );
+  };
+
+  /**
+   * @param {string} chatId
+   * @param {string} message
+   * @param {options?: TelegramBot.SendMessageOptions} options
+   *  */
+  const sendMessage = async (chatId, textMsg, options) => {
+    try {
+      const message = await bot.sendMessage(chatId, textMsg, options);
       return { status: COMMUNICATION_STATUSES.SENT, result: message };
     } catch (e) {
       return { status: COMMUNICATION_STATUSES.ERROR, error: e.message, shouldRetry: true };
     }
-  }
-}
+  };
+
+  const getBotInfo = async () => {
+    return await bot.getMe();
+  };
+
+  /**
+   * Register a new contact and send a success message.
+   *
+   * @param {TelegramBot.Message} message - the message object containing contact information
+   * @param {string} contactId
+   */
+  const subscribeCommandHandler = async (message, contactId) => {
+    const contact = await injector.models?.PatientContact?.findByPk(contactId, {
+      include: [{ model: injector.models?.Patient, as: 'patient' }],
+    });
+    if (!contact) return;
+
+    contact.connectionDetails = { chatId: message.chat.id };
+    await contact.save();
+
+    const contactName = contact.name;
+    const patientName = [contact.patient.firstName, contact.patient.lastName].join(' ').trim();
+
+    const successMessage = `Dear ${contactName}, you have successfully registered to receive messages for ${patientName}. Thank you.`;
+
+    await sendMessage(message.chat.id, successMessage);
+    websocketService.emit(WS_EVENTS.TELEGRAM_SUBSCRIBE, { contactId, chatId: message.chat.id });
+  };
+
+  await setWebhook(injector.config.telegramBot.webhook);
+  setCommand('start', subscribeCommandHandler);
+  //setCommand('unsubscribe', sendMessage);
+
+  return {
+    update,
+    sendMessage,
+    registerWebsocketService, //TODO: This is just a hack to make it work. will have to restructure the codebase for a better workflow
+    getBotInfo,
+  };
+};
+
+/** @type {ReturnType<typeof defineTelegramBotService> | null} */
+
+let singletonService = null;
+/**
+ *
+ * @param {{ config: { telegramBot: { apiToken: string, webhook: { url: string, secret: string} }, language: string, }}} injector
+ */
+export const defineSingletonTelegramBotService = injector => {
+  if (!singletonService) singletonService = defineTelegramBotService(injector);
+  return singletonService;
+};

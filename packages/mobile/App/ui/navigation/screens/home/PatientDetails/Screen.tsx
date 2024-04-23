@@ -82,7 +82,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => 
     navigation.navigate(Routes.HomeStack.PatientDetailsStack.AddPatientIssue);
   }, [navigation]);
 
-  const { getLocalisation, getBool } = useLocalisation();
+  const { getLocalisation } = useLocalisation();
   const ageDisplayFormat = getLocalisation('ageDisplayFormat');
 
   const onNavigateReminder = useCallback(() => {

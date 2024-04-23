@@ -1290,7 +1290,11 @@
   "allowMismatchedTimeZones": false,
   "telegramBot": {
     apiToken: "",
-    secretToken: "",
+    webhook: {
+      // this should be set to the external address of the server, e.g. "https://central.main.internal.tamanu.io/api/public/telegram-webhook"
+      url: "",
+      secret: ""
+    }
   },
   "patientCommunication": {
     "retryThreshold": 20
