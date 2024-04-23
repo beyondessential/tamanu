@@ -3,14 +3,8 @@ import { buildSettings } from '../index';
 import { settingsCache } from '../cache';
 import { Models } from './readers/SettingsDBReader';
 
-const KEYS_EXPOSED_TO_FRONT_END = [
-  'features',
-  'localisation',
-  'previewUvciFormat',
-  'imagingTypes',
-  'country',
-  'printMeasures',
-];
+const KEYS_EXPOSED_TO_FRONT_END = [];
+
 export class ReadSettings {
   models: Models;
   facilityId?: string;
@@ -24,10 +18,10 @@ export class ReadSettings {
     return lodashGet(settings, key);
   }
 
-  // This is what is called on login. This gets only settings relevant to 
+  // This is what is called on login. This gets only settings relevant to
   // the frontend so only what is needed is sent. No sensitive data is sent.
   async getFrontEndSettings() {
-    let settings = settingsCache.getFrontEndSettings()
+    let settings = settingsCache.getFrontEndSettings();
     if (!settings) {
       const allSettings = await this.getAll();
       settings = pick(allSettings, KEYS_EXPOSED_TO_FRONT_END);
