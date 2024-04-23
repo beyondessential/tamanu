@@ -1,5 +1,4 @@
 import React from 'react';
-import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import { DateDisplay } from '../../../components';
 import { ENCOUNTER_OPTIONS_BY_VALUE } from '../../../constants';
 import { getFullLocationName } from '../../../utils/location';
