@@ -1,3 +1,5 @@
+// Please keep in sync with:
+// - @tamanu/constants/webSocket.js
 export const WS_EVENTS = {
   TELEGRAM_SUBSCRIBE: 'telegram:subscribe',
   TELEGRAM_SUBSCRIBE_SUCCESS: 'telegram:subscribe:success',

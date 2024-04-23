@@ -13,7 +13,7 @@ export const telegramRoutes = express.Router();
 const getTelegramBotInfo = async ws => {
   return await new Promise((resolve, reject) => {
     try {
-      ws.emit(WS_EVENTS.TELEGRAM_BOT_INFO);
+      ws.emit(WS_EVENTS.TELEGRAM_GET_BOT_INFO);
       ws.listenOnce(WS_EVENTS.TELEGRAM_BOT_INFO, botInfo => resolve(botInfo));
     } catch (e) {
       reject(e);

@@ -27,6 +27,21 @@ export const defineWebsocketClientService = injector => {
     },
   );
 
+  client.on(
+    WS_EVENTS.TELEGRAM_UNSUBSCRIBE,
+    /**
+     *
+     * @param {{ contactId: string }} payload
+     */
+    async ({ contactId }) => {
+      const contact = await injector.models?.PatientContact.findByPk(contactId);
+      if (!contact) return;
+
+      await contact.destroy();
+      injector.websocketService.emit(WS_EVENTS.TELEGRAM_UNSUBSCRIBE_SUCCESS, { contactId });
+    },
+  );
+
   const emit = (eventName, ...args) => client.emit(eventName, ...args);
 
   const listenOnce = (eventName, callback) => client.once(eventName, callback);

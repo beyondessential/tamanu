@@ -8,5 +8,7 @@ export interface IPatientContact {
   connectionDetails?: string;
   deletionStatus?: string;
   patient: IPatient;
+  patientId?: string;
   relationship: IReferenceData;
+  relationshipId?: string;
 }
