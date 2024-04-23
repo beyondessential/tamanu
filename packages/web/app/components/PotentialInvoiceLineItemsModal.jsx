@@ -5,7 +5,7 @@ import { ConfirmCancelRow } from './ButtonRow';
 import { DateDisplay } from './DateDisplay';
 import { DataFetchingTable } from './Table';
 import { Modal } from './Modal';
-import { TranslatedText } from './Translation/TranslatedText';
+import { TranslatedEnum, TranslatedText } from './Translation';
 
 const COLUMNS = [
   { key: 'date', title: 'Date', accessor: ({ date }) => <DateDisplay date={date} /> },
@@ -13,7 +13,13 @@ const COLUMNS = [
   {
     key: 'type',
     title: 'Category',
-    accessor: ({ type }) => INVOICE_LINE_TYPE_LABELS[type] || 'Unknown',
+    accessor: ({ type }) => (
+      <TranslatedEnum
+        prefix="invoice.line.property.type"
+        value={type}
+        enumValues={INVOICE_LINE_TYPE_LABELS}
+      />
+    ),
   },
   { key: 'orderedBy', title: 'Ordered by' },
   { key: 'price', title: 'Price', accessor: ({ price }) => `$${price}` },
