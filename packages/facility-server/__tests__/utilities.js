@@ -1,7 +1,6 @@
 import 'jest-expect-message';
 import supertest from 'supertest';
 import config from 'config';
-import http from 'http';
 
 import {
   createMockReportingSchemaAndRoles,
