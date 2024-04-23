@@ -11,7 +11,7 @@ export class addVisibilityStatusForSurvey1713696066000 implements MigrationInter
         name: 'visibilityStatus',
         isNullable: false,
         type: 'varchar',
-        default: 'current',
+        default: "'current'",
       }),
     );
   }
