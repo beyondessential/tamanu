@@ -24,6 +24,7 @@ export class Model extends sequelize.Model {
       schema,
       ...options,
       hooks: {
+        ...options.hooks,
         beforeDestroy: genericBeforeDestroy,
         beforeBulkDestroy: genericBeforeBulkDestroy,
       },
