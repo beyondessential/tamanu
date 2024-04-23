@@ -4,8 +4,8 @@ import { useEffect, useState } from 'react';
 const cachedWebSocketInstances = {};
 
 export const useSocket = (props = {}) => {
-  const { uri } = props;
-  const connectionUrl = uri || import.meta.env.VITE_WSTARGET;
+  const { uri = '' } = props;
+  const connectionUrl = uri;
 
   const initializeSocketInstance = () => {
     const cached = cachedWebSocketInstances[connectionUrl];
