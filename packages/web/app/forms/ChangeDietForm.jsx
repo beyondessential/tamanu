@@ -22,7 +22,11 @@ export const ChangeDietForm = ({ onCancel, onSubmit }) => {
         endpoint="diet"
         component={SuggesterSelectField}
       />
-      <ModalActionRow confirmText="Confirm" onConfirm={submitForm} onCancel={onCancel} />
+      <ModalActionRow
+        confirmText={<TranslatedText stringId="general.action.confirm" fallback="Confirm" />}
+        onConfirm={submitForm}
+        onCancel={onCancel}
+      />
     </FormGrid>
   );
 
