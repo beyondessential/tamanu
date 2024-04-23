@@ -6,7 +6,6 @@ import { formatShort } from '../../dateTime';
 
 export const EncounterDetailsExtended = ({ encounter, discharge, clinicianText }) => {
   const { location, examiner, department, startDate, endDate, reasonForEncounter } = encounter;
-
   return (
     <DataSection title="Encounter details" hideBottomRule={true}>
       <Col>
@@ -21,6 +20,13 @@ export const EncounterDetailsExtended = ({ encounter, discharge, clinicianText }
           value={discharge?.discharger?.displayName}
           key="dischargingClinician"
         />
+        {discharge?.disposition?.name && (
+          <DataItem
+            label="Discharge disposition"
+            value={discharge?.disposition?.name}
+            key="dischargeDisposition"
+          />
+        )}
       </Col>
       <Col>
         <DataItem label="Department" value={department.name} key="department" />
