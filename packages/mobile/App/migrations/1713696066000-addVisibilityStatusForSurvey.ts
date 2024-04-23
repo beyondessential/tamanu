@@ -3,7 +3,7 @@ import { getTable } from './utils/queryRunner';
 
 export class addVisibilityStatusForSurvey1713696066000 implements MigrationInterface {
   async up(queryRunner: QueryRunner): Promise<void> {
-    const tableObject = await getTable(queryRunner, 'surveys');
+    const tableObject = await getTable(queryRunner, 'survey');
 
     await queryRunner.addColumn(
       tableObject,
@@ -17,7 +17,7 @@ export class addVisibilityStatusForSurvey1713696066000 implements MigrationInter
   }
 
   async down(queryRunner: QueryRunner): Promise<void> {
-    const tableObject = await getTable(queryRunner, 'surveys');
+    const tableObject = await getTable(queryRunner, 'survey');
 
     await queryRunner.dropColumn(tableObject, 'visibilityStatus');
   }
