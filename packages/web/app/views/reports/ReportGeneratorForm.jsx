@@ -28,7 +28,7 @@ import { Colors } from '../../constants';
 import { saveExcelFile } from '../../utils/saveExcelFile';
 import { EmailField, parseEmails } from './EmailField';
 import { ParameterField } from './ParameterField';
-import { useLocalisation } from '../../contexts/Localisation';
+import { useSettings } from '../../contexts/Settings';
 import { ReportAboutModal } from './ReportAboutModal';
 
 const Spacer = styled.div`
@@ -84,8 +84,8 @@ const buildParameterFieldValidation = ({ name, required }) => {
 };
 
 const useFileName = () => {
-  const { getLocalisation } = useLocalisation();
-  const country = getLocalisation('country');
+  const { getSetting } = useSettings();
+  const country = getSetting('country');
   const date = format(new Date(), 'ddMMyyyy');
 
   return reportName => {
@@ -158,7 +158,8 @@ export const ReportGeneratorForm = () => {
   }, [api]);
 
   const submitRequestReport = async formValues => {
-    const { reportId, emails, ...filterValues } = formValues;
+    const { reportId, ...filterValues } = formValues;
+    delete filterValues.emails;
 
     const updatedFilters = Object.fromEntries(
       Object.entries(filterValues).map(([key, value]) => {
@@ -290,7 +291,8 @@ export const ReportGeneratorForm = () => {
               <Spacer />
               <FormGrid columns={3}>
                 {parameters.map(
-                  ({ parameterField, required, name, label, options, ...restOfProps }) => {
+                  ({ parameterField, required, name, label, ...restOfProps }) => {
+                    delete restOfProps.options;
                     return (
                       <ParameterField
                         key={name || parameterField}

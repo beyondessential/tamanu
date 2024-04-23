@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
@@ -9,7 +9,6 @@ import {
   Field,
   Form,
   FormSubmitButton,
-  TextButton,
   TextField,
 } from '../components';
 import { Colors } from '../constants';
@@ -38,7 +37,7 @@ const FormSubtext = styled(BodyText)`
   padding: 10px 0;
 `;
 
-const ResetPasswordFormComponent = ({ errorMessage, onNavToLogin, setFieldError }) => {
+const ResetPasswordFormComponent = ({ errorMessage, onNavToLogin }) => {
   return (
     <FormGrid columns={1}>
       <div>

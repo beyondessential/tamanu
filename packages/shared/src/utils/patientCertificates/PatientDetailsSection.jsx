@@ -1,20 +1,19 @@
 import React from 'react';
-import { Col, Row } from './Layout';
-import { P } from './Typography';
-import { getDOB, getNationality, getPassportNumber } from '../patientAccessors';
+import { Col, LightDivider, Row } from './Layout';
+import { H3, P } from './Typography';
+import { getDOB, getSex } from '../patientAccessors';
 
 const PATIENT_FIELDS = [
   { key: 'firstName', label: 'First Name' },
+  { key: 'displayId', label: 'Patient ID' },
   { key: 'lastName', label: 'Last Name' },
+  { key: 'sex', label: 'Sex', accessor: getSex },
   {
     key: 'dateOfBirth',
-    label: 'Date Of Birth',
+    label: 'DOB',
     accessor: getDOB,
   },
-  { key: 'sex', label: 'Sex' },
-  { key: 'displayId', label: 'NHN' },
-  { key: 'passport', label: 'Passport Number', accessor: getPassportNumber },
-  { key: 'nationality', label: 'Nationality', accessor: getNationality },
+  { key: 'villageName', label: 'Village' },
 ];
 
 export const PatientDetailsSection = ({ patient, getSetting, extraFields = [] }) => {
@@ -22,23 +21,28 @@ export const PatientDetailsSection = ({ patient, getSetting, extraFields = [] })
     ({ key }) => !getSetting(`fields.${key}.hidden`),
   );
   return (
-    <Row>
-      <Col style={{ marginBottom: 5 }}>
-        <Row>
-          {detailsToDisplay.map(({ key, label: defaultLabel, accessor }) => {
-            const value = (accessor ? accessor(patient, getSetting) : patient[key]) || '';
-            const label = getSetting(`fields.${key}.shortLabel`) || defaultLabel;
+    <>
+      <H3 style={{ marginBottom: 0 }}>Patient Details</H3>
+      <LightDivider />
+      <Row>
+        <Col style={{ marginBottom: 5 }}>
+          <Row>
+            {detailsToDisplay.map(({ key, label: defaultLabel, accessor }) => {
+              const value = (accessor ? accessor(patient, getSetting) : patient[key]) || '';
+              const label = getSetting(`fields.${key}.shortLabel`) || defaultLabel;
 
-            return (
-              <Col style={{ width: '33%' }} key={key}>
-                <P mb={6}>
-                  <P bold>{label}:</P> {value}
-                </P>
-              </Col>
-            );
-          })}
-        </Row>
-      </Col>
-    </Row>
+              return (
+                <Col style={{ width: '50%' }} key={key}>
+                  <P mb={6}>
+                    <P bold>{label}:</P> {value}
+                  </P>
+                </Col>
+              );
+            })}
+          </Row>
+        </Col>
+      </Row>
+      <LightDivider />
+    </>
   );
 };

@@ -179,6 +179,11 @@ export const SYNC_MENU_ITEMS = [
     path: '/admin/programs',
   },
   {
+    key: 'surveyResponses',
+    label: 'Survey Responses',
+    path: '/admin/surveyResponses',
+  },
+  {
     key: 'patientMerge',
     label: 'Patient merge',
     path: '/admin/patientMerge',

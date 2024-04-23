@@ -10,13 +10,30 @@ export const getDOB = ({ dateOfBirth }, getSetting) =>
     ? getDisplayDate(dateOfBirth, 'dd/MM/yyyy', getSetting('countryTimeZone'))
     : 'Unknown';
 
-export const getDOBWithAge = ({ dateOfBirth }, getLocalisation) => {
+export const getDOBWithAge = ({ dateOfBirth }, getSetting) => {
   if (!dateOfBirth) return 'Unknown';
 
-  const dob = getDisplayDate(dateOfBirth, 'dd/MM/yyyy', getLocalisation);
+  const dob = getDisplayDate(dateOfBirth, 'dd/MM/yyyy', getSetting('countryTimeZone'));
   const age = ageInYears(dateOfBirth);
   return `${dob} (${age} years)`;
 };
+
+export const getDateOfDeath = ({ dateOfDeath }, getSetting) => {
+  if (!dateOfDeath) return 'Unknown';
+
+  const formatedDate = getDisplayDate(dateOfDeath, 'dd.MM.yyyy', getSetting('countryTimeZone'));
+  return formatedDate;
+};
+
+export const getTimeOfDeath = ({ dateOfDeath }, getSetting) => {
+  if (!dateOfDeath) return 'Unknown';
+
+  const formatedDate = getDisplayDate(dateOfDeath, 'hh.mma', getSetting('countryTimeZone')).toLowerCase();
+  return formatedDate;
+};
+
+
+
 
 export const getPlaceOfBirth = ({ additionalData }) => (additionalData || {}).placeOfBirth;
 

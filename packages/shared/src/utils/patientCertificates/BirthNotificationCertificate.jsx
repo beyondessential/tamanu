@@ -305,7 +305,7 @@ export const BirthNotificationCertificate = ({
   childData,
   facility,
   certificateData,
-  getLocalisation,
+  getSetting,
 }) => {
   const { logo, watermark } = certificateData;
 
@@ -315,7 +315,7 @@ export const BirthNotificationCertificate = ({
         {watermark && <Watermark src={watermark} />}
         <CertificateHeader>
           <LetterheadSection
-            getLocalisation={getLocalisation}
+            getSetting={getSetting}
             logoSrc={logo}
             certificateTitle="Birth Notification"
           />

@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { useLocalisation } from '../contexts/Localisation';
+import { useSettings } from '../contexts/Settings';
 import { FormModal } from './FormModal';
 import { Colors } from '../constants';
 import { TriageForm } from '../forms/TriageForm';
@@ -56,13 +56,13 @@ const DETAILS_FIELD_DEFINITIONS = [
 export const TriageModal = React.memo(
   ({ open, patient, onClose, onSubmitEncounter, noRedirectOnSubmit }) => {
     const { displayId } = patient;
-    const { getLocalisation } = useLocalisation();
+    const { getSetting } = useSettings();
 
     const detailsFields = DETAILS_FIELD_DEFINITIONS.filter(
-      ([name]) => getLocalisation(`fields.${name}.hidden`) !== true,
+      ([name]) => getSetting(`localisation.fields.${name}.hidden`) !== true,
     ).map(([name, accessor]) => (
       <React.Fragment key={name}>
-        <DetailLabel>{getLocalisation(`fields.${name}.longLabel`)}:</DetailLabel>
+        <DetailLabel>{getSetting(`localisation.fields.${name}.longLabel`)}:</DetailLabel>
         <DetailValue>{accessor ? accessor(patient) : patient[name]}</DetailValue>
       </React.Fragment>
     ));

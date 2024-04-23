@@ -14,7 +14,7 @@ template.get(
       query: { facilityId },
     } = req;
 
-    if (!key.startsWith('templates.')) {
+    if (!key.startsWith('localisation.templates.')) {
       throw new Error('Invalid template key');
     }
 

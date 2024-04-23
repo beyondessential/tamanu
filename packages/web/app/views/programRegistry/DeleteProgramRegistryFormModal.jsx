@@ -31,7 +31,10 @@ export const DeleteProgramRegistryFormModal = ({ patientProgramRegistration, onC
   if (!patientProgramRegistration) return <></>;
 
   const deleteProgramRegistry = async () => {
-    const { id, date, ...rest } = patientProgramRegistration;
+    const { ...rest } = patientProgramRegistration;
+    delete rest.id;
+    delete rest.date;
+
     await api.post(
       `patient/${encodeURIComponent(patientProgramRegistration.patientId)}/programRegistration`,
       { ...rest, registrationStatus: REGISTRATION_STATUSES.RECORDED_IN_ERROR },

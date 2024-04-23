@@ -57,7 +57,6 @@ export const DateInput = ({
   format = 'yyyy-MM-dd',
   onChange,
   name,
-  placeholder,
   max = '9999-12-31',
   min,
   saveDateAsString = false,
@@ -65,6 +64,8 @@ export const DateInput = ({
   inputProps = {},
   ...props
 }) => {
+  delete props.placeholder;
+
   const [currentText, setCurrentText] = useState(fromRFC3339(value, format));
   const [isPlaceholder, setIsPlaceholder] = useState(!value);
 

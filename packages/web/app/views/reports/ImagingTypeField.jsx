@@ -1,11 +1,11 @@
 import React from 'react';
 
-import { Field, SelectField } from '../../components';
-import { useLocalisation } from '../../contexts/Localisation';
+import { SelectField, Field } from '../../components';
+import { useSettings } from '../../contexts/Settings';
 
 export const ImagingTypeField = ({ name = 'imagingType', required }) => {
-  const { getLocalisation } = useLocalisation();
-  const imagingTypes = getLocalisation('imagingTypes') || {};
+  const { getSetting } = useSettings();
+  const imagingTypes = getSetting('imagingTypes') || {};
   const imagingTypeOptions = Object.entries(imagingTypes).map(([key, val]) => ({
     label: val.label,
     value: key,

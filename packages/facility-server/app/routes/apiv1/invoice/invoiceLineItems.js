@@ -70,12 +70,11 @@ invoiceLineItemsRoute.delete(
 invoiceLineItemsRoute.get(
   '/:invoiceId/potentialLineItems',
   asyncHandler(async (req, res) => {
-    const { models, params, db, getLocalisation } = req;
+    const { models, params, db, settings } = req;
     const { invoiceId } = params;
     const invoice = await models.Invoice.findByPk(invoiceId);
     const { encounterId } = invoice;
-    const localisation = await getLocalisation();
-    const { imagingTypes } = localisation;
+    const imagingTypes = await settings.get('imagingTypes');
     const potentialInvoiceLineItems = await getPotentialInvoiceLineItems(
       db,
       models,
@@ -93,14 +92,13 @@ invoiceLineItemsRoute.get(
 invoiceLineItemsRoute.post(
   '/:invoiceId/potentialLineItems',
   asyncHandler(async (req, res) => {
-    const { models, params, db, getLocalisation } = req;
+    const { models, params, db, settings } = req;
     req.checkPermission('create', 'InvoiceLineItem');
 
     const { invoiceId } = params;
     const invoice = await models.Invoice.findByPk(invoiceId);
     const { encounterId } = invoice;
-    const localisation = await getLocalisation();
-    const { imagingTypes } = localisation;
+    const imagingTypes = await settings.get('imagingTypes');
     const potentialInvoiceLineItems = await getPotentialInvoiceLineItems(
       db,
       models,

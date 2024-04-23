@@ -5,7 +5,7 @@ import { useSelector } from 'react-redux';
 import { Box } from '@material-ui/core';
 import { Modal } from '../../Modal';
 import { LabRequestPrintLabel } from '../printouts/LabRequestPrintLabel';
-import { useLocalisation } from '../../../contexts/Localisation';
+import { useSettings } from '../../../contexts/Settings';
 import { getPatientNameAsString } from '../../PatientNameDisplay';
 
 const Container = styled.div`
@@ -28,14 +28,14 @@ const Container = styled.div`
 
 export const LabRequestPrintLabelModal = ({ open, onClose, labRequests }) => {
   const patient = useSelector(state => state.patient);
-  const { getLocalisation } = useLocalisation();
-  const labelWidth = getLocalisation('printMeasures.labRequestPrintLabel.width');
+  const { getSetting } = useSettings();
+  const labelWidth = getSetting('printMeasures.labRequestPrintLabel.width');
 
   return (
     <Modal title="Print label" width="md" open={open} onClose={onClose} printable>
       <Container>
         {labRequests.map(lab => (
-          <Box mb={3}>
+          <Box key={lab.displayId} mb={3}>
             <LabRequestPrintLabel
               printWidth={labelWidth}
               data={{

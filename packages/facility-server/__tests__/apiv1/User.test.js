@@ -1,10 +1,9 @@
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
-import { pick } from 'lodash';
 import { chance, disableHardcodedPermissionsForSuite, fake } from '@tamanu/shared/test-helpers';
 import { addHours } from 'date-fns';
 import { createDummyEncounter } from '@tamanu/shared/demoData/patients';
 
-import { centralServerLogin, getToken } from '../../dist/middleware/auth';
+import { getToken } from '../../dist/middleware/auth';
 import { CentralServerConnection } from '../../dist/sync/CentralServerConnection';
 import { createTestContext } from '../utilities';
 
@@ -25,9 +24,9 @@ describe('User', () => {
   let centralServer = null;
   let ctx;
   const rawPassword = 'PASSWORD';
-  const localisation = { foo: 'bar' };
   let authUser = null;
   let deactivatedUser = null;
+  let settings;
 
   beforeAll(async () => {
     ctx = await createTestContext();
@@ -35,6 +34,10 @@ describe('User', () => {
     models = ctx.models;
     centralServer = ctx.centralServer;
     CentralServerConnection.mockImplementation(() => centralServer);
+    settings = await ctx.settings.getFrontEndSettings();
+    // We append this on the end of the settings object in the login logic 
+    // as its the only setting that has to be in config that we also want on the front end
+    settings.countryTimeZone = "Australia/Melbourne";
   });
   afterAll(() => ctx.close());
 
@@ -76,10 +79,6 @@ describe('User', () => {
           password: rawPassword,
         }),
       );
-      await models.UserLocalisationCache.create({
-        userId: authUser.id,
-        localisation: JSON.stringify(localisation),
-      });
     });
 
     it('should obtain a valid login token', async () => {
@@ -137,32 +136,14 @@ describe('User', () => {
       expect(result).toHaveRequestError();
     });
 
-    it('should return cached feature flags in the login request', async () => {
+    it('should return front-end settings in the login request', async () => {
       const result = await baseApp.post('/v1/login').send({
         email: authUser.email,
         password: rawPassword,
       });
       expect(result).toHaveSucceeded();
-      expect(result.body).toHaveProperty('localisation');
-      expect(result.body.localisation).toEqual(localisation);
-    });
-
-    it('should pass feature flags through from a central server login request', async () => {
-      centralServer.fetch.mockResolvedValueOnce({
-        user: pick(authUser, ['id', 'role', 'email', 'displayName']),
-        localisation,
-      });
-      const result = await centralServerLogin(ctx, authUser.email, rawPassword);
-      expect(result).toHaveProperty('localisation', localisation);
-      const cache = await models.UserLocalisationCache.findOne({
-        where: {
-          userId: authUser.id,
-        },
-        raw: true,
-      });
-      expect(cache).toMatchObject({
-        localisation: JSON.stringify(localisation),
-      });
+      expect(result.body).toHaveProperty('settings');
+      expect(result.body.settings).toEqual(settings);
     });
 
     it('should include permissions in the data returned by a successful login', async () => {

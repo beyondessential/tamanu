@@ -1,5 +1,6 @@
 import { upperFirst } from 'lodash';
 import { utcToZonedTime } from 'date-fns-tz';
+import config from 'config';
 import {
   DIAGNOSIS_CERTAINTY,
   ENCOUNTER_TYPES,
@@ -310,7 +311,7 @@ describe('fijiAspenMediciReport', () => {
 
   beforeAll(async () => {
     ctx = await createTestContext();
-    timezone = await ctx.settings.get('countryTimeZone');
+    timezone = config.countryTimeZone;
     models = ctx.store.models;
     app = await ctx.baseApp.asRole('practitioner');
     fakedata = await fakeAllData(models, timezone);

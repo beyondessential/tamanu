@@ -13,7 +13,7 @@ import { SubmitSection } from './SubmitSection';
 import { generateId, getConfiguredPatientAdditionalDataFields } from '~/ui/helpers/patient';
 import { Patient } from '~/models/Patient';
 import { withPatient } from '~/ui/containers/Patient';
-import { useLocalisation } from '~/ui/contexts/LocalisationContext';
+import { useSettings } from '~/ui/contexts/SettingContext';
 import { Routes } from '~/ui/helpers/routes';
 import { PatientAdditionalDataFields } from '../../PatientAdditionalDataForm/PatientAdditionalDataFields';
 import { allAdditionalDataFields } from '~/ui/helpers/additionalData';
@@ -136,7 +136,7 @@ export const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit }): 
     [navigation],
   );
 
-  const { getBool, getString } = useLocalisation();
+  const { getSetting } = useSettings();
 
   return loading ? (
     <LoadingScreen />
@@ -144,7 +144,7 @@ export const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit }): 
     <FullView padding={10}>
       <Formik
         onSubmit={isEdit ? onEditPatient : onCreateNewPatient}
-        validationSchema={getPatientDetailsValidation(getBool, getString)}
+        validationSchema={getPatientDetailsValidation(getSetting)}
         initialValues={getPatientInitialValues(
           isEdit,
           selectedPatient,

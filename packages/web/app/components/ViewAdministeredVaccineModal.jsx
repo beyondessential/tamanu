@@ -51,6 +51,7 @@ const FieldGroup = styled.div`
   padding-top: 20px;
 `;
 
+/* eslint-disable react/jsx-key */
 const FieldsViewer = ({ labelValueFieldGroups, editMode }) => (
   <Container $editMode={editMode}>
     {labelValueFieldGroups.map(({ key, fields }) => (
@@ -65,6 +66,7 @@ const FieldsViewer = ({ labelValueFieldGroups, editMode }) => (
     ))}
   </Container>
 );
+/* eslint-enable react/jsx-key */
 
 const ErrorMessage = () => {
   return (

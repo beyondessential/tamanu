@@ -85,9 +85,9 @@ describe('pushOutgoingChanges', () => {
               const { pushOutgoingChanges } = require('../../app/sync/pushOutgoingChanges');
               const centralServer = makeMockCentralServer(config);
               await pushOutgoingChanges(centralServer, 'sessionId', changes);
-              expect(
-                centralServer.push.mock.calls.flatMap(([_sessionId, page]) => page).length,
-              ).toEqual(changes.length);
+              expect(centralServer.push.mock.calls.flatMap(([, page]) => page).length).toEqual(
+                changes.length,
+              );
             },
           )
           .beforeEach(() => {

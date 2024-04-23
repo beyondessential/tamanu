@@ -1,4 +1,5 @@
 import { QueryTypes } from 'sequelize';
+import config from 'config';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { upperFirst } from 'lodash';
@@ -406,7 +407,7 @@ routes.get(
       encounters,
       offset = 0,
     } = req.query;
-    const timezone = await req.settings.get('countryTimeZone');
+    const timezone = config.countryTimeZone;
 
     if (!timezone) {
       throw new Error('A countryTimeZone must be configured in config for this report to run');

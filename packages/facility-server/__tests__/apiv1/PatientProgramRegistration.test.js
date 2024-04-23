@@ -24,7 +24,8 @@ describe('PatientProgramRegistration', () => {
 
   afterAll(() => ctx.close());
 
-  const createProgramRegistry = async ({ clinicalStatuses = [], ...params } = {}) => {
+  const createProgramRegistry = async ({ ...params } = {}) => {
+    delete params.clinicalStatuses;
     const program = await models.Program.create(fake(models.Program));
     return models.ProgramRegistry.create(
       fake(models.ProgramRegistry, { programId: program.id, ...params }),
@@ -196,7 +197,7 @@ describe('PatientProgramRegistration', () => {
       );
 
       // Add a small delay so the registrations are definitely created at distinctly different times.
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise(resolve => { setTimeout(resolve, 100) });
 
       const result = await app.post(`/v1/patient/${patient.id}/programRegistration`).send({
         // clinicianId: Should come from existing registration

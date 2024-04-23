@@ -5,7 +5,6 @@ import { LetterheadSection } from './LetterheadSection';
 import { PatientDetailsWithAddress } from './printComponents/PatientDetailsWithAddress';
 import { DIAGNOSIS_CERTAINTIES_TO_HIDE } from '@tamanu/constants';
 import { EncounterDetailsExtended } from './printComponents/EncounterDetailsExtended';
-import { Footer } from './printComponents/Footer';
 import { P } from './Typography';
 
 const borderStyle = '1 solid black';
@@ -91,11 +90,12 @@ const notesSectionStyles = StyleSheet.create({
   notesBox: {
     border: borderStyle,
     height: 76,
+    padding: 10,
   },
 });
 
-const extractDiagnosesInfo = ({ diagnoses, getLocalisation }) => {
-  const displayIcd10Codes = getLocalisation('features.displayIcd10CodesInDischargeSummary');
+const extractDiagnosesInfo = ({ diagnoses, getSetting }) => {
+  const displayIcd10Codes = getSetting('features.displayIcd10CodesInDischargeSummary');
   if (!displayIcd10Codes) {
     return diagnoses.map(item => item?.diagnosis?.name);
   } else {
@@ -103,8 +103,8 @@ const extractDiagnosesInfo = ({ diagnoses, getLocalisation }) => {
   }
 };
 
-const extractProceduresInfo = ({ procedures, getLocalisation }) => {
-  const displayProcedureCodes = getLocalisation('features.displayProcedureCodesInDischargeSummary');
+const extractProceduresInfo = ({ procedures, getSetting }) => {
+  const displayProcedureCodes = getSetting('features.displayProcedureCodesInDischargeSummary');
   if (!displayProcedureCodes) {
     return procedures.map(item => item?.procedureType?.name);
   } else {
@@ -129,20 +129,22 @@ const InfoBox = ({ label, info }) => (
   </InfoBoxRow>
 );
 
-const DiagnosesTable = ({ title, diagnoses, getLocalisation }) => (
-  <InfoBox label={title} info={extractDiagnosesInfo({ diagnoses, getLocalisation })} />
+const DiagnosesTable = ({ title, diagnoses, getSetting }) => (
+  <InfoBox label={title} info={extractDiagnosesInfo({ diagnoses, getSetting })} />
 );
 
-const ProceduresTable = ({ procedures, getLocalisation }) => (
-  <InfoBox label="Procedures" info={extractProceduresInfo({ procedures, getLocalisation })} />
+const ProceduresTable = ({ procedures, getSetting }) => (
+  <InfoBox label="Procedures" info={extractProceduresInfo({ procedures, getSetting })} />
 );
 
-const NotesSection = () => (
+const NotesSection = ({ notes }) => (
   <View>
     <P bold fontSize={11} mb={3}>
       Discharge planning notes
     </P>
-    <View style={notesSectionStyles.notesBox} />
+    <View style={notesSectionStyles.notesBox}>
+      <Text style={infoBoxStyles.infoText}>{notes}</Text>
+    </View>
   </View>
 );
 
@@ -192,10 +194,11 @@ export const DischargeSummaryPrintout = ({
   patientData,
   encounter,
   discharge,
+  patientConditions,
   logo,
   title,
   subTitle,
-  getLocalisation,
+  getSetting,
 }) => {
   const { diagnoses, procedures, medications } = encounter;
   const visibleDiagnoses = diagnoses.filter(
@@ -204,31 +207,41 @@ export const DischargeSummaryPrintout = ({
   const primaryDiagnoses = visibleDiagnoses.filter(d => d.isPrimary);
   const secondaryDiagnoses = visibleDiagnoses.filter(d => !d.isPrimary);
   const letterheadConfig = { title: title, subTitle: subTitle };
+  const notes = discharge?.note;
 
   return (
     <Document>
       <Page size="A4" style={styles.page}>
         <CertificateHeader>
           <LetterheadSection
-            getLocalisation={getLocalisation}
+            getSetting={getSetting}
             certificateTitle="Patient discharge summary"
             letterheadConfig={letterheadConfig}
             logoSrc={logo}
           />
         </CertificateHeader>
         <SectionContainer>
-          <PatientDetailsWithAddress patient={patientData} getLocalisation={getLocalisation} />
+          <PatientDetailsWithAddress patient={patientData} getSetting={getSetting} />
         </SectionContainer>
         <SectionContainer>
           <EncounterDetailsExtended encounter={encounter} discharge={discharge} />
         </SectionContainer>
         <SectionContainer>
+          {patientConditions.length > 0 && (
+            <TableContainer>
+              <DiagnosesTable
+                title="Ongoing conditions"
+                diagnoses={patientConditions}
+                getSetting={getSetting}
+              />
+            </TableContainer>
+          )}
           {primaryDiagnoses.length > 0 && (
             <TableContainer>
               <DiagnosesTable
                 title="Primary diagnoses"
                 diagnoses={primaryDiagnoses}
-                getLocalisation={getLocalisation}
+                getSetting={getSetting}
               />
             </TableContainer>
           )}
@@ -237,13 +250,13 @@ export const DischargeSummaryPrintout = ({
               <DiagnosesTable
                 title="Secondary diagnoses"
                 diagnoses={secondaryDiagnoses}
-                getLocalisation={getLocalisation}
+                getSetting={getSetting}
               />
             </TableContainer>
           )}
           {procedures.length > 0 && (
             <TableContainer>
-              <ProceduresTable procedures={procedures} getLocalisation={getLocalisation} />
+              <ProceduresTable procedures={procedures} getSetting={getSetting} />
             </TableContainer>
           )}
           {medications.length > 0 && (
@@ -253,7 +266,7 @@ export const DischargeSummaryPrintout = ({
           )}
         </SectionContainer>
         <SectionContainer>
-          <NotesSection />
+          <NotesSection notes={notes} />
         </SectionContainer>
       </Page>
     </Document>

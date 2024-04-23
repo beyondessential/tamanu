@@ -65,6 +65,16 @@ apiv1.get(
   }),
 );
 
+apiv1.get(
+  '/public/supportDeskUrl',
+  asyncHandler(async (req, res) => {
+    req.flagPermissionChecked();
+    const { settings } = req;
+    const url = await settings.get('localisation.supportDeskUrl');
+    return res.send({ url });
+  }),
+);
+
 apiv1.use(authMiddleware);
 apiv1.use(constructPermission);
 

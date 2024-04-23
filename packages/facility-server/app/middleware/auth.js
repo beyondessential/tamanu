@@ -63,7 +63,7 @@ export async function centralServerLogin(ctx, email, password) {
   });
 
   // we've logged in as a valid central user - update local database to match
-  const { user, localisation, settings } = response;
+  const { user, settings } = response;
   const { id, ...userDetails } = user;
 
   await models.User.sequelize.transaction(async () => {
@@ -73,14 +73,9 @@ export async function centralServerLogin(ctx, email, password) {
       password,
       deletedAt: null,
     });
-    await models.UserLocalisationCache.upsert({
-      userId: id,
-      localisation: JSON.stringify(localisation),
-      deletedAt: null,
-    });
   });
 
-  return { central: true, user, localisation, settings };
+  return { central: true, user, settings };
 }
 
 async function localLogin({ models, settings }, email, password) {
@@ -89,7 +84,8 @@ async function localLogin({ models, settings }, email, password) {
     where: { email },
   });
 
-  const settingsObject = await settings.getAll();
+  const settingsObject = await settings.getFrontEndSettings();
+  settingsObject.countryTimeZone = config.countryTimeZone // This needs to be in config but also needs to be front end accessible
 
   if (user && user.visibilityStatus !== VISIBILITY_STATUSES.CURRENT) {
     throw new BadAuthenticationError(USER_DEACTIVATED_ERROR_MESSAGE);
@@ -101,12 +97,7 @@ async function localLogin({ models, settings }, email, password) {
     throw new BadAuthenticationError('Incorrect username or password, please try again');
   }
 
-  const localisation = await models.UserLocalisationCache.getLocalisation({
-    where: { userId: user.id },
-    order: [['createdAt', 'DESC']],
-  });
-
-  return { central: false, user, localisation, settings: settingsObject };
+  return { central: false, user, settings: settingsObject };
 }
 
 async function centralServerLoginWithLocalFallback(models, email, password, deviceId, settings) {
@@ -142,12 +133,13 @@ export async function loginHandler(req, res, next) {
   req.flagPermissionChecked();
 
   try {
-    const {
-      central,
-      user,
-      localisation,
-      settings: receivedSettings,
-    } = await centralServerLoginWithLocalFallback(models, email, password, deviceId, settings);
+    const { central, user, settings: receivedSettings } = await centralServerLoginWithLocalFallback(
+      models,
+      email,
+      password,
+      deviceId,
+      settings,
+    );
     const [facility, permissions, token, role] = await Promise.all([
       models.Facility.findByPk(config.serverFacilityId),
       getPermissionsForRoles(models, user.role),
@@ -157,7 +149,6 @@ export async function loginHandler(req, res, next) {
     res.send({
       token,
       central,
-      localisation,
       permissions,
       role: role?.forResponse() ?? null,
       server: {
@@ -211,13 +202,8 @@ async function getUserFromToken(request) {
 
 export const authMiddleware = async (req, res, next) => {
   try {
+    // eslint-disable-next-line require-atomic-updates
     req.user = await getUserFromToken(req);
-    req.getLocalisation = async () =>
-      req.models.UserLocalisationCache.getLocalisation({
-        where: { userId: req.user.id },
-        order: [['createdAt', 'DESC']],
-      });
-
     const spanAttributes = req.user
       ? {
           'enduser.id': req.user.id,

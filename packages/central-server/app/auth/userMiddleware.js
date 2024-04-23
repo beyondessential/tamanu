@@ -35,19 +35,22 @@ export const userMiddleware = ({ secret }) =>
 
     const { userId, deviceId } = contents;
 
-    const user = await findUserById(store.models, userId);
-
+    const user = stripUser(await findUserById(store.models, userId));
     if (!user) {
       throw new BadAuthenticationError(`User specified in token (${userId}) does not exist`);
     }
 
-    req.user = stripUser(user);
+    /* eslint-disable require-atomic-updates */
+    // in this case we don't care if we're overwriting the user/deviceId
+    // and express also guarantees execution order for middlewares
+    req.user = user;
     req.deviceId = deviceId;
+    /* eslint-enable require-atomic-updates */
 
-    const spanAttributes = req.user
+    const spanAttributes = user
       ? {
-          'app.user.id': req.user.id,
-          'app.user.role': req.user.role,
+          'app.user.id': user.id,
+          'app.user.role': user.role,
         }
       : {};
 

@@ -7,11 +7,9 @@ import { PDFViewer } from '@react-pdf/renderer';
 
 import { PatientLetter } from '@tamanu/shared/utils/patientLetters/PatientLetter';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
-import { DeathCertificate } from '../app/components/PatientPrinting/printouts/DeathCertificate';
 import SigningImage from './assets/signing-image.png';
 import Watermark from './assets/watermark.png';
 import Logo from './assets/tamanu-logo.png';
-import { Modal } from '../app/components';
 
 const dummyPatient = createDummyPatient();
 const dummyAdditionalData = createDummyPatientAdditionalData();
@@ -76,56 +74,20 @@ const vdsData = {
 
 const vds = () => QRCode.toDataURL(vdsData);
 
-const getLocalisation = key => {
-  const config = {
-    'templates.letterhead.title': 'TAMANU MINISTRY OF HEALTH & MEDICAL SERVICES',
-    'templates.letterhead.subTitle': 'PO Box 12345, Melbourne, Australia',
-    'templates.vaccineCertificate.emailAddress': 'tamanu@health.govt',
-    'templates.vaccineCertificate.contactNumber': '123456',
-    'fields.firstName.longLabel': 'First Name',
-    'fields.lastName.longLabel': 'Last Name',
-    'fields.dateOfBirth.longLabel': 'Date of Birth',
-    'fields.sex.longLabel': 'Sex',
-    previewUvciFormat: 'tamanu',
+const getSetting = key => {
+  const settings = {
+    'localisation.templates.letterhead.title': 'TAMANU MINISTRY OF HEALTH & MEDICAL SERVICES',
+    'localisation.templates.letterhead.subTitle': 'PO Box 12345, Melbourne, Australia',
+    'localisation.templates.vaccineCertificate.emailAddress': 'tamanu@health.govt',
+    'localisation.templates.vaccineCertificate.contactNumber': '123456',
+    'localisation.fields.firstName.longLabel': 'First Name',
+    'localisation.fields.lastName.longLabel': 'Last Name',
+    'localisation.fields.dateOfBirth.longLabel': 'Date of Birth',
+    'localisation.fields.sex.longLabel': 'Sex',
+    'previewUvciFormat': 'tamanu',
   };
-  return config[key];
+  return settings[key];
 };
-
-const certificateData = {
-  title: 'Tamanu Ministry of Health & Medical Services',
-  subTitle: 'PS Box 123456, Melbourne, Australia',
-  logo: Logo,
-  logoType: 'image/png',
-  watermark: Watermark,
-  watermarkType: 'image/png',
-  footerImg: SigningImage,
-  footerImgType: 'image/png',
-  printedBy: 'Initial Admin',
-};
-
-storiesOf('Certificates', module).add('DeathCertificate', () => {
-  return (
-    <Modal title="Record patient death" open width="md">
-      <DeathCertificate
-        patientData={{
-          ...patient,
-          timeOfDeath: new Date(),
-          causes: {
-            primary: { condition: { name: 'Diabetes' } },
-            antecedent1: { condition: { name: 'Eating too much sugar' } },
-            antecedent2: { condition: { name: 'Living in a nutritionally poor environment' } },
-            contributing: [
-              { condition: { name: 'Old age' } },
-              { condition: { name: 'Overweight' } },
-              { condition: { name: 'Smoking' } },
-            ],
-          },
-        }}
-        certificateData={certificateData}
-      />
-    </Modal>
-  );
-});
 
 storiesOf('Certificates', module).add('CovidLabCertificate', () => (
   // TODO(web)
@@ -138,7 +100,7 @@ storiesOf('Certificates', module).add('CovidLabCertificate', () => (
       signingSrc={SigningImage}
       logoSrc={Logo}
       vdsSrc={vds}
-      getLocalisation={getLocalisation}
+      getSetting={getSetting}
       printedBy="Initial Admin"
     />
   // </PDFViewer>
@@ -230,7 +192,7 @@ storiesOf('Certificates', module).add('VaccineCertificate', () => {
         signingSrc={SigningImage}
         logoSrc={Logo}
         vdsSrc={vdsSrc}
-        getLocalisation={getLocalisation}
+        getSetting={getSetting}
       />
     </PDFViewer>
   );
@@ -248,7 +210,7 @@ storiesOf('Certificates', module).add('PatientLetter', () => {
 
   return (
     <PDFViewer width={800} height={1000} showToolbar={false}>
-      <PatientLetter logoSrc={Logo} getLocalisation={getLocalisation} data={patientLetterData} />
+      <PatientLetter logoSrc={Logo} getSetting={getSetting} data={patientLetterData} />
     </PDFViewer>
   );
 });

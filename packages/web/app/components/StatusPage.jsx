@@ -30,7 +30,6 @@ const ErrorMessage = styled(Typography).attrs({
 })`
   font-weight: 500;
   font-size: 38px;
-  line-height: 32px;
 `;
 
 const ErrorDescription = styled(LargeBodyText)`

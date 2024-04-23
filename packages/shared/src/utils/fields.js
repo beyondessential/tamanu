@@ -51,7 +51,7 @@ function compareData(dataType, expected, given) {
  * So if there is an update to this method, please make the same update
  * in the other versions
  */
-function checkVisibilityCriteria(component, allComponents, values) {
+export function checkVisibilityCriteria(component, allComponents, values) {
   const { visibilityCriteria } = component;
 
   try {

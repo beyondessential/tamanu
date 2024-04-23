@@ -5,7 +5,6 @@ import jwt from 'jsonwebtoken';
 import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
 import { BadAuthenticationError } from '@tamanu/shared/errors';
 import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermissions';
-import { getLocalisation } from '../localisation';
 import { convertFromDbRecord } from '../convertDbRecord';
 import {
   findUser,
@@ -69,7 +68,8 @@ export const login = ({ secret, refreshSecret }) =>
     const { models } = store;
     const { email, password, facilityId, deviceId } = body;
 
-    const settingsObject = await settings.getAll();
+    const settingsObject = await settings.getFrontEndSettings();
+    settingsObject.countryTimeZone = config.countryTimeZone // This needs to be in config but also needs to be front end accessible
 
     if (!email || !password) {
       throw new BadAuthenticationError('Missing credentials');
@@ -96,7 +96,7 @@ export const login = ({ secret, refreshSecret }) =>
     const { auth, canonicalHostName } = config;
     const { tokenDuration } = auth;
     const accessTokenJwtId = getRandomU32();
-    const [token, refreshToken, facility, localisation, permissions, role] = await Promise.all([
+    const [token, refreshToken, facility, permissions, role] = await Promise.all([
       getToken(
         {
           userId: user.id,
@@ -114,7 +114,6 @@ export const login = ({ secret, refreshSecret }) =>
         ? getRefreshToken(models, { refreshSecret, userId: user.id, deviceId })
         : undefined,
       models.Facility.findByPk(facilityId),
-      getLocalisation(),
       getPermissionsForRoles(models, user.role),
       models.Role.findByPk(user.role),
     ]);
@@ -128,7 +127,6 @@ export const login = ({ secret, refreshSecret }) =>
       permissions,
       role: role?.forResponse() ?? null,
       facility,
-      localisation,
       centralHost: config.canonicalHostName,
       settings: settingsObject,
     });

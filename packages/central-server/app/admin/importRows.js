@@ -4,7 +4,6 @@ import { permissionCache } from '@tamanu/shared/permissions/cache';
 import { ValidationError as YupValidationError } from 'yup';
 // import config from 'config';
 
-import { ReadSettings } from '@tamanu/settings';
 import { ForeignkeyResolutionError, UpsertionError, ValidationError } from './errors';
 import { statkey, updateStat } from './stats';
 import * as schemas from './importSchemas';

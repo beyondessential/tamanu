@@ -18,7 +18,7 @@ import { ProgramRegistryListItem } from '../../views/programRegistry/ProgramRegi
 import { DeathModal } from '../DeathModal';
 import { Colors } from '../../constants';
 import { PatientCarePlanDetails } from './PatientCarePlanNotes';
-import { useLocalisation } from '../../contexts/Localisation';
+import { useSettings } from '../../contexts/Settings';
 import {
   ALLERGIES_TITLE,
   CARE_PLANS_TITLE,
@@ -163,7 +163,7 @@ export const PatientInfoPane = () => {
   const [isModalOpen, setModalOpen] = useState(false);
   const openModal = useCallback(() => setModalOpen(true), [setModalOpen]);
   const closeModal = useCallback(() => setModalOpen(false), [setModalOpen]);
-  const { getLocalisation } = useLocalisation();
+  const { getSetting } = useSettings();
   const patient = useSelector(state => state.patient);
   const api = useApi();
   const { data: deathData, isLoading } = useQuery(['patientDeathSummary', patient.id], () =>
@@ -171,7 +171,7 @@ export const PatientInfoPane = () => {
   );
 
   const readonly = !!patient.death;
-  const patientDeathsEnabled = getLocalisation('features.enablePatientDeaths');
+  const patientDeathsEnabled = getSetting('features.enablePatientDeaths');
   const showRecordDeathActions = !isLoading && patientDeathsEnabled && !deathData?.isFinal;
   const showCauseOfDeathButton = showRecordDeathActions && Boolean(deathData);
 

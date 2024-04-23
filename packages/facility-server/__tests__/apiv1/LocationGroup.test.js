@@ -108,7 +108,7 @@ describe('Location groups', () => {
         revisedById: note2.id,
         date: getDateTimeSubtractedFromNow(2),
       });
-      const note1Edited = await models.Note.create({
+      await models.Note.create({
         content: 'Note 1 edited',
         noteType: NOTE_TYPES.HANDOVER,
         recordType: NOTE_RECORD_TYPES.ENCOUNTER,
@@ -142,7 +142,7 @@ describe('Location groups', () => {
         recordId: encounter.id,
         date: getDateTimeSubtractedFromNow(4),
       });
-      const note1Edited = await models.Note.create({
+      await models.Note.create({
         content: 'Note 1 edited',
         noteType: NOTE_TYPES.HANDOVER,
         recordType: NOTE_RECORD_TYPES.ENCOUNTER,

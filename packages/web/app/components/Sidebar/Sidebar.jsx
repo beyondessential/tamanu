@@ -16,7 +16,7 @@ import { getCurrentRoute } from '../../store/router';
 import { checkAbility } from '../../utils/ability';
 import { useAuth } from '../../contexts/Auth';
 import { useApi } from '../../api';
-import { useLocalisation } from '../../contexts/Localisation';
+import { useSettings } from '../../contexts/Settings';
 
 const Container = styled.div`
   display: flex;
@@ -185,7 +185,7 @@ export const Sidebar = React.memo(({ items }) => {
   const { facility, centralHost, currentUser, onLogout, currentRole } = useAuth();
   const currentPath = useSelector(getCurrentRoute);
   const dispatch = useDispatch();
-  const { getLocalisation } = useLocalisation();
+  const { getSetting } = useSettings();
 
   const extendSidebar = () => setIsRetracted(false);
 
@@ -208,7 +208,7 @@ export const Sidebar = React.memo(({ items }) => {
 
   const initials = getInitials(currentUser.displayName);
   const roleName = currentRole?.name ?? currentUser?.role;
-  const supportUrl = getLocalisation('supportDeskUrl');
+  const supportUrl = getSetting('localisation.supportDeskUrl');
 
   return (
     <Container $retracted={isRetracted}>
@@ -255,6 +255,7 @@ export const Sidebar = React.memo(({ items }) => {
           if (!item.children) {
             return (
               <TopLevelSidebarItem
+                key={item.path}
                 {...commonProps}
                 isCurrent={currentPath.includes(item.path)}
                 disabled={!permissionCheck(item)}
@@ -264,10 +265,10 @@ export const Sidebar = React.memo(({ items }) => {
           }
 
           if (isRetracted) {
-            return <PrimarySidebarItem {...commonProps} />;
+            return <PrimarySidebarItem key={item.path} {...commonProps} />;
           }
           return (
-            <PrimarySidebarItem {...commonProps}>
+            <PrimarySidebarItem key={item.path} {...commonProps}>
               {item.children.map(child => (
                 <SecondarySidebarItem
                   key={child.path}

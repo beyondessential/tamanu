@@ -4,14 +4,15 @@ import styled from 'styled-components';
 import { Modal } from '../../Modal';
 import { Button } from '../../Button';
 import { Colors } from '../../../constants';
-import { isErrorUnknownAllow404s, useApi } from '../../../api';
-import { useLocalisation } from '../../../contexts/Localisation';
+import { useApi, isErrorUnknownAllow404s } from '../../../api';
+import { useSettings } from '../../../contexts/Settings';
 
 import { PatientIDCardPage } from './PatientIDCardPage';
 import { PatientStickerLabelPage } from './PatientStickerLabelPage';
 import { CovidTestCertificateModal } from './CovidTestCertificateModal';
 import { CovidClearanceCertificateModal } from './CovidClearanceCertificateModal';
 import { BirthNotificationCertificateModal } from './BirthNotificationCertificateModal';
+import { IPSQRCodeModal } from './IPSQRCodeModal';
 
 const PRINT_OPTIONS = {
   barcode: {
@@ -29,21 +30,26 @@ const PRINT_OPTIONS = {
   covidClearanceCert: {
     label: 'COVID-19 clearance certificate',
     component: CovidClearanceCertificateModal,
-    condition: getLocalisation => getLocalisation('features.enableCovidClearanceCertificate'),
+    condition: getSetting => getSetting('features.enableCovidClearanceCertificate'),
   },
   birthNotification: {
     label: 'Birth notification',
     component: BirthNotificationCertificateModal,
   },
+  ipsQrCode: {
+    label: 'International Patient Summary',
+    component: IPSQRCodeModal,
+    condition: (_, ability) => ability?.can('create', 'IPSRequest'),
+  },
 };
 
 const PrintOptionList = ({ className, setCurrentlyPrinting }) => {
-  const { getLocalisation } = useLocalisation();
+  const { getSetting } = useSettings();
 
   return (
     <div className={className}>
       {Object.entries(PRINT_OPTIONS)
-        .filter(([, { condition }]) => !condition || condition(getLocalisation))
+        .filter(([, { condition }]) => !condition || condition(getSetting))
         .map(([type, { label, icon }]) => (
           <PrintOption
             key={type}
@@ -158,7 +164,7 @@ export const PrintPatientDetailsModal = ({ patient }) => {
   return (
     <>
       <Button size="small" onClick={openModal}>
-        Print ID forms
+        ID forms
       </Button>
       {mainComponent}
     </>

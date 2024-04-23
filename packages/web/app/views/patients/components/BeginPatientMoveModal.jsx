@@ -13,7 +13,7 @@ import {
   RadioField,
 } from '../../../components';
 import { ModalActionRow } from '../../../components/ModalActionRow';
-import { useLocalisation } from '../../../contexts/Localisation';
+import { useSettings } from '../../../contexts/Settings';
 
 const patientMoveActionOptions = [
   { label: 'Plan', value: 'plan' },
@@ -36,8 +36,8 @@ const Text = styled(BodyText)`
 export const BeginPatientMoveModal = React.memo(({ onClose, open, encounter }) => {
   const { mutateAsync: submit } = usePatientMove(encounter.id, onClose);
 
-  const { getLocalisation } = useLocalisation();
-  const plannedMoveTimeoutHours = getLocalisation('templates.plannedMoveTimeoutHours');
+  const { getSetting } = useSettings();
+  const plannedMoveTimeoutHours = getSetting('localisation.templates.plannedMoveTimeoutHours');
   const onSubmit = data => {
     if (data.action === 'plan') {
       return submit(data);

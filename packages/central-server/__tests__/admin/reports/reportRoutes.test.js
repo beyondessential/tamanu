@@ -1,5 +1,5 @@
 import { REPORT_DB_SCHEMAS, REPORT_VERSION_EXPORT_FORMATS } from '@tamanu/constants/reports';
-import { createTestContext, withDate } from '../../utilities';
+import { createTestContext, withDateUnsafelyFaked } from '../../utilities';
 import { readJSON, sanitizeFilename, verifyQuery } from '../../../dist/admin/reports/utils';
 import { User } from '@tamanu/shared/models/User';
 import path from 'path';
@@ -78,7 +78,7 @@ describe('reportRoutes', () => {
     it('should return version count and last updated', async () => {
       const { ReportDefinitionVersion } = models;
       await ReportDefinitionVersion.create(getMockReportVersion(1));
-      const latestVersion = await withDate(new Date(Date.now() + 10000), () =>
+      const latestVersion = await withDateUnsafelyFaked(new Date(Date.now() + 10000), () =>
         ReportDefinitionVersion.create(getMockReportVersion(2)),
       );
       const res = await adminApp.get('/v1/admin/reports');
@@ -124,6 +124,7 @@ describe('reportRoutes', () => {
     it('should create a report', async () => {
       const name = 'Test Report 2';
       const { ReportDefinition, ReportDefinitionVersion } = models;
+      // eslint-disable-next-line no-unused-vars
       const { versionNumber, ...definition } = getMockReportVersion(
         1,
         'select * from patients limit 1',
@@ -147,6 +148,7 @@ describe('reportRoutes', () => {
     });
 
     it('should not return unnecessary metadata', async () => {
+      // eslint-disable-next-line no-unused-vars
       const { versionNumber, ...definition } = getMockReportVersion(
         1,
         'select * from patients limit 1',
@@ -193,10 +195,12 @@ describe('reportRoutes', () => {
     });
 
     it('should not return unnecessary metadata', async () => {
-      const { versionNumber, ...newVersion } = getMockReportVersion(
+      const newVersion = getMockReportVersion(
         1,
         'select * from patients limit 1',
       );
+      delete newVersion.versionNumber;
+
       const res = await adminApp
         .post(`/v1/admin/reports/${testReport.id}/versions`)
         .send(newVersion);

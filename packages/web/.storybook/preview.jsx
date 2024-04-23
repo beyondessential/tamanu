@@ -7,8 +7,7 @@ import { CssBaseline } from '@material-ui/core';
 import { MuiThemeProvider, StylesProvider } from '@material-ui/core/styles';
 
 import { theme } from '../app/theme';
-import { LocalisationProvider } from '../app/contexts/Localisation';
-import { history, store } from './__mocks__/store';
+import { store, history } from './__mocks__/store';
 import { MockedApi } from '../stories/utils/mockedApi';
 import { defaultEndpoints } from './__mocks__/defaultEndpoints';
 
@@ -30,11 +29,9 @@ export const decorators = [
             <ThemeProvider theme={theme}>
               <QueryClientProvider client={queryClient}>
                 <CssBaseline />
-                <LocalisationProvider>
-                  <MockedApi endpoints={defaultEndpoints}>
-                    <Story />
-                  </MockedApi>
-                </LocalisationProvider>
+                <MockedApi endpoints={defaultEndpoints}>
+                  <Story />
+                </MockedApi>
               </QueryClientProvider>
             </ThemeProvider>
           </MuiThemeProvider>

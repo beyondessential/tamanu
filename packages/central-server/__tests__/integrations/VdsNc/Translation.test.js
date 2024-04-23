@@ -11,6 +11,7 @@ describe('VDS: Proof of Vaccination', () => {
     ctx = await createTestContext();
     const { ReferenceData, CertifiableVaccine } = ctx.store.models;
 
+    /* eslint-disable require-atomic-updates */
     data.azVaxDrug = await ReferenceData.create({
       ...fake(ReferenceData),
       type: 'vaccine',
@@ -38,6 +39,7 @@ describe('VDS: Proof of Vaccination', () => {
       icd11DiseaseCode: 'RA01.0',
       maximumDosage: 3,
     });
+    /* eslint-enable require-atomic-updates */
   });
 
   afterAll(async () => {

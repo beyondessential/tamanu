@@ -1,27 +1,25 @@
 import { DischargeSummaryPrintout as Component } from '@tamanu/shared/utils/patientCertificates';
-import Logo from '../assets/tamanu-logo.png';
 import { PDFViewer } from '@react-pdf/renderer';
 import React from 'react';
-import Watermark from '../assets/watermark.png';
 
 export default {
   title: 'pdfs/DischargeSummaryPrintout',
   component: Component,
 };
 
-const getLocalisation = key => {
-  const config = {
-    'templates.letterhead.title': 'TAMANU MINISTRY OF HEALTH & MEDICAL SERVICES',
-    'templates.letterhead.subTitle': 'PO Box 12345, Melbourne, Australia',
-    'templates.vaccineCertificate.emailAddress': 'tamanu@health.govt',
-    'templates.vaccineCertificate.contactNumber': '123456',
-    'fields.firstName.longLabel': 'First Name',
-    'fields.lastName.longLabel': 'Last Name',
-    'fields.dateOfBirth.longLabel': 'Date of Birth',
-    'fields.sex.longLabel': 'Sex',
+const getSetting = key => {
+  const settings = {
+    'localisation.templates.letterhead.title': 'TAMANU MINISTRY OF HEALTH & MEDICAL SERVICES',
+    'localisation.templates.letterhead.subTitle': 'PO Box 12345, Melbourne, Australia',
+    'localisation.templates.vaccineCertificate.emailAddress': 'tamanu@health.govt',
+    'localisation.templates.vaccineCertificate.contactNumber': '123456',
+    'localisation.fields.firstName.longLabel': 'First Name',
+    'localisation.fields.lastName.longLabel': 'Last Name',
+    'localisation.fields.dateOfBirth.longLabel': 'Date of Birth',
+    'localisation.fields.sex.longLabel': 'Sex',
     previewUvciFormat: 'tamanu',
   };
-  return config[key];
+  return settings[key];
 };
 
 const patient = {
@@ -472,17 +470,10 @@ const encounter = {
   ],
 };
 
-const certificateData = {
-  title: 'TAMANU MINISTRY OF HEALTH & MEDICAL SERVICES',
-  subTitle: 'PO Box 12345, Melbourne, Australia',
-  logo: Logo,
-  watermark: Watermark,
-};
-
 export const DischargeSummaryPrintout = {
   render: () => (
     <PDFViewer width={800} height={1000} showToolbar={false}>
-      <Component patientData={patient} encounter={encounter} getLocalisation={getLocalisation} />
+      <Component patientData={patient} encounter={encounter} getSetting={getSetting} />
     </PDFViewer>
   ),
 };

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { useLocalisation } from '~/ui/contexts/LocalisationContext';
+import { useSettings } from '~/ui/contexts/SettingContext';
 import { Field, FieldProps } from './FormField';
 
 type LocalisedFieldProps = FieldProps & {
@@ -9,15 +9,15 @@ type LocalisedFieldProps = FieldProps & {
 
 export const LocalisedField = ({
   name,
-  localisationPath = `fields.${name}`,
+  localisationPath = `localisation.fields.${name}`,
   ...props
 }: LocalisedFieldProps): JSX.Element => {
-  const { getString, getBool } = useLocalisation();
+  const { getSetting } = useSettings();
 
-  const isHidden = getBool(`${localisationPath}.hidden`);
+  const isHidden = getSetting<boolean>(`${localisationPath}.hidden`);
   if (isHidden) {
     return null;
   }
-  const label = getString(`${localisationPath}.longLabel`);
+  const label = getSetting<string>(`${localisationPath}.longLabel`);
   return <Field {...props} name={name} label={label} />;
 };

@@ -1,12 +1,13 @@
 import React from 'react';
+import { PDFViewer } from '@react-pdf/renderer';
 
 import { NOTE_TYPES } from '@tamanu/constants/notes';
 import { LAB_REQUEST_STATUSES } from '@tamanu/constants/labs';
 import { IMAGING_REQUEST_STATUS_TYPES } from '@tamanu/constants/statuses';
 import { DIAGNOSIS_CERTAINTIES_TO_HIDE } from '@tamanu/constants/diagnoses';
 import { ForbiddenError, NotFoundError } from '@tamanu/shared/errors';
-
 import { EncounterRecordPrintout } from '@tamanu/shared/utils/patientCertificates/EncounterRecordPrintout';
+
 import { Modal } from '../../Modal';
 import { useCertificate } from '../../../utils/useCertificate';
 import { usePatientData } from '../../../api/queries/usePatientData';
@@ -17,12 +18,11 @@ import { useEncounterNotes } from '../../../api/queries/useEncounterNotes';
 import { useEncounterDischarge } from '../../../api/queries/useEncounterDischarge';
 import { useReferenceData } from '../../../api/queries/useReferenceData';
 import { usePatientAdditionalDataQuery } from '../../../api/queries/usePatientAdditionalDataQuery';
-import { useLocalisation } from '../../../contexts/Localisation';
+import { useSettings } from '../../../contexts/Settings';
 import { LoadingIndicator } from '../../LoadingIndicator';
 import { Colors } from '../../../constants';
 import { ForbiddenErrorModalContents } from '../../ForbiddenErrorModal';
 import { ModalActionRow } from '../../ModalActionRow';
-import { PDFViewer } from '@react-pdf/renderer';
 import { printPDF } from '../PDFViewer.jsx';
 import { useLocalisedText } from '../../LocalisedText.jsx';
 
@@ -99,16 +99,17 @@ const extractLocationHistory = (notes, encounterData) => {
 };
 
 export const EncounterRecordModal = ({ encounter, open, onClose }) => {
+  const { getSetting } = useSettings();
+  
   const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
 
-  const { getLocalisation } = useLocalisation();
   const certificateData = useCertificate();
 
   const patientQuery = usePatientData(encounter.patientId);
   const patient = patientQuery.data;
 
   const padDataQuery = usePatientAdditionalDataQuery(patient?.id);
-  const padData = padDataQuery.data;
+  const { data: additionalData } = padDataQuery;
 
   const labRequestsQuery = useLabRequests(encounter.id, {
     order: 'asc',
@@ -233,7 +234,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
     IMAGING_REQUEST_STATUS_TYPES.DELETED,
   ];
 
-  const imagingTypeNames = getLocalisation('imagingTypes') || {};
+  const imagingTypeNames = getSetting('imagingTypes') || {};
 
   const imagingRequests = imagingRequestsData
     .filter(({ status }) => !imagingStatusesToExclude.includes(status))
@@ -277,7 +278,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
         showToolbar={false}
       >
         <EncounterRecordPrintout
-          patientData={{ ...patient, padData, village }}
+          patientData={{ ...patient, additionalData, village }}
           encounter={encounter}
           certificateData={certificateData}
           encounterTypeHistory={encounterTypeHistory}
@@ -290,7 +291,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
           discharge={discharge}
           village={village}
           medications={medications}
-          getLocalisation={getLocalisation}
+          getSetting={getSetting}
           clinicianText={clinicianText}
         />
       </PDFViewer>

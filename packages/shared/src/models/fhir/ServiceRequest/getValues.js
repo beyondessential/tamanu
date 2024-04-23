@@ -1,5 +1,3 @@
-import config from 'config';
-
 import {
   FHIR_REQUEST_INTENT,
   FHIR_REQUEST_PRIORITY,
@@ -32,6 +30,7 @@ async function getValuesFromImagingRequest(upstream, models, settings) {
   const { ImagingAreaExternalCode } = models;
 
   const dataDictionaries = await settings.get('hl7.dataDictionaries');
+  const imagingTypes = await settings.get('imagingTypes');
 
   const areaExtCodes = new Map(
     (
@@ -71,7 +70,7 @@ async function getValuesFromImagingRequest(upstream, models, settings) {
       }),
     ],
     priority: validatePriority(upstream.priority),
-    code: imagingCode(upstream),
+    code: imagingCode(upstream, imagingTypes),
     orderDetail: upstream.areas.flatMap(({ id }) =>
       areaExtCodes.has(id)
         ? [
@@ -154,8 +153,7 @@ async function getValuesFromLabRequest(upstream, settings) {
   };
 }
 
-function imagingCode(upstream) {
-  const { imagingTypes } = config.localisation.data;
+function imagingCode(upstream, imagingTypes) {
   if (!imagingTypes) throw new Exception('No imaging types specified in localisation.');
 
   const { imagingType } = upstream;

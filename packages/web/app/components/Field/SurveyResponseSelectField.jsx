@@ -11,7 +11,9 @@ const getDataLabel = (endTime, surveyName) => {
   return `${shortDate} ${time} ${surveyName}`;
 };
 
-export const SurveyResponseSelectField = ({ field, patient, options: _, config, ...props }) => {
+export const SurveyResponseSelectField = ({ field, patient, config, ...props }) => {
+  delete props.options;
+
   const api = useApi();
   const [options, setOptions] = useState([]);
   const { source } = config;

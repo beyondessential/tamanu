@@ -45,13 +45,10 @@ const getDbReports = async (ability, models) => {
   });
 };
 
-const getDisabledReportIds = async (models, userId) => {
-  const { UserLocalisationCache } = models;
-  const localisation = await UserLocalisationCache.getLocalisation({
-    where: { userId },
-    order: [['createdAt', 'DESC']],
-  });
-  return localisation?.disabledReports || [];
+const getDisabledReportIds = async models => {
+  const { Setting } = models;
+  const disabledReports = await Setting.get('disabledReports');
+  return disabledReports || [];
 };
 
 export const getAvailableReports = async (ability, models, userId) => {

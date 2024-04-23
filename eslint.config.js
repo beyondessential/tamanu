@@ -51,27 +51,37 @@ export default [
       'sort-imports': 'off',
 
       // static analysis rules
+      'no-constructor-return': 'error',
       'no-new-native-nonconstructor': 'error',
+      'no-promise-executor-return': 'error',
       'no-self-compare': 'error',
       'no-template-curly-in-string': 'error',
       'no-unmodified-loop-condition': 'error',
       'no-unreachable-loop': 'error',
       'no-unused-private-class-members': 'error',
+      'no-unused-vars': 'error',
+      'react-hooks/rules-of-hooks': 'error',
+      'react/jsx-key': 'error',
+      'require-atomic-updates': 'error',
 
       // https://eslint.org/blog/2022/07/interesting-bugs-caught-by-no-constant-binary-expression/
       'no-constant-binary-expression': 'error',
 
-      // rules we should enforce but have too many of right now
+      // overrides for react
+      'react/prop-types': 'off',
+      'react/display-name': 'off',
+    },
+  },
+  {
+    // mobile rule exclusions (as warnings, until we fix them)
+    files: [`packages/mobile/**/*.${TS_EXTS}`],
+    rules: {
       'no-unused-vars': 'warn',
       'no-constructor-return': 'warn',
       'no-promise-executor-return': 'warn',
       'require-atomic-updates': 'warn',
       'react-hooks/rules-of-hooks': 'warn',
       'react/jsx-key': 'warn',
-
-      // overrides for react
-      'react/prop-types': 'off',
-      'react/display-name': 'off',
     },
   },
   {
@@ -178,6 +188,7 @@ export default [
 
       // generated files
       '**/dist/**/*',
+      '**/__disttests__/**/*',
       '**/build/**/*',
       '**/vendor/**/*',
       '**/*.d.ts',

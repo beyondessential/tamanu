@@ -180,9 +180,11 @@ export default class Certificate {
     return new Certificate(crt);
   }
 
+  /* eslint-disable no-unused-vars */
   public async check(ca: CA): Promise<void>;
   public async check(key: CryptoKey): Promise<void>;
   public async check(arg: CryptoKey | CA): Promise<void> {
+  /* eslint-enable no-unused-vars */
     let key: CryptoKey;
     if (arg instanceof CA) {
       key = await arg.publicKey();

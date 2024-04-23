@@ -12,7 +12,7 @@ import {
   SelectField,
 } from '../Field';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
-import { useLocalisation } from '../../contexts/Localisation';
+import { useSettings } from '../../contexts/Settings';
 import { useSuggester } from '../../api';
 import { useImagingRequests } from '../../contexts/ImagingRequests';
 import { useAdvancedFields } from './useAdvancedFields';
@@ -28,9 +28,9 @@ const Spacer = styled.div`
 `;
 
 export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFields }) => {
-  const { getLocalisation } = useLocalisation();
-  const imagingTypes = getLocalisation('imagingTypes') || {};
-  const imagingPriorities = getLocalisation('imagingPriorities') || [];
+  const { getSetting } = useSettings();
+  const imagingTypes = getSetting('imagingTypes') || {};
+  const imagingPriorities = getSetting('localisation.imagingPriorities') || [];
   const areaSuggester = useSuggester('locationGroup');
   const departmentSuggester = useSuggester('department');
   const requesterSuggester = useSuggester('practitioner');

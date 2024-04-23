@@ -1,4 +1,4 @@
-import { Document, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
+import { Document, Page, StyleSheet, View } from '@react-pdf/renderer';
 import React from 'react';
 
 import { DRUG_ROUTE_VALUE_TO_LABEL } from '@tamanu/constants';
@@ -11,9 +11,6 @@ import { DataItem } from './printComponents/DataItem';
 import { getDisplayDate } from './getDisplayDate';
 import { getCurrentDateString } from '../dateTime';
 import { LetterheadSection } from './LetterheadSection';
-import { Footer } from './printComponents/Footer';
-import { MultiPageHeader } from './printComponents/MultiPageHeader';
-import { getName } from '../patientAccessors';
 import { P } from './Typography';
 
 const columns = [
@@ -70,7 +67,7 @@ const generalStyles = StyleSheet.create({
 
 const SectionContainer = props => <View style={generalStyles.container} {...props} />;
 
-const PrescriptionsSection = ({ prescriptions, prescriber, facility, getLocalisation }) => {
+const PrescriptionsSection = ({ prescriptions, prescriber, facility, getSetting }) => {
   return (
     <View>
       <DataSection hideBottomRule title="Prescription details">
@@ -84,7 +81,7 @@ const PrescriptionsSection = ({ prescriptions, prescriber, facility, getLocalisa
         </Col>
       </DataSection>
       <View style={prescriptonSectionStyles.tableContainer}>
-        <Table columns={columns} data={prescriptions} getLocalisation={getLocalisation} />
+        <Table columns={columns} data={prescriptions} getSetting={getSetting} />
       </View>
     </View>
   );
@@ -112,24 +109,20 @@ export const PrescriptionPrintout = ({
   prescriber,
   certificateData,
   facility,
-  getLocalisation,
+  getSetting,
 }) => {
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        <MultiPageHeader
-          documentName="Prescription"
-          patientName={getName(patientData)}
-          patiendId={patientData?.displayId}
-        />
         <CertificateHeader>
           <LetterheadSection
-            getLocalisation={getLocalisation}
+            letterheadConfig={certificateData}
+            getSetting={getSetting}
             logoSrc={certificateData.logo}
             certificateTitle="Prescription"
           />
           <SectionContainer>
-            <PatientDetailsWithBarcode patient={patientData} getLocalisation={getLocalisation} />
+            <PatientDetailsWithBarcode patient={patientData} getSetting={getSetting} />
           </SectionContainer>
         </CertificateHeader>
         <CertificateContent>
@@ -138,7 +131,7 @@ export const PrescriptionPrintout = ({
               prescriptions={prescriptions}
               prescriber={prescriber}
               facility={facility}
-              getLocalisation={getLocalisation}
+              getSetting={getSetting}
             />
           </SectionContainer>
           <SectionContainer>
@@ -148,7 +141,6 @@ export const PrescriptionPrintout = ({
             <PrescriptionSigningSection />
           </SectionContainer>
         </CertificateContent>
-        <Footer />
       </Page>
     </Document>
   );

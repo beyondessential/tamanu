@@ -18,7 +18,7 @@ async function createDummyDataElement(models, survey, { config, ...dataElementOv
     ...dataElementOverrides,
   });
 
-  const question = await models.SurveyScreenComponent.create({
+  await models.SurveyScreenComponent.create({
     ...fake(models.SurveyScreenComponent),
     dataElementId: dataElement.id,
     surveyId: survey.id,

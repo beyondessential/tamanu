@@ -25,11 +25,7 @@ describe('New Zealand ethnicity extension', () => {
   });
 
   it('returns a fhir extension when feature flag is on', async () => {
-    await ctx.store.models.Setting.create({
-      scope: SETTINGS_SCOPES.Central,
-      key: 'features.fhirNewZealandEthnicity',
-      value: true,
-    });
+    await ctx.store.models.Setting.set('features.fhirNewZealandEthnicity', true, SETTINGS_SCOPES.GLOBAL);
 
     const extension = await nzEthnicity(patient, settings);
     expect(extension).toMatchObject([

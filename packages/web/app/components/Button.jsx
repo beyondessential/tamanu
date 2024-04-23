@@ -23,12 +23,16 @@ import { withPermissionCheck } from './withPermissionCheck';
 import { withPermissionTooltip } from './withPermissionTooltip';
 import { useFormButtonSubmitting } from '../hooks/useFormButtonSubmitting';
 
-export const ButtonBase = ({ functionallyDisabled, ...props }) => {
+export const ButtonBase = props => {
+  delete props.functionallyDisabled;
   const locationsProps = getLocationProps(props);
   return <MuiButtonBase {...props} {...locationsProps} />;
 };
 
-const StyledButton = styled(({ functionallyDisabled, ...props }) => <MuiButton {...props} />)`
+const StyledButton = styled(({ ...props }) => {
+  delete props.functionallyDisabled;
+  return <MuiButton {...props} />;
+})`
   font-weight: 500;
   font-size: 14px;
   line-height: 16px;

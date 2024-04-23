@@ -18,12 +18,12 @@ const PATIENT_FIELDS = {
   rightCol: [{ key: 'displayId', label: 'Patient ID' }],
 };
 
-export const PatientDetailsWithBarcode = ({ patient, getLocalisation }) => {
+export const PatientDetailsWithBarcode = ({ patient, getSetting }) => {
   return (
     <DataSection title="Patient details">
-      <Col>{renderDataItems(PATIENT_FIELDS.leftCol, patient, getLocalisation)}</Col>
+      <Col>{renderDataItems(PATIENT_FIELDS.leftCol, patient, getSetting)}</Col>
       <Col>
-        {renderDataItems(PATIENT_FIELDS.rightCol, patient, getLocalisation)}
+        {renderDataItems(PATIENT_FIELDS.rightCol, patient, getSetting)}
         <View style={{ flexDirection: 'row' }}>
           <P style={{ marginTop: 9 }} fontSize={9} bold>
             Patient ID barcode:

@@ -19,10 +19,8 @@ import { ModalInfo } from '/components/ModalInfo';
 import { authSelector } from '/helpers/selectors';
 import { OutdatedVersionError } from '~/services/error';
 import { useFacility } from '~/ui/contexts/FacilityContext';
-import { useLocalisation } from '~/ui/contexts/LocalisationContext';
-import { marginTop } from 'styled-system';
+import { useSettings } from '~/ui/contexts/SettingContext';
 import { SupportCentreButton } from './SupportCentreButton';
-import { Orient } from 'react-native-svg';
 
 interface ModalContent {
   message: string;
@@ -55,9 +53,9 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
   }, [modalContent.buttonUrl]);
 
   const { facilityId } = useFacility();
-  const { getLocalisation } = useLocalisation();
+  const { getSetting } = useSettings();
 
-  const supportCentreUrl = getLocalisation('supportDeskUrl');
+  const supportCentreUrl = getSetting<string>('supportDeskUrl');
   const isSupportUrlLoaded = !!supportCentreUrl;
 
   return (
@@ -150,16 +148,16 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
         </KeyboardAvoidingView>
       </StyledSafeAreaView>
       <StyledView
-          flexDirection="row"
-          justifyContent="flex-end"
-          position='absolute'
-          bottom={screenPercentageToDP(2.43, Orientation.Height)}
-          right={screenPercentageToDP(2.43, Orientation.Width)}
-          paddingLeft={screenPercentageToDP(2.43, Orientation.Width)}
-          paddingRight={screenPercentageToDP(2.43, Orientation.Width)}
-        >
-          {isSupportUrlLoaded && <SupportCentreButton supportCentreUrl={supportCentreUrl} />}
-        </StyledView>
+        flexDirection="row"
+        justifyContent="flex-end"
+        position="absolute"
+        bottom={screenPercentageToDP(2.43, Orientation.Height)}
+        right={screenPercentageToDP(2.43, Orientation.Width)}
+        paddingLeft={screenPercentageToDP(2.43, Orientation.Width)}
+        paddingRight={screenPercentageToDP(2.43, Orientation.Width)}
+      >
+        {isSupportUrlLoaded && <SupportCentreButton supportCentreUrl={supportCentreUrl} />}
+      </StyledView>
     </FullView>
   );
 };

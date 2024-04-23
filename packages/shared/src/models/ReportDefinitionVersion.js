@@ -146,13 +146,10 @@ export class ReportDefinitionVersion extends Model {
   }
 
   forResponse(includeRelationIds = false) {
-    const {
-      updatedAtSyncTick,
-      reportDefinitionId,
-      ReportDefinitionId,
-      userId,
-      ...rest
-    } = this.get();
+    const { reportDefinitionId, userId, ...rest } = this.get();
+    delete rest.updatedAtSyncTick;
+    delete rest.ReportDefinitionId;
+
     return {
       ...rest,
       ...(includeRelationIds && {

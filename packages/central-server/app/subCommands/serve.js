@@ -31,7 +31,7 @@ export const serve = async ({ skipMigrationCheck, provisioning }) => {
 
   const app = createApp(context);
 
-  const countryTimeZone = await settings.get('countryTimeZone');
+  const countryTimeZone = config.countryTimeZone;
   const numberConcurrentPullSnapshots = await settings.get('sync.numberConcurrentPullSnapshots');
 
   await performTimeZoneChecks({

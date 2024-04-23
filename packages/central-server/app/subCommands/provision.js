@@ -76,7 +76,12 @@ export async function provision({ file: provisioningFile, skipIfNotNeeded }) {
   /// //////////
   /// FACILITIES
 
-  for (const [id, { user, password, settings, ...fields }] of Object.entries(facilities)) {
+  for (const [id, value] of Object.entries(facilities)) {
+    const fields = { ...value };
+    delete fields.user;
+    delete fields.password;
+    delete fields.settings;
+
     const facility = await store.models.Facility.findByPk(id);
     if (facility) {
       log.info('Updating facility', { id });

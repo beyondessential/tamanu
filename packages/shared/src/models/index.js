@@ -78,7 +78,6 @@ export * from './Location';
 export * from './LocationGroup';
 export * from './UserFacility';
 export * from './Attachment';
-export * from './UserLocalisationCache';
 export * from './Asset';
 export * from './Appointment';
 export * from './DocumentMetadata';
@@ -107,3 +106,4 @@ export * from './SyncSession';
 export * from './SyncQueuedDevice';
 
 export * from './fhir';
+export * from './IPSRequest';

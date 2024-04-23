@@ -155,7 +155,7 @@ describe('Patients import', () => {
   });
 
   it('should throw an error when an undefined custom field is specified in the columns (column name does not correspond to a valid PatientFieldDefinition)', async () => {
-    const { didntSendReason, errors, stats } = await doImport({
+    const { didntSendReason, errors } = await doImport({
       file: 'invalid-custom-field',
       dryRun: true,
     });

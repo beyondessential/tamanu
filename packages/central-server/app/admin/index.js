@@ -7,6 +7,7 @@ import { createDataImporterEndpoint } from './importerEndpoint';
 
 import { programImporter } from './programImporter';
 import { referenceDataImporter } from './referenceDataImporter';
+import { surveyResponsesImporter } from './surveyResponsesImporter';
 import { exporter } from './exporter';
 
 import { mergePatientHandler } from './patientMerge';
@@ -65,6 +66,8 @@ adminRoutes.get(
 adminRoutes.post('/import/referenceData', createDataImporterEndpoint(referenceDataImporter));
 
 adminRoutes.post('/import/program', createDataImporterEndpoint(programImporter));
+
+adminRoutes.post('/import/surveyResponses', createDataImporterEndpoint(surveyResponsesImporter));
 
 adminRoutes.get(
   '/export/referenceData',

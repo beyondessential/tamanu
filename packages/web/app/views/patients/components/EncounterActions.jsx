@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
-import { useLocalisation } from '../../../contexts/Localisation';
+import { useSettings } from '../../../contexts/Settings';
 import { DischargeModal } from '../../../components/DischargeModal';
 import { ChangeEncounterTypeModal } from '../../../components/ChangeEncounterTypeModal';
 import { ChangeDepartmentModal } from '../../../components/ChangeDepartmentModal';
@@ -52,7 +52,7 @@ const ENCOUNTER_MODALS = {
 
 const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType }) => {
   const { navigateToSummary } = usePatientNavigation();
-  const { getLocalisation } = useLocalisation();
+  const { getSetting } = useSettings();
   const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
 
   const onChangeEncounterType = type => {
@@ -90,7 +90,7 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
   const isProgressionForward = (currentState, nextState) =>
     progression[nextState] > progression[currentState];
 
-  const enablePatientMoveActions = getLocalisation('features.patientPlannedMove');
+  const enablePatientMoveActions = getSetting('features.patientPlannedMove');
 
   const actions = [
     {

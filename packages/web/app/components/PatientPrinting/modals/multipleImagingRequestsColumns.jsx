@@ -4,7 +4,7 @@ import { startCase } from 'lodash';
 import { MultilineDatetimeDisplay } from '../../DateDisplay';
 import { getImagingRequestType } from '../../../utils/getImagingRequestType';
 import { getAreaNote } from '../../../utils/areaNote';
-import { useLocalisation } from '../../../contexts/Localisation';
+import { useSettings } from '../../../contexts/Settings';
 
 export const COLUMN_KEYS = {
   ID: 'displayId',
@@ -17,8 +17,8 @@ export const COLUMN_KEYS = {
 };
 
 const ImagingType = ({ imagingType }) => {
-  const { getLocalisation } = useLocalisation();
-  const imagingTypes = getLocalisation('imagingTypes') || {};
+  const { getSetting } = useSettings();
+  const imagingTypes = getSetting('imagingTypes') || {};
   return getImagingRequestType(imagingTypes)({ imagingType });
 };
 
@@ -77,6 +77,8 @@ const COMMON_COLUMNS = [
 ];
 
 export const FORM_COLUMNS = COMMON_COLUMNS.filter(c => !c.form?.hidden).map(
+  // printout is taken out of ...column
+  // eslint-disable-next-line no-unused-vars
   ({ printout, form, ...column }) => ({
     ...column,
     ...form,
@@ -84,6 +86,8 @@ export const FORM_COLUMNS = COMMON_COLUMNS.filter(c => !c.form?.hidden).map(
 );
 
 export const PRINTOUT_COLUMNS = COMMON_COLUMNS.filter(c => !c.printout?.hidden).map(
+  // form is taken out of ...column
+  // eslint-disable-next-line no-unused-vars
   ({ printout, form, ...column }) => ({
     ...column,
     ...printout,

@@ -5,10 +5,10 @@ import { IMAGING_REQUEST_STATUS_TYPES } from '@tamanu/constants';
 import { CancelModal } from '../../../components/CancelModal';
 import { Button } from '../../../components/Button';
 import { useApi } from '../../../api';
-import { useLocalisation } from '../../../contexts/Localisation';
+import { useSettings } from '../../../contexts/Settings';
 
 function getReasonForCancellationStatus(reasonForCancellation) {
-  // these values are set in localisation
+  // these values are set in settings
   switch (reasonForCancellation) {
     case 'duplicate':
       return IMAGING_REQUEST_STATUS_TYPES.DELETED;
@@ -23,8 +23,8 @@ export const CancelModalButton = ({ imagingRequest, onCancel }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const api = useApi();
-  const { getLocalisation } = useLocalisation();
-  const cancellationReasonOptions = getLocalisation('imagingCancellationReasons') || [];
+  const { getSetting } = useSettings();
+  const cancellationReasonOptions = getSetting('localisation.imagingCancellationReasons') || [];
 
   const onConfirmCancel = async ({ reasonForCancellation }) => {
     const reasonText = cancellationReasonOptions.find(x => x.value === reasonForCancellation).label;

@@ -13,7 +13,7 @@ import {
 
 import { useSexValues } from '../hooks';
 import { Colors } from '../constants';
-import { useLocalisation } from '../contexts/Localisation';
+import { useSettings } from '../contexts/Settings';
 import { useApi, useSuggester } from '../api';
 import { getPatientDetailsValidation } from '../validations';
 import {
@@ -60,14 +60,15 @@ const StyledPatientDetailSecondaryDetailsGroupWrapper = styled.div`
 
 export const PrimaryDetailsGroup = ({ values = {}, patientRegistryType }) => {
   const villageSuggester = useSuggester('village');
-  const { getLocalisation } = useLocalisation();
+  const { getSetting } = useSettings();
   let filteredSexOptions = SEX_OPTIONS;
-  if (getLocalisation('features.hideOtherSex') === true) {
+  const hideOtherSex = getSetting('features.hideOtherSex');
+  if (hideOtherSex) {
     filteredSexOptions = filteredSexOptions.filter(s => s.value !== 'other');
   }
 
   const isRequiredPatientData = fieldName =>
-    getLocalisation(`fields.${fieldName}.requiredPatientData`);
+    getSetting(`localisation.fields.${fieldName}.requiredPatientData`);
 
   return (
     <>
@@ -203,25 +204,23 @@ export const PatientFieldsGroup = ({ fieldDefinitions, fieldValues }) => {
 };
 
 function sanitiseRecordForValues(data) {
-  const {
-    // unwanted ids
-    id,
-    patientId,
+  const values = { ...data };
 
-    // backend fields
-    markedForSync,
-    createdAt,
-    updatedAt,
-    updatedAtSyncTick,
+  // unwanted ids
+  delete values.id;
+  delete values.patientId;
 
-    // state fields
-    loading,
-    error,
+  // backend fields
+  delete values.markedForSync;
+  delete values.createdAt;
+  delete values.updatedAt;
+  delete values.updatedAtSyncTick;
 
-    ...remaining
-  } = data;
+  // state fields
+  delete values.loading;
+  delete values.error;
 
-  return Object.entries(remaining)
+  return Object.entries(values)
     .filter(([, v]) => {
       if (Array.isArray(v)) return false;
       if (typeof v === 'object') return false;
@@ -269,7 +268,7 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
 
   const sexValues = useSexValues();
 
-  const { getLocalisation } = useLocalisation();
+  const { getSetting } = useSettings();
 
   const api = useApi();
   const {
@@ -322,11 +321,7 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
         ),
       }}
       onSubmit={handleSubmit}
-      validationSchema={getPatientDetailsValidation(
-        patientRegistryType,
-        sexValues,
-        getLocalisation,
-      )}
+      validationSchema={getPatientDetailsValidation(patientRegistryType, sexValues, getSetting)}
     />
   );
 };
