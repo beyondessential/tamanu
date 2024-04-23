@@ -22,7 +22,7 @@ user.get(
   '/me',
   asyncHandler(async (req, res) => {
     if (!req.user) {
-      throw new BadAuthenticationError('Invalid token');
+      throw new BadAuthenticationError('Invalid token (LLh7)');
     }
     req.checkPermission('read', req.user);
     res.send(req.user);

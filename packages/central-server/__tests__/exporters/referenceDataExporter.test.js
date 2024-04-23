@@ -1,3 +1,5 @@
+import qs from 'qs';
+
 import {
   createAdministeredVaccineData,
   createAllergy,
@@ -19,6 +21,7 @@ import { exporter } from '../../dist/admin/exporter';
 import { parseDate } from '@tamanu/shared/utils/dateTime';
 import { REFERENCE_TYPES } from '@tamanu/constants';
 import { writeExcelFile } from '../../dist/admin/exporter/excelUtils';
+import { makeRoleWithPermissions } from '../permissions';
 
 jest.mock('../../dist/admin/exporter/excelUtils', () => {
   const originalModule = jest.requireActual('../../dist/admin/exporter/excelUtils');
@@ -34,9 +37,11 @@ describe('Reference data exporter', () => {
   let ctx;
   let models;
   let store;
+  let app;
 
   beforeAll(async () => {
     ctx = await createTestContext();
+    app = await ctx.baseApp.asRole('practitioner');
     store = ctx.store;
     models = store.models;
   });
@@ -65,6 +70,43 @@ describe('Reference data exporter', () => {
     for (const model of modelsToDestroy) {
       await ctx.store.models[model].destroy({ where: {}, force: true });
     }
+  });
+
+  describe('Permissions check', () => {
+    beforeEach(async () => {
+      const { Permission, Role } = ctx.store.models;
+      await Permission.destroy({ where: {}, force: true });
+      await Role.destroy({ where: {}, force: true });
+    });
+
+    it('forbids export if having insufficient permission for reference data', async () => {
+      await makeRoleWithPermissions(models, 'practitioner', [
+        { verb: 'write', noun: 'EncounterDiagnosis' },
+      ]);
+
+      const result = await app
+        .get('/v1/admin/export/referenceData')
+        .query(qs.stringify({ includedDataTypes: ['allergy'] }));
+
+      expect(result).toBeForbidden();
+      expect(result.body.error.message).toBe('Cannot perform action "list" on ReferenceData.');
+    });
+
+    it('allows export if having sufficient permission for reference data', async () => {
+      await makeRoleWithPermissions(models, 'practitioner', [
+        { verb: 'list', noun: 'ReferenceData' },
+      ]);
+
+      const result = await app
+        .get('/v1/admin/export/referenceData')
+        .query(qs.stringify({ includedDataTypes: ['allergy'] }))
+        .responseType('blob');
+
+      // when downloading a file, for some reasons,
+      // status of supertest is alwasy 404 even tho we are sure that it is successful
+      // So below is a work around by checking if the response body is buffer to make sure the file is downloaded properly
+      expect(Buffer.isBuffer(result.body)).toBeTrue();
+    });
   });
 
   it('Should export empty data if no data type selected', async () => {

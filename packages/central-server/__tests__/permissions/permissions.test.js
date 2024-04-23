@@ -7,6 +7,7 @@ import {
 import { permissionCache } from '@tamanu/shared/permissions/cache';
 import { fake } from '@tamanu/shared/test-helpers/fake';
 import { createTestContext } from '../utilities';
+import { makeRoleWithPermissions } from '../permissions';
 
 async function getAbilityForRoles(models, roleString) {
   const perms = await queryPermissionsForRoles(models, roleString);
@@ -16,23 +17,11 @@ async function getAbilityForRoles(models, roleString) {
 describe('Permissions', () => {
   let ctx;
 
-  const makeRoleWithPermissions = async (roleName, perms) => {
-    const role = await ctx.store.models.Role.create({ id: roleName, name: roleName });
-    await Promise.all(
-      perms.map(p =>
-        ctx.store.models.Permission.create({
-          roleId: role.id,
-          ...p,
-        }),
-      ),
-    );
-  };
-
   beforeAll(async () => {
     ctx = await createTestContext();
 
     await Promise.all([
-      makeRoleWithPermissions('reader', [
+      makeRoleWithPermissions(ctx.store.models, 'reader', [
         { verb: 'read', noun: 'Patient' },
         { verb: 'run', noun: 'Report', objectId: 'report-allowed' },
         {
@@ -42,7 +31,7 @@ describe('Permissions', () => {
           deletedAt: new Date(),
         },
       ]),
-      makeRoleWithPermissions('writer', [{ verb: 'write', noun: 'Patient' }]),
+      makeRoleWithPermissions(ctx.store.models, 'writer', [{ verb: 'write', noun: 'Patient' }]),
     ]);
   });
 
@@ -105,7 +94,7 @@ describe('Permissions', () => {
       // roughly indicative here. We just want to be sure that the endpoint exists
       // and is sending data in the expected format.
 
-      await makeRoleWithPermissions('practitioner', [
+      await makeRoleWithPermissions(ctx.store.models, 'practitioner', [
         { verb: 'write', noun: 'EncounterDiagnosis' },
       ]);
     });

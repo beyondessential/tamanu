@@ -12,7 +12,7 @@ import { isErrorUnknownAllow404s, useApi } from '../api';
 import { SurveyResponseDetailsModal } from './SurveyResponseDetailsModal';
 import { DeleteButton } from './Button';
 import { ConfirmModal } from './ConfirmModal';
-import { TranslatedText } from './Translation/TranslatedText';
+import { TranslatedText, TranslatedEnum } from './Translation';
 
 import { useAuth } from '../contexts/Auth';
 import { MenuButton } from './MenuButton';
@@ -66,7 +66,13 @@ const getDate = ({ surveyResponse: { submissionDate } }) => {
 };
 const getReferralType = ({ surveyResponse: { survey } }) => survey.name;
 const getReferralBy = ({ surveyResponse }) => <ReferralBy surveyResponse={surveyResponse} />;
-const getStatus = ({ status }) => REFERRAL_STATUS_LABELS[status] || 'Unknown';
+const getStatus = ({ status }) => (
+  <TranslatedEnum
+    prefix="referral.property.status"
+    value={status}
+    enumValues={REFERRAL_STATUS_LABELS}
+  />
+);
 
 const MODAL_IDS = {
   ADMIT: 'admit',

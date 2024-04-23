@@ -75,12 +75,11 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
           base64: true,
         });
 
-        const fileExtension = extension(document.type);
-
         await saveFile({
           defaultFileName: document.name,
           data: base64ToUint8Array(data),
-          extensions: [fileExtension],
+          extension: extension(document.type),
+          mimetype: document.type,
         });
 
         notifySuccess('Successfully downloaded file');

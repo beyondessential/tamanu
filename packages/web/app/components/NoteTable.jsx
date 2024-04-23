@@ -10,7 +10,7 @@ import { Colors, NOTE_FORM_MODES } from '../constants';
 import { useAuth } from '../contexts/Auth';
 import { NoteModal } from './NoteModal';
 import { withPermissionCheck } from './withPermissionCheck';
-import { TranslatedText } from './Translation/TranslatedText';
+import { TranslatedEnum, TranslatedText } from './Translation';
 
 const StyledEditIcon = styled(EditIcon)`
   cursor: pointer;
@@ -172,7 +172,13 @@ const NoteContent = ({
     <NoteRowContainer>
       {isNotFilteredByNoteType && (
         <NoteHeaderContainer>
-          <NoteHeaderText>{NOTE_TYPE_LABELS[note.noteType]}</NoteHeaderText>
+          <NoteHeaderText>
+            <TranslatedEnum
+              prefix="note.property.type"
+              value={note.noteType}
+              enumValues={NOTE_TYPE_LABELS}
+            />
+          </NoteHeaderText>
         </NoteHeaderContainer>
       )}
       <NoteBodyContainer>
