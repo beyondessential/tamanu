@@ -84,13 +84,13 @@ export const ParameterItem = props => {
         <Field
           name={`${baseName}.parameterField`}
           component={SelectField}
-          onChange={value => {
-            if (!FIELD_TYPES_WITH_SUGGESTERS.includes(value)) {
-              setFieldValue(`${baseName}.suggesterEndpoint}`);
-            }
-            if (!FIELD_TYPES_WITH_PREDEFINED_OPTIONS.includes(value)) {
-              setFieldValue(`${baseName}.options`, []);
-            }
+          onChange={event => {
+            const { value } = event.target;
+            setFieldValue(`${baseName}.suggesterEndpoint`, undefined);
+            setFieldValue(
+              `${baseName}.options`,
+              FIELD_TYPES_WITH_PREDEFINED_OPTIONS.includes(value) ? [] : undefined,
+            );
           }}
           placeholder={getTranslation('general.placeholder.text', 'Text')}
           label={<TranslatedText stringId="report.editor.fieldType.label" fallback="Field type" />}
