@@ -62,11 +62,6 @@ export default async ({ mode }) => {
           changeOrigin: true,
         },
       },
-      // Proxying websockets or socket.io
-      '/socket.io': {
-        target: 'ws://localhost:4000',
-        ws: true,
-      },
     },
   });
 };

@@ -1,15 +1,38 @@
-import { useEffect } from 'react';
 import io from 'socket.io-client';
+import { useEffect, useState } from 'react';
 
-const socket = io({
-  autoConnect: false
-});
+const cachedWebSocketInstances = {};
 
-export const useSocket = () => {
+export const useSocket = (props = {}) => {
+  const { uri } = props;
+  const connectionUrl = uri || import.meta.env.VITE_WSTARGET;
+
+  const initializeSocketInstance = () => {
+    const cached = cachedWebSocketInstances[connectionUrl];
+    if (cached) {
+      cachedWebSocketInstances[connectionUrl].count += 1;
+      return cached.instance;
+    }
+
+    const newSocket = io(connectionUrl, { transports: ['websocket'] });
+    cachedWebSocketInstances[connectionUrl] = {
+      instance: newSocket,
+      count: 1,
+    };
+    return newSocket;
+  };
+
+  const [socket] = useState(initializeSocketInstance);
+
   useEffect(() => {
-    socket.connect();
     return () => {
-      socket.disconnect();
+      if (cachedWebSocketInstances[connectionUrl]?.count > 1) {
+        cachedWebSocketInstances[connectionUrl].count -= 1;
+        return;
+      }
+
+      delete cachedWebSocketInstances[connectionUrl];
+      socket?.disconnect();
     };
   }, []);
 
