@@ -5,13 +5,13 @@ import * as yup from 'yup';
 
 import { Box, Divider, Typography } from '@material-ui/core';
 
-import { Colors } from '../constants';
-import { FormConfirmCancelBackRow } from './ButtonRow';
-import { Form, LocalisedField, SuggesterSelectField, TextField } from './Field';
-import { TranslatedText } from './Translation/TranslatedText';
-import { joinNames } from '../utils/user';
-import { useTranslation } from '../contexts/Translation';
-import { useApi } from '../api';
+import { Colors } from '../../constants';
+import { FormConfirmCancelBackRow } from '../ButtonRow';
+import { Form, LocalisedField, SuggesterSelectField, TextField } from '../Field';
+import { TranslatedText } from '../Translation/TranslatedText';
+import { joinNames } from '../../utils/user';
+import { useTranslation } from '../../contexts/Translation';
+import { useApi } from '../../api';
 import { PATIENT_COMMUNICATION_CHANNELS } from '@tamanu/constants';
 
 const FormHeading = styled(Typography)`
