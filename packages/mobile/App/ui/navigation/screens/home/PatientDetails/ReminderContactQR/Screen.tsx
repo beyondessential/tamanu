@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import QRCode from 'react-native-qrcode-svg';
 import { FullView, StyledText, StyledTouchableOpacity, StyledView } from '~/ui/styled/common';
 import { joinNames } from '~/ui/helpers/user';
@@ -11,6 +11,8 @@ import { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
 import { Routes } from '~/ui/helpers/routes';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
+import { useSocket } from '~/ui/hooks/useSocket';
+import { WS_EVENTS } from '~/constants/webSocket';
 
 interface IReminderContactQR extends BaseAppProps {
   route: {
@@ -22,14 +24,29 @@ interface IReminderContactQR extends BaseAppProps {
 
 const Screen = ({ navigation, route, selectedPatient }: IReminderContactQR) => {
   const { getTranslation } = useTranslation();
+  const [embedUrl, setEmbedUrl] = useState('');
+  const { socket } = useSocket();
+  const contactId = route.params.contactId;
 
   const patientName = joinNames(selectedPatient);
 
-  const data = {
-    patientContactId: route.params.contactId,
-    contactName: patientName,
-    patientDisplayId: selectedPatient.displayId,
-  };
+  useEffect(() => {
+    if (!socket) return;
+    socket.emit(WS_EVENTS.TELEGRAM_GET_BOT_INFO);
+    socket.once(WS_EVENTS.TELEGRAM_BOT_INFO, handleBotInfo);
+    return () => {
+      socket.off(WS_EVENTS.TELEGRAM_BOT_INFO, handleBotInfo);
+    };
+  }, [socket]);
+
+  const handleBotInfo = useCallback(
+    botInfo => {
+      if (botInfo?.username && contactId) {
+        setEmbedUrl(`https://t.me/${botInfo.username}?start=${contactId}`);
+      }
+    },
+    [contactId],
+  );
 
   const onNavigateBack = useCallback(() => {
     navigation.navigate(Routes.HomeStack.PatientDetailsStack.Index);
@@ -91,7 +108,7 @@ const Screen = ({ navigation, route, selectedPatient }: IReminderContactQR) => {
         />
       </StyledText>
       <StyledView alignSelf="center">
-        <QRCode value={JSON.stringify(data)} size={250} color="black" backgroundColor="white" />
+        {embedUrl && <QRCode value={embedUrl} size={250} color="black" backgroundColor="white" />}
       </StyledView>
     </FullView>
   );

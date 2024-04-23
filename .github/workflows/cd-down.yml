@@ -59,16 +59,23 @@ jobs:
             exit 1
           fi
 
+      - name: Get full stack name
+        id: stack
+        working-directory: ops/pulumi/stacks/${{ fromJson(inputs.options).opsstack }}
+        run: |
+          project=$(ruby -e 'require "yaml"; puts YAML.load(open "Pulumi.yaml")["name"]')
+          echo "stackname=bes/$project/${{ inputs.deploy-name }}" >> $GITHUB_OUTPUT
+
       - # outcome is from before continue-on-error, so will skip if check fails
         if: steps.check.outcome == 'success'
         id: down
         name: Down!
         uses: pulumi/actions@v5
         with:
-          work-dir: ops/pulumi/stacks/${{ inputs.options.opsstack }}
+          work-dir: ops/pulumi/stacks/${{ fromJson(inputs.options).opsstack }}
           command: destroy
           remove: true
-          stack-name: bes/${{ inputs.deploy-name }}
+          stack-name: ${{ steps.stack.outputs.stackname }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           comment-on-pr: true
         env:
@@ -84,14 +91,14 @@ jobs:
             kubectl delete namespace tamanu-${{ inputs.deploy-name }}
           fi
       - # run pulumi destroy again to clean up any resources that might have been left behind
-        if: steps.hard-delete.outcome == 'success'
+        if: always() && steps.hard-delete.outcome == 'success'
         name: Down again!
         uses: pulumi/actions@v5
         with:
-          work-dir: ops/pulumi/stacks/${{ inputs.options.opsstack }}
+          work-dir: ops/pulumi/stacks/${{ fromJson(inputs.options).opsstack }}
           command: destroy
           remove: true
-          stack-name: bes/${{ inputs.deploy-name }}
+          stack-name: ${{ steps.stack.outputs.stackname }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           comment-on-pr: true
         env:

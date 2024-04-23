@@ -1,6 +1,7 @@
 import { simpleGetList } from '@tamanu/shared/utils/crudHelpers';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import { WS_EVENTS } from '@tamanu/constants';
 
 export const patientContact = express.Router();
 
@@ -18,7 +19,7 @@ patientContact.post(
     req.checkPermission('write', 'Patient');
     const { models, websocketClientService } = req;
     const patientContact = await models.PatientContact.create(req.body);
-    websocketClientService.emit('patient-contact:insert', patientContact.dataValues);
+    websocketClientService.emit(WS_EVENTS.PATIENT_CONTACT_INSERT, patientContact.dataValues);
     res.send(patientContact);
   }),
 );

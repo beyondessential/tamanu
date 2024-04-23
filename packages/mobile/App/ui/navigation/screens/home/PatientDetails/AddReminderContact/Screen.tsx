@@ -24,6 +24,7 @@ import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { PatientContact } from '~/models/PatientContact';
 import { SuggesterDropdown } from '~/ui/components/Dropdown';
 import { PATIENT_COMMUNICATION_CHANNELS } from '~/constants/comms';
+import { useReminderContact } from '~/ui/contexts/ReminderContactContext';
 
 interface IFormValues {
   reminderContactName: string;
@@ -32,6 +33,7 @@ interface IFormValues {
 
 const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
   const { getTranslation } = useTranslation();
+  const { afterAddContact } = useReminderContact();
 
   const onNavigateBack = useCallback(() => {
     navigation.goBack();
@@ -44,6 +46,16 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
       method: PATIENT_COMMUNICATION_CHANNELS.TELEGRAM,
       patient: selectedPatient.id,
     });
+    afterAddContact(
+      {
+        ...newContact,
+        relationshipId: values.reminderContactRelationship,
+        patientId: selectedPatient.id,
+        patient: newContact.patient as any,
+        relationship: newContact.relationship as any,
+      },
+      true,
+    );
     navigation.navigate(Routes.HomeStack.PatientDetailsStack.ReminderContactQR, {
       contactId: newContact.id,
     });

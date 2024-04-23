@@ -294,12 +294,14 @@
         "concurrency": 100,
         "resourceMaterialisationEnabled": {
           "Patient": true,
-          "ServiceRequest": false,
-          "DiagnosticReport": false,
+
           "Encounter": false,
           "Immunization": false,
+          "MediciReport": false,
+          "Organization": false,
           "Practitioner": false,
-          "MediciReport": false
+          "ServiceRequest": false,
+          "Specimen": false
         }
       },
       "parameters": {
@@ -671,6 +673,12 @@
           "hidden": false,
           "requiredPatientData": false
         },
+        "healthCenterId": {
+          "shortLabel": "Health center",
+          "longLabel": "Health center",
+          "hidden": false,
+          "requiredPatientData": false
+        },
         "registeredBirthPlace": {
           "shortLabel": "Place of birth",
           "longLabel": "Place of birth",
@@ -910,6 +918,35 @@
       ],
       "layouts": {
         "patientDetails": "generic",
+        "mobilePatientModules": {
+          "programRegistries": {
+            "hidden": false
+          },
+          "diagnosisAndTreatment": {
+            "sortPriority": 0,
+            "hidden": false
+          },
+          "vitals": {
+            "sortPriority": 0,
+            "hidden": false
+          },
+          "programs": {
+            "sortPriority": 0,
+            "hidden": false
+          },
+          "referral": {
+            "sortPriority": 0,
+            "hidden": false
+          },
+          "vaccine": {
+            "sortPriority": 0,
+            "hidden": false
+          },
+          "tests": {
+            "sortPriority": 0,
+            "hidden": false
+          }
+        },
         "patientTabs": {
           "history": {
             "sortPriority": -100,
@@ -1117,7 +1154,7 @@
         {
           "as": "days",
           "range": {
-            "min": { "duration": { "days": 0 } },
+            "min": { "duration": { "days": 0 },  "exclusive": false  },
             "max": { "duration": { "days": 8 }, "exclusive": true }
           }
         },
@@ -1175,6 +1212,10 @@
       "serviceRequestImagingId": "http://data-dictionary.tamanu-fiji.org/tamanu-id-imagingrequest.html",
       "serviceRequestLabDisplayId": "http://data-dictionary.tamanu-fiji.org/tamanu-mrid-labrequest.html",
       "serviceRequestLabId": "http://data-dictionary.tamanu-fiji.org/tamanu-id-labrequest.html",
+      "serviceRequestLabPanelCodeSystem": "https://www.senaite.com/profileCodes.html",
+      "serviceRequestLabPanelExternalCodeSystem": "http://loinc.org",
+      "serviceRequestLabTestCodeSystem": "https://www.senaite.com/testCodes.html",
+      "serviceRequestLabTestExternalCodeSystem": "http://loinc.org",
       "imagingStudyAccessionId": "http://data-dictionary.tamanu-fiji.org/ris-accession-number.html",
       "ethnicityId": "http://data-dictionary.tamanu-fiji.org/extensions/ethnic-group-code.html",
       "locationPhysicalType": "http://terminology.hl7.org/CodeSystem/location-physical-type",
@@ -1184,7 +1225,9 @@
         "conditionEncoding": "http://snomed.info/sct",
         "immunizationEncoding": "http://nzmt.org.nz",
         "absentUnknown": "http://hl7.org/fhir/uv/ips/CodeSystem/absent-unknown-uv-ips",
-      }
+      },
+      "specimenType": "http://www.senaite.com/data/sample_types",
+      "sampleBodySite": "http://bodySITE.NEW"
     }
   },
   "s3": {
@@ -1250,10 +1293,11 @@
     webhook: {
       // this should be set to the external address of the server, e.g. "https://central.main.internal.tamanu.io/api/public/telegram-webhook"
       url: "",
-      secret: "9sNtjx7oDCRiqQzWR3UuEQK00BM6nxz73PDXMYEq12xgPGIK6R"
+      secret: ""
     }
   },
   "patientCommunication": {
     "retryThreshold": 20
-  }
+  },
+  "language": "en"
 }

@@ -36,6 +36,14 @@ const unhideableFieldSchema = yup
   .required()
   .noUnknown();
 
+const mobilePatientModuleSchema = yup
+  .object({
+    sortPriority: yup.number().required(),
+    hidden: yup.boolean(),
+  })
+  .required()
+  .noUnknown();
+
 const patientTabSchema = yup
   .object({
     sortPriority: yup.number().required(),
@@ -138,6 +146,16 @@ const HIDEABLE_FIELDS = [
   'facility',
   'dischargeDisposition',
   'notGivenReasonId',
+  'healthCenterId',
+];
+
+const MOBILE_PATIENT_MODULES = [
+  'diagnosisAndTreatment',
+  'vitals',
+  'programs',
+  'referral',
+  'vaccine',
+  'tests',
 ];
 
 const UNHIDEABLE_PATIENT_TABS = ['history', 'details'];
@@ -308,6 +326,17 @@ const fieldsSchema = yup
   .required()
   .noUnknown();
 
+const mobilePatientModulesSchema = yup.object({
+  programRegistries: yup.object({ hidden: yup.boolean() }),
+  ...MOBILE_PATIENT_MODULES.reduce(
+    (modules, module) => ({
+      ...modules,
+      [module]: mobilePatientModuleSchema,
+    }),
+    {},
+  ),
+});
+
 const patientTabsSchema = yup.object({
   ...UNHIDEABLE_PATIENT_TABS.reduce(
     (tabs, tab) => ({
@@ -388,6 +417,7 @@ const layoutsSchema = yup.object({
     .string()
     .required()
     .oneOf(Object.values(PATIENT_DETAIL_LAYOUTS)),
+  mobilePatientModules: mobilePatientModulesSchema,
   patientTabs: patientTabsSchema,
   sidebar: sidebarSchema,
 });

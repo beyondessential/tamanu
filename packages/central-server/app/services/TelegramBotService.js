@@ -1,4 +1,4 @@
-import { COMMUNICATION_STATUSES } from '@tamanu/constants';
+import { COMMUNICATION_STATUSES, WS_EVENTS } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
 import TelegramBot from 'node-telegram-bot-api';
 
@@ -86,18 +86,129 @@ export const defineTelegramBotService = async injector => {
     contact.connectionDetails = { chatId: message.chat.id };
     await contact.save();
 
+    const getTranslation = await injector.models?.TranslatedString?.getTranslationFunction(
+      injector.config.language,
+      ['telegramRegistration'],
+    );
+    const botInfo = await getBotInfo();
     const contactName = contact.name;
     const patientName = [contact.patient.firstName, contact.patient.lastName].join(' ').trim();
 
-    const successMessage = `Dear ${contactName}, you have successfully registered to receive messages for ${patientName}. Thank you.`;
+    const successMessage = getTranslation(
+      'telegramRegistration.successMessage',
+      `Dear <strong>:contactName</strong>, you have successfully registered to receive messages for <strong>:patientName</strong> from <strong>:botName</strong>. Thank you.
+      \nIf you would prefer to not receive future messages from <strong>:botName</strong>, please select :command`,
+      { contactName, patientName, botName: botInfo.first_name, command: '/unsubscribe' },
+    );
 
-    await sendMessage(message.chat.id, successMessage);
-    websocketService.emit('telegram:subscribe', { contactId, chatId: message.chat.id });
+    await sendMessage(message.chat.id, successMessage, { parse_mode: 'HTML' });
+    websocketService?.emit(WS_EVENTS.TELEGRAM_SUBSCRIBE, { contactId, chatId: message.chat.id });
+  };
+
+  /**
+   *
+   * @param {TelegramBot.Message} message - the message object containing contact information
+   * @param {string} contactId
+   */
+  const unsubscribeCommandHandler = async (message, contactId) => {
+    const chatId = message.chat.id;
+
+    const getTranslation = await injector.models?.TranslatedString.getTranslationFunction(
+      injector.config.language,
+      ['telegramDeregistration'],
+    );
+
+    const handleNoResults = () => {
+      const message = getTranslation(
+        'telegramDeregistration.alreadyUnsubscribed',
+        'You are already unsubscribed',
+      );
+      sendMessage(chatId, message);
+    };
+
+    const handleRemoveContact = async contact => {
+      await contact.destroy();
+      const botInfo = await getBotInfo();
+
+      const contactName = contact.name;
+      const patientName = [contact.patient.firstName, contact.patient.lastName].join(' ').trim();
+
+      const successMessage = getTranslation(
+        'telegramDeregistration.successMessage',
+        `Dear <strong>:contactName</strong>, you have successfully deregistered from receiving messages for <strong>:patientName</strong> from <strong>:botName</strong>. Thank you.`,
+        { contactName, patientName, botName: botInfo.first_name },
+      );
+
+      sendMessage(chatId, successMessage, { parse_mode: 'HTML' });
+      websocketService.emit(WS_EVENTS.TELEGRAM_UNSUBSCRIBE, { contactId: contact.id });
+    };
+
+    if (!contactId) {
+      const contacts = await injector.models?.PatientContact?.findAll({
+        where: { 'connectionDetails.chatId': chatId },
+        include: [{ model: injector.models?.Patient, as: 'patient' }],
+      });
+
+      if (!contacts?.length) {
+        handleNoResults();
+        return;
+      }
+
+      if (contacts.length === 1) {
+        await handleRemoveContact(contacts[0]);
+        return;
+      }
+
+      const patientList = contacts.map(contact => [
+        {
+          text: [contact.patient.firstName, contact.patient.lastName].join(' ').trim(),
+          callback_data: `unsubscribe-contact|${contact.id}`,
+        },
+      ]);
+
+      const message = getTranslation(
+        'telegramDeregistration.selectPatientToDeregister',
+        'Please select the patient you would like to deregister from receiving messages.',
+      );
+
+      sendMessage(chatId, message, {
+        reply_markup: {
+          inline_keyboard: patientList,
+        },
+      });
+
+      return;
+    }
+
+    const contact = await injector.models?.PatientContact?.findByPk(contactId, {
+      include: [{ model: injector.models?.Patient, as: 'patient' }],
+    });
+
+    if (!contact) {
+      handleNoResults();
+      return;
+    }
+
+    await handleRemoveContact(contact);
   };
 
   await setWebhook(injector.config.telegramBot.webhook);
   setCommand('start', subscribeCommandHandler);
-  //setCommand('unsubscribe', sendMessage);
+  setCommand('unsubscribe', unsubscribeCommandHandler);
+
+  bot.on('callback_query', async query => {
+    try {
+      const data = query.data?.split('|') || [];
+      if (data[0] === 'unsubscribe-contact') {
+        await unsubscribeCommandHandler(query.message, data[1]);
+      }
+      // eslint-disable-next-line no-empty
+    } catch (e) {
+      log.error('telegram callback query failed', { error: e.message });
+    } finally {
+      bot.answerCallbackQuery({ callback_query_id: query.id });
+    }
+  });
 
   return {
     update,
