@@ -40,6 +40,7 @@ import { addPatientProgramRegistrationConditions1706509624000 } from './17065096
 import { addColumnIsMostRecentForTablePatientProgramRegistration1708557002000 } from './1708557002000-addColumnIsMostRecentForTablePatientProgramRegistration';
 import { addHideFromCertificateToScheduledVaccines1705264433000 } from './1705264433000-addHideFromCertificateToScheduledVaccines';
 import { addDeletionStatusToPatientProgramRegistrationConditions1709677995000 } from './1709677995000-addDeletionStatusToPatientProgramRegistrationConditions';
+import { addHealthCenterIdToPatientAdditionalData1712277225000 } from './1712277225000-addHealthCenterIdToPatientAdditionalData';
 import { addDietIdForEncounter1713722796000 } from './1713722796000-addDietIdForEncounter';
 
 export const migrationList = [
@@ -84,5 +85,6 @@ export const migrationList = [
   addColumnIsMostRecentForTablePatientProgramRegistration1708557002000,
   addHideFromCertificateToScheduledVaccines1705264433000,
   addDeletionStatusToPatientProgramRegistrationConditions1709677995000,
+  addHealthCenterIdToPatientAdditionalData1712277225000,
   addDietIdForEncounter1713722796000,
 ];

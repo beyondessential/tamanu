@@ -80,6 +80,10 @@ export function getQueryOptions(models) {
         as: 'requestedBy',
       },
       {
+        model: ReferenceData,
+        as: 'priority',
+      },
+      {
         model: Encounter,
         as: 'encounter',
         include: [
@@ -106,6 +110,12 @@ export function getQueryOptions(models) {
           {
             model: LabTestPanel,
             as: 'labTestPanel',
+            include: [
+              {
+                model: LabTestType,
+                as: 'labTestTypes',
+              },
+            ],
           },
         ],
       },
