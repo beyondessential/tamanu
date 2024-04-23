@@ -57,7 +57,7 @@ commit_parsers = [
   { message = "^test", group = "Testing 🧪" },
   { message = "^deps", group = "Dependencies 📦" },
   { message = "^repo", group = "Repo 📖" },
-  { message = "^(release|merge|fmt|chore|ci|draft|wip|style)", skip = true },
+  { message = "^(chore|ci|draft|fmt|merge|release|style|wip)", skip = true },
   { body = ".*security", group = "Security ⚠️" },
   { message = "^revert", group = "Revert ⏪" },
 ]
