@@ -2,6 +2,8 @@ import express from 'express';
 
 import expressAsyncHandler from 'express-async-handler';
 
+import { WS_EVENTS } from '@tamanu/constants';
+
 export const telegramRoutes = express.Router();
 
 /**
@@ -11,8 +13,8 @@ export const telegramRoutes = express.Router();
 const getTelegramBotInfo = async ws => {
   return await new Promise((resolve, reject) => {
     try {
-      ws.emit('telegram:bot-info');
-      ws.listenOnce('telegram:bot-info', botInfo => resolve(botInfo));
+      ws.emit(WS_EVENTS.TELEGRAM_BOT_INFO);
+      ws.listenOnce(WS_EVENTS.TELEGRAM_BOT_INFO, botInfo => resolve(botInfo));
     } catch (e) {
       reject(e);
     }

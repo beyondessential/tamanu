@@ -1,4 +1,4 @@
-import { COMMUNICATION_STATUSES } from '@tamanu/constants';
+import { COMMUNICATION_STATUSES, WS_EVENTS } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
 import TelegramBot from 'node-telegram-bot-api';
 
@@ -92,7 +92,7 @@ export const defineTelegramBotService = async injector => {
     const successMessage = `Dear ${contactName}, you have successfully registered to receive messages for ${patientName}. Thank you.`;
 
     await sendMessage(message.chat.id, successMessage);
-    websocketService.emit('telegram:subscribe', { contactId, chatId: message.chat.id });
+    websocketService.emit(WS_EVENTS.TELEGRAM_SUBSCRIBE, { contactId, chatId: message.chat.id });
   };
 
   await setWebhook(injector.config.telegramBot.webhook);
