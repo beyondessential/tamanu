@@ -21,8 +21,9 @@ function restoreFromLocalStorage() {
   const server = safeGetStoredJSON(SERVER);
   const permissions = safeGetStoredJSON(PERMISSIONS);
   const role = safeGetStoredJSON(ROLE);
+  const settings = safeGetStoredJSON(SETTINGS);
 
-  return { token, localisation, server, permissions, role };
+  return { token, localisation, server, permissions, role, settings };
 }
 
 function saveToLocalStorage({ token, localisation, server, permissions, role, settings }) {

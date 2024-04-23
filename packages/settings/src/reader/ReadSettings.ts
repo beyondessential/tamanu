@@ -3,7 +3,9 @@ import { buildSettings } from '../index';
 import { settingsCache } from '../cache';
 import { Models } from './readers/SettingsDBReader';
 
-const KEYS_EXPOSED_TO_FRONT_END = [];
+const KEYS_EXPOSED_TO_FRONT_END = [
+  'vaccinations',
+];
 
 export class ReadSettings {
   models: Models;

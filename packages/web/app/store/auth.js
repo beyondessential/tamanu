@@ -117,6 +117,7 @@ const defaultState = {
   localisation: null,
   role: null,
   server: null,
+  settings: null,
   resetPassword: {
     loading: false,
     success: false,
