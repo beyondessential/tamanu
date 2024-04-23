@@ -321,3 +321,23 @@ jobs:
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
     name: Package Servers v${{ github.ref_name }}
     uses: ./.github/workflows/cd-package-servers.yml
+
+  release-notes-images:
+    needs:
+      - config
+      - multi-arch
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    name: Append image names to release notes
+    runs-on: ubuntu-latest
+    steps:
+      - uses: softprops/action-gh-release@v2
+        with:
+          append_body: true
+          body: |
+            ## Container Images 🚢
+
+            | Repository | Tag |
+            |:----------:|:---:|
+            | `ghcr.io/beyondessential/tamanu-central` | [v${{ github.ref_name }}](https://github.com/beyondessential/tamanu/pkgs/container/tamanu-central/v${{ github.ref_name }}) |
+            | `ghcr.io/beyondessential/tamanu-facility` | [v${{ github.ref_name }}](https://github.com/beyondessential/tamanu/pkgs/container/tamanu-facility/v${{ github.ref_name }}) |
+            | `ghcr.io/beyondessential/tamanu-frontend` | [v${{ github.ref_name }}](https://github.com/beyondessential/tamanu/pkgs/container/tamanu-frontend/v${{ github.ref_name }}) |
