@@ -31,7 +31,8 @@ const validationSchema = yup.object().shape({
           stringId="lab.modal.changeStatus.sampleDateTime.label"
           fallback="Sample date & time"
         />,
-      ),
+      )
+      .required(),
     otherwise: yup.string().nullable(),
   }),
   labSampleSiteId: yup.string(),
