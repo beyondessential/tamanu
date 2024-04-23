@@ -14,6 +14,7 @@ interface SuggesterOptions<ModelType> extends FindManyOptions<ModelType> {
 }
 
 const defaultFormatter = (model): OptionType => ({ label: model.name, value: model.id });
+const defaultFilter = () => true;
 
 export class Suggester<ModelType extends BaseModelSubclass> {
   model: ModelType;
@@ -24,7 +25,7 @@ export class Suggester<ModelType extends BaseModelSubclass> {
 
   filter: (entity: BaseModel) => boolean;
 
-  constructor(model: ModelType, options, formatter = defaultFormatter, filter) {
+  constructor(model: ModelType, options, formatter = defaultFormatter, filter = defaultFilter) {
     this.model = model;
     this.options = options;
     // If you don't provide a formatter, this assumes that your model has "name" and "id" fields
