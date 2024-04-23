@@ -104,10 +104,7 @@ export const simplePost = modelName =>
     object = await models[modelName].findByPk(req.body.id, {
       paranoid: false,
     });
-    if (object && object.deletedAt) {
-      await object.restore();
-      await object.update(req.body);
-    } else if (object && !object.deletedAt) {
+    if (object) {
       throw new InvalidOperationError(
         `Cannot create object with id (${req.body.id}), it already exists`,
       );
