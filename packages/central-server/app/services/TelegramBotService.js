@@ -1,4 +1,4 @@
-import { COMMUNICATION_STATUSES } from '@tamanu/constants';
+import { COMMUNICATION_STATUSES, WS_EVENTS } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
 import TelegramBot from 'node-telegram-bot-api';
 
@@ -102,7 +102,7 @@ export const defineTelegramBotService = async injector => {
     );
 
     await sendMessage(message.chat.id, successMessage, { parse_mode: 'HTML' });
-    websocketService?.emit('telegram:subscribe', { contactId, chatId: message.chat.id });
+    websocketService?.emit(WS_EVENTS.TELEGRAM_SUBSCRIBE, { contactId, chatId: message.chat.id });
   };
 
   /**
@@ -123,7 +123,7 @@ export const defineTelegramBotService = async injector => {
         'telegramDeregistration.alreadyUnsubscribed',
         'You are already unsubscribed',
       );
-      sendMessage.emit(chatId, message);
+      sendMessage(chatId, message);
     };
 
     const handleRemoveContact = async contact => {
@@ -140,7 +140,7 @@ export const defineTelegramBotService = async injector => {
       );
 
       sendMessage(chatId, successMessage, { parse_mode: 'HTML' });
-      websocketService.emit('telegram:unsubscribe', { contactId: contact.id });
+      websocketService.emit(WS_EVENTS.TELEGRAM_UNSUBSCRIBE, { contactId: contact.id });
     };
 
     if (!contactId) {

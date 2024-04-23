@@ -1,8 +1,8 @@
 import React from 'react';
-
+import styled from 'styled-components';
 import { PATIENT_FIELD_DEFINITION_TYPES, PATIENT_REGISTRY_TYPES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
-
+import { Colors } from '../../../../constants';
 import { LocalisedField, TextField, DateField, RadioField, FormGrid } from '../../../../components';
 import {
   PatientDetailsHeading,
@@ -17,19 +17,21 @@ import { GenericBirthFields } from '../generic/patientFields/GenericBirthFields'
 import { PatientField, PatientFieldsGroup } from '../../PatientFields';
 import { TranslatedText } from '../../../../components/Translation/TranslatedText';
 import { ReminderContactSection } from '../../../../components/ReminderContactSection';
-import { useLocalisation } from '../../../../contexts/Localisation';
+import { useSettingsQuery } from '../../../../api/queries/useSettingsQuery';
+import { useAuth } from '../../../../contexts/Auth';
 
 const FATHERS_FIRST_NAME_DEFINITION_ID = 'fieldDefinition-fathersFirstName';
 
 const CAMBODIA_CORE_FIELD_CATEGORY_ID = 'fieldCategory-cambodiaCorePatientFields';
 
 export const CambodiaPrimaryDetailsLayout = ({ sexOptions, isRequiredPatientData }) => {
-  const { getLocalisation } = useLocalisation();
+  const { facility } = useAuth();
+  const { data: isReminderContactEnabled } = useSettingsQuery('features.reminderContactModule.enabled', { facilityId: facility?.id});
   return (
     <>
       <PatientDetailsHeading>
         <TranslatedText stringId="patient.detail.subheading.general" fallback="General information" />
-        {getLocalisation('features.enableReminderContacts') ? <ReminderContactSection /> : null}
+        {isReminderContactEnabled ? <ReminderContactSection /> : null}
       </PatientDetailsHeading>
       <FormGrid>
         <LocalisedField
@@ -96,6 +98,13 @@ export const CambodiaPrimaryDetailsLayout = ({ sexOptions, isRequiredPatientData
   );
 };
 
+const BorderFormGrid = styled(SecondaryDetailsFormGrid)`
+  border: 1px solid ${Colors.outline};
+  border-radius: 3px;
+  padding: 1rem 1.5rem 2rem;
+  margin-top: -1rem;
+`;
+
 export const CambodiaSecondaryDetailsLayout = ({ values = {}, patientRegistryType, className }) => {
   return (
     <div className={className}>
@@ -113,17 +122,15 @@ export const CambodiaSecondaryDetailsLayout = ({ values = {}, patientRegistryTyp
             </SecondaryDetailsFormGrid>
           </>
         )}
-
         <PatientDetailsHeading>
           <TranslatedText
             stringId="patient.detail.subheading.currentAddress"
             fallback="Current address"
           />
         </PatientDetailsHeading>
-        <SecondaryDetailsFormGrid>
+        <BorderFormGrid>
           <CambodiaLocationFields />
-        </SecondaryDetailsFormGrid>
-
+        </BorderFormGrid>
         <PatientDetailsHeading>
           <TranslatedText
             stringId="patient.detail.subheading.contactInformation"

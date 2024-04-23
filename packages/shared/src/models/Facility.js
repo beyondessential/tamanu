@@ -57,6 +57,11 @@ export class Facility extends Model {
       foreignKey: 'facilityId',
     });
 
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'catchmentId',
+      as: 'catchment',
+    });
+
     this.belongsToMany(models.User, {
       through: 'UserFacility',
     });

@@ -3,14 +3,9 @@ import asyncHandler from 'express-async-handler';
 import { Op, ValidationError } from 'sequelize';
 
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
-import { ensurePermissionCheck } from '@tamanu/shared/permissions/middleware';
 import { simpleGetList, simplePost, simplePut } from '@tamanu/shared/utils/crudHelpers';
 
 export const patientLetterTemplateRoutes = express.Router();
-
-// This isn't a "loadbearing" permissions checker but is simply required to use crudHelpers
-// to be cleaned up in SAV-254
-patientLetterTemplateRoutes.use(ensurePermissionCheck);
 
 const checkUniqueName = asyncHandler(async (req, res, next) => {
   req.checkPermission('list', 'PatientLetterTemplate');

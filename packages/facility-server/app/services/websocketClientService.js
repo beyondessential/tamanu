@@ -1,4 +1,5 @@
 import { io } from 'socket.io-client';
+import { WS_EVENTS } from '@tamanu/constants';
 
 /**
  *
@@ -10,7 +11,7 @@ export const defineWebsocketClientService = injector => {
 
   //forward event to facility client
   client.on(
-    'telegram:subscribe',
+    WS_EVENTS.TELEGRAM_SUBSCRIBE,
     /**
      *
      * @param {{ contactId: string, chatId: string }} payload
@@ -22,12 +23,12 @@ export const defineWebsocketClientService = injector => {
       contact.connectionDetails = { chatId };
       await contact.save();
 
-      injector.websocketService.emit('telegram:subscribe:success', { contactId, chatId });
+      injector.websocketService.emit(WS_EVENTS.TELEGRAM_SUBSCRIBE_SUCCESS, { contactId, chatId });
     },
   );
 
   client.on(
-    'telegram:unsubscribe',
+    WS_EVENTS.TELEGRAM_UNSUBSCRIBE,
     /**
      *
      * @param {{ contactId: string }} payload
@@ -37,7 +38,7 @@ export const defineWebsocketClientService = injector => {
       if (!contact) return;
 
       await contact.destroy();
-      injector.websocketService.emit('telegram:unsubscribe:success', { contactId });
+      injector.websocketService.emit(WS_EVENTS.TELEGRAM_UNSUBSCRIBE_SUCCESS, { contactId });
     },
   );
 
