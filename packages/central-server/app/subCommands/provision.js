@@ -50,6 +50,7 @@ export async function provision(provisioningFile, { skipIfNotNeeded }) {
     models: store.models,
     stats,
     includedDataTypes: [...GENERAL_IMPORTABLE_DATA_TYPES, ...PERMISSION_IMPORTABLE_DATA_TYPES],
+    checkPermission: () => true,
   };
 
   for (const {
@@ -178,7 +179,7 @@ export async function provision(provisioningFile, { skipIfNotNeeded }) {
   /// ////////
   /// PROGRAMS
 
-  const programOptions = { errors, models: store.models, stats };
+  const programOptions = { errors, models: store.models, stats, checkPermission: () => true };
 
   for (const { file: programFile = null, url: programUrl = null, ...rest } of programs) {
     if (!programFile && !programUrl) {
