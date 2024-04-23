@@ -1,5 +1,6 @@
 import * as sequelize from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
+import { genericBeforeDestroy, genericBeforeBulkDestroy } from '../utils/beforeDestroyHooks';
 
 const { Op, Utils, Sequelize } = sequelize;
 
@@ -22,6 +23,10 @@ export class Model extends sequelize.Model {
       timestamps,
       schema,
       ...options,
+      hooks: {
+        beforeDestroy: genericBeforeDestroy,
+        beforeBulkDestroy: genericBeforeBulkDestroy,
+      },
     });
     this.defaultIdValue = attributes.id.defaultValue;
     if (!syncDirection) {
