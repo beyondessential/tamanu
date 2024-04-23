@@ -19,8 +19,10 @@ import { useTranslation } from '../contexts/Translation';
 const baseVitalsSchema = yup.object().shape({
   [VITALS_DATA_ELEMENT_IDS.dateRecorded]: yup
     .date()
-    .required()
-    .label('dateRecorded'),
+    .translatedLabel(
+      <TranslatedText stringId="general.recordedDate.label" fallback="Date recorded" />,
+    )
+    .required(),
 });
 
 export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterType }) => {
