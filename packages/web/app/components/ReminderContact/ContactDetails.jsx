@@ -277,6 +277,7 @@ export const ContactDetails = ({ pendingContacts, onRetry, successContactIds, on
         initialSort={{ orderBy: 'name', order: 'asc' }}
         allowExport={false}
         onDataFetched={onDataFetched}
+        isEmpty={isEmpty}
       />
     </>
   );
