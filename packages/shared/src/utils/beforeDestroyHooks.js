@@ -28,6 +28,10 @@ export async function genericBeforeDestroy(instance) {
 
 export async function genericBeforeBulkDestroy(options) {
   const ids = await getIds(options);
+  if (ids.length === 0) {
+    return;
+  }
+
   const dependantAssociations = getDependantAssociations(options.model);
 
   for (const association of dependantAssociations) {
