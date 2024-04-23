@@ -12,6 +12,7 @@ import { Routes } from '~/ui/helpers/routes';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { useSocket } from '~/ui/hooks/useSocket';
+import { WS_EVENTS } from '~/constants/webSocket';
 
 interface IReminderContactQR extends BaseAppProps {
   route: {
@@ -31,10 +32,10 @@ const Screen = ({ navigation, route, selectedPatient }: IReminderContactQR) => {
 
   useEffect(() => {
     if (!socket) return;
-    socket.emit('telegram:get-bot-info');
-    socket.once('telegram:bot-info', handleBotInfo);
+    socket.emit(WS_EVENTS.TELEGRAM_GET_BOT_INFO);
+    socket.once(WS_EVENTS.TELEGRAM_BOT_INFO, handleBotInfo);
     return () => {
-      socket.off('telegram:bot-info', handleBotInfo);
+      socket.off(WS_EVENTS.TELEGRAM_BOT_INFO, handleBotInfo);
     };
   }, [socket]);
 
