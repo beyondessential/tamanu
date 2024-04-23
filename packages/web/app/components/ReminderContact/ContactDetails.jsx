@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
@@ -10,6 +10,8 @@ import { DataFetchingTable, Table } from '../Table';
 import { joinNames } from '../../utils/user';
 import { useTranslation } from '../../contexts/Translation';
 import { TranslatedText } from '../Translation/TranslatedText';
+import { useSocket } from '../../utils/useSocket';
+import { WS_EVENTS } from '@tamanu/constants';
 
 const StyledText = styled(Typography)`
   margin: 14px 0px 30px 0;
@@ -114,28 +116,46 @@ const ContactDetailTable = styled(Table)`
 const CONNECTION_STATUS = {
   SUCCESS: 'success',
   PENDING: 'pending',
-  FAILED: 'failed'
+  FAILED: 'failed',
 };
 
 const ColoredCellText = ({ children, status }) => {
   switch (status) {
     case CONNECTION_STATUS.FAILED:
-      return <ColoredText color={Colors.alert}>{children}</ColoredText>
+      return <ColoredText color={Colors.alert}>{children}</ColoredText>;
     case CONNECTION_STATUS.PENDING:
-      return <ColoredText color={Colors.softText}>{children}</ColoredText>
+      return <ColoredText color={Colors.softText}>{children}</ColoredText>;
     default:
-      return <span>{children}</span>
+      return <span>{children}</span>;
   }
 };
 
-export const ContactDetails = ({ pendingContacts, onRetry, successContactIds, onRemoveContact, selectedContact, isRemoveModal = false }) => {
+export const ContactDetails = ({
+  pendingContacts,
+  onRetry,
+  successContactIds,
+  onRemoveContact,
+  selectedContact,
+  isRemoveModal = false,
+}) => {
+  const { socket } = useSocket();
   const { getTranslation } = useTranslation();
   const patient = useSelector(state => state.patient);
   const patientName = joinNames(patient);
   const [isEmpty, setIsEmpty] = useState(false);
+  const [refreshCount, setRefreshCount] = useState(0);
 
   const { ability } = useAuth();
   const canRemoveReminderContacts = ability.can('write', 'Patient');
+
+  const unsubscribersListener = useCallback(() => {
+    setRefreshCount(prev => prev + 1);
+  }, []);
+
+  useEffect(() => {
+    socket.on(WS_EVENTS.TELEGRAM_UNSUBSCRIBE_SUCCESS, unsubscribersListener);
+    return () => socket.off(WS_EVENTS.TELEGRAM_UNSUBSCRIBE_SUCCESS, unsubscribersListener);
+  }, []);
 
   const onDataFetched = ({ count }) => {
     setIsEmpty(!count);
@@ -155,91 +175,116 @@ export const ContactDetails = ({ pendingContacts, onRetry, successContactIds, on
     let methodText;
     switch (status) {
       case CONNECTION_STATUS.FAILED:
-        methodText = <TranslatedText
-          stringId='patient.details.reminderContacts.method.failed'
-          fallback='Failed'
-        />;
+        methodText = (
+          <TranslatedText
+            stringId="patient.details.reminderContacts.method.failed"
+            fallback="Failed"
+          />
+        );
         break;
       case CONNECTION_STATUS.PENDING:
-        methodText = <TranslatedText
-          stringId={`patient.details.reminderContacts.method.${method}.pending`}
-          fallback={capitalize(method) + ' pending'}
-        />;
+        methodText = (
+          <TranslatedText
+            stringId={`patient.details.reminderContacts.method.${method}.pending`}
+            fallback={capitalize(method) + ' pending'}
+          />
+        );
         break;
       case CONNECTION_STATUS.SUCCESS:
-        methodText = <TranslatedText
-          stringId={`patient.details.reminderContacts.method.${method}`}
-          fallback={capitalize(method)}
-        />;
+        methodText = (
+          <TranslatedText
+            stringId={`patient.details.reminderContacts.method.${method}`}
+            fallback={capitalize(method)}
+          />
+        );
         break;
     }
-    return <ColoredCellText status={status}>{methodText}</ColoredCellText>
+    return <ColoredCellText status={status}>{methodText}</ColoredCellText>;
   };
 
   const columns = [
     {
       key: 'name',
-      title: <TranslatedText stringId='patient.details.reminderContacts.field.contact' fallback='Contact' />,
+      title: (
+        <TranslatedText
+          stringId="patient.details.reminderContacts.field.contact"
+          fallback="Contact"
+        />
+      ),
       sortable: false,
       accessor: ({ id, connectionDetails, name }) => (
-        <ColoredCellText status={getStatus(pendingContacts[id]?.isTimerStarted, id, connectionDetails)}>
+        <ColoredCellText
+          status={getStatus(pendingContacts[id]?.isTimerStarted, id, connectionDetails)}
+        >
           {name}
         </ColoredCellText>
       ),
     },
     {
       key: 'relationship.name',
-      title: <TranslatedText stringId='patient.details.reminderContacts.field.relationship' fallback='Relationship' />,
+      title: (
+        <TranslatedText
+          stringId="patient.details.reminderContacts.field.relationship"
+          fallback="Relationship"
+        />
+      ),
       sortable: false,
       accessor: ({ id, connectionDetails, relationship }) => (
-        <ColoredCellText status={getStatus(pendingContacts[id]?.isTimerStarted, id, connectionDetails)}>
+        <ColoredCellText
+          status={getStatus(pendingContacts[id]?.isTimerStarted, id, connectionDetails)}
+        >
           {relationship.name}
         </ColoredCellText>
       ),
     },
     {
       key: 'method',
-      title: <TranslatedText stringId='patient.details.reminderContacts.field.contactMethod' fallback='Contact method' />,
-      sortable: false,
-      accessor: ({ id, connectionDetails, method }) => getMethod(
-        getStatus(pendingContacts[id]?.isTimerStarted, id, connectionDetails),
-        method,
+      title: (
+        <TranslatedText
+          stringId="patient.details.reminderContacts.field.contactMethod"
+          fallback="Contact method"
+        />
       ),
+      sortable: false,
+      accessor: ({ id, connectionDetails, method }) =>
+        getMethod(getStatus(pendingContacts[id]?.isTimerStarted, id, connectionDetails), method),
     },
     ...(canRemoveReminderContacts && !isRemoveModal
       ? [
-        {
-          key: '',
-          title: '',
-          sortable: false,
-          accessor: (data) => {
-            return (
-              <StyledTextButton onClick={() => onRemoveContact(data)}>
-                <TranslatedText
-                  stringId="patient.details.reminderContacts.action.remove'"
-                  fallback="Remove"
-                />
-              </StyledTextButton>
-            );
+          {
+            key: '',
+            title: '',
+            sortable: false,
+            accessor: data => {
+              return (
+                <StyledTextButton onClick={() => onRemoveContact(data)}>
+                  <TranslatedText
+                    stringId="patient.details.reminderContacts.action.remove'"
+                    fallback="Remove"
+                  />
+                </StyledTextButton>
+              );
+            },
           },
-        },
-      ]
+        ]
       : []),
     ...(!isRemoveModal
       ? [
-        {
-          key: '',
-          title: '',
-          sortable: false,
-          accessor: row => getStatus(pendingContacts[row.id]?.isTimerStarted, row.id, row.connectionDetails) === CONNECTION_STATUS.FAILED
-            ? (
-              <RowActionLink onClick={() => onRetry(row)}>
-                <TranslatedText stringId="general.action.retry" fallback="Retry" />
-              </RowActionLink>
-            )
-            : ''
-        },
-      ]
+          {
+            key: '',
+            title: '',
+            sortable: false,
+            accessor: row =>
+              getStatus(pendingContacts[row.id]?.isTimerStarted, row.id, row.connectionDetails) ===
+              CONNECTION_STATUS.FAILED ? (
+                <RowActionLink onClick={() => onRetry(row)}>
+                  <TranslatedText stringId="general.action.retry" fallback="Retry" />
+                </RowActionLink>
+              ) : (
+                ''
+              ),
+          },
+        ]
       : []),
   ];
 
@@ -278,6 +323,7 @@ export const ContactDetails = ({ pendingContacts, onRetry, successContactIds, on
         allowExport={false}
         onDataFetched={onDataFetched}
         isEmpty={isEmpty}
+        refreshCount={refreshCount}
       />
     </>
   );
