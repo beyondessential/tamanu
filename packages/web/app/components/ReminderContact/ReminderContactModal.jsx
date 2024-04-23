@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import { Box } from '@material-ui/core';
@@ -10,6 +10,8 @@ import { ReminderContactQR } from './ReminderContactQR';
 import { RemoveReminderContact } from './RemoveReminderContact';
 import { useTranslation } from '../../contexts/Translation';
 import { useSocket } from '../../utils/useSocket';
+
+import { WS_EVENTS } from '@tamanu/constants';
 
 const ReminderModalContainer = styled(Box)`
   padding: 0px 8px;
@@ -33,9 +35,9 @@ const REMINDER_CONTACT_VIEWS = {
   REMOVE_REMINDER: 'RemoveReminder',
 };
 
-const DEFAULT_CONTACT_TIMEOUT = 2*60*1000; // 2 minutes
+const DEFAULT_CONTACT_TIMEOUT = 2 * 60 * 1000; // 2 minutes
 
-export const ReminderContactModal = ({ onClose: onCloseDefault, open }) => {
+export const ReminderContactModal = ({ onClose, open }) => {
   const { getTranslation } = useTranslation();
   const [activeView, setActiveView] = useState(REMINDER_CONTACT_VIEWS.REMINDER_CONTACT_LIST);
   const [newContact, setNewContact] = useState({});
@@ -43,30 +45,29 @@ export const ReminderContactModal = ({ onClose: onCloseDefault, open }) => {
   const [successContactIds, setSuccessContactIds] = useState([]);
   const [selectedContact, setSelectedContact] = useState();
   const { socket } = useSocket();
-  const onClose = () => {
-    setActiveView(REMINDER_CONTACT_VIEWS.REMINDER_CONTACT_LIST);
-    onCloseDefault();
-  };
 
-  const subscribersListener = (data) => {
+  const subscribersListener = useCallback(data => {
     setSuccessContactIds(prev => [...prev, data?.contactId]);
-  };
+  }, []);
 
-  const handleUpdatePendingContacts = (isTimerStarted) => {
+  const handleUpdatePendingContacts = isTimerStarted => {
     setPendingContacts(previousPendingContacts => ({
       ...previousPendingContacts,
       [newContact.id]: {
         ...previousPendingContacts[newContact.id],
-        isTimerStarted
-      }
+        isTimerStarted,
+      },
     }));
   };
 
   useEffect(() => {
-    if (!socket) return;
-    socket.on('telegram:subscribe:success', subscribersListener);
-    return () => socket.off('telegram:subscribe:success', subscribersListener);
-  }, [socket]);
+    socket.on(WS_EVENTS.TELEGRAM_SUBSCRIBE_SUCCESS, subscribersListener);
+    return () => socket.off(WS_EVENTS.TELEGRAM_SUBSCRIBE_SUCCESS, subscribersListener);
+  }, []);
+
+  useEffect(() => {
+    setActiveView(REMINDER_CONTACT_VIEWS.REMINDER_CONTACT_LIST);
+  }, [open]);
 
   useEffect(() => {
     if (!newContact.id) return;
@@ -132,10 +133,7 @@ export const ReminderContactModal = ({ onClose: onCloseDefault, open }) => {
           <AddReminderContact onContinue={onContinue} onBack={onBack} onClose={onClose} />
         )}
         {activeView === REMINDER_CONTACT_VIEWS.ADD_REMINDER_QR_CODE && (
-          <ReminderContactQR
-            contact={newContact}
-            onClose={onBack}
-          />
+          <ReminderContactQR contact={newContact} onClose={onBack} />
         )}
         {activeView === REMINDER_CONTACT_VIEWS.REMOVE_REMINDER && (
           <RemoveReminderContact

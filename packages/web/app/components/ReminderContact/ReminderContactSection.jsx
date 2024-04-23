@@ -48,7 +48,6 @@ export const ReminderContactSection = () => {
       <ReminderContactModal
         open={openReminderModal}
         onClose={onClose}
-        handleOpenRemindersModal={handleOpenRemindersModal}
       />
     </>
   );
