@@ -43,15 +43,18 @@ const createLocalDateTimeStringFromUTC = (
 const fakeAllData = async (models, ctx) => {
   const { id: userId } = await models.User.create(fake(models.User));
   const { id: examinerId } = await models.User.create(fake(models.User));
-  const { id: facilityId } = await models.Facility.create(fake(models.Facility));
+  const { id: facilityId } = await models.Facility.create(fake(models.Facility, { name: 'Ba Hospital' }));
   const { id: departmentId } = await models.Department.create(
     fake(models.Department, { facilityId, name: 'Emergency dept.' }),
   );
+  const { id: locationGroupId } = await models.LocationGroup.create(
+    fake(models.LocationGroup, { facilityId, name: 'Emergency Department' }),
+  );
   const { id: location1Id } = await models.Location.create(
-    fake(models.Location, { facilityId, name: 'Emergency room 1' }),
+    fake(models.Location, { facilityId, name: 'Emergency room 1', locationGroupId }),
   );
   const { id: location2Id } = await models.Location.create(
-    fake(models.Location, { facilityId, name: 'Emergency room 2' }),
+    fake(models.Location, { facilityId, name: 'Emergency room 2', locationGroupId }),
   );
   const { id: patientBillingTypeId } = await models.ReferenceData.create(
     fake(models.ReferenceData, {
@@ -441,6 +444,7 @@ describe('fijiAspenMediciReport', () => {
         patientId: 'BTIO864386',
         firstName: patient.firstName,
         lastName: patient.lastName,
+        lastUpdated: '2022-06-12T00:02:54+00:00',
         dateOfBirth: '1952-10-12',
         age: expect.any(Number), // TODO
         sex: upperFirst(patient.sex),
@@ -485,7 +489,9 @@ describe('fijiAspenMediciReport', () => {
         // Location/Department
         locations: [
           {
+            facility: 'Ba Hospital',
             location: 'Emergency room 2',
+            locationGroup: 'Emergency Department',
             assignedTime: '2022-06-09T08:04:54+00:00',
           },
         ],
