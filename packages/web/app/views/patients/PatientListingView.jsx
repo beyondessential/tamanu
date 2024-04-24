@@ -20,6 +20,7 @@ import {
   culturalName,
   dateOfBirth,
   department,
+  diet,
   displayId,
   firstName,
   lastName,
@@ -59,7 +60,7 @@ const locationGroup = {
 };
 
 const INPATIENT_COLUMNS = [markedForSync, displayId, firstName, lastName, dateOfBirth, sex].concat(
-  [locationGroup, location, department, clinician].map(column => ({
+  [locationGroup, location, department, clinician, diet].map(column => ({
     ...column,
     sortable: false,
   })),
