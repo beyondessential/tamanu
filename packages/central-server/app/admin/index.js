@@ -1,8 +1,11 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import { upperFirst } from 'lodash';
 
-import { ForbiddenError, NotFoundError } from '@tamanu/shared/errors';
-import { constructPermission } from '@tamanu/shared/permissions/middleware';
+import { ensurePermissionCheck } from '@tamanu/shared/permissions/middleware';
+import { NotFoundError } from '@tamanu/shared/errors';
+import { REFERENCE_TYPE_VALUES } from '@tamanu/constants';
+
 import { createDataImporterEndpoint } from './importerEndpoint';
 
 import { programImporter } from './programImporter';
@@ -19,24 +22,7 @@ import { assetRoutes } from './asset';
 import { translationRouter } from './translation';
 
 export const adminRoutes = express.Router();
-
-// Only construct permissions for the admin stack for now.
-// The only reason this isn't applied earlier/more generally is
-// because it might affect sync performance. This will be fine to
-// remove once more general permission checks have been implemented.
-adminRoutes.use(constructPermission);
-
-adminRoutes.use(
-  asyncHandler((req, res, next) => {
-    if (!req.ability.can('write', 'ReferenceData') || !req.ability.can('write', 'User')) {
-      throw new ForbiddenError(
-        'You do not have permission to access the central server admin panel.',
-      );
-    }
-    next();
-  }),
-);
-
+adminRoutes.use(ensurePermissionCheck);
 adminRoutes.use('/reports', reportsRouter);
 adminRoutes.use('/translation', translationRouter);
 adminRoutes.post('/mergePatient', mergePatientHandler);
@@ -50,8 +36,8 @@ adminRoutes.post('/mergePatient', mergePatientHandler);
 adminRoutes.get(
   '/lookup/patient/:displayId',
   asyncHandler(async (req, res) => {
-    // Note there is no permission check for this endpoint as it's mounted under the
-    // admin routes
+    req.checkPermission('read', 'Patient');
+
     const { Patient } = req.store.models;
     const { displayId } = req.params;
     const patient = await Patient.findOne({
@@ -75,6 +61,21 @@ adminRoutes.get(
   '/export/referenceData',
   asyncHandler(async (req, res) => {
     const { store, query } = req;
+    const { includedDataTypes = {} } = query;
+
+    for (const dataType of Object.values(includedDataTypes)) {
+      // When it is ReferenceData, check if user has permission to list ReferenceData
+      if (REFERENCE_TYPE_VALUES.includes(dataType)) {
+        req.checkPermission('list', 'ReferenceData');
+        continue;
+      }
+  
+      // Otherwise, if it is other types (eg: patient, lab_test_types,... ones that have their own models)
+      // check the permission against the models
+      const nonReferenceDataModelName = upperFirst(dataType);
+      req.checkPermission('list', nonReferenceDataModelName);
+    }
+
     const filename = await exporter(store, query.includedDataTypes);
     res.download(filename);
   }),

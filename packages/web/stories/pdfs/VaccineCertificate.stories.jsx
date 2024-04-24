@@ -32,19 +32,16 @@ const vdsData = {
   },
 };
 
-const getLocalisation = key => {
-  const config = {
-    'templates.letterhead.title': 'TAMANU MINISTRY OF HEALTH & MEDICAL SERVICES',
-    'templates.letterhead.subTitle': 'PO Box 12345, Melbourne, Australia',
-    'templates.vaccineCertificate.emailAddress': 'tamanu@health.govt',
-    'templates.vaccineCertificate.contactNumber': '123456',
-    'fields.firstName.longLabel': 'First Name',
-    'fields.lastName.longLabel': 'Last Name',
-    'fields.dateOfBirth.longLabel': 'Date of Birth',
-    'fields.sex.longLabel': 'Sex',
-    previewUvciFormat: 'tamanu',
-  };
-  return config[key];
+const localisation = {
+  'templates.letterhead.title': 'TAMANU MINISTRY OF HEALTH & MEDICAL SERVICES',
+  'templates.letterhead.subTitle': 'PO Box 12345, Melbourne, Australia',
+  'templates.vaccineCertificate.emailAddress': 'tamanu@health.govt',
+  'templates.vaccineCertificate.contactNumber': '123456',
+  'fields.firstName.longLabel': 'First Name',
+  'fields.lastName.longLabel': 'Last Name',
+  'fields.dateOfBirth.longLabel': 'Date of Birth',
+  'fields.sex.longLabel': 'Sex',
+  previewUvciFormat: 'tamanu',
 };
 
 const examiner = {
@@ -133,7 +130,7 @@ export const VaccineCertificate = () => {
         signingSrc={SigningImage}
         logoSrc={Logo}
         vdsSrc={vdsSrc}
-        getLocalisation={getLocalisation}
+        localisation={localisation}
       />
     </PDFViewer>
   );

@@ -2,9 +2,20 @@ import React from 'react';
 import { TextField } from '../../../../../components';
 import { ConfiguredMandatoryPatientFields } from '../../../ConfiguredMandatoryPatientFields';
 import { TranslatedText } from '../../../../../components/Translation/TranslatedText';
+import { LinkedField } from '../../../../../components/Field/LinkedField';
 import { HierarchyFields } from '../../../../../components/Field/HierarchyFields';
 import { REFERENCE_DATA_RELATION_TYPES, REFERENCE_TYPES } from '@tamanu/constants';
 import { useFilterPatientFields } from '../../../useFilterPatientFields';
+
+const HealthCenterLinkedVillageField = props => (
+  <LinkedField
+    {...props}
+    linkedFieldName="healthCenterId"
+    endpoint="referenceData/facilityCatchment/:id/facility"
+    name="villageId"
+    component={AutocompleteField}
+  />
+);
 
 export const CambodiaLocationFields = ({ filterByMandatory }) => {
   const LOCATION_FIELDS = {
@@ -37,6 +48,7 @@ export const CambodiaLocationFields = ({ filterByMandatory }) => {
       label: <TranslatedText stringId="cambodiaPatientDetails.commune.label" fallback="Commune" />,
     },
     villageId: {
+      component: HealthCenterLinkedVillageField,
       referenceType: REFERENCE_TYPES.VILLAGE,
       label: (
         <TranslatedText stringId="general.localisedField.villageId.label" fallback="Village" />
@@ -51,14 +63,14 @@ export const CambodiaLocationFields = ({ filterByMandatory }) => {
 
   return (
     <>
-      <ConfiguredMandatoryPatientFields
-        fields={LOCATION_FIELDS}
-        filterByMandatory={filterByMandatory}
-      />
       <HierarchyFields
         relationType={REFERENCE_DATA_RELATION_TYPES.ADDRESS_HIERARCHY}
         baseLevel={REFERENCE_TYPES.VILLAGE}
         fields={locationHierarchyFieldsToShow}
+      />
+      <ConfiguredMandatoryPatientFields
+        fields={LOCATION_FIELDS}
+        filterByMandatory={filterByMandatory}
       />
     </>
   );

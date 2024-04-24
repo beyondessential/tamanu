@@ -148,7 +148,7 @@ describe('importReport actions', () => {
         ...baseVersionData,
         versionNumber: 3,
       };
-      expect(
+      await expect(
         createVersion(data, mockDefinition, [{ versionNumber: 1 }], mockStore),
       ).rejects.toThrow(getVersionError({ versionNumber: 3 }));
     });

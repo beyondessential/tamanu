@@ -10,11 +10,13 @@ import { Colors } from '../../../constants';
 
 import { PDFViewer, printPDF } from '../PDFViewer';
 import { useLocalisation } from '../../../contexts/Localisation';
+import { useTranslation } from '../../../contexts/Translation';
 import { MultipleLabRequestsPrintout } from '@tamanu/shared/utils/patientCertificates';
 import { TranslatedText } from '../../Translation/TranslatedText';
 
 export const MultipleLabRequestsPrintoutModal = ({ encounter, labRequests, open, onClose }) => {
   const { getLocalisation } = useLocalisation();
+  const { getTranslation } = useTranslation();
   const { data: certificateData, isFetching: isCertificateFetching } = useCertificate();
   const api = useApi();
 
@@ -60,6 +62,7 @@ export const MultipleLabRequestsPrintoutModal = ({ encounter, labRequests, open,
             encounter={encounter}
             labRequests={labRequests}
             getLocalisation={getLocalisation}
+            getTranslation={getTranslation}
           />
         </PDFViewer>
       )}

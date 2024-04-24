@@ -92,9 +92,14 @@ triage.get(
       `
         SELECT
           triages.*,
-          encounters.*,
+          encounters.encounter_type,
           encounters.id as encounter_id,
-          patients.*,
+          patients.id as patient_id,
+          patients.first_name as first_name,
+          patients.last_name as last_name,
+          patients.sex as sex,
+          patients.display_id as display_id,
+          patients.date_of_birth as date_of_birth,
           location.name AS location_name,
           location_group.name AS location_group_name,
           complaint.name AS chief_complaint,
@@ -119,7 +124,7 @@ triage.get(
           AND encounters.end_date IS NULL
           AND location.facility_id = :facility
           AND encounters.encounter_type IN (:triageEncounterTypes)
-        ORDER BY encounter_type IN (:seenEncounterTypes) ASC, ${sortKey} ${sortDirection} NULLS LAST, Coalesce(arrival_time,triage_time) ASC 
+        ORDER BY encounter_type IN (:seenEncounterTypes) ASC, ${sortKey} ${sortDirection} NULLS LAST, Coalesce(arrival_time,triage_time) ASC
       `,
       {
         model: Triage,

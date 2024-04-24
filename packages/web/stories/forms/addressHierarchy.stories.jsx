@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
-import { HierarchyFields } from '../../app/components/Field/HierarchyFields';
+import { REFERENCE_DATA_RELATION_TYPES, REFERENCE_TYPES } from '@tamanu/constants';
+import { Form, HierarchyFields } from '../../app/components/Field';
 import { MockedApi } from '../utils/mockedApi';
 
 const Container = styled.div`
@@ -9,7 +10,7 @@ const Container = styled.div`
 `;
 
 const endpoints = {
-  'addressHierarchy/:type': () => {
+  'referenceData/addressHierarchyTypes': () => {
     return ['country', 'province', 'district', 'village'];
   },
 };
@@ -21,15 +22,27 @@ export default {
     Story => (
       <MockedApi endpoints={endpoints}>
         <Container>
-          <Story />
+          <Form
+            onSubmit={async () => {}}
+            render={props => {
+              return <Story {...props} />;
+            }}
+          />
         </Container>
       </MockedApi>
     ),
   ],
 };
 
-const BasicTemplate = args => {
-  return HierarchyFields(args);
+export const Basic = {
+  args: {
+    relationType: REFERENCE_DATA_RELATION_TYPES.ADDRESS_HIERARCHY,
+    baseLevel: REFERENCE_TYPES.VILLAGE,
+    fields: [
+      { referenceType: 'country' },
+      { referenceType: 'province' },
+      { referenceType: 'district' },
+      { referenceType: 'village' },
+    ],
+  },
 };
-
-export const Basic = BasicTemplate.bind({});

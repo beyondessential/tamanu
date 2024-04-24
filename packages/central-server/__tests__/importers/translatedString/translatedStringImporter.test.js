@@ -18,6 +18,7 @@ describe('Translated String import', () => {
       file: `./__tests__/importers/translatedString/${file}.xlsx`,
       models,
       includedDataTypes: ['translatedString'],
+      checkPermission: () => true,
       ...opts,
     });
   }

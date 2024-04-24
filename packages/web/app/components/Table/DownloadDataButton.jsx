@@ -3,7 +3,7 @@ import ReactDOMServer from 'react-dom/server';
 import GetAppIcon from '@material-ui/icons/GetApp';
 import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
 import cheerio from 'cheerio';
-import XLSX from 'xlsx';
+import * as XLSX from 'xlsx';
 
 import { saveFile } from '../../utils/fileSystemAccess';
 import { GreyOutlinedButton } from '../Button';
@@ -99,7 +99,7 @@ export function DownloadDataButton({ exportName, columns, data }) {
     await saveFile({
       defaultFileName: `${exportName}-${getCurrentDateString()}`,
       data: xlsxDataArray,
-      extensions: ['xlsx'],
+      extension: 'xlsx',
     });
   };
 
