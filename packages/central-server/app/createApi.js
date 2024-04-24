@@ -2,6 +2,7 @@ import bodyParser from 'body-parser';
 import compression from 'compression';
 import config from 'config';
 import defineExpress from 'express';
+import { createServer } from 'http';
 
 import { getLoggingMiddleware } from '@tamanu/shared/services/logging';
 import { constructPermission } from '@tamanu/shared/permissions/middleware';
@@ -17,7 +18,6 @@ import { versionCompatibility } from './middleware/versionCompatibility';
 
 import { version } from './serverInfo';
 import { translationRoutes } from './translation';
-import { createServer } from 'http';
 
 function api(ctx) {
   const apiRoutes = defineExpress.Router();
