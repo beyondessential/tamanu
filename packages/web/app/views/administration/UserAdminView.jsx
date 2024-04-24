@@ -20,6 +20,11 @@ const COLUMNS = [
     title: 'Role',
     minWidth: 100,
   },
+  {
+    key: 'facilities',
+    title: 'Facilities',
+    minWidth: 100,
+  },
 ];
 
 const UserTable = React.memo(({ ...props }) => (
