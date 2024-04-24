@@ -119,7 +119,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
                 <StyledView paddingTop={15}>
                   <StyledText
                     color={
-                      patientContacts?.length
+                      reminderContactList?.length
                         ? theme.colors.TEXT_SUPER_DARK
                         : theme.colors.TEXT_DARK
                     }

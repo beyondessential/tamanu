@@ -125,6 +125,8 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
             onSubmit={submit}
           >
             {({ handleSubmit, isSubmitting, values }): ReactElement => {
+              const isPopulated = values.reminderContactName?.trim() && values.reminderContactRelationship
+
               return (
                 <>
                   <StyledView marginTop={25}>
@@ -156,7 +158,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
                     loadingAction={isSubmitting}
                     marginTop={10}
                     height={screenPercentageToDP(5, Orientation.Height)}
-                    disabled={!values.reminderContactName?.trim() || !values.reminderContactRelationship}
+                    disabled={!isPopulated}
                   >
                     <StyledText
                       color={theme.colors.WHITE}
