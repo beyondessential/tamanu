@@ -62,7 +62,13 @@ export async function centralServerLogin(models, email, password, deviceId) {
   });
 
   // we've logged in as a valid central user - update local database to match
-  const { user, localisation, settings } = response;
+  const { user, localisation, settings, facilities } = response;
+
+  // TODO: provide a permission to bypass this instead of hardcoding admin
+  if (user.role !== 'admin' && !facilities?.includes(config.serverFacilityId)) {
+    throw new BadAuthenticationError('User does not have access to this facility');
+  }
+
   const { id, ...userDetails } = user;
 
   await models.User.sequelize.transaction(async () => {
@@ -90,6 +96,18 @@ async function localLogin(models, email, password) {
 
   if (!passwordMatch) {
     throw new BadAuthenticationError('Incorrect username or password, please try again');
+  }
+
+  // TODO: provide a permission to bypass this instead of hardcoding admin
+  if (user.role !== 'admin') {
+    try {
+      const assoc = await models.UserFacility.findOne({
+        where: { userId: user.id, facilityId: config.serverFacilityId },
+      });
+      if (!assoc) throw new Error('no userfacility record');
+    } catch (err) {
+      throw new BadAuthenticationError('User does not have access to this facility');
+    }
   }
 
   const localisation = await models.UserLocalisationCache.getLocalisation({

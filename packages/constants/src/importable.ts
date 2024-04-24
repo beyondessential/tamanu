@@ -64,6 +64,7 @@ export const GENERAL_IMPORTABLE_DATA_TYPES = [
   'triageReason',
   'ultrasoundImagingArea',
   'user',
+  'userFacility',
   'vaccine',
   'vascularStudyImagingArea',
   'village',
