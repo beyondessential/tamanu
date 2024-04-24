@@ -97,7 +97,6 @@ export class User extends Model {
         },
         phoneNumber: {
           type: Sequelize.STRING,
-          allowNull: false,
         },
         visibilityStatus: {
           type: Sequelize.STRING,
