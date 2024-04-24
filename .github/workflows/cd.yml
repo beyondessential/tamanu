@@ -260,7 +260,7 @@ jobs:
           manifest-tool push from-args \
             --platforms linux/amd64,linux/arm64 \
             --template ghcr.io/beyondessential/tamanu-${{ matrix.repo }}:sha-${{ needs.config.outputs.sha }}.ARCH \
-            --target ghcr.io/beyondessential/tamanu-${{ matrix.repo }}:v${{ github.ref_name }}
+            --target ghcr.io/beyondessential/tamanu-${{ matrix.repo }}:${{ github.ref_name }}
 
   deploy-up:
     needs:
@@ -313,11 +313,31 @@ jobs:
   package-frontend:
     needs: images
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
-    name: Package Frontend v${{ github.ref_name }}
+    name: Package Frontend ${{ github.ref_name }}
     uses: ./.github/workflows/cd-package-frontend.yml
 
   package-servers:
     needs: images
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
-    name: Package Servers v${{ github.ref_name }}
+    name: Package Servers ${{ github.ref_name }}
     uses: ./.github/workflows/cd-package-servers.yml
+
+  release-notes-images:
+    needs:
+      - config
+      - multi-arch
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    name: Append image names to release notes
+    runs-on: ubuntu-latest
+    steps:
+      - uses: softprops/action-gh-release@v2
+        with:
+          append_body: true
+          body: |
+            ## Container images 🚢
+
+            | Repository | Tag |
+            |:-----------|:---:|
+            | `ghcr.io/beyondessential/tamanu-central` | [${{ github.ref_name }}](https://github.com/beyondessential/tamanu/pkgs/container/tamanu-central/${{ github.ref_name }}) |
+            | `ghcr.io/beyondessential/tamanu-facility` | [${{ github.ref_name }}](https://github.com/beyondessential/tamanu/pkgs/container/tamanu-facility/${{ github.ref_name }}) |
+            | `ghcr.io/beyondessential/tamanu-frontend` | [${{ github.ref_name }}](https://github.com/beyondessential/tamanu/pkgs/container/tamanu-frontend/${{ github.ref_name }}) |
