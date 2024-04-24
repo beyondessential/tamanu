@@ -122,4 +122,13 @@ export const diet = {
       <span>{dietName.split(' ').map(word => word.charAt(0).toUpperCase()).join('')}</span>
     </ThemedTooltip>
   }),
-}
+};
+
+export const inpatientSex = {
+  key: 'sex',
+  title: <TranslatedText stringId="general.localisedField.sex.label" fallback="Sex" />,
+  accessor: (({ sex }) => {
+    if (!sex) return null;
+    return sex.charAt(0).toUpperCase();
+  }),
+};
