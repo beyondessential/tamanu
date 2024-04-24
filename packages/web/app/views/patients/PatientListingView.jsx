@@ -189,7 +189,7 @@ export const AdmittedPatientsView = () => {
         <SearchTableTitle>
           <TranslatedText stringId="patientList.search.title" fallback="Patient search" />
         </SearchTableTitle>
-        <PatientSearchBar onSearch={setSearchParameters} searchParameters={searchParameters} />
+        <PatientSearchBar onSearch={setSearchParameters} searchParameters={searchParameters} isInpatient />
         <PatientTable
           fetchOptions={{ inpatient: 1 }}
           searchParameters={{ facilityId: facility.id, ...searchParameters }}

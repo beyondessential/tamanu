@@ -8,7 +8,7 @@ import { TranslatedText } from '../Translation/TranslatedText';
 const ADVANCED_FIELDS = ['departmentId', 'clinicianId', 'dietId'];
 
 export const PatientSearchBar = React.memo(
-  ({ onSearch, searchParameters, suggestByFacility = true }) => {
+  ({ onSearch, searchParameters, suggestByFacility = true, isInpatient = false }) => {
     const locationGroupSuggester = useSuggester('locationGroup', {
       baseQueryParameters: suggestByFacility ? { filterByFacility: true } : {},
     });
@@ -56,7 +56,7 @@ export const PatientSearchBar = React.memo(
               size="small"
               suggester={practitionerSuggester}
             />
-            <LocalisedField
+            {isInpatient && <LocalisedField
               name="dietId"
               size="small"
               label={
@@ -67,7 +67,7 @@ export const PatientSearchBar = React.memo(
               }
               endpoint="diet"
               component={SuggesterSelectField}
-            />
+            />}
           </>
         }
       >
