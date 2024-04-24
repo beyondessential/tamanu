@@ -100,7 +100,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
 
             <StyledView paddingTop={15}>
               <StyledText
-                color={theme.colors.MAIN_SUPER_DARK}
+                color={theme.colors.TEXT_SUPER_DARK}
                 fontSize={screenPercentageToDP(3, Orientation.Height)}
                 fontWeight={500}
               >
@@ -118,19 +118,23 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
               <>
                 <StyledView paddingTop={15}>
                   <StyledText
-                    color={theme.colors.MAIN_SUPER_DARK}
+                    color={
+                      reminderContactList?.length
+                        ? theme.colors.TEXT_SUPER_DARK
+                        : theme.colors.TEXT_DARK
+                    }
                     fontSize={screenPercentageToDP(2, Orientation.Height)}
                     fontWeight={400}
                   >
                     {reminderContactList?.length ? (
                       <>
                         <StyledText>{description.split(`${patientName}.`)[0]}</StyledText>
-                        <StyledText fontWeight={500}>{patientName}.</StyledText>
+                        <StyledText fontWeight={600}>{patientName}.</StyledText>
                       </>
                     ) : (
                       <>
                         <StyledText>{emptyDescription.split(`${patientName}.`)[0]}</StyledText>
-                        <StyledText fontWeight={500}>{patientName}.</StyledText>
+                        <StyledText fontWeight={600}>{patientName}.</StyledText>
                         <StyledText>{emptyDescription.split(`${patientName}.`)[1]}</StyledText>
                       </>
                     )}
@@ -207,11 +211,12 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
                 borderColor={theme.colors.PRIMARY_MAIN}
                 borderWidth={1}
                 marginTop={15}
-                width={screenPercentageToDP(36, Orientation.Width)}
+                width={screenPercentageToDP(34, Orientation.Width)}
                 height={screenPercentageToDP(5, Orientation.Height)}
                 textColor={theme.colors.PRIMARY_MAIN}
-                fontSize={16}
+                fontSize={screenPercentageToDP(2, Orientation.Height)}
                 fontWeight={500}
+                alignItems='center'
                 buttonText={
                   <TranslatedText
                     stringId="patient.details.reminderContacts.action.add"
@@ -219,8 +224,11 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
                   />
                 }
               >
-                <StyledView marginRight={6}>
-                  <PlusIcon />
+                <StyledView marginRight={screenPercentageToDP(0.6, Orientation.Height)}>
+                  <PlusIcon
+                    width={screenPercentageToDP(1.8, Orientation.Height)}
+                    height={screenPercentageToDP(1.8, Orientation.Height)}
+                  />
                 </StyledView>
               </Button>
             )}
