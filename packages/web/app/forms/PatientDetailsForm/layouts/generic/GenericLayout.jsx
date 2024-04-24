@@ -24,7 +24,7 @@ import { GenericBirthFields } from './patientFields/GenericBirthFields';
 import { useSuggester } from '../../../../api';
 import { PatientFieldsGroup } from '../../PatientFields';
 import { TranslatedText } from '../../../../components/Translation/TranslatedText';
-import { ReminderContactSection } from '../../../../components/ReminderContactSection';
+import { ReminderContactSection } from '../../../../components/ReminderContact/ReminderContactSection';
 import { useSettingsQuery } from '../../../../api/queries/useSettingsQuery';
 import { useAuth } from '../../../../contexts/Auth';
 
@@ -204,10 +204,10 @@ export const GenericSecondaryDetailsLayout = ({
       />
     </PatientDetailsHeading>
     <SecondaryDetailsFormGrid>
-      <GenericPersonalFields 
-        patientRegistryType={patientRegistryType} 
-        filterByMandatory={false} 
-        isEdit={isEdit} 
+      <GenericPersonalFields
+        patientRegistryType={patientRegistryType}
+        filterByMandatory={false}
+        isEdit={isEdit}
       />
     </SecondaryDetailsFormGrid>
 

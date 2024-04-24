@@ -110,7 +110,7 @@ const Provider = ({ children, selectedPatient }: BaseAppProps & { children: Reac
 
   const afterAddContact = (contact: IPatientContact, addedNew?: boolean) => {
     if (addedNew) {
-      socket.emit('patient-contact:insert', contact);
+      socket.emit(WS_EVENTS.PATIENT_CONTACT_INSERT, contact);
     }
     setTimeout(() => {
       setPendingContactList(prev => prev.filter(id => id !== contact.id));

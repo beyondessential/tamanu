@@ -10,3 +10,4 @@ export * from './usePatientConditions';
 export * from './usePatientProgramRegistration';
 export * from './useTranslations';
 export * from './useTranslationLanguages';
+export * from './useTelegramBotInfoQuery';

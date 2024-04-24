@@ -1,14 +1,17 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import { Box } from '@material-ui/core';
 
 import { AddReminderContact } from './AddReminderContact';
-import { BaseModal } from './BaseModal';
+import { BaseModal } from '../BaseModal';
 import { ReminderContactList } from './ReminderContactList';
 import { ReminderContactQR } from './ReminderContactQR';
 import { RemoveReminderContact } from './RemoveReminderContact';
-import { useTranslation } from '../contexts/Translation';
+import { useTranslation } from '../../contexts/Translation';
+import { useSocket } from '../../utils/useSocket';
+
+import { WS_EVENTS } from '@tamanu/constants';
 
 const ReminderModalContainer = styled(Box)`
   padding: 0px 8px;
@@ -32,11 +35,47 @@ const REMINDER_CONTACT_VIEWS = {
   REMOVE_REMINDER: 'RemoveReminder',
 };
 
+const DEFAULT_CONTACT_TIMEOUT = 2 * 60 * 1000; // 2 minutes
+
 export const ReminderContactModal = ({ onClose, open }) => {
   const { getTranslation } = useTranslation();
   const [activeView, setActiveView] = useState(REMINDER_CONTACT_VIEWS.REMINDER_CONTACT_LIST);
-  const [newContact, setNewContact] = useState();
+  const [newContact, setNewContact] = useState({});
+  const [pendingContacts, setPendingContacts] = useState({});
+  const [successContactIds, setSuccessContactIds] = useState([]);
   const [selectedContact, setSelectedContact] = useState();
+  const { socket } = useSocket();
+
+  const subscribersListener = useCallback(data => {
+    setSuccessContactIds(prev => [...prev, data?.contactId]);
+  }, []);
+
+  const handleUpdatePendingContacts = isTimerStarted => {
+    setPendingContacts(previousPendingContacts => ({
+      ...previousPendingContacts,
+      [newContact.id]: {
+        ...previousPendingContacts[newContact.id],
+        isTimerStarted,
+      },
+    }));
+  };
+
+  useEffect(() => {
+    socket.on(WS_EVENTS.TELEGRAM_SUBSCRIBE_SUCCESS, subscribersListener);
+    return () => socket.off(WS_EVENTS.TELEGRAM_SUBSCRIBE_SUCCESS, subscribersListener);
+  }, []);
+
+  useEffect(() => {
+    setActiveView(REMINDER_CONTACT_VIEWS.REMINDER_CONTACT_LIST);
+  }, [open]);
+
+  useEffect(() => {
+    if (!newContact.id) return;
+    setTimeout(() => {
+      handleUpdatePendingContacts(false);
+    }, DEFAULT_CONTACT_TIMEOUT);
+    handleUpdatePendingContacts(true);
+  }, [newContact.id]);
 
   const handleActiveView = value => {
     setActiveView(value);
@@ -83,22 +122,24 @@ export const ReminderContactModal = ({ onClose, open }) => {
         {activeView === REMINDER_CONTACT_VIEWS.REMINDER_CONTACT_LIST && (
           <ReminderContactList
             onAddContact={() => handleActiveView(REMINDER_CONTACT_VIEWS.ADD_REMINDER_FORM)}
+            onRetry={onContinue}
             onRemoveContact={handleRemoveContact}
             onClose={onClose}
+            pendingContacts={pendingContacts}
+            successContactIds={successContactIds}
           />
         )}
         {activeView === REMINDER_CONTACT_VIEWS.ADD_REMINDER_FORM && (
           <AddReminderContact onContinue={onContinue} onBack={onBack} onClose={onClose} />
         )}
         {activeView === REMINDER_CONTACT_VIEWS.ADD_REMINDER_QR_CODE && (
-          <ReminderContactQR
-            contact={newContact}
-            onClose={onBack}
-          />
+          <ReminderContactQR contact={newContact} onClose={onBack} />
         )}
         {activeView === REMINDER_CONTACT_VIEWS.REMOVE_REMINDER && (
           <RemoveReminderContact
             selectedContact={selectedContact}
+            successContactIds={successContactIds}
+            pendingContacts={pendingContacts}
             onClose={onClose}
             onBack={onBack}
           />
