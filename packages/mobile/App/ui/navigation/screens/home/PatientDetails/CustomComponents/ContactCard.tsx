@@ -58,13 +58,13 @@ export const ContactCard = (contact: IPatientContact) => {
       </RowView>
       <RowView justifyContent="space-between" paddingTop={10} paddingBottom={10}>
         <StyledText
-          color={theme.colors.MAIN_SUPER_DARK}
+          color={theme.colors.TEXT_SUPER_DARK}
           fontSize={screenPercentageToDP(2, Orientation.Height)}
           fontWeight={500}
         >
           <TranslatedText
             stringId="patient.details.reminderContacts.field.contactMethod"
-            fallback="Contact Method"
+            fallback="Contact method"
           />
         </StyledText>
         <StyledText color={getColor()} fontSize={screenPercentageToDP(2, Orientation.Height)}>
