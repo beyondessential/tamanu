@@ -70,7 +70,7 @@ export class Setting extends Model {
   }
 
   static buildSyncFilter() {
-    return `WHERE (facility_id = :facilityId OR :facilityId IS NULL) AND ${this.tableName}.updated_at_sync_tick > :since`;
+    return `WHERE (facility_id = :facilityId OR facility_id IS NULL) AND ${this.tableName}.updated_at_sync_tick > :since`;
   }
 
   /**

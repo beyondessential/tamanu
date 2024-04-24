@@ -55,9 +55,9 @@ export const RemoveReminderContactModal = ({
         </StyledView>
 
         <StyledText
-          fontSize={16}
+          fontSize={screenPercentageToDP(2.3, Orientation.Height)}
           fontWeight={500}
-          color={theme.colors.MAIN_SUPER_DARK}
+          color={theme.colors.TEXT_SUPER_DARK}
           marginBottom={10}
           textAlign="center"
         >
@@ -66,7 +66,12 @@ export const RemoveReminderContactModal = ({
             fallback="Would you like to remove the below contact?"
           />
         </StyledText>
-        <StyledText color={theme.colors.MAIN_SUPER_DARK} marginBottom={20} textAlign="center">
+        <StyledText
+          color={theme.colors.TEXT_SUPER_DARK}
+          marginBottom={20}
+          textAlign="center"
+          fontSize={screenPercentageToDP(2, Orientation.Height)}
+        >
           <TranslatedText
             stringId="patient.details.removeReminderContact.description"
             fallback="You can add the contact again at any time."
@@ -78,8 +83,13 @@ export const RemoveReminderContactModal = ({
           backgroundColor={theme.colors.PRIMARY_MAIN}
           marginTop={20}
           loadingAction={isRemoving}
+          height={screenPercentageToDP(5, Orientation.Height)}
         >
-          <StyledText color={theme.colors.WHITE} fontSize={16} fontWeight={500}>
+          <StyledText
+            color={theme.colors.WHITE}
+            fontSize={screenPercentageToDP(2, Orientation.Height)}
+            fontWeight={500}
+          >
             <TranslatedText
               stringId="patient.details.removeReminderContact.action.remove"
               fallback="Remove contact"
@@ -92,8 +102,13 @@ export const RemoveReminderContactModal = ({
           borderColor={theme.colors.PRIMARY_MAIN}
           borderWidth={1}
           marginTop={8}
+          height={screenPercentageToDP(5, Orientation.Height)}
         >
-          <StyledText color={theme.colors.PRIMARY_MAIN} fontSize={16} fontWeight={500}>
+          <StyledText
+            color={theme.colors.PRIMARY_MAIN}
+            fontSize={screenPercentageToDP(2, Orientation.Height)}
+            fontWeight={500}
+          >
             <TranslatedText
               stringId="patient.details.removeReminderContact.action.cancel"
               fallback="Cancel"

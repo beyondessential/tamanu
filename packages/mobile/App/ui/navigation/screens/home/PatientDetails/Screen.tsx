@@ -129,7 +129,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => 
             <StyledView alignSelf="flex-end" alignItems="flex-end" marginRight={15}>
               <Button
                 marginTop={screenPercentageToDP(1.21, Orientation.Height)}
-                width={screenPercentageToDP(23.11, Orientation.Width)}
+                width={screenPercentageToDP(26, Orientation.Width)}
                 height={screenPercentageToDP(4.2, Orientation.Height)}
                 buttonText={
                   <TranslatedText
@@ -137,13 +137,18 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => 
                     fallback="Contacts"
                   />
                 }
-                fontSize={screenPercentageToDP(1.57, Orientation.Height)}
+                fontSize={screenPercentageToDP(2, Orientation.Height)}
+                fontWeight={500}
+                alignItems='center'
                 onPress={onNavigateReminder}
                 outline
                 borderColor={theme.colors.WHITE}
               >
-                <StyledView marginRight={6}>
-                  <ReminderBellIcon />
+                <StyledView marginRight={screenPercentageToDP(0.6, Orientation.Height)}>
+                  <ReminderBellIcon
+                    width={screenPercentageToDP(1.8, Orientation.Height)}
+                    height={screenPercentageToDP(2, Orientation.Height)}
+                  />
                 </StyledView>
               </Button>
             </StyledView>

@@ -4,12 +4,14 @@ import styled from 'styled-components';
 
 import QRCode from 'qrcode';
 import { toast } from 'react-toastify';
-import { Typography } from '@material-ui/core';
+import { Typography, CircularProgress } from '@material-ui/core';
 
-import { ModalCancelRow } from './ModalActionRow';
-import { TranslatedText } from './Translation/TranslatedText';
-import { joinNames } from '../utils/user';
-import { useTranslation } from '../contexts/Translation';
+import { ModalCancelRow } from '../ModalActionRow';
+import { TranslatedText } from '../Translation/TranslatedText';
+import { joinNames } from '../../utils/user';
+import { useTranslation } from '../../contexts/Translation';
+import { useTelegramBotInfoQuery } from '../../api/queries';
+import { Colors } from '../../constants';
 
 const StyledHeaderText = styled(Typography)`
   font-size: 14px;
@@ -40,27 +42,29 @@ const StyledQrContainer = styled.div`
   }
 `;
 
+const ErrorMessege = styled.div`
+  color: ${Colors.alert};
+`;
+
 export const ReminderContactQR = ({ contact, onClose }) => {
   const { getTranslation } = useTranslation();
   const patient = useSelector(state => state.patient);
+  const { data: botInfo, isLoading, isError, error } = useTelegramBotInfoQuery();
 
   const [qrCodeURL, setQRCodeURL] = useState('');
 
-  const data = {
-    id: contact?.id,
-  };
-
   useEffect(() => {
-    generateQRCode(data);
-  }, []);
+    if (botInfo && botInfo.username) {
+      generateQRCode();
+    }
+  }, [botInfo?.username]);
 
-  const generateQRCode = async data => {
+  const generateQRCode = async () => {
     try {
-      // Convert the object to a JSON string
-      const jsonString = JSON.stringify(data);
+      const urlString = `https://t.me/${botInfo.username}?start=${contact.id}`;
 
-      // Generate QR code from the JSON string
-      const url = await QRCode.toDataURL(jsonString);
+      // Generate QR code from the URL string
+      const url = await QRCode.toDataURL(urlString);
       setQRCodeURL(url);
     } catch (error) {
       toast.error(`Error generating QR code: ${error}`);
@@ -92,7 +96,11 @@ export const ReminderContactQR = ({ contact, onClose }) => {
           fallback="They will receive a confirmation message from Telegram once their account is successfully registered."
         />
       </StyledText>
-      <StyledQrContainer>{qrCodeURL && <img src={qrCodeURL} alt="QR Code" />}</StyledQrContainer>
+      <StyledQrContainer>
+        {qrCodeURL && <img src={qrCodeURL} alt="QR Code" />}
+        {isLoading && <CircularProgress />}
+        {isError && <ErrorMessege>{error.message}</ErrorMessege>}
+      </StyledQrContainer>
       <ModalCancelRow
         confirmText={<TranslatedText stringId="general.action.close" fallback="Close" />}
         confirmColor="primary"

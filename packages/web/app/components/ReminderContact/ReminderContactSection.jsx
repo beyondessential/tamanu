@@ -1,10 +1,10 @@
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import NotificationsNoneIcon from '@material-ui/icons/NotificationsNone';
-import { Button } from '../components';
-import { ReminderContactModal } from '../components/ReminderContactModal';
-import { useAuth } from '../contexts/Auth';
-import { TranslatedText } from './Translation/TranslatedText';
+import { Button } from '..';
+import { ReminderContactModal } from './ReminderContactModal';
+import { useAuth } from '../../contexts/Auth';
+import { TranslatedText } from '../Translation/TranslatedText';
 
 const StyledButton = styled(Button)`
   padding: 6px 8px !important;
@@ -45,13 +45,10 @@ export const ReminderContactSection = () => {
           fallback="Reminder contacts"
         />
       </StyledButton>
-      {openReminderModal && (
-        <ReminderContactModal
-          open
-          onClose={onClose}
-          handleOpenRemindersModal={handleOpenRemindersModal}
-        />
-      )}
+      <ReminderContactModal
+        open={openReminderModal}
+        onClose={onClose}
+      />
     </>
   );
 };

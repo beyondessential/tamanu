@@ -24,6 +24,7 @@ import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { PatientContact } from '~/models/PatientContact';
 import { SuggesterDropdown } from '~/ui/components/Dropdown';
 import { PATIENT_COMMUNICATION_CHANNELS } from '~/constants/comms';
+import { useReminderContact } from '~/ui/contexts/ReminderContactContext';
 
 interface IFormValues {
   reminderContactName: string;
@@ -32,6 +33,7 @@ interface IFormValues {
 
 const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
   const { getTranslation } = useTranslation();
+  const { afterAddContact } = useReminderContact();
 
   const onNavigateBack = useCallback(() => {
     navigation.goBack();
@@ -44,6 +46,16 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
       method: PATIENT_COMMUNICATION_CHANNELS.TELEGRAM,
       patient: selectedPatient.id,
     });
+    afterAddContact(
+      {
+        ...newContact,
+        relationshipId: values.reminderContactRelationship,
+        patientId: selectedPatient.id,
+        patient: newContact.patient as any,
+        relationship: newContact.relationship as any,
+      },
+      true,
+    );
     navigation.navigate(Routes.HomeStack.PatientDetailsStack.ReminderContactQR, {
       contactId: newContact.id,
     });
@@ -69,7 +81,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
           </StyledTouchableOpacity>
           <StyledView paddingTop={15}>
             <StyledText
-              color={theme.colors.MAIN_SUPER_DARK}
+              color={theme.colors.TEXT_SUPER_DARK}
               fontSize={screenPercentageToDP(3, Orientation.Height)}
               fontWeight={500}
             >
@@ -81,7 +93,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
           </StyledView>
           <StyledView paddingTop={25}>
             <StyledText
-              color={theme.colors.MAIN_SUPER_DARK}
+              color={theme.colors.TEXT_SUPER_DARK}
               fontSize={screenPercentageToDP(2, Orientation.Height)}
               fontWeight={500}
             >
@@ -93,12 +105,12 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
           </StyledView>
           <StyledView paddingTop={10}>
             <StyledText
-              color={theme.colors.MAIN_SUPER_DARK}
+              color={theme.colors.TEXT_DARK}
               fontSize={screenPercentageToDP(2, Orientation.Height)}
               fontWeight={400}
             >
               <StyledText>{note.split(`${patientName}.`)[0]}</StyledText>
-              <StyledText fontWeight={500}>{patientName}.</StyledText>
+              <StyledText fontWeight={600}>{patientName}.</StyledText>
             </StyledText>
           </StyledView>
           <Form
@@ -112,7 +124,9 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
             })}
             onSubmit={submit}
           >
-            {({ handleSubmit, isSubmitting }): ReactElement => {
+            {({ handleSubmit, isSubmitting, values }): ReactElement => {
+              const isPopulated = values.reminderContactName?.trim() && values.reminderContactRelationship
+
               return (
                 <>
                   <StyledView marginTop={25}>
@@ -143,9 +157,14 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
                     onPress={handleSubmit}
                     loadingAction={isSubmitting}
                     marginTop={10}
-                    fontSize={16}
+                    height={screenPercentageToDP(5, Orientation.Height)}
+                    disabled={!isPopulated}
                   >
-                    <StyledText color={theme.colors.WHITE} fontSize={16} fontWeight={500}>
+                    <StyledText
+                      color={theme.colors.WHITE}
+                      fontSize={screenPercentageToDP(2, Orientation.Height)}
+                      fontWeight={500}
+                    >
                       <TranslatedText
                         stringId="patient.details.addReminderContact.action.confirm"
                         fallback="Confirm & connect"
@@ -158,8 +177,13 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
                     borderColor={theme.colors.PRIMARY_MAIN}
                     borderWidth={1}
                     marginTop={10}
+                    height={screenPercentageToDP(5, Orientation.Height)}
                   >
-                    <StyledText color={theme.colors.PRIMARY_MAIN} fontSize={16} fontWeight={500}>
+                    <StyledText
+                      color={theme.colors.PRIMARY_MAIN}
+                      fontSize={screenPercentageToDP(2, Orientation.Height)}
+                      fontWeight={500}
+                    >
                       <TranslatedText
                         stringId="patient.details.addReminderContact.action.cancel"
                         fallback="Cancel"
