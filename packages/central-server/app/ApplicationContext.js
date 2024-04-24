@@ -9,6 +9,7 @@ import { log, initBugsnag } from '@tamanu/shared/services/logging';
 import { VERSION } from './middleware/versionCompatibility';
 
 export class ApplicationContext {
+  /** @type {Awaited<ReturnType<typeof initDatabase>>|null} */
   store = null;
 
   reportSchemaStores = null;

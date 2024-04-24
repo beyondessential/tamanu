@@ -28,6 +28,7 @@ export class PatientCommunication extends Model {
         retryCount: Sequelize.INTEGER,
         destination: Sequelize.STRING,
         attachment: Sequelize.STRING,
+        hash: Sequelize.INTEGER,
       },
       { ...options, syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC },
     );
