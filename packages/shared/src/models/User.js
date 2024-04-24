@@ -95,6 +95,10 @@ export class User extends Model {
           defaultValue: 'practitioner',
           allowNull: false,
         },
+        phoneNumber: {
+          type: Sequelize.STRING,
+          allowNull: false,
+        },
         visibilityStatus: {
           type: Sequelize.STRING,
           defaultValue: VISIBILITY_STATUSES.CURRENT,
