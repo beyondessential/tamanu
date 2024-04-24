@@ -20,7 +20,7 @@ export const ContactCard = (contact: IPatientContact) => {
   const { isFailedContact } = useReminderContact();
 
   const getColor = () => {
-    if (connectionDetails) return theme.colors.MAIN_SUPER_DARK;
+    if (connectionDetails) return theme.colors.TEXT_SUPER_DARK;
     return isFailedContact(contact) ? theme.colors.ALERT : theme.colors.TEXT_SOFT;
   };
 
@@ -28,7 +28,7 @@ export const ContactCard = (contact: IPatientContact) => {
     <StyledViewWithBorder>
       <RowView justifyContent="space-between" paddingTop={10} paddingBottom={10}>
         <StyledText
-          color={theme.colors.MAIN_SUPER_DARK}
+          color={theme.colors.TEXT_SUPER_DARK}
           fontSize={screenPercentageToDP(2, Orientation.Height)}
           fontWeight={500}
         >
@@ -43,7 +43,7 @@ export const ContactCard = (contact: IPatientContact) => {
       </RowView>
       <RowView justifyContent="space-between" paddingTop={10} paddingBottom={10}>
         <StyledText
-          color={theme.colors.MAIN_SUPER_DARK}
+          color={theme.colors.TEXT_SUPER_DARK}
           fontSize={screenPercentageToDP(2, Orientation.Height)}
           fontWeight={500}
         >

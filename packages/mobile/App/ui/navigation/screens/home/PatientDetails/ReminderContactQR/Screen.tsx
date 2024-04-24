@@ -54,7 +54,7 @@ const Screen = ({ navigation, route, selectedPatient }: IReminderContactQR) => {
 
   const description = getTranslation(
     'patient.details.reminderContactQr.description',
-    'Please ask the contact to scan the QR code to register their Telegram account to received automated reminder messages for :patientName.',
+    'Please ask the contact to scan the QR code using their camera app to register their Telegram account to receive automated reminder messages for :patientName.',
     { patientName },
   );
 
@@ -77,7 +77,7 @@ const Screen = ({ navigation, route, selectedPatient }: IReminderContactQR) => {
       </StyledView>
 
       <StyledText
-        color={theme.colors.MAIN_SUPER_DARK}
+        color={theme.colors.TEXT_SUPER_DARK}
         fontSize={screenPercentageToDP(3, Orientation.Height)}
         fontWeight={500}
         marginBottom={35}
@@ -94,7 +94,7 @@ const Screen = ({ navigation, route, selectedPatient }: IReminderContactQR) => {
         marginBottom={10}
       >
         <StyledText>{description.split(`${patientName}.`)[0]}</StyledText>
-        <StyledText fontWeight={500}>{patientName}.</StyledText>
+        <StyledText fontWeight={600}>{patientName}.</StyledText>
       </StyledText>
       <StyledText
         fontSize={screenPercentageToDP(2, Orientation.Height)}
