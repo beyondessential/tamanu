@@ -84,4 +84,8 @@ export class Setting extends BaseModel {
       return sanitizedRow;
     });
   }
+
+  static getTableNameForSync(): string {
+    return 'settings';
+  }
 }

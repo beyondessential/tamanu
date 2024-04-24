@@ -2,6 +2,7 @@ export const PATIENT_COMMUNICATION_CHANNELS = {
   EMAIL: 'Email',
   SMS: 'Sms',
   WHATSAPP: 'WhatsApp',
+  TELEGRAM: 'Telegram'
 };
 
 export const PATIENT_COMMUNICATION_CHANNELS_VALUES = Object.values(
