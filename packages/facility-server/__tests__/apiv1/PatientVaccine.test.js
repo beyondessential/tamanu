@@ -1,16 +1,24 @@
 import config from 'config';
-
-import { createDummyEncounter, createDummyPatient, randomVitals } from '@tamanu/shared/demoData/patients';
+import moment from 'moment';
+import {
+  createDummyEncounter,
+  createDummyPatient,
+  randomVitals,
+} from '@tamanu/shared/demoData/patients';
 import {
   ENCOUNTER_TYPES,
   REFERENCE_TYPES,
   SETTING_KEYS,
   VACCINE_CATEGORIES,
+  VACCINE_CATEGORIES_VALUES,
   VACCINE_RECORDING_TYPES,
   VACCINE_STATUS,
 } from '@tamanu/constants';
-import { fake } from '@tamanu/shared/test-helpers/fake';
-import { createAdministeredVaccine, createScheduledVaccine } from '@tamanu/shared/demoData/vaccines';
+import { chance, fake } from '@tamanu/shared/test-helpers/fake';
+import {
+  createAdministeredVaccine,
+  createScheduledVaccine,
+} from '@tamanu/shared/demoData/vaccines';
 import { createTestContext } from '../utilities';
 
 describe('PatientVaccine', () => {
@@ -222,13 +230,6 @@ describe('PatientVaccine', () => {
       expect(result.body[0].schedules).toEqual([
         { administered: false, schedule: 'Dose 1', scheduledVaccineId: scheduled6.id },
       ]);
-    });
-  });
-
-  describe('Upcoming vaccination', () => {
-    it('should return all upcoming vaccinations of patient', async () => {
-      const result = await app.get(`/api/patient/${patient.id}/upcomingVaccination`);
-      expect(result).toHaveSucceeded();
     });
   });
 
@@ -524,6 +525,64 @@ describe('PatientVaccine', () => {
       expect(ids[0]).toEqual(vaccineNew.id);
       expect(ids[1]).toEqual(vaccineOld.id);
       expect(ids[2]).toEqual(vaccineNull.id);
+    });
+  });
+
+  describe('Upcoming vaccination', async () => {
+    await models.ScheduledVaccine.truncate({ cascade: true });
+    await models.AdministeredVaccine.truncate({ cascade: true });
+
+    const scheduledVax1 = await models.ScheduledVaccine.create(
+      createScheduledVaccine(models, {
+        category: VACCINE_CATEGORIES.ROUTINE,
+        schedule: 'Dose 1',
+        index: 1,
+        weeksFromBirthDue: 1,
+        vaccineId: drug.id,
+      }),
+    );
+
+    const scheduledVax2 = await models.ScheduledVaccine.create(
+      createScheduledVaccine(models, {
+        category: VACCINE_CATEGORIES.ROUTINE,
+        schedule: 'Dose 2',
+        index: 2,
+        weeksFromLastVaccinationDue: 4,
+        vaccineId: drug.id,
+      }),
+    );
+
+    const patient1 = await models.Patient.create(
+      createDummyPatient(models, { dateOfBirth: new Date() }),
+    );
+
+    const patient2 = await models.Patient.create(
+      createDummyPatient(models, {
+        dateOfBirth: moment()
+          .subtract(9, 'day')
+          .toDate(),
+      }),
+    );
+
+    await recordAdministeredVaccine(patient2, scheduledVax1, {
+      status: VACCINE_STATUS.GIVEN,
+      date: moment()
+        .subtract(1, 'day')
+        .toDate(),
+    });
+
+    it('should return 1 upcoming vaccinations of patient 1', async () => {
+      const result = await app.get(`/api/patient/${patient1.id}/upcomingVaccination`);
+      expect(result).toHaveSucceeded();
+      expect(result.body.data).toHaveLength(1);
+      expect(result.body.data.at(0)?.scheduledVaccineId).toEqual(scheduledVax1.id);
+    });
+
+    it('should return 1 upcoming vaccinations of patient 2', async () => {
+      const result = await app.get(`/api/patient/${patient2.id}/upcomingVaccination`);
+      expect(result).toHaveSucceeded();
+      expect(result.body.data).toHaveLength(1);
+      expect(result.body.data.at(0)?.scheduledVaccineId).toEqual(scheduledVax2.id);
     });
   });
 });
