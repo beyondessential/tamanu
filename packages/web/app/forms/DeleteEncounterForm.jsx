@@ -61,7 +61,7 @@ export const DeleteEncounterForm = ({ onSubmit, onCancel, encounterToDelete, pat
 
   return (
     <Form
-    suppressErrorDialog
+      suppressErrorDialog
       render={({ submitForm }) => {
         return (
           <div>
