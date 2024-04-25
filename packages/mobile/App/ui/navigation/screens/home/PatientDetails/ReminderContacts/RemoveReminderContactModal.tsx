@@ -55,7 +55,7 @@ export const RemoveReminderContactModal = ({
         </StyledView>
 
         <StyledText
-          fontSize={screenPercentageToDP(2.3, Orientation.Height)}
+          fontSize={screenPercentageToDP(2, Orientation.Height)}
           fontWeight={500}
           color={theme.colors.TEXT_SUPER_DARK}
           marginBottom={10}
