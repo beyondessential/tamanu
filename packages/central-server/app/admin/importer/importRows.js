@@ -4,9 +4,9 @@ import { permissionCache } from '@tamanu/shared/permissions/cache';
 import { ValidationError as YupValidationError } from 'yup';
 import config from 'config';
 
-import { ForeignkeyResolutionError, UpsertionError, ValidationError } from './errors';
-import { statkey, updateStat } from './stats';
-import * as schemas from './importSchemas';
+import { ForeignkeyResolutionError, UpsertionError, ValidationError } from '../errors';
+import { statkey, updateStat } from '../stats';
+import * as schemas from '../importSchemas';
 
 function findFieldName(values, fkField) {
   const fkFieldLower = fkField.toLowerCase();

@@ -3,7 +3,7 @@ import { utils } from 'xlsx';
 import { PATIENT_FIELD_DEFINITION_TYPES, REFERENCE_TYPE_VALUES } from '@tamanu/constants';
 import { DataLoaderError, ValidationError, WorkSheetError } from '../errors';
 import { statkey, updateStat } from '../stats';
-import { importRows } from '../importRows';
+import { importRows } from '../importer/importRows';
 
 const FOREIGN_KEY_SCHEMATA = {
   CertifiableVaccine: [

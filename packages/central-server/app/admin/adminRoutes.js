@@ -1,24 +1,18 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { upperFirst } from 'lodash';
 
 import { ensurePermissionCheck } from '@tamanu/shared/permissions/middleware';
 import { NotFoundError } from '@tamanu/shared/errors';
-import { REFERENCE_TYPE_VALUES } from '@tamanu/constants';
 
-import { createDataImporterEndpoint } from './importerEndpoint';
+import { exporterRouter } from './exporter';
+import { importerRouter } from './importer';
 
-import { programImporter } from './programImporter';
-import { referenceDataImporter } from './referenceDataImporter';
-import { surveyResponsesImporter } from './surveyResponsesImporter';
-import { exporter } from './exporter';
-
-import { mergePatientHandler } from './patientMerge';
-import { syncLastCompleted } from './sync';
-import { fhirJobStats } from './fhirJobStats';
-import { reportsRouter } from './reports/reportRoutes';
-import { patientLetterTemplateRoutes } from './patientLetterTemplate';
 import { assetRoutes } from './asset';
+import { fhirJobStats } from './fhirJobStats';
+import { mergePatientHandler } from './patientMerge';
+import { patientLetterTemplateRoutes } from './patientLetterTemplate';
+import { reportsRouter } from './reports/reportRoutes';
+import { syncLastCompleted } from './sync';
 import { translationRouter } from './translation';
 import { settingsCache } from '@tamanu/settings';
 
@@ -52,35 +46,8 @@ adminRoutes.get(
   }),
 );
 
-adminRoutes.post('/import/referenceData', createDataImporterEndpoint(referenceDataImporter));
-
-adminRoutes.post('/import/program', createDataImporterEndpoint(programImporter));
-
-adminRoutes.post('/import/surveyResponses', createDataImporterEndpoint(surveyResponsesImporter));
-
-adminRoutes.get(
-  '/export/referenceData',
-  asyncHandler(async (req, res) => {
-    const { store, query } = req;
-    const { includedDataTypes = {} } = query;
-
-    for (const dataType of Object.values(includedDataTypes)) {
-      // When it is ReferenceData, check if user has permission to list ReferenceData
-      if (REFERENCE_TYPE_VALUES.includes(dataType)) {
-        req.checkPermission('list', 'ReferenceData');
-        continue;
-      }
-
-      // Otherwise, if it is other types (eg: patient, lab_test_types,... ones that have their own models)
-      // check the permission against the models
-      const nonReferenceDataModelName = upperFirst(dataType);
-      req.checkPermission('list', nonReferenceDataModelName);
-    }
-
-    const filename = await exporter(store, query.includedDataTypes);
-    res.download(filename);
-  }),
-);
+adminRoutes.use('/import', importerRouter);
+adminRoutes.use('/export', exporterRouter);
 
 adminRoutes.get('/sync/lastCompleted', syncLastCompleted);
 

@@ -1,7 +1,7 @@
 import { log } from '@tamanu/shared/services/logging';
 import { read, readFile } from 'xlsx';
 
-import { importRows } from '../importRows';
+import { importRows } from '../importer/importRows';
 
 import { readMetadata } from './readMetadata';
 import { importSurvey } from './importSurvey';
