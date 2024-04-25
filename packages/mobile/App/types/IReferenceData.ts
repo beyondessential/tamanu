@@ -5,6 +5,7 @@ export enum ReferenceDataType {
   Condition = 'condition',
   ContactRelationship = 'contactRelationship',
   Drug = 'drug',
+  Diet = 'diet',
   ICD10 = 'icd10',
   ImagingType = 'imagingType',
   LabTestCategory = 'labTestCategory',
