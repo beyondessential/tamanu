@@ -1,5 +1,7 @@
 import React from 'react';
+import styled from 'styled-components';
 import { PATIENT_FIELD_DEFINITION_TYPES, PATIENT_REGISTRY_TYPES } from '@tamanu/constants';
+import { Colors } from '../../../../constants';
 import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
 import { LocalisedField, TextField, DateField, RadioField, FormGrid } from '../../../../components';
 import {
