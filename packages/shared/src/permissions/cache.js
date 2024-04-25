@@ -1,7 +1,7 @@
 import { isEmpty } from 'lodash';
 import config from 'config';
 
-const ttl = config.permissionCache.ttl;
+const ttl = BigInt(config.permissionCache.ttl * 1000000);
 
 class PermissionCache {
   cache = {};
@@ -16,7 +16,7 @@ class PermissionCache {
   set(key, value) {
     this.cache[key] = value;
     if (this.expires) return;
-    this.expires = Date.now() + ttl;
+    this.expires = process.hrtime.bigint() + ttl;
   }
 
   delete(key) {
@@ -33,7 +33,7 @@ class PermissionCache {
   }
 
   invalidateIfExpired() {
-    if (this.expires > Date.now()) return;
+    if (this.expires > process.hrtime.bigint()) return;
     this.reset();
   }
 }
