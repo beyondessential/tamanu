@@ -85,9 +85,7 @@
     "saltRounds": 12,
     "tokenDuration": "1h",
     "useHardcodedPermissions": true,
-    "permissionCache": {
-      "ttl": 60000
-    }
+    "permissionCacheTTL": 60000
   },
   "survey": {
     "defaultCodes": {

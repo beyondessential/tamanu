@@ -1,7 +1,7 @@
 import config from 'config';
 import TTLCache from '@isaacs/ttlcache';
 
-const { ttl } = config.auth.permissionCache;
+const ttl = config.auth?.permissionCacheTTL;
 
 class PermissionCache {
   cache = new TTLCache({ ttl });

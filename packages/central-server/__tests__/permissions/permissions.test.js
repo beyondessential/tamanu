@@ -8,6 +8,7 @@ import { permissionCache } from '@tamanu/shared/permissions/cache';
 import { fake } from '@tamanu/shared/test-helpers/fake';
 import { createTestContext } from '../utilities';
 import { makeRoleWithPermissions } from '../permissions';
+import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
 
 async function getAbilityForRoles(models, roleString) {
   const perms = await queryPermissionsForRoles(models, roleString);
@@ -150,6 +151,23 @@ describe('Permissions', () => {
 
       // Assert
       expect(permissionCache.isEmpty()).toBe(true);
+    });
+
+    describe('TTL', () => {
+      it('should not expire permissions before the TTL', async () => {
+        await addNewPermission();
+        await getPermissionsForRoles(ctx.store.models, 'writer');
+        expect(permissionCache.isEmpty()).toBe(false);
+        await sleepAsync(50);
+        expect(permissionCache.isEmpty()).toBe(false);
+      });
+      it('should expire permissions after the TTL', async () => {
+        await addNewPermission();
+        await getPermissionsForRoles(ctx.store.models, 'writer');
+        expect(permissionCache.isEmpty()).toBe(false);
+        await sleepAsync(60);
+        expect(permissionCache.isEmpty()).toBe(true);
+      });
     });
   });
 });

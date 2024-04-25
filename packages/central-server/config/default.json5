@@ -119,9 +119,7 @@
       "tokenLength": 6,
       "tokenExpiry": 20
     },
-    "permissionCache": {
-      "ttl": 60000
-    }
+    "permissionCacheTTL": 60000
   },
   "export": {
     "maxFileSizeInMB": 50

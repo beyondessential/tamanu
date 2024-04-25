@@ -31,7 +31,8 @@
       "secret": "refreshSecret"
     },
     "reportNoUserError": true,
-    "useHardcodedPermissions": false
+    "useHardcodedPermissions": false,
+    "permissionCacheTTL": 60
   },
   "log": {
     "consoleLevel": "warn"
