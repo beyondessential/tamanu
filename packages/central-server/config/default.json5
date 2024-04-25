@@ -44,9 +44,6 @@
     "consoleLevel": "http",
     "color": true
   },
-  "permissionCache" {
-    "ttl": 60000
-  },
   "honeycomb": {
     "apiKey": "",
     "sampleRate": 100, // 100 = 1/100 = 1% of traces get sent to honeycomb
@@ -121,6 +118,9 @@
     "resetPassword": {
       "tokenLength": 6,
       "tokenExpiry": 20
+    },
+    "permissionCache": {
+      "ttl": 60000
     }
   },
   "export": {

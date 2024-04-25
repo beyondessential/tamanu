@@ -14,5 +14,10 @@
     "persistUpdateWorkerPoolSize": 5,
     "pauseBetweenPersistedCacheBatchesInMilliseconds": 50
   },
+  "auth": {
+    "permissionCache": {
+      "ttl": 60000
+    }
+  },
   "countryTimeZone": "Australia/Melbourne"
 }

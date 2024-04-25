@@ -1,40 +1,25 @@
-import { isEmpty } from 'lodash';
 import config from 'config';
+import TTLCache from '@isaacs/ttlcache';
 
-const ttl = BigInt(config.permissionCache.ttl * 1000000);
+const { ttl } = config.auth.permissionCache;
 
 class PermissionCache {
-  cache = {};
-
-  expires = null;
+  cache = new TTLCache({ ttl });
 
   get(key) {
-    this.invalidateIfExpired();
-    return this.cache[key];
+    return this.cache.get(key);
   }
 
   set(key, value) {
-    this.cache[key] = value;
-    if (this.expires) return;
-    this.expires = process.hrtime.bigint() + ttl;
-  }
-
-  delete(key) {
-    delete this.cache[key];
+    this.cache.set(key, value);
   }
 
   reset() {
-    this.cache = {};
-    this.expires = null;
+    this.cache.clear();
   }
 
   isEmpty() {
-    return isEmpty(this.cache);
-  }
-
-  invalidateIfExpired() {
-    if (this.expires > process.hrtime.bigint()) return;
-    this.reset();
+    return this.cache.size === 0;
   }
 }
 
