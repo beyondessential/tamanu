@@ -13,7 +13,7 @@ export const replaceStringVariables = (templateString, replacements) => {
       // Even indexes are the unchanged parts of the string
       if (index % 2 === 0) return part;
       // Return the replacement if exists
-      return replacements[part.slice(1)] || part;
+      return replacements[part.slice(1)] ?? part;
     })
     .join('');
 

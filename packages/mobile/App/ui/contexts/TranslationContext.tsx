@@ -37,7 +37,7 @@ const replaceStringVariables = (templateString: string, replacements?: Replaceme
     .map((part, index) => {
       // Even indexes are the unchanged parts of the string
       if (index % 2 === 0) return part;
-      return replacements[part.slice(1)] || part;
+      return replacements[part.slice(1)] ?? part;
     })
     .join('');
 
