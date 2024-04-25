@@ -146,6 +146,10 @@
       "schedule": "*/30 * * * * *",
       "limit": 10
     },
+    "vaccinationReminderProcessor": {
+     // every day at 1 AM
+     "schedule": "0 1 * * *",
+    },
     "patientTelegramCommunicationProcessor": {
       // every 30seconds /!\
       "schedule": "*/30 * * * * *",

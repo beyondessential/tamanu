@@ -41,7 +41,8 @@ fhir.worker.heartbeat
 test.tree.branch.leaf
 test.tree.branch.root (facility only)
 test.tree.flower
-test.value"
+test.value
+vaccinationReminder.due"
 `;
 
 exports[`settings list (facility) shows no settings with a non-matching filter 1`] = `"No settings found"`;
@@ -58,7 +59,8 @@ fhir.worker.assumeDroppedAfter
 fhir.worker.heartbeat
 test.tree.branch.leaf
 test.tree.flower
-test.value"
+test.value
+vaccinationReminder.due"
 `;
 
 exports[`settings list (global) shows no settings with a non-matching filter 1`] = `"No settings found"`;
