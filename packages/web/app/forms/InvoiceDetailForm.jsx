@@ -208,13 +208,13 @@ export const InvoiceDetailForm = ({
                   <FormCancelButton onClick={onCancel}>
                     <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
                   </FormCancelButton>
-                  <Button
+                  {invoice.encounter.endDate && <Button
                     variant="outlined"
                     onClick={() => setFinaliseInvoiceModalOpen(true)}
                     color="primary"
                   >
                     <TranslatedText stringId="general.action.finalise" fallback="Finalise" />
-                  </Button>
+                  </Button>}
                 </>
               ) : null}
               <FormSubmitButton variant="contained" onClick={submitForm} color="primary">
