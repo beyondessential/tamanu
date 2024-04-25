@@ -8,6 +8,7 @@ import { ConfirmCancelRow } from '../components/ButtonRow';
 
 import { Colors, ENCOUNTER_OPTIONS_BY_VALUE } from '../constants';
 import { DateDisplay } from '../components/DateDisplay';
+import { useTranslation } from '../contexts/Translation';
 
 const Label = styled.div`
   font-size: 14px;
@@ -53,6 +54,8 @@ const StyledFormGrid = styled(FormGrid)`
 `;
 
 export const DeleteEncounterForm = ({ onSubmit, onCancel, encounterToDelete, patient }) => {
+  const { getTranslation } = useTranslation();
+  const shortLabel = getTranslation('general.localisedField.displayId.label.short', 'NHN');
   const { encounterType, facilityName, startDate, endDate, reasonForEncounter } = encounterToDelete;
   const currentType = ENCOUNTER_OPTIONS_BY_VALUE[encounterType].label;
 
@@ -91,9 +94,9 @@ export const DeleteEncounterForm = ({ onSubmit, onCancel, encounterToDelete, pat
                 <br />
                 <br />
                 This action is irreversible - to make sure you have selected the correct encounter,
-                please enter the NHN for this patient to confirm deletion.
+                please enter the {shortLabel} for this patient to confirm deletion.
               </Paragraph>
-              <NHNField required label="NHN" name="patientDisplayId" autoComplete="off" />
+              <NHNField required label={shortLabel} name="patientDisplayId" autoComplete="off" />
             </WarningWrapper>
             <ConfirmCancelRow onCancel={onCancel} onConfirm={submitForm} />
           </div>
@@ -103,9 +106,9 @@ export const DeleteEncounterForm = ({ onSubmit, onCancel, encounterToDelete, pat
         patientDisplayId: yup
           .string()
           .matches(`^${patient.displayId}$`, {
-            message: 'NHN does not match patient record',
+            message: `${shortLabel} does not match patient record`,
           })
-          .required('NHN is required'),
+          .required(`${shortLabel} is required`),
       })}
       onSubmit={onSubmit}
     />
