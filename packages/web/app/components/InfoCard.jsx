@@ -103,7 +103,12 @@ export const InfoCard = ({
   headerContent = null,
   numberOfColumns = 2,
 }) => (
-  <Card $elevated={elevated} $inlineValues={inlineValues} $contentPadding={contentPadding} $paddingTop={paddingTop}>
+  <Card 
+    $elevated={elevated} 
+    $inlineValues={inlineValues} 
+    $contentPadding={contentPadding} 
+    $paddingTop={paddingTop}
+  >
     {headerContent}
     <CardBody $numberOfColumns={numberOfColumns}>{children}</CardBody>
   </Card>
