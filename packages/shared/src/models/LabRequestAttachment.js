@@ -39,7 +39,7 @@ export class LabRequestAttachment extends Model {
 
   static buildPatientSyncFilter(patientIds, sessionConfig) {
     if (sessionConfig.syncAllLabRequests) {
-      return ''; // include all lab tests
+      return ''; // include all lab request attachments
     }
     if (patientIds.length === 0) {
       return null;
