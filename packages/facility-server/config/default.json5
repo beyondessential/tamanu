@@ -14,6 +14,9 @@
     "enabled": true,
     "level": "info"
   },
+  "permissionsCache" {
+    "ttl": 60000
+  },
   errors: {
     // enable to send errors to a bug tracking service
     enabled: false,
