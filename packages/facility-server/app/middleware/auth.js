@@ -106,7 +106,7 @@ async function localLogin(models, email, password) {
     order: [['createdAt', 'DESC']],
   });
 
-  return { central: false, user, localisation };
+  return { central: false, user: user.get({ plain: true }), localisation };
 }
 
 async function centralServerLoginWithLocalFallback(models, email, password, deviceId) {

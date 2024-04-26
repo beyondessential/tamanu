@@ -60,7 +60,6 @@ export class User extends Model {
   }
 
   static async getForAuthByEmail(email) {
-    // gets the user, as a plain object, with password hash, for use in auth
     const user = await this.scope('withPassword').findOne({
       where: {
         // email addresses are case insensitive so compare them as such
@@ -76,7 +75,7 @@ export class User extends Model {
       return null;
     }
 
-    return user.get({ plain: true });
+    return user;
   }
 
   static init({ primaryKey, ...options }) {

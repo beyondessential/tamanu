@@ -137,7 +137,7 @@ export const login = ({ secret, refreshSecret }) =>
     res.send({
       token,
       refreshToken,
-      user: convertFromDbRecord(stripUser(user)).data,
+      user: convertFromDbRecord(stripUser(user.get({ plain: true }))).data,
       permissions,
       role: role?.forResponse() ?? null,
       facility,
