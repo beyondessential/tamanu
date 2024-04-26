@@ -24,6 +24,7 @@ const COLUMNS = [
     key: 'allowedFacilities',
     title: 'Facilities',
     minWidth: 100,
+    sortable: false,
     accessor: ({ allowedFacilities }) =>
       allowedFacilities === 'ALL' ? 'All facilities' : allowedFacilities.length ? allowedFacilities.join(', ') : 'None',
   },

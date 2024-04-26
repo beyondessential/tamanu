@@ -12,41 +12,47 @@ usersRouter.get(
       store: {
         models: { User },
       },
+      query: { order = 'ASC', orderBy = 'displayName', rowsPerPage, page },
     } = req;
 
     req.checkPermission('list', 'User');
 
-    const users = await User.findAll({ include: 'facilities' });
+    const users = await User.findAll({
+      include: 'facilities',
+      order: [[orderBy, order.toUpperCase()]],
+      limit: rowsPerPage,
+      offset: page && rowsPerPage ? page * rowsPerPage : undefined,
+    });
 
     res.send({
-      data: await Promise.all(users.map(async user => {
-        const obj = user.get({ plain: true });
-        return {
-          ...pick(obj, [
-            'id',
-            'displayName',
-            'email',
-            'phoneNumber',
-            'role',
-          ]),
-          allowedFacilities: await user.allowedFacilities(),
-        };
-      }))
+      data: await Promise.all(
+        users.map(async user => {
+          const allowedFacilities = await user.allowedFacilities();
+          const obj = user.get({ plain: true });
+          return {
+            ...pick(obj, ['id', 'displayName', 'email', 'phoneNumber', 'role']),
+            allowedFacilities,
+          };
+        }),
+      ),
     });
   }),
 );
 
-const VALIDATION = yup.object().shape({
-  displayName: yup.string().required(),
-  role: yup.string().required(),
-  displayId: yup.string(),
-  phoneNumber: yup.string(),
-  password: yup.string().required(),
-  email: yup
-    .string()
-    .email()
-    .required(),
-}).noUnknown();
+const VALIDATION = yup
+  .object()
+  .shape({
+    displayName: yup.string().required(),
+    role: yup.string().required(),
+    displayId: yup.string(),
+    phoneNumber: yup.string(),
+    password: yup.string().required(),
+    email: yup
+      .string()
+      .email()
+      .required(),
+  })
+  .noUnknown();
 
 usersRouter.post(
   '/',
