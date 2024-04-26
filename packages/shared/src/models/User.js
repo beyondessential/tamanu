@@ -1,9 +1,13 @@
 import { hash } from 'bcrypt';
 import { Sequelize } from 'sequelize';
 
-import { SYNC_DIRECTIONS, SYSTEM_USER_UUID, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { CAN_ACCESS_ALL_FACILITIES, SYNC_DIRECTIONS, SYSTEM_USER_UUID, VISIBILITY_STATUSES } from '@tamanu/constants';
 
 import { Model } from './Model';
+import { Permission } from './Permission';
+import { getAbilityForUser } from '../permissions/rolesToPermissions';
+import { ForbiddenError } from '../errors';
+import { getSubjectName } from '../permissions/middleware';
 
 const DEFAULT_SALT_ROUNDS = 10;
 
@@ -156,10 +160,55 @@ export class User extends Model {
 
     this.belongsToMany(models.Facility, {
       through: 'UserFacility',
+      as: 'facilities',
     });
   }
 
   static buildSyncFilter() {
     return null; // syncs everywhere
+  }
+
+  isSuperUser() {
+    return this.role === 'admin' || this.id === SYSTEM_USER_UUID;
+  }
+
+  async checkPermission(action, subject, field = '') {
+    const ability = await getAbilityForUser({ Permission }, this);
+    const subjectName = getSubjectName(subject);
+    const hasPermission = ability.can(action, subject, field);
+
+    if (!hasPermission) {
+      const rule = ability.relevantRuleFor(action, subject, field);
+      const reason = (rule && rule.reason) || `Cannot perform action "${action}" on ${subjectName}.`;
+
+      throw new ForbiddenError(reason);
+    }
+  }
+
+  async hasPermission(action, subject, field = '') {
+    try {
+      await this.checkPermission(action, subject, field);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  async allowedFacilities() {
+    if (this.isSuperUser()) return CAN_ACCESS_ALL_FACILITIES;
+    if (await this.hasPermission('login', 'Facility')) return CAN_ACCESS_ALL_FACILITIES;
+
+    if (!this.facilities) {
+      await this.reload({ include: 'facilities' });
+    }
+
+    return this.facilities?.map(f => f.id);
+  }
+
+  async canAccessFacility(id) {
+    const allowed = this.allowedFacilities();
+    if (allowed === CAN_ACCESS_ALL_FACILITIES) return true;
+
+    return allowed.includes(id);
   }
 }

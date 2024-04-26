@@ -93,16 +93,8 @@ export const login = ({ secret, refreshSecret }) =>
       throw new BadAuthenticationError('Invalid credentials');
     }
 
-    // TODO: provide a permission to bypass this instead of hardcoding admin
-    if (facilityId && user.role !== 'admin') {
-      try {
-        const assoc = await models.UserFacility.findOne({
-          where: { userId: user.id, facilityId },
-        });
-        if (!assoc) throw new Error('no userfacility record');
-      } catch (err) {
+    if (facilityId && !await user.canAccessFacility(facilityId)) {
         throw new BadAuthenticationError('User does not have access to this facility');
-      }
     }
 
     const { auth, canonicalHostName } = config;
@@ -112,7 +104,7 @@ export const login = ({ secret, refreshSecret }) =>
       token,
       refreshToken,
       facility,
-      facilities,
+      allowedFacilities,
       localisation,
       permissions,
       role,
@@ -134,9 +126,7 @@ export const login = ({ secret, refreshSecret }) =>
         ? getRefreshToken(models, { refreshSecret, userId: user.id, deviceId })
         : undefined,
       models.Facility.findByPk(facilityId),
-      models.UserFacility.findAll({ where: { userId: user.id } }).then(facilities =>
-        facilities.map(f => f.facilityId),
-      ),
+      await user.allowedFacilities(),
       getLocalisation(),
       getPermissionsForRoles(models, user.role),
       models.Role.findByPk(user.role),
@@ -151,7 +141,7 @@ export const login = ({ secret, refreshSecret }) =>
       permissions,
       role: role?.forResponse() ?? null,
       facility,
-      facilities,
+      allowedFacilities,
       localisation,
       centralHost: config.canonicalHostName,
       settings: settingsObject,
