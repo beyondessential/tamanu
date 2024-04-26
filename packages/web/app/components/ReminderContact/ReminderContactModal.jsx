@@ -70,12 +70,12 @@ export const ReminderContactModal = ({ onClose, open }) => {
   }, [open]);
 
   useEffect(() => {
-    if (!newContact.id) return;
+    if (activeView !== REMINDER_CONTACT_VIEWS.ADD_REMINDER_QR_CODE) return;
     setTimeout(() => {
       handleUpdatePendingContacts(false);
     }, DEFAULT_CONTACT_TIMEOUT);
     handleUpdatePendingContacts(true);
-  }, [newContact.id]);
+  }, [activeView]);
 
   const handleActiveView = value => {
     setActiveView(value);
