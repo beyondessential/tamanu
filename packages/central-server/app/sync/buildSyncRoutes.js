@@ -3,6 +3,7 @@ import asyncHandler from 'express-async-handler';
 
 import { Op } from 'sequelize';
 import { log } from '@tamanu/shared/services/logging';
+import { ForbiddenError } from '@tamanu/shared/src/errors';
 import { completeSyncSession } from '@tamanu/shared/sync/completeSyncSession';
 
 import { CentralSyncManager } from './CentralSyncManager';
@@ -15,14 +16,23 @@ export const buildSyncRoutes = ctx => {
   syncRoutes.post(
     '/',
     asyncHandler(async (req, res) => {
-      const { SyncQueuedDevice, SyncSession } = req.models;
+      const {
+        store,
+        user,
+        body: { facilityId, deviceId },
+        models: { SyncQueuedDevice, SyncSession },
+      } = req;
+
+      if (!user.canAccessFacility(facilityId)) {
+        throw new ForbiddenError('User does not have access to facility');
+      }
 
       // first check if our device has any stale sessions...
       const staleSessions = await SyncSession.findAll({
         where: {
           completedAt: { [Op.is]: null },
           debugInfo: {
-            deviceId: req.body.deviceId,
+            deviceId,
           },
         },
       });
@@ -31,7 +41,7 @@ export const buildSyncRoutes = ctx => {
       // (highly likely 0 or 1, but still loop as multiples are still theoretically possible)
       for (const session of staleSessions) {
         await completeSyncSession(
-          req.store,
+          store,
           session.id,
           'Session marked as completed due to its device reconnecting',
         );
@@ -78,8 +88,6 @@ export const buildSyncRoutes = ctx => {
       // lastSyncedTick)
       queueRecord.destroy();
 
-      const { user, body } = req;
-      const { facilityId, deviceId } = body;
       const { sessionId, tick } = await syncManager.startSession({
         userId: user.id,
         deviceId,
