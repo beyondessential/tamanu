@@ -125,7 +125,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => 
               {`${getDisplayAge(selectedPatient.dateOfBirth, ageDisplayFormat)} old`}
             </StyledText>
           </StyledView>
-          {canReadReminderContacts && isReminderContactEnabled && (
+          {(canReadReminderContacts && isReminderContactEnabled) ? (
             <StyledView alignSelf="flex-end" alignItems="flex-end" marginRight={15}>
               <Button
                 marginTop={screenPercentageToDP(1.21, Orientation.Height)}
@@ -152,7 +152,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => 
                 </StyledView>
               </Button>
             </StyledView>
-          )}
+          ) : null}
         </RowView>
         <HealthIdentificationRow patientId={selectedPatient.displayId} />
       </StyledSafeAreaView>
