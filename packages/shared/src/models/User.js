@@ -203,13 +203,13 @@ export class User extends Model {
       await this.reload({ include: 'facilities' });
     }
 
-    return this.facilities?.map(f => f.id);
+    return this.facilities?.map(f => f.id) ?? [];
   }
 
   async canAccessFacility(id) {
     const allowed = this.allowedFacilities();
     if (allowed === CAN_ACCESS_ALL_FACILITIES) return true;
 
-    return allowed.includes(id);
+    return allowed?.includes(id) ?? false;
   }
 }
