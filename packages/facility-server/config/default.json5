@@ -84,7 +84,12 @@
   "auth": {
     "saltRounds": 12,
     "tokenDuration": "1h",
-    "useHardcodedPermissions": true
+    "useHardcodedPermissions": true,
+
+    // Enables the use of the user_facility table to restrict users from logging
+    // into facilities they are not associated with. Ensure this is set on both
+    // central and facility configs.
+    "restrictUsersToFacilities": false,
   },
   "survey": {
     "defaultCodes": {

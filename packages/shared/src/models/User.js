@@ -1,4 +1,5 @@
 import { hash } from 'bcrypt';
+import config from 'config';
 import { Sequelize } from 'sequelize';
 
 import { CAN_ACCESS_ALL_FACILITIES, SYNC_DIRECTIONS, SYSTEM_USER_UUID, VISIBILITY_STATUSES } from '@tamanu/constants';
@@ -194,6 +195,7 @@ export class User extends Model {
   }
 
   async allowedFacilities() {
+    if (!config.auth.restrictUsersToFacilities) return CAN_ACCESS_ALL_FACILITIES;
     if (this.isSuperUser()) return CAN_ACCESS_ALL_FACILITIES;
     if (await this.hasPermission('login', 'Facility')) return CAN_ACCESS_ALL_FACILITIES;
 

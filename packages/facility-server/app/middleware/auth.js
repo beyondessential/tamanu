@@ -55,6 +55,7 @@ export async function centralServerLogin(models, email, password, deviceId) {
       email,
       password,
       deviceId,
+      facilityId: config.serverFacilityId,
     },
     backoff: {
       maxAttempts: 1,
@@ -79,10 +80,6 @@ export async function centralServerLogin(models, email, password, deviceId) {
       deletedAt: null,
     });
   });
-
-  if (!await user.canAccessFacility(config.serverFacilityId)) {
-    throw new BadAuthenticationError('User does not have access to this facility');
-  }
 
   return { central: true, user, localisation, settings };
 }
