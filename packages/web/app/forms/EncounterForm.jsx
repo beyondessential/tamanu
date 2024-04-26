@@ -21,12 +21,7 @@ import {
 import { ENCOUNTER_OPTIONS, FORM_TYPES, PATIENT_STATUS } from '../constants';
 import { useSuggester } from '../api';
 import { TranslatedText } from '../components/Translation/TranslatedText';
-import { getPatientStatus } from '../utils/getPatientStatus';
-
-export const isDietEnabled = (encounterType) => {
-  return (encounterType !== ENCOUNTER_TYPES.TRIAGE
-    && getPatientStatus(encounterType) !== PATIENT_STATUS.OUTPATIENT);
-};
+import { isInpatient } from '../utils/isInpatient';
 
 export const EncounterForm = React.memo(
   ({ editedObject, onSubmit, patientBillingTypeId, encounterType }) => {
@@ -123,7 +118,7 @@ export const EncounterForm = React.memo(
             endpoint="patientBillingType"
             component={SuggesterSelectField}
           />
-          {isDietEnabled(encounterType) && <LocalisedField
+          {isInpatient(encounterType) && <LocalisedField
             name="dietId"
             label={
               <TranslatedText
