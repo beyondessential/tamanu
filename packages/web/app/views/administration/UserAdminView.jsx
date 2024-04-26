@@ -16,6 +16,11 @@ const COLUMNS = [
     minWidth: 100,
   },
   {
+    key: 'phoneNumber',
+    title: 'Phone number',
+    minWidth: 100,
+  },
+  {
     key: 'role',
     title: 'Role',
     minWidth: 100,
