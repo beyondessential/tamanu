@@ -11,10 +11,10 @@ export const NewUserForm = memo(({ onSubmit, onCancel }) => {
     <FormGrid>
       <Field name="email" label="Email address" component={TextField} required />
       <Field name="displayName" label="Display name" component={TextField} required />
-      <Field name="role" label="Role" component={TextField} required />
+      <Field name="role" label="Role ID" component={TextField} required />
       <Field name="password" label="Password" type="password" component={TextField} required />
       <Field name="displayId" label="Display ID" component={TextField} />
-      <Field name="phoneNumber" label="Phone Number" component={TextField} />
+      <Field name="phoneNumber" label="Phone number" component={TextField} />
       <ModalFormActionRow confirmText="Create" onConfirm={submitForm} onCancel={onCancel} />
     </FormGrid>
   );

@@ -59,13 +59,18 @@ usersRouter.post(
   asyncHandler(async (req, res) => {
     const {
       store: {
-        models: { User },
+        models: { Role, User },
       },
     } = req;
 
     req.checkPermission('create', 'User');
 
     const fields = await VALIDATION.validate(req.body);
+    const role = await Role.findByPk(fields.role);
+    if (!role) {
+      throw new Error('Role not found');
+    }
+
     await User.create(fields);
 
     res.send({ ok: true });
