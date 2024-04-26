@@ -31,7 +31,7 @@ export const AdministrationRoutes = React.memo(({ match }) => (
     <Route path={`${match.path}/sync`} component={SyncView} />
     <Route path={`${match.path}/templates`} component={TemplateView} />
     <Route path={`${match.path}/translation`} component={TranslationAdminView} />
-    <Route path={`${match.path}/user`} component={UserAdminView} />
+    <Route path={`${match.path}/users`} component={UserAdminView} />
     <Redirect to={`${match.path}/referenceData`} />
   </Switch>
 ));

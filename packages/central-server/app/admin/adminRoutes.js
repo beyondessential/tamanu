@@ -15,6 +15,7 @@ import { reportsRouter } from './reports/reportRoutes';
 import { syncLastCompleted } from './sync';
 import { translationRouter } from './translation';
 import { settingsCache } from '@tamanu/settings';
+import { usersRouter } from './users';
 
 export const adminRoutes = express.Router();
 adminRoutes.use(ensurePermissionCheck);
@@ -56,6 +57,7 @@ adminRoutes.get('/fhir/jobStats', fhirJobStats);
 adminRoutes.use('/patientLetterTemplate', patientLetterTemplateRoutes);
 
 adminRoutes.use('/asset', assetRoutes);
+adminRoutes.use('/users', usersRouter);
 
 // These settings endpoints are setup for viewing and saving the settings in the JSON editor in the admin panel
 adminRoutes.get(

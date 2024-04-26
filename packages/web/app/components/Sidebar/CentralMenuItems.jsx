@@ -65,4 +65,10 @@ export const CENTRAL_MENU_ITEMS = [
     path: '/admin/translation',
     ability: { action: 'write', subject: 'translation' },
   },
+  {
+    key: 'users',
+    label: <TranslatedText stringId="adminSidebar.users" fallback="Users" />,
+    path: '/admin/users',
+    ability: { action: 'write', subject: 'user' },
+  },
 ];
