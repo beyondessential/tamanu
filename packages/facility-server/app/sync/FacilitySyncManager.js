@@ -19,6 +19,7 @@ import { pushOutgoingChanges } from './pushOutgoingChanges';
 import { pullIncomingChanges } from './pullIncomingChanges';
 import { snapshotOutgoingChanges } from './snapshotOutgoingChanges';
 import { assertIfPulledRecordsUpdatedAfterPushSnapshot } from './assertIfPulledRecordsUpdatedAfterPushSnapshot';
+import { isSyncRunning } from './isSyncRunning';
 
 export class FacilitySyncManager {
   static config = _config;
@@ -44,8 +45,6 @@ export class FacilitySyncManager {
 
   centralServer = null;
 
-  syncPromise = null;
-
   reason = null;
 
   lastDurationMs = 0;
@@ -61,7 +60,7 @@ export class FacilitySyncManager {
   }
 
   isSyncRunning() {
-    return !!this.syncPromise;
+    return isSyncRunning(this.sequelize);
   }
 
   async triggerSync(reason) {
@@ -71,82 +70,102 @@ export class FacilitySyncManager {
     }
 
     // if there's an existing sync, just wait for that sync run
-    if (this.syncPromise) {
-      const result = await this.syncPromise;
-      return { enabled: true, ...result };
+    if (await this.isSyncRunning()) {
+      return { enabled: true, running: true };
     }
 
     // set up a common sync promise to avoid double sync
     this.reason = reason;
-    this.syncPromise = this.runSync();
 
     // make sure sync promise gets cleared when finished, even if there's an error
     try {
-      const result = await this.syncPromise;
+      const result = await this.runSync();
       return { enabled: true, ...result };
     } finally {
-      this.syncPromise = null;
       this.reason = '';
       this.currentStartTime = 0;
     }
   }
+  async markSyncAsProcessing() {
+    // Mark the snapshot as processing in a way that
+    // a) can be read across processes, if the central server is running in cluster mode; and
+    // b) will automatically get cleared if the process restarts
+    // A transaction level advisory lock fulfils both of these criteria, as it sits at the database
+    // level (independent of an individual node process), but will be unlocked if the transaction is
+    // rolled back for any reason (e.g. the server restarts
+    const transaction = await this.sequelize.transaction();
+    await this.sequelize.query('SELECT pg_advisory_xact_lock(1);', {
+      transaction,
+    });
+    const unmarkSyncAsProcessing = async () => {
+      await transaction.commit();
+    };
+    return unmarkSyncAsProcessing;
+  }
 
   async runSync() {
-    if (this.syncPromise) {
+    if (await this.isSyncRunning()) {
       throw new Error(
         'It should not be possible to call "runSync" while an existing run is active',
       );
     }
 
-    log.info('FacilitySyncManager.attemptStart', { reason: this.reason });
+    const unmarkSyncAsProcessing = await this.markSyncAsProcessing();
 
-    const pullSince = (await this.models.LocalSystemFact.get(LAST_SUCCESSFUL_SYNC_PULL_KEY)) || -1;
+    try {
+      log.info('FacilitySyncManager.attemptStart', { reason: this.reason });
 
-    // the first step of sync is to start a session and retrieve the session id
-    const {
-      status,
-      sessionId,
-      startedAtTick: newSyncClockTime,
-    } = await this.centralServer.startSyncSession({
-      urgent: this.reason?.urgent,
-      lastSyncedTick: pullSince,
-    });
+      const pullSince =
+        (await this.models.LocalSystemFact.get(LAST_SUCCESSFUL_SYNC_PULL_KEY)) || -1;
 
-    if (!sessionId) {
-      // we're queued
-      log.info('FacilitySyncManager.wasQueued', { status });
-      return { queued: true, ran: false };
+      // the first step of sync is to start a session and retrieve the session id
+      const {
+        status,
+        sessionId,
+        startedAtTick: newSyncClockTime,
+      } = await this.centralServer.startSyncSession({
+        urgent: this.reason?.urgent,
+        lastSyncedTick: pullSince,
+      });
+
+      if (!sessionId) {
+        // we're queued
+        log.info('FacilitySyncManager.wasQueued', { status });
+        return { queued: true, ran: false };
+      }
+
+      log.info('FacilitySyncManager.startSession');
+
+      // clear previous temp data, in case last session errored out or server was restarted
+      await dropAllSnapshotTables(this.sequelize);
+
+      const startTime = new Date().getTime();
+      this.currentStartTime = startTime;
+
+      log.info('FacilitySyncManager.receivedSessionInfo', {
+        sessionId,
+        startedAtTick: newSyncClockTime,
+      });
+
+      await this.pushChanges(sessionId, newSyncClockTime);
+
+      await this.pullChanges(sessionId);
+
+      await this.centralServer.endSyncSession(sessionId);
+
+      const durationMs = Date.now() - startTime;
+      log.info('FacilitySyncManager.completedSession', {
+        durationMs,
+      });
+      this.lastDurationMs = durationMs;
+      this.lastCompletedAt = new Date();
+
+      // clear temp data stored for persist
+      await dropSnapshotTable(this.sequelize, sessionId);
+      return { queued: false, ran: true };
+    } finally {
+      await unmarkSyncAsProcessing();
     }
-
-    log.info('FacilitySyncManager.startSession');
-
-    // clear previous temp data, in case last session errored out or server was restarted
-    await dropAllSnapshotTables(this.sequelize);
-
-    const startTime = new Date().getTime();
-    this.currentStartTime = startTime;
-
-    log.info('FacilitySyncManager.receivedSessionInfo', {
-      sessionId,
-      startedAtTick: newSyncClockTime,
-    });
-
-    await this.pushChanges(sessionId, newSyncClockTime);
-
-    await this.pullChanges(sessionId);
-
-    await this.centralServer.endSyncSession(sessionId);
-
-    const durationMs = Date.now() - startTime;
-    log.info('FacilitySyncManager.completedSession', {
-      durationMs,
-    });
-    this.lastDurationMs = durationMs;
-    this.lastCompletedAt = new Date();
-
-    // clear temp data stored for persist
-    await dropSnapshotTable(this.sequelize, sessionId);
-    return { queued: false, ran: true };
   }
 
   async pushChanges(sessionId, newSyncClockTime) {

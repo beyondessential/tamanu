@@ -8,11 +8,12 @@ import {
 
 export const sync = express.Router();
 
-function resultToMessage({ enabled, queued, ran, timedOut }) {
-  if (timedOut) return 'Sync is taking a while, continuing in the background...';
-  if (!enabled) return "Sync was disabled and didn't run";
-  if (ran) return 'Sync completed';
-  if (queued) return 'Sync queued and will run later';
+function resultToMessage({ enabled, queued, ran, running, timedOut }) {
+  if (timedOut) return 'Sync is taking a while, continuing in the background...'; // keep
+  if (!enabled) return "Sync was disabled and didn't run"; // keep
+  if (ran) return 'Sync completed'; //
+  if (running) return 'Sync is being run';
+  if (queued) return 'Sync queued and will run later'; // remove
   throw new Error('Unknown sync status');
 }
 
@@ -60,7 +61,7 @@ sync.get(
     const lastCompletedDurationMs = syncManager.lastDurationMs;
     const { lastCompletedAt } = syncManager;
 
-    const isSyncRunning = syncManager.isSyncRunning();
+    const isSyncRunning = await syncManager.isSyncRunning();
     const currentDuration = isSyncRunning ? new Date().getTime() - syncManager.currentStartTime : 0;
 
     res.send({

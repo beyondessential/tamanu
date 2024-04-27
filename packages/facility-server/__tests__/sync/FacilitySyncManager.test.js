@@ -8,11 +8,13 @@ import { createTestContext } from '../utilities';
 describe('FacilitySyncManager', () => {
   let ctx;
   let models;
+  let sequelize;
   const TEST_SESSION_ID = 'sync123';
 
   beforeAll(async () => {
     ctx = await createTestContext();
     models = ctx.models;
+    sequelize = ctx.sequelize;
   });
 
   afterAll(() => ctx.close());
@@ -30,30 +32,65 @@ describe('FacilitySyncManager', () => {
         centralServer: {},
       });
 
-      await syncManager.triggerSync();
+      const result = await syncManager.triggerSync();
 
-      expect(syncManager.syncPromise).toBe(null);
+      expect(result).toEqual({ enabled: false });
     });
 
-    it('awaits the existing sync if one is ongoing', async () => {
+    it('does not start another sync if there is already an existing sync', async () => {
       FacilitySyncManager.overrideConfig({ sync: { enabled: true } });
-      const syncManager = new FacilitySyncManager({
-        models: {},
-        sequelize: {},
-        centralServer: {},
+
+      const syncManager1 = new FacilitySyncManager({
+        models,
+        sequelize,
+        centralServer: {
+          startSyncSession: () => ({ sessionId: TEST_SESSION_ID, tick: 1 }),
+          push: jest.fn(),
+          completePush: jest.fn(),
+          endSyncSession: jest.fn(),
+          initiatePull: jest.fn().mockImplementation(async () => ({
+            totalToPull: 0,
+            pullUntil: 0,
+          })),
+        },
       });
 
-      const resolveWhenNonEmpty = [];
-      syncManager.syncPromise = jest.fn().mockImplementation(async () => {
-        while (resolveWhenNonEmpty.length === 0) {
-          await sleepAsync(5);
-        }
+      // Sync manager represents 2nd process
+      const syncManager2 = new FacilitySyncManager({
+        models,
+        sequelize,
+        centralServer: {
+          startSyncSession: () => ({ sessionId: TEST_SESSION_ID, tick: 2 }),
+          push: jest.fn(),
+          completePush: jest.fn(),
+          endSyncSession: jest.fn(),
+          initiatePull: jest.fn().mockImplementation(async () => ({
+            totalToPull: 0,
+            pullUntil: 0,
+          })),
+        },
       });
 
-      const promise = syncManager.triggerSync();
-      expect(inspect(promise)).toMatch(/pending/);
-      resolveWhenNonEmpty.push(true);
-      await promise;
+      let resolvePullChangesPromise;
+      const pullChangesPromise = new Promise(resolve => {
+        resolvePullChangesPromise = async () => resolve(true);
+      });
+      jest.spyOn(syncManager1, 'pullChanges').mockImplementation(() => {
+        return pullChangesPromise;
+      });
+      jest.spyOn(syncManager1, 'pushChanges').mockImplementation(() => true);
+
+      syncManager1.triggerSync();
+      await sleepAsync(200);
+
+      const secondSyncResult = await syncManager2.triggerSync();
+
+      await resolvePullChangesPromise();
+
+      console.log('secondSyncResult', secondSyncResult);
+
+      // 2nd sync manager should have running = true and does not start a new sync
+      expect(secondSyncResult).toEqual({ enabled: true, running: true });
     });
   });
 
@@ -79,6 +116,10 @@ describe('FacilitySyncManager', () => {
 
       jest.spyOn(syncManager, 'pullChanges').mockImplementation(() => true);
       jest.spyOn(syncManager, 'pushChanges').mockImplementation(() => true);
+      jest.spyOn(syncManager, 'isSyncRunning').mockImplementation(() => false);
+      jest.spyOn(syncManager, 'markSyncAsProcessing').mockImplementation(() => {
+        return () => true;
+      });
 
       await syncManager.runSync();
 
