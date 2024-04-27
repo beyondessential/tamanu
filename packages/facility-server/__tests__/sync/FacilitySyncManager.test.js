@@ -1,6 +1,3 @@
-/* eslint-disable global-require */
-import { inspect } from 'util';
-
 import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
 import { FacilitySyncManager } from '../../dist/sync/FacilitySyncManager';
 import { createTestContext } from '../utilities';
