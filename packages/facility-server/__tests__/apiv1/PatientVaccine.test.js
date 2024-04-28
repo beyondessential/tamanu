@@ -530,47 +530,54 @@ describe('PatientVaccine', () => {
     });
   });
 
-  describe('Upcoming vaccination', async () => {
-    await models.ScheduledVaccine.truncate({ cascade: true });
-    await models.AdministeredVaccine.truncate({ cascade: true });
+  describe('Upcoming vaccination', () => {
+    let scheduledVax1;
+    let scheduledVax2;
+    let patient1;
+    let patient2;
 
-    const scheduledVax1 = await models.ScheduledVaccine.create(
-      createScheduledVaccine(models, {
-        category: VACCINE_CATEGORIES.ROUTINE,
-        schedule: 'Dose 1',
-        index: 1,
-        weeksFromBirthDue: 1,
-        vaccineId: drug.id,
-      }),
-    );
+    beforeAll(async () => {
+      await models.ScheduledVaccine.truncate({ cascade: true });
+      await models.AdministeredVaccine.truncate({ cascade: true });
 
-    const scheduledVax2 = await models.ScheduledVaccine.create(
-      createScheduledVaccine(models, {
-        category: VACCINE_CATEGORIES.ROUTINE,
-        schedule: 'Dose 2',
-        index: 2,
-        weeksFromLastVaccinationDue: 4,
-        vaccineId: drug.id,
-      }),
-    );
+      scheduledVax1 = await models.ScheduledVaccine.create(
+        createScheduledVaccine(models, {
+          category: VACCINE_CATEGORIES.ROUTINE,
+          schedule: 'Dose 1',
+          index: 1,
+          weeksFromBirthDue: 1,
+          vaccineId: drug.id,
+        }),
+      );
 
-    const patient1 = await models.Patient.create(
-      createDummyPatient(models, { dateOfBirth: new Date() }),
-    );
+      scheduledVax2 = await models.ScheduledVaccine.create(
+        createScheduledVaccine(models, {
+          category: VACCINE_CATEGORIES.ROUTINE,
+          schedule: 'Dose 2',
+          index: 2,
+          weeksFromLastVaccinationDue: 4,
+          vaccineId: drug.id,
+        }),
+      );
 
-    const patient2 = await models.Patient.create(
-      createDummyPatient(models, {
-        dateOfBirth: moment()
-          .subtract(9, 'day')
+      patient1 = await models.Patient.create(
+        createDummyPatient(models, { dateOfBirth: new Date() }),
+      );
+
+      patient2 = await models.Patient.create(
+        createDummyPatient(models, {
+          dateOfBirth: moment()
+            .subtract(9, 'day')
+            .toDate(),
+        }),
+      );
+
+      await recordAdministeredVaccine(patient2, scheduledVax1, {
+        status: VACCINE_STATUS.GIVEN,
+        date: moment()
+          .subtract(1, 'day')
           .toDate(),
-      }),
-    );
-
-    await recordAdministeredVaccine(patient2, scheduledVax1, {
-      status: VACCINE_STATUS.GIVEN,
-      date: moment()
-        .subtract(1, 'day')
-        .toDate(),
+      });
     });
 
     it('should return 1 upcoming vaccinations of patient 1', async () => {
