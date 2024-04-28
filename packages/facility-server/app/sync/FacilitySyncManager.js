@@ -20,6 +20,7 @@ import { pullIncomingChanges } from './pullIncomingChanges';
 import { snapshotOutgoingChanges } from './snapshotOutgoingChanges';
 import { assertIfPulledRecordsUpdatedAfterPushSnapshot } from './assertIfPulledRecordsUpdatedAfterPushSnapshot';
 import { isSyncRunning } from './isSyncRunning';
+import { FACILITY_SYNC_PG_ADVISORY_LOCK_ID } from './constants';
 
 export class FacilitySyncManager {
   static config = _config;
@@ -87,11 +88,12 @@ export class FacilitySyncManager {
     }
   }
   async markSyncAsProcessing() {
-    // Facility server can be run with multiple processes, so we need a way to mark the facility server 
+    // Facility server can be run with multiple processes, so we need a way to mark the facility server
     // as currently processing a sync so that other processes don't also try to run sync concurrently
     // This uses an advisory lock on Postgres to mark that sync is processing, and will be reset if the server is restarted
     const transaction = await this.sequelize.transaction();
-    await this.sequelize.query('SELECT pg_advisory_xact_lock(1);', {
+    await this.sequelize.query('SELECT pg_advisory_xact_lock(:syncLockId);', {
+      replacements: { syncLockId: FACILITY_SYNC_PG_ADVISORY_LOCK_ID },
       transaction,
     });
     const unmarkSyncAsProcessing = async () => {

@@ -1,0 +1,1 @@
+export const FACILITY_SYNC_PG_ADVISORY_LOCK_ID = 1;
