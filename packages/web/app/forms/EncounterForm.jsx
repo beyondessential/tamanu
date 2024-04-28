@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
-import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import { foreignKey } from '../utils/validation';
 import {
   AutocompleteField,
@@ -18,7 +17,7 @@ import {
   SuggesterSelectField,
   TextField,
 } from '../components';
-import { ENCOUNTER_OPTIONS, FORM_TYPES, PATIENT_STATUS } from '../constants';
+import { ENCOUNTER_OPTIONS, FORM_TYPES } from '../constants';
 import { useSuggester } from '../api';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { isInpatient } from '../utils/isInpatient';
