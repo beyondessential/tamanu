@@ -8,17 +8,17 @@ import {
 import {
   ENCOUNTER_TYPES,
   REFERENCE_TYPES,
+  SETTINGS_SCOPES,
   SETTING_KEYS,
   VACCINE_CATEGORIES,
-  VACCINE_CATEGORIES_VALUES,
   VACCINE_RECORDING_TYPES,
   VACCINE_STATUS,
 } from '@tamanu/constants';
-import { chance, fake } from '@tamanu/shared/test-helpers/fake';
 import {
   createAdministeredVaccine,
   createScheduledVaccine,
 } from '@tamanu/shared/demoData/vaccines';
+import { fake } from '@tamanu/shared/test-helpers/fake';
 import { createTestContext } from '../utilities';
 
 describe('PatientVaccine', () => {
@@ -249,11 +249,13 @@ describe('PatientVaccine', () => {
       await models.Setting.set(
         SETTING_KEYS.VACCINATION_DEFAULTS,
         { locationId: location.id, departmentId: department.id },
+        SETTINGS_SCOPES.FACILITY,
         facility.id,
       );
       await models.Setting.set(
         SETTING_KEYS.VACCINATION_GIVEN_ELSEWHERE_DEFAULTS,
         { locationId: location2.id, departmentId: department2.id },
+        SETTINGS_SCOPES.FACILITY,
         facility.id,
       );
     });
