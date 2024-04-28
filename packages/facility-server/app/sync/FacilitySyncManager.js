@@ -87,12 +87,9 @@ export class FacilitySyncManager {
     }
   }
   async markSyncAsProcessing() {
-    // Mark the snapshot as processing in a way that
-    // a) can be read across processes, if the central server is running in cluster mode; and
-    // b) will automatically get cleared if the process restarts
-    // A transaction level advisory lock fulfils both of these criteria, as it sits at the database
-    // level (independent of an individual node process), but will be unlocked if the transaction is
-    // rolled back for any reason (e.g. the server restarts
+    // Facility server can be run with multiple processes, so we need a way to mark the facility server 
+    // as currently processing a sync so that other processes don't also try to run sync concurrently
+    // This uses an advisory lock on Postgres to mark that sync is processing, and will be reset if the server is restarted
     const transaction = await this.sequelize.transaction();
     await this.sequelize.query('SELECT pg_advisory_xact_lock(1);', {
       transaction,
