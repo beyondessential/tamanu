@@ -11,7 +11,7 @@ const getReferralSource = ({ referralSource }) =>
   referralSource ? referralSource.name : 'Unknown';
 
 const getDiet = ({ diet }) =>
-  diet ? diet.name : '-';
+  diet ? diet.name : <TranslatedText stringId="general.fallback.unknown" fallback="Unknown" />;
 
 export const getEncounterType = ({ encounterType }) =>
   encounterType ? ENCOUNTER_OPTIONS_BY_VALUE[encounterType]?.label : 'Unknown';
