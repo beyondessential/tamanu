@@ -19,7 +19,7 @@ import { Colors } from '../../../constants';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { ChangeReasonModal } from '../../../components/ChangeReasonModal';
 import { ChangeDietModal } from '../../../components/ChangeDietModal';
-import { isDietEnabled } from '../../../forms/EncounterForm';
+import { isInpatient } from '../../../utils/isInpatient'; 
 
 const TypographyLink = styled(Typography)`
   color: ${Colors.primary};
@@ -247,7 +247,7 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
           fallback="Change diet"
         />
       ),
-      condition: () => isDietEnabled(encounter.encounterType),
+      condition: () => isInpatient(encounter.encounterType),
       onClick: onChangeDiet,
     },
   ].filter(action => !action.condition || action.condition());
