@@ -43,11 +43,11 @@ const StyledButton = styled(Button)`
   height: 44px;
   background-color: ${Colors.primary};
   color: ${Colors.white};
+  width: 100%;
   :disabled {
     background-color: ${Colors.primary};
     color: ${Colors.white};
     opacity: 0.4;
-    width: 100%;
   }
 `;
 
