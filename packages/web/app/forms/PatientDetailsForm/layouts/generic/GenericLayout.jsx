@@ -33,6 +33,7 @@ export const GenericPrimaryDetailsLayout = ({
   registeredBirthPlace,
   sexOptions,
   isRequiredPatientData,
+  isDetailsForm = false,
 }) => {
   const villageSuggester = useSuggester('village');
   const { facility } = useAuth();
@@ -44,7 +45,7 @@ export const GenericPrimaryDetailsLayout = ({
           stringId="patient.detail.subheading.general"
           fallback="General information"
         />
-        {isReminderContactEnabled ? <ReminderContactSection /> : null}
+        {isReminderContactEnabled && isDetailsForm && <ReminderContactSection />}
       </PatientDetailsHeading>
       <FormGrid>
         <LocalisedField
