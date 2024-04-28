@@ -6,7 +6,6 @@ import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import {
   DOCUMENT_SIZE_LIMIT,
   DOCUMENT_SOURCES,
-  HIDDEN_VISIBILITY_STATUSES,
   IMAGING_REQUEST_STATUS_TYPES,
   INVOICE_STATUSES,
   LAB_REQUEST_STATUSES,
@@ -265,7 +264,6 @@ encounterRelations.get(
     req.checkPermission('list', 'SurveyResponse');
     const encounterId = params.id;
     const surveyType = 'programs';
-    const hiddenStatuses = HIDDEN_VISIBILITY_STATUSES;
     const { order = 'asc', orderBy = 'endTime' } = query;
     const sortKey = PROGRAM_RESPONSE_SORT_KEYS[orderBy] || PROGRAM_RESPONSE_SORT_KEYS.endTime;
     const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
@@ -283,9 +281,7 @@ encounterRelations.get(
         WHERE
           survey_responses.encounter_id = :encounterId
         AND
-          surveys.survey_type IN (:surveyType, 'obsolete')
-        AND
-          surveys.visibility_status NOT IN (:hiddenStatuses)
+          surveys.survey_type = :surveyType
       `,
       `
         SELECT
@@ -308,12 +304,10 @@ encounterRelations.get(
         WHERE
           survey_responses.encounter_id = :encounterId
         AND
-          surveys.survey_type IN (:surveyType, 'obsolete')
-        AND
-          surveys.visibility_status NOT IN (:hiddenStatuses)
+          surveys.survey_type = :surveyType
         ORDER BY ${sortKey} ${sortDirection}
       `,
-      { encounterId, surveyType, hiddenStatuses },
+      { encounterId, surveyType },
       query,
     );
 

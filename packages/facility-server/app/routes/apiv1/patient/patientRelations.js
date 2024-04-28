@@ -245,7 +245,6 @@ patientRelations.get(
       order = 'asc',
       orderBy = 'endTime',
     } = query;
-    const hiddenStatuses = HIDDEN_VISIBILITY_STATUSES;
     const sortKey = PROGRAM_RESPONSE_SORT_KEYS[orderBy] || PROGRAM_RESPONSE_SORT_KEYS.endTime;
     const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
     const { count, data } = await runPaginatedQuery(
@@ -261,8 +260,7 @@ patientRelations.get(
             ON (survey_responses.survey_id = surveys.id)
         WHERE
           encounters.patient_id = :patientId
-          AND surveys.survey_type IN (:surveyType, 'obsolete')
-          AND surveys.visibility_status NOT IN (:hiddenStatuses)
+          AND surveys.survey_type = :surveyType
           ${surveyId ? 'AND surveys.id = :surveyId' : ''}
       `,
       `
@@ -287,13 +285,12 @@ patientRelations.get(
             ON (programs.id = surveys.program_id)
         WHERE
           encounters.patient_id = :patientId
-          AND surveys.survey_type IN (:surveyType, 'obsolete')
-          AND surveys.visibility_status NOT IN (:hiddenStatuses)
+          AND surveys.survey_type = :surveyType
           ${surveyId ? 'AND surveys.id = :surveyId' : ''}
           ${programId ? 'AND programs.id = :programId' : ''}
         ORDER BY ${sortKey} ${sortDirection}
       `,
-      { patientId, surveyId, programId, surveyType, hiddenStatuses },
+      { patientId, surveyId, programId, surveyType },
       query,
     );
 

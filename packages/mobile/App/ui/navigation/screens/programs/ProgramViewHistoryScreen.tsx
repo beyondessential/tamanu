@@ -12,8 +12,8 @@ import { SurveyResponseLink } from '../../../components/SurveyResponseLink';
 
 import { useBackendEffect } from '../../../hooks';
 import { StyledText } from '~/ui/styled/common';
+import { SurveyTypes } from '~/types';
 import { useAuth } from '~/ui/contexts/AuthContext';
-import { VisibilityStatus } from '~/visibilityStatuses';
 
 export const ProgramViewHistoryScreen = ({
   route,
@@ -39,7 +39,7 @@ export const ProgramViewHistoryScreen = ({
       const surveyResponses = await models.SurveyResponse.getForPatient(selectedPatient.id);
       const surveys = await models.Survey.find({
         where: {
-          visibilityStatus: VisibilityStatus.Current,
+          surveyType: SurveyTypes.Programs,
         },
       });
 
