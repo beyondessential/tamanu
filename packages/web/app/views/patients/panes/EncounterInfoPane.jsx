@@ -5,7 +5,7 @@ import { getFullLocationName } from '../../../utils/location';
 import { InfoCard, InfoCardHeader, InfoCardItem } from '../../../components/InfoCard';
 import { getDepartmentName } from '../../../utils/department';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
-import { isDietEnabled } from '../../../forms/EncounterForm';
+import { isInpatient } from '../../../utils/isInpatient';
 
 const getReferralSource = ({ referralSource }) =>
   referralSource ? referralSource.name : 'Unknown';
@@ -82,7 +82,7 @@ export const EncounterInfoPane = React.memo(
         />
       )}
       {/* TODO: Integrate with the new UI design */}
-      {isDietEnabled(encounter?.encounterType) && <InfoCardItem
+      {isInpatient(encounter?.encounterType) && <InfoCardItem
         label={
           <TranslatedText
             stringId="encounter.summary.diet.label"
