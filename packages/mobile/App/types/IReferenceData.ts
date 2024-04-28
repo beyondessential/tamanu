@@ -22,9 +22,18 @@ export enum ReferenceDataType {
 
 export interface IReferenceData {
   id: string;
-
   name: string;
   code: string;
   type: ReferenceDataType;
   visibilityStatus: VisibilityStatus;
+}
+
+export enum ReferenceDataRelationType {
+  AddressHierarchy = 'address_hierarchy',
+  FacilityCatchment = 'facility_catchment',
+}
+
+export interface IReferenceDataRelation {
+  id: string;
+  type: ReferenceDataRelationType;
 }
