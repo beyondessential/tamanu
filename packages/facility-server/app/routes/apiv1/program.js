@@ -7,7 +7,7 @@ import {
   simplePost,
   simplePut,
 } from '@tamanu/shared/utils/crudHelpers';
-import { HIDDEN_VISIBILITY_STATUSES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { HIDDEN_VISIBILITY_STATUSES } from '@tamanu/constants';
 import { Op } from 'sequelize';
 
 export const program = express.Router();
