@@ -1,4 +1,5 @@
 import * as Yup from 'yup';
+import { yupAttemptTransformToNumber } from '~/ui/helpers/numeralTranslation';
 
 const requiredWhenConfiguredMandatory = (getBool, getString, name, baseType) => {
   return baseType.when([], {
@@ -30,13 +31,13 @@ export const getPatientDetailsValidation = (getBool, getString) => {
       getBool,
       getString,
       'primaryContactNumber',
-      Yup.number(),
+      Yup.number().transform(yupAttemptTransformToNumber).nullable(),
     ),
     secondaryContactNumber: requiredWhenConfiguredMandatory(
       getBool,
       getString,
       'secondaryContactNumber',
-      Yup.number(),
+      Yup.number().transform(yupAttemptTransformToNumber).nullable(),
     ),
     emergencyContactName: requiredWhenConfiguredMandatory(
       getBool,
@@ -48,7 +49,7 @@ export const getPatientDetailsValidation = (getBool, getString) => {
       getBool,
       getString,
       'emergencyContactNumber',
-      Yup.number(),
+      Yup.number().transform(yupAttemptTransformToNumber).nullable(),
     ),
     title: requiredWhenConfiguredMandatory(getBool, getString, 'title', Yup.string()),
     bloodType: requiredWhenConfiguredMandatory(getBool, getString, 'bloodType', Yup.string()),

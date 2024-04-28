@@ -72,16 +72,16 @@ async function getValuesFromImagingRequest(upstream, models) {
     orderDetail: upstream.areas.flatMap(({ id }) =>
       areaExtCodes.has(id)
         ? [
-            new FhirCodeableConcept({
-              text: areaExtCodes.get(id)?.description,
-              coding: [
-                new FhirCoding({
-                  code: areaExtCodes.get(id)?.code,
-                  system: config.hl7.dataDictionaries.areaExternalCode,
-                }),
-              ],
-            }),
-          ]
+          new FhirCodeableConcept({
+            text: areaExtCodes.get(id)?.description,
+            coding: [
+              new FhirCoding({
+                code: areaExtCodes.get(id)?.code,
+                system: config.hl7.dataDictionaries.areaExternalCode,
+              }),
+            ],
+          }),
+        ]
         : [],
     ),
     subject: new FhirReference({
@@ -106,7 +106,6 @@ async function getValuesFromImagingRequest(upstream, models) {
 async function getValuesFromLabRequest(upstream) {
   return {
     lastUpdated: new Date(),
-    contained: labContained(upstream),
     identifier: [
       new FhirIdentifier({
         system: config.hl7.dataDictionaries.serviceRequestLabId,
@@ -129,9 +128,9 @@ async function getValuesFromLabRequest(upstream) {
         ],
       }),
     ],
-    priority: validatePriority(upstream.priority),
+    priority: validatePriority(upstream.priority?.name),
     code: labCode(upstream),
-    orderDetail: labOrderDetails(upstream),
+    orderDetail: await labOrderDetails(upstream),
     subject: new FhirReference({
       type: 'upstream://patient',
       reference: upstream.encounter.patient.id,
@@ -147,7 +146,18 @@ async function getValuesFromLabRequest(upstream) {
       reference: upstream.requestedBy.id,
     }),
     note: labAnnotations(upstream),
+    specimen: resolveSpecimen(upstream),
   };
+}
+
+function resolveSpecimen(upstream) {
+  if (!upstream.specimenAttached) {
+    return null;
+  }
+  return new FhirReference({
+    type: 'upstream://specimen',
+    reference: upstream.id,
+  });
 }
 
 function imagingCode(upstream) {
@@ -163,16 +173,13 @@ function imagingCode(upstream) {
   });
 }
 
+// Match the priority to a FHIR ServiceRequest priority where possible
+// otherwise return null
+// See: https://hl7.org/fhir/R4B/valueset-request-priority.html#expansion
 function validatePriority(priority) {
-  if (!priority) {
-    // default to routine when we don't have a priority in Tamanu
-    return FHIR_REQUEST_PRIORITY.ROUTINE;
-  }
-
   if (!Object.values(FHIR_REQUEST_PRIORITY).includes(priority)) {
-    throw new Exception(`Invalid priority: ${priority}`);
+    return null;
   }
-
   return priority;
 }
 
@@ -226,49 +233,38 @@ function statusFromLabRequest(upstream) {
 
 function labCode(upstream) {
   const { labTestPanelRequest } = upstream;
-  if (!labTestPanelRequest) throw new Error('No lab test panel request specified.');
-  const { externalCode, name } = labTestPanelRequest.labTestPanel;
-  if (!externalCode) throw new Error('No external code specified for this lab test panel.');
 
-  return new FhirCodeableConcept({
-    coding: [
-      new FhirCoding({
-        system: 'http://intersystems.com/fhir/extn/sda3/lib/code-table-translated-prior-codes',
-        code: externalCode,
-        display: name,
-      }),
-    ],
-  });
+  // ServiceRequests may not have a panel
+  if (!labTestPanelRequest) {
+    return null;
+  }
+  const { externalCode, name, code } = labTestPanelRequest.labTestPanel;
+  return generateCodings(
+    code,
+    externalCode,
+    name,
+    config.hl7.dataDictionaries.serviceRequestLabPanelCodeSystem,
+    config.hl7.dataDictionaries.serviceRequestLabPanelExternalCodeSystem
+  );
 }
 
-function labContained(upstream) {
-  return [
-    {
-      resourceType: 'Specimen',
-      collection: {
-        collectedDateTime: formatFhirDate(upstream.sampleTime),
-      },
-    },
-  ];
-}
+function labOrderDetails({ tests }) {
+  if (tests.length) {
+    return tests.map(({ labTestType }) => {
+      if (!labTestType) throw new Exception('Received a null test');
 
-function labOrderDetails(upstream) {
-  return upstream.tests.map(test => {
-    if (!test) throw new Exception('Received a null test');
+      const { externalCode, code, name } = labTestType;
 
-    const { externalCode, name } = test.labTestType;
-    if (!externalCode) throw new Error('No external code specified for this lab test type.');
-
-    return new FhirCodeableConcept({
-      coding: [
-        new FhirCoding({
-          system: 'http://intersystems.com/fhir/extn/sda3/lib/code-table-translated-prior-codes',
-          code: externalCode,
-          display: name,
-        }),
-      ],
+      return generateCodings(
+        code,
+        externalCode,
+        name,
+        config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+        config.hl7.dataDictionaries.serviceRequestLabTestExternalCodeSystem
+      );
     });
-  });
+  }
+  return [];
 }
 
 function labAnnotations(upstream) {
@@ -289,4 +285,35 @@ function imagingAnnotations(upstream) {
         text: note.content,
       }),
   );
+}
+
+function generateCodings(code, externalCode, name, codeSystem, externalCodeSystem) {
+  const coding = [];
+  if (code) {
+    coding.push(
+      new FhirCoding({
+        system: codeSystem,
+        code,
+        display: name,
+      }),
+    );
+  }
+
+  // Sometimes externalCode will not exists but if it does include it
+  if (externalCode) {
+    coding.push(
+      new FhirCoding({
+        system: externalCodeSystem,
+        code: externalCode,
+        display: name,
+      }),
+    )
+  }
+  if (coding.length > 0) {
+    return new FhirCodeableConcept({
+      coding,
+      text: name,
+    });
+  }
+  return null;
 }

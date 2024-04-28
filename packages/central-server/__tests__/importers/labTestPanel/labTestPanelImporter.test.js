@@ -39,6 +39,7 @@ describe('Lab Test Panel import', () => {
       file: `./__tests__/importers/labTestPanel/${file}.xlsx`,
       models,
       includedDataTypes: ['labTestPanel'],
+      checkPermission: () => true,
       ...opts,
     });
   }
