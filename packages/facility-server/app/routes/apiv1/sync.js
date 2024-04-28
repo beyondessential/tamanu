@@ -9,11 +9,11 @@ import {
 export const sync = express.Router();
 
 function resultToMessage({ enabled, queued, ran, running, timedOut }) {
-  if (timedOut) return 'Sync is taking a while, continuing in the background...'; // keep
-  if (!enabled) return "Sync was disabled and didn't run"; // keep
-  if (ran) return 'Sync completed'; //
+  if (timedOut) return 'Sync is taking a while, continuing in the background...';
+  if (!enabled) return "Sync was disabled and didn't run";
+  if (ran) return 'Sync completed';
   if (running) return 'Sync is being run';
-  if (queued) return 'Sync queued and will run later'; // remove
+  if (queued) return 'Sync queued and will run later';
   throw new Error('Unknown sync status');
 }
 
