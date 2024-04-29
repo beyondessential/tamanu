@@ -63,7 +63,7 @@ const generateDefaultParameter = () => ({
   id: Math.random(),
 });
 
-const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) => {
+const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit, setFieldValue }) => {
   const { ability } = useAuth();
   const api = useApi();
   const setQuery = query => setValues({ ...values, query });
@@ -176,6 +176,7 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
                       id={id}
                       parameterIndex={parameterIndex}
                       onDelete={onParamsDelete}
+                      setFieldValue={setFieldValue}
                       {...rest}
                     />
                   );
