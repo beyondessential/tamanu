@@ -22,7 +22,7 @@ describe('Template', () => {
 
   afterAll(() => ctx.close());
 
-  describe('GET template/:key', () => {
+  describe('GET setting-template/:key', () => {
     const TEST_KEY = 'templates.test.key';
     const TEST_VALUE = 'test-value';
 
@@ -30,7 +30,9 @@ describe('Template', () => {
       const facility = await models.Facility.create(fake(models.Facility));
       await Setting.set(TEST_KEY, TEST_VALUE, facility.id);
 
-      const result = await app.get(`/api/template/${TEST_KEY}?facilityId=${facility.id}`).send({});
+      const result = await app
+        .get(`/api/setting-template/${TEST_KEY}?facilityId=${facility.id}`)
+        .send({});
 
       expect(result).toHaveSucceeded();
       expect(result.body.data).toEqual(TEST_VALUE);
@@ -41,7 +43,9 @@ describe('Template', () => {
       const facility2 = await models.Facility.create(fake(models.Facility));
       await Setting.set(TEST_KEY, TEST_VALUE, facility1.id);
 
-      const result = await app.get(`/api/template/${TEST_KEY}?facilityId=${facility2.id}`).send({});
+      const result = await app
+        .get(`/api/setting-template/${TEST_KEY}?facilityId=${facility2.id}`)
+        .send({});
 
       expect(result).toHaveSucceeded();
       expect(result.body.data).toEqual(null);

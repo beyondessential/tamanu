@@ -41,7 +41,7 @@ const StyledFormGrid = styled(FormGrid)`
 const PatientLetterFormContents = ({ submitForm, onCancel, setValues }) => {
   const api = useApi();
   const practitionerSuggester = useSuggester('practitioner');
-  const patientLetterTemplateSuggester = useSuggester('patientLetterTemplate');
+  const patientLetterTemplateSuggester = useSuggester('template');
 
   const [templateLoading, setTemplateLoading] = useState(false);
 
@@ -51,7 +51,7 @@ const PatientLetterFormContents = ({ submitForm, onCancel, setValues }) => {
         return;
       }
       setTemplateLoading(true);
-      const template = await api.get(`patientLetterTemplate/${templateId}`);
+      const template = await api.get(`template/${templateId}`);
       setValues(values => ({
         ...values,
         title: template.title,

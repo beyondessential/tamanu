@@ -2,7 +2,7 @@ import { useSelector } from 'react-redux';
 import { ASSET_NAMES } from '@tamanu/constants';
 import { useLocalisation } from '../contexts/Localisation';
 import { useAsset } from '../api/queries/useAsset';
-import { useTemplate } from './useTemplate';
+import { useSettingTemplate } from './useSettingTemplate';
 import { getCurrentUser } from '../store';
 
 export const useCertificate = ({ footerAssetName } = {}) => {
@@ -17,7 +17,7 @@ export const useCertificate = ({ footerAssetName } = {}) => {
   const { data: deathCertFooterImg, isFetching: isDeathCertFooterImgFetching } = useAsset(
     ASSET_NAMES.DEATH_CERTIFICATE_BOTTOM_HALF_IMG,
   );
-  const { data: letterhead, isFetching: isLetterheadFetching } = useTemplate(
+  const { data: letterhead, isFetching: isLetterheadFetching } = useSettingTemplate(
     'templates.letterhead',
   );
   const title = letterhead?.data?.title || getLocalisation('templates.letterhead.title');

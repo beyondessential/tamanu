@@ -17,7 +17,7 @@ import { mergePatientHandler } from './patientMerge';
 import { syncLastCompleted } from './sync';
 import { fhirJobStats } from './fhirJobStats';
 import { reportsRouter } from './reports/reportRoutes';
-import { patientLetterTemplateRoutes } from './patientLetterTemplate';
+import { templateRoutes } from './template';
 import { assetRoutes } from './asset';
 import { translationRouter } from './translation';
 
@@ -69,7 +69,7 @@ adminRoutes.get(
         req.checkPermission('list', 'ReferenceData');
         continue;
       }
-  
+
       // Otherwise, if it is other types (eg: patient, lab_test_types,... ones that have their own models)
       // check the permission against the models
       const nonReferenceDataModelName = upperFirst(dataType);
@@ -85,6 +85,6 @@ adminRoutes.get('/sync/lastCompleted', syncLastCompleted);
 
 adminRoutes.get('/fhir/jobStats', fhirJobStats);
 
-adminRoutes.use('/patientLetterTemplate', patientLetterTemplateRoutes);
+adminRoutes.use('/template', templateRoutes);
 
 adminRoutes.use('/asset', assetRoutes);

@@ -1,14 +1,22 @@
 import React from 'react';
 import { FormModal } from '../../../components';
-import { EditPatientLetterTemplateForm } from './EditPatientLetterTemplateForm';
+import { EditTemplateForm } from './EditTemplateForm';
 
-export const EditTemplateModal = ({ template, onClose, open, onSubmit, onDelete }) => (
+export const EditTemplateModal = ({
+  template,
+  onClose,
+  open,
+  onSubmit,
+  onDelete,
+  allowInputTitleType,
+}) => (
   <FormModal title="Patient Letter" open={open} onClose={onClose}>
-    <EditPatientLetterTemplateForm
+    <EditTemplateForm
       onSubmit={onSubmit}
       editedObject={template}
       onDelete={onDelete}
       onClose={onClose}
+      allowInputTitleType={allowInputTitleType}
     />
   </FormModal>
 );
