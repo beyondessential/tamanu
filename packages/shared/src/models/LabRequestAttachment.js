@@ -1,6 +1,7 @@
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import { Sequelize } from 'sequelize';
+import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 
 export class LabRequestAttachment extends Model {
   static init({ primaryKey, ...options }) {
@@ -36,7 +37,13 @@ export class LabRequestAttachment extends Model {
     });
   }
 
-  static buildSyncFilter() {
-    return null; // syncs everywhere
+  static buildPatientSyncFilter(patientIds, sessionConfig) {
+    if (sessionConfig.syncAllLabRequests) {
+      return ''; // include all lab request attachments
+    }
+    if (patientIds.length === 0) {
+      return null;
+    }
+    return buildEncounterLinkedSyncFilter([this.tableName, 'lab_requests', 'encounters']);
   }
 }
