@@ -18,6 +18,7 @@ import { getDisplayDate } from './getDisplayDate';
 import { SigningSection } from './SigningSection';
 import { defaultTranslationFn } from '../translation';
 import { translationFactory } from '../translation/translationFactory';
+import { get } from 'lodash';
 
 const columns = getTranslation => [
   {
@@ -100,7 +101,7 @@ export const VaccineCertificate = ({
   translations,
   extraPatientFields,
 }) => {
-  const getLocalisation = key => localisation[key];
+  const getLocalisation = key => get(localisation, key);
   const translationFunc = translations ? translationFactory(translations) : defaultTranslationFn;
 
   const getTranslation = (stringId, fallback, replacements, uppercase, lowercase) => {
