@@ -17,6 +17,7 @@ import { LetterheadSection } from './LetterheadSection';
 import { getDisplayDate } from './getDisplayDate';
 import { SigningSection } from './SigningSection';
 import { defaultTranslationFn } from '../translation';
+import { translationFactory } from '../translation/translationFactory';
 
 const columns = getTranslation => [
   {
@@ -96,10 +97,16 @@ export const VaccineCertificate = ({
   signingSrc,
   logoSrc,
   localisation,
-  getTranslation = defaultTranslationFn,
+  translations,
   extraPatientFields,
 }) => {
   const getLocalisation = key => localisation[key];
+  const translationFunc = translations ? translationFactory(translations) : defaultTranslationFn;
+
+  const getTranslation = (stringId, fallback, replacements, uppercase, lowercase) => {
+    const { value } = translationFunc(stringId, fallback, replacements, uppercase, lowercase);
+    return value;
+  };
   const healthFacility = getLocalisation('templates.vaccineCertificate.healthFacility');
   const countryName = getLocalisation('country.name');
 
