@@ -35,6 +35,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
   const [startTime, setStartTime] = useState(null);
   const [surveys, setSurveys] = useState(null);
   const { setProgramRegistryIdByProgramId } = useProgramRegistryContext();
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (params.encounterId) {
@@ -99,6 +100,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
       endTime: getCurrentDateTimeString(),
       answers: getAnswersFromData(data, survey),
     });
+    dispatch(reloadPatient(patient.id));
     if (params?.encounterId && encounter && !encounter.endDate) {
       navigateToEncounter(params.encounterId, { tab: ENCOUNTER_TAB_NAMES.FORMS });
     } else {
