@@ -36,7 +36,7 @@ jobs:
         git config user.email github-actions@github.com
         version=$(jq -r .version package.json)
         git commit --allow-empty -am "release: v$version"
-        echo "current_version=$version" >> $GITHUB_OUTPUT
+        echo "current_version=$version" | tee -a $GITHUB_OUTPUT
         git tag -a "v$version" -m "release: v$version"
         git push --follow-tags
 
@@ -49,25 +49,42 @@ jobs:
         set -euxo pipefail
         version=$(jq -r .version package.json)
         git commit -am "release: Bump version to $version"
-        echo "next_version=$version" >> $GITHUB_OUTPUT
+        echo "next_version=$version" | tee -a $GITHUB_OUTPUT
         git push
 
     # do release management after the critical bits above as we care less if those fail
 
-    - name: Create draft for next release
-      uses: actions/github-script@v7
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        script: |
-          const cwd = '${{ github.workspace }}';
-          const { createDraftRelease } = await import(`${cwd}/scripts/gha-release-ops.mjs`);
-          await createDraftRelease(await import('fs'), github, context, cwd, '${{ steps.nextv.outputs.next_version }}');
+    - name: Install git-cliff
+      run: npm install -g git-cliff@latest
 
-    - name: Publish the draft release if one exists
-      uses: actions/github-script@v7
+    - name: Generate release notes
+      run: |
+        version=${{ steps.tagged.outputs.current_version }}
+        pattern="^v$(cut -d. -f-2 <<< "$version" | sed 's/[.]/[.]/g')[.]"
+        # 2.6.1 -> ^v2[.]6[.]
+
+        git cliff --topo-order --strip all --latest \
+          --tag-pattern "$pattern" --tag "v$version" \
+        | tee RELEASE_NOTES.md
+
+    - name: Determine the true latest version
+      id: latest
+      run: |
+        set -euxo pipefail
+        git fetch --tags
+        git tag --list \
+          | grep -E '^v[0-9]+[.][0-9]+[.][0-9]+$' \
+          | cut -c2- \
+          | sort --version-sort \
+          | tail -n1 \
+          | sed 's/^/latest_version=/' \
+          | tee -a $GITHUB_OUTPUT
+
+    - name: Publish the release
+      uses: softprops/action-gh-release@v2
       with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        script: |
-          const cwd = '${{ github.workspace }}';
-          const { publishRelease } = await import(`${cwd}/scripts/gha-release-ops.mjs`);
-          await publishRelease(github, context, '${{ steps.tagged.outputs.current_version }}');
+        name: v${{ steps.tagged.outputs.current_version }}
+        tag_name: v${{ steps.tagged.outputs.current_version }}
+        target_commitish: v${{ steps.tagged.outputs.current_version }}
+        body_path: RELEASE_NOTES.md
+        make_latest: ${{ steps.latest.outputs.latest_version == steps.tagged.outputs.current_version }}

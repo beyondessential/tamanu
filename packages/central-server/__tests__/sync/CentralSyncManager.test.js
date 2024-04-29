@@ -7,7 +7,7 @@ import { fake, fakeReferenceData, fakeSurvey, fakeUser } from '@tamanu/shared/te
 import { createDummyEncounter, createDummyPatient } from '@tamanu/shared/demoData/patients';
 import { randomLabRequest } from '@tamanu/shared/demoData';
 import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
-import { LAB_REQUEST_STATUSES, SYNC_DIRECTIONS } from '@tamanu/constants';
+import { LAB_REQUEST_STATUSES, SETTINGS_SCOPES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 import { createTestContext } from '../utilities';
@@ -739,6 +739,7 @@ describe('CentralSyncManager', () => {
             facilityId: facility.id,
             key: 'syncAllLabRequests',
             value: true,
+            scope: SETTINGS_SCOPES.FACILITY,
           });
 
           const centralSyncManager = initializeCentralSyncManager();
@@ -784,6 +785,7 @@ describe('CentralSyncManager', () => {
             facilityId: facility.id,
             key: 'syncAllLabRequests',
             value: false,
+            scope: SETTINGS_SCOPES.FACILITY,
           });
 
           const centralSyncManager = initializeCentralSyncManager();

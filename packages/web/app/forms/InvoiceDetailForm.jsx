@@ -164,10 +164,7 @@ export const InvoiceDetailForm = ({
             <Field
               name="total"
               label={
-                <TranslatedText
-                  stringId="invoice.modal.view.total.label"
-                  fallback="Total ($)"
-                />
+                <TranslatedText stringId="invoice.modal.view.total.label" fallback="Total ($)" />
               }
               disabled
               required
@@ -232,7 +229,9 @@ export const InvoiceDetailForm = ({
         }}
         formType={FORM_TYPES.EDIT_FORM}
         validationSchema={yup.object().shape({
-          status: foreignKey('Status is required'),
+          status: foreignKey().translatedLabel(
+            <TranslatedText stringId="invoice.validation.paymentStatus.path" fallback="Status" />,
+          ),
         })}
       />
       <InvoiceDetailExpandRow>

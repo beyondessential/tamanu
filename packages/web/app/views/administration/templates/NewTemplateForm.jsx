@@ -17,6 +17,7 @@ import { FORM_TYPES, TEMPLATE_TYPE_OPTIONS } from '../../../constants';
 
 import { Button } from '../../../components/Button';
 import { ButtonRow } from '../../../components/ButtonRow';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const ConfirmButton = styled(Button)`
   min-width: 90px;
@@ -41,13 +42,23 @@ export const NewTemplateForm = memo(({ onSubmit }) => {
       <FormGrid columns={2}>
         <Field
           name="type"
-          label="Type"
+          label={<TranslatedText stringId="general.type.label" fallback="Type" />}
           component={SelectField}
           options={TEMPLATE_TYPE_OPTIONS}
           required
           prefix="template.property.type"
         />
-        <Field name="name" label="Template name" component={TextField} required />
+        <Field
+          name="name"
+          label={
+            <TranslatedText
+              stringId="patientLetterTemplate.templateName.label"
+              fallback="Template name"
+            />
+          }
+          component={TextField}
+          required
+        />
       </FormGrid>
       <SmallGridSpacer />
       <FormGrid columns={1} nested>
@@ -65,8 +76,19 @@ export const NewTemplateForm = memo(({ onSubmit }) => {
       formType={FORM_TYPES.CREATE_FORM}
       initialValues={{ type: TEMPLATE_TYPES.PATIENT_LETTER }}
       validationSchema={yup.object().shape({
-        type: yup.string().required(),
-        name: yup.string().required(),
+        type: yup
+          .string()
+          .required()
+          .translatedLabel(<TranslatedText stringId="general.type.label" fallback="Type" />),
+        name: yup
+          .string()
+          .required()
+          .translatedLabel(
+            <TranslatedText
+              stringId="patientLetterTemplate.templateName.label"
+              fallback="Template name"
+            />,
+          ),
         title: yup.string(),
         body: yup.string(),
       })}

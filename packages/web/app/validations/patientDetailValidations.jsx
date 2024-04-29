@@ -1,3 +1,4 @@
+import React from 'react';
 import * as yup from 'yup';
 import { isEqual } from 'lodash';
 
@@ -7,6 +8,7 @@ import {
   PATIENT_REGISTRY_TYPES,
   PLACE_OF_BIRTH_TYPES,
 } from '@tamanu/constants';
+import { TranslatedText } from '../components/Translation/TranslatedText';
 import { yupAttemptTransformToNumber } from '../utils';
 
 const requiredWhenConfiguredMandatory = (
@@ -52,32 +54,72 @@ export const getPatientDetailsValidation = (
   getTranslation,
 ) => {
   const patientDetailsValidationSchema = yup.object().shape({
-    firstName: yup.string().required(),
+    firstName: yup
+      .string()
+      .required()
+      .translatedLabel(
+        <TranslatedText stringId="general.localisedField.firstName.label" fallback="First name" />,
+      ),
     middleName: requiredWhenConfiguredMandatory(
       getLocalisation,
       getTranslation,
       'middleName',
-      yup.string(),
+      yup
+        .string()
+        .translatedLabel(
+          <TranslatedText
+            stringId="general.localisedField.middleName.label"
+            fallback="Middle name"
+          />,
+        ),
       'Middle name',
     ),
-    lastName: yup.string().required(),
+    lastName: yup
+      .string()
+      .required()
+      .translatedLabel(
+        <TranslatedText stringId="general.localisedField.lastName.label" fallback="Last name" />,
+      ),
     culturalName: requiredWhenConfiguredMandatory(
       getLocalisation,
       getTranslation,
       'culturalName',
-      yup.string(),
+      yup
+        .string()
+        .translatedLabel(
+          <TranslatedText
+            stringId="general.localisedField.culturalName.label"
+            fallback="Cultural name"
+          />,
+        ),
       'Cultural name',
     ),
-    dateOfBirth: yup.date().required(),
+    dateOfBirth: yup
+      .date()
+      .required()
+      .translatedLabel(
+        <TranslatedText
+          stringId="general.localisedField.dateOfBirth.label"
+          fallback="Date of birth"
+        />,
+      ),
     sex: yup
       .string()
       .oneOf(sexValues)
-      .required(),
+      .required()
+      .translatedLabel(
+        <TranslatedText stringId="general.localisedField.sex.label" fallback="Sex" />,
+      ),
     email: requiredWhenConfiguredMandatory(
       getLocalisation,
       getTranslation,
       'email',
-      yup.string().email(),
+      yup
+        .string()
+        .email()
+        .translatedLabel(
+          <TranslatedText stringId="general.localisedField.email.label" fallback="Email address" />,
+        ),
       'Email',
     ),
 
@@ -89,7 +131,14 @@ export const getPatientDetailsValidation = (
         getTranslation,
         patientRegistryType,
         'birthFacilityId',
-        yup.string(),
+        yup
+          .string()
+          .translatedLabel(
+            <TranslatedText
+              stringId="general.localisedField.birthFacilityId.label"
+              fallback="Name of health facility (if applicable)"
+            />,
+          ),
         'Name of health facility (if applicable)',
       ),
       otherwise: yup.string(),
@@ -100,7 +149,14 @@ export const getPatientDetailsValidation = (
       getTranslation,
       patientRegistryType,
       'attendantAtBirth',
-      yup.string(),
+      yup
+        .string()
+        .translatedLabel(
+          <TranslatedText
+            stringId="general.localisedField.attendantAtBirth.label"
+            fallback="Attendant at birth"
+          />,
+        ),
       'Attendant at birth',
     ),
     nameOfAttendantAtBirth: requiredBirthFieldWhenConfiguredMandatory(
@@ -108,7 +164,14 @@ export const getPatientDetailsValidation = (
       getTranslation,
       patientRegistryType,
       'nameOfAttendantAtBirth',
-      yup.string(),
+      yup
+        .string()
+        .translatedLabel(
+          <TranslatedText
+            stringId="general.localisedField.nameOfAttendantAtBirth.label"
+            fallback="Name of attendant"
+          />,
+        ),
       'Name of attendant',
     ),
     birthWeight: requiredBirthFieldWhenConfiguredMandatory(
@@ -119,7 +182,13 @@ export const getPatientDetailsValidation = (
       yup
         .number()
         .min(0)
-        .max(6),
+        .max(6)
+        .translatedLabel(
+          <TranslatedText
+            stringId="general.localisedField.birthWeight.label"
+            fallback="Birth weight (kg)"
+          />,
+        ),
       'Birth weight (kg)',
     ),
     birthLength: requiredBirthFieldWhenConfiguredMandatory(
@@ -130,7 +199,13 @@ export const getPatientDetailsValidation = (
       yup
         .number()
         .min(0)
-        .max(100),
+        .max(100)
+        .translatedLabel(
+          <TranslatedText
+            stringId="general.localisedField.birthLength.label"
+            fallback="Birth length (cm)"
+          />,
+        ),
       'Birth length (cm)',
     ),
     birthDeliveryType: requiredBirthFieldWhenConfiguredMandatory(
@@ -138,7 +213,15 @@ export const getPatientDetailsValidation = (
       getTranslation,
       patientRegistryType,
       'birthDeliveryType',
-      yup.string().oneOf(Object.values(BIRTH_DELIVERY_TYPES)),
+      yup
+        .string()
+        .oneOf(Object.values(BIRTH_DELIVERY_TYPES))
+        .translatedLabel(
+          <TranslatedText
+            stringId="general.localisedField.birthDeliveryType.label"
+            fallback="Delivery type"
+          />,
+        ),
       'Delivery type',
     ),
     gestationalAgeEstimate: requiredBirthFieldWhenConfiguredMandatory(
@@ -149,7 +232,13 @@ export const getPatientDetailsValidation = (
       yup
         .number()
         .min(1)
-        .max(45),
+        .max(45)
+        .translatedLabel(
+          <TranslatedText
+            stringId="general.localisedField.gestationalAgeEstimate.label"
+            fallback="Gestational age (weeks)"
+          />,
+        ),
       'Gestational age (weeks)',
     ),
     apgarScoreOneMinute: requiredBirthFieldWhenConfiguredMandatory(
@@ -160,7 +249,13 @@ export const getPatientDetailsValidation = (
       yup
         .number()
         .min(1)
-        .max(10),
+        .max(10)
+        .translatedLabel(
+          <TranslatedText
+            stringId="general.localisedField.apgarScoreOneMinute.label"
+            fallback="Apgar score at 1 min"
+          />,
+        ),
       'Apgar score at 1 min',
     ),
     apgarScoreFiveMinutes: requiredBirthFieldWhenConfiguredMandatory(
@@ -171,7 +266,13 @@ export const getPatientDetailsValidation = (
       yup
         .number()
         .min(1)
-        .max(10),
+        .max(10)
+        .translatedLabel(
+          <TranslatedText
+            stringId="general.localisedField.apgarScoreFiveMinute.label"
+            fallback="Apgar score at 5 min"
+          />,
+        ),
       'Apgar score at 5 min',
     ),
     apgarScoreTenMinutes: requiredBirthFieldWhenConfiguredMandatory(
@@ -182,7 +283,13 @@ export const getPatientDetailsValidation = (
       yup
         .number()
         .min(1)
-        .max(10),
+        .max(10)
+        .translatedLabel(
+          <TranslatedText
+            stringId="general.localisedField.apgarScoreTenMinute.label"
+            fallback="Apgar score at 10 min"
+          />,
+        ),
       'Apgar score at 10 min',
     ),
     birthType: requiredBirthFieldWhenConfiguredMandatory(
@@ -190,7 +297,15 @@ export const getPatientDetailsValidation = (
       getTranslation,
       patientRegistryType,
       'birthType',
-      yup.string().oneOf(Object.values(BIRTH_TYPES)),
+      yup
+        .string()
+        .oneOf(Object.values(BIRTH_TYPES))
+        .translatedLabel(
+          <TranslatedText
+            stringId="general.localisedField.birthType.label"
+            fallback="Single/Plural birth"
+          />,
+        ),
       'Single/Plural birth',
     ),
     timeOfBirth: requiredBirthFieldWhenConfiguredMandatory(
@@ -198,7 +313,14 @@ export const getPatientDetailsValidation = (
       getTranslation,
       patientRegistryType,
       'timeOfBirth',
-      yup.string(),
+      yup
+        .string()
+        .translatedLabel(
+          <TranslatedText
+            stringId="general.localisedField.timeOfBirth.label"
+            fallback="Time of birth"
+          />,
+        ),
       'Time of birth',
     ),
     registeredBirthPlace: requiredBirthFieldWhenConfiguredMandatory(
@@ -206,7 +328,15 @@ export const getPatientDetailsValidation = (
       getTranslation,
       patientRegistryType,
       'registeredBirthPlace',
-      yup.string().oneOf(Object.values(PLACE_OF_BIRTH_TYPES)),
+      yup
+        .string()
+        .oneOf(Object.values(PLACE_OF_BIRTH_TYPES))
+        .translatedLabel(
+          <TranslatedText
+            stringId="general.localisedField.registeredBirthPlace.label"
+            fallback="Place of birth"
+          />,
+        ),
       'Place of birth',
     ),
     /* --- PATIENT BIRTH FIELDS END--- */
@@ -215,169 +345,322 @@ export const getPatientDetailsValidation = (
       getLocalisation,
       getTranslation,
       'religionId',
-      yup.string(),
+      yup
+        .string()
+        .translatedLabel(
+          <TranslatedText stringId="general.localisedField.religionId.label" fallback="Religion" />,
+        ),
       'Religion',
     ),
     birthCertificate: requiredWhenConfiguredMandatory(
       getLocalisation,
       getTranslation,
       'birthCertificate',
-      yup.string(),
+      yup
+        .string()
+        .translatedLabel(
+          <TranslatedText
+            stringId="general.localisedField.birthCertificate.label"
+            fallback="Birth certificate"
+          />,
+        ),
       'Birth certificate',
     ),
     passport: requiredWhenConfiguredMandatory(
       getLocalisation,
       getTranslation,
       'passport',
-      yup.string(),
+      yup
+        .string()
+        .translatedLabel(
+          <TranslatedText stringId="general.localisedField.passport.label" fallback="Passport" />,
+        ),
       'Passport',
     ),
     primaryContactNumber: requiredWhenConfiguredMandatory(
       getLocalisation,
       getTranslation,
       'primaryContactNumber',
-      yup.number().transform(yupAttemptTransformToNumber),
+      yup
+        .number()
+        .translatedLabel(
+          <TranslatedText
+            stringId="general.localisedField.primaryContactNumber.label"
+            fallback="Primary contact number"
+          />,
+        )
+        .transform(yupAttemptTransformToNumber),
       'Primary contact number',
     ),
     secondaryContactNumber: requiredWhenConfiguredMandatory(
       getLocalisation,
       getTranslation,
       'secondaryContactNumber',
-      yup.number().transform(yupAttemptTransformToNumber),
+      yup
+        .number()
+        .translatedLabel(
+          <TranslatedText
+            stringId="general.localisedField.secondaryContactNumber.label"
+            fallback="Secondary contact number"
+          />,
+        )
+        .transform(yupAttemptTransformToNumber),
       'Secondary contact number',
     ),
     emergencyContactName: requiredWhenConfiguredMandatory(
       getLocalisation,
       getTranslation,
       'emergencyContactName',
-      yup.string(),
+      yup
+        .string()
+        .translatedLabel(
+          <TranslatedText
+            stringId="general.localisedField.emergencyContactName.label"
+            fallback="Emergency contact name"
+          />,
+        ),
       'Emergency contact name',
     ),
     emergencyContactNumber: requiredWhenConfiguredMandatory(
       getLocalisation,
       getTranslation,
       'emergencyContactNumber',
-      yup.number().transform(yupAttemptTransformToNumber),
+      yup
+        .number()
+        .translatedLabel(
+          <TranslatedText
+            stringId="general.localisedField.emergencyContactNumber.label"
+            fallback="Emergency contact number"
+          />,
+        )
+        .transform(yupAttemptTransformToNumber),
       'Emergency contact number',
     ),
-    title: requiredWhenConfiguredMandatory(getLocalisation, getTranslation, 'title', yup.string()),
+    title: requiredWhenConfiguredMandatory(
+      getLocalisation,
+      getTranslation,
+      'title',
+      yup
+        .string()
+        .translatedLabel(
+          <TranslatedText stringId="general.localisedField.title.label" fallback="Title" />,
+        ),
+    ),
     bloodType: requiredWhenConfiguredMandatory(
       getLocalisation,
       getTranslation,
       'bloodType',
-      yup.string(),
+      yup
+        .string()
+        .translatedLabel(
+          <TranslatedText
+            stringId="general.localisedField.bloodType.label"
+            fallback="Blood type"
+          />,
+        ),
       'Blood type',
     ),
     placeOfBirth: requiredWhenConfiguredMandatory(
       getLocalisation,
       getTranslation,
       'placeOfBirth',
-      yup.string(),
+      yup
+        .string()
+        .translatedLabel(
+          <TranslatedText
+            stringId="general.localisedField.placeOfBirth.label"
+            fallback="BirthLocation"
+          />,
+        ),
       'Birth location',
     ),
     countryOfBirthId: requiredWhenConfiguredMandatory(
       getLocalisation,
       getTranslation,
       'countryOfBirthId',
-      yup.string(),
+      yup
+        .string()
+        .translatedLabel(
+          <TranslatedText
+            stringId="general.localisedField.countryOfBirthId.label"
+            fallback="Country of birth"
+          />,
+        ),
       'Country of birth',
     ),
     nationalityId: requiredWhenConfiguredMandatory(
       getLocalisation,
       getTranslation,
       'nationalityId',
-      yup.string(),
+      yup
+        .string()
+        .translatedLabel(
+          <TranslatedText
+            stringId="general.localisedField.nationalityId.label"
+            fallback="Nationality"
+          />,
+        ),
       'Nationality',
     ),
     ethnicityId: requiredWhenConfiguredMandatory(
       getLocalisation,
       getTranslation,
       'ethnicityId',
-      yup.string(),
+      yup
+        .string()
+        .translatedLabel(
+          <TranslatedText stringId="general.localisedField.ethnicity.label" fallback="Ethnicity" />,
+        ),
       'Ethnicity',
     ),
     patientBillingTypeId: requiredWhenConfiguredMandatory(
       getLocalisation,
       getTranslation,
       'patientBillingTypeId',
-      yup.string(),
+      yup
+        .string()
+        .translatedLabel(
+          <TranslatedText
+            stringId="general.localisedField.patientBillingTypeId.label"
+            fallback="Type"
+          />,
+        ),
       'Type',
     ),
     motherId: requiredWhenConfiguredMandatory(
       getLocalisation,
       getTranslation,
       'motherId',
-      yup.string(),
+      yup
+        .string()
+        .translatedLabel(
+          <TranslatedText stringId="general.localisedField.motherId.label" fallback="Mother" />,
+        ),
       'Mother',
     ),
     fatherId: requiredWhenConfiguredMandatory(
       getLocalisation,
       getTranslation,
       'fatherId',
-      yup.string(),
+      yup
+        .string()
+        .translatedLabel(
+          <TranslatedText stringId="general.localisedField.father.label" fallback="Father" />,
+        ),
       'Father',
     ),
     subdivisionId: requiredWhenConfiguredMandatory(
       getLocalisation,
       getTranslation,
       'subdivisionId',
-      yup.string(),
+      yup
+        .string()
+        .translatedLabel(
+          <TranslatedText
+            stringId="general.localisedField.subdivisionId.label"
+            fallback="Sub division"
+          />,
+        ),
       'Sub division',
     ),
     divisionId: requiredWhenConfiguredMandatory(
       getLocalisation,
       getTranslation,
       'divisionId',
-      yup.string(),
+      yup
+        .string()
+        .translatedLabel(
+          <TranslatedText stringId="general.localisedField.divisionId.label" fallback="Division" />,
+        ),
       'Division',
     ),
     countryId: requiredWhenConfiguredMandatory(
       getLocalisation,
       getTranslation,
       'countryId',
-      yup.string(),
+      yup
+        .string()
+        .translatedLabel(
+          <TranslatedText stringId="general.localisedField.countryId.label" fallback="Country" />,
+        ),
       'Country',
     ),
     settlementId: requiredWhenConfiguredMandatory(
       getLocalisation,
       getTranslation,
       'settlementId',
-      yup.string(),
+      yup
+        .string()
+        .translatedLabel(
+          <TranslatedText
+            stringId="general.localisedField.settlementId.label"
+            fallback="Settlement"
+          />,
+        ),
       'Settlement',
     ),
     medicalAreaId: requiredWhenConfiguredMandatory(
       getLocalisation,
       getTranslation,
       'medicalAreaId',
-      yup.string(),
+      yup
+        .string()
+        .translatedLabel(
+          <TranslatedText
+            stringId="general.localisedField.medicalAreaId.label"
+            fallback="Medical area"
+          />,
+        ),
       'Medical area',
     ),
     nursingZoneId: requiredWhenConfiguredMandatory(
       getLocalisation,
       getTranslation,
       'nursingZoneId',
-      yup.string(),
+      yup
+        .string()
+        .translatedLabel(
+          <TranslatedText
+            stringId="general.localisedField.nursingZoneId.label"
+            fallback="Nursing zone"
+          />,
+        ),
       'Nursing zone',
     ),
     streetVillage: requiredWhenConfiguredMandatory(
       getLocalisation,
       getTranslation,
       'streetVillage',
-      yup.string(),
+      yup
+        .string()
+        .translatedLabel(
+          <TranslatedText
+            stringId="general.localisedField.streetVillage.label"
+            fallback="Residential landmark"
+          />,
+        ),
       'Residential landmark',
     ),
     villageId: requiredWhenConfiguredMandatory(
       getLocalisation,
       getTranslation,
       'villageId',
-      yup.string(),
+      yup
+        .string()
+        .translatedLabel(
+          <TranslatedText stringId="general.localisedField.villageId.label" fallback="Village" />,
+        ),
       'Village',
     ),
     cityTown: requiredWhenConfiguredMandatory(
       getLocalisation,
       getTranslation,
       'cityTown',
-      yup.string(),
+      yup
+        .string()
+        .translatedLabel(
+          <TranslatedText stringId="general.localisedField.cityTown.label" fallback="City/town" />,
+        ),
       'City/town',
     ),
     healthCenterId: requiredWhenConfiguredMandatory(
@@ -393,7 +676,14 @@ export const getPatientDetailsValidation = (
         getLocalisation,
         getTranslation,
         'drivingLicense',
-        yup.string(),
+        yup
+          .string()
+          .translatedLabel(
+            <TranslatedText
+              stringId="general.localisedField.drivingLicense.label"
+              fallback="Driving license"
+            />,
+          ),
         'Driving license',
       ),
       otherwise: yup.string(),
@@ -404,7 +694,14 @@ export const getPatientDetailsValidation = (
         getLocalisation,
         getTranslation,
         'maritalStatus',
-        yup.string(),
+        yup
+          .string()
+          .translatedLabel(
+            <TranslatedText
+              stringId="general.localisedField.maritalStatus.label"
+              fallback="Marital status"
+            />,
+          ),
         'Marital status',
       ),
       otherwise: yup.string(),
@@ -415,7 +712,14 @@ export const getPatientDetailsValidation = (
         getLocalisation,
         getTranslation,
         'occupationId',
-        yup.string(),
+        yup
+          .string()
+          .translatedLabel(
+            <TranslatedText
+              stringId="general.localisedField.occupationId.label"
+              fallback="Occupation"
+            />,
+          ),
         'Occupation',
       ),
       otherwise: yup.string(),
@@ -426,7 +730,14 @@ export const getPatientDetailsValidation = (
         getLocalisation,
         getTranslation,
         'educationalLevel',
-        yup.string(),
+        yup
+          .string()
+          .translatedLabel(
+            <TranslatedText
+              stringId="general.localisedField.educationalLevel.label"
+              fallback="Educational attainment"
+            />,
+          ),
         'Educational attainment',
       ),
       otherwise: yup.string(),
@@ -437,7 +748,14 @@ export const getPatientDetailsValidation = (
         getLocalisation,
         getTranslation,
         'socialMedia',
-        yup.string(),
+        yup
+          .string()
+          .translatedLabel(
+            <TranslatedText
+              stringId="general.localisedField.socialMedia.label"
+              fallback="Social media"
+            />,
+          ),
         'Social media',
       ),
       otherwise: yup.string(),
