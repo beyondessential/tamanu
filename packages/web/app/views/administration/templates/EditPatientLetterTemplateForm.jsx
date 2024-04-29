@@ -11,6 +11,7 @@ import {
   RedOutlinedButton,
 } from '../../../components';
 import { FORM_TYPES } from '../../../constants';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const DeleteButton = styled(RedOutlinedButton)`
   margin-left: 0px !important;
@@ -42,7 +43,17 @@ export const EditPatientLetterTemplateForm = memo(
     const renderForm = ({ submitForm, dirty }) => (
       <>
         <FormGrid columns={2}>
-          <Field name="name" label="Template name" component={TextField} required />
+          <Field
+            name="name"
+            label={
+              <TranslatedText
+                stringId="patientLetterTemplate.templateName.label"
+                fallback="Template name"
+              />
+            }
+            component={TextField}
+            required
+          />
           <Field name="title" label="Title" component={TextField} />
         </FormGrid>
         <SmallGridSpacer />
@@ -64,7 +75,15 @@ export const EditPatientLetterTemplateForm = memo(
         formType={FORM_TYPES.EDIT_FORM}
         initialValues={editedObject}
         validationSchema={yup.object().shape({
-          name: yup.string().required(),
+          name: yup
+            .string()
+            .required()
+            .translatedLabel(
+              <TranslatedText
+                stringId="patientLetterTemplate.templateName.label"
+                fallback="Template name"
+              />,
+            ),
           title: yup.string(),
           body: yup.string(),
         })}
