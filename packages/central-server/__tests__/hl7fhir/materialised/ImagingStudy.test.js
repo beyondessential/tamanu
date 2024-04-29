@@ -1,7 +1,7 @@
 import { Op } from 'sequelize';
 
 import { fake, fakeReferenceData, showError } from '@tamanu/shared/test-helpers';
-import { IMAGING_REQUEST_STATUS_TYPES } from '@tamanu/constants';
+import { IMAGING_REQUEST_STATUS_TYPES, FHIR_IMAGING_STUDY_STATUS } from '@tamanu/constants';
 import { fakeUUID } from '@tamanu/shared/utils/generateId';
 import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
 
@@ -420,7 +420,7 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
               code: 'value',
               diagnostics: expect.any(String),
               details: {
-                text: "ImagingStudy status must be 'final'",
+                text: `ImagingStudy status must be either '${FHIR_IMAGING_STUDY_STATUS.AVAILABLE}' or '${FHIR_IMAGING_STUDY_STATUS.CANCELLED}'`,
               },
             },
           ],
@@ -503,6 +503,8 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
         });
         expect(response.status).toBe(400);
       });
+
+      test.todo('cannot update a imaging request that has been cancelled');
     });
   });
 });

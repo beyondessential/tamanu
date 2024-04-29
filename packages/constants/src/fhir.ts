@@ -233,6 +233,15 @@ export const FHIR_DIAGNOSTIC_REPORT_STATUS = {
   UNKNOWN: 'unknown',
 };
 
+export const FHIR_IMAGING_STUDY_STATUS = {
+  REGISTERED: 'registered',
+  AVAILABLE: 'available',
+  FINAL_INVALID_LEGACY: 'final',
+  CANCELLED: 'cancelled',
+  ENTERED_IN_ERROR: 'entered-in-error',
+  UNKNOWN: 'unknown',
+};
+
 export const FHIR_ENCOUNTER_CLASS_DISPLAY = {
   IMP: 'inpatient encounter',
   AMB: 'ambulatory encounter',
