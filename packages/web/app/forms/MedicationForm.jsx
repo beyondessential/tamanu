@@ -43,21 +43,38 @@ const drugRouteOptions = [
 const validationSchema = readOnly =>
   !readOnly
     ? yup.object().shape({
-        medicationId: foreignKey('Medication must be selected'),
-        prescriberId: foreignKey('Prescriber must be selected'),
-        prescription: yup.string().required('Instructions are required'),
+        medicationId: foreignKey().translatedLabel(
+          <TranslatedText stringId="medication.medication.label" fallback="Medication" />,
+        ),
+        prescriberId: foreignKey().translatedLabel(
+          <TranslatedText stringId="medication.prescriber.label" fallback="Prescriber" />,
+        ),
+        prescription: yup
+          .string()
+          .required()
+          .translatedLabel(
+            <TranslatedText stringId="medication.instructions.label" fallback="Instructions" />,
+          ),
         route: yup
           .string()
           .oneOf(drugRouteOptions.map(x => x.value))
-          .required(),
-        date: yup.date().required(),
+          .required()
+          .translatedLabel(
+            <TranslatedText stringId="medication.validation.route.path" fallback="Route" />,
+          ),
+        date: yup
+          .date()
+          .required()
+          .translatedLabel(<TranslatedText stringId="general.date.label" fallback="Date" />),
         endDate: yup.date(),
         note: yup.string(),
         quantity: yup.number().integer(),
       })
     : yup.object().shape({
         discontinuingReason: yup.string(),
-        discontinuingClinicianId: foreignKey('Clinician must be selected'),
+        discontinuingClinicianId: foreignKey().translatedLabel(
+          <TranslatedText stringId="general.clinician.label" fallback="Clinician" />,
+        ),
       });
 
 const DiscontinuePrintButtonRow = styled.div`
