@@ -1,8 +1,9 @@
 import React, { ReactElement, useCallback } from 'react';
 import { GeneralInfo } from './GeneralInfo';
-import { AdditionalInfo } from './AdditionalInfo';
+import { AdditionalInfo } from '../AdditionalInfo';
 import { Routes } from '~/ui/helpers/routes';
 import { joinNames } from '~/ui/helpers/user';
+import { CAMBODIA_ADDITIONAL_DATA_SECTIONS } from '~/ui/helpers/additionalData';
 
 export const PatientDetails = ({ patient, navigation }): ReactElement => {
   const onEditGeneralInfo = useCallback(() => {
@@ -31,7 +32,7 @@ export const PatientDetails = ({ patient, navigation }): ReactElement => {
   return (
     <>
       <GeneralInfo patient={patient} onEdit={onEditGeneralInfo} />
-      <AdditionalInfo patient={patient} onEdit={editPatientAdditionalData} />
+      <AdditionalInfo patient={patient} onEdit={editPatientAdditionalData} dataSections={CAMBODIA_ADDITIONAL_DATA_SECTIONS} />
     </>
   );
 };

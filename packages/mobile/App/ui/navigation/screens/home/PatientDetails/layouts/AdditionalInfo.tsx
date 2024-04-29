@@ -1,10 +1,10 @@
 import React, { ReactElement } from 'react';
 
-import { FieldRowDisplay } from '../../../../../../components/FieldRowDisplay';
-import { ErrorScreen } from '../../../../../../components/ErrorScreen';
-import { LoadingScreen } from '../../../../../../components/LoadingScreen';
-import { PatientSection } from '../../CustomComponents/PatientSection';
-import { useLocalisation } from '../../../../../../contexts/LocalisationContext';
+import { FieldRowDisplay } from '../../../../../components/FieldRowDisplay';
+import { ErrorScreen } from '../../../../../components/ErrorScreen';
+import { LoadingScreen } from '../../../../../components/LoadingScreen';
+import { PatientSection } from '../CustomComponents/PatientSection';
+import { useLocalisation } from '../../../../../contexts/LocalisationContext';
 import { IPatient, IPatientAdditionalData, IPatientFieldValue } from '../../../../../../types';
 import { usePatientAdditionalData } from '~/ui/hooks/usePatientAdditionalData';
 import { CAMBODIA_ADDITIONAL_DATA_SECTIONS } from '~/ui/helpers/additionalData';
@@ -18,6 +18,7 @@ interface AdditionalInfoProps {
     customPatientFieldValues: IPatientFieldValue[],
   ) => void;
   patient: IPatient;
+  dataSections;
 }
 
 function getPadFieldData(data: IPatientAdditionalData, fieldName: string): string {
@@ -31,7 +32,7 @@ function getPadFieldData(data: IPatientAdditionalData, fieldName: string): strin
   return data?.[fieldName];
 }
 
-export const AdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps): ReactElement => {
+export const AdditionalInfo = ({ patient, onEdit, dataSections }: AdditionalInfoProps): ReactElement => {
   const { getBool } = useLocalisation();
   const {
     customPatientFieldValues,
@@ -52,7 +53,7 @@ export const AdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps): ReactE
   const isEditable = getBool('features.editPatientDetailsOnMobile');
 
   // Add edit callback and map the inner 'fields' array
-  const sections = CAMBODIA_ADDITIONAL_DATA_SECTIONS.map(({ title, fields }) => {
+  const sections = dataSections.map(({ title, fields }) => {
     const onEditCallback = (): void =>
       onEdit(patientAdditionalData, title, customPatientFieldValues);
 
