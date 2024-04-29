@@ -50,11 +50,11 @@ export const ReminderContactModal = ({ onClose, open }) => {
     setSuccessContactIds(prev => [...prev, data?.contactId]);
   }, []);
 
-  const handleUpdatePendingContacts = isTimerStarted => {
+  const handleUpdatePendingContacts = (newContactId, isTimerStarted) => {
     setPendingContacts(previousPendingContacts => ({
       ...previousPendingContacts,
-      [newContact.id]: {
-        ...previousPendingContacts[newContact.id],
+      [newContactId]: {
+        ...previousPendingContacts[newContactId],
         isTimerStarted,
       },
     }));
@@ -68,14 +68,6 @@ export const ReminderContactModal = ({ onClose, open }) => {
   useEffect(() => {
     setActiveView(REMINDER_CONTACT_VIEWS.REMINDER_CONTACT_LIST);
   }, [open]);
-
-  useEffect(() => {
-    if (!newContact.id) return;
-    setTimeout(() => {
-      handleUpdatePendingContacts(false);
-    }, DEFAULT_CONTACT_TIMEOUT);
-    handleUpdatePendingContacts(true);
-  }, [newContact.id]);
 
   const handleActiveView = value => {
     setActiveView(value);
@@ -100,6 +92,10 @@ export const ReminderContactModal = ({ onClose, open }) => {
   const onContinue = newContact => {
     setNewContact(newContact);
     handleActiveView(REMINDER_CONTACT_VIEWS.ADD_REMINDER_QR_CODE);
+    setTimeout(() => {
+      handleUpdatePendingContacts(newContact.id, false);
+    }, DEFAULT_CONTACT_TIMEOUT);
+    handleUpdatePendingContacts(newContact.id, true);
   };
 
   const onBack = () => {
