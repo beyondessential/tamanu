@@ -16,7 +16,8 @@ import { H3 } from './Typography';
 import { LetterheadSection } from './LetterheadSection';
 import { getDisplayDate } from './getDisplayDate';
 import { SigningSection } from './SigningSection';
-import { useLanguageContext, withLanguageContext } from '../pdf/languageContext';
+import { translationFactory } from '../translation/translationFactory';
+import { get } from 'lodash';
 import { Page } from '../pdf/Page';
 import { Text } from '../pdf/Text';
 
@@ -98,10 +99,16 @@ const VaccineCertificateComponent = ({
   signingSrc,
   logoSrc,
   localisation,
+  translations,
   extraPatientFields,
 }) => {
-  const { getTranslation } = useLanguageContext();
-  const getLocalisation = key => localisation[key];
+  const getLocalisation = key => get(localisation, key);
+  const translationFunc = translationFactory(translations);
+
+  const getTranslation = (stringId, fallback, replacements, uppercase, lowercase) => {
+    const { value } = translationFunc(stringId, fallback, replacements, uppercase, lowercase);
+    return value;
+  };
   const healthFacility = getLocalisation('templates.vaccineCertificate.healthFacility');
   const countryName = getLocalisation('country.name');
 
@@ -204,4 +211,4 @@ const VaccineCertificateComponent = ({
   );
 };
 
-export const VaccineCertificate = withLanguageContext(VaccineCertificateComponent);
+export const VaccineCertificate = VaccineCertificateComponent;

@@ -89,6 +89,12 @@ export class Encounter extends BaseModel implements IEncounter {
   @IdRelation()
   patientBillingTypeId?: string | null;
 
+  @ReferenceDataRelation()
+  diet?: ReferenceData;
+
+  @IdRelation()
+  dietId?: string | null;
+
   @ManyToOne(() => Location)
   location: Location;
 
