@@ -56,7 +56,7 @@ export const GeneralInfo = ({ onEdit, patient }: GeneralInfoProps): ReactElement
       title={
         <TranslatedText
           stringId="patient.details.subheading.generalInformation"
-          fallback="CAMBODIA - General Information"
+          fallback="General Information"
         />
       }
       onEdit={isEditable ? onEdit : undefined}

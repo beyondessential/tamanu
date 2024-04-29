@@ -7,7 +7,6 @@ import { PatientSection } from './PatientSection';
 import { useLocalisation } from '../../../../../contexts/LocalisationContext';
 import { IPatient, IPatientAdditionalData, IPatientFieldValue } from '../../../../../../types';
 import { usePatientAdditionalData } from '~/ui/hooks/usePatientAdditionalData';
-import { CAMBODIA_ADDITIONAL_DATA_SECTIONS } from '~/ui/helpers/additionalData';
 import { isCustomField } from '~/ui/helpers/fields';
 import { mapValues } from 'lodash';
 
