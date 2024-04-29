@@ -34,7 +34,7 @@ describe('FhirMissingResources task', () => {
     ctx.close();
   });
 
-  it('should create one FHIR fromUpstream job if a FHIR resource is missing', async () => {
+  it('should create FHIR fromUpstream jobs if FHIR resource are missing', async () => {
     const { FhirServiceRequest, FhirJob } = ctx.store.models;
     const imagingRequest = await fakeResourcesOfFhirServiceRequestWithImagingRequest(
       ctx.store.models,
@@ -53,7 +53,7 @@ describe('FhirMissingResources task', () => {
     const name = fhirMissingResourcesWorker.getName();
     expect(name).toEqual('FhirMissingResources');
     const countQueue = await fhirMissingResourcesWorker.countQueue();
-    expect(countQueue).toEqual(1);
+    expect(countQueue).toEqual(2); // 1 MediciReport AND 1 ServiceRequest
     await fhirMissingResourcesWorker.run();
 
     const fhirJob = await FhirJob.findOne({
@@ -89,12 +89,17 @@ describe('FhirMissingResources task', () => {
     );
 
     const countQueue = await fhirMissingResourcesWorker.countQueue();
-    expect(countQueue).toEqual(0);
+    expect(countQueue).toEqual(1);
     await fhirMissingResourcesWorker.run();
 
     const fhirJob = await FhirJob.findOne({
       where: {
         topic: 'fhir.refresh.fromUpstream',
+        payload: {
+          resource: {
+            [Op.ne]: 'Organization',
+          },
+        },
       },
     });
 

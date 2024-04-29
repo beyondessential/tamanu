@@ -45,8 +45,11 @@ const columns = [
 
   {
     key: 'countryName',
-    title: 'Country',
-    accessor: ({ countryName }) => countryName,
+    title: 'Facility/Country',
+    accessor: record => {
+      const facility = record.givenElsewhere ? record.givenBy : record.location?.facility?.name;
+      return facility || '';
+    }
   },
 ];
 
@@ -91,9 +94,10 @@ export const VaccineCertificate = ({
   watermarkSrc,
   signingSrc,
   logoSrc,
-  getLocalisation,
+  localisation,
   extraPatientFields,
 }) => {
+  const getLocalisation = key => localisation[key];
   const healthFacility = getLocalisation('templates.vaccineCertificate.healthFacility');
   const countryName = getLocalisation('country.name');
 
