@@ -158,19 +158,19 @@ describe('Patient merge', () => {
   it('Should throw if the keep patient and merge patient are the same', async () => {
     const { Patient } = models;
     const keep = await Patient.create(fake(Patient));
-    expect(() => mergePatient(models, keep.id, keep.id)).rejects.toThrow(InvalidParameterError);
+    await expect(() => mergePatient(models, keep.id, keep.id)).rejects.toThrow(InvalidParameterError);
   });
 
   it("Should throw if the keep patient doesn't exist", async () => {
     const { Patient } = models;
     const keep = await Patient.create(fake(Patient));
-    expect(() => mergePatient(models, keep.id, 'not real')).rejects.toThrow(InvalidParameterError);
+    await expect(() => mergePatient(models, keep.id, 'not real')).rejects.toThrow(InvalidParameterError);
   });
 
   it("Should throw if the merge patient doesn't exist", async () => {
     const { Patient } = models;
     const merge = await Patient.create(fake(Patient));
-    expect(() => mergePatient(models, 'not real', merge.id)).rejects.toThrow(InvalidParameterError);
+    await expect(() => mergePatient(models, 'not real', merge.id)).rejects.toThrow(InvalidParameterError);
   });
 
   it('Should merge a page of notes across', async () => {

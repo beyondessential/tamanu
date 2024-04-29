@@ -12,13 +12,17 @@ import { getFullLocationName } from '../utils/location';
 import { TranslatedText, TranslatedReferenceData } from './Translation';
 
 const getMedicationName = ({ medication }) => (
-  <TranslatedReferenceData fallback={medication.name} value={medication.id} category={medication.type} />
+  <TranslatedReferenceData
+    fallback={medication.name}
+    value={medication.id}
+    category={medication.type}
+  />
 );
 
 const MEDICATION_COLUMNS = [
   {
     key: 'date',
-    title: <TranslatedText stringId="general.table.column.date" fallback="Date" />,
+    title: <TranslatedText stringId="general.date.label" fallback="Date" />,
     accessor: ({ date }) => <DateDisplay date={date} />,
   },
   {
@@ -30,7 +34,7 @@ const MEDICATION_COLUMNS = [
   {
     key: 'prescription',
     title: (
-      <TranslatedText stringId="medication.table.column.prescription" fallback="Prescription" />
+      <TranslatedText stringId="medication.table.column.instructions" fallback="Instructions" />
     ),
   },
   {
@@ -53,23 +57,25 @@ const MEDICATION_COLUMNS = [
 const FULL_LISTING_COLUMNS = [
   {
     key: 'name',
-    title: <TranslatedText stringId="general.table.column.patient" fallback="Patient" />,
+    title: <TranslatedText stringId="general.patient.label" fallback="Patient" />,
     accessor: ({ encounter }) => `${encounter.patient.firstName} ${encounter.patient.lastName}`,
     sortable: false,
   },
   {
     key: 'department',
-    title: <TranslatedText stringId="general.table.column.department" fallback="Department" />,
-    accessor: ({ encounter }) => <TranslatedReferenceData
-      fallback={encounter.department.name}
-      value={encounter.department.id}
-      category="department"
-    />,
+    title: <TranslatedText stringId="general.department.label" fallback="Department" />,
+    accessor: ({ encounter }) => (
+      <TranslatedReferenceData
+        fallback={encounter.department.name}
+        value={encounter.department.id}
+        category="department"
+      />
+    ),
     sortable: false,
   },
   {
     key: 'location',
-    title: <TranslatedText stringId="general.table.column.location" fallback="Location" />,
+    title: <TranslatedText stringId="general.location.label" fallback="Location" />,
     accessor: ({ encounter }) => getFullLocationName(encounter.location),
     sortable: false,
   },

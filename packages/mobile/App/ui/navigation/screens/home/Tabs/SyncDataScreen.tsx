@@ -14,6 +14,7 @@ import {
 import { Button } from '../../../../components/Button';
 import { SyncErrorDisplay } from '../../../../components/SyncErrorDisplay';
 import { ErrorIcon, GreenTickIcon } from '../../../../components/Icons';
+import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 
 export const SyncDataScreen = ({ navigation }): ReactElement => {
   const backend = useContext(BackendContext);
@@ -40,7 +41,7 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
   setStatusBar('light-content', theme.colors.MAIN_SUPER_DARK);
 
   const manualSync = useCallback(() => {
-    syncManager.triggerSync({ urgent: true });
+    syncManager.triggerUrgentSync();
   }, []);
 
   useEffect(() => {
@@ -117,6 +118,9 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
 
   const syncFinishedSuccessfully = syncStarted && !isSyncing && !isQueuing && !hasError;
 
+  const changeTranslation = <TranslatedText stringId='sync.message.syncSummary.change' fallback='change' />
+  const changePluralTranslation = <TranslatedText stringId='sync.message.syncSummary.changePlural' fallback='changes' />
+
   return (
     <CenterView background={theme.colors.MAIN_SUPER_DARK} flex={1}>
       <StyledView alignItems="center">
@@ -150,7 +154,7 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
             fontSize={screenPercentageToDP(2.55, Orientation.Height)}
             textAlign="center"
           >
-            Sync failed
+            <TranslatedText stringId="sync.error.syncFailed" fallback="Sync failed" />
           </StyledText>
         ) : null}
         {isSyncing || syncFinishedSuccessfully ? (
@@ -172,7 +176,7 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
             outline
             textColor={theme.colors.SECONDARY_MAIN}
             borderColor={theme.colors.SECONDARY_MAIN}
-            buttonText="Manual sync"
+            buttonText={<TranslatedText stringId="sync.action.manualSync" fallback="Manual sync" />}
             marginTop={20}
           />
         )}
@@ -183,7 +187,13 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
             fontWeight={500}
             color={theme.colors.WHITE}
           >
-            {`${syncStage} of ${SYNC_STAGES_TOTAL} syncing`}
+            {
+              <TranslatedText
+                stringId="sync.message.syncStatus"
+                fallback=":currentSyncStage of :totalSyncStages syncing"
+                replacements={{ currentSyncStage: syncStage, totalSyncStages: SYNC_STAGES_TOTAL }}
+              />
+            }
           </StyledText>
         ) : null}
         {isSyncing ? (
@@ -203,7 +213,10 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
               fontWeight={500}
               color={theme.colors.WHITE}
             >
-              Last successful sync
+              <TranslatedText
+                stringId="sync.subHeading.lastSuccessfulSync"
+                fallback="Last successful sync"
+              />
             </StyledText>
             <StyledText
               fontSize={screenPercentageToDP(1.7, Orientation.Height)}
@@ -218,11 +231,16 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
                 fontSize={screenPercentageToDP(1.7, Orientation.Height)}
                 color={theme.colors.WHITE}
               >
-                {`pulled ${lastSyncPulledRecordsCount} change${
-                  lastSyncPulledRecordsCount === 1 ? '' : 's'
-                }, pushed ${lastSyncPushedRecordsCount} change${
-                  lastSyncPushedRecordsCount === 1 ? '' : 's'
-                }`}
+                <TranslatedText
+                  stringId="sync.message.syncSummary"
+                  fallback="pulled :pullCount :pullChange, pushed :pushCount :pushChange"
+                  replacements={{
+                    pullCount: lastSyncPulledRecordsCount,
+                    pullChange: lastSyncPulledRecordsCount === 1 ? changeTranslation : changePluralTranslation,
+                    pushCount: lastSyncPushedRecordsCount,
+                    pushChange: lastSyncPushedRecordsCount === 1 ? changeTranslation : changePluralTranslation,
+                  }}
+                />
               </StyledText>
             ) : null}
           </>

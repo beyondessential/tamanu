@@ -30,7 +30,7 @@ export async function getToken(user, expiresIn = tokenDuration) {
   );
 }
 
-async function comparePassword(user, password) {
+export async function comparePassword(user, password) {
   try {
     const passwordHash = user && user.password;
 
@@ -62,7 +62,7 @@ export async function centralServerLogin(models, email, password, deviceId) {
   });
 
   // we've logged in as a valid central user - update local database to match
-  const { user, localisation } = response;
+  const { user, localisation, settings } = response;
   const { id, ...userDetails } = user;
 
   await models.User.sequelize.transaction(async () => {
@@ -79,14 +79,12 @@ export async function centralServerLogin(models, email, password, deviceId) {
     });
   });
 
-  return { central: true, user, localisation };
+  return { central: true, user, localisation, settings };
 }
 
 async function localLogin(models, email, password) {
   // some other error in communicating with central server, revert to local login
-  const user = await models.User.scope('withPassword').findOne({
-    where: { email, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
-  });
+  const user = await models.User.getForAuthByEmail(email);
 
   const passwordMatch = await comparePassword(user, password);
 
@@ -135,7 +133,7 @@ export async function loginHandler(req, res, next) {
   req.flagPermissionChecked();
 
   try {
-    const { central, user, localisation } = await centralServerLoginWithLocalFallback(
+    const { central, user, localisation, settings } = await centralServerLoginWithLocalFallback(
       models,
       email,
       password,
@@ -156,6 +154,7 @@ export async function loginHandler(req, res, next) {
       server: {
         facility: facility?.forResponse() ?? null,
       },
+      settings,
     });
   } catch (e) {
     next(e);

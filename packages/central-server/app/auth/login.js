@@ -8,7 +8,6 @@ import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermis
 import { getLocalisation } from '../localisation';
 import { convertFromDbRecord } from '../convertDbRecord';
 import {
-  findUser,
   getRandomBase64String,
   getRandomU32,
   getToken,
@@ -65,9 +64,12 @@ const getRefreshToken = async (models, { refreshSecret, userId, deviceId }) => {
 
 export const login = ({ secret, refreshSecret }) =>
   asyncHandler(async (req, res) => {
-    const { store, body } = req;
+    const { store, body, settings } = req;
     const { models } = store;
     const { email, password, facilityId, deviceId } = body;
+
+    const settingsObject = await settings.getFrontEndSettings();
+    settingsObject.countryTimeZone = config.countryTimeZone; // This needs to be in config but also needs to be front end accessible
 
     if (!email || !password) {
       throw new BadAuthenticationError('Missing credentials');
@@ -78,7 +80,7 @@ export const login = ({ secret, refreshSecret }) =>
       throw new BadAuthenticationError('Missing deviceId');
     }
 
-    const user = await findUser(models, email);
+    const user = await models.User.getForAuthByEmail(email);
     if (!user && config.auth.reportNoUserError) {
       // an attacker can use this to get a list of user accounts
       // but hiding this error entirely can make debugging a hassle
@@ -128,5 +130,6 @@ export const login = ({ secret, refreshSecret }) =>
       facility,
       localisation,
       centralHost: config.canonicalHostName,
+      settings: settingsObject,
     });
   });
