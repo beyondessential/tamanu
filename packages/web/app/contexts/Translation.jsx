@@ -20,8 +20,14 @@ export const TranslationProvider = ({ children }) => {
 
   const translationFunc = translationFactory(translations);
 
-  const getTranslation = (stringId, fallback, replacements) => {
-    const { value, notExisting } = translationFunc(stringId, fallback, replacements);
+  const getTranslation = (stringId, fallback, replacements, uppercase, lowercase) => {
+    const { value, notExisting } = translationFunc(
+      stringId,
+      fallback,
+      replacements,
+      uppercase,
+      lowercase,
+    );
     // This section here is a dev tool to help populate the db with the translation ids we have defined
     // in components. It will only populate the db with English strings, so that we can then translate them.
     if (isDev && storedLanguage === ENGLISH_LANGUAGE_CODE && notExisting) {

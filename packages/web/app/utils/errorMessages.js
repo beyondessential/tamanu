@@ -1,6 +1,6 @@
 import * as yup from 'yup';
 import { capitaliseFirstLetter } from './capitalise';
-import { replaceStringVariables } from '../contexts/Translation';
+import { replaceStringVariables } from '@tamanu/shared/utils/translation/translationFactory';
 
 const camelCaseTest = /(?=[A-Z])/;
 function splitFieldName(name) {
