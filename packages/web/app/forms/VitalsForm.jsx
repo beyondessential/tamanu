@@ -16,15 +16,6 @@ import { useEncounter } from '../contexts/Encounter';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';
 
-const baseVitalsSchema = yup.object().shape({
-  [VITALS_DATA_ELEMENT_IDS.dateRecorded]: yup
-    .date()
-    .translatedLabel(
-      <TranslatedText stringId="general.recordedDate.label" fallback="Date recorded" />,
-    )
-    .required(),
-});
-
 export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterType }) => {
   const { getTranslation } = useTranslation();
   const {
@@ -38,11 +29,21 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterTyp
   const currentComponents = components.filter(
     c => c.visibilityStatus === VISIBILITY_STATUSES.CURRENT,
   );
+
   const validationSchema = useMemo(
     () =>
       getValidationSchema({ components: currentComponents }, getTranslation, {
         encounterType: encounterType || encounter?.encounterType,
-      }).concat(baseVitalsSchema),
+      }).concat(
+        yup.object().shape({
+          [VITALS_DATA_ELEMENT_IDS.dateRecorded]: yup
+            .date()
+            .translatedLabel(
+              <TranslatedText stringId="general.recordedDate.label" fallback="Date recorded" />,
+            )
+            .required(),
+        }),
+      ),
     [currentComponents, encounter?.encounterType, encounterType, getTranslation],
   );
   const { ability } = useAuth();

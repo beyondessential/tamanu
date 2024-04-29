@@ -13,13 +13,6 @@ import {
 import { FORM_TYPES } from '../../../constants';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
-const validationSchema = yup.object().shape({
-  labTestLaboratoryId: yup
-    .string()
-    .required()
-    .translatedLabel(<TranslatedText stringId="lab.laboratory.label" fallback="Laboratory" />),
-});
-
 export const LabRequestChangeLabModal = React.memo(
   ({ labRequest, updateLabReq, open, onClose }) => {
     const laboratorySuggester = useSuggester('labTestLaboratory');
@@ -35,7 +28,14 @@ export const LabRequestChangeLabModal = React.memo(
       <FormModal open={open} onClose={onClose} title="Change lab request laboratory">
         <Form
           onSubmit={updateLab}
-          validationSchema={validationSchema}
+          validationSchema={yup.object().shape({
+            labTestLaboratoryId: yup
+              .string()
+              .required()
+              .translatedLabel(
+                <TranslatedText stringId="lab.laboratory.label" fallback="Laboratory" />,
+              ),
+          })}
           initialValues={{
             labTestLaboratoryId: labRequest?.labTestLaboratoryId,
           }}
