@@ -306,3 +306,5 @@ export const IPS_REQUEST_STATUSES = {
   ERROR: 'Error',
   IGNORE: 'Ignore',
 };
+
+export const DEFAULT_REASON_CANCELLED_BY_API = 'cancelled externally via api';
