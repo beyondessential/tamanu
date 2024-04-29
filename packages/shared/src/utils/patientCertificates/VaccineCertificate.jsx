@@ -182,7 +182,6 @@ const VaccineCertificateComponent = ({
             getLocalisation={getLocalisation}
             certificateId={certificateId}
             extraFields={extraPatientFields}
-            getTranslation={getTranslation}
           />
         </CertificateHeader>
         <Box style={{ ...styles.box, marginLeft: '18px', marginRight: '18px' }}>
