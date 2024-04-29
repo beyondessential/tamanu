@@ -174,10 +174,29 @@ export const PatientLetterForm = ({ onSubmit, onCancel, editedObject, endpoint, 
       }}
       formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
       validationSchema={yup.object().shape({
-        date: yup.date().required('Date is required'),
-        clinicianId: yup.string().required('Clinician is required'),
-        title: yup.string().required('Letter title is required'),
-        body: yup.string().required('Note is required'),
+        date: yup
+          .date()
+          .required()
+          .translatedLabel(<TranslatedText stringId="general.date.label" fallback="Date" />),
+        clinicianId: yup
+          .string()
+          .required()
+          .translatedLabel(
+            <TranslatedText
+              stringId="general.localisedField.clinician.label"
+              fallback="Clinician"
+            />,
+          ),
+        title: yup
+          .string()
+          .required()
+          .translatedLabel(
+            <TranslatedText stringId="patientLetter.title.label" fallback="Letter title" />,
+          ),
+        body: yup
+          .string()
+          .required()
+          .translatedLabel(<TranslatedText stringId="general.note.label" fallback="Note" />),
       })}
     />
   );

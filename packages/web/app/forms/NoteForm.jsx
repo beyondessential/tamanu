@@ -13,6 +13,7 @@ import { NoteChangelogForm } from './NoteChangelogForm';
 import { CreateNoteForm } from './CreateNoteForm';
 import { TreatmentPlanNoteChangelogForm } from './TreatmentPlanNoteChangelogForm';
 import { FORM_TYPES, NOTE_FORM_MODES } from '../constants';
+import { TranslatedText } from '../components/Translation/TranslatedText';
 
 export const NoteForm = ({
   onCancel,
@@ -86,16 +87,31 @@ export const NoteForm = ({
         noteType: yup
           .string()
           .oneOf(Object.values(NOTE_TYPES))
-          .required('Note type is required'),
-        date: yup.date().required('Date is required'),
-        content: yup.string().required('Content is required'),
-        writtenById: foreignKey(
-          `${
-            noteFormMode === NOTE_FORM_MODES.EDIT_NOTE &&
-            note?.noteType === NOTE_TYPES.TREATMENT_PLAN
-              ? 'Updated'
-              : 'Created'
-          } by (or on behalf of) is required`,
+          .required()
+          .translatedLabel(<TranslatedText stringId="note.noteType.label" fallback="Note type" />),
+        date: yup
+          .date()
+          .required()
+          .translatedLabel(<TranslatedText stringId="general.date.label" fallback="Date" />),
+        content: yup
+          .string()
+          .required()
+          .translatedLabel(
+            <TranslatedText stringId="note.validation.content.path" fallback="Content" />,
+          ),
+        writtenById: foreignKey().translatedLabel(
+          noteFormMode === NOTE_FORM_MODES.EDIT_NOTE &&
+            note?.noteType === NOTE_TYPES.TREATMENT_PLAN ? (
+            <TranslatedText
+              stringId="validation.rule.updatedByOnBehalfOf"
+              fallback="Updated by (or on behalf of)"
+            />
+          ) : (
+            <TranslatedText
+              stringId="validation.rule.createdByOnBehalfOf"
+              fallback="Created by (or on behalf of)"
+            />
+          ),
         ),
       })}
     />
