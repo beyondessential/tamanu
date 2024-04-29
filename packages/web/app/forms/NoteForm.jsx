@@ -28,7 +28,7 @@ export const NoteForm = ({
     setNoteContent,
   ]);
 
-  const renderForm = ({ submitForm }) => {
+  const renderForm = ({ submitForm, values, setValues }) => {
     if (noteFormMode === NOTE_FORM_MODES.EDIT_NOTE) {
       const props = {
         note,
@@ -62,6 +62,8 @@ export const NoteForm = ({
         onSubmit={submitForm}
         onCancel={onCancel}
         noteTypeCountByType={noteTypeCountByType}
+        values={values}
+        setValues={setValues}
       />
     );
   };
@@ -78,9 +80,7 @@ export const NoteForm = ({
         content: note?.content,
       }}
       formType={
-        noteFormMode === NOTE_FORM_MODES.EDIT_NOTE
-          ? FORM_TYPES.EDIT_FORM
-          : FORM_TYPES.CREATE_FORM
+        noteFormMode === NOTE_FORM_MODES.EDIT_NOTE ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM
       }
       validationSchema={yup.object().shape({
         noteType: yup

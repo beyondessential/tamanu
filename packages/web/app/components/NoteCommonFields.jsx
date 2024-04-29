@@ -169,7 +169,7 @@ export const NoteInfoSection = ({
   </StyledInfoCard>
 );
 
-export const NoteTypeField = ({ required, noteTypeCountByType }) => (
+export const NoteTypeField = ({ required, noteTypeCountByType, onChangeNoteType }) => (
   <Field
     name="noteType"
     label={<TranslatedText stringId="note.type.label" fallback="Type" />}
@@ -178,8 +178,26 @@ export const NoteTypeField = ({ required, noteTypeCountByType }) => (
     options={getSelectableNoteTypes(noteTypeCountByType)}
     formatOptionLabel={option => renderOptionLabel(option, noteTypeCountByType)}
     prefix="note.property.type"
+    onChange={onChangeNoteType}
   />
 );
+
+export const NoteTemplateField = ({ noteType, onChangeTemplate }) => {
+  const templateSuggester = useSuggester('template', {
+    baseQueryParameters: { type: noteType },
+  });
+
+  return (
+    <Field
+      name="template"
+      label={<TranslatedText stringId="note.template.label" fallback="Template" />}
+      suggester={templateSuggester}
+      component={AutocompleteField}
+      onChange={e => onChangeTemplate(e.target.value)}
+      disabled={!noteType}
+    />
+  );
+};
 
 export const WrittenByText = ({ noteAuthorName, noteOnBehalfOfName }) => (
   <>
