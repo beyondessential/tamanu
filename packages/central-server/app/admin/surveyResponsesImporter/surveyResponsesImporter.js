@@ -3,7 +3,7 @@ import { readFile } from 'xlsx';
 
 import { importSurveyResponses } from './importSurveyResponses';
 
-export async function surveyResponsesImporter({ errors, models, stats, file }) {
+export async function surveyResponsesImporter({ errors, models, stats, file, checkPermission }) {
   const createContext = sheetName => ({
     errors,
     log: log.child({
@@ -14,6 +14,8 @@ export async function surveyResponsesImporter({ errors, models, stats, file }) {
   });
 
   log.info('Importing survey responses from file', { file });
+
+  checkPermission('create', 'SurveyResponse');
 
   const workbook = readFile(file);
 

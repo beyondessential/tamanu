@@ -53,8 +53,8 @@ export const SelectProgramRegistryForm = ({ navigation, route }: BaseAppProps) =
 
   if (programRegistryError) return <ErrorScreen error={programRegistryError} />;
 
-  const accessibleRegistries = programRegistries.filter(r =>
-    ability.can('read', subject('ProgramRegistry', { id: r.id })),
+  const accessibleRegistries = programRegistries.filter(registry =>
+    ability.can('read', subject('ProgramRegistry', { id: registry.id })),
   );
 
   return (

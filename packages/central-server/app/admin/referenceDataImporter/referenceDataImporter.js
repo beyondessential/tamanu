@@ -19,8 +19,21 @@ export async function referenceDataImporter({
   file,
   data = null,
   includedDataTypes = [],
+  checkPermission,
 }) {
   log.info('Importing data definitions from file', { file });
+
+  for (const dataType of includedDataTypes) {
+    if (REFERENCE_TYPE_VALUES.includes(dataType)) {
+      checkPermission('create', 'ReferenceData');
+      checkPermission('write', 'ReferenceData');
+      continue;
+    }
+
+    const nonReferenceDataModalName = upperFirst(dataType);
+    checkPermission('create', nonReferenceDataModalName);
+    checkPermission('write', nonReferenceDataModalName);
+  }
 
   log.debug('Parse XLSX workbook');
   const workbook = data ? read(data, { type: 'buffer' }) : readFile(file);
