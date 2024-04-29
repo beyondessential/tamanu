@@ -18,6 +18,8 @@ import { versionCompatibility } from './middleware/versionCompatibility';
 import { version } from './serverInfo';
 import { translationRoutes } from './translation';
 
+import { buildSettingsReaderMiddleware } from '@tamanu/settings/middleware';
+
 function api(ctx) {
   const apiRoutes = express.Router();
   apiRoutes.use('/public', publicRoutes);
@@ -28,11 +30,21 @@ function api(ctx) {
   return apiRoutes;
 }
 
-export function createApp(ctx) {
+export async function createApp(ctx) {
   const { store, emailService, reportSchemaStores } = ctx;
 
-  // Init our app
   const app = express();
+
+  let errorMiddleware = null;
+  if (config.errors?.enabled) {
+    if (config.errors?.type === 'bugsnag') {
+      const Bugsnag = await import('@bugsnag/js');
+      const middleware = Bugsnag.getPlugin('express');
+      app.use(middleware.requestHandler);
+      errorMiddleware = middleware.errorHandler;
+    }
+  }
+
   app.use(loadshedder());
   app.use(compression());
   app.use(bodyParser.json({ limit: '50mb' }));
@@ -53,12 +65,13 @@ export function createApp(ctx) {
   app.use((req, res, next) => {
     req.models = store.models; // cross-compatibility with facility for shared middleware
     req.store = store;
-    req.models = store.models;
     req.emailService = emailService;
     req.reportSchemaStores = reportSchemaStores;
     req.ctx = ctx;
     next();
   });
+
+  app.use(buildSettingsReaderMiddleware());
 
   app.get('/$', (req, res) => {
     res.send({
@@ -76,6 +89,10 @@ export function createApp(ctx) {
   app.use('*', (req, res) => {
     res.status(404).end();
   });
+
+  if (errorMiddleware) {
+    app.use(errorMiddleware);
+  }
 
   app.use(defaultErrorHandler);
 

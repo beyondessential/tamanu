@@ -8,14 +8,10 @@ const chance = new Chance();
 const LANGUAGE_CODES = {
   ENGLISH: 'en',
   KHMER: 'km',
-  FRENCH: 'fr',
-  SPANISH: 'es',
 };
 
 const LANGUAGE_NAMES = {
   [LANGUAGE_CODES.ENGLISH]: '🇬🇧 English',
-  [LANGUAGE_CODES.FRENCH]: '🇫🇷 Français',
-  [LANGUAGE_CODES.SPANISH]: '🇪🇸 Español',
   [LANGUAGE_CODES.KHMER]: '🇰🇭 ភាសាខ្មែរ',
 };
 
@@ -87,7 +83,6 @@ describe('TranslatedString', () => {
       expect(khmerResult.body).toEqual(khmerTranslations);
     });
   });
-
   describe('/ POST', () => {
     it('should create a new translated string', async () => {
       const mockText = 'test-fallback';

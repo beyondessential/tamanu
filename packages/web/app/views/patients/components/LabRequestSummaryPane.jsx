@@ -10,7 +10,6 @@ import {
   DateDisplay,
   FormSeparatorLine,
   Heading3,
-  LowerCase,
   OutlinedButton,
   Table,
   useSelectableColumn,
@@ -68,24 +67,22 @@ const getColumns = type => [
   },
   ...(type === LAB_REQUEST_FORM_TYPES.PANEL
     ? [
-      {
-        key: 'panelId',
-        title: (
-          <TranslatedText stringId="lab.requestSummary.table.column.panel" fallback="Panel" />
-        ),
-        sortable: false,
-        accessor: ({ labTestPanelRequest }) =>
-          labTestPanelRequest?.labTestPanel?.name && (
-            <TranslatedReferenceData
-              fallback={labTestPanelRequest.labTestPanel.name}
-              value={labTestPanelRequest.labTestPanel.id}
-              category="labTestPanel"
-            />
-          ) || (
-            <TranslatedText stringId="general.fallback.notApplicable" fallback="N/A" />
+        {
+          key: 'panelId',
+          title: (
+            <TranslatedText stringId="lab.requestSummary.table.column.panel" fallback="Panel" />
           ),
-      },
-    ]
+          sortable: false,
+          accessor: ({ labTestPanelRequest }) =>
+            (labTestPanelRequest?.labTestPanel?.name && (
+              <TranslatedReferenceData
+                fallback={labTestPanelRequest.labTestPanel.name}
+                value={labTestPanelRequest.labTestPanel.id}
+                category="labTestPanel"
+              />
+            )) || <TranslatedText stringId="general.fallback.notApplicable" fallback="N/A" />,
+        },
+      ]
     : []),
   {
     key: 'labTestCategory',
@@ -93,13 +90,15 @@ const getColumns = type => [
       <TranslatedText stringId="lab.requestSummary.table.column.testCategory" fallback="Category" />
     ),
     sortable: false,
-    accessor: ({ category }) => category?.name && (
-      <TranslatedReferenceData
-        fallback={category.name}
-        value={category.id}
-        category={category.type}
-      />
-    ) || '',
+    accessor: ({ category }) =>
+      (category?.name && (
+        <TranslatedReferenceData
+          fallback={category.name}
+          value={category.id}
+          category={category.type}
+        />
+      )) ||
+      '',
   },
   {
     key: 'sampleDate',
@@ -160,12 +159,11 @@ export const LabRequestSummaryPane = React.memo(
                   fallback="Requesting :clinician"
                   replacements={{
                     clinician: (
-                      <LowerCase>
-                        <TranslatedText
-                          stringId="general.localisedField.clinician.label.short"
-                          fallback="Clinician"
-                        />
-                      </LowerCase>
+                      <TranslatedText
+                        stringId="general.localisedField.clinician.label.short"
+                        fallback="Clinician"
+                        lowercase
+                      />
                     ),
                   }}
                 />
@@ -182,26 +180,30 @@ export const LabRequestSummaryPane = React.memo(
               value={<DateDisplay date={requestedDate} showTime />}
             />
             <InfoCardItem
-              label={
-                <TranslatedText stringId="general.department.label" fallback="Department" />
-              }
-              value={department?.name && (
-                <TranslatedReferenceData
-                  fallback={department.name}
-                  value={department.id}
-                  category="department"
-                />)
+              label={<TranslatedText stringId="general.department.label" fallback="Department" />}
+              value={
+                department?.name && (
+                  <TranslatedReferenceData
+                    fallback={department.name}
+                    value={department.id}
+                    category="department"
+                  />
+                )
               }
             />
             <InfoCardItem
               label={<TranslatedText stringId="lab.priority.label" fallback="Priority" />}
-              value={priority
-                ? <TranslatedReferenceData
-                  fallback={priority.name}
-                  value={priority.id}
-                  category={priority.type}
-                />
-                : '-'}
+              value={
+                priority ? (
+                  <TranslatedReferenceData
+                    fallback={priority.name}
+                    value={priority.id}
+                    category={priority.type}
+                  />
+                ) : (
+                  '-'
+                )
+              }
             />
           </StyledInfoCard>
           <CardTable

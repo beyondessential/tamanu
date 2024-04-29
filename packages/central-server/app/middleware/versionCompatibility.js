@@ -9,6 +9,7 @@ import { SERVER_TYPES } from '@tamanu/constants';
 const pkgpath = join(dirname(fileURLToPath(import.meta.url)), '../../package.json');
 const pkgjson = JSON.parse(readFileSync(pkgpath, 'utf8'));
 const { major, minor } = parse(pkgjson.version);
+export const VERSION = pkgjson.version;
 
 // In general, all versions in the current minor version should be compatible with each other.
 // However, if there is an incompatibility between any (web, facility) client version and a

@@ -15,6 +15,7 @@ import {
   VISIBILITY_STATUSES,
   REFERENCE_DATA_TRANSLATION_PREFIX,
   ENGLISH_LANGUAGE_CODE,
+  DEFAULT_HIERARCHY_TYPE,
 } from '@tamanu/constants';
 import { keyBy } from 'lodash';
 
@@ -42,7 +43,7 @@ function createSuggesterRoute(
   endpoint,
   modelName,
   whereBuilder,
-  { mapper, searchColumn, extraReplacementsBuilder },
+  { mapper, searchColumn, extraReplacementsBuilder, includeBuilder },
 ) {
   suggestions.get(
     `/${endpoint}$`,
@@ -55,7 +56,7 @@ function createSuggesterRoute(
 
       const searchQuery = (query.q || '').trim().toLowerCase();
       const positionQuery = literal(
-        `POSITION(LOWER(:positionMatch) in LOWER(${searchColumn})) > 1`,
+        `POSITION(LOWER(:positionMatch) in LOWER(${`"${modelName}"."${searchColumn}"`})) > 1`,
       );
 
       const isTranslatable = TRANSLATABLE_REFERENCE_TYPES.includes(getDataType(endpoint));
@@ -74,10 +75,12 @@ function createSuggesterRoute(
       if (endpoint === 'location' && query.locationGroupId) {
         where.locationGroupId = query.locationGroupId;
       }
+      const include = includeBuilder?.(req);
 
       const results = await model.findAll({
         where,
-        order: [positionQuery, [Sequelize.literal(searchColumn), 'ASC']],
+        include,
+        order: [positionQuery, [Sequelize.literal(`"${modelName}"."${searchColumn}"`), 'ASC']],
         replacements: {
           positionMatch: searchQuery,
           ...extraReplacementsBuilder(query),
@@ -211,11 +214,38 @@ const VISIBILITY_CRITERIA = {
 };
 
 REFERENCE_TYPE_VALUES.forEach(typeName => {
-  createSuggester(typeName, 'ReferenceData', search => ({
-    name: { [Op.iLike]: search },
-    type: typeName,
-    ...VISIBILITY_CRITERIA,
-  }));
+  createSuggester(
+    typeName,
+    'ReferenceData',
+    search => ({
+      name: { [Op.iLike]: search },
+      type: typeName,
+      ...VISIBILITY_CRITERIA,
+    }),
+    {
+      includeBuilder: req => {
+        const {
+          models: { ReferenceData },
+          query: { parentId, relationType = DEFAULT_HIERARCHY_TYPE },
+        } = req;
+
+        if (!parentId) return undefined;
+
+        return {
+          model: ReferenceData,
+          as: 'parent',
+          required: true,
+          through: {
+            attributes: [],
+            where: {
+              referenceDataParentId: parentId,
+              type: relationType,
+            },
+          },
+        };
+      },
+    },
+  );
 });
 
 createSuggester('labTestType', 'LabTestType', () => VISIBILITY_CRITERIA, {

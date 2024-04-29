@@ -10,8 +10,10 @@ import {
   seedLabTests,
   seedLocationGroups,
   seedLocations,
+  seedSettings,
 } from '@tamanu/shared/demoData';
-import { chance, fake, showError } from '@tamanu/shared/test-helpers';
+import { ReadSettings } from '@tamanu/settings';
+import { chance, asNewRole, showError } from '@tamanu/shared/test-helpers';
 
 import { createApp } from '../dist/createApp';
 import { initReporting } from '../dist/database';
@@ -131,6 +133,7 @@ export async function createTestContext({ enableReportInstances } = {}) {
   await seedDepartments(models);
   await seedLocations(models);
   await seedLocationGroups(models);
+  await seedSettings(models);
 
   // Create the facility for the current config if it doesn't exist
   const [facility] = await models.Facility.findOrCreate({
@@ -148,7 +151,7 @@ export async function createTestContext({ enableReportInstances } = {}) {
 
   context.syncManager = new FacilitySyncManager(context);
 
-  const expressApp = createApp(context);
+  const expressApp = await createApp(context);
   const appServer = http.createServer(expressApp);
   const baseApp = supertest(appServer);
 
@@ -172,32 +175,23 @@ export async function createTestContext({ enableReportInstances } = {}) {
   };
 
   baseApp.asNewRole = async (permissions = [], roleOverrides = {}) => {
-    const { Role, Permission } = models;
-    const role = await Role.create(fake(Role), roleOverrides);
-    const app = await baseApp.asRole(role.id);
-    app.role = role;
-    await Permission.bulkCreate(
-      permissions.map(([verb, noun, objectId]) => ({
-        roleId: role.id,
-        userId: app.user.id,
-        verb,
-        noun,
-        objectId,
-      })),
-    );
-    return app;
+    return asNewRole(baseApp, models, permissions, roleOverrides);
   };
 
   jest.setTimeout(30 * 1000); // more generous than the default 5s but not crazy
 
+  const settings = new ReadSettings(models, config.serverFacilityId);
   const centralServer = new CentralServerConnection({ deviceId: 'test' });
 
   context.onClose(async () => {
-    await new Promise(resolve => { appServer.close(resolve); });
+    await new Promise(resolve => {
+      appServer.close(resolve);
+    });
   });
 
   context.centralServer = centralServer;
   context.baseApp = baseApp;
+  context.settings = settings;
 
   return context;
 }

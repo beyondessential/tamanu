@@ -9,7 +9,18 @@ import { importProgramRegistry } from './importProgramRegistry';
 
 export const PERMISSIONS = ['Program', 'Survey'];
 
-export async function programImporter({ errors, models, stats, file, data = null, whitelist = [] }) {
+export async function programImporter({
+  errors,
+  models,
+  stats,
+  file,
+  whitelist = [],
+  data,
+  checkPermission,
+}) {
+  checkPermission('create', 'Program');
+  checkPermission('write', 'Program');
+
   const createContext = sheetName => ({
     errors,
     log: log.child({
@@ -56,6 +67,11 @@ export async function programImporter({ errors, models, stats, file, data = null
   log.debug('Importing surveys', {
     count: surveysToImport.length,
   });
+
+  if (surveysToImport.length) {
+    checkPermission('create', 'Survey');
+    checkPermission('write', 'Survey');
+  }
 
   // then loop over each survey defined in metadata and import it
   for (const surveyInfo of surveysToImport) {

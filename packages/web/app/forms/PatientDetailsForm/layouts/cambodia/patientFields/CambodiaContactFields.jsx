@@ -7,7 +7,7 @@ import { TranslatedText } from '../../../../../components/Translation/Translated
 
 export const CambodiaContactFields = ({ filterByMandatory }) => {
   const medicalAreaSuggester = useSuggester('medicalArea');
-  const nursingZoneSuggester = useSuggester('nursingZone');
+  const facilitySuggester = useSuggester('facility');
   const CONTACT_FIELDS = {
     primaryContactNumber: {
       component: TextField,
@@ -58,7 +58,7 @@ export const CambodiaContactFields = ({ filterByMandatory }) => {
       ),
       suggester: medicalAreaSuggester,
     },
-    nursingZoneId: {
+    healthCenterId: {
       component: AutocompleteField,
       label: (
         <TranslatedText
@@ -66,7 +66,7 @@ export const CambodiaContactFields = ({ filterByMandatory }) => {
           fallback="Health center"
         />
       ),
-      suggester: nursingZoneSuggester,
+      suggester: facilitySuggester,
     },
   };
   return (

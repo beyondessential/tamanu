@@ -100,16 +100,14 @@ const MODALS = {
 const Menu = ({ setModal, status, disabled }) => {
   const menuActions = [
     {
-      label: <TranslatedText stringId="labRequest.action.printLabel" fallback="Print label" />,
+      label: <TranslatedText stringId="lab.action.printLabel" fallback="Print label" />,
       action: () => setModal(MODAL_IDS.LABEL_PRINT),
     },
   ];
 
   if (status !== LAB_REQUEST_STATUSES.PUBLISHED) {
     menuActions.push({
-      label: (
-        <TranslatedText stringId="labRequest.action.cancelRequest" fallback="Cancel request" />
-      ),
+      label: <TranslatedText stringId="lab.action.cancelRequest" fallback="Cancel request" />,
       action: () => setModal(MODAL_IDS.CANCEL),
     });
   }
@@ -173,21 +171,21 @@ export const LabRequestView = () => {
   const actions =
     labRequest.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED
       ? [
-        {
-          label: <TranslatedText stringId="lab.action.recordSample" fallback="Record sample" />,
-          action: () => handleChangeModalId(MODAL_IDS.RECORD_SAMPLE),
-        },
-      ]
+          {
+            label: <TranslatedText stringId="lab.action.recordSample" fallback="Record sample" />,
+            action: () => handleChangeModalId(MODAL_IDS.RECORD_SAMPLE),
+          },
+        ]
       : [
-        {
-          label: <TranslatedText stringId="general.action.edit" fallback="Edit" />,
-          action: () => handleChangeModalId(MODAL_IDS.RECORD_SAMPLE),
-        },
-        {
-          label: <TranslatedText stringId="lab.action.viewDetails" fallback="View details" />,
-          action: () => handleChangeModalId(MODAL_IDS.SAMPLE_DETAILS),
-        },
-      ];
+          {
+            label: <TranslatedText stringId="general.action.edit" fallback="Edit" />,
+            action: () => handleChangeModalId(MODAL_IDS.RECORD_SAMPLE),
+          },
+          {
+            label: <TranslatedText stringId="lab.action.viewDetails" fallback="View details" />,
+            action: () => handleChangeModalId(MODAL_IDS.SAMPLE_DETAILS),
+          },
+        ];
 
   return (
     <Container>
@@ -222,13 +220,17 @@ export const LabRequestView = () => {
                 fallback="Test Category"
               />
             }
-            main={labRequest.category?.name
-              ? <TranslatedReferenceData
-                fallback={labRequest.category.name}
-                value={labRequest.category.id}
-                category="labTestCategory"
-              />
-              : '-'}
+            main={
+              labRequest.category?.name ? (
+                <TranslatedReferenceData
+                  fallback={labRequest.category.name}
+                  value={labRequest.category.id}
+                  category="labTestCategory"
+                />
+              ) : (
+                '-'
+              )
+            }
           />
           <Tile
             Icon={Timelapse}
@@ -240,12 +242,12 @@ export const LabRequestView = () => {
             }
             actions={[
               !areLabRequestsReadOnly &&
-              canWriteLabRequestStatus && {
-                label: (
-                  <TranslatedText stringId="lab.action.changeStatus" fallback="Change status" />
-                ),
-                action: () => handleChangeModalId(MODAL_IDS.CHANGE_STATUS),
-              },
+                canWriteLabRequestStatus && {
+                  label: (
+                    <TranslatedText stringId="lab.action.changeStatus" fallback="Change status" />
+                  ),
+                  action: () => handleChangeModalId(MODAL_IDS.CHANGE_STATUS),
+                },
               {
                 label: (
                   <TranslatedText stringId="lab.action.viewStatusLog" fallback="View status log" />
@@ -276,16 +278,18 @@ export const LabRequestView = () => {
           />
           <Tile
             Icon={Business}
-            text={
-              <TranslatedText stringId="lab.view.tile.laboratory.label" fallback="Laboratory" />
+            text={<TranslatedText stringId="lab.laboratory.label" fallback="Laboratory" />}
+            main={
+              labRequest.laboratory?.name ? (
+                <TranslatedReferenceData
+                  fallback={labRequest.laboratory.name}
+                  value={labRequest.laboratory.id}
+                  category="labTestLaboratory"
+                />
+              ) : (
+                '-'
+              )
             }
-            main={labRequest.laboratory?.name
-              ? <TranslatedReferenceData
-                fallback={labRequest.laboratory.name}
-                value={labRequest.laboratory.id}
-                category="labTestLaboratory"
-              />
-              : '-'}
             isReadOnly={areLabRequestsReadOnly}
             actions={[
               {
@@ -302,13 +306,17 @@ export const LabRequestView = () => {
           <Tile
             Icon={AssignmentLate}
             text={<TranslatedText stringId="lab.view.tile.priority.label" fallback="Priority" />}
-            main={labRequest.priority?.name
-              ? <TranslatedReferenceData
-                fallback={labRequest.priority.name}
-                value={labRequest.priority.id}
-                category="labTestPriority"
-              />
-              : '-'}
+            main={
+              labRequest.priority?.name ? (
+                <TranslatedReferenceData
+                  fallback={labRequest.priority.name}
+                  value={labRequest.priority.id}
+                  category="labTestPriority"
+                />
+              ) : (
+                '-'
+              )
+            }
             isReadOnly={areLabRequestsReadOnly}
             actions={[
               {
