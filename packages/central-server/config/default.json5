@@ -298,7 +298,6 @@
         "concurrency": 100,
         "resourceMaterialisationEnabled": {
           "Patient": true,
-
           "Encounter": false,
           "Immunization": false,
           "MediciReport": false,
@@ -889,6 +888,10 @@
         {
           "value": "patient-refused",
           "label": "Patient refused"
+        },
+        {
+          "value": "cancelled-externally",
+          "label": "Cancelled externally via API"
         },
         {
           "value": "other",

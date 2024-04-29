@@ -315,3 +315,4 @@ export const SCRUBBED_DATA_MESSAGE = 'Raw data removed from logs';
 export const SUPPORTED_CONTENT_TYPES = {
   PDF: 'application/pdf',
 };
+export const DEFAULT_REASON_CANCELLED_BY_API = 'cancelled externally via api';
