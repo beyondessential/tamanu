@@ -757,6 +757,10 @@
         "programRegistry": {
           "shortLabel": "Program Registry",
           "longLabel": "Program Registry"
+        },
+        "weightUnit": {
+          "shortLabel": "kg",
+          "longLabel": "kg"
         }
       },
       "features": {

@@ -87,6 +87,7 @@ const UNHIDEABLE_FIELDS = [
   'conditions',
   'programRegistry',
   'circumstanceIds',
+  'weightUnit'
 ];
 
 const HIDEABLE_FIELDS = [

@@ -19,6 +19,7 @@ export const MultiplePrescriptionPrintoutModal = ({
   prescriptions,
   open,
   onClose,
+  patientWeight
 }) => {
   const { getLocalisation } = useLocalisation();
   const { data: certificateData, isFetching: isCertificateFetching } = useCertificate();
@@ -79,7 +80,7 @@ export const MultiplePrescriptionPrintoutModal = ({
         <PDFViewer id="prescription-printout">
           <PrescriptionPrintout
             certificateData={certificateData}
-            patientData={{ ...patient, additionalData, village }}
+            patientData={{ ...patient, additionalData, village, patientWeight }}
             prescriber={prescriber}
             prescriptions={prescriptions}
             encounterData={encounter}
