@@ -64,7 +64,7 @@ export const PatientAdditionalDataForm = ({
       onSubmit={onCreateOrEditAdditionalData}
     >
       {(): ReactElement => (
-        // <FormScreenView scrollViewRef={scrollViewRef}>
+        <FormScreenView scrollViewRef={scrollViewRef}>
           <StyledView justifyContent="space-between">
             <PatientAdditionalDataFields fields={fields} showMandatory={false} />
             <SubmitButton
@@ -72,7 +72,7 @@ export const PatientAdditionalDataForm = ({
               marginTop={10}
             />
           </StyledView>
-        // </FormScreenView>
+        </FormScreenView>
       )}
     </Form>
   );
