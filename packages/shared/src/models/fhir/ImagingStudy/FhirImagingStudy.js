@@ -3,6 +3,7 @@ import { DataTypes } from 'sequelize';
 import * as yup from 'yup';
 
 import {
+  FHIR_IMAGING_STUDY_STATUS,
   FHIR_INTERACTIONS,
   FHIR_ISSUE_TYPE,
   IMAGING_REQUEST_STATUS_TYPES,
@@ -48,9 +49,7 @@ export class FhirImagingStudy extends FhirResource {
   // This is currently very hardcoded for Aspen's use case.
   // We'll need to make it more generic at some point, but not today!
   async pushUpstream() {
-    const { FhirServiceRequest, ImagingRequest, ImagingResult } = this.sequelize.models;
-
-    const results = this.note.map(n => n.text).join('\n\n');
+    const { FhirServiceRequest, ImagingRequest } = this.sequelize.models;
 
     const imagingAccessCode = this.identifier.find(
       i => i?.system === config.hl7.dataDictionaries.imagingStudyAccessionId,
@@ -108,8 +107,12 @@ export class FhirImagingStudy extends FhirResource {
       });
     }
 
-    if (this.status !== 'final') {
-      throw new Invalid(`ImagingStudy status must be 'final'`, {
+    if (![
+      FHIR_IMAGING_STUDY_STATUS.AVAILABLE,
+      FHIR_IMAGING_STUDY_STATUS.FINAL_INVALID_LEGACY,
+      FHIR_IMAGING_STUDY_STATUS.CANCELLED
+      ].includes(this.status)) {
+      throw new Invalid(`ImagingStudy status must be either '${FHIR_IMAGING_STUDY_STATUS.AVAILABLE}' or '${FHIR_IMAGING_STUDY_STATUS.CANCELLED}'`, {
         code: FHIR_ISSUE_TYPE.INVALID.VALUE,
       });
     }
@@ -120,19 +123,30 @@ export class FhirImagingStudy extends FhirResource {
       throw new Deleted('ImagingRequest has been deleted in Tamanu');
     }
 
+    if (this.status == this.status !== FHIR_IMAGING_STUDY_STATUS.AVAILABLE || this.status !== FHIR_IMAGING_STUDY_STATUS.FINAL_INVALID_LEGACY) {
+      const result = await this.attachResults(imagingRequest, imagingAccessCode);
+      console.log({ result });
+      return result;
+    }
+  }
+
+  async attachResults(imagingRequest, imagingAccessCode) {
+    const { ImagingResult } = this.sequelize.models;
     let result = await ImagingResult.findOne({
       where: {
         imagingRequestId: imagingRequest.id,
         externalCode: imagingAccessCode,
       },
     });
+    console.log({ result });
+    const resultNotes = this.note.map(n => n.text).join('\n\n');
     if (result) {
-      result.set({ description: results });
+      result.set({ description: resultNotes });
       await result.save();
     } else {
       result = await ImagingResult.create({
         imagingRequestId: imagingRequest.id,
-        description: results,
+        description: resultNotes,
         externalCode: imagingAccessCode,
         completedAt: this.started ? toDateTimeString(this.started) : getCurrentDateTimeString(),
       });
