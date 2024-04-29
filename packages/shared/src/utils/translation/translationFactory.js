@@ -37,6 +37,7 @@ export const replaceStringVariables = (
 
   return applyCasing(result, uppercase, lowercase);
 };
+
 export const translationFactory = translations => (
   stringId,
   fallback,
