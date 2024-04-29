@@ -20,6 +20,11 @@ const StyledFormControl = styled(FormControl)`
   display: flex;
   flex-direction: column;
   margin-top: 2px;
+  .MuiFormHelperText-root.Mui-error {
+    font-weight: 500;
+    font-size: 12px;
+    line-height: 15px;
+  }
 `;
 
 const StyledRadioGroup = styled(RadioGroup)`
