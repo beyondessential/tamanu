@@ -30,6 +30,20 @@ export class ReferenceData extends BaseModel implements IReferenceData {
     });
   }
 
+  // ----------------------------------
+  // Reference data hierarchy utilities
+  // ----------------------------------
+  static async getParent(id, relationType) {
+    const record = await this.getNode({ where: { id }, relationType });
+    return record?.parent;
+  }
+
+  static async getNode() {
+    const repo = this.getRepository();
+    return repo.findOne({
+      visibilityStatus: VisibilityStatus.Current,
+    });
+  }
   static async searchDataByType(
     referenceDataType: ReferenceDataType,
     searchTerm: string,

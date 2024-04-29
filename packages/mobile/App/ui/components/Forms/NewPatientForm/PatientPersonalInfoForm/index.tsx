@@ -22,6 +22,7 @@ import { PatientAdditionalData } from '~/models/PatientAdditionalData';
 import { usePatientAdditionalData } from '~/ui/hooks/usePatientAdditionalData';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { getInitialAdditionalValues } from '../../PatientAdditionalDataForm/helpers';
+import { HierarchyFields } from '/components/HierarchyFields';
 
 export type FormSection = {
   scrollToField: (fieldName: string) => () => void;
@@ -159,6 +160,7 @@ export const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit }): 
               contentContainerStyle={styles.ScrollViewContentContainer}
             >
               <NameSection />
+              <HierarchyFields />
               <KeyInformationSection />
               <LocationDetailsSection />
               <PatientAdditionalDataFields fields={allAdditionalDataFields} showMandatory />
