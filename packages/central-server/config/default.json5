@@ -960,6 +960,10 @@
           "label": "Patient refused"
         },
         {
+          "value": "cancelled-externally",
+          "label": "Cancelled externally via API"
+        },
+        {
           "value": "other",
           "label": "Other"
         }
