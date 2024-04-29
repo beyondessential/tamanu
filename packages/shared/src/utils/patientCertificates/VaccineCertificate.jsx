@@ -108,7 +108,8 @@ const VaccineCertificateComponent = ({
 
   const data = vaccinations.map(vaccination => ({ ...vaccination, countryName, healthFacility }));
 
-  const VaccineCertificateHeader = () => (
+  const VaccineCertificateHeader = ({ pageNumber }) => {
+    if (pageNumber === 1) return;
     <View style={vaccineCertificateStyles.documentHeaderContent}>
       <Text style={vaccineCertificateStyles.labelText}>
         {getTranslation(
@@ -127,8 +128,8 @@ const VaccineCertificateComponent = ({
         {getTranslation('pdf.vaccineCertificate.patientId', 'Patient ID')}:{' '}
       </Text>
       <Text style={vaccineCertificateStyles.valueText}>{patient.displayId}</Text>
-    </View>
-  );
+    </View>;
+  };
 
   const VaccineCertificateFooter = () => (
     <View style={vaccineCertificateStyles.footerContent}>
@@ -164,7 +165,7 @@ const VaccineCertificateComponent = ({
     <Document>
       <Page size="A4" style={{ ...styles.page, paddingBottom: 51 }}>
         <FixedHeader>
-          <View fixed render={({ pageNumber }) => pageNumber > 1 && <VaccineCertificateHeader />} />
+          <View fixed render={VaccineCertificateHeader} />
         </FixedHeader>
         <View fixed render={({ pageNumber }) => pageNumber > 1 && <PageBreakPadding />} />
         {watermarkSrc && <Watermark src={watermarkSrc} />}
