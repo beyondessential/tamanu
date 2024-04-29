@@ -1,5 +1,4 @@
 /** @typedef {import('sequelize').QueryInterface} QueryInterface */
-import config from 'config';
 import { Op } from 'sequelize';
 
 const DEFAULT_SETTINGS = {
@@ -32,7 +31,6 @@ const DEFAULT_SETTINGS = {
  * @param {QueryInterface} query
  */
 export async function up(query) {
-  if (config?.serverFacilityId) return;
   await query.bulkInsert(
     'settings',
     Object.entries(DEFAULT_SETTINGS).map(([key, value]) => ({
