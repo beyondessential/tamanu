@@ -42,8 +42,18 @@ const StyledFileChooserField = styled(FileChooserField)`
 `;
 
 const schema = yup.object().shape({
-  name: yup.string().required('Report name is a required field'),
-  file: yup.string().required('Report JSON is a required field'),
+  name: yup
+    .string()
+    .required()
+    .translatedLabel(
+      <TranslatedText stringId="admin.report.import.reportName.label" fallback="Report name" />,
+    ),
+  file: yup
+    .string()
+    .required()
+    .translatedLabel(
+      <TranslatedText stringId="admin.report.import.reportJson.label" fallback="Report JSON" />,
+    ),
 });
 
 const ImportFeedback = ({ feedback }) => (
@@ -117,7 +127,10 @@ const ImportForm = ({ isSubmitting, setFieldValue, feedback, values = {} }) => {
           label={<TranslatedText stringId="admin.report.import.report.label" fallback="Report" />}
           name="reportDefinitionId"
           includeNameChangeEvent
-          placeholder={getTranslation("admin.report.import.report.placeholder", "Select a report definition")}
+          placeholder={getTranslation(
+            'admin.report.import.report.placeholder',
+            'Select a report definition',
+          )}
         />
         <Field
           label={

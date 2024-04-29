@@ -100,16 +100,14 @@ const MODALS = {
 const Menu = ({ setModal, status, disabled }) => {
   const menuActions = [
     {
-      label: <TranslatedText stringId="labRequest.action.printLabel" fallback="Print label" />,
+      label: <TranslatedText stringId="lab.action.printLabel" fallback="Print label" />,
       action: () => setModal(MODAL_IDS.LABEL_PRINT),
     },
   ];
 
   if (status !== LAB_REQUEST_STATUSES.PUBLISHED) {
     menuActions.push({
-      label: (
-        <TranslatedText stringId="labRequest.action.cancelRequest" fallback="Cancel request" />
-      ),
+      label: <TranslatedText stringId="lab.action.cancelRequest" fallback="Cancel request" />,
       action: () => setModal(MODAL_IDS.CANCEL),
     });
   }
@@ -270,9 +268,7 @@ export const LabRequestView = () => {
           />
           <Tile
             Icon={Business}
-            text={
-              <TranslatedText stringId="lab.view.tile.laboratory.label" fallback="Laboratory" />
-            }
+            text={<TranslatedText stringId="lab.laboratory.label" fallback="Laboratory" />}
             main={labRequest.laboratory?.name || '-'}
             isReadOnly={areLabRequestsReadOnly}
             actions={[

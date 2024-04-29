@@ -34,6 +34,7 @@ import { ParameterField } from './ParameterField';
 import { useLocalisation } from '../../contexts/Localisation';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { ReportAboutModal } from './ReportAboutModal';
+import { useTranslation } from '../../contexts/Translation';
 
 const Spacer = styled.div`
   padding-top: 30px;
@@ -115,6 +116,7 @@ const isJsonString = str => {
 
 export const ReportGeneratorForm = () => {
   const api = useApi();
+  const { getTranslation } = useTranslation();
   const getFileName = useFileName();
   const { currentUser } = useAuth();
   const [successMessage, setSuccessMessage] = useState(null);
@@ -276,10 +278,10 @@ export const ReportGeneratorForm = () => {
       onSubmit={submitRequestReport}
       validationSchema={Yup.object().shape({
         reportId: Yup.string().required(
-          <TranslatedText
-            stringId="report.generate.validation.reportId.required"
-            fallback="Report id is required. A report must be selected from the dropdown; just entering a report name will not work. If you can't see a specific report, please contact your system administrator."
-          />,
+          getTranslation(
+            'validation.rule.mustSelectReport',
+            "Report id is required. A report must be selected from the dropdown; just entering a report name will not work. If you can't see a specific report, please contact your system administrator.",
+          ),
         ),
         ...parameters.reduce(
           (schema, field) => ({
