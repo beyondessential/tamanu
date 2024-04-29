@@ -8,6 +8,7 @@ _Add a brief description of the changes in this PR to help give the reviewer con
 - [ ] Tests are written
 - [ ] UI Screenshots added to the Linear issue
 - [ ] Testing notes added to the Linear issue
+- [ ] Manual upgrade steps added to the Linear issue, if needed
 
 _Upon merging:_
 
