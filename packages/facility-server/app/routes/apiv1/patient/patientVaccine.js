@@ -124,11 +124,11 @@ patientVaccineRoutes.get(
 
     const results = await req.db.query(
       `SELECT
-      sv.id scheduledVaccineId,
+      sv.id "scheduledVaccineId",
       sv.category,
       sv.label,
       sv.schedule,
-      sv.vaccine_id vaccineId,
+      sv.vaccine_id "vaccineId",
       uv.due_date "dueDate",
       uv.status
       ${fromUpcomingVaccinations}

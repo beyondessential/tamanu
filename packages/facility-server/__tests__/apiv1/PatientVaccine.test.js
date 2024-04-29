@@ -1,5 +1,4 @@
 import config from 'config';
-import moment from 'moment';
 import {
   createDummyEncounter,
   createDummyPatient,
@@ -20,6 +19,8 @@ import {
 } from '@tamanu/shared/demoData/vaccines';
 import { fake } from '@tamanu/shared/test-helpers/fake';
 import { createTestContext } from '../utilities';
+import { toDateString } from '@tamanu/shared/utils/dateTime';
+import { subDays } from 'date-fns';
 
 describe('PatientVaccine', () => {
   let ctx;
@@ -541,7 +542,7 @@ describe('PatientVaccine', () => {
       await models.AdministeredVaccine.truncate({ cascade: true });
 
       scheduledVax1 = await models.ScheduledVaccine.create(
-        createScheduledVaccine(models, {
+        await createScheduledVaccine(models, {
           category: VACCINE_CATEGORIES.ROUTINE,
           schedule: 'Dose 1',
           index: 1,
@@ -551,7 +552,7 @@ describe('PatientVaccine', () => {
       );
 
       scheduledVax2 = await models.ScheduledVaccine.create(
-        createScheduledVaccine(models, {
+        await createScheduledVaccine(models, {
           category: VACCINE_CATEGORIES.ROUTINE,
           schedule: 'Dose 2',
           index: 2,
@@ -560,24 +561,44 @@ describe('PatientVaccine', () => {
         }),
       );
 
-      patient1 = await models.Patient.create(
-        createDummyPatient(models, { dateOfBirth: new Date() }),
-      );
-
-      patient2 = await models.Patient.create(
-        createDummyPatient(models, {
-          dateOfBirth: moment()
-            .subtract(9, 'day')
-            .toDate(),
-        }),
-      );
-
-      await recordAdministeredVaccine(patient2, scheduledVax1, {
-        status: VACCINE_STATUS.GIVEN,
-        date: moment()
-          .subtract(1, 'day')
-          .toDate(),
+      patient1 = await models.Patient.create({
+        ...fake(models.Patient),
+        dateOfBirth: toDateString(subDays(new Date(), 1)),
       });
+
+      patient2 = await models.Patient.create({
+        ...fake(models.Patient),
+        dateOfBirth: toDateString(subDays(new Date(), 365 * 16)),
+      });
+
+      await recordAdministeredVaccine(patient2, scheduledVax2, {
+        status: VACCINE_STATUS.GIVEN,
+        date: toDateString(subDays(new Date(), 1)),
+      });
+
+      await models.Setting.set('vaccine.ageLimit', 15);
+      await models.Setting.set('vaccine.thresholds', [
+        {
+          threshold: 28,
+          status: VACCINE_STATUS.SCHEDULED,
+        },
+        {
+          threshold: 7,
+          status: VACCINE_STATUS.UPCOMING,
+        },
+        {
+          threshold: -7,
+          status: VACCINE_STATUS.DUE,
+        },
+        {
+          threshold: -55,
+          status: VACCINE_STATUS.OVERDUE,
+        },
+        {
+          threshold: '-Infinity',
+          status: VACCINE_STATUS.MISSED,
+        },
+      ]);
     });
 
     it('should return 1 upcoming vaccinations of patient 1', async () => {
