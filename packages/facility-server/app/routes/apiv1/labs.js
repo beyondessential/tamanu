@@ -55,7 +55,7 @@ labRequest.put(
         });
       }
 
-      labRequestData.specimenAttached = labRequest.specimenTypeId !== null;
+      labRequestData.specimenAttached = !!labRequestData.specimenTypeId;
 
       await labRequestRecord.update(labRequestData);
     });
@@ -500,7 +500,7 @@ async function createLabRequest(
   const labRequestData = {
     ...labRequestBody,
     ...requestSampleDetails,
-    specimenAttached: requestSampleDetails.specimenTypeId ? 'yes' : 'no',
+    specimenAttached: !!requestSampleDetails.specimenTypeId,
     status: requestSampleDetails.sampleTime
       ? LAB_REQUEST_STATUSES.RECEPTION_PENDING
       : LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED,
