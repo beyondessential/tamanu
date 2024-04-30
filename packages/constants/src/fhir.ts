@@ -236,7 +236,7 @@ export const FHIR_DIAGNOSTIC_REPORT_STATUS = {
 export const FHIR_IMAGING_STUDY_STATUS = {
   REGISTERED: 'registered',
   AVAILABLE: 'available',
-  FINAL_INVALID_LEGACY: 'final',
+  FINAL_INVALID_LEGACY: 'final', // this needs to be supported but is not valid FHIR
   CANCELLED: 'cancelled',
   ENTERED_IN_ERROR: 'entered-in-error',
   UNKNOWN: 'unknown',
