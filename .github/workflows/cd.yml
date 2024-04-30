@@ -362,4 +362,3 @@ jobs:
             | `ghcr.io/beyondessential/tamanu-central` | [${{ github.ref_name }}](https://github.com/beyondessential/tamanu/pkgs/container/tamanu-central/${{ github.ref_name }}) |
             | `ghcr.io/beyondessential/tamanu-facility` | [${{ github.ref_name }}](https://github.com/beyondessential/tamanu/pkgs/container/tamanu-facility/${{ github.ref_name }}) |
             | `ghcr.io/beyondessential/tamanu-frontend` | [${{ github.ref_name }}](https://github.com/beyondessential/tamanu/pkgs/container/tamanu-frontend/${{ github.ref_name }}) |
-            | `ghcr.io/beyondessential/tamanu-android | [${{ github.ref_name }}](https://github.com/beyondessential/tamanu/pkgs/container/tamanu-android/${{ github.ref_name }}) |`
