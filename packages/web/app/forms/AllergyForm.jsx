@@ -9,6 +9,7 @@ import { FormSubmitCancelRow } from '../components/ButtonRow';
 import { foreignKey } from '../utils/validation';
 import { FORM_TYPES } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
+import { useTranslation } from '../contexts/Translation';
 
 export const AllergyForm = ({
   onSubmit,
@@ -17,6 +18,7 @@ export const AllergyForm = ({
   practitionerSuggester,
   allergySuggester,
 }) => {
+  const { getTranslation } = useTranslation();
   return (
     <Form
       onSubmit={onSubmit}
@@ -81,8 +83,15 @@ export const AllergyForm = ({
       }}
       formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
       validationSchema={yup.object().shape({
-        allergyId: foreignKey('An allergy must be selected'),
-        recordedDate: yup.date().required(),
+        allergyId: foreignKey(
+          getTranslation('validation.rule.mustSelectAllergy', 'An allergy must be selected'),
+        ),
+        recordedDate: yup
+          .date()
+          .required()
+          .translatedLabel(
+            <TranslatedText stringId="general.recordedDate.label" fallback="Date recorded" />,
+          ),
       })}
     />
   );
