@@ -55,8 +55,9 @@ labRequest.put(
         });
       }
 
-      labRequestData.specimenAttached = !!labRequestData.specimenTypeId;
-
+      if (labRequestData.specimenTypeId !== undefined) {
+        labRequestData.specimenAttached = !!labRequestData.specimenTypeId;
+      }
       await labRequestRecord.update(labRequestData);
     });
 
