@@ -15,8 +15,7 @@ import {
   usePatientConditions,
 } from '../../api/queries';
 import { DischargeSummaryPrintout } from '@tamanu/shared/utils/patientCertificates';
-import { printPDF, PDFViewer } from '../../components/PatientPrinting/PDFViewer';
-import { LoadingIndicator } from '../../components/LoadingIndicator';
+import { printPDF, PDFLoader } from '../../components/PatientPrinting/PDFLoader';
 import { useEncounterDischarge } from '../../api/queries/useEncounterDischarge';
 
 const Container = styled.div`
@@ -52,8 +51,8 @@ export const DischargeSummaryView = React.memo(() => {
     return <Redirect to="/patients/all" />;
   }
 
-  if (isPADLoading || isDischargeLoading || isLoadingPatientConditions || isCertificateFetching)
-    return <LoadingIndicator />;
+  const isLoading =
+    isPADLoading || isDischargeLoading || isLoadingPatientConditions || isCertificateFetching;
 
   return (
     <Container>
@@ -68,7 +67,7 @@ export const DischargeSummaryView = React.memo(() => {
           Print Summary
         </Button>
       </NavContainer>
-      <PDFViewer id="discharge-summary" showToolbar={false}>
+      <PDFLoader isLoading={isLoading} id="discharge-summary">
         <DischargeSummaryPrintout
           patientData={{ ...patient, additionalData, village }}
           encounter={encounter}
@@ -78,7 +77,7 @@ export const DischargeSummaryView = React.memo(() => {
           getLocalisation={getLocalisation}
           getTranslation={getTranslation}
         />
-      </PDFViewer>
+      </PDFLoader>
     </Container>
   );
 });
