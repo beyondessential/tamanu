@@ -233,7 +233,7 @@ export async function importRows(
       if (isTranslatable && isValidTable) {
         translationRecordsForSheet.push({
           stringId: `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.${values.id}`,
-          text: values.name || values.label,
+          text: values.name || values.label, // All translatable data types have a "name" or "label" field
           language: ENGLISH_LANGUAGE_CODE,
         });
       }
