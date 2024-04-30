@@ -1,4 +1,4 @@
-// Copied from Tupaia
+// Adapted from Tupaia
 
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -11,8 +11,8 @@ import {
   DefaultIconButton,
   Field,
   OuterLabelFieldWrapper,
-  BaseSelectField,
   TextField,
+  SelectField,
 } from '../../../../../components';
 import {
   FIELD_TYPES_TO_SUGGESTER_OPTIONS,
@@ -48,58 +48,31 @@ const DeleteContainer = styled.div`
 `;
 
 export const ParameterItem = props => {
-  const {
-    id,
-    name,
-    label,
-    parameterField,
-    suggesterEndpoint,
-    onDelete,
-    onChange,
-    options = [],
-  } = props;
-
   const { getTranslation } = useTranslation();
-
-  const onChangeOptions = (index, type, event) => {
-    if (options[index] === undefined) {
-      options[index] = {};
-    }
-    options[index][type] = event.target.value;
-    onChange(id, `options`, [...options]);
-  };
+  const { id, parameterIndex, parameterField, setFieldValue, onDelete, options } = props;
+  const baseName = `parameters.${parameterIndex}`;
 
   const onOptionDelete = index => {
     const optionsWithRemovedKey = options.filter((_, i) => i !== index);
-    onChange(id, `options`, [...optionsWithRemovedKey]);
+    setFieldValue(`${baseName}.options`, optionsWithRemovedKey);
   };
 
   return (
     <Grid container spacing={2} key={id}>
       <Grid item xs={6}>
-        <TextField
-          field={{
-            name: 'name',
-            value: name,
-            onChange: event => {
-              onChange(id, 'name', event.target.value);
-            },
-          }}
+        <Field
+          name={`${baseName}.name`}
+          component={TextField}
           placeholder={getTranslation('general.placeholder.text', 'Text')}
           label={<TranslatedText stringId="general.name.label" fallback="Name" />}
         />
       </Grid>
       <Grid item xs={5}>
-        <TextField
-          field={{
-            name: 'label',
-            value: label,
-            onChange: event => {
-              onChange(id, 'label', event.target.value);
-            },
-          }}
+        <Field
+          name={`${baseName}.label`}
+          component={TextField}
           placeholder={getTranslation('general.placeholder.text', 'Text')}
-          label={<TranslatedText stringId="admin.report.label.label" fallback="Label" />}
+          label={<TranslatedText stringId="report.editor.label.label" fallback="Label" />}
         />
       </Grid>
       <Grid item xs={1}>
@@ -108,16 +81,19 @@ export const ParameterItem = props => {
         </IconButton>
       </Grid>
       <Grid item xs={11}>
-        <BaseSelectField
-          field={{
-            name: 'parameterField',
-            value: parameterField,
-            onChange: event => {
-              onChange(id, 'parameterField', event.target.value);
-            },
+        <Field
+          name={`${baseName}.parameterField`}
+          component={SelectField}
+          onChange={event => {
+            const { value } = event.target;
+            setFieldValue(`${baseName}.suggesterEndpoint`, undefined);
+            setFieldValue(
+              `${baseName}.options`,
+              FIELD_TYPES_WITH_PREDEFINED_OPTIONS.includes(value) ? [] : undefined,
+            );
           }}
           placeholder={getTranslation('general.placeholder.text', 'Text')}
-          label={<TranslatedText stringId="admin.report.fieldType.label" fallback="Field type" />}
+          label={<TranslatedText stringId="report.editor.fieldType.label" fallback="Field type" />}
           options={Object.keys(PARAMETER_FIELD_COMPONENTS).map(key => ({
             label: key,
             value: key,
@@ -126,18 +102,13 @@ export const ParameterItem = props => {
       </Grid>
       {FIELD_TYPES_WITH_SUGGESTERS.includes(parameterField) && (
         <Grid item xs={11}>
-          <BaseSelectField
-            field={{
-              name: 'suggesterEndpoint',
-              value: suggesterEndpoint,
-              onChange: event => {
-                onChange(id, 'suggesterEndpoint', event.target.value);
-              },
-            }}
+          <Field
+            name={`${baseName}.suggesterEndpoint`}
+            component={SelectField}
             placeholder={getTranslation('general.placeholder.text', 'Text')}
             label={
               <TranslatedText
-                stringId="admin.report.suggesterEndpoint.label"
+                stringId="report.editor.suggesterEndpoint.label"
                 fallback="Suggester endpoint"
               />
             }
@@ -153,34 +124,28 @@ export const ParameterItem = props => {
       {FIELD_TYPES_WITH_PREDEFINED_OPTIONS.includes(parameterField) && (
         <>
           <Grid item xs={12}>
-            <OuterLabelFieldWrapper label="Options" />
+            <OuterLabelFieldWrapper
+              label={<TranslatedText stringId="report.editor.options.label" fallback="Options" />}
+            />
           </Grid>
           <Field
-            name="options"
+            name={`${baseName}.options`}
             component={ArrayField}
             initialFieldNumber={options.length}
             renderField={(index, DeleteButton) => (
               <>
                 <Grid item xs={6}>
                   <Field
-                    name={`options[${index}].label`}
-                    label="Label"
+                    name={`${baseName}.options.${index}.label`}
+                    label={<TranslatedText stringId="general.label.label" fallback="Label" />}
                     component={TextField}
-                    value={options[index]?.label}
-                    onChange={event => {
-                      onChangeOptions(index, 'label', event);
-                    }}
                   />
                 </Grid>
                 <Grid item xs={5}>
                   <Field
-                    name={`options[${index}].value`}
-                    label="Value"
+                    name={`${baseName}.options.${index}.value`}
+                    label={<TranslatedText stringId="general.value.label" fallback="Value" />}
                     component={TextField}
-                    value={options[index]?.value}
-                    onChange={event => {
-                      onChangeOptions(index, 'value', event);
-                    }}
                   />
                 </Grid>
                 <Grid item xs={1}>
@@ -202,15 +167,10 @@ export const ParameterItem = props => {
 
 ParameterItem.propTypes = {
   id: PropTypes.string.isRequired,
-  name: PropTypes.string,
   parameterField: PropTypes.string,
-  suggesterEndpoint: PropTypes.string,
   onDelete: PropTypes.func.isRequired,
-  onChange: PropTypes.func.isRequired,
 };
 
 ParameterItem.defaultProps = {
-  name: '',
   parameterField: '',
-  suggesterEndpoint: '',
 };
