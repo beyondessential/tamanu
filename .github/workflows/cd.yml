@@ -20,7 +20,7 @@ on:
     # Release tags build the server/web packages only
     tags: ['v*.*.*']
     # All branches can potentially be controlled by special issues
-    branches: ['*']
+    branches: ['**']
 
 # makes jobs for the same thing queue behind each other, and if there is already one job pending
 # (not currently running) then that job is cancelled and the newer one remains in queue.
@@ -45,18 +45,6 @@ jobs:
   config:
     name: Workflow config
     runs-on: ubuntu-latest
-    outputs:
-      ref: ${{ steps.ref.outputs.result }}
-      sha: ${{ steps.sha.outputs.sha }}
-      up: ${{ steps.config.outputs.up }}
-      down: ${{ steps.config.outputs.down }}
-      go-up: ${{ steps.config.outputs.go-up == 'true' }}
-      go-down: ${{ steps.config.outputs.go-down == 'true' }}
-
-      # we need to build images when:
-      # - we want to bring deploys up, AND the images for this commit don't yet exist, or
-      # - we're doing a release, because images are both a product and how we make other artifacts.
-      build-images: ${{ ((github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')) || steps.config.outputs.go-up == 'true') && steps.check-images-exist.outputs.exist != 'yes' }}
     steps:
       - uses: actions/checkout@v4
       - name: Figure branch ref and sha
@@ -111,8 +99,9 @@ jobs:
             console.log(allDeploys);
 
             const matrix = ({ name, control, options }) => ({ name, control, options: JSON.stringify(options) });
-            const up = allDeploys.filter(deploy => deploy.enabled && !deploy.options.pause).map(matrix);
-            const down = allDeploys.filter(deploy => !deploy.enabled && !deploy.options.pause).map(matrix);
+            const filter = ({ options: { pause, imagesonly } }) => !pause && !imagesonly;
+            const up = allDeploys.filter(deploy => deploy.enabled && filter(deploy)).map(matrix);
+            const down = allDeploys.filter(deploy => !deploy.enabled && filter(deploy)).map(matrix);
             console.log('Going UP', up.length);
             console.log('Going DOWN', down.length);
 
@@ -120,10 +109,11 @@ jobs:
             core.setOutput('down', JSON.stringify(down));
             core.setOutput('go-up', !!up.length);
             core.setOutput('go-down', !!down.length);
+            core.setOutput('images', !!up.length || allDeploys.some(deploy => deploy.options.imagesonly && !deploy.options.pause));
 
       - name: Check the images exist
         id: check-images-exist
-        if: (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')) || steps.config.outputs.go-up == 'true'
+        if: (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')) || steps.config.outputs.images == 'true'
         run: |
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
           for repo in central facility frontend meta; do
@@ -137,6 +127,19 @@ jobs:
             fi
           done
           echo exist=no | tee -a $GITHUB_OUTPUT
+    outputs:
+      ref: ${{ steps.ref.outputs.result }}
+      sha: ${{ steps.sha.outputs.sha }}
+      up: ${{ steps.config.outputs.up }}
+      down: ${{ steps.config.outputs.down }}
+      go-up: ${{ steps.config.outputs.go-up == 'true' }}
+      go-down: ${{ steps.config.outputs.go-down == 'true' }}
+
+      # we need to build images when:
+      # - we want to bring deploys up, AND the images for this commit don't yet exist, or
+      # - we want to build images only, AND the images for this commit don't yet exist, or
+      # - we're doing a release, because images are both a product and how we make other artifacts.
+      build-images: ${{ ((github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')) || steps.config.outputs.images == 'true') && steps.check-images-exist.outputs.exist != 'yes' }}
 
   images:
     needs: config
@@ -260,7 +263,7 @@ jobs:
           manifest-tool push from-args \
             --platforms linux/amd64,linux/arm64 \
             --template ghcr.io/beyondessential/tamanu-${{ matrix.repo }}:sha-${{ needs.config.outputs.sha }}.ARCH \
-            --target ghcr.io/beyondessential/tamanu-${{ matrix.repo }}:v${{ github.ref_name }}
+            --target ghcr.io/beyondessential/tamanu-${{ matrix.repo }}:${{ github.ref_name }}
 
   deploy-up:
     needs:
@@ -313,11 +316,31 @@ jobs:
   package-frontend:
     needs: images
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
-    name: Package Frontend v${{ github.ref_name }}
+    name: Package Frontend ${{ github.ref_name }}
     uses: ./.github/workflows/cd-package-frontend.yml
 
   package-servers:
     needs: images
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
-    name: Package Servers v${{ github.ref_name }}
+    name: Package Servers ${{ github.ref_name }}
     uses: ./.github/workflows/cd-package-servers.yml
+
+  release-notes-images:
+    needs:
+      - config
+      - multi-arch
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    name: Append image names to release notes
+    runs-on: ubuntu-latest
+    steps:
+      - uses: softprops/action-gh-release@v2
+        with:
+          append_body: true
+          body: |
+            ## Container images 🚢
+
+            | Repository | Tag |
+            |:-----------|:---:|
+            | `ghcr.io/beyondessential/tamanu-central` | [${{ github.ref_name }}](https://github.com/beyondessential/tamanu/pkgs/container/tamanu-central/${{ github.ref_name }}) |
+            | `ghcr.io/beyondessential/tamanu-facility` | [${{ github.ref_name }}](https://github.com/beyondessential/tamanu/pkgs/container/tamanu-facility/${{ github.ref_name }}) |
+            | `ghcr.io/beyondessential/tamanu-frontend` | [${{ github.ref_name }}](https://github.com/beyondessential/tamanu/pkgs/container/tamanu-frontend/${{ github.ref_name }}) |

@@ -19,6 +19,7 @@ import { Patient } from '../../../../../../models/Patient';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { PatientFromRoute } from '~/ui/helpers/constants';
+import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 
 interface IPopup {
   title: string;
@@ -64,80 +65,102 @@ const showPatientWarningPopups = (issues: IPatientIssue[]): void =>
       .map(({ note }) => formatNoteToPopup(note)),
   );
 
+const usePatientModules = navigation => {
+  const { getLocalisation } = useLocalisation();
+  const config = getLocalisation('layouts.mobilePatientModules');
+
+  return useMemo(() => {
+    return [
+      {
+        key: 'diagnosisAndTreatment',
+        title:   <TranslatedText
+        stringId="patient.diagnosisAndTreatment.title"
+        fallback="Diagnosis & Treatment"
+      />,
+        Icon: Icons.DiagnosisAndTreatmentIcon,
+        onPress: (): void => navigation.navigate(Routes.HomeStack.DiagnosisAndTreatmentTabs.Index),
+      },
+      {
+        key: 'vitals',
+        title: <TranslatedText stringId="patient.vitals.title" fallback="Vitals" />,
+        Icon: Icons.VitalsIcon,
+        onPress: (): void => navigation.navigate(Routes.HomeStack.VitalsStack.Index),
+      },
+      {
+        key: 'programs',
+        title: <TranslatedText stringId="patient.programs.title" fallback="Programs" />,
+        Icon: Icons.PregnancyIcon,
+        onPress: (): void => navigation.navigate(Routes.HomeStack.ProgramStack.Index),
+      },
+      {
+        key: 'referral',
+        title: <TranslatedText stringId="patient.referral.title" fallback="Referral" />,
+        Icon: Icons.FamilyPlanningIcon,
+        onPress: (): void => navigation.navigate(Routes.HomeStack.ReferralStack.Index),
+      },
+      {
+        key: 'vaccine',
+        title: <TranslatedText stringId="patient.vaccine.title" fallback="Vaccine" />,
+        Icon: Icons.VaccineIcon,
+        onPress: (): void => navigation.navigate(Routes.HomeStack.VaccineStack.Index),
+      },
+      {
+        key: 'tests',
+        title: <TranslatedText stringId="patient.tests.title" fallback="Tests" />,
+        Icon: Icons.LabRequestIcon,
+        onPress: (): void => navigation.navigate(Routes.HomeStack.LabRequestStack.Index),
+      },
+    ]
+      .filter(module => config[module.key].hidden === false)
+      .sort((a, b) => config[a.key].sortPriority - config[b.key].sortPriority);
+  }, [navigation, config]);
+};
+
+const usePatientMenuButtons = navigation => {
+  const { ability } = useAuth();
+  const { getLocalisation } = useLocalisation();
+  const canListRegistrations = ability.can('list', 'PatientProgramRegistration');
+  const canCreateRegistration = ability.can('create', 'PatientProgramRegistration');
+  const canViewProgramRegistries = canListRegistrations || canCreateRegistration;
+  const config = getLocalisation('layouts.mobilePatientModules');
+
+  return useMemo(
+    () =>
+      [
+        {
+          key: 'patientDetails',
+          title:   <TranslatedText stringId="patient.action.viewPatientDetails" fallback="View patient details" />,
+          onPress: (): void => navigation.navigate(Routes.HomeStack.PatientDetailsStack.Index),
+        },
+        {
+          key: 'history',
+          title: <TranslatedText stringId="patient.action.viewVitalHistory" fallback="View history" />,
+          onPress: (): void => navigation.navigate(Routes.HomeStack.HistoryVitalsStack.Index),
+        },
+        {
+          key: 'programRegistries',
+   title: <TranslatedText stringId="patient.action.viewProgramRegistries" fallback="Program registries" />,
+          onPress: (): void => navigation.navigate(Routes.HomeStack.PatientSummaryStack.Index),
+          hideFromMenu: !canViewProgramRegistries,
+        },
+      ].filter(module => {
+        // patientDetails and history are always visible
+        return module.key !== 'programRegistries' || config[module.key]?.hidden === false;
+      }),
+    [navigation, config, canViewProgramRegistries],
+  );
+};
+
 const PatientHomeContainer = ({
   navigation,
   selectedPatient,
   setSelectedPatient,
   route,
 }: PatientHomeScreenProps): ReactElement => {
-  const { ability } = useAuth();
-  const canListRegistrations = ability.can('list', 'PatientProgramRegistration');
-  const canCreateRegistration = ability.can('create', 'PatientProgramRegistration');
-  const canViewProgramRegistries = canListRegistrations || canCreateRegistration;
   const [errorMessage, setErrorMessage] = useState();
   const { from } = route.params || {};
 
-  const visitTypeButtons = useMemo(
-    () => [
-      {
-        title: (
-          <TranslatedText
-            stringId="patient.diagnosisAndTreatment.title"
-            fallback="Diagnosis & Treatment"
-          />
-        ),
-        Icon: Icons.DiagnosisAndTreatmentIcon,
-        onPress: (): void => navigation.navigate(Routes.HomeStack.DiagnosisAndTreatmentTabs.Index),
-      },
-      {
-        title: <TranslatedText stringId="patient.vitals.title" fallback="Vitals" />,
-        Icon: Icons.VitalsIcon,
-        onPress: (): void => navigation.navigate(Routes.HomeStack.VitalsStack.Index),
-      },
-      {
-        title: <TranslatedText stringId="patient.programs.title" fallback="Programs" />,
-        Icon: Icons.PregnancyIcon,
-        onPress: (): void => navigation.navigate(Routes.HomeStack.ProgramStack.Index),
-      },
-      {
-        title: <TranslatedText stringId="patient.referral.title" fallback="Referral" />,
-        Icon: Icons.FamilyPlanningIcon,
-        onPress: (): void => navigation.navigate(Routes.HomeStack.ReferralStack.Index),
-      },
-      {
-        title: <TranslatedText stringId="patient.vaccine.title" fallback="Vaccine" />,
-        Icon: Icons.VaccineIcon,
-        onPress: (): void => navigation.navigate(Routes.HomeStack.VaccineStack.Index),
-      },
-      {
-        title: <TranslatedText stringId="patient.tests.title" fallback="Tests" />,
-        Icon: Icons.LabRequestIcon,
-        onPress: (): void => navigation.navigate(Routes.HomeStack.LabRequestStack.Index),
-      },
-    ],
-    [navigation],
-  );
-
-  const patientMenuButtons = useMemo(
-    () => [
-      {
-        title: (
-          <TranslatedText stringId="patient.action.viewPatientDetails" fallback="View patient details" />
-        ),
-        onPress: (): void => navigation.navigate(Routes.HomeStack.PatientDetailsStack.Index),
-      },
-      {
-        title: <TranslatedText stringId="patient.action.viewVitalHistory" fallback="View history" />,
-        onPress: (): void => navigation.navigate(Routes.HomeStack.HistoryVitalsStack.Index),
-      },
-      {
-        title: 'Program registries',
-        onPress: (): void => navigation.navigate(Routes.HomeStack.PatientSummaryStack.Index),
-        hideFromMenu: !canViewProgramRegistries,
-      },
-    ],
-    [navigation, canViewProgramRegistries],
-  );
+  const patientMenuButtons = usePatientMenuButtons(navigation);
 
   const onNavigateToSearchPatients = useCallback(() => {
     setSelectedPatient(null);
@@ -158,7 +181,7 @@ const PatientHomeContainer = ({
   const onSyncPatient = useCallback(async (): Promise<void> => {
     try {
       await Patient.markForSync(selectedPatient.id);
-      syncManager.triggerSync({ urgent: true });
+      syncManager.triggerUrgentSync();
       navigation.navigate(Routes.HomeStack.HomeTabs.SyncData);
     } catch (error) {
       setErrorMessage(error.message);
@@ -198,13 +221,15 @@ const PatientHomeContainer = ({
     showPatientWarningPopups(patientIssues || []);
   }, [patientIssues]);
 
+  const patientModules = usePatientModules(navigation);
+
   if (errorMessage) return <ErrorScreen error={errorMessage} />;
 
   return (
     <Screen
       selectedPatient={selectedPatient}
       navigateToSearchPatients={onNavigateToSearchPatients}
-      visitTypeButtons={visitTypeButtons}
+      visitTypeButtons={patientModules}
       patientMenuButtons={patientMenuButtons}
       markPatientForSync={onSyncPatient}
     />
