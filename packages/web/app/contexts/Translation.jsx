@@ -1,15 +1,11 @@
 import React, { useContext, useState } from 'react';
-import { useApi } from '../api/useApi';
 import { LOCAL_STORAGE_KEYS } from '../constants';
 import { useTranslations } from '../api/queries/useTranslations';
 import { getCurrentLanguageCode } from '../utils/translation';
-import { ENGLISH_LANGUAGE_CODE } from '@tamanu/constants';
 
 export const TranslationContext = React.createContext();
 
 export const useTranslation = () => useContext(TranslationContext);
-
-const isDev = process.env.NODE_ENV === 'development';
 
 const applyCasing = (text, lowercase, uppercase) => {
   if (lowercase) return text.toLowerCase();
@@ -48,7 +44,6 @@ export const replaceStringVariables = (
 };
 
 export const TranslationProvider = ({ children }) => {
-  const api = useApi();
   const [storedLanguage, setStoredLanguage] = useState(getCurrentLanguageCode());
 
   const { data: translations } = useTranslations(storedLanguage);
