@@ -41,7 +41,7 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
   setStatusBar('light-content', theme.colors.MAIN_SUPER_DARK);
 
   const manualSync = useCallback(() => {
-    syncManager.triggerSync({ urgent: true });
+    syncManager.triggerUrgentSync();
   }, []);
 
   useEffect(() => {

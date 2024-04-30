@@ -55,8 +55,16 @@ export const PatientIssueForm = ({ onSubmit, editedObject, onCancel }) => (
     }}
     formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
     validationSchema={yup.object().shape({
-      note: yup.string().required(),
-      recordedDate: yup.date().required(),
+      note: yup
+        .string()
+        .required()
+        .translatedLabel(<TranslatedText stringId="general.note.label" fallback="Note" />),
+      recordedDate: yup
+        .date()
+        .required()
+        .translatedLabel(
+          <TranslatedText stringId="general.recordedDate.label" fallback="Date recorded" />,
+        ),
     })}
   />
 );

@@ -12,6 +12,7 @@ import { ButtonRow } from '../../../components/ButtonRow';
 import { Table } from '../../../components/Table';
 import { LargeOutlinedSubmitButton, LargeSubmitButton } from '../../../components/Button';
 import { FORM_TYPES } from '../../../constants';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const ColorText = styled.span`
   color: ${props => props.color};
@@ -192,7 +193,10 @@ export const ImporterView = memo(({ endpoint, dataTypes, dataTypesSelectable, se
                 .required()
                 .min(1)
             : undefined,
-          file: yup.string().required(),
+          file: yup
+            .string()
+            .required()
+            .translatedLabel(<TranslatedText stringId="general.file.label" fallback="File" />),
         })}
         initialValues={{
           includedDataTypes: initialDataTypes,
