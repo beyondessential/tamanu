@@ -108,9 +108,7 @@ export const DocumentsTable = React.memo(
       },
       {
         key: 'department.name',
-        title: (
-          <TranslatedText stringId="document.table.column.department" fallback="Department" />
-        ),
+        title: <TranslatedText stringId="general.department.label" fallback="Department" />,
         accessor: getDepartmentName,
         CellComponent: LimitedLinesCell,
         sortable: false,

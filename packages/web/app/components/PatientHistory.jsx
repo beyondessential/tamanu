@@ -87,14 +87,12 @@ export const PatientHistory = ({ patient, onItemClick }) => {
   const columns = [
     {
       key: 'startDate',
-      title: <TranslatedText stringId="patientHistory.table.column.startDate" fallback="Date" />,
+      title: <TranslatedText stringId="general.date.label" fallback="Date" />,
       accessor: getDate,
     },
     {
       key: 'encounterType',
-      title: (
-        <TranslatedText stringId="patientHistory.table.column.encounterType" fallback="Type" />
-      ),
+      title: <TranslatedText stringId="patientHistory.table.column.encounterType" fallback="Type" />,
       accessor: getType,
       sortable: false,
     },

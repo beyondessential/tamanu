@@ -21,12 +21,25 @@ const InnerContainer = styled.div`
 `;
 
 const schema = yup.object().shape({
-  reportId: yup.string().required('Report is a required field'),
-  versionId: yup.string().required('Version is a required field'),
+  reportId: yup
+    .string()
+    .required()
+    .translatedLabel(
+      <TranslatedText stringId="admin.report.export.report.label" fallback="Report" />,
+    ),
+  versionId: yup
+    .string()
+    .required()
+    .translatedLabel(
+      <TranslatedText stringId="admin.report.export.version.label" fallback="Version" />,
+    ),
   format: yup
     .string()
     .oneOf(Object.values(REPORT_VERSION_EXPORT_FORMATS))
-    .required('Format is a required field'),
+    .required()
+    .translatedLabel(
+      <TranslatedText stringId="admin.report.export.format.label" fallback="Format" />,
+    ),
 });
 
 export const ExportReportView = () => {
@@ -63,23 +76,35 @@ export const ExportReportView = () => {
             <Field
               component={ReportSelectField}
               required
-              label={<TranslatedText stringId="admin.report.export.report.label" fallback="Report" />}
+              label={
+                <TranslatedText stringId="admin.report.export.report.label" fallback="Report" />
+              }
               name="reportId"
-              placeholder={getTranslation("admin.report.export.report.placeholder", "Select a report definition")}
+              placeholder={getTranslation(
+                'admin.report.export.report.placeholder',
+                'Select a report definition',
+              )}
             />
             {values.reportId && (
               <Field
                 component={VersionSelectField}
                 required
-                label={<TranslatedText stringId="admin.report.export.version.label" fallback="Version" />}
+                label={
+                  <TranslatedText stringId="admin.report.export.version.label" fallback="Version" />
+                }
                 name="versionId"
-                placeholder={getTranslation("admin.report.export.version.placeholder", "Select a report version")}
-            />
+                placeholder={getTranslation(
+                  'admin.report.export.version.placeholder',
+                  'Select a report version',
+                )}
+              />
             )}
             {values.versionId && (
               <Field
                 component={RadioField}
-                label={<TranslatedText stringId="admin.report.export.format.label" fallback="Format" />}
+                label={
+                  <TranslatedText stringId="admin.report.export.format.label" fallback="Format" />
+                }
                 name="format"
                 options={Object.entries(REPORT_VERSION_EXPORT_FORMATS).map(([label, value]) => ({
                   label,
