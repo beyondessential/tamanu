@@ -1,4 +1,5 @@
 import { WS_EVENTS } from '@tamanu/constants';
+import { log } from '@tamanu/shared/services/logging';
 
 /**
  *
@@ -6,9 +7,13 @@ import { WS_EVENTS } from '@tamanu/constants';
  */
 export const registerTelegramGetBotInfoEvent = injector => {
   injector.websocketService.registerEvent(WS_EVENTS.TELEGRAM_GET_BOT_INFO, async () => {
-    injector.websocketService.emit(
-      WS_EVENTS.TELEGRAM_BOT_INFO,
-      await injector.telegramBotService.getBotInfo(),
-    );
+    injector.websocketService.emit(WS_EVENTS.TELEGRAM_BOT_INFO, async () => {
+      try {
+        const result = await injector.telegramBotService.getBotInfo();
+        return result;
+      } catch (e) {
+        log.error('Error getting bot info', e);
+      }
+    });
   });
 };
