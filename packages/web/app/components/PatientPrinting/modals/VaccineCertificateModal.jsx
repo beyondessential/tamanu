@@ -74,7 +74,7 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
       additionalActions={<EmailButton onEmail={createVaccineCertificateNotification} />}
     >
       {isLoading ? (
-        <LoadingIndicator />
+        <LoadingIndicator height="500px" />
       ) : (
         <WorkerRenderedPDFViewer
           id={VACCINE_CERTIFICATE_PDF_ID}
