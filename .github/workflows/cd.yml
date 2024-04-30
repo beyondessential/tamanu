@@ -310,6 +310,19 @@ jobs:
       TAILSCALE_OAUTH: ${{ secrets.TAILSCALE_DBPROXY_ACCESS_OAUTH }}
       TAMANU_OPS_SSH: ${{ secrets.TAMANU_OPS_SSH }}
 
+  package-android-test:
+    needs: config
+    if: needs.config.outputs.go-up == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.config.outputs.up) }}
+    name: Package test Android for ${{ matrix.name }}
+    uses: ./.github/workflows/cd-package-android.yml
+    with:
+      server: central.${{ matrix.name }}.internal.tamanu.io
+      ref: ${{ needs.config.outputs.ref }}
+
   # The package-* jobs below are only triggered by tags, so we can assume that
   # github.ref and github.ref_name are set and correct.
 
@@ -324,6 +337,11 @@ jobs:
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
     name: Package Servers ${{ github.ref_name }}
     uses: ./.github/workflows/cd-package-servers.yml
+
+  package-android-release:
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    name: Package release Android ${{ github.ref_name }}
+    uses: ./.github/workflows/cd-package-android.yml
 
   release-notes-images:
     needs:
@@ -344,3 +362,4 @@ jobs:
             | `ghcr.io/beyondessential/tamanu-central` | [${{ github.ref_name }}](https://github.com/beyondessential/tamanu/pkgs/container/tamanu-central/${{ github.ref_name }}) |
             | `ghcr.io/beyondessential/tamanu-facility` | [${{ github.ref_name }}](https://github.com/beyondessential/tamanu/pkgs/container/tamanu-facility/${{ github.ref_name }}) |
             | `ghcr.io/beyondessential/tamanu-frontend` | [${{ github.ref_name }}](https://github.com/beyondessential/tamanu/pkgs/container/tamanu-frontend/${{ github.ref_name }}) |
+            | `ghcr.io/beyondessential/tamanu-android | [${{ github.ref_name }}](https://github.com/beyondessential/tamanu/pkgs/container/tamanu-android/${{ github.ref_name }}) |`
