@@ -52,6 +52,15 @@ export const LabRequestPrintModal = React.memo(({ labRequest, patient, open, onC
     (isVillageEnabled && isVillageLoading) ||
     isCertificateFetching;
 
+  console.log({
+    isEncounterLoading,
+    areTestsLoading,
+    areNotesLoading,
+    isAdditionalDataLoading,
+    isVillageLoading: isVillageEnabled && isVillageLoading,
+    isCertificateFetching,
+  });
+  console.log(isLoading);
   return (
     <Modal
       title="Lab Request"
@@ -64,7 +73,7 @@ export const LabRequestPrintModal = React.memo(({ labRequest, patient, open, onC
     >
       <PDFLoader isLoading={isLoading} id="lab-request-printout">
         <MultipleLabRequestsPrintout
-          labRequests={[{ ...labRequest, tests: testsData.data, notes: notes?.data || [] }]}
+          labRequests={[{ ...labRequest, tests: testsData?.data, notes: notes?.data || [] }]}
           patientData={{ ...patient, additionalData, village }}
           encounter={encounter}
           certificateData={certificateData}
