@@ -231,10 +231,9 @@ export async function importRows(
           camelCase(model) === dataType; // This prevents join tables from being translated - unsure about this
       const isTranslatable = TRANSLATABLE_REFERENCE_TYPES.includes(dataType);
       if (isTranslatable && isValidTable) {
-        // TODO: Not making: scheduledVaccine
         translationRecordsForSheet.push({
           stringId: `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.${values.id}`,
-          text: values.name,
+          text: values.name || values.label,
           language: ENGLISH_LANGUAGE_CODE,
         });
       }

@@ -60,7 +60,7 @@ const OTHER_REFERENCE_TYPES = {
   LOCATION_GROUP: 'locationGroup',
   PATIENT_FIELD_DEFINITION: 'patientFieldDefinition',
   PATIENT_FIELD_DEFININION_CATEGORY: 'patientFieldDefinitionCategory',
-  SCHEDULED_VACCINE: 'scheduledVaccine', // TODO: get this working and check others
+  SCHEDULED_VACCINE: 'scheduledVaccine',
 };
 
 export const OTHER_REFERENCE_TYPE_VALUES = Object.values(OTHER_REFERENCE_TYPES);
