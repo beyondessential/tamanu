@@ -1,4 +1,5 @@
 import { WS_EVENTS } from '@tamanu/constants';
+import { log } from '@tamanu/shared/services/logging';
 
 /**
  * @typedef {import('@tamanu/shared/models')} Models
@@ -12,7 +13,11 @@ export const registerPatientContactInsert = injector => {
      * @param {Models.PatientContact} patient
      */
     async patient => {
-      await injector.models.PatientContact.create(patient);
+      try {
+        await injector.models.PatientContact.create(patient);
+      } catch (e) {
+        log.error('Error inserting patient contact', e);
+      }
     },
   );
 };

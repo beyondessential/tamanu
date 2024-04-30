@@ -49,7 +49,7 @@ const Screen = ({ navigation, route, selectedPatient }: IReminderContactQR) => {
   );
 
   const onNavigateBack = useCallback(() => {
-    navigation.navigate(Routes.HomeStack.PatientDetailsStack.Index);
+    navigation.navigate(Routes.HomeStack.PatientDetailsStack.ReminderContacts);
   }, [navigation]);
 
   const description = getTranslation(
