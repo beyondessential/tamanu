@@ -8,6 +8,7 @@ import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { StyledTextField } from './TextField';
 import { Colors } from '../../constants';
 import { getTranslatedOptions } from '../Translation/getTranslatedOptions';
+import { Icon, StyledExpandMore } from './FieldCommonComponents';
 
 const StyledFormControl = styled(FormControl)`
   display: flex;
@@ -204,6 +205,15 @@ export const MultiselectInput = ({
           classes={classes}
           disabled={disabled}
           readOnly={isReadonly}
+          InputProps={{
+            endAdornment: (
+              <>
+                <Icon position="end">
+                  <StyledExpandMore />
+                </Icon>
+              </>
+            ),
+          }}
           {...props}
         />
       </OuterLabelFieldWrapper>
