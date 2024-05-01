@@ -15,6 +15,7 @@ import {
 import { ModalActionRow } from '../../../components/ModalActionRow';
 import { useLocalisation } from '../../../contexts/Localisation';
 import { FORM_TYPES } from '../../../constants';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const patientMoveActionOptions = [
   { label: 'Plan', value: 'plan' },
@@ -53,7 +54,15 @@ export const BeginPatientMoveModal = React.memo(({ onClose, open, encounter }) =
         initialValues={{ plannedLocationId: encounter.plannedLocationId, action: 'plan' }}
         onSubmit={onSubmit}
         validationSchema={yup.object().shape({
-          plannedLocationId: yup.string().required('Please select a planned location'),
+          plannedLocationId: yup
+            .string()
+            .required()
+            .translatedLabel(
+              <TranslatedText
+                stringId="encounter.modal.patientMove.validation.plannedLocation.path"
+                fallback="Planned location"
+              />,
+            ),
         })}
         formType={FORM_TYPES.EDIT_FORM}
         render={({ submitForm, values }) => {
@@ -67,7 +76,12 @@ export const BeginPatientMoveModal = React.memo(({ onClose, open, encounter }) =
                 />
                 <Field
                   name="action"
-                  label="Would you like to plan or finalise the patient move?"
+                  label={
+                    <TranslatedText
+                      stringId="encounter.modal.patientMove.action.label"
+                      fallback="Would you like to plan or finalise the patient move?"
+                    />
+                  }
                   component={RadioField}
                   options={patientMoveActionOptions}
                   style={{ gridColumn: '1/-1' }}

@@ -174,10 +174,7 @@ export const AppointmentsCalendar = () => {
           </Section>
           <Section>
             <SectionTitle variant="subtitle2">
-              <TranslatedText
-                stringId="scheduling.appointmentCalendar.filter.appointmentType"
-                fallback="Appointment type"
-              />
+              <TranslatedText stringId="appointment.type.label" fallback="Appointment type" />
             </SectionTitle>
             <MultiselectField
               onChange={e => {

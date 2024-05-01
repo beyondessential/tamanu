@@ -11,10 +11,7 @@ import {
   ModalFormActionRow,
 } from '../../../components';
 import { FORM_TYPES } from '../../../constants';
-
-const validationSchema = yup.object().shape({
-  labTestLaboratoryId: yup.string().required('Laboratory is required'),
-});
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 export const LabRequestChangeLabModal = React.memo(
   ({ labRequest, updateLabReq, open, onClose }) => {
@@ -31,7 +28,14 @@ export const LabRequestChangeLabModal = React.memo(
       <FormModal open={open} onClose={onClose} title="Change lab request laboratory">
         <Form
           onSubmit={updateLab}
-          validationSchema={validationSchema}
+          validationSchema={yup.object().shape({
+            labTestLaboratoryId: yup
+              .string()
+              .required()
+              .translatedLabel(
+                <TranslatedText stringId="lab.laboratory.label" fallback="Laboratory" />,
+              ),
+          })}
           initialValues={{
             labTestLaboratoryId: labRequest?.labTestLaboratoryId,
           }}
@@ -40,7 +44,12 @@ export const LabRequestChangeLabModal = React.memo(
             <FormGrid columns={1}>
               <Field
                 component={AutocompleteField}
-                label="Laboratory"
+                label={
+                  <TranslatedText
+                    stringId="lab.modal.changeLab.laboratory.label"
+                    fallback="Laboratory"
+                  />
+                }
                 name="labTestLaboratoryId"
                 suggester={laboratorySuggester}
                 required

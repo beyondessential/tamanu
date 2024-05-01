@@ -50,6 +50,6 @@ describe('replaceStringVariables', () => {
       result: 'replacements are missing :here but not one',
     },
   ])('$testTitle', ({ inputString, replacements, result }) => {
-    expect(replaceStringVariables(inputString, replacements)).toBe(result);
+    expect(replaceStringVariables(inputString, { replacements })).toBe(result);
   });
 });
