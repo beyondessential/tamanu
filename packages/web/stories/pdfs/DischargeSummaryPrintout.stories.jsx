@@ -482,7 +482,12 @@ const certificateData = {
 export const DischargeSummaryPrintout = {
   render: () => (
     <PDFViewer width={800} height={1000} showToolbar={false}>
-      <Component certificateData={certificateData} patientData={patient} encounter={encounter} getLocalisation={getLocalisation} />
+      <Component
+        certificateData={certificateData}
+        patientData={patient}
+        encounter={encounter}
+        getLocalisation={getLocalisation}
+      />
     </PDFViewer>
   ),
 };

@@ -131,7 +131,7 @@ export const ImmunisationsTable = React.memo(
         },
         {
           key: 'date',
-          title: <TranslatedText stringId="vaccine.table.column.date" fallback="Date" />,
+          title: <TranslatedText stringId="general.date.label" fallback="Date" />,
           accessor: getDate,
         },
         {
