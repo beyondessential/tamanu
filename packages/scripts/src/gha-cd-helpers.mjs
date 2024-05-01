@@ -110,6 +110,15 @@ const OPTIONS = [
     parse: input => intBounds(input, [2, 3]),
   },
   {
+    key: 'mobile',
+    // Options:
+    // - 'normal' (default)
+    // - 'always' (build mobile regardless of whether the deploy is enabled)
+    // - 'never' (don't build mobile)
+    defaultValue: 'normal',
+    parse: input => (['always', 'never'].includes(input) ? input : 'normal'),
+  },
+  {
     key: 'branding',
     defaultValue: 'tamanu',
   },
