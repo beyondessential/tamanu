@@ -109,6 +109,10 @@ const OPTIONS = [
     defaultValue: options => intBounds(options.dbs, [2, 3]),
     parse: input => intBounds(input, [2, 3]),
   },
+  {
+    key: 'branding',
+    defaultValue: 'tamanu',
+  },
 ];
 
 function stripPercent(str) {
@@ -323,11 +327,13 @@ export async function findDeploysToCleanUp(controlList, ttl = 24, context, githu
 
     try {
       if (type === 'pr') {
-        const pr = (await github.rest.pulls.get({
-          owner: process.env.GITHUB_REPOSITORY_OWNER,
-          repo: context.payload.repository.name,
-          pull_number: number,
-        }))?.data;
+        const pr = (
+          await github.rest.pulls.get({
+            owner: process.env.GITHUB_REPOSITORY_OWNER,
+            repo: context.payload.repository.name,
+            pull_number: number,
+          })
+        )?.data;
         if (!pr) continue;
 
         if (pr.state !== 'closed') {
@@ -343,11 +349,13 @@ export async function findDeploysToCleanUp(controlList, ttl = 24, context, githu
 
         todo.push({ core, ns });
       } else if (type === 'issue') {
-        const issue = (await github.rest.issues.get({
-          owner: process.env.GITHUB_REPOSITORY_OWNER,
-          repo: context.payload.repository.name,
-          issue_number: number,
-        }))?.data;
+        const issue = (
+          await github.rest.issues.get({
+            owner: process.env.GITHUB_REPOSITORY_OWNER,
+            repo: context.payload.repository.name,
+            issue_number: number,
+          })
+        )?.data;
         if (!issue) continue;
 
         if (issue.state !== 'closed') {
