@@ -119,11 +119,18 @@ const OPTIONS = [
      */
     key: 'mobile',
     defaultValue: 'normal',
-    parse: input => (['always', 'never'].includes(input) ? input : 'normal'),
+    parse: input => (['normal', 'always', 'never'].includes(input) ? input : 'normal'),
   },
   {
+    /*
+     * Specifies the branding to use in the mobile build.
+     * Options:
+     *  - 'tamanu' (default): Use the Tamanu branding.
+     *  - 'cambodia': Use the Cambodia branding.
+     */
     key: 'branding',
     defaultValue: 'tamanu',
+    parse: input => (['tamanu', 'cambodia'].includes(input) ? input : 'tamanu'),
   },
 ];
 
