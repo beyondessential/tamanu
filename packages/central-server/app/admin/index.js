@@ -5,9 +5,9 @@ import { upperFirst } from 'lodash';
 import { ensurePermissionCheck } from '@tamanu/shared/permissions/middleware';
 import { NotFoundError } from '@tamanu/shared/errors';
 import { REFERENCE_TYPE_VALUES } from '@tamanu/constants';
+import { settingsCache } from '@tamanu/settings';
 
 import { createDataImporterEndpoint } from './importerEndpoint';
-
 import { programImporter } from './programImporter';
 import { referenceDataImporter } from './referenceDataImporter';
 import { surveyResponsesImporter } from './surveyResponsesImporter';
@@ -69,7 +69,7 @@ adminRoutes.get(
         req.checkPermission('list', 'ReferenceData');
         continue;
       }
-  
+
       // Otherwise, if it is other types (eg: patient, lab_test_types,... ones that have their own models)
       // check the permission against the models
       const nonReferenceDataModelName = upperFirst(dataType);
@@ -88,3 +88,43 @@ adminRoutes.get('/fhir/jobStats', fhirJobStats);
 adminRoutes.use('/patientLetterTemplate', patientLetterTemplateRoutes);
 
 adminRoutes.use('/asset', assetRoutes);
+
+// These settings endpoints are setup for viewing and saving the settings in the JSON editor in the admin panel
+adminRoutes.get(
+  '/settings',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('read', 'Setting');
+    const { Setting } = req.store.models;
+    const data = await Setting.get('', req.query.facilityId, req.query.scope);
+    res.send(data);
+  }),
+);
+
+adminRoutes.put(
+  '/settings',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('write', 'Setting');
+    const { Setting } = req.store.models;
+    await Setting.set('', req.body.settings, req.body.scope, req.body.facilityId);
+    res.json({ code: 200 });
+  }),
+);
+
+adminRoutes.delete(
+  '/settings/cache',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('manage', 'all');
+    settingsCache.reset();
+    res.status(204).send();
+  }),
+);
+
+adminRoutes.get(
+  '/facilities',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('list', 'Facility');
+    const { Facility } = req.store.models;
+    const data = await Facility.findAll({ attributes: ['id', 'name'] });
+    res.send(data);
+  }),
+);
