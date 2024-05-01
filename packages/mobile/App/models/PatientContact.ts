@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, RelationId } from 'typeorm/browser';
+import { BeforeInsert, Column, Entity, ManyToOne, RelationId } from 'typeorm/browser';
 
 import { IPatientContact } from '~/types';
 import { Patient } from './Patient';
@@ -69,5 +69,10 @@ export class PatientContact extends BaseModel implements IPatientContact {
 
       return sanitizedRow;
     });
+  }
+
+  @BeforeInsert()
+  async markPatientForSync(): Promise<void> {
+    await Patient.markForSync(this.patient);
   }
 }
