@@ -130,16 +130,11 @@ export const PatientHistory = ({ patient, onItemClick }) => {
       title: '',
       sortable: false,
       dontCallRowInput: true,
-      CellComponent: ({ data }) => {
-        if (actions.length === 0) {
-          return <></>;
-        }
-        return (
-          <div onMouseEnter={() => setSelectedEncounterData(data)}>
-            <MenuButton actions={actions} />
-          </div>
-        );
-      },
+      CellComponent: ({ data }) => (
+        <div onMouseEnter={() => setSelectedEncounterData(data)}>
+          <MenuButton actions={actions} />
+        </div>
+      ),
     });
   }
 

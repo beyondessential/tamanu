@@ -92,16 +92,11 @@ export const DataFetchingProgramsTable = ({ endpoint }) => {
       title: '',
       dontCallRowInput: true,
       sortable: false,
-      CellComponent: ({ data }) => {
-        if (actions.length === 0) {
-          return <></>;
-        }
-        return (
-          <div onMouseEnter={() => setSelectedResponse(data)}>
-            <MenuButton actions={actions} />
-          </div>
-        );
-      },
+      CellComponent: ({ data }) => (
+        <div onMouseEnter={() => setSelectedResponse(data)}>
+          <MenuButton actions={actions} />
+        </div>
+      ),
     });
   }
 
