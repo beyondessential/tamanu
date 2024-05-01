@@ -5,6 +5,7 @@ import defineExpress from 'express';
 
 import { SERVER_TYPES } from '@tamanu/constants';
 import { getLoggingMiddleware } from '@tamanu/shared/services/logging';
+import { buildSettingsReaderMiddleware } from '@tamanu/settings/middleware';
 import { getAuditMiddleware } from './middleware/auditLog';
 
 import routes from './routes';
@@ -59,6 +60,7 @@ export async function createApp({ sequelize, reportSchemaStores, models, syncMan
     next();
   });
 
+  express.use(buildSettingsReaderMiddleware(config.serverFacilityId));
   express.use(versionCompatibility);
 
   express.use(getAuditMiddleware());

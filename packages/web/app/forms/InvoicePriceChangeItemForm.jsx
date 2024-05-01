@@ -84,10 +84,31 @@ export const InvoicePriceChangeItemForm = ({
       }}
       formType={invoicePriceChangeItem ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
       validationSchema={yup.object().shape({
-        description: foreignKey('Details is required'),
-        orderedById: foreignKey('Ordered by must be selected'),
-        date: yup.date().required(),
-        percentageChange: yup.number().required(),
+        description: foreignKey().translatedLabel(
+          <TranslatedText
+            stringId="invoice.modal.priceChange.description.label"
+            fallback="Details"
+          />,
+        ),
+        orderedById: foreignKey().translatedLabel(
+          <TranslatedText
+            stringId="invoice.modal.priceChange.orderedBy.label"
+            fallback="Ordered by"
+          />,
+        ),
+        date: yup
+          .date()
+          .required()
+          .translatedLabel(<TranslatedText stringId="general.date.label" fallback="Date" />),
+        percentageChange: yup
+          .number()
+          .required()
+          .translatedLabel(
+            <TranslatedText
+              stringId="invoice.modal.priceChange.validation.percentageChange.path"
+              fallback="Percentage change"
+            />,
+          ),
       })}
     />
   );

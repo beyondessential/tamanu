@@ -19,6 +19,8 @@ import { version } from './serverInfo';
 import { translationRoutes } from './translation';
 import { createServer } from 'http';
 
+import { buildSettingsReaderMiddleware } from '@tamanu/settings/middleware';
+
 function api(ctx) {
   const apiRoutes = defineExpress.Router();
   apiRoutes.use('/public', publicRoutes);
@@ -66,12 +68,13 @@ export async function createApi(ctx) {
   express.use((req, res, next) => {
     req.models = store.models; // cross-compatibility with facility for shared middleware
     req.store = store;
-    req.models = store.models;
     req.emailService = emailService;
     req.reportSchemaStores = reportSchemaStores;
     req.ctx = ctx;
     next();
   });
+
+  express.use(buildSettingsReaderMiddleware());
 
   express.get('/$', (req, res) => {
     res.send({
