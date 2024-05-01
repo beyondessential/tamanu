@@ -144,7 +144,7 @@ export const VaccineForm = ({
     return <LoadingIndicator />;
   }
 
-  if (currentEncounterError || vaccinationDefaultsError || isLoadingPatientData) {
+  if (currentEncounterError || vaccinationDefaultsError || patientDataError) {
     return (
       <ErrorMessage
         title={<TranslatedText stringId="vaccine.loadError" fallback="Cannot load vaccine form" />}
