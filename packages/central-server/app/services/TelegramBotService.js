@@ -78,15 +78,13 @@ export const defineTelegramBotService = async injector => {
    * @param {string} contactId
    */
   const subscribeCommandHandler = async (message, contactId) => {
-    log.info('subscribeCommandHandler before findByPk', { message, contactId })
     const contact = await injector.models?.PatientContact?.findByPk(contactId, {
       include: [{ model: injector.models?.Patient, as: 'patient' }],
-    }).catch(e => {log.error('Error getting contact', e)});
-    log.info('subscribeCommandHandler after get contact', { contact })
+    });
     if (!contact) return;
 
     contact.connectionDetails = { chatId: message.chat.id };
-    await contact.save().catch((e) => {log.error('Error saving contact', e)});
+    await contact.save();
 
     const getTranslation = await injector.models?.TranslatedString?.getTranslationFunction(
       injector.config.language,
@@ -105,7 +103,6 @@ export const defineTelegramBotService = async injector => {
 
     await sendMessage(message.chat.id, successMessage, { parse_mode: 'HTML' });
     websocketService?.emit(WS_EVENTS.TELEGRAM_SUBSCRIBE, { contactId, chatId: message.chat.id });
-    log.info('subscribeCommandHandler after emit event', { successMessage })
   };
 
   /**

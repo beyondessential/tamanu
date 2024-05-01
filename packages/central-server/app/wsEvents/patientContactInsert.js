@@ -14,7 +14,6 @@ export const registerPatientContactInsert = injector => {
      */
     async patient => {
       try {
-        log.info('Inserting patient contact', patient);
         await injector.models.PatientContact.create(patient);
       } catch (e) {
         log.error('Error inserting patient contact', e);

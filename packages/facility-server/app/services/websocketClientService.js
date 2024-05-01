@@ -1,6 +1,5 @@
 import { io } from 'socket.io-client';
 import { WS_EVENTS } from '@tamanu/constants';
-import { log } from '@tamanu/shared/services/logging';
 
 /**
  *
@@ -18,16 +17,13 @@ export const defineWebsocketClientService = injector => {
      * @param {{ contactId: string, chatId: string }} payload
      */
     async ({ chatId, contactId }) => {
-      log.info('TELEGRAM_SUBSCRIBE before findByPk', { chatId, contactId });
       const contact = await injector.models?.PatientContact.findByPk(contactId);
-      log.info('TELEGRAM_SUBSCRIBE after findByPk', { contact })
       if (!contact) return;
 
       contact.connectionDetails = { chatId };
       await contact.save();
 
       injector.websocketService?.emit(WS_EVENTS.TELEGRAM_SUBSCRIBE_SUCCESS, { contactId, chatId });
-      log.info('TELEGRAM_SUBSCRIBE after emit event', { contactId, chatId });
     },
   );
 
