@@ -32,7 +32,6 @@ import { useAuth } from '~/ui/contexts/AuthContext';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { useBackendEffect } from '~/ui/hooks';
 import { SETTING_KEYS } from '~/constants';
-import { readConfig } from '~/services/config';
 
 const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => {
   const { ability } = useAuth();
@@ -40,8 +39,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => 
 
   const [isReminderContactEnabled] = useBackendEffect(
     async ({ models }) => {
-      const facilityId = await readConfig('facilityId', '');
-      const isReminderContactEnabled = await models.Setting.get(SETTING_KEYS.FEATURES_REMINDER_CONTACT_ENABLED, facilityId);
+      const isReminderContactEnabled = await models.Setting.get(SETTING_KEYS.FEATURES_REMINDER_CONTACT_ENABLED);
       return isReminderContactEnabled;
     },
     [],
