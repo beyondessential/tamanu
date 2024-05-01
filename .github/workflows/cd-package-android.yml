@@ -7,6 +7,9 @@ permissions:
 on:
   workflow_call:
     inputs:
+      ref:
+        type: string
+        required: true
       branding:
         type: string
         required: true
@@ -14,11 +17,12 @@ on:
       server:
         type: string
         required: false
-
   workflow_dispatch:
     inputs:
+      ref:
+        type: string
+        required: true
       branding:
-        description: Branding to use for app
         type: choice
         required: true
         default: tamanu
@@ -26,7 +30,7 @@ on:
           - tamanu
           - cambodia
       server:
-        description: Central server to use
+        description: Central server override
         type: string
         required: false
 
@@ -122,4 +126,4 @@ jobs:
         if: steps.destination.outputs.result != 'nowhere'
         env:
           target: ${{ steps.destination.outputs.result }}
-        run: aws s3 cp ${{APK_PATH}} $target/android/${{inputs.branding}}/${{env.APP_NAME}} --no-progress
+        run: aws s3 cp ${{ env.APK_PATH }} $target/android/${{inputs.branding}}/${{env.APK_NAME}} --no-progress
