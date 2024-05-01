@@ -14,9 +14,9 @@ export class removeDeletionStatusColumn1712707744000 implements MigrationInterfa
   async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
       UPDATE ${TABLE_NAME}
-      SET deletedAt = date('now')
+      SET deleted_at = date('now')
       WHERE ${COLUMN_NAME} = '${DELETION_STATUSES.DELETED}'
-      AND deletedAt IS NULL;
+      AND deleted_at IS NULL;
     `);
     const table = await getTable(queryRunner, TABLE_NAME);
     await queryRunner.dropColumn(table, COLUMN_NAME);
@@ -35,12 +35,12 @@ export class removeDeletionStatusColumn1712707744000 implements MigrationInterfa
     await queryRunner.query(`
       UPDATE ${TABLE_NAME}
       SET ${COLUMN_NAME} = '${DELETION_STATUSES.DELETED}'
-      WHERE deletedAt IS NOT NULL;
+      WHERE deleted_at IS NOT NULL;
     `);
     await queryRunner.query(`
       UPDATE ${TABLE_NAME}
-      SET deletedAt = NULL
-      WHERE deletedAt IS NOT NULL;
+      SET deleted_at = NULL
+      WHERE deleted_at IS NOT NULL;
     `);
   }
 }
