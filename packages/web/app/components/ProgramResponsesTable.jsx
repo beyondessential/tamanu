@@ -82,7 +82,11 @@ export const DataFetchingProgramsTable = ({ endpoint }) => {
       title: <TranslatedText stringId="program.table.column.resultText" fallback="Results" />,
       accessor: getResults,
     },
-    {
+  ];
+
+  // Only include actions column when there is at least one action
+  if (actions.length > 0) {
+    columns.push({
       // key and title are empty strings to display a blank column name
       key: '',
       title: '',
@@ -98,8 +102,8 @@ export const DataFetchingProgramsTable = ({ endpoint }) => {
           </div>
         );
       },
-    },
-  ];
+    });
+  }
 
   return (
     <>
