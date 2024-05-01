@@ -13,6 +13,7 @@ import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { useSocket } from '~/ui/hooks/useSocket';
 import { WS_EVENTS } from '~/constants/webSocket';
+import { useReminderContact } from '~/ui/contexts/ReminderContactContext';
 
 interface IReminderContactQR extends BaseAppProps {
   route: {
@@ -23,6 +24,9 @@ interface IReminderContactQR extends BaseAppProps {
 }
 
 const Screen = ({ navigation, route, selectedPatient }: IReminderContactQR) => {
+  const {
+    fetchReminderContactList,
+  } = useReminderContact();
   const { getTranslation } = useTranslation();
   const [embedUrl, setEmbedUrl] = useState('');
   const { socket } = useSocket();
@@ -49,6 +53,7 @@ const Screen = ({ navigation, route, selectedPatient }: IReminderContactQR) => {
   );
 
   const onNavigateBack = useCallback(() => {
+    fetchReminderContactList();
     navigation.navigate(Routes.HomeStack.PatientDetailsStack.ReminderContacts);
   }, [navigation]);
 
