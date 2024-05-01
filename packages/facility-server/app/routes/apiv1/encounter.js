@@ -318,6 +318,8 @@ encounterRelations.get(
         AND
           surveys.survey_type = 'programs'
         AND
+          survey_responses.deleted_at IS NULL
+        AND
           encounters.deleted_at is null
         ORDER BY ${sortKey} ${sortDirection}
       `,
