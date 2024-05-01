@@ -120,24 +120,23 @@ export const PatientHistory = ({ patient, onItemClick }) => {
       sortable: false,
       CellComponent: LimitedLinesCell,
     },
-    {
+  ];
+
+  // Only include actions column when there is at least one action
+  if (actions.length > 0) {
+    columns.push({
       // key and title are empty strings to display a blank column name
       key: '',
       title: '',
       sortable: false,
       dontCallRowInput: true,
-      CellComponent: ({ data }) => {
-        if (actions.length === 0) {
-          return <></>;
-        }
-        return (
-          <div onMouseEnter={() => setSelectedEncounterData(data)}>
-            <MenuButton actions={actions} />
-          </div>
-        );
-      },
-    }
-  ];
+      CellComponent: ({ data }) => (
+        <div onMouseEnter={() => setSelectedEncounterData(data)}>
+          <MenuButton actions={actions} />
+        </div>
+      ),
+    });
+  }
 
   if (!patient.markedForSync) {
     return <MarkPatientForSync patient={patient} />;

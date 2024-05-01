@@ -124,19 +124,14 @@ export const DocumentsTable = React.memo(
         title: <TranslatedText stringId="document.table.column.actions" fallback="Actions" />,
         dontCallRowInput: true,
         sortable: false,
-        CellComponent: ({ data }) => {
-          if (actions.length === 0) {
-            return <></>;
-          }
-          return (
-            <ActionWrapper onMouseEnter={() => setSelectedDocument(data)}>
-              <StyledIconButton color="primary" onClick={() => onDownload(data)} key="download">
-                <GetAppIcon fontSize="small" />
-              </StyledIconButton>
-              <MenuButton actions={actions} />
-            </ActionWrapper>
-          );
-        },
+        CellComponent: ({ data }) => (
+          <ActionWrapper onMouseEnter={() => setSelectedDocument(data)}>
+            <StyledIconButton color="primary" onClick={() => onDownload(data)} key="download">
+              <GetAppIcon fontSize="small" />
+            </StyledIconButton>
+            {actions.length > 0 && <MenuButton actions={actions} />}
+          </ActionWrapper>
+        ),
       },
     ];
 

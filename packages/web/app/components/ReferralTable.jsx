@@ -206,16 +206,11 @@ export const ReferralTable = React.memo(({ patientId }) => {
       title: '',
       dontCallRowInput: true,
       sortable: false,
-      CellComponent: ({ data }) => {
-        if (actions.length === 0) {
-          return <></>;
-        }
-        return (
-          <div onMouseEnter={() => setSelectedReferral(data)}>
-            <MenuButton actions={actions} />
-          </div>
-        );
-      },
+      CellComponent: ({ data }) => (
+        <div onMouseEnter={() => setSelectedReferral(data)}>
+          <MenuButton actions={actions} />
+        </div>
+      ),
     },
   ];
 
