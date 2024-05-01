@@ -7,13 +7,10 @@ import { log } from '@tamanu/shared/services/logging';
  */
 export const registerTelegramGetBotInfoEvent = injector => {
   injector.websocketService.registerEvent(WS_EVENTS.TELEGRAM_GET_BOT_INFO, async () => {
-    injector.websocketService.emit(WS_EVENTS.TELEGRAM_BOT_INFO, async () => {
-      try {
-        const result = await injector.telegramBotService.getBotInfo();
-        return result;
-      } catch (e) {
-        log.error('Error getting bot info', e);
-      }
+    const result = await injector.telegramBotService.getBotInfo().catch(e => {
+      log.error('Error getting bot info', e);
+      return null;
     });
+    injector.websocketService.emit(WS_EVENTS.TELEGRAM_BOT_INFO, result);
   });
 };
