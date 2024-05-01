@@ -101,7 +101,7 @@ jobs:
             const matrix = ({ name, control, options }) => ({ name, control, options: JSON.stringify(options) });
             const filter = ({ options: { pause, imagesonly } }) => !pause && !imagesonly;
             const up = allDeploys.filter(deploy => deploy.enabled && filter(deploy)).map(matrix);
-            const down = allDeploys.filter(deploy => !deploy.enabled && filter(deploy)).map(matrix)
+            const down = allDeploys.filter(deploy => !deploy.enabled && filter(deploy)).map(matrix);
             const mobile = allDeploys.filter(deploy => {
               if (deploy.options.mobile === 'always') return true;
               if (deploy.options.mobile === 'never') return false;
