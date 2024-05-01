@@ -20,7 +20,7 @@ export const DeleteReferralModal = ({ open, onClose, referralToDelete, endpoint 
 
   return (
     <ConfirmModal
-      width="md"
+      width="sm"
       title="Delete referral"
       subText={
         <SubText>
