@@ -18,7 +18,6 @@ export const DeleteDocumentModal = ({ open, onClose, documentToDelete, endpoint 
 
   return (
     <ConfirmModal
-      width="md"
       title="Delete document"
       subText={
         <SubText>

@@ -18,7 +18,6 @@ export const DeleteProgramResponseModal = ({ open, onClose, surveyResponseToDele
 
   return (
     <ConfirmModal
-      width="md"
       title="Delete program form"
       subText={
         <SubText>
