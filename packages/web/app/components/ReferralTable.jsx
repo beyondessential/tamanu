@@ -202,8 +202,8 @@ export const ReferralTable = React.memo(({ patientId }) => {
       accessor: getStatus,
     },
     {
-      key: 'actions',
-      title: <TranslatedText stringId="referral.table.column.actions" fallback="Actions" />,
+      key: '', // For actions column, but we don't want a header for this
+      title: '',
       dontCallRowInput: true,
       sortable: false,
       CellComponent: ({ data }) => {
