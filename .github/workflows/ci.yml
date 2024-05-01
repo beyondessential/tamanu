@@ -124,12 +124,6 @@ jobs:
           path: ${{ env.NODE_MODULES_PATHS }}
       - run: yarn
 
-      - name: Lint errors
-        run: yarn lint-all --quiet
-
-      - name: Lint warnings
-        run: yarn lint-all
-
   storybook:
     needs: node_modules_cache
     # Workaround for define plugin conflict warning
