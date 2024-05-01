@@ -110,11 +110,14 @@ const OPTIONS = [
     parse: input => intBounds(input, [2, 3]),
   },
   {
+    /*
+     * Specifies the behavior for building mobile assets.
+     * Options:
+     *   - 'normal' (default): Build mobile assets according to deployment settings.
+     *   - 'always': Build mobile assets regardless of deployment settings.
+     *   - 'never': Do not build mobile assets.
+     */
     key: 'mobile',
-    // Options:
-    // - 'normal' (default)
-    // - 'always' (build mobile regardless of whether the deploy is enabled)
-    // - 'never' (don't build mobile)
     defaultValue: 'normal',
     parse: input => (['always', 'never'].includes(input) ? input : 'normal'),
   },
