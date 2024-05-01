@@ -101,14 +101,23 @@ jobs:
             const matrix = ({ name, control, options }) => ({ name, control, options: JSON.stringify(options) });
             const filter = ({ options: { pause, imagesonly } }) => !pause && !imagesonly;
             const up = allDeploys.filter(deploy => deploy.enabled && filter(deploy)).map(matrix);
-            const down = allDeploys.filter(deploy => !deploy.enabled && filter(deploy)).map(matrix);
+            const down = allDeploys.filter(deploy => !deploy.enabled && filter(deploy)).map(matrix)
+            const mobile = allDeploys.filter(deploy => {
+              if (deploy.options.mobile === 'always') return true;
+              if (deploy.options.mobile === 'never') return false;
+              return deploy.enabled && filter(deploy);
+            }).map(matrix);
+
             console.log('Going UP', up.length);
             console.log('Going DOWN', down.length);
+            console.log('Building MOBILE', mobile.length);
 
             core.setOutput('up', JSON.stringify(up));
             core.setOutput('down', JSON.stringify(down));
+            core.setOutput('mobile', JSON.stringify(mobile));
             core.setOutput('go-up', !!up.length);
             core.setOutput('go-down', !!down.length);
+            core.setOutput('go-mobile', !!mobile.length);
             core.setOutput('images', !!up.length || allDeploys.some(deploy => deploy.options.imagesonly && !deploy.options.pause));
 
       - name: Check the images exist
@@ -312,11 +321,11 @@ jobs:
 
   package-android-test:
     needs: config
-    if: needs.config.outputs.go-up == 'true'
+    if: needs.config.outputs.go-mobile == 'true'
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJson(needs.config.outputs.up) }}
+        include: ${{ fromJson(needs.config.outputs.mobile) }}
     name: Package test Android for ${{ matrix.name }}
     uses: ./.github/workflows/cd-package-android.yml
     with:
@@ -340,16 +349,9 @@ jobs:
     uses: ./.github/workflows/cd-package-servers.yml
 
   package-android-release:
-    needs: config
-    strategy:
-      fail-fast: false
-      matrix:
-        include: ${{ fromJson(needs.config.outputs.up) }}
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
     name: Package release Android ${{ github.ref_name }}
     uses: ./.github/workflows/cd-package-android.yml
-    with:
-      branding: ${{ fromJson(needs.config.outputs.up)[0].options.branding }}
 
   release-notes-images:
     needs:

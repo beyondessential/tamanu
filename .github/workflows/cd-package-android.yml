@@ -19,9 +19,6 @@ on:
         required: false
   workflow_dispatch:
     inputs:
-      ref:
-        type: string
-        required: true
       branding:
         type: choice
         required: true
@@ -42,8 +39,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || github.ref }}
 
       - name: Install Java
         uses: actions/setup-java@v4
