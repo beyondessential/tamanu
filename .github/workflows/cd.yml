@@ -303,6 +303,7 @@ jobs:
     name: Undeploy ${{ matrix.name }}
     uses: ./.github/workflows/cd-down.yml
     with:
+      ref: ${{ needs.config.outputs.ref }}
       deploy-name: ${{ matrix.name }}
       options: ${{ matrix.options }}
     secrets:
