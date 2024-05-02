@@ -162,14 +162,37 @@ export const EncounterForm = React.memo(
         }}
         formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
         validationSchema={yup.object().shape({
-          examinerId: foreignKey('Clinician is required'),
-          locationId: foreignKey('Location is required'),
-          departmentId: foreignKey('Department is required'),
-          startDate: yup.date().required(),
+          examinerId: foreignKey().translatedLabel(
+            <TranslatedText
+              stringId="general.localisedField.clinician.label"
+              fallback="Clinician"
+            />,
+          ),
+          locationId: foreignKey().translatedLabel(
+            <TranslatedText stringId="general.localisedField.locationId.label" fallback="Location" />,
+          ),
+          departmentId: foreignKey().translatedLabel(
+            <TranslatedText stringId="general.department.label" fallback="Department" />,
+          ),
+          startDate: yup
+            .date()
+            .required()
+            .translatedLabel(
+              <TranslatedText
+                stringId="patient.modal.checkIn.checkInDate.label"
+                fallback="Check-in date"
+              />,
+            ),
           encounterType: yup
             .string()
             .oneOf(ENCOUNTER_OPTIONS.map(x => x.value))
-            .required(),
+            .required()
+            .translatedLabel(
+              <TranslatedText
+                stringId="patient.modal.checkIn.encounterType.label"
+                fallback="Encounter type"
+              />,
+            ),
         })}
       />
     );

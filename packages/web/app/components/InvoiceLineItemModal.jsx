@@ -121,10 +121,27 @@ export const InvoiceLineItemModal = ({
         initialValues={initialValues}
         formType={invoiceLineItem ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
         validationSchema={yup.object().shape({
-          invoiceLineTypeId: foreignKey('Details is required'),
-          orderedById: foreignKey('Ordered by must be selected'),
-          dateGenerated: yup.date().required(),
-          percentageChange: yup.number(),
+          invoiceLineTypeId: foreignKey().translatedLabel(
+            <TranslatedText stringId="invoice.modal.addInvoice.details.label" fallback="Details" />,
+          ),
+          orderedById: foreignKey().translatedLabel(
+            <TranslatedText
+              stringId="invoice.modal.addInvoice.orderedBy.label"
+              fallback="Ordered by"
+            />,
+          ),
+          dateGenerated: yup
+            .date()
+            .required()
+            .translatedLabel(<TranslatedText stringId="general.date.label" fallback="Date" />),
+          percentageChange: yup
+            .number()
+            .translatedLabel(
+              <TranslatedText
+                stringId="invoice.modal.addInvoice.validation.percentageChange.path"
+                fallback="Percentage change"
+              />,
+            ),
         })}
       />
     </FormModal>
