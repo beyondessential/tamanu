@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
 import { FormGrid } from '../components/FormGrid';
 import {
+  AutocompleteField,
   BodyText,
   CheckField,
   Field,
@@ -17,6 +18,7 @@ import { Colors } from '../constants';
 import { LanguageSelector } from '../components/LanguageSelector';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';
+import { useSuggester } from '../api';
 
 const FormSubtext = styled(BodyText)`
   color: ${Colors.midText};
@@ -115,6 +117,8 @@ const LoginFormComponent = ({
     setFieldError('password', '');
   };
 
+  const facilitySuggester = useSuggester('facility', { central: true });
+
   return (
     <FormGrid columns={1}>
       <div>
@@ -130,6 +134,13 @@ const LoginFormComponent = ({
         </LoginSubtext>
         {!!genericMessage && <FormSubtext>{genericMessage}</FormSubtext>}
       </div>
+      <Field
+        name="facilityId"
+        label={<TranslatedText stringId="login.facility.label" fallback="Facility" />}
+        component={AutocompleteField}
+        suggester={facilitySuggester}
+        required
+      />
       <StyledField
         name="email"
         type="email"
