@@ -111,6 +111,13 @@ export const ReferralTable = React.memo(({ patientId }) => {
     loadEncounter(selectedReferral.encounterId, true);
   }, [selectedReferral, loadEncounter]);
 
+  const onCloseReferral = useCallback(() => setSelectedReferralId(null), []);
+
+  const handleChangeModalId = id => {
+    setModalId(id);
+    setModalOpen(true);
+  };
+
   const MODALS = {
     [MODAL_IDS.ADMIT]: ({ referralToDelete, ...props }) => (
       <EncounterModal {...props} patient={patient} referral={referralToDelete} />
@@ -213,13 +220,6 @@ export const ReferralTable = React.memo(({ patientId }) => {
       ),
     },
   ];
-
-  const onCloseReferral = useCallback(() => setSelectedReferralId(null), []);
-
-  const handleChangeModalId = id => {
-    setModalId(id);
-    setModalOpen(true);
-  };
 
   const ActiveModal = MODALS[modalId] || null;
 
