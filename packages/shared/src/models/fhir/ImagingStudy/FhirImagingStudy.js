@@ -7,7 +7,6 @@ import {
   FHIR_INTERACTIONS,
   FHIR_ISSUE_TYPE,
   IMAGING_REQUEST_STATUS_TYPES,
-  DEFAULT_REASON_CANCELLED_BY_API,
 } from '@tamanu/constants';
 import { FhirResource } from '../Resource';
 
