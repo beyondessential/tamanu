@@ -135,7 +135,7 @@ export class FhirImagingStudy extends FhirResource {
     const cancelledReason = reasons.find(reason => reason.value == 'cancelled-externally')?.label;
     imagingRequest.set({
       status: IMAGING_REQUEST_STATUS_TYPES.CANCELLED,
-      reasonForCancellation: cancelledReason || DEFAULT_REASON_CANCELLED_BY_API,
+      reasonForCancellation: cancelledReason,
     });
     await imagingRequest.save();
   }
