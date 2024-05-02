@@ -557,10 +557,9 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
               requestedById: resources.practitioner.id,
               encounterId: encounter.id,
               locationId: resources.location.id,
-              status: IMAGING_REQUEST_STATUS_TYPES.PENDING,
               priority: 'routine',
               requestedDate: '2022-03-04 15:30:00',
-              status: 'cancelled',
+              status: IMAGING_REQUEST_STATUS_TYPES.CANCELLED,
             }),
           );
           await ir.setAreas([resources.area1.id, resources.area2.id]);
