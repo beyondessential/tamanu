@@ -122,14 +122,17 @@ export const ReferralTable = React.memo(({ patientId }) => {
     {
       label: <TranslatedText stringId="patient.referral.action.admit" fallback="Admit" />,
       action: () => handleChangeModalId(MODAL_IDS.ADMIT),
+      condition: data => data.status === REFERRAL_STATUSES.PENDING,
     },
     {
       label: <TranslatedText stringId="patient.referral.action.complete" fallback="Complete" />,
       action: onCompleteReferral,
+      condition: data => data.status === REFERRAL_STATUSES.PENDING,
     },
     {
       label: <TranslatedText stringId="general.action.cancel" fallback="Cancel" />,
       action: () => handleChangeModalId(MODAL_IDS.CANCEL),
+      condition: data => data.status === REFERRAL_STATUSES.PENDING,
     },
     {
       label: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
@@ -183,11 +186,16 @@ export const ReferralTable = React.memo(({ patientId }) => {
       title: '',
       dontCallRowInput: true,
       sortable: false,
-      CellComponent: ({ data }) => (
-        <div onMouseEnter={() => setSelectedReferral(data)}>
-          <MenuButton actions={actions} />
-        </div>
-      ),
+      CellComponent: ({ data }) => {
+        const filteredActions = actions.filter(
+          action => !action.condition || action.condition(data),
+        );
+        return (
+          <div onMouseEnter={() => setSelectedReferral(data)}>
+            <MenuButton actions={filteredActions} />
+          </div>
+        );
+      },
     },
   ];
 
