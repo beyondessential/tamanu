@@ -7,7 +7,7 @@ import {
   simplePost,
   simplePut,
 } from '@tamanu/shared/utils/crudHelpers';
-import { HIDDEN_VISIBILITY_STATUSES } from '@tamanu/constants';
+import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { Op } from 'sequelize';
 
 export const program = express.Router();
@@ -27,7 +27,7 @@ program.get(
           association: 'surveys',
           where: {
             surveyType: 'programs',
-            visibilityStatus: { [Op.notIn]: HIDDEN_VISIBILITY_STATUSES },
+            visibilityStatus: { [Op.ne]: VISIBILITY_STATUSES.HISTORICAL },
           },
         },
       ],
@@ -55,7 +55,7 @@ programRelations.get(
     const records = await models.Survey.findAll({
       where: {
         programId: params.id,
-        visibilityStatus: { [Op.notIn]: HIDDEN_VISIBILITY_STATUSES },
+        visibilityStatus: { [Op.ne]: VISIBILITY_STATUSES.HISTORICAL },
       },
     });
     const filteredRecords = getFilteredListByPermission(ability, records, 'submit');
