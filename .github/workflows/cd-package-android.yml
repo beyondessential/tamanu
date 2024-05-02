@@ -9,10 +9,10 @@ on:
     inputs:
       ref:
         type: string
-        required: true
+        required: false
       branding:
         type: string
-        required: true
+        required: false
         default: tamanu
       server:
         type: string
@@ -21,7 +21,7 @@ on:
     inputs:
       branding:
         type: choice
-        required: true
+        required: false
         default: tamanu
         options:
           - tamanu
