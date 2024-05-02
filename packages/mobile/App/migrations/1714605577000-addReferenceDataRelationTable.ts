@@ -26,6 +26,12 @@ const BaseColumns = [
     default: "datetime('now')",
   }),
   new TableColumn({
+    name: 'deletedAt',
+    type: 'datetime',
+    default: null,
+    isNullable: true,
+  }),
+  new TableColumn({
     name: 'updatedAtSyncTick',
     type: 'bigint',
     isNullable: false,

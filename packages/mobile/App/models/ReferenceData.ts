@@ -1,10 +1,9 @@
-import { Column, Entity, Like } from 'typeorm/browser';
-import { ManyToOne, OneToMany } from 'typeorm';
+import { Column, Entity, ManyToOne, OneToMany, Like } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
 import { IReferenceData, ReferenceDataType } from '~/types';
 import { VisibilityStatus } from '../visibilityStatuses';
 import { SYNC_DIRECTIONS } from './types';
-import { ReferenceDataRelation } from '~/models/ReferenceDataRelation';
+import { ReferenceDataRelation as RefDataRelation } from './ReferenceDataRelation';
 
 @Entity('reference_data')
 export class ReferenceData extends BaseModel implements IReferenceData {
@@ -23,16 +22,15 @@ export class ReferenceData extends BaseModel implements IReferenceData {
   visibilityStatus: string;
 
   @OneToMany(
-    () => ReferenceDataRelation,
+    () => RefDataRelation,
     entity => entity.children,
   )
-  public children: ReferenceDataRelation[];
-
+  public children: RefDataRelation[];
   @OneToMany(
-    () => ReferenceDataRelation,
-    entity => entity.parent,
+    () => RefDataRelation,
+    entity => entity.parents,
   )
-  public parents: ReferenceDataRelation[];
+  public parents: RefDataRelation[];
 
   static async getAnyOfType(referenceDataType: ReferenceDataType): Promise<ReferenceData | null> {
     const repo = this.getRepository();

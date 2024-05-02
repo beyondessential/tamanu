@@ -1,4 +1,4 @@
-import { Column, Entity } from 'typeorm/browser';
+import { Column, Entity, JoinColumn } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
 import { ManyToOne } from 'typeorm';
 import { IReferenceDataRelation, ReferenceDataRelationType } from '~/types';
@@ -9,9 +9,6 @@ import { ReferenceData } from './ReferenceData';
 export class ReferenceDataRelation extends BaseModel implements IReferenceDataRelation {
   static syncDirection = SYNC_DIRECTIONS.PULL_FROM_CENTRAL;
 
-  @Column()
-  id: string;
-
   @Column({ type: 'varchar' })
   type: ReferenceDataRelationType;
 
@@ -19,15 +16,17 @@ export class ReferenceDataRelation extends BaseModel implements IReferenceDataRe
     () => ReferenceData,
     referenceData => referenceData.children,
   )
-  public parent: ReferenceData;
+  @JoinColumn({ name: 'referenceDataParentId' })
+  public parents: ReferenceData;
 
   @ManyToOne(
     () => ReferenceData,
     referenceData => referenceData.parents,
   )
-  public child: ReferenceData;
+  @JoinColumn({ name: 'referenceDataId' })
+  public children: ReferenceData;
 
   static getTableNameForSync(): string {
-    return 'reference_data_relation';
+    return 'reference_data_relations';
   }
 }

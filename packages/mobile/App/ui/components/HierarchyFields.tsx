@@ -64,6 +64,7 @@ export const HierarchyFields = ({
   console.log('HierarchyFields');
   const { values } = useFormikContext();
   const [data, error, loading] = useAddressHierarchy();
+  console.log('error', error);
   console.log('DATA', data);
 
   const configuredFields = Object.values(LOCATION_HIERARCHY_FIELDS).map(f => f.referenceType);
