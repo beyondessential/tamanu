@@ -4,6 +4,7 @@ import { useFormikContext } from 'formik';
 import { get } from 'lodash';
 import { StyledView } from '/styled/common';
 import { TranslatedText } from './Translations/TranslatedText';
+import { useBackendEffect } from '~/ui/hooks';
 
 export const REFERENCE_TYPES = {
   VILLAGE: 'village',
@@ -38,11 +39,33 @@ export const REFERENCE_DATA_RELATION_TYPES = {
   FACILITY_CATCHMENT: 'facility_catchment',
 };
 
+const useAddressHierarchy = (
+  baseLevel = REFERENCE_TYPES.VILLAGE,
+  relationType = REFERENCE_DATA_RELATION_TYPES.ADDRESS_HIERARCHY,
+) => {
+  return useBackendEffect(async ({ models }) => {
+    const entity = await models.ReferenceData.getNode({
+      where: { type: baseLevel },
+      relationType,
+    });
+    console.log('ENTITY', entity);
+    if (!entity) {
+      return [];
+    }
+    const ancestors = await entity.getAncestors(relationType);
+    return ancestors.reverse();
+  });
+};
+
 export const HierarchyFields = ({
   baseLevel = REFERENCE_TYPES.VILLAGE,
   relationType = REFERENCE_DATA_RELATION_TYPES.ADDRESS_HIERARCHY,
 }) => {
+  console.log('HierarchyFields');
   const { values } = useFormikContext();
+  const [data, error, loading] = useAddressHierarchy();
+  console.log('DATA', data);
+
   const configuredFields = Object.values(LOCATION_HIERARCHY_FIELDS).map(f => f.referenceType);
   const fields = configuredFields;
   const hierarchyToShow = configuredFields.length > 0 ? configuredFields : [baseLevel];

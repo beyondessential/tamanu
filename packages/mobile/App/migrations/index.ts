@@ -42,6 +42,7 @@ import { addHideFromCertificateToScheduledVaccines1705264433000 } from './170526
 import { addDeletionStatusToPatientProgramRegistrationConditions1709677995000 } from './1709677995000-addDeletionStatusToPatientProgramRegistrationConditions';
 import { addHealthCenterIdToPatientAdditionalData1712277225000 } from './1712277225000-addHealthCenterIdToPatientAdditionalData';
 import { addDietIdForEncounter1713722796000 } from './1713722796000-addDietIdForEncounter';
+import { addReferenceDataRelationTable1714605577000 } from './1714605577000-addReferenceDataRelationTable';
 
 export const migrationList = [
   databaseSetup1661160427226,
@@ -87,4 +88,5 @@ export const migrationList = [
   addDeletionStatusToPatientProgramRegistrationConditions1709677995000,
   addHealthCenterIdToPatientAdditionalData1712277225000,
   addDietIdForEncounter1713722796000,
+  addReferenceDataRelationTable1714605577000,
 ];

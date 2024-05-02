@@ -1,9 +1,10 @@
 import { Column, Entity, Like } from 'typeorm/browser';
-import { ManyToOne } from 'typeorm';
+import { ManyToOne, OneToMany } from 'typeorm';
 import { BaseModel } from './BaseModel';
 import { IReferenceData, ReferenceDataType } from '~/types';
 import { VisibilityStatus } from '../visibilityStatuses';
 import { SYNC_DIRECTIONS } from './types';
+import { ReferenceDataRelation } from '~/models/ReferenceDataRelation';
 
 @Entity('reference_data')
 export class ReferenceData extends BaseModel implements IReferenceData {
@@ -20,6 +21,18 @@ export class ReferenceData extends BaseModel implements IReferenceData {
 
   @Column({ default: VisibilityStatus.Current })
   visibilityStatus: string;
+
+  @OneToMany(
+    () => ReferenceDataRelation,
+    entity => entity.children,
+  )
+  public children: ReferenceDataRelation[];
+
+  @OneToMany(
+    () => ReferenceDataRelation,
+    entity => entity.parent,
+  )
+  public parents: ReferenceDataRelation[];
 
   static async getAnyOfType(referenceDataType: ReferenceDataType): Promise<ReferenceData | null> {
     const repo = this.getRepository();
@@ -38,11 +51,24 @@ export class ReferenceData extends BaseModel implements IReferenceData {
     return record?.parent;
   }
 
-  static async getNode() {
+  static async getNode({ where, relationType }) {
     const repo = this.getRepository();
-    return repo.findOne({
-      visibilityStatus: VisibilityStatus.Current,
-    });
+
+    const result = await repo.findOne(
+      { visibilityStatus: VisibilityStatus.Current, type: 'village', id: 'village-Tai' },
+      {
+        relations: ['parents'],
+      },
+    );
+
+    console.log('RESULT', result);
+    return result;
+  }
+
+  async getAncestors(relationType) {
+    const repo = this.getRepository();
+    // Todo: write recursive function to get all ancestors
+    return ['village', 'division'];
   }
   static async searchDataByType(
     referenceDataType: ReferenceDataType,
