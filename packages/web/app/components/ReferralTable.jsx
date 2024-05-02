@@ -17,6 +17,7 @@ import { TranslatedText, TranslatedEnum } from './Translation';
 import { useAuth } from '../contexts/Auth';
 import { MenuButton } from './MenuButton';
 import { DeleteReferralModal } from '../views/patients/components/DeleteReferralModal';
+import { useRefreshCount } from '../hooks/useRefreshCount';
 
 const fieldNames = ['Referring doctor', 'Referral completed by'];
 const ReferralBy = ({ surveyResponse: { survey, answers } }) => {
@@ -88,24 +89,23 @@ export const ReferralTable = React.memo(({ patientId }) => {
   const { loadEncounter } = useEncounter();
   const [modalId, setModalId] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
-  const [refreshCount, setRefreshCount] = useState(0);
+  const [refreshCount, updateRefreshCount] = useRefreshCount();
   const [selectedReferral, setSelectedReferral] = useState({});
   const [selectedReferralId, setSelectedReferralId] = useState(null);
   const onSelectReferral = useCallback(referral => {
     setSelectedReferralId(referral.surveyResponseId);
   }, []);
-  const refreshTable = () => setRefreshCount(refreshCount + 1);
 
   const endpoint = `patient/${patientId}/referrals`;
 
   const onCancelReferral = async () => {
     await api.put(`referral/${selectedReferral.id}`, { status: REFERRAL_STATUSES.CANCELLED });
     setModalOpen(false);
-    refreshTable();
+    updateRefreshCount();
   };
   const onCompleteReferral = async () => {
     await api.put(`referral/${selectedReferral.id}`, { status: REFERRAL_STATUSES.COMPLETED });
-    refreshTable();
+    updateRefreshCount();
   };
   const onViewEncounter = useCallback(async () => {
     loadEncounter(selectedReferral.encounterId, true);
@@ -247,7 +247,7 @@ export const ReferralTable = React.memo(({ patientId }) => {
           endpoint={endpoint}
           onClose={() => {
             setModalOpen(false);
-            refreshTable();
+            updateRefreshCount();
           }}
         />
       )}
