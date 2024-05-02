@@ -25,8 +25,6 @@ export const CreateReportView = () => {
   const { ability } = useAuth();
 
   const onSubmit = async ({ name, query, status, dbSchema, notes, ...queryOptions }) => {
-    delete queryOptions.options;
-
     const { dataSources } = queryOptions;
     const isRawReport = dbSchema === REPORT_DB_SCHEMAS.RAW;
     try {

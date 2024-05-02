@@ -30,7 +30,15 @@ export const CancelModal = React.memo(
         onSubmit={onConfirm}
         formType={FORM_TYPES.EDIT_FORM}
         validationSchema={yup.object().shape({
-          reasonForCancellation: yup.string().required(),
+          reasonForCancellation: yup
+            .string()
+            .required()
+            .translatedLabel(
+              <TranslatedText
+                stringId="imaging.modal.cancel.reason.label"
+                fallback="Reason for cancellation"
+              />,
+            ),
         })}
         render={({ values, submitForm }) => (
           <ModalBody>

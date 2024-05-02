@@ -41,6 +41,7 @@ import { addColumnIsMostRecentForTablePatientProgramRegistration1708557002000 } 
 import { addHideFromCertificateToScheduledVaccines1705264433000 } from './1705264433000-addHideFromCertificateToScheduledVaccines';
 import { addDeletionStatusToPatientProgramRegistrationConditions1709677995000 } from './1709677995000-addDeletionStatusToPatientProgramRegistrationConditions';
 import { addVisibilityStatusForSurvey1713696066000 } from './1713696066000-addVisibilityStatusForSurvey';
+import { addScopeToSettingsTable1691115215000 } from './1691115215000-addScopeToSettingsTable';
 import { addHealthCenterIdToPatientAdditionalData1712277225000 } from './1712277225000-addHealthCenterIdToPatientAdditionalData';
 import { addDietIdForEncounter1713722796000 } from './1713722796000-addDietIdForEncounter';
 
@@ -71,6 +72,7 @@ export const migrationList = [
   addDisplayIdToUsers1688428478000,
   addSpecimenTypeAndCollectedByToLabRequest1686083400000,
   addVitalLogs1690236942000,
+  addScopeToSettingsTable1691115215000,
   migrateNotePagesToNotes1688950151000,
   addEncounterHistoryTable1693484817000,
   addTranslatedStringTable1698353903000,

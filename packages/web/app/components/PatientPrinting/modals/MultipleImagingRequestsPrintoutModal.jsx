@@ -1,9 +1,8 @@
 import React from 'react';
-import { PDFViewer, printPDF } from '../PDFViewer';
+import { PDFLoader, printPDF } from '../PDFLoader';
 import { MultipleImagingRequestsPrintout } from '@tamanu/shared/utils/patientCertificates';
 import { usePatientData } from '../../../api/queries/usePatientData';
 import { useReferenceData } from '../../../api/queries/useReferenceData';
-import { LoadingIndicator } from '../../../components/LoadingIndicator';
 import { Colors } from '../../../constants';
 import { useLocalisation } from '../../../contexts/Localisation';
 import { useCertificate } from '../../../utils/useCertificate';
@@ -18,13 +17,8 @@ export const MultipleImagingRequestsWrapper = ({ encounter, imagingRequests }) =
   const { data: village, isLoading: isVillageLoading } = useReferenceData(patient?.villageId);
   const isLoading =
     isPatientLoading || (isVillageEnabled && isVillageLoading) || isCertificateFetching;
-
-  if (isLoading) {
-    return <LoadingIndicator />;
-  }
-
   return (
-    <PDFViewer id="imaging-request-printout">
+    <PDFLoader isLoading={isLoading} id="imaging-request-printout">
       <MultipleImagingRequestsPrintout
         getLocalisation={getLocalisation}
         patient={{ ...patient, village }}
@@ -32,7 +26,7 @@ export const MultipleImagingRequestsWrapper = ({ encounter, imagingRequests }) =
         imagingRequests={imagingRequests}
         certificateData={certificateData}
       />
-    </PDFViewer>
+    </PDFLoader>
   );
 };
 export const MultipleImagingRequestsPrintoutModal = ({
