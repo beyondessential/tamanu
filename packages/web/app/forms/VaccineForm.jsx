@@ -123,7 +123,6 @@ export const VaccineForm = ({
         const availableScheduledVaccines = await getScheduledVaccines({ category });
         setVaccineOptions(
           availableScheduledVaccines.map(vaccine => ({
-            id: vaccine.id,
             label: vaccine.label,
             value: vaccine.label,
             schedules: vaccine.schedules,
