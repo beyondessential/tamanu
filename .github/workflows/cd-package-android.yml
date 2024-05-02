@@ -102,13 +102,12 @@ jobs:
         with:
           result-encoding: string
           script: |
-            const base = 's3://bes-tamanu-release-clients';
             if (context.ref == 'refs/heads/main') {
-              return `${base}/main/${(new Date).toISOString().replaceAll(':','-').split('.')[0]}.${context.sha.slice(0, 10)}`;
+              return `main/${(new Date).toISOString().replaceAll(':','-').split('.')[0]}.${context.sha.slice(0, 10)}`;
             } else if (context.ref.startsWith('refs/tags/v')) {
-              return `${base}/${context.ref.replace('refs/tags/v', '')}`;
+              return context.ref.replace('refs/tags/v', '');
             } else if (context.ref.startsWith('refs/heads/release/')) {
-              return `${base}/${context.ref.replace('refs/tags/', '')}-rc`;
+              return `${context.ref.replace('refs/tags/', '')}-rc`;
             } else {
               return 'nowhere';
             }
