@@ -560,6 +560,7 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
               status: IMAGING_REQUEST_STATUS_TYPES.PENDING,
               priority: 'routine',
               requestedDate: '2022-03-04 15:30:00',
+              status: 'cancelled',
             }),
           );
           await ir.setAreas([resources.area1.id, resources.area2.id]);
@@ -569,16 +570,6 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
           await FhirServiceRequest.resolveUpstreams();
 
           // act
-          await app.post(PATH).send({
-            resourceType: 'ImagingStudy',
-            status: 'cancelled',
-            basedOn: [
-              {
-                type: 'ServiceRequest',
-                reference: `ServiceRequest/${mat.id}`,
-              },
-            ]
-          });
 
           const response = await app.post(PATH).send({
             resourceType: 'ImagingStudy',
