@@ -1,9 +1,10 @@
 import { pascal } from 'case';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { literal, Op, Sequelize } from 'sequelize';
+import { Op, Sequelize } from 'sequelize';
 import config from 'config';
 import { NotFoundError } from '@tamanu/shared/errors';
+import { findSuggestions } from '@tamanu/shared/utils';
 import {
   INVOICE_LINE_TYPES,
   REFERENCE_TYPE_VALUES,
@@ -16,8 +17,6 @@ import {
 } from '@tamanu/constants';
 
 export const suggestions = express.Router();
-
-const defaultLimit = 25;
 
 const defaultMapper = ({ name, code, id }) => ({ name, code, id });
 
@@ -32,27 +31,16 @@ function createSuggesterRoute(
     asyncHandler(async (req, res) => {
       req.checkPermission('list', modelName);
       const { models, query } = req;
-
       const model = models[modelName];
-
-      const positionQuery = literal(
-        `POSITION(LOWER(:positionMatch) in LOWER(${`"${modelName}"."${searchColumn}"`})) > 1`,
-      );
-
+      const extraReplacements = extraReplacementsBuilder(query);
       const searchQuery = (query.q || '').trim().toLowerCase();
       const where = whereBuilder(`%${searchQuery}%`, query);
-      const include = includeBuilder?.(req);
-
-      const results = await model.findAll({
+      const findArguments = {
         where,
-        include,
-        order: [positionQuery, [Sequelize.literal(`"${modelName}"."${searchColumn}"`), 'ASC']],
-        replacements: {
-          positionMatch: searchQuery,
-          ...extraReplacementsBuilder(query),
-        },
-        limit: defaultLimit,
-      });
+        include: includeBuilder ? includeBuilder(req) : undefined,
+        replacements: extraReplacements,
+      };
+      const results = await findSuggestions(model, searchQuery, searchColumn, findArguments);
 
       // Allow for async mapping functions (currently only used by location suggester)
       res.send(await Promise.all(results.map(mapper)));

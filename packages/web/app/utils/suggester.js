@@ -4,10 +4,18 @@ export class Suggester {
   constructor(
     api,
     endpoint,
-    { formatter = defaultFormatter, filterer = () => true, baseQueryParameters = {}, enable = true} = {},
+    {
+      formatter = defaultFormatter,
+      filterer = () => true,
+      baseQueryParameters = {},
+      enable = true,
+      central = false,
+    } = {},
   ) {
     this.api = api;
-    this.endpoint = `suggestions/${encodeURIComponent(endpoint)}`;
+    this.endpoint = `${central ? 'public/central/' : ''}suggestions/${encodeURIComponent(
+      endpoint,
+    )}`;
     this.formatter = formatter;
     this.filterer = filterer;
     this.baseQueryParameters = baseQueryParameters;

@@ -1,6 +1,7 @@
 export * from './arrayToDbString';
 export * from './buildVersionCompatibilityCheck';
 export * from './encodings';
+export * from './findSuggestions';
 export * from './generateId';
 export * from './getPatientAdditionalData';
 export * from './getPatientSurveyResponseAnswer';

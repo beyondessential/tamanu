@@ -5,6 +5,7 @@ import { keyBy, mapValues } from 'lodash';
 
 import { labResultWidgetRoutes } from './labResultWidget';
 import { publicIntegrationRoutes } from '../integrations';
+import { suggestionRoutes } from './suggestionRoutes';
 
 export const publicRoutes = express.Router();
 
@@ -47,3 +48,4 @@ publicRoutes.get('/translation/:language', async (req, res) => {
 
 publicRoutes.use('/labResultWidget', labResultWidgetRoutes);
 publicRoutes.use('/integration', publicIntegrationRoutes);
+publicRoutes.use('/suggestions', suggestionRoutes);

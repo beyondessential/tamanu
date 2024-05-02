@@ -49,13 +49,14 @@ import { vitals } from './vitals';
 import { template } from './template';
 import { translation } from './translation';
 import { vaccinationSettings } from './vaccinationSettings';
+import { centralPublicRoutes } from './centralPublicRoutes';
 
 export const apiv1 = express.Router();
 const patientDataRoutes = express.Router();
 const referenceDataRoutes = express.Router();
 const syncRoutes = express.Router();
 
-// auth endpoints (added pre auth check)
+// pre-auth check endpoints
 apiv1.post('/login', loginHandler);
 apiv1.use('/resetPassword', resetPassword);
 apiv1.use('/changePassword', changePassword);
@@ -94,6 +95,8 @@ apiv1.get(
     res.send(mapValues(keyBy(translatedStringRecords, 'stringId'), 'text'));
   }),
 );
+
+apiv1.use('/public/central', centralPublicRoutes);
 
 apiv1.use(authMiddleware);
 apiv1.use(constructPermission);
