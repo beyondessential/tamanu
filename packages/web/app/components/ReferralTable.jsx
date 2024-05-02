@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 
 import { REFERRAL_STATUSES } from '@tamanu/constants';
@@ -98,11 +98,11 @@ export const ReferralTable = React.memo(({ patientId }) => {
 
   const endpoint = `patient/${patientId}/referrals`;
 
-  const onCancelReferral = async () => {
+  const onCancelReferral = useCallback(async () => {
     await api.put(`referral/${selectedReferral.id}`, { status: REFERRAL_STATUSES.CANCELLED });
     setModalOpen(false);
     updateRefreshCount();
-  };
+  }, [api, selectedReferral.id, updateRefreshCount]);
   const onCompleteReferral = async () => {
     await api.put(`referral/${selectedReferral.id}`, { status: REFERRAL_STATUSES.COMPLETED });
     updateRefreshCount();
@@ -116,36 +116,6 @@ export const ReferralTable = React.memo(({ patientId }) => {
   const handleChangeModalId = id => {
     setModalId(id);
     setModalOpen(true);
-  };
-
-  const MODALS = {
-    [MODAL_IDS.ADMIT]: ({ referralToDelete, ...props }) => (
-      <EncounterModal {...props} patient={patient} referral={referralToDelete} />
-    ),
-    [MODAL_IDS.CANCEL]: props => (
-      <ConfirmModal
-        {...props}
-        title={<TranslatedText stringId="referral.modal.cancel.title" fallback="Cancel referral" />}
-        text={
-          <TranslatedText
-            stringId="referral.modal.cancel.warningText1"
-            fallback="WARNING: This action is irreversible!"
-          />
-        }
-        subText={
-          <TranslatedText
-            stringId="referral.modal.cancel.warningText2"
-            fallback="Are you sure you want to cancel this referral?"
-          />
-        }
-        cancelButtonText={<TranslatedText stringId="general.action.no" fallback="No" />}
-        confirmButtonText={<TranslatedText stringId="general.action.yes" fallback="Yes" />}
-        ConfirmButton={DeleteButton}
-        onConfirm={onCancelReferral}
-        onCancel={() => setModalOpen(false)}
-      />
-    ),
-    [MODAL_IDS.DELETE]: DeleteReferralModal,
   };
 
   const actions = [
@@ -221,7 +191,39 @@ export const ReferralTable = React.memo(({ patientId }) => {
     },
   ];
 
-  const ActiveModal = MODALS[modalId] || null;
+  const ActiveModal = useMemo(() => {
+    const MODALS = {
+      [MODAL_IDS.ADMIT]: ({ referralToDelete, ...props }) => (
+        <EncounterModal {...props} patient={patient} referral={referralToDelete} />
+      ),
+      [MODAL_IDS.CANCEL]: props => (
+        <ConfirmModal
+          {...props}
+          title={<TranslatedText stringId="referral.modal.cancel.title" fallback="Cancel referral" />}
+          text={
+            <TranslatedText
+              stringId="referral.modal.cancel.warningText1"
+              fallback="WARNING: This action is irreversible!"
+            />
+          }
+          subText={
+            <TranslatedText
+              stringId="referral.modal.cancel.warningText2"
+              fallback="Are you sure you want to cancel this referral?"
+            />
+          }
+          cancelButtonText={<TranslatedText stringId="general.action.no" fallback="No" />}
+          confirmButtonText={<TranslatedText stringId="general.action.yes" fallback="Yes" />}
+          ConfirmButton={DeleteButton}
+          onConfirm={onCancelReferral}
+          onCancel={() => setModalOpen(false)}
+        />
+      ),
+      [MODAL_IDS.DELETE]: DeleteReferralModal,
+    };
+
+    return MODALS[modalId] || null;
+  }, [modalId, patient, onCancelReferral]);
 
   return (
     <>
