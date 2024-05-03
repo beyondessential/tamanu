@@ -82,8 +82,24 @@ export const AddReminderContact = ({ onContinue, onClose, onBack }) => {
     <Form
       onSubmit={onSubmit}
       validationSchema={yup.object().shape({
-        reminderContactName: yup.string().required(),
-        reminderContactRelationship: yup.string().required(),
+        reminderContactName: yup
+          .string()
+          .required()
+          .translatedLabel(
+            <TranslatedText
+              stringId="patient.details.addReminderContact.label.contactName"
+              fallback="Contact name"
+            />,
+          ),
+        reminderContactRelationship: yup
+          .string()
+          .required()
+          .translatedLabel(
+            <TranslatedText
+              stringId="patient.details.addReminderContact.label.relationship"
+              fallback="Relationship"
+            />,
+          ),
       })}
       render={({ submitForm }) => {
         return (

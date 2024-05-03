@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
-import { capitalize } from 'lodash';
 import { Colors } from '../../constants';
 import { useAuth } from '../../contexts/Auth';
 import { TextButton } from '../Button';
@@ -177,7 +176,7 @@ export const ContactDetails = ({
       case CONNECTION_STATUS.FAILED:
         methodText = (
           <TranslatedText
-            stringId="patient.details.reminderContacts.method.failed"
+            stringId="patient.details.reminderContacts.status.failed"
             fallback="Failed"
           />
         );
@@ -185,8 +184,9 @@ export const ContactDetails = ({
       case CONNECTION_STATUS.PENDING:
         methodText = (
           <TranslatedText
-            stringId={`patient.details.reminderContacts.method.${method}.pending`}
-            fallback={capitalize(method) + ' pending'}
+            stringId="patient.details.reminderContacts.status.pending"
+            fallback=":method pending"
+            replacements={{ method }}
           />
         );
         break;
@@ -194,7 +194,7 @@ export const ContactDetails = ({
         methodText = (
           <TranslatedText
             stringId={`patient.details.reminderContacts.method.${method}`}
-            fallback={capitalize(method)}
+            fallback={method}
           />
         );
         break;
