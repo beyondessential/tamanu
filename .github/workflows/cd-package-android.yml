@@ -87,7 +87,7 @@ jobs:
 
       - name: Build application
         working-directory: packages/mobile/android
-        run:  ./gradlew assembleRelease
+        run:  ./gradlew app:assembleRelease
 
       - name: Upload final build
         uses: actions/upload-artifact@v4
