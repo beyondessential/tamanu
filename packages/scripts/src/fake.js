@@ -158,6 +158,7 @@ async function generateData(models) {
   );
   await ReferenceData.create(fake(ReferenceData));
   await ReferenceDataRelation.create(fake(ReferenceDataRelation));
+
   await PatientCommunication.create(
     fake(PatientCommunication, {
       patientId: patient.id,
