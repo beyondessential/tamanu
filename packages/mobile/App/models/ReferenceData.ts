@@ -4,6 +4,7 @@ import { IReferenceData, ReferenceDataType } from '~/types';
 import { VisibilityStatus } from '../visibilityStatuses';
 import { SYNC_DIRECTIONS } from './types';
 import { ReferenceDataRelation as RefDataRelation } from './ReferenceDataRelation';
+import { REFERENCE_DATA_RELATION_TYPES } from '/components/HierarchyFields';
 
 @Entity('reference_data')
 export class ReferenceData extends BaseModel implements IReferenceData {
@@ -23,12 +24,12 @@ export class ReferenceData extends BaseModel implements IReferenceData {
 
   @OneToMany(
     () => RefDataRelation,
-    entity => entity.children,
+    entity => entity.referenceDataParent,
   )
   public children: RefDataRelation[];
   @OneToMany(
     () => RefDataRelation,
-    entity => entity.parents,
+    entity => entity.referenceData,
   )
   public parents: RefDataRelation[];
 
@@ -44,29 +45,40 @@ export class ReferenceData extends BaseModel implements IReferenceData {
   // ----------------------------------
   // Reference data hierarchy utilities
   // ----------------------------------
-  static async getParent(id, relationType) {
-    const record = await this.getNode({ where: { id }, relationType });
-    return record?.parent;
+  static async getParentRecursive(id, ancestors, relationType) {
+    const parent = await ReferenceData.getNode({ id }, relationType);
+    const parentId = parent.getParentId();
+    if (!parentId || ancestors.length > 5) {
+      return [...ancestors, parent];
+    }
+    return ReferenceData.getParentRecursive(parentId, [...ancestors, parent], relationType);
   }
 
-  static async getNode({ where, relationType }) {
+  getParentId() {
+    return this.parents[0]?.referenceDataParentId;
+  }
+
+  static async getNode(where, relationType = REFERENCE_DATA_RELATION_TYPES.ADDRESS_HIERARCHY) {
     const repo = this.getRepository();
 
-    const result = await repo.findOne(
-      { visibilityStatus: VisibilityStatus.Current, type: 'village', id: 'village-Tai' },
+    const recordWithParents = await repo.findOne(
+      { visibilityStatus: VisibilityStatus.Current, ...where },
       {
         relations: ['parents'],
       },
     );
 
-    console.log('RESULT', result);
-    return result;
+    return recordWithParents;
   }
 
-  async getAncestors(relationType) {
-    const repo = this.getRepository();
-    // Todo: write recursive function to get all ancestors
-    return ['village', 'division'];
+  async getAncestors(relationType = REFERENCE_DATA_RELATION_TYPES.ADDRESS_HIERARCHY) {
+    const baseNode = await ReferenceData.getNode({ id: this.id }, relationType);
+    const parentId = baseNode.parents[0].referenceDataParentId;
+
+    if (!parentId) {
+      return [];
+    }
+    return ReferenceData.getParentRecursive(parentId, [baseNode], relationType);
   }
   static async searchDataByType(
     referenceDataType: ReferenceDataType,

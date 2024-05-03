@@ -39,21 +39,17 @@ export const REFERENCE_DATA_RELATION_TYPES = {
   FACILITY_CATCHMENT: 'facility_catchment',
 };
 
-const useAddressHierarchy = (
-  baseLevel = REFERENCE_TYPES.VILLAGE,
-  relationType = REFERENCE_DATA_RELATION_TYPES.ADDRESS_HIERARCHY,
-) => {
+const useAddressHierarchy = (baseLevel = REFERENCE_TYPES.VILLAGE) => {
   return useBackendEffect(async ({ models }) => {
     const entity = await models.ReferenceData.getNode({
-      where: { type: baseLevel },
-      relationType,
+      id: 'village-Tai', // Todo: remove this filter once good data is loaded
+      type: baseLevel,
     });
-    console.log('ENTITY', entity);
     if (!entity) {
       return [];
     }
-    const ancestors = await entity.getAncestors(relationType);
-    return ancestors.reverse();
+    const ancestors = await entity.getAncestors();
+    return ancestors.map(x => x.type).reverse();
   });
 };
 
@@ -65,7 +61,7 @@ export const HierarchyFields = ({
   const { values } = useFormikContext();
   const [data, error, loading] = useAddressHierarchy();
   console.log('error', error);
-  console.log('DATA', data);
+  console.log('useAddressHierarchy DATA', data);
 
   const configuredFields = Object.values(LOCATION_HIERARCHY_FIELDS).map(f => f.referenceType);
   const fields = configuredFields;
