@@ -28,6 +28,7 @@ export const simpleUpdateModels = [
   'UserRecentlyViewedPatient',
   'PatientProgramRegistration',
   'PatientProgramRegistrationCondition',
+  'PatientContact',
   'IPSRequest',
 ];
 
