@@ -95,6 +95,11 @@ jobs:
           npm i -g corepack
           yarn install
 
+      - name: prepare env for app
+        working-directory: packages/mobile/android
+        run: |
+          echo "REACT_NATIVE_BRANDING=${{ inputs.branding }}" > local.properties
+
       - name: Restore keystore
         if: ${{ inputs.buildType == 'release' }}
         working-directory: packages/mobile/android/app
@@ -110,7 +115,6 @@ jobs:
           SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
           SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
           SIGNING_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
-          ## Placeholder env at this point
         run:  ./gradlew app:assembleRelease
 
       - name: Build debug
