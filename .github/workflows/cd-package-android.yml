@@ -32,7 +32,7 @@ on:
         required: false
 
 env:
-  APK_PATH: ./packages/mobile/android/app/build/outputs/apk/release/app-release-unsigned.apk
+  APK_PATH: ./packages/mobile/android/app/build/outputs/apk/release/app.apk
   APK_NAME: app.apk
 
 jobs:
@@ -87,7 +87,7 @@ jobs:
 
       - name: Build application
         working-directory: packages/mobile/android
-        run:  ./gradlew app:assembleRelease
+        run:  ./gradlew assembleRelease
 
       - name: Upload final build
         uses: actions/upload-artifact@v4
