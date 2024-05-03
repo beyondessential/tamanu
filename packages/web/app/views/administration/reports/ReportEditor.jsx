@@ -63,7 +63,7 @@ const generateDefaultParameter = () => ({
   id: Math.random(),
 });
 
-const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) => {
+const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit, setFieldValue }) => {
   const { ability } = useAuth();
   const api = useApi();
   const setQuery = query => setValues({ ...values, query });
@@ -71,12 +71,7 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
     values.parameters.map(param => ({ ...generateDefaultParameter(), ...param })) || [];
   const setParams = newParams => setValues({ ...values, parameters: newParams });
   const onParamsAdd = () => setParams([...params, generateDefaultParameter()]);
-  const onParamsChange = (paramId, field, newValue) => {
-    const paramIndex = params.findIndex(p => p.id === paramId);
-    const newParams = [...params];
-    newParams[paramIndex] = { ...newParams[paramIndex], [field]: newValue };
-    setParams(newParams);
-  };
+
   const onParamsDelete = paramId => setParams(params.filter(p => p.id !== paramId));
 
   const canWriteRawReportUser = Boolean(ability?.can('write', 'ReportDbSchema'));
@@ -174,14 +169,15 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
             </Grid>
             <Grid item xs={4}>
               <ParameterList onAdd={onParamsAdd}>
-                {params.map(({ id, ...rest }) => {
+                {params.map(({ id, ...rest }, parameterIndex) => {
                   return (
                     <ParameterItem
                       key={id}
                       id={id}
-                      {...rest}
+                      parameterIndex={parameterIndex}
                       onDelete={onParamsDelete}
-                      onChange={onParamsChange}
+                      setFieldValue={setFieldValue}
+                      {...rest}
                     />
                   );
                 })}
