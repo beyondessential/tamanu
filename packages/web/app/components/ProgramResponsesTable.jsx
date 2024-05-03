@@ -8,6 +8,7 @@ import { DeleteProgramResponseModal } from '../views/patients/components/DeleteP
 import { MenuButton } from './MenuButton';
 import { TranslatedText } from './Translation/TranslatedText';
 import { useAuth } from '../contexts/Auth';
+import { useRefreshCount } from '../hooks/useRefreshCount';
 
 const getDate = ({ endTime }) => <DateDisplay date={endTime} />;
 const getSubmittedBy = ({ submittedBy }) => submittedBy;
@@ -18,7 +19,7 @@ const getResults = ({ resultText }) => <SurveyResultBadge resultText={resultText
 export const DataFetchingProgramsTable = ({ endpoint }) => {
   const { ability } = useAuth();
   const [modalOpen, setModalOpen] = useState(false);
-  const [refreshCount, setRefreshCount] = useState(0);
+  const [refreshCount, updateRefreshCount] = useRefreshCount();
   const [selectedResponse, setSelectedResponse] = useState(null);
   const [selectedResponseId, setSelectedResponseId] = useState(null);
   const onSelectResponse = useCallback(surveyResponse => {
@@ -107,7 +108,7 @@ export const DataFetchingProgramsTable = ({ endpoint }) => {
         endpoint={endpoint}
         onClose={() => {
           setModalOpen(false);
-          setRefreshCount(refreshCount + 1);
+          updateRefreshCount();
         }}
       />
     </>
