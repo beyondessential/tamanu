@@ -162,7 +162,7 @@ async function generateData(models) {
     fake(PatientCommunication, {
       patientId: patient.id,
     })
-  )
+  );
 }
 
 async function generateFake() {
