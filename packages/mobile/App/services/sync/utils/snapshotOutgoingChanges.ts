@@ -41,6 +41,7 @@ export const snapshotOutgoingChanges = async (
     for (const model of Object.values(outgoingModels)) {
       const changesForModel = await model.find({
         where: { updatedAtSyncTick: MoreThan(since) },
+        withDeleted: true,
       });
       const syncRecordsForModel = changesForModel.map(change => buildToSyncRecord(model, change));
       const sanitizedSyncRecords = model.sanitizeRecordDataForPush
