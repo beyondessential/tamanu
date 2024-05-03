@@ -9,9 +9,7 @@ on:
       - ready_for_review
       - labeled
   push:
-    branches:
-      - main
-      - release/*
+    branches: ["uat-release/**"]
 
 concurrency:
   # only one build or destroy at a time, per PR/branch, but don't cancel existing runs
