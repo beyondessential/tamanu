@@ -54,13 +54,35 @@ export const AppointmentForm = props => {
       formType={isUpdating ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
       onSubmit={createAppointment}
       validationSchema={yup.object().shape({
-        patientId: yup.string().required('Please select a patient'),
-        type: yup.string().required('Please choose an appointment type'),
-        startTime: yup.string().required('Please select a start time'),
-        clinicianId: yup.string().required('Please select a clinician'),
+        patientId: yup
+          .string()
+          .required()
+          .translatedLabel(<TranslatedText stringId="general.patient.label" fallback="Patient" />),
+        type: yup
+          .string()
+          .required()
+          .translatedLabel(
+            <TranslatedText stringId="appointment.type.label" fallback="Appointment type" />,
+          ),
+        startTime: yup
+          .string()
+          .required()
+          .translatedLabel(
+            <TranslatedText stringId="general.startTime.label" fallback="Start time" />,
+          ),
+        clinicianId: yup
+          .string()
+          .required()
+          .translatedLabel(
+            <TranslatedText
+              stringId="general.localisedField.clinician.label.short"
+              fallback="Clinician"
+            />,
+          ),
         locationGroupId: yup
           .string()
-          .required('Please select an area')
+          .required()
+          .translatedLabel(<TranslatedText stringId="general.area.label" fallback="Area" />)
           .nullable(),
       })}
       render={({ submitForm }) => (
@@ -76,10 +98,7 @@ export const AppointmentForm = props => {
             <FormSeparatorLine />
             <Field
               label={
-                <TranslatedText
-                  stringId="scheduling.newAppointment.type.label"
-                  fallback="Appointment type"
-                />
+                <TranslatedText stringId="appointment.type.label" fallback="Appointment type" />
               }
               name="type"
               component={SelectField}
