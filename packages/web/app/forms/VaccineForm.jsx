@@ -259,7 +259,7 @@ const VaccineFormComponent = ({
       setValues={setValues}
     />
   ) : (
-    <VaccineNotGivenForm {...props} resetForm={resetForm} submitForm={submitForm} />
+    <VaccineNotGivenForm {...props} resetForm={resetForm} submitForm={submitForm} values={values} />
   );
 };
 
