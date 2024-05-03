@@ -4,7 +4,6 @@ import styled from 'styled-components';
 import { Toolbar, Typography } from '@material-ui/core';
 import { DateDisplay } from './DateDisplay';
 import { Colors } from '../constants';
-import { LowerCase } from './Typography';
 import { TranslatedText } from './Translation/TranslatedText';
 
 // Default height of the top bar
@@ -139,7 +138,9 @@ export const EncounterTopBar = ({ title, subTitle, encounter, children }) => (
     <Container>
       <div>
         <Cell>
-          <Label><TranslatedText stringId="encounter.arrivalDate.label" fallback="Arrival Date" />:</Label>
+          <Label>
+            <TranslatedText stringId="encounter.arrivalDate.label" fallback="Arrival Date" />:
+          </Label>
           <Value>
             <DateDisplay date={encounter.startDate} />
           </Value>
@@ -151,16 +152,15 @@ export const EncounterTopBar = ({ title, subTitle, encounter, children }) => (
               fallback="Supervising :clinician"
               replacements={{
                 clinician: (
-                  <LowerCase>
-                    <TranslatedText
-                      stringId="general.localisedField.clinician.label.short"
-                      fallback="Clinician"
-                    />
-                    :
-                  </LowerCase>
+                  <TranslatedText
+                    stringId="general.localisedField.clinician.label.short"
+                    fallback="Clinician"
+                    lowercase
+                  />
                 ),
               }}
             />
+            :
           </Label>
           <Value>{encounter.examiner?.displayName || 'Unknown'}</Value>
         </Cell>

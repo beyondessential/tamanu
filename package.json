@@ -59,6 +59,7 @@
       "packages/meta-server",
       "packages/shared",
       "packages/constants",
+      "packages/settings",
       "packages/api-client"
     ],
     "nohoist": [
