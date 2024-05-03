@@ -15,17 +15,8 @@ const getProgramName = ({ programName }) => programName;
 const getSurveyName = ({ surveyName }) => surveyName;
 const getResults = ({ resultText }) => <SurveyResultBadge resultText={resultText} />;
 
-const MODAL_IDS = {
-  DELETE: 'delete',
-};
-
-const MODALS = {
-  [MODAL_IDS.DELETE]: DeleteProgramResponseModal,
-};
-
 export const DataFetchingProgramsTable = ({ endpoint }) => {
   const { ability } = useAuth();
-  const [modalId, setModalId] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [refreshCount, setRefreshCount] = useState(0);
   const [selectedResponse, setSelectedResponse] = useState(null);
@@ -35,15 +26,10 @@ export const DataFetchingProgramsTable = ({ endpoint }) => {
   }, []);
   const cancelResponse = useCallback(() => setSelectedResponseId(null), []);
 
-  const handleChangeModalId = id => {
-    setModalId(id);
-    setModalOpen(true);
-  };
-
   const actions = [
     {
       label: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
-      action: () => handleChangeModalId(MODAL_IDS.DELETE),
+      action: () => setModalOpen(true),
       permissionCheck: () => {
         return ability?.can('delete', 'SurveyResponse');
       },
@@ -51,8 +37,6 @@ export const DataFetchingProgramsTable = ({ endpoint }) => {
   ].filter(({ permissionCheck }) => {
     return permissionCheck ? permissionCheck() : true;
   });
-
-  const ActiveModal = MODALS[modalId] || null;
 
   const columns = [
     {
@@ -117,17 +101,15 @@ export const DataFetchingProgramsTable = ({ endpoint }) => {
         elevated={false}
         refreshCount={refreshCount}
       />
-      {ActiveModal && (
-        <ActiveModal
-          open={modalOpen}
-          surveyResponseToDelete={selectedResponse}
-          endpoint={endpoint}
-          onClose={() => {
-            setModalOpen(false);
-            setRefreshCount(refreshCount + 1);
-          }}
-        />
-      )}
+      <DeleteProgramResponseModal
+        open={modalOpen}
+        surveyResponseToDelete={selectedResponse}
+        endpoint={endpoint}
+        onClose={() => {
+          setModalOpen(false);
+          setRefreshCount(refreshCount + 1);
+        }}
+      />
     </>
   );
 };
