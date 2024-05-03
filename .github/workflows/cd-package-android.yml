@@ -95,14 +95,22 @@ jobs:
           npm i -g corepack
           yarn install
 
+      - name: Restore keystore
+        if: ${{ inputs.buildType == 'release' }}
+        working-directory: packages/mobile/android/app
+        env:
+          keystore: ${{ secrets.ANDROID_KEYSTORE }}
+        run: |
+          base64 -d <<< "$keystore" > release.keystore
+
       - name: Build release
         if: ${{ inputs.buildType == 'release' }}
-        ## Placeholder env at this point
+        working-directory: packages/mobile/android
         env:
           SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
           SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
           SIGNING_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
-        working-directory: packages/mobile/android
+          ## Placeholder env at this point
         run:  ./gradlew app:assembleRelease
 
       - name: Build debug
