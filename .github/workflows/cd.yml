@@ -141,8 +141,10 @@ jobs:
       sha: ${{ steps.sha.outputs.sha }}
       up: ${{ steps.config.outputs.up }}
       down: ${{ steps.config.outputs.down }}
+      mobile: ${{ steps.config.outputs.mobile }}
       go-up: ${{ steps.config.outputs.go-up == 'true' }}
       go-down: ${{ steps.config.outputs.go-down == 'true' }}
+      go-mobile: ${{ steps.config.outputs.go-mobile == 'true' }}
 
       # we need to build images when:
       # - we want to bring deploys up, AND the images for this commit don't yet exist, or
