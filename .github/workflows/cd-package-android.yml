@@ -17,6 +17,10 @@ on:
       server:
         type: string
         required: false
+      buildType:
+        type: string
+        required: false
+        default: debug
   workflow_dispatch:
     inputs:
       branding:
@@ -30,9 +34,15 @@ on:
         description: Central server override
         type: string
         required: false
-
+      buildType:
+        description: Build type
+        type: choice
+        required: false
+        default: debug
+        options:
+          - release
+          - debug
 env:
-  APK_PATH: ./packages/mobile/android/app/build/outputs/apk/release/app.apk
   APK_NAME: app.apk
 
 jobs:
@@ -85,15 +95,26 @@ jobs:
           npm i -g corepack
           yarn install
 
-      - name: Build application
+      - name: Build release
+        if: ${{ inputs.buildType == 'release' }}
+        env:
+          SIGNING_KEY_STORE_PATH: ${{ secrets.SIGNING_KEY_STORE_PATH }}
+          SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
+          SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
+          SIGNING_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
         working-directory: packages/mobile/android
         run:  ./gradlew app:assembleRelease
+
+      - name: Build debug
+        if: ${{ inputs.buildType == 'debug' }}
+        working-directory: packages/mobile/android
+        run: ./gradlew app:assembleDebug
 
       - name: Upload final build
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.APK_NAME }}
-          path: ${{ env.APK_PATH }}
+          path: ./packages/mobile/android/app/build/outputs/apk/${{inputs.buildType}}/app.apk
           retention-days: 1
 
       - name: Set S3 destination
