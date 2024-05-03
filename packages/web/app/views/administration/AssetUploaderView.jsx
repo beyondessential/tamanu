@@ -10,6 +10,7 @@ import { ButtonRow } from '../../components/ButtonRow';
 import { LargeSubmitButton } from '../../components/Button';
 import { AdminViewContainer } from './components/AdminViewContainer';
 import { FORM_TYPES } from '../../constants';
+import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 const ResultDisplay = ({ result }) => {
   if (!result) return null;
@@ -76,8 +77,15 @@ export const AssetUploaderView = memo(() => {
       formType={FORM_TYPES.CREATE_FORM}
       onSubmit={onSubmitUpload}
       validationSchema={yup.object().shape({
-        name: yup.string().required(),
-        file: yup.string().required(),
+        name: yup
+          .string()
+          .required()
+          .translatedLabel(
+            <TranslatedText stringId="asset.validation.name.path" fallback="Asset name" />,
+          ),
+        file: yup
+          .string()
+          .required(<TranslatedText stringId="general.file.label" fallback="File" />),
       })}
       render={({ isSubmitting }) => (
         <AdminViewContainer title="Asset upload" showLoadingIndicator={isSubmitting}>
