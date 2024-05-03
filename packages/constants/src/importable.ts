@@ -68,14 +68,15 @@ export const TRANSLATABLE_REFERENCE_TYPES = [
   ...OTHER_REFERENCE_TYPE_VALUES,
 ];
 
+// Data types created through tamanu
 const CLINCAL_DATA_TYPES = {
   PATIENT: 'patient',
   ADMINISTERED_VACCINE: 'administeredVaccine',
   USER: 'user',
 };
-
 const CLINICAL_DATA_TYPES_VALUES = Object.values(CLINCAL_DATA_TYPES);
 
+// System data used for configuration purposes
 const SYSTEM_DATA_TYPES = {
   CATCHMENT: 'catchment',
   REFERENCE_DATA_RELATION: 'referenceDataRelation',
@@ -83,15 +84,14 @@ const SYSTEM_DATA_TYPES = {
   CERTIFIABLE_VACCINE: 'certifiableVaccine',
   IMAGING_AREA_EXTERNAL_CODE: 'imagingAreaExternalCode',
 };
-
 const SYSTEM_DATA_TYPES_VALUES = Object.values(SYSTEM_DATA_TYPES);
 
 export const GENERAL_IMPORTABLE_DATA_TYPES = [
-  ...REFERENCE_TYPE_VALUES,
+  ...REFERENCE_TYPE_VALUES.filter(type => type !== REFERENCE_TYPES.ICD10),
+  'diagnosis', // Weird edge case where we sometimes call diagnosis icd10 so we have to account for this in a bunch of places
   ...OTHER_REFERENCE_TYPE_VALUES,
   ...CLINICAL_DATA_TYPES_VALUES,
   ...SYSTEM_DATA_TYPES_VALUES,
-  'diagnosis', // TODO: this is what kind of makes everything confusing
 ].sort();
 
 export const PERMISSION_IMPORTABLE_DATA_TYPES = ['permission', 'role'];
