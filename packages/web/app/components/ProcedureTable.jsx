@@ -10,7 +10,7 @@ const getCodeLabel = ({ procedureType }) => procedureType.code;
 const COLUMNS = [
   {
     key: 'date',
-    title: <TranslatedText stringId="general.table.column.date" fallback="Date" />,
+    title: <TranslatedText stringId="general.date.label" fallback="Date" />,
     accessor: ({ date }) => <DateDisplay date={date} />,
   },
   {

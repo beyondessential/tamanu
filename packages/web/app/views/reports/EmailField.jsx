@@ -48,13 +48,13 @@ const validateCommaSeparatedEmails = async emails => {
   return '';
 };
 
-export const EmailField = () => (
+export const EmailField = (props = {}) => (
   <Field
     name="emails"
     label={
       <TranslatedText
         stringId="report.generate.emailList.label"
-        fallback="Email to (seperate emails with a comma)"
+        fallback="Email to (separate emails with a comma)"
       />
     }
     component={TextField}
@@ -63,5 +63,6 @@ export const EmailField = () => (
     rows={3}
     validate={validateCommaSeparatedEmails}
     required
+    {...props}
   />
 );

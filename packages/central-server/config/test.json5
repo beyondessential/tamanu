@@ -22,6 +22,9 @@
       }
     }
   },
+  "mailgun": {
+    "from": "Tamanu test"
+  },
   "auth": {
     "secret": "secret",
     "refreshToken": {
@@ -96,7 +99,9 @@
           "Encounter": true,
           "Immunization": true,
           "Practitioner": true,
-          "MediciReport": false
+          "MediciReport": false,
+          "Specimen": true,
+          "Organization": true
         }
       }
     },

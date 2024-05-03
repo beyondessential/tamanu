@@ -5,6 +5,7 @@ import {
   IMAGING_REQUEST_STATUS_TYPES,
   REFERENCE_TYPES,
   NOTE_RECORD_TYPES,
+  NOTE_TYPES,
 } from '@tamanu/constants';
 
 import { createTestContext } from '../../utilities';
@@ -177,6 +178,7 @@ describe(`Materialised - MediciReport`, () => {
         content: 'Root note',
         authorId: resources.practitioner.id,
         date: toDateTimeString(sub(new Date(), { days: 8 })),
+        noteType: NOTE_TYPES.OTHER,
       }),
     );
 
@@ -230,7 +232,9 @@ describe(`Materialised - MediciReport`, () => {
       ],
       locations: [
         {
-          location: `${resources.locationGroup.name}, ${resources.location.name}`,
+          location: resources.location.name,
+          locationGroup: resources.locationGroup.name,
+          facility: resources.facility.name,
         },
       ],
       reasonForEncounter: encounter.reasonForEncounter,
@@ -314,6 +318,7 @@ describe(`Materialised - MediciReport`, () => {
           authorId: resources.practitioner.id,
           date: toDateTimeString(sub(new Date(), { days: 6 })),
           revisedById: rootNote.id,
+          noteType: NOTE_TYPES.OTHER,
         }),
       );
 

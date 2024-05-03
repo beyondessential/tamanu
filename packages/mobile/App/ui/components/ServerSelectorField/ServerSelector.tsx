@@ -5,7 +5,6 @@ import { keyBy, mapValues } from 'lodash';
 import { Dropdown, SelectOption } from '../Dropdown';
 import { StyledText, StyledView } from '../../styled/common';
 import { theme } from '../../styled/theme';
-import { Orientation, screenPercentageToDP } from '../../helpers/screen';
 import * as overrides from '/root/serverOverrides.json';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 
@@ -27,7 +26,7 @@ const fetchServers = async (): Promise<SelectOption[]> => {
     return centralServerOverrides;
   }
 
-  const defaultMetaServer = __DEV__ ? 'https://meta-dev.tamanu.io' : 'https://meta.tamanu.io';
+  const defaultMetaServer = 'https://meta.tamanu.io';
   const metaServer = metaServerOverride || defaultMetaServer;
   const response = await fetch(`${metaServer}/servers`);
   const servers: Server[] = await response.json();
@@ -86,8 +85,6 @@ export const ServerSelector = ({ onChange, label, value, error }): ReactElement 
 
   return (
     <StyledView
-      marginBottom={screenPercentageToDP(7, Orientation.Height)}
-      height={screenPercentageToDP(5.46, Orientation.Height)}
       style={{ zIndex: 9999 }}
     >
       <Dropdown

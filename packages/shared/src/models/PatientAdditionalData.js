@@ -41,6 +41,7 @@ export class PatientAdditionalData extends Model {
         emergencyContactNumber: DataTypes.STRING,
         motherId: DataTypes.STRING,
         fatherId: DataTypes.STRING,
+        healthCenterId: DataTypes.STRING,
         updatedAtByField: DataTypes.JSON,
       },
       {
@@ -70,6 +71,11 @@ export class PatientAdditionalData extends Model {
     this.belongsTo(models.Patient, {
       foreignKey: 'fatherId',
       as: 'father',
+    });
+
+    this.belongsTo(models.Facility, {
+      foreignKey: 'healthCenterId',
+      as: 'healthCenter',
     });
 
     const referenceRelation = name =>

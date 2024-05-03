@@ -1,7 +1,8 @@
 import express from 'express';
 import { simpleGet, simplePost, simplePut } from '@tamanu/shared/utils/crudHelpers';
 import asyncHandler from 'express-async-handler';
-import { DEFAULT_HIERARCHY_TYPE } from '@tamanu/constants';
+import { REFERENCE_DATA_RELATION_TYPES, DEFAULT_HIERARCHY_TYPE } from '@tamanu/constants';
+import { NotFoundError } from '@tamanu/shared/errors';
 
 export const referenceData = express.Router();
 
@@ -15,7 +16,11 @@ referenceData.get(
       query: { baseLevel, relationType = DEFAULT_HIERARCHY_TYPE },
     } = req;
 
-    const entity = await ReferenceData.getNode({ where: { type: baseLevel }, raw: false, relationType });
+    const entity = await ReferenceData.getNode({
+      where: { type: baseLevel },
+      raw: false,
+      relationType,
+    });
     if (!entity) {
       return res.send([]);
     }
@@ -36,12 +41,31 @@ referenceData.get(
     const {
       models: { ReferenceData },
       params: { id },
-      query: { relationType = DEFAULT_HIERARCHY_TYPE }
+      query: { relationType = DEFAULT_HIERARCHY_TYPE },
     } = req;
 
     const entity = await ReferenceData.findByPk(id);
     const ancestors = await entity.getAncestors(relationType);
     res.send(ancestors);
+  }),
+);
+
+referenceData.get(
+  '/facilityCatchment/:id/facility',
+  asyncHandler(async (req, res) => {
+    req.flagPermissionChecked();
+    const {
+      models: { ReferenceData, Facility },
+      params: { id },
+    } = req;
+    const catchment = await ReferenceData.getParent(
+      id,
+      REFERENCE_DATA_RELATION_TYPES.FACILITY_CATCHMENT,
+    );
+    if (!catchment) throw new NotFoundError();
+    const facility = await Facility.findOne({ where: { catchmentId: catchment.id } });
+    if (!facility) throw new NotFoundError();
+    res.send(facility);
   }),
 );
 

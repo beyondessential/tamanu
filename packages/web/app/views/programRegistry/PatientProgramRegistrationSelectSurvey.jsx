@@ -96,7 +96,7 @@ export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistrat
                   name="surveyId"
                   label="Select form"
                   component={BaseSelectField}
-                  placeholder={getTranslation("general.placeholder.select", "Select")}
+                  placeholder={getTranslation('general.placeholder.select', 'Select')}
                   options={surveys}
                   disabled={isRemoved}
                 />
@@ -120,7 +120,9 @@ export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistrat
           );
         }}
         validationSchema={yup.object().shape({
-          surveyId: foreignKey('A form must be selected'),
+          surveyId: foreignKey(
+            getTranslation('validation.rule.formMustBeSelected', 'A form must be selected'),
+          ),
         })}
       />
     </DisplayContainer>

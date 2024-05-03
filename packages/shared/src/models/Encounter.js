@@ -1,9 +1,7 @@
 import { Sequelize } from 'sequelize';
-import { endOfDay, isBefore, parseISO, startOfToday } from 'date-fns';
 
 import {
   ENCOUNTER_TYPE_VALUES,
-  ENCOUNTER_TYPES,
   EncounterChangeType,
   NOTE_TYPES,
   SYNC_DIRECTIONS,
@@ -81,6 +79,7 @@ export class Encounter extends Model {
         include: ['facility', 'locationGroup'],
       },
       'referralSource',
+      'diet',
     ];
   }
 
@@ -194,6 +193,11 @@ export class Encounter extends Model {
       as: 'referralSource',
     });
 
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'dietId',
+      as: 'diet',
+    });
+
     this.hasMany(models.Note, {
       foreignKey: 'recordId',
       as: 'notes',
@@ -300,18 +304,6 @@ export class Encounter extends Model {
         ${updatedAtSyncTickClauses.join('\nOR')}
       )
     `;
-  }
-
-  static checkNeedsAutoDischarge({ encounterType, startDate, endDate }) {
-    return (
-      encounterType === ENCOUNTER_TYPES.CLINIC &&
-      isBefore(parseISO(startDate), startOfToday()) &&
-      !endDate
-    );
-  }
-
-  static getAutoDischargeEndDate({ startDate }) {
-    return endOfDay(parseISO(startDate));
   }
 
   static async adjustDataPostSyncPush(recordIds) {

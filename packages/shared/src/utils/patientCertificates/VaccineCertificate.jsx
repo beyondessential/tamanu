@@ -16,6 +16,7 @@ import { H3 } from './Typography';
 import { LetterheadSection } from './LetterheadSection';
 import { getDisplayDate } from './getDisplayDate';
 import { SigningSection } from './SigningSection';
+import { get } from 'lodash';
 
 const columns = [
   {
@@ -45,8 +46,11 @@ const columns = [
 
   {
     key: 'countryName',
-    title: 'Country',
-    accessor: ({ countryName }) => countryName,
+    title: 'Facility/Country',
+    accessor: record => {
+      const facility = record.givenElsewhere ? record.givenBy : record.location?.facility?.name;
+      return facility || '';
+    },
   },
 ];
 
@@ -91,9 +95,10 @@ export const VaccineCertificate = ({
   watermarkSrc,
   signingSrc,
   logoSrc,
-  getLocalisation,
+  localisation,
   extraPatientFields,
 }) => {
+  const getLocalisation = key => get(localisation, key);
   const healthFacility = getLocalisation('templates.vaccineCertificate.healthFacility');
   const countryName = getLocalisation('country.name');
 
