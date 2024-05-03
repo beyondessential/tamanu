@@ -41,7 +41,7 @@ export const StyledTextInput = styled.TextInput<StyledViewProps>`
   color: ${(props: StyledTextInputProps): string => {
     return props.hasValue ? theme.colors.TEXT_DARK : theme.colors.TEXT_SOFT;
   }};
-  padding-left: ${screenPercentageToDP(3.5, Orientation.Width)};
+  padding-left: ${screenPercentageToDP(3, Orientation.Width)};
 `;
 
 export interface MaskedInputProps extends TextFieldProps {
