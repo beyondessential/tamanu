@@ -173,20 +173,18 @@ export const MedicationForm = React.memo(
           validationSchema={validationSchema(readOnly)}
           render={({ submitForm }) => (
             <FormGrid>
-              {!readOnly && (
-                <div style={{ gridColumn: '1 / -1' }}>
-                  <TranslatedText stringId="medication.allergies.title" fallback="Allergies" />:{' '}
-                  <span style={{ fontWeight: 500 }}>
-                    {!isLoadingAllergies &&
-                      (allergiesList || (
-                        <TranslatedText
-                          stringId="medication.allergies.noRecord"
-                          fallback="None recorded"
-                        />
-                      ))}
-                  </span>
-                </div>
-              )}
+              <div style={{ gridColumn: '1 / -1' }}>
+                <TranslatedText stringId="medication.allergies.title" fallback="Allergies" />:{' '}
+                <span style={{ fontWeight: 500 }}>
+                  {!isLoadingAllergies &&
+                    (allergiesList || (
+                      <TranslatedText
+                        stringId="medication.allergies.noRecord"
+                        fallback="None recorded"
+                      />
+                    ))}
+                </span>
+              </div>
               <div style={{ gridColumn: '1 / -1' }}>
                 <Field
                   name="medicationId"
