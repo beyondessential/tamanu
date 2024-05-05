@@ -146,7 +146,7 @@ export const VaccineForm = ({
     return (
       <ErrorMessage
         title={<TranslatedText stringId="vaccine.loadError" fallback="Cannot load vaccine form" />}
-        errorMessage={currentEncounterError?.message}
+        errorMessage={currentEncounterError?.message || patientDataError?.message}
       />
     );
   }
