@@ -848,6 +848,7 @@
         }
       },
       "features": {
+        "filterDischargeDispositions": false,
         "editPatientDetailsOnMobile": true,
         "quickPatientGenerator": false,
         "enableInvoicing": false,
