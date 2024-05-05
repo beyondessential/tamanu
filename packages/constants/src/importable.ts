@@ -4,6 +4,7 @@ export const REFERENCE_TYPES = {
   ICD10: 'icd10',
   ALLERGY: 'allergy',
   CONDITION: 'condition',
+  CATCHMENT: 'catchment',
   DRUG: 'drug',
   TRIAGE_REASON: 'triageReason',
   PROCEDURE_TYPE: 'procedureType',
@@ -43,6 +44,7 @@ export const REFERENCE_TYPES = {
   VACCINE_CIRCUMSTANCE: 'vaccineCircumstance',
   ADDITIONAL_INVOICE_LINE: 'additionalInvoiceLine',
   SPECIMEN_TYPE: 'specimenType',
+  REACTION: 'reaction',
   ...IMAGING_AREA_TYPES,
 };
 
