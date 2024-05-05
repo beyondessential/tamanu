@@ -7,9 +7,9 @@ export async function up(query) {
   await query.sequelize.query(`
   CREATE OR REPLACE VIEW upcoming_vaccinations
   AS with vaccine_thresholds AS (
-	  SELECT
-		  (jsonb_array_elements(s.value) ->> 'threshold'::text)::double precision AS threshold,
-		  jsonb_array_elements(s.value) ->> 'status'::text AS status
+    SELECT
+      (jsonb_array_elements(coalesce(s.value, '[{"threshold": 28 }, {"threshold": 7}, {"threshold": -7}, {"threshold": -55}, {"threshold": "-Infinity"}]')) ->> 'threshold'::text)::double precision AS threshold,
+      jsonb_array_elements(coalesce(s.value, '[{"status": "SCHEDULED"}, {"status": "UPCOMING"}, {"status": "DUE"}, {"status": "OVERDUE"}, {"status": "MISSED"}]')) ->> 'status'::text AS status
 	  FROM settings s
 	  WHERE s.deleted_at is null
 	  and s.key = 'vaccine.thresholds'::text
