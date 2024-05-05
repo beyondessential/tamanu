@@ -33,7 +33,6 @@ export const AdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps): ReactE
     loading,
     error,
   } = usePatientAdditionalData(patient.id);
-
   // Display general error
   if (error) {
     return <ErrorScreen error={error} />;

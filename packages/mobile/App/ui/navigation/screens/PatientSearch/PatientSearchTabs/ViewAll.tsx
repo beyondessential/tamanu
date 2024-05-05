@@ -94,7 +94,6 @@ const searchAndFilterPatients = async (
 
   const queryBuilder = models.Patient.getRepository().createQueryBuilder('patient');
 
-  console.log('PATIENT LIST');
   queryBuilder.leftJoinAndSelect('patient.village', 'referenceData');
 
   // Add the search term, which can match across any of 5 key fields

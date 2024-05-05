@@ -30,8 +30,6 @@ export class ReferenceDataRelation extends BaseModel implements IReferenceDataRe
   @RelationId(({ referenceData }) => referenceData)
   referenceDataId: string;
   @JoinColumn({ name: 'referenceDataId' })
-
-  //
   static getTableNameForSync(): string {
     return 'reference_data_relations';
   }
