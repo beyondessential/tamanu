@@ -2,7 +2,6 @@ import React from 'react';
 import { AutocompleteModalField } from './AutocompleteModal/AutocompleteModalField';
 import { Field } from './Forms/FormField';
 import { Suggester } from '../helpers/suggester';
-import { ReferenceDataType } from '~/types';
 import { useBackend } from '~/ui/hooks';
 
 export const HierarchyFieldItem = ({
@@ -15,12 +14,23 @@ export const HierarchyFieldItem = ({
 }) => {
   const { models } = useBackend();
 
-  console.log('HIERARCHY FIELD ITEM', relationType);
-  const suggesterInstance = new Suggester(models.ReferenceData, {
-    where: {
-      type: ReferenceDataType.LabTestCategory,
+  console.log('HIERARCHY FIELD ITEM', relationType, parentId);
+  const suggesterInstance = new Suggester(
+    models.ReferenceData,
+    {
+      where: {
+        type: referenceType,
+      },
+      relations: ['parents'],
     },
-  });
+    undefined,
+    item => {
+      if (isFirstLevel || !parentId) {
+        return true;
+      }
+      return item.parents[0]?.referenceDataParentId === parentId;
+    },
+  );
 
   // Clear the value of the field when the parent field changes
   // useDidUpdateEffect(() => {
