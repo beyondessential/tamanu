@@ -16,7 +16,7 @@ export async function up(query) {
   ),
   vaccine_agelimit as (
 	  select
-		  CURRENT_DATE - s.value::text::integer * 365 date
+		  CURRENT_DATE - coalesce(s.value::text::integer, 15) * 365 date
 	  from settings s
 	  where s.deleted_at is null
 	  and s.key = 'vaccine.ageLimit'
