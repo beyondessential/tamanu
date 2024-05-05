@@ -15,24 +15,28 @@ export const REFERENCE_TYPES = {
   CATCHMENT: 'catchment',
 };
 
-const LOCATION_HIERARCHY_FIELDS = {
-  divisionId: {
+const LOCATION_HIERARCHY_FIELDS = [
+  {
+    name: 'divisionId',
     referenceType: REFERENCE_TYPES.DIVISION,
     label: <TranslatedText stringId="cambodiaPatientDetails.province.label" fallback="Province" />,
   },
-  subdivisionId: {
+  {
+    name: 'subdivisionId',
     referenceType: REFERENCE_TYPES.SUBDIVISION,
     label: <TranslatedText stringId="cambodiaPatientDetails.district.label" fallback="District" />,
   },
-  settlementId: {
+  {
+    name: 'settlementId',
     referenceType: REFERENCE_TYPES.SETTLEMENT,
     label: <TranslatedText stringId="cambodiaPatientDetails.commune.label" fallback="Commune" />,
   },
-  villageId: {
+  {
+    name: 'villageId',
     referenceType: REFERENCE_TYPES.VILLAGE,
     label: <TranslatedText stringId="general.localisedField.villageId.label" fallback="Village" />,
   },
-};
+];
 
 export const REFERENCE_DATA_RELATION_TYPES = {
   ADDRESS_HIERARCHY: 'address_hierarchy',
@@ -40,7 +44,7 @@ export const REFERENCE_DATA_RELATION_TYPES = {
 };
 
 const useAddressHierarchy = (baseLevel = REFERENCE_TYPES.VILLAGE) => {
-  return useBackendEffect(async ({ models }) => {
+  const [configuredFieldTypes, error, loading] = useBackendEffect(async ({ models }) => {
     const entity = await models.ReferenceData.getNode({
       id: 'village-Tai', // Todo: remove this filter once good data is loaded
       type: baseLevel,
@@ -49,38 +53,41 @@ const useAddressHierarchy = (baseLevel = REFERENCE_TYPES.VILLAGE) => {
       return [];
     }
     const ancestors = await entity.getAncestors();
-    return ancestors.map(x => x.type).reverse();
+    return ancestors.map(entity => entity.type).reverse();
   });
+
+  if (error || loading) {
+    return [];
+  }
+
+  return configuredFieldTypes.length > 0
+    ? LOCATION_HIERARCHY_FIELDS.filter(f => configuredFieldTypes.includes(f.referenceType))
+    : [LOCATION_HIERARCHY_FIELDS.find(f => f.referenceType === baseLevel)];
 };
 
 export const HierarchyFields = ({
   baseLevel = REFERENCE_TYPES.VILLAGE,
   relationType = REFERENCE_DATA_RELATION_TYPES.ADDRESS_HIERARCHY,
 }) => {
-  console.log('HierarchyFields');
   const { values } = useFormikContext();
-  const [data, error, loading] = useAddressHierarchy();
-  console.log('error', error);
-  console.log('useAddressHierarchy DATA', data);
-
-  const configuredFields = Object.values(LOCATION_HIERARCHY_FIELDS).map(f => f.referenceType);
-  const fields = configuredFields;
-  const hierarchyToShow = configuredFields.length > 0 ? configuredFields : [baseLevel];
+  const hierarchyFields = useAddressHierarchy(baseLevel);
+  console.log('useAddressHierarchy', hierarchyFields);
 
   return (
     <StyledView>
-      {hierarchyToShow.map((type, index) => {
-        const fieldData = fields.find(f => f.referenceType === type);
-        const parentFieldData = fields.find(f => f.referenceType === hierarchyToShow[index - 1]);
+      {hierarchyFields.map(({ label, name, referenceType }, index) => {
+        const parentFieldData = hierarchyFields[index - 1];
         const parentId = get(values, parentFieldData?.name);
 
         return (
           <HierarchyFieldItem
-            key={type}
+            key={name}
             relationType={relationType}
             isFirstLevel={index === 0}
             parentId={parentId}
-            fieldData={fieldData}
+            name={name}
+            label={label}
+            referenceType={referenceType}
           />
         );
       })}

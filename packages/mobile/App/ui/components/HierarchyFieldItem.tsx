@@ -11,13 +11,14 @@ export const HierarchyFieldItem = ({
   parentId,
   referenceType,
   name,
+  label,
 }) => {
   const { models } = useBackend();
 
   console.log('HIERARCHY FIELD ITEM', relationType);
-  const SuggesterInstance = new Suggester(models.ReferenceData, {
+  const suggesterInstance = new Suggester(models.ReferenceData, {
     where: {
-      type: ReferenceDataType[referenceType],
+      type: ReferenceDataType.LabTestCategory,
     },
   });
 
@@ -30,9 +31,10 @@ export const HierarchyFieldItem = ({
   return (
     <Field
       component={AutocompleteModalField}
-      suggester={SuggesterInstance}
+      suggester={suggesterInstance}
       disabled={!isFirstLevel && !parentId}
       name={name}
+      label={label}
     />
   );
 };
