@@ -71,7 +71,6 @@ export const HierarchyFields = ({
 }) => {
   const { values } = useFormikContext();
   const hierarchyFields = useAddressHierarchy(baseLevel);
-  console.log('useAddressHierarchy', hierarchyFields);
 
   return (
     <StyledView>
