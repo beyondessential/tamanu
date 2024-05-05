@@ -62,7 +62,7 @@ jobs:
           cache: 'gradle'
 
       - name: Validate Gradle wrapper
-        uses: gradle/wrapper-validation-action@v1
+        uses: gradle/wrapper-validation-action@v3
 
       - name: Update branding app title
         if: ${{ inputs.branding == 'cambodia' }}
@@ -83,19 +83,7 @@ jobs:
           }
           EOF
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20.x
-          cache: yarn
-
-      - name: Run Yarn Install
-        working-directory: packages/mobile
-        run: |
-          npm i -g corepack
-          yarn install
-
-      - name: prepare env for app
+      - name: Make branding available to app
         working-directory: packages/mobile/android
         run: |
           echo "REACT_NATIVE_BRANDING=${{ inputs.branding }}" > local.properties
@@ -107,6 +95,19 @@ jobs:
           keystore: ${{ secrets.ANDROID_KEYSTORE }}
         run: |
           base64 -d <<< "$keystore" > release.keystore
+
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: yarn
+
+      - name: Run Yarn Install
+        working-directory: packages/mobile
+        run: |
+          npm i -g corepack
+          yarn install
 
       - name: Build release
         if: ${{ inputs.buildType == 'release' }}
