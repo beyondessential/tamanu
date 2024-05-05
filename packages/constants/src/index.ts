@@ -31,3 +31,4 @@ export * from './programRegistry.js';
 export * from './vaccines.js';
 export * from './settings.js';
 export * from './encounterHistory.js';
+export * from './webSocket.js';
