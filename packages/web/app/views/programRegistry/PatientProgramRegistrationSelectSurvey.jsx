@@ -121,7 +121,9 @@ export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistrat
           );
         }}
         validationSchema={yup.object().shape({
-          surveyId: foreignKey('A form must be selected'),
+          surveyId: foreignKey(
+            getTranslation('validation.rule.formMustBeSelected', 'A form must be selected'),
+          ),
         })}
       />
     </DisplayContainer>

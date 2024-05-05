@@ -15,7 +15,7 @@ export function prepareExcelFile({ data, metadata, defaultFileName = '', bookTyp
   XLSX.utils.book_append_sheet(book, dataSheet, 'report');
   XLSX.utils.book_append_sheet(book, metadataSheet, 'metadata');
 
-  const xlsxDataArray = XLSX.write(book, { bookType, type: 'array' });
+  const xlsxDataArray = XLSX.write(book, { bookType, type: 'buffer' });
   return {
     defaultFileName,
     data: xlsxDataArray,
