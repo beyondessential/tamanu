@@ -1,5 +1,4 @@
 import React from 'react';
-import { PDFViewer } from '@react-pdf/renderer';
 
 import { NOTE_TYPES } from '@tamanu/constants/notes';
 import { LAB_REQUEST_STATUSES } from '@tamanu/constants/labs';
@@ -19,11 +18,10 @@ import { useEncounterDischarge } from '../../../api/queries/useEncounterDischarg
 import { useReferenceData } from '../../../api/queries/useReferenceData';
 import { usePatientAdditionalDataQuery } from '../../../api/queries/usePatientAdditionalDataQuery';
 import { useLocalisation } from '../../../contexts/Localisation';
-import { LoadingIndicator } from '../../LoadingIndicator';
 import { Colors } from '../../../constants';
 import { ForbiddenErrorModalContents } from '../../ForbiddenErrorModal';
 import { ModalActionRow } from '../../ModalActionRow';
-import { printPDF } from '../PDFViewer.jsx';
+import { PDFLoader, printPDF } from '../PDFLoader';
 import { TranslatedText } from '../../Translation/TranslatedText';
 import { useVitals } from '../../../api/queries/useVitals';
 import { DateDisplay, formatShortest, formatTime } from '../../DateDisplay';
@@ -175,14 +173,6 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
     printable: !allQueries.isError && !allQueries.isFetching, // do not show print button when there is error or is fetching
   };
 
-  if (allQueries.isFetching) {
-    return (
-      <Modal {...modalProps}>
-        <LoadingIndicator />
-      </Modal>
-    );
-  }
-
   if (allQueries.isError) {
     if (allQueries.errors.some(e => e instanceof ForbiddenError)) {
       return (
@@ -317,11 +307,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
 
   return (
     <Modal {...modalProps} onPrint={() => printPDF('encounter-record')}>
-      <PDFViewer
-        style={{ width: '100%', height: '600px' }}
-        id="encounter-record"
-        showToolbar={false}
-      >
+      <PDFLoader isLoading={allQueries.isFetching} id="encounter-record">
         <EncounterRecordPrintout
           patientData={{ ...patient, additionalData, village }}
           encounter={encounter}
@@ -342,7 +328,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
           getLocalisation={getLocalisation}
           clinicianText={clinicianText}
         />
-      </PDFViewer>
+      </PDFLoader>
     </Modal>
   );
 };

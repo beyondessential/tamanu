@@ -5,6 +5,7 @@ export const REFERENCE_TYPES = {
   ICD10: 'icd10',
   ALLERGY: 'allergy',
   CONDITION: 'condition',
+  CATCHMENT: 'catchment',
   DRUG: 'drug',
   DIET: 'diet',
   TRIAGE_REASON: 'triageReason',
@@ -43,6 +44,7 @@ export const REFERENCE_TYPES = {
   VACCINE_CIRCUMSTANCE: 'vaccineCircumstance',
   ADDITIONAL_INVOICE_LINE: 'additionalInvoiceLine',
   SPECIMEN_TYPE: 'specimenType',
+  REACTION: 'reaction',
   ...IMAGING_AREA_TYPES,
 };
 export const REFERENCE_TYPE_VALUES = Object.values(REFERENCE_TYPES);
