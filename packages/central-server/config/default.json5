@@ -753,6 +753,7 @@
       },
       "features": {
         "enableVaccineConsent": true,
+        "filterDischargeDispositions": false,
         "editPatientDetailsOnMobile": true,
         "quickPatientGenerator": false,
         "enableInvoicing": false,
