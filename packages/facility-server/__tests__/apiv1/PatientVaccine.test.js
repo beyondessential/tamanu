@@ -575,6 +575,7 @@ describe('PatientVaccine', () => {
         status: VACCINE_STATUS.GIVEN,
         date: toDateString(subDays(new Date(), 1)),
       });
+    });
 
     it('should return 1 upcoming vaccinations of patient 1', async () => {
       const result = await app.get(`/api/patient/${patient1.id}/upcomingVaccination`);
