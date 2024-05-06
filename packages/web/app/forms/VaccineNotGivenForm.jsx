@@ -32,6 +32,7 @@ export const VaccineNotGivenForm = ({
   onCancel,
   setCategory,
   setVaccineLabel,
+  values,
 }) => (
   <TwoTwoGrid>
     {!editMode && (
@@ -74,6 +75,7 @@ export const VaccineNotGivenForm = ({
 
     <VaccineDateField
       label={<TranslatedText stringId="vaccine.dateRecorded.label" fallback="Date recorded" />}
+      min={values?.patientData?.dateOfBirth}
     />
 
     <StyledDivider />

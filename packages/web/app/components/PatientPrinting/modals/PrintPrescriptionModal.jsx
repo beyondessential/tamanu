@@ -2,12 +2,11 @@ import React, { useEffect, useState } from 'react';
 
 import { Modal } from '../../Modal';
 import { useCertificate } from '../../../utils/useCertificate';
-import { LoadingIndicator } from '../../LoadingIndicator';
 import { useApi } from '../../../api';
 
 import { PrescriptionPrintout } from '@tamanu/shared/utils/patientCertificates';
 import { useLocalisation } from '../../../contexts/Localisation';
-import { PDFViewer, printPDF } from '../PDFViewer';
+import { PDFLoader, printPDF } from '../PDFLoader';
 import { useAuth } from '../../../contexts/Auth';
 import { TranslatedText } from '../../Translation/TranslatedText';
 
@@ -100,20 +99,16 @@ export const PrintPrescriptionModal = ({ medication, patientWeight, open, onClos
         printable
         onPrint={() => printPDF('prescription-printout')}
       >
-        {isLoading ? (
-          <LoadingIndicator />
-        ) : (
-          <PDFViewer id="prescription-printout">
-            <PrescriptionPrintout
-              patientData={{ ...patient, additionalData, village, patientWeight }}
-              prescriptions={[medication]}
-              certificateData={certificateData}
-              facility={facility}
-              prescriber={prescriber}
-              getLocalisation={getLocalisation}
-            />
-          </PDFViewer>
-        )}
+        <PDFLoader isLoading={isLoading} id="prescription-printout">
+          <PrescriptionPrintout
+            patientData={{ ...patient, additionalData, village, patientWeight }}
+            prescriptions={[medication]}
+            certificateData={certificateData}
+            facility={facility}
+            prescriber={prescriber}
+            getLocalisation={getLocalisation}
+          />
+        </PDFLoader>
       </Modal>
     </>
   );

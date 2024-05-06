@@ -79,6 +79,7 @@ jobs:
       deploy-name: ${{ matrix.name }}
       options: ${{ matrix.options }}
       check-branch: false
+      ref: not needed as check branch is false
     secrets:
       PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
       TAILSCALE_OAUTH: ${{ secrets.TAILSCALE_DBPROXY_ACCESS_OAUTH }}
