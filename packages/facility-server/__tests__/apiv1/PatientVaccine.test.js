@@ -575,30 +575,6 @@ describe('PatientVaccine', () => {
         status: VACCINE_STATUS.GIVEN,
         date: toDateString(subDays(new Date(), 1)),
       });
-
-      await models.Setting.set('vaccine.ageLimit', 15);
-      await models.Setting.set('vaccine.thresholds', [
-        {
-          threshold: 28,
-          status: VACCINE_STATUS.SCHEDULED,
-        },
-        {
-          threshold: 7,
-          status: VACCINE_STATUS.UPCOMING,
-        },
-        {
-          threshold: -7,
-          status: VACCINE_STATUS.DUE,
-        },
-        {
-          threshold: -55,
-          status: VACCINE_STATUS.OVERDUE,
-        },
-        {
-          threshold: '-Infinity',
-          status: VACCINE_STATUS.MISSED,
-        },
-      ]);
     });
 
     it('should return 1 upcoming vaccinations of patient 1', async () => {
