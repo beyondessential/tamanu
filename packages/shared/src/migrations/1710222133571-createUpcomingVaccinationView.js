@@ -16,7 +16,7 @@ export async function up(query) {
     union
     select :thresholdsDefault, 0
     order by priority desc limit 1
-  )
+  ),
   vaccine_thresholds AS (
 	  select
 		  (jsonb_array_elements(s.value) ->> 'threshold'::text)::double precision AS threshold,
