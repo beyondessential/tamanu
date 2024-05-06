@@ -92,14 +92,9 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFie
             suggester={areaSuggester}
             size="small"
           />
-          <LocalisedField
+          <Field
             name="departmentId"
-            label={
-              <TranslatedText
-                stringId="general.localisedField.departmentId.label"
-                fallback="Department"
-              />
-            }
+            label={<TranslatedText stringId="general.department.label" fallback="Department" />}
             component={AutocompleteField}
             suggester={departmentSuggester}
             size="small"

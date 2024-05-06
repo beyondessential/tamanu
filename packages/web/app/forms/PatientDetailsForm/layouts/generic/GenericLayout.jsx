@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { PATIENT_REGISTRY_TYPES } from '@tamanu/constants';
-import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
 
 import {
   LocalisedField,
@@ -24,14 +24,18 @@ import { GenericBirthFields } from './patientFields/GenericBirthFields';
 import { useSuggester } from '../../../../api';
 import { PatientFieldsGroup } from '../../PatientFields';
 import { TranslatedText } from '../../../../components/Translation/TranslatedText';
+import { ReminderContactSection } from '../../../../components/ReminderContact/ReminderContactSection';
+import { useSettingsQuery } from '../../../../api/queries/useSettingsQuery';
 
 export const GenericPrimaryDetailsLayout = ({
   patientRegistryType,
   registeredBirthPlace,
   sexOptions,
   isRequiredPatientData,
+  isDetailsForm = false,
 }) => {
   const villageSuggester = useSuggester('village');
+  const { data: isReminderContactEnabled } = useSettingsQuery('features.reminderContactModule.enabled');
   return (
     <>
       <PatientDetailsHeading>
@@ -39,6 +43,7 @@ export const GenericPrimaryDetailsLayout = ({
           stringId="patient.detail.subheading.general"
           fallback="General information"
         />
+        {isReminderContactEnabled && isDetailsForm && <ReminderContactSection />}
       </PatientDetailsHeading>
       <FormGrid>
         <LocalisedField
@@ -90,7 +95,7 @@ export const GenericPrimaryDetailsLayout = ({
               fallback="Date of birth"
             />
           }
-          max={getCurrentDateTimeString()}
+          max={getCurrentDateString()}
           component={DateField}
           required
           saveDateAsString
@@ -198,7 +203,11 @@ export const GenericSecondaryDetailsLayout = ({
       />
     </PatientDetailsHeading>
     <SecondaryDetailsFormGrid>
-      <GenericPersonalFields patientRegistryType={patientRegistryType} filterByMandatory={false} />
+      <GenericPersonalFields
+        patientRegistryType={patientRegistryType}
+        filterByMandatory={false}
+        isEdit={isEdit}
+      />
     </SecondaryDetailsFormGrid>
 
     <PatientDetailsHeading>

@@ -95,7 +95,7 @@ export function DownloadDataButton({ exportName, columns, data }) {
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, exportName);
 
-    const xlsxDataArray = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+    const xlsxDataArray = XLSX.write(wb, { bookType: 'xlsx', type: 'buffer' });
     await saveFile({
       defaultFileName: `${exportName}-${getCurrentDateString()}`,
       data: xlsxDataArray,

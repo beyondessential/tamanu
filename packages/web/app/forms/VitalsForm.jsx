@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
+import * as yup from 'yup';
 import { VISIBILITY_STATUSES, VITALS_DATA_ELEMENT_IDS } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { Form, FormSubmitCancelRow, ModalLoader } from '../components';
@@ -13,8 +14,10 @@ import { ErrorMessage } from '../components/ErrorMessage';
 import { useAuth } from '../contexts/Auth';
 import { useEncounter } from '../contexts/Encounter';
 import { TranslatedText } from '../components/Translation/TranslatedText';
+import { useTranslation } from '../contexts/Translation';
 
 export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterType }) => {
+  const { getTranslation } = useTranslation();
   const {
     data: [vitalsSurvey, patientAdditionalData],
     isLoading,
@@ -23,18 +26,28 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterTyp
   } = combineQueries([useVitalsSurveyQuery(), usePatientAdditionalDataQuery(patient.id)]);
   const { encounter } = useEncounter();
   const { components = [] } = vitalsSurvey || {};
-  const currentComponents = components.filter(
-    c => c.visibilityStatus === VISIBILITY_STATUSES.CURRENT,
-  );
+  const currentComponents = components
+    .filter(c => c.visibilityStatus === VISIBILITY_STATUSES.CURRENT)
+    .map(c =>
+      c.dataElementId === VITALS_DATA_ELEMENT_IDS.dateRecorded
+        ? { ...c, validationCriteria: JSON.stringify({ mandatory: true }) }
+        : c,
+    );
   const validationSchema = useMemo(
     () =>
-      getValidationSchema(
-        { components: currentComponents },
-        {
-          encounterType: encounterType || encounter?.encounterType,
-        },
+      getValidationSchema({ components: currentComponents }, getTranslation, {
+        encounterType: encounterType || encounter?.encounterType,
+      }).concat(
+        yup.object().shape({
+          [VITALS_DATA_ELEMENT_IDS.dateRecorded]: yup
+            .date()
+            .translatedLabel(
+              <TranslatedText stringId="general.recordedDate.label" fallback="Date recorded" />,
+            )
+            .required(),
+        }),
       ),
-    [currentComponents, encounter?.encounterType, encounterType],
+    [currentComponents, encounter?.encounterType, encounterType, getTranslation],
   );
   const { ability } = useAuth();
   const canCreateVitals = ability.can('create', 'Vitals');
