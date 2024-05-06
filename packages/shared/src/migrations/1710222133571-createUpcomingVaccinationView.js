@@ -9,7 +9,7 @@ export async function up(query) {
   create or replace view upcoming_vaccinations
   as
   with vaccine_settings as (
-    select s.value value, 1 priority
+    select s.value as value, 1 as priority
     from settings s
     where s.deleted_at is null
     and s.key = 'vaccine.thresholds'::text
