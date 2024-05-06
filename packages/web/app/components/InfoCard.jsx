@@ -22,6 +22,8 @@ const CardBody = styled.div`
 `;
 
 const CardCell = styled.div`
+  display: flex;
+  align-items: baseline;
   font-size: ${props => props.$fontSize}px;
   line-height: 18px;
   position: relative;
@@ -34,11 +36,12 @@ const CardIcon = styled.img`
   margin-right: 10px;
 `;
 
-const CardLabel = styled.span`
+const CardLabel = styled.div`
+  white-space: nowrap;
   color: ${props => props.theme.palette.text.secondary};
 `;
 
-const CardValue = styled(CardLabel)`
+const CardValue = styled.div`
   font-weight: 500;
   color: ${props => props.theme.palette.text.primary};
 `;
@@ -46,7 +49,7 @@ const CardValue = styled(CardLabel)`
 const Card = styled.div`
   background: white;
   box-shadow: ${({ $elevated }) => ($elevated ? '2px 2px 25px rgba(0, 0, 0, 0.1)' : 'none')};
-  border-radius: 5px;
+  border-bottom: 1px solid ${Colors.softOutline};
   padding: ${props => `${props.$contentPadding ?? 32}px`};
   padding-top: ${props => `${props.$paddingTop ?? props.$contentPadding}px`};
 
@@ -63,7 +66,7 @@ const Card = styled.div`
 
 const InfoCardEntry = ({ label, value }) => (
   <>
-    <CardLabel>{label}</CardLabel>
+    <CardLabel>{label}:</CardLabel>
     <CardValue>{value}</CardValue>
   </>
 );

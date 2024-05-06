@@ -72,7 +72,7 @@ export const EncounterInfoPane = React.memo(
         icon={encounterTypeIcon}
       />
       <InfoCardItem
-        label={<TranslatedText stringId="encounter.arrivalDate.label" fallback="Arrival Date" />}
+        label={<TranslatedText stringId="encounter.arrivalDate.label" fallback="Arrival date" />}
         value={<>
           <DateDisplay date={encounter.startDate} />
           {encounter.endDate && (
@@ -101,7 +101,7 @@ export const EncounterInfoPane = React.memo(
         label={
           <TranslatedText
             stringId="general.supervisingClinician.label"
-            fallback="Supervising Clinician"
+            fallback="Supervising clinician"
           />
         }
         value={encounter.examiner?.displayName || 'Unknown'}

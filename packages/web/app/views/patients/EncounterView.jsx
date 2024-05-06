@@ -165,9 +165,6 @@ export const EncounterView = () => {
         getLocalisation={getLocalisation}
         patientBillingType={patientBillingTypeData?.name}
       />
-      <Box mt={4} mb={4} ml={4} mr={4}>
-        <Divider />
-      </Box>
       <DiagnosisView
         encounter={encounter}
         isTriage={getIsTriage(encounter)}
