@@ -8,7 +8,7 @@ import { FORM_TYPES } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { ModalActionRow } from '../components';
 
-export const ChangeDietForm = ({ onCancel, onSubmit }) => {
+export const ChangeDietForm = ({ onCancel, onSubmit, dietId }) => {
   const renderForm = ({ submitForm }) => (
     <FormGrid columns={1}>
       <LocalisedField
@@ -35,7 +35,7 @@ export const ChangeDietForm = ({ onCancel, onSubmit }) => {
       initialValues={{
         // Used in creation of associated notes
         submittedTime: getCurrentDateTimeString(),
-        dietId: null,
+        dietId
       }}
       formType={FORM_TYPES.EDIT_FORM}
       render={renderForm}

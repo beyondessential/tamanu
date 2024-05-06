@@ -32,7 +32,7 @@ export const ChangeDietModal = React.memo(({ open, onClose }) => {
       <ChangeDietForm
         onSubmit={onSubmit}
         onCancel={onClose}
-        diet={encounter.diet?.id}
+        dietId={encounter.diet?.id}
       />
     </FormModal>
   );
