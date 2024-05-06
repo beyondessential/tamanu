@@ -22,6 +22,7 @@ export const PatientSearchBar = React.memo(
     );
 
     const practitionerSuggester = useSuggester('practitioner');
+    const dietSuggester = useSuggester('diet');
     return (
       <CustomisableSearchBar
         showExpandButton
@@ -65,8 +66,8 @@ export const PatientSearchBar = React.memo(
                   fallback="Diet"
                 />
               }
-              endpoint="diet"
-              component={SuggesterSelectField}
+              suggester={dietSuggester}
+              component={AutocompleteField}
             />}
           </>
         }
