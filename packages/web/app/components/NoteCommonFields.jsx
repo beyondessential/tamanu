@@ -169,7 +169,7 @@ export const NoteInfoSection = ({
   </StyledInfoCard>
 );
 
-export const NoteTypeField = ({ required, noteTypeCountByType, onChangeNoteType }) => (
+export const NoteTypeField = ({ required, noteTypeCountByType, onChange }) => (
   <Field
     name="noteType"
     label={<TranslatedText stringId="note.type.label" fallback="Type" />}
@@ -178,7 +178,7 @@ export const NoteTypeField = ({ required, noteTypeCountByType, onChangeNoteType 
     options={getSelectableNoteTypes(noteTypeCountByType)}
     formatOptionLabel={option => renderOptionLabel(option, noteTypeCountByType)}
     prefix="note.property.type"
-    onChange={onChangeNoteType}
+    onChange={onChange}
   />
 );
 

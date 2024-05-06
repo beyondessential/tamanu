@@ -51,7 +51,7 @@ export const CreateNoteForm = ({
         <NoteTypeField
           required
           noteTypeCountByType={noteTypeCountByType}
-          onChangeNoteType={onChangeNoteType}
+          onChange={onChangeNoteType}
         />
         <NoteTemplateField noteType={values.noteType} onChangeTemplate={onChangeTemplate} />
         <WrittenByField required />
