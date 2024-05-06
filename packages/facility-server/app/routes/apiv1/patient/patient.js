@@ -24,6 +24,7 @@ import { patientProgramRegistration } from './patientProgramRegistration';
 import { getOrderClause } from '../../../database/utils';
 import { dbRecordToResponse, pickPatientBirthData, requestBodyToRecord } from './utils';
 import { PATIENT_SORT_KEYS } from './constants';
+import { patientContact } from './patientContact';
 
 const patientRoute = express.Router();
 
@@ -507,5 +508,6 @@ patientRoute.use(patientInvoiceRoutes);
 patientRoute.use(patientBirthData);
 patientRoute.use(patientLocations);
 patientRoute.use(patientProgramRegistration);
+patientRoute.use(patientContact);
 
 export { patientRoute as patient };

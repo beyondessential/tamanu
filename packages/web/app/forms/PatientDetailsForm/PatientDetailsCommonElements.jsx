@@ -7,6 +7,9 @@ export const PatientDetailsHeading = styled.div`
   font-size: 16px;
   color: ${Colors.darkText};
   margin-bottom: 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 `;
 
 export const SecondaryDetailsGroup = styled.div`
