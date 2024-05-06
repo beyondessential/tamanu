@@ -6,7 +6,5 @@ export enum Branding {
 }
 
 export const useBranding = (): Branding => {
-  const appName = Config.BRANDING || Branding.Tamanu;
-  if (appName === 'KhmEIR') return Branding.Cambodia;
-  return Branding.Tamanu;
+  return (Config.BRANDING as Branding) || Branding.Tamanu;
 };
