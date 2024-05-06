@@ -9,7 +9,7 @@ export async function up(query) {
   create or replace view upcoming_vaccinations
   as
   with vaccine_settings as (
-    select s.value as value, 1 as priority
+    select s.value as thresholds, 1 as priority
     from settings s
     where s.deleted_at is null
     and s.key = 'vaccine.thresholds'::text
@@ -19,8 +19,8 @@ export async function up(query) {
   ),
   vaccine_thresholds as (
 	  select
-		  (jsonb_array_elements(s.value) ->> 'threshold'::text)::double precision AS threshold,
-		  jsonb_array_elements(s.value) ->> 'status'::text AS status
+		  (jsonb_array_elements(s.thresholds) ->> 'threshold'::text)::double precision AS threshold,
+		  jsonb_array_elements(s.thresholds) ->> 'status'::text AS status
 	  from vaccine_settings s
   ),
   vaccine_agelimit as (
