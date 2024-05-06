@@ -1,4 +1,4 @@
-import { getApplicationName } from 'react-native-device-info';
+import Config from 'react-native-config';
 
 export enum Branding {
   Tamanu = 'tamanu',
@@ -6,7 +6,7 @@ export enum Branding {
 }
 
 export const useBranding = (): Branding => {
-  const appName = getApplicationName();
+  const appName = Config.BRANDING || Branding.Tamanu;
   if (appName === 'KhmEIR') return Branding.Cambodia;
   return Branding.Tamanu;
 };

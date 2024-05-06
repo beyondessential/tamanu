@@ -117,9 +117,6 @@ android {
         versionCode major.toInteger() * 1000000 + minor.toInteger() * 1000 + patch.toInteger()
         versionName getAppVersion()
         multiDexEnabled true
-
-                //React-native-config needs this line because we have flavors
-        resValue "string", "build_config_package", "com.ifsguide"
     }
 
     splits {
@@ -177,6 +174,8 @@ android {
 dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
+
+    implementation project(':react-native-config')
 
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.0.0")
 
