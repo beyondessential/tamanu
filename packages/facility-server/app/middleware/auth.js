@@ -55,6 +55,7 @@ export async function centralServerLogin(models, email, password, deviceId) {
       email,
       password,
       deviceId,
+      facilityId: config.serverFacilityId,
     },
     backoff: {
       maxAttempts: 1,
@@ -63,6 +64,7 @@ export async function centralServerLogin(models, email, password, deviceId) {
 
   // we've logged in as a valid central user - update local database to match
   const { user, localisation, settings } = response;
+
   const { id, ...userDetails } = user;
 
   await models.User.sequelize.transaction(async () => {
@@ -92,12 +94,16 @@ async function localLogin(models, email, password) {
     throw new BadAuthenticationError('Incorrect username or password, please try again');
   }
 
+  if (!await user.canAccessFacility(config.serverFacilityId)) {
+    throw new BadAuthenticationError('User does not have access to this facility');
+  }
+
   const localisation = await models.UserLocalisationCache.getLocalisation({
     where: { userId: user.id },
     order: [['createdAt', 'DESC']],
   });
 
-  return { central: false, user, localisation };
+  return { central: false, user: user.get({ plain: true }), localisation };
 }
 
 async function centralServerLoginWithLocalFallback(models, email, password, deviceId) {

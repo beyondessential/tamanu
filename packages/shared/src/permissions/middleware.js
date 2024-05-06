@@ -6,7 +6,7 @@ import { getAbilityForUser, getPermissionsForRoles } from './rolesToPermissions'
 // strange error going on where the export appears to strip properties assigned via
 // Object.defineProperty - probably straightforward enough to find a workaround, but
 // we only need this one function out of it so it's not worth it.
-function getSubjectName(subject) {
+export function getSubjectName(subject) {
   if (!subject || typeof subject === 'string') {
     return subject;
   }
