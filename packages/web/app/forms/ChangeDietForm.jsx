@@ -2,13 +2,15 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 
-import { Form, LocalisedField, SuggesterSelectField } from '../components/Field';
+import { AutocompleteField, Form, LocalisedField } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { FORM_TYPES } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { ModalActionRow } from '../components';
+import { useSuggester } from '../api';
 
 export const ChangeDietForm = ({ onCancel, onSubmit, dietId }) => {
+  const dietSuggester = useSuggester('diet');
   const renderForm = ({ submitForm }) => (
     <FormGrid columns={1}>
       <LocalisedField
@@ -19,8 +21,8 @@ export const ChangeDietForm = ({ onCancel, onSubmit, dietId }) => {
             fallback="Diet"
           />
         }
-        endpoint="diet"
-        component={SuggesterSelectField}
+        suggester={dietSuggester}
+        component={AutocompleteField}
       />
       <ModalActionRow
         confirmText={<TranslatedText stringId="general.action.confirm" fallback="Confirm" />}
