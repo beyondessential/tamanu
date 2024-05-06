@@ -38,7 +38,7 @@ const Header = ({ navigation, vaccine, patient }: NewVaccineHeaderProps): ReactE
         justifyContent="space-between"
         marginTop={screenPercentageToDP(1, Orientation.Height)}
       >
-        <StyledView position="absolute" width="100%" top="10%">
+        <StyledView position="absolute" width="100%" top="10%" zIndex={1}>
           <StyledTouchableOpacity onPress={onPress}>
             <StyledView paddingLeft={20} paddingTop={20} paddingBottom={20} paddingRight={20}>
               <ArrowLeftIcon
