@@ -70,8 +70,11 @@ jobs:
         run: sed -i "s/Tamanu Mobile/KhmEIR/g" strings.xml
 
       - name: Set branding mipmap app icons
+        if: ${{ inputs.branding != 'tamanu' }}
         working-directory: packages/mobile/android/app/src/main/res
-        run: mv ${{inputs.branding}}/* .
+        run: |
+          rm -rf mipmap-*
+          mv ${{inputs.branding}}/* .
 
       - name: Set server overrides
         if: ${{ inputs.server }}
@@ -86,7 +89,7 @@ jobs:
       - name: Make branding available to app
         working-directory: packages/mobile/android
         run: |
-          echo "REACT_NATIVE_BRANDING=${{ inputs.branding }}" > local.properties
+          echo "BRANDING=${{ inputs.branding }}" > .env
 
       - name: Restore keystore
         if: ${{ inputs.buildType == 'release' }}

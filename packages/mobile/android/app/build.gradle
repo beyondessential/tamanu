@@ -4,6 +4,13 @@ apply plugin: "com.facebook.react"
 import com.android.build.OutputFile
 import groovy.json.JsonSlurper
 
+project.ext.envConfigFiles = [
+    debug: ".env",
+    release: ".env",
+]
+
+apply from: project(':react-native-config').projectDir.getPath() + "/dotenv.gradle"
+
 /**
  * This is the configuration block to customize your React Native Android app.
  * By default you don't need to apply any configuration, just uncomment the lines you need.
@@ -110,6 +117,9 @@ android {
         versionCode major.toInteger() * 1000000 + minor.toInteger() * 1000 + patch.toInteger()
         versionName getAppVersion()
         multiDexEnabled true
+
+                //React-native-config needs this line because we have flavors
+        resValue "string", "build_config_package", "com.ifsguide"
     }
 
     splits {
