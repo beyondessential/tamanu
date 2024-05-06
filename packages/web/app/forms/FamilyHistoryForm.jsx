@@ -82,9 +82,16 @@ export const FamilyHistoryForm = ({
     }}
     formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
     validationSchema={yup.object().shape({
-      diagnosisId: foreignKey('Diagnosis is required'),
+      diagnosisId: foreignKey().translatedLabel(
+        <TranslatedText stringId="general.diagnosis.label" fallback="Diagnosis" />,
+      ),
       practitionerId: optionalForeignKey(),
-      recordedDate: yup.date().required(),
+      recordedDate: yup
+        .date()
+        .required()
+        .translatedLabel(
+          <TranslatedText stringId="general.recordedDate.label" fallback="Date recorded" />,
+        ),
     })}
   />
 );

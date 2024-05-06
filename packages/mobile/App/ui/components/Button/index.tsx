@@ -29,6 +29,7 @@ export interface StyledButtonProps extends ButtonContainerProps {
   fontSize?: string | number;
   textColor?: string;
   fontWeight?: StrNumType;
+  fullWidth?: boolean;
   children?: ReactNode;
 }
 

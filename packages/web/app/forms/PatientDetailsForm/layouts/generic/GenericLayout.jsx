@@ -24,14 +24,18 @@ import { GenericBirthFields } from './patientFields/GenericBirthFields';
 import { useSuggester } from '../../../../api';
 import { PatientFieldsGroup } from '../../PatientFields';
 import { TranslatedText } from '../../../../components/Translation/TranslatedText';
+import { ReminderContactSection } from '../../../../components/ReminderContact/ReminderContactSection';
+import { useSettingsQuery } from '../../../../api/queries/useSettingsQuery';
 
 export const GenericPrimaryDetailsLayout = ({
   patientRegistryType,
   registeredBirthPlace,
   sexOptions,
   isRequiredPatientData,
+  isDetailsForm = false,
 }) => {
   const villageSuggester = useSuggester('village');
+  const { data: isReminderContactEnabled } = useSettingsQuery('features.reminderContactModule.enabled');
   return (
     <>
       <PatientDetailsHeading>
@@ -39,6 +43,7 @@ export const GenericPrimaryDetailsLayout = ({
           stringId="patient.detail.subheading.general"
           fallback="General information"
         />
+        {isReminderContactEnabled && isDetailsForm && <ReminderContactSection />}
       </PatientDetailsHeading>
       <FormGrid>
         <LocalisedField
@@ -198,10 +203,10 @@ export const GenericSecondaryDetailsLayout = ({
       />
     </PatientDetailsHeading>
     <SecondaryDetailsFormGrid>
-      <GenericPersonalFields 
-        patientRegistryType={patientRegistryType} 
-        filterByMandatory={false} 
-        isEdit={isEdit} 
+      <GenericPersonalFields
+        patientRegistryType={patientRegistryType}
+        filterByMandatory={false}
+        isEdit={isEdit}
       />
     </SecondaryDetailsFormGrid>
 

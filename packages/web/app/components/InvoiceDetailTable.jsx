@@ -242,7 +242,7 @@ const INVOICE_LINE_ACTION_COLUMN = {
 const INVOICE_LINE_COLUMNS = [
   {
     key: 'dateGenerated',
-    title: <TranslatedText stringId="general.table.column.date" fallback="Date" />,
+    title: <TranslatedText stringId="general.date.label" fallback="Date" />,
     sortable: false,
     accessor: ({ dateGenerated }) => <DateDisplay date={dateGenerated} />,
   },
@@ -294,7 +294,7 @@ const INVOICE_PRICE_CHANGE_ACTION_COLUMN = {
 const INVOICE_PRICE_CHANGE_COLUMNS = [
   {
     key: 'date',
-    title: <TranslatedText stringId="general.table.column.date" fallback="Date" />,
+    title: <TranslatedText stringId="general.date.label" fallback="Date" />,
     sortable: false,
     accessor: ({ date }) => (date ? <DateDisplay date={date} /> : ''),
   },
