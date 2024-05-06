@@ -3,7 +3,7 @@ import { fake } from '@tamanu/shared/test-helpers/fake';
 import {
   GENERAL_IMPORTABLE_DATA_TYPES,
   PERMISSION_IMPORTABLE_DATA_TYPES,
-  OTHER_REFERENCE_TYPES,
+  OTHER_REFERENCE_TYPE_VALUES,
 } from '@tamanu/constants/importable';
 import { createDummyPatient } from '@tamanu/shared/demoData/patients';
 import { REFERENCE_TYPES, REFERENCE_DATA_TRANSLATION_PREFIX } from '@tamanu/constants';
@@ -361,7 +361,7 @@ describe('Data definition import', () => {
 
     // Filter out the clinical/patient record types as they dont get translated
     const translatableNonRefDataTableImports = Object.keys(stats).filter(key =>
-      OTHER_REFERENCE_TYPES.includes(camelCase(key)),
+      OTHER_REFERENCE_TYPE_VALUES.includes(camelCase(key)),
     );
     translatableNonRefDataTableImports.forEach(async type => {
       const recordsForDataType = await models[type].findAll({
