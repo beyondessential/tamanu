@@ -6,8 +6,8 @@
 export async function up(query) {
   await query.sequelize.query(
     `
-  CREATE OR REPLACE VIEW upcoming_vaccinations
-  AS
+  create or replace view upcoming_vaccinations
+  as
   with vaccine_settings as (
     select s.value value, 1 priority
     from settings s
@@ -17,7 +17,7 @@ export async function up(query) {
     select :thresholdsDefault, 0
     order by priority desc limit 1
   ),
-  vaccine_thresholds AS (
+  vaccine_thresholds as (
 	  select
 		  (jsonb_array_elements(s.value) ->> 'threshold'::text)::double precision AS threshold,
 		  jsonb_array_elements(s.value) ->> 'status'::text AS status
