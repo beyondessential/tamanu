@@ -66,7 +66,7 @@ export const login = ({ secret, refreshSecret }) =>
   asyncHandler(async (req, res) => {
     const { store, body, settings } = req;
     const { models } = store;
-    const { email, password, deviceId } = body;
+    const { email, password, facilityId, deviceId } = body;
 
     const settingsObject = await settings.getFrontEndSettings();
     settingsObject.countryTimeZone = config.countryTimeZone; // This needs to be in config but also needs to be front end accessible
@@ -96,7 +96,7 @@ export const login = ({ secret, refreshSecret }) =>
     const { auth, canonicalHostName } = config;
     const { tokenDuration } = auth;
     const accessTokenJwtId = getRandomU32();
-    const [token, refreshToken, localisation, permissions, role] = await Promise.all([
+    const [token, refreshToken, localisation, facility, permissions, role] = await Promise.all([
       getToken(
         {
           userId: user.id,
@@ -113,6 +113,7 @@ export const login = ({ secret, refreshSecret }) =>
       internalClient
         ? getRefreshToken(models, { refreshSecret, userId: user.id, deviceId })
         : undefined,
+      models.Facility.findByPk(facilityId),
       getLocalisation(),
       getPermissionsForRoles(models, user.role),
       models.Role.findByPk(user.role),
@@ -128,7 +129,8 @@ export const login = ({ secret, refreshSecret }) =>
       user: convertFromDbRecord(stripUser(user.get({ plain: true }))).data,
       permissions,
       role: role?.forResponse() ?? null,
-      facilities: permittedFacilities.map(r => convertFromDbRecord(r.get({ plain: true })).data),
+      facility,
+      facilities: permittedFacilities.map(({ id, name }) => ({ id, name })),
       localisation,
       centralHost: config.canonicalHostName,
       settings: settingsObject,

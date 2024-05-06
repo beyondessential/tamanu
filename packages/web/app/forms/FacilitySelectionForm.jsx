@@ -4,7 +4,15 @@ import styled from 'styled-components';
 
 import { Typography } from '@material-ui/core';
 import { FormGrid } from '../components/FormGrid';
-import { BodyText, Field, Form, FormSubmitButton, AutocompleteField } from '../components';
+import {
+  BodyText,
+  Field,
+  Form,
+  FormSubmitButton,
+  FormCancelButton,
+  AutocompleteField,
+  ButtonRow,
+} from '../components';
 import { Colors } from '../constants';
 import { LanguageSelector } from '../components/LanguageSelector';
 import { TranslatedText } from '../components/Translation/TranslatedText';
@@ -21,14 +29,21 @@ const Heading = styled(Typography)`
   line-height: 32px;
 `;
 
-const SubmitButton = styled(FormSubmitButton)`
+const StyledButtonRow = styled(ButtonRow)`
   font-size: 14px;
   line-height: 18px;
-  padding: 14px 0;
   margin-top: 15px;
 `;
 
-const FacilitySelectionFormComponent = ({ facilities, errorMessage }) => {
+const SubmitButton = styled(FormSubmitButton)`
+  flex: 1;
+`;
+
+const CancelButton = styled(FormCancelButton)`
+  margin-left: 0 !important;
+`;
+
+const FacilitySelectionFormComponent = ({ facilities, errorMessage, onCancel }) => {
   return (
     <FormGrid columns={1}>
       <div>
@@ -41,35 +56,43 @@ const FacilitySelectionFormComponent = ({ facilities, errorMessage }) => {
         name="facilityId"
         label={<TranslatedText stringId="auth.facility.label" fallback="Facility" />}
         component={AutocompleteField}
-        options={facilities}
+        options={facilities.map(facility => ({ value: facility.id, label: facility.name }))}
         required
       />
-      <SubmitButton text={<TranslatedText stringId="auth.facility.submit" fallback="Submit" />} />
+      <StyledButtonRow>
+        <CancelButton onClick={onCancel}>
+          {<TranslatedText stringId="auth.facility.cancel" fallback="Cancel" />}
+        </CancelButton>
+        <SubmitButton text={<TranslatedText stringId="auth.facility.submit" fallback="Submit" />} />
+      </StyledButtonRow>
       <LanguageSelector />
     </FormGrid>
   );
 };
 
-export const FacilitySelectionForm = React.memo(({ facilities, onSubmit, errorMessage }) => {
-  const renderForm = ({ setFieldValue, setFieldError }) => (
-    <FacilitySelectionFormComponent
-      facilities={facilities}
-      errorMessage={errorMessage}
-      setFieldValue={setFieldValue}
-      setFieldError={setFieldError}
-    />
-  );
+export const FacilitySelectionForm = React.memo(
+  ({ facilities, onSubmit, onCancel, errorMessage }) => {
+    const renderForm = ({ setFieldValue, setFieldError }) => (
+      <FacilitySelectionFormComponent
+        facilities={facilities}
+        errorMessage={errorMessage}
+        setFieldValue={setFieldValue}
+        setFieldError={setFieldError}
+        onCancel={onCancel}
+      />
+    );
 
-  return (
-    <Form
-      onSubmit={onSubmit}
-      render={renderForm}
-      validationSchema={yup.object().shape({
-        facilityId: yup
-          .string()
-          .required()
-          .translatedLabel(<TranslatedText stringId="auth.facility.label" fallback="Facility" />),
-      })}
-    />
-  );
-});
+    return (
+      <Form
+        onSubmit={onSubmit}
+        render={renderForm}
+        validationSchema={yup.object().shape({
+          facilityId: yup
+            .string()
+            .required()
+            .translatedLabel(<TranslatedText stringId="auth.facility.label" fallback="Facility" />),
+        })}
+      />
+    );
+  },
+);

@@ -62,7 +62,8 @@ export async function centralServerLogin(models, email, password, deviceId) {
   });
 
   // we've logged in as a valid central user - update local database to match
-  const { user, localisation, settings } = response;
+  const { user, localisation, facilities, settings } = response;
+  console.log(facilities);
   const { id, ...userDetails } = user;
 
   await models.User.sequelize.transaction(async () => {
@@ -79,7 +80,7 @@ export async function centralServerLogin(models, email, password, deviceId) {
     });
   });
 
-  return { central: true, user, localisation, settings };
+  return { central: true, user, localisation, facilities, settings };
 }
 
 async function localLogin(models, email, password) {
@@ -102,7 +103,7 @@ async function localLogin(models, email, password) {
   return {
     central: false,
     user: user.get({ plain: true }),
-    facilities: facilities.map(f => f.get({ plain: true })),
+    facilities: facilities.map(({ id, name }) => ({ id, name })),
     localisation,
   };
 }

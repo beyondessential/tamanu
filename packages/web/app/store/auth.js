@@ -65,7 +65,6 @@ export const login = (email, password) => async (dispatch, getState, { api }) =>
     } = await api.login(email, password);
     // if there's just one facility the user has access to, select it immediately
     // otherwise they will be prompted to select a facility after login
-    console.log(facilities);
     const facilityId = facilities.length === 1 ? [0] : null;
     dispatch({
       type: LOGIN_SUCCESS,
