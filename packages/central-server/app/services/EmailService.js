@@ -83,7 +83,7 @@ export class EmailService {
       });
       return { status: COMMUNICATION_STATUSES.SENT, result: emailResult };
     } catch (e) {
-      return { status: COMMUNICATION_STATUSES.ERROR, error: e.message };
+      return { status: COMMUNICATION_STATUSES.ERROR, error: e.message, shouldRetry: true };
     }
   }
 }
