@@ -35,7 +35,10 @@ async function generateData(models) {
     PatientProgramRegistration,
     PatientProgramRegistrationCondition,
     PatientAllergy,
-    PatientCommunication
+    PatientCommunication,
+    CertificateNotification,
+    LabTest,
+    LabTestType,
   } = models;
 
   const examiner = await User.create(fake(User));
@@ -156,11 +159,32 @@ async function generateData(models) {
       patientId: patient.id,
     })
   );
-  await ReferenceData.create(fake(ReferenceData));
+  const referenceData = await ReferenceData.create(fake(ReferenceData));
   await ReferenceDataRelation.create(fake(ReferenceDataRelation));
   await PatientCommunication.create(
     fake(PatientCommunication, {
       patientId: patient.id,
+    })
+  );
+
+  const labTestType = await LabTestType.create(
+    fake(LabTestType, {
+      labTestCategoryId: referenceData.id,
+    })
+  );
+  const labTest = await LabTest.create(
+    fake(LabTest, {
+      labRequestId: labRequest.id,
+      categoryId: referenceData.id,
+      labTestMethodId: referenceData.id,
+      labTestTypeId: labTestType.id
+    })
+  );
+  await CertificateNotification.create(
+    fake(CertificateNotification, {
+      patientId: patient.id,
+      labTestId: labTest.id,
+      labRequestId: labRequest.id,
     })
   );
 }
