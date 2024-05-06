@@ -25,6 +25,7 @@ import { isInpatient } from '../utils/isInpatient';
 export const EncounterForm = React.memo(
   ({ editedObject, onSubmit, patientBillingTypeId, encounterType }) => {
     const practitionerSuggester = useSuggester('practitioner');
+    const dietSuggester = useSuggester('diet');
     const departmentSuggester = useSuggester('department', {
       baseQueryParameters: { filterByFacility: true },
     });
@@ -125,8 +126,8 @@ export const EncounterForm = React.memo(
                 fallback="Diet"
               />
             }
-            endpoint="diet"
-            component={SuggesterSelectField}
+            suggester={dietSuggester}
+            component={AutocompleteField}
           />}
           <Field
             name="reasonForEncounter"
