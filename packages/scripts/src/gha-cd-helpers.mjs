@@ -60,6 +60,7 @@ const OPTIONS = [
   { key: 'opsstack', defaultValue: 'tamanu/on-k8s' },
   { key: 'k8score', defaultValue: 'tamanu-internal-main' },
   { key: 'pause', defaultValue: false, presence: true },
+  { key: 'imagesonly', defaultValue: false, presence: true },
 
   { key: 'apis', defaultValue: 2, parse: input => intBounds(input, [0, 5]) },
   {

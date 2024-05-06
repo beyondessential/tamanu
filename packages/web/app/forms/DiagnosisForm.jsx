@@ -15,13 +15,10 @@ import {
   SelectField,
 } from '../components/Field';
 import { useSuggester } from '../api';
-import { useLocalisation } from '../contexts/Localisation';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 
 export const DiagnosisForm = React.memo(
   ({ isTriage = false, onCancel, onSave, diagnosis, excludeDiagnoses }) => {
-    const { getLocalisation } = useLocalisation();
-
     // don't show the "ED Diagnosis" option if we're just on a regular encounter
     // (unless we're editing a diagnosis with ED certainty already set)
     const certaintyOptions = DIAGNOSIS_CERTAINTY_OPTIONS.filter(x => {
@@ -46,19 +43,35 @@ export const DiagnosisForm = React.memo(
         }}
         formType={diagnosis ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
         validationSchema={yup.object().shape({
-          diagnosisId: foreignKey('Diagnosis must be selected'),
+          diagnosisId: foreignKey().translatedLabel(
+            <TranslatedText
+              stringId="general.localisedField.diagnosis.label"
+              fallback="Diagnosis"
+            />,
+          ),
           certainty: yup
             .string()
             .oneOf(certaintyOptions.map(x => x.value))
-            .required(),
-          date: yup.date().required(),
+            .required()
+            .translatedLabel(
+              <TranslatedText stringId="diagnosis.certainty.label" fallback="Certainty" />,
+            ),
+          date: yup
+            .date()
+            .required()
+            .translatedLabel(<TranslatedText stringId="general.date.label" fallback="Date" />),
         })}
         render={({ submitForm }) => (
           <FormGrid>
             <div style={{ gridColumn: '1 / -1' }}>
               <Field
                 name="diagnosisId"
-                label={getLocalisation(`fields.diagnosis.longLabel`)}
+                label={
+                  <TranslatedText
+                    stringId="general.localisedField.diagnosis.label"
+                    fallback="Diagnosis"
+                  />
+                }
                 component={AutocompleteField}
                 suggester={icd10Suggester}
                 required

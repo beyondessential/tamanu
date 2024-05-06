@@ -9,6 +9,7 @@ import { DateDisplay } from '../components';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
 import { PATIENT_TABS } from '../constants/patientPaths';
 import { Colors } from '../constants';
+import { useTranslation } from '../contexts/Translation';
 
 const StyledPatientDetailsLink = styled.span`
   cursor: pointer;
@@ -76,25 +77,31 @@ const IPSQRCodeFormComponent = ({ patient, onSubmit, confirmDisabled, onCancel }
   );
 };
 
-export const IPSQRCodeForm = ({ patient, onSubmit, confirmDisabled, onCancel }) => (
-  <Form
-    onSubmit={onSubmit}
-    initialValues={{ email: patient.email }}
-    validationSchema={Yup.object().shape({
-      email: Yup.string()
-        .email('Must be a valid email address')
-        .required('Email is required'),
-      confirmEmail: Yup.string()
-        .oneOf([Yup.ref('email'), null], 'Emails must match')
-        .required(),
-    })}
-    render={({ submitForm }) => (
-      <IPSQRCodeFormComponent
-        patient={patient}
-        onSubmit={submitForm}
-        confirmDisabled={confirmDisabled}
-        onCancel={onCancel}
-      />
-    )}
-  />
-);
+export const IPSQRCodeForm = ({ patient, onSubmit, confirmDisabled, onCancel }) => {
+  const { getTranslation } = useTranslation();
+  return (
+    <Form
+      onSubmit={onSubmit}
+      initialValues={{ email: patient.email }}
+      validationSchema={Yup.object().shape({
+        email: Yup.string()
+          .email(getTranslation('validation.rule.validEmail', 'Must be a valid email address'))
+          .required(),
+        confirmEmail: Yup.string()
+          .oneOf(
+            [Yup.ref('email'), null],
+            getTranslation('validation.rule.emailsMatch', 'Emails must match'),
+          )
+          .required(),
+      })}
+      render={({ submitForm }) => (
+        <IPSQRCodeFormComponent
+          patient={patient}
+          onSubmit={submitForm}
+          confirmDisabled={confirmDisabled}
+          onCancel={onCancel}
+        />
+      )}
+    />
+  );
+};
