@@ -101,7 +101,8 @@ const Container = styled.div`
   justify-content: space-between;
   flex-wrap: wrap;
   flex: 2;
-  padding-left: 15px;
+  flex-grow: 0;
+  padding-left: 5px;
   justify-content: end;
 `;
 
