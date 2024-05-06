@@ -47,8 +47,8 @@ export class ReferenceData extends BaseModel implements IReferenceData {
   // ----------------------------------
   static async getParentRecursive(id, ancestors, relationType) {
     const parent = await ReferenceData.getNode({ id }, relationType);
-    const parentId = parent.getParentId();
-    if (!parentId || ancestors.length > 5) {
+    const parentId = parent?.getParentId();
+    if (!parentId) {
       return [...ancestors, parent];
     }
     return ReferenceData.getParentRecursive(parentId, [...ancestors, parent], relationType);
@@ -61,12 +61,29 @@ export class ReferenceData extends BaseModel implements IReferenceData {
   static async getNode(where, relationType = REFERENCE_DATA_RELATION_TYPES.ADDRESS_HIERARCHY) {
     const repo = this.getRepository();
 
-    const recordWithParents = await repo.findOne(
-      { visibilityStatus: VisibilityStatus.Current, ...where },
-      {
-        relations: ['parents'],
+    let recordWithParents = await repo.findOne({
+      where: qb => {
+        qb.leftJoinAndSelect('ReferenceData.parents', 'parents')
+          .where('parents_type = :relationType', {
+            relationType,
+          })
+          .andWhere({ visibilityStatus: VisibilityStatus.Current })
+          .andWhere(where);
       },
-    );
+    });
+
+    if (!recordWithParents) {
+      // It's not possible to do right or outer joins in type orm so we have to do a second query
+      // the other option would be to write the query in raw sql but then it wouldn't be possible
+      // to use an object for the where parameter
+      recordWithParents = await repo.findOne({
+        where: qb => {
+          qb.leftJoinAndSelect('ReferenceData.parents', 'parents')
+            .where({ visibilityStatus: VisibilityStatus.Current })
+            .andWhere(where);
+        },
+      });
+    }
 
     return recordWithParents;
   }
@@ -78,7 +95,7 @@ export class ReferenceData extends BaseModel implements IReferenceData {
     if (!parentId) {
       return [];
     }
-    return ReferenceData.getParentRecursive(parentId, [baseNode], relationType);
+    return ReferenceData.getParentRecursive(parentId, [baseNode], 'address_hierarchy');
   }
   static async searchDataByType(
     referenceDataType: ReferenceDataType,
