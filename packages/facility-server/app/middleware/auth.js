@@ -97,7 +97,14 @@ async function localLogin(models, email, password) {
     order: [['createdAt', 'DESC']],
   });
 
-  return { central: false, user, localisation };
+  const facilities = await user.getPermittedFacilities();
+
+  return {
+    central: false,
+    user: user.get({ plain: true }),
+    facilities: facilities.map(f => f.get({ plain: true })),
+    localisation,
+  };
 }
 
 async function centralServerLoginWithLocalFallback(models, email, password, deviceId) {
@@ -133,12 +140,13 @@ export async function loginHandler(req, res, next) {
   req.flagPermissionChecked();
 
   try {
-    const { central, user, localisation, settings } = await centralServerLoginWithLocalFallback(
-      models,
-      email,
-      password,
-      deviceId,
-    );
+    const {
+      central,
+      user,
+      localisation,
+      facilities,
+      settings,
+    } = await centralServerLoginWithLocalFallback(models, email, password, deviceId);
     const [facility, permissions, token, role] = await Promise.all([
       models.Facility.findByPk(config.serverFacilityId),
       getPermissionsForRoles(models, user.role),
@@ -154,6 +162,7 @@ export async function loginHandler(req, res, next) {
       server: {
         facility: facility?.forResponse() ?? null,
       },
+      facilities,
       settings,
     });
   } catch (e) {

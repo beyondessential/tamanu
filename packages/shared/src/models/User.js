@@ -72,7 +72,7 @@ export class User extends Model {
       return null;
     }
 
-    return user.get({ plain: true });
+    return user;
   }
 
   static init({ primaryKey, ...options }) {
@@ -153,12 +153,9 @@ export class User extends Model {
       foreignKey: 'userId',
     });
 
-    this.hasMany(models.UserFacility, {
-      foreignKey: 'facilityId',
-    });
-
     this.belongsToMany(models.Facility, {
       through: 'UserFacility',
+      as: 'permittedFacilities',
     });
   }
 
