@@ -20,7 +20,7 @@ export class ReferenceData extends BaseModel implements IReferenceData {
   type: ReferenceDataType;
 
   @Column({ default: VisibilityStatus.Current })
-  visibilityStatus: string;
+  visibilityStatus: VisibilityStatus;
 
   @OneToMany(
     () => RefDataRelation,
@@ -45,7 +45,7 @@ export class ReferenceData extends BaseModel implements IReferenceData {
   // ----------------------------------
   // Reference data hierarchy utilities
   // ----------------------------------
-  static async getParentRecursive(id, ancestors, relationType) {
+  static async getParentRecursive(id: string, ancestors: ReferenceData[], relationType: string) {
     const parent = await ReferenceData.getNode({ id }, relationType);
     const parentId = parent?.getParentId();
     if (!parentId) {
@@ -58,7 +58,12 @@ export class ReferenceData extends BaseModel implements IReferenceData {
     return this.parents[0]?.referenceDataParentId;
   }
 
-  static async getNode(where, relationType = REFERENCE_DATA_RELATION_TYPES.ADDRESS_HIERARCHY) {
+  static async getNode(
+    where: {
+      [key: string]: any;
+    },
+    relationType = REFERENCE_DATA_RELATION_TYPES.ADDRESS_HIERARCHY,
+  ) {
     const repo = this.getRepository();
 
     let recordWithParents = await repo.findOne({

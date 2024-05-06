@@ -1,4 +1,5 @@
 import { VisibilityStatus } from '~/visibilityStatuses';
+import { ReferenceDataRelation } from '~/models/ReferenceDataRelation';
 
 export enum ReferenceDataType {
   Allergy = 'allergy',
@@ -27,6 +28,7 @@ export interface IReferenceData {
   code: string;
   type: ReferenceDataType;
   visibilityStatus: VisibilityStatus;
+  parents?: ReferenceDataRelation[];
 }
 
 export enum ReferenceDataRelationType {
@@ -36,5 +38,7 @@ export enum ReferenceDataRelationType {
 
 export interface IReferenceDataRelation {
   id: string;
+  referenceDataParentId: string;
+  referenceDataId: string;
   type: ReferenceDataRelationType;
 }

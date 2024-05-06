@@ -1,10 +1,11 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useFormikContext } from 'formik';
 import { AutocompleteModalField } from './AutocompleteModal/AutocompleteModalField';
 import { Field } from './Forms/FormField';
 import { Suggester } from '../helpers/suggester';
 import { useBackend } from '~/ui/hooks';
 import { useDidUpdateEffect } from '~/ui/hooks/useDidUpdateEffect';
+import { IReferenceData } from '~/types';
 
 export const HierarchyFieldItem = ({
   isFirstLevel,
@@ -26,7 +27,7 @@ export const HierarchyFieldItem = ({
       relations: ['parents'],
     },
     undefined,
-    item => {
+    (item: IReferenceData) => {
       if (isFirstLevel || !parentId) {
         return true;
       }
