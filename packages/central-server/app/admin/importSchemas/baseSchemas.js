@@ -84,6 +84,7 @@ export const User = Base.shape({
   displayId: yup.string(),
   displayName: yup.string().required(),
   password: yup.string(),
+  phoneNumber: yup.string(),
   visibilityStatus: yup
     .string()
     .default(VISIBILITY_STATUSES.CURRENT)

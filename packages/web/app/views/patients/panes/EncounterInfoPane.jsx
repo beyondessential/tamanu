@@ -5,9 +5,13 @@ import { getFullLocationName } from '../../../utils/location';
 import { InfoCard, InfoCardHeader, InfoCardItem } from '../../../components/InfoCard';
 import { getDepartmentName } from '../../../utils/department';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { isInpatient } from '../../../utils/isInpatient';
 
 const getReferralSource = ({ referralSource }) =>
   referralSource ? referralSource.name : 'Unknown';
+
+const getDiet = ({ diet }) =>
+  diet ? diet.name : <TranslatedText stringId="general.fallback.unknown" fallback="Unknown" />;
 
 export const getEncounterType = ({ encounterType }) =>
   encounterType ? ENCOUNTER_OPTIONS_BY_VALUE[encounterType]?.label : 'Unknown';
@@ -77,6 +81,16 @@ export const EncounterInfoPane = React.memo(
           value={DateDisplay.stringFormat(encounter.endDate)}
         />
       )}
+      {/* TODO: Integrate with the new UI design */}
+      {isInpatient(encounter?.encounterType) && <InfoCardItem
+        label={
+          <TranslatedText
+            stringId="encounter.summary.diet.label"
+            fallback="Diet"
+          />
+        }
+        value={getDiet(encounter)}
+      />}
       <InfoCardItem
         label={
           <TranslatedText

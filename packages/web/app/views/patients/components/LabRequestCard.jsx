@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import { labsIcon } from '../../../constants/images';
-import { DateDisplay, LowerCase } from '../../../components';
+import { DateDisplay } from '../../../components';
 import { Colors } from '../../../constants';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
@@ -63,34 +63,32 @@ export const LabRequestCard = ({ labRequest, actions }) => {
           </CardLabel>
           <CardValue>{labRequest.displayId}</CardValue>
           <CardLabel>
-            <TranslatedText
-              stringId="lab.details.card.item.requestDate.label"
-              fallback="Request date"
-            />
-            :
+            <TranslatedText stringId="general.requestDate.label" fallback="Request date" />:
           </CardLabel>
           <CardValue>
             <DateDisplay date={labRequest.requestedDate} />
           </CardValue>
         </CardItem>
         <BorderSection>
-          <CardLabel><TranslatedText
-            stringId="general.requestingClinician.label"
-            fallback="Requesting :clinician"
-            replacements={{
-              clinician: (
-                <LowerCase>
+          <CardLabel>
+            <TranslatedText
+              stringId="general.requestingClinician.label"
+              fallback="Requesting :clinician"
+              replacements={{
+                clinician: (
                   <TranslatedText
                     stringId="general.localisedField.clinician.label.short"
                     fallback="Clinician"
+                    lowercase
                   />
-                </LowerCase>
-              ),
-            }}
-          />:</CardLabel>
+                ),
+              }}
+            />
+            :
+          </CardLabel>
           <CardValue>{labRequest.requestedBy?.displayName}</CardValue>
           <CardLabel>
-            <TranslatedText stringId="general.card.item.department.label" fallback="Department" />:
+            <TranslatedText stringId="general.department.label" fallback="Department" />:
           </CardLabel>
           <CardValue>{labRequest.department?.name}</CardValue>
         </BorderSection>
