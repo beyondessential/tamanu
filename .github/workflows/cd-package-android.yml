@@ -75,8 +75,12 @@ jobs:
         if: ${{ inputs.branding != 'tamanu' }}
         working-directory: packages/mobile/android/app/src/main/res
         run: |
-          rm -rf mipmap-*
-          mv ${{inputs.branding}}/* .
+          if [ -d ${{inputs.branding}} ]; then
+            rm -rf mipmap-*
+            mv ${{inputs.branding}}/* .
+          else
+            echo "Warning: No folder called '${{inputs.branding}}' found."
+          fi
 
       - name: Set server overrides
         if: ${{ inputs.server }}
