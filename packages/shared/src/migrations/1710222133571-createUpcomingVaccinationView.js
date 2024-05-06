@@ -29,7 +29,7 @@ export async function up(query) {
     where s.deleted_at is null
     and s.key = 'vaccine.ageLimit'::text
     union
-    select :ageLimitDefault::integer, 0
+    select :ageLimitDefault, 0
     order by priority desc limit 1
   ),
   vaccine_agelimit as (
@@ -120,7 +120,7 @@ export async function up(query) {
             status: 'MISSED',
           },
         ]),
-        ageLimitDefault: 15,
+        ageLimitDefault: '15',
       },
     },
   );
