@@ -33,6 +33,8 @@ const DiagnosisLabel = React.memo(({ numberOfDiagnoses }) => {
 });
 
 const DiagnosisGrid = styled.div`
+  margin-left: 30px;
+  margin-right: 30px;
   display: grid;
   grid-template-columns: max-content auto max-content;
 `;
