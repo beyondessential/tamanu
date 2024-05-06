@@ -355,6 +355,7 @@ jobs:
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
     name: Package release Android ${{ github.ref_name }}
     uses: ./.github/workflows/cd-package-android.yml
+    secrets: inherit
     with:
       buildType: release
 
