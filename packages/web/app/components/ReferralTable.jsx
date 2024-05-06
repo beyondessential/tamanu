@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 
 import { REFERRAL_STATUSES } from '@tamanu/constants';
@@ -17,6 +17,7 @@ import { TranslatedText, TranslatedEnum } from './Translation';
 import { useAuth } from '../contexts/Auth';
 import { MenuButton } from './MenuButton';
 import { DeleteReferralModal } from '../views/patients/components/DeleteReferralModal';
+import { useRefreshCount } from '../hooks/useRefreshCount';
 
 const fieldNames = ['Referring doctor', 'Referral completed by'];
 const ReferralBy = ({ surveyResponse: { survey, answers } }) => {
@@ -88,71 +89,50 @@ export const ReferralTable = React.memo(({ patientId }) => {
   const { loadEncounter } = useEncounter();
   const [modalId, setModalId] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
-  const [refreshCount, setRefreshCount] = useState(0);
+  const [refreshCount, updateRefreshCount] = useRefreshCount();
   const [selectedReferral, setSelectedReferral] = useState({});
   const [selectedReferralId, setSelectedReferralId] = useState(null);
   const onSelectReferral = useCallback(referral => {
     setSelectedReferralId(referral.surveyResponseId);
   }, []);
-  const refreshTable = () => setRefreshCount(refreshCount + 1);
 
   const endpoint = `patient/${patientId}/referrals`;
 
-  const onCancelReferral = async () => {
+  const onCancelReferral = useCallback(async () => {
     await api.put(`referral/${selectedReferral.id}`, { status: REFERRAL_STATUSES.CANCELLED });
     setModalOpen(false);
-    refreshTable();
-  };
+    updateRefreshCount();
+  }, [api, selectedReferral.id, updateRefreshCount]);
   const onCompleteReferral = async () => {
     await api.put(`referral/${selectedReferral.id}`, { status: REFERRAL_STATUSES.COMPLETED });
-    refreshTable();
+    updateRefreshCount();
   };
   const onViewEncounter = useCallback(async () => {
     loadEncounter(selectedReferral.encounterId, true);
   }, [selectedReferral, loadEncounter]);
 
-  const MODALS = {
-    [MODAL_IDS.ADMIT]: ({ referralToDelete, ...props }) => (
-      <EncounterModal {...props} patient={patient} referral={referralToDelete} />
-    ),
-    [MODAL_IDS.CANCEL]: props => (
-      <ConfirmModal
-        {...props}
-        title={<TranslatedText stringId="referral.modal.cancel.title" fallback="Cancel referral" />}
-        text={
-          <TranslatedText
-            stringId="referral.modal.cancel.warningText1"
-            fallback="WARNING: This action is irreversible!"
-          />
-        }
-        subText={
-          <TranslatedText
-            stringId="referral.modal.cancel.warningText2"
-            fallback="Are you sure you want to cancel this referral?"
-          />
-        }
-        cancelButtonText={<TranslatedText stringId="general.action.no" fallback="No" />}
-        confirmButtonText={<TranslatedText stringId="general.action.yes" fallback="Yes" />}
-        ConfirmButton={DeleteButton}
-        onConfirm={onCancelReferral}
-        onCancel={() => setModalOpen(false)}
-      />
-    ),
-    [MODAL_IDS.DELETE]: DeleteReferralModal,
+  const onCloseReferral = useCallback(() => setSelectedReferralId(null), []);
+
+  const handleChangeModalId = id => {
+    setModalId(id);
+    setModalOpen(true);
   };
 
   const actions = [
     {
       label: <TranslatedText stringId="patient.referral.action.admit" fallback="Admit" />,
       action: () => handleChangeModalId(MODAL_IDS.ADMIT),
+      condition: data => data.status === REFERRAL_STATUSES.PENDING,
     },
     {
       label: <TranslatedText stringId="patient.referral.action.complete" fallback="Complete" />,
       action: onCompleteReferral,
+      condition: data => data.status === REFERRAL_STATUSES.PENDING,
     },
     {
       label: <TranslatedText stringId="general.action.cancel" fallback="Cancel" />,
       action: () => handleChangeModalId(MODAL_IDS.CANCEL),
+      condition: data => data.status === REFERRAL_STATUSES.PENDING,
     },
     {
       label: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
@@ -206,22 +186,52 @@ export const ReferralTable = React.memo(({ patientId }) => {
       title: '',
       dontCallRowInput: true,
       sortable: false,
-      CellComponent: ({ data }) => (
-        <div onMouseEnter={() => setSelectedReferral(data)}>
-          <MenuButton actions={actions} />
-        </div>
-      ),
+      CellComponent: ({ data }) => {
+        const filteredActions = actions.filter(
+          action => !action.condition || action.condition(data),
+        );
+        return (
+          <div onMouseEnter={() => setSelectedReferral(data)}>
+            <MenuButton actions={filteredActions} />
+          </div>
+        );
+      },
     },
   ];
 
-  const onCloseReferral = useCallback(() => setSelectedReferralId(null), []);
+  const ActiveModal = useMemo(() => {
+    const MODALS = {
+      [MODAL_IDS.ADMIT]: ({ referralToDelete, ...props }) => (
+        <EncounterModal {...props} patient={patient} referral={referralToDelete} />
+      ),
+      [MODAL_IDS.CANCEL]: props => (
+        <ConfirmModal
+          {...props}
+          title={<TranslatedText stringId="referral.modal.cancel.title" fallback="Cancel referral" />}
+          text={
+            <TranslatedText
+              stringId="referral.modal.cancel.warningText1"
+              fallback="WARNING: This action is irreversible!"
+            />
+          }
+          subText={
+            <TranslatedText
+              stringId="referral.modal.cancel.warningText2"
+              fallback="Are you sure you want to cancel this referral?"
+            />
+          }
+          cancelButtonText={<TranslatedText stringId="general.action.no" fallback="No" />}
+          confirmButtonText={<TranslatedText stringId="general.action.yes" fallback="Yes" />}
+          ConfirmButton={DeleteButton}
+          onConfirm={onCancelReferral}
+          onCancel={() => setModalOpen(false)}
+        />
+      ),
+      [MODAL_IDS.DELETE]: DeleteReferralModal,
+    };
 
-  const handleChangeModalId = id => {
-    setModalId(id);
-    setModalOpen(true);
-  };
-
-  const ActiveModal = MODALS[modalId] || null;
+    return MODALS[modalId] || null;
+  }, [modalId, patient, onCancelReferral]);
 
   return (
     <>
@@ -247,7 +257,7 @@ export const ReferralTable = React.memo(({ patientId }) => {
           endpoint={endpoint}
           onClose={() => {
             setModalOpen(false);
-            refreshTable();
+            updateRefreshCount();
           }}
         />
       )}

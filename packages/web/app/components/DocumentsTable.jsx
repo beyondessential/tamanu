@@ -30,14 +30,6 @@ const StyledIconButton = styled(IconButton)`
   padding-right: 10px;
 `;
 
-const MODAL_IDS = {
-  DELETE: 'delete',
-};
-
-const MODALS = {
-  [MODAL_IDS.DELETE]: DeleteDocumentModal,
-};
-
 const getAttachmentType = ({ type }) => {
   // Note that this may not be the actual extension of the file uploaded.
   // Instead, its the default extension for the mime-type of the file uploaded.
@@ -61,19 +53,13 @@ export const DocumentsTable = React.memo(
     openDocumentPreview
   }) => {
     const { ability } = useAuth();
-    const [modalId, setModalId] = useState(null);
     const [modalOpen, setModalOpen] = useState(false);
     const [selectedDocument, setSelectedDocument] = useState(null);
-
-    const handleChangeModalId = id => {
-      setModalId(id);
-      setModalOpen(true);
-    };
 
     const actions = [
       {
         label: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
-        action: () => handleChangeModalId(MODAL_IDS.DELETE),
+        action: () => setModalOpen(true),
         permissionCheck: () => {
           return ability?.can('delete', 'DocumentMetadata');
         },
@@ -81,8 +67,6 @@ export const DocumentsTable = React.memo(
     ].filter(({ permissionCheck }) => {
       return permissionCheck ? permissionCheck() : true;
     });
-
-    const ActiveModal = MODALS[modalId] || null;
 
     // Define columns inside component to pass callbacks to getActions
     const COLUMNS = [
@@ -149,17 +133,15 @@ export const DocumentsTable = React.memo(
           elevated={false}
           onRowClick={row => openDocumentPreview(row)}
         />
-        {ActiveModal && (
-          <ActiveModal
-            open={modalOpen}
-            documentToDelete={selectedDocument}
-            endpoint={endpoint}
-            onClose={() => {
-              setModalOpen(false);
-              refreshTable();
-            }}
-          />
-        )}
+        <DeleteDocumentModal
+          open={modalOpen}
+          documentToDelete={selectedDocument}
+          endpoint={endpoint}
+          onClose={() => {
+            setModalOpen(false);
+            refreshTable();
+          }}
+        />
       </>
     );
   },
