@@ -3,7 +3,7 @@ import { fake } from '@tamanu/shared/test-helpers/fake';
 import {
   GENERAL_IMPORTABLE_DATA_TYPES,
   PERMISSION_IMPORTABLE_DATA_TYPES,
-  TRANSLATABLE_REFERENCE_TYPES,
+  OTHER_REFERENCE_TYPES,
 } from '@tamanu/constants/importable';
 import { createDummyPatient } from '@tamanu/shared/demoData/patients';
 import { REFERENCE_TYPES, REFERENCE_DATA_TRANSLATION_PREFIX } from '@tamanu/constants';
@@ -360,9 +360,8 @@ describe('Data definition import', () => {
     );
 
     // Filter out the clinical/patient record types as they dont get translated
-    const translatableNonRefDataTableImports = Object.keys(stats).filter(
-      key =>
-        !key.startsWith('ReferenceData') && TRANSLATABLE_REFERENCE_TYPES.includes(camelCase(key)),
+    const translatableNonRefDataTableImports = Object.keys(stats).filter(key =>
+      OTHER_REFERENCE_TYPES.includes(camelCase(key)),
     );
     translatableNonRefDataTableImports.forEach(async type => {
       const recordsForDataType = await models[type].findAll({
@@ -372,14 +371,13 @@ describe('Data definition import', () => {
       const nonRefDataTableStringIds = recordsForDataType.map(
         ({ id }) => `${REFERENCE_DATA_TRANSLATION_PREFIX}.${camelCase(type)}.${id}`,
       );
-      expectedStringIds.push(...nonRefDataTableStringIds)
+      expectedStringIds.push(...nonRefDataTableStringIds);
     });
 
     const createdTranslationCount = await TranslatedString.count({
       where: { stringId: { [Op.in]: expectedStringIds } },
     });
     expect(expectedStringIds.length).toEqual(createdTranslationCount);
-
   });
 });
 
