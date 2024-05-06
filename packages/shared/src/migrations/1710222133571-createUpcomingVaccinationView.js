@@ -23,23 +23,16 @@ export async function up(query) {
 		  jsonb_array_elements(s.thresholds) ->> 'status'::text AS status
 	  from vaccine_settings s
   ),
-  vaccine_agelimit_settings as (
-    select s.value as age_limit, 1 as priority
-    from settings s
-    where s.deleted_at is null
-    and s.key = 'vaccine.ageLimit'::text
-    union
-    select :ageLimitDefault, 0
-    order by priority desc limit 1
-  ),
   vaccine_agelimit as (
 	  select
-		  CURRENT_DATE - s.age_limit::text::integer * 365 date
-    from vaccine_agelimit_settings s
+		  CURRENT_DATE - s.value::text::integer * 365 date
+	  from settings s
+	  where s.deleted_at is null
+	  and s.key = 'vaccine.ageLimit'
   ),
   filtered_patients as (
 	  select p.id patient_id, p.date_of_birth::date
-    from patients p where p.deleted_at is null and p.visibility_status = 'current' and p.date_of_birth::date > (select "date" from vaccine_agelimit)
+    from patients p where p.deleted_at is null and p.visibility_status = 'current' and p.date_of_birth::date > coalesce((select "date" from vaccine_agelimit), CURRENT_DATE - :ageLimitDefault * 365)
   ),
   filtered_scheduled_vaccines as (
 	  select sv.id scheduled_vaccine_id, sv.category vaccine_category, sv.vaccine_id, sv.index, sv.weeks_from_birth_due, sv.weeks_from_last_vaccination_due from scheduled_vaccines sv
