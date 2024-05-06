@@ -7,23 +7,23 @@ export async function up(query) {
   await query.sequelize.query(`
   CREATE OR REPLACE VIEW upcoming_vaccinations
   AS with vaccine_thresholds AS (
-    SELECT
-      (jsonb_array_elements(coalesce(s.value, '[{"threshold": 28 }, {"threshold": 7}, {"threshold": -7}, {"threshold": -55}, {"threshold": "-Infinity"}]')) ->> 'threshold'::text)::double precision AS threshold,
-      jsonb_array_elements(coalesce(s.value, '[{"status": "SCHEDULED"}, {"status": "UPCOMING"}, {"status": "DUE"}, {"status": "OVERDUE"}, {"status": "MISSED"}]')) ->> 'status'::text AS status
+	  SELECT
+		  (jsonb_array_elements(s.value) ->> 'threshold'::text)::double precision AS threshold,
+		  jsonb_array_elements(s.value) ->> 'status'::text AS status
 	  FROM settings s
 	  WHERE s.deleted_at is null
 	  and s.key = 'vaccine.thresholds'::text
   ),
   vaccine_agelimit as (
 	  select
-		  CURRENT_DATE - coalesce(s.value::text::integer, 15) * 365 date
+		  CURRENT_DATE - s.value::text::integer * 365 date
 	  from settings s
 	  where s.deleted_at is null
 	  and s.key = 'vaccine.ageLimit'
   ),
   filtered_patients as (
 	  select p.id patient_id, p.date_of_birth::date
-	  from patients p where p.deleted_at is null and p.visibility_status = 'current' and p.date_of_birth::date > (select "date" from vaccine_agelimit)
+	  from patients p where p.deleted_at is null and p.visibility_status = 'current' and p.date_of_birth::date > (coalesce((select "date" from vaccine_agelimit), CURRENT_DATE - 15 * 365))
   ),
   filtered_scheduled_vaccines as (
 	  select sv.id scheduled_vaccine_id, sv.category vaccine_category, sv.vaccine_id, sv.index, sv.weeks_from_birth_due, sv.weeks_from_last_vaccination_due from scheduled_vaccines sv
