@@ -4,13 +4,12 @@ import { useQuery } from '@tanstack/react-query';
 import { Modal } from '../../Modal';
 import { useAuth } from '../../../contexts/Auth';
 import { isErrorUnknownAllow404s, useApi } from '../../../api';
-import { LoadingIndicator } from '../../LoadingIndicator';
 import { useCertificate } from '../../../utils/useCertificate';
 import { usePatientAdditionalDataQuery } from '../../../api/queries';
 import { useLocalisation } from '../../../contexts/Localisation';
 
 import { BirthNotificationCertificate } from '@tamanu/shared/utils/patientCertificates';
-import { PDFViewer, printPDF } from '../PDFViewer';
+import { PDFLoader, printPDF } from '../PDFLoader';
 
 const useParent = (api, enabled, parentId) => {
   const { data: parentData, isLoading: isParentDataLoading } = useQuery(
@@ -150,23 +149,18 @@ export const BirthNotificationCertificateModal = React.memo(({ patient }) => {
       onClose={() => setOpen(false)}
       width="md"
       printable
-      keepMounted
       onPrint={() => printPDF('birth-notification')}
     >
-      {isLoading ? (
-        <LoadingIndicator />
-      ) : (
-        <PDFViewer id="birth-notification">
-          <BirthNotificationCertificate
-            motherData={motherData}
-            fatherData={fatherData}
-            childData={{ ...patient, birthData, additionalData, ethnicity, deathData }}
-            facility={facility}
-            certificateData={certificateData}
-            getLocalisation={getLocalisation}
-          />
-        </PDFViewer>
-      )}
+      <PDFLoader isLoading={isLoading} id="birth-notification">
+        <BirthNotificationCertificate
+          motherData={motherData}
+          fatherData={fatherData}
+          childData={{ ...patient, birthData, additionalData, ethnicity, deathData }}
+          facility={facility}
+          certificateData={certificateData}
+          getLocalisation={getLocalisation}
+        />
+      </PDFLoader>
     </Modal>
   );
 });

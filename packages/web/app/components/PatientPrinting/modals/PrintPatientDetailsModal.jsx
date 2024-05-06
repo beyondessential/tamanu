@@ -357,7 +357,7 @@ export const PrintPatientDetailsModal = ({ patient }) => {
     };
 
     if (printType === 'idcard') {
-      // printing ID card -- wait until profile pic download completes
+      // printing ID card -- if profile pic is ready we pass it as a prop
       // (triggered in the callback above)
       if (!imageData) {
         return (
