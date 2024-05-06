@@ -65,9 +65,11 @@ jobs:
         uses: gradle/actions/wrapper-validation@v3
 
       - name: Update branding app title
-        if: ${{ inputs.branding == 'cambodia' }}
+        if: ${{ inputs.branding != 'tamanu' }}
+        env:
+          appnames: '{"cambodia": "KhmEIR"}'
         working-directory: packages/mobile/android/app/src/main/res/values
-        run: sed -i "s/Tamanu Mobile/KhmEIR/g" strings.xml
+        run: sed -i "s/Tamanu Mobile/${{fromjson(env.appnames)[inputs.branding]}}/g" strings.xml
 
       - name: Set branding mipmap app icons
         if: ${{ inputs.branding != 'tamanu' }}
