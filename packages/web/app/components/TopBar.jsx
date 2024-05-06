@@ -4,7 +4,6 @@ import styled from 'styled-components';
 import { Toolbar, Typography } from '@material-ui/core';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import { Colors } from '../constants';
-import { TranslatedText } from './Translation/TranslatedText';
 
 // Default height of the top bar
 export const TOP_BAR_HEIGHT = 66;
@@ -114,35 +113,6 @@ const StaticTopBar = styled(TopBar)`
 export const EncounterTopBar = ({ title, subTitle, children, encounter }) => (
   <StaticTopBar title={title} subTitle={subTitle} encounterType={encounter.encounterType}>
     <Container>
-      <div>
-        <Cell>
-          <Label>
-            <TranslatedText stringId="encounter.arrivalDate.label" fallback="Arrival Date" />:
-          </Label>
-          <Value>
-            <DateDisplay date={encounter.startDate} />
-          </Value>
-        </Cell>
-        <Cell>
-          <Label>
-            <TranslatedText
-              stringId="general.supervisingClinician.label"
-              fallback="Supervising :clinician"
-              replacements={{
-                clinician: (
-                  <TranslatedText
-                    stringId="general.localisedField.clinician.label.short"
-                    fallback="Clinician"
-                    lowercase
-                  />
-                ),
-              }}
-            />
-            :
-          </Label>
-          <Value>{encounter.examiner?.displayName || 'Unknown'}</Value>
-        </Cell>
-      </div>
       {children}
     </Container>
   </StaticTopBar>
