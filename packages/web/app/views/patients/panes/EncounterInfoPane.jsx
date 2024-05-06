@@ -9,6 +9,7 @@ import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import {
   arrivalDateIcon,
   departmentIcon,
+  dietIcon,
   encounterTypeIcon,
   locationIcon,
   patientTypeIcon,
@@ -16,6 +17,7 @@ import {
   referralSourceIcon,
   supervisingClinicianIcon,
 } from '../../../constants/images';
+import { isInpatient } from '../../../utils/isInpatient';
 
 const CardLabel = styled.span`
   margin-right: 5px;
@@ -30,6 +32,9 @@ const CardValue = styled(CardLabel)`
 
 const getReferralSource = ({ referralSource }) =>
   referralSource ? referralSource.name : 'Unknown';
+
+const getDiet = ({ diet }) =>
+  diet ? diet.name : <TranslatedText stringId="general.fallback.unknown" fallback="Unknown" />;
 
 export const getEncounterType = ({ encounterType }) =>
   encounterType ? ENCOUNTER_OPTIONS_BY_VALUE[encounterType]?.label : 'Unknown';
@@ -121,11 +126,16 @@ export const EncounterInfoPane = React.memo(
           icon={referralSourceIcon}
         />
       )}
-      <InfoCardItem
-        label={<TranslatedText stringId="general.location.label" fallback="Location" />}
-        value={getFullLocationName(encounter?.location)}
-        icon={locationIcon}
-      />
+      {isInpatient(encounter?.encounterType) && <InfoCardItem
+        label={
+          <TranslatedText
+            stringId="encounter.summary.diet.label"
+            fallback="Diet"
+          />
+        }
+        value={getDiet(encounter)}
+        icon={dietIcon}
+      />}
       <InfoCardItem
         label={
           <TranslatedText
@@ -135,6 +145,11 @@ export const EncounterInfoPane = React.memo(
         }
         value={encounter.reasonForEncounter}
         icon={reasonForEncounterIcon}
+      />
+      <InfoCardItem
+        label={<TranslatedText stringId="general.location.label" fallback="Location" />}
+        value={getFullLocationName(encounter?.location)}
+        icon={locationIcon}
       />
     </InfoCard>
   ),
