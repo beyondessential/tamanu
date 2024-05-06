@@ -76,9 +76,9 @@ export const withLanguageContext = Component => props => {
         }
         return newStyles;
       },
-      getTranslation(stringId, fallback, replacements) {
+      getTranslation(stringId, fallback, replacements, uppercase, lowercase) {
         const translationFunc = translationFactory(translations);
-        const { value } = translationFunc(stringId, fallback, replacements);
+        const { value } = translationFunc(stringId, fallback, replacements, uppercase, lowercase);
         return value;
       },
     };
