@@ -20,10 +20,12 @@ import {
 import { ENCOUNTER_OPTIONS, FORM_TYPES } from '../constants';
 import { useSuggester } from '../api';
 import { TranslatedText } from '../components/Translation/TranslatedText';
+import { isInpatient } from '../utils/isInpatient';
 
 export const EncounterForm = React.memo(
   ({ editedObject, onSubmit, patientBillingTypeId, encounterType }) => {
     const practitionerSuggester = useSuggester('practitioner');
+    const dietSuggester = useSuggester('diet');
     const departmentSuggester = useSuggester('department', {
       baseQueryParameters: { filterByFacility: true },
     });
@@ -116,6 +118,17 @@ export const EncounterForm = React.memo(
             endpoint="patientBillingType"
             component={SuggesterSelectField}
           />
+          {isInpatient(encounterType) && <LocalisedField
+            name="dietId"
+            label={
+              <TranslatedText
+                stringId="general.localisedField.dietId.label"
+                fallback="Diet"
+              />
+            }
+            suggester={dietSuggester}
+            component={AutocompleteField}
+          />}
           <Field
             name="reasonForEncounter"
             label={
