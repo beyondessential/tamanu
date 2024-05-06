@@ -122,6 +122,7 @@ export const REFERENCE_TYPES = {
   SPECIMEN_TYPE: 'specimenType',
   CATCHMENT: 'catchment',
   REACTION: 'reaction',
+  INSURER: 'insurer',
   ...IMAGING_AREA_TYPES,
 };
 
