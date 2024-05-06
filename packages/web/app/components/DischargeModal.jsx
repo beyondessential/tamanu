@@ -12,8 +12,8 @@ import { getPatientStatus } from '../utils/getPatientStatus';
 import { PATIENT_STATUS } from '../constants';
 import { useLocalisation } from '../contexts/Localisation';
 
-const DISCHARGE_DISPOSITION_FOR_EMERGENCY_ONLY = 'AE_';
-const DISCHARGE_DISPOSITION_FOR_INPATIENTS_OUTPATIENTS_ONLY = 'IN_';
+const DISCHARGE_DISPOSITION_FOR_EMERGENCY_ONLY = 'AE-';
+const DISCHARGE_DISPOSITION_FOR_INPATIENTS_OUTPATIENTS_ONLY = 'IN-';
 
 export const DischargeModal = React.memo(({ open, onClose }) => {
   const dispatch = useDispatch();
