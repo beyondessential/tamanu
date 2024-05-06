@@ -82,6 +82,7 @@ export const GENERAL_IMPORTABLE_DATA_TYPES = [
   'catchment',
   'certifiableVaccine',
   'colonoscopyImagingArea',
+  'contactRelationship',
   'country',
   'ctScanImagingArea',
   'department',
