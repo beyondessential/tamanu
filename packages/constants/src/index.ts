@@ -32,3 +32,4 @@ export * from './vaccines.js';
 export * from './settings.js';
 export * from './encounterHistory.js';
 export * from './font.js';
+export * from './webSocket.js';

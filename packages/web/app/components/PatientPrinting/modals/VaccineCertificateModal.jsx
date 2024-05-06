@@ -14,10 +14,11 @@ import {
   useReferenceData,
 } from '../../../api/queries';
 
-import { printPDF } from '../PDFViewer';
+import { printPDF } from '../PDFLoader';
 import { useAuth } from '../../../contexts/Auth';
 import { useTranslation } from '../../../contexts/Translation';
 import { WorkerRenderedPDFViewer } from '../WorkerRenderedPDFViewer';
+import { LoadingIndicator } from '../../LoadingIndicator';
 
 const VACCINE_CERTIFICATE_PDF_ID = 'vaccine-certificate';
 
@@ -58,10 +59,11 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
     [api, patient.id, printedBy, facility.name],
   );
 
-  const village = useReferenceData(patient.villageId).data;
+  const { data: village, isFetching: isVillageFetching } = useReferenceData(patient.villageId);
   const patientData = { ...patient, village, additionalData };
 
-  if (isAdditionalDataFetching || isVaccineFetching || isCertificateFetching) return null;
+  const isLoading =
+    isVaccineFetching || isAdditionalDataFetching || isVillageFetching || isCertificateFetching;
 
   return (
     <Modal
@@ -70,24 +72,27 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
       onClose={onClose}
       width="md"
       printable
-      keepMounted
       onPrint={() => printPDF('vaccine-certificate')}
       additionalActions={<EmailButton onEmail={createVaccineCertificateNotification} />}
     >
-      <WorkerRenderedPDFViewer
-        id={VACCINE_CERTIFICATE_PDF_ID}
-        queryDeps={[patient.id]}
-        vaccinations={vaccinations}
-        patient={patientData}
-        watermarkSrc={watermark}
-        logoSrc={logo}
-        facilityName={facility.name}
-        signingSrc={footerImg}
-        printedBy={printedBy}
-        printedDate={getCurrentDateString()}
-        localisation={localisation}
-        translations={translations}
-      />
+      {isLoading ? (
+        <LoadingIndicator height="500px" />
+      ) : (
+        <WorkerRenderedPDFViewer
+          id={VACCINE_CERTIFICATE_PDF_ID}
+          queryDeps={[patient.id]}
+          vaccinations={vaccinations}
+          patient={patientData}
+          watermarkSrc={watermark}
+          logoSrc={logo}
+          facilityName={facility.name}
+          signingSrc={footerImg}
+          printedBy={printedBy}
+          printedDate={getCurrentDateString()}
+          localisation={localisation}
+          translations={translations}
+        />
+      )}
     </Modal>
   );
 });

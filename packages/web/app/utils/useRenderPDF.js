@@ -7,7 +7,7 @@ export const pdfWorker = wrap(new Worker());
 pdfWorker.onProgress(proxy(info => console.log(info)));
 
 export const useRenderPDF = props => {
-  const { data: url, isLoading, error } = useQuery(
+  const { data: url, isFetching, error } = useQuery(
     ['renderPDF', props.id, ...(props.queryDeps || [])],
     () => pdfWorker.renderPDFInWorker(props),
     {
@@ -16,5 +16,5 @@ export const useRenderPDF = props => {
   );
 
   useEffect(() => (url ? () => URL.revokeObjectURL(url) : undefined), [url]);
-  return { url, isLoading, error };
+  return { url, isFetching, error };
 };
