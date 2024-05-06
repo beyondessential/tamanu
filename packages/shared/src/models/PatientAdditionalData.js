@@ -43,6 +43,8 @@ export class PatientAdditionalData extends Model {
         fatherId: DataTypes.STRING,
         healthCenterId: DataTypes.STRING,
         updatedAtByField: DataTypes.JSON,
+        insurerId: DataTypes.STRING,
+        insurerPolicyNumber: DataTypes.STRING,
       },
       {
         ...options,
