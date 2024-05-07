@@ -197,6 +197,8 @@ export class User extends Model {
   async checkCanAccessAllFacilities() {
     if (!config.auth.restrictUsersToFacilities) return true;
     if (this.isSuperUser()) return true;
+    // Allow for roles that have access to all facilities configured via permissions
+    // (e.g. a custom "AdminICT" role)
     if (await this.hasPermission('login', 'Facility')) return true;
     return false;
   }
@@ -206,7 +208,7 @@ export class User extends Model {
 
     const canAccessAllFacilities = await this.checkCanAccessAllFacilities();
     if (canAccessAllFacilities) {
-      const facilities = await this.sequelize.Facility.findAll();
+      const facilities = await this.sequelize.models.Facility.findAll();
       return facilities.map(extractIdAndName);
     }
 
@@ -223,7 +225,7 @@ export class User extends Model {
   }
 
   async canAccessFacility(id) {
-    const allowed = this.allowedFacilityIds();
+    const allowed = await this.allowedFacilityIds();
     return allowed?.includes(id) ?? false;
   }
 }
