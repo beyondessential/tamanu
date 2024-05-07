@@ -41,6 +41,7 @@ const Dot = styled.span`
   background-color: ${props => props.color};
   border-radius: 50%;
   margin-right: 10px;
+  flex-shrink: 0;
 `;
 
 export const TopBar = React.memo(({ title, subTitle, children, className, encounterType }) => {

@@ -45,6 +45,11 @@ const StyledButton = styled(Button)`
   max-height: 40px;
 `;
 
+const StyledDropdownButton = styled(DropdownButton)`
+  white-space: nowrap;
+  max-height: 40px;
+`;
+
 const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType }) => {
   const { navigateToSummary } = usePatientNavigation();
   const { getLocalisation } = useLocalisation();
@@ -228,7 +233,7 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
     },
   ].filter(action => !action.condition || action.condition());
 
-  return <DropdownButton actions={actions} />;
+  return <StyledDropdownButton actions={actions} />;
 };
 
 export const EncounterActions = React.memo(({ encounter }) => {
