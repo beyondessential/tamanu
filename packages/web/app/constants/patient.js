@@ -164,4 +164,4 @@ export const EDUCATIONAL_ATTAINMENT_OPTIONS = [
   },
 ];
 
-export const AGE_NEED_TO_RECORD_WEIGHT = 16;
+export const MAX_AGE_TO_RECORD_WEIGHT = 16;

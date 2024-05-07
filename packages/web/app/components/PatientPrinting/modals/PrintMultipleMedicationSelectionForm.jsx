@@ -15,14 +15,14 @@ import { ConfirmCancelRow } from '../../ButtonRow';
 import { DateDisplay } from '../../DateDisplay';
 import { useApi, useSuggester } from '../../../api';
 import { useAuth } from '../../../contexts/Auth';
-import { AGE_NEED_TO_RECORD_WEIGHT, Colors } from '../../../constants';
+import { MAX_AGE_TO_RECORD_WEIGHT, Colors } from '../../../constants';
 
 import { MultiplePrescriptionPrintoutModal } from './MultiplePrescriptionPrintoutModal';
 import { TranslatedText } from '../../Translation/TranslatedText';
 import { useLocalisation } from '../../../contexts/Localisation';
 import { useTranslation } from '../../../contexts/Translation';
 import { useSelector } from 'react-redux';
-import moment from 'moment';
+import { differenceInYears } from 'date-fns';
 
 const REPEAT_OPTIONS = [0, 1, 2, 3, 4, 5].map(n => ({ label: n, value: n }));
 
@@ -124,7 +124,7 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
   });
 
   const patient = useSelector(state => state.patient);
-  const age = moment(Date.now()).diff(patient.dateOfBirth, 'years');
+  const age = differenceInYears(new Date(), new Date(patient.dateOfBirth));
 
   useEffect(() => {
     const medications = data?.data || [];
@@ -198,7 +198,7 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
             )
           }
         />
-        {age < AGE_NEED_TO_RECORD_WEIGHT && (
+        {age < MAX_AGE_TO_RECORD_WEIGHT && (
           <TextField
             field={{
               name: 'patientWeight',

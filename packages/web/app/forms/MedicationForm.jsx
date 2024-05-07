@@ -21,12 +21,12 @@ import {
   SelectField,
   TextField,
 } from '../components';
-import { AGE_NEED_TO_RECORD_WEIGHT, FORM_TYPES } from '../constants';
+import { MAX_AGE_TO_RECORD_WEIGHT, FORM_TYPES } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useLocalisation } from '../contexts/Localisation';
 import { useTranslation } from '../contexts/Translation';
 import { useSelector } from 'react-redux';
-import moment from 'moment';
+import { differenceInYears } from 'date-fns';
 
 const drugRouteOptions = [
   { label: 'Dermal', value: 'dermal' },
@@ -137,7 +137,7 @@ export const MedicationForm = React.memo(
     const weightUnit = getLocalisation('fields.weightUnit.longLabel');
 
     const patient = useSelector(state => state.patient);
-    const age = moment(Date.now()).diff(patient.dateOfBirth, 'years');
+    const age = differenceInYears(new Date(), new Date(patient.dateOfBirth));
 
     const shouldShowDiscontinuationButton = readOnly && !medication?.discontinued;
     const shouldShowSubmitButton = !readOnly || shouldDiscontinue;
@@ -251,7 +251,7 @@ export const MedicationForm = React.memo(
                 required={!readOnly}
                 disabled={readOnly}
               />
-              {age < AGE_NEED_TO_RECORD_WEIGHT && (
+              {age < MAX_AGE_TO_RECORD_WEIGHT && (
                 <Field
                   name="patientWeight"
                   label={
