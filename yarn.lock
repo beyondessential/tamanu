@@ -3313,7 +3313,7 @@
     got "^11.8.5"
     os-filter-obj "^2.0.0"
 
-"@msgpack/msgpack@^2.7.0", "@msgpack/msgpack@~2.8.0":
+"@msgpack/msgpack@~2.8.0":
   version "2.8.0"
   resolved "https://registry.yarnpkg.com/@msgpack/msgpack/-/msgpack-2.8.0.tgz#4210deb771ee3912964f14a15ddfb5ff877e70b9"
   integrity sha512-h9u4u/jiIRKbq25PM+zymTyW6bhTzELvOoUd+AvYriWOAKpLGnIamaET3pnHYoI5iYphAHBI4ayx0MehR+VVPQ==
@@ -5497,14 +5497,6 @@
     "@types/pg" "^8.6.6"
     debug "~4.3.4"
     pg "^8.9.0"
-
-"@socket.io/postgres-emitter@^0.1.0":
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/@socket.io/postgres-emitter/-/postgres-emitter-0.1.0.tgz#f6f3d8b09a0532e37f158a19c874f0be3bb86774"
-  integrity sha512-14dPh2+mDRfIfZgTHi2BaxFpLRki1dBMwwPjtmJRlN+nIU4X5UyHGLHgsw2pevKt7hqc95q0DpL4dLQMxA1IwA==
-  dependencies:
-    "@msgpack/msgpack" "^2.7.0"
-    debug "~4.3.1"
 
 "@storybook/addon-actions@7.6.6":
   version "7.6.6"

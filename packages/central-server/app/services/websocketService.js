@@ -1,6 +1,5 @@
 import { Server } from 'socket.io';
 import { createAdapter } from '@socket.io/postgres-adapter';
-import { Emitter } from '@socket.io/postgres-emitter';
 
 /**
  *
@@ -13,16 +12,15 @@ export const defineWebsocketService = injector => {
   });
   const getServer = () => server;
 
-  server.adapter(createAdapter(injector.sequelize.connectionManager.getConnection()));
+  server.adapter(createAdapter(injector.sequelize.connectionManager.pool));
 
-  const emitter = new Emitter(injector.sequelize.connectionManager.getConnection());
   /**
    *
    * @param {string} eventName
    * @param  {...unknown} args
    * @returns
    */
-  const emit = (eventName, ...args) => emitter.emit(eventName, ...args);
+  const emit = (eventName, ...args) => server.emit(eventName, ...args);
 
   const registerEvent = (eventName, handler) => {
     server.on('connection', socket => {
