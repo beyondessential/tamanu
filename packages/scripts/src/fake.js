@@ -35,7 +35,8 @@ async function generateData(models) {
     PatientProgramRegistration,
     PatientProgramRegistrationCondition,
     PatientAllergy,
-    PatientCommunication
+    PatientCommunication,
+    PatientAdditionalData,
   } = models;
 
   const examiner = await User.create(fake(User));
