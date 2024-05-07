@@ -82,7 +82,7 @@ describe('Programs import', () => {
       expect(didntSendReason).toEqual('validationFailed');
       expect(errors[0]).toHaveProperty(
         'message',
-        `ForbiddenError: Cannot perform action "create" on Program.`,
+        `ForbiddenError: No permission to perform action "create" on Program.`,
       );
     });
 
