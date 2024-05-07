@@ -146,6 +146,16 @@
       "schedule": "*/30 * * * * *",
       "limit": 10
     },
+    "vaccinationReminderProcessor": {
+     // every day at 1 AM
+     "schedule": "0 1 * * *",
+    },
+    "patientTelegramCommunicationProcessor": {
+      // every 30seconds /!\
+      "schedule": "*/30 * * * * *",
+      "batchSize": 100,
+      "batchSleepAsyncDurationInMilliseconds": 50
+    },
     "deceasedPatientDischarger": {
       // once an hour
       "schedule": "29 * * * *",
@@ -757,7 +767,15 @@
         "programRegistry": {
           "shortLabel": "Program registry",
           "longLabel": "Program registry"
-        }
+        },
+        "reminderContactName":{
+          "shortLabel": "Contact name",
+          "longLabel": "Contact name"
+        },
+        "reminderContactRelationship":{
+          "shortLabel": "Relationship",
+          "longLabel": "Relationship"
+        },
       },
       "features": {
         "enableVaccineConsent": true,
@@ -1273,5 +1291,17 @@
   // this should be an IANA tzdata timezone
   // @see here for a list of available options https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
   "countryTimeZone": "Australia/Melbourne",
-  "allowMismatchedTimeZones": false
+  "allowMismatchedTimeZones": false,
+  "telegramBot": {
+    apiToken: "",
+    webhook: {
+      // this should be set to the external address of the server, e.g. "https://central.main.internal.tamanu.io/api/public/telegram-webhook"
+      url: "",
+      secret: ""
+    }
+  },
+  "patientCommunication": {
+    "retryThreshold": 20
+  },
+  "language": "en"
 }

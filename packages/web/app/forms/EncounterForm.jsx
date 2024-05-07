@@ -20,10 +20,12 @@ import {
 import { ENCOUNTER_OPTIONS, FORM_TYPES } from '../constants';
 import { useSuggester } from '../api';
 import { TranslatedText } from '../components/Translation/TranslatedText';
+import { isInpatient } from '../utils/isInpatient';
 
 export const EncounterForm = React.memo(
   ({ editedObject, onSubmit, patientBillingTypeId, encounterType }) => {
     const practitionerSuggester = useSuggester('practitioner');
+    const dietSuggester = useSuggester('diet');
     const departmentSuggester = useSuggester('department', {
       baseQueryParameters: { filterByFacility: true },
     });
@@ -116,6 +118,17 @@ export const EncounterForm = React.memo(
             endpoint="patientBillingType"
             component={SuggesterSelectField}
           />
+          {isInpatient(encounterType) && <LocalisedField
+            name="dietId"
+            label={
+              <TranslatedText
+                stringId="general.localisedField.dietId.label"
+                fallback="Diet"
+              />
+            }
+            suggester={dietSuggester}
+            component={AutocompleteField}
+          />}
           <Field
             name="reasonForEncounter"
             label={
@@ -150,14 +163,37 @@ export const EncounterForm = React.memo(
         }}
         formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
         validationSchema={yup.object().shape({
-          examinerId: foreignKey('Clinician is required'),
-          locationId: foreignKey('Location is required'),
-          departmentId: foreignKey('Department is required'),
-          startDate: yup.date().required(),
+          examinerId: foreignKey().translatedLabel(
+            <TranslatedText
+              stringId="general.localisedField.clinician.label"
+              fallback="Clinician"
+            />,
+          ),
+          locationId: foreignKey().translatedLabel(
+            <TranslatedText stringId="general.localisedField.locationId.label" fallback="Location" />,
+          ),
+          departmentId: foreignKey().translatedLabel(
+            <TranslatedText stringId="general.department.label" fallback="Department" />,
+          ),
+          startDate: yup
+            .date()
+            .required()
+            .translatedLabel(
+              <TranslatedText
+                stringId="patient.modal.checkIn.checkInDate.label"
+                fallback="Check-in date"
+              />,
+            ),
           encounterType: yup
             .string()
             .oneOf(ENCOUNTER_OPTIONS.map(x => x.value))
-            .required(),
+            .required()
+            .translatedLabel(
+              <TranslatedText
+                stringId="patient.modal.checkIn.encounterType.label"
+                fallback="Encounter type"
+              />,
+            ),
         })}
       />
     );

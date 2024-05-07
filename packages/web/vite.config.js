@@ -61,6 +61,10 @@ export default async ({ mode }) => {
           // TAMANU_VITE_TARGET=https://central.main.internal.tamanu.io
           changeOrigin: true,
         },
+        '/socket.io': {
+          target: process.env.TAMANU_VITE_TARGET ?? 'https://facility-1.main.internal.tamanu.io',
+          ws: true,
+        }
       },
     },
   });

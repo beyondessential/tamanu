@@ -14,9 +14,18 @@ import {
 import { Colors, FORM_TYPES } from '../../../constants';
 import { useSuggester } from '../../../api';
 import { ModalFormActionRow } from '../../../components/ModalActionRow';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const validationSchema = yup.object().shape({
-  sampleTime: yup.date().required(),
+  sampleTime: yup
+    .date()
+    .required()
+    .translatedLabel(
+      <TranslatedText
+        stringId="lab.modal.recordSample.sampleTime.label"
+        fallback="Date & time collected"
+      />,
+    ),
   labSampleSiteId: yup.string(),
 });
 
@@ -75,7 +84,12 @@ const LabRequestRecordSampleForm = ({ submitForm, values, onClose }) => {
         <FormGrid columns={4}>
           <StyledField
             name="sampleTime"
-            label="Data & time collected"
+            label={
+              <TranslatedText
+                stringId="lab.modal.recordSample.sampleTime.label"
+                fallback="Date & time collected"
+              />
+            }
             required
             saveDateAsString
             component={StyledDateTimeField}
