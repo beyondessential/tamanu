@@ -1,15 +1,11 @@
 import React, { useContext, useState } from 'react';
-import { useApi } from '../api/useApi';
 import { LOCAL_STORAGE_KEYS } from '../constants';
 import { useTranslations } from '../api/queries/useTranslations';
 import { getCurrentLanguageCode } from '../utils/translation';
-import { ENGLISH_LANGUAGE_CODE } from '@tamanu/constants';
 
 export const TranslationContext = React.createContext();
 
 export const useTranslation = () => useContext(TranslationContext);
-
-const isDev = process.env.NODE_ENV === 'development';
 
 const applyCasing = (text, lowercase, uppercase) => {
   if (lowercase) return text.toLowerCase();
@@ -48,7 +44,6 @@ export const replaceStringVariables = (
 };
 
 export const TranslationProvider = ({ children }) => {
-  const api = useApi();
   const [storedLanguage, setStoredLanguage] = useState(getCurrentLanguageCode());
 
   const { data: translations } = useTranslations(storedLanguage);
@@ -62,11 +57,6 @@ export const TranslationProvider = ({ children }) => {
     if (!translations) return replaceStringVariables(fallback, replacementConfig, translations);
     if (translations[stringId])
       return replaceStringVariables(translations[stringId], replacementConfig, translations);
-    // This section here is a dev tool to help populate the db with the translation ids we have defined
-    // in components. It will only populate the db with English strings, so that we can then translate them.
-    if (isDev && storedLanguage === ENGLISH_LANGUAGE_CODE) {
-      api.post('translation', { stringId, fallback, text: fallback });
-    }
     return replaceStringVariables(
       fallback,
       {

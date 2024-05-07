@@ -50,6 +50,11 @@ function loadExisting(Model, values) {
   return loader(Model, values);
 }
 
+function extractRecordName(values, dataType) {
+  if (dataType === 'scheduledVaccine') return values.label;
+  return values.name;
+}
+
 export async function importRows(
   { errors, log, models },
   { rows, sheetName, stats: previousStats = {}, foreignKeySchemata = {} },
@@ -226,14 +231,14 @@ export async function importRows(
         sheetName === 'diagnosis'
           ? 'icd10' // diagnosis is a special case where the datatype isnt the same as sheet name
           : normaliseSheetName(sheetName);
-      const isValidTable = model === 'ReferenceData' || // All records in the reference data table are translatable
-          camelCase(model) === dataType; // This prevents join tables from being translated - unsure about this
+      const isValidTable = 
+        model === 'ReferenceData' || // All records in the reference data table are translatable
+        camelCase(model) === dataType; // This prevents join tables from being translated - unsure about this
       const isTranslatable = TRANSLATABLE_REFERENCE_TYPES.includes(dataType);
       if (isTranslatable && isValidTable) {
-        // TODO: Not making: scheduledVaccine
         translationRecordsForSheet.push({
           stringId: `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.${values.id}`,
-          text: values.name,
+          text: extractRecordName(values, dataType),
           language: ENGLISH_LANGUAGE_CODE,
         });
       }
