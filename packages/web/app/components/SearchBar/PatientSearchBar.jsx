@@ -1,6 +1,6 @@
 import React from 'react';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
-import { AutocompleteField, LocalisedField, SearchField, SuggesterSelectField } from '../Field';
+import { AutocompleteField, LocalisedField, SearchField } from '../Field';
 import { useSuggester } from '../../api';
 import { useAdvancedFields } from './useAdvancedFields';
 import { TranslatedText } from '../Translation/TranslatedText';
