@@ -230,7 +230,7 @@ export class User extends Model {
   }
 
   async canAccessFacility(id) {
-    const allowed = this.allowedFacilityIds();
+    const allowed = await this.allowedFacilityIds();
     if (allowed === CAN_ACCESS_ALL_FACILITIES) return true;
 
     return allowed?.includes(id) ?? false;
