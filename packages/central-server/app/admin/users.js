@@ -27,7 +27,7 @@ usersRouter.get(
     res.send({
       data: await Promise.all(
         users.map(async user => {
-          const allowedFacilities = await user.allowedFacilities();
+          const allowedFacilities = await user.allowedFacilityIds();
           const obj = user.get({ plain: true });
           return {
             ...pick(obj, ['id', 'displayName', 'email', 'phoneNumber', 'role']),
