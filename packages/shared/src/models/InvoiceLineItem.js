@@ -10,6 +10,7 @@ export class InvoiceLineItem extends Model {
       {
         id: primaryKey,
         percentageChange: Sequelize.DECIMAL,
+        discountMarkupReason: Sequelize.STRING,
         dateGenerated: dateType('dateGenerated'),
         status: {
           type: Sequelize.STRING,
