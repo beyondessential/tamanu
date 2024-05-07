@@ -4,26 +4,42 @@
  * @param {QueryInterface} query
  */
 export async function up(query) {
-  await query.sequelize.query(`
-  CREATE OR REPLACE VIEW upcoming_vaccinations
-  AS with vaccine_thresholds AS (
-	  SELECT
-		  (jsonb_array_elements(s.value) ->> 'threshold'::text)::double precision AS threshold,
-		  jsonb_array_elements(s.value) ->> 'status'::text AS status
-	  FROM settings s
-	  WHERE s.deleted_at is null
-	  and s.key = 'vaccine.thresholds'::text
+  await query.sequelize.query(
+    `
+  create or replace view upcoming_vaccinations
+  as
+  with vaccine_settings as (
+    select s.value as thresholds, 1 as priority
+    from settings s
+    where s.deleted_at is null
+    and s.key = 'vaccine.thresholds'::text
+    union
+    select :thresholdsDefault, 0
+    order by priority desc limit 1
+  ),
+  vaccine_thresholds as (
+	  select
+		  (jsonb_array_elements(s.thresholds) ->> 'threshold'::text)::double precision AS threshold,
+		  jsonb_array_elements(s.thresholds) ->> 'status'::text AS status
+	  from vaccine_settings s
+  ),
+  vaccine_agelimit_settings as (
+    select s.value as age_limit, 1 as priority
+    from settings s
+    where s.deleted_at is null
+    and s.key = 'vaccine.ageLimit'::text
+    union
+    select :ageLimitDefault, 0
+    order by priority desc limit 1
   ),
   vaccine_agelimit as (
 	  select
-		  CURRENT_DATE - s.value::text::integer * 365 date
-	  from settings s
-	  where s.deleted_at is null
-	  and s.key = 'vaccine.ageLimit'
+		  CURRENT_DATE - s.age_limit::text::integer * 365 date
+    from vaccine_agelimit_settings s
   ),
   filtered_patients as (
 	  select p.id patient_id, p.date_of_birth::date
-	  from patients p where p.deleted_at is null and p.visibility_status = 'current' and p.date_of_birth::date > (select "date" from vaccine_agelimit)
+    from patients p where p.deleted_at is null and p.visibility_status = 'current' and p.date_of_birth::date > (select "date" from vaccine_agelimit)
   ),
   filtered_scheduled_vaccines as (
 	  select sv.id scheduled_vaccine_id, sv.category vaccine_category, sv.vaccine_id, sv.index, sv.weeks_from_birth_due, sv.weeks_from_last_vaccination_due from scheduled_vaccines sv
@@ -79,7 +95,35 @@ export async function up(query) {
 	  ORDER BY vst.threshold DESC
 	  LIMIT 1) AS status
   FROM patient_vaccine_schedule pvs;
-	`);
+	`,
+    {
+      replacements: {
+        thresholdsDefault: JSON.stringify([
+          {
+            threshold: 28,
+            status: 'SCHEDULED',
+          },
+          {
+            threshold: 7,
+            status: 'UPCOMING',
+          },
+          {
+            threshold: -7,
+            status: 'DUE',
+          },
+          {
+            threshold: -55,
+            status: 'OVERDUE',
+          },
+          {
+            threshold: '-Infinity',
+            status: 'MISSED',
+          },
+        ]),
+        ageLimitDefault: '15',
+      },
+    },
+  );
 }
 
 /**
