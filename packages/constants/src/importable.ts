@@ -79,7 +79,6 @@ const CLINICAL_DATA_TYPES_VALUES = Object.values(CLINCAL_DATA_TYPES);
 
 // System data used for configuration purposes
 const SYSTEM_DATA_TYPES = {
-  CATCHMENT: 'catchment',
   REFERENCE_DATA_RELATION: 'referenceDataRelation',
   TRANSLATED_STRING: 'translatedString',
   CERTIFIABLE_VACCINE: 'certifiableVaccine',
