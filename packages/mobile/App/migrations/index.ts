@@ -32,6 +32,7 @@ import { addVisibilityStatusToSurveyScreenComponents1695096053000 } from './1695
 import { addVisibilityStatusForUsers1697499690000 } from './1697499690000-addVisibilityStatusForUsers';
 import { addDeletedAtToAllTables1698626272000 } from './1698626272000-addDeletedAtToAllTables';
 import { addPatientCustomFieldsTables1694090332843 } from './1694090332843-addPatientCustomFieldsTables';
+import { addPatientContactTable1705975873000 } from './1705975873000-addPatientContactTable';
 import { addProgramRegistry1706106989000 } from './1706106989000-addProgramRegistries';
 import { addPatientProgramRegistration1706144623000 } from './1706144623000-addPatientProgramRegistration';
 import { addProgramRegistryClinicalStatuses1706506699000 } from './1706506699000-addProgramRegistryClinicalStatuses';
@@ -80,6 +81,7 @@ export const migrationList = [
   addVisibilityStatusForUsers1697499690000,
   addDeletedAtToAllTables1698626272000,
   addPatientCustomFieldsTables1694090332843,
+  addPatientContactTable1705975873000,
   addProgramRegistry1706106989000,
   addPatientProgramRegistration1706144623000,
   addProgramRegistryClinicalStatuses1706506699000,

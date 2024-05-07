@@ -44,10 +44,10 @@ async function startAll({ skipMigrationCheck }) {
     config,
   });
 
-  const app = await createApp(context);
+  const { server } = await createApp(context);
 
   const { port } = config;
-  const server = app.listen(port, () => {
+  server.listen(port, () => {
     log.info(`Server is running on port ${port}!`);
   });
 
