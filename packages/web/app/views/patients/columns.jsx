@@ -116,10 +116,10 @@ export const vaccinationStatus = {
 export const diet = {
   key: 'dietName',
   title: <TranslatedText stringId="general.diet.label" fallback="Diet" />,
-  accessor: (({ dietName }) => {
-    if (!dietName) return null;
+  accessor: (({ dietName, dietCode }) => {
+    if (!dietName || !dietCode) return null;
     return <ThemedTooltip title={dietName}>
-      <span>{dietName.split(' ').map(word => word.charAt(0).toUpperCase()).join('')}</span>
+      <span>{dietCode}</span>
     </ThemedTooltip>
   }),
 };

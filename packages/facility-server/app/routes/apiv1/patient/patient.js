@@ -411,6 +411,7 @@ patientRoute.get(
         encounters.encounter_type,
         diet.id AS diet_id,
         diet.name AS diet_name,
+        diet.code AS diet_code,
         clinician.display_name as clinician,
         department.id AS department_id,
         department.name AS department_name,
