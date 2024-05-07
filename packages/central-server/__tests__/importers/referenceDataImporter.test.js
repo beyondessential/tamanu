@@ -366,7 +366,7 @@ describe('Data definition import', () => {
     await Promise.all(
       translatableNonRefDataTableImports.map(async type => {
         const recordsForDataType = await models[type].findAll({
-          attributes: ['id', type === 'ScheduledVaccine' ? 'label' : 'name'],
+          attributes: ['id'],
           raw: true,
         });
         const nonRefDataTableStringIds = recordsForDataType.map(
