@@ -61,7 +61,7 @@ const locationGroup = {
 };
 
 const OUTPATIENT_COLUMNS = [markedForSync, displayId, firstName, lastName, dateOfBirth, sex].concat(
-  [locationGroup, location, department, clinician, diet].map(column => ({
+  [locationGroup, location, department, clinician].map(column => ({
     ...column,
     sortable: false,
   })),
