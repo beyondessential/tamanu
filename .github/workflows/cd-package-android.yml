@@ -105,7 +105,6 @@ jobs:
         run: |
           base64 -d <<< "$keystore" > release.keystore
 
-
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:

@@ -269,7 +269,7 @@ jobs:
             --target ghcr.io/beyondessential/tamanu-${{ matrix.repo }}:sha-${{ needs.config.outputs.sha }}
 
       - name: Combine images (release)
-        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+        if: false
         run: |
           manifest-tool push from-args \
             --platforms linux/amd64,linux/arm64 \
@@ -341,13 +341,13 @@ jobs:
 
   package-frontend:
     needs: images
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    if: false
     name: Package Frontend ${{ github.ref_name }}
     uses: ./.github/workflows/cd-package-frontend.yml
 
   package-servers:
     needs: images
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    if: false
     name: Package Servers ${{ github.ref_name }}
     uses: ./.github/workflows/cd-package-servers.yml
 
@@ -363,7 +363,7 @@ jobs:
     needs:
       - config
       - multi-arch
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    if: false
     name: Append image names to release notes
     runs-on: ubuntu-latest
     steps:

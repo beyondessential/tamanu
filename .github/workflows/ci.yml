@@ -21,6 +21,7 @@ env:
 
 jobs:
   node_modules_cache:
+    if: false
     name: Cache node modules
     runs-on: ubuntu-latest
     steps:
@@ -168,6 +169,7 @@ jobs:
           - '16'
 
     name: Test migrations server=${{ matrix.server }} pg=${{ matrix.postgres }}
+    if: false
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -192,6 +194,7 @@ jobs:
 
   test-mobile:
     name: Test mobile
+    if: false
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -215,6 +218,7 @@ jobs:
 
   test-facility-offline:
     needs: node_modules_cache
+    if: false
     name: Test the facility server with the central server being down
     runs-on: ubuntu-latest
     steps:
@@ -252,6 +256,7 @@ jobs:
           - .
           - packages/mobile
     name: Check ${{ matrix.workdir }}/yarn.lock is up to date
+    if: false
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

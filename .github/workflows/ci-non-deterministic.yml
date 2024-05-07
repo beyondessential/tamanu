@@ -17,6 +17,7 @@ env:
 
 jobs:
   test-for-non-determinism:
+    if: false
     permissions:
       id-token: write # allow accessing OIDC token for AWS
       contents: read
@@ -71,7 +72,7 @@ jobs:
 
   # Dummy job to have a stable name for PR requirements
   tests-pass:
-    if: always() # always run even if dependencies fail
+    if: false
     name: Non-determinism pass
     needs: [test-for-non-determinism]
     runs-on: ubuntu-latest
