@@ -45,7 +45,7 @@ const CancelButton = styled(FormCancelButton)`
   margin-left: 0 !important;
 `;
 
-const FacilitySelectionFormComponent = ({ options, errorMessage, onCancel }) => {
+const FacilitySelectionFormComponent = ({ options, suggester, errorMessage, onCancel }) => {
   return (
     <FormGrid columns={1}>
       <div>
@@ -59,6 +59,7 @@ const FacilitySelectionFormComponent = ({ options, errorMessage, onCancel }) => 
         label={<TranslatedText stringId="auth.facility.label" fallback="Facility" />}
         component={AutocompleteField}
         options={options}
+        suggester={suggester}
         required
       />
       <StyledButtonRow>
