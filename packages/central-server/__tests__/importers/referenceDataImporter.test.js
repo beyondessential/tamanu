@@ -363,16 +363,19 @@ describe('Data definition import', () => {
     const translatableNonRefDataTableImports = Object.keys(stats).filter(key =>
       OTHER_REFERENCE_TYPE_VALUES.includes(camelCase(key)),
     );
-    translatableNonRefDataTableImports.forEach(async type => {
-      const recordsForDataType = await models[type].findAll({
-        attributes: ['id', 'name'],
-        raw: true,
-      });
-      const nonRefDataTableStringIds = recordsForDataType.map(
-        ({ id }) => `${REFERENCE_DATA_TRANSLATION_PREFIX}.${camelCase(type)}.${id}`,
-      );
-      expectedStringIds.push(...nonRefDataTableStringIds);
-    });
+    await Promise.all(
+      translatableNonRefDataTableImports.map(async type => {
+        console.log(type);
+        const recordsForDataType = await models[type].findAll({
+          attributes: ['id', type === 'ScheduledVaccine' ? 'label' : 'name'],
+          raw: true,
+        });
+        const nonRefDataTableStringIds = recordsForDataType.map(
+          ({ id }) => `${REFERENCE_DATA_TRANSLATION_PREFIX}.${camelCase(type)}.${id}`,
+        );
+        expectedStringIds.push(...nonRefDataTableStringIds);
+      }),
+    );
 
     const createdTranslationCount = await TranslatedString.count({
       where: { stringId: { [Op.in]: expectedStringIds } },
