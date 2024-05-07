@@ -68,7 +68,7 @@ describe('Data definition import', () => {
       expect(didntSendReason).toEqual('validationFailed');
       expect(errors[0]).toHaveProperty(
         'message',
-        `ForbiddenError: No permission to perform action "create" on ReferenceData.`,
+        `ForbiddenError: No permission to perform action "create" on "ReferenceData".`,
       );
     });
 
