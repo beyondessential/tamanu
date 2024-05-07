@@ -1,3 +1,4 @@
+import { CAN_ACCESS_ALL_FACILITIES } from '@tamanu/constants';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 
@@ -8,7 +9,7 @@ facilityRoutes.get(
   asyncHandler(async (req, res) => {
     const allowed = await req.user.allowedFacilityIds();
     const facilities = await req.store.models.Facility.findAll({
-      where: { id: allowed },
+      where: allowed === CAN_ACCESS_ALL_FACILITIES ? {} : { id: allowed },
     });
 
     const data = facilities.map(f => f.forResponse());

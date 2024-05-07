@@ -2,7 +2,12 @@ import { hash } from 'bcrypt';
 import config from 'config';
 import { Sequelize } from 'sequelize';
 
-import { SYNC_DIRECTIONS, SYSTEM_USER_UUID, VISIBILITY_STATUSES } from '@tamanu/constants';
+import {
+  CAN_ACCESS_ALL_FACILITIES,
+  SYNC_DIRECTIONS,
+  SYSTEM_USER_UUID,
+  VISIBILITY_STATUSES,
+} from '@tamanu/constants';
 
 import { Model } from './Model';
 import { Permission } from './Permission';
@@ -204,28 +209,30 @@ export class User extends Model {
   }
 
   async allowedFacilities() {
-    const extractIdAndName = ({ id, name }) => ({ id, name });
-
     const canAccessAllFacilities = await this.checkCanAccessAllFacilities();
     if (canAccessAllFacilities) {
-      const facilities = await this.sequelize.models.Facility.findAll();
-      return facilities.map(extractIdAndName);
+      return CAN_ACCESS_ALL_FACILITIES;
     }
 
     if (!this.facilities) {
       await this.reload({ include: 'facilities' });
     }
 
-    return this.facilities?.map(extractIdAndName) ?? [];
+    return this.facilities?.map(({ id, name }) => ({ id, name })) ?? [];
   }
 
   async allowedFacilityIds() {
     const allowedFacilities = await this.allowedFacilities();
+    if (allowedFacilities === CAN_ACCESS_ALL_FACILITIES) {
+      return CAN_ACCESS_ALL_FACILITIES;
+    }
     return allowedFacilities.map(f => f.id);
   }
 
   async canAccessFacility(id) {
-    const allowed = await this.allowedFacilityIds();
+    const allowed = this.allowedFacilityIds();
+    if (allowed === CAN_ACCESS_ALL_FACILITIES) return true;
+
     return allowed?.includes(id) ?? false;
   }
 }
