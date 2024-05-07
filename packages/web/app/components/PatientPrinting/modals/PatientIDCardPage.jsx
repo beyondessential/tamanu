@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useLocalisation } from '../../../contexts/Localisation';
 import { Modal } from '../../Modal';
-import { PDFViewer, printPDF } from '../PDFViewer';
+import { PDFLoader, printPDF } from '../PDFLoader';
 import { IDCardPrintout } from '@tamanu/shared/utils/patientCertificates';
 
 const cardDimensions = {
@@ -20,10 +20,9 @@ export const PatientIDCardPage = React.memo(({ patient, imageData }) => {
       onClose={() => setOpen(false)}
       width="md"
       printable
-      keepMounted
       onPrint={() => printPDF('patient-card-printout')}
     >
-      <PDFViewer id="patient-card-printout">
+      <PDFLoader isLoading={!imageData} id="patient-card-printout">
         <IDCardPrintout
           cardDimensions={cardDimensions}
           patientImageData={imageData}
@@ -31,7 +30,7 @@ export const PatientIDCardPage = React.memo(({ patient, imageData }) => {
           patient={patient}
           getLocalisation={getLocalisation}
         />
-      </PDFViewer>
+      </PDFLoader>
     </Modal>
   );
 });

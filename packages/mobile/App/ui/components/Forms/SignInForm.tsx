@@ -147,7 +147,7 @@ export const SignInForm: FunctionComponent<any> = ({ onError, onSuccess }) => {
             />
           </StyledView>
           <SubmitButton
-            marginTop={20}
+            marginTop={existingHost ? 20 : 10}
             backgroundColor={theme.colors.SECONDARY_MAIN}
             textColor={theme.colors.TEXT_SUPER_DARK}
             fontSize={screenPercentageToDP('1.94', Orientation.Height)}

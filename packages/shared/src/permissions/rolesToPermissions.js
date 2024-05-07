@@ -1,6 +1,5 @@
 import config from 'config';
 import { buildAbility, buildAbilityForUser } from './buildAbility';
-import { permissionCache } from './cache';
 
 //---------------------------------------------------------
 // "Hardcoded" permissions version -- safe to delete once all deployments
@@ -48,11 +47,9 @@ export async function queryPermissionsForRoles({ Permission }, roleString) {
 let useHardcodedPermissions = Boolean(config?.auth?.useHardcodedPermissions);
 export function setHardcodedPermissionsUseForTestsOnly(val) {
   useHardcodedPermissions = Boolean(val);
-  permissionCache.reset();
 }
 export function unsetUseHardcodedPermissionsUseForTestsOnly() {
   useHardcodedPermissions = config.auth.useHardcodedPermissions;
-  permissionCache.reset();
 }
 
 export async function getPermissionsForRoles(models, roleString) {
@@ -60,16 +57,10 @@ export async function getPermissionsForRoles(models, roleString) {
     return getHardcodedPermissions(roleString);
   }
 
-  const cached = permissionCache.get(roleString);
-  if (cached) {
-    return cached;
-  }
-
   // don't await this -- we want to store the promise, not the result
   // so that quick consecutive requests can benefit from it
   const permissions = queryPermissionsForRoles(models, roleString);
 
-  permissionCache.set(roleString, permissions);
   return permissions;
 }
 

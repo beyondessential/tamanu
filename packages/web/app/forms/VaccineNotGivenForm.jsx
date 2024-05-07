@@ -20,7 +20,6 @@ import {
 } from '../components/VaccineCommonFields';
 import { LocalisedField, SuggesterSelectField } from '../components/Field';
 import { TranslatedText } from '../components/Translation/TranslatedText';
-import { LowerCase } from '../components';
 
 export const VaccineNotGivenForm = ({
   vaccineLabel,
@@ -33,6 +32,7 @@ export const VaccineNotGivenForm = ({
   onCancel,
   setCategory,
   setVaccineLabel,
+  values,
 }) => (
   <TwoTwoGrid>
     {!editMode && (
@@ -75,6 +75,7 @@ export const VaccineNotGivenForm = ({
 
     <VaccineDateField
       label={<TranslatedText stringId="vaccine.dateRecorded.label" fallback="Date recorded" />}
+      min={values?.patientData?.dateOfBirth}
     />
 
     <StyledDivider />
@@ -91,12 +92,11 @@ export const VaccineNotGivenForm = ({
           fallback="Supervising :clinician"
           replacements={{
             clinician: (
-              <LowerCase>
-                <TranslatedText
-                  stringId="general.localisedField.clinician.label.short"
-                  fallback="Clinician"
-                />
-              </LowerCase>
+              <TranslatedText
+                stringId="general.localisedField.clinician.label.short"
+                fallback="Clinician"
+                lowercase
+              />
             ),
           }}
         />

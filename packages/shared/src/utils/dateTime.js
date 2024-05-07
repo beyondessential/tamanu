@@ -203,7 +203,7 @@ const locale = globalThis.navigator?.language ?? 'default';
 
 const intlFormatDate = (date, formatOptions, fallback = 'Unknown') => {
   if (!date) return fallback;
-  return new Date(date).toLocaleString(locale, formatOptions);
+  return parseISO(date).toLocaleString(locale, formatOptions);
 };
 
 export const formatShortest = date =>

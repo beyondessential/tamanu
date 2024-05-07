@@ -131,6 +131,9 @@ export const Routes = {
     PatientDetailsStack: {
       Index: '',
       AddPatientIssue: '',
+      ReminderContacts: '',
+      AddReminderContact: '',
+      ReminderContactQR: '',
       Generic: {
         EditPatient: '',
         EditPatientAdditionalData: '',

@@ -8,40 +8,57 @@ import { EditPatientAdditionalDataScreen as GenericEditPatientAdditionalDataScre
 import { EditPatientScreen as CambodiaEditPatientScreen } from '../screens/home/PatientDetails/layouts/cambodia/EditGeneralInfo';
 import { EditPatientAdditionalDataScreen as CambodiaEditPatientAdditionalDataScreen } from '../screens/home/PatientDetails/layouts/cambodia/EditAdditionalInfo';
 import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
+import { ReminderContactScreen } from '../screens/home/PatientDetails/ReminderContacts';
+import { AddReminderContactScreen } from '../screens/home/PatientDetails/AddReminderContact';
+import { ReminderContactQRScreen } from '../screens/home/PatientDetails/ReminderContactQR';
+import { ReminderContactProvider } from '~/ui/contexts/ReminderContactContext';
 
 const Stack = createStackNavigator();
 
 export const PatientDetailsStack = (): ReactElement => (
   <ErrorBoundary>
-    <Stack.Navigator headerMode="none">
-      <Stack.Screen
-        name={Routes.HomeStack.PatientDetailsStack.Index}
-        component={PatientDetailsScreen}
-      />
-      <Stack.Screen
-        name={Routes.HomeStack.PatientDetailsStack.AddPatientIssue}
-        component={AddPatientIssueScreen}
-      />
+    <ReminderContactProvider>
+      <Stack.Navigator headerMode="none">
+        <Stack.Screen
+          name={Routes.HomeStack.PatientDetailsStack.Index}
+          component={PatientDetailsScreen}
+        />
+        <Stack.Screen
+          name={Routes.HomeStack.PatientDetailsStack.AddPatientIssue}
+          component={AddPatientIssueScreen}
+        />
+        <Stack.Screen
+          name={Routes.HomeStack.PatientDetailsStack.ReminderContacts}
+          component={ReminderContactScreen}
+        />
+        <Stack.Screen
+          name={Routes.HomeStack.PatientDetailsStack.AddReminderContact}
+          component={AddReminderContactScreen}
+        />
+        <Stack.Screen
+          name={Routes.HomeStack.PatientDetailsStack.ReminderContactQR}
+          component={ReminderContactQRScreen}
+        />
+        {/* Generic patient details components */}
+        <Stack.Screen
+          name={Routes.HomeStack.PatientDetailsStack.Generic.EditPatient}
+          component={GenericEditPatientScreen}
+        />
+        <Stack.Screen
+          name={Routes.HomeStack.PatientDetailsStack.Generic.EditPatientAdditionalData}
+          component={GenericEditPatientAdditionalDataScreen}
+        />
 
-      {/* Generic patient details components */}
-      <Stack.Screen
-        name={Routes.HomeStack.PatientDetailsStack.Generic.EditPatient}
-        component={GenericEditPatientScreen}
-      />
-      <Stack.Screen
-        name={Routes.HomeStack.PatientDetailsStack.Generic.EditPatientAdditionalData}
-        component={GenericEditPatientAdditionalDataScreen}
-      />
-
-      {/* Cambodia specific patient details components */}
-      <Stack.Screen
-        name={Routes.HomeStack.PatientDetailsStack.Cambodia.EditPatient}
-        component={CambodiaEditPatientScreen}
-      />
-      <Stack.Screen
-        name={Routes.HomeStack.PatientDetailsStack.Cambodia.EditPatientAdditionalData}
-        component={CambodiaEditPatientAdditionalDataScreen}
-      />
-    </Stack.Navigator>
+        {/* Cambodia specific patient details components */}
+        <Stack.Screen
+          name={Routes.HomeStack.PatientDetailsStack.Cambodia.EditPatient}
+          component={CambodiaEditPatientScreen}
+        />
+        <Stack.Screen
+          name={Routes.HomeStack.PatientDetailsStack.Cambodia.EditPatientAdditionalData}
+          component={CambodiaEditPatientAdditionalDataScreen}
+        />
+      </Stack.Navigator>
+    </ReminderContactProvider>
   </ErrorBoundary>
 );
