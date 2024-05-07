@@ -180,7 +180,7 @@ programRegistry.get(
           WHERE n.row_num = 1
         ),
         conditions as (
-          SELECT patient_id, jsonb_agg(jsonb_build_object('id', prc."id", 'name', prc."name")) condition_list  
+          SELECT patient_id, jsonb_agg(prc."name") condition_list 
           FROM patient_program_registration_conditions pprc
             JOIN program_registry_conditions prc
               ON pprc.program_registry_condition_id = prc.id
@@ -256,13 +256,9 @@ programRegistry.get(
         patient.date_of_death AS "patient.date_of_death",
         patient.sex AS "patient.sex",
         patient_village.name AS "patient.village.name",
-        patient_village.id AS "patient.village.id",
         currently_at_village.name as "village.name",
-        currently_at_village.id as "village.id",
         currently_at_facility.name as "facility.name",
-        currently_at_facility.id as "facility.id",
         registering_facility.name as "registering_facility.name",
-        registering_facility.id as "registering_facility.id",
         conditions.condition_list as "conditions",
         status.name as "clinical_status.name",
         status.color as "clinical_status.color",
