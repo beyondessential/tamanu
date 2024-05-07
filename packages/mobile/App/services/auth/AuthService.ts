@@ -38,7 +38,8 @@ export class AuthService {
     // save local password to repo for later use
     let user = await this.models.User.findOne({ email: userData.email });
     if (!user) {
-      user = await this.models.User.create(userData).save();
+      const newUser = await this.models.User.create(userData).save();
+      if (!user) user = newUser;
     }
 
     // kick off a local password hash & save

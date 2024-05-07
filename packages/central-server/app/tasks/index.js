@@ -18,6 +18,8 @@ import { CovidClearanceCertificatePublisher } from './CovidClearanceCertificateP
 import { PlannedMoveTimeout } from './PlannedMoveTimeout';
 import { StaleSyncSessionCleaner } from './StaleSyncSessionCleaner';
 import { FhirMissingResources } from './FhirMissingResources';
+import { PatientTelegramCommunicationProcessor } from './PatientTelegramCommunicationProcessor';
+import { VaccinationReminderProcessor } from './VaccinationReminderProcessor';
 
 export { startFhirWorkerTasks } from './fhir';
 
@@ -31,6 +33,8 @@ export async function startScheduledTasks(context) {
     IPSRequestProcessor,
     PatientMergeMaintainer,
     FhirMissingResources,
+    PatientTelegramCommunicationProcessor,
+    VaccinationReminderProcessor,
   ];
 
   if (config.schedules.automaticLabTestResultPublisher.enabled) {

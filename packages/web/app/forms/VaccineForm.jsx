@@ -97,7 +97,11 @@ export const VaccineForm = ({
   );
   const [vaccineLabel, setVaccineLabel] = useState();
 
-  const { data: patientData } = usePatientData(patientId);
+  const {
+    data: patientData,
+    isLoading: isLoadingPatientData,
+    error: patientDataError,
+  } = usePatientData(patientId);
   const {
     data: currentEncounter,
     isLoading: isLoadingCurrentEncounter,
@@ -134,15 +138,15 @@ export const VaccineForm = ({
     }
   }, [category, getScheduledVaccines, editMode]);
 
-  if (isLoadingCurrentEncounter) {
+  if (isLoadingCurrentEncounter || isLoadingPatientData) {
     return <LoadingIndicator />;
   }
 
-  if (currentEncounterError) {
+  if (currentEncounterError || isLoadingPatientData) {
     return (
       <ErrorMessage
         title={<TranslatedText stringId="vaccine.loadError" fallback="Cannot load vaccine form" />}
-        errorMessage={currentEncounterError?.message}
+        errorMessage={currentEncounterError?.message || patientDataError?.message}
       />
     );
   }
@@ -249,7 +253,7 @@ const VaccineFormComponent = ({
       setValues={setValues}
     />
   ) : (
-    <VaccineNotGivenForm {...props} resetForm={resetForm} submitForm={submitForm} />
+    <VaccineNotGivenForm {...props} resetForm={resetForm} submitForm={submitForm} values={values} />
   );
 };
 

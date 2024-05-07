@@ -17,7 +17,7 @@ import {
   PatientsRoutes,
   ProgramRegistryRoutes,
 } from './routes';
-import { Sidebar, SYNC_MENU_ITEMS, useFacilitySidebar } from './components/Sidebar';
+import { Sidebar, useCentralSidebar, useFacilitySidebar } from './components/Sidebar';
 import { UserActivityMonitor } from './components/UserActivityMonitor';
 
 export const RoutingApp = () => {
@@ -46,11 +46,12 @@ export const RoutingFacilityApp = React.memo(() => {
   );
 });
 
-export const RoutingAdminApp = React.memo(() => (
-  <App sidebar={<Sidebar items={SYNC_MENU_ITEMS} />}>
+export const RoutingAdminApp = React.memo(() => {
+  const sidebarMenuItems = useCentralSidebar();
+  return <App sidebar={<Sidebar items={sidebarMenuItems} />}>
     <Switch>
       <Redirect exact path="/" to="/admin" />
       <Route path="/admin" component={AdministrationRoutes} />
     </Switch>
-  </App>
-));
+  </App>;
+});

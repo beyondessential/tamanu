@@ -37,6 +37,10 @@ export default {
     needs: ['facility', 'locationGroup'],
   },
 
+  userFacility: {
+    needs: ['facility', 'user'],
+  },
+
   certifiableVaccine: {},
   scheduledVaccine: {},
   administeredVaccine: {

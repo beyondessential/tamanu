@@ -55,6 +55,7 @@ export async function centralServerLogin(models, email, password, deviceId) {
       email,
       password,
       deviceId,
+      facilityId: config.serverFacilityId,
     },
     backoff: {
       maxAttempts: 1,
@@ -62,8 +63,7 @@ export async function centralServerLogin(models, email, password, deviceId) {
   });
 
   // we've logged in as a valid central user - update local database to match
-  const { user, localisation, facilities, settings } = response;
-  console.log(facilities);
+  const { user, localisation, allowedFacilities, settings } = response;
   const { id, ...userDetails } = user;
 
   await models.User.sequelize.transaction(async () => {
@@ -80,7 +80,7 @@ export async function centralServerLogin(models, email, password, deviceId) {
     });
   });
 
-  return { central: true, user, localisation, facilities, settings };
+  return { central: true, user, localisation, allowedFacilities, settings };
 }
 
 async function localLogin(models, email, password) {
@@ -93,17 +93,21 @@ async function localLogin(models, email, password) {
     throw new BadAuthenticationError('Incorrect username or password, please try again');
   }
 
+  if (!(await user.canAccessFacility(config.serverFacilityId))) {
+    throw new BadAuthenticationError('User does not have access to this facility');
+  }
+
   const localisation = await models.UserLocalisationCache.getLocalisation({
     where: { userId: user.id },
     order: [['createdAt', 'DESC']],
   });
 
-  const facilities = await user.getPermittedFacilities();
+  const allowedFacilities = await user.allowedFacilities();
 
   return {
     central: false,
     user: user.get({ plain: true }),
-    facilities: facilities.map(({ id, name }) => ({ id, name })),
+    allowedFacilities,
     localisation,
   };
 }
@@ -145,7 +149,7 @@ export async function loginHandler(req, res, next) {
       central,
       user,
       localisation,
-      facilities,
+      allowedFacilities,
       settings,
     } = await centralServerLoginWithLocalFallback(models, email, password, deviceId);
     const [facility, permissions, token, role] = await Promise.all([
@@ -163,7 +167,7 @@ export async function loginHandler(req, res, next) {
       server: {
         facility: facility?.forResponse() ?? null,
       },
-      facilities,
+      allowedFacilities,
       settings,
     });
   } catch (e) {

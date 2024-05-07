@@ -93,10 +93,22 @@ export const login = ({ secret, refreshSecret }) =>
       throw new BadAuthenticationError('Invalid credentials');
     }
 
+    if (facilityId && !(await user.canAccessFacility(facilityId))) {
+      throw new BadAuthenticationError('User does not have access to this facility');
+    }
+
     const { auth, canonicalHostName } = config;
     const { tokenDuration } = auth;
     const accessTokenJwtId = getRandomU32();
-    const [token, refreshToken, localisation, facility, permissions, role] = await Promise.all([
+    const [
+      token,
+      refreshToken,
+      facility,
+      allowedFacilities,
+      localisation,
+      permissions,
+      role,
+    ] = await Promise.all([
       getToken(
         {
           userId: user.id,
@@ -114,12 +126,11 @@ export const login = ({ secret, refreshSecret }) =>
         ? getRefreshToken(models, { refreshSecret, userId: user.id, deviceId })
         : undefined,
       models.Facility.findByPk(facilityId),
+      await user.allowedFacilities(),
       getLocalisation(),
       getPermissionsForRoles(models, user.role),
       models.Role.findByPk(user.role),
     ]);
-
-    const permittedFacilities = await user.getPermittedFacilities();
 
     // Send some additional data with login to tell the user about
     // the context they've just logged in to.
@@ -130,7 +141,7 @@ export const login = ({ secret, refreshSecret }) =>
       permissions,
       role: role?.forResponse() ?? null,
       facility,
-      facilities: permittedFacilities.map(({ id, name }) => ({ id, name })),
+      allowedFacilities,
       localisation,
       centralHost: config.canonicalHostName,
       settings: settingsObject,
