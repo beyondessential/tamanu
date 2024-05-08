@@ -1,7 +1,7 @@
 name: CD Package Android
 
 permissions:
-  contents: read
+  contents: write # to update the release notes
   id-token: write # OIDC token for AWS
 
 on:
