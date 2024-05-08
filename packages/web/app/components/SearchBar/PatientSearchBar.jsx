@@ -81,7 +81,6 @@ export const PatientSearchBar = React.memo(
               fallback="NHN"
             />
           }
-          keepLetterCase
         />
         <LocalisedField
           name="firstName"

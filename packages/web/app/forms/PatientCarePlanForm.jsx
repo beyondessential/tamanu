@@ -55,7 +55,7 @@ export const PatientCarePlanForm = ({
           required
           component={TextField}
           multiline
-          rows={6}
+          minRows={6}
         />
         <FormSubmitCancelRow
           onCancel={onCancel}
