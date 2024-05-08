@@ -19,6 +19,7 @@ import { VisibilityStatus } from '~/visibilityStatuses';
 const Screen = (): ReactElement => {
   const navigation = useNavigation();
 
+  console.log('kekkeke');
   const [programs, programsError, programsIsLoading] = useBackendEffect(async ({ models }) => {
     const surveys = await models.Survey.find({
       where: {
@@ -26,6 +27,8 @@ const Screen = (): ReactElement => {
         visibilityStatus: VisibilityStatus.Current,
       },
     });
+
+    console.log('surveysss', surveys);
 
     return models.Program.find({
       where: {

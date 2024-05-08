@@ -4,6 +4,7 @@ import { GenericFormValues, ICreateSurveyResponse, IReferral } from '~/types';
 import { Encounter } from './Encounter';
 import { SurveyResponse } from './SurveyResponse';
 import { SYNC_DIRECTIONS } from './types';
+import { VisibilityStatus } from '~/visibilityStatuses';
 
 @Entity('referral')
 export class Referral extends BaseModel implements IReferral {
@@ -71,6 +72,9 @@ export class Referral extends BaseModel implements IReferral {
         'surveyScreenComponent.dataElementId = dataElement.id and surveyScreenComponent.surveyId = survey.id',
       )
       .where('initiatingEncounter.patientId = :patientId', { patientId })
+      .andWhere('survey.visibilityStatus = :visibilityStatus', {
+        visibilityStatus: VisibilityStatus.Current,
+      })
       .orderBy({
         'surveyResponse.endTime': 'DESC',
         'surveyScreenComponent.screenIndex': 'ASC',
