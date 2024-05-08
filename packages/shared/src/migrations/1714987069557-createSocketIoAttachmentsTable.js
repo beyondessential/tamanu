@@ -1,5 +1,5 @@
 /** @typedef {import('sequelize').QueryInterface} QueryInterface */
-import { DataTypes } from 'sequelize';
+import { DataTypes, Sequelize } from 'sequelize';
 
 /**
  * @param {QueryInterface} query
@@ -7,8 +7,10 @@ import { DataTypes } from 'sequelize';
 export async function up(query) {
   await query.createTable('socket_io_attachments', {
     id: {
-      type: DataTypes.BIGINT,
-      unique: true,
+      type: DataTypes.UUID,
+      allowNull: false,
+      primaryKey: true,
+      defaultValue: Sequelize.fn('uuid_generate_v4'),
     },
     created_at: {
       type: DataTypes.DATE,
