@@ -13,22 +13,25 @@ export const defineWebsocketService = async injector => {
   });
   const getServer = () => server;
 
-  const connection = await injector.sequelize.connectionManager.getConnection();
-  server.adapter(
-    createAdapter(
-      {
-        query: async (sql, bind) => {
-          const result = await injector.sequelize.query(sql, { bind, type: sql.split(' ')?.[0] });
-          return { rows: result[0] }
+  const connection = await injector.sequelize.connectionManager
+    .getConnection()
+    .catch(e => log.error('Error in sequelize connectionManager', e));
+  if (connection) {
+    server.adapter(
+      createAdapter(
+        {
+          query: async (sql, bind) => {
+            const result = await injector.sequelize.query(sql, { bind, type: sql.split(' ')?.[0] });
+            return { rows: result[0] };
+          },
+          connect: async () => connection,
         },
-        connect: async () => connection,
-      },
-      {
-        errorHandler: e => log.error('Error in postgres adapter', e)
-      }
-    ),
-  );
-
+        {
+          errorHandler: e => log.error('Error in postgres adapter', e),
+        },
+      ),
+    );
+  }
   /**
    *
    * @param {string} eventName
