@@ -26,7 +26,7 @@ export const PatientIssueForm = ({ onSubmit, editedObject, onCancel }) => (
           label={<TranslatedText stringId="general.notes.label" fallback="Notes" />}
           component={TextField}
           multiline
-          rows={2}
+          minRows={2}
         />
         <Field
           name="recordedDate"

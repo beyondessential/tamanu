@@ -118,7 +118,7 @@ export const LabRequestFormScreen2 = props => {
           label={<TranslatedText stringId="general.notes.label" fallback="Notes" />}
           component={TextField}
           multiline
-          rows={3}
+          minRows={3}
         />
       </div>
     </>
