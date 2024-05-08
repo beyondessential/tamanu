@@ -16,6 +16,8 @@ import { MoveModal } from './MoveModal';
 import { EncounterRecordModal } from '../../../components/PatientPrinting/modals/EncounterRecordModal';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { ChangeReasonModal } from '../../../components/ChangeReasonModal';
+import { ChangeDietModal } from '../../../components/ChangeDietModal';
+import { isInpatient } from '../../../utils/isInpatient'; 
 
 const ActionsContainer = styled.div`
   display: flex;
@@ -30,6 +32,7 @@ const ENCOUNTER_MODALS = {
   CHANGE_LOCATION: 'changeLocation',
   CHANGE_TYPE: 'changeType',
   CHANGE_REASON: 'changeReason',
+  CHANGE_DIET: 'changeDiet',
 
   DISCHARGE: 'discharge',
 
@@ -68,6 +71,7 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
   const onViewSummary = () => navigateToSummary();
   const onViewEncounterRecord = () => setOpenModal(ENCOUNTER_MODALS.ENCOUNTER_RECORD);
   const onChangeReason = () => setOpenModal(ENCOUNTER_MODALS.CHANGE_REASON);
+  const onChangeDiet = () => setOpenModal(ENCOUNTER_MODALS.CHANGE_DIET);
 
   if (encounter.endDate) {
     return (
@@ -231,6 +235,16 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
       condition: () => [ENCOUNTER_TYPES.CLINIC, ENCOUNTER_TYPES.ADMISSION].includes(encounter.encounterType),
       onClick: onChangeReason,
     },
+    {
+      label: (
+        <TranslatedText
+          stringId="patient.encounter.action.changeDiet"
+          fallback="Change diet"
+        />
+      ),
+      condition: () => isInpatient(encounter.encounterType),
+      onClick: onChangeDiet,
+    },
   ].filter(action => !action.condition || action.condition());
 
   return <StyledDropdownButton actions={actions} />;
@@ -295,6 +309,11 @@ export const EncounterActions = React.memo(({ encounter }) => {
       <ChangeReasonModal
         encounter={encounter}
         open={openModal === ENCOUNTER_MODALS.CHANGE_REASON}
+        onClose={onClose}
+      />
+      <ChangeDietModal
+        encounter={encounter}
+        open={openModal === ENCOUNTER_MODALS.CHANGE_DIET}
         onClose={onClose}
       />
     </>
