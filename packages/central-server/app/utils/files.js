@@ -32,7 +32,7 @@ export async function writeToSpreadsheet({ data, metadata }, filePath, bookType)
   XLSX.utils.book_append_sheet(book, metadataSheet, 'metadata');
 
   return new Promise((resolve, reject) => {
-    XLSX.writeFileAsync(filePath, book, { type: bookType }, err => {
+    XLSX.writeFileAsync(filePath, book, { bookType, type: 'buffer' }, err => {
       if (err) {
         reject(err);
       } else {
