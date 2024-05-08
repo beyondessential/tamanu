@@ -23,6 +23,8 @@ import { usePatientAdditionalData } from '~/ui/hooks/usePatientAdditionalData';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { getInitialAdditionalValues } from '../../PatientAdditionalDataForm/helpers';
 import { HierarchyFields } from '/components/HierarchyFields';
+import { ReferenceDataType } from '~/types';
+import { TranslatedText } from '/components/Translations/TranslatedText';
 
 export type FormSection = {
   scrollToField: (fieldName: string) => () => void;
@@ -81,6 +83,29 @@ const getPatientInitialValues = (isEdit: boolean, patient, patientAdditionalData
 
 const containsAdditionalData = values =>
   allAdditionalDataFields.some(fieldName => Object.keys(values).includes(fieldName));
+
+const CAMBODIA_LOCATION_HIERARCHY_FIELDS = [
+  {
+    name: 'divisionId',
+    referenceType: ReferenceDataType.Division,
+    label: <TranslatedText stringId="cambodiaPatientDetails.province.label" fallback="Province" />,
+  },
+  {
+    name: 'subdivisionId',
+    referenceType: ReferenceDataType.SubDivision,
+    label: <TranslatedText stringId="cambodiaPatientDetails.district.label" fallback="District" />,
+  },
+  {
+    name: 'settlementId',
+    referenceType: ReferenceDataType.Settlement,
+    label: <TranslatedText stringId="cambodiaPatientDetails.commune.label" fallback="Commune" />,
+  },
+  {
+    name: 'villageId',
+    referenceType: ReferenceDataType.Village,
+    label: <TranslatedText stringId="general.localisedField.villageId.label" fallback="Village" />,
+  },
+];
 
 export const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit }): ReactElement => {
   const navigation = useNavigation();
@@ -160,7 +185,7 @@ export const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit }): 
               contentContainerStyle={styles.ScrollViewContentContainer}
             >
               <NameSection />
-              <HierarchyFields />
+              <HierarchyFields fields={CAMBODIA_LOCATION_HIERARCHY_FIELDS} />
               <KeyInformationSection />
               <LocationDetailsSection />
               <PatientAdditionalDataFields fields={allAdditionalDataFields} showMandatory />

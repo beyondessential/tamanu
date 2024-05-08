@@ -13,11 +13,11 @@ referenceData.get(
     req.flagPermissionChecked();
     const {
       models: { ReferenceData },
-      query: { baseLevel, relationType = DEFAULT_HIERARCHY_TYPE },
+      query: { leafNodeType, relationType = DEFAULT_HIERARCHY_TYPE },
     } = req;
 
     const entity = await ReferenceData.getNode({
-      where: { type: baseLevel },
+      where: { type: leafNodeType },
       raw: false,
       relationType,
     });

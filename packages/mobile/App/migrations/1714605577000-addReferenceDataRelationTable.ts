@@ -88,7 +88,7 @@ const ReferenceDataRelationTable = new Table({
     }),
     new TableIndex({
       name: 'referenceData_relations_parent_relation_id_index',
-      columnNames: ['parentRelationId'],
+      columnNames: ['referenceDataParentId'],
     }),
     new TableIndex({
       name: 'referenceData_relations_type_index',

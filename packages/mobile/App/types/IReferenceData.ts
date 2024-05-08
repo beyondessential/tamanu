@@ -3,10 +3,13 @@ import { ReferenceDataRelation } from '~/models/ReferenceDataRelation';
 
 export enum ReferenceDataType {
   Allergy = 'allergy',
+  Catchment = 'catchment',
   Condition = 'condition',
   ContactRelationship = 'contactRelationship',
-  Drug = 'drug',
+  Country = 'country',
+  Division = 'division',
   Diet = 'diet',
+  Drug = 'drug',
   ICD10 = 'icd10',
   ImagingType = 'imagingType',
   LabTestCategory = 'labTestCategory',
@@ -15,11 +18,18 @@ export enum ReferenceDataType {
   LabTestType = 'labTestType',
   PatientIdType = 'patientIdType',
   ProcedureType = 'procedureType',
+  Settlement = 'settlement',
   SpecimenType = 'specimenType',
+  SubDivision = 'subdivision',
   TriageReason = 'triageReason',
   Vaccine = 'vaccine',
   VaccineNotGivenReason = 'vaccineNotGivenReason',
   Village = 'village',
+}
+
+export enum ReferenceDataRelationType {
+  AddressHierarchy = 'address_hierarchy',
+  FacilityCatchment = 'facility_catchment',
 }
 
 export interface IReferenceData {
@@ -29,11 +39,6 @@ export interface IReferenceData {
   type: ReferenceDataType;
   visibilityStatus: VisibilityStatus;
   parents?: ReferenceDataRelation[];
-}
-
-export enum ReferenceDataRelationType {
-  AddressHierarchy = 'address_hierarchy',
-  FacilityCatchment = 'facility_catchment',
 }
 
 export interface IReferenceDataRelation {

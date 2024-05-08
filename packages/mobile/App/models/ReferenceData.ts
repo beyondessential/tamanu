@@ -4,7 +4,7 @@ import { IReferenceData, ReferenceDataType } from '~/types';
 import { VisibilityStatus } from '../visibilityStatuses';
 import { SYNC_DIRECTIONS } from './types';
 import { ReferenceDataRelation as RefDataRelation } from './ReferenceDataRelation';
-import { REFERENCE_DATA_RELATION_TYPES } from '/components/HierarchyFields';
+import { ReferenceDataRelationType } from '~/types';
 
 @Entity('reference_data')
 export class ReferenceData extends BaseModel implements IReferenceData {
@@ -62,7 +62,7 @@ export class ReferenceData extends BaseModel implements IReferenceData {
     where: {
       [key: string]: any;
     },
-    relationType = REFERENCE_DATA_RELATION_TYPES.ADDRESS_HIERARCHY,
+    relationType = ReferenceDataRelationType.AddressHierarchy,
   ) {
     const repo = this.getRepository();
 
@@ -93,14 +93,14 @@ export class ReferenceData extends BaseModel implements IReferenceData {
     return recordWithParents;
   }
 
-  async getAncestors(relationType = REFERENCE_DATA_RELATION_TYPES.ADDRESS_HIERARCHY) {
-    const baseNode = await ReferenceData.getNode({ id: this.id }, relationType);
-    const parentId = baseNode.parents[0].referenceDataParentId;
+  async getAncestors(relationType = ReferenceDataRelationType.AddressHierarchy) {
+    const leafNode = await ReferenceData.getNode({ id: this.id }, relationType);
+    const parentId = leafNode.parents[0].referenceDataParentId;
 
     if (!parentId) {
       return [];
     }
-    return ReferenceData.getParentRecursive(parentId, [baseNode], 'address_hierarchy');
+    return ReferenceData.getParentRecursive(parentId, [leafNode], relationType);
   }
   static async searchDataByType(
     referenceDataType: ReferenceDataType,
