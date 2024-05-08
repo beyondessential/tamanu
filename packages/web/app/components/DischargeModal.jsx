@@ -26,32 +26,22 @@ export const DischargeModal = React.memo(({ open, onClose }) => {
   const practitionerSuggester = useSuggester('practitioner');
 
   const dischargeDispositionFilterer = dischargeDisposition => {
-    // This is an emergency encounter
-    if (getPatientStatus(encounter.encounterType) === PATIENT_STATUS.EMERGENCY) {
-      if (
-        dischargeDisposition?.code?.startsWith(
-          DISCHARGE_DISPOSITION_FOR_INPATIENTS_OUTPATIENTS_ONLY,
-        )
-      ) {
-        return false; // Do not show discharge dispositions that are only for inpatient and outpatient encounter
-      }
+    const patientStatus = getPatientStatus(encounter.encounterType);
 
-      // Otherwise shows everything
-      return true;
-    }
-
-    // This is an inpatient or outpatient encounter
-    if (
-      [PATIENT_STATUS.INPATIENT, PATIENT_STATUS.OUTPATIENT].includes(
-        getPatientStatus(encounter.encounterType),
-      )
-    ) {
-      if (dischargeDisposition?.code?.startsWith(DISCHARGE_DISPOSITION_FOR_EMERGENCY_ONLY)) {
-        return false; // Do not show discharge dispositions that are only for emergency encounters
-      }
-
-      // Otherwise shows everything
-      return true;
+    switch (patientStatus) {
+      case PATIENT_STATUS.EMERGENCY:
+        if (dischargeDisposition?.code?.startsWith(DISCHARGE_DISPOSITION_FOR_INPATIENTS_OUTPATIENTS_ONLY)) {
+          return false; // Do not show discharge dispositions that are only for emergency encounters
+        }
+        return true;
+      case PATIENT_STATUS.INPATIENT:
+      case PATIENT_STATUS.OUTPATIENT:
+        if (dischargeDisposition?.code?.startsWith(DISCHARGE_DISPOSITION_FOR_EMERGENCY_ONLY)) {
+          return false; // Do not show discharge dispositions that are only for emergency encounters
+        }
+        return true;
+      default:
+        return true;
     }
   };
 
