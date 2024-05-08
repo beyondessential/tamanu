@@ -36,12 +36,12 @@ const CardIcon = styled.img`
   margin-right: 10px;
 `;
 
-const CardLabel = styled.div`
+const CardLabel = styled.span`
   white-space: nowrap;
   color: ${props => props.theme.palette.text.secondary};
 `;
 
-const CardValue = styled.div`
+const CardValue = styled.span`
   font-weight: 500;
   color: ${props => props.theme.palette.text.primary};
 `;
@@ -65,10 +65,10 @@ const Card = styled.div`
 `;
 
 const InfoCardEntry = ({ label, value }) => (
-  <>
+  <div>
     <CardLabel>{label}:</CardLabel>
     <CardValue>{value}</CardValue>
-  </>
+  </div>
 );
 
 export const InfoCardHeader = ({ label, value, ...props }) => (
