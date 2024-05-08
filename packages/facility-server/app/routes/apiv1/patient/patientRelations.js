@@ -213,14 +213,14 @@ patientRelations.get(
                   ],
                 },
               ],
-              where: {
-                visibilityStatus: { [Op.ne]: VISIBILITY_STATUSES.HISTORICAL },
-              },
             },
           ],
         },
       ],
       order: [[sortKey, sortDirection]],
+      where: {
+        '$surveyResponse->survey.visibility_status$': { [Op.ne]: VISIBILITY_STATUSES.HISTORICAL },
+      },
     });
 
     res.send({ count: patientReferrals.length, data: patientReferrals });
