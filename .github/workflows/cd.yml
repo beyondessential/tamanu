@@ -31,7 +31,7 @@ concurrency:
   cancel-in-progress: false
 
 permissions:
-  contents: read # to checkout the repo
+  contents: write # to update the release
   packages: write # to pull and push images
   pull-requests: write # to parse PRs for config and update status
   issues: read # to parse special deploy issues

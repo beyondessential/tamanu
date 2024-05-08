@@ -4,8 +4,8 @@ on:
   workflow_call:
 
 permissions:
-  contents: read
-  packages: read
+  packages: read # to pull images
+  contents: write # to update the release
   id-token: write # OIDC token for AWS
 
 jobs:
