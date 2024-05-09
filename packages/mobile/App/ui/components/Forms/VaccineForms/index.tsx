@@ -20,7 +20,6 @@ import { LoadingScreen } from '/components/LoadingScreen';
 import { ErrorScreen } from '/components/ErrorScreen';
 
 import { useBackendEffect } from '~/ui/hooks';
-import { readConfig } from '~/services/config';
 import { SETTING_KEYS } from '../../../../constants';
 import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 
@@ -98,9 +97,8 @@ export const VaccineForm = ({
         };
       }
 
-      const facilityId = await readConfig('facilityId', '');
       const vaccinationDefaults =
-        (await models.Setting.get(SETTING_KEYS.VACCINATION_DEFAULTS, facilityId)) || {};
+        (await models.Setting.getByKey(SETTING_KEYS.VACCINATION_DEFAULTS)) || {};
 
       return {
         locationId: vaccinationDefaults.locationId,
