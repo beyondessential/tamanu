@@ -113,12 +113,14 @@ describe('Survey calculations', () => {
         { code: 'INPUT_2' },
         { code: 'INPUT_3' },
         { code: 'TEST_1', type: 'CalculatedQuestion', calculation: 'INPUT_1 + INPUT_2 + INPUT_3' },
+        { code: 'TEST_2', type: 'CalculatedQuestion', calculation: 'INPUT_2 * INPUT_3' },
       ]);
       const calculations = runCalculations(survey, {
         INPUT_1: 1,
         INPUT_2: 2,
       });
       expect(calculations.TEST_1).toEqual(3);
+      expect(calculations.TEST_2).toEqual(0);
     });
   });
 
