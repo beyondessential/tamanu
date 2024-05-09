@@ -191,7 +191,7 @@ async function getHashesForDb(migrationsInfo) {
 
   const hashesList1 = await getHashesForDb(migrationsInfo);
   const hashesList2 = await getHashesForDb(migrationsInfo);
-
+  console.log({ hashesList1, hashesList2 })
   for (const [hashes1, hashes2] of zip(hashesList1, hashesList2)) {
     if (!isEqual(hashes1.hashes, hashes2.hashes)) {
       console.log(`The migration ${hashes1.name} is not deterministic`);
