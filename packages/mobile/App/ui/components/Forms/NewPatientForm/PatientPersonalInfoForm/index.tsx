@@ -15,11 +15,10 @@ import { Routes } from '~/ui/helpers/routes';
 import { ALL_ADDITIONAL_DATA_FIELDS } from '~/ui/helpers/additionalData';
 import { getPatientDetailsValidation } from './patientDetailsValidationSchema';
 import { PatientAdditionalData } from '~/models/PatientAdditionalData';
-import { usePatientAdditionalData } from '~/ui/hooks/usePatientAdditionalData';
+import { CustomPatientFieldValues, usePatientAdditionalData } from '~/ui/hooks/usePatientAdditionalData';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { getInitialAdditionalValues } from '../../PatientAdditionalDataForm/helpers';
 import { PatientFieldValue } from '~/models/PatientFieldValue';
-import { IPatient, IPatientAdditionalData } from '~/types';
 
 export type FormSection = {
   scrollToField: (fieldName: string) => () => void;
@@ -33,9 +32,9 @@ const styles = StyleSheet.create({
 
 const getPatientInitialValues = (
   isEdit: boolean,
-  patient: IPatient,
-  patientAdditionalData: IPatientAdditionalData,
-  customPatientFieldValues,
+  patient: Patient,
+  patientAdditionalData: PatientAdditionalData,
+  customPatientFieldValues: CustomPatientFieldValues,
   getBool: (key: string) => boolean,
 ): {} => {
   if (!isEdit || !patient) {
@@ -91,12 +90,7 @@ const getPatientInitialValues = (
 const containsAdditionalData = values =>
   ALL_ADDITIONAL_DATA_FIELDS.some(fieldName => Object.keys(values).includes(fieldName));
 
-const FormComponent = ({
-  selectedPatient,
-  setSelectedPatient,
-  isEdit,
-  children,
-}): ReactElement => {
+const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit, children }): ReactElement => {
   const navigation = useNavigation();
   const { customPatientFieldValues, patientAdditionalData, loading } = usePatientAdditionalData(
     selectedPatient?.id,
@@ -105,7 +99,7 @@ const FormComponent = ({
     async (values, { resetForm }) => {
       // submit form to server for new patient
       const { dateOfBirth, ...otherValues } = values;
-      const newPatient = await Patient.createAndSaveOne({
+      const newPatient = await Patient.createAndSaveOne<Patient>({
         ...otherValues,
         dateOfBirth: formatISO9075(dateOfBirth),
         displayId: generateId(),
@@ -217,6 +211,6 @@ const FormComponent = ({
   );
 };
 
-export const PatientPersonalInfoForm = compose<React.FC<{ isEdit?: boolean, children?: ReactNode }>>(withPatient)(
-  FormComponent,
-);
+export const PatientPersonalInfoForm = compose<
+  React.FC<{ isEdit?: boolean; children?: ReactNode }>
+>(withPatient)(FormComponent);
