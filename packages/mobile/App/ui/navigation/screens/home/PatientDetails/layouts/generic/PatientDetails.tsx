@@ -3,7 +3,7 @@ import { GeneralInfo } from './GeneralInfo';
 import { AdditionalInfo } from '../../CustomComponents/AdditionalInfo';
 import { Routes } from '~/ui/helpers/routes';
 import { joinNames } from '~/ui/helpers/user';
-import { ADDITIONAL_DATA_SECTIONS } from '~/ui/helpers/additionalData';
+import { GENERIC_ADDITIONAL_DATA_SECTIONS } from './fields';
 
 export const PatientDetails = ({ patient, navigation }): ReactElement => {
   const onEditGeneralInfo = useCallback(() => {
@@ -32,7 +32,7 @@ export const PatientDetails = ({ patient, navigation }): ReactElement => {
   return (
     <>
       <GeneralInfo patient={patient} onEdit={onEditGeneralInfo} />
-      <AdditionalInfo patient={patient} onEdit={editPatientAdditionalData} dataSections={ADDITIONAL_DATA_SECTIONS} />
+      <AdditionalInfo patient={patient} onEdit={editPatientAdditionalData} dataSections={GENERIC_ADDITIONAL_DATA_SECTIONS} />
     </>
   );
 };

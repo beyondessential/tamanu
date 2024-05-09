@@ -6,7 +6,7 @@ import { PatientAdditionalDataForm } from '/components/Forms/PatientAdditionalDa
 import { theme } from '/styled/theme';
 import { PatientSectionHeader } from '~/ui/components/Forms/NewPatientForm/PatientSectionHeader';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
-import { CAMBODIA_ADDITIONAL_DATA_SECTIONS } from '~/ui/helpers/additionalData';
+import { CAMBODIA_ADDITIONAL_DATA_SECTIONS } from './fields';
 
 export const EditPatientAdditionalDataScreen = ({ navigation, route }): ReactElement => {
   const {

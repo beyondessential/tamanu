@@ -6,7 +6,7 @@ import { PatientAdditionalDataForm } from '/components/Forms/PatientAdditionalDa
 import { theme } from '/styled/theme';
 import { PatientSectionHeader } from '~/ui/components/Forms/NewPatientForm/PatientSectionHeader';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
-import { ADDITIONAL_DATA_SECTIONS } from '~/ui/helpers/additionalData';
+import { GENERIC_ADDITIONAL_DATA_SECTIONS } from './fields';
 
 export const EditPatientAdditionalDataScreen = ({ navigation, route }): ReactElement => {
   const {
@@ -41,7 +41,7 @@ export const EditPatientAdditionalDataScreen = ({ navigation, route }): ReactEle
       <PatientAdditionalDataForm
         patient={patient}
         additionalData={additionalData}
-        additionalDataSections={ADDITIONAL_DATA_SECTIONS}
+        additionalDataSections={GENERIC_ADDITIONAL_DATA_SECTIONS}
         navigation={navigation}
         sectionTitle={sectionTitle}
         customPatientFieldValues={customPatientFieldValues}
