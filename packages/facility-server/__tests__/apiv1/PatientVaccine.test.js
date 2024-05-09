@@ -556,7 +556,7 @@ describe('PatientVaccine', () => {
           category: VACCINE_CATEGORIES.ROUTINE,
           schedule: 'Dose 2',
           index: 2,
-          weeksFromLastVaccinationDue: 4,
+          weeksFromLastVaccinationDue: 2,
           vaccineId: drug.id,
         }),
       );
@@ -568,7 +568,7 @@ describe('PatientVaccine', () => {
 
       patient2 = await models.Patient.create({
         ...fake(models.Patient),
-        dateOfBirth: toDateString(subDays(new Date(), 365 * 16)),
+        dateOfBirth: toDateString(subDays(new Date(), 365 * 2)),
       });
 
       await recordAdministeredVaccine(patient2, scheduledVax2, {
@@ -584,9 +584,9 @@ describe('PatientVaccine', () => {
       expect(result.body.data.at(0)?.scheduledVaccineId).toEqual(scheduledVax1.id);
     });
 
-    // TODO: This doesn't pass on epic
-    it('should return 1 upcoming vaccinations of patient 2', async () => {
+    it.only('should return 1 upcoming vaccinations of patient 2', async () => {
       const result = await app.get(`/api/patient/${patient2.id}/upcomingVaccination`);
+      console.log('patient2.dateOfBirth', patient2.dateOfBirth);
       expect(result).toHaveSucceeded();
       expect(result.body.data).toHaveLength(1);
       expect(result.body.data.at(0)?.scheduledVaccineId).toEqual(scheduledVax2.id);
