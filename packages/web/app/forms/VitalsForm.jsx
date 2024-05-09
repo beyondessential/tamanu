@@ -16,10 +16,6 @@ import { useEncounter } from '../contexts/Encounter';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';
 
-const baseVitalsSchema = yup.object().shape({
-  [VITALS_DATA_ELEMENT_IDS.dateRecorded]: yup.date().required('Required'),
-});
-
 export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterType }) => {
   const { getTranslation } = useTranslation();
   const {
@@ -31,26 +27,24 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterTyp
   const { encounter } = useEncounter();
   const { components = [] } = vitalsSurvey || {};
   const currentComponents = components
-  .filter(c => c.visibilityStatus === VISIBILITY_STATUSES.CURRENT)
-  .map(c =>
-    c.dataElementId === VITALS_DATA_ELEMENT_IDS.dateRecorded
-      ? { ...c, validationCriteria: JSON.stringify({ mandatory: true }) }
-      : c,
-  );
+    .filter(c => c.visibilityStatus === VISIBILITY_STATUSES.CURRENT)
+    .map(c =>
+      c.dataElementId === VITALS_DATA_ELEMENT_IDS.dateRecorded
+        ? { ...c, validationCriteria: JSON.stringify({ mandatory: true }) }
+        : c,
+    );
   const validationSchema = useMemo(
     () =>
       getValidationSchema({ components: currentComponents }, getTranslation, {
         encounterType: encounterType || encounter?.encounterType,
-      })
-      .concat(baseVitalsSchema)
-      .concat(
+      }).concat(
         yup.object().shape({
           [VITALS_DATA_ELEMENT_IDS.dateRecorded]: yup
-          .date()
-          .translatedLabel(
-            <TranslatedText stringId="general.recordedDate.label" fallback="Date recorded" />,
-          )
-          .required(),
+            .date()
+            .translatedLabel(
+              <TranslatedText stringId="general.recordedDate.label" fallback="Date recorded" />,
+            )
+            .required(),
         }),
       ),
     [currentComponents, encounter?.encounterType, encounterType, getTranslation],
