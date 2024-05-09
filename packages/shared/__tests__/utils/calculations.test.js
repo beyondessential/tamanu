@@ -106,6 +106,20 @@ describe('Survey calculations', () => {
       expect(calculations).toHaveProperty('TEST_BROKEN', null);
       expect(calculations).toHaveProperty('TEST_BROKEN_2', null);
     });
+
+    it('should handle undefined inputs in calculations', () => {
+      const survey = makeDummySurvey([
+        { code: 'INPUT_1' },
+        { code: 'INPUT_2' },
+        { code: 'INPUT_3' },
+        { code: 'TEST_1', type: 'CalculatedQuestion', calculation: 'INPUT_1 + INPUT_2 + INPUT_3' },
+      ]);
+      const calculations = runCalculations(survey, {
+        INPUT_1: 1,
+        INPUT_2: 2,
+      });
+      expect(calculations.TEST_1).toEqual(3);
+    });
   });
 
   describe('Results', () => {
