@@ -5,22 +5,23 @@ import { ErrorScreen } from '../../../../../components/ErrorScreen';
 import { LoadingScreen } from '../../../../../components/LoadingScreen';
 import { PatientSection } from './PatientSection';
 import { useLocalisation } from '../../../../../contexts/LocalisationContext';
-import { IPatient, IPatientAdditionalData, IPatientFieldValue } from '../../../../../../types';
-import { usePatientAdditionalData } from '~/ui/hooks/usePatientAdditionalData';
+import { CustomPatientFieldValues, usePatientAdditionalData } from '~/ui/hooks/usePatientAdditionalData';
 import { isCustomField } from '~/ui/helpers/fields';
 import { mapValues } from 'lodash';
+import { PatientAdditionalData } from '~/models/PatientAdditionalData';
+import { Patient } from '~/models/Patient';
 
 interface AdditionalInfoProps {
   onEdit: (
-    additionalInfo: IPatientAdditionalData,
+    additionalInfo: PatientAdditionalData,
     sectionTitle: Element,
-    customPatientFieldValues: IPatientFieldValue[],
+    customPatientFieldValues: CustomPatientFieldValues,
   ) => void;
-  patient: IPatient;
+  patient: Patient;
   dataSections;
 }
 
-function getPadFieldData(data: IPatientAdditionalData, fieldName: string): string {
+function getPadFieldData(data: PatientAdditionalData, fieldName: string): string {
   // Field is reference data
   if (fieldName.slice(-2) === 'Id') {
     const actualName = fieldName.slice(0, -2);

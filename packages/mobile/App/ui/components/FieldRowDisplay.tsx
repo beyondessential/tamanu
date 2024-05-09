@@ -5,12 +5,12 @@ import { isTablet } from 'react-native-device-info';
 import { useLocalisation } from '../contexts/LocalisationContext';
 import { RowView, StyledView } from '../styled/common';
 import { InformationBox } from '../navigation/screens/home/PatientDetails/CustomComponents';
-import { IPatientFieldDefinition } from '~/types';
 import { isCustomField } from '../helpers/fields';
+import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
 
 interface FieldRowDisplayProps {
   fields: string[][];
-  customFieldDefinitions?: IPatientFieldDefinition[];
+  customFieldDefinitions?: PatientFieldDefinition[];
 }
 
 export const FieldRowDisplay = ({
