@@ -22,25 +22,28 @@ export const FieldRowDisplay = ({
   const fieldsPerRow = isTablet() ? 2 : 1;
   const rows = chunk(fields, fieldsPerRow);
   const customFieldsById = keyBy(customFieldDefinitions, 'id');
+  const customFieldIds = Object.keys(customFieldsById);
+
+  const getLabel = (name: string) => {
+    if (localisedFields.includes(name)) {
+      if (getBool(`fields.${name}.hidden`)) return null;
+      return getString(`fields.${name}.longLabel`);
+    }
+
+    if (isCustomField(name)) {
+      return customFieldsById[name]?.name;
+    }
+    
+    return name;
+  };
 
   return (
     <StyledView width="100%" margin={20} marginTop={0}>
       {rows.map(row => (
         <RowView key={row.map(([name]) => name).join(',')} marginTop={20}>
-          {row.map(([name, info]) => {
-            let title = name;
-
-            if (localisedFields.includes(name)) {
-              if (getBool(`fields.${name}.hidden`)) return null;
-              title = getString(`fields.${name}.longLabel`);
-            }
-
-            if (isCustomField(name)) {
-              title = customFieldsById[name]?.name;
-            }
-
-            return <InformationBox key={name} flex={1} title={title} info={info} />;
-          })}
+          {row.map(([name, info]) => (
+            <InformationBox key={name} flex={1} title={getLabel(name)} info={info} />
+          ))}
         </RowView>
       ))}
     </StyledView>
