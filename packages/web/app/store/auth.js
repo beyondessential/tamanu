@@ -186,7 +186,7 @@ const resetState = {
   user: defaultState.user,
   role: defaultState.role,
   facilities: defaultState.facilities,
-  facility: defaultState.facility,
+  facilityId: defaultState.facilityId,
   error: defaultState.error,
   token: null,
 };
