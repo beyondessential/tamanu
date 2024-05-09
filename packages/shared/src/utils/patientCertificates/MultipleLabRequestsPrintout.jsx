@@ -30,7 +30,6 @@ const signingSectionStyles = StyleSheet.create({
   disclaimerText: {
     fontFamily: 'Helvetica-Oblique',
     fontSize: 8,
-    fontStyle: 'italic',
   },
 });
 

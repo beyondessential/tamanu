@@ -24,5 +24,5 @@ export const WorkerRenderedPDFViewer = props => {
     return <div>{JSON.stringify(error)}</div>;
   }
 
-  return <FullIframe src={src} />;
+  return <FullIframe id={props.id} src={src} />;
 };
