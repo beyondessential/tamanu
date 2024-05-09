@@ -2,7 +2,6 @@ import { pascal } from 'case';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { literal, Op, Sequelize } from 'sequelize';
-import config from 'config';
 import { NotFoundError } from '@tamanu/shared/errors';
 import {
   INVOICE_LINE_TYPES,
@@ -40,7 +39,7 @@ function createSuggesterRoute(
       );
 
       const searchQuery = (query.q || '').trim().toLowerCase();
-      const where = whereBuilder(`%${searchQuery}%`, query);
+      const where = whereBuilder(`%${searchQuery}%`, query, req);
       const include = includeBuilder?.(req);
 
       const results = await model.findAll({
@@ -90,7 +89,7 @@ function createAllRecordsRoute(
       const { models, query } = req;
 
       const model = models[modelName];
-      const where = whereBuilder('%', query);
+      const where = whereBuilder('%', query, req);
       const results = await model.findAll({
         where,
         order: [[Sequelize.literal(searchColumn), 'ASC']],
@@ -171,7 +170,7 @@ const DEFAULT_WHERE_BUILDER = search => ({
   ...VISIBILITY_CRITERIA,
 });
 
-const filterByFacilityWhereBuilder = (search, query) => {
+const filterByFacilityWhereBuilder = (search, query, req) => {
   const baseWhere = DEFAULT_WHERE_BUILDER(search);
   if (!query.filterByFacility) {
     return baseWhere;
@@ -179,7 +178,7 @@ const filterByFacilityWhereBuilder = (search, query) => {
 
   return {
     ...baseWhere,
-    facilityId: config.serverFacilityId,
+    facilityId: req.facilityId,
   };
 };
 
