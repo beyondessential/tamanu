@@ -32,18 +32,13 @@ export const Fields = (): ReactElement => {
         component={RadioButtonGroup}
         required
       />
-      <PatientAdditionalDataFields
-        fields={['fieldDefinition-fathersFirstName']}
-      />
+      <PatientAdditionalDataFields fields={['fieldDefinition-fathersFirstName']} />
       <LocalisedField
         name="culturalName"
         component={TextField}
         required={getBool('fields.culturalName.requiredPatientData')}
       />
-      <PatientAdditionalDataFields
-        fields={ALL_ADDITIONAL_DATA_FIELDS}
-        showMandatory
-      />
+      <PatientAdditionalDataFields fields={ALL_ADDITIONAL_DATA_FIELDS} showMandatory />
     </>
   );
 };
@@ -59,7 +54,9 @@ export const EditPatientScreen = ({ route }): ReactElement => {
     <FullView background={theme.colors.BACKGROUND_GREY}>
       <StatusBar barStyle="light-content" />
       <StackHeader title="Cambodia Edit Patient" subtitle={patientName} onGoBack={onGoBack} />
-      <PatientPersonalInfoForm isEdit fields={<Fields />} />
+      <PatientPersonalInfoForm isEdit>
+        <Fields />
+      </PatientPersonalInfoForm>
     </FullView>
   );
 };

@@ -22,17 +22,12 @@ export const EditPatientScreen = ({ route }): ReactElement => {
     <FullView background={theme.colors.BACKGROUND_GREY}>
       <StatusBar barStyle="light-content" />
       <StackHeader title="Edit Patient" subtitle={patientName} onGoBack={onGoBack} />
-      <PatientPersonalInfoForm
-        isEdit
-        fields={
-          <>
-            <NameSection />
-            <KeyInformationSection />
-            <LocationDetailsSection />
-            <PatientAdditionalDataFields fields={ALL_ADDITIONAL_DATA_FIELDS} showMandatory />
-          </>
-        }
-      />
+      <PatientPersonalInfoForm isEdit>
+        <NameSection />
+        <KeyInformationSection />
+        <LocationDetailsSection />
+        <PatientAdditionalDataFields fields={ALL_ADDITIONAL_DATA_FIELDS} showMandatory />
+      </PatientPersonalInfoForm>
     </FullView>
   );
 };

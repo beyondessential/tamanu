@@ -95,7 +95,7 @@ export const FormComponent = ({
   selectedPatient,
   setSelectedPatient,
   isEdit,
-  fields,
+  children,
 }): ReactElement => {
   const navigation = useNavigation();
   const { customPatientFieldValues, patientAdditionalData, loading } = usePatientAdditionalData(
@@ -207,7 +207,7 @@ export const FormComponent = ({
               style={styles.ScrollView}
               contentContainerStyle={styles.ScrollViewContentContainer}
             >
-              {fields}
+              {children}
               <SubmitSection onPress={handleSubmit} isEdit={isEdit} />
             </ScrollView>
           </KeyboardAvoidingView>
