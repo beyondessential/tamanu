@@ -13,9 +13,11 @@ export const defineWebsocketService = async injector => {
   });
   const getServer = () => server;
 
-  const connection = await injector.sequelize.connectionManager
-    .getConnection()
+  const connection = await injector.sequelize
+    .authenticate()
+    .then(() => injector.sequelize.connectionManager.getConnection())
     .catch(e => log.error('Error in sequelize connectionManager', e));
+
   if (connection) {
     server.adapter(
       createAdapter(
