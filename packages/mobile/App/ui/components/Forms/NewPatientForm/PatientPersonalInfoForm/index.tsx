@@ -1,4 +1,4 @@
-import React, { ReactElement, useCallback } from 'react';
+import React, { ReactElement, ReactNode, useCallback } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { compose } from 'redux';
 import { Formik } from 'formik';
@@ -91,7 +91,7 @@ const getPatientInitialValues = (
 const containsAdditionalData = values =>
   ALL_ADDITIONAL_DATA_FIELDS.some(fieldName => Object.keys(values).includes(fieldName));
 
-export const FormComponent = ({
+const FormComponent = ({
   selectedPatient,
   setSelectedPatient,
   isEdit,
@@ -138,7 +138,7 @@ export const FormComponent = ({
       resetForm();
       navigation.navigate(Routes.HomeStack.RegisterPatientStack.NewPatient);
     },
-    [navigation, loading],
+    [navigation, customPatientFieldValues, selectedPatient.id, setSelectedPatient],
   );
 
   const onEditPatient = useCallback(
@@ -181,7 +181,7 @@ export const FormComponent = ({
       // Navigate back to patient details
       navigation.navigate(Routes.HomeStack.PatientDetailsStack.Index);
     },
-    [navigation, loading],
+    [navigation, customPatientFieldValues, selectedPatient.id, setSelectedPatient],
   );
 
   const { getBool, getString } = useLocalisation();
@@ -217,6 +217,6 @@ export const FormComponent = ({
   );
 };
 
-export const PatientPersonalInfoForm = compose<React.FC<{ isEdit?: boolean }>>(withPatient)(
+export const PatientPersonalInfoForm = compose<React.FC<{ isEdit?: boolean, children?: ReactNode }>>(withPatient)(
   FormComponent,
 );
