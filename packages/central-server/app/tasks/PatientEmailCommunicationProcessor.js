@@ -1,5 +1,5 @@
 import config from 'config';
-import { COMMUNICATION_STATUSES, PATIENT_COMMUNICATION_CHANNELS } from '@tamanu/constants';
+import { PATIENT_COMMUNICATION_CHANNELS } from '@tamanu/constants';
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import { removeFile } from '../utils/files';
@@ -25,31 +25,24 @@ export class PatientEmailCommunicationProcessor extends ScheduledTask {
 
   async countQueue() {
     const { PatientCommunication } = this.context.store.models;
-    return PatientCommunication.count({
-      where: {
-        status: COMMUNICATION_STATUSES.QUEUED,
-        channel: PATIENT_COMMUNICATION_CHANNELS.EMAIL,
-      },
-    });
+    return PatientCommunication.countPendingMessages(PATIENT_COMMUNICATION_CHANNELS.EMAIL);
   }
 
   async run() {
     const { Patient, PatientCommunication } = this.context.store.models;
 
-    const emailsToBeSent = await PatientCommunication.findAll({
-      where: {
-        status: COMMUNICATION_STATUSES.QUEUED,
-        channel: PATIENT_COMMUNICATION_CHANNELS.EMAIL,
+    const emailsToBeSent = await PatientCommunication.getPendingMessages(
+      PATIENT_COMMUNICATION_CHANNELS.EMAIL,
+      {
+        include: [
+          {
+            model: Patient,
+            as: 'patient',
+          },
+        ],
+        limit: this.config.limit,
       },
-      include: [
-        {
-          model: Patient,
-          as: 'patient',
-        },
-      ],
-      order: [['createdAt', 'ASC']], // process in order received
-      limit: this.config.limit,
-    });
+    );
 
     const sendEmails = emailsToBeSent.map(async email => {
       const emailPlain = email.get({
@@ -64,36 +57,33 @@ export class PatientEmailCommunicationProcessor extends ScheduledTask {
         email: toAddress ? maskEmail(toAddress) : null,
       });
 
-      try {
-        const result = await this.context.emailService.sendEmail({
-          to: toAddress,
-          from: config.mailgun.from,
-          subject: emailPlain.subject,
-          text: emailPlain.content,
-          attachment: emailPlain.attachment,
-        });
-        if (result.error) {
-          log.warn('Email failed', {
-            communicationId: emailPlain.id,
-            error: result.error,
-          });
-        }
-        return email.update({
-          status: result.status,
+      const result = await this.context.emailService.sendEmail({
+        to: toAddress,
+        from: config.mailgun.from,
+        subject: emailPlain.subject,
+        text: emailPlain.content,
+        attachment: emailPlain.attachment,
+      });
+      if (result.error) {
+        log.warn('Email failed', {
+          communicationId: emailPlain.id,
           error: result.error,
         });
-      } catch (e) {
-        log.warn('Email errored', {
-          communicationId: emailPlain.id,
-          error: e.stack,
-        });
-        return email.update({
-          status: COMMUNICATION_STATUSES.ERROR,
-          error: e.message,
-        });
-      } finally {
-        if (emailPlain.attachment) await removeFile(emailPlain.attachment);
       }
+
+      if (result.shouldRetry) {
+        return email.update({
+          retryCount: emailPlain.retryCount + 1,
+          error: result.error,
+        });
+      }
+
+      if (emailPlain.attachment) await removeFile(emailPlain.attachment);
+
+      return email.update({
+        status: result.status,
+        error: result.error,
+      });
     });
     return Promise.all(sendEmails);
   }

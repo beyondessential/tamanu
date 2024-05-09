@@ -95,23 +95,24 @@ export const simplePut = modelName =>
     res.send(object);
   });
 
-export const simplePost = modelName =>
+export const simplePost = (modelName, options = {}) =>
   asyncHandler(async (req, res) => {
     const { models } = req;
-    let object;
-    req.checkPermission('create', modelName);
+    const { skipPermissionCheck = false } = options;
+    if (skipPermissionCheck === false) {
+      req.checkPermission('create', modelName);
+    }
 
-    object = await models[modelName].findByPk(req.body.id, {
+    const existingObject = await models[modelName].findByPk(req.body.id, {
       paranoid: false,
     });
-    if (object) {
+    if (existingObject) {
       throw new InvalidOperationError(
         `Cannot create object with id (${req.body.id}), it already exists`,
       );
-    } else {
-      object = await models[modelName].create(req.body);
     }
 
+    const object = await models[modelName].create(req.body);
     res.send(object);
   });
 

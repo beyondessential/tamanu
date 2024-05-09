@@ -25,6 +25,7 @@ import { getOrderClause } from '../../../database/utils';
 import { dbRecordToResponse, pickPatientBirthData, requestBodyToRecord } from './utils';
 import { PATIENT_SORT_KEYS } from './constants';
 import { getWhereClausesAndReplacementsFromFilters } from '../../../utils/query';
+import { patientContact } from './patientContact';
 
 const patientRoute = express.Router();
 
@@ -363,6 +364,8 @@ patientRoute.get(
           ON (planned_location.location_group_id = planned_location_group.id)
         LEFT JOIN reference_data AS village
           ON (village.type = 'village' AND village.id = patients.village_id)
+        LEFT JOIN reference_data AS diet
+          ON (diet.type = 'diet' AND diet.id = encounters.diet_id)
         LEFT JOIN (
           SELECT
             patient_id,
@@ -406,6 +409,9 @@ patientRoute.get(
         patients.*,
         encounters.id AS encounter_id,
         encounters.encounter_type,
+        diet.id AS diet_id,
+        diet.name AS diet_name,
+        diet.code AS diet_code,
         clinician.display_name as clinician,
         department.id AS department_id,
         department.name AS department_name,
@@ -503,5 +509,6 @@ patientRoute.use(patientInvoiceRoutes);
 patientRoute.use(patientBirthData);
 patientRoute.use(patientLocations);
 patientRoute.use(patientProgramRegistration);
+patientRoute.use(patientContact);
 
 export { patientRoute as patient };
