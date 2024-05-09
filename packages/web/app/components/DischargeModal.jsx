@@ -26,7 +26,6 @@ export const DischargeModal = React.memo(({ open, onClose }) => {
   const practitionerSuggester = useSuggester('practitioner');
 
   const dischargeDispositionFilterer = dischargeDisposition => {
-    console.log(getPatientStatus(encounter.encounterType));
     switch (getPatientStatus(encounter.encounterType)) {
       case PATIENT_STATUS.EMERGENCY:
         // This is an emergency encounter
