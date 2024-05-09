@@ -34,12 +34,7 @@ const COLUMNS = [
   },
   {
     key: COLUMN_KEYS.DATE,
-    title: (
-      <TranslatedText
-        stringId="lab.modal.printMultiple.table.column.requestDate"
-        fallback="Request date"
-      />
-    ),
+    title: <TranslatedText stringId="general.requestDate.label" fallback="Request date" />,
     sortable: false,
     accessor: ({ requestedDate }) => <DateDisplay date={requestedDate} />,
   },
@@ -122,20 +117,24 @@ export const PrintMultipleLabRequestsSelectionForm = React.memo(({ encounter, on
         onClose={() => setOpenPrintoutModal(false)}
       />
       <PrintMultipleSelectionTable
-        label={<TranslatedText
-          stringId="lab.modal.printMultiple.selectText"
-          fallback="Select the lab requests you would like to print"
-        />}
+        label={
+          <TranslatedText
+            stringId="lab.modal.printMultiple.selectText"
+            fallback="Select the lab requests you would like to print"
+          />
+        }
         headerColor={Colors.white}
         columns={[selectableColumn, ...COLUMNS]}
         data={labRequestsData || []}
         elevated={false}
         isLoading={isLoading}
         errorMessage={error?.message}
-        noDataMessage={<TranslatedText
-          stringId="lab.modal.printMultiple.table.noData"
-          fallback="No lab requests found"
-        />}
+        noDataMessage={
+          <TranslatedText
+            stringId="lab.modal.printMultiple.table.noData"
+            fallback="No lab requests found"
+          />
+        }
         allowExport={false}
       />
       <FormDivider />

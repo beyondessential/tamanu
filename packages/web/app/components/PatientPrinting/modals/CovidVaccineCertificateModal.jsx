@@ -11,7 +11,7 @@ import { useCertificate } from '../../../utils/useCertificate';
 import { useLocalisation } from '../../../contexts/Localisation';
 import { useAdministeredVaccines, usePatientAdditionalDataQuery } from '../../../api/queries';
 
-import { PDFViewer, printPDF } from '../PDFViewer';
+import { PDFLoader, printPDF } from '../PDFLoader';
 
 export const CovidVaccineCertificateModal = React.memo(({ open, onClose, patient }) => {
   const api = useApi();
@@ -45,7 +45,7 @@ export const CovidVaccineCertificateModal = React.memo(({ open, onClose, patient
 
   const patientData = { ...patient, additionalData };
 
-  if (isVaccineFetching || isCertificateFetching) return null;
+  const isLoading = isVaccineFetching || isCertificateFetching;
 
   return (
     <Modal
@@ -54,11 +54,10 @@ export const CovidVaccineCertificateModal = React.memo(({ open, onClose, patient
       onClose={onClose}
       width="md"
       printable
-      keepMounted
       onPrint={() => printPDF('covid-vaccine-certificate')}
       additionalActions={<EmailButton onEmail={createCovidVaccineCertificateNotification} />}
     >
-      <PDFViewer id="covid-vaccine-certificate">
+      <PDFLoader isLoading={isLoading} id="covid-vaccine-certificate">
         <CovidVaccineCertificate
           patient={patientData}
           vaccinations={vaccinations}
@@ -69,7 +68,7 @@ export const CovidVaccineCertificateModal = React.memo(({ open, onClose, patient
           printedDate={getCurrentDateString()}
           getLocalisation={getLocalisation}
         />
-      </PDFViewer>
+      </PDFLoader>
     </Modal>
   );
 });

@@ -32,6 +32,7 @@ import { addVisibilityStatusToSurveyScreenComponents1695096053000 } from './1695
 import { addVisibilityStatusForUsers1697499690000 } from './1697499690000-addVisibilityStatusForUsers';
 import { addDeletedAtToAllTables1698626272000 } from './1698626272000-addDeletedAtToAllTables';
 import { addPatientCustomFieldsTables1694090332843 } from './1694090332843-addPatientCustomFieldsTables';
+import { addPatientContactTable1705975873000 } from './1705975873000-addPatientContactTable';
 import { addProgramRegistry1706106989000 } from './1706106989000-addProgramRegistries';
 import { addPatientProgramRegistration1706144623000 } from './1706144623000-addPatientProgramRegistration';
 import { addProgramRegistryClinicalStatuses1706506699000 } from './1706506699000-addProgramRegistryClinicalStatuses';
@@ -40,6 +41,9 @@ import { addPatientProgramRegistrationConditions1706509624000 } from './17065096
 import { addColumnIsMostRecentForTablePatientProgramRegistration1708557002000 } from './1708557002000-addColumnIsMostRecentForTablePatientProgramRegistration';
 import { addHideFromCertificateToScheduledVaccines1705264433000 } from './1705264433000-addHideFromCertificateToScheduledVaccines';
 import { addDeletionStatusToPatientProgramRegistrationConditions1709677995000 } from './1709677995000-addDeletionStatusToPatientProgramRegistrationConditions';
+import { addScopeToSettingsTable1691115215000 } from './1691115215000-addScopeToSettingsTable';
+import { addHealthCenterIdToPatientAdditionalData1712277225000 } from './1712277225000-addHealthCenterIdToPatientAdditionalData';
+import { addDietIdForEncounter1713722796000 } from './1713722796000-addDietIdForEncounter';
 
 export const migrationList = [
   databaseSetup1661160427226,
@@ -68,6 +72,7 @@ export const migrationList = [
   addDisplayIdToUsers1688428478000,
   addSpecimenTypeAndCollectedByToLabRequest1686083400000,
   addVitalLogs1690236942000,
+  addScopeToSettingsTable1691115215000,
   migrateNotePagesToNotes1688950151000,
   addEncounterHistoryTable1693484817000,
   addTranslatedStringTable1698353903000,
@@ -75,6 +80,7 @@ export const migrationList = [
   addVisibilityStatusForUsers1697499690000,
   addDeletedAtToAllTables1698626272000,
   addPatientCustomFieldsTables1694090332843,
+  addPatientContactTable1705975873000,
   addProgramRegistry1706106989000,
   addPatientProgramRegistration1706144623000,
   addProgramRegistryClinicalStatuses1706506699000,
@@ -83,4 +89,6 @@ export const migrationList = [
   addColumnIsMostRecentForTablePatientProgramRegistration1708557002000,
   addHideFromCertificateToScheduledVaccines1705264433000,
   addDeletionStatusToPatientProgramRegistrationConditions1709677995000,
+  addHealthCenterIdToPatientAdditionalData1712277225000,
+  addDietIdForEncounter1713722796000,
 ];

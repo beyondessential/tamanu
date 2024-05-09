@@ -3,7 +3,9 @@ import { VisibilityStatus } from '~/visibilityStatuses';
 export enum ReferenceDataType {
   Allergy = 'allergy',
   Condition = 'condition',
+  ContactRelationship = 'contactRelationship',
   Drug = 'drug',
+  Diet = 'diet',
   ICD10 = 'icd10',
   ImagingType = 'imagingType',
   LabTestCategory = 'labTestCategory',
