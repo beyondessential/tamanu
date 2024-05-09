@@ -1,10 +1,9 @@
 import { Column, Entity, ManyToOne, OneToMany, Like } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
-import { IReferenceData, ReferenceDataType } from '~/types';
+import { IReferenceData, ReferenceDataType, ReferenceDataRelationType } from '~/types';
 import { VisibilityStatus } from '../visibilityStatuses';
 import { SYNC_DIRECTIONS } from './types';
 import { ReferenceDataRelation as RefDataRelation } from './ReferenceDataRelation';
-import { ReferenceDataRelationType } from '~/types';
 
 @Entity('reference_data')
 export class ReferenceData extends BaseModel implements IReferenceData {
@@ -20,7 +19,7 @@ export class ReferenceData extends BaseModel implements IReferenceData {
   type: ReferenceDataType;
 
   @Column({ default: VisibilityStatus.Current })
-  visibilityStatus: VisibilityStatus;
+  visibilityStatus: string;
 
   @OneToMany(
     () => RefDataRelation,
