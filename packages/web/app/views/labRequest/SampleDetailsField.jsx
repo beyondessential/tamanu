@@ -33,7 +33,7 @@ const HeaderCell = styled(Heading4)`
 const Cell = styled.div`
   display: flex;
   padding: 10px 16px 10px 0px;
-  align-items: center;
+  align-items: flex-start;
   > div {
     width: 100%;
   }
@@ -48,6 +48,9 @@ const StyledField = styled(Field)`
     .MuiOutlinedInput-notchedOutline {
       border-color: #dedede;
     }
+  }
+  .MuiFormHelperText-root {
+    background-color: white;
   }
 `;
 

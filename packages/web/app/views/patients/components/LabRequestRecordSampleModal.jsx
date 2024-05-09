@@ -1,6 +1,6 @@
 import React from 'react';
 import * as yup from 'yup';
-import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
+import { LAB_REQUEST_STATUSES, SETTING_KEYS } from '@tamanu/constants';
 import styled from 'styled-components';
 import {
   AutocompleteField,
@@ -15,6 +15,7 @@ import { Colors, FORM_TYPES } from '../../../constants';
 import { useSuggester } from '../../../api';
 import { ModalFormActionRow } from '../../../components/ModalActionRow';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { useSettings } from '../../../contexts/Settings';
 
 const validationSchema = yup.object().shape({
   sampleTime: yup
@@ -27,6 +28,20 @@ const validationSchema = yup.object().shape({
       />,
     ),
   labSampleSiteId: yup.string(),
+  specimenTypeId: yup
+    .string()
+    .when('mandateSpecimenType', {
+      is: true,
+      then: yup
+        .string()
+        .required()
+        .translatedLabel(
+          <TranslatedText
+            stringId="lab.modal.recordSample.specimenType.label"
+            fallback="Specimen type"
+          />,
+        ),
+    }),
 });
 
 const StyledModal = styled(FormModal)`
@@ -75,6 +90,9 @@ const HorizontalLine = styled.div`
 `;
 
 const LabRequestRecordSampleForm = ({ submitForm, values, onClose }) => {
+  const { getSetting } = useSettings();
+  const mandateSpecimenType = getSetting(SETTING_KEYS.FEATURE_MANDATE_SPECIMEN_TYPE);
+
   const practitionerSuggester = useSuggester('practitioner');
   const specimenTypeSuggester = useSuggester('specimenType');
   return (
@@ -107,6 +125,7 @@ const LabRequestRecordSampleForm = ({ submitForm, values, onClose }) => {
             component={AutocompleteField}
             suggester={specimenTypeSuggester}
             disabled={!values.sampleTime}
+            required={mandateSpecimenType}
           />
           <StyledField
             name="labSampleSiteId"
@@ -124,6 +143,9 @@ const LabRequestRecordSampleForm = ({ submitForm, values, onClose }) => {
 
 export const LabRequestRecordSampleModal = React.memo(
   ({ updateLabReq, labRequest, open, onClose }) => {
+    const { getSetting } = useSettings();
+    const mandateSpecimenType = getSetting(SETTING_KEYS.FEATURE_MANDATE_SPECIMEN_TYPE);
+
     const sampleNotCollected = labRequest.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED;
     const updateSample = async formValues => {
       await updateLabReq({
@@ -153,6 +175,7 @@ export const LabRequestRecordSampleModal = React.memo(
             labSampleSiteId: labRequest.labSampleSiteId,
             specimenTypeId: labRequest.specimenTypeId,
             collectedById: labRequest.collectedById,
+            mandateSpecimenType,
           }}
           render={props => <LabRequestRecordSampleForm {...props} onClose={onClose} />}
         />
