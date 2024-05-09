@@ -66,7 +66,7 @@ export const TopBar = React.memo(({ title, subTitle, children, className, encoun
 });
 
 TopBar.propTypes = {
-  title: PropTypes.string,
+  title: PropTypes.node,
   subTitle: PropTypes.string,
   className: PropTypes.string,
 };

@@ -125,7 +125,7 @@ export const NoteContentField = ({
     component={TextField}
     multiline
     onChange={onChange}
-    rows={18}
+    minRows={18}
   />
 );
 

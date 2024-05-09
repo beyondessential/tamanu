@@ -113,7 +113,7 @@ export const ProcedureForm = React.memo(
                 label="Anaesthetic type"
                 component={AutocompleteField}
                 suggester={anaestheticSuggester}
-                rows={4}
+                minRows={4}
                 style={{ gridColumn: 'span 2' }}
               />
               <Field
@@ -127,7 +127,7 @@ export const ProcedureForm = React.memo(
                 label="Notes or additional instructions"
                 component={TextField}
                 multiline
-                rows={4}
+                minRows={4}
                 style={{ gridColumn: 'span 2' }}
               />
               <Field name="completed" label="Completed" component={CheckField} />
@@ -137,7 +137,7 @@ export const ProcedureForm = React.memo(
                   label="Notes on completed procedure"
                   component={TextField}
                   multiline
-                  rows={4}
+                  minRows={4}
                 />
               </Collapse>
               <FormSubmitCancelRow
