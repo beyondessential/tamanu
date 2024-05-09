@@ -42,6 +42,10 @@ export const defineWebsocketService = async injector => {
    */
   const emit = (eventName, ...args) => server.emit(eventName, ...args);
 
+  server.on('message', (...args) => {
+    console.log('messageeeeeeeee', args)
+  });
+
   const registerEvent = (eventName, handler) => {
     server.on('connection', socket => {
       socket.on(eventName, handler);
