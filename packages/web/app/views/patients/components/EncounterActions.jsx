@@ -11,13 +11,15 @@ import { BeginPatientMoveModal } from './BeginPatientMoveModal';
 import { FinalisePatientMoveModal } from './FinalisePatientMoveModal';
 import { CancelPatientMoveModal } from './CancelPatientMoveModal';
 import { usePatientNavigation } from '../../../utils/usePatientNavigation';
-import { Button, LowerCase } from '../../../components';
+import { Button } from '../../../components';
 import { DropdownButton } from '../../../components/DropdownButton';
 import { MoveModal } from './MoveModal';
 import { EncounterRecordModal } from '../../../components/PatientPrinting/modals/EncounterRecordModal';
 import { Colors } from '../../../constants';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { ChangeReasonModal } from '../../../components/ChangeReasonModal';
+import { ChangeDietModal } from '../../../components/ChangeDietModal';
+import { isInpatient } from '../../../utils/isInpatient'; 
 
 const TypographyLink = styled(Typography)`
   color: ${Colors.primary};
@@ -43,6 +45,7 @@ const ENCOUNTER_MODALS = {
   CHANGE_LOCATION: 'changeLocation',
   CHANGE_TYPE: 'changeType',
   CHANGE_REASON: 'changeReason',
+  CHANGE_DIET: 'changeDiet',
 
   DISCHARGE: 'discharge',
 
@@ -71,6 +74,7 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
   const onViewSummary = () => navigateToSummary();
   const onViewEncounterRecord = () => setOpenModal(ENCOUNTER_MODALS.ENCOUNTER_RECORD);
   const onChangeReason = () => setOpenModal(ENCOUNTER_MODALS.CHANGE_REASON);
+  const onChangeDiet = () => setOpenModal(ENCOUNTER_MODALS.CHANGE_DIET);
 
   if (encounter.endDate) {
     return (
@@ -203,13 +207,11 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
           fallback="Change :clinician"
           replacements={{
             clinician: (
-              <LowerCase>
-                {' '}
-                <TranslatedText
-                  stringId="general.localisedField.clinician.label"
-                  fallback="Clinician"
-                />
-              </LowerCase>
+              <TranslatedText
+                stringId="general.localisedField.clinician.label"
+                fallback="Clinician"
+                lowercase
+              />
             ),
           }}
         />
@@ -235,6 +237,16 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
       ),
       condition: () => [ENCOUNTER_TYPES.CLINIC, ENCOUNTER_TYPES.ADMISSION].includes(encounter.encounterType),
       onClick: onChangeReason,
+    },
+    {
+      label: (
+        <TranslatedText
+          stringId="patient.encounter.action.changeDiet"
+          fallback="Change diet"
+        />
+      ),
+      condition: () => isInpatient(encounter.encounterType),
+      onClick: onChangeDiet,
     },
   ].filter(action => !action.condition || action.condition());
 
@@ -300,6 +312,11 @@ export const EncounterActions = React.memo(({ encounter }) => {
       <ChangeReasonModal
         encounter={encounter}
         open={openModal === ENCOUNTER_MODALS.CHANGE_REASON}
+        onClose={onClose}
+      />
+      <ChangeDietModal
+        encounter={encounter}
+        open={openModal === ENCOUNTER_MODALS.CHANGE_DIET}
         onClose={onClose}
       />
     </>

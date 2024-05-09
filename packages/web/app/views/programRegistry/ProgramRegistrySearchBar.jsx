@@ -87,7 +87,6 @@ export const ProgramRegistrySearchBar = ({ searchParameters, setSearchParameters
       }
     >
       <LocalisedField
-        keepLetterCase
         name="displayId"
         label={
           <TranslatedText stringId="general.localisedField.displayId.label.short" fallback="NHN" />

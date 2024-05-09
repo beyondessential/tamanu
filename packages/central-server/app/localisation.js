@@ -87,6 +87,8 @@ const UNHIDEABLE_FIELDS = [
   'conditions',
   'programRegistry',
   'circumstanceIds',
+  'reminderContactName',
+  'reminderContactRelationship',
 ];
 
 const HIDEABLE_FIELDS = [
@@ -144,6 +146,7 @@ const HIDEABLE_FIELDS = [
   'facility',
   'dischargeDisposition',
   'notGivenReasonId',
+  'healthCenterId',
 ];
 
 const MOBILE_PATIENT_MODULES = [

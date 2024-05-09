@@ -7,11 +7,9 @@ import { VACCINE_STATUS, VACCINE_STATUS_LABELS } from '@tamanu/constants';
 import { ModalActionRow } from './ModalActionRow';
 import { Colors } from '../constants';
 import { useApi } from '../api';
-
 import { DateDisplay } from './DateDisplay';
 import { Modal } from './Modal';
-import { TranslatedText } from './Translation/TranslatedText';
-import { LowerCase } from './Typography';
+import { TranslatedText, TranslatedEnum } from './Translation';
 
 const Container = styled.div`
   display: flex;
@@ -176,12 +174,11 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
           fallback="Supervising :clinician"
           replacements={{
             clinician: (
-              <LowerCase>
-                <TranslatedText
-                  stringId="general.localisedField.clinician.label.short"
-                  fallback="Clinician"
-                />
-              </LowerCase>
+              <TranslatedText
+                stringId="general.localisedField.clinician.label.short"
+                fallback="Clinician"
+                lowercase
+              />
             ),
           }}
         />
@@ -206,7 +203,16 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
     },
     status: {
       label: <TranslatedText stringId="vaccine.status.label" fallback="Status" />,
-      value: givenElsewhere ? 'Given elsewhere' : VACCINE_STATUS_LABELS[status] || '-',
+      value: givenElsewhere ? (
+        'Given elsewhere'
+      ) : (
+        <TranslatedEnum
+          prefix="vaccine.property.status"
+          value={status}
+          enumValues={VACCINE_STATUS_LABELS}
+          enumFallback="-"
+        />
+      ),
     },
     country: {
       label: <TranslatedText stringId="vaccine.country.label" fallback="Country" />,

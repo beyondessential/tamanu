@@ -1,6 +1,10 @@
 import { fake, fakeReferenceData } from '@tamanu/shared/test-helpers';
 import { randomLabRequest } from '@tamanu/shared/demoData';
-import { IMAGING_REQUEST_STATUS_TYPES, LAB_REQUEST_STATUSES } from '@tamanu/constants';
+import {
+  IMAGING_REQUEST_STATUS_TYPES,
+  LAB_REQUEST_STATUSES,
+  FHIR_REQUEST_PRIORITY,
+} from '@tamanu/constants';
 
 export const fakeResourcesOfFhirServiceRequest = async models => {
   const {
@@ -66,34 +70,105 @@ export const fakeResourcesOfFhirServiceRequest = async models => {
   return resources;
 };
 
-export const fakeResourcesOfFhirServiceRequestWithLabRequest = async (models, resources) => {
-  const { LabRequest, ReferenceData, LabTestPanel, LabTestPanelRequest } = models;
+export const fakeResourcesOfFhirServiceRequestWithLabRequest = async (
+  models,
+  resources,
+  isWithPanels = true,
+  overrides = {},
+) => {
+  const {
+    LabRequest,
+    ReferenceData,
+    LabTest,
+    LabTestType,
+    LabTestPanel,
+    LabTestPanelRequest,
+    LabTestPanelLabTestTypes,
+  } = models;
   const category = await ReferenceData.create({
     ...fake(ReferenceData),
     type: 'labTestCategory',
   });
-  const labTestPanel = await LabTestPanel.create({
-    ...fake(LabTestPanel),
-    categoryId: category.id,
+  const validFhirPriority = await ReferenceData.create({
+    ...fakeReferenceData('URGENT'), type: 'labTestPriority', name: FHIR_REQUEST_PRIORITY.URGENT, code: 'URGENT',
   });
-  const labTestPanelRequest = await LabTestPanelRequest.create({
-    ...fake(LabTestPanelRequest),
-    labTestPanelId: labTestPanel.id,
-    encounterId: resources.encounter.id,
+  const invalidFhirPriority = await ReferenceData.create({
+    ...fakeReferenceData('NONSENSE'), type: 'labTestPriority', name: 'nonsense', code: 'NONSENSE',
   });
-  const labRequestData = await randomLabRequest(models, {
+
+  const requestValues = {
     requestedById: resources.practitioner.id,
     patientId: resources.patient.id,
     encounterId: resources.encounter.id,
     status: LAB_REQUEST_STATUSES.PUBLISHED,
-    labTestPanelRequestId: labTestPanelRequest.id, // make one of them part of a panel
+    labTestPriorityId: validFhirPriority.id,
     requestedDate: '2022-07-27 16:30:00',
-  });
+    ...overrides,
+  };
+  let labRequest;
+  let labRequestData;
+  if (isWithPanels) {
+    const labTestPanel = await LabTestPanel.create({
+      ...fake(LabTestPanel),
+      categoryId: category.id,
+    });
+    const testTypes = await fakeTestTypes(10, LabTestType, category.id);
+    await Promise.all(testTypes.map(testType => LabTestPanelLabTestTypes
+      .create({
+        labTestPanelId: labTestPanel.id,
+        labTestTypeId: testType.id,
+      })));
+    const labTestPanelRequest = await LabTestPanelRequest.create({
+      ...fake(LabTestPanelRequest),
+      labTestPanelId: labTestPanel.id,
+      encounterId: resources.encounter.id,
+    });
+    requestValues.labTestPanelRequestId = labTestPanelRequest.id; // make one of them part of a panel
 
-  const labRequest = await LabRequest.create(labRequestData);
+    labRequestData = await randomLabRequest(models, requestValues);
+    labRequest = await LabRequest.create(labRequestData);
 
-  return { category, labTestPanel, labTestPanelRequest, labRequest };
+    return {
+      category,
+      labRequest,
+      labTestPanelRequestId: labTestPanelRequest.id,
+      labTestPanel,
+      labTestPanelRequest,
+      panelTestTypes: testTypes,
+      priorities: {
+        validFhirPriority,
+        invalidFhirPriority,
+      },
+    };
+  }
+  labRequestData = await randomLabRequest(models, requestValues);
+  labRequest = await LabRequest.create(labRequestData);
+  const testTypes = await fakeTestTypes(10, LabTestType, category.id);
+  await Promise.all(testTypes.map(testType => LabTest
+    .create({
+      labRequestId: labRequest.id,
+      labTestTypeId: testType.id,
+    })));
+
+  return {
+    category,
+    labRequest,
+    testTypes,
+  };
 };
+
+export const fakeTestTypes = async function (numberOfTests, LabTestType, categoryId) {
+  const testTypes = [];
+  for (let testTypeIndex = 0; testTypeIndex < numberOfTests; testTypeIndex++) {
+    const currentLabTest = await LabTestType.create({
+      ...fake(LabTestType),
+      labTestCategoryId: categoryId,
+    });
+    testTypes.push(currentLabTest);
+  }
+  return testTypes;
+}
+
 
 export const fakeResourcesOfFhirServiceRequestWithImagingRequest = async (models, resources) => {
   const { ImagingRequest } = models;
@@ -111,6 +186,46 @@ export const fakeResourcesOfFhirServiceRequestWithImagingRequest = async (models
   );
 
   await imagingRequest.setAreas([resources.area1.id, resources.area2.id]);
-
   return imagingRequest;
+};
+
+export const fakeResourcesOfFhirSpecimen = async (models, resources, overrides = {}) => {
+  const { LabRequest, LabTestPanelRequest, LabTestPanel, ReferenceData } = models;
+  const specimenType = await ReferenceData.create({
+    ...fake(ReferenceData),
+    type: 'specimenType',
+  });
+  const bodySiteRef = await ReferenceData.create({
+    ...fake(ReferenceData),
+    type: 'labSampleSite',
+  });
+  const category = await ReferenceData.create({
+    ...fake(ReferenceData),
+    type: 'labTestCategory',
+  });
+  const labTestPanel = await LabTestPanel.create({
+    ...fake(LabTestPanel),
+    categoryId: category.id,
+  });
+  const labTestPanelRequest = await LabTestPanelRequest.create({
+    ...fake(LabTestPanelRequest),
+    labTestPanelId: labTestPanel.id,
+    encounterId: resources.encounter.id,
+  });
+  const labRequestData = await randomLabRequest(models, {
+    requestedById: resources.practitioner.id,
+    collectedById: resources.practitioner.id,
+    patientId: resources.patient.id,
+    encounterId: resources.encounter.id,
+    status: LAB_REQUEST_STATUSES.PUBLISHED,
+    specimenTypeId: specimenType.id,
+    labSampleSiteId: bodySiteRef.id,
+    requestedDate: '2022-07-27 16:30:00',
+    sampleTime: '2022-07-27 15:05:00',
+    specimenAttached: true,
+    labTestPanelRequestId: labTestPanelRequest.id, // make one of them part of a panel
+    ...overrides,
+  });
+  const labRequest = await LabRequest.create(labRequestData);
+  return { labRequest, specimenType, bodySiteRef };
 };

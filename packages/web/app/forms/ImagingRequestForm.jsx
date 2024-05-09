@@ -29,8 +29,8 @@ import { ButtonRow } from '../components/ButtonRow';
 import { DateDisplay } from '../components/DateDisplay';
 import { FormSeparatorLine } from '../components/FormSeparatorLine';
 import { FormSubmitDropdownButton } from '../components/DropdownButton';
-import { LowerCase } from '../components/Typography';
 import { TranslatedText } from '../components/Translation/TranslatedText';
+import { useTranslation } from '../contexts/Translation';
 
 function getEncounterTypeLabel(type) {
   return ENCOUNTER_OPTIONS.find(x => x.value === type).label;
@@ -94,6 +94,7 @@ export const ImagingRequestForm = React.memo(
     editedObject,
     generateId = shortid.generate,
   }) => {
+    const { getTranslation } = useTranslation();
     const { getLocalisation } = useLocalisation();
     const imagingTypes = getLocalisation('imagingTypes') || {};
     const imagingTypeOptions = Object.entries(imagingTypes).map(([key, val]) => ({
@@ -115,11 +116,13 @@ export const ImagingRequestForm = React.memo(
         }}
         formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
         validationSchema={yup.object().shape({
-          requestedById: foreignKey(`*Required`),
-          requestedDate: yup.date().required(),
-          imagingType: foreignKey(`*Required`),
+          requestedById: foreignKey(getTranslation('validation.required.inline', '*Required')),
+          requestedDate: yup
+            .date()
+            .required(getTranslation('validation.required.inline', '*Required')),
+          imagingType: foreignKey(getTranslation('validation.required.inline', '*Required')),
         })}
-        suppressErrorDialog
+        showInlineErrorsOnly
         render={({ submitForm, values }) => {
           const imagingAreas = getAreasForImagingType(values.imagingType);
           return (
@@ -154,12 +157,11 @@ export const ImagingRequestForm = React.memo(
                     fallback="Supervising :clinician"
                     replacements={{
                       clinician: (
-                        <LowerCase>
-                          <TranslatedText
-                            stringId="general.localisedField.clinician.label.short"
-                            fallback="Clinician"
-                          />
-                        </LowerCase>
+                        <TranslatedText
+                          stringId="general.localisedField.clinician.label.short"
+                          fallback="Clinician"
+                          lowercase
+                        />
                       ),
                     }}
                   />
@@ -175,12 +177,11 @@ export const ImagingRequestForm = React.memo(
                     fallback="Requesting :clinician"
                     replacements={{
                       clinician: (
-                        <LowerCase>
-                          <TranslatedText
-                            stringId="general.localisedField.clinician.label.short"
-                            fallback="Clinician"
-                          />
-                        </LowerCase>
+                        <TranslatedText
+                          stringId="general.localisedField.clinician.label.short"
+                          fallback="Clinician"
+                          lowercase
+                        />
                       ),
                     }}
                   />
@@ -236,7 +237,7 @@ export const ImagingRequestForm = React.memo(
                   component={TextField}
                   multiline
                   style={{ gridColumn: '1 / -1' }}
-                  rows={3}
+                  minRows={3}
                 />
               )}
               <Field
@@ -245,7 +246,7 @@ export const ImagingRequestForm = React.memo(
                 component={TextField}
                 multiline
                 style={{ gridColumn: '1 / -1' }}
-                rows={3}
+                minRows={3}
               />
               <ButtonRow>
                 <FormCancelButton onClick={onCancel}>

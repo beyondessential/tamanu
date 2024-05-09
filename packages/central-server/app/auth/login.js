@@ -2,6 +2,7 @@ import asyncHandler from 'express-async-handler';
 import config from 'config';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import { SERVER_TYPES } from '@tamanu/constants';
 import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
 import { BadAuthenticationError } from '@tamanu/shared/errors';
 import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermissions';
@@ -64,15 +65,23 @@ const getRefreshToken = async (models, { refreshSecret, userId, deviceId }) => {
 
 export const login = ({ secret, refreshSecret }) =>
   asyncHandler(async (req, res) => {
-    const { store, body } = req;
+    const { store, body, settings } = req;
     const { models } = store;
     const { email, password, facilityId, deviceId } = body;
+    const tamanuClient = req.header('X-Tamanu-Client');
+
+    const getSettingsForFrontEnd = async () => {
+      // Only attach central scoped settings if login request is for central admin panel login
+      if (tamanuClient === SERVER_TYPES.WEBAPP && !facilityId) {
+        return await settings.getFrontEndSettings();
+      }
+    };
 
     if (!email || !password) {
       throw new BadAuthenticationError('Missing credentials');
     }
 
-    const internalClient = isInternalClient(req.header('X-Tamanu-Client'));
+    const internalClient = isInternalClient(tamanuClient);
     if (internalClient && !deviceId) {
       throw new BadAuthenticationError('Missing deviceId');
     }
@@ -127,5 +136,6 @@ export const login = ({ secret, refreshSecret }) =>
       facility,
       localisation,
       centralHost: config.canonicalHostName,
+      settings: await getSettingsForFrontEnd(),
     });
   });

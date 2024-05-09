@@ -25,6 +25,7 @@ import { ThemedTooltip } from '../Tooltip';
 import { ErrorBoundary } from '../ErrorBoundary';
 import { Paginator } from './Paginator';
 import { TranslatedText } from '../Translation/TranslatedText';
+import { get } from 'lodash';
 
 const preventInputCallback = e => {
   e.stopPropagation();
@@ -217,7 +218,7 @@ const Row = React.memo(
         const onChange = cellOnChange ? event => cellOnChange(event, key, rowIndex, data) : null;
         const value = accessor
           ? React.createElement(accessor, { refreshTable, onChange, ...data, rowIndex })
-          : data[key];
+          : get(data, key);
         const displayValue = value === 0 ? '0' : value;
         const backgroundColor = typeof cellColor === 'function' ? cellColor(data) : cellColor;
         return (
@@ -516,7 +517,7 @@ TableComponent.propTypes = {
   data: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   errorMessage: PropTypes.string,
   hideHeader: PropTypes.bool,
-  noDataMessage: PropTypes.string,
+  noDataMessage: PropTypes.oneOfType([PropTypes.node, PropTypes.string]),
   isLoading: PropTypes.bool,
   count: PropTypes.number,
   onChangePage: PropTypes.func,
