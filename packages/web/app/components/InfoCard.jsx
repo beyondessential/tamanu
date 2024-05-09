@@ -19,6 +19,7 @@ const CardBody = styled.div`
   grid-column-gap: 30px;
   grid-row-gap: ${GRID_ROW_GAP}px;
   max-width: 1050px;
+  grid-auto-rows: 20px;
 `;
 
 const CardCell = styled.div`
@@ -28,6 +29,8 @@ const CardCell = styled.div`
   line-height: 18px;
   position: relative;
   color: ${props => props.theme.palette.text.tertiary};
+  white-space: ${props => props.$whiteSpace ? props.$whiteSpace : 'nowrap'};
+  grid-area: ${props => props.$gridArea ? props.$gridArea : 'auto'};
 `;
 
 const CardIcon = styled.img`
@@ -52,7 +55,7 @@ const Card = styled.div`
   border-bottom: 1px solid ${Colors.softOutline};
   padding: ${props => `${props.$contentPadding ?? 32}px`};
   padding-top: ${props => `${props.$paddingTop ?? props.$contentPadding}px`};
-
+  padding-bottom: ${props => `${props.$paddingBottom ?? props.$contentPadding}px`};
   ${CardLabel} {
     ${({ $inlineValues }) => ($inlineValues ? 'margin-right: 5px' : 'margin-bottom: 8px')};
     &:first-child:after {
@@ -66,7 +69,7 @@ const Card = styled.div`
 
 const InfoCardEntry = ({ label, value }) => (
   <div>
-    <CardLabel>{label}:</CardLabel>
+    <CardLabel>{label}</CardLabel>
     <CardValue>{value}</CardValue>
   </div>
 );
@@ -102,6 +105,7 @@ export const InfoCard = ({
   elevated,
   contentPadding,
   paddingTop,
+  paddingBottom,
   inlineValues,
   headerContent = null,
   numberOfColumns = 2,
@@ -111,6 +115,7 @@ export const InfoCard = ({
     $inlineValues={inlineValues} 
     $contentPadding={contentPadding} 
     $paddingTop={paddingTop}
+    $paddingBottom={paddingBottom}
   >
     {headerContent}
     <CardBody $numberOfColumns={numberOfColumns}>{children}</CardBody>

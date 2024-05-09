@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import { DateDisplay } from '../../../components';
 import { ENCOUNTER_OPTIONS_BY_VALUE } from '../../../constants';
 import { getFullLocationName } from '../../../utils/location';
@@ -16,6 +17,7 @@ import {
   reasonForEncounterIcon,
   referralSourceIcon,
   supervisingClinicianIcon,
+  triageScoreIcon,
 } from '../../../constants/images';
 import { isInpatient } from '../../../utils/isInpatient';
 
@@ -47,6 +49,7 @@ export const EncounterInfoPane = React.memo(
       inlineValues
       contentPadding={25}
       paddingTop={0}
+      paddingBottom={encounter?.encounterType !== ENCOUNTER_TYPES.ADMISSION && 40}
       headerContent={
         encounter.plannedLocation && (
           <InfoCardHeader
@@ -83,6 +86,7 @@ export const EncounterInfoPane = React.memo(
                   stringId="encounter.summary.dischargeDate.label"
                   fallback="Discharge date"
                 />
+                {":"}
               </CardLabel>
               <CardValue>
                 {DateDisplay.stringFormat(encounter.endDate)}
@@ -107,6 +111,16 @@ export const EncounterInfoPane = React.memo(
         value={encounter.examiner?.displayName || 'Unknown'}
         icon={supervisingClinicianIcon}
       />
+      {encounter.encounterType === ENCOUNTER_TYPES.TRIAGE && <InfoCardItem
+        label={
+          <TranslatedText
+            stringId="encounter.summary.triageScore.label"
+            fallback="Triage score"
+          />
+        }
+        value={encounter.triages?.[0]?.score || '-'}
+        icon={triageScoreIcon}
+      />}
       <InfoCardItem
         label={
           <TranslatedText stringId="encounter.summary.patientType.label" fallback="Patient type" />
@@ -114,18 +128,19 @@ export const EncounterInfoPane = React.memo(
         value={patientBillingType}
         icon={patientTypeIcon}
       />
-      {!getLocalisation(`${referralSourcePath}.hidden`) && (
-        <InfoCardItem
-          label={
-            <TranslatedText
-              stringId="general.localisedField.referralSourceId.label"
-              fallback="Referral source"
-            />
-          }
-          value={getReferralSource(encounter)}
-          icon={referralSourceIcon}
-        />
-      )}
+      {!getLocalisation(`${referralSourcePath}.hidden`) &&
+        encounter.encounterType !== ENCOUNTER_TYPES.TRIAGE && (
+          <InfoCardItem
+            label={
+              <TranslatedText
+                stringId="general.localisedField.referralSourceId.label"
+                fallback="Referral source"
+              />
+            }
+            value={getReferralSource(encounter)}
+            icon={referralSourceIcon}
+          />
+        )}
       {isInpatient(encounter?.encounterType) && <InfoCardItem
         label={
           <TranslatedText
@@ -145,6 +160,9 @@ export const EncounterInfoPane = React.memo(
         }
         value={encounter.reasonForEncounter}
         icon={reasonForEncounterIcon}
+        $whiteSpace='normal'
+        $gridArea='4 / 2 / span 1 / span 1'
+        $maxHeight={encounter.encounterType === ENCOUNTER_TYPES.ADMISSION && '20px'}
       />
       <InfoCardItem
         label={<TranslatedText stringId="general.location.label" fallback="Location" />}

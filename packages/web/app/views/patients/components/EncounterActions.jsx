@@ -76,17 +76,17 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
   if (encounter.endDate) {
     return (
       <ActionsContainer>
-        <StyledButton size="small" variant="outlined" color="primary" onClick={onViewSummary}>
-          <TranslatedText
-            stringId="patient.encounter.action.dischargeSummary"
-            fallback="Discharge summary"
-          />
-        </StyledButton>
-        <br />
-        <StyledButton size="small" onClick={onViewEncounterRecord}>
+        <StyledButton size="small" variant="outlined" onClick={onViewEncounterRecord}>
           <TranslatedText
             stringId="patient.encounter.action.encounterSummary"
             fallback="Encounter summary"
+          />
+        </StyledButton>
+        <br />
+        <StyledButton size="small" color="primary" onClick={onViewSummary}>
+          <TranslatedText
+            stringId="patient.encounter.action.dischargeSummary"
+            fallback="Discharge summary"
           />
         </StyledButton>
       </ActionsContainer>
