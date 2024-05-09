@@ -6,7 +6,13 @@ import { StyledView } from '/styled/common';
 import { useBackendEffect } from '~/ui/hooks';
 import { ReferenceDataType, ReferenceDataRelationType } from '~/types';
 
-const useAddressHierarchy = (fields, leafNodeType) => {
+interface LocationHierarchyField {
+  name: string;
+  referenceType: ReferenceDataType;
+  label: JSX.Element;
+}
+
+const useAddressHierarchy = (fields: LocationHierarchyField[], leafNodeType: ReferenceDataType) => {
   const [ancestors, error, loading] = useBackendEffect(async ({ models }) => {
     // choose any single entity from the leaf node level of the hierarchy
     // then get its ancestors - that will serve as an example that gives us
@@ -17,19 +23,24 @@ const useAddressHierarchy = (fields, leafNodeType) => {
     return entity?.getAncestors();
   });
 
-  // If there is an error, or nothing is configured just display the bottom level field
-  if (error || loading || !ancestors) {
-    return [leafNodeType];
-  }
-  const configuredFieldTypes = ancestors.map(entity => entity.type).reverse();
+  const configuredFieldTypes =
+    error || loading || !ancestors
+      ? [leafNodeType] // If there is an error, or nothing is configured just display the bottom level field
+      : ancestors.map(entity => entity.type).reverse();
   return fields.filter(f => configuredFieldTypes.includes(f.referenceType));
 };
+
+interface HierarchyFieldsProps {
+  fields: LocationHierarchyField[];
+  leafNodeType?: ReferenceDataType;
+  relationType?: ReferenceDataRelationType;
+}
 
 export const HierarchyFields = ({
   fields,
   leafNodeType = ReferenceDataType.Village,
   relationType = ReferenceDataRelationType.AddressHierarchy,
-}) => {
+}: HierarchyFieldsProps) => {
   const { values } = useFormikContext();
   const hierarchyFields = useAddressHierarchy(fields, leafNodeType);
 
