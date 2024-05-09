@@ -15,6 +15,7 @@ import { useLocalisation } from '../contexts/Localisation';
 
 const DISCHARGE_DISPOSITION_FOR_EMERGENCY_ONLY = 'AE-';
 const DISCHARGE_DISPOSITION_FOR_INPATIENTS_OUTPATIENTS_ONLY = 'IN-';
+const DISCHARGE_DISPOSITION_FOR_OUTPATIENTS_ONLY = 'OP-';
 
 export const DischargeModal = React.memo(({ open, onClose }) => {
   const dispatch = useDispatch();
@@ -26,32 +27,49 @@ export const DischargeModal = React.memo(({ open, onClose }) => {
   const practitionerSuggester = useSuggester('practitioner');
 
   const dischargeDispositionFilterer = dischargeDisposition => {
-    // This is an emergency encounter
-    if (getPatientStatus(encounter.encounterType) === PATIENT_STATUS.EMERGENCY) {
-      if (
-        dischargeDisposition?.code?.startsWith(
-          DISCHARGE_DISPOSITION_FOR_INPATIENTS_OUTPATIENTS_ONLY,
-        )
-      ) {
-        return false; // Do not show discharge dispositions that are only for inpatient and outpatient encounter
-      }
+    switch (getPatientStatus(encounter.encounterType)) {
+      case PATIENT_STATUS.EMERGENCY:
+        // This is an emergency encounter
+        if (
+          dischargeDisposition?.code?.startsWith(
+            DISCHARGE_DISPOSITION_FOR_INPATIENTS_OUTPATIENTS_ONLY,
+          )
+          ||
+          dischargeDisposition?.code?.startsWith(
+            DISCHARGE_DISPOSITION_FOR_OUTPATIENTS_ONLY,
+          )
 
-      // Otherwise shows everything
-      return true;
-    }
-
-    // This is an inpatient or outpatient encounter
-    if (
-      [PATIENT_STATUS.INPATIENT, PATIENT_STATUS.OUTPATIENT].includes(
-        getPatientStatus(encounter.encounterType),
-      )
-    ) {
-      if (dischargeDisposition?.code?.startsWith(DISCHARGE_DISPOSITION_FOR_EMERGENCY_ONLY)) {
-        return false; // Do not show discharge dispositions that are only for emergency encounters
-      }
-
-      // Otherwise shows everything
-      return true;
+        ) {
+          return false; // Do not show discharge dispositions that are only for inpatient or outpatient encounters
+        }
+        // Otherwise show everything
+        return true;
+      case PATIENT_STATUS.OUTPATIENT:
+        // This is an outpatient encounter
+        if (
+          dischargeDisposition?.code?.startsWith(
+            DISCHARGE_DISPOSITION_FOR_EMERGENCY_ONLY,
+          )
+        ) {
+          return false; // Do not show discharge dispositions that are only for emergency
+        }
+        // Otherwise show everything
+        return true;
+      case PATIENT_STATUS.INPATIENT:
+        // This is an inpatient encounter
+        if (
+          dischargeDisposition?.code?.startsWith(
+            DISCHARGE_DISPOSITION_FOR_EMERGENCY_ONLY,
+          )
+          ||
+          dischargeDisposition?.code?.startsWith(
+            DISCHARGE_DISPOSITION_FOR_OUTPATIENTS_ONLY,
+          )
+        ) {
+          return false; // Do not show discharge dispositions that are only for emergency encounters
+        }
+        // Otherwise show everything
+        return true;
     }
   };
 
