@@ -60,7 +60,7 @@ export const AdditionalInfo = ({ patient, onEdit, dataSections }: AdditionalInfo
     const fieldsWithData = fields.map(fieldName => {
       let data = null;
       if (fieldName === 'villageId') data = patient.village?.name;
-      else if (isCustomField(fieldName)) data = customDataById[fieldName];
+      else if (Object.keys(customDataById).includes(fieldName)) data = customDataById[fieldName];
       else data = getPadFieldData(patientAdditionalData, fieldName);
       
       return [fieldName, data];

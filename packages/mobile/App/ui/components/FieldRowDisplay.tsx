@@ -7,6 +7,7 @@ import { RowView, StyledView } from '../styled/common';
 import { InformationBox } from '../navigation/screens/home/PatientDetails/CustomComponents';
 import { isCustomField } from '../helpers/fields';
 import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
+import { useTranslation } from '../contexts/TranslationContext';
 
 interface FieldRowDisplayProps {
   fields: string[][];
@@ -17,23 +18,25 @@ export const FieldRowDisplay = ({
   fields,
   customFieldDefinitions,
 }: FieldRowDisplayProps): ReactElement => {
-  const { getString, getBool, getLocalisation } = useLocalisation();
+  const { getBool, getLocalisation } = useLocalisation();
+  const { getTranslation } = useTranslation();
   const localisedFields = Object.keys(getLocalisation('fields'));
   const fieldsPerRow = isTablet() ? 2 : 1;
   const rows = chunk(fields, fieldsPerRow);
   const customFieldsById = keyBy(customFieldDefinitions, 'id');
-  const customFieldIds = Object.keys(customFieldsById);
 
   const getLabel = (name: string) => {
+    // Check if it is localised and apply localisation logic
     if (localisedFields.includes(name)) {
       if (getBool(`fields.${name}.hidden`)) return null;
-      return getString(`fields.${name}.longLabel`);
+      return getTranslation(`general.localisedField.${name}`);
     }
 
-    if (isCustomField(name)) {
+    // Check if this is a custom field and grab the label if so
+    if (Object.keys(customFieldsById).includes(name)) {
       return customFieldsById[name]?.name;
     }
-    
+
     return name;
   };
 

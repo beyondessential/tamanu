@@ -29,7 +29,7 @@ export const PatientAdditionalDataForm = ({
   // patient for sync (see beforeInsert and beforeUpdate decorators).
   const onCreateOrEditAdditionalData = useCallback(
     async values => {
-      await Patient.updateValues(patient.id, values); // TODO: this is delayed until you come back for some reason
+      await Patient.updateValues(patient.id, values);
 
       await PatientAdditionalData.updateForPatient(patient.id, values);
 

@@ -35,7 +35,7 @@ const getPatientInitialValues = (
   patient: Patient,
   patientAdditionalData: PatientAdditionalData,
   customPatientFieldValues: CustomPatientFieldValues,
-  getBool: (key: string) => boolean,
+  getLocalisation: (key: string) => any,
 ): {} => {
   if (!isEdit || !patient) {
     return {};
@@ -56,7 +56,7 @@ const getPatientInitialValues = (
   const requiredPADFields = getConfiguredPatientAdditionalDataFields(
     ALL_ADDITIONAL_DATA_FIELDS,
     true,
-    getBool,
+    getLocalisation,
   );
 
   const initialPatientAdditionalDataValues = getInitialAdditionalValues(
@@ -178,7 +178,7 @@ const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit, children }
     [navigation, customPatientFieldValues, selectedPatient.id, setSelectedPatient],
   );
 
-  const { getBool, getString } = useLocalisation();
+  const { getBool, getString, getLocalisation } = useLocalisation();
 
   return loading ? (
     <LoadingScreen />
@@ -192,7 +192,7 @@ const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit, children }
           selectedPatient,
           patientAdditionalData,
           customPatientFieldValues,
-          getBool,
+          getLocalisation,
         )}
       >
         {({ handleSubmit }): JSX.Element => (

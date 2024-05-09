@@ -108,9 +108,9 @@ function getComponentForField(fieldName: string): React.FC<{ fieldName: string }
 }
 
 export const PatientAdditionalDataFields = ({ fields, showMandatory = true }): ReactElement => {
-  const { getBool } = useLocalisation();
+  const { getLocalisation } = useLocalisation();
 
-  const padFields = getConfiguredPatientAdditionalDataFields(fields, showMandatory, getBool);
+  const padFields = getConfiguredPatientAdditionalDataFields(fields, showMandatory, getLocalisation);
   return padFields.map(fieldName => {
     const Component = getComponentForField(fieldName);
     return <Component fieldName={fieldName} key={fieldName} required={showMandatory} />;
