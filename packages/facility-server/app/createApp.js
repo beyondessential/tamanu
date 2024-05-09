@@ -60,7 +60,7 @@ export async function createApp({ sequelize, reportSchemaStores, models, syncMan
     next();
   });
 
-  express.use(buildSettingsReaderMiddleware(config.serverFacilityId));
+  express.use(buildSettingsReaderMiddleware());
   express.use(versionCompatibility);
 
   express.use(getAuditMiddleware());

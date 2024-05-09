@@ -5,12 +5,13 @@ import config from 'config';
 import { promisify } from 'util';
 import crypto from 'crypto';
 
-import { VISIBILITY_STATUSES } from '@tamanu/constants';
+import { SERVER_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { BadAuthenticationError } from '@tamanu/shared/errors';
 import { log } from '@tamanu/shared/services/logging';
 import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermissions';
 
 import { CentralServerConnection } from '../sync';
+import { selectFacilityIds } from '../utils/configUtils';
 
 const { tokenDuration, secret } = config.auth;
 
@@ -55,7 +56,7 @@ export async function centralServerLogin(models, email, password, deviceId) {
       email,
       password,
       deviceId,
-      facilityId: config.serverFacilityId,
+      facilityIds: selectFacilityIds(config),
     },
     backoff: {
       maxAttempts: 1,
@@ -93,16 +94,12 @@ async function localLogin(models, email, password) {
     throw new BadAuthenticationError('Incorrect username or password, please try again');
   }
 
-  if (!(await user.canAccessFacility(config.serverFacilityId))) {
-    throw new BadAuthenticationError('User does not have access to this facility');
-  }
+  const allowedFacilities = await user.allowedFacilities();
 
   const localisation = await models.UserLocalisationCache.getLocalisation({
     where: { userId: user.id },
     order: [['createdAt', 'DESC']],
   });
-
-  const allowedFacilities = await user.allowedFacilities();
 
   return {
     central: false,
@@ -152,8 +149,17 @@ export async function loginHandler(req, res, next) {
       allowedFacilities,
       settings,
     } = await centralServerLoginWithLocalFallback(models, email, password, deviceId);
-    const [facility, permissions, token, role] = await Promise.all([
-      models.Facility.findByPk(config.serverFacilityId),
+
+    // check if user has access to any facilities on this server
+    const serverFacilities = selectFacilityIds(config);
+    const availableFacilities = serverFacilities.filter(f => allowedFacilities.includes(f.id));
+    if (availableFacilities.length === 0) {
+      throw new BadAuthenticationError(
+        'User does not have access to any facilities on this server',
+      );
+    }
+
+    const [permissions, token, role] = await Promise.all([
       getPermissionsForRoles(models, user.role),
       getToken(user),
       models.Role.findByPk(user.role),
@@ -164,10 +170,8 @@ export async function loginHandler(req, res, next) {
       localisation,
       permissions,
       role: role?.forResponse() ?? null,
-      server: {
-        facility: facility?.forResponse() ?? null,
-      },
-      allowedFacilities,
+      serverType: SERVER_TYPES.FACILITY,
+      availableFacilities,
       settings,
     });
   } catch (e) {

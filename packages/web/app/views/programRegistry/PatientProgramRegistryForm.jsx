@@ -27,7 +27,7 @@ import { TranslatedText } from '../../components/Translation/TranslatedText';
 export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject }) => {
   const api = useApi();
   const { getTranslation } = useTranslation();
-  const { currentUser, facility } = useAuth();
+  const { currentUser, facilityId } = useAuth();
   const patient = useSelector(state => state.patient);
   const [selectedProgramRegistryId, setSelectedProgramRegistryId] = useState();
 
@@ -181,7 +181,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
       }}
       initialValues={{
         date: getCurrentDateTimeString(),
-        registeringFacilityId: facility.id,
+        registeringFacilityId: facilityId,
         clinicianId: currentUser.id,
         ...editedObject,
       }}

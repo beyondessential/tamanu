@@ -60,7 +60,7 @@ export async function runPostMigration(log, sequelize) {
   // add column: holds last update tick, default to -999 (not marked for sync) on facility,
   // and 0 (will be caught in any initial sync) on central server
   // triggers will overwrite the default for future data, but this works for existing data
-  const initialValue = config.serverFacilityId ? -999 : 0; // -999 on facility, 0 on central server
+  const initialValue = config.serverFacilityId || config.serverFacilityIds ? -999 : 0; // -999 on facility, 0 on central server
   const [tablesWithoutColumn] = await sequelize.query(TABLES_WITHOUT_COLUMN_QUERY);
   for (const { table } of tablesWithoutColumn) {
     log.info(`Adding updated_at_sync_tick column to ${table}`);

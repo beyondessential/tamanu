@@ -8,8 +8,8 @@ import { getDeviceId, notifyError } from '../utils';
 const {
   TOKEN,
   LOCALISATION,
-  SERVER,
-  ALLOWED_FACILITIES,
+  SERVER_TYPE,
+  AVAILABLE_FACILITIES,
   PERMISSIONS,
   ROLE,
   SETTINGS,
@@ -26,29 +26,29 @@ function safeGetStoredJSON(key) {
 function restoreFromLocalStorage() {
   const token = localStorage.getItem(TOKEN);
   const localisation = safeGetStoredJSON(LOCALISATION);
-  const server = safeGetStoredJSON(SERVER);
-  const allowedFacilities = safeGetStoredJSON(ALLOWED_FACILITIES);
+  const serverType = safeGetStoredJSON(SERVER_TYPE);
+  const availableFacilities = safeGetStoredJSON(AVAILABLE_FACILITIES);
   const permissions = safeGetStoredJSON(PERMISSIONS);
   const role = safeGetStoredJSON(ROLE);
   const settings = safeGetStoredJSON(SETTINGS);
 
-  return { token, localisation, server, allowedFacilities, permissions, role, settings };
+  return { token, localisation, serverType, availableFacilities, permissions, role, settings };
 }
 
 function saveToLocalStorage({
   token,
   localisation,
-  server,
-  allowedFacilities,
+  serverType,
+  availableFacilities,
   permissions,
   role,
   settings,
 }) {
   localStorage.setItem(TOKEN, token);
   localStorage.setItem(LOCALISATION, JSON.stringify(localisation));
-  localStorage.setItem(SERVER, JSON.stringify(server));
+  localStorage.setItem(SERVER_TYPE, JSON.stringify(serverType));
   localStorage.setItem(PERMISSIONS, JSON.stringify(permissions));
-  localStorage.setItem(ALLOWED_FACILITIES, JSON.stringify(allowedFacilities));
+  localStorage.setItem(AVAILABLE_FACILITIES, JSON.stringify(availableFacilities));
   localStorage.setItem(ROLE, JSON.stringify(role));
   localStorage.setItem(SETTINGS, JSON.stringify(settings));
 }
@@ -56,8 +56,8 @@ function saveToLocalStorage({
 function clearLocalStorage() {
   localStorage.removeItem(TOKEN);
   localStorage.removeItem(LOCALISATION);
-  localStorage.removeItem(SERVER);
-  localStorage.removeItem(ALLOWED_FACILITIES);
+  localStorage.removeItem(SERVER_TYPE);
+  localStorage.removeItem(AVAILABLE_FACILITIES);
   localStorage.removeItem(PERMISSIONS);
   localStorage.removeItem(ROLE);
   localStorage.removeItem(SETTINGS);
@@ -97,8 +97,8 @@ export class TamanuApi extends ApiClient {
     const {
       token,
       localisation,
-      server,
-      allowedFacilities,
+      serverType,
+      availableFacilities,
       permissions,
       role,
       settings,
@@ -111,17 +111,25 @@ export class TamanuApi extends ApiClient {
     this.user = user;
     const ability = buildAbilityForUser(user, permissions);
 
-    return { user, token, localisation, server, allowedFacilities, ability, role, settings };
+    return { user, token, localisation, serverType, availableFacilities, ability, role, settings };
   }
 
   async login(email, password) {
     const output = await super.login(email, password);
-    const { token, localisation, server, allowedFacilities, permissions, role, settings } = output;
+    const {
+      token,
+      localisation,
+      serverType,
+      availableFacilities,
+      permissions,
+      role,
+      settings,
+    } = output;
     saveToLocalStorage({
       token,
       localisation,
-      server,
-      allowedFacilities,
+      serverType,
+      availableFacilities,
       permissions,
       role,
       settings,

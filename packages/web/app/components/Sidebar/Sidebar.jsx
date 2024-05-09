@@ -1,4 +1,5 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import styled from 'styled-components';
 import { Box, Button, Divider, IconButton, List, Typography } from '@material-ui/core';
 import { NavigateBefore, NavigateNext } from '@material-ui/icons';
@@ -164,8 +165,8 @@ const isHighlighted = (currentPath, menuItemPath, sectionIsOpen, isRetracted) =>
 export const Sidebar = React.memo(({ items }) => {
   const [selectedParentItem, setSelectedParentItem] = useState('');
   const [isRetracted, setIsRetracted] = useState(false);
-  const { agentVersion } = useApi();
-  const { facility, centralHost, currentUser, onLogout, currentRole } = useAuth();
+  const { api, agentVersion } = useApi();
+  const { facilityId, currentUser, onLogout, currentRole } = useAuth();
   const currentPath = useSelector(getCurrentRoute);
   const dispatch = useDispatch();
   const extendSidebar = () => setIsRetracted(false);
@@ -189,6 +190,22 @@ export const Sidebar = React.memo(({ items }) => {
 
   const initials = getInitials(currentUser.displayName);
   const roleName = currentRole?.name ?? currentUser?.role;
+
+  const { facility, isLoading: isFacilityLoading } = useQuery(['facility', facilityId], () =>
+    api.get(`facility/${encodeURIComponent(facilityId)}`),
+  );
+
+  const connectionName = useEffect(() => {
+    if (isFacilityLoading) {
+      return '';
+    }
+    if (!facility) {
+      return (
+        <TranslatedText stringId="general.meta.centralServer" fallback="Central admin server" />
+      );
+    }
+    return facility.name;
+  });
 
   return (
     <Container $retracted={isRetracted}>
@@ -279,7 +296,7 @@ export const Sidebar = React.memo(({ items }) => {
                 <UserName>{currentUser?.displayName}</UserName>
                 <Box display="flex" justifyContent="space-between">
                   <ConnectedTo>
-                    {roleName} <br /> {facility?.name ? facility.name : centralHost}
+                    {roleName} <br /> {connectionName}
                   </ConnectedTo>
                 </Box>
               </StyledUserInfoContent>

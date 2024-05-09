@@ -24,21 +24,21 @@ export const restoreSession = () => async (dispatch, getState, { api }) => {
       token,
       localisation,
       server,
-      facilities,
+      availableFacilities,
       ability,
       role,
       settings,
     } = await api.restoreSession();
     // if there's just one facility the user has access to, select it immediately
     // otherwise they will be prompted to select a facility after login
-    const facilityId = facilities.length === 1 ? [0] : null;
+    const facilityId = availableFacilities.length === 1 ? [0] : null;
     dispatch({
       type: LOGIN_SUCCESS,
       user,
       token,
       localisation,
       server,
-      facilities,
+      availableFacilities,
       facilityId,
       ability,
       role,
@@ -58,21 +58,21 @@ export const login = (email, password) => async (dispatch, getState, { api }) =>
       token,
       localisation,
       server,
-      allowedFacilities,
+      availableFacilities,
       ability,
       role,
       settings,
     } = await api.login(email, password);
     // if there's just one facility the user has access to, select it immediately
     // otherwise they will be prompted to select a facility after login
-    const facilityId = allowedFacilities.length === 1 ? [0] : null;
+    const facilityId = availableFacilities.length === 1 ? [0] : null;
     dispatch({
       type: LOGIN_SUCCESS,
       user,
       token,
       localisation,
       server,
-      facilities: allowedFacilities,
+      availableFacilities,
       facilityId,
       ability,
       role,
@@ -162,7 +162,7 @@ const defaultState = {
   role: null,
   server: null,
   settings: null,
-  facilities: [],
+  availableFacilities: [],
   facilityId: null,
   resetPassword: {
     loading: false,
@@ -185,7 +185,7 @@ const defaultState = {
 const resetState = {
   user: defaultState.user,
   role: defaultState.role,
-  facilities: defaultState.facilities,
+  availableFacilities: defaultState.availableFacilities,
   facilityId: defaultState.facilityId,
   error: defaultState.error,
   token: null,
@@ -200,7 +200,7 @@ const actionHandlers = {
     loading: false,
     user: action.user,
     ability: action.ability,
-    facilities: action.facilities,
+    availableFacilities: action.availableFacilities,
     facilityId: action.facilityId,
     error: defaultState.error,
     token: action.token,

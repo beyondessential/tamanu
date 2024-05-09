@@ -102,6 +102,7 @@
     }
   },
   "serverFacilityId": "",
+  "serverFacilityIds": [],
   "debugging": {
     "requestFailureRate": 0
   },

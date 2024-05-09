@@ -12,10 +12,11 @@ import { createApp } from '../createApp';
 
 import { version } from '../serverInfo';
 import { ApplicationContext } from '../ApplicationContext';
+import { selectFacilityIds } from '../utils/configUtils';
 
 async function startApi({ skipMigrationCheck }) {
   log.info(`Starting facility API server version ${version}`, {
-    serverFacilityId: config.serverFacilityId,
+    serverFacilityIds: selectFacilityIds(config),
   });
 
   log.info(`Process info`, {

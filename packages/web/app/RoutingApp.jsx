@@ -21,8 +21,8 @@ import { Sidebar, useCentralSidebar, useFacilitySidebar } from './components/Sid
 import { UserActivityMonitor } from './components/UserActivityMonitor';
 
 export const RoutingApp = () => {
-  const isSyncServer = useSelector(state => state.auth?.server?.type === SERVER_TYPES.CENTRAL);
-  return isSyncServer ? <RoutingAdminApp /> : <RoutingFacilityApp />;
+  const isCentralServer = useSelector(state => state.auth?.serverType === SERVER_TYPES.CENTRAL);
+  return isCentralServer ? <RoutingAdminApp /> : <RoutingFacilityApp />;
 };
 
 export const RoutingFacilityApp = React.memo(() => {
@@ -48,10 +48,12 @@ export const RoutingFacilityApp = React.memo(() => {
 
 export const RoutingAdminApp = React.memo(() => {
   const sidebarMenuItems = useCentralSidebar();
-  return <App sidebar={<Sidebar items={sidebarMenuItems} />}>
-    <Switch>
-      <Redirect exact path="/" to="/admin" />
-      <Route path="/admin" component={AdministrationRoutes} />
-    </Switch>
-  </App>;
+  return (
+    <App sidebar={<Sidebar items={sidebarMenuItems} />}>
+      <Switch>
+        <Redirect exact path="/" to="/admin" />
+        <Route path="/admin" component={AdministrationRoutes} />
+      </Switch>
+    </App>
+  );
 });

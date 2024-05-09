@@ -12,10 +12,11 @@ import { startScheduledTasks } from '../tasks';
 
 import { version } from '../serverInfo';
 import { ApplicationContext } from '../ApplicationContext';
+import { selectFacilityIds } from '../utils/configUtils';
 
 async function startTasks({ skipMigrationCheck }) {
   log.info(`Starting facility task runner version ${version}`, {
-    serverFacilityId: config.serverFacilityId,
+    serverFacilityIds: selectFacilityIds(config),
   });
 
   log.info(`Process info`, {

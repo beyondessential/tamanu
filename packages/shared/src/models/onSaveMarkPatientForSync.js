@@ -18,7 +18,7 @@ export const onSaveMarkPatientForSync = (
   patientIdField = DEFAULT_PATIENT_ID_FIELD,
   hookTrigger = DEFAULT_HOOK_TRIGGER,
 ) => {
-  const facilityId = config.serverFacilityId;
+  const facilityId = config.serverFacilityId || config.serverFacilityIds;
   if (!facilityId) {
     // no need to add the hook on the central server
     return;

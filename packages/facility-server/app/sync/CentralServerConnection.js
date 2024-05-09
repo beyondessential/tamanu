@@ -15,6 +15,7 @@ import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
 
 import { version } from '../serverInfo';
 import { callWithBackoff } from './callWithBackoff';
+import { selectFacilityIds } from '../utils/configUtils';
 
 const getVersionIncompatibleMessage = (error, response) => {
   if (error.message === VERSION_COMPATIBILITY_ERRORS.LOW) {
@@ -183,7 +184,7 @@ export class CentralServerConnection {
         body: {
           email,
           password,
-          facilityId: config.serverFacilityId,
+          facilityIds: selectFacilityIds(config),
           deviceId: this.deviceId,
         },
         awaitConnection: false,
@@ -215,7 +216,7 @@ export class CentralServerConnection {
     const { sessionId, status } = await this.fetch('sync', {
       method: 'POST',
       body: {
-        facilityId: config.serverFacilityId,
+        facilityIds: selectFacilityIds(config),
         deviceId: this.deviceId,
         urgent,
         lastSyncedTick,
@@ -245,7 +246,7 @@ export class CentralServerConnection {
   async initiatePull(sessionId, since) {
     // first, set the pull filter on the central server, which will kick of a snapshot of changes
     // to pull
-    const body = { since, facilityId: config.serverFacilityId };
+    const body = { since, facilityIds: selectFacilityIds(config) };
     await this.fetch(`sync/${sessionId}/pull/initiate`, { method: 'POST', body });
 
     // then, poll the pull/ready endpoint until we get a valid response - it takes a while for

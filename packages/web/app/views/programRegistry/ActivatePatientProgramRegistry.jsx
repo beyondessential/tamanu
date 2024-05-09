@@ -32,7 +32,7 @@ import { TranslatedText } from '../../components/Translation/TranslatedText';
 export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistration, open }) => {
   const api = useApi();
   const queryClient = useQueryClient();
-  const { currentUser, facility } = useAuth();
+  const { currentUser, facilityId } = useAuth();
   const programRegistryStatusSuggester = useSuggester('programRegistryClinicalStatus', {
     baseQueryParameters: { programRegistryId: patientProgramRegistration.programRegistryId },
   });
@@ -199,7 +199,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
         }}
         initialValues={{
           ...patientProgramRegistration,
-          registeringFacilityId: facility?.id,
+          registeringFacilityId: facilityId,
           clinicianId: currentUser?.id,
           conditionIds: registrationConditions?.data.map(x => x.programRegistryConditionId),
           clinicalStatusId: patientProgramRegistration.clinicalStatus?.id,

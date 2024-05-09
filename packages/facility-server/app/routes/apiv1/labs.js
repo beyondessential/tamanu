@@ -1,6 +1,5 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import config from 'config';
 import { endOfDay, startOfDay } from 'date-fns';
 import { Op, QueryTypes, Sequelize } from 'sequelize';
 
@@ -87,6 +86,7 @@ labRequest.get(
     const {
       models: { LabRequest },
       query,
+      facilityId,
     } = req;
     req.checkPermission('list', 'LabRequest');
 
@@ -140,7 +140,7 @@ labRequest.get(
       makeFilter(
         !JSON.parse(filterParams.allFacilities || false),
         'location.facility_id = :facilityId',
-        () => ({ facilityId: config.serverFacilityId }),
+        () => ({ facilityId }),
       ),
       makeFilter(
         filterParams.publishedDate,

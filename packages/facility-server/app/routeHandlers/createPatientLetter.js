@@ -1,6 +1,5 @@
 import asyncHandler from 'express-async-handler';
 import fs, { promises as asyncFs } from 'fs';
-import config from 'config';
 import { NotFoundError } from '@tamanu/shared/errors';
 import { DOCUMENT_SOURCES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
@@ -9,7 +8,7 @@ import { makePatientLetter } from '../utils/makePatientLetter';
 export const createPatientLetter = (modelName, idField) =>
   asyncHandler(async (req, res) => {
     req.checkPermission('create', 'DocumentMetadata');
-    const { models, params } = req;
+    const { models, params, facilityId } = req;
     const { patientLetterData, clinicianId, name } = req.body;
 
     const documentCreatedAt = getCurrentDateTimeString();
@@ -33,7 +32,7 @@ export const createPatientLetter = (modelName, idField) =>
       title: patientLetterData.title,
       body: patientLetterData.body,
       patient: patientLetterData.patient,
-      facilityId: config.serverFacilityId,
+      facilityId,
     });
 
     const { size } = fs.statSync(filePath);

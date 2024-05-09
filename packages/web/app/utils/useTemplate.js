@@ -5,9 +5,7 @@ import { useAuth } from '../contexts/Auth';
 
 export const useTemplate = key => {
   const api = useApi();
-  const { facility } = useAuth();
+  const { facilityId } = useAuth();
 
-  return useQuery(['template', key, facility.id], () =>
-    api.get(`template/${key}`, { facilityId: facility.id }),
-  );
+  return useQuery(['template', key, facilityId], () => api.get(`template/${key}`, { facilityId }));
 };

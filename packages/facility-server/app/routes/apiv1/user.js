@@ -30,8 +30,9 @@ user.get(
   '/current-facility',
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'User');
+    const { facilityId } = req;
     const userFacilities = await req.models.UserFacility.findAll({
-      where: { facilityId: config.serverFacilityId },
+      where: { facilityId },
       include: [
         {
           model: req.models.User,

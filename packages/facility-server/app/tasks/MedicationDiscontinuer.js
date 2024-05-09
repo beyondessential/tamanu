@@ -5,6 +5,7 @@ import { Op, Sequelize } from 'sequelize';
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { selectFacilityIds } from '../utils/configUtils';
 
 export class MedicationDiscontinuer extends ScheduledTask {
   getName() {
@@ -35,7 +36,7 @@ export class MedicationDiscontinuer extends ScheduledTask {
         {
           association: 'department',
           required: true,
-          include: [{ model: this.models.Facility, where: { id: config.serverFacilityId } }],
+          include: [{ model: this.models.Facility, where: { id: selectFacilityIds(config) } }],
         },
       ],
     });

@@ -25,12 +25,17 @@ const FATHERS_FIRST_NAME_DEFINITION_ID = 'fieldDefinition-fathersFirstName';
 const CAMBODIA_CORE_FIELD_CATEGORY_ID = 'fieldCategory-cambodiaCorePatientFields';
 
 export const CambodiaPrimaryDetailsLayout = ({ sexOptions, isRequiredPatientData }) => {
-  const { facility } = useAuth();
-  const { data: isReminderContactEnabled } = useSettingsQuery('features.reminderContactModule.enabled', { facilityId: facility?.id});
+  const { facilityId } = useAuth();
+  const {
+    data: isReminderContactEnabled,
+  } = useSettingsQuery('features.reminderContactModule.enabled', { facilityId });
   return (
     <>
       <PatientDetailsHeading>
-        <TranslatedText stringId="patient.detail.subheading.general" fallback="General information" />
+        <TranslatedText
+          stringId="patient.detail.subheading.general"
+          fallback="General information"
+        />
         {isReminderContactEnabled ? <ReminderContactSection /> : null}
       </PatientDetailsHeading>
       <FormGrid>
@@ -45,7 +50,10 @@ export const CambodiaPrimaryDetailsLayout = ({ sexOptions, isRequiredPatientData
         <LocalisedField
           name="firstName"
           label={
-            <TranslatedText stringId="general.localisedField.firstName.label" fallback="First name" />
+            <TranslatedText
+              stringId="general.localisedField.firstName.label"
+              fallback="First name"
+            />
           }
           component={TextField}
           required

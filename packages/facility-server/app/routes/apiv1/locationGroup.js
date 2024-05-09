@@ -13,13 +13,10 @@ locationGroup.get(
   '/$',
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'Location');
-    if (!config.serverFacilityId) {
-      res.send([]);
-      return;
-    }
+    const { facilityId } = req;
     const locationGroups = await req.models.LocationGroup.findAll({
       where: {
-        facilityId: config.serverFacilityId,
+        facilityId,
       },
     });
     res.send(locationGroups);
@@ -30,13 +27,10 @@ locationGroup.get(
   '/:id/locations',
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'Location');
-    if (!config.serverFacilityId) {
-      res.send([]);
-      return;
-    }
+    const { facilityId } = req;
     const locations = await req.models.Location.findAll({
       where: {
-        facilityId: config.serverFacilityId,
+        facilityId,
         locationGroupId: req.params.id,
       },
     });
@@ -48,11 +42,7 @@ locationGroup.get(
   '/:id/handoverNotes',
   asyncHandler(async (req, res) => {
     checkHandoverNotesPermissions(req);
-
-    if (!config.serverFacilityId) {
-      res.send({});
-      return;
-    }
+    const { facilityId } = req;
 
     const group = await req.models.LocationGroup.findByPk(req.params.id);
 
@@ -63,22 +53,22 @@ locationGroup.get(
 
     const results = await req.db.query(
       `
-      WITH 
-      
+      WITH
+
       latest_root_handover_notes as (
         SELECT id, record_id, date, content
         FROM (SELECT id, record_id, date, content,
                 ROW_NUMBER() OVER (PARTITION BY record_id ORDER BY date DESC) AS row_num
               FROM notes
-              WHERE revised_by_id isnull 
-                AND record_type = 'Encounter' 
+              WHERE revised_by_id isnull
+                AND record_type = 'Encounter'
                 AND note_type = 'handover') n
         WHERE n.row_num = 1
       ),
 
       latest_handover_notes AS (
         -- Get the latest edited note of the latest created note
-        SELECT 
+        SELECT
           n.id,
           n.record_id,
           n.revised_by_id,
@@ -94,16 +84,16 @@ locationGroup.get(
         UNION
 
         -- Get the root note of the latest created note if it has not been edited
-        SELECT 
-          id, 
-          record_id, 
+        SELECT
+          id,
+          record_id,
           null as revised_by_id,
           content,
           latest.date as created_date
         FROM latest_root_handover_notes latest
         WHERE NOT EXISTS (SELECT id FROM notes WHERE revised_by_id = latest.id)
       )
-    
+
       SELECT location_groups.name AS area,
        locations.name AS location,
        patients.display_id,
@@ -123,19 +113,19 @@ locationGroup.get(
         INNER JOIN patients ON encounters.patient_id = patients.id
         LEFT JOIN encounter_diagnoses ON encounters.id = encounter_diagnoses.encounter_id
         LEFT JOIN (
-          SELECT encounter_id, 
+          SELECT encounter_id,
           STRING_AGG(
-            reference_data.name || 
-            ' (' || 
-            CASE 
+            reference_data.name ||
+            ' (' ||
+            CASE
               WHEN encounter_diagnoses.certainty = 'suspected' THEN 'For investigation'
               ELSE INITCAP(encounter_diagnoses.certainty)
             END ||
-            ')', 
-          ', ') AS name 
-          FROM encounter_diagnoses 
+            ')',
+          ', ') AS name
+          FROM encounter_diagnoses
           LEFT JOIN reference_data ON encounter_diagnoses.diagnosis_id = reference_data.id
-          WHERE encounter_diagnoses.certainty NOT IN ('disproven', 'error') 
+          WHERE encounter_diagnoses.certainty NOT IN ('disproven', 'error')
           GROUP BY encounter_id
           ) AS diagnosis ON encounters.id = diagnosis.encounter_id
 		    LEFT JOIN latest_handover_notes ON encounters.id = latest_handover_notes.record_id
@@ -157,7 +147,7 @@ locationGroup.get(
       {
         replacements: {
           id: req.params.id,
-          facilityId: config.serverFacilityId,
+          facilityId,
         },
         type: QueryTypes.SELECT,
       },

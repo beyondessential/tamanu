@@ -1,9 +1,9 @@
 import { ReadSettings } from '../reader';
 
-export const buildSettingsReaderMiddleware = (serverFacilityId = null) =>
+export const buildSettingsReaderMiddleware = () =>
   function(req, _res, next) {
     try {
-      req.settings = new ReadSettings(req.models, serverFacilityId);
+      req.settings = new ReadSettings(req.models, req.facilityId);
       next();
     } catch (e) {
       next(e);

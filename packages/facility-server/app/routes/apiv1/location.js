@@ -13,13 +13,10 @@ location.get(
   '/$',
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'Location');
-    if (!config.serverFacilityId) {
-      res.send([]);
-      return;
-    }
+    const { facilityId } = req;
     const locations = await req.models.Location.findAll({
       where: {
-        facilityId: config.serverFacilityId,
+        facilityId,
       },
     });
     res.send(locations);
