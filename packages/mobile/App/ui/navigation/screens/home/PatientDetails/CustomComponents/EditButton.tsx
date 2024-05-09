@@ -10,7 +10,7 @@ interface EditButtonProps {
 
 export const EditButton = ({ sectionTitle, onPress }: EditButtonProps): ReactElement => (
   <StyledTouchableOpacity
-    testID={`editbutton-${Math.random()}`}
+    testID={`editbutton-${sectionTitle}`}
     accessibilityLabel={`Edit ${sectionTitle}`}
     onPress={onPress}
   >
