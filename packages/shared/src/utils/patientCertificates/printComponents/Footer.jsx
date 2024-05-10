@@ -39,13 +39,13 @@ const styles = StyleSheet.create({
   },
 });
 
-const LabelText = ({ children, props }) => (
+const LabelText = ({ children, ...props }) => (
   <Text style={styles.labelText} {...props}>
     {children}
   </Text>
 );
 
-const ValueText = ({ children, props }) => (
+const ValueText = ({ children, ...props }) => (
   <Text style={styles.valueText} {...props}>
     {children}
   </Text>

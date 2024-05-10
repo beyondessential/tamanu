@@ -110,25 +110,27 @@ const VaccineCertificateComponent = ({
 
   const VaccineCertificateHeader = ({ pageNumber }) => {
     if (pageNumber === 1) return;
-    <View style={vaccineCertificateStyles.documentHeaderContent}>
-      <Text style={vaccineCertificateStyles.labelText}>
-        {getTranslation(
-          'pdf.vaccineCertificate.immunisationCertificate',
-          'Immunisation Certificate',
-        )}{' '}
-        |{' '}
-      </Text>
-      <Text style={vaccineCertificateStyles.labelText}>
-        {getTranslation('pdf.vaccineCertificate.patientName', 'Patient name')}:{' '}
-      </Text>
-      <Text style={vaccineCertificateStyles.valueText}>
-        {patient.firstName} {patient.lastName} |{' '}
-      </Text>
-      <Text style={vaccineCertificateStyles.labelText}>
-        {getTranslation('pdf.vaccineCertificate.patientId', 'Patient ID')}:{' '}
-      </Text>
-      <Text style={vaccineCertificateStyles.valueText}>{patient.displayId}</Text>
-    </View>;
+    return (
+      <View style={vaccineCertificateStyles.documentHeaderContent}>
+        <Text style={vaccineCertificateStyles.labelText}>
+          {getTranslation(
+            'pdf.vaccineCertificate.immunisationCertificate',
+            'Immunisation Certificate',
+          )}{' '}
+          |{' '}
+        </Text>
+        <Text style={vaccineCertificateStyles.labelText}>
+          {getTranslation('pdf.vaccineCertificate.patientName', 'Patient name')}:{' '}
+        </Text>
+        <Text style={vaccineCertificateStyles.valueText}>
+          {patient.firstName} {patient.lastName} |{' '}
+        </Text>
+        <Text style={vaccineCertificateStyles.labelText}>
+          {getTranslation('pdf.vaccineCertificate.patientId', 'Patient ID')}:{' '}
+        </Text>
+        <Text style={vaccineCertificateStyles.valueText}>{patient.displayId}</Text>
+      </View>
+    );
   };
 
   const VaccineCertificateFooter = () => (
@@ -165,7 +167,11 @@ const VaccineCertificateComponent = ({
     <Document>
       <Page size="A4" style={{ ...styles.page, paddingBottom: 51 }}>
         <FixedHeader>
-          <View fixed render={VaccineCertificateHeader} />
+          <View
+            fixed
+            // TODO: This breaks
+            render={({ pageNumber }) => <VaccineCertificateHeader pageNumber={pageNumber} />}
+          />
         </FixedHeader>
         <View fixed render={({ pageNumber }) => pageNumber > 1 && <PageBreakPadding />} />
         {watermarkSrc && <Watermark src={watermarkSrc} />}
