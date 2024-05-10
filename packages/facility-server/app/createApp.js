@@ -5,7 +5,7 @@ import defineExpress from 'express';
 
 import { SERVER_TYPES } from '@tamanu/constants';
 import { getLoggingMiddleware } from '@tamanu/shared/services/logging';
-import { buildSettingsReaderMiddleware } from '@tamanu/settings/middleware';
+import { settingsReaderMiddleware } from '@tamanu/settings/middleware';
 import { getAuditMiddleware } from './middleware/auditLog';
 
 import routes from './routes';
@@ -21,8 +21,14 @@ export async function createApp({ sequelize, reportSchemaStores, models, syncMan
   const express = defineExpress();
   const server = createServer(express);
 
-  const websocketService = defineWebsocketService({ httpServer: server });
-  const websocketClientService = defineWebsocketClientService({ config, websocketService, models });
+  const websocketService = defineWebsocketService({
+    httpServer: server,
+  });
+  const websocketClientService = defineWebsocketClientService({
+    config,
+    websocketService,
+    models,
+  });
 
   let errorMiddleware = null;
   if (config.errors?.enabled) {
@@ -35,8 +41,16 @@ export async function createApp({ sequelize, reportSchemaStores, models, syncMan
   }
 
   express.use(compression());
-  express.use(bodyParser.json({ limit: '50mb' }));
-  express.use(bodyParser.urlencoded({ extended: true }));
+  express.use(
+    bodyParser.json({
+      limit: '50mb',
+    }),
+  );
+  express.use(
+    bodyParser.urlencoded({
+      extended: true,
+    }),
+  );
 
   express.use((req, res, next) => {
     res.setHeader('X-Tamanu-Server', SERVER_TYPES.FACILITY);
@@ -60,10 +74,13 @@ export async function createApp({ sequelize, reportSchemaStores, models, syncMan
     next();
   });
 
-  express.use(buildSettingsReaderMiddleware());
   express.use(versionCompatibility);
 
   express.use(getAuditMiddleware());
+
+  // note that we do not know facility yet - this global-only settings reader will be replaced
+  // after we have extracted the facilityId during auth checking
+  express.use(settingsReaderMiddleware());
 
   // index route for debugging connectivity
   express.get('/$', (req, res) => {
@@ -84,5 +101,8 @@ export async function createApp({ sequelize, reportSchemaStores, models, syncMan
   }
   express.use(errorHandler);
 
-  return { express, server };
+  return {
+    express,
+    server,
+  };
 }
