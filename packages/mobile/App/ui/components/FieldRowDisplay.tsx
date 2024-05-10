@@ -5,7 +5,6 @@ import { isTablet } from 'react-native-device-info';
 import { useLocalisation } from '../contexts/LocalisationContext';
 import { RowView, StyledView } from '../styled/common';
 import { InformationBox } from '../navigation/screens/home/PatientDetails/CustomComponents';
-import { isCustomField } from '../helpers/fields';
 import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
 import { useTranslation } from '../contexts/TranslationContext';
 
@@ -29,7 +28,7 @@ export const FieldRowDisplay = ({
     // Check if it is localised and apply localisation logic
     if (localisedFields.includes(name)) {
       if (getBool(`fields.${name}.hidden`)) return null;
-      return getTranslation(`general.localisedField.${name}`);
+      return getTranslation(`general.localisedField.${name}`, name);
     }
 
     // Check if this is a custom field and grab the label if so

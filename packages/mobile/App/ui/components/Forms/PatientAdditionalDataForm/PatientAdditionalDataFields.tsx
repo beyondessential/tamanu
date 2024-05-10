@@ -8,7 +8,7 @@ import { LocalisedField } from '~/ui/components/Forms/LocalisedField';
 import { Field } from '~/ui/components/Forms/FormField';
 import { AutocompleteModalField } from '~/ui/components/AutocompleteModal/AutocompleteModalField';
 import { PatientFieldDefinitionComponents } from '~/ui/helpers/fieldComponents';
-import { useBackend } from '~/ui/hooks';
+import { useBackend, useBackendEffect } from '~/ui/hooks';
 
 import {
   getSuggester,
@@ -20,7 +20,6 @@ import {
 } from './helpers';
 import { getConfiguredPatientAdditionalDataFields } from '~/ui/helpers/patient';
 import { ActivityIndicator } from 'react-native';
-import { isCustomField } from '~/ui/helpers/fields';
 
 const PlainField = ({ fieldName, required }): ReactElement => (
   // Outter styled view to momentarily add distance between fields
@@ -90,7 +89,8 @@ const CustomField = ({ fieldName, required }): ReactElement => {
   );
 };
 
-function getComponentForField(fieldName: string): React.FC<{ fieldName: string }> {
+
+function getComponentForField(fieldName: string, customFieldIds: string[]): React.FC<{ fieldName: string }> {
   if (plainFields.includes(fieldName)) {
     return PlainField;
   }
@@ -100,7 +100,7 @@ function getComponentForField(fieldName: string): React.FC<{ fieldName: string }
   if (relationIdFields.includes(fieldName)) {
     return RelationField;
   }
-  if (isCustomField(fieldName)) {
+  if (customFieldIds.includes(fieldName)) {
     return CustomField;
   }
   // Shouldn't happen
@@ -108,11 +108,22 @@ function getComponentForField(fieldName: string): React.FC<{ fieldName: string }
 }
 
 export const PatientAdditionalDataFields = ({ fields, showMandatory = true }): ReactElement => {
-  const { getLocalisation } = useLocalisation();
+  const { getLocalisation } = useLocalisation(); 
+  const [customFieldDefinitions, error, loading] = useBackendEffect(({ models }) =>
+    models.PatientFieldDefinition.getRepository().find({
+      select: ['id']
+    }),
+  );
+  const customFieldIds = customFieldDefinitions?.map(({ id }) => id);
 
   const padFields = getConfiguredPatientAdditionalDataFields(fields, showMandatory, getLocalisation);
+
+  console.log(customFieldDefinitions, error, loading)
+
+  if (loading) return [];
+
   return padFields.map(fieldName => {
-    const Component = getComponentForField(fieldName);
+    const Component = getComponentForField(fieldName, customFieldIds);
     return <Component fieldName={fieldName} key={fieldName} required={showMandatory} />;
   });
 };
