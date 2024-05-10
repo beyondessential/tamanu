@@ -43,9 +43,8 @@ export const Fields = (): ReactElement => {
   );
 };
 
-export const EditPatientScreen = ({ route }): ReactElement => {
+export const EditPatientScreen = ({ route, isEdit = true }): ReactElement => {
   const navigation = useNavigation();
-  const { patientName } = route.params;
   const onGoBack = useCallback(() => {
     navigation.goBack();
   }, [navigation]);
@@ -53,8 +52,8 @@ export const EditPatientScreen = ({ route }): ReactElement => {
   return (
     <FullView background={theme.colors.BACKGROUND_GREY}>
       <StatusBar barStyle="light-content" />
-      <StackHeader title="Edit Patient" subtitle={patientName} onGoBack={onGoBack} />
-      <PatientPersonalInfoForm isEdit>
+      <StackHeader title="Edit Patient" subtitle={route?.params?.patientName} onGoBack={onGoBack} />
+      <PatientPersonalInfoForm isEdit={isEdit}>
         <Fields />
       </PatientPersonalInfoForm>
     </FullView>

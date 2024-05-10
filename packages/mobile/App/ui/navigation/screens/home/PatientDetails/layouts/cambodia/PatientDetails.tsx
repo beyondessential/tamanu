@@ -4,6 +4,7 @@ import { AdditionalInfo } from '../../CustomComponents/AdditionalInfo';
 import { Routes } from '~/ui/helpers/routes';
 import { joinNames } from '~/ui/helpers/user';
 import { CAMBODIA_ADDITIONAL_DATA_SECTIONS } from './fields';
+import { PatientPersonalInfoForm } from '~/ui/components/Forms/NewPatientForm/PatientPersonalInfoForm';
 
 export const PatientDetails = ({ patient, navigation }): ReactElement => {
   const onEditGeneralInfo = useCallback(() => {
@@ -13,11 +14,7 @@ export const PatientDetails = ({ patient, navigation }): ReactElement => {
   }, [navigation, patient]);
 
   const editPatientAdditionalData = useCallback(
-    (
-      additionalData,
-      sectionTitle,
-      customPatientFieldValues,
-    ) => {
+    (additionalData, sectionTitle, customPatientFieldValues) => {
       navigation.navigate(Routes.HomeStack.PatientDetailsStack.Cambodia.EditPatientAdditionalData, {
         patientName: joinNames(patient),
         patient,
@@ -32,7 +29,11 @@ export const PatientDetails = ({ patient, navigation }): ReactElement => {
   return (
     <>
       <GeneralInfo patient={patient} onEdit={onEditGeneralInfo} />
-      <AdditionalInfo patient={patient} onEdit={editPatientAdditionalData} dataSections={CAMBODIA_ADDITIONAL_DATA_SECTIONS} />
+      <AdditionalInfo
+        patient={patient}
+        onEdit={editPatientAdditionalData}
+        dataSections={CAMBODIA_ADDITIONAL_DATA_SECTIONS}
+      />
     </>
   );
 };
