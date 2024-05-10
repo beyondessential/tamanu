@@ -27,7 +27,8 @@ const styles = StyleSheet.create({
   },
 });
 
-const useTextStyles = styles => {
+// TODO: put in context
+export const useTextStyles = styles => {
   const { makeIntlStyleSheet } = useLanguageContext();
   const mergedStyle = flatten(styles);
   return makeIntlStyleSheet(mergedStyle);
