@@ -32,6 +32,17 @@ const CardValue = styled(CardLabel)`
   color: ${props => props.theme.palette.text.primary};
 `;
 
+const InfoCardFirstColumn = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 40%;
+`;
+
+const InfoCardSecondColumn = styled(InfoCardFirstColumn)`
+  width: 60%;
+`;
+
 const getReferralSource = ({ referralSource }) =>
   referralSource ? referralSource.name : 'Unknown';
 
@@ -64,111 +75,113 @@ export const EncounterInfoPane = React.memo(
         )
       }
     >
-      <InfoCardItem
-        label={
-          <TranslatedText
-            stringId="encounter.summary.encounterType.label"
-            fallback="Encounter type"
-          />
-        }
-        value={getEncounterType(encounter)}
-        icon={encounterTypeIcon}
-      />
-      <InfoCardItem
-        label={<TranslatedText stringId="encounter.arrivalDate.label" fallback="Arrival date" />}
-        value={<>
-          <DateDisplay date={encounter.startDate} />
-          {encounter.endDate && (
-            <>
-              <CardLabel>
-                {" - "}
+      <InfoCardFirstColumn>
+        <InfoCardItem
+          label={
+            <TranslatedText
+              stringId="encounter.summary.encounterType.label"
+              fallback="Encounter type"
+            />
+          }
+          value={getEncounterType(encounter)}
+          icon={encounterTypeIcon}
+        />
+        <InfoCardItem
+          label={<TranslatedText stringId="general.department.label" fallback="Department" />}
+          value={getDepartmentName(encounter)}
+          icon={departmentIcon}
+        />
+        {encounter.encounterType === ENCOUNTER_TYPES.TRIAGE && <InfoCardItem
+          label={
+            <TranslatedText
+              stringId="encounter.summary.triageScore.label"
+              fallback="Triage score"
+            />
+          }
+          value={encounter.triages?.[0]?.score || '-'}
+          icon={triageScoreIcon}
+        />}
+        {encounter.encounterType !== ENCOUNTER_TYPES.TRIAGE && <InfoCardItem
+          label={
+            <TranslatedText stringId="encounter.summary.patientType.label" fallback="Patient type" />
+          }
+          value={patientBillingType}
+          icon={patientTypeIcon}
+        />}
+        {isInpatient(encounter?.encounterType) && <InfoCardItem
+          label={
+            <TranslatedText
+              stringId="encounter.summary.diet.label"
+              fallback="Diet"
+            />
+          }
+          value={getDiet(encounter)}
+          icon={dietIcon}
+        />}
+        <InfoCardItem
+          label={<TranslatedText stringId="general.location.label" fallback="Location" />}
+          value={getFullLocationName(encounter?.location)}
+          icon={locationIcon}
+        />
+      </InfoCardFirstColumn>
+      <InfoCardSecondColumn>
+        <InfoCardItem
+          label={<TranslatedText stringId="encounter.arrivalDate.label" fallback="Arrival date" />}
+          value={<>
+            <DateDisplay date={encounter.startDate} />
+            {encounter.endDate && (
+              <>
+                <CardLabel>
+                  {" - "}
+                  <TranslatedText
+                    stringId="encounter.summary.dischargeDate.label"
+                    fallback="Discharge date"
+                  />
+                  {":"}
+                </CardLabel>
+                <CardValue>
+                  {DateDisplay.stringFormat(encounter.endDate)}
+                </CardValue>
+              </>
+            )}
+          </>}
+          icon={arrivalDateIcon}
+        />
+        <InfoCardItem
+          label={
+            <TranslatedText
+              stringId="general.supervisingClinician.label"
+              fallback="Supervising clinician"
+            />
+          }
+          value={encounter.examiner?.displayName || 'Unknown'}
+          icon={supervisingClinicianIcon}
+        />
+        {!getLocalisation(`${referralSourcePath}.hidden`) &&
+          encounter.encounterType !== ENCOUNTER_TYPES.TRIAGE && (
+            <InfoCardItem
+              label={
                 <TranslatedText
-                  stringId="encounter.summary.dischargeDate.label"
-                  fallback="Discharge date"
+                  stringId="general.localisedField.referralSourceId.label"
+                  fallback="Referral source"
                 />
-                {":"}
-              </CardLabel>
-              <CardValue>
-                {DateDisplay.stringFormat(encounter.endDate)}
-              </CardValue>
-            </>
+              }
+              value={getReferralSource(encounter)}
+              icon={referralSourceIcon}
+            />
           )}
-        </>}
-        icon={arrivalDateIcon}
-      />
-      <InfoCardItem
-        label={<TranslatedText stringId="general.department.label" fallback="Department" />}
-        value={getDepartmentName(encounter)}
-        icon={departmentIcon}
-      />
-      <InfoCardItem
-        label={
-          <TranslatedText
-            stringId="general.supervisingClinician.label"
-            fallback="Supervising clinician"
-          />
-        }
-        value={encounter.examiner?.displayName || 'Unknown'}
-        icon={supervisingClinicianIcon}
-      />
-      {encounter.encounterType === ENCOUNTER_TYPES.TRIAGE && <InfoCardItem
-        label={
-          <TranslatedText
-            stringId="encounter.summary.triageScore.label"
-            fallback="Triage score"
-          />
-        }
-        value={encounter.triages?.[0]?.score || '-'}
-        icon={triageScoreIcon}
-      />}
-      <InfoCardItem
-        label={
-          <TranslatedText stringId="encounter.summary.patientType.label" fallback="Patient type" />
-        }
-        value={patientBillingType}
-        icon={patientTypeIcon}
-      />
-      {!getLocalisation(`${referralSourcePath}.hidden`) &&
-        encounter.encounterType !== ENCOUNTER_TYPES.TRIAGE && (
-          <InfoCardItem
-            label={
-              <TranslatedText
-                stringId="general.localisedField.referralSourceId.label"
-                fallback="Referral source"
-              />
-            }
-            value={getReferralSource(encounter)}
-            icon={referralSourceIcon}
-          />
-        )}
-      {isInpatient(encounter?.encounterType) && <InfoCardItem
-        label={
-          <TranslatedText
-            stringId="encounter.summary.diet.label"
-            fallback="Diet"
-          />
-        }
-        value={getDiet(encounter)}
-        icon={dietIcon}
-      />}
-      <InfoCardItem
-        label={
-          <TranslatedText
-            stringId="encounter.summary.reason.label"
-            fallback="Reason for encounter"
-          />
-        }
-        value={encounter.reasonForEncounter}
-        icon={reasonForEncounterIcon}
-        $whiteSpace='normal'
-        $gridArea='4 / 2 / span 1 / span 1'
-        $maxHeight={encounter.encounterType === ENCOUNTER_TYPES.ADMISSION && '20px'}
-      />
-      <InfoCardItem
-        label={<TranslatedText stringId="general.location.label" fallback="Location" />}
-        value={getFullLocationName(encounter?.location)}
-        icon={locationIcon}
-      />
+        <InfoCardItem
+          label={
+            <TranslatedText
+              stringId="encounter.summary.reason.label"
+              fallback="Reason for encounter"
+            />
+          }
+          value={encounter.reasonForEncounter}
+          icon={reasonForEncounterIcon}
+          $whiteSpace='normal'
+        />
+      </InfoCardSecondColumn>
     </InfoCard>
   ),
 );
