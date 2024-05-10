@@ -1,6 +1,5 @@
 import React from 'react';
 import styled from 'styled-components';
-import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import { DateDisplay } from '../../../components';
 import { ENCOUNTER_OPTIONS_BY_VALUE } from '../../../constants';
 import { getFullLocationName } from '../../../utils/location';
@@ -20,6 +19,7 @@ import {
   triageScoreIcon,
 } from '../../../constants/images';
 import { isInpatient } from '../../../utils/isInpatient';
+import { isEmergencyPatient } from '../../../utils/isEmergencyPatient';
 
 const CardLabel = styled.span`
   margin-right: 5px;
@@ -60,7 +60,6 @@ export const EncounterInfoPane = React.memo(
       inlineValues
       contentPadding={25}
       paddingTop={0}
-      paddingBottom={encounter?.encounterType !== ENCOUNTER_TYPES.ADMISSION && 40}
       headerContent={
         encounter.plannedLocation && (
           <InfoCardHeader
@@ -91,7 +90,7 @@ export const EncounterInfoPane = React.memo(
           value={getDepartmentName(encounter)}
           icon={departmentIcon}
         />
-        {encounter.encounterType === ENCOUNTER_TYPES.TRIAGE && <InfoCardItem
+        {isEmergencyPatient(encounter.encounterType) && <InfoCardItem
           label={
             <TranslatedText
               stringId="encounter.summary.triageScore.label"
@@ -101,7 +100,7 @@ export const EncounterInfoPane = React.memo(
           value={encounter.triages?.[0]?.score || '-'}
           icon={triageScoreIcon}
         />}
-        {encounter.encounterType !== ENCOUNTER_TYPES.TRIAGE && <InfoCardItem
+        {!isEmergencyPatient(encounter.encounterType) && <InfoCardItem
           label={
             <TranslatedText stringId="encounter.summary.patientType.label" fallback="Patient type" />
           }
@@ -158,7 +157,7 @@ export const EncounterInfoPane = React.memo(
           icon={supervisingClinicianIcon}
         />
         {!getLocalisation(`${referralSourcePath}.hidden`) &&
-          encounter.encounterType !== ENCOUNTER_TYPES.TRIAGE && (
+          !isEmergencyPatient(encounter.encounterType) && (
             <InfoCardItem
               label={
                 <TranslatedText
