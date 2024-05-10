@@ -1,5 +1,4 @@
 import express from 'express';
-import config from 'config';
 import { NotFoundError } from '@tamanu/shared/errors';
 
 export const patientFacility = express.Router();
