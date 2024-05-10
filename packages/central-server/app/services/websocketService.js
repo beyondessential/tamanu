@@ -29,7 +29,7 @@ export const defineWebsocketService = async injector => {
           connect: async () => connection,
         },
         {
-          errorHandler: e => log.error('Error in postgres adapter', e),
+          errorHandler: e => log.error('Error in postgres adapter:', e),
         },
       ),
     );
