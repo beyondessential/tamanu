@@ -52,7 +52,7 @@ export const EditPatientScreen = ({ route, isEdit = true }): ReactElement => {
   return (
     <FullView background={theme.colors.BACKGROUND_GREY}>
       <StatusBar barStyle="light-content" />
-      <StackHeader title="Edit Patient" subtitle={route?.params?.patientName} onGoBack={onGoBack} />
+      <StackHeader title={`${isEdit ? 'Edit' : 'New'} Patient`} subtitle={route?.params?.patientName} onGoBack={onGoBack} />
       <PatientPersonalInfoForm isEdit={isEdit}>
         <Fields />
       </PatientPersonalInfoForm>

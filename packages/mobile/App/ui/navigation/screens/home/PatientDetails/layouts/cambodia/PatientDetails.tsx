@@ -4,7 +4,6 @@ import { AdditionalInfo } from '../../CustomComponents/AdditionalInfo';
 import { Routes } from '~/ui/helpers/routes';
 import { joinNames } from '~/ui/helpers/user';
 import { CAMBODIA_ADDITIONAL_DATA_SECTIONS } from './fields';
-import { PatientPersonalInfoForm } from '~/ui/components/Forms/NewPatientForm/PatientPersonalInfoForm';
 
 export const PatientDetails = ({ patient, navigation }): ReactElement => {
   const onEditGeneralInfo = useCallback(() => {

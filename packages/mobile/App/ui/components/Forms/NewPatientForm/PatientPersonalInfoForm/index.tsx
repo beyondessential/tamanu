@@ -15,7 +15,10 @@ import { Routes } from '~/ui/helpers/routes';
 import { ALL_ADDITIONAL_DATA_FIELDS } from '~/ui/helpers/additionalData';
 import { getPatientDetailsValidation } from './patientDetailsValidationSchema';
 import { PatientAdditionalData } from '~/models/PatientAdditionalData';
-import { CustomPatientFieldValues, usePatientAdditionalData } from '~/ui/hooks/usePatientAdditionalData';
+import {
+  CustomPatientFieldValues,
+  usePatientAdditionalData,
+} from '~/ui/hooks/usePatientAdditionalData';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { getInitialAdditionalValues } from '../../PatientAdditionalDataForm/helpers';
 import { PatientFieldValue } from '~/models/PatientFieldValue';
@@ -92,9 +95,12 @@ const containsAdditionalData = values =>
 
 const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit, children }): ReactElement => {
   const navigation = useNavigation();
-  const { customPatientFieldValues, patientAdditionalData, loading } = usePatientAdditionalData(
-    selectedPatient?.id,
-  );
+  const {
+    customPatientFieldValues,
+    customPatientFieldDefinitions,
+    patientAdditionalData,
+    loading,
+  } = usePatientAdditionalData(selectedPatient?.id);
   const onCreateNewPatient = useCallback(
     async (values, { resetForm }) => {
       // submit form to server for new patient
@@ -111,12 +117,13 @@ const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit, children }
 
       // Update any custom field definitions contained in this form
       const customValuesToUpdate = Object.keys(values).filter(key =>
-        Object.keys(customPatientFieldValues).includes(key),
+        customPatientFieldDefinitions.map(({ id }) => id).includes(key),
       );
+
       await Promise.all(
         customValuesToUpdate.map(definitionId =>
           PatientFieldValue.updateOrCreateForPatientAndDefinition(
-            selectedPatient.id,
+            newPatient.id,
             definitionId,
             values[definitionId],
           ),
@@ -132,7 +139,7 @@ const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit, children }
       resetForm();
       navigation.navigate(Routes.HomeStack.RegisterPatientStack.NewPatient);
     },
-    [navigation, customPatientFieldValues, selectedPatient, setSelectedPatient],
+    [navigation, setSelectedPatient, customPatientFieldDefinitions, loading],
   );
 
   const onEditPatient = useCallback(
@@ -175,7 +182,7 @@ const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit, children }
       // Navigate back to patient details
       navigation.navigate(Routes.HomeStack.PatientDetailsStack.Index);
     },
-    [navigation, customPatientFieldValues, selectedPatient, setSelectedPatient],
+    [navigation, customPatientFieldValues, selectedPatient, setSelectedPatient, loading],
   );
 
   const { getBool, getString, getLocalisation } = useLocalisation();

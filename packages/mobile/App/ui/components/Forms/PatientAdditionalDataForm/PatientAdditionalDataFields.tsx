@@ -118,8 +118,6 @@ export const PatientAdditionalDataFields = ({ fields, showMandatory = true }): R
 
   const padFields = getConfiguredPatientAdditionalDataFields(fields, showMandatory, getLocalisation);
 
-  console.log(customFieldDefinitions, error, loading)
-
   if (loading) return [];
 
   return padFields.map(fieldName => {
