@@ -1,6 +1,5 @@
 import { differenceInWeeks, parseISO } from 'date-fns';
 import { IPatientAdditionalData } from '~/types';
-import { isCustomField } from './fields';
 
 export enum VaccineStatus {
   UNKNOWN = 'UNKNOWN',

@@ -6,7 +6,6 @@ import { LoadingScreen } from '../../../../../components/LoadingScreen';
 import { PatientSection } from './PatientSection';
 import { useLocalisation } from '../../../../../contexts/LocalisationContext';
 import { CustomPatientFieldValues, usePatientAdditionalData } from '~/ui/hooks/usePatientAdditionalData';
-import { isCustomField } from '~/ui/helpers/fields';
 import { mapValues } from 'lodash';
 import { PatientAdditionalData } from '~/models/PatientAdditionalData';
 import { Patient } from '~/models/Patient';
