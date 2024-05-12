@@ -22,6 +22,7 @@ import {
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { getInitialAdditionalValues } from '../../PatientAdditionalDataForm/helpers';
 import { PatientFieldValue } from '~/models/PatientFieldValue';
+import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
 
 export type FormSection = {
   scrollToField: (fieldName: string) => () => void;
@@ -97,10 +98,42 @@ const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit, children }
   const navigation = useNavigation();
   const {
     customPatientFieldValues,
-    customPatientFieldDefinitions,
     patientAdditionalData,
     loading,
   } = usePatientAdditionalData(selectedPatient?.id);
+
+  const createOrUpdateOtherPatientData = useCallback(async (values, patientId) => {
+    const customPatientFieldDefinitions = await PatientFieldDefinition.findVisible({
+      relations: ['category'],
+      order: {
+        // Nested ordering only works with typeorm version > 0.3.0
+        // category: { name: 'DESC' },
+        name: 'DESC',
+      },
+    })
+
+    if (containsAdditionalData(values)) {
+      await PatientAdditionalData.updateForPatient(patientId, values);
+    }
+
+    // Update any custom field definitions contained in this form
+    const customValuesToUpdate = Object.keys(values).filter(key =>
+      customPatientFieldDefinitions.map(({ id }) => id).includes(key),
+    );
+
+    await Promise.all(
+      customValuesToUpdate.map(definitionId =>
+        PatientFieldValue.updateOrCreateForPatientAndDefinition(
+          patientId,
+          definitionId,
+          values[definitionId],
+        ),
+      ),
+    );
+
+  }, []);
+
+
   const onCreateNewPatient = useCallback(
     async (values, { resetForm }) => {
       // submit form to server for new patient
@@ -111,25 +144,7 @@ const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit, children }
         displayId: generateId(),
       });
 
-      if (containsAdditionalData(values)) {
-        await PatientAdditionalData.updateForPatient(newPatient.id, values);
-      }
-
-      // Update any custom field definitions contained in this form
-      const customValuesToUpdate = Object.keys(values).filter(key =>
-        customPatientFieldDefinitions.map(({ id }) => id).includes(key),
-      );
-
-      await Promise.all(
-        customValuesToUpdate.map(definitionId =>
-          PatientFieldValue.updateOrCreateForPatientAndDefinition(
-            newPatient.id,
-            definitionId,
-            values[definitionId],
-          ),
-        ),
-      );
-
+      await createOrUpdateOtherPatientData(values, newPatient.id);
       await Patient.markForSync(newPatient.id);
 
       // Reload instance to get the complete village fields
@@ -139,7 +154,7 @@ const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit, children }
       resetForm();
       navigation.navigate(Routes.HomeStack.RegisterPatientStack.NewPatient);
     },
-    [navigation, setSelectedPatient, customPatientFieldDefinitions, loading],
+    [navigation, setSelectedPatient, createOrUpdateOtherPatientData, loading],
   );
 
   const onEditPatient = useCallback(
@@ -152,24 +167,7 @@ const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit, children }
         ...otherValues,
       });
 
-      if (containsAdditionalData(values)) {
-        await PatientAdditionalData.updateForPatient(selectedPatient.id, values);
-      }
-
-      // Update any custom field definitions contained in this form
-      const customValuesToUpdate = Object.keys(values).filter(key =>
-        Object.keys(customPatientFieldValues).includes(key),
-      );
-      await Promise.all(
-        customValuesToUpdate.map(definitionId =>
-          PatientFieldValue.updateOrCreateForPatientAndDefinition(
-            selectedPatient.id,
-            definitionId,
-            values[definitionId],
-          ),
-        ),
-      );
-
+      await createOrUpdateOtherPatientData(values, selectedPatient.id);
       // Loading the instance is necessary to get all of the fields
       // from the relations that were updated, not just their IDs.
       const editedPatient = await Patient.findOne(selectedPatient.id);
@@ -182,7 +180,7 @@ const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit, children }
       // Navigate back to patient details
       navigation.navigate(Routes.HomeStack.PatientDetailsStack.Index);
     },
-    [navigation, customPatientFieldValues, selectedPatient, setSelectedPatient, loading],
+    [navigation, selectedPatient, setSelectedPatient, createOrUpdateOtherPatientData, loading],
   );
 
   const { getBool, getString, getLocalisation } = useLocalisation();

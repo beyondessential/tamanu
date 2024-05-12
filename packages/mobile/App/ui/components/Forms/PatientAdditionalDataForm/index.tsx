@@ -15,6 +15,7 @@ import { SubmitButton } from '../SubmitButton';
 import { TranslatedText } from '/components/Translations/TranslatedText';
 import { FormScreenView } from '../FormScreenView';
 import { isCustomField } from '~/ui/helpers/fields';
+import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
 
 export const PatientAdditionalDataForm = ({
   patient,
@@ -29,13 +30,25 @@ export const PatientAdditionalDataForm = ({
   // patient for sync (see beforeInsert and beforeUpdate decorators).
   const onCreateOrEditAdditionalData = useCallback(
     async values => {
+      const customPatientFieldDefinitions = await PatientFieldDefinition.findVisible({
+        relations: ['category'],
+        order: {
+          // Nested ordering only works with typeorm version > 0.3.0
+          // category: { name: 'DESC' },
+          name: 'DESC',
+        },
+      })
+      
       await Patient.updateValues(patient.id, values);
 
       await PatientAdditionalData.updateForPatient(patient.id, values);
 
-      const customFields = Object.keys(values).filter(isCustomField);
+      // Update any custom field definitions contained in this form
+      const customValuesToUpdate = Object.keys(values).filter(key =>
+        customPatientFieldDefinitions.map(({ id }) => id).includes(key),
+      );
       await Promise.all(
-        customFields.map(definitionId =>
+        customValuesToUpdate.map(definitionId =>
           PatientFieldValue.updateOrCreateForPatientAndDefinition(
             patient.id,
             definitionId,
