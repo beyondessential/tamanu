@@ -60,21 +60,13 @@ const RelationField = ({ fieldName, required }): ReactElement => {
 };
 
 const CustomField = ({ fieldName, required }): ReactElement => {
-  const { models } = useBackend();
-  const [fieldDefinition, setFieldDefinition] = useState(null);
+  const [fieldDefinition, _, loading] = useBackendEffect(({ models }) =>
+    models.PatientFieldDefinition.findOne({
+      where: { id: fieldName },
+    })
+  );
 
-  useEffect(() => {
-    const fetchFieldDefinition = async () => {
-      const definition = await models.PatientFieldDefinition.findOne({
-        where: { id: fieldName },
-      });
-      setFieldDefinition(definition);
-    };
-
-    fetchFieldDefinition();
-  }, [fieldName, models]);
-
-  if (!fieldDefinition) return <ActivityIndicator />;
+  if (loading) return <ActivityIndicator />;
 
   return (
     <Field
