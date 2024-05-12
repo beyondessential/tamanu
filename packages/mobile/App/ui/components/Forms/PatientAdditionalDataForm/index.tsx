@@ -14,7 +14,6 @@ import { Routes } from '~/ui/helpers/routes';
 import { SubmitButton } from '../SubmitButton';
 import { TranslatedText } from '/components/Translations/TranslatedText';
 import { FormScreenView } from '../FormScreenView';
-import { isCustomField } from '~/ui/helpers/fields';
 import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
 
 export const PatientAdditionalDataForm = ({
@@ -38,7 +37,7 @@ export const PatientAdditionalDataForm = ({
           name: 'DESC',
         },
       })
-      
+
       await Patient.updateValues(patient.id, values);
 
       await PatientAdditionalData.updateForPatient(patient.id, values);
@@ -73,7 +72,7 @@ export const PatientAdditionalDataForm = ({
         ...getInitialAdditionalValues(additionalData, fields),
         ...getInitialCustomValues(customPatientFieldValues, fields),
       }}
-      validationSchema={patientAdditionalDataValidationSchema} // TODO: handle the new validation
+      validationSchema={patientAdditionalDataValidationSchema}
       onSubmit={onCreateOrEditAdditionalData}
     >
       {(): ReactElement => (
