@@ -109,7 +109,7 @@ function getComponentForField(fieldName: string, customFieldIds: string[]): Reac
 
 export const PatientAdditionalDataFields = ({ fields, showMandatory = true }): ReactElement => {
   const { getLocalisation } = useLocalisation(); 
-  const [customFieldDefinitions, error, loading] = useBackendEffect(({ models }) =>
+  const [customFieldDefinitions, _, loading] = useBackendEffect(({ models }) =>
     models.PatientFieldDefinition.getRepository().find({
       select: ['id']
     }),
