@@ -1,4 +1,4 @@
-import React, { ReactElement, useState, useEffect } from 'react';
+import React, { ReactElement } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { StyledView } from '/styled/common';
 import { TextField } from '../../TextField/TextField';
