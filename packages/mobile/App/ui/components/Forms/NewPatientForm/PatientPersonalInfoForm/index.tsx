@@ -154,7 +154,7 @@ const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit, children }
       resetForm();
       navigation.navigate(Routes.HomeStack.RegisterPatientStack.NewPatient);
     },
-    [navigation, setSelectedPatient, createOrUpdateOtherPatientData, loading],
+    [navigation, setSelectedPatient, createOrUpdateOtherPatientData],
   );
 
   const onEditPatient = useCallback(
@@ -180,7 +180,7 @@ const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit, children }
       // Navigate back to patient details
       navigation.navigate(Routes.HomeStack.PatientDetailsStack.Index);
     },
-    [navigation, selectedPatient, setSelectedPatient, createOrUpdateOtherPatientData, loading],
+    [navigation, selectedPatient, setSelectedPatient, createOrUpdateOtherPatientData],
   );
 
   const { getBool, getString, getLocalisation } = useLocalisation();
