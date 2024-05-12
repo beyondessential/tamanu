@@ -32,6 +32,7 @@ const styles = StyleSheet.create({
   text: {
     color: '#444444',
     fontFamily: 'Courier',
+    lineHeight: 1.2,
   },
   barcodeContainer: {
     flexDirection: 'column',
@@ -39,6 +40,7 @@ const styles = StyleSheet.create({
   barcodeText: {
     fontFamily: 'Courier-Bold',
     color: '#444444',
+    lineHeight: 1.2,
   },
   barcode: {
     margin: 0,
