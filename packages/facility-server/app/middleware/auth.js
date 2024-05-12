@@ -193,8 +193,8 @@ function decodeToken(token) {
   return verify(token, jwtSecretKey);
 }
 
-async function getUserFromToken(request) {
-  const { models, headers } = request;
+async function getTokenData(request) {
+  const { headers } = request;
   const authHeader = headers.authorization || '';
   if (!authHeader) return null;
 
@@ -205,12 +205,7 @@ async function getUserFromToken(request) {
 
   const token = bearer[1];
   try {
-    const { userId } = await decodeToken(token);
-    const user = await models.User.findByPk(userId);
-    if (user.visibilityStatus !== VISIBILITY_STATUSES.CURRENT) {
-      throw new Error('User is not visible to the system'); // will be caught immediately
-    }
-    return user;
+    return await decodeToken(token);
   } catch (e) {
     throw new BadAuthenticationError(
       'Your session has expired or is invalid. Please log in again.',
@@ -219,9 +214,15 @@ async function getUserFromToken(request) {
 }
 
 export const authMiddleware = async (req, res, next) => {
+  const { models } = req;
   try {
-    // eslint-disable-next-line require-atomic-updates
-    req.user = await getUserFromToken(req);
+    const { userId, facilityId } = await getTokenData(req);
+    const user = await models.User.findByPk(userId);
+    if (user.visibilityStatus !== VISIBILITY_STATUSES.CURRENT) {
+      throw new Error('User is not visible to the system');
+    }
+    req.user = user; // eslint-disable-line require-atomic-updates
+    req.facilityId = facilityId; // eslint-disable-line require-atomic-updates
     req.getLocalisation = async () =>
       req.models.UserLocalisationCache.getLocalisation({
         where: { userId: req.user.id },
