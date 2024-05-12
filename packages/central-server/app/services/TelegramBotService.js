@@ -7,10 +7,7 @@ import TelegramBot from 'node-telegram-bot-api';
  * @param {{ config: { telegramBot: { apiToken: string, webhook: { url: string, secret: string} }, language: string, }}} injector
  */
 export const defineTelegramBotService = async injector => {
-  //fallback to polling if webhook url is not set
-  const bot = new TelegramBot(injector.config.telegramBot.apiToken, {
-    polling: !injector.config.telegramBot.webhook.url,
-  });
+  const bot = injector.config.telegramBot?.apiToken ? new TelegramBot(injector.config.telegramBot.apiToken) : null;
 
   /** @type {ReturnType<import('./websocketService.js').defineWebsocketService>|null} */
   let websocketService = null;
@@ -27,6 +24,7 @@ export const defineTelegramBotService = async injector => {
    * @param {TelegramBot.Update} update
    */
   const update = update => {
+    if (!bot) return;
     bot.processUpdate(update);
   };
   /**
@@ -59,6 +57,7 @@ export const defineTelegramBotService = async injector => {
    * @param {options?: TelegramBot.SendMessageOptions} options
    *  */
   const sendMessage = async (chatId, textMsg, options) => {
+    if (!bot) return;
     try {
       const message = await bot.sendMessage(chatId, textMsg, options);
       return { status: COMMUNICATION_STATUSES.SENT, result: message };
@@ -68,6 +67,7 @@ export const defineTelegramBotService = async injector => {
   };
 
   const getBotInfo = async () => {
+    if (!bot) return {};
     return await bot.getMe();
   };
 
@@ -192,23 +192,25 @@ export const defineTelegramBotService = async injector => {
     await handleRemoveContact(contact);
   };
 
-  await setWebhook(injector.config.telegramBot.webhook);
-  setCommand('start', subscribeCommandHandler);
-  setCommand('unsubscribe', unsubscribeCommandHandler);
+  if (bot) {
+    await setWebhook(injector.config.telegramBot.webhook);
+    setCommand('start', subscribeCommandHandler);
+    setCommand('unsubscribe', unsubscribeCommandHandler);
 
-  bot.on('callback_query', async query => {
-    try {
-      const data = query.data?.split('|') || [];
-      if (data[0] === 'unsubscribe-contact') {
-        await unsubscribeCommandHandler(query.message, data[1]);
+    bot.on('callback_query', async query => {
+      try {
+        const data = query.data?.split('|') || [];
+        if (data[0] === 'unsubscribe-contact') {
+          await unsubscribeCommandHandler(query.message, data[1]);
+        }
+        // eslint-disable-next-line no-empty
+      } catch (e) {
+        log.error('telegram callback query failed', { error: e.message });
+      } finally {
+        bot.answerCallbackQuery({ callback_query_id: query.id });
       }
-      // eslint-disable-next-line no-empty
-    } catch (e) {
-      log.error('telegram callback query failed', { error: e.message });
-    } finally {
-      bot.answerCallbackQuery({ callback_query_id: query.id });
-    }
-  });
+    });
+  }
 
   return {
     update,
