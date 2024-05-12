@@ -1,6 +1,5 @@
-import { StyleSheet, View } from '@react-pdf/renderer';
+import { StyleSheet, View, Text } from '@react-pdf/renderer';
 import React from 'react';
-import { Text } from '../../pdf/Text';
 import { useLanguageContext } from '../../pdf/languageContext';
 import { flatten } from 'lodash';
 
@@ -27,7 +26,6 @@ const styles = StyleSheet.create({
   },
 });
 
-// TODO: put in context
 export const useTextStyles = styles => {
   const { makeIntlStyleSheet } = useLanguageContext();
   const mergedStyle = flatten(styles);
@@ -40,6 +38,7 @@ export const MultiPageHeader = ({ documentName, patientName, patientId }) => {
 
   const ValueText = props => <Text styles={valueStyles} {...props} />;
   const LabelText = props => <Text styles={labelStyles} {...props} />;
+
   const HeaderContent = () => (
     <>
       <LabelText>{`${documentName} `}</LabelText>
