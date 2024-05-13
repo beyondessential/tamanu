@@ -577,6 +577,7 @@ const rootLocalisationSchema = yup
     features: yup
       .object({
         enableVaccineConsent: yup.boolean().required(),
+        filterDischargeDispositions: yup.boolean().required(),
         editPatientDetailsOnMobile: yup.boolean().required(),
         quickPatientGenerator: yup.boolean().required(),
         enableInvoicing: yup.boolean().required(),

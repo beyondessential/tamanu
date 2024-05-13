@@ -470,7 +470,7 @@ export const DischargeForm = ({
           }
           component={TextField}
           multiline
-          rows={4}
+          minRows={4}
           style={{ gridColumn: '1 / -1' }}
         />
       </FormGrid>
