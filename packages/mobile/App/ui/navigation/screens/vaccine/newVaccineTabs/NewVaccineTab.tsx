@@ -85,6 +85,7 @@ export const NewVaccineTabComponent = ({
       const scheduledVaccineRecord = await models.ScheduledVaccine.findOne({
         where: { id: scheduledVaccineId },
       });
+
       const vaccineEncounter = await models.Encounter.getOrCreateCurrentEncounter(
         selectedPatient.id,
         user.id,
@@ -93,7 +94,10 @@ export const NewVaccineTabComponent = ({
           location: locationId,
           encounterType: EncounterType.Vaccination,
           endDate: getCurrentDateTimeString(),
-          reasonForEncounter: getVaccinationDescription(vaccineData, scheduledVaccineRecord),
+          reasonForEncounter: getVaccinationDescription(
+            vaccineData,
+            scheduledVaccineRecord ?? scheduledVaccine,
+          ),
         },
       );
 
