@@ -153,7 +153,7 @@ export async function loginHandler(req, res, next) {
 
     // check if user has access to any facilities on this server
     const serverFacilities = selectFacilityIds(config);
-    const availableFacilities = models.User.filterAllowedFacilities(
+    const availableFacilities = await models.User.filterAllowedFacilities(
       allowedFacilities,
       serverFacilities,
     );
@@ -194,8 +194,8 @@ export async function setFacilityHandler(req, res) {
   if (!hasAccess) {
     throw new BadAuthenticationError('User does not have access to this facility');
   }
-
-  res.send({ token: buildToken(user, facilityId) });
+  const token = await buildToken(user, facilityId);
+  res.send({ token });
 }
 
 export async function refreshHandler(req, res) {

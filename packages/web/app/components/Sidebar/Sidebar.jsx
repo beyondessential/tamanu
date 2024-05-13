@@ -165,7 +165,7 @@ const isHighlighted = (currentPath, menuItemPath, sectionIsOpen, isRetracted) =>
 export const Sidebar = React.memo(({ items }) => {
   const [selectedParentItem, setSelectedParentItem] = useState('');
   const [isRetracted, setIsRetracted] = useState(false);
-  const { api, agentVersion } = useApi();
+  const api = useApi();
   const { facilityId, currentUser, onLogout, currentRole } = useAuth();
   const currentPath = useSelector(getCurrentRoute);
   const dispatch = useDispatch();
@@ -205,7 +205,7 @@ export const Sidebar = React.memo(({ items }) => {
       );
     }
     return facility.name;
-  });
+  }, [facility, isFacilityLoading]);
 
   return (
     <Container $retracted={isRetracted}>
@@ -309,7 +309,8 @@ export const Sidebar = React.memo(({ items }) => {
             <StyledDivider $invisible={isRetracted} />
             <StyledMetadataBox display="flex" justifyContent="space-between">
               <Version>
-                <TranslatedText stringId="general.meta.version" fallback="Version" /> {agentVersion}
+                <TranslatedText stringId="general.meta.version" fallback="Version" />{' '}
+                {api.agentVersion}
               </Version>
               <LogoutButton
                 type="button"

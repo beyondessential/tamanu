@@ -95,7 +95,7 @@ export const login = ({ secret, refreshSecret }) =>
 
     const allowedFacilities = await user.allowedFacilities();
     if (facilityIds) {
-      const availableFacilities = models.User.filterAllowedFacilities(
+      const availableFacilities = await models.User.filterAllowedFacilities(
         allowedFacilities,
         facilityIds,
       );

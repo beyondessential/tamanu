@@ -236,10 +236,13 @@ export class User extends Model {
     return allowed?.includes(id) ?? false;
   }
 
-  static filterAllowedFacilities(allowedFacilities, facilityIds) {
+  static async filterAllowedFacilities(allowedFacilities, facilityIds) {
     if (allowedFacilities === CAN_ACCESS_ALL_FACILITIES) {
-      return facilityIds;
+      const facilitiesMatchingIds = await this.sequelize.models.Facility.findAll({
+        where: { id: facilityIds },
+      });
+      return facilitiesMatchingIds?.map(({ id, name }) => ({ id, name })) ?? [];
     }
-    return facilityIds.filter(f => allowedFacilities.includes(f.id));
+    return allowedFacilities.filter(f => facilityIds.includes(f.id));
   }
 }
