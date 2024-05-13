@@ -68,7 +68,7 @@ export class FhirDiagnosticReport extends FhirResource {
 
   // This is beginning very modestly - can extend to handle full 
   // results soon.
-  async pushUpstream({ requester }) {
+  async pushUpstream({ requesterId }) {
     const { FhirServiceRequest, LabRequest } = this.sequelize.models;
     if (!this.basedOn || !Array.isArray(this.basedOn)) {
       throw new Invalid('DiagnosticReport requires basedOn to report results for ServiceRequest', {
@@ -108,11 +108,11 @@ export class FhirDiagnosticReport extends FhirResource {
         labRequest.set({ status: newStatus });
         await labRequest.save();
 
-        if (!requester) throw new InvalidOperationError('No user found for LabRequest status change.');
+        if (!requesterId) throw new InvalidOperationError('No user found for LabRequest status change.');
         await this.sequelize.models.LabRequestLog.create({
           status: newStatus,
           labRequestId: labRequest.id,
-          updatedById: requester,
+          updatedById: requesterId,
         });
       }
     });
