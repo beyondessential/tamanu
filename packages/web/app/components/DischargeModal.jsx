@@ -30,8 +30,12 @@ export const DischargeModal = React.memo(({ open, onClose }) => {
 
     switch (patientStatus) {
       case PATIENT_STATUS.EMERGENCY:
-        if (dischargeDisposition?.code?.startsWith(DISCHARGE_DISPOSITION_FOR_INPATIENTS_OUTPATIENTS_ONLY)) {
-          return false; // Do not show discharge dispositions that are only for emergency encounters
+        if (
+          dischargeDisposition?.code?.startsWith(
+            DISCHARGE_DISPOSITION_FOR_INPATIENTS_OUTPATIENTS_ONLY,
+          )
+        ) {
+          return false; // Do not show discharge dispositions that are only for inpatient and outpatient encounters
         }
         return true;
       case PATIENT_STATUS.INPATIENT:
@@ -41,7 +45,7 @@ export const DischargeModal = React.memo(({ open, onClose }) => {
         }
         return true;
       default:
-        return true;
+        throw new Error('Unsupported encounter type for discharge disposition');
     }
   };
 
