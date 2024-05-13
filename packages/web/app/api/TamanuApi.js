@@ -44,13 +44,27 @@ function saveToLocalStorage({
   role,
   settings,
 }) {
-  localStorage.setItem(TOKEN, token);
-  localStorage.setItem(LOCALISATION, JSON.stringify(localisation));
-  localStorage.setItem(SERVER_TYPE, JSON.stringify(serverType));
-  localStorage.setItem(PERMISSIONS, JSON.stringify(permissions));
-  localStorage.setItem(AVAILABLE_FACILITIES, JSON.stringify(availableFacilities));
-  localStorage.setItem(ROLE, JSON.stringify(role));
-  localStorage.setItem(SETTINGS, JSON.stringify(settings));
+  if (token) {
+    localStorage.setItem(TOKEN, token);
+  }
+  if (localisation) {
+    localStorage.setItem(LOCALISATION, JSON.stringify(localisation));
+  }
+  if (serverType) {
+    localStorage.setItem(SERVER_TYPE, JSON.stringify(serverType));
+  }
+  if (permissions) {
+    localStorage.setItem(PERMISSIONS, JSON.stringify(permissions));
+  }
+  if (availableFacilities) {
+    localStorage.setItem(AVAILABLE_FACILITIES, JSON.stringify(availableFacilities));
+  }
+  if (role) {
+    localStorage.setItem(ROLE, JSON.stringify(role));
+  }
+  if (settings) {
+    localStorage.setItem(SETTINGS, JSON.stringify(settings));
+  }
 }
 
 function clearLocalStorage() {
