@@ -179,12 +179,13 @@ export class CentralServerConnection {
 
       log.info(`Logging in to ${this.host} as ${email}...`);
 
+      const facilityIds = selectFacilityIds(config);
       const body = await this.fetch('login', {
         method: 'POST',
         body: {
           email,
           password,
-          facilityIds: selectFacilityIds(config),
+          facilityIds,
           deviceId: this.deviceId,
         },
         awaitConnection: false,
@@ -200,7 +201,7 @@ export class CentralServerConnection {
       log.info(`Received token for user ${body.user.displayName} (${body.user.email})`);
       this.token = body.token;
 
-      return body;
+      return { ...body, serverFacilityIds: facilityIds };
     })();
 
     // await connection attempt, throwing an error if applicable, but always removing connectionPromise

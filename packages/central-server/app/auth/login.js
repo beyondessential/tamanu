@@ -66,7 +66,7 @@ export const login = ({ secret, refreshSecret }) =>
   asyncHandler(async (req, res) => {
     const { store, body, settings } = req;
     const { models } = store;
-    const { email, password, facilityId, deviceId } = body;
+    const { email, password, facilityIds, deviceId } = body;
 
     const settingsObject = await settings.getFrontEndSettings();
     settingsObject.countryTimeZone = config.countryTimeZone; // This needs to be in config but also needs to be front end accessible
@@ -93,8 +93,13 @@ export const login = ({ secret, refreshSecret }) =>
       throw new BadAuthenticationError('Invalid credentials');
     }
 
-    if (facilityId && !(await user.canAccessFacility(facilityId))) {
-      throw new BadAuthenticationError('User does not have access to this facility');
+    if (facilityIds) {
+      for (const facilityId of facilityIds) {
+        const hasAccess = await user.canAccessFacility(facilityId);
+        if (!hasAccess) {
+          throw new BadAuthenticationError('User does not have access to all facilities');
+        }
+      }
     }
 
     const { auth, canonicalHostName } = config;
@@ -103,9 +108,8 @@ export const login = ({ secret, refreshSecret }) =>
     const [
       token,
       refreshToken,
-      facility,
-      allowedFacilities,
       localisation,
+      allowedFacilities,
       permissions,
       role,
     ] = await Promise.all([
@@ -125,9 +129,8 @@ export const login = ({ secret, refreshSecret }) =>
       internalClient
         ? getRefreshToken(models, { refreshSecret, userId: user.id, deviceId })
         : undefined,
-      models.Facility.findByPk(facilityId),
-      await user.allowedFacilities(),
       getLocalisation(),
+      user.allowedFacilities(),
       getPermissionsForRoles(models, user.role),
       models.Role.findByPk(user.role),
     ]);
@@ -140,7 +143,6 @@ export const login = ({ secret, refreshSecret }) =>
       user: convertFromDbRecord(stripUser(user.get({ plain: true }))).data,
       permissions,
       role: role?.forResponse() ?? null,
-      facility,
       allowedFacilities,
       localisation,
       centralHost: config.canonicalHostName,

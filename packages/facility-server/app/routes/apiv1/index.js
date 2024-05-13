@@ -2,7 +2,12 @@ import express from 'express';
 
 import { constructPermission } from '@tamanu/shared/permissions/middleware';
 import { settingsReaderMiddleware, settingsCache } from '@tamanu/settings';
-import { authMiddleware, loginHandler, refreshHandler } from '../../middleware/auth';
+import {
+  authMiddleware,
+  loginHandler,
+  refreshHandler,
+  setFacilityHandler,
+} from '../../middleware/auth';
 import asyncHandler from 'express-async-handler';
 import { keyBy, mapValues } from 'lodash';
 
@@ -114,6 +119,7 @@ apiv1.delete(
 );
 
 apiv1.post('/refresh', refreshHandler);
+apiv1.post('/setFacility', setFacilityHandler);
 apiv1.use(patientDataRoutes); // see below for specifics
 apiv1.use(referenceDataRoutes); // see below for specifics
 apiv1.use(syncRoutes); // see below for specifics

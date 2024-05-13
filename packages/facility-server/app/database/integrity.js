@@ -4,6 +4,8 @@ import { isSyncTriggerDisabled } from '@tamanu/shared/dataMigrations';
 import { CentralServerConnection } from '../sync';
 import { selectFacilityIds } from '../utils/configUtils';
 
+const FACILITY_IDS_SEPARATOR = ', ';
+
 export async function performDatabaseIntegrityChecks(context) {
   if (await isSyncTriggerDisabled(context.sequelize)) {
     throw Error('Sync Trigger is disabled in the database.');
@@ -51,7 +53,9 @@ async function ensureFacilityMatches(context) {
   }
 
   // ensure both arrays contain the same set of facility ids
-  const match = lastFacilities.every(facilityId => configuredFacilities.includes(facilityId));
+  const match = lastFacilities
+    .split(FACILITY_IDS_SEPARATOR)
+    .every(facilityId => configuredFacilities.includes(facilityId));
   if (!match) {
     // if the facility doesn't match, error
     throw new Error(
@@ -64,22 +68,16 @@ async function performInitialIntegritySetup(context) {
   const centralServer = new CentralServerConnection(context);
   log.info(`Verifying sync connection to ${centralServer.host}...`);
 
-  const { token, facilities } = await centralServer.connect();
+  const { token, serverFacilityIds } = await centralServer.connect();
 
   if (!token) {
     throw new Error('Could not obtain valid token from central server.');
   }
 
-  if (!facilities) {
-    throw new Error(`Configured serverFacilityId(s) not recognised by central server`);
-  }
-
   // We've ensured that our immutable config stuff is valid -- save it!
   const { LocalSystemFact } = context.models;
-  await LocalSystemFact.set(
-    'facilityIds',
-    facilities.map(f => f.id),
-  );
+  const facilityIdsString = serverFacilityIds.map(f => f.name).join(FACILITY_IDS_SEPARATOR);
+  await LocalSystemFact.set('facilityIds', facilityIdsString);
 
-  log.info(`Verified with central server as facilities ${facilities.map(f => f.name).join(', ')}`);
+  log.info(`Verified with central server as facilities ${facilityIdsString}`);
 }

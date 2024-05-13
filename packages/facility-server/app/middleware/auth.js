@@ -21,10 +21,11 @@ const jwtSecretKey = secret || crypto.randomUUID();
 const sign = promisify(signCallback);
 const verify = promisify(verifyCallback);
 
-export async function getToken(user, expiresIn = tokenDuration) {
+export async function buildToken(user, facilityId, expiresIn = tokenDuration) {
   return sign(
     {
       userId: user.id,
+      facilityId,
     },
     jwtSecretKey,
     { expiresIn },
@@ -161,7 +162,7 @@ export async function loginHandler(req, res, next) {
 
     const [permissions, token, role] = await Promise.all([
       getPermissionsForRoles(models, user.role),
-      getToken(user),
+      buildToken(user),
       models.Role.findByPk(user.role),
     ]);
     res.send({
@@ -179,6 +180,21 @@ export async function loginHandler(req, res, next) {
   }
 }
 
+export async function setFacilityHandler(req, res) {
+  const { user, body } = req;
+  const { facilityId } = body;
+
+  // Run after auth middleware, requires valid token but no other permission
+  req.flagPermissionChecked();
+
+  const hasAccess = await user.canAccessFacility(facilityId);
+  if (!hasAccess) {
+    throw new BadAuthenticationError('User does not have access to this facility');
+  }
+
+  res.send({ token: buildToken(user, facilityId) });
+}
+
 export async function refreshHandler(req, res) {
   const { user } = req;
 
@@ -190,10 +206,16 @@ export async function refreshHandler(req, res) {
 }
 
 function decodeToken(token) {
-  return verify(token, jwtSecretKey);
+  try {
+    return verify(token, jwtSecretKey);
+  } catch (e) {
+    throw new BadAuthenticationError(
+      'Your session has expired or is invalid. Please log in again.',
+    );
+  }
 }
 
-async function getTokenData(request) {
+function getToken(request) {
   const { headers } = request;
   const authHeader = headers.authorization || '';
   if (!authHeader) return null;
@@ -204,23 +226,23 @@ async function getTokenData(request) {
   }
 
   const token = bearer[1];
-  try {
-    return await decodeToken(token);
-  } catch (e) {
-    throw new BadAuthenticationError(
-      'Your session has expired or is invalid. Please log in again.',
-    );
+  return token;
+}
+
+async function getUser(models, userId) {
+  const user = await models.User.findByPk(userId);
+  if (user.visibilityStatus !== VISIBILITY_STATUSES.CURRENT) {
+    throw new Error('User is not visible to the system');
   }
+  return user;
 }
 
 export const authMiddleware = async (req, res, next) => {
   const { models } = req;
   try {
-    const { userId, facilityId } = await getTokenData(req);
-    const user = await models.User.findByPk(userId);
-    if (user.visibilityStatus !== VISIBILITY_STATUSES.CURRENT) {
-      throw new Error('User is not visible to the system');
-    }
+    const token = getToken(req);
+    const { userId, facilityId } = decodeToken(token);
+    const user = await getUser(models, userId);
     req.user = user; // eslint-disable-line require-atomic-updates
     req.facilityId = facilityId; // eslint-disable-line require-atomic-updates
     req.getLocalisation = async () =>

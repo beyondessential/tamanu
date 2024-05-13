@@ -19,31 +19,8 @@ const SET_FACILITY_ID = 'SET_FACILITY_ID';
 
 export const restoreSession = () => async (dispatch, getState, { api }) => {
   try {
-    const {
-      user,
-      token,
-      localisation,
-      server,
-      availableFacilities,
-      ability,
-      role,
-      settings,
-    } = await api.restoreSession();
-    // if there's just one facility the user has access to, select it immediately
-    // otherwise they will be prompted to select a facility after login
-    const facilityId = availableFacilities.length === 1 ? [0] : null;
-    dispatch({
-      type: LOGIN_SUCCESS,
-      user,
-      token,
-      localisation,
-      server,
-      availableFacilities,
-      facilityId,
-      ability,
-      role,
-      settings,
-    });
+    const loginInfo = await api.restoreSession();
+    handleLoginSuccess(dispatch, loginInfo);
   } catch (e) {
     // no action required -- this just means we haven't logged in
   }
@@ -53,41 +30,51 @@ export const login = (email, password) => async (dispatch, getState, { api }) =>
   dispatch({ type: LOGIN_START });
 
   try {
-    const {
-      user,
-      token,
-      localisation,
-      server,
-      availableFacilities,
-      ability,
-      role,
-      settings,
-    } = await api.login(email, password);
-    // if there's just one facility the user has access to, select it immediately
-    // otherwise they will be prompted to select a facility after login
-    const facilityId = availableFacilities.length === 1 ? [0] : null;
-    dispatch({
-      type: LOGIN_SUCCESS,
-      user,
-      token,
-      localisation,
-      server,
-      availableFacilities,
-      facilityId,
-      ability,
-      role,
-      settings,
-    });
+    const loginInfo = await api.login(email, password);
+    handleLoginSuccess(loginInfo);
   } catch (error) {
     dispatch({ type: LOGIN_FAILURE, error: error.message });
   }
 };
 
-export const setFacilityId = facilityId => async dispatch => {
+const handleLoginSuccess = (dispatch, loginInfo) => {
+  const {
+    user,
+    token,
+    localisation,
+    server,
+    availableFacilities,
+    ability,
+    role,
+    settings,
+  } = loginInfo;
+  // if there's just one facility the user has access to, select it immediately
+  // otherwise they will be prompted to select a facility after login
+  const facilityId = availableFacilities.length === 1 ? [0] : null;
+  dispatch(setFacilityId(facilityId));
   dispatch({
-    type: SET_FACILITY_ID,
-    facilityId,
+    type: LOGIN_SUCCESS,
+    user,
+    token,
+    localisation,
+    server,
+    availableFacilities,
+    ability,
+    role,
+    settings,
   });
+};
+
+export const setFacilityId = facilityId => async (dispatch, getState, { api }) => {
+  try {
+    await api.setFacility(facilityId);
+    dispatch({
+      type: SET_FACILITY_ID,
+      facilityId,
+    });
+  } catch (error) {
+    dispatch({ type: LOGIN_FAILURE, error: error.message });
+  }
 };
 
 export const authFailure = () => async dispatch => {
