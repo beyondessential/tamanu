@@ -3,7 +3,6 @@ import * as yup from 'yup';
 import styled from 'styled-components';
 
 import { Typography } from '@material-ui/core';
-import { CAN_ACCESS_ALL_FACILITIES } from '@tamanu/constants';
 import { FormGrid } from '../components/FormGrid';
 import {
   BodyText,
@@ -45,7 +44,7 @@ const CancelButton = styled(FormCancelButton)`
   margin-left: 0 !important;
 `;
 
-const FacilitySelectionFormComponent = ({ options, suggester, errorMessage, onCancel }) => {
+const FacilitySelectionFormComponent = ({ options, errorMessage, onCancel }) => {
   return (
     <FormGrid columns={1}>
       <div>
@@ -59,7 +58,6 @@ const FacilitySelectionFormComponent = ({ options, suggester, errorMessage, onCa
         label={<TranslatedText stringId="auth.facility.label" fallback="Facility" />}
         component={AutocompleteField}
         options={options}
-        suggester={suggester}
         required
       />
       <StyledButtonRow>
@@ -73,25 +71,15 @@ const FacilitySelectionFormComponent = ({ options, suggester, errorMessage, onCa
   );
 };
 
-const useFacilityOptions = facilities => {
-  const suggester = useSuggester('facility');
-  if (facilities === CAN_ACCESS_ALL_FACILITIES) {
-    return { suggester };
-  }
-  const options = facilities.map(facility => ({
-    value: facility.id,
-    label: facility.name,
-  }));
-  return { options };
-};
-
 export const FacilitySelectionForm = React.memo(
   ({ facilities, onSubmit, onCancel, errorMessage }) => {
-    const { options, suggester } = useFacilityOptions(facilities);
+    const options = facilities.map(facility => ({
+      value: facility.id,
+      label: facility.name,
+    }));
     const renderForm = ({ setFieldValue, setFieldError }) => (
       <FacilitySelectionFormComponent
         options={options}
-        suggester={suggester}
         errorMessage={errorMessage}
         setFieldValue={setFieldValue}
         setFieldError={setFieldError}
