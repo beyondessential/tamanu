@@ -80,22 +80,38 @@ export const NEW_RECORD_VACCINE_SCHEME_VALIDATION = BASE_VACCINE_SCHEME_VALIDATI
   }),
 });
 
+const getInitialCategory = (editMove, currentVaccineRecordValues, prefillCreateFormValues) => {
+  if (editMove)
+    return currentVaccineRecordValues?.vaccineName
+      ? VACCINE_CATEGORIES.OTHER
+      : VACCINE_CATEGORIES.ROUTINE;
+  return prefillCreateFormValues?.category;
+};
+
+const getInitialVaccineLabel = (editMode, currentVaccineRecordValues, prefillCreateFormValues) => {
+  return editMode
+    ? currentVaccineRecordValues?.vaccineLabel
+    : prefillCreateFormValues?.vaccineLabel;
+};
+
 export const VaccineForm = ({
   onCancel,
   onSubmit,
   editMode = false,
   currentVaccineRecordValues,
+  prefillCreateFormValues,
   patientId,
   getScheduledVaccines,
   vaccineRecordingType,
 }) => {
   const { getLocalisation } = useLocalisation();
   const { getSetting } = useSettings();
-  const defaultVaccineLabel = currentVaccineRecordValues?.label;
-  const [vaccineLabel, setVaccineLabel] = useState(defaultVaccineLabel);
+  const [vaccineLabel, setVaccineLabel] = useState(
+    getInitialVaccineLabel(editMode, currentVaccineRecordValues, prefillCreateFormValues),
+  );
   const [vaccineOptions, setVaccineOptions] = useState([]);
   const [category, setCategory] = useState(
-    currentVaccineRecordValues?.vaccineName ? VACCINE_CATEGORIES.OTHER : VACCINE_CATEGORIES.ROUTINE,
+    getInitialCategory(editMode, currentVaccineRecordValues, prefillCreateFormValues),
   );
 
   const {
@@ -157,14 +173,13 @@ export const VaccineForm = ({
     : NEW_RECORD_VACCINE_SCHEME_VALIDATION;
 
   const vaccineConsentEnabled = getLocalisation('features.enableVaccineConsent');
-  const scheduledVaccineId = currentVaccineRecordValues?.scheduledvaccineid;
 
   const initialValues = !editMode
     ? {
-        vaccineLabel: vaccineLabel,
         status: vaccineRecordingType,
+        vaccineLabel,
         category,
-        scheduledVaccineId,
+        scheduledVaccineId: prefillCreateFormValues?.scheduledVaccineId,
         date: getCurrentDateTimeString(),
         locationGroupId: !currentEncounter
           ? vaccinationDefaults?.locationGroupId
@@ -234,6 +249,7 @@ const VaccineFormComponent = ({
   initialValues,
   ...props
 }) => {
+  console.log(values, 'values');
   const { setCategory, editMode } = props;
   useEffect(() => {
     // Reset the entire form values when switching between GIVEN and NOT_GIVEN tab
