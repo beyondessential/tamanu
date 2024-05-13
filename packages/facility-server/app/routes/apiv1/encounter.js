@@ -162,6 +162,7 @@ encounterRelations.get(
   }),
 );
 encounterRelations.get('/:id/referral', simpleGetList('Referral', 'encounterId'));
+encounterRelations.get('/:id/triages', simpleGetList('Triage', 'encounterId'));
 encounterRelations.get(
   '/:id/documentMetadata',
   paginatedGetList('DocumentMetadata', 'encounterId'),
