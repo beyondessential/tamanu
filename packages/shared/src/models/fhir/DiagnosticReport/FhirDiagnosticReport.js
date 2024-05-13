@@ -9,6 +9,7 @@ import {
   SUPPORTED_CONTENT_TYPES,
   MAX_ATTACHMENT_SIZE_BYTES,
 } from '@tamanu/constants';
+import { InvalidOperationError } from '@tamanu/shared/errors';
 import { FhirCodeableConcept, FhirReference } from '../../../services/fhirTypes';
 import { FhirResource } from '../Resource';
 import { Invalid } from '../../../utils/fhir';
@@ -67,7 +68,7 @@ export class FhirDiagnosticReport extends FhirResource {
 
   // This is beginning very modestly - can extend to handle full 
   // results soon.
-  async pushUpstream() {
+  async pushUpstream({ requester }) {
     const { FhirServiceRequest, LabRequest } = this.sequelize.models;
     if (!this.basedOn || !Array.isArray(this.basedOn)) {
       throw new Invalid('DiagnosticReport requires basedOn to report results for ServiceRequest', {
@@ -102,8 +103,6 @@ export class FhirDiagnosticReport extends FhirResource {
       throw new Invalid(`No LabRequest with id: '${serviceRequest.upstreamId}', might be ImagingRequest id`);
     }
 
-    labRequest.set({ status: this.getLabRequestStatus() });
-    await labRequest.save();
 
     if (this.presentedForm) {
       await this.saveAttachment(labRequest);

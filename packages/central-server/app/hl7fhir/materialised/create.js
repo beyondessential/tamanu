@@ -30,8 +30,9 @@ export function createHandler(FhirResource) {
     );
 
     const resource = new FhirResource(validated);
-    const upstream = await resource.pushUpstream();
-
+    const upstream = await resource.pushUpstream({
+      requester: req.user?.id,
+    });
     if (FhirResource.CAN_DO.has(FHIR_INTERACTIONS.INTERNAL.MATERIALISE)) {
       FhirJob.submit(JOB_TOPICS.FHIR.REFRESH.FROM_UPSTREAM, {
         resource: FhirResource.fhirName,

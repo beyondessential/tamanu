@@ -156,7 +156,7 @@ export class FhirResource extends Model {
   }
 
   // take a FhirResource and save it into Tamanu
-  async pushUpstream() {
+  async pushUpstream(requestContext) {
     throw new Error('must be overridden');
   }
 
