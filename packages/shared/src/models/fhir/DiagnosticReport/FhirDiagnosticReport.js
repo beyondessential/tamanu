@@ -147,10 +147,11 @@ export class FhirDiagnosticReport extends FhirResource {
       throw new Invalid(`Maximum length of for attachment is ${MAX_ATTACHMENT_SIZE_BYTES / 1024}k characters`);
     }
     const { Attachment, LabRequestAttachment } = this.sequelize.models;
-    const attachment = await Attachment.create({
+    const { data, type } = Attachment.sanitizeForDatabase({
       data: form.data,
       type: form.contentType,
-    });
+    })
+    const attachment = await Attachment.create({ data, type });
     const lastAttachment = await labRequest.getLatestAttachment();
     const labRequestAttachment = await LabRequestAttachment.create({
       attachmentId: attachment.id,
