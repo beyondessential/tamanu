@@ -204,7 +204,7 @@ export async function refreshHandler(req, res) {
   // Run after auth middleware, requires valid token but no other permission
   req.flagPermissionChecked();
 
-  const token = await getToken(user);
+  const token = await buildToken(user);
   res.send({ token });
 }
 
@@ -218,7 +218,7 @@ async function decodeToken(token) {
   }
 }
 
-function getToken(request) {
+function getTokenFromHeaders(request) {
   const { headers } = request;
   const authHeader = headers.authorization || '';
   if (!authHeader) return null;
@@ -243,7 +243,7 @@ async function getUser(models, userId) {
 export const authMiddleware = async (req, res, next) => {
   const { models } = req;
   try {
-    const token = getToken(req);
+    const token = getTokenFromHeaders(req);
     const { userId, facilityId } = await decodeToken(token);
     const user = await getUser(models, userId);
     req.user = user; // eslint-disable-line require-atomic-updates

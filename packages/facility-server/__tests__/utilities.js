@@ -16,7 +16,7 @@ import { chance, asNewRole, showError } from '@tamanu/shared/test-helpers';
 
 import { createApp } from '../dist/createApp';
 import { initReporting } from '../dist/database';
-import { getToken } from '../dist/middleware/auth';
+import { buildToken } from '../dist/middleware/auth';
 
 import { toMatchTabularReport } from './toMatchTabularReport';
 import { allSeeds } from './seed';
@@ -155,7 +155,7 @@ export async function createTestContext({ enableReportInstances } = {}) {
 
   baseApp.asUser = async user => {
     const agent = supertest.agent(expressApp);
-    const token = await getToken(user, '1d');
+    const token = await buildToken(user, null, '1d');
     agent.set('authorization', `Bearer ${token}`);
     agent.user = user;
     return agent;
