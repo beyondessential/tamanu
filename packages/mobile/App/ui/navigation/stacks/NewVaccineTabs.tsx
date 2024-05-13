@@ -63,13 +63,13 @@ const Header = ({ navigation, vaccine, patient }: NewVaccineHeaderProps): ReactE
 };
 
 type NewVaccineTabsRouteProps = RouteProp<
-{
-  NewVaccineTabs: {
-    vaccine: VaccineDataProps;
-    patient: IPatient;
-  };
-},
-'NewVaccineTabs'
+  {
+    NewVaccineTabs: {
+      vaccine: VaccineDataProps;
+      patient: IPatient;
+    };
+  },
+  'NewVaccineTabs'
 >;
 
 interface NewVaccineTabsProps {

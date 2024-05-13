@@ -79,6 +79,7 @@ export class Encounter extends Model {
         include: ['facility', 'locationGroup'],
       },
       'referralSource',
+      'diet',
     ];
   }
 
@@ -190,6 +191,11 @@ export class Encounter extends Model {
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'referralSourceId',
       as: 'referralSource',
+    });
+
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'dietId',
+      as: 'diet',
     });
 
     this.hasMany(models.Note, {

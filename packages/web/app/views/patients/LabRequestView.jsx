@@ -37,6 +37,7 @@ import { LabRequestPrintLabelModal } from '../../components/PatientPrinting/moda
 import { LabRequestSampleDetailsModal } from './components/LabRequestSampleDetailsModal';
 import { Colors } from '../../constants';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
+import { ConditionalTooltip } from '../../components/Tooltip';
 
 const Container = styled.div`
   display: flex;
@@ -57,6 +58,10 @@ const BottomContainer = styled.div`
   overflow: hidden;
   flex-direction: column;
   flex: 1;
+`;
+
+const LabelContainer = styled.div`
+  color: ${p => p.color || Colors.darkestText}
 `;
 
 const FixedTileRow = styled(TileContainer)`
@@ -100,16 +105,14 @@ const MODALS = {
 const Menu = ({ setModal, status, disabled }) => {
   const menuActions = [
     {
-      label: <TranslatedText stringId="labRequest.action.printLabel" fallback="Print label" />,
+      label: <TranslatedText stringId="lab.action.printLabel" fallback="Print label" />,
       action: () => setModal(MODAL_IDS.LABEL_PRINT),
     },
   ];
 
   if (status !== LAB_REQUEST_STATUSES.PUBLISHED) {
     menuActions.push({
-      label: (
-        <TranslatedText stringId="labRequest.action.cancelRequest" fallback="Cancel request" />
-      ),
+      label: <TranslatedText stringId="lab.action.cancelRequest" fallback="Cancel request" />,
       action: () => setModal(MODAL_IDS.CANCEL),
     });
   }
@@ -189,6 +192,11 @@ export const LabRequestView = () => {
           },
         ];
 
+  const handleChangeStatus = () => {
+    if (labRequest.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED) return;
+    handleChangeModalId(MODAL_IDS.CHANGE_STATUS);
+  };
+
   return (
     <Container>
       <TopContainer>
@@ -234,12 +242,26 @@ export const LabRequestView = () => {
             }
             actions={[
               !areLabRequestsReadOnly &&
-                canWriteLabRequestStatus && {
-                  label: (
-                    <TranslatedText stringId="lab.action.changeStatus" fallback="Change status" />
-                  ),
-                  action: () => handleChangeModalId(MODAL_IDS.CHANGE_STATUS),
-                },
+              canWriteLabRequestStatus && {
+                label: (
+                  <ConditionalTooltip
+                    visible={labRequest.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED}
+                    title={<TranslatedText
+                      stringId="lab.tooltip.cannotChangeStatus"
+                      fallback="You cannot change the status of lab request without entering the sample details"
+                    />}
+                  >
+                    <LabelContainer
+                      color={
+                        labRequest.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED && Colors.softText
+                      }
+                    >
+                      <TranslatedText stringId="lab.action.changeStatus" fallback="Change status" />
+                    </LabelContainer>
+                  </ConditionalTooltip>
+                ),
+                action: handleChangeStatus
+              },
               {
                 label: (
                   <TranslatedText stringId="lab.action.viewStatusLog" fallback="View status log" />
@@ -270,9 +292,7 @@ export const LabRequestView = () => {
           />
           <Tile
             Icon={Business}
-            text={
-              <TranslatedText stringId="lab.view.tile.laboratory.label" fallback="Laboratory" />
-            }
+            text={<TranslatedText stringId="lab.laboratory.label" fallback="Laboratory" />}
             main={labRequest.laboratory?.name || '-'}
             isReadOnly={areLabRequestsReadOnly}
             actions={[

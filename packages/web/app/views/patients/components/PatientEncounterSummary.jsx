@@ -3,7 +3,7 @@ import styled, { css } from 'styled-components';
 import { Box, Typography } from '@material-ui/core';
 import { useQuery } from '@tanstack/react-query';
 import { Colors, ENCOUNTER_OPTIONS_BY_VALUE, PATIENT_STATUS } from '../../../constants';
-import { DateDisplay, Button, ButtonWithPermissionCheck, LowerCase } from '../../../components';
+import { DateDisplay, Button, ButtonWithPermissionCheck } from '../../../components';
 import { DeathCertificateModal } from '../../../components/PatientPrinting';
 import { useApi } from '../../../api';
 import { getFullLocationName } from '../../../utils/location';
@@ -254,12 +254,11 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
               fallback="Supervising :clinician"
               replacements={{
                 clinician: (
-                  <LowerCase>
-                    <TranslatedText
-                      stringId="general.localisedField.clinician.label.short"
-                      fallback="Clinician"
-                    />
-                  </LowerCase>
+                  <TranslatedText
+                    stringId="general.localisedField.clinician.label.short"
+                    fallback="Clinician"
+                    lowercase
+                  />
                 ),
               }}
             />
@@ -269,7 +268,7 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
         </ContentItem>
         <ContentItem>
           <ContentLabel>
-            <TranslatedText stringId="patient.encounterSummary.location" fallback="Location" />:
+            <TranslatedText stringId="general.location.label" fallback="Location" />:
           </ContentLabel>
           <ContentText>{getFullLocationName(location)}</ContentText>
         </ContentItem>

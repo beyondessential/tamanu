@@ -22,8 +22,8 @@ const colorFromEncounterType = {
   default: Colors.blue,
 };
 
-function getColorForEncounter({ encounterType }) {
-  return colorFromEncounterType[encounterType || 'default'] || colorFromEncounterType.default;
+function getColorForEncounter({ $encounterType }) {
+  return colorFromEncounterType[$encounterType || 'default'] || colorFromEncounterType.default;
 }
 
 const ComponentDivider = styled(Divider)`
@@ -139,7 +139,7 @@ const Card = ({ patient, handleClick }) => {
       <EncounterTypeIndicator encounterType={patient.encounter_type} />
       <CardComponentContent>
         <ThemedTooltip title={`${patient.firstName || ''} ${patient.lastName || ''}`}>
-          <CardTitle encounterType={patient.encounter_type}>
+          <CardTitle $encounterType={patient.encounter_type}>
             {patient.firstName} {patient.lastName}
           </CardTitle>
         </ThemedTooltip>

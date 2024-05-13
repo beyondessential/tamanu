@@ -19,6 +19,8 @@ import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 import { useSelector } from 'react-redux';
 import { ReduxStoreProps } from '~/ui/interfaces/ReduxStoreProps';
 import { PatientStateProps } from '~/ui/store/ducks/patient';
+import { parseISO } from 'date-fns';
+
 
 export const VaccineFormGiven = ({ navigation }: VaccineFormProps): JSX.Element => {
   const { values } = useFormikContext();
@@ -34,7 +36,7 @@ export const VaccineFormGiven = ({ navigation }: VaccineFormProps): JSX.Element 
     <StyledView paddingTop={10}>
       <DateGivenField
         required={!values.givenElsewhere}
-        min={selectedPatient?.dateOfBirth ? new Date(selectedPatient.dateOfBirth) : undefined}
+        min={selectedPatient?.dateOfBirth ? parseISO(selectedPatient.dateOfBirth) : undefined}
       />
 
       <BatchField />
