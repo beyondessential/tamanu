@@ -205,9 +205,9 @@ export async function refreshHandler(req, res) {
   res.send({ token });
 }
 
-function decodeToken(token) {
+async function decodeToken(token) {
   try {
-    return verify(token, jwtSecretKey);
+    return await verify(token, jwtSecretKey);
   } catch (e) {
     throw new BadAuthenticationError(
       'Your session has expired or is invalid. Please log in again.',
@@ -241,7 +241,7 @@ export const authMiddleware = async (req, res, next) => {
   const { models } = req;
   try {
     const token = getToken(req);
-    const { userId, facilityId } = decodeToken(token);
+    const { userId, facilityId } = await decodeToken(token);
     const user = await getUser(models, userId);
     req.user = user; // eslint-disable-line require-atomic-updates
     req.facilityId = facilityId; // eslint-disable-line require-atomic-updates
