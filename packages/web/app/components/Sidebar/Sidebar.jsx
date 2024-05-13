@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import styled from 'styled-components';
 import { Box, Button, Divider, IconButton, List, Typography } from '@material-ui/core';
@@ -195,7 +195,7 @@ export const Sidebar = React.memo(({ items }) => {
     api.get(`facility/${encodeURIComponent(facilityId)}`),
   );
 
-  const connectionName = useEffect(() => {
+  const connectionName = useMemo(() => {
     if (isFacilityLoading) {
       return '';
     }

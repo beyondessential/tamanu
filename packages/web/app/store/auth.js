@@ -50,7 +50,7 @@ const handleLoginSuccess = (dispatch, loginInfo) => {
   } = loginInfo;
   // if there's just one facility the user has access to, select it immediately
   // otherwise they will be prompted to select a facility after login
-  const facilityId = availableFacilities.length === 1 ? [0] : null;
+  const facilityId = availableFacilities.length === 1 ? availableFacilities[0].id : null;
   dispatch(setFacilityId(facilityId));
   dispatch({
     type: LOGIN_SUCCESS,
