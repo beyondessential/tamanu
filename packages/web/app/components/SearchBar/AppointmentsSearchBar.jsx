@@ -98,7 +98,6 @@ export const AppointmentsSearchBar = ({ onSearch }) => {
         component={DateTimeField}
       />
       <Field
-        keepLetterCase
         label={
           <TranslatedText stringId="general.localisedField.displayId.label.short" fallback="NHN" />
         }
