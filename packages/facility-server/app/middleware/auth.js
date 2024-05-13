@@ -153,7 +153,10 @@ export async function loginHandler(req, res, next) {
 
     // check if user has access to any facilities on this server
     const serverFacilities = selectFacilityIds(config);
-    const availableFacilities = serverFacilities.filter(f => allowedFacilities.includes(f.id));
+    const availableFacilities = models.User.filterAllowedFacilities(
+      allowedFacilities,
+      serverFacilities,
+    );
     if (availableFacilities.length === 0) {
       throw new BadAuthenticationError(
         'User does not have access to any facilities on this server',

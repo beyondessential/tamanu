@@ -235,4 +235,11 @@ export class User extends Model {
 
     return allowed?.includes(id) ?? false;
   }
+
+  static filterAllowedFacilities(allowedFacilities, facilityIds) {
+    if (allowedFacilities === CAN_ACCESS_ALL_FACILITIES) {
+      return facilityIds;
+    }
+    return facilityIds.filter(f => allowedFacilities.includes(f.id));
+  }
 }
