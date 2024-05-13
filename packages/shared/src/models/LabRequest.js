@@ -199,22 +199,6 @@ export class LabRequest extends Model {
     return buildEncounterLinkedSyncFilter([this.tableName, 'encounters']);
   }
 
-  loggedUpdate(update) {
-    return this.sequelize.transaction(async () => {
-      const { status: newStatus, requester, ...otherFields } = update;
-      this.set({ status: newStatus, ...otherFields });
-      await this.save();
-      if (this.status && this.status !== newStatus) {
-        if (!requester) throw new InvalidOperationError('No user found for LabRequest status change.');
-        await this.sequelize.models.LabRequestLog.create({
-          status: newStatus,
-          labRequestId: this.id,
-          updatedById: requester,
-        });
-      }
-    });
-  }
-
   getTests() {
     return this.sequelize.models.LabTest.findAll({
       where: { labRequestId: this.id },
