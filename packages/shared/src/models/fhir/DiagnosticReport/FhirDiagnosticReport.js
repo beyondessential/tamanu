@@ -102,19 +102,9 @@ export class FhirDiagnosticReport extends FhirResource {
     if (!labRequest) {
       throw new Invalid(`No LabRequest with id: '${serviceRequest.upstreamId}', might be ImagingRequest id`);
     }
-    await this.sequelize.transaction(async () => {
-      const newStatus = this.getLabRequestStatus();
-      if (labRequest.status && labRequest.status !== newStatus) {
-        labRequest.set({ status: newStatus });
-        await labRequest.save();
-
-        if (!requester) throw new InvalidOperationError('No user found for LabRequest status change.');
-        await this.sequelize.models.LabRequestLog.create({
-          status: newStatus,
-          labRequestId: labRequest.id,
-          updatedById: requester,
-        });
-      }
+    await labRequest.loggedUpdate({
+      requester,
+      status: this.getLabRequestStatus(),
     });
 
     if (this.presentedForm) {
