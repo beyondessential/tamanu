@@ -46,9 +46,15 @@ export async function up(query) {
 	  where sv.deleted_at is null and sv.visibility_status = 'current'
   ),
   filtered_administered_vaccines as (
-	  select e.patient_id, av.scheduled_vaccine_id, av."date"::date administered_date from administered_vaccines av
+	  select
+      e.patient_id,
+      av.scheduled_vaccine_id,
+      av."date"::date administered_date,
+      row_number() over (partition by e.patient_id, sv.label order by sv.index desc) AS rn
+    from administered_vaccines av
+    join scheduled_vaccines sv on sv.id = av.scheduled_vaccine_id
 	  join encounters e on e.id = av.encounter_id
-	  WHERE av.deleted_at is null and av.status = 'GIVEN'
+	  where av.deleted_at is null and av.status = 'GIVEN'
 	  and e.deleted_at is null and e.encounter_type = 'vaccination'
   ),
   patient_vaccine_fixed_schedule as (
@@ -79,6 +85,7 @@ export async function up(query) {
   join filtered_patients fp on fp.patient_id = fav.patient_id
   join filtered_scheduled_vaccines fsv on fsv.scheduled_vaccine_id  = fav.scheduled_vaccine_id
   join filtered_scheduled_vaccines fsv2 on fsv.vaccine_id = fsv2.vaccine_id and fsv.vaccine_category = fsv2.vaccine_category and fsv2.weeks_from_birth_due is null and fsv2.weeks_from_last_vaccination_due is not null and fsv2.index > fsv.index
+  where rn = 1
   order by fp.patient_id, fsv2.vaccine_category, fsv2.vaccine_id, fsv2.index
   ),
   patient_vaccine_schedule as (
