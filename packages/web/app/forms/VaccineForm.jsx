@@ -80,39 +80,27 @@ export const NEW_RECORD_VACCINE_SCHEME_VALIDATION = BASE_VACCINE_SCHEME_VALIDATI
   }),
 });
 
-const getInitialCategory = (editMove, currentVaccineRecordValues, prefillCreateFormValues) => {
+const getInitialCategory = (editMove, existingValues) => {
   if (editMove)
-    return currentVaccineRecordValues?.vaccineName
-      ? VACCINE_CATEGORIES.OTHER
-      : VACCINE_CATEGORIES.ROUTINE;
-  return prefillCreateFormValues?.category;
-};
-
-const getInitialVaccineLabel = (editMode, currentVaccineRecordValues, prefillCreateFormValues) => {
-  return editMode
-    ? currentVaccineRecordValues?.vaccineLabel
-    : prefillCreateFormValues?.vaccineLabel;
+    return existingValues?.vaccineName ? VACCINE_CATEGORIES.OTHER : VACCINE_CATEGORIES.ROUTINE;
+  return existingValues?.category;
 };
 
 export const VaccineForm = ({
   onCancel,
   onSubmit,
   editMode = false,
-  currentVaccineRecordValues,
-  prefillCreateFormValues,
+  existingValues,
   patientId,
   getScheduledVaccines,
   vaccineRecordingType,
 }) => {
   const { getLocalisation } = useLocalisation();
   const { getSetting } = useSettings();
-  const [vaccineLabel, setVaccineLabel] = useState(
-    getInitialVaccineLabel(editMode, currentVaccineRecordValues, prefillCreateFormValues),
-  );
+
+  const [vaccineLabel, setVaccineLabel] = useState(existingValues?.vaccineLabel);
+  const [category, setCategory] = useState(getInitialCategory(editMode, existingValues));
   const [vaccineOptions, setVaccineOptions] = useState([]);
-  const [category, setCategory] = useState(
-    getInitialCategory(editMode, currentVaccineRecordValues, prefillCreateFormValues),
-  );
 
   const {
     data: patientData,
@@ -179,7 +167,7 @@ export const VaccineForm = ({
         status: vaccineRecordingType,
         vaccineLabel,
         category,
-        scheduledVaccineId: prefillCreateFormValues?.scheduledVaccineId,
+        scheduledVaccineId: existingValues?.scheduledVaccineId,
         date: getCurrentDateTimeString(),
         locationGroupId: !currentEncounter
           ? vaccinationDefaults?.locationGroupId
@@ -196,9 +184,9 @@ export const VaccineForm = ({
         patientData,
       }
     : {
-        ...currentVaccineRecordValues,
-        ...(currentVaccineRecordValues.circumstanceIds
-          ? { circumstanceIds: JSON.stringify(currentVaccineRecordValues.circumstanceIds) }
+        ...existingValues,
+        ...(existingValues.circumstanceIds
+          ? { circumstanceIds: JSON.stringify(existingValues.circumstanceIds) }
           : {}),
         patientData,
       };

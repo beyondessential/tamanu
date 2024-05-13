@@ -72,10 +72,9 @@ export const VaccinesPane = React.memo(({ patient, readonly }) => {
       <VaccineModal
         open={isAdministerModalOpen}
         patientId={patient.id}
-        prefillCreateFormValues={{
-          category: vaccineData?.category,
+        vaccineRecord={{
+          ...vaccineData,
           vaccineLabel: vaccineData?.label,
-          scheduledVaccineId: vaccineData?.scheduledVaccineId,
         }}
         onClose={handleCloseRecordModal}
       />

@@ -11,13 +11,7 @@ import { reloadPatient } from '../store/patient';
 import { getCurrentUser } from '../store/auth';
 import { TranslatedText } from './Translation/TranslatedText';
 
-export const VaccineModal = ({
-  open,
-  onClose,
-  patientId,
-  vaccineRecord,
-  prefillCreateFormValues,
-}) => {
+export const VaccineModal = ({ open, onClose, patientId, vaccineRecord }) => {
   const [currentTabKey, setCurrentTabKey] = useState(VACCINE_RECORDING_TYPES.GIVEN);
 
   const api = useApi();
@@ -71,8 +65,7 @@ export const VaccineModal = ({
           patientId={patientId}
           getScheduledVaccines={getScheduledVaccines}
           vaccineRecordingType={VACCINE_RECORDING_TYPES.GIVEN}
-          prefillCreateFormValues={prefillCreateFormValues}
-          currentVaccineRecordValues={vaccineRecord}
+          existingValues={vaccineRecord}
         />
       ),
     },
@@ -85,9 +78,8 @@ export const VaccineModal = ({
           onCancel={onClose}
           patientId={patientId}
           getScheduledVaccines={getScheduledVaccines}
-          prefillCreateFormValues={prefillCreateFormValues}
           vaccineRecordingType={VACCINE_RECORDING_TYPES.NOT_GIVEN}
-          currentVaccineRecordValues={vaccineRecord}
+          existingValues={vaccineRecord}
         />
       ),
     },
