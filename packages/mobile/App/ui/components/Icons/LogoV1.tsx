@@ -1,7 +1,14 @@
 import React, { memo } from 'react';
 import { SvgXml } from 'react-native-svg';
+import { Branding, useBranding } from '~/ui/hooks/useBranding';
+import { StyledImage } from '~/ui/styled/common';
 
 export const LogoV1Icon = memo(props => {
+  const branding = useBranding();
+  if (branding === Branding.Cambodia)
+    return (
+      <StyledImage width={70} height={70} source={require('../../assets/cambodia-logo.png')} />
+    );
   const xml = `<svg width="76" height="70" viewBox="0 0 76 70" fill="none" xmlns="http://www.w3.org/2000/svg">
   <g clipPath="url(#clip0)">
     <path d="M1.40815 54.2686H4.15492V58.3362H5.78702V60.7232H4.15492V69.3568H1.40815V60.7232H0.00341797V58.3362H1.40815V54.2686Z" fill="#326699" />
