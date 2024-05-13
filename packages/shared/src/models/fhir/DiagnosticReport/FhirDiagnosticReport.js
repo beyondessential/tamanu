@@ -9,7 +9,6 @@ import {
   SUPPORTED_CONTENT_TYPES,
   MAX_ATTACHMENT_SIZE_BYTES,
 } from '@tamanu/constants';
-import { InvalidOperationError } from '@tamanu/shared/errors';
 import { FhirCodeableConcept, FhirReference } from '../../../services/fhirTypes';
 import { FhirResource } from '../Resource';
 import { Invalid } from '../../../utils/fhir';
