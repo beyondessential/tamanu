@@ -1,14 +1,13 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useApi } from '../../api';
 import { AutocompleteField } from './AutocompleteField';
 import { LocalisedField } from './LocalisedField';
 import { useFormikContext } from 'formik';
 import { Suggester } from '../../utils/suggester';
-import { useDidUpdateEffect } from '../../utils';
 
 export const HierarchyFieldItem = ({ isFirstLevel, relationType, parentId, fieldData }) => {
   const api = useApi();
-  const { setFieldValue } = useFormikContext();
+  const { setFieldValue, dirty } = useFormikContext();
 
   const suggester = useMemo(() => {
     return new Suggester(api, fieldData.referenceType, {
@@ -18,8 +17,9 @@ export const HierarchyFieldItem = ({ isFirstLevel, relationType, parentId, field
   }, [api, fieldData.referenceType, isFirstLevel, parentId, relationType]);
 
   // Clear the value of the field when the parent field changes
-  useDidUpdateEffect(() => {
-    // Don't clear the value on first mount
+  useEffect(() => {
+    // Don't clear the value unless the form has been edited
+    if (!dirty) return;
     setFieldValue(fieldData.name, undefined);
   }, [fieldData.name, parentId, setFieldValue]);
 
