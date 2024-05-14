@@ -17,10 +17,6 @@ on:
       server:
         type: string
         required: false
-      buildType:
-        type: string
-        required: false
-        default: release
   workflow_dispatch:
     inputs:
       branding:
@@ -34,13 +30,6 @@ on:
         description: Central server override
         type: string
         required: false
-      buildType:
-        description: Build type
-        type: choice
-        required: false
-        default: debug
-        options:
-          - release
 env:
   APK_NAME: app.apk
 
@@ -97,7 +86,6 @@ jobs:
           echo "BRANDING=${{ inputs.branding }}" > .env
 
       - name: Restore keystore
-        if: ${{ inputs.buildType == 'release' }}
         working-directory: packages/mobile/android/app
         env:
           keystore: ${{ secrets.ANDROID_KEYSTORE }}
@@ -118,7 +106,6 @@ jobs:
           yarn install
 
       - name: Build release
-        if: ${{ inputs.buildType == 'release' }}
         working-directory: packages/mobile/android
         env:
           ANDROID_SIGNING_KEY_ALIAS: ${{ vars.ANDROID_SIGNING_KEY_ALIAS }}
@@ -130,7 +117,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.APK_NAME }}
-          path: packages/mobile/android/app/build/outputs/apk/${{inputs.buildType}}/app-${{inputs.buildType}}.apk
+          path: packages/mobile/android/app/build/outputs/apk/release/app-release.apk
           retention-days: 1
 
       - name: Set S3 destination
@@ -163,7 +150,7 @@ jobs:
           target: ${{ steps.destination.outputs.result }}
         run: |
           aws s3 cp --no-progress \
-            packages/mobile/android/app/build/outputs/apk/${{inputs.buildType}}/app-${{inputs.buildType}}.apk \
+            packages/mobile/android/app/build/outputs/apk/release/app-release.apk \
             s3://bes-tamanu-release-clients/$target/android/${{inputs.branding}}/${{env.APK_NAME}}
 
       - if: steps.destination.outputs.result != 'nowhere' && github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')

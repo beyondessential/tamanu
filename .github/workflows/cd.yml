@@ -331,11 +331,11 @@ jobs:
         include: ${{ fromJson(needs.config.outputs.mobile) }}
     name: Package test Android for ${{ matrix.name }}
     uses: ./.github/workflows/cd-package-android.yml
+    secrets: inherit
     with:
       server: central.${{ matrix.name }}.internal.tamanu.io
       ref: ${{ needs.config.outputs.ref }}
       branding: ${{ fromJson(matrix.options).branding }}
-      buildType: release
 
   # The package-* jobs below are only triggered by tags, so we can assume that
   # github.ref and github.ref_name are set and correct.
@@ -357,8 +357,6 @@ jobs:
     name: Package release Android ${{ github.ref_name }}
     uses: ./.github/workflows/cd-package-android.yml
     secrets: inherit
-    with:
-      buildType: release
 
   release-notes-images:
     needs:
