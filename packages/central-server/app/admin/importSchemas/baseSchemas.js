@@ -213,8 +213,32 @@ export const ScheduledVaccine = Base.shape({
   category: yup.string().required(),
   label: yup.string().required(),
   schedule: yup.string().required(),
-  weeksFromBirthDue: yup.number(),
-  weeksFromLastVaccinationDue: yup.number(),
+  weeksFromBirthDue: yup.number().when(['schedule', 'index'], {
+    is: (schedule, index) => {
+      if (!schedule.startsWith('Dose')) return false;
+      return index > 1;
+    },
+    then: yup
+      .number()
+      .test('is-null', 'Weeks from birth due should not be set for non-first doses', value => {
+        return value === undefined;
+      }),
+    otherwise: yup.number(),
+  }),
+  weeksFromLastVaccinationDue: yup.number().when(['schedule', 'index'], {
+    is: (schedule, index) => {
+      if (!schedule.startsWith('Dose')) return false;
+      return index === 1;
+    },
+    then: yup
+      .number()
+      .test(
+        'is-null',
+        'Weeks from last vaccination due should not be set for first doses',
+        value => value === undefined,
+      ),
+    otherwise: yup.number(),
+  }),
   index: yup.number().required(),
   vaccineId: yup.string().required(),
   visibilityStatus,
