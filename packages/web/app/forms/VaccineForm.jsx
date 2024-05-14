@@ -80,23 +80,27 @@ export const NEW_RECORD_VACCINE_SCHEME_VALIDATION = BASE_VACCINE_SCHEME_VALIDATI
   }),
 });
 
+const getInitialCategory = (editMove, existingValues) => {
+  if (editMove)
+    return existingValues?.vaccineName ? VACCINE_CATEGORIES.OTHER : VACCINE_CATEGORIES.ROUTINE;
+  return existingValues?.category;
+};
+
 export const VaccineForm = ({
   onCancel,
   onSubmit,
   editMode = false,
-  currentVaccineRecordValues,
+  existingValues,
   patientId,
   getScheduledVaccines,
   vaccineRecordingType,
 }) => {
   const { getLocalisation } = useLocalisation();
   const { getSetting } = useSettings();
-  const defaultVaccineLabel = currentVaccineRecordValues?.label;
-  const [vaccineLabel, setVaccineLabel] = useState(defaultVaccineLabel);
+
+  const [vaccineLabel, setVaccineLabel] = useState(existingValues?.vaccineLabel);
+  const [category, setCategory] = useState(getInitialCategory(editMode, existingValues));
   const [vaccineOptions, setVaccineOptions] = useState([]);
-  const [category, setCategory] = useState(
-    currentVaccineRecordValues?.vaccineName ? VACCINE_CATEGORIES.OTHER : VACCINE_CATEGORIES.ROUTINE,
-  );
 
   const {
     data: patientData,
@@ -157,14 +161,13 @@ export const VaccineForm = ({
     : NEW_RECORD_VACCINE_SCHEME_VALIDATION;
 
   const vaccineConsentEnabled = getLocalisation('features.enableVaccineConsent');
-  const scheduledVaccineId = currentVaccineRecordValues?.scheduledvaccineid;
 
   const initialValues = !editMode
     ? {
-        vaccineLabel: vaccineLabel,
         status: vaccineRecordingType,
+        vaccineLabel,
         category,
-        scheduledVaccineId,
+        scheduledVaccineId: existingValues?.scheduledVaccineId,
         date: getCurrentDateTimeString(),
         locationGroupId: !currentEncounter
           ? vaccinationDefaults?.locationGroupId
@@ -181,9 +184,9 @@ export const VaccineForm = ({
         patientData,
       }
     : {
-        ...currentVaccineRecordValues,
-        ...(currentVaccineRecordValues.circumstanceIds
-          ? { circumstanceIds: JSON.stringify(currentVaccineRecordValues.circumstanceIds) }
+        ...existingValues,
+        ...(existingValues.circumstanceIds
+          ? { circumstanceIds: JSON.stringify(existingValues.circumstanceIds) }
           : {}),
         patientData,
       };
@@ -234,6 +237,7 @@ const VaccineFormComponent = ({
   initialValues,
   ...props
 }) => {
+  console.log(values, 'values');
   const { setCategory, editMode } = props;
   useEffect(() => {
     // Reset the entire form values when switching between GIVEN and NOT_GIVEN tab

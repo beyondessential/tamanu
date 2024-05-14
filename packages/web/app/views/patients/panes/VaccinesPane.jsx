@@ -72,7 +72,10 @@ export const VaccinesPane = React.memo(({ patient, readonly }) => {
       <VaccineModal
         open={isAdministerModalOpen}
         patientId={patient.id}
-        vaccineRecord={vaccineData}
+        vaccineRecord={{
+          ...vaccineData,
+          vaccineLabel: vaccineData?.label,
+        }}
         onClose={handleCloseRecordModal}
       />
       <ViewAdministeredVaccineModal
