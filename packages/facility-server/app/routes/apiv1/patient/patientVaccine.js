@@ -44,7 +44,7 @@ patientVaccineRoutes.get(
         sv.id
         , max(sv.category) AS category
         , max(sv.label) AS label
-        , max(sv.schedule) AS schedule
+        , max(sv.dose_label) AS dose_label
         , max(sv.weeks_from_birth_due) AS weeks_from_birth_due
         , max(sv.vaccine_id) AS vaccine_id
         , max(sv.visibility_status) AS visibility_status
@@ -60,7 +60,7 @@ patientVaccineRoutes.get(
             e.patient_id = :patientId) av ON sv.id = av.scheduled_vaccine_id AND av.status = :givenStatus
         ${whereClause}
         GROUP BY sv.id
-        ORDER BY sv.index, max(sv.label), max(sv.schedule);
+        ORDER BY sv.index, max(sv.label), max(sv.dose_label);
       `,
       {
         replacements: {
@@ -86,7 +86,7 @@ patientVaccineRoutes.get(
         // Exclude historical schedules unless administered
         if (vaccineSchedule.visibilityStatus !== VISIBILITY_STATUSES.HISTORICAL || administered) {
           allVaccines[vaccineSchedule.label].schedules.push({
-            schedule: vaccineSchedule.schedule,
+            doseLabel: vaccineSchedule.dose_label,
             scheduledVaccineId: vaccineSchedule.id,
             administered,
           });
@@ -143,7 +143,7 @@ async function getVaccinationDescription(models, vaccineData) {
   const vaccineDetails =
     vaccineData.category === VACCINE_CATEGORIES.OTHER
       ? [vaccineData.vaccineName]
-      : [scheduledVaccine.vaccine?.name, scheduledVaccine.schedule];
+      : [scheduledVaccine.vaccine?.name, scheduledVaccine.doseLabel];
   return [prefixMessage, ...vaccineDetails].filter(Boolean).join(' ');
 }
 

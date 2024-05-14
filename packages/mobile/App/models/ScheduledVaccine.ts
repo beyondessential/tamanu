@@ -17,7 +17,7 @@ export class ScheduledVaccine extends BaseModel implements IScheduledVaccine {
   label?: string;
 
   @Column({ nullable: true })
-  schedule?: string;
+  doseLabel?: string;
 
   @Column({ nullable: true })
   weeksFromBirthDue?: number;

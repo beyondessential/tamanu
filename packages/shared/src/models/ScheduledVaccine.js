@@ -9,7 +9,7 @@ export class ScheduledVaccine extends Model {
         id: primaryKey,
         category: Sequelize.STRING,
         label: Sequelize.STRING,
-        schedule: Sequelize.STRING,
+        doseLabel: Sequelize.STRING,
         weeksFromBirthDue: Sequelize.INTEGER,
         weeksFromLastVaccinationDue: Sequelize.INTEGER,
         index: Sequelize.INTEGER,
