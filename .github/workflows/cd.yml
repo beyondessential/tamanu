@@ -331,11 +331,14 @@ jobs:
         include: ${{ fromJson(needs.config.outputs.mobile) }}
     name: Package test Android for ${{ matrix.name }}
     uses: ./.github/workflows/cd-package-android.yml
-    secrets: inherit
     with:
       server: central.${{ matrix.name }}.internal.tamanu.io
       ref: ${{ needs.config.outputs.ref }}
       branding: ${{ fromJson(matrix.options).branding }}
+    secrets:
+      ANDROID_STORE: ${{ secrets.ANDROID_STORE }}
+      ANDROID_SIGNING_KEY_PASSWORD: ${{ secrets.ANDROID_SIGNING_KEY_PASSWORD }}
+      ANDROID_SIGNING_STORE_PASSWORD: ${{ secrets.ANDROID_SIGNING_STORE_PASSWORD }}
 
   # The package-* jobs below are only triggered by tags, so we can assume that
   # github.ref and github.ref_name are set and correct.
@@ -356,7 +359,10 @@ jobs:
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
     name: Package release Android ${{ github.ref_name }}
     uses: ./.github/workflows/cd-package-android.yml
-    secrets: inherit
+    secrets:
+      ANDROID_STORE: ${{ secrets.ANDROID_STORE }}
+      ANDROID_SIGNING_KEY_PASSWORD: ${{ secrets.ANDROID_SIGNING_KEY_PASSWORD }}
+      ANDROID_SIGNING_STORE_PASSWORD: ${{ secrets.ANDROID_SIGNING_STORE_PASSWORD }}
 
   release-notes-images:
     needs:
