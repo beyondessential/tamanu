@@ -13,30 +13,32 @@ export const defineWebsocketService = async injector => {
   });
   const getServer = () => server;
 
-  const testMode = process.env.NODE_ENV === 'test';
-  if (!testMode) {
-    const connection = await injector.sequelize
-      .authenticate()
-      .then(() => injector.sequelize.connectionManager.getConnection())
-      .catch(e => log.error('Error in sequelize connectionManager', e));
-
-    if (connection) {
-      server.adapter(
-        createAdapter(
-          {
-            query: async (sql, bind) => {
-              const result = await injector.sequelize.query(sql, { bind, type: sql.split(' ')?.[0] });
-              return { rows: result[0] };
-            },
-            connect: async () => connection,
-          },
-          {
-            errorHandler: e => log.error('Error in postgres adapter:', e),
-          },
-        ),
-      );
-    }
+  let connection;
+  try {
+    await injector.sequelize.authenticate();
+    connection = await injector.sequelize.connectionManager.getConnection();
+  } catch (e) {
+    log.error('Error in sequelize connectionManager', e);
   }
+
+  if (connection) {
+    server.adapter(
+      createAdapter(
+        // just a hack because we can't get the pg.Pool instance from sequelize instance directly so we pass the connection object which is the pg.Pool instance
+        {
+          query: async (sql, bind) => {
+            const result = await injector.sequelize.query(sql, { bind, type: sql.split(' ')?.[0] });
+            return { rows: result[0] };
+          },
+          connect: async () => connection,
+        },
+        {
+          errorHandler: e => log.error('Error in postgres adapter:', e),
+        },
+      ),
+    );
+  }
+
   /**
    *
    * @param {string} eventName
@@ -44,10 +46,6 @@ export const defineWebsocketService = async injector => {
    * @returns
    */
   const emit = (eventName, ...args) => server.emit(eventName, ...args);
-
-  server.on('message', (...args) => {
-    console.log('messageeeeeeeee', args)
-  });
 
   const registerEvent = (eventName, handler) => {
     server.on('connection', socket => {
