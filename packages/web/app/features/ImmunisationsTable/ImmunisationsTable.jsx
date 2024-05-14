@@ -2,14 +2,7 @@ import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { TranslatedText, CheckInput, DataFetchingTable, Heading4 } from '../../components';
 import { Colors } from '../../constants';
-import {
-  getSchedule,
-  getVaccineName,
-  getDate,
-  getGiver,
-  getFacility,
-  getActionButtons,
-} from './accessors';
+import { getVaccineName, getDate, getGiver, getFacility, getActionButtons } from './accessors';
 
 const Container = styled.div`
   padding: 0.9rem 1.2rem 0.8rem;
@@ -57,6 +50,8 @@ const TableHeader = ({ includeNotGiven, setIncludeNotGiven }) => {
     </Container>
   );
 };
+
+const getSchedule = ({ scheduledVaccine }) => scheduledVaccine.schedule;
 
 export const ImmunisationsTable = React.memo(
   ({ patient, onItemClick, onItemEditClick, onItemDeleteClick, viewOnly, disablePagination }) => {

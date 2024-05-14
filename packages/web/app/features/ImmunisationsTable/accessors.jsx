@@ -11,10 +11,6 @@ import {
 } from '../../components';
 import { Colors } from '../../constants';
 
-export const getSchedule = record =>
-  record?.scheduledVaccine?.schedule || (
-    <TranslatedText stringId="general.fallback.notApplicable" fallback="N/A" />
-  );
 export const getVaccineName = record =>
   record.vaccineName ||
   record.scheduledVaccine?.label || (

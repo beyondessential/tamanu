@@ -193,6 +193,7 @@ export const VaccineForm = ({
 
   return (
     <Form
+      enableReinitialize
       onSubmit={async data => onSubmit({ ...data, category })}
       showInlineErrorsOnly
       initialValues={initialValues}
@@ -237,7 +238,6 @@ const VaccineFormComponent = ({
   initialValues,
   ...props
 }) => {
-  console.log(values, 'values');
   const { setCategory, editMode } = props;
   useEffect(() => {
     // Reset the entire form values when switching between GIVEN and NOT_GIVEN tab

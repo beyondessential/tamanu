@@ -13,12 +13,16 @@ import {
   getDueDate,
   getStatusTag,
   getVaccineName,
-  getSchedule,
 } from '../../features/ImmunisationsTable/accessors';
 import { usePatientNavigation } from '../../utils/usePatientNavigation.js';
 import { PATIENT_TABS } from '../../constants/patientPaths.js';
 import { reloadPatient } from '../../store/index.js';
 import { useDispatch } from 'react-redux';
+
+const getSchedule = record =>
+  record?.scheduleName || (
+    <TranslatedText stringId="general.fallback.notApplicable" fallback="N/A" />
+  );
 
 const COLUMNS = [
   displayId,
