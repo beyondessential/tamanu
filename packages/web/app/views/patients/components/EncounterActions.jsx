@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Typography } from '@material-ui/core';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import { useLocalisation } from '../../../contexts/Localisation';
 import { DischargeModal } from '../../../components/DischargeModal';
@@ -15,26 +14,14 @@ import { Button } from '../../../components';
 import { DropdownButton } from '../../../components/DropdownButton';
 import { MoveModal } from './MoveModal';
 import { EncounterRecordModal } from '../../../components/PatientPrinting/modals/EncounterRecordModal';
-import { Colors } from '../../../constants';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { ChangeReasonModal } from '../../../components/ChangeReasonModal';
 import { ChangeDietModal } from '../../../components/ChangeDietModal';
 import { isInpatient } from '../../../utils/isInpatient'; 
 
-const TypographyLink = styled(Typography)`
-  color: ${Colors.primary};
-  font-weight: 500;
-  font-size: 14px;
-  line-height: 18px;
-  text-decoration: underline;
-  text-align: right;
-  cursor: pointer;
-  padding-top: 10px;
-  margin-top: auto;
-  transition: 0.5s;
-  &:hover {
-    color: ${Colors.primaryDark};
-  }
+const ActionsContainer = styled.div`
+  display: flex;
+  gap: 10px;
 `;
 
 const ENCOUNTER_MODALS = {
@@ -55,6 +42,16 @@ const ENCOUNTER_MODALS = {
 
   ENCOUNTER_RECORD: 'encounterRecord',
 };
+
+const StyledButton = styled(Button)`
+  white-space: nowrap;
+  max-height: 40px;
+`;
+
+const StyledDropdownButton = styled(DropdownButton)`
+  white-space: nowrap;
+  max-height: 40px;
+`;
 
 const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType }) => {
   const { navigateToSummary } = usePatientNavigation();
@@ -78,21 +75,21 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
 
   if (encounter.endDate) {
     return (
-      <div>
-        <Button variant="outlined" color="primary" onClick={onViewSummary}>
+      <ActionsContainer>
+        <StyledButton size="small" variant="outlined" onClick={onViewEncounterRecord}>
           <TranslatedText
-            stringId="patient.encounter.action.viewDischargeSummary"
-            fallback="View discharge summary"
+            stringId="patient.encounter.action.encounterSummary"
+            fallback="Encounter summary"
           />
-        </Button>
+        </StyledButton>
         <br />
-        <TypographyLink onClick={onViewEncounterRecord}>
+        <StyledButton size="small" color="primary" onClick={onViewSummary}>
           <TranslatedText
-            stringId="patient.encounter.action.viewEncounterRecord"
-            fallback="Encounter record"
+            stringId="patient.encounter.action.dischargeSummary"
+            fallback="Discharge summary"
           />
-        </TypographyLink>
-      </div>
+        </StyledButton>
+      </ActionsContainer>
     );
   }
 
@@ -250,7 +247,7 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
     },
   ].filter(action => !action.condition || action.condition());
 
-  return <DropdownButton actions={actions} />;
+  return <StyledDropdownButton actions={actions} />;
 };
 
 export const EncounterActions = React.memo(({ encounter }) => {

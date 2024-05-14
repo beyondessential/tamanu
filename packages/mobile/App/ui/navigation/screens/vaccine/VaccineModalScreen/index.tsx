@@ -36,7 +36,7 @@ export const VaccineModalScreen = ({
       vaccine,
       patient,
     });
-  }, [vaccine]);
+  }, [navigation, vaccine, patient]);
 
   return (
     <FullView background={theme.colors.WHITE}>

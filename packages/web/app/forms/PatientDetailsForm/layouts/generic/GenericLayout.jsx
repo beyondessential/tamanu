@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { PATIENT_REGISTRY_TYPES } from '@tamanu/constants';
+import { PATIENT_REGISTRY_TYPES, SETTING_KEYS } from '@tamanu/constants';
 import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
 
 import {
@@ -25,7 +25,7 @@ import { useSuggester } from '../../../../api';
 import { PatientFieldsGroup } from '../../PatientFields';
 import { TranslatedText } from '../../../../components/Translation/TranslatedText';
 import { ReminderContactSection } from '../../../../components/ReminderContact/ReminderContactSection';
-import { useSettingsQuery } from '../../../../api/queries/useSettingsQuery';
+import { useSettings } from '../../../../contexts/Settings';
 
 export const GenericPrimaryDetailsLayout = ({
   patientRegistryType,
@@ -34,8 +34,10 @@ export const GenericPrimaryDetailsLayout = ({
   isRequiredPatientData,
   isDetailsForm = false,
 }) => {
+  const { getSetting } = useSettings();
+  const isReminderContactEnabled = getSetting(SETTING_KEYS.FEATURES_REMINDER_CONTACT_ENABLED);
   const villageSuggester = useSuggester('village');
-  const { data: isReminderContactEnabled } = useSettingsQuery('features.reminderContactModule.enabled');
+
   return (
     <>
       <PatientDetailsHeading>
