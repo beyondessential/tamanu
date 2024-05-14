@@ -45,7 +45,7 @@ const RelationField = ({ fieldName, required }): ReactElement => {
   const { type, placeholder } = relationIdFieldsProperties[fieldName];
   const localisedPlaceholder = getString(`fields.${fieldName}.longLabel`, placeholder);
   const suggester = getSuggester(models, type);
-  
+
   return (
     <LocalisedField
       key={fieldName}
@@ -63,7 +63,7 @@ const CustomField = ({ fieldName, required }): ReactElement => {
   const [fieldDefinition, _, loading] = useBackendEffect(({ models }) =>
     models.PatientFieldDefinition.findOne({
       where: { id: fieldName },
-    })
+    }),
   );
 
   if (loading) return <ActivityIndicator />;
@@ -81,8 +81,10 @@ const CustomField = ({ fieldName, required }): ReactElement => {
   );
 };
 
-
-function getComponentForField(fieldName: string, customFieldIds: string[]): React.FC<{ fieldName: string }> {
+function getComponentForField(
+  fieldName: string,
+  customFieldIds: string[],
+): React.FC<{ fieldName: string }> {
   if (plainFields.includes(fieldName)) {
     return PlainField;
   }
@@ -100,20 +102,24 @@ function getComponentForField(fieldName: string, customFieldIds: string[]): Reac
 }
 
 export const PatientAdditionalDataFields = ({ fields, showMandatory = true }): ReactElement => {
-  const { getLocalisation } = useLocalisation(); 
+  const { getLocalisation } = useLocalisation();
+  const isHardCodedLayout = getLocalisation('layouts.patientDetails') !== 'generic';
   const [customFieldDefinitions, _, loading] = useBackendEffect(({ models }) =>
     models.PatientFieldDefinition.getRepository().find({
-      select: ['id']
+      select: ['id'],
     }),
   );
   const customFieldIds = customFieldDefinitions?.map(({ id }) => id);
 
-  const padFields = getConfiguredPatientAdditionalDataFields(fields, showMandatory, getLocalisation);
+  const padFields = isHardCodedLayout
+    ? fields
+    : getConfiguredPatientAdditionalDataFields(fields, showMandatory, getLocalisation);
 
   if (loading) return [];
 
   return padFields.map(fieldName => {
     const Component = getComponentForField(fieldName, customFieldIds);
-    return <Component fieldName={fieldName} key={fieldName} required={showMandatory} />;
+    const isRequired = getLocalisation(`fields.${fieldName}.requiredPatientData`);
+    return <Component fieldName={fieldName} key={fieldName} required={isRequired} />;
   });
 };

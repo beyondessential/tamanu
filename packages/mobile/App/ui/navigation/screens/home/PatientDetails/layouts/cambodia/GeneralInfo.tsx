@@ -44,13 +44,6 @@ export const GeneralInfo = ({ onEdit, patient }: GeneralInfoProps): ReactElement
     ['culturalName', patient.culturalName],
   ];
 
-  const patientAdditionalDataFields = ALL_ADDITIONAL_DATA_FIELDS
-    .filter(fieldName => getBool(`fields.${fieldName}.requiredPatientData`))
-    .map(fieldName => [fieldName, getFieldData(patientAdditionalData, fieldName)]);
-  if (error) {
-    return <ErrorScreen error={error} />;
-  }
-
   return (
     <PatientSection
       title={
@@ -65,7 +58,7 @@ export const GeneralInfo = ({ onEdit, patient }: GeneralInfoProps): ReactElement
         <LoadingScreen />
       ) : (
         <FieldRowDisplay
-          fields={[...fields, ...patientAdditionalDataFields]}
+          fields={[...fields]}
           customFieldDefinitions={customPatientFieldDefinitions}
         />
       )}

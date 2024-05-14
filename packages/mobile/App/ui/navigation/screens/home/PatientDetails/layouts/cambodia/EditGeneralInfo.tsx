@@ -14,7 +14,7 @@ import { DateField } from '~/ui/components/DateField/DateField';
 import { PatientAdditionalDataFields } from '~/ui/components/Forms/PatientAdditionalDataForm/PatientAdditionalDataFields';
 import { ALL_ADDITIONAL_DATA_FIELDS } from '~/ui/helpers/additionalData';
 
-export const Fields = (): ReactElement => {
+export const Fields = ({ isEdit }): ReactElement => {
   const { getBool } = useLocalisation();
   let filteredGenderOptions = GenderOptions;
   if (getBool('features.hideOtherSex') === true) {
@@ -38,7 +38,7 @@ export const Fields = (): ReactElement => {
         component={TextField}
         required={getBool('fields.culturalName.requiredPatientData')}
       />
-      <PatientAdditionalDataFields fields={ALL_ADDITIONAL_DATA_FIELDS} showMandatory />
+      {!isEdit && <PatientAdditionalDataFields fields={ALL_ADDITIONAL_DATA_FIELDS} />}
     </>
   );
 };
@@ -52,9 +52,13 @@ export const EditPatientScreen = ({ route, isEdit = true }): ReactElement => {
   return (
     <FullView background={theme.colors.BACKGROUND_GREY}>
       <StatusBar barStyle="light-content" />
-      <StackHeader title={`${isEdit ? 'Edit' : 'New'} Patient`} subtitle={route?.params?.patientName} onGoBack={onGoBack} />
+      <StackHeader
+        title={`${isEdit ? 'Edit' : 'New'} Patient`}
+        subtitle={route?.params?.patientName}
+        onGoBack={onGoBack}
+      />
       <PatientPersonalInfoForm isEdit={isEdit}>
-        <Fields />
+        <Fields isEdit={isEdit} />
       </PatientPersonalInfoForm>
     </FullView>
   );
