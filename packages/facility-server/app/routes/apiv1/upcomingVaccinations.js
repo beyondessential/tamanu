@@ -1,4 +1,5 @@
 import express from 'express';
+import config from 'config';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
 import { VACCINE_STATUS } from '@tamanu/constants';
@@ -91,6 +92,7 @@ upcomingVaccinations.get(
 
     const results = await req.db.query(
       `
+      SET TIME ZONE '${config.countryTimeZone}';
       ${withRowNumber}
       SELECT
       p.id id,

@@ -123,7 +123,9 @@ patientVaccineRoutes.get(
     AND uv.status <> '${VACCINE_STATUS.MISSED}'`;
 
     const results = await req.db.query(
-      `SELECT
+      `
+      SET TIME ZONE '${config.countryTimeZone}';
+      SELECT
       sv.id "scheduledVaccineId",
       sv.category,
       sv.label,
