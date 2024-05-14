@@ -20,7 +20,7 @@ on:
       buildType:
         type: string
         required: false
-        default: debug
+        default: release
   workflow_dispatch:
     inputs:
       branding:
@@ -41,7 +41,6 @@ on:
         default: debug
         options:
           - release
-          - debug
 env:
   APK_NAME: app.apk
 
@@ -126,11 +125,6 @@ jobs:
           ANDROID_SIGNING_KEY_PASSWORD: ${{ secrets.ANDROID_SIGNING_KEY_PASSWORD }}
           ANDROID_SIGNING_STORE_PASSWORD: ${{ secrets.ANDROID_SIGNING_STORE_PASSWORD }}
         run:  ./gradlew app:assembleRelease
-
-      - name: Build debug
-        if: ${{ inputs.buildType == 'debug' }}
-        working-directory: packages/mobile/android
-        run: ./gradlew app:assembleDebug
 
       - name: Upload final build
         uses: actions/upload-artifact@v4

@@ -335,7 +335,7 @@ jobs:
       server: central.${{ matrix.name }}.internal.tamanu.io
       ref: ${{ needs.config.outputs.ref }}
       branding: ${{ fromJson(matrix.options).branding }}
-      buildType: debug
+      buildType: release
 
   # The package-* jobs below are only triggered by tags, so we can assume that
   # github.ref and github.ref_name are set and correct.
