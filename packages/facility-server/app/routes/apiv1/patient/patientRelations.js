@@ -1,9 +1,8 @@
 import asyncHandler from 'express-async-handler';
-import { QueryTypes, Sequelize, Op } from 'sequelize';
+import { QueryTypes, Sequelize } from 'sequelize';
 
 import { getPatientAdditionalData } from '@tamanu/shared/utils';
 import { HIDDEN_VISIBILITY_STATUSES } from '@tamanu/constants/importable';
-import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { renameObjectKeys } from '@tamanu/shared/utils/renameObjectKeys';
 import {
   permissionCheckingRouter,

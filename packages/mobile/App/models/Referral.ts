@@ -4,7 +4,6 @@ import { GenericFormValues, ICreateSurveyResponse, IReferral } from '~/types';
 import { Encounter } from './Encounter';
 import { SurveyResponse } from './SurveyResponse';
 import { SYNC_DIRECTIONS } from './types';
-import { VisibilityStatus } from '~/visibilityStatuses';
 
 @Entity('referral')
 export class Referral extends BaseModel implements IReferral {
