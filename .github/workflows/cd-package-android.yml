@@ -18,8 +18,6 @@ on:
         type: string
         required: false
     secrets:
-      ANDROID_STORE:
-        required: true
       ANDROID_SIGNING_KEY_PASSWORD:
         required: true
       ANDROID_SIGNING_STORE_PASSWORD:
@@ -117,7 +115,7 @@ jobs:
         with:
           name: ${{ env.APK_NAME }}
           path: packages/mobile/android/app/build/outputs/apk/release/app-release.apk
-          retention-days: 1
+          retention-days: 7
 
       - name: Set S3 destination
         id: destination
