@@ -48,10 +48,13 @@ export const InvoicingPane = React.memo(({ encounter }) => {
   const [editInvoiceModalOpen, setEditInvoiceModalOpen] = useState(false);
   const [potentialLineItemsModalOpen, setPotentialLineItemsModalOpen] = useState(false);
   const [invoicePriceChangeModalOpen, setInvoicePriceChangeModalOpen] = useState(false);
+  const [invoiceLineItems, setInvoiceLineItems] = useState([]);
   const [invoice, setInvoice] = useState(null);
   const [error, setError] = useState(null);
   const { loadEncounter } = useEncounter();
   const api = useApi();
+
+  const updateLineItems = useCallback(({ data }) => setInvoiceLineItems(data), []);
 
   const getInvoice = useCallback(async () => {
     try {
@@ -120,9 +123,9 @@ export const InvoicingPane = React.memo(({ encounter }) => {
             {editInvoiceModalOpen && <EditInvoiceModal
               open={editInvoiceModalOpen}
               onClose={() => setEditInvoiceModalOpen(false)}
-              onSaved={() => {}}
               invoiceId={invoice.id}
               displayId={invoice.displayId}
+              invoiceLineItems={invoiceLineItems}
             />}
             <Button onClick={() => setInvoiceLineModalOpen(true)}>
               <TranslatedText stringId="invoice.action.addItem" fallback="Add item" />
@@ -178,7 +181,11 @@ export const InvoicingPane = React.memo(({ encounter }) => {
           </ActionsPane>
         ) : null}
       </InvoiceTopBar>
-      <InvoiceDetailTable invoice={invoice} />
+      <InvoiceDetailTable 
+        invoice={invoice} 
+        invoiceLineItems={invoiceLineItems}
+        updateLineItems={updateLineItems} 
+      />
     </TabPane>
   );
 });

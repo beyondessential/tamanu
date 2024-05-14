@@ -112,7 +112,7 @@ const PotentialLineItemsPane = styled.div`
 `;
 
 const PaneTitle = styled.div`
-  min-width: 626px;
+  min-width: 530px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -303,22 +303,29 @@ const ItemRow = ({ index, hasBorderBottom, category, onDelete, rowData: defaultR
   </StyledItemRow>
 };
 
-export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId }) => {
-  const [rowList, setRowList] = useState([undefined]);
+export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, invoiceLineItems }) => {
+  const [rowList, setRowList] = useState(invoiceLineItems.length ? invoiceLineItems : [undefined]);
   const [potentialLineItems, setPotentialLineItems] = useState([]);
   const [isEmpty, setIsEmpty] = useState(false);
 
-  const handleAddRow = (rowData = []) => {
+  const handleAddRow = (rowData) => {
     let newRowList = [...rowList];
-    if (!rowData.length) {
-      newRowList.push(undefined);
+    if (Array.isArray(rowData) && rowData.length) {
+      rowData.forEach(newItem => {
+        const idExists = newRowList.some(item => item && item.id === newItem.id);
+        if (!idExists) {
+          newRowList.push(newItem);
+        }
+      });
+      setRowList(newRowList);
+      return;
     }
-    rowData.forEach(newItem => {
-      const idExists = newRowList.some(item => item && item.id === newItem.id);
-      if (!idExists) {
-        newRowList.push(newItem);
-      }
-    });
+    if (!!rowData) {
+      newRowList.push(rowData);
+      setRowList(newRowList);
+      return;
+    }
+    newRowList.push(undefined);
     setRowList(newRowList);
   };
 
@@ -340,7 +347,7 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId }) => {
     { key: 'price', title: 'Price', accessor: ({ price }) => `$${price}` },
     {
       accessor: (row) => (
-        <SingleAddButton variant="outlined" onClick={() => handleAddRow([row])}>
+        <SingleAddButton variant="outlined" onClick={() => handleAddRow(row)}>
           <TranslatedText stringId="general.action.add" fallback="Add" />
         </SingleAddButton>
       ),
@@ -394,7 +401,6 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId }) => {
       onClose={onClose}
       overrideContentPadding
     >
-      {/* TODO: populate existing line items */}
       <Form
         enableReinitialize
         onSubmit={(value) => console.log('value', value)}

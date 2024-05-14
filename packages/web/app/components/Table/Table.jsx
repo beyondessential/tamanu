@@ -201,7 +201,7 @@ const HeaderContainer = React.memo(({ children, numeric }) => (
   <StyledTableCell align={numeric ? 'right' : 'left'}>{children}</StyledTableCell>
 ));
 
-const RowContainer = React.memo(({ children, lazyLoading, rowStyle, onClick, generatingId = true }) => (
+const RowContainer = React.memo(({ children, lazyLoading, rowStyle, onClick }) => (
   <StyledTableRow onClick={onClick} $rowStyle={rowStyle} $lazyLoading={lazyLoading}>
     {children}
   </StyledTableRow>

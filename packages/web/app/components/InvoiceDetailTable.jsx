@@ -334,13 +334,11 @@ const DiscountHeading = styled.h4`
   margin: 1rem;
 `;
 
-export const InvoiceDetailTable = React.memo(({ invoice }) => {
-  const [invoiceLineItems, setInvoiceLineItems] = useState([]);
+export const InvoiceDetailTable = React.memo(({ invoice, invoiceLineItems, updateLineItems }) => {
   const [invoicePriceChangeItems, setInvoicePriceChangeItems] = useState([]);
   const [invoiceLinesTotal, setInvoiceLinesTotal] = useState(0);
   const [invoiceTotal, setInvoiceTotal] = useState(0);
 
-  const updateLineItems = useCallback(({ data }) => setInvoiceLineItems(data), []);
   const updatePriceChangeItems = useCallback(({ data }) => setInvoicePriceChangeItems(data), []);
   useEffect(() => {
     if (invoice.total !== undefined && invoice.total !== null) {
