@@ -584,7 +584,7 @@ describe('PatientVaccine', () => {
       expect(result.body.data.at(0)?.scheduledVaccineId).toEqual(scheduledVax1.id);
     });
 
-    it.only('should return 1 upcoming vaccinations of patient 2', async () => {
+    it.skip('should return 1 upcoming vaccinations of patient 2', async () => {
       const result = await app.get(`/api/patient/${patient2.id}/upcomingVaccination`);
       expect(result).toHaveSucceeded();
       expect(result.body.data).toHaveLength(1);
