@@ -80,8 +80,8 @@ export const NEW_RECORD_VACCINE_SCHEME_VALIDATION = BASE_VACCINE_SCHEME_VALIDATI
   }),
 });
 
-const getInitialCategory = (editMove, existingValues) => {
-  if (editMove)
+const getInitialCategory = (editMode, existingValues) => {
+  if (editMode)
     return existingValues?.vaccineName ? VACCINE_CATEGORIES.OTHER : VACCINE_CATEGORIES.ROUTINE;
   return existingValues?.category;
 };
@@ -238,13 +238,19 @@ const VaccineFormComponent = ({
   initialValues,
   ...props
 }) => {
+  const [prevVaccineRecordingType, setPrevVaccineRecordingType] = useState(vaccineRecordingType);
+
   const { setCategory, editMode } = props;
   useEffect(() => {
     // Reset the entire form values when switching between GIVEN and NOT_GIVEN tab
-    resetForm({ values: initialValues });
-    if (!editMode) {
-      setCategory(VACCINE_CATEGORIES.ROUTINE);
-    } // we strictly only want to reset the form values when vaccineRecordingType is changed
+    if (prevVaccineRecordingType !== vaccineRecordingType) {
+      resetForm({ values: initialValues });
+      if (!editMode) {
+        setCategory(VACCINE_CATEGORIES.ROUTINE);
+      } // we strictly only want to reset the form values when vaccineRecordingType is changed
+    }
+    // Keep track of the previous vaccineRecordingType - this avoids the form being reset on initial load
+    setPrevVaccineRecordingType(vaccineRecordingType);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [vaccineRecordingType]);
 
