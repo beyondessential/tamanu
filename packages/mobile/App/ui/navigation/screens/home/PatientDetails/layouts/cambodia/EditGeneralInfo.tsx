@@ -13,6 +13,7 @@ import { RadioButtonGroup } from '~/ui/components/RadioButtonGroup';
 import { DateField } from '~/ui/components/DateField/DateField';
 import { PatientAdditionalDataFields } from '~/ui/components/Forms/PatientAdditionalDataForm/PatientAdditionalDataFields';
 import { ALL_ADDITIONAL_DATA_FIELDS } from '~/ui/helpers/additionalData';
+import { CAMBODIA_ADDITIONAL_DATA_FIELDS } from './fields';
 
 export const Fields = ({ isEdit }): ReactElement => {
   const { getBool } = useLocalisation();
@@ -38,7 +39,7 @@ export const Fields = ({ isEdit }): ReactElement => {
         component={TextField}
         required={getBool('fields.culturalName.requiredPatientData')}
       />
-      {!isEdit && <PatientAdditionalDataFields fields={ALL_ADDITIONAL_DATA_FIELDS} />}
+      {!isEdit && <PatientAdditionalDataFields fields={Object.values(CAMBODIA_ADDITIONAL_DATA_FIELDS).flat()} />}
     </>
   );
 };
