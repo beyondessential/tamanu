@@ -274,9 +274,6 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
       .leftJoinAndSelect('survey_response.encounter', 'encounter')
       .leftJoinAndSelect('survey_response.survey', 'survey')
       .where('encounter.patientId = :patientId', { patientId })
-      .andWhere('survey.visibilityStatus = :visibilityStatus', {
-        visibilityStatus: VisibilityStatus.Current,
-      })
       .orderBy('survey_response.endTime', 'DESC')
       .take(80);
 
