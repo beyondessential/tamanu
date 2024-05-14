@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { PATIENT_FIELD_DEFINITION_TYPES, PATIENT_REGISTRY_TYPES } from '@tamanu/constants';
+import { PATIENT_FIELD_DEFINITION_TYPES, PATIENT_REGISTRY_TYPES, SETTING_KEYS } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { Colors } from '../../../../constants';
 import { LocalisedField, TextField, DateField, RadioField, FormGrid } from '../../../../components';
@@ -17,16 +17,16 @@ import { GenericBirthFields } from '../generic/patientFields/GenericBirthFields'
 import { PatientField, PatientFieldsGroup } from '../../PatientFields';
 import { TranslatedText } from '../../../../components/Translation/TranslatedText';
 import { ReminderContactSection } from '../../../../components/ReminderContact/ReminderContactSection';
-import { useSettingsQuery } from '../../../../api/queries/useSettingsQuery';
-import { useAuth } from '../../../../contexts/Auth';
+import { useSettings } from '../../../../contexts/Settings';
 
 const FATHERS_FIRST_NAME_DEFINITION_ID = 'fieldDefinition-fathersFirstName';
 
 const CAMBODIA_CORE_FIELD_CATEGORY_ID = 'fieldCategory-cambodiaCorePatientFields';
 
 export const CambodiaPrimaryDetailsLayout = ({ sexOptions, isRequiredPatientData }) => {
-  const { facility } = useAuth();
-  const { data: isReminderContactEnabled } = useSettingsQuery('features.reminderContactModule.enabled', { facilityId: facility?.id});
+  const { getSetting } = useSettings();
+  const isReminderContactEnabled = getSetting(SETTING_KEYS.FEATURES_REMINDER_CONTACT_ENABLED);
+
   return (
     <>
       <PatientDetailsHeading>
