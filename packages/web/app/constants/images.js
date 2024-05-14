@@ -26,3 +26,14 @@ export { default as reportBar } from '../assets/images/report_bar.png';
 export { default as reportPie } from '../assets/images/report_pie.png';
 export { default as reportTable } from '../assets/images/report_table.png';
 export { default as reportRaw } from '../assets/images/report_raw.png';
+
+export { default as arrivalDateIcon } from '../assets/images/encounter/arrival_date.svg';
+export { default as departmentIcon } from '../assets/images/encounter/department.svg';
+export { default as dietIcon } from '../assets/images/encounter/diet.svg';
+export { default as encounterTypeIcon } from '../assets/images/encounter/encounter_type.svg';
+export { default as locationIcon } from '../assets/images/encounter/location.svg';
+export { default as patientTypeIcon } from '../assets/images/encounter/patient_type.svg';
+export { default as reasonForEncounterIcon } from '../assets/images/encounter/reason_for_encounter.svg';
+export { default as referralSourceIcon } from '../assets/images/encounter/referral_source.svg';
+export { default as supervisingClinicianIcon } from '../assets/images/encounter/supervising_clinician.svg';
+export { default as triageScoreIcon } from '../assets/images/encounter/triage_score.svg';
