@@ -53,7 +53,7 @@ export const VaccinesTable = ({
   if (error || administeredError) return <ErrorScreen error={error || administeredError} />;
   if (!scheduledVaccines || !patientAdministeredVaccines) return <LoadingScreen />;
 
-  const cells: { [schedule: string]: VaccineTableCellData[] } = {};
+  const cells: { [doseLabel: string]: VaccineTableCellData[] } = {};
   const nonHistoricalOrAdministeredScheduledVaccines = scheduledVaccines.filter(
     scheduledVaccine => {
       const administeredVaccine = patientAdministeredVaccines.find(v => {
@@ -71,8 +71,8 @@ export const VaccinesTable = ({
           ? administeredVaccine.status
           : VaccineStatus.SCHEDULED;
 
-        cells[scheduledVaccine.schedule] = [
-          ...(cells[scheduledVaccine.schedule] || []),
+        cells[scheduledVaccine.doseLabel] = [
+          ...(cells[scheduledVaccine.doseLabel] || []),
           {
             scheduledVaccine: scheduledVaccine as IScheduledVaccine,
             // TODO: why doesn't ScheduledVaccine fulfill IScheduledVaccine?
@@ -110,8 +110,8 @@ export const VaccinesTable = ({
     ),
   }));
 
-  const uniqueBySchedule = uniqBy(nonHistoricalOrAdministeredScheduledVaccines, 'schedule');
-  const columns = uniqueBySchedule.map(scheduledVaccine => scheduledVaccine.schedule);
+  const uniqueBySchedule = uniqBy(nonHistoricalOrAdministeredScheduledVaccines, 'doseLabel');
+  const columns = uniqueBySchedule.map(scheduledVaccine => scheduledVaccine.doseLabel);
 
   return (
     <ScrollView bounces={false} stickyHeaderIndices={[0]}>
