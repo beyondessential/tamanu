@@ -48,6 +48,7 @@ import { addHealthCenterIdToPatientAdditionalData1712277225000 } from './1712277
 import { addDietIdForEncounter1713722796000 } from './1713722796000-addDietIdForEncounter';
 import { addReferenceDataRelationTable1714605577000 } from './1714605577000-addReferenceDataRelationTable';
 import { renameScheduledVaccineScheduleColumn1715647528000 } from './1715647528000-renameScheduledVaccineScheduleColumn';
+import { addSortColumnToScheduledVaccines1715658297000 } from './1715658297000-addSortColumnToScheduledVaccines';
 
 export const migrationList = [
   databaseSetup1661160427226,
@@ -99,4 +100,5 @@ export const migrationList = [
   addDietIdForEncounter1713722796000,
   addReferenceDataRelationTable1714605577000,
   renameScheduledVaccineScheduleColumn1715647528000,
+  addSortColumnToScheduledVaccines1715658297000,
 ];

@@ -44,4 +44,7 @@ export class ScheduledVaccine extends BaseModel implements IScheduledVaccine {
 
   @Column({ default: VisibilityStatus.Current })
   visibilityStatus: string;
+
+  @Column({ default: 0 })
+  sort: number;
 }

@@ -21,6 +21,10 @@ export class ScheduledVaccine extends Model {
           type: Sequelize.TEXT,
           defaultValue: VISIBILITY_STATUSES.CURRENT,
         },
+        sort: {
+          type: Sequelize.INTEGER,
+          defaultValue: 0,
+        },
       },
       {
         ...options,
