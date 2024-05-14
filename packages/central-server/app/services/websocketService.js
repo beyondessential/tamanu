@@ -13,10 +13,13 @@ export const defineWebsocketService = async injector => {
   });
   const getServer = () => server;
 
+  const testMode = process.env.NODE_ENV === 'test';
+
   let connection;
   try {
-    await injector.sequelize.authenticate();
-    connection = await injector.sequelize.connectionManager.getConnection();
+    if (!testMode) {
+      connection = await injector.sequelize.connectionManager.getConnection();
+    }
   } catch (e) {
     log.error('Error in sequelize connectionManager', e);
   }
@@ -27,12 +30,10 @@ export const defineWebsocketService = async injector => {
         // just a hack because we can't get the pg.Pool instance from sequelize instance directly so we pass the connection object which is the pg.Pool instance
         {
           query: async (sql, bind) => {
-            await injector.sequelize.authenticate();
             const result = await injector.sequelize.query(sql, { bind, type: sql.split(' ')?.[0] });
             return { rows: result[0] };
           },
           connect: async () => {
-            await injector.sequelize.authenticate();
             return connection
           },
         },
