@@ -17,6 +17,13 @@ on:
       server:
         type: string
         required: false
+    secrets:
+      ANDROID_STORE:
+        required: true
+      ANDROID_SIGNING_KEY_PASSWORD:
+        required: true
+      ANDROID_SIGNING_STORE_PASSWORD:
+        required: true
   workflow_dispatch:
     inputs:
       branding:
