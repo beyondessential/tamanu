@@ -1,6 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
-import { PATIENT_FIELD_DEFINITION_TYPES, PATIENT_REGISTRY_TYPES, SETTING_KEYS } from '@tamanu/constants';
+import {
+  PATIENT_FIELD_DEFINITION_TYPES,
+  PATIENT_REGISTRY_TYPES,
+  SETTING_KEYS,
+} from '@tamanu/constants';
 import { Colors } from '../../../../constants';
 import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
 import { LocalisedField, TextField, DateField, RadioField, FormGrid } from '../../../../components';
@@ -30,7 +34,10 @@ export const CambodiaPrimaryDetailsLayout = ({ sexOptions, isRequiredPatientData
   return (
     <>
       <PatientDetailsHeading>
-        <TranslatedText stringId="patient.detail.subheading.general" fallback="General information" />
+        <TranslatedText
+          stringId="patient.detail.subheading.general"
+          fallback="General information"
+        />
         {isReminderContactEnabled ? <ReminderContactSection /> : null}
       </PatientDetailsHeading>
       <FormGrid>
@@ -45,7 +52,10 @@ export const CambodiaPrimaryDetailsLayout = ({ sexOptions, isRequiredPatientData
         <LocalisedField
           name="firstName"
           label={
-            <TranslatedText stringId="general.localisedField.firstName.label" fallback="First name" />
+            <TranslatedText
+              stringId="general.localisedField.firstName.label"
+              fallback="First name"
+            />
           }
           component={TextField}
           required
