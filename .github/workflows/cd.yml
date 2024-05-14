@@ -102,22 +102,13 @@ jobs:
             const filter = ({ options: { pause, imagesonly } }) => !pause && !imagesonly;
             const up = allDeploys.filter(deploy => deploy.enabled && filter(deploy)).map(matrix);
             const down = allDeploys.filter(deploy => !deploy.enabled && filter(deploy)).map(matrix);
-            const mobile = allDeploys.filter(deploy => {
-              if (deploy.options.mobile === 'always') return true;
-              if (deploy.options.mobile === 'never') return false;
-              return deploy.enabled && filter(deploy);
-            }).map(matrix);
-
             console.log('Going UP', up.length);
             console.log('Going DOWN', down.length);
-            console.log('Building MOBILE', mobile.length);
 
             core.setOutput('up', JSON.stringify(up));
             core.setOutput('down', JSON.stringify(down));
-            core.setOutput('mobile', JSON.stringify(mobile));
             core.setOutput('go-up', !!up.length);
             core.setOutput('go-down', !!down.length);
-            core.setOutput('go-mobile', !!mobile.length);
             core.setOutput('images', !!up.length || allDeploys.some(deploy => deploy.options.imagesonly && !deploy.options.pause));
 
       - name: Check the images exist
@@ -141,10 +132,8 @@ jobs:
       sha: ${{ steps.sha.outputs.sha }}
       up: ${{ steps.config.outputs.up }}
       down: ${{ steps.config.outputs.down }}
-      mobile: ${{ steps.config.outputs.mobile }}
       go-up: ${{ steps.config.outputs.go-up == 'true' }}
       go-down: ${{ steps.config.outputs.go-down == 'true' }}
-      go-mobile: ${{ steps.config.outputs.go-mobile == 'true' }}
 
       # we need to build images when:
       # - we want to bring deploys up, AND the images for this commit don't yet exist, or
@@ -322,21 +311,6 @@ jobs:
       TAILSCALE_OAUTH: ${{ secrets.TAILSCALE_DBPROXY_ACCESS_OAUTH }}
       TAMANU_OPS_SSH: ${{ secrets.TAMANU_OPS_SSH }}
 
-  package-android-test:
-    needs: config
-    if: needs.config.outputs.go-mobile == 'true'
-    strategy:
-      fail-fast: false
-      matrix:
-        include: ${{ fromJson(needs.config.outputs.mobile) }}
-    name: Package test Android for ${{ matrix.name }}
-    uses: ./.github/workflows/cd-package-android.yml
-    secrets: inherit
-    with:
-      server: central.${{ matrix.name }}.internal.tamanu.io
-      ref: ${{ needs.config.outputs.ref }}
-      branding: ${{ fromJson(matrix.options).branding }}
-
   # The package-* jobs below are only triggered by tags, so we can assume that
   # github.ref and github.ref_name are set and correct.
 
@@ -351,12 +325,6 @@ jobs:
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
     name: Package Servers ${{ github.ref_name }}
     uses: ./.github/workflows/cd-package-servers.yml
-
-  package-android-release:
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
-    name: Package release Android ${{ github.ref_name }}
-    uses: ./.github/workflows/cd-package-android.yml
-    secrets: inherit
 
   release-notes-images:
     needs:
