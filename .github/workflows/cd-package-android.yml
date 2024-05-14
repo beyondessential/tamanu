@@ -92,15 +92,6 @@ jobs:
         run: |
           echo "BRANDING=${{ inputs.branding }}" > .env
 
-      - name: Restore keystore
-        working-directory: packages/mobile/android/app
-        run: |
-          cat <<< "${{ secrets.ANDROID_KEYSTORE }}" > keystore.b64
-          sha256sum keystore.b64
-          echo -n '${{secrets.ANDROID_SIGNING_KEY_PASSWORD}}' | sha256sum
-          base64 -d < keystore.b64 > release.keystore
-          sha256sum release.keystore
-
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
