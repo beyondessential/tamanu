@@ -87,9 +87,13 @@ jobs:
 
       - name: Restore keystore
         working-directory: packages/mobile/android/app
+        env:
+          keystore: ${{ secrets.ANDROID_KEYSTORE }}
         run: |
-          base64 -d <<< "${{ secrets.ANDROID_KEYSTORE }}" > release.keystore
-
+          cat <<< "$keystore" > keystore.b64
+          sha256sum keystore.b64
+          base64 -d < keystore.b64 > release.keystore
+          sha256sum release.keystore
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
