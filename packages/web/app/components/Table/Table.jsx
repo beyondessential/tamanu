@@ -96,11 +96,12 @@ const StyledTableRow = styled(TableRow)`
 `;
 
 const StyledTableContainer = styled.div`
-  overflow: auto;
+  ${props => !props.isDenseTable ? 'overflow: auto;' : ''}
   border-radius: 5px;
   background: white;
   width: 100%;
   border: 1px solid ${props => (props.$borderColor ? props.$borderColor : Colors.outline)};
+  ${props => props.isDenseTable && 'border: 0px solid white'}
   ${props => (props.$elevated ? PaperStyles : null)};
   ${props => (props.containerStyle ? props.containerStyle : null)}
 `;
@@ -126,21 +127,20 @@ const StyledTableCellContent = styled.div`
 `;
 
 const StyledTableCell = styled(TableCell)`
-  padding: 15px;
   font-size: 14px;
   line-height: 18px;
   background: ${props => props.background};
 
   &.MuiTableCell-body {
-    padding: 20px 15px;
+    padding: ${props => props.isDenseTable ? '4px 30px 4px 0px' : '20px 15px'};
   }
 
   &:first-child {
-    padding-left: 20px;
+    padding-left: ${props => !!props.isDenseTable ? '0px' : '20px'};
   }
 
   &:last-child {
-    padding-right: 20px;
+    padding-right: ${props => !!props.isDenseTable ? '5px' : '20px'};
   }
 `;
 
@@ -174,6 +174,10 @@ const StyledTableHead = styled(TableHead)`
   .MuiTableCell-head {
     background: ${props => (props.$headerColor ? props.$headerColor : Colors.background)};
     ${props => (props.$fixedHeader ? 'top: 0; position: sticky;' : '')}
+    padding: ${props => props.isDenseTable && '8px 30px 8px 0px'};
+    &:last-child {
+      ${props => props.isDenseTable && 'padding-right: 5px;'}
+    }
   }
 `;
 
@@ -197,7 +201,7 @@ const HeaderContainer = React.memo(({ children, numeric }) => (
   <StyledTableCell align={numeric ? 'right' : 'left'}>{children}</StyledTableCell>
 ));
 
-const RowContainer = React.memo(({ children, lazyLoading, rowStyle, onClick }) => (
+const RowContainer = React.memo(({ children, lazyLoading, rowStyle, onClick, generatingId = true }) => (
   <StyledTableRow onClick={onClick} $rowStyle={rowStyle} $lazyLoading={lazyLoading}>
     {children}
   </StyledTableRow>
@@ -205,14 +209,15 @@ const RowContainer = React.memo(({ children, lazyLoading, rowStyle, onClick }) =
 
 const StatusTableCell = styled(StyledTableCell)`
   &.MuiTableCell-body {
-    padding: 60px;
+    padding: ${props => props.isDenseTable ? '10px 0px' : '60px'};
     ${props => (props.$color ? `color: ${props.$color};` : '')}
     border-bottom: none;
+    ${props => props.isDenseTable ? 'text-align: left;' : ''};
   }
 `;
 
 const Row = React.memo(
-  ({ rowIndex, columns, data, onClick, cellOnChange, lazyLoading, rowStyle, refreshTable }) => {
+  ({ rowIndex, columns, data, onClick, cellOnChange, lazyLoading, rowStyle, refreshTable, isDenseTable }) => {
     const cells = columns.map(
       ({ key, accessor, CellComponent, numeric, maxWidth, cellColor, dontCallRowInput }) => {
         const onChange = cellOnChange ? event => cellOnChange(event, key, rowIndex, data) : null;
@@ -226,6 +231,7 @@ const Row = React.memo(
             key={key}
             onClick={dontCallRowInput ? preventInputCallback : undefined}
             background={backgroundColor}
+            isDenseTable={isDenseTable}
             align={numeric ? 'right' : 'left'}
             data-test-class={`table-column-${key}`}
           >
@@ -267,9 +273,9 @@ const DisplayValue = React.memo(({ maxWidth, displayValue }) => {
   );
 });
 
-const StatusRow = React.memo(({ colSpan, children, textColor }) => (
+const StatusRow = React.memo(({ colSpan, children, textColor, isDenseTable }) => (
   <RowContainer>
-    <StatusTableCell $color={textColor} colSpan={colSpan} align="center">
+    <StatusTableCell $color={textColor} colSpan={colSpan} align="center" isDenseTable={isDenseTable}>
       {children}
     </StatusTableCell>
   </RowContainer>
@@ -277,10 +283,10 @@ const StatusRow = React.memo(({ colSpan, children, textColor }) => (
 
 class TableComponent extends React.Component {
   getStatusMessage() {
-    const { isLoading, errorMessage, data, noDataMessage } = this.props;
+    const { isLoading, errorMessage, data, noDataMessage, isEmpty } = this.props;
     if (isLoading) return <TranslatedText stringId="general.table.loading" fallback="Loading..." />;
     if (errorMessage) return errorMessage;
-    if (!data.length) return noDataMessage;
+    if (!data.length || isEmpty) return noDataMessage;
     return null;
   }
 
@@ -364,12 +370,13 @@ class TableComponent extends React.Component {
       rowStyle,
       refreshTable,
       isLoadingMore,
+      isDenseTable,
     } = this.props;
 
     const status = this.getStatusMessage();
     if (status) {
       return (
-        <StatusRow colSpan={columns.length}>
+        <StatusRow isDenseTable={isDenseTable} colSpan={columns.length}>
           {errorMessage ? <ErrorSpan>{status}</ErrorSpan> : status}
         </StatusRow>
       );
@@ -391,6 +398,7 @@ class TableComponent extends React.Component {
               refreshTable={refreshTable}
               rowStyle={rowStyle}
               lazyLoading={lazyLoading}
+              isDenseTable={isDenseTable}
             />
           );
         })}
@@ -463,6 +471,7 @@ class TableComponent extends React.Component {
       tableRef,
       containerStyle,
       isBodyScrollable,
+      isDenseTable,
     } = this.props;
 
     return (
@@ -476,6 +485,7 @@ class TableComponent extends React.Component {
             ? noDataBackgroundColor
             : Colors.outline
         }
+        isDenseTable={isDenseTable}
       >
         {optionRow && <OptionRow>{optionRow}</OptionRow>}
         <StyledTable
@@ -487,6 +497,7 @@ class TableComponent extends React.Component {
               $fixedHeader={fixedHeader}
               $lazyLoading={lazyLoading}
               $isBodyScrollable={isBodyScrollable}
+              isDenseTable={isDenseTable}
             >
               <StyledTableRow $lazyLoading={lazyLoading}>{this.renderHeaders()}</StyledTableRow>
             </StyledTableHead>
@@ -495,6 +506,7 @@ class TableComponent extends React.Component {
             onScroll={lazyLoading ? this.handleScroll : undefined}
             $lazyLoading={!this.getStatusMessage() && lazyLoading}
             ref={tableRef}
+            isDenseTable={isDenseTable}
           >
             {this.renderBodyContent()}
           </StyledTableBody>

@@ -13,6 +13,7 @@ import { ContentPane } from '../../../components/ContentPane';
 import { Colors } from '../../../constants';
 import { TabPane } from '../components';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { EditInvoiceModal } from '../../../components/EditInvoiceModal';
 
 const EmptyPane = styled(ContentPane)`
   text-align: center;
@@ -44,6 +45,7 @@ const InvoiceTopBar = styled.div`
 
 export const InvoicingPane = React.memo(({ encounter }) => {
   const [invoiceLineModalOpen, setInvoiceLineModalOpen] = useState(false);
+  const [editInvoiceModalOpen, setEditInvoiceModalOpen] = useState(false);
   const [potentialLineItemsModalOpen, setPotentialLineItemsModalOpen] = useState(false);
   const [invoicePriceChangeModalOpen, setInvoicePriceChangeModalOpen] = useState(false);
   const [invoice, setInvoice] = useState(null);
@@ -112,6 +114,16 @@ export const InvoicingPane = React.memo(({ encounter }) => {
         </InvoiceHeading>
         {isInvoiceEditable(invoice) ? (
           <ActionsPane>
+            <Button onClick={() => setEditInvoiceModalOpen(true)}>
+              <TranslatedText stringId="invoice.action.editItem" fallback="Edit invoice" />
+            </Button>
+            {editInvoiceModalOpen && <EditInvoiceModal
+              open={editInvoiceModalOpen}
+              onClose={() => setEditInvoiceModalOpen(false)}
+              onSaved={() => {}}
+              invoiceId={invoice.id}
+              displayId={invoice.displayId}
+            />}
             <Button onClick={() => setInvoiceLineModalOpen(true)}>
               <TranslatedText stringId="invoice.action.addItem" fallback="Add item" />
             </Button>
