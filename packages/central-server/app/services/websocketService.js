@@ -27,6 +27,7 @@ export const defineWebsocketService = async injector => {
         // just a hack because we can't get the pg.Pool instance from sequelize instance directly so we pass the connection object which is the pg.Pool instance
         {
           query: async (sql, bind) => {
+            await injector.sequelize.authenticate();
             const result = await injector.sequelize.query(sql, { bind, type: sql.split(' ')?.[0] });
             return { rows: result[0] };
           },
