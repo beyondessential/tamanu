@@ -94,10 +94,8 @@ jobs:
 
       - name: Restore keystore
         working-directory: packages/mobile/android/app
-        env:
-          keystore: ${{ secrets.ANDROID_KEYSTORE }}
         run: |
-          cat <<< "$keystore" > keystore.b64
+          cat <<< "${{ secrets.ANDROID_KEYSTORE }}" > keystore.b64
           sha256sum keystore.b64
           base64 -d < keystore.b64 > release.keystore
           sha256sum release.keystore
