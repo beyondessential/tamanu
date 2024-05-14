@@ -15,7 +15,7 @@ export const DeleteItemModal = React.memo(
     return (
       <Modal
         width="sm"
-        title
+        title={<TranslatedText stringId="invoice.modal.deleteInvoiceItem.title" fallback="Delete item" />}
         open={open}
         onClose={onClose}
       >

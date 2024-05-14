@@ -214,6 +214,11 @@ const ItemRow = ({ index, hasBorderBottom, category, onDelete, rowData: defaultR
   };
 
   const handleActionModal = value => setActionModal(value);
+  
+  const handleDeleteItem = () => {
+    onDelete();
+    handleActionModal('')
+  };
 
   return <StyledItemRow container alignItems='center' spacing={1} hasBorderBottom={hasBorderBottom}>
     <Grid item xs={2}>
@@ -297,14 +302,20 @@ const ItemRow = ({ index, hasBorderBottom, category, onDelete, rowData: defaultR
     <DeleteItemModal
       open={actionModal === ACTION_MODALS.DELETE}
       onClose={() => handleActionModal('')}
-      onDelete={onDelete}
+      onDelete={handleDeleteItem}
       lineItems={rowData}
     />
   </StyledItemRow>
 };
 
 export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, invoiceLineItems }) => {
-  const [rowList, setRowList] = useState(invoiceLineItems.length ? invoiceLineItems : [undefined]);
+  const defaultRowList = invoiceLineItems.length ? invoiceLineItems.map(item => ({
+    invoiceLineTypeId: item.invoiceLineTypeId,
+    date: item.dateGenerated,
+    orderedById: item.orderedById,
+    price: item.invoiceLineType?.price,
+  })) : [undefined];
+  const [rowList, setRowList] = useState(defaultRowList);
   const [potentialLineItems, setPotentialLineItems] = useState([]);
   const [isEmpty, setIsEmpty] = useState(false);
 
@@ -453,6 +464,7 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, invoiceL
                 page={null}
                 elevated={false}
                 isDenseTable
+                autoGeneratingIds
                 isEmpty={isEmpty}
               />
             </PotentialLineItemsPane>

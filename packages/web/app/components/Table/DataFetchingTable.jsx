@@ -33,6 +33,7 @@ export const DataFetchingTable = memo(
     autoRefresh,
     lazyLoading = false,
     overrideLocalisationForStorybook = false,
+    autoGeneratingIds = false,
     ...props
   }) => {
     const [page, setPage] = useState(0);
@@ -220,11 +221,14 @@ export const DataFetchingTable = memo(
             throw new Error('Missing endpoint to fetch data.');
           }
           setErrorMessage('');
-          const { data: defaultData, count } = await fetchData();
-          const data = defaultData.map(item => ({
-            ...item,
-            id: item.id || uuidv4()
-          }));
+          let { data, count } = await fetchData();
+          if (autoGeneratingIds) {
+            data = data.map(item => ({
+              ...item,
+              id: item.id || uuidv4()
+            }));
+          } 
+          
           if (loadingDelay) clearTimeout(loadingDelay); // Clear the loading indicator timeout if data fetched before 1 second passes (stops flash from short loading time)
 
           const transformedData = transformData(data, count); // Transform the data before updating the table rows
