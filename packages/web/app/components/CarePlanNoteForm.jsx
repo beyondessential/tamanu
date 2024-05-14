@@ -89,7 +89,7 @@ export function CarePlanNoteForm({
               component={TextField}
               required
               multiline
-              rows={4}
+              minRows={4}
             />
           </FormGrid>
           <SubmitError>{submitError}</SubmitError>

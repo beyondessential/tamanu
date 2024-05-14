@@ -18,7 +18,7 @@ export function runCalculations(components, values) {
   const inputValues = {};
   // calculation expression use "code"
   for (const c of components) {
-    inputValues[c.dataElement.code] = values[c.dataElement.id];
+    inputValues[c.dataElement.code] = values[c.dataElement.id] || '';
   }
 
   const calculatedValues = {};
