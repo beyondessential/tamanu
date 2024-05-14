@@ -28,12 +28,10 @@ const validationSchema = yup.object().shape({
       />,
     ),
   labSampleSiteId: yup.string(),
-  specimenTypeId: yup
-    .string()
-    .when('mandateSpecimenType', {
-      is: true,
-      then: yup
-        .string()
+  specimenTypeId: yup.string().when('mandateSpecimenType', {
+    is: true,
+    then: schema =>
+      schema
         .required()
         .translatedLabel(
           <TranslatedText
@@ -41,7 +39,7 @@ const validationSchema = yup.object().shape({
             fallback="Specimen type"
           />,
         ),
-    }),
+  }),
 });
 
 const StyledModal = styled(FormModal)`
