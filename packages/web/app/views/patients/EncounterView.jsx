@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
-import { Box, Divider } from '@material-ui/core';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import { useEncounter } from '../../contexts/Encounter';
 import { useLocalisation } from '../../contexts/Localisation';
@@ -160,21 +159,16 @@ export const EncounterView = () => {
             encounter.encounterType,
           ) && <EncounterActions encounter={encounter} />}
       </EncounterTopBar>
-      <ContentPane>
-        <EncounterInfoPane
-          encounter={encounter}
-          getLocalisation={getLocalisation}
-          patientBillingType={patientBillingTypeData?.name}
-        />
-        <Box mt={4} mb={4}>
-          <Divider />
-        </Box>
-        <DiagnosisView
-          encounter={encounter}
-          isTriage={getIsTriage(encounter)}
-          disabled={disabled}
-        />
-      </ContentPane>
+      <EncounterInfoPane
+        encounter={encounter}
+        getLocalisation={getLocalisation}
+        patientBillingType={patientBillingTypeData?.name}
+      />
+      <DiagnosisView
+        encounter={encounter}
+        isTriage={getIsTriage(encounter)}
+        disabled={disabled}
+      />
       <ContentPane>
         <StyledTabDisplay
           tabs={visibleTabs}
