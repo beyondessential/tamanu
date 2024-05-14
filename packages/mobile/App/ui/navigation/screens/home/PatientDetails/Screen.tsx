@@ -39,7 +39,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => 
 
   const [isReminderContactEnabled] = useBackendEffect(
     async ({ models }) => {
-      const isReminderContactEnabled = await models.Setting.get(SETTING_KEYS.FEATURES_REMINDER_CONTACT_ENABLED);
+      const isReminderContactEnabled = await models.Setting.getByKey(SETTING_KEYS.FEATURES_REMINDER_CONTACT_ENABLED);
       return isReminderContactEnabled;
     },
     [],
