@@ -1,4 +1,5 @@
 import { AsyncLocalStorage } from 'async_hooks';
+import config from 'config';
 import { Sequelize } from 'sequelize';
 import pg from 'pg';
 import util from 'util';
@@ -107,6 +108,7 @@ async function connectToDatabase(dbOptions) {
     port,
     logging,
     pool,
+    timezone: config.countryTimeZone,
   });
   setupQuote(sequelize);
   await sequelize.authenticate();
