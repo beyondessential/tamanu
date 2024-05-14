@@ -113,7 +113,7 @@ patientVaccineRoutes.get(
       date: 'due_date',
     };
 
-    const { orderBy = 'dueDate', order = 'DESC', rowsPerPage = 10, page = 0 } = req.query;
+    const { orderBy = 'dueDate', order = 'ASC', rowsPerPage = 10, page = 0 } = req.query;
     let sortKey = sortKeys[orderBy];
     const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
 

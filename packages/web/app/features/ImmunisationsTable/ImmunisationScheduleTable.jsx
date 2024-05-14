@@ -67,7 +67,7 @@ export const ImmunisationScheduleTable = React.memo(({ patient, onItemEdit }) =>
   return (
     <DataFetchingTable
       endpoint={`patient/${patient.id}/upcomingVaccination`}
-      initialSort={{ orderBy: 'date', order: 'desc' }}
+      initialSort={{ orderBy: 'date', order: 'asc' }}
       columns={COLUMNS}
       noDataMessage={
         <TranslatedText stringId="vaccine.table.noDataMessage" fallback="No vaccinations found" />
