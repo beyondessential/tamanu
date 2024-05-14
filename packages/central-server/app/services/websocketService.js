@@ -30,7 +30,10 @@ export const defineWebsocketService = async injector => {
             const result = await injector.sequelize.query(sql, { bind, type: sql.split(' ')?.[0] });
             return { rows: result[0] };
           },
-          connect: async () => connection,
+          connect: async () => {
+            await injector.sequelize.authenticate();
+            return connection
+          },
         },
         {
           errorHandler: e => log.error('Error in postgres adapter:', e),
