@@ -170,7 +170,6 @@ export const LabRequestView = () => {
   const isHidden = HIDDEN_STATUSES.includes(labRequest.status);
   const areLabRequestsReadOnly = !canWriteLabRequest || isHidden;
   const areLabTestsReadOnly = !canWriteLabTest || isHidden || isPublished;
-  // TODO SAV-587: check if we should also use a feature flag
   const hasAttachment = Boolean(labRequest.latestAttachment);
   const canEnterResults = !isPublished && !areLabTestsReadOnly && !hasAttachment;
 
