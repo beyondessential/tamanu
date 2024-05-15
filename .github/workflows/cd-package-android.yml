@@ -81,7 +81,7 @@ jobs:
         run: |
           cat <<EOF > serverOverrides.json
           {
-            "centralServers": [{"label": "Central Server", "value": "${{inputs.server}}" }]
+            "centralServers": [{"label": "Central Server", "value": "https://${{inputs.server}}" }]
           }
           EOF
 
