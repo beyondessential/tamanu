@@ -171,8 +171,7 @@ export const LabRequestView = () => {
   const areLabRequestsReadOnly = !canWriteLabRequest || isHidden;
   const areLabTestsReadOnly = !canWriteLabTest || isHidden || isPublished;
   // TODO SAV-587: check if we should also use a feature flag
-  // TODO SAV-587: remove "|| true" which is just used to showcase
-  const hasAttachment = Boolean(labRequest.latestAttachment) || true;
+  const hasAttachment = Boolean(labRequest.latestAttachment);
   const canEnterResults = !isPublished && !areLabTestsReadOnly && !hasAttachment;
 
   // If the value of status is enteredInError or deleted, it should display to the user as Cancelled
