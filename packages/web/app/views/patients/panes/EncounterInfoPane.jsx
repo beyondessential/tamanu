@@ -3,7 +3,11 @@ import styled from 'styled-components';
 import { DateDisplay } from '../../../components';
 import { ENCOUNTER_OPTIONS_BY_VALUE } from '../../../constants';
 import { getFullLocationName } from '../../../utils/location';
-import { InfoCard, InfoCardHeader, InfoCardItem } from '../../../components/InfoCard';
+import { 
+  EncounterInfoCard as InfoCard,
+  EncounterInfoCardHeader as InfoCardHeader,
+  EncounterInfoCardItem as InfoCardItem
+} from '../../../components/EncounterInfoCard';
 import { getDepartmentName } from '../../../utils/department';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import {
