@@ -72,14 +72,12 @@ export class VitalLog extends Model {
         WHERE encounters.patient_id in (:patientIds)
         AND surveys.is_sensitive = FALSE
         AND ${this.tableName}.updated_at_sync_tick > :since
-        AND encounters.deleted_at is null
       `;
     }
 
     return `
       ${joins}
       WHERE encounters.patient_id in (:patientIds)
-      AND encounters.deleted_at is null
       AND ${this.tableName}.updated_at_sync_tick > :since
     `;
   }
