@@ -259,7 +259,7 @@ export const ContactDetails = ({
               return (
                 <StyledTextButton onClick={() => onRemoveContact(data)}>
                   <TranslatedText
-                    stringId="patient.details.reminderContacts.action.remove'"
+                    stringId="patient.details.reminderContacts.action.remove"
                     fallback="Remove"
                   />
                 </StyledTextButton>
