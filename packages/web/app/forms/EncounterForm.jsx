@@ -22,6 +22,8 @@ import { useSuggester } from '../api';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { isInpatient } from '../utils/isInpatient';
 
+const REASON_FOR_ENCOUNTER_MAX_CHARACTERS = 256;
+
 export const EncounterForm = React.memo(
   ({ editedObject, onSubmit, patientBillingTypeId, encounterType }) => {
     const practitionerSuggester = useSuggester('practitioner');
@@ -196,6 +198,14 @@ export const EncounterForm = React.memo(
                 fallback="Encounter type"
               />,
             ),
+          reasonForEncounter: yup.string().max(
+            REASON_FOR_ENCOUNTER_MAX_CHARACTERS,
+            <TranslatedText
+              stringId="general.localisedField.reasonForEncounter.validation.maxCharacters"
+              fallback="Reason for encounter must not exceed :maxChars characters"
+              replacements={{ maxChars: REASON_FOR_ENCOUNTER_MAX_CHARACTERS }}
+            />
+          )
         })}
       />
     );
