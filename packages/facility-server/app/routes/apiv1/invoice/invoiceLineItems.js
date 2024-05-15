@@ -42,6 +42,35 @@ invoiceLineItemsRoute.post(
   }),
 );
 
+invoiceLineItemsRoute.put(
+  '/:invoiceId/lineItems',
+  asyncHandler(async (req, res) => {
+    const {
+      models,
+      params: { invoiceId },
+    } = req;
+    const { invoiceLineItemsData } = req.body;
+
+    req.checkPermission('write', 'InvoiceLineItem');
+    await models.InvoiceLineItem.update(
+      { status: INVOICE_LINE_ITEM_STATUSES.DELETED },
+      { where: { invoiceId } },
+    );
+
+    req.checkPermission('create', 'InvoiceLineItem');
+    const invoiceLineItem = await models.InvoiceLineItem.bulkCreate(
+      invoiceLineItemsData.map(item => ({
+        invoiceId,
+        invoiceLineTypeId: item.invoiceLineTypeId,
+        dateGenerated: item.date,
+        orderedById: item.orderedById
+      })),
+    );
+
+    res.send(invoiceLineItem);
+  }),
+);
+
 invoiceLineItemsRoute.get('/:invoiceId/lineItems/:id', simpleGet('InvoiceLineItem'));
 invoiceLineItemsRoute.put('/:invoiceId/lineItems/:id', simplePut('InvoiceLineItem'));
 
