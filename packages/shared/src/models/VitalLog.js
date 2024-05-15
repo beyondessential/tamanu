@@ -49,8 +49,8 @@ export class VitalLog extends Model {
     });
   }
 
-  static buildPatientSyncFilter(patientIds, sessionConfig) {
-    if (patientIds.length === 0) {
+  static buildPatientSyncFilter(patientCount, sessionConfig) {
+    if (patientCount === 0) {
       return null;
     }
 
@@ -70,7 +70,7 @@ export class VitalLog extends Model {
         ${joins}
         INNER JOIN surveys ON survey_responses.survey_id = surveys.id
         WHERE
-          encounters.patient_id in (:patientIds)
+          encounters.patient_id in (SELECT patient_id FROM marked_for_sync_patients)
         AND
           surveys.is_sensitive = FALSE
         AND
@@ -81,7 +81,7 @@ export class VitalLog extends Model {
     return `
       ${joins}
       WHERE
-        encounters.patient_id in (:patientIds)
+        encounters.patient_id in (SELECT patient_id FROM marked_for_sync_patients)
       AND
         ${this.tableName}.updated_at_sync_tick > :since
     `;

@@ -62,11 +62,11 @@ export class LabTest extends Model {
     return ['category', 'labTestType', 'labTestMethod'];
   }
 
-  static buildPatientSyncFilter(patientIds, sessionConfig) {
+  static buildPatientSyncFilter(patientCount, sessionConfig) {
     if (sessionConfig.syncAllLabRequests) {
       return ''; // include all lab tests
     }
-    if (patientIds.length === 0) {
+    if (patientCount === 0) {
       return null;
     }
     return buildEncounterLinkedSyncFilter([this.tableName, 'lab_requests', 'encounters']);

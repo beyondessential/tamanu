@@ -184,11 +184,11 @@ export class LabRequest extends Model {
     ];
   }
 
-  static buildPatientSyncFilter(patientIds, sessionConfig) {
+  static buildPatientSyncFilter(patientCount, sessionConfig) {
     if (sessionConfig.syncAllLabRequests) {
       return ''; // include all lab requests
     }
-    if (patientIds.length === 0) {
+    if (patientCount === 0) {
       return null;
     }
     return buildEncounterLinkedSyncFilter([this.tableName, 'encounters']);

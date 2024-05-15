@@ -57,8 +57,8 @@ export class Appointment extends Model {
     });
   }
 
-  static buildPatientSyncFilter(patientIds) {
-    if (patientIds.length === 0) {
+  static buildPatientSyncFilter(patientCount) {
+    if (patientCount === 0) {
       return null;
     }
     return `
@@ -67,7 +67,7 @@ export class Appointment extends Model {
       ON
         appointments.location_group_id = location_groups.id
       WHERE
-        appointments.patient_id IN (:patientIds)
+        appointments.patient_id IN (SELECT patient_id FROM marked_for_sync_patients)
       AND
         location_groups.facility_id = :facilityId
       AND

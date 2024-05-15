@@ -216,14 +216,16 @@ export class Encounter extends Model {
     // this.hasMany(models.Report);
   }
 
-  static buildPatientSyncFilter(patientIds, sessionConfig) {
+  static buildPatientSyncFilter(patientCount, sessionConfig) {
     const { syncAllLabRequests, syncAllEncountersForTheseVaccines } = sessionConfig;
     const joins = [];
     const encountersToIncludeClauses = [];
     const updatedAtSyncTickClauses = ['encounters.updated_at_sync_tick > :since'];
 
-    if (patientIds.length > 0) {
-      encountersToIncludeClauses.push('encounters.patient_id IN (:patientIds)');
+    if (patientCount > 0) {
+      encountersToIncludeClauses.push(
+        'encounters.patient_id IN (SELECT patient_id FROM marked_for_sync_patients)',
+      );
     }
 
     // add any encounters with a lab request, if syncing all labs is turned on for facility server
@@ -236,8 +238,8 @@ export class Encounter extends Model {
           WHERE e.updated_at_sync_tick > :since
           OR lr.updated_at_sync_tick > :since
           ${
-            patientIds.length > 0
-              ? 'AND e.patient_id NOT IN (:patientIds) -- no need to sync if it would be synced anyway'
+            patientCount > 0
+              ? 'AND e.patient_id NOT IN (SELECT patient_id FROM marked_for_sync_patients) -- no need to sync if it would be synced anyway'
               : ''
           }
           GROUP BY e.id
@@ -273,8 +275,8 @@ export class Encounter extends Model {
               av.updated_at_sync_tick > :since
             )
           ${
-            patientIds.length > 0
-              ? 'AND e.patient_id NOT IN (:patientIds) -- no need to sync if it would be synced anyway'
+            patientCount > 0
+              ? 'AND e.patient_id NOT IN (SELECT patient_id FROM marked_for_sync_patients) -- no need to sync if it would be synced anyway'
               : ''
           }
           GROUP BY e.id

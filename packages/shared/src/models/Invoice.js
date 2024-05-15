@@ -37,8 +37,8 @@ export class Invoice extends Model {
     });
   }
 
-  static buildPatientSyncFilter(patientIds) {
-    if (patientIds.length === 0) {
+  static buildPatientSyncFilter(patientCount) {
+    if (patientCount === 0) {
       return null;
     }
     return buildEncounterLinkedSyncFilter([this.tableName, 'encounters']);

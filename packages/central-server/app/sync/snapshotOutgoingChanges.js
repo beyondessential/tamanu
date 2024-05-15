@@ -11,7 +11,8 @@ import { withConfig } from '@tamanu/shared/utils/withConfig';
 const snapshotChangesForModel = async (
   model,
   since,
-  patientIds,
+  patientCount,
+  isRegularSync,
   sessionId,
   facilityId,
   sessionConfig,
@@ -26,7 +27,7 @@ const snapshotChangesForModel = async (
   const CHUNK_SIZE = config.sync.maxRecordsPerPullSnapshotChunk;
   const modelHasPatientSyncFilter = !!model.buildPatientSyncFilter;
   const patientSyncFilter = modelHasPatientSyncFilter
-    ? model.buildPatientSyncFilter(patientIds, sessionConfig)
+    ? model.buildPatientSyncFilter(patientCount, sessionConfig)
     : '';
   if (modelHasPatientSyncFilter && patientSyncFilter === null) {
     // if patient sync filter is null, it indicates no records will be available so no point in going further
@@ -49,7 +50,26 @@ const snapshotChangesForModel = async (
   while (fromId != null) {
     const [[{ maxId, count }]] = await model.sequelize.query(
       `
-      WITH inserted as (
+      WITH
+      
+      ${
+        modelHasPatientSyncFilter
+          ? `
+          marked_for_sync_patients AS (
+            SELECT patient_id
+            FROM patient_facilities
+            WHERE facility_id = :facilityId
+            ${
+              isRegularSync
+                ? 'AND updated_at_sync_tick <= :since'
+                : 'AND updated_at_sync_tick > :since'
+            }
+          ),
+      `
+          : ''
+      }
+     
+      inserted AS (
         INSERT INTO ${snapshotTableName} (
           direction,
           is_deleted,
@@ -104,7 +124,6 @@ const snapshotChangesForModel = async (
           since,
           // include replacement params used in some model specific sync filters outside of this file
           // see e.g. Referral.buildSyncFilter
-          patientIds,
           facilityId,
           limit: CHUNK_SIZE,
           fromId,
@@ -128,7 +147,16 @@ const snapshotChangesForModel = async (
 };
 
 export const snapshotOutgoingChanges = withConfig(
-  async (outgoingModels, since, patientIds, sessionId, facilityId, sessionConfig, config) => {
+  async (
+    outgoingModels,
+    since,
+    patientCount,
+    isRegularSync,
+    sessionId,
+    facilityId,
+    sessionConfig,
+    config,
+  ) => {
     const invalidModelNames = Object.values(outgoingModels)
       .filter(
         m =>
@@ -151,7 +179,8 @@ export const snapshotOutgoingChanges = withConfig(
         const modelChangesCount = await snapshotChangesForModel(
           model,
           since,
-          patientIds,
+          patientCount,
+          isRegularSync,
           sessionId,
           facilityId,
           sessionConfig,
