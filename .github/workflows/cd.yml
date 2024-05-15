@@ -31,7 +31,7 @@ concurrency:
   cancel-in-progress: false
 
 permissions:
-  contents: read # to checkout the repo
+  contents: write # to update the release
   packages: write # to pull and push images
   pull-requests: write # to parse PRs for config and update status
   issues: read # to parse special deploy issues
@@ -335,7 +335,9 @@ jobs:
       server: central.${{ matrix.name }}.internal.tamanu.io
       ref: ${{ needs.config.outputs.ref }}
       branding: ${{ fromJson(matrix.options).branding }}
-      buildType: debug
+    secrets:
+      ANDROID_SIGNING_KEY_PASSWORD: ${{ secrets.ANDROID_SIGNING_KEY_PASSWORD }}
+      ANDROID_SIGNING_STORE_PASSWORD: ${{ secrets.ANDROID_SIGNING_STORE_PASSWORD }}
 
   # The package-* jobs below are only triggered by tags, so we can assume that
   # github.ref and github.ref_name are set and correct.
@@ -356,9 +358,9 @@ jobs:
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
     name: Package release Android ${{ github.ref_name }}
     uses: ./.github/workflows/cd-package-android.yml
-    secrets: inherit
-    with:
-      buildType: release
+    secrets:
+      ANDROID_SIGNING_KEY_PASSWORD: ${{ secrets.ANDROID_SIGNING_KEY_PASSWORD }}
+      ANDROID_SIGNING_STORE_PASSWORD: ${{ secrets.ANDROID_SIGNING_STORE_PASSWORD }}
 
   release-notes-images:
     needs:
