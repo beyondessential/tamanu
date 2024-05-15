@@ -5,7 +5,7 @@ import { MoreVert } from '@material-ui/icons';
 import { Modal } from '../Modal';
 import { TranslatedEnum, TranslatedText } from '../Translation';
 import { AutocompleteField, DateField, Field, Form } from '../Field';
-import { useSuggester } from '../../api';
+import { useApi, useSuggester } from '../../api';
 import { Colors } from '../../constants';
 import { FormSubmitCancelRow } from '../ButtonRow';
 import { DataFetchingTable } from '../Table';
@@ -214,7 +214,7 @@ const ItemRow = ({ index, hasBorderBottom, category, onDelete, rowData: defaultR
   };
 
   const handleActionModal = value => setActionModal(value);
-  
+
   const handleDeleteItem = () => {
     onDelete();
     handleActionModal('')
@@ -223,7 +223,7 @@ const ItemRow = ({ index, hasBorderBottom, category, onDelete, rowData: defaultR
   return <StyledItemRow container alignItems='center' spacing={1} hasBorderBottom={hasBorderBottom}>
     <Grid item xs={2}>
       <Field
-        name={"date-" + index}
+        name={"date_" + index}
         required
         component={DateField}
         saveDateAsString
@@ -232,7 +232,7 @@ const ItemRow = ({ index, hasBorderBottom, category, onDelete, rowData: defaultR
     </Grid>
     <Grid item xs={4}>
       <Field
-        name={"invoiceLineTypeId-" + index}
+        name={"invoiceLineTypeId_" + index}
         required
         component={AutocompleteField}
         suggester={invoiceLineTypeSuggester}
@@ -247,7 +247,7 @@ const ItemRow = ({ index, hasBorderBottom, category, onDelete, rowData: defaultR
     </Grid>
     <Grid item xs={3}>
       <Field
-        name={"orderedById-" + index}
+        name={"orderedById_" + index}
         required
         component={AutocompleteField}
         suggester={practitionerSuggester}
@@ -318,6 +318,7 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, invoiceL
   const [rowList, setRowList] = useState(defaultRowList);
   const [potentialLineItems, setPotentialLineItems] = useState([]);
   const [isEmpty, setIsEmpty] = useState(false);
+  const api = useApi();
 
   const handleAddRow = (rowData) => {
     let newRowList = [...rowList];
@@ -384,11 +385,11 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, invoiceL
 
   const initialValues = rowList.reduce((accumulator, currentValue, currentIndex) => ({
     ...accumulator,
-    ["date-" + currentIndex]: currentValue?.date || "",
-    ["invoiceLineTypeId-" + currentIndex]: currentValue?.invoiceLineTypeId || "",
-    ["price-" + currentIndex]: currentValue?.price || "",
-    ["orderedById-" + currentIndex]: currentValue?.orderedById || "",
-  }));
+    ["date_" + currentIndex]: currentValue?.date || "",
+    ["invoiceLineTypeId_" + currentIndex]: currentValue?.invoiceLineTypeId || "",
+    ["price_" + currentIndex]: currentValue?.price || "",
+    ["orderedById_" + currentIndex]: currentValue?.orderedById || "",
+  }), {});
 
   const onDeleteLineItem = (index) => {
     setRowList(prevRowList => {
@@ -396,6 +397,24 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, invoiceL
       newRowList.splice(index, 1);
       return newRowList;
     });
+  };
+
+  const handleSubmit = async (submitData) => {
+    let invoiceLineItemsData = [];
+    let i = 0;
+    while (i < rowList.length) {
+      let newInvoiceLineItemData = {
+        invoiceLineTypeId: submitData[`invoiceLineTypeId_${i}`],
+        date: submitData[`date_${i}`],
+        orderedById: submitData[`orderedById_${i}`],
+        price: submitData[`price_${i}`]
+      };
+
+      if (!!newInvoiceLineItemData.date) invoiceLineItemsData.push(newInvoiceLineItemData);
+      i++;
+    }
+
+    await api.put(`invoices/${invoiceId}/lineItems`, { invoiceLineItemsData });
   };
 
   return (
@@ -414,7 +433,7 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, invoiceL
     >
       <Form
         enableReinitialize
-        onSubmit={(value) => console.log('value', value)}
+        onSubmit={handleSubmit}
         initialValues={initialValues}
         render={({ submitForm }) => (
           <FormContainer>
