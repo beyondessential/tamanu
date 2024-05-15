@@ -367,11 +367,10 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, invoiceL
   ];
 
   useEffect(() => {
-    setIsEmpty(false);
-    if (potentialLineItems.length === rowList.filter(row => !!row).length) {
-      setIsEmpty(true);
-    }
-  }, [potentialLineItems.length, rowList.length]);
+    const rowListIds = rowList.filter(row => !!row).map(row => row.id);
+    const isEmpty = potentialLineItems.every(item => rowListIds.includes(item.id));
+    setIsEmpty(isEmpty);
+  }, [rowList, potentialLineItems]);
 
   const onDataFetched = useCallback(({ data }) => {
     setPotentialLineItems(data);
@@ -400,10 +399,10 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, invoiceL
   };
 
   const handleSubmit = async (submitData) => {
-    let invoiceLineItemsData = [];
+    const invoiceLineItemsData = [];
     let i = 0;
     while (i < rowList.length) {
-      let newInvoiceLineItemData = {
+      const newInvoiceLineItemData = {
         invoiceLineTypeId: submitData[`invoiceLineTypeId_${i}`],
         date: submitData[`date_${i}`],
         orderedById: submitData[`orderedById_${i}`],
