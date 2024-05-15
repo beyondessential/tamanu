@@ -2,12 +2,11 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Grid, IconButton, Menu } from '@material-ui/core';
 import { MoreVert } from '@material-ui/icons';
+import { INVOICE_LINE_TYPE_LABELS } from '@tamanu/constants';
 import { TranslatedEnum , TranslatedText } from '../Translation';
 import { AutocompleteField, DateField, Field } from '../Field';
 import { useSuggester } from '../../api';
 import { Colors } from '../../constants';
-
-import { INVOICE_LINE_TYPE_LABELS } from '@tamanu/constants';
 import { DeleteItemModal } from './DeleteItemModal';
 
 const PriceText = styled.span`

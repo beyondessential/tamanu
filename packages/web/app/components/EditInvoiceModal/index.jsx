@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Divider } from '@material-ui/core';
+import { INVOICE_LINE_TYPE_LABELS } from '@tamanu/constants';
 import { Modal } from '../Modal';
 import { TranslatedEnum, TranslatedText } from '../Translation';
 import { Form } from '../Field';
@@ -9,9 +10,9 @@ import { Colors } from '../../constants';
 import { FormSubmitCancelRow } from '../ButtonRow';
 import { DataFetchingTable } from '../Table';
 import { DateDisplay } from '../DateDisplay';
-import { INVOICE_LINE_TYPE_LABELS } from '@tamanu/constants';
 import { Button } from '../Button';
 import { ItemHeader, ItemRow } from './ItemRow';
+import { useEncounter } from '../../contexts/Encounter';
 
 const LinkText = styled.div`
   font-weight: 500;
@@ -68,7 +69,7 @@ const StyledDivider = styled(Divider)`
   margin: 26px -40px 32px -40px;
 `;
 
-export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, invoiceLineItems }) => {
+export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, invoiceLineItems, encounterId }) => {
   const defaultRowList = invoiceLineItems.length ? invoiceLineItems.map(item => ({
     invoiceLineTypeId: item.invoiceLineTypeId,
     date: item.dateGenerated,
@@ -79,6 +80,7 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, invoiceL
   const [potentialLineItems, setPotentialLineItems] = useState([]);
   const [isEmpty, setIsEmpty] = useState(false);
   const api = useApi();
+  const { loadEncounter } = useEncounter();
 
   const handleAddRow = (rowData) => {
     const newRowList = [...rowList];
@@ -174,6 +176,7 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, invoiceL
     }
 
     await api.put(`invoices/${invoiceId}/lineItems`, { invoiceLineItemsData });
+    await loadEncounter(encounterId);
   };
 
   return (
