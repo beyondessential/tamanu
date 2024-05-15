@@ -28,7 +28,10 @@ export const FieldRowDisplay = ({
     // Check if it is localised and apply localisation logic
     if (localisedFields.includes(name)) {
       if (getBool(`fields.${name}.hidden`)) return null;
-      return getTranslation(`general.localisedField.${name}`, name);
+      return getTranslation(
+        `general.localisedField.${name}`,
+        getLocalisation(`fields.${name}.longLabel`), // TODO: Temporary until getLocalisation label logic completely replaced
+      );
     }
 
     // Check if this is a custom field and grab the label if so

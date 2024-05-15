@@ -20,6 +20,7 @@ import {
 } from './helpers';
 import { getConfiguredPatientAdditionalDataFields } from '~/ui/helpers/patient';
 import { ActivityIndicator } from 'react-native';
+import { useTranslation } from '~/ui/contexts/TranslationContext';
 
 const PlainField = ({ fieldName, required }): ReactElement => (
   // Outter styled view to momentarily add distance between fields
@@ -40,10 +41,10 @@ const SelectField = ({ fieldName, required }): ReactElement => (
 
 const RelationField = ({ fieldName, required }): ReactElement => {
   const { models } = useBackend();
-  const { getString } = useLocalisation();
+  const { getTranslation } = useTranslation();
   const navigation = useNavigation();
   const { type, placeholder } = relationIdFieldsProperties[fieldName];
-  const localisedPlaceholder = getString(`fields.${fieldName}.longLabel`, placeholder);
+  const localisedPlaceholder = getTranslation(`general.localisedField.${fieldName}`, placeholder);
   const suggester = getSuggester(models, type);
 
   return (

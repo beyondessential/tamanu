@@ -12,7 +12,6 @@ import { GenderOptions, Gender } from '~/ui/helpers/constants';
 import { RadioButtonGroup } from '~/ui/components/RadioButtonGroup';
 import { DateField } from '~/ui/components/DateField/DateField';
 import { PatientAdditionalDataFields } from '~/ui/components/Forms/PatientAdditionalDataForm/PatientAdditionalDataFields';
-import { ALL_ADDITIONAL_DATA_FIELDS } from '~/ui/helpers/additionalData';
 import { CAMBODIA_ADDITIONAL_DATA_FIELDS } from './fields';
 
 export const Fields = ({ isEdit }): ReactElement => {

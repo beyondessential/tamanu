@@ -7,10 +7,7 @@ import { PatientSection } from '../../CustomComponents/PatientSection';
 import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 import { getGender } from '~/ui/helpers/user';
 import { IPatient } from '~/types';
-import { ALL_ADDITIONAL_DATA_FIELDS } from '/helpers/additionalData';
-import { getFieldData } from '~/ui/helpers/patient';
 import { usePatientAdditionalData } from '~/ui/hooks/usePatientAdditionalData';
-import { ErrorScreen } from '../../../../../../components/ErrorScreen';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { TranslatedText } from '/components/Translations/TranslatedText';
 import { mapValues } from 'lodash';
@@ -26,11 +23,9 @@ export const GeneralInfo = ({ onEdit, patient }: GeneralInfoProps): ReactElement
   const isEditable = getBool('features.editPatientDetailsOnMobile');
 
   const {
-    patientAdditionalData,
     customPatientFieldDefinitions,
     customPatientFieldValues,
     loading,
-    error,
   } = usePatientAdditionalData(patient.id);
 
   const customDataById = mapValues(customPatientFieldValues, nestedObject => nestedObject[0].value);
