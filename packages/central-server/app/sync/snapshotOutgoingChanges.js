@@ -61,8 +61,8 @@ const snapshotChangesForModel = async (
             WHERE facility_id = :facilityId
             ${
               isRegularSync
-                ? 'AND updated_at_sync_tick <= :since'
-                : 'AND updated_at_sync_tick > :since'
+                ? 'AND updated_at_sync_tick <= :since' // get all the EXISTING marked for sync patients if it is regular sync
+                : 'AND updated_at_sync_tick > :since' // get all the NEW marked for sync patients if it is FULL sync
             }
           ),
       `
