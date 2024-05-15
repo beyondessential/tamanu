@@ -108,7 +108,7 @@ export class AutocompleteInput extends Component {
   }
 
   updateValue = async (allowFreeTextForExistingValue = false) => {
-    const { value, suggester, customCallback } = this.props;
+    const { value, suggester, onFetchCurrentOption } = this.props;
     if (!suggester || value === undefined) {
       return;
     }
@@ -119,10 +119,10 @@ export class AutocompleteInput extends Component {
     }
 
     if (!allowFreeTextForExistingValue) {
-      const showFullData = !!customCallback;
+      const showFullData = !!onFetchCurrentOption;
       const currentOption = await suggester.fetchCurrentOption(value, showFullData);
-      if (customCallback) {
-        customCallback(currentOption);
+      if (onFetchCurrentOption) {
+        onFetchCurrentOption(currentOption);
       }
       if (currentOption) {
         this.setState({
