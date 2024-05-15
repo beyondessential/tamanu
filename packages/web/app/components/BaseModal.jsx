@@ -138,7 +138,7 @@ export const BaseModal = memo(
       >
         <ModalTitle>
           <VerticalCenteredText>{title}</VerticalCenteredText>
-          <Box>
+          <Box flexShrink={0}>
             {additionalActions}
             {printable && (
               <StyledButton
