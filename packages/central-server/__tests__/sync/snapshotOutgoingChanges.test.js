@@ -446,7 +446,7 @@ describe('snapshotOutgoingChanges', () => {
       );
     });
 
-    it.only('includes encounters for patients marked for sync even if the encounter is older than the sync "since" time', async () => {
+    it('includes encounters for patients marked for sync even if the encounter is older than the sync "since" time', async () => {
       const { Encounter, LabRequest, LabTest } = models;
       const {
         encounter1,
