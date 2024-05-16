@@ -1,7 +1,6 @@
 import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { isEqual } from 'lodash';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
-import { v4 as uuidv4 } from 'uuid';
 import { useApi } from '../../api';
 import { useLocalisation } from '../../contexts/Localisation';
 
@@ -33,7 +32,6 @@ export const DataFetchingTable = memo(
     autoRefresh,
     lazyLoading = false,
     overrideLocalisationForStorybook = false,
-    autoGeneratingIds = false,
     ...props
   }) => {
     const [page, setPage] = useState(0);
@@ -221,13 +219,7 @@ export const DataFetchingTable = memo(
             throw new Error('Missing endpoint to fetch data.');
           }
           setErrorMessage('');
-          let { data, count } = await fetchData();
-          if (autoGeneratingIds) {
-            data = data.map(item => ({
-              ...item,
-              id: item.id || uuidv4()
-            }));
-          } 
+          const { data, count } = await fetchData();
           
           if (loadingDelay) clearTimeout(loadingDelay); // Clear the loading indicator timeout if data fetched before 1 second passes (stops flash from short loading time)
 

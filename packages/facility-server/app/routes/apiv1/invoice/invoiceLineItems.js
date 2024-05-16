@@ -49,9 +49,10 @@ invoiceLineItemsRoute.put(
       models,
       params: { invoiceId },
     } = req;
-    const { invoiceLineItemsData } = req.body;
-
     req.checkPermission('write', 'InvoiceLineItem');
+    req.checkPermission('create', 'InvoiceLineItem');
+
+    const { invoiceLineItemsData } = req.body;
 
     // Fetch existing line items for the given invoiceId
     const existingItems = await models.InvoiceLineItem.findAll({ where: { invoiceId } });
@@ -100,7 +101,6 @@ invoiceLineItemsRoute.put(
       );
     }
 
-    req.checkPermission('create', 'InvoiceLineItem');
     // Create new items
     await models.InvoiceLineItem.bulkCreate(itemsToCreate);
 
@@ -139,8 +139,10 @@ invoiceLineItemsRoute.delete(
 invoiceLineItemsRoute.get(
   '/:invoiceId/potentialLineItems',
   asyncHandler(async (req, res) => {
-    const { models, params, db, getLocalisation } = req;
+    const { models, params, db, getLocalisation, query } = req;
     const { invoiceId } = params;
+    const { order, orderBy } = query;
+
     const invoice = await models.Invoice.findByPk(invoiceId);
     const { encounterId } = invoice;
     const localisation = await getLocalisation();
@@ -152,6 +154,16 @@ invoiceLineItemsRoute.get(
       imagingTypes,
     );
     const data = potentialInvoiceLineItems.map(x => renameObjectKeys(x.forResponse()));
+    if (order && orderBy) {
+      data.sort((a, b) => {
+        if (a[orderBy] < b[orderBy]) {
+          return order === 'asc' ? -1 : 1;
+        }
+        if (a[orderBy] > b[orderBy]) {
+          return order === 'asc' ? 1 : -1;
+        }
+      });
+    }
     res.send({
       count: data.length,
       data,

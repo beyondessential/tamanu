@@ -154,6 +154,7 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
     { key: 'orderedBy', title: 'Ordered by' },
     { key: 'price', title: 'Price', accessor: ({ price }) => `$${price}` },
     {
+      sortable: false,
       accessor: (row) => (
         <SingleAddButton variant="outlined" onClick={() => handleAddRow(row)}>
           <TranslatedText stringId="general.action.add" fallback="Add" />
@@ -300,7 +301,6 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
                 elevated={false}
                 isDenseTable
                 isEmpty={isEmpty}
-                autoGeneratingIds
               />
             </PotentialLineItemsPane>
             <StyledDivider />
