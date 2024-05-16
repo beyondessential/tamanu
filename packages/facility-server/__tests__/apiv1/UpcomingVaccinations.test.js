@@ -130,6 +130,7 @@ describe('Upcoming vaccinations', () => {
     for (const patientData of PATIENTS) {
       await createPatient(models, patientData);
     }
+    await ctx.sequelize.query('REFRESH MATERIALIZED VIEW materialized_upcoming_vaccinations');
   });
 
   afterAll(() => ctx.close());

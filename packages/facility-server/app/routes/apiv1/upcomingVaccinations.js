@@ -1,7 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
-import { VACCINE_STATUS } from '@tamanu/constants';
+import { VACCINE_STATUS, UPCOMING_VACCINATIONS_REFRESHED_AT_KEY } from '@tamanu/constants/vaccines';
 import { makeFilter } from '../../utils/query';
 
 export const upcomingVaccinations = express.Router();
@@ -75,7 +75,7 @@ upcomingVaccinations.get(
       WITH upcoming_vaccinations_with_row_number AS (
         SELECT *,
         ROW_NUMBER() OVER(PARTITION BY patient_id ORDER BY due_date ASC) AS row_number
-        FROM upcoming_vaccinations uv
+        FROM materialized_upcoming_vaccinations uv
         WHERE uv.status <> '${VACCINE_STATUS.MISSED}'
       )
     `;
@@ -131,6 +131,10 @@ upcomingVaccinations.get(
       },
     );
 
-    return res.send({ data: results, count: parseInt(countResult[0].count, 10) });
+    const lastRefreshed = await req.models.LocalSystemFact.get(
+      UPCOMING_VACCINATIONS_REFRESHED_AT_KEY,
+    );
+
+    return res.send({ data: results, count: parseInt(countResult[0].count, 10), lastRefreshed });
   }),
 );
