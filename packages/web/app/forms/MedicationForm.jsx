@@ -26,7 +26,7 @@ import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useLocalisation } from '../contexts/Localisation';
 import { useTranslation } from '../contexts/Translation';
 import { useSelector } from 'react-redux';
-import { differenceInYears } from 'date-fns';
+import { getAgeDurationFromDate } from '../../../shared/src/utils/date';
 
 const drugRouteOptions = [
   { label: 'Dermal', value: 'dermal' },
@@ -137,7 +137,7 @@ export const MedicationForm = React.memo(
     const weightUnit = getLocalisation('fields.weightUnit.longLabel');
 
     const patient = useSelector(state => state.patient);
-    const age = differenceInYears(new Date(), new Date(patient.dateOfBirth));
+    const age = getAgeDurationFromDate(patient.dateOfBirth).years;
     const showPatientWeight = age < MAX_AGE_TO_RECORD_WEIGHT;
 
     const shouldShowDiscontinuationButton = readOnly && !medication?.discontinued;
