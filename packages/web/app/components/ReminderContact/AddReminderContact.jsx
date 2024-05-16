@@ -113,7 +113,7 @@ export const AddReminderContact = ({ onContinue, onClose, onBack }) => {
             <FormSubHeading
               dangerouslySetInnerHTML={{
                 __html: getTranslation(
-                  'patient.details.reminderContacts.description',
+                  'patient.details.addReminderContact.description',
                   'By providing their details, the individual consents to receiving automated reminder messages for :patientName.',
                   { patientName: `<span>${patientName}</span>` },
                 ),

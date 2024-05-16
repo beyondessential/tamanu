@@ -36,5 +36,7 @@ export const globalDefaults = {
         status: VACCINE_STATUS.MISSED,
       },
     ],
+  features: {
+    mandateSpecimenType: false,
   },
 };
