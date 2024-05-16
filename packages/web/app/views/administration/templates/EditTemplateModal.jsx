@@ -10,7 +10,7 @@ export const EditTemplateModal = ({
   onDelete,
   allowInputTitleType,
 }) => (
-  <FormModal title="Patient Letter" open={open} onClose={onClose}>
+  <FormModal title="Template" open={open} onClose={onClose}>
     <EditTemplateForm
       onSubmit={onSubmit}
       editedObject={template}
