@@ -43,6 +43,7 @@ const KebabMenuItem = styled.div`
   cursor: pointer;
   border-radius: 4px;
   padding-bottom: 8px;
+  ${props => props.$color ? `color: ${props.$color};` : ''}
   :hover {
     background: rgba(255, 255, 255, 0.15);
   }
@@ -159,7 +160,10 @@ export const ItemRow = ({
     }))
   };
 
-  const handleActionModal = value => setActionModal(value);
+  const handleActionModal = value => {
+    handleCloseKebabMenu();
+    setActionModal(value);
+  };
 
   const handleDeleteItem = () => {
     onDelete();
@@ -256,7 +260,10 @@ export const ItemRow = ({
             fallback="Add markup"
           />
         </KebabMenuItem>
-        <KebabMenuItem onClick={() => !isDeleteDisabled && handleActionModal(ACTION_MODALS.DELETE)}>
+        <KebabMenuItem 
+          $color={isDeleteDisabled && Colors.softText}
+          onClick={() => !isDeleteDisabled && handleActionModal(ACTION_MODALS.DELETE)}
+        >
           <TranslatedText
             stringId="invoice.modal.editInvoice.delete"
             fallback="Delete"
