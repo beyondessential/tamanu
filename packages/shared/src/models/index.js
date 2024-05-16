@@ -12,6 +12,7 @@ export * from './PatientAdditionalData';
 export * from './PatientVRSData';
 export * from './PatientSecondaryId';
 export * from './PatientFacility';
+export * from './PatientContact';
 
 export * from './PatientFieldDefinitionCategory';
 export * from './PatientFieldDefinition';
@@ -29,6 +30,7 @@ export * from './Discharge';
 export * from './Triage';
 
 export * from './ReferenceData';
+export * from './ReferenceDataRelation';
 
 export * from './VitalLog';
 export * from './Vitals';
@@ -36,6 +38,7 @@ export * from './Procedure';
 export * from './EncounterDiagnosis';
 export * from './EncounterMedication';
 export * from './LabRequest';
+export * from './LabRequestAttachment';
 export * from './LabTest';
 export * from './LabRequestLog';
 export * from './LabTestType';

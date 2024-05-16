@@ -1,4 +1,4 @@
-import { Column, Entity, Index, OneToMany, getManager } from 'typeorm/browser';
+import { Column, Entity, Index, OneToMany } from 'typeorm/browser';
 import { getUniqueId } from 'react-native-device-info';
 import { addHours, parseISO, startOfDay, subYears } from 'date-fns';
 import { groupBy } from 'lodash';
@@ -15,6 +15,7 @@ import { PatientFacility } from './PatientFacility';
 import { NullableReferenceDataRelation, ReferenceData } from './ReferenceData';
 import { SYNC_DIRECTIONS } from './types';
 import { DateStringColumn } from './DateColumns';
+import { PatientContact } from './PatientContact';
 
 const TIME_OFFSET = 3;
 
@@ -78,6 +79,12 @@ export class Patient extends BaseModel implements IPatient {
     secondaryId => secondaryId.patient,
   )
   secondaryIds: PatientSecondaryId[];
+
+  @OneToMany(
+    () => PatientContact,
+    contact => contact.patient,
+  )
+  contacts: PatientContact[];
 
   static async markForSync(patientId: string): Promise<void> {
     const facilityId = await readConfig('facilityId', '');

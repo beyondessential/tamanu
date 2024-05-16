@@ -1,3 +1,4 @@
+export * from './useHierarchyTypesQuery';
 export * from './useVitalsSurveyQuery';
 export * from './useReferenceData';
 export * from './usePatientAdditionalDataQuery';
@@ -9,3 +10,4 @@ export * from './usePatientConditions';
 export * from './usePatientProgramRegistration';
 export * from './useTranslations';
 export * from './useTranslationLanguages';
+export * from './useTelegramBotInfoQuery';

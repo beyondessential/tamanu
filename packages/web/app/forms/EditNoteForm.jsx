@@ -9,7 +9,7 @@ import {
   StyledDivider,
   WrittenByText,
 } from '../components/NoteCommonFields';
-import { TranslatedText } from '../components/Translation/TranslatedText';
+import { TranslatedText, TranslatedEnum } from '../components/Translation';
 
 export const EditNoteForm = ({ note, onNoteContentChange, onSubmit, onCancel }) => {
   const noteAuthorName = note.revisedBy
@@ -26,7 +26,13 @@ export const EditNoteForm = ({ note, onNoteContentChange, onSubmit, onCancel }) 
     <>
       <NoteInfoSection
         numberOfColumns={3}
-        noteType={NOTE_TYPE_LABELS[note.noteType]}
+        noteType={
+          <TranslatedEnum
+            prefix="note.property.type"
+            value={note.noteType}
+            enumValues={NOTE_TYPE_LABELS}
+          />
+        }
         date={note.revisedBy ? note.revisedBy.date : note.date}
         writtenByLabel={<TranslatedText
           stringId="note.writtenBy.label"

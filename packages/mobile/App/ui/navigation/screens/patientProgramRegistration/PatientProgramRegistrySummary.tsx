@@ -1,6 +1,9 @@
 import React, { ReactElement } from 'react';
 import { compose } from 'redux';
-import { StyledView, RowView } from '/styled/common';
+import styled from 'styled-components/native';
+import { subject } from '@casl/ability';
+
+import { StyledView } from '/styled/common';
 import { SectionHeader } from '/components/SectionHeader';
 import { theme } from '/styled/theme';
 import { Button } from '~/ui/components/Button';
@@ -13,6 +16,17 @@ import { useBackendEffect } from '~/ui/hooks/index';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { useAuth } from '~/ui/contexts/AuthContext';
+
+const Row = styled.View`
+  flex-direction: row;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+  background-color: white;
+  padding-vertical: 20px;
+  padding-horizontal: 15px;
+  justify-content: space-between;
+  align-items: center;
+`;
 
 const PatientProgramRegistrySummary_ = ({ selectedPatient }): ReactElement => {
   const navigation = useNavigation();
@@ -30,27 +44,28 @@ const PatientProgramRegistrySummary_ = ({ selectedPatient }): ReactElement => {
   if (isProgramRegistryLoading) return <LoadingScreen />;
   if (programRegistryError) return <ErrorScreen error={programRegistryError} />;
 
+  const accessibleRegistries = programRegistries.filter(registry =>
+    ability.can('read', subject('ProgramRegistry', { id: registry.id })),
+  );
+
   return (
     <StyledView margin={20} borderRadius={5}>
-      <RowView
-        justifyContent="space-between"
-        alignItems="center"
-        background={theme.colors.WHITE}
-        padding={20}
-      >
+      <Row>
         <SectionHeader h1 fontSize={14} fontWeight={500} color={theme.colors.TEXT_SUPER_DARK}>
           Program registry
         </SectionHeader>
         {canCreateRegistration && (
           <Button
             backgroundColor={
-              programRegistries?.length === 0 ? theme.colors.DISABLED_GREY : theme.colors.PRIMARY_MAIN
+              accessibleRegistries?.length === 0
+                ? theme.colors.DISABLED_GREY
+                : theme.colors.PRIMARY_MAIN
             }
             borderRadius={100}
             width={32}
             height={32}
             loadingAction={isProgramRegistryLoading}
-            disabled={programRegistries?.length === 0}
+            disabled={accessibleRegistries?.length === 0}
             onPress={() => {
               navigation.navigate(Routes.HomeStack.PatientProgramRegistryFormStack.Index);
             }}
@@ -58,13 +73,9 @@ const PatientProgramRegistrySummary_ = ({ selectedPatient }): ReactElement => {
             <CircleAdd size={32} />
           </Button>
         )}
-      </RowView>
+      </Row>
       <StyledView borderColor={theme.colors.BOX_OUTLINE} height={1} />
-      {canListRegistrations && (
-        <StyledView paddingLeft={20} paddingRight={20} background={theme.colors.WHITE}>
-          <PatientProgramRegistrationList selectedPatient={selectedPatient} />
-        </StyledView>
-      )}
+      {canListRegistrations && <PatientProgramRegistrationList selectedPatient={selectedPatient} />}
     </StyledView>
   );
 };

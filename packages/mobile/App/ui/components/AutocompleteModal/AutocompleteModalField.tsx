@@ -8,11 +8,13 @@ import { Button } from '../Button';
 import { Routes } from '~/ui/helpers/routes';
 import { TextFieldErrorMessage } from '/components/TextField/TextFieldErrorMessage';
 import { RequiredIndicator } from '../RequiredIndicator';
+import { TranslatedTextElement, TranslatedText } from '../Translations/TranslatedText';
 import { SearchIcon } from '../Icons';
+import { ReadOnlyField } from '../ReadOnlyField/index';
 
 interface AutocompleteModalFieldProps {
   value?: string;
-  placeholder?: string;
+  placeholder?: TranslatedTextElement;
   onChange: (newValue: string) => void;
   suggester: Suggester<BaseModelSubclass>;
   modalRoute: string;
@@ -21,6 +23,7 @@ interface AutocompleteModalFieldProps {
   label?: string;
   required?: boolean;
   disabled?: boolean;
+  readOnly?: boolean;
 }
 
 export const AutocompleteModalField = ({
@@ -34,6 +37,7 @@ export const AutocompleteModalField = ({
   required,
   marginTop = 0,
   disabled = false,
+  readOnly = false,
 }: AutocompleteModalFieldProps): ReactElement => {
   const navigation = useNavigation();
   const [label, setLabel] = useState(null);
@@ -55,12 +59,16 @@ export const AutocompleteModalField = ({
       if (data) {
         setLabel(data.label);
       } else {
-        setLabel(placeholder);
+        setLabel(null);
       }
     })();
   }, [value]);
 
   const fontSize = screenPercentageToDP(2.1, Orientation.Height);
+
+  if (readOnly) {
+    return <ReadOnlyField value={label} />;
+  }
 
   return (
     <StyledView marginBottom={screenPercentageToDP('2.24', Orientation.Height)} width="100%">
@@ -78,10 +86,11 @@ export const AutocompleteModalField = ({
       <Button
         marginTop={marginTop}
         backgroundColor={theme.colors.WHITE}
-        textColor={
-          !!suggester && !!placeholder ? theme.colors.TEXT_SOFT : theme.colors.TEXT_SUPER_DARK
+        textColor={label ? theme.colors.TEXT_SUPER_DARK : theme.colors.TEXT_SOFT}
+        buttonText={
+          label ||
+          placeholder || <TranslatedText stringId="general.action.select" fallback="Select" />
         }
-        buttonText={label || placeholder || 'Select'}
         height={screenPercentageToDP(6.68, Orientation.Height)}
         justifyContent="flex-start"
         borderRadius={3}
@@ -94,9 +103,11 @@ export const AutocompleteModalField = ({
         onPress={openModal}
         disabled={disabled}
       >
-        <StyledView marginRight={5}>
-          <SearchIcon fill={theme.colors.TEXT_SOFT} />
-        </StyledView>
+        {!label && (
+          <StyledView marginRight={5}>
+            <SearchIcon fill={theme.colors.TEXT_SOFT} />
+          </StyledView>
+        )}
       </Button>
       {error && <TextFieldErrorMessage>{error}</TextFieldErrorMessage>}
     </StyledView>

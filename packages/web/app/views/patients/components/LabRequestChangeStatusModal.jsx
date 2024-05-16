@@ -12,17 +12,29 @@ import {
   SuggesterSelectField,
   SelectField,
 } from '../../../components';
-
-import { FORM_TYPES, LAB_REQUEST_STATUS_OPTIONS } from '../../../constants';
+import { 
+  FORM_TYPES, 
+  LAB_REQUEST_STATUS_OPTIONS as DEFAULT_LAB_REQUEST_STATUS_OPTIONS 
+} from '../../../constants';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const validationSchema = yup.object().shape({
   status: yup
     .string()
     .oneOf(Object.values(LAB_REQUEST_STATUSES))
-    .required(),
+    .required()
+    .translatedLabel(<TranslatedText stringId="general.status.label" fallback="Status" />),
   sampleTime: yup.string().when('status', {
     is: status => status !== LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED,
-    then: yup.string().required('Sample date & time is required'),
+    then: yup
+      .string()
+      .translatedLabel(
+        <TranslatedText
+          stringId="lab.modal.changeStatus.sampleDateTime.label"
+          fallback="Sample date & time"
+        />,
+      )
+      .required(),
     otherwise: yup.string().nullable(),
   }),
   labSampleSiteId: yup.string(),
@@ -34,6 +46,12 @@ export const LabRequestChangeStatusModal = React.memo(
       await updateLabReq(formValues);
       onClose();
     };
+
+    const LAB_REQUEST_STATUS_OPTIONS = DEFAULT_LAB_REQUEST_STATUS_OPTIONS.filter(({ value }) => (
+        labRequest.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED ||
+        value !== LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED
+      )
+    );
 
     return (
       <FormModal open={open} onClose={onClose} title="Change lab request status">
@@ -58,14 +76,19 @@ export const LabRequestChangeStatusModal = React.memo(
                   <>
                     <Field
                       name="sampleTime"
-                      label="Sample date & time"
+                      label={
+                        <TranslatedText
+                          stringId="lab.modal.changeStatus.sampleDateTime.label"
+                          fallback="Sample date & time"
+                        />
+                      }
                       required
                       component={DateTimeField}
                       saveDateAsString
                     />
                     <Field
                       name="labSampleSiteId"
-                      label="Site"
+                      label={<TranslatedText stringId="lab.site.label" fallback="Site" />}
                       component={SuggesterSelectField}
                       endpoint="labSampleSite"
                     />

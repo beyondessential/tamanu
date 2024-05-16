@@ -6,7 +6,6 @@ import {
   FieldTypes,
   getResultValue,
   getStringValue,
-  isCalculated,
   getPatientDataDbLocation,
 } from '~/ui/helpers/fields';
 
@@ -68,7 +67,14 @@ const getFieldsToWrite = (questions, answers): RecordValuesByModel => {
  * DUPLICATED IN shared/models/SurveyResponse.js
  * Please keep in sync
  */
-async function writeToPatientFields(questions, answers, patientId, surveyId) {
+async function writeToPatientFields(
+  questions,
+  answers,
+  patientId,
+  surveyId,
+  userId,
+  submittedTime,
+) {
   const valuesByModel = getFieldsToWrite(questions, answers);
 
   if (valuesByModel.Patient) {
@@ -82,16 +88,16 @@ async function writeToPatientFields(questions, answers, patientId, surveyId) {
   if (valuesByModel.PatientProgramRegistration) {
     const { programId } = await Survey.findOne({ id: surveyId });
     const { id: programRegistryId } = await ProgramRegistry.findOne({
-      where: { programId, visibilityStatus: VisibilityStatus.Current },
+      where: { program: { id: programId }, visibilityStatus: VisibilityStatus.Current },
     });
     if (!programRegistryId) {
       throw new Error('No program registry configured for the current form');
     }
-    await PatientProgramRegistration.appendRegistration(
-      patientId,
-      programRegistryId,
-      valuesByModel.PatientProgramRegistration,
-    );
+    await PatientProgramRegistration.appendRegistration(patientId, programRegistryId, {
+      date: submittedTime,
+      ...valuesByModel.PatientProgramRegistration,
+      clinicianId: valuesByModel.PatientProgramRegistration.clinicianId || userId,
+    });
   }
 }
 
@@ -219,13 +225,11 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
         }
         const { dataElement } = component;
 
-        if (isCalculated(dataElement.type) && value !== 0 && !value) {
-          // calculated values will always be in the answer object - but we
-          // shouldn't save null answers
+        const body = getStringValue(dataElement.type, value);
+        // Don't create null answers
+        if (body === null) {
           continue;
         }
-
-        const body = getStringValue(dataElement.type, value);
 
         setNote(`Attaching answer for ${dataElement.id}...`);
         const answerRecord = await SurveyResponseAnswer.createAndSaveOne({
@@ -245,7 +249,14 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
       }
       setNote('Writing patient data');
 
-      await writeToPatientFields(components, finalValues, patientId, surveyId);
+      await writeToPatientFields(
+        components,
+        finalValues,
+        patientId,
+        surveyId,
+        userId,
+        responseRecord.endTime,
+      );
 
       setNote('Done');
 

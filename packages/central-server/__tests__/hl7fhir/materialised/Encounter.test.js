@@ -32,8 +32,8 @@ describe(`Materialised FHIR - Encounter`, () => {
       Patient,
       User,
       FhirPatient,
+      FhirOrganization,
     } = ctx.store.models;
-
     const [practitioner, patient, facility] = await Promise.all([
       User.create(fake(User)),
       Patient.create(fake(Patient)),
@@ -49,6 +49,7 @@ describe(`Materialised FHIR - Encounter`, () => {
         fake(Location, { facilityId: facility.id, locationGroupId: locationGroup.id }),
       ),
       FhirPatient.materialiseFromUpstream(patient.id),
+      FhirOrganization.materialiseFromUpstream(facility.id)
     ]);
 
     const department = await Department.create(
@@ -67,7 +68,7 @@ describe(`Materialised FHIR - Encounter`, () => {
   });
   afterAll(() => ctx.close());
 
-  async function makeEncounter(overrides = {}, beforeMaterialising = () => {}) {
+  async function makeEncounter(overrides = {}, beforeMaterialising = () => { }) {
     const { Encounter, FhirEncounter } = ctx.store.models;
 
     const startDate = new Date(chance.integer({ min: 0, max: Date.now() }));
@@ -96,7 +97,7 @@ describe(`Materialised FHIR - Encounter`, () => {
     return [encounter, mat];
   }
 
-  function makeDischargedEncounter(overrides = {}, beforeMaterialising = () => {}) {
+  function makeDischargedEncounter(overrides = {}, beforeMaterialising = () => { }) {
     return makeEncounter(overrides, async (encounter, endDate) => {
       const { Discharge } = ctx.store.models;
       encounter.set('endDate', endDate);
@@ -323,6 +324,36 @@ describe(`Materialised FHIR - Encounter`, () => {
             .sort(),
         );
         expect(response).toHaveSucceeded();
+      });
+    });
+
+    describe('_includes', () => {
+      it('includes facility as materialised organization', async () => {
+        const { Department, FhirOrganization } = ctx.store.models;
+        const department = await Department.findOne({
+          where: {
+            id: resources.department.id
+          }
+        });
+        const facilityId = department.facilityId;
+        const organization = await FhirOrganization.findOne({
+          where: {
+            upstreamId: facilityId
+          }
+        });
+        const response = await app.get(
+          `/api/integration/${INTEGRATION_ROUTE}/Encounter?_include=Organization:serviceProvider`,
+        );
+
+        expect(response.body.total).toBe(12);
+        expect(response.body.entry.length).toBe(13);
+        expect(response.body.entry.filter(({ search: { mode } }) => mode === 'match').length).toBe(12);
+        response.body.entry
+          .filter(({ search: { mode } }) => mode === 'include')
+          .forEach(entry => {
+            // should only be 1
+            expect(entry.resource.id).toBe(organization.id);
+          });
       });
     });
 

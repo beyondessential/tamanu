@@ -15,6 +15,7 @@ import {
 import { Colors } from '../constants';
 import ApprovedIcon from '../assets/images/approved_circle.svg';
 import { TranslatedText } from '../components/Translation/TranslatedText';
+import { useTranslation } from '../contexts/Translation';
 
 const FormTitleSection = styled.div`
   margin-bottom: 10px;
@@ -91,6 +92,8 @@ const ChangePasswordFormComponent = ({
   setFieldError,
   errors,
 }) => {
+  const { getTranslation } = useTranslation();
+
   return (
     <FormGrid columns={1}>
       <FormTitleSection>
@@ -113,7 +116,7 @@ const ChangePasswordFormComponent = ({
           label={<TranslatedText stringId="resetPassword.resetCode.label" fallback="Reset code" />}
           required
           component={TextField}
-          placeholder="Enter reset code"
+          placeholder={getTranslation('resetPassword.resetCode.placeholder', 'Enter reset code')}
           onChange={() => {
             if (errors.token === REQUIRED_VALIDATION_MESSAGE) {
               setFieldError('token', '');
@@ -130,7 +133,7 @@ const ChangePasswordFormComponent = ({
           }
           required
           component={TextField}
-          placeholder="New password"
+          placeholder={getTranslation('resetPassword.newPassword.placeholder', 'New password')}
           onChange={() => {
             if (errors.newPassword === REQUIRED_VALIDATION_MESSAGE) {
               setFieldError('newPassword', '');
@@ -149,7 +152,10 @@ const ChangePasswordFormComponent = ({
           }
           required
           component={TextField}
-          placeholder="Confirm new password"
+          placeholder={getTranslation(
+            'resetPassword.confirmNewPassword.placeholder',
+            'Confirm new password',
+          )}
           onChange={() => {
             if (errors.confirmNewPassword === REQUIRED_VALIDATION_MESSAGE) {
               setFieldError('confirmNewPassword', '');
@@ -191,6 +197,7 @@ export const ChangePasswordForm = React.memo(
     onNavToResetPassword,
     onValidateResetCode,
   }) => {
+    const { getTranslation } = useTranslation();
     const renderForm = ({ setFieldError, errors }) => (
       <ChangePasswordFormComponent
         onRestartFlow={onRestartFlow}
@@ -242,31 +249,47 @@ export const ChangePasswordForm = React.memo(
           token: yup
             .string()
             .required(REQUIRED_VALIDATION_MESSAGE)
-            .test('checkValidToken', 'Code incorrect', async (value, context) => {
-              if (value) {
-                try {
-                  await onValidateResetCode({
-                    email: context.parent.email,
-                    token: value,
-                  });
-                  return true;
-                } catch (e) {
+            .test(
+              'checkValidToken',
+              getTranslation('validation.rule.checkValidToken', 'Code incorrect'),
+              async (value, context) => {
+                if (value) {
+                  try {
+                    await onValidateResetCode({
+                      email: context.parent.email,
+                      token: value,
+                    });
+                    return true;
+                  } catch (e) {
+                    return false;
+                  }
+                } else {
                   return false;
                 }
-              } else {
-                return false;
-              }
-            }),
+              },
+            ),
           newPassword: yup
             .string()
-            .min(5, 'Must be at least 5 characters')
-            .oneOf([yup.ref('confirmNewPassword'), null], `Passwords don't match`)
-            .required(REQUIRED_VALIDATION_MESSAGE),
+            .min(
+              5,
+              getTranslation('validation.rule.min5Characters', 'Must be at least 5 characters'),
+            )
+            .oneOf(
+              [yup.ref('confirmNewPassword'), null],
+              getTranslation('validation.rule.passwordMatch', `Passwords don't match`),
+            )
+            .required(getTranslation('validation.required.inline', '*Required')),
           confirmNewPassword: yup
             .string()
-            .min(5, 'Must be at least 5 characters')
-            .oneOf([yup.ref('newPassword'), null], `Passwords don't match`)
-            .required(REQUIRED_VALIDATION_MESSAGE),
+            .min(
+              5,
+              getTranslation('validation.rule.min5Characters', 'Must be at least 5 characters'),
+            )
+            .oneOf(
+              [yup.ref('newPassword'), null],
+              getTranslation('validation.rule.passwordMatch', `Passwords don't match`),
+            )
+            .required(getTranslation('validation.required.inline', '*Required')),
         })}
         suppressErrorDialog
       />

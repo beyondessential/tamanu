@@ -11,7 +11,9 @@ import { Field, Form, BaseSelectField } from '../../components/Field';
 import { FormGrid } from '../../components/FormGrid';
 import { foreignKey } from '../../utils/validation';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
-import { ConditionalTooltip, ThemedTooltip } from '../../components/Tooltip';
+import { ConditionalTooltip } from '../../components/Tooltip';
+import { useProgramRegistryContext } from '../../contexts/ProgramRegistry';
+import { useTranslation } from '../../contexts/Translation';
 
 const DisplayContainer = styled.div`
   display: flex;
@@ -41,17 +43,19 @@ const StyledButton = styled(Button)`
   height: 44px;
   background-color: ${Colors.primary};
   color: ${Colors.white};
+  width: 100%;
   :disabled {
     background-color: ${Colors.primary};
     color: ${Colors.white};
     opacity: 0.4;
-    width: 100%;
   }
 `;
 
 export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistration }) => {
   const api = useApi();
   const { navigateToProgramRegistrySurvey } = usePatientNavigation();
+  const { getTranslation } = useTranslation();
+  const { setProgramRegistryId } = useProgramRegistryContext();
 
   const { data: surveys } = useQuery(
     ['programSurveys', patientProgramRegistration.programRegistry.programId],
@@ -74,6 +78,7 @@ export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistrat
         showInlineErrorsOnly
         style={{ width: '100%', marginTop: '5px' }}
         onSubmit={async values => {
+          setProgramRegistryId(patientProgramRegistration.programRegistryId);
           navigateToProgramRegistrySurvey(
             patientProgramRegistration.programRegistryId,
             values.surveyId,
@@ -91,14 +96,15 @@ export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistrat
                   name="surveyId"
                   label="Select form"
                   component={BaseSelectField}
-                  placeholder="Select"
+                  placeholder={getTranslation('general.placeholder.select', 'Select')}
                   options={surveys}
                   disabled={isRemoved}
                 />
               </ConditionalTooltip>
 
-              <ThemedTooltip
+              <ConditionalTooltip
                 title={isRemoved ? 'Patient must be active' : 'Select form to proceed'}
+                visible={isRemoved || !values.surveyId}
               >
                 <div>
                   <StyledButton
@@ -110,12 +116,14 @@ export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistrat
                     Begin form
                   </StyledButton>
                 </div>
-              </ThemedTooltip>
+              </ConditionalTooltip>
             </StyledFormGrid>
           );
         }}
         validationSchema={yup.object().shape({
-          surveyId: foreignKey('A form must be selected'),
+          surveyId: foreignKey(
+            getTranslation('validation.rule.formMustBeSelected', 'A form must be selected'),
+          ),
         })}
       />
     </DisplayContainer>

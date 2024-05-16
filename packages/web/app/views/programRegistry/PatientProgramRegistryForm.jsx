@@ -20,10 +20,13 @@ import { foreignKey, optionalForeignKey } from '../../utils/validation';
 import { useSuggester } from '../../api';
 import { useAuth } from '../../contexts/Auth';
 import { useApi } from '../../api/useApi';
+import { useTranslation } from '../../contexts/Translation';
 import { FORM_TYPES } from '../../constants';
+import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject }) => {
   const api = useApi();
+  const { getTranslation } = useTranslation();
   const { currentUser, facility } = useAuth();
   const patient = useSelector(state => state.patient);
   const [selectedProgramRegistryId, setSelectedProgramRegistryId] = useState();
@@ -80,8 +83,13 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
               <FormGrid style={{ gridColumn: 'span 2' }}>
                 <Field
                   name="programRegistryId"
-                  label="Program registry"
-                  placeholder="Select"
+                  label={
+                    <TranslatedText
+                      stringId="patientProgramRegistry.programRegistry.label"
+                      fallback="Program registry"
+                    />
+                  }
+                  placeholder={getTranslation('general.placeholder.select', 'Select')}
                   required
                   component={AutocompleteField}
                   suggester={programRegistrySuggester}
@@ -104,16 +112,26 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
               <FormGrid style={{ gridColumn: 'span 2' }}>
                 <Field
                   name="clinicianId"
-                  label="Registered by"
-                  placeholder="Select"
+                  label={
+                    <TranslatedText
+                      stringId="patientProgramRegistry.registeredBy.label"
+                      fallback="Registered by"
+                    />
+                  }
+                  placeholder={getTranslation('general.placeholder.select', 'Select')}
                   required
                   component={AutocompleteField}
                   suggester={registeredBySuggester}
                 />
                 <Field
                   name="registeringFacilityId"
-                  label="Registering facility"
-                  placeholder="Select"
+                  label={
+                    <TranslatedText
+                      stringId="patientProgramRegistry.registeredBy.label"
+                      fallback="Registering facility"
+                    />
+                  }
+                  placeholder={getTranslation('general.placeholder.select', 'Select')}
                   required
                   component={AutocompleteField}
                   suggester={registeringFacilitySuggester}
@@ -124,7 +142,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                   disabledTooltipText="Select a program registry to set the status"
                   name="clinicalStatusId"
                   label="Status"
-                  placeholder="Select"
+                  placeholder={getTranslation('general.placeholder.select', 'Select')}
                   component={AutocompleteField}
                   suggester={programRegistryStatusSuggester}
                   disabled={!program}
@@ -137,7 +155,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                   }
                   name="conditionIds"
                   label="Related conditions"
-                  placeholder="Select"
+                  placeholder={getTranslation('general.placeholder.select', 'Select')}
                   component={MultiselectField}
                   options={conditions}
                   disabled={!conditions || conditions.length === 0}
@@ -169,11 +187,26 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
       }}
       formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
       validationSchema={yup.object().shape({
-        programRegistryId: foreignKey('Program registry must be selected'),
+        programRegistryId: foreignKey().translatedLabel(
+          <TranslatedText
+            stringId="patientProgramRegistry.programRegistry.label"
+            fallback="Program registry"
+          />,
+        ),
         clinicalStatusId: optionalForeignKey().nullable(),
         date: yup.date(),
-        clinicianId: foreignKey('Registered by must be selected'),
-        registeringFacilityId: foreignKey('Registering facility must be selected'),
+        clinicianId: foreignKey().translatedLabel(
+          <TranslatedText
+            stringId="patientProgramRegistry.registeredBy.label"
+            fallback="Registered by"
+          />,
+        ),
+        registeringFacilityId: foreignKey().translatedLabel(
+          <TranslatedText
+            stringId="patientProgramRegistry.registeredBy.label"
+            fallback="Registering facility"
+          />,
+        ),
       })}
     />
   );

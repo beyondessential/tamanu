@@ -10,8 +10,6 @@ describe('<PatientMenuButton />', () => {
     Icon: DeceasedIcon,
   };
 
-  const { getByText } = render(<PatientMenuButton {...props} />);
-  const buttonTitle = getByText(props.title);
   it('should render PatientMenuButton', () => {
     const { getByText } = render(<PatientMenuButton {...props} />);
     const buttonTitle = getByText(props.title);

@@ -1,5 +1,4 @@
 import React, { useMemo } from 'react';
-import * as yup from 'yup';
 import { LAB_REQUEST_FORM_TYPES } from '@tamanu/constants/labs';
 import { uniqBy } from 'lodash';
 import styled from 'styled-components';
@@ -13,49 +12,10 @@ const StyledBodyText = styled(BodyText)`
   white-space: pre-line;
 `;
 
-export const screen2ValidationSchema = yup.object().shape({
-  labTestTypeIds: yup
-    .array()
-    .nullable()
-    .when('requestFormType', {
-      is: val => val === LAB_REQUEST_FORM_TYPES.INDIVIDUAL,
-      then: yup
-        .array()
-        .of(yup.string())
-        .min(
-          1,
-          <TranslatedText
-            stringId="lab.testSelect.individual.testTypes.validation"
-            fallback="Please select at least one test type"
-          />,
-        ),
-    }),
-  panelIds: yup
-    .array()
-    .nullable()
-    .when('requestFormType', {
-      is: val => val === LAB_REQUEST_FORM_TYPES.PANEL,
-      then: yup
-        .array()
-        .of(yup.string())
-        .min(
-          1,
-          <TranslatedText
-            stringId="lab.testSelect.panel.testTypes.validation"
-            fallback="Please select at least one panel"
-          />,
-        ),
-    }),
-  notes: yup.string(),
-});
-
 export const FORM_TYPE_TO_FIELD_CONFIG = {
   [LAB_REQUEST_FORM_TYPES.INDIVIDUAL]: {
     subheading: (
-      <TranslatedText
-        stringId="lab.testSelect.individual.subheading"
-        fallback="Select tests"
-      />
+      <TranslatedText stringId="lab.testSelect.individual.subheading" fallback="Select tests" />
     ),
     instructions: (
       <>
@@ -90,15 +50,15 @@ export const FORM_TYPE_TO_FIELD_CONFIG = {
       />
     ),
     selectableName: 'panel',
-    searchFieldPlaceholder: 'Search panel or category',
+    searchFieldPlaceholder: {
+      stringId: 'lab.testSelect.placeholder',
+      fallback: 'Search panel or category',
+    },
     fieldName: 'panelIds',
   },
   [LAB_REQUEST_FORM_TYPES.SUPERSET]: {
     subheading: (
-      <TranslatedText
-        stringId="lab.testSelect.superSet.subheading"
-        fallback="Select superset"
-      />
+      <TranslatedText stringId="lab.testSelect.superSet.subheading" fallback="Select superset" />
     ),
     instructions: (
       <>
@@ -158,7 +118,7 @@ export const LabRequestFormScreen2 = props => {
           label={<TranslatedText stringId="general.notes.label" fallback="Notes" />}
           component={TextField}
           multiline
-          rows={3}
+          minRows={3}
         />
       </div>
     </>

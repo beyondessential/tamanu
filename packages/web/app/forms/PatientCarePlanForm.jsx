@@ -41,8 +41,8 @@ export const PatientCarePlanForm = ({
             name="examinerId"
             label={
               <TranslatedText
-                stringId="general.localisedField.practitioner.label.short"
-                label="Practitioner"
+                stringId="general.localisedField.clinician.label.short"
+                fallback="Clinician"
               />
             }
             component={AutocompleteField}
@@ -51,13 +51,11 @@ export const PatientCarePlanForm = ({
         </FormGrid>
         <Field
           name="content"
-          label={
-            <TranslatedText stringId="carePlan.content.label" fallback="Main care plan" />
-          }
+          label={<TranslatedText stringId="carePlan.content.label" fallback="Main care plan" />}
           required
           component={TextField}
           multiline
-          rows={6}
+          minRows={6}
         />
         <FormSubmitCancelRow
           onCancel={onCancel}
@@ -78,7 +76,9 @@ export const PatientCarePlanForm = ({
     }}
     formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
     validationSchema={yup.object().shape({
-      carePlanId: foreignKey('Care plan is a required field'),
+      carePlanId: foreignKey().translatedLabel(
+        <TranslatedText stringId="carePlan.plan.label" fallback="Care plan" />,
+      ),
       date: yup.date(),
       examinerId: yup.string(),
       content: yup.string(),

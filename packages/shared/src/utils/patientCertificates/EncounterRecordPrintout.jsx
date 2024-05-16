@@ -15,12 +15,9 @@ import { EncounterDetailsExtended } from './printComponents/EncounterDetailsExte
 import { MultiPageHeader } from './printComponents/MultiPageHeader';
 import { getName } from '../patientAccessors';
 import { Footer } from './printComponents/Footer';
+import { formatShort } from '../dateTime';
 
 const borderStyle = '1 solid black';
-
-const DATE_FORMAT = 'dd/MM/yyyy';
-
-const DATE_TIME_FORMAT = 'dd/MM/yyyy h:mma';
 
 const pageStyles = StyleSheet.create({
   body: {
@@ -108,7 +105,7 @@ const tableStyles = StyleSheet.create({
 });
 
 const Table = props => <View style={tableStyles.table} {...props} />;
-const Row = props => <View style={tableStyles.row} {...props} />;
+const Row = props => <View style={[tableStyles.row, props.width && { width: props.width, justifyContent: 'start' }]} {...props} />;
 const P = ({ style = {}, children }) => <Text style={[tableStyles.p, style]}>{children}</Text>;
 
 const Cell = ({ children, style = {} }) => (
@@ -140,7 +137,7 @@ const COLUMNS = {
     {
       key: 'dateMoved',
       title: 'Date & time moved',
-      accessor: ({ date }) => (date ? getDisplayDate(date, DATE_TIME_FORMAT) : '--/--/----'),
+      accessor: ({ date }) => (date ? formatShort(date) : '--/--/----'),
       style: { width: '35%' },
     },
   ],
@@ -160,7 +157,7 @@ const COLUMNS = {
     {
       key: 'dateMoved',
       title: 'Date & time moved',
-      accessor: ({ date }) => (date ? getDisplayDate(date, DATE_TIME_FORMAT) : '--/--/----'),
+      accessor: ({ date }) => (date ? formatShort(date) : '--/--/----'),
       style: { width: '35%' },
     },
   ],
@@ -180,7 +177,7 @@ const COLUMNS = {
     {
       key: 'date',
       title: 'Date',
-      accessor: ({ date }) => (date ? getDisplayDate(date, DATE_FORMAT) : '--/--/----'),
+      accessor: ({ date }) => (date ? formatShort(date) : '--/--/----'),
       style: { width: '25%' },
     },
   ],
@@ -194,7 +191,7 @@ const COLUMNS = {
     {
       key: 'procedureDate',
       title: 'Procedure date',
-      accessor: ({ date }) => (date ? getDisplayDate(date, DATE_FORMAT) : '--/--/----'),
+      accessor: ({ date }) => (date ? formatShort(date) : '--/--/----'),
       style: { width: '25%' },
     },
   ],
@@ -218,14 +215,14 @@ const COLUMNS = {
       key: 'requestDate',
       title: 'Request date',
       accessor: ({ requestDate }) =>
-        requestDate ? getDisplayDate(requestDate, DATE_FORMAT) : '--/--/----',
+        requestDate ? formatShort(requestDate) : '--/--/----',
       style: { width: '17.5%' },
     },
     {
       key: 'publishedDate',
       title: 'Published date',
       accessor: ({ publishedDate }) =>
-        publishedDate ? getDisplayDate(publishedDate, DATE_FORMAT) : '--/--/----',
+        publishedDate ? formatShort(publishedDate) : '--/--/----',
       style: { width: '17.5%' },
     },
   ],
@@ -255,7 +252,7 @@ const COLUMNS = {
       key: 'requestDate',
       title: 'Request date',
       accessor: ({ requestedDate }) =>
-        requestedDate ? getDisplayDate(requestedDate, DATE_FORMAT) : '--/--/----',
+        requestedDate ? formatShort(requestedDate) : '--/--/----',
       style: { width: '20%' },
     },
     {
@@ -263,7 +260,7 @@ const COLUMNS = {
       title: 'Completed date',
       accessor: imagingRequest =>
         imagingRequest?.results[0]?.completedAt
-          ? getDisplayDate(imagingRequest?.results[0]?.completedAt, DATE_FORMAT)
+          ? formatShort(imagingRequest?.results[0]?.completedAt)
           : '--/--/----',
       style: { width: '20%' },
     },
@@ -296,7 +293,7 @@ const COLUMNS = {
     {
       key: 'prescriptionDate',
       title: 'Prescription date',
-      accessor: ({ date }) => (date ? getDisplayDate(date, DATE_FORMAT) : '--/--/----'),
+      accessor: ({ date }) => (date ? formatShort(date) : '--/--/----'),
       style: { width: '22.5%' },
     },
   ],
@@ -314,46 +311,61 @@ const MultipageTableHeading = ({ title, style = textStyles.sectionTitle }) => {
         }
         return pageNumber === firstPageOccurence ? title : `${title} cont...`;
       }}
-      debug
     />
   );
 };
 
-const DataTableHeading = ({ columns, title }) => {
+const DataTableHeading = ({ columns, title, width }) => {
   return (
     <View fixed>
       <MultipageTableHeading title={title} />
-      <Row wrap={false}>
-        {columns.map(({ key, title, style }) => (
-          <HeaderCell key={key} style={style}>
-            {title}
-          </HeaderCell>
-        ))}
+      <Row wrap={false} width={width}>
+        {columns.map(({ key, title, style }) => {
+          if (Array.isArray(title)) {
+            return (
+              <View key={key} style={[tableStyles.baseCell, { flexDirection: 'column', padding: 4 }, style]}>
+                <P style={{ fontFamily: 'Helvetica-Bold' }}>{title[0]}</P>
+                <P>{title[1]}</P>
+              </View>);
+          }
+          return (
+            <HeaderCell key={key} style={style}>
+              {title}
+            </HeaderCell>
+          );
+        })}
       </Row>
     </View>
   );
 };
 
-const DataTable = ({ data, columns, title }) => (
-  <Table>
-    <DataTableHeading columns={columns} title={title} />
-    {data.map(row => (
-      <Row key={row.id} wrap={false}>
-        {columns.map(({ key, accessor, style }) => (
-          <Cell key={key} style={style}>
-            {accessor ? accessor(row) : row[key] || ''}
-          </Cell>
-        ))}
-      </Row>
-    ))}
-  </Table>
-);
+const DataTable = ({ data, columns, title, type }) => {
+  let width = null;
+  if (type === "vitals" && columns.length <= 12) {
+    width = 138 + ((columns.length - 1) * 50) + 'px';
+  }
 
-const TableSection = ({ title, data, columns }) => {
+  return (
+    <Table>
+      <DataTableHeading columns={columns} title={title} width={width} />
+      {data.map(row => (
+        <Row key={row.id} wrap={false} width={width}>
+          {columns.map(({ key, accessor, style }) => (
+            <Cell key={key} style={style}>
+              {accessor ? accessor(row) : row[key] || ''}
+            </Cell>
+          ))}
+        </Row>
+      ))}
+    </Table>
+  )
+};
+
+const TableSection = ({ title, data, columns, type }) => {
   return (
     <View>
       <View minPresenceAhead={70} />
-      <DataTable data={data} columns={columns} title={title} />
+      <DataTable data={data} columns={columns} title={title} type={type} />
       <SectionSpacing />
     </View>
   );
@@ -363,7 +375,7 @@ const NoteFooter = ({ note }) => (
   <Text style={textStyles.tableCellFooter}>
     {`${note.noteType === NOTE_TYPES.TREATMENT_PLAN ? 'Last updated: ' : ''}${note.author
       ?.displayName || ''}${note.onBehalfOf ? ` on behalf of ${note.onBehalfOf.displayName}` : ''}`}
-    {` ${getDisplayDate(note.date)} ${getDisplayDate(note.date, 'h:mma')}`}
+    {` ${formatShort(note.date)} ${getDisplayDate(note.date, 'h:mma')}`}
   </Text>
 );
 
@@ -446,6 +458,9 @@ export const EncounterRecordPrintout = ({
   medications,
   getLocalisation,
   clinicianText,
+  vitalsData,
+  recordedDates,
+  getVitalsColumn
 }) => {
   const { watermark, logo } = certificateData;
 
@@ -507,6 +522,19 @@ export const EncounterRecordPrintout = ({
         {notes.length > 0 && <NotesSection notes={notes} />}
         <Footer />
       </Page>
+      {vitalsData.length > 0 && recordedDates.length > 0 ? (
+        <>
+          {[0, 12, 24, 36, 48].map(start => {
+            return recordedDates.length > start ? (
+              <Page size="A4" orientation="landscape" style={pageStyles.body}>
+                <TableSection title="Vitals" data={vitalsData} columns={getVitalsColumn(start)} type="vitals" />
+                <Footer />
+              </Page>
+            ) : null
+          }
+          )}
+        </>
+      ) : null}
     </Document>
   );
 };

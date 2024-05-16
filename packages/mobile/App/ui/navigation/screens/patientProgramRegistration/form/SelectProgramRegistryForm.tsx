@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
+import { subject } from '@casl/ability';
+
 import { Routes } from '~/ui/helpers/routes';
 import { FullView, StyledText, StyledTouchableOpacity, StyledView } from '~/ui/styled/common';
 import { theme } from '~/ui/styled/theme';
@@ -42,7 +44,7 @@ export const SelectProgramRegistryForm = ({ navigation, route }: BaseAppProps) =
   const [programRegistries, programRegistryError, isProgramRegistryLoading] = useBackendEffect(
     async ({ models }) => {
       if (canListRegistrations === false) return [];
-      return await models.ProgramRegistry.getProgramRegistriesForPatient(selectedPatient.id)
+      return await models.ProgramRegistry.getProgramRegistriesForPatient(selectedPatient.id);
     },
     [canListRegistrations, selectedPatient.id],
   );
@@ -50,6 +52,10 @@ export const SelectProgramRegistryForm = ({ navigation, route }: BaseAppProps) =
   if (isProgramRegistryLoading) return <LoadingScreen />;
 
   if (programRegistryError) return <ErrorScreen error={programRegistryError} />;
+
+  const accessibleRegistries = programRegistries.filter(registry =>
+    ability.can('read', subject('ProgramRegistry', { id: registry.id })),
+  );
 
   return (
     <FullView background={theme.colors.WHITE}>
@@ -77,7 +83,7 @@ export const SelectProgramRegistryForm = ({ navigation, route }: BaseAppProps) =
       </StyledView>
       <StyledView marginRight={20} marginLeft={20}>
         <FlatList
-          data={programRegistries?.filter(x => {
+          data={accessibleRegistries?.filter(x => {
             if (!searchValue) return true;
             return x.name.toLowerCase().includes(searchValue.toLowerCase());
           })}

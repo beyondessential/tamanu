@@ -8,11 +8,7 @@ import { InvalidOperationError } from '../errors';
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 import { runCalculations } from '../utils/calculations';
-import {
-  getActiveActionComponents,
-  getResultValue,
-  getStringValue,
-} from '../utils/fields';
+import { getActiveActionComponents, getResultValue, getStringValue } from '../utils/fields';
 import { getPatientDataDbLocation } from '../utils/getPatientDataDbLocation';
 import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
@@ -41,7 +37,7 @@ async function createPatientIssues(models, questions, patientId) {
  *  PatientAdditionalData: { key1: 'value1' },
  * }
  */
-const getFieldsToWrite = (models, questions, answers) => {
+const getFieldsToWrite = async (models, questions, answers) => {
   const recordValuesByModel = {};
 
   const patientDataQuestions = questions.filter(
@@ -60,9 +56,10 @@ const getFieldsToWrite = (models, questions, answers) => {
     if (!configFieldName) {
       throw new Error('No fieldName defined for writeToPatient config');
     }
-
     const value = answers[dataElement.id];
-    const { modelName, fieldName } = getPatientDataDbLocation(configFieldName);
+
+    const { modelName, fieldName } = await getPatientDataDbLocation(configFieldName, models);
+
     if (!modelName) {
       throw new Error(`Unknown fieldName: ${configFieldName}`);
     }
@@ -76,12 +73,25 @@ const getFieldsToWrite = (models, questions, answers) => {
  * DUPLICATED IN mobile/App/models/SurveyResponse.ts
  * Please keep in sync
  */
-async function writeToPatientFields(models, questions, answers, patientId, surveyId, userId) {
-  const valuesByModel = getFieldsToWrite(models, questions, answers);
+async function writeToPatientFields(
+  models,
+  questions,
+  answers,
+  patientId,
+  surveyId,
+  userId,
+  submittedTime,
+) {
+  const valuesByModel = await getFieldsToWrite(models, questions, answers);
 
   if (valuesByModel.Patient) {
     const patient = await models.Patient.findByPk(patientId);
     await patient.update(valuesByModel.Patient);
+  }
+
+  if (valuesByModel.PatientFieldValue) {
+    const patient = await models.Patient.findByPk(patientId);
+    await patient.writeFieldValues(valuesByModel.PatientFieldValue);
   }
 
   if (valuesByModel.PatientAdditionalData) {
@@ -100,16 +110,33 @@ async function writeToPatientFields(models, questions, answers, patientId, surve
     await models.PatientProgramRegistration.create({
       patientId,
       programRegistryId,
+      date: submittedTime,
       ...valuesByModel.PatientProgramRegistration,
       clinicianId: valuesByModel.PatientProgramRegistration.clinicianId || userId,
     });
   }
 }
 
-async function handleSurveyResponseActions(models, questions, answers, patientId, surveyId, userId) {
+async function handleSurveyResponseActions(
+  models,
+  questions,
+  answers,
+  patientId,
+  surveyId,
+  userId,
+  submittedTime,
+) {
   const activeQuestions = getActiveActionComponents(questions, answers);
   await createPatientIssues(models, activeQuestions, patientId);
-  await writeToPatientFields(models, activeQuestions, answers, patientId, surveyId, userId);
+  await writeToPatientFields(
+    models,
+    activeQuestions,
+    answers,
+    patientId,
+    surveyId,
+    userId,
+    submittedTime,
+  );
 }
 
 export class SurveyResponse extends Model {
@@ -228,14 +255,7 @@ export class SurveyResponse extends Model {
       throw new Error('SurveyResponse.createWithAnswers must always run inside a transaction!');
     }
     const { models } = this.sequelize;
-    const {
-      answers,
-      surveyId,
-      patientId,
-      encounterId,
-      forceNewEncounter,
-      ...responseData
-    } = data;
+    const { answers, surveyId, patientId, encounterId, forceNewEncounter, ...responseData } = data;
 
     // ensure survey exists
     const survey = await models.Survey.findByPk(surveyId);
@@ -297,6 +317,7 @@ export class SurveyResponse extends Model {
       if (body === null) {
         continue;
       }
+
       const answer = await models.SurveyResponseAnswer.create({
         dataElementId: dataElement.id,
         body,
@@ -319,6 +340,7 @@ export class SurveyResponse extends Model {
       encounter.patientId,
       surveyId,
       responseData.userId,
+      responseData.endTime,
     );
 
     return record;

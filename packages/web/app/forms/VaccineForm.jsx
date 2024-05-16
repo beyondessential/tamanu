@@ -16,21 +16,39 @@ import {
 } from './VaccineGivenForm';
 import { VaccineNotGivenForm } from './VaccineNotGivenForm';
 import { usePatientCurrentEncounter } from '../api/queries';
-import { useVaccinationSettings } from '../api/queries/useVaccinationSettings';
 import { useAuth } from '../contexts/Auth';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useLocalisation } from '../contexts/Localisation';
+import { useSettings } from '../contexts/Settings';
+import { usePatientData } from '../api/queries/usePatientData';
+import { isBefore, parse } from 'date-fns';
 
 const validateGivenElsewhereRequiredField = (status, givenElsewhere) =>
   (status === VACCINE_RECORDING_TYPES.GIVEN && !givenElsewhere) ||
   status === VACCINE_RECORDING_TYPES.NOT_GIVEN; // If NOT_GIVEN then do not care about givenElsewhere
 
 const BASE_VACCINE_SCHEME_VALIDATION = yup.object().shape({
-  date: yup.string().when(['status', 'givenElsewhere'], {
-    is: validateGivenElsewhereRequiredField,
-    then: yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
-    otherwise: yup.string().nullable(),
-  }),
+  date: yup
+    .string()
+    .when(['status', 'givenElsewhere'], {
+      is: validateGivenElsewhereRequiredField,
+      then: yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
+      otherwise: yup.string().nullable(),
+    })
+    .when(['status'], {
+      is: VACCINE_RECORDING_TYPES.GIVEN,
+      then: schema =>
+        schema.test('min', 'Date cannot be prior to patient date of birth', (value, context) => {
+          if (!value) return true;
+          const format = 'yyyy-MM-dd';
+          const minDate = parse(context.parent?.patientData?.dateOfBirth, format, new Date());
+          const date = parse(value, format, new Date());
+          if (isBefore(date, minDate)) {
+            return false;
+          }
+          return true;
+        }),
+    }),
   locationId: yup.string().when(['status', 'givenElsewhere'], {
     is: validateGivenElsewhereRequiredField,
     then: yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
@@ -72,6 +90,7 @@ export const VaccineForm = ({
   vaccineRecordingType,
 }) => {
   const { getLocalisation } = useLocalisation();
+  const { getSetting } = useSettings();
   const [vaccineOptions, setVaccineOptions] = useState([]);
   const [category, setCategory] = useState(
     currentVaccineRecordValues?.vaccineName ? VACCINE_CATEGORIES.OTHER : VACCINE_CATEGORIES.ROUTINE,
@@ -79,15 +98,17 @@ export const VaccineForm = ({
   const [vaccineLabel, setVaccineLabel] = useState();
 
   const {
+    data: patientData,
+    isLoading: isLoadingPatientData,
+    error: patientDataError,
+  } = usePatientData(patientId);
+  const {
     data: currentEncounter,
     isLoading: isLoadingCurrentEncounter,
     error: currentEncounterError,
   } = usePatientCurrentEncounter(patientId);
-  const {
-    data: vaccinationDefaults = {},
-    isLoading: isLoadingVaccinationDefaults,
-    error: vaccinationDefaultsError,
-  } = useVaccinationSettings(SETTING_KEYS.VACCINATION_DEFAULTS);
+
+  const vaccinationDefaults = getSetting(SETTING_KEYS.VACCINATION_DEFAULTS);
 
   const selectedVaccine = useMemo(() => vaccineOptions.find(v => v.label === vaccineLabel), [
     vaccineLabel,
@@ -117,17 +138,15 @@ export const VaccineForm = ({
     }
   }, [category, getScheduledVaccines, editMode]);
 
-  if (isLoadingCurrentEncounter || isLoadingVaccinationDefaults) {
+  if (isLoadingCurrentEncounter || isLoadingPatientData) {
     return <LoadingIndicator />;
   }
 
-  if (currentEncounterError || vaccinationDefaultsError) {
+  if (currentEncounterError || isLoadingPatientData) {
     return (
       <ErrorMessage
-        title={
-          <TranslatedText stringId="vaccine.loadError" fallback="Cannot load vaccine form" />
-        }
-        errorMessage={currentEncounterError?.message || vaccinationDefaultsError?.message}
+        title={<TranslatedText stringId="vaccine.loadError" fallback="Cannot load vaccine form" />}
+        errorMessage={currentEncounterError?.message || patientDataError?.message}
       />
     );
   }
@@ -138,37 +157,39 @@ export const VaccineForm = ({
 
   const vaccineConsentEnabled = getLocalisation('features.enableVaccineConsent');
 
+  const initialValues = !editMode
+    ? {
+        status: vaccineRecordingType,
+        category,
+        date: getCurrentDateTimeString(),
+        locationGroupId: !currentEncounter
+          ? vaccinationDefaults?.locationGroupId
+          : currentEncounter.location?.locationGroup?.id,
+        locationId: !currentEncounter
+          ? vaccinationDefaults?.locationId
+          : currentEncounter.location?.id,
+        departmentId: !currentEncounter
+          ? vaccinationDefaults?.departmentId
+          : currentEncounter.department?.id,
+        ...(vaccineRecordingType === VACCINE_RECORDING_TYPES.GIVEN
+          ? VACCINE_GIVEN_INITIAL_VALUES
+          : {}),
+        patientData,
+      }
+    : {
+        ...currentVaccineRecordValues,
+        ...(currentVaccineRecordValues.circumstanceIds
+          ? { circumstanceIds: JSON.stringify(currentVaccineRecordValues.circumstanceIds) }
+          : {}),
+        patientData,
+      };
+
   return (
     <Form
       onSubmit={async data => onSubmit({ ...data, category })}
       showInlineErrorsOnly
+      initialValues={initialValues}
       formType={editMode ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
-      initialValues={
-        !editMode
-          ? {
-              status: vaccineRecordingType,
-              category,
-              date: getCurrentDateTimeString(),
-              locationGroupId: !currentEncounter
-                ? vaccinationDefaults.data?.locationGroupId
-                : currentEncounter.location?.locationGroup?.id,
-              locationId: !currentEncounter
-                ? vaccinationDefaults.data?.locationId
-                : currentEncounter.location?.id,
-              departmentId: !currentEncounter
-                ? vaccinationDefaults.data?.departmentId
-                : currentEncounter.department?.id,
-              ...(vaccineRecordingType === VACCINE_RECORDING_TYPES.GIVEN
-                ? VACCINE_GIVEN_INITIAL_VALUES
-                : {}),
-            }
-          : {
-              ...currentVaccineRecordValues,
-              ...(currentVaccineRecordValues.circumstanceIds
-                ? { circumstanceIds: JSON.stringify(currentVaccineRecordValues.circumstanceIds) }
-                : {}),
-            }
-      }
       validationSchema={baseSchemeValidation.shape({
         ...(vaccineRecordingType === VACCINE_RECORDING_TYPES.GIVEN &&
           VACCINE_GIVEN_VALIDATION_SCHEMA(vaccineConsentEnabled)),
@@ -191,6 +212,7 @@ export const VaccineForm = ({
           onCancel={onCancel}
           currentUser={currentUser}
           vaccineConsentEnabled={vaccineConsentEnabled}
+          initialValues={initialValues}
         />
       )}
     />
@@ -205,12 +227,13 @@ const VaccineFormComponent = ({
   values,
   setValues,
   patientId,
+  initialValues,
   ...props
 }) => {
   const { setCategory, setVaccineLabel, editMode } = props;
   useEffect(() => {
     // Reset the entire form values when switching between GIVEN and NOT_GIVEN tab
-    resetForm();
+    resetForm({ values: initialValues });
     if (!editMode) {
       setCategory(VACCINE_CATEGORIES.ROUTINE);
     }
@@ -230,7 +253,7 @@ const VaccineFormComponent = ({
       setValues={setValues}
     />
   ) : (
-    <VaccineNotGivenForm {...props} resetForm={resetForm} submitForm={submitForm} />
+    <VaccineNotGivenForm {...props} resetForm={resetForm} submitForm={submitForm} values={values} />
   );
 };
 

@@ -1,7 +1,6 @@
 import React, { useCallback } from 'react';
 
 import { ASSET_NAMES, VACCINATION_CERTIFICATE } from '@tamanu/constants';
-import { VaccineCertificate } from '@tamanu/shared/utils/patientCertificates';
 import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
 
 import { Modal } from '../../Modal';
@@ -15,13 +14,17 @@ import {
   useReferenceData,
 } from '../../../api/queries';
 
-import { PDFViewer, printPDF } from '../PDFViewer';
+import { printPDF } from '../PDFLoader';
 import { useAuth } from '../../../contexts/Auth';
+import { WorkerRenderedPDFViewer } from '../WorkerRenderedPDFViewer';
+import { LoadingIndicator } from '../../LoadingIndicator';
+
+const VACCINE_CERTIFICATE_PDF_ID = 'vaccine-certificate';
 
 export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) => {
   const api = useApi();
   const { facility } = useAuth();
-  const { getLocalisation } = useLocalisation();
+  const { localisation } = useLocalisation();
   const { data: certificateData, isFetching: isCertificateFetching } = useCertificate({
     footerAssetName: ASSET_NAMES.VACCINATION_CERTIFICATE_FOOTER,
   });
@@ -54,10 +57,11 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
     [api, patient.id, printedBy, facility.name],
   );
 
-  const village = useReferenceData(patient.villageId).data;
+  const { data: village, isFetching: isVillageFetching } = useReferenceData(patient.villageId);
   const patientData = { ...patient, village, additionalData };
 
-  if (isAdditionalDataFetching || isVaccineFetching || isCertificateFetching) return null;
+  const isLoading =
+    isVaccineFetching || isAdditionalDataFetching || isVillageFetching || isCertificateFetching;
 
   return (
     <Modal
@@ -66,23 +70,26 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
       onClose={onClose}
       width="md"
       printable
-      keepMounted
-      onPrint={() => printPDF('vaccine-certificate')}
+      onPrint={() => printPDF(VACCINE_CERTIFICATE_PDF_ID)}
       additionalActions={<EmailButton onEmail={createVaccineCertificateNotification} />}
     >
-      <PDFViewer id="vaccine-certificate">
-        <VaccineCertificate
-          patient={patientData}
+      {isLoading ? (
+        <LoadingIndicator height="500px" />
+      ) : (
+        <WorkerRenderedPDFViewer
+          id={VACCINE_CERTIFICATE_PDF_ID}
+          queryDeps={[patient.id]}
           vaccinations={vaccinations}
+          patient={patientData}
           watermarkSrc={watermark}
           logoSrc={logo}
           facilityName={facility.name}
           signingSrc={footerImg}
           printedBy={printedBy}
           printedDate={getCurrentDateString()}
-          getLocalisation={getLocalisation}
+          localisation={localisation}
         />
-      </PDFViewer>
+      )}
     </Modal>
   );
 });

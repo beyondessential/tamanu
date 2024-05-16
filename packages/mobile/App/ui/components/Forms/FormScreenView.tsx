@@ -14,7 +14,7 @@ import {
   StyleSheet,
 } from 'react-native';
 import { CenterView, FullView, StyledSafeAreaView } from '/styled/common';
-import Animated, { Clock, interpolate } from 'react-native-reanimated';
+import Animated, { Clock, interpolateNode } from 'react-native-reanimated';
 import { ScrollView } from 'react-native-gesture-handler';
 import { theme } from '/styled/theme';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
@@ -83,7 +83,7 @@ export const FormScreenView = ({
 
   const clock = new Clock();
   const base = runTiming(clock, -1, 1);
-  const animatedOpacity = interpolate(base, {
+  const animatedOpacity = interpolateNode(base, {
     inputRange: [-1, 1],
     outputRange: [0, 1],
   });

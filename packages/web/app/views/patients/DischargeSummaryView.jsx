@@ -8,14 +8,14 @@ import { useEncounter } from '../../contexts/Encounter';
 import { Colors } from '../../constants';
 import { useCertificate } from '../../utils/useCertificate';
 import { useLocalisation } from '../../contexts/Localisation';
+import { useTranslation } from '../../contexts/Translation';
 import {
   usePatientAdditionalDataQuery,
   useReferenceData,
   usePatientConditions,
 } from '../../api/queries';
 import { DischargeSummaryPrintout } from '@tamanu/shared/utils/patientCertificates';
-import { printPDF, PDFViewer } from '../../components/PatientPrinting/PDFViewer';
-import { LoadingIndicator } from '../../components/LoadingIndicator';
+import { printPDF, PDFLoader } from '../../components/PatientPrinting/PDFLoader';
 import { useEncounterDischarge } from '../../api/queries/useEncounterDischarge';
 
 const Container = styled.div`
@@ -34,6 +34,7 @@ const NavContainer = styled.div`
 export const DischargeSummaryView = React.memo(() => {
   const { data: certiciateData, isFetching: isCertificateFetching } = useCertificate();
   const { getLocalisation } = useLocalisation();
+  const { getTranslation } = useTranslation();
   const { encounter } = useEncounter();
   const patient = useSelector(state => state.patient);
   const { data: additionalData, isFetching: isPADLoading } = usePatientAdditionalDataQuery(
@@ -50,8 +51,8 @@ export const DischargeSummaryView = React.memo(() => {
     return <Redirect to="/patients/all" />;
   }
 
-  if (isPADLoading || isDischargeLoading || isLoadingPatientConditions || isCertificateFetching)
-    return <LoadingIndicator />;
+  const isLoading =
+    isPADLoading || isDischargeLoading || isLoadingPatientConditions || isCertificateFetching;
 
   return (
     <Container>
@@ -66,7 +67,7 @@ export const DischargeSummaryView = React.memo(() => {
           Print Summary
         </Button>
       </NavContainer>
-      <PDFViewer id="discharge-summary" showToolbar={false}>
+      <PDFLoader isLoading={isLoading} id="discharge-summary">
         <DischargeSummaryPrintout
           patientData={{ ...patient, additionalData, village }}
           encounter={encounter}
@@ -74,8 +75,9 @@ export const DischargeSummaryView = React.memo(() => {
           patientConditions={patientConditions}
           certificateData={certiciateData}
           getLocalisation={getLocalisation}
+          getTranslation={getTranslation}
         />
-      </PDFViewer>
+      </PDFLoader>
     </Container>
   );
 });

@@ -1,89 +1,108 @@
 name: CD Down
 
 on:
-  pull_request_target:
-    types: [closed]
-  pull_request:
-    types: [unlabeled]
+  workflow_call:
+    inputs:
+      ref:
+        type: string
+        required: true
+      deploy-name:
+        type: string
+        required: true
+      options:
+        type: string
+        required: true
+      check-branch:
+        type: boolean
+        default: true
+    secrets:
+      PULUMI_ACCESS_TOKEN:
+        required: true
+      TAILSCALE_OAUTH:
+        required: true
+      TAMANU_OPS_SSH:
+        required: true
 
 permissions:
-  contents: read
+  contents: write # to update the release notes
   pull-requests: write
-  id-token: write # OIDC token for AWS
 
 jobs:
-  info:
-    # only run for non-permanent branches when a PR closes or loses the auto-deploy label
-    if: >
-      (
-        !startsWith(github.ref, 'refs/heads/release') 
-        && !startsWith(github.head_ref, 'release/') 
-        && github.ref != 'refs/heads/main' 
-        && github.ref_name != 'main'
-      ) && (
-        (
-          github.event_name == 'pull_request'
-          && github.event.action == 'unlabeled' 
-          && !contains(github.event.pull_request.labels.*.name, 'auto-deploy')
-        ) || (
-          github.event_name == 'pull_request_target'
-          && github.event.action == 'closed'
-        )
-      )
-    name: Branch info
-    uses: ./.github/workflows/branch-info.yml
-
   down:
-    needs: info
-    # check permanent branches once again after normalisation just in case
-    if: (!startsWith(needs.info.outputs.branch, 'release-') && needs.info.outputs.branch != 'main')
-    name: Bring down environment
+    name: Bring down ${{ inputs.deploy-name }}
     runs-on: ubuntu-latest
-
     steps:
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
+      - uses: actions/checkout@v4
+      - id: setup
+        uses: ./.github/actions/setup-cd
         with:
-          aws-region: ap-southeast-2
-          role-to-assume: arn:aws:iam::143295493206:role/gha-deploy
-          role-session-name: GHA@Tamanu=DeployDown
+          ops-ssh-key: ${{ secrets.TAMANU_OPS_SSH }}
+          tailscale-oauth: ${{ secrets.TAILSCALE_OAUTH }}
+          k8s-core: ${{ fromJson(inputs.options).k8score }}
 
-      - name: Checkout this PR
-        uses: actions/checkout@v4
+      - name: Check namespace
+        id: check
+        continue-on-error: true # so a false check doesn't make the workflow fail
+        run: |
+          if kubectl get namespace tamanu-${{ inputs.deploy-name }} 2>/dev/null; then
+            echo "Namespace exists"
+            if ${{ inputs.check-branch }}; then
+              echo "Checking it's matched to this branch"
+              if kubectl -n tamanu-${{ inputs.deploy-name }} \
+                get configmap auto-deploy -o json \
+                | tee -a /dev/stderr \
+                | jq -e '.data | [.repo == "${{ github.repository }}", .ref == "${{ inputs.ref }}"] | all | not'
+              then
+                echo "Namespace doesn't belong to this branch, not deleting"
+                exit 1
+              fi
+            fi
+          else
+            echo "Namespace doesn't exist, no need to delete"
+            exit 1
+          fi
 
-      - name: Checkout ops
-        uses: actions/checkout@v4
+      - name: Get full stack name
+        id: stack
+        working-directory: ops/pulumi/stacks/${{ fromJson(inputs.options).opsstack }}
+        run: |
+          project=$(ruby -e 'require "yaml"; puts YAML.load(open "Pulumi.yaml")["name"]')
+          echo "stackname=bes/$project/${{ inputs.deploy-name }}" >> $GITHUB_OUTPUT
+
+      - # outcome is from before continue-on-error, so will skip if check fails
+        if: steps.check.outcome == 'success'
+        id: down
+        name: Down!
+        uses: pulumi/actions@v5
         with:
-          repository: beyondessential/ops
-          ssh-key: ${{ secrets.TAMANU_OPS_SSH }}
-          path: ops
-      - name: Remove ops/.git so pulumi doesn't get confused
-        run: rm -rf ops/.git
-
-      - name: Install Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 20.x
-          cache: npm
-
-      - name: Prepare pulumi
-        run: npm ci
-        working-directory: ops/pulumi
-
-      - name: Connect to Tailscale
-        uses: tailscale/github-action@v2
-        with:
-          oauth-secret: ${{ secrets.TAILSCALE_DBPROXY_ACCESS_OAUTH }}
-          tags: tag:infra,tag:infra-gha-deploy
-
-      - name: Down!
-        uses: pulumi/actions@v3
-        with:
-          work-dir: ops/pulumi/tamanu-internal
+          work-dir: ops/pulumi/stacks/${{ fromJson(inputs.options).opsstack }}
           command: destroy
           remove: true
-          stack-name: bes/${{ needs.info.outputs.branch }}
+          stack-name: ${{ steps.stack.outputs.stackname }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          comment-on-pr: ${{ github.event_name == 'pull_request' }}
+          comment-on-pr: true
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+
+      - # if down fails but namespace existed, try to hard-delete the namespace
+        if: failure() && steps.down.outcome != 'success'
+        id: hard-delete
+        name: Delete namespace outright
+        run: |
+          if kubectl get namespace tamanu-${{ inputs.deploy-name }} 2>/dev/null; then
+            echo "Deleting namespace hard"
+            kubectl delete namespace tamanu-${{ inputs.deploy-name }}
+          fi
+      - # run pulumi destroy again to clean up any resources that might have been left behind
+        if: always() && steps.hard-delete.outcome == 'success'
+        name: Down again!
+        uses: pulumi/actions@v5
+        with:
+          work-dir: ops/pulumi/stacks/${{ fromJson(inputs.options).opsstack }}
+          command: destroy
+          remove: true
+          stack-name: ${{ steps.stack.outputs.stackname }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          comment-on-pr: true
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}

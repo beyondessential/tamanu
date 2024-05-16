@@ -1,16 +1,16 @@
 import React, { Component } from 'react';
-import styled, { css } from 'styled-components';
+import styled from 'styled-components';
 import PropTypes from 'prop-types';
 import Autosuggest from 'react-autosuggest';
 import { debounce } from 'lodash';
-import { IconButton, InputAdornment, MenuItem, Paper, Popper, Typography } from '@material-ui/core';
-
-import { ChevronIcon } from '../Icons/ChevronIcon';
+import { IconButton, MenuItem, Paper, Popper, Typography } from '@material-ui/core';
 import { ClearIcon } from '../Icons/ClearIcon';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { Colors } from '../../constants';
 import { StyledTextField } from './TextField';
 import { FormFieldTag } from '../Tag';
+import { TranslationContext } from '../../contexts/Translation';
+import { Icon, StyledExpandLess, StyledExpandMore } from './FieldCommonComponents';
 
 const SuggestionsContainer = styled(Popper)`
   z-index: 9999;
@@ -55,13 +55,6 @@ const SuggestionsList = styled(Paper)`
   }
 `;
 
-const Icon = styled(InputAdornment)`
-  margin-left: 0;
-  .MuiSvgIcon-root {
-    color: ${Colors.darkText};
-  }
-`;
-
 const OptionTag = styled(FormFieldTag)`
   position: relative;
 `;
@@ -77,21 +70,6 @@ const Item = styled(MenuItem)`
   justify-content: space-between;
 `;
 
-const iconStyle = css`
-  color: ${Colors.darkText};
-  margin-left: 6px;
-  margin-right: 8px;
-`;
-
-const StyledExpandLess = styled(ChevronIcon)`
-  ${iconStyle}
-  transform: rotate(180deg);
-`;
-
-const StyledExpandMore = styled(ChevronIcon)`
-  ${iconStyle}
-`;
-
 const StyledIconButton = styled(IconButton)`
   padding: 5px;
 `;
@@ -101,6 +79,8 @@ const StyledClearIcon = styled(ClearIcon)`
 `;
 
 export class AutocompleteInput extends Component {
+  static contextType = TranslationContext;
+
   constructor() {
     super();
     this.anchorEl = React.createRef();
@@ -324,17 +304,15 @@ export class AutocompleteInput extends Component {
                     <StyledClearIcon />
                   </StyledIconButton>
                 )}
-                {!disabled && (
-                  <Icon
-                    position="end"
-                    onClick={event => {
-                      event.preventDefault();
-                      this.anchorEl.click();
-                    }}
-                  >
-                    {suggestions.length > 0 ? <StyledExpandLess /> : <StyledExpandMore />}
-                  </Icon>
-                )}
+                <Icon
+                  position="end"
+                  onClick={event => {
+                    event.preventDefault();
+                    this.anchorEl.click();
+                  }}
+                >
+                  {suggestions.length > 0 ? <StyledExpandLess /> : <StyledExpandMore />}
+                </Icon>
               </>
             ),
           }}
@@ -359,7 +337,7 @@ export class AutocompleteInput extends Component {
       className,
       error,
       helperText,
-      placeholder = 'Search...',
+      placeholder = this.context.getTranslation('general.placeholder.search...', 'Search...'),
       inputRef,
     } = this.props;
 
@@ -398,7 +376,7 @@ export class AutocompleteInput extends Component {
 }
 
 AutocompleteInput.propTypes = {
-  label: PropTypes.string,
+  label: PropTypes.node,
   required: PropTypes.bool,
   disabled: PropTypes.bool,
   error: PropTypes.bool,

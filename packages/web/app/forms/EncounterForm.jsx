@@ -17,17 +17,21 @@ import {
   SuggesterSelectField,
   TextField,
 } from '../components';
-import { ENCOUNTER_OPTIONS, FORM_TYPES } from '../constants';
+import { ENCOUNTER_OPTIONS, FORM_TYPES, REASON_FOR_ENCOUNTER_MAX_CHARACTERS } from '../constants';
 import { useSuggester } from '../api';
 import { TranslatedText } from '../components/Translation/TranslatedText';
+import { isInpatient } from '../utils/isInpatient';
+import { useTranslation } from '../contexts/Translation';
 
 export const EncounterForm = React.memo(
   ({ editedObject, onSubmit, patientBillingTypeId, encounterType }) => {
     const practitionerSuggester = useSuggester('practitioner');
+    const dietSuggester = useSuggester('diet');
     const departmentSuggester = useSuggester('department', {
       baseQueryParameters: { filterByFacility: true },
     });
     const referralSourceSuggester = useSuggester('referralSource');
+    const { getTranslation } = useTranslation();
 
     const renderForm = ({ submitForm, values }) => {
       const buttonText = editedObject ? (
@@ -68,16 +72,19 @@ export const EncounterForm = React.memo(
           />
           <Field
             name="departmentId"
-            label={
-              <TranslatedText stringId="general.department.label" fallback="Department" />
-            }
+            label={<TranslatedText stringId="general.department.label" fallback="Department" />}
             required
             component={AutocompleteField}
             suggester={departmentSuggester}
           />
           <Field
             name="examinerId"
-            label={<TranslatedText stringId="general.localisedField.practitioner.label.short" />}
+            label={
+              <TranslatedText
+                stringId="general.localisedField.clinician.label.short"
+                fallback="Clinician"
+              />
+            }
             required
             component={AutocompleteField}
             suggester={practitionerSuggester}
@@ -113,6 +120,16 @@ export const EncounterForm = React.memo(
             endpoint="patientBillingType"
             component={SuggesterSelectField}
           />
+          {isInpatient(encounterType) && (
+            <LocalisedField
+              name="dietId"
+              label={
+                <TranslatedText stringId="general.localisedField.dietId.label" fallback="Diet" />
+              }
+              suggester={dietSuggester}
+              component={AutocompleteField}
+            />
+          )}
           <Field
             name="reasonForEncounter"
             label={
@@ -123,7 +140,7 @@ export const EncounterForm = React.memo(
             }
             component={TextField}
             multiline
-            rows={2}
+            minRows={2}
             style={{ gridColumn: 'span 2' }}
           />
           <div style={{ gridColumn: 2, textAlign: 'right' }}>
@@ -147,14 +164,48 @@ export const EncounterForm = React.memo(
         }}
         formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
         validationSchema={yup.object().shape({
-          examinerId: foreignKey('Required'),
-          locationId: foreignKey('Location is required'),
-          departmentId: foreignKey('Department is required'),
-          startDate: yup.date().required(),
+          examinerId: foreignKey().translatedLabel(
+            <TranslatedText
+              stringId="general.localisedField.clinician.label"
+              fallback="Clinician"
+            />,
+          ),
+          locationId: foreignKey().translatedLabel(
+            <TranslatedText
+              stringId="general.localisedField.locationId.label"
+              fallback="Location"
+            />,
+          ),
+          departmentId: foreignKey().translatedLabel(
+            <TranslatedText stringId="general.department.label" fallback="Department" />,
+          ),
+          startDate: yup
+            .date()
+            .required()
+            .translatedLabel(
+              <TranslatedText
+                stringId="patient.modal.checkIn.checkInDate.label"
+                fallback="Check-in date"
+              />,
+            ),
           encounterType: yup
             .string()
             .oneOf(ENCOUNTER_OPTIONS.map(x => x.value))
-            .required(),
+            .required()
+            .translatedLabel(
+              <TranslatedText
+                stringId="patient.modal.checkIn.encounterType.label"
+                fallback="Encounter type"
+              />,
+            ),
+          reasonForEncounter: yup.string().max(
+            REASON_FOR_ENCOUNTER_MAX_CHARACTERS,
+            getTranslation(
+              "reasonForEncounter.validation.rule.maxNCharacters",
+              "Reason for encounter must not exceed :maxChars characters",
+              { maxChars: REASON_FOR_ENCOUNTER_MAX_CHARACTERS }
+            )
+          )
         })}
       />
     );

@@ -16,6 +16,7 @@ import {
 import { Colors } from '../constants';
 import { LanguageSelector } from '../components/LanguageSelector';
 import { TranslatedText } from '../components/Translation/TranslatedText';
+import { useTranslation } from '../contexts/Translation';
 
 const FormSubtext = styled(BodyText)`
   color: ${Colors.midText};
@@ -93,6 +94,8 @@ const LoginFormComponent = ({
   setFieldError,
   rememberEmail,
 }) => {
+  const { getTranslation } = useTranslation();
+
   const [genericMessage, setGenericMessage] = useState(null);
 
   useEffect(() => {
@@ -123,7 +126,7 @@ const LoginFormComponent = ({
           )}
         </LoginHeading>
         <LoginSubtext>
-          <TranslatedText stringId="login.subtext" fallback="Enter your details below to log in" />
+          <TranslatedText stringId="login.subTitle" fallback="Enter your details below to log in" />
         </LoginSubtext>
         {!!genericMessage && <FormSubtext>{genericMessage}</FormSubtext>}
       </div>
@@ -133,7 +136,7 @@ const LoginFormComponent = ({
         label={<TranslatedText stringId="login.email.label" fallback="Email" />}
         required
         component={TextField}
-        placeholder="Enter your email address"
+        placeholder={getTranslation('login.email.placeholder', 'Enter your email address')}
         onChange={() => removeValidation()}
         autoComplete="off"
       />
@@ -144,7 +147,7 @@ const LoginFormComponent = ({
           type="password"
           required
           component={TextField}
-          placeholder="Enter your password"
+          placeholder={getTranslation('login.password.placeholder', 'Enter your password')}
           onChange={() => removeValidation()}
           autoComplete="off"
         />
@@ -167,6 +170,7 @@ const LoginFormComponent = ({
 
 export const LoginForm = React.memo(
   ({ onSubmit, errorMessage, rememberEmail, onNavToResetPassword }) => {
+    const { getTranslation } = useTranslation();
     const [isAdvancedExpanded, setAdvancedExpanded] = useState(false);
 
     const onError = errors => {
@@ -199,10 +203,15 @@ export const LoginForm = React.memo(
         validationSchema={yup.object().shape({
           email: yup
             .string()
-            .email('Must enter a valid email')
+            .email(getTranslation('validation.rule.validEmail', 'Must enter a valid email'))
             .nullable()
             .required(),
-          password: yup.string().required(),
+          password: yup
+            .string()
+            .required()
+            .translatedLabel(
+              <TranslatedText stringId="login.password.label" fallback="Password" />,
+            ),
         })}
       />
     );

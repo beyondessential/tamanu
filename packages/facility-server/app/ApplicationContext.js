@@ -1,5 +1,8 @@
 import config from 'config';
+import { omit } from 'lodash';
+import { initBugsnag } from '@tamanu/shared/services/logging';
 import { closeDatabase, initDatabase, initReporting } from './database';
+import { VERSION } from './middleware/versionCompatibility.js';
 
 export class ApplicationContext {
   sequelize = null;
@@ -10,7 +13,17 @@ export class ApplicationContext {
 
   closeHooks = [];
 
-  async init() {
+  async init({ appType } = {}) {
+    if (config.errors?.enabled) {
+      if (config.errors.type === 'bugsnag') {
+        await initBugsnag({
+          ...omit(config.errors, ['enabled', 'type']),
+          appVersion: VERSION,
+          appType,
+        });
+      }
+    }
+
     const database = await initDatabase();
     this.sequelize = database.sequelize;
     this.models = database.models;

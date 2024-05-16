@@ -1,3 +1,5 @@
+import { Op } from 'sequelize';
+
 import { fake } from '@tamanu/shared/test-helpers';
 import { log } from '@tamanu/shared/services/logging';
 
@@ -52,6 +54,11 @@ describe('FHIR refresh handler', () => {
       const { count, rows } = await ctx.store.models.FhirJob.findAndCountAll({
         where: {
           topic: 'fhir.refresh.fromUpstream',
+          payload: {
+            resource: {
+              [Op.ne]: 'MediciReport',
+            },
+          },
         },
       });
 
@@ -107,6 +114,11 @@ describe('FHIR refresh handler', () => {
       const { count, rows } = await ctx.store.models.FhirJob.findAndCountAll({
         where: {
           topic: 'fhir.refresh.fromUpstream',
+          payload: {
+            resource: {
+              [Op.ne]: 'MediciReport', // excluding created MediciReport job as it doesn't ignore SurveyResponses
+            },
+          },
         },
       });
 

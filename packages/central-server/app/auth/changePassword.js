@@ -3,7 +3,6 @@ import asyncHandler from 'express-async-handler';
 import { log } from '@tamanu/shared/services/logging';
 import * as yup from 'yup';
 import { ValidationError } from 'yup';
-import { findUser } from './utils';
 
 export const changePassword = express.Router();
 
@@ -45,7 +44,7 @@ changePassword.post(
 const doChangePassword = async (store, { email, newPassword, token }) => {
   const { models } = store;
 
-  const user = await findUser(models, email);
+  const user = await models.User.getForAuthByEmail(email);
   const userId = user ? user.id : 'thwart-timing-attack';
 
   const oneTimeLogin = await models.OneTimeLogin.findOne({
@@ -85,7 +84,7 @@ const doChangePassword = async (store, { email, newPassword, token }) => {
 const validateResetCode = async (store, { email, token }) => {
   const { models } = store;
 
-  const user = await findUser(models, email);
+  const user = await models.User.getForAuthByEmail(email);
   const userId = user ? user.id : 'thwart-timing-attack';
   const oneTimeLogin = await models.OneTimeLogin.findOne({
     where: { userId, token },

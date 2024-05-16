@@ -21,6 +21,10 @@ const assetSchema = yup.object().shape({
 assetRoutes.put(
   '/:name',
   asyncHandler(async (req, res) => {
+    // Flagging permission check in case the request fails validation
+    // Then we have further permission check for assets afterwards.
+    req.flagPermissionChecked();
+
     const { params, body } = req;
     const { name } = params;
 
@@ -39,10 +43,13 @@ assetRoutes.put(
     const existing = await Asset.findOne({ where: { name } });
 
     if (existing) {
+      req.checkPermission('write', existing);
       await existing.update(record);
       res.send({ action: 'updated', id: existing.id, name, type });
       return;
     }
+
+    req.checkPermission('create', 'Asset');
 
     const created = await Asset.create(record);
     res.send({ action: 'created', id: created.id, name, type });

@@ -26,7 +26,7 @@ export const PatientIssueForm = ({ onSubmit, editedObject, onCancel }) => (
           label={<TranslatedText stringId="general.notes.label" fallback="Notes" />}
           component={TextField}
           multiline
-          rows={2}
+          minRows={2}
         />
         <Field
           name="recordedDate"
@@ -55,8 +55,16 @@ export const PatientIssueForm = ({ onSubmit, editedObject, onCancel }) => (
     }}
     formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
     validationSchema={yup.object().shape({
-      note: yup.string().required(),
-      recordedDate: yup.date().required(),
+      note: yup
+        .string()
+        .required()
+        .translatedLabel(<TranslatedText stringId="general.note.label" fallback="Note" />),
+      recordedDate: yup
+        .date()
+        .required()
+        .translatedLabel(
+          <TranslatedText stringId="general.recordedDate.label" fallback="Date recorded" />,
+        ),
     })}
   />
 );

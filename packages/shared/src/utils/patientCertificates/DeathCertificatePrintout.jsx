@@ -197,6 +197,7 @@ export const DeathCertificatePrintout = React.memo(
     const causeOfDeath = getCauseName(causes?.primary);
     const antecedentCause1 = getCauseName(causes?.antecedent1);
     const antecedentCause2 = getCauseName(causes?.antecedent2);
+    const antecedentCause3 = getCauseName(causes?.antecedent3);
     return (
       <Document>
         <Page size="A4" style={{...styles.page, paddingBottom: 25}}>
@@ -267,7 +268,13 @@ export const DeathCertificatePrintout = React.memo(
                 <UnderlinedField
                   style={infoBoxStyles.mediumMarginTop}
                   label="c"
+                  helperText="due to (or as a consequence of)"
                   text={antecedentCause2}
+                ></UnderlinedField>
+                <UnderlinedField
+                  style={infoBoxStyles.mediumMarginTop}
+                  label="d"
+                  text={antecedentCause3}
                 ></UnderlinedField>
               </InfoBoxDataCol>
             </InfoBoxRow>

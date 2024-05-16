@@ -8,6 +8,7 @@ import { FormSubmitCancelRow } from './ButtonRow';
 import { AutocompleteField, DateTimeField, Field, Form, TextField } from './Field';
 import { FormGrid } from './FormGrid';
 import { TranslatedText } from './Translation/TranslatedText';
+import { useTranslation } from '../contexts/Translation';
 
 const SubmitError = styled.div`
   color: ${Colors.alert};
@@ -21,6 +22,8 @@ export function CarePlanNoteForm({
   onSuccessfulSubmit,
   onCancel,
 }) {
+  const { getTranslation } = useTranslation();
+
   const [submitError, setSubmitError] = useState('');
   const practitionerSuggester = useSuggester('practitioner');
   const api = useApi();
@@ -48,7 +51,12 @@ export function CarePlanNoteForm({
       }}
       initialValues={note || { date: getCurrentDateTimeString() }}
       validationSchema={yup.object().shape({
-        content: yup.string().required('Content is required'),
+        content: yup
+          .string()
+          .required()
+          .translatedLabel(
+            <TranslatedText stringId="note.validation.content.path" fallback="Content" />,
+          ),
       })}
       formType={note ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
       render={() => (
@@ -57,10 +65,7 @@ export function CarePlanNoteForm({
             <Field
               name="onBehalfOfId"
               label={
-                <TranslatedText
-                  stringId="carePlan.noteOnBehalfOf.label"
-                  fallback="On behalf of"
-                />
+                <TranslatedText stringId="carePlan.noteOnBehalfOf.label" fallback="On behalf of" />
               }
               component={AutocompleteField}
               suggester={practitionerSuggester}
@@ -80,11 +85,11 @@ export function CarePlanNoteForm({
           <FormGrid columns={1}>
             <Field
               name="content"
-              placeholder="Write a note..."
+              placeholder={getTranslation('carePlan.note.placeholder.writeNote', 'Write a note...')}
               component={TextField}
               required
               multiline
-              rows={4}
+              minRows={4}
             />
           </FormGrid>
           <SubmitError>{submitError}</SubmitError>
