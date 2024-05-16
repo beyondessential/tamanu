@@ -2,13 +2,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
-import { FORM_TYPES } from '../constants';
+import { FORM_TYPES, REASON_FOR_ENCOUNTER_MAX_CHARACTERS } from '../constants';
 import { Field, Form, TextField } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { ModalActionRow } from '../components';
-
-const REASON_FOR_ENCOUNTER_MAX_CHARACTERS = 256;
 
 export const ChangeReasonForm = ({ onCancel, onSubmit, reasonForEncounter }) => {
   const renderForm = ({ submitForm }) => (
@@ -36,7 +34,7 @@ export const ChangeReasonForm = ({ onCancel, onSubmit, reasonForEncounter }) => 
         reasonForEncounter: yup.string().max(
           REASON_FOR_ENCOUNTER_MAX_CHARACTERS,
           <TranslatedText
-            stringId="general.localisedField.reasonForEncounter.validation.maxCharacters"
+            stringId="reasonForEncounter.validation.rule.maxNCharacters"
             fallback="Reason for encounter must not exceed :maxChars characters"
             replacements={{ maxChars: REASON_FOR_ENCOUNTER_MAX_CHARACTERS }}
           />
