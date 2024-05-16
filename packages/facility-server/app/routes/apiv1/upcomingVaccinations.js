@@ -1,4 +1,6 @@
 import express from 'express';
+import config from 'config';
+import cronstrue from 'cronstrue';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
 import { VACCINE_STATUS, UPCOMING_VACCINATIONS_REFRESHED_AT_KEY } from '@tamanu/constants/vaccines';
@@ -135,6 +137,11 @@ upcomingVaccinations.get(
       UPCOMING_VACCINATIONS_REFRESHED_AT_KEY,
     );
 
-    return res.send({ data: results, count: parseInt(countResult[0].count, 10), lastRefreshed });
+    return res.send({
+      data: results,
+      count: parseInt(countResult[0].count, 10),
+      lastRefreshed,
+      refreshSchedule: cronstrue.toString(config.schedules.refreshUpcomingVaccinations.schedule),
+    });
   }),
 );
