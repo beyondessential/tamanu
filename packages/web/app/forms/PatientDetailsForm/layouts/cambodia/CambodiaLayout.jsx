@@ -1,6 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
-import { PATIENT_FIELD_DEFINITION_TYPES, PATIENT_REGISTRY_TYPES, SETTING_KEYS } from '@tamanu/constants';
+import {
+  PATIENT_FIELD_DEFINITION_TYPES,
+  PATIENT_REGISTRY_TYPES,
+  SETTING_KEYS,
+} from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { Colors } from '../../../../constants';
 import { LocalisedField, TextField, DateField, RadioField, FormGrid } from '../../../../components';
@@ -23,15 +27,22 @@ const FATHERS_FIRST_NAME_DEFINITION_ID = 'fieldDefinition-fathersFirstName';
 
 const CAMBODIA_CORE_FIELD_CATEGORY_ID = 'fieldCategory-cambodiaCorePatientFields';
 
-export const CambodiaPrimaryDetailsLayout = ({ sexOptions, isRequiredPatientData }) => {
+export const CambodiaPrimaryDetailsLayout = ({
+  sexOptions,
+  isRequiredPatientData,
+  isDetailsForm = false,
+}) => {
   const { getSetting } = useSettings();
   const isReminderContactEnabled = getSetting(SETTING_KEYS.FEATURES_REMINDER_CONTACT_ENABLED);
 
   return (
     <>
       <PatientDetailsHeading>
-        <TranslatedText stringId="patient.detail.subheading.general" fallback="General information" />
-        {isReminderContactEnabled ? <ReminderContactSection /> : null}
+        <TranslatedText
+          stringId="patient.detail.subheading.general"
+          fallback="General information"
+        />
+        {isReminderContactEnabled && isDetailsForm && <ReminderContactSection />}
       </PatientDetailsHeading>
       <FormGrid>
         <LocalisedField
@@ -45,7 +56,10 @@ export const CambodiaPrimaryDetailsLayout = ({ sexOptions, isRequiredPatientData
         <LocalisedField
           name="firstName"
           label={
-            <TranslatedText stringId="general.localisedField.firstName.label" fallback="First name" />
+            <TranslatedText
+              stringId="general.localisedField.firstName.label"
+              fallback="First name"
+            />
           }
           component={TextField}
           required
