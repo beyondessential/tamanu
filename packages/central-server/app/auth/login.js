@@ -10,7 +10,7 @@ import { convertFromDbRecord } from '../convertDbRecord';
 import {
   getRandomBase64String,
   getRandomU32,
-  getToken,
+  buildToken,
   isInternalClient,
   stripUser,
 } from './utils';
@@ -27,7 +27,7 @@ const getRefreshToken = async (models, { refreshSecret, userId, deviceId }) => {
   const refreshTokenJwtId = getRandomU32();
   const [hashedRefreshId, refreshToken] = await Promise.all([
     bcrypt.hash(refreshId, saltRounds),
-    getToken(
+    buildToken(
       {
         userId,
         refreshId,
@@ -108,7 +108,7 @@ export const login = ({ secret, refreshSecret }) =>
     const { tokenDuration } = auth;
     const accessTokenJwtId = getRandomU32();
     const [token, refreshToken, localisation, permissions, role] = await Promise.all([
-      getToken(
+      buildToken(
         {
           userId: user.id,
           deviceId,

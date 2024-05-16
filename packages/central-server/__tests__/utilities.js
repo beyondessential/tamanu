@@ -6,7 +6,7 @@ import { createMockReportingSchemaAndRoles } from '@tamanu/shared/demoData';
 import { ReadSettings } from '@tamanu/settings';
 import { fake, asNewRole } from '@tamanu/shared/test-helpers';
 import { DEFAULT_JWT_SECRET } from '../dist/auth';
-import { getToken } from '../dist/auth/utils';
+import { buildToken } from '../dist/auth/utils';
 import { createApp } from '../dist/createApp';
 import { closeDatabase, initDatabase, initReporting } from '../dist/database';
 import { initIntegrations } from '../dist/integrations';
@@ -56,7 +56,7 @@ export async function createTestContext() {
   baseApp.asUser = async user => {
     const agent = supertest.agent(expressApp);
     agent.set('X-Tamanu-Client', SERVER_TYPES.WEBAPP);
-    const token = await getToken({ userId: user.id }, DEFAULT_JWT_SECRET, {
+    const token = await buildToken({ userId: user.id }, DEFAULT_JWT_SECRET, {
       expiresIn: '1d',
       audience: JWT_TOKEN_TYPES.ACCESS,
       issuer: config.canonicalHostName,
