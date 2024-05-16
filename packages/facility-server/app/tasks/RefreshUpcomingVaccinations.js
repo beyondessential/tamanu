@@ -19,7 +19,9 @@ export class RefreshUpcomingVaccinations extends ScheduledTask {
   }
 
   async run() {
-    await this.sequelize.query('REFRESH MATERIALIZED VIEW materialized_upcoming_vaccinations');
+    await this.sequelize.query(
+      'REFRESH MATERIALIZED VIEW CONCURRENTLY materialized_upcoming_vaccinations',
+    );
     await this.models.LocalSystemFact.set(
       LAST_REFRESHED_UPCOMING_VACCINATIONS_KEY,
       getCurrentDateTimeString(),
