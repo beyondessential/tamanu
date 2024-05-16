@@ -18,6 +18,15 @@ import { usePatientNavigation } from '../../utils/usePatientNavigation.js';
 import { PATIENT_TABS } from '../../constants/patientPaths.js';
 import { reloadPatient } from '../../store/index.js';
 import { useDispatch } from 'react-redux';
+import { useQuery } from '@tanstack/react-query';
+import { useApi } from '../../api/useApi.js';
+
+const useUpcomingVaccinationsRefreshStats = () => {
+  const api = useApi();
+  return useQuery(['upcomingVaccinationsRefreshStats'], async () =>
+    api.get('upcomingVaccinations/refreshStats'),
+  );
+};
 
 const getSchedule = record =>
   record?.scheduleName || (
@@ -58,6 +67,7 @@ const COLUMNS = [
 ];
 
 export const ImmunisationsView = () => {
+  const { data: refreshStats, error } = useUpcomingVaccinationsRefreshStats();
   const dispatch = useDispatch();
   const [searchParameters, setSearchParameters] = useState({});
   const { navigateToPatient } = usePatientNavigation();
@@ -65,6 +75,8 @@ export const ImmunisationsView = () => {
     await dispatch(reloadPatient(patient.id));
     navigateToPatient(patient.id, { tab: PATIENT_TABS.VACCINES });
   };
+
+  console.log(refreshStats, error);
 
   return (
     <PageContainer>
