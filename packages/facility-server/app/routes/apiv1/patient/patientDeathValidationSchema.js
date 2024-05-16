@@ -27,6 +27,11 @@ export const PATIENT_DEATH_FULL_SCHEMA = yup.object().shape({
     .number()
     .default(0)
     .nullable(),
+  antecedentCause3: yup.string().nullable(),
+  antecedentCause3Interval: yup
+    .number()
+    .default(0)
+    .nullable(),
   birthWeight: yup.number().nullable(),
   causeOfDeath: yup.string().required(),
   causeOfDeathInterval: yup

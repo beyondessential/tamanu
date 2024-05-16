@@ -231,6 +231,17 @@ export const DeathForm = React.memo(
             label="Time between onset and death"
             component={TimeWithUnitField}
           />
+          <Field
+            name="antecedentCause3"
+            label="Due to (or as a consequence of)"
+            component={AutocompleteField}
+            suggester={icd10Suggester}
+          />
+          <Field
+            name="antecedentCause3Interval"
+            label="Time between onset and death"
+            component={TimeWithUnitField}
+          />
           <FormSeparatorLine />
           <Field
             name="otherContributingConditions"
