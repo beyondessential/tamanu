@@ -10,6 +10,7 @@ async function generateData(models) {
     Encounter,
     Facility,
     Location,
+    LocationGroup,
     EncounterHistory,
     Patient,
     User,

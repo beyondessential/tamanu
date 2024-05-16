@@ -10,25 +10,13 @@ export async function up(query) {
   `);
 
   // Apply natural sorting order to locations and areas
-  await query.changeColumn('locations', 'name', {
-    type: DataTypes.STRING,
-    collate: 'en_numeric',
-  });
-  await query.changeColumn('location_groups', 'name', {
-    type: DataTypes.STRING,
-    collate: 'en_numeric',
-  });
+  await query.sequelize.query("ALTER TABLE locations ALTER COLUMN name TYPE character varying(255) COLLATE en_numeric");
+  await query.sequelize.query("ALTER TABLE location_groups ALTER COLUMN name TYPE character varying(255) COLLATE en_numeric");
 }
 
 export async function down(query) {
-  await query.changeColumn('locations', 'name', {
-    type: DataTypes.STRING,
-    collate: null,
-  });
-  await query.changeColumn('location_groups', 'name', {
-    type: DataTypes.STRING,
-    collate: null,
-  });
+  await query.sequelize.query("ALTER TABLE locations ALTER COLUMN name TYPE character varying(255) COLLATE default");
+  await query.sequelize.query("ALTER TABLE location_groups ALTER COLUMN name TYPE character varying(255) COLLATE default");
 
   await query.sequelize.query('DROP COLLATION en_numeric;');
 }
