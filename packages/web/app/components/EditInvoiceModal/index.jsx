@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
+import * as yup from 'yup';
 import { Divider } from '@material-ui/core';
 import { INVOICE_LINE_TYPE_LABELS } from '@tamanu/constants';
 import { Modal } from '../Modal';
@@ -14,7 +15,6 @@ import { DateDisplay } from '../DateDisplay';
 import { Button } from '../Button';
 import { ItemHeader, ItemRow } from './ItemRow';
 import { useEncounter } from '../../contexts/Encounter';
-import { getInvoiceLineCode } from '../../utils/invoiceDetails'; 
 
 const LinkText = styled.div`
   font-weight: 500;
@@ -106,9 +106,9 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
         invoiceLineTypeId: item.invoiceLineTypeId,
         date: item.dateGenerated,
         orderedById: item.orderedById,
-        price: item.invoiceLineType?.price,
         id: item?.id,
-        code: getInvoiceLineCode(item),
+        invoiceLineType: item.invoiceLineType,
+        orderedBy: item.orderedBy
       }));
       if (newRowList.length) setRowList(newRowList);
     })();
@@ -201,8 +201,8 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
       };
 
       if (
-        newInvoiceLineItemData.date && 
-        newInvoiceLineItemData.invoiceLineTypeId && 
+        newInvoiceLineItemData.date &&
+        newInvoiceLineItemData.invoiceLineTypeId &&
         newInvoiceLineItemData.orderedById
       ) {
         invoiceLineItemsData.push(newInvoiceLineItemData);
@@ -213,6 +213,30 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
     await api.put(`invoices/${invoiceId}/lineItems`, { invoiceLineItemsData });
     await loadEncounter(encounterId);
   };
+
+  const schema = yup.object().shape(
+    rowList.reduce((prevRow, _, currentIndex) => ({
+      ...prevRow,
+      [`date_${currentIndex}`]: yup
+        .string()
+        .required()
+        .translatedLabel(
+          <TranslatedText stringId="general.date.label" fallback="Date" />,
+        ),
+      [`invoiceLineTypeId_${currentIndex}`]: yup
+        .string()
+        .required()
+        .translatedLabel(
+          <TranslatedText stringId="invoice.modal.editInvoice.details.label" fallback="Details type" />,
+        ),
+      [`orderedById_${currentIndex}`]: yup
+        .string()
+        .required()
+        .translatedLabel(
+          <TranslatedText stringId="invoice.modal.editInvoice.orderedBy.label" fallback="Ordered by" />,
+        ),
+    }), {})
+  );
 
   return (
     <Modal
@@ -232,6 +256,7 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
         enableReinitialize
         onSubmit={handleSubmit}
         initialValues={initialValues}
+        validationSchema={schema}
         render={({ submitForm }) => (
           <FormContainer>
             <ItemHeader />

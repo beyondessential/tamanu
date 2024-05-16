@@ -7,6 +7,7 @@ import { AutocompleteField, DateField, Field } from '../Field';
 import { useSuggester } from '../../api';
 import { Colors } from '../../constants';
 import { DeleteItemModal } from './DeleteItemModal';
+import { getInvoiceLineCode } from '../../utils/invoiceDetails';
 
 const PriceText = styled.span`
   margin-right: 16px;
@@ -126,13 +127,13 @@ export const ItemRow = ({
     const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
     const [rowData, setRowData] = useState({
-      details: defaultRowData?.name || "",
-      date: defaultRowData?.date || "",
-      orderedBy: defaultRowData?.orderedBy || "",
-      price: defaultRowData?.price || "",
-      invoiceLineTypeId: defaultRowData?.invoiceLineTypeId || "",
-      orderedById: defaultRowData?.orderedById || "",
-      code: defaultRowData?.code || "",
+      details: defaultRowData?.invoiceLineType?.name || defaultRowData?.name,
+      date: defaultRowData?.date,
+      orderedBy: defaultRowData?.orderedBy?.displayName,
+      price: defaultRowData?.invoiceLineType?.price,
+      invoiceLineTypeId: defaultRowData?.invoiceLineTypeId,
+      orderedById: defaultRowData?.orderedById,
+      code: getInvoiceLineCode(defaultRowData) || defaultRowData.code,
     });
   
     const onOpenKebabMenu = (event) => {
@@ -143,10 +144,18 @@ export const ItemRow = ({
       setAnchorEl(null);
     };
   
-    const updateRowData = ({ itemType, price }) => {
+    const onUpdateInvoiceLineTypeId = ({ name, price }) => {
       setRowData(prevRowData => ({
         ...prevRowData,
+        details: name,
         price,
+      }))
+    };
+
+    const onUpdateOrderedById = ({ name }) => {
+      setRowData(prevRowData => ({
+        ...prevRowData,
+        orderedBy: name,
       }))
     };
   
@@ -178,7 +187,7 @@ export const ItemRow = ({
           required
           component={AutocompleteField}
           suggester={invoiceLineTypeSuggester}
-          onFetchCurrentOption={data => updateRowData(data)}
+          onFetchCurrentOption={data => onUpdateInvoiceLineTypeId(data)}
           size="small"
           value={rowData.invoiceLineTypeId}
           onChange={event => setRowData({
@@ -200,11 +209,13 @@ export const ItemRow = ({
           required
           component={AutocompleteField}
           suggester={practitionerSuggester}
+          onFetchCurrentOption={data => onUpdateOrderedById(data)}
           size="small"
           value={rowData.orderedById}
           onChange={event => setRowData({
             ...rowData,
             orderedById: event.target.value,
+            orderedBy: ""
           })}
         />
       </Grid>
