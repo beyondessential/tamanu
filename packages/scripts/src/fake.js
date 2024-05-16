@@ -158,6 +158,7 @@ async function generateData(models) {
   await PatientDeathData.create(
     fake(PatientDeathData, {
       patientId: patient.id,
+      clinicianId: examiner.id,
     }),
   );
 
