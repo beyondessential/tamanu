@@ -18,13 +18,10 @@ export class Suggester {
     return this.api.get(`${this.endpoint}${suffix}`, queryParameters);
   }
 
-  fetchCurrentOption = async (value, showFullData = false) => {
+  fetchCurrentOption = async (value) => {
     if (!this.enable) return undefined;
     try {
       const data = await this.fetch(`/${encodeURIComponent(value)}`);
-      if (showFullData) {
-        return { label: data.name, value: data.id, ...data };h
-      }
       return this.formatter(data);
     } catch (e) {
       return undefined;

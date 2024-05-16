@@ -136,11 +136,11 @@ const StyledTableCell = styled(TableCell)`
   }
 
   &:first-child {
-    padding-left: ${props => !!props.isDenseTable ? '0px' : '20px'};
+    padding-left: ${props => props.isDenseTable ? '0px' : '20px'};
   }
 
   &:last-child {
-    padding-right: ${props => !!props.isDenseTable ? '5px' : '20px'};
+    padding-right: ${props => props.isDenseTable ? '5px' : '20px'};
   }
 `;
 

@@ -128,7 +128,7 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
       setRowList(newRowList);
       return;
     }
-    if (!!rowData) {
+    if (rowData) {
       newRowList.push(rowData);
       setRowList(newRowList);
       return;

@@ -3,7 +3,6 @@ import styled from 'styled-components';
 
 import {
   INVOICE_LINE_TYPE_LABELS,
-  INVOICE_LINE_TYPES,
   INVOICE_PRICE_CHANGE_TYPE_LABELS,
   INVOICE_PRICE_CHANGE_TYPES,
 } from '@tamanu/constants';
