@@ -159,6 +159,11 @@ export class LabRequest extends Model {
       as: 'certificate_notification',
     });
 
+    this.hasMany(models.LabRequestAttachment, {
+      foreignKey: 'labRequestId',
+      as: 'labRequestAttachments',
+    });
+
     this.hasMany(models.Note, {
       foreignKey: 'recordId',
       as: 'notes',
@@ -197,6 +202,15 @@ export class LabRequest extends Model {
   getTests() {
     return this.sequelize.models.LabTest.findAll({
       where: { labRequestId: this.id },
+    });
+  }
+
+  getLatestAttachment() {
+    return this.sequelize.models.LabRequestAttachment.findOne({
+      where: {
+        labRequestId: this.id,
+        replacedById: null,
+      },
     });
   }
 }
