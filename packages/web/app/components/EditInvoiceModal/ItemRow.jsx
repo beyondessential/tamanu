@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Grid, IconButton, Menu } from '@material-ui/core';
 import { MoreVert } from '@material-ui/icons';
-import { INVOICE_LINE_TYPE_LABELS } from '@tamanu/constants';
-import { TranslatedEnum , TranslatedText } from '../Translation';
+import { TranslatedText } from '../Translation';
 import { AutocompleteField, DateField, Field } from '../Field';
 import { useSuggester } from '../../api';
 import { Colors } from '../../constants';
@@ -114,23 +113,26 @@ export const ItemHeader = () => {
   </StyledItemHeader>
 };
 
-export const ItemRow = ({ index, hasBorderBottom, category, onDelete, rowData: defaultRowData, isDeleteDisabled }) => {
+export const ItemRow = ({ 
+  index, 
+  hasBorderBottom,
+  onDelete, 
+  rowData: defaultRowData, 
+  isDeleteDisabled 
+}) => {
     const invoiceLineTypeSuggester = useSuggester('invoiceLineTypes');
     const practitionerSuggester = useSuggester('practitioner');
     const [actionModal, setActionModal] = useState('');
     const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
     const [rowData, setRowData] = useState({
-      code: defaultRowData?.type
-        ? <TranslatedEnum
-          prefix="invoice.line.property.type"
-          value={defaultRowData.type}
-          enumValues={INVOICE_LINE_TYPE_LABELS}
-        /> : "",
       details: defaultRowData?.name || "",
       date: defaultRowData?.date || "",
       orderedBy: defaultRowData?.orderedBy || "",
       price: defaultRowData?.price || "",
+      invoiceLineTypeId: defaultRowData?.invoiceLineTypeId || "",
+      orderedById: defaultRowData?.orderedById || "",
+      code: defaultRowData?.code || "",
     });
   
     const onOpenKebabMenu = (event) => {
@@ -144,11 +146,6 @@ export const ItemRow = ({ index, hasBorderBottom, category, onDelete, rowData: d
     const updateRowData = ({ itemType, price }) => {
       setRowData(prevRowData => ({
         ...prevRowData,
-        code: <TranslatedEnum
-          prefix="invoice.line.property.type"
-          value={itemType}
-          enumValues={INVOICE_LINE_TYPE_LABELS}
-        />,
         price,
       }))
     };
@@ -168,6 +165,11 @@ export const ItemRow = ({ index, hasBorderBottom, category, onDelete, rowData: d
           component={DateField}
           saveDateAsString
           size="small"
+          value={rowData.date}
+          onChange={event => setRowData({
+            ...rowData,
+            date: event.target.value,
+          })}
         />
       </Grid>
       <Grid item xs={4}>
@@ -178,11 +180,18 @@ export const ItemRow = ({ index, hasBorderBottom, category, onDelete, rowData: d
           suggester={invoiceLineTypeSuggester}
           onFetchCurrentOption={data => updateRowData(data)}
           size="small"
+          value={rowData.invoiceLineTypeId}
+          onChange={event => setRowData({
+            ...rowData,
+            invoiceLineTypeId: event.target.value,
+            code: "",
+            price: "",
+          })}
         />
       </Grid>
       <Grid item justifyContent='center' xs={1}>
         <ItemCodeText>
-          {category || rowData.code}
+          {rowData.code}
         </ItemCodeText>
       </Grid>
       <Grid item xs={3}>
@@ -192,6 +201,11 @@ export const ItemRow = ({ index, hasBorderBottom, category, onDelete, rowData: d
           component={AutocompleteField}
           suggester={practitionerSuggester}
           size="small"
+          value={rowData.orderedById}
+          onChange={event => setRowData({
+            ...rowData,
+            orderedById: event.target.value,
+          })}
         />
       </Grid>
       <Grid item xs={2}>

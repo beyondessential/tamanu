@@ -263,7 +263,7 @@ createSuggester(
     name: { [Op.iLike]: search },
     itemType: INVOICE_LINE_TYPES.ADDITIONAL,
   }),
-  { mapper: ({ id, name, itemType, price }) => ({ id, name, itemType, price }) },
+  { mapper: ({ id, name, price }) => ({ id, name, price }) },
 );
 
 createSuggester(

@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { v4 as uuidv4 } from 'uuid';
 import { Divider } from '@material-ui/core';
 import { INVOICE_LINE_TYPE_LABELS } from '@tamanu/constants';
 import { Modal } from '../Modal';
@@ -13,6 +14,7 @@ import { DateDisplay } from '../DateDisplay';
 import { Button } from '../Button';
 import { ItemHeader, ItemRow } from './ItemRow';
 import { useEncounter } from '../../contexts/Encounter';
+import { getInvoiceLineCode } from '../../utils/invoiceDetails'; 
 
 const LinkText = styled.div`
   font-weight: 500;
@@ -69,17 +71,28 @@ const StyledDivider = styled(Divider)`
   margin: 26px -40px 32px -40px;
 `;
 
-export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, invoiceLineItems, encounterId }) => {
-  const defaultRowList = invoiceLineItems.length ? invoiceLineItems.map(item => ({
-    invoiceLineTypeId: item.invoiceLineTypeId,
-    date: item.dateGenerated,
-    orderedById: item.orderedById,
-    price: item.invoiceLineType?.price,
-  })) : [undefined];
-  const [rowList, setRowList] = useState(defaultRowList);
+export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounterId }) => {
+  const [rowList, setRowList] = useState([{ id: uuidv4() }]);
   const [potentialLineItems, setPotentialLineItems] = useState([]);
   const [isEmpty, setIsEmpty] = useState(false);
   const api = useApi();
+
+  useEffect(() => {
+    (async () => {
+      const response = await api.get(`invoices/${encodeURIComponent(invoiceId)}/lineItems`);
+
+      const newRowList = response.data.map(item => ({
+        invoiceLineTypeId: item.invoiceLineTypeId,
+        date: item.dateGenerated,
+        orderedById: item.orderedById,
+        price: item.invoiceLineType?.price,
+        id: item?.id,
+        code: getInvoiceLineCode(item),
+      }));
+      if (newRowList.length) setRowList(newRowList);
+    })();
+  }, [api]);
+
   const { loadEncounter } = useEncounter();
 
   const handleAddRow = (rowData) => {
@@ -99,7 +112,7 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, invoiceL
       setRowList(newRowList);
       return;
     }
-    newRowList.push(undefined);
+    newRowList.push({ id: uuidv4() });
     setRowList(newRowList);
   };
 
@@ -148,16 +161,12 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, invoiceL
     ...accumulator,
     ["date_" + currentIndex]: currentValue?.date || "",
     ["invoiceLineTypeId_" + currentIndex]: currentValue?.invoiceLineTypeId || "",
-    ["price_" + currentIndex]: currentValue?.price || "",
     ["orderedById_" + currentIndex]: currentValue?.orderedById || "",
   }), {});
 
-  const onDeleteLineItem = (index) => {
-    setRowList(prevRowList => {
-      const newRowList = [...prevRowList];
-      newRowList.splice(index, 1);
-      return newRowList;
-    });
+  const onDeleteLineItem = (id) => {
+    const newRowList = rowList.filter(row => row.id !== id);
+    setRowList(newRowList);
   };
 
   const handleSubmit = async (submitData) => {
@@ -168,10 +177,15 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, invoiceL
         invoiceLineTypeId: submitData[`invoiceLineTypeId_${i}`],
         date: submitData[`date_${i}`],
         orderedById: submitData[`orderedById_${i}`],
-        price: submitData[`price_${i}`]
       };
 
-      if (!!newInvoiceLineItemData.date) invoiceLineItemsData.push(newInvoiceLineItemData);
+      if (
+        newInvoiceLineItemData.date && 
+        newInvoiceLineItemData.invoiceLineTypeId && 
+        newInvoiceLineItemData.orderedById
+      ) {
+        invoiceLineItemsData.push(newInvoiceLineItemData);
+      }
       i++;
     }
 
@@ -212,7 +226,7 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, invoiceL
                     value={row.type}
                     enumValues={INVOICE_LINE_TYPE_LABELS}
                   /> : ""}
-                onDelete={() => onDeleteLineItem(index)}
+                onDelete={() => onDeleteLineItem(row?.id)}
                 isDeleteDisabled={rowList.length === 1}
               />
             ))}
@@ -245,8 +259,8 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, invoiceL
                 page={null}
                 elevated={false}
                 isDenseTable
-                autoGeneratingIds
                 isEmpty={isEmpty}
+                autoGeneratingIds
               />
             </PotentialLineItemsPane>
             <StyledDivider />

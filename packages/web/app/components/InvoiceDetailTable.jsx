@@ -21,6 +21,7 @@ import { ConfirmModal } from './ConfirmModal';
 import { DropdownButton } from './DropdownButton';
 import { DateDisplay } from './DateDisplay';
 import { TranslatedEnum, TranslatedText } from './Translation';
+import { getInvoiceLineCode } from '../utils/invoiceDetails';
 
 const InvoiceLineDetail = styled.p`
   font-size: 15px;
@@ -160,19 +161,6 @@ const getPercentageChange = ({ percentageChange }) => {
   return percentageChangeNumber > 0 ? `+${percentageChangeNumber}%` : `${percentageChangeNumber}%`;
 };
 
-const getInvoiceLineCode = row => {
-  const { itemType } = row.invoiceLineType;
-  switch (itemType) {
-    case INVOICE_LINE_TYPES.PROCEDURE_TYPE:
-      return row.invoiceLineType?.procedureType?.code;
-    case INVOICE_LINE_TYPES.IMAGING_TYPE:
-      return row.invoiceLineType?.imagingType?.code;
-    case INVOICE_LINE_TYPES.LAB_TEST_TYPE:
-      return row.invoiceLineType?.labTestType?.code;
-    default:
-      return '';
-  }
-};
 const getInvoicePriceChangeCode = row => {
   if (!row.invoicePriceChangeType) {
     return '';
