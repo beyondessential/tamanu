@@ -1,7 +1,7 @@
 import config from 'config';
 
 import { ScheduledTask } from '@tamanu/shared/tasks';
-import { LAST_REFRESHED_UPCOMING_VACCINATIONS_KEY } from '@tamanu/constants/vaccines';
+import { UPCOMING_VACCINATIONS_REFRESHED_AT_KEY } from '@tamanu/constants/vaccines';
 import { log } from '@tamanu/shared/services/logging';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 
@@ -23,7 +23,7 @@ export class RefreshUpcomingVaccinations extends ScheduledTask {
       'REFRESH MATERIALIZED VIEW CONCURRENTLY materialized_upcoming_vaccinations',
     );
     await this.models.LocalSystemFact.set(
-      LAST_REFRESHED_UPCOMING_VACCINATIONS_KEY,
+      UPCOMING_VACCINATIONS_REFRESHED_AT_KEY,
       getCurrentDateTimeString(),
     );
   }

@@ -140,4 +140,4 @@ export const VACCINE_RECORDING_TYPES = {
   NOT_GIVEN: VACCINE_STATUS.NOT_GIVEN,
 };
 
-export const LAST_REFRESHED_UPCOMING_VACCINATIONS_KEY = 'lastRefreshedUpcomingVaccinations';
+export const UPCOMING_VACCINATIONS_REFRESHED_AT_KEY = 'upcomingVaccinationsRefreshedAt';
