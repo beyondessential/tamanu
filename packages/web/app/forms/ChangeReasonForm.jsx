@@ -7,8 +7,10 @@ import { Field, Form, TextField } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { ModalActionRow } from '../components';
+import { useTranslation } from '../contexts/Translation';
 
 export const ChangeReasonForm = ({ onCancel, onSubmit, reasonForEncounter }) => {
+  const { getTranslation } = useTranslation();
   const renderForm = ({ submitForm }) => (
     <FormGrid columns={1}>
       <Field
@@ -33,11 +35,11 @@ export const ChangeReasonForm = ({ onCancel, onSubmit, reasonForEncounter }) => 
       validationSchema={yup.object().shape({
         reasonForEncounter: yup.string().max(
           REASON_FOR_ENCOUNTER_MAX_CHARACTERS,
-          <TranslatedText
-            stringId="reasonForEncounter.validation.rule.maxNCharacters"
-            fallback="Reason for encounter must not exceed :maxChars characters"
-            replacements={{ maxChars: REASON_FOR_ENCOUNTER_MAX_CHARACTERS }}
-          />
+          getTranslation(
+            "reasonForEncounter.validation.rule.maxNCharacters",
+            "Reason for encounter must not exceed :maxChars characters",
+            { maxChars: REASON_FOR_ENCOUNTER_MAX_CHARACTERS }
+          )
         )
       })}
     />
