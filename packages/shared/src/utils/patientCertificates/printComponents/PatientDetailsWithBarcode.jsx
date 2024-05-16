@@ -17,8 +17,7 @@ export const PatientDetailsWithBarcode = ({ patient, getLocalisation }) => {
       { key: 'villageName', label: 'Village', accessor: getVillageName },
     ],
     rightCol: [
-      { key: 'displayId', label: 'Patient ID' },
-      ...(patient.patientWeight
+      ...(patient.patientWeight !== undefined
         ? [
             {
               key: 'patientWeight',
@@ -27,6 +26,7 @@ export const PatientDetailsWithBarcode = ({ patient, getLocalisation }) => {
             },
           ]
         : []),
+      { key: 'displayId', label: 'Patient ID' },
     ],
   };
 

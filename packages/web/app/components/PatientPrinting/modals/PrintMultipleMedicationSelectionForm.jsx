@@ -125,6 +125,7 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
 
   const patient = useSelector(state => state.patient);
   const age = differenceInYears(new Date(), new Date(patient.dateOfBirth));
+  const showPatientWeight = age < MAX_AGE_TO_RECORD_WEIGHT;
 
   useEffect(() => {
     const medications = data?.data || [];
@@ -166,7 +167,7 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
         prescriptions={selectedRows}
         open={openPrintoutModal}
         onClose={() => setOpenPrintoutModal(false)}
-        patientWeight={patientWeight}
+        patientWeight={showPatientWeight ? patientWeight : undefined}
       />
 
       <PrescriberWrapper>
@@ -198,7 +199,7 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
             )
           }
         />
-        {age < MAX_AGE_TO_RECORD_WEIGHT && (
+        {showPatientWeight && (
           <TextField
             field={{
               name: 'patientWeight',

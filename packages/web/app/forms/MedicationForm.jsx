@@ -138,6 +138,7 @@ export const MedicationForm = React.memo(
 
     const patient = useSelector(state => state.patient);
     const age = differenceInYears(new Date(), new Date(patient.dateOfBirth));
+    const showPatientWeight = age < MAX_AGE_TO_RECORD_WEIGHT;
 
     const shouldShowDiscontinuationButton = readOnly && !medication?.discontinued;
     const shouldShowSubmitButton = !readOnly || shouldDiscontinue;
@@ -251,7 +252,7 @@ export const MedicationForm = React.memo(
                 required={!readOnly}
                 disabled={readOnly}
               />
-              {age < MAX_AGE_TO_RECORD_WEIGHT && (
+              {showPatientWeight && (
                 <Field
                   name="patientWeight"
                   label={
@@ -453,7 +454,7 @@ export const MedicationForm = React.memo(
         {(submittedMedication || medication) && (
           <PrintPrescriptionModal
             medication={submittedMedication || medication}
-            patientWeight={patientWeight}
+            patientWeight={showPatientWeight ? patientWeight : undefined}
             open={printModalOpen}
             onClose={() => {
               if (awaitingPrint) {

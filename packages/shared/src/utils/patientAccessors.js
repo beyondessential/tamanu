@@ -51,4 +51,4 @@ export const getLocationName = ({ location }) =>
 export const getVillageName = ({ village }) => village?.name;
 
 export const getPatientWeight = ({ patientWeight }, getLocalisation) =>
-  `${patientWeight}${getLocalisation('fields.weightUnit.longLabel')}`;
+  patientWeight ? `${patientWeight}${getLocalisation('fields.weightUnit.longLabel')}` : '';
