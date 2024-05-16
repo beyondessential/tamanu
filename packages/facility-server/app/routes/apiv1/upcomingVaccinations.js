@@ -75,7 +75,7 @@ upcomingVaccinations.get(
       WITH upcoming_vaccinations_with_row_number AS (
         SELECT *,
         ROW_NUMBER() OVER(PARTITION BY patient_id ORDER BY due_date ASC) AS row_number
-        FROM upcoming_vaccinations uv
+        FROM materialized_upcoming_vaccinations uv
         WHERE uv.status <> '${VACCINE_STATUS.MISSED}'
       )
     `;

@@ -1,7 +1,7 @@
 export async function up(query) {
   await query.sequelize.query(`
   CREATE MATERIALIZED VIEW materialized_upcoming_vaccinations AS
-  SELECT *
+  SELECT *, now() as last_refreshed
   FROM upcoming_vaccinations
   `);
 }
