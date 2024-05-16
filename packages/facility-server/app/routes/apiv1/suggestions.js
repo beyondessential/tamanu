@@ -427,6 +427,15 @@ createNameSuggester(
   }),
 );
 
+createNameSuggester(
+  'programRegistryCondition',
+  'ProgramRegistryCondition',
+  (search, { programRegistryId }) => ({
+    ...DEFAULT_WHERE_BUILDER(search),
+    ...(programRegistryId ? { programRegistryId } : {}),
+  }),
+);
+
 createNameSuggester('programRegistry', 'ProgramRegistry', (search, query) => {
   const baseWhere = DEFAULT_WHERE_BUILDER(search);
   if (!query.patientId) {

@@ -16,6 +16,7 @@ import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { Survey } from '~/models/Survey';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
+import { VisibilityStatus } from '~/visibilityStatuses';
 
 type SurveyListScreenParams = {
   SurveyListScreen: {
@@ -42,6 +43,7 @@ const Screen = ({ selectedPatient, route }: SurveyListScreenProps): ReactElement
       where: {
         surveyType: SurveyTypes.Programs,
         program: { id: programId },
+        visibilityStatus: VisibilityStatus.Current,
       },
       order: {
         name: 'ASC',
