@@ -17,7 +17,7 @@ export async function up(query) {
     },
     created_at: {
       type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW,
+      defaultValue: Sequelize.fn('now'),
     },
     payload: {
       type: DataTypes.BLOB,

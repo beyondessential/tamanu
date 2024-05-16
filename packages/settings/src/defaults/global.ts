@@ -10,4 +10,7 @@ export const globalDefaults = {
       enabled: false,
     },
   },
+  features: {
+    mandateSpecimenType: false,
+  },
 };
