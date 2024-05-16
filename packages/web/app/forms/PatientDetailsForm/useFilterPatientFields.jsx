@@ -8,9 +8,14 @@ export const useFilterPatientFields = ({ fields, filterByMandatory }) => {
   const fieldsToShow = useMemo(() => {
     const checkCondition = fieldName =>
       !fields[fieldName].condition || fields[fieldName].condition();
-    const checkMandatory = fieldName =>
-      !isBoolean(filterByMandatory) ||
-      getLocalisation(`fields.${fieldName}.requiredPatientData`) === filterByMandatory;
+    const checkMandatory = fieldName => {
+      const requiredConfiguration = getLocalisation(`fields.${fieldName}.requiredPatientData`);
+      return (
+        !isBoolean(filterByMandatory) ||
+        !isBoolean(requiredConfiguration) ||
+        requiredConfiguration === filterByMandatory
+      ); 
+    };
 
     return Object.keys(fields)
       .filter(fieldName => checkMandatory(fieldName) && checkCondition(fieldName))

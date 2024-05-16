@@ -138,7 +138,7 @@ export const BaseModal = memo(
       >
         <ModalTitle>
           <VerticalCenteredText>{title}</VerticalCenteredText>
-          <div>
+          <Box flexShrink={0}>
             {additionalActions}
             {printable && (
               <StyledButton
@@ -156,7 +156,7 @@ export const BaseModal = memo(
                 <CloseIcon />
               </IconButton>
             )}
-          </div>
+          </Box>
         </ModalTitle>
         <ModalContainer $color={color}>
           <ModalContent $overrideContentPadding={overrideContentPadding}>{children}</ModalContent>

@@ -517,7 +517,7 @@ TableComponent.propTypes = {
   data: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   errorMessage: PropTypes.string,
   hideHeader: PropTypes.bool,
-  noDataMessage: PropTypes.string,
+  noDataMessage: PropTypes.oneOfType([PropTypes.node, PropTypes.string]),
   isLoading: PropTypes.bool,
   count: PropTypes.number,
   onChangePage: PropTypes.func,

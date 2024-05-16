@@ -37,6 +37,8 @@ import { LabRequestPrintLabelModal } from '../../components/PatientPrinting/moda
 import { LabRequestSampleDetailsModal } from './components/LabRequestSampleDetailsModal';
 import { Colors } from '../../constants';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
+import { LabAttachmentModal } from '../../components/LabAttachmentModal';
+import { ConditionalTooltip } from '../../components/Tooltip';
 
 const Container = styled.div`
   display: flex;
@@ -57,6 +59,10 @@ const BottomContainer = styled.div`
   overflow: hidden;
   flex-direction: column;
   flex: 1;
+`;
+
+const LabelContainer = styled.div`
+  color: ${p => p.color || Colors.darkestText}
 `;
 
 const FixedTileRow = styled(TileContainer)`
@@ -80,6 +86,7 @@ const MODAL_IDS = {
   RECORD_SAMPLE: 'recordSample',
   SAMPLE_DETAILS: 'sampleDetails',
   VIEW_STATUS_LOG: 'viewStatusLog',
+  VIEW_REPORT: 'viewReport',
 };
 
 const MODALS = {
@@ -95,6 +102,7 @@ const MODALS = {
   [MODAL_IDS.RECORD_SAMPLE]: LabRequestRecordSampleModal,
   [MODAL_IDS.SAMPLE_DETAILS]: LabRequestSampleDetailsModal,
   [MODAL_IDS.VIEW_STATUS_LOG]: LabRequestLogModal,
+  [MODAL_IDS.VIEW_REPORT]: LabAttachmentModal,
 };
 
 const Menu = ({ setModal, status, disabled }) => {
@@ -162,6 +170,8 @@ export const LabRequestView = () => {
   const isHidden = HIDDEN_STATUSES.includes(labRequest.status);
   const areLabRequestsReadOnly = !canWriteLabRequest || isHidden;
   const areLabTestsReadOnly = !canWriteLabTest || isHidden || isPublished;
+  const hasAttachment = Boolean(labRequest.latestAttachment);
+  const canEnterResults = !isPublished && !areLabTestsReadOnly && !hasAttachment;
 
   // If the value of status is enteredInError or deleted, it should display to the user as Cancelled
   const displayStatus = areLabRequestsReadOnly ? LAB_REQUEST_STATUSES.CANCELLED : labRequest.status;
@@ -186,6 +196,11 @@ export const LabRequestView = () => {
             action: () => handleChangeModalId(MODAL_IDS.SAMPLE_DETAILS),
           },
         ];
+
+  const handleChangeStatus = () => {
+    if (labRequest.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED) return;
+    handleChangeModalId(MODAL_IDS.CHANGE_STATUS);
+  };
 
   return (
     <Container>
@@ -232,12 +247,26 @@ export const LabRequestView = () => {
             }
             actions={[
               !areLabRequestsReadOnly &&
-                canWriteLabRequestStatus && {
-                  label: (
-                    <TranslatedText stringId="lab.action.changeStatus" fallback="Change status" />
-                  ),
-                  action: () => handleChangeModalId(MODAL_IDS.CHANGE_STATUS),
-                },
+              canWriteLabRequestStatus && {
+                label: (
+                  <ConditionalTooltip
+                    visible={labRequest.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED}
+                    title={<TranslatedText
+                      stringId="lab.tooltip.cannotChangeStatus"
+                      fallback="You cannot change the status of lab request without entering the sample details"
+                    />}
+                  >
+                    <LabelContainer
+                      color={
+                        labRequest.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED && Colors.softText
+                      }
+                    >
+                      <TranslatedText stringId="lab.action.changeStatus" fallback="Change status" />
+                    </LabelContainer>
+                  </ConditionalTooltip>
+                ),
+                action: handleChangeStatus
+              },
               {
                 label: (
                   <TranslatedText stringId="lab.action.viewStatusLog" fallback="View status log" />
@@ -300,10 +329,17 @@ export const LabRequestView = () => {
         </FixedTileRow>
       </TopContainer>
       <BottomContainer>
-        {!isPublished && !areLabTestsReadOnly && (
+        {canEnterResults && (
           <Box display="flex" justifyContent="flex-end" marginBottom="20px">
             <Button onClick={() => handleChangeModalId(MODAL_IDS.ENTER_RESULTS)}>
               <TranslatedText stringId="lab.action.enterResults" fallback="Enter results" />
+            </Button>
+          </Box>
+        )}
+        {hasAttachment && (
+          <Box display="flex" justifyContent="flex-end" marginBottom="20px">
+            <Button onClick={() => handleChangeModalId(MODAL_IDS.VIEW_REPORT)}>
+              <TranslatedText stringId="lab.action.viewReport" fallback="View report" />
             </Button>
           </Box>
         )}
