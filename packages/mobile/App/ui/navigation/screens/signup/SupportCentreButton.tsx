@@ -12,7 +12,10 @@ type SupportCentreButtonProps = {
 
 export const SupportCentreButton = ({ supportCentreUrl }: SupportCentreButtonProps) => {
   return (
-    <StyledTouchableOpacity onPress={(): Promise<void> => Linking.openURL(supportCentreUrl)}>
+    <StyledTouchableOpacity
+      onPress={(): Promise<void> => Linking.openURL(supportCentreUrl)}
+      marginLeft="auto" // Aligns to the right
+    >
       <RowView alignItems="center">
         <StyledText
           fontSize={screenPercentageToDP('1.28', Orientation.Height)}
