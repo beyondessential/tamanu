@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { memo, useCallback, useMemo, useState } from 'react';
 import {
   ContentPane,
   ImmunisationSearchBar,
@@ -18,6 +18,22 @@ import { usePatientNavigation } from '../../utils/usePatientNavigation.js';
 import { PATIENT_TABS } from '../../constants/patientPaths.js';
 import { reloadPatient } from '../../store/index.js';
 import { useDispatch } from 'react-redux';
+import { RefreshStatsDisplay } from '../../components/Table/RefreshStatsDisplay.jsx';
+import { useApi } from '../../api/useApi.js';
+import { useQuery } from '@tanstack/react-query';
+
+const useRefreshStatsQuery = () => {
+  const api = useApi();
+  return useQuery(
+    ['upcomingVaccinations/refreshStats'],
+    () => api.get('upcomingVaccinations/refreshStats'),
+
+    {
+      refetchInterval: 1000 * 60 * 5, // 5 minutes
+      refetchOnWindowFocus: true,
+    },
+  );
+};
 
 const getSchedule = record =>
   record?.scheduleName || (
@@ -59,15 +75,12 @@ const COLUMNS = [
 
 export const ImmunisationsView = () => {
   const dispatch = useDispatch();
+  const { data: refreshStats } = useRefreshStatsQuery();
   const [searchParameters, setSearchParameters] = useState({});
   const { navigateToPatient } = usePatientNavigation();
   const onRowClick = async patient => {
     await dispatch(reloadPatient(patient.id));
     navigateToPatient(patient.id, { tab: PATIENT_TABS.VACCINES });
-  };
-
-  const handleFetchData = params => {
-    console.log(params);
   };
 
   return (
@@ -76,7 +89,9 @@ export const ImmunisationsView = () => {
         title={
           <TranslatedText stringId="immunisation.register.title" fallback="Immunisation register" />
         }
-      />
+      >
+        <RefreshStatsDisplay stats={refreshStats} />
+      </TopBar>
       <ContentPane>
         <SearchTableTitle>
           <TranslatedText
@@ -90,7 +105,6 @@ export const ImmunisationsView = () => {
           columns={COLUMNS}
           noDataMessage="No patients found"
           onRowClick={onRowClick}
-          onDataFetched={handleFetchData}
           fetchOptions={searchParameters}
         />
       </ContentPane>
