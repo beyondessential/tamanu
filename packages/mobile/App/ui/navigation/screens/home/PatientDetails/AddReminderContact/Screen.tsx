@@ -98,7 +98,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
               fontWeight={500}
             >
               <TranslatedText
-                stringId="patient.details.addReminderContact.description"
+                stringId="patient.details.addReminderContact.mobileDescription"
                 fallback="Please provide details below to add a new contact."
               />
             </StyledText>
