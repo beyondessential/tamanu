@@ -64,7 +64,7 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
   const isSupportUrlLoaded = !!supportCentreUrl;
 
   return (
-    <FullView background={theme.colors.PRIMARY_MAIN}>
+    <FullView background={theme.colors.PRIMARY_MAIN} justifyContent="space-between">
       <StatusBar barStyle="light-content" />
       <ModalInfo
         onVisibilityChange={onChangeModalVisibility}
@@ -170,7 +170,7 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
         justifyContent="space-between"
         alignItems="flex-end"
         display="flex"
-        bottom={screenPercentageToDP(1, Orientation.Height)}
+        paddingBottom={screenPercentageToDP(5, Orientation.Width)}
         paddingLeft={screenPercentageToDP(2.43, Orientation.Width)}
         paddingRight={screenPercentageToDP(2.43, Orientation.Width)}
       >
