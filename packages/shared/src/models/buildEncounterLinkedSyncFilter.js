@@ -19,6 +19,5 @@ export function buildEncounterLinkedSyncFilter(
     ${joins}
     WHERE encounters.patient_id IN (:patientIds)
     AND ${tablesToTraverse[0]}.updated_at_sync_tick > :since
-    AND encounters.deleted_at IS NULL
   `;
 }
