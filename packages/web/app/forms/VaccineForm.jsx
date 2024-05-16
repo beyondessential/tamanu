@@ -138,15 +138,19 @@ export const VaccineForm = ({
     }
   }, [category, getScheduledVaccines, editMode]);
 
-  if (isLoadingCurrentEncounter || isLoadingPatientData) {
+  if (isLoadingCurrentEncounter || isLoadingVaccinationDefaults || isLoadingPatientData) {
     return <LoadingIndicator />;
   }
 
-  if (currentEncounterError || isLoadingPatientData) {
+  if (currentEncounterError || vaccinationDefaultsError || patientDataError) {
     return (
       <ErrorMessage
         title={<TranslatedText stringId="vaccine.loadError" fallback="Cannot load vaccine form" />}
-        errorMessage={currentEncounterError?.message || patientDataError?.message}
+        errorMessage={
+          currentEncounterError?.message ||
+          vaccinationDefaultsError?.message ||
+          patientDataError?.message
+        }
       />
     );
   }

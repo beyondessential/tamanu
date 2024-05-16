@@ -13,8 +13,15 @@ import { Modal } from '../components/Modal';
 import { ErrorMessage } from '../components/ErrorMessage';
 import { useAuth } from '../contexts/Auth';
 import { useEncounter } from '../contexts/Encounter';
-import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';
+import { TranslatedText } from '../components/Translation/TranslatedText';
+
+const baseVitalsSchema = yup.object().shape({
+  [VITALS_DATA_ELEMENT_IDS.dateRecorded]: yup
+    .date()
+    .required()
+    .label('dateRecorded'),
+});
 
 export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterType }) => {
   const { getTranslation } = useTranslation();

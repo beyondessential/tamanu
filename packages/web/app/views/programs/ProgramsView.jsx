@@ -38,6 +38,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
   const [startTime, setStartTime] = useState(null);
   const [surveys, setSurveys] = useState(null);
   const { setProgramRegistryIdByProgramId } = useProgramRegistryContext();
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (params.encounterId) {
