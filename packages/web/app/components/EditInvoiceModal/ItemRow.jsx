@@ -114,161 +114,161 @@ export const ItemHeader = () => {
   </StyledItemHeader>
 };
 
-export const ItemRow = ({ 
-  index, 
+export const ItemRow = ({
+  index,
   hasBorderBottom,
-  onDelete, 
-  rowData: defaultRowData, 
-  isDeleteDisabled 
+  onDelete,
+  rowData: defaultRowData,
+  isDeleteDisabled
 }) => {
-    const invoiceLineTypeSuggester = useSuggester('invoiceLineTypes');
-    const practitionerSuggester = useSuggester('practitioner');
-    const [actionModal, setActionModal] = useState('');
-    const [anchorEl, setAnchorEl] = useState(null);
-    const open = Boolean(anchorEl);
-    const [rowData, setRowData] = useState({
-      details: defaultRowData?.invoiceLineType?.name || defaultRowData?.name,
-      date: defaultRowData?.date,
-      orderedBy: defaultRowData?.orderedBy?.displayName,
-      price: defaultRowData?.invoiceLineType?.price,
-      invoiceLineTypeId: defaultRowData?.invoiceLineTypeId,
-      orderedById: defaultRowData?.orderedById,
-      code: getInvoiceLineCode(defaultRowData) || defaultRowData.code,
-    });
-  
-    const onOpenKebabMenu = (event) => {
-      setAnchorEl(event.currentTarget);
-    };
-  
-    const handleCloseKebabMenu = () => {
-      setAnchorEl(null);
-    };
-  
-    const onUpdateInvoiceLineTypeId = ({ name, price }) => {
-      setRowData(prevRowData => ({
-        ...prevRowData,
-        details: name,
-        price,
-      }))
-    };
+  const invoiceLineTypeSuggester = useSuggester('invoiceLineTypes');
+  const practitionerSuggester = useSuggester('practitioner');
+  const [actionModal, setActionModal] = useState('');
+  const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
+  const [rowData, setRowData] = useState({
+    details: defaultRowData?.invoiceLineType?.name || defaultRowData?.name,
+    date: defaultRowData?.date,
+    orderedBy: defaultRowData?.orderedBy?.displayName,
+    price: defaultRowData?.invoiceLineType?.price,
+    invoiceLineTypeId: defaultRowData?.invoiceLineTypeId,
+    orderedById: defaultRowData?.orderedById,
+    code: getInvoiceLineCode(defaultRowData) || defaultRowData.code,
+  });
 
-    const onUpdateOrderedById = ({ name }) => {
-      setRowData(prevRowData => ({
-        ...prevRowData,
-        orderedBy: name,
-      }))
-    };
-  
-    const handleActionModal = value => setActionModal(value);
-  
-    const handleDeleteItem = () => {
-      onDelete();
-      handleActionModal('')
-    };
-  
-    return <StyledItemRow container alignItems='center' spacing={1} hasBorderBottom={hasBorderBottom}>
-      <Grid item xs={2}>
-        <Field
-          name={"date_" + index}
-          required
-          component={DateField}
-          saveDateAsString
-          size="small"
-          value={rowData.date}
-          onChange={event => setRowData({
-            ...rowData,
-            date: event.target.value,
-          })}
-        />
-      </Grid>
-      <Grid item xs={4}>
-        <Field
-          name={"invoiceLineTypeId_" + index}
-          required
-          component={AutocompleteField}
-          suggester={invoiceLineTypeSuggester}
-          onFetchCurrentOption={data => onUpdateInvoiceLineTypeId(data)}
-          size="small"
-          value={rowData.invoiceLineTypeId}
-          onChange={event => setRowData({
-            ...rowData,
-            invoiceLineTypeId: event.target.value,
-            code: "",
-            price: "",
-          })}
-        />
-      </Grid>
-      <Grid item justifyContent='center' xs={1}>
-        <ItemCodeText>
-          {rowData.code}
-        </ItemCodeText>
-      </Grid>
-      <Grid item xs={3}>
-        <Field
-          name={"orderedById_" + index}
-          required
-          component={AutocompleteField}
-          suggester={practitionerSuggester}
-          onFetchCurrentOption={data => onUpdateOrderedById(data)}
-          size="small"
-          value={rowData.orderedById}
-          onChange={event => setRowData({
-            ...rowData,
-            orderedById: event.target.value,
-            orderedBy: ""
-          })}
-        />
-      </Grid>
-      <Grid item xs={2}>
-        <PriceCell>
-          <PriceText>
-            {rowData.price}
-          </PriceText>
-          <StyledIconButton
-            onClick={onOpenKebabMenu}
-          >
-            <MoreVert />
-          </StyledIconButton>
-        </PriceCell>
-        <StyledMenu
-          anchorEl={anchorEl}
-          getContentAnchorEl={null}
-          open={open}
-          onClose={handleCloseKebabMenu}
-          anchorOrigin={{
-            vertical: 'bottom',
-            horizontal: 'right',
-          }}
-          transformOrigin={{
-            vertical: 'top',
-            horizontal: 'right',
-          }}
-        >
-          <KebabMenuItem onClick={() => handleActionModal(ACTION_MODALS.ADD_DISCOUNT)}>
-            <TranslatedText
-              stringId="invoice.modal.editInvoice.addDiscount"
-              fallback="Add discount"
-            />
-          </KebabMenuItem>
-          <KebabMenuItem onClick={() => handleActionModal(ACTION_MODALS.ADD_MARKUP)}>
-            <TranslatedText
-              stringId="invoice.modal.editInvoice.addMarkup"
-              fallback="Add markup"
-            />
-          </KebabMenuItem>
-          <KebabMenuItem onClick={() => !isDeleteDisabled && handleActionModal(ACTION_MODALS.DELETE)}>
-            <TranslatedText
-              stringId="invoice.modal.editInvoice.delete"
-              fallback="Delete"
-            />
-          </KebabMenuItem>
-        </StyledMenu>
-      </Grid>
-      <DeleteItemModal
-        open={actionModal === ACTION_MODALS.DELETE}
-        onClose={() => handleActionModal('')}
-        onDelete={handleDeleteItem}
-        lineItems={rowData}
-      />
-    </StyledItemRow>
+  const onOpenKebabMenu = (event) => {
+    setAnchorEl(event.currentTarget);
   };
+
+  const handleCloseKebabMenu = () => {
+    setAnchorEl(null);
+  };
+
+  const onUpdateInvoiceLineTypeId = ({ name, price }) => {
+    setRowData(prevRowData => ({
+      ...prevRowData,
+      details: name,
+      price,
+    }))
+  };
+
+  const onUpdateOrderedById = ({ name }) => {
+    setRowData(prevRowData => ({
+      ...prevRowData,
+      orderedBy: name,
+    }))
+  };
+
+  const handleActionModal = value => setActionModal(value);
+
+  const handleDeleteItem = () => {
+    onDelete();
+    handleActionModal('')
+  };
+
+  return <StyledItemRow container alignItems='center' spacing={1} hasBorderBottom={hasBorderBottom}>
+    <Grid item xs={2}>
+      <Field
+        name={"date_" + index}
+        required
+        component={DateField}
+        saveDateAsString
+        size="small"
+        value={rowData.date}
+        onChange={event => setRowData({
+          ...rowData,
+          date: event.target.value,
+        })}
+      />
+    </Grid>
+    <Grid item xs={4}>
+      <Field
+        name={"invoiceLineTypeId_" + index}
+        required
+        component={AutocompleteField}
+        suggester={invoiceLineTypeSuggester}
+        onFetchCurrentOption={data => onUpdateInvoiceLineTypeId(data)}
+        size="small"
+        value={rowData.invoiceLineTypeId}
+        onChange={event => setRowData({
+          ...rowData,
+          invoiceLineTypeId: event.target.value,
+          code: "",
+          price: "",
+        })}
+      />
+    </Grid>
+    <Grid item justifyContent='center' xs={1}>
+      <ItemCodeText>
+        {rowData.code}
+      </ItemCodeText>
+    </Grid>
+    <Grid item xs={3}>
+      <Field
+        name={"orderedById_" + index}
+        required
+        component={AutocompleteField}
+        suggester={practitionerSuggester}
+        onFetchCurrentOption={data => onUpdateOrderedById(data)}
+        size="small"
+        value={rowData.orderedById}
+        onChange={event => setRowData({
+          ...rowData,
+          orderedById: event.target.value,
+          orderedBy: ""
+        })}
+      />
+    </Grid>
+    <Grid item xs={2}>
+      <PriceCell>
+        <PriceText>
+          {rowData.price}
+        </PriceText>
+        <StyledIconButton
+          onClick={onOpenKebabMenu}
+        >
+          <MoreVert />
+        </StyledIconButton>
+      </PriceCell>
+      <StyledMenu
+        anchorEl={anchorEl}
+        getContentAnchorEl={null}
+        open={open}
+        onClose={handleCloseKebabMenu}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'right',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'right',
+        }}
+      >
+        <KebabMenuItem onClick={() => handleActionModal(ACTION_MODALS.ADD_DISCOUNT)}>
+          <TranslatedText
+            stringId="invoice.modal.editInvoice.addDiscount"
+            fallback="Add discount"
+          />
+        </KebabMenuItem>
+        <KebabMenuItem onClick={() => handleActionModal(ACTION_MODALS.ADD_MARKUP)}>
+          <TranslatedText
+            stringId="invoice.modal.editInvoice.addMarkup"
+            fallback="Add markup"
+          />
+        </KebabMenuItem>
+        <KebabMenuItem onClick={() => !isDeleteDisabled && handleActionModal(ACTION_MODALS.DELETE)}>
+          <TranslatedText
+            stringId="invoice.modal.editInvoice.delete"
+            fallback="Delete"
+          />
+        </KebabMenuItem>
+      </StyledMenu>
+    </Grid>
+    <DeleteItemModal
+      open={actionModal === ACTION_MODALS.DELETE}
+      onClose={() => handleActionModal('')}
+      onDelete={handleDeleteItem}
+      lineItems={rowData}
+    />
+  </StyledItemRow>
+};
