@@ -10,6 +10,7 @@ import { SurveyTypes } from '~/types';
 import { useBackendEffect } from '~/ui/hooks';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { useAuth } from '~/ui/contexts/AuthContext';
+import { VisibilityStatus } from '~/visibilityStatuses';
 
 export const ReferralFormListScreen = (): ReactElement => {
   const navigation = useNavigation();
@@ -19,6 +20,7 @@ export const ReferralFormListScreen = (): ReactElement => {
     models.Survey.find({
       where: {
         surveyType: SurveyTypes.Referral,
+        visibilityStatus: VisibilityStatus.Current,
       },
       order: {
         name: 'ASC',
