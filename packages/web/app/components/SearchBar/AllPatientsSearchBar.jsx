@@ -92,7 +92,6 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
       }
     >
       <LocalisedField
-        keepLetterCase
         component={SearchField}
         name="displayId"
         label={

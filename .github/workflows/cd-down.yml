@@ -3,6 +3,9 @@ name: CD Down
 on:
   workflow_call:
     inputs:
+      ref:
+        type: string
+        required: true
       deploy-name:
         type: string
         required: true
@@ -21,7 +24,7 @@ on:
         required: true
 
 permissions:
-  contents: read
+  contents: write # to update the release notes
   pull-requests: write
 
 jobs:
@@ -48,7 +51,7 @@ jobs:
               if kubectl -n tamanu-${{ inputs.deploy-name }} \
                 get configmap auto-deploy -o json \
                 | tee -a /dev/stderr \
-                | jq -e '.data | [.repo == "${{ github.repository }}", .ref == "${{ github.ref }}"] | all | not'
+                | jq -e '.data | [.repo == "${{ github.repository }}", .ref == "${{ inputs.ref }}"] | all | not'
               then
                 echo "Namespace doesn't belong to this branch, not deleting"
                 exit 1

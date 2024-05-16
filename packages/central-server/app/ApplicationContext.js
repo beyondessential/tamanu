@@ -4,15 +4,20 @@ import { isSyncTriggerDisabled } from '@tamanu/shared/dataMigrations';
 import { EmailService } from './services/EmailService';
 import { closeDatabase, initDatabase, initReporting } from './database';
 import { initIntegrations } from './integrations';
+import { defineSingletonTelegramBotService } from './services/TelegramBotService';
 import { log, initBugsnag } from '@tamanu/shared/services/logging';
 import { VERSION } from './middleware/versionCompatibility';
 
 export class ApplicationContext {
+  /** @type {Awaited<ReturnType<typeof initDatabase>>|null} */
   store = null;
 
   reportSchemaStores = null;
 
   emailService = null;
+
+  /** @type {Awaited<ReturnType<typeof defineSingletonTelegramBotService>>|null} */
+  telegramBotService = null;
 
   integrations = null;
 
@@ -30,13 +35,16 @@ export class ApplicationContext {
     }
 
     this.emailService = new EmailService();
+
     this.store = await initDatabase({ testMode, dbKey: appType ?? 'main' });
     if (config.db.reportSchemas?.enabled) {
       this.reportSchemaStores = await initReporting();
     }
 
+    this.telegramBotService = await defineSingletonTelegramBotService({ config, models: this.store.models });
+
     if (await isSyncTriggerDisabled(this.store.sequelize)) {
-      log.warn("Sync Trigger is disabled in the database.");
+      log.warn('Sync Trigger is disabled in the database.');
       return null;
     }
 
