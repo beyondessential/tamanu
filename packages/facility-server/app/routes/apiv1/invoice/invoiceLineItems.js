@@ -52,23 +52,63 @@ invoiceLineItemsRoute.put(
     const { invoiceLineItemsData } = req.body;
 
     req.checkPermission('write', 'InvoiceLineItem');
+
+    // Fetch existing line items for the given invoiceId
+    const existingItems = await models.InvoiceLineItem.findAll({ where: { invoiceId } });
+    const existingItemIds = existingItems.map(item => item.id);
+
+    // Prepare arrays for creating and updating
+    const itemsToCreate = [];
+    const itemsToUpdate = [];
+    const receivedItemIds = invoiceLineItemsData.map(item => item.id);
+
+    // Mark items as deleted if they are not in the received data
     await models.InvoiceLineItem.update(
       { status: INVOICE_LINE_ITEM_STATUSES.DELETED },
-      { where: { invoiceId } },
+      {
+        where: {
+          invoiceId,
+          id: {
+            [Op.notIn]: receivedItemIds
+          }
+        }
+      }
     );
+
+    invoiceLineItemsData.forEach(item => {
+      if (item.id && existingItemIds.includes(item.id)) {
+        itemsToUpdate.push(item);
+      } else {
+        itemsToCreate.push({
+          invoiceId,
+          invoiceLineTypeId: item.invoiceLineTypeId,
+          dateGenerated: item.date,
+          orderedById: item.orderedById
+        });
+      }
+    });
+
+    // Update existing items
+    for (const item of itemsToUpdate) {
+      await models.InvoiceLineItem.update(
+        {
+          invoiceLineTypeId: item.invoiceLineTypeId,
+          dateGenerated: item.date,
+          orderedById: item.orderedById
+        },
+        { where: { id: item.id } }
+      );
+    }
 
     req.checkPermission('create', 'InvoiceLineItem');
-    const invoiceLineItem = await models.InvoiceLineItem.bulkCreate(
-      invoiceLineItemsData.map(item => ({
-        invoiceId,
-        invoiceLineTypeId: item.invoiceLineTypeId,
-        dateGenerated: item.date,
-        orderedById: item.orderedById
-      })),
-    );
+    // Create new items
+    await models.InvoiceLineItem.bulkCreate(itemsToCreate);
 
-    res.send(invoiceLineItem);
-  }),
+    // Fetch all updated and created line items for the response
+    const updatedLineItems = await models.InvoiceLineItem.findAll({ where: { invoiceId } });
+
+    res.send(updatedLineItems);
+  })
 );
 
 invoiceLineItemsRoute.get('/:invoiceId/lineItems/:id', simpleGet('InvoiceLineItem'));

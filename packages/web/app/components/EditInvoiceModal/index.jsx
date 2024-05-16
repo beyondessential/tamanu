@@ -195,18 +195,12 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
     let i = 0;
     while (i < rowList.length) {
       const newInvoiceLineItemData = {
+        id: rowList[i].id,
         invoiceLineTypeId: submitData[`invoiceLineTypeId_${i}`],
         date: submitData[`date_${i}`],
         orderedById: submitData[`orderedById_${i}`],
       };
-
-      if (
-        newInvoiceLineItemData.date &&
-        newInvoiceLineItemData.invoiceLineTypeId &&
-        newInvoiceLineItemData.orderedById
-      ) {
-        invoiceLineItemsData.push(newInvoiceLineItemData);
-      }
+      invoiceLineItemsData.push(newInvoiceLineItemData);
       i++;
     }
 
