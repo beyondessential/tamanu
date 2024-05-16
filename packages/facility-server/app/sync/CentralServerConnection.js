@@ -218,7 +218,7 @@ export class CentralServerConnection {
     const { sessionId, status } = await this.fetch('sync', {
       method: 'POST',
       body: {
-        facilityId: facilityIds[0],
+        facilityId: facilityIds[0], // TODO placeholder
         deviceId: this.deviceId,
         urgent,
         lastSyncedTick,
