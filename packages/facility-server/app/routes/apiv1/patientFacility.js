@@ -4,8 +4,8 @@ import { NotFoundError } from '@tamanu/shared/errors';
 export const patientFacility = express.Router();
 
 patientFacility.post('/$', async (req, res) => {
-  const { models, body, syncManager, facilityId } = req;
-  const { patientId } = body;
+  const { models, body, syncManager } = req;
+  const { facilityId, patientId } = body;
 
   // slightly unusual to check read permissions in a post endpoint, but if you can read patients,
   // you can mark them for sync

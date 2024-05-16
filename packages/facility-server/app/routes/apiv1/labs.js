@@ -86,7 +86,6 @@ labRequest.get(
     const {
       models: { LabRequest },
       query,
-      facilityId,
     } = req;
     req.checkPermission('list', 'LabRequest');
 
@@ -140,7 +139,7 @@ labRequest.get(
       makeFilter(
         !JSON.parse(filterParams.allFacilities || false),
         'location.facility_id = :facilityId',
-        () => ({ facilityId }),
+        ({ facilityId }) => ({ facilityId }),
       ),
       makeFilter(
         filterParams.publishedDate,

@@ -15,10 +15,13 @@ import {
   getStatus,
 } from '../utils/lab';
 import { TranslatedText } from '../components/Translation/TranslatedText';
+import { useAuth } from '../contexts/Auth';
 
 export const LabRequestsTable = React.memo(
   ({ status = '', loadEncounter, loadLabRequest, searchParameters }) => {
     const publishedStatus = status === LAB_REQUEST_STATUSES.PUBLISHED;
+
+    const { facilityId } = useAuth();
 
     const columns = useMemo(() => {
       return [
@@ -80,6 +83,7 @@ export const LabRequestsTable = React.memo(
         fetchOptions={{
           ...searchParameters,
           ...(status && { status }),
+          facilityId,
         }}
         initialSort={{
           order: 'desc',

@@ -74,12 +74,12 @@ const sortKeys = {
 triage.get(
   '/$',
   asyncHandler(async (req, res) => {
-    const { models, db, query, facilityId } = req;
+    const { models, db, query } = req;
     const { Triage } = models;
 
     req.checkPermission('list', 'Triage');
 
-    const { orderBy = 'score', order = 'asc' } = query;
+    const { facilityId, orderBy = 'score', order = 'asc' } = query;
     const sortKey = sortKeys[orderBy];
 
     if (!sortKey) {

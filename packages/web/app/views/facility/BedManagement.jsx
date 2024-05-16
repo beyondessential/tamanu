@@ -197,20 +197,20 @@ export const BedManagement = () => {
   );
 
   const { data: { data: currentOccupancy } = {}, isLoading: currentOccupancyLoading } = useQuery(
-    ['currentOccupancy'],
-    () => api.get('patient/locations/occupancy'),
+    ['currentOccupancy', facilityId],
+    () => api.get('patient/locations/occupancy', { facilityId }),
   );
 
-  const { data: { data: alos } = {}, isLoading: alosLoading } = useQuery(['alos'], () =>
-    api.get('patient/locations/alos'),
+  const { data: { data: alos } = {}, isLoading: alosLoading } = useQuery(['alos', facilityId], () =>
+    api.get('patient/locations/alos', { facilityId }),
   );
 
   const { data: { data: readmissionsCount } = {}, isLoading: readmissionsCountLoading } = useQuery(
-    ['readmissionsCount'],
-    () => api.get('patient/locations/readmissions'),
+    ['readmissionsCount', facilityId],
+    () => api.get('patient/locations/readmissions', { facilityId }),
   );
 
-  const { data: facility, isLoading: facilityLoading } = useQuery(['facility', facilityId], () =>
+  const { data: facility } = useQuery(['facility', facilityId], () =>
     api.get(`facility/${encodeURIComponent(facilityId)}`),
   );
 
@@ -308,7 +308,7 @@ export const BedManagement = () => {
           }
           onRowClick={handleViewPatient}
           rowStyle={rowStyle}
-          fetchOptions={searchParameters}
+          fetchOptions={{ ...searchParameters, facilityId }}
           endpoint="patient/locations/bedManagement"
         />
       </ContentPane>

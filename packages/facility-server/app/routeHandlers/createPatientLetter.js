@@ -8,8 +8,8 @@ import { makePatientLetter } from '../utils/makePatientLetter';
 export const createPatientLetter = (modelName, idField) =>
   asyncHandler(async (req, res) => {
     req.checkPermission('create', 'DocumentMetadata');
-    const { models, params, facilityId } = req;
-    const { patientLetterData, clinicianId, name } = req.body;
+    const { models, params } = req;
+    const { patientLetterData, clinicianId, name, facilityId } = req.body;
 
     const documentCreatedAt = getCurrentDateTimeString();
 

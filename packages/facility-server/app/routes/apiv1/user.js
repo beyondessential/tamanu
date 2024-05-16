@@ -27,25 +27,6 @@ user.get(
 user.get('/permissions', asyncHandler(getPermissions));
 
 user.get(
-  '/current-facility',
-  asyncHandler(async (req, res) => {
-    req.checkPermission('list', 'User');
-    const { facilityId } = req;
-    const userFacilities = await req.models.UserFacility.findAll({
-      where: { facilityId },
-      include: [
-        {
-          model: req.models.User,
-          as: 'user',
-        },
-      ],
-    });
-    const users = userFacilities.map(userFacility => userFacility.get({ plain: true }).user);
-    res.send(users);
-  }),
-);
-
-user.get(
   '/recently-viewed-patients',
   asyncHandler(async (req, res) => {
     const {

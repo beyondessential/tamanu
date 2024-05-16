@@ -12,7 +12,7 @@ locationGroup.get(
   '/$',
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'Location');
-    const { facilityId } = req;
+    const { facilityId } = req.query;
     const locationGroups = await req.models.LocationGroup.findAll({
       where: {
         facilityId,
@@ -26,7 +26,7 @@ locationGroup.get(
   '/:id/locations',
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'Location');
-    const { facilityId } = req;
+    const { facilityId } = req.query;
     const locations = await req.models.Location.findAll({
       where: {
         facilityId,
@@ -41,7 +41,7 @@ locationGroup.get(
   '/:id/handoverNotes',
   asyncHandler(async (req, res) => {
     checkHandoverNotesPermissions(req);
-    const { facilityId } = req;
+    const { facilityId } = req.query;
 
     const group = await req.models.LocationGroup.findByPk(req.params.id);
 

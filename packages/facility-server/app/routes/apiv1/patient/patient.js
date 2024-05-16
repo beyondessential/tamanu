@@ -236,7 +236,6 @@ patientRoute.get(
     const {
       models: { Patient },
       query,
-      facilityId,
     } = req;
 
     req.checkPermission('list', 'Patient');
@@ -381,7 +380,6 @@ patientRoute.get(
         }),
         filterParams,
       );
-    filterReplacements.facilityId = facilityId;
 
     const countResult = await req.db.query(`SELECT COUNT(1) AS count ${from}`, {
       replacements: filterReplacements,
