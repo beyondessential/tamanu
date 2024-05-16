@@ -9,6 +9,7 @@ import {
   runPaginatedQuery,
   simpleGetList,
 } from '@tamanu/shared/utils/crudHelpers';
+
 import { patientSecondaryIdRoutes } from './patientSecondaryId';
 import { patientDeath } from './patientDeath';
 import { patientProfilePicture } from './patientProfilePicture';
