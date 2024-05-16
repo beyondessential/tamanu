@@ -49,8 +49,29 @@ const PotentialLineItemsPane = styled.div`
   padding-left: 15px;
   padding-right: 15px;
   background: white;
-  border-radius: 5px;
+  border-radius: 4px;
   border: 1px solid ${Colors.outline};
+
+  ::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+  
+  /* Track */
+  ::-webkit-scrollbar-track {
+    background: white;
+  }
+  
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    background: ${Colors.softText};
+    border-radius: 5px;
+  }
+  
+  /* Handle on hover */
+  ::-webkit-scrollbar-thumb:hover {
+    background: ${Colors.softText};
+  } 
 `;
 
 const PaneTitle = styled.div`
