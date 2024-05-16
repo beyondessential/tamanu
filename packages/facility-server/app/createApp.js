@@ -78,8 +78,9 @@ export async function createApp({ sequelize, reportSchemaStores, models, syncMan
 
   express.use(getAuditMiddleware());
 
-  // note that we do not know facility yet - this global-only settings reader will be replaced
-  // after we have extracted the facilityId during auth checking
+  // note that we do not know facility yet so cannot get facility-specific permissions
+  // this global-only settings reader will be replaced after we have extracted the facilityId during
+  // auth checking
   express.use(settingsReaderMiddleware);
 
   // index route for debugging connectivity
