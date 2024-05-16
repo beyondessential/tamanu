@@ -34,22 +34,6 @@ const createUpcomingVaccinationFilters = filterParams => {
 };
 
 upcomingVaccinations.get(
-  '/refreshStats',
-  asyncHandler(async (req, res) => {
-    console.log('refreshStats');
-    req.checkPermission('read', 'PatientVaccine');
-    const lastRefreshed = await req.models.LocalSystemFact.get(
-      UPCOMING_VACCINATIONS_REFRESHED_AT_KEY,
-    );
-    const schedule = cronstrue.toString(config.schedules.refreshUpcomingVaccinations.schedule);
-    return res.send({
-      lastRefreshed,
-      schedule,
-    });
-  }),
-);
-
-upcomingVaccinations.get(
   '/$',
   asyncHandler(async (req, res) => {
     req.checkPermission('read', 'PatientVaccine');
@@ -149,9 +133,16 @@ upcomingVaccinations.get(
       },
     );
 
+    const lastRefreshed = await req.models.LocalSystemFact.get(
+      UPCOMING_VACCINATIONS_REFRESHED_AT_KEY,
+    );
+    const schedule = cronstrue.toString(config.schedules.refreshUpcomingVaccinations.schedule);
+
     return res.send({
       data: results,
       count: parseInt(countResult[0].count, 10),
+      lastRefreshed,
+      schedule,
     });
   }),
 );

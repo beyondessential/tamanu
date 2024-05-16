@@ -78,8 +78,8 @@ export const DataFetchingTable = memo(
       [sorting],
     );
 
-    const fetchData = async () => {
-      const { data, count } = await api.get(
+    const fetchData = async () =>
+      api.get(
         endpoint,
         {
           page,
@@ -91,8 +91,6 @@ export const DataFetchingTable = memo(
           showUnknownErrorToast: false,
         },
       );
-      return { data, count };
-    };
 
     const highlightDataRows = (data, newRows) => {
       const highlightedData = data.map((row, i) => {
@@ -133,16 +131,14 @@ export const DataFetchingTable = memo(
     const fetchOptionsString = JSON.stringify(fetchOptions);
 
     const updateTableWithData = useCallback(
-      (data, count) => {
+      result => {
+        const { data, count } = result;
         clearLoadingIndicators();
         updateFetchState(data, count);
 
         // Use custom function on data if provided
         if (onDataFetched) {
-          onDataFetched({
-            data,
-            count,
-          });
+          onDataFetched(result);
         }
       },
       [onDataFetched, updateFetchState],
@@ -222,11 +218,12 @@ export const DataFetchingTable = memo(
             throw new Error('Missing endpoint to fetch data.');
           }
           setErrorMessage('');
-          const { data, count } = await fetchData();
+          const result = await fetchData();
           if (loadingDelay) clearTimeout(loadingDelay); // Clear the loading indicator timeout if data fetched before 1 second passes (stops flash from short loading time)
 
+          const { data, count } = result;
           const transformedData = transformData(data, count); // Transform the data before updating the table rows
-          updateTableWithData(transformedData, count); // Set the data for table rows and update the previous fetch state
+          updateTableWithData({ ...result, data: transformedData }); // Set the data for table rows and update the previous fetch state
         } catch (error) {
           clearTimeout(loadingDelay);
           clearLoadingIndicators();
