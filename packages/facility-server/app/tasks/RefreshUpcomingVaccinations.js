@@ -1,7 +1,7 @@
 import config from 'config';
 
 import { ScheduledTask } from '@tamanu/shared/tasks';
-import { UPCOMING_VACCINATIONS_REFRESHED_AT_KEY } from '@tamanu/constants/vaccines';
+import { UPCOMING_VACCINATIONS_REFRESHED_AT_KEY } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 
