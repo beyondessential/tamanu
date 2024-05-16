@@ -283,6 +283,10 @@ export const Survey = Base.shape({
     .required()
     .oneOf(['programs', 'referral', 'obsolete', 'vitals']),
   isSensitive: yup.boolean().required(),
+  visibilityStatus: yup
+    .string()
+    .default(VISIBILITY_STATUSES.CURRENT)
+    .oneOf([VISIBILITY_STATUSES.CURRENT, VISIBILITY_STATUSES.HISTORICAL]),
 });
 
 export const ProgramRegistry = Base.shape({
