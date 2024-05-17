@@ -115,11 +115,39 @@ jobs:
         run:  ./gradlew app:assembleRelease
 
       - name: Upload final build
+        id: artifact-upload
         uses: actions/upload-artifact@v4
         with:
           name: android-release-${{env.BUILD_NUMBER}}
           path: packages/mobile/android/app/build/outputs/apk/release/app-release.apk
           retention-days: 7
+
+      - name: Post comment with release link
+        uses: actions/github-script@v4
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { data: comments } = await github.rest.repos.listCommitComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              commit_sha: context.sha
+            });
+            const existingComment = comments.find(comment => comment.body.includes('Release: [Android]'));
+            if (existingComment) {
+              await github.rest.repos.updateCommitComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existingComment.id,
+                body: `Release: [Android](${{steps.artifact-upload.outputs.artifact_url}})`
+              });
+            } else {
+              await github.rest.repos.createCommitComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                commit_sha: context.sha,
+                body: `Release: [Android](${{steps.artifact-upload.outputs.artifact_url}})`
+              });
+            }
 
       - name: Set S3 destination
         id: destination
