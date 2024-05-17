@@ -5,6 +5,7 @@ import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
 import { VACCINE_STATUS, UPCOMING_VACCINATIONS_REFRESHED_AT_KEY } from '@tamanu/constants/vaccines';
 import { makeFilter } from '../../utils/query';
+import { TranslatedCronParser } from './TranslatedCronParser';
 
 export const upcomingVaccinations = express.Router();
 
@@ -37,10 +38,16 @@ upcomingVaccinations.get(
   '/refreshStats',
   asyncHandler(async (req, res) => {
     req.checkPermission('read', 'PatientVaccine');
+    const { language } = req.query;
+    const { TranslatedString } = req.models;
     const lastRefreshed = await req.models.LocalSystemFact.get(
       UPCOMING_VACCINATIONS_REFRESHED_AT_KEY,
     );
-    const schedule = cronstrue.toString(config.schedules.refreshUpcomingVaccinations.schedule);
+    const translationFunc = TranslatedString.getTranslationFunction(language, ['cron']);
+    cronstrue.locales['custom'] = new TranslatedCronParser(translationFunc);
+    const schedule = cronstrue.toString(config.schedules.refreshUpcomingVaccinations.schedule, {
+      locale: 'km',
+    });
     return res.send({
       lastRefreshed,
       schedule,

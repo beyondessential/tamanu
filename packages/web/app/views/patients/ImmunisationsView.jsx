@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import {
   ContentPane,
   ImmunisationSearchBar,
@@ -29,7 +29,7 @@ const useRefreshStatsQuery = () => {
     () => api.get('upcomingVaccinations/refreshStats'),
 
     {
-      refetchInterval: 1000 * 60 * 5, // 5 minutes
+      refetchInterval: 1000 * 60 * 1, // 5 minutes
       refetchOnWindowFocus: true,
     },
   );
