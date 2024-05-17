@@ -143,7 +143,7 @@ jobs:
             const existingComment = comments.data.find(comment => comment.body.includes('Android build'));
             if (existingComment) {
               github.rest.issues.updateComment({
-                ...parms,
+                ...params,
                 comment_id: existingComment.id,
                 body
               })
