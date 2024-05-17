@@ -93,21 +93,17 @@ export const login = ({ secret, refreshSecret }) =>
       throw new BadAuthenticationError('Invalid credentials');
     }
 
-    const allowedFacilities = await user.allowedFacilities();
-    if (facilityIds) {
-      const availableFacilities = await models.User.filterAllowedFacilities(
-        allowedFacilities,
-        facilityIds,
-      );
-      if (availableFacilities.length !== facilityIds.length) {
-        throw new BadAuthenticationError('User does not have access to all facilities');
-      }
-    }
-
     const { auth, canonicalHostName } = config;
     const { tokenDuration } = auth;
     const accessTokenJwtId = getRandomU32();
-    const [token, refreshToken, localisation, permissions, role] = await Promise.all([
+    const [
+      token,
+      refreshToken,
+      allowedFacilities,
+      localisation,
+      permissions,
+      role,
+    ] = await Promise.all([
       buildToken(
         {
           userId: user.id,
@@ -124,6 +120,7 @@ export const login = ({ secret, refreshSecret }) =>
       internalClient
         ? getRefreshToken(models, { refreshSecret, userId: user.id, deviceId })
         : undefined,
+      user.allowedFacilities(),
       getLocalisation(),
       getPermissionsForRoles(models, user.role),
       models.Role.findByPk(user.role),
