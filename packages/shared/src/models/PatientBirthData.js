@@ -6,6 +6,7 @@ import { dateTimeType } from './dateTimeTypes';
 
 import { Model } from './Model';
 import { buildPatientSyncFilterViaPatientId } from './buildPatientSyncFilterViaPatientId';
+import { onSaveMarkPatientForSync } from './onSaveMarkPatientForSync';
 
 export class PatientBirthData extends Model {
   static init(options) {
@@ -56,6 +57,7 @@ export class PatientBirthData extends Model {
         },
       },
     );
+    onSaveMarkPatientForSync(this);
   }
 
   static initRelations(models) {
