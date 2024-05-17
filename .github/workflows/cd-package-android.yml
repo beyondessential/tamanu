@@ -123,30 +123,36 @@ jobs:
           retention-days: 7
 
       - name: Post comment with release link
-        uses: actions/github-script@v4
+        uses: actions/github-script@v7
+        env:
+          ARTIFACT_PATH: ${{ steps.artifact-upload.outputs.artifact-path }}
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const { data: comments } = await github.rest.repos.listCommitComments({
+            const { ARTIFACT_PATH, BUILD_NUMBER } = process.env;
+            const commonParams = {
+              issue_number: context.issue.number,
               owner: context.repo.owner,
-              repo: context.repo.repo,
-              commit_sha: context.sha
-            });
-            const existingComment = comments.find(comment => comment.body.includes('Release: [Android]'));
+              repo: context.repo.repo
+            };
+            const comments = await github.rest.issues.listComments(commonParams);
+            const existingComment = comments.data.find(comment => comment.body.includes('Android build'));
             if (existingComment) {
-              await github.rest.repos.updateCommitComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
+              github.rest.issues.updateComment({
+                ...commonParams,
                 comment_id: existingComment.id,
-                body: `Release: [Android](${{steps.artifact-upload.outputs.artifact_url}})`
-              });
+                body: `
+                **Android build ${BUILD_NUMBER} is ready for testing!📱**
+                [Download Android APK](${ARTIFACT_PATH})
+                `
+              })
             } else {
-              await github.rest.repos.createCommitComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                commit_sha: context.sha,
-                body: `Release: [Android](${{steps.artifact-upload.outputs.artifact_url}})`
-              });
+              github.rest.issues.createComment({
+                ...commonParams,
+                body: `
+                **Android build ${BUILD_NUMBER} is ready for testing!📱**
+                [Download Android APK](${ARTIFACT_PATH})
+                `
+              })
             }
 
       - name: Set S3 destination
