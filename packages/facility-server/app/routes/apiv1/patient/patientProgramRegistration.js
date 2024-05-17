@@ -28,7 +28,7 @@ patientProgramRegistration.get(
 patientProgramRegistration.post(
   '/:patientId/programRegistration',
   asyncHandler(async (req, res) => {
-    const { db, models, params, body, facilityId } = req;
+    const { db, models, params, body } = req;
     const { patientId } = params;
     const { programRegistryId } = body;
 
@@ -76,11 +76,6 @@ patientProgramRegistration.post(
             programRegistryConditionId: conditionId,
           })),
         ),
-        // as a side effect, mark for sync in the current facility
-        models.PatientFacility.create({
-          patientId,
-          facilityId,
-        }),
       ]);
     });
 
