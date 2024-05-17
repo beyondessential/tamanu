@@ -55,11 +55,11 @@ jobs:
       - name: Validate Gradle wrapper
         uses: gradle/actions/wrapper-validation@v3
 
-      - name: Build Number (with base)
-        uses: mlilback/build-number@v1.0.1
-        with:
-          base: 100
-          run-id: "${{ github.run_number }}"
+
+      - name: Build Number
+        id: build-number
+        run: |
+          echo "BUILD_NUMBER=$((github.run_number + 100))" >> $GITHUB_ENV
 
       - name: Update branding app title
         if: ${{ inputs.branding != 'tamanu' }}
