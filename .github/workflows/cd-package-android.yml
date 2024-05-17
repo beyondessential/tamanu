@@ -53,6 +53,9 @@ jobs:
           distribution: 'adopt'
           cache: 'gradle'
 
+      # - name: Setup Gradle
+      #   uses: gradle/gradle-build-action@v2
+
       - name: Validate Gradle wrapper
         uses: gradle/actions/wrapper-validation@v3
 
@@ -126,11 +129,11 @@ jobs:
       - name: Post comment with release link
         uses: actions/github-script@v7
         env:
-          ARTIFACT_PATH: ${{ steps.artifact-upload.outputs.artifact-path }}
+          ARTIFACT_URL: ${{ steps.artifact-upload.outputs.artifact-url }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const { ARTIFACT_PATH, BUILD_NUMBER } = process.env;
+            const { ARTIFACT_URL, BUILD_NUMBER } = process.env;
             const params = {
               issue_number: context.issue.number,
               owner: context.repo.owner,
@@ -142,7 +145,7 @@ jobs:
               ...params,
               body: `
               **Android build ${BUILD_NUMBER} is ready for testing!📱**
-              [Download Android APK](${ARTIFACT_PATH})
+              [Download Android APK](${ARTIFACT_URL})
               `
             };
             if (existingComment) {
