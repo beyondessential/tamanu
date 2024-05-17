@@ -147,8 +147,7 @@ jobs:
             if (existingComment) {
               github.rest.issues.updateComment({
                 ...commentParams,
-                comment_id: existingComment.id,
-                `
+                comment_id: existingComment.id
               })
             } else {
               github.rest.issues.createComment(commentParams)
