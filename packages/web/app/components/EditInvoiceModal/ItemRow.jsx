@@ -170,112 +170,119 @@ export const ItemRow = ({
     handleActionModal('')
   };
 
-  return <StyledItemRow container alignItems='center' spacing={1} hasBorderBottom={hasBorderBottom}>
-    <Grid item xs={2}>
-      <Field
-        name={"date_" + index}
-        required
-        component={DateField}
-        saveDateAsString
-        size="small"
-        value={rowData.date}
-        onChange={event => setRowData({
-          ...rowData,
-          date: event.target.value,
-        })}
-      />
-    </Grid>
-    <Grid item xs={4}>
-      <Field
-        name={"invoiceLineTypeId_" + index}
-        required
-        component={AutocompleteField}
-        suggester={invoiceLineTypeSuggester}
-        onFetchCurrentOption={data => onUpdateInvoiceLineTypeId(data)}
-        size="small"
-        value={rowData.invoiceLineTypeId}
-        onChange={event => setRowData({
-          ...rowData,
-          invoiceLineTypeId: event.target.value,
-          code: "",
-          price: "",
-        })}
-      />
-    </Grid>
-    <Grid item justifyContent='center' xs={1}>
-      <ItemCodeText>
-        {rowData.code}
-      </ItemCodeText>
-    </Grid>
-    <Grid item xs={3}>
-      <Field
-        name={"orderedById_" + index}
-        required
-        component={AutocompleteField}
-        suggester={practitionerSuggester}
-        onFetchCurrentOption={data => onUpdateOrderedById(data)}
-        size="small"
-        value={rowData.orderedById}
-        onChange={event => setRowData({
-          ...rowData,
-          orderedById: event.target.value,
-          orderedBy: ""
-        })}
-      />
-    </Grid>
-    <Grid item xs={2}>
-      <PriceCell>
-        <PriceText>
-          {rowData.price}
-        </PriceText>
-        <StyledIconButton
-          onClick={onOpenKebabMenu}
+  return (
+    <StyledItemRow
+      container
+      alignItems='center'
+      spacing={1}
+      hasBorderBottom={hasBorderBottom}
+    >
+      <Grid item xs={2}>
+        <Field
+          name={"date_" + index}
+          required
+          component={DateField}
+          saveDateAsString
+          size="small"
+          value={rowData.date}
+          onChange={event => setRowData({
+            ...rowData,
+            date: event.target.value,
+          })}
+        />
+      </Grid>
+      <Grid item xs={4}>
+        <Field
+          name={"invoiceLineTypeId_" + index}
+          required
+          component={AutocompleteField}
+          suggester={invoiceLineTypeSuggester}
+          onFetchCurrentOption={data => onUpdateInvoiceLineTypeId(data)}
+          size="small"
+          value={rowData.invoiceLineTypeId}
+          onChange={event => setRowData({
+            ...rowData,
+            invoiceLineTypeId: event.target.value,
+            code: "",
+            price: "",
+          })}
+        />
+      </Grid>
+      <Grid item justifyContent='center' xs={1}>
+        <ItemCodeText>
+          {rowData.code}
+        </ItemCodeText>
+      </Grid>
+      <Grid item xs={3}>
+        <Field
+          name={"orderedById_" + index}
+          required
+          component={AutocompleteField}
+          suggester={practitionerSuggester}
+          onFetchCurrentOption={data => onUpdateOrderedById(data)}
+          size="small"
+          value={rowData.orderedById}
+          onChange={event => setRowData({
+            ...rowData,
+            orderedById: event.target.value,
+            orderedBy: ""
+          })}
+        />
+      </Grid>
+      <Grid item xs={2}>
+        <PriceCell>
+          <PriceText>
+            {rowData.price}
+          </PriceText>
+          <StyledIconButton
+            onClick={onOpenKebabMenu}
+          >
+            <MoreVert />
+          </StyledIconButton>
+        </PriceCell>
+        <StyledMenu
+          anchorEl={anchorEl}
+          getContentAnchorEl={null}
+          open={open}
+          onClose={handleCloseKebabMenu}
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'right',
+          }}
+          transformOrigin={{
+            vertical: 'top',
+            horizontal: 'right',
+          }}
         >
-          <MoreVert />
-        </StyledIconButton>
-      </PriceCell>
-      <StyledMenu
-        anchorEl={anchorEl}
-        getContentAnchorEl={null}
-        open={open}
-        onClose={handleCloseKebabMenu}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'right',
-        }}
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: 'right',
-        }}
-      >
-        <KebabMenuItem onClick={() => handleActionModal(ACTION_MODALS.ADD_DISCOUNT)}>
-          <TranslatedText
-            stringId="invoice.modal.editInvoice.addDiscount"
-            fallback="Add discount"
-          />
-        </KebabMenuItem>
-        <KebabMenuItem onClick={() => handleActionModal(ACTION_MODALS.ADD_MARKUP)}>
-          <TranslatedText
-            stringId="invoice.modal.editInvoice.addMarkup"
-            fallback="Add markup"
-          />
-        </KebabMenuItem>
-        <KebabMenuItem 
-          $color={isDeleteDisabled && Colors.softText}
-          onClick={() => !isDeleteDisabled && handleActionModal(ACTION_MODALS.DELETE)}
-        >
-          <TranslatedText
-            stringId="invoice.modal.editInvoice.delete"
-            fallback="Delete"
-          />
-        </KebabMenuItem>
-      </StyledMenu>
-    </Grid>
-    <DeleteItemModal
-      open={actionModal === ACTION_MODALS.DELETE}
-      onClose={() => handleActionModal('')}
-      onDelete={handleDeleteItem}
-      lineItems={rowData}
-    />
-  </StyledItemRow>
+          <KebabMenuItem onClick={() => handleActionModal(ACTION_MODALS.ADD_DISCOUNT)}>
+            <TranslatedText
+              stringId="invoice.modal.editInvoice.addDiscount"
+              fallback="Add discount"
+            />
+          </KebabMenuItem>
+          <KebabMenuItem onClick={() => handleActionModal(ACTION_MODALS.ADD_MARKUP)}>
+            <TranslatedText
+              stringId="invoice.modal.editInvoice.addMarkup"
+              fallback="Add markup"
+            />
+          </KebabMenuItem>
+          <KebabMenuItem
+            $color={isDeleteDisabled && Colors.softText}
+            onClick={() => !isDeleteDisabled && handleActionModal(ACTION_MODALS.DELETE)}
+          >
+            <TranslatedText
+              stringId="invoice.modal.editInvoice.delete"
+              fallback="Delete"
+            />
+          </KebabMenuItem>
+        </StyledMenu>
+      </Grid>
+      <DeleteItemModal
+        open={actionModal === ACTION_MODALS.DELETE}
+        onClose={() => handleActionModal('')}
+        onDelete={handleDeleteItem}
+        lineItems={rowData}
+      />
+    </StyledItemRow>
+  );
 };
