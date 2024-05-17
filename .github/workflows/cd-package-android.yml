@@ -41,7 +41,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-
       - uses: actions/checkout@v4
         with:
           ref: ${{ inputs.ref || github.ref }}
@@ -55,12 +54,6 @@ jobs:
 
       - name: Validate Gradle wrapper
         uses: gradle/actions/wrapper-validation@v3
-
-      - name: Build Number
-        env:
-          base: 100
-        run: |
-          echo "BUILD_NUMBER=$((${{github.run_number}} + $base))" >> $GITHUB_ENV
 
       - name: Update branding app title
         if: ${{ inputs.branding != 'tamanu' }}
@@ -119,7 +112,7 @@ jobs:
         id: artifact-upload
         uses: actions/upload-artifact@v4
         with:
-          name: android-release-${{env.BUILD_NUMBER}}
+          name: android-release-${{github.run_number}}
           path: packages/mobile/android/app/build/outputs/apk/release/app-release.apk
           retention-days: 7
 
@@ -127,6 +120,7 @@ jobs:
         uses: actions/github-script@v7
         env:
           ARTIFACT_URL: ${{ steps.artifact-upload.outputs.artifact-url }}
+          BUILD_NUMBER: ${{ github.run_number }}
         with:
           script: |
             const { ARTIFACT_URL, BUILD_NUMBER } = process.env;
