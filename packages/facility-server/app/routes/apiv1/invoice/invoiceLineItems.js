@@ -56,7 +56,6 @@ invoiceLineItemsRoute.put(
 
     // Fetch existing line items for the given invoiceId
     const existingItems = await models.InvoiceLineItem.findAll({ where: { invoiceId } });
-    const existingItemIds = existingItems.map(item => item.id);
 
     // Prepare arrays for creating and updating
     const itemsToCreate = [];
@@ -77,8 +76,16 @@ invoiceLineItemsRoute.put(
     );
 
     invoiceLineItemsData.forEach(item => {
-      if (item.id && existingItemIds.includes(item.id)) {
-        itemsToUpdate.push(item);
+      const existingItem = existingItems.find(existing => existing.id === item.id);
+      if (existingItem) {
+        // Compare the properties of the existing item with the received item
+        if (
+          existingItem.invoiceLineTypeId !== item.invoiceLineTypeId ||
+          existingItem.dateGenerated !== item.date ||
+          existingItem.orderedById !== item.orderedById
+        ) {
+          itemsToUpdate.push(item);
+        }
       } else {
         itemsToCreate.push({
           invoiceId,
