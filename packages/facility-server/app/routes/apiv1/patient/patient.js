@@ -1,6 +1,5 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import config from 'config';
 import { Op, QueryTypes } from 'sequelize';
 import { snakeCase } from 'lodash';
 
@@ -240,7 +239,14 @@ patientRoute.get(
 
     req.checkPermission('list', 'Patient');
 
-    const { orderBy, order = 'asc', rowsPerPage = 10, page = 0, ...filterParams } = query;
+    const {
+      orderBy,
+      order = 'asc',
+      rowsPerPage = 10,
+      page = 0,
+      markedForSyncFacility,
+      ...filterParams
+    } = query;
 
     const sortKey = PATIENT_SORT_KEYS[orderBy] || PATIENT_SORT_KEYS.lastName;
     const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
@@ -333,7 +339,7 @@ patientRoute.get(
         ) psi
           ON (patients.id = psi.patient_id)
         LEFT JOIN patient_facilities
-          ON (patient_facilities.patient_id = patients.id AND patient_facilities.facility_id = :facilityId)
+          ON (patient_facilities.patient_id = patients.id AND patient_facilities.facility_id = :markedForSyncFacility)
       ${whereClauses && `WHERE ${whereClauses}`}
       `
       : `
@@ -367,7 +373,7 @@ patientRoute.get(
         ) psi
           ON (patients.id = psi.patient_id)
         LEFT JOIN patient_facilities
-          ON (patient_facilities.patient_id = patients.id AND patient_facilities.facility_id = :facilityId)
+          ON (patient_facilities.patient_id = patients.id AND patient_facilities.facility_id = :markedForSyncFacility)
       ${whereClauses && `WHERE ${whereClauses}`}
     `;
 
@@ -380,6 +386,7 @@ patientRoute.get(
         }),
         filterParams,
       );
+    filterReplacements.markedForSyncFacility = markedForSyncFacility;
 
     const countResult = await req.db.query(`SELECT COUNT(1) AS count ${from}`, {
       replacements: filterReplacements,
