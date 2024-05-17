@@ -52,15 +52,6 @@ export const LabRequestPrintModal = React.memo(({ labRequest, patient, open, onC
     (isVillageEnabled && isVillageLoading) ||
     isCertificateFetching;
 
-  console.log({
-    isEncounterLoading,
-    areTestsLoading,
-    areNotesLoading,
-    isAdditionalDataLoading,
-    isVillageLoading: isVillageEnabled && isVillageLoading,
-    isCertificateFetching,
-  });
-  console.log(isLoading);
   return (
     <Modal
       title="Lab Request"

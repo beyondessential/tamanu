@@ -6,7 +6,7 @@ import { WS_EVENTS } from '@tamanu/constants';
  * @param {{config: { sync: { host: string}, language: string}, websocketService: ReturnType<import('./websocketService').defineWebsocketService>, models: import('../../../shared/src/models')}} injector
  */
 export const defineWebsocketClientService = injector => {
-  const client = io(injector.config.sync.host);
+  const client = io(injector.config.sync.host, { transports: ['websocket'] });
   const getClient = () => client;
 
   //forward event to facility client
