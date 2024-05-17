@@ -4,7 +4,6 @@ import { Model } from './Model';
 import { buildPatientSyncFilterViaPatientId } from './buildPatientSyncFilterViaPatientId';
 import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
-import { onSaveMarkPatientForSync } from './onSaveMarkPatientForSync';
 
 export class PatientAllergy extends Model {
   static init({ primaryKey, ...options }) {
@@ -22,7 +21,6 @@ export class PatientAllergy extends Model {
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
       },
     );
-    onSaveMarkPatientForSync(this);
   }
 
   static initRelations(models) {

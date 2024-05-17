@@ -2,7 +2,6 @@ import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import { buildPatientSyncFilterViaPatientId } from './buildPatientSyncFilterViaPatientId';
-import { onSaveMarkPatientForSync } from './onSaveMarkPatientForSync';
 
 export class PatientAdditionalData extends Model {
   static init(options) {
@@ -49,7 +48,6 @@ export class PatientAdditionalData extends Model {
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
       },
     );
-    onSaveMarkPatientForSync(this);
   }
 
   static initRelations(models) {
