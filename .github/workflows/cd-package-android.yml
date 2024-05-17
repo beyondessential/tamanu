@@ -59,7 +59,7 @@ jobs:
       - name: Build Number
         id: build-number
         run: |
-          echo "BUILD_NUMBER=$((github.run_number + 100))" >> $GITHUB_ENV
+          echo "BUILD_NUMBER=$((${{github.run_number}} + 100))" >> $GITHUB_ENV
 
       - name: Update branding app title
         if: ${{ inputs.branding != 'tamanu' }}
