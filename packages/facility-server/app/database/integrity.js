@@ -76,7 +76,7 @@ async function performInitialIntegritySetup(context) {
 
   // We've ensured that our immutable config stuff is valid -- save it!
   const { LocalSystemFact } = context.models;
-  const facilityIdsString = serverFacilityIds.map(f => f.name).join(FACILITY_IDS_SEPARATOR);
+  const facilityIdsString = serverFacilityIds.join(FACILITY_IDS_SEPARATOR);
   await LocalSystemFact.set('facilityIds', facilityIdsString);
 
   log.info(`Verified with central server as facilities ${facilityIdsString}`);
