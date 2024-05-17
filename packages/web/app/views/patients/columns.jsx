@@ -4,6 +4,7 @@ import { DateDisplay } from '../../components';
 import { getPatientStatus } from '../../utils/getPatientStatus';
 import { SexDisplay } from '../../components/Translation/SexDisplay';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
+import { ThemedTooltip } from '../../components/Tooltip';
 
 const DateCell = React.memo(({ value }) => <DateDisplay date={value} />);
 const SexCell = React.memo(({ value }) => <SexDisplay sex={value} />);
@@ -110,4 +111,24 @@ export const vaccinationStatus = {
   title: <TranslatedText stringId="vaccine.status.label" fallback="Vaccine status" />,
   minWidth: 100,
   accessor: row => row.vaccinationStatus || 'Unknown',
+};
+
+export const diet = {
+  key: 'dietName',
+  title: <TranslatedText stringId="general.diet.label" fallback="Diet" />,
+  accessor: (({ dietName, dietCode }) => {
+    if (!dietName || !dietCode) return null;
+    return <ThemedTooltip title={dietName}>
+      <span>{dietCode}</span>
+    </ThemedTooltip>
+  }),
+};
+
+export const inpatientSex = {
+  key: 'sex',
+  title: <TranslatedText stringId="general.localisedField.sex.label" fallback="Sex" />,
+  accessor: (({ sex }) => {
+    if (!sex) return null;
+    return sex.charAt(0).toUpperCase();
+  }),
 };

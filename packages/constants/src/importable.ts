@@ -28,6 +28,7 @@ export const GENERAL_IMPORTABLE_DATA_TYPES = [
   'holterMonitorImagingArea',
   'imagingAreaExternalCode',
   'imagingType',
+  'insurer',
   'invoiceLineType',
   'invoicePriceChangeType',
   'labTestCategory',

@@ -1,11 +1,6 @@
 import React, { useCallback } from 'react';
 import { Popup } from 'popup-ui';
-import {
-  CenterView,
-  StyledImage,
-  StyledTouchableOpacity,
-  StyledView,
-} from '/styled/common';
+import { CenterView, StyledImage, StyledTouchableOpacity, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { VaccineStatusCells } from '/helpers/constants';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
@@ -28,8 +23,12 @@ interface VaccineTableCellProps {
 }
 
 const CellContent = ({
-  cellStatus, status,
-}: { status?: string; cellStatus?: string }): JSX.Element => {
+  cellStatus,
+  status,
+}: {
+  status?: string;
+  cellStatus?: string;
+}): JSX.Element => {
   const cellData = VaccineStatusCells[cellStatus] || VaccineStatusCells[status];
   const Icon = cellData.Icon;
 
@@ -43,21 +42,18 @@ const CellContent = ({
       height={80}
       alignItems="center"
     >
-      {cellStatus
-        ? (
-          <CenterView flex={1}>
-            <Icon size={screenPercentageToDP(4.13, Orientation.Height)} />
-          </CenterView>
-        ) : <StyledImage source={require('../../assets/NullValueCell.png')} />
-      }
+      {cellStatus ? (
+        <CenterView flex={1}>
+          <Icon size={screenPercentageToDP(4.13, Orientation.Height)} />
+        </CenterView>
+      ) : (
+        <StyledImage source={require('../../assets/NullValueCell.png')} />
+      )}
     </StyledView>
   );
 };
 
-export const VaccineTableCell = ({
-  data,
-  onPress,
-}: VaccineTableCellProps): JSX.Element => {
+export const VaccineTableCell = ({ data, onPress }: VaccineTableCellProps): JSX.Element => {
   if (!data) return <CellContent status={VaccineStatus.UNKNOWN} />;
   const {
     scheduledVaccine,
@@ -66,15 +62,8 @@ export const VaccineTableCell = ({
     patientAdministeredVaccines,
     vaccineStatus,
   } = data;
-  const {
-    vaccine,
-    id,
-  } = scheduledVaccine;
-  const dueStatus = getVaccineStatus(
-    scheduledVaccine,
-    patient,
-    patientAdministeredVaccines,
-  );
+  const { vaccine, id } = scheduledVaccine;
+  const dueStatus = getVaccineStatus(scheduledVaccine, patient, patientAdministeredVaccines);
 
   let cellStatus = vaccineStatus || dueStatus.status || VaccineStatus.UNKNOWN;
   if (vaccineStatus === VaccineStatus.SCHEDULED) cellStatus = dueStatus.status;

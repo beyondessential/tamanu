@@ -377,7 +377,7 @@ export class AutocompleteInput extends Component {
 }
 
 AutocompleteInput.propTypes = {
-  label: PropTypes.string,
+  label: PropTypes.node,
   required: PropTypes.bool,
   disabled: PropTypes.bool,
   error: PropTypes.bool,
