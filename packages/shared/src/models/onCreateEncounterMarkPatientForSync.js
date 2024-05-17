@@ -1,5 +1,3 @@
-import config from 'config';
-
 // only single-creates of encounters should mark patients for sync, as anything more aggressive
 // would lead to accidentally marking patients for sync when they shouldn't be
 // as an example, when a facility has "syncAllLabRequests" turned on, the lab requests encounters
@@ -12,18 +10,13 @@ const HOOK_NAME = 'markPatientForSync';
 
 // any time an encounter is opened for a non-syncing patient should mark it for ongoing sync
 export const onCreateEncounterMarkPatientForSync = encounterModel => {
-  const facilityId = config.serverFacilityId || config.serverFacilityIds; // TODO this one is hard!!
-  if (!facilityId) {
-    // no need to add the hook on the central server
-    return;
-  }
-
   // we remove and add the hook because Sequelize doesn't have a good way
   // to detect which hooks have already been added to a model in its
   // public API
   encounterModel.removeHook(HOOK_TRIGGER, HOOK_NAME);
   encounterModel.addHook(HOOK_TRIGGER, HOOK_NAME, async (record, { transaction }) => {
-    const { patientId } = record;
+    const { patientId, locationId } = record;
+    const { facilityId } = await encounterModel.sequelize.models.Location.findByPk(locationId);
 
     // upsert patient_facilities record to mark the patient for sync in this facility
     await encounterModel.sequelize.query(
