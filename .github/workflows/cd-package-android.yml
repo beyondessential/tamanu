@@ -3,6 +3,7 @@ name: CD Package Android
 permissions:
   contents: write # to update the release notes
   id-token: write # OIDC token for AWS
+  pull-requests: write
 
 on:
   workflow_call:
@@ -55,11 +56,11 @@ jobs:
       - name: Validate Gradle wrapper
         uses: gradle/actions/wrapper-validation@v3
 
-
       - name: Build Number
-        id: build-number
+        env:
+          base: 100
         run: |
-          echo "BUILD_NUMBER=$((${{github.run_number}} + 100))" >> $GITHUB_ENV
+          echo "BUILD_NUMBER=$((${{github.run_number}} + $base))" >> $GITHUB_ENV
 
       - name: Update branding app title
         if: ${{ inputs.branding != 'tamanu' }}
