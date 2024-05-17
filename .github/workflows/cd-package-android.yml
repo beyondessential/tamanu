@@ -127,32 +127,31 @@ jobs:
         env:
           ARTIFACT_PATH: ${{ steps.artifact-upload.outputs.artifact-path }}
         with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const { ARTIFACT_PATH, BUILD_NUMBER } = process.env;
-            const commonParams = {
+            const params = {
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo
             };
-            const comments = await github.rest.issues.listComments(commonParams);
+            const comments = await github.rest.issues.listComments(params);
             const existingComment = comments.data.find(comment => comment.body.includes('Android build'));
+            const commentParams = {
+              ...params,
+              body: `
+              **Android build ${BUILD_NUMBER} is ready for testing!📱**
+              [Download Android APK](${ARTIFACT_PATH})
+              `
+            };
             if (existingComment) {
               github.rest.issues.updateComment({
-                ...commonParams,
+                ...commentParams,
                 comment_id: existingComment.id,
-                body: `
-                **Android build ${BUILD_NUMBER} is ready for testing!📱**
-                [Download Android APK](${ARTIFACT_PATH})
                 `
               })
             } else {
-              github.rest.issues.createComment({
-                ...commonParams,
-                body: `
-                **Android build ${BUILD_NUMBER} is ready for testing!📱**
-                [Download Android APK](${ARTIFACT_PATH})
-                `
-              })
+              github.rest.issues.createComment(commentParams)
             }
 
       - name: Set S3 destination
