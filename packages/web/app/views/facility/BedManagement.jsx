@@ -20,7 +20,6 @@ import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { PatientSearchKeys, usePatientSearch } from '../../contexts/PatientSearch';
 import { columns } from './bedManagementColumns';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
-import { setFacilityId } from '../../store';
 
 const DashboardContainer = styled.div`
   display: flex;
@@ -180,7 +179,7 @@ export const BedManagement = () => {
     api.get('patient', {
       countOnly: true,
       currentPatient: true,
-      setFacilityId,
+      facilityId,
     }),
   );
 
