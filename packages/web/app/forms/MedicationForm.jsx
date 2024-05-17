@@ -25,8 +25,11 @@ import { MAX_AGE_TO_RECORD_WEIGHT, FORM_TYPES } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useLocalisation } from '../contexts/Localisation';
 import { useTranslation } from '../contexts/Translation';
-import { useSelector } from 'react-redux';
 import { getAgeDurationFromDate } from '../../../shared/src/utils/date';
+import { useQuery } from '@tanstack/react-query';
+import { useApi } from '../api';
+import { useSelector } from 'react-redux';
+
 
 const drugRouteOptions = [
   { label: 'Dermal', value: 'dermal' },
@@ -132,6 +135,8 @@ export const MedicationForm = React.memo(
     onDiscontinue,
     readOnly,
   }) => {
+    const api = useApi();
+
     const { getTranslation } = useTranslation();
     const { getLocalisation } = useLocalisation();
     const weightUnit = getLocalisation('fields.weightUnit.longLabel');
@@ -146,6 +151,15 @@ export const MedicationForm = React.memo(
     const [printModalOpen, setPrintModalOpen] = useState();
     const [awaitingPrint, setAwaitingPrint] = useState(false);
     const [patientWeight, setPatientWeight] = useState('');
+
+    const patient = useSelector(state => state.patient);
+
+    const { data: allergies, isLoading: isLoadingAllergies } = useQuery(
+      [`allergies`, patient?.id],
+      () => api.get(`patient/${patient?.id}/allergies`),
+      { enabled: !!patient?.id },
+    );
+    const allergiesList = allergies?.data?.map(it => it?.allergy.name).join(', ');
 
     // Transition to print page as soon as we have the generated id
     useEffect(() => {
@@ -189,6 +203,18 @@ export const MedicationForm = React.memo(
           validationSchema={validationSchema(readOnly)}
           render={({ submitForm }) => (
             <FormGrid>
+              <div style={{ gridColumn: '1 / -1' }}>
+                <TranslatedText stringId="medication.allergies.title" fallback="Allergies" />:{' '}
+                <span style={{ fontWeight: 500 }}>
+                  {!isLoadingAllergies &&
+                    (allergiesList || (
+                      <TranslatedText
+                        stringId="medication.allergies.noRecord"
+                        fallback="None recorded"
+                      />
+                    ))}
+                </span>
+              </div>
               <div style={{ gridColumn: '1 / -1' }}>
                 <Field
                   name="medicationId"
