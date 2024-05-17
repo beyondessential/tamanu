@@ -55,6 +55,12 @@ jobs:
       - name: Validate Gradle wrapper
         uses: gradle/actions/wrapper-validation@v3
 
+      - name: Build Number (with base)
+        uses: mlilback/build-number@v1.0.1
+        with:
+          base: 100
+          run-id: "${{ github.run_number }}"
+
       - name: Update branding app title
         if: ${{ inputs.branding != 'tamanu' }}
         env:
@@ -111,7 +117,7 @@ jobs:
       - name: Upload final build
         uses: actions/upload-artifact@v4
         with:
-          name: android-release
+          name: android-release-${{env.BUILD_NUMBER}}
           path: packages/mobile/android/app/build/outputs/apk/release/app-release.apk
           retention-days: 7
 
