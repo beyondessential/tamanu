@@ -3,7 +3,6 @@ import { Model } from './Model';
 import { dateTimeType } from './dateTimeTypes';
 import { buildPatientSyncFilterViaPatientId } from './buildPatientSyncFilterViaPatientId';
 import { getCurrentDateTimeString } from '../utils/dateTime';
-import { onSaveMarkPatientForSync } from './onSaveMarkPatientForSync';
 
 export class PatientCarePlan extends Model {
   static init({ primaryKey, ...options }) {
@@ -20,7 +19,6 @@ export class PatientCarePlan extends Model {
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
       },
     );
-    onSaveMarkPatientForSync(this);
   }
 
   static initRelations(models) {
