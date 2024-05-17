@@ -191,8 +191,9 @@ export const Sidebar = React.memo(({ items }) => {
   const initials = getInitials(currentUser.displayName);
   const roleName = currentRole?.name ?? currentUser?.role;
 
-  const { facility, isLoading: isFacilityLoading } = useQuery(['facility', facilityId], () =>
-    api.get(`facility/${encodeURIComponent(facilityId)}`),
+  const { data: facility, isLoading: isFacilityLoading } = useQuery(
+    ['facility', facilityId],
+    async () => await api.get(`facility/${encodeURIComponent(facilityId)}`),
   );
 
   const connectionName = useMemo(() => {

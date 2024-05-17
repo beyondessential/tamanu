@@ -10,6 +10,7 @@ const {
   LOCALISATION,
   SERVER_TYPE,
   AVAILABLE_FACILITIES,
+  FACILITY_ID,
   PERMISSIONS,
   ROLE,
   SETTINGS,
@@ -28,11 +29,21 @@ function restoreFromLocalStorage() {
   const localisation = safeGetStoredJSON(LOCALISATION);
   const serverType = safeGetStoredJSON(SERVER_TYPE);
   const availableFacilities = safeGetStoredJSON(AVAILABLE_FACILITIES);
+  const facilityId = safeGetStoredJSON(FACILITY_ID);
   const permissions = safeGetStoredJSON(PERMISSIONS);
   const role = safeGetStoredJSON(ROLE);
   const settings = safeGetStoredJSON(SETTINGS);
 
-  return { token, localisation, serverType, availableFacilities, permissions, role, settings };
+  return {
+    token,
+    localisation,
+    serverType,
+    availableFacilities,
+    facilityId,
+    permissions,
+    role,
+    settings,
+  };
 }
 
 function saveToLocalStorage({
@@ -40,6 +51,7 @@ function saveToLocalStorage({
   localisation,
   serverType,
   availableFacilities,
+  facilityId,
   permissions,
   role,
   settings,
@@ -59,6 +71,9 @@ function saveToLocalStorage({
   if (availableFacilities) {
     localStorage.setItem(AVAILABLE_FACILITIES, JSON.stringify(availableFacilities));
   }
+  if (facilityId) {
+    localStorage.setItem(FACILITY_ID, JSON.stringify(facilityId));
+  }
   if (role) {
     localStorage.setItem(ROLE, JSON.stringify(role));
   }
@@ -72,6 +87,7 @@ function clearLocalStorage() {
   localStorage.removeItem(LOCALISATION);
   localStorage.removeItem(SERVER_TYPE);
   localStorage.removeItem(AVAILABLE_FACILITIES);
+  localStorage.removeItem(FACILITY_ID);
   localStorage.removeItem(PERMISSIONS);
   localStorage.removeItem(ROLE);
   localStorage.removeItem(SETTINGS);
@@ -113,6 +129,7 @@ export class TamanuApi extends ApiClient {
       localisation,
       serverType,
       availableFacilities,
+      facilityId,
       permissions,
       role,
       settings,
@@ -125,7 +142,17 @@ export class TamanuApi extends ApiClient {
     this.user = user;
     const ability = buildAbilityForUser(user, permissions);
 
-    return { user, token, localisation, serverType, availableFacilities, ability, role, settings };
+    return {
+      user,
+      token,
+      localisation,
+      serverType,
+      availableFacilities,
+      facilityId,
+      ability,
+      role,
+      settings,
+    };
   }
 
   async login(email, password) {
@@ -156,6 +183,7 @@ export class TamanuApi extends ApiClient {
     this.setToken(token);
     saveToLocalStorage({
       token,
+      facilityId,
     });
   }
 

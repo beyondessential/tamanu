@@ -44,14 +44,21 @@ const handleLoginSuccess = (dispatch, loginInfo) => {
     localisation,
     server,
     availableFacilities,
+    facilityId,
     ability,
     role,
     settings,
   } = loginInfo;
-  // if there's just one facility the user has access to, select it immediately
-  // otherwise they will be prompted to select a facility after login
-  const facilityId = availableFacilities.length === 1 ? availableFacilities[0].id : null;
-  dispatch(setFacilityId(facilityId));
+
+  if (facilityId) {
+    dispatch(setFacilityId(facilityId));
+  } else {
+    // if there's just one facility the user has access to, select it immediately
+    // otherwise they will be prompted to select a facility after login
+    const onlyFacilityId = availableFacilities.length === 1 ? availableFacilities[0].id : null;
+    dispatch(setFacilityId(onlyFacilityId));
+  }
+
   dispatch({
     type: LOGIN_SUCCESS,
     user,
