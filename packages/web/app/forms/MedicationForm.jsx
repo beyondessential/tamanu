@@ -25,10 +25,10 @@ import { MAX_AGE_TO_RECORD_WEIGHT, FORM_TYPES } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useLocalisation } from '../contexts/Localisation';
 import { useTranslation } from '../contexts/Translation';
-import { useSelector } from 'react-redux';
 import { getAgeDurationFromDate } from '../../../shared/src/utils/date';
 import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../api';
+import { useSelector } from 'react-redux';
 
 const drugRouteOptions = [
   { label: 'Dermal', value: 'dermal' },
