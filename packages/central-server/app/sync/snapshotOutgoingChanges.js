@@ -1,6 +1,7 @@
 import { snake } from 'case';
 import {
   COLUMNS_EXCLUDED_FROM_SYNC,
+  getMarkedForSyncPatientsTableName,
   getSnapshotTableName,
   SYNC_SESSION_DIRECTION,
 } from '@tamanu/shared/sync';
@@ -12,7 +13,7 @@ const snapshotChangesForModel = async (
   model,
   since,
   patientCount,
-  isRegularSync,
+  isFullSync,
   sessionId,
   facilityId,
   sessionConfig,
@@ -25,9 +26,10 @@ const snapshotChangesForModel = async (
   });
 
   const CHUNK_SIZE = config.sync.maxRecordsPerPullSnapshotChunk;
+  const markedForSyncPatientsTable = getMarkedForSyncPatientsTableName(sessionId, isFullSync);
   const modelHasPatientSyncFilter = !!model.buildPatientSyncFilter;
   const patientSyncFilter = modelHasPatientSyncFilter
-    ? model.buildPatientSyncFilter(patientCount, sessionConfig)
+    ? model.buildPatientSyncFilter(patientCount, markedForSyncPatientsTable, sessionConfig)
     : '';
   if (modelHasPatientSyncFilter && patientSyncFilter === null) {
     // if patient sync filter is null, it indicates no records will be available so no point in going further
@@ -50,26 +52,7 @@ const snapshotChangesForModel = async (
   while (fromId != null) {
     const [[{ maxId, count }]] = await model.sequelize.query(
       `
-      WITH
-      
-      ${
-        modelHasPatientSyncFilter
-          ? `
-          marked_for_sync_patients AS (
-            SELECT patient_id
-            FROM patient_facilities
-            WHERE facility_id = :facilityId
-            ${
-              isRegularSync
-                ? 'AND updated_at_sync_tick <= :since' // get all the EXISTING marked for sync patients if it is regular sync
-                : 'AND updated_at_sync_tick > :since' // get all the NEW marked for sync patients if it is FULL sync
-            }
-          ),
-      `
-          : ''
-      }
-     
-      inserted AS (
+      WITH inserted AS (
         INSERT INTO ${snapshotTableName} (
           direction,
           is_deleted,
@@ -151,7 +134,7 @@ export const snapshotOutgoingChanges = withConfig(
     outgoingModels,
     since,
     patientCount,
-    isRegularSync,
+    isFullSync,
     sessionId,
     facilityId,
     sessionConfig,
@@ -180,7 +163,7 @@ export const snapshotOutgoingChanges = withConfig(
           model,
           since,
           patientCount,
-          isRegularSync,
+          isFullSync,
           sessionId,
           facilityId,
           sessionConfig,

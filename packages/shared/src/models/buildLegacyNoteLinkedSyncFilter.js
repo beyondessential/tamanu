@@ -5,7 +5,7 @@ import { NOTE_RECORD_TYPE_VALUES, NOTE_RECORD_TYPES } from '@tamanu/constants';
 
 const recordTypesWithPatientViaEncounter = ['Triage', 'LabRequest', 'ImagingRequest'];
 
-function buildNoteLinkedSyncFilter(patientCount, sessionConfig, isNotePage) {
+function buildNoteLinkedSyncFilter(patientCount, markedForSyncPatientsTable, sessionConfig, isNotePage) {
   if (patientCount === 0) {
     return null;
   }
@@ -28,17 +28,17 @@ function buildNoteLinkedSyncFilter(patientCount, sessionConfig, isNotePage) {
 
   const whereOrs = [
     `
-      ( note_pages.record_id IN (SELECT patient_id FROM marked_for_sync_patients) AND note_pages.record_type = '${NOTE_RECORD_TYPES.PATIENT}')
+      ( note_pages.record_id IN (SELECT patient_id FROM ${markedForSyncPatientsTable}) AND note_pages.record_type = '${NOTE_RECORD_TYPES.PATIENT}')
     `,
     ...NOTE_RECORD_TYPE_VALUES.filter(r => recordTypesWithPatientViaEncounter.includes(r)).map(
       r =>
-        `( ${recordTypesToTables[r]}_encounters.patient_id IN (SELECT patient_id FROM marked_for_sync_patients) AND note_pages.record_type = '${r}' )`,
+        `( ${recordTypesToTables[r]}_encounters.patient_id IN (SELECT patient_id FROM ${markedForSyncPatientsTable}) AND note_pages.record_type = '${r}' )`,
     ),
     ...NOTE_RECORD_TYPE_VALUES.filter(
       r => !recordTypesWithPatientViaEncounter.includes(r) && r !== 'Patient',
     ).map(
       r =>
-        `( ${recordTypesToTables[r]}.patient_id IN (SELECT patient_id FROM marked_for_sync_patients) AND note_pages.record_type = '${r}' )`,
+        `( ${recordTypesToTables[r]}.patient_id IN (SELECT patient_id FROM ${markedForSyncPatientsTable}) AND note_pages.record_type = '${r}' )`,
     ),
   ];
 
@@ -60,10 +60,18 @@ function buildNoteLinkedSyncFilter(patientCount, sessionConfig, isNotePage) {
   `;
 }
 
-export function buildNotePageLinkedSyncFilter(patientCount, sessionConfig) {
-  return buildNoteLinkedSyncFilter(patientCount, sessionConfig, true);
+export function buildNotePageLinkedSyncFilter(
+  patientCount,
+  markedForSyncPatientsTable,
+  sessionConfig,
+) {
+  return buildNoteLinkedSyncFilter(patientCount, markedForSyncPatientsTable, sessionConfig, true);
 }
 
-export function buildNoteItemLinkedSyncFilter(patientCount, sessionConfig) {
-  return buildNoteLinkedSyncFilter(patientCount, sessionConfig, false);
+export function buildNoteItemLinkedSyncFilter(
+  patientCount,
+  markedForSyncPatientsTable,
+  sessionConfig,
+) {
+  return buildNoteLinkedSyncFilter(patientCount, markedForSyncPatientsTable, sessionConfig, false);
 }

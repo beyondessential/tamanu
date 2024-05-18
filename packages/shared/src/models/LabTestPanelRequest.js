@@ -26,13 +26,16 @@ export class LabTestPanelRequest extends Model {
     });
   }
 
-  static buildPatientSyncFilter(patientCount, sessionConfig) {
+  static buildPatientSyncFilter(patientCount, markedForSyncPatientsTable, sessionConfig) {
     if (sessionConfig.syncAllLabRequests) {
       return ''; // include all lab panel requests
     }
     if (patientCount === 0) {
       return null;
     }
-    return buildEncounterLinkedSyncFilter([this.tableName, 'encounters']);
+    return buildEncounterLinkedSyncFilter(
+      [this.tableName, 'encounters'],
+      markedForSyncPatientsTable,
+    );
   }
 }

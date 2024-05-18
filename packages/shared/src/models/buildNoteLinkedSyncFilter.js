@@ -4,7 +4,7 @@ import { NOTE_RECORD_TYPE_VALUES, NOTE_RECORD_TYPES } from '@tamanu/constants';
 
 const recordTypesWithPatientViaEncounter = ['Triage', 'LabRequest', 'ImagingRequest'];
 
-export function buildNoteLinkedSyncFilter(patientCount, sessionConfig) {
+export function buildNoteLinkedSyncFilter(patientCount, markedForSyncPatientsTable, sessionConfig) {
   if (patientCount === 0) {
     return null;
   }
@@ -27,17 +27,17 @@ export function buildNoteLinkedSyncFilter(patientCount, sessionConfig) {
 
   const whereOrs = [
     `
-      ( notes.record_id IN (SELECT patient_id FROM marked_for_sync_patients) AND notes.record_type = '${NOTE_RECORD_TYPES.PATIENT}')
+      ( notes.record_id IN (SELECT patient_id FROM ${markedForSyncPatientsTable}) AND notes.record_type = '${NOTE_RECORD_TYPES.PATIENT}')
     `,
     ...NOTE_RECORD_TYPE_VALUES.filter(r => recordTypesWithPatientViaEncounter.includes(r)).map(
       r =>
-        `( ${recordTypesToTables[r]}_encounters.patient_id IN (SELECT patient_id FROM marked_for_sync_patients) AND notes.record_type = '${r}' )`,
+        `( ${recordTypesToTables[r]}_encounters.patient_id IN (SELECT patient_id FROM ${markedForSyncPatientsTable}) AND notes.record_type = '${r}' )`,
     ),
     ...NOTE_RECORD_TYPE_VALUES.filter(
       r => !recordTypesWithPatientViaEncounter.includes(r) && r !== 'Patient',
     ).map(
       r =>
-        `( ${recordTypesToTables[r]}.patient_id IN (SELECT patient_id FROM marked_for_sync_patients) AND notes.record_type = '${r}' )`,
+        `( ${recordTypesToTables[r]}.patient_id IN (SELECT patient_id FROM ${markedForSyncPatientsTable}) AND notes.record_type = '${r}' )`,
     ),
   ];
 

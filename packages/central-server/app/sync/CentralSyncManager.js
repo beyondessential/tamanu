@@ -26,6 +26,7 @@ import { getPatientLinkedModels } from './getPatientLinkedModels';
 import { snapshotOutgoingChanges } from './snapshotOutgoingChanges';
 import { filterModelsFromName } from './filterModelsFromName';
 import { startSnapshotWhenCapacityAvailable } from './startSnapshotWhenCapacityAvailable';
+import { createMarkedForSyncPatientsTable } from './createMarkedForSyncPatientsTable';
 
 const errorMessageFromSession = session =>
   `Sync session '${session.id}' encountered an error: ${session.error}`;
@@ -265,6 +266,12 @@ export class CentralSyncManager {
         newlyMarkedPatientCount: newPatientFacilitiesCount,
       });
 
+      // for full sync patients
+      await createMarkedForSyncPatientsTable(sequelize, sessionId, true, facilityId, since);
+
+      // for regular sync patients
+      await createMarkedForSyncPatientsTable(sequelize, sessionId, false, facilityId, since);
+
       const syncAllLabRequests = await models.Setting.get('syncAllLabRequests', facilityId);
       const syncTheseProgramRegistries = await models.Setting.get(
         'syncTheseProgramRegistries',
@@ -294,7 +301,7 @@ export class CentralSyncManager {
             getPatientLinkedModels(modelsToInclude),
             -1, // for all time, i.e. 0 onwards
             newPatientFacilitiesCount,
-            false, // this is a full sync, not a regular sync
+            true, // this is a full sync, not a regular sync
             sessionId,
             facilityId,
             {}, // sending empty session config because this snapshot attempt is only for syncing new marked for sync patients
@@ -311,7 +318,7 @@ export class CentralSyncManager {
             getModelsForDirection(modelsToInclude, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
             since,
             patientFacilitiesCount,
-            true, // this is a regular sync
+            false, // this is a regular sync
             sessionId,
             facilityId,
             sessionConfig,
@@ -325,7 +332,7 @@ export class CentralSyncManager {
               getModelsForDirection(modelsForFullResync, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
               -1,
               patientFacilitiesCount,
-              true, // this is a regular sync
+              false, // this is a regular sync
               sessionId,
               facilityId,
               sessionConfig,

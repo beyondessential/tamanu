@@ -30,7 +30,7 @@ export class SurveyResponseAnswer extends Model {
     });
   }
 
-  static buildPatientSyncFilter(patientCount, sessionConfig) {
+  static buildPatientSyncFilter(patientCount, markedForSyncPatientsTable, sessionConfig) {
     if (patientCount === 0) {
       return null;
     }
@@ -47,7 +47,7 @@ export class SurveyResponseAnswer extends Model {
         ${joins}
         JOIN surveys ON survey_responses.survey_id = surveys.id
         WHERE
-          encounters.patient_id in (SELECT patient_id FROM marked_for_sync_patients)
+          encounters.patient_id in (SELECT patient_id FROM ${markedForSyncPatientsTable})
         AND
           surveys.is_sensitive = FALSE
         AND
@@ -58,7 +58,7 @@ export class SurveyResponseAnswer extends Model {
     return `
       ${joins}
       WHERE
-        encounters.patient_id in (SELECT patient_id FROM marked_for_sync_patients)
+        encounters.patient_id in (SELECT patient_id FROM ${markedForSyncPatientsTable})
       AND
         ${this.tableName}.updated_at_sync_tick > :since
     `;

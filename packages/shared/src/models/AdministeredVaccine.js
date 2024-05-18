@@ -85,7 +85,11 @@ export class AdministeredVaccine extends Model {
     });
   }
 
-  static buildPatientSyncFilter(patientCount, { syncAllEncountersForTheseVaccines }) {
+  static buildPatientSyncFilter(
+    patientCount,
+    markedForSyncPatientsTable,
+    { syncAllEncountersForTheseVaccines },
+  ) {
     const joins = [];
     const wheres = [];
 
@@ -93,7 +97,7 @@ export class AdministeredVaccine extends Model {
       joins.push(`
         LEFT JOIN encounters
         ON administered_vaccines.encounter_id = encounters.id
-        AND encounters.patient_id IN (SELECT patient_id FROM marked_for_sync_patients)
+        AND encounters.patient_id IN (SELECT patient_id FROM ${markedForSyncPatientsTable})
       `);
       wheres.push(`
         encounters.id IS NOT NULL

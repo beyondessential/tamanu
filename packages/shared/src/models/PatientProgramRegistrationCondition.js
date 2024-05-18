@@ -62,7 +62,7 @@ export class PatientProgramRegistrationCondition extends Model {
     return ['programRegistryCondition'];
   }
 
-  static buildPatientSyncFilter(patientCount, { syncTheseProgramRegistries }) {
+  static buildPatientSyncFilter(patientCount, markedForSyncPatientsTable, { syncTheseProgramRegistries }) {
     const escapedProgramRegistryIds =
       syncTheseProgramRegistries?.length > 0
         ? syncTheseProgramRegistries.map(id => this.sequelize.escape(id)).join(',')
@@ -72,6 +72,6 @@ export class PatientProgramRegistrationCondition extends Model {
       return `WHERE program_registry_id IN (${escapedProgramRegistryIds}) AND updated_at_sync_tick > :since`;
     }
 
-    return `WHERE (patient_id IN (SELECT patient_id FROM marked_for_sync_patients) OR program_registry_id IN (${escapedProgramRegistryIds})) AND updated_at_sync_tick > :since`;
+    return `WHERE (patient_id IN (SELECT patient_id FROM ${markedForSyncPatientsTable}) OR program_registry_id IN (${escapedProgramRegistryIds})) AND updated_at_sync_tick > :since`;
   }
 }

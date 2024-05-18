@@ -37,13 +37,13 @@ export class Referral extends Model {
     });
   }
 
-  static buildPatientSyncFilter(patientCount) {
+  static buildPatientSyncFilter(patientCount, markedForSyncPatientsTable) {
     if (patientCount === 0) {
       return null;
     }
     return `
       JOIN encounters ON referrals.initiating_encounter_id = encounters.id
-      WHERE encounters.patient_id IN (SELECT patient_id FROM marked_for_sync_patients)
+      WHERE encounters.patient_id IN (SELECT patient_id FROM ${markedForSyncPatientsTable})
       AND ${this.tableName}.updated_at_sync_tick > :since
     `;
   }
