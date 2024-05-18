@@ -101,7 +101,7 @@ const StyledTableContainer = styled.div`
   background: white;
   width: 100%;
   border: 1px solid ${props => (props.$borderColor ? props.$borderColor : Colors.outline)};
-  ${props => props.isDenseTable && 'border: 0px solid white'}
+  ${props => props.isDenseTable ? 'border: 0px solid white;' : ''}
   ${props => (props.$elevated ? PaperStyles : null)};
   ${props => (props.containerStyle ? props.containerStyle : null)}
 `;
@@ -174,9 +174,9 @@ const StyledTableHead = styled(TableHead)`
   .MuiTableCell-head {
     background: ${props => (props.$headerColor ? props.$headerColor : Colors.background)};
     ${props => (props.$fixedHeader ? 'top: 0; position: sticky;' : '')}
-    padding: ${props => props.isDenseTable && '8px 30px 8px 0px'};
+    padding: ${props => props.isDenseTable ? '8px 30px 8px 0px' : ''};
     &:last-child {
-      ${props => props.isDenseTable && 'padding-right: 5px;'}
+      ${props => props.isDenseTable ? 'padding-right: 5px;' : ''}
     }
   }
 `;
