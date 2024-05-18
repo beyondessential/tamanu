@@ -7,7 +7,6 @@ import { AutocompleteField, DateField, Field } from '../Field';
 import { useSuggester } from '../../api';
 import { Colors } from '../../constants';
 import { DeleteItemModal } from './DeleteItemModal';
-import { getInvoiceLineCode } from '../../utils/invoiceDetails';
 
 const PriceText = styled.span`
   margin-right: 16px;
@@ -119,23 +118,15 @@ export const ItemRow = ({
   index,
   hasBorderBottom,
   onDelete,
-  rowData: defaultRowData,
-  isDeleteDisabled
+  rowData,
+  isDeleteDisabled,
+  updateRowData,
 }) => {
   const invoiceLineTypeSuggester = useSuggester('invoiceLineTypes');
   const practitionerSuggester = useSuggester('practitioner');
   const [actionModal, setActionModal] = useState('');
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
-  const [rowData, setRowData] = useState({
-    details: defaultRowData?.invoiceLineType?.name || defaultRowData?.name,
-    date: defaultRowData?.date,
-    orderedBy: defaultRowData?.orderedBy?.displayName,
-    price: defaultRowData?.invoiceLineType?.price,
-    invoiceLineTypeId: defaultRowData?.invoiceLineTypeId,
-    orderedById: defaultRowData?.orderedById,
-    code: getInvoiceLineCode(defaultRowData) || defaultRowData.code,
-  });
 
   const onOpenKebabMenu = (event) => {
     setAnchorEl(event.currentTarget);
@@ -146,18 +137,11 @@ export const ItemRow = ({
   };
 
   const onUpdateInvoiceLineTypeId = ({ name, price }) => {
-    setRowData(prevRowData => ({
-      ...prevRowData,
-      details: name,
-      price,
-    }))
+    updateRowData(rowData.id, { details: name, price });
   };
 
   const onUpdateOrderedById = ({ name }) => {
-    setRowData(prevRowData => ({
-      ...prevRowData,
-      orderedBy: name,
-    }))
+    updateRowData(rowData.id, { orderedBy: name });
   };
 
   const handleActionModal = value => {
@@ -184,11 +168,7 @@ export const ItemRow = ({
           component={DateField}
           saveDateAsString
           size="small"
-          value={rowData.date}
-          onChange={event => setRowData({
-            ...rowData,
-            date: event.target.value,
-          })}
+          onChange={event => updateRowData(rowData.id, { date: event.target.value })}
         />
       </Grid>
       <Grid item xs={4}>
@@ -199,9 +179,7 @@ export const ItemRow = ({
           suggester={invoiceLineTypeSuggester}
           onFetchCurrentOption={data => onUpdateInvoiceLineTypeId(data)}
           size="small"
-          value={rowData.invoiceLineTypeId}
-          onChange={event => setRowData({
-            ...rowData,
+          onChange={event => updateRowData(rowData.id, { 
             invoiceLineTypeId: event.target.value,
             code: "",
             price: "",
@@ -221,9 +199,7 @@ export const ItemRow = ({
           suggester={practitionerSuggester}
           onFetchCurrentOption={data => onUpdateOrderedById(data)}
           size="small"
-          value={rowData.orderedById}
-          onChange={event => setRowData({
-            ...rowData,
+          onChange={event => updateRowData(rowData.id, { 
             orderedById: event.target.value,
             orderedBy: ""
           })}

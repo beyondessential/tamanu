@@ -15,6 +15,7 @@ import { DateDisplay } from '../DateDisplay';
 import { Button } from '../Button';
 import { ItemHeader, ItemRow } from './ItemRow';
 import { useEncounter } from '../../contexts/Encounter';
+import { getInvoiceLineCode } from '../../utils/invoiceDetails';
 
 const LinkText = styled.div`
   font-weight: 500;
@@ -103,12 +104,14 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
       const response = await api.get(`invoices/${encodeURIComponent(invoiceId)}/lineItems`);
 
       const newRowList = response.data.map(item => ({
-        invoiceLineTypeId: item.invoiceLineTypeId,
+        id: item.id,
+        details: item.invoiceLineType?.name,
         date: item.dateGenerated,
+        orderedBy: item.orderedBy?.displayName,
+        price: item.invoiceLineType?.price,
+        invoiceLineTypeId: item.invoiceLineTypeId,
         orderedById: item.orderedById,
-        id: item?.id,
-        invoiceLineType: item.invoiceLineType,
-        orderedBy: item.orderedBy
+        code: getInvoiceLineCode(item),
       }));
       if (newRowList.length) setRowList(newRowList);
     })();
@@ -116,23 +119,38 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
 
   const { loadEncounter } = useEncounter();
 
+  const updateRowData = useCallback((id, value) => {
+    setRowList(prevRowList => {
+      const newRowList = prevRowList.map(row => row.id === id
+        ? { ...row, ...value }
+        : row
+      );
+      return newRowList;
+    });
+  }, []);
+
   const handleAddRow = (rowData) => {
     const newRowList = [...rowList];
     if (Array.isArray(rowData) && rowData.length) {
       rowData.forEach(newItem => {
         const idExists = newRowList.some(item => item && item.id === newItem.id);
         if (!idExists) {
-          newRowList.push(newItem);
+          newRowList.push({
+            id: newItem?.id,
+            details: newItem?.name,
+            date: newItem?.date,
+            orderedBy: newItem?.orderedBy,
+            price: newItem?.price,
+            invoiceLineTypeId: newItem?.invoiceLineTypeId,
+            orderedById: newItem?.orderedById,
+            code: newItem?.code,
+          });
         }
       });
       setRowList(newRowList);
       return;
     }
-    if (rowData) {
-      newRowList.push(rowData);
-      setRowList(newRowList);
-      return;
-    }
+
     newRowList.push({ id: uuidv4() });
     setRowList(newRowList);
   };
@@ -156,7 +174,7 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
     {
       sortable: false,
       accessor: (row) => (
-        <SingleAddButton variant="outlined" onClick={() => handleAddRow(row)}>
+        <SingleAddButton variant="outlined" onClick={() => handleAddRow([row])}>
           <TranslatedText stringId="general.action.add" fallback="Add" />
         </SingleAddButton>
       ),
@@ -269,6 +287,7 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
                   /> : ""}
                 onDelete={() => onDeleteLineItem(row?.id)}
                 isDeleteDisabled={rowList.length === 1}
+                updateRowData={updateRowData}
               />
             ))}
             <LinkText onClick={() => handleAddRow()}>
