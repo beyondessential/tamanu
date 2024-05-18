@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
 import * as yup from 'yup';
-import { Divider } from '@material-ui/core';
+import { CircularProgress, Divider } from '@material-ui/core';
 import { INVOICE_LINE_TYPE_LABELS } from '@tamanu/constants';
 import { Modal } from '../Modal';
 import { TranslatedEnum, TranslatedText } from '../Translation';
@@ -96,6 +96,7 @@ const StyledDivider = styled(Divider)`
 export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounterId }) => {
   const [rowList, setRowList] = useState([{ id: uuidv4() }]);
   const [potentialLineItems, setPotentialLineItems] = useState([]);
+  const [isSaving, setIsSaving] = useState(false);
   const [isEmpty, setIsEmpty] = useState(false);
   const api = useApi();
 
@@ -210,6 +211,8 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
   };
 
   const handleSubmit = async (submitData) => {
+    if (isSaving) return;
+    setIsSaving(true);
     const invoiceLineItemsData = [];
     let i = 0;
     while (i < rowList.length) {
@@ -225,6 +228,7 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
 
     await api.put(`invoices/${invoiceId}/lineItems`, { invoiceLineItemsData });
     await loadEncounter(encounterId);
+    setIsSaving(false);
   };
 
   const schema = yup.object().shape(
@@ -318,7 +322,11 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
             </PotentialLineItemsPane>
             <StyledDivider />
             <FormSubmitCancelRow
-              confirmText={<TranslatedText stringId="general.action.save" fallback="Save" />}
+              confirmText={
+                !isSaving
+                  ? <TranslatedText stringId="general.action.save" fallback="Save" />
+                  : <CircularProgress size={14} color="#fff" />
+              }
               onConfirm={submitForm}
               onCancel={onClose}
             />
