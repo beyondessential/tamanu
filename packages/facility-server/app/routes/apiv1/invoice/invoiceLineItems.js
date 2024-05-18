@@ -108,6 +108,13 @@ invoiceLineItemsRoute.put(
       );
     }
 
+    // Assign unique createdAt timestamps to avoid random order
+    let currentTime = Date.now();
+    itemsToCreate.forEach(item => {
+      item.createdAt = new Date(currentTime);
+      currentTime += 1;
+    });
+
     // Create new items
     await models.InvoiceLineItem.bulkCreate(itemsToCreate);
 

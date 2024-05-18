@@ -79,7 +79,7 @@ export const simplePost = (modelName, options = {}) =>
 
 export const getResourceList = async (req, modelName, foreignKey = '', options = {}) => {
   const { models, params, query } = req;
-  const { order = 'ASC', orderBy = 'createdAt', rowsPerPage, page, orderList } = query;
+  const { order = 'ASC', orderBy = 'createdAt', rowsPerPage, page } = query;
   const { additionalFilters = {}, include = [], skipPermissionCheck = false } = options;
 
   if (skipPermissionCheck === false) {
@@ -89,17 +89,6 @@ export const getResourceList = async (req, modelName, foreignKey = '', options =
   const model = models[modelName];
   const associations = model.getListReferenceAssociations(models) || [];
 
-  let orderArray;
-  if (orderList) {
-    try {
-      orderArray = JSON.parse(orderList);
-    } catch (e) {
-      throw new Error("Invalid orderList format. It should be a valid JSON array.");
-    }
-  } else {
-    orderArray = orderBy ? [[...orderBy.split('.'), order.toUpperCase()]] : undefined;
-  }
-
   const baseQueryOptions = {
     where: {
       ...(foreignKey && { [foreignKey]: params.id }),
@@ -107,7 +96,7 @@ export const getResourceList = async (req, modelName, foreignKey = '', options =
     },
     // ['association', 'column', 'direction'] is the sequlize format to sort by foreign column
     // allow 'association.column' as a valid sort query
-    order: orderArray,
+    order: orderBy ? [[...orderBy.split('.'), order.toUpperCase()]] : undefined,
     include: [...associations, ...include],
   };
 

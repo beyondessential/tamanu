@@ -100,10 +100,7 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
 
   useEffect(() => {
     (async () => {
-      const response = await api.get(`invoices/${encodeURIComponent(invoiceId)}/lineItems`, {
-        // Provide id to prevent random ordering
-        orderList: '[["createdAt", "ASC"],["id", "ASC"]]'
-      });
+      const response = await api.get(`invoices/${encodeURIComponent(invoiceId)}/lineItems`);
 
       const newRowList = response.data.map(item => ({
         invoiceLineTypeId: item.invoiceLineTypeId,
