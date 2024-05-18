@@ -171,10 +171,10 @@ invoiceLineItemsRoute.get(
     if (order && orderBy) {
       data.sort((a, b) => {
         if (a[orderBy] < b[orderBy]) {
-          return order === 'asc' ? -1 : 1;
+          return order.toLowerCase() === 'asc' ? -1 : 1;
         }
         if (a[orderBy] > b[orderBy]) {
-          return order === 'asc' ? 1 : -1;
+          return order.toLowerCase() === 'asc' ? 1 : -1;
         }
       });
     }
