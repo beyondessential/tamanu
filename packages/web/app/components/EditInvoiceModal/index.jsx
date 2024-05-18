@@ -76,7 +76,7 @@ const PotentialLineItemsPane = styled.div`
 `;
 
 const PaneTitle = styled.div`
-  min-width: 530px;
+  min-width: ${props => props.isEmpty ? '503px' : '585px'};
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -279,12 +279,6 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
                 index={index}
                 rowData={row}
                 hasBorderBottom={index === rowList.length - 1}
-                category={row?.type
-                  ? <TranslatedEnum
-                    prefix="invoice.line.property.type"
-                    value={row.type}
-                    enumValues={INVOICE_LINE_TYPE_LABELS}
-                  /> : ""}
                 onDelete={() => onDeleteLineItem(row?.id)}
                 isDeleteDisabled={rowList.length === 1}
                 updateRowData={updateRowData}
@@ -294,7 +288,7 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
               {"+ "}<TranslatedText stringId="invoice.modal.editInvoice.newRow" fallback="New row" />
             </LinkText>
             <PotentialLineItemsPane>
-              <PaneTitle>
+              <PaneTitle isEmpty={isEmpty}>
                 <TranslatedText
                   stringId="invoice.modal.potentialInvoices.title"
                   fallback="Patient items to be added"
