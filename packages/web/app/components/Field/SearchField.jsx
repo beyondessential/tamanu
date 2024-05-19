@@ -70,7 +70,7 @@ export const SearchField = props => {
       placeholder={
         label
           ? getTranslation('general.placeholder.searchWithLabel', 'Search :label', {
-              label: getTranslation(label.props.stringId, label.props.fallback),
+              label: getTranslation(label.props.stringId, label.props.fallback).toLowerCase(),
             })
           : ''
       }
