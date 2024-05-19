@@ -72,7 +72,7 @@ export const SearchField = props => {
           ? getTranslation('general.placeholder.searchWithLabel', 'Search :label', {
               label,
             })
-          : getTranslation('general.placeholder.search', 'Search')
+          : ''
       }
       {...props}
       value={searchValue}
