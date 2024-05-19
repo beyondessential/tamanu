@@ -31,8 +31,7 @@ const useRefreshStatsQuery = () => {
     () => api.get('upcomingVaccinations/refreshStats', { language: storedLanguage }),
 
     {
-      refetchInterval: 1000 * 60 * 1, // 5 minutes
-      refetchOnWindowFocus: true,
+      refetchInterval: 1000 * 60, // 1 minute
     },
   );
 };
@@ -77,7 +76,7 @@ const COLUMNS = [
 
 export const ImmunisationsView = () => {
   const dispatch = useDispatch();
-  const { data: refreshStats } = useRefreshStatsQuery();
+  const { data: refreshStats, isFetching } = useRefreshStatsQuery();
   const [searchParameters, setSearchParameters] = useState({});
   const { navigateToPatient } = usePatientNavigation();
   const onRowClick = async patient => {
@@ -85,6 +84,7 @@ export const ImmunisationsView = () => {
     navigateToPatient(patient.id, { tab: PATIENT_TABS.VACCINES });
   };
 
+  console.log(isFetching, refreshStats);
   return (
     <PageContainer>
       <TopBar
@@ -92,7 +92,7 @@ export const ImmunisationsView = () => {
           <TranslatedText stringId="immunisation.register.title" fallback="Immunisation register" />
         }
       >
-        <RefreshStatsDisplay stats={refreshStats} />
+        <RefreshStatsDisplay stats={refreshStats} isFetching={isFetching} />
       </TopBar>
       <ContentPane>
         <SearchTableTitle>

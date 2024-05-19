@@ -11,7 +11,7 @@ export class RefreshUpcomingVaccinations extends ScheduledTask {
   }
 
   constructor(context) {
-    const { schedule, jitterTime } = config.sync;
+    const { schedule, jitterTime } = config.schedules.refreshUpcomingVaccinations;
     super(schedule, log, jitterTime);
     this.sequelize = context.sequelize;
     this.models = context.models;

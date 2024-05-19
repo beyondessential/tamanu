@@ -9,7 +9,7 @@ const SmallText = styled(BodyText)`
   font-size: 12px;
 `;
 
-export const RefreshStatsDisplay = ({ stats }) => {
+export const RefreshStatsDisplay = ({ stats, error }) => {
   if (!stats) return null;
   const { lastRefreshed, schedule } = stats;
   return (
