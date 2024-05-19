@@ -37,4 +37,7 @@ export const globalDefaults = {
       },
     ],
   },
+  features: {
+    mandateSpecimenType: false,
+  },
 };

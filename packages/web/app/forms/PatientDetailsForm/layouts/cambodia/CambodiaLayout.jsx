@@ -5,6 +5,8 @@ import {
   PATIENT_REGISTRY_TYPES,
   SETTING_KEYS,
 } from '@tamanu/constants';
+
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { Colors } from '../../../../constants';
 import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
 import { LocalisedField, TextField, DateField, RadioField, FormGrid } from '../../../../components';
@@ -27,7 +29,11 @@ const FATHERS_FIRST_NAME_DEFINITION_ID = 'fieldDefinition-fathersFirstName';
 
 const CAMBODIA_CORE_FIELD_CATEGORY_ID = 'fieldCategory-cambodiaCorePatientFields';
 
-export const CambodiaPrimaryDetailsLayout = ({ sexOptions, isRequiredPatientData }) => {
+export const CambodiaPrimaryDetailsLayout = ({
+  sexOptions,
+  isRequiredPatientData,
+  isDetailsForm = false,
+}) => {
   const { getSetting } = useSettings();
   const isReminderContactEnabled = getSetting(SETTING_KEYS.FEATURES_REMINDER_CONTACT_ENABLED);
 
@@ -38,7 +44,7 @@ export const CambodiaPrimaryDetailsLayout = ({ sexOptions, isRequiredPatientData
           stringId="patient.detail.subheading.general"
           fallback="General information"
         />
-        {isReminderContactEnabled ? <ReminderContactSection /> : null}
+        {isReminderContactEnabled && isDetailsForm && <ReminderContactSection />}
       </PatientDetailsHeading>
       <FormGrid>
         <LocalisedField
