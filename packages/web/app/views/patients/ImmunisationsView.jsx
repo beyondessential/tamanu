@@ -21,12 +21,14 @@ import { useDispatch } from 'react-redux';
 import { RefreshStatsDisplay } from '../../components/Table/RefreshStatsDisplay.jsx';
 import { useApi } from '../../api/useApi.js';
 import { useQuery } from '@tanstack/react-query';
+import { useTranslation } from '../../contexts/Translation.jsx';
 
 const useRefreshStatsQuery = () => {
+  const { storedLanguage } = useTranslation();
   const api = useApi();
   return useQuery(
     ['upcomingVaccinations/refreshStats'],
-    () => api.get('upcomingVaccinations/refreshStats'),
+    () => api.get('upcomingVaccinations/refreshStats', { language: storedLanguage }),
 
     {
       refetchInterval: 1000 * 60 * 1, // 5 minutes

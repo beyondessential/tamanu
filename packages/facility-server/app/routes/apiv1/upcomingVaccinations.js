@@ -43,10 +43,10 @@ upcomingVaccinations.get(
     const lastRefreshed = await req.models.LocalSystemFact.get(
       UPCOMING_VACCINATIONS_REFRESHED_AT_KEY,
     );
-    const translationFunc = TranslatedString.getTranslationFunction(language, ['cron']);
+    const translationFunc = await TranslatedString.getTranslationFunction(language);
     cronstrue.locales['custom'] = new TranslatedCronParser(translationFunc);
     const schedule = cronstrue.toString(config.schedules.refreshUpcomingVaccinations.schedule, {
-      locale: 'km',
+      locale: 'custom',
     });
     return res.send({
       lastRefreshed,
