@@ -452,7 +452,7 @@ describe('PatientVaccine', () => {
       const encounter = await vaccine.getEncounter();
       expect(encounter).toHaveProperty('encounterType', ENCOUNTER_TYPES.VACCINATION);
       expect(encounter.reasonForEncounter).toMatch(
-        `Vaccination recorded for ${drug.name} ${scheduled1.schedule}`,
+        `Vaccination recorded for ${drug.name} ${scheduled1.doseLabel}`,
       );
     });
 

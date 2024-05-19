@@ -27,7 +27,7 @@ const GivenOnTimeFields: FC<VaccineDataProps> = ({ administeredVaccine }) => (
     />
     <RowField
       label={<TranslatedText stringId="vaccine.form.schedule.label" fallback="Schedule" />}
-      value={administeredVaccine.scheduledVaccine?.schedule}
+      value={administeredVaccine.scheduledVaccine?.doseLabel}
     />
     <RowField
       label={

@@ -56,7 +56,7 @@ describe('Scheduled Vaccine', () => {
       expect(body.length).toBe(1);
       expect(body[0].category).toBe(scheduledVaccine1.category);
       expect(body[0].label).toBe(scheduledVaccine1.label);
-      expect(body[0].schedule).toBe(scheduledVaccine1.schedule);
+      expect(body[0].doseLabel).toBe(scheduledVaccine1.doseLabel);
     });
   });
 });
