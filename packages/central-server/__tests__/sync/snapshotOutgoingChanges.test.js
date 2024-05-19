@@ -15,6 +15,7 @@ import { fakeUUID } from '@tamanu/shared/utils/generateId';
 
 import { createTestContext } from '../utilities';
 import { snapshotOutgoingChanges } from '../../dist/sync/snapshotOutgoingChanges';
+import { createMarkedForSyncPatientsTable } from '../../dist/sync/createMarkedForSyncPatientsTable';
 
 describe('snapshotOutgoingChanges', () => {
   let ctx;
@@ -42,6 +43,9 @@ describe('snapshotOutgoingChanges', () => {
 
       const sessionId = fakeUUID();
       await createSnapshotTable(ctx.store.sequelize, sessionId);
+
+      await createMarkedForSyncPatientsTable(ctx.store.sequelize, sessionId, true, '', tock - 1);
+
       const result = await snapshotOutgoingChanges(
         outgoingModels,
         tock - 1,
@@ -68,6 +72,15 @@ describe('snapshotOutgoingChanges', () => {
       await ReferenceData.create(fakeReferenceData());
 
       await createSnapshotTable(ctx.store.sequelize, syncSession.id);
+
+      await createMarkedForSyncPatientsTable(
+        ctx.store.sequelize,
+        syncSession.id,
+        true,
+        '',
+        tock - 1,
+      );
+
       const result = await snapshotOutgoingChanges(
         outgoingModels,
         tock - 1,
@@ -103,8 +116,17 @@ describe('snapshotOutgoingChanges', () => {
         lastConnectionTime: startTime,
       });
       await createSnapshotTable(ctx.store.sequelize, syncSession.id);
+
       const tock = await LocalSystemFact.increment('currentSyncTick', 2);
       await ReferenceData.create(fakeReferenceData());
+
+      await createMarkedForSyncPatientsTable(
+        ctx.store.sequelize,
+        syncSession.id,
+        true,
+        '',
+        tock - 1,
+      );
 
       const result = await snapshotOutgoingChanges(
         outgoingModels,
@@ -134,6 +156,15 @@ describe('snapshotOutgoingChanges', () => {
       await createSnapshotTable(ctx.store.sequelize, syncSession.id);
       await LocalSystemFact.increment('currentSyncTick', 2);
       await ReferenceData.create(fakeReferenceData());
+
+      // for regular sync patients
+      await createMarkedForSyncPatientsTable(
+        ctx.store.sequelize,
+        syncSession.id,
+        true,
+        '',
+        firstTock - 1,
+      );
 
       const result = await snapshotOutgoingChanges(
         outgoingModels,
@@ -419,13 +450,24 @@ describe('snapshotOutgoingChanges', () => {
         syncSession,
       } = await setupTestData();
 
+      const facilityId = fakeUUID();
+
+      // for regular sync patients
+      await createMarkedForSyncPatientsTable(
+        ctx.store.sequelize,
+        syncSession.id,
+        true,
+        facilityId,
+        firstTock - 1,
+      );
+
       await snapshotOutgoingChanges(
         { Encounter, LabRequest, LabTest },
         firstTock - 1,
         1,
         true,
         syncSession.id,
-        fakeUUID(),
+        facilityId,
         { ...simplestSessionConfig, syncAllLabRequests: true },
       );
 
@@ -464,6 +506,15 @@ describe('snapshotOutgoingChanges', () => {
         patientId: patient2.id,
         facilityId: facility.id,
       });
+
+      // for regular sync patients
+      await createMarkedForSyncPatientsTable(
+        ctx.store.sequelize,
+        syncSession.id,
+        false,
+        facility.id,
+        secondTock - 1,
+      );
 
       await snapshotOutgoingChanges(
         { Encounter, LabRequest, LabTest },
