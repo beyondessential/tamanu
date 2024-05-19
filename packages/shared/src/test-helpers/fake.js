@@ -54,11 +54,12 @@ export function fakeScheduledVaccine(prefix = 'test-') {
     index: chance.integer({ min: 0, max: 50 }),
     vaccineId: null,
     visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+    sort: 0,
     ...fakeStringFields(`${prefix}scheduledVaccine_${id}_`, [
       'id',
       'category',
       'label',
-      'schedule',
+      'doseLabel',
     ]),
   };
 }
@@ -270,7 +271,7 @@ const MODEL_SPECIFIC_OVERRIDES = {
       code: chance.word(),
       name: chance.word(),
       unit: chance.pickone(['mmol/L', 'umol/L', 'IU']),
-      externalCode: chance.pickone([ chance.word(), null]), // sometimes external code not mapped
+      externalCode: chance.pickone([chance.word(), null]), // sometimes external code not mapped
     };
   },
   LabRequest: () => {
