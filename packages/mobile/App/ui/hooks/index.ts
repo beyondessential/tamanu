@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from 'react';
 import { BackendManager } from '~/services/BackendManager';
 import { BackendContext } from '~/ui/contexts/BackendContext';
 
-export type ResultArray<T> = [T | null, Error | null, boolean];
+export type ResultArray<T> = [T | null, Error | null, boolean, () => void];
 
 export const useCancelableEffect = <T>(
   fetcher: () => Promise<T> | T,
@@ -12,27 +12,29 @@ export const useCancelableEffect = <T>(
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  const onFetch = async (isCancel?: () => boolean) => {
+    setIsLoading(true);
+    try {
+      const result = await fetcher();
+      if (!isCancel || !isCancel()) {
+        setData(result);
+      }
+    } catch (e) {
+      setError(e);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
     let canceled = false;
-    setIsLoading(true);
-    (async (): Promise<void> => {
-      try {
-        const result = await fetcher();
-        if (!canceled) {
-          setData(result);
-        }
-      } catch (e) {
-        setError(e);
-      } finally {
-        setIsLoading(false);
-      }
-    })();
+    onFetch(() => canceled);
     return (): void => {
       canceled = true;
     };
   }, dependencies);
 
-  return [data, error, isLoading];
+  return [data, error, isLoading, onFetch];
 };
 
 export const useBackendEffect = <T>(

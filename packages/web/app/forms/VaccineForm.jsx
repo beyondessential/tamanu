@@ -16,10 +16,10 @@ import {
 } from './VaccineGivenForm';
 import { VaccineNotGivenForm } from './VaccineNotGivenForm';
 import { usePatientCurrentEncounter } from '../api/queries';
-import { useVaccinationSettings } from '../api/queries/useVaccinationSettings';
 import { useAuth } from '../contexts/Auth';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useLocalisation } from '../contexts/Localisation';
+import { useSettings } from '../contexts/Settings';
 import { usePatientData } from '../api/queries/usePatientData';
 import { isBefore, parse } from 'date-fns';
 
@@ -90,6 +90,7 @@ export const VaccineForm = ({
   vaccineRecordingType,
 }) => {
   const { getLocalisation } = useLocalisation();
+  const { getSetting } = useSettings();
   const [vaccineOptions, setVaccineOptions] = useState([]);
   const [category, setCategory] = useState(
     currentVaccineRecordValues?.vaccineName ? VACCINE_CATEGORIES.OTHER : VACCINE_CATEGORIES.ROUTINE,
@@ -106,11 +107,8 @@ export const VaccineForm = ({
     isLoading: isLoadingCurrentEncounter,
     error: currentEncounterError,
   } = usePatientCurrentEncounter(patientId);
-  const {
-    data: vaccinationDefaults = {},
-    isLoading: isLoadingVaccinationDefaults,
-    error: vaccinationDefaultsError,
-  } = useVaccinationSettings(SETTING_KEYS.VACCINATION_DEFAULTS);
+
+  const vaccinationDefaults = getSetting(SETTING_KEYS.VACCINATION_DEFAULTS);
 
   const selectedVaccine = useMemo(() => vaccineOptions.find(v => v.label === vaccineLabel), [
     vaccineLabel,
@@ -140,19 +138,15 @@ export const VaccineForm = ({
     }
   }, [category, getScheduledVaccines, editMode]);
 
-  if (isLoadingCurrentEncounter || isLoadingVaccinationDefaults || isLoadingPatientData) {
+  if (isLoadingCurrentEncounter || isLoadingPatientData) {
     return <LoadingIndicator />;
   }
 
-  if (currentEncounterError || vaccinationDefaultsError || patientDataError) {
+  if (currentEncounterError || isLoadingPatientData) {
     return (
       <ErrorMessage
         title={<TranslatedText stringId="vaccine.loadError" fallback="Cannot load vaccine form" />}
-        errorMessage={
-          currentEncounterError?.message ||
-          vaccinationDefaultsError?.message ||
-          patientDataError?.message
-        }
+        errorMessage={currentEncounterError?.message || patientDataError?.message}
       />
     );
   }
@@ -169,13 +163,13 @@ export const VaccineForm = ({
         category,
         date: getCurrentDateTimeString(),
         locationGroupId: !currentEncounter
-          ? vaccinationDefaults.data?.locationGroupId
+          ? vaccinationDefaults?.locationGroupId
           : currentEncounter.location?.locationGroup?.id,
         locationId: !currentEncounter
-          ? vaccinationDefaults.data?.locationId
+          ? vaccinationDefaults?.locationId
           : currentEncounter.location?.id,
         departmentId: !currentEncounter
-          ? vaccinationDefaults.data?.departmentId
+          ? vaccinationDefaults?.departmentId
           : currentEncounter.department?.id,
         ...(vaccineRecordingType === VACCINE_RECORDING_TYPES.GIVEN
           ? VACCINE_GIVEN_INITIAL_VALUES

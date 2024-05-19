@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { PATIENT_REGISTRY_TYPES } from '@tamanu/constants';
+import { PATIENT_REGISTRY_TYPES, SETTING_KEYS } from '@tamanu/constants';
 import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
 
 import {
@@ -24,14 +24,20 @@ import { GenericBirthFields } from './patientFields/GenericBirthFields';
 import { useSuggester } from '../../../../api';
 import { PatientFieldsGroup } from '../../PatientFields';
 import { TranslatedText } from '../../../../components/Translation/TranslatedText';
+import { ReminderContactSection } from '../../../../components/ReminderContact/ReminderContactSection';
+import { useSettings } from '../../../../contexts/Settings';
 
 export const GenericPrimaryDetailsLayout = ({
   patientRegistryType,
   registeredBirthPlace,
   sexOptions,
   isRequiredPatientData,
+  isDetailsForm = false,
 }) => {
+  const { getSetting } = useSettings();
+  const isReminderContactEnabled = getSetting(SETTING_KEYS.FEATURES_REMINDER_CONTACT_ENABLED);
   const villageSuggester = useSuggester('village');
+
   return (
     <>
       <PatientDetailsHeading>
@@ -39,6 +45,7 @@ export const GenericPrimaryDetailsLayout = ({
           stringId="patient.detail.subheading.general"
           fallback="General information"
         />
+        {isReminderContactEnabled && isDetailsForm && <ReminderContactSection />}
       </PatientDetailsHeading>
       <FormGrid>
         <LocalisedField
@@ -198,10 +205,10 @@ export const GenericSecondaryDetailsLayout = ({
       />
     </PatientDetailsHeading>
     <SecondaryDetailsFormGrid>
-      <GenericPersonalFields 
-        patientRegistryType={patientRegistryType} 
-        filterByMandatory={false} 
-        isEdit={isEdit} 
+      <GenericPersonalFields
+        patientRegistryType={patientRegistryType}
+        filterByMandatory={false}
+        isEdit={isEdit}
       />
     </SecondaryDetailsFormGrid>
 

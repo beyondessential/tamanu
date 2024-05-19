@@ -15,11 +15,12 @@ import { Button } from '../../../../components/Button';
 import { SyncErrorDisplay } from '../../../../components/SyncErrorDisplay';
 import { ErrorIcon, GreenTickIcon } from '../../../../components/Icons';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
+import { useTranslation } from '/contexts/TranslationContext';
 
 export const SyncDataScreen = ({ navigation }): ReactElement => {
   const backend = useContext(BackendContext);
   const syncManager: MobileSyncManager = backend.syncManager;
-
+  const { getTranslation } = useTranslation();
   const formatLastSuccessfulSyncTick = (lastSuccessfulSyncTick: Date): string =>
     lastSuccessfulSyncTick
       ? formatDistance(lastSuccessfulSyncTick, new Date(), { addSuffix: true })
@@ -41,7 +42,7 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
   setStatusBar('light-content', theme.colors.MAIN_SUPER_DARK);
 
   const manualSync = useCallback(() => {
-    syncManager.triggerSync({ urgent: true });
+    syncManager.triggerUrgentSync();
   }, []);
 
   useEffect(() => {
@@ -118,8 +119,11 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
 
   const syncFinishedSuccessfully = syncStarted && !isSyncing && !isQueuing && !hasError;
 
-  const changeTranslation = <TranslatedText stringId='sync.message.syncSummary.change' fallback='change' />
-  const changePluralTranslation = <TranslatedText stringId='sync.message.syncSummary.changePlural' fallback='changes' />
+  const changeTranslation = getTranslation('sync.message.syncSummary.change', 'change');
+  const changePluralTranslation = getTranslation(
+    'sync.message.syncSummary.changePlural',
+    'changes',
+  );
 
   return (
     <CenterView background={theme.colors.MAIN_SUPER_DARK} flex={1}>
@@ -236,9 +240,15 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
                   fallback="pulled :pullCount :pullChange, pushed :pushCount :pushChange"
                   replacements={{
                     pullCount: lastSyncPulledRecordsCount,
-                    pullChange: lastSyncPulledRecordsCount === 1 ? changeTranslation : changePluralTranslation,
+                    pullChange:
+                      lastSyncPulledRecordsCount === 1
+                        ? changeTranslation
+                        : changePluralTranslation,
                     pushCount: lastSyncPushedRecordsCount,
-                    pushChange: lastSyncPushedRecordsCount === 1 ? changeTranslation : changePluralTranslation,
+                    pushChange:
+                      lastSyncPushedRecordsCount === 1
+                        ? changeTranslation
+                        : changePluralTranslation,
                   }}
                 />
               </StyledText>

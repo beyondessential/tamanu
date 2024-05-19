@@ -9,15 +9,15 @@ const FullIframe = styled.iframe`
   min-height: 50vh;
 `;
 export const WorkerRenderedPDFViewer = props => {
-  const { url, loading, error } = useRenderPDF(props);
+  const { url, isFetching, error } = useRenderPDF(props);
 
+  if (isFetching) return <LoadingIndicator height="500px" />;
   const src = url ? `${url}#toolbar=0` : null;
-  if (loading) return <LoadingIndicator />;
 
   if (error) {
     console.log({ error });
     return <div>{JSON.stringify(error)}</div>;
   }
 
-  return <FullIframe src={src} />;
+  return <FullIframe src={src} id={props.id} />;
 };

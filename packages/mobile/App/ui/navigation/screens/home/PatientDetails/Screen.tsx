@@ -26,8 +26,25 @@ import {
   PatientIssues,
 } from './CustomComponents';
 import { useLocalisation } from '~/ui/contexts/LocalisationContext';
+import { Button } from '~/ui/components/Button';
+import { ReminderBellIcon } from '~/ui/components/Icons/ReminderBellIcon';
+import { useAuth } from '~/ui/contexts/AuthContext';
+import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
+import { useBackendEffect } from '~/ui/hooks';
+import { SETTING_KEYS } from '~/constants';
 
 const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => {
+  const { ability } = useAuth();
+  const canReadReminderContacts = ability.can('read', 'Patient');
+
+  const [isReminderContactEnabled] = useBackendEffect(
+    async ({ models }) => {
+      const isReminderContactEnabled = await models.Setting.getByKey(SETTING_KEYS.FEATURES_REMINDER_CONTACT_ENABLED);
+      return isReminderContactEnabled;
+    },
+    [],
+  );
+
   const onNavigateBack = useCallback(() => {
     navigation.goBack();
   }, [navigation]);
@@ -66,6 +83,10 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => 
   const { getLocalisation } = useLocalisation();
   const ageDisplayFormat = getLocalisation('ageDisplayFormat');
 
+  const onNavigateReminder = useCallback(() => {
+    navigation.navigate(Routes.HomeStack.PatientDetailsStack.ReminderContacts);
+  }, [navigation]);
+
   return (
     <FullView>
       <StyledSafeAreaView background={theme.colors.PRIMARY_MAIN}>
@@ -86,7 +107,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => 
               sex={selectedPatient.sex}
             />
           </StyledView>
-          <StyledView alignItems="flex-start" marginLeft={12}>
+          <StyledView flex={1} alignItems="flex-start" marginLeft={12} marginRight={12}>
             <StyledText
               color={theme.colors.WHITE}
               fontSize={screenPercentageToDP(2.6, Orientation.Height)}
@@ -102,6 +123,34 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => 
               {`${getDisplayAge(selectedPatient.dateOfBirth, ageDisplayFormat)} old`}
             </StyledText>
           </StyledView>
+          {canReadReminderContacts && !!isReminderContactEnabled && (
+            <StyledView alignSelf="flex-end" alignItems="flex-end" marginRight={15}>
+              <Button
+                marginTop={screenPercentageToDP(1.21, Orientation.Height)}
+                width={screenPercentageToDP(26, Orientation.Width)}
+                height={screenPercentageToDP(4.2, Orientation.Height)}
+                buttonText={
+                  <TranslatedText
+                    stringId="patient.details.reminderContacts.contactsButton"
+                    fallback="Contacts"
+                  />
+                }
+                fontSize={screenPercentageToDP(2, Orientation.Height)}
+                fontWeight={500}
+                alignItems='center'
+                onPress={onNavigateReminder}
+                outline
+                borderColor={theme.colors.WHITE}
+              >
+                <StyledView marginRight={screenPercentageToDP(0.6, Orientation.Height)}>
+                  <ReminderBellIcon
+                    width={screenPercentageToDP(1.8, Orientation.Height)}
+                    height={screenPercentageToDP(2, Orientation.Height)}
+                  />
+                </StyledView>
+              </Button>
+            </StyledView>
+          )}
         </RowView>
         <HealthIdentificationRow patientId={selectedPatient.displayId} />
       </StyledSafeAreaView>
