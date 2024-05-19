@@ -69,12 +69,10 @@ export const SearchField = props => {
       }}
       placeholder={
         label
-          ? typeof label === 'string'
-            ? getTranslation('general.placeholder.searchWithLabel', 'Search :label', {
-                label: keepLetterCase ? label : label.toLowerCase(),
-              })
-            : getTranslation('general.placeholder.search', 'Search')
-          : ''
+          ? getTranslation('general.placeholder.searchWithLabel', 'Search :label', {
+              label,
+            })
+          : getTranslation('general.placeholder.search', 'Search')
       }
       {...props}
       value={searchValue}
