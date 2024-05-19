@@ -94,7 +94,10 @@ export const VaccinesTable = ({
   const uniqueByVaccine = uniqBy(nonHistoricalOrAdministeredScheduledVaccines, 'label');
 
   uniqueByVaccine.sort(
-    (a, b) => a.weeksFromBirthDue - b.weeksFromBirthDue || a.label.localeCompare(b.label),
+    (a, b) =>
+      a.sort - b.sort ||
+      a.weeksFromBirthDue - b.weeksFromBirthDue ||
+      a.label.localeCompare(b.label),
   );
 
   const rows = uniqueByVaccine.map(scheduledVaccine => ({
