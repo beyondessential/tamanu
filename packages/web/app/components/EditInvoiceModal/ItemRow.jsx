@@ -37,20 +37,21 @@ const KebabMenuItem = styled.div`
   font-weight: 400;
   font-size: 11px;
   line-height: 15px;
-  padding-left: 8px;
-  padding-right: 8px;
   cursor: pointer;
   border-radius: 4px;
-  padding-bottom: 8px;
+  padding: 4px;
+  margin-left: 4px;
+  margin-right: 4px;
   ${props => props.$color ? `color: ${props.$color};` : ''}
   :hover {
-    background: rgba(255, 255, 255, 0.15);
+    background: ${Colors.veryLightBlue};
   }
 `;
 
 const StyledMenu = styled(Menu)`
   & .MuiList-padding {
-    padding-bottom: 0;
+    padding-top: 4px;
+    padding-bottom: 4px;
   }
 `;
 
