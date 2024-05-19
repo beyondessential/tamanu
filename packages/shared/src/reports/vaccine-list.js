@@ -120,7 +120,7 @@ export async function queryCovidVaccineListData(models, parameters) {
       date,
       status,
       batch,
-      scheduledVaccine: { schedule, label: vaccineName },
+      scheduledVaccine: { doseLabel, label: vaccineName },
       recorder,
     } = vaccine;
 
@@ -134,7 +134,7 @@ export async function queryCovidVaccineListData(models, parameters) {
       sex,
       village: village?.name,
       vaccineName,
-      schedule,
+      doseLabel,
       vaccineStatus: status === 'GIVEN' ? 'Yes' : 'No',
       vaccineDate: format(date, 'dd-MM-yyyy'),
       batch: status === 'GIVEN' ? batch : '',
