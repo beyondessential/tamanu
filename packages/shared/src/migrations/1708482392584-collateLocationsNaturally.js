@@ -1,5 +1,3 @@
-import { DataTypes } from 'sequelize';
-
 export async function up(query) {
   // Create a lang=en collation that sorts numbers naturally
   await query.sequelize.query(`
