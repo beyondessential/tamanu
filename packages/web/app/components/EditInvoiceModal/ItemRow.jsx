@@ -1,12 +1,11 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
-import { Grid, IconButton, Menu } from '@material-ui/core';
-import { MoreVert } from '@material-ui/icons';
+import { Grid } from '@material-ui/core';
 import { TranslatedText } from '../Translation';
 import { AutocompleteField, DateField, Field } from '../Field';
 import { useSuggester } from '../../api';
 import { Colors } from '../../constants';
-import { DeleteItemModal } from './DeleteItemModal';
+import { KebabMenu } from '../KebabMenu';
 
 const PriceText = styled.span`
   margin-right: 16px;
@@ -32,34 +31,6 @@ const StyledItemHeader = styled(Grid)`
   border: 1px solid ${Colors.outline};
 `;
 
-const KebabMenuItem = styled.div`
-  width: 124px;
-  font-weight: 400;
-  font-size: 11px;
-  line-height: 15px;
-  cursor: pointer;
-  border-radius: 4px;
-  padding: 4px;
-  margin-left: 4px;
-  margin-right: 4px;
-  ${props => props.$color ? `color: ${props.$color};` : ''}
-  :hover {
-    background: ${Colors.veryLightBlue};
-  }
-`;
-
-const StyledMenu = styled(Menu)`
-  & .MuiList-padding {
-    padding-top: 4px;
-    padding-bottom: 4px;
-  }
-`;
-
-const StyledIconButton = styled(IconButton)`
-  margin-bottom: 4px;
-  margin-left: auto;
-`;
-
 const PriceCell = styled.div`
   margin-left: 10%;
   display: flex;
@@ -69,12 +40,6 @@ const PriceCell = styled.div`
 const ItemCodeText = styled.div`
   margin-left: 5%;
 `;
-
-const ACTION_MODALS = {
-  ADD_DISCOUNT: 'addDiscount',
-  ADD_MARKUP: 'addMarkup',
-  DELETE: 'delete',
-};
 
 export const ItemHeader = () => {
   return <StyledItemHeader container alignItems='center' spacing={1}>
@@ -125,17 +90,6 @@ export const ItemRow = ({
 }) => {
   const invoiceLineTypeSuggester = useSuggester('invoiceLineTypes');
   const practitionerSuggester = useSuggester('practitioner');
-  const [actionModal, setActionModal] = useState('');
-  const [anchorEl, setAnchorEl] = useState(null);
-  const open = Boolean(anchorEl);
-
-  const onOpenKebabMenu = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleCloseKebabMenu = () => {
-    setAnchorEl(null);
-  };
 
   const onUpdateInvoiceLineTypeId = ({ name, price }) => {
     updateRowData(rowData.id, { details: name, price });
@@ -143,16 +97,6 @@ export const ItemRow = ({
 
   const onUpdateOrderedById = ({ name }) => {
     updateRowData(rowData.id, { orderedBy: name });
-  };
-
-  const handleActionModal = value => {
-    handleCloseKebabMenu();
-    setActionModal(value);
-  };
-
-  const handleDeleteItem = () => {
-    onDelete();
-    handleActionModal('')
   };
 
   return (
@@ -169,6 +113,7 @@ export const ItemRow = ({
           component={DateField}
           saveDateAsString
           size="small"
+          value={rowData.date}
           onChange={event => updateRowData(rowData.id, { date: event.target.value })}
         />
       </Grid>
@@ -180,6 +125,7 @@ export const ItemRow = ({
           suggester={invoiceLineTypeSuggester}
           onFetchCurrentOption={data => onUpdateInvoiceLineTypeId(data)}
           size="small"
+          value={rowData.invoiceLineTypeId}
           onChange={event => updateRowData(rowData.id, { 
             invoiceLineTypeId: event.target.value,
             code: "",
@@ -200,6 +146,7 @@ export const ItemRow = ({
           suggester={practitionerSuggester}
           onFetchCurrentOption={data => onUpdateOrderedById(data)}
           size="small"
+          value={rowData.orderedById}
           onChange={event => updateRowData(rowData.id, { 
             orderedById: event.target.value,
             orderedBy: ""
@@ -211,55 +158,13 @@ export const ItemRow = ({
           <PriceText>
             {rowData.price}
           </PriceText>
-          <StyledIconButton
-            onClick={onOpenKebabMenu}
-          >
-            <MoreVert />
-          </StyledIconButton>
+          <KebabMenu 
+            isDeleteDisabled={isDeleteDisabled}
+            onDelete={onDelete}
+            rowData={rowData}
+          />
         </PriceCell>
-        <StyledMenu
-          anchorEl={anchorEl}
-          getContentAnchorEl={null}
-          open={open}
-          onClose={handleCloseKebabMenu}
-          anchorOrigin={{
-            vertical: 'bottom',
-            horizontal: 'right',
-          }}
-          transformOrigin={{
-            vertical: 'top',
-            horizontal: 'right',
-          }}
-        >
-          <KebabMenuItem onClick={() => handleActionModal(ACTION_MODALS.ADD_DISCOUNT)}>
-            <TranslatedText
-              stringId="invoice.modal.editInvoice.addDiscount"
-              fallback="Add discount"
-            />
-          </KebabMenuItem>
-          <KebabMenuItem onClick={() => handleActionModal(ACTION_MODALS.ADD_MARKUP)}>
-            <TranslatedText
-              stringId="invoice.modal.editInvoice.addMarkup"
-              fallback="Add markup"
-            />
-          </KebabMenuItem>
-          <KebabMenuItem
-            $color={isDeleteDisabled && Colors.softText}
-            onClick={() => !isDeleteDisabled && handleActionModal(ACTION_MODALS.DELETE)}
-          >
-            <TranslatedText
-              stringId="invoice.modal.editInvoice.delete"
-              fallback="Delete"
-            />
-          </KebabMenuItem>
-        </StyledMenu>
       </Grid>
-      <DeleteItemModal
-        open={actionModal === ACTION_MODALS.DELETE}
-        onClose={() => handleActionModal('')}
-        onDelete={handleDeleteItem}
-        lineItems={rowData}
-      />
     </StyledItemRow>
   );
 };
