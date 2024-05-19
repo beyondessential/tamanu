@@ -73,6 +73,7 @@ export const fakeSurvey = (): ISurvey => ({
   name: 'survey-name',
   surveyType: SurveyTypes.Programs,
   isSensitive: false,
+  visibilityStatus: VisibilityStatus.Current,
 });
 
 // @ts-expect-error
