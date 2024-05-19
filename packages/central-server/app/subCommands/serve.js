@@ -22,12 +22,12 @@ export const serve = async ({ skipMigrationCheck, provisioning }) => {
     execArgs: process.execArgs || '<empty>',
   });
 
-  const context = await new ApplicationContext().init();
+  const context = await new ApplicationContext().init({ appType: 'api' });
   const { store } = context;
 
   await store.sequelize.assertUpToDate({ skipMigrationCheck });
 
-  const app = createApp(context);
+  const { server } = await createApp(context);
 
   await performTimeZoneChecks({
     sequelize: store.sequelize,
@@ -48,7 +48,7 @@ export const serve = async ({ skipMigrationCheck, provisioning }) => {
     );
   }
 
-  const server = app.listen(port, () => {
+  server.listen(port, () => {
     log.info(`Server is running on port ${port}!`);
   });
 

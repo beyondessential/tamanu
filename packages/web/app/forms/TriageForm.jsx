@@ -25,21 +25,34 @@ import { useApi, useSuggester } from '../api';
 import { useLocalisation } from '../contexts/Localisation';
 import { getAnswersFromData } from '../utils';
 import { FORM_TYPES } from '../constants';
-import { LowerCase } from '../components';
 import { TranslatedText } from '../components/Translation/TranslatedText';
+import { useTranslation } from '../contexts/Translation';
 
 const InfoPopupLabel = React.memo(() => (
   <span>
     <span>
-      <TranslatedText
-        stringId="patient.modal.triage.triageScore.label"
-        fallback="Triage score"
-      />
+      <TranslatedText stringId="patient.modal.triage.triageScore.label" fallback="Triage score" />
     </span>
     {/* Todo: convert triage flow chart to a configurable asset */}
     {/* <ImageInfoModal src={triageFlowchart} /> */}
   </span>
 ));
+
+const triageClinicianLabel = (
+  <TranslatedText
+    stringId="triage.practitionerId.label"
+    fallback="Triage :clinician"
+    replacements={{
+      clinician: (
+        <TranslatedText
+          stringId="general.localisedField.clinician.label.short"
+          fallback="Clinician"
+          lowercase
+        />
+      ),
+    }}
+  />
+);
 
 export const TriageForm = ({
   onCancel,
@@ -51,6 +64,7 @@ export const TriageForm = ({
   const api = useApi();
   const dispatch = useDispatch();
   const { getLocalisation } = useLocalisation();
+  const { getTranslation } = useTranslation();
   const triageCategories = getLocalisation('triageCategories');
   const practitionerSuggester = useSuggester('practitioner');
   const triageReasonSuggester = useSuggester('triageReason');
@@ -148,22 +162,7 @@ export const TriageForm = ({
         </FormGrid>
         <Field
           name="practitionerId"
-          label={
-            <TranslatedText
-              stringId="triage.practitionerId.label"
-              fallback="Triage :clinician"
-              replacements={{
-                clinician: (
-                  <LowerCase>
-                    <TranslatedText
-                      stringId="general.localisedField.clinician.label.short"
-                      fallback="Clinician"
-                    />
-                  </LowerCase>
-                ),
-              }}
-            />
-          }
+          label={triageClinicianLabel}
           required
           component={AutocompleteField}
           suggester={practitionerSuggester}
@@ -223,15 +222,44 @@ export const TriageForm = ({
       }}
       formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
       validationSchema={yup.object().shape({
-        arrivalTime: yup.date().max(new Date(), 'Arrival time cannot be in the future'),
+        arrivalTime: yup
+          .date()
+          .max(
+            new Date(),
+            getTranslation(
+              'validation.rule.arrivalTimeNotInFuture',
+              'Arrival time cannot be in the future',
+            ),
+          ),
         triageTime: yup
           .date()
           .required()
-          .max(new Date(), 'Triage time cannot be in the future'),
-        chiefComplaintId: foreignKey('Chief complaint must be selected'),
-        practitionerId: foreignKey('Required'),
-        locationId: foreignKey('Location must be selected'),
-        score: yup.string().required(),
+          .max(
+            new Date(),
+            getTranslation(
+              'validation.rule.triageTimeNotInFuture',
+              'Triage time cannot be in the future',
+            ),
+          ),
+        chiefComplaintId: foreignKey().translatedLabel(
+          <TranslatedText
+            stringId="patient.modal.triage.chiefComplaint.label"
+            fallback="Chief complaint"
+          />,
+        ),
+        practitionerId: foreignKey().translatedLabel(triageClinicianLabel),
+        locationId: foreignKey().translatedLabel(
+          <TranslatedText stringId="general.localisedField.locationId.label" fallback="Location" />,
+        ),
+        score: yup
+          .string()
+          .required()
+          .translatedLabel(
+            <TranslatedText
+              stringId="patient.modal.triage.validation.triageScore.path"
+              fallback="Path"
+            />,
+          ),
       })}
     />
   );

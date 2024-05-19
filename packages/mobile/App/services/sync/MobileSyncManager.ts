@@ -15,9 +15,8 @@ import {
 } from './utils';
 import { SYNC_DIRECTIONS } from '../../models/types';
 import { SYNC_EVENT_ACTIONS } from './types';
-import { formatDate } from '../../ui/helpers/date';
-import { DateFormats } from '../../ui/helpers/constants';
 import { CURRENT_SYNC_TIME, LAST_SUCCESSFUL_PULL, LAST_SUCCESSFUL_PUSH } from './constants';
+import { SETTING_KEYS } from '~/constants/settings';
 
 /**
  * Maximum progress that each stage contributes to the overall progress
@@ -45,13 +44,15 @@ export class MobileSyncManager {
 
   syncStage = null;
 
-  lastSuccessfulSyncTick = '';
+  lastSuccessfulSyncTick = null;
 
   lastSyncPushedRecordsCount: number = null;
 
   lastSyncPulledRecordsCount: number = null;
 
   emitter = mitt();
+
+  urgentSyncInterval = null;
 
   models: typeof MODELS_MAP;
   centralServer: CentralServerConnection;
@@ -118,6 +119,31 @@ export class MobileSyncManager {
   }
 
   /**
+   * Trigger urgent sync, and along with urgent sync, schedule regular sync requests
+   * to continuously connect to central server and request for status change of the sync session
+   */
+  async triggerUrgentSync(): Promise<void> {
+    if (this.urgentSyncInterval) {
+      console.warn('MobileSyncManager.triggerSync(): Urgent sync already started');
+      return;
+    }
+
+    const urgentSyncIntervalInSecondsStr =
+      (await this.models.Setting.getByKey(SETTING_KEYS.SYNC_URGENT_INTERVAL_IN_SECONDS)) || 10; // default 10 seconds interval
+
+    const urgentSyncIntervalInSeconds = parseInt(urgentSyncIntervalInSecondsStr, 10);
+
+    // Schedule regular urgent sync
+    this.urgentSyncInterval = setInterval(
+      () => this.triggerSync({ urgent: true }),
+      urgentSyncIntervalInSeconds * 1000,
+    );
+
+    // start the sync now
+    await this.triggerSync({ urgent: true });
+  }
+
+  /**
    * Trigger syncing and send through the sync errors if there is any
    * @returns
    */
@@ -142,6 +168,10 @@ export class MobileSyncManager {
         this.isSyncing = false;
         this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_STATE_CHANGED);
         this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_ENDED, `time=${Date.now() - startTime}ms`);
+        if (this.urgentSyncInterval) {
+          clearInterval(this.urgentSyncInterval);
+          this.urgentSyncInterval = null;
+        }
         console.log(`Sync took ${Date.now() - startTime} ms`);
       }
     }
@@ -195,7 +225,7 @@ export class MobileSyncManager {
     // clear persisted cache from last session
     await clearPersistedSyncSessionRecords();
 
-    this.lastSuccessfulSyncTick = formatDate(new Date(), DateFormats.DATE_AND_TIME_HHMMSS);
+    this.lastSuccessfulSyncTick = new Date();
     this.setProgress(0, '');
   }
 

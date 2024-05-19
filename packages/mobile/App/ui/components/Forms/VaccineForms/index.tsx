@@ -20,8 +20,9 @@ import { LoadingScreen } from '/components/LoadingScreen';
 import { ErrorScreen } from '/components/ErrorScreen';
 
 import { useBackendEffect } from '~/ui/hooks';
-import { readConfig } from '~/services/config';
 import { SETTING_KEYS } from '../../../../constants';
+import { useLocalisation } from '~/ui/contexts/LocalisationContext';
+import { ScheduledVaccine } from '~/models/ScheduledVaccine';
 
 const getFormType = (status: VaccineStatus): { Form: FC<any> } => {
   switch (status) {
@@ -45,6 +46,8 @@ export type VaccineFormValues = {
   givenBy?: string;
   recorderId?: string;
   status: string | VaccineStatus;
+  consent: boolean;
+  scheduledVaccine?: ScheduledVaccine;
 };
 
 interface VaccineFormProps {
@@ -77,6 +80,9 @@ export const VaccineForm = ({
 }: VaccineFormProps): JSX.Element => {
   const { Form: StatusForm } = useMemo(() => getFormType(status), [status]);
   const user = useSelector(authUserSelector);
+  const { getLocalisation } = useLocalisation();
+
+  const vaccineConsentEnabled = getLocalisation('features.enableVaccineConsent');
 
   const [locationAndDepartment, error, isLoading] = useBackendEffect(
     async ({ models }) => {
@@ -93,9 +99,8 @@ export const VaccineForm = ({
         };
       }
 
-      const facilityId = await readConfig('facilityId', '');
       const vaccinationDefaults =
-        (await models.Setting.get(SETTING_KEYS.VACCINATION_DEFAULTS, facilityId)) || {};
+        (await models.Setting.getByKey(SETTING_KEYS.VACCINATION_DEFAULTS)) || {};
 
       return {
         locationId: vaccinationDefaults.locationId,
@@ -121,13 +126,16 @@ export const VaccineForm = ({
     recorderId: user.id,
     locationId,
     departmentId,
+    consent: false,
   });
 
   const consentSchema =
     status === VaccineStatus.GIVEN
-      ? Yup.boolean()
-          .oneOf([true], REQUIRED_INLINE_ERROR_MESSAGE)
-          .required(REQUIRED_INLINE_ERROR_MESSAGE)
+      ? Yup.boolean().when([], {
+          is: () => vaccineConsentEnabled,
+          then: Yup.boolean().oneOf([true], REQUIRED_INLINE_ERROR_MESSAGE),
+          otherwise: Yup.boolean(),
+        })
       : undefined;
   return (
     <Form

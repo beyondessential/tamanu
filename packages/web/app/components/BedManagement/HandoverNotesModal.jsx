@@ -6,8 +6,8 @@ import { Modal } from '../Modal';
 import { useApi } from '../../api';
 import { useLocalisation } from '../../contexts/Localisation';
 import { useCertificate } from '../../utils/useCertificate';
-import { PDFViewer, printPDF } from '../PatientPrinting/PDFViewer';
 import { TranslatedText } from '../Translation/TranslatedText';
+import { PDFLoader, printPDF } from '../PatientPrinting/PDFLoader';
 
 export const HandoverNotesModal = React.memo(({ area: areaId, ...props }) => {
   const { getLocalisation } = useLocalisation();
@@ -38,11 +38,11 @@ export const HandoverNotesModal = React.memo(({ area: areaId, ...props }) => {
     }
   }, [refetchHandoverNotes, areaId]);
 
-  if (isFetchingCertificate || isFetchingHandoverNotes) return null;
+  const isLoading = isFetchingCertificate || isFetchingHandoverNotes;
 
   return (
     <Modal {...props} title={modalTitle} onPrint={() => printPDF('handover-notes')}>
-      <PDFViewer id="handover-notes" width={800} height={1000} showToolbar={false}>
+      <PDFLoader isLoading={isLoading} id="handover-notes">
         <HandoverNotesPDF
           logoSrc={logo}
           handoverNotes={handoverNotes}
@@ -50,7 +50,7 @@ export const HandoverNotesModal = React.memo(({ area: areaId, ...props }) => {
           getLocalisation={getLocalisation}
           letterheadConfig={letterheadConfig}
         />
-      </PDFViewer>
+      </PDFLoader>
     </Modal>
   );
 });

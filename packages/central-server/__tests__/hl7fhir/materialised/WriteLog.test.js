@@ -1,10 +1,27 @@
 import { Op } from 'sequelize';
 
+import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
 import { showError } from '@tamanu/shared/test-helpers';
+import { SCRUBBED_DATA_MESSAGE } from '@tamanu/constants';
 
 import { createTestContext } from '../../utilities';
 
 const INTEGRATION_ROUTE = 'fhir/mat';
+
+jest.mock('@tamanu/constants', () => {
+  const constants = jest.requireActual('@tamanu/constants');
+
+  //Mock the default export and named export 'foo'
+  return {
+    ...constants,
+    HTTP_BODY_DATA_PATHS: {
+      DATA_LOCATION: '$.presentedForm[*].data',
+      STATUS: '$.staples',
+      CODE_DISPLAY: '$.code.coding[*].display',
+    },
+  };
+}
+);
 
 describe(`Materialised FHIR - WriteLog`, () => {
   let ctx;
@@ -44,6 +61,7 @@ describe(`Materialised FHIR - WriteLog`, () => {
         ],
       };
       const response = await app.post(`/api/integration/${INTEGRATION_ROUTE}/FooBarBaz`).send(body);
+      await sleepAsync(1);
 
       expect(response.status).not.toBe(201);
       const flog = await FhirWriteLog.findOne({
@@ -76,6 +94,7 @@ describe(`Materialised FHIR - WriteLog`, () => {
         ],
       };
       const response = await app.post(`/api/integration/${INTEGRATION_ROUTE}/FooBarBaz`).send(body);
+      await sleepAsync(1);
 
       expect(response.status).not.toBe(201);
       const flog = await FhirWriteLog.findOne({
@@ -102,6 +121,7 @@ describe(`Materialised FHIR - WriteLog`, () => {
         .set('Content-Type', 'application/json')
         .set('Accept', 'application/fhir+json; fhirVersion=4.0')
         .send(body);
+      await sleepAsync(1);
 
       expect(response.status).not.toBe(201);
       const flog = await FhirWriteLog.findOne({
@@ -121,4 +141,105 @@ describe(`Materialised FHIR - WriteLog`, () => {
       });
       expect(flog.headers).not.toHaveProperty('authorization');
     }));
+
+  it('scrubs raw data in specified locations from the body', () =>
+    showError(async () => {
+      const body = {
+        resourceType: 'FuchBaz',
+        staples: 'replace this',
+        nope: [
+          {
+            system: 'http://example.com',
+            value: 'ACCESSION',
+          },
+        ],
+        presentedForm: [{
+          presentedForm: [{
+            language: 'en',
+            data: 'do not replace this',
+          }],
+          language: 'en',
+          data: 'replace this',
+        },
+        {
+          baz: 'angu',
+          language: 'en',
+          data: 'replace this',
+        }],
+        code: {
+          coding: [
+            {
+              system: 'http://encoding.org',
+              code: 'COD-123',
+              display: 'replace this',
+            }
+          ]
+        },
+        burger: [
+          {
+            presentedForm: [{
+              language: 'en',
+              data: 'do not replace this',
+            }],
+            identifier: {
+              system: 'http://example.com',
+              value: '123',
+            },
+          },
+        ],
+      };
+      const response = await app.post(`/api/integration/${INTEGRATION_ROUTE}/FuchBaz`).send(body);
+      await sleepAsync(1);
+
+      expect(response.status).not.toBe(201);
+      const flog = await FhirWriteLog.findOne({
+        where: { url: { [Op.like]: '%FuchBaz%' } },
+      });
+      expect(flog.verb).toEqual('POST');
+      expect(flog.body).toMatchObject({
+        resourceType: 'FuchBaz',
+        staples: SCRUBBED_DATA_MESSAGE,
+        nope: [
+          {
+            system: 'http://example.com',
+            value: 'ACCESSION',
+          },
+        ],
+        presentedForm: [{
+          presentedForm: [{
+            language: 'en',
+            data: 'do not replace this',
+          }],
+          language: 'en',
+          data: SCRUBBED_DATA_MESSAGE,
+        },
+        {
+          baz: 'angu',
+          language: 'en',
+          data: SCRUBBED_DATA_MESSAGE,
+        }],
+        code: {
+          coding: [
+            {
+              system: 'http://encoding.org',
+              code: 'COD-123',
+              display: SCRUBBED_DATA_MESSAGE,
+            }
+          ]
+        },
+        burger: [
+          {
+            presentedForm: [{
+              language: 'en',
+              data: 'do not replace this',
+            }],
+            identifier: {
+              system: 'http://example.com',
+              value: '123',
+            },
+          },
+        ],
+      });
+    }));
+
 });

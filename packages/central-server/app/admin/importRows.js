@@ -1,6 +1,5 @@
 import { camelCase, lowerCase, lowerFirst, startCase, upperFirst } from 'lodash';
 import { Op } from 'sequelize';
-import { permissionCache } from '@tamanu/shared/permissions/cache';
 import { ValidationError as YupValidationError } from 'yup';
 import config from 'config';
 
@@ -36,6 +35,8 @@ const existingRecordLoaders = {
   // TranslatedString model has a composite PK that uses stringId & language
   TranslatedString: (TS, { stringId, language }) =>
     TS.findOne({ where: { stringId, language } }, { paranoid: false }),
+  ReferenceDataRelation: (RDR, { referenceDataId, type }) =>
+    RDR.findOne({ where: { referenceDataId, type } }, { paranoid: false }),
 };
 
 function loadExisting(Model, values) {
@@ -217,12 +218,6 @@ export async function importRows(
       updateStat(stats, statkey(model, sheetName), 'errored');
       errors.push(new UpsertionError(sheetName, sheetRow, err));
     }
-  }
-
-  // You can't use hooks with instances. Hooks are used with models only.
-  // https://sequelize.org/docs/v6/other-topics/hooks/
-  if (validRows.some(({ model }) => model === 'Permission')) {
-    permissionCache.reset();
   }
 
   log.debug('Done with these rows');

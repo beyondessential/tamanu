@@ -22,7 +22,7 @@ async function startApi({ skipMigrationCheck }) {
     execArgs: process.execArgs || '<empty>',
   });
 
-  const context = await new ApplicationContext().init();
+  const context = await new ApplicationContext().init({ appType: 'api' });
 
   if (config.db.migrateOnStartup) {
     await context.sequelize.migrate('up');
@@ -43,10 +43,10 @@ async function startApi({ skipMigrationCheck }) {
     config,
   });
 
-  const app = createApp(context);
+  const { server } = await createApp(context);
 
   const { port } = config;
-  const server = app.listen(port, () => {
+  server.listen(port, () => {
     log.info(`Server is running on port ${port}!`);
   });
   process.once('SIGTERM', () => {

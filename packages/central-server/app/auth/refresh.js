@@ -37,7 +37,7 @@ export const refresh = ({ secret, refreshSecret }) =>
         issuer: canonicalHostName,
       });
     } catch (e) {
-      throw new BadAuthenticationError('Invalid token');
+      throw new BadAuthenticationError('Invalid token (jMbP)');
     }
 
     const { userId, refreshId } = contents;
@@ -47,7 +47,7 @@ export const refresh = ({ secret, refreshSecret }) =>
     });
 
     if (!user) {
-      throw new BadAuthenticationError('Invalid token');
+      throw new BadAuthenticationError('Invalid token (vN3y)');
     }
 
     const dbEntry = await store.models.RefreshToken.findOne({
@@ -58,7 +58,7 @@ export const refresh = ({ secret, refreshSecret }) =>
     });
 
     if (!dbEntry) {
-      throw new BadAuthenticationError('Invalid token');
+      throw new BadAuthenticationError('Invalid token (J7GC)');
     }
 
     if (dbEntry.expiresAt < new Date()) {
@@ -68,7 +68,7 @@ export const refresh = ({ secret, refreshSecret }) =>
     const refreshIdValid = await bcrypt.compare(refreshId, dbEntry.refreshId);
 
     if (!refreshIdValid) {
-      throw new BadAuthenticationError('Invalid token');
+      throw new BadAuthenticationError('Invalid token (Xh01)');
     }
 
     // issue new access token

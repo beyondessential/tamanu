@@ -21,7 +21,7 @@ export const FACILITY_MENU_ITEMS = [
     ability: { subject: 'patient' },
     children: [
       {
-        label: <TranslatedText stringId="sidebar.patients.all" fallback="All Patients" />,
+        label: <TranslatedText stringId="sidebar.patients.all" fallback="All patients" />,
         color: Colors.blue,
         path: '/patients/all',
         key: 'patientsAll',
@@ -36,7 +36,7 @@ export const FACILITY_MENU_ITEMS = [
       },
       {
         label: (
-          <TranslatedText stringId="sidebar.patients.emergency" fallback="Emergency Patients" />
+          <TranslatedText stringId="sidebar.patients.emergency" fallback="Emergency patients" />
         ),
         color: Colors.orange,
         path: '/patients/emergency',
@@ -147,7 +147,7 @@ export const FACILITY_MENU_ITEMS = [
   },
   {
     key: 'immunisations',
-    label: <TranslatedText stringId="sidebar.immunisations" fallback="Immunisations" />,
+    label: <TranslatedText stringId="sidebar.immunisations" fallback="Immunisation" />,
     path: '/immunisations',
     icon: vaccineIcon,
     ability: { action: 'read' },
@@ -189,7 +189,7 @@ export const FACILITY_MENU_ITEMS = [
         label: (
           <TranslatedText
             stringId="sidebar.facilityAdmin.bedManagement"
-            fallback="Bed Management"
+            fallback="Bed management"
           />
         ),
         key: 'bedManagement',
@@ -246,6 +246,12 @@ export const SYNC_MENU_ITEMS = [
     key: 'sync',
     label: <TranslatedText stringId="adminSidebar.syncStatus" fallback="Sync status" />,
     path: '/admin/sync',
+  },
+  {
+    key: 'settings',
+    label: <TranslatedText stringId="adminSidebar.settings" fallback="Settings" />,
+    path: '/admin/settings',
+    ability: { action: 'write', subject: 'settings' },
   },
   {
     key: 'fhirJobStats',

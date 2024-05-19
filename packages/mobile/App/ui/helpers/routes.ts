@@ -23,6 +23,7 @@ export const Routes = {
     SelectFacility: '',
     ResetPassword: '',
     ChangePassword: '',
+    LanguageSelect: '',
   },
   HomeStack: {
     Index: '',
@@ -132,6 +133,9 @@ export const Routes = {
       AddPatientIssue: '',
       EditPatient: '',
       EditPatientAdditionalData: '',
+      ReminderContacts: '',
+      AddReminderContact: '',
+      ReminderContactQR: '',
     },
     PatientActions: '',
     ExportDataScreen: '',

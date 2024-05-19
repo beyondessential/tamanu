@@ -122,9 +122,6 @@ export function getDisplayAge(dateOfBirth, ageDisplayFormat) {
   if (!ageDisplayFormat || !isISOString(dateOfBirth)) {
     return '';
   }
-
-  console.log(dateOfBirth, ageDisplayFormat)
-
   const ageDuration = getAgeDurationFromDate(dateOfBirth);
   const birthDate = parseDate(dateOfBirth);
   for (const displayFormat of ageDisplayFormat) {
@@ -145,8 +142,8 @@ function ageIsWithinRange(birthDate, range) {
   const { min = {}, max = {} } = range;
   const { duration: minDuration, exclusive: minExclusive } = min;
   const { duration: maxDuration, exclusive: maxExclusive } = max;
-  const minDate = minDuration ? addDuration(birthDate, minDuration) : -Infinity;
-  const maxDate = maxDuration ? addDuration(birthDate, maxDuration) : Infinity;
+  const minDate = minDuration ? startOfDay(addDuration(birthDate, minDuration)) : -Infinity;
+  const maxDate = maxDuration ? startOfDay(addDuration(birthDate, maxDuration)) : Infinity;
   const now = startOfDay(new Date());
   return (
     (!minDate || compareDate(minDate, '<', now, minExclusive)) &&

@@ -20,13 +20,14 @@ import { useSuggester } from '../../api';
 import { useAuth } from '../../contexts/Auth';
 import { Modal } from '../../components/Modal';
 import { useApi } from '../../api/useApi';
-import { PROGRAM_REGISTRY } from '../../components/PatientInfoPane/paneTitles';
+import { PANE_SECTION_IDS } from '../../components/PatientInfoPane/paneSections';
 import {
   usePatientProgramRegistryConditionsQuery,
   useProgramRegistryConditionsQuery,
 } from '../../api/queries/usePatientProgramRegistryConditions';
 import { useTranslation } from '../../contexts/Translation';
 import { FORM_TYPES } from '../../constants';
+import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistration, open }) => {
   const api = useApi();
@@ -96,7 +97,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
     );
 
     // Invalidate queries and close modal
-    queryClient.invalidateQueries([`infoPaneListItem-${PROGRAM_REGISTRY}`]);
+    queryClient.invalidateQueries([`infoPaneListItem-${PANE_SECTION_IDS.PROGRAM_REGISTRY}`]);
     onClose();
   };
 
@@ -120,14 +121,24 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
                 <FormGrid style={{ gridColumn: 'span 2' }}>
                   <Field
                     name="date"
-                    label="Date of registration"
+                    label={
+                      <TranslatedText
+                        stringId="patientProgramRegistry.date.label"
+                        fallback="Date of registration"
+                      />
+                    }
                     saveDateAsString
                     component={DateField}
                     required
                   />
                   <Field
                     name="clinicianId"
-                    label="Registered by"
+                    label={
+                      <TranslatedText
+                        stringId="patientProgramRegistry.registeredBy.label"
+                        fallback="Registered by"
+                      />
+                    }
                     component={AutocompleteField}
                     suggester={registeredBySuggester}
                     required
@@ -136,7 +147,12 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
                 <FormGrid style={{ gridColumn: 'span 2' }}>
                   <Field
                     name="registeringFacilityId"
-                    label="Registering facility"
+                    label={
+                      <TranslatedText
+                        stringId="patientProgramRegistry.registeredBy.label"
+                        fallback="Registering facility"
+                      />
+                    }
                     component={AutocompleteField}
                     suggester={registeringFacilitySuggester}
                     required
@@ -157,7 +173,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
                     }
                     name="conditionIds"
                     label="Related conditions"
-                    placeholder={getTranslation("general.placeholder.select", "Select")}
+                    placeholder={getTranslation('general.placeholder.select', 'Select')}
                     component={MultiselectField}
                     options={conditions}
                     disabled={!conditions || conditions.length === 0}
@@ -191,9 +207,31 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
         formType={FORM_TYPES.EDIT_FORM}
         validationSchema={yup.object().shape({
           clinicalStatusId: optionalForeignKey().nullable(),
-          date: yup.date().required('Date of registration must be selected'),
-          clinicianId: foreignKey().required('Registered by must be selected'),
-          registeringFacilityId: foreignKey().required('Registering facility must be selected'),
+          date: yup
+            .date()
+            .required()
+            .translatedLabel(
+              <TranslatedText
+                stringId="patientProgramRegistry.date.label"
+                fallback="Date of registration"
+              />,
+            ),
+          clinicianId: foreignKey()
+            .required()
+            .translatedLabel(
+              <TranslatedText
+                stringId="patientProgramRegistry.registeredBy.label"
+                fallback="Registered by"
+              />,
+            ),
+          registeringFacilityId: foreignKey()
+            .required()
+            .translatedLabel(
+              <TranslatedText
+                stringId="patientProgramRegistry.registeredBy.label"
+                fallback="Registering facility"
+              />,
+            ),
         })}
       />
     </Modal>

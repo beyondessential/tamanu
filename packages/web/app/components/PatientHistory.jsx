@@ -37,7 +37,7 @@ const getFacility = ({ facilityName }) => <FacilityWrapper>{facilityName}</Facil
 const columns = [
   {
     key: 'startDate',
-    title: <TranslatedText stringId="patientHistory.table.column.startDate" fallback="Date" />,
+    title: <TranslatedText stringId="general.date.label" fallback="Date" />,
     accessor: getDate,
   },
   {

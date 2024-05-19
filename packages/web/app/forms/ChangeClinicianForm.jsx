@@ -8,7 +8,6 @@ import { AutocompleteField, Field, Form } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { FormSubmitCancelRow } from '../components/ButtonRow';
 import { FORM_TYPES } from '../constants';
-import { LowerCase } from '../components';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 
 export const ChangeClinicianForm = ({ clinicianSuggester, onCancel, onSubmit }) => {
@@ -23,18 +22,17 @@ export const ChangeClinicianForm = ({ clinicianSuggester, onCancel, onSubmit }) 
             fallback="Search new :clinician"
             replacements={{
               clinician: (
-                <LowerCase>
-                  <TranslatedText
-                    stringId="general.localisedField.clinician.label.short"
-                    fallback="Clinician"
-                  />
-                </LowerCase>
+                <TranslatedText
+                  stringId="general.localisedField.clinician.label.short"
+                  fallback="Clinician"
+                  lowercase
+                />
               ),
             }}
           />
         }
-        required
         suggester={clinicianSuggester}
+        required
       />
       <FormSubmitCancelRow onConfirm={submitForm} confirmText="Save" onCancel={onCancel} />
     </FormGrid>
@@ -47,7 +45,15 @@ export const ChangeClinicianForm = ({ clinicianSuggester, onCancel, onSubmit }) 
         submittedTime: getCurrentDateTimeString(),
       }}
       validationSchema={yup.object().shape({
-        examinerId: yup.string().required('Required'),
+        examinerId: yup
+          .string()
+          .required()
+          .translatedLabel(
+            <TranslatedText
+              stringId="general.localisedField.clinician.label"
+              fallback="clinician"
+            />,
+          ),
       })}
       formType={FORM_TYPES.EDIT_FORM}
       render={renderForm}

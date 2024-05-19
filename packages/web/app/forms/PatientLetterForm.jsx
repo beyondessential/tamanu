@@ -68,7 +68,7 @@ const PatientLetterFormContents = ({ submitForm, onCancel, setValues }) => {
       <FormGrid columns={2} nested>
         <Field
           name="clinicianId"
-          label={<TranslatedText stringId="general.clinican.label" fallback="Clinician" />}
+          label={<TranslatedText stringId="general.clinician.label" fallback="Clinician" />}
           required
           component={AutocompleteField}
           suggester={practitionerSuggester}
@@ -84,18 +84,14 @@ const PatientLetterFormContents = ({ submitForm, onCancel, setValues }) => {
       <StyledFormGrid columns={1}>
         <Field
           name="templateId"
-          label={
-            <TranslatedText stringId="patientLetter.template.label" fallback="Template" />
-          }
+          label={<TranslatedText stringId="patientLetter.template.label" fallback="Template" />}
           suggester={patientLetterTemplateSuggester}
           component={AutocompleteField}
           onChange={e => onChangeTemplate(e.target.value)}
         />
         <Field
           name="title"
-          label={
-            <TranslatedText stringId="patientLetter.title.label" fallback="Letter title" />
-          }
+          label={<TranslatedText stringId="patientLetter.title.label" fallback="Letter title" />}
           required
           component={TextField}
           disabled={templateLoading}
@@ -175,10 +171,29 @@ export const PatientLetterForm = ({ onSubmit, onCancel, editedObject, endpoint, 
       }}
       formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
       validationSchema={yup.object().shape({
-        date: yup.date().required('Date is required'),
-        clinicianId: yup.string().required('Clinician is required'),
-        title: yup.string().required('Letter title is required'),
-        body: yup.string().required('Note is required'),
+        date: yup
+          .date()
+          .required()
+          .translatedLabel(<TranslatedText stringId="general.date.label" fallback="Date" />),
+        clinicianId: yup
+          .string()
+          .required()
+          .translatedLabel(
+            <TranslatedText
+              stringId="general.localisedField.clinician.label"
+              fallback="Clinician"
+            />,
+          ),
+        title: yup
+          .string()
+          .required()
+          .translatedLabel(
+            <TranslatedText stringId="patientLetter.title.label" fallback="Letter title" />,
+          ),
+        body: yup
+          .string()
+          .required()
+          .translatedLabel(<TranslatedText stringId="general.note.label" fallback="Note" />),
       })}
     />
   );
