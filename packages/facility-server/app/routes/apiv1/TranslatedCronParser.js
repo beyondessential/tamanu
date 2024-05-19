@@ -1,5 +1,9 @@
 import { en as BaseLocale } from 'cronstrue/locales/en';
 
+/**
+ * Connect translated strings to cron parser for custom translations
+ * This only supports every n seconds, minutes, hours right now but see the base locale for more
+ */
 export class TranslatedCronParser extends BaseLocale {
   constructor(translationFunc) {
     super();
