@@ -2,36 +2,55 @@ import { Box } from '@material-ui/core';
 import React from 'react';
 import { BodyText } from '../Typography';
 import { TranslatedText } from '../Translation';
-import { formatDistanceToNow, parseISO } from 'date-fns';
 import styled from 'styled-components';
 
 const SmallText = styled(BodyText)`
   font-size: 12px;
 `;
 
+const ErrorText = styled(SmallText)`
+  color: ${({ theme }) => theme.palette.error.main};
+`;
+
 export const RefreshStatsDisplay = ({ stats, error }) => {
   if (!stats) return null;
-  const { lastRefreshed, schedule } = stats;
+  const { lastUpdated, schedule } = stats;
+  if (error) {
+    return (
+      <Box display="flex" flexDirection="column" alignItems="flex-end">
+        <ErrorText color="error">
+          <TranslatedText
+            stringId="table.refreshSchedule.error"
+            fallback="Error loading refresh stats"
+          />
+        </ErrorText>
+      </Box>
+    );
+  }
   return (
     <Box display="flex" flexDirection="column" alignItems="flex-end">
-      <SmallText color="textTertiary">
-        <TranslatedText
-          stringId="table.refreshSchedule.lastUpdated"
-          fallback="Last updated: :lastRefreshed"
-          replacements={{
-            lastRefreshed: formatDistanceToNow(parseISO(lastRefreshed), {
-              addSuffix: 'ago',
-            }),
-          }}
-        />
-      </SmallText>
-      <SmallText color="#B8B8B8">
-        <TranslatedText
-          stringId="table.refreshSchedule.schedule"
-          fallback="Updated :schedule"
-          replacements={{ schedule: schedule.toLowerCase() }}
-        />
-      </SmallText>
+      {error ? (
+        <ErrorText color="error">
+          <TranslatedText stringId="table.refreshSchedule.error" fallback="Error loading stats" />
+        </ErrorText>
+      ) : (
+        <>
+          <SmallText color="textTertiary">
+            <TranslatedText
+              stringId="table.refreshSchedule.lastUpdated"
+              fallback="Last updated: :lastUpdated"
+              replacements={{ lastUpdated }}
+            />
+          </SmallText>
+          <SmallText color="#B8B8B8">
+            <TranslatedText
+              stringId="table.refreshSchedule.schedule"
+              fallback="Updated :schedule"
+              replacements={{ schedule: schedule.toLowerCase() }}
+            />
+          </SmallText>
+        </>
+      )}
     </Box>
   );
 };

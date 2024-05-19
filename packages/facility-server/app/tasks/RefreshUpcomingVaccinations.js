@@ -15,6 +15,7 @@ export class RefreshUpcomingVaccinations extends ScheduledTask {
     super(schedule, log, jitterTime);
     this.sequelize = context.sequelize;
     this.models = context.models;
+    this.runImmediately();
   }
 
   async run() {

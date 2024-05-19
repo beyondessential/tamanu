@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   ContentPane,
   ImmunisationSearchBar,
@@ -22,18 +22,41 @@ import { RefreshStatsDisplay } from '../../components/Table/RefreshStatsDisplay.
 import { useApi } from '../../api/useApi.js';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from '../../contexts/Translation.jsx';
+import styled from 'styled-components';
+import { formatDistanceToNow, parseISO } from 'date-fns';
+
+const StyledSearchTableTitle = styled(SearchTableTitle)`
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+`;
 
 const useRefreshStatsQuery = () => {
+  const [lastUpdated, setLastUpdated] = useState();
   const { storedLanguage } = useTranslation();
   const api = useApi();
-  return useQuery(
-    ['upcomingVaccinations/refreshStats'],
-    () => api.get('upcomingVaccinations/refreshStats', { language: storedLanguage }),
-
-    {
-      refetchInterval: 1000 * 60, // 1 minute
-    },
+  const { data: refreshStats, isFetching } = useQuery(['upcomingVaccinations/refreshStats'], () =>
+    api.get('upcomingVaccinations/refreshStats', { language: storedLanguage }),
   );
+
+  const getFromNowText = lastRefreshed =>
+    formatDistanceToNow(parseISO(lastRefreshed), { addSuffix: 'ago' });
+
+  useEffect(() => {
+    if (!refreshStats) return;
+    const interval = setInterval(() => {
+      setLastUpdated(getFromNowText(refreshStats.lastRefreshed));
+    }, 1000 * 60);
+    return () => clearInterval(interval);
+  }, [refreshStats]);
+
+  return {
+    data: refreshStats && {
+      ...refreshStats,
+      lastUpdated: lastUpdated || getFromNowText(refreshStats.lastRefreshed),
+    },
+    isFetching,
+  };
 };
 
 const getSchedule = record =>
@@ -83,24 +106,21 @@ export const ImmunisationsView = () => {
     await dispatch(reloadPatient(patient.id));
     navigateToPatient(patient.id, { tab: PATIENT_TABS.VACCINES });
   };
-
-  console.log(isFetching, refreshStats);
   return (
     <PageContainer>
       <TopBar
         title={
           <TranslatedText stringId="immunisation.register.title" fallback="Immunisation register" />
         }
-      >
-        <RefreshStatsDisplay stats={refreshStats} isFetching={isFetching} />
-      </TopBar>
+      ></TopBar>
       <ContentPane>
-        <SearchTableTitle>
+        <StyledSearchTableTitle>
           <TranslatedText
             stringId="immunisation.register.search.title"
             fallback="Patient immunisation search"
           />
-        </SearchTableTitle>
+          <RefreshStatsDisplay stats={refreshStats} isFetching={isFetching} />
+        </StyledSearchTableTitle>
         <ImmunisationSearchBar onSearch={setSearchParameters} />
         <SearchTable
           endpoint="upcomingVaccinations"
