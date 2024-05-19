@@ -12,7 +12,7 @@ import { Colors } from '../constants';
 import { TranslatedText } from './Translation/TranslatedText';
 
 const getSchedule = record =>
-  record.scheduledVaccine?.schedule || (
+  record.scheduledVaccine?.doseLabel || (
     <TranslatedText stringId="general.fallback.notApplicable" fallback="N/A" />
   );
 const getVaccineName = record =>

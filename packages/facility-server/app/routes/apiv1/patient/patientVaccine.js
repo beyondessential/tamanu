@@ -86,7 +86,7 @@ patientVaccineRoutes.get(
         // Exclude historical schedules unless administered
         if (vaccineSchedule.visibilityStatus !== VISIBILITY_STATUSES.HISTORICAL || administered) {
           allVaccines[vaccineSchedule.label].schedules.push({
-            doseLabel: vaccineSchedule.dose_label,
+            doseLabel: vaccineSchedule.doseLabel,
             scheduledVaccineId: vaccineSchedule.id,
             administered,
           });
