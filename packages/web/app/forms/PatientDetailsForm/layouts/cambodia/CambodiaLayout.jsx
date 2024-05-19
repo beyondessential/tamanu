@@ -6,7 +6,6 @@ import {
   SETTING_KEYS,
 } from '@tamanu/constants';
 
-import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { Colors } from '../../../../constants';
 import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
 import { LocalisedField, TextField, DateField, RadioField, FormGrid } from '../../../../components';
