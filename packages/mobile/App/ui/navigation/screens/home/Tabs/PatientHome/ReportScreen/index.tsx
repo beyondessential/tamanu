@@ -16,6 +16,7 @@ import { RecentPatientSurveyReport } from './RecentPatientSurveyReport';
 import { Dropdown } from './components/Dropdown';
 
 import { SurveyTypes } from '~/types';
+import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 
 interface IReportTypeButtons {
   isReportWeekly: boolean;
@@ -38,7 +39,7 @@ const ReportTypeButtons = ({ isReportWeekly, onPress }: IReportTypeButtons): Rea
         width={screenPercentageToDP(44.52, Orientation.Width)}
         backgroundColor={isReportWeekly ? theme.colors.WHITE : theme.colors.BOX_OUTLINE}
         textColor={isReportWeekly ? theme.colors.PRIMARY_MAIN : theme.colors.TEXT_MID}
-        buttonText="Summary"
+        buttonText={<TranslatedText stringId="report.heading.summary" fallback="Summary" />}
         bordered={false}
         onPress={onPress}
       />
@@ -46,7 +47,7 @@ const ReportTypeButtons = ({ isReportWeekly, onPress }: IReportTypeButtons): Rea
         fontSize={screenPercentageToDP(1.57, Orientation.Height)}
         height={screenPercentageToDP(3.76, Orientation.Height)}
         width={screenPercentageToDP(44.52, Orientation.Width)}
-        buttonText="Data Table"
+        buttonText={<TranslatedText stringId="report.heading.dataTable" fallback="Data Table" />}
         backgroundColor={!isReportWeekly ? theme.colors.WHITE : theme.colors.BOX_OUTLINE}
         textColor={!isReportWeekly ? theme.colors.PRIMARY_MAIN : theme.colors.TEXT_MID}
         onPress={onPress}
@@ -74,20 +75,21 @@ const ReportChart: FC<ReportChartProps> = ({
   visitData,
   todayData,
   selectedSurveyId,
-}) => (isReportWeekly ? (
-  <>
-    <StyledView marginBottom={screenPercentageToDP(7.53, Orientation.Height)}>
-      <VisitChart visitData={visitData} />
+}) =>
+  isReportWeekly ? (
+    <>
+      <StyledView marginBottom={screenPercentageToDP(7.53, Orientation.Height)}>
+        <VisitChart visitData={visitData} />
+      </StyledView>
+      <StyledView flex={1}>
+        <SummaryBoard todayData={todayData} />
+      </StyledView>
+    </>
+  ) : (
+    <StyledView marginBottom={screenPercentageToDP(2.43, Orientation.Height)}>
+      <RecentPatientSurveyReport selectedSurveyId={selectedSurveyId} />
     </StyledView>
-    <StyledView flex={1}>
-      <SummaryBoard todayData={todayData} />
-    </StyledView>
-  </>
-) : (
-  <StyledView marginBottom={screenPercentageToDP(2.43, Orientation.Height)}>
-    <RecentPatientSurveyReport selectedSurveyId={selectedSurveyId} />
-  </StyledView>
-));
+  );
 
 export const ReportScreen = ({ navigation }: ReportScreenProps): ReactElement => {
   const [selectedSurveyId, setSelectedSurveyId] = useState('');
@@ -99,11 +101,13 @@ export const ReportScreen = ({ navigation }: ReportScreenProps): ReactElement =>
     [selectedSurveyId, isFocused],
   );
 
-  const [surveys] = useBackendEffect(({ models }) => models.Survey.find({
-    where: {
-      surveyType: SurveyTypes.Programs,
-    },
-  }));
+  const [surveys] = useBackendEffect(({ models }) =>
+    models.Survey.find({
+      where: {
+        surveyType: SurveyTypes.Programs,
+      },
+    }),
+  );
 
   useEffect(() => {
     // automatically select the first survey as soon as surveys are loaded
@@ -112,18 +116,17 @@ export const ReportScreen = ({ navigation }: ReportScreenProps): ReactElement =>
     }
   }, [surveys, selectedSurveyId]);
 
-  const reportList = surveys?.map((s) => ({ label: s.name, value: s.id }));
+  const reportList = surveys?.map(s => ({ label: s.name, value: s.id }));
 
   const today = addHours(startOfToday(), 3);
   const todayString = format(today, 'yyyy-MM-dd');
-  const todayData = data?.find((item) => item.encounterDate === todayString);
+  const todayData = data?.find(item => item.encounterDate === todayString);
 
   const visitData = new Array(28).fill('').reduce(
     (accum, _, index) => {
       const currentDate = format(subDays(today, 28 - index - 1), 'yyyy-MM-dd');
-      const receivedValueForDay = data?.find(
-        (item) => item.encounterDate === currentDate,
-      )?.totalEncounters || 0;
+      const receivedValueForDay =
+        data?.find(item => item.encounterDate === currentDate)?.totalEncounters || 0;
 
       return {
         totalVisits: accum.totalVisits + receivedValueForDay,
@@ -177,7 +180,9 @@ export const ReportScreen = ({ navigation }: ReportScreenProps): ReactElement =>
             outline
             borderColor={theme.colors.WHITE}
             fontSize={screenPercentageToDP(1.57, Orientation.Height)}
-            buttonText="Export Data"
+            buttonText={
+              <TranslatedText stringId="report.action.exportData" fallback="Export Data" />
+            }
             onPress={navigateToExportData}
           />
         </RowView>
@@ -188,7 +193,7 @@ export const ReportScreen = ({ navigation }: ReportScreenProps): ReactElement =>
             color={theme.colors.WHITE}
             fontSize={screenPercentageToDP(3.4, Orientation.Height)}
           >
-            Reports
+            <TranslatedText stringId="report.title" fallback="Reports" />
           </StyledText>
           {reportList && (
             <Dropdown

@@ -43,15 +43,18 @@ const createLocalDateTimeStringFromUTC = (
 const fakeAllData = async (models, ctx) => {
   const { id: userId } = await models.User.create(fake(models.User));
   const { id: examinerId } = await models.User.create(fake(models.User));
-  const { id: facilityId } = await models.Facility.create(fake(models.Facility));
+  const { id: facilityId } = await models.Facility.create(fake(models.Facility, { name: 'Ba Hospital' }));
   const { id: departmentId } = await models.Department.create(
     fake(models.Department, { facilityId, name: 'Emergency dept.' }),
   );
+  const { id: locationGroupId } = await models.LocationGroup.create(
+    fake(models.LocationGroup, { facilityId, name: 'Emergency Department' }),
+  );
   const { id: location1Id } = await models.Location.create(
-    fake(models.Location, { facilityId, name: 'Emergency room 1' }),
+    fake(models.Location, { facilityId, name: 'Emergency room 1', locationGroupId }),
   );
   const { id: location2Id } = await models.Location.create(
-    fake(models.Location, { facilityId, name: 'Emergency room 2' }),
+    fake(models.Location, { facilityId, name: 'Emergency room 2', locationGroupId }),
   );
   const { id: patientBillingTypeId } = await models.ReferenceData.create(
     fake(models.ReferenceData, {
@@ -252,7 +255,7 @@ const fakeAllData = async (models, ctx) => {
       areaId: rightImagingAreaId,
     }),
   );
-  await models.Note.create(
+  const imagingRequestNote = await models.Note.create(
     fake(models.Note, {
       recordId: imagingRequestId,
       noteType: NOTE_TYPES.OTHER,
@@ -266,7 +269,7 @@ const fakeAllData = async (models, ctx) => {
     fake(models.LabRequest, { encounterId }),
   );
   await models.LabTest.create(fake(models.LabTest, { labRequestId, labTestTypeId }));
-  await models.Note.create(
+  const labRequestNote = await models.Note.create(
     fake(models.Note, {
       recordId: labRequestId,
       noteType: NOTE_TYPES.OTHER,
@@ -284,7 +287,7 @@ const fakeAllData = async (models, ctx) => {
     }),
   );
 
-  await models.Note.create(
+  const encounterNote = await models.Note.create(
     fake(models.Note, {
       recordId: encounterId,
       noteType: NOTE_TYPES.NURSING,
@@ -325,7 +328,7 @@ const fakeAllData = async (models, ctx) => {
     lastUpdated: new Date(Date.UTC(2022, 6 - 1, 12, 0, 2, 54, 225)),
   });
 
-  return { patient, encounterId };
+  return { patient, encounterId, encounterNote, imagingRequestNote, labRequestNote };
 };
 
 describe('fijiAspenMediciReport', () => {
@@ -424,6 +427,7 @@ describe('fijiAspenMediciReport', () => {
         patientId: 'BTIO864386',
         firstName: patient.firstName,
         lastName: patient.lastName,
+        lastUpdated: '2022-06-12T00:02:54+00:00',
         dateOfBirth: '1952-10-12',
         age: expect.any(Number), // TODO
         sex: upperFirst(patient.sex),
@@ -468,7 +472,9 @@ describe('fijiAspenMediciReport', () => {
         // Location/Department
         locations: [
           {
+            facility: 'Ba Hospital',
             location: 'Emergency room 2',
+            locationGroup: 'Emergency Department',
             assignedTime: '2022-06-09T08:04:54+00:00',
           },
         ],
@@ -538,6 +544,7 @@ describe('fijiAspenMediciReport', () => {
                 noteType: NOTE_TYPES.OTHER,
                 content: 'Please perform this lab test very carefully',
                 noteDate: '2022-06-09T02:04:54+00:00',
+                revisedById: fakedata.labRequestNote.id,
               },
             ],
           },
@@ -551,6 +558,7 @@ describe('fijiAspenMediciReport', () => {
                 noteType: 'other',
                 content: 'Check for fractured knees please',
                 noteDate: '2022-06-10T06:04:54+00:00',
+                revisedById: fakedata.imagingRequestNote.id,
               },
             ],
           },
@@ -560,6 +568,7 @@ describe('fijiAspenMediciReport', () => {
             noteType: NOTE_TYPES.NURSING,
             content: 'A\nB\nC\nD\nE\nF\nG\n',
             noteDate: '2022-06-10T03:39:57+00:00',
+            revisedById: fakedata.encounterNote.id,
           },
         ],
       },

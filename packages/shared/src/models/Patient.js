@@ -105,10 +105,15 @@ export class Patient extends Model {
       foreignKey: 'patientId',
       as: 'patientProgramRegistrationConditions',
     });
+
+    this.hasMany(models.PatientContact, {
+      foreignKey: 'patientId',
+      as: 'contacts',
+    });
   }
 
   static getFullReferenceAssociations() {
-    return ['markedForSyncFacilities'];
+    return ['markedForSyncFacilities', 'fieldValues'];
   }
 
   async getAdministeredVaccines(queryOptions = {}) {
@@ -271,9 +276,15 @@ export class Patient extends Model {
   }
 
   async writeFieldValues(patientFields = {}) {
-    const { PatientFieldValue } = this.constructor.sequelize.models;
+    const { PatientFieldValue, PatientFieldDefinition } = this.constructor.sequelize.models;
     for (const [definitionId, value] of Object.entries(patientFields)) {
       // race condition doesn't matter because we take the last value anyway
+      const fieldDefinition = await PatientFieldDefinition.findByPk(definitionId);
+      if (!fieldDefinition) {
+        throw new Error(
+          `Custom patient field ${definitionId} not found. Please contact your administrator.`,
+        );
+      }
       const field = await PatientFieldValue.findOne({
         where: {
           definitionId,

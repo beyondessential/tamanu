@@ -1,5 +1,5 @@
 import { log } from '@tamanu/shared/services/logging';
-import { readFile } from 'xlsx';
+import { read, readFile } from 'xlsx';
 
 import { importRows } from '../importRows';
 
@@ -9,7 +9,18 @@ import { importProgramRegistry } from './importProgramRegistry';
 
 export const PERMISSIONS = ['Program', 'Survey'];
 
-export async function programImporter({ errors, models, stats, file, whitelist = [] }) {
+export async function programImporter({
+  errors,
+  models,
+  stats,
+  file,
+  whitelist = [],
+  data,
+  checkPermission,
+}) {
+  checkPermission('create', 'Program');
+  checkPermission('write', 'Program');
+
   const createContext = sheetName => ({
     errors,
     log: log.child({
@@ -21,8 +32,8 @@ export async function programImporter({ errors, models, stats, file, whitelist =
 
   log.info('Importing surveys from file', { file });
 
-  const workbook = readFile(file);
-  const { programRecord, surveyMetadata } = await readMetadata(workbook.Sheets.Metadata);
+  const workbook = data ? read(data, { type: 'buffer' }) : readFile(file);
+  const { programRecord, surveyMetadata } = readMetadata(workbook.Sheets.Metadata);
 
   // actually import the program to the database
   stats.push(
@@ -56,6 +67,11 @@ export async function programImporter({ errors, models, stats, file, whitelist =
   log.debug('Importing surveys', {
     count: surveysToImport.length,
   });
+
+  if (surveysToImport.length) {
+    checkPermission('create', 'Survey');
+    checkPermission('write', 'Survey');
+  }
 
   // then loop over each survey defined in metadata and import it
   for (const surveyInfo of surveysToImport) {

@@ -1,5 +1,4 @@
 import React from 'react';
-import { PDFViewer } from '@react-pdf/renderer';
 
 import { NOTE_TYPES } from '@tamanu/constants/notes';
 import { LAB_REQUEST_STATUSES } from '@tamanu/constants/labs';
@@ -19,13 +18,14 @@ import { useEncounterDischarge } from '../../../api/queries/useEncounterDischarg
 import { useReferenceData } from '../../../api/queries/useReferenceData';
 import { usePatientAdditionalDataQuery } from '../../../api/queries/usePatientAdditionalDataQuery';
 import { useLocalisation } from '../../../contexts/Localisation';
-import { LoadingIndicator } from '../../LoadingIndicator';
 import { Colors } from '../../../constants';
 import { ForbiddenErrorModalContents } from '../../ForbiddenErrorModal';
 import { ModalActionRow } from '../../ModalActionRow';
-import { printPDF } from '../PDFViewer.jsx';
+import { PDFLoader, printPDF } from '../PDFLoader';
 import { TranslatedText } from '../../Translation/TranslatedText';
-import { LowerCase } from '../../Typography';
+import { useVitals } from '../../../api/queries/useVitals';
+import { DateDisplay, formatShortest, formatTime } from '../../DateDisplay';
+import { useTranslation } from '../../../contexts/Translation';
 
 // These below functions are used to extract the history of changes made to the encounter that are stored in notes.
 // obviously a better solution needs to be to properly implemented for storing and accessing this data, but this is an ok workaround for now.
@@ -99,15 +99,20 @@ const extractLocationHistory = (notes, encounterData) => {
   });
 };
 
+const getDateTitleArray = date => {
+  const shortestDate = DateDisplay.stringFormat(date, formatShortest);
+  const timeWithSeconds = DateDisplay.stringFormat(date, formatTime);
+
+  return [shortestDate, timeWithSeconds.toLowerCase()];
+};
+
 export const EncounterRecordModal = ({ encounter, open, onClose }) => {
-  const clinicianText = (
-    <LowerCase>
-      <TranslatedText
-        stringId="general.localisedField.clinician.label.short"
-        fallback="Clinician"
-      />
-    </LowerCase>
-  );
+  const { getTranslation } = useTranslation();
+  const clinicianText = getTranslation(
+    'general.localisedField.clinician.label.short',
+    'Clinician',
+  ).toLowerCase();
+  const { data: vitalsData, recordedDates } = useVitals(encounter.id);
 
   const { getLocalisation } = useLocalisation();
   const certificateQuery = useCertificate();
@@ -167,14 +172,6 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
     maxWidth: 'md',
     printable: !allQueries.isError && !allQueries.isFetching, // do not show print button when there is error or is fetching
   };
-
-  if (allQueries.isFetching) {
-    return (
-      <Modal {...modalProps}>
-        <LoadingIndicator />
-      </Modal>
-    );
-  }
 
   if (allQueries.isError) {
     if (allQueries.errors.some(e => e instanceof ForbiddenError)) {
@@ -285,16 +282,38 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
     ? extractEncounterTypeHistory(encounterTypeSystemNotes, encounter, encounterTypeNoteMatcher)
     : [];
 
+  const getVitalsColumn = startIndex => {
+    const dateArray = [...recordedDates].reverse().slice(startIndex, startIndex + 12);
+    return [
+      {
+        key: 'measure',
+        title: 'Measure',
+        accessor: ({ value }) => value,
+        style: { width: 140 },
+      },
+      ...dateArray
+        .sort((a, b) => b.localeCompare(a))
+        .map(date => ({
+          title: getDateTitleArray(date),
+          key: date,
+          accessor: cells => {
+            const { value } = cells[date];
+            return value || '-';
+          },
+          style: { width: 60 },
+        })),
+    ];
+  };
+
   return (
     <Modal {...modalProps} onPrint={() => printPDF('encounter-record')}>
-      <PDFViewer
-        style={{ width: '100%', height: '600px' }}
-        id="encounter-record"
-        showToolbar={false}
-      >
+      <PDFLoader isLoading={allQueries.isFetching} id="encounter-record">
         <EncounterRecordPrintout
           patientData={{ ...patient, additionalData, village }}
           encounter={encounter}
+          vitalsData={vitalsData}
+          recordedDates={recordedDates}
+          getVitalsColumn={getVitalsColumn}
           certificateData={certificateData}
           encounterTypeHistory={encounterTypeHistory}
           locationHistory={locationHistory}
@@ -309,7 +328,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
           getLocalisation={getLocalisation}
           clinicianText={clinicianText}
         />
-      </PDFViewer>
+      </PDFLoader>
     </Modal>
   );
 };

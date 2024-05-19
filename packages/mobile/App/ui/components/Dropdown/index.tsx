@@ -8,11 +8,12 @@ import { theme } from '~/ui/styled/theme';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { TextFieldErrorMessage } from '../TextField/TextFieldErrorMessage';
 import { useBackend } from '~/ui/hooks';
+import { TranslatedTextElement } from '../Translations/TranslatedText';
 
 const MIN_COUNT_FILTERABLE_BY_DEFAULT = 8;
 
 export interface SelectOption {
-  label: string;
+  label?: TranslatedTextElement;
   value: string;
 }
 
@@ -30,13 +31,15 @@ export interface DropdownProps extends BaseInputProps {
   // - single
   // - non-filterable
   disabled?: boolean;
+  clearable?: boolean;
 }
 
 const baseStyleDropdownMenuSubsection = {
   paddingTop: 9,
   paddingBottom: 9,
-  paddingLeft: 12,
+  paddingLeft: screenPercentageToDP(3, Orientation.Width),
   borderRadius: 5,
+  height: '100%'
 };
 
 const STYLE_PROPS: Record<string, Partial<MultiSelectProps>> = {
@@ -86,6 +89,7 @@ export const Dropdown = React.memo(
     error,
     disabled,
     required = false,
+    clearable = true,
   }: DropdownProps) => {
     const [selectedItems, setSelectedItems] = useState(() => {
       if (!value) {
@@ -110,7 +114,7 @@ export const Dropdown = React.memo(
           <StyledText
             fontSize={fontSize}
             fontWeight={600}
-            marginBottom={2}
+            marginBottom={screenPercentageToDP(0.5, Orientation.Width)}
             color={labelColor || theme.colors.TEXT_SUPER_DARK}
           >
             {label}
@@ -125,8 +129,10 @@ export const Dropdown = React.memo(
           ref={componentRef}
           onSelectedItemsChange={onSelectedItemsChange}
           selectedItems={selectedItems}
-          selectText={selectPlaceholderText || label}
-          searchInputPlaceholderText={filterable ? searchPlaceholderText : label}
+          selectText={selectPlaceholderText || label?.props?.fallback || label}
+          searchInputPlaceholderText={
+            filterable ? searchPlaceholderText : label?.props?.fallback || label
+          }
           altFontFamily="ProximaNova-Light"
           tagRemoveIconColor={theme.colors.PRIMARY_MAIN}
           tagBorderColor={theme.colors.PRIMARY_MAIN}
@@ -136,13 +142,13 @@ export const Dropdown = React.memo(
           selectedItemIconColor={theme.colors.PRIMARY_MAIN}
           itemTextColor={theme.colors.TEXT_SUPER_DARK}
           itemFontSize={fontSize}
-          searchInputStyle={{ color: theme.colors.PRIMARY_MAIN }}
+          searchInputStyle={{ color: theme.colors.PRIMARY_MAIN, fontSize, paddingLeft: 0 }}
           submitButtonColor={theme.colors.SAFE}
           submitButtonText="Confirm selection"
           styleMainWrapper={{ zIndex: 999 }}
           fixedHeight={fixedHeight}
           styleDropdownMenu={{
-            height: screenPercentageToDP(6.8, Orientation.Height),
+            height: screenPercentageToDP(6, Orientation.Height),
             marginBottom: 0,
             borderRadius: 5,
           }}
@@ -157,6 +163,8 @@ export const Dropdown = React.memo(
             padding: 5,
           }}
           styleInputGroup={{
+            height: screenPercentageToDP(6, Orientation.Height),
+            paddingLeft: screenPercentageToDP(3, Orientation.Width),
             borderWidth: 1,
             borderRadius: 6,
             backgroundColor: theme.colors.WHITE,
@@ -167,9 +175,11 @@ export const Dropdown = React.memo(
             borderRadius: 5,
             borderColor: theme.colors.PRIMARY_MAIN,
           }}
+          styleListContainer={{ maxHeight: 300 }}
           textInputProps={filterable ? {} : { editable: false, autoFocus: false }}
           searchIcon={filterable ? undefined : null}
           disabled={disabled}
+          clearable={clearable}
           fontSize={fontSize}
           {...getStyleProps(error, disabled)}
         />

@@ -4,6 +4,7 @@ import { Command } from 'commander';
 import {
   GENERAL_IMPORTABLE_DATA_TYPES,
   PERMISSION_IMPORTABLE_DATA_TYPES,
+  SETTINGS_SCOPES,
   SYSTEM_USER_UUID,
 } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
@@ -44,20 +45,42 @@ export async function provision(provisioningFile, { skipIfNotNeeded }) {
 
   const errors = [];
   const stats = [];
-  for (const { file: referenceDataFile, ...rest } of referenceData ?? []) {
-    if (!referenceDataFile) {
+
+  const importerOptions = {
+    errors,
+    models: store.models,
+    stats,
+    includedDataTypes: [...GENERAL_IMPORTABLE_DATA_TYPES, ...PERMISSION_IMPORTABLE_DATA_TYPES],
+    checkPermission: () => true,
+  };
+
+  for (const {
+    file: referenceDataFile = null,
+    url: referenceDataUrl = null,
+    ...rest
+  } of referenceData ?? []) {
+    if (!referenceDataFile && !referenceDataUrl) {
       throw new Error(`Unknown reference data import with keys ${Object.keys(rest).join(', ')}`);
     }
 
-    const realpath = resolve(provisioningFile, referenceDataFile);
-    log.info('Importing reference data file', { file: realpath });
-    await referenceDataImporter({
-      errors,
-      models: store.models,
-      stats,
-      file: realpath,
-      includedDataTypes: [...GENERAL_IMPORTABLE_DATA_TYPES, ...PERMISSION_IMPORTABLE_DATA_TYPES],
-    });
+    if (referenceDataFile) {
+      const realpath = resolve(provisioningFile, referenceDataFile);
+      log.info('Importing reference data file', { file: realpath });
+      await referenceDataImporter({
+        file: realpath,
+        ...importerOptions,
+      });
+    } else if (referenceDataUrl) {
+      log.info('Downloading reference data file', { url: referenceDataUrl });
+      const file = await fetch(referenceDataUrl);
+      const data = Buffer.from(await (await file.blob()).arrayBuffer());
+      log.info('Importing reference data', { size: data.byteLength });
+      await referenceDataImporter({
+        data,
+        file: referenceDataUrl,
+        ...importerOptions,
+      });
+    }
   }
 
   if (errors.length) {
@@ -98,13 +121,13 @@ export async function provision(provisioningFile, { skipIfNotNeeded }) {
 
   for (const [key, value] of Object.entries(globalSettings)) {
     log.info('Installing global setting', { key });
-    await store.models.Setting.set(key, value);
+    await store.models.Setting.set(key, value, SETTINGS_SCOPES.GLOBAL);
   }
 
   for (const [id, { settings = {} }] of Object.entries(facilities)) {
     for (const [key, value] of Object.entries(settings)) {
       log.info('Installing facility setting', { key, facility: id });
-      await store.models.Setting.set(key, value, id);
+      await store.models.Setting.set(key, value, SETTINGS_SCOPES.FACILITY, id);
     }
   }
 
@@ -157,19 +180,31 @@ export async function provision(provisioningFile, { skipIfNotNeeded }) {
   /// ////////
   /// PROGRAMS
 
-  for (const { file: programFile, ...rest } of programs) {
-    if (!programFile) {
+  const programOptions = { errors, models: store.models, stats, checkPermission: () => true };
+
+  for (const { file: programFile = null, url: programUrl = null, ...rest } of programs) {
+    if (!programFile && !programUrl) {
       throw new Error(`Unknown program import with keys ${Object.keys(rest).join(', ')}`);
     }
 
-    const realpath = resolve(provisioningFile, programFile);
-    log.info('Importing program from file', { file: realpath });
-    await programImporter({
-      errors,
-      models: store.models,
-      stats,
-      file: realpath,
-    });
+    if (programFile) {
+      const realpath = resolve(provisioningFile, programFile);
+      log.info('Importing program file', { file: realpath });
+      await programImporter({
+        file: realpath,
+        ...programOptions,
+      });
+    } else if (programUrl) {
+      log.info('Downloading program file', { url: programUrl });
+      const file = await fetch(programUrl);
+      const data = Buffer.from(await (await file.blob()).arrayBuffer());
+      log.info('Importing program', { size: data.byteLength });
+      await programImporter({
+        data,
+        file: programUrl,
+        ...programOptions,
+      });
+    }
   }
 
   if (errors.length) {

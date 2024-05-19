@@ -94,13 +94,17 @@ export const CarePlanNoteDisplay = ({ note, isMainCarePlan, onEditClicked, onNot
                   onEditClicked();
                 },
               },
-              ...(!isMainCarePlan && {
-                label: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
-                action: async () => {
-                  await deleteNote(note.id);
-                  onNoteDeleted();
-                },
-              }),
+              ...(isMainCarePlan
+                ? []
+                : [
+                    {
+                      label: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
+                      action: async () => {
+                        await deleteNote(note.id);
+                        onNoteDeleted();
+                      },
+                    },
+                  ]),
             ]}
           />
         </VerticalCenter>

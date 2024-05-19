@@ -1,5 +1,4 @@
 import React, { useMemo } from 'react';
-import * as yup from 'yup';
 import { LAB_REQUEST_FORM_TYPES } from '@tamanu/constants/labs';
 import { uniqBy } from 'lodash';
 import styled from 'styled-components';
@@ -12,42 +11,6 @@ const StyledBodyText = styled(BodyText)`
   margin-bottom: 28px;
   white-space: pre-line;
 `;
-
-export const screen2ValidationSchema = yup.object().shape({
-  labTestTypeIds: yup
-    .array()
-    .nullable()
-    .when('requestFormType', {
-      is: val => val === LAB_REQUEST_FORM_TYPES.INDIVIDUAL,
-      then: yup
-        .array()
-        .of(yup.string())
-        .min(
-          1,
-          <TranslatedText
-            stringId="lab.testSelect.individual.testTypes.validation"
-            fallback="Please select at least one test type"
-          />,
-        ),
-    }),
-  panelIds: yup
-    .array()
-    .nullable()
-    .when('requestFormType', {
-      is: val => val === LAB_REQUEST_FORM_TYPES.PANEL,
-      then: yup
-        .array()
-        .of(yup.string())
-        .min(
-          1,
-          <TranslatedText
-            stringId="lab.testSelect.panel.testTypes.validation"
-            fallback="Please select at least one panel"
-          />,
-        ),
-    }),
-  notes: yup.string(),
-});
 
 export const FORM_TYPE_TO_FIELD_CONFIG = {
   [LAB_REQUEST_FORM_TYPES.INDIVIDUAL]: {
@@ -155,7 +118,7 @@ export const LabRequestFormScreen2 = props => {
           label={<TranslatedText stringId="general.notes.label" fallback="Notes" />}
           component={TextField}
           multiline
-          rows={3}
+          minRows={3}
         />
       </div>
     </>

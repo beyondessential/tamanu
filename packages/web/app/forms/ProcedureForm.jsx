@@ -55,7 +55,9 @@ export const ProcedureForm = React.memo(
               <div style={{ gridColumn: 'span 2' }}>
                 <Field
                   name="procedureTypeId"
-                  label="Procedure"
+                  label={
+                    <TranslatedText stringId="procedure.procedureType.label" fallback="Procedure" />
+                  }
                   required
                   component={AutocompleteField}
                   suggester={procedureSuggester}
@@ -66,8 +68,8 @@ export const ProcedureForm = React.memo(
                   name="physicianId"
                   label={
                     <TranslatedText
-                      stringId="general.localisedField.practitioner.label.short"
-                      label="Practitioner"
+                      stringId="general.localisedField.clinician.label.short"
+                      fallback="Clinician"
                     />
                   }
                   required
@@ -111,7 +113,7 @@ export const ProcedureForm = React.memo(
                 label="Anaesthetic type"
                 component={AutocompleteField}
                 suggester={anaestheticSuggester}
-                rows={4}
+                minRows={4}
                 style={{ gridColumn: 'span 2' }}
               />
               <Field
@@ -125,7 +127,7 @@ export const ProcedureForm = React.memo(
                 label="Notes or additional instructions"
                 component={TextField}
                 multiline
-                rows={4}
+                minRows={4}
                 style={{ gridColumn: 'span 2' }}
               />
               <Field name="completed" label="Completed" component={CheckField} />
@@ -135,7 +137,7 @@ export const ProcedureForm = React.memo(
                   label="Notes on completed procedure"
                   component={TextField}
                   multiline
-                  rows={4}
+                  minRows={4}
                 />
               </Collapse>
               <FormSubmitCancelRow
@@ -154,12 +156,25 @@ export const ProcedureForm = React.memo(
       }}
       formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
       validationSchema={yup.object().shape({
-        procedureTypeId: foreignKey('Procedure must be selected'),
-        locationId: foreignKey('Location must be selected'),
-        date: yup.date().required(),
-        startTime: yup.date(),
+        procedureTypeId: foreignKey().translatedLabel(
+          <TranslatedText stringId="procedure.procedureType.label" fallback="Procedure" />,
+        ),
+        locationId: foreignKey().translatedLabel(
+          <TranslatedText stringId="general.location.label" fallback="Location" />,
+        ),
+        date: yup
+          .date()
+          .required()
+          .translatedLabel(<TranslatedText stringId="general.date.label" fallback="Date" />),
+        startTime: yup
+          .date()
+          .translatedLabel(
+            <TranslatedText stringId="general.startTime.label" fallback="Start time" />,
+          ),
         endTime: yup.date(),
-        physicianId: foreignKey('Required'),
+        physicianId: foreignKey().translatedLabel(
+          <TranslatedText stringId="general.localisedField.clinician.label" fallback="Clinician" />,
+        ),
         assistantId: optionalForeignKey(),
         anaesthetistId: optionalForeignKey(),
         anaestheticId: optionalForeignKey(),

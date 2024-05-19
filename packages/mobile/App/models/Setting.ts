@@ -1,11 +1,13 @@
 import { Brackets, Column, RelationId } from 'typeorm';
 import { Entity, ManyToOne } from 'typeorm/browser';
-import { get as getAtPath, set as setAtPath } from 'lodash';
+import { get as getAtPath, merge, set as setAtPath } from 'lodash';
 
 import { BaseModel } from './BaseModel';
 import { Facility } from './Facility';
 import { SYNC_DIRECTIONS } from './types';
 import { IFacility } from '../types';
+import { SETTINGS_SCOPES } from '~/constants';
+import { readConfig } from '~/services/config';
 
 @Entity('setting')
 export class Setting extends BaseModel {
@@ -17,6 +19,9 @@ export class Setting extends BaseModel {
   @Column({ nullable: false })
   value: string;
 
+  @Column({ nullable: false })
+  scope: string;
+
   @ManyToOne(() => Facility)
   facility: IFacility;
 
@@ -27,7 +32,18 @@ export class Setting extends BaseModel {
    * IMPORTANT: Duplicated from shared-src/models/Setting.js
    * Please update both places when modify
    */
-  static async get(key = '', facilityId = null) {
+  static async get(key = '', facilityId = null, scopeOverride = null) {
+    const determineScope = () => {
+      if (scopeOverride) {
+        return scopeOverride;
+      }
+      if (facilityId) {
+        return SETTINGS_SCOPES.FACILITY;
+      }
+      return null;
+    };
+    const scope = determineScope();
+
     const settingsQueryBuilder = this.getRepository()
       .createQueryBuilder('setting')
       .where(
@@ -40,6 +56,14 @@ export class Setting extends BaseModel {
       settingsQueryBuilder.andWhere(
         new Brackets(qb => {
           qb.where('key = :key', { key }).orWhere('key LIKE :keyLike', { keyLike: `${key}.%` });
+        }),
+      );
+    }
+
+    if (scope) {
+      settingsQueryBuilder.andWhere(
+        new Brackets(qb => {
+          qb.where('scope = :scope', { scope });
         }),
       );
     }
@@ -68,6 +92,14 @@ export class Setting extends BaseModel {
     return getAtPath(settingsObject, key);
   }
 
+  static async getByKey(key = '') {
+    const facilityId = await readConfig('facilityId', '');
+    const settingWithFacilityScope = await this.get('', facilityId);
+    const settingWithGlobalScope = await this.get('');
+    const settings = merge(settingWithGlobalScope, settingWithFacilityScope);
+    return getAtPath(settings, key)
+  }
+
   static sanitizePulledRecordData(rows) {
     return rows.map(row => {
       const sanitizedRow = {
@@ -83,5 +115,9 @@ export class Setting extends BaseModel {
 
       return sanitizedRow;
     });
+  }
+
+  static getTableNameForSync(): string {
+    return 'settings';
   }
 }
