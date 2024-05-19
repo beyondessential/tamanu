@@ -3,7 +3,7 @@ name: CD Package Android
 permissions:
   contents: write # to update the release notes
   id-token: write # OIDC token for AWS
-  pull-requests: write
+  pull-requests: write # to post apk link comment
 
 on:
   workflow_call:
