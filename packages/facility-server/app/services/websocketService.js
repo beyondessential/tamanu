@@ -1,5 +1,15 @@
 import { WS_EVENTS } from '@tamanu/constants';
 import { Server } from 'socket.io';
+
+const setupDatabaseNotificationForwarding = (pg, server) => {
+  pg.on('notification', msg => {
+    if (msg.channel === 'refreshed_materialized_view') {
+      server.emit(WS_EVENTS.REFRESHED_MATERIALIZED_VIEW, msg.payload);
+    }
+  });
+  pg.query('LISTEN refreshed_materialized_view');
+};
+
 /**
  *
  * @param {{httpServer: import('http').Server}} injector
@@ -16,12 +26,7 @@ export const defineWebsocketService = injector => {
 
   const getServer = () => server;
 
-  injector.pg.on('notification', msg => {
-    // check if message is for refreshed materialized view
-    if (msg.channel === 'refreshed_materialized_view') {
-      server.emit(WS_EVENTS.REFRESHED_MATERIALIZED_VIEW, msg.payload);
-    }
-  });
+  setupDatabaseNotificationForwarding(injector.pg, server);
 
   /**
    *
