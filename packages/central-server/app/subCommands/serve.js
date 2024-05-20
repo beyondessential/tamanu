@@ -27,7 +27,7 @@ export const serve = async ({ skipMigrationCheck, provisioning }) => {
 
   await store.sequelize.assertUpToDate({ skipMigrationCheck });
 
-  const app = await createApp(context);
+  const { server } = await createApp(context);
 
   await performTimeZoneChecks({
     sequelize: store.sequelize,
@@ -48,7 +48,7 @@ export const serve = async ({ skipMigrationCheck, provisioning }) => {
     );
   }
 
-  const server = app.listen(port, () => {
+  server.listen(port, () => {
     log.info(`Server is running on port ${port}!`);
   });
 

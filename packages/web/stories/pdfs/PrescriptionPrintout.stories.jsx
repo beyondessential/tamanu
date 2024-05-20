@@ -210,7 +210,6 @@ const prescriptions = [
   },
 ];
 
-
 const facility = {
   id: 'facility-1',
   code: 'facility-1',

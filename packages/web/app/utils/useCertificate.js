@@ -1,12 +1,14 @@
 import { useSelector } from 'react-redux';
-import { ASSET_NAMES } from '@tamanu/constants';
+import { ASSET_NAMES, SETTING_KEYS } from '@tamanu/constants';
 import { useLocalisation } from '../contexts/Localisation';
 import { useAsset } from '../api/queries/useAsset';
-import { useTemplate } from './useTemplate';
 import { getCurrentUser } from '../store';
+import { useSettings } from '../contexts/Settings';
 
 export const useCertificate = ({ footerAssetName } = {}) => {
   const { getLocalisation } = useLocalisation();
+  const { getSetting } = useSettings();
+
   const { data: logo, isFetching: isLogoFetching } = useAsset(ASSET_NAMES.LETTERHEAD_LOGO);
   const { data: watermark, isFetching: isWatermarkFetching } = useAsset(
     ASSET_NAMES.VACCINE_CERTIFICATE_WATERMARK,
@@ -17,18 +19,12 @@ export const useCertificate = ({ footerAssetName } = {}) => {
   const { data: deathCertFooterImg, isFetching: isDeathCertFooterImgFetching } = useAsset(
     ASSET_NAMES.DEATH_CERTIFICATE_BOTTOM_HALF_IMG,
   );
-  const { data: letterhead, isFetching: isLetterheadFetching } = useTemplate(
-    'templates.letterhead',
-  );
-  const title = letterhead?.data?.title || getLocalisation('templates.letterhead.title');
-  const subTitle = letterhead?.data?.subTitle || getLocalisation('templates.letterhead.subTitle');
+  const letterhead = getSetting(SETTING_KEYS.TEMPLATES_LETTERHEAD);
+  const title = letterhead?.title || getLocalisation('templates.letterhead.title');
+  const subTitle = letterhead?.subTitle || getLocalisation('templates.letterhead.subTitle');
 
   const isFetching =
-    isLogoFetching ||
-    isWatermarkFetching ||
-    isFooterImgFetching ||
-    isLetterheadFetching ||
-    isDeathCertFooterImgFetching;
+    isLogoFetching || isWatermarkFetching || isFooterImgFetching || isDeathCertFooterImgFetching;
 
   const currentUser = useSelector(getCurrentUser);
 

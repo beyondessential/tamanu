@@ -306,3 +306,12 @@ export const IPS_REQUEST_STATUSES = {
   ERROR: 'Error',
   IGNORE: 'Ignore',
 };
+
+export const HTTP_BODY_DATA_PATHS = {
+  DIAGNOSTIC_REPORT_ATTACHMENT: '$.presentedForm[*].data',
+};
+
+export const SCRUBBED_DATA_MESSAGE = 'Raw data removed from logs';
+export const SUPPORTED_CONTENT_TYPES = {
+  PDF: 'application/pdf',
+};
