@@ -17,7 +17,7 @@ import { MATERIALIZED_VIEW_REFRESH_CONFIG } from '@tamanu/constants';
 export const useMaterializedViewRefreshStatsQuery = viewName => {
   const refreshConfig = MATERIALIZED_VIEW_REFRESH_CONFIG[viewName];
   if (!refreshConfig) throw new Error(`Unknown view name: ${viewName}`);
-  const { statsEndpoint, refreshEvent } = refreshConfig;
+  const { refreshEvent } = refreshConfig;
   const api = useApi();
   const { socket } = useSocket();
   const { storedLanguage } = useTranslation();
@@ -26,7 +26,7 @@ export const useMaterializedViewRefreshStatsQuery = viewName => {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   const queryResult = useQuery(['materialisedViewRefreshStats', viewName], () =>
-    api.get(statsEndpoint, { language: storedLanguage }),
+    api.get(`materializedView/refreshStats/${viewName}`, { language: storedLanguage }),
   );
   const { data: refreshStats } = queryResult;
 

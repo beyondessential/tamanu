@@ -51,6 +51,7 @@ import { translation } from './translation';
 import { vaccinationSettings } from './vaccinationSettings';
 import { upcomingVaccinations } from './upcomingVaccinations';
 import { telegramRoutes } from './telegram/telegramRoutes';
+import { materializedView } from './materializedView';
 
 export const apiv1 = express.Router();
 const patientDataRoutes = express.Router();
@@ -114,6 +115,7 @@ apiv1.use(patientDataRoutes); // see below for specifics
 apiv1.use(referenceDataRoutes); // see below for specifics
 apiv1.use(syncRoutes); // see below for specifics
 apiv1.use('/telegram', telegramRoutes);
+apiv1.use('/materializedView', materializedView);
 
 // patient data endpoints
 patientDataRoutes.use('/allergy', allergy);
