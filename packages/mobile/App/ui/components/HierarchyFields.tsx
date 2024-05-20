@@ -14,7 +14,7 @@ interface LocationHierarchyField {
 }
 
 const useAddressHierarchy = (fields: LocationHierarchyField[], leafNodeType: ReferenceDataType) => {
-  const [heirarchy, error, loading] = useBackendEffect(async ({ models }) => {
+  const [hierarchy, error, loading] = useBackendEffect(async ({ models }) => {
     // choose any single entity from the leaf node level of the hierarchy
     // then get its ancestors - that will serve as an example that gives us
     // the types used at each level of this hierarchy
@@ -26,9 +26,9 @@ const useAddressHierarchy = (fields: LocationHierarchyField[], leafNodeType: Ref
   });
 
   const configuredFieldTypes =
-    error || loading || !heirarchy
+    error || loading || !hierarchy
       ? [leafNodeType] // If there is an error, or nothing is configured just display the bottom level field
-      : heirarchy.map(entity => entity.type).reverse();
+      : hierarchy.map(entity => entity.type);
   return fields.filter(f => configuredFieldTypes.includes(f.referenceType));
 };
 
