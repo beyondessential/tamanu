@@ -31,7 +31,7 @@ export const LanguageSelectButton = ({ navigation }: LanguageSelectButtonProps):
     languageOptions.find(({ value }) => value === language)?.label;
 
   if (!languageOptions || languageOptions.length <= 1) {
-    return null
+    return null;
   }
 
   return (

@@ -34,7 +34,9 @@ export const defineTelegramBotService = async injector => {
    */
   const setWebhook = async hook => {
     try {
-      await bot.setWebHook(hook.url, { secret_token: hook.secret });
+      await bot
+        .setWebHook(hook.url, { secret_token: hook.secret })
+        .then(result => log.info('set telegram webhook successfully', { result }));
     } catch (e) {
       log.error('set telegram webhook failed', { url: hook.url, error: e.message });
     }
