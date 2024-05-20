@@ -69,7 +69,7 @@ const COLUMNS = [
 
 export const ImmunisationsView = () => {
   const dispatch = useDispatch();
-  const { data: refreshStats, isFetching, refreshTrigger } = useMaterializedViewRefreshStatsQuery(
+  const { data: refreshStats, refreshTrigger, error } = useMaterializedViewRefreshStatsQuery(
     MATERIALIZED_VIEWS.UPCOMING_VACCINATIONS,
   );
   const [searchParameters, setSearchParameters] = useState({});
@@ -91,7 +91,7 @@ export const ImmunisationsView = () => {
             stringId="immunisation.register.search.title"
             fallback="Patient immunisation search"
           />
-          <RefreshStatsDisplay stats={refreshStats} isFetching={isFetching} />
+          <RefreshStatsDisplay stats={refreshStats} error={error} />
         </StyledSearchTableTitle>
         <ImmunisationSearchBar onSearch={setSearchParameters} />
         <SearchTable

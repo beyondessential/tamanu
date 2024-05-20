@@ -3,9 +3,14 @@ import React from 'react';
 import { BodyText } from '../Typography';
 import { TranslatedText } from '../Translation';
 import styled from 'styled-components';
+import { Colors } from '../../constants';
 
 const SmallText = styled(BodyText)`
-  font-size: 12px;
+  font-size: 10px;
+`;
+
+const SoftText = styled(SmallText)`
+  color: ${Colors.softText};
 `;
 
 const ErrorText = styled(SmallText)`
@@ -42,13 +47,13 @@ export const RefreshStatsDisplay = ({ stats, error }) => {
               replacements={{ lastUpdated }}
             />
           </SmallText>
-          <SmallText color="#B8B8B8">
+          <SoftText>
             <TranslatedText
               stringId="table.refreshSchedule.schedule"
               fallback="Updated :schedule"
               replacements={{ schedule: schedule.toLowerCase() }}
             />
-          </SmallText>
+          </SoftText>
         </>
       )}
     </Box>

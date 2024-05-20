@@ -25,10 +25,10 @@ export const useMaterializedViewRefreshStatsQuery = viewName => {
   const [lastUpdated, setLastUpdated] = useState();
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-  const { data: refreshStats, isFetching } = useQuery(
-    ['materialisedViewRefreshStats', viewName],
-    () => api.get(statsEndpoint, { language: storedLanguage }),
+  const queryResult = useQuery(['materialisedViewRefreshStats', viewName], () =>
+    api.get(statsEndpoint, { language: storedLanguage }),
   );
+  const { data: refreshStats } = queryResult;
 
   const dateAsDistanceToNow = date => formatDistanceToNow(parseISO(date), { addSuffix: 'ago' });
 
@@ -58,11 +58,11 @@ export const useMaterializedViewRefreshStatsQuery = viewName => {
   }, [socket, handleFreshData, refreshEvent]);
 
   return {
+    ...queryResult,
     data: refreshStats && {
       schedule: refreshStats.schedule,
       lastUpdated: lastUpdated || dateAsDistanceToNow(refreshStats.lastRefreshed),
     },
-    isFetching,
     refreshTrigger,
   };
 };
