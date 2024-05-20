@@ -11,13 +11,15 @@ const seedForScope = async (models, settings, serverFacilityIds, scopeOverride) 
     return serverFacilityIds ? SETTINGS_SCOPES.FACILITY : SETTINGS_SCOPES.GLOBAL;
   };
   const scope = getScope();
-  return Promise.all(
-    serverFacilityIds.map(async facilityId => {
-      const existing = await Setting.get('', facilityId, scope);
-      const combined = defaultsDeep(existing, settings);
-      return Setting.set('', combined, scope, facilityId);
-    }),
-  );
+  const combineSettings = async facilityId => {
+    const existing = await Setting.get('', facilityId, scope);
+    const combined = defaultsDeep(existing, settings);
+    return Setting.set('', combined, scope, facilityId);
+  };
+  if (serverFacilityIds) {
+    return Promise.all(serverFacilityIds.map(combineSettings));
+  }
+  return combineSettings();
 };
 
 export async function seedSettings(models) {
