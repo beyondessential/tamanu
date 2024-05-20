@@ -17,13 +17,21 @@
     }
   },
   "log": {
-    "consoleLevel": null,
+    "consoleLevel": 'info',
     "enableAuditLog": true
   },
   "survey": {
     "defaultCodes": {
       "department": "Emergency",
       "location": "Bed 1"
+    }
+  },
+  "schedules": {
+    "refreshMaterializedView": {
+      "upcomingVaccinations": {
+        // every 50 mins
+        "schedule": "*/50 * * * *"
+      }
     }
   },
   "serverFacilityId": "balwyn",
