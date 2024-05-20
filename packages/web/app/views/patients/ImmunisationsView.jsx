@@ -51,17 +51,13 @@ const useRefreshStatQuery = () => {
   const formatAsDistanceToNow = date => formatDistanceToNow(parseISO(date), { addSuffix: 'ago' });
 
   const handleRefresh = useCallback(() => {
-    queryClient.invalidateQueries(['upcomingVaccinations/refreshStats']);
-    setRefreshTrigger(count => count + 1);
     setLastUpdated(null);
+    setRefreshTrigger(count => count + 1);
+    queryClient.invalidateQueries(['upcomingVaccinations/refreshStats']);
   }, [queryClient]);
 
-  const { data: refreshStats, isFetching } = useQuery(
-    ['upcomingVaccinations/refreshStats'],
-    () => api.get('upcomingVaccinations/refreshStats', { language: storedLanguage }),
-    {
-      refetchOnWindowFocus: true,
-    },
+  const { data: refreshStats, isFetching } = useQuery(['upcomingVaccinations/refreshStats'], () =>
+    api.get('upcomingVaccinations/refreshStats', { language: storedLanguage }),
   );
 
   // Update the distance from now text every minute
@@ -82,6 +78,8 @@ const useRefreshStatQuery = () => {
       socket.off('upcomingVaccinationsRefreshed', handleRefresh);
     };
   }, [socket, handleRefresh]);
+
+  console.log(refreshTrigger);
 
   return {
     data: refreshStats && {
