@@ -22,8 +22,6 @@ import { PatientAdditionalData } from '~/models/PatientAdditionalData';
 import { usePatientAdditionalData } from '~/ui/hooks/usePatientAdditionalData';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { getInitialAdditionalValues } from '../../PatientAdditionalDataForm/helpers';
-import { ReferenceDataType } from '~/types';
-import { TranslatedText } from '/components/Translations/TranslatedText';
 
 export type FormSection = {
   scrollToField: (fieldName: string) => () => void;
