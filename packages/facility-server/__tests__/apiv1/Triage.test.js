@@ -190,7 +190,6 @@ describe('Triage', () => {
     expect(progressResponse2).toHaveSucceeded();
     const updatedTriage2 = await models.Triage.findByPk(createdTriage.id);
     expect(updatedTriage2.closedTime).toEqual(DATE_1);
-    
   });
 
   it('should set the encounter reason to the text of the chief complaints', async () => {
@@ -229,32 +228,46 @@ describe('Triage', () => {
 
   it("should use Emergency department for encounter's department", async () => {
     const encounterPatient = await models.Patient.create(await createDummyPatient(models));
-    const createdTriage = await models.Triage.create(
-      await createDummyTriage(models, {
-        patientId: encounterPatient.id,
-        chiefComplaintId: await randomReferenceId(models, 'triageReason'),
-        secondaryComplaintId: await randomReferenceId(models, 'triageReason'),
-      }),
-    );
+    const triageBody = await createDummyTriage(models, {
+      patientId: encounterPatient.id,
+      chiefComplaintId: await randomReferenceId(models, 'triageReason'),
+      secondaryComplaintId: await randomReferenceId(models, 'triageReason'),
+    });
+    const createdTriage = await app
+      .post('/api/triage')
+      .send({ ...triageBody, facilityId: facility.id });
     const createdEncounter = await models.Encounter.findByPk(createdTriage.encounterId);
     expect(createdEncounter.departmentId).toEqual(emergencyDepartment.id);
   });
 
-  it('should throw error when there is no Emergency department for the current facility', async () => {
+  it('should throw an error when there is no Emergency department for the current facility', async () => {
     const testFacility = await models.Facility.create({
       ...fake(models.Facility, { id: 'testFacility' }),
     });
     await emergencyDepartment.update({ facilityId: testFacility.id });
     const encounterPatient = await models.Patient.create(await createDummyPatient(models));
+    const triageBody = await createDummyTriage(models, {
+      patientId: encounterPatient.id,
+      chiefComplaintId: await randomReferenceId(models, 'triageReason'),
+      secondaryComplaintId: await randomReferenceId(models, 'triageReason'),
+    });
     await expect(
-      models.Triage.create(
-        await createDummyTriage(models, {
-          patientId: encounterPatient.id,
-          chiefComplaintId: await randomReferenceId(models, 'triageReason'),
-          secondaryComplaintId: await randomReferenceId(models, 'triageReason'),
-        }),
-      ),
+      await app.post('/api/triage').send({ ...triageBody, facilityId: facility.id }),
     ).rejects.toThrow('Cannot find Emergency department for current facility');
+
+    await emergencyDepartment.update({ facilityId: config.serverFacilityId });
+  });
+
+  it('should throw an error when neither departmentId nor facilityId is provided', async () => {
+    const encounterPatient = await models.Patient.create(await createDummyPatient(models));
+    const triageBody = await createDummyTriage(models, {
+      patientId: encounterPatient.id,
+      chiefComplaintId: await randomReferenceId(models, 'triageReason'),
+      secondaryComplaintId: await randomReferenceId(models, 'triageReason'),
+    });
+    await expect(await app.post('/api/triage').send(triageBody)).rejects.toThrow(
+      'Providing facilityId is required to find the emergency department',
+    );
 
     await emergencyDepartment.update({ facilityId: config.serverFacilityId });
   });
