@@ -142,7 +142,7 @@ export const ImmunisationsView = () => {
         title={
           <TranslatedText stringId="immunisation.register.title" fallback="Immunisation register" />
         }
-      ></TopBar>
+      />
       <ContentPane>
         <StyledSearchTableTitle>
           <TranslatedText
