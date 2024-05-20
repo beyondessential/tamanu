@@ -9,9 +9,9 @@ import { SERVER_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { BadAuthenticationError } from '@tamanu/shared/errors';
 import { log } from '@tamanu/shared/services/logging';
 import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermissions';
+import { selectFacilityIds } from '@tamanu/shared/utils';
 
 import { CentralServerConnection } from '../sync';
-import { selectFacilityIds } from '../utils/configUtils';
 
 const { tokenDuration, secret } = config.auth;
 
