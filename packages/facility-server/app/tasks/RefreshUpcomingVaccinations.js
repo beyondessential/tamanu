@@ -1,9 +1,12 @@
 import config from 'config';
 
 import { ScheduledTask } from '@tamanu/shared/tasks';
-import { UPCOMING_VACCINATIONS_REFRESHED_AT_KEY } from '@tamanu/constants';
+import {
+  UPCOMING_VACCINATIONS_REFRESHED_AT_KEY,
+  UPCOMING_VACCINATIONS_NEXT_REFRESH_AT_KEY,
+} from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
-import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 export class RefreshUpcomingVaccinations extends ScheduledTask {
   getName() {
@@ -25,6 +28,10 @@ export class RefreshUpcomingVaccinations extends ScheduledTask {
     await this.models.LocalSystemFact.set(
       UPCOMING_VACCINATIONS_REFRESHED_AT_KEY,
       getCurrentDateTimeString(),
+    );
+    await this.models.LocalSystemFact.set(
+      UPCOMING_VACCINATIONS_NEXT_REFRESH_AT_KEY,
+      toDateTimeString(this.job.nextInvocation()._date.ts),
     );
   }
 }

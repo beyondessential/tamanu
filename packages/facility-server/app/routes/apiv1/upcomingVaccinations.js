@@ -40,12 +40,13 @@ upcomingVaccinations.get(
     req.checkPermission('read', 'PatientVaccine');
     const { language } = req.query;
     const { TranslatedString } = req.models;
+    const taskConfig = config.schedules.refreshUpcomingVaccinations;
     const lastRefreshed = await req.models.LocalSystemFact.get(
       UPCOMING_VACCINATIONS_REFRESHED_AT_KEY,
     );
     const translationFunc = await TranslatedString.getTranslationFunction(language);
     cronstrue.locales['custom'] = new TranslatedCronParser(translationFunc);
-    const schedule = cronstrue.toString(config.schedules.refreshUpcomingVaccinations.schedule, {
+    const schedule = cronstrue.toString(taskConfig.schedule, {
       locale: 'custom',
     });
     return res.send({

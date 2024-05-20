@@ -52,7 +52,7 @@ const useRefreshStatsQuery = () => {
 
   return {
     data: refreshStats && {
-      ...refreshStats,
+      schedule: refreshStats.schedule,
       lastUpdated: lastUpdated || getFromNowText(refreshStats.lastRefreshed),
     },
     isFetching,

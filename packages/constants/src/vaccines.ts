@@ -141,3 +141,4 @@ export const VACCINE_RECORDING_TYPES = {
 };
 
 export const UPCOMING_VACCINATIONS_REFRESHED_AT_KEY = 'upcomingVaccinationsRefreshedAt';
+export const UPCOMING_VACCINATIONS_NEXT_REFRESH_AT_KEY = 'upcomingVaccinationsNextRefreshAt';
