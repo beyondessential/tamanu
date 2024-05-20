@@ -56,8 +56,12 @@ const useRefreshStatQuery = () => {
     setLastUpdated(null);
   }, [queryClient]);
 
-  const { data: refreshStats, isFetching } = useQuery(['upcomingVaccinations/refreshStats'], () =>
-    api.get('upcomingVaccinations/refreshStats', { language: storedLanguage }),
+  const { data: refreshStats, isFetching } = useQuery(
+    ['upcomingVaccinations/refreshStats'],
+    () => api.get('upcomingVaccinations/refreshStats', { language: storedLanguage }),
+    {
+      refetchOnWindowFocus: true,
+    },
   );
 
   // Update the distance from now text every minute
