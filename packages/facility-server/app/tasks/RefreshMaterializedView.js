@@ -6,8 +6,8 @@ import { log } from '@tamanu/shared/services/logging';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { pascal, snake } from 'case';
 
-const RefreshMaterializedTableTask = viewName =>
-  class RefreshMaterializedTable extends ScheduledTask {
+const RefreshMaterializedViewTask = viewName =>
+  class RefreshMaterializedView extends ScheduledTask {
     viewName = viewName;
 
     getName() {
@@ -34,6 +34,6 @@ const RefreshMaterializedTableTask = viewName =>
     }
   };
 
-export const RefreshUpcomingVaccinations = RefreshMaterializedTableTask(
+export const RefreshUpcomingVaccinations = RefreshMaterializedViewTask(
   MATERIALIZED_VIEWS.UPCOMING_VACCINATIONS,
 );
