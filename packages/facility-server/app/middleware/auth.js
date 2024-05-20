@@ -254,12 +254,14 @@ export const authMiddleware = async (req, res, next) => {
         order: [['createdAt', 'DESC']],
       });
 
-    const spanAttributes = req.user
-      ? {
-          'enduser.id': req.user.id,
-          'enduser.role': req.user.role,
-        }
-      : {};
+    const spanAttributes = {};
+    if (req.user) {
+      spanAttributes['enduser.id'] = req.user.id;
+      spanAttributes['enduser.role'] = req.user.role;
+    }
+    if (req.facilityId) {
+      spanAttributes['session.facilityId'] = req.facilityId;
+    }
 
     // eslint-disable-next-line no-unused-expressions
     trace.getActiveSpan()?.setAttributes(spanAttributes);
