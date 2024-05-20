@@ -465,7 +465,19 @@ createNameSuggester('programRegistry', 'ProgramRegistry', (search, query) => {
 // TODO: Use generic LabTest permissions for this suggester
 createNameSuggester('labTestPanel', 'LabTestPanel');
 
-createNameSuggester('patientLetterTemplate', 'PatientLetterTemplate');
+createNameSuggester('template', 'Template', (search, query) => {
+  const baseWhere = DEFAULT_WHERE_BUILDER(search);
+  const { type } = query;
+
+  if (!type) {
+    return baseWhere;
+  }
+
+  return {
+    ...baseWhere,
+    type,
+  };
+});
 
 const routerEndpoints = suggestions.stack.map(layer => {
   const path = layer.route.path.replace('/', '').replaceAll('$', '');
