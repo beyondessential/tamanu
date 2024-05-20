@@ -29,7 +29,7 @@ const PriceCell = styled.div`
 `;
 
 const PriceText = styled.span`
-text-decoration: ${props => props.isCrossedOut ? 'line-through' : 'none'};
+  text-decoration: ${props => props.isCrossedOut ? 'line-through' : 'none'};
 `;
 
 const getPrice = (row) => {

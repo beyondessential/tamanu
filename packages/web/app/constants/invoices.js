@@ -1,4 +1,5 @@
 import { INVOICE_PAYMENT_STATUSES, INVOICE_STATUSES } from '@tamanu/constants';
+import { Colors } from './styles';
 
 export const INVOICE_STATUS_LABELS = {
   [INVOICE_STATUSES.CANCELLED]: 'Cancelled',
@@ -22,9 +23,15 @@ export const INVOICE_STATUS_OPTIONS = [
 ];
 
 export const INVOICE_STATUS_COLORS = {
-  [INVOICE_STATUSES.CANCELLED]: '#FFCC24',
-  [INVOICE_STATUSES.IN_PROGRESS]: '#F76853',
-  [INVOICE_STATUSES.FINALISED]: '#47CA80',
+  [INVOICE_STATUSES.CANCELLED]: Colors.darkestText,
+  [INVOICE_STATUSES.IN_PROGRESS]: Colors.orange,
+  [INVOICE_STATUSES.FINALISED]: Colors.green,
+};
+
+export const INVOICE_STATUS_LABEL_COLORS = { 
+  [INVOICE_STATUSES.CANCELLED]: `${Colors.darkestText}1A`,
+  [INVOICE_STATUSES.IN_PROGRESS]: `${Colors.orange}1A`,
+  [INVOICE_STATUSES.FINALISED]: `${Colors.green}1A`,
 };
 
 export const INVOICE_PAYMENT_STATUS_LABELS = {
@@ -42,3 +49,10 @@ export const INVOICE_PAYMENT_STATUS_OPTIONS = [
     label: INVOICE_PAYMENT_STATUS_LABELS[INVOICE_PAYMENT_STATUSES.PAID],
   },
 ];
+
+export const INVOICE_ACTION_MODALS = {
+  ADD_DISCOUNT: 'addDiscount',
+  ADD_MARKUP: 'addMarkup',
+  DELETE: 'delete',
+  CANCEL_INVOICE: 'cancelInvoice',
+};

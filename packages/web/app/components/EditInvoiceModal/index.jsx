@@ -16,6 +16,7 @@ import { Button } from '../Button';
 import { ItemHeader, ItemRow } from './ItemRow';
 import { useEncounter } from '../../contexts/Encounter';
 import { getInvoiceLineCode } from '../../utils/invoiceDetails';
+import { StatusDisplay } from '../../utils/invoiceStatus';
 
 const LinkText = styled.div`
   font-weight: 500;
@@ -93,7 +94,12 @@ const StyledDivider = styled(Divider)`
   margin: 26px -40px 32px -40px;
 `;
 
-export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounterId }) => {
+const StatusContainer = styled.span`
+  margin-left: 20px;
+  font-weight: 400;
+`;
+
+export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounterId, invoiceStatus }) => {
   const [rowList, setRowList] = useState([{ id: uuidv4() }]);
   const [potentialLineItems, setPotentialLineItems] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
@@ -259,11 +265,17 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
     <Modal
       width="lg"
       title={
-        <TranslatedText
-          stringId="invoice.modal.view.title"
-          fallback="Invoice number: :invoiceNumber"
-          replacements={{ invoiceNumber: displayId }}
-        />
+        <>
+          <TranslatedText
+            stringId="invoice.modal.view.title"
+            fallback="Invoice number: :invoiceNumber"
+            replacements={{ invoiceNumber: displayId }}
+          />
+          <StatusContainer>
+            <StatusDisplay status={invoiceStatus} />
+          </StatusContainer>
+
+        </>
       }
       open={open}
       onClose={onClose}
