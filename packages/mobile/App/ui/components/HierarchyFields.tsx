@@ -5,6 +5,7 @@ import { get } from 'lodash';
 import { StyledView } from '/styled/common';
 import { useBackendEffect } from '~/ui/hooks';
 import { ReferenceDataType, ReferenceDataRelationType } from '~/types';
+import { theme } from '../styled/theme';
 
 interface LocationHierarchyField {
   name: string;
@@ -21,7 +22,7 @@ const useAddressHierarchy = (fields: LocationHierarchyField[], leafNodeType: Ref
       type: leafNodeType,
     });
     const ancestors = await entity?.getAncestors();
-    return [...ancestors, entity]
+    return [...ancestors, entity];
   });
 
   const configuredFieldTypes =
@@ -46,7 +47,15 @@ export const HierarchyFields = ({
   const hierarchyFields = useAddressHierarchy(fields, leafNodeType);
 
   return (
-    <StyledView>
+    <StyledView
+      borderRadius={3}
+      borderColor={theme.colors.BOX_OUTLINE}
+      borderWidth={1}
+      paddingLeft={10}
+      paddingRight={10}
+      paddingTop={8}
+      marginBottom={10}
+    >
       {hierarchyFields.map(({ label, name, referenceType }, index) => {
         const parentFieldData = hierarchyFields[index - 1];
         const parentId = get(values, parentFieldData?.name);
