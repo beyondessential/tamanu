@@ -233,7 +233,7 @@ export class Patient extends BaseModel implements IPatient {
         ON pde.id = answer.dataElementId
       INNER JOIN encounter
         ON encounter.id = response.encounterId
-        AND encounter.patientId = $1
+      WHERE encounter.patientId = $1
         AND body IS NOT NULL
       ORDER BY answer.createdAt desc LIMIT $2
     `, [patientId, 500]);
