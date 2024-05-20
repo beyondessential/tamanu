@@ -21,6 +21,7 @@ import { PatientDetailsCard } from '../components/PatientDetailsCard';
 import { ModalGenericButtonRow } from '../components/ModalActionRow';
 import { FORM_TYPES } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
+import { TEMPLATE_TYPES } from '@tamanu/constants';
 
 const TallMultilineTextField = props => (
   <MultilineTextField style={{ minHeight: '156px' }} {...props} />
@@ -41,7 +42,9 @@ const StyledFormGrid = styled(FormGrid)`
 const PatientLetterFormContents = ({ submitForm, onCancel, setValues }) => {
   const api = useApi();
   const practitionerSuggester = useSuggester('practitioner');
-  const patientLetterTemplateSuggester = useSuggester('patientLetterTemplate');
+  const patientLetterTemplateSuggester = useSuggester('template', {
+    baseQueryParameters: { type: TEMPLATE_TYPES.PATIENT_LETTER },
+  });
 
   const [templateLoading, setTemplateLoading] = useState(false);
 
