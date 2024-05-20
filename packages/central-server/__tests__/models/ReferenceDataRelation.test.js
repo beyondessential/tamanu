@@ -102,7 +102,11 @@ describe('Reference Data Hierarchy', () => {
     const entity = await models.ReferenceData.findByPk('village4');
     const ancestors = await entity.getAncestors(REFERENCE_DATA_RELATION_TYPES.ADDRESS_HIERARCHY);
     expect(ancestors.length).toEqual(3);
-    expect(ancestors.map(ancestor => ancestor.id)).toEqual(['subdivision2', 'division1', 'country1'])
+    expect(ancestors.map(ancestor => ancestor.id)).toEqual([
+      'subdivision2',
+      'division1',
+      'country1',
+    ]);
   });
 
   it('should filter ancestors by relation type', async () => {

@@ -29,24 +29,8 @@ referenceData.get(
     // in the hierarchy is fully connected to the next layer across all nodes. There for the list of ancestor
     // types is the total list of types in the hierarchy.
     const ancestors = await entity.getAncestors(relationType);
-    const hierarchy = ancestors.map(entity => entity.type).reverse();
+    const hierarchy = [...ancestors, entity.get({ plain: true })].map(e => e.type).reverse();
     res.send(hierarchy);
-  }),
-);
-
-referenceData.get(
-  '/:id/ancestors',
-  asyncHandler(async (req, res) => {
-    req.flagPermissionChecked();
-    const {
-      models: { ReferenceData },
-      params: { id },
-      query: { relationType = DEFAULT_HIERARCHY_TYPE },
-    } = req;
-
-    const entity = await ReferenceData.findByPk(id);
-    const ancestors = await entity.getAncestors(relationType);
-    res.send(ancestors);
   }),
 );
 
