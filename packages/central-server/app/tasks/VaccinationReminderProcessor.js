@@ -50,7 +50,7 @@ export class VaccinationReminderProcessor extends ScheduledTask {
         'dueDate', uv.due_date
       ) vars
       FROM upcoming_vaccinations uv
-      join patient_contacts pc on pc.patient_id = uv.patient_id and pc.method = $communicationChannel
+      join patient_contacts pc on pc.patient_id = uv.patient_id and pc.method = :communicationChannel and pc.connection_details->>'chatId' is not null
       join scheduled_vaccines sv on sv.id = uv.scheduled_vaccine_id
       join reference_data rd on rd.id = sv.vaccine_id and rd."type" = 'drug'
       join patients p on p.id = uv.patient_id
@@ -65,15 +65,15 @@ export class VaccinationReminderProcessor extends ScheduledTask {
       r.patient_id,
       r.destination,
       r.hash,
-      $communicationStatus::enum_patient_communications_status status,
-      $communicationType type,
-      string_translate($language, $subjectStringId, $subjectFallback, vars) subject,
-      string_translate($language, $contentStringId, $contentFallback, vars) content
+      :communicationStatus::enum_patient_communications_status status,
+      :communicationType type,
+      string_translate(:language, :subjectStringId, :subjectFallback, vars) subject,
+      string_translate(:language, :contentStringId, :contentFallback, vars) content
       from reminders r
     where r.hash not in (select hash from patient_communications where hash is not null)
     `,
       {
-        bind: {
+        replacements: {
           communicationChannel: PATIENT_COMMUNICATION_CHANNELS.TELEGRAM,
           communicationStatus: COMMUNICATION_STATUSES.QUEUED,
           communicationType: PATIENT_COMMUNICATION_TYPES.VACCINATION_REMINDER,
@@ -85,6 +85,6 @@ export class VaccinationReminderProcessor extends ScheduledTask {
         },
         type: QueryTypes.INSERT,
       },
-    ).catch(e => console.log(e));
+    ).catch(e => log.error(e));
   }
 }
