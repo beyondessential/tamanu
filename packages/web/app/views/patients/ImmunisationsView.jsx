@@ -20,10 +20,10 @@ import { reloadPatient } from '../../store/index.js';
 import { useDispatch } from 'react-redux';
 import { RefreshStatsDisplay } from '../../components/Table/RefreshStatsDisplay.jsx';
 import { useApi } from '../../api/useApi.js';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from '../../contexts/Translation.jsx';
 import styled from 'styled-components';
-import { formatDistanceToNow, parseISO } from 'date-fns';
+import { formatDistanceToNow, isPast, parseISO } from 'date-fns';
 
 const StyledSearchTableTitle = styled(SearchTableTitle)`
   display: flex;
@@ -32,6 +32,7 @@ const StyledSearchTableTitle = styled(SearchTableTitle)`
 `;
 
 const useRefreshStatsQuery = () => {
+  const queryClient = useQueryClient();
   const [lastUpdated, setLastUpdated] = useState();
   const { storedLanguage } = useTranslation();
   const api = useApi();
@@ -45,10 +46,14 @@ const useRefreshStatsQuery = () => {
   useEffect(() => {
     if (!refreshStats) return;
     const interval = setInterval(() => {
-      setLastUpdated(getFromNowText(refreshStats.lastRefreshed));
+      const { lastRefreshed, nextRefresh } = refreshStats;
+      if (isPast(parseISO(nextRefresh))) {
+        queryClient.invalidateQueries(['upcomingVaccinations/refreshStats']);
+      }
+      setLastUpdated(getFromNowText(lastRefreshed));
     }, 1000 * 60);
     return () => clearInterval(interval);
-  }, [refreshStats]);
+  }, [refreshStats, queryClient]);
 
   return {
     data: refreshStats && {
