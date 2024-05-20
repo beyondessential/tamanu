@@ -44,7 +44,7 @@ export class ReferenceData extends BaseModel implements IReferenceData {
   // ----------------------------------
   // Reference data hierarchy utilities
   // ----------------------------------
-  static async getParentRecursive(id: string, ancestors: ReferenceData[], relationType: string) {
+  static async getParentRecursive(id: string, ancestors: ReferenceData[], relationType: ReferenceDataRelationType) {
     const parent = await ReferenceData.getNode({ id }, relationType);
     const parentId = parent?.getParentId();
     if (!parentId) {
@@ -99,7 +99,7 @@ export class ReferenceData extends BaseModel implements IReferenceData {
     if (!parentId) {
       return [];
     }
-    return ReferenceData.getParentRecursive(parentId, [leafNode], relationType);
+    return ReferenceData.getParentRecursive(parentId, [], relationType);
   }
   static async searchDataByType(
     referenceDataType: ReferenceDataType,

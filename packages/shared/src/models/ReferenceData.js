@@ -124,14 +124,13 @@ export class ReferenceData extends Model {
 
   async getAncestors(relationType) {
     const { ReferenceData } = this.sequelize.models;
-    const baseNode = this.get({ plain: true });
     const parentNode = await ReferenceData.getParent(this.id, relationType);
 
     if (!parentNode) {
       return [];
     }
-    // Include the baseNode for convenience
-    return ReferenceData.#getParentRecursive(parentNode.id, [baseNode, parentNode], relationType);
+
+    return ReferenceData.#getParentRecursive(parentNode.id, [parentNode], relationType);
   }
 
   static buildSyncFilter() {
