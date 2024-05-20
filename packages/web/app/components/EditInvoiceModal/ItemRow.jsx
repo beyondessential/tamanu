@@ -5,7 +5,7 @@ import { TranslatedText } from '../Translation';
 import { AutocompleteField, DateField, Field } from '../Field';
 import { useSuggester } from '../../api';
 import { Colors } from '../../constants';
-import { KebabMenu } from '../KebabMenu';
+import { KebabMenu } from './KebabMenu';
 
 const PriceText = styled.span`
   margin-right: 16px;

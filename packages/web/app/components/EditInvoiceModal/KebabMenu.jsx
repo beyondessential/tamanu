@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { IconButton, Menu } from "@material-ui/core";
 import { MoreVert } from '@material-ui/icons';
-import { DeleteItemModal } from './EditInvoiceModal/DeleteItemModal';
-import { TranslatedText } from './Translation';
-import { Colors } from '../constants';
+import { DeleteItemModal } from './DeleteItemModal';
+import { TranslatedText } from '../Translation';
+import { Colors } from '../../constants';
 
 const KebabMenuItem = styled.div`
   width: 124px;
