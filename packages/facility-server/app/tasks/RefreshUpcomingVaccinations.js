@@ -4,6 +4,7 @@ import { ScheduledTask } from '@tamanu/shared/tasks';
 import {
   UPCOMING_VACCINATIONS_REFRESHED_AT_KEY,
   UPCOMING_VACCINATIONS_NEXT_REFRESH_AT_KEY,
+  WS_EVENTS,
 } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
 import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/shared/utils/dateTime';
@@ -24,6 +25,8 @@ export class RefreshUpcomingVaccinations extends ScheduledTask {
     await this.sequelize.query(
       'REFRESH MATERIALIZED VIEW CONCURRENTLY materialized_upcoming_vaccinations',
     );
+
+    this.websocketService.emit(WS_EVENTS.UPCOMING_VACCINATIONS_REFRESHED);
     await this.models.LocalSystemFact.set(
       UPCOMING_VACCINATIONS_REFRESHED_AT_KEY,
       getCurrentDateTimeString(),

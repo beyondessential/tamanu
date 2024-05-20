@@ -84,5 +84,5 @@ export async function createApp({ sequelize, reportSchemaStores, models, syncMan
   }
   express.use(errorHandler);
 
-  return { express, server };
+  return { express, server, websocketService };
 }

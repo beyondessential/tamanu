@@ -24,6 +24,8 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from '../../contexts/Translation.jsx';
 import styled from 'styled-components';
 import { formatDistanceToNow, isPast, parseISO } from 'date-fns';
+import { useSocket } from '../../utils/useSocket.js';
+import { WS_EVENTS } from '@tamanu/constants';
 
 const StyledSearchTableTitle = styled(SearchTableTitle)`
   display: flex;
@@ -32,28 +34,52 @@ const StyledSearchTableTitle = styled(SearchTableTitle)`
 `;
 
 const useRefreshStatsQuery = () => {
+  const { socket } = useSocket();
   const queryClient = useQueryClient();
   const [lastUpdated, setLastUpdated] = useState();
   const { storedLanguage } = useTranslation();
   const api = useApi();
-  const { data: refreshStats, isFetching } = useQuery(['upcomingVaccinations/refreshStats'], () =>
-    api.get('upcomingVaccinations/refreshStats', { language: storedLanguage }),
-  );
 
   const getFromNowText = lastRefreshed =>
     formatDistanceToNow(parseISO(lastRefreshed), { addSuffix: 'ago' });
 
+  const handleRefresh = () => {
+    console.log('refreshed from socket');
+  };
+
+  const { data: refreshStats, isFetching } = useQuery(
+    ['upcomingVaccinations/refreshStats'],
+    () => api.get('upcomingVaccinations/refreshStats', { language: storedLanguage }),
+    {
+      onSettled: data => {
+        if (!data) return;
+        setLastUpdated(getFromNowText(data.lastRefreshed));
+      },
+    },
+  );
+
   useEffect(() => {
+    socket.on('upcomingVaccinationsRefreshed', () => {
+      console.log('it fired');
+    });
     if (!refreshStats) return;
     const interval = setInterval(() => {
       const { lastRefreshed, nextRefresh } = refreshStats;
       if (isPast(parseISO(nextRefresh))) {
-        queryClient.invalidateQueries(['upcomingVaccinations/refreshStats']);
+        return queryClient.invalidateQueries(['upcomingVaccinations/refreshStats']);
       }
       setLastUpdated(getFromNowText(lastRefreshed));
     }, 1000 * 60);
     return () => clearInterval(interval);
   }, [refreshStats, queryClient]);
+
+  useEffect(() => {
+    if (!socket) return;
+    socket.on(WS_EVENTS.UPCOMING_VACCINATIONS_REFRESHED, handleRefresh);
+    return () => {
+      socket.off('upcomingVaccinationsRefreshed', handleRefresh);
+    };
+  }, [socket]);
 
   return {
     data: refreshStats && {
