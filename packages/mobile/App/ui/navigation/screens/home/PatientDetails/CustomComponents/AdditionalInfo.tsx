@@ -5,7 +5,10 @@ import { ErrorScreen } from '../../../../../components/ErrorScreen';
 import { LoadingScreen } from '../../../../../components/LoadingScreen';
 import { PatientSection } from './PatientSection';
 import { useLocalisation } from '../../../../../contexts/LocalisationContext';
-import { CustomPatientFieldValues, usePatientAdditionalData } from '~/ui/hooks/usePatientAdditionalData';
+import {
+  CustomPatientFieldValues,
+  usePatientAdditionalData,
+} from '~/ui/hooks/usePatientAdditionalData';
 import { mapValues } from 'lodash';
 import { PatientAdditionalData } from '~/models/PatientAdditionalData';
 import { Patient } from '~/models/Patient';
@@ -31,7 +34,11 @@ function getPadFieldData(data: PatientAdditionalData, fieldName: string): string
   return data?.[fieldName];
 }
 
-export const AdditionalInfo = ({ patient, onEdit, dataSections }: AdditionalInfoProps): ReactElement => {
+export const AdditionalInfo = ({
+  patient,
+  onEdit,
+  dataSections,
+}: AdditionalInfoProps): ReactElement => {
   const { getBool } = useLocalisation();
   const {
     customPatientFieldValues,
@@ -61,7 +68,7 @@ export const AdditionalInfo = ({ patient, onEdit, dataSections }: AdditionalInfo
       if (fieldName === 'villageId') data = patient.village?.name;
       else if (Object.keys(customDataById).includes(fieldName)) data = customDataById[fieldName];
       else data = getPadFieldData(patientAdditionalData, fieldName);
-      
+
       return [fieldName, data];
     });
 
