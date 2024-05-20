@@ -51,7 +51,8 @@ const useRefreshStatQuery = () => {
   const { data: refreshStats, isFetching } = useQuery(['upcomingVaccinations/refreshStats'], () =>
     api.get('upcomingVaccinations/refreshStats', { language: storedLanguage }),
   );
-  const formatAsDistanceToNow = date => formatDistanceToNow(parseISO(date), { addSuffix: 'ago' });
+
+  const dateAsDistanceToNow = date => formatDistanceToNow(parseISO(date), { addSuffix: 'ago' });
 
   const handleFreshData = useCallback(() => {
     setLastUpdated(null);
@@ -61,7 +62,7 @@ const useRefreshStatQuery = () => {
 
   const handleRefreshLastUpdated = useCallback(() => {
     const { lastRefreshed } = refreshStats;
-    setLastUpdated(formatAsDistanceToNow(lastRefreshed));
+    setLastUpdated(dateAsDistanceToNow(lastRefreshed));
   }, [refreshStats]);
 
   // Update the distance from now text every minute
@@ -81,7 +82,7 @@ const useRefreshStatQuery = () => {
   return {
     data: refreshStats && {
       schedule: refreshStats.schedule,
-      lastUpdated: lastUpdated || formatAsDistanceToNow(refreshStats.lastRefreshed),
+      lastUpdated: lastUpdated || dateAsDistanceToNow(refreshStats.lastRefreshed),
     },
     isFetching,
     refreshTrigger,
