@@ -54,74 +54,80 @@ invoiceLineItemsRoute.put(
 
     const { invoiceLineItemsData } = req.body;
 
-    // Fetch existing line items for the given invoiceId
-    const existingItems = await models.InvoiceLineItem.findAll({ where: { invoiceId } });
+    let updatedLineItems;
+    await models.InvoiceLineItem.sequelize.transaction(async () => {
+      // Fetch existing line items for the given invoiceId
+      const existingItems = await models.InvoiceLineItem.findAll({ where: { invoiceId } });
 
-    // Prepare arrays for creating and updating
-    const itemsToCreate = [];
-    const itemsToUpdate = [];
-    const receivedItemIds = invoiceLineItemsData.map(item => item.id);
+      // Prepare arrays for creating and updating
+      const itemsToCreate = [];
+      const itemsToUpdate = [];
+      const receivedItemIds = invoiceLineItemsData.map(item => item.id);
 
-    // Mark items as deleted if they are not in the received data
-    await models.InvoiceLineItem.update(
-      { status: INVOICE_LINE_ITEM_STATUSES.DELETED },
-      {
-        where: {
-          invoiceId,
-          id: {
-            [Op.notIn]: receivedItemIds
+      // Mark items as deleted if they are not in the received data
+      await models.InvoiceLineItem.update(
+        { status: INVOICE_LINE_ITEM_STATUSES.DELETED },
+        {
+          where: {
+            invoiceId,
+            id: {
+              [Op.notIn]: receivedItemIds
+            }
           }
         }
-      }
-    );
-
-    invoiceLineItemsData.forEach(item => {
-      const existingItem = existingItems.find(existing => existing.id === item.id);
-      if (existingItem) {
-        // Compare the properties of the existing item with the received item
-        if (
-          existingItem.invoiceLineTypeId !== item.invoiceLineTypeId ||
-          existingItem.dateGenerated !== item.date ||
-          existingItem.orderedById !== item.orderedById
-        ) {
-          itemsToUpdate.push(item);
-        }
-      } else {
-        itemsToCreate.push({
-          invoiceId,
-          invoiceLineTypeId: item.invoiceLineTypeId,
-          dateGenerated: item.date,
-          orderedById: item.orderedById
-        });
-      }
-    });
-
-    // Update existing items
-    for (const item of itemsToUpdate) {
-      await models.InvoiceLineItem.update(
-        {
-          invoiceLineTypeId: item.invoiceLineTypeId,
-          dateGenerated: item.date,
-          orderedById: item.orderedById
-        },
-        { where: { id: item.id } }
       );
-    }
 
-    // Assign unique createdAt timestamps to avoid random order
-    let currentTime = Date.now();
-    itemsToCreate.forEach(item => {
-      item.createdAt = new Date(currentTime);
-      currentTime += 1;
+      invoiceLineItemsData.forEach(item => {
+        const existingItem = existingItems.find(existing => existing.id === item.id);
+        if (existingItem) {
+          // Compare the properties of the existing item with the received item
+          if (
+            existingItem.invoiceLineTypeId !== item.invoiceLineTypeId ||
+            existingItem.dateGenerated !== item.date ||
+            existingItem.orderedById !== item.orderedById
+          ) {
+            itemsToUpdate.push(item);
+          }
+        } else {
+          itemsToCreate.push({
+            invoiceId,
+            invoiceLineTypeId: item.invoiceLineTypeId,
+            dateGenerated: item.date,
+            orderedById: item.orderedById
+          });
+        }
+      });
+
+      // Update existing items
+      for (const item of itemsToUpdate) {
+        await models.InvoiceLineItem.update(
+          {
+            invoiceLineTypeId: item.invoiceLineTypeId,
+            dateGenerated: item.date,
+            orderedById: item.orderedById
+          },
+          { where: { id: item.id } }
+        );
+      }
+
+      // Assign unique createdAt timestamps to avoid random order
+      let currentTime = Date.now();
+      itemsToCreate.forEach(item => {
+        item.createdAt = new Date(currentTime);
+        currentTime += 1;
+      });
+
+      // Create new items
+      await models.InvoiceLineItem.bulkCreate(itemsToCreate);
+
     });
 
-    // Create new items
-    await models.InvoiceLineItem.bulkCreate(itemsToCreate);
+    updatedLineItems = await models.InvoiceLineItem.findAll({ where: { invoiceId } });
 
-    // Fetch all updated and created line items for the response
-    const updatedLineItems = await models.InvoiceLineItem.findAll({ where: { invoiceId } });
-
-    res.send(updatedLineItems);
+    res.send({
+      count: updatedLineItems.length,
+      data: updatedLineItems
+    });
   })
 );
 
