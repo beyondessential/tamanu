@@ -5,8 +5,6 @@ import { useSocket } from '../../utils/useSocket';
 import { useApi } from '../useApi';
 import { formatDistanceToNow, parseISO } from 'date-fns';
 
-import { MATERIALIZED_VIEW_REFRESH_CONFIG } from '@tamanu/constants';
-
 /**
  * Gets the latest refresh stats (last refreshed time and parsed cron schedule)
  * and provides a trigger to refresh the associated table.
@@ -15,9 +13,6 @@ import { MATERIALIZED_VIEW_REFRESH_CONFIG } from '@tamanu/constants';
  * To get around this we use a materialized view that is periodically refreshed by a scheduled task
  */
 export const useMaterializedViewRefreshStatsQuery = viewName => {
-  const refreshConfig = MATERIALIZED_VIEW_REFRESH_CONFIG[viewName];
-  if (!refreshConfig) throw new Error(`Unknown view name: ${viewName}`);
-  const { refreshEvent } = refreshConfig;
   const api = useApi();
   const { socket } = useSocket();
   const { storedLanguage } = useTranslation();
@@ -52,10 +47,11 @@ export const useMaterializedViewRefreshStatsQuery = viewName => {
 
   // Listen for refresh event from scheduled task
   useEffect(() => {
+    const REFRESH_EVENT = `materialized-view:${viewName}:refreshed`;
     if (!socket) return;
-    socket.on(refreshEvent, handleFreshData);
-    return () => socket.off(refreshEvent, handleFreshData);
-  }, [socket, handleFreshData, refreshEvent]);
+    socket.on(REFRESH_EVENT, handleFreshData);
+    return () => socket.off(REFRESH_EVENT, handleFreshData);
+  }, [socket, handleFreshData, viewName]);
 
   return {
     ...queryResult,

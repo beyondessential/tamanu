@@ -1,7 +1,7 @@
 import config from 'config';
 
 import { ScheduledTask } from '@tamanu/shared/tasks';
-import { MATERIALIZED_VIEWS, MATERIALIZED_VIEW_REFRESH_CONFIG } from '@tamanu/constants';
+import { MATERIALIZED_VIEWS } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { pascal, snake } from 'case';
@@ -9,7 +9,6 @@ import { pascal, snake } from 'case';
 const RefreshMaterializedTableTask = viewName =>
   class RefreshMaterializedTable extends ScheduledTask {
     viewName = viewName;
-    refreshConfig = MATERIALIZED_VIEW_REFRESH_CONFIG[viewName];
 
     getName() {
       return `Refresh${pascal(this.viewName)}`;
@@ -27,9 +26,11 @@ const RefreshMaterializedTableTask = viewName =>
       await this.sequelize.query(
         `REFRESH MATERIALIZED VIEW CONCURRENTLY materialized_${snake(this.viewName)}`,
       );
-      const { refreshedAtKey, refreshEvent } = this.refreshConfig;
-      this.websocketService.emit(refreshEvent);
-      await this.models.LocalSystemFact.set(refreshedAtKey, getCurrentDateTimeString());
+      this.websocketService.emit(`materialized-view:${this.viewName}:refreshed`);
+      await this.models.LocalSystemFact.set(
+        `materializedViewLastRefreshedAt:${this.viewName}`,
+        getCurrentDateTimeString(),
+      );
     }
   };
 

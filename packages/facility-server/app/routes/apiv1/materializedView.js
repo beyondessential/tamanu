@@ -4,7 +4,6 @@ import asyncHandler from 'express-async-handler';
 import cronstrue from 'cronstrue';
 
 import { NotFoundError } from '@tamanu/shared/errors';
-import { MATERIALIZED_VIEW_REFRESH_CONFIG } from '@tamanu/constants';
 
 import { TranslatedCronParser } from '../../utils/TranslatedCronParser';
 
@@ -23,15 +22,12 @@ materializedView.get(
       throw new NotFoundError();
     }
     const { schedule } = taskConfig;
-    const refreshConfig = MATERIALIZED_VIEW_REFRESH_CONFIG[viewName];
-    if (!refreshConfig) {
-      throw new NotFoundError();
-    }
-    const { refreshedAtKey } = refreshConfig;
     const translationFunc = await TranslatedString.getTranslationFunction(language);
     cronstrue.locales.custom = new TranslatedCronParser(translationFunc);
     return res.send({
-      lastRefreshed: await req.models.LocalSystemFact.get(refreshedAtKey),
+      lastRefreshed: await req.models.LocalSystemFact.get(
+        `materializedViewLastRefreshedAt:${viewName}`,
+      ),
       schedule: cronstrue.toString(schedule, {
         locale: 'custom',
       }),
