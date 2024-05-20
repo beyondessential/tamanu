@@ -233,7 +233,7 @@ describe('Triage', () => {
       chiefComplaintId: await randomReferenceId(models, 'triageReason'),
       secondaryComplaintId: await randomReferenceId(models, 'triageReason'),
     });
-    const createdTriage = await app
+    const { body: createdTriage } = await app
       .post('/api/triage')
       .send({ ...triageBody, facilityId: facility.id });
     const createdEncounter = await models.Encounter.findByPk(createdTriage.encounterId);
@@ -251,9 +251,11 @@ describe('Triage', () => {
       chiefComplaintId: await randomReferenceId(models, 'triageReason'),
       secondaryComplaintId: await randomReferenceId(models, 'triageReason'),
     });
-    await expect(
-      await app.post('/api/triage').send({ ...triageBody, facilityId: facility.id }),
-    ).rejects.toThrow('Cannot find Emergency department for current facility');
+    const response = await app.post('/api/triage').send({ ...triageBody, facilityId: facility.id });
+    expect(response).toHaveStatus(500);
+    expect(response.body?.error?.message).toEqual(
+      'Cannot find Emergency department for current facility',
+    );
 
     await emergencyDepartment.update({ facilityId: config.serverFacilityId });
   });
@@ -265,7 +267,9 @@ describe('Triage', () => {
       chiefComplaintId: await randomReferenceId(models, 'triageReason'),
       secondaryComplaintId: await randomReferenceId(models, 'triageReason'),
     });
-    await expect(await app.post('/api/triage').send(triageBody)).rejects.toThrow(
+    const response = await app.post('/api/triage').send(triageBody);
+    expect(response).toHaveStatus(500);
+    expect(response.body?.error?.message).toEqual(
       'Providing facilityId is required to find the emergency department',
     );
 
@@ -315,6 +319,7 @@ describe('Triage', () => {
           await createDummyTriage(models, {
             patientId: encounterPatient.id,
             locationId,
+            departmentId: emergencyDepartment.id,
             ...overrides,
           }),
         );
@@ -328,7 +333,7 @@ describe('Triage', () => {
     });
 
     it('should get a list of triages ordered by score and arrival time', async () => {
-      const response = await app.get('/api/triage');
+      const response = await app.get(`/api/triage?facilityId=${facility.id}`);
       const results = response.body;
       expect(results.count).toEqual(5);
       // Test Score
@@ -349,7 +354,7 @@ describe('Triage', () => {
         reasonForEncounter: 'Test include short stay',
         encounterType: ENCOUNTER_TYPES.EMERGENCY,
       });
-      const response = await app.get('/api/triage');
+      const response = await app.get(`/api/triage?facilityId=${facility.id}`);
 
       expect(response.body.data.some(b => b.encounterId === createdEncounter.id)).toEqual(true);
     });
