@@ -48,36 +48,35 @@ const useRefreshStatQuery = () => {
   const [lastUpdated, setLastUpdated] = useState();
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
+  const { data: refreshStats, isFetching } = useQuery(['upcomingVaccinations/refreshStats'], () =>
+    api.get('upcomingVaccinations/refreshStats', { language: storedLanguage }),
+  );
   const formatAsDistanceToNow = date => formatDistanceToNow(parseISO(date), { addSuffix: 'ago' });
 
-  const handleRefresh = useCallback(() => {
+  const handleFreshData = useCallback(() => {
     setLastUpdated(null);
     setRefreshTrigger(count => count + 1);
     queryClient.invalidateQueries(['upcomingVaccinations/refreshStats']);
   }, [queryClient]);
 
-  const { data: refreshStats, isFetching } = useQuery(['upcomingVaccinations/refreshStats'], () =>
-    api.get('upcomingVaccinations/refreshStats', { language: storedLanguage }),
-  );
+  const handleRefreshLastUpdated = useCallback(() => {
+    const { lastRefreshed } = refreshStats;
+    setLastUpdated(formatAsDistanceToNow(lastRefreshed));
+  }, [refreshStats]);
 
   // Update the distance from now text every minute
   useEffect(() => {
     if (!refreshStats) return;
-    const interval = setInterval(() => {
-      const { lastRefreshed } = refreshStats;
-      setLastUpdated(formatAsDistanceToNow(lastRefreshed));
-    }, 1000 * 60);
+    const interval = setInterval(handleRefreshLastUpdated, 1000 * 60);
     return () => clearInterval(interval);
-  }, [refreshStats, queryClient]);
+  }, [refreshStats, handleRefreshLastUpdated]);
 
   // Listen for refresh event from scheduled task
   useEffect(() => {
     if (!socket) return;
-    socket.on(WS_EVENTS.UPCOMING_VACCINATIONS_REFRESHED, handleRefresh);
-    return () => {
-      socket.off('upcomingVaccinationsRefreshed', handleRefresh);
-    };
-  }, [socket, handleRefresh]);
+    socket.on(WS_EVENTS.UPCOMING_VACCINATIONS_REFRESHED, handleFreshData);
+    return () => socket.off(WS_EVENTS.UPCOMING_VACCINATIONS_REFRESHED, handleFreshData);
+  }, [socket, handleFreshData]);
 
   return {
     data: refreshStats && {
