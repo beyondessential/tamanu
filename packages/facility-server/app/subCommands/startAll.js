@@ -44,8 +44,7 @@ async function startAll({ skipMigrationCheck }) {
     config,
   });
 
-  const { server, websocketService } = await createApp(context);
-  context.websocketService = websocketService;
+  const { server } = await createApp(context);
 
   const { port } = config;
   server.listen(port, () => {

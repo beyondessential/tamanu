@@ -21,7 +21,9 @@ export async function createApp({ sequelize, reportSchemaStores, models, syncMan
   const express = defineExpress();
   const server = createServer(express);
 
-  const websocketService = defineWebsocketService({ httpServer: server });
+  const pg = await sequelize.connectionManager.getConnection();
+
+  const websocketService = defineWebsocketService({ httpServer: server, pg });
   const websocketClientService = defineWebsocketClientService({ config, websocketService, models });
 
   let errorMiddleware = null;
@@ -84,5 +86,5 @@ export async function createApp({ sequelize, reportSchemaStores, models, syncMan
   }
   express.use(errorHandler);
 
-  return { express, server, websocketService };
+  return { express, server };
 }

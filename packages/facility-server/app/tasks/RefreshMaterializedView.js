@@ -20,13 +20,14 @@ const RefreshMaterializedViewTask = viewName =>
       this.websocketService = context.websocketService;
       this.sequelize = context.sequelize;
       this.models = context.models;
+      this.runImmediately();
     }
 
     async run() {
       await this.sequelize.query(
         `REFRESH MATERIALIZED VIEW CONCURRENTLY materialized_${snake(this.viewName)}`,
       );
-      this.websocketService.emit(`materialized-view:${this.viewName}:refreshed`);
+      await this.sequelize.query(`NOTIFY refreshed_materialized_view, '${this.viewName}'`);
       await this.models.LocalSystemFact.set(
         `materializedViewLastRefreshedAt:${this.viewName}`,
         getCurrentDateTimeString(),
