@@ -3,7 +3,11 @@ import config from 'config';
 import cronstrue from 'cronstrue';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
-import { VACCINE_STATUS, UPCOMING_VACCINATIONS_REFRESHED_AT_KEY } from '@tamanu/constants/vaccines';
+import {
+  MATERIALIZED_VIEWS,
+  MATERIALIZED_VIEW_REFRESH_CONFIG,
+  VACCINE_STATUS,
+} from '@tamanu/constants';
 import { makeFilter } from '../../utils/query';
 import { TranslatedCronParser } from '../../utils/TranslatedCronParser';
 
@@ -41,18 +45,19 @@ upcomingVaccinations.get(
     const { models, query } = req;
     const { language } = query;
     const { TranslatedString } = models;
-    const taskConfig = config.schedules.refreshUpcomingVaccinations;
-    const lastRefreshed = await req.models.LocalSystemFact.get(
-      UPCOMING_VACCINATIONS_REFRESHED_AT_KEY,
-    );
+    const { schedule } = config.schedules.refreshMaterializedView[
+      MATERIALIZED_VIEWS.UPCOMING_VACCINATIONS
+    ];
+    const { refreshedAtKey } = MATERIALIZED_VIEW_REFRESH_CONFIG[
+      MATERIALIZED_VIEWS.UPCOMING_VACCINATIONS
+    ];
     const translationFunc = await TranslatedString.getTranslationFunction(language);
     cronstrue.locales.custom = new TranslatedCronParser(translationFunc);
-    const schedule = cronstrue.toString(taskConfig.schedule, {
-      locale: 'custom',
-    });
     return res.send({
-      lastRefreshed,
-      schedule,
+      lastRefreshed: await req.models.LocalSystemFact.get(refreshedAtKey),
+      schedule: cronstrue.toString(schedule, {
+        locale: 'custom',
+      }),
     });
   }),
 );

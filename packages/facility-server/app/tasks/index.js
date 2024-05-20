@@ -2,7 +2,7 @@ import config from 'config';
 // import { SenaitePoller } from './SenaitePoller';
 import { MedicationDiscontinuer } from './MedicationDiscontinuer';
 import { SyncTask } from './SyncTask';
-import { RefreshUpcomingVaccinations } from './RefreshUpcomingVaccinations';
+import { RefreshUpcomingVaccinations } from './RefreshMaterializedTable';
 
 const TASKS = [SyncTask, MedicationDiscontinuer, RefreshUpcomingVaccinations];
 

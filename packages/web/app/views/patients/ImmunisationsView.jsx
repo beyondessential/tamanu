@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
   ContentPane,
   ImmunisationSearchBar,
@@ -19,75 +19,15 @@ import { PATIENT_TABS } from '../../constants/patientPaths.js';
 import { reloadPatient } from '../../store/index.js';
 import { useDispatch } from 'react-redux';
 import { RefreshStatsDisplay } from '../../components/Table/RefreshStatsDisplay.jsx';
-import { useApi } from '../../api/useApi.js';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useTranslation } from '../../contexts/Translation.jsx';
 import styled from 'styled-components';
-import { formatDistanceToNow, parseISO } from 'date-fns';
-import { useSocket } from '../../utils/useSocket.js';
-import { WS_EVENTS } from '@tamanu/constants';
+import { useMaterializedViewRefreshStatsQuery } from '../../api/queries/useMaterializedViewRefreshStatsQuery.js';
+import { MATERIALIZED_VIEWS } from '@tamanu/constants';
 
 const StyledSearchTableTitle = styled(SearchTableTitle)`
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
 `;
-
-/**
- * Gets the latest refresh stats (last refreshed time and cron schedule)
- * and provides a trigger to refresh the upcoming vaccinations table.
- * This is necessary in the logic of the table as the immunisation register
- * requires an expensive query to the upcoming_vaccination view.
- * To get around this we have a materialized view that is periodically refreshed by a scheduled task
- */
-const useRefreshStatQuery = () => {
-  const api = useApi();
-  const { socket } = useSocket();
-  const { storedLanguage } = useTranslation();
-  const queryClient = useQueryClient();
-  const [lastUpdated, setLastUpdated] = useState();
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
-
-  const { data: refreshStats, isFetching } = useQuery(['upcomingVaccinations/refreshStats'], () =>
-    api.get('upcomingVaccinations/refreshStats', { language: storedLanguage }),
-  );
-
-  const dateAsDistanceToNow = date => formatDistanceToNow(parseISO(date), { addSuffix: 'ago' });
-
-  const handleFreshData = useCallback(() => {
-    setLastUpdated(null);
-    setRefreshTrigger(count => count + 1);
-    queryClient.invalidateQueries(['upcomingVaccinations/refreshStats']);
-  }, [queryClient]);
-
-  const handleRefreshLastUpdated = useCallback(() => {
-    const { lastRefreshed } = refreshStats;
-    setLastUpdated(dateAsDistanceToNow(lastRefreshed));
-  }, [refreshStats]);
-
-  // Update the distance from now text every minute
-  useEffect(() => {
-    if (!refreshStats) return;
-    const interval = setInterval(handleRefreshLastUpdated, 1000 * 60);
-    return () => clearInterval(interval);
-  }, [refreshStats, handleRefreshLastUpdated]);
-
-  // Listen for refresh event from scheduled task
-  useEffect(() => {
-    if (!socket) return;
-    socket.on(WS_EVENTS.UPCOMING_VACCINATIONS_REFRESHED, handleFreshData);
-    return () => socket.off(WS_EVENTS.UPCOMING_VACCINATIONS_REFRESHED, handleFreshData);
-  }, [socket, handleFreshData]);
-
-  return {
-    data: refreshStats && {
-      schedule: refreshStats.schedule,
-      lastUpdated: lastUpdated || dateAsDistanceToNow(refreshStats.lastRefreshed),
-    },
-    isFetching,
-    refreshTrigger,
-  };
-};
 
 const getSchedule = record =>
   record?.scheduleName || (
@@ -129,7 +69,9 @@ const COLUMNS = [
 
 export const ImmunisationsView = () => {
   const dispatch = useDispatch();
-  const { data: refreshStats, isFetching, refreshTrigger } = useRefreshStatQuery();
+  const { data: refreshStats, isFetching, refreshTrigger } = useMaterializedViewRefreshStatsQuery(
+    MATERIALIZED_VIEWS.UPCOMING_VACCINATIONS,
+  );
   const [searchParameters, setSearchParameters] = useState({});
   const { navigateToPatient } = usePatientNavigation();
   const onRowClick = async patient => {
