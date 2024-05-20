@@ -1,4 +1,4 @@
-import { NOTE_TYPES, NOTE_TYPE_LABELS } from "notes";
+import { NOTE_TYPES, NOTE_TYPE_LABELS } from './notes';
 
 export const TEMPLATE_TYPES = {
   PATIENT_LETTER: 'patientLetter',

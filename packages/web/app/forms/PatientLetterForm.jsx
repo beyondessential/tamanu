@@ -54,7 +54,7 @@ const PatientLetterFormContents = ({ submitForm, onCancel, setValues }) => {
         return;
       }
       setTemplateLoading(true);
-      const template = await api.get(`patientLetterTemplate/${templateId}`);
+      const template = await api.get(`template/${templateId}`);
       setValues(values => ({
         ...values,
         title: template.title,
