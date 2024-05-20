@@ -33,18 +33,27 @@ const StyledSearchTableTitle = styled(SearchTableTitle)`
   align-items: flex-end;
 `;
 
-const useRefreshStatsQuery = () => {
+/**
+ * Gets the latest refresh stats (last refreshed time and cron schedule)
+ * and provides a trigger to refresh the upcoming vaccinations table.
+ * This is necessary in the logic of the table as the immunisation register
+ * requires an expensive query to the upcoming_vaccination view.
+ * To get around this we have a materialized view that is periodically refreshed by a scheduled task
+ */
+const useRefreshStatQuery = () => {
+  const api = useApi();
   const { socket } = useSocket();
+  const { storedLanguage } = useTranslation();
   const queryClient = useQueryClient();
   const [lastUpdated, setLastUpdated] = useState();
-  const { storedLanguage } = useTranslation();
-  const api = useApi();
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   const getFromNowText = lastRefreshed =>
     formatDistanceToNow(parseISO(lastRefreshed), { addSuffix: 'ago' });
 
   const handleRefresh = useCallback(() => {
     queryClient.invalidateQueries(['upcomingVaccinations/refreshStats']);
+    setRefreshTrigger(t => t + 1);
     setLastUpdated(null);
   }, [queryClient]);
 
@@ -75,6 +84,7 @@ const useRefreshStatsQuery = () => {
       lastUpdated: lastUpdated || getFromNowText(refreshStats.lastRefreshed),
     },
     isFetching,
+    refreshTrigger,
   };
 };
 
@@ -118,7 +128,7 @@ const COLUMNS = [
 
 export const ImmunisationsView = () => {
   const dispatch = useDispatch();
-  const { data: refreshStats, isFetching } = useRefreshStatsQuery();
+  const { data: refreshStats, isFetching, refreshTrigger } = useRefreshStatQuery();
   const [searchParameters, setSearchParameters] = useState({});
   const { navigateToPatient } = usePatientNavigation();
   const onRowClick = async patient => {
@@ -146,6 +156,7 @@ export const ImmunisationsView = () => {
           columns={COLUMNS}
           noDataMessage="No patients found"
           onRowClick={onRowClick}
+          refreshCount={refreshTrigger}
           fetchOptions={searchParameters}
         />
       </ContentPane>
