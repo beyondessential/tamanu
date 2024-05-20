@@ -103,9 +103,9 @@ describe('Reference Data Hierarchy', () => {
     const ancestors = await entity.getAncestors(REFERENCE_DATA_RELATION_TYPES.ADDRESS_HIERARCHY);
     expect(ancestors.length).toEqual(3);
     expect(ancestors.map(ancestor => ancestor.id)).toEqual([
-      'subdivision2',
-      'division1',
       'country1',
+      'division1',
+      'subdivision2',
     ]);
   });
 

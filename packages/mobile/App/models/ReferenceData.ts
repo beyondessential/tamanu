@@ -99,7 +99,7 @@ export class ReferenceData extends BaseModel implements IReferenceData {
     if (!parentId) {
       return [];
     }
-    return ReferenceData.getParentRecursive(parentId, [], relationType);
+    return (await ReferenceData.getParentRecursive(parentId, [], relationType)).reverse();
   }
   static async searchDataByType(
     referenceDataType: ReferenceDataType,

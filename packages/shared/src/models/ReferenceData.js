@@ -130,7 +130,7 @@ export class ReferenceData extends Model {
       return [];
     }
 
-    return ReferenceData.#getParentRecursive(parentNode.id, [parentNode], relationType);
+    return (await ReferenceData.#getParentRecursive(parentNode.id, [parentNode], relationType)).reverse();
   }
 
   static buildSyncFilter() {
