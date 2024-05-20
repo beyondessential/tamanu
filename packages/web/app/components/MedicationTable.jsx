@@ -4,6 +4,7 @@ import { useDispatch } from 'react-redux';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { useEncounter } from '../contexts/Encounter';
+import { useAuth } from '../contexts/Auth';
 import { MedicationModal } from './MedicationModal';
 import { reloadPatient } from '../store';
 import { ENCOUNTER_TAB_NAMES } from '../constants/encounterTabNames';
@@ -115,6 +116,7 @@ export const EncounterMedicationTable = React.memo(({ encounterId }) => {
 
 export const DataFetchingMedicationTable = () => {
   const { loadEncounter } = useEncounter();
+  const { facilityId } = useAuth();
   const dispatch = useDispatch();
   const onMedicationSelect = useCallback(
     async medication => {
@@ -132,6 +134,7 @@ export const DataFetchingMedicationTable = () => {
   return (
     <DataFetchingTable
       endpoint="medication"
+      fetchOptions={{ facilityId }}
       columns={FULL_LISTING_COLUMNS}
       noDataMessage={
         <TranslatedText
