@@ -3,11 +3,7 @@ import config from 'config';
 import cronstrue from 'cronstrue';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
-import {
-  VACCINE_STATUS,
-  UPCOMING_VACCINATIONS_REFRESHED_AT_KEY,
-  UPCOMING_VACCINATIONS_NEXT_REFRESH_AT_KEY,
-} from '@tamanu/constants/vaccines';
+import { VACCINE_STATUS, UPCOMING_VACCINATIONS_REFRESHED_AT_KEY } from '@tamanu/constants/vaccines';
 import { makeFilter } from '../../utils/query';
 import { TranslatedCronParser } from './TranslatedCronParser';
 
@@ -48,9 +44,6 @@ upcomingVaccinations.get(
     const lastRefreshed = await req.models.LocalSystemFact.get(
       UPCOMING_VACCINATIONS_REFRESHED_AT_KEY,
     );
-    const nextRefresh = await req.models.LocalSystemFact.get(
-      UPCOMING_VACCINATIONS_NEXT_REFRESH_AT_KEY,
-    );
     const translationFunc = await TranslatedString.getTranslationFunction(language);
     cronstrue.locales['custom'] = new TranslatedCronParser(translationFunc);
     const schedule = cronstrue.toString(taskConfig.schedule, {
@@ -58,7 +51,6 @@ upcomingVaccinations.get(
     });
     return res.send({
       lastRefreshed,
-      nextRefresh,
       schedule,
     });
   }),
