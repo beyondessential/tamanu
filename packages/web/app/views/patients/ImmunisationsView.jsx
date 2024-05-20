@@ -21,7 +21,7 @@ import { useDispatch } from 'react-redux';
 import { RefreshStatsDisplay } from '../../components/Table/RefreshStatsDisplay.jsx';
 import styled from 'styled-components';
 import { useMaterializedViewRefreshStatsQuery } from '../../api/queries/useMaterializedViewRefreshStatsQuery.js';
-import { MATERIALIZED_VIEWS } from '@tamanu/constants';
+import { MATERIALIZED_TABLES } from '@tamanu/constants';
 
 const StyledSearchTableTitle = styled(SearchTableTitle)`
   display: flex;
@@ -70,7 +70,7 @@ const COLUMNS = [
 export const ImmunisationsView = () => {
   const dispatch = useDispatch();
   const { data: refreshStats, refreshTrigger, error } = useMaterializedViewRefreshStatsQuery(
-    MATERIALIZED_VIEWS.UPCOMING_VACCINATIONS,
+    MATERIALIZED_TABLES.UPCOMING_VACCINATIONS,
   );
   const [searchParameters, setSearchParameters] = useState({});
   const { navigateToPatient } = usePatientNavigation();
