@@ -22,7 +22,6 @@ import { PatientAdditionalData } from '~/models/PatientAdditionalData';
 import { usePatientAdditionalData } from '~/ui/hooks/usePatientAdditionalData';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { getInitialAdditionalValues } from '../../PatientAdditionalDataForm/helpers';
-import { HierarchyFields } from '/components/HierarchyFields';
 import { ReferenceDataType } from '~/types';
 import { TranslatedText } from '/components/Translations/TranslatedText';
 
@@ -185,7 +184,6 @@ export const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit }): 
               contentContainerStyle={styles.ScrollViewContentContainer}
             >
               <NameSection />
-              <HierarchyFields fields={CAMBODIA_LOCATION_HIERARCHY_FIELDS} />
               <KeyInformationSection />
               <LocationDetailsSection />
               <PatientAdditionalDataFields fields={allAdditionalDataFields} showMandatory />
