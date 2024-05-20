@@ -67,7 +67,14 @@ const getFieldsToWrite = (questions, answers): RecordValuesByModel => {
  * DUPLICATED IN shared/models/SurveyResponse.js
  * Please keep in sync
  */
-async function writeToPatientFields(questions, answers, patientId, surveyId, userId, submittedTime) {
+async function writeToPatientFields(
+  questions,
+  answers,
+  patientId,
+  surveyId,
+  userId,
+  submittedTime,
+) {
   const valuesByModel = getFieldsToWrite(questions, answers);
 
   if (valuesByModel.Patient) {
@@ -86,15 +93,11 @@ async function writeToPatientFields(questions, answers, patientId, surveyId, use
     if (!programRegistryId) {
       throw new Error('No program registry configured for the current form');
     }
-    await PatientProgramRegistration.appendRegistration(
-      patientId,
-      programRegistryId,
-      {
-        date: submittedTime,
-        ...valuesByModel.PatientProgramRegistration,
-        clinicianId: valuesByModel.PatientProgramRegistration.clinicianId || userId,
-      },
-    );
+    await PatientProgramRegistration.appendRegistration(patientId, programRegistryId, {
+      date: submittedTime,
+      ...valuesByModel.PatientProgramRegistration,
+      clinicianId: valuesByModel.PatientProgramRegistration.clinicianId || userId,
+    });
   }
 }
 

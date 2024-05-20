@@ -17,10 +17,11 @@ import {
   SuggesterSelectField,
   TextField,
 } from '../components';
-import { ENCOUNTER_OPTIONS, FORM_TYPES } from '../constants';
+import { ENCOUNTER_OPTIONS, FORM_TYPES, REASON_FOR_ENCOUNTER_MAX_CHARACTERS } from '../constants';
 import { useSuggester } from '../api';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { isInpatient } from '../utils/isInpatient';
+import { useTranslation } from '../contexts/Translation';
 
 export const EncounterForm = React.memo(
   ({ editedObject, onSubmit, patientBillingTypeId, encounterType }) => {
@@ -30,6 +31,7 @@ export const EncounterForm = React.memo(
       baseQueryParameters: { filterByFacility: true },
     });
     const referralSourceSuggester = useSuggester('referralSource');
+    const { getTranslation } = useTranslation();
 
     const renderForm = ({ submitForm, values }) => {
       const buttonText = editedObject ? (
@@ -196,6 +198,14 @@ export const EncounterForm = React.memo(
                 fallback="Encounter type"
               />,
             ),
+          reasonForEncounter: yup.string().max(
+            REASON_FOR_ENCOUNTER_MAX_CHARACTERS,
+            getTranslation(
+              "reasonForEncounter.validation.rule.maxNCharacters",
+              "Reason for encounter must not exceed :maxChars characters",
+              { maxChars: REASON_FOR_ENCOUNTER_MAX_CHARACTERS }
+            )
+          )
         })}
       />
     );

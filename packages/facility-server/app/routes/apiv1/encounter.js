@@ -273,6 +273,7 @@ encounterRelations.get(
     const { db, models, params, query } = req;
     req.checkPermission('list', 'SurveyResponse');
     const encounterId = params.id;
+    const surveyType = 'programs';
     const { order = 'asc', orderBy = 'endTime' } = query;
     const sortKey = PROGRAM_RESPONSE_SORT_KEYS[orderBy] || PROGRAM_RESPONSE_SORT_KEYS.endTime;
     const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
@@ -290,7 +291,7 @@ encounterRelations.get(
         WHERE
           survey_responses.encounter_id = :encounterId
         AND
-          surveys.survey_type = 'programs'
+          surveys.survey_type = :surveyType
         AND
           encounters.deleted_at IS NULL
         AND
@@ -317,14 +318,14 @@ encounterRelations.get(
         WHERE
           survey_responses.encounter_id = :encounterId
         AND
-          surveys.survey_type = 'programs'
+          surveys.survey_type = :surveyType
         AND
           survey_responses.deleted_at IS NULL
         AND
           encounters.deleted_at is null
         ORDER BY ${sortKey} ${sortDirection}
       `,
-      { encounterId },
+      { encounterId, surveyType },
       query,
     );
 

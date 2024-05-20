@@ -2,6 +2,7 @@ import React from 'react';
 
 import { DataFetchingTable, DateDisplay } from '../../../components';
 import { TEMPLATE_ENDPOINT } from '../constants';
+import { TEMPLATE_TYPE_LABELS } from '@tamanu/constants';
 
 const getDisplayName = ({ createdBy }) => (createdBy || {}).displayName || 'Unknown';
 
@@ -12,7 +13,7 @@ export const TemplateList = React.memo(props => (
       {
         key: 'type',
         title: 'Type',
-        accessor: () => 'Patient Letter',
+        accessor: record => TEMPLATE_TYPE_LABELS[record.type],
         sortable: false,
       },
       {

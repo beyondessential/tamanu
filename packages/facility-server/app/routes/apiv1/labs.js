@@ -19,6 +19,7 @@ import {
   permissionCheckingRouter,
   simpleGet,
   simpleGetList,
+  findRouteObject,
 } from '@tamanu/shared/utils/crudHelpers';
 import {
   getWhereClausesAndReplacementsFromFilters,
@@ -31,7 +32,17 @@ import { notesWithSingleItemListHandler } from '../../routeHandlers';
 
 export const labRequest = express.Router();
 
-labRequest.get('/:id', simpleGet('LabRequest'));
+labRequest.get(
+  '/:id',
+  asyncHandler(async (req, res) => {
+    const labRequestRecord = await findRouteObject(req, 'LabRequest');
+    const latestAttachment = await labRequestRecord.getLatestAttachment();
+    res.send({
+      ...labRequestRecord.forResponse(),
+      latestAttachment,
+    });
+  }),
+);
 
 labRequest.put(
   '/:id',
