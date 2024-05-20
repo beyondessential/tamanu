@@ -48,12 +48,11 @@ const useRefreshStatQuery = () => {
   const [lastUpdated, setLastUpdated] = useState();
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-  const getFromNowText = lastRefreshed =>
-    formatDistanceToNow(parseISO(lastRefreshed), { addSuffix: 'ago' });
+  const formatAsDistanceToNow = date => formatDistanceToNow(parseISO(date), { addSuffix: 'ago' });
 
   const handleRefresh = useCallback(() => {
     queryClient.invalidateQueries(['upcomingVaccinations/refreshStats']);
-    setRefreshTrigger(t => t + 1);
+    setRefreshTrigger(count => count + 1);
     setLastUpdated(null);
   }, [queryClient]);
 
@@ -61,15 +60,17 @@ const useRefreshStatQuery = () => {
     api.get('upcomingVaccinations/refreshStats', { language: storedLanguage }),
   );
 
+  // Update the distance from now text every minute
   useEffect(() => {
     if (!refreshStats) return;
     const interval = setInterval(() => {
       const { lastRefreshed } = refreshStats;
-      setLastUpdated(getFromNowText(lastRefreshed));
+      setLastUpdated(formatAsDistanceToNow(lastRefreshed));
     }, 1000 * 60);
     return () => clearInterval(interval);
   }, [refreshStats, queryClient]);
 
+  // Listen for refresh event from scheduled task
   useEffect(() => {
     if (!socket) return;
     socket.on(WS_EVENTS.UPCOMING_VACCINATIONS_REFRESHED, handleRefresh);
@@ -81,7 +82,7 @@ const useRefreshStatQuery = () => {
   return {
     data: refreshStats && {
       schedule: refreshStats.schedule,
-      lastUpdated: lastUpdated || getFromNowText(refreshStats.lastRefreshed),
+      lastUpdated: lastUpdated || formatAsDistanceToNow(refreshStats.lastRefreshed),
     },
     isFetching,
     refreshTrigger,
