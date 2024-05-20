@@ -10,12 +10,12 @@ export class TranslatedCronParser extends BaseLocale {
     this.tt = translationFunc;
   }
   everyX0Seconds() {
-    return this.tt('cron.everyNSeconds', 'every %s seconds');
+    return this.tt('schedule.everyNSeconds', 'every %s seconds');
   }
   everyX0Minutes() {
-    return this.tt('cron.everyNMinutes', 'every %s minutes');
+    return this.tt('schedule.everyNMinutes', 'every %s minutes');
   }
   everyX0Hours() {
-    return this.tt('cron.everyNHours', 'every %s hours');
+    return this.tt('schedule.everyNHours', 'every %s hours');
   }
 }

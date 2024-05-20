@@ -79,8 +79,6 @@ const useRefreshStatQuery = () => {
     };
   }, [socket, handleRefresh]);
 
-  console.log(refreshTrigger);
-
   return {
     data: refreshStats && {
       schedule: refreshStats.schedule,
