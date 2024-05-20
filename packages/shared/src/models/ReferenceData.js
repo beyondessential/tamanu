@@ -94,7 +94,7 @@ export class ReferenceData extends Model {
     if (!parent?.id) {
       return ancestors;
     }
-    return ReferenceData.#getParentRecursive(parent.id, [...ancestors, parent], relationType);
+    return ReferenceData.#getParentRecursive(parent.id, [parent, ...ancestors], relationType);
   }
 
   static async getParent(id, relationType) {
@@ -130,7 +130,7 @@ export class ReferenceData extends Model {
       return [];
     }
 
-    return (await ReferenceData.#getParentRecursive(parentNode.id, [parentNode], relationType)).reverse();
+    return ReferenceData.#getParentRecursive(parentNode.id, [parentNode], relationType);
   }
 
   static buildSyncFilter() {
