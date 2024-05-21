@@ -244,7 +244,7 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
         .string()
         .required()
         .translatedLabel(
-          <TranslatedText stringId="invoice.modal.editInvoice.details.label" fallback="Details type" />,
+          <TranslatedText stringId="invoice.modal.editInvoice.detailsType.label" fallback="Details type" />,
         ),
       [`orderedById_${currentIndex}`]: yup
         .string()
