@@ -106,7 +106,6 @@ export const LabRequestsSearchBar = ({ status = '' }) => {
     >
       <>
         <LocalisedField
-          keepLetterCase
           name="displayId"
           label={
             <TranslatedText

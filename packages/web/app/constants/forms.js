@@ -7,3 +7,5 @@ export const FORM_TYPES = {
   CREATE_FORM: 'createForm',
   EDIT_FORM: 'editForm',
 };
+
+export const REASON_FOR_ENCOUNTER_MAX_CHARACTERS = 256;

@@ -20,9 +20,9 @@ import { LoadingScreen } from '/components/LoadingScreen';
 import { ErrorScreen } from '/components/ErrorScreen';
 
 import { useBackendEffect } from '~/ui/hooks';
-import { readConfig } from '~/services/config';
 import { SETTING_KEYS } from '../../../../constants';
 import { useLocalisation } from '~/ui/contexts/LocalisationContext';
+import { ScheduledVaccine } from '~/models/ScheduledVaccine';
 
 const getFormType = (status: VaccineStatus): { Form: FC<any> } => {
   switch (status) {
@@ -47,6 +47,7 @@ export type VaccineFormValues = {
   recorderId?: string;
   status: string | VaccineStatus;
   consent: boolean;
+  scheduledVaccine?: ScheduledVaccine;
 };
 
 interface VaccineFormProps {
@@ -98,9 +99,8 @@ export const VaccineForm = ({
         };
       }
 
-      const facilityId = await readConfig('facilityId', '');
       const vaccinationDefaults =
-        (await models.Setting.get(SETTING_KEYS.VACCINATION_DEFAULTS, facilityId)) || {};
+        (await models.Setting.getByKey(SETTING_KEYS.VACCINATION_DEFAULTS)) || {};
 
       return {
         locationId: vaccinationDefaults.locationId,
