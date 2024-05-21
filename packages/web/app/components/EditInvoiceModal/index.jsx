@@ -325,7 +325,7 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
               confirmText={
                 !isSaving
                   ? <TranslatedText stringId="general.action.save" fallback="Save" />
-                  : <CircularProgress size={14} color="#fff" />
+                  : <CircularProgress size={14} color={Colors.white} />
               }
               onConfirm={submitForm}
               onCancel={onClose}
