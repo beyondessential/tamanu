@@ -49,7 +49,7 @@ const ErrorMessege = styled.div`
 export const ReminderContactQR = ({ contact, onClose }) => {
   const { getTranslation } = useTranslation();
   const patient = useSelector(state => state.patient);
-  const { data: botInfo, isLoading, isError, error } = useTelegramBotInfoQuery();
+  const { data: botInfo, isFetching, isError, error } = useTelegramBotInfoQuery();
 
   const [qrCodeURL, setQRCodeURL] = useState('');
 
@@ -97,8 +97,8 @@ export const ReminderContactQR = ({ contact, onClose }) => {
         />
       </StyledText>
       <StyledQrContainer>
-        {qrCodeURL && <img src={qrCodeURL} alt="QR Code" />}
-        {isLoading && <CircularProgress />}
+        {!isFetching && qrCodeURL && <img src={qrCodeURL} alt="QR Code" />}
+        {isFetching && <CircularProgress />}
         {isError && <ErrorMessege>{error.message}</ErrorMessege>}
       </StyledQrContainer>
       <ModalCancelRow

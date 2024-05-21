@@ -8,7 +8,7 @@ import { registerWebsocketEvents } from './wsEvents';
 export async function createWebsocket(server, ctx) {
   const { store } = ctx;
 
-  const websocketService = defineWebsocketService({ httpServer: server });
+  const websocketService = await defineWebsocketService({ httpServer: server, sequelize: store.sequelize });
 
   ctx.telegramBotService?.registerWebsocketService(websocketService);
 

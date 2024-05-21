@@ -11,6 +11,8 @@ export interface ISurvey {
   surveyType?: SurveyTypes;
 
   isSensitive: boolean;
+
+  visibilityStatus: VisibilityStatus;
 }
 
 export enum SurveyTypes {

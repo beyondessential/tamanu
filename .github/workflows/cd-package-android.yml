@@ -17,10 +17,11 @@ on:
       server:
         type: string
         required: false
-      buildType:
-        type: string
-        required: false
-        default: debug
+    secrets:
+      ANDROID_SIGNING_KEY_PASSWORD:
+        required: true
+      ANDROID_SIGNING_STORE_PASSWORD:
+        required: true
   workflow_dispatch:
     inputs:
       branding:
@@ -34,16 +35,6 @@ on:
         description: Central server override
         type: string
         required: false
-      buildType:
-        description: Build type
-        type: choice
-        required: false
-        default: debug
-        options:
-          - release
-          - debug
-env:
-  APK_NAME: app.apk
 
 jobs:
   build:
@@ -88,7 +79,7 @@ jobs:
         run: |
           cat <<EOF > serverOverrides.json
           {
-            "centralServers": [{"label": "Central Server", "value": "${{inputs.server}}" }]
+            "centralServers": [{"label": "Central Server", "value": "https://${{inputs.server}}" }]
           }
           EOF
 
@@ -96,15 +87,6 @@ jobs:
         working-directory: packages/mobile/android
         run: |
           echo "BRANDING=${{ inputs.branding }}" > .env
-
-      - name: Restore keystore
-        if: ${{ inputs.buildType == 'release' }}
-        working-directory: packages/mobile/android/app
-        env:
-          keystore: ${{ secrets.ANDROID_KEYSTORE }}
-        run: |
-          base64 -d <<< "$keystore" > release.keystore
-
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -119,7 +101,6 @@ jobs:
           yarn install
 
       - name: Build release
-        if: ${{ inputs.buildType == 'release' }}
         working-directory: packages/mobile/android
         env:
           ANDROID_SIGNING_KEY_ALIAS: ${{ vars.ANDROID_SIGNING_KEY_ALIAS }}
@@ -127,17 +108,12 @@ jobs:
           ANDROID_SIGNING_STORE_PASSWORD: ${{ secrets.ANDROID_SIGNING_STORE_PASSWORD }}
         run:  ./gradlew app:assembleRelease
 
-      - name: Build debug
-        if: ${{ inputs.buildType == 'debug' }}
-        working-directory: packages/mobile/android
-        run: ./gradlew app:assembleDebug
-
       - name: Upload final build
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.APK_NAME }}
-          path: packages/mobile/android/app/build/outputs/apk/${{inputs.buildType}}/app-${{inputs.buildType}}.apk
-          retention-days: 1
+          name: android-release
+          path: packages/mobile/android/app/build/outputs/apk/release/app-release.apk
+          retention-days: 7
 
       - name: Set S3 destination
         id: destination
@@ -169,8 +145,8 @@ jobs:
           target: ${{ steps.destination.outputs.result }}
         run: |
           aws s3 cp --no-progress \
-            packages/mobile/android/app/build/outputs/apk/${{inputs.buildType}}/app-${{inputs.buildType}}.apk \
-            s3://bes-tamanu-release-clients/$target/android/${{inputs.branding}}/${{env.APK_NAME}}
+            packages/mobile/android/app/build/outputs/apk/release/app-release.apk \
+            s3://bes-tamanu-release-clients/$target/android/${{inputs.branding}}/app-release.apk
 
       - if: steps.destination.outputs.result != 'nowhere' && github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
