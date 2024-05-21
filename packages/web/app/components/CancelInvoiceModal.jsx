@@ -19,7 +19,7 @@ export const CancelInvoiceModal = React.memo(
     const params = useParams();
     const { loadEncounter } = useEncounter();
     const cancelInvoice = useCallback(async () => {
-      // LOCK IN the total when CANCELLING an invoice
+      // lock in the total when cancelling an invoice
       const total = await getInvoiceTotal(api, invoiceId);
       await api.put(`invoices/${invoiceId}`, {
         status: INVOICE_STATUSES.CANCELLED,
