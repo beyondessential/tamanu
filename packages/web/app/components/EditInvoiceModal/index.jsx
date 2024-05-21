@@ -165,7 +165,10 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
     },
     {
       key: 'type',
-      title: 'Category',
+      title: <TranslatedText
+        stringId="invoice.table.potentialItems.column.category"
+        fallback="Category"
+      />,
       accessor: ({ type }) => (
         <TranslatedEnum
           prefix="invoice.line.property.type"
