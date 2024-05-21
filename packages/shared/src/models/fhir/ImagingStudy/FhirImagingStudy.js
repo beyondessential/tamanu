@@ -7,6 +7,7 @@ import {
   FHIR_INTERACTIONS,
   FHIR_ISSUE_TYPE,
   IMAGING_REQUEST_STATUS_TYPES,
+  NOTE_TYPES,
 } from '@tamanu/constants';
 import { FhirResource } from '../Resource';
 
@@ -48,7 +49,7 @@ export class FhirImagingStudy extends FhirResource {
 
   // This is currently very hardcoded for Aspen's use case.
   // We'll need to make it more generic at some point, but not today!
-  async pushUpstream() {
+  async pushUpstream({ requesterId }) {
     const { FhirServiceRequest, ImagingRequest } = this.sequelize.models;
     const serviceRequestFhirId = this.basedOn
       .map(ref => ref.fhirTypeAndId())
@@ -108,13 +109,16 @@ export class FhirImagingStudy extends FhirResource {
     }
 
     const imagingRequest = await ImagingRequest.findByPk(serviceRequest.upstreamId);
-    if (!imagingRequest) {
+    if (!imagingRequest || imagingRequest.status === IMAGING_REQUEST_STATUS_TYPES.DELETED) {
       // this is only a possibility when using a FHIR basedOn reference
-      throw new Deleted('ImagingRequest has been deleted in Tamanu');
+      throw new Deleted('ImagingRequest has been deleted');
     }
 
-    if (imagingRequest.status === IMAGING_REQUEST_STATUS_TYPES.CANCELLED) {
-      throw new Invalid('ImagingRequest has already been cancelled');
+    if ([
+      IMAGING_REQUEST_STATUS_TYPES.CANCELLED,
+      IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR,
+    ].includes(imagingRequest.status)) {
+      throw new Invalid('ImagingRequest has been cancelled');
     }
 
     if ([
@@ -125,18 +129,25 @@ export class FhirImagingStudy extends FhirResource {
     }
 
     if (this.status === FHIR_IMAGING_STUDY_STATUS.CANCELLED) {
-      return await this.cancelRequest(imagingRequest);
+      return await this.cancelRequest(imagingRequest, requesterId);
     }
   }
 
-  async cancelRequest(imagingRequest) {
+  async cancelRequest(imagingRequest, requesterId) {
     const reasons = config.localisation?.data?.imagingCancellationReasons || [];
-    const cancelledReason = reasons.find(reason => reason.value == 'cancelled-externally')?.label;
+    const cancelledReason = reasons.find(reason => reason.value === 'cancelled-externally')?.label;
     imagingRequest.set({
       status: IMAGING_REQUEST_STATUS_TYPES.CANCELLED,
       reasonForCancellation: cancelledReason,
     });
-    await imagingRequest.save();
+    await this.sequelize.transaction(async () => {
+      await imagingRequest.createNote({
+        noteType: NOTE_TYPES.OTHER,
+        content: `Request cancelled. Reason: ${cancelledReason}.`,
+        authorId: requesterId,
+      });
+      await imagingRequest.save();
+    });
   }
 
   async attachResults(imagingRequest) {
