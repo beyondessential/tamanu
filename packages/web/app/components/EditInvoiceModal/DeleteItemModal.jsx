@@ -22,7 +22,6 @@ export const DeleteItemModal = React.memo(
         <InvoiceItemDetailsCard lineItems={lineItems} />
         <StyledDivider />
         <FormSubmitCancelRow
-          confirmText={<TranslatedText stringId="general.action.confirm" fallback="Confirm" />}
           onConfirm={onDelete}
           onCancel={onClose}
         />
@@ -30,7 +29,3 @@ export const DeleteItemModal = React.memo(
     );
   },
 );
-
-DeleteItemModal.defaultProps = {
-  open: false,
-};

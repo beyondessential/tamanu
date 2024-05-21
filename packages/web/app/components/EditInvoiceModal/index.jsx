@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
 import * as yup from 'yup';
@@ -97,14 +97,13 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
   const [rowList, setRowList] = useState([{ id: uuidv4() }]);
   const [potentialLineItems, setPotentialLineItems] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
-  const [isEmpty, setIsEmpty] = useState(false);
   const api = useApi();
 
   useEffect(() => {
     (async () => {
-      const response = await api.get(`invoices/${encodeURIComponent(invoiceId)}/lineItems`);
-
-      const newRowList = response.data.map(item => ({
+      const { data } = await api.get(`invoices/${encodeURIComponent(invoiceId)}/lineItems`);
+      if (!data.length) return;
+      setRowList(data.map(item => ({
         id: item.id,
         details: item.invoiceLineType?.name,
         date: item.dateGenerated,
@@ -113,17 +112,16 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
         invoiceLineTypeId: item.invoiceLineTypeId,
         orderedById: item.orderedById,
         code: getInvoiceLineCode(item),
-      }));
-      if (newRowList.length) setRowList(newRowList);
+      })));
     })();
   }, [api]);
 
   const { loadEncounter } = useEncounter();
 
-  const updateRowData = useCallback((id, value) => {
+  const updateRowData = useCallback((id, updatedRowData) => {
     setRowList(prevRowList => {
       const newRowList = prevRowList.map(row => row.id === id
-        ? { ...row, ...value }
+        ? { ...row, ...updatedRowData }
         : row
       );
       return newRowList;
@@ -148,17 +146,23 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
           });
         }
       });
-      setRowList(newRowList);
-      return;
+    } else {
+      newRowList.push({ id: uuidv4() });
     }
 
-    newRowList.push({ id: uuidv4() });
     setRowList(newRowList);
   };
 
   const COLUMNS = [
-    { key: 'date', title: 'Date', accessor: ({ date }) => <DateDisplay date={date} /> },
-    { key: 'code', title: 'Code' },
+    {
+      key: 'date',
+      title: <TranslatedText stringId="general.date.label" fallback="Date" />,
+      accessor: ({ date }) => <DateDisplay date={date} />
+    },
+    {
+      key: 'code',
+      title: <TranslatedText stringId="invoice.table.column.code" fallback="Code" />
+    },
     {
       key: 'type',
       title: 'Category',
@@ -170,8 +174,21 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
         />
       ),
     },
-    { key: 'orderedBy', title: 'Ordered by' },
-    { key: 'price', title: 'Price', accessor: ({ price }) => `$${price}` },
+    {
+      key: 'orderedBy',
+      title: <TranslatedText stringId="invoice.table.column.orderedBy" fallback="Ordered by" />
+    },
+    {
+      key: 'price',
+      title: <TranslatedText stringId="invoice.table.column.price" fallback="Price" />,
+      accessor: ({ price }) => (
+        <TranslatedText
+          stringId="invoice.table.cell.price"
+          fallback="$:price"
+          replacements={{ price }}
+        />
+      )
+    },
     {
       sortable: false,
       accessor: (row) => (
@@ -182,10 +199,9 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
     },
   ];
 
-  useEffect(() => {
+  const isEmpty = useMemo(() => {
     const rowListIds = rowList.filter(row => !!row).map(row => row.id);
-    const isEmpty = potentialLineItems.every(item => rowListIds.includes(item.id));
-    setIsEmpty(isEmpty);
+    return potentialLineItems.every(item => rowListIds.includes(item.id));
   }, [rowList, potentialLineItems]);
 
   const onDataFetched = useCallback(({ data }) => {
@@ -213,18 +229,13 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
   const handleSubmit = async (submitData) => {
     if (isSaving) return;
     setIsSaving(true);
-    const invoiceLineItemsData = [];
-    let i = 0;
-    while (i < rowList.length) {
-      const newInvoiceLineItemData = {
-        id: rowList[i].id,
-        invoiceLineTypeId: submitData[`invoiceLineTypeId_${i}`],
-        date: submitData[`date_${i}`],
-        orderedById: submitData[`orderedById_${i}`],
-      };
-      invoiceLineItemsData.push(newInvoiceLineItemData);
-      i++;
-    }
+
+    const invoiceLineItemsData = rowList.map((row, index) => ({
+      id: row.id,
+      invoiceLineTypeId: submitData[`invoiceLineTypeId_${index}`],
+      date: submitData[`date_${index}`],
+      orderedById: submitData[`orderedById_${index}`],
+    }));
 
     await api.put(`invoices/${invoiceId}/lineItems`, { invoiceLineItemsData });
     await loadEncounter(encounterId);
@@ -313,7 +324,7 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
                 allowExport={false}
                 rowStyle={rowStyle}
                 onDataFetched={onDataFetched}
-                headerColor='white'
+                headerColor={Colors.white}
                 page={null}
                 elevated={false}
                 isDenseTable

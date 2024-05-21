@@ -86,13 +86,13 @@ export const KebabMenu = ({ isDeleteDisabled, rowData, onDelete }) => {
       >
         <KebabMenuItem onClick={() => handleActionModal(ACTION_MODALS.ADD_DISCOUNT)}>
           <TranslatedText
-            stringId="invoice.modal.editInvoice.addDiscount"
+            stringId="invoice.modal.editInvoice.action.addDiscount"
             fallback="Add discount"
           />
         </KebabMenuItem>
         <KebabMenuItem onClick={() => handleActionModal(ACTION_MODALS.ADD_MARKUP)}>
           <TranslatedText
-            stringId="invoice.modal.editInvoice.addMarkup"
+            stringId="invoice.modal.editInvoice.action.addMarkup"
             fallback="Add markup"
           />
         </KebabMenuItem>
@@ -101,7 +101,7 @@ export const KebabMenu = ({ isDeleteDisabled, rowData, onDelete }) => {
           onClick={() => !isDeleteDisabled && handleActionModal(ACTION_MODALS.DELETE)}
         >
           <TranslatedText
-            stringId="invoice.modal.editInvoice.delete"
+            stringId="invoice.modal.editInvoice.action.delete"
             fallback="Delete"
           />
         </KebabMenuItem>
