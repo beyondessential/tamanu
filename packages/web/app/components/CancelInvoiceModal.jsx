@@ -37,7 +37,7 @@ export const CancelInvoiceModal = React.memo(
       >
         <ContentText>
           <TranslatedText
-            stringId="invoice.modal.cancelInvoice.content"
+            stringId="invoice.modal.cancelInvoice.warningText"
             fallback="Are you sure you would like to cancel this invoice? This cannot be undone."
           />
         </ContentText>
