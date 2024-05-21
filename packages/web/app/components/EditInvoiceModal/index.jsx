@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
 import * as yup from 'yup';
@@ -45,6 +45,7 @@ const StyledDataFetchingTable = styled(DataFetchingTable)`
 `;
 
 const PotentialLineItemsPane = styled.div`
+  display: grid;
   max-width: 60%;
   margin-left: -4px;
   overflow: auto;
@@ -77,7 +78,6 @@ const PotentialLineItemsPane = styled.div`
 `;
 
 const PaneTitle = styled.div`
-  min-width: ${props => props.isEmpty ? '503px' : '585px'};
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -103,14 +103,13 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
   const [rowList, setRowList] = useState([{ id: uuidv4() }]);
   const [potentialLineItems, setPotentialLineItems] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
-  const [isEmpty, setIsEmpty] = useState(false);
   const api = useApi();
 
   useEffect(() => {
     (async () => {
-      const response = await api.get(`invoices/${encodeURIComponent(invoiceId)}/lineItems`);
-
-      const newRowList = response.data.map(item => ({
+      const { data } = await api.get(`invoices/${encodeURIComponent(invoiceId)}/lineItems`);
+      if (!data.length) return;
+      setRowList(data.map(item => ({
         id: item.id,
         details: item.invoiceLineType?.name,
         date: item.dateGenerated,
@@ -119,17 +118,16 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
         invoiceLineTypeId: item.invoiceLineTypeId,
         orderedById: item.orderedById,
         code: getInvoiceLineCode(item),
-      }));
-      if (newRowList.length) setRowList(newRowList);
+      })));
     })();
   }, [api]);
 
   const { loadEncounter } = useEncounter();
 
-  const updateRowData = useCallback((id, value) => {
+  const updateRowData = useCallback((id, updatedRowData) => {
     setRowList(prevRowList => {
       const newRowList = prevRowList.map(row => row.id === id
-        ? { ...row, ...value }
+        ? { ...row, ...updatedRowData }
         : row
       );
       return newRowList;
@@ -154,20 +152,29 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
           });
         }
       });
-      setRowList(newRowList);
-      return;
+    } else {
+      newRowList.push({ id: uuidv4() });
     }
 
-    newRowList.push({ id: uuidv4() });
     setRowList(newRowList);
   };
 
   const COLUMNS = [
-    { key: 'date', title: 'Date', accessor: ({ date }) => <DateDisplay date={date} /> },
-    { key: 'code', title: 'Code' },
+    {
+      key: 'date',
+      title: <TranslatedText stringId="general.date.label" fallback="Date" />,
+      accessor: ({ date }) => <DateDisplay date={date} />,
+    },
+    {
+      key: 'code',
+      title: <TranslatedText stringId="invoice.table.column.code" fallback="Code" />
+    },
     {
       key: 'type',
-      title: 'Category',
+      title: <TranslatedText
+        stringId="invoice.table.potentialItems.column.category"
+        fallback="Category"
+      />,
       accessor: ({ type }) => (
         <TranslatedEnum
           prefix="invoice.line.property.type"
@@ -176,8 +183,21 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
         />
       ),
     },
-    { key: 'orderedBy', title: 'Ordered by' },
-    { key: 'price', title: 'Price', accessor: ({ price }) => `$${price}` },
+    {
+      key: 'orderedBy',
+      title: <TranslatedText stringId="invoice.table.column.orderedBy" fallback="Ordered by" />
+    },
+    {
+      key: 'price',
+      title: <TranslatedText stringId="invoice.table.column.price" fallback="Price" />,
+      accessor: ({ price }) => (
+        <TranslatedText
+          stringId="invoice.table.cell.price"
+          fallback="$:price"
+          replacements={{ price }}
+        />
+      )
+    },
     {
       sortable: false,
       accessor: (row) => (
@@ -188,10 +208,9 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
     },
   ];
 
-  useEffect(() => {
+  const isEmpty = useMemo(() => {
     const rowListIds = rowList.filter(row => !!row).map(row => row.id);
-    const isEmpty = potentialLineItems.every(item => rowListIds.includes(item.id));
-    setIsEmpty(isEmpty);
+    return potentialLineItems.every(item => rowListIds.includes(item.id));
   }, [rowList, potentialLineItems]);
 
   const onDataFetched = useCallback(({ data }) => {
@@ -219,18 +238,13 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
   const handleSubmit = async (submitData) => {
     if (isSaving) return;
     setIsSaving(true);
-    const invoiceLineItemsData = [];
-    let i = 0;
-    while (i < rowList.length) {
-      const newInvoiceLineItemData = {
-        id: rowList[i].id,
-        invoiceLineTypeId: submitData[`invoiceLineTypeId_${i}`],
-        date: submitData[`date_${i}`],
-        orderedById: submitData[`orderedById_${i}`],
-      };
-      invoiceLineItemsData.push(newInvoiceLineItemData);
-      i++;
-    }
+
+    const invoiceLineItemsData = rowList.map((row, index) => ({
+      id: row.id,
+      invoiceLineTypeId: submitData[`invoiceLineTypeId_${index}`],
+      date: submitData[`date_${index}`],
+      orderedById: submitData[`orderedById_${index}`],
+    }));
 
     await api.put(`invoices/${invoiceId}/lineItems`, { invoiceLineItemsData });
     await loadEncounter(encounterId);
@@ -250,7 +264,7 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
         .string()
         .required()
         .translatedLabel(
-          <TranslatedText stringId="invoice.modal.editInvoice.details.label" fallback="Details type" />,
+          <TranslatedText stringId="invoice.modal.editInvoice.detailsType.label" fallback="Details type" />,
         ),
       [`orderedById_${currentIndex}`]: yup
         .string()
@@ -289,24 +303,25 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
         render={({ submitForm }) => (
           <FormContainer>
             <ItemHeader />
-            {rowList.map((row, index) => (
-              <ItemRow
-                key={row?.id}
-                index={index}
-                rowData={row}
-                hasBorderBottom={index === rowList.length - 1}
-                onDelete={() => onDeleteLineItem(row?.id)}
-                isDeleteDisabled={rowList.length === 1}
-                updateRowData={updateRowData}
-              />
-            ))}
+            <div>
+              {rowList.map((row, index) => (
+                <ItemRow
+                  key={row?.id}
+                  index={index}
+                  rowData={row}
+                  onDelete={() => onDeleteLineItem(row?.id)}
+                  isDeleteDisabled={rowList.length === 1}
+                  updateRowData={updateRowData}
+                />
+              ))}
+            </div>
             <LinkText onClick={() => handleAddRow()}>
-              {"+ "}<TranslatedText stringId="invoice.modal.editInvoice.newRow" fallback="New row" />
+              {"+ "}<TranslatedText stringId="invoice.modal.editInvoice.action.newRow" fallback="New row" />
             </LinkText>
             <PotentialLineItemsPane>
-              <PaneTitle isEmpty={isEmpty}>
+              <PaneTitle>
                 <TranslatedText
-                  stringId="invoice.modal.potentialInvoices.title"
+                  stringId="invoice.modal.potentialItems.title"
                   fallback="Patient items to be added"
                 />
                 <BulkAddButton onClick={() => handleAddRow(potentialLineItems)}>
@@ -325,11 +340,35 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
                 allowExport={false}
                 rowStyle={rowStyle}
                 onDataFetched={onDataFetched}
-                headerColor='white'
+                headerColor={Colors.white}
                 page={null}
                 elevated={false}
-                isDenseTable
                 isEmpty={isEmpty}
+                containerStyle='border: 0px solid white; overflow: visible;'
+                cellStyle='
+                  &.MuiTableCell-body {
+                    padding: 4px 30px 4px 0px;
+                  }
+                  &:first-child {
+                    padding-left: 0px;
+                  }
+                  &:last-child {
+                    padding-right: 5px;
+                  }
+                '
+                headStyle='
+                  .MuiTableCell-head {
+                    padding: 8px 30px 8px 0px;
+                    &:last-child {
+                      padding-right: 5px;
+                    }
+                  }
+                '
+                statusCellStyle='
+                  &.MuiTableCell-body {
+                    padding: 10px 0px; text-align: left;
+                  }
+                '
               />
             </PotentialLineItemsPane>
             <StyledDivider />
@@ -337,7 +376,7 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
               confirmText={
                 !isSaving
                   ? <TranslatedText stringId="general.action.save" fallback="Save" />
-                  : <CircularProgress size={14} color="#fff" />
+                  : <CircularProgress size={14} color={Colors.white} />
               }
               onConfirm={submitForm}
               onCancel={onClose}
