@@ -179,6 +179,7 @@ export const getInitialAdditionalValues = (data, fields): {} => {
   if (!data) {
     return {};
   }
+  // TODO: prepopulate the hierarchy fields
   // Copy values from data only in the specified fields
   const values = {};
   fields.forEach(fieldName => {

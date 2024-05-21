@@ -21,6 +21,34 @@ import {
 import { getConfiguredPatientAdditionalDataFields } from '~/ui/helpers/patient';
 import { ActivityIndicator } from 'react-native';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
+import { TranslatedText } from '../../Translations/TranslatedText';
+import { ReferenceDataType } from '~/types';
+import { HierarchyFields } from '../../HierarchyFields';
+
+// TODO: where should this go
+const CAMBODIA_LOCATION_HIERARCHY_FIELDS = [
+  {
+    name: 'divisionId',
+    referenceType: ReferenceDataType.Division,
+    label: <TranslatedText stringId="cambodiaPatientDetails.province.label" fallback="Province" />,
+  },
+  {
+    name: 'subdivisionId',
+    referenceType: ReferenceDataType.SubDivision,
+    label: <TranslatedText stringId="cambodiaPatientDetails.district.label" fallback="District" />,
+  },
+  {
+    name: 'settlementId',
+    referenceType: ReferenceDataType.Settlement,
+    label: <TranslatedText stringId="cambodiaPatientDetails.commune.label" fallback="Commune" />,
+  },
+  {
+    name: 'villageId',
+    referenceType: ReferenceDataType.Village,
+    label: <TranslatedText stringId="general.localisedField.villageId.label" fallback="Village" />,
+  },
+];
+
 
 const PlainField = ({ fieldName, required }): ReactElement => (
   // Outter styled view to momentarily add distance between fields
@@ -98,6 +126,9 @@ function getComponentForField(
   if (customFieldIds.includes(fieldName)) {
     return CustomField;
   }
+  if (fieldName.startsWith('hierarchy')) {
+    return HierarchyFields
+  }
   // Shouldn't happen
   throw new Error(`Unexpected field ${fieldName} for patient additional data.`);
 }
@@ -121,6 +152,6 @@ export const PatientAdditionalDataFields = ({ fields, showMandatory = true }): R
   return padFields.map(fieldName => {
     const Component = getComponentForField(fieldName, customFieldIds);
     const isRequired = getLocalisation(`fields.${fieldName}.requiredPatientData`);
-    return <Component fieldName={fieldName} key={fieldName} required={isRequired} />;
+    return <Component fieldName={fieldName} key={fieldName} required={isRequired} fields={CAMBODIA_LOCATION_HIERARCHY_FIELDS} />;
   });
 };
