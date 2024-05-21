@@ -85,6 +85,6 @@ export class VaccinationReminderProcessor extends ScheduledTask {
         },
         type: QueryTypes.INSERT,
       },
-    ).catch(e => log.error(e));
+    )
   }
 }
