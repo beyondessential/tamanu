@@ -1,5 +1,6 @@
 import { TranslatedString } from './TranslatedString';
 import { ReferenceData } from './ReferenceData';
+import { ReferenceDataRelation } from './ReferenceDataRelation';
 import { Patient } from './Patient';
 import { PatientAdditionalData } from './PatientAdditionalData';
 import { PatientFieldValue } from './PatientFieldValue';
@@ -67,6 +68,7 @@ export const MODELS_MAP = {
   PatientProgramRegistration,
   PatientProgramRegistrationCondition,
   ProgramRegistryClinicalStatus,
+  ReferenceDataRelation,
   ProgramDataElement,
   Survey,
   SurveyScreenComponent,

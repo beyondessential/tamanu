@@ -197,6 +197,27 @@ describe('Suggestions', () => {
       expect(filteredResult?.body?.length).toEqual(2);
     });
 
+    it('should sort locations naturally', async () => {
+      await models.Location.truncate({ cascade: true });
+
+      await findOneOrCreate(models, models.Location, {
+        name: 'Bed 1',
+        visibilityStatus: 'current',
+      });
+      await findOneOrCreate(models, models.Location, {
+        name: 'Bed 9',
+        visibilityStatus: 'current',
+      });
+      await findOneOrCreate(models, models.Location, {
+        name: 'Bed 15',
+        visibilityStatus: 'current',
+      });
+      const result = await userApp.get('/api/suggestions/location');
+      expect(result).toHaveSucceeded();
+      expect(result?.body?.length).toEqual(3);
+      expect(result?.body?.map(({ name }) => name)).toEqual(['Bed 1', 'Bed 9', 'Bed 15']);
+    });
+
     it('should return facilityId with suggestion list', async () => {
       await models.Location.truncate({ cascade: true, force: true });
       const facility = await models.Facility.create({
