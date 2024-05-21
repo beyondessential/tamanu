@@ -14,7 +14,6 @@ import {
   FieldWithTooltip,
   FormGrid,
   FormSeparatorLine,
-  LowerCase,
   NumberField,
   PaginatedForm,
   RadioField,
@@ -27,6 +26,7 @@ import { DeathFormScreen } from './DeathFormScreen';
 import { SummaryScreenThree, SummaryScreenTwo } from './DeathFormSummaryScreens';
 import { BINARY_OPTIONS, BINARY_UNKNOWN_OPTIONS, FORM_TYPES } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
+import { useTranslation } from '../contexts/Translation';
 
 const StyledFormGrid = styled(FormGrid)`
   min-height: 200px;
@@ -44,6 +44,22 @@ const PLACES = [
   'Farm',
   'Other',
 ];
+
+const attendingClinicianLabel = (
+  <TranslatedText
+    stringId="general.attendingClinician.label"
+    fallback="Attending :clinician"
+    replacements={{
+      clinician: (
+        <TranslatedText
+          stringId="general.localisedField.clinician.label.short"
+          fallback="Clinician"
+          lowercase
+        />
+      ),
+    }}
+  />
+);
 
 const placeOptions = Object.values(PLACES).map(type => ({
   label: type,
@@ -64,6 +80,7 @@ export const DeathForm = React.memo(
     icd10Suggester,
     facilitySuggester,
   }) => {
+    const { getTranslation } = useTranslation();
     const { currentUser } = useAuth();
     const canBePregnant = patient.sex === 'female' && ageInYears(patient.dateOfBirth) >= 12;
     const isInfant = ageInMonths(patient.dateOfBirth) <= 2;
@@ -77,26 +94,63 @@ export const DeathForm = React.memo(
         validationSchema={yup.object().shape({
           causeOfDeath: yup.string().when('isPartialWorkflow', {
             is: undefined,
-            then: yup.string().required(),
+            then: yup
+              .string()
+              .required()
+              .translatedLabel(
+                <TranslatedText stringId="death.causeOfDeath.label" fallback="Cause Of Death" />,
+              ),
           }),
           causeOfDeathInterval: yup.string().when('isPartialWorkflow', {
             is: undefined,
             then: yup
               .string()
               .required()
-              .label('Time between onset and death'),
+              .translatedLabel(
+                <TranslatedText
+                  stringId="death.timeBetweenOnsetAndDeath.label"
+                  fallback="Time between onset and death"
+                />,
+              ),
           }),
-          clinicianId: yup.string().required(),
+          clinicianId: yup
+            .string()
+            .required()
+            .translatedLabel(attendingClinicianLabel),
           lastSurgeryDate: yup
             .date()
-            .max(yup.ref('timeOfDeath'), "Date of last surgery can't be after time of death"),
+            .max(
+              yup.ref('timeOfDeath'),
+              getTranslation(
+                'validation.rule.dateOfSurgeryNotAfterTimeOfDeath',
+                "Date of last surgery can't be after time of death",
+              ),
+            ),
           mannerOfDeathDate: yup
             .date()
-            .max(yup.ref('timeOfDeath'), "Manner of death date can't be after time of death"),
+            .max(
+              yup.ref('timeOfDeath'),
+              getTranslation(
+                'death.validation.rule.mannerOfDeathDateNotAfterTimeOfDeath',
+                "Manner of death date can't be after time of death",
+              ),
+            ),
           timeOfDeath: yup
             .date()
-            .min(patient.dateOfBirth, "Time of death can't be before date of birth")
-            .required(),
+            .min(
+              patient.dateOfBirth,
+              getTranslation(
+                'death.validation.rule.timeOfDeathNotBeforeDateOfBirth',
+                "Time of death can't be before date of birth",
+              ),
+            )
+            .required()
+            .translatedLabel(
+              <TranslatedText
+                stringId="death.validation.timeOfDeath.path"
+                fallback="Time of death"
+              />,
+            ),
         })}
         initialValues={{
           outsideHealthFacility: false,
@@ -108,7 +162,7 @@ export const DeathForm = React.memo(
         <StyledFormGrid columns={1}>
           <Field
             name="timeOfDeath"
-            label="Date/Time"
+            label={<TranslatedText stringId="death.timeOfDeath.label" fallback="Date/Time" />}
             component={props => <DateTimeField {...props} InputProps={{}} />}
             saveDateAsString
             required
@@ -121,12 +175,11 @@ export const DeathForm = React.memo(
                 fallback="Attending :clinician"
                 replacements={{
                   clinician: (
-                    <LowerCase>
-                      <TranslatedText
-                        stringId="general.localisedField.clinician.label.short"
-                        fallback="Clinician"
-                      />
-                    </LowerCase>
+                    <TranslatedText
+                      stringId="general.localisedField.clinician.label.short"
+                      fallback="Clinician"
+                      lowercase
+                    />
                   ),
                 }}
               />
@@ -139,7 +192,7 @@ export const DeathForm = React.memo(
         <StyledFormGrid columns={2}>
           <FieldWithTooltip
             name="causeOfDeath"
-            label="Cause Of Death"
+            label={<TranslatedText stringId="death.causeOfDeath.label" fallback="Cause Of Death" />}
             component={AutocompleteField}
             suggester={icd10Suggester}
             tooltipText="This does not mean the mode of dying (e.g heart failure, respiratory failure). It means the disease, injury or complication that caused the death."
@@ -147,7 +200,12 @@ export const DeathForm = React.memo(
           />
           <Field
             name="causeOfDeathInterval"
-            label="Time between onset and death"
+            label={
+              <TranslatedText
+                stringId="death.timeBetweenOnsetAndDeath.label"
+                fallback="Time between onset and death"
+              />
+            }
             component={TimeWithUnitField}
             required
           />
@@ -170,6 +228,17 @@ export const DeathForm = React.memo(
           />
           <Field
             name="antecedentCause2Interval"
+            label="Time between onset and death"
+            component={TimeWithUnitField}
+          />
+          <Field
+            name="antecedentCause3"
+            label="Due to (or as a consequence of)"
+            component={AutocompleteField}
+            suggester={icd10Suggester}
+          />
+          <Field
+            name="antecedentCause3Interval"
             label="Time between onset and death"
             component={TimeWithUnitField}
           />

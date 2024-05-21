@@ -1,6 +1,7 @@
 import express from 'express';
 
 import { constructPermission } from '@tamanu/shared/permissions/middleware';
+import { settingsCache } from '@tamanu/settings';
 import { authMiddleware, loginHandler, refreshHandler } from '../../middleware/auth';
 import asyncHandler from 'express-async-handler';
 import { keyBy, mapValues } from 'lodash';
@@ -26,7 +27,7 @@ import { notes } from './note';
 import { ongoingCondition } from './ongoingCondition';
 import { patient, patientCarePlan, patientFieldDefinition, patientIssue } from './patient';
 import { patientFacility } from './patientFacility';
-import { patientLetterTemplate } from './patientLetterTemplate';
+import { template } from './template';
 import { procedure } from './procedure';
 import { program } from './program';
 import { programRegistry } from './programRegistry';
@@ -45,9 +46,9 @@ import { syncHealth } from './syncHealth';
 import { triage } from './triage';
 import { user } from './user';
 import { vitals } from './vitals';
-import { template } from './template';
 import { translation } from './translation';
 import { vaccinationSettings } from './vaccinationSettings';
+import { telegramRoutes } from './telegram/telegramRoutes';
 
 export const apiv1 = express.Router();
 const patientDataRoutes = express.Router();
@@ -97,10 +98,20 @@ apiv1.get(
 apiv1.use(authMiddleware);
 apiv1.use(constructPermission);
 
+apiv1.delete(
+  '/admin/settings/cache',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('manage', 'all');
+    settingsCache.reset();
+    res.status(204).send();
+  }),
+);
+
 apiv1.post('/refresh', refreshHandler);
 apiv1.use(patientDataRoutes); // see below for specifics
 apiv1.use(referenceDataRoutes); // see below for specifics
 apiv1.use(syncRoutes); // see below for specifics
+apiv1.use('/telegram', telegramRoutes);
 
 // patient data endpoints
 patientDataRoutes.use('/allergy', allergy);
@@ -137,7 +148,7 @@ referenceDataRoutes.use('/labRequestLog', labRequestLog);
 referenceDataRoutes.use('/location', location);
 referenceDataRoutes.use('/locationGroup', locationGroup);
 referenceDataRoutes.use('/patientFieldDefinition', patientFieldDefinition);
-referenceDataRoutes.use('/patientLetterTemplate', patientLetterTemplate);
+referenceDataRoutes.use('/template', template);
 referenceDataRoutes.use('/program', program);
 referenceDataRoutes.use('/programRegistry', programRegistry);
 referenceDataRoutes.use('/referenceData', referenceData);
@@ -147,7 +158,6 @@ referenceDataRoutes.use('/scheduledVaccine', scheduledVaccine);
 referenceDataRoutes.use('/suggestions', suggestions);
 referenceDataRoutes.use('/survey', survey);
 referenceDataRoutes.use('/user', user);
-referenceDataRoutes.use('/template', template);
 referenceDataRoutes.use('/vaccinationSettings', vaccinationSettings);
 referenceDataRoutes.use('/translation', translation);
 

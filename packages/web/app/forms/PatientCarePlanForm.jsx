@@ -55,7 +55,7 @@ export const PatientCarePlanForm = ({
           required
           component={TextField}
           multiline
-          rows={6}
+          minRows={6}
         />
         <FormSubmitCancelRow
           onCancel={onCancel}
@@ -76,7 +76,9 @@ export const PatientCarePlanForm = ({
     }}
     formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
     validationSchema={yup.object().shape({
-      carePlanId: foreignKey('Care plan is a required field'),
+      carePlanId: foreignKey().translatedLabel(
+        <TranslatedText stringId="carePlan.plan.label" fallback="Care plan" />,
+      ),
       date: yup.date(),
       examinerId: yup.string(),
       content: yup.string(),

@@ -27,14 +27,12 @@ import { DateTimeField, DateTimeInput } from '../components/Field/DateField';
 import { TextInput } from '../components/Field/TextField';
 import { FormGrid } from '../components/FormGrid';
 import { TableFormFields } from '../components/Table';
-import { LowerCase } from '../components/Typography';
 
 import { FormConfirmCancelBackRow, FormSubmitCancelRow } from '../components/ButtonRow';
 import { DiagnosisList } from '../components/DiagnosisList';
 import { useEncounter } from '../contexts/Encounter';
 import { MODAL_PADDING_LEFT_AND_RIGHT, MODAL_PADDING_TOP_AND_BOTTOM } from '../components';
 import { TranslatedText } from '../components/Translation/TranslatedText';
-import { useTranslation } from '../contexts/Translation';
 
 const Divider = styled(BaseDivider)`
   margin: 30px -${MODAL_PADDING_LEFT_AND_RIGHT}px;
@@ -53,6 +51,18 @@ const ConfirmContent = styled.div`
     font-weight: 400;
   }
 `;
+
+const dischargingClinicianLabel = (
+  <TranslatedText
+    stringId="general.dischargingClinician.label"
+    fallback="Discharging :clinician"
+    replacements={{
+      clinician: (
+        <TranslatedText stringId="general.localisedField.clinician.label" fallback="Clinician" />
+      ),
+    }}
+  />
+);
 
 const MAX_REPEATS = 12;
 const REPEATS_OPTIONS = range(MAX_REPEATS + 1).map(value => ({ label: value, value }));
@@ -229,12 +239,11 @@ const EncounterOverview = ({
             fallback="Supervising :clinician"
             replacements={{
               clinician: (
-                <LowerCase>
-                  <TranslatedText
-                    stringId="general.localisedField.clinician.label.short"
-                    fallback="Clinician"
-                  />
-                </LowerCase>
+                <TranslatedText
+                  stringId="general.localisedField.clinician.label.short"
+                  fallback="Clinician"
+                  lowercase
+                />
               ),
             }}
           />
@@ -254,7 +263,7 @@ const EncounterOverview = ({
         style={{ gridColumn: '1 / -1' }}
       />
       <OuterLabelFieldWrapper
-        label={<TranslatedText stringId="discharge.diagnoses.label" fallback="Diagnoses" />}
+        label={<TranslatedText stringId="general.diagnosis.label" fallback="Diagnosis" />}
         style={{ gridColumn: '1 / -1' }}
       >
         <DiagnosisList diagnoses={currentDiagnoses} />
@@ -330,12 +339,6 @@ export const DischargeForm = ({
   const [dischargeNotes, setDischargeNotes] = useState([]);
   const api = useApi();
   const { getLocalisedSchema } = useLocalisedSchema();
-  const { getTranslation } = useTranslation()
-
-  const clinicianText = getTranslation(
-    'general.localisedField.clinician.label.short',
-    'Clinician',
-  ).toLowerCase();
 
   // Only display medications that are not discontinued
   // Might need to update condition to compare by end date (decision pending)
@@ -371,20 +374,29 @@ export const DischargeForm = ({
       formType={FORM_TYPES.CREATE_FORM}
       SummaryScreen={DischargeSummaryScreen}
       validationSchema={yup.object().shape({
-        endDate: yup.date().required(),
+        endDate: yup
+          .date()
+          .required()
+          .translatedLabel(
+            <TranslatedText stringId="discharge.dischargeDate.label" fallback="Discharge date" />,
+          ),
         discharge: yup
           .object()
           .shape({
-            dischargerId: foreignKey(
-              `Discharging ${clinicianText.toLowerCase()} is a required field`,
-            ),
+            dischargerId: foreignKey().translatedLabel(dischargingClinicianLabel),
           })
           .shape({
             dispositionId: getLocalisedSchema({
               name: 'dischargeDisposition',
             }),
           })
-          .required(),
+          .required()
+          .translatedLabel(
+            <TranslatedText
+              stringId="general.localisedField.dischargeDisposition.label"
+              fallback="Discharge disposition"
+            />,
+          ),
       })}
       formProps={{ enableReinitialize: true, showInlineErrorsOnly: true, validateOnChange: true }}
     >
@@ -402,20 +414,7 @@ export const DischargeForm = ({
         />
         <Field
           name="discharge.dischargerId"
-          label={
-            <TranslatedText
-              stringId="general.dischargingClinician.label"
-              fallback="Discharging :clinician"
-              replacements={{
-                clinician: (
-                  <TranslatedText
-                    stringId="general.localisedField.clinician.label"
-                    fallback="Clinician"
-                  />
-                ),
-              }}
-            />
-          }
+          label={dischargingClinicianLabel}
           component={AutocompleteField}
           suggester={practitionerSuggester}
           required
@@ -471,7 +470,7 @@ export const DischargeForm = ({
           }
           component={TextField}
           multiline
-          rows={4}
+          minRows={4}
           style={{ gridColumn: '1 / -1' }}
         />
       </FormGrid>

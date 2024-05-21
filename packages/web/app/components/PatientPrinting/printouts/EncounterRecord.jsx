@@ -14,7 +14,6 @@ import { DisplayValue, LocalisedDisplayValue } from './reusable/CertificateLabel
 import { ENCOUNTER_OPTIONS_BY_VALUE } from '../../../constants';
 
 import { ImagingRequestData } from './reusable/ImagingRequestData';
-import { LowerCase } from '../../Typography';
 import { TranslatedText } from '../../Translation/TranslatedText';
 
 // STYLES
@@ -331,12 +330,11 @@ export const EncounterRecord = React.memo(
                   fallback="Supervising :clinician"
                   replacements={{
                     clinician: (
-                      <LowerCase>
-                        <TranslatedText
-                          stringId="general.localisedField.clinician.label.short"
-                          fallback="Clinician"
-                        />
-                      </LowerCase>
+                      <TranslatedText
+                        stringId="general.localisedField.clinician.label.short"
+                        fallback="Clinician"
+                        lowercase
+                      />
                     ),
                   }}
                 />
@@ -352,12 +350,11 @@ export const EncounterRecord = React.memo(
                   fallback="Discharging :clinician"
                   replacements={{
                     clinician: (
-                      <LowerCase>
-                        <TranslatedText
-                          stringId="general.localisedField.clinician.label.short"
-                          fallback="Clinician"
-                        />
-                      </LowerCase>
+                      <TranslatedText
+                        stringId="general.localisedField.clinician.label.short"
+                        fallback="Clinician"
+                        lowercase
+                      />
                     ),
                   }}
                 />

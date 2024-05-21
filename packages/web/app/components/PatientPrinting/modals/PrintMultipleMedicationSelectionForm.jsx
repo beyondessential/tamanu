@@ -27,7 +27,7 @@ const COLUMN_KEYS = {
 const COLUMNS = [
   {
     key: COLUMN_KEYS.DATE,
-    title: <TranslatedText stringId="general.table.column.date" fallback="Date" />,
+    title: <TranslatedText stringId="general.date.label" fallback="Date" />,
     sortable: false,
     accessor: ({ date }) => <DateDisplay date={date} />,
   },
