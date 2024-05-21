@@ -294,7 +294,7 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
             <PotentialLineItemsPane>
               <PaneTitle isEmpty={isEmpty}>
                 <TranslatedText
-                  stringId="invoice.modal.potentialInvoices.title"
+                  stringId="invoice.modal.potentialItems.title"
                   fallback="Patient items to be added"
                 />
                 <BulkAddButton onClick={() => handleAddRow(potentialLineItems)}>
