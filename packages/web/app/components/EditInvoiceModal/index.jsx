@@ -8,7 +8,7 @@ import { Modal } from '../Modal';
 import { TranslatedEnum, TranslatedText } from '../Translation';
 import { Form } from '../Field';
 import { useApi } from '../../api';
-import { Colors } from '../../constants';
+import { Colors, denseTableStyle } from '../../constants';
 import { FormSubmitCancelRow } from '../ButtonRow';
 import { DataFetchingTable } from '../Table';
 import { DateDisplay } from '../DateDisplay';
