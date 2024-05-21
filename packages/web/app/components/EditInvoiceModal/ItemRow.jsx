@@ -20,8 +20,10 @@ const StyledItemRow = styled(Grid)`
   border-left: 1px solid ${Colors.outline};
   border-right: 1px solid ${Colors.outline};
   border-top: 1px solid ${Colors.outline};
-  ${props => props.hasBorderBottom &&
-    `border-bottom: 1px solid ${Colors.outline}; padding-bottom: 0px;`}
+  &:last-child {
+    border-bottom: 1px solid ${Colors.outline};
+    padding-bottom: 0px;
+  }
 `;
 
 const StyledItemHeader = styled(Grid)`
@@ -82,7 +84,6 @@ export const ItemHeader = () => {
 
 export const ItemRow = ({
   index,
-  hasBorderBottom,
   onDelete,
   rowData,
   isDeleteDisabled,
@@ -104,7 +105,6 @@ export const ItemRow = ({
       container
       alignItems='center'
       spacing={1}
-      hasBorderBottom={hasBorderBottom}
     >
       <Grid item xs={2}>
         <Field

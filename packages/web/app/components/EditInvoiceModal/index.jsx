@@ -291,17 +291,18 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
         render={({ submitForm }) => (
           <FormContainer>
             <ItemHeader />
-            {rowList.map((row, index) => (
-              <ItemRow
-                key={row?.id}
-                index={index}
-                rowData={row}
-                hasBorderBottom={index === rowList.length - 1}
-                onDelete={() => onDeleteLineItem(row?.id)}
-                isDeleteDisabled={rowList.length === 1}
-                updateRowData={updateRowData}
-              />
-            ))}
+            <div>
+              {rowList.map((row, index) => (
+                <ItemRow
+                  key={row?.id}
+                  index={index}
+                  rowData={row}
+                  onDelete={() => onDeleteLineItem(row?.id)}
+                  isDeleteDisabled={rowList.length === 1}
+                  updateRowData={updateRowData}
+                />
+              ))}
+            </div>
             <LinkText onClick={() => handleAddRow()}>
               {"+ "}<TranslatedText stringId="invoice.modal.editInvoice.action.newRow" fallback="New row" />
             </LinkText>
