@@ -42,7 +42,6 @@ export const CancelInvoiceModal = React.memo(
           />
         </ContentText>
         <ModalActionRow
-          confirmText={<TranslatedText stringId="general.action.confirm" fallback="Confirm" />}
           onConfirm={cancelInvoice}
           onCancel={onClose}
         />
@@ -50,7 +49,3 @@ export const CancelInvoiceModal = React.memo(
     );
   },
 );
-
-CancelInvoiceModal.defaultProps = {
-  open: false,
-};
