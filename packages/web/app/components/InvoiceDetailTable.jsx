@@ -4,7 +4,7 @@ import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { TranslatedText } from './Translation';
 import { getInvoiceLineCode } from '../utils/invoiceDetails';
-import { Colors } from '../constants';
+import { Colors, denseTableStyle } from '../constants';
 import { Box } from '@material-ui/core';
 import styled from 'styled-components';
 
@@ -98,12 +98,15 @@ export const InvoiceDetailTable = React.memo(({ invoice }) => {
           />
         }
         allowExport={false}
-        isDenseTable
         elevated={false}
         headerColor='white'
         page={null}
         rowStyle={() => 'height: 40px;'}
         headerTextColor={Colors.midText}
+        containerStyle={denseTableStyle.container}
+        cellStyle={denseTableStyle.cell}
+        headStyle={denseTableStyle.head}
+        statusCellStyle={denseTableStyle.statusCell}
       />
     </>
   );

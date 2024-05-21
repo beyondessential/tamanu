@@ -344,31 +344,10 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
                 page={null}
                 elevated={false}
                 isEmpty={isEmpty}
-                containerStyle='border: 0px solid white; overflow: visible;'
-                cellStyle='
-                  &.MuiTableCell-body {
-                    padding: 4px 30px 4px 0px;
-                  }
-                  &:first-child {
-                    padding-left: 0px;
-                  }
-                  &:last-child {
-                    padding-right: 5px;
-                  }
-                '
-                headStyle='
-                  .MuiTableCell-head {
-                    padding: 8px 30px 8px 0px;
-                    &:last-child {
-                      padding-right: 5px;
-                    }
-                  }
-                '
-                statusCellStyle='
-                  &.MuiTableCell-body {
-                    padding: 10px 0px; text-align: left;
-                  }
-                '
+                containerStyle={denseTableStyle.container}
+                cellStyle={denseTableStyle.cell}
+                headStyle={denseTableStyle.head}
+                statusCellStyle={denseTableStyle.statusCell}
               />
             </PotentialLineItemsPane>
             <StyledDivider />
