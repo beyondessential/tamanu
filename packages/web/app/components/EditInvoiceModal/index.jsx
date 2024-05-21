@@ -44,6 +44,7 @@ const StyledDataFetchingTable = styled(DataFetchingTable)`
 `;
 
 const PotentialLineItemsPane = styled.div`
+  display: grid;
   max-width: 60%;
   margin-left: -4px;
   overflow: auto;
@@ -76,7 +77,6 @@ const PotentialLineItemsPane = styled.div`
 `;
 
 const PaneTitle = styled.div`
-  min-width: ${props => props.isEmpty ? '503px' : '585px'};
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -157,7 +157,7 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
     {
       key: 'date',
       title: <TranslatedText stringId="general.date.label" fallback="Date" />,
-      accessor: ({ date }) => <DateDisplay date={date} />
+      accessor: ({ date }) => <DateDisplay date={date} />,
     },
     {
       key: 'code',
@@ -307,7 +307,7 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
               {"+ "}<TranslatedText stringId="invoice.modal.editInvoice.action.newRow" fallback="New row" />
             </LinkText>
             <PotentialLineItemsPane>
-              <PaneTitle isEmpty={isEmpty}>
+              <PaneTitle>
                 <TranslatedText
                   stringId="invoice.modal.potentialItems.title"
                   fallback="Patient items to be added"
@@ -331,8 +331,32 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
                 headerColor={Colors.white}
                 page={null}
                 elevated={false}
-                isDenseTable
                 isEmpty={isEmpty}
+                containerStyle='border: 0px solid white; overflow: visible;'
+                cellStyle='
+                  &.MuiTableCell-body {
+                    padding: 4px 30px 4px 0px;
+                  }
+                  &:first-child {
+                    padding-left: 0px;
+                  }
+                  &:last-child {
+                    padding-right: 5px;
+                  }
+                '
+                headStyle='
+                  .MuiTableCell-head {
+                    padding: 8px 30px 8px 0px;
+                    &:last-child {
+                      padding-right: 5px;
+                    }
+                  }
+                '
+                statusCellStyle='
+                  &.MuiTableCell-body {
+                    padding: 10px 0px; text-align: left;
+                  }
+                '
               />
             </PotentialLineItemsPane>
             <StyledDivider />
