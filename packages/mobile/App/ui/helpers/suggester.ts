@@ -50,7 +50,7 @@ export class Suggester<ModelType extends BaseModelSubclass> {
   };
 
   fetchSuggestions = async (search: string): Promise<OptionType[]> => {
-    const { where = {}, column = 'name' } = this.options;
+    const { where = {}, column = 'name', relations } = this.options;
 
     try {
       const data = await this.fetch({
@@ -61,9 +61,10 @@ export class Suggester<ModelType extends BaseModelSubclass> {
         order: {
           [column]: 'ASC',
         },
+        relations,
       });
 
-      return data.filter(this.filter).map(this.formatter);
+      return this.filter ? data.filter(this.filter).map(this.formatter) : data.map(this.formatter);
     } catch (e) {
       return [];
     }

@@ -30,6 +30,7 @@ export class PatientDeathData extends Model {
         primaryCauseTimeAfterOnset: Sequelize.INTEGER, // minutes
         antecedentCause1TimeAfterOnset: Sequelize.INTEGER, // minutes
         antecedentCause2TimeAfterOnset: Sequelize.INTEGER, // minutes
+        antecedentCause3TimeAfterOnset: Sequelize.INTEGER, // minutes
         isFinal: Sequelize.BOOLEAN,
         visibilityStatus: {
           type: Sequelize.TEXT,
@@ -100,6 +101,11 @@ export class PatientDeathData extends Model {
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'antecedentCause2ConditionId',
       as: 'antecedentCause2Condition',
+      allowNull: true,
+    });
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'antecedentCause3ConditionId',
+      as: 'antecedentCause3Condition',
       allowNull: true,
     });
     this.belongsTo(models.ReferenceData, {

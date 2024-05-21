@@ -6,6 +6,8 @@ import { Heading4 } from '../../components';
 import { AutocompleteField, DateTimeField, Field } from '../../components/Field';
 import { Colors } from '../../constants';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
+import { SETTING_KEYS } from '@tamanu/constants';
+import { useSettings } from '../../contexts/Settings';
 
 const Container = styled.div`
   border: 1px solid ${Colors.outline};
@@ -14,7 +16,7 @@ const Container = styled.div`
   display: grid;
   grid-template-columns: ${props => (props.hasPanels ? 'repeat(6, 1fr)' : ' 230px repeat(4, 1fr)')};
   padding-bottom: 10px;
-  
+
   > div:nth-last-child(-n + ${props => (props.hasPanels ? '6' : '5')}) {
     border-bottom: none;
   }
@@ -33,7 +35,7 @@ const HeaderCell = styled(Heading4)`
 const Cell = styled.div`
   display: flex;
   padding: 10px 16px 10px 0px;
-  align-items: center;
+  align-items: flex-start;
   > div {
     width: 100%;
   }
@@ -49,35 +51,11 @@ const StyledField = styled(Field)`
       border-color: #dedede;
     }
   }
+  .MuiFormHelperText-root {
+    background-color: white;
+  }
 `;
 
-const HEADERS = [
-  <TranslatedText
-    key="category"
-    stringId="lab.sampleDetail.table.column.category"
-    fallback="Category"
-  />,
-  <TranslatedText
-    key="dateTimeCollected"
-    stringId="lab.sampleDetail.table.column.collectionDateTime"
-    fallback="Date & time collected"
-  />,
-  <TranslatedText
-    key="dateTimeCollected"
-    stringId="lab.sampleDetail.table.column.collectedBy"
-    fallback="Collected by"
-  />,
-  <TranslatedText
-    key="specimentType"
-    stringId="lab.sampleDetail.table.column.specimenType"
-    fallback="Specimen type"
-  />,
-  <TranslatedText key="site" stringId="lab.sampleDetail.table.column.site" fallback="Site" />,
-];
-const WITH_PANELS_HEADERS = [
-  <TranslatedText key="panel" stringId="lab.sampleDetail.table.column.panel" fallback="Panel" />,
-  ...HEADERS,
-];
 export const SAMPLE_DETAILS_FIELD_PREFIX = 'sample-details-field-';
 
 export const SampleDetailsField = ({
@@ -87,6 +65,40 @@ export const SampleDetailsField = ({
   labSampleSiteSuggester,
   onSampleChange,
 }) => {
+  const { getSetting } = useSettings();
+  const mandateSpecimenType = getSetting(SETTING_KEYS.FEATURE_MANDATE_SPECIMEN_TYPE);
+
+  const HEADERS = [
+    <TranslatedText
+      key="category"
+      stringId="lab.sampleDetail.table.column.category"
+      fallback="Category"
+    />,
+    <TranslatedText
+      key="dateTimeCollected"
+      stringId="lab.sampleDetail.table.column.collectionDateTime"
+      fallback="Date & time collected"
+    />,
+    <TranslatedText
+      key="dateTimeCollected"
+      stringId="lab.sampleDetail.table.column.collectedBy"
+      fallback="Collected by"
+    />,
+    <>
+    <TranslatedText
+      key="specimentType"
+      stringId="lab.sampleDetail.table.column.specimenType"
+      fallback="Specimen type"
+      />
+      {mandateSpecimenType && <span style={{ color: Colors.alert }}> *</span>}
+      </>,
+    <TranslatedText key="site" stringId="lab.site.label" fallback="Site" />,
+  ];
+  const WITH_PANELS_HEADERS = [
+    <TranslatedText key="panel" stringId="lab.sampleDetail.table.column.panel" fallback="Panel" />,
+    ...HEADERS,
+  ];
+
   const [samples, setSamples] = useState({});
 
   const hasPanels = useMemo(() => {

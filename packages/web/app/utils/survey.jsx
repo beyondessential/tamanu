@@ -286,7 +286,7 @@ export const getAnswersFromData = (data, survey) =>
     return acc;
   }, {});
 
-export const getValidationSchema = (surveyData, valuesToCheckMandatory = {}) => {
+export const getValidationSchema = (surveyData, getTranslation, valuesToCheckMandatory = {}) => {
   if (!surveyData) return {};
   const { components } = surveyData;
   const schema = components.reduce(
@@ -314,6 +314,7 @@ export const getValidationSchema = (surveyData, valuesToCheckMandatory = {}) => 
         case PROGRAM_DATA_ELEMENT_TYPES.NUMBER: {
           valueSchema = yup.number().nullable();
           if (typeof min === 'number' && !isNaN(min)) {
+            // yup todo: theses ones require whole other logic repeat
             valueSchema = valueSchema.min(min, `${text} must be at least ${min}${unit}`);
           }
           if (typeof max === 'number' && !isNaN(max)) {
@@ -338,7 +339,7 @@ export const getValidationSchema = (surveyData, valuesToCheckMandatory = {}) => 
       return {
         ...acc,
         [dataElementId]: valueSchema[mandatory ? 'required' : 'notRequired'](
-          mandatory ? 'Required' : null,
+          mandatory ? getTranslation('validation.required.inline', '*Required') : null,
         ),
       };
     },

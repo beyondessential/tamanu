@@ -9,9 +9,8 @@ import {
 import { useCertificate } from '../../../utils/useCertificate';
 
 import { Modal } from '../../../components';
-import { LoadingIndicator } from '../../../components/LoadingIndicator';
 import { Colors } from '../../../constants';
-import { PDFViewer, printPDF } from '../../../components/PatientPrinting/PDFViewer';
+import { PDFLoader, printPDF } from '../../../components/PatientPrinting/PDFLoader';
 import { useLocalisation } from '../../../contexts/Localisation';
 import { useTranslation } from '../../../contexts/Translation';
 import { MultipleLabRequestsPrintout } from '@tamanu/shared/utils/patientCertificates';
@@ -63,20 +62,16 @@ export const LabRequestPrintModal = React.memo(({ labRequest, patient, open, onC
       printable
       onPrint={() => printPDF('lab-request-printout')}
     >
-      {isLoading ? (
-        <LoadingIndicator />
-      ) : (
-        <PDFViewer id="lab-request-printout">
-          <MultipleLabRequestsPrintout
-            labRequests={[{ ...labRequest, tests: testsData.data, notes: notes?.data || [] }]}
-            patientData={{ ...patient, additionalData, village }}
-            encounter={encounter}
-            certificateData={certificateData}
-            getLocalisation={getLocalisation}
-            getTranslation={getTranslation}
-          />
-        </PDFViewer>
-      )}
+      <PDFLoader isLoading={isLoading} id="lab-request-printout">
+        <MultipleLabRequestsPrintout
+          labRequests={[{ ...labRequest, tests: testsData?.data, notes: notes?.data || [] }]}
+          patientData={{ ...patient, additionalData, village }}
+          encounter={encounter}
+          certificateData={certificateData}
+          getLocalisation={getLocalisation}
+          getTranslation={getTranslation}
+        />
+      </PDFLoader>
     </Modal>
   );
 });

@@ -132,14 +132,14 @@ async function centralServerLoginWithLocalFallback(models, email, password, devi
 }
 
 export async function loginHandler(req, res, next) {
-  const { body, models, deviceId } = req;
+  const { body, models, deviceId, settings } = req;
   const { email, password } = body;
 
   // no permission needed for login
   req.flagPermissionChecked();
 
   try {
-    const { central, user, localisation, settings } = await centralServerLoginWithLocalFallback(
+    const { central, user, localisation } = await centralServerLoginWithLocalFallback(
       models,
       email,
       password,
@@ -160,7 +160,7 @@ export async function loginHandler(req, res, next) {
       server: {
         facility: facility?.forResponse() ?? null,
       },
-      settings,
+      settings: await settings.getFrontEndSettings(),
     });
   } catch (e) {
     next(e);

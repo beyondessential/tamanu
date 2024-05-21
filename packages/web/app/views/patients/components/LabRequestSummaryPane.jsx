@@ -10,7 +10,6 @@ import {
   DateDisplay,
   FormSeparatorLine,
   Heading3,
-  LowerCase,
   OutlinedButton,
   Table,
   useSelectableColumn,
@@ -148,12 +147,11 @@ export const LabRequestSummaryPane = React.memo(
                   fallback="Requesting :clinician"
                   replacements={{
                     clinician: (
-                      <LowerCase>
-                        <TranslatedText
-                          stringId="general.localisedField.clinician.label.short"
-                          fallback="Clinician"
-                        />
-                      </LowerCase>
+                      <TranslatedText
+                        stringId="general.localisedField.clinician.label.short"
+                        fallback="Clinician"
+                        lowercase
+                      />
                     ),
                   }}
                 />
@@ -170,9 +168,7 @@ export const LabRequestSummaryPane = React.memo(
               value={<DateDisplay date={requestedDate} showTime />}
             />
             <InfoCardItem
-              label={
-                <TranslatedText stringId="general.department.label" fallback="Department" />
-              }
+              label={<TranslatedText stringId="general.department.label" fallback="Department" />}
               value={department?.name}
             />
             <InfoCardItem

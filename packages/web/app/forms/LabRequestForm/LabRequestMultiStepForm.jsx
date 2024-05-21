@@ -4,14 +4,17 @@ import { LAB_REQUEST_FORM_TYPES } from '@tamanu/constants/labs';
 import PropTypes from 'prop-types';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { useAuth } from '../../contexts/Auth';
+import { useTranslation } from '../../contexts/Translation';
 import { foreignKey } from '../../utils/validation';
 
 import { FormStep, MultiStepForm } from '../MultiStepForm';
 import { LabRequestFormScreen1 } from './LabRequestFormScreen1';
-import { LabRequestFormScreen2, screen2ValidationSchema } from './LabRequestFormScreen2';
+import { LabRequestFormScreen2 } from './LabRequestFormScreen2';
 import { LabRequestFormScreen3 } from './LabRequestFormScreen3';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
-import { LowerCase } from '../../components';
+import { useSettings } from '../../contexts/Settings';
+import { SETTING_KEYS } from '@tamanu/constants';
+import { SAMPLE_DETAILS_FIELD_PREFIX } from '../../views/labRequest/SampleDetailsField';
 
 export const LabRequestMultiStepForm = ({
   isSubmitting,
@@ -25,46 +28,101 @@ export const LabRequestMultiStepForm = ({
   onSubmit,
   editedObject,
 }) => {
+  const { getSetting } = useSettings();
+  const mandateSpecimenType = getSetting(SETTING_KEYS.FEATURE_MANDATE_SPECIMEN_TYPE);
+
+  const { getTranslation } = useTranslation();
   const { currentUser } = useAuth();
   const [initialSamples, setInitialSamples] = useState([]);
 
   // For fields please see LabRequestFormScreen1.js
   const screen1ValidationSchema = yup.object().shape({
-    requestedById: foreignKey(
+    requestedById: foreignKey().translatedLabel(
       <TranslatedText
-        stringId="lab.requestedBy.validation"
-        fallback="Requesting :clinicianText is required"
+        stringId="lab.requestingClinician.label"
+        fallback="Requesting :clinician"
         replacements={{
-          clinicianText: (
-            <LowerCase>
-              <TranslatedText
-                stringId="general.localisedField.clinician.label.short"
-                fallback="Clinician"
-              />
-            </LowerCase>
+          clinician: (
+            <TranslatedText
+              stringId="general.localisedField.clinician.label.short"
+              fallback="Clinician"
+              lowercase
+            />
           ),
         }}
       />,
     ),
     requestedDate: yup
       .date()
-      .required(
-        <TranslatedText
-          stringId="lab.requestedDate.validation"
-          fallback="Request date is required"
-        />,
+      .required()
+      .translatedLabel(
+        <TranslatedText stringId="general.requestDate.label" fallback="Request date" />,
       ),
     requestFormType: yup
       .string()
       .oneOf(Object.values(LAB_REQUEST_FORM_TYPES))
-      .required(
-        <TranslatedText
-          stringId="lab.requestFormType.validation"
-          fallback="Request type must be selected"
-        />,
+      .required()
+      .translatedLabel(
+        <TranslatedText stringId="general.requestType.label" fallback="Request type" />,
       ),
   });
-  const combinedValidationSchema = screen1ValidationSchema.concat(screen2ValidationSchema);
+
+  const screen2ValidationSchema = yup.object().shape({
+    labTestTypeIds: yup
+      .array()
+      .nullable()
+      .when('requestFormType', {
+        is: val => val === LAB_REQUEST_FORM_TYPES.INDIVIDUAL,
+        then: yup
+          .array()
+          .of(yup.string())
+          .min(
+            1,
+            getTranslation(
+              'validation.rule.atLeast1TestType',
+              'Please select at least one test type',
+            ),
+          ),
+      }),
+    panelIds: yup
+      .array()
+      .nullable()
+      .when('requestFormType', {
+        is: val => val === LAB_REQUEST_FORM_TYPES.PANEL,
+        then: yup
+          .array()
+          .of(yup.string())
+          .min(
+            1,
+            getTranslation('validation.rule.atLeast1Panel', 'Please select at least one panel'),
+          ),
+      }),
+    notes: yup.string(),
+  });
+
+  const screen3ValidationSchema = yup.object().shape(
+    initialSamples.reduce((acc, sample) => {
+      acc[
+        `${SAMPLE_DETAILS_FIELD_PREFIX}specimenType-${sample.panelId || sample.categoryId}`
+      ] = mandateSpecimenType
+        ? yup
+            .string()
+            .required()
+            .translatedLabel(
+              <TranslatedText
+                stringId="lab.modal.recordSample.specimenType.label"
+                fallback="Specimen type"
+              />,
+            )
+        : yup.string();
+
+      return acc;
+    }, {}),
+  );
+
+  const combinedValidationSchema = screen1ValidationSchema
+    .concat(screen2ValidationSchema)
+    .concat(screen3ValidationSchema);
 
   return (
     <MultiStepForm
@@ -97,6 +155,7 @@ export const LabRequestMultiStepForm = ({
         />
       </FormStep>
       <FormStep
+        validationSchema={screen3ValidationSchema}
         submitButtonText={<TranslatedText stringId="general.action.finalise" fallback="Finalise" />}
       >
         <LabRequestFormScreen3

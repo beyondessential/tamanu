@@ -14,7 +14,6 @@ import {
   BaseSelectField,
 } from '../../components';
 import { useProgramRegistryQuery } from '../../api/queries/useProgramRegistryQuery';
-import { useProgramRegistryConditions } from '../../api/queries/useProgramRegistryConditions';
 import { useSexOptions } from '../../hooks';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 
@@ -40,9 +39,9 @@ export const ProgramRegistrySearchBar = ({ searchParameters, setSearchParameters
     baseQueryParameters: { programRegistryId: params.programRegistryId },
   });
 
-  const { data: programRegistryConditions } = useProgramRegistryConditions(
-    params.programRegistryId,
-  );
+  const programRegistryConditionSuggester = useSuggester('programRegistryCondition', {
+    baseQueryParameters: { programRegistryId: params.programRegistryId },
+  });
 
   return (
     <CustomisableSearchBar
@@ -87,7 +86,6 @@ export const ProgramRegistrySearchBar = ({ searchParameters, setSearchParameters
       }
     >
       <LocalisedField
-        keepLetterCase
         name="displayId"
         label={
           <TranslatedText stringId="general.localisedField.displayId.label.short" fallback="NHN" />
@@ -141,9 +139,8 @@ export const ProgramRegistrySearchBar = ({ searchParameters, setSearchParameters
       <Field
         label="Related condition"
         name="programRegistryCondition"
-        component={BaseSelectField}
-        options={programRegistryConditions?.data.map(x => ({ label: x.name, value: x.id }))}
-        size="small"
+        component={AutocompleteField}
+        suggester={programRegistryConditionSuggester}
       />
       <Field
         label="Status"

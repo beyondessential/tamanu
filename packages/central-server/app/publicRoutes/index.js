@@ -5,6 +5,7 @@ import { keyBy, mapValues } from 'lodash';
 
 import { labResultWidgetRoutes } from './labResultWidget';
 import { publicIntegrationRoutes } from '../integrations';
+import { telegramWebhookRoutes } from './telegramWebhook';
 
 export const publicRoutes = express.Router();
 
@@ -47,3 +48,5 @@ publicRoutes.get('/translation/:language', async (req, res) => {
 
 publicRoutes.use('/labResultWidget', labResultWidgetRoutes);
 publicRoutes.use('/integration', publicIntegrationRoutes);
+
+publicRoutes.use('/telegram-webhook', telegramWebhookRoutes);

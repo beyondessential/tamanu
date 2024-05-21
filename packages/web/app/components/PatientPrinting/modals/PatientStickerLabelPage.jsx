@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useLocalisation } from '../../../contexts/Localisation';
-import { PDFViewer, printPDF } from '../PDFViewer';
+import { PDFLoader, printPDF } from '../PDFLoader';
 import { IDLabelPrintout } from '@tamanu/shared/utils/patientCertificates';
 import { Modal } from '../../Modal';
 
@@ -14,12 +14,11 @@ export const PatientStickerLabelPage = React.memo(({ patient }) => {
       onClose={() => setOpen(false)}
       width="md"
       printable
-      keepMounted
       onPrint={() => printPDF('patient-label-printout')}
     >
-      <PDFViewer id="patient-label-printout">
+      <PDFLoader id="patient-label-printout">
         <IDLabelPrintout patient={patient} measures={measures} />
-      </PDFViewer>
+      </PDFLoader>
     </Modal>
   );
 });
