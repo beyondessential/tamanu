@@ -289,7 +289,7 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
               />
             ))}
             <LinkText onClick={() => handleAddRow()}>
-              {"+ "}<TranslatedText stringId="invoice.modal.editInvoice.newRow" fallback="New row" />
+              {"+ "}<TranslatedText stringId="invoice.modal.editInvoice.action.newRow" fallback="New row" />
             </LinkText>
             <PotentialLineItemsPane>
               <PaneTitle isEmpty={isEmpty}>
