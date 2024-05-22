@@ -39,8 +39,6 @@ yarn-error.log
 # BUCK
 buck-out/
 \.buckd/
-*.keystore
-!debug.keystore
 
 # mockserver
 mockserver/functions/node_modules

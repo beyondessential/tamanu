@@ -1,5 +1,8 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import { Op } from 'sequelize';
+
+import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { getFilteredListByPermission } from '@tamanu/shared/utils/getFilteredListByPermission';
 import { NotFoundError } from '@tamanu/shared/errors';
 import {
@@ -52,7 +55,10 @@ survey.get(
     const { models, ability } = req;
     req.checkPermission('list', 'Survey');
     const surveys = await models.Survey.findAll({
-      where: { surveyType: req.query.type },
+      where: {
+        surveyType: req.query.type,
+        visibilityStatus: { [Op.ne]: VISIBILITY_STATUSES.HISTORICAL },
+      },
     });
     const filteredSurveys = getFilteredListByPermission(ability, surveys, 'submit');
 

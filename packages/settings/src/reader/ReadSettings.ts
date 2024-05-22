@@ -5,6 +5,8 @@ import { Models } from './readers/SettingsDBReader';
 
 const KEYS_EXPOSED_TO_FRONT_END = [
   'vaccinations',
+  'templates',
+  'features'
 ];
 
 export class ReadSettings {

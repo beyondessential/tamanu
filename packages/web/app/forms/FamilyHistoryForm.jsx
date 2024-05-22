@@ -61,7 +61,7 @@ export const FamilyHistoryForm = ({
           label={<TranslatedText stringId="general.notes.label" fallback="Notes" />}
           component={TextField}
           multiline
-          rows={2}
+          minRows={2}
         />
         <FormSubmitCancelRow
           onConfirm={submitForm}

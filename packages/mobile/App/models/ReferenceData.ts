@@ -1,9 +1,9 @@
-import { Column, Entity, Like } from 'typeorm/browser';
-import { ManyToOne } from 'typeorm';
+import { Column, Entity, ManyToOne, OneToMany, Like } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
-import { IReferenceData, ReferenceDataType } from '~/types';
+import { IReferenceData, ReferenceDataType, ReferenceDataRelationType } from '~/types';
 import { VisibilityStatus } from '../visibilityStatuses';
 import { SYNC_DIRECTIONS } from './types';
+import { ReferenceDataRelation as RefDataRelation } from './ReferenceDataRelation';
 
 @Entity('reference_data')
 export class ReferenceData extends BaseModel implements IReferenceData {
@@ -21,6 +21,17 @@ export class ReferenceData extends BaseModel implements IReferenceData {
   @Column({ default: VisibilityStatus.Current })
   visibilityStatus: string;
 
+  @OneToMany(
+    () => RefDataRelation,
+    entity => entity.referenceDataParent,
+  )
+  public children: RefDataRelation[];
+  @OneToMany(
+    () => RefDataRelation,
+    entity => entity.referenceData,
+  )
+  public parents: RefDataRelation[];
+
   static async getAnyOfType(referenceDataType: ReferenceDataType): Promise<ReferenceData | null> {
     const repo = this.getRepository();
 
@@ -30,6 +41,66 @@ export class ReferenceData extends BaseModel implements IReferenceData {
     });
   }
 
+  // ----------------------------------
+  // Reference data hierarchy utilities
+  // ----------------------------------
+  static async getParentRecursive(id: string, ancestors: ReferenceData[], relationType: ReferenceDataRelationType) {
+    const parent = await ReferenceData.getNode({ id }, relationType);
+    const parentId = parent?.getParentId();
+    if (!parentId) {
+      return [parent, ...ancestors];
+    }
+    return ReferenceData.getParentRecursive(parentId, [parent, ...ancestors], relationType);
+  }
+
+  getParentId() {
+    return this.parents[0]?.referenceDataParentId;
+  }
+
+  static async getNode(
+    where: {
+      [key: string]: any;
+    },
+    relationType = ReferenceDataRelationType.AddressHierarchy,
+  ) {
+    const repo = this.getRepository();
+
+    let recordWithParents = await repo.findOne({
+      where: qb => {
+        qb.leftJoinAndSelect('ReferenceData.parents', 'parents')
+          .where('parents_type = :relationType', {
+            relationType,
+          })
+          .andWhere({ visibilityStatus: VisibilityStatus.Current })
+          .andWhere(where);
+      },
+    });
+
+    if (!recordWithParents) {
+      // It's not possible to do right or outer joins in type orm so we have to do a second query
+      // the other option would be to write the query in raw sql but then it wouldn't be possible
+      // to use an object for the where parameter
+      recordWithParents = await repo.findOne({
+        where: qb => {
+          qb.leftJoinAndSelect('ReferenceData.parents', 'parents')
+            .where({ visibilityStatus: VisibilityStatus.Current })
+            .andWhere(where);
+        },
+      });
+    }
+
+    return recordWithParents;
+  }
+
+  async getAncestors(relationType = ReferenceDataRelationType.AddressHierarchy) {
+    const leafNode = await ReferenceData.getNode({ id: this.id }, relationType);
+    const parentId = leafNode.parents[0].referenceDataParentId;
+
+    if (!parentId) {
+      return [];
+    }
+    return ReferenceData.getParentRecursive(parentId, [], relationType);
+  }
   static async searchDataByType(
     referenceDataType: ReferenceDataType,
     searchTerm: string,
