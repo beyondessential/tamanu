@@ -113,7 +113,7 @@ jobs:
 
       - name: Check the images exist
         id: check-images-exist
-        if: (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')) || steps.config.outputs.images == 'true'
+        if: github.event_name == 'push' || steps.config.outputs.images == 'true'
         run: |
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
           for repo in central facility frontend meta; do
@@ -139,7 +139,7 @@ jobs:
       # - we want to bring deploys up, AND the images for this commit don't yet exist, or
       # - we want to build images only, AND the images for this commit don't yet exist, or
       # - we're doing a release, because images are both a product and how we make other artifacts.
-      build-images: ${{ ((github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')) || steps.config.outputs.images == 'true') && steps.check-images-exist.outputs.exist != 'yes' }}
+      build-images: ${{ (github.event_name == 'push' || steps.config.outputs.images == 'true') && steps.check-images-exist.outputs.exist != 'yes' }}
 
   images:
     needs: config
@@ -258,7 +258,7 @@ jobs:
             --target ghcr.io/beyondessential/tamanu-${{ matrix.repo }}:sha-${{ needs.config.outputs.sha }}
 
       - name: Combine images (release)
-        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+        if: github.event_name == 'push'
         run: |
           manifest-tool push from-args \
             --platforms linux/amd64,linux/arm64 \
@@ -316,13 +316,13 @@ jobs:
 
   package-frontend:
     needs: images
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    if: github.event_name == 'push'
     name: Package Frontend ${{ github.ref_name }}
     uses: ./.github/workflows/cd-package-frontend.yml
 
   package-servers:
     needs: images
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    if: github.event_name == 'push'
     name: Package Servers ${{ github.ref_name }}
     uses: ./.github/workflows/cd-package-servers.yml
 
@@ -330,7 +330,7 @@ jobs:
     needs:
       - config
       - multi-arch
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    if: github.event_name == 'push'
     name: Append image names to release notes
     runs-on: ubuntu-latest
     steps:
