@@ -133,7 +133,6 @@ export async function importProgramRegistry(context, workbook, programId) {
   });
 
   const programRegistryConditions = readProgramRegistryConditionData(workbook);
-
   log.debug('Importing Patient Registry Conditions');
   return importRows(context, {
     sheetName: 'Registry Conditions',

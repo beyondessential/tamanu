@@ -20,6 +20,7 @@ import { reportsRouter } from './reports/reportRoutes';
 import { templateRoutes } from './template';
 import { assetRoutes } from './asset';
 import { translationRouter } from './translation';
+import { exportProgram } from './programExporter/exportProgram';
 
 export const adminRoutes = express.Router();
 adminRoutes.use(ensurePermissionCheck);
@@ -77,6 +78,19 @@ adminRoutes.get(
     }
 
     const filename = await exporter(store, query.includedDataTypes);
+    res.download(filename);
+  }),
+);
+
+adminRoutes.get(
+  '/export/program',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('list', 'Program');
+
+    const { store } = req;
+    const programId = 'program-maternityregistry';
+
+    const filename = await exportProgram(store, programId);
     res.download(filename);
   }),
 );
