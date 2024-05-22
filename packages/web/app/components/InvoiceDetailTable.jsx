@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 
 import {
@@ -10,7 +10,7 @@ import {
 import { useApi } from '../api';
 import { useEncounter } from '../contexts/Encounter';
 import { Colors } from '../constants';
-import { calculateInvoiceLinesTotal, calculateInvoiceTotal, isInvoiceEditable } from '../utils';
+import { calculateInvoiceLinesDiscountableTotal, calculateInvoiceLinesNonDiscountableTotal, calculateInvoiceLinesTotal, calculateInvoiceTotal, isInvoiceEditable } from '../utils';
 
 import { DataFetchingTable } from './Table';
 import { DeleteButton } from './Button';
@@ -21,6 +21,7 @@ import { DropdownButton } from './DropdownButton';
 import { DateDisplay } from './DateDisplay';
 import { TranslatedEnum, TranslatedText } from './Translation';
 import { getInvoiceLineCode } from '../utils/invoiceDetails';
+import { InvoiceSummaryPanel } from './InvoiceSummaryPanel';
 
 const InvoiceLineDetail = styled.p`
   font-size: 15px;
@@ -139,7 +140,7 @@ const InvoicePriceChangeActionDropdown = React.memo(({ row }) => {
         open={deleteInvoicePriceChangeModalOpen}
         onCancel={() => setDeletePercentageChangeModalOpen(false)}
         onConfirm={async () => {
-          await api.delete(`invoices/${row.invoiceId}/invoicePriceChangeItems/${row.id}`);
+          await api.delete(`invoices/${row.invoiceId}/priceChangeItems/${row.id}`);
           setDeletePercentageChangeModalOpen(false);
           await loadEncounter(encounter.id);
         }}
@@ -340,6 +341,14 @@ export const InvoiceDetailTable = React.memo(({ invoice }) => {
     setInvoiceLinesTotal(calculateInvoiceLinesTotal(invoiceLineItems));
   }, [invoiceLineItems]);
 
+  const invoiceDiscountableTotal = useMemo(() => {
+    return calculateInvoiceLinesDiscountableTotal(invoiceLineItems);
+  }, [invoice.total, invoiceLineItems]);
+
+  const invoiceNonDiscountableTotal = useMemo(() => {
+    return calculateInvoiceLinesNonDiscountableTotal(invoiceLineItems);
+  }, [invoice.total, invoiceLineItems]);
+
   return (
     <>
       <DataFetchingTable
@@ -398,6 +407,11 @@ export const InvoiceDetailTable = React.memo(({ invoice }) => {
         <TranslatedText stringId="invoice.table.footer.total.label" fallback="Total" />: $
         {invoiceTotal}
       </InvoiceTotal>
+      <InvoiceSummaryPanel
+        invoiceId={invoice.id}
+        invoiceDiscountableTotal={invoiceDiscountableTotal}
+        invoiceNonDiscountableTotal={invoiceNonDiscountableTotal}
+      />
     </>
   );
 });

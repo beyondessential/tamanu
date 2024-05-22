@@ -16,6 +16,8 @@ import { Button } from '../Button';
 import { ItemHeader, ItemRow } from './ItemRow';
 import { useEncounter } from '../../contexts/Encounter';
 import { getInvoiceLineCode } from '../../utils/invoiceDetails';
+import { InvoiceSummaryPanel } from '../InvoiceSummaryPanel';
+import { calculateInvoiceLinesDiscountableTotal, calculateInvoiceLinesNonDiscountableTotal } from '../../utils';
 
 const LinkText = styled.div`
   font-weight: 500;
@@ -44,8 +46,8 @@ const StyledDataFetchingTable = styled(DataFetchingTable)`
 `;
 
 const PotentialLineItemsPane = styled.div`
+  width: 70%;
   display: grid;
-  max-width: 60%;
   margin-left: -4px;
   overflow: auto;
   padding-left: 15px;
@@ -93,6 +95,12 @@ const StyledDivider = styled(Divider)`
   margin: 26px -40px 32px -40px;
 `;
 
+const ModalSection = styled.div`
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+`;
+
 export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounterId }) => {
   const [rowList, setRowList] = useState([{ id: uuidv4() }]);
   const [potentialLineItems, setPotentialLineItems] = useState([]);
@@ -112,6 +120,7 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
         invoiceLineTypeId: item.invoiceLineTypeId,
         orderedById: item.orderedById,
         code: getInvoiceLineCode(item),
+        percentageChange: item.percentageChange
       })));
     })();
   }, [api]);
@@ -269,6 +278,14 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
     }), {})
   );
 
+  const invoiceDiscountableTotal = useMemo(() => {
+    return calculateInvoiceLinesDiscountableTotal(rowList);
+  }, [rowList]);
+
+  const invoiceNonDiscountableTotal = useMemo(() => {
+    return calculateInvoiceLinesNonDiscountableTotal(rowList);
+  }, [rowList]);
+
   return (
     <Modal
       width="lg"
@@ -306,34 +323,35 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
             <LinkText onClick={() => handleAddRow()}>
               {"+ "}<TranslatedText stringId="invoice.modal.editInvoice.action.newRow" fallback="New row" />
             </LinkText>
-            <PotentialLineItemsPane>
-              <PaneTitle>
-                <TranslatedText
-                  stringId="invoice.modal.potentialItems.title"
-                  fallback="Patient items to be added"
-                />
-                <BulkAddButton onClick={() => handleAddRow(potentialLineItems)}>
-                  <TranslatedText stringId="general.action.addAll" fallback="Add all" />
-                </BulkAddButton>
-              </PaneTitle>
-              <StyledDataFetchingTable
-                endpoint={`invoices/${invoiceId}/potentialLineItems`}
-                columns={COLUMNS}
-                noDataMessage={
+            <ModalSection>
+              <PotentialLineItemsPane>
+                <PaneTitle>
                   <TranslatedText
-                    stringId="invoice.modal.potentialInvoices.table.noData"
-                    fallback="No potential invoice line items found"
+                    stringId="invoice.modal.potentialItems.title"
+                    fallback="Patient items to be added"
                   />
-                }
-                allowExport={false}
-                rowStyle={rowStyle}
-                onDataFetched={onDataFetched}
-                headerColor={Colors.white}
-                page={null}
-                elevated={false}
-                isEmpty={isEmpty}
-                containerStyle='border: 0px solid white; overflow: visible;'
-                cellStyle='
+                  <BulkAddButton onClick={() => handleAddRow(potentialLineItems)}>
+                    <TranslatedText stringId="general.action.addAll" fallback="Add all" />
+                  </BulkAddButton>
+                </PaneTitle>
+                <StyledDataFetchingTable
+                  endpoint={`invoices/${invoiceId}/potentialLineItems`}
+                  columns={COLUMNS}
+                  noDataMessage={
+                    <TranslatedText
+                      stringId="invoice.modal.potentialInvoices.table.noData"
+                      fallback="No potential invoice line items found"
+                    />
+                  }
+                  allowExport={false}
+                  rowStyle={rowStyle}
+                  onDataFetched={onDataFetched}
+                  headerColor={Colors.white}
+                  page={null}
+                  elevated={false}
+                  isEmpty={isEmpty}
+                  containerStyle='border: 0px solid white; overflow: visible;'
+                  cellStyle='
                   &.MuiTableCell-body {
                     padding: 4px 30px 4px 0px;
                   }
@@ -344,7 +362,7 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
                     padding-right: 5px;
                   }
                 '
-                headStyle='
+                  headStyle='
                   .MuiTableCell-head {
                     padding: 8px 30px 8px 0px;
                     &:last-child {
@@ -352,13 +370,19 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
                     }
                   }
                 '
-                statusCellStyle='
+                  statusCellStyle='
                   &.MuiTableCell-body {
                     padding: 10px 0px; text-align: left;
                   }
                 '
+                />
+              </PotentialLineItemsPane>
+              <InvoiceSummaryPanel 
+                invoiceId={invoiceId}
+                invoiceDiscountableTotal={invoiceDiscountableTotal}
+                invoiceNonDiscountableTotal={invoiceNonDiscountableTotal}
               />
-            </PotentialLineItemsPane>
+            </ModalSection>
             <StyledDivider />
             <FormSubmitCancelRow
               confirmText={
