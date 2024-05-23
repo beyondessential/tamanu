@@ -34,7 +34,7 @@ export const defineWebsocketService = async injector => {
             return { rows: result[0] };
           },
           connect: async () => {
-            return connection
+            return connection;
           },
         },
         {
