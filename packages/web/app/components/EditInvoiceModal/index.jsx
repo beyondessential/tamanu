@@ -101,7 +101,7 @@ const ModalSection = styled.div`
   align-items: flex-start;
 `;
 
-export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounterId }) => {
+export const EditInvoiceModal = ({ open, onClose, invoiceId, invoiceStatus, displayId, encounterId }) => {
   const [rowList, setRowList] = useState([{ id: uuidv4() }]);
   const [potentialLineItems, setPotentialLineItems] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
@@ -379,6 +379,7 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
               </PotentialLineItemsPane>
               <InvoiceSummaryPanel 
                 invoiceId={invoiceId}
+                invoiceStatus={invoiceStatus}
                 invoiceDiscountableTotal={invoiceDiscountableTotal}
                 invoiceNonDiscountableTotal={
                   isNaN(invoiceNonDiscountableTotal) ? 0 : invoiceNonDiscountableTotal

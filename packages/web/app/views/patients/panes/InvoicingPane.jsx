@@ -123,6 +123,7 @@ export const InvoicingPane = React.memo(({ encounter }) => {
               invoiceId={invoice.id}
               displayId={invoice.displayId}
               encounterId={encounter.id}
+              invoiceStatus={invoice.status}
             />}
             <Button onClick={() => setInvoiceLineModalOpen(true)}>
               <TranslatedText stringId="invoice.action.addItem" fallback="Add item" />
