@@ -55,6 +55,7 @@ const DescriptionText = styled.span`
 
 export const InvoiceSummaryPanel = ({
   invoiceId,
+  isEditInvoice,
   invoiceDiscountableTotal,
   invoiceNonDiscountableTotal,
 }) => {
@@ -149,9 +150,9 @@ export const InvoiceSummaryPanel = ({
             <span>{discountInfo.description}</span>
           </ThemedTooltip>
         </DescriptionText>
-        <IconButton onClick={() => setIsOpenManualDiscountModal(true)}>
+        {isEditInvoice && <IconButton onClick={() => setIsOpenManualDiscountModal(true)}>
           <PencilIcon />
-        </IconButton>
+        </IconButton>}
         <InvoiceManualDiscountModal
           open={isOpenManualDiscountModal}
           onClose={() => setIsOpenManualDiscountModal(false)}
