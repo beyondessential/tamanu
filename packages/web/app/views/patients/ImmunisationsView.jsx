@@ -1,4 +1,9 @@
 import React, { useState } from 'react';
+import styled from 'styled-components';
+import { useDispatch } from 'react-redux';
+
+import { MATERIALIZED_VIEWS } from '@tamanu/constants';
+
 import {
   ContentPane,
   ImmunisationSearchBar,
@@ -17,11 +22,8 @@ import {
 import { usePatientNavigation } from '../../utils/usePatientNavigation.js';
 import { PATIENT_TABS } from '../../constants/patientPaths.js';
 import { reloadPatient } from '../../store/index.js';
-import { useDispatch } from 'react-redux';
 import { RefreshStatsDisplay } from '../../components/Table/RefreshStatsDisplay.jsx';
-import styled from 'styled-components';
 import { useMaterializedViewRefreshStatsQuery } from '../../api/queries/useMaterializedViewRefreshStatsQuery.js';
-import { MATERIALIZED_VIEWS } from '@tamanu/constants';
 
 const StyledSearchTableTitle = styled(SearchTableTitle)`
   display: flex;

@@ -49,8 +49,7 @@ export const useMaterializedViewRefreshStatsQuery = viewName => {
 
   // Listen for refresh event from scheduled task via websocket
   useEffect(() => {
-    const handleDataUpdatedEvent = msg => {
-      if (msg !== viewName) return;
+    const handleDataUpdatedEvent = () => {
       handleFreshData();
     };
     if (!socket) return;
