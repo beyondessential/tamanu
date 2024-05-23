@@ -362,7 +362,7 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
                     padding-right: 5px;
                   }
                 '
-                  headStyle='
+                headStyle='
                   .MuiTableCell-head {
                     padding: 8px 30px 8px 0px;
                     &:last-child {
@@ -370,7 +370,7 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
                     }
                   }
                 '
-                  statusCellStyle='
+                statusCellStyle='
                   &.MuiTableCell-body {
                     padding: 10px 0px; text-align: left;
                   }
