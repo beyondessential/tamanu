@@ -125,51 +125,52 @@ export async function exportProgram(context, programId) {
     plain: true,
   });
 
+  let registrySheet = {
+    name: 'Registry',
+    data: [
+      ['registryName', programRegistry?.name],
+      ['registryCode', programRegistry?.code],
+      ['visibilityStatus', programRegistry?.visibilityStatus],
+      ['currentlyAtType', programRegistry?.currentlyAtType],
+      [],
+      ['code', 'name', 'color', 'visibilityStatus'],
+    ],
+  };
+
   if (programRegistry) {
     const programRegistryClinicalStatuses = await models.ProgramRegistryClinicalStatus.findAll({
       where: { programRegistryId: programRegistry.id },
     });
 
-    const registrySheet = {
-      name: 'Registry',
-      data: [
-        ['registryName', programRegistry?.name],
-        ['registryCode', programRegistry?.code],
-        ['visibilityStatus', programRegistry?.visibilityStatus],
-        ['currentlyAtType', programRegistry?.currentlyAtType],
-        [],
-        ['code', 'name', 'color', 'visibilityStatus'],
-        ...programRegistryClinicalStatuses.map(status => [
-          status.code,
-          status.name,
-          status.color,
-          status.visibilityStatus,
-        ]),
-      ],
-    };
-
-    sheets.push(registrySheet);
+    registrySheet.data.push(
+      ...programRegistryClinicalStatuses.map(status => [
+        status.code,
+        status.name,
+        status.color,
+        status.visibilityStatus,
+      ]),
+    );
   }
+  sheets.push(registrySheet);
 
+  let registryConditionsSheet = {
+    name: 'Registry Conditions',
+    data: [['code', 'name', 'visibilityStatus']],
+  };
   if (programRegistry) {
     const programRegistryConditions = await models.ProgramRegistryCondition.findAll({
       where: { programRegistryId: programRegistry.id },
     });
 
-    const registryConditionsSheet = {
-      name: 'Registry Conditions',
-      data: [
-        ['code', 'name', 'visibilityStatus'],
-        ...programRegistryConditions.map(condition => [
-          condition.code,
-          condition.name,
-          condition.visibilityStatus,
-        ]),
-      ],
-    };
-
-    sheets.push(registryConditionsSheet);
+    registryConditionsSheet.data.push(
+      ...programRegistryConditions.map(condition => [
+        condition.code,
+        condition.name,
+        condition.visibilityStatus,
+      ]),
+    );
   }
+  sheets.push(registryConditionsSheet);
 
   const exportedFileName = writeExcelFile(sheets);
 

@@ -21,6 +21,7 @@ import { templateRoutes } from './template';
 import { assetRoutes } from './asset';
 import { translationRouter } from './translation';
 import { exportProgram } from './programExporter/exportProgram';
+import { simpleGetList } from '@tamanu/shared/utils/crudHelpers';
 
 export const adminRoutes = express.Router();
 adminRoutes.use(ensurePermissionCheck);
@@ -83,17 +84,19 @@ adminRoutes.get(
 );
 
 adminRoutes.get(
-  '/export/program',
+  '/export/program/:programId',
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'Program');
 
     const { store } = req;
-    const programId = 'program-maternityregistry';
+    const { programId } = req.params;
 
     const filename = await exportProgram(store, programId);
     res.download(filename);
   }),
 );
+
+adminRoutes.get('/programs', simpleGetList('Program'));
 
 adminRoutes.get('/sync/lastCompleted', syncLastCompleted);
 
