@@ -14,7 +14,7 @@ import { WS_EVENTS } from '@tamanu/constants';
  * require expensive queries that prevent real time display of the data.
  * To get around this we use a materialized view that is periodically refreshed by a scheduled task
  */
-export const useMaterializedViewRefreshStatsQuery = viewName => {
+export const useMaterializedViewRefreshStatsQuery = tableName => {
   const api = useApi();
   const { socket } = useSocket();
   const { storedLanguage } = useTranslation();
@@ -22,8 +22,8 @@ export const useMaterializedViewRefreshStatsQuery = viewName => {
   const [lastUpdated, setLastUpdated] = useState();
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-  const queryResult = useQuery(['materialisedViewRefreshStats', viewName], () =>
-    api.get(`materializedView/refreshStats/${viewName}`, { language: storedLanguage }),
+  const queryResult = useQuery(['materialisedViewRefreshStats', tableName], () =>
+    api.get(`materializedView/refreshStats/${tableName}`, { language: storedLanguage }),
   );
   const { data: refreshStats } = queryResult;
 
@@ -32,8 +32,8 @@ export const useMaterializedViewRefreshStatsQuery = viewName => {
   const handleFreshData = useCallback(() => {
     setLastUpdated(null);
     setRefreshTrigger(count => count + 1);
-    queryClient.invalidateQueries(['materialisedViewRefreshStats', viewName]);
-  }, [queryClient, viewName]);
+    queryClient.invalidateQueries(['materialisedViewRefreshStats', tableName]);
+  }, [queryClient, tableName]);
 
   const handleRefreshLastUpdated = useCallback(() => {
     const { lastRefreshed } = refreshStats;
@@ -50,13 +50,13 @@ export const useMaterializedViewRefreshStatsQuery = viewName => {
   // Listen for refresh event from scheduled task
   useEffect(() => {
     const handleRefreshEvent = msg => {
-      if (msg !== viewName) return;
+      if (msg !== tableName) return;
       handleFreshData();
     };
     if (!socket) return;
     socket.on(WS_EVENTS.REFRESHED_MATERIALIZED_VIEW, handleRefreshEvent);
     return () => socket.off(WS_EVENTS.REFRESHED_MATERIALIZED_VIEW, handleRefreshEvent);
-  }, [socket, handleFreshData, viewName]);
+  }, [socket, handleFreshData, tableName]);
 
   return {
     ...queryResult,

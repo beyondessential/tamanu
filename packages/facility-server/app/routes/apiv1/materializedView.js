@@ -10,14 +10,14 @@ import { TranslatedCronParser } from '../../utils/TranslatedCronParser';
 export const materializedView = express.Router();
 
 materializedView.get(
-  '/refreshStats/:viewName',
+  '/refreshStats/:tableName',
   asyncHandler(async (req, res) => {
     req.flagPermissionChecked();
-    const { viewName } = req.params;
+    const { tableName } = req.params;
     const { models, query } = req;
     const { language } = query;
     const { TranslatedString } = models;
-    const taskConfig = config.schedules.refreshMaterializedView[viewName];
+    const taskConfig = config.schedules.refreshMaterializedView[tableName];
     if (!taskConfig) {
       throw new NotFoundError();
     }
@@ -26,7 +26,7 @@ materializedView.get(
     cronstrue.locales.custom = new TranslatedCronParser(translationFunc);
     return res.send({
       lastRefreshed: await req.models.LocalSystemFact.get(
-        `materializedViewLastRefreshedAt:${viewName}`,
+        `materializedViewLastRefreshedAt:${tableName}`,
       ),
       schedule: cronstrue.toString(schedule, {
         locale: 'custom',
