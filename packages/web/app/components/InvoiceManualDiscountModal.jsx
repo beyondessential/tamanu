@@ -38,7 +38,11 @@ export const InvoiceManualDiscountModal = React.memo(
           orderedById: currentUser.id,
           date: toDateString(new Date()),
         };
-        await api.put(`invoices/${invoiceId}/priceChangeItems/${priceChangeId}`, payload);
+        if (priceChangeId) {
+          await api.put(`invoices/${invoiceId}/priceChangeItems/${priceChangeId}`, payload);
+        } else {
+          await api.post(`invoices/${invoiceId}/priceChangeItems/`, payload);
+        }
         onUpdateDiscountInfo(payload);
         onClose();
       },
