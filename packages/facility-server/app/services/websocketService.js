@@ -1,10 +1,10 @@
-import { WS_EVENTS } from '@tamanu/constants';
+import { MATERIALIZED_VIEW_CHANGE_EVENTS } from '@tamanu/constants';
 import { Server } from 'socket.io';
 
 const setupDatabaseNotificationForwarding = (pg, socket) => {
   pg.on('notification', msg => {
     if (msg.channel === 'refreshed_materialized_view') {
-      socket.emit(WS_EVENTS.REFRESHED_MATERIALIZED_VIEW, msg.payload);
+      socket.emit(MATERIALIZED_VIEW_CHANGE_EVENTS[msg.payload]);
     }
   });
   pg.query('LISTEN refreshed_materialized_view');

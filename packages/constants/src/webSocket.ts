@@ -6,5 +6,5 @@ export const WS_EVENTS = {
   PATIENT_CONTACT_INSERT: 'patient-contact:insert',
   TELEGRAM_UNSUBSCRIBE: 'telegram:unsubscribe',
   TELEGRAM_UNSUBSCRIBE_SUCCESS: 'telegram:unsubscribe:success',
-  REFRESHED_MATERIALIZED_VIEW: 'materialized-view:refreshed',
+  UPCOMING_VACCINATIONS_CHANGE: 'upcoming-vaccinations:change',
 };
