@@ -17,27 +17,19 @@ const ErrorText = styled(SmallText)`
   color: ${({ theme }) => theme.palette.error.main};
 `;
 
+const StatsError = () => (
+  <ErrorText color="error">
+    <TranslatedText stringId="table.refreshSchedule.error" fallback="Error loading stats" />
+  </ErrorText>
+);
+
 export const RefreshStatsDisplay = ({ stats, error }) => {
   if (!stats) return null;
   const { lastUpdated, schedule } = stats;
-  if (error) {
-    return (
-      <Box display="flex" flexDirection="column" alignItems="flex-end">
-        <ErrorText color="error">
-          <TranslatedText
-            stringId="table.refreshSchedule.error"
-            fallback="Error loading refresh stats"
-          />
-        </ErrorText>
-      </Box>
-    );
-  }
   return (
     <Box display="flex" flexDirection="column" alignItems="flex-end">
       {error ? (
-        <ErrorText color="error">
-          <TranslatedText stringId="table.refreshSchedule.error" fallback="Error loading stats" />
-        </ErrorText>
+        <StatsError />
       ) : (
         <>
           <SmallText color="textTertiary">
