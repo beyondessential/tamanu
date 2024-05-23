@@ -5,8 +5,6 @@ import { useSocket } from '../../utils/useSocket';
 import { useApi } from '../useApi';
 import { formatDistanceToNow, parseISO } from 'date-fns';
 
-import { WS_EVENTS } from '@tamanu/constants';
-
 /**
  * Gets the latest refresh stats (last refreshed time and parsed cron schedule)
  * and provides a trigger to refresh the associated table.
@@ -54,8 +52,8 @@ export const useMaterializedViewRefreshStatsQuery = viewName => {
       handleFreshData();
     };
     if (!socket) return;
-    socket.on(WS_EVENTS.REFRESHED_MATERIALIZED_VIEW, handleRefreshEvent);
-    return () => socket.off(WS_EVENTS.REFRESHED_MATERIALIZED_VIEW, handleRefreshEvent);
+    socket.on(`data-change:${viewName}`, handleRefreshEvent);
+    return () => socket.off(`data-change:${viewName}`, handleRefreshEvent);
   }, [socket, handleFreshData, viewName]);
 
   return {

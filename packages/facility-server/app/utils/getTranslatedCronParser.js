@@ -1,3 +1,4 @@
+import cronstrue from 'cronstrue';
 import { en as EnglishLocale } from 'cronstrue/locales/en';
 
 /**
@@ -5,11 +6,12 @@ import { en as EnglishLocale } from 'cronstrue/locales/en';
  * This only supports every n seconds, minutes, hours right now but see the base locale for more
  * If we expect the parsing of other cron expressions, we need to add more methods here
  */
-export class TranslatedCronParser extends EnglishLocale {
-  constructor(translationFunc) {
+class CustomTranslatedLocale extends EnglishLocale {
+  constructor(tt) {
     super();
-    this.tt = translationFunc;
+    this.tt = tt;
   }
+
   everyX0Seconds() {
     return this.tt('schedule.everyNSeconds', 'every %s seconds');
   }
@@ -20,3 +22,15 @@ export class TranslatedCronParser extends EnglishLocale {
     return this.tt('schedule.everyNHours', 'every %s hours');
   }
 }
+
+const registerCustomLocale = async (models, language) => {
+  const tt = await models.TranslatedString.getTranslationFunction(language);
+  cronstrue.locales.custom = new CustomTranslatedLocale(tt);
+};
+
+export const getTranslatedCronParser = async (models, language) => {
+  if (!cronstrue.locales.custom) {
+    await registerCustomLocale(models, language);
+  }
+  return schedule => cronstrue.toString(schedule, { locale: 'custom' });
+};
