@@ -409,6 +409,7 @@ export const InvoiceDetailTable = React.memo(({ invoice }) => {
       </InvoiceTotal>
       <InvoiceSummaryPanel
         invoiceId={invoice.id}
+        invoiceStatus={invoice.status}
         invoiceDiscountableTotal={invoiceDiscountableTotal}
         invoiceNonDiscountableTotal={invoiceNonDiscountableTotal}
       />

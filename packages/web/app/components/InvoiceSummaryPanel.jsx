@@ -1,17 +1,20 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Divider } from '@material-ui/core';
+import { INVOICE_STATUSES } from '@tamanu/constants';
 import { Colors } from '../constants';
 import { TranslatedText } from './Translation';
 import { useApi, useSuggester } from '../api';
 import { PencilIcon } from '../assets/icons/PencilIcon';
 import { InvoiceManualDiscountModal } from './InvoiceManualDiscountModal';
 import { ThemedTooltip } from './Tooltip';
+import { Button } from './Button';
 
 const CardItem = styled.div`
   display: flex;
   align-items: center;
   gap: 8px;
+  align-items: flex-start;
   justify-content: ${p => p.$justifyContent ? p.$justifyContent : 'space-between'};
   ${p => p.$marginBottom ? `margin-bottom: ${p.$marginBottom}px;` : ''}
   ${p => p.$fontWeight ? `font-weight: ${p.$fontWeight};` : ''}
@@ -55,6 +58,7 @@ const DescriptionText = styled.span`
 
 export const InvoiceSummaryPanel = ({
   invoiceId,
+  invoiceStatus,
   invoiceDiscountableTotal,
   invoiceNonDiscountableTotal,
 }) => {
@@ -136,12 +140,21 @@ export const InvoiceSummaryPanel = ({
           stringId='invoice.summary.discount.label'
           fallback='Discount'
         />
-        <DiscountedPrice>
-          <span>{(Math.abs(discountInfo.percentageChange) * 100).toFixed(2)}%</span>
-          <DiscountedText>
-            {(discountedPrice).toFixed(2)}
-          </DiscountedText>
-        </DiscountedPrice>
+        {invoiceStatus === INVOICE_STATUSES.IN_PROGRESS && !discountInfo.percentageChange &&
+          <Button onClick={() => setIsOpenManualDiscountModal(true)}>
+            <TranslatedText
+              stringId='invoice.summary.action.addDiscount'
+              fallback='Add discount'
+            />
+          </Button>}
+        {!!discountInfo.percentageChange &&
+          <DiscountedPrice>
+            <span>{(Math.abs(discountInfo.percentageChange) * 100).toFixed(2)}%</span>
+            <DiscountedText>
+              {(discountedPrice).toFixed(2)}
+            </DiscountedText>
+          </DiscountedPrice>
+        }
       </CardItem>
       <CardItem $marginBottom={-6} $color={Colors.midText} $justifyContent='flex-start'>
         <DescriptionText>
@@ -149,9 +162,10 @@ export const InvoiceSummaryPanel = ({
             <span>{discountInfo.description}</span>
           </ThemedTooltip>
         </DescriptionText>
-        <IconButton onClick={() => setIsOpenManualDiscountModal(true)}>
-          <PencilIcon />
-        </IconButton>
+        {invoiceStatus === INVOICE_STATUSES.IN_PROGRESS && !!discountInfo.percentageChange &&
+          <IconButton onClick={() => setIsOpenManualDiscountModal(true)}>
+            <PencilIcon />
+          </IconButton>}
         <InvoiceManualDiscountModal
           open={isOpenManualDiscountModal}
           onClose={() => setIsOpenManualDiscountModal(false)}
@@ -162,15 +176,16 @@ export const InvoiceSummaryPanel = ({
           percentageChange={discountInfo.percentageChange}
         />
       </CardItem>
-      <CardItem $marginBottom={-6} $color={Colors.midText}>
-        <TranslatedText
-          stringId='invoice.summary.appliedDiscountable'
-          fallback='Applied to discountable balance'
-        />
-        <DiscountedPrice>
-          {invoiceDiscountableTotal}
-        </DiscountedPrice>
-      </CardItem>
+      {!!discountInfo.percentageChange &&
+        <CardItem $marginBottom={-6} $color={Colors.midText}>
+          <TranslatedText
+            stringId='invoice.summary.appliedDiscountable'
+            fallback='Applied to discountable balance'
+          />
+          <DiscountedPrice>
+            {invoiceDiscountableTotal}
+          </DiscountedPrice>
+        </CardItem>}
       <Divider />
       <CardItem $fontWeight={500} $fontSize='18px'>
         <TranslatedText
