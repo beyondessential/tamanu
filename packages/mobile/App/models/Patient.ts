@@ -235,7 +235,7 @@ export class Patient extends BaseModel implements IPatient {
         ON encounter.id = response.encounterId
       WHERE encounter.patientId = $1
         AND answer.body IS NOT NULL
-        AND answer.deleted_at IS NULL
+        AND answer.deletedAt IS NULL
       ORDER BY answer.createdAt desc LIMIT $2
     `, [patientId, 500]);
 
