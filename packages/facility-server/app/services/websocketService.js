@@ -18,7 +18,7 @@ const setupDatabaseNotificationForwarding = (pg, socket) => {
  * @returns
  */
 export const defineWebsocketService = injector => {
-  const server = new Server(injector.httpServer, {
+  const socket = new Server(injector.httpServer, {
     connectionStateRecovery: { skipMiddlewares: true, maxDisconnectionDuration: 120000 },
     cors: {
       origin: '*',
@@ -26,9 +26,9 @@ export const defineWebsocketService = injector => {
     },
   });
 
-  const getServer = () => server;
+  const getServer = () => socket;
 
-  setupDatabaseNotificationForwarding(injector.pg, server);
+  setupDatabaseNotificationForwarding(injector.pg, socket);
 
   /**
    *
@@ -36,7 +36,7 @@ export const defineWebsocketService = injector => {
    * @param  {...unknown} args
    * @returns
    */
-  const emit = (eventName, ...args) => server.emit(eventName, ...args);
+  const emit = (eventName, ...args) => socket.emit(eventName, ...args);
   return {
     getServer,
     emit,
