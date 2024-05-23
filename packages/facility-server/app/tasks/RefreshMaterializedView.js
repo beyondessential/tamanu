@@ -1,10 +1,10 @@
 import config from 'config';
+import { pascal, snake } from 'case';
 
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { MATERIALIZED_TABLES } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
-import { pascal, snake } from 'case';
 
 const RefreshMaterializedViewTask = tableName =>
   class RefreshMaterializedView extends ScheduledTask {
