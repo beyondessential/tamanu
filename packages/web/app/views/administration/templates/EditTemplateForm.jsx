@@ -38,9 +38,9 @@ const EditedActions = ({ onClose, onDelete, onSave }) => (
   </ModalGenericButtonRow>
 );
 
-export const EditPatientLetterTemplateForm = memo(
-  ({ onSubmit, editedObject, onDelete, onClose }) => {
-    const renderForm = ({ submitForm, dirty }) => (
+export const EditTemplateForm = memo(
+  ({ onSubmit, editedObject, onDelete, onClose, allowInputTitleType }) => {
+    const renderForm = ({ submitForm, dirty, values }) => (
       <>
         <FormGrid columns={2}>
           <Field
@@ -54,7 +54,12 @@ export const EditPatientLetterTemplateForm = memo(
             component={TextField}
             required
           />
-          <Field name="title" label="Title" component={TextField} />
+          <Field
+            name="title"
+            label="Title"
+            component={TextField}
+            disabled={!allowInputTitleType.includes(values.type)}
+          />
         </FormGrid>
         <SmallGridSpacer />
         <FormGrid columns={1} nested style={{ marginBottom: '42px' }}>
