@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import styled from 'styled-components';
 import { Grid } from '@material-ui/core';
 import { TranslatedText } from '../Translation';
@@ -9,6 +9,7 @@ import { KebabMenu } from './KebabMenu';
 
 const PriceText = styled.span`
   margin-right: 16px;
+  text-decoration: ${props => props.$isCrossedOut ? 'line-through' : 'none'};
 `;
 
 const StyledItemRow = styled(Grid)`
@@ -100,6 +101,15 @@ export const ItemRow = ({
     updateRowData(rowData.id, { orderedBy: name });
   };
 
+  const finalPrice = useMemo(() => {
+    const priceFloat = parseFloat(rowData.price);
+    const percentageChangeFloat = parseFloat(rowData.percentageChange);
+
+    return isNaN(percentageChangeFloat)
+      ? ''
+      : priceFloat + (priceFloat * percentageChangeFloat);
+  }, [rowData.price, rowData.percentageChange]);
+
   return (
     <StyledItemRow
       container
@@ -126,7 +136,7 @@ export const ItemRow = ({
           onFetchCurrentOption={data => onUpdateInvoiceLineTypeId(data)}
           size="small"
           value={rowData.invoiceLineTypeId}
-          onChange={event => updateRowData(rowData.id, { 
+          onChange={event => updateRowData(rowData.id, {
             invoiceLineTypeId: event.target.value,
             code: "",
             price: "",
@@ -147,7 +157,7 @@ export const ItemRow = ({
           onFetchCurrentOption={data => onUpdateOrderedById(data)}
           size="small"
           value={rowData.orderedById}
-          onChange={event => updateRowData(rowData.id, { 
+          onChange={event => updateRowData(rowData.id, {
             orderedById: event.target.value,
             orderedBy: ""
           })}
@@ -155,10 +165,11 @@ export const ItemRow = ({
       </Grid>
       <Grid item xs={2}>
         <PriceCell>
-          <PriceText>
+          <PriceText $isCrossedOut={!!rowData.percentageChange}>
             {rowData.price}
           </PriceText>
-          <KebabMenu 
+          <span>{finalPrice}</span>
+          <KebabMenu
             isDeleteDisabled={isDeleteDisabled}
             onDelete={onDelete}
             rowData={rowData}

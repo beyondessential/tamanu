@@ -118,6 +118,7 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
         invoiceLineTypeId: item.invoiceLineTypeId,
         orderedById: item.orderedById,
         code: getInvoiceLineCode(item),
+        percentageChange: item.percentageChange
       })));
     })();
   }, [api]);
