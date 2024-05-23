@@ -53,7 +53,7 @@ describe('RefreshMaterializedView', () => {
     expect(originalMaterialisedResult).toEqual([]);
     await task.run();
     const refreshedMaterializedResult = await context.sequelize.query(
-      'SELECT * FROM upcoming_vaccinations',
+      'SELECT * FROM materialized_upcoming_vaccinations',
       {
         type: QueryTypes.SELECT,
       },
