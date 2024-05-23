@@ -1,4 +1,6 @@
 import config from 'config';
+import { camelCase } from 'lodash';
+
 import { log } from '@tamanu/shared/services/logging';
 
 import { PatientEmailCommunicationProcessor } from './PatientEmailCommunicationProcessor';
@@ -41,11 +43,9 @@ export async function startScheduledTasks(context) {
   if (config.schedules.automaticLabTestResultPublisher.enabled) {
     taskClasses.push(AutomaticLabTestResultPublisher);
   }
-
   if (config.schedules.covidClearanceCertificatePublisher.enabled) {
     taskClasses.push(CovidClearanceCertificatePublisher);
   }
-
   if (config.schedules.staleSyncSessionCleaner.enabled) {
     taskClasses.push(StaleSyncSessionCleaner);
   }
@@ -54,11 +54,9 @@ export async function startScheduledTasks(context) {
   if (config.integrations.fijiVrs.enabled) {
     taskClasses.push(VRSActionRetrier);
   }
-
   if (config.integrations.signer.enabled) {
     taskClasses.push(SignerWorkingPeriodChecker, SignerRenewalChecker, SignerRenewalSender);
   }
-
   if (config.schedules.plannedMoveTimeout.enabled) {
     taskClasses.push(PlannedMoveTimeout);
   }
@@ -75,13 +73,15 @@ export async function startScheduledTasks(context) {
       }
     }),
     ...reportSchedulers,
-  ].filter(task => {
-    if (!task) return false;
-    const isTaskEnabled = config.schedules[task.name]?.enabled !== false;
-    if (!isTaskEnabled) {
-      log.info(`Skipping initialisation of task ${task.name} as it is disabled in config`);
+  ].filter(Task => {
+    if (!Task) return false;
+    // check for explicit "false" value only
+    // if not specified, default to enabled
+    const isTaskDisabled = config.schedules[camelCase(Task.name)]?.enabled === false;
+    if (isTaskDisabled) {
+      log.info(`Skipping initialisation of task ${Task.name} as it is disabled in config`);
     }
-    return isTaskEnabled;
+    return !isTaskDisabled;
   });
   tasks.forEach(t => t.beginPolling());
   return () => tasks.forEach(t => t.cancelPolling());

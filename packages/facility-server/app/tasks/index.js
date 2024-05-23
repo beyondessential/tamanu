@@ -1,9 +1,11 @@
 import config from 'config';
+import { camelCase } from 'lodash';
+
+import { log } from '@tamanu/shared/services/logging';
+
 // import { SenaitePoller } from './SenaitePoller';
 import { MedicationDiscontinuer } from './MedicationDiscontinuer';
 import { SyncTask } from './SyncTask';
-import { log } from '@tamanu/shared/services/logging';
-import { camelCase } from 'lodash';
 
 const TASKS = [SyncTask, MedicationDiscontinuer];
 
