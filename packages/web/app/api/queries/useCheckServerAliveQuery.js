@@ -12,5 +12,5 @@ export const useCheckServerAliveQuery = () => {
       return false;
     }
     return api.checkServerAlive();
-  });
+  }, { cacheTime: 0 });
 };
